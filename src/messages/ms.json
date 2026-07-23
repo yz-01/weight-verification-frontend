@@ -38,7 +38,10 @@
     "searchPlaceholder": "Cari",
     "noOptions": "Tiada pilihan",
     "saving": "Menyimpan",
-    "unknownError": "Ada masalah. Sila cuba lagi."
+    "unknownError": "Ada masalah. Sila cuba lagi.",
+    "copy": "Salin",
+    "copied": "Disalin",
+    "copyFirst": "Salin rahsia sebelum menutup"
   },
   "table": {
     "showing": "Memaparkan {from} hingga {to} daripada {total} rekod",
@@ -133,7 +136,9 @@
       "finance": "Kewangan",
       "customers": "Pelanggan",
       "system": "Sistem"
-    }
+    },
+    "sites": "Tapak",
+    "detectionSettings": "Tetapan pengesanan"
   },
   "dashboard": {
     "title": "Papan pemuka",
@@ -683,7 +688,8 @@
       "created": "Jambatan timbang dicipta",
       "updated": "Jambatan timbang dikemas kini",
       "removed": "Jambatan timbang dibuang"
-    }
+    },
+    "divisionHint": "Langkah terkecil yang dilaporkan alat. Jambatan yang membaca dalam langkah 20 kg tidak akan pernah stabil dalam toleransi 5 kg."
   },
   "gateways": {
     "title": "Gateway",
@@ -832,6 +838,10 @@
     },
     "toast": {
       "published": "Tetapan pengesanan diterbitkan"
-    }
+    },
+    "platformDefault": "Lalai platform",
+    "overridden": "Ditindih daripada lalai platform",
+    "noChanges": "Tiada perubahan untuk diterbitkan",
+    "readOnly": "Ambang ini ditetapkan oleh MSE Trace dan tidak boleh diubah daripada akaun pelanggan. Ia menentukan apa yang platform anggap sebagai penipuan, jadi sebuah syarikat tidak boleh melonggarkan ambangnya sendiri. Hubungi sokongan jika sesebuah jambatan timbang memerlukan tetapan berbeza."
   }
 }

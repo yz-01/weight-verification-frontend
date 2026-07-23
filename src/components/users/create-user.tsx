@@ -85,13 +85,7 @@ export function CreateUser({ user }: { user?: UserDetail }) {
         } as UserPayload);
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
-          const leftover = applyServerErrors(error.errors, (field, message) =>
-            form.setFieldMeta(field as never, (meta) => ({
-              ...meta,
-              errorMap: { ...meta.errorMap, onSubmit: message },
-              errors: [message],
-            })),
-          );
+          const leftover = applyServerErrors(error.errors, form as unknown as Parameters<typeof applyServerErrors>[1]);
           if (leftover.length > 0) setFormError(leftover[0]);
         }
       }

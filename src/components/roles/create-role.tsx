@@ -55,13 +55,7 @@ export function CreateRole({ role }: { role?: Role }) {
         await mutation.mutateAsync({ ...value, permissions });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
-          const leftover = applyServerErrors(error.errors, (field, message) =>
-            form.setFieldMeta(field as never, (meta) => ({
-              ...meta,
-              errorMap: { ...meta.errorMap, onSubmit: message },
-              errors: [message],
-            })),
-          );
+          const leftover = applyServerErrors(error.errors, form as unknown as Parameters<typeof applyServerErrors>[1]);
           // The backend rejects codes outside this account's audience. That is
           // a whole-form problem rather than one field's, so it surfaces here.
           if (leftover.length > 0) setFormError(leftover[0]);

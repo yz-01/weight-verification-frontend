@@ -38,7 +38,10 @@
     "searchPlaceholder": "搜索",
     "noOptions": "没有可选项",
     "saving": "保存中",
-    "unknownError": "出了点问题，请重试。"
+    "unknownError": "出了点问题，请重试。",
+    "copy": "复制",
+    "copied": "已复制",
+    "copyFirst": "关闭前请先复制密钥"
   },
   "table": {
     "showing": "显示第 {from} 至 {to} 条，共 {total} 条",
@@ -133,7 +136,9 @@
       "finance": "财务",
       "customers": "客户",
       "system": "系统"
-    }
+    },
+    "sites": "回收场",
+    "detectionSettings": "检测参数"
   },
   "dashboard": {
     "title": "仪表板",
@@ -683,7 +688,8 @@
       "created": "地磅已创建",
       "updated": "地磅已更新",
       "removed": "地磅已移除"
-    }
+    },
+    "divisionHint": "仪表能分辨的最小刻度。以 20 公斤为步进的地磅，永远不可能稳定在 5 公斤的误差带内。"
   },
   "gateways": {
     "title": "网关",
@@ -832,6 +838,10 @@
     },
     "toast": {
       "published": "检测参数已发布"
-    }
+    },
+    "platformDefault": "平台默认值",
+    "overridden": "已覆盖平台默认值",
+    "noChanges": "没有待发布的改动",
+    "readOnly": "这组阈值由 MSE Trace 设定，客户账号无法修改。它们决定平台把什么判为作弊，所以公司不能放宽针对自己的标准。某台地磅确实需要不同参数的话，请联系客服。"
   }
 }

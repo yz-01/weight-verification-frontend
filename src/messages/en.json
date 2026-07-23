@@ -38,7 +38,10 @@
     "searchPlaceholder": "Search",
     "noOptions": "Nothing to choose from",
     "saving": "Saving",
-    "unknownError": "Something went wrong. Try again."
+    "unknownError": "Something went wrong. Try again.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFirst": "Copy the secret before closing"
   },
   "table": {
     "showing": "Showing {from} to {to} of {total} entries",
@@ -133,7 +136,9 @@
       "finance": "Finance",
       "customers": "Customers",
       "system": "System"
-    }
+    },
+    "sites": "Yards",
+    "detectionSettings": "Detection settings"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -683,7 +688,8 @@
       "created": "Weighbridge created",
       "updated": "Weighbridge updated",
       "removed": "Weighbridge removed"
-    }
+    },
+    "divisionHint": "The smallest step the instrument reports. A bridge reading in 20 kg steps can never settle inside a 5 kg tolerance."
   },
   "gateways": {
     "title": "Gateways",
@@ -832,6 +838,10 @@
     },
     "toast": {
       "published": "Detection settings published"
-    }
+    },
+    "platformDefault": "Platform default",
+    "overridden": "Overridden from the platform default",
+    "noChanges": "No changes to publish",
+    "readOnly": "These thresholds are set by MSE Trace and cannot be changed from a customer account. They decide what the platform treats as tampering, so a company cannot widen its own. Contact support if a weighbridge needs different settings."
   }
 }

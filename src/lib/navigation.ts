@@ -24,9 +24,11 @@ import {
   Receipt,
   Scale,
   Settings,
+  SlidersHorizontal,
   Truck,
   Users,
   Wallet,
+  Warehouse,
 } from "lucide-react";
 
 import type { Audience } from "@/interfaces/auth";
@@ -116,11 +118,25 @@ export const NAVIGATION: NavGroup[] = [
         permission: "weighing.view",
       },
       {
+        key: "sites",
+        href: "/sites",
+        icon: Warehouse,
+        audiences: [RECYCLER, PLATFORM],
+        permission: "scale.view",
+      },
+      {
         key: "scales",
         href: "/scales",
         icon: Scale,
         audiences: [RECYCLER, PLATFORM],
         permission: "scale.view",
+      },
+      {
+        key: "detectionSettings",
+        href: "/detection-settings",
+        icon: SlidersHorizontal,
+        audiences: [RECYCLER, PLATFORM],
+        permission: "weighing.rule_view",
       },
     ],
   },

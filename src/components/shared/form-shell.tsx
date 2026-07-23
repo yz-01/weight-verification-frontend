@@ -213,25 +213,63 @@ export function minLength(min: number, message: string) {
 }
 
 /**
+ * A form whose fields this helper can write errors onto.
+ *
+ * Narrowed to the two methods used, so the helper does not have to name
+ * TanStack Form's generic type at every call site.
+ */
+interface ErrorTargetForm {
+  getFieldMeta: (field: string) => unknown;
+  setFieldMeta: (
+    field: string,
+    updater: (meta: Record<string, unknown>) => Record<string, unknown>,
+  ) => void;
+}
+
+/**
  * Turn a rejected API call into per-field messages the form can display.
  *
- * The backend answers a validation failure with `{field: [messages]}`, and the
- * fields it names are the ones only the server could have checked: a duplicate
- * email, a role from another company. Feeding them back into the form puts the
- * message beside the input rather than in a toast the user has to remember.
+ * The fields the backend names are the ones only the server could have
+ * checked: a duplicate email, a role from another company. Putting them back
+ * on the input beats a toast the user has to remember while they hunt for
+ * which field it meant.
+ *
+ * Fields the form does not have are returned rather than written. The backend
+ * can name something that has no input — `company` on a screen that infers it,
+ * for instance — and `setFieldMeta` on an unknown field hands the updater
+ * `undefined`, which throws. That turned every unexpected server error into a
+ * crash instead of a message.
+ *
+ * Returns the messages that had nowhere to go, for the caller to show at form
+ * level.
  */
 export function applyServerErrors(
   errors: Record<string, string>,
-  setFieldError: (field: string, message: string) => void,
+  form: ErrorTargetForm,
 ): string[] {
-  const unmatched: string[] = [];
+  const unplaced: string[] = [];
+
   for (const [field, message] of Object.entries(errors)) {
     if (!message) continue;
-    if (field === "non_field_errors" || field === "detail") {
-      unmatched.push(message);
-    } else {
-      setFieldError(field, message);
+
+    if (
+      field === "non_field_errors" ||
+      field === "detail" ||
+      form.getFieldMeta(field) === undefined
+    ) {
+      unplaced.push(message);
+      continue;
     }
+
+    form.setFieldMeta(field, (meta) => ({
+      ...meta,
+      errorMap: {
+        ...((meta.errorMap as Record<string, unknown>) ?? {}),
+        onSubmit: message,
+      },
+      errors: [message],
+    }));
   }
-  return unmatched;
+
+  return unplaced;
 }

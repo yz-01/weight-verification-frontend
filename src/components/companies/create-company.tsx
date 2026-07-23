@@ -82,13 +82,7 @@ export function CreateCompany({ company }: { company?: CompanyDetail }) {
           // Put the server's field messages beside the inputs they belong to.
           // A duplicate registration number is only detectable server-side, and
           // a toast leaves the user hunting for which field it meant.
-          const leftover = applyServerErrors(error.errors, (field, message) =>
-            form.setFieldMeta(field as never, (meta) => ({
-              ...meta,
-              errorMap: { ...meta.errorMap, onSubmit: message },
-              errors: [message],
-            })),
-          );
+          const leftover = applyServerErrors(error.errors, form as unknown as Parameters<typeof applyServerErrors>[1]);
           if (leftover.length > 0) setFormError(leftover[0]);
         }
       }
