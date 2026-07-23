@@ -230,7 +230,11 @@
       "removed": "Syarikat dibuang",
       "statusUpdated": "Status syarikat dikemas kini"
     },
-    "typeLocked": "Jenis syarikat tidak boleh diubah selepas ia dicipta."
+    "typeLocked": "Jenis syarikat tidak boleh diubah selepas ia dicipta.",
+    "taxIdHint": "Diperlukan sebelum e-invois boleh dihidupkan untuk syarikat ini.",
+    "languageHint": "Pengguna baharu syarikat ini bermula di sini. Setiap orang boleh mengubahnya.",
+    "suspendedReason": "Sebab penggantungan",
+    "suspendedAt": "Digantung pada"
   },
   "users": {
     "title": "Pengguna",
@@ -288,7 +292,10 @@
       "removed": "Pengguna dibuang",
       "statusUpdated": "Status pengguna dikemas kini"
     },
-    "cannotEditSelf": "Anda tidak boleh menukar status akaun sendiri di sini. Gunakan profil anda."
+    "cannotEditSelf": "Anda tidak boleh menukar status akaun sendiri di sini. Gunakan profil anda.",
+    "reinstate": {
+      "description": "Mereka boleh log masuk semula dengan serta-merta."
+    }
   },
   "roles": {
     "title": "Peranan",
@@ -337,6 +344,19 @@
       "driver": "Pemandu",
       "finance": "Kewangan",
       "viewer": "Pemerhati"
+    },
+    "systemDescription": {
+      "platform_admin": "Akses penuh kepada setiap fungsi platform.",
+      "platform_support": "Mengendalikan tiket dan pengumuman, membaca data pelanggan.",
+      "platform_finance": "Mengurus pelan, komisen dan kutipan.",
+      "company_admin": "Akses penuh kepada data dan pengguna syarikat ini.",
+      "site_staff": "Merekod terimaan bahan dan penghantaran sisa di tapak.",
+      "project_manager": "Menjalankan projek dan meluluskan potongan berlebihan.",
+      "dispatcher": "Menerima pesanan, menetapkan kenderaan dan pemandu.",
+      "weighbridge_operator": "Mengendalikan jambatan timbang dan merekod potongan.",
+      "driver": "Melihat tugas yang ditetapkan dan menghantar foto tapak.",
+      "finance": "Menyelesaikan transaksi dan merekod bukti pembayaran.",
+      "viewer": "Akses baca sahaja kepada rekod syarikat ini."
     }
   },
   "permissions": {
@@ -474,7 +494,8 @@
       "objectRepr": "Rekod",
       "reason": "Sebab",
       "ipAddress": "Alamat IP",
-      "changes": "Perubahan"
+      "changes": "Perubahan",
+      "context": "Butiran"
     },
     "action": {
       "CREATE": "Dicipta",
@@ -534,6 +555,39 @@
     "networkBody": "Semak sambungan anda dan cuba lagi.",
     "generic": "Ada masalah.",
     "genericBody": "Cuba lagi. Jika ia berterusan, hubungi sokongan.",
-    "backToDashboard": "Kembali ke papan pemuka"
+    "backToDashboard": "Kembali ke papan pemuka",
+    "api": {
+      "company_not_found": "Syarikat itu tidak dijumpai.",
+      "user_not_found": "Pengguna itu tidak dijumpai.",
+      "role_not_found": "Peranan itu tidak dijumpai.",
+      "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
+      "company_required": "Pilih syarikat dahulu.",
+      "object_reference_required": "Satu rekod mesti dinyatakan.",
+      "refresh_token_required": "Sesi anda tidak dapat diperbaharui. Sila log masuk semula.",
+      "validation_failed": "Semak ruangan yang ditanda dan cuba lagi.",
+      "invalid_credentials": "E-mel atau kata laluan salah.",
+      "user_suspended": "Akaun ini tidak aktif. Hubungi pentadbir anda.",
+      "company_suspended": "Akaun syarikat anda tidak aktif. Hubungi sokongan MSE Trace.",
+      "session_expired": "Sesi anda telah tamat. Sila log masuk semula.",
+      "account_inactive": "Akaun ini tidak lagi aktif.",
+      "incorrect_password": "Kata laluan semasa anda salah.",
+      "reset_link_invalid": "Pautan ini tidak sah atau telah tamat tempoh. Minta yang baharu.",
+      "company_has_active_users": "Syarikat ini masih ada orang yang boleh log masuk. Gantung sahaja, atau nyahaktifkan mereka dahulu.",
+      "role_is_system": "Peranan terbina dalam tidak boleh dibuang.",
+      "role_in_use": "Peranan ini masih diberikan kepada orang. Pindahkan mereka ke peranan lain dahulu.",
+      "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda."
+    },
+    "field": {
+      "required": "Ruangan ini wajib diisi",
+      "blank": "Ruangan ini wajib diisi",
+      "null": "Ruangan ini wajib diisi",
+      "invalid": "Nilai ini tidak sah",
+      "unique": "Nilai ini telah digunakan",
+      "max_length": "Ini terlalu panjang",
+      "min_length": "Ini terlalu pendek",
+      "invalid_choice": "Pilih salah satu pilihan yang ada",
+      "does_not_exist": "Rekod itu tidak dijumpai",
+      "incorrect_type": "Nilai ini tidak sah"
+    }
   }
 }

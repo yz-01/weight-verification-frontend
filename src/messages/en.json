@@ -230,7 +230,11 @@
       "removed": "Company removed",
       "statusUpdated": "Company status updated"
     },
-    "typeLocked": "A company's type cannot be changed after it is created."
+    "typeLocked": "A company's type cannot be changed after it is created.",
+    "taxIdHint": "Required before e-invoicing can be switched on for this company.",
+    "languageHint": "New users of this company start here. Each can change their own.",
+    "suspendedReason": "Suspension reason",
+    "suspendedAt": "Suspended on"
   },
   "users": {
     "title": "Users",
@@ -288,7 +292,10 @@
       "removed": "User removed",
       "statusUpdated": "User status updated"
     },
-    "cannotEditSelf": "You cannot change your own account status here. Use your profile instead."
+    "cannotEditSelf": "You cannot change your own account status here. Use your profile instead.",
+    "reinstate": {
+      "description": "They will be able to sign in again straight away."
+    }
   },
   "roles": {
     "title": "Roles",
@@ -337,6 +344,19 @@
       "driver": "Driver",
       "finance": "Finance",
       "viewer": "Viewer"
+    },
+    "systemDescription": {
+      "platform_admin": "Full access to every platform function.",
+      "platform_support": "Handles tickets and announcements, reads customer data.",
+      "platform_finance": "Manages plans, commission and collections.",
+      "company_admin": "Full access to this company's data and users.",
+      "site_staff": "Records material receipts and waste dispatches on site.",
+      "project_manager": "Runs projects and approves excess deductions.",
+      "dispatcher": "Accepts orders, assigns vehicles and drivers.",
+      "weighbridge_operator": "Runs the weighbridge and records deductions.",
+      "driver": "Sees assigned tasks and submits site photos.",
+      "finance": "Settles transactions and records payment proof.",
+      "viewer": "Read-only access to this company's records."
     }
   },
   "permissions": {
@@ -474,7 +494,8 @@
       "objectRepr": "Record",
       "reason": "Reason",
       "ipAddress": "IP address",
-      "changes": "Changes"
+      "changes": "Changes",
+      "context": "Details"
     },
     "action": {
       "CREATE": "Created",
@@ -534,6 +555,39 @@
     "networkBody": "Check your connection and try again.",
     "generic": "Something went wrong.",
     "genericBody": "Try again. If it keeps happening, contact support.",
-    "backToDashboard": "Back to dashboard"
+    "backToDashboard": "Back to dashboard",
+    "api": {
+      "company_not_found": "That company could not be found.",
+      "user_not_found": "That user could not be found.",
+      "role_not_found": "That role could not be found.",
+      "audit_entry_not_found": "That audit entry could not be found.",
+      "company_required": "Choose a company first.",
+      "object_reference_required": "A record must be specified.",
+      "refresh_token_required": "Your session could not be renewed. Sign in again.",
+      "validation_failed": "Check the highlighted fields and try again.",
+      "invalid_credentials": "Incorrect email or password.",
+      "user_suspended": "This account is not active. Contact your administrator.",
+      "company_suspended": "Your company account is not active. Contact MSE Trace support.",
+      "session_expired": "Your session expired. Sign in again.",
+      "account_inactive": "This account is no longer active.",
+      "incorrect_password": "Your current password is incorrect.",
+      "reset_link_invalid": "This reset link is invalid or has expired. Request a new one.",
+      "company_has_active_users": "This company still has people who can sign in. Suspend it instead, or deactivate them first.",
+      "role_is_system": "Built-in roles cannot be removed.",
+      "role_in_use": "This role is still assigned to people. Move them to another role first.",
+      "cannot_modify_self": "You cannot change your own account this way. Use your profile instead."
+    },
+    "field": {
+      "required": "This field is required",
+      "blank": "This field is required",
+      "null": "This field is required",
+      "invalid": "This value is not valid",
+      "unique": "This value is already taken",
+      "max_length": "This is too long",
+      "min_length": "This is too short",
+      "invalid_choice": "Choose one of the available options",
+      "does_not_exist": "That record could not be found",
+      "incorrect_type": "This value is not valid"
+    }
   }
 }

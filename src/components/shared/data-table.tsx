@@ -8,7 +8,15 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, Check, Search, SlidersHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  FilterX,
+  Search,
+  SlidersHorizontal,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
@@ -20,6 +28,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -278,6 +293,7 @@ export function DataTable<T>({
                       className="mt-4 rounded-full px-4"
                       onClick={onClearFilters}
                     >
+                      <FilterX className="h-3.5 w-3.5" />
                       {t("table.clearFilters")}
                     </Button>
                   )}
@@ -306,18 +322,25 @@ export function DataTable<T>({
         </p>
 
         <div className="flex items-center gap-2">
-          <select
-            aria-label={t("table.perPage")}
-            value={pageSize}
-            onChange={(event) => onPageSizeChange(Number(event.target.value))}
-            className="h-8 rounded-full border border-border bg-card px-3 text-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          <Select
+            value={String(pageSize)}
+            onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            {PAGE_SIZE_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger
+              size="sm"
+              aria-label={t("table.perPage")}
+              className="h-8 rounded-full border-border bg-card text-xs"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((option) => (
+                <SelectItem key={option} value={String(option)}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Button
             variant="outline"
@@ -326,6 +349,7 @@ export function DataTable<T>({
             onClick={() => onPageChange(page - 1)}
             className="h-8 rounded-full border-border bg-card px-3 text-xs"
           >
+            <ChevronLeft className="h-3.5 w-3.5" />
             {t("table.previous")}
           </Button>
 
@@ -364,6 +388,7 @@ export function DataTable<T>({
             className="h-8 rounded-full border-border bg-card px-3 text-xs"
           >
             {t("table.next")}
+            <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>

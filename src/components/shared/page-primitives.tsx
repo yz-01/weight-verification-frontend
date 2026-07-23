@@ -34,7 +34,8 @@ export function FieldWrapper({
 }: {
   label: string;
   required?: boolean;
-  optional?: boolean;
+  /** Pass the translated word so the marker is never hardcoded English. */
+  optional?: string;
   error?: string;
   hint?: string;
   children: React.ReactNode;
@@ -47,7 +48,7 @@ export function FieldWrapper({
         {required && <span className="ml-0.5 text-destructive">*</span>}
         {optional && (
           <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-            ({optional === true ? "optional" : optional})
+            ({optional})
           </span>
         )}
       </Label>

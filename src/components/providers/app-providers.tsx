@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { LocaleSync } from "@/components/providers/locale-sync";
 import { TranslationBridge } from "@/components/providers/translation-bridge";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -50,6 +51,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         disableTransitionOnChange
       >
         <AuthProvider>
+          <LocaleSync />
           <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
           <Toaster position="top-right" richColors closeButton />
         </AuthProvider>

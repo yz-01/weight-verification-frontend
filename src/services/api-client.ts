@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import {
   ApiError,
   type ApiEnvelope,
+  type FieldError,
   type ListQuery,
   type Paginated,
 } from "@/interfaces/api";
@@ -170,19 +171,65 @@ export async function request<T>(
   const envelope = await parseEnvelope<T>(response);
 
   if (!response.ok || !envelope.success) {
-    const message = envelope.success ? t("errors.generic") : envelope.message;
-    const errors = envelope.success ? {} : envelope.errors;
-    const failure = new ApiError(message, response.status, errors);
+    const code = envelope.success ? "" : (envelope.code ?? "");
+    const errors = envelope.success ? {} : translateFieldErrors(envelope.errors);
+    const message = resolveMessage(
+      code,
+      envelope.success ? "" : envelope.message,
+    );
+    const failure = new ApiError(message, response.status, errors, code);
 
     if (response.status === 401) {
       endSession();
     } else if (!options.silent) {
-      toast.error(message || t("errors.generic"));
+      toast.error(message);
     }
     throw failure;
   }
 
   return envelope.data;
+}
+
+/**
+ * Word a failure in the reader's language.
+ *
+ * The backend names the failure with a code; the catalogue words it. A code
+ * with no translation falls back to the server's English, which is wrong but
+ * readable, and better than showing a raw identifier. That gap is what the
+ * backend's error-code test exists to prevent.
+ */
+function resolveMessage(code: string, serverMessage: string): string {
+  if (code) {
+    const key = `errors.api.${code}`;
+    const translated = t(key);
+    if (translated !== key) return translated;
+  }
+  return serverMessage || t("errors.generic");
+}
+
+/**
+ * Word each field's failure, keeping only the first per field.
+ *
+ * A form shows one message under an input, so the rest would never be read.
+ * Accepts the older shape of plain strings too, in case an endpoint has not
+ * been moved onto `serialize_errors` yet.
+ */
+function translateFieldErrors(
+  errors: Record<string, FieldError[] | string[] | string>,
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const [field, value] of Object.entries(errors)) {
+    const first = Array.isArray(value) ? value[0] : value;
+    if (first === undefined) continue;
+    if (typeof first === "string") {
+      result[field] = first;
+    } else {
+      const key = `errors.field.${first.code}`;
+      const translated = t(key);
+      result[field] = translated === key ? first.message : translated;
+    }
+  }
+  return result;
 }
 
 /** Convenience wrappers. */

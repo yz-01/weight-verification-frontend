@@ -1,14 +1,14 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2, LogIn, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { z } from "zod";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { required, requiredEmail } from "@/components/shared/form-shell";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,7 +72,7 @@ export function Login() {
             >
               <form.Field
                 name="email"
-                validators={{ onSubmit: requiredEmail(t) }}
+                validators={{ onSubmit: emailValidator(t) }}
               >
                 {(field) => (
                   <div className="space-y-1.5">
@@ -162,8 +162,10 @@ export function Login() {
                     disabled={isSubmitting}
                     className="w-full rounded-full shadow-sm"
                   >
-                    {isSubmitting && (
+                    {isSubmitting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <LogIn className="h-4 w-4" />
                     )}
                     {t("auth.login.submit")}
                   </Button>
@@ -203,21 +205,6 @@ function messageFor(error: unknown, t: Translate): string {
   return error.message || t("common.unknownError");
 }
 
-/** Zod wrapped in a plain function, as the form layer expects. */
-function required(message: string) {
-  return ({ value }: { value: unknown }) => {
-    const result = z.string().min(1, message).safeParse(value);
-    return result.success ? undefined : result.error.issues[0].message;
-  };
-}
-
-function requiredEmail(t: Translate) {
-  return ({ value }: { value: unknown }) => {
-    const result = z
-      .string()
-      .min(1, t("validation.required"))
-      .email(t("validation.email"))
-      .safeParse(value);
-    return result.success ? undefined : result.error.issues[0].message;
-  };
+function emailValidator(t: Translate) {
+  return requiredEmail(t("validation.required"), t("validation.email"));
 }

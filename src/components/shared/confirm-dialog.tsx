@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2, X, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
+  confirmIcon: ConfirmIcon = Trash2,
   variant = "destructive",
   isPending = false,
   reason,
@@ -44,6 +45,8 @@ export function ConfirmDialog({
   title: string;
   description: string;
   confirmLabel: string;
+  /** Icon for the confirm button. Every button carries one. */
+  confirmIcon?: LucideIcon;
   variant?: "destructive" | "default";
   isPending?: boolean;
   /** Supply to collect a justification alongside the confirmation. */
@@ -97,6 +100,7 @@ export function ConfirmDialog({
             disabled={isPending}
             onClick={() => onOpenChange(false)}
           >
+            <X className="h-4 w-4" />
             {t("common.cancel")}
           </Button>
           <Button
@@ -106,7 +110,11 @@ export function ConfirmDialog({
             disabled={isPending || blocked}
             onClick={onConfirm}
           >
-            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ConfirmIcon className="h-4 w-4" />
+            )}
             {confirmLabel}
           </Button>
         </DialogFooter>
