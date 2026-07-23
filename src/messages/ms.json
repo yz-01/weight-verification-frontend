@@ -602,7 +602,19 @@
       "dispatch_not_cancellable": "Muatan ini telah dikutip dan tidak boleh dibatalkan.",
       "export_no_columns": "Pilih sekurang-kurangnya satu lajur untuk dieksport.",
       "export_too_large": "Pilihan ini terlalu besar untuk dieksport. Tapiskan dahulu dan cuba lagi.",
-      "export_unavailable": "Eksport PDF tidak tersedia buat masa ini. Cuba format hamparan."
+      "export_unavailable": "Eksport PDF tidak tersedia buat masa ini. Cuba format hamparan.",
+      "dispatch_not_collectable": "Muatan ini tidak sedang menunggu untuk dikutip.",
+      "dispatch_not_rejectable": "Muatan ini tidak boleh ditolak lagi.",
+      "dispatch_not_owner": "Hanya tapak yang mengeluarkan muatan ini boleh mengubahnya.",
+      "dispatch_not_recipient": "Hanya pengitar semula penerima muatan ini boleh berbuat demikian.",
+      "vehicle_not_found": "Kenderaan itu tidak dijumpai.",
+      "driver_not_found": "Pemandu itu tidak dijumpai.",
+      "task_not_found": "Perjalanan itu tidak dijumpai.",
+      "vehicle_has_tasks": "Kenderaan ini mempunyai rekod perjalanan. Nyahaktifkannya dan bukan membuangnya.",
+      "driver_has_tasks": "Pemandu ini mempunyai rekod perjalanan. Nyahaktifkan dan bukan membuangnya.",
+      "task_already_running": "Satu perjalanan sudah berjalan untuk muatan itu.",
+      "task_already_started": "Perjalanan ini telah bermula dan tidak boleh ditugaskan semula.",
+      "task_invalid_transition": "Perjalanan tidak boleh bergerak ke langkah itu dari keadaan sekarang."
     },
     "field": {
       "required": "Ruangan ini wajib diisi",

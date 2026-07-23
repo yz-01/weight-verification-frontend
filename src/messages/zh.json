@@ -602,7 +602,19 @@
       "dispatch_not_cancellable": "该车货物已被收运，无法取消。",
       "export_no_columns": "请至少选择一列再导出。",
       "export_too_large": "这次选择的数据量太大，无法导出。请先用筛选缩小范围。",
-      "export_unavailable": "PDF 导出暂时不可用，请改用表格格式。"
+      "export_unavailable": "PDF 导出暂时不可用，请改用表格格式。",
+      "dispatch_not_collectable": "这车货不在待收运状态。",
+      "dispatch_not_rejectable": "这车货已经不能拒收了。",
+      "dispatch_not_owner": "只有开出这车货的工地才能修改它。",
+      "dispatch_not_recipient": "只有收货的回收商才能做这个操作。",
+      "vehicle_not_found": "找不到该车辆。",
+      "driver_not_found": "找不到该司机。",
+      "task_not_found": "找不到该趟任务。",
+      "vehicle_has_tasks": "该车辆已有出车记录，请停用而不是删除。",
+      "driver_has_tasks": "该司机已有出车记录，请停用而不是删除。",
+      "task_already_running": "这车货已经有一趟任务在跑了。",
+      "task_already_started": "这趟任务已经开始，无法再改派。",
+      "task_invalid_transition": "从当前状态无法进到那一步。"
     },
     "field": {
       "required": "此项为必填",

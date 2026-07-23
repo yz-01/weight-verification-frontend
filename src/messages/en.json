@@ -602,7 +602,19 @@
       "dispatch_not_cancellable": "This load has already been collected and cannot be cancelled.",
       "export_no_columns": "Choose at least one column to export.",
       "export_too_large": "This selection is too large to export. Narrow it with a filter and try again.",
-      "export_unavailable": "PDF export is not available right now. Try the spreadsheet instead."
+      "export_unavailable": "PDF export is not available right now. Try the spreadsheet instead.",
+      "dispatch_not_collectable": "This load is not waiting to be collected.",
+      "dispatch_not_rejectable": "This load can no longer be refused.",
+      "dispatch_not_owner": "Only the site that raised this load can change it.",
+      "dispatch_not_recipient": "Only the recycler this load was sent to can do that.",
+      "vehicle_not_found": "That vehicle could not be found.",
+      "driver_not_found": "That driver could not be found.",
+      "task_not_found": "That trip could not be found.",
+      "vehicle_has_tasks": "This vehicle has trips recorded against it. Deactivate it instead of removing it.",
+      "driver_has_tasks": "This driver has trips recorded against them. Deactivate them instead of removing them.",
+      "task_already_running": "A trip is already running for that load.",
+      "task_already_started": "This trip has already started and can no longer be reassigned.",
+      "task_invalid_transition": "A trip cannot move to that step from where it is now."
     },
     "field": {
       "required": "This field is required",
