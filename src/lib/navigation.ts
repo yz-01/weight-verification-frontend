@@ -12,6 +12,9 @@ import type { LucideIcon } from "lucide-react";
 import {
   Building2,
   ClipboardList,
+  Inbox,
+  ScanLine,
+  Scale as ScaleIcon,
   FileClock,
   FileText,
   Gauge,
@@ -26,6 +29,7 @@ import {
   Settings,
   SlidersHorizontal,
   Truck,
+  UserRound,
   Users,
   Wallet,
   Warehouse,
@@ -99,6 +103,16 @@ export const NAVIGATION: NavGroup[] = [
         permission: "dispatch.view",
       },
       {
+        // The yard's inbox: loads on their way here. Kept apart from the
+        // dispatch list because that one also holds everything already
+        // weighed and settled, and this is the screen a gate leaves open.
+        key: "incoming",
+        href: "/incoming",
+        icon: Inbox,
+        audiences: [RECYCLER],
+        permission: "dispatch.view",
+      },
+      {
         key: "tasks",
         href: "/tasks",
         icon: ClipboardList,
@@ -108,13 +122,43 @@ export const NAVIGATION: NavGroup[] = [
     ],
   },
   {
+    key: "fleet",
+    items: [
+      {
+        key: "vehicles",
+        href: "/vehicles",
+        icon: Truck,
+        audiences: [RECYCLER],
+        permission: "fleet.view",
+      },
+      {
+        key: "drivers",
+        href: "/drivers",
+        icon: UserRound,
+        audiences: [RECYCLER],
+        permission: "fleet.view",
+      },
+    ],
+  },
+  {
     key: "weighing",
     items: [
+      {
+        // Only the operator sees this: it is the barrier, not a report.
+        key: "gate",
+        href: "/gate",
+        icon: ScanLine,
+        audiences: [RECYCLER],
+        permission: "weighing.operate",
+      },
       {
         key: "weighing",
         href: "/weighing",
         icon: Gauge,
         audiences: [RECYCLER, PLATFORM],
+        // Contractors see the weighing of their own loads — being able to
+        // check the curve is what makes a settlement verifiable rather than
+        // something to be taken on trust.
         permission: "weighing.view",
       },
       {
@@ -143,6 +187,13 @@ export const NAVIGATION: NavGroup[] = [
   {
     key: "finance",
     items: [
+      {
+        key: "deductions",
+        href: "/deductions",
+        icon: ScaleIcon,
+        audiences: [CONTRACTOR, RECYCLER],
+        permission: "deduction.view",
+      },
       {
         key: "settlements",
         href: "/settlements",

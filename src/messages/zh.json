@@ -135,10 +135,16 @@
       "weighing": "称重",
       "finance": "财务",
       "customers": "客户",
-      "system": "系统"
+      "system": "系统",
+      "fleet": "车队"
     },
     "sites": "回收场",
-    "detectionSettings": "检测参数"
+    "detectionSettings": "检测参数",
+    "incoming": "待收货",
+    "gate": "地磅门口",
+    "vehicles": "车辆",
+    "drivers": "司机",
+    "deductions": "扣杂"
   },
   "dashboard": {
     "title": "仪表板",
@@ -1201,5 +1207,350 @@
       "estimateNote": "这些是工地的预估值。最终重量在货物过磅后由回收商的地磅给出。"
     },
     "empty": "当前筛选范围内暂无数据。"
+  },
+  "incoming": {
+    "title": "待收货",
+    "subtitle": "正在送往你回收场的废料。",
+    "count": "{count, plural, =0 {暂无} other {# 车}}",
+    "field": {
+      "dispatchNo": "出场单号",
+      "contractor": "产废方",
+      "project": "工地",
+      "wasteType": "废料类型",
+      "estimatedWeight": "申报重量（公斤）",
+      "vehiclePlate": "车牌",
+      "driverName": "司机",
+      "releasedAt": "放行时间",
+      "state": "状态"
+    },
+    "declaredNote": "这是产废方的申报。最终重量由你的地磅决定，两个数字都会保留。",
+    "collect": {
+      "title": "确认收运这车货？",
+      "description": "记录货物已到你手上。产废方从此不能再取消，重量由地磅决定。",
+      "confirm": "收运",
+      "reference": "你自己的单号",
+      "referenceHint": "选填。如果你有自己的编号体系就填这里。"
+    },
+    "reject": {
+      "title": "拒收这车货？",
+      "description": "请说明原因。原因会回传给发货的工地，他们才知道这辆车怎么了。",
+      "confirm": "拒收"
+    },
+    "toast": {
+      "collected": "已收运",
+      "rejected": "已拒收"
+    }
+  },
+  "gate": {
+    "title": "地磅门口",
+    "subtitle": "车上磅之前，先扫司机的出场单。",
+    "whyFirst": "地磅是重量压上去就自动开始记录的，所以货单必须在车动之前就排好队。上磅之后没有任何办法再补挂。",
+    "selectScale": "地磅",
+    "noScales": "还没有设置地磅。",
+    "waiting": "当前等待",
+    "nothingQueued": "这台地磅上没有排队的货。",
+    "expiresAt": "有效至",
+    "expired": "这次扫码已过期。请在车上磅前重新扫一次。",
+    "field": {
+      "dispatchNo": "出场单号",
+      "direction": "本次过磅",
+      "vehiclePlate": "车头上的车牌",
+      "scannedBy": "扫码人",
+      "expiresIn": "有效时长（分钟）"
+    },
+    "direction": {
+      "GROSS": "重车（毛重）",
+      "TARE": "空车（皮重）"
+    },
+    "plateMismatch": "单据上的车牌是 {expected}，请核对车头。",
+    "scan": "排入这车货",
+    "clear": "清除",
+    "clearTitle": "清空这台地磅？",
+    "clearDescription": "下一辆开上来的车将不会挂任何货单。司机掉头走了、或者扫错单时用这个。",
+    "clearConfirm": "清除",
+    "toast": {
+      "scanned": "已排入地磅",
+      "cleared": "地磅已清空"
+    }
+  },
+  "vehicles": {
+    "title": "车辆",
+    "count": "{count, plural, =0 {暂无车辆} other {# 辆}}",
+    "new": "新增车辆",
+    "createTitle": "新增车辆",
+    "editTitle": "编辑车辆",
+    "section": {
+      "identity": "基本信息",
+      "limits": "限重与证件"
+    },
+    "field": {
+      "plateNo": "车牌",
+      "vehicleType": "车型",
+      "makeModel": "厂牌型号",
+      "tareWeight": "皮重（公斤）",
+      "maxLaden": "最大总重（公斤）",
+      "roadTaxExpires": "路税到期",
+      "permitExpires": "准证到期",
+      "notes": "备注",
+      "isActive": "启用",
+      "createdAt": "添加时间"
+    },
+    "type": {
+      "LORRY": "货车",
+      "TIPPER": "自卸车",
+      "ROLL_ON": "钩臂车",
+      "SKIP": "斗车",
+      "TRAILER": "拖头挂车",
+      "OTHER": "其他"
+    },
+    "noTare": "未量过空车",
+    "tare": {
+      "action": "录入皮重",
+      "title": "录入这辆车的空车重量",
+      "description": "在按预存皮重结算的回收场，这个数字会从这辆车以后每一车货里减掉。调低 500 公斤等于每车净重多算 500 公斤，所以这次改动会连同你填的原因一起写进审计日志。",
+      "confirm": "录入",
+      "weight": "空车重量（公斤）",
+      "measuredAt": "上次测量"
+    },
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "派车时将不再出现这辆车。已记录的出车保持不变。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "车辆已添加",
+      "updated": "车辆已更新",
+      "removed": "车辆已删除",
+      "tareSet": "皮重已录入"
+    }
+  },
+  "drivers": {
+    "title": "司机",
+    "count": "{count, plural, =0 {暂无司机} other {# 位}}",
+    "new": "新增司机",
+    "createTitle": "新增司机",
+    "editTitle": "编辑司机",
+    "section": {
+      "identity": "基本信息",
+      "licence": "驾照"
+    },
+    "field": {
+      "fullName": "姓名",
+      "phone": "电话",
+      "icNo": "身份证号",
+      "licenceNo": "驾照号",
+      "licenceExpires": "驾照到期",
+      "defaultVehicle": "常用车辆",
+      "isActive": "启用",
+      "createdAt": "添加时间"
+    },
+    "licenceExpired": "驾照已过期",
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "派车时将不再出现这位司机。已记录的出车保持不变。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "司机已添加",
+      "updated": "司机已更新",
+      "removed": "司机已删除"
+    }
+  },
+  "tasks": {
+    "title": "出车任务",
+    "count": "{count, plural, =0 {暂无任务} other {# 趟}}",
+    "new": "派车",
+    "createTitle": "派车",
+    "editTitle": "改派",
+    "viewTitle": "出车任务",
+    "section": {
+      "load": "货物",
+      "crew": "车辆与司机",
+      "progress": "进度",
+      "photos": "照片"
+    },
+    "field": {
+      "taskNo": "任务号",
+      "state": "状态",
+      "dispatch": "货物",
+      "site": "返回回收场",
+      "vehicle": "车辆",
+      "driver": "司机",
+      "scheduledFor": "计划时间",
+      "acceptedAt": "接单时间",
+      "arrivedAt": "到场时间",
+      "loadedAt": "装货时间",
+      "deliveredAt": "送达时间",
+      "arrivalLocation": "到场位置",
+      "notes": "备注",
+      "failureReason": "失败原因",
+      "contractor": "产废方",
+      "project": "工地",
+      "photoCount": "照片"
+    },
+    "state": {
+      "ASSIGNED": "已派单",
+      "ACCEPTED": "已接单",
+      "EN_ROUTE": "在路上",
+      "ARRIVED": "已到场",
+      "LOADED": "已装货",
+      "RETURNING": "返程中",
+      "DELIVERED": "已送达",
+      "CANCELLED": "已取消",
+      "FAILED": "未完成"
+    },
+    "advance": "推进到{state}",
+    "advanceTitle": "把这趟任务推进到{state}？",
+    "advanceDescription": "会连同时间一起记在这趟任务上。",
+    "loadedNote": "标记已装货同时会告诉产废方废料已经易手，从这一刻起他们不能再取消。",
+    "failNote": "请说明出了什么事。总要有人去跟进，他得知道要跟进什么。",
+    "noDispatch": "未挂货单",
+    "noPhotos": "司机还没有传照片。",
+    "locationNote": "这是司机设备上报的位置。浏览器定位可以伪造，所以这只是「上报了什么」，不是「车在哪里」。",
+    "reassignNote": "只能在司机接单前改派。接单之后，派工记录就是「谁真的去了」的凭据。",
+    "toast": {
+      "created": "已派车",
+      "updated": "任务已更新",
+      "advanced": "任务已更新"
+    }
+  },
+  "deductions": {
+    "title": "扣杂",
+    "count": "{count, plural, =0 {暂无扣杂} other {# 条}}",
+    "new": "记录扣杂",
+    "createTitle": "记录扣杂",
+    "awaitingMe": "等你回应",
+    "section": {
+      "load": "货物",
+      "claim": "问题描述",
+      "photos": "照片"
+    },
+    "field": {
+      "dispatchNo": "货物",
+      "site": "质检地点",
+      "kind": "扣杂类别",
+      "weightKg": "扣重（公斤）",
+      "reason": "问题描述",
+      "state": "状态",
+      "inspectedBy": "质检人",
+      "inspectedAt": "质检时间",
+      "threshold": "当时的阈值",
+      "respondedAt": "回应时间",
+      "responseNote": "回应",
+      "project": "工地",
+      "recycler": "回收商"
+    },
+    "kind": {
+      "MOISTURE": "水分",
+      "CONTAMINATION": "夹杂杂质",
+      "WRONG_MATERIAL": "与申报不符",
+      "OVERSIZE": "超尺寸或无法处理",
+      "OTHER": "其他"
+    },
+    "state": {
+      "AUTO_ACCEPTED": "自动通过",
+      "PENDING": "等产废方回应",
+      "ACCEPTED": "已同意",
+      "REJECTED": "已拒绝",
+      "RECHECK": "要求复检"
+    },
+    "thresholdNote": "超过 {threshold} 公斤要交给产废方确认，以下自动通过——二十吨货里一百公斤水分不值得开会，硬要开会的结果是所有人学会不看就点同意。",
+    "autoAcceptedNote": "这一条没有问过人：当时的阈值以下自动通过。",
+    "reasonHint": "写到半年后一个不在现场的人也读得懂。",
+    "photoNote": "等到有人来争的时候，料早就倒进堆里混掉了。质检当场拍的照片是唯一留得下来的证据。",
+    "noPhotos": "没有附加照片。",
+    "respond": {
+      "title": "回应这条扣杂",
+      "weight": "{dispatchNo} 扣 {weight} 公斤",
+      "accept": "同意",
+      "reject": "拒绝",
+      "recheck": "要求复检",
+      "note": "你的回应",
+      "noteRequired": "请说明原因，场地那边才知道下一步该做什么。",
+      "effect": "同意后，这车货的结算重量会减少 {weight} 公斤。"
+    },
+    "onlyProducer": "只有产废方才能回应扣杂。",
+    "toast": {
+      "created": "扣杂已记录",
+      "answered": "回应已记录"
+    }
+  },
+  "settlements": {
+    "title": "结算",
+    "count": "{count, plural, =0 {暂无结算单} other {# 张}}",
+    "viewTitle": "结算单",
+    "new": "开结算单",
+    "section": {
+      "load": "货物",
+      "weights": "重量",
+      "money": "金额",
+      "payments": "付款"
+    },
+    "field": {
+      "settlementNo": "结算单号",
+      "state": "状态",
+      "dispatchNo": "货物",
+      "contractor": "产废方",
+      "recycler": "回收商",
+      "project": "工地",
+      "sessionNo": "过磅记录",
+      "netWeight": "净重（公斤）",
+      "deductionWeight": "扣杂（公斤）",
+      "settledWeight": "结算重量（公斤）",
+      "unitPrice": "单价（每吨）",
+      "totalAmount": "金额",
+      "amountPaid": "已付",
+      "outstanding": "未付",
+      "issuedAt": "开单时间",
+      "lockedAt": "锁定时间",
+      "notes": "备注"
+    },
+    "state": {
+      "DRAFT": "草稿",
+      "ISSUED": "已开出",
+      "LOCKED": "已锁定"
+    },
+    "frozenNote": "这些数字在开单那一刻就固定了。之后再动过磅记录或扣杂，都不会改变这张单。",
+    "issue": {
+      "title": "开出这张结算单",
+      "description": "固定各项重量，并把金额呈给产废方。",
+      "unitPrice": "单价（每吨）",
+      "notes": "备注",
+      "confirm": "开单",
+      "blockedByDeductions": "还有 {count} 条扣杂在等产废方回应，请先处理。",
+      "blockedByWeighing": "这车货还没有完成的过磅记录，无法结算。"
+    },
+    "lock": {
+      "title": "锁定这张结算单？",
+      "description": "锁定后产废方将无法再对这车货提出异议。请说明原因。",
+      "confirm": "锁定"
+    },
+    "payment": {
+      "title": "记录付款",
+      "description": "付款凭证。平台不经手资金，这里记录的是一方声称发生了什么。",
+      "amount": "金额",
+      "paidOn": "付款日期",
+      "method": "方式",
+      "reference": "参考号",
+      "notes": "备注",
+      "confirm": "记录",
+      "none": "还没有付款记录。"
+    },
+    "method": {
+      "BANK_TRANSFER": "银行转账",
+      "CHEQUE": "支票",
+      "CASH": "现金",
+      "OFFSET": "抵扣",
+      "OTHER": "其他"
+    },
+    "quote": {
+      "title": "预计结算",
+      "openDeductions": "还有 {count} 条扣杂待回应"
+    },
+    "toast": {
+      "issued": "结算单已开出",
+      "locked": "结算单已锁定",
+      "paymentRecorded": "付款已记录"
+    }
   }
 }

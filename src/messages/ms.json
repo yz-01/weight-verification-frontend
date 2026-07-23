@@ -135,10 +135,16 @@
       "weighing": "Penimbangan",
       "finance": "Kewangan",
       "customers": "Pelanggan",
-      "system": "Sistem"
+      "system": "Sistem",
+      "fleet": "Armada"
     },
     "sites": "Tapak",
-    "detectionSettings": "Tetapan pengesanan"
+    "detectionSettings": "Tetapan pengesanan",
+    "incoming": "Muatan masuk",
+    "gate": "Pintu timbang",
+    "vehicles": "Kenderaan",
+    "drivers": "Pemandu",
+    "deductions": "Potongan"
   },
   "dashboard": {
     "title": "Papan pemuka",
@@ -1201,5 +1207,350 @@
       "estimateNote": "Ini anggaran tapak. Berat akhir datang dari jambatan timbang pengitar semula selepas muatan ditimbang."
     },
     "empty": "Tiada apa-apa untuk dilaporkan bagi pilihan ini."
+  },
+  "incoming": {
+    "title": "Muatan masuk",
+    "subtitle": "Sisa dalam perjalanan ke tapak anda.",
+    "count": "{count, plural, =0 {Tiada muatan} other {# muatan}}",
+    "field": {
+      "dispatchNo": "No. penghantaran",
+      "contractor": "Penghasil",
+      "project": "Tapak",
+      "wasteType": "Jenis sisa",
+      "estimatedWeight": "Berat diisytihar (kg)",
+      "vehiclePlate": "Kenderaan",
+      "driverName": "Pemandu",
+      "releasedAt": "Dilepaskan",
+      "state": "Status"
+    },
+    "declaredNote": "Pengisytiharan penghasil. Jambatan timbang anda menentukan berat akhir, dan kedua-duanya disimpan.",
+    "collect": {
+      "title": "Ambil muatan ini?",
+      "description": "Merekodkan bahawa bahan kini di tangan anda. Penghasil tidak boleh membatalkannya lagi.",
+      "confirm": "Kutip",
+      "reference": "Rujukan anda sendiri",
+      "referenceHint": "Pilihan. Gunakan penomboran anda sendiri jika ada."
+    },
+    "reject": {
+      "title": "Tolak muatan ini?",
+      "description": "Nyatakan sebabnya. Sebab itu kembali kepada tapak yang menghantarnya.",
+      "confirm": "Tolak"
+    },
+    "toast": {
+      "collected": "Muatan dikutip",
+      "rejected": "Muatan ditolak"
+    }
+  },
+  "gate": {
+    "title": "Pintu jambatan timbang",
+    "subtitle": "Imbas nota penghantaran pemandu sebelum kenderaan naik.",
+    "whyFirst": "Jambatan timbang mula merekod sendiri apabila berat turun ke atas dek, jadi muatan mesti dibariskan sebelum kenderaan bergerak. Tiada cara untuk melampirkannya selepas itu.",
+    "selectScale": "Jambatan timbang",
+    "noScales": "Tiada jambatan timbang disediakan lagi.",
+    "waiting": "Sedang menunggu",
+    "nothingQueued": "Tiada muatan dibariskan di jambatan timbang ini.",
+    "expiresAt": "Tamat tempoh",
+    "expired": "Imbasan ini telah tamat tempoh. Imbas semula sebelum kenderaan naik.",
+    "field": {
+      "dispatchNo": "Nota penghantaran",
+      "direction": "Timbangan",
+      "vehiclePlate": "Plat pada kabin",
+      "scannedBy": "Diimbas oleh",
+      "expiresIn": "Sah selama (minit)"
+    },
+    "direction": {
+      "GROSS": "Bermuatan (kasar)",
+      "TARE": "Kosong (tara)"
+    },
+    "plateMismatch": "Plat pada dokumen ialah {expected}. Periksa kabin.",
+    "scan": "Bariskan muatan ini",
+    "clear": "Kosongkan",
+    "clearTitle": "Kosongkan jambatan timbang?",
+    "clearDescription": "Tiada apa akan dilampirkan pada kenderaan seterusnya. Guna ini jika pemandu berpatah balik atau nota salah diimbas.",
+    "clearConfirm": "Kosongkan",
+    "toast": {
+      "scanned": "Muatan dibariskan",
+      "cleared": "Jambatan timbang dikosongkan"
+    }
+  },
+  "vehicles": {
+    "title": "Kenderaan",
+    "count": "{count, plural, =0 {Tiada kenderaan} other {# kenderaan}}",
+    "new": "Tambah kenderaan",
+    "createTitle": "Tambah kenderaan",
+    "editTitle": "Sunting kenderaan",
+    "section": {
+      "identity": "Maklumat asas",
+      "limits": "Had dan dokumen"
+    },
+    "field": {
+      "plateNo": "No. plat",
+      "vehicleType": "Jenis",
+      "makeModel": "Jenama dan model",
+      "tareWeight": "Berat tara (kg)",
+      "maxLaden": "Berat maksimum (kg)",
+      "roadTaxExpires": "Cukai jalan tamat",
+      "permitExpires": "Permit tamat",
+      "notes": "Nota",
+      "isActive": "Aktif",
+      "createdAt": "Ditambah"
+    },
+    "type": {
+      "LORRY": "Lori",
+      "TIPPER": "Lori tipper",
+      "ROLL_ON": "Roll-on / roll-off",
+      "SKIP": "Lori skip",
+      "TRAILER": "Penarik dan treler",
+      "OTHER": "Lain-lain"
+    },
+    "noTare": "Belum ditimbang kosong",
+    "tare": {
+      "action": "Rekod tara",
+      "title": "Rekod berat kosong kenderaan ini",
+      "description": "Di tapak yang menimbang terhadap tara tersimpan, angka ini ditolak daripada setiap muatan yang dibawa lori ini. Menurunkannya 500 kg menambah 500 kg pada setiap berat bersih, jadi perubahan ini ditulis ke log audit bersama sebab anda.",
+      "confirm": "Rekod",
+      "weight": "Berat kosong (kg)",
+      "measuredAt": "Diukur kali terakhir"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Kenderaan ini tidak akan muncul semasa menugaskan perjalanan. Perjalanan lalu kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Kenderaan ditambah",
+      "updated": "Kenderaan dikemas kini",
+      "removed": "Kenderaan dibuang",
+      "tareSet": "Berat tara direkod"
+    }
+  },
+  "drivers": {
+    "title": "Pemandu",
+    "count": "{count, plural, =0 {Tiada pemandu} other {# pemandu}}",
+    "new": "Tambah pemandu",
+    "createTitle": "Tambah pemandu",
+    "editTitle": "Sunting pemandu",
+    "section": {
+      "identity": "Maklumat asas",
+      "licence": "Lesen"
+    },
+    "field": {
+      "fullName": "Nama",
+      "phone": "Telefon",
+      "icNo": "No. IC",
+      "licenceNo": "No. lesen",
+      "licenceExpires": "Lesen tamat",
+      "defaultVehicle": "Kenderaan biasa",
+      "isActive": "Aktif",
+      "createdAt": "Ditambah"
+    },
+    "licenceExpired": "Lesen tamat tempoh",
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Mereka tidak akan muncul semasa menugaskan perjalanan. Perjalanan lalu kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Pemandu ditambah",
+      "updated": "Pemandu dikemas kini",
+      "removed": "Pemandu dibuang"
+    }
+  },
+  "tasks": {
+    "title": "Perjalanan kutipan",
+    "count": "{count, plural, =0 {Tiada perjalanan} other {# perjalanan}}",
+    "new": "Tugaskan perjalanan",
+    "createTitle": "Tugaskan perjalanan",
+    "editTitle": "Tugaskan semula",
+    "viewTitle": "Perjalanan",
+    "section": {
+      "load": "Muatan",
+      "crew": "Kenderaan dan pemandu",
+      "progress": "Kemajuan",
+      "photos": "Foto"
+    },
+    "field": {
+      "taskNo": "No. perjalanan",
+      "state": "Status",
+      "dispatch": "Muatan",
+      "site": "Kembali ke",
+      "vehicle": "Kenderaan",
+      "driver": "Pemandu",
+      "scheduledFor": "Dijadualkan",
+      "acceptedAt": "Diterima",
+      "arrivedAt": "Tiba",
+      "loadedAt": "Dimuatkan",
+      "deliveredAt": "Dihantar",
+      "arrivalLocation": "Lokasi ketibaan",
+      "notes": "Nota",
+      "failureReason": "Sebab gagal",
+      "contractor": "Penghasil",
+      "project": "Tapak",
+      "photoCount": "Foto"
+    },
+    "state": {
+      "ASSIGNED": "Ditugaskan",
+      "ACCEPTED": "Diterima",
+      "EN_ROUTE": "Dalam perjalanan",
+      "ARRIVED": "Di tapak",
+      "LOADED": "Dimuatkan",
+      "RETURNING": "Pulang",
+      "DELIVERED": "Dihantar",
+      "CANCELLED": "Dibatalkan",
+      "FAILED": "Gagal"
+    },
+    "advance": "Gerak ke {state}",
+    "advanceTitle": "Gerakkan perjalanan ini ke {state}?",
+    "advanceDescription": "Direkod pada perjalanan, bersama masanya.",
+    "loadedNote": "Menandakan lori dimuatkan juga memberitahu penghasil bahawa sisa telah bertukar tangan. Selepas itu mereka tidak boleh membatalkannya.",
+    "failNote": "Nyatakan apa yang berlaku. Seseorang perlu mengejarnya dan mereka perlu tahu apa.",
+    "noDispatch": "Tiada muatan dilampirkan",
+    "noPhotos": "Pemandu belum menghantar sebarang foto.",
+    "locationNote": "Lokasi yang dilaporkan peranti pemandu. Lokasi pelayar boleh dipalsukan, jadi ini merekod apa yang dilaporkan, bukan di mana lori berada.",
+    "reassignNote": "Hanya sebelum pemandu menerima. Selepas itu, senarai tugas ialah rekod siapa yang benar-benar pergi.",
+    "toast": {
+      "created": "Perjalanan ditugaskan",
+      "updated": "Perjalanan dikemas kini",
+      "advanced": "Perjalanan dikemas kini"
+    }
+  },
+  "deductions": {
+    "title": "Potongan",
+    "count": "{count, plural, =0 {Tiada potongan} other {# potongan}}",
+    "new": "Rekod potongan",
+    "createTitle": "Rekod potongan",
+    "awaitingMe": "Menunggu anda",
+    "section": {
+      "load": "Muatan",
+      "claim": "Apa yang tidak kena",
+      "photos": "Foto"
+    },
+    "field": {
+      "dispatchNo": "Muatan",
+      "site": "Diperiksa di",
+      "kind": "Sebab",
+      "weightKg": "Berat (kg)",
+      "reason": "Apa yang tidak kena",
+      "state": "Status",
+      "inspectedBy": "Diperiksa oleh",
+      "inspectedAt": "Diperiksa",
+      "threshold": "Ambang ketika itu",
+      "respondedAt": "Dijawab",
+      "responseNote": "Jawapan",
+      "project": "Tapak",
+      "recycler": "Pengitar semula"
+    },
+    "kind": {
+      "MOISTURE": "Kandungan air",
+      "CONTAMINATION": "Pencemaran",
+      "WRONG_MATERIAL": "Tidak seperti diisytihar",
+      "OVERSIZE": "Terlalu besar atau tidak boleh diproses",
+      "OTHER": "Lain-lain"
+    },
+    "state": {
+      "AUTO_ACCEPTED": "Diterima automatik",
+      "PENDING": "Menunggu penghasil",
+      "ACCEPTED": "Diterima",
+      "REJECTED": "Ditolak",
+      "RECHECK": "Semakan semula diminta"
+    },
+    "thresholdNote": "Apa-apa melebihi {threshold} kg pergi kepada penghasil untuk diterima. Di bawah itu diterima automatik — seratus kilo lembap pada muatan dua puluh tan tidak berbaloi dibincangkan, dan menjadikannya satu perbincangan mengajar semua orang menekan terima tanpa membaca.",
+    "autoAcceptedNote": "Tiada sesiapa ditanya tentang yang ini: ia di bawah ambang yang berkuat kuasa ketika itu.",
+    "reasonHint": "Cukup terperinci untuk dibaca enam bulan dari sekarang oleh seseorang yang tiada di situ.",
+    "photoNote": "Bahan sudah berada di atas timbunan menjelang sesiapa mempertikaikannya. Foto yang diambil semasa pemeriksaan ialah satu-satunya bukti yang kekal.",
+    "noPhotos": "Tiada foto dilampirkan.",
+    "respond": {
+      "title": "Jawab potongan ini",
+      "weight": "{weight} kg daripada {dispatchNo}",
+      "accept": "Terima",
+      "reject": "Tolak",
+      "recheck": "Minta semakan semula",
+      "note": "Jawapan anda",
+      "noteRequired": "Nyatakan sebabnya supaya tapak tahu langkah seterusnya.",
+      "effect": "Menerima mengurangkan {weight} kg daripada berat penyelesaian muatan ini."
+    },
+    "onlyProducer": "Hanya penghasil sisa boleh menjawab potongan.",
+    "toast": {
+      "created": "Potongan direkod",
+      "answered": "Jawapan direkod"
+    }
+  },
+  "settlements": {
+    "title": "Penyelesaian",
+    "count": "{count, plural, =0 {Tiada penyelesaian} other {# penyelesaian}}",
+    "viewTitle": "Penyelesaian",
+    "new": "Keluarkan penyelesaian",
+    "section": {
+      "load": "Muatan",
+      "weights": "Berat",
+      "money": "Jumlah",
+      "payments": "Pembayaran"
+    },
+    "field": {
+      "settlementNo": "No. penyelesaian",
+      "state": "Status",
+      "dispatchNo": "Muatan",
+      "contractor": "Penghasil",
+      "recycler": "Pengitar semula",
+      "project": "Tapak",
+      "sessionNo": "Timbangan",
+      "netWeight": "Berat bersih (kg)",
+      "deductionWeight": "Potongan (kg)",
+      "settledWeight": "Berat diselesaikan (kg)",
+      "unitPrice": "Harga setan",
+      "totalAmount": "Jumlah",
+      "amountPaid": "Dibayar",
+      "outstanding": "Baki",
+      "issuedAt": "Dikeluarkan",
+      "lockedAt": "Dikunci",
+      "notes": "Nota"
+    },
+    "state": {
+      "DRAFT": "Draf",
+      "ISSUED": "Dikeluarkan",
+      "LOCKED": "Dikunci"
+    },
+    "frozenNote": "Angka ini ditetapkan semasa penyelesaian dikeluarkan. Ia tidak berubah jika timbangan atau potongan disentuh kemudian.",
+    "issue": {
+      "title": "Keluarkan penyelesaian ini",
+      "description": "Menetapkan berat dan membentangkan jumlahnya kepada penghasil.",
+      "unitPrice": "Harga setan",
+      "notes": "Nota",
+      "confirm": "Keluarkan",
+      "blockedByDeductions": "{count} potongan masih menunggu penghasil. Selesaikan itu dahulu.",
+      "blockedByWeighing": "Muatan ini tiada timbangan lengkap untuk diselesaikan."
+    },
+    "lock": {
+      "title": "Kunci penyelesaian ini?",
+      "description": "Menamatkan keupayaan penghasil mempertikaikan apa-apa pada muatan ini. Nyatakan sebabnya.",
+      "confirm": "Kunci"
+    },
+    "payment": {
+      "title": "Rekod pembayaran",
+      "description": "Bukti apa yang dibayar. Platform tidak menggerakkan wang; ini apa yang satu pihak katakan berlaku.",
+      "amount": "Jumlah",
+      "paidOn": "Dibayar pada",
+      "method": "Kaedah",
+      "reference": "Rujukan",
+      "notes": "Nota",
+      "confirm": "Rekod",
+      "none": "Tiada pembayaran direkod lagi."
+    },
+    "method": {
+      "BANK_TRANSFER": "Pindahan bank",
+      "CHEQUE": "Cek",
+      "CASH": "Tunai",
+      "OFFSET": "Tolakan",
+      "OTHER": "Lain-lain"
+    },
+    "quote": {
+      "title": "Anggaran penyelesaian",
+      "openDeductions": "{count} potongan masih menunggu"
+    },
+    "toast": {
+      "issued": "Penyelesaian dikeluarkan",
+      "locked": "Penyelesaian dikunci",
+      "paymentRecorded": "Pembayaran direkod"
+    }
   }
 }

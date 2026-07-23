@@ -135,10 +135,16 @@
       "weighing": "Weighing",
       "finance": "Finance",
       "customers": "Customers",
-      "system": "System"
+      "system": "System",
+      "fleet": "Fleet"
     },
     "sites": "Yards",
-    "detectionSettings": "Detection settings"
+    "detectionSettings": "Detection settings",
+    "incoming": "Incoming loads",
+    "gate": "Weighbridge gate",
+    "vehicles": "Vehicles",
+    "drivers": "Drivers",
+    "deductions": "Deductions"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1201,5 +1207,350 @@
       "estimateNote": "These are the site's estimates. Final weights come from the recycler's weighbridge once the load is weighed."
     },
     "empty": "Nothing to report for this selection yet."
+  },
+  "incoming": {
+    "title": "Incoming loads",
+    "subtitle": "Waste on its way to your yards.",
+    "count": "{count, plural, =0 {No loads} one {# load} other {# loads}}",
+    "field": {
+      "dispatchNo": "Dispatch no.",
+      "contractor": "Producer",
+      "project": "Site",
+      "wasteType": "Waste type",
+      "estimatedWeight": "Declared weight (kg)",
+      "vehiclePlate": "Vehicle",
+      "driverName": "Driver",
+      "releasedAt": "Released",
+      "state": "Status"
+    },
+    "declaredNote": "The producer's declaration. Your weighbridge decides the final weight, and both are kept.",
+    "collect": {
+      "title": "Take this load on?",
+      "description": "Records that the material is now in your hands. The producer can no longer cancel it, and the weighbridge decides what it was.",
+      "confirm": "Collect",
+      "reference": "Your own reference",
+      "referenceHint": "Optional. Use your own numbering if you run one."
+    },
+    "reject": {
+      "title": "Refuse this load?",
+      "description": "Say why. The reason goes back to the site that sent it, so they know what happened to the lorry.",
+      "confirm": "Refuse"
+    },
+    "toast": {
+      "collected": "Load collected",
+      "rejected": "Load refused"
+    }
+  },
+  "gate": {
+    "title": "Weighbridge gate",
+    "subtitle": "Scan the driver's dispatch note before the vehicle drives on.",
+    "whyFirst": "The weighbridge starts recording by itself when weight lands on the deck, so the load has to be queued before the vehicle moves. There is no way to attach it afterwards.",
+    "selectScale": "Weighbridge",
+    "noScales": "No weighbridges are set up yet.",
+    "waiting": "Waiting for",
+    "nothingQueued": "Nothing is queued at this weighbridge.",
+    "expiresAt": "Expires",
+    "expired": "This scan has expired. Scan again before the vehicle drives on.",
+    "field": {
+      "dispatchNo": "Dispatch note",
+      "direction": "Weighing",
+      "vehiclePlate": "Vehicle on the cab",
+      "scannedBy": "Scanned by",
+      "expiresIn": "Valid for (minutes)"
+    },
+    "direction": {
+      "GROSS": "Loaded (gross)",
+      "TARE": "Empty (tare)"
+    },
+    "plateMismatch": "The plate on the paperwork is {expected}. Check the cab.",
+    "scan": "Queue this load",
+    "clear": "Clear",
+    "clearTitle": "Clear the weighbridge?",
+    "clearDescription": "Nothing will be attached to the next vehicle that drives on. Use this if the driver turned around or the wrong note was scanned.",
+    "clearConfirm": "Clear",
+    "toast": {
+      "scanned": "Load queued at the weighbridge",
+      "cleared": "Weighbridge cleared"
+    }
+  },
+  "vehicles": {
+    "title": "Vehicles",
+    "count": "{count, plural, =0 {No vehicles} one {# vehicle} other {# vehicles}}",
+    "new": "Add vehicle",
+    "createTitle": "Add a vehicle",
+    "editTitle": "Edit vehicle",
+    "section": {
+      "identity": "Identity",
+      "limits": "Limits and documents"
+    },
+    "field": {
+      "plateNo": "Plate no.",
+      "vehicleType": "Type",
+      "makeModel": "Make and model",
+      "tareWeight": "Tare weight (kg)",
+      "maxLaden": "Max laden weight (kg)",
+      "roadTaxExpires": "Road tax expires",
+      "permitExpires": "Permit expires",
+      "notes": "Notes",
+      "isActive": "Active",
+      "createdAt": "Added"
+    },
+    "type": {
+      "LORRY": "Lorry",
+      "TIPPER": "Tipper truck",
+      "ROLL_ON": "Roll-on / roll-off",
+      "SKIP": "Skip truck",
+      "TRAILER": "Prime mover and trailer",
+      "OTHER": "Other"
+    },
+    "noTare": "Not weighed empty",
+    "tare": {
+      "action": "Record tare",
+      "title": "Record this vehicle's empty weight",
+      "description": "On a yard weighing against a stored tare, this figure is subtracted from every load this lorry ever brings in. Lowering it by 500 kg adds 500 kg to every net weight, so the change is written to the audit log with your reason.",
+      "confirm": "Record",
+      "weight": "Empty weight (kg)",
+      "measuredAt": "Last measured"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This vehicle will no longer appear when assigning a trip. Trips already recorded against it stay in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Vehicle added",
+      "updated": "Vehicle updated",
+      "removed": "Vehicle removed",
+      "tareSet": "Tare weight recorded"
+    }
+  },
+  "drivers": {
+    "title": "Drivers",
+    "count": "{count, plural, =0 {No drivers} one {# driver} other {# drivers}}",
+    "new": "Add driver",
+    "createTitle": "Add a driver",
+    "editTitle": "Edit driver",
+    "section": {
+      "identity": "Identity",
+      "licence": "Licence"
+    },
+    "field": {
+      "fullName": "Name",
+      "phone": "Phone",
+      "icNo": "IC no.",
+      "licenceNo": "Licence no.",
+      "licenceExpires": "Licence expires",
+      "defaultVehicle": "Usual vehicle",
+      "isActive": "Active",
+      "createdAt": "Added"
+    },
+    "licenceExpired": "Licence expired",
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "They will no longer appear when assigning a trip. Trips already recorded against them stay in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Driver added",
+      "updated": "Driver updated",
+      "removed": "Driver removed"
+    }
+  },
+  "tasks": {
+    "title": "Collection trips",
+    "count": "{count, plural, =0 {No trips} one {# trip} other {# trips}}",
+    "new": "Assign a trip",
+    "createTitle": "Assign a trip",
+    "editTitle": "Reassign the trip",
+    "viewTitle": "Trip",
+    "section": {
+      "load": "Load",
+      "crew": "Vehicle and driver",
+      "progress": "Progress",
+      "photos": "Photos"
+    },
+    "field": {
+      "taskNo": "Trip no.",
+      "state": "Status",
+      "dispatch": "Load",
+      "site": "Return to",
+      "vehicle": "Vehicle",
+      "driver": "Driver",
+      "scheduledFor": "Scheduled",
+      "acceptedAt": "Accepted",
+      "arrivedAt": "Arrived",
+      "loadedAt": "Loaded",
+      "deliveredAt": "Delivered",
+      "arrivalLocation": "Arrival location",
+      "notes": "Notes",
+      "failureReason": "Why it failed",
+      "contractor": "Producer",
+      "project": "Site",
+      "photoCount": "Photos"
+    },
+    "state": {
+      "ASSIGNED": "Assigned",
+      "ACCEPTED": "Accepted",
+      "EN_ROUTE": "On the way",
+      "ARRIVED": "At site",
+      "LOADED": "Loaded",
+      "RETURNING": "Returning",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "FAILED": "Failed"
+    },
+    "advance": "Move to {state}",
+    "advanceTitle": "Move this trip to {state}?",
+    "advanceDescription": "Recorded against the trip, with the time.",
+    "loadedNote": "Marking the lorry loaded also tells the producer the waste has changed hands. From then they can no longer cancel it.",
+    "failNote": "Say what went wrong. Somebody has to chase this, and they need to know what they are chasing.",
+    "noDispatch": "No load attached",
+    "noPhotos": "The driver has not sent any photos.",
+    "locationNote": "Where the driver's device said it was. Browser location can be faked, so this records what was reported, not where the lorry was.",
+    "reassignNote": "Only before the driver accepts. After that the roster is a record of who actually went.",
+    "toast": {
+      "created": "Trip assigned",
+      "updated": "Trip updated",
+      "advanced": "Trip updated"
+    }
+  },
+  "deductions": {
+    "title": "Deductions",
+    "count": "{count, plural, =0 {No deductions} one {# deduction} other {# deductions}}",
+    "new": "Record a deduction",
+    "createTitle": "Record a deduction",
+    "awaitingMe": "Waiting on you",
+    "section": {
+      "load": "Load",
+      "claim": "What was wrong",
+      "photos": "Photos"
+    },
+    "field": {
+      "dispatchNo": "Load",
+      "site": "Inspected at",
+      "kind": "Reason",
+      "weightKg": "Weight (kg)",
+      "reason": "What was wrong",
+      "state": "Status",
+      "inspectedBy": "Inspected by",
+      "inspectedAt": "Inspected",
+      "threshold": "Threshold at the time",
+      "respondedAt": "Answered",
+      "responseNote": "Answer",
+      "project": "Site",
+      "recycler": "Recycler"
+    },
+    "kind": {
+      "MOISTURE": "Water content",
+      "CONTAMINATION": "Contamination",
+      "WRONG_MATERIAL": "Not as declared",
+      "OVERSIZE": "Oversize or unprocessable",
+      "OTHER": "Other"
+    },
+    "state": {
+      "AUTO_ACCEPTED": "Accepted automatically",
+      "PENDING": "Waiting for the producer",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Rejected",
+      "RECHECK": "Recheck requested"
+    },
+    "thresholdNote": "Anything over {threshold} kg goes to the producer to accept. Below that it is accepted automatically — a hundred kilos of damp on a twenty-tonne load is not worth a conversation, and making it one teaches everybody to click accept without reading.",
+    "autoAcceptedNote": "Nobody was asked about this one: it was under the threshold in force at the time.",
+    "reasonHint": "Enough detail to be read six months from now by somebody who was not there.",
+    "photoNote": "The material is on a pile by the time anyone disputes this. Photographs taken at the inspection are the only evidence that survives.",
+    "noPhotos": "No photos were attached.",
+    "respond": {
+      "title": "Answer this deduction",
+      "weight": "{weight} kg off {dispatchNo}",
+      "accept": "Accept",
+      "reject": "Reject",
+      "recheck": "Ask for a recheck",
+      "note": "Your answer",
+      "noteRequired": "Say why, so the yard knows what to do next.",
+      "effect": "Accepting takes {weight} kg off what this load settles at."
+    },
+    "onlyProducer": "Only the producer of this waste can answer a deduction.",
+    "toast": {
+      "created": "Deduction recorded",
+      "answered": "Answer recorded"
+    }
+  },
+  "settlements": {
+    "title": "Settlements",
+    "count": "{count, plural, =0 {No settlements} one {# settlement} other {# settlements}}",
+    "viewTitle": "Settlement",
+    "new": "Issue a settlement",
+    "section": {
+      "load": "Load",
+      "weights": "Weights",
+      "money": "Amount",
+      "payments": "Payments"
+    },
+    "field": {
+      "settlementNo": "Settlement no.",
+      "state": "Status",
+      "dispatchNo": "Load",
+      "contractor": "Producer",
+      "recycler": "Recycler",
+      "project": "Site",
+      "sessionNo": "Weighing",
+      "netWeight": "Net weight (kg)",
+      "deductionWeight": "Deductions (kg)",
+      "settledWeight": "Settled weight (kg)",
+      "unitPrice": "Price per tonne",
+      "totalAmount": "Total",
+      "amountPaid": "Paid",
+      "outstanding": "Outstanding",
+      "issuedAt": "Issued",
+      "lockedAt": "Locked",
+      "notes": "Notes"
+    },
+    "state": {
+      "DRAFT": "Draft",
+      "ISSUED": "Issued",
+      "LOCKED": "Locked"
+    },
+    "frozenNote": "These figures were fixed when the settlement was issued. They do not change if a weighing or a deduction is touched afterwards.",
+    "issue": {
+      "title": "Issue this settlement",
+      "description": "Fixes the weights and puts the figure in front of the producer.",
+      "unitPrice": "Price per tonne",
+      "notes": "Notes",
+      "confirm": "Issue",
+      "blockedByDeductions": "{count, plural, one {# deduction is} other {# deductions are}} still waiting on the producer. Settle that first.",
+      "blockedByWeighing": "This load has no completed weighing to settle from."
+    },
+    "lock": {
+      "title": "Lock this settlement?",
+      "description": "Ends the producer's ability to dispute anything on this load. Say why.",
+      "confirm": "Lock"
+    },
+    "payment": {
+      "title": "Record a payment",
+      "description": "Evidence of what was paid. The platform does not move money; this is what one side says happened.",
+      "amount": "Amount",
+      "paidOn": "Paid on",
+      "method": "Method",
+      "reference": "Reference",
+      "notes": "Notes",
+      "confirm": "Record",
+      "none": "No payments recorded yet."
+    },
+    "method": {
+      "BANK_TRANSFER": "Bank transfer",
+      "CHEQUE": "Cheque",
+      "CASH": "Cash",
+      "OFFSET": "Offset",
+      "OTHER": "Other"
+    },
+    "quote": {
+      "title": "What this would settle at",
+      "openDeductions": "{count, plural, one {# deduction} other {# deductions}} still waiting"
+    },
+    "toast": {
+      "issued": "Settlement issued",
+      "locked": "Settlement locked",
+      "paymentRecorded": "Payment recorded"
+    }
   }
 }

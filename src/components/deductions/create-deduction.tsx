@@ -1,0 +1,211 @@
+"use client";
+
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Info, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import {
+  SelectField,
+  TextAreaField,
+  TextField,
+  type BoundField,
+} from "@/components/shared/form-fields";
+import {
+  FormSection,
+  FormShell,
+  applyServerErrors,
+  minLength,
+  required,
+} from "@/components/shared/form-shell";
+import { ApiError } from "@/interfaces/api";
+import {
+  DEDUCTION_KINDS,
+  type DeductionKind,
+  type DeductionPayload,
+} from "@/interfaces/recycler";
+import { createDeduction, getIncoming } from "@/services/recycler.service";
+import { getSites } from "@/services/weighing.service";
+
+/**
+ * Recording what the inspection found.
+ *
+ * The reason field is the one that matters. A deduction is a claim against
+ * somebody else's money, and it will be read months later by a person who was
+ * not standing at the tipping face — so a minimum length is enforced here and
+ * again on the server. "Wet" is not a reason anyone can act on.
+ */
+export function CreateDeduction() {
+  const t = useTranslations();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const { data: loadPage } = useQuery({
+    queryKey: ["incoming", "options", "collected"],
+    queryFn: () => getIncoming({ page_size: 100, state: "COLLECTED" }),
+  });
+  const { data: sitePage } = useQuery({
+    queryKey: ["sites", "options"],
+    queryFn: () => getSites({ page_size: 100 }),
+  });
+
+  const mutation = useMutation({
+    mutationFn: (values: DeductionPayload) => createDeduction(values),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["deductions"] });
+      router.push("/deductions");
+    },
+  });
+
+  const form = useForm({
+    defaultValues: {
+      dispatch: "",
+      site: "",
+      kind: "MOISTURE" as DeductionKind,
+      weight_kg: "",
+      reason: "",
+      inspected_by_name: "",
+    },
+    onSubmit: async ({ value }) => {
+      setFormError(null);
+      try {
+        await mutation.mutateAsync(value);
+      } catch (error) {
+        if (error instanceof ApiError) {
+          if (error.isValidation) {
+            const leftover = applyServerErrors(
+              error.errors,
+              form as unknown as Parameters<typeof applyServerErrors>[1],
+            );
+            if (leftover.length > 0) setFormError(leftover[0]);
+          } else {
+            setFormError(error.message);
+          }
+        }
+      }
+    },
+  });
+
+  return (
+    <FormShell
+      backHref="/deductions"
+      backLabel={t("deductions.title")}
+      title={t("deductions.createTitle")}
+      isSubmitting={mutation.isPending}
+      submitLabel={t("common.create")}
+      submitIcon={Plus}
+      onSubmit={() => void form.handleSubmit()}
+    >
+      <FormSection title={t("deductions.section.load")}>
+        <form.Field
+          name="dispatch"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("deductions.field.dispatchNo")}
+              required
+              options={(loadPage?.results ?? []).map((load) => ({
+                value: load.id,
+                label: `${load.dispatch_no} — ${load.project_name}`,
+              }))}
+            />
+          )}
+        </form.Field>
+
+        <form.Field
+          name="site"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("deductions.field.site")}
+              required
+              options={(sitePage?.results ?? []).map((site) => ({
+                value: site.id,
+                label: `${site.code} — ${site.name}`,
+              }))}
+            />
+          )}
+        </form.Field>
+      </FormSection>
+
+      <FormSection title={t("deductions.section.claim")}>
+        <form.Field name="kind">
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("deductions.field.kind")}
+              required
+              options={DEDUCTION_KINDS.map((kind) => ({
+                value: kind,
+                label: t(`deductions.kind.${kind}`),
+              }))}
+            />
+          )}
+        </form.Field>
+
+        <form.Field
+          name="weight_kg"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("deductions.field.weightKg")}
+              type="number"
+              required
+              hint={t("deductions.thresholdNote", { threshold: 300 })}
+            />
+          )}
+        </form.Field>
+
+        <form.Field
+          name="reason"
+          validators={{
+            onSubmit: minLength(10, t("deductions.reasonHint")),
+          }}
+        >
+          {(field) => (
+            <TextAreaField
+              field={field as unknown as BoundField}
+              label={t("deductions.field.reason")}
+              required
+              rows={4}
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+
+        <form.Field
+          name="inspected_by_name"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("deductions.field.inspectedBy")}
+              required
+            />
+          )}
+        </form.Field>
+
+        <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          {t("deductions.photoNote")}
+        </p>
+
+        {formError && (
+          <p className="text-sm font-medium text-destructive md:col-span-2">
+            {formError}
+          </p>
+        )}
+      </FormSection>
+    </FormShell>
+  );
+}
