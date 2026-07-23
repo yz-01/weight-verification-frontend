@@ -441,7 +441,8 @@
       "task": {
         "view": "Lihat tugas pemandu",
         "assign": "Tetapkan pemandu dan kenderaan",
-        "submit": "Hantar foto dan laporan tugas"
+        "submit": "Hantar foto dan laporan tugas",
+        "task_view_all": "Lihat semua perjalanan di tapak"
       },
       "scale": {
         "view": "Lihat jambatan timbang",
@@ -1551,6 +1552,29 @@
       "issued": "Penyelesaian dikeluarkan",
       "locked": "Penyelesaian dikunci",
       "paymentRecorded": "Pembayaran direkod"
+    }
+  },
+  "driver": {
+    "today": "Perjalanan anda",
+    "finished": "Selesai",
+    "nothingAssigned": "Tiada tugasan untuk anda sekarang.",
+    "back": "Semua perjalanan",
+    "takePhoto": "Ambil foto",
+    "cannotComplete": "Saya tidak dapat menyiapkannya",
+    "arrivedNote": "Merekodkan bahawa anda berada di tapak, bersama lokasi telefon jika dibenarkan.",
+    "action": {
+      "ACCEPTED": "Terima perjalanan ini",
+      "EN_ROUTE": "Mula memandu",
+      "ARRIVED": "Saya telah tiba",
+      "LOADED": "Sudah dimuatkan",
+      "RETURNING": "Dalam perjalanan pulang",
+      "DELIVERED": "Dihantar ke tapak",
+      "FAILED": "Tidak dapat disiapkan",
+      "CANCELLED": "Batal",
+      "ASSIGNED": "Ditugaskan"
+    },
+    "toast": {
+      "photoSent": "Foto dihantar"
     }
   }
 }

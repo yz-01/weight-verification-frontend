@@ -326,3 +326,22 @@ export function isActivePath(href: string, pathname: string): boolean {
   if (href === "/dashboard") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
+
+
+/**
+ * Where a signed-in user belongs.
+ *
+ * A driver's account carries `task.submit` and nothing that would fill a
+ * sidebar — sending them to the console would show a shell with one entry in
+ * it, on a phone, which is not a console so much as an obstacle. They get the
+ * driver page instead.
+ *
+ * Anyone who can also assign trips runs the yard, so the console is right for
+ * them even though they hold the same submit permission.
+ */
+export function landingPathFor(can: (code: string) => boolean): string {
+  if (can("task.submit") && !can("task.assign") && !can("task.view_all")) {
+    return "/driver";
+  }
+  return "/dashboard";
+}

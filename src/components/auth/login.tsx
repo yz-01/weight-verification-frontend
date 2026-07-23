@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
 import { cn } from "@/lib/utils";
+import { landingPathFor } from "@/lib/navigation";
 import * as authService from "@/services/auth.service";
 
 export function Login() {
@@ -30,7 +31,16 @@ export function Login() {
       try {
         const result = await authService.login(value.email, value.password);
         setUser(result.user);
-        router.replace("/dashboard");
+
+        // Drivers land on the driver page, not the console. Decided from the
+        // permissions the sign-in already returned rather than from a role
+        // name, so a tenant that renames its roles does not break it.
+        const permissions = new Set(result.user.permissions ?? []);
+        router.replace(
+          landingPathFor((code) =>
+            Boolean(result.user.is_superuser) || permissions.has(code),
+          ),
+        );
       } catch (error) {
         setFormError(messageFor(error, t));
       }

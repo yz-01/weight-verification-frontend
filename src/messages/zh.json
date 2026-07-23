@@ -441,7 +441,8 @@
       "task": {
         "view": "查看司机任务",
         "assign": "分配司机与车辆",
-        "submit": "提交任务照片与报备"
+        "submit": "提交任务照片与报备",
+        "task_view_all": "查看回收场全部任务"
       },
       "scale": {
         "view": "查看地磅",
@@ -1551,6 +1552,29 @@
       "issued": "结算单已开出",
       "locked": "结算单已锁定",
       "paymentRecorded": "付款已记录"
+    }
+  },
+  "driver": {
+    "today": "你的任务",
+    "finished": "已完成",
+    "nothingAssigned": "目前没有分配给你的任务。",
+    "back": "全部任务",
+    "takePhoto": "拍照",
+    "cannotComplete": "我完成不了这趟",
+    "arrivedNote": "记录你已到达现场，如果手机允许会一并记录位置。",
+    "action": {
+      "ACCEPTED": "接下这趟",
+      "EN_ROUTE": "出发",
+      "ARRIVED": "我到了",
+      "LOADED": "装好货了",
+      "RETURNING": "返程",
+      "DELIVERED": "已送回场",
+      "FAILED": "无法完成",
+      "CANCELLED": "取消",
+      "ASSIGNED": "已派单"
+    },
+    "toast": {
+      "photoSent": "照片已上传"
     }
   }
 }

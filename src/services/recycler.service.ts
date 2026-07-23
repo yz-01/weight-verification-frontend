@@ -199,6 +199,25 @@ export async function advanceTask(
   return task;
 }
 
+/**
+ * Attach a photograph to a trip.
+ *
+ * Multipart, so the browser sets its own boundary — the client leaves the
+ * Content-Type alone for FormData for exactly that reason.
+ */
+export async function addTaskPhoto(
+  id: string,
+  file: File,
+  kind = "LOADING",
+): Promise<unknown> {
+  const body = new FormData();
+  body.append("image", file);
+  body.append("kind", kind);
+  const photo = await api.post(`/api/tasks/${id}/add_photo/`, body);
+  toastSuccess("driver.toast.photoSent");
+  return photo;
+}
+
 /** Queue a load at a weighbridge, before the vehicle drives on. */
 export async function scanDispatch(
   payload: ScanDispatchPayload,

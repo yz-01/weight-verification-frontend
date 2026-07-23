@@ -441,7 +441,8 @@
       "task": {
         "view": "View driver tasks",
         "assign": "Assign drivers and vehicles",
-        "submit": "Submit task photos and reports"
+        "submit": "Submit task photos and reports",
+        "task_view_all": "See every trip in the yard"
       },
       "scale": {
         "view": "View weighbridges",
@@ -1551,6 +1552,29 @@
       "issued": "Settlement issued",
       "locked": "Settlement locked",
       "paymentRecorded": "Payment recorded"
+    }
+  },
+  "driver": {
+    "today": "Your trips",
+    "finished": "Finished",
+    "nothingAssigned": "Nothing assigned to you right now.",
+    "back": "All trips",
+    "takePhoto": "Take a photo",
+    "cannotComplete": "I cannot complete this",
+    "arrivedNote": "Records that you are at the site, with your phone's location if it will give one.",
+    "action": {
+      "ACCEPTED": "Accept this trip",
+      "EN_ROUTE": "Start driving",
+      "ARRIVED": "I have arrived",
+      "LOADED": "Loaded",
+      "RETURNING": "Heading back",
+      "DELIVERED": "Delivered to the yard",
+      "FAILED": "Could not complete",
+      "CANCELLED": "Cancel",
+      "ASSIGNED": "Assigned"
+    },
+    "toast": {
+      "photoSent": "Photo sent"
     }
   }
 }
