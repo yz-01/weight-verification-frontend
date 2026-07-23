@@ -1,0 +1,498 @@
+{
+  "app": {
+    "name": "MSE Trace",
+    "tagline": "Verified weight. Traceable waste."
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "edit": "Edit",
+    "remove": "Remove",
+    "view": "View",
+    "search": "Search",
+    "columns": "Columns",
+    "actions": "Actions",
+    "back": "Back",
+    "confirm": "Confirm",
+    "close": "Close",
+    "loading": "Loading",
+    "retry": "Try again",
+    "optional": "optional",
+    "all": "All",
+    "none": "None",
+    "export": "Export",
+    "refresh": "Refresh",
+    "signOut": "Sign out",
+    "profile": "Profile",
+    "settings": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "emptyValue": "—",
+    "reason": "Reason",
+    "reasonPlaceholder": "Why is this change being made?",
+    "selectPlaceholder": "Select",
+    "searchPlaceholder": "Search",
+    "noOptions": "Nothing to choose from",
+    "saving": "Saving",
+    "unknownError": "Something went wrong. Try again."
+  },
+  "table": {
+    "showing": "Showing {from} to {to} of {total} entries",
+    "showingEmpty": "No entries",
+    "noResults": "Nothing here yet",
+    "noResultsFiltered": "No records match your filters",
+    "clearFilters": "Clear filters",
+    "errorTitle": "This list could not be loaded",
+    "errorBody": "Check your connection and try again.",
+    "perPage": "Per page",
+    "previous": "Previous",
+    "next": "Next",
+    "selected": "{count} selected"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Enter a valid email address",
+    "minLength": "Use at least {min} characters",
+    "maxLength": "Use at most {max} characters",
+    "passwordMismatch": "The two passwords do not match",
+    "passwordTooShort": "Use at least 10 characters"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Access your MSE Trace workspace",
+      "email": "Email",
+      "emailPlaceholder": "you@company.com",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "submit": "Sign in",
+      "forgot": "Forgot your password?",
+      "invalid": "Incorrect email or password",
+      "userSuspended": "This account is not active. Contact your administrator.",
+      "companySuspended": "Your company's account is not active. Contact MSE Trace support.",
+      "throttled": "Too many attempts. Wait a moment and try again."
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "subtitle": "We will email you a link to set a new password",
+      "submit": "Send reset link",
+      "sent": "If that email is registered, a reset link is on its way.",
+      "backToLogin": "Back to sign in"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "subtitle": "Choose a password you have not used before",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "submit": "Set password",
+      "success": "Password updated. You can sign in now.",
+      "invalidToken": "This reset link is invalid or has expired. Request a new one."
+    },
+    "changePassword": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Change password",
+      "success": "Password changed",
+      "incorrectCurrent": "Your current password is incorrect"
+    },
+    "sessionExpired": "Your session expired. Sign in again.",
+    "signedOut": "Signed out"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "companies": "Companies",
+    "users": "Users",
+    "roles": "Roles",
+    "auditLogs": "Audit log",
+    "loginRecords": "Sign-in history",
+    "projects": "Projects",
+    "suppliers": "Suppliers",
+    "receipts": "Material receipts",
+    "dispatches": "Waste dispatches",
+    "tasks": "Driver tasks",
+    "scales": "Weighbridges",
+    "weighing": "Weighing",
+    "settlements": "Settlements",
+    "payments": "Payments",
+    "billing": "Billing",
+    "commission": "Commission",
+    "tickets": "Support tickets",
+    "announcements": "Announcements",
+    "reports": "Reports",
+    "settings": "Settings",
+    "group": {
+      "overview": "Overview",
+      "operations": "Operations",
+      "weighing": "Weighing",
+      "finance": "Finance",
+      "customers": "Customers",
+      "system": "System"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "greeting": "Welcome back, {name}",
+    "platformSubtitle": "Platform health and customer activity",
+    "contractorSubtitle": "Site activity across your projects",
+    "recyclerSubtitle": "Today's collections and weighing",
+    "tile": {
+      "contractors": "Contractors",
+      "recyclers": "Recyclers",
+      "projects": "Projects",
+      "users": "Users",
+      "onlineUsers": "Online now",
+      "planRevenue": "Subscription revenue",
+      "commissionRevenue": "Commission revenue",
+      "systemStatus": "System status"
+    },
+    "comingSoon": "This panel arrives with the next release."
+  },
+  "companies": {
+    "title": "Companies",
+    "count": "{count, plural, =0 {No companies} one {# company} other {# companies}}",
+    "new": "New company",
+    "createTitle": "New company",
+    "editTitle": "Edit company",
+    "viewTitle": "Company",
+    "section": {
+      "identity": "Identity",
+      "address": "Address",
+      "contact": "Contact",
+      "preferences": "Preferences"
+    },
+    "field": {
+      "code": "Code",
+      "name": "Company name",
+      "type": "Type",
+      "status": "Status",
+      "registrationNo": "Registration number",
+      "taxId": "Tax identification number",
+      "addressLine1": "Address line 1",
+      "addressLine2": "Address line 2",
+      "city": "City",
+      "state": "State",
+      "postcode": "Postcode",
+      "country": "Country",
+      "contactPerson": "Contact person",
+      "contactPhone": "Contact phone",
+      "contactEmail": "Contact email",
+      "logo": "Logo",
+      "defaultLanguage": "Default language",
+      "timezone": "Time zone",
+      "userCount": "Users",
+      "createdAt": "Opened"
+    },
+    "type": {
+      "CONTRACTOR": "Contractor",
+      "RECYCLER": "Recycler"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "TRIAL": "Trial",
+      "SUSPENDED": "Suspended",
+      "OVERDUE": "Overdue",
+      "CLOSED": "Closed"
+    },
+    "filter": {
+      "all": "All",
+      "contractors": "Contractors",
+      "recyclers": "Recyclers",
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This company will no longer appear anywhere in MSE Trace. Its past records stay in place and can be restored later.",
+      "confirm": "Remove",
+      "blockedByUsers": "This company still has people who can sign in. Suspend it instead, or deactivate them first."
+    },
+    "suspend": {
+      "title": "Suspend {name}?",
+      "description": "Nobody from this company will be able to sign in until it is reinstated. Work already recorded is untouched.",
+      "confirm": "Suspend",
+      "reasonRequired": "Give a reason so this can be reviewed later."
+    },
+    "reinstate": {
+      "title": "Reinstate {name}?",
+      "description": "Everyone from this company will be able to sign in again.",
+      "confirm": "Reinstate"
+    },
+    "toast": {
+      "created": "Company created",
+      "updated": "Company updated",
+      "removed": "Company removed",
+      "statusUpdated": "Company status updated"
+    },
+    "typeLocked": "A company's type cannot be changed after it is created."
+  },
+  "users": {
+    "title": "Users",
+    "titleStaff": "Internal staff",
+    "count": "{count, plural, =0 {No users} one {# user} other {# users}}",
+    "new": "New user",
+    "createTitle": "Invite a user",
+    "editTitle": "Edit user",
+    "viewTitle": "User",
+    "section": {
+      "identity": "Identity",
+      "access": "Access",
+      "preferences": "Preferences",
+      "activity": "Activity"
+    },
+    "field": {
+      "email": "Email",
+      "fullName": "Full name",
+      "phone": "Phone",
+      "role": "Role",
+      "company": "Company",
+      "status": "Status",
+      "language": "Language",
+      "timezone": "Time zone",
+      "lastLoginAt": "Last signed in",
+      "lastLoginIp": "Last IP",
+      "createdAt": "Added"
+    },
+    "status": {
+      "INVITED": "Invited",
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended"
+    },
+    "invite": {
+      "hint": "The person sets their own password from the link we email them. Nobody else ever sees it.",
+      "sent": "Invitation sent"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "They will not be able to sign in again. Everything they recorded stays exactly as it is.",
+      "confirm": "Remove"
+    },
+    "suspend": {
+      "title": "Suspend {name}?",
+      "description": "They will not be able to sign in until reinstated.",
+      "confirm": "Suspend"
+    },
+    "resetPassword": {
+      "action": "Send reset link",
+      "sent": "Reset link sent"
+    },
+    "toast": {
+      "created": "User invited",
+      "updated": "User updated",
+      "removed": "User removed",
+      "statusUpdated": "User status updated"
+    },
+    "cannotEditSelf": "You cannot change your own account status here. Use your profile instead."
+  },
+  "roles": {
+    "title": "Roles",
+    "count": "{count, plural, =0 {No roles} one {# role} other {# roles}}",
+    "new": "New role",
+    "createTitle": "New role",
+    "editTitle": "Edit role",
+    "viewTitle": "Role",
+    "section": {
+      "identity": "Identity",
+      "permissions": "Permissions"
+    },
+    "field": {
+      "code": "Code",
+      "name": "Role name",
+      "description": "Description",
+      "userCount": "People",
+      "permissions": "Permissions"
+    },
+    "system": "Built in",
+    "systemHint": "Built-in roles cannot be removed, so a company always keeps a way to manage its own people.",
+    "permissionCount": "{count, plural, =0 {No permissions} one {# permission} other {# permissions}}",
+    "selectAll": "Select all",
+    "clearAll": "Clear all",
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "Anyone holding this role loses the access it grants. Assign them a different role first.",
+      "confirm": "Remove",
+      "blockedByUsers": "This role is still assigned to people. Move them to another role first.",
+      "blockedBySystem": "Built-in roles cannot be removed."
+    },
+    "toast": {
+      "created": "Role created",
+      "updated": "Role updated",
+      "removed": "Role removed"
+    },
+    "system_": {
+      "platform_admin": "Platform Administrator",
+      "platform_support": "Support Agent",
+      "platform_finance": "Finance",
+      "company_admin": "Company Administrator",
+      "site_staff": "Site Staff",
+      "project_manager": "Project Manager",
+      "dispatcher": "Dispatcher",
+      "weighbridge_operator": "Weighbridge Operator",
+      "driver": "Driver",
+      "finance": "Finance",
+      "viewer": "Viewer"
+    }
+  },
+  "permissions": {
+    "group": {
+      "company": "Companies",
+      "user": "Users",
+      "role": "Roles",
+      "audit": "Audit",
+      "project": "Projects",
+      "supplier": "Suppliers",
+      "receipt": "Material receipts",
+      "dispatch": "Waste dispatches",
+      "task": "Driver tasks",
+      "scale": "Weighbridges",
+      "weighing": "Weighing",
+      "deduction": "Deductions",
+      "settlement": "Settlements",
+      "payment": "Payments",
+      "report": "Reports",
+      "billing": "Billing",
+      "ticket": "Support",
+      "announcement": "Announcements",
+      "platform": "Platform operations"
+    },
+    "code": {
+      "company.view": "View companies",
+      "company.create": "Open a company",
+      "company.update": "Edit company details",
+      "company.suspend": "Suspend or reinstate a company",
+      "user.view": "View users",
+      "user.create": "Invite users",
+      "user.update": "Edit users",
+      "user.suspend": "Suspend or remove users",
+      "role.view": "View roles",
+      "role.create": "Create roles",
+      "role.update": "Edit roles and permissions",
+      "role.delete": "Remove roles",
+      "audit.view": "Read the audit log",
+      "project.view": "View projects",
+      "project.create": "Create projects",
+      "project.update": "Edit projects",
+      "project.delete": "Remove projects",
+      "supplier.view": "View suppliers",
+      "supplier.create": "Add suppliers",
+      "supplier.update": "Edit suppliers",
+      "supplier.delete": "Remove suppliers",
+      "receipt.view": "View material receipts",
+      "receipt.create": "Record material receipts",
+      "receipt.update": "Edit material receipts",
+      "dispatch.view": "View waste dispatches",
+      "dispatch.create": "Record waste dispatches",
+      "dispatch.update": "Update waste dispatches",
+      "task.view": "View driver tasks",
+      "task.assign": "Assign drivers and vehicles",
+      "task.submit": "Submit task photos and reports",
+      "scale.view": "View weighbridges",
+      "scale.manage": "Configure weighbridges and gateways",
+      "weighing.view": "View weighing records",
+      "weighing.operate": "Run the weighbridge",
+      "weighing.void": "Void a weighing session",
+      "weighing.rule_view": "View fraud detection settings",
+      "weighing.rule_update": "Change fraud detection settings",
+      "deduction.view": "View deductions",
+      "deduction.create": "Record deductions",
+      "deduction.approve": "Approve excess deductions",
+      "settlement.view": "View settlements",
+      "settlement.create": "Create settlements",
+      "settlement.lock": "Lock settlement records",
+      "payment.view": "View payments",
+      "payment.create": "Record payment proof",
+      "report.view": "View reports",
+      "report.export": "Export reports",
+      "billing.view": "View billing",
+      "billing.manage": "Manage plans and subscriptions",
+      "commission.view": "View commission",
+      "commission.manage": "Manage commission",
+      "ticket.view": "View support tickets",
+      "ticket.create": "Raise support tickets",
+      "ticket.reply": "Reply to support tickets",
+      "announcement.view": "View announcements",
+      "announcement.manage": "Publish announcements",
+      "platform.maintenance": "Put the platform into maintenance",
+      "platform.impersonate": "Sign in as a customer",
+      "platform.monitor": "View system monitoring"
+    }
+  },
+  "audit": {
+    "title": "Audit log",
+    "count": "{count, plural, =0 {No entries} one {# entry} other {# entries}}",
+    "field": {
+      "createdAt": "When",
+      "actor": "Who",
+      "action": "Action",
+      "objectType": "Record type",
+      "objectRepr": "Record",
+      "reason": "Reason",
+      "ipAddress": "IP address",
+      "changes": "Changes"
+    },
+    "action": {
+      "CREATE": "Created",
+      "UPDATE": "Updated",
+      "DELETE": "Removed",
+      "RESTORE": "Restored",
+      "LOGIN": "Signed in",
+      "LOGOUT": "Signed out",
+      "LOGIN_FAILED": "Sign-in failed",
+      "PASSWORD_CHANGE": "Password changed",
+      "PERMISSION_CHANGE": "Permissions changed",
+      "BILLING_CHANGE": "Billing changed",
+      "EXPORT": "Exported",
+      "IMPERSONATE": "Signed in as customer",
+      "MAINTENANCE": "Maintenance",
+      "LOCK": "Locked"
+    },
+    "impersonatedBy": "Acting through {name}",
+    "before": "Before",
+    "after": "After",
+    "noChanges": "No field changes recorded"
+  },
+  "loginRecords": {
+    "title": "Sign-in history",
+    "count": "{count, plural, =0 {No attempts} one {# attempt} other {# attempts}}",
+    "field": {
+      "createdAt": "When",
+      "email": "Email",
+      "outcome": "Outcome",
+      "ipAddress": "IP address",
+      "userAgent": "Device"
+    },
+    "outcome": {
+      "SUCCESS": "Signed in",
+      "BAD_CREDENTIALS": "Wrong credentials",
+      "USER_SUSPENDED": "Account suspended",
+      "COMPANY_SUSPENDED": "Company suspended"
+    }
+  },
+  "profile": {
+    "title": "My profile",
+    "section": {
+      "identity": "Identity",
+      "preferences": "Preferences",
+      "security": "Security"
+    },
+    "toast": {
+      "updated": "Profile updated"
+    }
+  },
+  "errors": {
+    "notFound": "We could not find that.",
+    "notFoundBody": "It may have been removed, or you may not have access to it.",
+    "forbidden": "You do not have access to this.",
+    "forbiddenBody": "Ask your administrator if you need it.",
+    "network": "We could not reach the server.",
+    "networkBody": "Check your connection and try again.",
+    "generic": "Something went wrong.",
+    "genericBody": "Try again. If it keeps happening, contact support.",
+    "backToDashboard": "Back to dashboard"
+  }
+}

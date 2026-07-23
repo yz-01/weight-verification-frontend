@@ -1,0 +1,498 @@
+{
+  "app": {
+    "name": "MSE Trace",
+    "tagline": "重量可核验，废料可追溯"
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "create": "创建",
+    "edit": "编辑",
+    "remove": "移除",
+    "view": "查看",
+    "search": "搜索",
+    "columns": "字段",
+    "actions": "操作",
+    "back": "返回",
+    "confirm": "确认",
+    "close": "关闭",
+    "loading": "加载中",
+    "retry": "重试",
+    "optional": "选填",
+    "all": "全部",
+    "none": "无",
+    "export": "导出",
+    "refresh": "刷新",
+    "signOut": "退出登录",
+    "profile": "个人资料",
+    "settings": "设置",
+    "language": "语言",
+    "theme": "主题",
+    "themeLight": "浅色",
+    "themeDark": "深色",
+    "themeSystem": "跟随系统",
+    "emptyValue": "—",
+    "reason": "原因",
+    "reasonPlaceholder": "请说明此次变更的原因",
+    "selectPlaceholder": "请选择",
+    "searchPlaceholder": "搜索",
+    "noOptions": "没有可选项",
+    "saving": "保存中",
+    "unknownError": "出了点问题，请重试。"
+  },
+  "table": {
+    "showing": "显示第 {from} 至 {to} 条，共 {total} 条",
+    "showingEmpty": "暂无记录",
+    "noResults": "还没有任何记录",
+    "noResultsFiltered": "没有符合筛选条件的记录",
+    "clearFilters": "清除筛选",
+    "errorTitle": "列表加载失败",
+    "errorBody": "请检查网络连接后重试。",
+    "perPage": "每页",
+    "previous": "上一页",
+    "next": "下一页",
+    "selected": "已选 {count} 项"
+  },
+  "validation": {
+    "required": "此项为必填",
+    "email": "请输入有效的电子邮箱",
+    "minLength": "至少需要 {min} 个字符",
+    "maxLength": "最多 {max} 个字符",
+    "passwordMismatch": "两次输入的密码不一致",
+    "passwordTooShort": "密码至少 10 个字符"
+  },
+  "auth": {
+    "login": {
+      "title": "登录",
+      "subtitle": "进入你的 MSE Trace 工作台",
+      "email": "电子邮箱",
+      "emailPlaceholder": "you@company.com",
+      "password": "密码",
+      "passwordPlaceholder": "请输入密码",
+      "submit": "登录",
+      "forgot": "忘记密码？",
+      "invalid": "邮箱或密码不正确",
+      "userSuspended": "此账号已停用，请联系管理员。",
+      "companySuspended": "贵公司的账号已停用，请联系 MSE Trace 客服。",
+      "throttled": "尝试次数过多，请稍候再试。"
+    },
+    "forgot": {
+      "title": "重设密码",
+      "subtitle": "我们会发送一封邮件，让你设置新密码",
+      "submit": "发送重设链接",
+      "sent": "如果该邮箱已注册，重设链接稍后会送达。",
+      "backToLogin": "返回登录"
+    },
+    "reset": {
+      "title": "设置新密码",
+      "subtitle": "请使用一个你没用过的密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码",
+      "submit": "设置密码",
+      "success": "密码已更新，现在可以登录了。",
+      "invalidToken": "此重设链接无效或已过期，请重新申请。"
+    },
+    "changePassword": {
+      "title": "修改密码",
+      "current": "当前密码",
+      "new": "新密码",
+      "confirm": "确认新密码",
+      "submit": "修改密码",
+      "success": "密码已修改",
+      "incorrectCurrent": "当前密码不正确"
+    },
+    "sessionExpired": "登录已过期，请重新登录。",
+    "signedOut": "已退出登录"
+  },
+  "nav": {
+    "dashboard": "仪表板",
+    "companies": "客户公司",
+    "users": "用户",
+    "roles": "角色权限",
+    "auditLogs": "审计日志",
+    "loginRecords": "登录记录",
+    "projects": "项目",
+    "suppliers": "供应商",
+    "receipts": "材料收货",
+    "dispatches": "废料出场",
+    "tasks": "司机任务",
+    "scales": "地磅",
+    "weighing": "称重",
+    "settlements": "结算",
+    "payments": "付款",
+    "billing": "收费管理",
+    "commission": "平台佣金",
+    "tickets": "客服工单",
+    "announcements": "公告",
+    "reports": "报表",
+    "settings": "设置",
+    "group": {
+      "overview": "总览",
+      "operations": "业务",
+      "weighing": "称重",
+      "finance": "财务",
+      "customers": "客户",
+      "system": "系统"
+    }
+  },
+  "dashboard": {
+    "title": "仪表板",
+    "greeting": "欢迎回来，{name}",
+    "platformSubtitle": "平台运行状态与客户活跃度",
+    "contractorSubtitle": "各项目的工地动态",
+    "recyclerSubtitle": "今日收运与称重",
+    "tile": {
+      "contractors": "建筑商",
+      "recyclers": "回收商",
+      "projects": "项目",
+      "users": "用户",
+      "onlineUsers": "当前在线",
+      "planRevenue": "套餐收入",
+      "commissionRevenue": "佣金收入",
+      "systemStatus": "系统状态"
+    },
+    "comingSoon": "此面板将在下个版本上线。"
+  },
+  "companies": {
+    "title": "客户公司",
+    "count": "{count, plural, =0 {暂无公司} other {# 家公司}}",
+    "new": "新增公司",
+    "createTitle": "新增公司",
+    "editTitle": "编辑公司",
+    "viewTitle": "公司详情",
+    "section": {
+      "identity": "基本资料",
+      "address": "地址",
+      "contact": "联系方式",
+      "preferences": "偏好设置"
+    },
+    "field": {
+      "code": "编号",
+      "name": "公司名称",
+      "type": "类型",
+      "status": "状态",
+      "registrationNo": "注册号",
+      "taxId": "税务识别号",
+      "addressLine1": "地址第一行",
+      "addressLine2": "地址第二行",
+      "city": "城市",
+      "state": "州属",
+      "postcode": "邮编",
+      "country": "国家",
+      "contactPerson": "联系人",
+      "contactPhone": "联系电话",
+      "contactEmail": "联系邮箱",
+      "logo": "公司标志",
+      "defaultLanguage": "默认语言",
+      "timezone": "时区",
+      "userCount": "用户数",
+      "createdAt": "开通时间"
+    },
+    "type": {
+      "CONTRACTOR": "建筑商",
+      "RECYCLER": "回收商"
+    },
+    "status": {
+      "ACTIVE": "正常",
+      "TRIAL": "试用",
+      "SUSPENDED": "已停用",
+      "OVERDUE": "欠费",
+      "CLOSED": "已关闭"
+    },
+    "filter": {
+      "all": "全部",
+      "contractors": "建筑商",
+      "recyclers": "回收商",
+      "active": "正常",
+      "suspended": "已停用"
+    },
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "这家公司将不再出现在 MSE Trace 的任何地方。已有的记录会保留，之后可以恢复。",
+      "confirm": "移除",
+      "blockedByUsers": "这家公司还有可以登录的人员。请改为停用，或先停用这些人员。"
+    },
+    "suspend": {
+      "title": "停用 {name}？",
+      "description": "在恢复之前，这家公司的任何人都无法登录。已记录的业务数据不受影响。",
+      "confirm": "停用",
+      "reasonRequired": "请填写原因，以便日后追查。"
+    },
+    "reinstate": {
+      "title": "恢复 {name}？",
+      "description": "这家公司的所有人将可以重新登录。",
+      "confirm": "恢复"
+    },
+    "toast": {
+      "created": "公司已创建",
+      "updated": "公司已更新",
+      "removed": "公司已移除",
+      "statusUpdated": "公司状态已更新"
+    },
+    "typeLocked": "公司类型创建后不可更改。"
+  },
+  "users": {
+    "title": "用户",
+    "titleStaff": "内部人员",
+    "count": "{count, plural, =0 {暂无用户} other {# 位用户}}",
+    "new": "新增用户",
+    "createTitle": "邀请用户",
+    "editTitle": "编辑用户",
+    "viewTitle": "用户详情",
+    "section": {
+      "identity": "基本资料",
+      "access": "权限",
+      "preferences": "偏好设置",
+      "activity": "活动记录"
+    },
+    "field": {
+      "email": "电子邮箱",
+      "fullName": "姓名",
+      "phone": "电话",
+      "role": "角色",
+      "company": "所属公司",
+      "status": "状态",
+      "language": "语言",
+      "timezone": "时区",
+      "lastLoginAt": "最近登录",
+      "lastLoginIp": "最近 IP",
+      "createdAt": "创建时间"
+    },
+    "status": {
+      "INVITED": "待激活",
+      "ACTIVE": "正常",
+      "SUSPENDED": "已停用"
+    },
+    "invite": {
+      "hint": "对方通过我们发送的链接自行设置密码，任何人都不会经手这个密码。",
+      "sent": "邀请已发送"
+    },
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "此人将无法再登录。他们记录过的所有数据原样保留。",
+      "confirm": "移除"
+    },
+    "suspend": {
+      "title": "停用 {name}？",
+      "description": "在恢复之前，此人无法登录。",
+      "confirm": "停用"
+    },
+    "resetPassword": {
+      "action": "发送重设链接",
+      "sent": "重设链接已发送"
+    },
+    "toast": {
+      "created": "用户已邀请",
+      "updated": "用户已更新",
+      "removed": "用户已移除",
+      "statusUpdated": "用户状态已更新"
+    },
+    "cannotEditSelf": "无法在这里更改自己的账号状态，请到个人资料页操作。"
+  },
+  "roles": {
+    "title": "角色权限",
+    "count": "{count, plural, =0 {暂无角色} other {# 个角色}}",
+    "new": "新增角色",
+    "createTitle": "新增角色",
+    "editTitle": "编辑角色",
+    "viewTitle": "角色详情",
+    "section": {
+      "identity": "基本资料",
+      "permissions": "权限"
+    },
+    "field": {
+      "code": "代号",
+      "name": "角色名称",
+      "description": "说明",
+      "userCount": "人数",
+      "permissions": "权限"
+    },
+    "system": "系统内置",
+    "systemHint": "内置角色不可移除，确保公司始终有办法管理自己的人员。",
+    "permissionCount": "{count, plural, =0 {没有权限} other {# 项权限}}",
+    "selectAll": "全选",
+    "clearAll": "全部取消",
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "拥有此角色的人将失去它赋予的权限。请先为他们指派其他角色。",
+      "confirm": "移除",
+      "blockedByUsers": "此角色仍有人在使用，请先把他们改为其他角色。",
+      "blockedBySystem": "内置角色不可移除。"
+    },
+    "toast": {
+      "created": "角色已创建",
+      "updated": "角色已更新",
+      "removed": "角色已移除"
+    },
+    "system_": {
+      "platform_admin": "平台管理员",
+      "platform_support": "客服专员",
+      "platform_finance": "财务",
+      "company_admin": "公司管理员",
+      "site_staff": "工地人员",
+      "project_manager": "项目经理",
+      "dispatcher": "调度员",
+      "weighbridge_operator": "地磅操作员",
+      "driver": "司机",
+      "finance": "财务",
+      "viewer": "只读用户"
+    }
+  },
+  "permissions": {
+    "group": {
+      "company": "客户公司",
+      "user": "用户",
+      "role": "角色",
+      "audit": "审计",
+      "project": "项目",
+      "supplier": "供应商",
+      "receipt": "材料收货",
+      "dispatch": "废料出场",
+      "task": "司机任务",
+      "scale": "地磅",
+      "weighing": "称重",
+      "deduction": "扣杂",
+      "settlement": "结算",
+      "payment": "付款",
+      "report": "报表",
+      "billing": "收费",
+      "ticket": "客服",
+      "announcement": "公告",
+      "platform": "平台运维"
+    },
+    "code": {
+      "company.view": "查看客户公司",
+      "company.create": "开通公司",
+      "company.update": "编辑公司资料",
+      "company.suspend": "停用或恢复公司",
+      "user.view": "查看用户",
+      "user.create": "邀请用户",
+      "user.update": "编辑用户",
+      "user.suspend": "停用或移除用户",
+      "role.view": "查看角色",
+      "role.create": "创建角色",
+      "role.update": "编辑角色与权限",
+      "role.delete": "移除角色",
+      "audit.view": "查阅审计日志",
+      "project.view": "查看项目",
+      "project.create": "创建项目",
+      "project.update": "编辑项目",
+      "project.delete": "移除项目",
+      "supplier.view": "查看供应商",
+      "supplier.create": "新增供应商",
+      "supplier.update": "编辑供应商",
+      "supplier.delete": "移除供应商",
+      "receipt.view": "查看材料收货",
+      "receipt.create": "登记材料收货",
+      "receipt.update": "编辑材料收货",
+      "dispatch.view": "查看废料出场",
+      "dispatch.create": "登记废料出场",
+      "dispatch.update": "更新废料出场",
+      "task.view": "查看司机任务",
+      "task.assign": "分配司机与车辆",
+      "task.submit": "提交任务照片与报备",
+      "scale.view": "查看地磅",
+      "scale.manage": "配置地磅与网关",
+      "weighing.view": "查看称重记录",
+      "weighing.operate": "操作地磅",
+      "weighing.void": "作废称重会话",
+      "weighing.rule_view": "查看防诈骗参数",
+      "weighing.rule_update": "修改防诈骗参数",
+      "deduction.view": "查看扣杂",
+      "deduction.create": "登记扣杂",
+      "deduction.approve": "审批超额扣杂",
+      "settlement.view": "查看结算",
+      "settlement.create": "创建结算",
+      "settlement.lock": "锁定结算记录",
+      "payment.view": "查看付款",
+      "payment.create": "登记付款证明",
+      "report.view": "查看报表",
+      "report.export": "导出报表",
+      "billing.view": "查看收费",
+      "billing.manage": "管理套餐与订阅",
+      "commission.view": "查看佣金",
+      "commission.manage": "管理佣金",
+      "ticket.view": "查看工单",
+      "ticket.create": "提交工单",
+      "ticket.reply": "回复工单",
+      "announcement.view": "查看公告",
+      "announcement.manage": "发布公告",
+      "platform.maintenance": "开启平台维护模式",
+      "platform.impersonate": "模拟登录客户账号",
+      "platform.monitor": "查看系统监控"
+    }
+  },
+  "audit": {
+    "title": "审计日志",
+    "count": "{count, plural, =0 {暂无记录} other {# 条记录}}",
+    "field": {
+      "createdAt": "时间",
+      "actor": "操作人",
+      "action": "操作",
+      "objectType": "记录类型",
+      "objectRepr": "记录",
+      "reason": "原因",
+      "ipAddress": "IP 地址",
+      "changes": "变更内容"
+    },
+    "action": {
+      "CREATE": "创建",
+      "UPDATE": "修改",
+      "DELETE": "移除",
+      "RESTORE": "恢复",
+      "LOGIN": "登录",
+      "LOGOUT": "退出",
+      "LOGIN_FAILED": "登录失败",
+      "PASSWORD_CHANGE": "修改密码",
+      "PERMISSION_CHANGE": "权限变更",
+      "BILLING_CHANGE": "收费变更",
+      "EXPORT": "导出",
+      "IMPERSONATE": "模拟登录客户",
+      "MAINTENANCE": "系统维护",
+      "LOCK": "锁定"
+    },
+    "impersonatedBy": "由 {name} 代为操作",
+    "before": "变更前",
+    "after": "变更后",
+    "noChanges": "未记录字段变更"
+  },
+  "loginRecords": {
+    "title": "登录记录",
+    "count": "{count, plural, =0 {暂无记录} other {# 次尝试}}",
+    "field": {
+      "createdAt": "时间",
+      "email": "邮箱",
+      "outcome": "结果",
+      "ipAddress": "IP 地址",
+      "userAgent": "设备"
+    },
+    "outcome": {
+      "SUCCESS": "登录成功",
+      "BAD_CREDENTIALS": "凭据错误",
+      "USER_SUSPENDED": "账号已停用",
+      "COMPANY_SUSPENDED": "公司已停用"
+    }
+  },
+  "profile": {
+    "title": "个人资料",
+    "section": {
+      "identity": "基本资料",
+      "preferences": "偏好设置",
+      "security": "账号安全"
+    },
+    "toast": {
+      "updated": "资料已更新"
+    }
+  },
+  "errors": {
+    "notFound": "找不到这条记录。",
+    "notFoundBody": "它可能已被移除，或你没有访问权限。",
+    "forbidden": "你没有访问权限。",
+    "forbiddenBody": "如果确实需要，请联系管理员。",
+    "network": "无法连接服务器。",
+    "networkBody": "请检查网络连接后重试。",
+    "generic": "出了点问题。",
+    "genericBody": "请重试。如果反复出现，请联系客服。",
+    "backToDashboard": "返回仪表板"
+  }
+}

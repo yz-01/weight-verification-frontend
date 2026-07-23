@@ -1,0 +1,98 @@
+/** Users and roles inside a company, or the platform's own staff. */
+
+import type { ListQuery, Paginated } from "@/interfaces/api";
+import type {
+  LoginRecord,
+  Role,
+  RolePayload,
+  UserDetail,
+  UserPayload,
+  UserRow,
+} from "@/interfaces/auth";
+import { api, toastSuccess } from "@/services/api-client";
+
+export function getUsers(query: ListQuery): Promise<Paginated<UserRow>> {
+  return api.list<UserRow>("/api/users/get_users/", query);
+}
+
+export function getUser(id: string): Promise<UserDetail> {
+  return api.get<UserDetail>(`/api/users/${id}/get_user/`);
+}
+
+export async function createUser(
+  payload: UserPayload & { company?: string },
+): Promise<UserDetail> {
+  const user = await api.post<UserDetail>("/api/users/create_user/", payload);
+  toastSuccess("users.toast.created");
+  return user;
+}
+
+export async function updateUser(
+  id: string,
+  payload: Partial<UserPayload>,
+): Promise<UserDetail> {
+  const user = await api.patch<UserDetail>(
+    `/api/users/${id}/update_user/`,
+    payload,
+  );
+  toastSuccess("users.toast.updated");
+  return user;
+}
+
+export async function updateUserStatus(
+  id: string,
+  payload: { status: "ACTIVE" | "SUSPENDED"; reason?: string },
+): Promise<UserDetail> {
+  const user = await api.post<UserDetail>(
+    `/api/users/${id}/update_user_status/`,
+    payload,
+  );
+  toastSuccess("users.toast.statusUpdated");
+  return user;
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  await api.delete(`/api/users/${id}/delete_user/`);
+  toastSuccess("users.toast.removed");
+}
+
+export async function sendPasswordReset(id: string): Promise<void> {
+  await api.post(`/api/users/${id}/send_password_reset/`);
+  toastSuccess("users.resetPassword.sent");
+}
+
+export function getRoles(query: ListQuery): Promise<Paginated<Role>> {
+  return api.list<Role>("/api/roles/get_roles/", query);
+}
+
+export function getRole(id: string): Promise<Role> {
+  return api.get<Role>(`/api/roles/${id}/get_role/`);
+}
+
+export async function createRole(
+  payload: RolePayload & { company?: string },
+): Promise<Role> {
+  const role = await api.post<Role>("/api/roles/create_role/", payload);
+  toastSuccess("roles.toast.created");
+  return role;
+}
+
+export async function updateRole(
+  id: string,
+  payload: Partial<RolePayload>,
+): Promise<Role> {
+  const role = await api.patch<Role>(`/api/roles/${id}/update_role/`, payload);
+  toastSuccess("roles.toast.updated");
+  return role;
+}
+
+export async function deleteRole(id: string): Promise<void> {
+  await api.delete(`/api/roles/${id}/delete_role/`);
+  toastSuccess("roles.toast.removed");
+}
+
+export function getLoginRecords(
+  query: ListQuery,
+): Promise<Paginated<LoginRecord>> {
+  return api.list<LoginRecord>("/api/login-records/get_login_records/", query);
+}

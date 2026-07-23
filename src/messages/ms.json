@@ -1,0 +1,498 @@
+{
+  "app": {
+    "name": "MSE Trace",
+    "tagline": "Berat disahkan. Sisa dijejaki."
+  },
+  "common": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "create": "Cipta",
+    "edit": "Sunting",
+    "remove": "Buang",
+    "view": "Lihat",
+    "search": "Cari",
+    "columns": "Lajur",
+    "actions": "Tindakan",
+    "back": "Kembali",
+    "confirm": "Sahkan",
+    "close": "Tutup",
+    "loading": "Memuatkan",
+    "retry": "Cuba lagi",
+    "optional": "pilihan",
+    "all": "Semua",
+    "none": "Tiada",
+    "export": "Eksport",
+    "refresh": "Muat semula",
+    "signOut": "Log keluar",
+    "profile": "Profil",
+    "settings": "Tetapan",
+    "language": "Bahasa",
+    "theme": "Tema",
+    "themeLight": "Cerah",
+    "themeDark": "Gelap",
+    "themeSystem": "Ikut sistem",
+    "emptyValue": "—",
+    "reason": "Sebab",
+    "reasonPlaceholder": "Mengapa perubahan ini dibuat?",
+    "selectPlaceholder": "Pilih",
+    "searchPlaceholder": "Cari",
+    "noOptions": "Tiada pilihan",
+    "saving": "Menyimpan",
+    "unknownError": "Ada masalah. Sila cuba lagi."
+  },
+  "table": {
+    "showing": "Memaparkan {from} hingga {to} daripada {total} rekod",
+    "showingEmpty": "Tiada rekod",
+    "noResults": "Belum ada rekod di sini",
+    "noResultsFiltered": "Tiada rekod sepadan dengan penapis anda",
+    "clearFilters": "Kosongkan penapis",
+    "errorTitle": "Senarai ini tidak dapat dimuatkan",
+    "errorBody": "Semak sambungan anda dan cuba lagi.",
+    "perPage": "Setiap muka",
+    "previous": "Sebelum",
+    "next": "Seterusnya",
+    "selected": "{count} dipilih"
+  },
+  "validation": {
+    "required": "Ruangan ini wajib diisi",
+    "email": "Masukkan alamat e-mel yang sah",
+    "minLength": "Gunakan sekurang-kurangnya {min} aksara",
+    "maxLength": "Gunakan tidak lebih daripada {max} aksara",
+    "passwordMismatch": "Kedua-dua kata laluan tidak sama",
+    "passwordTooShort": "Gunakan sekurang-kurangnya 10 aksara"
+  },
+  "auth": {
+    "login": {
+      "title": "Log masuk",
+      "subtitle": "Masuk ke ruang kerja MSE Trace anda",
+      "email": "E-mel",
+      "emailPlaceholder": "anda@syarikat.com",
+      "password": "Kata laluan",
+      "passwordPlaceholder": "Kata laluan anda",
+      "submit": "Log masuk",
+      "forgot": "Lupa kata laluan?",
+      "invalid": "E-mel atau kata laluan salah",
+      "userSuspended": "Akaun ini tidak aktif. Hubungi pentadbir anda.",
+      "companySuspended": "Akaun syarikat anda tidak aktif. Hubungi sokongan MSE Trace.",
+      "throttled": "Terlalu banyak percubaan. Tunggu sebentar dan cuba lagi."
+    },
+    "forgot": {
+      "title": "Tetapkan semula kata laluan",
+      "subtitle": "Kami akan e-mel pautan untuk anda tetapkan kata laluan baharu",
+      "submit": "Hantar pautan",
+      "sent": "Jika e-mel itu berdaftar, pautan tetapan semula sedang dihantar.",
+      "backToLogin": "Kembali ke log masuk"
+    },
+    "reset": {
+      "title": "Tetapkan kata laluan baharu",
+      "subtitle": "Pilih kata laluan yang belum pernah anda guna",
+      "newPassword": "Kata laluan baharu",
+      "confirmPassword": "Sahkan kata laluan",
+      "submit": "Tetapkan kata laluan",
+      "success": "Kata laluan dikemas kini. Anda boleh log masuk sekarang.",
+      "invalidToken": "Pautan ini tidak sah atau telah tamat tempoh. Minta yang baharu."
+    },
+    "changePassword": {
+      "title": "Tukar kata laluan",
+      "current": "Kata laluan semasa",
+      "new": "Kata laluan baharu",
+      "confirm": "Sahkan kata laluan baharu",
+      "submit": "Tukar kata laluan",
+      "success": "Kata laluan ditukar",
+      "incorrectCurrent": "Kata laluan semasa anda salah"
+    },
+    "sessionExpired": "Sesi anda telah tamat. Sila log masuk semula.",
+    "signedOut": "Telah log keluar"
+  },
+  "nav": {
+    "dashboard": "Papan pemuka",
+    "companies": "Syarikat",
+    "users": "Pengguna",
+    "roles": "Peranan",
+    "auditLogs": "Log audit",
+    "loginRecords": "Sejarah log masuk",
+    "projects": "Projek",
+    "suppliers": "Pembekal",
+    "receipts": "Terimaan bahan",
+    "dispatches": "Penghantaran sisa",
+    "tasks": "Tugas pemandu",
+    "scales": "Jambatan timbang",
+    "weighing": "Penimbangan",
+    "settlements": "Penyelesaian",
+    "payments": "Pembayaran",
+    "billing": "Pengebilan",
+    "commission": "Komisen",
+    "tickets": "Tiket sokongan",
+    "announcements": "Pengumuman",
+    "reports": "Laporan",
+    "settings": "Tetapan",
+    "group": {
+      "overview": "Ringkasan",
+      "operations": "Operasi",
+      "weighing": "Penimbangan",
+      "finance": "Kewangan",
+      "customers": "Pelanggan",
+      "system": "Sistem"
+    }
+  },
+  "dashboard": {
+    "title": "Papan pemuka",
+    "greeting": "Selamat kembali, {name}",
+    "platformSubtitle": "Kesihatan platform dan aktiviti pelanggan",
+    "contractorSubtitle": "Aktiviti tapak merentas projek anda",
+    "recyclerSubtitle": "Kutipan dan penimbangan hari ini",
+    "tile": {
+      "contractors": "Kontraktor",
+      "recyclers": "Pengitar semula",
+      "projects": "Projek",
+      "users": "Pengguna",
+      "onlineUsers": "Dalam talian",
+      "planRevenue": "Hasil langganan",
+      "commissionRevenue": "Hasil komisen",
+      "systemStatus": "Status sistem"
+    },
+    "comingSoon": "Panel ini akan tiba dalam keluaran seterusnya."
+  },
+  "companies": {
+    "title": "Syarikat",
+    "count": "{count, plural, =0 {Tiada syarikat} other {# syarikat}}",
+    "new": "Syarikat baharu",
+    "createTitle": "Syarikat baharu",
+    "editTitle": "Sunting syarikat",
+    "viewTitle": "Syarikat",
+    "section": {
+      "identity": "Maklumat asas",
+      "address": "Alamat",
+      "contact": "Hubungan",
+      "preferences": "Keutamaan"
+    },
+    "field": {
+      "code": "Kod",
+      "name": "Nama syarikat",
+      "type": "Jenis",
+      "status": "Status",
+      "registrationNo": "Nombor pendaftaran",
+      "taxId": "Nombor pengenalan cukai",
+      "addressLine1": "Alamat baris 1",
+      "addressLine2": "Alamat baris 2",
+      "city": "Bandar",
+      "state": "Negeri",
+      "postcode": "Poskod",
+      "country": "Negara",
+      "contactPerson": "Orang untuk dihubungi",
+      "contactPhone": "Telefon",
+      "contactEmail": "E-mel",
+      "logo": "Logo",
+      "defaultLanguage": "Bahasa lalai",
+      "timezone": "Zon waktu",
+      "userCount": "Pengguna",
+      "createdAt": "Dibuka"
+    },
+    "type": {
+      "CONTRACTOR": "Kontraktor",
+      "RECYCLER": "Pengitar semula"
+    },
+    "status": {
+      "ACTIVE": "Aktif",
+      "TRIAL": "Percubaan",
+      "SUSPENDED": "Digantung",
+      "OVERDUE": "Tertunggak",
+      "CLOSED": "Ditutup"
+    },
+    "filter": {
+      "all": "Semua",
+      "contractors": "Kontraktor",
+      "recyclers": "Pengitar semula",
+      "active": "Aktif",
+      "suspended": "Digantung"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Syarikat ini tidak akan muncul di mana-mana dalam MSE Trace. Rekod lalunya kekal dan boleh dipulihkan kemudian.",
+      "confirm": "Buang",
+      "blockedByUsers": "Syarikat ini masih ada orang yang boleh log masuk. Gantung sahaja, atau nyahaktifkan mereka dahulu."
+    },
+    "suspend": {
+      "title": "Gantung {name}?",
+      "description": "Tiada sesiapa dari syarikat ini boleh log masuk sehingga ia dipulihkan. Kerja yang telah direkod tidak disentuh.",
+      "confirm": "Gantung",
+      "reasonRequired": "Berikan sebab supaya ia boleh disemak kemudian."
+    },
+    "reinstate": {
+      "title": "Pulihkan {name}?",
+      "description": "Semua orang dari syarikat ini boleh log masuk semula.",
+      "confirm": "Pulihkan"
+    },
+    "toast": {
+      "created": "Syarikat dicipta",
+      "updated": "Syarikat dikemas kini",
+      "removed": "Syarikat dibuang",
+      "statusUpdated": "Status syarikat dikemas kini"
+    },
+    "typeLocked": "Jenis syarikat tidak boleh diubah selepas ia dicipta."
+  },
+  "users": {
+    "title": "Pengguna",
+    "titleStaff": "Kakitangan dalaman",
+    "count": "{count, plural, =0 {Tiada pengguna} other {# pengguna}}",
+    "new": "Pengguna baharu",
+    "createTitle": "Jemput pengguna",
+    "editTitle": "Sunting pengguna",
+    "viewTitle": "Pengguna",
+    "section": {
+      "identity": "Maklumat asas",
+      "access": "Akses",
+      "preferences": "Keutamaan",
+      "activity": "Aktiviti"
+    },
+    "field": {
+      "email": "E-mel",
+      "fullName": "Nama penuh",
+      "phone": "Telefon",
+      "role": "Peranan",
+      "company": "Syarikat",
+      "status": "Status",
+      "language": "Bahasa",
+      "timezone": "Zon waktu",
+      "lastLoginAt": "Log masuk terakhir",
+      "lastLoginIp": "IP terakhir",
+      "createdAt": "Ditambah"
+    },
+    "status": {
+      "INVITED": "Dijemput",
+      "ACTIVE": "Aktif",
+      "SUSPENDED": "Digantung"
+    },
+    "invite": {
+      "hint": "Orang itu menetapkan kata laluan sendiri melalui pautan yang kami e-mel. Tiada sesiapa lain melihatnya.",
+      "sent": "Jemputan dihantar"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Mereka tidak akan dapat log masuk lagi. Semua yang mereka rekodkan kekal seperti sedia ada.",
+      "confirm": "Buang"
+    },
+    "suspend": {
+      "title": "Gantung {name}?",
+      "description": "Mereka tidak akan dapat log masuk sehingga dipulihkan.",
+      "confirm": "Gantung"
+    },
+    "resetPassword": {
+      "action": "Hantar pautan tetapan semula",
+      "sent": "Pautan tetapan semula dihantar"
+    },
+    "toast": {
+      "created": "Pengguna dijemput",
+      "updated": "Pengguna dikemas kini",
+      "removed": "Pengguna dibuang",
+      "statusUpdated": "Status pengguna dikemas kini"
+    },
+    "cannotEditSelf": "Anda tidak boleh menukar status akaun sendiri di sini. Gunakan profil anda."
+  },
+  "roles": {
+    "title": "Peranan",
+    "count": "{count, plural, =0 {Tiada peranan} other {# peranan}}",
+    "new": "Peranan baharu",
+    "createTitle": "Peranan baharu",
+    "editTitle": "Sunting peranan",
+    "viewTitle": "Peranan",
+    "section": {
+      "identity": "Maklumat asas",
+      "permissions": "Kebenaran"
+    },
+    "field": {
+      "code": "Kod",
+      "name": "Nama peranan",
+      "description": "Keterangan",
+      "userCount": "Orang",
+      "permissions": "Kebenaran"
+    },
+    "system": "Terbina dalam",
+    "systemHint": "Peranan terbina dalam tidak boleh dibuang, supaya syarikat sentiasa ada cara untuk menguruskan orangnya sendiri.",
+    "permissionCount": "{count, plural, =0 {Tiada kebenaran} other {# kebenaran}}",
+    "selectAll": "Pilih semua",
+    "clearAll": "Kosongkan semua",
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Sesiapa yang memegang peranan ini akan kehilangan aksesnya. Berikan mereka peranan lain dahulu.",
+      "confirm": "Buang",
+      "blockedByUsers": "Peranan ini masih diberikan kepada orang. Pindahkan mereka ke peranan lain dahulu.",
+      "blockedBySystem": "Peranan terbina dalam tidak boleh dibuang."
+    },
+    "toast": {
+      "created": "Peranan dicipta",
+      "updated": "Peranan dikemas kini",
+      "removed": "Peranan dibuang"
+    },
+    "system_": {
+      "platform_admin": "Pentadbir Platform",
+      "platform_support": "Ejen Sokongan",
+      "platform_finance": "Kewangan",
+      "company_admin": "Pentadbir Syarikat",
+      "site_staff": "Kakitangan Tapak",
+      "project_manager": "Pengurus Projek",
+      "dispatcher": "Penyelaras",
+      "weighbridge_operator": "Operator Jambatan Timbang",
+      "driver": "Pemandu",
+      "finance": "Kewangan",
+      "viewer": "Pemerhati"
+    }
+  },
+  "permissions": {
+    "group": {
+      "company": "Syarikat",
+      "user": "Pengguna",
+      "role": "Peranan",
+      "audit": "Audit",
+      "project": "Projek",
+      "supplier": "Pembekal",
+      "receipt": "Terimaan bahan",
+      "dispatch": "Penghantaran sisa",
+      "task": "Tugas pemandu",
+      "scale": "Jambatan timbang",
+      "weighing": "Penimbangan",
+      "deduction": "Potongan",
+      "settlement": "Penyelesaian",
+      "payment": "Pembayaran",
+      "report": "Laporan",
+      "billing": "Pengebilan",
+      "ticket": "Sokongan",
+      "announcement": "Pengumuman",
+      "platform": "Operasi platform"
+    },
+    "code": {
+      "company.view": "Lihat syarikat",
+      "company.create": "Buka syarikat",
+      "company.update": "Sunting butiran syarikat",
+      "company.suspend": "Gantung atau pulihkan syarikat",
+      "user.view": "Lihat pengguna",
+      "user.create": "Jemput pengguna",
+      "user.update": "Sunting pengguna",
+      "user.suspend": "Gantung atau buang pengguna",
+      "role.view": "Lihat peranan",
+      "role.create": "Cipta peranan",
+      "role.update": "Sunting peranan dan kebenaran",
+      "role.delete": "Buang peranan",
+      "audit.view": "Baca log audit",
+      "project.view": "Lihat projek",
+      "project.create": "Cipta projek",
+      "project.update": "Sunting projek",
+      "project.delete": "Buang projek",
+      "supplier.view": "Lihat pembekal",
+      "supplier.create": "Tambah pembekal",
+      "supplier.update": "Sunting pembekal",
+      "supplier.delete": "Buang pembekal",
+      "receipt.view": "Lihat terimaan bahan",
+      "receipt.create": "Rekod terimaan bahan",
+      "receipt.update": "Sunting terimaan bahan",
+      "dispatch.view": "Lihat penghantaran sisa",
+      "dispatch.create": "Rekod penghantaran sisa",
+      "dispatch.update": "Kemas kini penghantaran sisa",
+      "task.view": "Lihat tugas pemandu",
+      "task.assign": "Tetapkan pemandu dan kenderaan",
+      "task.submit": "Hantar foto dan laporan tugas",
+      "scale.view": "Lihat jambatan timbang",
+      "scale.manage": "Konfigurasi jambatan timbang dan gateway",
+      "weighing.view": "Lihat rekod penimbangan",
+      "weighing.operate": "Kendalikan jambatan timbang",
+      "weighing.void": "Batalkan sesi penimbangan",
+      "weighing.rule_view": "Lihat tetapan pengesanan penipuan",
+      "weighing.rule_update": "Ubah tetapan pengesanan penipuan",
+      "deduction.view": "Lihat potongan",
+      "deduction.create": "Rekod potongan",
+      "deduction.approve": "Luluskan potongan berlebihan",
+      "settlement.view": "Lihat penyelesaian",
+      "settlement.create": "Cipta penyelesaian",
+      "settlement.lock": "Kunci rekod penyelesaian",
+      "payment.view": "Lihat pembayaran",
+      "payment.create": "Rekod bukti pembayaran",
+      "report.view": "Lihat laporan",
+      "report.export": "Eksport laporan",
+      "billing.view": "Lihat pengebilan",
+      "billing.manage": "Urus pelan dan langganan",
+      "commission.view": "Lihat komisen",
+      "commission.manage": "Urus komisen",
+      "ticket.view": "Lihat tiket sokongan",
+      "ticket.create": "Buka tiket sokongan",
+      "ticket.reply": "Balas tiket sokongan",
+      "announcement.view": "Lihat pengumuman",
+      "announcement.manage": "Terbitkan pengumuman",
+      "platform.maintenance": "Letakkan platform dalam penyelenggaraan",
+      "platform.impersonate": "Log masuk sebagai pelanggan",
+      "platform.monitor": "Lihat pemantauan sistem"
+    }
+  },
+  "audit": {
+    "title": "Log audit",
+    "count": "{count, plural, =0 {Tiada rekod} other {# rekod}}",
+    "field": {
+      "createdAt": "Bila",
+      "actor": "Siapa",
+      "action": "Tindakan",
+      "objectType": "Jenis rekod",
+      "objectRepr": "Rekod",
+      "reason": "Sebab",
+      "ipAddress": "Alamat IP",
+      "changes": "Perubahan"
+    },
+    "action": {
+      "CREATE": "Dicipta",
+      "UPDATE": "Dikemas kini",
+      "DELETE": "Dibuang",
+      "RESTORE": "Dipulihkan",
+      "LOGIN": "Log masuk",
+      "LOGOUT": "Log keluar",
+      "LOGIN_FAILED": "Log masuk gagal",
+      "PASSWORD_CHANGE": "Kata laluan ditukar",
+      "PERMISSION_CHANGE": "Kebenaran diubah",
+      "BILLING_CHANGE": "Pengebilan diubah",
+      "EXPORT": "Dieksport",
+      "IMPERSONATE": "Log masuk sebagai pelanggan",
+      "MAINTENANCE": "Penyelenggaraan",
+      "LOCK": "Dikunci"
+    },
+    "impersonatedBy": "Bertindak melalui {name}",
+    "before": "Sebelum",
+    "after": "Selepas",
+    "noChanges": "Tiada perubahan ruangan direkodkan"
+  },
+  "loginRecords": {
+    "title": "Sejarah log masuk",
+    "count": "{count, plural, =0 {Tiada percubaan} other {# percubaan}}",
+    "field": {
+      "createdAt": "Bila",
+      "email": "E-mel",
+      "outcome": "Keputusan",
+      "ipAddress": "Alamat IP",
+      "userAgent": "Peranti"
+    },
+    "outcome": {
+      "SUCCESS": "Berjaya log masuk",
+      "BAD_CREDENTIALS": "Kelayakan salah",
+      "USER_SUSPENDED": "Akaun digantung",
+      "COMPANY_SUSPENDED": "Syarikat digantung"
+    }
+  },
+  "profile": {
+    "title": "Profil saya",
+    "section": {
+      "identity": "Maklumat asas",
+      "preferences": "Keutamaan",
+      "security": "Keselamatan"
+    },
+    "toast": {
+      "updated": "Profil dikemas kini"
+    }
+  },
+  "errors": {
+    "notFound": "Kami tidak jumpa itu.",
+    "notFoundBody": "Ia mungkin telah dibuang, atau anda tiada akses kepadanya.",
+    "forbidden": "Anda tiada akses kepada ini.",
+    "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
+    "network": "Kami tidak dapat menghubungi pelayan.",
+    "networkBody": "Semak sambungan anda dan cuba lagi.",
+    "generic": "Ada masalah.",
+    "genericBody": "Cuba lagi. Jika ia berterusan, hubungi sokongan.",
+    "backToDashboard": "Kembali ke papan pemuka"
+  }
+}
