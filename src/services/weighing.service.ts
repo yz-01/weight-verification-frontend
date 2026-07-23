@@ -20,7 +20,7 @@ import type {
   WeighSessionRow,
   WeighSessionSummary,
 } from "@/interfaces/weighing";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, toastSuccess } from "@/services/api-client";
 
 export function getSites(query: ListQuery): Promise<Paginated<RecyclingSite>> {
   return api.list<RecyclingSite>("/api/sites/get_sites/", query);
@@ -207,4 +207,27 @@ export async function publishRuleSet(payload: {
   );
   toastSuccess("weighingRules.toast.published");
   return ruleset;
+}
+
+
+/**
+ * The weighbridge ticket, as a PDF.
+ *
+ * Every word on the document travels in the request. The backend holds no
+ * message catalogue — one copy of the translations, in one place — so it is
+ * handed the labels already in the reader's language and lays out the page.
+ *
+ * Readable by both companies. A producer disputing a load needs the same sheet
+ * the yard is holding, not a summary of it.
+ */
+export function printWeighTicket(
+  sessionId: string,
+  sessionNo: string,
+  labels: Record<string, string>,
+): Promise<void> {
+  return download(`/api/weigh-sessions/${sessionId}/print_ticket/`, {
+    method: "POST",
+    body: { labels },
+    fallbackFilename: `${sessionNo}.pdf`,
+  });
 }

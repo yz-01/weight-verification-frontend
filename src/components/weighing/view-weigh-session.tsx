@@ -15,6 +15,7 @@ import {
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
+import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
   DetailHeader,
   ReadField,
@@ -76,7 +77,16 @@ export function ViewWeighSession({ id }: { id: string }) {
 
   return (
     <div className="space-y-4">
-      <DetailHeader backHref="/weighing" backLabel={t("weighing.title")} />
+      <DetailHeader
+        backHref="/weighing"
+        backLabel={t("weighing.title")}
+        action={
+          <PrintTicketButton
+            sessionId={record.id}
+            sessionNo={record.session_no}
+          />
+        }
+      />
 
       <div className="rounded-xl border bg-card shadow-sm">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">

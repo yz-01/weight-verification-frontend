@@ -43,6 +43,23 @@ export type AnomalyCode =
   | "FRAME_MISMATCH"
   | "PLATE_MISMATCH";
 
+/** Every code, for callers that must supply a label for each one. */
+export const ANOMALY_CODES: AnomalyCode[] = [
+  "SINGLE_READING_ONLY",
+  "NO_CONTINUOUS_STREAM",
+  "SUDDEN_DROP",
+  "SUDDEN_RISE",
+  "STREAM_INTERRUPTED",
+  "MID_SESSION_TARE",
+  "SEQ_GAP",
+  "STABLE_FLAG_MISMATCH",
+  "SIGNATURE_INVALID",
+  "CLOCK_SKEW",
+  "FRAME_PARSE_FAILED",
+  "FRAME_MISMATCH",
+  "PLATE_MISMATCH",
+];
+
 export interface RecyclingSite {
   id: string;
   code: string;

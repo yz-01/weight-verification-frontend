@@ -1576,5 +1576,65 @@
     "toast": {
       "photoSent": "照片已上传"
     }
+  },
+  "ticket": {
+    "title": "地磅单",
+    "action": "打印地磅单",
+    "footer": "由 MSE Trace 出具。本次称重的每一笔读数均原样保存，可凭上方哈希重新核验。",
+    "evidenceNote": "这两个哈希把本次称重与仪表发出的每一笔读数串成一条链。任何一笔已存读数被改动，从那一点起整条链都会校验失败。",
+    "voidWeightsNote": "本次称重未通过检测，因此没有据此得出净重。上方读数仅供参考，不得用于结算。",
+    "section": {
+      "weighing": "称重",
+      "load": "货物",
+      "weights": "重量",
+      "anomalies": "本次称重被判无效的原因",
+      "evidence": "证据"
+    },
+    "field": {
+      "sessionNo": "单号",
+      "scale": "地磅",
+      "direction": "本次过磅",
+      "vehiclePlate": "车牌",
+      "startedAt": "开始时间",
+      "endedAt": "结束时间",
+      "attemptNo": "第几次",
+      "readingCount": "读数条数",
+      "dispatchNo": "出场单号",
+      "wasteType": "物料",
+      "contractor": "产废方",
+      "project": "工地",
+      "driver": "司机",
+      "declaredWeight": "申报重量（公斤）",
+      "stableWeight": "稳定重量（公斤）",
+      "peakWeight": "峰值（公斤）",
+      "grossWeight": "毛重（公斤）",
+      "tareWeight": "皮重（公斤）",
+      "netWeight": "净重（公斤）",
+      "deductions": "扣杂（公斤）",
+      "settledWeight": "结算重量（公斤）",
+      "firstHash": "首条读数哈希",
+      "lastHash": "末条读数哈希"
+    },
+    "column": {
+      "anomaly": "检测项",
+      "detail": "详情",
+      "deduction": "扣杂",
+      "weight": "重量（公斤）",
+      "reason": "原因"
+    },
+    "verdict": {
+      "valid": "有效",
+      "validNote": "本次称重通过了当时生效的全部检测。",
+      "void": "无效 —— 不可用于结算",
+      "voidNote": "有检测项未通过。本单是对发生了什么的记录，不是付款依据。"
+    },
+    "tareSource": {
+      "MEASURED": "皮重由本台地磅实测。",
+      "STORED": "皮重取自车辆档案，本次未实测。"
+    },
+    "signature": {
+      "operator": "地磅员",
+      "driver": "司机"
+    }
   }
 }

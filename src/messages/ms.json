@@ -1576,5 +1576,65 @@
     "toast": {
       "photoSent": "Foto dihantar"
     }
+  },
+  "ticket": {
+    "title": "Tiket jambatan timbang",
+    "action": "Cetak tiket",
+    "footer": "Dikeluarkan oleh MSE Trace. Setiap bacaan di sebalik timbangan ini disimpan tanpa diubah dan boleh disahkan semula terhadap cincang di atas.",
+    "evidenceNote": "Cincang ini merantai timbangan ini kepada setiap bacaan yang dihantar alat. Sebarang perubahan pada bacaan tersimpan memutuskan rantai dari titik itu.",
+    "voidWeightsNote": "Timbangan ini tidak lulus pemeriksaan, jadi tiada berat bersih diterbitkan daripadanya. Bacaan di atas hanya untuk rujukan dan tidak boleh diselesaikan.",
+    "section": {
+      "weighing": "Timbangan",
+      "load": "Muatan",
+      "weights": "Berat",
+      "anomalies": "Sebab timbangan ini ditolak",
+      "evidence": "Bukti"
+    },
+    "field": {
+      "sessionNo": "No. tiket",
+      "scale": "Jambatan timbang",
+      "direction": "Pusingan",
+      "vehiclePlate": "Kenderaan",
+      "startedAt": "Mula",
+      "endedAt": "Tamat",
+      "attemptNo": "Percubaan",
+      "readingCount": "Bacaan",
+      "dispatchNo": "Nota penghantaran",
+      "wasteType": "Bahan",
+      "contractor": "Penghasil",
+      "project": "Tapak",
+      "driver": "Pemandu",
+      "declaredWeight": "Diisytihar (kg)",
+      "stableWeight": "Berat stabil (kg)",
+      "peakWeight": "Puncak (kg)",
+      "grossWeight": "Kasar (kg)",
+      "tareWeight": "Tara (kg)",
+      "netWeight": "Bersih (kg)",
+      "deductions": "Potongan (kg)",
+      "settledWeight": "Diselesaikan (kg)",
+      "firstHash": "Cincang bacaan pertama",
+      "lastHash": "Cincang bacaan terakhir"
+    },
+    "column": {
+      "anomaly": "Pemeriksaan",
+      "detail": "Butiran",
+      "deduction": "Potongan",
+      "weight": "Berat (kg)",
+      "reason": "Sebab"
+    },
+    "verdict": {
+      "valid": "Diterima",
+      "validNote": "Timbangan ini lulus setiap pemeriksaan yang berkuat kuasa ketika itu.",
+      "void": "Ditolak — tidak sah untuk penyelesaian",
+      "voidNote": "Satu atau lebih pemeriksaan gagal. Tiket ini rekod apa yang berlaku, bukan asas pembayaran."
+    },
+    "tareSource": {
+      "MEASURED": "Tara diukur di jambatan timbang ini.",
+      "STORED": "Tara diambil daripada rekod kenderaan, bukan diukur pada lawatan ini."
+    },
+    "signature": {
+      "operator": "Pengendali jambatan timbang",
+      "driver": "Pemandu"
+    }
   }
 }

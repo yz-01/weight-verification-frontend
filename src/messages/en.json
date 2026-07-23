@@ -1576,5 +1576,65 @@
     "toast": {
       "photoSent": "Photo sent"
     }
+  },
+  "ticket": {
+    "title": "Weighbridge ticket",
+    "action": "Print ticket",
+    "footer": "Produced by MSE Trace. Every reading behind this weighing is stored unaltered and can be re-verified against the hashes above.",
+    "evidenceNote": "These hashes chain this weighing to every reading the instrument sent. Any change to a stored reading breaks the chain from that point on.",
+    "voidWeightsNote": "This weighing did not pass the checks, so no net weight has been derived from it. The readings above are shown for reference only and must not be settled against.",
+    "section": {
+      "weighing": "Weighing",
+      "load": "Load",
+      "weights": "Weights",
+      "anomalies": "Why this weighing was rejected",
+      "evidence": "Evidence"
+    },
+    "field": {
+      "sessionNo": "Ticket no.",
+      "scale": "Weighbridge",
+      "direction": "Pass",
+      "vehiclePlate": "Vehicle",
+      "startedAt": "Started",
+      "endedAt": "Finished",
+      "attemptNo": "Attempt",
+      "readingCount": "Readings",
+      "dispatchNo": "Dispatch note",
+      "wasteType": "Material",
+      "contractor": "Producer",
+      "project": "Site",
+      "driver": "Driver",
+      "declaredWeight": "Declared (kg)",
+      "stableWeight": "Stable weight (kg)",
+      "peakWeight": "Peak (kg)",
+      "grossWeight": "Gross (kg)",
+      "tareWeight": "Tare (kg)",
+      "netWeight": "Net (kg)",
+      "deductions": "Deductions (kg)",
+      "settledWeight": "Settled (kg)",
+      "firstHash": "First reading hash",
+      "lastHash": "Last reading hash"
+    },
+    "column": {
+      "anomaly": "Check",
+      "detail": "Detail",
+      "deduction": "Deduction",
+      "weight": "Weight (kg)",
+      "reason": "Reason"
+    },
+    "verdict": {
+      "valid": "Accepted",
+      "validNote": "This weighing passed every check in force at the time.",
+      "void": "Rejected — not valid for settlement",
+      "voidNote": "One or more checks failed. This ticket is a record of what happened, not a basis for payment."
+    },
+    "tareSource": {
+      "MEASURED": "The tare was measured on this weighbridge.",
+      "STORED": "The tare was taken from the vehicle's record, not measured on this visit."
+    },
+    "signature": {
+      "operator": "Weighbridge operator",
+      "driver": "Driver"
+    }
   }
 }
