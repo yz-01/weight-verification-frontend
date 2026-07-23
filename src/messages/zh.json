@@ -575,7 +575,14 @@
       "company_has_active_users": "这家公司还有可以登录的人员。请改为停用，或先停用这些人员。",
       "role_is_system": "内置角色不可移除。",
       "role_in_use": "此角色仍有人在使用，请先把他们改为其他角色。",
-      "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。"
+      "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。",
+      "device_auth_failed": "无法验证这台地磅网关。",
+      "ingest_rejected": "地磅数据未能接收。",
+      "scale_not_found": "找不到这台地磅。",
+      "site_not_found": "找不到这个回收场。",
+      "session_not_found": "找不到这次称重。",
+      "gateway_not_found": "找不到这台网关。",
+      "invalid_rule_params": "请检查检测参数后重试。"
     },
     "field": {
       "required": "此项为必填",
@@ -588,6 +595,243 @@
       "invalid_choice": "请从可选项中选择",
       "does_not_exist": "找不到该记录",
       "incorrect_type": "此值无效"
+    }
+  },
+  "sites": {
+    "title": "回收场",
+    "count": "{count, plural, =0 {暂无回收场} other {# 个回收场}}",
+    "new": "新增回收场",
+    "createTitle": "新增回收场",
+    "editTitle": "编辑回收场",
+    "viewTitle": "回收场详情",
+    "section": {
+      "identity": "基本资料",
+      "address": "地址",
+      "contact": "联系方式"
+    },
+    "field": {
+      "code": "编号",
+      "name": "回收场名称",
+      "city": "城市",
+      "state": "州属",
+      "postcode": "邮编",
+      "addressLine1": "地址第一行",
+      "addressLine2": "地址第二行",
+      "contactPerson": "联系人",
+      "contactPhone": "联系电话",
+      "scaleCount": "地磅数",
+      "isActive": "启用",
+      "createdAt": "创建时间"
+    },
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "这个回收场将不再出现在任何地方。它的称重历史原样保留。",
+      "confirm": "移除"
+    },
+    "toast": {
+      "created": "回收场已创建",
+      "updated": "回收场已更新",
+      "removed": "回收场已移除"
+    }
+  },
+  "scales": {
+    "title": "地磅",
+    "count": "{count, plural, =0 {暂无地磅} other {# 台地磅}}",
+    "new": "新增地磅",
+    "createTitle": "新增地磅",
+    "editTitle": "编辑地磅",
+    "viewTitle": "地磅详情",
+    "section": {
+      "identity": "基本资料",
+      "instrument": "仪表",
+      "calibration": "检定",
+      "gateways": "网关"
+    },
+    "field": {
+      "code": "编号",
+      "name": "名称",
+      "site": "所属回收场",
+      "protocol": "通讯协议",
+      "unit": "单位",
+      "manufacturer": "厂商",
+      "modelNumber": "型号",
+      "serialNumber": "序列号",
+      "capacityKg": "最大称量（公斤）",
+      "divisionKg": "分度值（公斤）",
+      "calibrationCertificateNo": "检定证书号",
+      "calibrationExpiry": "证书到期日",
+      "gatewayCount": "网关数",
+      "isActive": "启用",
+      "createdAt": "创建时间"
+    },
+    "protocolLabel": {
+      "mt_continuous_short": "METTLER TOLEDO 连续短格式",
+      "generic_json": "通用 JSON",
+      "sma": "SMA（未实现）",
+      "mt_8142": "METTLER TOLEDO 8142（未实现）",
+      "mt_8530": "METTLER TOLEDO 8530（未实现）",
+      "pt6s3": "PT6S3（未实现）"
+    },
+    "calibrationExpired": "证书已过期",
+    "calibrationHint": "在证书过期的地磅上称出来的重量，不构成任何证据。",
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "这台地磅将不再出现在任何地方。它的称重历史原样保留。",
+      "confirm": "移除"
+    },
+    "toast": {
+      "created": "地磅已创建",
+      "updated": "地磅已更新",
+      "removed": "地磅已移除"
+    }
+  },
+  "gateways": {
+    "title": "网关",
+    "new": "注册网关",
+    "none": "尚未注册网关",
+    "field": {
+      "deviceId": "设备编号",
+      "firmwareVersion": "固件版本",
+      "lastSeenAt": "最后在线",
+      "clockOffset": "时钟偏移",
+      "notes": "备注"
+    },
+    "online": "在线",
+    "offline": "离线",
+    "secretTitle": "请立即复制这段密钥",
+    "secretBody": "它只显示这一次，之后不会再出现。网关用它给每个数据包签名，密钥遗失只能重新签发，无法找回。",
+    "rotate": "重新签发密钥",
+    "rotateTitle": "为 {name} 重新签发密钥？",
+    "rotateBody": "当前密钥会立即失效。在新密钥装到网关上之前，它无法上传任何数据。",
+    "toast": {
+      "created": "网关已注册",
+      "rotated": "密钥已重新签发"
+    }
+  },
+  "weighing": {
+    "title": "称重记录",
+    "count": "{count, plural, =0 {暂无称重记录} other {# 条称重记录}}",
+    "viewTitle": "称重详情",
+    "field": {
+      "sessionNo": "单号",
+      "scale": "地磅",
+      "site": "回收场",
+      "vehiclePlate": "车牌",
+      "direction": "类型",
+      "state": "状态",
+      "verdict": "判定",
+      "attemptNo": "第几次",
+      "startedAt": "开始时间",
+      "endedAt": "结束时间",
+      "stableWeight": "稳定重量",
+      "peakWeight": "峰值重量",
+      "readingCount": "读数条数",
+      "anomalyCount": "异常数",
+      "stableAt": "稳定时刻",
+      "duration": "时长"
+    },
+    "direction": {
+      "GROSS": "毛重",
+      "TARE": "皮重"
+    },
+    "state": {
+      "OPEN": "已开启",
+      "ON_SCALE": "上磅中",
+      "STABLE": "已稳定",
+      "COMPLETED": "已完成",
+      "VOID": "已作废"
+    },
+    "verdict": {
+      "PENDING": "待判定",
+      "VALID": "有效",
+      "INVALID": "无效"
+    },
+    "requiresReview": "需人工介入",
+    "requiresReviewHint": "重称次数已超过上限，这笔交易停下来等人处理。",
+    "section": {
+      "trace": "重量曲线",
+      "outcome": "判定结果",
+      "rules": "适用规则",
+      "integrity": "数据完整性"
+    },
+    "trace": {
+      "empty": "没有采集到读数",
+      "onboardTrigger": "上磅触发线",
+      "instrumentSettled": "仪表报稳定",
+      "instrumentMoving": "仪表报运动",
+      "net": "净重",
+      "caption": "仪表逐秒上报的重量。",
+      "viewFull": "完整过程",
+      "viewSettled": "稳定之后"
+    },
+    "anomaly": {
+      "SINGLE_READING_ONLY": "只采集到一条读数",
+      "NO_CONTINUOUS_STREAM": "数据流不连续",
+      "SUDDEN_DROP": "重量突然下降",
+      "SUDDEN_RISE": "重量突然上升",
+      "STREAM_INTERRUPTED": "仪表中途停止上报",
+      "MID_SESSION_TARE": "称重途中被去皮归零",
+      "SEQ_GAP": "网关到平台之间有数据包丢失",
+      "STABLE_FLAG_MISMATCH": "仪表把仍在晃动的载荷报成了稳定",
+      "SIGNATURE_INVALID": "数据包签名校验失败",
+      "CLOCK_SKEW": "设备时钟发生跳变",
+      "FRAME_PARSE_FAILED": "原始帧无法解析",
+      "FRAME_MISMATCH": "原始帧与网关上报的数值不一致",
+      "PLATE_MISMATCH": "车牌与出场单不符"
+    },
+    "integrity": {
+      "verify": "验证完整性",
+      "intact": "每一条读数都通过校验，写入之后没有被改动过。",
+      "broken": "{count, plural, other {发现 # 处断裂}}。读数历史被改动过。",
+      "reason": {
+        "content_altered": "有读数被修改",
+        "link_broken": "有读数被删除或调换顺序"
+      },
+      "firstHash": "首条读数哈希",
+      "lastHash": "末条读数哈希"
+    },
+    "rules": {
+      "version": "第 {version} 版",
+      "scope": "适用范围",
+      "frozenHint": "这是判定这次称重时生效的阈值，不是现在配置的那一套。"
+    },
+    "filter": {
+      "all": "全部",
+      "valid": "有效",
+      "invalid": "无效",
+      "review": "需人工介入"
+    }
+  },
+  "weighingRules": {
+    "title": "检测参数",
+    "subtitle": "决定什么算作弊的那组阈值",
+    "publish": "发布新版本",
+    "immutableHint": "发布会创建一个新版本。已经判定过的称重仍然保留当时判定它的阈值，所以在这里改动数值永远无法洗白已有的历史。",
+    "scope": {
+      "PLATFORM": "平台默认",
+      "COMPANY": "本公司",
+      "SCALE": "单台地磅"
+    },
+    "param": {
+      "stable_window_ms": "稳定窗口（毫秒）",
+      "stable_tolerance_kg": "稳定误差值（公斤）",
+      "drop_threshold_kg": "突然下降阈值（公斤）",
+      "drop_window_ms": "突然下降窗口（毫秒）",
+      "rise_threshold_kg": "突然上升阈值（公斤）",
+      "rise_window_ms": "突然上升窗口（毫秒）",
+      "max_gap_ms": "最大数据间隔（毫秒）",
+      "min_readings": "最少读数条数",
+      "onboard_trigger_kg": "上磅触发重量（公斤）",
+      "offboard_threshold_kg": "下磅判定重量（公斤）",
+      "max_retry_attempts": "最多重称次数",
+      "stable_flag_mismatch_ms": "稳定判定分歧容忍（毫秒）",
+      "clock_skew_tolerance_ms": "时钟偏移容忍（毫秒）",
+      "offboard_hold_ms": "下磅保持时长（毫秒）",
+      "retry_window_minutes": "重称归属窗口（分钟）",
+      "deduction_approval_kg": "扣杂需审批阈值（公斤）"
+    },
+    "toast": {
+      "published": "检测参数已发布"
     }
   }
 }

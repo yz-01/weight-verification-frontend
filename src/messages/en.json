@@ -575,7 +575,14 @@
       "company_has_active_users": "This company still has people who can sign in. Suspend it instead, or deactivate them first.",
       "role_is_system": "Built-in roles cannot be removed.",
       "role_in_use": "This role is still assigned to people. Move them to another role first.",
-      "cannot_modify_self": "You cannot change your own account this way. Use your profile instead."
+      "cannot_modify_self": "You cannot change your own account this way. Use your profile instead.",
+      "device_auth_failed": "This weighbridge gateway could not be verified.",
+      "ingest_rejected": "The weighbridge reading could not be accepted.",
+      "scale_not_found": "That weighbridge could not be found.",
+      "site_not_found": "That site could not be found.",
+      "session_not_found": "That weighing could not be found.",
+      "gateway_not_found": "That gateway could not be found.",
+      "invalid_rule_params": "Check the detection settings and try again."
     },
     "field": {
       "required": "This field is required",
@@ -588,6 +595,243 @@
       "invalid_choice": "Choose one of the available options",
       "does_not_exist": "That record could not be found",
       "incorrect_type": "This value is not valid"
+    }
+  },
+  "sites": {
+    "title": "Yards",
+    "count": "{count, plural, =0 {No yards} one {# yard} other {# yards}}",
+    "new": "New yard",
+    "createTitle": "New yard",
+    "editTitle": "Edit yard",
+    "viewTitle": "Yard",
+    "section": {
+      "identity": "Identity",
+      "address": "Address",
+      "contact": "Contact"
+    },
+    "field": {
+      "code": "Code",
+      "name": "Yard name",
+      "city": "City",
+      "state": "State",
+      "postcode": "Postcode",
+      "addressLine1": "Address line 1",
+      "addressLine2": "Address line 2",
+      "contactPerson": "Contact person",
+      "contactPhone": "Contact phone",
+      "scaleCount": "Weighbridges",
+      "isActive": "Active",
+      "createdAt": "Added"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This yard will no longer appear anywhere. Its weighing history stays in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Yard created",
+      "updated": "Yard updated",
+      "removed": "Yard removed"
+    }
+  },
+  "scales": {
+    "title": "Weighbridges",
+    "count": "{count, plural, =0 {No weighbridges} one {# weighbridge} other {# weighbridges}}",
+    "new": "New weighbridge",
+    "createTitle": "New weighbridge",
+    "editTitle": "Edit weighbridge",
+    "viewTitle": "Weighbridge",
+    "section": {
+      "identity": "Identity",
+      "instrument": "Instrument",
+      "calibration": "Calibration",
+      "gateways": "Gateways"
+    },
+    "field": {
+      "code": "Code",
+      "name": "Name",
+      "site": "Yard",
+      "protocol": "Protocol",
+      "unit": "Unit",
+      "manufacturer": "Manufacturer",
+      "modelNumber": "Model",
+      "serialNumber": "Serial number",
+      "capacityKg": "Capacity (kg)",
+      "divisionKg": "Division (kg)",
+      "calibrationCertificateNo": "Certificate number",
+      "calibrationExpiry": "Certificate expires",
+      "gatewayCount": "Gateways",
+      "isActive": "Active",
+      "createdAt": "Added"
+    },
+    "protocolLabel": {
+      "mt_continuous_short": "METTLER TOLEDO Continuous Short",
+      "generic_json": "Generic JSON",
+      "sma": "SMA (not implemented)",
+      "mt_8142": "METTLER TOLEDO 8142 (not implemented)",
+      "mt_8530": "METTLER TOLEDO 8530 (not implemented)",
+      "pt6s3": "PT6S3 (not implemented)"
+    },
+    "calibrationExpired": "Certificate expired",
+    "calibrationHint": "A weighing taken on a lapsed certificate is not evidence of anything.",
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This weighbridge will no longer appear anywhere. Its weighing history stays in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Weighbridge created",
+      "updated": "Weighbridge updated",
+      "removed": "Weighbridge removed"
+    }
+  },
+  "gateways": {
+    "title": "Gateways",
+    "new": "Register gateway",
+    "none": "No gateway registered yet",
+    "field": {
+      "deviceId": "Device ID",
+      "firmwareVersion": "Firmware",
+      "lastSeenAt": "Last seen",
+      "clockOffset": "Clock offset",
+      "notes": "Notes"
+    },
+    "online": "Online",
+    "offline": "Offline",
+    "secretTitle": "Copy this secret now",
+    "secretBody": "It is shown once and never again. The gateway signs every packet with it, so a lost secret is replaced rather than recovered.",
+    "rotate": "Rotate secret",
+    "rotateTitle": "Rotate the secret for {name}?",
+    "rotateBody": "The current secret stops working immediately. The gateway cannot send readings until the new one is installed on it.",
+    "toast": {
+      "created": "Gateway registered",
+      "rotated": "Secret rotated"
+    }
+  },
+  "weighing": {
+    "title": "Weighings",
+    "count": "{count, plural, =0 {No weighings} one {# weighing} other {# weighings}}",
+    "viewTitle": "Weighing",
+    "field": {
+      "sessionNo": "Reference",
+      "scale": "Weighbridge",
+      "site": "Yard",
+      "vehiclePlate": "Vehicle",
+      "direction": "Type",
+      "state": "State",
+      "verdict": "Verdict",
+      "attemptNo": "Attempt",
+      "startedAt": "Started",
+      "endedAt": "Ended",
+      "stableWeight": "Settled weight",
+      "peakWeight": "Peak weight",
+      "readingCount": "Readings",
+      "anomalyCount": "Anomalies",
+      "stableAt": "Settled at",
+      "duration": "Duration"
+    },
+    "direction": {
+      "GROSS": "Gross",
+      "TARE": "Tare"
+    },
+    "state": {
+      "OPEN": "Open",
+      "ON_SCALE": "On scale",
+      "STABLE": "Settled",
+      "COMPLETED": "Completed",
+      "VOID": "Void"
+    },
+    "verdict": {
+      "PENDING": "Pending",
+      "VALID": "Valid",
+      "INVALID": "Invalid"
+    },
+    "requiresReview": "Needs review",
+    "requiresReviewHint": "Attempts have run past the limit. This transaction waits for a person.",
+    "section": {
+      "trace": "Weight trace",
+      "outcome": "Outcome",
+      "rules": "Rules applied",
+      "integrity": "Integrity"
+    },
+    "trace": {
+      "empty": "No readings captured",
+      "onboardTrigger": "On-scale trigger",
+      "instrumentSettled": "Instrument reports settled",
+      "instrumentMoving": "Instrument reports motion",
+      "net": "net",
+      "caption": "Weight as the instrument reported it, second by second.",
+      "viewFull": "Full weighing",
+      "viewSettled": "Settled period"
+    },
+    "anomaly": {
+      "SINGLE_READING_ONLY": "Only one reading was captured",
+      "NO_CONTINUOUS_STREAM": "The stream was not continuous",
+      "SUDDEN_DROP": "Weight dropped suddenly",
+      "SUDDEN_RISE": "Weight rose suddenly",
+      "STREAM_INTERRUPTED": "The instrument stopped reporting",
+      "MID_SESSION_TARE": "The display was zeroed mid-weighing",
+      "SEQ_GAP": "Packets went missing between the gateway and here",
+      "STABLE_FLAG_MISMATCH": "The instrument reported a moving load as settled",
+      "SIGNATURE_INVALID": "A packet signature did not check out",
+      "CLOCK_SKEW": "The device clock jumped",
+      "FRAME_PARSE_FAILED": "A raw frame could not be read",
+      "FRAME_MISMATCH": "The raw frame disagrees with what the gateway sent",
+      "PLATE_MISMATCH": "The plate does not match the dispatch"
+    },
+    "integrity": {
+      "verify": "Verify integrity",
+      "intact": "Every reading verifies. Nothing has been altered since it was written.",
+      "broken": "{count, plural, one {# break found} other {# breaks found}}. The reading history has been altered.",
+      "reason": {
+        "content_altered": "A reading was changed",
+        "link_broken": "A reading was removed or reordered"
+      },
+      "firstHash": "First reading hash",
+      "lastHash": "Last reading hash"
+    },
+    "rules": {
+      "version": "Version {version}",
+      "scope": "Scope",
+      "frozenHint": "These are the thresholds that judged this weighing, not the ones configured now."
+    },
+    "filter": {
+      "all": "All",
+      "valid": "Valid",
+      "invalid": "Invalid",
+      "review": "Needs review"
+    }
+  },
+  "weighingRules": {
+    "title": "Detection settings",
+    "subtitle": "The thresholds that decide what counts as tampering",
+    "publish": "Publish new version",
+    "immutableHint": "Publishing creates a new version. Weighings already judged keep the thresholds that judged them, so changing a value here can never clear existing history.",
+    "scope": {
+      "PLATFORM": "Platform default",
+      "COMPANY": "This company",
+      "SCALE": "One weighbridge"
+    },
+    "param": {
+      "stable_window_ms": "Stability window (ms)",
+      "stable_tolerance_kg": "Stability tolerance (kg)",
+      "drop_threshold_kg": "Sudden drop threshold (kg)",
+      "drop_window_ms": "Sudden drop window (ms)",
+      "rise_threshold_kg": "Sudden rise threshold (kg)",
+      "rise_window_ms": "Sudden rise window (ms)",
+      "max_gap_ms": "Maximum stream gap (ms)",
+      "min_readings": "Minimum readings",
+      "onboard_trigger_kg": "On-scale trigger (kg)",
+      "offboard_threshold_kg": "Off-scale threshold (kg)",
+      "max_retry_attempts": "Maximum re-weighs",
+      "stable_flag_mismatch_ms": "Stability disagreement allowance (ms)",
+      "clock_skew_tolerance_ms": "Clock skew allowance (ms)",
+      "offboard_hold_ms": "Off-scale hold (ms)",
+      "retry_window_minutes": "Re-weigh window (minutes)",
+      "deduction_approval_kg": "Deduction approval threshold (kg)"
+    },
+    "toast": {
+      "published": "Detection settings published"
     }
   }
 }

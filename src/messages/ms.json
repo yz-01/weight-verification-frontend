@@ -575,7 +575,14 @@
       "company_has_active_users": "Syarikat ini masih ada orang yang boleh log masuk. Gantung sahaja, atau nyahaktifkan mereka dahulu.",
       "role_is_system": "Peranan terbina dalam tidak boleh dibuang.",
       "role_in_use": "Peranan ini masih diberikan kepada orang. Pindahkan mereka ke peranan lain dahulu.",
-      "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda."
+      "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda.",
+      "device_auth_failed": "Gateway jambatan timbang ini tidak dapat disahkan.",
+      "ingest_rejected": "Bacaan jambatan timbang tidak dapat diterima.",
+      "scale_not_found": "Jambatan timbang itu tidak dijumpai.",
+      "site_not_found": "Tapak itu tidak dijumpai.",
+      "session_not_found": "Penimbangan itu tidak dijumpai.",
+      "gateway_not_found": "Gateway itu tidak dijumpai.",
+      "invalid_rule_params": "Semak tetapan pengesanan dan cuba lagi."
     },
     "field": {
       "required": "Ruangan ini wajib diisi",
@@ -588,6 +595,243 @@
       "invalid_choice": "Pilih salah satu pilihan yang ada",
       "does_not_exist": "Rekod itu tidak dijumpai",
       "incorrect_type": "Nilai ini tidak sah"
+    }
+  },
+  "sites": {
+    "title": "Tapak kitar semula",
+    "count": "{count, plural, =0 {Tiada tapak} other {# tapak}}",
+    "new": "Tapak baharu",
+    "createTitle": "Tapak baharu",
+    "editTitle": "Sunting tapak",
+    "viewTitle": "Tapak",
+    "section": {
+      "identity": "Maklumat asas",
+      "address": "Alamat",
+      "contact": "Hubungan"
+    },
+    "field": {
+      "code": "Kod",
+      "name": "Nama tapak",
+      "city": "Bandar",
+      "state": "Negeri",
+      "postcode": "Poskod",
+      "addressLine1": "Alamat baris 1",
+      "addressLine2": "Alamat baris 2",
+      "contactPerson": "Orang untuk dihubungi",
+      "contactPhone": "Telefon",
+      "scaleCount": "Jambatan timbang",
+      "isActive": "Aktif",
+      "createdAt": "Ditambah"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Tapak ini tidak akan muncul lagi. Sejarah penimbangannya kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Tapak dicipta",
+      "updated": "Tapak dikemas kini",
+      "removed": "Tapak dibuang"
+    }
+  },
+  "scales": {
+    "title": "Jambatan timbang",
+    "count": "{count, plural, =0 {Tiada jambatan timbang} other {# jambatan timbang}}",
+    "new": "Jambatan timbang baharu",
+    "createTitle": "Jambatan timbang baharu",
+    "editTitle": "Sunting jambatan timbang",
+    "viewTitle": "Jambatan timbang",
+    "section": {
+      "identity": "Maklumat asas",
+      "instrument": "Alat",
+      "calibration": "Penentukuran",
+      "gateways": "Gateway"
+    },
+    "field": {
+      "code": "Kod",
+      "name": "Nama",
+      "site": "Tapak",
+      "protocol": "Protokol",
+      "unit": "Unit",
+      "manufacturer": "Pengeluar",
+      "modelNumber": "Model",
+      "serialNumber": "Nombor siri",
+      "capacityKg": "Kapasiti (kg)",
+      "divisionKg": "Pembahagian (kg)",
+      "calibrationCertificateNo": "Nombor sijil",
+      "calibrationExpiry": "Sijil tamat",
+      "gatewayCount": "Gateway",
+      "isActive": "Aktif",
+      "createdAt": "Ditambah"
+    },
+    "protocolLabel": {
+      "mt_continuous_short": "METTLER TOLEDO Continuous Short",
+      "generic_json": "JSON Generik",
+      "sma": "SMA (belum dilaksanakan)",
+      "mt_8142": "METTLER TOLEDO 8142 (belum dilaksanakan)",
+      "mt_8530": "METTLER TOLEDO 8530 (belum dilaksanakan)",
+      "pt6s3": "PT6S3 (belum dilaksanakan)"
+    },
+    "calibrationExpired": "Sijil tamat tempoh",
+    "calibrationHint": "Penimbangan pada sijil yang tamat tempoh bukan bukti kepada apa-apa.",
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Jambatan timbang ini tidak akan muncul lagi. Sejarah penimbangannya kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Jambatan timbang dicipta",
+      "updated": "Jambatan timbang dikemas kini",
+      "removed": "Jambatan timbang dibuang"
+    }
+  },
+  "gateways": {
+    "title": "Gateway",
+    "new": "Daftar gateway",
+    "none": "Tiada gateway didaftarkan lagi",
+    "field": {
+      "deviceId": "ID peranti",
+      "firmwareVersion": "Perisian tegar",
+      "lastSeenAt": "Dilihat kali terakhir",
+      "clockOffset": "Ofset jam",
+      "notes": "Nota"
+    },
+    "online": "Dalam talian",
+    "offline": "Luar talian",
+    "secretTitle": "Salin rahsia ini sekarang",
+    "secretBody": "Ia ditunjukkan sekali sahaja. Gateway menandatangani setiap paket dengannya, jadi rahsia yang hilang diganti, bukan dipulihkan.",
+    "rotate": "Tukar rahsia",
+    "rotateTitle": "Tukar rahsia untuk {name}?",
+    "rotateBody": "Rahsia semasa berhenti berfungsi serta-merta. Gateway tidak boleh menghantar bacaan sehingga yang baharu dipasang padanya.",
+    "toast": {
+      "created": "Gateway didaftarkan",
+      "rotated": "Rahsia ditukar"
+    }
+  },
+  "weighing": {
+    "title": "Penimbangan",
+    "count": "{count, plural, =0 {Tiada penimbangan} other {# penimbangan}}",
+    "viewTitle": "Penimbangan",
+    "field": {
+      "sessionNo": "Rujukan",
+      "scale": "Jambatan timbang",
+      "site": "Tapak",
+      "vehiclePlate": "Kenderaan",
+      "direction": "Jenis",
+      "state": "Keadaan",
+      "verdict": "Keputusan",
+      "attemptNo": "Percubaan",
+      "startedAt": "Bermula",
+      "endedAt": "Tamat",
+      "stableWeight": "Berat stabil",
+      "peakWeight": "Berat puncak",
+      "readingCount": "Bacaan",
+      "anomalyCount": "Anomali",
+      "stableAt": "Stabil pada",
+      "duration": "Tempoh"
+    },
+    "direction": {
+      "GROSS": "Kasar",
+      "TARE": "Tara"
+    },
+    "state": {
+      "OPEN": "Dibuka",
+      "ON_SCALE": "Di atas timbang",
+      "STABLE": "Stabil",
+      "COMPLETED": "Selesai",
+      "VOID": "Batal"
+    },
+    "verdict": {
+      "PENDING": "Menunggu",
+      "VALID": "Sah",
+      "INVALID": "Tidak sah"
+    },
+    "requiresReview": "Perlu semakan",
+    "requiresReviewHint": "Percubaan telah melebihi had. Transaksi ini menunggu orang.",
+    "section": {
+      "trace": "Surih berat",
+      "outcome": "Keputusan",
+      "rules": "Peraturan digunakan",
+      "integrity": "Integriti"
+    },
+    "trace": {
+      "empty": "Tiada bacaan ditangkap",
+      "onboardTrigger": "Pencetus atas timbang",
+      "instrumentSettled": "Alat melapor stabil",
+      "instrumentMoving": "Alat melapor bergerak",
+      "net": "bersih",
+      "caption": "Berat seperti dilaporkan alat, saat demi saat.",
+      "viewFull": "Penimbangan penuh",
+      "viewSettled": "Tempoh stabil"
+    },
+    "anomaly": {
+      "SINGLE_READING_ONLY": "Hanya satu bacaan ditangkap",
+      "NO_CONTINUOUS_STREAM": "Aliran data tidak berterusan",
+      "SUDDEN_DROP": "Berat jatuh mengejut",
+      "SUDDEN_RISE": "Berat naik mengejut",
+      "STREAM_INTERRUPTED": "Alat berhenti melapor",
+      "MID_SESSION_TARE": "Paparan dikosongkan di tengah penimbangan",
+      "SEQ_GAP": "Paket hilang antara gateway dan platform",
+      "STABLE_FLAG_MISMATCH": "Alat melapor muatan yang bergerak sebagai stabil",
+      "SIGNATURE_INVALID": "Tandatangan paket tidak sah",
+      "CLOCK_SKEW": "Jam peranti melompat",
+      "FRAME_PARSE_FAILED": "Bingkai mentah tidak dapat dibaca",
+      "FRAME_MISMATCH": "Bingkai mentah bercanggah dengan apa yang gateway hantar",
+      "PLATE_MISMATCH": "Plat tidak sepadan dengan penghantaran"
+    },
+    "integrity": {
+      "verify": "Sahkan integriti",
+      "intact": "Setiap bacaan disahkan. Tiada apa yang diubah sejak ia ditulis.",
+      "broken": "{count, plural, other {# keretakan dijumpai}}. Sejarah bacaan telah diubah.",
+      "reason": {
+        "content_altered": "Satu bacaan telah diubah",
+        "link_broken": "Satu bacaan dibuang atau disusun semula"
+      },
+      "firstHash": "Cincangan bacaan pertama",
+      "lastHash": "Cincangan bacaan terakhir"
+    },
+    "rules": {
+      "version": "Versi {version}",
+      "scope": "Skop",
+      "frozenHint": "Ini ambang yang menilai penimbangan ini, bukan yang dikonfigurasi sekarang."
+    },
+    "filter": {
+      "all": "Semua",
+      "valid": "Sah",
+      "invalid": "Tidak sah",
+      "review": "Perlu semakan"
+    }
+  },
+  "weighingRules": {
+    "title": "Tetapan pengesanan",
+    "subtitle": "Ambang yang menentukan apa yang dikira sebagai penipuan",
+    "publish": "Terbitkan versi baharu",
+    "immutableHint": "Menerbitkan mencipta versi baharu. Penimbangan yang telah dinilai mengekalkan ambang yang menilainya, jadi mengubah nilai di sini tidak boleh membersihkan sejarah sedia ada.",
+    "scope": {
+      "PLATFORM": "Lalai platform",
+      "COMPANY": "Syarikat ini",
+      "SCALE": "Satu jambatan timbang"
+    },
+    "param": {
+      "stable_window_ms": "Tetingkap kestabilan (ms)",
+      "stable_tolerance_kg": "Toleransi kestabilan (kg)",
+      "drop_threshold_kg": "Ambang jatuh mengejut (kg)",
+      "drop_window_ms": "Tetingkap jatuh mengejut (ms)",
+      "rise_threshold_kg": "Ambang naik mengejut (kg)",
+      "rise_window_ms": "Tetingkap naik mengejut (ms)",
+      "max_gap_ms": "Jurang aliran maksimum (ms)",
+      "min_readings": "Bacaan minimum",
+      "onboard_trigger_kg": "Pencetus atas timbang (kg)",
+      "offboard_threshold_kg": "Ambang turun timbang (kg)",
+      "max_retry_attempts": "Had timbang semula",
+      "stable_flag_mismatch_ms": "Elaun percanggahan kestabilan (ms)",
+      "clock_skew_tolerance_ms": "Elaun ofset jam (ms)",
+      "offboard_hold_ms": "Tempoh turun timbang (ms)",
+      "retry_window_minutes": "Tetingkap timbang semula (minit)",
+      "deduction_approval_kg": "Ambang kelulusan potongan (kg)"
+    },
+    "toast": {
+      "published": "Tetapan pengesanan diterbitkan"
     }
   }
 }

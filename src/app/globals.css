@@ -119,9 +119,20 @@
   --input: oklch(0.905 0.008 225);
   --ring: oklch(0.52 0.098 205);
 
-  /* Chart ramp for the weight-trace curve and the platform reports. Ordered so
-   * adjacent series stay distinguishable rather than being one hue's shades. */
-  --chart-1: oklch(0.52 0.098 205);
+  /* Chart ramp.
+   *
+   * Slot 1 is the weight trace and is stated as hex rather than oklch because
+   * it is a measured value: the interface primary at this lightness carries a
+   * chroma of 0.098, below the 0.1 floor at which a mark starts reading as
+   * grey. On a chart that matters more than anywhere else — the data line has
+   * to be the most present thing on the surface, not something that recedes
+   * into the gridlines. Same hue family, chroma raised until it passes.
+   *
+   * Slots 2 to 5 have not been through the validator. Run
+   * `scripts/validate_palette.js` over them before any chart uses more than
+   * one series; adjacent-pair separation under colour-vision deficiency is not
+   * something to judge by eye. */
+  --chart-1: #0085a4;
   --chart-2: oklch(0.62 0.128 178);
   --chart-3: oklch(0.575 0.155 253);
   --chart-4: oklch(0.72 0.152 72);
@@ -179,7 +190,9 @@
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.715 0.108 197);
 
-  --chart-1: oklch(0.715 0.108 197);
+  /* Stepped for the dark card surface and validated against it, not flipped
+   * from the light value. See the note on the light ramp. */
+  --chart-1: #00a8b9;
   --chart-2: oklch(0.755 0.13 172);
   --chart-3: oklch(0.695 0.145 250);
   --chart-4: oklch(0.795 0.145 76);
