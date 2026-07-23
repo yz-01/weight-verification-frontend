@@ -412,7 +412,9 @@
         "view": "查看项目",
         "create": "创建项目",
         "update": "编辑项目",
-        "delete": "移除项目"
+        "delete": "移除项目",
+        "view_all": "查看公司全部项目",
+        "assign": "把人员分配到项目"
       },
       "supplier": {
         "view": "查看供应商",
@@ -587,7 +589,17 @@
       "site_not_found": "找不到这个回收场。",
       "session_not_found": "找不到这次称重。",
       "gateway_not_found": "找不到这台网关。",
-      "invalid_rule_params": "请检查检测参数后重试。"
+      "invalid_rule_params": "请检查检测参数后重试。",
+      "project_not_found": "找不到这个项目。",
+      "supplier_not_found": "找不到这家供应商。",
+      "qr_code_not_found": "无法识别这个二维码。",
+      "project_has_records": "这个项目下还有记录。请改为标记完成，而不是移除。",
+      "receipt_not_found": "找不到该收货单。",
+      "receipt_photo_not_found": "找不到该照片。",
+      "dispatch_not_found": "找不到该出场单。",
+      "dispatch_not_editable": "该车货物已离场，无法再修改。",
+      "dispatch_already_released": "该车货物已放行。",
+      "dispatch_not_cancellable": "该车货物已被收运，无法取消。"
     },
     "field": {
       "required": "此项为必填",
@@ -843,5 +855,289 @@
     "overridden": "已覆盖平台默认值",
     "noChanges": "没有待发布的改动",
     "readOnly": "这组阈值由 MSE Trace 设定，客户账号无法修改。它们决定平台把什么判为作弊，所以公司不能放宽针对自己的标准。某台地磅确实需要不同参数的话，请联系客服。"
+  },
+  "projects": {
+    "title": "项目",
+    "count": "{count, plural, =0 {暂无项目} other {# 个项目}}",
+    "new": "新建项目",
+    "createTitle": "新建项目",
+    "editTitle": "编辑项目",
+    "viewTitle": "项目",
+    "section": {
+      "identity": "基本信息",
+      "address": "工地地址",
+      "schedule": "工期",
+      "contact": "工地联系人",
+      "team": "工地人员"
+    },
+    "field": {
+      "code": "项目编号",
+      "name": "项目名称",
+      "status": "状态",
+      "description": "说明",
+      "clientName": "业主",
+      "addressLine1": "地址第一行",
+      "addressLine2": "地址第二行",
+      "city": "城市",
+      "state": "州属",
+      "postcode": "邮编",
+      "startDate": "开工日期",
+      "endDate": "完工日期",
+      "siteManager": "工地负责人",
+      "sitePhone": "工地电话",
+      "assignedUsers": "人员",
+      "createdAt": "创建时间"
+    },
+    "status": {
+      "PLANNING": "筹备中",
+      "ACTIVE": "进行中",
+      "SUSPENDED": "暂停",
+      "COMPLETED": "已完工"
+    },
+    "filter": {
+      "all": "全部",
+      "open": "进行中",
+      "completed": "已完工"
+    },
+    "team": {
+      "title": "谁能看到此项目",
+      "description": "这里的人员可以看到此项目的收货和出场记录。公司其他人除非角色可查看全部项目，否则完全看不到。",
+      "empty": "尚未分配人员。",
+      "add": "添加人员",
+      "remove": "移出项目",
+      "removeTitle": "将 {name} 移出此项目？",
+      "removeDescription": "他将无法再看到此项目的收货和出场记录。其账号及已记录的数据保持不变。",
+      "removeConfirm": "移除"
+    },
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "此项目将不再出现在任何地方。已记录的收货和出场记录会保留。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "项目已创建",
+      "updated": "项目已更新",
+      "removed": "项目已删除",
+      "assigned": "已加入项目",
+      "unassigned": "已移出项目"
+    }
+  },
+  "suppliers": {
+    "title": "供应商",
+    "count": "{count, plural, =0 {暂无供应商} other {# 家供应商}}",
+    "new": "新建供应商",
+    "createTitle": "新建供应商",
+    "editTitle": "编辑供应商",
+    "section": {
+      "identity": "基本信息",
+      "contact": "联系方式",
+      "address": "地址"
+    },
+    "field": {
+      "code": "供应商编号",
+      "name": "供应商名称",
+      "contactPerson": "联系人",
+      "contactPhone": "联系电话",
+      "contactEmail": "联系邮箱",
+      "addressLine1": "地址",
+      "city": "城市",
+      "state": "州属",
+      "registrationNo": "注册号",
+      "isActive": "启用",
+      "qrCodeCount": "送货单",
+      "createdAt": "创建时间"
+    },
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "记录收货时将不再出现此供应商。已记录的收货保持不变。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "供应商已创建",
+      "updated": "供应商已更新",
+      "removed": "供应商已删除"
+    }
+  },
+  "qrCodes": {
+    "title": "送货单二维码",
+    "description": "一张送货单绑定一家供应商和一个项目。在工地扫码即可自动带出两者，几秒完成收货记录。",
+    "count": "{count, plural, =0 {暂无送货单} other {# 张送货单}}",
+    "new": "签发送货单",
+    "createTitle": "签发送货单",
+    "field": {
+      "project": "项目",
+      "supplier": "供应商",
+      "token": "编码",
+      "isActive": "有效",
+      "createdAt": "签发时间"
+    },
+    "status": {
+      "active": "有效",
+      "revoked": "已作废"
+    },
+    "revoke": {
+      "title": "作废此送货单？",
+      "description": "已打印的副本会立即失效。已用它记录的收货保持不变。",
+      "confirm": "作废"
+    },
+    "toast": {
+      "created": "送货单已签发",
+      "revoked": "送货单已作废"
+    }
+  },
+  "receipts": {
+    "title": "材料收货",
+    "count": "{count, plural, =0 {暂无收货记录} other {# 条收货记录}}",
+    "new": "记录收货",
+    "createTitle": "记录收货",
+    "editTitle": "更正收货记录",
+    "viewTitle": "收货记录",
+    "section": {
+      "delivery": "收货",
+      "material": "材料",
+      "vehicle": "车辆与单据",
+      "received": "收货人",
+      "stamp": "系统自动记录",
+      "photos": "照片"
+    },
+    "field": {
+      "receiptNo": "收货单号",
+      "project": "项目",
+      "supplier": "供应商",
+      "qrCode": "送货单",
+      "materialName": "材料",
+      "quantity": "数量",
+      "unit": "单位",
+      "unitPrice": "单价",
+      "totalValue": "金额",
+      "vehiclePlate": "车牌",
+      "deliveryNoteNo": "送货单号",
+      "notes": "备注",
+      "receivedBy": "收货人",
+      "capturedAt": "记录时间",
+      "location": "位置",
+      "recordedBy": "记录人",
+      "photoCount": "照片"
+    },
+    "unit": {
+      "TONNE": "吨",
+      "KG": "公斤",
+      "M3": "立方米",
+      "PIECE": "件",
+      "LOAD": "车",
+      "BAG": "包"
+    },
+    "photoKind": {
+      "DELIVERY_NOTE": "送货单",
+      "VEHICLE": "车辆",
+      "UNLOADING": "卸货",
+      "OTHER": "其他"
+    },
+    "stampNote": "时间、位置和记录人由系统在提交时自动写入，无法手动填写或事后修改。",
+    "editNote": "数量和单价可以更正。项目、送货单和记录时间不可更改，它们正是这条记录要证明的事。",
+    "locationCaptured": "已记录位置",
+    "locationMissing": "无位置",
+    "noPhotos": "没有附加照片。",
+    "summary": {
+      "title": "材料统计",
+      "byUnit": "按单位",
+      "byMaterial": "按材料",
+      "receipts": "收货次数",
+      "quantity": "数量",
+      "note": "数量按单位分开统计，吨与件不会相加。"
+    },
+    "remove": {
+      "title": "删除收货记录 {name}？",
+      "description": "它将不再出现在收货列表和材料统计中。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "收货已记录",
+      "updated": "收货记录已更新",
+      "removed": "收货记录已删除"
+    }
+  },
+  "dispatches": {
+    "title": "废料出场",
+    "count": "{count, plural, =0 {暂无出场记录} other {# 车}}",
+    "new": "新建出场",
+    "createTitle": "新建出场",
+    "editTitle": "编辑出场",
+    "viewTitle": "出场记录",
+    "section": {
+      "destination": "去向",
+      "load": "货物",
+      "vehicle": "车辆与司机",
+      "release": "放行",
+      "photos": "照片"
+    },
+    "field": {
+      "dispatchNo": "出场单号",
+      "project": "项目",
+      "recycler": "回收商",
+      "wasteType": "废料类型",
+      "estimatedWeight": "预估重量（公斤）",
+      "description": "说明",
+      "vehiclePlate": "车牌",
+      "driverName": "司机",
+      "driverPhone": "司机电话",
+      "driverIc": "司机身份证",
+      "state": "状态",
+      "releasedAt": "放行时间",
+      "releasedBy": "放行人",
+      "location": "位置",
+      "photoCount": "照片"
+    },
+    "wasteType": {
+      "MIXED": "混合建筑废料",
+      "CONCRETE": "混凝土与砖石",
+      "METAL": "废金属",
+      "TIMBER": "木材",
+      "PLASTIC": "塑料",
+      "SOIL": "泥土与骨料",
+      "HAZARDOUS": "危险废料",
+      "OTHER": "其他"
+    },
+    "state": {
+      "DRAFT": "草稿",
+      "RELEASED": "已放行",
+      "COLLECTED": "已收运",
+      "WEIGHED": "已过磅",
+      "SETTLED": "已结算",
+      "CANCELLED": "已取消"
+    },
+    "recyclerNote": "只能送往已在 MSE Trace 注册的回收商。这样货物才会上地磅，追溯链才不会断在你的工地门口。",
+    "recyclerEmpty": "目前没有可选的回收商。",
+    "estimateNote": "这是你的预估。最终重量由回收商的地磅决定，两个数字都会保留。",
+    "lockedNote": "此车已离场，无法再修改。若最终没有送达，请取消。",
+    "release": {
+      "title": "放行此车？",
+      "description": "记录车辆已离开工地。放行后只能取消，不能修改。",
+      "confirm": "放行",
+      "byName": "放行人"
+    },
+    "cancel": {
+      "title": "取消此车？",
+      "description": "请说明原因。原因会留在记录上，回收商和你的团队都能看到。",
+      "confirm": "取消出场"
+    },
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "此草稿将不再出现在任何地方。货物尚未离场。",
+      "confirm": "删除"
+    },
+    "summary": {
+      "title": "废料统计",
+      "byType": "按废料类型",
+      "loads": "车次",
+      "estimatedWeight": "预估重量"
+    },
+    "toast": {
+      "created": "出场已创建",
+      "updated": "出场已更新",
+      "removed": "出场已删除",
+      "released": "已放行",
+      "cancelled": "已取消"
+    }
   }
 }

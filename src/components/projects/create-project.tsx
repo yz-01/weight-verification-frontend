@@ -1,0 +1,289 @@
+"use client";
+
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus, Save } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import {
+  SelectField,
+  TextAreaField,
+  TextField,
+  type BoundField,
+} from "@/components/shared/form-fields";
+import {
+  FormSection,
+  FormShell,
+  FormSkeleton,
+  LoadErrorCard,
+  applyServerErrors,
+  required,
+} from "@/components/shared/form-shell";
+import { ApiError } from "@/interfaces/api";
+import type {
+  Project,
+  ProjectPayload,
+  ProjectStatus,
+} from "@/interfaces/contractor";
+import {
+  createProject,
+  getProject,
+  updateProject,
+} from "@/services/contractor.service";
+
+const STATUSES: ProjectStatus[] = [
+  "PLANNING",
+  "ACTIVE",
+  "SUSPENDED",
+  "COMPLETED",
+];
+
+/** The project form, shared by create and edit. */
+export function CreateProject({ project }: { project?: Project }) {
+  const t = useTranslations();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const isEdit = project !== undefined;
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const mutation = useMutation({
+    mutationFn: (values: ProjectPayload) =>
+      isEdit ? updateProject(project.id, values) : createProject(values),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
+      router.push("/projects");
+    },
+  });
+
+  const form = useForm({
+    defaultValues: {
+      code: project?.code ?? "",
+      name: project?.name ?? "",
+      status: (project?.status ?? "ACTIVE") as ProjectStatus,
+      client_name: project?.client_name ?? "",
+      description: project?.description ?? "",
+      address_line_1: project?.address_line_1 ?? "",
+      address_line_2: project?.address_line_2 ?? "",
+      city: project?.city ?? "",
+      state: project?.state ?? "",
+      postcode: project?.postcode ?? "",
+      start_date: project?.start_date ?? "",
+      end_date: project?.end_date ?? "",
+      site_manager: project?.site_manager ?? "",
+      site_phone: project?.site_phone ?? "",
+    },
+    onSubmit: async ({ value }) => {
+      setFormError(null);
+      try {
+        // Empty date inputs come through as "", which the API reads as a
+        // malformed date rather than as "not set".
+        await mutation.mutateAsync({
+          ...value,
+          start_date: value.start_date || null,
+          end_date: value.end_date || null,
+        });
+      } catch (error) {
+        if (error instanceof ApiError && error.isValidation) {
+          const leftover = applyServerErrors(
+            error.errors,
+            form as unknown as Parameters<typeof applyServerErrors>[1],
+          );
+          if (leftover.length > 0) setFormError(leftover[0]);
+        }
+      }
+    },
+  });
+
+  return (
+    <FormShell
+      backHref="/projects"
+      backLabel={t("projects.title")}
+      title={isEdit ? t("projects.editTitle") : t("projects.createTitle")}
+      isSubmitting={mutation.isPending}
+      submitLabel={isEdit ? t("common.save") : t("common.create")}
+      submitIcon={isEdit ? Save : Plus}
+      onSubmit={() => void form.handleSubmit()}
+    >
+      <FormSection title={t("projects.section.identity")}>
+        <form.Field
+          name="code"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.code")}
+              required
+            />
+          )}
+        </form.Field>
+
+        <form.Field
+          name="name"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.name")}
+              required
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="status">
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("projects.field.status")}
+              options={STATUSES.map((status) => ({
+                value: status,
+                label: t(`projects.status.${status}`),
+              }))}
+              required
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="client_name">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.clientName")}
+              optional
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="description">
+          {(field) => (
+            <TextAreaField
+              field={field as unknown as BoundField}
+              label={t("projects.field.description")}
+              optional
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+      </FormSection>
+
+      <FormSection title={t("projects.section.address")}>
+        <form.Field name="address_line_1">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.addressLine1")}
+              optional
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+        <form.Field name="address_line_2">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.addressLine2")}
+              optional
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+        <form.Field name="city">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.city")}
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="state">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.state")}
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="postcode">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.postcode")}
+              optional
+            />
+          )}
+        </form.Field>
+      </FormSection>
+
+      <FormSection title={t("projects.section.schedule")}>
+        <form.Field name="start_date">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.startDate")}
+              type="date"
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="end_date">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.endDate")}
+              type="date"
+              optional
+            />
+          )}
+        </form.Field>
+      </FormSection>
+
+      <FormSection title={t("projects.section.contact")}>
+        <form.Field name="site_manager">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.siteManager")}
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="site_phone">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.sitePhone")}
+              type="tel"
+              optional
+            />
+          )}
+        </form.Field>
+
+        {formError && (
+          <p className="text-sm font-medium text-destructive md:col-span-2">
+            {formError}
+          </p>
+        )}
+      </FormSection>
+    </FormShell>
+  );
+}
+
+/** Fetches the record, then hands it to the shared form. */
+export function EditProject({ id }: { id: string }) {
+  const t = useTranslations();
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["projects", "detail", id],
+    queryFn: () => getProject(id),
+  });
+
+  if (isLoading) return <FormSkeleton sections={4} />;
+  if (isError || !data) {
+    return <LoadErrorCard backHref="/projects" backLabel={t("projects.title")} />;
+  }
+  return <CreateProject project={data} />;
+}

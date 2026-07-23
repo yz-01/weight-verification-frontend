@@ -412,7 +412,9 @@
         "view": "View projects",
         "create": "Create projects",
         "update": "Edit projects",
-        "delete": "Remove projects"
+        "delete": "Remove projects",
+        "view_all": "See every project in the company",
+        "assign": "Assign people to projects"
       },
       "supplier": {
         "view": "View suppliers",
@@ -587,7 +589,17 @@
       "site_not_found": "That site could not be found.",
       "session_not_found": "That weighing could not be found.",
       "gateway_not_found": "That gateway could not be found.",
-      "invalid_rule_params": "Check the detection settings and try again."
+      "invalid_rule_params": "Check the detection settings and try again.",
+      "project_not_found": "That project could not be found.",
+      "supplier_not_found": "That supplier could not be found.",
+      "qr_code_not_found": "This QR code is not recognised.",
+      "project_has_records": "This project still has records against it. Mark it completed instead of removing it.",
+      "receipt_not_found": "That receipt could not be found.",
+      "receipt_photo_not_found": "That photo could not be found.",
+      "dispatch_not_found": "That dispatch could not be found.",
+      "dispatch_not_editable": "This load has already left the site and can no longer be changed.",
+      "dispatch_already_released": "This load has already been released.",
+      "dispatch_not_cancellable": "This load has already been collected and cannot be cancelled."
     },
     "field": {
       "required": "This field is required",
@@ -843,5 +855,289 @@
     "overridden": "Overridden from the platform default",
     "noChanges": "No changes to publish",
     "readOnly": "These thresholds are set by MSE Trace and cannot be changed from a customer account. They decide what the platform treats as tampering, so a company cannot widen its own. Contact support if a weighbridge needs different settings."
+  },
+  "projects": {
+    "title": "Projects",
+    "count": "{count, plural, =0 {No projects} one {# project} other {# projects}}",
+    "new": "New project",
+    "createTitle": "New project",
+    "editTitle": "Edit project",
+    "viewTitle": "Project",
+    "section": {
+      "identity": "Identity",
+      "address": "Site address",
+      "schedule": "Schedule",
+      "contact": "Site contact",
+      "team": "Site team"
+    },
+    "field": {
+      "code": "Project code",
+      "name": "Project name",
+      "status": "Status",
+      "description": "Description",
+      "clientName": "Client",
+      "addressLine1": "Address line 1",
+      "addressLine2": "Address line 2",
+      "city": "City",
+      "state": "State",
+      "postcode": "Postcode",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "siteManager": "Site manager",
+      "sitePhone": "Site phone",
+      "assignedUsers": "Team",
+      "createdAt": "Added"
+    },
+    "status": {
+      "PLANNING": "Planning",
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "COMPLETED": "Completed"
+    },
+    "filter": {
+      "all": "All",
+      "open": "Open",
+      "completed": "Completed"
+    },
+    "team": {
+      "title": "Who can see this project",
+      "description": "People here see this project's deliveries and outgoing loads. Everyone else in your company sees nothing of it unless their role covers every project.",
+      "empty": "Nobody is assigned yet.",
+      "add": "Add someone",
+      "remove": "Remove from project",
+      "removeTitle": "Remove {name} from this project?",
+      "removeDescription": "They will stop seeing this project's deliveries and outgoing loads. Their account and everything they recorded stay as they are.",
+      "removeConfirm": "Remove"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This project will no longer appear anywhere. Deliveries and loads already recorded against it stay in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Project created",
+      "updated": "Project updated",
+      "removed": "Project removed",
+      "assigned": "Added to the project",
+      "unassigned": "Removed from the project"
+    }
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "count": "{count, plural, =0 {No suppliers} one {# supplier} other {# suppliers}}",
+    "new": "New supplier",
+    "createTitle": "New supplier",
+    "editTitle": "Edit supplier",
+    "section": {
+      "identity": "Identity",
+      "contact": "Contact",
+      "address": "Address"
+    },
+    "field": {
+      "code": "Supplier code",
+      "name": "Supplier name",
+      "contactPerson": "Contact person",
+      "contactPhone": "Contact phone",
+      "contactEmail": "Contact email",
+      "addressLine1": "Address",
+      "city": "City",
+      "state": "State",
+      "registrationNo": "Registration no.",
+      "isActive": "Active",
+      "qrCodeCount": "Dockets",
+      "createdAt": "Added"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This supplier will no longer appear when recording a delivery. Deliveries already recorded from them stay in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Supplier created",
+      "updated": "Supplier updated",
+      "removed": "Supplier removed"
+    }
+  },
+  "qrCodes": {
+    "title": "Delivery dockets",
+    "description": "A docket ties one supplier to one project. Scanning it on site fills in both at once, so recording a delivery takes seconds.",
+    "count": "{count, plural, =0 {No dockets} one {# docket} other {# dockets}}",
+    "new": "Issue docket",
+    "createTitle": "Issue a docket",
+    "field": {
+      "project": "Project",
+      "supplier": "Supplier",
+      "token": "Code",
+      "isActive": "Active",
+      "createdAt": "Issued"
+    },
+    "status": {
+      "active": "Active",
+      "revoked": "Revoked"
+    },
+    "revoke": {
+      "title": "Revoke this docket?",
+      "description": "Printed copies stop working immediately. Deliveries already recorded with it stay exactly as they are.",
+      "confirm": "Revoke"
+    },
+    "toast": {
+      "created": "Docket issued",
+      "revoked": "Docket revoked"
+    }
+  },
+  "receipts": {
+    "title": "Material receipts",
+    "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
+    "new": "Record delivery",
+    "createTitle": "Record a delivery",
+    "editTitle": "Correct a receipt",
+    "viewTitle": "Receipt",
+    "section": {
+      "delivery": "Delivery",
+      "material": "Material",
+      "vehicle": "Vehicle and paperwork",
+      "received": "Received by",
+      "stamp": "Recorded by the platform",
+      "photos": "Photos"
+    },
+    "field": {
+      "receiptNo": "Receipt no.",
+      "project": "Project",
+      "supplier": "Supplier",
+      "qrCode": "Docket",
+      "materialName": "Material",
+      "quantity": "Quantity",
+      "unit": "Unit",
+      "unitPrice": "Unit price",
+      "totalValue": "Total",
+      "vehiclePlate": "Vehicle",
+      "deliveryNoteNo": "Delivery note no.",
+      "notes": "Notes",
+      "receivedBy": "Received by",
+      "capturedAt": "Recorded",
+      "location": "Location",
+      "recordedBy": "Recorded by",
+      "photoCount": "Photos"
+    },
+    "unit": {
+      "TONNE": "Tonne",
+      "KG": "Kilogram",
+      "M3": "Cubic metre",
+      "PIECE": "Piece",
+      "LOAD": "Load",
+      "BAG": "Bag"
+    },
+    "photoKind": {
+      "DELIVERY_NOTE": "Delivery note",
+      "VEHICLE": "Vehicle",
+      "UNLOADING": "Unloading",
+      "OTHER": "Other"
+    },
+    "stampNote": "The time, place and person are recorded by the platform when the receipt is filed. They cannot be typed in or changed afterwards.",
+    "editNote": "The quantity and price can be corrected. The project, the docket and the recorded time cannot — they are what the receipt is evidence of.",
+    "locationCaptured": "Location captured",
+    "locationMissing": "No location",
+    "noPhotos": "No photos were attached.",
+    "summary": {
+      "title": "Material summary",
+      "byUnit": "By unit",
+      "byMaterial": "By material",
+      "receipts": "Receipts",
+      "quantity": "Quantity",
+      "note": "Quantities are grouped by unit. Tonnes and pieces are not added together."
+    },
+    "remove": {
+      "title": "Remove receipt {name}?",
+      "description": "It will no longer appear in your deliveries or your material totals.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Delivery recorded",
+      "updated": "Receipt updated",
+      "removed": "Receipt removed"
+    }
+  },
+  "dispatches": {
+    "title": "Waste dispatches",
+    "count": "{count, plural, =0 {No loads} one {# load} other {# loads}}",
+    "new": "New load",
+    "createTitle": "New load out",
+    "editTitle": "Edit load",
+    "viewTitle": "Load out",
+    "section": {
+      "destination": "Destination",
+      "load": "Load",
+      "vehicle": "Vehicle and driver",
+      "release": "Release",
+      "photos": "Photos"
+    },
+    "field": {
+      "dispatchNo": "Dispatch no.",
+      "project": "Project",
+      "recycler": "Recycler",
+      "wasteType": "Waste type",
+      "estimatedWeight": "Estimated weight (kg)",
+      "description": "Description",
+      "vehiclePlate": "Vehicle",
+      "driverName": "Driver",
+      "driverPhone": "Driver phone",
+      "driverIc": "Driver IC",
+      "state": "Status",
+      "releasedAt": "Released",
+      "releasedBy": "Released by",
+      "location": "Location",
+      "photoCount": "Photos"
+    },
+    "wasteType": {
+      "MIXED": "Mixed construction waste",
+      "CONCRETE": "Concrete and masonry",
+      "METAL": "Scrap metal",
+      "TIMBER": "Timber",
+      "PLASTIC": "Plastic",
+      "SOIL": "Soil and aggregate",
+      "HAZARDOUS": "Hazardous",
+      "OTHER": "Other"
+    },
+    "state": {
+      "DRAFT": "Draft",
+      "RELEASED": "Released",
+      "COLLECTED": "Collected",
+      "WEIGHED": "Weighed",
+      "SETTLED": "Settled",
+      "CANCELLED": "Cancelled"
+    },
+    "recyclerNote": "Loads can only be sent to recyclers registered on MSE Trace. That is what puts the load on a weighbridge and keeps the trail going past your gate.",
+    "recyclerEmpty": "No recyclers are available right now.",
+    "estimateNote": "Your estimate. The recycler's weighbridge decides the final weight, and both are kept.",
+    "lockedNote": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
+    "release": {
+      "title": "Release this load?",
+      "description": "Records that the lorry has left. After this, the load can be cancelled but not changed.",
+      "confirm": "Release",
+      "byName": "Released by"
+    },
+    "cancel": {
+      "title": "Cancel this load?",
+      "description": "Say why. The reason stays on the record so the recycler and your own team can see what happened.",
+      "confirm": "Cancel load"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This draft will no longer appear anywhere. Nothing has left the site yet.",
+      "confirm": "Remove"
+    },
+    "summary": {
+      "title": "Waste summary",
+      "byType": "By waste type",
+      "loads": "Loads",
+      "estimatedWeight": "Estimated weight"
+    },
+    "toast": {
+      "created": "Load created",
+      "updated": "Load updated",
+      "removed": "Load removed",
+      "released": "Load released",
+      "cancelled": "Load cancelled"
+    }
   }
 }

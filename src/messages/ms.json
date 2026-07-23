@@ -412,7 +412,9 @@
         "view": "Lihat projek",
         "create": "Cipta projek",
         "update": "Sunting projek",
-        "delete": "Buang projek"
+        "delete": "Buang projek",
+        "view_all": "Lihat setiap projek dalam syarikat",
+        "assign": "Tetapkan orang kepada projek"
       },
       "supplier": {
         "view": "Lihat pembekal",
@@ -587,7 +589,17 @@
       "site_not_found": "Tapak itu tidak dijumpai.",
       "session_not_found": "Penimbangan itu tidak dijumpai.",
       "gateway_not_found": "Gateway itu tidak dijumpai.",
-      "invalid_rule_params": "Semak tetapan pengesanan dan cuba lagi."
+      "invalid_rule_params": "Semak tetapan pengesanan dan cuba lagi.",
+      "project_not_found": "Projek itu tidak dijumpai.",
+      "supplier_not_found": "Pembekal itu tidak dijumpai.",
+      "qr_code_not_found": "Kod QR ini tidak dikenali.",
+      "project_has_records": "Projek ini masih ada rekod. Tandakan ia selesai dan bukannya membuangnya.",
+      "receipt_not_found": "Resit itu tidak dijumpai.",
+      "receipt_photo_not_found": "Foto itu tidak dijumpai.",
+      "dispatch_not_found": "Penghantaran itu tidak dijumpai.",
+      "dispatch_not_editable": "Muatan ini telah meninggalkan tapak dan tidak boleh diubah lagi.",
+      "dispatch_already_released": "Muatan ini telah dilepaskan.",
+      "dispatch_not_cancellable": "Muatan ini telah dikutip dan tidak boleh dibatalkan."
     },
     "field": {
       "required": "Ruangan ini wajib diisi",
@@ -843,5 +855,289 @@
     "overridden": "Ditindih daripada lalai platform",
     "noChanges": "Tiada perubahan untuk diterbitkan",
     "readOnly": "Ambang ini ditetapkan oleh MSE Trace dan tidak boleh diubah daripada akaun pelanggan. Ia menentukan apa yang platform anggap sebagai penipuan, jadi sebuah syarikat tidak boleh melonggarkan ambangnya sendiri. Hubungi sokongan jika sesebuah jambatan timbang memerlukan tetapan berbeza."
+  },
+  "projects": {
+    "title": "Projek",
+    "count": "{count, plural, =0 {Tiada projek} other {# projek}}",
+    "new": "Projek baharu",
+    "createTitle": "Projek baharu",
+    "editTitle": "Sunting projek",
+    "viewTitle": "Projek",
+    "section": {
+      "identity": "Maklumat asas",
+      "address": "Alamat tapak",
+      "schedule": "Jadual",
+      "contact": "Hubungan tapak",
+      "team": "Pasukan tapak"
+    },
+    "field": {
+      "code": "Kod projek",
+      "name": "Nama projek",
+      "status": "Status",
+      "description": "Keterangan",
+      "clientName": "Klien",
+      "addressLine1": "Alamat baris 1",
+      "addressLine2": "Alamat baris 2",
+      "city": "Bandar",
+      "state": "Negeri",
+      "postcode": "Poskod",
+      "startDate": "Tarikh mula",
+      "endDate": "Tarikh tamat",
+      "siteManager": "Pengurus tapak",
+      "sitePhone": "Telefon tapak",
+      "assignedUsers": "Pasukan",
+      "createdAt": "Ditambah"
+    },
+    "status": {
+      "PLANNING": "Perancangan",
+      "ACTIVE": "Aktif",
+      "SUSPENDED": "Digantung",
+      "COMPLETED": "Selesai"
+    },
+    "filter": {
+      "all": "Semua",
+      "open": "Berjalan",
+      "completed": "Selesai"
+    },
+    "team": {
+      "title": "Siapa boleh melihat projek ini",
+      "description": "Orang di sini melihat penerimaan dan muatan keluar projek ini. Orang lain dalam syarikat anda tidak melihat apa-apa melainkan peranan mereka merangkumi semua projek.",
+      "empty": "Belum ada sesiapa ditugaskan.",
+      "add": "Tambah orang",
+      "remove": "Keluarkan dari projek",
+      "removeTitle": "Keluarkan {name} dari projek ini?",
+      "removeDescription": "Mereka tidak lagi melihat penerimaan dan muatan keluar projek ini. Akaun dan rekod mereka kekal seperti sedia ada.",
+      "removeConfirm": "Keluarkan"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Projek ini tidak akan muncul lagi. Penerimaan dan muatan yang telah direkodkan kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Projek dicipta",
+      "updated": "Projek dikemas kini",
+      "removed": "Projek dibuang",
+      "assigned": "Ditambah ke projek",
+      "unassigned": "Dikeluarkan dari projek"
+    }
+  },
+  "suppliers": {
+    "title": "Pembekal",
+    "count": "{count, plural, =0 {Tiada pembekal} other {# pembekal}}",
+    "new": "Pembekal baharu",
+    "createTitle": "Pembekal baharu",
+    "editTitle": "Sunting pembekal",
+    "section": {
+      "identity": "Maklumat asas",
+      "contact": "Hubungan",
+      "address": "Alamat"
+    },
+    "field": {
+      "code": "Kod pembekal",
+      "name": "Nama pembekal",
+      "contactPerson": "Orang hubungan",
+      "contactPhone": "Telefon",
+      "contactEmail": "E-mel",
+      "addressLine1": "Alamat",
+      "city": "Bandar",
+      "state": "Negeri",
+      "registrationNo": "No. pendaftaran",
+      "isActive": "Aktif",
+      "qrCodeCount": "Nota hantar",
+      "createdAt": "Ditambah"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Pembekal ini tidak akan muncul semasa merekod penerimaan. Penerimaan yang telah direkodkan kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Pembekal dicipta",
+      "updated": "Pembekal dikemas kini",
+      "removed": "Pembekal dibuang"
+    }
+  },
+  "qrCodes": {
+    "title": "Nota hantar",
+    "description": "Satu nota hantar mengikat satu pembekal kepada satu projek. Mengimbasnya di tapak mengisi kedua-duanya sekali gus.",
+    "count": "{count, plural, =0 {Tiada nota hantar} other {# nota hantar}}",
+    "new": "Keluarkan nota",
+    "createTitle": "Keluarkan nota hantar",
+    "field": {
+      "project": "Projek",
+      "supplier": "Pembekal",
+      "token": "Kod",
+      "isActive": "Aktif",
+      "createdAt": "Dikeluarkan"
+    },
+    "status": {
+      "active": "Aktif",
+      "revoked": "Dibatalkan"
+    },
+    "revoke": {
+      "title": "Batalkan nota hantar ini?",
+      "description": "Salinan bercetak berhenti berfungsi serta-merta. Penerimaan yang telah direkodkan dengannya kekal.",
+      "confirm": "Batalkan"
+    },
+    "toast": {
+      "created": "Nota hantar dikeluarkan",
+      "revoked": "Nota hantar dibatalkan"
+    }
+  },
+  "receipts": {
+    "title": "Penerimaan bahan",
+    "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
+    "new": "Rekod penerimaan",
+    "createTitle": "Rekod penerimaan",
+    "editTitle": "Betulkan resit",
+    "viewTitle": "Resit",
+    "section": {
+      "delivery": "Penghantaran",
+      "material": "Bahan",
+      "vehicle": "Kenderaan dan dokumen",
+      "received": "Diterima oleh",
+      "stamp": "Direkod oleh platform",
+      "photos": "Foto"
+    },
+    "field": {
+      "receiptNo": "No. resit",
+      "project": "Projek",
+      "supplier": "Pembekal",
+      "qrCode": "Nota hantar",
+      "materialName": "Bahan",
+      "quantity": "Kuantiti",
+      "unit": "Unit",
+      "unitPrice": "Harga seunit",
+      "totalValue": "Jumlah",
+      "vehiclePlate": "Kenderaan",
+      "deliveryNoteNo": "No. nota hantar",
+      "notes": "Nota",
+      "receivedBy": "Diterima oleh",
+      "capturedAt": "Direkod",
+      "location": "Lokasi",
+      "recordedBy": "Direkod oleh",
+      "photoCount": "Foto"
+    },
+    "unit": {
+      "TONNE": "Tan",
+      "KG": "Kilogram",
+      "M3": "Meter padu",
+      "PIECE": "Unit",
+      "LOAD": "Muatan",
+      "BAG": "Beg"
+    },
+    "photoKind": {
+      "DELIVERY_NOTE": "Nota hantar",
+      "VEHICLE": "Kenderaan",
+      "UNLOADING": "Pemunggahan",
+      "OTHER": "Lain-lain"
+    },
+    "stampNote": "Masa, lokasi dan orang yang merekod ditulis oleh platform semasa resit difailkan. Ia tidak boleh ditaip atau diubah kemudian.",
+    "editNote": "Kuantiti dan harga boleh dibetulkan. Projek, nota hantar dan masa rekod tidak boleh — itulah yang dibuktikan oleh resit ini.",
+    "locationCaptured": "Lokasi direkod",
+    "locationMissing": "Tiada lokasi",
+    "noPhotos": "Tiada foto dilampirkan.",
+    "summary": {
+      "title": "Ringkasan bahan",
+      "byUnit": "Mengikut unit",
+      "byMaterial": "Mengikut bahan",
+      "receipts": "Resit",
+      "quantity": "Kuantiti",
+      "note": "Kuantiti dikumpulkan mengikut unit. Tan dan unit tidak dicampur."
+    },
+    "remove": {
+      "title": "Buang resit {name}?",
+      "description": "Ia tidak akan muncul lagi dalam senarai penerimaan atau jumlah bahan anda.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Penerimaan direkod",
+      "updated": "Resit dikemas kini",
+      "removed": "Resit dibuang"
+    }
+  },
+  "dispatches": {
+    "title": "Penghantaran sisa",
+    "count": "{count, plural, =0 {Tiada muatan} other {# muatan}}",
+    "new": "Muatan baharu",
+    "createTitle": "Muatan keluar baharu",
+    "editTitle": "Sunting muatan",
+    "viewTitle": "Muatan keluar",
+    "section": {
+      "destination": "Destinasi",
+      "load": "Muatan",
+      "vehicle": "Kenderaan dan pemandu",
+      "release": "Pelepasan",
+      "photos": "Foto"
+    },
+    "field": {
+      "dispatchNo": "No. penghantaran",
+      "project": "Projek",
+      "recycler": "Pengitar semula",
+      "wasteType": "Jenis sisa",
+      "estimatedWeight": "Anggaran berat (kg)",
+      "description": "Keterangan",
+      "vehiclePlate": "Kenderaan",
+      "driverName": "Pemandu",
+      "driverPhone": "Telefon pemandu",
+      "driverIc": "IC pemandu",
+      "state": "Status",
+      "releasedAt": "Dilepaskan",
+      "releasedBy": "Dilepaskan oleh",
+      "location": "Lokasi",
+      "photoCount": "Foto"
+    },
+    "wasteType": {
+      "MIXED": "Sisa binaan bercampur",
+      "CONCRETE": "Konkrit dan batu",
+      "METAL": "Besi buruk",
+      "TIMBER": "Kayu",
+      "PLASTIC": "Plastik",
+      "SOIL": "Tanah dan agregat",
+      "HAZARDOUS": "Berbahaya",
+      "OTHER": "Lain-lain"
+    },
+    "state": {
+      "DRAFT": "Draf",
+      "RELEASED": "Dilepaskan",
+      "COLLECTED": "Dikutip",
+      "WEIGHED": "Ditimbang",
+      "SETTLED": "Diselesaikan",
+      "CANCELLED": "Dibatalkan"
+    },
+    "recyclerNote": "Muatan hanya boleh dihantar kepada pengitar semula yang berdaftar di MSE Trace. Itulah yang meletakkan muatan di atas jambatan timbang dan menyambung jejak melepasi pintu tapak anda.",
+    "recyclerEmpty": "Tiada pengitar semula tersedia buat masa ini.",
+    "estimateNote": "Ini anggaran anda. Berat akhir ditentukan oleh jambatan timbang pengitar semula, dan kedua-duanya disimpan.",
+    "lockedNote": "Muatan ini telah meninggalkan tapak dan tidak boleh diubah lagi. Batalkan jika ia tidak sampai.",
+    "release": {
+      "title": "Lepaskan muatan ini?",
+      "description": "Merekodkan bahawa lori telah keluar. Selepas ini, muatan boleh dibatalkan tetapi tidak boleh diubah.",
+      "confirm": "Lepaskan",
+      "byName": "Dilepaskan oleh"
+    },
+    "cancel": {
+      "title": "Batalkan muatan ini?",
+      "description": "Nyatakan sebabnya. Sebab itu kekal pada rekod supaya pengitar semula dan pasukan anda tahu apa yang berlaku.",
+      "confirm": "Batalkan muatan"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Draf ini tidak akan muncul lagi. Tiada apa-apa yang telah meninggalkan tapak.",
+      "confirm": "Buang"
+    },
+    "summary": {
+      "title": "Ringkasan sisa",
+      "byType": "Mengikut jenis sisa",
+      "loads": "Muatan",
+      "estimatedWeight": "Anggaran berat"
+    },
+    "toast": {
+      "created": "Muatan dicipta",
+      "updated": "Muatan dikemas kini",
+      "removed": "Muatan dibuang",
+      "released": "Muatan dilepaskan",
+      "cancelled": "Muatan dibatalkan"
+    }
   }
 }

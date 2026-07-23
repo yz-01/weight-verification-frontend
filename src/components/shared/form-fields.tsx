@@ -163,8 +163,15 @@ export function SelectField({
       hint={hint}
       className={className}
     >
+      {/*
+        `?? ""` rather than `|| undefined`. Radix reads an empty string as
+        "nothing chosen" and still shows the placeholder, but an `undefined`
+        that later becomes a string flips the component from uncontrolled to
+        controlled — React warns, and the warning is right: a control that
+        changes mode mid-life can drop the value it is holding.
+      */}
       <Select
-        value={field.state.value || undefined}
+        value={field.state.value ?? ""}
         disabled={disabled || options.length === 0}
         onValueChange={(value) => field.handleChange(value)}
       >
