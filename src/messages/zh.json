@@ -142,6 +142,7 @@
     "contractorSubtitle": "各项目的工地动态",
     "recyclerSubtitle": "今日收运与称重",
     "tile": {
+      "companies": "客户公司",
       "contractors": "建筑商",
       "recyclers": "回收商",
       "projects": "项目",
@@ -361,65 +362,105 @@
       "platform": "平台运维"
     },
     "code": {
-      "company.view": "查看客户公司",
-      "company.create": "开通公司",
-      "company.update": "编辑公司资料",
-      "company.suspend": "停用或恢复公司",
-      "user.view": "查看用户",
-      "user.create": "邀请用户",
-      "user.update": "编辑用户",
-      "user.suspend": "停用或移除用户",
-      "role.view": "查看角色",
-      "role.create": "创建角色",
-      "role.update": "编辑角色与权限",
-      "role.delete": "移除角色",
-      "audit.view": "查阅审计日志",
-      "project.view": "查看项目",
-      "project.create": "创建项目",
-      "project.update": "编辑项目",
-      "project.delete": "移除项目",
-      "supplier.view": "查看供应商",
-      "supplier.create": "新增供应商",
-      "supplier.update": "编辑供应商",
-      "supplier.delete": "移除供应商",
-      "receipt.view": "查看材料收货",
-      "receipt.create": "登记材料收货",
-      "receipt.update": "编辑材料收货",
-      "dispatch.view": "查看废料出场",
-      "dispatch.create": "登记废料出场",
-      "dispatch.update": "更新废料出场",
-      "task.view": "查看司机任务",
-      "task.assign": "分配司机与车辆",
-      "task.submit": "提交任务照片与报备",
-      "scale.view": "查看地磅",
-      "scale.manage": "配置地磅与网关",
-      "weighing.view": "查看称重记录",
-      "weighing.operate": "操作地磅",
-      "weighing.void": "作废称重会话",
-      "weighing.rule_view": "查看防诈骗参数",
-      "weighing.rule_update": "修改防诈骗参数",
-      "deduction.view": "查看扣杂",
-      "deduction.create": "登记扣杂",
-      "deduction.approve": "审批超额扣杂",
-      "settlement.view": "查看结算",
-      "settlement.create": "创建结算",
-      "settlement.lock": "锁定结算记录",
-      "payment.view": "查看付款",
-      "payment.create": "登记付款证明",
-      "report.view": "查看报表",
-      "report.export": "导出报表",
-      "billing.view": "查看收费",
-      "billing.manage": "管理套餐与订阅",
-      "commission.view": "查看佣金",
-      "commission.manage": "管理佣金",
-      "ticket.view": "查看工单",
-      "ticket.create": "提交工单",
-      "ticket.reply": "回复工单",
-      "announcement.view": "查看公告",
-      "announcement.manage": "发布公告",
-      "platform.maintenance": "开启平台维护模式",
-      "platform.impersonate": "模拟登录客户账号",
-      "platform.monitor": "查看系统监控"
+      "company": {
+        "view": "查看客户公司",
+        "create": "开通公司",
+        "update": "编辑公司资料",
+        "suspend": "停用或恢复公司"
+      },
+      "user": {
+        "view": "查看用户",
+        "create": "邀请用户",
+        "update": "编辑用户",
+        "suspend": "停用或移除用户"
+      },
+      "role": {
+        "view": "查看角色",
+        "create": "创建角色",
+        "update": "编辑角色与权限",
+        "delete": "移除角色"
+      },
+      "audit": {
+        "view": "查阅审计日志"
+      },
+      "project": {
+        "view": "查看项目",
+        "create": "创建项目",
+        "update": "编辑项目",
+        "delete": "移除项目"
+      },
+      "supplier": {
+        "view": "查看供应商",
+        "create": "新增供应商",
+        "update": "编辑供应商",
+        "delete": "移除供应商"
+      },
+      "receipt": {
+        "view": "查看材料收货",
+        "create": "登记材料收货",
+        "update": "编辑材料收货"
+      },
+      "dispatch": {
+        "view": "查看废料出场",
+        "create": "登记废料出场",
+        "update": "更新废料出场"
+      },
+      "task": {
+        "view": "查看司机任务",
+        "assign": "分配司机与车辆",
+        "submit": "提交任务照片与报备"
+      },
+      "scale": {
+        "view": "查看地磅",
+        "manage": "配置地磅与网关"
+      },
+      "weighing": {
+        "view": "查看称重记录",
+        "operate": "操作地磅",
+        "void": "作废称重会话",
+        "rule_view": "查看防诈骗参数",
+        "rule_update": "修改防诈骗参数"
+      },
+      "deduction": {
+        "view": "查看扣杂",
+        "create": "登记扣杂",
+        "approve": "审批超额扣杂"
+      },
+      "settlement": {
+        "view": "查看结算",
+        "create": "创建结算",
+        "lock": "锁定结算记录"
+      },
+      "payment": {
+        "view": "查看付款",
+        "create": "登记付款证明"
+      },
+      "report": {
+        "view": "查看报表",
+        "export": "导出报表"
+      },
+      "billing": {
+        "view": "查看收费",
+        "manage": "管理套餐与订阅"
+      },
+      "commission": {
+        "view": "查看佣金",
+        "manage": "管理佣金"
+      },
+      "ticket": {
+        "view": "查看工单",
+        "create": "提交工单",
+        "reply": "回复工单"
+      },
+      "announcement": {
+        "view": "查看公告",
+        "manage": "发布公告"
+      },
+      "platform": {
+        "maintenance": "开启平台维护模式",
+        "impersonate": "模拟登录客户账号",
+        "monitor": "查看系统监控"
+      }
     }
   },
   "audit": {

@@ -142,6 +142,7 @@
     "contractorSubtitle": "Aktiviti tapak merentas projek anda",
     "recyclerSubtitle": "Kutipan dan penimbangan hari ini",
     "tile": {
+      "companies": "Syarikat",
       "contractors": "Kontraktor",
       "recyclers": "Pengitar semula",
       "projects": "Projek",
@@ -361,65 +362,105 @@
       "platform": "Operasi platform"
     },
     "code": {
-      "company.view": "Lihat syarikat",
-      "company.create": "Buka syarikat",
-      "company.update": "Sunting butiran syarikat",
-      "company.suspend": "Gantung atau pulihkan syarikat",
-      "user.view": "Lihat pengguna",
-      "user.create": "Jemput pengguna",
-      "user.update": "Sunting pengguna",
-      "user.suspend": "Gantung atau buang pengguna",
-      "role.view": "Lihat peranan",
-      "role.create": "Cipta peranan",
-      "role.update": "Sunting peranan dan kebenaran",
-      "role.delete": "Buang peranan",
-      "audit.view": "Baca log audit",
-      "project.view": "Lihat projek",
-      "project.create": "Cipta projek",
-      "project.update": "Sunting projek",
-      "project.delete": "Buang projek",
-      "supplier.view": "Lihat pembekal",
-      "supplier.create": "Tambah pembekal",
-      "supplier.update": "Sunting pembekal",
-      "supplier.delete": "Buang pembekal",
-      "receipt.view": "Lihat terimaan bahan",
-      "receipt.create": "Rekod terimaan bahan",
-      "receipt.update": "Sunting terimaan bahan",
-      "dispatch.view": "Lihat penghantaran sisa",
-      "dispatch.create": "Rekod penghantaran sisa",
-      "dispatch.update": "Kemas kini penghantaran sisa",
-      "task.view": "Lihat tugas pemandu",
-      "task.assign": "Tetapkan pemandu dan kenderaan",
-      "task.submit": "Hantar foto dan laporan tugas",
-      "scale.view": "Lihat jambatan timbang",
-      "scale.manage": "Konfigurasi jambatan timbang dan gateway",
-      "weighing.view": "Lihat rekod penimbangan",
-      "weighing.operate": "Kendalikan jambatan timbang",
-      "weighing.void": "Batalkan sesi penimbangan",
-      "weighing.rule_view": "Lihat tetapan pengesanan penipuan",
-      "weighing.rule_update": "Ubah tetapan pengesanan penipuan",
-      "deduction.view": "Lihat potongan",
-      "deduction.create": "Rekod potongan",
-      "deduction.approve": "Luluskan potongan berlebihan",
-      "settlement.view": "Lihat penyelesaian",
-      "settlement.create": "Cipta penyelesaian",
-      "settlement.lock": "Kunci rekod penyelesaian",
-      "payment.view": "Lihat pembayaran",
-      "payment.create": "Rekod bukti pembayaran",
-      "report.view": "Lihat laporan",
-      "report.export": "Eksport laporan",
-      "billing.view": "Lihat pengebilan",
-      "billing.manage": "Urus pelan dan langganan",
-      "commission.view": "Lihat komisen",
-      "commission.manage": "Urus komisen",
-      "ticket.view": "Lihat tiket sokongan",
-      "ticket.create": "Buka tiket sokongan",
-      "ticket.reply": "Balas tiket sokongan",
-      "announcement.view": "Lihat pengumuman",
-      "announcement.manage": "Terbitkan pengumuman",
-      "platform.maintenance": "Letakkan platform dalam penyelenggaraan",
-      "platform.impersonate": "Log masuk sebagai pelanggan",
-      "platform.monitor": "Lihat pemantauan sistem"
+      "company": {
+        "view": "Lihat syarikat",
+        "create": "Buka syarikat",
+        "update": "Sunting butiran syarikat",
+        "suspend": "Gantung atau pulihkan syarikat"
+      },
+      "user": {
+        "view": "Lihat pengguna",
+        "create": "Jemput pengguna",
+        "update": "Sunting pengguna",
+        "suspend": "Gantung atau buang pengguna"
+      },
+      "role": {
+        "view": "Lihat peranan",
+        "create": "Cipta peranan",
+        "update": "Sunting peranan dan kebenaran",
+        "delete": "Buang peranan"
+      },
+      "audit": {
+        "view": "Baca log audit"
+      },
+      "project": {
+        "view": "Lihat projek",
+        "create": "Cipta projek",
+        "update": "Sunting projek",
+        "delete": "Buang projek"
+      },
+      "supplier": {
+        "view": "Lihat pembekal",
+        "create": "Tambah pembekal",
+        "update": "Sunting pembekal",
+        "delete": "Buang pembekal"
+      },
+      "receipt": {
+        "view": "Lihat terimaan bahan",
+        "create": "Rekod terimaan bahan",
+        "update": "Sunting terimaan bahan"
+      },
+      "dispatch": {
+        "view": "Lihat penghantaran sisa",
+        "create": "Rekod penghantaran sisa",
+        "update": "Kemas kini penghantaran sisa"
+      },
+      "task": {
+        "view": "Lihat tugas pemandu",
+        "assign": "Tetapkan pemandu dan kenderaan",
+        "submit": "Hantar foto dan laporan tugas"
+      },
+      "scale": {
+        "view": "Lihat jambatan timbang",
+        "manage": "Konfigurasi jambatan timbang dan gateway"
+      },
+      "weighing": {
+        "view": "Lihat rekod penimbangan",
+        "operate": "Kendalikan jambatan timbang",
+        "void": "Batalkan sesi penimbangan",
+        "rule_view": "Lihat tetapan pengesanan penipuan",
+        "rule_update": "Ubah tetapan pengesanan penipuan"
+      },
+      "deduction": {
+        "view": "Lihat potongan",
+        "create": "Rekod potongan",
+        "approve": "Luluskan potongan berlebihan"
+      },
+      "settlement": {
+        "view": "Lihat penyelesaian",
+        "create": "Cipta penyelesaian",
+        "lock": "Kunci rekod penyelesaian"
+      },
+      "payment": {
+        "view": "Lihat pembayaran",
+        "create": "Rekod bukti pembayaran"
+      },
+      "report": {
+        "view": "Lihat laporan",
+        "export": "Eksport laporan"
+      },
+      "billing": {
+        "view": "Lihat pengebilan",
+        "manage": "Urus pelan dan langganan"
+      },
+      "commission": {
+        "view": "Lihat komisen",
+        "manage": "Urus komisen"
+      },
+      "ticket": {
+        "view": "Lihat tiket sokongan",
+        "create": "Buka tiket sokongan",
+        "reply": "Balas tiket sokongan"
+      },
+      "announcement": {
+        "view": "Lihat pengumuman",
+        "manage": "Terbitkan pengumuman"
+      },
+      "platform": {
+        "maintenance": "Letakkan platform dalam penyelenggaraan",
+        "impersonate": "Log masuk sebagai pelanggan",
+        "monitor": "Lihat pemantauan sistem"
+      }
     }
   },
   "audit": {

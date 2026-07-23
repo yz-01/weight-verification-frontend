@@ -142,6 +142,7 @@
     "contractorSubtitle": "Site activity across your projects",
     "recyclerSubtitle": "Today's collections and weighing",
     "tile": {
+      "companies": "Companies",
       "contractors": "Contractors",
       "recyclers": "Recyclers",
       "projects": "Projects",
@@ -361,65 +362,105 @@
       "platform": "Platform operations"
     },
     "code": {
-      "company.view": "View companies",
-      "company.create": "Open a company",
-      "company.update": "Edit company details",
-      "company.suspend": "Suspend or reinstate a company",
-      "user.view": "View users",
-      "user.create": "Invite users",
-      "user.update": "Edit users",
-      "user.suspend": "Suspend or remove users",
-      "role.view": "View roles",
-      "role.create": "Create roles",
-      "role.update": "Edit roles and permissions",
-      "role.delete": "Remove roles",
-      "audit.view": "Read the audit log",
-      "project.view": "View projects",
-      "project.create": "Create projects",
-      "project.update": "Edit projects",
-      "project.delete": "Remove projects",
-      "supplier.view": "View suppliers",
-      "supplier.create": "Add suppliers",
-      "supplier.update": "Edit suppliers",
-      "supplier.delete": "Remove suppliers",
-      "receipt.view": "View material receipts",
-      "receipt.create": "Record material receipts",
-      "receipt.update": "Edit material receipts",
-      "dispatch.view": "View waste dispatches",
-      "dispatch.create": "Record waste dispatches",
-      "dispatch.update": "Update waste dispatches",
-      "task.view": "View driver tasks",
-      "task.assign": "Assign drivers and vehicles",
-      "task.submit": "Submit task photos and reports",
-      "scale.view": "View weighbridges",
-      "scale.manage": "Configure weighbridges and gateways",
-      "weighing.view": "View weighing records",
-      "weighing.operate": "Run the weighbridge",
-      "weighing.void": "Void a weighing session",
-      "weighing.rule_view": "View fraud detection settings",
-      "weighing.rule_update": "Change fraud detection settings",
-      "deduction.view": "View deductions",
-      "deduction.create": "Record deductions",
-      "deduction.approve": "Approve excess deductions",
-      "settlement.view": "View settlements",
-      "settlement.create": "Create settlements",
-      "settlement.lock": "Lock settlement records",
-      "payment.view": "View payments",
-      "payment.create": "Record payment proof",
-      "report.view": "View reports",
-      "report.export": "Export reports",
-      "billing.view": "View billing",
-      "billing.manage": "Manage plans and subscriptions",
-      "commission.view": "View commission",
-      "commission.manage": "Manage commission",
-      "ticket.view": "View support tickets",
-      "ticket.create": "Raise support tickets",
-      "ticket.reply": "Reply to support tickets",
-      "announcement.view": "View announcements",
-      "announcement.manage": "Publish announcements",
-      "platform.maintenance": "Put the platform into maintenance",
-      "platform.impersonate": "Sign in as a customer",
-      "platform.monitor": "View system monitoring"
+      "company": {
+        "view": "View companies",
+        "create": "Open a company",
+        "update": "Edit company details",
+        "suspend": "Suspend or reinstate a company"
+      },
+      "user": {
+        "view": "View users",
+        "create": "Invite users",
+        "update": "Edit users",
+        "suspend": "Suspend or remove users"
+      },
+      "role": {
+        "view": "View roles",
+        "create": "Create roles",
+        "update": "Edit roles and permissions",
+        "delete": "Remove roles"
+      },
+      "audit": {
+        "view": "Read the audit log"
+      },
+      "project": {
+        "view": "View projects",
+        "create": "Create projects",
+        "update": "Edit projects",
+        "delete": "Remove projects"
+      },
+      "supplier": {
+        "view": "View suppliers",
+        "create": "Add suppliers",
+        "update": "Edit suppliers",
+        "delete": "Remove suppliers"
+      },
+      "receipt": {
+        "view": "View material receipts",
+        "create": "Record material receipts",
+        "update": "Edit material receipts"
+      },
+      "dispatch": {
+        "view": "View waste dispatches",
+        "create": "Record waste dispatches",
+        "update": "Update waste dispatches"
+      },
+      "task": {
+        "view": "View driver tasks",
+        "assign": "Assign drivers and vehicles",
+        "submit": "Submit task photos and reports"
+      },
+      "scale": {
+        "view": "View weighbridges",
+        "manage": "Configure weighbridges and gateways"
+      },
+      "weighing": {
+        "view": "View weighing records",
+        "operate": "Run the weighbridge",
+        "void": "Void a weighing session",
+        "rule_view": "View fraud detection settings",
+        "rule_update": "Change fraud detection settings"
+      },
+      "deduction": {
+        "view": "View deductions",
+        "create": "Record deductions",
+        "approve": "Approve excess deductions"
+      },
+      "settlement": {
+        "view": "View settlements",
+        "create": "Create settlements",
+        "lock": "Lock settlement records"
+      },
+      "payment": {
+        "view": "View payments",
+        "create": "Record payment proof"
+      },
+      "report": {
+        "view": "View reports",
+        "export": "Export reports"
+      },
+      "billing": {
+        "view": "View billing",
+        "manage": "Manage plans and subscriptions"
+      },
+      "commission": {
+        "view": "View commission",
+        "manage": "Manage commission"
+      },
+      "ticket": {
+        "view": "View support tickets",
+        "create": "Raise support tickets",
+        "reply": "Reply to support tickets"
+      },
+      "announcement": {
+        "view": "View announcements",
+        "manage": "Publish announcements"
+      },
+      "platform": {
+        "maintenance": "Put the platform into maintenance",
+        "impersonate": "Sign in as a customer",
+        "monitor": "View system monitoring"
+      }
     }
   },
   "audit": {

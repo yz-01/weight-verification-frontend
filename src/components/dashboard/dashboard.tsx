@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Building2, Recycle, Users } from "lucide-react";
+import { Building2, Layers, Recycle } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -75,8 +75,8 @@ function PlatformTiles() {
       value: data?.by_type.RECYCLER ?? 0,
     },
     {
-      key: "users",
-      icon: Users,
+      key: "companies",
+      icon: Layers,
       value: data?.total ?? 0,
     },
   ];
