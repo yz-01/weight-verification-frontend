@@ -614,7 +614,16 @@
       "driver_has_tasks": "该司机已有出车记录，请停用而不是删除。",
       "task_already_running": "这车货已经有一趟任务在跑了。",
       "task_already_started": "这趟任务已经开始，无法再改派。",
-      "task_invalid_transition": "从当前状态无法进到那一步。"
+      "task_invalid_transition": "从当前状态无法进到那一步。",
+      "deduction_not_found": "找不到该扣杂记录。",
+      "settlement_not_found": "找不到该结算单。",
+      "deduction_not_producer": "只有产废方才能回应扣杂。",
+      "deduction_already_answered": "这条扣杂已经回应过了。",
+      "settlement_locked": "该结算单已锁定，无法再修改。",
+      "settlement_not_issued": "请先开出结算单。",
+      "settlement_no_weighing": "这车货还没有完成的过磅记录，无法结算。",
+      "settlement_deductions_open": "还有扣杂在等产废方回应。",
+      "settlement_nothing_to_settle": "扣杂之后已经没有可结算的重量了。"
     },
     "field": {
       "required": "此项为必填",

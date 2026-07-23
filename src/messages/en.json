@@ -614,7 +614,16 @@
       "driver_has_tasks": "This driver has trips recorded against them. Deactivate them instead of removing them.",
       "task_already_running": "A trip is already running for that load.",
       "task_already_started": "This trip has already started and can no longer be reassigned.",
-      "task_invalid_transition": "A trip cannot move to that step from where it is now."
+      "task_invalid_transition": "A trip cannot move to that step from where it is now.",
+      "deduction_not_found": "That deduction could not be found.",
+      "settlement_not_found": "That settlement could not be found.",
+      "deduction_not_producer": "Only the producer of this waste can answer a deduction.",
+      "deduction_already_answered": "This deduction has already been answered.",
+      "settlement_locked": "This settlement is locked and can no longer be changed.",
+      "settlement_not_issued": "Issue the settlement first.",
+      "settlement_no_weighing": "This load has no completed weighing to settle from.",
+      "settlement_deductions_open": "There are deductions still waiting on the producer.",
+      "settlement_nothing_to_settle": "The deductions leave nothing to settle."
     },
     "field": {
       "required": "This field is required",

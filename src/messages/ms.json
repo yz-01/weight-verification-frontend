@@ -614,7 +614,16 @@
       "driver_has_tasks": "Pemandu ini mempunyai rekod perjalanan. Nyahaktifkan dan bukan membuangnya.",
       "task_already_running": "Satu perjalanan sudah berjalan untuk muatan itu.",
       "task_already_started": "Perjalanan ini telah bermula dan tidak boleh ditugaskan semula.",
-      "task_invalid_transition": "Perjalanan tidak boleh bergerak ke langkah itu dari keadaan sekarang."
+      "task_invalid_transition": "Perjalanan tidak boleh bergerak ke langkah itu dari keadaan sekarang.",
+      "deduction_not_found": "Potongan itu tidak dijumpai.",
+      "settlement_not_found": "Penyelesaian itu tidak dijumpai.",
+      "deduction_not_producer": "Hanya penghasil sisa boleh menjawab potongan.",
+      "deduction_already_answered": "Potongan ini telah dijawab.",
+      "settlement_locked": "Penyelesaian ini dikunci dan tidak boleh diubah lagi.",
+      "settlement_not_issued": "Keluarkan penyelesaian dahulu.",
+      "settlement_no_weighing": "Muatan ini tiada timbangan lengkap untuk diselesaikan.",
+      "settlement_deductions_open": "Masih ada potongan menunggu jawapan penghasil.",
+      "settlement_nothing_to_settle": "Potongan tidak meninggalkan apa-apa untuk diselesaikan."
     },
     "field": {
       "required": "Ruangan ini wajib diisi",
