@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { AlertTriangle, Eye, Flag } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
@@ -18,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { SessionVerdict, WeighSessionRow } from "@/interfaces/weighing";
 import { getWeighSessions } from "@/services/weighing.service";
+import { useDateFormat } from "@/lib/dates";
 
 const FILTER_KEYS = ["verdict", "requires_review"];
 
@@ -29,6 +29,7 @@ const VERDICT_TONE: Record<SessionVerdict, "positive" | "danger" | "warning"> = 
 
 export function WeighSessions() {
   const t = useTranslations();
+  const df = useDateFormat();
   const formatter = useFormatter();
   const list = useListQuery(FILTER_KEYS);
 
@@ -192,7 +193,7 @@ export function WeighSessions() {
         cell: ({ row }) =>
           row.original.started_at ? (
             <span className="tabular whitespace-nowrap text-muted-foreground">
-              {format(new Date(row.original.started_at), "dd MMM yyyy HH:mm")}
+              {df.dateTime(row.original.started_at)}
             </span>
           ) : (
             <span className="italic text-muted-foreground">
@@ -221,7 +222,7 @@ export function WeighSessions() {
         ),
       },
     ],
-    [t, formatter],
+    [t, df, formatter],
   );
 
   const filterPills = [

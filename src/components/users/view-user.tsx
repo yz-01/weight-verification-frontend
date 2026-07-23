@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -22,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { LOCALE_LABELS, resolveLocale } from "@/i18n/config";
 import type { UserStatus } from "@/interfaces/auth";
 import { getUser } from "@/services/users.service";
+import { useDateFormat } from "@/lib/dates";
 
 const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
   ACTIVE: "positive",
@@ -31,6 +31,7 @@ const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
 
 export function ViewUser({ id }: { id: string }) {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
 
   const { data, isLoading, isError } = useQuery({
@@ -101,7 +102,7 @@ export function ViewUser({ id }: { id: string }) {
               label={t("users.field.lastLoginAt")}
               value={
                 data.last_login_at
-                  ? format(new Date(data.last_login_at), "dd MMM yyyy HH:mm")
+                  ? df.dateTime(data.last_login_at)
                   : null
               }
             />
@@ -111,7 +112,7 @@ export function ViewUser({ id }: { id: string }) {
             />
             <ReadField
               label={t("users.field.createdAt")}
-              value={format(new Date(data.created_at), "dd MMM yyyy")}
+              value={df.date(data.created_at)}
             />
           </FormSection>
         </div>

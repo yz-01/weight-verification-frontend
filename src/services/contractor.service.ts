@@ -24,7 +24,45 @@ import type {
   WasteDispatchDetail,
   WasteDispatchPayload,
 } from "@/interfaces/contractor";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, toastSuccess } from "@/services/api-client";
+
+/** One column in an export, worded by the caller. */
+export interface ExportColumn {
+  key: string;
+  label: string;
+  /** Translations for the codes inside the column, e.g. `TONNE` → `吨`. */
+  values?: Record<string, string>;
+}
+
+export type ExportFormat = "xlsx" | "pdf";
+
+export interface ExportRequest {
+  format: ExportFormat;
+  title: string;
+  subtitle?: string;
+  columns: ExportColumn[];
+  emptyLabel?: string;
+  /** The list query on screen, so the file matches what was being looked at. */
+  query: ListQuery;
+}
+
+function exportBody(request: ExportRequest) {
+  return {
+    format: request.format,
+    title: request.title,
+    subtitle: request.subtitle ?? "",
+    empty_label: request.emptyLabel ?? "",
+    columns: request.columns,
+  };
+}
+
+/** Page and page size are meaningless in an export: the file is the whole set. */
+function exportQuery({ query }: ExportRequest): ListQuery {
+  const { page, page_size, ...rest } = query;
+  void page;
+  void page_size;
+  return rest;
+}
 
 export function getProjects(query: ListQuery): Promise<Paginated<Project>> {
   return api.list<Project>("/api/projects/get_projects/", query);
@@ -205,6 +243,15 @@ export function getReceiptSummary(query: ListQuery): Promise<ReceiptSummary> {
   return api.get<ReceiptSummary>("/api/receipts/get_summary/", query);
 }
 
+export function exportReceipts(request: ExportRequest): Promise<void> {
+  return download("/api/receipts/export_receipts/", {
+    method: "POST",
+    body: exportBody(request),
+    query: exportQuery(request),
+    fallbackFilename: `receipts.${request.format}`,
+  });
+}
+
 export function getDispatches(
   query: ListQuery,
 ): Promise<Paginated<WasteDispatch>> {
@@ -280,4 +327,13 @@ export function getRecyclerOptions(
 
 export function getDispatchSummary(query: ListQuery): Promise<DispatchSummary> {
   return api.get<DispatchSummary>("/api/dispatches/get_summary/", query);
+}
+
+export function exportDispatches(request: ExportRequest): Promise<void> {
+  return download("/api/dispatches/export_dispatches/", {
+    method: "POST",
+    body: exportBody(request),
+    query: exportQuery(request),
+    fallbackFilename: `dispatches.${request.format}`,
+  });
 }

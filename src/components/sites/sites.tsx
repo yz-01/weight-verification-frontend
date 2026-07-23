@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -20,9 +19,11 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { RecyclingSite } from "@/interfaces/weighing";
 import { deleteSite, getSites } from "@/services/weighing.service";
+import { useDateFormat } from "@/lib/dates";
 
 export function Sites() {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery();
@@ -142,7 +143,7 @@ export function Sites() {
         ),
         cell: ({ row }) => (
           <span className="tabular text-muted-foreground">
-            {format(new Date(row.original.created_at), "dd MMM yyyy")}
+            {df.date(row.original.created_at)}
           </span>
         ),
       },
@@ -194,7 +195,7 @@ export function Sites() {
         ),
       },
     ],
-    [t, can],
+    [t, can, df],
   );
 
   const totalCount = data?.count ?? 0;

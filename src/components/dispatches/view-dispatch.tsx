@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Ban, Info, MapPin, Pencil, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -32,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useDateFormat } from "@/lib/dates";
 import {
   cancelDispatch,
   getDispatch,
@@ -40,6 +40,7 @@ import {
 
 export function ViewDispatch({ id }: { id: string }) {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const [releasing, setReleasing] = useState(false);
@@ -185,7 +186,7 @@ export function ViewDispatch({ id }: { id: string }) {
               label={t("dispatches.field.releasedAt")}
               value={
                 data.released_at
-                  ? format(new Date(data.released_at), "dd MMM yyyy HH:mm")
+                  ? df.dateTime(data.released_at)
                   : null
               }
             />

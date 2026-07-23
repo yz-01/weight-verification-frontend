@@ -1,6 +1,5 @@
 "use client";
 
-import { format } from "date-fns";
 import { ArrowRight, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import type { AuditLogEntry } from "@/interfaces/audit";
+import { useDateFormat } from "@/lib/dates";
 
 /**
  * One audit entry in full, including the before/after diff.
@@ -31,6 +31,7 @@ export function AuditEntryDialog({
   onClose: () => void;
 }) {
   const t = useTranslations();
+  const df = useDateFormat();
   const changes = Object.entries(entry.changes ?? {});
   const context = Object.entries(entry.context ?? {});
 
@@ -48,7 +49,7 @@ export function AuditEntryDialog({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Detail
               label={t("audit.field.createdAt")}
-              value={format(new Date(entry.created_at), "dd MMM yyyy HH:mm:ss")}
+              value={df.precise(entry.created_at)}
             />
             <Detail
               label={t("audit.field.actor")}

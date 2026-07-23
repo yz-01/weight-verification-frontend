@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -20,9 +19,11 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Supplier } from "@/interfaces/contractor";
 import { deleteSupplier, getSuppliers } from "@/services/contractor.service";
+import { useDateFormat } from "@/lib/dates";
 
 export function Suppliers() {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery();
@@ -142,7 +143,7 @@ export function Suppliers() {
         ),
         cell: ({ row }) => (
           <span className="tabular text-muted-foreground">
-            {format(new Date(row.original.created_at), "dd MMM yyyy")}
+            {df.date(row.original.created_at)}
           </span>
         ),
       },
@@ -180,7 +181,7 @@ export function Suppliers() {
         ),
       },
     ],
-    [t, can],
+    [t, can, df],
   );
 
   const totalCount = data?.count ?? 0;

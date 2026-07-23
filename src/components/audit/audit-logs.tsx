@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Eye, UserCog } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -14,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { AuditAction, AuditLogEntry } from "@/interfaces/audit";
 import { getAuditLogs } from "@/services/audit.service";
+import { useDateFormat } from "@/lib/dates";
 
 const FILTER_KEYS = ["action"];
 
@@ -54,6 +54,7 @@ const FILTERABLE_ACTIONS: AuditAction[] = [
 
 export function AuditLogs() {
   const t = useTranslations();
+  const df = useDateFormat();
   const list = useListQuery(FILTER_KEYS);
   const [viewing, setViewing] = useState<AuditLogEntry | null>(null);
 
@@ -76,7 +77,7 @@ export function AuditLogs() {
         ),
         cell: ({ row }) => (
           <span className="tabular whitespace-nowrap text-muted-foreground">
-            {format(new Date(row.original.created_at), "dd MMM yyyy HH:mm:ss")}
+            {df.precise(row.original.created_at)}
           </span>
         ),
       },
@@ -201,7 +202,7 @@ export function AuditLogs() {
         ),
       },
     ],
-    [t],
+    [t, df],
   );
 
   const filterPills = [

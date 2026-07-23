@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import {
   CheckCircle2,
   Flag,
@@ -26,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WeightTrace } from "@/components/weighing/weight-trace";
 import type { SessionVerdict } from "@/interfaces/weighing";
+import { useDateFormat } from "@/lib/dates";
 import {
   getSessionTrace,
   getWeighSession,
@@ -47,6 +47,7 @@ const VERDICT_TONE: Record<SessionVerdict, "positive" | "danger" | "warning"> = 
  */
 export function ViewWeighSession({ id }: { id: string }) {
   const t = useTranslations();
+  const df = useDateFormat();
   const formatter = useFormatter();
 
   const session = useQuery({
@@ -147,7 +148,7 @@ export function ViewWeighSession({ id }: { id: string }) {
               label={t("weighing.field.startedAt")}
               value={
                 record.started_at
-                  ? format(new Date(record.started_at), "dd MMM yyyy HH:mm:ss")
+                  ? df.precise(record.started_at)
                   : null
               }
             />
@@ -155,7 +156,7 @@ export function ViewWeighSession({ id }: { id: string }) {
               label={t("weighing.field.stableAt")}
               value={
                 record.stable_at
-                  ? format(new Date(record.stable_at), "dd MMM yyyy HH:mm:ss")
+                  ? df.precise(record.stable_at)
                   : null
               }
             />

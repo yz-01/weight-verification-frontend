@@ -599,7 +599,10 @@
       "dispatch_not_found": "找不到该出场单。",
       "dispatch_not_editable": "该车货物已离场，无法再修改。",
       "dispatch_already_released": "该车货物已放行。",
-      "dispatch_not_cancellable": "该车货物已被收运，无法取消。"
+      "dispatch_not_cancellable": "该车货物已被收运，无法取消。",
+      "export_no_columns": "请至少选择一列再导出。",
+      "export_too_large": "这次选择的数据量太大，无法导出。请先用筛选缩小范围。",
+      "export_unavailable": "PDF 导出暂时不可用，请改用表格格式。"
     },
     "field": {
       "required": "此项为必填",
@@ -1139,5 +1142,43 @@
       "released": "已放行",
       "cancelled": "已取消"
     }
+  },
+  "export": {
+    "excel": "Excel 表格",
+    "pdf": "PDF 文件"
+  },
+  "reports": {
+    "title": "报表",
+    "subtitle": "你可见项目范围内的材料进场与废料出场。",
+    "filter": {
+      "project": "项目",
+      "allProjects": "全部项目",
+      "dateFrom": "起始日期",
+      "dateTo": "结束日期",
+      "clear": "清除筛选"
+    },
+    "receipts": {
+      "title": "材料收货",
+      "totalReceipts": "收货次数",
+      "byUnit": "按单位",
+      "byMaterial": "材料排行",
+      "unitNote": "数量按单位分开统计。吨与件不会相加——把两者合成一个总数看起来像答案，其实不是。",
+      "chartNote": "图表统计的是收货次数，跨单位可比。数量见下表。",
+      "material": "材料",
+      "unit": "单位",
+      "quantity": "数量",
+      "deliveries": "收货次数"
+    },
+    "dispatches": {
+      "title": "废料出场",
+      "totalDispatches": "车次",
+      "byType": "按废料类型",
+      "byState": "按状态",
+      "wasteType": "废料类型",
+      "loads": "车次",
+      "estimatedWeight": "预估重量（公斤）",
+      "estimateNote": "这些是工地的预估值。最终重量在货物过磅后由回收商的地磅给出。"
+    },
+    "empty": "当前筛选范围内暂无数据。"
   }
 }

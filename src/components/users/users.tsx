@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import {
   Ban,
   Eye,
@@ -24,6 +23,7 @@ import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { UserRow, UserStatus } from "@/interfaces/auth";
+import { useDateFormat } from "@/lib/dates";
 import {
   deleteUser,
   getUsers,
@@ -46,6 +46,7 @@ type PendingAction =
 
 export function Users() {
   const t = useTranslations();
+  const df = useDateFormat();
   const { user: me, can } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery(FILTER_KEYS);
@@ -173,7 +174,7 @@ export function Users() {
         cell: ({ row }) =>
           row.original.last_login_at ? (
             <span className="tabular text-muted-foreground">
-              {format(new Date(row.original.last_login_at), "dd MMM yyyy")}
+              {df.date(row.original.last_login_at)}
             </span>
           ) : (
             <span className="italic text-muted-foreground">
@@ -272,7 +273,7 @@ export function Users() {
         },
       },
     ],
-    [t, can, me?.id, resetLink],
+    [t, can, df, me?.id, resetLink],
   );
 
   const filterPills = [

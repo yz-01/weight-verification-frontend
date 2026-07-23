@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -18,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { LOCALE_LABELS, resolveLocale } from "@/i18n/config";
 import type { CompanyStatus } from "@/interfaces/company";
 import { getCompany } from "@/services/companies.service";
+import { useDateFormat } from "@/lib/dates";
 
 const STATUS_TONE: Record<
   CompanyStatus,
@@ -32,6 +32,7 @@ const STATUS_TONE: Record<
 
 export function ViewCompany({ id }: { id: string }) {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
 
   const { data, isLoading, isError } = useQuery({
@@ -84,7 +85,7 @@ export function ViewCompany({ id }: { id: string }) {
             <ReadField label={t("companies.field.taxId")} value={data.tax_id} />
             <ReadField
               label={t("companies.field.createdAt")}
-              value={format(new Date(data.created_at), "dd MMM yyyy")}
+              value={df.date(data.created_at)}
             />
             {data.status === "SUSPENDED" && (
               <>
@@ -92,7 +93,7 @@ export function ViewCompany({ id }: { id: string }) {
                   label={t("companies.suspendedAt")}
                   value={
                     data.suspended_at
-                      ? format(new Date(data.suspended_at), "dd MMM yyyy")
+                      ? df.date(data.suspended_at)
                       : null
                   }
                 />

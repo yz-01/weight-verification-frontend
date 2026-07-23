@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Pencil, Plus, UserMinus, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -45,9 +44,11 @@ import {
   unassignUserFromProject,
 } from "@/services/contractor.service";
 import { getUsers } from "@/services/users.service";
+import { useDateFormat } from "@/lib/dates";
 
 export function ViewProject({ id }: { id: string }) {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
 
   const { data, isLoading, isError } = useQuery({
@@ -97,7 +98,7 @@ export function ViewProject({ id }: { id: string }) {
             />
             <ReadField
               label={t("projects.field.createdAt")}
-              value={format(new Date(data.created_at), "dd MMM yyyy")}
+              value={df.date(data.created_at)}
             />
             <ReadField
               label={t("projects.field.description")}
@@ -130,7 +131,7 @@ export function ViewProject({ id }: { id: string }) {
               label={t("projects.field.startDate")}
               value={
                 data.start_date
-                  ? format(new Date(data.start_date), "dd MMM yyyy")
+                  ? df.date(data.start_date)
                   : null
               }
             />
@@ -138,7 +139,7 @@ export function ViewProject({ id }: { id: string }) {
               label={t("projects.field.endDate")}
               value={
                 data.end_date
-                  ? format(new Date(data.end_date), "dd MMM yyyy")
+                  ? df.date(data.end_date)
                   : null
               }
             />

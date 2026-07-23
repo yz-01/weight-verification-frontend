@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Ban, Eye, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -19,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { CompanyRow, CompanyStatus } from "@/interfaces/company";
+import { useDateFormat } from "@/lib/dates";
 import {
   deleteCompany,
   getCompanies,
@@ -46,6 +46,7 @@ type PendingAction =
 
 export function Companies() {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery(FILTER_KEYS);
@@ -197,7 +198,7 @@ export function Companies() {
         ),
         cell: ({ row }) => (
           <span className="tabular text-muted-foreground">
-            {format(new Date(row.original.created_at), "dd MMM yyyy")}
+            {df.date(row.original.created_at)}
           </span>
         ),
       },
@@ -278,7 +279,7 @@ export function Companies() {
         },
       },
     ],
-    [t, can],
+    [t, can, df],
   );
 
   const filterPills = [

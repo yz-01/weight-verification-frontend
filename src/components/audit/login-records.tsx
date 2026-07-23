@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
@@ -11,6 +10,7 @@ import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { LoginOutcome, LoginRecord } from "@/interfaces/auth";
 import { getLoginRecords } from "@/services/users.service";
+import { useDateFormat } from "@/lib/dates";
 
 const FILTER_KEYS = ["outcome"];
 
@@ -30,6 +30,7 @@ const OUTCOME_TONE: Record<LoginOutcome, "positive" | "danger" | "warning"> = {
  */
 export function LoginRecords() {
   const t = useTranslations();
+  const df = useDateFormat();
   const list = useListQuery(FILTER_KEYS);
 
   const { data, isLoading, isError } = useQuery({
@@ -51,7 +52,7 @@ export function LoginRecords() {
         ),
         cell: ({ row }) => (
           <span className="tabular whitespace-nowrap text-muted-foreground">
-            {format(new Date(row.original.created_at), "dd MMM yyyy HH:mm:ss")}
+            {df.precise(row.original.created_at)}
           </span>
         ),
       },
@@ -127,7 +128,7 @@ export function LoginRecords() {
         ),
       },
     ],
-    [t],
+    [t, df],
   );
 
   const filterPills = [

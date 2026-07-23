@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -11,6 +10,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ExportButton } from "@/components/shared/export-button";
 import {
   ListHeader,
   StatusBadge,
@@ -18,8 +18,19 @@ import {
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
-import type { DispatchState, WasteDispatch } from "@/interfaces/contractor";
-import { deleteDispatch, getDispatches } from "@/services/contractor.service";
+import { useDateFormat } from "@/lib/dates";
+import {
+  DISPATCH_STATES,
+  WASTE_TYPES,
+  type DispatchState,
+  type WasteDispatch,
+} from "@/interfaces/contractor";
+import {
+  deleteDispatch,
+  getDispatches,
+  exportDispatches,
+  type ExportFormat,
+} from "@/services/contractor.service";
 
 export const DISPATCH_STATE_TONE: Record<
   DispatchState,
@@ -35,6 +46,7 @@ export const DISPATCH_STATE_TONE: Record<
 
 export function Dispatches() {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery(["state", "project", "waste_type"]);
@@ -165,7 +177,7 @@ export function Dispatches() {
         cell: ({ row }) => (
           <span className="tabular text-muted-foreground">
             {row.original.released_at
-              ? format(new Date(row.original.released_at), "dd MMM yyyy")
+              ? df.date(row.original.released_at)
               : t("common.emptyValue")}
           </span>
         ),
@@ -220,11 +232,52 @@ export function Dispatches() {
         ),
       },
     ],
-    [t, can],
+    [t, can, df],
   );
 
   const totalCount = data?.count ?? 0;
   const activeState = list.filters.state ?? "";
+
+  /** The wording travels with the request; the backend holds no catalogue. */
+  function runExport(format: ExportFormat) {
+    return exportDispatches({
+      format,
+      title: t("dispatches.title"),
+      subtitle: t("dispatches.count", { count: totalCount }),
+      emptyLabel: t("table.noResults"),
+      query: list.query,
+      columns: [
+        { key: "dispatch_no", label: t("dispatches.field.dispatchNo") },
+        {
+          key: "state",
+          label: t("dispatches.field.state"),
+          values: Object.fromEntries(
+            DISPATCH_STATES.map((state) => [
+              state,
+              t(`dispatches.state.${state}`),
+            ]),
+          ),
+        },
+        { key: "released_at", label: t("dispatches.field.releasedAt") },
+        { key: "project_code", label: t("dispatches.field.project") },
+        { key: "recycler_name", label: t("dispatches.field.recycler") },
+        {
+          key: "waste_type",
+          label: t("dispatches.field.wasteType"),
+          values: Object.fromEntries(
+            WASTE_TYPES.map((type) => [type, t(`dispatches.wasteType.${type}`)]),
+          ),
+        },
+        {
+          key: "estimated_weight_kg",
+          label: t("dispatches.field.estimatedWeight"),
+        },
+        { key: "vehicle_plate", label: t("dispatches.field.vehiclePlate") },
+        { key: "driver_name", label: t("dispatches.field.driverName") },
+        { key: "released_by_name", label: t("dispatches.field.releasedBy") },
+      ],
+    });
+  }
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
@@ -256,6 +309,11 @@ export function Dispatches() {
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
         storageKey="dispatches"
+        toolbarActions={
+          can("report.export") ? (
+            <ExportButton onExport={runExport} disabled={totalCount === 0} />
+          ) : undefined
+        }
         filterPills={[
           {
             key: "all",

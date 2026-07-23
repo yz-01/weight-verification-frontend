@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Eye, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -11,14 +10,22 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ExportButton } from "@/components/shared/export-button";
 import { ListHeader, TypeBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
-import type { MaterialReceipt } from "@/interfaces/contractor";
-import { deleteReceipt, getReceipts } from "@/services/contractor.service";
+import { MATERIAL_UNITS, type MaterialReceipt } from "@/interfaces/contractor";
+import { useDateFormat } from "@/lib/dates";
+import {
+  deleteReceipt,
+  getReceipts,
+  exportReceipts,
+  type ExportFormat,
+} from "@/services/contractor.service";
 
 export function Receipts() {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery(["project", "supplier", "unit"]);
@@ -68,7 +75,7 @@ export function Receipts() {
         cell: ({ row }) => (
           <div className="flex items-center gap-1.5">
             <span className="tabular text-muted-foreground">
-              {format(new Date(row.original.captured_at), "dd MMM yyyy")}
+              {df.date(row.original.captured_at)}
             </span>
             {row.original.has_location && (
               <MapPin
@@ -205,10 +212,47 @@ export function Receipts() {
         ),
       },
     ],
-    [t, can],
+    [t, can, df],
   );
 
   const totalCount = data?.count ?? 0;
+
+  /**
+   * The export's wording, resolved here rather than on the server.
+   *
+   * The backend holds no message catalogue — one copy of the translations, in
+   * one place. It is handed the headings and the unit names already in the
+   * reader's language, and fills in the rows.
+   */
+  function runExport(format: ExportFormat) {
+    return exportReceipts({
+      format,
+      title: t("receipts.title"),
+      subtitle: t("receipts.count", { count: totalCount }),
+      emptyLabel: t("table.noResults"),
+      query: list.query,
+      columns: [
+        { key: "receipt_no", label: t("receipts.field.receiptNo") },
+        { key: "captured_at", label: t("receipts.field.capturedAt") },
+        { key: "project_code", label: t("receipts.field.project") },
+        { key: "supplier_name", label: t("receipts.field.supplier") },
+        { key: "material_name", label: t("receipts.field.materialName") },
+        { key: "quantity", label: t("receipts.field.quantity") },
+        {
+          key: "unit",
+          label: t("receipts.field.unit"),
+          values: Object.fromEntries(
+            MATERIAL_UNITS.map((unit) => [unit, t(`receipts.unit.${unit}`)]),
+          ),
+        },
+        { key: "unit_price", label: t("receipts.field.unitPrice") },
+        { key: "total_value", label: t("receipts.field.totalValue") },
+        { key: "vehicle_plate", label: t("receipts.field.vehiclePlate") },
+        { key: "delivery_note_no", label: t("receipts.field.deliveryNoteNo") },
+        { key: "received_by_name", label: t("receipts.field.receivedBy") },
+      ],
+    });
+  }
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
@@ -240,6 +284,11 @@ export function Receipts() {
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
         storageKey="receipts"
+        toolbarActions={
+          can("report.export") ? (
+            <ExportButton onExport={runExport} disabled={totalCount === 0} />
+          ) : undefined
+        }
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
         onPageChange={list.setPage}

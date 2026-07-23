@@ -70,6 +70,8 @@ interface DataTableProps<T> {
   /** Persists column visibility per table. */
   storageKey: string;
   filterPills?: FilterPill[];
+  /** Extra toolbar controls, shown left of Columns. Secondary actions only. */
+  toolbarActions?: React.ReactNode;
   onSearchChange: (value: string) => void;
   onSortChange: (field: string, order: "asc" | "desc") => void;
   onPageChange: (page: number) => void;
@@ -99,6 +101,7 @@ export function DataTable<T>({
   sortOrder,
   storageKey,
   filterPills,
+  toolbarActions,
   onSearchChange,
   onSortChange,
   onPageChange,
@@ -200,12 +203,19 @@ export function DataTable<T>({
             />
           </div>
 
+          {toolbarActions && (
+            <div className="ml-auto flex items-center gap-2">{toolbarActions}</div>
+          )}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className="ml-auto h-9 rounded-full bg-card px-4"
+                className={cn(
+                  "h-9 rounded-full bg-card px-4",
+                  !toolbarActions && "ml-auto",
+                )}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" />
                 {t("common.columns")}

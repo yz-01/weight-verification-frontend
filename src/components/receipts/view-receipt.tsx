@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { MapPin, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -20,9 +19,11 @@ import {
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { getReceipt } from "@/services/contractor.service";
+import { useDateFormat } from "@/lib/dates";
 
 export function ViewReceipt({ id }: { id: string }) {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
 
   const { data, isLoading, isError } = useQuery({
@@ -130,7 +131,7 @@ export function ViewReceipt({ id }: { id: string }) {
             />
             <ReadField
               label={t("receipts.field.capturedAt")}
-              value={format(new Date(data.captured_at), "dd MMM yyyy HH:mm")}
+              value={df.dateTime(data.captured_at)}
             />
             <ReadField
               label={t("receipts.field.location")}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Ban, Plus, QrCode } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -26,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { SupplierQRCode } from "@/interfaces/contractor";
+import { useDateFormat } from "@/lib/dates";
 import {
   createQRCode,
   getQRCodes,
@@ -43,6 +43,7 @@ import {
  */
 export function ProjectDockets({ projectId }: { projectId: string }) {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const [issuing, setIssuing] = useState(false);
@@ -113,7 +114,7 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <span className="tabular hidden text-xs text-muted-foreground sm:inline">
-                  {format(new Date(code.created_at), "dd MMM yyyy")}
+                  {df.date(code.created_at)}
                 </span>
                 <StatusBadge
                   label={

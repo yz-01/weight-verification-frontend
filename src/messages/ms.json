@@ -599,7 +599,10 @@
       "dispatch_not_found": "Penghantaran itu tidak dijumpai.",
       "dispatch_not_editable": "Muatan ini telah meninggalkan tapak dan tidak boleh diubah lagi.",
       "dispatch_already_released": "Muatan ini telah dilepaskan.",
-      "dispatch_not_cancellable": "Muatan ini telah dikutip dan tidak boleh dibatalkan."
+      "dispatch_not_cancellable": "Muatan ini telah dikutip dan tidak boleh dibatalkan.",
+      "export_no_columns": "Pilih sekurang-kurangnya satu lajur untuk dieksport.",
+      "export_too_large": "Pilihan ini terlalu besar untuk dieksport. Tapiskan dahulu dan cuba lagi.",
+      "export_unavailable": "Eksport PDF tidak tersedia buat masa ini. Cuba format hamparan."
     },
     "field": {
       "required": "Ruangan ini wajib diisi",
@@ -1139,5 +1142,43 @@
       "released": "Muatan dilepaskan",
       "cancelled": "Muatan dibatalkan"
     }
+  },
+  "export": {
+    "excel": "Hamparan Excel",
+    "pdf": "Dokumen PDF"
+  },
+  "reports": {
+    "title": "Laporan",
+    "subtitle": "Bahan masuk dan sisa keluar, merentas projek yang anda boleh lihat.",
+    "filter": {
+      "project": "Projek",
+      "allProjects": "Semua projek",
+      "dateFrom": "Dari",
+      "dateTo": "Hingga",
+      "clear": "Kosongkan tapisan"
+    },
+    "receipts": {
+      "title": "Bahan diterima",
+      "totalReceipts": "Penghantaran",
+      "byUnit": "Mengikut unit",
+      "byMaterial": "Bahan teratas",
+      "unitNote": "Kuantiti dikumpulkan mengikut unit. Tan dan unit tidak pernah dicampur — satu jumlah merentas kedua-duanya nampak seperti jawapan tetapi bukan.",
+      "chartNote": "Carta mengira bilangan penghantaran, yang boleh dibandingkan merentas unit. Kuantiti ada dalam jadual.",
+      "material": "Bahan",
+      "unit": "Unit",
+      "quantity": "Kuantiti",
+      "deliveries": "Penghantaran"
+    },
+    "dispatches": {
+      "title": "Sisa dihantar",
+      "totalDispatches": "Muatan",
+      "byType": "Mengikut jenis sisa",
+      "byState": "Mengikut status",
+      "wasteType": "Jenis sisa",
+      "loads": "Muatan",
+      "estimatedWeight": "Anggaran berat (kg)",
+      "estimateNote": "Ini anggaran tapak. Berat akhir datang dari jambatan timbang pengitar semula selepas muatan ditimbang."
+    },
+    "empty": "Tiada apa-apa untuk dilaporkan bagi pilihan ini."
   }
 }

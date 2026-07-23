@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
 import {
   Check,
   Copy,
@@ -35,6 +34,7 @@ import {
   getGateways,
   rotateGatewaySecret,
 } from "@/services/weighing.service";
+import { useDateFormat } from "@/lib/dates";
 
 /**
  * The gateways feeding one weighbridge.
@@ -46,6 +46,7 @@ import {
  */
 export function GatewayPanel({ scaleId }: { scaleId: string }) {
   const t = useTranslations();
+  const df = useDateFormat();
   const queryClient = useQueryClient();
 
   const [registering, setRegistering] = useState(false);
@@ -118,9 +119,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
                 <p className="truncate font-mono text-sm">{gateway.device_id}</p>
                 <p className="text-xs text-muted-foreground">
                   {gateway.last_seen_at
-                    ? formatDistanceToNow(new Date(gateway.last_seen_at), {
-                        addSuffix: true,
-                      })
+                    ? df.relative(gateway.last_seen_at)
                     : t("common.emptyValue")}
                   {gateway.clock_offset_ms !== null &&
                     ` · ${t("gateways.field.clockOffset")} ${gateway.clock_offset_ms}ms`}

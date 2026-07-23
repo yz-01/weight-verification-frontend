@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -20,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Project, ProjectStatus } from "@/interfaces/contractor";
 import { deleteProject, getProjects } from "@/services/contractor.service";
+import { useDateFormat } from "@/lib/dates";
 
 export const PROJECT_STATUS_TONE: Record<
   ProjectStatus,
@@ -33,6 +33,7 @@ export const PROJECT_STATUS_TONE: Record<
 
 export function Projects() {
   const t = useTranslations();
+  const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery(["status"]);
@@ -158,7 +159,7 @@ export function Projects() {
         cell: ({ row }) => (
           <span className="tabular text-muted-foreground">
             {row.original.start_date
-              ? format(new Date(row.original.start_date), "dd MMM yyyy")
+              ? df.date(row.original.start_date)
               : t("common.emptyValue")}
           </span>
         ),
@@ -208,7 +209,7 @@ export function Projects() {
         ),
       },
     ],
-    [t, can],
+    [t, can, df],
   );
 
   const totalCount = data?.count ?? 0;

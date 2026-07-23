@@ -191,6 +191,90 @@ export async function request<T>(
 }
 
 /**
+ * Fetch a file and hand it to the browser.
+ *
+ * Downloads cannot be a plain link. The API is a separate origin authenticated
+ * with a bearer token, so the browser has nothing to send on a navigation —
+ * an `<a href>` would arrive unauthenticated. The file is fetched like any
+ * other request, then handed over as a blob.
+ *
+ * On failure the response is JSON, not a file, so it is unwrapped through the
+ * same envelope path as everything else and reaches the caller as an
+ * `ApiError` worded in the reader's language.
+ */
+export async function download(
+  path: string,
+  options: RequestOptions & { fallbackFilename: string },
+): Promise<void> {
+  let response: Response;
+  try {
+    response = await send(path, options);
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    const failure = new ApiError(t("errors.network"), 0);
+    toast.error(failure.message);
+    throw failure;
+  }
+
+  if (response.status === 401) {
+    const refreshed = await ensureRefresh();
+    if (refreshed) {
+      response = await send(path, options);
+    } else {
+      endSession();
+      throw new ApiError(t("auth.sessionExpired"), 401);
+    }
+  }
+
+  if (!response.ok) {
+    const envelope = await parseEnvelope<never>(response);
+    const code = envelope.success ? "" : (envelope.code ?? "");
+    const message = resolveMessage(
+      code,
+      envelope.success ? "" : envelope.message,
+    );
+    toast.error(message);
+    throw new ApiError(message, response.status, {}, code);
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download =
+    filenameFromDisposition(response.headers.get("Content-Disposition")) ??
+    options.fallbackFilename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  // Revoking immediately can cancel the download in some browsers, which is
+  // why this waits a tick rather than running on the next line.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/**
+ * Read the server's filename out of `Content-Disposition`.
+ *
+ * Prefers `filename*`, which is the RFC 5987 form and the only one that
+ * survives a Chinese or Malay report title intact.
+ */
+function filenameFromDisposition(header: string | null): string | undefined {
+  if (!header) return undefined;
+
+  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(header);
+  if (encoded) {
+    try {
+      return decodeURIComponent(encoded[1]);
+    } catch {
+      // A malformed header is not worth failing a download over.
+    }
+  }
+
+  const plain = /filename="([^"]+)"/i.exec(header);
+  return plain?.[1];
+}
+
+/**
  * Word a failure in the reader's language.
  *
  * The backend names the failure with a code; the catalogue words it. A code

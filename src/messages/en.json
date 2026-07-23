@@ -599,7 +599,10 @@
       "dispatch_not_found": "That dispatch could not be found.",
       "dispatch_not_editable": "This load has already left the site and can no longer be changed.",
       "dispatch_already_released": "This load has already been released.",
-      "dispatch_not_cancellable": "This load has already been collected and cannot be cancelled."
+      "dispatch_not_cancellable": "This load has already been collected and cannot be cancelled.",
+      "export_no_columns": "Choose at least one column to export.",
+      "export_too_large": "This selection is too large to export. Narrow it with a filter and try again.",
+      "export_unavailable": "PDF export is not available right now. Try the spreadsheet instead."
     },
     "field": {
       "required": "This field is required",
@@ -1139,5 +1142,43 @@
       "released": "Load released",
       "cancelled": "Load cancelled"
     }
+  },
+  "export": {
+    "excel": "Excel spreadsheet",
+    "pdf": "PDF document"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Material in and waste out, across the projects you can see.",
+    "filter": {
+      "project": "Project",
+      "allProjects": "All projects",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "clear": "Clear filters"
+    },
+    "receipts": {
+      "title": "Material received",
+      "totalReceipts": "Deliveries",
+      "byUnit": "By unit",
+      "byMaterial": "Top materials",
+      "unitNote": "Quantities are grouped by unit. Tonnes and pieces are never added together — a single total across both would look like an answer and would not be one.",
+      "chartNote": "The chart counts deliveries, which compare across units. Quantities are in the table.",
+      "material": "Material",
+      "unit": "Unit",
+      "quantity": "Quantity",
+      "deliveries": "Deliveries"
+    },
+    "dispatches": {
+      "title": "Waste dispatched",
+      "totalDispatches": "Loads",
+      "byType": "By waste type",
+      "byState": "By status",
+      "wasteType": "Waste type",
+      "loads": "Loads",
+      "estimatedWeight": "Estimated weight (kg)",
+      "estimateNote": "These are the site's estimates. Final weights come from the recycler's weighbridge once the load is weighed."
+    },
+    "empty": "Nothing to report for this selection yet."
   }
 }
