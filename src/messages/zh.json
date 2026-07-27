@@ -1,0 +1,1640 @@
+{
+  "app": {
+    "name": "MSE Trace",
+    "tagline": "重量可核验，废料可追溯"
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "create": "创建",
+    "edit": "编辑",
+    "remove": "移除",
+    "view": "查看",
+    "search": "搜索",
+    "columns": "字段",
+    "actions": "操作",
+    "back": "返回",
+    "confirm": "确认",
+    "close": "关闭",
+    "loading": "加载中",
+    "retry": "重试",
+    "optional": "选填",
+    "all": "全部",
+    "none": "无",
+    "export": "导出",
+    "refresh": "刷新",
+    "signOut": "退出登录",
+    "profile": "个人资料",
+    "settings": "设置",
+    "language": "语言",
+    "theme": "主题",
+    "themeLight": "浅色",
+    "themeDark": "深色",
+    "themeSystem": "跟随系统",
+    "emptyValue": "—",
+    "reason": "原因",
+    "reasonPlaceholder": "请说明此次变更的原因",
+    "selectPlaceholder": "请选择",
+    "searchPlaceholder": "搜索",
+    "noOptions": "没有可选项",
+    "saving": "保存中",
+    "unknownError": "出了点问题，请重试。",
+    "copy": "复制",
+    "copied": "已复制",
+    "copyFirst": "关闭前请先复制密钥"
+  },
+  "table": {
+    "showing": "显示第 {from} 至 {to} 条，共 {total} 条",
+    "showingEmpty": "暂无记录",
+    "noResults": "还没有任何记录",
+    "noResultsFiltered": "没有符合筛选条件的记录",
+    "clearFilters": "清除筛选",
+    "errorTitle": "列表加载失败",
+    "errorBody": "请检查网络连接后重试。",
+    "perPage": "每页",
+    "previous": "上一页",
+    "next": "下一页",
+    "selected": "已选 {count} 项"
+  },
+  "validation": {
+    "required": "此项为必填",
+    "email": "请输入有效的电子邮箱",
+    "minLength": "至少需要 {min} 个字符",
+    "maxLength": "最多 {max} 个字符",
+    "passwordMismatch": "两次输入的密码不一致",
+    "passwordTooShort": "密码至少 10 个字符"
+  },
+  "auth": {
+    "login": {
+      "title": "登录",
+      "subtitle": "进入你的 MSE Trace 工作台",
+      "email": "电子邮箱",
+      "emailPlaceholder": "you@company.com",
+      "password": "密码",
+      "passwordPlaceholder": "请输入密码",
+      "submit": "登录",
+      "forgot": "忘记密码？",
+      "invalid": "邮箱或密码不正确",
+      "userSuspended": "此账号已停用，请联系管理员。",
+      "companySuspended": "贵公司的账号已停用，请联系 MSE Trace 客服。",
+      "throttled": "尝试次数过多，请稍候再试。"
+    },
+    "forgot": {
+      "title": "重设密码",
+      "subtitle": "我们会发送一封邮件，让你设置新密码",
+      "submit": "发送重设链接",
+      "sent": "如果该邮箱已注册，重设链接稍后会送达。",
+      "backToLogin": "返回登录"
+    },
+    "reset": {
+      "title": "设置新密码",
+      "subtitle": "请使用一个你没用过的密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码",
+      "submit": "设置密码",
+      "success": "密码已更新，现在可以登录了。",
+      "invalidToken": "此重设链接无效或已过期，请重新申请。"
+    },
+    "changePassword": {
+      "title": "修改密码",
+      "current": "当前密码",
+      "new": "新密码",
+      "confirm": "确认新密码",
+      "submit": "修改密码",
+      "success": "密码已修改",
+      "incorrectCurrent": "当前密码不正确"
+    },
+    "sessionExpired": "登录已过期，请重新登录。",
+    "signedOut": "已退出登录"
+  },
+  "nav": {
+    "dashboard": "仪表板",
+    "companies": "客户公司",
+    "users": "用户",
+    "roles": "角色权限",
+    "auditLogs": "审计日志",
+    "loginRecords": "登录记录",
+    "projects": "项目",
+    "suppliers": "供应商",
+    "receipts": "材料收货",
+    "dispatches": "废料出场",
+    "tasks": "司机任务",
+    "scales": "地磅",
+    "weighing": "称重",
+    "settlements": "结算",
+    "payments": "付款",
+    "billing": "收费管理",
+    "commission": "平台佣金",
+    "tickets": "客服工单",
+    "announcements": "公告",
+    "reports": "报表",
+    "settings": "设置",
+    "group": {
+      "overview": "总览",
+      "operations": "业务",
+      "weighing": "称重",
+      "finance": "财务",
+      "customers": "客户",
+      "system": "系统",
+      "fleet": "车队"
+    },
+    "sites": "回收场",
+    "detectionSettings": "检测参数",
+    "incoming": "待收货",
+    "gate": "地磅门口",
+    "vehicles": "车辆",
+    "drivers": "司机",
+    "deductions": "扣杂"
+  },
+  "dashboard": {
+    "title": "仪表板",
+    "greeting": "欢迎回来，{name}",
+    "platformSubtitle": "平台运行状态与客户活跃度",
+    "contractorSubtitle": "各项目的工地动态",
+    "recyclerSubtitle": "今日收运与称重",
+    "tile": {
+      "companies": "客户公司",
+      "contractors": "建筑商",
+      "recyclers": "回收商",
+      "projects": "项目",
+      "users": "用户",
+      "onlineUsers": "当前在线",
+      "planRevenue": "套餐收入",
+      "commissionRevenue": "佣金收入",
+      "systemStatus": "系统状态"
+    },
+    "comingSoon": "此面板将在下个版本上线。"
+  },
+  "companies": {
+    "title": "客户公司",
+    "count": "{count, plural, =0 {暂无公司} other {# 家公司}}",
+    "new": "新增公司",
+    "createTitle": "新增公司",
+    "editTitle": "编辑公司",
+    "viewTitle": "公司详情",
+    "section": {
+      "identity": "基本资料",
+      "address": "地址",
+      "contact": "联系方式",
+      "preferences": "偏好设置"
+    },
+    "field": {
+      "code": "编号",
+      "name": "公司名称",
+      "type": "类型",
+      "status": "状态",
+      "registrationNo": "注册号",
+      "taxId": "税务识别号",
+      "addressLine1": "地址第一行",
+      "addressLine2": "地址第二行",
+      "city": "城市",
+      "state": "州属",
+      "postcode": "邮编",
+      "country": "国家",
+      "contactPerson": "联系人",
+      "contactPhone": "联系电话",
+      "contactEmail": "联系邮箱",
+      "logo": "公司标志",
+      "defaultLanguage": "默认语言",
+      "timezone": "时区",
+      "userCount": "用户数",
+      "createdAt": "开通时间"
+    },
+    "type": {
+      "CONTRACTOR": "建筑商",
+      "RECYCLER": "回收商"
+    },
+    "status": {
+      "ACTIVE": "正常",
+      "TRIAL": "试用",
+      "SUSPENDED": "已停用",
+      "OVERDUE": "欠费",
+      "CLOSED": "已关闭"
+    },
+    "filter": {
+      "all": "全部",
+      "contractors": "建筑商",
+      "recyclers": "回收商",
+      "active": "正常",
+      "suspended": "已停用"
+    },
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "这家公司将不再出现在 MSE Trace 的任何地方。已有的记录会保留，之后可以恢复。",
+      "confirm": "移除",
+      "blockedByUsers": "这家公司还有可以登录的人员。请改为停用，或先停用这些人员。"
+    },
+    "suspend": {
+      "title": "停用 {name}？",
+      "description": "在恢复之前，这家公司的任何人都无法登录。已记录的业务数据不受影响。",
+      "confirm": "停用",
+      "reasonRequired": "请填写原因，以便日后追查。"
+    },
+    "reinstate": {
+      "title": "恢复 {name}？",
+      "description": "这家公司的所有人将可以重新登录。",
+      "confirm": "恢复"
+    },
+    "toast": {
+      "created": "公司已创建",
+      "updated": "公司已更新",
+      "removed": "公司已移除",
+      "statusUpdated": "公司状态已更新"
+    },
+    "typeLocked": "公司类型创建后不可更改。",
+    "taxIdHint": "为这家公司开通电子发票前必须填写。",
+    "languageHint": "这家公司新建用户的默认语言，每个人之后可自行更改。",
+    "suspendedReason": "停用原因",
+    "suspendedAt": "停用时间"
+  },
+  "users": {
+    "title": "用户",
+    "titleStaff": "内部人员",
+    "count": "{count, plural, =0 {暂无用户} other {# 位用户}}",
+    "new": "新增用户",
+    "createTitle": "邀请用户",
+    "editTitle": "编辑用户",
+    "viewTitle": "用户详情",
+    "section": {
+      "identity": "基本资料",
+      "access": "权限",
+      "preferences": "偏好设置",
+      "activity": "活动记录"
+    },
+    "field": {
+      "email": "电子邮箱",
+      "fullName": "姓名",
+      "phone": "电话",
+      "role": "角色",
+      "company": "所属公司",
+      "status": "状态",
+      "language": "语言",
+      "timezone": "时区",
+      "lastLoginAt": "最近登录",
+      "lastLoginIp": "最近 IP",
+      "createdAt": "创建时间"
+    },
+    "status": {
+      "INVITED": "待激活",
+      "ACTIVE": "正常",
+      "SUSPENDED": "已停用"
+    },
+    "invite": {
+      "hint": "对方通过我们发送的链接自行设置密码，任何人都不会经手这个密码。",
+      "sent": "邀请已发送"
+    },
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "此人将无法再登录。他们记录过的所有数据原样保留。",
+      "confirm": "移除"
+    },
+    "suspend": {
+      "title": "停用 {name}？",
+      "description": "在恢复之前，此人无法登录。",
+      "confirm": "停用"
+    },
+    "resetPassword": {
+      "action": "发送重设链接",
+      "sent": "重设链接已发送"
+    },
+    "toast": {
+      "created": "用户已邀请",
+      "updated": "用户已更新",
+      "removed": "用户已移除",
+      "statusUpdated": "用户状态已更新"
+    },
+    "cannotEditSelf": "无法在这里更改自己的账号状态，请到个人资料页操作。",
+    "reinstate": {
+      "description": "此人将可以立即重新登录。"
+    }
+  },
+  "roles": {
+    "title": "角色权限",
+    "count": "{count, plural, =0 {暂无角色} other {# 个角色}}",
+    "new": "新增角色",
+    "createTitle": "新增角色",
+    "editTitle": "编辑角色",
+    "viewTitle": "角色详情",
+    "section": {
+      "identity": "基本资料",
+      "permissions": "权限"
+    },
+    "field": {
+      "code": "代号",
+      "name": "角色名称",
+      "description": "说明",
+      "userCount": "人数",
+      "permissions": "权限"
+    },
+    "system": "系统内置",
+    "systemHint": "内置角色不可移除，确保公司始终有办法管理自己的人员。",
+    "permissionCount": "{count, plural, =0 {没有权限} other {# 项权限}}",
+    "selectAll": "全选",
+    "clearAll": "全部取消",
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "拥有此角色的人将失去它赋予的权限。请先为他们指派其他角色。",
+      "confirm": "移除",
+      "blockedByUsers": "此角色仍有人在使用，请先把他们改为其他角色。",
+      "blockedBySystem": "内置角色不可移除。"
+    },
+    "toast": {
+      "created": "角色已创建",
+      "updated": "角色已更新",
+      "removed": "角色已移除"
+    },
+    "system_": {
+      "platform_admin": "平台管理员",
+      "platform_support": "客服专员",
+      "platform_finance": "财务",
+      "company_admin": "公司管理员",
+      "site_staff": "工地人员",
+      "project_manager": "项目经理",
+      "dispatcher": "调度员",
+      "weighbridge_operator": "地磅操作员",
+      "driver": "司机",
+      "finance": "财务",
+      "viewer": "只读用户"
+    },
+    "systemDescription": {
+      "platform_admin": "拥有平台全部功能的完整权限。",
+      "platform_support": "处理工单与公告，可查阅客户资料。",
+      "platform_finance": "管理套餐、佣金与收款。",
+      "company_admin": "拥有本公司数据与用户的完整权限。",
+      "site_staff": "在工地登记材料收货与废料出场。",
+      "project_manager": "负责项目运作，审批超额扣杂。",
+      "dispatcher": "接收订单，安排车辆与司机。",
+      "weighbridge_operator": "操作地磅，登记扣杂。",
+      "driver": "查看指派任务，提交现场照片。",
+      "finance": "处理结算，登记付款证明。",
+      "viewer": "只读查看本公司记录。"
+    }
+  },
+  "permissions": {
+    "group": {
+      "company": "客户公司",
+      "user": "用户",
+      "role": "角色",
+      "audit": "审计",
+      "project": "项目",
+      "supplier": "供应商",
+      "receipt": "材料收货",
+      "dispatch": "废料出场",
+      "task": "司机任务",
+      "scale": "地磅",
+      "weighing": "称重",
+      "deduction": "扣杂",
+      "settlement": "结算",
+      "payment": "付款",
+      "report": "报表",
+      "billing": "收费",
+      "ticket": "客服",
+      "announcement": "公告",
+      "platform": "平台运维"
+    },
+    "code": {
+      "company": {
+        "view": "查看客户公司",
+        "create": "开通公司",
+        "update": "编辑公司资料",
+        "suspend": "停用或恢复公司"
+      },
+      "user": {
+        "view": "查看用户",
+        "create": "邀请用户",
+        "update": "编辑用户",
+        "suspend": "停用或移除用户"
+      },
+      "role": {
+        "view": "查看角色",
+        "create": "创建角色",
+        "update": "编辑角色与权限",
+        "delete": "移除角色"
+      },
+      "audit": {
+        "view": "查阅审计日志"
+      },
+      "project": {
+        "view": "查看项目",
+        "create": "创建项目",
+        "update": "编辑项目",
+        "delete": "移除项目",
+        "view_all": "查看公司全部项目",
+        "assign": "把人员分配到项目"
+      },
+      "supplier": {
+        "view": "查看供应商",
+        "create": "新增供应商",
+        "update": "编辑供应商",
+        "delete": "移除供应商"
+      },
+      "receipt": {
+        "view": "查看材料收货",
+        "create": "登记材料收货",
+        "update": "编辑材料收货"
+      },
+      "dispatch": {
+        "view": "查看废料出场",
+        "create": "登记废料出场",
+        "update": "更新废料出场"
+      },
+      "task": {
+        "view": "查看司机任务",
+        "assign": "分配司机与车辆",
+        "submit": "提交任务照片与报备",
+        "task_view_all": "查看回收场全部任务"
+      },
+      "scale": {
+        "view": "查看地磅",
+        "manage": "配置地磅与网关"
+      },
+      "weighing": {
+        "view": "查看称重记录",
+        "operate": "操作地磅",
+        "void": "作废称重会话",
+        "rule_view": "查看防诈骗参数",
+        "rule_update": "修改防诈骗参数"
+      },
+      "deduction": {
+        "view": "查看扣杂",
+        "create": "登记扣杂",
+        "approve": "审批超额扣杂"
+      },
+      "settlement": {
+        "view": "查看结算",
+        "create": "创建结算",
+        "lock": "锁定结算记录"
+      },
+      "payment": {
+        "view": "查看付款",
+        "create": "登记付款证明"
+      },
+      "report": {
+        "view": "查看报表",
+        "export": "导出报表"
+      },
+      "billing": {
+        "view": "查看收费",
+        "manage": "管理套餐与订阅"
+      },
+      "commission": {
+        "view": "查看佣金",
+        "manage": "管理佣金"
+      },
+      "ticket": {
+        "view": "查看工单",
+        "create": "提交工单",
+        "reply": "回复工单"
+      },
+      "announcement": {
+        "view": "查看公告",
+        "manage": "发布公告"
+      },
+      "platform": {
+        "maintenance": "开启平台维护模式",
+        "impersonate": "模拟登录客户账号",
+        "monitor": "查看系统监控"
+      }
+    }
+  },
+  "audit": {
+    "title": "审计日志",
+    "count": "{count, plural, =0 {暂无记录} other {# 条记录}}",
+    "field": {
+      "createdAt": "时间",
+      "actor": "操作人",
+      "action": "操作",
+      "objectType": "记录类型",
+      "objectRepr": "记录",
+      "reason": "原因",
+      "ipAddress": "IP 地址",
+      "changes": "变更内容",
+      "context": "附加信息"
+    },
+    "action": {
+      "CREATE": "创建",
+      "UPDATE": "修改",
+      "DELETE": "移除",
+      "RESTORE": "恢复",
+      "LOGIN": "登录",
+      "LOGOUT": "退出",
+      "LOGIN_FAILED": "登录失败",
+      "PASSWORD_CHANGE": "修改密码",
+      "PERMISSION_CHANGE": "权限变更",
+      "BILLING_CHANGE": "收费变更",
+      "EXPORT": "导出",
+      "IMPERSONATE": "模拟登录客户",
+      "MAINTENANCE": "系统维护",
+      "LOCK": "锁定"
+    },
+    "impersonatedBy": "由 {name} 代为操作",
+    "before": "变更前",
+    "after": "变更后",
+    "noChanges": "未记录字段变更"
+  },
+  "loginRecords": {
+    "title": "登录记录",
+    "count": "{count, plural, =0 {暂无记录} other {# 次尝试}}",
+    "field": {
+      "createdAt": "时间",
+      "email": "邮箱",
+      "outcome": "结果",
+      "ipAddress": "IP 地址",
+      "userAgent": "设备"
+    },
+    "outcome": {
+      "SUCCESS": "登录成功",
+      "BAD_CREDENTIALS": "凭据错误",
+      "USER_SUSPENDED": "账号已停用",
+      "COMPANY_SUSPENDED": "公司已停用"
+    }
+  },
+  "profile": {
+    "title": "个人资料",
+    "section": {
+      "identity": "基本资料",
+      "preferences": "偏好设置",
+      "security": "账号安全"
+    },
+    "toast": {
+      "updated": "资料已更新"
+    }
+  },
+  "errors": {
+    "notFound": "找不到这条记录。",
+    "notFoundBody": "它可能已被移除，或你没有访问权限。",
+    "forbidden": "你没有访问权限。",
+    "forbiddenBody": "如果确实需要，请联系管理员。",
+    "network": "无法连接服务器。",
+    "networkBody": "请检查网络连接后重试。",
+    "generic": "出了点问题。",
+    "genericBody": "请重试。如果反复出现，请联系客服。",
+    "backToDashboard": "返回仪表板",
+    "api": {
+      "company_not_found": "找不到这家公司。",
+      "user_not_found": "找不到这位用户。",
+      "role_not_found": "找不到这个角色。",
+      "audit_entry_not_found": "找不到这条审计记录。",
+      "company_required": "请先选择一家公司。",
+      "object_reference_required": "必须指定一条记录。",
+      "refresh_token_required": "登录状态无法续期，请重新登录。",
+      "validation_failed": "请检查标红的字段后重试。",
+      "invalid_credentials": "邮箱或密码不正确。",
+      "user_suspended": "此账号已停用，请联系管理员。",
+      "company_suspended": "贵公司的账号已停用，请联系 MSE Trace 客服。",
+      "session_expired": "登录已过期，请重新登录。",
+      "account_inactive": "此账号已不再有效。",
+      "incorrect_password": "当前密码不正确。",
+      "reset_link_invalid": "此重设链接无效或已过期，请重新申请。",
+      "company_has_active_users": "这家公司还有可以登录的人员。请改为停用，或先停用这些人员。",
+      "role_is_system": "内置角色不可移除。",
+      "role_in_use": "此角色仍有人在使用，请先把他们改为其他角色。",
+      "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。",
+      "device_auth_failed": "无法验证这台地磅网关。",
+      "ingest_rejected": "地磅数据未能接收。",
+      "scale_not_found": "找不到这台地磅。",
+      "site_not_found": "找不到这个回收场。",
+      "session_not_found": "找不到这次称重。",
+      "gateway_not_found": "找不到这台网关。",
+      "invalid_rule_params": "请检查检测参数后重试。",
+      "project_not_found": "找不到这个项目。",
+      "supplier_not_found": "找不到这家供应商。",
+      "qr_code_not_found": "无法识别这个二维码。",
+      "project_has_records": "这个项目下还有记录。请改为标记完成，而不是移除。",
+      "receipt_not_found": "找不到该收货单。",
+      "receipt_photo_not_found": "找不到该照片。",
+      "dispatch_not_found": "找不到该出场单。",
+      "dispatch_not_editable": "该车货物已离场，无法再修改。",
+      "dispatch_already_released": "该车货物已放行。",
+      "dispatch_not_cancellable": "该车货物已被收运，无法取消。",
+      "export_no_columns": "请至少选择一列再导出。",
+      "export_too_large": "这次选择的数据量太大，无法导出。请先用筛选缩小范围。",
+      "export_unavailable": "PDF 导出暂时不可用，请改用表格格式。",
+      "dispatch_not_collectable": "这车货不在待收运状态。",
+      "dispatch_not_rejectable": "这车货已经不能拒收了。",
+      "dispatch_not_owner": "只有开出这车货的工地才能修改它。",
+      "dispatch_not_recipient": "只有收货的回收商才能做这个操作。",
+      "vehicle_not_found": "找不到该车辆。",
+      "driver_not_found": "找不到该司机。",
+      "task_not_found": "找不到该趟任务。",
+      "vehicle_has_tasks": "该车辆已有出车记录，请停用而不是删除。",
+      "driver_has_tasks": "该司机已有出车记录，请停用而不是删除。",
+      "task_already_running": "这车货已经有一趟任务在跑了。",
+      "task_already_started": "这趟任务已经开始，无法再改派。",
+      "task_invalid_transition": "从当前状态无法进到那一步。",
+      "deduction_not_found": "找不到该扣杂记录。",
+      "settlement_not_found": "找不到该结算单。",
+      "deduction_not_producer": "只有产废方才能回应扣杂。",
+      "deduction_already_answered": "这条扣杂已经回应过了。",
+      "settlement_locked": "该结算单已锁定，无法再修改。",
+      "settlement_not_issued": "请先开出结算单。",
+      "settlement_no_weighing": "这车货还没有完成的过磅记录，无法结算。",
+      "settlement_deductions_open": "还有扣杂在等产废方回应。",
+      "settlement_nothing_to_settle": "扣杂之后已经没有可结算的重量了。"
+    },
+    "field": {
+      "required": "此项为必填",
+      "blank": "此项为必填",
+      "null": "此项为必填",
+      "invalid": "此值无效",
+      "unique": "此值已被占用",
+      "max_length": "内容过长",
+      "min_length": "内容过短",
+      "invalid_choice": "请从可选项中选择",
+      "does_not_exist": "找不到该记录",
+      "incorrect_type": "此值无效"
+    }
+  },
+  "sites": {
+    "title": "回收场",
+    "count": "{count, plural, =0 {暂无回收场} other {# 个回收场}}",
+    "new": "新增回收场",
+    "createTitle": "新增回收场",
+    "editTitle": "编辑回收场",
+    "viewTitle": "回收场详情",
+    "section": {
+      "identity": "基本资料",
+      "address": "地址",
+      "contact": "联系方式"
+    },
+    "field": {
+      "code": "编号",
+      "name": "回收场名称",
+      "city": "城市",
+      "state": "州属",
+      "postcode": "邮编",
+      "addressLine1": "地址第一行",
+      "addressLine2": "地址第二行",
+      "contactPerson": "联系人",
+      "contactPhone": "联系电话",
+      "scaleCount": "地磅数",
+      "isActive": "启用",
+      "createdAt": "创建时间"
+    },
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "这个回收场将不再出现在任何地方。它的称重历史原样保留。",
+      "confirm": "移除"
+    },
+    "toast": {
+      "created": "回收场已创建",
+      "updated": "回收场已更新",
+      "removed": "回收场已移除"
+    }
+  },
+  "scales": {
+    "title": "地磅",
+    "count": "{count, plural, =0 {暂无地磅} other {# 台地磅}}",
+    "new": "新增地磅",
+    "createTitle": "新增地磅",
+    "editTitle": "编辑地磅",
+    "viewTitle": "地磅详情",
+    "section": {
+      "identity": "基本资料",
+      "instrument": "仪表",
+      "calibration": "检定",
+      "gateways": "网关"
+    },
+    "field": {
+      "code": "编号",
+      "name": "名称",
+      "site": "所属回收场",
+      "protocol": "通讯协议",
+      "unit": "单位",
+      "manufacturer": "厂商",
+      "modelNumber": "型号",
+      "serialNumber": "序列号",
+      "capacityKg": "最大称量（公斤）",
+      "divisionKg": "分度值（公斤）",
+      "calibrationCertificateNo": "检定证书号",
+      "calibrationExpiry": "证书到期日",
+      "gatewayCount": "网关数",
+      "isActive": "启用",
+      "createdAt": "创建时间"
+    },
+    "protocolLabel": {
+      "mt_continuous_short": "METTLER TOLEDO 连续短格式",
+      "generic_json": "通用 JSON",
+      "sma": "SMA（未实现）",
+      "mt_8142": "METTLER TOLEDO 8142（未实现）",
+      "mt_8530": "METTLER TOLEDO 8530（未实现）",
+      "pt6s3": "PT6S3（未实现）"
+    },
+    "calibrationExpired": "证书已过期",
+    "calibrationHint": "在证书过期的地磅上称出来的重量，不构成任何证据。",
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "这台地磅将不再出现在任何地方。它的称重历史原样保留。",
+      "confirm": "移除"
+    },
+    "toast": {
+      "created": "地磅已创建",
+      "updated": "地磅已更新",
+      "removed": "地磅已移除"
+    },
+    "divisionHint": "仪表能分辨的最小刻度。以 20 公斤为步进的地磅，永远不可能稳定在 5 公斤的误差带内。"
+  },
+  "gateways": {
+    "title": "网关",
+    "new": "注册网关",
+    "none": "尚未注册网关",
+    "field": {
+      "deviceId": "设备编号",
+      "firmwareVersion": "固件版本",
+      "lastSeenAt": "最后在线",
+      "clockOffset": "时钟偏移",
+      "notes": "备注"
+    },
+    "online": "在线",
+    "offline": "离线",
+    "secretTitle": "请立即复制这段密钥",
+    "secretBody": "它只显示这一次，之后不会再出现。网关用它给每个数据包签名，密钥遗失只能重新签发，无法找回。",
+    "rotate": "重新签发密钥",
+    "rotateTitle": "为 {name} 重新签发密钥？",
+    "rotateBody": "当前密钥会立即失效。在新密钥装到网关上之前，它无法上传任何数据。",
+    "toast": {
+      "created": "网关已注册",
+      "rotated": "密钥已重新签发"
+    }
+  },
+  "weighing": {
+    "title": "称重记录",
+    "count": "{count, plural, =0 {暂无称重记录} other {# 条称重记录}}",
+    "viewTitle": "称重详情",
+    "field": {
+      "sessionNo": "单号",
+      "scale": "地磅",
+      "site": "回收场",
+      "vehiclePlate": "车牌",
+      "direction": "类型",
+      "state": "状态",
+      "verdict": "判定",
+      "attemptNo": "第几次",
+      "startedAt": "开始时间",
+      "endedAt": "结束时间",
+      "stableWeight": "稳定重量",
+      "peakWeight": "峰值重量",
+      "readingCount": "读数条数",
+      "anomalyCount": "异常数",
+      "stableAt": "稳定时刻",
+      "duration": "时长"
+    },
+    "direction": {
+      "GROSS": "毛重",
+      "TARE": "皮重"
+    },
+    "state": {
+      "OPEN": "已开启",
+      "ON_SCALE": "上磅中",
+      "STABLE": "已稳定",
+      "COMPLETED": "已完成",
+      "VOID": "已作废"
+    },
+    "verdict": {
+      "PENDING": "待判定",
+      "VALID": "有效",
+      "INVALID": "无效"
+    },
+    "requiresReview": "需人工介入",
+    "requiresReviewHint": "重称次数已超过上限，这笔交易停下来等人处理。",
+    "section": {
+      "trace": "重量曲线",
+      "outcome": "判定结果",
+      "rules": "适用规则",
+      "integrity": "数据完整性"
+    },
+    "trace": {
+      "empty": "没有采集到读数",
+      "onboardTrigger": "上磅触发线",
+      "instrumentSettled": "仪表报稳定",
+      "instrumentMoving": "仪表报运动",
+      "net": "净重",
+      "caption": "仪表逐秒上报的重量。",
+      "viewFull": "完整过程",
+      "viewSettled": "稳定之后"
+    },
+    "anomaly": {
+      "SINGLE_READING_ONLY": "只采集到一条读数",
+      "NO_CONTINUOUS_STREAM": "数据流不连续",
+      "SUDDEN_DROP": "重量突然下降",
+      "SUDDEN_RISE": "重量突然上升",
+      "STREAM_INTERRUPTED": "仪表中途停止上报",
+      "MID_SESSION_TARE": "称重途中被去皮归零",
+      "SEQ_GAP": "网关到平台之间有数据包丢失",
+      "STABLE_FLAG_MISMATCH": "仪表把仍在晃动的载荷报成了稳定",
+      "SIGNATURE_INVALID": "数据包签名校验失败",
+      "CLOCK_SKEW": "设备时钟发生跳变",
+      "FRAME_PARSE_FAILED": "原始帧无法解析",
+      "FRAME_MISMATCH": "原始帧与网关上报的数值不一致",
+      "PLATE_MISMATCH": "车牌与出场单不符"
+    },
+    "integrity": {
+      "verify": "验证完整性",
+      "intact": "每一条读数都通过校验，写入之后没有被改动过。",
+      "broken": "{count, plural, other {发现 # 处断裂}}。读数历史被改动过。",
+      "reason": {
+        "content_altered": "有读数被修改",
+        "link_broken": "有读数被删除或调换顺序"
+      },
+      "firstHash": "首条读数哈希",
+      "lastHash": "末条读数哈希"
+    },
+    "rules": {
+      "version": "第 {version} 版",
+      "scope": "适用范围",
+      "frozenHint": "这是判定这次称重时生效的阈值，不是现在配置的那一套。"
+    },
+    "filter": {
+      "all": "全部",
+      "valid": "有效",
+      "invalid": "无效",
+      "review": "需人工介入"
+    }
+  },
+  "weighingRules": {
+    "title": "检测参数",
+    "subtitle": "决定什么算作弊的那组阈值",
+    "publish": "发布新版本",
+    "immutableHint": "发布会创建一个新版本。已经判定过的称重仍然保留当时判定它的阈值，所以在这里改动数值永远无法洗白已有的历史。",
+    "scope": {
+      "PLATFORM": "平台默认",
+      "COMPANY": "本公司",
+      "SCALE": "单台地磅"
+    },
+    "param": {
+      "stable_window_ms": "稳定窗口（毫秒）",
+      "stable_tolerance_kg": "稳定误差值（公斤）",
+      "drop_threshold_kg": "突然下降阈值（公斤）",
+      "drop_window_ms": "突然下降窗口（毫秒）",
+      "rise_threshold_kg": "突然上升阈值（公斤）",
+      "rise_window_ms": "突然上升窗口（毫秒）",
+      "max_gap_ms": "最大数据间隔（毫秒）",
+      "min_readings": "最少读数条数",
+      "onboard_trigger_kg": "上磅触发重量（公斤）",
+      "offboard_threshold_kg": "下磅判定重量（公斤）",
+      "max_retry_attempts": "最多重称次数",
+      "stable_flag_mismatch_ms": "稳定判定分歧容忍（毫秒）",
+      "clock_skew_tolerance_ms": "时钟偏移容忍（毫秒）",
+      "offboard_hold_ms": "下磅保持时长（毫秒）",
+      "retry_window_minutes": "重称归属窗口（分钟）",
+      "deduction_approval_kg": "扣杂需审批阈值（公斤）"
+    },
+    "toast": {
+      "published": "检测参数已发布"
+    },
+    "platformDefault": "平台默认值",
+    "overridden": "已覆盖平台默认值",
+    "noChanges": "没有待发布的改动",
+    "readOnly": "这组阈值由 MSE Trace 设定，客户账号无法修改。它们决定平台把什么判为作弊，所以公司不能放宽针对自己的标准。某台地磅确实需要不同参数的话，请联系客服。"
+  },
+  "projects": {
+    "title": "项目",
+    "count": "{count, plural, =0 {暂无项目} other {# 个项目}}",
+    "new": "新建项目",
+    "createTitle": "新建项目",
+    "editTitle": "编辑项目",
+    "viewTitle": "项目",
+    "section": {
+      "identity": "基本信息",
+      "address": "工地地址",
+      "schedule": "工期",
+      "contact": "工地联系人",
+      "team": "工地人员"
+    },
+    "field": {
+      "code": "项目编号",
+      "name": "项目名称",
+      "status": "状态",
+      "description": "说明",
+      "clientName": "业主",
+      "addressLine1": "地址第一行",
+      "addressLine2": "地址第二行",
+      "city": "城市",
+      "state": "州属",
+      "postcode": "邮编",
+      "startDate": "开工日期",
+      "endDate": "完工日期",
+      "siteManager": "工地负责人",
+      "sitePhone": "工地电话",
+      "assignedUsers": "人员",
+      "createdAt": "创建时间"
+    },
+    "status": {
+      "PLANNING": "筹备中",
+      "ACTIVE": "进行中",
+      "SUSPENDED": "暂停",
+      "COMPLETED": "已完工"
+    },
+    "filter": {
+      "all": "全部",
+      "open": "进行中",
+      "completed": "已完工"
+    },
+    "team": {
+      "title": "谁能看到此项目",
+      "description": "这里的人员可以看到此项目的收货和出场记录。公司其他人除非角色可查看全部项目，否则完全看不到。",
+      "empty": "尚未分配人员。",
+      "add": "添加人员",
+      "remove": "移出项目",
+      "removeTitle": "将 {name} 移出此项目？",
+      "removeDescription": "他将无法再看到此项目的收货和出场记录。其账号及已记录的数据保持不变。",
+      "removeConfirm": "移除"
+    },
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "此项目将不再出现在任何地方。已记录的收货和出场记录会保留。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "项目已创建",
+      "updated": "项目已更新",
+      "removed": "项目已删除",
+      "assigned": "已加入项目",
+      "unassigned": "已移出项目"
+    }
+  },
+  "suppliers": {
+    "title": "供应商",
+    "count": "{count, plural, =0 {暂无供应商} other {# 家供应商}}",
+    "new": "新建供应商",
+    "createTitle": "新建供应商",
+    "editTitle": "编辑供应商",
+    "section": {
+      "identity": "基本信息",
+      "contact": "联系方式",
+      "address": "地址"
+    },
+    "field": {
+      "code": "供应商编号",
+      "name": "供应商名称",
+      "contactPerson": "联系人",
+      "contactPhone": "联系电话",
+      "contactEmail": "联系邮箱",
+      "addressLine1": "地址",
+      "city": "城市",
+      "state": "州属",
+      "registrationNo": "注册号",
+      "isActive": "启用",
+      "qrCodeCount": "送货单",
+      "createdAt": "创建时间"
+    },
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "记录收货时将不再出现此供应商。已记录的收货保持不变。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "供应商已创建",
+      "updated": "供应商已更新",
+      "removed": "供应商已删除"
+    }
+  },
+  "qrCodes": {
+    "title": "送货单二维码",
+    "description": "一张送货单绑定一家供应商和一个项目。在工地扫码即可自动带出两者，几秒完成收货记录。",
+    "count": "{count, plural, =0 {暂无送货单} other {# 张送货单}}",
+    "new": "签发送货单",
+    "createTitle": "签发送货单",
+    "field": {
+      "project": "项目",
+      "supplier": "供应商",
+      "token": "编码",
+      "isActive": "有效",
+      "createdAt": "签发时间"
+    },
+    "status": {
+      "active": "有效",
+      "revoked": "已作废"
+    },
+    "revoke": {
+      "title": "作废此送货单？",
+      "description": "已打印的副本会立即失效。已用它记录的收货保持不变。",
+      "confirm": "作废"
+    },
+    "toast": {
+      "created": "送货单已签发",
+      "revoked": "送货单已作废"
+    }
+  },
+  "receipts": {
+    "title": "材料收货",
+    "count": "{count, plural, =0 {暂无收货记录} other {# 条收货记录}}",
+    "new": "记录收货",
+    "createTitle": "记录收货",
+    "editTitle": "更正收货记录",
+    "viewTitle": "收货记录",
+    "section": {
+      "delivery": "收货",
+      "material": "材料",
+      "vehicle": "车辆与单据",
+      "received": "收货人",
+      "stamp": "系统自动记录",
+      "photos": "照片"
+    },
+    "field": {
+      "receiptNo": "收货单号",
+      "project": "项目",
+      "supplier": "供应商",
+      "qrCode": "送货单",
+      "materialName": "材料",
+      "quantity": "数量",
+      "unit": "单位",
+      "unitPrice": "单价",
+      "totalValue": "金额",
+      "vehiclePlate": "车牌",
+      "deliveryNoteNo": "送货单号",
+      "notes": "备注",
+      "receivedBy": "收货人",
+      "capturedAt": "记录时间",
+      "location": "位置",
+      "recordedBy": "记录人",
+      "photoCount": "照片"
+    },
+    "unit": {
+      "TONNE": "吨",
+      "KG": "公斤",
+      "M3": "立方米",
+      "PIECE": "件",
+      "LOAD": "车",
+      "BAG": "包"
+    },
+    "photoKind": {
+      "DELIVERY_NOTE": "送货单",
+      "VEHICLE": "车辆",
+      "UNLOADING": "卸货",
+      "OTHER": "其他"
+    },
+    "stampNote": "时间、位置和记录人由系统在提交时自动写入，无法手动填写或事后修改。",
+    "editNote": "数量和单价可以更正。项目、送货单和记录时间不可更改，它们正是这条记录要证明的事。",
+    "locationCaptured": "已记录位置",
+    "locationMissing": "无位置",
+    "noPhotos": "没有附加照片。",
+    "summary": {
+      "title": "材料统计",
+      "byUnit": "按单位",
+      "byMaterial": "按材料",
+      "receipts": "收货次数",
+      "quantity": "数量",
+      "note": "数量按单位分开统计，吨与件不会相加。"
+    },
+    "remove": {
+      "title": "删除收货记录 {name}？",
+      "description": "它将不再出现在收货列表和材料统计中。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "收货已记录",
+      "updated": "收货记录已更新",
+      "removed": "收货记录已删除"
+    }
+  },
+  "dispatches": {
+    "title": "废料出场",
+    "count": "{count, plural, =0 {暂无出场记录} other {# 车}}",
+    "new": "新建出场",
+    "createTitle": "新建出场",
+    "editTitle": "编辑出场",
+    "viewTitle": "出场记录",
+    "section": {
+      "destination": "去向",
+      "load": "货物",
+      "vehicle": "车辆与司机",
+      "release": "放行",
+      "photos": "照片"
+    },
+    "field": {
+      "dispatchNo": "出场单号",
+      "project": "项目",
+      "recycler": "回收商",
+      "wasteType": "废料类型",
+      "estimatedWeight": "预估重量（公斤）",
+      "description": "说明",
+      "vehiclePlate": "车牌",
+      "driverName": "司机",
+      "driverPhone": "司机电话",
+      "driverIc": "司机身份证",
+      "state": "状态",
+      "releasedAt": "放行时间",
+      "releasedBy": "放行人",
+      "location": "位置",
+      "photoCount": "照片"
+    },
+    "wasteType": {
+      "MIXED": "混合建筑废料",
+      "CONCRETE": "混凝土与砖石",
+      "METAL": "废金属",
+      "TIMBER": "木材",
+      "PLASTIC": "塑料",
+      "SOIL": "泥土与骨料",
+      "HAZARDOUS": "危险废料",
+      "OTHER": "其他"
+    },
+    "state": {
+      "DRAFT": "草稿",
+      "RELEASED": "已放行",
+      "COLLECTED": "已收运",
+      "WEIGHED": "已过磅",
+      "SETTLED": "已结算",
+      "CANCELLED": "已取消"
+    },
+    "recyclerNote": "只能送往已在 MSE Trace 注册的回收商。这样货物才会上地磅，追溯链才不会断在你的工地门口。",
+    "recyclerEmpty": "目前没有可选的回收商。",
+    "estimateNote": "这是你的预估。最终重量由回收商的地磅决定，两个数字都会保留。",
+    "lockedNote": "此车已离场，无法再修改。若最终没有送达，请取消。",
+    "release": {
+      "title": "放行此车？",
+      "description": "记录车辆已离开工地。放行后只能取消，不能修改。",
+      "confirm": "放行",
+      "byName": "放行人"
+    },
+    "cancel": {
+      "title": "取消此车？",
+      "description": "请说明原因。原因会留在记录上，回收商和你的团队都能看到。",
+      "confirm": "取消出场"
+    },
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "此草稿将不再出现在任何地方。货物尚未离场。",
+      "confirm": "删除"
+    },
+    "summary": {
+      "title": "废料统计",
+      "byType": "按废料类型",
+      "loads": "车次",
+      "estimatedWeight": "预估重量"
+    },
+    "toast": {
+      "created": "出场已创建",
+      "updated": "出场已更新",
+      "removed": "出场已删除",
+      "released": "已放行",
+      "cancelled": "已取消"
+    }
+  },
+  "export": {
+    "excel": "Excel 表格",
+    "pdf": "PDF 文件"
+  },
+  "reports": {
+    "title": "报表",
+    "subtitle": "你可见项目范围内的材料进场与废料出场。",
+    "filter": {
+      "project": "项目",
+      "allProjects": "全部项目",
+      "dateFrom": "起始日期",
+      "dateTo": "结束日期",
+      "clear": "清除筛选"
+    },
+    "receipts": {
+      "title": "材料收货",
+      "totalReceipts": "收货次数",
+      "byUnit": "按单位",
+      "byMaterial": "材料排行",
+      "unitNote": "数量按单位分开统计。吨与件不会相加——把两者合成一个总数看起来像答案，其实不是。",
+      "chartNote": "图表统计的是收货次数，跨单位可比。数量见下表。",
+      "material": "材料",
+      "unit": "单位",
+      "quantity": "数量",
+      "deliveries": "收货次数"
+    },
+    "dispatches": {
+      "title": "废料出场",
+      "totalDispatches": "车次",
+      "byType": "按废料类型",
+      "byState": "按状态",
+      "wasteType": "废料类型",
+      "loads": "车次",
+      "estimatedWeight": "预估重量（公斤）",
+      "estimateNote": "这些是工地的预估值。最终重量在货物过磅后由回收商的地磅给出。"
+    },
+    "empty": "当前筛选范围内暂无数据。"
+  },
+  "incoming": {
+    "title": "待收货",
+    "subtitle": "正在送往你回收场的废料。",
+    "count": "{count, plural, =0 {暂无} other {# 车}}",
+    "field": {
+      "dispatchNo": "出场单号",
+      "contractor": "产废方",
+      "project": "工地",
+      "wasteType": "废料类型",
+      "estimatedWeight": "申报重量（公斤）",
+      "vehiclePlate": "车牌",
+      "driverName": "司机",
+      "releasedAt": "放行时间",
+      "state": "状态"
+    },
+    "declaredNote": "这是产废方的申报。最终重量由你的地磅决定，两个数字都会保留。",
+    "collect": {
+      "title": "确认收运这车货？",
+      "description": "记录货物已到你手上。产废方从此不能再取消，重量由地磅决定。",
+      "confirm": "收运",
+      "reference": "你自己的单号",
+      "referenceHint": "选填。如果你有自己的编号体系就填这里。"
+    },
+    "reject": {
+      "title": "拒收这车货？",
+      "description": "请说明原因。原因会回传给发货的工地，他们才知道这辆车怎么了。",
+      "confirm": "拒收"
+    },
+    "toast": {
+      "collected": "已收运",
+      "rejected": "已拒收"
+    }
+  },
+  "gate": {
+    "title": "地磅门口",
+    "subtitle": "车上磅之前，先扫司机的出场单。",
+    "whyFirst": "地磅是重量压上去就自动开始记录的，所以货单必须在车动之前就排好队。上磅之后没有任何办法再补挂。",
+    "selectScale": "地磅",
+    "noScales": "还没有设置地磅。",
+    "waiting": "当前等待",
+    "nothingQueued": "这台地磅上没有排队的货。",
+    "expiresAt": "有效至",
+    "expired": "这次扫码已过期。请在车上磅前重新扫一次。",
+    "field": {
+      "dispatchNo": "出场单号",
+      "direction": "本次过磅",
+      "vehiclePlate": "车头上的车牌",
+      "scannedBy": "扫码人",
+      "expiresIn": "有效时长（分钟）"
+    },
+    "direction": {
+      "GROSS": "重车（毛重）",
+      "TARE": "空车（皮重）"
+    },
+    "plateMismatch": "单据上的车牌是 {expected}，请核对车头。",
+    "scan": "排入这车货",
+    "clear": "清除",
+    "clearTitle": "清空这台地磅？",
+    "clearDescription": "下一辆开上来的车将不会挂任何货单。司机掉头走了、或者扫错单时用这个。",
+    "clearConfirm": "清除",
+    "toast": {
+      "scanned": "已排入地磅",
+      "cleared": "地磅已清空"
+    }
+  },
+  "vehicles": {
+    "title": "车辆",
+    "count": "{count, plural, =0 {暂无车辆} other {# 辆}}",
+    "new": "新增车辆",
+    "createTitle": "新增车辆",
+    "editTitle": "编辑车辆",
+    "section": {
+      "identity": "基本信息",
+      "limits": "限重与证件"
+    },
+    "field": {
+      "plateNo": "车牌",
+      "vehicleType": "车型",
+      "makeModel": "厂牌型号",
+      "tareWeight": "皮重（公斤）",
+      "maxLaden": "最大总重（公斤）",
+      "roadTaxExpires": "路税到期",
+      "permitExpires": "准证到期",
+      "notes": "备注",
+      "isActive": "启用",
+      "createdAt": "添加时间"
+    },
+    "type": {
+      "LORRY": "货车",
+      "TIPPER": "自卸车",
+      "ROLL_ON": "钩臂车",
+      "SKIP": "斗车",
+      "TRAILER": "拖头挂车",
+      "OTHER": "其他"
+    },
+    "noTare": "未量过空车",
+    "tare": {
+      "action": "录入皮重",
+      "title": "录入这辆车的空车重量",
+      "description": "在按预存皮重结算的回收场，这个数字会从这辆车以后每一车货里减掉。调低 500 公斤等于每车净重多算 500 公斤，所以这次改动会连同你填的原因一起写进审计日志。",
+      "confirm": "录入",
+      "weight": "空车重量（公斤）",
+      "measuredAt": "上次测量"
+    },
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "派车时将不再出现这辆车。已记录的出车保持不变。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "车辆已添加",
+      "updated": "车辆已更新",
+      "removed": "车辆已删除",
+      "tareSet": "皮重已录入"
+    }
+  },
+  "drivers": {
+    "title": "司机",
+    "count": "{count, plural, =0 {暂无司机} other {# 位}}",
+    "new": "新增司机",
+    "createTitle": "新增司机",
+    "editTitle": "编辑司机",
+    "section": {
+      "identity": "基本信息",
+      "licence": "驾照"
+    },
+    "field": {
+      "fullName": "姓名",
+      "phone": "电话",
+      "icNo": "身份证号",
+      "licenceNo": "驾照号",
+      "licenceExpires": "驾照到期",
+      "defaultVehicle": "常用车辆",
+      "isActive": "启用",
+      "createdAt": "添加时间"
+    },
+    "licenceExpired": "驾照已过期",
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "派车时将不再出现这位司机。已记录的出车保持不变。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "司机已添加",
+      "updated": "司机已更新",
+      "removed": "司机已删除"
+    }
+  },
+  "tasks": {
+    "title": "出车任务",
+    "count": "{count, plural, =0 {暂无任务} other {# 趟}}",
+    "new": "派车",
+    "createTitle": "派车",
+    "editTitle": "改派",
+    "viewTitle": "出车任务",
+    "section": {
+      "load": "货物",
+      "crew": "车辆与司机",
+      "progress": "进度",
+      "photos": "照片"
+    },
+    "field": {
+      "taskNo": "任务号",
+      "state": "状态",
+      "dispatch": "货物",
+      "site": "返回回收场",
+      "vehicle": "车辆",
+      "driver": "司机",
+      "scheduledFor": "计划时间",
+      "acceptedAt": "接单时间",
+      "arrivedAt": "到场时间",
+      "loadedAt": "装货时间",
+      "deliveredAt": "送达时间",
+      "arrivalLocation": "到场位置",
+      "notes": "备注",
+      "failureReason": "失败原因",
+      "contractor": "产废方",
+      "project": "工地",
+      "photoCount": "照片"
+    },
+    "state": {
+      "ASSIGNED": "已派单",
+      "ACCEPTED": "已接单",
+      "EN_ROUTE": "在路上",
+      "ARRIVED": "已到场",
+      "LOADED": "已装货",
+      "RETURNING": "返程中",
+      "DELIVERED": "已送达",
+      "CANCELLED": "已取消",
+      "FAILED": "未完成"
+    },
+    "advance": "推进到{state}",
+    "advanceTitle": "把这趟任务推进到{state}？",
+    "advanceDescription": "会连同时间一起记在这趟任务上。",
+    "loadedNote": "标记已装货同时会告诉产废方废料已经易手，从这一刻起他们不能再取消。",
+    "failNote": "请说明出了什么事。总要有人去跟进，他得知道要跟进什么。",
+    "noDispatch": "未挂货单",
+    "noPhotos": "司机还没有传照片。",
+    "locationNote": "这是司机设备上报的位置。浏览器定位可以伪造，所以这只是「上报了什么」，不是「车在哪里」。",
+    "reassignNote": "只能在司机接单前改派。接单之后，派工记录就是「谁真的去了」的凭据。",
+    "toast": {
+      "created": "已派车",
+      "updated": "任务已更新",
+      "advanced": "任务已更新"
+    }
+  },
+  "deductions": {
+    "title": "扣杂",
+    "count": "{count, plural, =0 {暂无扣杂} other {# 条}}",
+    "new": "记录扣杂",
+    "createTitle": "记录扣杂",
+    "awaitingMe": "等你回应",
+    "section": {
+      "load": "货物",
+      "claim": "问题描述",
+      "photos": "照片"
+    },
+    "field": {
+      "dispatchNo": "货物",
+      "site": "质检地点",
+      "kind": "扣杂类别",
+      "weightKg": "扣重（公斤）",
+      "reason": "问题描述",
+      "state": "状态",
+      "inspectedBy": "质检人",
+      "inspectedAt": "质检时间",
+      "threshold": "当时的阈值",
+      "respondedAt": "回应时间",
+      "responseNote": "回应",
+      "project": "工地",
+      "recycler": "回收商"
+    },
+    "kind": {
+      "MOISTURE": "水分",
+      "CONTAMINATION": "夹杂杂质",
+      "WRONG_MATERIAL": "与申报不符",
+      "OVERSIZE": "超尺寸或无法处理",
+      "OTHER": "其他"
+    },
+    "state": {
+      "AUTO_ACCEPTED": "自动通过",
+      "PENDING": "等产废方回应",
+      "ACCEPTED": "已同意",
+      "REJECTED": "已拒绝",
+      "RECHECK": "要求复检"
+    },
+    "thresholdNote": "超过 {threshold} 公斤要交给产废方确认，以下自动通过——二十吨货里一百公斤水分不值得开会，硬要开会的结果是所有人学会不看就点同意。",
+    "autoAcceptedNote": "这一条没有问过人：当时的阈值以下自动通过。",
+    "reasonHint": "写到半年后一个不在现场的人也读得懂。",
+    "photoNote": "等到有人来争的时候，料早就倒进堆里混掉了。质检当场拍的照片是唯一留得下来的证据。",
+    "noPhotos": "没有附加照片。",
+    "respond": {
+      "title": "回应这条扣杂",
+      "weight": "{dispatchNo} 扣 {weight} 公斤",
+      "accept": "同意",
+      "reject": "拒绝",
+      "recheck": "要求复检",
+      "note": "你的回应",
+      "noteRequired": "请说明原因，场地那边才知道下一步该做什么。",
+      "effect": "同意后，这车货的结算重量会减少 {weight} 公斤。"
+    },
+    "onlyProducer": "只有产废方才能回应扣杂。",
+    "toast": {
+      "created": "扣杂已记录",
+      "answered": "回应已记录"
+    }
+  },
+  "settlements": {
+    "title": "结算",
+    "count": "{count, plural, =0 {暂无结算单} other {# 张}}",
+    "viewTitle": "结算单",
+    "new": "开结算单",
+    "section": {
+      "load": "货物",
+      "weights": "重量",
+      "money": "金额",
+      "payments": "付款"
+    },
+    "field": {
+      "settlementNo": "结算单号",
+      "state": "状态",
+      "dispatchNo": "货物",
+      "contractor": "产废方",
+      "recycler": "回收商",
+      "project": "工地",
+      "sessionNo": "过磅记录",
+      "netWeight": "净重（公斤）",
+      "deductionWeight": "扣杂（公斤）",
+      "settledWeight": "结算重量（公斤）",
+      "unitPrice": "单价（每吨）",
+      "totalAmount": "金额",
+      "amountPaid": "已付",
+      "outstanding": "未付",
+      "issuedAt": "开单时间",
+      "lockedAt": "锁定时间",
+      "notes": "备注"
+    },
+    "state": {
+      "DRAFT": "草稿",
+      "ISSUED": "已开出",
+      "LOCKED": "已锁定"
+    },
+    "frozenNote": "这些数字在开单那一刻就固定了。之后再动过磅记录或扣杂，都不会改变这张单。",
+    "issue": {
+      "title": "开出这张结算单",
+      "description": "固定各项重量，并把金额呈给产废方。",
+      "unitPrice": "单价（每吨）",
+      "notes": "备注",
+      "confirm": "开单",
+      "blockedByDeductions": "还有 {count} 条扣杂在等产废方回应，请先处理。",
+      "blockedByWeighing": "这车货还没有完成的过磅记录，无法结算。"
+    },
+    "lock": {
+      "title": "锁定这张结算单？",
+      "description": "锁定后产废方将无法再对这车货提出异议。请说明原因。",
+      "confirm": "锁定"
+    },
+    "payment": {
+      "title": "记录付款",
+      "description": "付款凭证。平台不经手资金，这里记录的是一方声称发生了什么。",
+      "amount": "金额",
+      "paidOn": "付款日期",
+      "method": "方式",
+      "reference": "参考号",
+      "notes": "备注",
+      "confirm": "记录",
+      "none": "还没有付款记录。"
+    },
+    "method": {
+      "BANK_TRANSFER": "银行转账",
+      "CHEQUE": "支票",
+      "CASH": "现金",
+      "OFFSET": "抵扣",
+      "OTHER": "其他"
+    },
+    "quote": {
+      "title": "预计结算",
+      "openDeductions": "还有 {count} 条扣杂待回应"
+    },
+    "toast": {
+      "issued": "结算单已开出",
+      "locked": "结算单已锁定",
+      "paymentRecorded": "付款已记录"
+    }
+  },
+  "driver": {
+    "today": "你的任务",
+    "finished": "已完成",
+    "nothingAssigned": "目前没有分配给你的任务。",
+    "back": "全部任务",
+    "takePhoto": "拍照",
+    "cannotComplete": "我完成不了这趟",
+    "arrivedNote": "记录你已到达现场，如果手机允许会一并记录位置。",
+    "action": {
+      "ACCEPTED": "接下这趟",
+      "EN_ROUTE": "出发",
+      "ARRIVED": "我到了",
+      "LOADED": "装好货了",
+      "RETURNING": "返程",
+      "DELIVERED": "已送回场",
+      "FAILED": "无法完成",
+      "CANCELLED": "取消",
+      "ASSIGNED": "已派单"
+    },
+    "toast": {
+      "photoSent": "照片已上传"
+    }
+  },
+  "ticket": {
+    "title": "地磅单",
+    "action": "打印地磅单",
+    "footer": "由 MSE Trace 出具。本次称重的每一笔读数均原样保存，可凭上方哈希重新核验。",
+    "evidenceNote": "这两个哈希把本次称重与仪表发出的每一笔读数串成一条链。任何一笔已存读数被改动，从那一点起整条链都会校验失败。",
+    "voidWeightsNote": "本次称重未通过检测，因此没有据此得出净重。上方读数仅供参考，不得用于结算。",
+    "section": {
+      "weighing": "称重",
+      "load": "货物",
+      "weights": "重量",
+      "anomalies": "本次称重被判无效的原因",
+      "evidence": "证据"
+    },
+    "field": {
+      "sessionNo": "单号",
+      "scale": "地磅",
+      "direction": "本次过磅",
+      "vehiclePlate": "车牌",
+      "startedAt": "开始时间",
+      "endedAt": "结束时间",
+      "attemptNo": "第几次",
+      "readingCount": "读数条数",
+      "dispatchNo": "出场单号",
+      "wasteType": "物料",
+      "contractor": "产废方",
+      "project": "工地",
+      "driver": "司机",
+      "declaredWeight": "申报重量（公斤）",
+      "stableWeight": "稳定重量（公斤）",
+      "peakWeight": "峰值（公斤）",
+      "grossWeight": "毛重（公斤）",
+      "tareWeight": "皮重（公斤）",
+      "netWeight": "净重（公斤）",
+      "deductions": "扣杂（公斤）",
+      "settledWeight": "结算重量（公斤）",
+      "firstHash": "首条读数哈希",
+      "lastHash": "末条读数哈希"
+    },
+    "column": {
+      "anomaly": "检测项",
+      "detail": "详情",
+      "deduction": "扣杂",
+      "weight": "重量（公斤）",
+      "reason": "原因"
+    },
+    "verdict": {
+      "valid": "有效",
+      "validNote": "本次称重通过了当时生效的全部检测。",
+      "void": "无效 —— 不可用于结算",
+      "voidNote": "有检测项未通过。本单是对发生了什么的记录，不是付款依据。"
+    },
+    "tareSource": {
+      "MEASURED": "皮重由本台地磅实测。",
+      "STORED": "皮重取自车辆档案，本次未实测。"
+    },
+    "signature": {
+      "operator": "地磅员",
+      "driver": "司机"
+    }
+  }
+}

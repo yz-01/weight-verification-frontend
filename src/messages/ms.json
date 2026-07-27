@@ -1,0 +1,1640 @@
+{
+  "app": {
+    "name": "MSE Trace",
+    "tagline": "Berat disahkan. Sisa dijejaki."
+  },
+  "common": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "create": "Cipta",
+    "edit": "Sunting",
+    "remove": "Buang",
+    "view": "Lihat",
+    "search": "Cari",
+    "columns": "Lajur",
+    "actions": "Tindakan",
+    "back": "Kembali",
+    "confirm": "Sahkan",
+    "close": "Tutup",
+    "loading": "Memuatkan",
+    "retry": "Cuba lagi",
+    "optional": "pilihan",
+    "all": "Semua",
+    "none": "Tiada",
+    "export": "Eksport",
+    "refresh": "Muat semula",
+    "signOut": "Log keluar",
+    "profile": "Profil",
+    "settings": "Tetapan",
+    "language": "Bahasa",
+    "theme": "Tema",
+    "themeLight": "Cerah",
+    "themeDark": "Gelap",
+    "themeSystem": "Ikut sistem",
+    "emptyValue": "—",
+    "reason": "Sebab",
+    "reasonPlaceholder": "Mengapa perubahan ini dibuat?",
+    "selectPlaceholder": "Pilih",
+    "searchPlaceholder": "Cari",
+    "noOptions": "Tiada pilihan",
+    "saving": "Menyimpan",
+    "unknownError": "Ada masalah. Sila cuba lagi.",
+    "copy": "Salin",
+    "copied": "Disalin",
+    "copyFirst": "Salin rahsia sebelum menutup"
+  },
+  "table": {
+    "showing": "Memaparkan {from} hingga {to} daripada {total} rekod",
+    "showingEmpty": "Tiada rekod",
+    "noResults": "Belum ada rekod di sini",
+    "noResultsFiltered": "Tiada rekod sepadan dengan penapis anda",
+    "clearFilters": "Kosongkan penapis",
+    "errorTitle": "Senarai ini tidak dapat dimuatkan",
+    "errorBody": "Semak sambungan anda dan cuba lagi.",
+    "perPage": "Setiap muka",
+    "previous": "Sebelum",
+    "next": "Seterusnya",
+    "selected": "{count} dipilih"
+  },
+  "validation": {
+    "required": "Ruangan ini wajib diisi",
+    "email": "Masukkan alamat e-mel yang sah",
+    "minLength": "Gunakan sekurang-kurangnya {min} aksara",
+    "maxLength": "Gunakan tidak lebih daripada {max} aksara",
+    "passwordMismatch": "Kedua-dua kata laluan tidak sama",
+    "passwordTooShort": "Gunakan sekurang-kurangnya 10 aksara"
+  },
+  "auth": {
+    "login": {
+      "title": "Log masuk",
+      "subtitle": "Masuk ke ruang kerja MSE Trace anda",
+      "email": "E-mel",
+      "emailPlaceholder": "anda@syarikat.com",
+      "password": "Kata laluan",
+      "passwordPlaceholder": "Kata laluan anda",
+      "submit": "Log masuk",
+      "forgot": "Lupa kata laluan?",
+      "invalid": "E-mel atau kata laluan salah",
+      "userSuspended": "Akaun ini tidak aktif. Hubungi pentadbir anda.",
+      "companySuspended": "Akaun syarikat anda tidak aktif. Hubungi sokongan MSE Trace.",
+      "throttled": "Terlalu banyak percubaan. Tunggu sebentar dan cuba lagi."
+    },
+    "forgot": {
+      "title": "Tetapkan semula kata laluan",
+      "subtitle": "Kami akan e-mel pautan untuk anda tetapkan kata laluan baharu",
+      "submit": "Hantar pautan",
+      "sent": "Jika e-mel itu berdaftar, pautan tetapan semula sedang dihantar.",
+      "backToLogin": "Kembali ke log masuk"
+    },
+    "reset": {
+      "title": "Tetapkan kata laluan baharu",
+      "subtitle": "Pilih kata laluan yang belum pernah anda guna",
+      "newPassword": "Kata laluan baharu",
+      "confirmPassword": "Sahkan kata laluan",
+      "submit": "Tetapkan kata laluan",
+      "success": "Kata laluan dikemas kini. Anda boleh log masuk sekarang.",
+      "invalidToken": "Pautan ini tidak sah atau telah tamat tempoh. Minta yang baharu."
+    },
+    "changePassword": {
+      "title": "Tukar kata laluan",
+      "current": "Kata laluan semasa",
+      "new": "Kata laluan baharu",
+      "confirm": "Sahkan kata laluan baharu",
+      "submit": "Tukar kata laluan",
+      "success": "Kata laluan ditukar",
+      "incorrectCurrent": "Kata laluan semasa anda salah"
+    },
+    "sessionExpired": "Sesi anda telah tamat. Sila log masuk semula.",
+    "signedOut": "Telah log keluar"
+  },
+  "nav": {
+    "dashboard": "Papan pemuka",
+    "companies": "Syarikat",
+    "users": "Pengguna",
+    "roles": "Peranan",
+    "auditLogs": "Log audit",
+    "loginRecords": "Sejarah log masuk",
+    "projects": "Projek",
+    "suppliers": "Pembekal",
+    "receipts": "Terimaan bahan",
+    "dispatches": "Penghantaran sisa",
+    "tasks": "Tugas pemandu",
+    "scales": "Jambatan timbang",
+    "weighing": "Penimbangan",
+    "settlements": "Penyelesaian",
+    "payments": "Pembayaran",
+    "billing": "Pengebilan",
+    "commission": "Komisen",
+    "tickets": "Tiket sokongan",
+    "announcements": "Pengumuman",
+    "reports": "Laporan",
+    "settings": "Tetapan",
+    "group": {
+      "overview": "Ringkasan",
+      "operations": "Operasi",
+      "weighing": "Penimbangan",
+      "finance": "Kewangan",
+      "customers": "Pelanggan",
+      "system": "Sistem",
+      "fleet": "Armada"
+    },
+    "sites": "Tapak",
+    "detectionSettings": "Tetapan pengesanan",
+    "incoming": "Muatan masuk",
+    "gate": "Pintu timbang",
+    "vehicles": "Kenderaan",
+    "drivers": "Pemandu",
+    "deductions": "Potongan"
+  },
+  "dashboard": {
+    "title": "Papan pemuka",
+    "greeting": "Selamat kembali, {name}",
+    "platformSubtitle": "Kesihatan platform dan aktiviti pelanggan",
+    "contractorSubtitle": "Aktiviti tapak merentas projek anda",
+    "recyclerSubtitle": "Kutipan dan penimbangan hari ini",
+    "tile": {
+      "companies": "Syarikat",
+      "contractors": "Kontraktor",
+      "recyclers": "Pengitar semula",
+      "projects": "Projek",
+      "users": "Pengguna",
+      "onlineUsers": "Dalam talian",
+      "planRevenue": "Hasil langganan",
+      "commissionRevenue": "Hasil komisen",
+      "systemStatus": "Status sistem"
+    },
+    "comingSoon": "Panel ini akan tiba dalam keluaran seterusnya."
+  },
+  "companies": {
+    "title": "Syarikat",
+    "count": "{count, plural, =0 {Tiada syarikat} other {# syarikat}}",
+    "new": "Syarikat baharu",
+    "createTitle": "Syarikat baharu",
+    "editTitle": "Sunting syarikat",
+    "viewTitle": "Syarikat",
+    "section": {
+      "identity": "Maklumat asas",
+      "address": "Alamat",
+      "contact": "Hubungan",
+      "preferences": "Keutamaan"
+    },
+    "field": {
+      "code": "Kod",
+      "name": "Nama syarikat",
+      "type": "Jenis",
+      "status": "Status",
+      "registrationNo": "Nombor pendaftaran",
+      "taxId": "Nombor pengenalan cukai",
+      "addressLine1": "Alamat baris 1",
+      "addressLine2": "Alamat baris 2",
+      "city": "Bandar",
+      "state": "Negeri",
+      "postcode": "Poskod",
+      "country": "Negara",
+      "contactPerson": "Orang untuk dihubungi",
+      "contactPhone": "Telefon",
+      "contactEmail": "E-mel",
+      "logo": "Logo",
+      "defaultLanguage": "Bahasa lalai",
+      "timezone": "Zon waktu",
+      "userCount": "Pengguna",
+      "createdAt": "Dibuka"
+    },
+    "type": {
+      "CONTRACTOR": "Kontraktor",
+      "RECYCLER": "Pengitar semula"
+    },
+    "status": {
+      "ACTIVE": "Aktif",
+      "TRIAL": "Percubaan",
+      "SUSPENDED": "Digantung",
+      "OVERDUE": "Tertunggak",
+      "CLOSED": "Ditutup"
+    },
+    "filter": {
+      "all": "Semua",
+      "contractors": "Kontraktor",
+      "recyclers": "Pengitar semula",
+      "active": "Aktif",
+      "suspended": "Digantung"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Syarikat ini tidak akan muncul di mana-mana dalam MSE Trace. Rekod lalunya kekal dan boleh dipulihkan kemudian.",
+      "confirm": "Buang",
+      "blockedByUsers": "Syarikat ini masih ada orang yang boleh log masuk. Gantung sahaja, atau nyahaktifkan mereka dahulu."
+    },
+    "suspend": {
+      "title": "Gantung {name}?",
+      "description": "Tiada sesiapa dari syarikat ini boleh log masuk sehingga ia dipulihkan. Kerja yang telah direkod tidak disentuh.",
+      "confirm": "Gantung",
+      "reasonRequired": "Berikan sebab supaya ia boleh disemak kemudian."
+    },
+    "reinstate": {
+      "title": "Pulihkan {name}?",
+      "description": "Semua orang dari syarikat ini boleh log masuk semula.",
+      "confirm": "Pulihkan"
+    },
+    "toast": {
+      "created": "Syarikat dicipta",
+      "updated": "Syarikat dikemas kini",
+      "removed": "Syarikat dibuang",
+      "statusUpdated": "Status syarikat dikemas kini"
+    },
+    "typeLocked": "Jenis syarikat tidak boleh diubah selepas ia dicipta.",
+    "taxIdHint": "Diperlukan sebelum e-invois boleh dihidupkan untuk syarikat ini.",
+    "languageHint": "Pengguna baharu syarikat ini bermula di sini. Setiap orang boleh mengubahnya.",
+    "suspendedReason": "Sebab penggantungan",
+    "suspendedAt": "Digantung pada"
+  },
+  "users": {
+    "title": "Pengguna",
+    "titleStaff": "Kakitangan dalaman",
+    "count": "{count, plural, =0 {Tiada pengguna} other {# pengguna}}",
+    "new": "Pengguna baharu",
+    "createTitle": "Jemput pengguna",
+    "editTitle": "Sunting pengguna",
+    "viewTitle": "Pengguna",
+    "section": {
+      "identity": "Maklumat asas",
+      "access": "Akses",
+      "preferences": "Keutamaan",
+      "activity": "Aktiviti"
+    },
+    "field": {
+      "email": "E-mel",
+      "fullName": "Nama penuh",
+      "phone": "Telefon",
+      "role": "Peranan",
+      "company": "Syarikat",
+      "status": "Status",
+      "language": "Bahasa",
+      "timezone": "Zon waktu",
+      "lastLoginAt": "Log masuk terakhir",
+      "lastLoginIp": "IP terakhir",
+      "createdAt": "Ditambah"
+    },
+    "status": {
+      "INVITED": "Dijemput",
+      "ACTIVE": "Aktif",
+      "SUSPENDED": "Digantung"
+    },
+    "invite": {
+      "hint": "Orang itu menetapkan kata laluan sendiri melalui pautan yang kami e-mel. Tiada sesiapa lain melihatnya.",
+      "sent": "Jemputan dihantar"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Mereka tidak akan dapat log masuk lagi. Semua yang mereka rekodkan kekal seperti sedia ada.",
+      "confirm": "Buang"
+    },
+    "suspend": {
+      "title": "Gantung {name}?",
+      "description": "Mereka tidak akan dapat log masuk sehingga dipulihkan.",
+      "confirm": "Gantung"
+    },
+    "resetPassword": {
+      "action": "Hantar pautan tetapan semula",
+      "sent": "Pautan tetapan semula dihantar"
+    },
+    "toast": {
+      "created": "Pengguna dijemput",
+      "updated": "Pengguna dikemas kini",
+      "removed": "Pengguna dibuang",
+      "statusUpdated": "Status pengguna dikemas kini"
+    },
+    "cannotEditSelf": "Anda tidak boleh menukar status akaun sendiri di sini. Gunakan profil anda.",
+    "reinstate": {
+      "description": "Mereka boleh log masuk semula dengan serta-merta."
+    }
+  },
+  "roles": {
+    "title": "Peranan",
+    "count": "{count, plural, =0 {Tiada peranan} other {# peranan}}",
+    "new": "Peranan baharu",
+    "createTitle": "Peranan baharu",
+    "editTitle": "Sunting peranan",
+    "viewTitle": "Peranan",
+    "section": {
+      "identity": "Maklumat asas",
+      "permissions": "Kebenaran"
+    },
+    "field": {
+      "code": "Kod",
+      "name": "Nama peranan",
+      "description": "Keterangan",
+      "userCount": "Orang",
+      "permissions": "Kebenaran"
+    },
+    "system": "Terbina dalam",
+    "systemHint": "Peranan terbina dalam tidak boleh dibuang, supaya syarikat sentiasa ada cara untuk menguruskan orangnya sendiri.",
+    "permissionCount": "{count, plural, =0 {Tiada kebenaran} other {# kebenaran}}",
+    "selectAll": "Pilih semua",
+    "clearAll": "Kosongkan semua",
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Sesiapa yang memegang peranan ini akan kehilangan aksesnya. Berikan mereka peranan lain dahulu.",
+      "confirm": "Buang",
+      "blockedByUsers": "Peranan ini masih diberikan kepada orang. Pindahkan mereka ke peranan lain dahulu.",
+      "blockedBySystem": "Peranan terbina dalam tidak boleh dibuang."
+    },
+    "toast": {
+      "created": "Peranan dicipta",
+      "updated": "Peranan dikemas kini",
+      "removed": "Peranan dibuang"
+    },
+    "system_": {
+      "platform_admin": "Pentadbir Platform",
+      "platform_support": "Ejen Sokongan",
+      "platform_finance": "Kewangan",
+      "company_admin": "Pentadbir Syarikat",
+      "site_staff": "Kakitangan Tapak",
+      "project_manager": "Pengurus Projek",
+      "dispatcher": "Penyelaras",
+      "weighbridge_operator": "Operator Jambatan Timbang",
+      "driver": "Pemandu",
+      "finance": "Kewangan",
+      "viewer": "Pemerhati"
+    },
+    "systemDescription": {
+      "platform_admin": "Akses penuh kepada setiap fungsi platform.",
+      "platform_support": "Mengendalikan tiket dan pengumuman, membaca data pelanggan.",
+      "platform_finance": "Mengurus pelan, komisen dan kutipan.",
+      "company_admin": "Akses penuh kepada data dan pengguna syarikat ini.",
+      "site_staff": "Merekod terimaan bahan dan penghantaran sisa di tapak.",
+      "project_manager": "Menjalankan projek dan meluluskan potongan berlebihan.",
+      "dispatcher": "Menerima pesanan, menetapkan kenderaan dan pemandu.",
+      "weighbridge_operator": "Mengendalikan jambatan timbang dan merekod potongan.",
+      "driver": "Melihat tugas yang ditetapkan dan menghantar foto tapak.",
+      "finance": "Menyelesaikan transaksi dan merekod bukti pembayaran.",
+      "viewer": "Akses baca sahaja kepada rekod syarikat ini."
+    }
+  },
+  "permissions": {
+    "group": {
+      "company": "Syarikat",
+      "user": "Pengguna",
+      "role": "Peranan",
+      "audit": "Audit",
+      "project": "Projek",
+      "supplier": "Pembekal",
+      "receipt": "Terimaan bahan",
+      "dispatch": "Penghantaran sisa",
+      "task": "Tugas pemandu",
+      "scale": "Jambatan timbang",
+      "weighing": "Penimbangan",
+      "deduction": "Potongan",
+      "settlement": "Penyelesaian",
+      "payment": "Pembayaran",
+      "report": "Laporan",
+      "billing": "Pengebilan",
+      "ticket": "Sokongan",
+      "announcement": "Pengumuman",
+      "platform": "Operasi platform"
+    },
+    "code": {
+      "company": {
+        "view": "Lihat syarikat",
+        "create": "Buka syarikat",
+        "update": "Sunting butiran syarikat",
+        "suspend": "Gantung atau pulihkan syarikat"
+      },
+      "user": {
+        "view": "Lihat pengguna",
+        "create": "Jemput pengguna",
+        "update": "Sunting pengguna",
+        "suspend": "Gantung atau buang pengguna"
+      },
+      "role": {
+        "view": "Lihat peranan",
+        "create": "Cipta peranan",
+        "update": "Sunting peranan dan kebenaran",
+        "delete": "Buang peranan"
+      },
+      "audit": {
+        "view": "Baca log audit"
+      },
+      "project": {
+        "view": "Lihat projek",
+        "create": "Cipta projek",
+        "update": "Sunting projek",
+        "delete": "Buang projek",
+        "view_all": "Lihat setiap projek dalam syarikat",
+        "assign": "Tetapkan orang kepada projek"
+      },
+      "supplier": {
+        "view": "Lihat pembekal",
+        "create": "Tambah pembekal",
+        "update": "Sunting pembekal",
+        "delete": "Buang pembekal"
+      },
+      "receipt": {
+        "view": "Lihat terimaan bahan",
+        "create": "Rekod terimaan bahan",
+        "update": "Sunting terimaan bahan"
+      },
+      "dispatch": {
+        "view": "Lihat penghantaran sisa",
+        "create": "Rekod penghantaran sisa",
+        "update": "Kemas kini penghantaran sisa"
+      },
+      "task": {
+        "view": "Lihat tugas pemandu",
+        "assign": "Tetapkan pemandu dan kenderaan",
+        "submit": "Hantar foto dan laporan tugas",
+        "task_view_all": "Lihat semua perjalanan di tapak"
+      },
+      "scale": {
+        "view": "Lihat jambatan timbang",
+        "manage": "Konfigurasi jambatan timbang dan gateway"
+      },
+      "weighing": {
+        "view": "Lihat rekod penimbangan",
+        "operate": "Kendalikan jambatan timbang",
+        "void": "Batalkan sesi penimbangan",
+        "rule_view": "Lihat tetapan pengesanan penipuan",
+        "rule_update": "Ubah tetapan pengesanan penipuan"
+      },
+      "deduction": {
+        "view": "Lihat potongan",
+        "create": "Rekod potongan",
+        "approve": "Luluskan potongan berlebihan"
+      },
+      "settlement": {
+        "view": "Lihat penyelesaian",
+        "create": "Cipta penyelesaian",
+        "lock": "Kunci rekod penyelesaian"
+      },
+      "payment": {
+        "view": "Lihat pembayaran",
+        "create": "Rekod bukti pembayaran"
+      },
+      "report": {
+        "view": "Lihat laporan",
+        "export": "Eksport laporan"
+      },
+      "billing": {
+        "view": "Lihat pengebilan",
+        "manage": "Urus pelan dan langganan"
+      },
+      "commission": {
+        "view": "Lihat komisen",
+        "manage": "Urus komisen"
+      },
+      "ticket": {
+        "view": "Lihat tiket sokongan",
+        "create": "Buka tiket sokongan",
+        "reply": "Balas tiket sokongan"
+      },
+      "announcement": {
+        "view": "Lihat pengumuman",
+        "manage": "Terbitkan pengumuman"
+      },
+      "platform": {
+        "maintenance": "Letakkan platform dalam penyelenggaraan",
+        "impersonate": "Log masuk sebagai pelanggan",
+        "monitor": "Lihat pemantauan sistem"
+      }
+    }
+  },
+  "audit": {
+    "title": "Log audit",
+    "count": "{count, plural, =0 {Tiada rekod} other {# rekod}}",
+    "field": {
+      "createdAt": "Bila",
+      "actor": "Siapa",
+      "action": "Tindakan",
+      "objectType": "Jenis rekod",
+      "objectRepr": "Rekod",
+      "reason": "Sebab",
+      "ipAddress": "Alamat IP",
+      "changes": "Perubahan",
+      "context": "Butiran"
+    },
+    "action": {
+      "CREATE": "Dicipta",
+      "UPDATE": "Dikemas kini",
+      "DELETE": "Dibuang",
+      "RESTORE": "Dipulihkan",
+      "LOGIN": "Log masuk",
+      "LOGOUT": "Log keluar",
+      "LOGIN_FAILED": "Log masuk gagal",
+      "PASSWORD_CHANGE": "Kata laluan ditukar",
+      "PERMISSION_CHANGE": "Kebenaran diubah",
+      "BILLING_CHANGE": "Pengebilan diubah",
+      "EXPORT": "Dieksport",
+      "IMPERSONATE": "Log masuk sebagai pelanggan",
+      "MAINTENANCE": "Penyelenggaraan",
+      "LOCK": "Dikunci"
+    },
+    "impersonatedBy": "Bertindak melalui {name}",
+    "before": "Sebelum",
+    "after": "Selepas",
+    "noChanges": "Tiada perubahan ruangan direkodkan"
+  },
+  "loginRecords": {
+    "title": "Sejarah log masuk",
+    "count": "{count, plural, =0 {Tiada percubaan} other {# percubaan}}",
+    "field": {
+      "createdAt": "Bila",
+      "email": "E-mel",
+      "outcome": "Keputusan",
+      "ipAddress": "Alamat IP",
+      "userAgent": "Peranti"
+    },
+    "outcome": {
+      "SUCCESS": "Berjaya log masuk",
+      "BAD_CREDENTIALS": "Kelayakan salah",
+      "USER_SUSPENDED": "Akaun digantung",
+      "COMPANY_SUSPENDED": "Syarikat digantung"
+    }
+  },
+  "profile": {
+    "title": "Profil saya",
+    "section": {
+      "identity": "Maklumat asas",
+      "preferences": "Keutamaan",
+      "security": "Keselamatan"
+    },
+    "toast": {
+      "updated": "Profil dikemas kini"
+    }
+  },
+  "errors": {
+    "notFound": "Kami tidak jumpa itu.",
+    "notFoundBody": "Ia mungkin telah dibuang, atau anda tiada akses kepadanya.",
+    "forbidden": "Anda tiada akses kepada ini.",
+    "forbiddenBody": "Tanya pentadbir anda jika anda memerlukannya.",
+    "network": "Kami tidak dapat menghubungi pelayan.",
+    "networkBody": "Semak sambungan anda dan cuba lagi.",
+    "generic": "Ada masalah.",
+    "genericBody": "Cuba lagi. Jika ia berterusan, hubungi sokongan.",
+    "backToDashboard": "Kembali ke papan pemuka",
+    "api": {
+      "company_not_found": "Syarikat itu tidak dijumpai.",
+      "user_not_found": "Pengguna itu tidak dijumpai.",
+      "role_not_found": "Peranan itu tidak dijumpai.",
+      "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
+      "company_required": "Pilih syarikat dahulu.",
+      "object_reference_required": "Satu rekod mesti dinyatakan.",
+      "refresh_token_required": "Sesi anda tidak dapat diperbaharui. Sila log masuk semula.",
+      "validation_failed": "Semak ruangan yang ditanda dan cuba lagi.",
+      "invalid_credentials": "E-mel atau kata laluan salah.",
+      "user_suspended": "Akaun ini tidak aktif. Hubungi pentadbir anda.",
+      "company_suspended": "Akaun syarikat anda tidak aktif. Hubungi sokongan MSE Trace.",
+      "session_expired": "Sesi anda telah tamat. Sila log masuk semula.",
+      "account_inactive": "Akaun ini tidak lagi aktif.",
+      "incorrect_password": "Kata laluan semasa anda salah.",
+      "reset_link_invalid": "Pautan ini tidak sah atau telah tamat tempoh. Minta yang baharu.",
+      "company_has_active_users": "Syarikat ini masih ada orang yang boleh log masuk. Gantung sahaja, atau nyahaktifkan mereka dahulu.",
+      "role_is_system": "Peranan terbina dalam tidak boleh dibuang.",
+      "role_in_use": "Peranan ini masih diberikan kepada orang. Pindahkan mereka ke peranan lain dahulu.",
+      "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda.",
+      "device_auth_failed": "Gateway jambatan timbang ini tidak dapat disahkan.",
+      "ingest_rejected": "Bacaan jambatan timbang tidak dapat diterima.",
+      "scale_not_found": "Jambatan timbang itu tidak dijumpai.",
+      "site_not_found": "Tapak itu tidak dijumpai.",
+      "session_not_found": "Penimbangan itu tidak dijumpai.",
+      "gateway_not_found": "Gateway itu tidak dijumpai.",
+      "invalid_rule_params": "Semak tetapan pengesanan dan cuba lagi.",
+      "project_not_found": "Projek itu tidak dijumpai.",
+      "supplier_not_found": "Pembekal itu tidak dijumpai.",
+      "qr_code_not_found": "Kod QR ini tidak dikenali.",
+      "project_has_records": "Projek ini masih ada rekod. Tandakan ia selesai dan bukannya membuangnya.",
+      "receipt_not_found": "Resit itu tidak dijumpai.",
+      "receipt_photo_not_found": "Foto itu tidak dijumpai.",
+      "dispatch_not_found": "Penghantaran itu tidak dijumpai.",
+      "dispatch_not_editable": "Muatan ini telah meninggalkan tapak dan tidak boleh diubah lagi.",
+      "dispatch_already_released": "Muatan ini telah dilepaskan.",
+      "dispatch_not_cancellable": "Muatan ini telah dikutip dan tidak boleh dibatalkan.",
+      "export_no_columns": "Pilih sekurang-kurangnya satu lajur untuk dieksport.",
+      "export_too_large": "Pilihan ini terlalu besar untuk dieksport. Tapiskan dahulu dan cuba lagi.",
+      "export_unavailable": "Eksport PDF tidak tersedia buat masa ini. Cuba format hamparan.",
+      "dispatch_not_collectable": "Muatan ini tidak sedang menunggu untuk dikutip.",
+      "dispatch_not_rejectable": "Muatan ini tidak boleh ditolak lagi.",
+      "dispatch_not_owner": "Hanya tapak yang mengeluarkan muatan ini boleh mengubahnya.",
+      "dispatch_not_recipient": "Hanya pengitar semula penerima muatan ini boleh berbuat demikian.",
+      "vehicle_not_found": "Kenderaan itu tidak dijumpai.",
+      "driver_not_found": "Pemandu itu tidak dijumpai.",
+      "task_not_found": "Perjalanan itu tidak dijumpai.",
+      "vehicle_has_tasks": "Kenderaan ini mempunyai rekod perjalanan. Nyahaktifkannya dan bukan membuangnya.",
+      "driver_has_tasks": "Pemandu ini mempunyai rekod perjalanan. Nyahaktifkan dan bukan membuangnya.",
+      "task_already_running": "Satu perjalanan sudah berjalan untuk muatan itu.",
+      "task_already_started": "Perjalanan ini telah bermula dan tidak boleh ditugaskan semula.",
+      "task_invalid_transition": "Perjalanan tidak boleh bergerak ke langkah itu dari keadaan sekarang.",
+      "deduction_not_found": "Potongan itu tidak dijumpai.",
+      "settlement_not_found": "Penyelesaian itu tidak dijumpai.",
+      "deduction_not_producer": "Hanya penghasil sisa boleh menjawab potongan.",
+      "deduction_already_answered": "Potongan ini telah dijawab.",
+      "settlement_locked": "Penyelesaian ini dikunci dan tidak boleh diubah lagi.",
+      "settlement_not_issued": "Keluarkan penyelesaian dahulu.",
+      "settlement_no_weighing": "Muatan ini tiada timbangan lengkap untuk diselesaikan.",
+      "settlement_deductions_open": "Masih ada potongan menunggu jawapan penghasil.",
+      "settlement_nothing_to_settle": "Potongan tidak meninggalkan apa-apa untuk diselesaikan."
+    },
+    "field": {
+      "required": "Ruangan ini wajib diisi",
+      "blank": "Ruangan ini wajib diisi",
+      "null": "Ruangan ini wajib diisi",
+      "invalid": "Nilai ini tidak sah",
+      "unique": "Nilai ini telah digunakan",
+      "max_length": "Ini terlalu panjang",
+      "min_length": "Ini terlalu pendek",
+      "invalid_choice": "Pilih salah satu pilihan yang ada",
+      "does_not_exist": "Rekod itu tidak dijumpai",
+      "incorrect_type": "Nilai ini tidak sah"
+    }
+  },
+  "sites": {
+    "title": "Tapak kitar semula",
+    "count": "{count, plural, =0 {Tiada tapak} other {# tapak}}",
+    "new": "Tapak baharu",
+    "createTitle": "Tapak baharu",
+    "editTitle": "Sunting tapak",
+    "viewTitle": "Tapak",
+    "section": {
+      "identity": "Maklumat asas",
+      "address": "Alamat",
+      "contact": "Hubungan"
+    },
+    "field": {
+      "code": "Kod",
+      "name": "Nama tapak",
+      "city": "Bandar",
+      "state": "Negeri",
+      "postcode": "Poskod",
+      "addressLine1": "Alamat baris 1",
+      "addressLine2": "Alamat baris 2",
+      "contactPerson": "Orang untuk dihubungi",
+      "contactPhone": "Telefon",
+      "scaleCount": "Jambatan timbang",
+      "isActive": "Aktif",
+      "createdAt": "Ditambah"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Tapak ini tidak akan muncul lagi. Sejarah penimbangannya kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Tapak dicipta",
+      "updated": "Tapak dikemas kini",
+      "removed": "Tapak dibuang"
+    }
+  },
+  "scales": {
+    "title": "Jambatan timbang",
+    "count": "{count, plural, =0 {Tiada jambatan timbang} other {# jambatan timbang}}",
+    "new": "Jambatan timbang baharu",
+    "createTitle": "Jambatan timbang baharu",
+    "editTitle": "Sunting jambatan timbang",
+    "viewTitle": "Jambatan timbang",
+    "section": {
+      "identity": "Maklumat asas",
+      "instrument": "Alat",
+      "calibration": "Penentukuran",
+      "gateways": "Gateway"
+    },
+    "field": {
+      "code": "Kod",
+      "name": "Nama",
+      "site": "Tapak",
+      "protocol": "Protokol",
+      "unit": "Unit",
+      "manufacturer": "Pengeluar",
+      "modelNumber": "Model",
+      "serialNumber": "Nombor siri",
+      "capacityKg": "Kapasiti (kg)",
+      "divisionKg": "Pembahagian (kg)",
+      "calibrationCertificateNo": "Nombor sijil",
+      "calibrationExpiry": "Sijil tamat",
+      "gatewayCount": "Gateway",
+      "isActive": "Aktif",
+      "createdAt": "Ditambah"
+    },
+    "protocolLabel": {
+      "mt_continuous_short": "METTLER TOLEDO Continuous Short",
+      "generic_json": "JSON Generik",
+      "sma": "SMA (belum dilaksanakan)",
+      "mt_8142": "METTLER TOLEDO 8142 (belum dilaksanakan)",
+      "mt_8530": "METTLER TOLEDO 8530 (belum dilaksanakan)",
+      "pt6s3": "PT6S3 (belum dilaksanakan)"
+    },
+    "calibrationExpired": "Sijil tamat tempoh",
+    "calibrationHint": "Penimbangan pada sijil yang tamat tempoh bukan bukti kepada apa-apa.",
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Jambatan timbang ini tidak akan muncul lagi. Sejarah penimbangannya kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Jambatan timbang dicipta",
+      "updated": "Jambatan timbang dikemas kini",
+      "removed": "Jambatan timbang dibuang"
+    },
+    "divisionHint": "Langkah terkecil yang dilaporkan alat. Jambatan yang membaca dalam langkah 20 kg tidak akan pernah stabil dalam toleransi 5 kg."
+  },
+  "gateways": {
+    "title": "Gateway",
+    "new": "Daftar gateway",
+    "none": "Tiada gateway didaftarkan lagi",
+    "field": {
+      "deviceId": "ID peranti",
+      "firmwareVersion": "Perisian tegar",
+      "lastSeenAt": "Dilihat kali terakhir",
+      "clockOffset": "Ofset jam",
+      "notes": "Nota"
+    },
+    "online": "Dalam talian",
+    "offline": "Luar talian",
+    "secretTitle": "Salin rahsia ini sekarang",
+    "secretBody": "Ia ditunjukkan sekali sahaja. Gateway menandatangani setiap paket dengannya, jadi rahsia yang hilang diganti, bukan dipulihkan.",
+    "rotate": "Tukar rahsia",
+    "rotateTitle": "Tukar rahsia untuk {name}?",
+    "rotateBody": "Rahsia semasa berhenti berfungsi serta-merta. Gateway tidak boleh menghantar bacaan sehingga yang baharu dipasang padanya.",
+    "toast": {
+      "created": "Gateway didaftarkan",
+      "rotated": "Rahsia ditukar"
+    }
+  },
+  "weighing": {
+    "title": "Penimbangan",
+    "count": "{count, plural, =0 {Tiada penimbangan} other {# penimbangan}}",
+    "viewTitle": "Penimbangan",
+    "field": {
+      "sessionNo": "Rujukan",
+      "scale": "Jambatan timbang",
+      "site": "Tapak",
+      "vehiclePlate": "Kenderaan",
+      "direction": "Jenis",
+      "state": "Keadaan",
+      "verdict": "Keputusan",
+      "attemptNo": "Percubaan",
+      "startedAt": "Bermula",
+      "endedAt": "Tamat",
+      "stableWeight": "Berat stabil",
+      "peakWeight": "Berat puncak",
+      "readingCount": "Bacaan",
+      "anomalyCount": "Anomali",
+      "stableAt": "Stabil pada",
+      "duration": "Tempoh"
+    },
+    "direction": {
+      "GROSS": "Kasar",
+      "TARE": "Tara"
+    },
+    "state": {
+      "OPEN": "Dibuka",
+      "ON_SCALE": "Di atas timbang",
+      "STABLE": "Stabil",
+      "COMPLETED": "Selesai",
+      "VOID": "Batal"
+    },
+    "verdict": {
+      "PENDING": "Menunggu",
+      "VALID": "Sah",
+      "INVALID": "Tidak sah"
+    },
+    "requiresReview": "Perlu semakan",
+    "requiresReviewHint": "Percubaan telah melebihi had. Transaksi ini menunggu orang.",
+    "section": {
+      "trace": "Surih berat",
+      "outcome": "Keputusan",
+      "rules": "Peraturan digunakan",
+      "integrity": "Integriti"
+    },
+    "trace": {
+      "empty": "Tiada bacaan ditangkap",
+      "onboardTrigger": "Pencetus atas timbang",
+      "instrumentSettled": "Alat melapor stabil",
+      "instrumentMoving": "Alat melapor bergerak",
+      "net": "bersih",
+      "caption": "Berat seperti dilaporkan alat, saat demi saat.",
+      "viewFull": "Penimbangan penuh",
+      "viewSettled": "Tempoh stabil"
+    },
+    "anomaly": {
+      "SINGLE_READING_ONLY": "Hanya satu bacaan ditangkap",
+      "NO_CONTINUOUS_STREAM": "Aliran data tidak berterusan",
+      "SUDDEN_DROP": "Berat jatuh mengejut",
+      "SUDDEN_RISE": "Berat naik mengejut",
+      "STREAM_INTERRUPTED": "Alat berhenti melapor",
+      "MID_SESSION_TARE": "Paparan dikosongkan di tengah penimbangan",
+      "SEQ_GAP": "Paket hilang antara gateway dan platform",
+      "STABLE_FLAG_MISMATCH": "Alat melapor muatan yang bergerak sebagai stabil",
+      "SIGNATURE_INVALID": "Tandatangan paket tidak sah",
+      "CLOCK_SKEW": "Jam peranti melompat",
+      "FRAME_PARSE_FAILED": "Bingkai mentah tidak dapat dibaca",
+      "FRAME_MISMATCH": "Bingkai mentah bercanggah dengan apa yang gateway hantar",
+      "PLATE_MISMATCH": "Plat tidak sepadan dengan penghantaran"
+    },
+    "integrity": {
+      "verify": "Sahkan integriti",
+      "intact": "Setiap bacaan disahkan. Tiada apa yang diubah sejak ia ditulis.",
+      "broken": "{count, plural, other {# keretakan dijumpai}}. Sejarah bacaan telah diubah.",
+      "reason": {
+        "content_altered": "Satu bacaan telah diubah",
+        "link_broken": "Satu bacaan dibuang atau disusun semula"
+      },
+      "firstHash": "Cincangan bacaan pertama",
+      "lastHash": "Cincangan bacaan terakhir"
+    },
+    "rules": {
+      "version": "Versi {version}",
+      "scope": "Skop",
+      "frozenHint": "Ini ambang yang menilai penimbangan ini, bukan yang dikonfigurasi sekarang."
+    },
+    "filter": {
+      "all": "Semua",
+      "valid": "Sah",
+      "invalid": "Tidak sah",
+      "review": "Perlu semakan"
+    }
+  },
+  "weighingRules": {
+    "title": "Tetapan pengesanan",
+    "subtitle": "Ambang yang menentukan apa yang dikira sebagai penipuan",
+    "publish": "Terbitkan versi baharu",
+    "immutableHint": "Menerbitkan mencipta versi baharu. Penimbangan yang telah dinilai mengekalkan ambang yang menilainya, jadi mengubah nilai di sini tidak boleh membersihkan sejarah sedia ada.",
+    "scope": {
+      "PLATFORM": "Lalai platform",
+      "COMPANY": "Syarikat ini",
+      "SCALE": "Satu jambatan timbang"
+    },
+    "param": {
+      "stable_window_ms": "Tetingkap kestabilan (ms)",
+      "stable_tolerance_kg": "Toleransi kestabilan (kg)",
+      "drop_threshold_kg": "Ambang jatuh mengejut (kg)",
+      "drop_window_ms": "Tetingkap jatuh mengejut (ms)",
+      "rise_threshold_kg": "Ambang naik mengejut (kg)",
+      "rise_window_ms": "Tetingkap naik mengejut (ms)",
+      "max_gap_ms": "Jurang aliran maksimum (ms)",
+      "min_readings": "Bacaan minimum",
+      "onboard_trigger_kg": "Pencetus atas timbang (kg)",
+      "offboard_threshold_kg": "Ambang turun timbang (kg)",
+      "max_retry_attempts": "Had timbang semula",
+      "stable_flag_mismatch_ms": "Elaun percanggahan kestabilan (ms)",
+      "clock_skew_tolerance_ms": "Elaun ofset jam (ms)",
+      "offboard_hold_ms": "Tempoh turun timbang (ms)",
+      "retry_window_minutes": "Tetingkap timbang semula (minit)",
+      "deduction_approval_kg": "Ambang kelulusan potongan (kg)"
+    },
+    "toast": {
+      "published": "Tetapan pengesanan diterbitkan"
+    },
+    "platformDefault": "Lalai platform",
+    "overridden": "Ditindih daripada lalai platform",
+    "noChanges": "Tiada perubahan untuk diterbitkan",
+    "readOnly": "Ambang ini ditetapkan oleh MSE Trace dan tidak boleh diubah daripada akaun pelanggan. Ia menentukan apa yang platform anggap sebagai penipuan, jadi sebuah syarikat tidak boleh melonggarkan ambangnya sendiri. Hubungi sokongan jika sesebuah jambatan timbang memerlukan tetapan berbeza."
+  },
+  "projects": {
+    "title": "Projek",
+    "count": "{count, plural, =0 {Tiada projek} other {# projek}}",
+    "new": "Projek baharu",
+    "createTitle": "Projek baharu",
+    "editTitle": "Sunting projek",
+    "viewTitle": "Projek",
+    "section": {
+      "identity": "Maklumat asas",
+      "address": "Alamat tapak",
+      "schedule": "Jadual",
+      "contact": "Hubungan tapak",
+      "team": "Pasukan tapak"
+    },
+    "field": {
+      "code": "Kod projek",
+      "name": "Nama projek",
+      "status": "Status",
+      "description": "Keterangan",
+      "clientName": "Klien",
+      "addressLine1": "Alamat baris 1",
+      "addressLine2": "Alamat baris 2",
+      "city": "Bandar",
+      "state": "Negeri",
+      "postcode": "Poskod",
+      "startDate": "Tarikh mula",
+      "endDate": "Tarikh tamat",
+      "siteManager": "Pengurus tapak",
+      "sitePhone": "Telefon tapak",
+      "assignedUsers": "Pasukan",
+      "createdAt": "Ditambah"
+    },
+    "status": {
+      "PLANNING": "Perancangan",
+      "ACTIVE": "Aktif",
+      "SUSPENDED": "Digantung",
+      "COMPLETED": "Selesai"
+    },
+    "filter": {
+      "all": "Semua",
+      "open": "Berjalan",
+      "completed": "Selesai"
+    },
+    "team": {
+      "title": "Siapa boleh melihat projek ini",
+      "description": "Orang di sini melihat penerimaan dan muatan keluar projek ini. Orang lain dalam syarikat anda tidak melihat apa-apa melainkan peranan mereka merangkumi semua projek.",
+      "empty": "Belum ada sesiapa ditugaskan.",
+      "add": "Tambah orang",
+      "remove": "Keluarkan dari projek",
+      "removeTitle": "Keluarkan {name} dari projek ini?",
+      "removeDescription": "Mereka tidak lagi melihat penerimaan dan muatan keluar projek ini. Akaun dan rekod mereka kekal seperti sedia ada.",
+      "removeConfirm": "Keluarkan"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Projek ini tidak akan muncul lagi. Penerimaan dan muatan yang telah direkodkan kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Projek dicipta",
+      "updated": "Projek dikemas kini",
+      "removed": "Projek dibuang",
+      "assigned": "Ditambah ke projek",
+      "unassigned": "Dikeluarkan dari projek"
+    }
+  },
+  "suppliers": {
+    "title": "Pembekal",
+    "count": "{count, plural, =0 {Tiada pembekal} other {# pembekal}}",
+    "new": "Pembekal baharu",
+    "createTitle": "Pembekal baharu",
+    "editTitle": "Sunting pembekal",
+    "section": {
+      "identity": "Maklumat asas",
+      "contact": "Hubungan",
+      "address": "Alamat"
+    },
+    "field": {
+      "code": "Kod pembekal",
+      "name": "Nama pembekal",
+      "contactPerson": "Orang hubungan",
+      "contactPhone": "Telefon",
+      "contactEmail": "E-mel",
+      "addressLine1": "Alamat",
+      "city": "Bandar",
+      "state": "Negeri",
+      "registrationNo": "No. pendaftaran",
+      "isActive": "Aktif",
+      "qrCodeCount": "Nota hantar",
+      "createdAt": "Ditambah"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Pembekal ini tidak akan muncul semasa merekod penerimaan. Penerimaan yang telah direkodkan kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Pembekal dicipta",
+      "updated": "Pembekal dikemas kini",
+      "removed": "Pembekal dibuang"
+    }
+  },
+  "qrCodes": {
+    "title": "Nota hantar",
+    "description": "Satu nota hantar mengikat satu pembekal kepada satu projek. Mengimbasnya di tapak mengisi kedua-duanya sekali gus.",
+    "count": "{count, plural, =0 {Tiada nota hantar} other {# nota hantar}}",
+    "new": "Keluarkan nota",
+    "createTitle": "Keluarkan nota hantar",
+    "field": {
+      "project": "Projek",
+      "supplier": "Pembekal",
+      "token": "Kod",
+      "isActive": "Aktif",
+      "createdAt": "Dikeluarkan"
+    },
+    "status": {
+      "active": "Aktif",
+      "revoked": "Dibatalkan"
+    },
+    "revoke": {
+      "title": "Batalkan nota hantar ini?",
+      "description": "Salinan bercetak berhenti berfungsi serta-merta. Penerimaan yang telah direkodkan dengannya kekal.",
+      "confirm": "Batalkan"
+    },
+    "toast": {
+      "created": "Nota hantar dikeluarkan",
+      "revoked": "Nota hantar dibatalkan"
+    }
+  },
+  "receipts": {
+    "title": "Penerimaan bahan",
+    "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
+    "new": "Rekod penerimaan",
+    "createTitle": "Rekod penerimaan",
+    "editTitle": "Betulkan resit",
+    "viewTitle": "Resit",
+    "section": {
+      "delivery": "Penghantaran",
+      "material": "Bahan",
+      "vehicle": "Kenderaan dan dokumen",
+      "received": "Diterima oleh",
+      "stamp": "Direkod oleh platform",
+      "photos": "Foto"
+    },
+    "field": {
+      "receiptNo": "No. resit",
+      "project": "Projek",
+      "supplier": "Pembekal",
+      "qrCode": "Nota hantar",
+      "materialName": "Bahan",
+      "quantity": "Kuantiti",
+      "unit": "Unit",
+      "unitPrice": "Harga seunit",
+      "totalValue": "Jumlah",
+      "vehiclePlate": "Kenderaan",
+      "deliveryNoteNo": "No. nota hantar",
+      "notes": "Nota",
+      "receivedBy": "Diterima oleh",
+      "capturedAt": "Direkod",
+      "location": "Lokasi",
+      "recordedBy": "Direkod oleh",
+      "photoCount": "Foto"
+    },
+    "unit": {
+      "TONNE": "Tan",
+      "KG": "Kilogram",
+      "M3": "Meter padu",
+      "PIECE": "Unit",
+      "LOAD": "Muatan",
+      "BAG": "Beg"
+    },
+    "photoKind": {
+      "DELIVERY_NOTE": "Nota hantar",
+      "VEHICLE": "Kenderaan",
+      "UNLOADING": "Pemunggahan",
+      "OTHER": "Lain-lain"
+    },
+    "stampNote": "Masa, lokasi dan orang yang merekod ditulis oleh platform semasa resit difailkan. Ia tidak boleh ditaip atau diubah kemudian.",
+    "editNote": "Kuantiti dan harga boleh dibetulkan. Projek, nota hantar dan masa rekod tidak boleh — itulah yang dibuktikan oleh resit ini.",
+    "locationCaptured": "Lokasi direkod",
+    "locationMissing": "Tiada lokasi",
+    "noPhotos": "Tiada foto dilampirkan.",
+    "summary": {
+      "title": "Ringkasan bahan",
+      "byUnit": "Mengikut unit",
+      "byMaterial": "Mengikut bahan",
+      "receipts": "Resit",
+      "quantity": "Kuantiti",
+      "note": "Kuantiti dikumpulkan mengikut unit. Tan dan unit tidak dicampur."
+    },
+    "remove": {
+      "title": "Buang resit {name}?",
+      "description": "Ia tidak akan muncul lagi dalam senarai penerimaan atau jumlah bahan anda.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Penerimaan direkod",
+      "updated": "Resit dikemas kini",
+      "removed": "Resit dibuang"
+    }
+  },
+  "dispatches": {
+    "title": "Penghantaran sisa",
+    "count": "{count, plural, =0 {Tiada muatan} other {# muatan}}",
+    "new": "Muatan baharu",
+    "createTitle": "Muatan keluar baharu",
+    "editTitle": "Sunting muatan",
+    "viewTitle": "Muatan keluar",
+    "section": {
+      "destination": "Destinasi",
+      "load": "Muatan",
+      "vehicle": "Kenderaan dan pemandu",
+      "release": "Pelepasan",
+      "photos": "Foto"
+    },
+    "field": {
+      "dispatchNo": "No. penghantaran",
+      "project": "Projek",
+      "recycler": "Pengitar semula",
+      "wasteType": "Jenis sisa",
+      "estimatedWeight": "Anggaran berat (kg)",
+      "description": "Keterangan",
+      "vehiclePlate": "Kenderaan",
+      "driverName": "Pemandu",
+      "driverPhone": "Telefon pemandu",
+      "driverIc": "IC pemandu",
+      "state": "Status",
+      "releasedAt": "Dilepaskan",
+      "releasedBy": "Dilepaskan oleh",
+      "location": "Lokasi",
+      "photoCount": "Foto"
+    },
+    "wasteType": {
+      "MIXED": "Sisa binaan bercampur",
+      "CONCRETE": "Konkrit dan batu",
+      "METAL": "Besi buruk",
+      "TIMBER": "Kayu",
+      "PLASTIC": "Plastik",
+      "SOIL": "Tanah dan agregat",
+      "HAZARDOUS": "Berbahaya",
+      "OTHER": "Lain-lain"
+    },
+    "state": {
+      "DRAFT": "Draf",
+      "RELEASED": "Dilepaskan",
+      "COLLECTED": "Dikutip",
+      "WEIGHED": "Ditimbang",
+      "SETTLED": "Diselesaikan",
+      "CANCELLED": "Dibatalkan"
+    },
+    "recyclerNote": "Muatan hanya boleh dihantar kepada pengitar semula yang berdaftar di MSE Trace. Itulah yang meletakkan muatan di atas jambatan timbang dan menyambung jejak melepasi pintu tapak anda.",
+    "recyclerEmpty": "Tiada pengitar semula tersedia buat masa ini.",
+    "estimateNote": "Ini anggaran anda. Berat akhir ditentukan oleh jambatan timbang pengitar semula, dan kedua-duanya disimpan.",
+    "lockedNote": "Muatan ini telah meninggalkan tapak dan tidak boleh diubah lagi. Batalkan jika ia tidak sampai.",
+    "release": {
+      "title": "Lepaskan muatan ini?",
+      "description": "Merekodkan bahawa lori telah keluar. Selepas ini, muatan boleh dibatalkan tetapi tidak boleh diubah.",
+      "confirm": "Lepaskan",
+      "byName": "Dilepaskan oleh"
+    },
+    "cancel": {
+      "title": "Batalkan muatan ini?",
+      "description": "Nyatakan sebabnya. Sebab itu kekal pada rekod supaya pengitar semula dan pasukan anda tahu apa yang berlaku.",
+      "confirm": "Batalkan muatan"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Draf ini tidak akan muncul lagi. Tiada apa-apa yang telah meninggalkan tapak.",
+      "confirm": "Buang"
+    },
+    "summary": {
+      "title": "Ringkasan sisa",
+      "byType": "Mengikut jenis sisa",
+      "loads": "Muatan",
+      "estimatedWeight": "Anggaran berat"
+    },
+    "toast": {
+      "created": "Muatan dicipta",
+      "updated": "Muatan dikemas kini",
+      "removed": "Muatan dibuang",
+      "released": "Muatan dilepaskan",
+      "cancelled": "Muatan dibatalkan"
+    }
+  },
+  "export": {
+    "excel": "Hamparan Excel",
+    "pdf": "Dokumen PDF"
+  },
+  "reports": {
+    "title": "Laporan",
+    "subtitle": "Bahan masuk dan sisa keluar, merentas projek yang anda boleh lihat.",
+    "filter": {
+      "project": "Projek",
+      "allProjects": "Semua projek",
+      "dateFrom": "Dari",
+      "dateTo": "Hingga",
+      "clear": "Kosongkan tapisan"
+    },
+    "receipts": {
+      "title": "Bahan diterima",
+      "totalReceipts": "Penghantaran",
+      "byUnit": "Mengikut unit",
+      "byMaterial": "Bahan teratas",
+      "unitNote": "Kuantiti dikumpulkan mengikut unit. Tan dan unit tidak pernah dicampur — satu jumlah merentas kedua-duanya nampak seperti jawapan tetapi bukan.",
+      "chartNote": "Carta mengira bilangan penghantaran, yang boleh dibandingkan merentas unit. Kuantiti ada dalam jadual.",
+      "material": "Bahan",
+      "unit": "Unit",
+      "quantity": "Kuantiti",
+      "deliveries": "Penghantaran"
+    },
+    "dispatches": {
+      "title": "Sisa dihantar",
+      "totalDispatches": "Muatan",
+      "byType": "Mengikut jenis sisa",
+      "byState": "Mengikut status",
+      "wasteType": "Jenis sisa",
+      "loads": "Muatan",
+      "estimatedWeight": "Anggaran berat (kg)",
+      "estimateNote": "Ini anggaran tapak. Berat akhir datang dari jambatan timbang pengitar semula selepas muatan ditimbang."
+    },
+    "empty": "Tiada apa-apa untuk dilaporkan bagi pilihan ini."
+  },
+  "incoming": {
+    "title": "Muatan masuk",
+    "subtitle": "Sisa dalam perjalanan ke tapak anda.",
+    "count": "{count, plural, =0 {Tiada muatan} other {# muatan}}",
+    "field": {
+      "dispatchNo": "No. penghantaran",
+      "contractor": "Penghasil",
+      "project": "Tapak",
+      "wasteType": "Jenis sisa",
+      "estimatedWeight": "Berat diisytihar (kg)",
+      "vehiclePlate": "Kenderaan",
+      "driverName": "Pemandu",
+      "releasedAt": "Dilepaskan",
+      "state": "Status"
+    },
+    "declaredNote": "Pengisytiharan penghasil. Jambatan timbang anda menentukan berat akhir, dan kedua-duanya disimpan.",
+    "collect": {
+      "title": "Ambil muatan ini?",
+      "description": "Merekodkan bahawa bahan kini di tangan anda. Penghasil tidak boleh membatalkannya lagi.",
+      "confirm": "Kutip",
+      "reference": "Rujukan anda sendiri",
+      "referenceHint": "Pilihan. Gunakan penomboran anda sendiri jika ada."
+    },
+    "reject": {
+      "title": "Tolak muatan ini?",
+      "description": "Nyatakan sebabnya. Sebab itu kembali kepada tapak yang menghantarnya.",
+      "confirm": "Tolak"
+    },
+    "toast": {
+      "collected": "Muatan dikutip",
+      "rejected": "Muatan ditolak"
+    }
+  },
+  "gate": {
+    "title": "Pintu jambatan timbang",
+    "subtitle": "Imbas nota penghantaran pemandu sebelum kenderaan naik.",
+    "whyFirst": "Jambatan timbang mula merekod sendiri apabila berat turun ke atas dek, jadi muatan mesti dibariskan sebelum kenderaan bergerak. Tiada cara untuk melampirkannya selepas itu.",
+    "selectScale": "Jambatan timbang",
+    "noScales": "Tiada jambatan timbang disediakan lagi.",
+    "waiting": "Sedang menunggu",
+    "nothingQueued": "Tiada muatan dibariskan di jambatan timbang ini.",
+    "expiresAt": "Tamat tempoh",
+    "expired": "Imbasan ini telah tamat tempoh. Imbas semula sebelum kenderaan naik.",
+    "field": {
+      "dispatchNo": "Nota penghantaran",
+      "direction": "Timbangan",
+      "vehiclePlate": "Plat pada kabin",
+      "scannedBy": "Diimbas oleh",
+      "expiresIn": "Sah selama (minit)"
+    },
+    "direction": {
+      "GROSS": "Bermuatan (kasar)",
+      "TARE": "Kosong (tara)"
+    },
+    "plateMismatch": "Plat pada dokumen ialah {expected}. Periksa kabin.",
+    "scan": "Bariskan muatan ini",
+    "clear": "Kosongkan",
+    "clearTitle": "Kosongkan jambatan timbang?",
+    "clearDescription": "Tiada apa akan dilampirkan pada kenderaan seterusnya. Guna ini jika pemandu berpatah balik atau nota salah diimbas.",
+    "clearConfirm": "Kosongkan",
+    "toast": {
+      "scanned": "Muatan dibariskan",
+      "cleared": "Jambatan timbang dikosongkan"
+    }
+  },
+  "vehicles": {
+    "title": "Kenderaan",
+    "count": "{count, plural, =0 {Tiada kenderaan} other {# kenderaan}}",
+    "new": "Tambah kenderaan",
+    "createTitle": "Tambah kenderaan",
+    "editTitle": "Sunting kenderaan",
+    "section": {
+      "identity": "Maklumat asas",
+      "limits": "Had dan dokumen"
+    },
+    "field": {
+      "plateNo": "No. plat",
+      "vehicleType": "Jenis",
+      "makeModel": "Jenama dan model",
+      "tareWeight": "Berat tara (kg)",
+      "maxLaden": "Berat maksimum (kg)",
+      "roadTaxExpires": "Cukai jalan tamat",
+      "permitExpires": "Permit tamat",
+      "notes": "Nota",
+      "isActive": "Aktif",
+      "createdAt": "Ditambah"
+    },
+    "type": {
+      "LORRY": "Lori",
+      "TIPPER": "Lori tipper",
+      "ROLL_ON": "Roll-on / roll-off",
+      "SKIP": "Lori skip",
+      "TRAILER": "Penarik dan treler",
+      "OTHER": "Lain-lain"
+    },
+    "noTare": "Belum ditimbang kosong",
+    "tare": {
+      "action": "Rekod tara",
+      "title": "Rekod berat kosong kenderaan ini",
+      "description": "Di tapak yang menimbang terhadap tara tersimpan, angka ini ditolak daripada setiap muatan yang dibawa lori ini. Menurunkannya 500 kg menambah 500 kg pada setiap berat bersih, jadi perubahan ini ditulis ke log audit bersama sebab anda.",
+      "confirm": "Rekod",
+      "weight": "Berat kosong (kg)",
+      "measuredAt": "Diukur kali terakhir"
+    },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Kenderaan ini tidak akan muncul semasa menugaskan perjalanan. Perjalanan lalu kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Kenderaan ditambah",
+      "updated": "Kenderaan dikemas kini",
+      "removed": "Kenderaan dibuang",
+      "tareSet": "Berat tara direkod"
+    }
+  },
+  "drivers": {
+    "title": "Pemandu",
+    "count": "{count, plural, =0 {Tiada pemandu} other {# pemandu}}",
+    "new": "Tambah pemandu",
+    "createTitle": "Tambah pemandu",
+    "editTitle": "Sunting pemandu",
+    "section": {
+      "identity": "Maklumat asas",
+      "licence": "Lesen"
+    },
+    "field": {
+      "fullName": "Nama",
+      "phone": "Telefon",
+      "icNo": "No. IC",
+      "licenceNo": "No. lesen",
+      "licenceExpires": "Lesen tamat",
+      "defaultVehicle": "Kenderaan biasa",
+      "isActive": "Aktif",
+      "createdAt": "Ditambah"
+    },
+    "licenceExpired": "Lesen tamat tempoh",
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Mereka tidak akan muncul semasa menugaskan perjalanan. Perjalanan lalu kekal.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Pemandu ditambah",
+      "updated": "Pemandu dikemas kini",
+      "removed": "Pemandu dibuang"
+    }
+  },
+  "tasks": {
+    "title": "Perjalanan kutipan",
+    "count": "{count, plural, =0 {Tiada perjalanan} other {# perjalanan}}",
+    "new": "Tugaskan perjalanan",
+    "createTitle": "Tugaskan perjalanan",
+    "editTitle": "Tugaskan semula",
+    "viewTitle": "Perjalanan",
+    "section": {
+      "load": "Muatan",
+      "crew": "Kenderaan dan pemandu",
+      "progress": "Kemajuan",
+      "photos": "Foto"
+    },
+    "field": {
+      "taskNo": "No. perjalanan",
+      "state": "Status",
+      "dispatch": "Muatan",
+      "site": "Kembali ke",
+      "vehicle": "Kenderaan",
+      "driver": "Pemandu",
+      "scheduledFor": "Dijadualkan",
+      "acceptedAt": "Diterima",
+      "arrivedAt": "Tiba",
+      "loadedAt": "Dimuatkan",
+      "deliveredAt": "Dihantar",
+      "arrivalLocation": "Lokasi ketibaan",
+      "notes": "Nota",
+      "failureReason": "Sebab gagal",
+      "contractor": "Penghasil",
+      "project": "Tapak",
+      "photoCount": "Foto"
+    },
+    "state": {
+      "ASSIGNED": "Ditugaskan",
+      "ACCEPTED": "Diterima",
+      "EN_ROUTE": "Dalam perjalanan",
+      "ARRIVED": "Di tapak",
+      "LOADED": "Dimuatkan",
+      "RETURNING": "Pulang",
+      "DELIVERED": "Dihantar",
+      "CANCELLED": "Dibatalkan",
+      "FAILED": "Gagal"
+    },
+    "advance": "Gerak ke {state}",
+    "advanceTitle": "Gerakkan perjalanan ini ke {state}?",
+    "advanceDescription": "Direkod pada perjalanan, bersama masanya.",
+    "loadedNote": "Menandakan lori dimuatkan juga memberitahu penghasil bahawa sisa telah bertukar tangan. Selepas itu mereka tidak boleh membatalkannya.",
+    "failNote": "Nyatakan apa yang berlaku. Seseorang perlu mengejarnya dan mereka perlu tahu apa.",
+    "noDispatch": "Tiada muatan dilampirkan",
+    "noPhotos": "Pemandu belum menghantar sebarang foto.",
+    "locationNote": "Lokasi yang dilaporkan peranti pemandu. Lokasi pelayar boleh dipalsukan, jadi ini merekod apa yang dilaporkan, bukan di mana lori berada.",
+    "reassignNote": "Hanya sebelum pemandu menerima. Selepas itu, senarai tugas ialah rekod siapa yang benar-benar pergi.",
+    "toast": {
+      "created": "Perjalanan ditugaskan",
+      "updated": "Perjalanan dikemas kini",
+      "advanced": "Perjalanan dikemas kini"
+    }
+  },
+  "deductions": {
+    "title": "Potongan",
+    "count": "{count, plural, =0 {Tiada potongan} other {# potongan}}",
+    "new": "Rekod potongan",
+    "createTitle": "Rekod potongan",
+    "awaitingMe": "Menunggu anda",
+    "section": {
+      "load": "Muatan",
+      "claim": "Apa yang tidak kena",
+      "photos": "Foto"
+    },
+    "field": {
+      "dispatchNo": "Muatan",
+      "site": "Diperiksa di",
+      "kind": "Sebab",
+      "weightKg": "Berat (kg)",
+      "reason": "Apa yang tidak kena",
+      "state": "Status",
+      "inspectedBy": "Diperiksa oleh",
+      "inspectedAt": "Diperiksa",
+      "threshold": "Ambang ketika itu",
+      "respondedAt": "Dijawab",
+      "responseNote": "Jawapan",
+      "project": "Tapak",
+      "recycler": "Pengitar semula"
+    },
+    "kind": {
+      "MOISTURE": "Kandungan air",
+      "CONTAMINATION": "Pencemaran",
+      "WRONG_MATERIAL": "Tidak seperti diisytihar",
+      "OVERSIZE": "Terlalu besar atau tidak boleh diproses",
+      "OTHER": "Lain-lain"
+    },
+    "state": {
+      "AUTO_ACCEPTED": "Diterima automatik",
+      "PENDING": "Menunggu penghasil",
+      "ACCEPTED": "Diterima",
+      "REJECTED": "Ditolak",
+      "RECHECK": "Semakan semula diminta"
+    },
+    "thresholdNote": "Apa-apa melebihi {threshold} kg pergi kepada penghasil untuk diterima. Di bawah itu diterima automatik — seratus kilo lembap pada muatan dua puluh tan tidak berbaloi dibincangkan, dan menjadikannya satu perbincangan mengajar semua orang menekan terima tanpa membaca.",
+    "autoAcceptedNote": "Tiada sesiapa ditanya tentang yang ini: ia di bawah ambang yang berkuat kuasa ketika itu.",
+    "reasonHint": "Cukup terperinci untuk dibaca enam bulan dari sekarang oleh seseorang yang tiada di situ.",
+    "photoNote": "Bahan sudah berada di atas timbunan menjelang sesiapa mempertikaikannya. Foto yang diambil semasa pemeriksaan ialah satu-satunya bukti yang kekal.",
+    "noPhotos": "Tiada foto dilampirkan.",
+    "respond": {
+      "title": "Jawab potongan ini",
+      "weight": "{weight} kg daripada {dispatchNo}",
+      "accept": "Terima",
+      "reject": "Tolak",
+      "recheck": "Minta semakan semula",
+      "note": "Jawapan anda",
+      "noteRequired": "Nyatakan sebabnya supaya tapak tahu langkah seterusnya.",
+      "effect": "Menerima mengurangkan {weight} kg daripada berat penyelesaian muatan ini."
+    },
+    "onlyProducer": "Hanya penghasil sisa boleh menjawab potongan.",
+    "toast": {
+      "created": "Potongan direkod",
+      "answered": "Jawapan direkod"
+    }
+  },
+  "settlements": {
+    "title": "Penyelesaian",
+    "count": "{count, plural, =0 {Tiada penyelesaian} other {# penyelesaian}}",
+    "viewTitle": "Penyelesaian",
+    "new": "Keluarkan penyelesaian",
+    "section": {
+      "load": "Muatan",
+      "weights": "Berat",
+      "money": "Jumlah",
+      "payments": "Pembayaran"
+    },
+    "field": {
+      "settlementNo": "No. penyelesaian",
+      "state": "Status",
+      "dispatchNo": "Muatan",
+      "contractor": "Penghasil",
+      "recycler": "Pengitar semula",
+      "project": "Tapak",
+      "sessionNo": "Timbangan",
+      "netWeight": "Berat bersih (kg)",
+      "deductionWeight": "Potongan (kg)",
+      "settledWeight": "Berat diselesaikan (kg)",
+      "unitPrice": "Harga setan",
+      "totalAmount": "Jumlah",
+      "amountPaid": "Dibayar",
+      "outstanding": "Baki",
+      "issuedAt": "Dikeluarkan",
+      "lockedAt": "Dikunci",
+      "notes": "Nota"
+    },
+    "state": {
+      "DRAFT": "Draf",
+      "ISSUED": "Dikeluarkan",
+      "LOCKED": "Dikunci"
+    },
+    "frozenNote": "Angka ini ditetapkan semasa penyelesaian dikeluarkan. Ia tidak berubah jika timbangan atau potongan disentuh kemudian.",
+    "issue": {
+      "title": "Keluarkan penyelesaian ini",
+      "description": "Menetapkan berat dan membentangkan jumlahnya kepada penghasil.",
+      "unitPrice": "Harga setan",
+      "notes": "Nota",
+      "confirm": "Keluarkan",
+      "blockedByDeductions": "{count} potongan masih menunggu penghasil. Selesaikan itu dahulu.",
+      "blockedByWeighing": "Muatan ini tiada timbangan lengkap untuk diselesaikan."
+    },
+    "lock": {
+      "title": "Kunci penyelesaian ini?",
+      "description": "Menamatkan keupayaan penghasil mempertikaikan apa-apa pada muatan ini. Nyatakan sebabnya.",
+      "confirm": "Kunci"
+    },
+    "payment": {
+      "title": "Rekod pembayaran",
+      "description": "Bukti apa yang dibayar. Platform tidak menggerakkan wang; ini apa yang satu pihak katakan berlaku.",
+      "amount": "Jumlah",
+      "paidOn": "Dibayar pada",
+      "method": "Kaedah",
+      "reference": "Rujukan",
+      "notes": "Nota",
+      "confirm": "Rekod",
+      "none": "Tiada pembayaran direkod lagi."
+    },
+    "method": {
+      "BANK_TRANSFER": "Pindahan bank",
+      "CHEQUE": "Cek",
+      "CASH": "Tunai",
+      "OFFSET": "Tolakan",
+      "OTHER": "Lain-lain"
+    },
+    "quote": {
+      "title": "Anggaran penyelesaian",
+      "openDeductions": "{count} potongan masih menunggu"
+    },
+    "toast": {
+      "issued": "Penyelesaian dikeluarkan",
+      "locked": "Penyelesaian dikunci",
+      "paymentRecorded": "Pembayaran direkod"
+    }
+  },
+  "driver": {
+    "today": "Perjalanan anda",
+    "finished": "Selesai",
+    "nothingAssigned": "Tiada tugasan untuk anda sekarang.",
+    "back": "Semua perjalanan",
+    "takePhoto": "Ambil foto",
+    "cannotComplete": "Saya tidak dapat menyiapkannya",
+    "arrivedNote": "Merekodkan bahawa anda berada di tapak, bersama lokasi telefon jika dibenarkan.",
+    "action": {
+      "ACCEPTED": "Terima perjalanan ini",
+      "EN_ROUTE": "Mula memandu",
+      "ARRIVED": "Saya telah tiba",
+      "LOADED": "Sudah dimuatkan",
+      "RETURNING": "Dalam perjalanan pulang",
+      "DELIVERED": "Dihantar ke tapak",
+      "FAILED": "Tidak dapat disiapkan",
+      "CANCELLED": "Batal",
+      "ASSIGNED": "Ditugaskan"
+    },
+    "toast": {
+      "photoSent": "Foto dihantar"
+    }
+  },
+  "ticket": {
+    "title": "Tiket jambatan timbang",
+    "action": "Cetak tiket",
+    "footer": "Dikeluarkan oleh MSE Trace. Setiap bacaan di sebalik timbangan ini disimpan tanpa diubah dan boleh disahkan semula terhadap cincang di atas.",
+    "evidenceNote": "Cincang ini merantai timbangan ini kepada setiap bacaan yang dihantar alat. Sebarang perubahan pada bacaan tersimpan memutuskan rantai dari titik itu.",
+    "voidWeightsNote": "Timbangan ini tidak lulus pemeriksaan, jadi tiada berat bersih diterbitkan daripadanya. Bacaan di atas hanya untuk rujukan dan tidak boleh diselesaikan.",
+    "section": {
+      "weighing": "Timbangan",
+      "load": "Muatan",
+      "weights": "Berat",
+      "anomalies": "Sebab timbangan ini ditolak",
+      "evidence": "Bukti"
+    },
+    "field": {
+      "sessionNo": "No. tiket",
+      "scale": "Jambatan timbang",
+      "direction": "Pusingan",
+      "vehiclePlate": "Kenderaan",
+      "startedAt": "Mula",
+      "endedAt": "Tamat",
+      "attemptNo": "Percubaan",
+      "readingCount": "Bacaan",
+      "dispatchNo": "Nota penghantaran",
+      "wasteType": "Bahan",
+      "contractor": "Penghasil",
+      "project": "Tapak",
+      "driver": "Pemandu",
+      "declaredWeight": "Diisytihar (kg)",
+      "stableWeight": "Berat stabil (kg)",
+      "peakWeight": "Puncak (kg)",
+      "grossWeight": "Kasar (kg)",
+      "tareWeight": "Tara (kg)",
+      "netWeight": "Bersih (kg)",
+      "deductions": "Potongan (kg)",
+      "settledWeight": "Diselesaikan (kg)",
+      "firstHash": "Cincang bacaan pertama",
+      "lastHash": "Cincang bacaan terakhir"
+    },
+    "column": {
+      "anomaly": "Pemeriksaan",
+      "detail": "Butiran",
+      "deduction": "Potongan",
+      "weight": "Berat (kg)",
+      "reason": "Sebab"
+    },
+    "verdict": {
+      "valid": "Diterima",
+      "validNote": "Timbangan ini lulus setiap pemeriksaan yang berkuat kuasa ketika itu.",
+      "void": "Ditolak — tidak sah untuk penyelesaian",
+      "voidNote": "Satu atau lebih pemeriksaan gagal. Tiket ini rekod apa yang berlaku, bukan asas pembayaran."
+    },
+    "tareSource": {
+      "MEASURED": "Tara diukur di jambatan timbang ini.",
+      "STORED": "Tara diambil daripada rekod kenderaan, bukan diukur pada lawatan ini."
+    },
+    "signature": {
+      "operator": "Pengendali jambatan timbang",
+      "driver": "Pemandu"
+    }
+  }
+}

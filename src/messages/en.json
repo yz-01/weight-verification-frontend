@@ -1,0 +1,1640 @@
+{
+  "app": {
+    "name": "MSE Trace",
+    "tagline": "Verified weight. Traceable waste."
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "edit": "Edit",
+    "remove": "Remove",
+    "view": "View",
+    "search": "Search",
+    "columns": "Columns",
+    "actions": "Actions",
+    "back": "Back",
+    "confirm": "Confirm",
+    "close": "Close",
+    "loading": "Loading",
+    "retry": "Try again",
+    "optional": "optional",
+    "all": "All",
+    "none": "None",
+    "export": "Export",
+    "refresh": "Refresh",
+    "signOut": "Sign out",
+    "profile": "Profile",
+    "settings": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "emptyValue": "—",
+    "reason": "Reason",
+    "reasonPlaceholder": "Why is this change being made?",
+    "selectPlaceholder": "Select",
+    "searchPlaceholder": "Search",
+    "noOptions": "Nothing to choose from",
+    "saving": "Saving",
+    "unknownError": "Something went wrong. Try again.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFirst": "Copy the secret before closing"
+  },
+  "table": {
+    "showing": "Showing {from} to {to} of {total} entries",
+    "showingEmpty": "No entries",
+    "noResults": "Nothing here yet",
+    "noResultsFiltered": "No records match your filters",
+    "clearFilters": "Clear filters",
+    "errorTitle": "This list could not be loaded",
+    "errorBody": "Check your connection and try again.",
+    "perPage": "Per page",
+    "previous": "Previous",
+    "next": "Next",
+    "selected": "{count} selected"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Enter a valid email address",
+    "minLength": "Use at least {min} characters",
+    "maxLength": "Use at most {max} characters",
+    "passwordMismatch": "The two passwords do not match",
+    "passwordTooShort": "Use at least 10 characters"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Access your MSE Trace workspace",
+      "email": "Email",
+      "emailPlaceholder": "you@company.com",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "submit": "Sign in",
+      "forgot": "Forgot your password?",
+      "invalid": "Incorrect email or password",
+      "userSuspended": "This account is not active. Contact your administrator.",
+      "companySuspended": "Your company's account is not active. Contact MSE Trace support.",
+      "throttled": "Too many attempts. Wait a moment and try again."
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "subtitle": "We will email you a link to set a new password",
+      "submit": "Send reset link",
+      "sent": "If that email is registered, a reset link is on its way.",
+      "backToLogin": "Back to sign in"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "subtitle": "Choose a password you have not used before",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "submit": "Set password",
+      "success": "Password updated. You can sign in now.",
+      "invalidToken": "This reset link is invalid or has expired. Request a new one."
+    },
+    "changePassword": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Change password",
+      "success": "Password changed",
+      "incorrectCurrent": "Your current password is incorrect"
+    },
+    "sessionExpired": "Your session expired. Sign in again.",
+    "signedOut": "Signed out"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "companies": "Companies",
+    "users": "Users",
+    "roles": "Roles",
+    "auditLogs": "Audit log",
+    "loginRecords": "Sign-in history",
+    "projects": "Projects",
+    "suppliers": "Suppliers",
+    "receipts": "Material receipts",
+    "dispatches": "Waste dispatches",
+    "tasks": "Driver tasks",
+    "scales": "Weighbridges",
+    "weighing": "Weighing",
+    "settlements": "Settlements",
+    "payments": "Payments",
+    "billing": "Billing",
+    "commission": "Commission",
+    "tickets": "Support tickets",
+    "announcements": "Announcements",
+    "reports": "Reports",
+    "settings": "Settings",
+    "group": {
+      "overview": "Overview",
+      "operations": "Operations",
+      "weighing": "Weighing",
+      "finance": "Finance",
+      "customers": "Customers",
+      "system": "System",
+      "fleet": "Fleet"
+    },
+    "sites": "Yards",
+    "detectionSettings": "Detection settings",
+    "incoming": "Incoming loads",
+    "gate": "Weighbridge gate",
+    "vehicles": "Vehicles",
+    "drivers": "Drivers",
+    "deductions": "Deductions"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "greeting": "Welcome back, {name}",
+    "platformSubtitle": "Platform health and customer activity",
+    "contractorSubtitle": "Site activity across your projects",
+    "recyclerSubtitle": "Today's collections and weighing",
+    "tile": {
+      "companies": "Companies",
+      "contractors": "Contractors",
+      "recyclers": "Recyclers",
+      "projects": "Projects",
+      "users": "Users",
+      "onlineUsers": "Online now",
+      "planRevenue": "Subscription revenue",
+      "commissionRevenue": "Commission revenue",
+      "systemStatus": "System status"
+    },
+    "comingSoon": "This panel arrives with the next release."
+  },
+  "companies": {
+    "title": "Companies",
+    "count": "{count, plural, =0 {No companies} one {# company} other {# companies}}",
+    "new": "New company",
+    "createTitle": "New company",
+    "editTitle": "Edit company",
+    "viewTitle": "Company",
+    "section": {
+      "identity": "Identity",
+      "address": "Address",
+      "contact": "Contact",
+      "preferences": "Preferences"
+    },
+    "field": {
+      "code": "Code",
+      "name": "Company name",
+      "type": "Type",
+      "status": "Status",
+      "registrationNo": "Registration number",
+      "taxId": "Tax identification number",
+      "addressLine1": "Address line 1",
+      "addressLine2": "Address line 2",
+      "city": "City",
+      "state": "State",
+      "postcode": "Postcode",
+      "country": "Country",
+      "contactPerson": "Contact person",
+      "contactPhone": "Contact phone",
+      "contactEmail": "Contact email",
+      "logo": "Logo",
+      "defaultLanguage": "Default language",
+      "timezone": "Time zone",
+      "userCount": "Users",
+      "createdAt": "Opened"
+    },
+    "type": {
+      "CONTRACTOR": "Contractor",
+      "RECYCLER": "Recycler"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "TRIAL": "Trial",
+      "SUSPENDED": "Suspended",
+      "OVERDUE": "Overdue",
+      "CLOSED": "Closed"
+    },
+    "filter": {
+      "all": "All",
+      "contractors": "Contractors",
+      "recyclers": "Recyclers",
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This company will no longer appear anywhere in MSE Trace. Its past records stay in place and can be restored later.",
+      "confirm": "Remove",
+      "blockedByUsers": "This company still has people who can sign in. Suspend it instead, or deactivate them first."
+    },
+    "suspend": {
+      "title": "Suspend {name}?",
+      "description": "Nobody from this company will be able to sign in until it is reinstated. Work already recorded is untouched.",
+      "confirm": "Suspend",
+      "reasonRequired": "Give a reason so this can be reviewed later."
+    },
+    "reinstate": {
+      "title": "Reinstate {name}?",
+      "description": "Everyone from this company will be able to sign in again.",
+      "confirm": "Reinstate"
+    },
+    "toast": {
+      "created": "Company created",
+      "updated": "Company updated",
+      "removed": "Company removed",
+      "statusUpdated": "Company status updated"
+    },
+    "typeLocked": "A company's type cannot be changed after it is created.",
+    "taxIdHint": "Required before e-invoicing can be switched on for this company.",
+    "languageHint": "New users of this company start here. Each can change their own.",
+    "suspendedReason": "Suspension reason",
+    "suspendedAt": "Suspended on"
+  },
+  "users": {
+    "title": "Users",
+    "titleStaff": "Internal staff",
+    "count": "{count, plural, =0 {No users} one {# user} other {# users}}",
+    "new": "New user",
+    "createTitle": "Invite a user",
+    "editTitle": "Edit user",
+    "viewTitle": "User",
+    "section": {
+      "identity": "Identity",
+      "access": "Access",
+      "preferences": "Preferences",
+      "activity": "Activity"
+    },
+    "field": {
+      "email": "Email",
+      "fullName": "Full name",
+      "phone": "Phone",
+      "role": "Role",
+      "company": "Company",
+      "status": "Status",
+      "language": "Language",
+      "timezone": "Time zone",
+      "lastLoginAt": "Last signed in",
+      "lastLoginIp": "Last IP",
+      "createdAt": "Added"
+    },
+    "status": {
+      "INVITED": "Invited",
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended"
+    },
+    "invite": {
+      "hint": "The person sets their own password from the link we email them. Nobody else ever sees it.",
+      "sent": "Invitation sent"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "They will not be able to sign in again. Everything they recorded stays exactly as it is.",
+      "confirm": "Remove"
+    },
+    "suspend": {
+      "title": "Suspend {name}?",
+      "description": "They will not be able to sign in until reinstated.",
+      "confirm": "Suspend"
+    },
+    "resetPassword": {
+      "action": "Send reset link",
+      "sent": "Reset link sent"
+    },
+    "toast": {
+      "created": "User invited",
+      "updated": "User updated",
+      "removed": "User removed",
+      "statusUpdated": "User status updated"
+    },
+    "cannotEditSelf": "You cannot change your own account status here. Use your profile instead.",
+    "reinstate": {
+      "description": "They will be able to sign in again straight away."
+    }
+  },
+  "roles": {
+    "title": "Roles",
+    "count": "{count, plural, =0 {No roles} one {# role} other {# roles}}",
+    "new": "New role",
+    "createTitle": "New role",
+    "editTitle": "Edit role",
+    "viewTitle": "Role",
+    "section": {
+      "identity": "Identity",
+      "permissions": "Permissions"
+    },
+    "field": {
+      "code": "Code",
+      "name": "Role name",
+      "description": "Description",
+      "userCount": "People",
+      "permissions": "Permissions"
+    },
+    "system": "Built in",
+    "systemHint": "Built-in roles cannot be removed, so a company always keeps a way to manage its own people.",
+    "permissionCount": "{count, plural, =0 {No permissions} one {# permission} other {# permissions}}",
+    "selectAll": "Select all",
+    "clearAll": "Clear all",
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "Anyone holding this role loses the access it grants. Assign them a different role first.",
+      "confirm": "Remove",
+      "blockedByUsers": "This role is still assigned to people. Move them to another role first.",
+      "blockedBySystem": "Built-in roles cannot be removed."
+    },
+    "toast": {
+      "created": "Role created",
+      "updated": "Role updated",
+      "removed": "Role removed"
+    },
+    "system_": {
+      "platform_admin": "Platform Administrator",
+      "platform_support": "Support Agent",
+      "platform_finance": "Finance",
+      "company_admin": "Company Administrator",
+      "site_staff": "Site Staff",
+      "project_manager": "Project Manager",
+      "dispatcher": "Dispatcher",
+      "weighbridge_operator": "Weighbridge Operator",
+      "driver": "Driver",
+      "finance": "Finance",
+      "viewer": "Viewer"
+    },
+    "systemDescription": {
+      "platform_admin": "Full access to every platform function.",
+      "platform_support": "Handles tickets and announcements, reads customer data.",
+      "platform_finance": "Manages plans, commission and collections.",
+      "company_admin": "Full access to this company's data and users.",
+      "site_staff": "Records material receipts and waste dispatches on site.",
+      "project_manager": "Runs projects and approves excess deductions.",
+      "dispatcher": "Accepts orders, assigns vehicles and drivers.",
+      "weighbridge_operator": "Runs the weighbridge and records deductions.",
+      "driver": "Sees assigned tasks and submits site photos.",
+      "finance": "Settles transactions and records payment proof.",
+      "viewer": "Read-only access to this company's records."
+    }
+  },
+  "permissions": {
+    "group": {
+      "company": "Companies",
+      "user": "Users",
+      "role": "Roles",
+      "audit": "Audit",
+      "project": "Projects",
+      "supplier": "Suppliers",
+      "receipt": "Material receipts",
+      "dispatch": "Waste dispatches",
+      "task": "Driver tasks",
+      "scale": "Weighbridges",
+      "weighing": "Weighing",
+      "deduction": "Deductions",
+      "settlement": "Settlements",
+      "payment": "Payments",
+      "report": "Reports",
+      "billing": "Billing",
+      "ticket": "Support",
+      "announcement": "Announcements",
+      "platform": "Platform operations"
+    },
+    "code": {
+      "company": {
+        "view": "View companies",
+        "create": "Open a company",
+        "update": "Edit company details",
+        "suspend": "Suspend or reinstate a company"
+      },
+      "user": {
+        "view": "View users",
+        "create": "Invite users",
+        "update": "Edit users",
+        "suspend": "Suspend or remove users"
+      },
+      "role": {
+        "view": "View roles",
+        "create": "Create roles",
+        "update": "Edit roles and permissions",
+        "delete": "Remove roles"
+      },
+      "audit": {
+        "view": "Read the audit log"
+      },
+      "project": {
+        "view": "View projects",
+        "create": "Create projects",
+        "update": "Edit projects",
+        "delete": "Remove projects",
+        "view_all": "See every project in the company",
+        "assign": "Assign people to projects"
+      },
+      "supplier": {
+        "view": "View suppliers",
+        "create": "Add suppliers",
+        "update": "Edit suppliers",
+        "delete": "Remove suppliers"
+      },
+      "receipt": {
+        "view": "View material receipts",
+        "create": "Record material receipts",
+        "update": "Edit material receipts"
+      },
+      "dispatch": {
+        "view": "View waste dispatches",
+        "create": "Record waste dispatches",
+        "update": "Update waste dispatches"
+      },
+      "task": {
+        "view": "View driver tasks",
+        "assign": "Assign drivers and vehicles",
+        "submit": "Submit task photos and reports",
+        "task_view_all": "See every trip in the yard"
+      },
+      "scale": {
+        "view": "View weighbridges",
+        "manage": "Configure weighbridges and gateways"
+      },
+      "weighing": {
+        "view": "View weighing records",
+        "operate": "Run the weighbridge",
+        "void": "Void a weighing session",
+        "rule_view": "View fraud detection settings",
+        "rule_update": "Change fraud detection settings"
+      },
+      "deduction": {
+        "view": "View deductions",
+        "create": "Record deductions",
+        "approve": "Approve excess deductions"
+      },
+      "settlement": {
+        "view": "View settlements",
+        "create": "Create settlements",
+        "lock": "Lock settlement records"
+      },
+      "payment": {
+        "view": "View payments",
+        "create": "Record payment proof"
+      },
+      "report": {
+        "view": "View reports",
+        "export": "Export reports"
+      },
+      "billing": {
+        "view": "View billing",
+        "manage": "Manage plans and subscriptions"
+      },
+      "commission": {
+        "view": "View commission",
+        "manage": "Manage commission"
+      },
+      "ticket": {
+        "view": "View support tickets",
+        "create": "Raise support tickets",
+        "reply": "Reply to support tickets"
+      },
+      "announcement": {
+        "view": "View announcements",
+        "manage": "Publish announcements"
+      },
+      "platform": {
+        "maintenance": "Put the platform into maintenance",
+        "impersonate": "Sign in as a customer",
+        "monitor": "View system monitoring"
+      }
+    }
+  },
+  "audit": {
+    "title": "Audit log",
+    "count": "{count, plural, =0 {No entries} one {# entry} other {# entries}}",
+    "field": {
+      "createdAt": "When",
+      "actor": "Who",
+      "action": "Action",
+      "objectType": "Record type",
+      "objectRepr": "Record",
+      "reason": "Reason",
+      "ipAddress": "IP address",
+      "changes": "Changes",
+      "context": "Details"
+    },
+    "action": {
+      "CREATE": "Created",
+      "UPDATE": "Updated",
+      "DELETE": "Removed",
+      "RESTORE": "Restored",
+      "LOGIN": "Signed in",
+      "LOGOUT": "Signed out",
+      "LOGIN_FAILED": "Sign-in failed",
+      "PASSWORD_CHANGE": "Password changed",
+      "PERMISSION_CHANGE": "Permissions changed",
+      "BILLING_CHANGE": "Billing changed",
+      "EXPORT": "Exported",
+      "IMPERSONATE": "Signed in as customer",
+      "MAINTENANCE": "Maintenance",
+      "LOCK": "Locked"
+    },
+    "impersonatedBy": "Acting through {name}",
+    "before": "Before",
+    "after": "After",
+    "noChanges": "No field changes recorded"
+  },
+  "loginRecords": {
+    "title": "Sign-in history",
+    "count": "{count, plural, =0 {No attempts} one {# attempt} other {# attempts}}",
+    "field": {
+      "createdAt": "When",
+      "email": "Email",
+      "outcome": "Outcome",
+      "ipAddress": "IP address",
+      "userAgent": "Device"
+    },
+    "outcome": {
+      "SUCCESS": "Signed in",
+      "BAD_CREDENTIALS": "Wrong credentials",
+      "USER_SUSPENDED": "Account suspended",
+      "COMPANY_SUSPENDED": "Company suspended"
+    }
+  },
+  "profile": {
+    "title": "My profile",
+    "section": {
+      "identity": "Identity",
+      "preferences": "Preferences",
+      "security": "Security"
+    },
+    "toast": {
+      "updated": "Profile updated"
+    }
+  },
+  "errors": {
+    "notFound": "We could not find that.",
+    "notFoundBody": "It may have been removed, or you may not have access to it.",
+    "forbidden": "You do not have access to this.",
+    "forbiddenBody": "Ask your administrator if you need it.",
+    "network": "We could not reach the server.",
+    "networkBody": "Check your connection and try again.",
+    "generic": "Something went wrong.",
+    "genericBody": "Try again. If it keeps happening, contact support.",
+    "backToDashboard": "Back to dashboard",
+    "api": {
+      "company_not_found": "That company could not be found.",
+      "user_not_found": "That user could not be found.",
+      "role_not_found": "That role could not be found.",
+      "audit_entry_not_found": "That audit entry could not be found.",
+      "company_required": "Choose a company first.",
+      "object_reference_required": "A record must be specified.",
+      "refresh_token_required": "Your session could not be renewed. Sign in again.",
+      "validation_failed": "Check the highlighted fields and try again.",
+      "invalid_credentials": "Incorrect email or password.",
+      "user_suspended": "This account is not active. Contact your administrator.",
+      "company_suspended": "Your company account is not active. Contact MSE Trace support.",
+      "session_expired": "Your session expired. Sign in again.",
+      "account_inactive": "This account is no longer active.",
+      "incorrect_password": "Your current password is incorrect.",
+      "reset_link_invalid": "This reset link is invalid or has expired. Request a new one.",
+      "company_has_active_users": "This company still has people who can sign in. Suspend it instead, or deactivate them first.",
+      "role_is_system": "Built-in roles cannot be removed.",
+      "role_in_use": "This role is still assigned to people. Move them to another role first.",
+      "cannot_modify_self": "You cannot change your own account this way. Use your profile instead.",
+      "device_auth_failed": "This weighbridge gateway could not be verified.",
+      "ingest_rejected": "The weighbridge reading could not be accepted.",
+      "scale_not_found": "That weighbridge could not be found.",
+      "site_not_found": "That site could not be found.",
+      "session_not_found": "That weighing could not be found.",
+      "gateway_not_found": "That gateway could not be found.",
+      "invalid_rule_params": "Check the detection settings and try again.",
+      "project_not_found": "That project could not be found.",
+      "supplier_not_found": "That supplier could not be found.",
+      "qr_code_not_found": "This QR code is not recognised.",
+      "project_has_records": "This project still has records against it. Mark it completed instead of removing it.",
+      "receipt_not_found": "That receipt could not be found.",
+      "receipt_photo_not_found": "That photo could not be found.",
+      "dispatch_not_found": "That dispatch could not be found.",
+      "dispatch_not_editable": "This load has already left the site and can no longer be changed.",
+      "dispatch_already_released": "This load has already been released.",
+      "dispatch_not_cancellable": "This load has already been collected and cannot be cancelled.",
+      "export_no_columns": "Choose at least one column to export.",
+      "export_too_large": "This selection is too large to export. Narrow it with a filter and try again.",
+      "export_unavailable": "PDF export is not available right now. Try the spreadsheet instead.",
+      "dispatch_not_collectable": "This load is not waiting to be collected.",
+      "dispatch_not_rejectable": "This load can no longer be refused.",
+      "dispatch_not_owner": "Only the site that raised this load can change it.",
+      "dispatch_not_recipient": "Only the recycler this load was sent to can do that.",
+      "vehicle_not_found": "That vehicle could not be found.",
+      "driver_not_found": "That driver could not be found.",
+      "task_not_found": "That trip could not be found.",
+      "vehicle_has_tasks": "This vehicle has trips recorded against it. Deactivate it instead of removing it.",
+      "driver_has_tasks": "This driver has trips recorded against them. Deactivate them instead of removing them.",
+      "task_already_running": "A trip is already running for that load.",
+      "task_already_started": "This trip has already started and can no longer be reassigned.",
+      "task_invalid_transition": "A trip cannot move to that step from where it is now.",
+      "deduction_not_found": "That deduction could not be found.",
+      "settlement_not_found": "That settlement could not be found.",
+      "deduction_not_producer": "Only the producer of this waste can answer a deduction.",
+      "deduction_already_answered": "This deduction has already been answered.",
+      "settlement_locked": "This settlement is locked and can no longer be changed.",
+      "settlement_not_issued": "Issue the settlement first.",
+      "settlement_no_weighing": "This load has no completed weighing to settle from.",
+      "settlement_deductions_open": "There are deductions still waiting on the producer.",
+      "settlement_nothing_to_settle": "The deductions leave nothing to settle."
+    },
+    "field": {
+      "required": "This field is required",
+      "blank": "This field is required",
+      "null": "This field is required",
+      "invalid": "This value is not valid",
+      "unique": "This value is already taken",
+      "max_length": "This is too long",
+      "min_length": "This is too short",
+      "invalid_choice": "Choose one of the available options",
+      "does_not_exist": "That record could not be found",
+      "incorrect_type": "This value is not valid"
+    }
+  },
+  "sites": {
+    "title": "Yards",
+    "count": "{count, plural, =0 {No yards} one {# yard} other {# yards}}",
+    "new": "New yard",
+    "createTitle": "New yard",
+    "editTitle": "Edit yard",
+    "viewTitle": "Yard",
+    "section": {
+      "identity": "Identity",
+      "address": "Address",
+      "contact": "Contact"
+    },
+    "field": {
+      "code": "Code",
+      "name": "Yard name",
+      "city": "City",
+      "state": "State",
+      "postcode": "Postcode",
+      "addressLine1": "Address line 1",
+      "addressLine2": "Address line 2",
+      "contactPerson": "Contact person",
+      "contactPhone": "Contact phone",
+      "scaleCount": "Weighbridges",
+      "isActive": "Active",
+      "createdAt": "Added"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This yard will no longer appear anywhere. Its weighing history stays in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Yard created",
+      "updated": "Yard updated",
+      "removed": "Yard removed"
+    }
+  },
+  "scales": {
+    "title": "Weighbridges",
+    "count": "{count, plural, =0 {No weighbridges} one {# weighbridge} other {# weighbridges}}",
+    "new": "New weighbridge",
+    "createTitle": "New weighbridge",
+    "editTitle": "Edit weighbridge",
+    "viewTitle": "Weighbridge",
+    "section": {
+      "identity": "Identity",
+      "instrument": "Instrument",
+      "calibration": "Calibration",
+      "gateways": "Gateways"
+    },
+    "field": {
+      "code": "Code",
+      "name": "Name",
+      "site": "Yard",
+      "protocol": "Protocol",
+      "unit": "Unit",
+      "manufacturer": "Manufacturer",
+      "modelNumber": "Model",
+      "serialNumber": "Serial number",
+      "capacityKg": "Capacity (kg)",
+      "divisionKg": "Division (kg)",
+      "calibrationCertificateNo": "Certificate number",
+      "calibrationExpiry": "Certificate expires",
+      "gatewayCount": "Gateways",
+      "isActive": "Active",
+      "createdAt": "Added"
+    },
+    "protocolLabel": {
+      "mt_continuous_short": "METTLER TOLEDO Continuous Short",
+      "generic_json": "Generic JSON",
+      "sma": "SMA (not implemented)",
+      "mt_8142": "METTLER TOLEDO 8142 (not implemented)",
+      "mt_8530": "METTLER TOLEDO 8530 (not implemented)",
+      "pt6s3": "PT6S3 (not implemented)"
+    },
+    "calibrationExpired": "Certificate expired",
+    "calibrationHint": "A weighing taken on a lapsed certificate is not evidence of anything.",
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This weighbridge will no longer appear anywhere. Its weighing history stays in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Weighbridge created",
+      "updated": "Weighbridge updated",
+      "removed": "Weighbridge removed"
+    },
+    "divisionHint": "The smallest step the instrument reports. A bridge reading in 20 kg steps can never settle inside a 5 kg tolerance."
+  },
+  "gateways": {
+    "title": "Gateways",
+    "new": "Register gateway",
+    "none": "No gateway registered yet",
+    "field": {
+      "deviceId": "Device ID",
+      "firmwareVersion": "Firmware",
+      "lastSeenAt": "Last seen",
+      "clockOffset": "Clock offset",
+      "notes": "Notes"
+    },
+    "online": "Online",
+    "offline": "Offline",
+    "secretTitle": "Copy this secret now",
+    "secretBody": "It is shown once and never again. The gateway signs every packet with it, so a lost secret is replaced rather than recovered.",
+    "rotate": "Rotate secret",
+    "rotateTitle": "Rotate the secret for {name}?",
+    "rotateBody": "The current secret stops working immediately. The gateway cannot send readings until the new one is installed on it.",
+    "toast": {
+      "created": "Gateway registered",
+      "rotated": "Secret rotated"
+    }
+  },
+  "weighing": {
+    "title": "Weighings",
+    "count": "{count, plural, =0 {No weighings} one {# weighing} other {# weighings}}",
+    "viewTitle": "Weighing",
+    "field": {
+      "sessionNo": "Reference",
+      "scale": "Weighbridge",
+      "site": "Yard",
+      "vehiclePlate": "Vehicle",
+      "direction": "Type",
+      "state": "State",
+      "verdict": "Verdict",
+      "attemptNo": "Attempt",
+      "startedAt": "Started",
+      "endedAt": "Ended",
+      "stableWeight": "Settled weight",
+      "peakWeight": "Peak weight",
+      "readingCount": "Readings",
+      "anomalyCount": "Anomalies",
+      "stableAt": "Settled at",
+      "duration": "Duration"
+    },
+    "direction": {
+      "GROSS": "Gross",
+      "TARE": "Tare"
+    },
+    "state": {
+      "OPEN": "Open",
+      "ON_SCALE": "On scale",
+      "STABLE": "Settled",
+      "COMPLETED": "Completed",
+      "VOID": "Void"
+    },
+    "verdict": {
+      "PENDING": "Pending",
+      "VALID": "Valid",
+      "INVALID": "Invalid"
+    },
+    "requiresReview": "Needs review",
+    "requiresReviewHint": "Attempts have run past the limit. This transaction waits for a person.",
+    "section": {
+      "trace": "Weight trace",
+      "outcome": "Outcome",
+      "rules": "Rules applied",
+      "integrity": "Integrity"
+    },
+    "trace": {
+      "empty": "No readings captured",
+      "onboardTrigger": "On-scale trigger",
+      "instrumentSettled": "Instrument reports settled",
+      "instrumentMoving": "Instrument reports motion",
+      "net": "net",
+      "caption": "Weight as the instrument reported it, second by second.",
+      "viewFull": "Full weighing",
+      "viewSettled": "Settled period"
+    },
+    "anomaly": {
+      "SINGLE_READING_ONLY": "Only one reading was captured",
+      "NO_CONTINUOUS_STREAM": "The stream was not continuous",
+      "SUDDEN_DROP": "Weight dropped suddenly",
+      "SUDDEN_RISE": "Weight rose suddenly",
+      "STREAM_INTERRUPTED": "The instrument stopped reporting",
+      "MID_SESSION_TARE": "The display was zeroed mid-weighing",
+      "SEQ_GAP": "Packets went missing between the gateway and here",
+      "STABLE_FLAG_MISMATCH": "The instrument reported a moving load as settled",
+      "SIGNATURE_INVALID": "A packet signature did not check out",
+      "CLOCK_SKEW": "The device clock jumped",
+      "FRAME_PARSE_FAILED": "A raw frame could not be read",
+      "FRAME_MISMATCH": "The raw frame disagrees with what the gateway sent",
+      "PLATE_MISMATCH": "The plate does not match the dispatch"
+    },
+    "integrity": {
+      "verify": "Verify integrity",
+      "intact": "Every reading verifies. Nothing has been altered since it was written.",
+      "broken": "{count, plural, one {# break found} other {# breaks found}}. The reading history has been altered.",
+      "reason": {
+        "content_altered": "A reading was changed",
+        "link_broken": "A reading was removed or reordered"
+      },
+      "firstHash": "First reading hash",
+      "lastHash": "Last reading hash"
+    },
+    "rules": {
+      "version": "Version {version}",
+      "scope": "Scope",
+      "frozenHint": "These are the thresholds that judged this weighing, not the ones configured now."
+    },
+    "filter": {
+      "all": "All",
+      "valid": "Valid",
+      "invalid": "Invalid",
+      "review": "Needs review"
+    }
+  },
+  "weighingRules": {
+    "title": "Detection settings",
+    "subtitle": "The thresholds that decide what counts as tampering",
+    "publish": "Publish new version",
+    "immutableHint": "Publishing creates a new version. Weighings already judged keep the thresholds that judged them, so changing a value here can never clear existing history.",
+    "scope": {
+      "PLATFORM": "Platform default",
+      "COMPANY": "This company",
+      "SCALE": "One weighbridge"
+    },
+    "param": {
+      "stable_window_ms": "Stability window (ms)",
+      "stable_tolerance_kg": "Stability tolerance (kg)",
+      "drop_threshold_kg": "Sudden drop threshold (kg)",
+      "drop_window_ms": "Sudden drop window (ms)",
+      "rise_threshold_kg": "Sudden rise threshold (kg)",
+      "rise_window_ms": "Sudden rise window (ms)",
+      "max_gap_ms": "Maximum stream gap (ms)",
+      "min_readings": "Minimum readings",
+      "onboard_trigger_kg": "On-scale trigger (kg)",
+      "offboard_threshold_kg": "Off-scale threshold (kg)",
+      "max_retry_attempts": "Maximum re-weighs",
+      "stable_flag_mismatch_ms": "Stability disagreement allowance (ms)",
+      "clock_skew_tolerance_ms": "Clock skew allowance (ms)",
+      "offboard_hold_ms": "Off-scale hold (ms)",
+      "retry_window_minutes": "Re-weigh window (minutes)",
+      "deduction_approval_kg": "Deduction approval threshold (kg)"
+    },
+    "toast": {
+      "published": "Detection settings published"
+    },
+    "platformDefault": "Platform default",
+    "overridden": "Overridden from the platform default",
+    "noChanges": "No changes to publish",
+    "readOnly": "These thresholds are set by MSE Trace and cannot be changed from a customer account. They decide what the platform treats as tampering, so a company cannot widen its own. Contact support if a weighbridge needs different settings."
+  },
+  "projects": {
+    "title": "Projects",
+    "count": "{count, plural, =0 {No projects} one {# project} other {# projects}}",
+    "new": "New project",
+    "createTitle": "New project",
+    "editTitle": "Edit project",
+    "viewTitle": "Project",
+    "section": {
+      "identity": "Identity",
+      "address": "Site address",
+      "schedule": "Schedule",
+      "contact": "Site contact",
+      "team": "Site team"
+    },
+    "field": {
+      "code": "Project code",
+      "name": "Project name",
+      "status": "Status",
+      "description": "Description",
+      "clientName": "Client",
+      "addressLine1": "Address line 1",
+      "addressLine2": "Address line 2",
+      "city": "City",
+      "state": "State",
+      "postcode": "Postcode",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "siteManager": "Site manager",
+      "sitePhone": "Site phone",
+      "assignedUsers": "Team",
+      "createdAt": "Added"
+    },
+    "status": {
+      "PLANNING": "Planning",
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "COMPLETED": "Completed"
+    },
+    "filter": {
+      "all": "All",
+      "open": "Open",
+      "completed": "Completed"
+    },
+    "team": {
+      "title": "Who can see this project",
+      "description": "People here see this project's deliveries and outgoing loads. Everyone else in your company sees nothing of it unless their role covers every project.",
+      "empty": "Nobody is assigned yet.",
+      "add": "Add someone",
+      "remove": "Remove from project",
+      "removeTitle": "Remove {name} from this project?",
+      "removeDescription": "They will stop seeing this project's deliveries and outgoing loads. Their account and everything they recorded stay as they are.",
+      "removeConfirm": "Remove"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This project will no longer appear anywhere. Deliveries and loads already recorded against it stay in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Project created",
+      "updated": "Project updated",
+      "removed": "Project removed",
+      "assigned": "Added to the project",
+      "unassigned": "Removed from the project"
+    }
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "count": "{count, plural, =0 {No suppliers} one {# supplier} other {# suppliers}}",
+    "new": "New supplier",
+    "createTitle": "New supplier",
+    "editTitle": "Edit supplier",
+    "section": {
+      "identity": "Identity",
+      "contact": "Contact",
+      "address": "Address"
+    },
+    "field": {
+      "code": "Supplier code",
+      "name": "Supplier name",
+      "contactPerson": "Contact person",
+      "contactPhone": "Contact phone",
+      "contactEmail": "Contact email",
+      "addressLine1": "Address",
+      "city": "City",
+      "state": "State",
+      "registrationNo": "Registration no.",
+      "isActive": "Active",
+      "qrCodeCount": "Dockets",
+      "createdAt": "Added"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This supplier will no longer appear when recording a delivery. Deliveries already recorded from them stay in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Supplier created",
+      "updated": "Supplier updated",
+      "removed": "Supplier removed"
+    }
+  },
+  "qrCodes": {
+    "title": "Delivery dockets",
+    "description": "A docket ties one supplier to one project. Scanning it on site fills in both at once, so recording a delivery takes seconds.",
+    "count": "{count, plural, =0 {No dockets} one {# docket} other {# dockets}}",
+    "new": "Issue docket",
+    "createTitle": "Issue a docket",
+    "field": {
+      "project": "Project",
+      "supplier": "Supplier",
+      "token": "Code",
+      "isActive": "Active",
+      "createdAt": "Issued"
+    },
+    "status": {
+      "active": "Active",
+      "revoked": "Revoked"
+    },
+    "revoke": {
+      "title": "Revoke this docket?",
+      "description": "Printed copies stop working immediately. Deliveries already recorded with it stay exactly as they are.",
+      "confirm": "Revoke"
+    },
+    "toast": {
+      "created": "Docket issued",
+      "revoked": "Docket revoked"
+    }
+  },
+  "receipts": {
+    "title": "Material receipts",
+    "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
+    "new": "Record delivery",
+    "createTitle": "Record a delivery",
+    "editTitle": "Correct a receipt",
+    "viewTitle": "Receipt",
+    "section": {
+      "delivery": "Delivery",
+      "material": "Material",
+      "vehicle": "Vehicle and paperwork",
+      "received": "Received by",
+      "stamp": "Recorded by the platform",
+      "photos": "Photos"
+    },
+    "field": {
+      "receiptNo": "Receipt no.",
+      "project": "Project",
+      "supplier": "Supplier",
+      "qrCode": "Docket",
+      "materialName": "Material",
+      "quantity": "Quantity",
+      "unit": "Unit",
+      "unitPrice": "Unit price",
+      "totalValue": "Total",
+      "vehiclePlate": "Vehicle",
+      "deliveryNoteNo": "Delivery note no.",
+      "notes": "Notes",
+      "receivedBy": "Received by",
+      "capturedAt": "Recorded",
+      "location": "Location",
+      "recordedBy": "Recorded by",
+      "photoCount": "Photos"
+    },
+    "unit": {
+      "TONNE": "Tonne",
+      "KG": "Kilogram",
+      "M3": "Cubic metre",
+      "PIECE": "Piece",
+      "LOAD": "Load",
+      "BAG": "Bag"
+    },
+    "photoKind": {
+      "DELIVERY_NOTE": "Delivery note",
+      "VEHICLE": "Vehicle",
+      "UNLOADING": "Unloading",
+      "OTHER": "Other"
+    },
+    "stampNote": "The time, place and person are recorded by the platform when the receipt is filed. They cannot be typed in or changed afterwards.",
+    "editNote": "The quantity and price can be corrected. The project, the docket and the recorded time cannot — they are what the receipt is evidence of.",
+    "locationCaptured": "Location captured",
+    "locationMissing": "No location",
+    "noPhotos": "No photos were attached.",
+    "summary": {
+      "title": "Material summary",
+      "byUnit": "By unit",
+      "byMaterial": "By material",
+      "receipts": "Receipts",
+      "quantity": "Quantity",
+      "note": "Quantities are grouped by unit. Tonnes and pieces are not added together."
+    },
+    "remove": {
+      "title": "Remove receipt {name}?",
+      "description": "It will no longer appear in your deliveries or your material totals.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Delivery recorded",
+      "updated": "Receipt updated",
+      "removed": "Receipt removed"
+    }
+  },
+  "dispatches": {
+    "title": "Waste dispatches",
+    "count": "{count, plural, =0 {No loads} one {# load} other {# loads}}",
+    "new": "New load",
+    "createTitle": "New load out",
+    "editTitle": "Edit load",
+    "viewTitle": "Load out",
+    "section": {
+      "destination": "Destination",
+      "load": "Load",
+      "vehicle": "Vehicle and driver",
+      "release": "Release",
+      "photos": "Photos"
+    },
+    "field": {
+      "dispatchNo": "Dispatch no.",
+      "project": "Project",
+      "recycler": "Recycler",
+      "wasteType": "Waste type",
+      "estimatedWeight": "Estimated weight (kg)",
+      "description": "Description",
+      "vehiclePlate": "Vehicle",
+      "driverName": "Driver",
+      "driverPhone": "Driver phone",
+      "driverIc": "Driver IC",
+      "state": "Status",
+      "releasedAt": "Released",
+      "releasedBy": "Released by",
+      "location": "Location",
+      "photoCount": "Photos"
+    },
+    "wasteType": {
+      "MIXED": "Mixed construction waste",
+      "CONCRETE": "Concrete and masonry",
+      "METAL": "Scrap metal",
+      "TIMBER": "Timber",
+      "PLASTIC": "Plastic",
+      "SOIL": "Soil and aggregate",
+      "HAZARDOUS": "Hazardous",
+      "OTHER": "Other"
+    },
+    "state": {
+      "DRAFT": "Draft",
+      "RELEASED": "Released",
+      "COLLECTED": "Collected",
+      "WEIGHED": "Weighed",
+      "SETTLED": "Settled",
+      "CANCELLED": "Cancelled"
+    },
+    "recyclerNote": "Loads can only be sent to recyclers registered on MSE Trace. That is what puts the load on a weighbridge and keeps the trail going past your gate.",
+    "recyclerEmpty": "No recyclers are available right now.",
+    "estimateNote": "Your estimate. The recycler's weighbridge decides the final weight, and both are kept.",
+    "lockedNote": "This load has left the site, so it can no longer be changed. Cancel it if it never arrives.",
+    "release": {
+      "title": "Release this load?",
+      "description": "Records that the lorry has left. After this, the load can be cancelled but not changed.",
+      "confirm": "Release",
+      "byName": "Released by"
+    },
+    "cancel": {
+      "title": "Cancel this load?",
+      "description": "Say why. The reason stays on the record so the recycler and your own team can see what happened.",
+      "confirm": "Cancel load"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This draft will no longer appear anywhere. Nothing has left the site yet.",
+      "confirm": "Remove"
+    },
+    "summary": {
+      "title": "Waste summary",
+      "byType": "By waste type",
+      "loads": "Loads",
+      "estimatedWeight": "Estimated weight"
+    },
+    "toast": {
+      "created": "Load created",
+      "updated": "Load updated",
+      "removed": "Load removed",
+      "released": "Load released",
+      "cancelled": "Load cancelled"
+    }
+  },
+  "export": {
+    "excel": "Excel spreadsheet",
+    "pdf": "PDF document"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Material in and waste out, across the projects you can see.",
+    "filter": {
+      "project": "Project",
+      "allProjects": "All projects",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "clear": "Clear filters"
+    },
+    "receipts": {
+      "title": "Material received",
+      "totalReceipts": "Deliveries",
+      "byUnit": "By unit",
+      "byMaterial": "Top materials",
+      "unitNote": "Quantities are grouped by unit. Tonnes and pieces are never added together — a single total across both would look like an answer and would not be one.",
+      "chartNote": "The chart counts deliveries, which compare across units. Quantities are in the table.",
+      "material": "Material",
+      "unit": "Unit",
+      "quantity": "Quantity",
+      "deliveries": "Deliveries"
+    },
+    "dispatches": {
+      "title": "Waste dispatched",
+      "totalDispatches": "Loads",
+      "byType": "By waste type",
+      "byState": "By status",
+      "wasteType": "Waste type",
+      "loads": "Loads",
+      "estimatedWeight": "Estimated weight (kg)",
+      "estimateNote": "These are the site's estimates. Final weights come from the recycler's weighbridge once the load is weighed."
+    },
+    "empty": "Nothing to report for this selection yet."
+  },
+  "incoming": {
+    "title": "Incoming loads",
+    "subtitle": "Waste on its way to your yards.",
+    "count": "{count, plural, =0 {No loads} one {# load} other {# loads}}",
+    "field": {
+      "dispatchNo": "Dispatch no.",
+      "contractor": "Producer",
+      "project": "Site",
+      "wasteType": "Waste type",
+      "estimatedWeight": "Declared weight (kg)",
+      "vehiclePlate": "Vehicle",
+      "driverName": "Driver",
+      "releasedAt": "Released",
+      "state": "Status"
+    },
+    "declaredNote": "The producer's declaration. Your weighbridge decides the final weight, and both are kept.",
+    "collect": {
+      "title": "Take this load on?",
+      "description": "Records that the material is now in your hands. The producer can no longer cancel it, and the weighbridge decides what it was.",
+      "confirm": "Collect",
+      "reference": "Your own reference",
+      "referenceHint": "Optional. Use your own numbering if you run one."
+    },
+    "reject": {
+      "title": "Refuse this load?",
+      "description": "Say why. The reason goes back to the site that sent it, so they know what happened to the lorry.",
+      "confirm": "Refuse"
+    },
+    "toast": {
+      "collected": "Load collected",
+      "rejected": "Load refused"
+    }
+  },
+  "gate": {
+    "title": "Weighbridge gate",
+    "subtitle": "Scan the driver's dispatch note before the vehicle drives on.",
+    "whyFirst": "The weighbridge starts recording by itself when weight lands on the deck, so the load has to be queued before the vehicle moves. There is no way to attach it afterwards.",
+    "selectScale": "Weighbridge",
+    "noScales": "No weighbridges are set up yet.",
+    "waiting": "Waiting for",
+    "nothingQueued": "Nothing is queued at this weighbridge.",
+    "expiresAt": "Expires",
+    "expired": "This scan has expired. Scan again before the vehicle drives on.",
+    "field": {
+      "dispatchNo": "Dispatch note",
+      "direction": "Weighing",
+      "vehiclePlate": "Vehicle on the cab",
+      "scannedBy": "Scanned by",
+      "expiresIn": "Valid for (minutes)"
+    },
+    "direction": {
+      "GROSS": "Loaded (gross)",
+      "TARE": "Empty (tare)"
+    },
+    "plateMismatch": "The plate on the paperwork is {expected}. Check the cab.",
+    "scan": "Queue this load",
+    "clear": "Clear",
+    "clearTitle": "Clear the weighbridge?",
+    "clearDescription": "Nothing will be attached to the next vehicle that drives on. Use this if the driver turned around or the wrong note was scanned.",
+    "clearConfirm": "Clear",
+    "toast": {
+      "scanned": "Load queued at the weighbridge",
+      "cleared": "Weighbridge cleared"
+    }
+  },
+  "vehicles": {
+    "title": "Vehicles",
+    "count": "{count, plural, =0 {No vehicles} one {# vehicle} other {# vehicles}}",
+    "new": "Add vehicle",
+    "createTitle": "Add a vehicle",
+    "editTitle": "Edit vehicle",
+    "section": {
+      "identity": "Identity",
+      "limits": "Limits and documents"
+    },
+    "field": {
+      "plateNo": "Plate no.",
+      "vehicleType": "Type",
+      "makeModel": "Make and model",
+      "tareWeight": "Tare weight (kg)",
+      "maxLaden": "Max laden weight (kg)",
+      "roadTaxExpires": "Road tax expires",
+      "permitExpires": "Permit expires",
+      "notes": "Notes",
+      "isActive": "Active",
+      "createdAt": "Added"
+    },
+    "type": {
+      "LORRY": "Lorry",
+      "TIPPER": "Tipper truck",
+      "ROLL_ON": "Roll-on / roll-off",
+      "SKIP": "Skip truck",
+      "TRAILER": "Prime mover and trailer",
+      "OTHER": "Other"
+    },
+    "noTare": "Not weighed empty",
+    "tare": {
+      "action": "Record tare",
+      "title": "Record this vehicle's empty weight",
+      "description": "On a yard weighing against a stored tare, this figure is subtracted from every load this lorry ever brings in. Lowering it by 500 kg adds 500 kg to every net weight, so the change is written to the audit log with your reason.",
+      "confirm": "Record",
+      "weight": "Empty weight (kg)",
+      "measuredAt": "Last measured"
+    },
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "This vehicle will no longer appear when assigning a trip. Trips already recorded against it stay in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Vehicle added",
+      "updated": "Vehicle updated",
+      "removed": "Vehicle removed",
+      "tareSet": "Tare weight recorded"
+    }
+  },
+  "drivers": {
+    "title": "Drivers",
+    "count": "{count, plural, =0 {No drivers} one {# driver} other {# drivers}}",
+    "new": "Add driver",
+    "createTitle": "Add a driver",
+    "editTitle": "Edit driver",
+    "section": {
+      "identity": "Identity",
+      "licence": "Licence"
+    },
+    "field": {
+      "fullName": "Name",
+      "phone": "Phone",
+      "icNo": "IC no.",
+      "licenceNo": "Licence no.",
+      "licenceExpires": "Licence expires",
+      "defaultVehicle": "Usual vehicle",
+      "isActive": "Active",
+      "createdAt": "Added"
+    },
+    "licenceExpired": "Licence expired",
+    "remove": {
+      "title": "Remove {name}?",
+      "description": "They will no longer appear when assigning a trip. Trips already recorded against them stay in place.",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "created": "Driver added",
+      "updated": "Driver updated",
+      "removed": "Driver removed"
+    }
+  },
+  "tasks": {
+    "title": "Collection trips",
+    "count": "{count, plural, =0 {No trips} one {# trip} other {# trips}}",
+    "new": "Assign a trip",
+    "createTitle": "Assign a trip",
+    "editTitle": "Reassign the trip",
+    "viewTitle": "Trip",
+    "section": {
+      "load": "Load",
+      "crew": "Vehicle and driver",
+      "progress": "Progress",
+      "photos": "Photos"
+    },
+    "field": {
+      "taskNo": "Trip no.",
+      "state": "Status",
+      "dispatch": "Load",
+      "site": "Return to",
+      "vehicle": "Vehicle",
+      "driver": "Driver",
+      "scheduledFor": "Scheduled",
+      "acceptedAt": "Accepted",
+      "arrivedAt": "Arrived",
+      "loadedAt": "Loaded",
+      "deliveredAt": "Delivered",
+      "arrivalLocation": "Arrival location",
+      "notes": "Notes",
+      "failureReason": "Why it failed",
+      "contractor": "Producer",
+      "project": "Site",
+      "photoCount": "Photos"
+    },
+    "state": {
+      "ASSIGNED": "Assigned",
+      "ACCEPTED": "Accepted",
+      "EN_ROUTE": "On the way",
+      "ARRIVED": "At site",
+      "LOADED": "Loaded",
+      "RETURNING": "Returning",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "FAILED": "Failed"
+    },
+    "advance": "Move to {state}",
+    "advanceTitle": "Move this trip to {state}?",
+    "advanceDescription": "Recorded against the trip, with the time.",
+    "loadedNote": "Marking the lorry loaded also tells the producer the waste has changed hands. From then they can no longer cancel it.",
+    "failNote": "Say what went wrong. Somebody has to chase this, and they need to know what they are chasing.",
+    "noDispatch": "No load attached",
+    "noPhotos": "The driver has not sent any photos.",
+    "locationNote": "Where the driver's device said it was. Browser location can be faked, so this records what was reported, not where the lorry was.",
+    "reassignNote": "Only before the driver accepts. After that the roster is a record of who actually went.",
+    "toast": {
+      "created": "Trip assigned",
+      "updated": "Trip updated",
+      "advanced": "Trip updated"
+    }
+  },
+  "deductions": {
+    "title": "Deductions",
+    "count": "{count, plural, =0 {No deductions} one {# deduction} other {# deductions}}",
+    "new": "Record a deduction",
+    "createTitle": "Record a deduction",
+    "awaitingMe": "Waiting on you",
+    "section": {
+      "load": "Load",
+      "claim": "What was wrong",
+      "photos": "Photos"
+    },
+    "field": {
+      "dispatchNo": "Load",
+      "site": "Inspected at",
+      "kind": "Reason",
+      "weightKg": "Weight (kg)",
+      "reason": "What was wrong",
+      "state": "Status",
+      "inspectedBy": "Inspected by",
+      "inspectedAt": "Inspected",
+      "threshold": "Threshold at the time",
+      "respondedAt": "Answered",
+      "responseNote": "Answer",
+      "project": "Site",
+      "recycler": "Recycler"
+    },
+    "kind": {
+      "MOISTURE": "Water content",
+      "CONTAMINATION": "Contamination",
+      "WRONG_MATERIAL": "Not as declared",
+      "OVERSIZE": "Oversize or unprocessable",
+      "OTHER": "Other"
+    },
+    "state": {
+      "AUTO_ACCEPTED": "Accepted automatically",
+      "PENDING": "Waiting for the producer",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Rejected",
+      "RECHECK": "Recheck requested"
+    },
+    "thresholdNote": "Anything over {threshold} kg goes to the producer to accept. Below that it is accepted automatically — a hundred kilos of damp on a twenty-tonne load is not worth a conversation, and making it one teaches everybody to click accept without reading.",
+    "autoAcceptedNote": "Nobody was asked about this one: it was under the threshold in force at the time.",
+    "reasonHint": "Enough detail to be read six months from now by somebody who was not there.",
+    "photoNote": "The material is on a pile by the time anyone disputes this. Photographs taken at the inspection are the only evidence that survives.",
+    "noPhotos": "No photos were attached.",
+    "respond": {
+      "title": "Answer this deduction",
+      "weight": "{weight} kg off {dispatchNo}",
+      "accept": "Accept",
+      "reject": "Reject",
+      "recheck": "Ask for a recheck",
+      "note": "Your answer",
+      "noteRequired": "Say why, so the yard knows what to do next.",
+      "effect": "Accepting takes {weight} kg off what this load settles at."
+    },
+    "onlyProducer": "Only the producer of this waste can answer a deduction.",
+    "toast": {
+      "created": "Deduction recorded",
+      "answered": "Answer recorded"
+    }
+  },
+  "settlements": {
+    "title": "Settlements",
+    "count": "{count, plural, =0 {No settlements} one {# settlement} other {# settlements}}",
+    "viewTitle": "Settlement",
+    "new": "Issue a settlement",
+    "section": {
+      "load": "Load",
+      "weights": "Weights",
+      "money": "Amount",
+      "payments": "Payments"
+    },
+    "field": {
+      "settlementNo": "Settlement no.",
+      "state": "Status",
+      "dispatchNo": "Load",
+      "contractor": "Producer",
+      "recycler": "Recycler",
+      "project": "Site",
+      "sessionNo": "Weighing",
+      "netWeight": "Net weight (kg)",
+      "deductionWeight": "Deductions (kg)",
+      "settledWeight": "Settled weight (kg)",
+      "unitPrice": "Price per tonne",
+      "totalAmount": "Total",
+      "amountPaid": "Paid",
+      "outstanding": "Outstanding",
+      "issuedAt": "Issued",
+      "lockedAt": "Locked",
+      "notes": "Notes"
+    },
+    "state": {
+      "DRAFT": "Draft",
+      "ISSUED": "Issued",
+      "LOCKED": "Locked"
+    },
+    "frozenNote": "These figures were fixed when the settlement was issued. They do not change if a weighing or a deduction is touched afterwards.",
+    "issue": {
+      "title": "Issue this settlement",
+      "description": "Fixes the weights and puts the figure in front of the producer.",
+      "unitPrice": "Price per tonne",
+      "notes": "Notes",
+      "confirm": "Issue",
+      "blockedByDeductions": "{count, plural, one {# deduction is} other {# deductions are}} still waiting on the producer. Settle that first.",
+      "blockedByWeighing": "This load has no completed weighing to settle from."
+    },
+    "lock": {
+      "title": "Lock this settlement?",
+      "description": "Ends the producer's ability to dispute anything on this load. Say why.",
+      "confirm": "Lock"
+    },
+    "payment": {
+      "title": "Record a payment",
+      "description": "Evidence of what was paid. The platform does not move money; this is what one side says happened.",
+      "amount": "Amount",
+      "paidOn": "Paid on",
+      "method": "Method",
+      "reference": "Reference",
+      "notes": "Notes",
+      "confirm": "Record",
+      "none": "No payments recorded yet."
+    },
+    "method": {
+      "BANK_TRANSFER": "Bank transfer",
+      "CHEQUE": "Cheque",
+      "CASH": "Cash",
+      "OFFSET": "Offset",
+      "OTHER": "Other"
+    },
+    "quote": {
+      "title": "What this would settle at",
+      "openDeductions": "{count, plural, one {# deduction} other {# deductions}} still waiting"
+    },
+    "toast": {
+      "issued": "Settlement issued",
+      "locked": "Settlement locked",
+      "paymentRecorded": "Payment recorded"
+    }
+  },
+  "driver": {
+    "today": "Your trips",
+    "finished": "Finished",
+    "nothingAssigned": "Nothing assigned to you right now.",
+    "back": "All trips",
+    "takePhoto": "Take a photo",
+    "cannotComplete": "I cannot complete this",
+    "arrivedNote": "Records that you are at the site, with your phone's location if it will give one.",
+    "action": {
+      "ACCEPTED": "Accept this trip",
+      "EN_ROUTE": "Start driving",
+      "ARRIVED": "I have arrived",
+      "LOADED": "Loaded",
+      "RETURNING": "Heading back",
+      "DELIVERED": "Delivered to the yard",
+      "FAILED": "Could not complete",
+      "CANCELLED": "Cancel",
+      "ASSIGNED": "Assigned"
+    },
+    "toast": {
+      "photoSent": "Photo sent"
+    }
+  },
+  "ticket": {
+    "title": "Weighbridge ticket",
+    "action": "Print ticket",
+    "footer": "Produced by MSE Trace. Every reading behind this weighing is stored unaltered and can be re-verified against the hashes above.",
+    "evidenceNote": "These hashes chain this weighing to every reading the instrument sent. Any change to a stored reading breaks the chain from that point on.",
+    "voidWeightsNote": "This weighing did not pass the checks, so no net weight has been derived from it. The readings above are shown for reference only and must not be settled against.",
+    "section": {
+      "weighing": "Weighing",
+      "load": "Load",
+      "weights": "Weights",
+      "anomalies": "Why this weighing was rejected",
+      "evidence": "Evidence"
+    },
+    "field": {
+      "sessionNo": "Ticket no.",
+      "scale": "Weighbridge",
+      "direction": "Pass",
+      "vehiclePlate": "Vehicle",
+      "startedAt": "Started",
+      "endedAt": "Finished",
+      "attemptNo": "Attempt",
+      "readingCount": "Readings",
+      "dispatchNo": "Dispatch note",
+      "wasteType": "Material",
+      "contractor": "Producer",
+      "project": "Site",
+      "driver": "Driver",
+      "declaredWeight": "Declared (kg)",
+      "stableWeight": "Stable weight (kg)",
+      "peakWeight": "Peak (kg)",
+      "grossWeight": "Gross (kg)",
+      "tareWeight": "Tare (kg)",
+      "netWeight": "Net (kg)",
+      "deductions": "Deductions (kg)",
+      "settledWeight": "Settled (kg)",
+      "firstHash": "First reading hash",
+      "lastHash": "Last reading hash"
+    },
+    "column": {
+      "anomaly": "Check",
+      "detail": "Detail",
+      "deduction": "Deduction",
+      "weight": "Weight (kg)",
+      "reason": "Reason"
+    },
+    "verdict": {
+      "valid": "Accepted",
+      "validNote": "This weighing passed every check in force at the time.",
+      "void": "Rejected — not valid for settlement",
+      "voidNote": "One or more checks failed. This ticket is a record of what happened, not a basis for payment."
+    },
+    "tareSource": {
+      "MEASURED": "The tare was measured on this weighbridge.",
+      "STORED": "The tare was taken from the vehicle's record, not measured on this visit."
+    },
+    "signature": {
+      "operator": "Weighbridge operator",
+      "driver": "Driver"
+    }
+  }
+}
