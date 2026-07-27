@@ -2,6 +2,7 @@
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
+  EmailCopy,
   LoginRecord,
   Role,
   RolePayload,
@@ -21,8 +22,12 @@ export function getUser(id: string): Promise<UserDetail> {
 
 export async function createUser(
   payload: UserPayload & { company?: string },
+  emailCopy?: EmailCopy,
 ): Promise<UserDetail> {
-  const user = await api.post<UserDetail>("/api/users/create_user/", payload);
+  const user = await api.post<UserDetail>("/api/users/create_user/", {
+    ...payload,
+    ...(emailCopy ? { email_copy: emailCopy } : {}),
+  });
   toastSuccess("users.toast.created");
   return user;
 }
@@ -56,8 +61,14 @@ export async function deleteUser(id: string): Promise<void> {
   toastSuccess("users.toast.removed");
 }
 
-export async function sendPasswordReset(id: string): Promise<void> {
-  await api.post(`/api/users/${id}/send_password_reset/`);
+export async function sendPasswordReset(
+  id: string,
+  emailCopy?: EmailCopy,
+): Promise<void> {
+  await api.post(
+    `/api/users/${id}/send_password_reset/`,
+    emailCopy ? { email_copy: emailCopy } : {},
+  );
   toastSuccess("users.resetPassword.sent");
 }
 

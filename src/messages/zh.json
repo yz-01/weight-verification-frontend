@@ -1636,5 +1636,15 @@
       "operator": "地磅员",
       "driver": "司机"
     }
+  },
+  "email": {
+    "invite": {
+      "subject": "邀请你加入 MSE Trace",
+      "body": "你已被邀请加入 MSE Trace。请使用下方链接设置密码并登录。链接将很快失效。"
+    },
+    "reset": {
+      "subject": "重置你的 MSE Trace 密码",
+      "body": "我们收到了重置你 MSE Trace 密码的请求。请使用下方链接设置新密码。如果这不是你本人操作，请忽略此邮件。"
+    }
   }
 }

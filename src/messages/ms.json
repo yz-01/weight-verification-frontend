@@ -1636,5 +1636,15 @@
       "operator": "Pengendali jambatan timbang",
       "driver": "Pemandu"
     }
+  },
+  "email": {
+    "invite": {
+      "subject": "Anda dijemput ke MSE Trace",
+      "body": "Anda telah dijemput ke MSE Trace. Gunakan pautan di bawah untuk menetapkan kata laluan dan log masuk. Pautan ini akan tamat tempoh tidak lama lagi."
+    },
+    "reset": {
+      "subject": "Tetapkan semula kata laluan MSE Trace anda",
+      "body": "Kami menerima permintaan untuk menetapkan semula kata laluan MSE Trace anda. Gunakan pautan di bawah untuk memilih yang baharu. Jika anda tidak membuat permintaan ini, abaikan e-mel ini."
+    }
   }
 }

@@ -6,6 +6,19 @@ import type { CompanyType } from "@/interfaces/company";
 export type UserStatus = "INVITED" | "ACTIVE" | "SUSPENDED";
 
 /**
+ * Wording for a mailed link, resolved through i18n and handed to the backend.
+ *
+ * The backend owns the token and the sending; the frontend owns the words,
+ * because the message catalogue lives here. Same split as the weigh ticket and
+ * the spreadsheet exports. The body carries no link placeholder — the backend
+ * appends the one-time link it alone can build.
+ */
+export interface EmailCopy {
+  subject: string;
+  body: string;
+}
+
+/**
  * Which slice of the permission catalogue a user can hold.
  *
  * Mirrors the backend registry. Platform staff sit outside the tenant

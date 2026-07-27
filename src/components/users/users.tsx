@@ -81,7 +81,14 @@ export function Users() {
   });
 
   const resetLink = useMutation({
-    mutationFn: (id: string) => sendPasswordReset(id),
+    // The action from the list is "resend the sign-in link". The backend picks
+    // invite versus reset by the user's state; the wording here matches the
+    // reset case, which is what this control is for — a user who cannot get in.
+    mutationFn: (id: string) =>
+      sendPasswordReset(id, {
+        subject: t("email.reset.subject"),
+        body: t("email.reset.body"),
+      }),
   });
 
   const columns = useMemo<ColumnDef<UserRow, unknown>[]>(
