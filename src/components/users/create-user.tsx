@@ -60,7 +60,13 @@ export function CreateUser({ user }: { user?: UserDetail }) {
     mutationFn: (values: UserPayload) =>
       isEdit
         ? updateUser(user.id, values)
-        : createUser({ ...values, ...(companyId ? { company: companyId } : {}) }),
+        : createUser(
+            { ...values, ...(companyId ? { company: companyId } : {}) },
+            {
+              subject: t("email.invite.subject"),
+              body: t("email.invite.body"),
+            },
+          ),
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["users"] });
       router.push(`/users/${saved.id}`);

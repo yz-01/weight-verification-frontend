@@ -4,6 +4,7 @@ import { api, toastSuccess } from "@/services/api-client";
 import type { Locale } from "@/i18n/config";
 import type {
   CurrentUser,
+  EmailCopy,
   LoginResponse,
   PermissionEntry,
 } from "@/interfaces/auth";
@@ -65,8 +66,15 @@ export async function changePassword(payload: {
   toastSuccess("auth.changePassword.success");
 }
 
-export async function forgotPassword(email: string): Promise<void> {
-  await api.post("/api/auth/forgot_password/", { email }, { silent: true });
+export async function forgotPassword(
+  email: string,
+  emailCopy?: EmailCopy,
+): Promise<void> {
+  await api.post(
+    "/api/auth/forgot_password/",
+    { email, ...(emailCopy ? { email_copy: emailCopy } : {}) },
+    { silent: true },
+  );
 }
 
 export async function resetPassword(payload: {

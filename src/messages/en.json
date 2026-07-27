@@ -1636,5 +1636,15 @@
       "operator": "Weighbridge operator",
       "driver": "Driver"
     }
+  },
+  "email": {
+    "invite": {
+      "subject": "You're invited to MSE Trace",
+      "body": "You have been invited to MSE Trace. Use the link below to set your password and sign in. The link expires soon."
+    },
+    "reset": {
+      "subject": "Reset your MSE Trace password",
+      "body": "We received a request to reset your MSE Trace password. Use the link below to choose a new one. If you did not request this, you can ignore this email."
+    }
   }
 }

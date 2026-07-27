@@ -22,7 +22,10 @@ export function ForgotPassword() {
       // The service never rejects on an unknown address, and the response is
       // identical either way: a different answer for a missing account turns
       // this endpoint into a way to enumerate who is registered.
-      await forgotPassword(value.email);
+      await forgotPassword(value.email, {
+        subject: t("email.reset.subject"),
+        body: t("email.reset.body"),
+      });
       setSent(true);
     },
   });
