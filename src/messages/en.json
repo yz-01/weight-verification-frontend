@@ -245,7 +245,8 @@
     "taxIdHint": "Required before e-invoicing can be switched on for this company.",
     "languageHint": "New users of this company start here. Each can change their own.",
     "suspendedReason": "Suspension reason",
-    "suspendedAt": "Suspended on"
+    "suspendedAt": "Suspended on",
+    "addUser": "Add user"
   },
   "users": {
     "title": "Users",

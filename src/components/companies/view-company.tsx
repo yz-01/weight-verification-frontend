@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Pencil } from "lucide-react";
+import { Pencil, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
@@ -51,14 +51,29 @@ export function ViewCompany({ id }: { id: string }) {
         backHref="/companies"
         backLabel={t("companies.title")}
         action={
-          can("company.update") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href={`/companies/${data.id}/edit`}>
-                <Pencil className="h-4 w-4" />
-                {t("common.edit")}
-              </Link>
-            </Button>
-          ) : undefined
+          <div className="flex items-center gap-2">
+            {can("user.create") ? (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="rounded-full px-4"
+              >
+                <Link href={`/users/create?company=${data.id}`}>
+                  <UserPlus className="h-4 w-4" />
+                  {t("companies.addUser")}
+                </Link>
+              </Button>
+            ) : null}
+            {can("company.update") ? (
+              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Link href={`/companies/${data.id}/edit`}>
+                  <Pencil className="h-4 w-4" />
+                  {t("common.edit")}
+                </Link>
+              </Button>
+            ) : null}
+          </div>
         }
       />
 

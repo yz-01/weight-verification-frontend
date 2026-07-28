@@ -4,7 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Save, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -37,6 +37,7 @@ import { createUser, getRoles, updateUser } from "@/services/users.service";
 export function CreateUser({ user }: { user?: UserDetail }) {
   const t = useTranslations();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { user: me } = useAuth();
   const isEdit = user !== undefined;
@@ -45,7 +46,14 @@ export function CreateUser({ user }: { user?: UserDetail }) {
   // Platform staff manage a named tenant's users; a tenant admin manages their
   // own. Either way the roles offered must come from the same company as the
   // user, or the backend rejects the pairing.
-  const companyId = user?.company ?? me?.company ?? undefined;
+  //
+  // The tenant comes from `?company=` when a platform admin adds a user from a
+  // company's page — without it, platform staff can only ever create more
+  // platform staff, and a tenant's first user could never be made. A tenant
+  // admin has their own company and ignores the parameter.
+  const companyFromUrl = searchParams.get("company") ?? undefined;
+  const companyId =
+    user?.company ?? me?.company ?? companyFromUrl ?? undefined;
 
   const { data: roles } = useQuery({
     queryKey: ["roles", "options", companyId ?? "platform"],
