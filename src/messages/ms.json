@@ -245,7 +245,8 @@
     "taxIdHint": "Diperlukan sebelum e-invois boleh dihidupkan untuk syarikat ini.",
     "languageHint": "Pengguna baharu syarikat ini bermula di sini. Setiap orang boleh mengubahnya.",
     "suspendedReason": "Sebab penggantungan",
-    "suspendedAt": "Digantung pada"
+    "suspendedAt": "Digantung pada",
+    "addUser": "Tambah pengguna"
   },
   "users": {
     "title": "Pengguna",

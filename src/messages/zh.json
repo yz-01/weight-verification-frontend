@@ -245,7 +245,8 @@
     "taxIdHint": "为这家公司开通电子发票前必须填写。",
     "languageHint": "这家公司新建用户的默认语言，每个人之后可自行更改。",
     "suspendedReason": "停用原因",
-    "suspendedAt": "停用时间"
+    "suspendedAt": "停用时间",
+    "addUser": "添加用户"
   },
   "users": {
     "title": "用户",
