@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
@@ -11,6 +11,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { getSessionPortal } from "@/lib/auth-token";
+import {
+  firstAllowedDashboardPath,
+  isDriverOnlyAccount,
+  isRouteAllowed,
+} from "@/lib/navigation";
+import { portalLoginPath } from "@/lib/portal";
 
 /**
  * The signed-in shell, and the guard in front of it.
@@ -27,15 +34,48 @@ import {
  */
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isLoading } = useAuth();
+  const isDriverOnly =
+    user !== null &&
+    isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
 
   useEffect(() => {
     if (!isLoading && user === null) {
-      router.replace("/login");
+      router.replace(portalLoginPath(getSessionPortal()));
+      return;
     }
-  }, [isLoading, user, router]);
+    if (!isLoading && user !== null && isDriverOnly) {
+      router.replace("/driver");
+      return;
+    }
+    if (
+      !isLoading &&
+      user !== null &&
+      !isRouteAllowed(
+        user.portal,
+        user.features,
+        pathname,
+        user.permissions,
+        user.is_superuser,
+      )
+    ) {
+      router.replace(firstAllowedDashboardPath(user.portal, user.features));
+    }
+  }, [isDriverOnly, isLoading, pathname, user, router]);
 
-  if (isLoading || user === null) {
+  const isAllowed =
+    user !== null &&
+    !isDriverOnly &&
+    isRouteAllowed(
+      user.portal,
+      user.features,
+      pathname,
+      user.permissions,
+      user.is_superuser,
+    );
+
+  if (isLoading || user === null || !isAllowed) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />

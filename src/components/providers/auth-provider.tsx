@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useMemo } from "react";
 
 import type { CurrentUser } from "@/interfaces/auth";
-import { clearTokens, hasSession } from "@/lib/auth-token";
+import { clearTokens, getSessionPortal, hasSession } from "@/lib/auth-token";
+import { portalLoginPath } from "@/lib/portal";
 import * as authService from "@/services/auth.service";
 
 export const CURRENT_USER_KEY = ["auth", "me"] as const;
@@ -18,7 +19,7 @@ interface AuthContextValue {
   can: (code: string) => boolean;
   /** True if the user holds at least one of the codes. */
   canAny: (codes: string[]) => boolean;
-  setUser: (user: CurrentUser) => void;
+  setUser: (user: CurrentUser) => Promise<void>;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -56,7 +57,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isLoading = hasSession() && isPending && !isFetched;
 
   const setUser = useCallback(
-    (next: CurrentUser) => queryClient.setQueryData(CURRENT_USER_KEY, next),
+    async (next: CurrentUser) => {
+      // Login pages remain reachable while a session exists. A person can
+      // therefore switch accounts without first pressing Sign out; clear the
+      // previous tenant's requests before publishing the new account.
+      await queryClient.cancelQueries();
+      queryClient.removeQueries({
+        predicate: (query) =>
+          query.queryKey[0] !== CURRENT_USER_KEY[0] ||
+          query.queryKey[1] !== CURRENT_USER_KEY[1],
+      });
+      queryClient.setQueryData(CURRENT_USER_KEY, next);
+    },
     [queryClient],
   );
 
@@ -65,11 +77,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient]);
 
   const signOut = useCallback(async () => {
-    await authService.logout();
-    // Clear everything, not just the session: a cached company list from the
-    // previous account must not be visible to whoever signs in next.
-    queryClient.clear();
-    router.replace("/login");
+    const portal = getSessionPortal();
+    try {
+      await authService.logout();
+    } catch {
+      // The service clears local tokens even when the revocation request
+      // cannot reach the API. Signing out must still finish while offline.
+    } finally {
+      // Stop requests owned by the old account before clearing their results.
+      // Keep the auth query itself alive and explicitly set it to null:
+      // removing it while this provider is still observing it can leave the
+      // observer on the old User until a full page reload, briefly showing the
+      // previous account after the next sign-in.
+      await queryClient.cancelQueries();
+      queryClient.removeQueries({
+        predicate: (query) =>
+          query.queryKey[0] !== CURRENT_USER_KEY[0] ||
+          query.queryKey[1] !== CURRENT_USER_KEY[1],
+      });
+      queryClient.setQueryData(CURRENT_USER_KEY, null);
+      // Keep the last portal marker. The signed-out shell also observes the
+      // user becoming null; retaining this value makes every redirect converge
+      // on the same branded login instead of racing back to generic `/login`.
+      router.replace(portalLoginPath(portal));
+    }
   }, [queryClient, router]);
 
   const permissions = useMemo(

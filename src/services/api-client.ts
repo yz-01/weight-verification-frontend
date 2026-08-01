@@ -23,8 +23,10 @@ import {
   clearTokens,
   getAccessToken,
   getRefreshToken,
+  getSessionPortal,
   setTokens,
 } from "@/lib/auth-token";
+import { portalLoginPath } from "@/lib/portal";
 import { t } from "@/lib/i18n-runtime";
 
 const BASE_URL = (
@@ -98,10 +100,12 @@ function ensureRefresh(): Promise<boolean> {
 }
 
 function endSession(): void {
+  const portal = getSessionPortal();
   clearTokens();
-  if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+  const loginPath = portalLoginPath(portal);
+  if (typeof window !== "undefined" && window.location.pathname !== loginPath) {
     toast.error(t("auth.sessionExpired"));
-    window.location.href = "/login";
+    window.location.href = loginPath;
   }
 }
 

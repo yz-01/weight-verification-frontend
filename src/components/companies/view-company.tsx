@@ -45,11 +45,18 @@ export function ViewCompany({ id }: { id: string }) {
     return <LoadErrorCard backHref="/companies" backLabel={t("companies.title")} />;
   }
 
+  const listHref =
+    data.type === "CONTRACTOR" ? "/contractor-partners" : "/recycler-review";
+
   return (
     <div className="space-y-4">
       <DetailHeader
-        backHref="/companies"
-        backLabel={t("companies.title")}
+        backHref={listHref}
+        backLabel={
+          data.type === "CONTRACTOR"
+            ? t("contractorPartners.title")
+            : t("recyclerReview.title")
+        }
         action={
           <div className="flex items-center gap-2">
             {can("user.create") ? (
@@ -118,6 +125,29 @@ export function ViewCompany({ id }: { id: string }) {
                 />
               </>
             )}
+          </FormSection>
+
+          <FormSection title={t("companies.section.subscription")}>
+            <ReadField
+              label={t("companies.field.plan")}
+              value={data.plan_name}
+            />
+            <ReadField
+              label={t("companies.field.projectLimit")}
+              value={
+                data.project_limit === null
+                  ? t("contractorPartners.unlimitedProjects")
+                  : String(data.project_limit)
+              }
+            />
+            <ReadField
+              label={t("companies.field.projectLimitOverride")}
+              value={
+                data.project_limit_override === null
+                  ? null
+                  : String(data.project_limit_override)
+              }
+            />
           </FormSection>
 
           <FormSection title={t("companies.section.contact")}>

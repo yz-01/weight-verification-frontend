@@ -69,6 +69,9 @@ export function CreateProject({ project }: { project?: Project }) {
       city: project?.city ?? "",
       state: project?.state ?? "",
       postcode: project?.postcode ?? "",
+      latitude: project?.latitude ?? "",
+      longitude: project?.longitude ?? "",
+      geofence_radius_m: project?.geofence_radius_m?.toString() ?? "",
       start_date: project?.start_date ?? "",
       end_date: project?.end_date ?? "",
       site_manager: project?.site_manager ?? "",
@@ -81,6 +84,11 @@ export function CreateProject({ project }: { project?: Project }) {
         // malformed date rather than as "not set".
         await mutation.mutateAsync({
           ...value,
+          latitude: value.latitude || null,
+          longitude: value.longitude || null,
+          geofence_radius_m: value.geofence_radius_m
+            ? Number(value.geofence_radius_m)
+            : null,
           start_date: value.start_date || null,
           end_date: value.end_date || null,
         });
@@ -219,6 +227,49 @@ export function CreateProject({ project }: { project?: Project }) {
         </form.Field>
       </FormSection>
 
+      <FormSection title={t("projects.section.location")}>
+        <form.Field name="latitude">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.latitude")}
+              type="number"
+              min={-90}
+              max={90}
+              step="0.0000001"
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="longitude">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.longitude")}
+              type="number"
+              min={-180}
+              max={180}
+              step="0.0000001"
+              optional
+            />
+          )}
+        </form.Field>
+        <form.Field name="geofence_radius_m">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.geofenceRadius")}
+              hint={t("projects.geofenceHint")}
+              type="number"
+              min={1}
+              step={1}
+              optional
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+      </FormSection>
+
       <FormSection title={t("projects.section.schedule")}>
         <form.Field name="start_date">
           {(field) => (
@@ -281,7 +332,7 @@ export function EditProject({ id }: { id: string }) {
     queryFn: () => getProject(id),
   });
 
-  if (isLoading) return <FormSkeleton sections={4} />;
+  if (isLoading) return <FormSkeleton sections={5} />;
   if (isError || !data) {
     return <LoadErrorCard backHref="/projects" backLabel={t("projects.title")} />;
   }

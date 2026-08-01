@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -17,12 +17,21 @@ import {
   FormShell,
   applyServerErrors,
   optionalEmail,
+  optionalPositiveInteger,
   required,
 } from "@/components/shared/form-shell";
 import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { ApiError } from "@/interfaces/api";
-import type { CompanyDetail, CompanyPayload } from "@/interfaces/company";
-import { createCompany, updateCompany } from "@/services/companies.service";
+import type {
+  CompanyDetail,
+  CompanyPayload,
+  CompanyType,
+} from "@/interfaces/company";
+import {
+  createCompany,
+  getSubscriptionPlans,
+  updateCompany,
+} from "@/services/companies.service";
 
 const TIMEZONES = [
   "Asia/Kuala_Lumpur",
@@ -39,12 +48,22 @@ const TIMEZONES = [
  * component means a field added for one is present in the other, which is the
  * failure this arrangement exists to prevent.
  */
-export function CreateCompany({ company }: { company?: CompanyDetail }) {
+export function CreateCompany({
+  company,
+  defaultType,
+}: {
+  company?: CompanyDetail;
+  defaultType?: CompanyType;
+}) {
   const t = useTranslations();
   const router = useRouter();
   const queryClient = useQueryClient();
   const isEdit = company !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
+  const { data: plans, isLoading: plansLoading } = useQuery({
+    queryKey: ["subscription-plans", "active"],
+    queryFn: getSubscriptionPlans,
+  });
 
   const mutation = useMutation({
     mutationFn: (values: CompanyPayload) =>
@@ -58,7 +77,7 @@ export function CreateCompany({ company }: { company?: CompanyDetail }) {
   const form = useForm({
     defaultValues: {
       name: company?.name ?? "",
-      type: company?.type ?? "",
+      type: company?.type ?? defaultType ?? "",
       registration_no: company?.registration_no ?? "",
       tax_id: company?.tax_id ?? "",
       address_line_1: company?.address_line_1 ?? "",
@@ -72,11 +91,20 @@ export function CreateCompany({ company }: { company?: CompanyDetail }) {
       contact_email: company?.contact_email ?? "",
       default_language: company?.default_language ?? "en",
       timezone: company?.timezone ?? "Asia/Kuala_Lumpur",
+      plan: company?.plan ?? "",
+      project_limit_override:
+        company?.project_limit_override?.toString() ?? "",
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
       try {
-        await mutation.mutateAsync(value as CompanyPayload);
+        const override = value.project_limit_override.trim();
+        await mutation.mutateAsync({
+          ...value,
+          type: value.type as CompanyType,
+          plan: value.plan || null,
+          project_limit_override: override === "" ? null : Number(override),
+        } as CompanyPayload);
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
           // Put the server's field messages beside the inputs they belong to.
@@ -89,9 +117,16 @@ export function CreateCompany({ company }: { company?: CompanyDetail }) {
     },
   });
 
+  const listHref =
+    (company?.type ?? defaultType) === "CONTRACTOR"
+      ? "/contractor-partners"
+      : (company?.type ?? defaultType) === "RECYCLER"
+        ? "/recycler-review"
+        : "/companies";
+
   return (
     <FormShell
-      backHref={isEdit ? `/companies/${company.id}` : "/companies"}
+      backHref={isEdit ? `/companies/${company.id}` : listHref}
       backLabel={t("companies.title")}
       title={isEdit ? t("companies.editTitle") : t("companies.createTitle")}
       isSubmitting={mutation.isPending}
@@ -154,6 +189,55 @@ export function CreateCompany({ company }: { company?: CompanyDetail }) {
               optional
               hint={t("companies.taxIdHint")}
               className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+      </FormSection>
+
+      <FormSection title={t("companies.section.subscription")}>
+        <form.Field
+          name="plan"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("companies.field.plan")}
+              required
+              hint={plansLoading ? t("common.loading") : undefined}
+              options={(plans?.results ?? []).map((plan) => {
+                const allowance =
+                  plan.max_projects === null
+                    ? t("contractorPartners.unlimitedProjects")
+                    : t("contractorPartners.projectLimit", {
+                        count: plan.max_projects,
+                      });
+                return {
+                  value: plan.id,
+                  label: `${plan.name} (${allowance})`,
+                };
+              })}
+            />
+          )}
+        </form.Field>
+
+        <form.Field
+          name="project_limit_override"
+          validators={{
+            onSubmit: optionalPositiveInteger(
+              t("validation.positiveInteger"),
+            ),
+          }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("companies.field.projectLimitOverride")}
+              optional
+              type="number"
+              min={1}
+              step={1}
+              hint={t("companies.projectLimitOverrideHint")}
             />
           )}
         </form.Field>

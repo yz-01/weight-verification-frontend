@@ -12,9 +12,11 @@ import { TextField, type BoundField } from "@/components/shared/form-fields";
 import { minLength, required } from "@/components/shared/form-shell";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
+import type { Portal } from "@/interfaces/auth";
+import { portalLoginPath } from "@/lib/portal";
 import { resetPassword } from "@/services/auth.service";
 
-export function ResetPassword() {
+export function ResetPassword({ portal }: { portal?: Portal }) {
   const t = useTranslations();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
@@ -30,7 +32,7 @@ export function ResetPassword() {
         return;
       }
       try {
-        await resetPassword({ token, new_password: value.new_password });
+        await resetPassword({ token, new_password: value.new_password, portal });
         setDone(true);
       } catch (error) {
         if (error instanceof ApiError) {
@@ -44,7 +46,7 @@ export function ResetPassword() {
 
   const backToLogin = (
     <Link
-      href="/login"
+      href={portalLoginPath(portal)}
       className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
     >
       <ArrowLeft className="h-3.5 w-3.5" />

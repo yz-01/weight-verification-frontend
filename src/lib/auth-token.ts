@@ -12,9 +12,11 @@
  */
 
 import { LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, type Locale } from "@/i18n/config";
+import type { Portal } from "@/interfaces/auth";
 
 const ACCESS_KEY = "mse_access_token";
 const REFRESH_KEY = "mse_refresh_token";
+const PORTAL_KEY = "mse_portal";
 
 const isBrowser = () => typeof window !== "undefined";
 
@@ -38,6 +40,29 @@ export function clearTokens(): void {
   if (!isBrowser()) return;
   window.localStorage.removeItem(ACCESS_KEY);
   window.localStorage.removeItem(REFRESH_KEY);
+}
+
+/**
+ * Keep the portal separately from the credentials so an expired session can
+ * return to the same branded sign-in screen after its tokens are removed.
+ */
+export function getSessionPortal(): Portal | null {
+  if (!isBrowser()) return null;
+  const portal = window.localStorage.getItem(PORTAL_KEY);
+  return portal === "MSE_ADMIN" || portal === "MSE_TRACE" || portal === "MSE_SCRAP"
+    ? portal
+    : null;
+}
+
+export function setSessionPortal(portal: Portal): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(PORTAL_KEY, portal);
+}
+
+export function clearSession(): void {
+  clearTokens();
+  if (!isBrowser()) return;
+  window.localStorage.removeItem(PORTAL_KEY);
 }
 
 export function hasSession(): boolean {

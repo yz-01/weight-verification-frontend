@@ -48,6 +48,9 @@ export function TextField({
   autoComplete,
   className,
   disabled,
+  min,
+  max,
+  step,
 }: {
   field: BoundField;
   label: string;
@@ -59,6 +62,9 @@ export function TextField({
   autoComplete?: string;
   className?: string;
   disabled?: boolean;
+  min?: string | number;
+  max?: string | number;
+  step?: string | number;
 }) {
   const t = useTranslations();
   const error = firstError(field);
@@ -76,6 +82,9 @@ export function TextField({
         type={type}
         autoComplete={autoComplete}
         disabled={disabled}
+        min={min}
+        max={max}
+        step={step}
         placeholder={placeholder}
         aria-invalid={error ? true : undefined}
         value={field.state.value ?? ""}

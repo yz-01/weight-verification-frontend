@@ -205,6 +205,14 @@ export function optionalEmail(emailMessage: string) {
   };
 }
 
+export function optionalPositiveInteger(message: string) {
+  return ({ value }: { value: unknown }) => {
+    if (typeof value !== "string" || value.trim() === "") return undefined;
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= 1 ? undefined : message;
+  };
+}
+
 export function minLength(min: number, message: string) {
   return ({ value }: { value: unknown }) => {
     const result = z.string().min(min, message).safeParse(value);

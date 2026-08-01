@@ -62,7 +62,8 @@
     "minLength": "至少需要 {min} 个字符",
     "maxLength": "最多 {max} 个字符",
     "passwordMismatch": "两次输入的密码不一致",
-    "passwordTooShort": "密码至少 10 个字符"
+    "passwordTooShort": "密码至少 10 个字符",
+    "positiveInteger": "请输入不小于 1 的整数"
   },
   "auth": {
     "login": {
@@ -144,7 +145,36 @@
     "gate": "地磅门口",
     "vehicles": "车辆",
     "drivers": "司机",
-    "deductions": "扣杂"
+    "deductions": "扣杂",
+    "cloud_weighing": "云端称重",
+    "weighing_parameters": "地磅检测参数",
+    "contractor_partners": "建筑商管理",
+    "recycler_review": "回收商审核",
+    "transaction_reports": "交易报表",
+    "recyclers": "合作回收商",
+    "material_receipts": "材料收货",
+    "waste_dispatches": "废料出场",
+    "recycling_records": "回收称重记录",
+    "attendance": "考勤",
+    "payment_proofs": "付款凭证",
+    "progress": "工程进度",
+    "safety": "安全事故",
+    "material_quantity_report": "材料数量报表",
+    "material_cost_report": "材料成本报表",
+    "user_logs": "用户日志",
+    "partnerships": "建筑商合作",
+    "yards": "回收场",
+    "weighbridges": "地磅",
+    "waste_orders": "废料订单",
+    "driver_tasks": "司机任务",
+    "weighing_records": "称重记录",
+    "payment_status": "付款状态",
+    "documents": "文档档案",
+    "approvals": "审批流程",
+    "evidence": "证据档案",
+    "notifications": "通知中心",
+    "driver_gps": "司机 GPS",
+    "system_monitoring": "系统监控"
   },
   "dashboard": {
     "title": "仪表板",
@@ -161,9 +191,30 @@
       "onlineUsers": "当前在线",
       "planRevenue": "套餐收入",
       "commissionRevenue": "佣金收入",
-      "systemStatus": "系统状态"
+      "systemStatus": "系统状态",
+      "pendingReviews": "待审核回收商",
+      "weighingSessions": "称重次数",
+      "requiresReview": "待复核称重",
+      "receipts": "材料收货记录",
+      "dispatches": "废料出场记录",
+      "attendance": "考勤记录",
+      "wasteOrders": "待处理废料订单",
+      "driverTasks": "司机任务",
+      "settlements": "结算记录"
     },
-    "comingSoon": "此面板将在下个版本上线。"
+    "comingSoon": "此面板将在下个版本上线。",
+    "metrics": "业务概览",
+    "quickLinks": "快捷入口",
+    "noMetrics": "你的账号可以进入仪表板；管理员授予对应权限后，其他业务模块会显示在这里。"
+  },
+  "offline": {
+    "queued": "已离线保存，等待自动上传",
+    "synced": "已上传 {count} 条离线记录",
+    "status": {
+      "offline": "当前离线，{count} 条记录等待上传",
+      "pending": "{count} 条记录等待同步",
+      "syncing": "正在上传离线记录"
+    }
   },
   "companies": {
     "title": "客户公司",
@@ -176,7 +227,8 @@
       "identity": "基本资料",
       "address": "地址",
       "contact": "联系方式",
-      "preferences": "偏好设置"
+      "preferences": "偏好设置",
+      "subscription": "套餐与项目额度"
     },
     "field": {
       "code": "编号",
@@ -194,6 +246,9 @@
       "contactPerson": "联系人",
       "contactPhone": "联系电话",
       "contactEmail": "联系邮箱",
+      "plan": "套餐",
+      "projectLimit": "实际项目上限",
+      "projectLimitOverride": "自定义项目上限",
       "logo": "公司标志",
       "defaultLanguage": "默认语言",
       "timezone": "时区",
@@ -242,11 +297,516 @@
       "statusUpdated": "公司状态已更新"
     },
     "typeLocked": "公司类型创建后不可更改。",
+    "projectLimitOverrideHint": "留空时使用所选套餐的项目额度。",
     "taxIdHint": "为这家公司开通电子发票前必须填写。",
     "languageHint": "这家公司新建用户的默认语言，每个人之后可自行更改。",
     "suspendedReason": "停用原因",
     "suspendedAt": "停用时间",
     "addUser": "添加用户"
+  },
+  "attendance": {
+    "title": "考勤",
+    "count": "共 {count} 条考勤记录",
+    "field": {
+      "time": "记录时间",
+      "worker": "人员",
+      "project": "项目",
+      "event": "类型",
+      "evidence": "证据",
+      "photo": "照片",
+      "location": "GPS 位置",
+      "note": "备注"
+    },
+    "event": { "CLOCK_IN": "上班打卡", "CLOCK_OUT": "下班打卡" },
+    "filter": { "project": "选择项目", "allProjects": "所有项目" },
+    "clock": {
+      "action": "考勤打卡",
+      "title": "记录考勤",
+      "captureLocation": "获取 GPS",
+      "locationCaptured": "已获取 GPS",
+      "confirm": "保存考勤"
+    },
+    "toast": { "recorded": "考勤已记录" }
+  },
+  "progress": {
+    "title": "工程进度",
+    "count": "共 {count} 条进度记录",
+    "new": "新增进度",
+    "createTitle": "新增工程进度",
+    "editTitle": "编辑工程进度",
+    "field": {
+      "reportedAt": "报告时间",
+      "project": "项目",
+      "title": "标题",
+      "percentComplete": "完成比例",
+      "description": "说明",
+      "photo": "照片"
+    },
+    "filter": { "project": "选择项目", "allProjects": "所有项目" },
+    "action": { "viewPhoto": "查看照片" },
+    "form": { "description": "记录实测进度及现场证明。" },
+    "remove": {
+      "title": "移除 {name}？",
+      "description": "此进度记录将从项目时间线中移除。",
+      "confirm": "移除"
+    },
+    "toast": { "created": "进度已新增", "updated": "进度已更新", "removed": "进度已移除" }
+  },
+  "safety": {
+    "title": "安全事故",
+    "count": "共 {count} 条安全事故",
+    "new": "上报事故",
+    "createTitle": "上报安全事故",
+    "field": {
+      "occurredAt": "发生时间",
+      "title": "标题",
+      "project": "项目",
+      "severity": "严重程度",
+      "status": "状态",
+      "evidence": "证据",
+      "description": "说明",
+      "photo": "照片",
+      "location": "GPS 位置",
+      "resolutionNote": "处理说明"
+    },
+    "filter": { "project": "选择项目", "allProjects": "所有项目", "allSeverities": "所有严重程度" },
+    "severity": { "LOW": "低", "MEDIUM": "中", "HIGH": "高", "CRITICAL": "严重" },
+    "status": { "OPEN": "待处理", "INVESTIGATING": "调查中", "RESOLVED": "已解决" },
+    "evidence": { "location": "GPS 证据", "photo": "打开照片" },
+    "action": { "updateStatus": "更新状态" },
+    "form": {
+      "description": "记录事故经过、发生地点及证明材料。",
+      "captureLocation": "获取 GPS",
+      "locationCaptured": "已获取 GPS",
+      "confirm": "上报事故"
+    },
+    "update": { "title": "更新事故状态", "description": "更新 {incident} 并保留处理历史。" },
+    "toast": { "created": "安全事故已上报", "updated": "安全事故已更新" }
+  },
+  "paymentProofs": {
+    "title": "付款凭证",
+    "count": "共 {count} 条结算",
+    "paid": "已付 {amount}",
+    "field": {
+      "settlementNo": "结算编号",
+      "project": "项目",
+      "issuedAt": "出具日期",
+      "totalAmount": "总金额",
+      "paymentStatus": "付款状态",
+      "proofs": "凭证",
+      "paidOn": "付款日期",
+      "method": "付款方式",
+      "reference": "参考号 / 备注",
+      "amount": "金额",
+      "document": "文件"
+    },
+    "status": { "UNPAID": "未付款", "PARTIAL": "部分付款", "PAID": "已付款" },
+    "filter": { "project": "选择项目", "allProjects": "所有项目" },
+    "action": { "viewProofs": "查看付款凭证", "viewSettlement": "查看结算", "openDocument": "打开文件" },
+    "dialog": { "title": "付款凭证", "description": "结算 {settlement} 的付款记录。", "empty": "此结算尚未记录付款凭证。" }
+  },
+  "materialReports": {
+    "export": { "subtitle": "MSE Trace 筛选后的材料记录" },
+    "quantity": {
+      "title": "材料数量报表",
+      "subtitle": "按单位统计收货数量，不混合不同计量单位。",
+      "totalDeliveries": "收货总数",
+      "deliveryCount": "{count} 次收货",
+      "byMaterial": "按材料统计数量",
+      "unitNote": "数量始终按单位分组；吨、件和车次不会相加。"
+    },
+    "cost": {
+      "title": "材料成本报表",
+      "subtitle": "按项目和供应商统计材料成本及价格覆盖率。",
+      "totalCost": "总成本",
+      "pricedReceipts": "已定价收货",
+      "coverage": "价格覆盖率 {percent}%",
+      "unpricedReceipts": "未定价收货",
+      "incompleteWarning": "{count} 条收货记录没有单价，因此成本合计并不完整。",
+      "bySupplier": "按供应商统计成本",
+      "byMaterial": "按材料统计成本",
+      "missingPrices": "缺少价格"
+    }
+  },
+  "recyclers": {
+    "title": "回收商合作",
+    "count": "共 {count} 条回收商合作关系",
+    "field": { "recycler": "回收商", "status": "状态", "request": "申请", "projects": "已绑定项目", "updatedAt": "更新日期" },
+    "status": { "PENDING": "待回应", "ACTIVE": "合作中", "SUSPENDED": "已暂停", "REJECTED": "已拒绝" },
+    "action": { "accept": "接受", "reject": "拒绝", "manageProjects": "管理项目", "suspend": "暂停" },
+    "request": {
+      "action": "申请回收商合作",
+      "title": "申请回收商合作",
+      "description": "回收商接受后才能绑定项目。",
+      "searchPlaceholder": "搜索回收商",
+      "choose": "选择回收商",
+      "confirm": "发送申请",
+      "outgoing": "由本公司发起",
+      "incoming": "由回收商发起"
+    },
+    "projects": { "title": "已绑定项目", "description": "与 {name} 共享的项目。", "choose": "选择项目", "bind": "绑定项目", "empty": "尚未绑定项目", "unbind": "解除绑定", "more": "另有 {count} 个" },
+    "reject": { "title": "拒绝合作？", "description": "拒绝 {name} 的申请，并保留原因供审计。", "confirm": "拒绝" },
+    "suspend": { "title": "暂停合作？", "description": "停止与 {name} 的新业务，现有记录全部保留。", "confirm": "暂停" },
+    "toast": { "requested": "合作申请已发送", "accepted": "合作已接受", "rejected": "合作已拒绝", "suspended": "合作已暂停", "projectBound": "项目已绑定", "projectUnbound": "项目已解除绑定" }
+  },
+  "documents": {
+    "title": "文档档案",
+    "count": "共 {count} 份文档",
+    "allCategories": "全部分类",
+    "companyWide": "公司级",
+    "noFile": "尚未上传文件",
+    "download": "下载",
+    "keywordsPlaceholder": "多个关键词请用逗号分隔",
+    "field": {
+      "number": "文档编号",
+      "reference": "参考编号",
+      "title": "标题",
+      "description": "说明",
+      "keywords": "关键词",
+      "category": "分类",
+      "subcategory": "子分类",
+      "project": "项目",
+      "status": "状态",
+      "versions": "版本数",
+      "version": "版本",
+      "file": "文件",
+      "versionNote": "版本备注",
+      "uploadedBy": "上传人",
+      "sha256": "SHA-256",
+      "code": "代码",
+      "name": "名称",
+      "createdAt": "创建时间",
+      "updatedAt": "更新时间",
+      "archiveReason": "归档原因"
+    },
+    "status": { "ACTIVE": "使用中", "ARCHIVED": "已归档" },
+    "create": {
+      "action": "新建文档",
+      "title": "建立文档",
+      "description": "先建立档案记录，再上传第一份不可修改的文件版本。"
+    },
+    "edit": {
+      "title": "编辑文档",
+      "description": "更新档案资料，已有文件版本不会被修改。"
+    },
+    "detail": { "title": "文档详情" },
+    "upload": {
+      "action": "上传新版本",
+      "title": "上传文档版本",
+      "description": "为 {name} 新增一个不可修改的版本。",
+      "limit": "上传时会执行系统设定的文件大小限制。",
+      "confirm": "上传"
+    },
+    "versions": { "title": "版本记录", "empty": "尚未上传任何文件版本。" },
+    "archive": {
+      "action": "归档",
+      "title": "归档 {name}？",
+      "description": "归档后无法恢复，也不能再修改资料或上传版本。",
+      "confirm": "归档文档"
+    },
+    "taxonomy": {
+      "action": "管理分类",
+      "title": "文档分类",
+      "description": "维护档案使用的分类和子分类结构。",
+      "active": "启用",
+      "inactive": "停用",
+      "activeHint": "启用的项目可用于新文档。"
+    },
+    "categories": { "title": "分类", "add": "新增分类", "create": "建立分类", "edit": "编辑分类" },
+    "subcategories": { "title": "子分类", "add": "新增子分类", "create": "建立子分类", "edit": "编辑子分类" },
+    "toast": {
+      "categoryCreated": "分类已建立",
+      "categoryUpdated": "分类已更新",
+      "subcategoryCreated": "子分类已建立",
+      "subcategoryUpdated": "子分类已更新",
+      "created": "文档已建立",
+      "updated": "文档已更新",
+      "versionUploaded": "文档版本已上传",
+      "archived": "文档已归档"
+    }
+  },
+  "approvals": {
+    "title": "审批流程",
+    "count": "共 {count} 项审批",
+    "companyWide": "公司级",
+    "assignedTo": "指定给 {name}",
+    "unassigned": "任何合资格审核人",
+    "anyReviewer": "任何合资格审核人",
+    "reviewerHint": "这里只列出角色具备审批审核权限的启用用户。",
+    "metadataHint": "可选的流程专用 JSON 对象。",
+    "commentPlaceholder": "填写原因或审核备注",
+    "field": {
+      "number": "审批编号",
+      "title": "标题",
+      "resourceType": "记录类型",
+      "resourceId": "记录 ID",
+      "resourceLabel": "记录参考",
+      "project": "项目",
+      "requester": "申请人",
+      "reviewer": "审核人",
+      "status": "状态",
+      "description": "说明",
+      "metadata": "附加资料",
+      "comment": "备注",
+      "createdAt": "创建时间"
+    },
+    "scope": { "all": "全部审批", "mine": "由我申请或指定给我" },
+    "resource": {
+      "all": "全部记录类型",
+      "document": "文档",
+      "settlement": "结算",
+      "deduction": "扣杂",
+      "dispatch": "废料出场",
+      "receipt": "材料收货",
+      "other": "其他"
+    },
+    "status": {
+      "DRAFT": "草稿",
+      "SUBMITTED": "已提交",
+      "IN_REVIEW": "审核中",
+      "APPROVED": "已批准",
+      "REJECTED": "已拒绝",
+      "RETURNED": "已退回",
+      "CLOSED": "已关闭"
+    },
+    "create": { "action": "新建审批", "title": "建立审批", "description": "建立与业务记录关联的审批草稿。" },
+    "edit": { "title": "编辑审批", "description": "修正草稿或被退回的审批，然后重新提交。" },
+    "detail": { "title": "审批详情" },
+    "action": { "SUBMIT": "提交", "REVIEW": "开始审核", "APPROVE": "批准", "REJECT": "拒绝", "RETURN": "退回", "CLOSE": "关闭" },
+    "actionDialog": {
+      "SUBMIT": { "title": "提交 {name}？", "description": "将此申请发送给合资格审核人。" },
+      "REVIEW": { "title": "开始审核 {name}？", "description": "记录正式审核已经开始。" },
+      "APPROVE": { "title": "批准 {name}？", "description": "确认此申请已通过所需检查。" },
+      "REJECT": { "title": "拒绝 {name}？", "description": "拒绝此申请并记录原因。" },
+      "RETURN": { "title": "退回 {name}？", "description": "将申请退回给申请人修正。" },
+      "CLOSE": { "title": "关闭 {name}？", "description": "关闭这个已完成的流程。" }
+    },
+    "history": {
+      "title": "审批记录",
+      "sequence": "步骤",
+      "action": "动作",
+      "transition": "状态变化",
+      "actor": "操作人",
+      "comment": "备注",
+      "time": "时间",
+      "empty": "尚无流程操作记录。"
+    },
+    "validation": { "metadata": "请输入有效的 JSON 对象。" },
+    "toast": {
+      "created": "审批已建立",
+      "updated": "审批已更新",
+      "submit": "审批已提交",
+      "review": "审核已开始",
+      "approve": "审批已批准",
+      "reject": "审批已拒绝",
+      "return": "审批已退回",
+      "close": "审批已关闭"
+    }
+  },
+  "evidence": {
+    "title": "证据档案",
+    "count": "共 {count} 项证据",
+    "kind": { "PHOTO": "照片", "VIDEO": "视频", "SIGNATURE": "签名", "DOCUMENT": "文档", "OTHER": "其他" },
+    "field": {
+      "file": "文件",
+      "kind": "类型",
+      "source": "来源",
+      "context": "业务资料",
+      "capturedAt": "原始拍摄时间",
+      "uploadedAt": "上传时间",
+      "gps": "GPS",
+      "sha256": "SHA-256",
+      "company": "公司",
+      "project": "项目",
+      "actor": "用户",
+      "sourceModel": "来源模块",
+      "sourceId": "来源 ID",
+      "fieldName": "文件字段",
+      "supersedes": "取代证据",
+      "deviceId": "设备 ID",
+      "watermarkText": "水印文字",
+      "contentType": "文件类型",
+      "size": "文件大小"
+    },
+    "filter": { "capturedFrom": "拍摄起始日", "capturedTo": "拍摄截止日", "withGps": "有 GPS", "withoutGps": "无 GPS" },
+    "action": { "view": "查看证据", "verify": "验证完整性", "openOriginal": "打开原始文件" },
+    "section": { "record": "记录", "capture": "采集证据", "file": "文件证据", "integrity": "完整性验证", "watermark": "水印", "metadata": "附加资料" },
+    "integrity": {
+      "error": "无法验证该文件。",
+      "valid": "文件完整性验证通过",
+      "invalid": "文件完整性验证失败",
+      "verifiedAt": "验证时间 {value}",
+      "hash": "哈希",
+      "size": "大小",
+      "storedHash": "已存哈希",
+      "currentHash": "当前哈希",
+      "storedSize": "已存大小",
+      "currentSize": "当前大小",
+      "match": "一致",
+      "mismatch": "不一致"
+    }
+  },
+  "driverGps": {
+    "title": "司机 GPS",
+    "count": "共 {count} 项司机任务",
+    "tasks": {
+      "title": "司机任务",
+      "search": "搜索任务、司机或车辆",
+      "empty": "没有符合条件的司机任务",
+      "loadMore": "加载更多任务",
+      "filter": { "ALL": "全部", "RUNNING": "进行中", "FINISHED": "已完成" }
+    },
+    "route": { "error": "无法载入路线记录。", "empty": "暂无路线定位", "emptyDescription": "司机开始任务后，GPS 定位会显示在这里。" },
+    "summary": { "position": "当前位置", "accuracy": "精度", "event": "最新事件", "latest": "最新定位", "geofence": "电子围栏", "distance": "距离项目 {value}" },
+    "action": { "openMap": "打开位置" },
+    "event": { "POSITION": "定位", "ARRIVAL": "到场", "GEOFENCE_ENTER": "进入围栏", "GEOFENCE_EXIT": "离开围栏" },
+    "geofence": { "INSIDE": "围栏内", "OUTSIDE": "围栏外", "NOT_EVALUATED": "未验证" },
+    "timeline": { "title": "路线时间线", "count": "共 {count} 个定位", "loadOlder": "加载较早定位" },
+    "field": { "accuracy": "精度", "distance": "项目距离", "occurredAt": "原始发生时间", "uploadedAt": "上传时间" }
+  },
+  "notifications": {
+    "title": "通知中心",
+    "count": "共 {count} 条通知",
+    "unreadCount": "{count} 条未读通知",
+    "field": {
+      "time": "时间",
+      "kind": "类型",
+      "notification": "通知",
+      "status": "状态"
+    },
+    "kind": {
+      "SYSTEM": "系统",
+      "APPROVAL": "审批",
+      "EVENT": "事件",
+      "REMINDER": "提醒",
+      "EXCEPTION": "异常警报"
+    },
+    "status": { "read": "已读", "unread": "未读" },
+    "markRead": "标记为已读",
+    "markAllRead": "全部标记为已读",
+    "toast": { "allRead": "所有通知已标记为已读" }
+  },
+  "monitoring": {
+    "title": "系统监控",
+    "checkedAt": "检查时间：{value}",
+    "capture": "保存监控快照",
+    "tile": {
+      "server": "服务器",
+      "api": "API",
+      "database": "数据库",
+      "storage": "存储",
+      "queue": "任务队列",
+      "devices": "设备",
+      "errors": "错误"
+    },
+    "health": {
+      "ok": "正常",
+      "configured": "已配置",
+      "degraded": "性能下降",
+      "unhealthy": "异常",
+      "not_running": "未运行"
+    },
+    "value": {
+      "uptime": "已运行 {value} 分钟",
+      "jobs": "{count} 个排队任务",
+      "devices": "{total} 台中 {online} 台在线",
+      "errors": "24 小时内 {count} 个错误"
+    },
+    "events": {
+      "title": "最近系统事件",
+      "empty": "没有最近系统事件"
+    },
+    "severity": {
+      "INFO": "信息",
+      "WARNING": "警告",
+      "ERROR": "错误",
+      "CRITICAL": "严重"
+    },
+    "toast": { "captured": "监控快照已保存" }
+  },
+  "contractorPartners": {
+    "title": "建筑商合作方",
+    "new": "新增建筑商",
+    "count": "共 {count} 家建筑商合作方",
+    "field": { "plan": "套餐" },
+    "unlimitedProjects": "不限项目",
+    "projectLimit": "最多 {count} 个项目"
+  },
+  "recyclerReview": {
+    "title": "回收商审核",
+    "new": "新增回收商",
+    "count": "共 {count} 家回收商",
+    "field": { "reviewStatus": "审核状态", "note": "审核备注" },
+    "status": {
+      "PENDING": "待审核",
+      "APPROVED": "已批准",
+      "REJECTED": "已拒绝"
+    },
+    "approve": {
+      "title": "批准 {name}？",
+      "description": "批准后，该回收商可接收合作申请并绑定建筑项目。",
+      "confirm": "批准"
+    },
+    "reject": {
+      "title": "拒绝 {name}？",
+      "description": "该回收商将无法建立合作关系，备注会保留在审核记录中。",
+      "confirm": "拒绝"
+    }
+  },
+  "partnerships": {
+    "title": "建筑商合作",
+    "count": "共 {count} 条合作关系",
+    "field": {
+      "contractor": "建筑商",
+      "recycler": "回收商",
+      "status": "状态",
+      "requestedBy": "发起方",
+      "projects": "已绑定项目",
+      "note": "备注",
+      "updatedAt": "更新日期"
+    },
+    "status": {
+      "PENDING": "待回应",
+      "ACTIVE": "合作中",
+      "REJECTED": "已拒绝",
+      "SUSPENDED": "已暂停"
+    },
+    "request": {
+      "action": "申请合作",
+      "title": "申请新的合作关系",
+      "description": "对方公司接受申请后，双方才能绑定项目和处理废料订单。",
+      "company": "合作公司",
+      "noCompanies": "没有可申请的公司",
+      "loadError": "无法载入公司列表",
+      "confirm": "发送申请"
+    },
+    "respond": {
+      "accept": "接受",
+      "reject": "拒绝",
+      "acceptTitle": "接受与 {name} 的合作申请？",
+      "rejectTitle": "拒绝与 {name} 的合作申请？",
+      "acceptDescription": "合作关系会立即生效，但项目仍需逐一绑定。",
+      "rejectDescription": "申请将被关闭，拒绝原因会发送给申请方。"
+    },
+    "suspend": {
+      "title": "暂停此合作关系？",
+      "description": "双方不能再通过此关系开展新业务，已有记录不会改变。",
+      "confirm": "暂停"
+    },
+    "projects": {
+      "manage": "管理项目",
+      "title": "已绑定项目",
+      "description": "{contractor} 与 {recycler} 之间共享的项目。",
+      "bound": "已绑定项目",
+      "noneBound": "尚未绑定项目",
+      "add": "绑定其他项目",
+      "loadError": "无法载入项目",
+      "unbind": "解除绑定",
+      "bind": "绑定项目",
+      "noneAvailable": "所有可用项目均已绑定",
+      "unbindTitle": "解除 {name} 的绑定？",
+      "unbindDescription": "此项目的新废料订单将无法再使用该合作关系。"
+    }
   },
   "users": {
     "title": "用户",
@@ -580,6 +1140,30 @@
       "object_reference_required": "必须指定一条记录。",
       "refresh_token_required": "登录状态无法续期，请重新登录。",
       "validation_failed": "请检查标红的字段后重试。",
+      "project_limit_reached": "当前套餐的项目数量已达到上限。",
+      "approval_action_not_found": "找不到这条审批操作记录。",
+      "approval_actor_forbidden": "你无权执行此审批操作。",
+      "approval_invalid_transition": "此审批不能切换到该状态。",
+      "approval_not_found": "找不到这条审批记录。",
+      "company_not_recycler": "请选择回收商公司。",
+      "document_archived": "此文档已归档，无法更改。",
+      "document_category_not_found": "找不到这个文档分类。",
+      "document_file_unavailable": "此文档文件当前无法使用。",
+      "document_not_found": "找不到这份文档。",
+      "document_subcategory_not_found": "找不到这个文档子分类。",
+      "document_version_not_found": "找不到这个文档版本。",
+      "evidence_asset_not_found": "找不到这条证据记录。",
+      "evidence_file_unavailable": "此证据文件当前无法使用。",
+      "notification_not_found": "找不到这条通知。",
+      "partnership_already_exists": "与这家公司已存在合作关系。",
+      "partnership_not_active": "此合作关系当前未生效。",
+      "partnership_not_counterparty": "只有另一方公司可以回应此合作申请。",
+      "partnership_not_found": "找不到这条合作关系。",
+      "portal_mismatch": "此账号属于另一个后台，请使用对应的登录入口。",
+      "progress_update_not_found": "找不到这条工程进度。",
+      "project_already_bound": "此项目已绑定到该合作关系。",
+      "safety_incident_not_found": "找不到这条安全事故记录。",
+      "scheduled_job_not_found": "找不到这个计划任务。",
       "invalid_credentials": "邮箱或密码不正确。",
       "user_suspended": "此账号已停用，请联系管理员。",
       "company_suspended": "贵公司的账号已停用，请联系 MSE Trace 客服。",
@@ -623,6 +1207,7 @@
       "task_already_running": "这车货已经有一趟任务在跑了。",
       "task_already_started": "这趟任务已经开始，无法再改派。",
       "task_invalid_transition": "从当前状态无法进到那一步。",
+      "task_photo_required": "标记装载完成前必须上传现场装载照片。",
       "deduction_not_found": "找不到该扣杂记录。",
       "settlement_not_found": "找不到该结算单。",
       "deduction_not_producer": "只有产废方才能回应扣杂。",
@@ -898,6 +1483,7 @@
     "section": {
       "identity": "基本信息",
       "address": "工地地址",
+      "location": "工地位置与电子围栏",
       "schedule": "工期",
       "contact": "工地联系人",
       "team": "工地人员"
@@ -913,6 +1499,9 @@
       "city": "城市",
       "state": "州属",
       "postcode": "邮编",
+      "latitude": "纬度",
+      "longitude": "经度",
+      "geofenceRadius": "电子围栏半径",
       "startDate": "开工日期",
       "endDate": "完工日期",
       "siteManager": "工地负责人",
@@ -920,6 +1509,8 @@
       "assignedUsers": "人员",
       "createdAt": "创建时间"
     },
+    "geofenceHint": "请先同时填写经纬度，再设置半径。司机到场和路线定位会按此范围验证。",
+    "geofenceRadiusValue": "{count} 米",
     "status": {
       "PLANNING": "筹备中",
       "ACTIVE": "进行中",
@@ -1207,6 +1798,26 @@
       "loads": "车次",
       "estimatedWeight": "预估重量（公斤）",
       "estimateNote": "这些是工地的预估值。最终重量在货物过磅后由回收商的地磅给出。"
+    },
+    "transaction": {
+      "title": "交易报表",
+      "subtitle": "MSE、建筑商与回收商共享的结算冻结汇总。",
+      "filters": "交易筛选",
+      "state": "状态",
+      "allStates": "全部状态",
+      "currency": "币种",
+      "currencyPlaceholder": "MYR",
+      "summary": "交易汇总",
+      "transactions": "交易笔数",
+      "totalAmount": "总金额",
+      "outstanding": "未付金额",
+      "byCurrency": "按币种",
+      "byState": "按状态",
+      "byWasteType": "按废料类型",
+      "netWeight": "净重",
+      "deductions": "扣重",
+      "settledWeight": "结算重量",
+      "paid": "已付金额"
     },
     "empty": "当前筛选范围内暂无数据。"
   },
@@ -1561,6 +2172,8 @@
     "nothingAssigned": "目前没有分配给你的任务。",
     "back": "全部任务",
     "takePhoto": "拍照",
+    "navigate": "导航到项目",
+    "photoRequired": "请先拍摄装载照片，再将任务标记为已装载。",
     "cannotComplete": "我完成不了这趟",
     "arrivedNote": "记录你已到达现场，如果手机允许会一并记录位置。",
     "action": {

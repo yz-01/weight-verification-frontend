@@ -1,5 +1,5 @@
-import { Login } from "@/components/auth/login";
+import { PortalEntry } from "@/components/auth/portal-entry";
 
 export default function LoginPage() {
-  return <Login />;
+  return <PortalEntry />;
 }
