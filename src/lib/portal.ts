@@ -31,4 +31,3 @@ export function portalPaths(portal: Portal) {
 export function portalLoginPath(portal: Portal | null | undefined): string {
   return portal ? PORTAL_PATHS[portal].login : "/login";
 }
-
