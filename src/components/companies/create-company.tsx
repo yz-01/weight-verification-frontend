@@ -59,10 +59,12 @@ export function CreateCompany({
   const router = useRouter();
   const queryClient = useQueryClient();
   const isEdit = company !== undefined;
+  const fixedType = company?.type ?? defaultType;
   const [formError, setFormError] = useState<string | null>(null);
   const { data: plans, isLoading: plansLoading } = useQuery({
     queryKey: ["subscription-plans", "active"],
     queryFn: getSubscriptionPlans,
+    enabled: fixedType !== "RECYCLER",
   });
 
   const mutation = useMutation({
@@ -99,12 +101,27 @@ export function CreateCompany({
       setFormError(null);
       try {
         const override = value.project_limit_override.trim();
-        await mutation.mutateAsync({
+        const type = (fixedType ?? value.type) as CompanyType;
+        const basePayload = {
           ...value,
-          type: value.type as CompanyType,
-          plan: value.plan || null,
-          project_limit_override: override === "" ? null : Number(override),
-        } as CompanyPayload);
+          type,
+        };
+        const payload: CompanyPayload =
+          type === "CONTRACTOR"
+            ? {
+                ...basePayload,
+                plan: value.plan || null,
+                project_limit_override:
+                  override === "" ? null : Number(override),
+              }
+            : {
+                ...basePayload,
+                plan: undefined,
+                project_limit_override: undefined,
+              };
+        await mutation.mutateAsync({
+          ...payload,
+        });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
           // Put the server's field messages beside the inputs they belong to.
@@ -118,9 +135,9 @@ export function CreateCompany({
   });
 
   const listHref =
-    (company?.type ?? defaultType) === "CONTRACTOR"
+    fixedType === "CONTRACTOR"
       ? "/contractor-partners"
-      : (company?.type ?? defaultType) === "RECYCLER"
+      : fixedType === "RECYCLER"
         ? "/recycler-review"
         : "/companies";
 
@@ -161,12 +178,31 @@ export function CreateCompany({
               // A contractor's projects and a recycler's weigh sessions do not
               // interchange, so the backend refuses to change this after
               // creation. Locking it here says so before the request fails.
-              disabled={isEdit}
-              hint={isEdit ? t("companies.typeLocked") : undefined}
-              options={[
-                { value: "CONTRACTOR", label: t("companies.type.CONTRACTOR") },
-                { value: "RECYCLER", label: t("companies.type.RECYCLER") },
-              ]}
+              disabled={isEdit || defaultType !== undefined}
+              hint={
+                isEdit || defaultType !== undefined
+                  ? t("companies.typeLocked")
+                  : undefined
+              }
+              options={
+                fixedType
+                  ? [
+                      {
+                        value: fixedType,
+                        label: t(`companies.type.${fixedType}`),
+                      },
+                    ]
+                  : [
+                      {
+                        value: "CONTRACTOR",
+                        label: t("companies.type.CONTRACTOR"),
+                      },
+                      {
+                        value: "RECYCLER",
+                        label: t("companies.type.RECYCLER"),
+                      },
+                    ]
+              }
             />
           )}
         </form.Field>
@@ -194,54 +230,60 @@ export function CreateCompany({
         </form.Field>
       </FormSection>
 
-      <FormSection title={t("companies.section.subscription")}>
-        <form.Field
-          name="plan"
-          validators={{ onSubmit: required(t("validation.required")) }}
-        >
-          {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("companies.field.plan")}
-              required
-              hint={plansLoading ? t("common.loading") : undefined}
-              options={(plans?.results ?? []).map((plan) => {
-                const allowance =
-                  plan.max_projects === null
-                    ? t("contractorPartners.unlimitedProjects")
-                    : t("contractorPartners.projectLimit", {
-                        count: plan.max_projects,
-                      });
-                return {
-                  value: plan.id,
-                  label: `${plan.name} (${allowance})`,
-                };
-              })}
-            />
-          )}
-        </form.Field>
+      <form.Subscribe selector={(state) => state.values.type}>
+        {(selectedType) =>
+          selectedType === "RECYCLER" ? null : (
+            <FormSection title={t("companies.section.subscription")}>
+              <form.Field
+                name="plan"
+                validators={{ onSubmit: required(t("validation.required")) }}
+              >
+                {(field) => (
+                  <SelectField
+                    field={field as unknown as BoundField}
+                    label={t("companies.field.plan")}
+                    required
+                    hint={plansLoading ? t("common.loading") : undefined}
+                    options={(plans?.results ?? []).map((plan) => {
+                      const allowance =
+                        plan.max_projects === null
+                          ? t("contractorPartners.unlimitedProjects")
+                          : t("contractorPartners.projectLimit", {
+                              count: plan.max_projects,
+                            });
+                      return {
+                        value: plan.id,
+                        label: `${plan.name} (${allowance})`,
+                      };
+                    })}
+                  />
+                )}
+              </form.Field>
 
-        <form.Field
-          name="project_limit_override"
-          validators={{
-            onSubmit: optionalPositiveInteger(
-              t("validation.positiveInteger"),
-            ),
-          }}
-        >
-          {(field) => (
-            <TextField
-              field={field as unknown as BoundField}
-              label={t("companies.field.projectLimitOverride")}
-              optional
-              type="number"
-              min={1}
-              step={1}
-              hint={t("companies.projectLimitOverrideHint")}
-            />
-          )}
-        </form.Field>
-      </FormSection>
+              <form.Field
+                name="project_limit_override"
+                validators={{
+                  onSubmit: optionalPositiveInteger(
+                    t("validation.positiveInteger"),
+                  ),
+                }}
+              >
+                {(field) => (
+                  <TextField
+                    field={field as unknown as BoundField}
+                    label={t("companies.field.projectLimitOverride")}
+                    optional
+                    type="number"
+                    min={1}
+                    step={1}
+                    hint={t("companies.projectLimitOverrideHint")}
+                  />
+                )}
+              </form.Field>
+            </FormSection>
+          )
+        }
+      </form.Subscribe>
 
       <FormSection title={t("companies.section.contact")}>
         <form.Field name="contact_person">

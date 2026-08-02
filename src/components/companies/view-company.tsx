@@ -127,28 +127,30 @@ export function ViewCompany({ id }: { id: string }) {
             )}
           </FormSection>
 
-          <FormSection title={t("companies.section.subscription")}>
-            <ReadField
-              label={t("companies.field.plan")}
-              value={data.plan_name}
-            />
-            <ReadField
-              label={t("companies.field.projectLimit")}
-              value={
-                data.project_limit === null
-                  ? t("contractorPartners.unlimitedProjects")
-                  : String(data.project_limit)
-              }
-            />
-            <ReadField
-              label={t("companies.field.projectLimitOverride")}
-              value={
-                data.project_limit_override === null
-                  ? null
-                  : String(data.project_limit_override)
-              }
-            />
-          </FormSection>
+          {data.type === "CONTRACTOR" && (
+            <FormSection title={t("companies.section.subscription")}>
+              <ReadField
+                label={t("companies.field.plan")}
+                value={data.plan_name}
+              />
+              <ReadField
+                label={t("companies.field.projectLimit")}
+                value={
+                  data.project_limit === null
+                    ? t("contractorPartners.unlimitedProjects")
+                    : String(data.project_limit)
+                }
+              />
+              <ReadField
+                label={t("companies.field.projectLimitOverride")}
+                value={
+                  data.project_limit_override === null
+                    ? null
+                    : String(data.project_limit_override)
+                }
+              />
+            </FormSection>
+          )}
 
           <FormSection title={t("companies.section.contact")}>
             <ReadField
