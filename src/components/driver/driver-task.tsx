@@ -7,7 +7,6 @@ import {
   Building2,
   Camera,
   CircleAlert,
-  ExternalLink,
   Loader2,
   MapPin,
   PackageOpen,
@@ -16,7 +15,7 @@ import {
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   DriverError,
@@ -38,14 +37,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { TASK_TRANSITIONS, type TaskState } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
 import {
+  addTaskPhoto,
+  advanceTask,
   getTask,
 } from "@/services/recycler.service";
-import {
-  submitTaskPhotoOfflineAware,
-  submitTaskPositionOfflineAware,
-  submitTaskTransitionOfflineAware,
-} from "@/services/offline-sync.service";
-import { useAuth } from "@/components/providers/auth-provider";
 
 /**
  * One trip, on a phone.
@@ -63,14 +58,11 @@ export function DriverTask({ id }: { id: string }) {
   const t = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
 
   const [moving, setMoving] = useState<TaskState | null>(null);
   const [reason, setReason] = useState("");
   const [locating, setLocating] = useState(false);
-  const [hasQueuedPhoto, setHasQueuedPhoto] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
-  const lastPositionAt = useRef(0);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["tasks", "detail", id],
@@ -82,44 +74,20 @@ export function DriverTask({ id }: { id: string }) {
       // Location is asked for only on arrival, and only then. A page that
       // prompted for it on load would be denied once and never ask again,
       // exactly when it is finally wanted.
-      let position: {
-        latitude?: string;
-        longitude?: string;
-        accuracyM?: string;
-      } = {};
+      let position: { latitude?: string; longitude?: string } = {};
       if (state === "ARRIVED") {
         setLocating(true);
         position = await currentPosition();
         setLocating(false);
-        if (user && position.latitude && position.longitude) {
-          await submitTaskPositionOfflineAware(user.id, {
-            taskId: id,
-            eventType: "ARRIVAL",
-            latitude: position.latitude,
-            longitude: position.longitude,
-            accuracyM: position.accuracyM,
-          });
-        }
       }
-      if (!user) throw new Error("A signed-in user is required.");
-      return submitTaskTransitionOfflineAware(user.id, {
-        taskId: id,
+      return advanceTask(id, {
         state,
         reason: reason.trim(),
-        latitude: position.latitude,
-        longitude: position.longitude,
+        ...position,
       });
     },
-    onSuccess: (result, state) => {
-      if (result === "queued") {
-        queryClient.setQueryData(
-          ["tasks", "detail", id],
-          (current: typeof data) =>
-            current ? { ...current, state, is_running: true } : current,
-        );
-      } else {
-        void queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      }
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setMoving(null);
       setReason("");
     },
@@ -127,43 +95,11 @@ export function DriverTask({ id }: { id: string }) {
   });
 
   const upload = useMutation({
-    mutationFn: (file: File) => {
-      if (!user) throw new Error("A signed-in user is required.");
-      return submitTaskPhotoOfflineAware(user.id, id, file);
-    },
-    onSuccess: (result) => {
-      if (result === "queued") {
-        setHasQueuedPhoto(true);
-      } else {
-        void queryClient.invalidateQueries({
-          queryKey: ["tasks", "detail", id],
-        });
-      }
+    mutationFn: (file: File) => addTaskPhoto(id, file),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["tasks", "detail", id] });
     },
   });
-
-  useEffect(() => {
-    if (!user || !data?.is_running || !navigator.geolocation) return;
-
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const now = Date.now();
-        if (now - lastPositionAt.current < 30_000) return;
-        lastPositionAt.current = now;
-        void submitTaskPositionOfflineAware(user.id, {
-          taskId: id,
-          latitude: position.coords.latitude.toFixed(7),
-          longitude: position.coords.longitude.toFixed(7),
-          accuracyM: position.coords.accuracy.toFixed(2),
-          originalOccurredAt: new Date(position.timestamp).toISOString(),
-        }).catch(() => undefined);
-      },
-      () => undefined,
-      { enableHighAccuracy: true, maximumAge: 15_000, timeout: 20_000 },
-    );
-
-    return () => navigator.geolocation.clearWatch(watchId);
-  }, [data?.is_running, id, user]);
 
   if (isLoading) return <DriverLoading />;
   if (isError || !data) return <DriverError onRetry={() => void refetch()} />;
@@ -250,20 +186,6 @@ export function DriverTask({ id }: { id: string }) {
         )}
       </div>
 
-      {data.project_latitude && data.project_longitude && (
-        <Button asChild variant="outline" size="lg" className="h-12 w-full">
-          <a
-            href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${data.project_latitude},${data.project_longitude}`)}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <MapPin className="h-4 w-4" />
-            {t("driver.navigate")}
-            <ExternalLink className="ml-auto h-4 w-4" />
-          </a>
-        </Button>
-      )}
-
       <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -332,22 +254,10 @@ export function DriverTask({ id }: { id: string }) {
       )}
 
       {/* The next step, as one button the size of a thumb. */}
-      {forward === "LOADED" && data.photos.length === 0 && !hasQueuedPhoto && (
-        <p className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground">
-          {t("driver.photoRequired")}
-        </p>
-      )}
       {forward && (
         <Button
           size="lg"
           className="h-14 w-full rounded-full text-base shadow-sm"
-          disabled={
-            advance.isPending ||
-            locating ||
-            (forward === "LOADED" &&
-              data.photos.length === 0 &&
-              !hasQueuedPhoto)
-          }
           onClick={() => setMoving(forward)}
         >
           {advance.isPending || locating ? (
@@ -476,11 +386,7 @@ function Row({
  * coordinates. What is recorded is what the device reported, and the record
  * says so.
  */
-function currentPosition(): Promise<{
-  latitude?: string;
-  longitude?: string;
-  accuracyM?: string;
-}> {
+function currentPosition(): Promise<{ latitude?: string; longitude?: string }> {
   if (typeof navigator === "undefined" || !navigator.geolocation) {
     return Promise.resolve({});
   }
@@ -490,7 +396,6 @@ function currentPosition(): Promise<{
         resolve({
           latitude: position.coords.latitude.toFixed(7),
           longitude: position.coords.longitude.toFixed(7),
-          accuracyM: position.coords.accuracy.toFixed(2),
         }),
       () => resolve({}),
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 60_000 },

@@ -12,13 +12,9 @@
  */
 
 import { LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, type Locale } from "@/i18n/config";
-import type { Portal } from "@/interfaces/auth";
 
 const ACCESS_KEY = "mse_access_token";
 const REFRESH_KEY = "mse_refresh_token";
-const PORTAL_KEY = "mse_portal";
-const SESSION_COOKIE = "mse_session";
-const PORTAL_COOKIE = "mse_portal";
 
 const isBrowser = () => typeof window !== "undefined";
 
@@ -36,39 +32,12 @@ export function setTokens(tokens: { access: string; refresh: string }): void {
   if (!isBrowser()) return;
   window.localStorage.setItem(ACCESS_KEY, tokens.access);
   window.localStorage.setItem(REFRESH_KEY, tokens.refresh);
-  setCookie(SESSION_COOKIE, "1", 60 * 60 * 24 * 30);
 }
 
 export function clearTokens(): void {
   if (!isBrowser()) return;
   window.localStorage.removeItem(ACCESS_KEY);
   window.localStorage.removeItem(REFRESH_KEY);
-  deleteCookie(SESSION_COOKIE);
-}
-
-/**
- * Keep the portal separately from the credentials so an expired session can
- * return to the same branded sign-in screen after its tokens are removed.
- */
-export function getSessionPortal(): Portal | null {
-  if (!isBrowser()) return null;
-  const portal = window.localStorage.getItem(PORTAL_KEY) ?? getCookie(PORTAL_COOKIE);
-  return portal === "MSE_ADMIN" || portal === "MSE_TRACE" || portal === "MSE_SCRAP"
-    ? portal
-    : null;
-}
-
-export function setSessionPortal(portal: Portal): void {
-  if (!isBrowser()) return;
-  window.localStorage.setItem(PORTAL_KEY, portal);
-  setCookie(PORTAL_COOKIE, portal, 60 * 60 * 24 * 365);
-}
-
-export function clearSession(): void {
-  clearTokens();
-  if (!isBrowser()) return;
-  window.localStorage.removeItem(PORTAL_KEY);
-  deleteCookie(PORTAL_COOKIE);
 }
 
 export function hasSession(): boolean {
@@ -84,26 +53,6 @@ export function hasSession(): boolean {
  */
 export function setLocaleCookie(locale: Locale): void {
   if (!isBrowser()) return;
-  setCookie(LOCALE_COOKIE, locale, LOCALE_COOKIE_MAX_AGE);
-}
-
-function getCookie(name: string): string | null {
-  const prefix = `${name}=`;
-  return (
-    document.cookie
-      .split(";")
-      .map((part) => part.trim())
-      .find((part) => part.startsWith(prefix))
-      ?.slice(prefix.length) ?? null
-  );
-}
-
-function setCookie(name: string, value: string, maxAge: number): void {
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
-}
-
-function deleteCookie(name: string): void {
-  const secure = window.location.protocol === "https:" ? "; Secure" : "";
-  document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax${secure}`;
+  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=${LOCALE_COOKIE_MAX_AGE}; SameSite=Lax${secure}`;
 }

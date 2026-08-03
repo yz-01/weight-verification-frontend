@@ -126,28 +126,6 @@ export function ViewProject({ id }: { id: string }) {
             />
           </FormSection>
 
-          <FormSection title={t("projects.section.location")}>
-            <ReadField
-              label={t("projects.field.latitude")}
-              value={data.latitude}
-            />
-            <ReadField
-              label={t("projects.field.longitude")}
-              value={data.longitude}
-            />
-            <ReadField
-              label={t("projects.field.geofenceRadius")}
-              value={
-                data.geofence_radius_m
-                  ? t("projects.geofenceRadiusValue", {
-                      count: data.geofence_radius_m,
-                    })
-                  : null
-              }
-              className="md:col-span-2"
-            />
-          </FormSection>
-
           <FormSection title={t("projects.section.schedule")}>
             <ReadField
               label={t("projects.field.startDate")}

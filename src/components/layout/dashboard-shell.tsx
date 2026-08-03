@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
@@ -11,13 +11,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { getSessionPortal } from "@/lib/auth-token";
-import {
-  firstAllowedDashboardPath,
-  isDriverOnlyAccount,
-  isRouteAllowed,
-} from "@/lib/navigation";
-import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
 
 /**
  * The signed-in shell, and the guard in front of it.
@@ -34,51 +27,15 @@ import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
  */
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
   const { user, isLoading } = useAuth();
-  const isDriverOnly =
-    user !== null &&
-    isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
 
   useEffect(() => {
     if (!isLoading && user === null) {
-      redirectWithFallback(router, portalLoginPath(getSessionPortal()));
-      return;
+      router.replace("/login");
     }
-    if (!isLoading && user !== null && isDriverOnly) {
-      redirectWithFallback(router, "/driver");
-      return;
-    }
-    if (
-      !isLoading &&
-      user !== null &&
-      !isRouteAllowed(
-        user.portal,
-        user.features,
-        pathname,
-      user.permissions,
-      user.is_superuser,
-    )
-    ) {
-      redirectWithFallback(
-        router,
-        firstAllowedDashboardPath(user.portal, user.features),
-      );
-    }
-  }, [isDriverOnly, isLoading, pathname, user, router]);
+  }, [isLoading, user, router]);
 
-  const isAllowed =
-    user !== null &&
-    !isDriverOnly &&
-    isRouteAllowed(
-      user.portal,
-      user.features,
-      pathname,
-      user.permissions,
-      user.is_superuser,
-    );
-
-  if (isLoading || user === null || !isAllowed) {
+  if (isLoading || user === null) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />

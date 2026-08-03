@@ -1,11 +1,11 @@
 "use client";
 
-import { useForm, useStore } from "@tanstack/react-form";
+import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import {
   SelectField,
@@ -53,6 +53,14 @@ export function CreateDispatch({
     queryFn: () => getProjects({ page_size: 100 }),
   });
 
+  // Recyclers come from a dedicated endpoint rather than the company list:
+  // this is a cross-tenant read, and it returns only live recyclers and only
+  // the few fields needed to pick one.
+  const { data: recyclers } = useQuery({
+    queryKey: ["recyclers", "options"],
+    queryFn: () => getRecyclerOptions(),
+  });
+
   const mutation = useMutation({
     mutationFn: (values: WasteDispatchPayload) =>
       isEdit ? updateDispatch(dispatch.id, values) : createDispatch(values),
@@ -91,25 +99,6 @@ export function CreateDispatch({
         }
       }
     },
-  });
-
-  const projectId = useStore(form.store, (state) => state.values.project);
-  const previousProjectId = useRef(projectId);
-
-  useEffect(() => {
-    if (previousProjectId.current !== projectId) {
-      form.setFieldValue("recycler", "");
-      previousProjectId.current = projectId;
-    }
-  }, [form, projectId]);
-
-  // A recycler is eligible only through an active partnership bound to the
-  // selected project. The project therefore belongs in both the request and
-  // the query key so changing projects cannot reuse a stale partner list.
-  const { data: recyclers } = useQuery({
-    queryKey: ["recyclers", "options", projectId],
-    queryFn: () => getRecyclerOptions(projectId),
-    enabled: projectId !== "",
   });
 
   const recyclerOptions = (recyclers?.results ?? []).map((recycler) => ({
@@ -156,7 +145,7 @@ export function CreateDispatch({
               options={recyclerOptions}
               required
               hint={
-                projectId !== "" && recyclerOptions.length === 0
+                recyclerOptions.length === 0
                   ? t("dispatches.recyclerEmpty")
                   : undefined
               }
