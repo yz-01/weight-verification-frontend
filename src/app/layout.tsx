@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { Geist, Geist_Mono, Noto_Sans_SC } from "next/font/google";
@@ -30,27 +30,6 @@ const notoSansSC = Noto_Sans_SC({
 export const metadata: Metadata = {
   title: "MSE Trace",
   description: "Verified weight and traceable waste for construction and recycling.",
-  applicationName: "MSE Trace",
-  manifest: "/manifest.webmanifest",
-  icons: {
-    icon: [
-      { url: "/mse-icon.svg", type: "image/svg+xml" },
-      { url: "/mse-icon-192.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: [{ url: "/mse-icon-192.png", sizes: "192x192" }],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "MSE Trace",
-  },
-};
-
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#087f8c" },
-    { media: "(prefers-color-scheme: dark)", color: "#111a20" },
-  ],
 };
 
 export default async function RootLayout({

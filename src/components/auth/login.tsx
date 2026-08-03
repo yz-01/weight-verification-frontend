@@ -14,13 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
-import type { Portal } from "@/interfaces/auth";
-import { PORTAL_LABELS, portalPaths } from "@/lib/portal";
 import { cn } from "@/lib/utils";
 import { landingPathFor } from "@/lib/navigation";
 import * as authService from "@/services/auth.service";
 
-export function Login({ portal }: { portal: Portal }) {
+export function Login() {
   const t = useTranslations();
   const router = useRouter();
   const { setUser } = useAuth();
@@ -31,8 +29,8 @@ export function Login({ portal }: { portal: Portal }) {
     onSubmit: async ({ value }) => {
       setFormError(null);
       try {
-        const result = await authService.login(value.email, value.password, portal);
-        await setUser(result.user);
+        const result = await authService.login(value.email, value.password);
+        setUser(result.user);
 
         // Drivers land on the driver page, not the console. Decided from the
         // permissions the sign-in already returned rather than from a role
@@ -67,7 +65,7 @@ export function Login({ portal }: { portal: Portal }) {
         <div className="w-full max-w-[400px]">
           <div className="mb-8">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              {PORTAL_LABELS[portal]} {t("auth.login.title")}
+              {t("auth.login.title")}
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               {t("auth.login.subtitle")}
@@ -133,7 +131,7 @@ export function Login({ portal }: { portal: Portal }) {
                         {t("auth.login.password")}
                       </Label>
                       <Link
-                        href={portalPaths(portal).forgot}
+                        href="/forgot-password"
                         className="text-xs text-muted-foreground transition-colors hover:text-foreground"
                       >
                         {t("auth.login.forgot")}
@@ -206,7 +204,6 @@ type Translate = ReturnType<typeof useTranslations>;
  */
 function messageFor(error: unknown, t: Translate): string {
   if (!(error instanceof ApiError)) return t("common.unknownError");
-  if (error.code === "portal_mismatch") return error.message;
   if (error.status === 429) return t("auth.login.throttled");
   if (error.status === 401) return t("auth.login.invalid");
   if (error.status === 403) {

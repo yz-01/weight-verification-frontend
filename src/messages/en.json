@@ -62,8 +62,7 @@
     "minLength": "Use at least {min} characters",
     "maxLength": "Use at most {max} characters",
     "passwordMismatch": "The two passwords do not match",
-    "passwordTooShort": "Use at least 10 characters",
-    "positiveInteger": "Enter a whole number of at least 1"
+    "passwordTooShort": "Use at least 10 characters"
   },
   "auth": {
     "login": {
@@ -145,128 +144,7 @@
     "gate": "Weighbridge gate",
     "vehicles": "Vehicles",
     "drivers": "Drivers",
-    "deductions": "Deductions",
-    "cloud_weighing": "Cloud weighing",
-    "weighing_parameters": "Detection parameters",
-    "contractor_partners": "Contractor partners",
-    "recycler_review": "Recycler review",
-    "transaction_reports": "Transaction reports",
-    "recyclers": "Recyclers",
-    "material_receipts": "Material receipts",
-    "waste_dispatches": "Waste dispatches",
-    "recycling_records": "Recycling records",
-    "attendance": "Attendance",
-    "payment_proofs": "Payment proofs",
-    "progress": "Progress updates",
-    "safety": "Safety incidents",
-    "material_quantity_report": "Material quantity",
-    "material_cost_report": "Material cost",
-    "user_logs": "User logs",
-    "partnerships": "Contractor partnerships",
-    "yards": "Recycling yards",
-    "weighbridges": "Weighbridges",
-    "waste_orders": "Waste orders",
-    "driver_tasks": "Driver tasks",
-    "weighing_records": "Weighing records",
-    "payment_status": "Payment status",
-    "documents": "Document archive",
-    "approvals": "Approvals",
-    "evidence": "Evidence archive",
-    "notifications": "Notifications",
-    "driver_gps": "Driver GPS",
-    "site_gps": "Site personnel GPS",
-    "integrations": "Integrations",
-    "system_monitoring": "System monitoring"
-  },
-  "integrations": {
-    "title": "Integrations",
-    "subtitle": "Register connections and field devices without exposing secrets.",
-    "company": "Company",
-    "chooseCompany": "Choose a company",
-    "newTitle": "Register connection",
-    "connections": "Connection configurations",
-    "devices": "Field devices",
-    "empty": "No integrations registered.",
-    "field": {
-      "kind": "Integration type",
-      "name": "Name",
-      "namePlaceholder": "e.g. ERP production",
-      "baseUrl": "Base URL",
-      "authType": "Authentication type",
-      "secret": "Secret",
-      "secretPlaceholder": "Only sent when saving",
-      "settings": "Settings JSON"
-    },
-    "device": {
-      "type": "Device type",
-      "id": "Device ID",
-      "integration": "Connection",
-      "unlinked": "Unlinked",
-      "online": "Online",
-      "offline": "Offline",
-      "gatewayLinked": "Linked to weighing gateway",
-      "project": "Project",
-      "site": "Yard",
-      "scale": "Weighbridge",
-      "firmware": "Firmware version",
-      "secret": "Device secret",
-      "secretPlaceholder": "Optional device credential",
-      "secretStored": "Secret stored",
-      "noBinding": "No project, yard or weighbridge binding"
-    },
-    "kind": {
-      "ERP": "ERP",
-      "ACCOUNTING": "Accounting",
-      "MYINVOIS": "MyInvois",
-      "GOVERNMENT_API": "Government API",
-      "CCTV": "CCTV",
-      "ANPR": "ANPR",
-      "IOT": "IoT",
-      "AI": "AI",
-      "DRONE": "Drone",
-      "TOWER_CRANE": "Tower crane",
-      "RF": "RF anti-cheat",
-      "WEBHOOK": "Webhook"
-    },
-    "status": {
-      "DISABLED": "Disabled",
-      "READY": "Ready",
-      "DEGRADED": "Degraded",
-      "ERROR": "Error"
-    },
-    "action": {
-      "create": "Register connection",
-      "test": "Queue connection test",
-      "queued": "Connection test queued",
-      "enable": "Enable",
-      "disable": "Disable",
-      "registerDevice": "Register device"
-    },
-    "toast": {
-      "created": "Integration registered",
-      "updated": "Integration updated",
-      "queued": "Connection test queued",
-      "deviceCreated": "Device registered"
-    },
-    "validation": {
-      "settings": "Settings must be valid JSON."
-    }
-  },
-  "externalPortal": {
-    "invalid": "This external link is unavailable",
-    "invalidBody": "It may have expired, been revoked, or been entered incorrectly.",
-    "expiry": "Access expires {date}",
-    "project": "Project",
-    "progress": "Progress",
-    "weighing": "Verified weighing",
-    "documents": "Documents",
-    "evidence": "Evidence",
-    "field": {
-      "code": "Code",
-      "name": "Name",
-      "status": "Status",
-      "location": "Location"
-    }
+    "deductions": "Deductions"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -283,30 +161,9 @@
       "onlineUsers": "Online now",
       "planRevenue": "Subscription revenue",
       "commissionRevenue": "Commission revenue",
-      "systemStatus": "System status",
-      "pendingReviews": "Pending recycler reviews",
-      "weighingSessions": "Weighing sessions",
-      "requiresReview": "Weighings requiring review",
-      "receipts": "Material receipts",
-      "dispatches": "Waste dispatches",
-      "attendance": "Attendance records",
-      "wasteOrders": "Incoming waste orders",
-      "driverTasks": "Driver tasks",
-      "settlements": "Settlements"
+      "systemStatus": "System status"
     },
-    "comingSoon": "This panel arrives with the next release.",
-    "metrics": "Operational summary",
-    "quickLinks": "Quick access",
-    "noMetrics": "Your account has dashboard access. Additional modules appear when an administrator grants the matching permissions."
-  },
-  "offline": {
-    "queued": "Saved offline and queued for upload",
-    "synced": "Uploaded {count, plural, one {# offline record} other {# offline records}}",
-    "status": {
-      "offline": "Offline; {count, plural, one {# record is waiting} other {# records are waiting}}",
-      "pending": "{count, plural, one {# record is waiting to sync} other {# records are waiting to sync}}",
-      "syncing": "Uploading offline records"
-    }
+    "comingSoon": "This panel arrives with the next release."
   },
   "companies": {
     "title": "Companies",
@@ -319,8 +176,7 @@
       "identity": "Identity",
       "address": "Address",
       "contact": "Contact",
-      "preferences": "Preferences",
-      "subscription": "Plan and project allowance"
+      "preferences": "Preferences"
     },
     "field": {
       "code": "Code",
@@ -338,9 +194,6 @@
       "contactPerson": "Contact person",
       "contactPhone": "Contact phone",
       "contactEmail": "Contact email",
-      "plan": "Plan",
-      "projectLimit": "Effective project limit",
-      "projectLimitOverride": "Custom project limit",
       "logo": "Logo",
       "defaultLanguage": "Default language",
       "timezone": "Time zone",
@@ -389,656 +242,11 @@
       "statusUpdated": "Company status updated"
     },
     "typeLocked": "A company's type cannot be changed after it is created.",
-    "projectLimitOverrideHint": "Leave blank to use the selected plan's allowance.",
     "taxIdHint": "Required before e-invoicing can be switched on for this company.",
     "languageHint": "New users of this company start here. Each can change their own.",
     "suspendedReason": "Suspension reason",
     "suspendedAt": "Suspended on",
     "addUser": "Add user"
-  },
-  "attendance": {
-    "title": "Attendance",
-    "count": "{count, plural, =0 {No attendance records} one {# attendance record} other {# attendance records}}",
-    "field": {
-      "time": "Recorded time",
-      "worker": "Worker",
-      "project": "Project",
-      "event": "Event",
-      "evidence": "Evidence",
-      "photo": "Photo",
-      "location": "GPS location",
-      "note": "Note"
-    },
-    "event": { "CLOCK_IN": "Clock in", "CLOCK_OUT": "Clock out" },
-    "filter": { "project": "Choose project", "allProjects": "All projects" },
-    "clock": {
-      "action": "Record attendance",
-      "title": "Record attendance",
-      "captureLocation": "Capture GPS",
-      "locationCaptured": "GPS captured",
-      "confirm": "Save attendance"
-    },
-    "toast": { "recorded": "Attendance recorded" }
-  },
-  "progress": {
-    "title": "Project progress",
-    "count": "{count, plural, =0 {No progress updates} one {# progress update} other {# progress updates}}",
-    "new": "New update",
-    "createTitle": "New progress update",
-    "editTitle": "Edit progress update",
-    "field": {
-      "reportedAt": "Reported at",
-      "project": "Project",
-      "title": "Title",
-      "percentComplete": "Completion",
-      "description": "Description",
-      "photo": "Photo"
-    },
-    "filter": { "project": "Choose project", "allProjects": "All projects" },
-    "action": { "viewPhoto": "View photo" },
-    "form": { "description": "Record the measured progress and supporting site evidence." },
-    "remove": {
-      "title": "Remove {name}?",
-      "description": "This progress update will be removed from the project timeline.",
-      "confirm": "Remove"
-    },
-    "toast": {
-      "created": "Progress update created",
-      "updated": "Progress update updated",
-      "removed": "Progress update removed"
-    }
-  },
-  "safety": {
-    "title": "Safety incidents",
-    "count": "{count, plural, =0 {No safety incidents} one {# safety incident} other {# safety incidents}}",
-    "new": "Report incident",
-    "createTitle": "Report a safety incident",
-    "field": {
-      "occurredAt": "Occurred at",
-      "title": "Title",
-      "project": "Project",
-      "severity": "Severity",
-      "status": "Status",
-      "evidence": "Evidence",
-      "description": "Description",
-      "photo": "Photo",
-      "location": "GPS location",
-      "resolutionNote": "Resolution note"
-    },
-    "filter": {
-      "project": "Choose project",
-      "allProjects": "All projects",
-      "allSeverities": "All severities"
-    },
-    "severity": { "LOW": "Low", "MEDIUM": "Medium", "HIGH": "High", "CRITICAL": "Critical" },
-    "status": { "OPEN": "Open", "INVESTIGATING": "Investigating", "RESOLVED": "Resolved" },
-    "evidence": { "location": "GPS evidence", "photo": "Open photo" },
-    "action": { "updateStatus": "Update status" },
-    "form": {
-      "description": "Record what happened, where it happened and the supporting evidence.",
-      "captureLocation": "Capture GPS",
-      "locationCaptured": "GPS captured",
-      "confirm": "Report incident"
-    },
-    "update": {
-      "title": "Update incident status",
-      "description": "Update {incident} and retain the resolution history."
-    },
-    "toast": { "created": "Safety incident reported", "updated": "Safety incident updated" }
-  },
-  "paymentProofs": {
-    "title": "Payment proofs",
-    "count": "{count, plural, =0 {No settlements} one {# settlement} other {# settlements}}",
-    "paid": "Paid {amount}",
-    "field": {
-      "settlementNo": "Settlement no.",
-      "project": "Project",
-      "issuedAt": "Issued",
-      "totalAmount": "Total amount",
-      "paymentStatus": "Payment status",
-      "proofs": "Proofs",
-      "paidOn": "Paid on",
-      "method": "Method",
-      "reference": "Reference / note",
-      "amount": "Amount",
-      "document": "Document"
-    },
-    "status": { "UNPAID": "Unpaid", "PARTIAL": "Partially paid", "PAID": "Paid" },
-    "filter": { "project": "Choose project", "allProjects": "All projects" },
-    "action": {
-      "viewProofs": "View payment proofs",
-      "viewSettlement": "View settlement",
-      "openDocument": "Open document"
-    },
-    "dialog": {
-      "title": "Payment proofs",
-      "description": "Payments recorded against {settlement}.",
-      "empty": "No payment proof has been recorded for this settlement."
-    }
-  },
-  "materialReports": {
-    "export": { "subtitle": "Filtered material records from MSE Trace" },
-    "quantity": {
-      "title": "Material quantity report",
-      "subtitle": "Received quantities grouped without mixing incompatible units.",
-      "totalDeliveries": "Total deliveries",
-      "deliveryCount": "{count, plural, one {# delivery} other {# deliveries}}",
-      "byMaterial": "Quantity by material",
-      "unitNote": "Quantities remain grouped by unit; tonnes, pieces and loads are never added together."
-    },
-    "cost": {
-      "title": "Material cost report",
-      "subtitle": "Material spend and price coverage across projects and suppliers.",
-      "totalCost": "Total cost",
-      "pricedReceipts": "Priced receipts",
-      "coverage": "{percent}% price coverage",
-      "unpricedReceipts": "Unpriced receipts",
-      "incompleteWarning": "{count, plural, one {# receipt has no unit price, so totals are incomplete.} other {# receipts have no unit price, so totals are incomplete.}}",
-      "bySupplier": "Cost by supplier",
-      "byMaterial": "Cost by material",
-      "missingPrices": "Missing prices"
-    }
-  },
-  "recyclers": {
-    "title": "Recycler partnerships",
-    "count": "{count, plural, =0 {No recycler partnerships} one {# recycler partnership} other {# recycler partnerships}}",
-    "field": {
-      "recycler": "Recycler",
-      "status": "Status",
-      "request": "Request",
-      "projects": "Bound projects",
-      "updatedAt": "Updated"
-    },
-    "status": { "PENDING": "Awaiting response", "ACTIVE": "Active", "SUSPENDED": "Suspended", "REJECTED": "Rejected" },
-    "action": { "accept": "Accept", "reject": "Reject", "manageProjects": "Manage projects", "suspend": "Suspend" },
-    "request": {
-      "action": "Request recycler",
-      "title": "Request recycler partnership",
-      "description": "The recycler must accept before projects can be bound.",
-      "searchPlaceholder": "Search recyclers",
-      "choose": "Choose recycler",
-      "confirm": "Send request",
-      "outgoing": "Sent by your company",
-      "incoming": "Received from recycler"
-    },
-    "projects": {
-      "title": "Bound projects",
-      "description": "Projects shared with {name}.",
-      "choose": "Choose project",
-      "bind": "Bind project",
-      "empty": "No projects are bound",
-      "unbind": "Unbind project",
-      "more": "+{count} more"
-    },
-    "reject": {
-      "title": "Reject partnership?",
-      "description": "Reject the request from {name} and retain the reason for audit.",
-      "confirm": "Reject"
-    },
-    "suspend": {
-      "title": "Suspend partnership?",
-      "description": "Stop new work with {name} while retaining all existing records.",
-      "confirm": "Suspend"
-    },
-    "toast": {
-      "requested": "Partnership requested",
-      "accepted": "Partnership accepted",
-      "rejected": "Partnership rejected",
-      "suspended": "Partnership suspended",
-      "projectBound": "Project bound",
-      "projectUnbound": "Project unbound"
-    }
-  },
-  "documents": {
-    "title": "Document archive",
-    "count": "{count} documents",
-    "allCategories": "All categories",
-    "companyWide": "Company-wide",
-    "noFile": "No file uploaded",
-    "download": "Download",
-    "keywordsPlaceholder": "Separate keywords with commas",
-    "field": {
-      "number": "Document no.",
-      "reference": "Reference no.",
-      "title": "Title",
-      "description": "Description",
-      "keywords": "Keywords",
-      "category": "Category",
-      "subcategory": "Subcategory",
-      "project": "Project",
-      "status": "Status",
-      "versions": "Versions",
-      "version": "Version",
-      "file": "File",
-      "versionNote": "Version note",
-      "uploadedBy": "Uploaded by",
-      "sha256": "SHA-256",
-      "code": "Code",
-      "name": "Name",
-      "createdAt": "Created",
-      "updatedAt": "Updated",
-      "archiveReason": "Archive reason"
-    },
-    "status": { "ACTIVE": "Active", "ARCHIVED": "Archived" },
-    "create": {
-      "action": "New document",
-      "title": "Create document",
-      "description": "Create the archive record first, then upload its first immutable file version."
-    },
-    "edit": {
-      "title": "Edit document",
-      "description": "Update the record metadata. Existing file versions are never changed."
-    },
-    "detail": { "title": "Document details" },
-    "upload": {
-      "action": "Upload version",
-      "title": "Upload document version",
-      "description": "Add a new immutable version to {name}.",
-      "limit": "The configured file-size limit is enforced during upload.",
-      "confirm": "Upload"
-    },
-    "versions": {
-      "title": "Version history",
-      "empty": "No file versions have been uploaded."
-    },
-    "archive": {
-      "action": "Archive",
-      "title": "Archive {name}?",
-      "description": "Archiving is permanent and prevents metadata changes or later uploads.",
-      "confirm": "Archive document"
-    },
-    "taxonomy": {
-      "action": "Manage categories",
-      "title": "Document categories",
-      "description": "Maintain the category and subcategory structure used by the archive.",
-      "active": "Active",
-      "inactive": "Inactive",
-      "activeHint": "Active entries can be selected for new documents."
-    },
-    "categories": {
-      "title": "Categories",
-      "add": "Add category",
-      "create": "Create category",
-      "edit": "Edit category"
-    },
-    "subcategories": {
-      "title": "Subcategories",
-      "add": "Add subcategory",
-      "create": "Create subcategory",
-      "edit": "Edit subcategory"
-    },
-    "toast": {
-      "categoryCreated": "Category created",
-      "categoryUpdated": "Category updated",
-      "subcategoryCreated": "Subcategory created",
-      "subcategoryUpdated": "Subcategory updated",
-      "created": "Document created",
-      "updated": "Document updated",
-      "versionUploaded": "Document version uploaded",
-      "archived": "Document archived"
-    }
-  },
-  "approvals": {
-    "title": "Approvals",
-    "count": "{count} approvals",
-    "companyWide": "Company-wide",
-    "assignedTo": "Assigned to {name}",
-    "unassigned": "Any eligible reviewer",
-    "anyReviewer": "Any eligible reviewer",
-    "reviewerHint": "Only active users whose role includes approval review are listed.",
-    "metadataHint": "Optional JSON object for workflow-specific data.",
-    "commentPlaceholder": "Add the reason or review note",
-    "field": {
-      "number": "Approval no.",
-      "title": "Title",
-      "resourceType": "Record type",
-      "resourceId": "Record ID",
-      "resourceLabel": "Record reference",
-      "project": "Project",
-      "requester": "Requested by",
-      "reviewer": "Reviewer",
-      "status": "Status",
-      "description": "Description",
-      "metadata": "Metadata",
-      "comment": "Comment",
-      "createdAt": "Created"
-    },
-    "scope": {
-      "all": "All approvals",
-      "mine": "Requested by or assigned to me"
-    },
-    "resource": {
-      "all": "All record types",
-      "document": "Document",
-      "settlement": "Settlement",
-      "deduction": "Deduction",
-      "dispatch": "Dispatch",
-      "receipt": "Receipt",
-      "other": "Other"
-    },
-    "status": {
-      "DRAFT": "Draft",
-      "SUBMITTED": "Submitted",
-      "IN_REVIEW": "In review",
-      "APPROVED": "Approved",
-      "REJECTED": "Rejected",
-      "RETURNED": "Returned",
-      "CLOSED": "Closed"
-    },
-    "create": {
-      "action": "New approval",
-      "title": "Create approval",
-      "description": "Create a draft request linked to a business record."
-    },
-    "edit": {
-      "title": "Edit approval",
-      "description": "Correct a draft or returned approval before resubmitting it."
-    },
-    "detail": { "title": "Approval details" },
-    "action": {
-      "SUBMIT": "Submit",
-      "REVIEW": "Start review",
-      "APPROVE": "Approve",
-      "REJECT": "Reject",
-      "RETURN": "Return",
-      "CLOSE": "Close"
-    },
-    "actionDialog": {
-      "SUBMIT": { "title": "Submit {name}?", "description": "Send this request to the eligible reviewer(s)." },
-      "REVIEW": { "title": "Start review for {name}?", "description": "Record that formal review has started." },
-      "APPROVE": { "title": "Approve {name}?", "description": "Confirm that this request meets the required checks." },
-      "REJECT": { "title": "Reject {name}?", "description": "Reject this request and record the reason." },
-      "RETURN": { "title": "Return {name}?", "description": "Send this request back to the requester for correction." },
-      "CLOSE": { "title": "Close {name}?", "description": "Close this completed workflow." }
-    },
-    "history": {
-      "title": "Audit history",
-      "sequence": "Step",
-      "action": "Action",
-      "transition": "Status change",
-      "actor": "Performed by",
-      "comment": "Comment",
-      "time": "Time",
-      "empty": "No workflow actions have been recorded."
-    },
-    "validation": { "metadata": "Enter a valid JSON object." },
-    "toast": {
-      "created": "Approval created",
-      "updated": "Approval updated",
-      "submit": "Approval submitted",
-      "review": "Review started",
-      "approve": "Approval approved",
-      "reject": "Approval rejected",
-      "return": "Approval returned",
-      "close": "Approval closed"
-    }
-  },
-  "evidence": {
-    "title": "Evidence archive",
-    "count": "{count} evidence items",
-    "kind": { "PHOTO": "Photo", "VIDEO": "Video", "SIGNATURE": "Signature", "DOCUMENT": "Document", "OTHER": "Other" },
-    "field": {
-      "file": "File",
-      "kind": "Type",
-      "source": "Source",
-      "context": "Context",
-      "capturedAt": "Original capture time",
-      "uploadedAt": "Upload time",
-      "gps": "GPS",
-      "sha256": "SHA-256",
-      "company": "Company",
-      "project": "Project",
-      "actor": "User",
-      "sourceModel": "Source model",
-      "sourceId": "Source ID",
-      "fieldName": "File field",
-      "supersedes": "Supersedes",
-      "deviceId": "Device ID",
-      "watermarkText": "Watermark text",
-      "contentType": "Content type",
-      "size": "File size"
-    },
-    "filter": {
-      "capturedFrom": "Captured from",
-      "capturedTo": "Captured to",
-      "withGps": "With GPS",
-      "withoutGps": "Without GPS"
-    },
-    "action": { "view": "View evidence", "verify": "Verify integrity", "openOriginal": "Open original file" },
-    "section": {
-      "record": "Record",
-      "capture": "Capture evidence",
-      "file": "File evidence",
-      "integrity": "Integrity verification",
-      "watermark": "Watermark",
-      "metadata": "Metadata"
-    },
-    "integrity": {
-      "error": "The file could not be verified.",
-      "valid": "File integrity verified",
-      "invalid": "File integrity failed",
-      "verifiedAt": "Verified {value}",
-      "hash": "Hash",
-      "size": "Size",
-      "storedHash": "Stored hash",
-      "currentHash": "Current hash",
-      "storedSize": "Stored size",
-      "currentSize": "Current size",
-      "match": "Match",
-      "mismatch": "Mismatch"
-    }
-  },
-  "driverGps": {
-    "title": "Driver GPS",
-    "count": "{count} driver tasks",
-    "tasks": {
-      "title": "Driver tasks",
-      "search": "Search task, driver or vehicle",
-      "empty": "No driver tasks found",
-      "loadMore": "Load more tasks",
-      "filter": { "ALL": "All", "RUNNING": "Running", "FINISHED": "Finished" }
-    },
-    "route": {
-      "error": "Route history could not be loaded.",
-      "empty": "No route positions",
-      "emptyDescription": "GPS samples will appear here after the driver starts the task."
-    },
-    "summary": {
-      "position": "Current position",
-      "accuracy": "Accuracy",
-      "event": "Latest event",
-      "latest": "Latest sample",
-      "geofence": "Geofence",
-      "distance": "{value} from project"
-    },
-    "action": { "openMap": "Open location" },
-    "event": { "POSITION": "Position", "ARRIVAL": "Arrival", "GEOFENCE_ENTER": "Geofence enter", "GEOFENCE_EXIT": "Geofence exit" },
-    "geofence": { "INSIDE": "Inside", "OUTSIDE": "Outside", "NOT_EVALUATED": "Not evaluated" },
-    "timeline": {
-      "title": "Route timeline",
-      "count": "{count} samples",
-      "loadOlder": "Load older samples"
-    },
-    "field": {
-      "accuracy": "Accuracy",
-      "distance": "Project distance",
-      "occurredAt": "Original event time",
-      "uploadedAt": "Uploaded"
-    },
-    "liveMap": {
-      "title": "Live driver map",
-      "count": "{count} active drivers",
-      "refresh": "Refreshes every 15 seconds"
-    }
-  },
-  "siteGps": {
-    "title": "Site personnel GPS",
-    "count": "{count} people reporting",
-    "project": "Project",
-    "allProjects": "All projects",
-    "startSharing": "Start sharing",
-    "stopSharing": "Stop sharing",
-    "sharing": "Sharing location",
-    "refreshNote": "Refreshes every 15 seconds",
-    "map": "Live site map",
-    "people": "People on site",
-    "empty": "No current positions",
-    "live": "Live",
-    "stale": "Stale",
-    "event": {
-      "POSITION": "Position",
-      "GEOFENCE_ENTER": "Geofence enter",
-      "GEOFENCE_EXIT": "Geofence exit"
-    },
-    "geofence": {
-      "INSIDE": "Inside",
-      "OUTSIDE": "Outside",
-      "NOT_EVALUATED": "Not evaluated"
-    }
-  },
-  "notifications": {
-    "title": "Notifications",
-    "count": "{count, plural, =0 {No notifications} one {# notification} other {# notifications}}",
-    "unreadCount": "{count, plural, =0 {No unread notifications} one {# unread notification} other {# unread notifications}}",
-    "field": {
-      "time": "Time",
-      "kind": "Type",
-      "notification": "Notification",
-      "status": "Status"
-    },
-    "kind": {
-      "SYSTEM": "System",
-      "APPROVAL": "Approval",
-      "EVENT": "Event",
-      "REMINDER": "Reminder",
-      "EXCEPTION": "Exception alert"
-    },
-    "status": { "read": "Read", "unread": "Unread" },
-    "markRead": "Mark as read",
-    "markAllRead": "Mark all as read",
-    "toast": { "allRead": "All notifications marked as read" }
-  },
-  "monitoring": {
-    "title": "System monitoring",
-    "checkedAt": "Checked {value}",
-    "capture": "Capture snapshot",
-    "tile": {
-      "server": "Server",
-      "api": "API",
-      "database": "Database",
-      "storage": "Storage",
-      "queue": "Queue",
-      "devices": "Devices",
-      "errors": "Errors"
-    },
-    "health": {
-      "ok": "Healthy",
-      "configured": "Configured",
-      "degraded": "Degraded",
-      "unhealthy": "Unhealthy",
-      "not_running": "Not running"
-    },
-    "value": {
-      "uptime": "{value} min uptime",
-      "jobs": "{count} queued jobs",
-      "devices": "{online} of {total} online",
-      "errors": "{count} errors in 24 hours"
-    },
-    "events": {
-      "title": "Recent system events",
-      "empty": "No recent system events"
-    },
-    "severity": {
-      "INFO": "Information",
-      "WARNING": "Warning",
-      "ERROR": "Error",
-      "CRITICAL": "Critical"
-    },
-    "toast": { "captured": "Monitoring snapshot captured" }
-  },
-  "contractorPartners": {
-    "title": "Contractor partners",
-    "new": "New contractor",
-    "count": "{count, plural, =0 {No contractor partners} one {# contractor partner} other {# contractor partners}}",
-    "field": { "plan": "Plan" },
-    "unlimitedProjects": "Unlimited projects",
-    "projectLimit": "Up to {count} projects"
-  },
-  "recyclerReview": {
-    "title": "Recycler review",
-    "new": "New recycler",
-    "count": "{count, plural, =0 {No recyclers} one {# recycler} other {# recyclers}}",
-    "field": { "reviewStatus": "Review status", "note": "Review note" },
-    "status": {
-      "PENDING": "Pending review",
-      "APPROVED": "Approved",
-      "REJECTED": "Rejected"
-    },
-    "approve": {
-      "title": "Approve {name}?",
-      "description": "This recycler can receive partnership requests and have projects bound to it.",
-      "confirm": "Approve"
-    },
-    "reject": {
-      "title": "Reject {name}?",
-      "description": "This recycler cannot enter partnerships. The review note is retained for audit.",
-      "confirm": "Reject"
-    }
-  },
-  "partnerships": {
-    "title": "Contractor partnerships",
-    "count": "{count, plural, =0 {No partnerships} one {# partnership} other {# partnerships}}",
-    "field": {
-      "contractor": "Contractor",
-      "recycler": "Recycler",
-      "status": "Status",
-      "requestedBy": "Requested by",
-      "projects": "Bound projects",
-      "note": "Note",
-      "updatedAt": "Updated"
-    },
-    "status": {
-      "PENDING": "Awaiting response",
-      "ACTIVE": "Active",
-      "REJECTED": "Rejected",
-      "SUSPENDED": "Suspended"
-    },
-    "request": {
-      "action": "Request partnership",
-      "title": "Request a partnership",
-      "description": "The other company must accept before projects can be bound and waste orders exchanged.",
-      "company": "Partner company",
-      "noCompanies": "No companies are available",
-      "loadError": "Companies could not be loaded",
-      "confirm": "Send request"
-    },
-    "respond": {
-      "accept": "Accept",
-      "reject": "Reject",
-      "acceptTitle": "Accept the request from {name}?",
-      "rejectTitle": "Reject the request from {name}?",
-      "acceptDescription": "Activates the relationship. Projects still require explicit binding.",
-      "rejectDescription": "The request is closed and the reason is returned to the requesting company."
-    },
-    "suspend": {
-      "title": "Suspend this partnership?",
-      "description": "Stops new work through this relationship. Existing records remain unchanged.",
-      "confirm": "Suspend"
-    },
-    "projects": {
-      "manage": "Manage projects",
-      "title": "Bound projects",
-      "description": "Projects shared between {contractor} and {recycler}.",
-      "bound": "Bound projects",
-      "noneBound": "No projects are bound yet",
-      "add": "Bind another project",
-      "loadError": "Projects could not be loaded",
-      "unbind": "Unbind",
-      "bind": "Bind project",
-      "noneAvailable": "All available projects are already bound",
-      "unbindTitle": "Unbind {name}?",
-      "unbindDescription": "New waste orders for this project can no longer use this partnership."
-    }
   },
   "users": {
     "title": "Users",
@@ -1367,36 +575,11 @@
       "company_not_found": "That company could not be found.",
       "user_not_found": "That user could not be found.",
       "role_not_found": "That role could not be found.",
-      "department_not_found": "That department could not be found.",
       "audit_entry_not_found": "That audit entry could not be found.",
       "company_required": "Choose a company first.",
       "object_reference_required": "A record must be specified.",
       "refresh_token_required": "Your session could not be renewed. Sign in again.",
       "validation_failed": "Check the highlighted fields and try again.",
-      "project_limit_reached": "Your current plan has reached its project limit.",
-      "approval_action_not_found": "That approval action could not be found.",
-      "approval_actor_forbidden": "You cannot perform this approval action.",
-      "approval_invalid_transition": "This approval cannot move to that status.",
-      "approval_not_found": "That approval could not be found.",
-      "company_not_recycler": "Choose a recycler company.",
-      "document_archived": "This document is archived and cannot be changed.",
-      "document_category_not_found": "That document category could not be found.",
-      "document_file_unavailable": "This document file is unavailable.",
-      "document_not_found": "That document could not be found.",
-      "document_subcategory_not_found": "That document subcategory could not be found.",
-      "document_version_not_found": "That document version could not be found.",
-      "evidence_asset_not_found": "That evidence record could not be found.",
-      "evidence_file_unavailable": "This evidence file is unavailable.",
-      "notification_not_found": "That notification could not be found.",
-      "partnership_already_exists": "A partnership with this company already exists.",
-      "partnership_not_active": "This partnership is not active.",
-      "partnership_not_counterparty": "Only the other company can respond to this partnership request.",
-      "partnership_not_found": "That partnership could not be found.",
-      "portal_mismatch": "This account belongs to a different portal. Use its correct sign-in page.",
-      "progress_update_not_found": "That progress update could not be found.",
-      "project_already_bound": "This project is already bound to the partnership.",
-      "safety_incident_not_found": "That safety incident could not be found.",
-      "scheduled_job_not_found": "That scheduled job could not be found.",
       "invalid_credentials": "Incorrect email or password.",
       "user_suspended": "This account is not active. Contact your administrator.",
       "company_suspended": "Your company account is not active. Contact MSE Trace support.",
@@ -1410,18 +593,11 @@
       "cannot_modify_self": "You cannot change your own account this way. Use your profile instead.",
       "device_auth_failed": "This weighbridge gateway could not be verified.",
       "ingest_rejected": "The weighbridge reading could not be accepted.",
-      "packet_replay": "This signed gateway packet was already accepted.",
-      "clock_skew": "The gateway clock moved beyond the allowed tolerance.",
-      "calibration_expired": "This weighbridge calibration has expired.",
       "scale_not_found": "That weighbridge could not be found.",
       "site_not_found": "That site could not be found.",
       "session_not_found": "That weighing could not be found.",
       "gateway_not_found": "That gateway could not be found.",
       "invalid_rule_params": "Check the detection settings and try again.",
-      "integration_not_found": "That integration could not be found.",
-      "integration_already_exists": "An integration with that name already exists.",
-      "integration_device_not_found": "That integration device could not be found.",
-      "integration_device_already_exists": "A device with that id already exists.",
       "project_not_found": "That project could not be found.",
       "supplier_not_found": "That supplier could not be found.",
       "qr_code_not_found": "This QR code is not recognised.",
@@ -1447,7 +623,6 @@
       "task_already_running": "A trip is already running for that load.",
       "task_already_started": "This trip has already started and can no longer be reassigned.",
       "task_invalid_transition": "A trip cannot move to that step from where it is now.",
-      "task_photo_required": "Attach a loading photograph before marking the trip loaded.",
       "deduction_not_found": "That deduction could not be found.",
       "settlement_not_found": "That settlement could not be found.",
       "deduction_not_producer": "Only the producer of this waste can answer a deduction.",
@@ -1573,9 +748,6 @@
     },
     "online": "Online",
     "offline": "Offline",
-    "manifestTitle": "Gateway installer manifest",
-    "manifestBody": "This manifest contains the ingest URLs, protocol and retry settings for the field gateway. The secret is included only in the copy action.",
-    "copyManifest": "Copy manifest",
     "secretTitle": "Copy this secret now",
     "secretBody": "It is shown once and never again. The gateway signs every packet with it, so a lost secret is replaced rather than recovered.",
     "rotate": "Rotate secret",
@@ -1726,7 +898,6 @@
     "section": {
       "identity": "Identity",
       "address": "Site address",
-      "location": "Site location and geofence",
       "schedule": "Schedule",
       "contact": "Site contact",
       "team": "Site team"
@@ -1742,9 +913,6 @@
       "city": "City",
       "state": "State",
       "postcode": "Postcode",
-      "latitude": "Latitude",
-      "longitude": "Longitude",
-      "geofenceRadius": "Geofence radius",
       "startDate": "Start date",
       "endDate": "End date",
       "siteManager": "Site manager",
@@ -1752,8 +920,6 @@
       "assignedUsers": "Team",
       "createdAt": "Added"
     },
-    "geofenceHint": "Enter both coordinates before setting a radius. Driver arrivals and route samples are checked against this boundary.",
-    "geofenceRadiusValue": "{count} metres",
     "status": {
       "PLANNING": "Planning",
       "ACTIVE": "Active",
@@ -2041,26 +1207,6 @@
       "loads": "Loads",
       "estimatedWeight": "Estimated weight (kg)",
       "estimateNote": "These are the site's estimates. Final weights come from the recycler's weighbridge once the load is weighed."
-    },
-    "transaction": {
-      "title": "Transaction reports",
-      "subtitle": "Frozen settlement totals shared between MSE, contractors and recyclers.",
-      "filters": "Transaction filters",
-      "state": "Status",
-      "allStates": "All statuses",
-      "currency": "Currency",
-      "currencyPlaceholder": "MYR",
-      "summary": "Transaction summary",
-      "transactions": "Transactions",
-      "totalAmount": "Total amount",
-      "outstanding": "Outstanding",
-      "byCurrency": "By currency",
-      "byState": "By status",
-      "byWasteType": "By waste type",
-      "netWeight": "Net weight",
-      "deductions": "Deductions",
-      "settledWeight": "Settled weight",
-      "paid": "Paid"
     },
     "empty": "Nothing to report for this selection yet."
   },
@@ -2415,8 +1561,6 @@
     "nothingAssigned": "Nothing assigned to you right now.",
     "back": "All trips",
     "takePhoto": "Take a photo",
-    "navigate": "Navigate to project",
-    "photoRequired": "Take a loading photo before marking this trip as loaded.",
     "cannotComplete": "I cannot complete this",
     "arrivedNote": "Records that you are at the site, with your phone's location if it will give one.",
     "action": {

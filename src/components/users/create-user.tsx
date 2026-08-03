@@ -54,10 +54,6 @@ export function CreateUser({ user }: { user?: UserDetail }) {
   const companyFromUrl = searchParams.get("company") ?? undefined;
   const companyId =
     user?.company ?? me?.company ?? companyFromUrl ?? undefined;
-  const companyReturnHref =
-    !isEdit && me?.portal === "MSE_ADMIN" && companyFromUrl
-      ? `/companies/${companyFromUrl}`
-      : undefined;
 
   const { data: roles } = useQuery({
     queryKey: ["roles", "options", companyId ?? "platform"],
@@ -81,7 +77,7 @@ export function CreateUser({ user }: { user?: UserDetail }) {
           ),
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["users"] });
-      router.push(companyReturnHref ?? `/users/${saved.id}`);
+      router.push(`/users/${saved.id}`);
     },
   });
 
@@ -118,12 +114,8 @@ export function CreateUser({ user }: { user?: UserDetail }) {
 
   return (
     <FormShell
-      backHref={
-        isEdit ? `/users/${user.id}` : (companyReturnHref ?? "/users")
-      }
-      backLabel={
-        companyReturnHref ? t("companies.viewTitle") : t("users.title")
-      }
+      backHref={isEdit ? `/users/${user.id}` : "/users"}
+      backLabel={t("users.title")}
       title={isEdit ? t("users.editTitle") : t("users.createTitle")}
       isSubmitting={mutation.isPending}
       submitLabel={isEdit ? t("common.save") : t("users.new")}

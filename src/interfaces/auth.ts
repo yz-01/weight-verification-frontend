@@ -26,16 +26,6 @@ export interface EmailCopy {
  */
 export type Audience = "PLATFORM" | CompanyType;
 
-/** The branded application entrance an account is allowed to use. */
-export type Portal = "MSE_ADMIN" | "MSE_TRACE" | "MSE_SCRAP";
-
-/** Project capacity is meaningful only for contractor companies. */
-export interface ProjectQuota {
-  limit: number | null;
-  used: number;
-  remaining: number | null;
-}
-
 export interface TokenPair {
   access: string;
   refresh: string;
@@ -65,10 +55,7 @@ export interface CurrentUser {
   company_type: CompanyType | null;
   company_status: string | null;
   audience: Audience;
-  portal: Portal;
   permissions: string[];
-  features: string[];
-  project_quota: ProjectQuota | null;
 }
 
 export interface LoginResponse {

@@ -1,5 +1,5 @@
-import { TransactionReport } from "@/components/reports/transaction-report";
+import { Reports } from "@/components/reports/reports";
 
 export default function ReportsPage() {
-  return <TransactionReport />;
+  return <Reports />;
 }
