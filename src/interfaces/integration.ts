@@ -42,6 +42,8 @@ export interface IntegrationDevice {
   device_id: string;
   site: string | null;
   site_name: string | null;
+  project: string | null;
+  project_name: string | null;
   scale: string | null;
   scale_name: string | null;
   firmware_version: string;
@@ -68,6 +70,9 @@ export interface IntegrationDevicePayload {
   integration?: string | null;
   device_type: string;
   device_id: string;
+  site?: string | null;
+  project?: string | null;
+  scale?: string | null;
   firmware_version?: string;
   secret?: string;
   settings?: Record<string, unknown>;

@@ -10,11 +10,13 @@ import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { CompanyType } from "@/interfaces/company";
 import type {
   IntegrationConfig,
   IntegrationDevicePayload,
   IntegrationKind,
 } from "@/interfaces/integration";
+import { getProjects } from "@/services/contractor.service";
 import { getCompanies } from "@/services/companies.service";
 import {
   createIntegration,
@@ -24,6 +26,7 @@ import {
   testIntegration,
   updateIntegration,
 } from "@/services/integration.service";
+import { getScales, getSites } from "@/services/weighing.service";
 
 const KINDS: IntegrationKind[] = [
   "ERP",
@@ -40,6 +43,17 @@ const KINDS: IntegrationKind[] = [
   "WEBHOOK",
 ];
 
+const DEFAULT_DEVICE: IntegrationDevicePayload = {
+  device_type: "EDGE_GATEWAY",
+  device_id: "",
+  integration: null,
+  site: null,
+  project: null,
+  scale: null,
+  firmware_version: "",
+  secret: "",
+};
+
 export function Integrations() {
   const t = useTranslations();
   const { can, user } = useAuth();
@@ -51,11 +65,7 @@ export function Integrations() {
   const [authType, setAuthType] = useState("NONE");
   const [secret, setSecret] = useState("");
   const [settings, setSettings] = useState("{}");
-  const [device, setDevice] = useState<IntegrationDevicePayload>({
-    device_type: "EDGE_GATEWAY",
-    device_id: "",
-    integration: null,
-  });
+  const [device, setDevice] = useState<IntegrationDevicePayload>(DEFAULT_DEVICE);
 
   const companies = useQuery({
     queryKey: ["companies", "integration-options"],
@@ -65,21 +75,45 @@ export function Integrations() {
   const selectedCompany = user?.is_platform_staff
     ? company
     : (user?.company ?? "");
+  const selectedCompanyType = useMemo<CompanyType | null>(() => {
+    if (!selectedCompany) return null;
+    if (!user?.is_platform_staff) return user?.company_type ?? null;
+    return (
+      companies.data?.results.find((item) => item.id === selectedCompany)?.type ??
+      null
+    );
+  }, [companies.data?.results, selectedCompany, user]);
+  const companyQuery = user?.is_platform_staff ? { company: selectedCompany } : {};
   const integrations = useQuery({
     queryKey: ["integrations", selectedCompany],
-    queryFn: () =>
-      getIntegrations(
-        user?.is_platform_staff ? { company: selectedCompany } : {},
-      ),
+    queryFn: () => getIntegrations(companyQuery),
     enabled: Boolean(selectedCompany),
   });
   const devices = useQuery({
     queryKey: ["integration-devices", selectedCompany],
-    queryFn: () =>
-      getIntegrationDevices(
-        user?.is_platform_staff ? { company: selectedCompany } : {},
-      ),
+    queryFn: () => getIntegrationDevices(companyQuery),
     enabled: Boolean(selectedCompany),
+  });
+  const projects = useQuery({
+    queryKey: ["projects", "integration-options", selectedCompany],
+    queryFn: () => getProjects({ ...companyQuery, page_size: 100, sort_by: "name" }),
+    enabled: Boolean(selectedCompany && selectedCompanyType === "CONTRACTOR"),
+  });
+  const sites = useQuery({
+    queryKey: ["sites", "integration-options", selectedCompany],
+    queryFn: () => getSites({ ...companyQuery, page_size: 100, sort_by: "name" }),
+    enabled: Boolean(selectedCompany && selectedCompanyType === "RECYCLER"),
+  });
+  const scales = useQuery({
+    queryKey: ["scales", "integration-options", selectedCompany, device.site],
+    queryFn: () =>
+      getScales({
+        ...companyQuery,
+        ...(device.site ? { site: device.site } : {}),
+        page_size: 100,
+        sort_by: "name",
+      }),
+    enabled: Boolean(selectedCompany && selectedCompanyType === "RECYCLER"),
   });
 
   const create = useMutation({
@@ -112,13 +146,25 @@ export function Integrations() {
     },
   });
   const createDevice = useMutation({
-    mutationFn: () =>
-      createIntegrationDevice(
-        device,
+    mutationFn: () => {
+      const payload: IntegrationDevicePayload = {
+        ...device,
+        device_id: device.device_id.trim(),
+        device_type: device.device_type.trim(),
+        integration: device.integration || null,
+        project: selectedCompanyType === "CONTRACTOR" ? device.project || null : null,
+        site: selectedCompanyType === "RECYCLER" ? device.site || null : null,
+        scale: selectedCompanyType === "RECYCLER" ? device.scale || null : null,
+        firmware_version: device.firmware_version?.trim() || "",
+        secret: device.secret || "",
+      };
+      return createIntegrationDevice(
+        payload,
         user?.is_platform_staff ? selectedCompany : undefined,
-      ),
+      );
+    },
     onSuccess: () => {
-      setDevice({ device_type: "EDGE_GATEWAY", device_id: "", integration: null });
+      setDevice(DEFAULT_DEVICE);
       void queryClient.invalidateQueries({ queryKey: ["integration-devices"] });
     },
   });
@@ -147,6 +193,30 @@ export function Integrations() {
         label: `${row.kind} / ${row.name}`,
       })),
     [rows],
+  );
+  const projectOptions = useMemo(
+    () =>
+      (projects.data?.results ?? []).map((project) => ({
+        value: project.id,
+        label: `${project.code} / ${project.name}`,
+      })),
+    [projects.data?.results],
+  );
+  const siteOptions = useMemo(
+    () =>
+      (sites.data?.results ?? []).map((site) => ({
+        value: site.id,
+        label: `${site.code} / ${site.name}`,
+      })),
+    [sites.data?.results],
+  );
+  const scaleOptions = useMemo(
+    () =>
+      (scales.data?.results ?? []).map((scale) => ({
+        value: scale.id,
+        label: `${scale.code} / ${scale.name}`,
+      })),
+    [scales.data?.results],
   );
 
   return (
@@ -185,7 +255,10 @@ export function Integrations() {
             id="integration-company"
             className="h-9 w-full rounded-md border bg-background px-3 text-sm"
             value={company}
-            onChange={(event) => setCompany(event.target.value)}
+            onChange={(event) => {
+              setCompany(event.target.value);
+              setDevice(DEFAULT_DEVICE);
+            }}
           >
             <option value="">{t("integrations.chooseCompany")}</option>
             {(companies.data?.results ?? []).map((item) => (
@@ -339,7 +412,7 @@ export function Integrations() {
       {selectedCompany && can("integration.manage") && (
         <section className="space-y-4 border-y py-4">
           <h2 className="text-sm font-semibold">{t("integrations.devices")}</h2>
-          <div className="grid gap-3 md:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <Field label={t("integrations.device.type")}>
               <Input
                 value={device.device_type}
@@ -377,7 +450,89 @@ export function Integrations() {
                 ))}
               </select>
             </Field>
-            <div className="flex items-end">
+            {selectedCompanyType === "CONTRACTOR" && (
+              <Field label={t("integrations.device.project")}>
+                <select
+                  className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                  value={device.project ?? ""}
+                  onChange={(event) =>
+                    setDevice({
+                      ...device,
+                      project: event.target.value || null,
+                      site: null,
+                      scale: null,
+                    })
+                  }
+                >
+                  <option value="">{t("integrations.device.unlinked")}</option>
+                  {projectOptions.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
+            {selectedCompanyType === "RECYCLER" && (
+              <>
+                <Field label={t("integrations.device.site")}>
+                  <select
+                    className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                    value={device.site ?? ""}
+                    onChange={(event) =>
+                      setDevice({
+                        ...device,
+                        site: event.target.value || null,
+                        project: null,
+                        scale: null,
+                      })
+                    }
+                  >
+                    <option value="">{t("integrations.device.unlinked")}</option>
+                    {siteOptions.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label={t("integrations.device.scale")}>
+                  <select
+                    className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                    value={device.scale ?? ""}
+                    onChange={(event) =>
+                      setDevice({ ...device, scale: event.target.value || null })
+                    }
+                  >
+                    <option value="">{t("integrations.device.unlinked")}</option>
+                    {scaleOptions.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </>
+            )}
+            <Field label={t("integrations.device.firmware")}>
+              <Input
+                value={device.firmware_version ?? ""}
+                onChange={(event) =>
+                  setDevice({ ...device, firmware_version: event.target.value })
+                }
+              />
+            </Field>
+            <Field label={t("integrations.device.secret")}>
+              <Input
+                type="password"
+                value={device.secret ?? ""}
+                onChange={(event) =>
+                  setDevice({ ...device, secret: event.target.value })
+                }
+                placeholder={t("integrations.device.secretPlaceholder")}
+              />
+            </Field>
+            <div className="flex items-end xl:justify-end">
               <Button
                 disabled={!device.device_id.trim() || createDevice.isPending}
                 onClick={() => void createDevice.mutateAsync()}
@@ -391,25 +546,47 @@ export function Integrations() {
             {(devices.data?.results ?? []).map((item) => (
               <div
                 key={item.id}
-                className="flex flex-wrap items-center justify-between gap-3 px-3 py-3 text-sm"
+                className="grid gap-3 px-3 py-3 text-sm md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
               >
-                <span className="font-mono">{item.device_id}</span>
-                <span className="text-muted-foreground">
-                  {item.device_type} /{" "}
-                  {item.integration_name ??
-                    t("integrations.device.unlinked")}
-                  {item.gateway_device_id
-                    ? ` / ${t("integrations.device.gatewayLinked")}`
-                    : ""}
-                </span>
-                <StatusBadge
-                  label={
-                    item.is_online
-                      ? t("integrations.device.online")
-                      : t("integrations.device.offline")
-                  }
-                  tone={item.is_online ? "positive" : "neutral"}
-                />
+                <div className="min-w-0 space-y-1">
+                  <p className="truncate font-mono">{item.device_id}</p>
+                  <p className="truncate text-muted-foreground">
+                    {item.device_type} /{" "}
+                    {item.integration_name ?? t("integrations.device.unlinked")}
+                    {item.gateway_device_id
+                      ? ` / ${t("integrations.device.gatewayLinked")}`
+                      : ""}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {[
+                      item.project_name
+                        ? `${t("integrations.device.project")}: ${item.project_name}`
+                        : null,
+                      item.site_name
+                        ? `${t("integrations.device.site")}: ${item.site_name}`
+                        : null,
+                      item.scale_name
+                        ? `${t("integrations.device.scale")}: ${item.scale_name}`
+                        : null,
+                      item.firmware_version
+                        ? `${t("integrations.device.firmware")}: ${item.firmware_version}`
+                        : null,
+                      item.has_secret ? t("integrations.device.secretStored") : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" / ") || t("integrations.device.noBinding")}
+                  </p>
+                </div>
+                <div className="flex md:justify-end">
+                  <StatusBadge
+                    label={
+                      item.is_online
+                        ? t("integrations.device.online")
+                        : t("integrations.device.offline")
+                    }
+                    tone={item.is_online ? "positive" : "neutral"}
+                  />
+                </div>
               </div>
             ))}
           </div>

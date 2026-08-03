@@ -194,7 +194,8 @@
       "baseUrl": "Base URL",
       "authType": "Authentication type",
       "secret": "Secret",
-      "secretPlaceholder": "Only sent when saving"
+      "secretPlaceholder": "Only sent when saving",
+      "settings": "Settings JSON"
     },
     "device": {
       "type": "Device type",
@@ -203,7 +204,15 @@
       "unlinked": "Unlinked",
       "online": "Online",
       "offline": "Offline",
-      "gatewayLinked": "Linked to weighing gateway"
+      "gatewayLinked": "Linked to weighing gateway",
+      "project": "Project",
+      "site": "Yard",
+      "scale": "Weighbridge",
+      "firmware": "Firmware version",
+      "secret": "Device secret",
+      "secretPlaceholder": "Optional device credential",
+      "secretStored": "Secret stored",
+      "noBinding": "No project, yard or weighbridge binding"
     },
     "kind": {
       "ERP": "ERP",

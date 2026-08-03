@@ -194,7 +194,8 @@
       "baseUrl": "基础 URL",
       "authType": "认证类型",
       "secret": "Secret",
-      "secretPlaceholder": "保存时才会发送"
+      "secretPlaceholder": "保存时才会发送",
+      "settings": "设置 JSON"
     },
     "device": {
       "type": "设备类型",
@@ -203,7 +204,15 @@
       "unlinked": "未关联",
       "online": "在线",
       "offline": "离线",
-      "gatewayLinked": "已绑定称重网关"
+      "gatewayLinked": "已绑定称重网关",
+      "project": "项目",
+      "site": "回收场",
+      "scale": "地磅",
+      "firmware": "固件版本",
+      "secret": "设备密钥",
+      "secretPlaceholder": "可选设备凭证",
+      "secretStored": "密钥已保存",
+      "noBinding": "未绑定项目、回收场或地磅"
     },
     "kind": {
       "ERP": "ERP",

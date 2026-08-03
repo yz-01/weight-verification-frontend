@@ -194,7 +194,8 @@
       "baseUrl": "URL asas",
       "authType": "Jenis pengesahan",
       "secret": "Secret",
-      "secretPlaceholder": "Hanya dihantar semasa menyimpan"
+      "secretPlaceholder": "Hanya dihantar semasa menyimpan",
+      "settings": "JSON tetapan"
     },
     "device": {
       "type": "Jenis peranti",
@@ -203,7 +204,15 @@
       "unlinked": "Tidak dipautkan",
       "online": "Dalam talian",
       "offline": "Luar talian",
-      "gatewayLinked": "Dipautkan kepada gateway timbang"
+      "gatewayLinked": "Dipautkan kepada gateway timbang",
+      "project": "Projek",
+      "site": "Tapak kitar semula",
+      "scale": "Jambatan timbang",
+      "firmware": "Versi firmware",
+      "secret": "Rahsia peranti",
+      "secretPlaceholder": "Kredensial peranti pilihan",
+      "secretStored": "Rahsia disimpan",
+      "noBinding": "Tiada pautan projek, tapak atau jambatan timbang"
     },
     "kind": {
       "ERP": "ERP",
