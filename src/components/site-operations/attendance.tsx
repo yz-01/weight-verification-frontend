@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { ApiError } from "@/interfaces/api";
 import type {
   AttendanceEvent,
   AttendanceRecord,
@@ -54,6 +55,8 @@ export function Attendance() {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<ClockDraft>(EMPTY_DRAFT);
   const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState("");
+  const [clockError, setClockError] = useState("");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["attendance", list.query],
@@ -77,11 +80,20 @@ export function Attendance() {
       void queryClient.invalidateQueries({ queryKey: ["attendance"] });
       setOpen(false);
       setDraft(EMPTY_DRAFT);
+      setLocationError("");
+      setClockError("");
+    },
+    onError: (error) => {
+      setClockError(error instanceof ApiError ? error.message : t("errors.generic"));
     },
   });
 
   function locate() {
-    if (!navigator.geolocation) return;
+    setLocationError("");
+    if (!navigator.geolocation) {
+      setLocationError(t("attendance.clock.locationUnavailable"));
+      return;
+    }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -93,9 +105,19 @@ export function Attendance() {
         }));
         setLocating(false);
       },
-      () => setLocating(false),
-      { enableHighAccuracy: true, timeout: 10_000 },
+      () => {
+        setLocating(false);
+        setLocationError(t("attendance.clock.locationError"));
+      },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 60_000 },
     );
+  }
+
+  function openClockDialog() {
+    setDraft(EMPTY_DRAFT);
+    setLocationError("");
+    setClockError("");
+    setOpen(true);
   }
 
   const columns = useMemo<ColumnDef<AttendanceRecord, unknown>[]>(
@@ -181,7 +203,7 @@ export function Attendance() {
               className="hidden w-[220px] sm:flex"
             />
             {can("attendance.clock") && (
-              <Button size="sm" onClick={() => setOpen(true)}>
+              <Button size="sm" onClick={openClockDialog}>
                 <LogIn className="h-4 w-4" />
                 {t("attendance.clock.action")}
               </Button>
@@ -230,13 +252,16 @@ export function Attendance() {
             <DialogTitle>{t("attendance.clock.title")}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FieldWrapper label={t("attendance.field.project")} required className="sm:col-span-2">
-              <ProjectPicker
-                value={draft.project}
-                onValueChange={(project) => setDraft((value) => ({ ...value, project }))}
-                placeholder={t("attendance.filter.project")}
-              />
-            </FieldWrapper>
+              <FieldWrapper label={t("attendance.field.project")} required className="sm:col-span-2">
+                <ProjectPicker
+                  value={draft.project}
+                  onValueChange={(project) => {
+                    setClockError("");
+                    setDraft((value) => ({ ...value, project }));
+                  }}
+                  placeholder={t("attendance.filter.project")}
+                />
+              </FieldWrapper>
             <Button
               type="button"
               variant={draft.event === "CLOCK_IN" ? "default" : "outline"}
@@ -263,16 +288,35 @@ export function Attendance() {
                 }
               />
             </FieldWrapper>
-            <FieldWrapper label={t("attendance.field.location")} required>
-              <Button type="button" variant="outline" className="w-full" onClick={locate} disabled={locating}>
+              <FieldWrapper label={t("attendance.field.location")} required>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={locate}
+                disabled={locating}
+              >
                 {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
                 {draft.latitude ? t("attendance.clock.locationCaptured") : t("attendance.clock.captureLocation")}
               </Button>
+              {locationError && (
+                <p className="mt-1 text-xs text-destructive" role="alert">
+                  {locationError}
+                </p>
+              )}
             </FieldWrapper>
             <FieldWrapper label={t("attendance.field.note")} optional={t("common.optional")} className="sm:col-span-2">
               <Textarea value={draft.note} onChange={(event) => setDraft((value) => ({ ...value, note: event.target.value }))} />
             </FieldWrapper>
           </div>
+          {(clockError || !draft.project || (!draft.latitude && !locating)) && (
+            <p className="text-xs text-muted-foreground" role={clockError ? "alert" : undefined}>
+              {clockError ||
+                (!draft.project
+                  ? t("attendance.clock.projectRequired")
+                  : t("attendance.clock.locationRequired"))}
+            </p>
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
             <Button

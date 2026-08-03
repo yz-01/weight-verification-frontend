@@ -416,6 +416,10 @@
       "title": "Record attendance",
       "captureLocation": "Capture GPS",
       "locationCaptured": "GPS captured",
+      "locationUnavailable": "This browser does not provide location services.",
+      "locationError": "GPS could not be obtained. Allow location access, use HTTPS, and try again.",
+      "projectRequired": "Choose a project before saving attendance.",
+      "locationRequired": "Capture GPS before saving attendance.",
       "confirm": "Save attendance"
     },
     "toast": { "recorded": "Attendance recorded" }

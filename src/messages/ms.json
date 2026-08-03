@@ -416,6 +416,10 @@
       "title": "Rekod kehadiran",
       "captureLocation": "Rakam GPS",
       "locationCaptured": "GPS dirakam",
+      "locationUnavailable": "Pelayar ini tidak menyediakan perkhidmatan lokasi.",
+      "locationError": "GPS tidak dapat diperoleh. Benarkan akses lokasi, gunakan HTTPS dan cuba lagi.",
+      "projectRequired": "Pilih projek sebelum menyimpan kehadiran.",
+      "locationRequired": "Rakam GPS sebelum menyimpan kehadiran.",
       "confirm": "Simpan kehadiran"
     },
     "toast": { "recorded": "Kehadiran direkodkan" }

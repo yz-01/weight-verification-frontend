@@ -416,6 +416,10 @@
       "title": "记录考勤",
       "captureLocation": "获取 GPS",
       "locationCaptured": "已获取 GPS",
+      "locationUnavailable": "此浏览器不支持定位服务。",
+      "locationError": "无法获取 GPS。请允许浏览器定位权限，确认使用 HTTPS 后再试。",
+      "projectRequired": "请先选择项目，才能保存考勤。",
+      "locationRequired": "请先获取 GPS，才能保存考勤。",
       "confirm": "保存考勤"
     },
     "toast": { "recorded": "考勤已记录" }
