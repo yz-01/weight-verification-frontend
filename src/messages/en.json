@@ -886,6 +886,11 @@
   "siteGps": {
     "title": "Site personnel GPS",
     "count": "{count} people reporting",
+    "historyCount": "{count} people with location history",
+    "tabs": {
+      "live": "Live positions",
+      "history": "Last position / History"
+    },
     "project": "Project",
     "allProjects": "All projects",
     "startSharing": "Start sharing",
@@ -893,10 +898,21 @@
     "sharing": "Sharing location",
     "refreshNote": "Refreshes every 15 seconds",
     "map": "Live site map",
+    "historyMap": "Last position and route",
+    "historyNote": "{count} recent route points",
     "people": "People on site",
+    "lastPositions": "Employee last positions",
     "empty": "No current positions",
+    "historyEmpty": "No location history",
+    "lastSeen": "Last updated {value}",
+    "distance": "{value} m from project",
     "live": "Live",
     "stale": "Stale",
+    "status": {
+      "live": "Sharing",
+      "stopped": "Stopped",
+      "expired": "Expired"
+    },
     "error": {
       "unsupported": "This browser does not support location sharing.",
       "permissionDenied": "Location permission was denied. Allow location access in your browser settings and try again.",

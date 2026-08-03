@@ -824,6 +824,11 @@
   "siteGps": {
     "title": "GPS kakitangan tapak",
     "count": "{count} orang menghantar lokasi",
+    "historyCount": "{count} orang mempunyai sejarah lokasi",
+    "tabs": {
+      "live": "Lokasi masa nyata",
+      "history": "Lokasi terakhir / Sejarah"
+    },
     "project": "Projek",
     "allProjects": "Semua projek",
     "startSharing": "Mula berkongsi",
@@ -831,10 +836,21 @@
     "sharing": "Lokasi sedang dikongsi",
     "refreshNote": "Menyegar semula setiap 15 saat",
     "map": "Peta tapak masa nyata",
+    "historyMap": "Lokasi terakhir dan laluan",
+    "historyNote": "{count} titik laluan terkini",
     "people": "Kakitangan di tapak",
+    "lastPositions": "Lokasi terakhir kakitangan",
     "empty": "Tiada lokasi semasa",
+    "historyEmpty": "Tiada sejarah lokasi",
+    "lastSeen": "Terakhir dikemas kini {value}",
+    "distance": "{value} m dari projek",
     "live": "Masa nyata",
     "stale": "Lama",
+    "status": {
+      "live": "Sedang berkongsi",
+      "stopped": "Dihentikan",
+      "expired": "Tamat tempoh"
+    },
     "error": {
       "unsupported": "Pelayar ini tidak menyokong perkongsian lokasi.",
       "permissionDenied": "Kebenaran lokasi ditolak. Benarkan akses lokasi dalam tetapan pelayar dan cuba lagi.",

@@ -776,6 +776,11 @@
   "siteGps": {
     "title": "工地人员 GPS",
     "count": "{count} 人正在上报",
+    "historyCount": "{count} 人有定位记录",
+    "tabs": {
+      "live": "实时位置",
+      "history": "最后位置 / 历史轨迹"
+    },
     "project": "项目",
     "allProjects": "全部项目",
     "startSharing": "开始共享位置",
@@ -783,10 +788,21 @@
     "sharing": "正在共享位置",
     "refreshNote": "每 15 秒刷新",
     "map": "工地实时地图",
+    "historyMap": "最后位置与历史轨迹",
+    "historyNote": "最近 {count} 个轨迹点",
     "people": "工地人员",
+    "lastPositions": "员工最后位置",
     "empty": "当前没有位置",
+    "historyEmpty": "当前没有定位历史",
+    "lastSeen": "最后更新 {value}",
+    "distance": "距离项目 {value} 米",
     "live": "实时",
     "stale": "已过期",
+    "status": {
+      "live": "正在共享",
+      "stopped": "已停止",
+      "expired": "已过期"
+    },
     "error": {
       "unsupported": "此浏览器不支持位置共享。",
       "permissionDenied": "定位权限已被拒绝。请在浏览器设置中允许定位后重试。",
