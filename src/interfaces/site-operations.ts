@@ -36,7 +36,8 @@ export interface AttendancePayload {
 export type FieldPositionEvent =
   | "POSITION"
   | "GEOFENCE_ENTER"
-  | "GEOFENCE_EXIT";
+  | "GEOFENCE_EXIT"
+  | "SHARING_STOPPED";
 
 export interface FieldStaffPosition {
   id: string;

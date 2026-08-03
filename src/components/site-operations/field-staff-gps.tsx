@@ -16,6 +16,7 @@ import { getProjects } from "@/services/contractor.service";
 import {
   getFieldStaffLivePositions,
   recordFieldStaffPosition,
+  stopFieldStaffLocationSharing,
 } from "@/services/field-staff-gps.service";
 
 export function FieldStaffGps() {
@@ -48,7 +49,19 @@ export function FieldStaffGps() {
       void queryClient.invalidateQueries({ queryKey: ["field-staff-gps"] });
     },
     onError: (error) => {
-      stopSharing();
+      stopWatcher();
+      setSharingError(
+        error instanceof ApiError ? error.message : t("errors.generic"),
+      );
+    },
+  });
+  const stop = useMutation({
+    mutationFn: stopFieldStaffLocationSharing,
+    onSuccess: () => {
+      setSharingError("");
+      void queryClient.invalidateQueries({ queryKey: ["field-staff-gps"] });
+    },
+    onError: (error) => {
       setSharingError(
         error instanceof ApiError ? error.message : t("errors.generic"),
       );
@@ -119,12 +132,21 @@ export function FieldStaffGps() {
     };
   }, []);
 
-  function stopSharing() {
+  function stopWatcher() {
     if (watchId.current !== null) {
       navigator.geolocation.clearWatch(watchId.current);
       watchId.current = null;
     }
     setSharing(false);
+  }
+
+  function stopSharing() {
+    stopWatcher();
+    if (!projectId || !user) return;
+    stop.mutate({
+      project: projectId,
+      client_event_id: `${user.id}-stop-${Date.now()}`,
+    });
   }
 
   function startSharing() {
@@ -134,7 +156,7 @@ export function FieldStaffGps() {
       setSharingError(t("siteGps.error.unsupported"));
       return;
     }
-    stopSharing();
+    stopWatcher();
     setSharing(true);
     watchId.current = navigator.geolocation.watchPosition(
       (position) => {
@@ -151,7 +173,7 @@ export function FieldStaffGps() {
         });
       },
       (error) => {
-        stopSharing();
+        stopWatcher();
         const key =
           error.code === error.PERMISSION_DENIED
             ? "permissionDenied"
@@ -186,7 +208,7 @@ export function FieldStaffGps() {
         <ProjectPicker
           value={projectId || "all"}
           onValueChange={(value) => {
-            stopSharing();
+            if (sharing) stopSharing();
             setProjectId(value === "all" ? "" : value);
           }}
           allowAll
@@ -198,7 +220,7 @@ export function FieldStaffGps() {
           <Button
             size="sm"
             variant={sharing ? "destructive" : "default"}
-            disabled={!projectId || record.isPending}
+            disabled={!projectId || record.isPending || stop.isPending}
             onClick={sharing ? stopSharing : startSharing}
           >
             {sharing ? <RefreshCw className="h-4 w-4" /> : <LocateFixed className="h-4 w-4" />}

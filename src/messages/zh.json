@@ -796,7 +796,8 @@
     "event": {
       "POSITION": "位置",
       "GEOFENCE_ENTER": "进入围栏",
-      "GEOFENCE_EXIT": "离开围栏"
+      "GEOFENCE_EXIT": "离开围栏",
+      "SHARING_STOPPED": "停止共享"
     },
     "geofence": {
       "INSIDE": "围栏内",

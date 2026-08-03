@@ -844,7 +844,8 @@
     "event": {
       "POSITION": "Lokasi",
       "GEOFENCE_ENTER": "Masuk geofence",
-      "GEOFENCE_EXIT": "Keluar geofence"
+      "GEOFENCE_EXIT": "Keluar geofence",
+      "SHARING_STOPPED": "Perkongsian dihentikan"
     },
     "geofence": {
       "INSIDE": "Dalam geofence",

@@ -906,7 +906,8 @@
     "event": {
       "POSITION": "Position",
       "GEOFENCE_ENTER": "Geofence enter",
-      "GEOFENCE_EXIT": "Geofence exit"
+      "GEOFENCE_EXIT": "Geofence exit",
+      "SHARING_STOPPED": "Sharing stopped"
     },
     "geofence": {
       "INSIDE": "Inside",

@@ -34,3 +34,13 @@ export function recordFieldStaffPosition(payload: {
     payload,
   );
 }
+
+export function stopFieldStaffLocationSharing(payload: {
+  project: string;
+  client_event_id: string;
+}): Promise<FieldStaffPosition | null> {
+  return api.post<FieldStaffPosition | null>(
+    "/api/field-staff-positions/stop_sharing/",
+    payload,
+  );
+}
