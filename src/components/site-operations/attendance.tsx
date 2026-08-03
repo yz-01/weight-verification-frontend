@@ -86,7 +86,7 @@ export function Attendance() {
     onError: (error) => {
       setClockError(
         error instanceof ApiError
-          ? error.errors.location || error.message
+          ? error.errors.location || Object.values(error.errors)[0] || error.message
           : t("errors.generic"),
       );
     },
@@ -315,7 +315,10 @@ export function Attendance() {
             </FieldWrapper>
           </div>
           {(clockError || !draft.project || (!draft.latitude && !locating)) && (
-            <p className="text-xs text-muted-foreground" role={clockError ? "alert" : undefined}>
+            <p
+              className={clockError ? "text-xs text-destructive" : "text-xs text-muted-foreground"}
+              role={clockError ? "alert" : undefined}
+            >
               {clockError ||
                 (!draft.project
                   ? t("attendance.clock.projectRequired")

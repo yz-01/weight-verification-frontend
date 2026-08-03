@@ -1712,6 +1712,7 @@
       "description": "Orang di sini melihat penerimaan dan muatan keluar projek ini. Orang lain dalam syarikat anda tidak melihat apa-apa melainkan peranan mereka merangkumi semua projek.",
       "empty": "Belum ada sesiapa ditugaskan.",
       "add": "Tambah orang",
+      "loadError": "Senarai orang tidak dapat dimuatkan.",
       "remove": "Keluarkan dari projek",
       "removeTitle": "Keluarkan {name} dari projek ini?",
       "removeDescription": "Mereka tidak lagi melihat penerimaan dan muatan keluar projek ini. Akaun dan rekod mereka kekal seperti sedia ada.",

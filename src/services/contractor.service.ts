@@ -7,6 +7,7 @@ ever imported together.
 */
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
+import type { UserRow } from "@/interfaces/auth";
 import type {
   DispatchSummary,
   MaterialReceipt,
@@ -103,6 +104,15 @@ export function getProjectAssignments(
 ): Promise<{ results: ProjectAssignment[]; count: number }> {
   return api.get<{ results: ProjectAssignment[]; count: number }>(
     `/api/projects/${id}/get_assignments/`,
+  );
+}
+
+export function getAssignableProjectUsers(
+  id: string,
+): Promise<Paginated<UserRow>> {
+  return api.list<UserRow>(
+    `/api/projects/${id}/get_assignable_users/`,
+    { page_size: 100, sort_by: "full_name" },
   );
 }
 

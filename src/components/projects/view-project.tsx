@@ -39,11 +39,11 @@ import {
 import type { ProjectAssignment } from "@/interfaces/contractor";
 import {
   assignUserToProject,
+  getAssignableProjectUsers,
   getProject,
   getProjectAssignments,
   unassignUserFromProject,
 } from "@/services/contractor.service";
-import { getUsers } from "@/services/users.service";
 import { useDateFormat } from "@/lib/dates";
 
 export function ViewProject({ id }: { id: string }) {
@@ -316,9 +316,9 @@ function AssignUserDialog({
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState("");
 
-  const { data } = useQuery({
-    queryKey: ["users", "assignable"],
-    queryFn: () => getUsers({ page_size: 100 }),
+  const { data, isError } = useQuery({
+    queryKey: ["users", "assignable", projectId],
+    queryFn: () => getAssignableProjectUsers(projectId),
   });
 
   const assignment = useMutation({
@@ -350,7 +350,11 @@ function AssignUserDialog({
             <SelectValue placeholder={t("common.selectPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            {options.length === 0 ? (
+            {isError ? (
+              <div className="px-2 py-3 text-center text-sm text-destructive">
+                {t("projects.team.loadError")}
+              </div>
+            ) : options.length === 0 ? (
               <div className="px-2 py-3 text-center text-sm text-muted-foreground">
                 {t("common.noOptions")}
               </div>

@@ -1774,6 +1774,7 @@
       "description": "People here see this project's deliveries and outgoing loads. Everyone else in your company sees nothing of it unless their role covers every project.",
       "empty": "Nobody is assigned yet.",
       "add": "Add someone",
+      "loadError": "People could not be loaded.",
       "remove": "Remove from project",
       "removeTitle": "Remove {name} from this project?",
       "removeDescription": "They will stop seeing this project's deliveries and outgoing loads. Their account and everything they recorded stay as they are.",
