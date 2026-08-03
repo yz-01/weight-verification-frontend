@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { PermissionMatrix } from "@/components/roles/permission-matrix";
+import { CURRENT_USER_KEY } from "@/components/providers/auth-provider";
 import {
   TextAreaField,
   TextField,
@@ -37,8 +38,11 @@ export function CreateRole({ role }: { role?: Role }) {
   const mutation = useMutation({
     mutationFn: (values: RolePayload) =>
       isEdit ? updateRole(role.id, values) : createRole(values),
-    onSuccess: (saved) => {
-      void queryClient.invalidateQueries({ queryKey: ["roles"] });
+    onSuccess: async (saved) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["roles"] }),
+        queryClient.invalidateQueries({ queryKey: CURRENT_USER_KEY }),
+      ]);
       router.push(`/roles/${saved.id}`);
     },
   });

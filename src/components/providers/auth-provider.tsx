@@ -49,7 +49,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Nothing to ask about without a token, and asking would 401 on every load
     // of the sign-in page.
     enabled: hasSession(),
-    staleTime: 5 * 60_000,
+    // Roles are editable while their users are signed in. Keep the shell's
+    // menu close to the backend's live permission decision without requiring
+    // a logout after an administrator changes a role.
+    staleTime: 60_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: "always",
     retry: false,
   });
 
