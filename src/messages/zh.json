@@ -212,7 +212,11 @@
       "secret": "设备密钥",
       "secretPlaceholder": "可选设备凭证",
       "secretStored": "密钥已保存",
-      "noBinding": "未绑定项目、回收场或地磅"
+      "noBinding": "未绑定项目、回收场或地磅",
+      "removeGatewayBlocked": "请先在地磅管理撤销已绑定的称重网关",
+      "removeTitle": "移除设备 {name}？",
+      "removeDescription": "设备将不再出现在系统集成列表中，历史记录和审计资料会保留。",
+      "removeConfirm": "移除设备"
     },
     "kind": {
       "ERP": "ERP",
@@ -246,7 +250,8 @@
       "created": "集成已登记",
       "updated": "集成已更新",
       "queued": "连接测试已排队",
-      "deviceCreated": "设备已登记"
+      "deviceCreated": "设备已登记",
+      "deviceRemoved": "设备已移除"
     },
     "validation": {
       "settings": "设置必须是有效的 JSON。"
@@ -1347,6 +1352,8 @@
       "integration_already_exists": "该集成名称已存在。",
       "integration_device_not_found": "找不到该集成设备。",
       "integration_device_already_exists": "该设备编号已存在。",
+      "integration_device_gateway_linked": "请先撤销已绑定的称重网关，再移除该设备。",
+      "gateway_revoked": "该称重网关已经撤销。",
       "project_not_found": "找不到这个项目。",
       "supplier_not_found": "找不到这家供应商。",
       "qr_code_not_found": "无法识别这个二维码。",
@@ -1498,6 +1505,7 @@
     },
     "online": "在线",
     "offline": "离线",
+    "revoked": "已撤销",
     "manifestTitle": "网关安装清单",
     "manifestBody": "清单包含现场网关所需的接口地址、协议和重试设置。密钥只会在复制操作中包含。",
     "copyManifest": "复制安装清单",
@@ -1506,9 +1514,13 @@
     "rotate": "重新签发密钥",
     "rotateTitle": "为 {name} 重新签发密钥？",
     "rotateBody": "当前密钥会立即失效。在新密钥装到网关上之前，它无法上传任何数据。",
+    "revoke": "撤销网关",
+    "revokeTitle": "撤销网关 {name}？",
+    "revokeBody": "当前密钥将立即失效，设备也会从系统集成登记解除关联。历史称重证据仍会保留。",
     "toast": {
       "created": "网关已注册",
-      "rotated": "密钥已重新签发"
+      "rotated": "密钥已重新签发",
+      "revoked": "网关已撤销"
     }
   },
   "weighing": {

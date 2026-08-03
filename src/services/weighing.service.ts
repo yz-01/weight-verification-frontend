@@ -137,6 +137,19 @@ export async function rotateGatewaySecret(
   return result;
 }
 
+export async function revokeGateway(
+  scaleId: string,
+  gatewayId: string,
+  reason: string,
+): Promise<GatewayDevice> {
+  const result = await api.post<GatewayDevice>(
+    `/api/scales/${scaleId}/revoke_gateway/`,
+    { gateway: gatewayId, reason },
+  );
+  toastSuccess("gateways.toast.revoked");
+  return result;
+}
+
 export function getWeighSessions(
   query: ListQuery,
 ): Promise<Paginated<WeighSessionRow>> {

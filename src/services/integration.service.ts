@@ -69,3 +69,14 @@ export async function createIntegrationDevice(
   toastSuccess("integrations.toast.deviceCreated");
   return result;
 }
+
+export async function deleteIntegrationDevice(
+  id: string,
+  company?: string,
+): Promise<void> {
+  await api.delete<void>(
+    `/api/integration-devices/${id}/delete_device/`,
+    company ? { query: { company } } : undefined,
+  );
+  toastSuccess("integrations.toast.deviceRemoved");
+}

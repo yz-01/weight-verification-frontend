@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Ban,
   Check,
   Copy,
   KeyRound,
@@ -14,6 +15,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -33,6 +35,7 @@ import type { GatewayInstallerManifest } from "@/interfaces/weighing";
 import {
   createGateway,
   getGateways,
+  revokeGateway,
   rotateGatewaySecret,
 } from "@/services/weighing.service";
 import { useDateFormat } from "@/lib/dates";
@@ -49,12 +52,14 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
   const t = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
+  const { can } = useAuth();
 
   const [registering, setRegistering] = useState(false);
   const [deviceId, setDeviceId] = useState("");
   const [revealed, setRevealed] = useState<string | null>(null);
   const [manifest, setManifest] = useState<GatewayInstallerManifest | null>(null);
   const [rotating, setRotating] = useState<GatewayDevice | null>(null);
+  const [revoking, setRevoking] = useState<GatewayDevice | null>(null);
   const [reason, setReason] = useState("");
 
   const { data, isLoading } = useQuery({
@@ -83,6 +88,16 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
       setRevealed(result.secret);
     },
   });
+  const revocation = useMutation({
+    mutationFn: (gateway: GatewayDevice) =>
+      revokeGateway(scaleId, gateway.id, reason),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["gateways", scaleId] });
+      void queryClient.invalidateQueries({ queryKey: ["integration-devices"] });
+      setRevoking(null);
+      setReason("");
+    },
+  });
 
   const gateways = data?.results ?? [];
 
@@ -92,16 +107,18 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {t("gateways.title")}
         </h3>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="rounded-full px-4"
-          onClick={() => setRegistering(true)}
-        >
-          <Plus className="h-4 w-4" />
-          {t("gateways.new")}
-        </Button>
+        {can("scale.manage") && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-full px-4"
+            onClick={() => setRegistering(true)}
+          >
+            <Plus className="h-4 w-4" />
+            {t("gateways.new")}
+          </Button>
+        )}
       </div>
 
       {isLoading ? (
@@ -130,20 +147,47 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
               </div>
               <StatusBadge
                 label={
-                  gateway.is_online ? t("gateways.online") : t("gateways.offline")
+                  !gateway.is_active
+                    ? t("gateways.revoked")
+                    : gateway.is_online
+                      ? t("gateways.online")
+                      : t("gateways.offline")
                 }
-                tone={gateway.is_online ? "positive" : "neutral"}
+                tone={
+                  !gateway.is_active
+                    ? "danger"
+                    : gateway.is_online
+                      ? "positive"
+                      : "neutral"
+                }
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="rounded-full px-3 text-xs text-muted-foreground hover:text-foreground"
-                onClick={() => setRotating(gateway)}
-              >
-                <KeyRound className="h-3.5 w-3.5" />
-                {t("gateways.rotate")}
-              </Button>
+              {can("scale.manage") && gateway.is_active && (
+                <>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full px-3 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => setRotating(gateway)}
+                  >
+                    <KeyRound className="h-3.5 w-3.5" />
+                    {t("gateways.rotate")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full px-3 text-xs text-destructive hover:text-destructive"
+                    onClick={() => {
+                      setReason("");
+                      setRevoking(gateway);
+                    }}
+                  >
+                    <Ban className="h-3.5 w-3.5" />
+                    {t("gateways.revoke")}
+                  </Button>
+                </>
+              )}
             </div>
           ))}
         </div>
@@ -220,6 +264,26 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
           reason={reason}
           onReasonChange={setReason}
           onConfirm={() => rotation.mutate(rotating)}
+        />
+      )}
+
+      {revoking && (
+        <ConfirmDialog
+          open
+          onOpenChange={() => {
+            setRevoking(null);
+            setReason("");
+          }}
+          title={t("gateways.revokeTitle", { name: revoking.device_id })}
+          description={t("gateways.revokeBody")}
+          confirmLabel={t("gateways.revoke")}
+          confirmIcon={Ban}
+          variant="destructive"
+          isPending={revocation.isPending}
+          reason={reason}
+          onReasonChange={setReason}
+          reasonRequired
+          onConfirm={() => revocation.mutate(revoking)}
         />
       )}
     </section>

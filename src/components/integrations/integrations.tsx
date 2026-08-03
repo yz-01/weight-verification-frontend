@@ -1,11 +1,12 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Cable, Check, Plus, RefreshCw, TestTube2 } from "lucide-react";
+import { Cable, Check, Plus, RefreshCw, TestTube2, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import type { CompanyType } from "@/interfaces/company";
 import type {
   IntegrationConfig,
+  IntegrationDevice,
   IntegrationDevicePayload,
   IntegrationKind,
 } from "@/interfaces/integration";
@@ -21,6 +23,7 @@ import { getCompanies } from "@/services/companies.service";
 import {
   createIntegration,
   createIntegrationDevice,
+  deleteIntegrationDevice,
   getIntegrationDevices,
   getIntegrations,
   testIntegration,
@@ -66,6 +69,9 @@ export function Integrations() {
   const [secret, setSecret] = useState("");
   const [settings, setSettings] = useState("{}");
   const [device, setDevice] = useState<IntegrationDevicePayload>(DEFAULT_DEVICE);
+  const [removingDevice, setRemovingDevice] = useState<IntegrationDevice | null>(
+    null,
+  );
 
   const companies = useQuery({
     queryKey: ["companies", "integration-options"],
@@ -165,6 +171,17 @@ export function Integrations() {
     },
     onSuccess: () => {
       setDevice(DEFAULT_DEVICE);
+      void queryClient.invalidateQueries({ queryKey: ["integration-devices"] });
+    },
+  });
+  const removeDevice = useMutation({
+    mutationFn: (item: IntegrationDevice) =>
+      deleteIntegrationDevice(
+        item.id,
+        user?.is_platform_staff ? selectedCompany : undefined,
+      ),
+    onSuccess: () => {
+      setRemovingDevice(null);
       void queryClient.invalidateQueries({ queryKey: ["integration-devices"] });
     },
   });
@@ -409,139 +426,143 @@ export function Integrations() {
         </div>
       </section>
 
-      {selectedCompany && can("integration.manage") && (
+      {selectedCompany && (
         <section className="space-y-4 border-y py-4">
           <h2 className="text-sm font-semibold">{t("integrations.devices")}</h2>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <Field label={t("integrations.device.type")}>
-              <Input
-                value={device.device_type}
-                onChange={(event) =>
-                  setDevice({ ...device, device_type: event.target.value })
-                }
-              />
-            </Field>
-            <Field label={t("integrations.device.id")}>
-              <Input
-                value={device.device_id}
-                onChange={(event) =>
-                  setDevice({ ...device, device_id: event.target.value })
-                }
-              />
-            </Field>
-            <Field label={t("integrations.device.integration")}>
-              <select
-                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
-                value={device.integration ?? ""}
-                onChange={(event) =>
-                  setDevice({
-                    ...device,
-                    integration: event.target.value || null,
-                  })
-                }
-              >
-                <option value="">
-                  {t("integrations.device.unlinked")}
-                </option>
-                {integrationOptions.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            {selectedCompanyType === "CONTRACTOR" && (
-              <Field label={t("integrations.device.project")}>
+          {can("integration.manage") && (
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <Field label={t("integrations.device.type")}>
+                <Input
+                  value={device.device_type}
+                  onChange={(event) =>
+                    setDevice({ ...device, device_type: event.target.value })
+                  }
+                />
+              </Field>
+              <Field label={t("integrations.device.id")}>
+                <Input
+                  value={device.device_id}
+                  onChange={(event) =>
+                    setDevice({ ...device, device_id: event.target.value })
+                  }
+                />
+              </Field>
+              <Field label={t("integrations.device.integration")}>
                 <select
                   className="h-9 w-full rounded-md border bg-background px-3 text-sm"
-                  value={device.project ?? ""}
+                  value={device.integration ?? ""}
                   onChange={(event) =>
                     setDevice({
                       ...device,
-                      project: event.target.value || null,
-                      site: null,
-                      scale: null,
+                      integration: event.target.value || null,
                     })
                   }
                 >
                   <option value="">{t("integrations.device.unlinked")}</option>
-                  {projectOptions.map((item) => (
+                  {integrationOptions.map((item) => (
                     <option key={item.value} value={item.value}>
                       {item.label}
                     </option>
                   ))}
                 </select>
               </Field>
-            )}
-            {selectedCompanyType === "RECYCLER" && (
-              <>
-                <Field label={t("integrations.device.site")}>
+              {selectedCompanyType === "CONTRACTOR" && (
+                <Field label={t("integrations.device.project")}>
                   <select
                     className="h-9 w-full rounded-md border bg-background px-3 text-sm"
-                    value={device.site ?? ""}
+                    value={device.project ?? ""}
                     onChange={(event) =>
                       setDevice({
                         ...device,
-                        site: event.target.value || null,
-                        project: null,
+                        project: event.target.value || null,
+                        site: null,
                         scale: null,
                       })
                     }
                   >
                     <option value="">{t("integrations.device.unlinked")}</option>
-                    {siteOptions.map((item) => (
+                    {projectOptions.map((item) => (
                       <option key={item.value} value={item.value}>
                         {item.label}
                       </option>
                     ))}
                   </select>
                 </Field>
-                <Field label={t("integrations.device.scale")}>
-                  <select
-                    className="h-9 w-full rounded-md border bg-background px-3 text-sm"
-                    value={device.scale ?? ""}
-                    onChange={(event) =>
-                      setDevice({ ...device, scale: event.target.value || null })
-                    }
-                  >
-                    <option value="">{t("integrations.device.unlinked")}</option>
-                    {scaleOptions.map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
+              )}
+              {selectedCompanyType === "RECYCLER" && (
+                <>
+                  <Field label={t("integrations.device.site")}>
+                    <select
+                      className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                      value={device.site ?? ""}
+                      onChange={(event) =>
+                        setDevice({
+                          ...device,
+                          site: event.target.value || null,
+                          project: null,
+                          scale: null,
+                        })
+                      }
+                    >
+                      <option value="">
+                        {t("integrations.device.unlinked")}
                       </option>
-                    ))}
-                  </select>
-                </Field>
-              </>
-            )}
-            <Field label={t("integrations.device.firmware")}>
-              <Input
-                value={device.firmware_version ?? ""}
-                onChange={(event) =>
-                  setDevice({ ...device, firmware_version: event.target.value })
-                }
-              />
-            </Field>
-            <Field label={t("integrations.device.secret")}>
-              <Input
-                type="password"
-                value={device.secret ?? ""}
-                onChange={(event) =>
-                  setDevice({ ...device, secret: event.target.value })
-                }
-                placeholder={t("integrations.device.secretPlaceholder")}
-              />
-            </Field>
-            <div className="flex items-end xl:justify-end">
-              <Button
-                disabled={!device.device_id.trim() || createDevice.isPending}
-                onClick={() => void createDevice.mutateAsync()}
-              >
-                <Plus className="h-4 w-4" />
-                {t("integrations.action.registerDevice")}
-              </Button>
+                      {siteOptions.map((item) => (
+                        <option key={item.value} value={item.value}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label={t("integrations.device.scale")}>
+                    <select
+                      className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                      value={device.scale ?? ""}
+                      onChange={(event) =>
+                        setDevice({ ...device, scale: event.target.value || null })
+                      }
+                    >
+                      <option value="">
+                        {t("integrations.device.unlinked")}
+                      </option>
+                      {scaleOptions.map((item) => (
+                        <option key={item.value} value={item.value}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                </>
+              )}
+              <Field label={t("integrations.device.firmware")}>
+                <Input
+                  value={device.firmware_version ?? ""}
+                  onChange={(event) =>
+                    setDevice({ ...device, firmware_version: event.target.value })
+                  }
+                />
+              </Field>
+              <Field label={t("integrations.device.secret")}>
+                <Input
+                  type="password"
+                  value={device.secret ?? ""}
+                  onChange={(event) =>
+                    setDevice({ ...device, secret: event.target.value })
+                  }
+                  placeholder={t("integrations.device.secretPlaceholder")}
+                />
+              </Field>
+              <div className="flex items-end xl:justify-end">
+                <Button
+                  disabled={!device.device_id.trim() || createDevice.isPending}
+                  onClick={() => void createDevice.mutateAsync()}
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("integrations.action.registerDevice")}
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
           <div className="divide-y border-y">
             {(devices.data?.results ?? []).map((item) => (
               <div
@@ -577,7 +598,7 @@ export function Integrations() {
                       .join(" / ") || t("integrations.device.noBinding")}
                   </p>
                 </div>
-                <div className="flex md:justify-end">
+                <div className="flex items-center gap-2 md:justify-end">
                   <StatusBadge
                     label={
                       item.is_online
@@ -586,11 +607,47 @@ export function Integrations() {
                     }
                     tone={item.is_online ? "positive" : "neutral"}
                   />
+                  {can("integration.manage") && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      disabled={Boolean(item.gateway)}
+                      title={
+                        item.gateway
+                          ? t("integrations.device.removeGatewayBlocked")
+                          : t("common.remove")
+                      }
+                      aria-label={
+                        item.gateway
+                          ? t("integrations.device.removeGatewayBlocked")
+                          : t("common.remove")
+                      }
+                      onClick={() => setRemovingDevice(item)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </section>
+      )}
+
+      {removingDevice && (
+        <ConfirmDialog
+          open
+          onOpenChange={() => setRemovingDevice(null)}
+          title={t("integrations.device.removeTitle", {
+            name: removingDevice.device_id,
+          })}
+          description={t("integrations.device.removeDescription")}
+          confirmLabel={t("integrations.device.removeConfirm")}
+          variant="destructive"
+          isPending={removeDevice.isPending}
+          onConfirm={() => removeDevice.mutate(removingDevice)}
+        />
       )}
     </div>
   );

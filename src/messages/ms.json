@@ -212,7 +212,11 @@
       "secret": "Rahsia peranti",
       "secretPlaceholder": "Kredensial peranti pilihan",
       "secretStored": "Rahsia disimpan",
-      "noBinding": "Tiada pautan projek, tapak atau jambatan timbang"
+      "noBinding": "Tiada pautan projek, tapak atau jambatan timbang",
+      "removeGatewayBlocked": "Batalkan gateway timbang yang dipautkan dalam pengurusan jambatan timbang dahulu",
+      "removeTitle": "Buang peranti {name}?",
+      "removeDescription": "Peranti tidak lagi muncul dalam senarai integrasi. Sejarah dan rekod auditnya akan dikekalkan.",
+      "removeConfirm": "Buang peranti"
     },
     "kind": {
       "ERP": "ERP",
@@ -246,7 +250,8 @@
       "created": "Integrasi didaftarkan",
       "updated": "Integrasi dikemas kini",
       "queued": "Ujian sambungan telah beratur",
-      "deviceCreated": "Peranti didaftarkan"
+      "deviceCreated": "Peranti didaftarkan",
+      "deviceRemoved": "Peranti dibuang"
     },
     "validation": {
       "settings": "Tetapan mesti JSON yang sah."
@@ -1395,6 +1400,8 @@
       "integration_already_exists": "Nama integrasi itu telah digunakan.",
       "integration_device_not_found": "Peranti integrasi itu tidak dijumpai.",
       "integration_device_already_exists": "ID peranti itu telah digunakan.",
+      "integration_device_gateway_linked": "Batalkan gateway timbang yang dipautkan sebelum membuang peranti ini.",
+      "gateway_revoked": "Gateway timbang ini telah dibatalkan.",
       "project_not_found": "Projek itu tidak dijumpai.",
       "supplier_not_found": "Pembekal itu tidak dijumpai.",
       "qr_code_not_found": "Kod QR ini tidak dikenali.",
@@ -1546,6 +1553,7 @@
     },
     "online": "Dalam talian",
     "offline": "Luar talian",
+    "revoked": "Dibatalkan",
     "manifestTitle": "Manifest pemasangan gateway",
     "manifestBody": "Manifest ini mengandungi URL ingest, protokol dan tetapan percubaan semula untuk gateway tapak. Rahsia hanya disertakan semasa tindakan salin.",
     "copyManifest": "Salin manifest",
@@ -1554,9 +1562,13 @@
     "rotate": "Tukar rahsia",
     "rotateTitle": "Tukar rahsia untuk {name}?",
     "rotateBody": "Rahsia semasa berhenti berfungsi serta-merta. Gateway tidak boleh menghantar bacaan sehingga yang baharu dipasang padanya.",
+    "revoke": "Batalkan gateway",
+    "revokeTitle": "Batalkan gateway {name}?",
+    "revokeBody": "Kredensial semasa akan berhenti berfungsi serta-merta dan peranti akan dinyahpaut daripada daftar integrasi. Bukti timbangan sejarah akan dikekalkan.",
     "toast": {
       "created": "Gateway didaftarkan",
-      "rotated": "Rahsia ditukar"
+      "rotated": "Rahsia ditukar",
+      "revoked": "Gateway dibatalkan"
     }
   },
   "weighing": {

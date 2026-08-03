@@ -212,7 +212,11 @@
       "secret": "Device secret",
       "secretPlaceholder": "Optional device credential",
       "secretStored": "Secret stored",
-      "noBinding": "No project, yard or weighbridge binding"
+      "noBinding": "No project, yard or weighbridge binding",
+      "removeGatewayBlocked": "Revoke the linked weighing gateway in Weighbridge management first",
+      "removeTitle": "Remove device {name}?",
+      "removeDescription": "The device will disappear from the integration list. Its history and audit records will be retained.",
+      "removeConfirm": "Remove device"
     },
     "kind": {
       "ERP": "ERP",
@@ -246,7 +250,8 @@
       "created": "Integration registered",
       "updated": "Integration updated",
       "queued": "Connection test queued",
-      "deviceCreated": "Device registered"
+      "deviceCreated": "Device registered",
+      "deviceRemoved": "Device removed"
     },
     "validation": {
       "settings": "Settings must be valid JSON."
@@ -1457,6 +1462,8 @@
       "integration_already_exists": "An integration with that name already exists.",
       "integration_device_not_found": "That integration device could not be found.",
       "integration_device_already_exists": "A device with that id already exists.",
+      "integration_device_gateway_linked": "Revoke the linked weighing gateway before removing this device.",
+      "gateway_revoked": "This weighing gateway has already been revoked.",
       "project_not_found": "That project could not be found.",
       "supplier_not_found": "That supplier could not be found.",
       "qr_code_not_found": "This QR code is not recognised.",
@@ -1608,6 +1615,7 @@
     },
     "online": "Online",
     "offline": "Offline",
+    "revoked": "Revoked",
     "manifestTitle": "Gateway installer manifest",
     "manifestBody": "This manifest contains the ingest URLs, protocol and retry settings for the field gateway. The secret is included only in the copy action.",
     "copyManifest": "Copy manifest",
@@ -1616,9 +1624,13 @@
     "rotate": "Rotate secret",
     "rotateTitle": "Rotate the secret for {name}?",
     "rotateBody": "The current secret stops working immediately. The gateway cannot send readings until the new one is installed on it.",
+    "revoke": "Revoke gateway",
+    "revokeTitle": "Revoke gateway {name}?",
+    "revokeBody": "The current credential will stop working immediately and the device will be unlinked from the integration registry. Historical weighing evidence will be retained.",
     "toast": {
       "created": "Gateway registered",
-      "rotated": "Secret rotated"
+      "rotated": "Secret rotated",
+      "revoked": "Gateway revoked"
     }
   },
   "weighing": {
