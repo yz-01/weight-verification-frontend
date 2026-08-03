@@ -135,12 +135,13 @@ export function LocationMap({
         visibleZones.length > 0
       ) {
         bounds.extend(center);
-        map.fitBounds(bounds.pad(0.15), { maxZoom: 16 });
+        map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
       }
     });
 
     return () => {
       disposed = true;
+      map?.stop();
       map?.remove();
     };
   }, [center, markers, paths, radiusM, zones]);
