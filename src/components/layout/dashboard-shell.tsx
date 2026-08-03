@@ -17,7 +17,7 @@ import {
   isDriverOnlyAccount,
   isRouteAllowed,
 } from "@/lib/navigation";
-import { portalLoginPath } from "@/lib/portal";
+import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
 
 /**
  * The signed-in shell, and the guard in front of it.
@@ -42,11 +42,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && user === null) {
-      router.replace(portalLoginPath(getSessionPortal()));
+      redirectWithFallback(router, portalLoginPath(getSessionPortal()));
       return;
     }
     if (!isLoading && user !== null && isDriverOnly) {
-      router.replace("/driver");
+      redirectWithFallback(router, "/driver");
       return;
     }
     if (
@@ -56,11 +56,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         user.portal,
         user.features,
         pathname,
-        user.permissions,
-        user.is_superuser,
-      )
+      user.permissions,
+      user.is_superuser,
+    )
     ) {
-      router.replace(firstAllowedDashboardPath(user.portal, user.features));
+      redirectWithFallback(
+        router,
+        firstAllowedDashboardPath(user.portal, user.features),
+      );
     }
   }, [isDriverOnly, isLoading, pathname, user, router]);
 

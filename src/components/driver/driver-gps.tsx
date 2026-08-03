@@ -28,6 +28,7 @@ import {
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
+import { LocationMap } from "@/components/shared/location-map";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,7 +39,10 @@ import type {
   TaskState,
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { getDriverRouteHistory } from "@/services/driver-gps.service";
+import {
+  getDriverLivePositions,
+  getDriverRouteHistory,
+} from "@/services/driver-gps.service";
 import { getTask, getTasks } from "@/services/recycler.service";
 
 type TaskFilter = "ALL" | "RUNNING" | "FINISHED";
@@ -119,11 +123,52 @@ export function DriverGps() {
     refetchInterval: 30_000,
   });
 
+  const live = useQuery({
+    queryKey: ["driver-gps", "live"],
+    queryFn: () =>
+      getDriverLivePositions({
+        page_size: 200,
+        running: true,
+      }),
+    refetchInterval: 15_000,
+  });
+
   const positions = useMemo(
     () => route.data?.pages.flatMap((page) => page.results) ?? [],
     [route.data],
   );
   const current = positions[0];
+  const livePositions = useMemo(
+    () => live.data?.results ?? [],
+    [live.data?.results],
+  );
+  const liveCenter = useMemo<[number, number] | undefined>(() => {
+    const first = livePositions.find(
+      (position) => position.project_latitude && position.project_longitude,
+    );
+    if (!first?.project_latitude || !first.project_longitude) return undefined;
+    return [Number(first.project_latitude), Number(first.project_longitude)];
+  }, [livePositions]);
+  const liveMarkers = useMemo(
+    () =>
+      livePositions.map((position) => ({
+        id: position.id,
+        latitude: Number(position.latitude),
+        longitude: Number(position.longitude),
+        label: `${position.driver_name} · ${position.vehicle_plate}`,
+        detail: `${position.project_name ?? ""} · ${t(
+          `driverGps.geofence.${position.geofence_result}`,
+        )}`,
+        tone:
+          position.geofence_result === "OUTSIDE"
+            ? ("danger" as const)
+            : position.is_stale
+              ? ("warning" as const)
+              : ("positive" as const),
+        stale: position.is_stale,
+      })),
+    [livePositions, t],
+  );
 
   function selectTask(taskId: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -162,6 +207,21 @@ export function DriverGps() {
           </Button>
         }
       />
+
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold">{t("driverGps.liveMap.title")}</h2>
+            <p className="text-xs text-muted-foreground">
+              {t("driverGps.liveMap.count", { count: live.data?.count ?? 0 })}
+            </p>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {t("driverGps.liveMap.refresh")}
+          </span>
+        </div>
+        <LocationMap center={liveCenter} markers={liveMarkers} />
+      </section>
 
       <div className="grid min-h-0 gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
         <aside className="min-w-0 space-y-3" aria-label={t("driverGps.tasks.title")}>

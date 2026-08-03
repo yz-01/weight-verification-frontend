@@ -69,7 +69,9 @@ export type PortalFeatureKey =
   | "approvals"
   | "evidence"
   | "notifications"
-  | "driver_gps";
+  | "driver_gps"
+  | "site_gps"
+  | "integrations";
 
 export interface FeatureNavItem {
   /** Exact key returned by `GET /api/auth/me/`. */
@@ -128,6 +130,7 @@ export const PORTAL_NAVIGATION = {
       "operations",
       ["/companies", "/users/create"],
     ),
+    item("integrations", "/integrations", SlidersHorizontal, "system"),
     item(
       "transaction_reports",
       "/reports",
@@ -157,6 +160,7 @@ export const PORTAL_NAVIGATION = {
     ),
     item("progress", "/progress", ChartNoAxesCombined, "operations"),
     item("safety", "/safety", ShieldAlert, "operations"),
+    item("site_gps", "/site-gps", MapPinned, "operations"),
     item("documents", "/documents", FolderArchive, "operations"),
     item("approvals", "/approvals", Workflow, "operations"),
     item("evidence", "/evidence", ScanSearch, "operations"),
@@ -174,6 +178,7 @@ export const PORTAL_NAVIGATION = {
     ),
     item("users", "/users", Users, "system"),
     item("roles", "/roles", KeyRound, "system"),
+    item("integrations", "/integrations", SlidersHorizontal, "system"),
     item("user_logs", "/login-records", FileClock, "system", [
       "/audit-logs",
     ]),
@@ -217,6 +222,7 @@ export const PORTAL_NAVIGATION = {
     item("evidence", "/evidence", ScanSearch, "system"),
     item("users", "/users", Users, "system"),
     item("roles", "/roles", KeyRound, "system"),
+    item("integrations", "/integrations", SlidersHorizontal, "system"),
     item("user_logs", "/login-records", FileClock, "system", [
       "/audit-logs",
     ]),

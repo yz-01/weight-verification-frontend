@@ -14,7 +14,7 @@ import {
   isDriverOnlyAccount,
 } from "@/lib/navigation";
 import { getSessionPortal } from "@/lib/auth-token";
-import { portalLoginPath } from "@/lib/portal";
+import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
 
 /**
  * The driver's shell. Deliberately not the console's.
@@ -39,11 +39,14 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && user === null) {
-      router.replace(portalLoginPath(getSessionPortal()));
+      redirectWithFallback(router, portalLoginPath(getSessionPortal()));
       return;
     }
     if (!isLoading && user !== null && !isDriverOnly) {
-      router.replace(firstAllowedDashboardPath(user.portal, user.features));
+      redirectWithFallback(
+        router,
+        firstAllowedDashboardPath(user.portal, user.features),
+      );
     }
   }, [isDriverOnly, isLoading, user, router]);
 

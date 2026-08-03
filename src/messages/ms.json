@@ -174,7 +174,90 @@
     "evidence": "Arkib bukti",
     "notifications": "Pemberitahuan",
     "driver_gps": "GPS pemandu",
+    "site_gps": "GPS kakitangan tapak",
+    "integrations": "Integrasi sistem",
     "system_monitoring": "Pemantauan sistem"
+  },
+  "integrations": {
+    "title": "Integrasi",
+    "subtitle": "Daftar sambungan dan peranti tapak tanpa memaparkan secret.",
+    "company": "Syarikat",
+    "chooseCompany": "Pilih syarikat",
+    "newTitle": "Daftar sambungan",
+    "connections": "Konfigurasi sambungan",
+    "devices": "Peranti tapak",
+    "empty": "Tiada integrasi didaftarkan.",
+    "field": {
+      "kind": "Jenis integrasi",
+      "name": "Nama",
+      "namePlaceholder": "contoh: ERP produksi",
+      "baseUrl": "URL asas",
+      "authType": "Jenis pengesahan",
+      "secret": "Secret",
+      "secretPlaceholder": "Hanya dihantar semasa menyimpan"
+    },
+    "device": {
+      "type": "Jenis peranti",
+      "id": "ID peranti",
+      "integration": "Sambungan",
+      "unlinked": "Tidak dipautkan",
+      "online": "Dalam talian",
+      "offline": "Luar talian",
+      "gatewayLinked": "Dipautkan kepada gateway timbang"
+    },
+    "kind": {
+      "ERP": "ERP",
+      "ACCOUNTING": "Perakaunan",
+      "MYINVOIS": "MyInvois",
+      "GOVERNMENT_API": "API kerajaan",
+      "CCTV": "CCTV",
+      "ANPR": "ANPR",
+      "IOT": "IoT",
+      "AI": "AI",
+      "DRONE": "Dron",
+      "TOWER_CRANE": "Kren menara",
+      "RF": "Anti-penipuan RF",
+      "WEBHOOK": "Webhook"
+    },
+    "status": {
+      "DISABLED": "Dilumpuhkan",
+      "READY": "Sedia",
+      "DEGRADED": "Terhad",
+      "ERROR": "Ralat"
+    },
+    "action": {
+      "create": "Daftar sambungan",
+      "test": "Beratur ujian sambungan",
+      "queued": "Ujian sambungan telah beratur",
+      "enable": "Dayakan",
+      "disable": "Lumpuhkan",
+      "registerDevice": "Daftar peranti"
+    },
+    "toast": {
+      "created": "Integrasi didaftarkan",
+      "updated": "Integrasi dikemas kini",
+      "queued": "Ujian sambungan telah beratur",
+      "deviceCreated": "Peranti didaftarkan"
+    },
+    "validation": {
+      "settings": "Tetapan mesti JSON yang sah."
+    }
+  },
+  "externalPortal": {
+    "invalid": "Pautan luaran tidak tersedia",
+    "invalidBody": "Pautan mungkin telah tamat tempoh, dibatalkan atau dimasukkan secara salah.",
+    "expiry": "Akses tamat pada {date}",
+    "project": "Projek",
+    "progress": "Kemajuan",
+    "weighing": "Timbangan disahkan",
+    "documents": "Dokumen",
+    "evidence": "Bukti",
+    "field": {
+      "code": "Kod",
+      "name": "Nama",
+      "status": "Status",
+      "location": "Lokasi"
+    }
   },
   "dashboard": {
     "title": "Papan pemuka",
@@ -710,7 +793,37 @@
     "event": { "POSITION": "Kedudukan", "ARRIVAL": "Ketibaan", "GEOFENCE_ENTER": "Masuk geofence", "GEOFENCE_EXIT": "Keluar geofence" },
     "geofence": { "INSIDE": "Di dalam", "OUTSIDE": "Di luar", "NOT_EVALUATED": "Belum dinilai" },
     "timeline": { "title": "Garis masa laluan", "count": "{count} sampel", "loadOlder": "Muatkan sampel terdahulu" },
-    "field": { "accuracy": "Ketepatan", "distance": "Jarak projek", "occurredAt": "Masa peristiwa asal", "uploadedAt": "Dimuat naik" }
+    "field": { "accuracy": "Ketepatan", "distance": "Jarak projek", "occurredAt": "Masa peristiwa asal", "uploadedAt": "Dimuat naik" },
+    "liveMap": {
+      "title": "Peta pemandu masa nyata",
+      "count": "{count} pemandu aktif",
+      "refresh": "Menyegar semula setiap 15 saat"
+    }
+  },
+  "siteGps": {
+    "title": "GPS kakitangan tapak",
+    "count": "{count} orang menghantar lokasi",
+    "project": "Projek",
+    "allProjects": "Semua projek",
+    "startSharing": "Mula berkongsi",
+    "stopSharing": "Henti berkongsi",
+    "sharing": "Lokasi sedang dikongsi",
+    "refreshNote": "Menyegar semula setiap 15 saat",
+    "map": "Peta tapak masa nyata",
+    "people": "Kakitangan di tapak",
+    "empty": "Tiada lokasi semasa",
+    "live": "Masa nyata",
+    "stale": "Lama",
+    "event": {
+      "POSITION": "Lokasi",
+      "GEOFENCE_ENTER": "Masuk geofence",
+      "GEOFENCE_EXIT": "Keluar geofence"
+    },
+    "geofence": {
+      "INSIDE": "Dalam geofence",
+      "OUTSIDE": "Di luar geofence",
+      "NOT_EVALUATED": "Belum dinilai"
+    }
   },
   "notifications": {
     "title": "Pemberitahuan",
@@ -1183,6 +1296,7 @@
       "company_not_found": "Syarikat itu tidak dijumpai.",
       "user_not_found": "Pengguna itu tidak dijumpai.",
       "role_not_found": "Peranan itu tidak dijumpai.",
+      "department_not_found": "Jabatan itu tidak dijumpai.",
       "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
       "company_required": "Pilih syarikat dahulu.",
       "object_reference_required": "Satu rekod mesti dinyatakan.",
@@ -1225,11 +1339,18 @@
       "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda.",
       "device_auth_failed": "Gateway jambatan timbang ini tidak dapat disahkan.",
       "ingest_rejected": "Bacaan jambatan timbang tidak dapat diterima.",
+      "packet_replay": "Paket gateway bertandatangan ini telah diterima.",
+      "clock_skew": "Perubahan jam gateway melebihi had yang dibenarkan.",
+      "calibration_expired": "Kalibrasi jambatan timbang ini telah tamat.",
       "scale_not_found": "Jambatan timbang itu tidak dijumpai.",
       "site_not_found": "Tapak itu tidak dijumpai.",
       "session_not_found": "Penimbangan itu tidak dijumpai.",
       "gateway_not_found": "Gateway itu tidak dijumpai.",
       "invalid_rule_params": "Semak tetapan pengesanan dan cuba lagi.",
+      "integration_not_found": "Integrasi itu tidak dijumpai.",
+      "integration_already_exists": "Nama integrasi itu telah digunakan.",
+      "integration_device_not_found": "Peranti integrasi itu tidak dijumpai.",
+      "integration_device_already_exists": "ID peranti itu telah digunakan.",
       "project_not_found": "Projek itu tidak dijumpai.",
       "supplier_not_found": "Pembekal itu tidak dijumpai.",
       "qr_code_not_found": "Kod QR ini tidak dikenali.",
@@ -1381,6 +1502,9 @@
     },
     "online": "Dalam talian",
     "offline": "Luar talian",
+    "manifestTitle": "Manifest pemasangan gateway",
+    "manifestBody": "Manifest ini mengandungi URL ingest, protokol dan tetapan percubaan semula untuk gateway tapak. Rahsia hanya disertakan semasa tindakan salin.",
+    "copyManifest": "Salin manifest",
     "secretTitle": "Salin rahsia ini sekarang",
     "secretBody": "Ia ditunjukkan sekali sahaja. Gateway menandatangani setiap paket dengannya, jadi rahsia yang hilang diganti, bukan dipulihkan.",
     "rotate": "Tukar rahsia",

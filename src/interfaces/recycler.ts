@@ -166,6 +166,7 @@ export interface DriverTaskDetail extends DriverTask {
   project_postcode: string;
   project_latitude: string | null;
   project_longitude: string | null;
+  project_geofence_radius_m: number | null;
   contractor_name: string | null;
   accepted_at: string | null;
   arrived_at: string | null;
@@ -199,7 +200,19 @@ export interface DriverTaskPosition {
   uploaded_at: string;
   distance_to_project_m: string | null;
   geofence_result: "INSIDE" | "OUTSIDE" | "NOT_EVALUATED";
+  is_stale?: boolean;
   created_at: string;
+}
+
+export interface DriverTaskLivePosition extends DriverTaskPosition {
+  task_no: string;
+  driver_name: string;
+  vehicle_plate: string;
+  project_name: string | null;
+  project_latitude: string | null;
+  project_longitude: string | null;
+  project_geofence_radius_m: number | null;
+  is_stale: boolean;
 }
 
 export interface DriverTaskPayload {

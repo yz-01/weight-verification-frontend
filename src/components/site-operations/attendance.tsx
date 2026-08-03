@@ -263,7 +263,7 @@ export function Attendance() {
                 }
               />
             </FieldWrapper>
-            <FieldWrapper label={t("attendance.field.location")} optional={t("common.optional")}>
+            <FieldWrapper label={t("attendance.field.location")} required>
               <Button type="button" variant="outline" className="w-full" onClick={locate} disabled={locating}>
                 {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
                 {draft.latitude ? t("attendance.clock.locationCaptured") : t("attendance.clock.captureLocation")}
@@ -275,7 +275,10 @@ export function Attendance() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
-            <Button onClick={() => clock.mutate()} disabled={!draft.project || clock.isPending}>
+            <Button
+              onClick={() => clock.mutate()}
+              disabled={!draft.project || !draft.latitude || clock.isPending}
+            >
               {clock.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {t("attendance.clock.confirm")}
             </Button>

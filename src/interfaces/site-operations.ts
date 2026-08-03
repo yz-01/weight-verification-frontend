@@ -33,6 +33,34 @@ export interface AttendancePayload {
   note?: string;
 }
 
+export type FieldPositionEvent =
+  | "POSITION"
+  | "GEOFENCE_ENTER"
+  | "GEOFENCE_EXIT";
+
+export interface FieldStaffPosition {
+  id: string;
+  project: string;
+  project_code: string;
+  project_name: string;
+  project_latitude: string | null;
+  project_longitude: string | null;
+  project_geofence_radius_m: number | null;
+  user: string;
+  user_name: string;
+  client_event_id: string;
+  event_type: FieldPositionEvent;
+  latitude: string;
+  longitude: string;
+  accuracy_m: string | null;
+  original_occurred_at: string;
+  uploaded_at: string;
+  distance_to_project_m: string | null;
+  geofence_result: "INSIDE" | "OUTSIDE" | "NOT_EVALUATED";
+  is_stale: boolean;
+  created_at: string;
+}
+
 export interface ProgressUpdate {
   id: string;
   project: string;
