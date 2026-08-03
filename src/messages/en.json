@@ -187,6 +187,15 @@
     "connections": "Connection configurations",
     "devices": "Field devices",
     "empty": "No integrations registered.",
+    "connection": {
+      "removeTitle": "Remove connection {name}?",
+      "removeDescription": "The connection will be removed from this company. Test history and audit records are retained. Remove or unlink any devices using it first.",
+      "removeConfirm": "Remove connection"
+    },
+    "test": {
+      "passedAt": "Connection reachable · {date}",
+      "failedDetail": "Connection failed · {error}"
+    },
     "field": {
       "kind": "Integration type",
       "name": "Name",
@@ -240,8 +249,7 @@
     },
     "action": {
       "create": "Register connection",
-      "test": "Queue connection test",
-      "queued": "Connection test queued",
+      "test": "Test connection",
       "enable": "Enable",
       "disable": "Disable",
       "registerDevice": "Register device"
@@ -249,7 +257,9 @@
     "toast": {
       "created": "Integration registered",
       "updated": "Integration updated",
-      "queued": "Connection test queued",
+      "testPassed": "Connection is reachable",
+      "testFailed": "Connection test failed",
+      "removed": "Connection removed",
       "deviceCreated": "Device registered",
       "deviceRemoved": "Device removed"
     },
@@ -1460,6 +1470,8 @@
       "invalid_rule_params": "Check the detection settings and try again.",
       "integration_not_found": "That integration could not be found.",
       "integration_already_exists": "An integration with that name already exists.",
+      "integration_base_url_required": "Add a complete HTTP or HTTPS base URL before testing this connection.",
+      "integration_has_devices": "Remove or unlink the devices using this connection first.",
       "integration_device_not_found": "That integration device could not be found.",
       "integration_device_already_exists": "A device with that id already exists.",
       "integration_device_gateway_linked": "Revoke the linked weighing gateway before removing this device.",

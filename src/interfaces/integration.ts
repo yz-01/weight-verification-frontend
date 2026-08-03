@@ -32,6 +32,15 @@ export interface IntegrationConfig {
   updated_at: string;
 }
 
+export interface IntegrationDelivery {
+  id: string;
+  integration: string;
+  status: "PENDING" | "SENT" | "FAILED";
+  response_status: number | null;
+  error: string;
+  attempted_at: string;
+}
+
 export interface IntegrationDevice {
   id: string;
   gateway: string | null;

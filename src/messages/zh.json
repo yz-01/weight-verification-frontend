@@ -187,6 +187,15 @@
     "connections": "连接配置",
     "devices": "现场设备",
     "empty": "还没有登记集成。",
+    "connection": {
+      "removeTitle": "移除连接 {name}？",
+      "removeDescription": "该连接将从公司配置中移除，测试历史和审计记录会保留。请先移除或解除正在使用它的设备。",
+      "removeConfirm": "移除连接"
+    },
+    "test": {
+      "passedAt": "连接可访问 · {date}",
+      "failedDetail": "连接失败 · {error}"
+    },
     "field": {
       "kind": "集成类型",
       "name": "名称",
@@ -240,8 +249,7 @@
     },
     "action": {
       "create": "登记连接",
-      "test": "排队测试连接",
-      "queued": "连接测试已排队",
+      "test": "测试连接",
       "enable": "启用",
       "disable": "停用",
       "registerDevice": "登记设备"
@@ -249,7 +257,9 @@
     "toast": {
       "created": "集成已登记",
       "updated": "集成已更新",
-      "queued": "连接测试已排队",
+      "testPassed": "连接可以访问",
+      "testFailed": "连接测试失败",
+      "removed": "连接已移除",
       "deviceCreated": "设备已登记",
       "deviceRemoved": "设备已移除"
     },
@@ -1350,6 +1360,8 @@
       "invalid_rule_params": "请检查检测参数后重试。",
       "integration_not_found": "找不到该集成。",
       "integration_already_exists": "该集成名称已存在。",
+      "integration_base_url_required": "请先填写完整的 HTTP 或 HTTPS 基础 URL，再测试连接。",
+      "integration_has_devices": "请先移除或解除正在使用该连接的设备。",
       "integration_device_not_found": "找不到该集成设备。",
       "integration_device_already_exists": "该设备编号已存在。",
       "integration_device_gateway_linked": "请先撤销已绑定的称重网关，再移除该设备。",

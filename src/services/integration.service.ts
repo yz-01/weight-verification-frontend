@@ -1,6 +1,7 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   IntegrationConfig,
+  IntegrationDelivery,
   IntegrationDevice,
   IntegrationDevicePayload,
   IntegrationPayload,
@@ -40,13 +41,30 @@ export async function updateIntegration(
   return result;
 }
 
-export async function testIntegration(id: string): Promise<unknown> {
-  const result = await api.post(
+export async function testIntegration(
+  id: string,
+  company?: string,
+): Promise<IntegrationDelivery> {
+  const result = await api.post<IntegrationDelivery>(
     `/api/integrations/${id}/test_integration/`,
     undefined,
+    company ? { query: { company } } : undefined,
   );
-  toastSuccess("integrations.toast.queued");
+  if (result.status === "SENT") {
+    toastSuccess("integrations.toast.testPassed");
+  }
   return result;
+}
+
+export async function deleteIntegration(
+  id: string,
+  company?: string,
+): Promise<void> {
+  await api.delete<void>(
+    `/api/integrations/${id}/delete_integration/`,
+    company ? { query: { company } } : undefined,
+  );
+  toastSuccess("integrations.toast.removed");
 }
 
 export function getIntegrationDevices(

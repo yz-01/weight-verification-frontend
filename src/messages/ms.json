@@ -187,6 +187,15 @@
     "connections": "Konfigurasi sambungan",
     "devices": "Peranti tapak",
     "empty": "Tiada integrasi didaftarkan.",
+    "connection": {
+      "removeTitle": "Buang sambungan {name}?",
+      "removeDescription": "Sambungan akan dibuang daripada syarikat ini. Sejarah ujian dan rekod audit dikekalkan. Buang atau nyahpaut peranti yang menggunakannya dahulu.",
+      "removeConfirm": "Buang sambungan"
+    },
+    "test": {
+      "passedAt": "Sambungan boleh dicapai · {date}",
+      "failedDetail": "Sambungan gagal · {error}"
+    },
     "field": {
       "kind": "Jenis integrasi",
       "name": "Nama",
@@ -240,8 +249,7 @@
     },
     "action": {
       "create": "Daftar sambungan",
-      "test": "Beratur ujian sambungan",
-      "queued": "Ujian sambungan telah beratur",
+      "test": "Uji sambungan",
       "enable": "Dayakan",
       "disable": "Lumpuhkan",
       "registerDevice": "Daftar peranti"
@@ -249,7 +257,9 @@
     "toast": {
       "created": "Integrasi didaftarkan",
       "updated": "Integrasi dikemas kini",
-      "queued": "Ujian sambungan telah beratur",
+      "testPassed": "Sambungan boleh dicapai",
+      "testFailed": "Ujian sambungan gagal",
+      "removed": "Sambungan dibuang",
       "deviceCreated": "Peranti didaftarkan",
       "deviceRemoved": "Peranti dibuang"
     },
@@ -1398,6 +1408,8 @@
       "invalid_rule_params": "Semak tetapan pengesanan dan cuba lagi.",
       "integration_not_found": "Integrasi itu tidak dijumpai.",
       "integration_already_exists": "Nama integrasi itu telah digunakan.",
+      "integration_base_url_required": "Masukkan URL asas HTTP atau HTTPS yang lengkap sebelum menguji sambungan.",
+      "integration_has_devices": "Buang atau nyahpaut peranti yang menggunakan sambungan ini dahulu.",
       "integration_device_not_found": "Peranti integrasi itu tidak dijumpai.",
       "integration_device_already_exists": "ID peranti itu telah digunakan.",
       "integration_device_gateway_linked": "Batalkan gateway timbang yang dipautkan sebelum membuang peranti ini.",

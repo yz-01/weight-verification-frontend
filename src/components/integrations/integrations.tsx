@@ -23,6 +23,7 @@ import { getCompanies } from "@/services/companies.service";
 import {
   createIntegration,
   createIntegrationDevice,
+  deleteIntegration,
   deleteIntegrationDevice,
   getIntegrationDevices,
   getIntegrations,
@@ -72,6 +73,8 @@ export function Integrations() {
   const [removingDevice, setRemovingDevice] = useState<IntegrationDevice | null>(
     null,
   );
+  const [removingIntegration, setRemovingIntegration] =
+    useState<IntegrationConfig | null>(null);
 
   const companies = useQuery({
     queryKey: ["companies", "integration-options"],
@@ -193,8 +196,23 @@ export function Integrations() {
     },
   });
   const test = useMutation({
-    mutationFn: testIntegration,
+    mutationFn: (integration: IntegrationConfig) =>
+      testIntegration(
+        integration.id,
+        user?.is_platform_staff ? selectedCompany : undefined,
+      ),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+    },
+  });
+  const removeIntegration = useMutation({
+    mutationFn: (integration: IntegrationConfig) =>
+      deleteIntegration(
+        integration.id,
+        user?.is_platform_staff ? selectedCompany : undefined,
+      ),
+    onSuccess: () => {
+      setRemovingIntegration(null);
       void queryClient.invalidateQueries({ queryKey: ["integrations"] });
     },
   });
@@ -384,6 +402,22 @@ export function Integrations() {
                     {t(`integrations.kind.${row.kind}`)}
                     {row.base_url ? ` / ${row.base_url}` : ""}
                   </p>
+                  {(row.last_success_at || row.last_error) && (
+                    <p
+                      className={`mt-1 truncate text-xs ${
+                        row.last_error ? "text-destructive" : "text-success"
+                      }`}
+                      title={row.last_error || undefined}
+                    >
+                      {row.last_error
+                        ? t("integrations.test.failedDetail", {
+                            error: row.last_error,
+                          })
+                        : t("integrations.test.passedAt", {
+                            date: new Date(row.last_success_at as string).toLocaleString(),
+                          })}
+                    </p>
+                  )}
                 </div>
                 <StatusBadge
                   label={t(`integrations.status.${row.status}`)}
@@ -402,10 +436,21 @@ export function Integrations() {
                         variant="outline"
                         size="sm"
                         disabled={test.isPending}
-                        onClick={() => void test.mutateAsync(row.id)}
+                        onClick={() => void test.mutateAsync(row)}
                       >
                         <TestTube2 className="h-4 w-4" />
                         {t("integrations.action.test")}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        title={t("common.remove")}
+                        aria-label={t("common.remove")}
+                        disabled={removeIntegration.isPending}
+                        onClick={() => setRemovingIntegration(row)}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                       <Button
                         variant={row.is_enabled ? "destructive" : "default"}
@@ -647,6 +692,21 @@ export function Integrations() {
           variant="destructive"
           isPending={removeDevice.isPending}
           onConfirm={() => removeDevice.mutate(removingDevice)}
+        />
+      )}
+
+      {removingIntegration && (
+        <ConfirmDialog
+          open
+          onOpenChange={() => setRemovingIntegration(null)}
+          title={t("integrations.connection.removeTitle", {
+            name: removingIntegration.name,
+          })}
+          description={t("integrations.connection.removeDescription")}
+          confirmLabel={t("integrations.connection.removeConfirm")}
+          variant="destructive"
+          isPending={removeIntegration.isPending}
+          onConfirm={() => removeIntegration.mutate(removingIntegration)}
         />
       )}
     </div>
