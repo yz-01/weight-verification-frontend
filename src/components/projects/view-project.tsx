@@ -347,7 +347,7 @@ function AssignUserDialog({
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[440px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-[440px]" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>{t("projects.team.add")}</DialogTitle>
           <DialogDescription>
@@ -371,7 +371,7 @@ function AssignUserDialog({
             ) : (
               options.map((user) => (
                 <SelectItem key={user.id} value={user.id}>
-                  {user.full_name} — {user.email}
+                  {user.full_name} ({user.role_name ?? "-"}) — {user.email}
                 </SelectItem>
               ))
             )}
