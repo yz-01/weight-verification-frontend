@@ -84,12 +84,17 @@ export function Attendance() {
       setClockError("");
     },
     onError: (error) => {
-      setClockError(error instanceof ApiError ? error.message : t("errors.generic"));
+      setClockError(
+        error instanceof ApiError
+          ? error.errors.location || error.message
+          : t("errors.generic"),
+      );
     },
   });
 
   function locate() {
     setLocationError("");
+    setClockError("");
     if (!navigator.geolocation) {
       setLocationError(t("attendance.clock.locationUnavailable"));
       return;
