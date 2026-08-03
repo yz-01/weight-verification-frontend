@@ -16,7 +16,9 @@ export interface Project {
   postcode: string;
   latitude?: string | null;
   longitude?: string | null;
+  geofence_radius_m: number | null;
   has_coordinates?: boolean;
+  has_geofence?: boolean;
   start_date: string | null;
   end_date: string | null;
   site_manager: string;
@@ -36,6 +38,9 @@ export interface ProjectPayload {
   city?: string;
   state?: string;
   postcode?: string;
+  latitude?: string | null;
+  longitude?: string | null;
+  geofence_radius_m?: number | null;
   start_date?: string | null;
   end_date?: string | null;
   site_manager?: string;
@@ -170,12 +175,24 @@ export interface MaterialReceiptPayload {
 
 export interface ReceiptSummary {
   total_receipts: number;
+  total_cost: string | null;
+  priced_receipts: number;
+  unpriced_receipts: number;
   by_unit: Array<{ unit: MaterialUnit; quantity: string; receipts: number }>;
   by_material: Array<{
     material_name: string;
     unit: MaterialUnit;
     quantity: string;
     receipts: number;
+    total_cost: string | null;
+    unpriced_receipts: number;
+  }>;
+  by_supplier: Array<{
+    supplier: string;
+    supplier_name: string;
+    receipts: number;
+    total_cost: string | null;
+    unpriced_receipts: number;
   }>;
 }
 

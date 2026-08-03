@@ -1,111 +1,374 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Building2, Layers, Recycle } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  Building2,
+  CalendarCheck,
+  ClipboardList,
+  Gauge,
+  Inbox,
+  Package,
+  Recycle,
+  Scale,
+  Truck,
+  WalletCards,
+} from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCompanySummary } from "@/services/companies.service";
+import type { Portal } from "@/interfaces/auth";
+import { visibleNavigation } from "@/lib/navigation";
+import { getCompanies, getCompanySummary } from "@/services/companies.service";
+import {
+  getDispatches,
+  getProjects,
+  getReceipts,
+} from "@/services/contractor.service";
+import {
+  getIncoming,
+  getSettlements,
+  getTasks,
+} from "@/services/recycler.service";
+import { getAttendance } from "@/services/site-operations.service";
+import { getWeighSummary } from "@/services/weighing.service";
+
+interface DashboardStat {
+  key: string;
+  href: string;
+  icon: LucideIcon;
+  value: number | undefined;
+  loading: boolean;
+  enabled: boolean;
+}
 
 export function Dashboard() {
   const t = useTranslations();
-  const { user, can } = useAuth();
+  const { user } = useAuth();
+
+  if (!user) return null;
 
   const subtitleKey =
-    user?.audience === "PLATFORM"
+    user.portal === "MSE_ADMIN"
       ? "dashboard.platformSubtitle"
-      : user?.audience === "CONTRACTOR"
+      : user.portal === "MSE_TRACE"
         ? "dashboard.contractorSubtitle"
         : "dashboard.recyclerSubtitle";
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">
-          {t("dashboard.greeting", { name: user?.full_name ?? "" })}
-        </h2>
-        <p className="mt-0.5 text-sm text-muted-foreground">{t(subtitleKey)}</p>
-      </div>
+    <div className="space-y-8">
+      <header>
+        <h1 className="text-xl font-semibold text-foreground">
+          {t("dashboard.greeting", { name: user.full_name })}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t(subtitleKey)}</p>
+      </header>
 
-      {can("company.view") ? (
-        <PlatformTiles />
+      {user.portal === "MSE_ADMIN" ? (
+        <AdminDashboard features={user.features} />
+      ) : user.portal === "MSE_TRACE" ? (
+        <TraceDashboard features={user.features} />
       ) : (
-        <div className="rounded-xl border bg-card p-10 text-center shadow-sm">
-          <p className="text-sm text-muted-foreground">
-            {t("dashboard.comingSoon")}
-          </p>
-        </div>
+        <ScrapDashboard features={user.features} />
       )}
+
+      <QuickLinks portal={user.portal} features={user.features} />
     </div>
   );
 }
 
-function PlatformTiles() {
-  const t = useTranslations();
-  const format = useFormatter();
+function AdminDashboard({ features }: { features: string[] }) {
+  const companyEnabled =
+    features.includes("contractor_partners") ||
+    features.includes("recycler_review");
+  const reviewEnabled = features.includes("recycler_review");
+  const weighingEnabled = features.includes("cloud_weighing");
 
-  const { data, isLoading, isError } = useQuery({
+  const companies = useQuery({
     queryKey: ["companies", "summary"],
     queryFn: getCompanySummary,
+    enabled: companyEnabled,
+  });
+  const pendingReviews = useQuery({
+    queryKey: ["companies", "recycler-reviews", "pending", "dashboard"],
+    queryFn: () =>
+      getCompanies({
+        type: "RECYCLER",
+        review_status: "PENDING",
+        page_size: 1,
+      }),
+    enabled: reviewEnabled,
+  });
+  const weighing = useQuery({
+    queryKey: ["weighing", "summary"],
+    queryFn: getWeighSummary,
+    enabled: weighingEnabled,
   });
 
-  if (isError) {
+  const stats: DashboardStat[] = [
+    {
+      key: "contractors",
+      href: "/contractor-partners",
+      icon: Building2,
+      value: companies.data?.by_type.CONTRACTOR,
+      loading: companies.isLoading,
+      enabled: features.includes("contractor_partners"),
+    },
+    {
+      key: "recyclers",
+      href: "/recycler-review",
+      icon: Recycle,
+      value: companies.data?.by_type.RECYCLER,
+      loading: companies.isLoading,
+      enabled: reviewEnabled,
+    },
+    {
+      key: "pendingReviews",
+      href: "/recycler-review",
+      icon: BadgeCheck,
+      value: pendingReviews.data?.count,
+      loading: pendingReviews.isLoading,
+      enabled: reviewEnabled,
+    },
+    {
+      key: "weighingSessions",
+      href: "/weighing",
+      icon: Scale,
+      value: weighing.data?.total,
+      loading: weighing.isLoading,
+      enabled: weighingEnabled,
+    },
+    {
+      key: "requiresReview",
+      href: "/weighing?requires_review=true",
+      icon: Gauge,
+      value: weighing.data?.requires_review,
+      loading: weighing.isLoading,
+      enabled: weighingEnabled,
+    },
+  ];
+
+  return <StatsGrid stats={stats} />;
+}
+
+function TraceDashboard({ features }: { features: string[] }) {
+  const projectsEnabled = features.includes("projects");
+  const receiptsEnabled = features.includes("material_receipts");
+  const dispatchesEnabled = features.includes("waste_dispatches");
+  const attendanceEnabled = features.includes("attendance");
+
+  const projects = useQuery({
+    queryKey: ["projects", "dashboard-count"],
+    queryFn: () => getProjects({ page_size: 1 }),
+    enabled: projectsEnabled,
+  });
+  const receipts = useQuery({
+    queryKey: ["receipts", "dashboard-count"],
+    queryFn: () => getReceipts({ page_size: 1 }),
+    enabled: receiptsEnabled,
+  });
+  const dispatches = useQuery({
+    queryKey: ["dispatches", "dashboard-count"],
+    queryFn: () => getDispatches({ page_size: 1 }),
+    enabled: dispatchesEnabled,
+  });
+  const attendance = useQuery({
+    queryKey: ["attendance", "dashboard-count"],
+    queryFn: () => getAttendance({ page_size: 1 }),
+    enabled: attendanceEnabled,
+  });
+
+  return (
+    <StatsGrid
+      stats={[
+        {
+          key: "projects",
+          href: "/projects",
+          icon: Package,
+          value: projects.data?.count,
+          loading: projects.isLoading,
+          enabled: projectsEnabled,
+        },
+        {
+          key: "receipts",
+          href: "/receipts",
+          icon: ClipboardList,
+          value: receipts.data?.count,
+          loading: receipts.isLoading,
+          enabled: receiptsEnabled,
+        },
+        {
+          key: "dispatches",
+          href: "/dispatches",
+          icon: Truck,
+          value: dispatches.data?.count,
+          loading: dispatches.isLoading,
+          enabled: dispatchesEnabled,
+        },
+        {
+          key: "attendance",
+          href: "/attendance",
+          icon: CalendarCheck,
+          value: attendance.data?.count,
+          loading: attendance.isLoading,
+          enabled: attendanceEnabled,
+        },
+      ]}
+    />
+  );
+}
+
+function ScrapDashboard({ features }: { features: string[] }) {
+  const ordersEnabled = features.includes("waste_orders");
+  const tasksEnabled = features.includes("driver_tasks");
+  const weighingEnabled = features.includes("weighing_records");
+  const settlementsEnabled = features.includes("payment_status");
+
+  const incoming = useQuery({
+    queryKey: ["incoming", "dashboard-count"],
+    queryFn: () => getIncoming({ page_size: 1 }),
+    enabled: ordersEnabled,
+  });
+  const tasks = useQuery({
+    queryKey: ["tasks", "dashboard-count"],
+    queryFn: () => getTasks({ page_size: 1 }),
+    enabled: tasksEnabled,
+  });
+  const weighing = useQuery({
+    queryKey: ["weighing", "summary"],
+    queryFn: getWeighSummary,
+    enabled: weighingEnabled,
+  });
+  const settlements = useQuery({
+    queryKey: ["settlements", "dashboard-count"],
+    queryFn: () => getSettlements({ page_size: 1 }),
+    enabled: settlementsEnabled,
+  });
+
+  return (
+    <StatsGrid
+      stats={[
+        {
+          key: "wasteOrders",
+          href: "/waste-orders",
+          icon: Inbox,
+          value: incoming.data?.count,
+          loading: incoming.isLoading,
+          enabled: ordersEnabled,
+        },
+        {
+          key: "driverTasks",
+          href: "/tasks",
+          icon: Truck,
+          value: tasks.data?.count,
+          loading: tasks.isLoading,
+          enabled: tasksEnabled,
+        },
+        {
+          key: "weighingSessions",
+          href: "/weighing",
+          icon: Scale,
+          value: weighing.data?.total,
+          loading: weighing.isLoading,
+          enabled: weighingEnabled,
+        },
+        {
+          key: "settlements",
+          href: "/settlements",
+          icon: WalletCards,
+          value: settlements.data?.count,
+          loading: settlements.isLoading,
+          enabled: settlementsEnabled,
+        },
+      ]}
+    />
+  );
+}
+
+function StatsGrid({ stats }: { stats: DashboardStat[] }) {
+  const t = useTranslations();
+  const format = useFormatter();
+  const visible = stats.filter((stat) => stat.enabled);
+
+  if (visible.length === 0) {
     return (
-      <div className="rounded-xl border bg-card p-10 text-center shadow-sm">
-        <p className="text-sm font-medium text-foreground">
-          {t("table.errorTitle")}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("table.errorBody")}
-        </p>
+      <div className="border-y py-8 text-sm text-muted-foreground">
+        {t("dashboard.noMetrics")}
       </div>
     );
   }
 
-  const tiles = [
-    {
-      key: "contractors",
-      icon: Building2,
-      value: data?.by_type.CONTRACTOR ?? 0,
-    },
-    {
-      key: "recyclers",
-      icon: Recycle,
-      value: data?.by_type.RECYCLER ?? 0,
-    },
-    {
-      key: "companies",
-      icon: Layers,
-      value: data?.total ?? 0,
-    },
-  ];
-
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {tiles.map((tile) => {
-        const Icon = tile.icon;
+    <section
+      aria-label={t("dashboard.metrics")}
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+    >
+      {visible.map((stat) => {
+        const Icon = stat.icon;
         return (
-          <div
-            key={tile.key}
-            className="rounded-xl border bg-card p-5 shadow-sm"
+          <Link
+            key={stat.key}
+            href={stat.href}
+            className="min-h-32 rounded-lg border bg-card p-5 shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t(`dashboard.tile.${tile.key}`)}
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm font-medium text-muted-foreground">
+                {t(`dashboard.tile.${stat.key}`)}
               </p>
-              <Icon className="h-4 w-4 text-muted-foreground" />
+              <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
             </div>
-            {isLoading ? (
-              <Skeleton className="mt-3 h-8 w-16" />
+            {stat.loading ? (
+              <Skeleton className="mt-5 h-8 w-20" />
             ) : (
-              <p className="tabular mt-2 text-3xl font-semibold tracking-tight text-foreground">
-                {format.number(tile.value)}
+              <p className="mt-4 text-3xl font-semibold tabular-nums text-foreground">
+                {format.number(stat.value ?? 0)}
               </p>
             )}
-          </div>
+          </Link>
         );
       })}
-    </div>
+    </section>
+  );
+}
+
+function QuickLinks({
+  portal,
+  features,
+}: {
+  portal: Portal;
+  features: string[];
+}) {
+  const t = useTranslations();
+  const items = visibleNavigation(portal, features)
+    .flatMap((group) => group.items)
+    .filter((item) => item.feature !== "dashboard")
+    .slice(0, 6);
+
+  if (items.length === 0) return null;
+
+  return (
+    <section className="space-y-3" aria-labelledby="dashboard-quick-links">
+      <h2 id="dashboard-quick-links" className="text-sm font-semibold">
+        {t("dashboard.quickLinks")}
+      </h2>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.feature}
+              href={item.href}
+              className="flex min-h-12 items-center gap-3 rounded-lg border px-4 text-sm font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <Icon className="h-4 w-4 text-muted-foreground" />
+              <span>{t(`nav.${item.labelKey}`)}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
   );
 }

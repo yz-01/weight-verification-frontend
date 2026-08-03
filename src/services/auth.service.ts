@@ -7,26 +7,30 @@ import type {
   EmailCopy,
   LoginResponse,
   PermissionEntry,
+  Portal,
 } from "@/interfaces/auth";
 import {
   clearTokens,
   getRefreshToken,
   setLocaleCookie,
+  setSessionPortal,
   setTokens,
 } from "@/lib/auth-token";
 
 export async function login(
   email: string,
   password: string,
+  portal?: Portal,
 ): Promise<LoginResponse> {
   // Silent: the login form renders the failure inline rather than as a toast,
   // because the user is already looking at the field that is wrong.
   const data = await api.post<LoginResponse>(
     "/api/auth/login/",
-    { email, password },
+    { email, password, ...(portal ? { portal } : {}) },
     { silent: true },
   );
   setTokens(data.tokens);
+  setSessionPortal(data.user.portal);
   setLocaleCookie(data.user.language);
   return data;
 }
@@ -69,10 +73,15 @@ export async function changePassword(payload: {
 export async function forgotPassword(
   email: string,
   emailCopy?: EmailCopy,
+  portal?: Portal,
 ): Promise<void> {
   await api.post(
     "/api/auth/forgot_password/",
-    { email, ...(emailCopy ? { email_copy: emailCopy } : {}) },
+    {
+      email,
+      ...(emailCopy ? { email_copy: emailCopy } : {}),
+      ...(portal ? { portal } : {}),
+    },
     { silent: true },
   );
 }
@@ -80,6 +89,7 @@ export async function forgotPassword(
 export async function resetPassword(payload: {
   token: string;
   new_password: string;
+  portal?: Portal;
 }): Promise<void> {
   await api.post("/api/auth/reset_password/", payload, { silent: true });
 }

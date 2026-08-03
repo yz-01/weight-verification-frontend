@@ -8,7 +8,9 @@ import { useMemo } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { UserMenu } from "@/components/layout/user-menu";
+import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
+import { OfflineStatus } from "@/components/shared/offline-status";
 import {
   Sidebar,
   SidebarContent,
@@ -23,14 +25,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { isActivePath, visibleNavigation } from "@/lib/navigation";
+import { PORTAL_LABELS } from "@/lib/portal";
 
 /**
  * The application sidebar.
  *
  * Built on the shadcn sidebar primitives, which bring the mobile sheet, the
  * collapse state and its keyboard shortcut. What is added here is which
- * entries appear: one app serves three consoles, so the navigation is derived
- * from the signed-in user's audience and permissions rather than branched on.
+ * entries appear: one app serves three consoles, so the navigation is the
+ * ordered intersection of the user's portal registry and the feature keys
+ * already authorised by the backend.
  *
  * The account controls sit in the footer rather than in a top bar. The page
  * shell sizes itself to `100dvh - 5rem`, where the 5rem is the layout's own
@@ -40,12 +44,12 @@ import { isActivePath, visibleNavigation } from "@/lib/navigation";
 export function AppSidebar() {
   const t = useTranslations();
   const pathname = usePathname();
-  const { user, can } = useAuth();
+  const { user } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
 
   const groups = useMemo(
-    () => visibleNavigation(user?.audience, can),
-    [user?.audience, can],
+    () => visibleNavigation(user?.portal, user?.features),
+    [user?.portal, user?.features],
   );
 
   // Tapping a link on a phone should reveal the page it went to, not leave the
@@ -63,7 +67,7 @@ export function AppSidebar() {
           </span>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="truncate text-sm font-semibold tracking-tight">
-              {t("app.name")}
+              {user ? PORTAL_LABELS[user.portal] : t("app.name")}
             </p>
             {user?.company_name && (
               <p className="truncate text-xs text-muted-foreground">
@@ -81,11 +85,15 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => {
-                  const active = isActivePath(item.href, pathname);
+                  const active = isActivePath(
+                    item.href,
+                    pathname,
+                    item.exact,
+                  );
                   const Icon = item.icon;
-                  const label = t(`nav.${item.key}`);
+                  const label = t(`nav.${item.labelKey}`);
                   return (
-                    <SidebarMenuItem key={item.key}>
+                    <SidebarMenuItem key={item.feature}>
                       <SidebarMenuButton
                         asChild
                         isActive={active}
@@ -112,7 +120,11 @@ export function AppSidebar() {
       <SidebarFooter>
         <div className="flex items-center justify-between gap-1 group-data-[collapsible=icon]:flex-col">
           <UserMenu />
-          <LanguageSwitcher className="group-data-[collapsible=icon]:hidden" />
+          <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
+            <OfflineStatus />
+            <NotificationButton />
+            <LanguageSwitcher />
+          </div>
         </div>
       </SidebarFooter>
     </Sidebar>

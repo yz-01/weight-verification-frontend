@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { GatewayDevice } from "@/interfaces/weighing";
+import type { GatewayInstallerManifest } from "@/interfaces/weighing";
 import {
   createGateway,
   getGateways,
@@ -52,6 +53,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
   const [registering, setRegistering] = useState(false);
   const [deviceId, setDeviceId] = useState("");
   const [revealed, setRevealed] = useState<string | null>(null);
+  const [manifest, setManifest] = useState<GatewayInstallerManifest | null>(null);
   const [rotating, setRotating] = useState<GatewayDevice | null>(null);
   const [reason, setReason] = useState("");
 
@@ -67,6 +69,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
       setRegistering(false);
       setDeviceId("");
       setRevealed(result.secret);
+      setManifest(result.installer_manifest);
     },
   });
 
@@ -196,6 +199,11 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
 
       <SecretDialog secret={revealed} onClose={() => setRevealed(null)} />
 
+      <ManifestDialog
+        manifest={revealed === null ? manifest : null}
+        onClose={() => setManifest(null)}
+      />
+
       {rotating && (
         <ConfirmDialog
           open
@@ -215,6 +223,48 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
         />
       )}
     </section>
+  );
+}
+
+function ManifestDialog({
+  manifest,
+  onClose,
+}: {
+  manifest: GatewayInstallerManifest | null;
+  onClose: () => void;
+}) {
+  const t = useTranslations();
+  const [copied, setCopied] = useState(false);
+
+  if (manifest === null) return null;
+
+  async function copy() {
+    await navigator.clipboard.writeText(JSON.stringify(manifest, null, 2));
+    setCopied(true);
+  }
+
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="sm:max-w-[640px]">
+        <DialogHeader>
+          <DialogTitle>{t("gateways.manifestTitle")}</DialogTitle>
+          <DialogDescription>{t("gateways.manifestBody")}</DialogDescription>
+        </DialogHeader>
+        <pre className="max-h-[24rem] overflow-auto rounded-md border bg-muted/40 p-3 text-xs">
+          {JSON.stringify({ ...manifest, auth: { ...manifest.auth, secret: "[shown above]" } }, null, 2)}
+        </pre>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => void copy()}>
+            <Copy className="h-4 w-4" />
+            {copied ? t("common.copied") : t("gateways.copyManifest")}
+          </Button>
+          <Button type="button" onClick={onClose}>
+            <Check className="h-4 w-4" />
+            {t("common.close")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

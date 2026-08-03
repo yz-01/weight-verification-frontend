@@ -317,11 +317,12 @@ export async function cancelDispatch(
 
 /** Recyclers a load may be sent to. Live accounts only, by design. */
 export function getRecyclerOptions(
+  project: string,
   search?: string,
 ): Promise<{ results: RecyclerOption[]; count: number }> {
   return api.get<{ results: RecyclerOption[]; count: number }>(
     "/api/dispatches/get_recyclers/",
-    search ? { search } : undefined,
+    search ? { project, search } : { project },
   );
 }
 
