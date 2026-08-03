@@ -10,9 +10,11 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { TextField, type BoundField } from "@/components/shared/form-fields";
 import { requiredEmail } from "@/components/shared/form-shell";
 import { Button } from "@/components/ui/button";
+import type { Portal } from "@/interfaces/auth";
+import { portalLoginPath } from "@/lib/portal";
 import { forgotPassword } from "@/services/auth.service";
 
-export function ForgotPassword() {
+export function ForgotPassword({ portal }: { portal?: Portal }) {
   const t = useTranslations();
   const [sent, setSent] = useState(false);
 
@@ -22,10 +24,14 @@ export function ForgotPassword() {
       // The service never rejects on an unknown address, and the response is
       // identical either way: a different answer for a missing account turns
       // this endpoint into a way to enumerate who is registered.
-      await forgotPassword(value.email, {
-        subject: t("email.reset.subject"),
-        body: t("email.reset.body"),
-      });
+      await forgotPassword(
+        value.email,
+        {
+          subject: t("email.reset.subject"),
+          body: t("email.reset.body"),
+        },
+        portal,
+      );
       setSent(true);
     },
   });
@@ -36,7 +42,7 @@ export function ForgotPassword() {
       subtitle={t("auth.forgot.subtitle")}
       footer={
         <Link
-          href="/login"
+          href={portalLoginPath(portal)}
           className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" />

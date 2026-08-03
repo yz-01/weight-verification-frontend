@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -224,4 +225,19 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+}
+
+.mse-map-marker {
+  background: transparent;
+  border: 0;
+}
+
+.mse-map-marker span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid white;
+  border-radius: 999px;
+  background: var(--marker-color);
+  box-shadow: 0 1px 6px rgb(15 23 42 / 35%);
 }

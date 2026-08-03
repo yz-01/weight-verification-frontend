@@ -4,9 +4,11 @@ import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   CompanyDetail,
   CompanyPayload,
+  CompanyReviewPayload,
   CompanyRow,
   CompanyStatusPayload,
   CompanySummary,
+  SubscriptionPlan,
 } from "@/interfaces/company";
 import { api, toastSuccess } from "@/services/api-client";
 
@@ -60,4 +62,23 @@ export async function deleteCompany(id: string): Promise<void> {
 
 export function getCompanySummary(): Promise<CompanySummary> {
   return api.get<CompanySummary>("/api/companies/get_summary/");
+}
+
+export function getSubscriptionPlans(): Promise<Paginated<SubscriptionPlan>> {
+  return api.list<SubscriptionPlan>("/api/subscription-plans/get_plans/", {
+    is_active: true,
+    page_size: 100,
+  });
+}
+
+export async function reviewCompany(
+  id: string,
+  payload: CompanyReviewPayload,
+): Promise<CompanyDetail> {
+  const company = await api.post<CompanyDetail>(
+    `/api/companies/${id}/review_company/`,
+    payload,
+  );
+  toastSuccess("companies.toast.updated");
+  return company;
 }

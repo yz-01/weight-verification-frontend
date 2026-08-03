@@ -21,11 +21,13 @@ import type {
   ScanDispatchPayload,
   Settlement,
   SettlementQuote,
+  TransactionReport,
   TaskState,
   Vehicle,
   VehiclePayload,
 } from "@/interfaces/recycler";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, toastSuccess } from "@/services/api-client";
+import type { ExportRequest } from "@/services/contractor.service";
 
 /** Loads on their way here. A contractor calling this correctly sees nothing. */
 export function getIncoming(
@@ -282,6 +284,33 @@ export function getSettlements(
 
 export function getSettlement(id: string): Promise<Settlement> {
   return api.get<Settlement>(`/api/settlements/${id}/get_settlement/`);
+}
+
+export function getTransactionReport(
+  query: ListQuery,
+): Promise<TransactionReport> {
+  return api.get<TransactionReport>(
+    "/api/settlements/get_transaction_report/",
+    query,
+  );
+}
+
+export function exportTransactions(request: ExportRequest): Promise<void> {
+  const { page, page_size, ...query } = request.query;
+  void page;
+  void page_size;
+  return download("/api/settlements/export_transactions/", {
+    method: "POST",
+    query,
+    body: {
+      format: request.format,
+      title: request.title,
+      subtitle: request.subtitle ?? "",
+      empty_label: request.emptyLabel ?? "",
+      columns: request.columns,
+    },
+    fallbackFilename: `transactions.${request.format}`,
+  });
 }
 
 /** The working, before either side commits to it. Readable by both. */
