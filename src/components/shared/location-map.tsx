@@ -63,6 +63,9 @@ export function LocationMap({
         zoom: 15,
         zoomControl: true,
         attributionControl: true,
+        fadeAnimation: false,
+        markerZoomAnimation: false,
+        zoomAnimation: false,
       });
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
