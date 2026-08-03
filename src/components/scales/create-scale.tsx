@@ -172,6 +172,7 @@ export function CreateScale({ scale }: { scale?: Scale }) {
                 options={PROTOCOLS.map((entry) => ({
                   value: entry.value,
                   label: t(`scales.protocolLabel.${entry.value}`),
+                  disabled: !entry.implemented,
                 }))}
                 className="md:col-span-2"
               />

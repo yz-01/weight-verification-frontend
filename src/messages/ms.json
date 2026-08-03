@@ -62,7 +62,8 @@
     "minLength": "Gunakan sekurang-kurangnya {min} aksara",
     "maxLength": "Gunakan tidak lebih daripada {max} aksara",
     "passwordMismatch": "Kedua-dua kata laluan tidak sama",
-    "passwordTooShort": "Gunakan sekurang-kurangnya 10 aksara"
+    "passwordTooShort": "Gunakan sekurang-kurangnya 10 aksara",
+    "positiveInteger": "Masukkan nombor bulat sekurang-kurangnya 1"
   },
   "auth": {
     "login": {
@@ -144,7 +145,128 @@
     "gate": "Pintu timbang",
     "vehicles": "Kenderaan",
     "drivers": "Pemandu",
-    "deductions": "Potongan"
+    "deductions": "Potongan",
+    "cloud_weighing": "Penimbangan awan",
+    "weighing_parameters": "Parameter pengesanan",
+    "contractor_partners": "Rakan kontraktor",
+    "recycler_review": "Semakan pengitar semula",
+    "transaction_reports": "Laporan transaksi",
+    "recyclers": "Pengitar semula",
+    "material_receipts": "Terimaan bahan",
+    "waste_dispatches": "Penghantaran sisa",
+    "recycling_records": "Rekod kitar semula",
+    "attendance": "Kehadiran",
+    "payment_proofs": "Bukti pembayaran",
+    "progress": "Kemajuan projek",
+    "safety": "Insiden keselamatan",
+    "material_quantity_report": "Kuantiti bahan",
+    "material_cost_report": "Kos bahan",
+    "user_logs": "Log pengguna",
+    "partnerships": "Kerjasama kontraktor",
+    "yards": "Tapak kitar semula",
+    "weighbridges": "Jambatan timbang",
+    "waste_orders": "Pesanan sisa",
+    "driver_tasks": "Tugas pemandu",
+    "weighing_records": "Rekod penimbangan",
+    "payment_status": "Status pembayaran",
+    "documents": "Arkib dokumen",
+    "approvals": "Kelulusan",
+    "evidence": "Arkib bukti",
+    "notifications": "Pemberitahuan",
+    "driver_gps": "GPS pemandu",
+    "site_gps": "GPS kakitangan tapak",
+    "integrations": "Integrasi sistem",
+    "system_monitoring": "Pemantauan sistem"
+  },
+  "integrations": {
+    "title": "Integrasi",
+    "subtitle": "Daftar sambungan dan peranti tapak tanpa memaparkan secret.",
+    "company": "Syarikat",
+    "chooseCompany": "Pilih syarikat",
+    "newTitle": "Daftar sambungan",
+    "connections": "Konfigurasi sambungan",
+    "devices": "Peranti tapak",
+    "empty": "Tiada integrasi didaftarkan.",
+    "field": {
+      "kind": "Jenis integrasi",
+      "name": "Nama",
+      "namePlaceholder": "contoh: ERP produksi",
+      "baseUrl": "URL asas",
+      "authType": "Jenis pengesahan",
+      "secret": "Secret",
+      "secretPlaceholder": "Hanya dihantar semasa menyimpan",
+      "settings": "JSON tetapan"
+    },
+    "device": {
+      "type": "Jenis peranti",
+      "id": "ID peranti",
+      "integration": "Sambungan",
+      "unlinked": "Tidak dipautkan",
+      "online": "Dalam talian",
+      "offline": "Luar talian",
+      "gatewayLinked": "Dipautkan kepada gateway timbang",
+      "project": "Projek",
+      "site": "Tapak kitar semula",
+      "scale": "Jambatan timbang",
+      "firmware": "Versi firmware",
+      "secret": "Rahsia peranti",
+      "secretPlaceholder": "Kredensial peranti pilihan",
+      "secretStored": "Rahsia disimpan",
+      "noBinding": "Tiada pautan projek, tapak atau jambatan timbang"
+    },
+    "kind": {
+      "ERP": "ERP",
+      "ACCOUNTING": "Perakaunan",
+      "MYINVOIS": "MyInvois",
+      "GOVERNMENT_API": "API kerajaan",
+      "CCTV": "CCTV",
+      "ANPR": "ANPR",
+      "IOT": "IoT",
+      "AI": "AI",
+      "DRONE": "Dron",
+      "TOWER_CRANE": "Kren menara",
+      "RF": "Anti-penipuan RF",
+      "WEBHOOK": "Webhook"
+    },
+    "status": {
+      "DISABLED": "Dilumpuhkan",
+      "READY": "Sedia",
+      "DEGRADED": "Terhad",
+      "ERROR": "Ralat"
+    },
+    "action": {
+      "create": "Daftar sambungan",
+      "test": "Beratur ujian sambungan",
+      "queued": "Ujian sambungan telah beratur",
+      "enable": "Dayakan",
+      "disable": "Lumpuhkan",
+      "registerDevice": "Daftar peranti"
+    },
+    "toast": {
+      "created": "Integrasi didaftarkan",
+      "updated": "Integrasi dikemas kini",
+      "queued": "Ujian sambungan telah beratur",
+      "deviceCreated": "Peranti didaftarkan"
+    },
+    "validation": {
+      "settings": "Tetapan mesti JSON yang sah."
+    }
+  },
+  "externalPortal": {
+    "invalid": "Pautan luaran tidak tersedia",
+    "invalidBody": "Pautan mungkin telah tamat tempoh, dibatalkan atau dimasukkan secara salah.",
+    "expiry": "Akses tamat pada {date}",
+    "project": "Projek",
+    "progress": "Kemajuan",
+    "weighing": "Timbangan disahkan",
+    "documents": "Dokumen",
+    "evidence": "Bukti",
+    "field": {
+      "code": "Kod",
+      "name": "Nama",
+      "status": "Status",
+      "location": "Lokasi"
+    }
   },
   "dashboard": {
     "title": "Papan pemuka",
@@ -161,9 +283,30 @@
       "onlineUsers": "Dalam talian",
       "planRevenue": "Hasil langganan",
       "commissionRevenue": "Hasil komisen",
-      "systemStatus": "Status sistem"
+      "systemStatus": "Status sistem",
+      "pendingReviews": "Semakan pengitar semula tertunda",
+      "weighingSessions": "Sesi penimbangan",
+      "requiresReview": "Penimbangan untuk semakan",
+      "receipts": "Terimaan bahan",
+      "dispatches": "Penghantaran sisa",
+      "attendance": "Rekod kehadiran",
+      "wasteOrders": "Pesanan sisa masuk",
+      "driverTasks": "Tugas pemandu",
+      "settlements": "Penyelesaian"
     },
-    "comingSoon": "Panel ini akan tiba dalam keluaran seterusnya."
+    "comingSoon": "Panel ini akan tiba dalam keluaran seterusnya.",
+    "metrics": "Ringkasan operasi",
+    "quickLinks": "Akses pantas",
+    "noMetrics": "Akaun anda boleh mengakses papan pemuka. Modul tambahan muncul selepas pentadbir memberikan kebenaran yang sepadan."
+  },
+  "offline": {
+    "queued": "Disimpan di luar talian dan menunggu muat naik",
+    "synced": "{count} rekod luar talian telah dimuat naik",
+    "status": {
+      "offline": "Di luar talian; {count} rekod sedang menunggu",
+      "pending": "{count} rekod sedang menunggu penyegerakan",
+      "syncing": "Memuat naik rekod luar talian"
+    }
   },
   "companies": {
     "title": "Syarikat",
@@ -176,7 +319,8 @@
       "identity": "Maklumat asas",
       "address": "Alamat",
       "contact": "Hubungan",
-      "preferences": "Keutamaan"
+      "preferences": "Keutamaan",
+      "subscription": "Pelan dan had projek"
     },
     "field": {
       "code": "Kod",
@@ -194,6 +338,9 @@
       "contactPerson": "Orang untuk dihubungi",
       "contactPhone": "Telefon",
       "contactEmail": "E-mel",
+      "plan": "Pelan",
+      "projectLimit": "Had projek berkuat kuasa",
+      "projectLimitOverride": "Had projek tersuai",
       "logo": "Logo",
       "defaultLanguage": "Bahasa lalai",
       "timezone": "Zon waktu",
@@ -242,11 +389,594 @@
       "statusUpdated": "Status syarikat dikemas kini"
     },
     "typeLocked": "Jenis syarikat tidak boleh diubah selepas ia dicipta.",
+    "projectLimitOverrideHint": "Biarkan kosong untuk menggunakan had pelan yang dipilih.",
     "taxIdHint": "Diperlukan sebelum e-invois boleh dihidupkan untuk syarikat ini.",
     "languageHint": "Pengguna baharu syarikat ini bermula di sini. Setiap orang boleh mengubahnya.",
     "suspendedReason": "Sebab penggantungan",
     "suspendedAt": "Digantung pada",
     "addUser": "Tambah pengguna"
+  },
+  "attendance": {
+    "title": "Kehadiran",
+    "count": "{count, plural, =0 {Tiada rekod kehadiran} other {# rekod kehadiran}}",
+    "field": {
+      "time": "Masa direkodkan",
+      "worker": "Pekerja",
+      "project": "Projek",
+      "event": "Peristiwa",
+      "evidence": "Bukti",
+      "photo": "Foto",
+      "location": "Lokasi GPS",
+      "note": "Catatan"
+    },
+    "event": { "CLOCK_IN": "Daftar masuk", "CLOCK_OUT": "Daftar keluar" },
+    "filter": { "project": "Pilih projek", "allProjects": "Semua projek" },
+    "clock": {
+      "action": "Rekod kehadiran",
+      "title": "Rekod kehadiran",
+      "captureLocation": "Rakam GPS",
+      "locationCaptured": "GPS dirakam",
+      "confirm": "Simpan kehadiran"
+    },
+    "toast": { "recorded": "Kehadiran direkodkan" }
+  },
+  "progress": {
+    "title": "Kemajuan projek",
+    "count": "{count, plural, =0 {Tiada kemas kini kemajuan} other {# kemas kini kemajuan}}",
+    "new": "Kemas kini baharu",
+    "createTitle": "Kemas kini kemajuan baharu",
+    "editTitle": "Sunting kemas kini kemajuan",
+    "field": {
+      "reportedAt": "Dilaporkan pada",
+      "project": "Projek",
+      "title": "Tajuk",
+      "percentComplete": "Kemajuan",
+      "description": "Penerangan",
+      "photo": "Foto"
+    },
+    "filter": { "project": "Pilih projek", "allProjects": "Semua projek" },
+    "action": { "viewPhoto": "Lihat foto" },
+    "form": { "description": "Rekod kemajuan yang diukur dan bukti sokongan tapak." },
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Kemas kini kemajuan ini akan dibuang daripada garis masa projek.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Kemas kini kemajuan dicipta",
+      "updated": "Kemas kini kemajuan dikemas kini",
+      "removed": "Kemas kini kemajuan dibuang"
+    }
+  },
+  "safety": {
+    "title": "Insiden keselamatan",
+    "count": "{count, plural, =0 {Tiada insiden keselamatan} other {# insiden keselamatan}}",
+    "new": "Laporkan insiden",
+    "createTitle": "Laporkan insiden keselamatan",
+    "field": {
+      "occurredAt": "Berlaku pada",
+      "title": "Tajuk",
+      "project": "Projek",
+      "severity": "Tahap keterukan",
+      "status": "Status",
+      "evidence": "Bukti",
+      "description": "Penerangan",
+      "photo": "Foto",
+      "location": "Lokasi GPS",
+      "resolutionNote": "Catatan penyelesaian"
+    },
+    "filter": {
+      "project": "Pilih projek",
+      "allProjects": "Semua projek",
+      "allSeverities": "Semua tahap keterukan"
+    },
+    "severity": { "LOW": "Rendah", "MEDIUM": "Sederhana", "HIGH": "Tinggi", "CRITICAL": "Kritikal" },
+    "status": { "OPEN": "Terbuka", "INVESTIGATING": "Dalam siasatan", "RESOLVED": "Diselesaikan" },
+    "evidence": { "location": "Bukti GPS", "photo": "Buka foto" },
+    "action": { "updateStatus": "Kemas kini status" },
+    "form": {
+      "description": "Rekod apa yang berlaku, lokasinya dan bukti sokongan.",
+      "captureLocation": "Rakam GPS",
+      "locationCaptured": "GPS dirakam",
+      "confirm": "Laporkan insiden"
+    },
+    "update": {
+      "title": "Kemas kini status insiden",
+      "description": "Kemas kini {incident} dan kekalkan sejarah penyelesaian."
+    },
+    "toast": { "created": "Insiden keselamatan dilaporkan", "updated": "Insiden keselamatan dikemas kini" }
+  },
+  "paymentProofs": {
+    "title": "Bukti pembayaran",
+    "count": "{count, plural, =0 {Tiada penyelesaian} other {# penyelesaian}}",
+    "paid": "Dibayar {amount}",
+    "field": {
+      "settlementNo": "No. penyelesaian",
+      "project": "Projek",
+      "issuedAt": "Dikeluarkan",
+      "totalAmount": "Jumlah keseluruhan",
+      "paymentStatus": "Status pembayaran",
+      "proofs": "Bukti",
+      "paidOn": "Dibayar pada",
+      "method": "Kaedah",
+      "reference": "Rujukan / catatan",
+      "amount": "Amaun",
+      "document": "Dokumen"
+    },
+    "status": { "UNPAID": "Belum dibayar", "PARTIAL": "Dibayar sebahagian", "PAID": "Dibayar" },
+    "filter": { "project": "Pilih projek", "allProjects": "Semua projek" },
+    "action": {
+      "viewProofs": "Lihat bukti pembayaran",
+      "viewSettlement": "Lihat penyelesaian",
+      "openDocument": "Buka dokumen"
+    },
+    "dialog": {
+      "title": "Bukti pembayaran",
+      "description": "Pembayaran yang direkodkan untuk {settlement}.",
+      "empty": "Tiada bukti pembayaran direkodkan untuk penyelesaian ini."
+    }
+  },
+  "materialReports": {
+    "export": { "subtitle": "Rekod bahan MSE Trace yang ditapis" },
+    "quantity": {
+      "title": "Laporan kuantiti bahan",
+      "subtitle": "Kuantiti diterima dikumpulkan tanpa mencampurkan unit yang tidak serasi.",
+      "totalDeliveries": "Jumlah penghantaran",
+      "deliveryCount": "{count} penghantaran",
+      "byMaterial": "Kuantiti mengikut bahan",
+      "unitNote": "Kuantiti kekal dikumpulkan mengikut unit; tan, unit dan muatan tidak dicampurkan."
+    },
+    "cost": {
+      "title": "Laporan kos bahan",
+      "subtitle": "Perbelanjaan bahan dan liputan harga mengikut projek dan pembekal.",
+      "totalCost": "Jumlah kos",
+      "pricedReceipts": "Penerimaan berharga",
+      "coverage": "Liputan harga {percent}%",
+      "unpricedReceipts": "Penerimaan tanpa harga",
+      "incompleteWarning": "{count} penerimaan tiada harga seunit, maka jumlah belum lengkap.",
+      "bySupplier": "Kos mengikut pembekal",
+      "byMaterial": "Kos mengikut bahan",
+      "missingPrices": "Harga belum diisi"
+    }
+  },
+  "recyclers": {
+    "title": "Kerjasama pengitar semula",
+    "count": "{count, plural, =0 {Tiada kerjasama pengitar semula} other {# kerjasama pengitar semula}}",
+    "field": {
+      "recycler": "Pengitar semula",
+      "status": "Status",
+      "request": "Permintaan",
+      "projects": "Projek terikat",
+      "updatedAt": "Dikemas kini"
+    },
+    "status": { "PENDING": "Menunggu jawapan", "ACTIVE": "Aktif", "SUSPENDED": "Digantung", "REJECTED": "Ditolak" },
+    "action": { "accept": "Terima", "reject": "Tolak", "manageProjects": "Urus projek", "suspend": "Gantung" },
+    "request": {
+      "action": "Mohon pengitar semula",
+      "title": "Mohon kerjasama pengitar semula",
+      "description": "Pengitar semula mesti menerima sebelum projek boleh diikat.",
+      "searchPlaceholder": "Cari pengitar semula",
+      "choose": "Pilih pengitar semula",
+      "confirm": "Hantar permintaan",
+      "outgoing": "Dihantar oleh syarikat anda",
+      "incoming": "Diterima daripada pengitar semula"
+    },
+    "projects": {
+      "title": "Projek terikat",
+      "description": "Projek dikongsi dengan {name}.",
+      "choose": "Pilih projek",
+      "bind": "Ikat projek",
+      "empty": "Tiada projek terikat",
+      "unbind": "Nyahikat projek",
+      "more": "+{count} lagi"
+    },
+    "reject": {
+      "title": "Tolak kerjasama?",
+      "description": "Tolak permintaan daripada {name} dan simpan sebab untuk audit.",
+      "confirm": "Tolak"
+    },
+    "suspend": {
+      "title": "Gantung kerjasama?",
+      "description": "Hentikan kerja baharu dengan {name} sambil mengekalkan semua rekod sedia ada.",
+      "confirm": "Gantung"
+    },
+    "toast": {
+      "requested": "Kerjasama dimohon",
+      "accepted": "Kerjasama diterima",
+      "rejected": "Kerjasama ditolak",
+      "suspended": "Kerjasama digantung",
+      "projectBound": "Projek diikat",
+      "projectUnbound": "Ikatan projek dibuang"
+    }
+  },
+  "documents": {
+    "title": "Arkib dokumen",
+    "count": "{count} dokumen",
+    "allCategories": "Semua kategori",
+    "companyWide": "Seluruh syarikat",
+    "noFile": "Tiada fail dimuat naik",
+    "download": "Muat turun",
+    "keywordsPlaceholder": "Pisahkan kata kunci dengan koma",
+    "field": {
+      "number": "No. dokumen",
+      "reference": "No. rujukan",
+      "title": "Tajuk",
+      "description": "Penerangan",
+      "keywords": "Kata kunci",
+      "category": "Kategori",
+      "subcategory": "Subkategori",
+      "project": "Projek",
+      "status": "Status",
+      "versions": "Versi",
+      "version": "Versi",
+      "file": "Fail",
+      "versionNote": "Catatan versi",
+      "uploadedBy": "Dimuat naik oleh",
+      "sha256": "SHA-256",
+      "code": "Kod",
+      "name": "Nama",
+      "createdAt": "Dicipta",
+      "updatedAt": "Dikemas kini",
+      "archiveReason": "Sebab arkib"
+    },
+    "status": { "ACTIVE": "Aktif", "ARCHIVED": "Diarkibkan" },
+    "create": {
+      "action": "Dokumen baharu",
+      "title": "Cipta dokumen",
+      "description": "Cipta rekod arkib dahulu, kemudian muat naik versi fail kekal yang pertama."
+    },
+    "edit": {
+      "title": "Sunting dokumen",
+      "description": "Kemas kini metadata rekod. Versi fail sedia ada tidak pernah diubah."
+    },
+    "detail": { "title": "Butiran dokumen" },
+    "upload": {
+      "action": "Muat naik versi",
+      "title": "Muat naik versi dokumen",
+      "description": "Tambah versi kekal baharu kepada {name}.",
+      "limit": "Had saiz fail yang dikonfigurasi dikuatkuasakan semasa muat naik.",
+      "confirm": "Muat naik"
+    },
+    "versions": { "title": "Sejarah versi", "empty": "Belum ada versi fail dimuat naik." },
+    "archive": {
+      "action": "Arkibkan",
+      "title": "Arkibkan {name}?",
+      "description": "Pengarkiban adalah kekal dan menghalang perubahan metadata atau muat naik seterusnya.",
+      "confirm": "Arkibkan dokumen"
+    },
+    "taxonomy": {
+      "action": "Urus kategori",
+      "title": "Kategori dokumen",
+      "description": "Urus struktur kategori dan subkategori yang digunakan oleh arkib.",
+      "active": "Aktif",
+      "inactive": "Tidak aktif",
+      "activeHint": "Entri aktif boleh dipilih untuk dokumen baharu."
+    },
+    "categories": { "title": "Kategori", "add": "Tambah kategori", "create": "Cipta kategori", "edit": "Sunting kategori" },
+    "subcategories": { "title": "Subkategori", "add": "Tambah subkategori", "create": "Cipta subkategori", "edit": "Sunting subkategori" },
+    "toast": {
+      "categoryCreated": "Kategori dicipta",
+      "categoryUpdated": "Kategori dikemas kini",
+      "subcategoryCreated": "Subkategori dicipta",
+      "subcategoryUpdated": "Subkategori dikemas kini",
+      "created": "Dokumen dicipta",
+      "updated": "Dokumen dikemas kini",
+      "versionUploaded": "Versi dokumen dimuat naik",
+      "archived": "Dokumen diarkibkan"
+    }
+  },
+  "approvals": {
+    "title": "Kelulusan",
+    "count": "{count} kelulusan",
+    "companyWide": "Seluruh syarikat",
+    "assignedTo": "Ditugaskan kepada {name}",
+    "unassigned": "Mana-mana penyemak yang layak",
+    "anyReviewer": "Mana-mana penyemak yang layak",
+    "reviewerHint": "Hanya pengguna aktif dengan peranan semakan kelulusan disenaraikan.",
+    "metadataHint": "Objek JSON pilihan untuk data khusus aliran kerja.",
+    "commentPlaceholder": "Tambah sebab atau catatan semakan",
+    "field": {
+      "number": "No. kelulusan",
+      "title": "Tajuk",
+      "resourceType": "Jenis rekod",
+      "resourceId": "ID rekod",
+      "resourceLabel": "Rujukan rekod",
+      "project": "Projek",
+      "requester": "Diminta oleh",
+      "reviewer": "Penyemak",
+      "status": "Status",
+      "description": "Penerangan",
+      "metadata": "Metadata",
+      "comment": "Catatan",
+      "createdAt": "Dicipta"
+    },
+    "scope": { "all": "Semua kelulusan", "mine": "Diminta oleh atau ditugaskan kepada saya" },
+    "resource": {
+      "all": "Semua jenis rekod",
+      "document": "Dokumen",
+      "settlement": "Penyelesaian",
+      "deduction": "Potongan",
+      "dispatch": "Penghantaran",
+      "receipt": "Penerimaan",
+      "other": "Lain-lain"
+    },
+    "status": {
+      "DRAFT": "Draf",
+      "SUBMITTED": "Dihantar",
+      "IN_REVIEW": "Dalam semakan",
+      "APPROVED": "Diluluskan",
+      "REJECTED": "Ditolak",
+      "RETURNED": "Dikembalikan",
+      "CLOSED": "Ditutup"
+    },
+    "create": { "action": "Kelulusan baharu", "title": "Cipta kelulusan", "description": "Cipta permintaan draf yang dipautkan kepada rekod perniagaan." },
+    "edit": { "title": "Sunting kelulusan", "description": "Betulkan kelulusan draf atau dikembalikan sebelum menghantarnya semula." },
+    "detail": { "title": "Butiran kelulusan" },
+    "action": { "SUBMIT": "Hantar", "REVIEW": "Mulakan semakan", "APPROVE": "Luluskan", "REJECT": "Tolak", "RETURN": "Kembalikan", "CLOSE": "Tutup" },
+    "actionDialog": {
+      "SUBMIT": { "title": "Hantar {name}?", "description": "Hantar permintaan ini kepada penyemak yang layak." },
+      "REVIEW": { "title": "Mulakan semakan {name}?", "description": "Rekodkan bahawa semakan rasmi telah bermula." },
+      "APPROVE": { "title": "Luluskan {name}?", "description": "Sahkan bahawa permintaan ini memenuhi semakan yang diperlukan." },
+      "REJECT": { "title": "Tolak {name}?", "description": "Tolak permintaan ini dan rekodkan sebabnya." },
+      "RETURN": { "title": "Kembalikan {name}?", "description": "Kembalikan permintaan ini kepada pemohon untuk pembetulan." },
+      "CLOSE": { "title": "Tutup {name}?", "description": "Tutup aliran kerja yang telah selesai ini." }
+    },
+    "history": {
+      "title": "Sejarah audit",
+      "sequence": "Langkah",
+      "action": "Tindakan",
+      "transition": "Perubahan status",
+      "actor": "Dilakukan oleh",
+      "comment": "Catatan",
+      "time": "Masa",
+      "empty": "Belum ada tindakan aliran kerja direkodkan."
+    },
+    "validation": { "metadata": "Masukkan objek JSON yang sah." },
+    "toast": {
+      "created": "Kelulusan dicipta",
+      "updated": "Kelulusan dikemas kini",
+      "submit": "Kelulusan dihantar",
+      "review": "Semakan dimulakan",
+      "approve": "Kelulusan diluluskan",
+      "reject": "Kelulusan ditolak",
+      "return": "Kelulusan dikembalikan",
+      "close": "Kelulusan ditutup"
+    }
+  },
+  "evidence": {
+    "title": "Arkib bukti",
+    "count": "{count} item bukti",
+    "kind": { "PHOTO": "Foto", "VIDEO": "Video", "SIGNATURE": "Tandatangan", "DOCUMENT": "Dokumen", "OTHER": "Lain-lain" },
+    "field": {
+      "file": "Fail",
+      "kind": "Jenis",
+      "source": "Sumber",
+      "context": "Konteks",
+      "capturedAt": "Masa rakaman asal",
+      "uploadedAt": "Masa muat naik",
+      "gps": "GPS",
+      "sha256": "SHA-256",
+      "company": "Syarikat",
+      "project": "Projek",
+      "actor": "Pengguna",
+      "sourceModel": "Model sumber",
+      "sourceId": "ID sumber",
+      "fieldName": "Medan fail",
+      "supersedes": "Menggantikan",
+      "deviceId": "ID peranti",
+      "watermarkText": "Teks tera air",
+      "contentType": "Jenis kandungan",
+      "size": "Saiz fail"
+    },
+    "filter": { "capturedFrom": "Dirakam dari", "capturedTo": "Dirakam hingga", "withGps": "Dengan GPS", "withoutGps": "Tanpa GPS" },
+    "action": { "view": "Lihat bukti", "verify": "Sahkan integriti", "openOriginal": "Buka fail asal" },
+    "section": { "record": "Rekod", "capture": "Bukti rakaman", "file": "Bukti fail", "integrity": "Pengesahan integriti", "watermark": "Tera air", "metadata": "Metadata" },
+    "integrity": {
+      "error": "Fail tidak dapat disahkan.",
+      "valid": "Integriti fail disahkan",
+      "invalid": "Integriti fail gagal",
+      "verifiedAt": "Disahkan {value}",
+      "hash": "Cincang",
+      "size": "Saiz",
+      "storedHash": "Cincang tersimpan",
+      "currentHash": "Cincang semasa",
+      "storedSize": "Saiz tersimpan",
+      "currentSize": "Saiz semasa",
+      "match": "Sepadan",
+      "mismatch": "Tidak sepadan"
+    }
+  },
+  "driverGps": {
+    "title": "GPS pemandu",
+    "count": "{count} tugas pemandu",
+    "tasks": {
+      "title": "Tugas pemandu",
+      "search": "Cari tugas, pemandu atau kenderaan",
+      "empty": "Tiada tugas pemandu ditemui",
+      "loadMore": "Muatkan lebih banyak tugas",
+      "filter": { "ALL": "Semua", "RUNNING": "Berjalan", "FINISHED": "Selesai" }
+    },
+    "route": { "error": "Sejarah laluan tidak dapat dimuatkan.", "empty": "Tiada kedudukan laluan", "emptyDescription": "Sampel GPS akan muncul selepas pemandu memulakan tugas." },
+    "summary": { "position": "Kedudukan semasa", "accuracy": "Ketepatan", "event": "Peristiwa terkini", "latest": "Sampel terkini", "geofence": "Geofence", "distance": "{value} dari projek" },
+    "action": { "openMap": "Buka lokasi" },
+    "event": { "POSITION": "Kedudukan", "ARRIVAL": "Ketibaan", "GEOFENCE_ENTER": "Masuk geofence", "GEOFENCE_EXIT": "Keluar geofence" },
+    "geofence": { "INSIDE": "Di dalam", "OUTSIDE": "Di luar", "NOT_EVALUATED": "Belum dinilai" },
+    "timeline": { "title": "Garis masa laluan", "count": "{count} sampel", "loadOlder": "Muatkan sampel terdahulu" },
+    "field": { "accuracy": "Ketepatan", "distance": "Jarak projek", "occurredAt": "Masa peristiwa asal", "uploadedAt": "Dimuat naik" },
+    "liveMap": {
+      "title": "Peta pemandu masa nyata",
+      "count": "{count} pemandu aktif",
+      "refresh": "Menyegar semula setiap 15 saat"
+    }
+  },
+  "siteGps": {
+    "title": "GPS kakitangan tapak",
+    "count": "{count} orang menghantar lokasi",
+    "project": "Projek",
+    "allProjects": "Semua projek",
+    "startSharing": "Mula berkongsi",
+    "stopSharing": "Henti berkongsi",
+    "sharing": "Lokasi sedang dikongsi",
+    "refreshNote": "Menyegar semula setiap 15 saat",
+    "map": "Peta tapak masa nyata",
+    "people": "Kakitangan di tapak",
+    "empty": "Tiada lokasi semasa",
+    "live": "Masa nyata",
+    "stale": "Lama",
+    "event": {
+      "POSITION": "Lokasi",
+      "GEOFENCE_ENTER": "Masuk geofence",
+      "GEOFENCE_EXIT": "Keluar geofence"
+    },
+    "geofence": {
+      "INSIDE": "Dalam geofence",
+      "OUTSIDE": "Di luar geofence",
+      "NOT_EVALUATED": "Belum dinilai"
+    }
+  },
+  "notifications": {
+    "title": "Pemberitahuan",
+    "count": "{count, plural, =0 {Tiada pemberitahuan} other {# pemberitahuan}}",
+    "unreadCount": "{count, plural, =0 {Tiada pemberitahuan belum dibaca} other {# pemberitahuan belum dibaca}}",
+    "field": {
+      "time": "Masa",
+      "kind": "Jenis",
+      "notification": "Pemberitahuan",
+      "status": "Status"
+    },
+    "kind": {
+      "SYSTEM": "Sistem",
+      "APPROVAL": "Kelulusan",
+      "EVENT": "Peristiwa",
+      "REMINDER": "Peringatan",
+      "EXCEPTION": "Amaran pengecualian"
+    },
+    "status": { "read": "Dibaca", "unread": "Belum dibaca" },
+    "markRead": "Tandakan sebagai dibaca",
+    "markAllRead": "Tandakan semua sebagai dibaca",
+    "toast": { "allRead": "Semua pemberitahuan ditandakan sebagai dibaca" }
+  },
+  "monitoring": {
+    "title": "Pemantauan sistem",
+    "checkedAt": "Diperiksa {value}",
+    "capture": "Simpan petikan",
+    "tile": {
+      "server": "Pelayan",
+      "api": "API",
+      "database": "Pangkalan data",
+      "storage": "Storan",
+      "queue": "Baris gilir",
+      "devices": "Peranti",
+      "errors": "Ralat"
+    },
+    "health": {
+      "ok": "Sihat",
+      "configured": "Dikonfigurasi",
+      "degraded": "Terganggu",
+      "unhealthy": "Tidak sihat",
+      "not_running": "Tidak berjalan"
+    },
+    "value": {
+      "uptime": "Masa hidup {value} minit",
+      "jobs": "{count} tugas dalam giliran",
+      "devices": "{online} daripada {total} dalam talian",
+      "errors": "{count} ralat dalam 24 jam"
+    },
+    "events": {
+      "title": "Peristiwa sistem terkini",
+      "empty": "Tiada peristiwa sistem terkini"
+    },
+    "severity": {
+      "INFO": "Maklumat",
+      "WARNING": "Amaran",
+      "ERROR": "Ralat",
+      "CRITICAL": "Kritikal"
+    },
+    "toast": { "captured": "Petikan pemantauan disimpan" }
+  },
+  "contractorPartners": {
+    "title": "Rakan kontraktor",
+    "new": "Kontraktor baharu",
+    "count": "{count, plural, =0 {Tiada rakan kontraktor} other {# rakan kontraktor}}",
+    "field": { "plan": "Pelan" },
+    "unlimitedProjects": "Projek tanpa had",
+    "projectLimit": "Had {count} projek"
+  },
+  "recyclerReview": {
+    "title": "Semakan pengitar semula",
+    "new": "Pengitar semula baharu",
+    "count": "{count, plural, =0 {Tiada pengitar semula} other {# pengitar semula}}",
+    "field": { "reviewStatus": "Status semakan", "note": "Catatan semakan" },
+    "status": {
+      "PENDING": "Menunggu semakan",
+      "APPROVED": "Diluluskan",
+      "REJECTED": "Ditolak"
+    },
+    "approve": {
+      "title": "Luluskan {name}?",
+      "description": "Pengitar semula ini boleh menerima permintaan kerjasama dan projek terikat.",
+      "confirm": "Luluskan"
+    },
+    "reject": {
+      "title": "Tolak {name}?",
+      "description": "Pengitar semula ini tidak boleh menjalin kerjasama. Catatan disimpan untuk audit.",
+      "confirm": "Tolak"
+    }
+  },
+  "partnerships": {
+    "title": "Kerjasama kontraktor",
+    "count": "{count, plural, =0 {Tiada kerjasama} other {# kerjasama}}",
+    "field": {
+      "contractor": "Kontraktor",
+      "recycler": "Pengitar semula",
+      "status": "Status",
+      "requestedBy": "Diminta oleh",
+      "projects": "Projek terikat",
+      "note": "Catatan",
+      "updatedAt": "Dikemas kini"
+    },
+    "status": {
+      "PENDING": "Menunggu jawapan",
+      "ACTIVE": "Aktif",
+      "REJECTED": "Ditolak",
+      "SUSPENDED": "Digantung"
+    },
+    "request": {
+      "action": "Mohon kerjasama",
+      "title": "Mohon kerjasama",
+      "description": "Syarikat satu lagi mesti menerima permintaan sebelum projek boleh diikat dan pesanan sisa diproses.",
+      "company": "Syarikat rakan",
+      "noCompanies": "Tiada syarikat tersedia",
+      "loadError": "Senarai syarikat tidak dapat dimuatkan",
+      "confirm": "Hantar permintaan"
+    },
+    "respond": {
+      "accept": "Terima",
+      "reject": "Tolak",
+      "acceptTitle": "Terima permintaan daripada {name}?",
+      "rejectTitle": "Tolak permintaan daripada {name}?",
+      "acceptDescription": "Mengaktifkan hubungan. Projek masih perlu diikat secara khusus.",
+      "rejectDescription": "Permintaan ditutup dan sebab dikembalikan kepada syarikat pemohon."
+    },
+    "suspend": {
+      "title": "Gantung kerjasama ini?",
+      "description": "Menghentikan kerja baharu melalui hubungan ini. Rekod sedia ada tidak berubah.",
+      "confirm": "Gantung"
+    },
+    "projects": {
+      "manage": "Urus projek",
+      "title": "Projek terikat",
+      "description": "Projek dikongsi antara {contractor} dan {recycler}.",
+      "bound": "Projek terikat",
+      "noneBound": "Belum ada projek terikat",
+      "add": "Ikat projek lain",
+      "loadError": "Projek tidak dapat dimuatkan",
+      "unbind": "Nyahikat",
+      "bind": "Ikat projek",
+      "noneAvailable": "Semua projek tersedia telah diikat",
+      "unbindTitle": "Nyahikat {name}?",
+      "unbindDescription": "Pesanan sisa baharu projek ini tidak lagi boleh menggunakan kerjasama tersebut."
+    }
   },
   "users": {
     "title": "Pengguna",
@@ -575,11 +1305,36 @@
       "company_not_found": "Syarikat itu tidak dijumpai.",
       "user_not_found": "Pengguna itu tidak dijumpai.",
       "role_not_found": "Peranan itu tidak dijumpai.",
+      "department_not_found": "Jabatan itu tidak dijumpai.",
       "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
       "company_required": "Pilih syarikat dahulu.",
       "object_reference_required": "Satu rekod mesti dinyatakan.",
       "refresh_token_required": "Sesi anda tidak dapat diperbaharui. Sila log masuk semula.",
       "validation_failed": "Semak ruangan yang ditanda dan cuba lagi.",
+      "project_limit_reached": "Pelan semasa anda telah mencapai had projek.",
+      "approval_action_not_found": "Tindakan kelulusan itu tidak dijumpai.",
+      "approval_actor_forbidden": "Anda tidak dibenarkan melakukan tindakan kelulusan ini.",
+      "approval_invalid_transition": "Kelulusan ini tidak boleh beralih ke status tersebut.",
+      "approval_not_found": "Kelulusan itu tidak dijumpai.",
+      "company_not_recycler": "Pilih syarikat pengitar semula.",
+      "document_archived": "Dokumen ini telah diarkibkan dan tidak boleh diubah.",
+      "document_category_not_found": "Kategori dokumen itu tidak dijumpai.",
+      "document_file_unavailable": "Fail dokumen ini tidak tersedia.",
+      "document_not_found": "Dokumen itu tidak dijumpai.",
+      "document_subcategory_not_found": "Subkategori dokumen itu tidak dijumpai.",
+      "document_version_not_found": "Versi dokumen itu tidak dijumpai.",
+      "evidence_asset_not_found": "Rekod bukti itu tidak dijumpai.",
+      "evidence_file_unavailable": "Fail bukti ini tidak tersedia.",
+      "notification_not_found": "Pemberitahuan itu tidak dijumpai.",
+      "partnership_already_exists": "Kerjasama dengan syarikat ini sudah wujud.",
+      "partnership_not_active": "Kerjasama ini tidak aktif.",
+      "partnership_not_counterparty": "Hanya syarikat pihak satu lagi boleh menjawab permintaan kerjasama ini.",
+      "partnership_not_found": "Kerjasama itu tidak dijumpai.",
+      "portal_mismatch": "Akaun ini milik portal lain. Gunakan halaman log masuk yang betul.",
+      "progress_update_not_found": "Kemas kini kemajuan itu tidak dijumpai.",
+      "project_already_bound": "Projek ini sudah terikat kepada kerjasama tersebut.",
+      "safety_incident_not_found": "Insiden keselamatan itu tidak dijumpai.",
+      "scheduled_job_not_found": "Tugas berjadual itu tidak dijumpai.",
       "invalid_credentials": "E-mel atau kata laluan salah.",
       "user_suspended": "Akaun ini tidak aktif. Hubungi pentadbir anda.",
       "company_suspended": "Akaun syarikat anda tidak aktif. Hubungi sokongan MSE Trace.",
@@ -593,11 +1348,18 @@
       "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda.",
       "device_auth_failed": "Gateway jambatan timbang ini tidak dapat disahkan.",
       "ingest_rejected": "Bacaan jambatan timbang tidak dapat diterima.",
+      "packet_replay": "Paket gateway bertandatangan ini telah diterima.",
+      "clock_skew": "Perubahan jam gateway melebihi had yang dibenarkan.",
+      "calibration_expired": "Kalibrasi jambatan timbang ini telah tamat.",
       "scale_not_found": "Jambatan timbang itu tidak dijumpai.",
       "site_not_found": "Tapak itu tidak dijumpai.",
       "session_not_found": "Penimbangan itu tidak dijumpai.",
       "gateway_not_found": "Gateway itu tidak dijumpai.",
       "invalid_rule_params": "Semak tetapan pengesanan dan cuba lagi.",
+      "integration_not_found": "Integrasi itu tidak dijumpai.",
+      "integration_already_exists": "Nama integrasi itu telah digunakan.",
+      "integration_device_not_found": "Peranti integrasi itu tidak dijumpai.",
+      "integration_device_already_exists": "ID peranti itu telah digunakan.",
       "project_not_found": "Projek itu tidak dijumpai.",
       "supplier_not_found": "Pembekal itu tidak dijumpai.",
       "qr_code_not_found": "Kod QR ini tidak dikenali.",
@@ -623,6 +1385,7 @@
       "task_already_running": "Satu perjalanan sudah berjalan untuk muatan itu.",
       "task_already_started": "Perjalanan ini telah bermula dan tidak boleh ditugaskan semula.",
       "task_invalid_transition": "Perjalanan tidak boleh bergerak ke langkah itu dari keadaan sekarang.",
+      "task_photo_required": "Lampirkan foto pemuatan sebelum menandakan perjalanan sebagai telah dimuatkan.",
       "deduction_not_found": "Potongan itu tidak dijumpai.",
       "settlement_not_found": "Penyelesaian itu tidak dijumpai.",
       "deduction_not_producer": "Hanya penghasil sisa boleh menjawab potongan.",
@@ -748,6 +1511,9 @@
     },
     "online": "Dalam talian",
     "offline": "Luar talian",
+    "manifestTitle": "Manifest pemasangan gateway",
+    "manifestBody": "Manifest ini mengandungi URL ingest, protokol dan tetapan percubaan semula untuk gateway tapak. Rahsia hanya disertakan semasa tindakan salin.",
+    "copyManifest": "Salin manifest",
     "secretTitle": "Salin rahsia ini sekarang",
     "secretBody": "Ia ditunjukkan sekali sahaja. Gateway menandatangani setiap paket dengannya, jadi rahsia yang hilang diganti, bukan dipulihkan.",
     "rotate": "Tukar rahsia",
@@ -898,6 +1664,7 @@
     "section": {
       "identity": "Maklumat asas",
       "address": "Alamat tapak",
+      "location": "Lokasi tapak dan geofence",
       "schedule": "Jadual",
       "contact": "Hubungan tapak",
       "team": "Pasukan tapak"
@@ -913,6 +1680,9 @@
       "city": "Bandar",
       "state": "Negeri",
       "postcode": "Poskod",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "geofenceRadius": "Radius geofence",
       "startDate": "Tarikh mula",
       "endDate": "Tarikh tamat",
       "siteManager": "Pengurus tapak",
@@ -920,6 +1690,8 @@
       "assignedUsers": "Pasukan",
       "createdAt": "Ditambah"
     },
+    "geofenceHint": "Masukkan kedua-dua koordinat sebelum menetapkan radius. Ketibaan dan sampel laluan pemandu disemak terhadap sempadan ini.",
+    "geofenceRadiusValue": "{count} meter",
     "status": {
       "PLANNING": "Perancangan",
       "ACTIVE": "Aktif",
@@ -1207,6 +1979,26 @@
       "loads": "Muatan",
       "estimatedWeight": "Anggaran berat (kg)",
       "estimateNote": "Ini anggaran tapak. Berat akhir datang dari jambatan timbang pengitar semula selepas muatan ditimbang."
+    },
+    "transaction": {
+      "title": "Laporan transaksi",
+      "subtitle": "Ringkasan penyelesaian yang dibekukan dan dikongsi antara MSE, kontraktor dan pengitar semula.",
+      "filters": "Tapisan transaksi",
+      "state": "Status",
+      "allStates": "Semua status",
+      "currency": "Mata wang",
+      "currencyPlaceholder": "MYR",
+      "summary": "Ringkasan transaksi",
+      "transactions": "Transaksi",
+      "totalAmount": "Jumlah keseluruhan",
+      "outstanding": "Belum dibayar",
+      "byCurrency": "Mengikut mata wang",
+      "byState": "Mengikut status",
+      "byWasteType": "Mengikut jenis sisa",
+      "netWeight": "Berat bersih",
+      "deductions": "Potongan",
+      "settledWeight": "Berat penyelesaian",
+      "paid": "Dibayar"
     },
     "empty": "Tiada apa-apa untuk dilaporkan bagi pilihan ini."
   },
@@ -1561,6 +2353,8 @@
     "nothingAssigned": "Tiada tugasan untuk anda sekarang.",
     "back": "Semua perjalanan",
     "takePhoto": "Ambil foto",
+    "navigate": "Navigasi ke projek",
+    "photoRequired": "Ambil foto muatan sebelum menandakan perjalanan ini sebagai dimuatkan.",
     "cannotComplete": "Saya tidak dapat menyiapkannya",
     "arrivedNote": "Merekodkan bahawa anda berada di tapak, bersama lokasi telefon jika dibenarkan.",
     "action": {

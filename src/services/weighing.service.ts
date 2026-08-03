@@ -9,6 +9,7 @@ import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   ChainVerification,
   GatewayDevice,
+  GatewayInstallerManifest,
   RecyclingSite,
   RecyclingSitePayload,
   RuleParameter,
@@ -104,8 +105,18 @@ export function getGateways(
 export async function createGateway(
   scaleId: string,
   payload: { device_id: string; firmware_version?: string; notes?: string },
-): Promise<{ gateway: GatewayDevice; secret: string }> {
-  const result = await api.post<{ gateway: GatewayDevice; secret: string }>(
+): Promise<{
+  gateway: GatewayDevice;
+  secret: string;
+  integration_device: { id: string; device_type: string; device_id: string };
+  installer_manifest: GatewayInstallerManifest;
+}> {
+  const result = await api.post<{
+    gateway: GatewayDevice;
+    secret: string;
+    integration_device: { id: string; device_type: string; device_id: string };
+    installer_manifest: GatewayInstallerManifest;
+  }>(
     `/api/scales/${scaleId}/create_gateway/`,
     payload,
   );

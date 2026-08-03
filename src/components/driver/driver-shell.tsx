@@ -7,7 +7,14 @@ import { useEffect } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { useAuth } from "@/components/providers/auth-provider";
+import { OfflineStatus } from "@/components/shared/offline-status";
 import { Button } from "@/components/ui/button";
+import {
+  firstAllowedDashboardPath,
+  isDriverOnlyAccount,
+} from "@/lib/navigation";
+import { getSessionPortal } from "@/lib/auth-token";
+import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
 
 /**
  * The driver's shell. Deliberately not the console's.
@@ -26,12 +33,24 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
   const router = useRouter();
   const { user, isLoading, signOut } = useAuth();
+  const isDriverOnly =
+    user !== null &&
+    isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
 
   useEffect(() => {
-    if (!isLoading && user === null) router.replace("/login");
-  }, [isLoading, user, router]);
+    if (!isLoading && user === null) {
+      redirectWithFallback(router, portalLoginPath(getSessionPortal()));
+      return;
+    }
+    if (!isLoading && user !== null && !isDriverOnly) {
+      redirectWithFallback(
+        router,
+        firstAllowedDashboardPath(user.portal, user.features),
+      );
+    }
+  }, [isDriverOnly, isLoading, user, router]);
 
-  if (isLoading || user === null) {
+  if (isLoading || user === null || !isDriverOnly) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -54,6 +73,7 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
             </p>
           </div>
           <div className="ml-auto flex items-center gap-1">
+            <OfflineStatus />
             <LanguageSwitcher />
             <Button
               variant="ghost"

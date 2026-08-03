@@ -11,6 +11,18 @@ export type CompanyStatus =
   | "OVERDUE"
   | "CLOSED";
 
+export type CompanyReviewStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export interface SubscriptionPlan {
+  id: string;
+  code: string;
+  name: string;
+  max_projects: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CompanyRow {
   id: string;
   code: string;
@@ -23,6 +35,12 @@ export interface CompanyRow {
   city: string;
   state: string;
   user_count: number;
+  plan: string | null;
+  plan_code: string | null;
+  plan_name: string | null;
+  project_limit: number | null;
+  project_limit_override: number | null;
+  review_status: CompanyReviewStatus;
   created_at: string;
 }
 
@@ -46,6 +64,15 @@ export interface CompanyDetail {
   logo: string | null;
   default_language: Locale;
   timezone: string;
+  plan: string | null;
+  plan_code: string | null;
+  plan_name: string | null;
+  project_limit: number | null;
+  project_limit_override: number | null;
+  review_status: CompanyReviewStatus;
+  reviewed_at: string | null;
+  reviewed_by: string | null;
+  review_note: string;
   suspended_at: string | null;
   suspended_reason: string;
   created_at: string;
@@ -68,11 +95,18 @@ export interface CompanyPayload {
   contact_email?: string;
   default_language?: Locale;
   timezone?: string;
+  plan?: string | null;
+  project_limit_override?: number | null;
 }
 
 export interface CompanyStatusPayload {
   status: Extract<CompanyStatus, "ACTIVE" | "SUSPENDED" | "CLOSED">;
   reason?: string;
+}
+
+export interface CompanyReviewPayload {
+  status: Extract<CompanyReviewStatus, "APPROVED" | "REJECTED">;
+  note?: string;
 }
 
 export interface CompanySummary {
