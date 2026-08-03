@@ -1708,7 +1708,15 @@
       "assignedUsers": "Pasukan",
       "createdAt": "Ditambah"
     },
-    "geofenceHint": "Masukkan kedua-dua koordinat sebelum menetapkan radius. Ketibaan dan sampel laluan pemandu disemak terhadap sempadan ini.",
+    "geofenceHint": "Masukkan kedua-dua koordinat sebelum menetapkan radius. Lokasi kakitangan dan pemandu disemak terhadap sempadan ini.",
+    "location": {
+      "capture": "Guna GPS semasa",
+      "captureHint": "Gunakan GPS di tengah tapak atau masukkan koordinat secara manual. Radius awal 100 meter dicadangkan.",
+      "unsupported": "Pelayar ini tidak menyokong lokasi GPS. Masukkan koordinat secara manual.",
+      "permissionDenied": "Kebenaran lokasi ditolak. Benarkan akses lokasi dalam pelayar dan cuba lagi.",
+      "unavailable": "Lokasi semasa tidak dapat ditentukan. Semak perkhidmatan lokasi peranti dan cuba lagi.",
+      "timeout": "Lokasi mengambil masa terlalu lama. Cuba lagi di tempat dengan isyarat GPS yang lebih jelas."
+    },
     "geofenceRadiusValue": "{count} meter",
     "status": {
       "PLANNING": "Perancangan",

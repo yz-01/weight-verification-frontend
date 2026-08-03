@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Save } from "lucide-react";
+import { LocateFixed, Loader2, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -22,6 +22,7 @@ import {
   required,
 } from "@/components/shared/form-shell";
 import { ApiError } from "@/interfaces/api";
+import { Button } from "@/components/ui/button";
 import type {
   Project,
   ProjectPayload,
@@ -47,6 +48,8 @@ export function CreateProject({ project }: { project?: Project }) {
   const queryClient = useQueryClient();
   const isEdit = project !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: (values: ProjectPayload) =>
@@ -103,6 +106,36 @@ export function CreateProject({ project }: { project?: Project }) {
       }
     },
   });
+
+  function captureProjectLocation() {
+    setLocationError(null);
+    if (!navigator.geolocation) {
+      setLocationError(t("projects.location.unsupported"));
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        form.setFieldValue("latitude", position.coords.latitude.toFixed(7));
+        form.setFieldValue("longitude", position.coords.longitude.toFixed(7));
+        if (!form.getFieldValue("geofence_radius_m")) {
+          form.setFieldValue("geofence_radius_m", "100");
+        }
+        setIsLocating(false);
+      },
+      (error) => {
+        const key =
+          error.code === error.PERMISSION_DENIED
+            ? "permissionDenied"
+            : error.code === error.POSITION_UNAVAILABLE
+              ? "unavailable"
+              : "timeout";
+        setLocationError(t(`projects.location.${key}`));
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, maximumAge: 10_000, timeout: 15_000 },
+    );
+  }
 
   return (
     <FormShell
@@ -228,6 +261,30 @@ export function CreateProject({ project }: { project?: Project }) {
       </FormSection>
 
       <FormSection title={t("projects.section.location")}>
+        <div className="flex flex-wrap items-center gap-3 md:col-span-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isLocating}
+            onClick={captureProjectLocation}
+          >
+            {isLocating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <LocateFixed className="h-4 w-4" />
+            )}
+            {t("projects.location.capture")}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            {t("projects.location.captureHint")}
+          </p>
+          {locationError && (
+            <p role="alert" className="w-full text-sm text-destructive">
+              {locationError}
+            </p>
+          )}
+        </div>
         <form.Field name="latitude">
           {(field) => (
             <TextField

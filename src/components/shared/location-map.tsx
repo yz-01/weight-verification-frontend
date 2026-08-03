@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Truck, UserRound } from "lucide-react";
+import { createElement, useEffect, useRef } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 export interface LocationMapMarker {
   id: string;
@@ -10,12 +12,30 @@ export interface LocationMapMarker {
   detail?: string;
   tone?: "primary" | "positive" | "warning" | "danger";
   stale?: boolean;
+  icon?: "person" | "truck";
+}
+
+export interface LocationMapPath {
+  id: string;
+  points: Array<[number, number]>;
+  color?: string;
+  label?: string;
+}
+
+export interface LocationMapZone {
+  id: string;
+  center: [number, number];
+  radiusM: number;
+  label?: string;
+  color?: string;
 }
 
 interface LocationMapProps {
   center?: [number, number];
   radiusM?: number | null;
   markers: LocationMapMarker[];
+  paths?: LocationMapPath[];
+  zones?: LocationMapZone[];
   className?: string;
 }
 
@@ -25,6 +45,8 @@ export function LocationMap({
   center = DEFAULT_CENTER,
   radiusM,
   markers,
+  paths = [],
+  zones = [],
   className = "",
 }: LocationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,21 +67,39 @@ export function LocationMap({
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map);
+      }).addTo(map!);
 
-      if (radiusM && radiusM > 0) {
-        L.circle(center, {
-          radius: radiusM,
-          color: "#087f8c",
-          fillColor: "#087f8c",
+      const visibleZones: LocationMapZone[] = [
+        ...(radiusM && radiusM > 0
+          ? [{ id: "primary", center, radiusM, label: "Geofence" }]
+          : []),
+        ...zones,
+      ];
+      visibleZones.forEach((zone) => {
+        const color = zone.color ?? "#087f8c";
+        L.circle(zone.center, {
+          radius: zone.radiusM,
+          color,
+          fillColor: color,
           fillOpacity: 0.08,
           weight: 2,
         })
-          .addTo(map)
-          .bindTooltip("Geofence");
-      }
+          .addTo(map!)
+          .bindTooltip(zone.label ?? "Geofence");
+      });
 
       const bounds = L.latLngBounds([]);
+      visibleZones.forEach((zone) => bounds.extend(zone.center));
+      paths.forEach((path) => {
+        if (path.points.length < 2) return;
+        const line = L.polyline(path.points, {
+          color: path.color ?? "#087f8c",
+          weight: 4,
+          opacity: 0.75,
+        }).addTo(map!);
+        if (path.label) line.bindTooltip(path.label);
+        path.points.forEach((point) => bounds.extend(point));
+      });
       markers.forEach((marker) => {
         const color =
           marker.tone === "danger"
@@ -71,9 +111,15 @@ export function LocationMap({
                 : "#087f8c";
         const icon = L.divIcon({
           className: "mse-map-marker",
-          html: `<span style="--marker-color:${color};${marker.stale ? "opacity:.5;" : ""}"></span>`,
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
+          html: `<span style="--marker-color:${color};${marker.stale ? "opacity:.5;" : ""}">${renderToStaticMarkup(
+            createElement(marker.icon === "truck" ? Truck : UserRound, {
+              size: 17,
+              strokeWidth: 2.5,
+              "aria-hidden": true,
+            }),
+          )}</span>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
         });
         const point = L.marker([marker.latitude, marker.longitude], { icon })
           .addTo(map!)
@@ -83,7 +129,11 @@ export function LocationMap({
         bounds.extend(point.getLatLng());
       });
 
-      if (markers.length > 0) {
+      if (
+        markers.length > 0 ||
+        paths.some((path) => path.points.length > 0) ||
+        visibleZones.length > 0
+      ) {
         bounds.extend(center);
         map.fitBounds(bounds.pad(0.15), { maxZoom: 16 });
       }
@@ -93,7 +143,7 @@ export function LocationMap({
       disposed = true;
       map?.remove();
     };
-  }, [center, markers, radiusM]);
+  }, [center, markers, paths, radiusM, zones]);
 
   return (
     <div

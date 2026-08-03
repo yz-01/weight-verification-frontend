@@ -79,9 +79,37 @@ export function FieldStaffGps() {
         )}`,
         tone: position.geofence_result === "OUTSIDE" ? ("danger" as const) : position.is_stale ? ("warning" as const) : ("positive" as const),
         stale: position.is_stale,
+        icon: "person" as const,
       })),
     [positions, t],
   );
+  const zones = useMemo(() => {
+    if (selectedProject) return [];
+    const byProject = new Map<string, {
+      id: string;
+      center: [number, number];
+      radiusM: number;
+      label: string;
+    }>();
+    positions.forEach((position) => {
+      if (
+        position.project_latitude &&
+        position.project_longitude &&
+        position.project_geofence_radius_m
+      ) {
+        byProject.set(position.project, {
+          id: position.project,
+          center: [
+            Number(position.project_latitude),
+            Number(position.project_longitude),
+          ],
+          radiusM: position.project_geofence_radius_m,
+          label: position.project_name,
+        });
+      }
+    });
+    return Array.from(byProject.values());
+  }, [positions, selectedProject]);
 
   useEffect(() => {
     return () => {
@@ -201,6 +229,7 @@ export function FieldStaffGps() {
           center={center}
           radiusM={selectedProject?.geofence_radius_m}
           markers={markers}
+          zones={zones}
         />
       </section>
 

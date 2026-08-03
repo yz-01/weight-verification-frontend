@@ -1770,7 +1770,15 @@
       "assignedUsers": "Team",
       "createdAt": "Added"
     },
-    "geofenceHint": "Enter both coordinates before setting a radius. Driver arrivals and route samples are checked against this boundary.",
+    "geofenceHint": "Enter both coordinates before setting a radius. Personnel and driver locations are checked against this boundary.",
+    "location": {
+      "capture": "Use current GPS",
+      "captureHint": "Use GPS at the site centre or enter the coordinates manually. A 100 metre radius is suggested initially.",
+      "unsupported": "This browser does not support GPS location. Enter the coordinates manually.",
+      "permissionDenied": "Location permission was denied. Allow location access in the browser and try again.",
+      "unavailable": "The current location could not be determined. Check the device location service and try again.",
+      "timeout": "Location took too long to respond. Try again where the GPS signal is clearer."
+    },
     "geofenceRadiusValue": "{count} metres",
     "status": {
       "PLANNING": "Planning",

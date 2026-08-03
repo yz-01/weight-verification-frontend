@@ -215,6 +215,15 @@ export interface DriverTaskLivePosition extends DriverTaskPosition {
   is_stale: boolean;
 }
 
+export interface DriverLiveRoute {
+  task: string;
+  positions: DriverTaskPosition[];
+}
+
+export interface DriverLiveRoutes {
+  routes: DriverLiveRoute[];
+}
+
 export interface DriverTaskPayload {
   dispatch?: string | null;
   site: string;

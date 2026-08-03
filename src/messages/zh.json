@@ -1660,7 +1660,15 @@
       "assignedUsers": "人员",
       "createdAt": "创建时间"
     },
-    "geofenceHint": "请先同时填写经纬度，再设置半径。司机到场和路线定位会按此范围验证。",
+    "geofenceHint": "请先同时填写经纬度，再设置半径。工地人员和司机位置都会按此范围验证。",
+    "location": {
+      "capture": "获取当前 GPS",
+      "captureHint": "可在工地中心获取 GPS，或手动输入经纬度。系统会先建议 100 米半径。",
+      "unsupported": "此浏览器不支持 GPS 定位，请手动输入经纬度。",
+      "permissionDenied": "定位权限已被拒绝。请在浏览器设置中允许定位后重试。",
+      "unavailable": "无法取得当前位置。请检查设备定位服务后重试。",
+      "timeout": "定位响应超时。请在 GPS 信号较好的位置重试。"
+    },
     "geofenceRadiusValue": "{count} 米",
     "status": {
       "PLANNING": "筹备中",
