@@ -104,9 +104,12 @@ export function Attendance() {
       (position) => {
         setDraft((value) => ({
           ...value,
-          latitude: String(position.coords.latitude),
-          longitude: String(position.coords.longitude),
-          locationAccuracy: String(position.coords.accuracy),
+          // The API stores coordinates at seven decimal places. Browsers can
+          // return more precision, which would exceed the DecimalField digit
+          // limit and turn a valid GPS fix into a 400 response.
+          latitude: position.coords.latitude.toFixed(7),
+          longitude: position.coords.longitude.toFixed(7),
+          locationAccuracy: position.coords.accuracy.toFixed(2),
         }));
         setLocating(false);
       },

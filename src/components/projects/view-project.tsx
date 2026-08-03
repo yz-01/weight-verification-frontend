@@ -67,14 +67,24 @@ export function ViewProject({ id }: { id: string }) {
         backHref="/projects"
         backLabel={t("projects.title")}
         action={
-          can("project.update") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href={`/projects/${data.id}/edit`}>
-                <Pencil className="h-4 w-4" />
-                {t("common.edit")}
-              </Link>
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {can("project.assign") && (
+              <Button asChild size="sm" variant="outline" className="rounded-full px-4">
+                <a href="#project-team">
+                  <UserPlus className="h-4 w-4" />
+                  {t("projects.team.add")}
+                </a>
+              </Button>
+            )}
+            {can("project.update") && (
+              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Link href={`/projects/${data.id}/edit`}>
+                  <Pencil className="h-4 w-4" />
+                  {t("common.edit")}
+                </Link>
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -218,7 +228,7 @@ function ProjectTeam({ projectId }: { projectId: string }) {
   const rows = data?.results ?? [];
 
   return (
-    <div className="rounded-xl border bg-card shadow-sm">
+    <div id="project-team" className="rounded-xl border bg-card shadow-sm">
       <div className="flex items-start justify-between gap-4 px-6 py-5">
         <div className="min-w-0">
           <h3 className="text-base font-semibold text-foreground">
