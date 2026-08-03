@@ -429,6 +429,9 @@ export function firstAllowedDashboardPath(
  * drivers receive the same `driver_tasks` feature.
  */
 export function landingPathFor(can: (code: string) => boolean): string {
+  if (can("field_position.submit") && !can("project.view_all")) {
+    return "/field-staff";
+  }
   if (
     can("task.view") &&
     can("task.submit") &&

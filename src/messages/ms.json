@@ -813,6 +813,14 @@
       "refresh": "Menyegar semula setiap 15 saat"
     }
   },
+  "fieldStaffWorkspace": {
+    "title": "Ruang kerja kakitangan tapak",
+    "subtitle": "Rekod projek yang ditugaskan dan timbangan pengitar semula yang berkaitan.",
+    "fullPortal": "Buka portal penuh",
+    "viewAll": "Lihat semua",
+    "noProjectTitle": "Belum ada projek ditugaskan",
+    "noProjectBody": "Minta pengurus projek atau pentadbir syarikat menambah akaun ini ke pasukan projek. Rekod projek akan muncul selepas tugasan disimpan."
+  },
   "siteGps": {
     "title": "GPS kakitangan tapak",
     "count": "{count} orang menghantar lokasi",
@@ -827,6 +835,12 @@
     "empty": "Tiada lokasi semasa",
     "live": "Masa nyata",
     "stale": "Lama",
+    "error": {
+      "unsupported": "Pelayar ini tidak menyokong perkongsian lokasi.",
+      "permissionDenied": "Kebenaran lokasi ditolak. Benarkan akses lokasi dalam tetapan pelayar dan cuba lagi.",
+      "unavailable": "Lokasi semasa tidak dapat ditentukan. Semak perkhidmatan lokasi peranti dan cuba lagi.",
+      "timeout": "Lokasi mengambil masa terlalu lama. Beralih ke kawasan dengan isyarat GPS yang lebih jelas dan cuba lagi."
+    },
     "event": {
       "POSITION": "Lokasi",
       "GEOFENCE_ENTER": "Masuk geofence",

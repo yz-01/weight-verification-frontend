@@ -875,6 +875,14 @@
       "refresh": "Refreshes every 15 seconds"
     }
   },
+  "fieldStaffWorkspace": {
+    "title": "Field staff workspace",
+    "subtitle": "Your assigned project records and the linked recycler weighings.",
+    "fullPortal": "Open full portal",
+    "viewAll": "View all",
+    "noProjectTitle": "No project is assigned yet",
+    "noProjectBody": "Ask your project manager or company administrator to add this account to the project team. Project records will appear after the assignment is saved."
+  },
   "siteGps": {
     "title": "Site personnel GPS",
     "count": "{count} people reporting",
@@ -889,6 +897,12 @@
     "empty": "No current positions",
     "live": "Live",
     "stale": "Stale",
+    "error": {
+      "unsupported": "This browser does not support location sharing.",
+      "permissionDenied": "Location permission was denied. Allow location access in your browser settings and try again.",
+      "unavailable": "Your current location could not be determined. Check the device location service and try again.",
+      "timeout": "Location took too long to respond. Move to an area with a clearer GPS signal and try again."
+    },
     "event": {
       "POSITION": "Position",
       "GEOFENCE_ENTER": "Geofence enter",

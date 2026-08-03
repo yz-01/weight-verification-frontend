@@ -1,5 +1,5 @@
-import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
+import { FieldStaffWorkspace } from "@/components/field-staff/field-staff-workspace";
 
 export default function FieldStaffPage() {
-  return <FieldStaffGps />;
+  return <FieldStaffWorkspace />;
 }

@@ -187,6 +187,12 @@ export interface WeighSessionRow {
   scale_name: string;
   site: string;
   site_name: string;
+  dispatch_no: string | null;
+  project: string | null;
+  project_code: string | null;
+  project_name: string | null;
+  recycler: string | null;
+  recycler_name: string | null;
   vehicle_plate: string;
   direction: WeighDirection;
   state: SessionState;

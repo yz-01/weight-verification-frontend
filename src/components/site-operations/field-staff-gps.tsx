@@ -10,6 +10,7 @@ import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth-provider";
+import { ApiError } from "@/interfaces/api";
 import type { FieldStaffPosition } from "@/interfaces/site-operations";
 import { getProjects } from "@/services/contractor.service";
 import {
@@ -23,6 +24,7 @@ export function FieldStaffGps() {
   const queryClient = useQueryClient();
   const [projectId, setProjectId] = useState("");
   const [sharing, setSharing] = useState(false);
+  const [sharingError, setSharingError] = useState("");
   const watchId = useRef<number | null>(null);
   const lastSentAt = useRef(0);
 
@@ -42,7 +44,14 @@ export function FieldStaffGps() {
   const record = useMutation({
     mutationFn: recordFieldStaffPosition,
     onSuccess: () => {
+      setSharingError("");
       void queryClient.invalidateQueries({ queryKey: ["field-staff-gps"] });
+    },
+    onError: (error) => {
+      stopSharing();
+      setSharingError(
+        error instanceof ApiError ? error.message : t("errors.generic"),
+      );
     },
   });
 
@@ -91,7 +100,12 @@ export function FieldStaffGps() {
   }
 
   function startSharing() {
-    if (!projectId || !navigator.geolocation || !user) return;
+    setSharingError("");
+    if (!projectId || !user) return;
+    if (!navigator.geolocation) {
+      setSharingError(t("siteGps.error.unsupported"));
+      return;
+    }
     stopSharing();
     setSharing(true);
     watchId.current = navigator.geolocation.watchPosition(
@@ -101,14 +115,23 @@ export function FieldStaffGps() {
         lastSentAt.current = now;
         record.mutate({
           project: projectId,
-          latitude: String(position.coords.latitude),
-          longitude: String(position.coords.longitude),
-          accuracy_m: String(position.coords.accuracy),
+          latitude: position.coords.latitude.toFixed(7),
+          longitude: position.coords.longitude.toFixed(7),
+          accuracy_m: position.coords.accuracy.toFixed(2),
           original_occurred_at: new Date(position.timestamp).toISOString(),
           client_event_id: `${user.id}-${position.timestamp}`,
         });
       },
-      () => stopSharing(),
+      (error) => {
+        stopSharing();
+        const key =
+          error.code === error.PERMISSION_DENIED
+            ? "permissionDenied"
+            : error.code === error.POSITION_UNAVAILABLE
+              ? "unavailable"
+              : "timeout";
+        setSharingError(t(`siteGps.error.${key}`));
+      },
       { enableHighAccuracy: true, maximumAge: 10_000, timeout: 15_000 },
     );
   }
@@ -156,6 +179,11 @@ export function FieldStaffGps() {
         )}
         {sharing && (
           <StatusBadge label={t("siteGps.sharing")} tone="positive" />
+        )}
+        {sharingError && (
+          <p role="alert" className="w-full text-sm text-destructive">
+            {sharingError}
+          </p>
         )}
       </div>
 
