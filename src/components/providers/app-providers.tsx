@@ -6,6 +6,8 @@ import { useState } from "react";
 
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { LocaleSync } from "@/components/providers/locale-sync";
+import { OfflineSyncProvider } from "@/components/providers/offline-sync-provider";
+import { ServiceWorkerRegistration } from "@/components/providers/service-worker-registration";
 import { TranslationBridge } from "@/components/providers/translation-bridge";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -52,7 +54,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       >
         <AuthProvider>
           <LocaleSync />
-          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+          <ServiceWorkerRegistration />
+          <OfflineSyncProvider>
+            <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+          </OfflineSyncProvider>
           <Toaster position="top-right" richColors closeButton />
         </AuthProvider>
       </ThemeProvider>

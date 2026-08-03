@@ -144,6 +144,31 @@ export interface GatewayDevice {
   created_at: string;
 }
 
+export interface GatewayInstallerManifest {
+  version: number;
+  device_id: string;
+  site_id: string;
+  site_name: string;
+  scale_id: string;
+  scale_name: string;
+  protocol: string;
+  unit: string;
+  ingest_url: string;
+  heartbeat_url: string;
+  auth: {
+    device_id_header: string;
+    signature_header: string;
+    signature: string;
+    secret: string;
+  };
+  delivery: {
+    persist_sequence_on_gateway: boolean;
+    retry_on: number[];
+    backoff_seconds: number[];
+    batch_size: number;
+  };
+}
+
 export interface WeighAnomaly {
   id: string;
   code: AnomalyCode;

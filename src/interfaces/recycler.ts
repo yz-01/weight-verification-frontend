@@ -115,11 +115,27 @@ export interface TaskPhoto {
   id: string;
   kind: "ARRIVAL" | "LOADING" | "LOADED" | "PLATE" | "ISSUE" | "OTHER";
   image: string;
+  client_event_id: string;
   caption: string;
   latitude: string | null;
   longitude: string | null;
   taken_at: string | null;
   created_at: string;
+}
+
+export interface DriverTaskTransition {
+  id: string;
+  client_event_id: string;
+  from_state: TaskState;
+  to_state: TaskState;
+  original_occurred_at: string;
+  uploaded_at: string;
+  latitude: string | null;
+  longitude: string | null;
+  notes: string;
+  reason: string;
+  recorded_by: string;
+  recorded_by_name: string;
 }
 
 export interface DriverTask {
@@ -143,6 +159,14 @@ export interface DriverTask {
 
 export interface DriverTaskDetail extends DriverTask {
   project_name: string | null;
+  project_address_line_1: string;
+  project_address_line_2: string;
+  project_city: string;
+  project_state: string;
+  project_postcode: string;
+  project_latitude: string | null;
+  project_longitude: string | null;
+  project_geofence_radius_m: number | null;
   contractor_name: string | null;
   accepted_at: string | null;
   arrived_at: string | null;
@@ -152,8 +176,43 @@ export interface DriverTaskDetail extends DriverTask {
   notes: string;
   failure_reason: string;
   photos: TaskPhoto[];
+  transitions: DriverTaskTransition[];
   created_at: string;
   updated_at: string;
+}
+
+export type TaskPositionEvent =
+  | "POSITION"
+  | "ARRIVAL"
+  | "GEOFENCE_ENTER"
+  | "GEOFENCE_EXIT";
+
+export interface DriverTaskPosition {
+  id: string;
+  task: string;
+  recorded_by: string;
+  client_event_id: string;
+  event_type: TaskPositionEvent;
+  latitude: string;
+  longitude: string;
+  accuracy_m: string | null;
+  original_occurred_at: string;
+  uploaded_at: string;
+  distance_to_project_m: string | null;
+  geofence_result: "INSIDE" | "OUTSIDE" | "NOT_EVALUATED";
+  is_stale?: boolean;
+  created_at: string;
+}
+
+export interface DriverTaskLivePosition extends DriverTaskPosition {
+  task_no: string;
+  driver_name: string;
+  vehicle_plate: string;
+  project_name: string | null;
+  project_latitude: string | null;
+  project_longitude: string | null;
+  project_geofence_radius_m: number | null;
+  is_stale: boolean;
 }
 
 export interface DriverTaskPayload {
@@ -273,6 +332,46 @@ export interface DeductionPayload {
 export type DeductionDecision = "ACCEPT" | "REJECT" | "RECHECK";
 
 export type SettlementState = "DRAFT" | "ISSUED" | "LOCKED";
+
+export const SETTLEMENT_STATES: SettlementState[] = [
+  "DRAFT",
+  "ISSUED",
+  "LOCKED",
+];
+
+export interface TransactionCurrencySummary {
+  currency: string;
+  transactions: number;
+  net_weight_kg: string | null;
+  deduction_weight_kg: string | null;
+  settled_weight_kg: string | null;
+  total_amount: string | null;
+  amount_paid: string | null;
+  outstanding: string | null;
+}
+
+export interface TransactionStateSummary {
+  state: SettlementState;
+  currency: string;
+  transactions: number;
+  settled_weight_kg: string | null;
+  total_amount: string | null;
+}
+
+export interface TransactionWasteTypeSummary {
+  waste_type: string;
+  currency: string;
+  transactions: number;
+  settled_weight_kg: string | null;
+  total_amount: string | null;
+}
+
+export interface TransactionReport {
+  total_transactions: number;
+  by_currency: TransactionCurrencySummary[];
+  by_state: TransactionStateSummary[];
+  by_waste_type: TransactionWasteTypeSummary[];
+}
 
 export type PaymentMethod =
   | "BANK_TRANSFER"

@@ -2,11 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { AlertTriangle, Eye, Flag } from "lucide-react";
+import { AlertTriangle, Eye, Flag, ScanLine } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   ListHeader,
@@ -31,6 +32,7 @@ export function WeighSessions() {
   const t = useTranslations();
   const df = useDateFormat();
   const formatter = useFormatter();
+  const { can } = useAuth();
   const list = useListQuery(FILTER_KEYS);
 
   const { data, isLoading, isError } = useQuery({
@@ -262,6 +264,16 @@ export function WeighSessions() {
       <ListHeader
         title={t("weighing.title")}
         subtitle={isLoading ? "—" : t("weighing.count", { count: totalCount })}
+        action={
+          can("weighing.operate") ? (
+            <Button asChild size="sm" className="rounded-full px-4">
+              <Link href="/gate">
+                <ScanLine className="h-3.5 w-3.5" />
+                {t("gate.title")}
+              </Link>
+            </Button>
+          ) : undefined
+        }
       />
 
       <DataTable
