@@ -7,15 +7,17 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { AuditEntryDialog } from "@/components/audit/audit-entry-dialog";
+import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { AuditAction, AuditLogEntry } from "@/interfaces/audit";
 import { getAuditLogs } from "@/services/audit.service";
+import { getCompanies } from "@/services/companies.service";
 import { useDateFormat } from "@/lib/dates";
 
-const FILTER_KEYS = ["action"];
+const FILTER_KEYS = ["action", "company"];
 
 /**
  * How each action reads.
@@ -55,12 +57,18 @@ const FILTERABLE_ACTIONS: AuditAction[] = [
 export function AuditLogs() {
   const t = useTranslations();
   const df = useDateFormat();
+  const { user } = useAuth();
   const list = useListQuery(FILTER_KEYS);
   const [viewing, setViewing] = useState<AuditLogEntry | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["audit-logs", list.query],
     queryFn: () => getAuditLogs(list.query),
+  });
+  const companies = useQuery({
+    queryKey: ["companies", "audit-options"],
+    queryFn: () => getCompanies({ page_size: 100, sort_by: "name" }),
+    enabled: Boolean(user?.is_platform_staff),
   });
 
   const columns = useMemo<ColumnDef<AuditLogEntry, unknown>[]>(
@@ -228,6 +236,24 @@ export function AuditLogs() {
         title={t("audit.title")}
         subtitle={isLoading ? "—" : t("audit.count", { count: totalCount })}
       />
+
+      {user?.is_platform_staff && (
+        <select
+          className="h-9 w-full max-w-sm rounded-md border bg-background px-3 text-sm"
+          value={list.filters.company ?? ""}
+          aria-label={t("audit.companyFilter")}
+          onChange={(event) =>
+            list.setFilter("company", event.target.value || undefined)
+          }
+        >
+          <option value="">{t("audit.allCompanies")}</option>
+          {(companies.data?.results ?? []).map((company) => (
+            <option key={company.id} value={company.id}>
+              {company.code} / {company.name}
+            </option>
+          ))}
+        </select>
+      )}
 
       <DataTable
         columns={columns}

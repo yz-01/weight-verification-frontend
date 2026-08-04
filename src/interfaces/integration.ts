@@ -35,10 +35,13 @@ export interface IntegrationConfig {
 export interface IntegrationDelivery {
   id: string;
   integration: string;
+  integration_name: string;
+  event_type: string;
   status: "PENDING" | "SENT" | "FAILED";
   response_status: number | null;
   error: string;
   attempted_at: string;
+  created_at: string;
 }
 
 export interface IntegrationDevice {

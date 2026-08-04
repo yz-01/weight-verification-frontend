@@ -67,6 +67,16 @@ export async function deleteIntegration(
   toastSuccess("integrations.toast.removed");
 }
 
+export function getIntegrationDeliveries(
+  id: string,
+  query: ListQuery = {},
+): Promise<Paginated<IntegrationDelivery>> {
+  return api.list<IntegrationDelivery>(
+    `/api/integrations/${id}/get_deliveries/`,
+    query,
+  );
+}
+
 export function getIntegrationDevices(
   query: ListQuery = {},
 ): Promise<Paginated<IntegrationDevice>> {

@@ -162,6 +162,7 @@
     "material_quantity_report": "Kuantiti bahan",
     "material_cost_report": "Kos bahan",
     "user_logs": "Log pengguna",
+    "activity_logs": "Log aktiviti",
     "partnerships": "Kerjasama kontraktor",
     "yards": "Tapak kitar semula",
     "weighbridges": "Jambatan timbang",
@@ -195,6 +196,19 @@
     "test": {
       "passedAt": "Sambungan boleh dicapai · {date}",
       "failedDetail": "Sambungan gagal · {error}"
+    },
+    "history": {
+      "action": "Lihat sejarah ujian",
+      "title": "Sejarah ujian: {name}",
+      "description": "Keputusan ujian sambungan tidak boleh diubah. Data permintaan sensitif tidak dipaparkan.",
+      "empty": "Tiada ujian sambungan direkodkan.",
+      "loadError": "Sejarah ujian tidak dapat dimuatkan.",
+      "httpStatus": "HTTP {status}",
+      "status": {
+        "PENDING": "Menunggu",
+        "SENT": "Lulus",
+        "FAILED": "Gagal"
+      }
     },
     "field": {
       "kind": "Jenis integrasi",
@@ -1279,6 +1293,8 @@
     }
   },
   "audit": {
+    "companyFilter": "Tapis mengikut syarikat",
+    "allCompanies": "Semua syarikat",
     "title": "Log audit",
     "count": "{count, plural, =0 {Tiada rekod} other {# rekod}}",
     "field": {

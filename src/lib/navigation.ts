@@ -13,6 +13,7 @@ import {
   FileText,
   FolderArchive,
   Gauge,
+  History,
   Handshake,
   Inbox,
   KeyRound,
@@ -56,6 +57,7 @@ export type PortalFeatureKey =
   | "users"
   | "roles"
   | "user_logs"
+  | "activity_logs"
   | "partnerships"
   | "yards"
   | "weighbridges"
@@ -139,6 +141,7 @@ export const PORTAL_NAVIGATION = {
       undefined,
       true,
     ),
+    item("activity_logs", "/audit-logs", History, "system"),
   ],
   MSE_TRACE: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
@@ -179,9 +182,8 @@ export const PORTAL_NAVIGATION = {
     item("users", "/users", Users, "system"),
     item("roles", "/roles", KeyRound, "system"),
     item("integrations", "/integrations", SlidersHorizontal, "system"),
-    item("user_logs", "/login-records", FileClock, "system", [
-      "/audit-logs",
-    ]),
+    item("user_logs", "/login-records", FileClock, "system"),
+    item("activity_logs", "/audit-logs", History, "system"),
     item("notifications", "/notifications", Bell, "system"),
   ],
   MSE_SCRAP: [
@@ -223,9 +225,8 @@ export const PORTAL_NAVIGATION = {
     item("users", "/users", Users, "system"),
     item("roles", "/roles", KeyRound, "system"),
     item("integrations", "/integrations", SlidersHorizontal, "system"),
-    item("user_logs", "/login-records", FileClock, "system", [
-      "/audit-logs",
-    ]),
+    item("user_logs", "/login-records", FileClock, "system"),
+    item("activity_logs", "/audit-logs", History, "system"),
     item("notifications", "/notifications", Bell, "system"),
   ],
 } as const satisfies Record<Portal, readonly FeatureNavItem[]>;

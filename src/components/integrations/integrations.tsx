@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Cable, Check, Plus, RefreshCw, TestTube2, Trash2 } from "lucide-react";
+import { Cable, Check, History, Plus, RefreshCw, TestTube2, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -9,11 +9,19 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CompanyType } from "@/interfaces/company";
 import type {
   IntegrationConfig,
+  IntegrationDelivery,
   IntegrationDevice,
   IntegrationDevicePayload,
   IntegrationKind,
@@ -26,6 +34,7 @@ import {
   deleteIntegration,
   deleteIntegrationDevice,
   getIntegrationDevices,
+  getIntegrationDeliveries,
   getIntegrations,
   testIntegration,
   updateIntegration,
@@ -74,6 +83,8 @@ export function Integrations() {
     null,
   );
   const [removingIntegration, setRemovingIntegration] =
+    useState<IntegrationConfig | null>(null);
+  const [historyIntegration, setHistoryIntegration] =
     useState<IntegrationConfig | null>(null);
 
   const companies = useQuery({
@@ -430,6 +441,16 @@ export function Integrations() {
                   }
                 />
                 <div className="flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    title={t("integrations.history.action")}
+                    aria-label={t("integrations.history.action")}
+                    onClick={() => setHistoryIntegration(row)}
+                  >
+                    <History className="h-4 w-4" />
+                  </Button>
                   {can("integration.manage") && (
                     <>
                       <Button
@@ -709,7 +730,103 @@ export function Integrations() {
           onConfirm={() => removeIntegration.mutate(removingIntegration)}
         />
       )}
+
+      {historyIntegration && (
+        <IntegrationHistoryDialog
+          integration={historyIntegration}
+          company={user?.is_platform_staff ? selectedCompany : undefined}
+          onClose={() => setHistoryIntegration(null)}
+        />
+      )}
     </div>
+  );
+}
+
+function IntegrationHistoryDialog({
+  integration,
+  company,
+  onClose,
+}: {
+  integration: IntegrationConfig;
+  company?: string;
+  onClose: () => void;
+}) {
+  const t = useTranslations();
+  const history = useQuery({
+    queryKey: ["integration-deliveries", integration.id, company],
+    queryFn: () =>
+      getIntegrationDeliveries(integration.id, {
+        page_size: 50,
+        sort_by: "attempted_at",
+        sort_order: "desc",
+        ...(company ? { company } : {}),
+      }),
+  });
+  const rows: IntegrationDelivery[] = history.data?.results ?? [];
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
+            {t("integrations.history.title", { name: integration.name })}
+          </DialogTitle>
+          <DialogDescription>
+            {t("integrations.history.description")}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="divide-y border-y">
+          {history.isLoading ? (
+            <p className="px-3 py-8 text-center text-muted-foreground">
+              {t("common.loading")}
+            </p>
+          ) : history.isError ? (
+            <p className="px-3 py-8 text-center text-destructive">
+              {t("integrations.history.loadError")}
+            </p>
+          ) : rows.length === 0 ? (
+            <p className="px-3 py-8 text-center text-muted-foreground">
+              {t("integrations.history.empty")}
+            </p>
+          ) : (
+            rows.map((row) => (
+              <div
+                key={row.id}
+                className="grid gap-2 px-3 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-center"
+              >
+                <StatusBadge
+                  label={t(`integrations.history.status.${row.status}`)}
+                  tone={
+                    row.status === "SENT"
+                      ? "positive"
+                      : row.status === "FAILED"
+                        ? "danger"
+                        : "neutral"
+                  }
+                />
+                <div className="min-w-0">
+                  <p className="text-sm">
+                    {new Date(row.attempted_at).toLocaleString()}
+                  </p>
+                  {row.error && (
+                    <p className="break-words text-xs text-destructive">
+                      {row.error}
+                    </p>
+                  )}
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {row.response_status
+                    ? t("integrations.history.httpStatus", {
+                        status: row.response_status,
+                      })
+                    : t("common.emptyValue")}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
