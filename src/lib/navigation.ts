@@ -133,6 +133,7 @@ export const PORTAL_NAVIGATION = {
       ["/companies", "/users/create"],
     ),
     item("integrations", "/integrations", SlidersHorizontal, "system"),
+    item("activity_logs", "/audit-logs", History, "system"),
     item(
       "transaction_reports",
       "/reports",
@@ -141,7 +142,6 @@ export const PORTAL_NAVIGATION = {
       undefined,
       true,
     ),
-    item("activity_logs", "/audit-logs", History, "system"),
   ],
   MSE_TRACE: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
