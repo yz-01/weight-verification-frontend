@@ -43,7 +43,7 @@ export interface CompanyRow {
   subscription_started_on: string | null;
   subscription_months: 1 | 3 | 6 | 12 | null;
   subscription_expires_on: string | null;
-  subscription_expiry_is_custom: boolean;
+  subscription_expiry_is_custom: boolean | null;
   review_status: CompanyReviewStatus;
   created_at: string;
 }
@@ -76,7 +76,7 @@ export interface CompanyDetail {
   subscription_started_on: string | null;
   subscription_months: 1 | 3 | 6 | 12 | null;
   subscription_expires_on: string | null;
-  subscription_expiry_is_custom: boolean;
+  subscription_expiry_is_custom: boolean | null;
   review_status: CompanyReviewStatus;
   reviewed_at: string | null;
   reviewed_by: string | null;
