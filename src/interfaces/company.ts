@@ -40,6 +40,10 @@ export interface CompanyRow {
   plan_name: string | null;
   project_limit: number | null;
   project_limit_override: number | null;
+  subscription_started_on: string | null;
+  subscription_months: 1 | 3 | 6 | 12 | null;
+  subscription_expires_on: string | null;
+  subscription_expiry_is_custom: boolean;
   review_status: CompanyReviewStatus;
   created_at: string;
 }
@@ -69,6 +73,10 @@ export interface CompanyDetail {
   plan_name: string | null;
   project_limit: number | null;
   project_limit_override: number | null;
+  subscription_started_on: string | null;
+  subscription_months: 1 | 3 | 6 | 12 | null;
+  subscription_expires_on: string | null;
+  subscription_expiry_is_custom: boolean;
   review_status: CompanyReviewStatus;
   reviewed_at: string | null;
   reviewed_by: string | null;
@@ -97,6 +105,9 @@ export interface CompanyPayload {
   timezone?: string;
   plan?: string | null;
   project_limit_override?: number | null;
+  subscription_months?: 1 | 3 | 6 | 12 | null;
+  subscription_expires_on?: string | null;
+  subscription_expiry_is_custom?: boolean;
 }
 
 export interface CompanyStatusPayload {

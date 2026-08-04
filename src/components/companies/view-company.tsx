@@ -149,6 +149,32 @@ export function ViewCompany({ id }: { id: string }) {
                     : String(data.project_limit_override)
                 }
               />
+              <ReadField
+                label={t("companies.field.subscriptionMonths")}
+                value={
+                  data.subscription_months
+                    ? t("companies.subscriptionPeriod", {
+                        months: data.subscription_months,
+                      })
+                    : null
+                }
+              />
+              <ReadField
+                label={t("companies.field.subscriptionStartedOn")}
+                value={
+                  data.subscription_started_on
+                    ? df.date(data.subscription_started_on)
+                    : null
+                }
+              />
+              <ReadField
+                label={t("companies.field.subscriptionExpiresOn")}
+                value={
+                  data.subscription_expires_on
+                    ? df.date(data.subscription_expires_on)
+                    : t("companies.noSubscriptionExpiry")
+                }
+              />
             </FormSection>
           )}
 

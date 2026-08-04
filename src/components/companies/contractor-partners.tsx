@@ -206,7 +206,9 @@ export function ContractorPartners() {
         cell: ({ row }) => {
           const company = row.original;
           const suspended =
-            company.status === "SUSPENDED" || company.status === "CLOSED";
+            company.status === "SUSPENDED" ||
+            company.status === "OVERDUE" ||
+            company.status === "CLOSED";
           return (
             <div className="flex items-center justify-end gap-0.5">
               <Button
@@ -245,6 +247,22 @@ export function ContractorPartners() {
             </div>
           );
         },
+      },
+      {
+        accessorKey: "subscription_expires_on",
+        meta: { label: t("companies.field.subscriptionExpiresOn") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("companies.field.subscriptionExpiresOn")}
+          </span>
+        ),
+        cell: ({ row }) => (
+          <span className="tabular whitespace-nowrap text-muted-foreground">
+            {row.original.subscription_expires_on
+              ? df.date(row.original.subscription_expires_on)
+              : t("companies.noSubscriptionExpiry")}
+          </span>
+        ),
       },
     ],
     [can, df, t],

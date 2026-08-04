@@ -96,6 +96,10 @@ export function CreateCompany({
       plan: company?.plan ?? "",
       project_limit_override:
         company?.project_limit_override?.toString() ?? "",
+      subscription_months: company?.subscription_months?.toString() ?? "1",
+      subscription_expires_on: company?.subscription_expiry_is_custom
+        ? (company.subscription_expires_on ?? "")
+        : "",
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -106,6 +110,18 @@ export function CreateCompany({
           ...value,
           type,
         };
+        const subscriptionMonths = Number(
+          value.subscription_months,
+        ) as 1 | 3 | 6 | 12;
+        const customExpiry = value.subscription_expires_on || null;
+        const subscriptionChanged =
+          !isEdit ||
+          value.plan !== company.plan ||
+          subscriptionMonths !== (company.subscription_months ?? 1) ||
+          customExpiry !==
+            (company.subscription_expiry_is_custom
+              ? company.subscription_expires_on
+              : null);
         const payload: CompanyPayload =
           type === "CONTRACTOR"
             ? {
@@ -113,11 +129,23 @@ export function CreateCompany({
                 plan: value.plan || null,
                 project_limit_override:
                   override === "" ? null : Number(override),
+                subscription_months: subscriptionChanged
+                  ? subscriptionMonths
+                  : undefined,
+                subscription_expires_on: subscriptionChanged
+                  ? customExpiry
+                  : undefined,
+                subscription_expiry_is_custom: subscriptionChanged
+                  ? Boolean(customExpiry)
+                  : undefined,
               }
             : {
                 ...basePayload,
                 plan: undefined,
                 project_limit_override: undefined,
+                subscription_months: undefined,
+                subscription_expires_on: undefined,
+                subscription_expiry_is_custom: undefined,
               };
         await mutation.mutateAsync({
           ...payload,
@@ -277,6 +305,33 @@ export function CreateCompany({
                     min={1}
                     step={1}
                     hint={t("companies.projectLimitOverrideHint")}
+                  />
+                )}
+              </form.Field>
+
+              <form.Field name="subscription_months">
+                {(field) => (
+                  <SelectField
+                    field={field as unknown as BoundField}
+                    label={t("companies.field.subscriptionMonths")}
+                    required
+                    hint={t("companies.subscriptionMonthsHint")}
+                    options={[1, 3, 6, 12].map((months) => ({
+                      value: String(months),
+                      label: t("companies.subscriptionPeriod", { months }),
+                    }))}
+                  />
+                )}
+              </form.Field>
+
+              <form.Field name="subscription_expires_on">
+                {(field) => (
+                  <TextField
+                    field={field as unknown as BoundField}
+                    label={t("companies.field.subscriptionExpiresOn")}
+                    optional
+                    type="date"
+                    hint={t("companies.subscriptionExpiryHint")}
                   />
                 )}
               </form.Field>
