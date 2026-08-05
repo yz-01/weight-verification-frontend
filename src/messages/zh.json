@@ -1552,6 +1552,13 @@
     "genericBody": "请重试。如果反复出现，请联系客服。",
     "backToDashboard": "返回仪表板",
     "api": {
+      "company_bank_account_not_found": "找不到该银行账号。",
+      "company_document_not_found": "找不到该公司文件。",
+      "company_onboarding_incomplete": "该公司的入驻资料未齐全，无法通过审核。",
+      "company_seat_limit_reached": "该公司已用完套餐内的所有账号，请升级套餐后再新增。",
+      "commission_rule_not_found": "找不到该佣金规则。",
+      "invoice_not_found": "找不到该账单。",
+      "payment_not_found": "找不到该付款记录。",
       "company_not_found": "找不到这家公司。",
       "company_subscription_expired": "请先续订该建筑商的配套，再启用公司。",
       "user_not_found": "找不到这位用户。",
