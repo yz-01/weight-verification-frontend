@@ -66,6 +66,7 @@ export interface DriverPayload {
   licence_no?: string;
   licence_expires_on?: string | null;
   default_vehicle?: string | null;
+  user?: string | null;
   is_active?: boolean;
 }
 

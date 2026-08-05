@@ -2,13 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Ban, Info, PackageCheck } from "lucide-react";
+import { Info, PackageCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   ListHeader,
@@ -32,7 +31,6 @@ import { useDateFormat } from "@/lib/dates";
 import {
   collectDispatch,
   getIncoming,
-  rejectDispatch,
 } from "@/services/recycler.service";
 
 /**
@@ -52,8 +50,6 @@ export function Incoming() {
   const list = useListQuery(["state"]);
 
   const [collecting, setCollecting] = useState<WasteDispatch | null>(null);
-  const [rejecting, setRejecting] = useState<WasteDispatch | null>(null);
-  const [reason, setReason] = useState("");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["incoming", list.query],
@@ -64,15 +60,6 @@ export function Incoming() {
     void queryClient.invalidateQueries({ queryKey: ["incoming"] });
     void queryClient.invalidateQueries({ queryKey: ["dispatches"] });
   }
-
-  const rejection = useMutation({
-    mutationFn: (id: string) => rejectDispatch(id, reason),
-    onSuccess: () => {
-      refresh();
-      setRejecting(null);
-      setReason("");
-    },
-  });
 
   const columns = useMemo<ColumnDef<WasteDispatch, unknown>[]>(
     () => [
@@ -205,15 +192,6 @@ export function Incoming() {
               >
                 <PackageCheck className="h-3.5 w-3.5" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                title={t("incoming.reject.confirm")}
-                onClick={() => setRejecting(row.original)}
-              >
-                <Ban className="h-3.5 w-3.5" />
-              </Button>
             </div>
           ) : null,
       },
@@ -274,25 +252,6 @@ export function Incoming() {
           load={collecting}
           onClose={() => setCollecting(null)}
           onDone={refresh}
-        />
-      )}
-
-      {rejecting && (
-        <ConfirmDialog
-          open
-          onOpenChange={() => {
-            setRejecting(null);
-            setReason("");
-          }}
-          title={t("incoming.reject.title")}
-          description={t("incoming.reject.description")}
-          confirmLabel={t("incoming.reject.confirm")}
-          confirmIcon={Ban}
-          isPending={rejection.isPending}
-          reason={reason}
-          onReasonChange={setReason}
-          reasonRequired
-          onConfirm={() => rejection.mutate(rejecting.id)}
         />
       )}
     </div>

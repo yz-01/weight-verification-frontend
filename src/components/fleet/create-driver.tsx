@@ -24,6 +24,7 @@ import { ApiError } from "@/interfaces/api";
 import type { Driver, DriverPayload } from "@/interfaces/recycler";
 import {
   createDriver,
+  getDriverAccounts,
   getDriver,
   getVehicles,
   updateDriver,
@@ -40,6 +41,10 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
   const { data: vehiclePage } = useQuery({
     queryKey: ["vehicles", "options"],
     queryFn: () => getVehicles({ page_size: 100, is_active: "true" }),
+  });
+  const { data: accountPage } = useQuery({
+    queryKey: ["driver-accounts", "options"],
+    queryFn: () => getDriverAccounts({ page_size: 100 }),
   });
 
   const mutation = useMutation({
@@ -59,6 +64,7 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
       licence_no: driver?.licence_no ?? "",
       licence_expires_on: driver?.licence_expires_on ?? "",
       default_vehicle: driver?.default_vehicle ?? "",
+      user: driver?.user ?? "",
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -67,6 +73,7 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
           ...value,
           licence_expires_on: value.licence_expires_on || null,
           default_vehicle: value.default_vehicle || null,
+          user: value.user || null,
         });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
@@ -134,6 +141,19 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
               options={(vehiclePage?.results ?? []).map((vehicle) => ({
                 value: vehicle.id,
                 label: vehicle.plate_no,
+              }))}
+            />
+          )}
+        </form.Field>
+        <form.Field name="user">
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("drivers.field.account")}
+              optional
+              options={(accountPage?.results ?? []).map((account) => ({
+                value: account.id,
+                label: `${account.full_name} (${account.email})`,
               }))}
             />
           )}

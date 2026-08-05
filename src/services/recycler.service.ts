@@ -48,18 +48,6 @@ export async function collectDispatch(
   return dispatch;
 }
 
-export async function rejectDispatch(
-  id: string,
-  reason: string,
-): Promise<WasteDispatch> {
-  const dispatch = await api.post<WasteDispatch>(
-    `/api/dispatches/${id}/reject_dispatch/`,
-    { reason },
-  );
-  toastSuccess("incoming.toast.rejected");
-  return dispatch;
-}
-
 export function getVehicles(query: ListQuery): Promise<Paginated<Vehicle>> {
   return api.list<Vehicle>("/api/vehicles/get_vehicles/", query);
 }
@@ -116,6 +104,21 @@ export async function setVehicleTare(
 
 export function getDrivers(query: ListQuery): Promise<Paginated<Driver>> {
   return api.list<Driver>("/api/drivers/get_drivers/", query);
+}
+
+export interface DriverAccountOption {
+  id: string;
+  full_name: string;
+  email: string;
+}
+
+export function getDriverAccounts(
+  query: ListQuery,
+): Promise<Paginated<DriverAccountOption>> {
+  return api.list<DriverAccountOption>(
+    "/api/drivers/get_driver_accounts/",
+    query,
+  );
 }
 
 export function getDriver(id: string): Promise<Driver> {

@@ -445,8 +445,14 @@
       "location": "GPS location",
       "note": "Note"
     },
-    "event": { "CLOCK_IN": "Clock in", "CLOCK_OUT": "Clock out" },
-    "filter": { "project": "Choose project", "allProjects": "All projects" },
+    "event": {
+      "CLOCK_IN": "Clock in",
+      "CLOCK_OUT": "Clock out"
+    },
+    "filter": {
+      "project": "Choose project",
+      "allProjects": "All projects"
+    },
     "clock": {
       "action": "Record attendance",
       "title": "Record attendance",
@@ -458,7 +464,9 @@
       "locationRequired": "Capture GPS before saving attendance.",
       "confirm": "Save attendance"
     },
-    "toast": { "recorded": "Attendance recorded" }
+    "toast": {
+      "recorded": "Attendance recorded"
+    }
   },
   "progress": {
     "title": "Project progress",
@@ -474,9 +482,16 @@
       "description": "Description",
       "photo": "Photo"
     },
-    "filter": { "project": "Choose project", "allProjects": "All projects" },
-    "action": { "viewPhoto": "View photo" },
-    "form": { "description": "Record the measured progress and supporting site evidence." },
+    "filter": {
+      "project": "Choose project",
+      "allProjects": "All projects"
+    },
+    "action": {
+      "viewPhoto": "View photo"
+    },
+    "form": {
+      "description": "Record the measured progress and supporting site evidence."
+    },
     "remove": {
       "title": "Remove {name}?",
       "description": "This progress update will be removed from the project timeline.",
@@ -510,10 +525,24 @@
       "allProjects": "All projects",
       "allSeverities": "All severities"
     },
-    "severity": { "LOW": "Low", "MEDIUM": "Medium", "HIGH": "High", "CRITICAL": "Critical" },
-    "status": { "OPEN": "Open", "INVESTIGATING": "Investigating", "RESOLVED": "Resolved" },
-    "evidence": { "location": "GPS evidence", "photo": "Open photo" },
-    "action": { "updateStatus": "Update status" },
+    "severity": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "status": {
+      "OPEN": "Open",
+      "INVESTIGATING": "Investigating",
+      "RESOLVED": "Resolved"
+    },
+    "evidence": {
+      "location": "GPS evidence",
+      "photo": "Open photo"
+    },
+    "action": {
+      "updateStatus": "Update status"
+    },
     "form": {
       "description": "Record what happened, where it happened and the supporting evidence.",
       "captureLocation": "Capture GPS",
@@ -524,7 +553,10 @@
       "title": "Update incident status",
       "description": "Update {incident} and retain the resolution history."
     },
-    "toast": { "created": "Safety incident reported", "updated": "Safety incident updated" }
+    "toast": {
+      "created": "Safety incident reported",
+      "updated": "Safety incident updated"
+    }
   },
   "paymentProofs": {
     "title": "Payment proofs",
@@ -543,8 +575,15 @@
       "amount": "Amount",
       "document": "Document"
     },
-    "status": { "UNPAID": "Unpaid", "PARTIAL": "Partially paid", "PAID": "Paid" },
-    "filter": { "project": "Choose project", "allProjects": "All projects" },
+    "status": {
+      "UNPAID": "Unpaid",
+      "PARTIAL": "Partially paid",
+      "PAID": "Paid"
+    },
+    "filter": {
+      "project": "Choose project",
+      "allProjects": "All projects"
+    },
     "action": {
       "viewProofs": "View payment proofs",
       "viewSettlement": "View settlement",
@@ -557,7 +596,9 @@
     }
   },
   "materialReports": {
-    "export": { "subtitle": "Filtered material records from MSE Trace" },
+    "export": {
+      "subtitle": "Filtered material records from MSE Trace"
+    },
     "quantity": {
       "title": "Material quantity report",
       "subtitle": "Received quantities grouped without mixing incompatible units.",
@@ -589,8 +630,18 @@
       "projects": "Bound projects",
       "updatedAt": "Updated"
     },
-    "status": { "PENDING": "Awaiting response", "ACTIVE": "Active", "SUSPENDED": "Suspended", "REJECTED": "Rejected" },
-    "action": { "accept": "Accept", "reject": "Reject", "manageProjects": "Manage projects", "suspend": "Suspend" },
+    "status": {
+      "PENDING": "Awaiting response",
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "REJECTED": "Rejected"
+    },
+    "action": {
+      "accept": "Accept",
+      "reject": "Reject",
+      "manageProjects": "Manage projects",
+      "suspend": "Suspend"
+    },
     "request": {
       "action": "Request recycler",
       "title": "Request recycler partnership",
@@ -659,7 +710,10 @@
       "updatedAt": "Updated",
       "archiveReason": "Archive reason"
     },
-    "status": { "ACTIVE": "Active", "ARCHIVED": "Archived" },
+    "status": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Archived"
+    },
     "create": {
       "action": "New document",
       "title": "Create document",
@@ -669,7 +723,9 @@
       "title": "Edit document",
       "description": "Update the record metadata. Existing file versions are never changed."
     },
-    "detail": { "title": "Document details" },
+    "detail": {
+      "title": "Document details"
+    },
     "upload": {
       "action": "Upload version",
       "title": "Upload document version",
@@ -774,7 +830,9 @@
       "title": "Edit approval",
       "description": "Correct a draft or returned approval before resubmitting it."
     },
-    "detail": { "title": "Approval details" },
+    "detail": {
+      "title": "Approval details"
+    },
     "action": {
       "SUBMIT": "Submit",
       "REVIEW": "Start review",
@@ -784,12 +842,30 @@
       "CLOSE": "Close"
     },
     "actionDialog": {
-      "SUBMIT": { "title": "Submit {name}?", "description": "Send this request to the eligible reviewer(s)." },
-      "REVIEW": { "title": "Start review for {name}?", "description": "Record that formal review has started." },
-      "APPROVE": { "title": "Approve {name}?", "description": "Confirm that this request meets the required checks." },
-      "REJECT": { "title": "Reject {name}?", "description": "Reject this request and record the reason." },
-      "RETURN": { "title": "Return {name}?", "description": "Send this request back to the requester for correction." },
-      "CLOSE": { "title": "Close {name}?", "description": "Close this completed workflow." }
+      "SUBMIT": {
+        "title": "Submit {name}?",
+        "description": "Send this request to the eligible reviewer(s)."
+      },
+      "REVIEW": {
+        "title": "Start review for {name}?",
+        "description": "Record that formal review has started."
+      },
+      "APPROVE": {
+        "title": "Approve {name}?",
+        "description": "Confirm that this request meets the required checks."
+      },
+      "REJECT": {
+        "title": "Reject {name}?",
+        "description": "Reject this request and record the reason."
+      },
+      "RETURN": {
+        "title": "Return {name}?",
+        "description": "Send this request back to the requester for correction."
+      },
+      "CLOSE": {
+        "title": "Close {name}?",
+        "description": "Close this completed workflow."
+      }
     },
     "history": {
       "title": "Audit history",
@@ -801,7 +877,9 @@
       "time": "Time",
       "empty": "No workflow actions have been recorded."
     },
-    "validation": { "metadata": "Enter a valid JSON object." },
+    "validation": {
+      "metadata": "Enter a valid JSON object."
+    },
     "toast": {
       "created": "Approval created",
       "updated": "Approval updated",
@@ -816,7 +894,13 @@
   "evidence": {
     "title": "Evidence archive",
     "count": "{count} evidence items",
-    "kind": { "PHOTO": "Photo", "VIDEO": "Video", "SIGNATURE": "Signature", "DOCUMENT": "Document", "OTHER": "Other" },
+    "kind": {
+      "PHOTO": "Photo",
+      "VIDEO": "Video",
+      "SIGNATURE": "Signature",
+      "DOCUMENT": "Document",
+      "OTHER": "Other"
+    },
     "field": {
       "file": "File",
       "kind": "Type",
@@ -844,7 +928,11 @@
       "withGps": "With GPS",
       "withoutGps": "Without GPS"
     },
-    "action": { "view": "View evidence", "verify": "Verify integrity", "openOriginal": "Open original file" },
+    "action": {
+      "view": "View evidence",
+      "verify": "Verify integrity",
+      "openOriginal": "Open original file"
+    },
     "section": {
       "record": "Record",
       "capture": "Capture evidence",
@@ -876,7 +964,11 @@
       "search": "Search task, driver or vehicle",
       "empty": "No driver tasks found",
       "loadMore": "Load more tasks",
-      "filter": { "ALL": "All", "RUNNING": "Running", "FINISHED": "Finished" }
+      "filter": {
+        "ALL": "All",
+        "RUNNING": "Running",
+        "FINISHED": "Finished"
+      }
     },
     "route": {
       "error": "Route history could not be loaded.",
@@ -891,9 +983,20 @@
       "geofence": "Geofence",
       "distance": "{value} from project"
     },
-    "action": { "openMap": "Open location" },
-    "event": { "POSITION": "Position", "ARRIVAL": "Arrival", "GEOFENCE_ENTER": "Geofence enter", "GEOFENCE_EXIT": "Geofence exit" },
-    "geofence": { "INSIDE": "Inside", "OUTSIDE": "Outside", "NOT_EVALUATED": "Not evaluated" },
+    "action": {
+      "openMap": "Open location"
+    },
+    "event": {
+      "POSITION": "Position",
+      "ARRIVAL": "Arrival",
+      "GEOFENCE_ENTER": "Geofence enter",
+      "GEOFENCE_EXIT": "Geofence exit"
+    },
+    "geofence": {
+      "INSIDE": "Inside",
+      "OUTSIDE": "Outside",
+      "NOT_EVALUATED": "Not evaluated"
+    },
     "timeline": {
       "title": "Route timeline",
       "count": "{count} samples",
@@ -984,10 +1087,15 @@
       "REMINDER": "Reminder",
       "EXCEPTION": "Exception alert"
     },
-    "status": { "read": "Read", "unread": "Unread" },
+    "status": {
+      "read": "Read",
+      "unread": "Unread"
+    },
     "markRead": "Mark as read",
     "markAllRead": "Mark all as read",
-    "toast": { "allRead": "All notifications marked as read" }
+    "toast": {
+      "allRead": "All notifications marked as read"
+    }
   },
   "monitoring": {
     "title": "System monitoring",
@@ -1025,13 +1133,17 @@
       "ERROR": "Error",
       "CRITICAL": "Critical"
     },
-    "toast": { "captured": "Monitoring snapshot captured" }
+    "toast": {
+      "captured": "Monitoring snapshot captured"
+    }
   },
   "contractorPartners": {
     "title": "Contractor partners",
     "new": "New contractor",
     "count": "{count, plural, =0 {No contractor partners} one {# contractor partner} other {# contractor partners}}",
-    "field": { "plan": "Plan" },
+    "field": {
+      "plan": "Plan"
+    },
     "unlimitedProjects": "Unlimited projects",
     "projectLimit": "Up to {count} projects"
   },
@@ -1039,7 +1151,10 @@
     "title": "Recycler review",
     "new": "New recycler",
     "count": "{count, plural, =0 {No recyclers} one {# recycler} other {# recyclers}}",
-    "field": { "reviewStatus": "Review status", "note": "Review note" },
+    "field": {
+      "reviewStatus": "Review status",
+      "note": "Review note"
+    },
     "status": {
       "PENDING": "Pending review",
       "APPROVED": "Approved",
@@ -2179,14 +2294,8 @@
       "reference": "Your own reference",
       "referenceHint": "Optional. Use your own numbering if you run one."
     },
-    "reject": {
-      "title": "Refuse this load?",
-      "description": "Say why. The reason goes back to the site that sent it, so they know what happened to the lorry.",
-      "confirm": "Refuse"
-    },
     "toast": {
-      "collected": "Load collected",
-      "rejected": "Load refused"
+      "collected": "Load collected"
     }
   },
   "gate": {
@@ -2289,6 +2398,7 @@
       "licenceNo": "Licence no.",
       "licenceExpires": "Licence expires",
       "defaultVehicle": "Usual vehicle",
+      "account": "Driver login account",
       "isActive": "Active",
       "createdAt": "Added"
     },

@@ -445,8 +445,14 @@
       "location": "Lokasi GPS",
       "note": "Catatan"
     },
-    "event": { "CLOCK_IN": "Daftar masuk", "CLOCK_OUT": "Daftar keluar" },
-    "filter": { "project": "Pilih projek", "allProjects": "Semua projek" },
+    "event": {
+      "CLOCK_IN": "Daftar masuk",
+      "CLOCK_OUT": "Daftar keluar"
+    },
+    "filter": {
+      "project": "Pilih projek",
+      "allProjects": "Semua projek"
+    },
     "clock": {
       "action": "Rekod kehadiran",
       "title": "Rekod kehadiran",
@@ -458,7 +464,9 @@
       "locationRequired": "Rakam GPS sebelum menyimpan kehadiran.",
       "confirm": "Simpan kehadiran"
     },
-    "toast": { "recorded": "Kehadiran direkodkan" }
+    "toast": {
+      "recorded": "Kehadiran direkodkan"
+    }
   },
   "progress": {
     "title": "Kemajuan projek",
@@ -474,9 +482,16 @@
       "description": "Penerangan",
       "photo": "Foto"
     },
-    "filter": { "project": "Pilih projek", "allProjects": "Semua projek" },
-    "action": { "viewPhoto": "Lihat foto" },
-    "form": { "description": "Rekod kemajuan yang diukur dan bukti sokongan tapak." },
+    "filter": {
+      "project": "Pilih projek",
+      "allProjects": "Semua projek"
+    },
+    "action": {
+      "viewPhoto": "Lihat foto"
+    },
+    "form": {
+      "description": "Rekod kemajuan yang diukur dan bukti sokongan tapak."
+    },
     "remove": {
       "title": "Buang {name}?",
       "description": "Kemas kini kemajuan ini akan dibuang daripada garis masa projek.",
@@ -510,10 +525,24 @@
       "allProjects": "Semua projek",
       "allSeverities": "Semua tahap keterukan"
     },
-    "severity": { "LOW": "Rendah", "MEDIUM": "Sederhana", "HIGH": "Tinggi", "CRITICAL": "Kritikal" },
-    "status": { "OPEN": "Terbuka", "INVESTIGATING": "Dalam siasatan", "RESOLVED": "Diselesaikan" },
-    "evidence": { "location": "Bukti GPS", "photo": "Buka foto" },
-    "action": { "updateStatus": "Kemas kini status" },
+    "severity": {
+      "LOW": "Rendah",
+      "MEDIUM": "Sederhana",
+      "HIGH": "Tinggi",
+      "CRITICAL": "Kritikal"
+    },
+    "status": {
+      "OPEN": "Terbuka",
+      "INVESTIGATING": "Dalam siasatan",
+      "RESOLVED": "Diselesaikan"
+    },
+    "evidence": {
+      "location": "Bukti GPS",
+      "photo": "Buka foto"
+    },
+    "action": {
+      "updateStatus": "Kemas kini status"
+    },
     "form": {
       "description": "Rekod apa yang berlaku, lokasinya dan bukti sokongan.",
       "captureLocation": "Rakam GPS",
@@ -524,7 +553,10 @@
       "title": "Kemas kini status insiden",
       "description": "Kemas kini {incident} dan kekalkan sejarah penyelesaian."
     },
-    "toast": { "created": "Insiden keselamatan dilaporkan", "updated": "Insiden keselamatan dikemas kini" }
+    "toast": {
+      "created": "Insiden keselamatan dilaporkan",
+      "updated": "Insiden keselamatan dikemas kini"
+    }
   },
   "paymentProofs": {
     "title": "Bukti pembayaran",
@@ -543,8 +575,15 @@
       "amount": "Amaun",
       "document": "Dokumen"
     },
-    "status": { "UNPAID": "Belum dibayar", "PARTIAL": "Dibayar sebahagian", "PAID": "Dibayar" },
-    "filter": { "project": "Pilih projek", "allProjects": "Semua projek" },
+    "status": {
+      "UNPAID": "Belum dibayar",
+      "PARTIAL": "Dibayar sebahagian",
+      "PAID": "Dibayar"
+    },
+    "filter": {
+      "project": "Pilih projek",
+      "allProjects": "Semua projek"
+    },
     "action": {
       "viewProofs": "Lihat bukti pembayaran",
       "viewSettlement": "Lihat penyelesaian",
@@ -557,7 +596,9 @@
     }
   },
   "materialReports": {
-    "export": { "subtitle": "Rekod bahan MSE Trace yang ditapis" },
+    "export": {
+      "subtitle": "Rekod bahan MSE Trace yang ditapis"
+    },
     "quantity": {
       "title": "Laporan kuantiti bahan",
       "subtitle": "Kuantiti diterima dikumpulkan tanpa mencampurkan unit yang tidak serasi.",
@@ -589,8 +630,18 @@
       "projects": "Projek terikat",
       "updatedAt": "Dikemas kini"
     },
-    "status": { "PENDING": "Menunggu jawapan", "ACTIVE": "Aktif", "SUSPENDED": "Digantung", "REJECTED": "Ditolak" },
-    "action": { "accept": "Terima", "reject": "Tolak", "manageProjects": "Urus projek", "suspend": "Gantung" },
+    "status": {
+      "PENDING": "Menunggu jawapan",
+      "ACTIVE": "Aktif",
+      "SUSPENDED": "Digantung",
+      "REJECTED": "Ditolak"
+    },
+    "action": {
+      "accept": "Terima",
+      "reject": "Tolak",
+      "manageProjects": "Urus projek",
+      "suspend": "Gantung"
+    },
     "request": {
       "action": "Mohon pengitar semula",
       "title": "Mohon kerjasama pengitar semula",
@@ -659,7 +710,10 @@
       "updatedAt": "Dikemas kini",
       "archiveReason": "Sebab arkib"
     },
-    "status": { "ACTIVE": "Aktif", "ARCHIVED": "Diarkibkan" },
+    "status": {
+      "ACTIVE": "Aktif",
+      "ARCHIVED": "Diarkibkan"
+    },
     "create": {
       "action": "Dokumen baharu",
       "title": "Cipta dokumen",
@@ -669,7 +723,9 @@
       "title": "Sunting dokumen",
       "description": "Kemas kini metadata rekod. Versi fail sedia ada tidak pernah diubah."
     },
-    "detail": { "title": "Butiran dokumen" },
+    "detail": {
+      "title": "Butiran dokumen"
+    },
     "upload": {
       "action": "Muat naik versi",
       "title": "Muat naik versi dokumen",
@@ -677,7 +733,10 @@
       "limit": "Had saiz fail yang dikonfigurasi dikuatkuasakan semasa muat naik.",
       "confirm": "Muat naik"
     },
-    "versions": { "title": "Sejarah versi", "empty": "Belum ada versi fail dimuat naik." },
+    "versions": {
+      "title": "Sejarah versi",
+      "empty": "Belum ada versi fail dimuat naik."
+    },
     "archive": {
       "action": "Arkibkan",
       "title": "Arkibkan {name}?",
@@ -692,8 +751,18 @@
       "inactive": "Tidak aktif",
       "activeHint": "Entri aktif boleh dipilih untuk dokumen baharu."
     },
-    "categories": { "title": "Kategori", "add": "Tambah kategori", "create": "Cipta kategori", "edit": "Sunting kategori" },
-    "subcategories": { "title": "Subkategori", "add": "Tambah subkategori", "create": "Cipta subkategori", "edit": "Sunting subkategori" },
+    "categories": {
+      "title": "Kategori",
+      "add": "Tambah kategori",
+      "create": "Cipta kategori",
+      "edit": "Sunting kategori"
+    },
+    "subcategories": {
+      "title": "Subkategori",
+      "add": "Tambah subkategori",
+      "create": "Cipta subkategori",
+      "edit": "Sunting subkategori"
+    },
     "toast": {
       "categoryCreated": "Kategori dicipta",
       "categoryUpdated": "Kategori dikemas kini",
@@ -730,7 +799,10 @@
       "comment": "Catatan",
       "createdAt": "Dicipta"
     },
-    "scope": { "all": "Semua kelulusan", "mine": "Diminta oleh atau ditugaskan kepada saya" },
+    "scope": {
+      "all": "Semua kelulusan",
+      "mine": "Diminta oleh atau ditugaskan kepada saya"
+    },
     "resource": {
       "all": "Semua jenis rekod",
       "document": "Dokumen",
@@ -749,17 +821,51 @@
       "RETURNED": "Dikembalikan",
       "CLOSED": "Ditutup"
     },
-    "create": { "action": "Kelulusan baharu", "title": "Cipta kelulusan", "description": "Cipta permintaan draf yang dipautkan kepada rekod perniagaan." },
-    "edit": { "title": "Sunting kelulusan", "description": "Betulkan kelulusan draf atau dikembalikan sebelum menghantarnya semula." },
-    "detail": { "title": "Butiran kelulusan" },
-    "action": { "SUBMIT": "Hantar", "REVIEW": "Mulakan semakan", "APPROVE": "Luluskan", "REJECT": "Tolak", "RETURN": "Kembalikan", "CLOSE": "Tutup" },
+    "create": {
+      "action": "Kelulusan baharu",
+      "title": "Cipta kelulusan",
+      "description": "Cipta permintaan draf yang dipautkan kepada rekod perniagaan."
+    },
+    "edit": {
+      "title": "Sunting kelulusan",
+      "description": "Betulkan kelulusan draf atau dikembalikan sebelum menghantarnya semula."
+    },
+    "detail": {
+      "title": "Butiran kelulusan"
+    },
+    "action": {
+      "SUBMIT": "Hantar",
+      "REVIEW": "Mulakan semakan",
+      "APPROVE": "Luluskan",
+      "REJECT": "Tolak",
+      "RETURN": "Kembalikan",
+      "CLOSE": "Tutup"
+    },
     "actionDialog": {
-      "SUBMIT": { "title": "Hantar {name}?", "description": "Hantar permintaan ini kepada penyemak yang layak." },
-      "REVIEW": { "title": "Mulakan semakan {name}?", "description": "Rekodkan bahawa semakan rasmi telah bermula." },
-      "APPROVE": { "title": "Luluskan {name}?", "description": "Sahkan bahawa permintaan ini memenuhi semakan yang diperlukan." },
-      "REJECT": { "title": "Tolak {name}?", "description": "Tolak permintaan ini dan rekodkan sebabnya." },
-      "RETURN": { "title": "Kembalikan {name}?", "description": "Kembalikan permintaan ini kepada pemohon untuk pembetulan." },
-      "CLOSE": { "title": "Tutup {name}?", "description": "Tutup aliran kerja yang telah selesai ini." }
+      "SUBMIT": {
+        "title": "Hantar {name}?",
+        "description": "Hantar permintaan ini kepada penyemak yang layak."
+      },
+      "REVIEW": {
+        "title": "Mulakan semakan {name}?",
+        "description": "Rekodkan bahawa semakan rasmi telah bermula."
+      },
+      "APPROVE": {
+        "title": "Luluskan {name}?",
+        "description": "Sahkan bahawa permintaan ini memenuhi semakan yang diperlukan."
+      },
+      "REJECT": {
+        "title": "Tolak {name}?",
+        "description": "Tolak permintaan ini dan rekodkan sebabnya."
+      },
+      "RETURN": {
+        "title": "Kembalikan {name}?",
+        "description": "Kembalikan permintaan ini kepada pemohon untuk pembetulan."
+      },
+      "CLOSE": {
+        "title": "Tutup {name}?",
+        "description": "Tutup aliran kerja yang telah selesai ini."
+      }
     },
     "history": {
       "title": "Sejarah audit",
@@ -771,7 +877,9 @@
       "time": "Masa",
       "empty": "Belum ada tindakan aliran kerja direkodkan."
     },
-    "validation": { "metadata": "Masukkan objek JSON yang sah." },
+    "validation": {
+      "metadata": "Masukkan objek JSON yang sah."
+    },
     "toast": {
       "created": "Kelulusan dicipta",
       "updated": "Kelulusan dikemas kini",
@@ -786,7 +894,13 @@
   "evidence": {
     "title": "Arkib bukti",
     "count": "{count} item bukti",
-    "kind": { "PHOTO": "Foto", "VIDEO": "Video", "SIGNATURE": "Tandatangan", "DOCUMENT": "Dokumen", "OTHER": "Lain-lain" },
+    "kind": {
+      "PHOTO": "Foto",
+      "VIDEO": "Video",
+      "SIGNATURE": "Tandatangan",
+      "DOCUMENT": "Dokumen",
+      "OTHER": "Lain-lain"
+    },
     "field": {
       "file": "Fail",
       "kind": "Jenis",
@@ -808,9 +922,25 @@
       "contentType": "Jenis kandungan",
       "size": "Saiz fail"
     },
-    "filter": { "capturedFrom": "Dirakam dari", "capturedTo": "Dirakam hingga", "withGps": "Dengan GPS", "withoutGps": "Tanpa GPS" },
-    "action": { "view": "Lihat bukti", "verify": "Sahkan integriti", "openOriginal": "Buka fail asal" },
-    "section": { "record": "Rekod", "capture": "Bukti rakaman", "file": "Bukti fail", "integrity": "Pengesahan integriti", "watermark": "Tera air", "metadata": "Metadata" },
+    "filter": {
+      "capturedFrom": "Dirakam dari",
+      "capturedTo": "Dirakam hingga",
+      "withGps": "Dengan GPS",
+      "withoutGps": "Tanpa GPS"
+    },
+    "action": {
+      "view": "Lihat bukti",
+      "verify": "Sahkan integriti",
+      "openOriginal": "Buka fail asal"
+    },
+    "section": {
+      "record": "Rekod",
+      "capture": "Bukti rakaman",
+      "file": "Bukti fail",
+      "integrity": "Pengesahan integriti",
+      "watermark": "Tera air",
+      "metadata": "Metadata"
+    },
     "integrity": {
       "error": "Fail tidak dapat disahkan.",
       "valid": "Integriti fail disahkan",
@@ -834,15 +964,50 @@
       "search": "Cari tugas, pemandu atau kenderaan",
       "empty": "Tiada tugas pemandu ditemui",
       "loadMore": "Muatkan lebih banyak tugas",
-      "filter": { "ALL": "Semua", "RUNNING": "Berjalan", "FINISHED": "Selesai" }
+      "filter": {
+        "ALL": "Semua",
+        "RUNNING": "Berjalan",
+        "FINISHED": "Selesai"
+      }
     },
-    "route": { "error": "Sejarah laluan tidak dapat dimuatkan.", "empty": "Tiada kedudukan laluan", "emptyDescription": "Sampel GPS akan muncul selepas pemandu memulakan tugas." },
-    "summary": { "position": "Kedudukan semasa", "accuracy": "Ketepatan", "event": "Peristiwa terkini", "latest": "Sampel terkini", "geofence": "Geofence", "distance": "{value} dari projek" },
-    "action": { "openMap": "Buka lokasi" },
-    "event": { "POSITION": "Kedudukan", "ARRIVAL": "Ketibaan", "GEOFENCE_ENTER": "Masuk geofence", "GEOFENCE_EXIT": "Keluar geofence" },
-    "geofence": { "INSIDE": "Di dalam", "OUTSIDE": "Di luar", "NOT_EVALUATED": "Belum dinilai" },
-    "timeline": { "title": "Garis masa laluan", "count": "{count} sampel", "loadOlder": "Muatkan sampel terdahulu" },
-    "field": { "accuracy": "Ketepatan", "distance": "Jarak projek", "occurredAt": "Masa peristiwa asal", "uploadedAt": "Dimuat naik" },
+    "route": {
+      "error": "Sejarah laluan tidak dapat dimuatkan.",
+      "empty": "Tiada kedudukan laluan",
+      "emptyDescription": "Sampel GPS akan muncul selepas pemandu memulakan tugas."
+    },
+    "summary": {
+      "position": "Kedudukan semasa",
+      "accuracy": "Ketepatan",
+      "event": "Peristiwa terkini",
+      "latest": "Sampel terkini",
+      "geofence": "Geofence",
+      "distance": "{value} dari projek"
+    },
+    "action": {
+      "openMap": "Buka lokasi"
+    },
+    "event": {
+      "POSITION": "Kedudukan",
+      "ARRIVAL": "Ketibaan",
+      "GEOFENCE_ENTER": "Masuk geofence",
+      "GEOFENCE_EXIT": "Keluar geofence"
+    },
+    "geofence": {
+      "INSIDE": "Di dalam",
+      "OUTSIDE": "Di luar",
+      "NOT_EVALUATED": "Belum dinilai"
+    },
+    "timeline": {
+      "title": "Garis masa laluan",
+      "count": "{count} sampel",
+      "loadOlder": "Muatkan sampel terdahulu"
+    },
+    "field": {
+      "accuracy": "Ketepatan",
+      "distance": "Jarak projek",
+      "occurredAt": "Masa peristiwa asal",
+      "uploadedAt": "Dimuat naik"
+    },
     "liveMap": {
       "title": "Peta pemandu masa nyata",
       "count": "{count} pemandu aktif",
@@ -922,10 +1087,15 @@
       "REMINDER": "Peringatan",
       "EXCEPTION": "Amaran pengecualian"
     },
-    "status": { "read": "Dibaca", "unread": "Belum dibaca" },
+    "status": {
+      "read": "Dibaca",
+      "unread": "Belum dibaca"
+    },
     "markRead": "Tandakan sebagai dibaca",
     "markAllRead": "Tandakan semua sebagai dibaca",
-    "toast": { "allRead": "Semua pemberitahuan ditandakan sebagai dibaca" }
+    "toast": {
+      "allRead": "Semua pemberitahuan ditandakan sebagai dibaca"
+    }
   },
   "monitoring": {
     "title": "Pemantauan sistem",
@@ -963,13 +1133,17 @@
       "ERROR": "Ralat",
       "CRITICAL": "Kritikal"
     },
-    "toast": { "captured": "Petikan pemantauan disimpan" }
+    "toast": {
+      "captured": "Petikan pemantauan disimpan"
+    }
   },
   "contractorPartners": {
     "title": "Rakan kontraktor",
     "new": "Kontraktor baharu",
     "count": "{count, plural, =0 {Tiada rakan kontraktor} other {# rakan kontraktor}}",
-    "field": { "plan": "Pelan" },
+    "field": {
+      "plan": "Pelan"
+    },
     "unlimitedProjects": "Projek tanpa had",
     "projectLimit": "Had {count} projek"
   },
@@ -977,7 +1151,10 @@
     "title": "Semakan pengitar semula",
     "new": "Pengitar semula baharu",
     "count": "{count, plural, =0 {Tiada pengitar semula} other {# pengitar semula}}",
-    "field": { "reviewStatus": "Status semakan", "note": "Catatan semakan" },
+    "field": {
+      "reviewStatus": "Status semakan",
+      "note": "Catatan semakan"
+    },
     "status": {
       "PENDING": "Menunggu semakan",
       "APPROVED": "Diluluskan",
@@ -2117,14 +2294,8 @@
       "reference": "Rujukan anda sendiri",
       "referenceHint": "Pilihan. Gunakan penomboran anda sendiri jika ada."
     },
-    "reject": {
-      "title": "Tolak muatan ini?",
-      "description": "Nyatakan sebabnya. Sebab itu kembali kepada tapak yang menghantarnya.",
-      "confirm": "Tolak"
-    },
     "toast": {
-      "collected": "Muatan dikutip",
-      "rejected": "Muatan ditolak"
+      "collected": "Muatan dikutip"
     }
   },
   "gate": {
@@ -2227,6 +2398,7 @@
       "licenceNo": "No. lesen",
       "licenceExpires": "Lesen tamat",
       "defaultVehicle": "Kenderaan biasa",
+      "account": "Akaun log masuk pemandu",
       "isActive": "Aktif",
       "createdAt": "Ditambah"
     },
