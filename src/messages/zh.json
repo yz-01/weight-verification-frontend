@@ -377,6 +377,16 @@
       "cloudActivity": "操作记录"
     }
   },
+  "globalSearch": {
+    "open": "打开功能搜索",
+    "placeholder": "搜索模块和功能",
+    "noResults": "找不到相符的模块或功能"
+  },
+  "adminModuleLanding": {
+    "sectionLabel": "可用功能",
+    "searchPlaceholder": "搜索此模块的功能",
+    "noResults": "此模块没有相符的功能"
+  },
   "integrations": {
     "title": "系统集成",
     "subtitle": "登记连接和现场设备，secret 不会回显。",
@@ -1641,43 +1651,43 @@
     "section": {
       "live-platform": {
         "title": "实时平台状态",
-        "subtitle": "6.2.1 根据当前活动显示在线公司、项目与用户"
+        "subtitle": "根据当前活动显示在线公司、项目与用户"
       },
       "cwe": {
         "title": "CWE 监控",
-        "subtitle": "6.2.2 地磅连接、当前读数、称重及异常状态"
+        "subtitle": "地磅连接、当前读数、称重及异常状态"
       },
       "cctv": {
         "title": "AI CCTV 监控",
-        "subtitle": "6.2.3 设备及识别状态，并明确区分模拟与真实模式"
+        "subtitle": "设备及识别状态，并明确区分模拟与真实模式"
       },
       "anpr": {
         "title": "ANPR 监控",
-        "subtitle": "6.2.4 摄像头连接、识别失败次数及服务状态"
+        "subtitle": "摄像头连接、识别失败次数及服务状态"
       },
       "api-gateway": {
         "title": "API Gateway 监控",
-        "subtitle": "6.2.5 调用次数、失败、响应时间及服务健康"
+        "subtitle": "调用次数、失败、响应时间及服务健康"
       },
       "sync": {
         "title": "数据同步监控",
-        "subtitle": "6.2.6 建筑商及回收商 ERP、政府 API 与 MyInvois 同步状态"
+        "subtitle": "建筑商及回收商 ERP、政府 API 与 MyInvois 同步状态"
       },
       "exceptions": {
         "title": "异常监控",
-        "subtitle": "6.2.7 确认及解决系统、API、称重、设备与同步异常"
+        "subtitle": "确认及解决系统、API、称重、设备与同步异常"
       },
       "service-search": {
         "title": "服务查询",
-        "subtitle": "6.2.8 按服务名称、状态、最后检查及异常内容查询"
+        "subtitle": "按服务名称、状态、最后检查及异常内容查询"
       },
       "runtime-statistics": {
         "title": "运行统计",
-        "subtitle": "6.2.9 Uptime、响应时间、API 成功率与同步成功率"
+        "subtitle": "Uptime、响应时间、API 成功率与同步成功率"
       },
       "records": {
         "title": "监控记录",
-        "subtitle": "6.2.10 永久保存事件时间、类型、服务、内容及处理历史"
+        "subtitle": "永久保存事件时间、类型、服务、内容及处理历史"
       }
     },
     "mode": { "SIMULATED": "模拟", "LIVE": "真实" },
@@ -2838,35 +2848,35 @@
     "section": {
       "types": {
         "title": "二维码类别",
-        "subtitle": "7.2.1 为建筑商、回收商、供应商、司机、车辆、工地人员、访客及设备签发二维码"
+        "subtitle": "为建筑商、回收商、供应商、司机、车辆、工地人员、访客及设备签发二维码"
       },
       "register": {
         "title": "二维码资料",
-        "subtitle": "7.2.2 QR ID、类别、公司、项目、建立日期、有效状态及使用状态"
+        "subtitle": "QR ID、类别、公司、项目、建立日期、有效状态及使用状态"
       },
       "lifecycle": {
         "title": "二维码状态管理",
-        "subtitle": "7.2.3 启用、停用、永久作废或重新生成二维码"
+        "subtitle": "启用、停用、永久作废或重新生成二维码"
       },
       "search": {
         "title": "二维码查询",
-        "subtitle": "7.2.4 按 QR ID、公司、类别、项目、状态及建立日期查询"
+        "subtitle": "按 QR ID、公司、类别、项目、状态及建立日期查询"
       },
       "scans": {
         "title": "扫码记录",
-        "subtitle": "7.2.5 永久保存扫码时间、地点、人员、项目及结果"
+        "subtitle": "永久保存扫码时间、地点、人员、项目及结果"
       },
       "anomalies": {
         "title": "二维码异常",
-        "subtitle": "7.2.6 无效、停用、作废、重复使用及失败扫码"
+        "subtitle": "无效、停用、作废、重复使用及失败扫码"
       },
       "statistics": {
         "title": "二维码统计",
-        "subtitle": "7.2.7 二维码总数、各类别数量及今日扫码结果"
+        "subtitle": "二维码总数、各类别数量及今日扫码结果"
       },
       "activity": {
         "title": "二维码操作记录",
-        "subtitle": "7.2.8 永久保存建立、状态、重发、使用及导出操作"
+        "subtitle": "永久保存建立、状态、重发、使用及导出操作"
       }
     },
     "subjectType": {
@@ -2960,43 +2970,43 @@
     "section": {
       "contractors": {
         "title": "建筑商通知",
-        "subtitle": "10.2.1 注册、启用、停用、订阅到期及续费通知"
+        "subtitle": "注册、启用、停用、订阅到期及续费通知"
       },
       "recyclers": {
         "title": "回收商通知",
-        "subtitle": "10.2.2 注册、启用、停用、订阅到期及续费通知"
+        "subtitle": "注册、启用、停用、订阅到期及续费通知"
       },
       "saas": {
         "title": "SaaS 收费通知",
-        "subtitle": "10.2.3 账单生成、即将到期、已到期、付款及逾期通知"
+        "subtitle": "账单生成、即将到期、已到期、付款及逾期通知"
       },
       "commission": {
         "title": "平台佣金通知",
-        "subtitle": "10.2.4 佣金生成、应收、已收、未收及逾期通知"
+        "subtitle": "佣金生成、应收、已收、未收及逾期通知"
       },
       "cwe": {
         "title": "Cloud Weighing Engine 通知",
-        "subtitle": "10.2.5 地磅离线、恢复、通讯、称重及系统异常通知"
+        "subtitle": "地磅离线、恢复、通讯、称重及系统异常通知"
       },
       "system": {
         "title": "系统通知",
-        "subtitle": "10.2.6 公告、维护、新版本、升级及紧急通知"
+        "subtitle": "公告、维护、新版本、升级及紧急通知"
       },
       "search": {
         "title": "通知查询",
-        "subtitle": "10.2.7 按类别、公司、日期及已读状态查询"
+        "subtitle": "按类别、公司、日期及已读状态查询"
       },
       "manage": {
         "title": "通知管理",
-        "subtitle": "10.2.8 查看、标记已读或未读及移除收件箱记录"
+        "subtitle": "查看、标记已读或未读及移除收件箱记录"
       },
       "channels": {
         "title": "推播方式",
-        "subtitle": "10.2.9 站内、Email 与 Push，并明确显示 LIVE 或 SIMULATED"
+        "subtitle": "站内、Email 与 Push，并明确显示 LIVE 或 SIMULATED"
       },
       "records": {
         "title": "通知记录",
-        "subtitle": "10.2.10 永久保存发送、读取及状态变更记录"
+        "subtitle": "永久保存发送、读取及状态变更记录"
       }
     },
     "filter": {
@@ -3049,43 +3059,43 @@
     "section": {
       "contractors": {
         "title": "建筑商报表",
-        "subtitle": "9.2.1 建筑商总数、新增、启用状态及项目统计"
+        "subtitle": "建筑商总数、新增、启用状态及项目统计"
       },
       "recyclers": {
         "title": "回收商报表",
-        "subtitle": "9.2.2 回收商总数、新增、启用状态及平台业务统计"
+        "subtitle": "回收商总数、新增、启用状态及平台业务统计"
       },
       "business": {
         "title": "平台业务报表",
-        "subtitle": "9.2.3 平台订单、完成订单、回收重量及结算金额"
+        "subtitle": "平台订单、完成订单、回收重量及结算金额"
       },
       "saas": {
         "title": "SaaS 收费报表",
-        "subtitle": "9.2.4 订阅、应收、已收、未收及续费统计"
+        "subtitle": "订阅、应收、已收、未收及续费统计"
       },
       "commission": {
         "title": "平台佣金报表",
-        "subtitle": "9.2.5 佣金业务重量、结算金额、比例及收款统计"
+        "subtitle": "佣金业务重量、结算金额、比例及收款统计"
       },
       "cwe": {
         "title": "Cloud Weighing Engine 报表",
-        "subtitle": "9.2.6 地磅、称重、异常、重新过磅及在线率"
+        "subtitle": "地磅、称重、异常、重新过磅及在线率"
       },
       "operations": {
         "title": "系统运营报表",
-        "subtitle": "9.2.7 在线用户、活跃用户、API、数据同步及系统异常"
+        "subtitle": "在线用户、活跃用户、API、数据同步及系统异常"
       },
       "search": {
         "title": "报表查询",
-        "subtitle": "9.2.8 按公司、项目、州属和日期范围查询各类报表"
+        "subtitle": "按公司、项目、州属和日期范围查询各类报表"
       },
       "export": {
         "title": "导出报表",
-        "subtitle": "9.2.9 按日、周、月、年或自定义日期导出 PDF 与 Excel"
+        "subtitle": "按日、周、月、年或自定义日期导出 PDF 与 Excel"
       },
       "history": {
         "title": "报表历史记录",
-        "subtitle": "9.2.10 永久保存所有报表生成及导出记录"
+        "subtitle": "永久保存所有报表生成及导出记录"
       }
     },
     "filter": {
@@ -3170,35 +3180,35 @@
     "section": {
       "scales": {
         "title": "地磅登记",
-        "subtitle": "8.2.1 设备编号、公司、项目或地点、Gateway、协议及启用状态"
+        "subtitle": "设备编号、公司、项目或地点、Gateway、协议及启用状态"
       },
       "connections": {
         "title": "地磅连接状态",
-        "subtitle": "8.2.2 在线／离线、最后通信、网络及 Gateway 状态"
+        "subtitle": "在线／离线、最后通信、网络及 Gateway 状态"
       },
       "live-weighing": {
         "title": "当前称重状态",
-        "subtitle": "8.2.3 当前重量、稳定状态、最后称重及进行中状态"
+        "subtitle": "当前重量、稳定状态、最后称重及进行中状态"
       },
       "anomalies": {
         "title": "称重异常",
-        "subtitle": "8.2.4 异常称重、重新过磅、通信及设备异常"
+        "subtitle": "异常称重、重新过磅、通信及设备异常"
       },
       "search": {
         "title": "称重查询",
-        "subtitle": "8.2.5 按公司、项目、设备、状态及日期查询"
+        "subtitle": "按公司、项目、设备、状态及日期查询"
       },
       "statistics": {
         "title": "CWE 统计",
-        "subtitle": "8.2.6 地磅、称重、异常、重磅数量及在线率"
+        "subtitle": "地磅、称重、异常、重磅数量及在线率"
       },
       "service-status": {
         "title": "CWE 服务状态",
-        "subtitle": "8.2.7 处理能力、响应时间、错误率及同步状态"
+        "subtitle": "处理能力、响应时间、错误率及同步状态"
       },
       "activity": {
         "title": "CWE 操作记录",
-        "subtitle": "8.2.8 永久保存建立、连接、通信、异常、重磅及状态操作"
+        "subtitle": "永久保存建立、连接、通信、异常、重磅及状态操作"
       }
     },
     "field": {
@@ -4043,6 +4053,54 @@
       "removeTitle": "移除佣金规则",
       "removeDescription": "确定移除 {name}？已用于账单的规则只能停用。"
     },
+    "automatic": {
+      "runNow": "立即运行",
+      "active": "运行中",
+      "inactive": "已停用",
+      "history": "近期自动账单执行记录",
+      "empty": "还没有自动账单执行记录。",
+      "loadError": "无法加载自动账单状态。",
+      "notConfigured": "尚未配置自动账单排程。",
+      "intervalMinutes": "每 {count} 分钟",
+      "field": {
+        "status": "排程状态",
+        "nextRun": "下次运行",
+        "lastRun": "上次运行",
+        "interval": "执行频率",
+        "scheduledFor": "计划时间",
+        "state": "执行结果",
+        "attempt": "尝试次数",
+        "saasIssued": "SaaS 账单",
+        "commissionIssued": "佣金账单",
+        "overdueUpdated": "更新逾期账单",
+        "error": "错误"
+      },
+      "state": {
+        "QUEUED": "排队中",
+        "RUNNING": "运行中",
+        "RETRY_WAIT": "等待重试",
+        "SUCCEEDED": "成功",
+        "FAILED": "失败",
+        "CANCELLED": "已取消"
+      },
+      "toast": { "queued": "自动账单任务已加入队列" }
+    },
+    "financialReports": {
+      "loadError": "无法加载财务报表汇总。",
+      "metric": {
+        "invoiceCount": "账单数量",
+        "paymentCount": "已确认收款笔数",
+        "billed": "应收金额",
+        "collected": "已收金额",
+        "outstanding": "未收金额",
+        "overdue": "逾期金额"
+      },
+      "saas": { "title": "SaaS 收入报表", "subtitle": "SaaS 订阅账单及收款情况" },
+      "commission": { "title": "平台佣金收入报表", "subtitle": "平台业务佣金账单及收款情况" },
+      "receivables": { "title": "应收账款报表", "subtitle": "全部应收、已收及未收金额" },
+      "paid": { "title": "已收款报表", "subtitle": "所有已确认到账记录，包括部分付款" },
+      "unpaid": { "title": "未收款报表", "subtitle": "仍有未收余额的已发出、部分付款及逾期账单" }
+    },
     "metric": {
       "saasBilled": "本月 SaaS 应收",
       "saasCollected": "本月 SaaS 已收",
@@ -4056,43 +4114,43 @@
     "section": {
       "saas-invoices": {
         "title": "SaaS 账单管理",
-        "subtitle": "5.2.1 账单编号、公司、套餐、期间、金额与付款状态"
+        "subtitle": "账单编号、公司、套餐、期间、金额与付款状态"
       },
       "commission": {
         "title": "平台佣金管理",
-        "subtitle": "5.2.2 平台结算业务重量、金额、比例及应收佣金"
+        "subtitle": "平台结算业务重量、金额、比例及应收佣金"
       },
       "automatic-billing": {
         "title": "自动生成账单",
-        "subtitle": "5.2.3 每日生成 SaaS／佣金账单并发送给对应公司"
+        "subtitle": "每日生成 SaaS／佣金账单并发送给对应公司"
       },
       "collections": {
         "title": "收款管理",
-        "subtitle": "5.2.4 未付款、已付款、部分付款及逾期收款确认"
+        "subtitle": "未付款、已付款、部分付款及逾期收款确认"
       },
       "payment-proofs": {
         "title": "付款凭证",
-        "subtitle": "5.2.5 银行凭证、截图、付款日期及备注"
+        "subtitle": "银行凭证、截图、付款日期及备注"
       },
       "commission-rules": {
         "title": "佣金规则管理",
-        "subtitle": "5.2.6 平台佣金比例、计算方式及结算周期"
+        "subtitle": "平台佣金比例、计算方式及结算周期"
       },
       "search": {
         "title": "账单查询",
-        "subtitle": "5.2.7 按公司、编号、类型、日期及付款状态查询"
+        "subtitle": "按公司、编号、类型、日期及付款状态查询"
       },
       "statistics": {
         "title": "收费统计",
-        "subtitle": "5.2.8 本月 SaaS 与平台佣金应收／已收／未收"
+        "subtitle": "本月 SaaS 与平台佣金应收／已收／未收"
       },
       "reports": {
         "title": "财务报表",
-        "subtitle": "5.2.9 SaaS、佣金、应收、已收及未收 PDF／Excel 报表"
+        "subtitle": "SaaS、佣金、应收、已收及未收 PDF／Excel 报表"
       },
       "activity": {
         "title": "账单操作记录",
-        "subtitle": "5.2.10 永久保存账单、计算、收款及规则变更历史"
+        "subtitle": "永久保存账单、计算、收款及规则变更历史"
       }
     },
     "toast": {
@@ -4260,39 +4318,39 @@
     "section": {
       "plans": {
         "title": "订阅方案管理",
-        "subtitle": "4.2.1 套餐价格、期限、账号额度与功能权限"
+        "subtitle": "套餐价格、期限、账号额度与功能权限"
       },
       "companies": {
         "title": "公司订阅管理",
-        "subtitle": "4.2.2 各公司的当前套餐、期限与状态"
+        "subtitle": "各公司的当前套餐、期限与状态"
       },
       "status": {
         "title": "订阅状态",
-        "subtitle": "4.2.3 系统自动管理订阅生命周期状态"
+        "subtitle": "系统自动管理订阅生命周期状态"
       },
       "package-changes": {
         "title": "套餐升级／降级",
-        "subtitle": "4.2.4 升降级、延期、暂停或提前结束订阅"
+        "subtitle": "升降级、延期、暂停或提前结束订阅"
       },
       "account-limits": {
         "title": "账号数量管理",
-        "subtitle": "4.2.5 可用、已用及剩余后台账号"
+        "subtitle": "可用、已用及剩余后台账号"
       },
       "reminders": {
         "title": "到期提醒",
-        "subtitle": "4.2.6 同步给 MSE 与对应公司的续费队列"
+        "subtitle": "同步给 MSE 与对应公司的续费队列"
       },
       "search": {
         "title": "订阅查询",
-        "subtitle": "4.2.7 按公司、类别、套餐、状态及到期日查询"
+        "subtitle": "按公司、类别、套餐、状态及到期日查询"
       },
       "statistics": {
         "title": "订阅统计",
-        "subtitle": "4.2.8 订阅数量、续费及 SaaS 实收统计"
+        "subtitle": "订阅数量、续费及 SaaS 实收统计"
       },
       "activity": {
         "title": "操作记录",
-        "subtitle": "4.2.9 永久保存订阅变更历史"
+        "subtitle": "永久保存订阅变更历史"
       }
     },
     "toast": {

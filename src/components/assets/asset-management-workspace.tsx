@@ -94,7 +94,7 @@ function Overview() {
       {[["total", summary.data?.total_assets ?? 0], ["available", summary.data?.by_status?.IN_STOCK ?? 0], ["deployed", summary.data?.by_status?.DEPLOYED ?? 0], ["value", `RM ${summary.data?.total_value ?? "0.00"}`]].map(([key, value]) => <div key={key} className="border-b border-r px-5 py-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p></div>)}
     </div>
     <div className="min-h-0 flex-1 overflow-auto border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">
-      {SUBMODULES.map((item) => <Link key={item.section} href={`/assets/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="w-14 text-xs font-semibold text-muted-foreground">{item.number}</span><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}
+      {SUBMODULES.map((item) => <Link key={item.section} href={`/assets/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}
     </div></div>
   </div>;
 }

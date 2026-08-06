@@ -5,11 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { DashboardToolbar } from "@/components/layout/dashboard-toolbar";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getSessionPortal } from "@/lib/auth-token";
 import {
@@ -90,8 +90,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="h-dvh min-w-0 overflow-hidden">
-        <SidebarTrigger className="fixed bottom-5 left-5 z-40 h-11 w-11 rounded-full border bg-card shadow-lg md:hidden" />
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-10 lg:px-10">
+        <DashboardToolbar />
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 lg:px-8 lg:py-8">
           {children}
         </div>
       </SidebarInset>

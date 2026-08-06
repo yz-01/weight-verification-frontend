@@ -472,6 +472,11 @@ export const PORTAL_NAVIGATION = {
           "/weighing/admin/service-status",
         ),
         child("8.2.8", "nav.submodule.cweActivity", "/weighing/admin/activity"),
+        child(
+          "detection-settings",
+          "nav.detectionSettings",
+          "/detection-settings",
+        ),
       ],
     ),
     item("report_center", "/reports", FileText, "finance", undefined, false, [

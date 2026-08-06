@@ -59,7 +59,7 @@ function Overview() {
     <div className="grid border-y bg-card sm:grid-cols-2 xl:grid-cols-4">
       {[["customers", summary.data?.customers ?? 0], ["enquiries", summary.data?.enquiries ?? 0], ["service", summary.data?.service_records ?? 0], ["completion", `${summary.data?.completion_rate ?? 0}%`]].map(([key, value]) => <div key={key} className="border-b border-r px-5 py-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p></div>)}
     </div>
-    <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((item) => <Link key={item.section} href={`/customer-service/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="w-14 text-xs font-semibold text-muted-foreground">{item.number}</span><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>
+    <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((item) => <Link key={item.section} href={`/customer-service/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>
   </div>;
 }
 

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 
 import { AuditLogs } from "@/components/audit/audit-logs";
@@ -157,9 +158,7 @@ function ModuleIndex() {
             href={`/qr-codes/${module.section}`}
             className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"
           >
-            <span className="w-14 text-xs font-semibold tabular-nums text-muted-foreground">
-              {module.number}
-            </span>
+            
             <span className="min-w-0 flex-1 font-medium">
               {t(`section.${module.section}.title`)}
             </span>
@@ -319,7 +318,7 @@ function IssuedTokenDialog({ code, onClose }: { code: QRCodeIssue | null; onClos
   const t = useTranslations("adminQr");
   const common = useTranslations("common");
   const [copied, setCopied] = useState(false);
-  return <Dialog open={code !== null} onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("issued.title")}</DialogTitle><DialogDescription>{t("issued.description")}</DialogDescription></DialogHeader>{code && <div className="space-y-2"><p className="text-sm font-medium">{code.serial}</p><div className="flex items-center gap-2 rounded-md border bg-muted/40 p-3"><code className="min-w-0 flex-1 break-all text-xs">{code.token}</code><Button size="icon-sm" variant="outline" title={common("copy")} onClick={() => { void navigator.clipboard.writeText(code.token); setCopied(true); }}><Copy /></Button></div>{copied && <p className="text-xs text-success">{t("issued.copied")}</p>}</div>}<DialogFooter><Button onClick={onClose}>{common("close")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open={code !== null} onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("issued.title")}</DialogTitle><DialogDescription>{t("issued.description")}</DialogDescription></DialogHeader>{code && <div className="space-y-4"><div className="mx-auto grid w-fit place-items-center rounded-lg border bg-white p-4 shadow-sm"><QRCodeSVG value={code.token} size={220} level="H" marginSize={1} title={code.serial} /></div><p className="text-center text-sm font-semibold tabular-nums">{code.serial}</p><div className="flex items-center gap-2 rounded-md border bg-muted/40 p-3"><code className="min-w-0 flex-1 break-all text-xs">{code.token}</code><Button size="icon-sm" variant="outline" title={common("copy")} onClick={() => { void navigator.clipboard.writeText(code.token); setCopied(true); }}><Copy /></Button></div>{copied && <p className="text-center text-xs text-success">{t("issued.copied")}</p>}</div>}<DialogFooter><Button onClick={onClose}>{common("close")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function ScanLedger({ anomaliesOnly }: { anomaliesOnly: boolean }) {

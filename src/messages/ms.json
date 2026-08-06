@@ -377,6 +377,16 @@
       "cloudActivity": "Rekod awan"
     }
   },
+  "globalSearch": {
+    "open": "Buka carian fungsi",
+    "placeholder": "Cari modul dan fungsi",
+    "noResults": "Tiada modul atau fungsi yang sepadan"
+  },
+  "adminModuleLanding": {
+    "sectionLabel": "Fungsi tersedia",
+    "searchPlaceholder": "Cari dalam modul ini",
+    "noResults": "Tiada fungsi yang sepadan dalam modul ini"
+  },
   "integrations": {
     "title": "Integrasi",
     "subtitle": "Daftar sambungan dan peranti tapak tanpa memaparkan secret.",
@@ -1641,43 +1651,43 @@
     "section": {
       "live-platform": {
         "title": "Status platform langsung",
-        "subtitle": "6.2.1 Syarikat, projek dan pengguna dalam talian berdasarkan aktiviti semasa"
+        "subtitle": "Syarikat, projek dan pengguna dalam talian berdasarkan aktiviti semasa"
       },
       "cwe": {
         "title": "Pemantauan CWE",
-        "subtitle": "6.2.2 Sambungan jambatan timbang, bacaan semasa, timbangan dan anomali"
+        "subtitle": "Sambungan jambatan timbang, bacaan semasa, timbangan dan anomali"
       },
       "cctv": {
         "title": "Pemantauan AI CCTV",
-        "subtitle": "6.2.3 Status peranti dan pengecaman dengan mod simulasi atau langsung yang jelas"
+        "subtitle": "Status peranti dan pengecaman dengan mod simulasi atau langsung yang jelas"
       },
       "anpr": {
         "title": "Pemantauan ANPR",
-        "subtitle": "6.2.4 Sambungan kamera, kegagalan pengecaman dan status perkhidmatan"
+        "subtitle": "Sambungan kamera, kegagalan pengecaman dan status perkhidmatan"
       },
       "api-gateway": {
         "title": "Pemantauan API Gateway",
-        "subtitle": "6.2.5 Panggilan, kegagalan, masa respons dan kesihatan perkhidmatan"
+        "subtitle": "Panggilan, kegagalan, masa respons dan kesihatan perkhidmatan"
       },
       "sync": {
         "title": "Pemantauan penyegerakan",
-        "subtitle": "6.2.6 Status ERP, API kerajaan dan MyInvois kontraktor serta pengitar semula"
+        "subtitle": "Status ERP, API kerajaan dan MyInvois kontraktor serta pengitar semula"
       },
       "exceptions": {
         "title": "Pemantauan pengecualian",
-        "subtitle": "6.2.7 Akui dan selesaikan pengecualian sistem, API, timbangan, peranti dan penyegerakan"
+        "subtitle": "Akui dan selesaikan pengecualian sistem, API, timbangan, peranti dan penyegerakan"
       },
       "service-search": {
         "title": "Carian perkhidmatan",
-        "subtitle": "6.2.8 Cari nama, status, semakan terakhir dan kandungan pengecualian"
+        "subtitle": "Cari nama, status, semakan terakhir dan kandungan pengecualian"
       },
       "runtime-statistics": {
         "title": "Statistik operasi",
-        "subtitle": "6.2.9 Masa hidup, masa respons, kejayaan API dan penyegerakan"
+        "subtitle": "Masa hidup, masa respons, kejayaan API dan penyegerakan"
       },
       "records": {
         "title": "Rekod pemantauan",
-        "subtitle": "6.2.10 Rekod kekal masa, jenis, perkhidmatan, kandungan dan sejarah pengendalian"
+        "subtitle": "Rekod kekal masa, jenis, perkhidmatan, kandungan dan sejarah pengendalian"
       }
     },
     "mode": { "SIMULATED": "Simulasi", "LIVE": "Langsung" },
@@ -2838,35 +2848,35 @@
     "section": {
       "types": {
         "title": "Jenis subjek QR",
-        "subtitle": "7.2.1 Kod untuk kontraktor, pengitar semula, pembekal, pemandu, kenderaan, staf tapak, pelawat dan peranti"
+        "subtitle": "Kod untuk kontraktor, pengitar semula, pembekal, pemandu, kenderaan, staf tapak, pelawat dan peranti"
       },
       "register": {
         "title": "Daftar QR",
-        "subtitle": "7.2.2 ID QR, kategori, syarikat, projek, tarikh dikeluarkan, kesahan dan penggunaan"
+        "subtitle": "ID QR, kategori, syarikat, projek, tarikh dikeluarkan, kesahan dan penggunaan"
       },
       "lifecycle": {
         "title": "Kitar hayat QR",
-        "subtitle": "7.2.3 Aktifkan, nyahaktifkan, batalkan kekal atau keluarkan semula kod"
+        "subtitle": "Aktifkan, nyahaktifkan, batalkan kekal atau keluarkan semula kod"
       },
       "search": {
         "title": "Carian QR",
-        "subtitle": "7.2.4 Cari mengikut ID QR, syarikat, kategori, projek, status dan tarikh"
+        "subtitle": "Cari mengikut ID QR, syarikat, kategori, projek, status dan tarikh"
       },
       "scans": {
         "title": "Rekod imbasan",
-        "subtitle": "7.2.5 Rekod kekal masa, lokasi, orang, projek dan keputusan imbasan"
+        "subtitle": "Rekod kekal masa, lokasi, orang, projek dan keputusan imbasan"
       },
       "anomalies": {
         "title": "Anomali QR",
-        "subtitle": "7.2.6 Imbasan tidak sah, dinyahaktif, dibatalkan, pendua dan gagal"
+        "subtitle": "Imbasan tidak sah, dinyahaktif, dibatalkan, pendua dan gagal"
       },
       "statistics": {
         "title": "Statistik QR",
-        "subtitle": "7.2.7 Jumlah mengikut kategori dan keputusan imbasan hari ini"
+        "subtitle": "Jumlah mengikut kategori dan keputusan imbasan hari ini"
       },
       "activity": {
         "title": "Aktiviti QR",
-        "subtitle": "7.2.8 Operasi pengeluaran, status, keluaran semula, penggunaan dan eksport kekal"
+        "subtitle": "Operasi pengeluaran, status, keluaran semula, penggunaan dan eksport kekal"
       }
     },
     "subjectType": {
@@ -2963,43 +2973,43 @@
     "section": {
       "contractors": {
         "title": "Notifikasi kontraktor",
-        "subtitle": "10.2.1 Notifikasi pendaftaran, pengaktifan, penggantungan, tamat dan pembaharuan"
+        "subtitle": "Notifikasi pendaftaran, pengaktifan, penggantungan, tamat dan pembaharuan"
       },
       "recyclers": {
         "title": "Notifikasi pengitar semula",
-        "subtitle": "10.2.2 Notifikasi pendaftaran, pengaktifan, penggantungan, tamat dan pembaharuan"
+        "subtitle": "Notifikasi pendaftaran, pengaktifan, penggantungan, tamat dan pembaharuan"
       },
       "saas": {
         "title": "Notifikasi SaaS",
-        "subtitle": "10.2.3 Penjanaan invois, tarikh akhir, tamat, pembayaran dan lewat bayar"
+        "subtitle": "Penjanaan invois, tarikh akhir, tamat, pembayaran dan lewat bayar"
       },
       "commission": {
         "title": "Notifikasi komisen platform",
-        "subtitle": "10.2.4 Penjanaan, belum terima, kutipan, tertunggak dan lewat bayar komisen"
+        "subtitle": "Penjanaan, belum terima, kutipan, tertunggak dan lewat bayar komisen"
       },
       "cwe": {
         "title": "Notifikasi Cloud Weighing Engine",
-        "subtitle": "10.2.5 Luar talian, pulih, komunikasi, timbangan dan pengecualian sistem"
+        "subtitle": "Luar talian, pulih, komunikasi, timbangan dan pengecualian sistem"
       },
       "system": {
         "title": "Notifikasi sistem",
-        "subtitle": "10.2.6 Pengumuman, penyelenggaraan, keluaran, naik taraf dan kecemasan"
+        "subtitle": "Pengumuman, penyelenggaraan, keluaran, naik taraf dan kecemasan"
       },
       "search": {
         "title": "Carian notifikasi",
-        "subtitle": "10.2.7 Cari mengikut kategori, syarikat, tarikh dan status baca"
+        "subtitle": "Cari mengikut kategori, syarikat, tarikh dan status baca"
       },
       "manage": {
         "title": "Pengurusan notifikasi",
-        "subtitle": "10.2.8 Lihat, tandakan dibaca atau belum dibaca, dan buang rekod peti masuk"
+        "subtitle": "Lihat, tandakan dibaca atau belum dibaca, dan buang rekod peti masuk"
       },
       "channels": {
         "title": "Saluran notifikasi",
-        "subtitle": "10.2.9 Dalam aplikasi, Email dan Push dengan status LIVE atau SIMULATED yang jelas"
+        "subtitle": "Dalam aplikasi, Email dan Push dengan status LIVE atau SIMULATED yang jelas"
       },
       "records": {
         "title": "Rekod notifikasi",
-        "subtitle": "10.2.10 Sejarah penghantaran, bacaan dan perubahan status kekal"
+        "subtitle": "Sejarah penghantaran, bacaan dan perubahan status kekal"
       }
     },
     "filter": {
@@ -3056,43 +3066,43 @@
     "section": {
       "contractors": {
         "title": "Laporan kontraktor",
-        "subtitle": "9.2.1 Jumlah kontraktor, tambahan, status aktif dan projek"
+        "subtitle": "Jumlah kontraktor, tambahan, status aktif dan projek"
       },
       "recyclers": {
         "title": "Laporan pengitar semula",
-        "subtitle": "9.2.2 Jumlah pengitar semula, tambahan, status aktif dan perniagaan platform"
+        "subtitle": "Jumlah pengitar semula, tambahan, status aktif dan perniagaan platform"
       },
       "business": {
         "title": "Laporan perniagaan platform",
-        "subtitle": "9.2.3 Pesanan platform, pesanan siap, berat kitar semula dan nilai penyelesaian"
+        "subtitle": "Pesanan platform, pesanan siap, berat kitar semula dan nilai penyelesaian"
       },
       "saas": {
         "title": "Laporan caj SaaS",
-        "subtitle": "9.2.4 Langganan, belum terima, kutipan, baki tertunggak dan pembaharuan"
+        "subtitle": "Langganan, belum terima, kutipan, baki tertunggak dan pembaharuan"
       },
       "commission": {
         "title": "Laporan komisen platform",
-        "subtitle": "9.2.5 Berat perniagaan, nilai penyelesaian, kadar dan kutipan komisen"
+        "subtitle": "Berat perniagaan, nilai penyelesaian, kadar dan kutipan komisen"
       },
       "cwe": {
         "title": "Laporan Cloud Weighing Engine",
-        "subtitle": "9.2.6 Jambatan timbang, sesi, anomali, timbangan semula dan kadar dalam talian"
+        "subtitle": "Jambatan timbang, sesi, anomali, timbangan semula dan kadar dalam talian"
       },
       "operations": {
         "title": "Laporan operasi sistem",
-        "subtitle": "9.2.7 Pengguna dalam talian, pengguna aktif, API, penyegerakan dan pengecualian"
+        "subtitle": "Pengguna dalam talian, pengguna aktif, API, penyegerakan dan pengecualian"
       },
       "search": {
         "title": "Carian laporan",
-        "subtitle": "9.2.8 Cari laporan mengikut syarikat, projek, negeri dan julat tarikh"
+        "subtitle": "Cari laporan mengikut syarikat, projek, negeri dan julat tarikh"
       },
       "export": {
         "title": "Eksport laporan",
-        "subtitle": "9.2.9 Eksport julat harian, mingguan, bulanan, tahunan atau tersuai ke PDF dan Excel"
+        "subtitle": "Eksport julat harian, mingguan, bulanan, tahunan atau tersuai ke PDF dan Excel"
       },
       "history": {
         "title": "Sejarah laporan",
-        "subtitle": "9.2.10 Rekod penjanaan dan eksport laporan kekal"
+        "subtitle": "Rekod penjanaan dan eksport laporan kekal"
       }
     },
     "filter": {
@@ -3177,35 +3187,35 @@
     "section": {
       "scales": {
         "title": "Daftar jambatan timbang",
-        "subtitle": "8.2.1 Kod peranti, syarikat, projek atau tapak, gateway, protokol dan status"
+        "subtitle": "Kod peranti, syarikat, projek atau tapak, gateway, protokol dan status"
       },
       "connections": {
         "title": "Status sambungan",
-        "subtitle": "8.2.2 Dalam atau luar talian, komunikasi terakhir, rangkaian dan gateway"
+        "subtitle": "Dalam atau luar talian, komunikasi terakhir, rangkaian dan gateway"
       },
       "live-weighing": {
         "title": "Status timbangan semasa",
-        "subtitle": "8.2.3 Berat semasa, kestabilan, timbangan terakhir dan sesi aktif"
+        "subtitle": "Berat semasa, kestabilan, timbangan terakhir dan sesi aktif"
       },
       "anomalies": {
         "title": "Anomali timbangan",
-        "subtitle": "8.2.4 Timbangan tidak sah, timbang semula, komunikasi dan peranti"
+        "subtitle": "Timbangan tidak sah, timbang semula, komunikasi dan peranti"
       },
       "search": {
         "title": "Carian timbangan",
-        "subtitle": "8.2.5 Cari mengikut syarikat, projek, peranti, status dan tarikh"
+        "subtitle": "Cari mengikut syarikat, projek, peranti, status dan tarikh"
       },
       "statistics": {
         "title": "Statistik CWE",
-        "subtitle": "8.2.6 Jambatan timbang, timbangan, anomali, timbang semula dan kadar dalam talian"
+        "subtitle": "Jambatan timbang, timbangan, anomali, timbang semula dan kadar dalam talian"
       },
       "service-status": {
         "title": "Status perkhidmatan CWE",
-        "subtitle": "8.2.7 Kapasiti, masa respons, kadar ralat dan status penyegerakan"
+        "subtitle": "Kapasiti, masa respons, kadar ralat dan status penyegerakan"
       },
       "activity": {
         "title": "Rekod CWE",
-        "subtitle": "8.2.8 Rekod kekal pendaftaran, sambungan, komunikasi, anomali, timbang semula dan status"
+        "subtitle": "Rekod kekal pendaftaran, sambungan, komunikasi, anomali, timbang semula dan status"
       }
     },
     "field": {
@@ -4065,6 +4075,54 @@
       "removeTitle": "Buang peraturan komisen",
       "removeDescription": "Buang {name}? Peraturan yang digunakan dalam invois hanya boleh dinyahaktifkan."
     },
+    "automatic": {
+      "runNow": "Jalankan sekarang",
+      "active": "Aktif",
+      "inactive": "Tidak aktif",
+      "history": "Rekod pengebilan automatik terkini",
+      "empty": "Belum ada rekod pengebilan automatik.",
+      "loadError": "Status pengebilan automatik tidak dapat dimuatkan.",
+      "notConfigured": "Jadual pengebilan automatik belum dikonfigurasi.",
+      "intervalMinutes": "Setiap {count} minit",
+      "field": {
+        "status": "Status jadual",
+        "nextRun": "Jalankan seterusnya",
+        "lastRun": "Jalankan terakhir",
+        "interval": "Kekerapan",
+        "scheduledFor": "Dijadualkan pada",
+        "state": "Keputusan",
+        "attempt": "Percubaan",
+        "saasIssued": "Invois SaaS",
+        "commissionIssued": "Invois komisen",
+        "overdueUpdated": "Tertunggak dikemas kini",
+        "error": "Ralat"
+      },
+      "state": {
+        "QUEUED": "Dalam barisan",
+        "RUNNING": "Sedang berjalan",
+        "RETRY_WAIT": "Menunggu cubaan semula",
+        "SUCCEEDED": "Berjaya",
+        "FAILED": "Gagal",
+        "CANCELLED": "Dibatalkan"
+      },
+      "toast": { "queued": "Proses pengebilan automatik dimasukkan dalam barisan" }
+    },
+    "financialReports": {
+      "loadError": "Jumlah laporan kewangan tidak dapat dimuatkan.",
+      "metric": {
+        "invoiceCount": "Invois",
+        "paymentCount": "Bayaran disahkan",
+        "billed": "Belum terima",
+        "collected": "Diterima",
+        "outstanding": "Baki belum terima",
+        "overdue": "Tertunggak"
+      },
+      "saas": { "title": "Laporan pendapatan SaaS", "subtitle": "Invois langganan SaaS dan kedudukan kutipan" },
+      "commission": { "title": "Laporan pendapatan komisen platform", "subtitle": "Invois komisen perniagaan platform dan kedudukan kutipan" },
+      "receivables": { "title": "Laporan akaun belum terima", "subtitle": "Semua jumlah dibil, diterima dan belum diterima" },
+      "paid": { "title": "Laporan bayaran diterima", "subtitle": "Semua penerimaan disahkan termasuk bayaran separa" },
+      "unpaid": { "title": "Laporan bayaran belum diterima", "subtitle": "Invois dikeluarkan, separa bayar dan tertunggak yang masih berbaki" }
+    },
     "metric": {
       "saasBilled": "SaaS belum terima bulan ini",
       "saasCollected": "SaaS diterima bulan ini",
@@ -4078,43 +4136,43 @@
     "section": {
       "saas-invoices": {
         "title": "Pengurusan Invois SaaS",
-        "subtitle": "5.2.1 Invois, pelan, tempoh, jumlah dan status bayaran"
+        "subtitle": "Invois, pelan, tempoh, jumlah dan status bayaran"
       },
       "commission": {
         "title": "Pengurusan Komisen Platform",
-        "subtitle": "5.2.2 Berat, nilai, kadar dan komisen perniagaan platform"
+        "subtitle": "Berat, nilai, kadar dan komisen perniagaan platform"
       },
       "automatic-billing": {
         "title": "Pengebilan Automatik",
-        "subtitle": "5.2.3 Penjanaan harian invois SaaS/komisen dan penghantaran kepada syarikat"
+        "subtitle": "Penjanaan harian invois SaaS/komisen dan penghantaran kepada syarikat"
       },
       "collections": {
         "title": "Kutipan",
-        "subtitle": "5.2.4 Pengesahan belum bayar, dibayar, separa dan tertunggak"
+        "subtitle": "Pengesahan belum bayar, dibayar, separa dan tertunggak"
       },
       "payment-proofs": {
         "title": "Bukti Pembayaran",
-        "subtitle": "5.2.5 Slip bank, tangkap layar, tarikh dan catatan bayaran"
+        "subtitle": "Slip bank, tangkap layar, tarikh dan catatan bayaran"
       },
       "commission-rules": {
         "title": "Peraturan Komisen",
-        "subtitle": "5.2.6 Kadar, asas pengiraan dan kitaran penyelesaian platform"
+        "subtitle": "Kadar, asas pengiraan dan kitaran penyelesaian platform"
       },
       "search": {
         "title": "Carian Invois",
-        "subtitle": "5.2.7 Cari mengikut syarikat, nombor, jenis, tarikh dan status"
+        "subtitle": "Cari mengikut syarikat, nombor, jenis, tarikh dan status"
       },
       "statistics": {
         "title": "Statistik Bil",
-        "subtitle": "5.2.8 Belum terima, diterima dan baki SaaS/komisen bulan ini"
+        "subtitle": "Belum terima, diterima dan baki SaaS/komisen bulan ini"
       },
       "reports": {
         "title": "Laporan Kewangan",
-        "subtitle": "5.2.9 Laporan PDF/Excel SaaS, komisen, belum terima, dibayar dan belum bayar"
+        "subtitle": "Laporan PDF/Excel SaaS, komisen, belum terima, dibayar dan belum bayar"
       },
       "activity": {
         "title": "Rekod Operasi Bil",
-        "subtitle": "5.2.10 Sejarah invois, pengiraan, kutipan dan peraturan kekal"
+        "subtitle": "Sejarah invois, pengiraan, kutipan dan peraturan kekal"
       }
     },
     "toast": {
@@ -4288,39 +4346,39 @@
     "section": {
       "plans": {
         "title": "Pelan Langganan",
-        "subtitle": "4.2.1 Harga, tempoh, had akaun dan kelayakan ciri"
+        "subtitle": "Harga, tempoh, had akaun dan kelayakan ciri"
       },
       "companies": {
         "title": "Langganan Syarikat",
-        "subtitle": "4.2.2 Pelan, tempoh dan status semasa setiap syarikat"
+        "subtitle": "Pelan, tempoh dan status semasa setiap syarikat"
       },
       "status": {
         "title": "Status Langganan",
-        "subtitle": "4.2.3 Status kitar hayat langganan automatik"
+        "subtitle": "Status kitar hayat langganan automatik"
       },
       "package-changes": {
         "title": "Perubahan Pelan",
-        "subtitle": "4.2.4 Naik taraf, turun taraf, lanjut, jeda atau tamat"
+        "subtitle": "Naik taraf, turun taraf, lanjut, jeda atau tamat"
       },
       "account-limits": {
         "title": "Had Akaun",
-        "subtitle": "4.2.5 Akaun pejabat yang dibeli, digunakan dan berbaki"
+        "subtitle": "Akaun pejabat yang dibeli, digunakan dan berbaki"
       },
       "reminders": {
         "title": "Peringatan Tamat",
-        "subtitle": "4.2.6 Baris pembaharuan untuk MSE dan syarikat terlibat"
+        "subtitle": "Baris pembaharuan untuk MSE dan syarikat terlibat"
       },
       "search": {
         "title": "Carian Langganan",
-        "subtitle": "4.2.7 Cari mengikut syarikat, jenis, pelan, status dan tarikh"
+        "subtitle": "Cari mengikut syarikat, jenis, pelan, status dan tarikh"
       },
       "statistics": {
         "title": "Statistik Langganan",
-        "subtitle": "4.2.8 Jumlah langganan, pembaharuan dan penerimaan SaaS"
+        "subtitle": "Jumlah langganan, pembaharuan dan penerimaan SaaS"
       },
       "activity": {
         "title": "Rekod Operasi",
-        "subtitle": "4.2.9 Sejarah perubahan langganan kekal"
+        "subtitle": "Sejarah perubahan langganan kekal"
       }
     },
     "toast": {

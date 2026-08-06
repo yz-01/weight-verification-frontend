@@ -70,9 +70,7 @@ export function AuditCenterWorkspace({
               href={`/audit-logs/${module.section}`}
               className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"
             >
-              <span className="w-14 text-xs font-semibold tabular-nums text-muted-foreground">
-                {module.number}
-              </span>
+              
               <span className="min-w-0 flex-1 font-medium">
                 {t(`section.${module.section}.title`)}
               </span>

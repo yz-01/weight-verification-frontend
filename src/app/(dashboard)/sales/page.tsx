@@ -1,5 +1,5 @@
-import { SalesAdminWorkspace } from "@/components/sales/sales-admin-workspace";
+import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
 
 export default function SalesPage() {
-  return <SalesAdminWorkspace />;
+  return <AdminModuleLanding feature="sales_commission" />;
 }

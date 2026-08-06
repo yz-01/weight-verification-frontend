@@ -50,7 +50,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const groups = useMemo(
     () => visibleNavigation(user?.portal, user?.features),
@@ -97,9 +97,12 @@ export function AppSidebar() {
                   );
                   const Icon = item.icon;
                   const label = t(`nav.${item.labelKey}`);
-                  const isExpanded =
-                    expanded.has(item.feature) ||
-                    Boolean(item.children?.some((child) => isActivePath(child.href, pathname)));
+                  const childIsActive = Boolean(
+                    item.children?.some((child) =>
+                      isActivePath(child.href, pathname, true),
+                    ),
+                  );
+                  const isExpanded = expanded[item.feature] ?? childIsActive;
                   return (
                     <SidebarMenuItem key={item.feature}>
                       <SidebarMenuButton
@@ -121,12 +124,12 @@ export function AppSidebar() {
                           type="button"
                           aria-label={t("nav.toggleSubmodules", { module: label })}
                           aria-expanded={isExpanded}
-                          onClick={() => setExpanded((current) => {
-                            const next = new Set(current);
-                            if (next.has(item.feature)) next.delete(item.feature);
-                            else next.add(item.feature);
-                            return next;
-                          })}
+                          onClick={() =>
+                            setExpanded((current) => ({
+                              ...current,
+                              [item.feature]: !isExpanded,
+                            }))
+                          }
                         >
                           <ChevronDown className={isExpanded ? "rotate-180 transition-transform" : "transition-transform"} />
                         </SidebarMenuAction>
@@ -143,7 +146,6 @@ export function AppSidebar() {
                                     onClick={closeOnMobile}
                                     aria-current={childActive ? "page" : undefined}
                                   >
-                                    <span className="tabular-nums text-[10px] text-muted-foreground">{child.key}</span>
                                     <span>{t(child.labelKey)}</span>
                                   </Link>
                                 </SidebarMenuSubButton>

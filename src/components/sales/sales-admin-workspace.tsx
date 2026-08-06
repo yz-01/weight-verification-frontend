@@ -93,7 +93,7 @@ function Overview() {
         ))}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">
-        {SUBMODULES.map((module) => <Link key={module.section} href={`/sales/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="w-14 text-xs font-semibold text-muted-foreground">{module.number}</span><span className="flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}
+        {SUBMODULES.map((module) => <Link key={module.section} href={`/sales/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}
       </div></div>
     </div>
   );

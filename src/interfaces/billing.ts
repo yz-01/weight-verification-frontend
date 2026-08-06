@@ -126,6 +126,67 @@ export interface BillingSummary {
   period_end: string;
 }
 
+export type BillingJobState =
+  | "QUEUED"
+  | "RUNNING"
+  | "RETRY_WAIT"
+  | "SUCCEEDED"
+  | "FAILED"
+  | "CANCELLED";
+
+export interface BillingScheduledJob {
+  id: string;
+  code: string;
+  name: string;
+  interval_minutes: number | null;
+  next_run_at: string | null;
+  is_active: boolean;
+  last_run_at: string | null;
+  last_run_state: BillingJobState | "";
+}
+
+export interface BillingJobRun {
+  id: string;
+  job: string;
+  job_code: string;
+  state: BillingJobState;
+  attempt: number;
+  max_attempts: number;
+  scheduled_for: string;
+  started_at: string | null;
+  completed_at: string | null;
+  result: Record<string, unknown>;
+  error: string;
+  created_at: string;
+}
+
+export interface AutomaticBillingStatus {
+  job: BillingScheduledJob | null;
+  runs: BillingJobRun[];
+}
+
+export interface FinancialReportTotals {
+  invoice_count: number;
+  payment_count: number;
+  billed: string;
+  collected: string;
+  outstanding: string;
+  overdue: string;
+}
+
+export interface FinancialReportsSummary {
+  period_start: string | null;
+  period_end: string | null;
+  currency: string;
+  reports: {
+    saas: FinancialReportTotals;
+    commission: FinancialReportTotals;
+    receivables: FinancialReportTotals;
+    paid: FinancialReportTotals;
+    unpaid: FinancialReportTotals;
+  };
+}
+
 export interface CreatePaymentPayload {
   invoice: string;
   amount: string;

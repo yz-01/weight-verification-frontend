@@ -377,6 +377,16 @@
       "cloudActivity": "Cloud records"
     }
   },
+  "globalSearch": {
+    "open": "Open module search",
+    "placeholder": "Search modules and functions",
+    "noResults": "No matching module or function"
+  },
+  "adminModuleLanding": {
+    "sectionLabel": "Available functions",
+    "searchPlaceholder": "Search within this module",
+    "noResults": "No matching function in this module"
+  },
   "integrations": {
     "title": "Integrations",
     "subtitle": "Register connections and field devices without exposing secrets.",
@@ -1641,43 +1651,43 @@
     "section": {
       "live-platform": {
         "title": "Live platform status",
-        "subtitle": "6.2.1 Online companies, projects and users based on current activity"
+        "subtitle": "Online companies, projects and users based on current activity"
       },
       "cwe": {
         "title": "CWE monitoring",
-        "subtitle": "6.2.2 Weighbridge connectivity, current readings, weighing and anomaly status"
+        "subtitle": "Weighbridge connectivity, current readings, weighing and anomaly status"
       },
       "cctv": {
         "title": "AI CCTV monitoring",
-        "subtitle": "6.2.3 Device and recognition status with explicit simulator or live mode"
+        "subtitle": "Device and recognition status with explicit simulator or live mode"
       },
       "anpr": {
         "title": "ANPR monitoring",
-        "subtitle": "6.2.4 Camera connectivity, recognition failures and service status"
+        "subtitle": "Camera connectivity, recognition failures and service status"
       },
       "api-gateway": {
         "title": "API Gateway monitoring",
-        "subtitle": "6.2.5 Calls, failures, latency and service health"
+        "subtitle": "Calls, failures, latency and service health"
       },
       "sync": {
         "title": "Synchronisation monitoring",
-        "subtitle": "6.2.6 Contractor and recycler ERP, government API and MyInvois delivery status"
+        "subtitle": "Contractor and recycler ERP, government API and MyInvois delivery status"
       },
       "exceptions": {
         "title": "Exception monitoring",
-        "subtitle": "6.2.7 Acknowledge and resolve system, API, weighing, device and sync exceptions"
+        "subtitle": "Acknowledge and resolve system, API, weighing, device and sync exceptions"
       },
       "service-search": {
         "title": "Service search",
-        "subtitle": "6.2.8 Search by service name, status, last check and exception content"
+        "subtitle": "Search by service name, status, last check and exception content"
       },
       "runtime-statistics": {
         "title": "Runtime statistics",
-        "subtitle": "6.2.9 Uptime, response time, API success and synchronisation success"
+        "subtitle": "Uptime, response time, API success and synchronisation success"
       },
       "records": {
         "title": "Monitoring records",
-        "subtitle": "6.2.10 Permanent event time, type, service, content and handling history"
+        "subtitle": "Permanent event time, type, service, content and handling history"
       }
     },
     "mode": {
@@ -2844,35 +2854,35 @@
     "section": {
       "types": {
         "title": "QR subject types",
-        "subtitle": "7.2.1 Issue codes for contractors, recyclers, suppliers, drivers, vehicles, field staff, visitors and devices"
+        "subtitle": "Issue codes for contractors, recyclers, suppliers, drivers, vehicles, field staff, visitors and devices"
       },
       "register": {
         "title": "QR register",
-        "subtitle": "7.2.2 QR ID, category, company, project, issue date, validity and usage status"
+        "subtitle": "QR ID, category, company, project, issue date, validity and usage status"
       },
       "lifecycle": {
         "title": "QR lifecycle",
-        "subtitle": "7.2.3 Enable, disable, permanently void or reissue a code"
+        "subtitle": "Enable, disable, permanently void or reissue a code"
       },
       "search": {
         "title": "QR search",
-        "subtitle": "7.2.4 Search by QR ID, company, type, project, status and issue date"
+        "subtitle": "Search by QR ID, company, type, project, status and issue date"
       },
       "scans": {
         "title": "Scan records",
-        "subtitle": "7.2.5 Permanent scan time, location, person, project and result records"
+        "subtitle": "Permanent scan time, location, person, project and result records"
       },
       "anomalies": {
         "title": "QR anomalies",
-        "subtitle": "7.2.6 Invalid, disabled, voided, duplicate and failed scans"
+        "subtitle": "Invalid, disabled, voided, duplicate and failed scans"
       },
       "statistics": {
         "title": "QR statistics",
-        "subtitle": "7.2.7 Total codes by category and today's scan results"
+        "subtitle": "Total codes by category and today's scan results"
       },
       "activity": {
         "title": "QR activity",
-        "subtitle": "7.2.8 Permanent issue, status, reissue, use and export operations"
+        "subtitle": "Permanent issue, status, reissue, use and export operations"
       }
     },
     "subjectType": {
@@ -2969,43 +2979,43 @@
     "section": {
       "contractors": {
         "title": "Contractor notifications",
-        "subtitle": "10.2.1 Registration, activation, suspension, expiry and renewal notifications"
+        "subtitle": "Registration, activation, suspension, expiry and renewal notifications"
       },
       "recyclers": {
         "title": "Recycler notifications",
-        "subtitle": "10.2.2 Registration, activation, suspension, expiry and renewal notifications"
+        "subtitle": "Registration, activation, suspension, expiry and renewal notifications"
       },
       "saas": {
         "title": "SaaS notifications",
-        "subtitle": "10.2.3 Invoice generation, due, expiry, payment and overdue notifications"
+        "subtitle": "Invoice generation, due, expiry, payment and overdue notifications"
       },
       "commission": {
         "title": "Platform commission notifications",
-        "subtitle": "10.2.4 Commission generation, receivable, collection, outstanding and overdue notifications"
+        "subtitle": "Commission generation, receivable, collection, outstanding and overdue notifications"
       },
       "cwe": {
         "title": "Cloud Weighing Engine notifications",
-        "subtitle": "10.2.5 Offline, recovery, communication, weighing and system exceptions"
+        "subtitle": "Offline, recovery, communication, weighing and system exceptions"
       },
       "system": {
         "title": "System notifications",
-        "subtitle": "10.2.6 Announcements, maintenance, releases, upgrades and emergency notices"
+        "subtitle": "Announcements, maintenance, releases, upgrades and emergency notices"
       },
       "search": {
         "title": "Notification search",
-        "subtitle": "10.2.7 Search by category, company, date and read status"
+        "subtitle": "Search by category, company, date and read status"
       },
       "manage": {
         "title": "Notification management",
-        "subtitle": "10.2.8 View, mark read or unread, and remove inbox records"
+        "subtitle": "View, mark read or unread, and remove inbox records"
       },
       "channels": {
         "title": "Notification channels",
-        "subtitle": "10.2.9 In-app, Email and Push delivery with explicit LIVE or SIMULATED status"
+        "subtitle": "In-app, Email and Push delivery with explicit LIVE or SIMULATED status"
       },
       "records": {
         "title": "Notification records",
-        "subtitle": "10.2.10 Permanent delivery, read and status change history"
+        "subtitle": "Permanent delivery, read and status change history"
       }
     },
     "filter": {
@@ -3058,43 +3068,43 @@
     "section": {
       "contractors": {
         "title": "Contractor reports",
-        "subtitle": "9.2.1 Contractor totals, additions, active status and projects"
+        "subtitle": "Contractor totals, additions, active status and projects"
       },
       "recyclers": {
         "title": "Recycler reports",
-        "subtitle": "9.2.2 Recycler totals, additions, active status and platform business"
+        "subtitle": "Recycler totals, additions, active status and platform business"
       },
       "business": {
         "title": "Platform business reports",
-        "subtitle": "9.2.3 Platform orders, completed orders, recovered weight and settlement value"
+        "subtitle": "Platform orders, completed orders, recovered weight and settlement value"
       },
       "saas": {
         "title": "SaaS billing reports",
-        "subtitle": "9.2.4 Subscriptions, receivables, collections, outstanding balance and renewals"
+        "subtitle": "Subscriptions, receivables, collections, outstanding balance and renewals"
       },
       "commission": {
         "title": "Platform commission reports",
-        "subtitle": "9.2.5 Commission business weight, settlement value, rates and collections"
+        "subtitle": "Commission business weight, settlement value, rates and collections"
       },
       "cwe": {
         "title": "Cloud Weighing Engine reports",
-        "subtitle": "9.2.6 Weighbridges, sessions, anomalies, reweighs and online rate"
+        "subtitle": "Weighbridges, sessions, anomalies, reweighs and online rate"
       },
       "operations": {
         "title": "System operations reports",
-        "subtitle": "9.2.7 Online users, active users, API calls, synchronisation and exceptions"
+        "subtitle": "Online users, active users, API calls, synchronisation and exceptions"
       },
       "search": {
         "title": "Report search",
-        "subtitle": "9.2.8 Query any report by company, project, state and date range"
+        "subtitle": "Query any report by company, project, state and date range"
       },
       "export": {
         "title": "Report export",
-        "subtitle": "9.2.9 Export daily, weekly, monthly, yearly or custom ranges to PDF and Excel"
+        "subtitle": "Export daily, weekly, monthly, yearly or custom ranges to PDF and Excel"
       },
       "history": {
         "title": "Report history",
-        "subtitle": "9.2.10 Permanent report generation and export records"
+        "subtitle": "Permanent report generation and export records"
       }
     },
     "filter": {
@@ -3179,35 +3189,35 @@
     "section": {
       "scales": {
         "title": "Weighbridge register",
-        "subtitle": "8.2.1 Device code, company, project or site, location, gateway, protocol and enabled status"
+        "subtitle": "Device code, company, project or site, location, gateway, protocol and enabled status"
       },
       "connections": {
         "title": "Connection status",
-        "subtitle": "8.2.2 Online or offline state, last communication, network and gateway status"
+        "subtitle": "Online or offline state, last communication, network and gateway status"
       },
       "live-weighing": {
         "title": "Current weighing status",
-        "subtitle": "8.2.3 Current weight, stability, last weighing and active session status"
+        "subtitle": "Current weight, stability, last weighing and active session status"
       },
       "anomalies": {
         "title": "Weighing anomalies",
-        "subtitle": "8.2.4 Invalid weighing, reweigh, communication and device anomalies"
+        "subtitle": "Invalid weighing, reweigh, communication and device anomalies"
       },
       "search": {
         "title": "Weighing search",
-        "subtitle": "8.2.5 Search by company, project, device, status and date"
+        "subtitle": "Search by company, project, device, status and date"
       },
       "statistics": {
         "title": "CWE statistics",
-        "subtitle": "8.2.6 Weighbridges, weighings, anomalies, reweighs and online rate"
+        "subtitle": "Weighbridges, weighings, anomalies, reweighs and online rate"
       },
       "service-status": {
         "title": "CWE service status",
-        "subtitle": "8.2.7 Processing capacity, response time, error rate and synchronisation status"
+        "subtitle": "Processing capacity, response time, error rate and synchronisation status"
       },
       "activity": {
         "title": "CWE records",
-        "subtitle": "8.2.8 Permanent registration, connection, communication, anomaly, reweigh and status operations"
+        "subtitle": "Permanent registration, connection, communication, anomaly, reweigh and status operations"
       }
     },
     "field": {
@@ -4059,6 +4069,54 @@
       "removeTitle": "Remove commission rule",
       "removeDescription": "Remove {name}? A rule already used by an invoice can only be disabled."
     },
+    "automatic": {
+      "runNow": "Run now",
+      "active": "Active",
+      "inactive": "Inactive",
+      "history": "Recent automatic billing runs",
+      "empty": "No automatic billing run recorded yet.",
+      "loadError": "Automatic billing status could not be loaded.",
+      "notConfigured": "Automatic billing schedule is not configured.",
+      "intervalMinutes": "Every {count} minutes",
+      "field": {
+        "status": "Schedule status",
+        "nextRun": "Next run",
+        "lastRun": "Last run",
+        "interval": "Frequency",
+        "scheduledFor": "Scheduled for",
+        "state": "Result",
+        "attempt": "Attempt",
+        "saasIssued": "SaaS invoices",
+        "commissionIssued": "Commission invoices",
+        "overdueUpdated": "Overdue updated",
+        "error": "Error"
+      },
+      "state": {
+        "QUEUED": "Queued",
+        "RUNNING": "Running",
+        "RETRY_WAIT": "Waiting to retry",
+        "SUCCEEDED": "Succeeded",
+        "FAILED": "Failed",
+        "CANCELLED": "Cancelled"
+      },
+      "toast": { "queued": "Automatic billing run queued" }
+    },
+    "financialReports": {
+      "loadError": "Financial report totals could not be loaded.",
+      "metric": {
+        "invoiceCount": "Invoices",
+        "paymentCount": "Confirmed payments",
+        "billed": "Receivable",
+        "collected": "Received",
+        "outstanding": "Outstanding",
+        "overdue": "Overdue"
+      },
+      "saas": { "title": "SaaS income report", "subtitle": "SaaS subscription invoices and collection position" },
+      "commission": { "title": "Platform commission income report", "subtitle": "Platform business commission invoices and collection position" },
+      "receivables": { "title": "Accounts receivable report", "subtitle": "All billed, received and outstanding amounts" },
+      "paid": { "title": "Collected payments report", "subtitle": "Every confirmed receipt, including part payments" },
+      "unpaid": { "title": "Outstanding payments report", "subtitle": "Issued, partially paid and overdue invoices with an outstanding balance" }
+    },
     "metric": {
       "saasBilled": "SaaS receivable this month",
       "saasCollected": "SaaS received this month",
@@ -4072,43 +4130,43 @@
     "section": {
       "saas-invoices": {
         "title": "SaaS Invoice Management",
-        "subtitle": "5.2.1 SaaS invoices, plans, periods, amounts and payment status"
+        "subtitle": "SaaS invoices, plans, periods, amounts and payment status"
       },
       "commission": {
         "title": "Platform Commission Management",
-        "subtitle": "5.2.2 Settled platform business, weight, value, rate and commission"
+        "subtitle": "Settled platform business, weight, value, rate and commission"
       },
       "automatic-billing": {
         "title": "Automatic Billing",
-        "subtitle": "5.2.3 Daily SaaS and commission invoice generation and tenant delivery"
+        "subtitle": "Daily SaaS and commission invoice generation and tenant delivery"
       },
       "collections": {
         "title": "Collections",
-        "subtitle": "5.2.4 Unpaid, paid, partial and overdue payment confirmation"
+        "subtitle": "Unpaid, paid, partial and overdue payment confirmation"
       },
       "payment-proofs": {
         "title": "Payment Proofs",
-        "subtitle": "5.2.5 Bank slips, screenshots, payment dates and notes"
+        "subtitle": "Bank slips, screenshots, payment dates and notes"
       },
       "commission-rules": {
         "title": "Commission Rules",
-        "subtitle": "5.2.6 Platform rate, calculation basis and settlement cycle"
+        "subtitle": "Platform rate, calculation basis and settlement cycle"
       },
       "search": {
         "title": "Invoice Search",
-        "subtitle": "5.2.7 Search by company, number, type, date and payment status"
+        "subtitle": "Search by company, number, type, date and payment status"
       },
       "statistics": {
         "title": "Billing Statistics",
-        "subtitle": "5.2.8 Current-month SaaS and commission receivables"
+        "subtitle": "Current-month SaaS and commission receivables"
       },
       "reports": {
         "title": "Financial Reports",
-        "subtitle": "5.2.9 SaaS, commission, receivable, paid and unpaid PDF/Excel reports"
+        "subtitle": "SaaS, commission, receivable, paid and unpaid PDF/Excel reports"
       },
       "activity": {
         "title": "Billing Operation Records",
-        "subtitle": "5.2.10 Permanent invoice, calculation, collection and rule history"
+        "subtitle": "Permanent invoice, calculation, collection and rule history"
       }
     },
     "toast": {
@@ -4279,39 +4337,39 @@
     "section": {
       "plans": {
         "title": "Subscription Plans",
-        "subtitle": "4.2.1 Plan pricing, terms, allowances and feature entitlements"
+        "subtitle": "Plan pricing, terms, allowances and feature entitlements"
       },
       "companies": {
         "title": "Company Subscriptions",
-        "subtitle": "4.2.2 Current plan, term and status for every company"
+        "subtitle": "Current plan, term and status for every company"
       },
       "status": {
         "title": "Subscription Status",
-        "subtitle": "4.2.3 Automatic subscription lifecycle states"
+        "subtitle": "Automatic subscription lifecycle states"
       },
       "package-changes": {
         "title": "Package Changes",
-        "subtitle": "4.2.4 Upgrade, downgrade, extend, pause or end a subscription"
+        "subtitle": "Upgrade, downgrade, extend, pause or end a subscription"
       },
       "account-limits": {
         "title": "Account Limits",
-        "subtitle": "4.2.5 Purchased, used and remaining back-office accounts"
+        "subtitle": "Purchased, used and remaining back-office accounts"
       },
       "reminders": {
         "title": "Expiry Reminders",
-        "subtitle": "4.2.6 Renewal queue shared with MSE and affected tenants"
+        "subtitle": "Renewal queue shared with MSE and affected tenants"
       },
       "search": {
         "title": "Subscription Search",
-        "subtitle": "4.2.7 Search by company, type, plan, status and expiry"
+        "subtitle": "Search by company, type, plan, status and expiry"
       },
       "statistics": {
         "title": "Subscription Statistics",
-        "subtitle": "4.2.8 Subscription volume, renewals and SaaS receipts"
+        "subtitle": "Subscription volume, renewals and SaaS receipts"
       },
       "activity": {
         "title": "Operation Records",
-        "subtitle": "4.2.9 Permanent subscription change history"
+        "subtitle": "Permanent subscription change history"
       }
     },
     "toast": {

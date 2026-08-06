@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { CompanyRow, CompanyStatus } from "@/interfaces/company";
 import { useDateFormat } from "@/lib/dates";
+import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
   deleteCompany,
   getCompanies,
@@ -28,25 +29,6 @@ import {
 } from "@/services/companies.service";
 
 const FILTER_KEYS = ["type", "status", "state", "plan", "review_status"];
-const MALAYSIA_STATES = [
-  "Johor",
-  "Kedah",
-  "Kelantan",
-  "Melaka",
-  "Negeri Sembilan",
-  "Pahang",
-  "Penang",
-  "Perak",
-  "Perlis",
-  "Sabah",
-  "Sarawak",
-  "Selangor",
-  "Terengganu",
-  "Kuala Lumpur",
-  "Labuan",
-  "Putrajaya",
-];
-
 /** How each lifecycle state reads in the status pill. */
 const STATUS_TONE: Record<
   CompanyStatus,

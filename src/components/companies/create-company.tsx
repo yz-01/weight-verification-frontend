@@ -29,6 +29,7 @@ import type {
   CompanyPayload,
   CompanyType,
 } from "@/interfaces/company";
+import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
   createCompany,
   getSubscriptionPlans,
@@ -534,10 +535,14 @@ export function CreateCompany({
 
         <form.Field name="state" validators={{ onSubmit: required(t("validation.required")) }}>
           {(field) => (
-            <TextField
+            <SelectField
               field={field as unknown as BoundField}
               label={t("companies.field.state")}
               required
+              options={MALAYSIA_STATES.map((state) => ({
+                value: state,
+                label: state,
+              }))}
             />
           )}
         </form.Field>
