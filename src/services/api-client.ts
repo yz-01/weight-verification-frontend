@@ -208,7 +208,7 @@ export async function request<T>(
  */
 export async function download(
   path: string,
-  options: RequestOptions & { fallbackFilename: string },
+  options: RequestOptions & { fallbackFilename: string; openInNewTab?: boolean },
 ): Promise<void> {
   let response: Response;
   try {
@@ -243,6 +243,11 @@ export async function download(
 
   const blob = await response.blob();
   const url = URL.createObjectURL(blob);
+  if (options.openInNewTab) {
+    window.open(url, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return;
+  }
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download =

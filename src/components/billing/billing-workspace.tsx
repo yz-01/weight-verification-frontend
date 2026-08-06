@@ -1,0 +1,69 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight } from "lucide-react";
+import { useFormatter, useTranslations } from "next-intl";
+import Link from "next/link";
+
+import { AuditLogs } from "@/components/audit/audit-logs";
+import { CommissionRuleManager } from "@/components/billing/commission-rule-manager";
+import { InvoiceList } from "@/components/billing/invoice-list";
+import { PaymentManager } from "@/components/billing/payment-manager";
+import { ListHeader } from "@/components/shared/page-primitives";
+import { getBillingSummary } from "@/services/billing.service";
+
+export type BillingSection =
+  | "overview"
+  | "saas-invoices"
+  | "commission"
+  | "automatic-billing"
+  | "collections"
+  | "payment-proofs"
+  | "commission-rules"
+  | "search"
+  | "statistics"
+  | "reports"
+  | "activity";
+
+const SUBMODULES: Array<{ section: Exclude<BillingSection, "overview">; number: string }> = [
+  { section: "saas-invoices", number: "5.2.1" }, { section: "commission", number: "5.2.2" },
+  { section: "automatic-billing", number: "5.2.3" }, { section: "collections", number: "5.2.4" },
+  { section: "payment-proofs", number: "5.2.5" }, { section: "commission-rules", number: "5.2.6" },
+  { section: "search", number: "5.2.7" }, { section: "statistics", number: "5.2.8" },
+  { section: "reports", number: "5.2.9" }, { section: "activity", number: "5.2.10" },
+];
+
+export function BillingWorkspace({ section = "overview" }: { section?: BillingSection }) {
+  const t = useTranslations("billing");
+  const summary = useQuery({ queryKey: ["billing", "summary"], queryFn: getBillingSummary });
+  if (section === "activity") return <AuditLogs title={t("section.activity.title")} subtitle={t("section.activity.subtitle")} />;
+
+  let content: React.ReactNode;
+  if (section === "overview") content = <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((module) => <Link key={module.section} href={`/billing/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="w-14 text-xs font-semibold tabular-nums text-muted-foreground">{module.number}</span><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
+  else if (section === "saas-invoices") content = <InvoiceList fixedKind="SAAS" embedded />;
+  else if (section === "commission") content = <InvoiceList fixedKind="COMMISSION" embedded />;
+  else if (section === "collections") content = <PaymentManager />;
+  else if (section === "payment-proofs") content = <PaymentManager proofsOnly />;
+  else if (section === "commission-rules") content = <CommissionRuleManager />;
+  else if (section === "statistics") content = <BillingMetrics expanded />;
+  else content = <InvoiceList embedded />;
+
+  return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={section === "overview" ? t("title") : t(`section.${section}.title`)} subtitle={section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`)} />{section === "overview" && <Summary data={summary.data} loading={summary.isLoading} />}{content}</div>;
+}
+
+function BillingMetrics({ expanded = false }: { expanded?: boolean }) {
+  const summary = useQuery({ queryKey: ["billing", "summary"], queryFn: getBillingSummary });
+  return <div className="border-y bg-card"><Summary data={summary.data} loading={summary.isLoading} expanded={expanded} /></div>;
+}
+
+function Summary({ data, loading, expanded = false }: { data: Awaited<ReturnType<typeof getBillingSummary>> | undefined; loading: boolean; expanded?: boolean }) {
+  const t = useTranslations("billing"); const format = useFormatter();
+  const money = (value?: string) => value === undefined ? "..." : format.number(Number(value), { style: "currency", currency: "MYR" });
+  const metrics = [
+    ["saasBilled", money(data?.saas.billed)], ["saasCollected", money(data?.saas.collected)], ["saasOutstanding", money(data?.saas.outstanding)],
+    ["commissionBilled", money(data?.commission.billed)], ["commissionCollected", money(data?.commission.collected)], ["commissionOutstanding", money(data?.commission.outstanding)],
+    ["pendingReviews", loading ? "..." : data?.pending_payment_review ?? 0], ["overdue", money(String(Number(data?.saas.overdue ?? 0) + Number(data?.commission.overdue ?? 0)))],
+  ] as const;
+  const visible = expanded ? metrics : metrics.slice(0, 6);
+  return <div className={`grid border-l ${expanded ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"}`}>{visible.map(([key, value]) => <div key={key} className="min-h-20 border-b border-r px-4 py-3"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-2 text-lg font-semibold tabular-nums">{value}</p></div>)}</div>;
+}

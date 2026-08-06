@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, UserCog } from "lucide-react";
+import { Eye, FileDown, Loader2, UserCog } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -11,13 +11,22 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { AuditAction, AuditLogEntry } from "@/interfaces/audit";
-import { getAuditLogs } from "@/services/audit.service";
+import { exportAuditLogs, getAuditLogs } from "@/services/audit.service";
 import { getCompanies } from "@/services/companies.service";
 import { useDateFormat } from "@/lib/dates";
 
-const FILTER_KEYS = ["action", "company"];
+const FILTER_KEYS = [
+  "action",
+  "company",
+  "object_type",
+  "module",
+  "ip_address",
+  "date_from",
+  "date_to",
+];
 
 /**
  * How each action reads.
@@ -54,7 +63,23 @@ const FILTERABLE_ACTIONS: AuditAction[] = [
   "LOGIN_FAILED",
 ];
 
-export function AuditLogs() {
+export function AuditLogs({
+  fixedAction,
+  fixedModule,
+  fixedCategory,
+  advanced = false,
+  showExport = false,
+  title,
+  subtitle,
+}: {
+  fixedAction?: AuditAction;
+  fixedModule?: string;
+  fixedCategory?: string;
+  advanced?: boolean;
+  showExport?: boolean;
+  title?: string;
+  subtitle?: string;
+} = {}) {
   const t = useTranslations();
   const df = useDateFormat();
   const { user } = useAuth();
@@ -62,8 +87,13 @@ export function AuditLogs() {
   const [viewing, setViewing] = useState<AuditLogEntry | null>(null);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["audit-logs", list.query],
-    queryFn: () => getAuditLogs(list.query),
+    queryKey: ["audit-logs", fixedAction, fixedModule, fixedCategory, list.query],
+    queryFn: () => getAuditLogs({
+      ...list.query,
+      action: fixedAction ?? list.query.action,
+      module: fixedModule,
+      category: fixedCategory,
+    }),
   });
   const companies = useQuery({
     queryKey: ["companies", "audit-options"],
@@ -213,7 +243,7 @@ export function AuditLogs() {
     [t, df],
   );
 
-  const filterPills = [
+  const filterPills = fixedAction ? undefined : [
     {
       key: "all",
       label: t("common.all"),
@@ -229,12 +259,49 @@ export function AuditLogs() {
   ];
 
   const totalCount = data?.count ?? 0;
+  const exportMutation = useMutation({
+    mutationFn: (format: "PDF" | "EXCEL") =>
+      exportAuditLogs({
+        ...list.query,
+        action: fixedAction ?? list.query.action,
+        module: fixedModule,
+        category: fixedCategory,
+        format,
+        title: title ?? t("audit.title"),
+        subtitle: subtitle ?? t("audit.exportSubtitle"),
+        empty_label: t("audit.empty"),
+        columns: [
+          { key: "created_at", label: t("audit.field.createdAt") },
+          { key: "action", label: t("audit.field.action") },
+          { key: "actor_email", label: t("audit.field.actor") },
+          { key: "company_name", label: t("audit.field.company") },
+          { key: "object_type", label: t("audit.field.objectType") },
+          { key: "object_id", label: t("audit.field.objectId") },
+          { key: "object_repr", label: t("audit.field.objectRepr") },
+          { key: "reason", label: t("audit.field.reason") },
+          { key: "ip_address", label: t("audit.field.ipAddress") },
+          { key: "request_path", label: t("audit.field.requestPath") },
+        ],
+      }),
+  });
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
-        title={t("audit.title")}
-        subtitle={isLoading ? "—" : t("audit.count", { count: totalCount })}
+        title={title ?? t("audit.title")}
+        subtitle={subtitle ?? (isLoading ? "—" : t("audit.count", { count: totalCount }))}
+        action={showExport ? (
+          <div className="flex gap-2">
+            <Button variant="outline" disabled={exportMutation.isPending} onClick={() => exportMutation.mutate("PDF")}>
+              {exportMutation.isPending ? <Loader2 className="animate-spin" /> : <FileDown />}
+              PDF
+            </Button>
+            <Button disabled={exportMutation.isPending} onClick={() => exportMutation.mutate("EXCEL")}>
+              {exportMutation.isPending ? <Loader2 className="animate-spin" /> : <FileDown />}
+              Excel
+            </Button>
+          </div>
+        ) : undefined}
       />
 
       {user?.is_platform_staff && (
@@ -255,6 +322,38 @@ export function AuditLogs() {
         </select>
       )}
 
+      {advanced && (
+        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+          <Input
+            value={list.filters.object_type ?? ""}
+            placeholder={t("audit.filter.objectType")}
+            onChange={(event) => list.setFilter("object_type", event.target.value || undefined)}
+          />
+          <Input
+            value={list.filters.module ?? ""}
+            placeholder={t("audit.filter.module")}
+            onChange={(event) => list.setFilter("module", event.target.value || undefined)}
+          />
+          <Input
+            value={list.filters.ip_address ?? ""}
+            placeholder={t("audit.filter.ipAddress")}
+            onChange={(event) => list.setFilter("ip_address", event.target.value || undefined)}
+          />
+          <Input
+            type="date"
+            aria-label={t("audit.filter.dateFrom")}
+            value={list.filters.date_from ?? ""}
+            onChange={(event) => list.setFilter("date_from", event.target.value || undefined)}
+          />
+          <Input
+            type="date"
+            aria-label={t("audit.filter.dateTo")}
+            value={list.filters.date_to ?? ""}
+            onChange={(event) => list.setFilter("date_to", event.target.value || undefined)}
+          />
+        </div>
+      )}
+
       <DataTable
         columns={columns}
         rows={data?.results ?? []}
@@ -267,7 +366,15 @@ export function AuditLogs() {
         search={list.search}
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
-        storageKey="audit-logs"
+        storageKey={
+          fixedAction
+            ? `audit-logs-${fixedAction}`
+            : fixedModule
+              ? `audit-logs-${fixedModule}`
+              : fixedCategory
+                ? `audit-logs-${fixedCategory}`
+              : "audit-logs"
+        }
         filterPills={filterPills}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}

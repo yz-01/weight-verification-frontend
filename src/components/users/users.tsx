@@ -6,6 +6,7 @@ import {
   Ban,
   Eye,
   KeyRound,
+  LogOut,
   Pencil,
   Plus,
   RotateCcw,
@@ -21,17 +22,27 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { UserRow, UserStatus } from "@/interfaces/auth";
 import { useDateFormat } from "@/lib/dates";
 import {
   deleteUser,
+  forceLogoutUser,
+  getUserStats,
   getUsers,
   sendPasswordReset,
   updateUserStatus,
 } from "@/services/users.service";
+import { getCompanies } from "@/services/companies.service";
 
-const FILTER_KEYS = ["status"];
+const FILTER_KEYS = [
+  "status",
+  "audience",
+  "company",
+  "created_from",
+  "created_to",
+];
 
 const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
   ACTIVE: "positive",
@@ -42,9 +53,65 @@ const STATUS_TONE: Record<UserStatus, "positive" | "warning" | "danger"> = {
 type PendingAction =
   | { kind: "remove"; user: UserRow }
   | { kind: "suspend"; user: UserRow }
-  | { kind: "reinstate"; user: UserRow };
+  | { kind: "reinstate"; user: UserRow }
+  | { kind: "force-logout"; user: UserRow };
 
-export function Users() {
+export type UserManagementSection =
+  "management" | "profiles" | "categories" | "search" | "login" | "statistics";
+
+const ADMIN_SECTION_COLUMNS: Record<UserManagementSection, string[]> = {
+  management: [
+    "full_name",
+    "company_name",
+    "audience",
+    "status",
+    "last_login_at",
+    "created_at",
+    "actions",
+  ],
+  profiles: [
+    "full_name",
+    "phone",
+    "company_name",
+    "audience",
+    "status",
+    "created_at",
+    "actions",
+  ],
+  categories: [
+    "full_name",
+    "company_name",
+    "audience",
+    "status",
+    "created_at",
+    "actions",
+  ],
+  search: [
+    "full_name",
+    "phone",
+    "company_name",
+    "audience",
+    "status",
+    "last_login_at",
+    "created_at",
+    "actions",
+  ],
+  login: ["full_name", "company_name", "status", "last_login_at", "actions"],
+  statistics: [
+    "full_name",
+    "company_name",
+    "audience",
+    "status",
+    "created_at",
+    "actions",
+  ],
+};
+
+export function Users({
+  section = "management",
+}: {
+  section?: UserManagementSection;
+}) {
   const t = useTranslations();
   const df = useDateFormat();
   const { user: me, can } = useAuth();
@@ -57,6 +124,15 @@ export function Users() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["users", list.query],
     queryFn: () => getUsers(list.query),
+  });
+  const stats = useQuery({
+    queryKey: ["users", "stats"],
+    queryFn: () => getUserStats(),
+  });
+  const companies = useQuery({
+    queryKey: ["companies", "user-filter"],
+    queryFn: () => getCompanies({ page_size: 500, sort_by: "name" }),
+    enabled: Boolean(me?.is_platform_staff),
   });
 
   function closeDialog() {
@@ -76,7 +152,10 @@ export function Users() {
 
   const statusChange = useMutation({
     mutationFn: ({ id, status }: { id: string; status: UserStatus }) =>
-      updateUserStatus(id, { status: status as "ACTIVE" | "SUSPENDED", reason }),
+      updateUserStatus(id, {
+        status: status as "ACTIVE" | "SUSPENDED",
+        reason,
+      }),
     onSuccess: invalidate,
   });
 
@@ -90,6 +169,10 @@ export function Users() {
         body: t("email.reset.body"),
       }),
   });
+  const forceLogout = useMutation({
+    mutationFn: (id: string) => forceLogoutUser(id),
+    onSuccess: invalidate,
+  });
 
   const columns = useMemo<ColumnDef<UserRow, unknown>[]>(
     () => [
@@ -100,7 +183,9 @@ export function Users() {
           <SortableHeader
             label={t("users.field.fullName")}
             isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onToggle={() =>
+              column.toggleSorting(column.getIsSorted() === "asc")
+            }
           />
         ),
         cell: ({ row }) => (
@@ -116,6 +201,20 @@ export function Users() {
             </p>
           </div>
         ),
+      },
+      {
+        accessorKey: "company_name",
+        meta: { label: t("users.field.company") },
+        header: () => t("users.field.company"),
+        cell: ({ row }) =>
+          row.original.company_name || t("users.audience.PLATFORM"),
+      },
+      {
+        id: "audience",
+        meta: { label: t("users.field.audience") },
+        header: () => t("users.field.audience"),
+        cell: ({ row }) =>
+          t(`users.audience.${row.original.company_type ?? "PLATFORM"}`),
       },
       {
         accessorKey: "role_name",
@@ -143,7 +242,9 @@ export function Users() {
           <SortableHeader
             label={t("users.field.status")}
             isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onToggle={() =>
+              column.toggleSorting(column.getIsSorted() === "asc")
+            }
           />
         ),
         cell: ({ row }) => (
@@ -175,7 +276,9 @@ export function Users() {
           <SortableHeader
             label={t("users.field.lastLoginAt")}
             isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onToggle={() =>
+              column.toggleSorting(column.getIsSorted() === "asc")
+            }
           />
         ),
         cell: ({ row }) =>
@@ -188,6 +291,24 @@ export function Users() {
               {t("common.emptyValue")}
             </span>
           ),
+      },
+      {
+        accessorKey: "created_at",
+        meta: { label: t("users.field.createdAt") },
+        header: ({ column }) => (
+          <SortableHeader
+            label={t("users.field.createdAt")}
+            isSorted={column.getIsSorted()}
+            onToggle={() =>
+              column.toggleSorting(column.getIsSorted() === "asc")
+            }
+          />
+        ),
+        cell: ({ row }) => (
+          <span className="text-muted-foreground tabular-nums">
+            {df.date(row.original.created_at)}
+          </span>
+        ),
       },
       {
         id: "actions",
@@ -240,6 +361,20 @@ export function Users() {
                 </Button>
               )}
 
+              {can("user.suspend") && !isSelf && target.status === "ACTIVE" && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  title={t("users.forceLogout.action")}
+                  onClick={() =>
+                    setPending({ kind: "force-logout", user: target })
+                  }
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </Button>
+              )}
+
               {can("user.suspend") &&
                 !isSelf &&
                 (suspended ? (
@@ -248,7 +383,9 @@ export function Users() {
                     size="icon"
                     className="h-7 w-7 text-success hover:bg-success/10"
                     title={t("companies.reinstate.confirm")}
-                    onClick={() => setPending({ kind: "reinstate", user: target })}
+                    onClick={() =>
+                      setPending({ kind: "reinstate", user: target })
+                    }
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                   </Button>
@@ -258,13 +395,15 @@ export function Users() {
                     size="icon"
                     className="h-7 w-7 text-warning hover:bg-warning/10"
                     title={t("users.suspend.confirm")}
-                    onClick={() => setPending({ kind: "suspend", user: target })}
+                    onClick={() =>
+                      setPending({ kind: "suspend", user: target })
+                    }
                   >
                     <Ban className="h-3.5 w-3.5" />
                   </Button>
                 ))}
 
-              {can("user.suspend") && !isSelf && (
+              {can("user.suspend") && !isSelf && !target.last_login_at && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -311,16 +450,36 @@ export function Users() {
   ];
 
   const totalCount = data?.count ?? 0;
-  const isPending = removal.isPending || statusChange.isPending;
-  // Platform staff browsing without a company are looking at MSE Trace's own
-  // people, which is a different screen in the client's terms.
-  const title = me?.is_platform_staff ? t("users.titleStaff") : t("users.title");
+  const isPending =
+    removal.isPending || statusChange.isPending || forceLogout.isPending;
+  const visibleColumns = useMemo(
+    () =>
+      me?.is_platform_staff
+        ? columns.filter((column) => {
+            const id =
+              column.id ??
+              ("accessorKey" in column ? String(column.accessorKey) : "");
+            return ADMIN_SECTION_COLUMNS[section].includes(id);
+          })
+        : columns,
+    [columns, me?.is_platform_staff, section],
+  );
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
-        title={title}
-        subtitle={isLoading ? "—" : t("users.count", { count: totalCount })}
+        title={
+          me?.is_platform_staff
+            ? t(`users.module.${section}.title`)
+            : t("users.title")
+        }
+        subtitle={
+          isLoading
+            ? "—"
+            : me?.is_platform_staff
+              ? t(`users.module.${section}.subtitle`, { count: totalCount })
+              : t("users.count", { count: totalCount })
+        }
         action={
           can("user.create") ? (
             <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
@@ -333,8 +492,94 @@ export function Users() {
         }
       />
 
+      {me?.is_platform_staff && (
+        <>
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-6">
+            {(
+              [
+                "total",
+                "platform",
+                "contractor",
+                "recycler",
+                "online",
+                "suspended",
+              ] as const
+            ).map((key) => {
+              const value =
+                key === "platform"
+                  ? stats.data?.by_audience.PLATFORM
+                  : key === "contractor"
+                    ? stats.data?.by_audience.CONTRACTOR
+                    : key === "recycler"
+                      ? stats.data?.by_audience.RECYCLER
+                      : stats.data?.[key];
+              return (
+                <div key={key} className="bg-card px-4 py-3">
+                  <p className="text-xs text-muted-foreground">
+                    {t(`users.summary.${key}`)}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold tabular-nums">
+                    {value ?? 0}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            <select
+              className="h-8 rounded-md border bg-background px-2 text-sm"
+              value={list.filters.audience ?? ""}
+              onChange={(event) =>
+                list.setFilter("audience", event.target.value || undefined)
+              }
+              aria-label={t("users.filter.audience")}
+            >
+              <option value="">{t("users.filter.allAudiences")}</option>
+              {(["PLATFORM", "CONTRACTOR", "RECYCLER"] as const).map(
+                (audience) => (
+                  <option key={audience} value={audience}>
+                    {t(`users.audience.${audience}`)}
+                  </option>
+                ),
+              )}
+            </select>
+            <select
+              className="h-8 rounded-md border bg-background px-2 text-sm"
+              value={list.filters.company ?? ""}
+              onChange={(event) =>
+                list.setFilter("company", event.target.value || undefined)
+              }
+              aria-label={t("users.filter.company")}
+            >
+              <option value="">{t("users.filter.allCompanies")}</option>
+              {(companies.data?.results ?? []).map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
+            <Input
+              type="date"
+              value={list.filters.created_from ?? ""}
+              onChange={(event) =>
+                list.setFilter("created_from", event.target.value || undefined)
+              }
+              aria-label={t("users.filter.createdFrom")}
+            />
+            <Input
+              type="date"
+              value={list.filters.created_to ?? ""}
+              onChange={(event) =>
+                list.setFilter("created_to", event.target.value || undefined)
+              }
+              aria-label={t("users.filter.createdTo")}
+            />
+          </div>
+        </>
+      )}
+
       <DataTable
-        columns={columns}
+        columns={visibleColumns}
         rows={data?.results ?? []}
         totalCount={totalCount}
         page={list.page}
@@ -345,7 +590,7 @@ export function Users() {
         search={list.search}
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
-        storageKey="users"
+        storageKey={me?.is_platform_staff ? `admin-users-${section}` : "users"}
         filterPills={filterPills}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
@@ -389,7 +634,9 @@ export function Users() {
           open
           onOpenChange={closeDialog}
           variant="default"
-          title={t("companies.reinstate.title", { name: pending.user.full_name })}
+          title={t("companies.reinstate.title", {
+            name: pending.user.full_name,
+          })}
           description={t("users.reinstate.description")}
           confirmLabel={t("companies.reinstate.confirm")}
           confirmIcon={UserPlus}
@@ -397,6 +644,20 @@ export function Users() {
           onConfirm={() =>
             statusChange.mutate({ id: pending.user.id, status: "ACTIVE" })
           }
+        />
+      )}
+
+      {pending?.kind === "force-logout" && (
+        <ConfirmDialog
+          open
+          onOpenChange={closeDialog}
+          variant="default"
+          title={t("users.forceLogout.title", { name: pending.user.full_name })}
+          description={t("users.forceLogout.description")}
+          confirmLabel={t("users.forceLogout.confirm")}
+          confirmIcon={LogOut}
+          isPending={isPending}
+          onConfirm={() => forceLogout.mutate(pending.user.id)}
         />
       )}
     </div>

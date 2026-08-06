@@ -17,6 +17,7 @@ import type {
   ScalePayload,
   SessionTrace,
   WeighingRuleSet,
+  WeighAnomalyRow,
   WeighSessionDetail,
   WeighSessionRow,
   WeighSessionSummary,
@@ -155,6 +156,15 @@ export function getWeighSessions(
 ): Promise<Paginated<WeighSessionRow>> {
   return api.list<WeighSessionRow>(
     "/api/weigh-sessions/get_sessions/",
+    query,
+  );
+}
+
+export function getWeighAnomalies(
+  query: ListQuery,
+): Promise<Paginated<WeighAnomalyRow>> {
+  return api.list<WeighAnomalyRow>(
+    "/api/weigh-sessions/get_anomalies/",
     query,
   );
 }

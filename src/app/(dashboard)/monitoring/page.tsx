@@ -1,5 +1,5 @@
-import { Monitoring } from "@/components/monitoring/monitoring";
+import { MonitoringWorkspace } from "@/components/monitoring/monitoring-workspace";
 
 export default function MonitoringPage() {
-  return <Monitoring />;
+  return <MonitoringWorkspace />;
 }

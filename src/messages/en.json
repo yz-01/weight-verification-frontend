@@ -124,7 +124,6 @@
     "weighing": "Weighing",
     "settlements": "Settlements",
     "payments": "Payments",
-    "billing": "Billing",
     "commission": "Commission",
     "tickets": "Support tickets",
     "announcements": "Announcements",
@@ -177,7 +176,206 @@
     "driver_gps": "Driver GPS",
     "site_gps": "Site personnel GPS",
     "integrations": "Integrations",
-    "system_monitoring": "System monitoring"
+    "system_monitoring": "System monitoring",
+    "customer_service": "Customer Service",
+    "subscription_management": "Subscriptions",
+    "billing_commission": "Billing & Commission",
+    "qr_code_management": "QR Codes",
+    "sales_commission": "Sales & Commission",
+    "technical_support": "Technical Support",
+    "partner_management": "Partners",
+    "asset_management": "Assets",
+    "cloud_service_management": "Cloud Services",
+    "version_management": "Versions",
+    "company_management": "Company Management",
+    "user_management": "User Management",
+    "platform_monitoring": "Platform Monitoring",
+    "report_center": "Report Center",
+    "notification_center": "Notification Center",
+    "platform_settings": "System Settings",
+    "audit_log_center": "Audit Log",
+    "toggleSubmodules": "Toggle {module} submodules",
+    "submodule": {
+      "dashboardMap": "Malaysia project map",
+      "dashboardPlatform": "Platform overview",
+      "dashboardBusiness": "Platform business statistics",
+      "dashboardSubscriptions": "SaaS subscription statistics",
+      "dashboardCommission": "Platform commission statistics",
+      "dashboardPending": "Pending actions",
+      "dashboardCwe": "CWE status",
+      "dashboardNotifications": "System notifications",
+      "dashboardQuickActions": "Quick actions",
+      "dashboardTrends": "Data trends",
+      "dashboardSystemStatus": "Live system status",
+      "companyCreate": "Create company",
+      "companyDirectory": "Company records",
+      "companyReview": "Company review",
+      "companyStatus": "Company status",
+      "companySubscriptions": "Company subscriptions",
+      "companyProjects": "Company projects",
+      "companyRecyclerData": "Recycler information",
+      "companySearch": "Company search",
+      "companyStatistics": "Company statistics",
+      "companyActivity": "Company operation records",
+      "userManagement": "User management",
+      "userProfiles": "User profiles",
+      "userCategories": "User categories",
+      "userSearch": "User search",
+      "userLoginManagement": "Login management",
+      "userStatistics": "User statistics",
+      "userActivity": "User operation records",
+      "subscriptionPlans": "Subscription plans",
+      "companySubscriptions": "Company subscriptions",
+      "subscriptionStatus": "Subscription status",
+      "packageChanges": "Package changes",
+      "accountLimits": "Account limits",
+      "expiryReminders": "Expiry reminders",
+      "subscriptionSearch": "Subscription search",
+      "subscriptionStatistics": "Subscription statistics",
+      "subscriptionActivity": "Operation records",
+      "saasInvoices": "SaaS invoices",
+      "platformCommission": "Platform commission",
+      "automaticBilling": "Automatic billing",
+      "collections": "Collections",
+      "paymentProofs": "Payment proofs",
+      "commissionRules": "Commission rules",
+      "invoiceSearch": "Invoice search",
+      "billingStatistics": "Billing statistics",
+      "financialReports": "Financial reports",
+      "billingActivity": "Billing records",
+      "livePlatform": "Live platform status",
+      "cweMonitoring": "CWE monitoring",
+      "cctvMonitoring": "AI CCTV monitoring",
+      "anprMonitoring": "ANPR monitoring",
+      "apiGatewayMonitoring": "API Gateway monitoring",
+      "syncMonitoring": "Synchronisation monitoring",
+      "exceptionMonitoring": "Exception monitoring",
+      "serviceSearch": "Service search",
+      "runtimeStatistics": "Runtime statistics",
+      "monitoringRecords": "Monitoring records",
+      "qrTypes": "QR subject types",
+      "qrRegister": "QR register",
+      "qrLifecycle": "QR lifecycle",
+      "qrSearch": "QR search",
+      "qrScans": "Scan records",
+      "qrAnomalies": "QR anomalies",
+      "qrStatistics": "QR statistics",
+      "qrActivity": "QR activity",
+      "cweScales": "Weighbridge register",
+      "cweConnections": "Connection status",
+      "cweLiveWeighing": "Current weighing",
+      "cweAnomalies": "Weighing anomalies",
+      "cweSearch": "Weighing search",
+      "cweStatistics": "CWE statistics",
+      "cweServiceStatus": "CWE service status",
+      "cweActivity": "CWE records",
+      "contractorReports": "Contractor reports",
+      "recyclerReports": "Recycler reports",
+      "platformBusinessReports": "Platform business reports",
+      "saasReports": "SaaS billing reports",
+      "commissionReports": "Platform commission reports",
+      "cweReports": "CWE reports",
+      "operationsReports": "System operations reports",
+      "reportSearch": "Report search",
+      "reportExports": "Report export",
+      "reportHistory": "Report history",
+      "contractorNotifications": "Contractor notifications",
+      "recyclerNotifications": "Recycler notifications",
+      "saasNotifications": "SaaS notifications",
+      "commissionNotifications": "Commission notifications",
+      "cweNotifications": "CWE notifications",
+      "systemNotifications": "System notifications",
+      "notificationSearch": "Notification search",
+      "notificationManagement": "Notification management",
+      "notificationChannels": "Notification channels",
+      "notificationRecords": "Notification records",
+      "basicSettings": "Basic settings",
+      "saasSettings": "SaaS settings",
+      "commissionSettings": "Commission settings",
+      "cweSettings": "CWE settings",
+      "cctvSettings": "AI CCTV settings",
+      "anprSettings": "ANPR settings",
+      "qrSettings": "QR settings",
+      "apiGatewaySettings": "API Gateway settings",
+      "versionSettings": "Version management",
+      "notificationSettings": "Notification settings",
+      "maintenanceSettings": "Maintenance settings",
+      "settingsActivity": "Setting records",
+      "userAudit": "User records",
+      "companyAudit": "Company records",
+      "subscriptionAudit": "Subscription records",
+      "billingAudit": "Billing records",
+      "cweAudit": "CWE records",
+      "settingsAudit": "Setting records",
+      "loginAudit": "Sign-in records",
+      "auditSearch": "Audit search",
+      "auditExport": "Audit export",
+      "immutableAudit": "Permanent records",
+      "salesPeople": "Salespeople",
+      "salesDetails": "Salesperson details",
+      "salesTerritories": "Territories",
+      "salesHierarchy": "Team hierarchy",
+      "customerAssignments": "Customer assignments",
+      "commissionRuleTypes": "Commission rules",
+      "commissionSchemes": "Commission schemes",
+      "salesTerms": "Sales terms",
+      "salesPayouts": "Commission payable",
+      "teamPerformance": "Team performance",
+      "salesSettlements": "Commission settlement",
+      "salesReports": "Sales reports",
+      "salesActivity": "Sales records",
+      "crmCustomers": "Customers",
+      "crmEnquiries": "Customer enquiries",
+      "crmTraining": "Customer training",
+      "crmVisits": "Customer follow-ups",
+      "crmFeedback": "Customer feedback",
+      "crmService": "Service history",
+      "crmReports": "Customer service reports",
+      "crmActivity": "Customer service records",
+      "supportTickets": "Technical tickets",
+      "supportStates": "Ticket status",
+      "supportBugs": "Bug management",
+      "supportAPI": "API integrations",
+      "supportInstallations": "Weighbridge installations",
+      "supportMaintenance": "Device maintenance",
+      "supportReports": "Technical reports",
+      "supportActivity": "Technical records",
+      "partnerManagement": "Partner management",
+      "partnerDetails": "Partner details",
+      "partnerTypes": "Partner types",
+      "partnerTerritories": "Territories",
+      "partnerCustomers": "Customer ownership",
+      "partnerAgreements": "Agreements",
+      "partnerSchemes": "Commission schemes",
+      "partnerPerformance": "Performance",
+      "partnerReports": "Partner reports",
+      "partnerActivity": "Partner records",
+      "assetManagement": "Asset management",
+      "assetDetails": "Asset details",
+      "assetCategories": "Asset categories",
+      "assetPurchases": "Purchases",
+      "assetInventory": "Inventory",
+      "assetAssignments": "Assignment and borrowing",
+      "assetInstallations": "Installation",
+      "assetTransfers": "Transfers",
+      "assetRepairs": "Repairs",
+      "assetMaintenance": "Maintenance",
+      "assetDisposals": "Disposal",
+      "assetSearch": "Asset search",
+      "assetReports": "Asset reports",
+      "assetActivity": "Asset records",
+      "cloudServices": "Cloud services",
+      "cloudCatalog": "Service catalogue",
+      "cloudVendors": "Cloud vendors",
+      "cloudPlans": "Resource plans",
+      "cloudUsage": "Resource usage",
+      "cloudCosts": "Cloud costs",
+      "cloudPricing": "Charging rules",
+      "cloudAlerts": "Resource alerts",
+      "cloudAnalysis": "Resource analysis",
+      "cloudReports": "Cloud reports",
+      "cloudActivity": "Cloud records"
+    }
   },
   "integrations": {
     "title": "Integrations",
@@ -326,7 +524,130 @@
     "comingSoon": "This panel arrives with the next release.",
     "metrics": "Operational summary",
     "quickLinks": "Quick access",
-    "noMetrics": "Your account has dashboard access. Additional modules appear when an administrator grants the matching permissions."
+    "noMetrics": "Your account has dashboard access. Additional modules appear when an administrator grants the matching permissions.",
+    "admin": {
+      "error": "Unable to load the platform dashboard.",
+      "updatedAt": "Updated {value}",
+      "weightValue": "{value} t",
+      "map": {
+        "title": "Malaysia Project Map",
+        "search": "Search project or company",
+        "state": "State",
+        "kind": "Location type",
+        "contractor": "Contractor",
+        "recycler": "Recycler",
+        "projectStatus": "Project status",
+        "allStates": "All states",
+        "allKinds": "All locations",
+        "allContractors": "All contractors",
+        "allRecyclers": "All recyclers",
+        "allStatuses": "All project statuses",
+        "visible": "Showing {visible} of {total} mapped locations",
+        "recyclers": "Recyclers: {value}",
+        "orders": "Today orders: {value}",
+        "weight": "Today weight: {value} kg",
+        "kindValue": {
+          "PROJECT": "Construction projects",
+          "RECYCLER": "Recycler sites",
+          "SCALE": "Weighbridges",
+          "HEADQUARTERS": "Company headquarters"
+        },
+        "statusValue": {
+          "PLANNING": "Planning",
+          "ACTIVE": "Active",
+          "SUSPENDED": "Suspended",
+          "COMPLETED": "Completed"
+        }
+      },
+      "section": {
+        "platform": "Platform overview",
+        "businessToday": "Platform business today",
+        "subscriptions": "SaaS subscriptions",
+        "commission": "Platform commission"
+      },
+      "metric": {
+        "contractors": "Contractors",
+        "recyclers": "Recyclers",
+        "projects": "Projects",
+        "users": "Back-office users",
+        "onlineUsers": "Online users",
+        "orders": "Orders today",
+        "completedOrders": "Completed today",
+        "recoveredWeight": "Recovered weight",
+        "settlementAmount": "Settlement amount",
+        "serviceCommission": "Service commission",
+        "activeSubscriptions": "Active subscriptions",
+        "expiringSubscriptions": "Expiring soon",
+        "expiredSubscriptions": "Expired subscriptions",
+        "renewedToday": "Renewed today",
+        "monthlySaasRevenue": "SaaS revenue this month",
+        "commissionWeight": "Platform business weight",
+        "commissionSettlement": "Platform settlement value",
+        "commissionReceivable": "Commission receivable",
+        "commissionReceived": "Commission received",
+        "commissionOutstanding": "Commission outstanding"
+      },
+      "trends": {
+        "operatingTitle": "Six-month operating trends",
+        "revenueTitle": "Six-month revenue trends",
+        "companies": "New companies",
+        "contractors": "New contractors",
+        "recyclers": "New recyclers",
+        "orders": "Orders",
+        "weight": "Weight (t)",
+        "saasRevenue": "SaaS revenue (MYR)",
+        "commissionRevenue": "Commission revenue (MYR)"
+      },
+      "pending": {
+        "title": "Pending actions",
+        "companyReviews": "Company applications",
+        "contractorReviews": "Contractor applications",
+        "recyclerReviews": "Recycler applications",
+        "payments": "Payments to confirm",
+        "systemExceptions": "System exceptions (24h)",
+        "customerService": "Customer service cases",
+        "supportTickets": "Technical support tickets"
+      },
+      "weighing": {
+        "title": "Cloud Weighing Engine",
+        "online_scales": "Online scales",
+        "offline_scales": "Offline scales",
+        "today_sessions": "Weighings today",
+        "today_anomalies": "Anomalies today",
+        "today_reweighs": "Reweighs today"
+      },
+      "notifications": {
+        "title": "System notifications",
+        "viewAll": "View all",
+        "empty": "No notifications."
+      },
+      "quickActions": {
+        "title": "Quick actions",
+        "companies": "Company management",
+        "users": "User management",
+        "subscriptions": "Subscription management",
+        "billing": "Billing and commission",
+        "reports": "Report center",
+        "settings": "System settings"
+      },
+      "systemStatus": {
+        "title": "Live system status",
+        "error": "Live service status could not be loaded.",
+        "failures": "{value} failures in 24h",
+        "mode": {
+          "SIMULATED": "Simulated",
+          "LIVE": "Live"
+        }
+      },
+      "health": {
+        "ok": "Operational",
+        "configured": "Configured",
+        "degraded": "Degraded",
+        "unhealthy": "Unhealthy",
+        "not_running": "Not running",
+        "not_configured": "Not configured"
+      }
+    }
   },
   "offline": {
     "queued": "Saved offline and queued for upload",
@@ -341,6 +662,44 @@
     "title": "Companies",
     "count": "{count, plural, =0 {No companies} one {# company} other {# companies}}",
     "new": "New company",
+    "module": {
+      "directory": {
+        "title": "Company records",
+        "subtitle": "{count} companies with profile, status and contact controls"
+      },
+      "review": {
+        "title": "Company review",
+        "subtitle": "{count} applications awaiting document and bank verification"
+      },
+      "status": {
+        "title": "Company status",
+        "subtitle": "{count} companies with activation, suspension, expiry and review state"
+      },
+      "subscriptions": {
+        "title": "Company subscription records",
+        "subtitle": "{count} companies with plan, expiry and account quota"
+      },
+      "projects": {
+        "title": "Company project statistics",
+        "subtitle": "{count} contractors with active, completed and archived project counts"
+      },
+      "recyclers": {
+        "title": "Recycler information",
+        "subtitle": "{count} recyclers with platform, private and commission totals"
+      },
+      "search": {
+        "title": "Company search",
+        "subtitle": "Search and filter {count} companies by name, code, type, state, plan and status"
+      },
+      "statistics": {
+        "title": "Company statistics",
+        "subtitle": "{count} companies in the current platform summary"
+      },
+      "activity": {
+        "title": "Company operation records",
+        "subtitle": "Permanent company creation, edit, plan, status and review audit records"
+      }
+    },
     "createTitle": "New company",
     "editTitle": "Edit company",
     "viewTitle": "Company",
@@ -349,7 +708,9 @@
       "address": "Address",
       "contact": "Contact",
       "preferences": "Preferences",
-      "subscription": "Plan and project allowance"
+      "subscription": "Plan and project allowance",
+      "projects": "Company projects",
+      "recyclerBusiness": "Recycler business summary"
     },
     "field": {
       "code": "Code",
@@ -357,16 +718,33 @@
       "type": "Type",
       "status": "Status",
       "registrationNo": "Registration number",
+      "ssmNewRegistrationNo": "New SSM registration number",
+      "ssmRegisteredName": "SSM registered name",
+      "ssmIncorporatedOn": "Incorporated on",
+      "ssmExpiresOn": "SSM expires on",
+      "businessType": "Business type",
+      "industryCode": "MSIC industry code",
       "taxId": "Tax identification number",
+      "sstNo": "SST number",
+      "paidUpCapital": "Paid-up capital (MYR)",
+      "employeeCount": "Employee count",
+      "website": "Website",
       "addressLine1": "Address line 1",
       "addressLine2": "Address line 2",
       "city": "City",
       "state": "State",
       "postcode": "Postcode",
       "country": "Country",
+      "latitude": "Headquarters latitude",
+      "longitude": "Headquarters longitude",
       "contactPerson": "Contact person",
+      "contactDesignation": "Contact designation",
       "contactPhone": "Contact phone",
       "contactEmail": "Contact email",
+      "reviewStatus": "Review status",
+      "billingEmail": "Billing email",
+      "financeContactPerson": "Finance contact",
+      "financeContactPhone": "Finance phone",
       "plan": "Plan",
       "projectLimit": "Effective project limit",
       "projectLimitOverride": "Custom project limit",
@@ -377,6 +755,9 @@
       "defaultLanguage": "Default language",
       "timezone": "Time zone",
       "userCount": "Users",
+      "userLimit": "User allowance",
+      "usedUserSeats": "Users in use",
+      "remainingUserSeats": "Users remaining",
       "createdAt": "Opened"
     },
     "type": {
@@ -390,12 +771,133 @@
       "OVERDUE": "Overdue",
       "CLOSED": "Closed"
     },
+    "reviewStatus": {
+      "PENDING": "Pending review",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "verificationStatus": {
+      "PENDING": "Pending verification",
+      "VERIFIED": "Verified",
+      "REJECTED": "Rejected"
+    },
+    "onboarding": {
+      "title": "Company onboarding and verification",
+      "complete": "All mandatory records are verified. This company can be approved.",
+      "incomplete": "{count} mandatory item(s) still require attention.",
+      "verify": "Verify",
+      "reject": "Reject",
+      "companyApprove": "Approve company",
+      "companyReject": "Reject company",
+      "missing": {
+        "registration_no": "SSM registration number is missing",
+        "ssm_certificate": "A verified SSM certificate is missing",
+        "bank_account": "A verified bank account is missing",
+        "contact": "Contact person or phone is missing",
+        "address": "Registered address or state is missing"
+      },
+      "documents": {
+        "title": "Company documents",
+        "type": "Document type",
+        "titleField": "Document title",
+        "reference": "Reference number",
+        "file": "PDF or image",
+        "upload": "Upload",
+        "empty": "No company documents uploaded."
+      },
+      "documentType": {
+        "SSM_CERTIFICATE": "SSM certificate",
+        "SSM_FORM_9": "SSM Form 9 / Section 17",
+        "SSM_FORM_24": "SSM Form 24 / Section 78",
+        "SSM_FORM_49": "SSM Form 49 / Section 58",
+        "BUSINESS_LICENCE": "Business licence",
+        "DOE_LICENCE": "DOE / scheduled waste licence",
+        "BANK_STATEMENT": "Bank statement / bank letter",
+        "DIRECTOR_IC": "Director IC / passport",
+        "TAX_DOCUMENT": "Tax document",
+        "SIGNED_AGREEMENT": "Signed service agreement",
+        "OTHER": "Other"
+      },
+      "bank": {
+        "title": "Bank accounts",
+        "add": "Add account",
+        "bankName": "Bank name",
+        "accountName": "Account holder",
+        "accountNumber": "Account number",
+        "branch": "Branch",
+        "swiftCode": "SWIFT / BIC",
+        "accountType": "Account type",
+        "save": "Save account",
+        "empty": "No bank accounts added.",
+        "primary": "Primary",
+        "makePrimary": "Make primary",
+        "type": { "CURRENT": "Current", "SAVINGS": "Savings" }
+      },
+      "toast": {
+        "documentUploaded": "Document uploaded",
+        "documentRemoved": "Document removed",
+        "bankAdded": "Bank account added",
+        "bankRemoved": "Bank account removed",
+        "primaryUpdated": "Primary bank account updated"
+      },
+      "confirm": {
+        "verify-document": {
+          "title": "Verify this document?",
+          "description": "This document will count towards the company's approval requirements.",
+          "confirm": "Verify"
+        },
+        "reject-document": {
+          "title": "Reject this document?",
+          "description": "The company must replace or correct it before approval.",
+          "confirm": "Reject"
+        },
+        "remove-document": {
+          "title": "Remove this document?",
+          "description": "The file is withdrawn from the onboarding record but its audit history remains.",
+          "confirm": "Remove"
+        },
+        "verify-bank": {
+          "title": "Verify this bank account?",
+          "description": "The account will count towards the company's approval requirements.",
+          "confirm": "Verify"
+        },
+        "reject-bank": {
+          "title": "Reject this bank account?",
+          "description": "The company must correct the bank details before approval.",
+          "confirm": "Reject"
+        },
+        "primary-bank": {
+          "title": "Use this as the primary account?",
+          "description": "The current primary account will be replaced.",
+          "confirm": "Make primary"
+        },
+        "remove-bank": {
+          "title": "Remove this bank account?",
+          "description": "The account is removed from active onboarding records and the action is audited.",
+          "confirm": "Remove"
+        },
+        "approve-company": {
+          "title": "Approve this company?",
+          "description": "Its users may sign in and the company can begin operating.",
+          "confirm": "Approve"
+        },
+        "reject-company": {
+          "title": "Reject this company?",
+          "description": "Its users cannot sign in until the application is corrected and approved.",
+          "confirm": "Reject"
+        }
+      }
+    },
     "filter": {
       "all": "All",
       "contractors": "Contractors",
       "recyclers": "Recyclers",
       "active": "Active",
-      "suspended": "Suspended"
+      "suspended": "Suspended",
+      "state": "State",
+      "plan": "Plan",
+      "allStates": "All states",
+      "allPlans": "All plans"
     },
     "remove": {
       "title": "Remove {name}?",
@@ -430,7 +932,35 @@
     "languageHint": "New users of this company start here. Each can change their own.",
     "suspendedReason": "Suspension reason",
     "suspendedAt": "Suspended on",
-    "addUser": "Add user"
+    "addUser": "Add user",
+    "viewLogo": "View logo",
+    "unlimitedUsers": "Unlimited",
+    "weightKg": "{value} kg",
+    "summary": {
+      "total": "Total companies",
+      "contractors": "Contractors",
+      "recyclers": "Recyclers",
+      "active": "Active companies",
+      "newThisMonth": "New this month"
+    },
+    "projectStats": {
+      "total": "Total projects",
+      "active": "Active projects",
+      "completed": "Completed projects",
+      "archived": "Archived projects"
+    },
+    "recyclerStats": {
+      "serviceContractors": "Contractors served",
+      "platformWeight": "Platform business weight",
+      "privateWeight": "Private customer weight",
+      "totalWeight": "Total recovered weight",
+      "commissionStatus": "Platform commission status"
+    },
+    "commissionStatus": {
+      "NOT_APPLICABLE": "Not applicable",
+      "OUTSTANDING": "Outstanding",
+      "SETTLED": "Settled"
+    }
   },
   "attendance": {
     "title": "Attendance",
@@ -1099,8 +1629,125 @@
   },
   "monitoring": {
     "title": "System monitoring",
+    "subtitle": "6 Platform and integration health, exceptions and permanent monitoring records",
     "checkedAt": "Checked {value}",
     "capture": "Capture snapshot",
+    "loadError": "Monitoring data could not be loaded.",
+    "empty": "No matching monitoring records.",
+    "serviceSearchPlaceholder": "Search service name, mode or status",
+    "eventSearchPlaceholder": "Search event type, message or device",
+    "handlingNotePlaceholder": "Handling note",
+    "recordsCount": "{count} records",
+    "section": {
+      "live-platform": {
+        "title": "Live platform status",
+        "subtitle": "6.2.1 Online companies, projects and users based on current activity"
+      },
+      "cwe": {
+        "title": "CWE monitoring",
+        "subtitle": "6.2.2 Weighbridge connectivity, current readings, weighing and anomaly status"
+      },
+      "cctv": {
+        "title": "AI CCTV monitoring",
+        "subtitle": "6.2.3 Device and recognition status with explicit simulator or live mode"
+      },
+      "anpr": {
+        "title": "ANPR monitoring",
+        "subtitle": "6.2.4 Camera connectivity, recognition failures and service status"
+      },
+      "api-gateway": {
+        "title": "API Gateway monitoring",
+        "subtitle": "6.2.5 Calls, failures, latency and service health"
+      },
+      "sync": {
+        "title": "Synchronisation monitoring",
+        "subtitle": "6.2.6 Contractor and recycler ERP, government API and MyInvois delivery status"
+      },
+      "exceptions": {
+        "title": "Exception monitoring",
+        "subtitle": "6.2.7 Acknowledge and resolve system, API, weighing, device and sync exceptions"
+      },
+      "service-search": {
+        "title": "Service search",
+        "subtitle": "6.2.8 Search by service name, status, last check and exception content"
+      },
+      "runtime-statistics": {
+        "title": "Runtime statistics",
+        "subtitle": "6.2.9 Uptime, response time, API success and synchronisation success"
+      },
+      "records": {
+        "title": "Monitoring records",
+        "subtitle": "6.2.10 Permanent event time, type, service, content and handling history"
+      }
+    },
+    "mode": {
+      "SIMULATED": "Simulated",
+      "LIVE": "Live"
+    },
+    "metric": {
+      "onlineContractors": "Online contractors",
+      "onlineRecyclers": "Online recyclers",
+      "onlineProjects": "Online projects",
+      "activeProjects": "Active projects",
+      "onlineUsers": "Online users",
+      "activeUsersToday": "Active users today",
+      "activeCompanies": "Active companies",
+      "totalScales": "Total weighbridges",
+      "activeScales": "Enabled weighbridges",
+      "onlineGateways": "Online gateways",
+      "offlineGateways": "Offline gateways",
+      "weighingsToday": "Weighings today",
+      "anomaliesToday": "Anomalies today",
+      "reweighsToday": "Reweighs today",
+      "inProgress": "Weighing in progress",
+      "configured": "Configured connections",
+      "enabled": "Enabled connections",
+      "totalDevices": "Total devices",
+      "onlineDevices": "Online devices",
+      "offlineDevices": "Offline devices",
+      "recognitions24h": "Recognitions in 24 hours",
+      "requests24h": "Requests in 24 hours",
+      "failures24h": "Failures in 24 hours",
+      "successRate": "Success rate",
+      "averageLatency": "Average latency",
+      "maxLatency": "Maximum latency",
+      "attempts24h": "Sync attempts in 24 hours",
+      "sent24h": "Successful syncs",
+      "failed24h": "Failed syncs",
+      "pending24h": "Pending syncs",
+      "uptime": "Service uptime",
+      "exceptions24h": "Exceptions in 24 hours",
+      "apiSuccessRate": "API success rate",
+      "syncSuccessRate": "Sync success rate",
+      "onlineWorkers": "Online workers",
+      "staleWorkers": "Stale workers"
+    },
+    "field": {
+      "scale": "Weighbridge",
+      "company": "Company",
+      "site": "Site",
+      "currentWeight": "Current weight",
+      "lastChecked": "Last checked",
+      "status": "Status",
+      "service": "Service",
+      "mode": "Mode",
+      "exception": "Exception",
+      "failures24h": "24-hour failures",
+      "time": "Time",
+      "severity": "Severity",
+      "resolutionStatus": "Handling status",
+      "handler": "Handled by",
+      "action": "Action"
+    },
+    "resolution": {
+      "OPEN": "Open",
+      "ACKNOWLEDGED": "Acknowledged",
+      "RESOLVED": "Resolved"
+    },
+    "action": {
+      "acknowledge": "Acknowledge",
+      "resolve": "Resolve"
+    },
     "tile": {
       "server": "Server",
       "api": "API",
@@ -1115,7 +1762,8 @@
       "configured": "Configured",
       "degraded": "Degraded",
       "unhealthy": "Unhealthy",
-      "not_running": "Not running"
+      "not_running": "Not running",
+      "not_configured": "Not configured"
     },
     "value": {
       "uptime": "{value} min uptime",
@@ -1134,7 +1782,8 @@
       "CRITICAL": "Critical"
     },
     "toast": {
-      "captured": "Monitoring snapshot captured"
+      "captured": "Monitoring snapshot captured",
+      "resolutionSaved": "Exception handling status saved"
     }
   },
   "contractorPartners": {
@@ -1231,6 +1880,36 @@
     "titleStaff": "Internal staff",
     "count": "{count, plural, =0 {No users} one {# user} other {# users}}",
     "new": "New user",
+    "module": {
+      "management": {
+        "title": "User management",
+        "subtitle": "{count} platform and tenant accounts with lifecycle controls"
+      },
+      "profiles": {
+        "title": "User profiles",
+        "subtitle": "{count} users with contact, company, category, status and creation date"
+      },
+      "categories": {
+        "title": "User categories",
+        "subtitle": "{count} MSE, contractor and recycler users; tenant roles remain tenant-managed"
+      },
+      "search": {
+        "title": "User search",
+        "subtitle": "Search and filter {count} users by name, company, category, status and creation date"
+      },
+      "login": {
+        "title": "Login management",
+        "subtitle": "{count} accounts with enable, suspend, force logout and secure-link controls"
+      },
+      "statistics": {
+        "title": "User statistics",
+        "subtitle": "{count} users across MSE, contractors and recyclers"
+      },
+      "activity": {
+        "title": "User operation records",
+        "subtitle": "Permanent user creation, edit, status, login and secure-link audit records"
+      }
+    },
     "createTitle": "Invite a user",
     "editTitle": "Edit user",
     "viewTitle": "User",
@@ -1246,6 +1925,7 @@
       "phone": "Phone",
       "role": "Role",
       "company": "Company",
+      "audience": "User category",
       "status": "Status",
       "language": "Language",
       "timezone": "Time zone",
@@ -1257,6 +1937,27 @@
       "INVITED": "Invited",
       "ACTIVE": "Active",
       "SUSPENDED": "Suspended"
+    },
+    "audience": {
+      "PLATFORM": "MSE system user",
+      "CONTRACTOR": "Contractor user",
+      "RECYCLER": "Recycler user"
+    },
+    "filter": {
+      "audience": "User category",
+      "allAudiences": "All user categories",
+      "company": "Company",
+      "allCompanies": "All companies",
+      "createdFrom": "Created from",
+      "createdTo": "Created to"
+    },
+    "summary": {
+      "total": "Total users",
+      "platform": "MSE users",
+      "contractor": "Contractor users",
+      "recycler": "Recycler users",
+      "online": "Online users",
+      "suspended": "Suspended users"
     },
     "invite": {
       "hint": "The person sets their own password from the link we email them. Nobody else ever sees it.",
@@ -1275,6 +1976,13 @@
     "resetPassword": {
       "action": "Send reset link",
       "sent": "Reset link sent"
+    },
+    "forceLogout": {
+      "action": "Force logout",
+      "title": "Sign {name} out everywhere?",
+      "description": "Every active session is revoked. The user may sign in again unless the account is suspended.",
+      "confirm": "Force logout",
+      "done": "User signed out"
     },
     "toast": {
       "created": "User invited",
@@ -1481,16 +2189,28 @@
     "allCompanies": "All companies",
     "title": "Audit log",
     "count": "{count, plural, =0 {No entries} one {# entry} other {# entries}}",
+    "exportSubtitle": "Filtered permanent audit records",
+    "empty": "No audit records found.",
+    "filter": {
+      "objectType": "Record type",
+      "module": "Module",
+      "ipAddress": "IP address",
+      "dateFrom": "From date",
+      "dateTo": "To date"
+    },
     "field": {
       "createdAt": "When",
       "actor": "Who",
       "action": "Action",
       "objectType": "Record type",
+      "objectId": "Record ID",
+      "company": "Company",
       "objectRepr": "Record",
       "reason": "Reason",
       "ipAddress": "IP address",
       "changes": "Changes",
-      "context": "Details"
+      "context": "Details",
+      "requestPath": "Request path"
     },
     "action": {
       "CREATE": "Created",
@@ -1527,7 +2247,8 @@
       "SUCCESS": "Signed in",
       "BAD_CREDENTIALS": "Wrong credentials",
       "USER_SUSPENDED": "Account suspended",
-      "COMPANY_SUSPENDED": "Company suspended"
+      "COMPANY_SUSPENDED": "Company suspended",
+      "PORTAL_MISMATCH": "Wrong sign-in portal"
     }
   },
   "profile": {
@@ -1555,10 +2276,17 @@
       "company_bank_account_not_found": "That bank account could not be found.",
       "company_document_not_found": "That company document could not be found.",
       "company_onboarding_incomplete": "This company cannot be approved until its onboarding records are complete.",
+      "user_has_activity": "Only an account that has never been used can be removed. Suspend this user instead.",
       "company_seat_limit_reached": "This company has used every account included in its package. Upgrade the package to add more.",
       "commission_rule_not_found": "That commission rule could not be found.",
       "invoice_not_found": "That invoice could not be found.",
       "payment_not_found": "That payment could not be found.",
+      "commission_payout_not_found": "That commission payout could not be found.",
+      "commission_scheme_not_found": "That commission scheme could not be found.",
+      "customer_assignment_not_found": "That customer assignment could not be found.",
+      "sales_terms_not_found": "Those sales terms could not be found.",
+      "salesperson_not_found": "That salesperson could not be found.",
+      "territory_not_found": "That territory could not be found.",
       "company_not_found": "That company could not be found.",
       "company_subscription_expired": "Renew this contractor's subscription before activating the company.",
       "user_not_found": "That user could not be found.",
@@ -1626,6 +2354,47 @@
       "supplier_not_found": "That supplier could not be found.",
       "qr_code_not_found": "This QR code is not recognised.",
       "project_has_records": "This project still has records against it. Mark it completed instead of removing it.",
+      "scale_has_dependencies": "Disable all gateways first. A weighbridge with weighing evidence cannot be removed.",
+      "version_not_found": "That platform version could not be found.",
+      "version_already_exists": "That platform version already exists.",
+      "no_current_version": "No current platform version has been selected.",
+      "config_not_found": "That system setting could not be found.",
+      "config_readonly": "This system setting is read-only.",
+      "config_unknown": "This configuration key is not supported.",
+      "config_invalid_value": "Check this setting value and try again.",
+      "config_required": "Required system settings cannot be removed.",
+      "flag_not_found": "That feature flag could not be found.",
+      "announcement_not_found": "That announcement could not be found.",
+      "ticket_not_found": "That support ticket could not be found.",
+      "bug_not_found": "That bug record could not be found.",
+      "maintenance_not_found": "That maintenance record could not be found.",
+      "session_record_not_found": "That support session could not be found.",
+      "partner_not_found": "That partner could not be found.",
+      "partner_agreement_not_found": "That partner agreement could not be found.",
+      "partner_territory_not_found": "That partner territory could not be found.",
+      "customer_referral_not_found": "That customer referral could not be found.",
+      "partner_payout_not_found": "That partner payout could not be found.",
+      "company_already_referred": "This company is already assigned to a partner.",
+      "no_active_agreement": "This partner has no active agreement.",
+      "payout_already_exists": "A payout already exists for this period.",
+      "payout_not_draft": "Only a draft payout can be changed this way.",
+      "below_minimum_payout": "This amount is below the minimum payout.",
+      "asset_not_found": "That asset could not be found.",
+      "asset_already_disposed": "That asset has already been disposed.",
+      "asset_movement_not_found": "That asset movement could not be found.",
+      "asset_maintenance_not_found": "That asset maintenance record could not be found.",
+      "asset_disposal_not_found": "That asset disposal record could not be found.",
+      "enquiry_not_found": "That customer enquiry could not be found.",
+      "training_not_found": "That training record could not be found.",
+      "visit_not_found": "That customer visit could not be found.",
+      "feedback_not_found": "That customer feedback could not be found.",
+      "service_record_not_found": "That customer service record could not be found.",
+      "cloud_service_not_found": "That cloud service could not be found.",
+      "cloud_vendor_not_found": "That cloud vendor could not be found.",
+      "cloud_plan_not_found": "That cloud plan could not be found.",
+      "cloud_alert_not_found": "That cloud usage alert could not be found.",
+      "pricing_rule_not_found": "That cloud pricing rule could not be found.",
+      "quota_exceeded": "The configured cloud quota has been exceeded.",
       "receipt_not_found": "That receipt could not be found.",
       "receipt_photo_not_found": "That photo could not be found.",
       "dispatch_not_found": "That dispatch could not be found.",
@@ -2063,6 +2832,462 @@
     "toast": {
       "created": "Docket issued",
       "revoked": "Docket revoked"
+    }
+  },
+  "adminQr": {
+    "title": "QR Code Management",
+    "subtitle": "7 Issue, govern, search and audit platform QR codes and every scan attempt",
+    "count": "{count} QR records",
+    "empty": "No matching QR records.",
+    "searchPlaceholder": "Search QR ID, subject or company",
+    "scanSearchPlaceholder": "Search QR ID, subject, location or scanner",
+    "section": {
+      "types": {
+        "title": "QR subject types",
+        "subtitle": "7.2.1 Issue codes for contractors, recyclers, suppliers, drivers, vehicles, field staff, visitors and devices"
+      },
+      "register": {
+        "title": "QR register",
+        "subtitle": "7.2.2 QR ID, category, company, project, issue date, validity and usage status"
+      },
+      "lifecycle": {
+        "title": "QR lifecycle",
+        "subtitle": "7.2.3 Enable, disable, permanently void or reissue a code"
+      },
+      "search": {
+        "title": "QR search",
+        "subtitle": "7.2.4 Search by QR ID, company, type, project, status and issue date"
+      },
+      "scans": {
+        "title": "Scan records",
+        "subtitle": "7.2.5 Permanent scan time, location, person, project and result records"
+      },
+      "anomalies": {
+        "title": "QR anomalies",
+        "subtitle": "7.2.6 Invalid, disabled, voided, duplicate and failed scans"
+      },
+      "statistics": {
+        "title": "QR statistics",
+        "subtitle": "7.2.7 Total codes by category and today's scan results"
+      },
+      "activity": {
+        "title": "QR activity",
+        "subtitle": "7.2.8 Permanent issue, status, reissue, use and export operations"
+      }
+    },
+    "subjectType": {
+      "CONTRACTOR": "Contractor",
+      "RECYCLER": "Recycler",
+      "SUPPLIER": "Supplier",
+      "DRIVER": "Driver",
+      "VEHICLE": "Vehicle",
+      "FIELD_STAFF": "Field staff",
+      "VISITOR": "Visitor",
+      "DEVICE": "Device"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "DISABLED": "Disabled",
+      "VOIDED": "Voided",
+      "EXPIRED": "Expired",
+      "SUPERSEDED": "Superseded"
+    },
+    "outcome": {
+      "SUCCESS": "Accepted",
+      "UNKNOWN_CODE": "Unknown code",
+      "DISABLED": "Disabled code",
+      "VOIDED": "Voided code",
+      "EXPIRED": "Expired code",
+      "WRONG_LOCATION": "Wrong location",
+      "DUPLICATE": "Duplicate use"
+    },
+    "field": {
+      "qrId": "QR ID",
+      "subjectType": "Category",
+      "subject": "Subject",
+      "company": "Company",
+      "project": "Project",
+      "site": "Recycling site",
+      "projectSite": "Project / site",
+      "status": "Status",
+      "issuedOn": "Issued on",
+      "issuedFrom": "Issued from",
+      "issuedTo": "Issued to",
+      "expiresOn": "Expires on",
+      "scanCount": "Uses",
+      "lastScanned": "Last scanned",
+      "notes": "Notes",
+      "reason": "Reason",
+      "action": "Action",
+      "outcome": "Result",
+      "scannedAt": "Scanned at",
+      "scannedBy": "Scanned by",
+      "location": "Location",
+      "dateFrom": "From date",
+      "dateTo": "To date"
+    },
+    "action": {
+      "issue": "Issue QR",
+      "enable": "Enable",
+      "disable": "Disable",
+      "void": "Void",
+      "reissue": "Reissue",
+      "excel": "Excel",
+      "pdf": "PDF"
+    },
+    "issue": {
+      "title": "Issue QR code",
+      "description": "Select the real company subject and its project or recycling site."
+    },
+    "edit": { "title": "Edit QR data" },
+    "issued": {
+      "title": "QR code issued",
+      "description": "The token is shown once for printing. It cannot be read again.",
+      "copied": "Token copied"
+    },
+    "metric": {
+      "total": "Total QR codes",
+      "active": "Active codes",
+      "scansToday": "Scans today",
+      "failedScansToday": "Failed scans today"
+    },
+    "statistics": {
+      "byType": "Codes by category",
+      "byStatus": "Codes by status"
+    },
+    "toast": {
+      "issued": "QR code issued",
+      "updated": "QR data updated",
+      "statusUpdated": "QR status updated",
+      "reissued": "QR code reissued"
+    }
+  },
+  "adminNotifications": {
+    "title": "Notification Center",
+    "subtitle": "10 Platform, company, billing, commission, weighing and system notification management",
+    "empty": "No matching notifications.",
+    "section": {
+      "contractors": {
+        "title": "Contractor notifications",
+        "subtitle": "10.2.1 Registration, activation, suspension, expiry and renewal notifications"
+      },
+      "recyclers": {
+        "title": "Recycler notifications",
+        "subtitle": "10.2.2 Registration, activation, suspension, expiry and renewal notifications"
+      },
+      "saas": {
+        "title": "SaaS notifications",
+        "subtitle": "10.2.3 Invoice generation, due, expiry, payment and overdue notifications"
+      },
+      "commission": {
+        "title": "Platform commission notifications",
+        "subtitle": "10.2.4 Commission generation, receivable, collection, outstanding and overdue notifications"
+      },
+      "cwe": {
+        "title": "Cloud Weighing Engine notifications",
+        "subtitle": "10.2.5 Offline, recovery, communication, weighing and system exceptions"
+      },
+      "system": {
+        "title": "System notifications",
+        "subtitle": "10.2.6 Announcements, maintenance, releases, upgrades and emergency notices"
+      },
+      "search": {
+        "title": "Notification search",
+        "subtitle": "10.2.7 Search by category, company, date and read status"
+      },
+      "manage": {
+        "title": "Notification management",
+        "subtitle": "10.2.8 View, mark read or unread, and remove inbox records"
+      },
+      "channels": {
+        "title": "Notification channels",
+        "subtitle": "10.2.9 In-app, Email and Push delivery with explicit LIVE or SIMULATED status"
+      },
+      "records": {
+        "title": "Notification records",
+        "subtitle": "10.2.10 Permanent delivery, read and status change history"
+      }
+    },
+    "filter": {
+      "search": "Search",
+      "company": "Company",
+      "status": "Status",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "allCompanies": "All companies",
+      "allStatuses": "All statuses"
+    },
+    "field": {
+      "notification": "Notification",
+      "recipient": "Recipient",
+      "company": "Company",
+      "kind": "Category",
+      "status": "Status",
+      "time": "Time",
+      "title": "Title",
+      "message": "Message",
+      "channelStatus": "Channel / status"
+    },
+    "status": { "READ": "Read", "UNREAD": "Unread", "DELETED": "Removed" },
+    "action": {
+      "markRead": "Mark read",
+      "markUnread": "Mark unread",
+      "remove": "Remove",
+      "send": "Send notification"
+    },
+    "remove": {
+      "title": "Remove this notification?",
+      "description": "It will leave the inbox. Delivery and status history remain permanently available."
+    },
+    "channel": {
+      "IN_APP": "In-app",
+      "EMAIL": "Email",
+      "PUSH": "Push notification",
+      "sent": "{count} sent",
+      "failed": "{count} failed",
+      "never": "No attempts yet"
+    },
+    "record": { "delivery": "Delivery records", "status": "Status records" }
+  },
+  "adminReports": {
+    "title": "Report Center",
+    "subtitle": "9 Platform-wide operational, commercial and system reports with permanent export history",
+    "loadError": "The report could not be loaded.",
+    "emptyHistory": "No reports have been exported yet.",
+    "exportSubtitle": "Reporting period {from} to {to}",
+    "section": {
+      "contractors": {
+        "title": "Contractor reports",
+        "subtitle": "9.2.1 Contractor totals, additions, active status and projects"
+      },
+      "recyclers": {
+        "title": "Recycler reports",
+        "subtitle": "9.2.2 Recycler totals, additions, active status and platform business"
+      },
+      "business": {
+        "title": "Platform business reports",
+        "subtitle": "9.2.3 Platform orders, completed orders, recovered weight and settlement value"
+      },
+      "saas": {
+        "title": "SaaS billing reports",
+        "subtitle": "9.2.4 Subscriptions, receivables, collections, outstanding balance and renewals"
+      },
+      "commission": {
+        "title": "Platform commission reports",
+        "subtitle": "9.2.5 Commission business weight, settlement value, rates and collections"
+      },
+      "cwe": {
+        "title": "Cloud Weighing Engine reports",
+        "subtitle": "9.2.6 Weighbridges, sessions, anomalies, reweighs and online rate"
+      },
+      "operations": {
+        "title": "System operations reports",
+        "subtitle": "9.2.7 Online users, active users, API calls, synchronisation and exceptions"
+      },
+      "search": {
+        "title": "Report search",
+        "subtitle": "9.2.8 Query any report by company, project, state and date range"
+      },
+      "export": {
+        "title": "Report export",
+        "subtitle": "9.2.9 Export daily, weekly, monthly, yearly or custom ranges to PDF and Excel"
+      },
+      "history": {
+        "title": "Report history",
+        "subtitle": "9.2.10 Permanent report generation and export records"
+      }
+    },
+    "filter": {
+      "reportType": "Report category",
+      "company": "Company",
+      "project": "Project",
+      "state": "State",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "allCompanies": "All companies",
+      "allProjects": "All projects",
+      "allStates": "All states"
+    },
+    "reportType": {
+      "contractors": "Contractor report",
+      "recyclers": "Recycler report",
+      "business": "Platform business report",
+      "saas": "SaaS billing report",
+      "commission": "Platform commission report",
+      "cwe": "Cloud Weighing Engine report",
+      "operations": "System operations report"
+    },
+    "action": { "excel": "Excel", "pdf": "PDF" },
+    "field": {
+      "metric": "Metric",
+      "value": "Value",
+      "unit": "Unit",
+      "file": "File",
+      "format": "Format",
+      "period": "Period",
+      "generatedBy": "Generated by",
+      "generatedAt": "Generated at"
+    },
+    "metric": {
+      "contractor_total": "Contractors",
+      "contractor_new": "New contractors",
+      "contractor_active": "Active contractors",
+      "contractor_inactive": "Inactive contractors",
+      "project_total": "Projects",
+      "recycler_total": "Recyclers",
+      "recycler_new": "New recyclers",
+      "recycler_active": "Active recyclers",
+      "recycler_inactive": "Inactive recyclers",
+      "platform_business_total": "Platform business orders",
+      "platform_order_total": "Platform orders",
+      "completed_order_total": "Completed orders",
+      "recycled_weight": "Platform recovered weight",
+      "settlement_amount": "Platform settlement amount",
+      "saas_subscription_total": "SaaS subscriptions",
+      "saas_receivable": "SaaS receivable",
+      "saas_received": "SaaS received",
+      "saas_outstanding": "SaaS outstanding",
+      "saas_renewal_total": "Renewals",
+      "commission_business_weight": "Commission business weight",
+      "commission_settlement_amount": "Commission settlement amount",
+      "commission_rate": "Average commission rate",
+      "commission_receivable": "Commission receivable",
+      "commission_received": "Commission received",
+      "commission_outstanding": "Commission outstanding",
+      "scale_total": "Weighbridges",
+      "weighing_total": "Weighing sessions",
+      "weighing_anomaly_total": "Weighing anomalies",
+      "reweigh_total": "Reweighs",
+      "scale_online_rate": "Weighbridge online rate",
+      "online_user_total": "Online users",
+      "active_user_total": "Active users",
+      "api_request_total": "API requests",
+      "data_sync_total": "Data synchronisations",
+      "system_exception_total": "System exceptions"
+    }
+  },
+  "adminCwe": {
+    "title": "Cloud Weighing Engine Management",
+    "subtitle": "8 Govern weighbridges, gateways, live readings, anomalies and immutable weighing evidence",
+    "count": "{count} records",
+    "empty": "No matching CWE records.",
+    "scaleSearchPlaceholder": "Search weighbridge, serial or manufacturer",
+    "anomalySearchPlaceholder": "Search session, weighbridge, company or anomaly",
+    "sessionSearchPlaceholder": "Search session number or vehicle plate",
+    "statisticsNote": "Statistics are calculated from permanent weighing sessions and anomaly evidence.",
+    "refresh15s": "Refreshes every 15 seconds",
+    "section": {
+      "scales": {
+        "title": "Weighbridge register",
+        "subtitle": "8.2.1 Device code, company, project or site, location, gateway, protocol and enabled status"
+      },
+      "connections": {
+        "title": "Connection status",
+        "subtitle": "8.2.2 Online or offline state, last communication, network and gateway status"
+      },
+      "live-weighing": {
+        "title": "Current weighing status",
+        "subtitle": "8.2.3 Current weight, stability, last weighing and active session status"
+      },
+      "anomalies": {
+        "title": "Weighing anomalies",
+        "subtitle": "8.2.4 Invalid weighing, reweigh, communication and device anomalies"
+      },
+      "search": {
+        "title": "Weighing search",
+        "subtitle": "8.2.5 Search by company, project, device, status and date"
+      },
+      "statistics": {
+        "title": "CWE statistics",
+        "subtitle": "8.2.6 Weighbridges, weighings, anomalies, reweighs and online rate"
+      },
+      "service-status": {
+        "title": "CWE service status",
+        "subtitle": "8.2.7 Processing capacity, response time, error rate and synchronisation status"
+      },
+      "activity": {
+        "title": "CWE records",
+        "subtitle": "8.2.8 Permanent registration, connection, communication, anomaly, reweigh and status operations"
+      }
+    },
+    "field": {
+      "company": "Company",
+      "scale": "Weighbridge",
+      "site": "Site",
+      "currentWeight": "Current weight",
+      "lastCommunication": "Last communication",
+      "stability": "Stability",
+      "protocol": "Protocol",
+      "gateway": "Gateways",
+      "status": "Status",
+      "action": "Action",
+      "session": "Session",
+      "anomaly": "Anomaly",
+      "evidence": "Evidence",
+      "detectedAt": "Detected at",
+      "vehicle": "Vehicle",
+      "weight": "Stable weight",
+      "startedAt": "Started at",
+      "verdict": "Verdict",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "state": "State"
+    },
+    "action": {
+      "registerScale": "Register weighbridge",
+      "manage": "Manage hardware",
+      "viewEvidence": "View evidence"
+    },
+    "connection": {
+      "ONLINE": "Online",
+      "OFFLINE": "Offline",
+      "ENABLED": "Enabled",
+      "DISABLED": "Disabled"
+    },
+    "mode": { "SIMULATED": "Simulated", "LIVE": "Live" },
+    "state": {
+      "OPEN": "Open",
+      "ON_SCALE": "On scale",
+      "STABLE": "Stable",
+      "COMPLETED": "Completed",
+      "VOID": "Void"
+    },
+    "verdict": { "PENDING": "Pending", "VALID": "Valid", "INVALID": "Invalid" },
+    "anomaly": {
+      "SINGLE_READING_ONLY": "Single reading only",
+      "NO_CONTINUOUS_STREAM": "No continuous stream",
+      "SUDDEN_DROP": "Sudden weight drop",
+      "SUDDEN_RISE": "Sudden weight rise",
+      "STREAM_INTERRUPTED": "Stream interrupted",
+      "MID_SESSION_TARE": "Mid-session tare",
+      "WEIGHT_FREEZE": "Weight signal frozen",
+      "DUPLICATE_WEIGHING": "Duplicate weighing",
+      "DISPATCH_REQUIRED": "Dispatch binding required",
+      "REWEIGH_LIMIT": "Reweigh limit exceeded",
+      "SEQ_GAP": "Gateway sequence gap",
+      "STABLE_FLAG_MISMATCH": "Stability mismatch",
+      "SIGNATURE_INVALID": "Invalid packet signature",
+      "CLOCK_SKEW": "Device clock skew",
+      "FRAME_PARSE_FAILED": "Frame parse failure",
+      "FRAME_MISMATCH": "Frame value mismatch",
+      "PLATE_MISMATCH": "Vehicle plate mismatch"
+    },
+    "live": { "activeSessions": "Active weighing sessions" },
+    "metric": {
+      "totalScales": "Total weighbridges",
+      "onlineGateways": "Online gateways",
+      "offlineGateways": "Offline gateways",
+      "totalSessions": "Total weighings",
+      "validSessions": "Valid weighings",
+      "invalidSessions": "Invalid weighings",
+      "anomaliesToday": "Anomalies today",
+      "reweighsToday": "Reweighs today",
+      "requiresReview": "Requires review",
+      "uptime": "Service uptime",
+      "averageLatency": "Average response",
+      "apiSuccessRate": "API success rate",
+      "syncSuccessRate": "Sync success rate",
+      "failures24h": "Failures in 24 hours"
     }
   },
   "receipts": {
@@ -2712,5 +3937,2418 @@
       "subject": "Reset your MSE Trace password",
       "body": "We received a request to reset your MSE Trace password. Use the link below to choose a new one. If you did not request this, you can ignore this email."
     }
+  },
+  "billing": {
+    "title": "Billing & Commission Management",
+    "subtitle": "SaaS fees, platform commission, invoices and collections",
+    "count": "{count} invoices",
+    "field": {
+      "invoiceNumber": "Invoice number",
+      "company": "Company",
+      "companyType": "Company type",
+      "kind": "Invoice type",
+      "period": "Billing period",
+      "periodStart": "Period start",
+      "periodEnd": "Period end",
+      "receivable": "Receivable",
+      "received": "Received",
+      "outstanding": "Outstanding",
+      "dueDate": "Due date",
+      "state": "Status",
+      "notes": "Notes",
+      "businessWeight": "Platform business weight",
+      "settlementAmount": "Settlement amount",
+      "commissionRate": "Commission rate",
+      "paidOn": "Payment date",
+      "method": "Method",
+      "reference": "Reference",
+      "amount": "Amount",
+      "proof": "Payment proof",
+      "reviewNote": "Review note",
+      "name": "Rule name",
+      "calculationBasis": "Calculation basis",
+      "rate": "Rate",
+      "settlementCycle": "Settlement cycle",
+      "effectivePeriod": "Effective period",
+      "paymentTerm": "Payment term (days)",
+      "invoices": "Invoices",
+      "minimumAmount": "Minimum commission",
+      "maximumAmount": "Maximum commission",
+      "effectiveFrom": "Effective from",
+      "effectiveTo": "Effective to",
+      "activeRule": "Rule enabled"
+    },
+    "kind": {
+      "SAAS": "SaaS subscription",
+      "COMMISSION": "Platform commission"
+    },
+    "companyType": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" },
+    "state": {
+      "DRAFT": "Draft",
+      "ISSUED": "Unpaid",
+      "PARTIALLY_PAID": "Partially paid",
+      "OVERDUE": "Overdue",
+      "PAID": "Paid",
+      "CANCELLED": "Cancelled",
+      "WRITTEN_OFF": "Written off"
+    },
+    "paymentState": {
+      "PENDING": "Pending review",
+      "CONFIRMED": "Confirmed",
+      "REJECTED": "Rejected"
+    },
+    "paymentMethod": {
+      "BANK_TRANSFER": "Bank transfer",
+      "CHEQUE": "Cheque",
+      "CASH": "Cash",
+      "ONLINE": "Online payment",
+      "OTHER": "Other"
+    },
+    "basis": {
+      "SETTLED_AMOUNT": "Percentage of settled amount",
+      "SETTLED_WEIGHT": "Rate per settled tonne"
+    },
+    "cycle": {
+      "MONTHLY": "Monthly",
+      "QUARTERLY": "Quarterly",
+      "YEARLY": "Yearly"
+    },
+    "ruleState": { "active": "Enabled", "inactive": "Disabled" },
+    "action": {
+      "generate": "Generate invoice",
+      "issue": "Issue invoice",
+      "close": "Close invoice"
+    },
+    "filters": { "title": "Filters", "from": "Period from", "to": "Period to" },
+    "export": {
+      "title": "Billing and commission",
+      "subtitle": "SaaS and platform commission invoice register"
+    },
+    "generate": {
+      "title": "Generate draft invoice",
+      "description": "Build one SaaS or commission invoice for review before issue.",
+      "runDate": "Billing run date"
+    },
+    "close": {
+      "title": "Close invoice",
+      "description": "Close invoice {invoice} without receiving its remaining balance."
+    },
+    "detail": {
+      "lines": "Invoice lines",
+      "settlements": "Commission settlements",
+      "payments": "Payments"
+    },
+    "payment": {
+      "record": "Record payment",
+      "recordDescription": "Associate a payment and its proof with an issued invoice.",
+      "chooseInvoice": "Choose an unpaid invoice",
+      "empty": "No payments found.",
+      "viewProof": "View proof",
+      "confirm": "Confirm payment",
+      "reject": "Reject payment"
+    },
+    "rules": {
+      "count": "{count} commission rules",
+      "create": "Create rule",
+      "edit": "Edit rule",
+      "empty": "No commission rule found.",
+      "description": "This platform-wide rule applies to every recycler on the Partner plan.",
+      "perTonne": "per tonne",
+      "openEnded": "No end date",
+      "days": "{count} days",
+      "removeTitle": "Remove commission rule",
+      "removeDescription": "Remove {name}? A rule already used by an invoice can only be disabled."
+    },
+    "metric": {
+      "saasBilled": "SaaS receivable this month",
+      "saasCollected": "SaaS received this month",
+      "saasOutstanding": "SaaS outstanding this month",
+      "commissionBilled": "Commission receivable this month",
+      "commissionCollected": "Commission received this month",
+      "commissionOutstanding": "Commission outstanding this month",
+      "pendingReviews": "Payments to confirm",
+      "overdue": "Overdue receivables"
+    },
+    "section": {
+      "saas-invoices": {
+        "title": "SaaS Invoice Management",
+        "subtitle": "5.2.1 SaaS invoices, plans, periods, amounts and payment status"
+      },
+      "commission": {
+        "title": "Platform Commission Management",
+        "subtitle": "5.2.2 Settled platform business, weight, value, rate and commission"
+      },
+      "automatic-billing": {
+        "title": "Automatic Billing",
+        "subtitle": "5.2.3 Daily SaaS and commission invoice generation and tenant delivery"
+      },
+      "collections": {
+        "title": "Collections",
+        "subtitle": "5.2.4 Unpaid, paid, partial and overdue payment confirmation"
+      },
+      "payment-proofs": {
+        "title": "Payment Proofs",
+        "subtitle": "5.2.5 Bank slips, screenshots, payment dates and notes"
+      },
+      "commission-rules": {
+        "title": "Commission Rules",
+        "subtitle": "5.2.6 Platform rate, calculation basis and settlement cycle"
+      },
+      "search": {
+        "title": "Invoice Search",
+        "subtitle": "5.2.7 Search by company, number, type, date and payment status"
+      },
+      "statistics": {
+        "title": "Billing Statistics",
+        "subtitle": "5.2.8 Current-month SaaS and commission receivables"
+      },
+      "reports": {
+        "title": "Financial Reports",
+        "subtitle": "5.2.9 SaaS, commission, receivable, paid and unpaid PDF/Excel reports"
+      },
+      "activity": {
+        "title": "Billing Operation Records",
+        "subtitle": "5.2.10 Permanent invoice, calculation, collection and rule history"
+      }
+    },
+    "toast": {
+      "invoiceGenerated": "Draft invoice generated.",
+      "invoiceIssued": "Invoice issued.",
+      "stateUpdated": "Invoice status updated.",
+      "paymentCreated": "Payment recorded for review.",
+      "paymentReviewed": "Payment reviewed.",
+      "ruleCreated": "Commission rule created.",
+      "ruleUpdated": "Commission rule updated.",
+      "ruleDeleted": "Commission rule removed."
+    }
+  },
+  "subscriptions": {
+    "title": "Subscription Management",
+    "subtitle": "SaaS plans, tenant terms, account allowances and renewals",
+    "count": "{count} subscriptions",
+    "field": {
+      "code": "Code",
+      "name": "Name",
+      "company": "Company",
+      "audience": "Company type",
+      "plan": "Plan",
+      "state": "Status",
+      "startsOn": "Start date",
+      "expiresOn": "Expiry date",
+      "seats": "Accounts",
+      "usedSeats": "Accounts used",
+      "userLimit": "Account allowance",
+      "termMonths": "Term (months)",
+      "effectiveImmediately": "Start the new term now",
+      "extensionMonths": "Months to add",
+      "reason": "Reason",
+      "description": "Description",
+      "tier": "Commercial model",
+      "billingCycle": "Billing cycle",
+      "fees": "Fees",
+      "allowances": "Allowances",
+      "entitlements": "Entitlements",
+      "companies": "Companies",
+      "currency": "Currency",
+      "monthlyFee": "Monthly fee",
+      "yearlyFee": "Yearly fee",
+      "setupFee": "One-time service fee",
+      "trialDays": "Trial days",
+      "maxUsers": "Maximum accounts",
+      "maxProjects": "Maximum projects",
+      "maxSites": "Maximum sites",
+      "maxScales": "Maximum weighbridges",
+      "commissionRate": "Commission rate override (%)",
+      "sortOrder": "Display order",
+      "features": "Feature keys",
+      "commissionEnabled": "Platform commission",
+      "externalIntegration": "External integration",
+      "cloudWeighing": "Cloud Weighing Engine",
+      "publicPlan": "Visible in plan picker",
+      "activePlan": "Plan enabled"
+    },
+    "state": {
+      "NOT_STARTED": "Not activated",
+      "ACTIVE": "In use",
+      "EXPIRING_SOON": "Expiring soon",
+      "EXPIRED": "Expired",
+      "PAUSED": "Paused"
+    },
+    "audience": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" },
+    "tier": {
+      "SUBSCRIPTION": "Subscription",
+      "PARTNER": "Partner",
+      "STANDARD": "Standard"
+    },
+    "billingCycle": {
+      "MONTHLY": "Monthly",
+      "QUARTERLY": "Quarterly",
+      "HALF_YEARLY": "Half-yearly",
+      "YEARLY": "Yearly"
+    },
+    "fee": { "once": "once", "monthly": "per month" },
+    "entitlement": {
+      "commission": "Commission",
+      "integration": "External API",
+      "cwe": "CWE"
+    },
+    "planState": { "active": "Enabled", "inactive": "Disabled" },
+    "value": { "unlimited": "Unlimited" },
+    "seatUsage": "{used} / {limit}",
+    "daysRemaining": "{count} days remaining",
+    "plans": {
+      "count": "{count} plans",
+      "create": "Create plan",
+      "edit": "Edit plan",
+      "empty": "No subscription plans found.",
+      "formDescription": "Prices, allowances and entitlements take effect for companies assigned to this plan.",
+      "allowanceSummary": "{users} accounts, {projects} projects"
+    },
+    "action": {
+      "plan": {
+        "menu": "Change package",
+        "title": "Change subscription package",
+        "description": "Assign a package and term to {company}.",
+        "confirm": "Apply package"
+      },
+      "extend": {
+        "menu": "Extend or renew",
+        "title": "Extend subscription",
+        "description": "Add time or set a new expiry date for {company}.",
+        "confirm": "Extend subscription"
+      },
+      "seats": {
+        "menu": "Set account allowance",
+        "title": "Account allowance",
+        "description": "Set a negotiated account limit for {company}.",
+        "confirm": "Update allowance"
+      },
+      "pause": {
+        "menu": "Pause subscription",
+        "title": "Pause subscription",
+        "description": "Pause access for {company} without changing its paid-to date.",
+        "confirm": "Pause"
+      },
+      "resume": {
+        "menu": "Resume subscription",
+        "title": "Resume subscription",
+        "description": "Restore subscription access for {company}.",
+        "confirm": "Resume"
+      },
+      "terminate": {
+        "menu": "End subscription",
+        "title": "End subscription early",
+        "description": "Immediately end the subscription for {company}.",
+        "confirm": "End subscription"
+      }
+    },
+    "hint": {
+      "effectiveImmediately": "Off keeps the company's existing paid-to date.",
+      "seatOverride": "Leave blank to use the allowance defined by the plan.",
+      "planDefault": "Use plan allowance",
+      "terminate": "This immediately expires the subscription, blocks tenant access and revokes active sessions.",
+      "partnerServiceFee": "Partner plans charge this once, then use commission only. Monthly and yearly fees stay at zero.",
+      "features": "Comma-separated feature keys enabled by this plan."
+    },
+    "extensionMode": { "months": "Add months", "date": "Set expiry date" },
+    "filters": {
+      "title": "Filters",
+      "expiresAfter": "Expires on or after",
+      "expiresBefore": "Expires on or before",
+      "clear": "Clear filters"
+    },
+    "export": {
+      "title": "Company subscriptions",
+      "subtitle": "MSE SaaS subscription register"
+    },
+    "renewals": {
+      "count": "{count} subscriptions require attention",
+      "window": "Next {count} days",
+      "empty": "No subscriptions expire in this window."
+    },
+    "metric": {
+      "active": "Active",
+      "expiring": "Expiring soon",
+      "expired": "Expired",
+      "notStarted": "Not activated",
+      "paused": "Paused",
+      "newThisMonth": "New this month",
+      "renewedThisMonth": "Renewed this month",
+      "monthlyRevenue": "SaaS received this month"
+    },
+    "section": {
+      "plans": {
+        "title": "Subscription Plans",
+        "subtitle": "4.2.1 Plan pricing, terms, allowances and feature entitlements"
+      },
+      "companies": {
+        "title": "Company Subscriptions",
+        "subtitle": "4.2.2 Current plan, term and status for every company"
+      },
+      "status": {
+        "title": "Subscription Status",
+        "subtitle": "4.2.3 Automatic subscription lifecycle states"
+      },
+      "package-changes": {
+        "title": "Package Changes",
+        "subtitle": "4.2.4 Upgrade, downgrade, extend, pause or end a subscription"
+      },
+      "account-limits": {
+        "title": "Account Limits",
+        "subtitle": "4.2.5 Purchased, used and remaining back-office accounts"
+      },
+      "reminders": {
+        "title": "Expiry Reminders",
+        "subtitle": "4.2.6 Renewal queue shared with MSE and affected tenants"
+      },
+      "search": {
+        "title": "Subscription Search",
+        "subtitle": "4.2.7 Search by company, type, plan, status and expiry"
+      },
+      "statistics": {
+        "title": "Subscription Statistics",
+        "subtitle": "4.2.8 Subscription volume, renewals and SaaS receipts"
+      },
+      "activity": {
+        "title": "Operation Records",
+        "subtitle": "4.2.9 Permanent subscription change history"
+      }
+    },
+    "toast": {
+      "planCreated": "Plan created.",
+      "planUpdated": "Plan updated.",
+      "planChanged": "Subscription package changed.",
+      "extended": "Subscription extended.",
+      "seatsUpdated": "Account allowance updated.",
+      "paused": "Subscription paused.",
+      "resumed": "Subscription resumed.",
+      "terminated": "Subscription ended."
+    },
+    "error": { "load": "Unable to load subscription data." }
+  },
+  "sales": {
+    "title": "Sales & Commission",
+    "salespeople": "Salespeople",
+    "count": "{count} salespeople",
+    "field": {
+      "code": "Code",
+      "fullName": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "supervisor": "Supervisor",
+      "commissionScheme": "Commission Scheme",
+      "isActive": "Status",
+      "territories": "Territory",
+      "customersWon": "Customers Won",
+      "totalCommission": "Total Commission"
+    },
+    "toast": {
+      "created": "Salesperson created",
+      "updated": "Salesperson updated",
+      "saved": "Sales setting saved",
+      "removed": "Territory removed",
+      "reassigned": "Customer ownership transferred",
+      "activated": "Terms version activated",
+      "acknowledged": "Terms confirmation recorded",
+      "payoutCalculated": "Commission calculated",
+      "payoutTransitioned": "Commission settlement updated"
+    }
+  },
+  "crm": {
+    "title": "Customer Service",
+    "enquiries": "Enquiries",
+    "count": "{count} enquiries",
+    "field": {
+      "enquiryCode": "Code",
+      "status": "Status",
+      "source": "Source",
+      "companyName": "Company",
+      "contactPerson": "Contact Person",
+      "contactPhone": "Phone",
+      "contactEmail": "Email",
+      "subject": "Subject",
+      "assignedTo": "Assigned To",
+      "followUpDate": "Follow-up",
+      "createdAt": "Created"
+    },
+    "status": {
+      "NEW": "New",
+      "CONTACTED": "Contacted",
+      "IN_PROGRESS": "In progress",
+      "QUOTED": "Quoted",
+      "WON": "Won",
+      "LOST": "Lost",
+      "CANCELLED": "Cancelled"
+    },
+    "source": {
+      "WEBSITE": "Website",
+      "REFERRAL": "Referral",
+      "PARTNER": "Partner",
+      "SOCIAL_MEDIA": "Social media",
+      "DIRECT": "Direct contact",
+      "EVENT": "Event / exhibition",
+      "OTHER": "Other"
+    },
+    "toast": {
+      "enquiryCreated": "Customer enquiry created",
+      "statusUpdated": "Status updated",
+      "trainingCreated": "Customer training scheduled",
+      "visitCreated": "Customer follow-up recorded",
+      "feedbackCreated": "Customer feedback recorded",
+      "feedbackResponded": "Customer feedback updated",
+      "serviceCreated": "Service history recorded"
+    }
+  },
+  "support": {
+    "title": "Support Tickets",
+    "count": "{count} tickets",
+    "field": {
+      "ticketCode": "Ticket",
+      "type": "Type",
+      "priority": "Priority",
+      "status": "Status",
+      "company": "Company",
+      "title": "Title",
+      "assignedTo": "Assigned",
+      "createdAt": "Created",
+      "resolvedAt": "Resolved"
+    },
+    "type": {
+      "BUG": "Bug",
+      "FEATURE_REQUEST": "Feature Request",
+      "INSTALLATION": "Installation",
+      "API_ONBOARDING": "API Onboarding",
+      "DEVICE_MAINTENANCE": "Device Maintenance",
+      "GENERAL": "General"
+    },
+    "priority": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    },
+    "status": {
+      "OPEN": "Open",
+      "IN_PROGRESS": "In Progress",
+      "WAITING_CUSTOMER": "Waiting Customer",
+      "RESOLVED": "Resolved",
+      "CLOSED": "Closed"
+    },
+    "toast": {
+      "created": "Technical ticket created",
+      "transitioned": "Ticket state updated",
+      "bugCreated": "Bug report created",
+      "updated": "Technical record updated",
+      "integrationCreated": "API integration recorded",
+      "deviceCreated": "Device lifecycle record created",
+      "remoteCompleted": "Simulated remote operation completed"
+    }
+  },
+  "partners": {
+    "title": "Partners",
+    "count": "{count} partners",
+    "field": {
+      "code": "Code",
+      "name": "Name",
+      "companyName": "Company",
+      "type": "Type",
+      "contactPerson": "Contact",
+      "contactPhone": "Phone",
+      "status": "Status",
+      "customersReferred": "Customers",
+      "partnershipStart": "Partnership Start"
+    },
+    "type": {
+      "INSTALLER": "Installer",
+      "DEALER": "Dealer",
+      "REGIONAL_AGENT": "Regional Agent",
+      "REFERRAL": "Referral Partner",
+      "TECHNOLOGY": "Technology Partner",
+      "OTHER": "Other"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "SUSPENDED": "Suspended",
+      "TERMINATED": "Terminated"
+    }
+  },
+  "assets": {
+    "title": "Assets",
+    "count": "{count} assets",
+    "field": {
+      "code": "Asset Code",
+      "category": "Category",
+      "name": "Name",
+      "serialNumber": "Serial Number",
+      "status": "Status",
+      "deployedAt": "Deployed At",
+      "purchaseDate": "Purchase Date"
+    },
+    "category": {
+      "GATEWAY": "Gateway",
+      "AI_CCTV": "AI CCTV",
+      "ANPR_CAMERA": "ANPR Camera",
+      "INDUSTRIAL_COMPUTER": "Industrial Computer",
+      "ROUTER": "Router",
+      "SIM_CARD": "SIM Card",
+      "DEMO_KIT": "Demo Kit",
+      "NOTEBOOK": "Notebook",
+      "TABLET": "Tablet",
+      "MOBILE_PHONE": "Mobile Phone",
+      "TEST_EQUIPMENT": "Test Equipment",
+      "TOOL": "Tool",
+      "OTHER": "Other"
+    },
+    "status": {
+      "IN_STOCK": "In Stock",
+      "DEPLOYED": "Deployed",
+      "MAINTENANCE": "Maintenance",
+      "FAULTY": "Faulty",
+      "RETIRED": "Retired"
+    }
+  },
+  "cloudServices": {
+    "title": "Cloud Services",
+    "count": "{count} services",
+    "field": {
+      "code": "Service Code",
+      "vendor": "Vendor",
+      "type": "Type",
+      "name": "Name",
+      "status": "Status",
+      "baseCost": "Base Cost",
+      "subscriptionStart": "Start Date"
+    },
+    "type": {
+      "STORAGE": "Storage",
+      "VIDEO_STORAGE": "Video Storage",
+      "DATABASE": "Database",
+      "API_GATEWAY": "API Gateway",
+      "AI_SERVICE": "AI Service",
+      "MAP_SERVICE": "Map Service",
+      "SMS_SERVICE": "SMS Service",
+      "EMAIL_SERVICE": "Email Service",
+      "PUSH_NOTIFICATION": "Push Notification",
+      "CDN": "CDN",
+      "OTHER": "Other"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "MAINTENANCE": "Maintenance",
+      "SUSPENDED": "Suspended"
+    }
+  },
+  "adminSales": {
+    "title": "Sales & Commission Management",
+    "subtitle": "Sales ownership, territories, terms, performance and commission settlement.",
+    "loading": "Loading sales records...",
+    "loadError": "Sales records could not be loaded.",
+    "yes": "Yes",
+    "no": "No",
+    "metric": {
+      "total": "Salespeople",
+      "active": "Active salespeople",
+      "customers": "Assigned customers",
+      "unassigned": "Unassigned states"
+    },
+    "section": {
+      "people": {
+        "title": "Salespeople",
+        "subtitle": "Add, edit, activate and deactivate sales staff and agents."
+      },
+      "details": {
+        "title": "Salesperson details",
+        "subtitle": "Code, contact, role, territory, supervisor, join date and status."
+      },
+      "territories": {
+        "title": "Territories",
+        "subtitle": "National, single-state and multi-state coverage across all 16 areas."
+      },
+      "hierarchy": {
+        "title": "Team hierarchy",
+        "subtitle": "Supervisors, reporting staff, territories, customers, performance and schemes."
+      },
+      "assignments": {
+        "title": "Customer assignments",
+        "subtitle": "Contractor and recycler ownership with reasoned transfer history."
+      },
+      "rules": {
+        "title": "Commission rules",
+        "subtitle": "SaaS, platform commission, customer, fixed, percentage and target formulas."
+      },
+      "schemes": {
+        "title": "Commission schemes",
+        "subtitle": "Multiple effective schemes, cycles, limits, status and automatic calculation."
+      },
+      "terms": {
+        "title": "Sales terms",
+        "subtitle": "Versioned terms, content, effective dates, confirmations and history."
+      },
+      "payouts": {
+        "title": "Commission payable",
+        "subtitle": "Automatically calculate salesperson and supervisor payable commission."
+      },
+      "performance": {
+        "title": "Team performance",
+        "subtitle": "Team customers, SaaS, platform commission, business value and payable totals."
+      },
+      "settlements": {
+        "title": "Commission settlement",
+        "subtitle": "Monthly, quarterly and yearly approval, payment, dispute and adjustment workflow."
+      },
+      "reports": {
+        "title": "Sales reports",
+        "subtitle": "Salesperson, supervisor, state, customer, commission and revenue PDF/Excel reports."
+      },
+      "activity": {
+        "title": "Sales records",
+        "subtitle": "Permanent people, territory, ownership, rule, terms and settlement changes."
+      }
+    },
+    "column": {
+      "code": "Code",
+      "name": "Name",
+      "contact": "Contact",
+      "role": "Role",
+      "territory": "Territory",
+      "supervisor": "Supervisor",
+      "scheme": "Scheme",
+      "joined": "Joined",
+      "status": "Status",
+      "actions": "Actions",
+      "salesperson": "Salesperson",
+      "scope": "Scope",
+      "states": "States",
+      "exclusive": "Exclusive",
+      "effective": "Effective",
+      "team": "Team",
+      "customers": "Customers",
+      "company": "Company",
+      "type": "Type",
+      "won": "Won on",
+      "basis": "Basis",
+      "rate": "Rate",
+      "cycle": "Cycle",
+      "minimum": "Minimum",
+      "maximum": "Maximum",
+      "people": "People",
+      "version": "Version",
+      "acknowledged": "Confirmed",
+      "period": "Period",
+      "saas": "SaaS revenue",
+      "platformCommission": "Platform commission",
+      "gross": "Gross",
+      "adjustment": "Adjustment",
+      "net": "Net"
+    },
+    "field": {
+      "phone": "Phone",
+      "email": "Email",
+      "noSupervisor": "No supervisor",
+      "noScheme": "No scheme",
+      "notes": "Notes",
+      "selectPerson": "Select salesperson",
+      "reason": "Reason required",
+      "target": "Target amount",
+      "description": "Description",
+      "body": "Terms content",
+      "selectStatus": "Select next status",
+      "paymentReference": "Payment reference",
+      "selectSupervisor": "Select supervisor or manager"
+    },
+    "action": {
+      "addPerson": "Add salesperson",
+      "editPerson": "Edit salesperson",
+      "cancel": "Cancel",
+      "save": "Save",
+      "addTerritory": "Add territory",
+      "reassign": "Transfer",
+      "addScheme": "Add scheme",
+      "addTerms": "Add terms version",
+      "activate": "Activate",
+      "acknowledge": "Record confirmation",
+      "calculate": "Calculate commission",
+      "process": "Process",
+      "adjust": "Adjust",
+      "confirm": "Confirm"
+    },
+    "remove": {
+      "title": "Remove territory {name}?",
+      "description": "The territory will stop being used for new customer assignments. Existing customer and commission history is retained.",
+      "confirm": "Remove territory"
+    },
+    "dialog": {
+      "person": "Sales identity, reporting line and commission scheme.",
+      "territory": "Choose one or more states, or nationwide coverage.",
+      "scheme": "The formula is applied automatically during payout calculation.",
+      "terms": "An edit creates a new immutable terms version."
+    },
+    "role": {
+      "EXECUTIVE": "Sales executive",
+      "SUPERVISOR": "Supervisor",
+      "MANAGER": "Sales manager",
+      "AGENT": "External agent"
+    },
+    "scope": { "STATES": "Named states", "NATIONAL": "Nationwide" },
+    "status": { "active": "Active", "inactive": "Inactive" },
+    "basis": {
+      "FIXED_PER_CUSTOMER": "Fixed per customer",
+      "PERCENT_OF_SAAS": "% of SaaS revenue",
+      "PERCENT_OF_PLATFORM_COMMISSION": "% of platform commission",
+      "PERCENT_OF_BUSINESS_VALUE": "% of business value",
+      "FIXED_PER_CONTRACTOR": "Fixed per contractor",
+      "FIXED_PER_RECYCLER": "Fixed per recycler",
+      "TARGET_BONUS": "Target bonus"
+    },
+    "cycle": {
+      "MONTHLY": "Monthly",
+      "QUARTERLY": "Quarterly",
+      "YEARLY": "Yearly"
+    },
+    "termsStatus": {
+      "DRAFT": "Draft",
+      "ACTIVE": "Active",
+      "SUPERSEDED": "Superseded",
+      "RETIRED": "Retired"
+    },
+    "payoutState": {
+      "DRAFT": "Calculated",
+      "SUPERVISOR_APPROVED": "Supervisor approved",
+      "FINANCE_APPROVED": "Finance confirmed",
+      "PAID": "Paid",
+      "REJECTED": "Disputed",
+      "CANCELLED": "Cancelled"
+    },
+    "performance": {
+      "team_size": "Team size",
+      "total_customers": "Customers",
+      "contractors_won": "Contractors won",
+      "recyclers_won": "Recyclers won",
+      "saas_revenue": "SaaS revenue",
+      "platform_commission": "Platform commission",
+      "business_value": "Business value",
+      "commission_payable": "Commission payable"
+    },
+    "report": {
+      "salespeople": "Salesperson and supervisor report",
+      "salespeopleSubtitle": "People, hierarchy, territory and customer totals.",
+      "assignments": "Customer and state report",
+      "assignmentsSubtitle": "Contractor/recycler ownership by salesperson, supervisor and state.",
+      "payouts": "Commission and revenue report",
+      "payoutsSubtitle": "SaaS, platform commission, payable and payment status."
+    }
+  },
+  "adminCustomerService": {
+    "title": "Customer Service Centre",
+    "subtitle": "Customer enquiries, training, follow-ups, feedback and permanent service history.",
+    "loading": "Loading customer service records...",
+    "loadError": "Customer service records could not be loaded.",
+    "metric": {
+      "customers": "Customers",
+      "enquiries": "Enquiries",
+      "service": "Service records",
+      "feedback": "Feedback",
+      "completion": "Completion rate"
+    },
+    "section": {
+      "customers": {
+        "title": "Customers",
+        "subtitle": "Contractor and recycler contacts, communication details and account status."
+      },
+      "enquiries": {
+        "title": "Customer enquiries",
+        "subtitle": "Enquiry date, content, handler, status and processing result."
+      },
+      "training": {
+        "title": "Customer training",
+        "subtitle": "Training date, content, trainer, participants and completion status."
+      },
+      "visits": {
+        "title": "Customer follow-ups",
+        "subtitle": "Follow-up date, staff member, customer feedback and improvement actions."
+      },
+      "feedback": {
+        "title": "Customer feedback",
+        "subtitle": "Feature, improvement, bug and other feedback with response status."
+      },
+      "service": {
+        "title": "Service history",
+        "subtitle": "Complete service interactions, resolutions, follow-ups and satisfaction."
+      },
+      "reports": {
+        "title": "Customer service reports",
+        "subtitle": "Service volume, customer count, issue categories and completion PDF/Excel reports."
+      },
+      "activity": {
+        "title": "Customer service records",
+        "subtitle": "Permanent append-only customer service operation history."
+      }
+    },
+    "column": {
+      "code": "Code",
+      "company": "Company",
+      "type": "Type",
+      "contact": "Contact",
+      "email": "Email",
+      "state": "State",
+      "status": "Status",
+      "actions": "Actions",
+      "subject": "Subject",
+      "handler": "Handler",
+      "date": "Date",
+      "trainer": "Trainer",
+      "attendees": "Participants",
+      "visitor": "Follow-up staff",
+      "purpose": "Purpose",
+      "feedback": "Customer feedback",
+      "improvement": "Improvement actions",
+      "category": "Category",
+      "priority": "Priority",
+      "resolution": "Resolution",
+      "satisfaction": "Satisfaction"
+    },
+    "field": {
+      "selectCompany": "Select customer",
+      "companyName": "Company name",
+      "contactPerson": "Contact person",
+      "phone": "Phone",
+      "email": "Email",
+      "subject": "Subject",
+      "content": "Content",
+      "requirements": "Requirements",
+      "lostReason": "Lost reason",
+      "result": "Processing result",
+      "location": "Location",
+      "attendees": "Participant count",
+      "feedback": "Customer feedback",
+      "contactMet": "Customer contact met",
+      "purpose": "Follow-up purpose",
+      "objectives": "Objectives",
+      "improvement": "Improvement actions",
+      "followUp": "Further follow-up required",
+      "response": "Response",
+      "resolution": "Resolution"
+    },
+    "action": {
+      "addEnquiry": "Add enquiry",
+      "process": "Process",
+      "cancel": "Cancel",
+      "save": "Save",
+      "confirm": "Confirm",
+      "addTraining": "Schedule training",
+      "updateStatus": "Update status",
+      "addVisit": "Record follow-up",
+      "addFeedback": "Record feedback",
+      "respond": "Respond",
+      "addService": "Record service"
+    },
+    "dialog": {
+      "enquiry": "Record the consultation content and contact details.",
+      "training": "Schedule customer training and expected attendance.",
+      "visit": "Record the customer's comments and agreed improvements.",
+      "feedback": "Classify and prioritise customer feedback.",
+      "service": "Add a permanent customer service interaction record."
+    },
+    "companyType": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" },
+    "enquiryStatus": {
+      "NEW": "New",
+      "CONTACTED": "Contacted",
+      "IN_PROGRESS": "In progress",
+      "QUOTED": "Quoted",
+      "WON": "Won",
+      "LOST": "Lost",
+      "CANCELLED": "Cancelled"
+    },
+    "source": {
+      "WEBSITE": "Website",
+      "REFERRAL": "Referral",
+      "PARTNER": "Partner",
+      "SOCIAL_MEDIA": "Social media",
+      "DIRECT": "Direct contact",
+      "EVENT": "Event / exhibition",
+      "OTHER": "Other"
+    },
+    "trainingType": {
+      "ONBOARDING": "System onboarding",
+      "FEATURE_UPDATE": "Feature update",
+      "REFRESHER": "Refresher",
+      "CUSTOM": "Custom training"
+    },
+    "trainingStatus": {
+      "SCHEDULED": "Scheduled",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "feedbackCategory": {
+      "FEATURE_REQUEST": "Feature suggestion",
+      "IMPROVEMENT": "Improvement suggestion",
+      "BUG_REPORT": "Bug report",
+      "COMPLAINT": "Complaint",
+      "COMPLIMENT": "Compliment",
+      "OTHER": "Other"
+    },
+    "priority": { "LOW": "Low", "MEDIUM": "Medium", "HIGH": "High" },
+    "status": {
+      "open": "Open",
+      "resolved": "Resolved",
+      "notRated": "Not rated",
+      "satisfied": "Satisfied",
+      "unsatisfied": "Unsatisfied"
+    },
+    "serviceType": {
+      "CONSULTATION": "Consultation",
+      "ISSUE_RESOLUTION": "Issue resolution",
+      "CUSTOMIZATION": "Customisation",
+      "INTEGRATION": "Integration support",
+      "GENERAL_SUPPORT": "General support"
+    },
+    "report": {
+      "customers": "Customer report",
+      "customersSubtitle": "Contractor and recycler contacts and status.",
+      "enquiries": "Enquiry report",
+      "enquiriesSubtitle": "Consultations, handlers, results and status.",
+      "training": "Training report",
+      "trainingSubtitle": "Training sessions, trainers, participants and completion.",
+      "visits": "Follow-up report",
+      "visitsSubtitle": "Customer comments and improvement actions.",
+      "feedback": "Feedback report",
+      "feedbackSubtitle": "Feedback categories, priority, response and resolution.",
+      "service": "Service history report",
+      "serviceSubtitle": "Service volume, resolution and satisfaction."
+    },
+    "exportColumn": {
+      "code": "Code",
+      "name": "Name",
+      "type": "Type",
+      "contact_person": "Contact",
+      "contact_phone": "Phone",
+      "contact_email": "Email",
+      "status": "Status",
+      "state": "State",
+      "enquiry_code": "Enquiry",
+      "company_name": "Company",
+      "subject": "Subject",
+      "assigned_to_name": "Handler",
+      "created_at": "Created",
+      "training_code": "Training",
+      "title": "Title",
+      "scheduled_date": "Training date",
+      "trainer_name": "Trainer",
+      "attendee_count": "Participants",
+      "visit_code": "Follow-up",
+      "visit_date": "Follow-up date",
+      "purpose": "Purpose",
+      "visited_by_name": "Staff",
+      "summary": "Customer feedback",
+      "action_items": "Improvement actions",
+      "feedback_code": "Feedback",
+      "category": "Category",
+      "priority": "Priority",
+      "is_resolved": "Resolved",
+      "response": "Response",
+      "service_code": "Service",
+      "service_date": "Service date",
+      "handled_by_name": "Handler",
+      "resolution": "Resolution",
+      "customer_satisfied": "Satisfied"
+    }
+  },
+  "adminTechnicalSupport": {
+    "title": "Technical Support Centre",
+    "subtitle": "Tickets, bugs, API onboarding, installations, maintenance and controlled remote operations.",
+    "loading": "Loading technical records...",
+    "loadError": "Technical records could not be loaded.",
+    "metric": {
+      "tickets": "Tickets",
+      "bugs": "Bugs",
+      "installations": "Installations",
+      "completion": "Completion rate"
+    },
+    "section": {
+      "tickets": {
+        "title": "Technical tickets",
+        "subtitle": "Create bug, system, API, weighbridge, CCTV, ANPR and other technical tickets."
+      },
+      "states": {
+        "title": "Ticket status",
+        "subtitle": "Move work through pending, in progress, testing, completed and closed states."
+      },
+      "bugs": {
+        "title": "Bug management",
+        "subtitle": "Bug number, description, severity, owner, root cause and fix status."
+      },
+      "api": {
+        "title": "API integrations",
+        "subtitle": "Customer, API name, integration date, test result and go-live status."
+      },
+      "installations": {
+        "title": "Weighbridge installations",
+        "subtitle": "Recycler, scale number, installation date, installer, testing and activation."
+      },
+      "maintenance": {
+        "title": "Device lifecycle and maintenance",
+        "subtitle": "CCTV, ANPR, CWE, gateway and other device health, maintenance and remote controls."
+      },
+      "reports": {
+        "title": "Technical reports",
+        "subtitle": "Ticket, bug, API, installation, maintenance and completion PDF/Excel reports."
+      },
+      "activity": {
+        "title": "Technical operation records",
+        "subtitle": "Permanent ticket, fix, integration, installation, maintenance and remote operation history."
+      }
+    },
+    "column": {
+      "code": "Code",
+      "type": "Type",
+      "company": "Company",
+      "subject": "Subject",
+      "priority": "Priority",
+      "handler": "Owner",
+      "date": "Date",
+      "status": "Status",
+      "actions": "Actions",
+      "module": "Module",
+      "severity": "Severity",
+      "apiName": "API name",
+      "testStatus": "Test status",
+      "liveStatus": "Live status",
+      "device": "Device",
+      "location": "Location",
+      "installDate": "Installed",
+      "firmware": "Firmware",
+      "online": "Online",
+      "lastOnline": "Last online",
+      "sim": "SIM",
+      "signal": "Signal",
+      "mode": "Mode"
+    },
+    "field": {
+      "selectCompany": "Select company",
+      "platformIssue": "Platform-wide issue",
+      "subject": "Subject",
+      "description": "Description",
+      "environment": "Environment / device details",
+      "steps": "Steps to reproduce",
+      "result": "Result / resolution",
+      "module": "System module",
+      "rootCause": "Root cause",
+      "fix": "Fix description",
+      "firmware": "Firmware version",
+      "apiName": "API name",
+      "endpoint": "API endpoint",
+      "testResult": "Test result",
+      "deviceId": "Device / scale number",
+      "location": "Installation location",
+      "sim": "SIM status",
+      "signal": "Signal strength (dBm)",
+      "work": "Work performed",
+      "reason": "Reason",
+      "invalidJson": "Configuration must be valid JSON."
+    },
+    "action": {
+      "addTicket": "Add ticket",
+      "process": "Process",
+      "cancel": "Cancel",
+      "save": "Save",
+      "confirm": "Confirm",
+      "addBug": "Add bug",
+      "addIntegration": "Add API integration",
+      "addInstallation": "Record installation",
+      "addMaintenance": "Schedule maintenance",
+      "complete": "Complete",
+      "remote": "Remote operation",
+      "run": "Run"
+    },
+    "dialog": {
+      "ticket": "Record the technical issue and its operating environment.",
+      "bug": "Create a linked technical ticket and detailed bug record.",
+      "api": "Record customer API onboarding and its test/go-live lifecycle.",
+      "device": "Record installation, device identity, communication state and maintenance scope."
+    },
+    "ticketType": {
+      "BUG": "Bug",
+      "SYSTEM_ISSUE": "System issue",
+      "API_INTEGRATION": "API integration",
+      "WEIGHBRIDGE_INSTALL": "Weighbridge installation",
+      "AI_CCTV": "AI CCTV",
+      "ANPR": "ANPR",
+      "DEVICE_MAINTENANCE": "Device maintenance",
+      "OTHER": "Other"
+    },
+    "priority": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    },
+    "ticketState": {
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In progress",
+      "TESTING": "Testing",
+      "COMPLETED": "Completed",
+      "CLOSED": "Closed"
+    },
+    "severity": {
+      "MINOR": "Minor",
+      "NORMAL": "Normal",
+      "MAJOR": "Major",
+      "CRITICAL": "Critical"
+    },
+    "bugState": {
+      "OPEN": "Open",
+      "CONFIRMED": "Confirmed",
+      "IN_PROGRESS": "In progress",
+      "FIXED": "Fixed",
+      "VERIFIED": "Verified",
+      "CLOSED": "Closed",
+      "WONT_FIX": "Will not fix"
+    },
+    "testStatus": {
+      "PENDING": "Pending",
+      "PASSED": "Passed",
+      "FAILED": "Failed"
+    },
+    "activationStatus": {
+      "INACTIVE": "Inactive",
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended"
+    },
+    "maintenanceType": {
+      "INSPECTION": "Inspection",
+      "REPAIR": "Repair",
+      "CALIBRATION": "Calibration",
+      "UPGRADE": "Upgrade",
+      "REPLACEMENT": "Replacement"
+    },
+    "deviceType": {
+      "WEIGHBRIDGE": "Weighbridge",
+      "GATEWAY": "Gateway",
+      "AI_CCTV": "AI CCTV",
+      "ANPR": "ANPR",
+      "CWE": "Cloud Weighing Engine",
+      "OTHER": "Other"
+    },
+    "status": { "online": "Online", "offline": "Offline" },
+    "remoteOperation": {
+      "CONFIGURE": "Remote configuration",
+      "TEST": "Remote test",
+      "RESTART": "Remote restart",
+      "FIRMWARE_UPGRADE": "Firmware upgrade"
+    },
+    "mode": {
+      "simulated": "The simulator will record and return a deterministic result without contacting hardware.",
+      "live": "LIVE requires a commissioned device connector. The backend rejects this operation until one is configured."
+    },
+    "report": {
+      "tickets": "Ticket report",
+      "ticketsSubtitle": "Volume, type, priority, owner and status.",
+      "bugs": "Bug report",
+      "bugsSubtitle": "Severity, module, owner and fix status.",
+      "api": "API integration report",
+      "apiSubtitle": "Customer, testing and go-live status.",
+      "installations": "Installation report",
+      "installationsSubtitle": "Device, installer, test and activation.",
+      "maintenance": "Maintenance report",
+      "maintenanceSubtitle": "Firmware, online, SIM, signal and service history."
+    },
+    "exportColumn": {
+      "code": "Code",
+      "type": "Type",
+      "state": "Status",
+      "priority": "Priority",
+      "company_name": "Company",
+      "title": "Title",
+      "assigned_to_name": "Owner",
+      "created_at": "Created",
+      "bug_code": "Bug",
+      "severity": "Severity",
+      "module": "Module",
+      "description": "Description",
+      "api_name": "API name",
+      "integration_date": "Integration date",
+      "test_status": "Test status",
+      "live_status": "Live status",
+      "owner_name": "Owner",
+      "test_result": "Test result",
+      "device_type": "Device type",
+      "device_id": "Device ID",
+      "installed_on": "Installed",
+      "installed_by_name": "Installer",
+      "installation_location": "Location",
+      "activation_status": "Activation",
+      "scheduled_date": "Maintenance date",
+      "completed_date": "Completed",
+      "technician_name": "Technician",
+      "firmware_version": "Firmware",
+      "is_online": "Online",
+      "last_online_at": "Last online",
+      "sim_status": "SIM",
+      "signal_strength": "Signal"
+    }
+  },
+  "adminAuditCenter": {
+    "title": "Audit Log",
+    "subtitle": "Permanent user, company, financial, weighing and system change records.",
+    "section": {
+      "users": {
+        "title": "User records",
+        "subtitle": "Sign-in, sign-out, account, permission, password and status changes."
+      },
+      "companies": {
+        "title": "Company records",
+        "subtitle": "Company creation, profile, review, activation and suspension changes."
+      },
+      "subscriptions": {
+        "title": "Subscription records",
+        "subtitle": "Plan assignment, upgrade, downgrade, extension and suspension changes."
+      },
+      "billing": {
+        "title": "Billing and commission records",
+        "subtitle": "Invoices, commission, collection, payment and status changes."
+      },
+      "cwe": {
+        "title": "CWE records",
+        "subtitle": "Weighbridge, gateway, communication, anomaly and reweighing changes."
+      },
+      "settings": {
+        "title": "System setting records",
+        "subtitle": "Parameter, commission, CWE, AI, ANPR, QR and API setting changes."
+      },
+      "login": {
+        "title": "Sign-in records",
+        "subtitle": "Time, IP address, device and successful or failed access attempts."
+      },
+      "search": {
+        "title": "Audit search",
+        "subtitle": "Search by user, company, type, date, module, record or IP address."
+      },
+      "export": {
+        "title": "Audit export",
+        "subtitle": "Export the filtered permanent record set to PDF or Excel."
+      },
+      "immutable": {
+        "title": "Permanent records",
+        "subtitle": "Append-only records that cannot be edited or removed."
+      }
+    }
+  },
+  "adminSystemSettings": {
+    "title": "System Settings",
+    "subtitle": "Controlled platform parameters, provider readiness and permanent change records.",
+    "loading": "Loading settings...",
+    "loadError": "System settings could not be loaded.",
+    "save": "Save",
+    "toast": { "saved": "Setting saved" },
+    "section": {
+      "basic": {
+        "title": "Basic settings",
+        "subtitle": "Platform identity and company contact details."
+      },
+      "saas": {
+        "title": "SaaS settings",
+        "subtitle": "Default plan, billing cycle, trial, account limit and plan availability."
+      },
+      "commission": {
+        "title": "Commission settings",
+        "subtitle": "Platform commission status, rate, basis, settlement cycle and effective date."
+      },
+      "cwe": {
+        "title": "CWE settings",
+        "subtitle": "Communication, gateway, anomaly, reweighing and synchronisation parameters."
+      },
+      "cctv": {
+        "title": "AI CCTV settings",
+        "subtitle": "Reserved AI CCTV controls with explicit simulated or live mode."
+      },
+      "anpr": {
+        "title": "ANPR settings",
+        "subtitle": "Reserved number-plate recognition controls with explicit simulated or live mode."
+      },
+      "qr": {
+        "title": "QR settings",
+        "subtitle": "Expiry, activation, numbering, duplicate-use and anomaly rules."
+      },
+      "api-gateway": {
+        "title": "API Gateway settings",
+        "subtitle": "URL, status, mode, timeout, retry, rate limit and deployment credential readiness."
+      },
+      "versions": {
+        "title": "Version management",
+        "subtitle": "Current and released versions, notes, forced updates and gradual rollout."
+      },
+      "notifications": {
+        "title": "Notification settings",
+        "subtitle": "In-app, email and push channels, delivery modes, categories and automation rules."
+      },
+      "maintenance": {
+        "title": "Maintenance settings",
+        "subtitle": "Maintenance mode, service availability, window and customer notice."
+      },
+      "activity": {
+        "title": "Setting records",
+        "subtitle": "Permanent parameter, version, AI, ANPR, QR, API, notification and maintenance changes."
+      }
+    },
+    "credential": {
+      "apiGateway": "API Gateway credential",
+      "email": "Email provider credential",
+      "push": "Push provider credential",
+      "deploymentEnv": "Deployment environment",
+      "configured": "Configured",
+      "missing": "Not configured"
+    },
+    "mode": { "SIMULATED": "SIMULATED", "LIVE": "LIVE" },
+    "option": {
+      "MONTHLY": "Monthly",
+      "QUARTERLY": "Quarterly",
+      "HALF_YEARLY": "Every 6 months",
+      "YEARLY": "Yearly",
+      "SETTLED_AMOUNT": "Settled amount",
+      "WEIGHT": "Weight",
+      "FIXED": "Fixed amount",
+      "SIMULATED": "Simulated",
+      "LIVE": "Live",
+      "REJECT": "Reject",
+      "WARN": "Warn",
+      "ALLOW": "Allow"
+    },
+    "field": {
+      "platform_name": "Platform name",
+      "platform_company_name": "Company name",
+      "platform_registration_no": "Registration number",
+      "platform_address": "Address",
+      "platform_phone": "Phone",
+      "platform_email": "Email",
+      "platform_website": "Website",
+      "platform_logo_url": "Logo URL",
+      "saas_default_billing_cycle": "Default billing cycle",
+      "saas_default_trial_days": "Default trial days",
+      "saas_default_user_limit": "Default account limit",
+      "saas_default_plan_code": "Default plan code",
+      "saas_plans_enabled": "Plans enabled",
+      "commission_enabled": "Commission enabled",
+      "commission_default_rate": "Default commission rate (%)",
+      "commission_calculation_basis": "Calculation basis",
+      "commission_settlement_cycle": "Settlement cycle",
+      "commission_effective_on": "Effective date",
+      "cwe_communication_parameters": "Communication parameters",
+      "cwe_gateway_parameters": "Gateway parameters",
+      "cwe_anomaly_parameters": "Anomaly rules",
+      "cwe_reweigh_parameters": "Reweighing parameters",
+      "cwe_sync_parameters": "Synchronisation parameters",
+      "cctv_enabled": "AI CCTV enabled",
+      "cctv_mode": "AI CCTV mode",
+      "cctv_recognition_parameters": "Recognition parameters",
+      "cctv_service_status": "Service status",
+      "anpr_enabled": "ANPR enabled",
+      "anpr_mode": "ANPR mode",
+      "anpr_recognition_parameters": "Recognition parameters",
+      "anpr_service_status": "Service status",
+      "qr_default_expiry_days": "Default expiry days",
+      "qr_active_by_default": "Active by default",
+      "qr_number_prefix": "Number prefix",
+      "qr_duplicate_use_policy": "Duplicate-use policy",
+      "qr_anomaly_rules": "Anomaly rules",
+      "api_gateway_base_url": "Base URL",
+      "api_gateway_enabled": "Gateway enabled",
+      "api_gateway_mode": "Gateway mode",
+      "api_gateway_timeout_seconds": "Timeout (seconds)",
+      "api_gateway_retry_count": "Retry count",
+      "api_gateway_rate_limit_per_minute": "Rate limit per minute",
+      "notification_email_enabled": "Email enabled",
+      "notification_email_mode": "Email mode",
+      "notification_push_enabled": "Push enabled",
+      "notification_push_mode": "Push mode",
+      "notification_in_app_enabled": "In-app enabled",
+      "notification_enabled_types": "Enabled notification categories",
+      "notification_automatic_rules": "Automatic notification rules",
+      "maintenance_enabled": "Maintenance mode",
+      "maintenance_service_enabled": "Service available",
+      "maintenance_starts_at": "Starts at",
+      "maintenance_ends_at": "Ends at",
+      "maintenance_notice": "Maintenance notice"
+    }
+  },
+  "adminPartnerManagement": {
+    "title": "Partner Management",
+    "subtitle": "Platform partner profiles, territories, customer ownership, agreements and commission settlement.",
+    "loading": "Loading partner records...",
+    "loadError": "Partner records could not be loaded.",
+    "section": {
+      "management": {
+        "title": "Partner management",
+        "subtitle": "Create, edit, activate and deactivate platform partners."
+      },
+      "details": {
+        "title": "Partner details",
+        "subtitle": "Legal, contact, registration and partnership details."
+      },
+      "types": {
+        "title": "Partner types",
+        "subtitle": "System partner categories and reusable custom categories."
+      },
+      "territories": {
+        "title": "Territory management",
+        "subtitle": "National, state, city and named-area responsibility."
+      },
+      "customers": {
+        "title": "Customer ownership",
+        "subtitle": "Contractor and recycler customers assigned to each partner."
+      },
+      "agreements": {
+        "title": "Agreement management",
+        "subtitle": "Versioned files, signature, renewal, expiry and termination."
+      },
+      "schemes": {
+        "title": "Commission schemes",
+        "subtitle": "Partner-specific calculation rules and controlled payouts."
+      },
+      "performance": {
+        "title": "Performance statistics",
+        "subtitle": "Customers and revenue by partner, state and date."
+      },
+      "reports": {
+        "title": "Partner reports",
+        "subtitle": "Partner, customer, state, commission and revenue exports."
+      },
+      "activity": {
+        "title": "Partner operation records",
+        "subtitle": "Permanent partner, agreement, assignment and settlement history."
+      }
+    },
+    "metric": {
+      "partners": "Partners",
+      "customers": "Assigned customers",
+      "active": "Active partners",
+      "paid": "Commission paid"
+    },
+    "action": {
+      "addPartner": "Add partner",
+      "editPartner": "Edit partner",
+      "edit": "Edit",
+      "status": "Status",
+      "addType": "Add type",
+      "editType": "Edit type",
+      "addTerritory": "Add territory",
+      "editTerritory": "Edit territory",
+      "assignCustomer": "Assign customer",
+      "editAssignment": "Edit assignment",
+      "addAgreement": "Add agreement",
+      "submit": "Submit",
+      "activate": "Activate",
+      "renew": "Renew",
+      "terminate": "Terminate",
+      "calculate": "Calculate payout",
+      "process": "Process",
+      "view": "View",
+      "download": "Download",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "column": {
+      "code": "Code",
+      "name": "Name",
+      "company": "Company",
+      "contact": "Contact",
+      "email": "Email",
+      "registration": "Registration",
+      "type": "Type",
+      "start": "Start",
+      "end": "End",
+      "status": "Status",
+      "actions": "Actions",
+      "customers": "Customers",
+      "description": "Description",
+      "source": "Source",
+      "partner": "Partner",
+      "scope": "Scope",
+      "states": "States",
+      "cities": "Cities / areas",
+      "exclusive": "Exclusive",
+      "customer": "Customer",
+      "companyType": "Company type",
+      "state": "State",
+      "territory": "Territory",
+      "date": "Date",
+      "eligible": "Commission eligible",
+      "agreement": "Agreement",
+      "version": "Version",
+      "effective": "Effective",
+      "expiry": "Expiry",
+      "document": "Document",
+      "basis": "Basis",
+      "rate": "Rate",
+      "cycle": "Cycle",
+      "payout": "Payout",
+      "period": "Period",
+      "saasRevenue": "SaaS revenue",
+      "platformRevenue": "Platform commission revenue",
+      "gross": "Gross commission",
+      "net": "Net commission",
+      "contractors": "Contractors",
+      "recyclers": "Recyclers",
+      "partnerCommission": "Partner commission"
+    },
+    "field": {
+      "code": "Type code",
+      "name": "Name",
+      "companyName": "Company name",
+      "customType": "Custom type",
+      "contactPerson": "Contact person",
+      "phone": "Phone",
+      "email": "Email",
+      "registration": "Registration number",
+      "address": "Address",
+      "notes": "Notes",
+      "description": "Description",
+      "selectPartner": "Choose partner",
+      "citiesComma": "Cities, separated by commas",
+      "areasComma": "Named areas, separated by commas",
+      "exclusive": "Exclusive territory",
+      "selectCustomer": "Choose customer",
+      "noTerritory": "No territory",
+      "commissionEligible": "Commission eligible",
+      "reason": "Reason",
+      "title": "Agreement title",
+      "terms": "Agreement terms",
+      "rate": "Commission rate / amount",
+      "minimumPayout": "Minimum payout",
+      "calculationConfig": "Calculation configuration JSON",
+      "signedBy": "Signed by",
+      "adjustment": "Adjustment amount",
+      "paymentReference": "Payment reference",
+      "allPartners": "All partners",
+      "allStates": "All states"
+    },
+    "dialog": {
+      "partner": "Record the complete legal and contact profile.",
+      "type": "Custom types become available in the partner form.",
+      "territory": "Set the exact responsibility range and effective period.",
+      "referral": "A customer can belong to only one partner at a time.",
+      "agreement": "Upload a PDF or Word agreement before signature activation.",
+      "payout": "The amount is calculated from invoices belonging to assigned customers."
+    },
+    "partnerType": {
+      "INSTALLER": "Installer",
+      "DISTRIBUTOR": "Dealer",
+      "REGIONAL_AGENT": "Regional agent",
+      "REFERRAL": "Referral partner",
+      "TECHNOLOGY": "Technology partner",
+      "CUSTOM": "Custom"
+    },
+    "partnerStatus": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "SUSPENDED": "Suspended",
+      "TERMINATED": "Terminated"
+    },
+    "agreementStatus": {
+      "DRAFT": "Draft",
+      "PENDING_SIGNATURE": "Pending signature",
+      "ACTIVE": "Active",
+      "EXPIRED": "Expired",
+      "TERMINATED": "Terminated"
+    },
+    "payoutStatus": {
+      "DRAFT": "Draft",
+      "PENDING_APPROVAL": "Pending approval",
+      "APPROVED": "Approved",
+      "PAID": "Paid",
+      "REJECTED": "Rejected"
+    },
+    "commissionBasis": {
+      "FIXED_PER_CUSTOMER": "Fixed per customer",
+      "PERCENT_OF_SAAS": "Percentage of SaaS revenue",
+      "PERCENT_OF_TOTAL": "Percentage of total revenue",
+      "TIERED": "Tiered by customer volume",
+      "CUSTOM": "Custom formula"
+    },
+    "cycle": { "MONTHLY": "Monthly", "QUARTERLY": "Quarterly" },
+    "scope": { "national": "Nationwide", "regional": "State / city / area" },
+    "companyType": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" },
+    "status": {
+      "system": "System",
+      "custom": "Custom",
+      "active": "Active",
+      "inactive": "Inactive",
+      "yes": "Yes",
+      "no": "No",
+      "openEnded": "Open-ended",
+      "manualAdjustment": "Manual adjustment"
+    },
+    "heading": {
+      "schemes": "Agreement commission rules",
+      "payouts": "Commission payouts"
+    },
+    "state": {
+      "JOHOR": "Johor",
+      "KEDAH": "Kedah",
+      "KELANTAN": "Kelantan",
+      "MELAKA": "Melaka",
+      "NEGERI_SEMBILAN": "Negeri Sembilan",
+      "PAHANG": "Pahang",
+      "PENANG": "Penang",
+      "PERAK": "Perak",
+      "PERLIS": "Perlis",
+      "SABAH": "Sabah",
+      "SARAWAK": "Sarawak",
+      "SELANGOR": "Selangor",
+      "TERENGGANU": "Terengganu",
+      "KUALA_LUMPUR": "Kuala Lumpur",
+      "LABUAN": "Labuan",
+      "PUTRAJAYA": "Putrajaya"
+    },
+    "report": {
+      "partners": "Partner list",
+      "partnersSubtitle": "Profiles, types, contacts and customer totals.",
+      "customers": "Customer statistics",
+      "customersSubtitle": "Customer ownership and commission eligibility.",
+      "states": "State statistics",
+      "statesSubtitle": "Contractor and recycler customers by state.",
+      "commissions": "Commission statistics",
+      "commissionsSubtitle": "Calculated, approved and paid partner commission.",
+      "revenue": "Revenue statistics",
+      "revenueSubtitle": "SaaS, platform and partner commission figures.",
+      "performance": "Performance statistics",
+      "performanceSubtitle": "Partner-level customer and revenue totals."
+    },
+    "exportColumn": {
+      "code": "Code",
+      "name": "Name",
+      "company_name": "Company",
+      "type": "Type",
+      "status": "Status",
+      "contact_person": "Contact",
+      "contact_phone": "Phone",
+      "contact_email": "Email",
+      "customer_count": "Customers",
+      "partner": "Partner",
+      "company": "Customer",
+      "territory_name": "Territory",
+      "state": "State",
+      "referred_on": "Referred on",
+      "commission_eligible": "Commission eligible",
+      "contractor_count": "Contractors",
+      "recycler_count": "Recyclers",
+      "payout_code": "Payout",
+      "period_start": "Period start",
+      "period_end": "Period end",
+      "gross_amount": "Gross",
+      "net_amount": "Net",
+      "saas_revenue": "SaaS revenue",
+      "platform_commission_revenue": "Platform commission revenue",
+      "total_revenue": "Total revenue",
+      "partner_code": "Partner code",
+      "partner_name": "Partner name",
+      "new_customers": "New customers",
+      "contractors": "Contractors",
+      "recyclers": "Recyclers",
+      "partner_commission": "Partner commission"
+    }
+  },
+  "adminAssetManagement": {
+    "title": "Asset Management",
+    "subtitle": "MSE asset inventory and lifecycle control.",
+    "loading": "Loading asset records...",
+    "loadError": "Asset records could not be loaded.",
+    "metric": {
+      "total": "Total assets",
+      "available": "Available",
+      "deployed": "Installed",
+      "value": "Asset value"
+    },
+    "section": {
+      "management": {
+        "title": "Asset management",
+        "subtitle": "Register, edit, activate and deactivate MSE assets."
+      },
+      "details": {
+        "title": "Asset details",
+        "subtitle": "Identity, purchase, warranty, location and lifecycle status."
+      },
+      "categories": {
+        "title": "Asset categories",
+        "subtitle": "System hardware types and reusable custom categories."
+      },
+      "purchases": {
+        "title": "Purchases",
+        "subtitle": "Purchase orders, delivery receipt and automatic stock creation."
+      },
+      "inventory": {
+        "title": "Inventory",
+        "subtitle": "Current available, installed, borrowed, maintenance and retired stock."
+      },
+      "assignments": {
+        "title": "Assignment and borrowing",
+        "subtitle": "Employee issue, expected return, actual return and current holder."
+      },
+      "installations": {
+        "title": "Installation",
+        "subtitle": "Customer, project, location, installer, activation and removal."
+      },
+      "transfers": {
+        "title": "Transfers",
+        "subtitle": "Employee, department, warehouse, customer and project movements."
+      },
+      "repairs": {
+        "title": "Repairs",
+        "subtitle": "Fault, repair work, technician, result, cost and completion."
+      },
+      "maintenance": {
+        "title": "Maintenance",
+        "subtitle": "Scheduled and recurring servicing with automatic reminders."
+      },
+      "disposals": {
+        "title": "Disposal",
+        "subtitle": "Request, approve, reject and complete controlled disposal."
+      },
+      "search": {
+        "title": "Asset search",
+        "subtitle": "Search by ID, name, category, serial, holder, customer, project or status."
+      },
+      "reports": {
+        "title": "Asset reports",
+        "subtitle": "Lifecycle datasets in PDF and Excel."
+      },
+      "activity": {
+        "title": "Asset records",
+        "subtitle": "Permanent asset lifecycle operation history."
+      }
+    },
+    "column": {
+      "code": "Asset ID",
+      "name": "Name",
+      "category": "Category",
+      "brandModel": "Brand / model",
+      "serial": "Serial number",
+      "purchaseDate": "Purchase",
+      "warranty": "Warranty",
+      "holder": "Holder",
+      "companyProject": "Customer / project",
+      "location": "Location",
+      "status": "Status",
+      "active": "Availability",
+      "actions": "Actions",
+      "description": "Description",
+      "source": "Source",
+      "purchaseCode": "Purchase no.",
+      "supplier": "Supplier",
+      "date": "Date",
+      "asset": "Asset",
+      "quantity": "Quantity",
+      "received": "Received",
+      "unitPrice": "Unit price",
+      "total": "Total",
+      "purchaser": "Purchaser",
+      "available": "Available",
+      "installed": "Installed",
+      "borrowed": "Borrowed",
+      "maintenance": "Maintenance",
+      "faulty": "Faulty",
+      "retired": "Retired",
+      "value": "Value",
+      "assignmentCode": "Assignment no.",
+      "borrowedOn": "Borrowed on",
+      "expectedReturn": "Expected return",
+      "actualReturn": "Actual return",
+      "purpose": "Purpose",
+      "installationCode": "Installation no.",
+      "company": "Customer",
+      "project": "Project",
+      "installedOn": "Installed on",
+      "installer": "Installer",
+      "activatedOn": "Activated on",
+      "movementCode": "Movement no.",
+      "from": "From",
+      "to": "To",
+      "reason": "Reason",
+      "operator": "Operator",
+      "maintenanceCode": "Maintenance no.",
+      "type": "Type",
+      "faultDate": "Fault date",
+      "scheduledDate": "Scheduled",
+      "nextDate": "Next date",
+      "technician": "Technician",
+      "result": "Result",
+      "cost": "Cost",
+      "disposalCode": "Disposal no.",
+      "requestedOn": "Requested",
+      "requester": "Requester",
+      "method": "Method",
+      "approver": "Approver",
+      "disposalDate": "Disposal date"
+    },
+    "field": {
+      "search": "Search assets",
+      "allCategories": "All categories",
+      "allStatuses": "All statuses",
+      "category": "Category",
+      "customCategory": "Custom category",
+      "name": "Asset name",
+      "serial": "Serial number",
+      "brand": "Brand",
+      "model": "Model",
+      "purchasePrice": "Purchase price",
+      "supplier": "Supplier",
+      "invoice": "Invoice number",
+      "warrantyMonths": "Warranty months",
+      "firmware": "Firmware version",
+      "ipAddress": "IP address",
+      "macAddress": "MAC address",
+      "location": "Location",
+      "notes": "Notes",
+      "code": "Category code",
+      "description": "Description",
+      "assetName": "Asset name",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price",
+      "selectAsset": "Choose asset",
+      "selectHolder": "Choose holder",
+      "purpose": "Purpose",
+      "returnCondition": "Return condition",
+      "selectCompany": "Choose customer",
+      "noProject": "No project",
+      "currentOperator": "Current operator",
+      "selectDestination": "Choose destination",
+      "warehouse": "Warehouse",
+      "reason": "Reason",
+      "noTechnician": "No technician assigned",
+      "recurring": "Recurring maintenance",
+      "workPerformed": "Work performed",
+      "partsReplaced": "Parts replaced",
+      "laborCost": "Labour cost",
+      "partsCost": "Parts cost",
+      "result": "Result",
+      "disposalMethod": "Disposal method",
+      "salvageValue": "Salvage value",
+      "disposalCost": "Disposal cost",
+      "note": "Approval or rejection note"
+    },
+    "action": {
+      "addAsset": "Add asset",
+      "editAsset": "Edit asset",
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "addCategory": "Add category",
+      "editCategory": "Edit category",
+      "addPurchase": "Add purchase",
+      "receive": "Receive stock",
+      "issueAsset": "Issue asset",
+      "return": "Return",
+      "installAsset": "Install asset",
+      "changeStatus": "Change status",
+      "transferAsset": "Transfer asset",
+      "addRepair": "Add repair",
+      "addMaintenance": "Schedule maintenance",
+      "start": "Start",
+      "complete": "Complete",
+      "requestDisposal": "Request disposal",
+      "process": "Process",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "dialog": {
+      "asset": "Asset registration",
+      "category": "Custom asset category",
+      "purchase": "Purchase order",
+      "assignment": "Employee asset assignment",
+      "installation": "Customer or project installation",
+      "transfer": "Asset transfer",
+      "maintenance": "Repair or maintenance schedule",
+      "disposal": "Controlled asset disposal"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "system": "System",
+      "custom": "Custom"
+    },
+    "category": {
+      "GATEWAY": "CWE gateway",
+      "AI_CCTV": "AI CCTV",
+      "ANPR_CAMERA": "ANPR camera",
+      "INDUSTRIAL_COMPUTER": "Industrial computer",
+      "INDUSTRIAL_GATEWAY": "Industrial gateway",
+      "ROUTER": "Router",
+      "SIM_CARD": "SIM card",
+      "DEMO_KIT": "Demo kit",
+      "NOTEBOOK": "Notebook",
+      "TABLET": "Tablet",
+      "MOBILE_PHONE": "Mobile phone",
+      "TEST_EQUIPMENT": "Test equipment",
+      "TOOL": "Tool",
+      "LED_DISPLAY": "LED display",
+      "BARRIER_GATE": "Barrier gate",
+      "NETWORK_SWITCH": "Network switch",
+      "UPS": "UPS",
+      "SERVER": "Server",
+      "OTHER": "Other"
+    },
+    "assetStatus": {
+      "IN_STOCK": "In stock",
+      "DEPLOYED": "Deployed",
+      "BORROWED": "Borrowed",
+      "MAINTENANCE": "Maintenance",
+      "FAULTY": "Faulty",
+      "RETIRED": "Retired"
+    },
+    "purchaseStatus": {
+      "ORDERED": "Ordered",
+      "PARTIALLY_RECEIVED": "Partially received",
+      "RECEIVED": "Received",
+      "CANCELLED": "Cancelled"
+    },
+    "assignmentStatus": {
+      "BORROWED": "Borrowed",
+      "RETURNED": "Returned",
+      "OVERDUE": "Overdue"
+    },
+    "installationStatus": {
+      "INSTALLED": "Installed",
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "REMOVED": "Removed"
+    },
+    "maintenanceType": {
+      "PREVENTIVE": "Preventive",
+      "CORRECTIVE": "Corrective repair",
+      "CALIBRATION": "Calibration",
+      "UPGRADE": "Upgrade",
+      "INSPECTION": "Inspection"
+    },
+    "maintenanceStatus": {
+      "SCHEDULED": "Scheduled",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "disposalStatus": {
+      "REQUESTED": "Requested",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "COMPLETED": "Completed"
+    },
+    "destination": {
+      "user": "Employee",
+      "department": "Department",
+      "warehouse": "Warehouse",
+      "project": "Project",
+      "company": "Customer"
+    },
+    "decision": {
+      "APPROVE": "Approve",
+      "REJECT": "Reject",
+      "COMPLETE": "Complete disposal"
+    },
+    "report": {
+      "assets": "Asset register",
+      "inventory": "Inventory report",
+      "purchases": "Purchase report",
+      "assignments": "Assignment report",
+      "installations": "Installation report",
+      "movements": "Transfer report",
+      "repairs": "Repair report",
+      "maintenance": "Maintenance report",
+      "disposals": "Disposal report"
+    },
+    "exportColumn": {
+      "asset_code": "Asset ID",
+      "name": "Name",
+      "category": "Category",
+      "brand": "Brand",
+      "model": "Model",
+      "serial_number": "Serial number",
+      "purchase_date": "Purchase date",
+      "warranty_expires_on": "Warranty expiry",
+      "status": "Status",
+      "holder_name": "Holder",
+      "deployed_company_name": "Customer",
+      "project_name": "Project",
+      "total": "Total",
+      "available": "Available",
+      "installed": "Installed",
+      "borrowed": "Borrowed",
+      "maintenance": "Maintenance",
+      "retired": "Retired",
+      "value": "Value",
+      "purchase_code": "Purchase no.",
+      "supplier": "Supplier",
+      "asset_name": "Asset",
+      "quantity": "Quantity",
+      "received_quantity": "Received",
+      "unit_price": "Unit price",
+      "total_amount": "Total amount",
+      "purchaser_name": "Purchaser",
+      "delivery_status": "Delivery status",
+      "assignment_code": "Assignment no.",
+      "asset": "Asset",
+      "borrowed_on": "Borrowed on",
+      "expected_return_on": "Expected return",
+      "returned_on": "Returned on",
+      "purpose": "Purpose",
+      "installation_code": "Installation no.",
+      "company_name": "Customer",
+      "location": "Location",
+      "installed_on": "Installed on",
+      "installed_by_name": "Installer",
+      "activated_on": "Activated on",
+      "movement_code": "Movement no.",
+      "type": "Type",
+      "from_location": "From",
+      "to_location": "To",
+      "movement_date": "Movement date",
+      "reason": "Reason",
+      "handled_by_name": "Operator",
+      "maintenance_code": "Maintenance no.",
+      "fault_date": "Fault date",
+      "scheduled_date": "Scheduled date",
+      "completed_date": "Completed date",
+      "technician_name": "Technician",
+      "description": "Description",
+      "result": "Result",
+      "total_cost": "Total cost",
+      "next_maintenance_date": "Next date",
+      "disposal_code": "Disposal no.",
+      "requested_on": "Requested on",
+      "requested_by_name": "Requester",
+      "disposal_date": "Disposal date",
+      "disposal_method": "Method",
+      "approved_by_name": "Approver"
+    },
+    "toast": {
+      "assetCreated": "Asset created",
+      "assetUpdated": "Asset updated",
+      "assetStatus": "Asset availability updated",
+      "categorySaved": "Asset category saved",
+      "categoryRemoved": "Asset category removed",
+      "purchaseSaved": "Purchase created",
+      "stockReceived": "Stock received",
+      "assetIssued": "Asset issued",
+      "assetReturned": "Asset returned",
+      "installed": "Asset installed",
+      "installationStatus": "Installation status updated",
+      "transferSaved": "Transfer recorded",
+      "maintenanceSaved": "Maintenance scheduled",
+      "maintenanceStarted": "Maintenance started",
+      "maintenanceCompleted": "Maintenance completed",
+      "disposalRequested": "Disposal requested",
+      "disposalUpdated": "Disposal status updated"
+    }
+  },
+  "adminCloudServiceManagement": {
+    "title": "Cloud Service Management",
+    "subtitle": "Cloud resources, usage, cost, charging and operational control.",
+    "loading": "Loading cloud records...",
+    "loadError": "Cloud records could not be loaded.",
+    "metric": {
+      "services": "Cloud services",
+      "active": "Active services",
+      "usage": "Resource usage",
+      "cost": "Cloud cost",
+      "revenue": "Customer charges",
+      "profit": "Gross profit"
+    },
+    "section": {
+      "services": {
+        "title": "Cloud services",
+        "subtitle": "Add, edit, activate and deactivate cloud services."
+      },
+      "catalog": {
+        "title": "Service catalogue",
+        "subtitle": "Storage, video, database, API, AI, CWE, map, messaging, domain, SSL, CDN, backup and monitoring."
+      },
+      "vendors": {
+        "title": "Cloud vendors",
+        "subtitle": "Providers, regions, plans, contract accounts and status."
+      },
+      "plans": {
+        "title": "Resource plans",
+        "subtitle": "Configurable storage, API, AI, messaging, push and map quotas."
+      },
+      "usage": {
+        "title": "Resource usage",
+        "subtitle": "Company, project and date-level cloud resource statistics."
+      },
+      "costs": {
+        "title": "Cloud costs",
+        "subtitle": "Monthly cost, customer cost, platform total, budget and variance."
+      },
+      "pricing": {
+        "title": "Charging rules",
+        "subtitle": "Custom charging methods, rates, formulas and effective dates."
+      },
+      "alerts": {
+        "title": "Resource alerts",
+        "subtitle": "Usage, capacity, quota and cloud budget alerts."
+      },
+      "analysis": {
+        "title": "Resource analysis",
+        "subtitle": "Usage rankings, highest-cost customers and projects, and trends."
+      },
+      "reports": {
+        "title": "Cloud reports",
+        "subtitle": "Daily, monthly, yearly or custom usage, cost, customer, revenue and trend reports."
+      },
+      "activity": {
+        "title": "Cloud records",
+        "subtitle": "Permanent service, vendor, plan, charging, parameter and cost history."
+      }
+    },
+    "column": {
+      "code": "Code",
+      "name": "Name",
+      "type": "Type",
+      "vendor": "Vendor",
+      "region": "Region",
+      "plan": "Plan",
+      "contract": "Contract",
+      "cost": "Cost",
+      "mode": "Mode",
+      "status": "Status",
+      "actions": "Actions",
+      "email": "Email",
+      "account": "Account",
+      "portal": "Portal",
+      "storage": "Storage",
+      "video": "Video",
+      "database": "Database",
+      "api": "API",
+      "ai": "AI",
+      "sms": "SMS",
+      "push": "Push",
+      "map": "Map",
+      "fee": "Monthly fee",
+      "date": "Date",
+      "service": "Service",
+      "company": "Customer",
+      "project": "Project",
+      "usage": "Usage",
+      "unit": "Unit",
+      "charge": "Charge",
+      "profit": "Profit",
+      "period": "Period",
+      "budget": "Budget",
+      "actual": "Actual",
+      "variance": "Variance",
+      "usagePercent": "Used",
+      "pricing": "Pricing",
+      "baseFee": "Base fee",
+      "unitPrice": "Unit price",
+      "effective": "Effective",
+      "expiry": "Expiry",
+      "alertType": "Alert",
+      "threshold": "Threshold",
+      "current": "Current",
+      "message": "Message"
+    },
+    "field": {
+      "vendor": "Choose vendor",
+      "customType": "Custom service type",
+      "name": "Name",
+      "region": "Region",
+      "planName": "Service plan",
+      "baseCost": "Base monthly cost",
+      "usageUnit": "Usage unit",
+      "unitCost": "Cost per unit",
+      "quota": "Monthly quota",
+      "alertPercent": "Alert percentage",
+      "description": "Description",
+      "notes": "Notes",
+      "reason": "Reason",
+      "code": "Code",
+      "email": "Contact email",
+      "account": "Account ID",
+      "supportUrl": "Support URL",
+      "portalUrl": "Portal URL",
+      "apiKey": "Provider API key",
+      "monthlyFee": "Monthly fee",
+      "storage_gb": "Storage GB",
+      "video_storage_gb": "Video storage GB",
+      "database_gb": "Database GB",
+      "api_requests": "API calls",
+      "ai_requests": "AI uses",
+      "sms_count": "SMS quota",
+      "email_count": "Email quota",
+      "push_notification_count": "Push quota",
+      "map_api_calls": "Map API calls",
+      "service": "Choose service",
+      "noProject": "No project",
+      "usageAmount": "Usage amount",
+      "budget": "Monthly budget",
+      "baseFee": "Base fee",
+      "unitPrice": "Unit price",
+      "tiersJson": "Tier configuration JSON"
+    },
+    "action": {
+      "addService": "Add service",
+      "editService": "Edit service",
+      "status": "Status",
+      "addVendor": "Add vendor",
+      "editVendor": "Edit vendor",
+      "addPlan": "Add plan",
+      "editPlan": "Edit plan",
+      "recordUsage": "Record usage",
+      "addBudget": "Add budget",
+      "editBudget": "Edit budget",
+      "addRule": "Add rule",
+      "editRule": "Edit rule",
+      "resolve": "Resolve",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "dialog": {
+      "service": "Cloud service record",
+      "vendor": "Cloud provider record",
+      "plan": "Cloud resource plan",
+      "usage": "Cloud usage record",
+      "budget": "Monthly cloud cost budget",
+      "rule": "Customer charging rule"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "platform": "Platform",
+      "resolved": "Resolved",
+      "open": "Open"
+    },
+    "serviceType": {
+      "CLOUD_STORAGE": "Cloud storage",
+      "VIDEO_STORAGE": "Video storage",
+      "DATABASE": "Database",
+      "API_GATEWAY": "API Gateway",
+      "AI_SERVICE": "AI service",
+      "CWE": "Cloud Weighing Engine",
+      "MAP_SERVICE": "Map service",
+      "SMS_SERVICE": "SMS service",
+      "EMAIL_SERVICE": "Email service",
+      "PUSH_NOTIFICATION": "Push notification",
+      "DOMAIN": "Domain",
+      "SSL_CERTIFICATE": "SSL certificate",
+      "CDN": "CDN",
+      "BACKUP": "Backup",
+      "MONITORING": "Monitoring",
+      "OTHER": "Other"
+    },
+    "serviceStatus": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "MAINTENANCE": "Maintenance",
+      "SUSPENDED": "Suspended"
+    },
+    "mode": {
+      "MANUAL": "Manual",
+      "SIMULATED": "Simulated",
+      "LIVE": "Live provider"
+    },
+    "pricingModel": {
+      "PAY_AS_YOU_GO": "Pay as you go",
+      "FIXED_MONTHLY": "Fixed monthly",
+      "TIERED": "Tiered",
+      "PER_UNIT": "Per unit"
+    },
+    "alertType": {
+      "USAGE_THRESHOLD": "Usage threshold",
+      "COST_THRESHOLD": "Cost budget",
+      "QUOTA_EXCEEDED": "Quota exceeded",
+      "SERVICE_DOWN": "Service down"
+    },
+    "ranking": {
+      "resource": "Resource usage ranking",
+      "customer": "Highest-cost customers",
+      "project": "Highest-cost projects",
+      "storage": "Storage ranking",
+      "api": "API ranking",
+      "ai": "AI ranking"
+    },
+    "report": {
+      "usage": "Resource usage report",
+      "costs": "Cloud cost report",
+      "customers": "Customer usage report",
+      "revenue": "Revenue analysis",
+      "trends": "Cost and usage trends",
+      "analysis": "Cloud resource analysis"
+    },
+    "exportColumn": {
+      "usage_date": "Date",
+      "service_code": "Service code",
+      "service_name": "Service",
+      "service_type": "Type",
+      "company_name": "Customer",
+      "project_name": "Project",
+      "usage_amount": "Usage",
+      "usage_unit": "Unit",
+      "source_mode": "Source mode",
+      "base_cost": "Base cost",
+      "usage_cost": "Usage cost",
+      "total_cost": "Total cost",
+      "company_id": "Customer ID",
+      "company__name": "Customer",
+      "project_id": "Project ID",
+      "project__name": "Project",
+      "usage": "Usage",
+      "cost": "Cost",
+      "revenue": "Revenue",
+      "charge_amount": "Customer charge",
+      "profit": "Profit",
+      "period": "Period",
+      "service__type": "Service type"
+    },
+    "toast": {
+      "vendorSaved": "Cloud vendor saved",
+      "serviceSaved": "Cloud service saved",
+      "serviceStatus": "Cloud service status updated",
+      "planSaved": "Cloud plan saved",
+      "ruleSaved": "Charging rule saved",
+      "usageSaved": "Cloud usage saved",
+      "budgetSaved": "Cloud budget saved",
+      "alertResolved": "Cloud alert resolved"
+    }
+  },
+  "versions": {
+    "title": "Version Management",
+    "count": "{count} versions",
+    "create": "Create version",
+    "edit": "Edit version",
+    "editorSubtitle": "Release policy, multilingual notes and gradual rollout.",
+    "setCurrent": "Set as current version",
+    "changelog": "Release changes",
+    "changeModule": "Module",
+    "changeDescription": "Change description",
+    "addChange": "Add change",
+    "toast": {
+      "created": "Version created",
+      "updated": "Version updated",
+      "setCurrent": "Current version updated",
+      "changelogAdded": "Release change added"
+    },
+    "changeType": {
+      "NEW": "New",
+      "IMPROVED": "Improved",
+      "FIXED": "Fixed",
+      "REMOVED": "Removed",
+      "SECURITY": "Security"
+    },
+    "field": {
+      "version": "Version",
+      "releaseName": "Release Name",
+      "releasedOn": "Released",
+      "isCurrent": "Current",
+      "forceUpdate": "Force Update",
+      "rollout": "Rollout",
+      "minSupportedVersion": "Minimum supported version",
+      "releaseNotes": "Release notes (English)",
+      "releaseNotesZh": "Release notes (Chinese)",
+      "releaseNotesMs": "Release notes (Malay)",
+      "active": "Active"
+    },
+    "current": "Current",
+    "forceUpdateOn": "Force Update"
   }
 }

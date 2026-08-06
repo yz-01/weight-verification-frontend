@@ -20,6 +20,8 @@ import {
   optionalPositiveInteger,
   required,
 } from "@/components/shared/form-shell";
+import { FieldWrapper } from "@/components/shared/page-primitives";
+import { Input } from "@/components/ui/input";
 import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { ApiError } from "@/interfaces/api";
 import type {
@@ -61,6 +63,7 @@ export function CreateCompany({
   const isEdit = company !== undefined;
   const fixedType = company?.type ?? defaultType;
   const [formError, setFormError] = useState<string | null>(null);
+  const [logo, setLogo] = useState<File | null>(null);
   const { data: plans, isLoading: plansLoading } = useQuery({
     queryKey: ["subscription-plans", "active"],
     queryFn: getSubscriptionPlans,
@@ -81,16 +84,32 @@ export function CreateCompany({
       name: company?.name ?? "",
       type: company?.type ?? defaultType ?? "",
       registration_no: company?.registration_no ?? "",
+      ssm_new_registration_no: company?.ssm_new_registration_no ?? "",
+      ssm_registered_name: company?.ssm_registered_name ?? "",
+      ssm_incorporated_on: company?.ssm_incorporated_on ?? "",
+      ssm_expires_on: company?.ssm_expires_on ?? "",
+      business_type: company?.business_type ?? "",
+      industry_code: company?.industry_code ?? "",
       tax_id: company?.tax_id ?? "",
+      sst_no: company?.sst_no ?? "",
+      paid_up_capital: company?.paid_up_capital ?? "",
+      employee_count: company?.employee_count?.toString() ?? "",
+      website: company?.website ?? "",
       address_line_1: company?.address_line_1 ?? "",
       address_line_2: company?.address_line_2 ?? "",
       city: company?.city ?? "",
       state: company?.state ?? "",
       postcode: company?.postcode ?? "",
       country: company?.country ?? "Malaysia",
+      latitude: company?.latitude ?? "",
+      longitude: company?.longitude ?? "",
       contact_person: company?.contact_person ?? "",
+      contact_designation: company?.contact_designation ?? "",
       contact_phone: company?.contact_phone ?? "",
       contact_email: company?.contact_email ?? "",
+      billing_email: company?.billing_email ?? "",
+      finance_contact_person: company?.finance_contact_person ?? "",
+      finance_contact_phone: company?.finance_contact_phone ?? "",
       default_language: company?.default_language ?? "en",
       timezone: company?.timezone ?? "Asia/Kuala_Lumpur",
       plan: company?.plan ?? "",
@@ -109,6 +128,17 @@ export function CreateCompany({
         const basePayload = {
           ...value,
           type,
+          ssm_incorporated_on: value.ssm_incorporated_on || null,
+          ssm_expires_on: value.ssm_expires_on || null,
+          paid_up_capital: value.paid_up_capital
+            ? Number(value.paid_up_capital)
+            : null,
+          employee_count: value.employee_count
+            ? Number(value.employee_count)
+            : null,
+          latitude: value.latitude ? Number(value.latitude) : null,
+          longitude: value.longitude ? Number(value.longitude) : null,
+          logo,
         };
         const subscriptionMonths = Number(
           value.subscription_months,
@@ -235,13 +265,52 @@ export function CreateCompany({
           )}
         </form.Field>
 
-        <form.Field name="registration_no">
+        <form.Field
+          name="registration_no"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
           {(field) => (
             <TextField
               field={field as unknown as BoundField}
               label={t("companies.field.registrationNo")}
-              optional
+              required
             />
+          )}
+        </form.Field>
+
+        <form.Field name="ssm_new_registration_no">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.ssmNewRegistrationNo")} optional />
+          )}
+        </form.Field>
+
+        <form.Field name="ssm_registered_name">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.ssmRegisteredName")} optional className="md:col-span-2" />
+          )}
+        </form.Field>
+
+        <form.Field name="ssm_incorporated_on">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.ssmIncorporatedOn")} optional type="date" />
+          )}
+        </form.Field>
+
+        <form.Field name="ssm_expires_on">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.ssmExpiresOn")} optional type="date" />
+          )}
+        </form.Field>
+
+        <form.Field name="business_type">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.businessType")} optional />
+          )}
+        </form.Field>
+
+        <form.Field name="industry_code">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.industryCode")} optional />
           )}
         </form.Field>
 
@@ -256,6 +325,34 @@ export function CreateCompany({
             />
           )}
         </form.Field>
+
+        <form.Field name="sst_no">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.sstNo")} optional />
+          )}
+        </form.Field>
+
+        <form.Field name="paid_up_capital">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.paidUpCapital")} optional type="number" min={0} step="0.01" />
+          )}
+        </form.Field>
+
+        <form.Field name="employee_count">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.employeeCount")} optional type="number" min={0} step={1} />
+          )}
+        </form.Field>
+
+        <form.Field name="website">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.website")} optional type="url" className="md:col-span-2" />
+          )}
+        </form.Field>
+
+        <FieldWrapper label={t("companies.field.logo")} optional={t("common.optional")} className="md:col-span-2">
+          <Input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogo(event.target.files?.[0] ?? null)} />
+        </FieldWrapper>
       </FormSection>
 
       <form.Subscribe selector={(state) => state.values.type}>
@@ -341,24 +438,48 @@ export function CreateCompany({
       </form.Subscribe>
 
       <FormSection title={t("companies.section.contact")}>
-        <form.Field name="contact_person">
+        <form.Field name="contact_person" validators={{ onSubmit: required(t("validation.required")) }}>
           {(field) => (
             <TextField
               field={field as unknown as BoundField}
               label={t("companies.field.contactPerson")}
-              optional
+              required
             />
           )}
         </form.Field>
 
-        <form.Field name="contact_phone">
+        <form.Field name="contact_phone" validators={{ onSubmit: required(t("validation.required")) }}>
           {(field) => (
             <TextField
               field={field as unknown as BoundField}
               label={t("companies.field.contactPhone")}
-              optional
+              required
               type="tel"
             />
+          )}
+        </form.Field>
+
+        <form.Field name="contact_designation">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.contactDesignation")} optional />
+          )}
+        </form.Field>
+
+        <form.Field name="billing_email" validators={{ onSubmit: optionalEmail(t("validation.email")) }}>
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.billingEmail")} optional type="email" />
+          )}
+        </form.Field>
+
+        <form.Field name="finance_contact_person">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.financeContactPerson")} optional />
+          )}
+        </form.Field>
+
+        <form.Field name="finance_contact_phone">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.financeContactPhone")} optional type="tel" />
           )}
         </form.Field>
 
@@ -379,12 +500,12 @@ export function CreateCompany({
       </FormSection>
 
       <FormSection title={t("companies.section.address")}>
-        <form.Field name="address_line_1">
+        <form.Field name="address_line_1" validators={{ onSubmit: required(t("validation.required")) }}>
           {(field) => (
             <TextField
               field={field as unknown as BoundField}
               label={t("companies.field.addressLine1")}
-              optional
+              required
               className="md:col-span-2"
             />
           )}
@@ -411,12 +532,12 @@ export function CreateCompany({
           )}
         </form.Field>
 
-        <form.Field name="state">
+        <form.Field name="state" validators={{ onSubmit: required(t("validation.required")) }}>
           {(field) => (
             <TextField
               field={field as unknown as BoundField}
               label={t("companies.field.state")}
-              optional
+              required
             />
           )}
         </form.Field>
@@ -438,6 +559,18 @@ export function CreateCompany({
               label={t("companies.field.country")}
               optional
             />
+          )}
+        </form.Field>
+
+        <form.Field name="latitude">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.latitude")} optional type="number" min={-90} max={90} step="0.000001" />
+          )}
+        </form.Field>
+
+        <form.Field name="longitude">
+          {(field) => (
+            <TextField field={field as unknown as BoundField} label={t("companies.field.longitude")} optional type="number" min={-180} max={180} step="0.000001" />
           )}
         </form.Field>
       </FormSection>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Truck, UserRound } from "lucide-react";
+import { Building2, FolderKanban, Recycle, Scale, Truck, UserRound } from "lucide-react";
 import { createElement, useEffect, useRef } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
@@ -12,7 +12,7 @@ export interface LocationMapMarker {
   detail?: string;
   tone?: "primary" | "positive" | "warning" | "danger";
   stale?: boolean;
-  icon?: "person" | "truck";
+  icon?: "person" | "truck" | "project" | "recycler" | "scale" | "building";
 }
 
 export interface LocationMapPath {
@@ -115,7 +115,7 @@ export function LocationMap({
         const icon = L.divIcon({
           className: "mse-map-marker",
           html: `<span style="--marker-color:${color};${marker.stale ? "opacity:.5;" : ""}">${renderToStaticMarkup(
-            createElement(marker.icon === "truck" ? Truck : UserRound, {
+            createElement(markerIcon(marker.icon), {
               size: 17,
               strokeWidth: 2.5,
               "aria-hidden": true,
@@ -156,6 +156,15 @@ export function LocationMap({
       aria-label="Location map"
     />
   );
+}
+
+function markerIcon(icon: LocationMapMarker["icon"]) {
+  if (icon === "truck") return Truck;
+  if (icon === "project") return FolderKanban;
+  if (icon === "recycler") return Recycle;
+  if (icon === "scale") return Scale;
+  if (icon === "building") return Building2;
+  return UserRound;
 }
 
 function escapeHtml(value: string): string {

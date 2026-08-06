@@ -124,7 +124,6 @@
     "weighing": "称重",
     "settlements": "结算",
     "payments": "付款",
-    "billing": "收费管理",
     "commission": "平台佣金",
     "tickets": "客服工单",
     "announcements": "公告",
@@ -177,7 +176,206 @@
     "driver_gps": "司机 GPS",
     "site_gps": "工地人员 GPS",
     "integrations": "系统集成",
-    "system_monitoring": "系统监控"
+    "system_monitoring": "系统监控",
+    "customer_service": "客户服务",
+    "subscription_management": "订阅管理",
+    "billing_commission": "账单与佣金",
+    "qr_code_management": "二维码管理",
+    "sales_commission": "销售与佣金",
+    "technical_support": "技术支持",
+    "partner_management": "合作伙伴",
+    "asset_management": "资产管理",
+    "cloud_service_management": "云服务管理",
+    "version_management": "版本管理",
+    "company_management": "公司管理",
+    "user_management": "用户管理",
+    "platform_monitoring": "平台监控",
+    "report_center": "报表中心",
+    "notification_center": "通知中心",
+    "platform_settings": "系统设置",
+    "audit_log_center": "操作日志",
+    "toggleSubmodules": "展开或收起{module}子模块",
+    "submodule": {
+      "dashboardMap": "马来西亚项目地图",
+      "dashboardPlatform": "平台概况",
+      "dashboardBusiness": "平台业务统计",
+      "dashboardSubscriptions": "SaaS 订阅统计",
+      "dashboardCommission": "平台佣金统计",
+      "dashboardPending": "待处理事项",
+      "dashboardCwe": "CWE 状态",
+      "dashboardNotifications": "系统通知",
+      "dashboardQuickActions": "快捷功能",
+      "dashboardTrends": "数据统计图表",
+      "dashboardSystemStatus": "实时系统状态",
+      "companyCreate": "建立公司",
+      "companyDirectory": "公司资料管理",
+      "companyReview": "公司审核",
+      "companyStatus": "公司状态",
+      "companySubscriptions": "公司订阅资料",
+      "companyProjects": "项目管理",
+      "companyRecyclerData": "回收商资料",
+      "companySearch": "公司查询",
+      "companyStatistics": "公司统计",
+      "companyActivity": "公司操作记录",
+      "userManagement": "用户管理",
+      "userProfiles": "用户资料",
+      "userCategories": "用户类别",
+      "userSearch": "用户查询",
+      "userLoginManagement": "登录管理",
+      "userStatistics": "用户统计",
+      "userActivity": "用户操作记录",
+      "subscriptionPlans": "订阅方案管理",
+      "companySubscriptions": "公司订阅管理",
+      "subscriptionStatus": "订阅状态",
+      "packageChanges": "套餐升级／降级",
+      "accountLimits": "账号数量管理",
+      "expiryReminders": "到期提醒",
+      "subscriptionSearch": "订阅查询",
+      "subscriptionStatistics": "订阅统计",
+      "subscriptionActivity": "操作记录",
+      "saasInvoices": "SaaS 账单管理",
+      "platformCommission": "平台佣金管理",
+      "automaticBilling": "自动生成账单",
+      "collections": "收款管理",
+      "paymentProofs": "付款凭证",
+      "commissionRules": "佣金规则管理",
+      "invoiceSearch": "账单查询",
+      "billingStatistics": "收费统计",
+      "financialReports": "财务报表",
+      "billingActivity": "操作记录",
+      "livePlatform": "实时平台状态",
+      "cweMonitoring": "CWE 监控",
+      "cctvMonitoring": "AI CCTV 监控",
+      "anprMonitoring": "ANPR 监控",
+      "apiGatewayMonitoring": "API Gateway 监控",
+      "syncMonitoring": "数据同步监控",
+      "exceptionMonitoring": "异常监控",
+      "serviceSearch": "服务查询",
+      "runtimeStatistics": "运行统计",
+      "monitoringRecords": "监控记录",
+      "qrTypes": "二维码类别",
+      "qrRegister": "二维码资料",
+      "qrLifecycle": "二维码状态管理",
+      "qrSearch": "二维码查询",
+      "qrScans": "扫码记录",
+      "qrAnomalies": "二维码异常",
+      "qrStatistics": "二维码统计",
+      "qrActivity": "二维码操作记录",
+      "cweScales": "地磅登记",
+      "cweConnections": "地磅连接状态",
+      "cweLiveWeighing": "当前称重状态",
+      "cweAnomalies": "称重异常",
+      "cweSearch": "称重查询",
+      "cweStatistics": "CWE 统计",
+      "cweServiceStatus": "CWE 服务状态",
+      "cweActivity": "CWE 操作记录",
+      "contractorReports": "建筑商报表",
+      "recyclerReports": "回收商报表",
+      "platformBusinessReports": "平台业务报表",
+      "saasReports": "SaaS 收费报表",
+      "commissionReports": "平台佣金报表",
+      "cweReports": "CWE 报表",
+      "operationsReports": "系统运营报表",
+      "reportSearch": "报表查询",
+      "reportExports": "导出报表",
+      "reportHistory": "报表历史记录",
+      "contractorNotifications": "建筑商通知",
+      "recyclerNotifications": "回收商通知",
+      "saasNotifications": "SaaS 收费通知",
+      "commissionNotifications": "平台佣金通知",
+      "cweNotifications": "CWE 通知",
+      "systemNotifications": "系统通知",
+      "notificationSearch": "通知查询",
+      "notificationManagement": "通知管理",
+      "notificationChannels": "推播方式",
+      "notificationRecords": "通知记录",
+      "basicSettings": "基本设置",
+      "saasSettings": "SaaS 设置",
+      "commissionSettings": "佣金设置",
+      "cweSettings": "CWE 设置",
+      "cctvSettings": "AI CCTV 设置",
+      "anprSettings": "ANPR 设置",
+      "qrSettings": "二维码设置",
+      "apiGatewaySettings": "API Gateway 设置",
+      "versionSettings": "版本管理",
+      "notificationSettings": "通知设置",
+      "maintenanceSettings": "维护设置",
+      "settingsActivity": "设置操作记录",
+      "userAudit": "用户记录",
+      "companyAudit": "公司记录",
+      "subscriptionAudit": "订阅记录",
+      "billingAudit": "账单记录",
+      "cweAudit": "CWE 记录",
+      "settingsAudit": "设置记录",
+      "loginAudit": "登录记录",
+      "auditSearch": "日志查询",
+      "auditExport": "日志导出",
+      "immutableAudit": "永久记录",
+      "salesPeople": "销售人员",
+      "salesDetails": "销售人员资料",
+      "salesTerritories": "销售区域",
+      "salesHierarchy": "团队层级",
+      "customerAssignments": "客户归属",
+      "commissionRuleTypes": "佣金规则",
+      "commissionSchemes": "佣金方案",
+      "salesTerms": "销售条款",
+      "salesPayouts": "应付佣金",
+      "teamPerformance": "团队业绩",
+      "salesSettlements": "佣金结算",
+      "salesReports": "销售报表",
+      "salesActivity": "销售操作记录",
+      "crmCustomers": "客户管理",
+      "crmEnquiries": "客户咨询",
+      "crmTraining": "客户培训",
+      "crmVisits": "客户回访",
+      "crmFeedback": "客户反馈",
+      "crmService": "服务记录",
+      "crmReports": "客户服务报表",
+      "crmActivity": "客户服务操作记录",
+      "supportTickets": "技术工单",
+      "supportStates": "工单状态",
+      "supportBugs": "Bug 管理",
+      "supportAPI": "API 对接",
+      "supportInstallations": "地磅安装",
+      "supportMaintenance": "设备维护",
+      "supportReports": "技术报表",
+      "supportActivity": "技术操作记录",
+      "partnerManagement": "合作伙伴管理",
+      "partnerDetails": "合作伙伴资料",
+      "partnerTypes": "合作类型",
+      "partnerTerritories": "区域管理",
+      "partnerCustomers": "客户归属",
+      "partnerAgreements": "合作协议管理",
+      "partnerSchemes": "佣金方案",
+      "partnerPerformance": "业绩统计",
+      "partnerReports": "合作伙伴报表",
+      "partnerActivity": "操作记录",
+      "assetManagement": "资产管理",
+      "assetDetails": "资产资料",
+      "assetCategories": "资产类别",
+      "assetPurchases": "采购管理",
+      "assetInventory": "库存管理",
+      "assetAssignments": "领用与借用",
+      "assetInstallations": "安装管理",
+      "assetTransfers": "资产调拨",
+      "assetRepairs": "维修管理",
+      "assetMaintenance": "保养管理",
+      "assetDisposals": "报废管理",
+      "assetSearch": "资产查询",
+      "assetReports": "资产报表",
+      "assetActivity": "操作记录",
+      "cloudServices": "云服务管理",
+      "cloudCatalog": "云服务项目",
+      "cloudVendors": "云服务供应商",
+      "cloudPlans": "云服务方案",
+      "cloudUsage": "云资源统计",
+      "cloudCosts": "云成本管理",
+      "cloudPricing": "收费规则",
+      "cloudAlerts": "云资源预警",
+      "cloudAnalysis": "云资源分析",
+      "cloudReports": "云服务报表",
+      "cloudActivity": "操作记录"
+    }
   },
   "integrations": {
     "title": "系统集成",
@@ -326,7 +524,130 @@
     "comingSoon": "此面板将在下个版本上线。",
     "metrics": "业务概览",
     "quickLinks": "快捷入口",
-    "noMetrics": "你的账号可以进入仪表板；管理员授予对应权限后，其他业务模块会显示在这里。"
+    "noMetrics": "你的账号可以进入仪表板；管理员授予对应权限后，其他业务模块会显示在这里。",
+    "admin": {
+      "error": "无法加载平台仪表板。",
+      "updatedAt": "更新时间：{value}",
+      "weightValue": "{value} 吨",
+      "map": {
+        "title": "马来西亚项目地图",
+        "search": "搜索项目或公司",
+        "state": "州属",
+        "kind": "地点类型",
+        "contractor": "建筑商",
+        "recycler": "回收商",
+        "projectStatus": "项目状态",
+        "allStates": "全部州属",
+        "allKinds": "全部地点",
+        "allContractors": "全部建筑商",
+        "allRecyclers": "全部回收商",
+        "allStatuses": "全部项目状态",
+        "visible": "显示 {visible}/{total} 个地图地点",
+        "recyclers": "回收商：{value}",
+        "orders": "今日订单：{value}",
+        "weight": "今日重量：{value} kg",
+        "kindValue": {
+          "PROJECT": "建筑项目",
+          "RECYCLER": "回收场",
+          "SCALE": "地磅",
+          "HEADQUARTERS": "公司总部"
+        },
+        "statusValue": {
+          "PLANNING": "规划中",
+          "ACTIVE": "进行中",
+          "SUSPENDED": "已暂停",
+          "COMPLETED": "已完成"
+        }
+      },
+      "section": {
+        "platform": "平台概览",
+        "businessToday": "今日平台业务",
+        "subscriptions": "SaaS 订阅",
+        "commission": "平台佣金"
+      },
+      "metric": {
+        "contractors": "建筑商",
+        "recyclers": "回收商",
+        "projects": "项目",
+        "users": "后台用户",
+        "onlineUsers": "在线用户",
+        "orders": "今日订单",
+        "completedOrders": "今日已完成",
+        "recoveredWeight": "回收重量",
+        "settlementAmount": "结算金额",
+        "serviceCommission": "服务佣金",
+        "activeSubscriptions": "有效订阅",
+        "expiringSubscriptions": "即将到期",
+        "expiredSubscriptions": "已到期订阅",
+        "renewedToday": "今日续费",
+        "monthlySaasRevenue": "本月 SaaS 收入",
+        "commissionWeight": "平台业务重量",
+        "commissionSettlement": "平台结算金额",
+        "commissionReceivable": "应收佣金",
+        "commissionReceived": "已收佣金",
+        "commissionOutstanding": "未收佣金"
+      },
+      "trends": {
+        "operatingTitle": "六个月运营趋势",
+        "revenueTitle": "六个月收入趋势",
+        "companies": "新增公司",
+        "contractors": "新增建筑商",
+        "recyclers": "新增回收商",
+        "orders": "订单",
+        "weight": "重量（吨）",
+        "saasRevenue": "SaaS 收入（MYR）",
+        "commissionRevenue": "佣金收入（MYR）"
+      },
+      "pending": {
+        "title": "待处理事项",
+        "companyReviews": "公司申请",
+        "contractorReviews": "待审核建筑商申请",
+        "recyclerReviews": "待审核回收商申请",
+        "payments": "待确认收款",
+        "systemExceptions": "24 小时系统异常",
+        "customerService": "客户服务案件",
+        "supportTickets": "技术支持工单"
+      },
+      "weighing": {
+        "title": "Cloud Weighing Engine",
+        "online_scales": "在线地磅",
+        "offline_scales": "离线地磅",
+        "today_sessions": "今日称重",
+        "today_anomalies": "今日异常",
+        "today_reweighs": "今日重新过磅"
+      },
+      "notifications": {
+        "title": "系统通知",
+        "viewAll": "查看全部",
+        "empty": "暂无通知。"
+      },
+      "quickActions": {
+        "title": "快捷功能",
+        "companies": "公司管理",
+        "users": "用户管理",
+        "subscriptions": "订阅管理",
+        "billing": "账单与佣金",
+        "reports": "报表中心",
+        "settings": "系统设置"
+      },
+      "systemStatus": {
+        "title": "实时系统状态",
+        "error": "无法加载实时服务状态。",
+        "failures": "24 小时内 {value} 次失败",
+        "mode": {
+          "SIMULATED": "模拟模式",
+          "LIVE": "真实模式"
+        }
+      },
+      "health": {
+        "ok": "运行正常",
+        "configured": "已配置",
+        "degraded": "性能下降",
+        "unhealthy": "异常",
+        "not_running": "未运行",
+        "not_configured": "未配置"
+      }
+    }
   },
   "offline": {
     "queued": "已离线保存，等待自动上传",
@@ -341,6 +662,44 @@
     "title": "客户公司",
     "count": "{count, plural, =0 {暂无公司} other {# 家公司}}",
     "new": "新增公司",
+    "module": {
+      "directory": {
+        "title": "公司资料管理",
+        "subtitle": "共 {count} 家公司，可查看资料、状态、联系人及执行管理操作"
+      },
+      "review": {
+        "title": "公司审核",
+        "subtitle": "共 {count} 个申请等待文件及银行账户审核"
+      },
+      "status": {
+        "title": "公司状态",
+        "subtitle": "共 {count} 家公司的启用、停用、到期及审核状态"
+      },
+      "subscriptions": {
+        "title": "公司订阅资料",
+        "subtitle": "共 {count} 家公司的套餐、到期日及账号额度"
+      },
+      "projects": {
+        "title": "公司项目管理",
+        "subtitle": "共 {count} 家建筑商的进行中、已完成及已归档项目统计"
+      },
+      "recyclers": {
+        "title": "回收商资料",
+        "subtitle": "共 {count} 家回收商的平台业务、原有客户及佣金统计"
+      },
+      "search": {
+        "title": "公司查询",
+        "subtitle": "按名称、编号、类别、州属、套餐及状态查询 {count} 家公司"
+      },
+      "statistics": {
+        "title": "公司统计",
+        "subtitle": "当前平台共 {count} 家公司"
+      },
+      "activity": {
+        "title": "公司操作记录",
+        "subtitle": "永久保存公司建立、修改、套餐、启停及审核记录"
+      }
+    },
     "createTitle": "新增公司",
     "editTitle": "编辑公司",
     "viewTitle": "公司详情",
@@ -349,7 +708,9 @@
       "address": "地址",
       "contact": "联系方式",
       "preferences": "偏好设置",
-      "subscription": "套餐与项目额度"
+      "subscription": "套餐与项目额度",
+      "projects": "公司项目",
+      "recyclerBusiness": "回收商业务汇总"
     },
     "field": {
       "code": "编号",
@@ -357,16 +718,33 @@
       "type": "类型",
       "status": "状态",
       "registrationNo": "注册号",
+      "ssmNewRegistrationNo": "新格式 SSM 注册号",
+      "ssmRegisteredName": "SSM 注册名称",
+      "ssmIncorporatedOn": "注册成立日期",
+      "ssmExpiresOn": "SSM 到期日期",
+      "businessType": "业务类型",
+      "industryCode": "MSIC 行业代码",
       "taxId": "税务识别号",
+      "sstNo": "SST 编号",
+      "paidUpCapital": "实缴资本（MYR）",
+      "employeeCount": "员工人数",
+      "website": "网站",
       "addressLine1": "地址第一行",
       "addressLine2": "地址第二行",
       "city": "城市",
       "state": "州属",
       "postcode": "邮编",
       "country": "国家",
+      "latitude": "总部纬度",
+      "longitude": "总部经度",
       "contactPerson": "联系人",
+      "contactDesignation": "联系人职位",
       "contactPhone": "联系电话",
       "contactEmail": "联系邮箱",
+      "reviewStatus": "审核状态",
+      "billingEmail": "账单邮箱",
+      "financeContactPerson": "财务联系人",
+      "financeContactPhone": "财务联系电话",
       "plan": "套餐",
       "projectLimit": "实际项目上限",
       "projectLimitOverride": "自定义项目上限",
@@ -377,6 +755,9 @@
       "defaultLanguage": "默认语言",
       "timezone": "时区",
       "userCount": "用户数",
+      "userLimit": "账号额度",
+      "usedUserSeats": "已使用账号",
+      "remainingUserSeats": "剩余账号",
       "createdAt": "开通时间"
     },
     "type": {
@@ -390,12 +771,133 @@
       "OVERDUE": "欠费",
       "CLOSED": "已关闭"
     },
+    "reviewStatus": {
+      "PENDING": "待审核",
+      "APPROVED": "审核通过",
+      "REJECTED": "审核驳回"
+    },
+    "verificationStatus": {
+      "PENDING": "待核验",
+      "VERIFIED": "已核验",
+      "REJECTED": "已驳回"
+    },
+    "onboarding": {
+      "title": "公司入驻与资料核验",
+      "complete": "所有必填资料均已核验，可以审核通过该公司。",
+      "incomplete": "还有 {count} 项必填资料需要处理。",
+      "verify": "核验通过",
+      "reject": "驳回",
+      "companyApprove": "审核通过公司",
+      "companyReject": "驳回公司",
+      "missing": {
+        "registration_no": "缺少 SSM 注册号",
+        "ssm_certificate": "缺少已核验的 SSM 证书",
+        "bank_account": "缺少已核验的银行账户",
+        "contact": "缺少联系人或联系电话",
+        "address": "缺少注册地址或州属"
+      },
+      "documents": {
+        "title": "公司文件",
+        "type": "文件类型",
+        "titleField": "文件标题",
+        "reference": "参考编号",
+        "file": "PDF 或图片",
+        "upload": "上传",
+        "empty": "尚未上传公司文件。"
+      },
+      "documentType": {
+        "SSM_CERTIFICATE": "SSM 证书",
+        "SSM_FORM_9": "SSM Form 9 / Section 17",
+        "SSM_FORM_24": "SSM Form 24 / Section 78",
+        "SSM_FORM_49": "SSM Form 49 / Section 58",
+        "BUSINESS_LICENCE": "营业执照",
+        "DOE_LICENCE": "DOE / 计划废料执照",
+        "BANK_STATEMENT": "银行账单 / 银行证明信",
+        "DIRECTOR_IC": "董事 IC / 护照",
+        "TAX_DOCUMENT": "税务文件",
+        "SIGNED_AGREEMENT": "已签服务协议",
+        "OTHER": "其他"
+      },
+      "bank": {
+        "title": "银行账户",
+        "add": "添加账户",
+        "bankName": "银行名称",
+        "accountName": "账户名称",
+        "accountNumber": "账号",
+        "branch": "分行",
+        "swiftCode": "SWIFT / BIC",
+        "accountType": "账户类型",
+        "save": "保存账户",
+        "empty": "尚未添加银行账户。",
+        "primary": "主要账户",
+        "makePrimary": "设为主要账户",
+        "type": { "CURRENT": "来往账户", "SAVINGS": "储蓄账户" }
+      },
+      "toast": {
+        "documentUploaded": "文件已上传",
+        "documentRemoved": "文件已移除",
+        "bankAdded": "银行账户已添加",
+        "bankRemoved": "银行账户已移除",
+        "primaryUpdated": "主要银行账户已更新"
+      },
+      "confirm": {
+        "verify-document": {
+          "title": "核验通过此文件？",
+          "description": "此文件将计入公司的审核必填资料。",
+          "confirm": "核验通过"
+        },
+        "reject-document": {
+          "title": "驳回此文件？",
+          "description": "公司必须替换或更正文件后才能通过审核。",
+          "confirm": "驳回"
+        },
+        "remove-document": {
+          "title": "移除此文件？",
+          "description": "文件将从入驻资料中撤回，但审计历史仍会保留。",
+          "confirm": "移除"
+        },
+        "verify-bank": {
+          "title": "核验通过此银行账户？",
+          "description": "此账户将计入公司的审核必填资料。",
+          "confirm": "核验通过"
+        },
+        "reject-bank": {
+          "title": "驳回此银行账户？",
+          "description": "公司必须更正银行资料后才能通过审核。",
+          "confirm": "驳回"
+        },
+        "primary-bank": {
+          "title": "设为主要账户？",
+          "description": "当前主要账户将被替换。",
+          "confirm": "设为主要账户"
+        },
+        "remove-bank": {
+          "title": "移除此银行账户？",
+          "description": "账户会从有效资料中移除，并记录本次操作。",
+          "confirm": "移除"
+        },
+        "approve-company": {
+          "title": "审核通过此公司？",
+          "description": "该公司的用户之后可以登录并开始使用系统。",
+          "confirm": "审核通过"
+        },
+        "reject-company": {
+          "title": "驳回此公司？",
+          "description": "资料更正并重新审核通过前，该公司的用户无法登录。",
+          "confirm": "驳回"
+        }
+      }
+    },
     "filter": {
       "all": "全部",
       "contractors": "建筑商",
       "recyclers": "回收商",
       "active": "正常",
-      "suspended": "已停用"
+      "suspended": "已停用",
+      "state": "州属",
+      "plan": "套餐",
+      "allStates": "全部州属",
+      "allPlans": "全部套餐"
     },
     "remove": {
       "title": "移除 {name}？",
@@ -430,7 +932,35 @@
     "languageHint": "这家公司新建用户的默认语言，每个人之后可自行更改。",
     "suspendedReason": "停用原因",
     "suspendedAt": "停用时间",
-    "addUser": "添加用户"
+    "addUser": "添加用户",
+    "viewLogo": "查看公司标志",
+    "unlimitedUsers": "无限制",
+    "weightKg": "{value} kg",
+    "summary": {
+      "total": "公司总数",
+      "contractors": "建筑商",
+      "recyclers": "回收商",
+      "active": "活跃公司",
+      "newThisMonth": "本月新增"
+    },
+    "projectStats": {
+      "total": "项目总数",
+      "active": "进行中项目",
+      "completed": "已完成项目",
+      "archived": "已归档项目"
+    },
+    "recyclerStats": {
+      "serviceContractors": "服务建筑商数量",
+      "platformWeight": "平台业务重量",
+      "privateWeight": "原有客户业务重量",
+      "totalWeight": "总回收重量",
+      "commissionStatus": "平台佣金状态"
+    },
+    "commissionStatus": {
+      "NOT_APPLICABLE": "不适用",
+      "OUTSTANDING": "待结算",
+      "SETTLED": "已结清"
+    }
   },
   "attendance": {
     "title": "考勤",
@@ -1099,8 +1629,119 @@
   },
   "monitoring": {
     "title": "系统监控",
+    "subtitle": "6 平台与集成健康、异常处理及永久监控记录",
     "checkedAt": "检查时间：{value}",
     "capture": "保存监控快照",
+    "loadError": "无法加载监控数据。",
+    "empty": "没有符合条件的监控记录。",
+    "serviceSearchPlaceholder": "搜索服务名称、模式或状态",
+    "eventSearchPlaceholder": "搜索事件类型、内容或设备",
+    "handlingNotePlaceholder": "处理备注",
+    "recordsCount": "共 {count} 条记录",
+    "section": {
+      "live-platform": {
+        "title": "实时平台状态",
+        "subtitle": "6.2.1 根据当前活动显示在线公司、项目与用户"
+      },
+      "cwe": {
+        "title": "CWE 监控",
+        "subtitle": "6.2.2 地磅连接、当前读数、称重及异常状态"
+      },
+      "cctv": {
+        "title": "AI CCTV 监控",
+        "subtitle": "6.2.3 设备及识别状态，并明确区分模拟与真实模式"
+      },
+      "anpr": {
+        "title": "ANPR 监控",
+        "subtitle": "6.2.4 摄像头连接、识别失败次数及服务状态"
+      },
+      "api-gateway": {
+        "title": "API Gateway 监控",
+        "subtitle": "6.2.5 调用次数、失败、响应时间及服务健康"
+      },
+      "sync": {
+        "title": "数据同步监控",
+        "subtitle": "6.2.6 建筑商及回收商 ERP、政府 API 与 MyInvois 同步状态"
+      },
+      "exceptions": {
+        "title": "异常监控",
+        "subtitle": "6.2.7 确认及解决系统、API、称重、设备与同步异常"
+      },
+      "service-search": {
+        "title": "服务查询",
+        "subtitle": "6.2.8 按服务名称、状态、最后检查及异常内容查询"
+      },
+      "runtime-statistics": {
+        "title": "运行统计",
+        "subtitle": "6.2.9 Uptime、响应时间、API 成功率与同步成功率"
+      },
+      "records": {
+        "title": "监控记录",
+        "subtitle": "6.2.10 永久保存事件时间、类型、服务、内容及处理历史"
+      }
+    },
+    "mode": { "SIMULATED": "模拟", "LIVE": "真实" },
+    "metric": {
+      "onlineContractors": "在线建筑商",
+      "onlineRecyclers": "在线回收商",
+      "onlineProjects": "在线项目",
+      "activeProjects": "进行中项目",
+      "onlineUsers": "在线用户",
+      "activeUsersToday": "今日活跃用户",
+      "activeCompanies": "启用公司",
+      "totalScales": "地磅总数",
+      "activeScales": "启用地磅",
+      "onlineGateways": "在线 Gateway",
+      "offlineGateways": "离线 Gateway",
+      "weighingsToday": "今日称重",
+      "anomaliesToday": "今日异常",
+      "reweighsToday": "今日重新过磅",
+      "inProgress": "称重进行中",
+      "configured": "已配置连接",
+      "enabled": "已启用连接",
+      "totalDevices": "设备总数",
+      "onlineDevices": "在线设备",
+      "offlineDevices": "离线设备",
+      "recognitions24h": "24 小时识别次数",
+      "requests24h": "24 小时请求数",
+      "failures24h": "24 小时失败数",
+      "successRate": "成功率",
+      "averageLatency": "平均响应时间",
+      "maxLatency": "最长响应时间",
+      "attempts24h": "24 小时同步尝试",
+      "sent24h": "同步成功",
+      "failed24h": "同步失败",
+      "pending24h": "等待同步",
+      "uptime": "服务运行时间",
+      "exceptions24h": "24 小时异常",
+      "apiSuccessRate": "API 成功率",
+      "syncSuccessRate": "同步成功率",
+      "onlineWorkers": "在线 Worker",
+      "staleWorkers": "失联 Worker"
+    },
+    "field": {
+      "scale": "地磅",
+      "company": "公司",
+      "site": "地点",
+      "currentWeight": "当前重量",
+      "lastChecked": "最后检查",
+      "status": "状态",
+      "service": "服务",
+      "mode": "模式",
+      "exception": "异常内容",
+      "failures24h": "24 小时失败",
+      "time": "时间",
+      "severity": "严重程度",
+      "resolutionStatus": "处理状态",
+      "handler": "处理人员",
+      "action": "操作"
+    },
+    "resolution": {
+      "OPEN": "待处理",
+      "ACKNOWLEDGED": "已确认",
+      "RESOLVED": "已解决"
+    },
+    "action": { "acknowledge": "确认", "resolve": "解决" },
     "tile": {
       "server": "服务器",
       "api": "API",
@@ -1115,7 +1756,8 @@
       "configured": "已配置",
       "degraded": "性能下降",
       "unhealthy": "异常",
-      "not_running": "未运行"
+      "not_running": "未运行",
+      "not_configured": "未配置"
     },
     "value": {
       "uptime": "已运行 {value} 分钟",
@@ -1134,7 +1776,8 @@
       "CRITICAL": "严重"
     },
     "toast": {
-      "captured": "监控快照已保存"
+      "captured": "监控快照已保存",
+      "resolutionSaved": "异常处理状态已保存"
     }
   },
   "contractorPartners": {
@@ -1231,6 +1874,36 @@
     "titleStaff": "内部人员",
     "count": "{count, plural, =0 {暂无用户} other {# 位用户}}",
     "new": "新增用户",
+    "module": {
+      "management": {
+        "title": "用户管理",
+        "subtitle": "共 {count} 个平台及租户账号，可执行账号生命周期管理"
+      },
+      "profiles": {
+        "title": "用户资料",
+        "subtitle": "共 {count} 名用户，显示联络、公司、类别、状态及建立日期"
+      },
+      "categories": {
+        "title": "用户类别",
+        "subtitle": "共 {count} 名 MSE、建筑商及回收商用户；租户内部职位由租户自行管理"
+      },
+      "search": {
+        "title": "用户查询",
+        "subtitle": "按姓名、公司、类别、状态及建立日期查询 {count} 名用户"
+      },
+      "login": {
+        "title": "登录管理",
+        "subtitle": "共 {count} 个账号，可启停登录、强制登出及重发安全链接"
+      },
+      "statistics": {
+        "title": "用户统计",
+        "subtitle": "MSE、建筑商及回收商共 {count} 名用户"
+      },
+      "activity": {
+        "title": "用户操作记录",
+        "subtitle": "永久保存用户建立、修改、状态、登录及安全链接操作记录"
+      }
+    },
     "createTitle": "邀请用户",
     "editTitle": "编辑用户",
     "viewTitle": "用户详情",
@@ -1246,6 +1919,7 @@
       "phone": "电话",
       "role": "角色",
       "company": "所属公司",
+      "audience": "用户类别",
       "status": "状态",
       "language": "语言",
       "timezone": "时区",
@@ -1257,6 +1931,27 @@
       "INVITED": "待激活",
       "ACTIVE": "正常",
       "SUSPENDED": "已停用"
+    },
+    "audience": {
+      "PLATFORM": "MSE 系统用户",
+      "CONTRACTOR": "建筑商用户",
+      "RECYCLER": "回收商用户"
+    },
+    "filter": {
+      "audience": "用户类别",
+      "allAudiences": "全部用户类别",
+      "company": "所属公司",
+      "allCompanies": "全部公司",
+      "createdFrom": "建立日期从",
+      "createdTo": "建立日期至"
+    },
+    "summary": {
+      "total": "用户总数",
+      "platform": "MSE 用户",
+      "contractor": "建筑商用户",
+      "recycler": "回收商用户",
+      "online": "在线用户",
+      "suspended": "停用用户"
     },
     "invite": {
       "hint": "对方通过我们发送的链接自行设置密码，任何人都不会经手这个密码。",
@@ -1275,6 +1970,13 @@
     "resetPassword": {
       "action": "发送重设链接",
       "sent": "重设链接已发送"
+    },
+    "forceLogout": {
+      "action": "强制登出",
+      "title": "强制 {name} 从所有设备登出？",
+      "description": "所有有效会话都会撤销。若账号未停用，用户仍可重新登录。",
+      "confirm": "强制登出",
+      "done": "用户已强制登出"
     },
     "toast": {
       "created": "用户已邀请",
@@ -1481,16 +2183,28 @@
     "allCompanies": "所有公司",
     "title": "审计日志",
     "count": "{count, plural, =0 {暂无记录} other {# 条记录}}",
+    "exportSubtitle": "已筛选的永久操作记录",
+    "empty": "没有符合条件的操作记录。",
+    "filter": {
+      "objectType": "记录类型",
+      "module": "模块",
+      "ipAddress": "IP 地址",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期"
+    },
     "field": {
       "createdAt": "时间",
       "actor": "操作人",
       "action": "操作",
       "objectType": "记录类型",
+      "objectId": "记录编号",
+      "company": "公司",
       "objectRepr": "记录",
       "reason": "原因",
       "ipAddress": "IP 地址",
       "changes": "变更内容",
-      "context": "附加信息"
+      "context": "附加信息",
+      "requestPath": "请求路径"
     },
     "action": {
       "CREATE": "创建",
@@ -1527,7 +2241,8 @@
       "SUCCESS": "登录成功",
       "BAD_CREDENTIALS": "凭据错误",
       "USER_SUSPENDED": "账号已停用",
-      "COMPANY_SUSPENDED": "公司已停用"
+      "COMPANY_SUSPENDED": "公司已停用",
+      "PORTAL_MISMATCH": "登录入口错误"
     }
   },
   "profile": {
@@ -1555,10 +2270,17 @@
       "company_bank_account_not_found": "找不到该银行账号。",
       "company_document_not_found": "找不到该公司文件。",
       "company_onboarding_incomplete": "该公司的入驻资料未齐全，无法通过审核。",
+      "user_has_activity": "只有从未使用过的账号可以移除。请改为停用此用户。",
       "company_seat_limit_reached": "该公司已用完套餐内的所有账号，请升级套餐后再新增。",
       "commission_rule_not_found": "找不到该佣金规则。",
       "invoice_not_found": "找不到该账单。",
       "payment_not_found": "找不到该付款记录。",
+      "commission_payout_not_found": "找不到该佣金结算记录。",
+      "commission_scheme_not_found": "找不到该佣金方案。",
+      "customer_assignment_not_found": "找不到该客户归属记录。",
+      "sales_terms_not_found": "找不到该销售条款。",
+      "salesperson_not_found": "找不到该销售人员。",
+      "territory_not_found": "找不到该销售区域。",
       "company_not_found": "找不到这家公司。",
       "company_subscription_expired": "请先续订该建筑商的配套，再启用公司。",
       "user_not_found": "找不到这位用户。",
@@ -1626,6 +2348,47 @@
       "supplier_not_found": "找不到这家供应商。",
       "qr_code_not_found": "无法识别这个二维码。",
       "project_has_records": "这个项目下还有记录。请改为标记完成，而不是移除。",
+      "scale_has_dependencies": "请先停用所有网关。已有称重证据的地磅不能移除。",
+      "version_not_found": "找不到该平台版本。",
+      "version_already_exists": "该平台版本已经存在。",
+      "no_current_version": "尚未选择当前平台版本。",
+      "config_not_found": "找不到该系统设置。",
+      "config_readonly": "该系统设置仅供查看。",
+      "config_unknown": "系统不支持该配置键。",
+      "config_invalid_value": "请检查该设置值后重试。",
+      "config_required": "不能移除必要的系统设置。",
+      "flag_not_found": "找不到该功能开关。",
+      "announcement_not_found": "找不到该公告。",
+      "ticket_not_found": "找不到该技术支持工单。",
+      "bug_not_found": "找不到该 Bug 记录。",
+      "maintenance_not_found": "找不到该维护记录。",
+      "session_record_not_found": "找不到该技术支持会话。",
+      "partner_not_found": "找不到该合作伙伴。",
+      "partner_agreement_not_found": "找不到该合作协议。",
+      "partner_territory_not_found": "找不到该合作区域。",
+      "customer_referral_not_found": "找不到该客户归属记录。",
+      "partner_payout_not_found": "找不到该合作伙伴付款。",
+      "company_already_referred": "该公司已经归属其他合作伙伴。",
+      "no_active_agreement": "该合作伙伴没有生效中的协议。",
+      "payout_already_exists": "该期间已经建立付款。",
+      "payout_not_draft": "只有草稿状态的付款可以这样修改。",
+      "below_minimum_payout": "该金额低于最低付款额度。",
+      "asset_not_found": "找不到该资产。",
+      "asset_already_disposed": "该资产已经报废。",
+      "asset_movement_not_found": "找不到该资产流转记录。",
+      "asset_maintenance_not_found": "找不到该资产维护记录。",
+      "asset_disposal_not_found": "找不到该资产报废记录。",
+      "enquiry_not_found": "找不到该客户咨询。",
+      "training_not_found": "找不到该培训记录。",
+      "visit_not_found": "找不到该客户回访。",
+      "feedback_not_found": "找不到该客户反馈。",
+      "service_record_not_found": "找不到该客户服务记录。",
+      "cloud_service_not_found": "找不到该云服务。",
+      "cloud_vendor_not_found": "找不到该云服务供应商。",
+      "cloud_plan_not_found": "找不到该云服务方案。",
+      "cloud_alert_not_found": "找不到该云用量预警。",
+      "pricing_rule_not_found": "找不到该云服务收费规则。",
+      "quota_exceeded": "已超过设定的云服务额度。",
       "receipt_not_found": "找不到该收货单。",
       "receipt_photo_not_found": "找不到该照片。",
       "dispatch_not_found": "找不到该出场单。",
@@ -2063,6 +2826,459 @@
     "toast": {
       "created": "送货单已签发",
       "revoked": "送货单已作废"
+    }
+  },
+  "adminQr": {
+    "title": "二维码管理",
+    "subtitle": "7 签发、管理、查询及审计平台二维码和每一次扫码尝试",
+    "count": "共 {count} 条二维码记录",
+    "empty": "没有符合条件的二维码记录。",
+    "searchPlaceholder": "搜索 QR ID、对象或公司",
+    "scanSearchPlaceholder": "搜索 QR ID、对象、地点或扫码人员",
+    "section": {
+      "types": {
+        "title": "二维码类别",
+        "subtitle": "7.2.1 为建筑商、回收商、供应商、司机、车辆、工地人员、访客及设备签发二维码"
+      },
+      "register": {
+        "title": "二维码资料",
+        "subtitle": "7.2.2 QR ID、类别、公司、项目、建立日期、有效状态及使用状态"
+      },
+      "lifecycle": {
+        "title": "二维码状态管理",
+        "subtitle": "7.2.3 启用、停用、永久作废或重新生成二维码"
+      },
+      "search": {
+        "title": "二维码查询",
+        "subtitle": "7.2.4 按 QR ID、公司、类别、项目、状态及建立日期查询"
+      },
+      "scans": {
+        "title": "扫码记录",
+        "subtitle": "7.2.5 永久保存扫码时间、地点、人员、项目及结果"
+      },
+      "anomalies": {
+        "title": "二维码异常",
+        "subtitle": "7.2.6 无效、停用、作废、重复使用及失败扫码"
+      },
+      "statistics": {
+        "title": "二维码统计",
+        "subtitle": "7.2.7 二维码总数、各类别数量及今日扫码结果"
+      },
+      "activity": {
+        "title": "二维码操作记录",
+        "subtitle": "7.2.8 永久保存建立、状态、重发、使用及导出操作"
+      }
+    },
+    "subjectType": {
+      "CONTRACTOR": "建筑商",
+      "RECYCLER": "回收商",
+      "SUPPLIER": "供应商",
+      "DRIVER": "司机",
+      "VEHICLE": "车辆",
+      "FIELD_STAFF": "工地人员",
+      "VISITOR": "访客",
+      "DEVICE": "设备"
+    },
+    "status": {
+      "ACTIVE": "启用",
+      "DISABLED": "停用",
+      "VOIDED": "已作废",
+      "EXPIRED": "已过期",
+      "SUPERSEDED": "已被替换"
+    },
+    "outcome": {
+      "SUCCESS": "通过",
+      "UNKNOWN_CODE": "未知二维码",
+      "DISABLED": "二维码已停用",
+      "VOIDED": "二维码已作废",
+      "EXPIRED": "二维码已过期",
+      "WRONG_LOCATION": "地点不符",
+      "DUPLICATE": "重复使用"
+    },
+    "field": {
+      "qrId": "QR ID",
+      "subjectType": "类别",
+      "subject": "对象",
+      "company": "公司",
+      "project": "项目",
+      "site": "回收场",
+      "projectSite": "项目／回收场",
+      "status": "状态",
+      "issuedOn": "建立日期",
+      "issuedFrom": "建立日期起",
+      "issuedTo": "建立日期至",
+      "expiresOn": "到期日期",
+      "scanCount": "使用次数",
+      "lastScanned": "最后扫码",
+      "notes": "备注",
+      "reason": "原因",
+      "action": "操作",
+      "outcome": "结果",
+      "scannedAt": "扫码时间",
+      "scannedBy": "扫码人员",
+      "location": "地点",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期"
+    },
+    "action": {
+      "issue": "签发二维码",
+      "enable": "启用",
+      "disable": "停用",
+      "void": "作废",
+      "reissue": "重新生成",
+      "excel": "Excel",
+      "pdf": "PDF"
+    },
+    "issue": {
+      "title": "签发二维码",
+      "description": "选择真实公司对象及所属项目或回收场。"
+    },
+    "edit": { "title": "编辑二维码资料" },
+    "issued": {
+      "title": "二维码已签发",
+      "description": "Token 只显示一次供打印，关闭后不能再次读取。",
+      "copied": "Token 已复制"
+    },
+    "metric": {
+      "total": "二维码总数",
+      "active": "启用二维码",
+      "scansToday": "今日扫码",
+      "failedScansToday": "今日失败扫码"
+    },
+    "statistics": { "byType": "按类别统计", "byStatus": "按状态统计" },
+    "toast": {
+      "issued": "二维码已签发",
+      "updated": "二维码资料已更新",
+      "statusUpdated": "二维码状态已更新",
+      "reissued": "二维码已重新生成"
+    }
+  },
+  "adminNotifications": {
+    "title": "通知中心",
+    "subtitle": "10 管理平台、公司、收费、佣金、称重及系统通知",
+    "empty": "没有符合条件的通知。",
+    "section": {
+      "contractors": {
+        "title": "建筑商通知",
+        "subtitle": "10.2.1 注册、启用、停用、订阅到期及续费通知"
+      },
+      "recyclers": {
+        "title": "回收商通知",
+        "subtitle": "10.2.2 注册、启用、停用、订阅到期及续费通知"
+      },
+      "saas": {
+        "title": "SaaS 收费通知",
+        "subtitle": "10.2.3 账单生成、即将到期、已到期、付款及逾期通知"
+      },
+      "commission": {
+        "title": "平台佣金通知",
+        "subtitle": "10.2.4 佣金生成、应收、已收、未收及逾期通知"
+      },
+      "cwe": {
+        "title": "Cloud Weighing Engine 通知",
+        "subtitle": "10.2.5 地磅离线、恢复、通讯、称重及系统异常通知"
+      },
+      "system": {
+        "title": "系统通知",
+        "subtitle": "10.2.6 公告、维护、新版本、升级及紧急通知"
+      },
+      "search": {
+        "title": "通知查询",
+        "subtitle": "10.2.7 按类别、公司、日期及已读状态查询"
+      },
+      "manage": {
+        "title": "通知管理",
+        "subtitle": "10.2.8 查看、标记已读或未读及移除收件箱记录"
+      },
+      "channels": {
+        "title": "推播方式",
+        "subtitle": "10.2.9 站内、Email 与 Push，并明确显示 LIVE 或 SIMULATED"
+      },
+      "records": {
+        "title": "通知记录",
+        "subtitle": "10.2.10 永久保存发送、读取及状态变更记录"
+      }
+    },
+    "filter": {
+      "search": "搜索",
+      "company": "公司",
+      "status": "状态",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
+      "allCompanies": "全部公司",
+      "allStatuses": "全部状态"
+    },
+    "field": {
+      "notification": "通知",
+      "recipient": "接收人",
+      "company": "公司",
+      "kind": "类别",
+      "status": "状态",
+      "time": "时间",
+      "title": "标题",
+      "message": "内容",
+      "channelStatus": "频道／状态"
+    },
+    "status": { "READ": "已读", "UNREAD": "未读", "DELETED": "已移除" },
+    "action": {
+      "markRead": "标记已读",
+      "markUnread": "标记未读",
+      "remove": "移除",
+      "send": "发送通知"
+    },
+    "remove": {
+      "title": "移除这项通知？",
+      "description": "通知会从收件箱移除，发送及状态历史仍会永久保留。"
+    },
+    "channel": {
+      "IN_APP": "系统站内通知",
+      "EMAIL": "Email",
+      "PUSH": "Push Notification",
+      "sent": "已发送 {count} 次",
+      "failed": "失败 {count} 次",
+      "never": "还没有发送记录"
+    },
+    "record": { "delivery": "发送记录", "status": "状态记录" }
+  },
+  "adminReports": {
+    "title": "报表中心",
+    "subtitle": "9 平台业务、收费、称重及系统运营报表，并永久保存导出历史",
+    "loadError": "无法加载报表。",
+    "emptyHistory": "还没有导出报表。",
+    "exportSubtitle": "报表期间：{from} 至 {to}",
+    "section": {
+      "contractors": {
+        "title": "建筑商报表",
+        "subtitle": "9.2.1 建筑商总数、新增、启用状态及项目统计"
+      },
+      "recyclers": {
+        "title": "回收商报表",
+        "subtitle": "9.2.2 回收商总数、新增、启用状态及平台业务统计"
+      },
+      "business": {
+        "title": "平台业务报表",
+        "subtitle": "9.2.3 平台订单、完成订单、回收重量及结算金额"
+      },
+      "saas": {
+        "title": "SaaS 收费报表",
+        "subtitle": "9.2.4 订阅、应收、已收、未收及续费统计"
+      },
+      "commission": {
+        "title": "平台佣金报表",
+        "subtitle": "9.2.5 佣金业务重量、结算金额、比例及收款统计"
+      },
+      "cwe": {
+        "title": "Cloud Weighing Engine 报表",
+        "subtitle": "9.2.6 地磅、称重、异常、重新过磅及在线率"
+      },
+      "operations": {
+        "title": "系统运营报表",
+        "subtitle": "9.2.7 在线用户、活跃用户、API、数据同步及系统异常"
+      },
+      "search": {
+        "title": "报表查询",
+        "subtitle": "9.2.8 按公司、项目、州属和日期范围查询各类报表"
+      },
+      "export": {
+        "title": "导出报表",
+        "subtitle": "9.2.9 按日、周、月、年或自定义日期导出 PDF 与 Excel"
+      },
+      "history": {
+        "title": "报表历史记录",
+        "subtitle": "9.2.10 永久保存所有报表生成及导出记录"
+      }
+    },
+    "filter": {
+      "reportType": "报表类别",
+      "company": "公司",
+      "project": "项目",
+      "state": "州属",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
+      "allCompanies": "全部公司",
+      "allProjects": "全部项目",
+      "allStates": "全部州属"
+    },
+    "reportType": {
+      "contractors": "建筑商报表",
+      "recyclers": "回收商报表",
+      "business": "平台业务报表",
+      "saas": "SaaS 收费报表",
+      "commission": "平台佣金报表",
+      "cwe": "Cloud Weighing Engine 报表",
+      "operations": "系统运营报表"
+    },
+    "action": { "excel": "Excel", "pdf": "PDF" },
+    "field": {
+      "metric": "统计项目",
+      "value": "数值",
+      "unit": "单位",
+      "file": "文件",
+      "format": "格式",
+      "period": "报表期间",
+      "generatedBy": "生成人员",
+      "generatedAt": "生成时间"
+    },
+    "metric": {
+      "contractor_total": "建筑商数量",
+      "contractor_new": "新增建筑商",
+      "contractor_active": "启用建筑商",
+      "contractor_inactive": "停用建筑商",
+      "project_total": "项目数量",
+      "recycler_total": "回收商数量",
+      "recycler_new": "新增回收商",
+      "recycler_active": "启用回收商",
+      "recycler_inactive": "停用回收商",
+      "platform_business_total": "平台业务数量",
+      "platform_order_total": "平台订单数量",
+      "completed_order_total": "完成订单数量",
+      "recycled_weight": "平台回收重量",
+      "settlement_amount": "平台业务总结算金额",
+      "saas_subscription_total": "SaaS 订阅数量",
+      "saas_receivable": "SaaS 应收金额",
+      "saas_received": "SaaS 已收金额",
+      "saas_outstanding": "SaaS 未收金额",
+      "saas_renewal_total": "续费数量",
+      "commission_business_weight": "平台业务总重量",
+      "commission_settlement_amount": "平台业务总结算金额",
+      "commission_rate": "平均平台佣金比例",
+      "commission_receivable": "应收平台佣金",
+      "commission_received": "已收平台佣金",
+      "commission_outstanding": "未收平台佣金",
+      "scale_total": "地磅数量",
+      "weighing_total": "称重次数",
+      "weighing_anomaly_total": "异常称重次数",
+      "reweigh_total": "重新过磅次数",
+      "scale_online_rate": "地磅在线率",
+      "online_user_total": "在线用户数量",
+      "active_user_total": "活跃用户数量",
+      "api_request_total": "API 请求数量",
+      "data_sync_total": "数据同步数量",
+      "system_exception_total": "系统异常数量"
+    }
+  },
+  "adminCwe": {
+    "title": "云端称重引擎管理",
+    "subtitle": "8 管理地磅、Gateway、实时读数、异常及不可修改的称重证据",
+    "count": "共 {count} 条记录",
+    "empty": "没有符合条件的 CWE 记录。",
+    "scaleSearchPlaceholder": "搜索地磅、序列号或制造商",
+    "anomalySearchPlaceholder": "搜索称重、地磅、公司或异常",
+    "sessionSearchPlaceholder": "搜索称重编号或车牌",
+    "statisticsNote": "统计数据来自永久保留的称重记录和异常证据。",
+    "refresh15s": "每 15 秒自动刷新",
+    "section": {
+      "scales": {
+        "title": "地磅登记",
+        "subtitle": "8.2.1 设备编号、公司、项目或地点、Gateway、协议及启用状态"
+      },
+      "connections": {
+        "title": "地磅连接状态",
+        "subtitle": "8.2.2 在线／离线、最后通信、网络及 Gateway 状态"
+      },
+      "live-weighing": {
+        "title": "当前称重状态",
+        "subtitle": "8.2.3 当前重量、稳定状态、最后称重及进行中状态"
+      },
+      "anomalies": {
+        "title": "称重异常",
+        "subtitle": "8.2.4 异常称重、重新过磅、通信及设备异常"
+      },
+      "search": {
+        "title": "称重查询",
+        "subtitle": "8.2.5 按公司、项目、设备、状态及日期查询"
+      },
+      "statistics": {
+        "title": "CWE 统计",
+        "subtitle": "8.2.6 地磅、称重、异常、重磅数量及在线率"
+      },
+      "service-status": {
+        "title": "CWE 服务状态",
+        "subtitle": "8.2.7 处理能力、响应时间、错误率及同步状态"
+      },
+      "activity": {
+        "title": "CWE 操作记录",
+        "subtitle": "8.2.8 永久保存建立、连接、通信、异常、重磅及状态操作"
+      }
+    },
+    "field": {
+      "company": "公司",
+      "scale": "地磅",
+      "site": "地点",
+      "currentWeight": "当前重量",
+      "lastCommunication": "最后通信",
+      "stability": "稳定状态",
+      "protocol": "协议",
+      "gateway": "Gateway",
+      "status": "状态",
+      "action": "操作",
+      "session": "称重记录",
+      "anomaly": "异常",
+      "evidence": "证据",
+      "detectedAt": "发现时间",
+      "vehicle": "车辆",
+      "weight": "稳定重量",
+      "startedAt": "开始时间",
+      "verdict": "判定",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
+      "state": "状态"
+    },
+    "action": {
+      "registerScale": "登记地磅",
+      "manage": "管理硬件",
+      "viewEvidence": "查看证据"
+    },
+    "connection": {
+      "ONLINE": "在线",
+      "OFFLINE": "离线",
+      "ENABLED": "启用",
+      "DISABLED": "停用"
+    },
+    "mode": { "SIMULATED": "模拟", "LIVE": "真实" },
+    "state": {
+      "OPEN": "已建立",
+      "ON_SCALE": "车辆在磅",
+      "STABLE": "已稳定",
+      "COMPLETED": "已完成",
+      "VOID": "无效"
+    },
+    "verdict": { "PENDING": "待判定", "VALID": "有效", "INVALID": "异常" },
+    "anomaly": {
+      "SINGLE_READING_ONLY": "只有一次读数",
+      "NO_CONTINUOUS_STREAM": "没有连续读数",
+      "SUDDEN_DROP": "重量突然下降",
+      "SUDDEN_RISE": "重量突然上升",
+      "STREAM_INTERRUPTED": "数据流中断",
+      "MID_SESSION_TARE": "称重中途归零",
+      "WEIGHT_FREEZE": "重量信号冻结",
+      "DUPLICATE_WEIGHING": "重复称重",
+      "DISPATCH_REQUIRED": "需要绑定出场单",
+      "REWEIGH_LIMIT": "超过重磅次数",
+      "SEQ_GAP": "Gateway 序列中断",
+      "STABLE_FLAG_MISMATCH": "稳定标记不一致",
+      "SIGNATURE_INVALID": "数据签名无效",
+      "CLOCK_SKEW": "设备时间偏移",
+      "FRAME_PARSE_FAILED": "原始数据解析失败",
+      "FRAME_MISMATCH": "原始与解析重量不符",
+      "PLATE_MISMATCH": "车牌不符"
+    },
+    "live": { "activeSessions": "进行中的称重" },
+    "metric": {
+      "totalScales": "地磅总数",
+      "onlineGateways": "在线 Gateway",
+      "offlineGateways": "离线 Gateway",
+      "totalSessions": "称重总数",
+      "validSessions": "有效称重",
+      "invalidSessions": "异常称重",
+      "anomaliesToday": "今日异常",
+      "reweighsToday": "今日重新过磅",
+      "requiresReview": "需要复核",
+      "uptime": "服务运行时间",
+      "averageLatency": "平均响应时间",
+      "apiSuccessRate": "API 成功率",
+      "syncSuccessRate": "同步成功率",
+      "failures24h": "24 小时失败"
     }
   },
   "receipts": {
@@ -2712,5 +3928,2385 @@
       "subject": "重置你的 MSE Trace 密码",
       "body": "我们收到了重置你 MSE Trace 密码的请求。请使用下方链接设置新密码。如果这不是你本人操作，请忽略此邮件。"
     }
+  },
+  "billing": {
+    "title": "账单与佣金管理",
+    "subtitle": "管理 SaaS 收费、平台佣金、账单及收款",
+    "count": "{count} 张账单",
+    "field": {
+      "invoiceNumber": "账单编号",
+      "company": "公司",
+      "companyType": "公司类别",
+      "kind": "账单类型",
+      "period": "收费期间",
+      "periodStart": "期间开始",
+      "periodEnd": "期间结束",
+      "receivable": "应收金额",
+      "received": "已收金额",
+      "outstanding": "未收金额",
+      "dueDate": "到期日期",
+      "state": "付款状态",
+      "notes": "备注",
+      "businessWeight": "平台业务总重量",
+      "settlementAmount": "总结算金额",
+      "commissionRate": "佣金比例",
+      "paidOn": "付款日期",
+      "method": "付款方式",
+      "reference": "交易编号",
+      "amount": "金额",
+      "proof": "付款凭证",
+      "reviewNote": "审核备注",
+      "name": "规则名称",
+      "calculationBasis": "计算方式",
+      "rate": "比例／费率",
+      "settlementCycle": "结算周期",
+      "effectivePeriod": "生效期间",
+      "paymentTerm": "付款期限（天）",
+      "invoices": "账单数量",
+      "minimumAmount": "最低佣金",
+      "maximumAmount": "最高佣金",
+      "effectiveFrom": "生效日期",
+      "effectiveTo": "结束日期",
+      "activeRule": "启用规则"
+    },
+    "kind": { "SAAS": "SaaS 订阅", "COMMISSION": "平台佣金" },
+    "companyType": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" },
+    "state": {
+      "DRAFT": "草稿",
+      "ISSUED": "未付款",
+      "PARTIALLY_PAID": "部分付款",
+      "OVERDUE": "逾期付款",
+      "PAID": "已付款",
+      "CANCELLED": "已取消",
+      "WRITTEN_OFF": "已核销"
+    },
+    "paymentState": {
+      "PENDING": "待确认",
+      "CONFIRMED": "已确认",
+      "REJECTED": "已驳回"
+    },
+    "paymentMethod": {
+      "BANK_TRANSFER": "银行转账",
+      "CHEQUE": "支票",
+      "CASH": "现金",
+      "ONLINE": "线上付款",
+      "OTHER": "其他"
+    },
+    "basis": {
+      "SETTLED_AMOUNT": "按结算金额百分比",
+      "SETTLED_WEIGHT": "按结算吨数费率"
+    },
+    "cycle": { "MONTHLY": "每月", "QUARTERLY": "每季", "YEARLY": "每年" },
+    "ruleState": { "active": "已启用", "inactive": "已停用" },
+    "action": {
+      "generate": "生成账单",
+      "issue": "发出账单",
+      "close": "关闭账单"
+    },
+    "filters": { "title": "筛选", "from": "期间开始", "to": "期间结束" },
+    "export": {
+      "title": "账单与佣金",
+      "subtitle": "SaaS 与平台佣金账单登记表"
+    },
+    "generate": {
+      "title": "生成账单草稿",
+      "description": "生成 SaaS 或佣金账单，审核后再发出。",
+      "runDate": "账单运行日期"
+    },
+    "close": {
+      "title": "关闭账单",
+      "description": "在未收齐余款的情况下关闭账单 {invoice}。"
+    },
+    "detail": {
+      "lines": "账单明细",
+      "settlements": "佣金结算来源",
+      "payments": "付款记录"
+    },
+    "payment": {
+      "record": "记录收款",
+      "recordDescription": "把收款及凭证关联至已发出的账单。",
+      "chooseInvoice": "选择未付账单",
+      "empty": "没有付款记录。",
+      "viewProof": "查看凭证",
+      "confirm": "确认收款",
+      "reject": "驳回凭证"
+    },
+    "rules": {
+      "count": "{count} 条佣金规则",
+      "create": "建立规则",
+      "edit": "编辑规则",
+      "empty": "没有佣金规则。",
+      "description": "此平台统一规则适用于所有合作版回收商。",
+      "perTonne": "每吨",
+      "openEnded": "长期有效",
+      "days": "{count} 天",
+      "removeTitle": "移除佣金规则",
+      "removeDescription": "确定移除 {name}？已用于账单的规则只能停用。"
+    },
+    "metric": {
+      "saasBilled": "本月 SaaS 应收",
+      "saasCollected": "本月 SaaS 已收",
+      "saasOutstanding": "本月 SaaS 未收",
+      "commissionBilled": "本月佣金应收",
+      "commissionCollected": "本月佣金已收",
+      "commissionOutstanding": "本月佣金未收",
+      "pendingReviews": "待确认付款",
+      "overdue": "逾期应收"
+    },
+    "section": {
+      "saas-invoices": {
+        "title": "SaaS 账单管理",
+        "subtitle": "5.2.1 账单编号、公司、套餐、期间、金额与付款状态"
+      },
+      "commission": {
+        "title": "平台佣金管理",
+        "subtitle": "5.2.2 平台结算业务重量、金额、比例及应收佣金"
+      },
+      "automatic-billing": {
+        "title": "自动生成账单",
+        "subtitle": "5.2.3 每日生成 SaaS／佣金账单并发送给对应公司"
+      },
+      "collections": {
+        "title": "收款管理",
+        "subtitle": "5.2.4 未付款、已付款、部分付款及逾期收款确认"
+      },
+      "payment-proofs": {
+        "title": "付款凭证",
+        "subtitle": "5.2.5 银行凭证、截图、付款日期及备注"
+      },
+      "commission-rules": {
+        "title": "佣金规则管理",
+        "subtitle": "5.2.6 平台佣金比例、计算方式及结算周期"
+      },
+      "search": {
+        "title": "账单查询",
+        "subtitle": "5.2.7 按公司、编号、类型、日期及付款状态查询"
+      },
+      "statistics": {
+        "title": "收费统计",
+        "subtitle": "5.2.8 本月 SaaS 与平台佣金应收／已收／未收"
+      },
+      "reports": {
+        "title": "财务报表",
+        "subtitle": "5.2.9 SaaS、佣金、应收、已收及未收 PDF／Excel 报表"
+      },
+      "activity": {
+        "title": "账单操作记录",
+        "subtitle": "5.2.10 永久保存账单、计算、收款及规则变更历史"
+      }
+    },
+    "toast": {
+      "invoiceGenerated": "账单草稿已生成。",
+      "invoiceIssued": "账单已发出。",
+      "stateUpdated": "账单状态已更新。",
+      "paymentCreated": "收款已记录并等待确认。",
+      "paymentReviewed": "付款已审核。",
+      "ruleCreated": "佣金规则已建立。",
+      "ruleUpdated": "佣金规则已更新。",
+      "ruleDeleted": "佣金规则已移除。"
+    }
+  },
+  "subscriptions": {
+    "title": "订阅管理",
+    "subtitle": "管理 SaaS 套餐、公司期限、账号额度与续费",
+    "count": "{count} 个订阅",
+    "field": {
+      "code": "编号",
+      "name": "名称",
+      "company": "公司",
+      "audience": "公司类别",
+      "plan": "套餐",
+      "state": "状态",
+      "startsOn": "开始日期",
+      "expiresOn": "到期日期",
+      "seats": "账号",
+      "usedSeats": "已使用账号",
+      "userLimit": "账号额度",
+      "termMonths": "使用期限（月）",
+      "effectiveImmediately": "立即开始新期限",
+      "extensionMonths": "延长月数",
+      "reason": "原因",
+      "description": "说明",
+      "tier": "收费模式",
+      "billingCycle": "收费周期",
+      "fees": "费用",
+      "allowances": "额度",
+      "entitlements": "功能权限",
+      "companies": "公司数量",
+      "currency": "币种",
+      "monthlyFee": "月费",
+      "yearlyFee": "年费",
+      "setupFee": "一次性服务费",
+      "trialDays": "试用天数",
+      "maxUsers": "后台账号上限",
+      "maxProjects": "项目上限",
+      "maxSites": "场地上限",
+      "maxScales": "地磅上限",
+      "commissionRate": "佣金比例覆盖（%）",
+      "sortOrder": "显示顺序",
+      "features": "功能权限键",
+      "commissionEnabled": "平台佣金",
+      "externalIntegration": "外部系统对接",
+      "cloudWeighing": "云端称重引擎",
+      "publicPlan": "在套餐选择中显示",
+      "activePlan": "启用套餐"
+    },
+    "state": {
+      "NOT_STARTED": "未启用",
+      "ACTIVE": "使用中",
+      "EXPIRING_SOON": "即将到期",
+      "EXPIRED": "已到期",
+      "PAUSED": "已暂停"
+    },
+    "audience": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" },
+    "tier": {
+      "SUBSCRIPTION": "订阅版",
+      "PARTNER": "合作版",
+      "STANDARD": "标准版"
+    },
+    "billingCycle": {
+      "MONTHLY": "月付",
+      "QUARTERLY": "季付",
+      "HALF_YEARLY": "半年付",
+      "YEARLY": "年付"
+    },
+    "fee": { "once": "一次", "monthly": "每月" },
+    "entitlement": {
+      "commission": "佣金",
+      "integration": "外部 API",
+      "cwe": "CWE"
+    },
+    "planState": { "active": "已启用", "inactive": "已停用" },
+    "value": { "unlimited": "不限" },
+    "seatUsage": "{used} / {limit}",
+    "daysRemaining": "剩余 {count} 天",
+    "plans": {
+      "count": "{count} 个套餐",
+      "create": "建立套餐",
+      "edit": "编辑套餐",
+      "empty": "没有订阅套餐。",
+      "formDescription": "价格、额度与功能权限会应用于分配此套餐的公司。",
+      "allowanceSummary": "{users} 个账号，{projects} 个项目"
+    },
+    "action": {
+      "plan": {
+        "menu": "更换套餐",
+        "title": "更换订阅套餐",
+        "description": "为 {company} 分配套餐及期限。",
+        "confirm": "应用套餐"
+      },
+      "extend": {
+        "menu": "延长或续费",
+        "title": "延长订阅",
+        "description": "为 {company} 增加期限或设定新的到期日。",
+        "confirm": "延长订阅"
+      },
+      "seats": {
+        "menu": "设置账号额度",
+        "title": "账号额度",
+        "description": "设置 {company} 协议约定的账号上限。",
+        "confirm": "更新额度"
+      },
+      "pause": {
+        "menu": "暂停订阅",
+        "title": "暂停订阅",
+        "description": "暂停 {company} 的使用权，但保留已付期限。",
+        "confirm": "暂停"
+      },
+      "resume": {
+        "menu": "恢复订阅",
+        "title": "恢复订阅",
+        "description": "恢复 {company} 的订阅使用权。",
+        "confirm": "恢复"
+      },
+      "terminate": {
+        "menu": "提前结束订阅",
+        "title": "提前结束订阅",
+        "description": "立即结束 {company} 的订阅。",
+        "confirm": "结束订阅"
+      }
+    },
+    "hint": {
+      "effectiveImmediately": "关闭时保留公司当前已付到期日。",
+      "seatOverride": "留空则使用套餐设定的账号额度。",
+      "planDefault": "使用套餐额度",
+      "terminate": "此操作会立即令订阅到期、禁止公司使用系统并撤销现有登录。",
+      "partnerServiceFee": "合作版只在首次开通收取此服务费，之后只运行佣金制度，月费与年费保持为零。",
+      "features": "以逗号分隔此套餐启用的功能权限键。"
+    },
+    "extensionMode": { "months": "增加月数", "date": "设定到期日" },
+    "filters": {
+      "title": "筛选",
+      "expiresAfter": "到期日不早于",
+      "expiresBefore": "到期日不晚于",
+      "clear": "清除筛选"
+    },
+    "export": { "title": "公司订阅", "subtitle": "MSE SaaS 订阅登记表" },
+    "renewals": {
+      "count": "{count} 个订阅需要处理",
+      "window": "未来 {count} 天",
+      "empty": "此期间没有订阅到期。"
+    },
+    "metric": {
+      "active": "使用中",
+      "expiring": "即将到期",
+      "expired": "已到期",
+      "notStarted": "未启用",
+      "paused": "已暂停",
+      "newThisMonth": "本月新增",
+      "renewedThisMonth": "本月续费",
+      "monthlyRevenue": "本月 SaaS 实收"
+    },
+    "section": {
+      "plans": {
+        "title": "订阅方案管理",
+        "subtitle": "4.2.1 套餐价格、期限、账号额度与功能权限"
+      },
+      "companies": {
+        "title": "公司订阅管理",
+        "subtitle": "4.2.2 各公司的当前套餐、期限与状态"
+      },
+      "status": {
+        "title": "订阅状态",
+        "subtitle": "4.2.3 系统自动管理订阅生命周期状态"
+      },
+      "package-changes": {
+        "title": "套餐升级／降级",
+        "subtitle": "4.2.4 升降级、延期、暂停或提前结束订阅"
+      },
+      "account-limits": {
+        "title": "账号数量管理",
+        "subtitle": "4.2.5 可用、已用及剩余后台账号"
+      },
+      "reminders": {
+        "title": "到期提醒",
+        "subtitle": "4.2.6 同步给 MSE 与对应公司的续费队列"
+      },
+      "search": {
+        "title": "订阅查询",
+        "subtitle": "4.2.7 按公司、类别、套餐、状态及到期日查询"
+      },
+      "statistics": {
+        "title": "订阅统计",
+        "subtitle": "4.2.8 订阅数量、续费及 SaaS 实收统计"
+      },
+      "activity": {
+        "title": "操作记录",
+        "subtitle": "4.2.9 永久保存订阅变更历史"
+      }
+    },
+    "toast": {
+      "planCreated": "套餐已建立。",
+      "planUpdated": "套餐已更新。",
+      "planChanged": "订阅套餐已更换。",
+      "extended": "订阅已延长。",
+      "seatsUpdated": "账号额度已更新。",
+      "paused": "订阅已暂停。",
+      "resumed": "订阅已恢复。",
+      "terminated": "订阅已结束。"
+    },
+    "error": { "load": "无法载入订阅资料。" }
+  },
+  "sales": {
+    "title": "销售与佣金",
+    "salespeople": "销售人员",
+    "count": "{count} 位销售人员",
+    "field": {
+      "code": "编号",
+      "fullName": "姓名",
+      "email": "电子邮件",
+      "phone": "电话",
+      "supervisor": "主管",
+      "commissionScheme": "佣金方案",
+      "isActive": "状态",
+      "territories": "负责区域",
+      "customersWon": "开发客户",
+      "totalCommission": "总佣金"
+    },
+    "toast": {
+      "created": "销售人员已建立",
+      "updated": "销售人员已更新",
+      "saved": "销售设置已保存",
+      "removed": "负责区域已移除",
+      "reassigned": "客户归属已转移",
+      "activated": "条款版本已启用",
+      "acknowledged": "条款确认已记录",
+      "payoutCalculated": "佣金已计算",
+      "payoutTransitioned": "佣金结算已更新"
+    }
+  },
+  "crm": {
+    "title": "客户服务",
+    "enquiries": "客户咨询",
+    "count": "{count} 条咨询",
+    "field": {
+      "enquiryCode": "编号",
+      "status": "状态",
+      "source": "来源",
+      "companyName": "公司名称",
+      "contactPerson": "联系人",
+      "contactPhone": "电话",
+      "contactEmail": "电子邮件",
+      "subject": "主题",
+      "assignedTo": "负责人",
+      "followUpDate": "跟进日期",
+      "createdAt": "创建时间"
+    },
+    "status": {
+      "NEW": "新咨询",
+      "CONTACTED": "已联系",
+      "IN_PROGRESS": "处理中",
+      "QUOTED": "已报价",
+      "WON": "已成交",
+      "LOST": "已流失",
+      "CANCELLED": "已取消"
+    },
+    "source": {
+      "WEBSITE": "网站",
+      "REFERRAL": "推荐",
+      "PARTNER": "合作伙伴",
+      "SOCIAL_MEDIA": "社交媒体",
+      "DIRECT": "直接联系",
+      "EVENT": "活动／展会",
+      "OTHER": "其他"
+    },
+    "toast": {
+      "enquiryCreated": "客户咨询已建立",
+      "statusUpdated": "状态已更新",
+      "trainingCreated": "客户培训已安排",
+      "visitCreated": "客户回访已记录",
+      "feedbackCreated": "客户反馈已记录",
+      "feedbackResponded": "客户反馈已更新",
+      "serviceCreated": "服务历史已记录"
+    }
+  },
+  "support": {
+    "title": "技术支持",
+    "count": "{count} 张工单",
+    "field": {
+      "ticketCode": "工单编号",
+      "type": "类型",
+      "priority": "优先级",
+      "status": "状态",
+      "company": "公司",
+      "title": "标题",
+      "assignedTo": "负责人",
+      "createdAt": "创建时间",
+      "resolvedAt": "解决时间"
+    },
+    "type": {
+      "BUG": "系统异常",
+      "FEATURE_REQUEST": "功能建议",
+      "INSTALLATION": "设备安装",
+      "API_ONBOARDING": "API 对接",
+      "DEVICE_MAINTENANCE": "设备维护",
+      "GENERAL": "一般咨询"
+    },
+    "priority": {
+      "LOW": "低",
+      "MEDIUM": "中",
+      "HIGH": "高",
+      "URGENT": "紧急"
+    },
+    "status": {
+      "OPEN": "待处理",
+      "IN_PROGRESS": "处理中",
+      "WAITING_CUSTOMER": "等待客户",
+      "RESOLVED": "已解决",
+      "CLOSED": "已关闭"
+    },
+    "toast": {
+      "created": "技术工单已建立",
+      "transitioned": "工单状态已更新",
+      "bugCreated": "Bug 记录已建立",
+      "updated": "技术记录已更新",
+      "integrationCreated": "API 对接已记录",
+      "deviceCreated": "设备生命周期记录已建立",
+      "remoteCompleted": "远端模拟操作已完成"
+    }
+  },
+  "partners": {
+    "title": "合作伙伴",
+    "count": "{count} 个合作伙伴",
+    "field": {
+      "code": "编号",
+      "name": "名称",
+      "companyName": "公司名称",
+      "type": "类型",
+      "contactPerson": "联系人",
+      "contactPhone": "电话",
+      "status": "状态",
+      "customersReferred": "推荐客户",
+      "partnershipStart": "合作开始日期"
+    },
+    "type": {
+      "INSTALLER": "安装商",
+      "DEALER": "经销商",
+      "REGIONAL_AGENT": "地区代理",
+      "REFERRAL": "推荐伙伴",
+      "TECHNOLOGY": "技术合作伙伴",
+      "OTHER": "其他"
+    },
+    "status": {
+      "ACTIVE": "启用",
+      "INACTIVE": "停用",
+      "SUSPENDED": "暂停",
+      "TERMINATED": "已终止"
+    }
+  },
+  "assets": {
+    "title": "资产管理",
+    "count": "{count} 项资产",
+    "field": {
+      "code": "资产编号",
+      "category": "类别",
+      "name": "名称",
+      "serialNumber": "序列号",
+      "status": "状态",
+      "deployedAt": "部署地点",
+      "purchaseDate": "采购日期"
+    },
+    "category": {
+      "GATEWAY": "网关",
+      "AI_CCTV": "AI 摄像头",
+      "ANPR_CAMERA": "车牌识别摄像头",
+      "INDUSTRIAL_COMPUTER": "工控机",
+      "ROUTER": "路由器",
+      "SIM_CARD": "SIM 卡",
+      "DEMO_KIT": "演示套件",
+      "NOTEBOOK": "笔记本电脑",
+      "TABLET": "平板电脑",
+      "MOBILE_PHONE": "手机",
+      "TEST_EQUIPMENT": "测试仪器",
+      "TOOL": "工具",
+      "OTHER": "其他"
+    },
+    "status": {
+      "IN_STOCK": "库存中",
+      "DEPLOYED": "已部署",
+      "MAINTENANCE": "维护中",
+      "FAULTY": "故障",
+      "RETIRED": "已报废"
+    }
+  },
+  "cloudServices": {
+    "title": "云服务管理",
+    "count": "{count} 项服务",
+    "field": {
+      "code": "服务编号",
+      "vendor": "供应商",
+      "type": "类型",
+      "name": "名称",
+      "status": "状态",
+      "baseCost": "基础费用",
+      "subscriptionStart": "开始日期"
+    },
+    "type": {
+      "STORAGE": "存储",
+      "VIDEO_STORAGE": "视频存储",
+      "DATABASE": "数据库",
+      "API_GATEWAY": "API 网关",
+      "AI_SERVICE": "AI 服务",
+      "MAP_SERVICE": "地图服务",
+      "SMS_SERVICE": "短信服务",
+      "EMAIL_SERVICE": "邮件服务",
+      "PUSH_NOTIFICATION": "推送通知",
+      "CDN": "CDN",
+      "OTHER": "其他"
+    },
+    "status": {
+      "ACTIVE": "启用",
+      "INACTIVE": "停用",
+      "MAINTENANCE": "维护中",
+      "SUSPENDED": "暂停"
+    }
+  },
+  "adminSales": {
+    "title": "销售与佣金管理",
+    "subtitle": "管理客户归属、区域、条款、团队业绩和佣金结算。",
+    "loading": "正在加载销售记录...",
+    "loadError": "无法加载销售记录。",
+    "yes": "是",
+    "no": "否",
+    "metric": {
+      "total": "销售人员",
+      "active": "活跃销售人员",
+      "customers": "已归属客户",
+      "unassigned": "未分配州属"
+    },
+    "section": {
+      "people": {
+        "title": "销售人员",
+        "subtitle": "新增、编辑、启用和停用销售人员或代理。"
+      },
+      "details": {
+        "title": "销售人员资料",
+        "subtitle": "编号、联系、角色、区域、主管、入职日和状态。"
+      },
+      "territories": {
+        "title": "销售区域",
+        "subtitle": "管理全国、单州和多州共 16 个州属／联邦直辖区。"
+      },
+      "hierarchy": {
+        "title": "团队层级",
+        "subtitle": "查看主管、辖下人员、区域、客户、业绩和方案。"
+      },
+      "assignments": {
+        "title": "客户归属",
+        "subtitle": "建筑商和回收商归属及必须填写原因的转移历史。"
+      },
+      "rules": {
+        "title": "佣金规则",
+        "subtitle": "SaaS、平台佣金、客户、固定、百分比和目标奖励公式。"
+      },
+      "schemes": {
+        "title": "佣金方案",
+        "subtitle": "多方案、周期、上下限、状态和自动计算。"
+      },
+      "terms": {
+        "title": "销售条款",
+        "subtitle": "版本、内容、生效日期、确认状态和历史。"
+      },
+      "payouts": {
+        "title": "应付佣金",
+        "subtitle": "自动计算销售人员和主管的应付佣金。"
+      },
+      "performance": {
+        "title": "团队业绩",
+        "subtitle": "团队客户、SaaS、平台佣金、业务金额和应付佣金。"
+      },
+      "settlements": {
+        "title": "佣金结算",
+        "subtitle": "月、季、年审批、付款、争议和调整流程。"
+      },
+      "reports": {
+        "title": "销售报表",
+        "subtitle": "销售、主管、州属、客户、佣金和收入 PDF/Excel 报表。"
+      },
+      "activity": {
+        "title": "销售操作记录",
+        "subtitle": "永久保留人员、区域、归属、规则、条款和结算变更。"
+      }
+    },
+    "column": {
+      "code": "编号",
+      "name": "名称",
+      "contact": "联系方式",
+      "role": "角色",
+      "territory": "区域",
+      "supervisor": "主管",
+      "scheme": "方案",
+      "joined": "入职日期",
+      "status": "状态",
+      "actions": "操作",
+      "salesperson": "销售人员",
+      "scope": "范围",
+      "states": "州属",
+      "exclusive": "独家区域",
+      "effective": "生效期间",
+      "team": "团队人数",
+      "customers": "客户",
+      "company": "公司",
+      "type": "类型",
+      "won": "签约日期",
+      "basis": "计算方式",
+      "rate": "比例／金额",
+      "cycle": "周期",
+      "minimum": "最低付款",
+      "maximum": "最高付款",
+      "people": "适用人数",
+      "version": "版本",
+      "acknowledged": "已确认",
+      "period": "期间",
+      "saas": "SaaS 收入",
+      "platformCommission": "平台佣金",
+      "gross": "佣金总额",
+      "adjustment": "调整",
+      "net": "应付净额"
+    },
+    "field": {
+      "phone": "电话",
+      "email": "Email",
+      "noSupervisor": "没有主管",
+      "noScheme": "没有佣金方案",
+      "notes": "备注",
+      "selectPerson": "选择销售人员",
+      "reason": "必须填写原因",
+      "target": "目标金额",
+      "description": "说明",
+      "body": "条款内容",
+      "selectStatus": "选择下一状态",
+      "paymentReference": "付款参考编号",
+      "selectSupervisor": "选择主管或经理"
+    },
+    "action": {
+      "addPerson": "新增销售人员",
+      "editPerson": "编辑销售人员",
+      "cancel": "取消",
+      "save": "保存",
+      "addTerritory": "新增区域",
+      "reassign": "转移",
+      "addScheme": "新增方案",
+      "addTerms": "新增条款版本",
+      "activate": "启用",
+      "acknowledge": "记录确认",
+      "calculate": "计算佣金",
+      "process": "处理",
+      "adjust": "调整",
+      "confirm": "确认"
+    },
+    "remove": {
+      "title": "移除负责区域 {name}？",
+      "description": "该区域将不再用于新的客户分配，现有客户和佣金历史会永久保留。",
+      "confirm": "移除负责区域"
+    },
+    "dialog": {
+      "person": "设置销售身份、汇报关系和佣金方案。",
+      "territory": "选择一个或多个州属，或全国范围。",
+      "scheme": "系统会在计算应付款时自动应用该公式。",
+      "terms": "修改会建立新的不可变条款版本。"
+    },
+    "role": {
+      "EXECUTIVE": "销售人员",
+      "SUPERVISOR": "主管",
+      "MANAGER": "销售经理",
+      "AGENT": "外部代理"
+    },
+    "scope": { "STATES": "指定州属", "NATIONAL": "全国" },
+    "status": { "active": "启用", "inactive": "停用" },
+    "basis": {
+      "FIXED_PER_CUSTOMER": "每位客户固定金额",
+      "PERCENT_OF_SAAS": "SaaS 收入百分比",
+      "PERCENT_OF_PLATFORM_COMMISSION": "平台佣金百分比",
+      "PERCENT_OF_BUSINESS_VALUE": "业务金额百分比",
+      "FIXED_PER_CONTRACTOR": "每位建筑商固定金额",
+      "FIXED_PER_RECYCLER": "每位回收商固定金额",
+      "TARGET_BONUS": "目标奖励"
+    },
+    "cycle": { "MONTHLY": "每月", "QUARTERLY": "每季度", "YEARLY": "每年" },
+    "termsStatus": {
+      "DRAFT": "草稿",
+      "ACTIVE": "生效",
+      "SUPERSEDED": "已被取代",
+      "RETIRED": "已停用"
+    },
+    "payoutState": {
+      "DRAFT": "已计算",
+      "SUPERVISOR_APPROVED": "主管已确认",
+      "FINANCE_APPROVED": "财务已确认",
+      "PAID": "已付款",
+      "REJECTED": "争议",
+      "CANCELLED": "已取消"
+    },
+    "performance": {
+      "team_size": "团队人数",
+      "total_customers": "客户",
+      "contractors_won": "建筑商客户",
+      "recyclers_won": "回收商客户",
+      "saas_revenue": "SaaS 收入",
+      "platform_commission": "平台佣金",
+      "business_value": "业务金额",
+      "commission_payable": "应付佣金"
+    },
+    "report": {
+      "salespeople": "销售人员与主管报表",
+      "salespeopleSubtitle": "人员、层级、区域和客户统计。",
+      "assignments": "客户与州属报表",
+      "assignmentsSubtitle": "按销售、主管和州属显示建筑商／回收商归属。",
+      "payouts": "佣金与收入报表",
+      "payoutsSubtitle": "SaaS、平台佣金、应付佣金和付款状态。"
+    }
+  },
+  "adminCustomerService": {
+    "title": "客户服务中心",
+    "subtitle": "统一管理客户咨询、培训、回访、反馈及永久服务历史。",
+    "loading": "正在加载客户服务记录...",
+    "loadError": "无法加载客户服务记录。",
+    "metric": {
+      "customers": "客户数量",
+      "enquiries": "咨询次数",
+      "service": "服务记录",
+      "feedback": "客户反馈",
+      "completion": "完成率"
+    },
+    "section": {
+      "customers": {
+        "title": "客户管理",
+        "subtitle": "查看建筑商与回收商的联系人、联络方式及客户状态。"
+      },
+      "enquiries": {
+        "title": "客户咨询",
+        "subtitle": "记录咨询日期、内容、处理人员、状态和处理结果。"
+      },
+      "training": {
+        "title": "客户培训",
+        "subtitle": "记录培训日期、内容、培训人员、参与人数和完成状态。"
+      },
+      "visits": {
+        "title": "客户回访",
+        "subtitle": "记录回访日期、人员、客户意见和改善建议。"
+      },
+      "feedback": {
+        "title": "客户反馈",
+        "subtitle": "管理功能建议、改善建议、Bug 反馈及其他意见。"
+      },
+      "service": {
+        "title": "服务记录",
+        "subtitle": "完整保存服务、处理结果、后续跟进及客户满意度。"
+      },
+      "reports": {
+        "title": "客户服务报表",
+        "subtitle": "统计服务次数、客户数量、问题类别和完成率并导出 PDF/Excel。"
+      },
+      "activity": {
+        "title": "客户服务操作记录",
+        "subtitle": "永久保留且不可修改或删除的客户服务操作历史。"
+      }
+    },
+    "column": {
+      "code": "编号",
+      "company": "公司",
+      "type": "类型",
+      "contact": "联系人",
+      "email": "Email",
+      "state": "州属",
+      "status": "状态",
+      "actions": "操作",
+      "subject": "主题",
+      "handler": "处理人员",
+      "date": "日期",
+      "trainer": "培训人员",
+      "attendees": "参与人数",
+      "visitor": "回访人员",
+      "purpose": "回访目的",
+      "feedback": "客户意见",
+      "improvement": "改善建议",
+      "category": "类别",
+      "priority": "优先级",
+      "resolution": "处理结果",
+      "satisfaction": "满意度"
+    },
+    "field": {
+      "selectCompany": "选择客户",
+      "companyName": "公司名称",
+      "contactPerson": "联系人",
+      "phone": "电话",
+      "email": "Email",
+      "subject": "主题",
+      "content": "内容",
+      "requirements": "客户需求",
+      "lostReason": "流失原因",
+      "result": "处理结果",
+      "location": "地点",
+      "attendees": "参与人数",
+      "feedback": "客户意见",
+      "contactMet": "会见的客户联系人",
+      "purpose": "回访目的",
+      "objectives": "回访目标",
+      "improvement": "改善建议",
+      "followUp": "需要再次跟进",
+      "response": "回复内容",
+      "resolution": "处理结果"
+    },
+    "action": {
+      "addEnquiry": "新增咨询",
+      "process": "处理",
+      "cancel": "取消",
+      "save": "保存",
+      "confirm": "确认",
+      "addTraining": "安排培训",
+      "updateStatus": "更新状态",
+      "addVisit": "记录回访",
+      "addFeedback": "记录反馈",
+      "respond": "回复",
+      "addService": "记录服务"
+    },
+    "dialog": {
+      "enquiry": "记录咨询内容和联系人资料。",
+      "training": "安排客户培训及预计参与人数。",
+      "visit": "记录客户意见及双方同意的改善事项。",
+      "feedback": "分类并设置客户反馈优先级。",
+      "service": "新增一笔永久客户服务历史。"
+    },
+    "companyType": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" },
+    "enquiryStatus": {
+      "NEW": "新咨询",
+      "CONTACTED": "已联系",
+      "IN_PROGRESS": "处理中",
+      "QUOTED": "已报价",
+      "WON": "已成交",
+      "LOST": "已流失",
+      "CANCELLED": "已取消"
+    },
+    "source": {
+      "WEBSITE": "网站",
+      "REFERRAL": "推荐",
+      "PARTNER": "合作伙伴",
+      "SOCIAL_MEDIA": "社交媒体",
+      "DIRECT": "直接联系",
+      "EVENT": "活动／展会",
+      "OTHER": "其他"
+    },
+    "trainingType": {
+      "ONBOARDING": "系统入门",
+      "FEATURE_UPDATE": "新功能培训",
+      "REFRESHER": "复习培训",
+      "CUSTOM": "自定义培训"
+    },
+    "trainingStatus": {
+      "SCHEDULED": "已安排",
+      "COMPLETED": "已完成",
+      "CANCELLED": "已取消"
+    },
+    "feedbackCategory": {
+      "FEATURE_REQUEST": "功能建议",
+      "IMPROVEMENT": "改善建议",
+      "BUG_REPORT": "Bug 反馈",
+      "COMPLAINT": "投诉",
+      "COMPLIMENT": "表扬",
+      "OTHER": "其他意见"
+    },
+    "priority": { "LOW": "低", "MEDIUM": "中", "HIGH": "高" },
+    "status": {
+      "open": "待处理",
+      "resolved": "已解决",
+      "notRated": "未评分",
+      "satisfied": "满意",
+      "unsatisfied": "不满意"
+    },
+    "serviceType": {
+      "CONSULTATION": "咨询",
+      "ISSUE_RESOLUTION": "问题处理",
+      "CUSTOMIZATION": "定制支持",
+      "INTEGRATION": "系统集成支持",
+      "GENERAL_SUPPORT": "一般支持"
+    },
+    "report": {
+      "customers": "客户报表",
+      "customersSubtitle": "建筑商和回收商联系人及状态。",
+      "enquiries": "咨询报表",
+      "enquiriesSubtitle": "咨询、处理人员、结果及状态。",
+      "training": "培训报表",
+      "trainingSubtitle": "培训、培训人员、参与人数及完成情况。",
+      "visits": "回访报表",
+      "visitsSubtitle": "客户意见及改善事项。",
+      "feedback": "反馈报表",
+      "feedbackSubtitle": "反馈类别、优先级、回复及解决状态。",
+      "service": "服务历史报表",
+      "serviceSubtitle": "服务次数、处理结果及满意度。"
+    },
+    "exportColumn": {
+      "code": "编号",
+      "name": "名称",
+      "type": "类型",
+      "contact_person": "联系人",
+      "contact_phone": "电话",
+      "contact_email": "Email",
+      "status": "状态",
+      "state": "州属",
+      "enquiry_code": "咨询编号",
+      "company_name": "公司",
+      "subject": "主题",
+      "assigned_to_name": "处理人员",
+      "created_at": "建立时间",
+      "training_code": "培训编号",
+      "title": "标题",
+      "scheduled_date": "培训日期",
+      "trainer_name": "培训人员",
+      "attendee_count": "参与人数",
+      "visit_code": "回访编号",
+      "visit_date": "回访日期",
+      "purpose": "目的",
+      "visited_by_name": "回访人员",
+      "summary": "客户意见",
+      "action_items": "改善建议",
+      "feedback_code": "反馈编号",
+      "category": "类别",
+      "priority": "优先级",
+      "is_resolved": "已解决",
+      "response": "回复",
+      "service_code": "服务编号",
+      "service_date": "服务日期",
+      "handled_by_name": "处理人员",
+      "resolution": "处理结果",
+      "customer_satisfied": "客户满意"
+    }
+  },
+  "adminTechnicalSupport": {
+    "title": "技术支持中心",
+    "subtitle": "统一管理工单、Bug、API 对接、安装、维护和受控远端操作。",
+    "loading": "正在加载技术记录...",
+    "loadError": "无法加载技术记录。",
+    "metric": {
+      "tickets": "工单数量",
+      "bugs": "Bug 数量",
+      "installations": "安装数量",
+      "completion": "完成率"
+    },
+    "section": {
+      "tickets": {
+        "title": "技术工单",
+        "subtitle": "建立 Bug、系统异常、API、地磅、CCTV、ANPR 及其他技术工单。"
+      },
+      "states": {
+        "title": "工单状态",
+        "subtitle": "按待处理、处理中、待测试、已完成和已关闭管理流程。"
+      },
+      "bugs": {
+        "title": "Bug 管理",
+        "subtitle": "记录 Bug 编号、说明、严重程度、负责人、根因和修复状态。"
+      },
+      "api": {
+        "title": "API 对接管理",
+        "subtitle": "记录对接公司、API 名称、日期、测试结果和上线状态。"
+      },
+      "installations": {
+        "title": "地磅安装管理",
+        "subtitle": "记录回收商、地磅编号、日期、安装人员、测试和启用状态。"
+      },
+      "maintenance": {
+        "title": "设备生命周期与维护",
+        "subtitle": "管理 CCTV、ANPR、CWE、Gateway 等设备状态、维护和远端操作。"
+      },
+      "reports": {
+        "title": "技术报表",
+        "subtitle": "工单、Bug、API、安装、维护和完成率 PDF/Excel 报表。"
+      },
+      "activity": {
+        "title": "技术操作记录",
+        "subtitle": "永久保留工单、修复、对接、安装、维护和远端操作历史。"
+      }
+    },
+    "column": {
+      "code": "编号",
+      "type": "类型",
+      "company": "公司",
+      "subject": "主题",
+      "priority": "优先级",
+      "handler": "负责人",
+      "date": "日期",
+      "status": "状态",
+      "actions": "操作",
+      "module": "模块",
+      "severity": "严重程度",
+      "apiName": "API 名称",
+      "testStatus": "测试状态",
+      "liveStatus": "上线状态",
+      "device": "设备",
+      "location": "地点",
+      "installDate": "安装日期",
+      "firmware": "Firmware",
+      "online": "在线状态",
+      "lastOnline": "最后在线",
+      "sim": "SIM 卡",
+      "signal": "信号",
+      "mode": "模式"
+    },
+    "field": {
+      "selectCompany": "选择公司",
+      "platformIssue": "平台内部问题",
+      "subject": "主题",
+      "description": "问题说明",
+      "environment": "环境／设备资料",
+      "steps": "重现步骤",
+      "result": "结果／处理说明",
+      "module": "系统模块",
+      "rootCause": "根本原因",
+      "fix": "修复说明",
+      "firmware": "Firmware 版本",
+      "apiName": "API 名称",
+      "endpoint": "API Endpoint",
+      "testResult": "测试结果",
+      "deviceId": "设备／地磅编号",
+      "location": "安装地点",
+      "sim": "SIM 卡状态",
+      "signal": "信号强度（dBm）",
+      "work": "维护内容",
+      "reason": "操作原因",
+      "invalidJson": "配置必须是有效 JSON。"
+    },
+    "action": {
+      "addTicket": "新增工单",
+      "process": "处理",
+      "cancel": "取消",
+      "save": "保存",
+      "confirm": "确认",
+      "addBug": "新增 Bug",
+      "addIntegration": "新增 API 对接",
+      "addInstallation": "记录安装",
+      "addMaintenance": "安排维护",
+      "complete": "完成",
+      "remote": "远端操作",
+      "run": "执行"
+    },
+    "dialog": {
+      "ticket": "记录技术问题和运行环境。",
+      "bug": "同时建立关联工单和详细 Bug 记录。",
+      "api": "记录客户 API 对接、测试和上线生命周期。",
+      "device": "记录安装、设备身份、通信状态及维护范围。"
+    },
+    "ticketType": {
+      "BUG": "Bug",
+      "SYSTEM_ISSUE": "系统异常",
+      "API_INTEGRATION": "API 对接",
+      "WEIGHBRIDGE_INSTALL": "地磅安装",
+      "AI_CCTV": "AI CCTV",
+      "ANPR": "ANPR",
+      "DEVICE_MAINTENANCE": "设备维护",
+      "OTHER": "其他"
+    },
+    "priority": { "LOW": "低", "MEDIUM": "中", "HIGH": "高", "URGENT": "紧急" },
+    "ticketState": {
+      "PENDING": "待处理",
+      "IN_PROGRESS": "处理中",
+      "TESTING": "待测试",
+      "COMPLETED": "已完成",
+      "CLOSED": "已关闭"
+    },
+    "severity": {
+      "MINOR": "轻微",
+      "NORMAL": "一般",
+      "MAJOR": "严重",
+      "CRITICAL": "致命"
+    },
+    "bugState": {
+      "OPEN": "待确认",
+      "CONFIRMED": "已确认",
+      "IN_PROGRESS": "修复中",
+      "FIXED": "已修复",
+      "VERIFIED": "已验证",
+      "CLOSED": "已关闭",
+      "WONT_FIX": "不修复"
+    },
+    "testStatus": {
+      "PENDING": "待测试",
+      "PASSED": "测试通过",
+      "FAILED": "测试失败"
+    },
+    "activationStatus": {
+      "INACTIVE": "未启用",
+      "ACTIVE": "已启用",
+      "SUSPENDED": "已暂停"
+    },
+    "maintenanceType": {
+      "INSPECTION": "检查",
+      "REPAIR": "维修",
+      "CALIBRATION": "校准",
+      "UPGRADE": "升级",
+      "REPLACEMENT": "更换"
+    },
+    "deviceType": {
+      "WEIGHBRIDGE": "地磅",
+      "GATEWAY": "Gateway",
+      "AI_CCTV": "AI CCTV",
+      "ANPR": "ANPR",
+      "CWE": "Cloud Weighing Engine",
+      "OTHER": "其他"
+    },
+    "status": { "online": "在线", "offline": "离线" },
+    "remoteOperation": {
+      "CONFIGURE": "远端设置",
+      "TEST": "远端测试",
+      "RESTART": "远端重启",
+      "FIRMWARE_UPGRADE": "Firmware 升级"
+    },
+    "mode": {
+      "simulated": "模拟器会记录并返回确定结果，不会连接真实硬件。",
+      "live": "LIVE 必须先配置并验收设备连接器；未配置时后端会拒绝操作。"
+    },
+    "report": {
+      "tickets": "工单报表",
+      "ticketsSubtitle": "数量、类型、优先级、负责人和状态。",
+      "bugs": "Bug 报表",
+      "bugsSubtitle": "严重程度、模块、负责人和修复状态。",
+      "api": "API 对接报表",
+      "apiSubtitle": "客户、测试和上线状态。",
+      "installations": "安装报表",
+      "installationsSubtitle": "设备、安装人、测试和启用状态。",
+      "maintenance": "维护报表",
+      "maintenanceSubtitle": "Firmware、在线、SIM、信号和维护历史。"
+    },
+    "exportColumn": {
+      "code": "编号",
+      "type": "类型",
+      "state": "状态",
+      "priority": "优先级",
+      "company_name": "公司",
+      "title": "标题",
+      "assigned_to_name": "负责人",
+      "created_at": "建立时间",
+      "bug_code": "Bug 编号",
+      "severity": "严重程度",
+      "module": "模块",
+      "description": "说明",
+      "api_name": "API 名称",
+      "integration_date": "对接日期",
+      "test_status": "测试状态",
+      "live_status": "上线状态",
+      "owner_name": "负责人",
+      "test_result": "测试结果",
+      "device_type": "设备类型",
+      "device_id": "设备编号",
+      "installed_on": "安装日期",
+      "installed_by_name": "安装人员",
+      "installation_location": "地点",
+      "activation_status": "启用状态",
+      "scheduled_date": "维护日期",
+      "completed_date": "完成日期",
+      "technician_name": "维护人员",
+      "firmware_version": "Firmware",
+      "is_online": "在线",
+      "last_online_at": "最后在线",
+      "sim_status": "SIM 卡",
+      "signal_strength": "信号"
+    }
+  },
+  "adminAuditCenter": {
+    "title": "操作日志",
+    "subtitle": "永久保留用户、公司、财务、称重和系统变更记录。",
+    "section": {
+      "users": {
+        "title": "用户记录",
+        "subtitle": "登录、退出、账号、权限、密码和状态变更。"
+      },
+      "companies": {
+        "title": "公司记录",
+        "subtitle": "公司建立、资料、审核、启用和停用变更。"
+      },
+      "subscriptions": {
+        "title": "订阅记录",
+        "subtitle": "配套分配、升级、降级、延期和暂停变更。"
+      },
+      "billing": {
+        "title": "账单与佣金记录",
+        "subtitle": "账单、佣金、收款、付款和状态变更。"
+      },
+      "cwe": {
+        "title": "CWE 记录",
+        "subtitle": "地磅、Gateway、通信、异常和重磅变更。"
+      },
+      "settings": {
+        "title": "系统设置记录",
+        "subtitle": "参数、佣金、CWE、AI、ANPR、QR 和 API 设置变更。"
+      },
+      "login": {
+        "title": "登录记录",
+        "subtitle": "时间、IP、设备和成功或失败的访问记录。"
+      },
+      "search": {
+        "title": "日志查询",
+        "subtitle": "按用户、公司、类型、日期、模块、记录或 IP 查询。"
+      },
+      "export": {
+        "title": "日志导出",
+        "subtitle": "把筛选后的永久记录导出成 PDF 或 Excel。"
+      },
+      "immutable": {
+        "title": "永久记录",
+        "subtitle": "只可新增且不能修改或删除的记录。"
+      }
+    }
+  },
+  "adminSystemSettings": {
+    "title": "系统设置",
+    "subtitle": "统一管理平台参数、供应商连接状态和永久操作记录。",
+    "loading": "正在加载设置...",
+    "loadError": "无法加载系统设置。",
+    "save": "保存",
+    "toast": { "saved": "设置已保存" },
+    "section": {
+      "basic": { "title": "基本设置", "subtitle": "平台身份和公司联络资料。" },
+      "saas": {
+        "title": "SaaS 设置",
+        "subtitle": "默认配套、收费周期、试用期、账号上限和配套启停。"
+      },
+      "commission": {
+        "title": "佣金设置",
+        "subtitle": "平台佣金启停、比例、计算方式、结算周期和生效日期。"
+      },
+      "cwe": {
+        "title": "CWE 设置",
+        "subtitle": "通信、Gateway、异常、重磅和同步参数。"
+      },
+      "cctv": {
+        "title": "AI CCTV 设置",
+        "subtitle": "预留 AI CCTV 控制，并明确显示模拟或真实模式。"
+      },
+      "anpr": {
+        "title": "ANPR 设置",
+        "subtitle": "预留车牌识别控制，并明确显示模拟或真实模式。"
+      },
+      "qr": {
+        "title": "二维码设置",
+        "subtitle": "有效期、默认启用、编号、重复使用和异常规则。"
+      },
+      "api-gateway": {
+        "title": "API Gateway 设置",
+        "subtitle": "URL、状态、模式、超时、重试、频率和部署凭证状态。"
+      },
+      "versions": {
+        "title": "版本管理",
+        "subtitle": "当前和已发布版本、Release Note、强制更新和灰度发布。"
+      },
+      "notifications": {
+        "title": "通知设置",
+        "subtitle": "站内、Email、Push、发送模式、通知类别和自动规则。"
+      },
+      "maintenance": {
+        "title": "维护设置",
+        "subtitle": "维护模式、服务状态、时间范围和客户通知。"
+      },
+      "activity": {
+        "title": "设置操作记录",
+        "subtitle": "永久保留参数、版本、AI、ANPR、QR、API、通知和维护变更。"
+      }
+    },
+    "credential": {
+      "apiGateway": "API Gateway 凭证",
+      "email": "Email 供应商凭证",
+      "push": "Push 供应商凭证",
+      "deploymentEnv": "部署环境变量",
+      "configured": "已配置",
+      "missing": "未配置"
+    },
+    "mode": { "SIMULATED": "模拟", "LIVE": "真实" },
+    "option": {
+      "MONTHLY": "每月",
+      "QUARTERLY": "每季度",
+      "HALF_YEARLY": "每 6 个月",
+      "YEARLY": "每年",
+      "SETTLED_AMOUNT": "结算金额",
+      "WEIGHT": "重量",
+      "FIXED": "固定金额",
+      "SIMULATED": "模拟",
+      "LIVE": "真实",
+      "REJECT": "拒绝",
+      "WARN": "警告",
+      "ALLOW": "允许"
+    },
+    "field": {
+      "platform_name": "平台名称",
+      "platform_company_name": "公司名称",
+      "platform_registration_no": "公司注册号",
+      "platform_address": "地址",
+      "platform_phone": "电话",
+      "platform_email": "Email",
+      "platform_website": "网站",
+      "platform_logo_url": "Logo URL",
+      "saas_default_billing_cycle": "默认收费周期",
+      "saas_default_trial_days": "默认试用天数",
+      "saas_default_user_limit": "默认账号上限",
+      "saas_default_plan_code": "默认配套编号",
+      "saas_plans_enabled": "启用配套",
+      "commission_enabled": "启用佣金",
+      "commission_default_rate": "默认佣金比例（%）",
+      "commission_calculation_basis": "计算方式",
+      "commission_settlement_cycle": "结算周期",
+      "commission_effective_on": "生效日期",
+      "cwe_communication_parameters": "通信参数",
+      "cwe_gateway_parameters": "Gateway 参数",
+      "cwe_anomaly_parameters": "异常规则",
+      "cwe_reweigh_parameters": "重磅参数",
+      "cwe_sync_parameters": "同步参数",
+      "cctv_enabled": "启用 AI CCTV",
+      "cctv_mode": "AI CCTV 模式",
+      "cctv_recognition_parameters": "识别参数",
+      "cctv_service_status": "服务状态",
+      "anpr_enabled": "启用 ANPR",
+      "anpr_mode": "ANPR 模式",
+      "anpr_recognition_parameters": "识别参数",
+      "anpr_service_status": "服务状态",
+      "qr_default_expiry_days": "默认有效天数",
+      "qr_active_by_default": "默认启用",
+      "qr_number_prefix": "编号前缀",
+      "qr_duplicate_use_policy": "重复使用规则",
+      "qr_anomaly_rules": "异常规则",
+      "api_gateway_base_url": "基础 URL",
+      "api_gateway_enabled": "启用 Gateway",
+      "api_gateway_mode": "Gateway 模式",
+      "api_gateway_timeout_seconds": "超时秒数",
+      "api_gateway_retry_count": "重试次数",
+      "api_gateway_rate_limit_per_minute": "每分钟频率上限",
+      "notification_email_enabled": "启用 Email",
+      "notification_email_mode": "Email 模式",
+      "notification_push_enabled": "启用 Push",
+      "notification_push_mode": "Push 模式",
+      "notification_in_app_enabled": "启用站内通知",
+      "notification_enabled_types": "启用的通知类别",
+      "notification_automatic_rules": "自动通知规则",
+      "maintenance_enabled": "维护模式",
+      "maintenance_service_enabled": "服务可用",
+      "maintenance_starts_at": "开始时间",
+      "maintenance_ends_at": "结束时间",
+      "maintenance_notice": "维护通知"
+    }
+  },
+  "adminPartnerManagement": {
+    "title": "合作伙伴管理",
+    "subtitle": "统一管理合作伙伴资料、区域、客户归属、协议和佣金结算。",
+    "loading": "正在加载合作伙伴资料...",
+    "loadError": "无法加载合作伙伴资料。",
+    "section": {
+      "management": {
+        "title": "合作伙伴管理",
+        "subtitle": "新增、编辑、启用及停用平台合作伙伴。"
+      },
+      "details": {
+        "title": "合作伙伴资料",
+        "subtitle": "公司、联系人、注册及合作期限的完整资料。"
+      },
+      "types": {
+        "title": "合作类型",
+        "subtitle": "系统类别及可重复使用的自定义合作类型。"
+      },
+      "territories": {
+        "title": "区域管理",
+        "subtitle": "设定全国、州属、城市或指定区域的负责范围。"
+      },
+      "customers": {
+        "title": "客户归属",
+        "subtitle": "管理合作伙伴负责的建筑商及回收商客户。"
+      },
+      "agreements": {
+        "title": "合作协议管理",
+        "subtitle": "协议版本、文件、签署、续签、到期及终止。"
+      },
+      "schemes": {
+        "title": "佣金方案",
+        "subtitle": "按合作伙伴设置计算规则并控制佣金结算。"
+      },
+      "performance": {
+        "title": "业绩统计",
+        "subtitle": "按合作伙伴、州属及日期统计客户与收入。"
+      },
+      "reports": {
+        "title": "合作伙伴报表",
+        "subtitle": "导出伙伴、客户、州属、佣金及收入报表。"
+      },
+      "activity": {
+        "title": "合作伙伴操作记录",
+        "subtitle": "永久保存资料、协议、归属及结算历史。"
+      }
+    },
+    "metric": {
+      "partners": "合作伙伴",
+      "customers": "归属客户",
+      "active": "启用伙伴",
+      "paid": "已付佣金"
+    },
+    "action": {
+      "addPartner": "新增合作伙伴",
+      "editPartner": "编辑合作伙伴",
+      "edit": "编辑",
+      "status": "状态",
+      "addType": "新增类型",
+      "editType": "编辑类型",
+      "addTerritory": "新增区域",
+      "editTerritory": "编辑区域",
+      "assignCustomer": "分配客户",
+      "editAssignment": "编辑归属",
+      "addAgreement": "新增协议",
+      "submit": "提交",
+      "activate": "生效",
+      "renew": "续签",
+      "terminate": "终止",
+      "calculate": "计算佣金",
+      "process": "处理",
+      "view": "在线查看",
+      "download": "下载",
+      "save": "保存",
+      "cancel": "取消",
+      "confirm": "确认"
+    },
+    "column": {
+      "code": "编号",
+      "name": "名称",
+      "company": "公司",
+      "contact": "联系人",
+      "email": "Email",
+      "registration": "注册编号",
+      "type": "类型",
+      "start": "开始日期",
+      "end": "结束日期",
+      "status": "状态",
+      "actions": "操作",
+      "customers": "客户数量",
+      "description": "说明",
+      "source": "来源",
+      "partner": "合作伙伴",
+      "scope": "范围",
+      "states": "州属",
+      "cities": "城市／区域",
+      "exclusive": "独家",
+      "customer": "客户",
+      "companyType": "公司类型",
+      "state": "州属",
+      "territory": "负责区域",
+      "date": "日期",
+      "eligible": "计算佣金",
+      "agreement": "协议",
+      "version": "版本",
+      "effective": "生效日期",
+      "expiry": "到期日期",
+      "document": "文件",
+      "basis": "计算方式",
+      "rate": "比例／金额",
+      "cycle": "结算周期",
+      "payout": "结算单",
+      "period": "期间",
+      "saasRevenue": "SaaS 收入",
+      "platformRevenue": "平台佣金收入",
+      "gross": "佣金总额",
+      "net": "应付佣金",
+      "contractors": "建筑商",
+      "recyclers": "回收商",
+      "partnerCommission": "合作伙伴佣金"
+    },
+    "field": {
+      "code": "类型编号",
+      "name": "名称",
+      "companyName": "公司名称",
+      "customType": "自定义类型",
+      "contactPerson": "联系人",
+      "phone": "联络电话",
+      "email": "Email",
+      "registration": "注册编号",
+      "address": "公司地址",
+      "notes": "备注",
+      "description": "说明",
+      "selectPartner": "选择合作伙伴",
+      "citiesComma": "城市（以逗号分隔）",
+      "areasComma": "指定区域（以逗号分隔）",
+      "exclusive": "独家负责区域",
+      "selectCustomer": "选择客户",
+      "noTerritory": "不指定区域",
+      "commissionEligible": "符合佣金资格",
+      "reason": "原因",
+      "title": "协议标题",
+      "terms": "协议条款",
+      "rate": "佣金比例／固定金额",
+      "minimumPayout": "最低结算金额",
+      "calculationConfig": "计算配置 JSON",
+      "signedBy": "签署人",
+      "adjustment": "调整金额",
+      "paymentReference": "付款参考编号",
+      "allPartners": "全部合作伙伴",
+      "allStates": "全部州属"
+    },
+    "dialog": {
+      "partner": "填写完整公司及联系人资料。",
+      "type": "自定义类型会出现在合作伙伴表单中。",
+      "territory": "设定准确负责范围及生效期限。",
+      "referral": "同一个客户同一时间只能归属一个合作伙伴。",
+      "agreement": "协议生效前必须上传 PDF 或 Word 文件。",
+      "payout": "系统会根据归属客户的真实账单计算金额。"
+    },
+    "partnerType": {
+      "INSTALLER": "安装商",
+      "DISTRIBUTOR": "经销商",
+      "REGIONAL_AGENT": "地区代理",
+      "REFERRAL": "推荐伙伴",
+      "TECHNOLOGY": "技术合作伙伴",
+      "CUSTOM": "自定义"
+    },
+    "partnerStatus": {
+      "ACTIVE": "启用",
+      "INACTIVE": "停用",
+      "SUSPENDED": "暂停",
+      "TERMINATED": "已终止"
+    },
+    "agreementStatus": {
+      "DRAFT": "草稿",
+      "PENDING_SIGNATURE": "待签署",
+      "ACTIVE": "生效中",
+      "EXPIRED": "已到期",
+      "TERMINATED": "已终止"
+    },
+    "payoutStatus": {
+      "DRAFT": "草稿",
+      "PENDING_APPROVAL": "待审批",
+      "APPROVED": "已批准",
+      "PAID": "已支付",
+      "REJECTED": "已驳回"
+    },
+    "commissionBasis": {
+      "FIXED_PER_CUSTOMER": "每名客户固定金额",
+      "PERCENT_OF_SAAS": "SaaS 收入百分比",
+      "PERCENT_OF_TOTAL": "总收入百分比",
+      "TIERED": "按客户数量分级",
+      "CUSTOM": "自定义计算"
+    },
+    "cycle": { "MONTHLY": "每月", "QUARTERLY": "每季度" },
+    "scope": { "national": "全国", "regional": "州属／城市／指定区域" },
+    "companyType": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" },
+    "status": {
+      "system": "系统预设",
+      "custom": "自定义",
+      "active": "启用",
+      "inactive": "停用",
+      "yes": "是",
+      "no": "否",
+      "openEnded": "长期有效",
+      "manualAdjustment": "人工调整"
+    },
+    "heading": { "schemes": "协议佣金规则", "payouts": "合作伙伴佣金结算" },
+    "state": {
+      "JOHOR": "柔佛",
+      "KEDAH": "吉打",
+      "KELANTAN": "吉兰丹",
+      "MELAKA": "马六甲",
+      "NEGERI_SEMBILAN": "森美兰",
+      "PAHANG": "彭亨",
+      "PENANG": "槟城",
+      "PERAK": "霹雳",
+      "PERLIS": "玻璃市",
+      "SABAH": "沙巴",
+      "SARAWAK": "砂拉越",
+      "SELANGOR": "雪兰莪",
+      "TERENGGANU": "登嘉楼",
+      "KUALA_LUMPUR": "吉隆坡",
+      "LABUAN": "纳闽",
+      "PUTRAJAYA": "布城"
+    },
+    "report": {
+      "partners": "合作伙伴名单",
+      "partnersSubtitle": "资料、类型、联系人及客户数量。",
+      "customers": "客户统计",
+      "customersSubtitle": "客户归属及佣金资格。",
+      "states": "州属统计",
+      "statesSubtitle": "各州建筑商及回收商客户数量。",
+      "commissions": "佣金统计",
+      "commissionsSubtitle": "已计算、批准及支付的合作伙伴佣金。",
+      "revenue": "收入统计",
+      "revenueSubtitle": "SaaS、平台佣金及伙伴佣金数据。",
+      "performance": "业绩统计",
+      "performanceSubtitle": "各合作伙伴客户与收入总计。"
+    },
+    "exportColumn": {
+      "code": "编号",
+      "name": "名称",
+      "company_name": "公司",
+      "type": "类型",
+      "status": "状态",
+      "contact_person": "联系人",
+      "contact_phone": "电话",
+      "contact_email": "Email",
+      "customer_count": "客户数量",
+      "partner": "合作伙伴",
+      "company": "客户",
+      "territory_name": "区域",
+      "state": "州属",
+      "referred_on": "归属日期",
+      "commission_eligible": "佣金资格",
+      "contractor_count": "建筑商",
+      "recycler_count": "回收商",
+      "payout_code": "结算单",
+      "period_start": "期间开始",
+      "period_end": "期间结束",
+      "gross_amount": "佣金总额",
+      "net_amount": "应付佣金",
+      "saas_revenue": "SaaS 收入",
+      "platform_commission_revenue": "平台佣金收入",
+      "total_revenue": "总收入",
+      "partner_code": "伙伴编号",
+      "partner_name": "伙伴名称",
+      "new_customers": "新增客户",
+      "contractors": "建筑商",
+      "recyclers": "回收商",
+      "partner_commission": "合作伙伴佣金"
+    }
+  },
+  "adminAssetManagement": {
+    "title": "资产管理",
+    "subtitle": "MSE 公司资产库存及全生命周期管理。",
+    "loading": "正在加载资产记录...",
+    "loadError": "无法加载资产记录。",
+    "metric": {
+      "total": "资产总数",
+      "available": "可用库存",
+      "deployed": "已安装",
+      "value": "资产总值"
+    },
+    "section": {
+      "management": {
+        "title": "资产管理",
+        "subtitle": "新增、编辑、启用及停用 MSE 资产。"
+      },
+      "details": {
+        "title": "资产资料",
+        "subtitle": "资产身份、采购、保固、位置及生命周期状态。"
+      },
+      "categories": {
+        "title": "资产类别",
+        "subtitle": "系统硬件类别及可重复使用的自定义类别。"
+      },
+      "purchases": {
+        "title": "采购管理",
+        "subtitle": "采购单、到货登记及自动建立库存。"
+      },
+      "inventory": {
+        "title": "库存管理",
+        "subtitle": "可用、已安装、借出、维修及报废库存。"
+      },
+      "assignments": {
+        "title": "领用与借用",
+        "subtitle": "员工领用、预计归还、实际归还及当前持有人。"
+      },
+      "installations": {
+        "title": "安装管理",
+        "subtitle": "客户、项目、地点、安装人员、启用及拆除。"
+      },
+      "transfers": {
+        "title": "资产调拨",
+        "subtitle": "员工、部门、仓库、客户及项目之间的调拨。"
+      },
+      "repairs": {
+        "title": "维修管理",
+        "subtitle": "故障、维修内容、人员、结果、费用及完成日期。"
+      },
+      "maintenance": {
+        "title": "保养管理",
+        "subtitle": "定期保养、重复排程及自动提醒。"
+      },
+      "disposals": {
+        "title": "报废管理",
+        "subtitle": "报废申请、批准、驳回及完成流程。"
+      },
+      "search": {
+        "title": "资产查询",
+        "subtitle": "按编号、名称、类别、序列号、负责人、客户、项目或状态查询。"
+      },
+      "reports": {
+        "title": "资产报表",
+        "subtitle": "资产生命周期 PDF 与 Excel 报表。"
+      },
+      "activity": {
+        "title": "资产操作记录",
+        "subtitle": "永久保留的资产全生命周期操作记录。"
+      }
+    },
+    "column": {
+      "code": "资产编号",
+      "name": "名称",
+      "category": "类别",
+      "brandModel": "品牌／型号",
+      "serial": "序列号",
+      "purchaseDate": "采购资料",
+      "warranty": "保固",
+      "holder": "持有人",
+      "companyProject": "客户／项目",
+      "location": "地点",
+      "status": "状态",
+      "active": "可用状态",
+      "actions": "操作",
+      "description": "说明",
+      "source": "来源",
+      "purchaseCode": "采购编号",
+      "supplier": "供应商",
+      "date": "日期",
+      "asset": "资产",
+      "quantity": "数量",
+      "received": "已到货",
+      "unitPrice": "单价",
+      "total": "总额",
+      "purchaser": "采购人员",
+      "available": "可用",
+      "installed": "已安装",
+      "borrowed": "已借出",
+      "maintenance": "维修中",
+      "faulty": "故障",
+      "retired": "已报废",
+      "value": "价值",
+      "assignmentCode": "领用编号",
+      "borrowedOn": "借用日期",
+      "expectedReturn": "预计归还",
+      "actualReturn": "实际归还",
+      "purpose": "用途",
+      "installationCode": "安装编号",
+      "company": "客户",
+      "project": "项目",
+      "installedOn": "安装日期",
+      "installer": "安装人员",
+      "activatedOn": "启用日期",
+      "movementCode": "调拨编号",
+      "from": "调出",
+      "to": "调入",
+      "reason": "原因",
+      "operator": "操作人员",
+      "maintenanceCode": "维修编号",
+      "type": "类型",
+      "faultDate": "故障日期",
+      "scheduledDate": "排程日期",
+      "nextDate": "下次日期",
+      "technician": "维修人员",
+      "result": "结果",
+      "cost": "费用",
+      "disposalCode": "报废编号",
+      "requestedOn": "申请日期",
+      "requester": "申请人",
+      "method": "处理方式",
+      "approver": "审批人",
+      "disposalDate": "报废日期"
+    },
+    "field": {
+      "search": "查询资产",
+      "allCategories": "全部类别",
+      "allStatuses": "全部状态",
+      "category": "类别",
+      "customCategory": "自定义类别",
+      "name": "资产名称",
+      "serial": "序列号",
+      "brand": "品牌",
+      "model": "型号",
+      "purchasePrice": "采购价格",
+      "supplier": "供应商",
+      "invoice": "发票编号",
+      "warrantyMonths": "保固月数",
+      "firmware": "固件版本",
+      "ipAddress": "IP 地址",
+      "macAddress": "MAC 地址",
+      "location": "地点",
+      "notes": "备注",
+      "code": "类别编号",
+      "description": "说明",
+      "assetName": "资产名称",
+      "quantity": "数量",
+      "unitPrice": "单价",
+      "selectAsset": "选择资产",
+      "selectHolder": "选择持有人",
+      "purpose": "用途",
+      "returnCondition": "归还状况",
+      "selectCompany": "选择客户",
+      "noProject": "无项目",
+      "currentOperator": "当前操作人员",
+      "selectDestination": "选择调入地点",
+      "warehouse": "仓库",
+      "reason": "原因",
+      "noTechnician": "未指派维修人员",
+      "recurring": "定期重复保养",
+      "workPerformed": "完成工作",
+      "partsReplaced": "更换零件",
+      "laborCost": "人工费",
+      "partsCost": "零件费",
+      "result": "结果",
+      "disposalMethod": "报废处理方式",
+      "salvageValue": "残值",
+      "disposalCost": "报废费用",
+      "note": "批准或驳回备注"
+    },
+    "action": {
+      "addAsset": "新增资产",
+      "editAsset": "编辑资产",
+      "edit": "编辑",
+      "activate": "启用",
+      "deactivate": "停用",
+      "addCategory": "新增类别",
+      "editCategory": "编辑类别",
+      "addPurchase": "新增采购",
+      "receive": "登记到货",
+      "issueAsset": "领用资产",
+      "return": "归还",
+      "installAsset": "安装资产",
+      "changeStatus": "更改状态",
+      "transferAsset": "调拨资产",
+      "addRepair": "新增维修",
+      "addMaintenance": "安排保养",
+      "start": "开始",
+      "complete": "完成",
+      "requestDisposal": "申请报废",
+      "process": "处理",
+      "save": "保存",
+      "cancel": "取消",
+      "confirm": "确认"
+    },
+    "dialog": {
+      "asset": "资产登记",
+      "category": "自定义资产类别",
+      "purchase": "采购单",
+      "assignment": "员工资产领用",
+      "installation": "客户或项目安装",
+      "transfer": "资产调拨",
+      "maintenance": "维修或保养排程",
+      "disposal": "受控资产报废"
+    },
+    "status": {
+      "active": "启用",
+      "inactive": "停用",
+      "system": "系统",
+      "custom": "自定义"
+    },
+    "category": {
+      "GATEWAY": "CWE 网关",
+      "AI_CCTV": "AI CCTV",
+      "ANPR_CAMERA": "ANPR 摄像头",
+      "INDUSTRIAL_COMPUTER": "工业电脑",
+      "INDUSTRIAL_GATEWAY": "工业网关",
+      "ROUTER": "路由器",
+      "SIM_CARD": "SIM 卡",
+      "DEMO_KIT": "演示套件",
+      "NOTEBOOK": "笔记本电脑",
+      "TABLET": "平板电脑",
+      "MOBILE_PHONE": "手机",
+      "TEST_EQUIPMENT": "测试仪器",
+      "TOOL": "工具",
+      "LED_DISPLAY": "LED 显示屏",
+      "BARRIER_GATE": "道闸",
+      "NETWORK_SWITCH": "网络交换器",
+      "UPS": "UPS",
+      "SERVER": "服务器",
+      "OTHER": "其他"
+    },
+    "assetStatus": {
+      "IN_STOCK": "库存中",
+      "DEPLOYED": "已部署",
+      "BORROWED": "已借出",
+      "MAINTENANCE": "维修中",
+      "FAULTY": "故障",
+      "RETIRED": "已报废"
+    },
+    "purchaseStatus": {
+      "ORDERED": "已订购",
+      "PARTIALLY_RECEIVED": "部分到货",
+      "RECEIVED": "已到货",
+      "CANCELLED": "已取消"
+    },
+    "assignmentStatus": {
+      "BORROWED": "借用中",
+      "RETURNED": "已归还",
+      "OVERDUE": "逾期"
+    },
+    "installationStatus": {
+      "INSTALLED": "已安装",
+      "ACTIVE": "已启用",
+      "INACTIVE": "未启用",
+      "REMOVED": "已拆除"
+    },
+    "maintenanceType": {
+      "PREVENTIVE": "预防保养",
+      "CORRECTIVE": "故障维修",
+      "CALIBRATION": "校准",
+      "UPGRADE": "升级",
+      "INSPECTION": "检查"
+    },
+    "maintenanceStatus": {
+      "SCHEDULED": "已排程",
+      "IN_PROGRESS": "处理中",
+      "COMPLETED": "已完成",
+      "CANCELLED": "已取消"
+    },
+    "disposalStatus": {
+      "REQUESTED": "已申请",
+      "APPROVED": "已批准",
+      "REJECTED": "已驳回",
+      "COMPLETED": "已完成"
+    },
+    "destination": {
+      "user": "员工",
+      "department": "部门",
+      "warehouse": "仓库",
+      "project": "项目",
+      "company": "客户"
+    },
+    "decision": { "APPROVE": "批准", "REJECT": "驳回", "COMPLETE": "完成报废" },
+    "report": {
+      "assets": "资产清单",
+      "inventory": "库存报表",
+      "purchases": "采购报表",
+      "assignments": "领用报表",
+      "installations": "安装报表",
+      "movements": "调拨报表",
+      "repairs": "维修报表",
+      "maintenance": "保养报表",
+      "disposals": "报废报表"
+    },
+    "exportColumn": {
+      "asset_code": "资产编号",
+      "name": "名称",
+      "category": "类别",
+      "brand": "品牌",
+      "model": "型号",
+      "serial_number": "序列号",
+      "purchase_date": "采购日期",
+      "warranty_expires_on": "保固到期",
+      "status": "状态",
+      "holder_name": "持有人",
+      "deployed_company_name": "客户",
+      "project_name": "项目",
+      "total": "总数",
+      "available": "可用",
+      "installed": "已安装",
+      "borrowed": "已借出",
+      "maintenance": "维修中",
+      "retired": "已报废",
+      "value": "价值",
+      "purchase_code": "采购编号",
+      "supplier": "供应商",
+      "asset_name": "资产",
+      "quantity": "数量",
+      "received_quantity": "已到货",
+      "unit_price": "单价",
+      "total_amount": "总额",
+      "purchaser_name": "采购人员",
+      "delivery_status": "到货状态",
+      "assignment_code": "领用编号",
+      "asset": "资产",
+      "borrowed_on": "借用日期",
+      "expected_return_on": "预计归还",
+      "returned_on": "归还日期",
+      "purpose": "用途",
+      "installation_code": "安装编号",
+      "company_name": "客户",
+      "location": "地点",
+      "installed_on": "安装日期",
+      "installed_by_name": "安装人员",
+      "activated_on": "启用日期",
+      "movement_code": "调拨编号",
+      "type": "类型",
+      "from_location": "调出",
+      "to_location": "调入",
+      "movement_date": "调拨日期",
+      "reason": "原因",
+      "handled_by_name": "操作人员",
+      "maintenance_code": "维修编号",
+      "fault_date": "故障日期",
+      "scheduled_date": "排程日期",
+      "completed_date": "完成日期",
+      "technician_name": "维修人员",
+      "description": "说明",
+      "result": "结果",
+      "total_cost": "总费用",
+      "next_maintenance_date": "下次日期",
+      "disposal_code": "报废编号",
+      "requested_on": "申请日期",
+      "requested_by_name": "申请人",
+      "disposal_date": "报废日期",
+      "disposal_method": "处理方式",
+      "approved_by_name": "审批人"
+    },
+    "toast": {
+      "assetCreated": "资产已建立",
+      "assetUpdated": "资产已更新",
+      "assetStatus": "资产可用状态已更新",
+      "categorySaved": "资产类别已保存",
+      "categoryRemoved": "资产类别已移除",
+      "purchaseSaved": "采购单已建立",
+      "stockReceived": "到货已入库",
+      "assetIssued": "资产已领用",
+      "assetReturned": "资产已归还",
+      "installed": "资产已安装",
+      "installationStatus": "安装状态已更新",
+      "transferSaved": "调拨已记录",
+      "maintenanceSaved": "维修保养已排程",
+      "maintenanceStarted": "维修保养已开始",
+      "maintenanceCompleted": "维修保养已完成",
+      "disposalRequested": "报废申请已建立",
+      "disposalUpdated": "报废状态已更新"
+    }
+  },
+  "adminCloudServiceManagement": {
+    "title": "云服务管理",
+    "subtitle": "统一管理云资源、使用量、成本、收费及营运状态。",
+    "loading": "正在加载云服务记录...",
+    "loadError": "无法加载云服务记录。",
+    "metric": {
+      "services": "云服务数量",
+      "active": "启用服务",
+      "usage": "资源使用量",
+      "cost": "云成本",
+      "revenue": "客户收费",
+      "profit": "毛利"
+    },
+    "section": {
+      "services": {
+        "title": "云服务管理",
+        "subtitle": "新增、编辑、启用及停用云服务。"
+      },
+      "catalog": {
+        "title": "云服务项目",
+        "subtitle": "Storage、Video、Database、API、AI、CWE、Map、消息、Domain、SSL、CDN、Backup 与 Monitoring。"
+      },
+      "vendors": {
+        "title": "云服务供应商",
+        "subtitle": "供应商、地区、方案、合约账户及服务状态。"
+      },
+      "plans": {
+        "title": "云服务方案",
+        "subtitle": "可配置 Storage、API、AI、消息、Push 及 Map 额度。"
+      },
+      "usage": {
+        "title": "云资源统计",
+        "subtitle": "按公司、项目及日期统计云资源使用量。"
+      },
+      "costs": {
+        "title": "云成本管理",
+        "subtitle": "月度成本、客户成本、平台总成本、预算及差异。"
+      },
+      "pricing": {
+        "title": "收费规则",
+        "subtitle": "自定义收费方式、标准、公式及生效日期。"
+      },
+      "alerts": {
+        "title": "云资源预警",
+        "subtitle": "使用量、容量、额度及云成本预算预警。"
+      },
+      "analysis": {
+        "title": "云资源分析",
+        "subtitle": "资源排行、最高成本客户和项目及趋势。"
+      },
+      "reports": {
+        "title": "云服务报表",
+        "subtitle": "日报、月报、年报或自定义使用、成本、客户、收益及趋势报表。"
+      },
+      "activity": {
+        "title": "云服务操作记录",
+        "subtitle": "永久保留服务、供应商、方案、收费、参数及成本记录。"
+      }
+    },
+    "column": {
+      "code": "编号",
+      "name": "名称",
+      "type": "类型",
+      "vendor": "供应商",
+      "region": "Region",
+      "plan": "方案",
+      "contract": "合约",
+      "cost": "成本",
+      "mode": "模式",
+      "status": "状态",
+      "actions": "操作",
+      "email": "Email",
+      "account": "账户",
+      "portal": "Portal",
+      "storage": "Storage",
+      "video": "Video",
+      "database": "Database",
+      "api": "API",
+      "ai": "AI",
+      "sms": "SMS",
+      "push": "Push",
+      "map": "Map",
+      "fee": "月费",
+      "date": "日期",
+      "service": "服务",
+      "company": "客户",
+      "project": "项目",
+      "usage": "使用量",
+      "unit": "单位",
+      "charge": "收费",
+      "profit": "利润",
+      "period": "期间",
+      "budget": "预算",
+      "actual": "实际",
+      "variance": "差异",
+      "usagePercent": "已使用",
+      "pricing": "计费方式",
+      "baseFee": "基本费",
+      "unitPrice": "单位价格",
+      "effective": "生效日",
+      "expiry": "停用日",
+      "alertType": "预警",
+      "threshold": "预警值",
+      "current": "当前值",
+      "message": "内容"
+    },
+    "field": {
+      "vendor": "选择供应商",
+      "customType": "自定义服务类型",
+      "name": "名称",
+      "region": "服务地区",
+      "planName": "服务方案",
+      "baseCost": "每月基本成本",
+      "usageUnit": "使用单位",
+      "unitCost": "单位成本",
+      "quota": "每月额度",
+      "alertPercent": "预警百分比",
+      "description": "说明",
+      "notes": "备注",
+      "reason": "原因",
+      "code": "编号",
+      "email": "联系 Email",
+      "account": "账户 ID",
+      "supportUrl": "Support URL",
+      "portalUrl": "Portal URL",
+      "apiKey": "供应商 API Key",
+      "monthlyFee": "月费",
+      "storage_gb": "Storage GB",
+      "video_storage_gb": "Video Storage GB",
+      "database_gb": "Database GB",
+      "api_requests": "API 调用",
+      "ai_requests": "AI 使用次数",
+      "sms_count": "SMS 数量",
+      "email_count": "Email 数量",
+      "push_notification_count": "Push 数量",
+      "map_api_calls": "Map API 调用",
+      "service": "选择服务",
+      "noProject": "无项目",
+      "usageAmount": "使用量",
+      "budget": "每月预算",
+      "baseFee": "基本费",
+      "unitPrice": "单位价格",
+      "tiersJson": "阶梯收费 JSON"
+    },
+    "action": {
+      "addService": "新增云服务",
+      "editService": "编辑云服务",
+      "status": "状态",
+      "addVendor": "新增供应商",
+      "editVendor": "编辑供应商",
+      "addPlan": "新增方案",
+      "editPlan": "编辑方案",
+      "recordUsage": "记录使用量",
+      "addBudget": "新增预算",
+      "editBudget": "编辑预算",
+      "addRule": "新增规则",
+      "editRule": "编辑规则",
+      "resolve": "处理完成",
+      "save": "保存",
+      "cancel": "取消",
+      "confirm": "确认"
+    },
+    "dialog": {
+      "service": "云服务资料",
+      "vendor": "云服务供应商资料",
+      "plan": "云资源方案",
+      "usage": "云资源使用记录",
+      "budget": "每月云成本预算",
+      "rule": "客户收费规则"
+    },
+    "status": {
+      "active": "启用",
+      "inactive": "停用",
+      "platform": "平台",
+      "resolved": "已处理",
+      "open": "待处理"
+    },
+    "serviceType": {
+      "CLOUD_STORAGE": "Cloud Storage",
+      "VIDEO_STORAGE": "Video Storage",
+      "DATABASE": "Database",
+      "API_GATEWAY": "API Gateway",
+      "AI_SERVICE": "AI Service",
+      "CWE": "Cloud Weighing Engine",
+      "MAP_SERVICE": "Map Service",
+      "SMS_SERVICE": "SMS Service",
+      "EMAIL_SERVICE": "Email Service",
+      "PUSH_NOTIFICATION": "Push Notification",
+      "DOMAIN": "Domain",
+      "SSL_CERTIFICATE": "SSL Certificate",
+      "CDN": "CDN",
+      "BACKUP": "Backup Service",
+      "MONITORING": "Monitoring Service",
+      "OTHER": "其他"
+    },
+    "serviceStatus": {
+      "ACTIVE": "启用",
+      "INACTIVE": "停用",
+      "MAINTENANCE": "维护中",
+      "SUSPENDED": "已暂停"
+    },
+    "mode": { "MANUAL": "手动", "SIMULATED": "模拟", "LIVE": "真实供应商" },
+    "pricingModel": {
+      "PAY_AS_YOU_GO": "按使用量收费",
+      "FIXED_MONTHLY": "固定月费",
+      "TIERED": "阶梯收费",
+      "PER_UNIT": "按单位收费"
+    },
+    "alertType": {
+      "USAGE_THRESHOLD": "使用量预警",
+      "COST_THRESHOLD": "成本预算预警",
+      "QUOTA_EXCEEDED": "超出额度",
+      "SERVICE_DOWN": "服务离线"
+    },
+    "ranking": {
+      "resource": "云资源使用排行",
+      "customer": "最高成本客户",
+      "project": "最高成本项目",
+      "storage": "Storage 使用排行",
+      "api": "API 使用排行",
+      "ai": "AI 使用排行"
+    },
+    "report": {
+      "usage": "云资源使用统计",
+      "costs": "云成本分析",
+      "customers": "客户使用统计",
+      "revenue": "收益分析",
+      "trends": "成本与使用趋势",
+      "analysis": "云资源分析报表"
+    },
+    "exportColumn": {
+      "usage_date": "日期",
+      "service_code": "服务编号",
+      "service_name": "服务",
+      "service_type": "类型",
+      "company_name": "客户",
+      "project_name": "项目",
+      "usage_amount": "使用量",
+      "usage_unit": "单位",
+      "source_mode": "来源模式",
+      "base_cost": "基本成本",
+      "usage_cost": "使用成本",
+      "total_cost": "总成本",
+      "company_id": "客户 ID",
+      "company__name": "客户",
+      "project_id": "项目 ID",
+      "project__name": "项目",
+      "usage": "使用量",
+      "cost": "成本",
+      "revenue": "收益",
+      "charge_amount": "客户收费",
+      "profit": "利润",
+      "period": "期间",
+      "service__type": "服务类型"
+    },
+    "toast": {
+      "vendorSaved": "云服务供应商已保存",
+      "serviceSaved": "云服务已保存",
+      "serviceStatus": "云服务状态已更新",
+      "planSaved": "云服务方案已保存",
+      "ruleSaved": "收费规则已保存",
+      "usageSaved": "云资源使用量已保存",
+      "budgetSaved": "云成本预算已保存",
+      "alertResolved": "云资源预警已处理"
+    }
+  },
+  "versions": {
+    "title": "版本管理",
+    "count": "{count} 个版本",
+    "create": "建立版本",
+    "edit": "编辑版本",
+    "editorSubtitle": "管理发布规则、多语言说明和灰度比例。",
+    "setCurrent": "设为当前版本",
+    "changelog": "版本变更内容",
+    "changeModule": "模块",
+    "changeDescription": "变更说明",
+    "addChange": "新增变更",
+    "toast": {
+      "created": "版本已建立",
+      "updated": "版本已更新",
+      "setCurrent": "当前版本已更新",
+      "changelogAdded": "版本变更已新增"
+    },
+    "changeType": {
+      "NEW": "新增",
+      "IMPROVED": "改善",
+      "FIXED": "修复",
+      "REMOVED": "移除",
+      "SECURITY": "安全"
+    },
+    "field": {
+      "version": "版本号",
+      "releaseName": "版本名称",
+      "releasedOn": "发布日期",
+      "isCurrent": "当前版本",
+      "forceUpdate": "强制更新",
+      "rollout": "灰度发布",
+      "minSupportedVersion": "最低支持版本",
+      "releaseNotes": "Release Note（英文）",
+      "releaseNotesZh": "Release Note（中文）",
+      "releaseNotesMs": "Release Note（马来文）",
+      "active": "启用"
+    },
+    "current": "当前版本",
+    "forceUpdateOn": "强制更新"
   }
 }

@@ -1,30 +1,35 @@
-/** Portal navigation and route access derived from the backend feature list. */
-
 import type { LucideIcon } from "lucide-react";
 import {
-  BadgeCheck,
   Bell,
+  Box,
   Building2,
   CalendarCheck,
   ChartNoAxesCombined,
   ClipboardCheck,
   ClipboardList,
+  Cloud,
+  CreditCard,
   FileClock,
   FileText,
   FolderArchive,
   Gauge,
-  History,
   Handshake,
+  HeadphonesIcon,
+  History,
   Inbox,
   KeyRound,
   LayoutDashboard,
   MapPinned,
+  MessageSquare,
   Package,
+  QrCode,
   Receipt,
   Scale,
   ScanSearch,
+  Settings,
   ShieldAlert,
   SlidersHorizontal,
+  TrendingUp,
   Truck,
   UserRound,
   Users,
@@ -73,7 +78,24 @@ export type PortalFeatureKey =
   | "notifications"
   | "driver_gps"
   | "site_gps"
-  | "integrations";
+  | "integrations"
+  | "company_management"
+  | "user_management"
+  | "subscription_management"
+  | "billing_commission"
+  | "platform_monitoring"
+  | "qr_code_management"
+  | "report_center"
+  | "notification_center"
+  | "platform_settings"
+  | "audit_log_center"
+  | "sales_commission"
+  | "customer_service"
+  | "technical_support"
+  | "partner_management"
+  | "asset_management"
+  | "cloud_service_management"
+  | "version_management";
 
 export interface FeatureNavItem {
   /** Exact key returned by `GET /api/auth/me/`. */
@@ -94,6 +116,15 @@ export interface FeatureNavItem {
    * the guard and the sidebar share one source of truth.
    */
   routePrefixes?: readonly string[];
+  /** Requirement-numbered pages shown beneath the main Admin module. */
+  children?: readonly FeatureNavChild[];
+}
+
+export interface FeatureNavChild {
+  key: string;
+  /** Full message key, usually under `nav.submodule`. */
+  labelKey: string;
+  href: string;
 }
 
 export interface NavGroup {
@@ -110,37 +141,716 @@ export interface NavGroup {
  */
 export const PORTAL_NAVIGATION = {
   MSE_ADMIN: [
-    item("dashboard", "/dashboard", LayoutDashboard, "overview"),
-    item("cloud_weighing", "/weighing", Gauge, "operations"),
     item(
-      "weighing_parameters",
-      "/detection-settings",
-      SlidersHorizontal,
-      "operations",
+      "dashboard",
+      "/dashboard",
+      LayoutDashboard,
+      "overview",
+      undefined,
+      false,
+      [
+        child("1.2.1", "nav.submodule.dashboardMap", "/dashboard/map"),
+        child(
+          "1.2.2",
+          "nav.submodule.dashboardPlatform",
+          "/dashboard/platform",
+        ),
+        child(
+          "1.2.3",
+          "nav.submodule.dashboardBusiness",
+          "/dashboard/business",
+        ),
+        child(
+          "1.2.4",
+          "nav.submodule.dashboardSubscriptions",
+          "/dashboard/subscriptions",
+        ),
+        child(
+          "1.2.5",
+          "nav.submodule.dashboardCommission",
+          "/dashboard/commission",
+        ),
+        child("1.2.6", "nav.submodule.dashboardPending", "/dashboard/pending"),
+        child("1.2.7", "nav.submodule.dashboardCwe", "/dashboard/cwe"),
+        child(
+          "1.2.8",
+          "nav.submodule.dashboardNotifications",
+          "/dashboard/notifications",
+        ),
+        child(
+          "1.2.9",
+          "nav.submodule.dashboardQuickActions",
+          "/dashboard/quick-actions",
+        ),
+        child("1.2.10", "nav.submodule.dashboardTrends", "/dashboard/trends"),
+        child(
+          "1.2.11",
+          "nav.submodule.dashboardSystemStatus",
+          "/dashboard/system-status",
+        ),
+      ],
     ),
     item(
-      "contractor_partners",
-      "/contractor-partners",
+      "company_management",
+      "/companies",
       Building2,
       "operations",
-      ["/companies", "/users/create"],
+      ["/contractor-partners", "/recycler-review"],
+      false,
+      [
+        child("2.2.1", "nav.submodule.companyCreate", "/companies/create"),
+        child(
+          "2.2.2",
+          "nav.submodule.companyDirectory",
+          "/companies/admin/directory",
+        ),
+        child(
+          "2.2.3",
+          "nav.submodule.companyReview",
+          "/companies/admin/review",
+        ),
+        child(
+          "2.2.4",
+          "nav.submodule.companyStatus",
+          "/companies/admin/status",
+        ),
+        child(
+          "2.2.5",
+          "nav.submodule.companySubscriptions",
+          "/companies/admin/subscriptions",
+        ),
+        child(
+          "2.2.6",
+          "nav.submodule.companyProjects",
+          "/companies/admin/projects",
+        ),
+        child(
+          "2.2.7",
+          "nav.submodule.companyRecyclerData",
+          "/companies/admin/recyclers",
+        ),
+        child(
+          "2.2.8",
+          "nav.submodule.companySearch",
+          "/companies/admin/search",
+        ),
+        child(
+          "2.2.9",
+          "nav.submodule.companyStatistics",
+          "/companies/admin/statistics",
+        ),
+        child(
+          "2.2.10",
+          "nav.submodule.companyActivity",
+          "/companies/admin/activity",
+        ),
+      ],
     ),
     item(
-      "recycler_review",
-      "/recycler-review",
-      BadgeCheck,
+      "user_management",
+      "/users",
+      Users,
       "operations",
-      ["/companies", "/users/create"],
+      ["/login-records"],
+      false,
+      [
+        child(
+          "3.2.1",
+          "nav.submodule.userManagement",
+          "/users/admin/management",
+        ),
+        child("3.2.2", "nav.submodule.userProfiles", "/users/admin/profiles"),
+        child(
+          "3.2.3",
+          "nav.submodule.userCategories",
+          "/users/admin/categories",
+        ),
+        child("3.2.4", "nav.submodule.userSearch", "/users/admin/search"),
+        child(
+          "3.2.5",
+          "nav.submodule.userLoginManagement",
+          "/users/admin/login",
+        ),
+        child(
+          "3.2.6",
+          "nav.submodule.userStatistics",
+          "/users/admin/statistics",
+        ),
+        child("3.2.7", "nav.submodule.userActivity", "/users/admin/activity"),
+      ],
     ),
-    item("integrations", "/integrations", SlidersHorizontal, "system"),
-    item("activity_logs", "/audit-logs", History, "system"),
     item(
-      "transaction_reports",
-      "/reports",
-      FileText,
+      "subscription_management",
+      "/subscriptions",
+      CreditCard,
       "finance",
       undefined,
-      true,
+      false,
+      [
+        child(
+          "4.2.1",
+          "nav.submodule.subscriptionPlans",
+          "/subscriptions/plans",
+        ),
+        child(
+          "4.2.2",
+          "nav.submodule.companySubscriptions",
+          "/subscriptions/companies",
+        ),
+        child(
+          "4.2.3",
+          "nav.submodule.subscriptionStatus",
+          "/subscriptions/status",
+        ),
+        child(
+          "4.2.4",
+          "nav.submodule.packageChanges",
+          "/subscriptions/package-changes",
+        ),
+        child(
+          "4.2.5",
+          "nav.submodule.accountLimits",
+          "/subscriptions/account-limits",
+        ),
+        child(
+          "4.2.6",
+          "nav.submodule.expiryReminders",
+          "/subscriptions/reminders",
+        ),
+        child(
+          "4.2.7",
+          "nav.submodule.subscriptionSearch",
+          "/subscriptions/search",
+        ),
+        child(
+          "4.2.8",
+          "nav.submodule.subscriptionStatistics",
+          "/subscriptions/statistics",
+        ),
+        child(
+          "4.2.9",
+          "nav.submodule.subscriptionActivity",
+          "/subscriptions/activity",
+        ),
+      ],
+    ),
+    item(
+      "billing_commission",
+      "/billing",
+      Receipt,
+      "finance",
+      undefined,
+      false,
+      [
+        child("5.2.1", "nav.submodule.saasInvoices", "/billing/saas-invoices"),
+        child(
+          "5.2.2",
+          "nav.submodule.platformCommission",
+          "/billing/commission",
+        ),
+        child(
+          "5.2.3",
+          "nav.submodule.automaticBilling",
+          "/billing/automatic-billing",
+        ),
+        child("5.2.4", "nav.submodule.collections", "/billing/collections"),
+        child(
+          "5.2.5",
+          "nav.submodule.paymentProofs",
+          "/billing/payment-proofs",
+        ),
+        child(
+          "5.2.6",
+          "nav.submodule.commissionRules",
+          "/billing/commission-rules",
+        ),
+        child("5.2.7", "nav.submodule.invoiceSearch", "/billing/search"),
+        child(
+          "5.2.8",
+          "nav.submodule.billingStatistics",
+          "/billing/statistics",
+        ),
+        child("5.2.9", "nav.submodule.financialReports", "/billing/reports"),
+        child("5.2.10", "nav.submodule.billingActivity", "/billing/activity"),
+      ],
+    ),
+    item(
+      "platform_monitoring",
+      "/monitoring",
+      Gauge,
+      "system",
+      undefined,
+      false,
+      [
+        child(
+          "6.2.1",
+          "nav.submodule.livePlatform",
+          "/monitoring/live-platform",
+        ),
+        child("6.2.2", "nav.submodule.cweMonitoring", "/monitoring/cwe"),
+        child("6.2.3", "nav.submodule.cctvMonitoring", "/monitoring/cctv"),
+        child("6.2.4", "nav.submodule.anprMonitoring", "/monitoring/anpr"),
+        child(
+          "6.2.5",
+          "nav.submodule.apiGatewayMonitoring",
+          "/monitoring/api-gateway",
+        ),
+        child("6.2.6", "nav.submodule.syncMonitoring", "/monitoring/sync"),
+        child(
+          "6.2.7",
+          "nav.submodule.exceptionMonitoring",
+          "/monitoring/exceptions",
+        ),
+        child(
+          "6.2.8",
+          "nav.submodule.serviceSearch",
+          "/monitoring/service-search",
+        ),
+        child(
+          "6.2.9",
+          "nav.submodule.runtimeStatistics",
+          "/monitoring/runtime-statistics",
+        ),
+        child(
+          "6.2.10",
+          "nav.submodule.monitoringRecords",
+          "/monitoring/records",
+        ),
+      ],
+    ),
+    item(
+      "qr_code_management",
+      "/qr-codes",
+      QrCode,
+      "operations",
+      undefined,
+      false,
+      [
+        child("7.2.1", "nav.submodule.qrTypes", "/qr-codes/types"),
+        child("7.2.2", "nav.submodule.qrRegister", "/qr-codes/register"),
+        child("7.2.3", "nav.submodule.qrLifecycle", "/qr-codes/lifecycle"),
+        child("7.2.4", "nav.submodule.qrSearch", "/qr-codes/search"),
+        child("7.2.5", "nav.submodule.qrScans", "/qr-codes/scans"),
+        child("7.2.6", "nav.submodule.qrAnomalies", "/qr-codes/anomalies"),
+        child("7.2.7", "nav.submodule.qrStatistics", "/qr-codes/statistics"),
+        child("7.2.8", "nav.submodule.qrActivity", "/qr-codes/activity"),
+      ],
+    ),
+    item(
+      "cloud_weighing",
+      "/weighing",
+      Scale,
+      "operations",
+      ["/detection-settings", "/scales"],
+      false,
+      [
+        child("8.2.1", "nav.submodule.cweScales", "/weighing/admin/scales"),
+        child(
+          "8.2.2",
+          "nav.submodule.cweConnections",
+          "/weighing/admin/connections",
+        ),
+        child(
+          "8.2.3",
+          "nav.submodule.cweLiveWeighing",
+          "/weighing/admin/live-weighing",
+        ),
+        child(
+          "8.2.4",
+          "nav.submodule.cweAnomalies",
+          "/weighing/admin/anomalies",
+        ),
+        child("8.2.5", "nav.submodule.cweSearch", "/weighing/admin/search"),
+        child(
+          "8.2.6",
+          "nav.submodule.cweStatistics",
+          "/weighing/admin/statistics",
+        ),
+        child(
+          "8.2.7",
+          "nav.submodule.cweServiceStatus",
+          "/weighing/admin/service-status",
+        ),
+        child("8.2.8", "nav.submodule.cweActivity", "/weighing/admin/activity"),
+      ],
+    ),
+    item("report_center", "/reports", FileText, "finance", undefined, false, [
+      child("9.2.1", "nav.submodule.contractorReports", "/reports/contractors"),
+      child("9.2.2", "nav.submodule.recyclerReports", "/reports/recyclers"),
+      child(
+        "9.2.3",
+        "nav.submodule.platformBusinessReports",
+        "/reports/business",
+      ),
+      child("9.2.4", "nav.submodule.saasReports", "/reports/saas"),
+      child("9.2.5", "nav.submodule.commissionReports", "/reports/commission"),
+      child("9.2.6", "nav.submodule.cweReports", "/reports/cwe"),
+      child("9.2.7", "nav.submodule.operationsReports", "/reports/operations"),
+      child("9.2.8", "nav.submodule.reportSearch", "/reports/search"),
+      child("9.2.9", "nav.submodule.reportExports", "/reports/export"),
+      child("9.2.10", "nav.submodule.reportHistory", "/reports/history"),
+    ]),
+    item(
+      "notification_center",
+      "/notifications",
+      Bell,
+      "system",
+      undefined,
+      false,
+      [
+        child(
+          "10.2.1",
+          "nav.submodule.contractorNotifications",
+          "/notifications/contractors",
+        ),
+        child(
+          "10.2.2",
+          "nav.submodule.recyclerNotifications",
+          "/notifications/recyclers",
+        ),
+        child(
+          "10.2.3",
+          "nav.submodule.saasNotifications",
+          "/notifications/saas",
+        ),
+        child(
+          "10.2.4",
+          "nav.submodule.commissionNotifications",
+          "/notifications/commission",
+        ),
+        child("10.2.5", "nav.submodule.cweNotifications", "/notifications/cwe"),
+        child(
+          "10.2.6",
+          "nav.submodule.systemNotifications",
+          "/notifications/system",
+        ),
+        child(
+          "10.2.7",
+          "nav.submodule.notificationSearch",
+          "/notifications/search",
+        ),
+        child(
+          "10.2.8",
+          "nav.submodule.notificationManagement",
+          "/notifications/manage",
+        ),
+        child(
+          "10.2.9",
+          "nav.submodule.notificationChannels",
+          "/notifications/channels",
+        ),
+        child(
+          "10.2.10",
+          "nav.submodule.notificationRecords",
+          "/notifications/records",
+        ),
+      ],
+    ),
+    item(
+      "platform_settings",
+      "/system-settings",
+      Settings,
+      "system",
+      ["/versions", "/integrations"],
+      false,
+      [
+        child(
+          "11.2.1",
+          "nav.submodule.basicSettings",
+          "/system-settings/basic",
+        ),
+        child("11.2.2", "nav.submodule.saasSettings", "/system-settings/saas"),
+        child(
+          "11.2.3",
+          "nav.submodule.commissionSettings",
+          "/system-settings/commission",
+        ),
+        child("11.2.4", "nav.submodule.cweSettings", "/system-settings/cwe"),
+        child("11.2.5", "nav.submodule.cctvSettings", "/system-settings/cctv"),
+        child("11.2.6", "nav.submodule.anprSettings", "/system-settings/anpr"),
+        child("11.2.7", "nav.submodule.qrSettings", "/system-settings/qr"),
+        child(
+          "11.2.8",
+          "nav.submodule.apiGatewaySettings",
+          "/system-settings/api-gateway",
+        ),
+        child(
+          "11.2.9",
+          "nav.submodule.versionSettings",
+          "/system-settings/versions",
+        ),
+        child(
+          "11.2.10",
+          "nav.submodule.notificationSettings",
+          "/system-settings/notifications",
+        ),
+        child(
+          "11.2.11",
+          "nav.submodule.maintenanceSettings",
+          "/system-settings/maintenance",
+        ),
+        child(
+          "11.2.12",
+          "nav.submodule.settingsActivity",
+          "/system-settings/activity",
+        ),
+      ],
+    ),
+    item(
+      "audit_log_center",
+      "/audit-logs",
+      History,
+      "system",
+      undefined,
+      false,
+      [
+        child("12.2.1", "nav.submodule.userAudit", "/audit-logs/users"),
+        child("12.2.2", "nav.submodule.companyAudit", "/audit-logs/companies"),
+        child(
+          "12.2.3",
+          "nav.submodule.subscriptionAudit",
+          "/audit-logs/subscriptions",
+        ),
+        child("12.2.4", "nav.submodule.billingAudit", "/audit-logs/billing"),
+        child("12.2.5", "nav.submodule.cweAudit", "/audit-logs/cwe"),
+        child("12.2.6", "nav.submodule.settingsAudit", "/audit-logs/settings"),
+        child("12.2.7", "nav.submodule.loginAudit", "/audit-logs/login"),
+        child("12.2.8", "nav.submodule.auditSearch", "/audit-logs/search"),
+        child("12.2.9", "nav.submodule.auditExport", "/audit-logs/export"),
+        child(
+          "12.2.10",
+          "nav.submodule.immutableAudit",
+          "/audit-logs/immutable",
+        ),
+      ],
+    ),
+    item(
+      "sales_commission",
+      "/sales",
+      TrendingUp,
+      "finance",
+      undefined,
+      false,
+      [
+        child("13.2.1", "nav.submodule.salesPeople", "/sales/people"),
+        child("13.2.2", "nav.submodule.salesDetails", "/sales/details"),
+        child("13.2.3", "nav.submodule.salesTerritories", "/sales/territories"),
+        child("13.2.4", "nav.submodule.salesHierarchy", "/sales/hierarchy"),
+        child(
+          "13.2.5",
+          "nav.submodule.customerAssignments",
+          "/sales/assignments",
+        ),
+        child("13.2.6", "nav.submodule.commissionRuleTypes", "/sales/rules"),
+        child("13.2.7", "nav.submodule.commissionSchemes", "/sales/schemes"),
+        child("13.2.8", "nav.submodule.salesTerms", "/sales/terms"),
+        child("13.2.9", "nav.submodule.salesPayouts", "/sales/payouts"),
+        child("13.2.10", "nav.submodule.teamPerformance", "/sales/performance"),
+        child(
+          "13.2.11",
+          "nav.submodule.salesSettlements",
+          "/sales/settlements",
+        ),
+        child("13.2.12", "nav.submodule.salesReports", "/sales/reports"),
+        child("13.2.13", "nav.submodule.salesActivity", "/sales/activity"),
+      ],
+    ),
+    item(
+      "customer_service",
+      "/customer-service",
+      MessageSquare,
+      "operations",
+      undefined,
+      false,
+      [
+        child(
+          "14.2.1",
+          "nav.submodule.crmCustomers",
+          "/customer-service/customers",
+        ),
+        child(
+          "14.2.2",
+          "nav.submodule.crmEnquiries",
+          "/customer-service/enquiries",
+        ),
+        child(
+          "14.2.3",
+          "nav.submodule.crmTraining",
+          "/customer-service/training",
+        ),
+        child("14.2.4", "nav.submodule.crmVisits", "/customer-service/visits"),
+        child(
+          "14.2.5",
+          "nav.submodule.crmFeedback",
+          "/customer-service/feedback",
+        ),
+        child(
+          "14.2.6",
+          "nav.submodule.crmService",
+          "/customer-service/service",
+        ),
+        child(
+          "14.2.7",
+          "nav.submodule.crmReports",
+          "/customer-service/reports",
+        ),
+        child(
+          "14.2.8",
+          "nav.submodule.crmActivity",
+          "/customer-service/activity",
+        ),
+      ],
+    ),
+    item(
+      "technical_support",
+      "/support-tickets",
+      HeadphonesIcon,
+      "operations",
+      undefined,
+      false,
+      [
+        child(
+          "15.2.1",
+          "nav.submodule.supportTickets",
+          "/support-tickets/tickets",
+        ),
+        child(
+          "15.2.2",
+          "nav.submodule.supportStates",
+          "/support-tickets/states",
+        ),
+        child("15.2.3", "nav.submodule.supportBugs", "/support-tickets/bugs"),
+        child("15.2.4", "nav.submodule.supportAPI", "/support-tickets/api"),
+        child(
+          "15.2.5",
+          "nav.submodule.supportInstallations",
+          "/support-tickets/installations",
+        ),
+        child(
+          "15.2.6",
+          "nav.submodule.supportMaintenance",
+          "/support-tickets/maintenance",
+        ),
+        child(
+          "15.2.7",
+          "nav.submodule.supportReports",
+          "/support-tickets/reports",
+        ),
+        child(
+          "15.2.8",
+          "nav.submodule.supportActivity",
+          "/support-tickets/activity",
+        ),
+      ],
+    ),
+    item(
+      "partner_management",
+      "/partners",
+      Handshake,
+      "operations",
+      undefined,
+      false,
+      [
+        child(
+          "16.2.1",
+          "nav.submodule.partnerManagement",
+          "/partners/management",
+        ),
+        child("16.2.2", "nav.submodule.partnerDetails", "/partners/details"),
+        child("16.2.3", "nav.submodule.partnerTypes", "/partners/types"),
+        child(
+          "16.2.4",
+          "nav.submodule.partnerTerritories",
+          "/partners/territories",
+        ),
+        child(
+          "16.2.5",
+          "nav.submodule.partnerCustomers",
+          "/partners/customers",
+        ),
+        child(
+          "16.2.6",
+          "nav.submodule.partnerAgreements",
+          "/partners/agreements",
+        ),
+        child("16.2.7", "nav.submodule.partnerSchemes", "/partners/schemes"),
+        child(
+          "16.2.8",
+          "nav.submodule.partnerPerformance",
+          "/partners/performance",
+        ),
+        child("16.2.9", "nav.submodule.partnerReports", "/partners/reports"),
+        child("16.2.10", "nav.submodule.partnerActivity", "/partners/activity"),
+      ],
+    ),
+    item("asset_management", "/assets", Box, "operations", undefined, false, [
+      child("17.2.1", "nav.submodule.assetManagement", "/assets/management"),
+      child("17.2.2", "nav.submodule.assetDetails", "/assets/details"),
+      child("17.2.3", "nav.submodule.assetCategories", "/assets/categories"),
+      child("17.2.4", "nav.submodule.assetPurchases", "/assets/purchases"),
+      child("17.2.5", "nav.submodule.assetInventory", "/assets/inventory"),
+      child("17.2.6", "nav.submodule.assetAssignments", "/assets/assignments"),
+      child(
+        "17.2.7",
+        "nav.submodule.assetInstallations",
+        "/assets/installations",
+      ),
+      child("17.2.8", "nav.submodule.assetTransfers", "/assets/transfers"),
+      child("17.2.9", "nav.submodule.assetRepairs", "/assets/repairs"),
+      child("17.2.10", "nav.submodule.assetMaintenance", "/assets/maintenance"),
+      child("17.2.11", "nav.submodule.assetDisposals", "/assets/disposals"),
+      child("17.2.12", "nav.submodule.assetSearch", "/assets/search"),
+      child("17.2.13", "nav.submodule.assetReports", "/assets/reports"),
+      child("17.2.14", "nav.submodule.assetActivity", "/assets/activity"),
+    ]),
+    item(
+      "cloud_service_management",
+      "/cloud-services",
+      Cloud,
+      "system",
+      undefined,
+      false,
+      [
+        child(
+          "A17.2.1",
+          "nav.submodule.cloudServices",
+          "/cloud-services/services",
+        ),
+        child(
+          "A17.2.2",
+          "nav.submodule.cloudCatalog",
+          "/cloud-services/catalog",
+        ),
+        child(
+          "A17.2.3",
+          "nav.submodule.cloudVendors",
+          "/cloud-services/vendors",
+        ),
+        child("A17.2.4", "nav.submodule.cloudPlans", "/cloud-services/plans"),
+        child("A17.2.5", "nav.submodule.cloudUsage", "/cloud-services/usage"),
+        child("A17.2.6", "nav.submodule.cloudCosts", "/cloud-services/costs"),
+        child(
+          "A17.2.7",
+          "nav.submodule.cloudPricing",
+          "/cloud-services/pricing",
+        ),
+        child("A17.2.8", "nav.submodule.cloudAlerts", "/cloud-services/alerts"),
+        child(
+          "A17.2.9",
+          "nav.submodule.cloudAnalysis",
+          "/cloud-services/analysis",
+        ),
+        child(
+          "A17.2.10",
+          "nav.submodule.cloudReports",
+          "/cloud-services/reports",
+        ),
+        child(
+          "A17.2.11",
+          "nav.submodule.cloudActivity",
+          "/cloud-services/activity",
+        ),
+      ],
     ),
   ],
   MSE_TRACE: [
@@ -154,13 +864,9 @@ export const PORTAL_NAVIGATION = {
     ]),
     item("recycling_records", "/weighing", Scale, "operations"),
     item("attendance", "/attendance", CalendarCheck, "operations"),
-    item(
-      "payment_proofs",
-      "/payment-proofs",
-      WalletCards,
-      "operations",
-      ["/settlements"],
-    ),
+    item("payment_proofs", "/payment-proofs", WalletCards, "operations", [
+      "/settlements",
+    ]),
     item("progress", "/progress", ChartNoAxesCombined, "operations"),
     item("safety", "/safety", ShieldAlert, "operations"),
     item("site_gps", "/site-gps", MapPinned, "operations"),
@@ -173,12 +879,7 @@ export const PORTAL_NAVIGATION = {
       ClipboardCheck,
       "finance",
     ),
-    item(
-      "material_cost_report",
-      "/reports/material-cost",
-      Receipt,
-      "finance",
-    ),
+    item("material_cost_report", "/reports/material-cost", Receipt, "finance"),
     item("users", "/users", Users, "system"),
     item("roles", "/roles", KeyRound, "system"),
     item("integrations", "/integrations", SlidersHorizontal, "system"),
@@ -197,20 +898,13 @@ export const PORTAL_NAVIGATION = {
       "/incoming",
       "/dispatches",
     ]),
-    item("driver_tasks", "/tasks", ClipboardList, "operations", [
-      "/driver",
-    ]),
+    item("driver_tasks", "/tasks", ClipboardList, "operations", ["/driver"]),
     item("driver_gps", "/driver-gps", MapPinned, "operations"),
     item("weighing_records", "/weighing", Gauge, "operations", [
       "/gate",
       "/deductions",
     ]),
-    item(
-      "payment_status",
-      "/settlements",
-      WalletCards,
-      "finance",
-    ),
+    item("payment_status", "/settlements", WalletCards, "finance"),
     item(
       "transaction_reports",
       "/reports",
@@ -238,6 +932,7 @@ function item(
   group: FeatureNavItem["group"],
   routePrefixes?: readonly string[],
   exact = false,
+  children?: readonly FeatureNavChild[],
 ): FeatureNavItem {
   return {
     feature,
@@ -247,7 +942,12 @@ function item(
     group,
     routePrefixes,
     exact,
+    children,
   };
+}
+
+function child(key: string, labelKey: string, href: string): FeatureNavChild {
+  return { key, labelKey, href };
 }
 
 /** Groups containing only features returned for this signed-in user. */

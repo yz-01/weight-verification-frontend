@@ -86,6 +86,7 @@ export interface UserRow {
   role_name: string | null;
   company: string | null;
   company_name: string | null;
+  company_type: CompanyType | null;
   is_platform_staff: boolean;
   language: Locale;
   last_login_at: string | null;
@@ -97,6 +98,16 @@ export interface UserDetail extends UserRow {
   timezone: string;
   last_login_ip: string | null;
   updated_at: string;
+}
+
+export interface UserStats {
+  total: number;
+  by_status: Partial<Record<UserStatus, number>>;
+  by_audience: Partial<Record<Audience, number>>;
+  active: number;
+  suspended: number;
+  invited: number;
+  online: number;
 }
 
 export interface UserPayload {

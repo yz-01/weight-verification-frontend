@@ -1,10 +1,10 @@
 "use client";
 
-import { ShieldCheck } from "lucide-react";
+import { ChevronDown, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { UserMenu } from "@/components/layout/user-menu";
@@ -20,8 +20,12 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { isActivePath, visibleNavigation } from "@/lib/navigation";
@@ -46,6 +50,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const groups = useMemo(
     () => visibleNavigation(user?.portal, user?.features),
@@ -79,8 +84,8 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {groups.map((group) => (
-          <SidebarGroup key={group.key}>
+        {groups.map((group, groupIndex) => (
+          <SidebarGroup key={`${group.key}-${groupIndex}`}>
             <SidebarGroupLabel>{t(`nav.group.${group.key}`)}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -92,6 +97,9 @@ export function AppSidebar() {
                   );
                   const Icon = item.icon;
                   const label = t(`nav.${item.labelKey}`);
+                  const isExpanded =
+                    expanded.has(item.feature) ||
+                    Boolean(item.children?.some((child) => isActivePath(child.href, pathname)));
                   return (
                     <SidebarMenuItem key={item.feature}>
                       <SidebarMenuButton
@@ -108,6 +116,42 @@ export function AppSidebar() {
                           <span>{label}</span>
                         </Link>
                       </SidebarMenuButton>
+                      {item.children && item.children.length > 0 && (
+                        <SidebarMenuAction
+                          type="button"
+                          aria-label={t("nav.toggleSubmodules", { module: label })}
+                          aria-expanded={isExpanded}
+                          onClick={() => setExpanded((current) => {
+                            const next = new Set(current);
+                            if (next.has(item.feature)) next.delete(item.feature);
+                            else next.add(item.feature);
+                            return next;
+                          })}
+                        >
+                          <ChevronDown className={isExpanded ? "rotate-180 transition-transform" : "transition-transform"} />
+                        </SidebarMenuAction>
+                      )}
+                      {item.children && isExpanded && (
+                        <SidebarMenuSub>
+                          {item.children.map((child) => {
+                            const childActive = isActivePath(child.href, pathname, true);
+                            return (
+                              <SidebarMenuSubItem key={child.key}>
+                                <SidebarMenuSubButton asChild isActive={childActive}>
+                                  <Link
+                                    href={child.href}
+                                    onClick={closeOnMobile}
+                                    aria-current={childActive ? "page" : undefined}
+                                  >
+                                    <span className="tabular-nums text-[10px] text-muted-foreground">{child.key}</span>
+                                    <span>{t(child.labelKey)}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            );
+                          })}
+                        </SidebarMenuSub>
+                      )}
                     </SidebarMenuItem>
                   );
                 })}
