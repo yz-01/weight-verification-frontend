@@ -16,7 +16,7 @@ export function DashboardToolbar() {
   const showBack = pathname !== "/dashboard";
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur lg:px-6">
+    <header className="relative z-[500] flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-3 shadow-[0_1px_0_rgb(0_0_0/0.02)] backdrop-blur lg:px-6">
       <SidebarTrigger className="size-9" />
       {showBack && (
         <Button
@@ -29,7 +29,7 @@ export function DashboardToolbar() {
           <ArrowLeft />
         </Button>
       )}
-      <div className="ml-auto flex items-center gap-1">
+      <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
         <GlobalModuleSearch />
         <NotificationButton />
       </div>

@@ -64,7 +64,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
+      <SidebarHeader className="border-b border-sidebar-border/80">
         <div className="flex items-center gap-2.5 px-2 py-1.5">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <ShieldCheck className="h-4.5 w-4.5" />
@@ -104,6 +104,7 @@ export function AppSidebar() {
                         asChild
                         isActive={active}
                         tooltip={label}
+                        className="h-10 rounded-lg px-3 font-medium"
                       >
                         <Link
                           href={item.href}
@@ -138,7 +139,7 @@ export function AppSidebar() {
                         </SidebarMenuAction>
                       )}
                       {item.children && isExpanded && (
-                        <SidebarMenuSub>
+                        <SidebarMenuSub className="my-1 gap-0.5">
                           {item.children.map((child) => {
                             const childActive = isActivePath(
                               child.href,
@@ -150,6 +151,7 @@ export function AppSidebar() {
                                 <SidebarMenuSubButton
                                   asChild
                                   isActive={childActive}
+                                  className="h-8 rounded-lg px-3"
                                 >
                                   <Link
                                     href={child.href}
@@ -175,7 +177,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border/80">
         <div className="flex items-center justify-between gap-1 group-data-[collapsible=icon]:flex-col">
           <UserMenu />
           <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">

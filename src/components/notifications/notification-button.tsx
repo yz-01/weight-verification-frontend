@@ -27,7 +27,11 @@ export function NotificationButton() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const enabled = user?.features.includes("notifications") ?? false;
+  const enabled =
+    user?.features.some(
+      (feature) =>
+        feature === "notifications" || feature === "notification_center",
+    ) ?? false;
   const countQuery = useQuery({
     queryKey: ["notifications", "unread-count"],
     queryFn: getUnreadNotificationCount,
@@ -57,7 +61,13 @@ export function NotificationButton() {
     user?.portal === "MSE_ADMIN" ? "/notifications/search" : "/notifications";
 
   useEffect(() => {
-    if (!enabled || !user || count <= 0 || typeof window === "undefined")
+    if (
+      !enabled ||
+      !user ||
+      !countQuery.isSuccess ||
+      !listQuery.isSuccess ||
+      typeof window === "undefined"
+    )
       return;
     const sessionId = getRefreshToken()?.slice(-12) ?? "session";
     const key = `mse-notification-popup:${user.id}:${sessionId}`;
@@ -65,7 +75,7 @@ export function NotificationButton() {
     window.sessionStorage.setItem(key, "shown");
     const timer = window.setTimeout(() => setOpen(true), 0);
     return () => window.clearTimeout(timer);
-  }, [count, enabled, user]);
+  }, [countQuery.isSuccess, enabled, listQuery.isSuccess, user]);
 
   if (!enabled) return null;
 
@@ -73,9 +83,9 @@ export function NotificationButton() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="relative h-9 w-9"
+          className="relative size-9 bg-card shadow-sm hover:border-primary/30 hover:bg-accent"
           title={t("notifications.title")}
           aria-label={t("notifications.unreadCount", { count })}
         >
@@ -89,14 +99,22 @@ export function NotificationButton() {
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-[min(24rem,calc(100vw-2rem))] gap-0 overflow-hidden p-0"
+        sideOffset={10}
+        className="w-[min(25rem,calc(100vw-1.5rem))] gap-0 overflow-hidden border-primary/15 p-0 shadow-xl"
       >
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <div>
-            <p className="text-sm font-semibold">{t("notifications.title")}</p>
-            <p className="text-xs text-muted-foreground">
-              {t("notifications.unreadCount", { count })}
-            </p>
+        <div className="flex items-center justify-between border-b bg-muted/35 px-4 py-3.5">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/12 text-primary">
+              <Bell className="size-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">
+                {t("notifications.title")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t("notifications.unreadCount", { count })}
+              </p>
+            </div>
           </div>
           <Button
             asChild

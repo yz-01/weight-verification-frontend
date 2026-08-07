@@ -60,40 +60,72 @@ export function GlobalModuleSearch() {
   };
 
   return (
-    <Popover open={open} onOpenChange={(next) => { setOpen(next); if (!next) setQuery(""); }}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) setQuery("");
+      }}
+    >
       <PopoverTrigger asChild>
-        <Button variant="outline" className="h-9 w-9 justify-start bg-card px-2.5 text-muted-foreground sm:w-72" aria-label={t("globalSearch.open")}>
+        <Button
+          variant="outline"
+          className="h-9 min-w-0 max-w-full shrink justify-start bg-card px-2.5 text-muted-foreground shadow-sm hover:border-primary/30 hover:bg-accent sm:w-56 sm:flex-none lg:w-72"
+          aria-label={t("globalSearch.open")}
+        >
           <Search className="size-4" />
-          <span className="hidden flex-1 text-left font-normal sm:inline">{t("globalSearch.placeholder")}</span>
+          <span className="hidden flex-1 truncate text-left font-normal sm:inline">
+            {t("globalSearch.placeholder")}
+          </span>
           <kbd className="hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium sm:inline">Ctrl K</kbd>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-[min(92vw,34rem)] gap-0 overflow-hidden p-0">
-        <div className="relative border-b p-3">
-          <Search className="pointer-events-none absolute left-6 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <PopoverContent
+        align="end"
+        sideOffset={10}
+        collisionPadding={12}
+        className="w-[min(94vw,38rem)] gap-0 overflow-hidden border-primary/15 p-0 shadow-xl"
+      >
+        <div className="relative border-b bg-muted/35 p-3.5">
+          <Search className="pointer-events-none absolute left-[1.625rem] top-1/2 size-4 -translate-y-1/2 text-primary" />
           <Input
             autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t("globalSearch.placeholder")}
-            className="h-10 border-0 bg-muted/50 pl-9 shadow-none focus-visible:ring-1"
+            className="h-11 border bg-background pl-9 pr-3 shadow-sm focus-visible:ring-2"
           />
         </div>
-        <div className="max-h-[min(60vh,28rem)] overflow-y-auto p-2">
-          {results.length > 0 ? results.map((entry) => {
-            const Icon = entry.icon;
-            return (
-              <Link key={`${entry.href}-${entry.label}`} href={entry.href} onClick={close} className="group flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                <span className="grid size-8 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><Icon className="size-4" /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{entry.label}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{entry.context}</span>
-                </span>
-                <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-primary" />
-              </Link>
-            );
-          }) : (
-            <p className="px-3 py-10 text-center text-sm text-muted-foreground">{t("globalSearch.noResults")}</p>
+        <div className="max-h-[min(64vh,30rem)] overflow-y-auto overscroll-contain p-2.5">
+          {results.length > 0 ? (
+            results.map((entry) => {
+              const Icon = entry.icon;
+              return (
+                <Link
+                  key={`${entry.href}-${entry.label}`}
+                  href={entry.href}
+                  onClick={close}
+                  className="group flex min-h-14 items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/10">
+                    <Icon className="size-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">
+                      {entry.label}
+                    </span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {entry.context}
+                    </span>
+                  </span>
+                  <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-primary" />
+                </Link>
+              );
+            })
+          ) : (
+            <p className="px-3 py-10 text-center text-sm text-muted-foreground">
+              {t("globalSearch.noResults")}
+            </p>
           )}
         </div>
       </PopoverContent>
