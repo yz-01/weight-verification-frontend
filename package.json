@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "npm run check:messages && eslint",
     "check:messages": "node scripts/check-messages.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@tanstack/react-form": "^1.33.2",
