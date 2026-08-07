@@ -72,14 +72,22 @@ export function BillingWorkspace({ section = "overview" }: { section?: BillingSe
   return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={section === "overview" ? t("title") : t(`section.${section}.title`)} subtitle={section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`)} /><BillingWorkflow section={section} />{section === "overview" && <Summary data={summary.data} loading={summary.isLoading} />}{content}</div>;
 }
 
-const WORKFLOW_STEPS = ["rules", "generate", "issue", "collect", "report"] as const;
+const WORKFLOW_STEPS = [
+  { key: "rules", href: "/billing/commission-rules" },
+  { key: "generate", href: "/billing/automatic-billing" },
+  { key: "issue", href: "/billing/search?state=DRAFT" },
+  { key: "collect", href: "/billing/collections" },
+  { key: "report", href: "/billing/reports" },
+] as const;
 
 function BillingWorkflow({ section }: { section: BillingSection }) {
   const t = useTranslations("billing");
   const activeStep = section === "commission-rules"
     ? "rules"
-    : ["saas-invoices", "commission", "automatic-billing", "search"].includes(section)
+    : ["automatic-billing"].includes(section)
       ? "generate"
+      : ["search", "saas-invoices", "commission"].includes(section)
+        ? "issue"
       : ["collections", "payment-proofs"].includes(section)
         ? "collect"
         : ["statistics", "reports", "activity"].includes(section)
@@ -106,26 +114,29 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
           {t("workflow.notDuplicate")}
         </span>
       </div>
-      <div className="grid divide-y bg-background/60 sm:grid-cols-5 sm:divide-x sm:divide-y-0">
+      <div className="overflow-x-auto bg-background/60">
+        <div className="grid min-w-[760px] divide-x sm:min-w-0 sm:grid-cols-5">
         {WORKFLOW_STEPS.map((step, index) => {
-          const Icon = icons[step];
-          const active = activeStep === step;
+          const Icon = icons[step.key];
+          const active = activeStep === step.key;
           return (
-            <div
-              key={step}
+            <Link
+              key={step.key}
+              href={step.href}
               aria-current={active ? "step" : undefined}
-              className={`flex min-h-14 items-center gap-2.5 px-3 py-2.5 ${active ? "bg-primary/[0.08] text-primary" : ""}`}
+              className={`flex min-h-16 items-center gap-2.5 px-4 py-3 transition-colors hover:bg-primary/[0.06] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary ${active ? "bg-primary/[0.08] text-primary" : ""}`}
             >
               <span className={`grid size-7 shrink-0 place-items-center rounded-md ${active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
                 <Icon className="size-3.5" />
               </span>
               <div className="min-w-0">
                 <p className="text-[11px] text-muted-foreground">{t("workflow.stepLabel", { number: index + 1 })}</p>
-                <p className="truncate text-xs font-semibold">{t(`workflow.step.${step}`)}</p>
+                <p className="text-xs font-semibold leading-5">{t(`workflow.step.${step.key}`)}</p>
               </div>
-            </div>
+            </Link>
           );
         })}
+        </div>
       </div>
       <div className="grid border-t text-xs sm:grid-cols-2 sm:divide-x">
         <p className="px-4 py-2.5 leading-5"><strong>{t("workflow.saas.title")}</strong> {t("workflow.saas.description")}</p>

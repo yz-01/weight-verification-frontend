@@ -472,6 +472,9 @@ function ConfigRow({
       void queryClient.invalidateQueries({
         queryKey: ["platform-config-catalogue"],
       });
+      void queryClient.invalidateQueries({
+        queryKey: ["monitoring", "overview"],
+      });
       if (company) {
         void queryClient.invalidateQueries({
           queryKey: ["company-platform-config-catalogue", company],
@@ -482,10 +485,14 @@ function ConfigRow({
   const reset = useMutation({
     mutationFn: () =>
       resetCompanyPlatformConfig({ company: company!, key: row.key }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["company-platform-config-catalogue", company],
-      }),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["monitoring", "overview"],
+      });
+    },
   });
   const choices = CHOICES[row.key];
   const mode =

@@ -212,14 +212,15 @@ export function CommissionRuleManager() {
         open={editing !== undefined}
         onOpenChange={(open) => !open && setEditing(undefined)}
       >
-        <DialogContent className="flex h-[calc(100dvh-1.5rem)] max-h-[44rem] flex-col overflow-hidden sm:max-w-2xl">
+        <DialogContent className="flex max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden sm:max-w-2xl">
           <DialogHeader className="shrink-0">
             <DialogTitle>
               {t(editing ? "rules.edit" : "rules.create")}
             </DialogTitle>
             <DialogDescription>{t("rules.description")}</DialogDescription>
           </DialogHeader>
-          <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto py-2 pr-2 [scrollbar-gutter:stable] sm:grid-cols-2">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-2 pr-2 [scrollbar-gutter:stable]">
+            <div className="grid gap-4 sm:grid-cols-2">
             <FieldWrapper
               label={t("field.name")}
               required
@@ -370,7 +371,13 @@ export function CommissionRuleManager() {
                 }
               />
             </div>
+            </div>
           </div>
+          {save.isError && (
+            <p className="shrink-0 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              {t("rules.saveError")}
+            </p>
+          )}
           <DialogFooter className="relative z-10 shrink-0">
             <Button variant="outline" onClick={() => setEditing(undefined)}>
               {common("cancel")}

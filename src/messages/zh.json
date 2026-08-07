@@ -4484,6 +4484,7 @@
       "perTonne": "每吨",
       "openEnded": "长期有效",
       "days": "{count} 天",
+      "saveError": "佣金规则保存失败，请检查填写内容后再试。",
       "removeTitle": "移除佣金规则",
       "removeDescription": "确定移除 {name}？已用于账单的规则只能停用。"
     },

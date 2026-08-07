@@ -95,6 +95,7 @@ export interface IntegrationMonitor {
   key: string;
   name: string;
   mode: MonitoringMode;
+  requested_mode?: MonitoringMode;
   status: HealthStatus;
   configured: number;
   enabled: number;
@@ -115,6 +116,7 @@ export interface IntegrationInventoryConnection {
   kind: string;
   name: string;
   mode: MonitoringMode;
+  requested_mode?: MonitoringMode;
   status: string;
   is_enabled: boolean;
   is_live_ready: boolean;
@@ -135,6 +137,7 @@ export interface IntegrationInventoryDevice {
   integration_name: string | null;
   integration_kind: string | null;
   integration_mode: MonitoringMode;
+  requested_mode?: MonitoringMode;
   integration_status: string | null;
   device_type: string;
   device_id: string;

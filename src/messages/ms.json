@@ -4506,6 +4506,7 @@
       "perTonne": "setiap tan",
       "openEnded": "Tiada tarikh akhir",
       "days": "{count} hari",
+      "saveError": "Peraturan komisen tidak dapat disimpan. Semak medan dan cuba lagi.",
       "removeTitle": "Buang peraturan komisen",
       "removeDescription": "Buang {name}? Peraturan yang digunakan dalam invois hanya boleh dinyahaktifkan."
     },

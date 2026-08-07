@@ -966,7 +966,10 @@ function InventoryPanel({
                 </TableCell>
                 <TableCell>-</TableCell>
                 <TableCell>
-                  <TypeBadge label={t(`mode.${row.mode}`)} />
+                  <InventoryMode
+                    requested={row.requested_mode ?? row.mode}
+                    actual={row.mode}
+                  />
                 </TableCell>
                 <TableCell>
                   <HealthBadge
@@ -977,6 +980,9 @@ function InventoryPanel({
                           : row.online_devices > 0
                             ? "ok"
                             : "degraded"
+                        : (row.requested_mode ?? row.mode) === "LIVE" &&
+                            row.mode !== "LIVE"
+                          ? "not_configured"
                         : row.mode === "SIMULATED"
                           ? "configured"
                           : "unhealthy"
@@ -1019,12 +1025,18 @@ function InventoryPanel({
                     .join(" / ") || "-"}
                 </TableCell>
                 <TableCell>
-                  <TypeBadge label={t(`mode.${row.integration_mode}`)} />
+                  <InventoryMode
+                    requested={row.requested_mode ?? row.integration_mode}
+                    actual={row.integration_mode}
+                  />
                 </TableCell>
                 <TableCell>
                   <HealthBadge
                     status={
-                      row.is_online
+                      (row.requested_mode ?? row.integration_mode) === "LIVE" &&
+                      row.integration_mode !== "LIVE"
+                        ? "not_configured"
+                        : row.is_online
                         ? row.reported_status === "ERROR"
                           ? "unhealthy"
                           : row.reported_status === "DEGRADED"
@@ -1117,6 +1129,32 @@ function MetricGrid({ items }: { items: Array<[string, string | number]> }) {
           <p className="mt-3 text-2xl font-semibold tabular-nums">{value}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+function InventoryMode({
+  requested,
+  actual,
+}: {
+  requested: "SIMULATED" | "LIVE";
+  actual: "SIMULATED" | "LIVE";
+}) {
+  const t = useTranslations("monitoring");
+  return (
+    <div className="space-y-1.5 whitespace-nowrap">
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] text-muted-foreground">
+          {t("connectionMode.requested")}
+        </span>
+        <TypeBadge label={t(`mode.${requested}`)} />
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] text-muted-foreground">
+          {t("connectionMode.actual")}
+        </span>
+        <TypeBadge label={t(`mode.${actual}`)} />
+      </div>
     </div>
   );
 }

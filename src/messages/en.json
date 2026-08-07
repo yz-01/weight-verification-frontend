@@ -4500,6 +4500,7 @@
       "perTonne": "per tonne",
       "openEnded": "No end date",
       "days": "{count} days",
+      "saveError": "The commission rule could not be saved. Check the fields and try again.",
       "removeTitle": "Remove commission rule",
       "removeDescription": "Remove {name}? A rule already used by an invoice can only be disabled."
     },
