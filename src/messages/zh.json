@@ -1732,7 +1732,24 @@
       "description": "每 15 秒自动更新服务、集成与异常状态。",
       "services": "服务",
       "live": "真实连接",
-      "attention": "待关注"
+      "attention": "待关注",
+      "openDetails": "查看详情",
+      "detail": {
+        "services": {
+          "title": "受监控的服务",
+          "description": "此健康概览包含的全部平台服务与集成服务。"
+        },
+        "live": {
+          "title": "已验证的真实连接",
+          "description": "目前已通过配置的真实连接接收数据的服务。"
+        },
+        "attention": {
+          "title": "需要关注的项目",
+          "description": "状态异常的服务及尚未处理的监控异常。"
+        },
+        "openExceptions": "待处理异常",
+        "empty": "此类别目前没有项目。"
+      }
     },
     "purpose": {
       "title": "这里是查看状态的地方",
@@ -1745,6 +1762,11 @@
     "modeDescription": {
       "SIMULATED": "测试模拟器正在提供数据，不代表现场硬件已连接",
       "LIVE": "显示现场供应商和设备数据，必须先完成真实连接"
+    },
+    "connectionMode": {
+      "requested": "系统设置选择的模式",
+      "actual": "公司集成中验证到的连接",
+      "livePending": "已选择真实模式，但还没有任何已启用的公司连接通过连接测试。请先配置并测试该公司的集成，监控才会把它计为真实连接。"
     },
     "inventory": {
       "title": "各公司连接与设备清单",
@@ -3252,7 +3274,7 @@
     "field": {
       "qrId": "QR ID",
       "subjectType": "类别",
-      "subject": "对象",
+      "subject": "绑定对象",
       "company": "公司",
       "project": "项目",
       "site": "回收场",
@@ -3281,19 +3303,31 @@
       "void": "作废",
       "reissue": "重新生成",
       "downloadQr": "下载二维码",
+      "downloadPng": "下载 PNG",
+      "downloadJpg": "下载 JPG",
       "printQr": "打印二维码",
       "excel": "Excel",
       "pdf": "PDF"
     },
     "issue": {
       "title": "签发二维码",
-      "description": "选择真实公司对象及所属项目或回收场。"
+      "description": "把二维码绑定到真实公司资料，让每次扫码都能正确追踪。",
+      "visitorPlaceholder": "填写访客姓名或通行证编号",
+      "visitorHint": "只有访客类别可以手动填写。",
+      "companyAutoBind": "请先选择上方公司",
+      "companyAutoBindHint": "建筑商或回收商会自动绑定到所选公司，不需要再选一次。",
+      "subjectHint": "请从该公司的现有资料选择，避免二维码指向不存在的人员、车辆或设备。",
+      "noSubjects": "该公司没有符合此类别的资料。请先建立人员、车辆或设备，再回来签发二维码。"
     },
-    "edit": { "title": "编辑二维码资料" },
+    "edit": {
+      "title": "编辑二维码资料",
+      "bindingLocked": "签发后绑定对象会锁定，以保护扫码历史。若绑定错误，请用正确对象重新生成二维码。"
+    },
     "issued": {
       "title": "二维码已签发",
-      "description": "Token 只显示一次供打印，关闭后不能再次读取。",
-      "copied": "Token 已复制"
+      "description": "请立即下载或打印。手机相机扫码后会打开安全的 MSE Trace 扫码页面。",
+      "scanLink": "手机扫码链接",
+      "copied": "扫码链接已复制"
     },
     "metric": {
       "total": "二维码总数",
@@ -3308,6 +3342,28 @@
       "statusUpdated": "二维码状态已更新",
       "reissued": "二维码已重新生成"
     }
+  },
+  "qrScan": {
+    "title": "扫描 MSE Trace 二维码",
+    "subtitle": "确认二维码，并把这次扫码保存到永久审计记录。",
+    "invalidLink": "二维码链接不完整",
+    "invalidLinkDescription": "请扫描新下载的 MSE Trace 二维码图片后再试。",
+    "loginRequired": "确认扫码前请先登录",
+    "loginDescription": "请选择你的账号所属后台，登录成功后会自动返回此扫码页面。",
+    "signedInAs": "当前登录账号",
+    "locationTitle": "扫码位置",
+    "locationDescription": "GPS 为选填，但记录位置会让工地审计资料更完整。",
+    "getLocation": "获取 GPS",
+    "locationReady": "GPS 已获取",
+    "accuracy": "精度约 {metres} 米",
+    "locationUnavailable": "此手机浏览器不支持定位。",
+    "locationError": "无法获取 GPS。请允许定位权限后重试，或不带位置继续扫码。",
+    "mobileLocation": "手机二维码扫码",
+    "confirmScan": "确认扫码",
+    "scanAgain": "再次扫描此二维码",
+    "accepted": "扫码通过",
+    "refused": "扫码被拒绝",
+    "scanError": "无法保存扫码记录，请重试。"
   },
   "adminNotifications": {
     "title": "通知中心",
@@ -3526,6 +3582,12 @@
     "sessionSearchPlaceholder": "搜索称重编号或车牌",
     "statisticsNote": "统计数据来自永久保留的称重记录和异常证据。",
     "refresh15s": "每 15 秒自动刷新",
+    "service": {
+      "builtinTitle": "CWE 已内置在 MSE Trace",
+      "builtinDescription": "不需要再配置第二个 CWE。只需登记地磅、安装对应 Gateway，并确认 Gateway 心跳在线；CWE 就会自动处理已签名的重量数据流。",
+      "scales": "地磅管理",
+      "gateways": "Gateway 状态"
+    },
     "section": {
       "scales": {
         "title": "地磅登记",
@@ -3625,8 +3687,10 @@
     "live": { "activeSessions": "进行中的称重" },
     "metric": {
       "totalScales": "地磅总数",
+      "activeScales": "启用地磅",
       "onlineGateways": "在线 Gateway",
       "offlineGateways": "离线 Gateway",
+      "weighingsToday": "今日称重",
       "totalSessions": "称重总数",
       "validSessions": "有效称重",
       "invalidSessions": "异常称重",

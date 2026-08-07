@@ -12,6 +12,7 @@ import {
   CircleGauge,
   DatabaseZap,
   History,
+  Info,
   RefreshCw,
   ScanLine,
   Search,
@@ -57,6 +58,7 @@ import type {
   SystemEvent,
 } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
+import { getPlatformConfigCatalogue } from "@/services/platform-settings.service";
 import {
   getMonitoringOverview,
   getSystemEvents,
@@ -123,6 +125,14 @@ export function MonitoringWorkspace({
     queryFn: getMonitoringOverview,
     refetchInterval: 15_000,
   });
+  const platformConfig = useQuery({
+    queryKey: ["platform-config-catalogue"],
+    queryFn: getPlatformConfigCatalogue,
+  });
+  const configuredMode = (key: "cctv.mode" | "anpr.mode") => {
+    const value = platformConfig.data?.configs.find((row) => row.key === key)?.value;
+    return value === "LIVE" || value === "SIMULATED" ? value : undefined;
+  };
 
   const title =
     section === "overview" ? t("title") : t(`section.${section}.title`);
@@ -182,6 +192,10 @@ export function MonitoringWorkspace({
             data={overview.data}
             serviceSearch={serviceSearch}
             setServiceSearch={setServiceSearch}
+            requestedModes={{
+              cctv: configuredMode("cctv.mode"),
+              anpr: configuredMode("anpr.mode"),
+            }}
           />
         </div>
       )}
@@ -225,42 +239,104 @@ function MonitoringModuleLink({
 
 function MonitoringSummary({ data }: { data: MonitoringOverview }) {
   const t = useTranslations("monitoring");
-  const unhealthy = data.services.filter(
+  const [detail, setDetail] = useState<"services" | "live" | "attention" | null>(
+    null,
+  );
+  const unhealthyServices = data.services.filter(
     (service) => !["ok", "configured"].includes(service.status),
-  ).length;
-  const live = data.services.filter(
-    (service) => service.mode === "LIVE",
-  ).length;
+  );
+  const liveServices = data.services.filter((service) =>
+    isVerifiedLiveService(service.key, service.mode, data),
+  );
+  const unhealthy = unhealthyServices.length;
   const overall: HealthStatus = unhealthy > 0 ? "degraded" : "ok";
+  const detailServices =
+    detail === "live"
+      ? liveServices
+      : detail === "attention"
+        ? unhealthyServices
+        : data.services;
   return (
-    <div className="flex flex-col gap-4 rounded-lg border bg-card px-4 py-4 shadow-sm md:flex-row md:items-center">
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        <span
-          className={`grid size-11 shrink-0 place-items-center rounded-md ${overall === "ok" ? "bg-success/10 text-success" : "bg-warning/15 text-warning"}`}
-        >
-          <ServerCog className="size-5" />
-        </span>
-        <div>
-          <p className="text-sm font-semibold">{t("summary.title")}</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {t("summary.description")}
-          </p>
+    <>
+      <div className="flex flex-col gap-4 rounded-lg border bg-card px-4 py-4 shadow-sm md:flex-row md:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <span
+            className={`grid size-11 shrink-0 place-items-center rounded-md ${overall === "ok" ? "bg-success/10 text-success" : "bg-warning/15 text-warning"}`}
+          >
+            <ServerCog className="size-5" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold">{t("summary.title")}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {t("summary.description")}
+            </p>
+          </div>
         </div>
+        <div className="grid grid-cols-3 divide-x overflow-hidden rounded-md border bg-muted/15">
+          <SummaryValue
+            label={t("summary.services")}
+            value={data.services.length}
+            onClick={() => setDetail("services")}
+          />
+          <SummaryValue
+            label={t("summary.live")}
+            value={liveServices.length}
+            onClick={() => setDetail("live")}
+          />
+          <SummaryValue
+            label={t("summary.attention")}
+            value={unhealthy + data.exceptions.open}
+            tone={unhealthy + data.exceptions.open > 0 ? "warning" : undefined}
+            onClick={() => setDetail("attention")}
+          />
+        </div>
+        <HealthBadge status={overall} />
       </div>
-      <div className="grid grid-cols-3 divide-x rounded-md border bg-muted/15">
-        <SummaryValue
-          label={t("summary.services")}
-          value={data.services.length}
-        />
-        <SummaryValue label={t("summary.live")} value={live} />
-        <SummaryValue
-          label={t("summary.attention")}
-          value={unhealthy + data.exceptions.open}
-          tone={unhealthy + data.exceptions.open > 0 ? "warning" : undefined}
-        />
-      </div>
-      <HealthBadge status={overall} />
-    </div>
+      <Dialog open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>{t(`summary.detail.${detail ?? "services"}.title`)}</DialogTitle>
+            <DialogDescription>
+              {t(`summary.detail.${detail ?? "services"}.description`)}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[55dvh] divide-y overflow-y-auto rounded-lg border">
+            {detailServices.map((service) => (
+              <div
+                key={service.key}
+                className="flex flex-wrap items-center gap-2 px-4 py-3"
+              >
+                <span className="min-w-0 flex-1 font-medium">{service.name}</span>
+                <TypeBadge label={t(`mode.${service.mode}`)} />
+                <HealthBadge status={service.status} />
+              </div>
+            ))}
+            {detail === "attention" && data.exceptions.open > 0 && (
+              <div className="flex items-center gap-3 px-4 py-3">
+                <AlertTriangle className="size-4 shrink-0 text-warning" />
+                <span className="min-w-0 flex-1 text-sm font-medium">
+                  {t("summary.detail.openExceptions")}
+                </span>
+                <span className="font-semibold tabular-nums">
+                  {data.exceptions.open}
+                </span>
+                <Button size="icon-sm" variant="ghost" asChild>
+                  <Link href="/monitoring/exceptions" title={t("summary.openDetails")}>
+                    <ArrowRight />
+                  </Link>
+                </Button>
+              </div>
+            )}
+            {detailServices.length === 0 &&
+              !(detail === "attention" && data.exceptions.open > 0) && (
+                <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  {t("summary.detail.empty")}
+                </p>
+              )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -268,20 +344,30 @@ function SummaryValue({
   label,
   value,
   tone,
+  onClick,
 }: {
   label: string;
   value: number;
   tone?: "warning";
+  onClick: () => void;
 }) {
   return (
-    <div className="min-w-20 px-3 py-2 text-center">
+    <button
+      type="button"
+      className="group min-w-20 px-3 py-2 text-center transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+      title={label}
+      onClick={onClick}
+    >
       <p className="text-[11px] text-muted-foreground">{label}</p>
-      <p
-        className={`mt-0.5 text-lg font-semibold tabular-nums ${tone ? "text-warning" : ""}`}
-      >
-        {value}
-      </p>
-    </div>
+      <span className="mt-0.5 inline-flex items-center gap-1">
+        <span
+          className={`text-lg font-semibold tabular-nums ${tone ? "text-warning" : ""}`}
+        >
+          {value}
+        </span>
+        <Info className="size-3 text-muted-foreground opacity-70 transition-opacity group-hover:opacity-100" />
+      </span>
+    </button>
   );
 }
 
@@ -290,11 +376,16 @@ function SectionContent({
   data,
   serviceSearch,
   setServiceSearch,
+  requestedModes,
 }: {
   section: Exclude<MonitoringSection, "overview">;
   data: MonitoringOverview;
   serviceSearch: string;
   setServiceSearch: (value: string) => void;
+  requestedModes: {
+    cctv?: "SIMULATED" | "LIVE";
+    anpr?: "SIMULATED" | "LIVE";
+  };
 }) {
   const t = useTranslations("monitoring");
   const format = useFormatter();
@@ -381,6 +472,7 @@ function SectionContent({
         settingsHref="/system-settings/cctv"
         inventory={data.integration_inventory}
         kindFilter={["CCTV"]}
+        requestedMode={requestedModes.cctv}
       />
     );
   if (section === "anpr")
@@ -391,6 +483,7 @@ function SectionContent({
         settingsHref="/system-settings/anpr"
         inventory={data.integration_inventory}
         kindFilter={["ANPR"]}
+        requestedMode={requestedModes.anpr}
       />
     );
 
@@ -545,14 +638,21 @@ function IntegrationSection({
   settingsHref,
   inventory,
   kindFilter,
+  requestedMode,
 }: {
   monitor: IntegrationMonitor;
   icon: typeof Camera;
   settingsHref: string;
   inventory: MonitoringOverview["integration_inventory"];
   kindFilter: string[];
+  requestedMode?: "SIMULATED" | "LIVE";
 }) {
   const t = useTranslations("monitoring");
+  const verifiedLive = inventory.connections.some(
+    (connection) =>
+      kindFilter.includes(connection.kind) && connection.is_live_ready,
+  );
+  const livePending = requestedMode === "LIVE" && !verifiedLive;
   return (
     <div className="space-y-5">
       <ServiceConfigurationLinks settingsHref={settingsHref} />
@@ -570,6 +670,34 @@ function IntegrationSection({
           <ModeLine mode={monitor.mode} status={monitor.status} />
         </div>
       </div>
+      <div className="grid overflow-hidden rounded-lg border bg-card shadow-sm sm:grid-cols-2 sm:divide-x">
+        <div className="px-4 py-3">
+          <p className="text-xs text-muted-foreground">
+            {t("connectionMode.requested")}
+          </p>
+          <div className="mt-2">
+            {requestedMode ? (
+              <TypeBadge label={t(`mode.${requestedMode}`)} />
+            ) : (
+              <HealthBadge status="not_configured" />
+            )}
+          </div>
+        </div>
+        <div className="border-t px-4 py-3 sm:border-t-0">
+          <p className="text-xs text-muted-foreground">
+            {t("connectionMode.actual")}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {monitor.configured > 0 && <TypeBadge label={t(`mode.${monitor.mode}`)} />}
+            <HealthBadge status={monitor.status} />
+          </div>
+        </div>
+        {livePending && (
+          <p className="border-t bg-warning/5 px-4 py-3 text-xs leading-5 text-warning sm:col-span-2">
+            {t("connectionMode.livePending")}
+          </p>
+        )}
+      </div>
       <MetricGrid
         items={[
           ["configured", monitor.configured],
@@ -584,6 +712,34 @@ function IntegrationSection({
       <InventoryPanel inventory={inventory} kindFilter={kindFilter} />
     </div>
   );
+}
+
+function isVerifiedLiveService(
+  key: string,
+  mode: "SIMULATED" | "LIVE",
+  data: MonitoringOverview,
+) {
+  if (mode !== "LIVE") return false;
+  if (key === "cwe") return data.cwe.online_gateways > 0;
+  if (key === "cctv") {
+    return data.integration_inventory.connections.some(
+      (connection) => connection.kind === "CCTV" && connection.is_live_ready,
+    );
+  }
+  if (key === "anpr") {
+    return data.integration_inventory.connections.some(
+      (connection) => connection.kind === "ANPR" && connection.is_live_ready,
+    );
+  }
+  if (key === "data_sync") {
+    return data.integration_inventory.connections.some(
+      (connection) =>
+        ["ERP", "ACCOUNTING", "MYINVOIS", "GOVERNMENT_API"].includes(
+          connection.kind,
+        ) && connection.is_live_ready,
+    );
+  }
+  return true;
 }
 
 function InventoryPanel({

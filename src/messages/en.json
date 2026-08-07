@@ -1732,7 +1732,24 @@
       "description": "Service, integration and exception status refreshes every 15 seconds.",
       "services": "Services",
       "live": "Live connections",
-      "attention": "Attention"
+      "attention": "Attention",
+      "openDetails": "Open details",
+      "detail": {
+        "services": {
+          "title": "Monitored services",
+          "description": "Every platform and integration service included in this health summary."
+        },
+        "live": {
+          "title": "Verified live connections",
+          "description": "Services currently receiving data through a configured live connection."
+        },
+        "attention": {
+          "title": "Items requiring attention",
+          "description": "Unhealthy services and unresolved monitoring exceptions."
+        },
+        "openExceptions": "Open exceptions",
+        "empty": "No items in this category."
+      }
     },
     "purpose": {
       "title": "This page is for checking status",
@@ -1745,6 +1762,11 @@
     "modeDescription": {
       "SIMULATED": "A test simulator is supplying data; site hardware is not necessarily connected",
       "LIVE": "Showing site provider and device data after a live connection is completed"
+    },
+    "connectionMode": {
+      "requested": "Mode selected in System Settings",
+      "actual": "Verified connection in company integrations",
+      "livePending": "Live mode was selected, but no enabled company connection has passed its connection test yet. Configure and test the company's integration before it is counted as live."
     },
     "inventory": {
       "title": "Company connections and device inventory",
@@ -3258,7 +3280,7 @@
     "field": {
       "qrId": "QR ID",
       "subjectType": "Category",
-      "subject": "Subject",
+      "subject": "Bound record",
       "company": "Company",
       "project": "Project",
       "site": "Recycling site",
@@ -3287,19 +3309,31 @@
       "void": "Void",
       "reissue": "Reissue",
       "downloadQr": "Download QR",
+      "downloadPng": "Download PNG",
+      "downloadJpg": "Download JPG",
       "printQr": "Print QR",
       "excel": "Excel",
       "pdf": "PDF"
     },
     "issue": {
       "title": "Issue QR code",
-      "description": "Select the real company subject and its project or recycling site."
+      "description": "Bind the code to a real company record so every scan can be traced correctly.",
+      "visitorPlaceholder": "Enter the visitor's name or pass reference",
+      "visitorHint": "Visitors are the only category that can be entered manually.",
+      "companyAutoBind": "Select a company above",
+      "companyAutoBindHint": "The contractor or recycler is bound automatically to the selected company.",
+      "subjectHint": "Choose an existing record from the selected company. This prevents a QR code from pointing to a non-existent person, vehicle or device.",
+      "noSubjects": "No matching records exist for this company. Create the person, vehicle or device first, then return here."
     },
-    "edit": { "title": "Edit QR data" },
+    "edit": {
+      "title": "Edit QR data",
+      "bindingLocked": "The bound record is locked after issue to protect scan history. If it is wrong, reissue the code with the correct record."
+    },
     "issued": {
       "title": "QR code issued",
-      "description": "The token is shown once for printing. It cannot be read again.",
-      "copied": "Token copied"
+      "description": "Download or print this code now. A phone camera opens the secure MSE Trace scan page.",
+      "scanLink": "Phone scan link",
+      "copied": "Scan link copied"
     },
     "metric": {
       "total": "Total QR codes",
@@ -3317,6 +3351,28 @@
       "statusUpdated": "QR status updated",
       "reissued": "QR code reissued"
     }
+  },
+  "qrScan": {
+    "title": "Scan MSE Trace QR",
+    "subtitle": "Confirm the code and record this scan in the permanent audit history.",
+    "invalidLink": "This QR link is incomplete",
+    "invalidLinkDescription": "Scan a newly downloaded MSE Trace QR image and try again.",
+    "loginRequired": "Sign in before confirming the scan",
+    "loginDescription": "Choose the portal that belongs to your account. You will return to this scan automatically after signing in.",
+    "signedInAs": "Signed in as",
+    "locationTitle": "Scan location",
+    "locationDescription": "Location is optional, but recording it makes the site audit more useful.",
+    "getLocation": "Get GPS",
+    "locationReady": "GPS ready",
+    "accuracy": "Accuracy about {metres} m",
+    "locationUnavailable": "This phone does not provide browser location.",
+    "locationError": "GPS could not be obtained. Allow location access and try again, or continue without it.",
+    "mobileLocation": "Mobile QR scan",
+    "confirmScan": "Confirm scan",
+    "scanAgain": "Scan this code again",
+    "accepted": "Scan accepted",
+    "refused": "Scan refused",
+    "scanError": "The scan could not be recorded. Try again."
   },
   "adminNotifications": {
     "title": "Notification Center",
@@ -3535,6 +3591,12 @@
     "sessionSearchPlaceholder": "Search session number or vehicle plate",
     "statisticsNote": "Statistics are calculated from permanent weighing sessions and anomaly evidence.",
     "refresh15s": "Refreshes every 15 seconds",
+    "service": {
+      "builtinTitle": "CWE is built into MSE Trace",
+      "builtinDescription": "There is no second CWE connection to configure. Register each weighbridge, install its gateway and verify the gateway heartbeat; CWE will then process the signed weight stream automatically.",
+      "scales": "Weighbridges",
+      "gateways": "Gateway status"
+    },
     "section": {
       "scales": {
         "title": "Weighbridge register",
@@ -3634,8 +3696,10 @@
     "live": { "activeSessions": "Active weighing sessions" },
     "metric": {
       "totalScales": "Total weighbridges",
+      "activeScales": "Active weighbridges",
       "onlineGateways": "Online gateways",
       "offlineGateways": "Offline gateways",
+      "weighingsToday": "Weighings today",
       "totalSessions": "Total weighings",
       "validSessions": "Valid weighings",
       "invalidSessions": "Invalid weighings",

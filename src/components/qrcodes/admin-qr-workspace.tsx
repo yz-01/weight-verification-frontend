@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useRef, useState } from "react";
 
 import { AuditLogs } from "@/components/audit/audit-logs";
@@ -329,6 +329,10 @@ function IssueDialog({ open, companies, onClose, onIssued }: { open: boolean; co
   });
   const issue = useMutation({ mutationFn: () => issueQRCode(form), onSuccess: onIssued });
   const isVisitor = form.subject_type === "VISITOR";
+  const isCompanySubject = ["CONTRACTOR", "RECYCLER"].includes(form.subject_type);
+  const availableCompanies = isCompanySubject
+    ? companies.filter((company) => company.type === form.subject_type)
+    : companies;
   const chooseSubject = (subjectId: string) => {
     const selected = options.data?.subjects.find((row) => row.id === subjectId);
     setForm((current) => ({ ...current, subject_id: subjectId, subject_label: selected?.label ?? "" }));
@@ -336,7 +340,7 @@ function IssueDialog({ open, companies, onClose, onIssued }: { open: boolean; co
   const ready = isVisitor
     ? Boolean(form.subject_label.trim())
     : Boolean(form.company && form.subject_id && form.subject_label.trim());
-  return <Dialog open={open} onOpenChange={(next) => !next && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{t("issue.title")}</DialogTitle><DialogDescription>{t("issue.description")}</DialogDescription></DialogHeader><div className="grid gap-4 py-2 sm:grid-cols-2"><FieldWrapper label={t("field.subjectType")} required><SelectControl className="w-full" ariaLabel={t("field.subjectType")} value={form.subject_type} onChange={(value) => setForm({ subject_type: value as QRSubjectType, subject_label: "", company: form.company })} options={SUBJECT_TYPES.map((value) => ({ value, label: t(`subjectType.${value}`) }))} /></FieldWrapper><FieldWrapper label={t("field.company")} required={!isVisitor}><SelectControl className="w-full" ariaLabel={t("field.company")} value={form.company ?? ""} onChange={(value) => setForm((current) => ({ ...current, company: value || undefined, subject_id: undefined, subject_label: "", project: undefined, site: undefined }))} options={[{ value: "", label: common("selectPlaceholder") }, ...companies.map((row) => ({ value: row.id, label: `${row.code} - ${row.name}` }))]} /></FieldWrapper>{isVisitor ? <FieldWrapper label={t("field.subject")} required className="sm:col-span-2"><Input value={form.subject_label} onChange={(event) => setForm((current) => ({ ...current, subject_label: event.target.value }))} /></FieldWrapper> : <FieldWrapper label={t("field.subject")} required className="sm:col-span-2"><SelectControl className="w-full" ariaLabel={t("field.subject")} value={form.subject_id ?? ""} onChange={chooseSubject} options={[{ value: "", label: options.isLoading ? common("loading") : common("selectPlaceholder") }, ...(options.data?.subjects ?? []).map((row) => ({ value: row.id, label: row.label }))]} /></FieldWrapper>}<FieldWrapper label={t("field.project")}><SelectControl className="w-full" ariaLabel={t("field.project")} value={form.project ?? ""} onChange={(value) => setForm((current) => ({ ...current, project: value || undefined }))} options={[{ value: "", label: common("selectPlaceholder") }, ...(options.data?.projects ?? []).map((row) => ({ value: row.id, label: row.label }))]} /></FieldWrapper><FieldWrapper label={t("field.site")}><SelectControl className="w-full" ariaLabel={t("field.site")} value={form.site ?? ""} onChange={(value) => setForm((current) => ({ ...current, site: value || undefined }))} options={[{ value: "", label: common("selectPlaceholder") }, ...(options.data?.sites ?? []).map((row) => ({ value: row.id, label: row.label }))]} /></FieldWrapper><FieldWrapper label={t("field.expiresOn")}><Input type="date" value={form.expires_on ?? ""} onChange={(event) => setForm((current) => ({ ...current, expires_on: event.target.value || undefined }))} /></FieldWrapper><FieldWrapper label={t("field.notes")} className="sm:col-span-2"><Textarea value={form.notes ?? ""} onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{common("cancel")}</Button><Button disabled={!ready || issue.isPending} onClick={() => issue.mutate()}>{t("action.issue")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open={open} onOpenChange={(next) => !next && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{t("issue.title")}</DialogTitle><DialogDescription>{t("issue.description")}</DialogDescription></DialogHeader><div className="grid gap-4 py-2 sm:grid-cols-2"><FieldWrapper label={t("field.subjectType")} required><SelectControl className="w-full" ariaLabel={t("field.subjectType")} value={form.subject_type} onChange={(value) => setForm({ subject_type: value as QRSubjectType, subject_label: "" })} options={SUBJECT_TYPES.map((value) => ({ value, label: t(`subjectType.${value}`) }))} /></FieldWrapper><FieldWrapper label={t("field.company")} required={!isVisitor}><SelectControl className="w-full" ariaLabel={t("field.company")} value={form.company ?? ""} onChange={(value) => { const selected = companies.find((row) => row.id === value); setForm((current) => ({ ...current, company: value || undefined, subject_id: isCompanySubject ? (value || undefined) : undefined, subject_label: isCompanySubject ? (selected?.name ?? "") : "", project: undefined, site: undefined })); }} options={[{ value: "", label: common("selectPlaceholder") }, ...availableCompanies.map((row) => ({ value: row.id, label: `${row.code} - ${row.name}` }))]} /></FieldWrapper>{isVisitor ? <FieldWrapper label={t("field.subject")} required className="sm:col-span-2"><Input value={form.subject_label} placeholder={t("issue.visitorPlaceholder")} onChange={(event) => setForm((current) => ({ ...current, subject_label: event.target.value }))} /><p className="text-xs leading-5 text-muted-foreground">{t("issue.visitorHint")}</p></FieldWrapper> : isCompanySubject ? <FieldWrapper label={t("field.subject")} required className="sm:col-span-2"><div className="rounded-md border bg-muted/30 px-3 py-2 text-sm font-medium">{form.subject_label || t("issue.companyAutoBind")}</div><p className="text-xs leading-5 text-muted-foreground">{t("issue.companyAutoBindHint")}</p></FieldWrapper> : <FieldWrapper label={t("field.subject")} required className="sm:col-span-2"><SelectControl className="w-full" ariaLabel={t("field.subject")} value={form.subject_id ?? ""} onChange={chooseSubject} options={[{ value: "", label: options.isLoading ? common("loading") : common("selectPlaceholder") }, ...(options.data?.subjects ?? []).map((row) => ({ value: row.id, label: row.label }))]} /><p className="text-xs leading-5 text-muted-foreground">{form.company && !options.isLoading && (options.data?.subjects.length ?? 0) === 0 ? t("issue.noSubjects") : t("issue.subjectHint")}</p></FieldWrapper>}<FieldWrapper label={t("field.project")}><SelectControl className="w-full" ariaLabel={t("field.project")} value={form.project ?? ""} onChange={(value) => setForm((current) => ({ ...current, project: value || undefined }))} options={[{ value: "", label: common("selectPlaceholder") }, ...(options.data?.projects ?? []).map((row) => ({ value: row.id, label: row.label }))]} /></FieldWrapper><FieldWrapper label={t("field.site")}><SelectControl className="w-full" ariaLabel={t("field.site")} value={form.site ?? ""} onChange={(value) => setForm((current) => ({ ...current, site: value || undefined }))} options={[{ value: "", label: common("selectPlaceholder") }, ...(options.data?.sites ?? []).map((row) => ({ value: row.id, label: row.label }))]} /></FieldWrapper><FieldWrapper label={t("field.expiresOn")}><Input type="date" value={form.expires_on ?? ""} onChange={(event) => setForm((current) => ({ ...current, expires_on: event.target.value || undefined }))} /></FieldWrapper><FieldWrapper label={t("field.notes")} className="sm:col-span-2"><Textarea value={form.notes ?? ""} onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{common("cancel")}</Button><Button disabled={!ready || issue.isPending} onClick={() => issue.mutate()}>{t("action.issue")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function CodeDialog({ code, onClose }: { code: QRCode | null; onClose: () => void }) {
@@ -348,12 +352,11 @@ function CodeDialog({ code, onClose }: { code: QRCode | null; onClose: () => voi
 function EditDialog({ code, onClose, onSaved }: { code: QRCode | null; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("adminQr");
   const common = useTranslations("common");
-  const [label, setLabel] = useState("");
   const [expiry, setExpiry] = useState("");
   const [notes, setNotes] = useState("");
-  const save = useMutation({ mutationFn: () => updateQRCode(code!.id, { subject_label: label || code!.subject_label, expires_on: expiry || undefined, notes }), onSuccess: () => { onSaved(); onClose(); } });
-  const initialise = () => { if (code) { setLabel(code.subject_label); setExpiry(code.expires_on ?? ""); setNotes(code.notes); } };
-  return <Dialog open={code !== null} onOpenChange={(open) => { if (open) initialise(); else onClose(); }}><DialogContent><DialogHeader><DialogTitle>{t("edit.title")}</DialogTitle><DialogDescription>{code?.serial}</DialogDescription></DialogHeader><FieldWrapper label={t("field.subject")} required><Input value={label || code?.subject_label || ""} onChange={(event) => setLabel(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.expiresOn")}><Input type="date" value={expiry || code?.expires_on || ""} onChange={(event) => setExpiry(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.notes")}><Textarea value={notes || code?.notes || ""} onChange={(event) => setNotes(event.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{common("cancel")}</Button><Button disabled={!code || save.isPending} onClick={() => save.mutate()}>{common("save")}</Button></DialogFooter></DialogContent></Dialog>;
+  const save = useMutation({ mutationFn: () => updateQRCode(code!.id, { expires_on: expiry || null, notes }), onSuccess: () => { onSaved(); onClose(); } });
+  const initialise = () => { if (code) { setExpiry(code.expires_on ?? ""); setNotes(code.notes); } };
+  return <Dialog open={code !== null} onOpenChange={(open) => { if (open) initialise(); else onClose(); }}><DialogContent><DialogHeader><DialogTitle>{t("edit.title")}</DialogTitle><DialogDescription>{code?.serial}</DialogDescription></DialogHeader><FieldWrapper label={t("field.subject")} required><div className="rounded-md border bg-muted/30 px-3 py-2 text-sm font-medium">{code?.subject_label || "-"}</div><p className="text-xs leading-5 text-muted-foreground">{t("edit.bindingLocked")}</p></FieldWrapper><FieldWrapper label={t("field.expiresOn")}><Input type="date" value={expiry} onChange={(event) => setExpiry(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.notes")}><Textarea value={notes} onChange={(event) => setNotes(event.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{common("cancel")}</Button><Button disabled={!code || save.isPending} onClick={() => save.mutate()}>{common("save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function LifecycleDialog({ selection, note, setNote, pending, onClose, onSave }: { selection: { code: QRCode; status?: "ACTIVE" | "DISABLED" | "VOIDED"; reissue?: boolean } | null; note: string; setNote: (value: string) => void; pending: boolean; onClose: () => void; onSave: () => void }) {
@@ -367,37 +370,34 @@ function IssuedTokenDialog({ code, onClose }: { code: QRCodeIssue | null; onClos
   const t = useTranslations("adminQr");
   const common = useTranslations("common");
   const [copied, setCopied] = useState(false);
-  const qrRef = useRef<SVGSVGElement>(null);
-  const qrMarkup = () => {
-    if (!qrRef.current) return null;
-    return new XMLSerializer().serializeToString(qrRef.current);
-  };
-  const downloadQr = () => {
+  const qrRef = useRef<HTMLCanvasElement>(null);
+  const scanUrl = code && typeof window !== "undefined"
+    ? `${window.location.origin}/scan/qr#token=${encodeURIComponent(code.token)}`
+    : "";
+  const downloadQr = (format: "png" | "jpg") => {
     if (!code) return;
-    const markup = qrMarkup();
-    if (!markup) return;
-    const url = URL.createObjectURL(
-      new Blob([markup], { type: "image/svg+xml;charset=utf-8" }),
-    );
+    const canvas = qrRef.current;
+    if (!canvas) return;
+    const mime = format === "jpg" ? "image/jpeg" : "image/png";
     const link = document.createElement("a");
-    link.href = url;
-    link.download = `${code.serial}.svg`;
+    link.href = canvas.toDataURL(mime, 0.96);
+    link.download = `${code.serial}.${format}`;
     link.click();
-    URL.revokeObjectURL(url);
   };
   const printQr = () => {
     if (!code) return;
-    const markup = qrMarkup();
-    if (!markup) return;
+    const canvas = qrRef.current;
+    if (!canvas) return;
+    const image = canvas.toDataURL("image/png");
     const printWindow = window.open("", "_blank", "width=520,height=680");
     if (!printWindow) return;
     printWindow.opener = null;
     printWindow.document.write(
-      `<!doctype html><html><head><title>${code.serial}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:32px}svg{width:320px;height:320px}.serial{font-size:20px;font-weight:700;margin-top:20px}</style></head><body>${markup}<div class="serial">${code.serial}</div><script>window.onload=()=>{window.print();window.close()}</script></body></html>`,
+      `<!doctype html><html><head><title>${code.serial}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:32px}img{width:320px;height:320px}.serial{font-size:20px;font-weight:700;margin-top:20px}</style></head><body><img src="${image}" alt="${code.serial}"><div class="serial">${code.serial}</div><script>window.onload=()=>{window.print();window.close()}</script></body></html>`,
     );
     printWindow.document.close();
   };
-  return <Dialog open={code !== null} onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("issued.title")}</DialogTitle><DialogDescription>{t("issued.description")}</DialogDescription></DialogHeader>{code && <div className="space-y-4"><div className="mx-auto grid w-fit place-items-center rounded-lg border bg-white p-4 shadow-sm"><QRCodeSVG ref={qrRef} value={code.token} size={220} level="H" marginSize={1} title={code.serial} /></div><p className="text-center text-sm font-semibold tabular-nums">{code.serial}</p><div className="flex justify-center gap-2"><Button variant="outline" onClick={downloadQr}><Download />{t("action.downloadQr")}</Button><Button variant="outline" onClick={printQr}><Printer />{t("action.printQr")}</Button></div><div className="flex items-center gap-2 rounded-md border bg-muted/40 p-3"><code className="min-w-0 flex-1 break-all text-xs">{code.token}</code><Button size="icon-sm" variant="outline" title={common("copy")} onClick={() => { void navigator.clipboard.writeText(code.token); setCopied(true); }}><Copy /></Button></div>{copied && <p className="text-center text-xs text-success">{t("issued.copied")}</p>}</div>}<DialogFooter><Button onClick={onClose}>{common("close")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open={code !== null} onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("issued.title")}</DialogTitle><DialogDescription>{t("issued.description")}</DialogDescription></DialogHeader>{code && <div className="space-y-4"><div className="mx-auto grid w-fit place-items-center rounded-lg border bg-white p-4 shadow-sm"><QRCodeCanvas ref={qrRef} value={scanUrl} size={220} level="H" marginSize={1} bgColor="#ffffff" fgColor="#111827" title={code.serial} /></div><p className="text-center text-sm font-semibold tabular-nums">{code.serial}</p><div className="flex flex-wrap justify-center gap-2"><Button variant="outline" onClick={() => downloadQr("png")}><Download />{t("action.downloadPng")}</Button><Button variant="outline" onClick={() => downloadQr("jpg")}><Download />{t("action.downloadJpg")}</Button><Button variant="outline" onClick={printQr}><Printer />{t("action.printQr")}</Button></div><div className="space-y-2 rounded-md border bg-muted/40 p-3"><p className="text-xs font-medium">{t("issued.scanLink")}</p><div className="flex items-center gap-2"><code className="min-w-0 flex-1 break-all text-xs">{scanUrl}</code><Button size="icon-sm" variant="outline" title={common("copy")} onClick={() => { void navigator.clipboard.writeText(scanUrl); setCopied(true); }}><Copy /></Button></div></div>{copied && <p className="text-center text-xs text-success">{t("issued.copied")}</p>}</div>}<DialogFooter><Button onClick={onClose}>{common("close")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function ScanLedger({ anomaliesOnly }: { anomaliesOnly: boolean }) {

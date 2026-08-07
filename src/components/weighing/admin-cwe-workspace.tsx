@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Eye,
-  Gauge,
   Pencil,
   Plus,
   RadioTower,
@@ -183,11 +182,41 @@ function CWEStatistics() {
 
 function CWEServiceStatus() {
   const t = useTranslations("adminCwe");
-  const df = useDateFormat();
   const overview = useCWEOverview();
   const data = overview.data;
-  const cweService = data?.services.find((service) => service.key === "cwe");
-  return <div className="space-y-5"><CWEHeadline data={data} /><MetricGrid items={[["uptime", data ? `${Math.floor(data.runtime.uptime_seconds / 60)} min` : "-"], ["averageLatency", data ? `${data.runtime.average_response_ms} ms` : "-"], ["apiSuccessRate", data ? `${data.runtime.api_success_rate}%` : "-"], ["syncSuccessRate", data ? `${data.runtime.sync_success_rate}%` : "-"], ["failures24h", cweService?.failures_24h ?? 0]]} /><div className="border-y py-4"><div className="flex flex-wrap items-center gap-3"><Gauge className="h-5 w-5 text-muted-foreground" /><span className="font-medium">Cloud Weighing Engine</span>{cweService && <><TypeBadge label={t(`mode.${cweService.mode}`)} /><HealthBadge status={cweService.status} /></>}<span className="ml-auto text-sm text-muted-foreground">{cweService?.last_checked_at ? df.dateTime(cweService.last_checked_at) : "-"}</span></div></div></div>;
+  const cwe = data?.cwe;
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4 rounded-lg border bg-card px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="max-w-3xl">
+          <p className="text-sm font-semibold">{t("service.builtinTitle")}</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            {t("service.builtinDescription")}
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/weighing/admin/scales">{t("service.scales")}</Link>
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/weighing/admin/connections">
+              {t("service.gateways")}
+            </Link>
+          </Button>
+        </div>
+      </div>
+      <MetricGrid
+        items={[
+          ["totalScales", cwe?.total_scales ?? 0],
+          ["activeScales", cwe?.active_scales ?? 0],
+          ["onlineGateways", cwe?.online_gateways ?? 0],
+          ["offlineGateways", cwe?.offline_gateways ?? 0],
+          ["weighingsToday", cwe?.weighings_today ?? 0],
+          ["anomaliesToday", cwe?.anomalies_today ?? 0],
+        ]}
+      />
+    </div>
+  );
 }
 
 function CWEHeadline({ data }: { data?: MonitoringOverview }) {

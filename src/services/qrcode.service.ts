@@ -6,7 +6,9 @@ import type {
   QRCode,
   QRCodeIssue,
   QRCodeSummary,
+  QRScanPayload,
   QRScanRecord,
+  QRScanResult,
   QRSubjectOptions,
   QRSubjectType,
 } from "@/interfaces/qrcode";
@@ -84,6 +86,10 @@ export function getQRSubjectOptions(
     subject_type: subjectType,
     company,
   });
+}
+
+export function scanQRCode(payload: QRScanPayload): Promise<QRScanResult> {
+  return api.post<QRScanResult>("/api/qr-codes/scan/", payload);
 }
 
 export function exportQRRegister(

@@ -24,6 +24,7 @@ const PUBLIC_PREFIXES = [
   "/mse-icon",
   "/offline",
   "/external",
+  "/scan",
 ];
 
 export function proxy(request: NextRequest) {

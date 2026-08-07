@@ -1732,7 +1732,24 @@
       "description": "Status perkhidmatan, integrasi dan pengecualian dikemas kini setiap 15 saat.",
       "services": "Perkhidmatan",
       "live": "Sambungan sebenar",
-      "attention": "Perlu perhatian"
+      "attention": "Perlu perhatian",
+      "openDetails": "Buka butiran",
+      "detail": {
+        "services": {
+          "title": "Perkhidmatan dipantau",
+          "description": "Semua perkhidmatan platform dan integrasi dalam ringkasan kesihatan ini."
+        },
+        "live": {
+          "title": "Sambungan sebenar disahkan",
+          "description": "Perkhidmatan yang sedang menerima data melalui sambungan sebenar yang dikonfigurasi."
+        },
+        "attention": {
+          "title": "Item yang memerlukan perhatian",
+          "description": "Perkhidmatan bermasalah dan pengecualian pemantauan yang belum diselesaikan."
+        },
+        "openExceptions": "Pengecualian terbuka",
+        "empty": "Tiada item dalam kategori ini."
+      }
     },
     "purpose": {
       "title": "Halaman ini adalah untuk menyemak status",
@@ -1745,6 +1762,11 @@
     "modeDescription": {
       "SIMULATED": "Simulator ujian membekalkan data; perkakasan tapak tidak semestinya bersambung",
       "LIVE": "Memaparkan data pembekal dan peranti tapak selepas sambungan sebenar disiapkan"
+    },
+    "connectionMode": {
+      "requested": "Mod dipilih dalam Tetapan Sistem",
+      "actual": "Sambungan disahkan dalam integrasi syarikat",
+      "livePending": "Mod sebenar telah dipilih, tetapi belum ada sambungan syarikat aktif yang lulus ujian sambungan. Konfigurasi dan uji integrasi syarikat sebelum ia dikira sebagai sambungan sebenar."
     },
     "inventory": {
       "title": "Inventori sambungan dan peranti syarikat",
@@ -3252,7 +3274,7 @@
     "field": {
       "qrId": "ID QR",
       "subjectType": "Kategori",
-      "subject": "Subjek",
+      "subject": "Rekod terikat",
       "company": "Syarikat",
       "project": "Projek",
       "site": "Tapak kitar semula",
@@ -3281,19 +3303,31 @@
       "void": "Batalkan",
       "reissue": "Keluarkan semula",
       "downloadQr": "Muat turun QR",
+      "downloadPng": "Muat turun PNG",
+      "downloadJpg": "Muat turun JPG",
       "printQr": "Cetak QR",
       "excel": "Excel",
       "pdf": "PDF"
     },
     "issue": {
       "title": "Keluarkan kod QR",
-      "description": "Pilih subjek syarikat sebenar dan projek atau tapak kitar semulanya."
+      "description": "Ikat kod kepada rekod syarikat sebenar supaya setiap imbasan dapat dijejaki dengan betul.",
+      "visitorPlaceholder": "Masukkan nama pelawat atau rujukan pas",
+      "visitorHint": "Pelawat ialah satu-satunya kategori yang boleh dimasukkan secara manual.",
+      "companyAutoBind": "Pilih syarikat di atas",
+      "companyAutoBindHint": "Kontraktor atau pengitar semula diikat secara automatik kepada syarikat yang dipilih.",
+      "subjectHint": "Pilih rekod sedia ada daripada syarikat ini untuk mengelakkan kod menunjuk kepada orang, kenderaan atau peranti yang tidak wujud.",
+      "noSubjects": "Tiada rekod sepadan untuk syarikat ini. Cipta orang, kenderaan atau peranti dahulu, kemudian kembali ke sini."
     },
-    "edit": { "title": "Sunting data QR" },
+    "edit": {
+      "title": "Sunting data QR",
+      "bindingLocked": "Rekod terikat dikunci selepas dikeluarkan untuk melindungi sejarah imbasan. Jika salah, keluarkan semula kod dengan rekod yang betul."
+    },
     "issued": {
       "title": "Kod QR dikeluarkan",
-      "description": "Token ditunjukkan sekali untuk cetakan dan tidak boleh dibaca lagi.",
-      "copied": "Token disalin"
+      "description": "Muat turun atau cetak kod ini sekarang. Kamera telefon akan membuka halaman imbasan MSE Trace yang selamat.",
+      "scanLink": "Pautan imbasan telefon",
+      "copied": "Pautan imbasan disalin"
     },
     "metric": {
       "total": "Jumlah kod QR",
@@ -3311,6 +3345,28 @@
       "statusUpdated": "Status QR dikemas kini",
       "reissued": "Kod QR dikeluarkan semula"
     }
+  },
+  "qrScan": {
+    "title": "Imbas QR MSE Trace",
+    "subtitle": "Sahkan kod dan simpan imbasan ini dalam sejarah audit kekal.",
+    "invalidLink": "Pautan QR ini tidak lengkap",
+    "invalidLinkDescription": "Imbas imej QR MSE Trace yang baru dimuat turun dan cuba lagi.",
+    "loginRequired": "Log masuk sebelum mengesahkan imbasan",
+    "loginDescription": "Pilih portal akaun anda. Anda akan kembali ke halaman imbasan ini secara automatik selepas log masuk.",
+    "signedInAs": "Log masuk sebagai",
+    "locationTitle": "Lokasi imbasan",
+    "locationDescription": "Lokasi adalah pilihan, tetapi ia menjadikan audit tapak lebih berguna.",
+    "getLocation": "Dapatkan GPS",
+    "locationReady": "GPS tersedia",
+    "accuracy": "Ketepatan kira-kira {metres} m",
+    "locationUnavailable": "Telefon ini tidak menyediakan lokasi pelayar.",
+    "locationError": "GPS tidak dapat diperoleh. Benarkan akses lokasi dan cuba lagi, atau teruskan tanpanya.",
+    "mobileLocation": "Imbasan QR telefon",
+    "confirmScan": "Sahkan imbasan",
+    "scanAgain": "Imbas kod ini sekali lagi",
+    "accepted": "Imbasan diterima",
+    "refused": "Imbasan ditolak",
+    "scanError": "Imbasan tidak dapat direkodkan. Cuba lagi."
   },
   "adminNotifications": {
     "title": "Pusat Notifikasi",
@@ -3533,6 +3589,12 @@
     "sessionSearchPlaceholder": "Cari nombor sesi atau plat kenderaan",
     "statisticsNote": "Statistik dikira daripada sesi timbangan dan bukti anomali kekal.",
     "refresh15s": "Dimuat semula setiap 15 saat",
+    "service": {
+      "builtinTitle": "CWE terbina dalam MSE Trace",
+      "builtinDescription": "Tiada sambungan CWE kedua yang perlu dikonfigurasi. Daftar setiap jambatan timbang, pasang gateway dan sahkan heartbeat gateway; CWE kemudian memproses aliran berat bertandatangan secara automatik.",
+      "scales": "Jambatan timbang",
+      "gateways": "Status gateway"
+    },
     "section": {
       "scales": {
         "title": "Daftar jambatan timbang",
@@ -3636,8 +3698,10 @@
     "live": { "activeSessions": "Sesi timbangan aktif" },
     "metric": {
       "totalScales": "Jumlah jambatan timbang",
+      "activeScales": "Jambatan timbang aktif",
       "onlineGateways": "Gateway dalam talian",
       "offlineGateways": "Gateway luar talian",
+      "weighingsToday": "Timbangan hari ini",
       "totalSessions": "Jumlah timbangan",
       "validSessions": "Timbangan sah",
       "invalidSessions": "Timbangan tidak sah",
