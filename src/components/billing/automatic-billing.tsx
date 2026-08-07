@@ -47,6 +47,12 @@ export function AutomaticBilling() {
 
   return (
     <div className="min-h-0 flex-1 space-y-5 overflow-y-auto">
+      <div className="rounded-md border border-info/20 bg-info/5 px-4 py-3">
+        <p className="text-sm font-semibold">{t("purposeTitle")}</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          {t("purposeDescription")}
+        </p>
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-md bg-primary/10 text-primary"><ServerCog className="size-4.5" /></span>

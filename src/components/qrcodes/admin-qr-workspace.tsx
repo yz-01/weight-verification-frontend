@@ -166,7 +166,7 @@ export function AdminQRWorkspace({
 function ModuleIndex() {
   const t = useTranslations("adminQr");
   return (
-    <div className="border-y bg-card">
+    <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
       <div className="grid md:grid-cols-2 xl:grid-cols-3">
         {SUBMODULES.map((module) => (
           <Link
@@ -194,7 +194,7 @@ function QRTypeCatalogue() {
   });
 
   return (
-    <div className="border-y bg-card">
+    <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
       <div className="grid sm:grid-cols-2 xl:grid-cols-4">
         {SUBJECT_TYPES.map((type) => (
           <div

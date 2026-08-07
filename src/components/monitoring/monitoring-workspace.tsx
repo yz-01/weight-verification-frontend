@@ -16,6 +16,7 @@ import {
   ScanLine,
   Search,
   ServerCog,
+  Settings2,
   Weight,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -145,6 +146,8 @@ export function MonitoringWorkspace({
           </Button>
         }
       />
+
+      <MonitoringPurpose section={section} />
 
       {section === "overview" ? (
         <div className="space-y-4">
@@ -369,13 +372,26 @@ function SectionContent({
   }
 
   if (section === "cctv")
-    return <IntegrationSection monitor={data.cctv} icon={Camera} />;
+    return (
+      <IntegrationSection
+        monitor={data.cctv}
+        icon={Camera}
+        settingsHref="/system-settings/cctv"
+      />
+    );
   if (section === "anpr")
-    return <IntegrationSection monitor={data.anpr} icon={ScanLine} />;
+    return (
+      <IntegrationSection
+        monitor={data.anpr}
+        icon={ScanLine}
+        settingsHref="/system-settings/anpr"
+      />
+    );
 
   if (section === "api-gateway") {
     return (
       <div className="space-y-5">
+        <ServiceConfigurationLinks settingsHref="/system-settings/api-gateway" />
         <ModeLine
           mode={data.api_gateway.mode}
           status={data.api_gateway.status}
@@ -511,13 +527,16 @@ function SectionContent({
 function IntegrationSection({
   monitor,
   icon: Icon,
+  settingsHref,
 }: {
   monitor: IntegrationMonitor;
   icon: typeof Camera;
+  settingsHref: string;
 }) {
   const t = useTranslations("monitoring");
   return (
     <div className="space-y-5">
+      <ServiceConfigurationLinks settingsHref={settingsHref} />
       <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-4 shadow-sm">
         <span className="grid size-10 place-items-center rounded-md bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />
@@ -543,6 +562,59 @@ function IntegrationSection({
           ["failures24h", monitor.failures_24h],
         ]}
       />
+    </div>
+  );
+}
+
+function MonitoringPurpose({ section }: { section: MonitoringSection }) {
+  const t = useTranslations("monitoring");
+  return (
+    <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/[0.035] px-4 py-4 sm:flex-row sm:items-center">
+      <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+        <CircleGauge className="size-5" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold">{t("purpose.title")}</p>
+        <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+          {t("purpose.description")}
+        </p>
+      </div>
+      {section === "overview" && (
+        <Button size="sm" variant="outline" asChild>
+          <Link href="/system-settings">
+            <Settings2 />
+            {t("purpose.openSettings")}
+          </Link>
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function ServiceConfigurationLinks({ settingsHref }: { settingsHref: string }) {
+  const t = useTranslations("monitoring");
+  return (
+    <div className="flex flex-col gap-3 rounded-md border bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-sm font-medium">{t("purpose.needChange")}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {t("purpose.needChangeDescription")}
+        </p>
+      </div>
+      <div className="flex shrink-0 flex-wrap gap-2">
+        <Button size="sm" variant="outline" asChild>
+          <Link href={settingsHref}>
+            <Settings2 />
+            {t("purpose.openSettings")}
+          </Link>
+        </Button>
+        <Button size="sm" variant="outline" asChild>
+          <Link href="/integrations">
+            <Cable />
+            {t("purpose.openIntegrations")}
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

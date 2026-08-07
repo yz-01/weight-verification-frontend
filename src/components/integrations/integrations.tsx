@@ -1,7 +1,18 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Cable, Check, History, Plus, RefreshCw, TestTube2, Trash2 } from "lucide-react";
+import {
+  Cable,
+  Check,
+  ChevronDown,
+  CircleHelp,
+  History,
+  Plus,
+  RefreshCw,
+  Settings2,
+  TestTube2,
+  Trash2,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -57,6 +68,8 @@ const KINDS: IntegrationKind[] = [
   "RF",
   "WEBHOOK",
 ];
+
+const AUTH_TYPES = ["NONE", "API_KEY", "BEARER", "BASIC", "OAUTH2"];
 
 const DEFAULT_DEVICE: IntegrationDevicePayload = {
   device_type: "EDGE_GATEWAY",
@@ -297,6 +310,35 @@ export function Integrations() {
         }
       />
 
+      <div className="rounded-lg border border-primary/15 bg-primary/[0.035] px-4 py-4">
+        <div className="flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+            <CircleHelp className="size-5" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold">{t("integrations.guide.title")}</p>
+            <p className="mt-1 max-w-4xl text-xs leading-5 text-muted-foreground">
+              {t("integrations.guide.description")}
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 grid border-t sm:grid-cols-3 sm:divide-x">
+          {["register", "test", "enable"].map((step, index) => (
+            <div key={step} className="flex gap-2.5 px-3 py-3 first:pl-0 last:pr-0">
+              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                {index + 1}
+              </span>
+              <div>
+                <p className="text-xs font-semibold">{t(`integrations.guide.${step}.title`)}</p>
+                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                  {t(`integrations.guide.${step}.description`)}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {user?.is_platform_staff && (
         <div className="max-w-md space-y-1.5">
           <Label htmlFor="integration-company">
@@ -322,7 +364,7 @@ export function Integrations() {
       )}
 
       {selectedCompany && can("integration.manage") && (
-        <section className="space-y-4 border-y py-4">
+        <section className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
           <div className="flex items-center gap-2">
             <Plus className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-semibold">
@@ -360,10 +402,17 @@ export function Integrations() {
               />
             </Field>
             <Field label={t("integrations.field.authType")}>
-              <Input
+              <select
+                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                 value={authType}
                 onChange={(event) => setAuthType(event.target.value)}
-              />
+              >
+                {AUTH_TYPES.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`integrations.authType.${value}`)}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label={t("integrations.field.secret")}>
               <Input
@@ -373,16 +422,27 @@ export function Integrations() {
                 placeholder={t("integrations.field.secretPlaceholder")}
               />
             </Field>
-            <Field
-              label={t("integrations.field.settings")}
-              className="md:col-span-2 xl:col-span-3"
-            >
-              <textarea
-                className="min-h-20 w-full rounded-md border bg-background px-3 py-2 font-mono text-xs"
-                value={settings}
-                onChange={(event) => setSettings(event.target.value)}
-              />
-            </Field>
+            <details className="group md:col-span-2 xl:col-span-3">
+              <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md border bg-muted/25 px-3 py-2.5">
+                <Settings2 className="size-4 text-muted-foreground" />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-medium">
+                    {t("integrations.advanced.title")}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {t("integrations.advanced.description")}
+                  </span>
+                </span>
+                <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+              </summary>
+              <Field label={t("integrations.field.settings")} className="mt-3">
+                <textarea
+                  className="min-h-20 w-full rounded-md border bg-background px-3 py-2 font-mono text-xs"
+                  value={settings}
+                  onChange={(event) => setSettings(event.target.value)}
+                />
+              </Field>
+            </details>
           </div>
           <Button
             disabled={!name.trim() || create.isPending}
@@ -498,7 +558,7 @@ export function Integrations() {
       </section>
 
       {selectedCompany && (
-        <section className="space-y-4 border-y py-4">
+        <section className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
           <h2 className="text-sm font-semibold">{t("integrations.devices")}</h2>
           {can("integration.manage") && (
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -634,7 +694,7 @@ export function Integrations() {
               </div>
             </div>
           )}
-          <div className="divide-y border-y">
+          <div className="divide-y overflow-hidden rounded-md border">
             {(devices.data?.results ?? []).map((item) => (
               <div
                 key={item.id}
@@ -780,7 +840,7 @@ function IntegrationHistoryDialog({
             {t("integrations.history.description")}
           </DialogDescription>
         </DialogHeader>
-        <div className="divide-y border-y">
+        <div className="divide-y overflow-hidden rounded-lg border bg-card shadow-sm">
           {history.isLoading ? (
             <p className="px-3 py-8 text-center text-muted-foreground">
               {t("common.loading")}

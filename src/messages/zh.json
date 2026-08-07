@@ -396,6 +396,24 @@
     "connections": "连接配置",
     "devices": "现场设备",
     "empty": "还没有登记集成。",
+    "guide": {
+      "title": "这里才是真实连接外部系统和设备的地方",
+      "description": "系统设置只决定功能是否启用；系统集成负责保存 URL、认证方式和安全凭证。登记后先测试，通过后才启用。没有供应商账号或现场设备时，只能保留配置，不能当作已经上线。",
+      "register": { "title": "登记连接", "description": "选择公司和服务，填写供应商提供的资料。" },
+      "test": { "title": "测试连接", "description": "确认网络、凭证和供应商接口都能访问。" },
+      "enable": { "title": "正式启用", "description": "测试通过后启用，并到平台监控查看状态。" }
+    },
+    "advanced": {
+      "title": "高级技术设置",
+      "description": "供应商有特别参数时才需要打开 JSON。一般连接请保持默认值。"
+    },
+    "authType": {
+      "NONE": "无需认证",
+      "API_KEY": "API Key",
+      "BEARER": "Bearer Token",
+      "BASIC": "用户名和密码",
+      "OAUTH2": "OAuth 2.0"
+    },
     "connection": {
       "removeTitle": "移除连接 {name}？",
       "removeDescription": "该连接将从公司配置中移除，测试历史和审计记录会保留。请先移除或解除正在使用它的设备。",
@@ -424,9 +442,9 @@
       "namePlaceholder": "例如：ERP 生产环境",
       "baseUrl": "基础 URL",
       "authType": "认证类型",
-      "secret": "Secret",
-      "secretPlaceholder": "保存时才会发送",
-      "settings": "设置 JSON"
+      "secret": "安全凭证",
+      "secretPlaceholder": "输入供应商提供的密钥；保存后不会显示",
+      "settings": "供应商参数（JSON）"
     },
     "device": {
       "type": "设备类型",
@@ -1678,12 +1696,20 @@
       "title": "平台健康概览",
       "description": "每 15 秒自动更新服务、集成与异常状态。",
       "services": "服务",
-      "live": "真实模式",
+      "live": "真实连接",
       "attention": "待关注"
     },
+    "purpose": {
+      "title": "这里是查看状态的地方",
+      "description": "平台监控只读数据，不会修改连接设置。要打开服务或更换账号，请到系统设置；要填写密钥，请到系统集成。",
+      "openSettings": "打开系统设置",
+      "needChange": "需要修改连接吗？",
+      "needChangeDescription": "监控页面只负责告诉你服务是否正常。",
+      "openIntegrations": "打开系统集成"
+    },
     "modeDescription": {
-      "SIMULATED": "当前显示模拟器回传数据",
-      "LIVE": "当前显示真实供应商与设备数据"
+      "SIMULATED": "测试模拟器正在提供数据，不代表现场硬件已连接",
+      "LIVE": "显示现场供应商和设备数据，必须先完成真实连接"
     },
     "section": {
       "live-platform": {
@@ -1727,7 +1753,7 @@
         "subtitle": "永久保存事件时间、类型、服务、内容及处理历史"
       }
     },
-    "mode": { "SIMULATED": "模拟", "LIVE": "真实" },
+    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式" },
     "metric": {
       "onlineContractors": "在线建筑商",
       "onlineRecyclers": "在线回收商",
@@ -4201,6 +4227,27 @@
   "billing": {
     "title": "账单与佣金管理",
     "subtitle": "管理 SaaS 收费、平台佣金、账单及收款",
+    "workflow": {
+      "title": "收费工作流程",
+      "description": "每个页面负责一个步骤，数据会沿着流程往下走，不是重复功能。",
+      "notDuplicate": "规则 ≠ 账单 ≠ 收款",
+      "stepLabel": "第 {number} 步",
+      "step": {
+        "rules": "设置规则",
+        "generate": "生成账单",
+        "issue": "发出账单",
+        "collect": "确认收款",
+        "report": "查看报表"
+      },
+      "saas": {
+        "title": "SaaS 订阅费：",
+        "description": "建筑商或回收商按套餐周期付给平台的固定费用。"
+      },
+      "commission": {
+        "title": "合作版佣金：",
+        "description": "回收商完成并结算合作业务后，按照佣金规则计算的平台服务收入。"
+      }
+    },
     "count": "{count} 张账单",
     "field": {
       "invoiceNumber": "账单编号",
@@ -4313,6 +4360,8 @@
       "removeDescription": "确定移除 {name}？已用于账单的规则只能停用。"
     },
     "automatic": {
+      "purposeTitle": "这页只负责自动建立账单",
+      "purposeDescription": "系统会根据有效订阅和已结算合作业务建立 SaaS 或佣金账单，并更新逾期状态。它不会代替收款确认，也不会重复建立已经存在的账单。",
       "runNow": "立即运行",
       "active": "运行中",
       "inactive": "已停用",
@@ -5648,6 +5697,8 @@
       }
     },
     "credential": {
+      "title": "连接凭证状态",
+      "description": "这里仅显示连接是否已准备好。API 密钥和密码请到系统集成页面安全管理，不要粘贴到 JSON 里面。",
       "apiGateway": "API Gateway 凭证",
       "email": "Email 供应商凭证",
       "push": "Push 供应商凭证",
@@ -5657,7 +5708,36 @@
       "configured": "已配置",
       "missing": "未配置"
     },
-    "mode": { "SIMULATED": "模拟", "LIVE": "真实" },
+    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式" },
+    "updatedAt": "最后保存：{value}",
+    "guide": {
+      "cctv": {
+        "title": "AI CCTV：先设置规则，再接入摄像头",
+        "description": "测试模拟模式只让系统用测试资料演示识别流程；真实连接模式才会读取现场 AI CCTV。选择真实连接后，仍需要在系统集成中填写供应商连接资料并做现场测试。"
+      },
+      "anpr": {
+        "title": "ANPR：管理车牌识别方式",
+        "description": "这里决定系统如何处理车牌识别。模拟模式用于演示，真实模式用于现场摄像头。模式本身不会自动连接硬件，真实设备和供应商资料仍要另外配置。"
+      },
+      "api_gateway": {
+        "title": "API Gateway：系统与外部服务的通道",
+        "description": "这里设置通道是否启用以及运行方式。API Gateway 凭证不是普通参数，应该到系统集成页面建立安全连接，避免把密钥直接写进设置。"
+      },
+      "notifications": {
+        "title": "通知：决定哪些消息发给谁",
+        "description": "这里打开或关闭站内、Email 和 Push 通知，并设定通知规则。通知供应商的账号资料由系统集成负责保存。"
+      },
+      "advancedTitle": "高级技术设置",
+      "advancedDescription": "只有接入工程师需要调整的 JSON、识别参数、超时、重试和频率设置。一般使用者可以保持默认值。",
+      "liveNotice": "看到“真实连接模式”不代表硬件已经接好；还需要供应商账号、设备网络、公司/工地绑定和现场验收。",
+      "manageCredentials": "管理安全连接",
+      "viewStatus": "查看运行状态",
+      "step": {
+        "basic": { "title": "基本设置", "description": "打开服务，选择测试或真实连接。" },
+        "connection": { "title": "建立连接", "description": "在系统集成中填写供应商、设备和凭证。" },
+        "monitoring": { "title": "查看结果", "description": "到平台监控查看在线、失败和响应时间。" }
+      }
+    },
     "serviceStatus": {
       "NOT_CONFIGURED": "未配置",
       "DISABLED": "已停用",
@@ -5673,8 +5753,8 @@
       "SETTLED_AMOUNT": "结算金额",
       "WEIGHT": "重量",
       "FIXED": "固定金额",
-      "SIMULATED": "模拟",
-      "LIVE": "真实",
+      "SIMULATED": "测试模拟模式",
+      "LIVE": "真实连接模式",
       "REJECT": "拒绝",
       "WARN": "警告",
       "ALLOW": "允许"

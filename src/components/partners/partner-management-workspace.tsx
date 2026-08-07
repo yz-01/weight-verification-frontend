@@ -69,9 +69,9 @@ function Overview() {
 
 function Panel({ loading, error, children }: { loading: boolean; error: boolean; children: React.ReactNode }) {
   const t = useTranslations("adminPartnerManagement");
-  if (loading) return <div className="flex flex-1 items-center justify-center border-y"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
-  if (error) return <div className="border-y p-5 text-destructive">{t("loadError")}</div>;
-  return <div className="min-h-0 flex-1 overflow-auto border-y bg-card">{children}</div>;
+  if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
+  if (error) return <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>;
+  return <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">{children}</div>;
 }
 
 function PartnerPanel({ detailed }: { detailed: boolean }) {

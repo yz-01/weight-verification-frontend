@@ -72,7 +72,7 @@ export function AuditCenterWorkspace({
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
-      <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card">
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
         <div className="grid md:grid-cols-2 xl:grid-cols-3">
           {SUBMODULES.map((module) => (
             <Link

@@ -396,6 +396,24 @@
     "connections": "Konfigurasi sambungan",
     "devices": "Peranti tapak",
     "empty": "Tiada integrasi didaftarkan.",
+    "guide": {
+      "title": "Di sinilah sistem luaran dan peranti disambungkan",
+      "description": "Tetapan Sistem hanya mengaktifkan fungsi. Integrasi Sistem menyimpan URL, kaedah pengesahan dan kredensial dengan selamat. Daftar, uji, kemudian aktifkan sambungan. Tanpa akaun pembekal atau peranti tapak, konfigurasi yang disimpan belum lagi aktif.",
+      "register": { "title": "Daftar", "description": "Pilih syarikat dan perkhidmatan, kemudian isi butiran pembekal." },
+      "test": { "title": "Uji", "description": "Semak rangkaian, kredensial dan endpoint pembekal." },
+      "enable": { "title": "Aktifkan", "description": "Aktifkan selepas ujian lulus, kemudian pantau statusnya." }
+    },
+    "advanced": {
+      "title": "Tetapan teknikal lanjutan",
+      "description": "Buka JSON hanya apabila pembekal memerlukan parameter tambahan. Kekalkan nilai lalai untuk sambungan biasa."
+    },
+    "authType": {
+      "NONE": "Tanpa pengesahan",
+      "API_KEY": "Kunci API",
+      "BEARER": "Token bearer",
+      "BASIC": "Nama pengguna dan kata laluan",
+      "OAUTH2": "OAuth 2.0"
+    },
     "connection": {
       "removeTitle": "Buang sambungan {name}?",
       "removeDescription": "Sambungan akan dibuang daripada syarikat ini. Sejarah ujian dan rekod audit dikekalkan. Buang atau nyahpaut peranti yang menggunakannya dahulu.",
@@ -424,9 +442,9 @@
       "namePlaceholder": "contoh: ERP produksi",
       "baseUrl": "URL asas",
       "authType": "Jenis pengesahan",
-      "secret": "Secret",
-      "secretPlaceholder": "Hanya dihantar semasa menyimpan",
-      "settings": "JSON tetapan"
+      "secret": "Kredensial selamat",
+      "secretPlaceholder": "Masukkan kunci pembekal; ia disembunyikan selepas disimpan",
+      "settings": "Parameter pembekal (JSON)"
     },
     "device": {
       "type": "Jenis peranti",
@@ -1678,12 +1696,20 @@
       "title": "Gambaran kesihatan platform",
       "description": "Status perkhidmatan, integrasi dan pengecualian dikemas kini setiap 15 saat.",
       "services": "Perkhidmatan",
-      "live": "Langsung",
+      "live": "Sambungan sebenar",
       "attention": "Perlu perhatian"
     },
+    "purpose": {
+      "title": "Halaman ini adalah untuk menyemak status",
+      "description": "Pemantauan Platform adalah baca sahaja dan tidak mengubah tetapan sambungan. Aktifkan perkhidmatan di Tetapan Sistem dan urus kunci di Integrasi Sistem.",
+      "openSettings": "Buka Tetapan Sistem",
+      "needChange": "Perlu mengubah sambungan?",
+      "needChangeDescription": "Pemantauan hanya memberitahu sama ada perkhidmatan berfungsi.",
+      "openIntegrations": "Buka Integrasi Sistem"
+    },
     "modeDescription": {
-      "SIMULATED": "Memaparkan telemetri simulator",
-      "LIVE": "Memaparkan telemetri pembekal dan peranti langsung"
+      "SIMULATED": "Simulator ujian membekalkan data; perkakasan tapak tidak semestinya bersambung",
+      "LIVE": "Memaparkan data pembekal dan peranti tapak selepas sambungan sebenar disiapkan"
     },
     "section": {
       "live-platform": {
@@ -1727,7 +1753,7 @@
         "subtitle": "Rekod kekal masa, jenis, perkhidmatan, kandungan dan sejarah pengendalian"
       }
     },
-    "mode": { "SIMULATED": "Simulasi", "LIVE": "Langsung" },
+    "mode": { "SIMULATED": "Simulator ujian", "LIVE": "Sambungan sebenar" },
     "metric": {
       "onlineContractors": "Kontraktor dalam talian",
       "onlineRecyclers": "Pengitar semula dalam talian",
@@ -4212,6 +4238,27 @@
   "billing": {
     "title": "Pengurusan Bil & Komisen",
     "subtitle": "Yuran SaaS, komisen platform, invois dan kutipan",
+    "workflow": {
+      "title": "Aliran kerja pengebilan",
+      "description": "Setiap halaman mengurus satu peringkat proses yang sama. Fungsinya saling berkaitan dan bukan pendua.",
+      "notDuplicate": "Peraturan ≠ invois ≠ kutipan",
+      "stepLabel": "Langkah {number}",
+      "step": {
+        "rules": "Tetapkan peraturan",
+        "generate": "Jana invois",
+        "issue": "Keluarkan invois",
+        "collect": "Sahkan bayaran",
+        "report": "Lihat laporan"
+      },
+      "saas": {
+        "title": "Yuran langganan SaaS:",
+        "description": "Yuran platform berulang yang dibayar kontraktor atau pengitar semula mengikut pelan."
+      },
+      "commission": {
+        "title": "Komisen rakan kongsi:",
+        "description": "Pendapatan platform yang dikira daripada urus niaga pelan rakan kongsi yang telah diselesaikan berdasarkan peraturan komisen."
+      }
+    },
     "count": "{count} invois",
     "field": {
       "invoiceNumber": "Nombor invois",
@@ -4335,6 +4382,8 @@
       "removeDescription": "Buang {name}? Peraturan yang digunakan dalam invois hanya boleh dinyahaktifkan."
     },
     "automatic": {
+      "purposeTitle": "Halaman ini hanya menjana invois secara automatik",
+      "purposeDescription": "Sistem menjana invois SaaS atau komisen daripada langganan aktif dan urus niaga rakan kongsi yang telah diselesaikan, kemudian mengemas kini status tertunggak. Ia tidak mengesahkan bayaran atau menduplikasi invois sedia ada.",
       "runNow": "Jalankan sekarang",
       "active": "Aktif",
       "inactive": "Tidak aktif",
@@ -5693,6 +5742,8 @@
       }
     },
     "credential": {
+      "title": "Status kredensial sambungan",
+      "description": "Bahagian ini hanya menunjukkan sama ada sambungan telah sedia. Urus kunci API dan kata laluan dengan selamat di Integrasi Sistem; jangan tampalkannya dalam medan JSON.",
       "apiGateway": "Kredensial API Gateway",
       "email": "Kredensial pembekal e-mel",
       "push": "Kredensial pembekal push",
@@ -5702,7 +5753,36 @@
       "configured": "Dikonfigurasi",
       "missing": "Belum dikonfigurasi"
     },
-    "mode": { "SIMULATED": "SIMULASI", "LIVE": "LANGSUNG" },
+    "mode": { "SIMULATED": "Simulator ujian", "LIVE": "Sambungan sebenar" },
+    "updatedAt": "Terakhir disimpan: {value}",
+    "guide": {
+      "cctv": {
+        "title": "AI CCTV: tetapkan peraturan, kemudian sambungkan kamera",
+        "description": "Mod simulator ujian menunjukkan aliran pengecaman menggunakan data ujian. Mod sambungan sebenar hanya membaca CCTV tapak selepas butiran pembekal dikonfigurasi di Integrasi Sistem dan diuji di tapak."
+      },
+      "anpr": {
+        "title": "ANPR: urus pengecaman nombor plat",
+        "description": "Halaman ini mengawal cara nombor plat dikenal pasti. Mod ujian adalah untuk demonstrasi; mod sebenar adalah untuk kamera tapak. Memilih mod tidak menyambungkan perkakasan secara automatik."
+      },
+      "api_gateway": {
+        "title": "API Gateway: saluran ke perkhidmatan luaran",
+        "description": "Halaman ini mengaktifkan saluran dan mengawal cara ia berjalan. Kredensial API Gateway ialah maklumat sambungan selamat dan perlu diurus di Integrasi Sistem, bukan dalam tetapan JSON umum."
+      },
+      "notifications": {
+        "title": "Notifikasi: tentukan mesej dan penerimanya",
+        "description": "Aktifkan atau matikan notifikasi dalam aplikasi, e-mel dan push serta tetapkan peraturan penghantaran di sini. Akaun pembekal disimpan di Integrasi Sistem."
+      },
+      "advancedTitle": "Tetapan teknikal lanjutan",
+      "advancedDescription": "Medan JSON, pengecaman, masa tamat, percubaan semula dan had kadar adalah untuk jurutera integrasi. Kebanyakan pengguna patut mengekalkan nilai lalai.",
+      "liveNotice": "Mod sambungan sebenar tidak bermakna perkakasan telah disambungkan. Akaun pembekal, rangkaian peranti, pautan syarikat/tapak dan penerimaan di tapak masih diperlukan.",
+      "manageCredentials": "Urus sambungan selamat",
+      "viewStatus": "Lihat status operasi",
+      "step": {
+        "basic": { "title": "Tetapan asas", "description": "Aktifkan perkhidmatan dan pilih mod ujian atau sebenar." },
+        "connection": { "title": "Sambungkan", "description": "Isi pembekal, peranti dan kredensial di Integrasi." },
+        "monitoring": { "title": "Semak hasil", "description": "Lihat sambungan, kegagalan dan masa respons di Pemantauan Platform." }
+      }
+    },
     "serviceStatus": {
       "NOT_CONFIGURED": "Belum dikonfigurasi",
       "DISABLED": "Dilumpuhkan",
@@ -5718,8 +5798,8 @@
       "SETTLED_AMOUNT": "Jumlah penyelesaian",
       "WEIGHT": "Berat",
       "FIXED": "Jumlah tetap",
-      "SIMULATED": "Simulasi",
-      "LIVE": "Langsung",
+      "SIMULATED": "Simulator ujian",
+      "LIVE": "Sambungan sebenar",
       "REJECT": "Tolak",
       "WARN": "Amaran",
       "ALLOW": "Benarkan"

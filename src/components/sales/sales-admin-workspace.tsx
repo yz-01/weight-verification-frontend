@@ -191,7 +191,7 @@ function Overview() {
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
-      <div className="grid border-y bg-card sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid overflow-hidden rounded-lg border bg-card shadow-sm sm:grid-cols-2 xl:grid-cols-4">
         {[
           ["total", summary.data?.total ?? 0],
           ["active", summary.data?.active ?? 0],
@@ -206,7 +206,7 @@ function Overview() {
           </div>
         ))}
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card">
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
         <div className="grid md:grid-cols-2 xl:grid-cols-3">
           {SUBMODULES.map((module) => (
             <Link
@@ -238,17 +238,17 @@ function PanelState({
   const t = useTranslations("adminSales");
   if (loading)
     return (
-      <div className="flex min-h-40 flex-1 items-center justify-center border-y">
+      <div className="flex min-h-40 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm">
         <Loader2 className="mr-2 animate-spin" />
         {t("loading")}
       </div>
     );
   if (error)
     return (
-      <div className="border-y p-5 text-destructive">{t("loadError")}</div>
+      <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>
     );
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card">
+    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
       {children}
     </div>
   );
@@ -1732,7 +1732,7 @@ function PerformancePanel() {
     enabled: Boolean(id),
   });
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card p-4">
+    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card p-4 shadow-sm">
       <select
         className="h-8 w-full max-w-md rounded-md border bg-background px-2"
         value={id}
@@ -1816,7 +1816,7 @@ function ReportsPanel() {
       ),
   });
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card">
+    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
       <div className="divide-y">
         {(["salespeople", "assignments", "payouts"] as const).map(
           (endpoint) => (

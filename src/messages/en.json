@@ -396,6 +396,24 @@
     "connections": "Connection configurations",
     "devices": "Field devices",
     "empty": "No integrations registered.",
+    "guide": {
+      "title": "This is where external systems and devices are connected",
+      "description": "System Settings only enables a feature. System Integrations securely stores the URL, authentication method and credential. Register, test, then enable the connection. Without a provider account or site device, a saved configuration is not live.",
+      "register": { "title": "Register", "description": "Choose a company and service, then enter provider details." },
+      "test": { "title": "Test", "description": "Check that the network, credential and provider endpoint work." },
+      "enable": { "title": "Enable", "description": "Enable only after a passing test, then monitor its status." }
+    },
+    "advanced": {
+      "title": "Advanced technical settings",
+      "description": "Open the JSON only when a provider requires extra parameters. Keep the default for standard connections."
+    },
+    "authType": {
+      "NONE": "No authentication",
+      "API_KEY": "API key",
+      "BEARER": "Bearer token",
+      "BASIC": "Username and password",
+      "OAUTH2": "OAuth 2.0"
+    },
     "connection": {
       "removeTitle": "Remove connection {name}?",
       "removeDescription": "The connection will be removed from this company. Test history and audit records are retained. Remove or unlink any devices using it first.",
@@ -424,9 +442,9 @@
       "namePlaceholder": "e.g. ERP production",
       "baseUrl": "Base URL",
       "authType": "Authentication type",
-      "secret": "Secret",
-      "secretPlaceholder": "Only sent when saving",
-      "settings": "Settings JSON"
+      "secret": "Secure credential",
+      "secretPlaceholder": "Enter the provider key; it is hidden after saving",
+      "settings": "Provider parameters (JSON)"
     },
     "device": {
       "type": "Device type",
@@ -1678,12 +1696,20 @@
       "title": "Platform health overview",
       "description": "Service, integration and exception status refreshes every 15 seconds.",
       "services": "Services",
-      "live": "Live",
+      "live": "Live connections",
       "attention": "Attention"
     },
+    "purpose": {
+      "title": "This page is for checking status",
+      "description": "Platform Monitoring is read-only and never changes connection settings. Enable services under System Settings and manage keys under System Integrations.",
+      "openSettings": "Open System Settings",
+      "needChange": "Need to change the connection?",
+      "needChangeDescription": "Monitoring only tells you whether the service is working.",
+      "openIntegrations": "Open System Integrations"
+    },
     "modeDescription": {
-      "SIMULATED": "Showing simulator telemetry",
-      "LIVE": "Showing live provider and device telemetry"
+      "SIMULATED": "A test simulator is supplying data; site hardware is not necessarily connected",
+      "LIVE": "Showing site provider and device data after a live connection is completed"
     },
     "section": {
       "live-platform": {
@@ -3513,7 +3539,7 @@
       "ENABLED": "Enabled",
       "DISABLED": "Disabled"
     },
-    "mode": { "SIMULATED": "Simulated", "LIVE": "Live" },
+    "mode": { "SIMULATED": "Test simulator", "LIVE": "Live connection" },
     "state": {
       "OPEN": "Open",
       "ON_SCALE": "On scale",
@@ -4210,6 +4236,27 @@
   "billing": {
     "title": "Billing & Commission Management",
     "subtitle": "SaaS fees, platform commission, invoices and collections",
+    "workflow": {
+      "title": "Billing workflow",
+      "description": "Each page handles one stage of the same process. The functions are connected, not duplicated.",
+      "notDuplicate": "Rules ≠ invoices ≠ collections",
+      "stepLabel": "Step {number}",
+      "step": {
+        "rules": "Set rules",
+        "generate": "Generate invoices",
+        "issue": "Issue invoices",
+        "collect": "Confirm payment",
+        "report": "View reports"
+      },
+      "saas": {
+        "title": "SaaS subscription fee:",
+        "description": "A fixed recurring platform fee paid by contractors or recyclers according to their plan."
+      },
+      "commission": {
+        "title": "Partner commission:",
+        "description": "Platform revenue calculated from settled partner-plan recycler business using the commission rule."
+      }
+    },
     "count": "{count} invoices",
     "field": {
       "invoiceNumber": "Invoice number",
@@ -4329,6 +4376,8 @@
       "removeDescription": "Remove {name}? A rule already used by an invoice can only be disabled."
     },
     "automatic": {
+      "purposeTitle": "This page only creates invoices automatically",
+      "purposeDescription": "The system creates SaaS or commission invoices from active subscriptions and settled partner business, then updates overdue states. It does not confirm payment or duplicate an existing invoice.",
       "runNow": "Run now",
       "active": "Active",
       "inactive": "Inactive",
@@ -5679,6 +5728,8 @@
       }
     },
     "credential": {
+      "title": "Connection credential status",
+      "description": "This only shows whether the connection is ready. Manage API keys and passwords securely under System Integrations; do not paste them into JSON fields.",
       "apiGateway": "API Gateway credential",
       "email": "Email provider credential",
       "push": "Push provider credential",
@@ -5688,7 +5739,36 @@
       "configured": "Configured",
       "missing": "Not configured"
     },
-    "mode": { "SIMULATED": "SIMULATED", "LIVE": "LIVE" },
+    "mode": { "SIMULATED": "Test simulator", "LIVE": "Live connection" },
+    "updatedAt": "Last saved: {value}",
+    "guide": {
+      "cctv": {
+        "title": "AI CCTV: set the rules, then connect cameras",
+        "description": "Test simulator mode demonstrates recognition with test data. Live connection mode reads real site CCTV only after provider details are configured under System Integrations and the connection is tested on site."
+      },
+      "anpr": {
+        "title": "ANPR: manage number-plate recognition",
+        "description": "This page controls how number plates are recognised. Test mode is for demonstrations; live mode is for site cameras. Choosing a mode does not connect hardware automatically."
+      },
+      "api_gateway": {
+        "title": "API Gateway: the channel to external services",
+        "description": "This page enables the channel and controls how it runs. API Gateway credentials are secure connection details and belong under System Integrations, not in general JSON settings."
+      },
+      "notifications": {
+        "title": "Notifications: decide what is sent and to whom",
+        "description": "Enable or disable in-app, email and push notifications and set delivery rules here. Provider account details are stored under System Integrations."
+      },
+      "advancedTitle": "Advanced technical settings",
+      "advancedDescription": "JSON, recognition, timeout, retry and rate-limit fields are for integration engineers. Most users should keep the default values.",
+      "liveNotice": "Live connection mode does not mean hardware is already connected. Provider accounts, device networking, company/site binding and on-site acceptance are still required.",
+      "manageCredentials": "Manage secure connections",
+      "viewStatus": "View running status",
+      "step": {
+        "basic": { "title": "Basic setup", "description": "Enable the service and choose test or live mode." },
+        "connection": { "title": "Connect", "description": "Add provider, device and credential details under Integrations." },
+        "monitoring": { "title": "Check results", "description": "Use Platform Monitoring to see uptime, failures and latency." }
+      }
+    },
     "serviceStatus": {
       "NOT_CONFIGURED": "Not configured",
       "DISABLED": "Disabled",
@@ -5704,8 +5784,8 @@
       "SETTLED_AMOUNT": "Settled amount",
       "WEIGHT": "Weight",
       "FIXED": "Fixed amount",
-      "SIMULATED": "Simulated",
-      "LIVE": "Live",
+      "SIMULATED": "Test simulator",
+      "LIVE": "Live connection",
       "REJECT": "Reject",
       "WARN": "Warn",
       "ALLOW": "Allow"
