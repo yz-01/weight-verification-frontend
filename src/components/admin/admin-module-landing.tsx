@@ -70,11 +70,18 @@ const SECTION_KEYS: Record<string, string> = {
   apiGatewayMonitoring: "api-gateway",
   apiGatewaySettings: "api-gateway",
   customerAssignments: "assignments",
+  salesPeople: "people",
+  salesDetails: "details",
+  salesTerritories: "territories",
+  salesHierarchy: "hierarchy",
   commissionRuleTypes: "rules",
   commissionSchemes: "schemes",
   salesTerms: "terms",
   salesPayouts: "payouts",
   salesSettlements: "settlements",
+  teamPerformance: "performance",
+  salesReports: "reports",
+  salesActivity: "activity",
   supportStates: "states",
   supportAPI: "api",
   supportInstallations: "installations",
@@ -209,11 +216,13 @@ export function AdminModuleLanding({ feature }: { feature: PortalFeatureKey }) {
                     <span className="block text-base font-semibold leading-6 text-foreground group-hover:text-primary">
                       {t(child.labelKey)}
                     </span>
-                    {hasSubtitle && (
-                      <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                        {t(subtitleKey)}
-                      </span>
-                    )}
+                    <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                      {hasSubtitle
+                        ? t(subtitleKey)
+                        : t("adminModuleLanding.cardSubtitle", {
+                            module: t(child.labelKey),
+                          })}
+                    </span>
                   </span>
                 </Link>
               );

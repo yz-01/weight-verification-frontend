@@ -401,7 +401,8 @@
   "adminModuleLanding": {
     "sectionLabel": "可用功能",
     "searchPlaceholder": "搜索此模块的功能",
-    "noResults": "此模块没有相符的功能"
+    "noResults": "此模块没有相符的功能",
+    "cardSubtitle": "进入{module}，查看和管理相关资料与业务流程。"
   },
   "integrations": {
     "title": "系统集成",

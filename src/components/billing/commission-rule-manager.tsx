@@ -212,7 +212,7 @@ export function CommissionRuleManager() {
         open={editing !== undefined}
         onOpenChange={(open) => !open && setEditing(undefined)}
       >
-        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-2xl">
+        <DialogContent className="flex h-[calc(100dvh-1.5rem)] max-h-[44rem] flex-col overflow-hidden sm:max-w-2xl">
           <DialogHeader className="shrink-0">
             <DialogTitle>
               {t(editing ? "rules.edit" : "rules.create")}
@@ -371,7 +371,7 @@ export function CommissionRuleManager() {
               />
             </div>
           </div>
-          <DialogFooter className="shrink-0">
+          <DialogFooter className="relative z-10 shrink-0">
             <Button variant="outline" onClick={() => setEditing(undefined)}>
               {common("cancel")}
             </Button>

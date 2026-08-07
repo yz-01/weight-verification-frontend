@@ -401,7 +401,8 @@
   "adminModuleLanding": {
     "sectionLabel": "Fungsi tersedia",
     "searchPlaceholder": "Cari dalam modul ini",
-    "noResults": "Tiada fungsi yang sepadan dalam modul ini"
+    "noResults": "Tiada fungsi yang sepadan dalam modul ini",
+    "cardSubtitle": "Buka {module} untuk melihat dan mengurus rekod serta aliran kerja berkaitan."
   },
   "integrations": {
     "title": "Integrasi",

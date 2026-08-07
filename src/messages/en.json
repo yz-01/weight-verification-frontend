@@ -401,7 +401,8 @@
   "adminModuleLanding": {
     "sectionLabel": "Available functions",
     "searchPlaceholder": "Search within this module",
-    "noResults": "No matching function in this module"
+    "noResults": "No matching function in this module",
+    "cardSubtitle": "Open {module} to view and manage its related records and workflow."
   },
   "integrations": {
     "title": "Integrations",
