@@ -3,6 +3,22 @@
     "name": "MSE Trace",
     "tagline": "Verified weight. Traceable waste."
   },
+  "pageGuide": {
+    "action": "Page guide",
+    "title": "How to use {page}",
+    "review": {
+      "title": "Review the current records",
+      "description": "Use search, filters and status labels to find the company, record or device you need."
+    },
+    "operate": {
+      "title": "Complete the required action",
+      "description": "Create or edit a record, fill every required field, then save or confirm the operation."
+    },
+    "verify": {
+      "title": "Verify the result",
+      "description": "Refresh the page and check the latest status, history, notification or audit record."
+    }
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -399,9 +415,18 @@
     "guide": {
       "title": "This is where external systems and devices are connected",
       "description": "System Settings only enables a feature. System Integrations securely stores the URL, authentication method and credential. Register, test, then enable the connection. Without a provider account or site device, a saved configuration is not live.",
-      "register": { "title": "Register", "description": "Choose a company and service, then enter provider details." },
-      "test": { "title": "Test", "description": "Check that the network, credential and provider endpoint work." },
-      "enable": { "title": "Enable", "description": "Enable only after a passing test, then monitor its status." }
+      "register": {
+        "title": "Register",
+        "description": "Choose a company and service, then enter provider details."
+      },
+      "test": {
+        "title": "Test",
+        "description": "Check that the network, credential and provider endpoint work."
+      },
+      "enable": {
+        "title": "Enable",
+        "description": "Enable only after a passing test, then monitor its status."
+      }
     },
     "advanced": {
       "title": "Advanced technical settings",
@@ -442,6 +467,7 @@
       "namePlaceholder": "e.g. ERP production",
       "baseUrl": "Base URL",
       "authType": "Authentication type",
+      "mode": "Operation mode",
       "secret": "Secure credential",
       "secretPlaceholder": "Enter the provider key; it is hidden after saving",
       "settings": "Provider parameters (JSON)"
@@ -465,7 +491,15 @@
       "removeGatewayBlocked": "Revoke the linked weighing gateway in Weighbridge management first",
       "removeTitle": "Remove device {name}?",
       "removeDescription": "The device will disappear from the integration list. Its history and audit records will be retained.",
-      "removeConfirm": "Remove device"
+      "removeConfirm": "Remove device",
+      "provisioningTitle": "Device connection details",
+      "provisioningDescription": "Give these one-time credentials to the installer. The secret is not shown again after this window closes.",
+      "heartbeatUrl": "Heartbeat URL",
+      "recordId": "Platform device record ID",
+      "deviceHeader": "Device identity header",
+      "signatureHeader": "Signature header",
+      "oneTimeSecret": "One-time device secret",
+      "heartbeatBody": "Signed heartbeat JSON body"
     },
     "kind": {
       "ERP": "ERP",
@@ -1711,6 +1745,34 @@
       "SIMULATED": "A test simulator is supplying data; site hardware is not necessarily connected",
       "LIVE": "Showing site provider and device data after a live connection is completed"
     },
+    "inventory": {
+      "title": "Company connections and device inventory",
+      "description": "Platform-wide view of contractor and recycler connections. Live mode means configured for a real provider; a device is only online after a recent hardware heartbeat.",
+      "searchPlaceholder": "Search company, connection or device",
+      "allCompanyTypes": "All company types",
+      "allCompanies": "All companies",
+      "allCategories": "All integration categories",
+      "allDeviceTypes": "All device types",
+      "allStatuses": "All statuses",
+      "contractor": "Contractor",
+      "recycler": "Recycler",
+      "online": "Online devices",
+      "offline": "Offline devices",
+      "liveReady": "Live and enabled",
+      "simulated": "Simulation mode",
+      "company": "Company",
+      "category": "Category",
+      "connection": "Connection",
+      "device": "Device",
+      "location": "Project / site",
+      "mode": "Mode",
+      "status": "Health",
+      "lastSeen": "Last heartbeat / test",
+      "connectionRecord": "Connection configuration",
+      "devicesCount": "{count} devices",
+      "unlinked": "Unlinked",
+      "refreshNote": "or wait for the 15-second automatic update to receive the latest heartbeat."
+    },
     "section": {
       "live-platform": {
         "title": "Live platform status",
@@ -2622,6 +2684,7 @@
       "integration_not_found": "That integration could not be found.",
       "integration_already_exists": "An integration with that name already exists.",
       "integration_base_url_required": "Add a complete HTTP or HTTPS base URL before testing this connection.",
+      "integration_test_required": "Test this live connection successfully before enabling it.",
       "integration_has_devices": "Remove or unlink the devices using this connection first.",
       "integration_device_not_found": "That integration device could not be found.",
       "integration_device_already_exists": "A device with that id already exists.",
@@ -5764,9 +5827,18 @@
       "manageCredentials": "Manage secure connections",
       "viewStatus": "View running status",
       "step": {
-        "basic": { "title": "Basic setup", "description": "Enable the service and choose test or live mode." },
-        "connection": { "title": "Connect", "description": "Add provider, device and credential details under Integrations." },
-        "monitoring": { "title": "Check results", "description": "Use Platform Monitoring to see uptime, failures and latency." }
+        "basic": {
+          "title": "Basic setup",
+          "description": "Enable the service and choose test or live mode."
+        },
+        "connection": {
+          "title": "Connect",
+          "description": "Add provider, device and credential details under Integrations."
+        },
+        "monitoring": {
+          "title": "Check results",
+          "description": "Use Platform Monitoring to see uptime, failures and latency."
+        }
       }
     },
     "serviceStatus": {

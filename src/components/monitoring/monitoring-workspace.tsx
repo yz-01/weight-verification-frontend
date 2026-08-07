@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   ListHeader,
@@ -50,6 +50,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type {
   HealthStatus,
+  IntegrationInventoryConnection,
+  IntegrationInventoryDevice,
   IntegrationMonitor,
   MonitoringOverview,
   SystemEvent,
@@ -377,6 +379,8 @@ function SectionContent({
         monitor={data.cctv}
         icon={Camera}
         settingsHref="/system-settings/cctv"
+        inventory={data.integration_inventory}
+        kindFilter={["CCTV"]}
       />
     );
   if (section === "anpr")
@@ -385,6 +389,8 @@ function SectionContent({
         monitor={data.anpr}
         icon={ScanLine}
         settingsHref="/system-settings/anpr"
+        inventory={data.integration_inventory}
+        kindFilter={["ANPR"]}
       />
     );
 
@@ -410,6 +416,10 @@ function SectionContent({
               `${format.number(data.api_gateway.max_latency_ms)} ms`,
             ],
           ]}
+        />
+        <InventoryPanel
+          inventory={data.integration_inventory}
+          kindFilter={["API_GATEWAY"]}
         />
       </div>
     );
@@ -463,6 +473,10 @@ function SectionContent({
             </TableBody>
           </Table>
         </div>
+        <InventoryPanel
+          inventory={data.integration_inventory}
+          kindFilter={["ERP", "ACCOUNTING", "MYINVOIS", "GOVERNMENT_API"]}
+        />
       </div>
     );
   }
@@ -488,6 +502,7 @@ function SectionContent({
           className="max-w-md bg-card shadow-sm"
         />
         <ServiceTable services={services} />
+        <InventoryPanel inventory={data.integration_inventory} />
       </div>
     );
   }
@@ -528,10 +543,14 @@ function IntegrationSection({
   monitor,
   icon: Icon,
   settingsHref,
+  inventory,
+  kindFilter,
 }: {
   monitor: IntegrationMonitor;
   icon: typeof Camera;
   settingsHref: string;
+  inventory: MonitoringOverview["integration_inventory"];
+  kindFilter: string[];
 }) {
   const t = useTranslations("monitoring");
   return (
@@ -562,7 +581,320 @@ function IntegrationSection({
           ["failures24h", monitor.failures_24h],
         ]}
       />
+      <InventoryPanel inventory={inventory} kindFilter={kindFilter} />
     </div>
+  );
+}
+
+function InventoryPanel({
+  inventory,
+  kindFilter,
+}: {
+  inventory: MonitoringOverview["integration_inventory"];
+  kindFilter?: string[];
+}) {
+  const t = useTranslations("monitoring");
+  const common = useTranslations("common");
+  const df = useDateFormat();
+  const [companyType, setCompanyType] = useState("");
+  const [company, setCompany] = useState("");
+  const [kind, setKind] = useState("");
+  const [deviceType, setDeviceType] = useState("");
+  const [status, setStatus] = useState("");
+  const [search, setSearch] = useState("");
+  const allowed = (value: string | null) =>
+    !kindFilter?.length || Boolean(value && kindFilter.includes(value));
+  const companyOptions = useMemo(() => {
+    const rows = [...inventory.connections, ...inventory.devices];
+    return Array.from(
+      new Map(
+        rows.map((row) => [
+          row.company_id,
+          {
+            id: row.company_id,
+            label: `${row.company_code} / ${row.company_name}`,
+          },
+        ]),
+      ).values(),
+    ).sort((a, b) => a.label.localeCompare(b.label));
+  }, [inventory]);
+  const kindOptions = Array.from(
+    new Set(
+      inventory.connections
+        .filter((row) => allowed(row.kind))
+        .map((row) => row.kind)
+        .concat(
+          inventory.devices
+            .filter((row) => allowed(row.integration_kind))
+            .map((row) => row.integration_kind ?? ""),
+        ),
+    ),
+  )
+    .filter(Boolean)
+    .sort();
+  const deviceOptions = Array.from(
+    new Set(
+      inventory.devices
+        .filter((row) => allowed(row.integration_kind))
+        .map((row) => row.device_type),
+    ),
+  ).sort();
+  const needle = search.trim().toLowerCase();
+  const connectionRows = inventory.connections.filter((row) => {
+    const online = row.online_devices > 0;
+    return (
+      allowed(row.kind) &&
+      (!companyType || row.company_type === companyType) &&
+      (!company || row.company_id === company) &&
+      (!kind || row.kind === kind) &&
+      (!status ||
+        (status === "online"
+          ? online
+          : status === "offline"
+            ? !online
+            : status === "live_ready"
+              ? row.is_live_ready
+              : status === "simulated"
+                ? row.mode === "SIMULATED"
+                : true)) &&
+      (!needle ||
+        [row.company_name, row.company_code, row.name, row.kind, row.status]
+          .join(" ")
+          .toLowerCase()
+          .includes(needle))
+    );
+  });
+  const deviceRows = inventory.devices.filter((row) => {
+    return (
+      allowed(row.integration_kind) &&
+      (!companyType || row.company_type === companyType) &&
+      (!company || row.company_id === company) &&
+      (!kind || row.integration_kind === kind) &&
+      (!deviceType || row.device_type === deviceType) &&
+      (!status ||
+        (status === "online"
+          ? row.is_online
+          : status === "offline"
+            ? !row.is_online
+            : status === "live_ready"
+              ? row.is_live_ready
+              : status === "simulated"
+                ? row.integration_mode === "SIMULATED"
+                : true)) &&
+      (!needle ||
+        [
+          row.company_name,
+          row.company_code,
+          row.integration_name,
+          row.integration_kind,
+          row.device_type,
+          row.device_id,
+          row.project_name,
+          row.site_name,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(needle))
+    );
+  });
+  return (
+    <section className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
+      <div>
+        <h3 className="text-sm font-semibold">{t("inventory.title")}</h3>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          {t("inventory.description")}
+        </p>
+      </div>
+      <div className="grid gap-3 rounded-lg border bg-muted/15 p-3 md:grid-cols-2 xl:grid-cols-6">
+        <Input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={t("inventory.searchPlaceholder")}
+          className="bg-card"
+        />
+        <select
+          className="h-9 rounded-md border bg-card px-3 text-sm"
+          value={companyType}
+          onChange={(event) => setCompanyType(event.target.value)}
+        >
+          <option value="">{t("inventory.allCompanyTypes")}</option>
+          <option value="CONTRACTOR">{t("inventory.contractor")}</option>
+          <option value="RECYCLER">{t("inventory.recycler")}</option>
+        </select>
+        <select
+          className="h-9 rounded-md border bg-card px-3 text-sm"
+          value={company}
+          onChange={(event) => setCompany(event.target.value)}
+        >
+          <option value="">{t("inventory.allCompanies")}</option>
+          {companyOptions.map((row) => (
+            <option key={row.id} value={row.id}>
+              {row.label}
+            </option>
+          ))}
+        </select>
+        <select
+          className="h-9 rounded-md border bg-card px-3 text-sm"
+          value={kind}
+          onChange={(event) => setKind(event.target.value)}
+        >
+          <option value="">{t("inventory.allCategories")}</option>
+          {kindOptions.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+        <select
+          className="h-9 rounded-md border bg-card px-3 text-sm"
+          value={deviceType}
+          onChange={(event) => setDeviceType(event.target.value)}
+        >
+          <option value="">{t("inventory.allDeviceTypes")}</option>
+          {deviceOptions.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+        <select
+          className="h-9 rounded-md border bg-card px-3 text-sm"
+          value={status}
+          onChange={(event) => setStatus(event.target.value)}
+        >
+          <option value="">{t("inventory.allStatuses")}</option>
+          <option value="online">{t("inventory.online")}</option>
+          <option value="offline">{t("inventory.offline")}</option>
+          <option value="live_ready">{t("inventory.liveReady")}</option>
+          <option value="simulated">{t("inventory.simulated")}</option>
+        </select>
+      </div>
+      <div className="overflow-x-auto rounded-lg border [scrollbar-gutter:stable]">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("inventory.company")}</TableHead>
+              <TableHead>{t("inventory.category")}</TableHead>
+              <TableHead>{t("inventory.connection")}</TableHead>
+              <TableHead>{t("inventory.device")}</TableHead>
+              <TableHead>{t("inventory.location")}</TableHead>
+              <TableHead>{t("inventory.mode")}</TableHead>
+              <TableHead>{t("inventory.status")}</TableHead>
+              <TableHead>{t("inventory.lastSeen")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {connectionRows.map((row: IntegrationInventoryConnection) => (
+              <TableRow key={`connection-${row.id}`}>
+                <TableCell>
+                  <p className="font-medium">{row.company_name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.company_code} ·{" "}
+                    {row.company_type === "CONTRACTOR"
+                      ? t("inventory.contractor")
+                      : t("inventory.recycler")}
+                  </p>
+                </TableCell>
+                <TableCell>
+                  <TypeBadge label={row.kind} />
+                </TableCell>
+                <TableCell>
+                  <p className="font-medium">{row.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("inventory.connectionRecord")}
+                  </p>
+                </TableCell>
+                <TableCell>
+                  {t("inventory.devicesCount", { count: row.total_devices })}
+                </TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>
+                  <TypeBadge label={t(`mode.${row.mode}`)} />
+                </TableCell>
+                <TableCell>
+                  <HealthBadge
+                    status={
+                      row.is_live_ready
+                        ? row.total_devices === 0
+                          ? "configured"
+                          : row.online_devices > 0
+                            ? "ok"
+                            : "degraded"
+                        : row.mode === "SIMULATED"
+                          ? "configured"
+                          : "unhealthy"
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  {row.last_success_at ? df.dateTime(row.last_success_at) : "-"}
+                </TableCell>
+              </TableRow>
+            ))}
+            {deviceRows.map((row: IntegrationInventoryDevice) => (
+              <TableRow key={`device-${row.id}`}>
+                <TableCell>
+                  <p className="font-medium">{row.company_name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.company_code} ·{" "}
+                    {row.company_type === "CONTRACTOR"
+                      ? t("inventory.contractor")
+                      : t("inventory.recycler")}
+                  </p>
+                </TableCell>
+                <TableCell>
+                  <TypeBadge
+                    label={row.integration_kind ?? t("inventory.unlinked")}
+                  />
+                </TableCell>
+                <TableCell>
+                  {row.integration_name ?? t("inventory.unlinked")}
+                </TableCell>
+                <TableCell>
+                  <p className="font-medium">{row.device_id}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.device_type}
+                  </p>
+                </TableCell>
+                <TableCell>
+                  {[row.project_name, row.site_name, row.scale_name]
+                    .filter(Boolean)
+                    .join(" / ") || "-"}
+                </TableCell>
+                <TableCell>
+                  <TypeBadge label={t(`mode.${row.integration_mode}`)} />
+                </TableCell>
+                <TableCell>
+                  <HealthBadge
+                    status={
+                      row.is_online
+                        ? row.reported_status === "ERROR"
+                          ? "unhealthy"
+                          : row.reported_status === "DEGRADED"
+                            ? "degraded"
+                            : "ok"
+                        : row.is_live_ready
+                          ? "unhealthy"
+                          : "configured"
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  {row.last_seen_at ? df.dateTime(row.last_seen_at) : "-"}
+                </TableCell>
+              </TableRow>
+            ))}
+            {connectionRows.length === 0 && deviceRows.length === 0 && (
+              <EmptyRow columns={8} />
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {common("refresh")} {t("inventory.refreshNote")}
+      </p>
+    </section>
   );
 }
 

@@ -19,12 +19,17 @@ import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  ListHeader,
+  StatusBadge,
+  TypeBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -94,16 +99,19 @@ export function Integrations() {
   const [name, setName] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [authType, setAuthType] = useState("NONE");
+  const [mode, setMode] = useState<"SIMULATED" | "LIVE">("SIMULATED");
   const [secret, setSecret] = useState("");
   const [settings, setSettings] = useState("{}");
-  const [device, setDevice] = useState<IntegrationDevicePayload>(DEFAULT_DEVICE);
-  const [removingDevice, setRemovingDevice] = useState<IntegrationDevice | null>(
-    null,
-  );
+  const [device, setDevice] =
+    useState<IntegrationDevicePayload>(DEFAULT_DEVICE);
+  const [removingDevice, setRemovingDevice] =
+    useState<IntegrationDevice | null>(null);
   const [removingIntegration, setRemovingIntegration] =
     useState<IntegrationConfig | null>(null);
   const [historyIntegration, setHistoryIntegration] =
     useState<IntegrationConfig | null>(null);
+  const [provisionedDevice, setProvisionedDevice] =
+    useState<IntegrationDevice | null>(null);
 
   const companies = useQuery({
     queryKey: ["companies", "integration-options"],
@@ -117,11 +125,13 @@ export function Integrations() {
     if (!selectedCompany) return null;
     if (!user?.is_platform_staff) return user?.company_type ?? null;
     return (
-      companies.data?.results.find((item) => item.id === selectedCompany)?.type ??
-      null
+      companies.data?.results.find((item) => item.id === selectedCompany)
+        ?.type ?? null
     );
   }, [companies.data?.results, selectedCompany, user]);
-  const companyQuery = user?.is_platform_staff ? { company: selectedCompany } : {};
+  const companyQuery = user?.is_platform_staff
+    ? { company: selectedCompany }
+    : {};
   const integrations = useQuery({
     queryKey: ["integrations", selectedCompany],
     queryFn: () => getIntegrations(companyQuery),
@@ -134,12 +144,14 @@ export function Integrations() {
   });
   const projects = useQuery({
     queryKey: ["projects", "integration-options", selectedCompany],
-    queryFn: () => getProjects({ ...companyQuery, page_size: 100, sort_by: "name" }),
+    queryFn: () =>
+      getProjects({ ...companyQuery, page_size: 100, sort_by: "name" }),
     enabled: Boolean(selectedCompany && selectedCompanyType === "CONTRACTOR"),
   });
   const sites = useQuery({
     queryKey: ["sites", "integration-options", selectedCompany],
-    queryFn: () => getSites({ ...companyQuery, page_size: 100, sort_by: "name" }),
+    queryFn: () =>
+      getSites({ ...companyQuery, page_size: 100, sort_by: "name" }),
     enabled: Boolean(selectedCompany && selectedCompanyType === "RECYCLER"),
   });
   const scales = useQuery({
@@ -169,7 +181,7 @@ export function Integrations() {
           base_url: baseUrl.trim(),
           auth_type: authType.trim() || "NONE",
           secret,
-          settings: parsed,
+          settings: { ...parsed, mode },
           is_enabled: false,
         },
         user?.is_platform_staff ? selectedCompany : undefined,
@@ -179,6 +191,7 @@ export function Integrations() {
       setName("");
       setBaseUrl("");
       setSecret("");
+      setMode("SIMULATED");
       setSettings("{}");
       void queryClient.invalidateQueries({ queryKey: ["integrations"] });
     },
@@ -190,7 +203,8 @@ export function Integrations() {
         device_id: device.device_id.trim(),
         device_type: device.device_type.trim(),
         integration: device.integration || null,
-        project: selectedCompanyType === "CONTRACTOR" ? device.project || null : null,
+        project:
+          selectedCompanyType === "CONTRACTOR" ? device.project || null : null,
         site: selectedCompanyType === "RECYCLER" ? device.site || null : null,
         scale: selectedCompanyType === "RECYCLER" ? device.scale || null : null,
         firmware_version: device.firmware_version?.trim() || "",
@@ -201,7 +215,8 @@ export function Integrations() {
         user?.is_platform_staff ? selectedCompany : undefined,
       );
     },
-    onSuccess: () => {
+    onSuccess: (createdDevice) => {
+      setProvisionedDevice(createdDevice);
       setDevice(DEFAULT_DEVICE);
       void queryClient.invalidateQueries({ queryKey: ["integration-devices"] });
     },
@@ -219,7 +234,9 @@ export function Integrations() {
   });
   const toggle = useMutation({
     mutationFn: (integration: IntegrationConfig) =>
-      updateIntegration(integration.id, { is_enabled: !integration.is_enabled }),
+      updateIntegration(integration.id, {
+        is_enabled: !integration.is_enabled,
+      }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["integrations"] });
     },
@@ -230,6 +247,22 @@ export function Integrations() {
         integration.id,
         user?.is_platform_staff ? selectedCompany : undefined,
       ),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+    },
+  });
+  const changeMode = useMutation({
+    mutationFn: ({
+      integration,
+      value,
+    }: {
+      integration: IntegrationConfig;
+      value: "SIMULATED" | "LIVE";
+    }) =>
+      updateIntegration(integration.id, {
+        settings: { ...integration.settings, mode: value },
+        is_enabled: false,
+      }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["integrations"] });
     },
@@ -300,9 +333,7 @@ export function Integrations() {
           >
             <RefreshCw
               className={
-                integrations.isFetching
-                  ? "h-4 w-4 animate-spin"
-                  : "h-4 w-4"
+                integrations.isFetching ? "h-4 w-4 animate-spin" : "h-4 w-4"
               }
             />
             {t("common.refresh")}
@@ -316,7 +347,9 @@ export function Integrations() {
             <CircleHelp className="size-5" />
           </span>
           <div>
-            <p className="text-sm font-semibold">{t("integrations.guide.title")}</p>
+            <p className="text-sm font-semibold">
+              {t("integrations.guide.title")}
+            </p>
             <p className="mt-1 max-w-4xl text-xs leading-5 text-muted-foreground">
               {t("integrations.guide.description")}
             </p>
@@ -324,12 +357,17 @@ export function Integrations() {
         </div>
         <div className="mt-4 grid border-t sm:grid-cols-3 sm:divide-x">
           {["register", "test", "enable"].map((step, index) => (
-            <div key={step} className="flex gap-2.5 px-3 py-3 first:pl-0 last:pr-0">
+            <div
+              key={step}
+              className="flex gap-2.5 px-3 py-3 first:pl-0 last:pr-0"
+            >
               <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                 {index + 1}
               </span>
               <div>
-                <p className="text-xs font-semibold">{t(`integrations.guide.${step}.title`)}</p>
+                <p className="text-xs font-semibold">
+                  {t(`integrations.guide.${step}.title`)}
+                </p>
                 <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
                   {t(`integrations.guide.${step}.description`)}
                 </p>
@@ -414,6 +452,20 @@ export function Integrations() {
                 ))}
               </select>
             </Field>
+            <Field label={t("integrations.field.mode")}>
+              <select
+                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                value={mode}
+                onChange={(event) =>
+                  setMode(event.target.value as "SIMULATED" | "LIVE")
+                }
+              >
+                <option value="SIMULATED">
+                  {t("monitoring.mode.SIMULATED")}
+                </option>
+                <option value="LIVE">{t("monitoring.mode.LIVE")}</option>
+              </select>
+            </Field>
             <Field label={t("integrations.field.secret")}>
               <Input
                 type="password"
@@ -461,7 +513,7 @@ export function Integrations() {
             {t("integrations.connections")}
           </h2>
         </div>
-        <div className="divide-y border-y">
+        <div className="divide-y overflow-hidden rounded-lg border bg-card shadow-sm">
           {rows.length === 0 ? (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
               {t("integrations.empty")}
@@ -490,7 +542,9 @@ export function Integrations() {
                             error: row.last_error,
                           })
                         : t("integrations.test.passedAt", {
-                            date: new Date(row.last_success_at as string).toLocaleString(),
+                            date: new Date(
+                              row.last_success_at as string,
+                            ).toLocaleString(),
                           })}
                     </p>
                   )}
@@ -505,7 +559,37 @@ export function Integrations() {
                         : "neutral"
                   }
                 />
-                <div className="flex justify-end gap-2">
+                <div className="flex flex-wrap justify-end gap-2">
+                  {can("integration.manage") && (
+                    <select
+                      className="h-9 rounded-md border bg-background px-2 text-xs"
+                      aria-label={t("integrations.field.mode")}
+                      value={
+                        String(
+                          row.settings?.mode ?? "SIMULATED",
+                        ).toUpperCase() === "LIVE"
+                          ? "LIVE"
+                          : "SIMULATED"
+                      }
+                      disabled={changeMode.isPending}
+                      onChange={(event) =>
+                        changeMode.mutate({
+                          integration: row,
+                          value: event.target.value as "SIMULATED" | "LIVE",
+                        })
+                      }
+                    >
+                      <option value="SIMULATED">
+                        {t("monitoring.mode.SIMULATED")}
+                      </option>
+                      <option value="LIVE">{t("monitoring.mode.LIVE")}</option>
+                    </select>
+                  )}
+                  <TypeBadge
+                    label={t(
+                      `monitoring.mode.${String(row.settings?.mode ?? "SIMULATED").toUpperCase() === "LIVE" ? "LIVE" : "SIMULATED"}`,
+                    )}
+                  />
                   <Button
                     type="button"
                     variant="ghost"
@@ -611,7 +695,9 @@ export function Integrations() {
                       })
                     }
                   >
-                    <option value="">{t("integrations.device.unlinked")}</option>
+                    <option value="">
+                      {t("integrations.device.unlinked")}
+                    </option>
                     {projectOptions.map((item) => (
                       <option key={item.value} value={item.value}>
                         {item.label}
@@ -650,7 +736,10 @@ export function Integrations() {
                       className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                       value={device.scale ?? ""}
                       onChange={(event) =>
-                        setDevice({ ...device, scale: event.target.value || null })
+                        setDevice({
+                          ...device,
+                          scale: event.target.value || null,
+                        })
                       }
                     >
                       <option value="">
@@ -669,7 +758,10 @@ export function Integrations() {
                 <Input
                   value={device.firmware_version ?? ""}
                   onChange={(event) =>
-                    setDevice({ ...device, firmware_version: event.target.value })
+                    setDevice({
+                      ...device,
+                      firmware_version: event.target.value,
+                    })
                   }
                 />
               </Field>
@@ -723,7 +815,9 @@ export function Integrations() {
                       item.firmware_version
                         ? `${t("integrations.device.firmware")}: ${item.firmware_version}`
                         : null,
-                      item.has_secret ? t("integrations.device.secretStored") : null,
+                      item.has_secret
+                        ? t("integrations.device.secretStored")
+                        : null,
                     ]
                       .filter(Boolean)
                       .join(" / ") || t("integrations.device.noBinding")}
@@ -803,6 +897,101 @@ export function Integrations() {
           onClose={() => setHistoryIntegration(null)}
         />
       )}
+      {provisionedDevice?.provisioning && (
+        <DeviceProvisioningDialog
+          device={provisionedDevice}
+          onClose={() => setProvisionedDevice(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function DeviceProvisioningDialog({
+  device,
+  onClose,
+}: {
+  device: IntegrationDevice;
+  onClose: () => void;
+}) {
+  const t = useTranslations();
+  const provisioning = device.provisioning!;
+  const body = JSON.stringify(
+    {
+      device_id: provisioning.device_id,
+      sent_at: new Date().toISOString(),
+      status: "ONLINE",
+      firmware_version: device.firmware_version || "1.0.0",
+      metrics: {},
+    },
+    null,
+    2,
+  );
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
+            {t("integrations.device.provisioningTitle")}
+          </DialogTitle>
+          <DialogDescription>
+            {t("integrations.device.provisioningDescription")}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="min-h-0 space-y-3 overflow-y-auto pr-2 [scrollbar-gutter:stable]">
+          <ProvisioningValue
+            label={t("integrations.device.heartbeatUrl")}
+            value={provisioning.heartbeat_url}
+          />
+          <ProvisioningValue
+            label={t("integrations.device.recordId")}
+            value={provisioning.device_record_id}
+          />
+          <ProvisioningValue
+            label={t("integrations.device.deviceHeader")}
+            value={`${provisioning.device_header}: ${provisioning.device_record_id}`}
+          />
+          <ProvisioningValue
+            label={t("integrations.device.signatureHeader")}
+            value={`${provisioning.signature_header}: ${provisioning.signature}`}
+          />
+          <ProvisioningValue
+            label={t("integrations.device.oneTimeSecret")}
+            value={provisioning.secret}
+            sensitive
+          />
+          <div className="space-y-1.5">
+            <Label>{t("integrations.device.heartbeatBody")}</Label>
+            <pre className="overflow-x-auto rounded-lg border bg-muted/30 p-3 text-xs">
+              {body}
+            </pre>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={onClose}>{t("common.close")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ProvisioningValue({
+  label,
+  value,
+  sensitive = false,
+}: {
+  label: string;
+  value: string;
+  sensitive?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <code
+        className={`block break-all rounded-lg border px-3 py-2 text-xs ${sensitive ? "border-warning/30 bg-warning/10" : "bg-muted/30"}`}
+      >
+        {value}
+      </code>
     </div>
   );
 }

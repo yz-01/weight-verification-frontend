@@ -1,7 +1,16 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Check, FileDown, Loader2, Plus, RadioTower, Save, Settings2 } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  FileDown,
+  Loader2,
+  Plus,
+  RadioTower,
+  Save,
+  Settings2,
+} from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -11,52 +20,971 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import type { CompanyRow } from "@/interfaces/company";
-import type { APIIntegration, BugReport, BugState, DeviceMaintenance, OperationMode, RemoteOperation, SupportTicket, TicketState } from "@/interfaces/support";
+import type {
+  APIIntegration,
+  BugReport,
+  BugState,
+  DeviceMaintenance,
+  OperationMode,
+  RemoteOperation,
+  SupportTicket,
+  TicketState,
+} from "@/interfaces/support";
 import { useDateFormat } from "@/lib/dates";
 import { getCompanies } from "@/services/companies.service";
-import { completeMaintenance, createAPIIntegration, createBug, createMaintenance, createTicket, exportTechnicalSupportReport, getAPIIntegrations, getBugs, getMaintenance, getTechnicalSupportSummary, getTickets, remoteOperate, transitionTicket, updateAPIIntegration, updateBug, type BugPayload, type DevicePayload, type IntegrationPayload, type TicketPayload } from "@/services/support.service";
+import {
+  completeMaintenance,
+  createAPIIntegration,
+  createBug,
+  createMaintenance,
+  createTicket,
+  exportTechnicalSupportReport,
+  getAPIIntegrations,
+  getBugs,
+  getMaintenance,
+  getTechnicalSupportSummary,
+  getTickets,
+  remoteOperate,
+  transitionTicket,
+  updateAPIIntegration,
+  updateBug,
+  type BugPayload,
+  type DevicePayload,
+  type IntegrationPayload,
+  type TicketPayload,
+} from "@/services/support.service";
 
-export type TechnicalSupportSection = "overview" | "tickets" | "states" | "bugs" | "api" | "installations" | "maintenance" | "reports" | "activity";
-const SUBMODULES: Array<{ section: Exclude<TechnicalSupportSection, "overview">; number: string }> = [
-  { section: "tickets", number: "15.2.1" }, { section: "states", number: "15.2.2" }, { section: "bugs", number: "15.2.3" }, { section: "api", number: "15.2.4" },
-  { section: "installations", number: "15.2.5" }, { section: "maintenance", number: "15.2.6" }, { section: "reports", number: "15.2.7" }, { section: "activity", number: "15.2.8" },
+export type TechnicalSupportSection =
+  | "overview"
+  | "tickets"
+  | "states"
+  | "bugs"
+  | "api"
+  | "installations"
+  | "maintenance"
+  | "reports"
+  | "activity";
+const SUBMODULES: Array<{
+  section: Exclude<TechnicalSupportSection, "overview">;
+  number: string;
+}> = [
+  { section: "tickets", number: "15.2.1" },
+  { section: "states", number: "15.2.2" },
+  { section: "bugs", number: "15.2.3" },
+  { section: "api", number: "15.2.4" },
+  { section: "installations", number: "15.2.5" },
+  { section: "maintenance", number: "15.2.6" },
+  { section: "reports", number: "15.2.7" },
+  { section: "activity", number: "15.2.8" },
 ];
-const TICKET_STATES: TicketState[] = ["PENDING", "IN_PROGRESS", "TESTING", "COMPLETED", "CLOSED"];
+const TICKET_STATES: TicketState[] = [
+  "PENDING",
+  "IN_PROGRESS",
+  "TESTING",
+  "COMPLETED",
+  "CLOSED",
+];
 
-export function TechnicalSupportWorkspace({ section = "overview" }: { section?: TechnicalSupportSection }) {
+export function TechnicalSupportWorkspace({
+  section = "overview",
+}: {
+  section?: TechnicalSupportSection;
+}) {
   const t = useTranslations("adminTechnicalSupport");
-  if (section === "activity") return <AuditLogs fixedCategory="TECHNICAL_SUPPORT" title={t("section.activity.title")} subtitle={t("section.activity.subtitle")} />;
+  if (section === "activity")
+    return (
+      <AuditLogs
+        fixedCategory="TECHNICAL_SUPPORT"
+        title={t("section.activity.title")}
+        subtitle={t("section.activity.subtitle")}
+      />
+    );
   if (section === "overview") return <Overview />;
-  return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={t(`section.${section}.title`)} subtitle={t(`section.${section}.subtitle`)} />
-    {(section === "tickets" || section === "states") && <TicketPanel createAllowed={section === "tickets"} />}
-    {section === "bugs" && <BugPanel />}{section === "api" && <APIIntegrationPanel />}
-    {section === "installations" && <DevicePanel installations />}{section === "maintenance" && <DevicePanel installations={false} />}
-    {section === "reports" && <ReportPanel />}
-  </div>;
+  return (
+    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+      <ListHeader
+        title={t(`section.${section}.title`)}
+        subtitle={t(`section.${section}.subtitle`)}
+      />
+      {(section === "tickets" || section === "states") && (
+        <TicketPanel createAllowed={section === "tickets"} />
+      )}
+      {section === "bugs" && <BugPanel />}
+      {section === "api" && <APIIntegrationPanel />}
+      {section === "installations" && <DevicePanel installations />}
+      {section === "maintenance" && <DevicePanel installations={false} />}
+      {section === "reports" && <ReportPanel />}
+    </div>
+  );
 }
 
-function Overview() { const t = useTranslations("adminTechnicalSupport"); const summary = useQuery({ queryKey: ["technical-support-summary"], queryFn: getTechnicalSupportSummary }); return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={t("title")} subtitle={t("subtitle")} /><div className="grid border-y bg-card sm:grid-cols-2 xl:grid-cols-4">{[["tickets", summary.data?.tickets ?? 0], ["bugs", summary.data?.bugs ?? 0], ["installations", summary.data?.installations ?? 0], ["completion", `${summary.data?.completion_rate ?? 0}%`]].map(([key, value]) => <div key={key} className="border-b border-r px-5 py-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-2xl font-semibold">{value}</p></div>)}</div><div className="min-h-0 flex-1 overflow-auto border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((item) => <Link key={item.section} href={`/support-tickets/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div></div>; }
-function Panel({ loading, error, children }: { loading: boolean; error: boolean; children: React.ReactNode }) { const t = useTranslations("adminTechnicalSupport"); if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>; if (error) return <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>; return <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">{children}</div>; }
-function useCompanies() { return useQuery({ queryKey: ["companies", "support-options"], queryFn: () => getCompanies({ page_size: 200, sort_by: "name" }) }); }
-function CompanySelect({ companies, value, onChange, optional = false }: { companies: CompanyRow[]; value: string; onChange: (v: string) => void; optional?: boolean }) { const t = useTranslations("adminTechnicalSupport"); return <select className="h-8 rounded-md border bg-background px-2" value={value} onChange={(e) => onChange(e.target.value)}><option value="">{t(optional ? "field.platformIssue" : "field.selectCompany")}</option>{companies.map((x) => <option key={x.id} value={x.id}>{x.code} / {x.name}</option>)}</select>; }
+function Overview() {
+  const t = useTranslations("adminTechnicalSupport");
+  const summary = useQuery({
+    queryKey: ["technical-support-summary"],
+    queryFn: getTechnicalSupportSummary,
+  });
+  return (
+    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+      <ListHeader title={t("title")} subtitle={t("subtitle")} />
+      <div className="grid gap-px overflow-hidden rounded-lg border bg-border shadow-sm sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          ["tickets", summary.data?.tickets ?? 0],
+          ["bugs", summary.data?.bugs ?? 0],
+          ["installations", summary.data?.installations ?? 0],
+          ["completion", `${summary.data?.completion_rate ?? 0}%`],
+        ].map(([key, value]) => (
+          <div key={key} className="bg-card px-5 py-4">
+            <p className="text-xs text-muted-foreground">
+              {t(`metric.${key}`)}
+            </p>
+            <p className="mt-1 text-2xl font-semibold">{value}</p>
+          </div>
+        ))}
+      </div>
+      <div className="min-h-0 flex-1 overflow-auto">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {SUBMODULES.map((item) => (
+            <Link
+              key={item.section}
+              href={`/support-tickets/${item.section}`}
+              className="group flex min-h-24 items-center gap-3 rounded-lg border bg-card px-5 py-4 shadow-sm transition hover:border-primary/35 hover:shadow-md"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium">
+                  {t(`section.${item.section}.title`)}
+                </span>
+                <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
+                  {t(`section.${item.section}.subtitle`)}
+                </span>
+              </span>
+              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+function Panel({
+  loading,
+  error,
+  children,
+}: {
+  loading: boolean;
+  error: boolean;
+  children: React.ReactNode;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  if (loading)
+    return (
+      <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm">
+        <Loader2 className="mr-2 animate-spin" />
+        {t("loading")}
+      </div>
+    );
+  if (error)
+    return (
+      <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">
+        {t("loadError")}
+      </div>
+    );
+  return (
+    <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">
+      {children}
+    </div>
+  );
+}
+function useCompanies() {
+  return useQuery({
+    queryKey: ["companies", "support-options"],
+    queryFn: () => getCompanies({ page_size: 200, sort_by: "name" }),
+  });
+}
+function CompanySelect({
+  companies,
+  value,
+  onChange,
+  optional = false,
+}: {
+  companies: CompanyRow[];
+  value: string;
+  onChange: (v: string) => void;
+  optional?: boolean;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  return (
+    <select
+      className="h-8 rounded-md border bg-background px-2"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    >
+      <option value="">
+        {t(optional ? "field.platformIssue" : "field.selectCompany")}
+      </option>
+      {companies.map((x) => (
+        <option key={x.id} value={x.id}>
+          {x.code} / {x.name}
+        </option>
+      ))}
+    </select>
+  );
+}
 
-function TicketPanel({ createAllowed }: { createAllowed: boolean }) { const t = useTranslations("adminTechnicalSupport"); const df = useDateFormat(); const qc = useQueryClient(); const companies = useCompanies(); const rows = useQuery({ queryKey: ["support-tickets", createAllowed], queryFn: () => getTickets({ page_size: 200 }) }); const [creating, setCreating] = useState(false); const [processing, setProcessing] = useState<SupportTicket | null>(null); return <Panel loading={rows.isLoading} error={rows.isError}>{createAllowed && <div className="flex justify-end border-b p-3"><Button onClick={() => setCreating(true)}><Plus />{t("action.addTicket")}</Button></div>}<Table><TableHeader><TableRow>{["code", "type", "company", "subject", "priority", "handler", "date", "status", "actions"].map((x) => <TableHead key={x}>{t(`column.${x}`)}</TableHead>)}</TableRow></TableHeader><TableBody>{(rows.data?.results ?? []).map((row) => <TableRow key={row.id}><TableCell>{row.code}</TableCell><TableCell>{t(`ticketType.${row.type}`)}</TableCell><TableCell>{row.company_name || t("field.platformIssue")}</TableCell><TableCell>{row.title}</TableCell><TableCell>{t(`priority.${row.priority}`)}</TableCell><TableCell>{row.assigned_to_name || "-"}</TableCell><TableCell>{df.date(row.created_at)}</TableCell><TableCell><StatusBadge label={t(`ticketState.${row.state}`)} tone={row.state === "COMPLETED" ? "positive" : row.state === "CLOSED" ? "neutral" : "warning"} /></TableCell><TableCell><Button size="sm" variant="outline" onClick={() => setProcessing(row)}><Settings2 />{t("action.process")}</Button></TableCell></TableRow>)}</TableBody></Table>{creating && <TicketDialog companies={companies.data?.results ?? []} onClose={() => setCreating(false)} onSaved={() => qc.invalidateQueries({ queryKey: ["support-tickets"] })} />}{processing && <TicketStateDialog row={processing} onClose={() => setProcessing(null)} onSaved={() => qc.invalidateQueries({ queryKey: ["support-tickets"] })} />}</Panel>; }
+function TicketPanel({ createAllowed }: { createAllowed: boolean }) {
+  const t = useTranslations("adminTechnicalSupport");
+  const df = useDateFormat();
+  const qc = useQueryClient();
+  const companies = useCompanies();
+  const rows = useQuery({
+    queryKey: ["support-tickets", createAllowed],
+    queryFn: () => getTickets({ page_size: 200 }),
+  });
+  const [creating, setCreating] = useState(false);
+  const [processing, setProcessing] = useState<SupportTicket | null>(null);
+  return (
+    <Panel loading={rows.isLoading} error={rows.isError}>
+      {createAllowed && (
+        <div className="flex justify-end border-b p-3">
+          <Button onClick={() => setCreating(true)}>
+            <Plus />
+            {t("action.addTicket")}
+          </Button>
+        </div>
+      )}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {[
+              "code",
+              "type",
+              "company",
+              "subject",
+              "priority",
+              "handler",
+              "date",
+              "status",
+              "actions",
+            ].map((x) => (
+              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {(rows.data?.results ?? []).map((row) => (
+            <TableRow key={row.id}>
+              <TableCell>{row.code}</TableCell>
+              <TableCell>{t(`ticketType.${row.type}`)}</TableCell>
+              <TableCell>
+                {row.company_name || t("field.platformIssue")}
+              </TableCell>
+              <TableCell>{row.title}</TableCell>
+              <TableCell>{t(`priority.${row.priority}`)}</TableCell>
+              <TableCell>{row.assigned_to_name || "-"}</TableCell>
+              <TableCell>{df.date(row.created_at)}</TableCell>
+              <TableCell>
+                <StatusBadge
+                  label={t(`ticketState.${row.state}`)}
+                  tone={
+                    row.state === "COMPLETED"
+                      ? "positive"
+                      : row.state === "CLOSED"
+                        ? "neutral"
+                        : "warning"
+                  }
+                />
+              </TableCell>
+              <TableCell>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setProcessing(row)}
+                >
+                  <Settings2 />
+                  {t("action.process")}
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {creating && (
+        <TicketDialog
+          companies={companies.data?.results ?? []}
+          onClose={() => setCreating(false)}
+          onSaved={() =>
+            qc.invalidateQueries({ queryKey: ["support-tickets"] })
+          }
+        />
+      )}
+      {processing && (
+        <TicketStateDialog
+          row={processing}
+          onClose={() => setProcessing(null)}
+          onSaved={() =>
+            qc.invalidateQueries({ queryKey: ["support-tickets"] })
+          }
+        />
+      )}
+    </Panel>
+  );
+}
 
-function TicketDialog({ companies, onClose, onSaved }: { companies: CompanyRow[]; onClose: () => void; onSaved: () => void }) { const t = useTranslations("adminTechnicalSupport"); const [form, setForm] = useState<TicketPayload>({ type: "SYSTEM_ISSUE", priority: "MEDIUM", title: "", description: "", company: null }); const set = (key: keyof TicketPayload, value: unknown) => setForm((x) => ({ ...x, [key]: value })); const save = useMutation({ mutationFn: () => createTicket(form), onSuccess: () => { onSaved(); onClose(); } }); return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t("action.addTicket")}</DialogTitle><DialogDescription>{t("dialog.ticket")}</DialogDescription></DialogHeader><div className="grid gap-3 sm:grid-cols-2"><CompanySelect optional companies={companies} value={form.company ?? ""} onChange={(x) => set("company", x || null)} /><select className="h-8 rounded-md border bg-background px-2" value={form.type} onChange={(e) => set("type", e.target.value)}>{["BUG", "SYSTEM_ISSUE", "API_INTEGRATION", "WEIGHBRIDGE_INSTALL", "AI_CCTV", "ANPR", "DEVICE_MAINTENANCE", "OTHER"].map((x) => <option key={x} value={x}>{t(`ticketType.${x}`)}</option>)}</select><select className="h-8 rounded-md border bg-background px-2" value={form.priority} onChange={(e) => set("priority", e.target.value)}>{["LOW", "MEDIUM", "HIGH", "URGENT"].map((x) => <option key={x} value={x}>{t(`priority.${x}`)}</option>)}</select><Input placeholder={t("field.subject")} value={form.title} onChange={(e) => set("title", e.target.value)} /><Textarea className="sm:col-span-2" placeholder={t("field.description")} value={form.description} onChange={(e) => set("description", e.target.value)} /><Textarea placeholder={t("field.environment")} value={form.environment ?? ""} onChange={(e) => set("environment", e.target.value)} /><Textarea placeholder={t("field.steps")} value={form.steps_to_reproduce ?? ""} onChange={(e) => set("steps_to_reproduce", e.target.value)} /></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!form.title || !form.description || save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>; }
-function TicketStateDialog({ row, onClose, onSaved }: { row: SupportTicket; onClose: () => void; onSaved: () => void }) { const t = useTranslations("adminTechnicalSupport"); const [state, setState] = useState<TicketState>(row.state); const [note, setNote] = useState(""); const save = useMutation({ mutationFn: () => transitionTicket(row.id, state, note), onSuccess: () => { onSaved(); onClose(); } }); return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("action.process")}</DialogTitle><DialogDescription>{row.code} / {row.title}</DialogDescription></DialogHeader><select className="h-8 rounded-md border bg-background px-2" value={state} onChange={(e) => setState(e.target.value as TicketState)}>{TICKET_STATES.map((x) => <option key={x} value={x}>{t(`ticketState.${x}`)}</option>)}</select><Textarea placeholder={t("field.result")} value={note} onChange={(e) => setNote(e.target.value)} /><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={state === row.state || save.isPending} onClick={() => save.mutate()}><Check />{t("action.confirm")}</Button></DialogFooter></DialogContent></Dialog>; }
+function TicketDialog({
+  companies,
+  onClose,
+  onSaved,
+}: {
+  companies: CompanyRow[];
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const [form, setForm] = useState<TicketPayload>({
+    type: "SYSTEM_ISSUE",
+    priority: "MEDIUM",
+    title: "",
+    description: "",
+    company: null,
+  });
+  const set = (key: keyof TicketPayload, value: unknown) =>
+    setForm((x) => ({ ...x, [key]: value }));
+  const save = useMutation({
+    mutationFn: () => createTicket(form),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t("action.addTicket")}</DialogTitle>
+          <DialogDescription>{t("dialog.ticket")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <CompanySelect
+            optional
+            companies={companies}
+            value={form.company ?? ""}
+            onChange={(x) => set("company", x || null)}
+          />
+          <select
+            className="h-8 rounded-md border bg-background px-2"
+            value={form.type}
+            onChange={(e) => set("type", e.target.value)}
+          >
+            {[
+              "BUG",
+              "SYSTEM_ISSUE",
+              "API_INTEGRATION",
+              "WEIGHBRIDGE_INSTALL",
+              "AI_CCTV",
+              "ANPR",
+              "DEVICE_MAINTENANCE",
+              "OTHER",
+            ].map((x) => (
+              <option key={x} value={x}>
+                {t(`ticketType.${x}`)}
+              </option>
+            ))}
+          </select>
+          <select
+            className="h-8 rounded-md border bg-background px-2"
+            value={form.priority}
+            onChange={(e) => set("priority", e.target.value)}
+          >
+            {["LOW", "MEDIUM", "HIGH", "URGENT"].map((x) => (
+              <option key={x} value={x}>
+                {t(`priority.${x}`)}
+              </option>
+            ))}
+          </select>
+          <Input
+            placeholder={t("field.subject")}
+            value={form.title}
+            onChange={(e) => set("title", e.target.value)}
+          />
+          <Textarea
+            className="sm:col-span-2"
+            placeholder={t("field.description")}
+            value={form.description}
+            onChange={(e) => set("description", e.target.value)}
+          />
+          <Textarea
+            placeholder={t("field.environment")}
+            value={form.environment ?? ""}
+            onChange={(e) => set("environment", e.target.value)}
+          />
+          <Textarea
+            placeholder={t("field.steps")}
+            value={form.steps_to_reproduce ?? ""}
+            onChange={(e) => set("steps_to_reproduce", e.target.value)}
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            disabled={!form.title || !form.description || save.isPending}
+            onClick={() => save.mutate()}
+          >
+            <Save />
+            {t("action.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+function TicketStateDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  row: SupportTicket;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const [state, setState] = useState<TicketState>(row.state);
+  const [note, setNote] = useState("");
+  const save = useMutation({
+    mutationFn: () => transitionTicket(row.id, state, note),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t("action.process")}</DialogTitle>
+          <DialogDescription>
+            {row.code} / {row.title}
+          </DialogDescription>
+        </DialogHeader>
+        <select
+          className="h-8 rounded-md border bg-background px-2"
+          value={state}
+          onChange={(e) => setState(e.target.value as TicketState)}
+        >
+          {TICKET_STATES.map((x) => (
+            <option key={x} value={x}>
+              {t(`ticketState.${x}`)}
+            </option>
+          ))}
+        </select>
+        <Textarea
+          placeholder={t("field.result")}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            disabled={state === row.state || save.isPending}
+            onClick={() => save.mutate()}
+          >
+            <Check />
+            {t("action.confirm")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
-function BugPanel() { const t = useTranslations("adminTechnicalSupport"); const df = useDateFormat(); const qc = useQueryClient(); const companies = useCompanies(); const rows = useQuery({ queryKey: ["bug-reports"], queryFn: () => getBugs({ page_size: 200 }) }); const [creating, setCreating] = useState(false); const [editing, setEditing] = useState<BugReport | null>(null); return <Panel loading={rows.isLoading} error={rows.isError}><div className="flex justify-end border-b p-3"><Button onClick={() => setCreating(true)}><Plus />{t("action.addBug")}</Button></div><Table><TableHeader><TableRow>{["code", "module", "subject", "severity", "handler", "date", "status", "actions"].map((x) => <TableHead key={x}>{t(`column.${x}`)}</TableHead>)}</TableRow></TableHeader><TableBody>{(rows.data?.results ?? []).map((row) => <TableRow key={row.id}><TableCell>{row.bug_code}</TableCell><TableCell>{row.module || "-"}</TableCell><TableCell>{row.title}</TableCell><TableCell>{t(`severity.${row.severity}`)}</TableCell><TableCell>{row.assigned_to_name || "-"}</TableCell><TableCell>{df.date(row.created_at)}</TableCell><TableCell>{t(`bugState.${row.state}`)}</TableCell><TableCell><Button size="sm" variant="outline" onClick={() => setEditing(row)}>{t("action.process")}</Button></TableCell></TableRow>)}</TableBody></Table>{creating && <BugDialog companies={companies.data?.results ?? []} onClose={() => setCreating(false)} onSaved={() => qc.invalidateQueries({ queryKey: ["bug-reports"] })} />}{editing && <BugUpdateDialog row={editing} onClose={() => setEditing(null)} onSaved={() => qc.invalidateQueries({ queryKey: ["bug-reports"] })} />}</Panel>; }
-function BugDialog({ companies, onClose, onSaved }: { companies: CompanyRow[]; onClose: () => void; onSaved: () => void }) { const t = useTranslations("adminTechnicalSupport"); const [form, setForm] = useState<BugPayload>({ title: "", description: "", severity: "NORMAL", module: "", company: null }); const set = (key: keyof BugPayload, value: string | null) => setForm((x) => ({ ...x, [key]: value })); const save = useMutation({ mutationFn: () => createBug(form), onSuccess: () => { onSaved(); onClose(); } }); return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("action.addBug")}</DialogTitle><DialogDescription>{t("dialog.bug")}</DialogDescription></DialogHeader><CompanySelect optional companies={companies} value={form.company ?? ""} onChange={(x) => set("company", x || null)} /><select className="h-8 rounded-md border bg-background px-2" value={form.severity} onChange={(e) => set("severity", e.target.value)}>{["MINOR", "NORMAL", "MAJOR", "CRITICAL"].map((x) => <option key={x} value={x}>{t(`severity.${x}`)}</option>)}</select><Input placeholder={t("field.module")} value={form.module} onChange={(e) => set("module", e.target.value)} /><Input placeholder={t("field.subject")} value={form.title} onChange={(e) => set("title", e.target.value)} /><Textarea placeholder={t("field.description")} value={form.description} onChange={(e) => set("description", e.target.value)} /><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!form.title || !form.description || save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>; }
-function BugUpdateDialog({ row, onClose, onSaved }: { row: BugReport; onClose: () => void; onSaved: () => void }) { const t = useTranslations("adminTechnicalSupport"); const [state, setState] = useState<BugState>(row.state); const [root, setRoot] = useState(row.root_cause); const [fix, setFix] = useState(row.fix_description); const [version, setVersion] = useState(row.fixed_in_version); const save = useMutation({ mutationFn: () => updateBug(row.id, { state, root_cause: root, fix_description: fix, fixed_in_version: version }), onSuccess: () => { onSaved(); onClose(); } }); return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{row.bug_code}</DialogTitle><DialogDescription>{row.title}</DialogDescription></DialogHeader><select className="h-8 rounded-md border bg-background px-2" value={state} onChange={(e) => setState(e.target.value as BugState)}>{["OPEN", "CONFIRMED", "IN_PROGRESS", "FIXED", "VERIFIED", "CLOSED", "WONT_FIX"].map((x) => <option key={x} value={x}>{t(`bugState.${x}`)}</option>)}</select><Textarea placeholder={t("field.rootCause")} value={root} onChange={(e) => setRoot(e.target.value)} /><Textarea placeholder={t("field.fix")} value={fix} onChange={(e) => setFix(e.target.value)} /><Input placeholder={t("field.firmware")} value={version} onChange={(e) => setVersion(e.target.value)} /><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>; }
+function BugPanel() {
+  const t = useTranslations("adminTechnicalSupport");
+  const df = useDateFormat();
+  const qc = useQueryClient();
+  const companies = useCompanies();
+  const rows = useQuery({
+    queryKey: ["bug-reports"],
+    queryFn: () => getBugs({ page_size: 200 }),
+  });
+  const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<BugReport | null>(null);
+  return (
+    <Panel loading={rows.isLoading} error={rows.isError}>
+      <div className="flex justify-end border-b p-3">
+        <Button onClick={() => setCreating(true)}>
+          <Plus />
+          {t("action.addBug")}
+        </Button>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {[
+              "code",
+              "module",
+              "subject",
+              "severity",
+              "handler",
+              "date",
+              "status",
+              "actions",
+            ].map((x) => (
+              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {(rows.data?.results ?? []).map((row) => (
+            <TableRow key={row.id}>
+              <TableCell>{row.bug_code}</TableCell>
+              <TableCell>{row.module || "-"}</TableCell>
+              <TableCell>{row.title}</TableCell>
+              <TableCell>{t(`severity.${row.severity}`)}</TableCell>
+              <TableCell>{row.assigned_to_name || "-"}</TableCell>
+              <TableCell>{df.date(row.created_at)}</TableCell>
+              <TableCell>{t(`bugState.${row.state}`)}</TableCell>
+              <TableCell>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEditing(row)}
+                >
+                  {t("action.process")}
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {creating && (
+        <BugDialog
+          companies={companies.data?.results ?? []}
+          onClose={() => setCreating(false)}
+          onSaved={() => qc.invalidateQueries({ queryKey: ["bug-reports"] })}
+        />
+      )}
+      {editing && (
+        <BugUpdateDialog
+          row={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => qc.invalidateQueries({ queryKey: ["bug-reports"] })}
+        />
+      )}
+    </Panel>
+  );
+}
+function BugDialog({
+  companies,
+  onClose,
+  onSaved,
+}: {
+  companies: CompanyRow[];
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const [form, setForm] = useState<BugPayload>({
+    title: "",
+    description: "",
+    severity: "NORMAL",
+    module: "",
+    company: null,
+  });
+  const set = (key: keyof BugPayload, value: string | null) =>
+    setForm((x) => ({ ...x, [key]: value }));
+  const save = useMutation({
+    mutationFn: () => createBug(form),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t("action.addBug")}</DialogTitle>
+          <DialogDescription>{t("dialog.bug")}</DialogDescription>
+        </DialogHeader>
+        <CompanySelect
+          optional
+          companies={companies}
+          value={form.company ?? ""}
+          onChange={(x) => set("company", x || null)}
+        />
+        <select
+          className="h-8 rounded-md border bg-background px-2"
+          value={form.severity}
+          onChange={(e) => set("severity", e.target.value)}
+        >
+          {["MINOR", "NORMAL", "MAJOR", "CRITICAL"].map((x) => (
+            <option key={x} value={x}>
+              {t(`severity.${x}`)}
+            </option>
+          ))}
+        </select>
+        <Input
+          placeholder={t("field.module")}
+          value={form.module}
+          onChange={(e) => set("module", e.target.value)}
+        />
+        <Input
+          placeholder={t("field.subject")}
+          value={form.title}
+          onChange={(e) => set("title", e.target.value)}
+        />
+        <Textarea
+          placeholder={t("field.description")}
+          value={form.description}
+          onChange={(e) => set("description", e.target.value)}
+        />
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            disabled={!form.title || !form.description || save.isPending}
+            onClick={() => save.mutate()}
+          >
+            <Save />
+            {t("action.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+function BugUpdateDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  row: BugReport;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const [state, setState] = useState<BugState>(row.state);
+  const [root, setRoot] = useState(row.root_cause);
+  const [fix, setFix] = useState(row.fix_description);
+  const [version, setVersion] = useState(row.fixed_in_version);
+  const save = useMutation({
+    mutationFn: () =>
+      updateBug(row.id, {
+        state,
+        root_cause: root,
+        fix_description: fix,
+        fixed_in_version: version,
+      }),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{row.bug_code}</DialogTitle>
+          <DialogDescription>{row.title}</DialogDescription>
+        </DialogHeader>
+        <select
+          className="h-8 rounded-md border bg-background px-2"
+          value={state}
+          onChange={(e) => setState(e.target.value as BugState)}
+        >
+          {[
+            "OPEN",
+            "CONFIRMED",
+            "IN_PROGRESS",
+            "FIXED",
+            "VERIFIED",
+            "CLOSED",
+            "WONT_FIX",
+          ].map((x) => (
+            <option key={x} value={x}>
+              {t(`bugState.${x}`)}
+            </option>
+          ))}
+        </select>
+        <Textarea
+          placeholder={t("field.rootCause")}
+          value={root}
+          onChange={(e) => setRoot(e.target.value)}
+        />
+        <Textarea
+          placeholder={t("field.fix")}
+          value={fix}
+          onChange={(e) => setFix(e.target.value)}
+        />
+        <Input
+          placeholder={t("field.firmware")}
+          value={version}
+          onChange={(e) => setVersion(e.target.value)}
+        />
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button disabled={save.isPending} onClick={() => save.mutate()}>
+            <Save />
+            {t("action.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
-function APIIntegrationPanel() { const t = useTranslations("adminTechnicalSupport"); const qc = useQueryClient(); const companies = useCompanies(); const rows = useQuery({ queryKey: ["support-api-integrations"], queryFn: () => getAPIIntegrations({ page_size: 200 }) }); const [creating, setCreating] = useState(false); const [editing, setEditing] = useState<APIIntegration | null>(null); return <Panel loading={rows.isLoading} error={rows.isError}><div className="flex justify-end border-b p-3"><Button onClick={() => setCreating(true)}><Plus />{t("action.addIntegration")}</Button></div><Table><TableHeader><TableRow>{["code", "company", "apiName", "date", "handler", "testStatus", "liveStatus", "actions"].map((x) => <TableHead key={x}>{t(`column.${x}`)}</TableHead>)}</TableRow></TableHeader><TableBody>{(rows.data?.results ?? []).map((row) => <TableRow key={row.id}><TableCell>{row.code}</TableCell><TableCell>{row.company_name}</TableCell><TableCell>{row.api_name}</TableCell><TableCell>{row.integration_date}</TableCell><TableCell>{row.owner_name || "-"}</TableCell><TableCell>{t(`testStatus.${row.test_status}`)}</TableCell><TableCell>{t(`activationStatus.${row.live_status}`)}</TableCell><TableCell><Button size="sm" variant="outline" onClick={() => setEditing(row)}>{t("action.process")}</Button></TableCell></TableRow>)}</TableBody></Table>{creating && <IntegrationDialog companies={companies.data?.results ?? []} onClose={() => setCreating(false)} onSaved={() => qc.invalidateQueries({ queryKey: ["support-api-integrations"] })} />}{editing && <IntegrationUpdateDialog row={editing} onClose={() => setEditing(null)} onSaved={() => qc.invalidateQueries({ queryKey: ["support-api-integrations"] })} />}</Panel>; }
-function IntegrationDialog({ companies, onClose, onSaved }: { companies: CompanyRow[]; onClose: () => void; onSaved: () => void }) { const t = useTranslations("adminTechnicalSupport"); const [form, setForm] = useState<IntegrationPayload>({ company: "", api_name: "", endpoint: "", integration_date: "" }); const set = (key: keyof IntegrationPayload, value: string) => setForm((x) => ({ ...x, [key]: value })); const save = useMutation({ mutationFn: () => createAPIIntegration(form), onSuccess: () => { onSaved(); onClose(); } }); return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("action.addIntegration")}</DialogTitle><DialogDescription>{t("dialog.api")}</DialogDescription></DialogHeader><CompanySelect companies={companies} value={form.company} onChange={(x) => set("company", x)} /><Input placeholder={t("field.apiName")} value={form.api_name} onChange={(e) => set("api_name", e.target.value)} /><Input type="url" placeholder={t("field.endpoint")} value={form.endpoint} onChange={(e) => set("endpoint", e.target.value)} /><Input type="date" value={form.integration_date} onChange={(e) => set("integration_date", e.target.value)} /><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!form.company || !form.api_name || !form.integration_date || save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>; }
-function IntegrationUpdateDialog({ row, onClose, onSaved }: { row: APIIntegration; onClose: () => void; onSaved: () => void }) { const t = useTranslations("adminTechnicalSupport"); const [test, setTest] = useState(row.test_status); const [live, setLive] = useState(row.live_status); const [result, setResult] = useState(row.test_result); const save = useMutation({ mutationFn: () => updateAPIIntegration(row.id, { test_status: test, live_status: live, test_result: result }), onSuccess: () => { onSaved(); onClose(); } }); return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{row.code}</DialogTitle><DialogDescription>{row.company_name} / {row.api_name}</DialogDescription></DialogHeader><select className="h-8 rounded-md border bg-background px-2" value={test} onChange={(e) => setTest(e.target.value as typeof test)}>{["PENDING", "PASSED", "FAILED"].map((x) => <option key={x} value={x}>{t(`testStatus.${x}`)}</option>)}</select><select className="h-8 rounded-md border bg-background px-2" value={live} onChange={(e) => setLive(e.target.value as typeof live)}>{["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => <option key={x} value={x}>{t(`activationStatus.${x}`)}</option>)}</select><Textarea placeholder={t("field.testResult")} value={result} onChange={(e) => setResult(e.target.value)} /><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>; }
+function APIIntegrationPanel() {
+  const t = useTranslations("adminTechnicalSupport");
+  const qc = useQueryClient();
+  const companies = useCompanies();
+  const rows = useQuery({
+    queryKey: ["support-api-integrations"],
+    queryFn: () => getAPIIntegrations({ page_size: 200 }),
+  });
+  const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<APIIntegration | null>(null);
+  return (
+    <Panel loading={rows.isLoading} error={rows.isError}>
+      <div className="flex justify-end border-b p-3">
+        <Button onClick={() => setCreating(true)}>
+          <Plus />
+          {t("action.addIntegration")}
+        </Button>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {[
+              "code",
+              "company",
+              "apiName",
+              "date",
+              "handler",
+              "testStatus",
+              "liveStatus",
+              "actions",
+            ].map((x) => (
+              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {(rows.data?.results ?? []).map((row) => (
+            <TableRow key={row.id}>
+              <TableCell>{row.code}</TableCell>
+              <TableCell>{row.company_name}</TableCell>
+              <TableCell>{row.api_name}</TableCell>
+              <TableCell>{row.integration_date}</TableCell>
+              <TableCell>{row.owner_name || "-"}</TableCell>
+              <TableCell>{t(`testStatus.${row.test_status}`)}</TableCell>
+              <TableCell>{t(`activationStatus.${row.live_status}`)}</TableCell>
+              <TableCell>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEditing(row)}
+                >
+                  {t("action.process")}
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {creating && (
+        <IntegrationDialog
+          companies={companies.data?.results ?? []}
+          onClose={() => setCreating(false)}
+          onSaved={() =>
+            qc.invalidateQueries({ queryKey: ["support-api-integrations"] })
+          }
+        />
+      )}
+      {editing && (
+        <IntegrationUpdateDialog
+          row={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() =>
+            qc.invalidateQueries({ queryKey: ["support-api-integrations"] })
+          }
+        />
+      )}
+    </Panel>
+  );
+}
+function IntegrationDialog({
+  companies,
+  onClose,
+  onSaved,
+}: {
+  companies: CompanyRow[];
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const [form, setForm] = useState<IntegrationPayload>({
+    company: "",
+    api_name: "",
+    endpoint: "",
+    integration_date: "",
+  });
+  const set = (key: keyof IntegrationPayload, value: string) =>
+    setForm((x) => ({ ...x, [key]: value }));
+  const save = useMutation({
+    mutationFn: () => createAPIIntegration(form),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t("action.addIntegration")}</DialogTitle>
+          <DialogDescription>{t("dialog.api")}</DialogDescription>
+        </DialogHeader>
+        <CompanySelect
+          companies={companies}
+          value={form.company}
+          onChange={(x) => set("company", x)}
+        />
+        <Input
+          placeholder={t("field.apiName")}
+          value={form.api_name}
+          onChange={(e) => set("api_name", e.target.value)}
+        />
+        <Input
+          type="url"
+          placeholder={t("field.endpoint")}
+          value={form.endpoint}
+          onChange={(e) => set("endpoint", e.target.value)}
+        />
+        <Input
+          type="date"
+          value={form.integration_date}
+          onChange={(e) => set("integration_date", e.target.value)}
+        />
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            disabled={
+              !form.company ||
+              !form.api_name ||
+              !form.integration_date ||
+              save.isPending
+            }
+            onClick={() => save.mutate()}
+          >
+            <Save />
+            {t("action.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+function IntegrationUpdateDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  row: APIIntegration;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const [test, setTest] = useState(row.test_status);
+  const [live, setLive] = useState(row.live_status);
+  const [result, setResult] = useState(row.test_result);
+  const save = useMutation({
+    mutationFn: () =>
+      updateAPIIntegration(row.id, {
+        test_status: test,
+        live_status: live,
+        test_result: result,
+      }),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{row.code}</DialogTitle>
+          <DialogDescription>
+            {row.company_name} / {row.api_name}
+          </DialogDescription>
+        </DialogHeader>
+        <select
+          className="h-8 rounded-md border bg-background px-2"
+          value={test}
+          onChange={(e) => setTest(e.target.value as typeof test)}
+        >
+          {["PENDING", "PASSED", "FAILED"].map((x) => (
+            <option key={x} value={x}>
+              {t(`testStatus.${x}`)}
+            </option>
+          ))}
+        </select>
+        <select
+          className="h-8 rounded-md border bg-background px-2"
+          value={live}
+          onChange={(e) => setLive(e.target.value as typeof live)}
+        >
+          {["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => (
+            <option key={x} value={x}>
+              {t(`activationStatus.${x}`)}
+            </option>
+          ))}
+        </select>
+        <Textarea
+          placeholder={t("field.testResult")}
+          value={result}
+          onChange={(e) => setResult(e.target.value)}
+        />
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button disabled={save.isPending} onClick={() => save.mutate()}>
+            <Save />
+            {t("action.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function DevicePanel({ installations }: { installations: boolean }) {
   const t = useTranslations("adminTechnicalSupport");
@@ -67,26 +995,388 @@ function DevicePanel({ installations }: { installations: boolean }) {
   const { can } = useAuth();
   const rows = useQuery({
     queryKey: ["device-maintenance", installations],
-    queryFn: () => getMaintenance({ page_size: 200, ...(installations ? { installation: true } : {}) }),
+    queryFn: () =>
+      getMaintenance({
+        page_size: 200,
+        ...(installations ? { installation: true } : {}),
+      }),
   });
   const [creating, setCreating] = useState(false);
   const [completing, setCompleting] = useState<DeviceMaintenance | null>(null);
   const [operating, setOperating] = useState<DeviceMaintenance | null>(null);
-  const refresh = () => qc.invalidateQueries({ queryKey: ["device-maintenance"] });
+  const refresh = () =>
+    qc.invalidateQueries({ queryKey: ["device-maintenance"] });
 
-  return <Panel loading={rows.isLoading} error={rows.isError}>
-    <div className="flex justify-end border-b p-3"><Button onClick={() => setCreating(true)}><Plus />{t(installations ? "action.addInstallation" : "action.addMaintenance")}</Button></div>
-    <Table><TableHeader><TableRow>{["code", "company", "device", "location", "installDate", "firmware", "testStatus", "liveStatus", "online", "lastOnline", "sim", "signal", "mode", "actions"].map((x) => <TableHead key={x}>{t(`column.${x}`)}</TableHead>)}</TableRow></TableHeader>
-      <TableBody>{(rows.data?.results ?? []).filter((x) => installations || x.type !== "INSTALLATION").map((row) => <TableRow key={row.id}><TableCell>{row.code}</TableCell><TableCell>{row.company_name}</TableCell><TableCell>{row.device_type}<p className="text-xs text-muted-foreground">{row.device_id}</p></TableCell><TableCell>{row.installation_location || "-"}</TableCell><TableCell>{df.date(row.installed_on || row.scheduled_date)}</TableCell><TableCell>{row.firmware_version || "-"}</TableCell><TableCell>{t(`testStatus.${row.test_status}`)}</TableCell><TableCell>{t(`activationStatus.${row.activation_status}`)}</TableCell><TableCell><StatusBadge label={t(row.is_online ? "status.online" : "status.offline")} tone={row.is_online ? "positive" : "neutral"} /></TableCell><TableCell>{df.dateTime(row.last_online_at) || "-"}</TableCell><TableCell>{row.sim_status || "-"}</TableCell><TableCell>{row.signal_strength ?? "-"}</TableCell><TableCell><StatusBadge label={system(`mode.${row.operation_mode}`)} tone={row.operation_mode === "LIVE" ? "positive" : "warning"} /></TableCell><TableCell><div className="flex gap-1"><Button size="sm" variant="outline" onClick={() => setCompleting(row)}>{t("action.complete")}</Button>{can("support.remote_operate") && <Button size="sm" onClick={() => setOperating(row)}><RadioTower />{t("action.remote")}</Button>}</div></TableCell></TableRow>)}</TableBody>
-    </Table>
-    {creating && <DeviceDialog installations={installations} companies={companies.data?.results ?? []} onClose={() => setCreating(false)} onSaved={refresh} />}
-    {completing && <MaintenanceCompleteDialog row={completing} onClose={() => setCompleting(null)} onSaved={refresh} />}
-    {operating && <RemoteDialog row={operating} onClose={() => setOperating(null)} onSaved={refresh} />}
-  </Panel>;
+  return (
+    <Panel loading={rows.isLoading} error={rows.isError}>
+      <div className="flex justify-end border-b p-3">
+        <Button onClick={() => setCreating(true)}>
+          <Plus />
+          {t(
+            installations ? "action.addInstallation" : "action.addMaintenance",
+          )}
+        </Button>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {[
+              "code",
+              "company",
+              "device",
+              "location",
+              "installDate",
+              "firmware",
+              "testStatus",
+              "liveStatus",
+              "online",
+              "lastOnline",
+              "sim",
+              "signal",
+              "mode",
+              "actions",
+            ].map((x) => (
+              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {(rows.data?.results ?? [])
+            .filter((x) => installations || x.type !== "INSTALLATION")
+            .map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.code}</TableCell>
+                <TableCell>{row.company_name}</TableCell>
+                <TableCell>
+                  {row.device_type}
+                  <p className="text-xs text-muted-foreground">
+                    {row.device_id}
+                  </p>
+                </TableCell>
+                <TableCell>{row.installation_location || "-"}</TableCell>
+                <TableCell>
+                  {df.date(row.installed_on || row.scheduled_date)}
+                </TableCell>
+                <TableCell>{row.firmware_version || "-"}</TableCell>
+                <TableCell>{t(`testStatus.${row.test_status}`)}</TableCell>
+                <TableCell>
+                  {t(`activationStatus.${row.activation_status}`)}
+                </TableCell>
+                <TableCell>
+                  <StatusBadge
+                    label={t(
+                      row.is_online ? "status.online" : "status.offline",
+                    )}
+                    tone={row.is_online ? "positive" : "neutral"}
+                  />
+                </TableCell>
+                <TableCell>{df.dateTime(row.last_online_at) || "-"}</TableCell>
+                <TableCell>{row.sim_status || "-"}</TableCell>
+                <TableCell>{row.signal_strength ?? "-"}</TableCell>
+                <TableCell>
+                  <StatusBadge
+                    label={system(`mode.${row.operation_mode}`)}
+                    tone={
+                      row.operation_mode === "LIVE" ? "positive" : "warning"
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setCompleting(row)}
+                    >
+                      {t("action.complete")}
+                    </Button>
+                    {can("support.remote_operate") && (
+                      <Button size="sm" onClick={() => setOperating(row)}>
+                        <RadioTower />
+                        {t("action.remote")}
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+        </TableBody>
+      </Table>
+      {creating && (
+        <DeviceDialog
+          installations={installations}
+          companies={companies.data?.results ?? []}
+          onClose={() => setCreating(false)}
+          onSaved={refresh}
+        />
+      )}
+      {completing && (
+        <MaintenanceCompleteDialog
+          row={completing}
+          onClose={() => setCompleting(null)}
+          onSaved={refresh}
+        />
+      )}
+      {operating && (
+        <RemoteDialog
+          row={operating}
+          onClose={() => setOperating(null)}
+          onSaved={refresh}
+        />
+      )}
+    </Panel>
+  );
 }
-function DeviceDialog({ installations, companies, onClose, onSaved }: { installations: boolean; companies: CompanyRow[]; onClose: () => void; onSaved: () => void }) { const t = useTranslations("adminTechnicalSupport"); const [form, setForm] = useState<DevicePayload>({ company: "", type: installations ? "INSTALLATION" : "INSPECTION", device_type: installations ? "WEIGHBRIDGE" : "AI_CCTV", device_id: "", installed_on: "", installation_location: "", firmware_version: "", sim_status: "", signal_strength: null, operation_mode: "SIMULATED", scheduled_date: "", description: "" }); const set = (key: keyof DevicePayload, value: unknown) => setForm((x) => ({ ...x, [key]: value })); const save = useMutation({ mutationFn: () => createMaintenance(form), onSuccess: () => { onSaved(); onClose(); } }); return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t(installations ? "action.addInstallation" : "action.addMaintenance")}</DialogTitle><DialogDescription>{t("dialog.device")}</DialogDescription></DialogHeader><div className="grid gap-3 sm:grid-cols-2"><CompanySelect companies={companies} value={form.company} onChange={(x) => set("company", x)} />{!installations && <select className="h-8 rounded-md border bg-background px-2" value={form.type} onChange={(e) => set("type", e.target.value)}>{["INSPECTION", "REPAIR", "CALIBRATION", "UPGRADE", "REPLACEMENT"].map((x) => <option key={x} value={x}>{t(`maintenanceType.${x}`)}</option>)}</select>}<select className="h-8 rounded-md border bg-background px-2" value={form.device_type} onChange={(e) => set("device_type", e.target.value)}>{["WEIGHBRIDGE", "GATEWAY", "AI_CCTV", "ANPR", "CWE", "OTHER"].map((x) => <option key={x} value={x}>{t(`deviceType.${x}`)}</option>)}</select><Input placeholder={t("field.deviceId")} value={form.device_id} onChange={(e) => set("device_id", e.target.value)} /><Input type="date" value={form.scheduled_date} onChange={(e) => { set("scheduled_date", e.target.value); if (installations) set("installed_on", e.target.value); }} /><Input placeholder={t("field.location")} value={form.installation_location} onChange={(e) => set("installation_location", e.target.value)} /><Input placeholder={t("field.firmware")} value={form.firmware_version} onChange={(e) => set("firmware_version", e.target.value)} /><Input placeholder={t("field.sim")} value={form.sim_status} onChange={(e) => set("sim_status", e.target.value)} /><Input type="number" min="-120" max="0" placeholder={t("field.signal")} value={form.signal_strength ?? ""} onChange={(e) => set("signal_strength", e.target.value ? Number(e.target.value) : null)} /><Textarea className="sm:col-span-2" placeholder={t("field.description")} value={form.description} onChange={(e) => set("description", e.target.value)} /></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!form.company || !form.device_type || !form.device_id || !form.scheduled_date || !form.description || save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>; }
-function MaintenanceCompleteDialog({ row, onClose, onSaved }: { row: DeviceMaintenance; onClose: () => void; onSaved: () => void }) { const t = useTranslations("adminTechnicalSupport"); const [work, setWork] = useState(""); const [result, setResult] = useState(""); const [test, setTest] = useState(row.test_status); const [active, setActive] = useState(row.activation_status); const save = useMutation({ mutationFn: () => completeMaintenance(row.id, { work_performed: work, result_notes: result, test_status: test, activation_status: active }), onSuccess: () => { onSaved(); onClose(); } }); return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("action.complete")}</DialogTitle><DialogDescription>{row.code} / {row.device_id}</DialogDescription></DialogHeader><Textarea placeholder={t("field.work")} value={work} onChange={(e) => setWork(e.target.value)} /><Textarea placeholder={t("field.result")} value={result} onChange={(e) => setResult(e.target.value)} /><select className="h-8 rounded-md border bg-background px-2" value={test} onChange={(e) => setTest(e.target.value as typeof test)}>{["PENDING", "PASSED", "FAILED"].map((x) => <option key={x} value={x}>{t(`testStatus.${x}`)}</option>)}</select><select className="h-8 rounded-md border bg-background px-2" value={active} onChange={(e) => setActive(e.target.value as typeof active)}>{["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => <option key={x} value={x}>{t(`activationStatus.${x}`)}</option>)}</select><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!work.trim() || save.isPending} onClick={() => save.mutate()}><Check />{t("action.confirm")}</Button></DialogFooter></DialogContent></Dialog>; }
-function RemoteDialog({ row, onClose, onSaved }: { row: DeviceMaintenance; onClose: () => void; onSaved: () => void }) {
+function DeviceDialog({
+  installations,
+  companies,
+  onClose,
+  onSaved,
+}: {
+  installations: boolean;
+  companies: CompanyRow[];
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const [form, setForm] = useState<DevicePayload>({
+    company: "",
+    type: installations ? "INSTALLATION" : "INSPECTION",
+    device_type: installations ? "WEIGHBRIDGE" : "AI_CCTV",
+    device_id: "",
+    installed_on: "",
+    installation_location: "",
+    firmware_version: "",
+    sim_status: "",
+    signal_strength: null,
+    operation_mode: "SIMULATED",
+    scheduled_date: "",
+    description: "",
+  });
+  const set = (key: keyof DevicePayload, value: unknown) =>
+    setForm((x) => ({ ...x, [key]: value }));
+  const save = useMutation({
+    mutationFn: () => createMaintenance(form),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
+            {t(
+              installations
+                ? "action.addInstallation"
+                : "action.addMaintenance",
+            )}
+          </DialogTitle>
+          <DialogDescription>{t("dialog.device")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <CompanySelect
+            companies={companies}
+            value={form.company}
+            onChange={(x) => set("company", x)}
+          />
+          {!installations && (
+            <select
+              className="h-8 rounded-md border bg-background px-2"
+              value={form.type}
+              onChange={(e) => set("type", e.target.value)}
+            >
+              {[
+                "INSPECTION",
+                "REPAIR",
+                "CALIBRATION",
+                "UPGRADE",
+                "REPLACEMENT",
+              ].map((x) => (
+                <option key={x} value={x}>
+                  {t(`maintenanceType.${x}`)}
+                </option>
+              ))}
+            </select>
+          )}
+          <select
+            className="h-8 rounded-md border bg-background px-2"
+            value={form.device_type}
+            onChange={(e) => set("device_type", e.target.value)}
+          >
+            {["WEIGHBRIDGE", "GATEWAY", "AI_CCTV", "ANPR", "CWE", "OTHER"].map(
+              (x) => (
+                <option key={x} value={x}>
+                  {t(`deviceType.${x}`)}
+                </option>
+              ),
+            )}
+          </select>
+          <Input
+            placeholder={t("field.deviceId")}
+            value={form.device_id}
+            onChange={(e) => set("device_id", e.target.value)}
+          />
+          <Input
+            type="date"
+            value={form.scheduled_date}
+            onChange={(e) => {
+              set("scheduled_date", e.target.value);
+              if (installations) set("installed_on", e.target.value);
+            }}
+          />
+          <Input
+            placeholder={t("field.location")}
+            value={form.installation_location}
+            onChange={(e) => set("installation_location", e.target.value)}
+          />
+          <Input
+            placeholder={t("field.firmware")}
+            value={form.firmware_version}
+            onChange={(e) => set("firmware_version", e.target.value)}
+          />
+          <Input
+            placeholder={t("field.sim")}
+            value={form.sim_status}
+            onChange={(e) => set("sim_status", e.target.value)}
+          />
+          <Input
+            type="number"
+            min="-120"
+            max="0"
+            placeholder={t("field.signal")}
+            value={form.signal_strength ?? ""}
+            onChange={(e) =>
+              set(
+                "signal_strength",
+                e.target.value ? Number(e.target.value) : null,
+              )
+            }
+          />
+          <Textarea
+            className="sm:col-span-2"
+            placeholder={t("field.description")}
+            value={form.description}
+            onChange={(e) => set("description", e.target.value)}
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            disabled={
+              !form.company ||
+              !form.device_type ||
+              !form.device_id ||
+              !form.scheduled_date ||
+              !form.description ||
+              save.isPending
+            }
+            onClick={() => save.mutate()}
+          >
+            <Save />
+            {t("action.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+function MaintenanceCompleteDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  row: DeviceMaintenance;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const [work, setWork] = useState("");
+  const [result, setResult] = useState("");
+  const [test, setTest] = useState(row.test_status);
+  const [active, setActive] = useState(row.activation_status);
+  const save = useMutation({
+    mutationFn: () =>
+      completeMaintenance(row.id, {
+        work_performed: work,
+        result_notes: result,
+        test_status: test,
+        activation_status: active,
+      }),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t("action.complete")}</DialogTitle>
+          <DialogDescription>
+            {row.code} / {row.device_id}
+          </DialogDescription>
+        </DialogHeader>
+        <Textarea
+          placeholder={t("field.work")}
+          value={work}
+          onChange={(e) => setWork(e.target.value)}
+        />
+        <Textarea
+          placeholder={t("field.result")}
+          value={result}
+          onChange={(e) => setResult(e.target.value)}
+        />
+        <select
+          className="h-8 rounded-md border bg-background px-2"
+          value={test}
+          onChange={(e) => setTest(e.target.value as typeof test)}
+        >
+          {["PENDING", "PASSED", "FAILED"].map((x) => (
+            <option key={x} value={x}>
+              {t(`testStatus.${x}`)}
+            </option>
+          ))}
+        </select>
+        <select
+          className="h-8 rounded-md border bg-background px-2"
+          value={active}
+          onChange={(e) => setActive(e.target.value as typeof active)}
+        >
+          {["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => (
+            <option key={x} value={x}>
+              {t(`activationStatus.${x}`)}
+            </option>
+          ))}
+        </select>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            disabled={!work.trim() || save.isPending}
+            onClick={() => save.mutate()}
+          >
+            <Check />
+            {t("action.confirm")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+function RemoteDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  row: DeviceMaintenance;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const t = useTranslations("adminTechnicalSupport");
   const system = useTranslations("adminSystemSettings");
   const [operation, setOperation] = useState<RemoteOperation>("TEST");
@@ -107,9 +1397,240 @@ function RemoteDialog({ row, onClose, onSaved }: { row: DeviceMaintenance; onClo
       }
       return remoteOperate(row.id, operation, mode, reason, parsed, firmware);
     },
-    onSuccess: () => { onSaved(); onClose(); },
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
   });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("action.remote")}</DialogTitle><DialogDescription>{row.device_type} / {row.device_id}</DialogDescription></DialogHeader><select className="h-8 rounded-md border bg-background px-2" value={operation} onChange={(e) => setOperation(e.target.value as RemoteOperation)}>{["CONFIGURE", "TEST", "RESTART", "FIRMWARE_UPGRADE"].map((x) => <option key={x} value={x}>{t(`remoteOperation.${x}`)}</option>)}</select><select className="h-8 rounded-md border bg-background px-2" value={mode} onChange={(e) => setMode(e.target.value as OperationMode)}><option value="SIMULATED">{system("mode.SIMULATED")}</option><option value="LIVE">{system("mode.LIVE")}</option></select>{operation === "CONFIGURE" && <AdvancedTechnicalSettings><Textarea className="font-mono sm:col-span-2" value={config} onChange={(e) => { setConfig(e.target.value); setJsonError(false); }} />{jsonError && <p className="text-xs text-destructive sm:col-span-2">{t("field.invalidJson")}</p>}</AdvancedTechnicalSettings>}{operation === "FIRMWARE_UPGRADE" && <Input placeholder={t("field.firmware")} value={firmware} onChange={(e) => setFirmware(e.target.value)} />}<Textarea placeholder={t("field.reason")} value={reason} onChange={(e) => setReason(e.target.value)} /><p className="text-xs text-muted-foreground">{t(mode === "SIMULATED" ? "mode.simulated" : "mode.live")}</p><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!reason.trim() || (operation === "FIRMWARE_UPGRADE" && !firmware.trim()) || save.isPending} onClick={() => save.mutate()}><RadioTower />{t("action.run")}</Button></DialogFooter></DialogContent></Dialog>;
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t("action.remote")}</DialogTitle>
+          <DialogDescription>
+            {row.device_type} / {row.device_id}
+          </DialogDescription>
+        </DialogHeader>
+        <select
+          className="h-8 rounded-md border bg-background px-2"
+          value={operation}
+          onChange={(e) => setOperation(e.target.value as RemoteOperation)}
+        >
+          {["CONFIGURE", "TEST", "RESTART", "FIRMWARE_UPGRADE"].map((x) => (
+            <option key={x} value={x}>
+              {t(`remoteOperation.${x}`)}
+            </option>
+          ))}
+        </select>
+        <select
+          className="h-8 rounded-md border bg-background px-2"
+          value={mode}
+          onChange={(e) => setMode(e.target.value as OperationMode)}
+        >
+          <option value="SIMULATED">{system("mode.SIMULATED")}</option>
+          <option value="LIVE">{system("mode.LIVE")}</option>
+        </select>
+        {operation === "CONFIGURE" && (
+          <AdvancedTechnicalSettings>
+            <Textarea
+              className="font-mono sm:col-span-2"
+              value={config}
+              onChange={(e) => {
+                setConfig(e.target.value);
+                setJsonError(false);
+              }}
+            />
+            {jsonError && (
+              <p className="text-xs text-destructive sm:col-span-2">
+                {t("field.invalidJson")}
+              </p>
+            )}
+          </AdvancedTechnicalSettings>
+        )}
+        {operation === "FIRMWARE_UPGRADE" && (
+          <Input
+            placeholder={t("field.firmware")}
+            value={firmware}
+            onChange={(e) => setFirmware(e.target.value)}
+          />
+        )}
+        <Textarea
+          placeholder={t("field.reason")}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
+        <p className="text-xs text-muted-foreground">
+          {t(mode === "SIMULATED" ? "mode.simulated" : "mode.live")}
+        </p>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            disabled={
+              !reason.trim() ||
+              (operation === "FIRMWARE_UPGRADE" && !firmware.trim()) ||
+              save.isPending
+            }
+            onClick={() => save.mutate()}
+          >
+            <RadioTower />
+            {t("action.run")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
-function ReportPanel() { const t = useTranslations("adminTechnicalSupport"); const summary = useQuery({ queryKey: ["technical-support-summary"], queryFn: getTechnicalSupportSummary }); const reports = [["tickets", ["code", "type", "state", "priority", "company_name", "title", "assigned_to_name", "created_at"]], ["bugs", ["bug_code", "severity", "state", "module", "title", "description", "assigned_to_name", "created_at"]], ["api", ["code", "company_name", "api_name", "integration_date", "test_status", "live_status", "owner_name", "test_result"]], ["installations", ["code", "company_name", "device_type", "device_id", "installed_on", "installed_by_name", "installation_location", "test_status", "activation_status"]], ["maintenance", ["code", "company_name", "device_type", "device_id", "scheduled_date", "completed_date", "technician_name", "firmware_version", "is_online", "last_online_at", "sim_status", "signal_strength"]]] as const; const exporting = useMutation({ mutationFn: ({ dataset, format, fields }: { dataset: string; format: "pdf" | "xlsx"; fields: readonly string[] }) => exportTechnicalSupportReport(dataset, format, t(`report.${dataset}`), fields.map((key) => ({ key, label: t(`exportColumn.${key}`) }))) }); return <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card"><div className="grid border-b sm:grid-cols-2 xl:grid-cols-4">{[["tickets", summary.data?.tickets ?? 0], ["bugs", summary.data?.bugs ?? 0], ["installations", summary.data?.installations ?? 0], ["completion", `${summary.data?.completion_rate ?? 0}%`]].map(([key, value]) => <div key={key} className="border-b border-r p-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-xl font-semibold">{value}</p></div>)}</div><div className="divide-y">{reports.map(([dataset, fields]) => <div key={dataset} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"><div><p className="font-medium">{t(`report.${dataset}`)}</p><p className="text-xs text-muted-foreground">{t(`report.${dataset}Subtitle`)}</p></div><div className="flex gap-2"><Button variant="outline" disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "pdf", fields })}><FileDown />PDF</Button><Button disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "xlsx", fields })}><FileDown />Excel</Button></div></div>)}</div></div>; }
+function ReportPanel() {
+  const t = useTranslations("adminTechnicalSupport");
+  const summary = useQuery({
+    queryKey: ["technical-support-summary"],
+    queryFn: getTechnicalSupportSummary,
+  });
+  const reports = [
+    [
+      "tickets",
+      [
+        "code",
+        "type",
+        "state",
+        "priority",
+        "company_name",
+        "title",
+        "assigned_to_name",
+        "created_at",
+      ],
+    ],
+    [
+      "bugs",
+      [
+        "bug_code",
+        "severity",
+        "state",
+        "module",
+        "title",
+        "description",
+        "assigned_to_name",
+        "created_at",
+      ],
+    ],
+    [
+      "api",
+      [
+        "code",
+        "company_name",
+        "api_name",
+        "integration_date",
+        "test_status",
+        "live_status",
+        "owner_name",
+        "test_result",
+      ],
+    ],
+    [
+      "installations",
+      [
+        "code",
+        "company_name",
+        "device_type",
+        "device_id",
+        "installed_on",
+        "installed_by_name",
+        "installation_location",
+        "test_status",
+        "activation_status",
+      ],
+    ],
+    [
+      "maintenance",
+      [
+        "code",
+        "company_name",
+        "device_type",
+        "device_id",
+        "scheduled_date",
+        "completed_date",
+        "technician_name",
+        "firmware_version",
+        "is_online",
+        "last_online_at",
+        "sim_status",
+        "signal_strength",
+      ],
+    ],
+  ] as const;
+  const exporting = useMutation({
+    mutationFn: ({
+      dataset,
+      format,
+      fields,
+    }: {
+      dataset: string;
+      format: "pdf" | "xlsx";
+      fields: readonly string[];
+    }) =>
+      exportTechnicalSupportReport(
+        dataset,
+        format,
+        t(`report.${dataset}`),
+        fields.map((key) => ({ key, label: t(`exportColumn.${key}`) })),
+      ),
+  });
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+      <div className="grid gap-px border-b bg-border sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          ["tickets", summary.data?.tickets ?? 0],
+          ["bugs", summary.data?.bugs ?? 0],
+          ["installations", summary.data?.installations ?? 0],
+          ["completion", `${summary.data?.completion_rate ?? 0}%`],
+        ].map(([key, value]) => (
+          <div key={key} className="bg-card p-4">
+            <p className="text-xs text-muted-foreground">
+              {t(`metric.${key}`)}
+            </p>
+            <p className="mt-1 text-xl font-semibold">{value}</p>
+          </div>
+        ))}
+      </div>
+      <div className="divide-y">
+        {reports.map(([dataset, fields]) => (
+          <div
+            key={dataset}
+            className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
+          >
+            <div>
+              <p className="font-medium">{t(`report.${dataset}`)}</p>
+              <p className="text-xs text-muted-foreground">
+                {t(`report.${dataset}Subtitle`)}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                disabled={exporting.isPending}
+                onClick={() =>
+                  exporting.mutate({ dataset, format: "pdf", fields })
+                }
+              >
+                <FileDown />
+                PDF
+              </Button>
+              <Button
+                disabled={exporting.isPending}
+                onClick={() =>
+                  exporting.mutate({ dataset, format: "xlsx", fields })
+                }
+              >
+                <FileDown />
+                Excel
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

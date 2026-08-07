@@ -67,6 +67,15 @@ export interface IntegrationDevice {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  provisioning?: {
+    heartbeat_url: string;
+    device_record_id: string;
+    device_id: string;
+    secret: string;
+    signature: string;
+    device_header: string;
+    signature_header: string;
+  };
 }
 
 export interface IntegrationPayload {

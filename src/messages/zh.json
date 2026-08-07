@@ -3,6 +3,22 @@
     "name": "MSE Trace",
     "tagline": "重量可核验，废料可追溯"
   },
+  "pageGuide": {
+    "action": "页面说明与教程",
+    "title": "如何使用“{page}”",
+    "review": {
+      "title": "先查看现有资料",
+      "description": "使用搜索、筛选和状态标签，找到需要处理的公司、记录或设备。"
+    },
+    "operate": {
+      "title": "完成需要的操作",
+      "description": "新增或编辑记录，填写所有必填资料，然后保存或确认操作。"
+    },
+    "verify": {
+      "title": "确认操作结果",
+      "description": "刷新页面，并检查最新状态、历史记录、通知或审计记录。"
+    }
+  },
   "common": {
     "save": "保存",
     "cancel": "取消",
@@ -399,9 +415,18 @@
     "guide": {
       "title": "这里才是真实连接外部系统和设备的地方",
       "description": "系统设置只决定功能是否启用；系统集成负责保存 URL、认证方式和安全凭证。登记后先测试，通过后才启用。没有供应商账号或现场设备时，只能保留配置，不能当作已经上线。",
-      "register": { "title": "登记连接", "description": "选择公司和服务，填写供应商提供的资料。" },
-      "test": { "title": "测试连接", "description": "确认网络、凭证和供应商接口都能访问。" },
-      "enable": { "title": "正式启用", "description": "测试通过后启用，并到平台监控查看状态。" }
+      "register": {
+        "title": "登记连接",
+        "description": "选择公司和服务，填写供应商提供的资料。"
+      },
+      "test": {
+        "title": "测试连接",
+        "description": "确认网络、凭证和供应商接口都能访问。"
+      },
+      "enable": {
+        "title": "正式启用",
+        "description": "测试通过后启用，并到平台监控查看状态。"
+      }
     },
     "advanced": {
       "title": "高级技术设置",
@@ -442,6 +467,7 @@
       "namePlaceholder": "例如：ERP 生产环境",
       "baseUrl": "基础 URL",
       "authType": "认证类型",
+      "mode": "运行模式",
       "secret": "安全凭证",
       "secretPlaceholder": "输入供应商提供的密钥；保存后不会显示",
       "settings": "供应商参数（JSON）"
@@ -465,7 +491,15 @@
       "removeGatewayBlocked": "请先在地磅管理撤销已绑定的称重网关",
       "removeTitle": "移除设备 {name}？",
       "removeDescription": "设备将不再出现在系统集成列表中，历史记录和审计资料会保留。",
-      "removeConfirm": "移除设备"
+      "removeConfirm": "移除设备",
+      "provisioningTitle": "设备连接资料",
+      "provisioningDescription": "请把这些一次性资料交给安装人员。关闭此窗口后，系统不会再次显示设备密钥。",
+      "heartbeatUrl": "心跳上报网址",
+      "recordId": "平台设备记录 ID",
+      "deviceHeader": "设备身份 Header",
+      "signatureHeader": "签名 Header",
+      "oneTimeSecret": "一次性设备密钥",
+      "heartbeatBody": "需要签名的心跳 JSON 内容"
     },
     "kind": {
       "ERP": "ERP",
@@ -1711,6 +1745,34 @@
       "SIMULATED": "测试模拟器正在提供数据，不代表现场硬件已连接",
       "LIVE": "显示现场供应商和设备数据，必须先完成真实连接"
     },
+    "inventory": {
+      "title": "各公司连接与设备清单",
+      "description": "统一查看所有建筑商与回收商的连接。真实模式表示已配置真实供应商；设备只有收到近期硬件心跳才会显示在线。",
+      "searchPlaceholder": "搜索公司、连接或设备",
+      "allCompanyTypes": "全部公司类型",
+      "allCompanies": "全部公司",
+      "allCategories": "全部集成类别",
+      "allDeviceTypes": "全部设备类型",
+      "allStatuses": "全部状态",
+      "contractor": "建筑商",
+      "recycler": "回收商",
+      "online": "设备在线",
+      "offline": "设备离线",
+      "liveReady": "真实且已启用",
+      "simulated": "测试模拟模式",
+      "company": "公司",
+      "category": "集成类别",
+      "connection": "连接",
+      "device": "设备",
+      "location": "项目／地点",
+      "mode": "模式",
+      "status": "健康状态",
+      "lastSeen": "最后心跳／测试",
+      "connectionRecord": "连接配置",
+      "devicesCount": "{count} 台设备",
+      "unlinked": "未绑定",
+      "refreshNote": "或等待每 15 秒自动更新，以取得最新硬件心跳。"
+    },
     "section": {
       "live-platform": {
         "title": "实时平台状态",
@@ -2616,6 +2678,7 @@
       "integration_not_found": "找不到该集成。",
       "integration_already_exists": "该集成名称已存在。",
       "integration_base_url_required": "请先填写完整的 HTTP 或 HTTPS 基础 URL，再测试连接。",
+      "integration_test_required": "请先成功测试真实连接，然后才能启用。",
       "integration_has_devices": "请先移除或解除正在使用该连接的设备。",
       "integration_device_not_found": "找不到该集成设备。",
       "integration_device_already_exists": "该设备编号已存在。",
@@ -5733,9 +5796,18 @@
       "manageCredentials": "管理安全连接",
       "viewStatus": "查看运行状态",
       "step": {
-        "basic": { "title": "基本设置", "description": "打开服务，选择测试或真实连接。" },
-        "connection": { "title": "建立连接", "description": "在系统集成中填写供应商、设备和凭证。" },
-        "monitoring": { "title": "查看结果", "description": "到平台监控查看在线、失败和响应时间。" }
+        "basic": {
+          "title": "基本设置",
+          "description": "打开服务，选择测试或真实连接。"
+        },
+        "connection": {
+          "title": "建立连接",
+          "description": "在系统集成中填写供应商、设备和凭证。"
+        },
+        "monitoring": {
+          "title": "查看结果",
+          "description": "到平台监控查看在线、失败和响应时间。"
+        }
       }
     },
     "serviceStatus": {

@@ -106,6 +106,49 @@ export interface IntegrationMonitor {
   last_checked_at: string | null;
 }
 
+export interface IntegrationInventoryConnection {
+  id: string;
+  company_id: string;
+  company_name: string;
+  company_code: string;
+  company_type: "CONTRACTOR" | "RECYCLER";
+  kind: string;
+  name: string;
+  mode: MonitoringMode;
+  status: string;
+  is_enabled: boolean;
+  is_live_ready: boolean;
+  last_success_at: string | null;
+  last_error: string;
+  total_devices: number;
+  online_devices: number;
+  offline_devices: number;
+}
+
+export interface IntegrationInventoryDevice {
+  id: string;
+  company_id: string;
+  company_name: string;
+  company_code: string;
+  company_type: "CONTRACTOR" | "RECYCLER";
+  integration_id: string | null;
+  integration_name: string | null;
+  integration_kind: string | null;
+  integration_mode: MonitoringMode;
+  integration_status: string | null;
+  device_type: string;
+  device_id: string;
+  project_name: string | null;
+  site_name: string | null;
+  scale_name: string | null;
+  firmware_version: string;
+  reported_status: "ONLINE" | "DEGRADED" | "ERROR" | string;
+  is_active: boolean;
+  is_online: boolean;
+  is_live_ready: boolean;
+  last_seen_at: string | null;
+}
+
 export interface MonitoringOverview {
   generated_at: string;
   platform: {
@@ -145,6 +188,10 @@ export interface MonitoringOverview {
   };
   cctv: IntegrationMonitor;
   anpr: IntegrationMonitor;
+  integration_inventory: {
+    connections: IntegrationInventoryConnection[];
+    devices: IntegrationInventoryDevice[];
+  };
   api_gateway: {
     mode: MonitoringMode;
     status: HealthStatus;

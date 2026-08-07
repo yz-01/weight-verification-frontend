@@ -3,6 +3,22 @@
     "name": "MSE Trace",
     "tagline": "Berat disahkan. Sisa dijejaki."
   },
+  "pageGuide": {
+    "action": "Panduan halaman",
+    "title": "Cara menggunakan {page}",
+    "review": {
+      "title": "Semak rekod semasa",
+      "description": "Gunakan carian, penapis dan label status untuk mencari syarikat, rekod atau peranti."
+    },
+    "operate": {
+      "title": "Lengkapkan tindakan",
+      "description": "Cipta atau sunting rekod, isi semua medan wajib, kemudian simpan atau sahkan tindakan."
+    },
+    "verify": {
+      "title": "Sahkan hasil",
+      "description": "Muat semula halaman dan semak status, sejarah, notifikasi atau rekod audit terkini."
+    }
+  },
   "common": {
     "save": "Simpan",
     "cancel": "Batal",
@@ -399,9 +415,18 @@
     "guide": {
       "title": "Di sinilah sistem luaran dan peranti disambungkan",
       "description": "Tetapan Sistem hanya mengaktifkan fungsi. Integrasi Sistem menyimpan URL, kaedah pengesahan dan kredensial dengan selamat. Daftar, uji, kemudian aktifkan sambungan. Tanpa akaun pembekal atau peranti tapak, konfigurasi yang disimpan belum lagi aktif.",
-      "register": { "title": "Daftar", "description": "Pilih syarikat dan perkhidmatan, kemudian isi butiran pembekal." },
-      "test": { "title": "Uji", "description": "Semak rangkaian, kredensial dan endpoint pembekal." },
-      "enable": { "title": "Aktifkan", "description": "Aktifkan selepas ujian lulus, kemudian pantau statusnya." }
+      "register": {
+        "title": "Daftar",
+        "description": "Pilih syarikat dan perkhidmatan, kemudian isi butiran pembekal."
+      },
+      "test": {
+        "title": "Uji",
+        "description": "Semak rangkaian, kredensial dan endpoint pembekal."
+      },
+      "enable": {
+        "title": "Aktifkan",
+        "description": "Aktifkan selepas ujian lulus, kemudian pantau statusnya."
+      }
     },
     "advanced": {
       "title": "Tetapan teknikal lanjutan",
@@ -442,6 +467,7 @@
       "namePlaceholder": "contoh: ERP produksi",
       "baseUrl": "URL asas",
       "authType": "Jenis pengesahan",
+      "mode": "Mod operasi",
       "secret": "Kredensial selamat",
       "secretPlaceholder": "Masukkan kunci pembekal; ia disembunyikan selepas disimpan",
       "settings": "Parameter pembekal (JSON)"
@@ -465,7 +491,15 @@
       "removeGatewayBlocked": "Batalkan gateway timbang yang dipautkan dalam pengurusan jambatan timbang dahulu",
       "removeTitle": "Buang peranti {name}?",
       "removeDescription": "Peranti tidak lagi muncul dalam senarai integrasi. Sejarah dan rekod auditnya akan dikekalkan.",
-      "removeConfirm": "Buang peranti"
+      "removeConfirm": "Buang peranti",
+      "provisioningTitle": "Butiran sambungan peranti",
+      "provisioningDescription": "Berikan butiran sekali ini kepada pemasang. Rahsia tidak akan dipaparkan lagi selepas tetingkap ditutup.",
+      "heartbeatUrl": "URL degupan",
+      "recordId": "ID rekod peranti platform",
+      "deviceHeader": "Header identiti peranti",
+      "signatureHeader": "Header tandatangan",
+      "oneTimeSecret": "Rahsia peranti sekali sahaja",
+      "heartbeatBody": "Kandungan JSON degupan bertandatangan"
     },
     "kind": {
       "ERP": "ERP",
@@ -1711,6 +1745,34 @@
       "SIMULATED": "Simulator ujian membekalkan data; perkakasan tapak tidak semestinya bersambung",
       "LIVE": "Memaparkan data pembekal dan peranti tapak selepas sambungan sebenar disiapkan"
     },
+    "inventory": {
+      "title": "Inventori sambungan dan peranti syarikat",
+      "description": "Paparan semua sambungan kontraktor dan pengitar semula. Mod sebenar bermaksud pembekal sebenar dikonfigurasi; peranti hanya dalam talian selepas degupan perkakasan terkini.",
+      "searchPlaceholder": "Cari syarikat, sambungan atau peranti",
+      "allCompanyTypes": "Semua jenis syarikat",
+      "allCompanies": "Semua syarikat",
+      "allCategories": "Semua kategori integrasi",
+      "allDeviceTypes": "Semua jenis peranti",
+      "allStatuses": "Semua status",
+      "contractor": "Kontraktor",
+      "recycler": "Pengitar semula",
+      "online": "Peranti dalam talian",
+      "offline": "Peranti luar talian",
+      "liveReady": "Sebenar dan diaktifkan",
+      "simulated": "Mod simulasi",
+      "company": "Syarikat",
+      "category": "Kategori",
+      "connection": "Sambungan",
+      "device": "Peranti",
+      "location": "Projek / tapak",
+      "mode": "Mod",
+      "status": "Kesihatan",
+      "lastSeen": "Degupan / ujian terakhir",
+      "connectionRecord": "Konfigurasi sambungan",
+      "devicesCount": "{count} peranti",
+      "unlinked": "Tidak dipautkan",
+      "refreshNote": "atau tunggu kemas kini automatik 15 saat untuk degupan terkini."
+    },
     "section": {
       "live-platform": {
         "title": "Status platform langsung",
@@ -2616,6 +2678,7 @@
       "integration_not_found": "Integrasi itu tidak dijumpai.",
       "integration_already_exists": "Nama integrasi itu telah digunakan.",
       "integration_base_url_required": "Masukkan URL asas HTTP atau HTTPS yang lengkap sebelum menguji sambungan.",
+      "integration_test_required": "Uji sambungan sebenar dengan berjaya sebelum mengaktifkannya.",
       "integration_has_devices": "Buang atau nyahpaut peranti yang menggunakan sambungan ini dahulu.",
       "integration_device_not_found": "Peranti integrasi itu tidak dijumpai.",
       "integration_device_already_exists": "ID peranti itu telah digunakan.",
@@ -5778,9 +5841,18 @@
       "manageCredentials": "Urus sambungan selamat",
       "viewStatus": "Lihat status operasi",
       "step": {
-        "basic": { "title": "Tetapan asas", "description": "Aktifkan perkhidmatan dan pilih mod ujian atau sebenar." },
-        "connection": { "title": "Sambungkan", "description": "Isi pembekal, peranti dan kredensial di Integrasi." },
-        "monitoring": { "title": "Semak hasil", "description": "Lihat sambungan, kegagalan dan masa respons di Pemantauan Platform." }
+        "basic": {
+          "title": "Tetapan asas",
+          "description": "Aktifkan perkhidmatan dan pilih mod ujian atau sebenar."
+        },
+        "connection": {
+          "title": "Sambungkan",
+          "description": "Isi pembekal, peranti dan kredensial di Integrasi."
+        },
+        "monitoring": {
+          "title": "Semak hasil",
+          "description": "Lihat sambungan, kegagalan dan masa respons di Pemantauan Platform."
+        }
       }
     },
     "serviceStatus": {
