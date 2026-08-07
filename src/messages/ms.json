@@ -253,7 +253,7 @@
       "serviceSearch": "Carian perkhidmatan",
       "runtimeStatistics": "Statistik operasi",
       "monitoringRecords": "Rekod pemantauan",
-      "qrTypes": "Jenis subjek QR",
+      "qrTypes": "Pengurusan QR",
       "qrRegister": "Daftar QR",
       "qrLifecycle": "Kitar hayat QR",
       "qrSearch": "Carian QR",
@@ -292,7 +292,7 @@
       "basicSettings": "Tetapan asas",
       "saasSettings": "Tetapan SaaS",
       "commissionSettings": "Tetapan komisen",
-      "cweSettings": "Tetapan CWE",
+      "cweSettings": "Parameter penimbangan CWE",
       "cctvSettings": "Tetapan AI CCTV",
       "anprSettings": "Tetapan ANPR",
       "qrSettings": "Tetapan QR",
@@ -454,6 +454,7 @@
       "ACCOUNTING": "Perakaunan",
       "MYINVOIS": "MyInvois",
       "GOVERNMENT_API": "API kerajaan",
+      "API_GATEWAY": "API Gateway",
       "CCTV": "CCTV",
       "ANPR": "ANPR",
       "IOT": "IoT",
@@ -793,6 +794,15 @@
     },
     "onboarding": {
       "title": "Pendaftaran dan pengesahan syarikat",
+      "create": {
+        "sectionTitle": "Dokumen pendaftaran dan akaun bank",
+        "ssmCertificate": "Sijil SSM",
+        "companyProfile": "Dokumen profil syarikat",
+        "ssmTitle": "Sijil SSM",
+        "profileTitle": "Profil syarikat",
+        "ssmRequired": "Muat naik sijil SSM sebelum mencipta syarikat.",
+        "bankRequired": "Masukkan nama bank, pemegang akaun dan nombor akaun."
+      },
       "complete": "Semua rekod wajib telah disahkan. Syarikat boleh diluluskan.",
       "incomplete": "{count} item wajib masih perlu tindakan.",
       "verify": "Sahkan",
@@ -937,6 +947,10 @@
     "subscriptionMonthsHint": "Menukar pelan atau tempoh memulakan langganan baharu dari hari ini.",
     "subscriptionExpiryHint": "Pilihan. Biarkan kosong untuk mengira tarikh tamat daripada tempoh langganan.",
     "subscriptionPeriod": "{months} bulan",
+    "planTerms": {
+      "partner": "{currency} {fee} sekali + komisen {rate}%",
+      "standard": "{currency} {fee} sebulan"
+    },
     "noSubscriptionExpiry": "Tiada tarikh tamat",
     "taxIdHint": "Diperlukan sebelum e-invois boleh dihidupkan untuk syarikat ini.",
     "languageHint": "Pengguna baharu syarikat ini bermula di sini. Setiap orang boleh mengubahnya.",
@@ -951,6 +965,7 @@
       "contractors": "Kontraktor",
       "recyclers": "Pengitar semula",
       "active": "Syarikat aktif",
+      "inactive": "Syarikat tidak aktif",
       "newThisMonth": "Baharu bulan ini"
     },
     "projectStats": {
@@ -2196,6 +2211,11 @@
     "exportSubtitle": "Rekod audit kekal yang ditapis",
     "empty": "Tiada rekod audit ditemui.",
     "filter": {
+      "actor": "Nama pengguna atau Email",
+      "action": "Tindakan",
+      "allActions": "Semua tindakan",
+      "result": "Keputusan",
+      "allResults": "Semua keputusan",
       "objectType": "Jenis rekod",
       "module": "Modul",
       "ipAddress": "Alamat IP",
@@ -2206,6 +2226,7 @@
       "createdAt": "Bila",
       "actor": "Siapa",
       "action": "Tindakan",
+      "result": "Keputusan",
       "objectType": "Jenis rekod",
       "objectId": "ID rekod",
       "company": "Syarikat",
@@ -2231,6 +2252,204 @@
       "IMPERSONATE": "Log masuk sebagai pelanggan",
       "MAINTENANCE": "Penyelenggaraan",
       "LOCK": "Dikunci"
+    },
+    "result": {
+      "SUCCESS": "Berjaya",
+      "FAILED": "Gagal"
+    },
+    "operation": {
+      "CREATE": "Langganan dicipta",
+      "UPDATE": "Langganan dikemas kini",
+      "UPGRADE": "Pakej dinaik taraf",
+      "DOWNGRADE": "Pakej diturun taraf",
+      "EXTEND": "Langganan dilanjutkan",
+      "PAUSE": "Langganan dijeda",
+      "RESUME": "Langganan disambung semula",
+      "TERMINATE": "Langganan ditamatkan",
+      "SEAT_CHANGE": "Had akaun diubah",
+      "EXPIRE": "Langganan tamat tempoh",
+      "automatic_invoice_generation": "Invois SaaS automatik dijana",
+      "automatic_commission_calculation": "Komisen platform dikira",
+      "run_automatic_billing_now": "Proses bil automatik dimulakan",
+      "qr_status_change": "Status QR diubah",
+      "qr_reissue": "Kod QR dijana semula",
+      "qr_scan": "Kod QR diimbas",
+      "qr_codes_export": "Daftar QR dieksport",
+      "qr_scans_export": "Sejarah imbasan QR dieksport",
+      "qr_anomalies_export": "Sejarah anomali QR dieksport",
+      "service_event": "Pengecualian servis CWE direkodkan",
+      "service_recovery": "Pemulihan servis CWE direkodkan",
+      "record_event_resolution": "Pengendalian pengecualian dikemas kini",
+      "create_plan": "Pelan langganan dicipta",
+      "update_plan": "Pelan langganan dikemas kini",
+      "bind_project": "Projek dipautkan",
+      "unbind_project": "Pautan projek dibuang",
+      "print_ticket": "Tiket timbang dicetak",
+      "clear_gate_binding": "Pautan pintu masuk dikosongkan",
+      "company_created": "Syarikat dicipta",
+      "company_updated": "Butiran syarikat dikemas kini",
+      "company_status_changed": "Status syarikat diubah",
+      "company_removed": "Syarikat dibuang",
+      "company_reviewed": "Semakan syarikat diselesaikan",
+      "department_created": "Jabatan dicipta",
+      "department_updated": "Jabatan dikemas kini",
+      "department_removed": "Jabatan dibuang",
+      "user_created": "Pengguna dicipta",
+      "user_updated": "Butiran pengguna dikemas kini",
+      "user_status_changed": "Status pengguna diubah",
+      "user_removed": "Pengguna belum digunakan dibuang",
+      "reset_link_sent": "Pautan log masuk khusus dihantar semula",
+      "force_logout": "Pengguna dipaksa log keluar",
+      "commission_rule_created": "Peraturan komisen dicipta",
+      "commission_rule_updated": "Peraturan komisen dikemas kini",
+      "commission_rule_removed": "Peraturan komisen dibuang",
+      "invoice_generated": "Invois dijana",
+      "invoice_issued": "Invois dikeluarkan",
+      "invoice_state_changed": "Status bayaran diubah",
+      "payment_submitted": "Bukti bayaran dihantar",
+      "payment_confirmed": "Bayaran disahkan",
+      "payment_rejected": "Bayaran ditolak",
+      "scale_created": "Jambatan timbang didaftarkan",
+      "scale_updated": "Butiran jambatan timbang dikemas kini",
+      "scale_enabled": "Jambatan timbang diaktifkan",
+      "scale_disabled": "Jambatan timbang dinyahaktifkan",
+      "scale_removed": "Pendaftaran jambatan timbang dibuang",
+      "audit_logs_exported": "Rekod audit dieksport",
+      "cwe_rules_published": "Parameter timbang CWE diterbitkan",
+      "basic_setting_updated": "Tetapan asas platform dikemas kini",
+      "saas_setting_updated": "Tetapan SaaS dikemas kini",
+      "commission_setting_updated": "Tetapan komisen platform dikemas kini",
+      "cwe_setting_updated": "Tetapan enjin CWE dikemas kini",
+      "cctv_setting_updated": "Tetapan AI CCTV dikemas kini",
+      "anpr_setting_updated": "Tetapan ANPR dikemas kini",
+      "qr_setting_updated": "Tetapan Kod QR dikemas kini",
+      "api_gateway_setting_updated": "Tetapan API Gateway dikemas kini",
+      "notifications_setting_updated": "Tetapan pemberitahuan dikemas kini",
+      "maintenance_setting_updated": "Tetapan penyelenggaraan dikemas kini",
+      "version_created": "Versi sistem dicipta",
+      "version_updated": "Versi sistem dikemas kini",
+      "current_version_changed": "Versi sistem semasa diubah",
+      "version_changelog_added": "Catatan keluaran ditambah",
+      "feature_flag_updated": "Tetapan pelancaran fungsi dikemas kini",
+      "feature_flag_removed": "Tetapan pelancaran fungsi dibuang",
+      "announcement_created": "Pengumuman sistem dicipta",
+      "announcement_updated": "Pengumuman sistem dikemas kini",
+      "announcement_removed": "Pengumuman sistem dibuang",
+      "agreement_activation": "Perjanjian rakan kongsi diaktifkan",
+      "agreement_expiry": "Perjanjian rakan kongsi tamat tempoh",
+      "agreement_renewal": "Perjanjian rakan kongsi diperbaharui",
+      "agreement_termination": "Perjanjian rakan kongsi ditamatkan",
+      "api_integration_status": "Status integrasi API dikemas kini",
+      "approval_action": "Keputusan kelulusan direkodkan",
+      "archive_document": "Dokumen diarkibkan",
+      "assignment_overdue": "Penugasan aset lewat direkodkan",
+      "calculate": "Komisen jualan dikira",
+      "calculate_all": "Semua komisen jualan dikira",
+      "capture_monitoring_snapshot": "Snapshot pemantauan direkodkan",
+      "commission_adjustment": "Komisen rakan kongsi dilaraskan",
+      "commission_calculation": "Komisen rakan kongsi dikira",
+      "commission_settlement": "Komisen rakan kongsi diselesaikan",
+      "customer_assignment": "Pelanggan ditugaskan",
+      "customer_reassigned": "Pemilikan pelanggan ditugaskan semula",
+      "device_installation": "Pemasangan peranti direkodkan",
+      "disposal_decision": "Keputusan pelupusan aset direkodkan",
+      "disposal_request": "Pelupusan aset dimohon",
+      "enquiry_status": "Status pertanyaan pelanggan dikemas kini",
+      "evidence_revision": "Semakan bukti dicipta",
+      "external_portal_read": "Rekod portal luar dilihat",
+      "feedback_response": "Maklum balas pelanggan direkodkan",
+      "installation": "Pemasangan aset direkodkan",
+      "installation_status": "Status pemasangan aset dikemas kini",
+      "issue": "Aset dikeluarkan",
+      "maintenance_completed": "Penyelenggaraan peranti diselesaikan",
+      "maintenance_completion": "Penyelenggaraan aset diselesaikan",
+      "maintenance_schedule": "Penyelenggaraan aset dijadualkan",
+      "manual_registration": "Aset didaftarkan secara manual",
+      "payout_adjusted": "Bayaran komisen jualan dilaraskan",
+      "payout_transition": "Status penyelesaian komisen jualan diubah",
+      "purchase": "Pembelian aset direkodkan",
+      "purchase_receipt": "Penerimaan pembelian aset direkodkan",
+      "return": "Aset dipulangkan",
+      "revoke_external_access": "Akses luar dibatalkan",
+      "run_now": "Operasi berjadual dimulakan",
+      "stock_receipt": "Stok aset diterima",
+      "terms_activated": "Terma jualan diaktifkan",
+      "sales_report_exported": "Laporan jualan dieksport",
+      "salesperson_created": "Jurujual dicipta",
+      "salesperson_updated": "Butiran jurujual dikemas kini",
+      "salesperson_status_changed": "Status jurujual diubah",
+      "sales_territory_assigned": "Wilayah jualan ditugaskan",
+      "sales_territory_updated": "Wilayah jualan dikemas kini",
+      "sales_territory_removed": "Wilayah jualan dibuang",
+      "commission_scheme_created": "Skim komisen jualan dicipta",
+      "commission_scheme_updated": "Skim komisen jualan dikemas kini",
+      "commission_rule_updated": "Peraturan komisen jualan dikemas kini",
+      "sales_terms_created": "Versi terma jualan dicipta",
+      "sales_terms_activated": "Versi terma jualan diaktifkan",
+      "sales_terms_acknowledged": "Pengesahan terma jualan direkodkan",
+      "sales_commission_calculated": "Komisen jualan dikira",
+      "commission_supervisor_approved": "Komisen jualan diluluskan penyelia",
+      "commission_finance_confirmed": "Komisen jualan disahkan kewangan",
+      "commission_payment_confirmed": "Bayaran komisen jualan disahkan",
+      "commission_settlement_rejected": "Penyelesaian komisen jualan ditolak",
+      "commission_settlement_cancelled": "Penyelesaian komisen jualan dibatalkan",
+      "customer_service_report_exported": "Laporan khidmat pelanggan dieksport",
+      "customer_enquiry_created": "Pertanyaan pelanggan dicipta",
+      "customer_enquiry_note_added": "Catatan pertanyaan pelanggan ditambah",
+      "customer_training_scheduled": "Latihan pelanggan dijadualkan",
+      "customer_follow_up_recorded": "Susulan pelanggan direkodkan",
+      "customer_feedback_recorded": "Maklum balas pelanggan direkodkan",
+      "customer_service_recorded": "Sejarah khidmat pelanggan direkodkan",
+      "technical_support_report_exported": "Laporan sokongan teknikal dieksport",
+      "technical_ticket_created": "Tiket teknikal dicipta",
+      "technical_ticket_updated": "Butiran tiket teknikal dikemas kini",
+      "technical_ticket_comment_added": "Komen tiket teknikal ditambah",
+      "bug_record_created": "Rekod bug dicipta",
+      "api_integration_created": "Rekod integrasi API dicipta",
+      "partner_report_exported": "Laporan rakan kongsi dieksport",
+      "partner_created": "Rakan kongsi dicipta",
+      "partner_updated": "Butiran rakan kongsi dikemas kini",
+      "partner_status_changed": "Status rakan kongsi diubah",
+      "partner_type_created": "Jenis rakan kongsi dicipta",
+      "partner_type_updated": "Jenis rakan kongsi dikemas kini",
+      "partner_type_removed": "Jenis rakan kongsi dibuang",
+      "partner_territory_created": "Wilayah rakan kongsi dicipta",
+      "partner_territory_updated": "Wilayah rakan kongsi dikemas kini",
+      "partner_territory_removed": "Wilayah rakan kongsi dibuang",
+      "partner_customer_assigned": "Pelanggan ditugaskan kepada rakan kongsi",
+      "partner_customer_assignment_updated": "Tugasan pelanggan rakan kongsi dikemas kini",
+      "partner_agreement_created": "Perjanjian rakan kongsi dicipta",
+      "partner_agreement_updated": "Perjanjian rakan kongsi dikemas kini",
+      "partner_agreement_submitted": "Perjanjian rakan kongsi dihantar",
+      "asset_report_exported": "Laporan aset dieksport",
+      "asset_updated": "Butiran aset dikemas kini",
+      "asset_status_changed": "Status aset diubah",
+      "asset_category_created": "Kategori aset dicipta",
+      "asset_category_updated": "Kategori aset dikemas kini",
+      "asset_category_removed": "Kategori aset dibuang",
+      "maintenance_started": "Penyelenggaraan aset dimulakan",
+      "cloud_vendor_created": "Pembekal awan dicipta",
+      "cloud_vendor_updated": "Pembekal awan dikemas kini",
+      "cloud_service_created": "Perkhidmatan awan dicipta",
+      "cloud_service_updated": "Perkhidmatan awan dikemas kini",
+      "cloud_service_status_changed": "Status perkhidmatan awan diubah",
+      "cloud_plan_created": "Pelan perkhidmatan awan dicipta",
+      "cloud_plan_updated": "Pelan perkhidmatan awan dikemas kini",
+      "cloud_pricing_rule_created": "Peraturan harga awan dicipta",
+      "cloud_pricing_rule_updated": "Peraturan harga awan dikemas kini",
+      "cloud_budget_created": "Bajet awan dicipta",
+      "cloud_budget_updated": "Bajet awan dikemas kini",
+      "cloud_alert_resolved": "Amaran sumber awan diselesaikan",
+      "cloud_service_report_exported": "Laporan perkhidmatan awan dieksport",
+      "ticket_transition": "Status tiket teknikal dikemas kini",
+      "training_status": "Status latihan pelanggan dikemas kini",
+      "transfer": "Pemindahan aset direkodkan",
+      "update_bank_account": "Akaun bank syarikat dikemas kini",
+      "usage_record": "Penggunaan awan direkodkan",
+      "REMOTE_CONFIGURATION": "Konfigurasi peranti jauh dijalankan",
+      "REMOTE_TESTING": "Ujian peranti jauh dijalankan",
+      "REMOTE_RESTART": "Mula semula peranti jauh dijalankan",
+      "FIRMWARE_UPGRADE": "Naik taraf perisian tegar jauh dijalankan"
     },
     "impersonatedBy": "Bertindak melalui {name}",
     "before": "Sebelum",
@@ -2659,8 +2878,19 @@
     }
   },
   "weighingRules": {
-    "title": "Tetapan pengesanan",
-    "subtitle": "Ambang yang menentukan apa yang dikira sebagai penipuan",
+    "title": "Parameter penimbangan CWE",
+    "subtitle": "Peraturan timbang berversi, ambang anomali dan parameter penyegerakan data",
+    "loadError": "Parameter penimbangan CWE tidak dapat dimuatkan.",
+    "group": {
+      "rules": {
+        "title": "Peraturan timbang dan ambang anomali",
+        "subtitle": "Diterbitkan sebagai versi kekal yang digunakan oleh enjin timbang"
+      },
+      "engine": {
+        "title": "Komunikasi, gateway, timbang semula dan penyegerakan",
+        "subtitle": "Tetapan perkakasan dan pemindahan data yang disimpan oleh platform"
+      }
+    },
     "publish": "Terbitkan versi baharu",
     "immutableHint": "Menerbitkan mencipta versi baharu. Penimbangan yang telah dinilai mengekalkan ambang yang menilainya, jadi mengubah nilai di sini tidak boleh membersihkan sejarah sedia ada.",
     "scope": {
@@ -2841,13 +3071,14 @@
   "adminQr": {
     "title": "Pengurusan Kod QR",
     "subtitle": "7 Keluarkan, urus, cari dan audit kod QR platform serta setiap cubaan imbasan",
+    "loadError": "Maklumat QR tidak dapat dimuatkan.",
     "count": "{count} rekod QR",
     "empty": "Tiada rekod QR yang sepadan.",
     "searchPlaceholder": "Cari ID QR, subjek atau syarikat",
     "scanSearchPlaceholder": "Cari ID QR, subjek, lokasi atau pengimbas",
     "section": {
       "types": {
-        "title": "Jenis subjek QR",
+        "title": "Pengurusan QR",
         "subtitle": "Kod untuk kontraktor, pengitar semula, pembekal, pemandu, kenderaan, staf tapak, pelawat dan peranti"
       },
       "register": {
@@ -2903,7 +3134,8 @@
       "VOIDED": "Kod dibatalkan",
       "EXPIRED": "Kod tamat tempoh",
       "WRONG_LOCATION": "Lokasi salah",
-      "DUPLICATE": "Penggunaan pendua"
+      "DUPLICATE": "Penggunaan pendua",
+      "DUPLICATE_WARNING": "Diterima dengan amaran"
     },
     "field": {
       "qrId": "ID QR",
@@ -2936,6 +3168,8 @@
       "disable": "Nyahaktif",
       "void": "Batalkan",
       "reissue": "Keluarkan semula",
+      "downloadQr": "Muat turun QR",
+      "printQr": "Cetak QR",
       "excel": "Excel",
       "pdf": "PDF"
     },
@@ -3014,11 +3248,13 @@
     },
     "filter": {
       "search": "Cari",
+      "category": "Kategori",
       "company": "Syarikat",
       "status": "Status",
       "dateFrom": "Tarikh mula",
       "dateTo": "Tarikh akhir",
       "allCompanies": "Semua syarikat",
+      "allCategories": "Semua kategori",
       "allStatuses": "Semua status"
     },
     "field": {
@@ -3040,6 +3276,7 @@
     "action": {
       "markRead": "Tandakan dibaca",
       "markUnread": "Tandakan belum dibaca",
+      "view": "Lihat notifikasi",
       "remove": "Buang",
       "send": "Hantar notifikasi"
     },
@@ -4105,7 +4342,9 @@
         "FAILED": "Gagal",
         "CANCELLED": "Dibatalkan"
       },
-      "toast": { "queued": "Proses pengebilan automatik dimasukkan dalam barisan" }
+      "toast": {
+        "queued": "Proses pengebilan automatik dimasukkan dalam barisan"
+      }
     },
     "financialReports": {
       "loadError": "Jumlah laporan kewangan tidak dapat dimuatkan.",
@@ -4117,11 +4356,26 @@
         "outstanding": "Baki belum terima",
         "overdue": "Tertunggak"
       },
-      "saas": { "title": "Laporan pendapatan SaaS", "subtitle": "Invois langganan SaaS dan kedudukan kutipan" },
-      "commission": { "title": "Laporan pendapatan komisen platform", "subtitle": "Invois komisen perniagaan platform dan kedudukan kutipan" },
-      "receivables": { "title": "Laporan akaun belum terima", "subtitle": "Semua jumlah dibil, diterima dan belum diterima" },
-      "paid": { "title": "Laporan bayaran diterima", "subtitle": "Semua penerimaan disahkan termasuk bayaran separa" },
-      "unpaid": { "title": "Laporan bayaran belum diterima", "subtitle": "Invois dikeluarkan, separa bayar dan tertunggak yang masih berbaki" }
+      "saas": {
+        "title": "Laporan pendapatan SaaS",
+        "subtitle": "Invois langganan SaaS dan kedudukan kutipan"
+      },
+      "commission": {
+        "title": "Laporan pendapatan komisen platform",
+        "subtitle": "Invois komisen perniagaan platform dan kedudukan kutipan"
+      },
+      "receivables": {
+        "title": "Laporan akaun belum terima",
+        "subtitle": "Semua jumlah dibil, diterima dan belum diterima"
+      },
+      "paid": {
+        "title": "Laporan bayaran diterima",
+        "subtitle": "Semua penerimaan disahkan termasuk bayaran separa"
+      },
+      "unpaid": {
+        "title": "Laporan bayaran belum diterima",
+        "subtitle": "Invois dikeluarkan, separa bayar dan tertunggak yang masih berbaki"
+      }
     },
     "metric": {
       "saasBilled": "SaaS belum terima bulan ini",
@@ -4719,6 +4973,7 @@
       "selectPerson": "Pilih jurujual",
       "reason": "Sebab diperlukan",
       "target": "Jumlah sasaran",
+      "accrualMonths": "Bulan akruan komisen",
       "description": "Keterangan",
       "body": "Kandungan terma",
       "selectStatus": "Pilih status seterusnya",
@@ -4733,6 +4988,7 @@
       "addTerritory": "Tambah wilayah",
       "reassign": "Pindah",
       "addScheme": "Tambah skim",
+      "addRule": "Tambah peraturan",
       "addTerms": "Tambah versi terma",
       "activate": "Aktifkan",
       "acknowledge": "Rekod pengesahan",
@@ -4749,6 +5005,7 @@
     "dialog": {
       "person": "Identiti jualan, barisan laporan dan skim komisen.",
       "territory": "Pilih satu atau lebih negeri, atau liputan kebangsaan.",
+      "rule": "Tetapkan asas pengiraan dan formula yang digunakan oleh skim komisen.",
       "scheme": "Formula digunakan secara automatik semasa pengiraan bayaran.",
       "terms": "Perubahan mencipta versi terma baharu yang tidak boleh diubah."
     },
@@ -4767,7 +5024,30 @@
       "PERCENT_OF_BUSINESS_VALUE": "% nilai perniagaan",
       "FIXED_PER_CONTRACTOR": "Tetap setiap kontraktor",
       "FIXED_PER_RECYCLER": "Tetap setiap pengitar semula",
-      "TARGET_BONUS": "Bonus sasaran"
+      "TARGET_BONUS": "Bonus sasaran",
+      "CUSTOM_FORMULA": "Formula tersuai"
+    },
+    "custom": {
+      "configured": "Formula telah ditetapkan",
+      "fixed_amount": "Amaun asas tetap",
+      "fixed_per_customer": "Amaun tetap setiap pelanggan",
+      "fixed_per_contractor": "Amaun tetap setiap kontraktor",
+      "fixed_per_recycler": "Amaun tetap setiap pengitar semula",
+      "saas_percent": "Peratus hasil SaaS",
+      "platform_commission_percent": "Peratus komisen platform",
+      "business_value_percent": "Peratus nilai perniagaan",
+      "target_threshold": "Ambang sasaran",
+      "target_bonus": "Amaun bonus sasaran",
+      "noTarget": "Tiada bonus sasaran",
+      "metric": {
+        "combined_revenue": "Gabungan SaaS dan komisen platform",
+        "saas_revenue": "Hasil SaaS",
+        "platform_commission": "Komisen platform",
+        "business_value": "Nilai perniagaan",
+        "customers": "Semua pelanggan baharu",
+        "contractors": "Kontraktor baharu",
+        "recyclers": "Pengitar semula baharu"
+      }
     },
     "cycle": {
       "MONTHLY": "Bulanan",
@@ -5262,6 +5542,17 @@
   "adminAuditCenter": {
     "title": "Log Audit",
     "subtitle": "Rekod perubahan pengguna, syarikat, kewangan, timbangan dan sistem yang kekal.",
+    "immutableStatus": {
+      "total": "Rekod disimpan",
+      "retention": "Dasar penyimpanan",
+      "updates": "Kemas kini rekod",
+      "deletes": "Pemadaman rekod",
+      "permanent": "Kekal",
+      "blocked": "Disekat",
+      "oldest": "Rekod terawal disimpan",
+      "newest": "Rekod terkini disimpan",
+      "empty": "Tiada rekod"
+    },
     "section": {
       "users": {
         "title": "Rekod pengguna",
@@ -5311,7 +5602,22 @@
     "loading": "Memuatkan tetapan...",
     "loadError": "Tetapan sistem tidak dapat dimuatkan.",
     "save": "Simpan",
-    "toast": { "saved": "Tetapan disimpan" },
+    "neverUpdated": "Menggunakan nilai lalai platform",
+    "toast": {
+      "saved": "Tetapan disimpan",
+      "companySaved": "Tetapan syarikat disimpan",
+      "companyReset": "Tetapan syarikat kembali kepada lalai platform"
+    },
+    "scope": {
+      "title": "Skop konfigurasi",
+      "description": "Pilih syarikat untuk mengatasi tetapan ini bagi satu syarikat.",
+      "company": "Syarikat konfigurasi",
+      "platformDefault": "Lalai platform",
+      "companyOverride": "Tetapan khusus syarikat",
+      "inherited": "Mewarisi lalai platform",
+      "reset": "Pulihkan lalai platform",
+      "type": { "CONTRACTOR": "Kontraktor", "RECYCLER": "Pengitar semula" }
+    },
     "section": {
       "basic": {
         "title": "Tetapan asas",
@@ -5326,8 +5632,8 @@
         "subtitle": "Status, kadar, asas, kitaran penyelesaian dan tarikh kuat kuasa komisen."
       },
       "cwe": {
-        "title": "Tetapan CWE",
-        "subtitle": "Parameter komunikasi, gateway, anomali, timbang semula dan penyegerakan."
+        "title": "Parameter penimbangan CWE",
+        "subtitle": "Peraturan timbang berversi, ambang anomali dan parameter penyegerakan."
       },
       "cctv": {
         "title": "Tetapan AI CCTV",
@@ -5367,10 +5673,19 @@
       "email": "Kredensial pembekal e-mel",
       "push": "Kredensial pembekal push",
       "deploymentEnv": "Persekitaran deployment",
+      "companyIntegration": "Integrasi selamat syarikat",
+      "manageConnection": "Urus sambungan",
       "configured": "Dikonfigurasi",
       "missing": "Belum dikonfigurasi"
     },
     "mode": { "SIMULATED": "SIMULASI", "LIVE": "LANGSUNG" },
+    "serviceStatus": {
+      "NOT_CONFIGURED": "Belum dikonfigurasi",
+      "DISABLED": "Dilumpuhkan",
+      "READY": "Sedia",
+      "DEGRADED": "Terhad",
+      "ERROR": "Ralat"
+    },
     "option": {
       "MONTHLY": "Bulanan",
       "QUARTERLY": "Suku tahunan",
@@ -5384,6 +5699,26 @@
       "REJECT": "Tolak",
       "WARN": "Amaran",
       "ALLOW": "Benarkan"
+    },
+    "cweField": {
+      "default_protocol": "Protokol penunjuk lalai",
+      "baud_rate": "Kadar baud bersiri",
+      "heartbeat_seconds": "Selang heartbeat (saat)",
+      "connection_timeout_seconds": "Masa tamat sambungan (saat)",
+      "packet_reading_limit": "Bacaan maksimum setiap paket",
+      "upload_interval_seconds": "Selang muat naik (saat)",
+      "buffer_capacity": "Kapasiti buffer luar talian",
+      "retry_count": "Bilangan percubaan semula",
+      "offline_threshold_seconds": "Ambang luar talian (saat)",
+      "require_signature": "Wajibkan tandatangan paket gateway",
+      "batch_size": "Saiz kelompok penyegerakan",
+      "interval_seconds": "Selang penyegerakan (saat)",
+      "retention_days": "Pengekalan data luar talian (hari)",
+      "compress_payloads": "Mampatkan payload penyegerakan"
+    },
+    "cweOption": {
+      "generic_json": "JSON Generik",
+      "mt_continuous_short": "METTLER TOLEDO Continuous Short"
     },
     "field": {
       "platform_name": "Nama platform",
@@ -5428,6 +5763,7 @@
       "api_gateway_timeout_seconds": "Masa tamat (saat)",
       "api_gateway_retry_count": "Bilangan percubaan semula",
       "api_gateway_rate_limit_per_minute": "Had kadar seminit",
+      "api_gateway_service_status": "Status perkhidmatan",
       "notification_email_enabled": "E-mel diaktifkan",
       "notification_email_mode": "Mod e-mel",
       "notification_push_enabled": "Push diaktifkan",

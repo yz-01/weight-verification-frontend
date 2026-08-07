@@ -3,6 +3,7 @@ export type IntegrationKind =
   | "ACCOUNTING"
   | "MYINVOIS"
   | "GOVERNMENT_API"
+  | "API_GATEWAY"
   | "CCTV"
   | "ANPR"
   | "IOT"

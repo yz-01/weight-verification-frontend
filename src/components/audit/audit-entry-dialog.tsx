@@ -56,6 +56,10 @@ export function AuditEntryDialog({
               value={entry.actor_name ?? entry.actor_email}
             />
             <Detail
+              label={t("audit.field.result")}
+              value={t(`audit.result.${entry.result}`)}
+            />
+            <Detail
               label={t("audit.field.objectType")}
               value={entry.object_type}
             />

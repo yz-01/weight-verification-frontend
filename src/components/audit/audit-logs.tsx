@@ -19,7 +19,9 @@ import { getCompanies } from "@/services/companies.service";
 import { useDateFormat } from "@/lib/dates";
 
 const FILTER_KEYS = [
+  "actor",
   "action",
+  "result",
   "company",
   "object_type",
   "module",
@@ -61,6 +63,23 @@ const FILTERABLE_ACTIONS: AuditAction[] = [
   "DELETE",
   "PERMISSION_CHANGE",
   "LOGIN_FAILED",
+];
+
+const ALL_ACTIONS: AuditAction[] = [
+  "CREATE",
+  "UPDATE",
+  "DELETE",
+  "RESTORE",
+  "LOGIN",
+  "LOGOUT",
+  "LOGIN_FAILED",
+  "PASSWORD_CHANGE",
+  "PERMISSION_CHANGE",
+  "BILLING_CHANGE",
+  "EXPORT",
+  "IMPERSONATE",
+  "MAINTENANCE",
+  "LOCK",
 ];
 
 export function AuditLogs({
@@ -129,10 +148,54 @@ export function AuditLogs({
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
+        cell: ({ row }) => {
+          const operation = row.original.context.operation;
+          const operationKey =
+            typeof operation === "string"
+              ? `audit.operation.${operation}`
+              : null;
+          const operationLabel = operationKey
+            ? t.has(operationKey)
+              ? t(operationKey)
+              : String(operation)
+                  .replaceAll("_", " ")
+                  .toLowerCase()
+                  .replace(/^./, (character) => character.toUpperCase())
+            : null;
+          return (
+            <div className="space-y-1">
+              {operationLabel ? (
+                <>
+                  <p className="max-w-52 text-sm font-medium leading-snug">
+                    {operationLabel}
+                  </p>
+                  <StatusBadge
+                    label={t(`audit.action.${row.original.action}`)}
+                    tone={ACTION_TONE[row.original.action]}
+                  />
+                </>
+              ) : (
+                <StatusBadge
+                  label={t(`audit.action.${row.original.action}`)}
+                  tone={ACTION_TONE[row.original.action]}
+                />
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "result",
+        meta: { label: t("audit.field.result") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("audit.field.result")}
+          </span>
+        ),
         cell: ({ row }) => (
           <StatusBadge
-            label={t(`audit.action.${row.original.action}`)}
-            tone={ACTION_TONE[row.original.action]}
+            label={t(`audit.result.${row.original.result}`)}
+            tone={row.original.result === "FAILED" ? "danger" : "positive"}
           />
         ),
       },
@@ -272,6 +335,7 @@ export function AuditLogs({
         empty_label: t("audit.empty"),
         columns: [
           { key: "created_at", label: t("audit.field.createdAt") },
+          { key: "result", label: t("audit.field.result") },
           { key: "action", label: t("audit.field.action") },
           { key: "actor_email", label: t("audit.field.actor") },
           { key: "company_name", label: t("audit.field.company") },
@@ -289,7 +353,7 @@ export function AuditLogs({
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
         title={title ?? t("audit.title")}
-        subtitle={subtitle ?? (isLoading ? "—" : t("audit.count", { count: totalCount }))}
+        subtitle={subtitle ?? (isLoading ? t("common.loading") : t("audit.count", { count: totalCount }))}
         action={showExport ? (
           <div className="flex gap-2">
             <Button variant="outline" disabled={exportMutation.isPending} onClick={() => exportMutation.mutate("PDF")}>
@@ -323,7 +387,35 @@ export function AuditLogs({
       )}
 
       {advanced && (
-        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+          <Input
+            value={list.filters.actor ?? ""}
+            placeholder={t("audit.filter.actor")}
+            onChange={(event) => list.setFilter("actor", event.target.value || undefined)}
+          />
+          <select
+            className="h-9 rounded-md border bg-background px-3 text-sm"
+            value={list.filters.action ?? ""}
+            aria-label={t("audit.filter.action")}
+            onChange={(event) => list.setFilter("action", event.target.value || undefined)}
+          >
+            <option value="">{t("audit.filter.allActions")}</option>
+            {ALL_ACTIONS.map((action) => (
+              <option key={action} value={action}>
+                {t(`audit.action.${action}`)}
+              </option>
+            ))}
+          </select>
+          <select
+            className="h-9 rounded-md border bg-background px-3 text-sm"
+            value={list.filters.result ?? ""}
+            aria-label={t("audit.filter.result")}
+            onChange={(event) => list.setFilter("result", event.target.value || undefined)}
+          >
+            <option value="">{t("audit.filter.allResults")}</option>
+            <option value="SUCCESS">{t("audit.result.SUCCESS")}</option>
+            <option value="FAILED">{t("audit.result.FAILED")}</option>
+          </select>
           <Input
             value={list.filters.object_type ?? ""}
             placeholder={t("audit.filter.objectType")}

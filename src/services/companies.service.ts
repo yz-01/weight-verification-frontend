@@ -79,9 +79,12 @@ export function getCompanySummary(): Promise<CompanySummary> {
   return api.get<CompanySummary>("/api/companies/get_summary/");
 }
 
-export function getSubscriptionPlans(): Promise<Paginated<SubscriptionPlan>> {
+export function getSubscriptionPlans(
+  audience?: "CONTRACTOR" | "RECYCLER",
+): Promise<Paginated<SubscriptionPlan>> {
   return api.list<SubscriptionPlan>("/api/subscription-plans/get_plans/", {
     is_active: true,
+    audience,
     page_size: 100,
   });
 }

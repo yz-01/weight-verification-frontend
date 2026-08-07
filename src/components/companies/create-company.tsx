@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Save } from "lucide-react";
+import { FileUp, Landmark, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,14 +25,17 @@ import { Input } from "@/components/ui/input";
 import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { ApiError } from "@/interfaces/api";
 import type {
+  CompanyBankAccountPayload,
   CompanyDetail,
   CompanyPayload,
   CompanyType,
 } from "@/interfaces/company";
 import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
+  createCompanyBankAccount,
   createCompany,
   getSubscriptionPlans,
+  uploadCompanyDocument,
   updateCompany,
 } from "@/services/companies.service";
 
@@ -65,15 +68,49 @@ export function CreateCompany({
   const fixedType = company?.type ?? defaultType;
   const [formError, setFormError] = useState<string | null>(null);
   const [logo, setLogo] = useState<File | null>(null);
+  const [ssmCertificate, setSsmCertificate] = useState<File | null>(null);
+  const [companyProfile, setCompanyProfile] = useState<File | null>(null);
+  const [bank, setBank] = useState<CompanyBankAccountPayload>({
+    bank_name: "",
+    account_name: "",
+    account_number: "",
+    account_type: "CURRENT",
+    currency: "MYR",
+    is_primary: true,
+  });
   const { data: plans, isLoading: plansLoading } = useQuery({
     queryKey: ["subscription-plans", "active"],
-    queryFn: getSubscriptionPlans,
-    enabled: fixedType !== "RECYCLER",
+    queryFn: () => getSubscriptionPlans(),
   });
 
   const mutation = useMutation({
-    mutationFn: (values: CompanyPayload) =>
-      isEdit ? updateCompany(company.id, values) : createCompany(values),
+    mutationFn: async (values: CompanyPayload) => {
+      const saved = isEdit
+        ? await updateCompany(company.id, values)
+        : await createCompany(values);
+      if (!isEdit) {
+        try {
+          await uploadCompanyDocument(
+            saved.id,
+            "SSM_CERTIFICATE",
+            ssmCertificate!,
+            { title: t("companies.onboarding.create.ssmTitle") },
+          );
+          if (companyProfile) {
+            await uploadCompanyDocument(saved.id, "OTHER", companyProfile, {
+              title: t("companies.onboarding.create.profileTitle"),
+            });
+          }
+          await createCompanyBankAccount(saved.id, bank);
+        } catch (error) {
+          // The tenant itself already exists. Move to the resumable edit page
+          // so retrying cannot create a duplicate company.
+          router.replace(`/companies/${saved.id}/edit?onboarding=incomplete`);
+          throw error;
+        }
+      }
+      return saved;
+    },
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["companies"] });
       router.push(`/companies/${saved.id}`);
@@ -123,6 +160,19 @@ export function CreateCompany({
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
+      if (!isEdit && !ssmCertificate) {
+        setFormError(t("companies.onboarding.create.ssmRequired"));
+        return;
+      }
+      if (
+        !isEdit &&
+        (!bank.bank_name.trim() ||
+          !bank.account_name.trim() ||
+          !bank.account_number.trim())
+      ) {
+        setFormError(t("companies.onboarding.create.bankRequired"));
+        return;
+      }
       try {
         const override = value.project_limit_override.trim();
         const type = (fixedType ?? value.type) as CompanyType;
@@ -153,30 +203,30 @@ export function CreateCompany({
             (company.subscription_expiry_is_custom
               ? company.subscription_expires_on
               : null);
+        const subscriptionFields = {
+          plan: value.plan || null,
+          subscription_months: subscriptionChanged
+            ? subscriptionMonths
+            : undefined,
+          subscription_expires_on: subscriptionChanged
+            ? customExpiry
+            : undefined,
+          subscription_expiry_is_custom: subscriptionChanged
+            ? Boolean(customExpiry)
+            : undefined,
+        };
         const payload: CompanyPayload =
           type === "CONTRACTOR"
             ? {
                 ...basePayload,
-                plan: value.plan || null,
+                ...subscriptionFields,
                 project_limit_override:
                   override === "" ? null : Number(override),
-                subscription_months: subscriptionChanged
-                  ? subscriptionMonths
-                  : undefined,
-                subscription_expires_on: subscriptionChanged
-                  ? customExpiry
-                  : undefined,
-                subscription_expiry_is_custom: subscriptionChanged
-                  ? Boolean(customExpiry)
-                  : undefined,
               }
             : {
                 ...basePayload,
-                plan: undefined,
+                ...subscriptionFields,
                 project_limit_override: undefined,
-                subscription_months: undefined,
-                subscription_expires_on: undefined,
-                subscription_expiry_is_custom: undefined,
               };
         await mutation.mutateAsync({
           ...payload,
@@ -357,8 +407,11 @@ export function CreateCompany({
       </FormSection>
 
       <form.Subscribe selector={(state) => state.values.type}>
-        {(selectedType) =>
-          selectedType === "RECYCLER" ? null : (
+        {(selectedType) => {
+          const eligiblePlans = (plans?.results ?? []).filter(
+            (plan) => plan.audience === selectedType,
+          );
+          return selectedType ? (
             <FormSection title={t("companies.section.subscription")}>
               <form.Field
                 name="plan"
@@ -370,42 +423,55 @@ export function CreateCompany({
                     label={t("companies.field.plan")}
                     required
                     hint={plansLoading ? t("common.loading") : undefined}
-                    options={(plans?.results ?? []).map((plan) => {
-                      const allowance =
-                        plan.max_projects === null
-                          ? t("contractorPartners.unlimitedProjects")
-                          : t("contractorPartners.projectLimit", {
-                              count: plan.max_projects,
-                            });
+                    options={eligiblePlans.map((plan) => {
+                      const terms =
+                        plan.tier === "PARTNER"
+                          ? t("companies.planTerms.partner", {
+                              currency: plan.currency,
+                              fee: plan.setup_fee,
+                              rate: plan.effective_commission_rate ?? "0",
+                            })
+                          : plan.tier === "STANDARD"
+                            ? t("companies.planTerms.standard", {
+                                currency: plan.currency,
+                                fee: plan.monthly_fee,
+                              })
+                            : plan.max_projects === null
+                              ? t("contractorPartners.unlimitedProjects")
+                              : t("contractorPartners.projectLimit", {
+                                  count: plan.max_projects,
+                                });
                       return {
                         value: plan.id,
-                        label: `${plan.name} (${allowance})`,
+                        label: `${plan.name} (${terms})`,
                       };
                     })}
                   />
                 )}
               </form.Field>
 
-              <form.Field
-                name="project_limit_override"
-                validators={{
-                  onSubmit: optionalPositiveInteger(
-                    t("validation.positiveInteger"),
-                  ),
-                }}
-              >
-                {(field) => (
-                  <TextField
-                    field={field as unknown as BoundField}
-                    label={t("companies.field.projectLimitOverride")}
-                    optional
-                    type="number"
-                    min={1}
-                    step={1}
-                    hint={t("companies.projectLimitOverrideHint")}
-                  />
-                )}
-              </form.Field>
+              {selectedType === "CONTRACTOR" && (
+                <form.Field
+                  name="project_limit_override"
+                  validators={{
+                    onSubmit: optionalPositiveInteger(
+                      t("validation.positiveInteger"),
+                    ),
+                  }}
+                >
+                  {(field) => (
+                    <TextField
+                      field={field as unknown as BoundField}
+                      label={t("companies.field.projectLimitOverride")}
+                      optional
+                      type="number"
+                      min={1}
+                      step={1}
+                      hint={t("companies.projectLimitOverrideHint")}
+                    />
+                  )}
+                </form.Field>
+              )}
 
               <form.Field name="subscription_months">
                 {(field) => (
@@ -434,8 +500,8 @@ export function CreateCompany({
                 )}
               </form.Field>
             </FormSection>
-          )
-        }
+          ) : null;
+        }}
       </form.Subscribe>
 
       <FormSection title={t("companies.section.contact")}>
@@ -580,6 +646,118 @@ export function CreateCompany({
         </form.Field>
       </FormSection>
 
+      {!isEdit && (
+        <FormSection title={t("companies.onboarding.create.sectionTitle")}>
+          <div className="flex items-center gap-2 md:col-span-2">
+            <FileUp className="size-4 text-primary" />
+            <p className="text-sm font-semibold">
+              {t("companies.onboarding.documents.title")}
+            </p>
+          </div>
+          <FieldWrapper
+            label={t("companies.onboarding.create.ssmCertificate")}
+            required
+          >
+            <Input
+              type="file"
+              accept="application/pdf,image/png,image/jpeg,image/webp"
+              onChange={(event) =>
+                setSsmCertificate(event.target.files?.[0] ?? null)
+              }
+            />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("companies.onboarding.create.companyProfile")}
+            optional={t("common.optional")}
+          >
+            <Input
+              type="file"
+              accept="application/pdf,image/png,image/jpeg,image/webp"
+              onChange={(event) =>
+                setCompanyProfile(event.target.files?.[0] ?? null)
+              }
+            />
+          </FieldWrapper>
+
+          <div className="mt-2 flex items-center gap-2 border-t pt-4 md:col-span-2">
+            <Landmark className="size-4 text-primary" />
+            <p className="text-sm font-semibold">
+              {t("companies.onboarding.bank.title")}
+            </p>
+          </div>
+          <FieldWrapper
+            label={t("companies.onboarding.bank.bankName")}
+            required
+          >
+            <Input
+              value={bank.bank_name}
+              onChange={(event) =>
+                setBank((current) => ({
+                  ...current,
+                  bank_name: event.target.value,
+                }))
+              }
+            />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("companies.onboarding.bank.accountName")}
+            required
+          >
+            <Input
+              value={bank.account_name}
+              onChange={(event) =>
+                setBank((current) => ({
+                  ...current,
+                  account_name: event.target.value,
+                }))
+              }
+            />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("companies.onboarding.bank.accountNumber")}
+            required
+          >
+            <Input
+              inputMode="numeric"
+              value={bank.account_number}
+              onChange={(event) =>
+                setBank((current) => ({
+                  ...current,
+                  account_number: event.target.value,
+                }))
+              }
+            />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("companies.onboarding.bank.accountType")}
+            required
+          >
+            <select
+              className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+              value={bank.account_type}
+              onChange={(event) =>
+                setBank((current) => ({
+                  ...current,
+                  account_type: event.target.value as "CURRENT" | "SAVINGS",
+                }))
+              }
+            >
+              <option value="CURRENT">
+                {t("companies.onboarding.bank.type.CURRENT")}
+              </option>
+              <option value="SAVINGS">
+                {t("companies.onboarding.bank.type.SAVINGS")}
+              </option>
+            </select>
+          </FieldWrapper>
+          {formError && (
+            <p className="text-sm font-medium text-destructive md:col-span-2">
+              {formError}
+            </p>
+          )}
+        </FormSection>
+      )}
+
       <FormSection title={t("companies.section.preferences")}>
         <form.Field name="default_language">
           {(field) => (
@@ -608,7 +786,7 @@ export function CreateCompany({
           )}
         </form.Field>
 
-        {formError && (
+        {isEdit && formError && (
           <p className="text-sm font-medium text-destructive md:col-span-2">
             {formError}
           </p>

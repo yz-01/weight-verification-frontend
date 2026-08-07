@@ -24,7 +24,8 @@ export type QRScanOutcome =
   | "VOIDED"
   | "EXPIRED"
   | "WRONG_LOCATION"
-  | "DUPLICATE";
+  | "DUPLICATE"
+  | "DUPLICATE_WARNING";
 
 export interface QRCode {
   id: string;

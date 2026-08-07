@@ -82,6 +82,7 @@ export function AdminCWEWorkspace({
   if (section === "activity") {
     return (
       <AuditLogs
+        fixedCategory="CWE"
         title={t("section.activity.title")}
         subtitle={t("section.activity.subtitle")}
       />

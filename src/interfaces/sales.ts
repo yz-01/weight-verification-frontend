@@ -57,9 +57,23 @@ export interface CommissionScheme {
   minimum_payout: string;
   maximum_payout: string | null;
   target_amount: string | null;
+  calculation_config: CommissionCalculationConfig;
   accrual_months: number | null;
   is_active: boolean;
   salesperson_count: number;
+}
+
+export interface CommissionCalculationConfig {
+  fixed_amount?: string;
+  fixed_per_customer?: string;
+  fixed_per_contractor?: string;
+  fixed_per_recycler?: string;
+  saas_percent?: string;
+  platform_commission_percent?: string;
+  business_value_percent?: string;
+  target_metric?: string;
+  target_threshold?: string;
+  target_bonus?: string;
 }
 
 export interface CommissionPayout {

@@ -46,7 +46,7 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
   if (section === "activity") {
     return (
       <AuditLogs
-        fixedAction="BILLING_CHANGE"
+        fixedCategory="SUBSCRIPTION"
         title={t("section.activity.title")}
         subtitle={t("section.activity.subtitle")}
       />
@@ -76,7 +76,7 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
         </div>
       );
     }
-    return <CompanySubscriptions />;
+    return <CompanySubscriptions mode={section as "companies" | "status" | "package-changes" | "account-limits" | "search"} />;
   })();
 
   return (

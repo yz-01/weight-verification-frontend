@@ -19,11 +19,15 @@ export type AuditAction =
 /** `{field: {before, after}}`, holding only the fields that actually moved. */
 export type AuditChanges = Record<
   string,
-  { before: string | number | boolean | null; after: string | number | boolean | null }
+  {
+    before: string | number | boolean | null;
+    after: string | number | boolean | null;
+  }
 >;
 
 export interface AuditLogEntry {
   id: string;
+  result: "SUCCESS" | "FAILED";
   actor: string | null;
   actor_name: string | null;
   actor_email: string;
@@ -43,4 +47,16 @@ export interface AuditLogEntry {
   request_path: string;
   request_method: string;
   created_at: string;
+}
+
+export interface AuditSummary {
+  total: number;
+  by_action: Record<string, number>;
+  by_object_type: Record<string, number>;
+  top_actors: Array<{ actor_email: string; n: number }>;
+  oldest_entry_at: string | null;
+  newest_entry_at: string | null;
+  retention: "PERMANENT";
+  updates_allowed: false;
+  deletes_allowed: false;
 }

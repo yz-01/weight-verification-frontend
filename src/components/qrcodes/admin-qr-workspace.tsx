@@ -8,6 +8,7 @@ import {
   Eye,
   Plus,
   Power,
+  Printer,
   RefreshCw,
   RotateCw,
   ShieldX,
@@ -15,7 +16,7 @@ import {
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { AuditLogs } from "@/components/audit/audit-logs";
 import {
@@ -112,6 +113,7 @@ export function AdminQRWorkspace({
   if (section === "activity") {
     return (
       <AuditLogs
+        fixedCategory="QR"
         title={t("section.activity.title")}
         subtitle={t("section.activity.subtitle")}
       />
@@ -120,12 +122,26 @@ export function AdminQRWorkspace({
 
   const content = (() => {
     if (section === "overview") return <ModuleIndex />;
+    if (section === "types") {
+      return (
+        <div className="space-y-5">
+          <QRTypeCatalogue />
+          <QRCodeRegister
+            allowIssue
+            allowEdit
+            allowLifecycle={false}
+            advancedFilters={false}
+          />
+        </div>
+      );
+    }
     if (section === "scans") return <ScanLedger anomaliesOnly={false} />;
     if (section === "anomalies") return <ScanLedger anomaliesOnly />;
     if (section === "statistics") return <QRStatistics />;
     return (
       <QRCodeRegister
-        allowIssue={section === "types"}
+        allowIssue={false}
+        allowEdit={false}
         allowLifecycle={section === "lifecycle"}
         advancedFilters={section === "search"}
       />
@@ -170,12 +186,45 @@ function ModuleIndex() {
   );
 }
 
+function QRTypeCatalogue() {
+  const t = useTranslations("adminQr");
+  const summary = useQuery({
+    queryKey: ["admin-qr", "summary"],
+    queryFn: getQRSummary,
+  });
+
+  return (
+    <div className="border-y bg-card">
+      <div className="grid sm:grid-cols-2 xl:grid-cols-4">
+        {SUBJECT_TYPES.map((type) => (
+          <div
+            key={type}
+            className="flex min-h-20 items-center justify-between gap-3 border-b border-r px-5 py-4"
+          >
+            <TypeBadge label={t(`subjectType.${type}`)} />
+            <span className="tabular-nums text-lg font-semibold">
+              {summary.isLoading
+                ? "..."
+                : (summary.data?.by_subject_type[type] ?? 0)}
+            </span>
+          </div>
+        ))}
+      </div>
+      {summary.isError && (
+        <p className="px-5 py-4 text-sm text-destructive">{t("loadError")}</p>
+      )}
+    </div>
+  );
+}
+
 function QRCodeRegister({
   allowIssue,
+  allowEdit,
   allowLifecycle,
   advancedFilters,
 }: {
   allowIssue: boolean;
+  allowEdit: boolean;
   allowLifecycle: boolean;
   advancedFilters: boolean;
 }) {
@@ -249,7 +298,7 @@ function QRCodeRegister({
       <Table>
         <TableHeader><TableRow><TableHead>{t("field.qrId")}</TableHead><TableHead>{t("field.subjectType")}</TableHead><TableHead>{t("field.subject")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.projectSite")}</TableHead><TableHead>{t("field.status")}</TableHead><TableHead>{t("field.issuedOn")}</TableHead><TableHead>{t("field.scanCount")}</TableHead><TableHead className="text-right">{t("field.action")}</TableHead></TableRow></TableHeader>
         <TableBody>
-          {codes.data?.results.map((code) => <TableRow key={code.id}><TableCell className="font-medium tabular-nums">{code.serial}</TableCell><TableCell><TypeBadge label={t(`subjectType.${code.subject_type}`)} /></TableCell><TableCell>{code.subject_label || "-"}</TableCell><TableCell><p>{code.company_name ?? "-"}</p><p className="text-xs text-muted-foreground">{code.company_code}</p></TableCell><TableCell>{code.project_name ?? code.site_name ?? "-"}</TableCell><TableCell><StatusBadge label={t(`status.${code.effective_status}`)} tone={statusTone(code.effective_status)} /></TableCell><TableCell>{df.date(code.issued_on)}</TableCell><TableCell className="tabular-nums">{code.scan_count}</TableCell><TableCell><div className="flex justify-end gap-1"><Button size="icon-sm" variant="ghost" title={common("view")} onClick={() => setViewing(code)}><Eye /></Button><Button size="icon-sm" variant="ghost" title={common("edit")} onClick={() => setEditing(code)}><RefreshCw /></Button>{allowLifecycle && <LifecycleButtons code={code} onSelect={(selection) => { setLifecycle(selection); setNote(""); }} />}</div></TableCell></TableRow>)}
+          {codes.data?.results.map((code) => <TableRow key={code.id}><TableCell className="font-medium tabular-nums">{code.serial}</TableCell><TableCell><TypeBadge label={t(`subjectType.${code.subject_type}`)} /></TableCell><TableCell>{code.subject_label || "-"}</TableCell><TableCell><p>{code.company_name ?? "-"}</p><p className="text-xs text-muted-foreground">{code.company_code}</p></TableCell><TableCell>{code.project_name ?? code.site_name ?? "-"}</TableCell><TableCell><StatusBadge label={t(`status.${code.effective_status}`)} tone={statusTone(code.effective_status)} /></TableCell><TableCell>{df.date(code.issued_on)}</TableCell><TableCell className="tabular-nums">{code.scan_count}</TableCell><TableCell><div className="flex justify-end gap-1"><Button size="icon-sm" variant="ghost" title={common("view")} onClick={() => setViewing(code)}><Eye /></Button>{allowEdit && <Button size="icon-sm" variant="ghost" title={common("edit")} onClick={() => setEditing(code)}><RefreshCw /></Button>}{allowLifecycle && <LifecycleButtons code={code} onSelect={(selection) => { setLifecycle(selection); setNote(""); }} />}</div></TableCell></TableRow>)}
           {!codes.isLoading && (codes.data?.results.length ?? 0) === 0 && <EmptyRow columns={9} />}
         </TableBody>
       </Table>
@@ -318,7 +367,37 @@ function IssuedTokenDialog({ code, onClose }: { code: QRCodeIssue | null; onClos
   const t = useTranslations("adminQr");
   const common = useTranslations("common");
   const [copied, setCopied] = useState(false);
-  return <Dialog open={code !== null} onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("issued.title")}</DialogTitle><DialogDescription>{t("issued.description")}</DialogDescription></DialogHeader>{code && <div className="space-y-4"><div className="mx-auto grid w-fit place-items-center rounded-lg border bg-white p-4 shadow-sm"><QRCodeSVG value={code.token} size={220} level="H" marginSize={1} title={code.serial} /></div><p className="text-center text-sm font-semibold tabular-nums">{code.serial}</p><div className="flex items-center gap-2 rounded-md border bg-muted/40 p-3"><code className="min-w-0 flex-1 break-all text-xs">{code.token}</code><Button size="icon-sm" variant="outline" title={common("copy")} onClick={() => { void navigator.clipboard.writeText(code.token); setCopied(true); }}><Copy /></Button></div>{copied && <p className="text-center text-xs text-success">{t("issued.copied")}</p>}</div>}<DialogFooter><Button onClick={onClose}>{common("close")}</Button></DialogFooter></DialogContent></Dialog>;
+  const qrRef = useRef<SVGSVGElement>(null);
+  const qrMarkup = () => {
+    if (!qrRef.current) return null;
+    return new XMLSerializer().serializeToString(qrRef.current);
+  };
+  const downloadQr = () => {
+    if (!code) return;
+    const markup = qrMarkup();
+    if (!markup) return;
+    const url = URL.createObjectURL(
+      new Blob([markup], { type: "image/svg+xml;charset=utf-8" }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${code.serial}.svg`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+  const printQr = () => {
+    if (!code) return;
+    const markup = qrMarkup();
+    if (!markup) return;
+    const printWindow = window.open("", "_blank", "width=520,height=680");
+    if (!printWindow) return;
+    printWindow.opener = null;
+    printWindow.document.write(
+      `<!doctype html><html><head><title>${code.serial}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:32px}svg{width:320px;height:320px}.serial{font-size:20px;font-weight:700;margin-top:20px}</style></head><body>${markup}<div class="serial">${code.serial}</div><script>window.onload=()=>{window.print();window.close()}</script></body></html>`,
+    );
+    printWindow.document.close();
+  };
+  return <Dialog open={code !== null} onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("issued.title")}</DialogTitle><DialogDescription>{t("issued.description")}</DialogDescription></DialogHeader>{code && <div className="space-y-4"><div className="mx-auto grid w-fit place-items-center rounded-lg border bg-white p-4 shadow-sm"><QRCodeSVG ref={qrRef} value={code.token} size={220} level="H" marginSize={1} title={code.serial} /></div><p className="text-center text-sm font-semibold tabular-nums">{code.serial}</p><div className="flex justify-center gap-2"><Button variant="outline" onClick={downloadQr}><Download />{t("action.downloadQr")}</Button><Button variant="outline" onClick={printQr}><Printer />{t("action.printQr")}</Button></div><div className="flex items-center gap-2 rounded-md border bg-muted/40 p-3"><code className="min-w-0 flex-1 break-all text-xs">{code.token}</code><Button size="icon-sm" variant="outline" title={common("copy")} onClick={() => { void navigator.clipboard.writeText(code.token); setCopied(true); }}><Copy /></Button></div>{copied && <p className="text-center text-xs text-success">{t("issued.copied")}</p>}</div>}<DialogFooter><Button onClick={onClose}>{common("close")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function ScanLedger({ anomaliesOnly }: { anomaliesOnly: boolean }) {
@@ -331,8 +410,8 @@ function ScanLedger({ anomaliesOnly }: { anomaliesOnly: boolean }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const scans = useQuery({ queryKey: ["admin-qr", anomaliesOnly ? "anomalies" : "scans", page, search, outcome, from, to], queryFn: () => (anomaliesOnly ? getQRAnomalies : getScanRecords)({ page, page_size: 25, search, outcome, date_from: from, date_to: to, sort_by: "scanned_at", sort_order: "desc" }) });
-  const outcomes: QRScanOutcome[] = ["SUCCESS", "UNKNOWN_CODE", "DISABLED", "VOIDED", "EXPIRED", "WRONG_LOCATION", "DUPLICATE"];
-  return <div className="space-y-4"><div className="flex flex-wrap items-end gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("scanSearchPlaceholder")} /><SelectControl ariaLabel={t("field.outcome")} value={outcome} onChange={(value) => { setOutcome(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...outcomes.map((value) => ({ value, label: t(`outcome.${value}`) }))]} /><ExportButtons kind={anomaliesOnly ? "anomalies" : "scans"} query={{ search, outcome, date_from: from, date_to: to }} /></div><div className="grid gap-2 sm:grid-cols-2"><FieldWrapper label={t("field.dateFrom")}><Input type="date" value={from} onChange={(event) => { setFrom(event.target.value); setPage(1); }} /></FieldWrapper><FieldWrapper label={t("field.dateTo")}><Input type="date" value={to} onChange={(event) => { setTo(event.target.value); setPage(1); }} /></FieldWrapper></div><Table><TableHeader><TableRow><TableHead>{t("field.scannedAt")}</TableHead><TableHead>{t("field.qrId")}</TableHead><TableHead>{t("field.subject")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.location")}</TableHead><TableHead>{t("field.scannedBy")}</TableHead><TableHead>{t("field.outcome")}</TableHead></TableRow></TableHeader><TableBody>{scans.data?.results.map((scan) => <TableRow key={scan.id}><TableCell>{df.dateTime(scan.scanned_at)}</TableCell><TableCell>{scan.serial || "-"}</TableCell><TableCell>{scan.subject_label ?? "-"}</TableCell><TableCell>{scan.company_name ?? "-"}</TableCell><TableCell><p>{scan.project_name ?? scan.site_name ?? scan.location_label ?? "-"}</p>{scan.latitude && <p className="text-xs text-muted-foreground tabular-nums">{scan.latitude}, {scan.longitude}</p>}</TableCell><TableCell>{scan.scanned_by_name ?? "-"}</TableCell><TableCell><StatusBadge label={t(`outcome.${scan.outcome}`)} tone={scan.outcome === "SUCCESS" ? "positive" : "danger"} /></TableCell></TableRow>)}{!scans.isLoading && (scans.data?.results.length ?? 0) === 0 && <EmptyRow columns={7} />}</TableBody></Table><Pagination page={page} totalPages={scans.data?.total_pages ?? 0} count={scans.data?.count} onPage={setPage} /></div>;
+  const outcomes: QRScanOutcome[] = ["SUCCESS", "DUPLICATE_WARNING", "UNKNOWN_CODE", "DISABLED", "VOIDED", "EXPIRED", "WRONG_LOCATION", "DUPLICATE"];
+  return <div className="space-y-4"><div className="flex flex-wrap items-end gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("scanSearchPlaceholder")} /><SelectControl ariaLabel={t("field.outcome")} value={outcome} onChange={(value) => { setOutcome(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...outcomes.map((value) => ({ value, label: t(`outcome.${value}`) }))]} /><ExportButtons kind={anomaliesOnly ? "anomalies" : "scans"} query={{ search, outcome, date_from: from, date_to: to }} /></div><div className="grid gap-2 sm:grid-cols-2"><FieldWrapper label={t("field.dateFrom")}><Input type="date" value={from} onChange={(event) => { setFrom(event.target.value); setPage(1); }} /></FieldWrapper><FieldWrapper label={t("field.dateTo")}><Input type="date" value={to} onChange={(event) => { setTo(event.target.value); setPage(1); }} /></FieldWrapper></div><Table><TableHeader><TableRow><TableHead>{t("field.scannedAt")}</TableHead><TableHead>{t("field.qrId")}</TableHead><TableHead>{t("field.subject")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.location")}</TableHead><TableHead>{t("field.scannedBy")}</TableHead><TableHead>{t("field.outcome")}</TableHead></TableRow></TableHeader><TableBody>{scans.data?.results.map((scan) => <TableRow key={scan.id}><TableCell>{df.dateTime(scan.scanned_at)}</TableCell><TableCell>{scan.serial || "-"}</TableCell><TableCell>{scan.subject_label ?? "-"}</TableCell><TableCell>{scan.company_name ?? "-"}</TableCell><TableCell><p>{scan.project_name ?? scan.site_name ?? scan.location_label ?? "-"}</p>{scan.latitude && <p className="text-xs text-muted-foreground tabular-nums">{scan.latitude}, {scan.longitude}</p>}</TableCell><TableCell>{scan.scanned_by_name ?? "-"}</TableCell><TableCell><StatusBadge label={t(`outcome.${scan.outcome}`)} tone={scanOutcomeTone(scan.outcome)} /></TableCell></TableRow>)}{!scans.isLoading && (scans.data?.results.length ?? 0) === 0 && <EmptyRow columns={7} />}</TableBody></Table><Pagination page={page} totalPages={scans.data?.total_pages ?? 0} count={scans.data?.count} onPage={setPage} /></div>;
 }
 
 function QRStatistics() {
@@ -369,4 +448,10 @@ function statusTone(status: QRCodeStatus) {
   if (status === "DISABLED") return "warning" as const;
   if (status === "VOIDED" || status === "EXPIRED") return "danger" as const;
   return "neutral" as const;
+}
+
+function scanOutcomeTone(outcome: QRScanOutcome) {
+  if (outcome === "SUCCESS") return "positive" as const;
+  if (outcome === "DUPLICATE_WARNING") return "warning" as const;
+  return "danger" as const;
 }

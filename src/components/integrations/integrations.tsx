@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Cable, Check, History, Plus, RefreshCw, TestTube2, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -46,6 +47,7 @@ const KINDS: IntegrationKind[] = [
   "ACCOUNTING",
   "MYINVOIS",
   "GOVERNMENT_API",
+  "API_GATEWAY",
   "CCTV",
   "ANPR",
   "IOT",
@@ -70,8 +72,11 @@ const DEFAULT_DEVICE: IntegrationDevicePayload = {
 export function Integrations() {
   const t = useTranslations();
   const { can, user } = useAuth();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const [company, setCompany] = useState(user?.company ?? "");
+  const [company, setCompany] = useState(
+    searchParams.get("company") ?? user?.company ?? "",
+  );
   const [kind, setKind] = useState<IntegrationKind>("ERP");
   const [name, setName] = useState("");
   const [baseUrl, setBaseUrl] = useState("");

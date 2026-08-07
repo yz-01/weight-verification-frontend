@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
   Check,
+  Eye,
   Mail,
   Radio,
   Send,
@@ -17,6 +18,13 @@ import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -82,6 +90,18 @@ const CATEGORY: Partial<Record<AdminNotificationSection, AdminNotificationCatego
   system: "SYSTEM",
 };
 
+const CATEGORY_OPTIONS: Array<{
+  value: AdminNotificationCategory;
+  section: keyof typeof CATEGORY;
+}> = [
+  { value: "CONTRACTOR", section: "contractors" },
+  { value: "RECYCLER", section: "recyclers" },
+  { value: "SAAS", section: "saas" },
+  { value: "COMMISSION", section: "commission" },
+  { value: "CWE", section: "cwe" },
+  { value: "SYSTEM", section: "system" },
+];
+
 export function AdminNotificationWorkspace({
   section = "overview",
 }: {
@@ -145,11 +165,13 @@ function AdminNotificationList({
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [pendingRemoval, setPendingRemoval] = useState<AdminNotificationRow | null>(null);
+  const [selected, setSelected] = useState<AdminNotificationRow | null>(null);
   const companies = useQuery({
     queryKey: ["companies", "notification-options"],
     queryFn: () => getCompanies({ page_size: 200 }),
@@ -158,14 +180,14 @@ function AdminNotificationList({
   const params = useMemo(
     () => ({
       page_size: 100,
-      category,
+      category: (category ?? categoryFilter) || undefined,
       search: search || undefined,
       company: company || undefined,
       status: status || undefined,
       date_from: dateFrom || undefined,
       date_to: dateTo || undefined,
     }),
-    [category, company, dateFrom, dateTo, search, status],
+    [category, categoryFilter, company, dateFrom, dateTo, search, status],
   );
   const notifications = useQuery({
     queryKey: ["admin-notifications", params],
@@ -186,11 +208,23 @@ function AdminNotificationList({
   return (
     <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
       {searchable && (
-        <div className="grid gap-3 border-y bg-card p-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-3 border-y bg-card p-4 sm:grid-cols-2 xl:grid-cols-6">
           <label className="space-y-1.5 text-xs font-medium text-muted-foreground">
             <span>{t("filter.search")}</span>
             <Input value={search} onChange={(event) => setSearch(event.target.value)} />
           </label>
+          {!category && (
+            <SelectFilter
+              label={t("filter.category")}
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              allLabel={t("filter.allCategories")}
+              options={CATEGORY_OPTIONS.map((option) => ({
+                value: option.value,
+                label: t(`section.${option.section}.title`),
+              }))}
+            />
+          )}
           <SelectFilter
             label={t("filter.company")}
             value={company}
@@ -254,6 +288,14 @@ function AdminNotificationList({
                       <Button
                         size="icon"
                         variant="ghost"
+                        title={t("action.view")}
+                        onClick={() => setSelected(row)}
+                      >
+                        <Eye />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
                         title={row.is_read ? t("action.markUnread") : t("action.markRead")}
                         onClick={() =>
                           row.is_read ? unread.mutate(row.id) : read.mutate(row.id)
@@ -293,7 +335,71 @@ function AdminNotificationList({
         isPending={remove.isPending}
         onConfirm={() => pendingRemoval && remove.mutate(pendingRemoval.id)}
       />
+      <NotificationDetails
+        row={selected}
+        onClose={() => setSelected(null)}
+      />
     </div>
+  );
+}
+
+function NotificationDetails({
+  row,
+  onClose,
+}: {
+  row: AdminNotificationRow | null;
+  onClose: () => void;
+}) {
+  const t = useTranslations("adminNotifications");
+  const df = useDateFormat();
+
+  return (
+    <Dialog open={row !== null} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-2xl">
+        {row && (
+          <>
+            <DialogHeader>
+              <DialogTitle>{row.title}</DialogTitle>
+              <DialogDescription>{df.dateTime(row.created_at)}</DialogDescription>
+            </DialogHeader>
+            <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="text-xs text-muted-foreground">{t("field.recipient")}</dt>
+                <dd>{row.recipient_name} ({row.recipient_email})</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">{t("field.company")}</dt>
+                <dd>{row.company_name ?? "-"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">{t("field.kind")}</dt>
+                <dd>{row.kind}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">{t("field.status")}</dt>
+                <dd>{t(`status.${row.is_read ? "READ" : "UNREAD"}`)}</dd>
+              </div>
+            </dl>
+            <div className="space-y-1 border-t pt-4">
+              <p className="text-xs text-muted-foreground">{t("field.message")}</p>
+              <p className="whitespace-pre-wrap text-sm">{row.message}</p>
+            </div>
+            {Object.keys(row.latest_delivery_status).length > 0 && (
+              <div className="space-y-2 border-t pt-4">
+                <p className="text-xs text-muted-foreground">{t("field.channelStatus")}</p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(row.latest_delivery_status).map(([channel, delivery]) => (
+                    <span key={channel} className="inline-flex items-center gap-2 rounded-md border px-2.5 py-1 text-xs">
+                      {channel} / {delivery.mode} / {delivery.status}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
