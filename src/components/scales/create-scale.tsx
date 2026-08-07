@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { GatewayPanel } from "@/components/scales/gateway-panel";
 import {
   SelectField,
@@ -51,9 +52,12 @@ const PROTOCOLS: Array<{ value: ScaleProtocol; implemented: boolean }> = [
 export function CreateScale({ scale }: { scale?: Scale }) {
   const t = useTranslations();
   const router = useRouter();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const isEdit = scale !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
+  const listHref =
+    user?.portal === "MSE_ADMIN" ? "/weighing/admin/scales" : "/scales";
 
   const { data: sites } = useQuery({
     queryKey: ["sites", "options"],
@@ -65,7 +69,7 @@ export function CreateScale({ scale }: { scale?: Scale }) {
       isEdit ? updateScale(scale.id, values) : createScale(values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["scales"] });
-      router.push("/scales");
+      router.push(listHref);
     },
   });
 
@@ -95,7 +99,10 @@ export function CreateScale({ scale }: { scale?: Scale }) {
         });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
-          const leftover = applyServerErrors(error.errors, form as unknown as Parameters<typeof applyServerErrors>[1]);
+          const leftover = applyServerErrors(
+            error.errors,
+            form as unknown as Parameters<typeof applyServerErrors>[1],
+          );
           if (leftover.length > 0) setFormError(leftover[0]);
         }
       }
@@ -111,7 +118,7 @@ export function CreateScale({ scale }: { scale?: Scale }) {
   return (
     <div className="space-y-4">
       <FormShell
-        backHref="/scales"
+        backHref={listHref}
         backLabel={t("scales.title")}
         title={isEdit ? t("scales.editTitle") : t("scales.createTitle")}
         isSubmitting={mutation.isPending}
@@ -264,7 +271,7 @@ export function CreateScale({ scale }: { scale?: Scale }) {
       {/* Only on edit: a gateway is registered against a scale that exists, and
           the secret it returns has to be shown immediately. */}
       {isEdit && (
-        <div className="rounded-xl border bg-card shadow-sm">
+        <div className="rounded-lg border bg-card shadow-sm">
           <GatewayPanel scaleId={scale.id} />
         </div>
       )}

@@ -537,12 +537,18 @@
     "quickLinks": "快捷入口",
     "noMetrics": "你的账号可以进入仪表板；管理员授予对应权限后，其他业务模块会显示在这里。",
     "admin": {
+      "title": "平台营运总览",
+      "subtitle": "集中查看客户、项目、称重、订阅、佣金和系统健康状态。",
       "error": "无法加载平台仪表板。",
       "updatedAt": "更新时间：{value}",
       "weightValue": "{value} 吨",
       "map": {
         "title": "马来西亚项目地图",
-        "search": "搜索项目或公司",
+        "subtitle": "显示建筑项目、回收场、地磅和公司总部的登记位置。",
+        "filters": "地图筛选",
+        "reset": "重置",
+        "search": "搜索",
+        "searchPlaceholder": "项目、公司、地址或地磅编号",
         "state": "州属",
         "kind": "地点类型",
         "contractor": "建筑商",
@@ -554,6 +560,9 @@
         "allRecyclers": "全部回收商",
         "allStatuses": "全部项目状态",
         "visible": "显示 {visible}/{total} 个地图地点",
+        "noMatches": "目前筛选条件没有可显示的地点。",
+        "missingTitle": "有 {count} 笔地点资料尚未填写坐标",
+        "missingDescription": "项目 {projects}、回收场 {recyclers}、地磅 {scales}、公司总部 {headquarters}。请在对应资料页补上经纬度后再刷新地图。",
         "recyclers": "回收商：{value}",
         "orders": "今日订单：{value}",
         "weight": "今日重量：{value} kg",
@@ -1627,6 +1636,8 @@
   },
   "notifications": {
     "title": "通知中心",
+    "viewAll": "查看全部",
+    "noUnread": "目前没有未读通知",
     "count": "共 {count} 条通知",
     "unreadCount": "{count} 条未读通知",
     "field": {
@@ -1663,6 +1674,17 @@
     "eventSearchPlaceholder": "搜索事件类型、内容或设备",
     "handlingNotePlaceholder": "处理备注",
     "recordsCount": "共 {count} 条记录",
+    "summary": {
+      "title": "平台健康概览",
+      "description": "每 15 秒自动更新服务、集成与异常状态。",
+      "services": "服务",
+      "live": "真实模式",
+      "attention": "待关注"
+    },
+    "modeDescription": {
+      "SIMULATED": "当前显示模拟器回传数据",
+      "LIVE": "当前显示真实供应商与设备数据"
+    },
     "section": {
       "live-platform": {
         "title": "实时平台状态",
@@ -5574,6 +5596,8 @@
       "companyOverride": "公司专属设置",
       "inherited": "继承平台默认值",
       "reset": "恢复平台默认值",
+      "companyLoadError": "无法加载这家公司的系统设置。",
+      "loadErrorHint": "请检查网络或公司权限，然后重试；已保存的平台默认值不会受影响。",
       "type": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" }
     },
     "section": {
@@ -6400,6 +6424,16 @@
     "subtitle": "统一管理云资源、使用量、成本、收费及营运状态。",
     "loading": "正在加载云服务记录...",
     "loadError": "无法加载云服务记录。",
+    "saveError": "保存失败，请检查输入内容后重试。",
+    "emptyTitle": "暂无记录",
+    "emptyDescription": "建立第一笔资料后会显示在这里。",
+    "recordsCount": "共 {count} 笔记录",
+    "formSection": {
+      "basic": "基本资料",
+      "contract": "合约与计费",
+      "storageQuota": "存储容量",
+      "serviceQuota": "每月服务额度"
+    },
     "metric": {
       "services": "云服务数量",
       "active": "启用服务",
@@ -6503,6 +6537,22 @@
     },
     "field": {
       "vendor": "选择供应商",
+      "chooseVendor": "请选择供应商",
+      "chooseService": "请选择云服务",
+      "serviceType": "服务类型",
+      "operationMode": "运行模式",
+      "pricingModel": "计费方式",
+      "subscriptionStart": "合约开始日期",
+      "subscriptionEnd": "合约结束日期",
+      "status": "服务状态",
+      "company": "公司",
+      "project": "项目",
+      "usageDate": "使用日期",
+      "sourceMode": "数据来源",
+      "year": "年份",
+      "month": "月份",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
       "customType": "自定义服务类型",
       "name": "名称",
       "region": "服务地区",
@@ -6537,7 +6587,16 @@
       "budget": "每月预算",
       "baseFee": "基本费",
       "unitPrice": "单位价格",
-      "tiersJson": "阶梯收费 JSON"
+      "tiersJson": "阶梯收费 JSON",
+      "effectiveFrom": "生效日期",
+      "effectiveTo": "结束日期",
+      "currencyHint": "金额单位：MYR",
+      "percentHint": "输入 0 至 100",
+      "gbHint": "容量单位：GB",
+      "monthlyQuotaHint": "每个月可使用的次数或数量",
+      "optionalHint": "选填；留空表示没有结束日期",
+      "secretEditHint": "编辑时留空将保留现有密钥",
+      "jsonHint": "请输入有效 JSON，例如 []"
     },
     "action": {
       "addService": "新增云服务",

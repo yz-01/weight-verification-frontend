@@ -1,9 +1,5 @@
 export type NotificationKind =
-  | "SYSTEM"
-  | "APPROVAL"
-  | "EVENT"
-  | "REMINDER"
-  | "EXCEPTION";
+  "SYSTEM" | "APPROVAL" | "EVENT" | "REMINDER" | "EXCEPTION";
 
 export interface NotificationRow {
   id: string;
@@ -22,7 +18,13 @@ export interface NotificationSummary {
   by_kind: Partial<Record<NotificationKind, number>>;
 }
 
-export type HealthStatus = "ok" | "configured" | "degraded" | "unhealthy" | "not_running" | "not_configured";
+export type HealthStatus =
+  | "ok"
+  | "configured"
+  | "degraded"
+  | "unhealthy"
+  | "not_running"
+  | "not_configured";
 export type MonitoringMode = "SIMULATED" | "LIVE";
 
 export interface SystemStatus {
@@ -215,10 +217,7 @@ export interface SystemEventResolution {
 }
 
 export type DashboardMarkerKind =
-  | "PROJECT"
-  | "RECYCLER"
-  | "SCALE"
-  | "HEADQUARTERS";
+  "PROJECT" | "RECYCLER" | "SCALE" | "HEADQUARTERS";
 
 export interface AdminDashboardMarker {
   id: string;
@@ -235,6 +234,7 @@ export interface AdminDashboardMarker {
   status: string;
   address: string;
   recycler_names?: string[];
+  recycler_ids?: string[];
   today_orders?: number;
   today_weight_kg?: number | string;
   scale_code?: string;
@@ -247,7 +247,14 @@ export interface AdminDashboardTrendPoint {
 
 export interface AdminDashboardData {
   generated_at: string;
-  map: { markers: AdminDashboardMarker[]; states: string[] };
+  map: {
+    markers: AdminDashboardMarker[];
+    states: string[];
+    coverage?: Record<
+      DashboardMarkerKind,
+      { total: number; mapped: number; missing: number }
+    >;
+  };
   platform: {
     companies: number;
     contractors: number;

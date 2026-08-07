@@ -8,7 +8,6 @@ import { useMemo, useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { UserMenu } from "@/components/layout/user-menu";
-import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import {
@@ -90,11 +89,7 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => {
-                  const active = isActivePath(
-                    item.href,
-                    pathname,
-                    item.exact,
-                  );
+                  const active = isActivePath(item.href, pathname, item.exact);
                   const Icon = item.icon;
                   const label = t(`nav.${item.labelKey}`);
                   const childIsActive = Boolean(
@@ -122,7 +117,9 @@ export function AppSidebar() {
                       {item.children && item.children.length > 0 && (
                         <SidebarMenuAction
                           type="button"
-                          aria-label={t("nav.toggleSubmodules", { module: label })}
+                          aria-label={t("nav.toggleSubmodules", {
+                            module: label,
+                          })}
                           aria-expanded={isExpanded}
                           onClick={() =>
                             setExpanded((current) => ({
@@ -131,20 +128,35 @@ export function AppSidebar() {
                             }))
                           }
                         >
-                          <ChevronDown className={isExpanded ? "rotate-180 transition-transform" : "transition-transform"} />
+                          <ChevronDown
+                            className={
+                              isExpanded
+                                ? "rotate-180 transition-transform"
+                                : "transition-transform"
+                            }
+                          />
                         </SidebarMenuAction>
                       )}
                       {item.children && isExpanded && (
                         <SidebarMenuSub>
                           {item.children.map((child) => {
-                            const childActive = isActivePath(child.href, pathname, true);
+                            const childActive = isActivePath(
+                              child.href,
+                              pathname,
+                              true,
+                            );
                             return (
                               <SidebarMenuSubItem key={child.key}>
-                                <SidebarMenuSubButton asChild isActive={childActive}>
+                                <SidebarMenuSubButton
+                                  asChild
+                                  isActive={childActive}
+                                >
                                   <Link
                                     href={child.href}
                                     onClick={closeOnMobile}
-                                    aria-current={childActive ? "page" : undefined}
+                                    aria-current={
+                                      childActive ? "page" : undefined
+                                    }
                                   >
                                     <span>{t(child.labelKey)}</span>
                                   </Link>
@@ -168,7 +180,6 @@ export function AppSidebar() {
           <UserMenu />
           <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
             <OfflineStatus />
-            <NotificationButton />
             <LanguageSwitcher />
           </div>
         </div>

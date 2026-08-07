@@ -1,7 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Building2, Cable, Loader2, RotateCcw, Save } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  Cable,
+  Loader2,
+  RotateCcw,
+  Save,
+} from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -139,6 +146,7 @@ export function SystemSettingsWorkspace({
 
 function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
   const t = useTranslations("adminSystemSettings");
+  const common = useTranslations("common");
   const supportsCompanyOverrides = [
     "cctv",
     "anpr",
@@ -165,10 +173,11 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
     () => (activeCatalogue?.configs ?? []).filter((row) => row.group === group),
     [activeCatalogue, group],
   );
-  const isLoading =
-    catalogue.isLoading || (Boolean(company) && companyCatalogue.isLoading);
-  const isError =
-    catalogue.isError || (Boolean(company) && companyCatalogue.isError);
+  // Global and company catalogues are independent scopes. A failed global
+  // request must not hide a company catalogue that loaded successfully.
+  const activeQuery = company ? companyCatalogue : catalogue;
+  const isLoading = activeQuery.isLoading;
+  const isError = activeQuery.isError;
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card">
@@ -191,6 +200,7 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
               value={company}
               onChange={(event) => setCompany(event.target.value)}
               aria-label={t("scope.company")}
+              disabled={companies.isLoading}
             >
               <option value="">{t("scope.platformDefault")}</option>
               {(companies.data?.results ?? []).map((row) => (
@@ -208,7 +218,24 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
           {t("loading")}
         </div>
       ) : isError ? (
-        <div className="p-5 text-sm text-destructive">{t("loadError")}</div>
+        <div className="m-5 flex flex-col items-start gap-3 rounded-md border border-destructive/25 bg-destructive/5 p-4">
+          <div>
+            <p className="text-sm font-semibold text-destructive">
+              {company ? t("scope.companyLoadError") : t("loadError")}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("scope.loadErrorHint")}
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void activeQuery.refetch()}
+          >
+            <RotateCcw />
+            {common("retry")}
+          </Button>
+        </div>
       ) : (
         <div className="divide-y">
           {(group === "api_gateway" || group === "notifications") && (
@@ -349,9 +376,7 @@ function ConfigRow({
           {company && (
             <StatusBadge
               label={t(
-                row.is_overridden
-                  ? "scope.companyOverride"
-                  : "scope.inherited",
+                row.is_overridden ? "scope.companyOverride" : "scope.inherited",
               )}
               tone={row.is_overridden ? "info" : "neutral"}
             />

@@ -1,6 +1,13 @@
 "use client";
 
-import { Building2, FolderKanban, Recycle, Scale, Truck, UserRound } from "lucide-react";
+import {
+  Building2,
+  FolderKanban,
+  Recycle,
+  Scale,
+  Truck,
+  UserRound,
+} from "lucide-react";
 import { createElement, useEffect, useRef } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
@@ -137,8 +144,13 @@ export function LocationMap({
         paths.some((path) => path.points.length > 0) ||
         visibleZones.length > 0
       ) {
-        bounds.extend(center);
-        map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
+        const southWest = bounds.getSouthWest();
+        const northEast = bounds.getNorthEast();
+        if (southWest.equals(northEast)) {
+          map.setView(southWest, 16, { animate: false });
+        } else {
+          map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
+        }
       }
     });
 

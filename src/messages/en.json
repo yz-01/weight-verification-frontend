@@ -537,12 +537,18 @@
     "quickLinks": "Quick access",
     "noMetrics": "Your account has dashboard access. Additional modules appear when an administrator grants the matching permissions.",
     "admin": {
+      "title": "Platform Operations Overview",
+      "subtitle": "Customers, projects, weighing, subscriptions, commission and system health in one view.",
       "error": "Unable to load the platform dashboard.",
       "updatedAt": "Updated {value}",
       "weightValue": "{value} t",
       "map": {
         "title": "Malaysia Project Map",
-        "search": "Search project or company",
+        "subtitle": "Registered construction projects, recycler sites, weighbridges and company headquarters.",
+        "filters": "Map filters",
+        "reset": "Reset",
+        "search": "Search",
+        "searchPlaceholder": "Project, company, address or weighbridge code",
         "state": "State",
         "kind": "Location type",
         "contractor": "Contractor",
@@ -554,6 +560,9 @@
         "allRecyclers": "All recyclers",
         "allStatuses": "All project statuses",
         "visible": "Showing {visible} of {total} mapped locations",
+        "noMatches": "No mapped locations match the current filters.",
+        "missingTitle": "{count} location records do not have coordinates",
+        "missingDescription": "Projects {projects}, recycler sites {recyclers}, weighbridges {scales}, company headquarters {headquarters}. Add latitude and longitude in the corresponding record, then refresh the map.",
         "recyclers": "Recyclers: {value}",
         "orders": "Today orders: {value}",
         "weight": "Today weight: {value} kg",
@@ -1627,6 +1636,8 @@
   },
   "notifications": {
     "title": "Notifications",
+    "viewAll": "View all",
+    "noUnread": "No unread notifications",
     "count": "{count, plural, =0 {No notifications} one {# notification} other {# notifications}}",
     "unreadCount": "{count, plural, =0 {No unread notifications} one {# unread notification} other {# unread notifications}}",
     "field": {
@@ -1663,6 +1674,17 @@
     "eventSearchPlaceholder": "Search event type, message or device",
     "handlingNotePlaceholder": "Handling note",
     "recordsCount": "{count} records",
+    "summary": {
+      "title": "Platform health overview",
+      "description": "Service, integration and exception status refreshes every 15 seconds.",
+      "services": "Services",
+      "live": "Live",
+      "attention": "Attention"
+    },
+    "modeDescription": {
+      "SIMULATED": "Showing simulator telemetry",
+      "LIVE": "Showing live provider and device telemetry"
+    },
     "section": {
       "live-platform": {
         "title": "Live platform status",
@@ -5602,6 +5624,8 @@
       "companyOverride": "Company override",
       "inherited": "Inherited",
       "reset": "Restore platform default",
+      "companyLoadError": "This company's system settings could not be loaded.",
+      "loadErrorHint": "Check the connection or company access and retry. Saved platform defaults are not affected.",
       "type": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" }
     },
     "section": {
@@ -6438,6 +6462,16 @@
     "subtitle": "Cloud resources, usage, cost, charging and operational control.",
     "loading": "Loading cloud records...",
     "loadError": "Cloud records could not be loaded.",
+    "saveError": "Could not save. Check the entered values and try again.",
+    "emptyTitle": "No records yet",
+    "emptyDescription": "The first record you create will appear here.",
+    "recordsCount": "{count} records",
+    "formSection": {
+      "basic": "Basic details",
+      "contract": "Contract and billing",
+      "storageQuota": "Storage capacity",
+      "serviceQuota": "Monthly service quotas"
+    },
     "metric": {
       "services": "Cloud services",
       "active": "Active services",
@@ -6541,6 +6575,22 @@
     },
     "field": {
       "vendor": "Choose vendor",
+      "chooseVendor": "Select a vendor",
+      "chooseService": "Select a cloud service",
+      "serviceType": "Service type",
+      "operationMode": "Operation mode",
+      "pricingModel": "Pricing model",
+      "subscriptionStart": "Contract start date",
+      "subscriptionEnd": "Contract end date",
+      "status": "Service status",
+      "company": "Company",
+      "project": "Project",
+      "usageDate": "Usage date",
+      "sourceMode": "Data source",
+      "year": "Year",
+      "month": "Month",
+      "dateFrom": "From date",
+      "dateTo": "To date",
       "customType": "Custom service type",
       "name": "Name",
       "region": "Region",
@@ -6575,7 +6625,16 @@
       "budget": "Monthly budget",
       "baseFee": "Base fee",
       "unitPrice": "Unit price",
-      "tiersJson": "Tier configuration JSON"
+      "tiersJson": "Tier configuration JSON",
+      "effectiveFrom": "Effective date",
+      "effectiveTo": "End date",
+      "currencyHint": "Amount in MYR",
+      "percentHint": "Enter a value from 0 to 100",
+      "gbHint": "Capacity in GB",
+      "monthlyQuotaHint": "Number of uses available each month",
+      "optionalHint": "Optional; leave blank for no end date",
+      "secretEditHint": "Leave blank while editing to keep the existing key",
+      "jsonHint": "Enter valid JSON, for example []"
     },
     "action": {
       "addService": "Add service",

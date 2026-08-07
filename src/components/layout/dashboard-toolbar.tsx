@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 
 import { GlobalModuleSearch } from "@/components/layout/global-module-search";
+import { NotificationButton } from "@/components/notifications/notification-button";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -18,12 +19,19 @@ export function DashboardToolbar() {
     <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur lg:px-6">
       <SidebarTrigger className="size-9" />
       {showBack && (
-        <Button variant="ghost" size="icon-lg" onClick={() => router.back()} title={t("common.back")} aria-label={t("common.back")}>
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          onClick={() => router.back()}
+          title={t("common.back")}
+          aria-label={t("common.back")}
+        >
           <ArrowLeft />
         </Button>
       )}
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-1">
         <GlobalModuleSearch />
+        <NotificationButton />
       </div>
     </header>
   );

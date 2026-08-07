@@ -537,12 +537,18 @@
     "quickLinks": "Akses pantas",
     "noMetrics": "Akaun anda boleh mengakses papan pemuka. Modul tambahan muncul selepas pentadbir memberikan kebenaran yang sepadan.",
     "admin": {
+      "title": "Gambaran Keseluruhan Operasi Platform",
+      "subtitle": "Pelanggan, projek, penimbangan, langganan, komisen dan kesihatan sistem dalam satu paparan.",
       "error": "Papan pemuka platform tidak dapat dimuatkan.",
       "updatedAt": "Dikemas kini {value}",
       "weightValue": "{value} t",
       "map": {
         "title": "Peta Projek Malaysia",
-        "search": "Cari projek atau syarikat",
+        "subtitle": "Lokasi berdaftar bagi projek pembinaan, tapak pengitar semula, jambatan timbang dan ibu pejabat syarikat.",
+        "filters": "Penapis peta",
+        "reset": "Tetapkan semula",
+        "search": "Cari",
+        "searchPlaceholder": "Projek, syarikat, alamat atau kod jambatan timbang",
         "state": "Negeri",
         "kind": "Jenis lokasi",
         "contractor": "Kontraktor",
@@ -554,6 +560,9 @@
         "allRecyclers": "Semua pengitar semula",
         "allStatuses": "Semua status projek",
         "visible": "Memaparkan {visible} daripada {total} lokasi berpeta",
+        "noMatches": "Tiada lokasi berpeta yang sepadan dengan penapis semasa.",
+        "missingTitle": "{count} rekod lokasi belum mempunyai koordinat",
+        "missingDescription": "Projek {projects}, tapak pengitar semula {recyclers}, jambatan timbang {scales}, ibu pejabat syarikat {headquarters}. Tambah latitud dan longitud dalam rekod berkaitan, kemudian muat semula peta.",
         "recyclers": "Pengitar semula: {value}",
         "orders": "Pesanan hari ini: {value}",
         "weight": "Berat hari ini: {value} kg",
@@ -1627,6 +1636,8 @@
   },
   "notifications": {
     "title": "Pemberitahuan",
+    "viewAll": "Lihat semua",
+    "noUnread": "Tiada pemberitahuan belum dibaca",
     "count": "{count, plural, =0 {Tiada pemberitahuan} other {# pemberitahuan}}",
     "unreadCount": "{count, plural, =0 {Tiada pemberitahuan belum dibaca} other {# pemberitahuan belum dibaca}}",
     "field": {
@@ -1663,6 +1674,17 @@
     "eventSearchPlaceholder": "Cari jenis, kandungan atau peranti peristiwa",
     "handlingNotePlaceholder": "Catatan pengendalian",
     "recordsCount": "{count} rekod",
+    "summary": {
+      "title": "Gambaran kesihatan platform",
+      "description": "Status perkhidmatan, integrasi dan pengecualian dikemas kini setiap 15 saat.",
+      "services": "Perkhidmatan",
+      "live": "Langsung",
+      "attention": "Perlu perhatian"
+    },
+    "modeDescription": {
+      "SIMULATED": "Memaparkan telemetri simulator",
+      "LIVE": "Memaparkan telemetri pembekal dan peranti langsung"
+    },
     "section": {
       "live-platform": {
         "title": "Status platform langsung",
@@ -5616,6 +5638,8 @@
       "companyOverride": "Tetapan khusus syarikat",
       "inherited": "Mewarisi lalai platform",
       "reset": "Pulihkan lalai platform",
+      "companyLoadError": "Tetapan sistem syarikat ini tidak dapat dimuatkan.",
+      "loadErrorHint": "Semak sambungan atau akses syarikat dan cuba lagi. Nilai lalai platform yang telah disimpan tidak terjejas.",
       "type": { "CONTRACTOR": "Kontraktor", "RECYCLER": "Pengitar semula" }
     },
     "section": {
@@ -6458,6 +6482,16 @@
     "subtitle": "Kawalan sumber awan, penggunaan, kos, caj dan operasi.",
     "loading": "Memuatkan rekod awan...",
     "loadError": "Rekod awan tidak dapat dimuatkan.",
+    "saveError": "Tidak dapat menyimpan. Semak nilai yang dimasukkan dan cuba lagi.",
+    "emptyTitle": "Belum ada rekod",
+    "emptyDescription": "Rekod pertama yang anda cipta akan dipaparkan di sini.",
+    "recordsCount": "{count} rekod",
+    "formSection": {
+      "basic": "Butiran asas",
+      "contract": "Kontrak dan pengebilan",
+      "storageQuota": "Kapasiti storan",
+      "serviceQuota": "Kuota perkhidmatan bulanan"
+    },
     "metric": {
       "services": "Perkhidmatan awan",
       "active": "Perkhidmatan aktif",
@@ -6561,6 +6595,22 @@
     },
     "field": {
       "vendor": "Pilih pembekal",
+      "chooseVendor": "Pilih pembekal",
+      "chooseService": "Pilih perkhidmatan awan",
+      "serviceType": "Jenis perkhidmatan",
+      "operationMode": "Mod operasi",
+      "pricingModel": "Model harga",
+      "subscriptionStart": "Tarikh mula kontrak",
+      "subscriptionEnd": "Tarikh tamat kontrak",
+      "status": "Status perkhidmatan",
+      "company": "Syarikat",
+      "project": "Projek",
+      "usageDate": "Tarikh penggunaan",
+      "sourceMode": "Sumber data",
+      "year": "Tahun",
+      "month": "Bulan",
+      "dateFrom": "Tarikh mula",
+      "dateTo": "Tarikh tamat",
       "customType": "Jenis perkhidmatan tersuai",
       "name": "Nama",
       "region": "Rantau",
@@ -6595,7 +6645,16 @@
       "budget": "Bajet bulanan",
       "baseFee": "Yuran asas",
       "unitPrice": "Harga unit",
-      "tiersJson": "Konfigurasi peringkat JSON"
+      "tiersJson": "Konfigurasi peringkat JSON",
+      "effectiveFrom": "Tarikh kuat kuasa",
+      "effectiveTo": "Tarikh tamat",
+      "currencyHint": "Amaun dalam MYR",
+      "percentHint": "Masukkan nilai dari 0 hingga 100",
+      "gbHint": "Kapasiti dalam GB",
+      "monthlyQuotaHint": "Bilangan penggunaan yang tersedia setiap bulan",
+      "optionalHint": "Pilihan; biarkan kosong jika tiada tarikh tamat",
+      "secretEditHint": "Biarkan kosong semasa mengedit untuk mengekalkan kunci sedia ada",
+      "jsonHint": "Masukkan JSON yang sah, contohnya []"
     },
     "action": {
       "addService": "Tambah perkhidmatan",
