@@ -6668,6 +6668,7 @@
       "baseFee": "基本费",
       "unitPrice": "单位价格",
       "tiersJson": "阶梯收费 JSON",
+      "calculationConfig": "计算规则 JSON",
       "effectiveFrom": "生效日期",
       "effectiveTo": "结束日期",
       "currencyHint": "金额单位：MYR",

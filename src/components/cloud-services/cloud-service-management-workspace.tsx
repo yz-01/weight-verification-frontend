@@ -18,6 +18,7 @@ import { useState } from "react";
 
 import { AuditLogs } from "@/components/audit/audit-logs";
 import { useAuth } from "@/components/providers/auth-provider";
+import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
   ListHeader,
   StatusBadge,
@@ -358,6 +359,7 @@ function EmptyTableRow({ columns }: { columns: number }) {
 
 function ServicePanel() {
   const t = useTranslations("adminCloudServiceManagement");
+  const system = useTranslations("adminSystemSettings");
   const df = useDateFormat();
   const qc = useQueryClient();
   const { can } = useAuth();
@@ -425,7 +427,7 @@ function ServicePanel() {
               <TableCell>RM {row.base_cost}</TableCell>
               <TableCell>
                 <StatusBadge
-                  label={row.operation_mode}
+                  label={system(`mode.${row.operation_mode}`)}
                   tone={
                     row.operation_mode === "LIVE"
                       ? "positive"
@@ -493,6 +495,7 @@ function ServiceDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("adminCloudServiceManagement");
+  const system = useTranslations("adminSystemSettings");
   const vendors = useQuery({
     queryKey: ["cloud-vendors", "options"],
     queryFn: () => getCloudVendors({ page_size: 200, is_active: true }),
@@ -624,7 +627,7 @@ function ServiceDialog({
               >
                 {["SIMULATED", "LIVE"].map((x) => (
                   <option key={x} value={x}>
-                    {t(`mode.${x}`)}
+                    {system(`mode.${x}`)}
                   </option>
                 ))}
               </SelectField>
@@ -1302,6 +1305,7 @@ function PlanDialog({
 
 function UsagePanel() {
   const t = useTranslations("adminCloudServiceManagement");
+  const system = useTranslations("adminSystemSettings");
   const df = useDateFormat();
   const qc = useQueryClient();
   const { can } = useAuth();
@@ -1363,7 +1367,7 @@ function UsagePanel() {
               <TableCell>RM {row.profit}</TableCell>
               <TableCell>
                 <StatusBadge
-                  label={row.source_mode}
+                  label={row.source_mode === "MANUAL" ? t("mode.MANUAL") : system(`mode.${row.source_mode}`)}
                   tone={
                     row.source_mode === "LIVE"
                       ? "positive"
@@ -1933,6 +1937,8 @@ function PricingDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("adminCloudServiceManagement");
+  const technical = useTranslations("adminTechnicalSupport");
+  const [jsonError, setJsonError] = useState("");
   const [form, setForm] = useState({
     rule_code: row?.rule_code ?? "",
     service_type: row?.service_type ?? "CLOUD_STORAGE",
@@ -1950,13 +1956,22 @@ function PricingDialog({
   });
   const set = (k: keyof typeof form, v: string | boolean) =>
     setForm((x) => ({ ...x, [k]: v }));
-  const payload = () => ({
-    ...form,
-    unit_price: form.unit_price || null,
-    effective_to: form.effective_to || null,
-    tiers: JSON.parse(form.tiers || "[]"),
-    calculation_config: JSON.parse(form.calculation_config || "{}"),
-  });
+  const payload = () => {
+    try {
+      const result = {
+        ...form,
+        unit_price: form.unit_price || null,
+        effective_to: form.effective_to || null,
+        tiers: JSON.parse(form.tiers || "[]"),
+        calculation_config: JSON.parse(form.calculation_config || "{}"),
+      };
+      setJsonError("");
+      return result;
+    } catch {
+      setJsonError(technical("field.invalidJson"));
+      throw new Error("invalid_json");
+    }
+  };
   const save = useMutation({
     mutationFn: () =>
       row
@@ -2073,13 +2088,29 @@ function PricingDialog({
               onChange={(e) => set("description", e.target.value)}
             />
           </FormField>
-          <FormField label={t("field.tiersJson")} hint={t("field.jsonHint")}>
-            <Textarea
-              className="font-mono text-xs"
-              value={form.tiers}
-              onChange={(e) => set("tiers", e.target.value)}
-            />
-          </FormField>
+          <AdvancedTechnicalSettings>
+            <FormField label={t("field.tiersJson")} hint={t("field.jsonHint")}>
+              <Textarea
+                className="font-mono text-xs"
+                value={form.tiers}
+                onChange={(e) => {
+                  set("tiers", e.target.value);
+                  setJsonError("");
+                }}
+              />
+            </FormField>
+            <FormField label={t("field.calculationConfig")} hint={t("field.jsonHint")}>
+              <Textarea
+                className="font-mono text-xs"
+                value={form.calculation_config}
+                onChange={(e) => {
+                  set("calculation_config", e.target.value);
+                  setJsonError("");
+                }}
+              />
+            </FormField>
+            {jsonError && <p className="text-xs text-destructive sm:col-span-2">{jsonError}</p>}
+          </AdvancedTechnicalSettings>
           <SaveError error={save.error} />
         </div>
         <DialogFooter>

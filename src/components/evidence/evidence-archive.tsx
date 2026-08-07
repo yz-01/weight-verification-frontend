@@ -21,6 +21,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
   ListHeader,
   StatusBadge,
@@ -612,14 +613,11 @@ function JsonSection({
   value: Record<string, unknown>;
 }) {
   return (
-    <section className="min-w-0 space-y-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {title}
-      </h3>
-      <pre className="max-h-72 overflow-auto rounded-md border bg-muted/40 p-3 font-mono text-xs leading-relaxed">
+    <AdvancedTechnicalSettings title={title}>
+      <pre className="max-h-72 overflow-auto rounded-md border bg-muted/40 p-3 font-mono text-xs leading-relaxed sm:col-span-2">
         {JSON.stringify(value, null, 2)}
       </pre>
-    </section>
+    </AdvancedTechnicalSettings>
   );
 }
 

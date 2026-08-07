@@ -6726,6 +6726,7 @@
       "baseFee": "Yuran asas",
       "unitPrice": "Harga unit",
       "tiersJson": "Konfigurasi peringkat JSON",
+      "calculationConfig": "JSON konfigurasi pengiraan",
       "effectiveFrom": "Tarikh kuat kuasa",
       "effectiveTo": "Tarikh tamat",
       "currencyHint": "Amaun dalam MYR",

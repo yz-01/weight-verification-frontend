@@ -47,6 +47,77 @@ const TILE_TONES = [
   "bg-destructive/10 text-destructive",
 ];
 
+const SECTION_NAMESPACES: Partial<Record<PortalFeatureKey, string>> = {
+  subscription_management: "subscriptions",
+  billing_commission: "billing",
+  platform_monitoring: "monitoring",
+  qr_code_management: "adminQr",
+  cloud_weighing: "adminCwe",
+  report_center: "adminReports",
+  notification_center: "adminNotifications",
+  platform_settings: "adminSystemSettings",
+  audit_log_center: "adminAuditCenter",
+  sales_commission: "adminSales",
+  customer_service: "adminCustomerService",
+  technical_support: "adminTechnicalSupport",
+  partner_management: "adminPartnerManagement",
+  asset_management: "adminAssetManagement",
+  cloud_service_management: "adminCloudServiceManagement",
+};
+
+const SECTION_KEYS: Record<string, string> = {
+  saasInvoices: "saas-invoices",
+  apiGatewayMonitoring: "api-gateway",
+  apiGatewaySettings: "api-gateway",
+  customerAssignments: "assignments",
+  commissionRuleTypes: "rules",
+  commissionSchemes: "schemes",
+  salesTerms: "terms",
+  salesPayouts: "payouts",
+  salesSettlements: "settlements",
+  supportStates: "states",
+  supportAPI: "api",
+  supportInstallations: "installations",
+  supportMaintenance: "maintenance",
+  supportReports: "reports",
+  supportActivity: "activity",
+  partnerManagement: "management",
+  partnerDetails: "details",
+  partnerTypes: "types",
+  partnerTerritories: "territories",
+  partnerCustomers: "customers",
+  partnerAgreements: "agreements",
+  partnerSchemes: "schemes",
+  partnerPerformance: "performance",
+  partnerReports: "reports",
+  partnerActivity: "activity",
+  assetManagement: "management",
+  assetDetails: "details",
+  assetCategories: "categories",
+  assetPurchases: "purchases",
+  assetInventory: "inventory",
+  assetAssignments: "assignments",
+  assetInstallations: "installations",
+  assetTransfers: "transfers",
+  assetRepairs: "repairs",
+  assetMaintenance: "maintenance",
+  assetDisposals: "disposals",
+  assetSearch: "search",
+  assetReports: "reports",
+  assetActivity: "activity",
+  cloudServices: "services",
+  cloudCatalog: "catalog",
+  cloudVendors: "vendors",
+  cloudPlans: "plans",
+  cloudUsage: "usage",
+  cloudCosts: "costs",
+  cloudPricing: "pricing",
+  cloudAlerts: "alerts",
+  cloudAnalysis: "analysis",
+  cloudReports: "reports",
+  cloudActivity: "activity",
+};
+
 function tileIcon(href: string): LucideIcon {
   return (
     TILE_ICONS.find(({ pattern }) => pattern.test(href))?.icon ??
@@ -108,6 +179,13 @@ export function AdminModuleLanding({ feature }: { feature: PortalFeatureKey }) {
             {children.map((child, index) => {
               const Icon = tileIcon(child.href);
               const tone = TILE_TONES[index % TILE_TONES.length];
+              const namespace = SECTION_NAMESPACES[feature];
+              const childKey = child.labelKey.split(".").pop() ?? "";
+              const sectionKey = SECTION_KEYS[childKey] ?? childKey;
+              const subtitleKey = namespace
+                ? `${namespace}.section.${sectionKey}.subtitle`
+                : "";
+              const hasSubtitle = subtitleKey ? t.has(subtitleKey) : false;
               return (
                 <Link
                   key={child.href}
@@ -127,8 +205,15 @@ export function AdminModuleLanding({ feature }: { feature: PortalFeatureKey }) {
                       <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </span>
                   </span>
-                  <span className="mt-5 min-w-0 text-base font-semibold leading-6 text-foreground group-hover:text-primary">
-                    {t(child.labelKey)}
+                  <span className="mt-5 min-w-0">
+                    <span className="block text-base font-semibold leading-6 text-foreground group-hover:text-primary">
+                      {t(child.labelKey)}
+                    </span>
+                    {hasSubtitle && (
+                      <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                        {t(subtitleKey)}
+                      </span>
+                    )}
                   </span>
                 </Link>
               );

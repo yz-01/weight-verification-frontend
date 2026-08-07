@@ -6706,6 +6706,7 @@
       "baseFee": "Base fee",
       "unitPrice": "Unit price",
       "tiersJson": "Tier configuration JSON",
+      "calculationConfig": "Calculation configuration JSON",
       "effectiveFrom": "Effective date",
       "effectiveTo": "End date",
       "currencyHint": "Amount in MYR",

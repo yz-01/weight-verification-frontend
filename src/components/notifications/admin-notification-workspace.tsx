@@ -405,6 +405,7 @@ function NotificationDetails({
 
 function ChannelWorkspace() {
   const t = useTranslations("adminNotifications");
+  const system = useTranslations("adminSystemSettings");
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const [company, setCompany] = useState("");
@@ -443,7 +444,7 @@ function ChannelWorkspace() {
                 {t(`channel.${row.channel}`)}
               </span>
               <StatusBadge
-                label={row.mode}
+                label={system(`mode.${row.mode}`)}
                 tone={row.mode === "LIVE" ? "positive" : "warning"}
               />
             </div>
@@ -504,6 +505,7 @@ function ChannelWorkspace() {
 
 function NotificationRecords() {
   const t = useTranslations("adminNotifications");
+  const system = useTranslations("adminSystemSettings");
   const df = useDateFormat();
   const [recordType, setRecordType] = useState<"DELIVERY" | "STATUS">("DELIVERY");
   const delivery = useQuery({
@@ -528,7 +530,7 @@ function NotificationRecords() {
           <TableHeader><TableRow><TableHead>{t("field.notification")}</TableHead><TableHead>{t("field.recipient")}</TableHead><TableHead>{t("field.channelStatus")}</TableHead><TableHead>{t("field.time")}</TableHead></TableRow></TableHeader>
           <TableBody>
             {recordType === "DELIVERY"
-              ? (delivery.data?.results ?? []).map((row) => <TableRow key={row.id}><TableCell>{row.notification_title}</TableCell><TableCell>{row.recipient_email}</TableCell><TableCell><span className="inline-flex gap-2"><StatusBadge label={row.channel} /><StatusBadge label={row.mode} tone={row.mode === "LIVE" ? "positive" : "warning"} /><StatusBadge label={row.status} tone={row.status === "FAILED" ? "danger" : "positive"} /></span>{row.error && <p className="mt-1 text-xs text-destructive">{row.error}</p>}</TableCell><TableCell>{df.dateTime(row.attempted_at)}</TableCell></TableRow>)
+              ? (delivery.data?.results ?? []).map((row) => <TableRow key={row.id}><TableCell>{row.notification_title}</TableCell><TableCell>{row.recipient_email}</TableCell><TableCell><span className="inline-flex gap-2"><StatusBadge label={row.channel} /><StatusBadge label={system(`mode.${row.mode}`)} tone={row.mode === "LIVE" ? "positive" : "warning"} /><StatusBadge label={row.status} tone={row.status === "FAILED" ? "danger" : "positive"} /></span>{row.error && <p className="mt-1 text-xs text-destructive">{row.error}</p>}</TableCell><TableCell>{df.dateTime(row.attempted_at)}</TableCell></TableRow>)
               : (statuses.data?.results ?? []).map((row) => <TableRow key={row.id}><TableCell>{row.notification_title}</TableCell><TableCell>{row.recipient_email}</TableCell><TableCell><StatusBadge label={t(`status.${row.status}`)} /></TableCell><TableCell>{df.dateTime(row.changed_at)}</TableCell></TableRow>)}
           </TableBody>
         </Table>

@@ -17,6 +17,7 @@ import { useState } from "react";
 
 import { AuditLogs } from "@/components/audit/audit-logs";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -1353,6 +1354,8 @@ function TermsDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("adminSales");
+  const technical = useTranslations("adminTechnicalSupport");
+  const [jsonError, setJsonError] = useState("");
   const [form, setForm] = useState({
     code: "",
     title: "",
@@ -1361,12 +1364,21 @@ function TermsDialog({
     effective_from: "",
   });
   const save = useMutation({
-    mutationFn: () =>
-      createSalesTerms({
+    mutationFn: () => {
+      let clauses: Record<string, unknown>;
+      try {
+        clauses = JSON.parse(form.clauses || "{}") as Record<string, unknown>;
+        setJsonError("");
+      } catch {
+        setJsonError(technical("field.invalidJson"));
+        throw new Error("invalid_json");
+      }
+      return createSalesTerms({
         ...form,
-        clauses: JSON.parse(form.clauses),
+        clauses,
         effective_from: form.effective_from || null,
-      }),
+      });
+    },
     onSuccess: () => {
       onSaved();
       onClose();
@@ -1405,11 +1417,19 @@ function TermsDialog({
           value={form.body}
           onChange={(e) => setForm({ ...form, body: e.target.value })}
         />
-        <Textarea
-          className="font-mono"
-          value={form.clauses}
-          onChange={(e) => setForm({ ...form, clauses: e.target.value })}
-        />
+        <AdvancedTechnicalSettings>
+          <Textarea
+            className="font-mono sm:col-span-2"
+            value={form.clauses}
+            onChange={(e) => {
+              setForm({ ...form, clauses: e.target.value });
+              setJsonError("");
+            }}
+          />
+          {jsonError && (
+            <p className="text-xs text-destructive sm:col-span-2">{jsonError}</p>
+          )}
+        </AdvancedTechnicalSettings>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
