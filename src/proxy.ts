@@ -25,6 +25,7 @@ const PUBLIC_PREFIXES = [
   "/offline",
   "/external",
   "/scan",
+  "/verify",
 ];
 
 export function proxy(request: NextRequest) {

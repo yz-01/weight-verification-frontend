@@ -1,9 +1,10 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Plus, QrCode } from "lucide-react";
+import { Ban, Download, Plus, QrCode } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { QRCodeCanvas } from "qrcode.react";
+import { useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -48,6 +49,7 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient();
   const [issuing, setIssuing] = useState(false);
   const [revoking, setRevoking] = useState<SupplierQRCode | null>(null);
+  const [viewing, setViewing] = useState<SupplierQRCode | null>(null);
   const [reason, setReason] = useState("");
 
   const { data, isLoading } = useQuery({
@@ -124,6 +126,15 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
                   }
                   tone={code.is_active ? "positive" : "neutral"}
                 />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  title={t("qrCodes.viewQr")}
+                  onClick={() => setViewing(code)}
+                >
+                  <QrCode className="h-3.5 w-3.5" />
+                </Button>
                 {can("supplier.update") && code.is_active && (
                   <Button
                     variant="ghost"
@@ -165,7 +176,62 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
           onConfirm={() => revocation.mutate(revoking.id)}
         />
       )}
+      {viewing && (
+        <DocketQrDialog code={viewing} onClose={() => setViewing(null)} />
+      )}
     </div>
+  );
+}
+
+function DocketQrDialog({
+  code,
+  onClose,
+}: {
+  code: SupplierQRCode;
+  onClose: () => void;
+}) {
+  const t = useTranslations();
+  const qrRef = useRef<HTMLCanvasElement>(null);
+
+  function download() {
+    const canvas = qrRef.current;
+    if (!canvas) return;
+    const link = document.createElement("a");
+    link.download = `${code.project_code}-${code.supplier_code}-supplier-qr.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }
+
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{code.supplier_name}</DialogTitle>
+          <DialogDescription>
+            {code.project_code} - {code.project_name}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="mx-auto rounded-lg border bg-white p-4">
+          <QRCodeCanvas
+            ref={qrRef}
+            value={code.token}
+            size={240}
+            level="H"
+            marginSize={1}
+          />
+        </div>
+        <p className="break-all text-center text-xs text-muted-foreground">
+          {code.token}
+        </p>
+        <DialogFooter>
+          <Button variant="outline" onClick={download}>
+            <Download />
+            {t("qrCodes.downloadPng")}
+          </Button>
+          <Button onClick={onClose}>{t("common.close")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

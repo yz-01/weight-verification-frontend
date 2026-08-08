@@ -21,6 +21,7 @@ import type {
   Supplier,
   SupplierPayload,
   SupplierQRCode,
+  DeliveryNoteOCRResult,
   WasteDispatch,
   WasteDispatchDetail,
   WasteDispatchPayload,
@@ -228,6 +229,71 @@ export async function createReceipt(
     "/api/receipts/create_receipt/",
     payload,
   );
+  toastSuccess("receipts.toast.created");
+  return receipt;
+}
+
+export function readDeliveryNote(
+  project: string,
+  image: File,
+): Promise<DeliveryNoteOCRResult> {
+  const data = new FormData();
+  data.append("project", project);
+  data.append("image", image);
+  return api.post<DeliveryNoteOCRResult>(
+    "/api/receipts/ocr_delivery_note/",
+    data,
+    { silent: true },
+  );
+}
+
+export async function createReceiptWithEvidence(payload: {
+  receipt: MaterialReceiptPayload;
+  signature: File;
+  supplierSignature: File;
+  deliveryNotePhoto?: File;
+  sitePhotos: File[];
+  deviceId: string;
+}): Promise<MaterialReceiptDetail> {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload.receipt)) {
+    if (value !== undefined && value !== null && value !== "") {
+      data.append(key, String(value));
+    }
+  }
+  data.append("signature", payload.signature);
+  data.append("supplier_signature", payload.supplierSignature);
+
+  const receipt = await api.post<MaterialReceiptDetail>(
+    "/api/receipts/create_receipt/",
+    data,
+    { silent: true },
+  );
+  const capturedAt = payload.receipt.original_captured_at ?? new Date().toISOString();
+  const photos = [
+    ...(payload.deliveryNotePhoto
+      ? [{ file: payload.deliveryNotePhoto, kind: "DELIVERY_NOTE" }]
+      : []),
+    ...payload.sitePhotos.map((file) => ({ file, kind: "UNLOADING" })),
+  ];
+
+  for (const [index, photo] of photos.entries()) {
+    const evidence = new FormData();
+    evidence.append("image", photo.file);
+    evidence.append("kind", photo.kind);
+    evidence.append("taken_at", capturedAt);
+    evidence.append("device_id", payload.deviceId);
+    evidence.append(
+      "client_event_id",
+      `${payload.receipt.client_event_id ?? receipt.id}:photo:${index}`,
+    );
+    if (payload.receipt.latitude) evidence.append("latitude", payload.receipt.latitude);
+    if (payload.receipt.longitude) evidence.append("longitude", payload.receipt.longitude);
+    await api.post(`/api/receipts/${receipt.id}/add_photo/`, evidence, {
+      silent: true,
+    });
+  }
+
   toastSuccess("receipts.toast.created");
   return receipt;
 }

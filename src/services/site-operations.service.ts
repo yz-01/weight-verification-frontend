@@ -113,3 +113,55 @@ export async function updateSafetyStatus(
   toastSuccess("safety.toast.updated");
   return incident;
 }
+
+export async function assignSafetyRectification(
+  id: string,
+  payload: { responsible_person: string; due_at: string; note?: string },
+): Promise<SafetyIncident> {
+  const incident = await api.post<SafetyIncident>(
+    `/api/safety-incidents/${id}/assign_rectification/`,
+    payload,
+  );
+  toastSuccess("safetyRectification.toast.assigned");
+  return incident;
+}
+
+export async function submitSafetyRectification(
+  id: string,
+  payload: {
+    image: File;
+    note: string;
+    captured_at: string;
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
+    device_id?: string;
+    client_event_id: string;
+  },
+): Promise<SafetyIncident> {
+  const data = multipart(payload as unknown as Record<string, unknown>);
+  const incident = await api.post<SafetyIncident>(
+    `/api/safety-incidents/${id}/submit_rectification/`,
+    data,
+  );
+  toastSuccess("safetyRectification.toast.submitted");
+  return incident;
+}
+
+export async function reviewSafetyRectification(
+  id: string,
+  payload: {
+    decision: "VERIFIED" | "RETURNED";
+    note: string;
+    image?: File;
+    latitude?: string;
+    longitude?: string;
+  },
+): Promise<SafetyIncident> {
+  const incident = await api.post<SafetyIncident>(
+    `/api/safety-incidents/${id}/review_rectification/`,
+    multipart(payload as unknown as Record<string, unknown>),
+  );
+  toastSuccess("safetyRectification.toast.reviewed");
+  return incident;
+}

@@ -16,12 +16,17 @@ import {
   setSessionPortal,
   setTokens,
 } from "@/lib/auth-token";
+import {
+  clearActiveProjectId,
+  setActiveProjectId,
+} from "@/lib/project-context";
 
 export async function login(
   email: string,
   password: string,
   portal?: Portal,
 ): Promise<LoginResponse> {
+  clearActiveProjectId();
   // Silent: the login form renders the failure inline rather than as a toast,
   // because the user is already looking at the field that is wrong.
   const data = await api.post<LoginResponse>(
@@ -32,6 +37,15 @@ export async function login(
   setTokens(data.tokens);
   setSessionPortal(data.user.portal);
   setLocaleCookie(data.user.language);
+  if (data.user.account_type === "CONSULTANT") {
+    const firstProject = data.user.consultant_projects.find(
+      (project) => project.is_current,
+    );
+    if (firstProject) {
+      setActiveProjectId(firstProject.project_id);
+      data.user = await getMe();
+    }
+  }
   return data;
 }
 
@@ -43,6 +57,7 @@ export async function logout(): Promise<void> {
     // Clear locally even if the server call failed. The user asked to be
     // signed out and staying signed in would be the worse failure.
     clearTokens();
+    clearActiveProjectId();
   }
 }
 

@@ -28,6 +28,7 @@ import {
 } from "@/lib/auth-token";
 import { portalLoginPath } from "@/lib/portal";
 import { t } from "@/lib/i18n-runtime";
+import { getActiveProjectId } from "@/lib/project-context";
 
 const BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000"
@@ -115,6 +116,8 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
 
   const token = getAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
+  const projectId = getActiveProjectId();
+  if (projectId) headers["X-MSE-Project"] = projectId;
 
   let payload: BodyInit | undefined;
   if (body instanceof FormData) {

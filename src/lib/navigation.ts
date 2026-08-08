@@ -3,7 +3,6 @@ import {
   Bell,
   Box,
   Building2,
-  CalendarCheck,
   ChartNoAxesCombined,
   ClipboardCheck,
   ClipboardList,
@@ -36,6 +35,8 @@ import {
   WalletCards,
   Warehouse,
   Workflow,
+  HardHat,
+  ListTree,
 } from "lucide-react";
 
 import type { Portal } from "@/interfaces/auth";
@@ -48,15 +49,22 @@ export type PortalFeatureKey =
   | "recycler_review"
   | "transaction_reports"
   | "projects"
+  | "project_categories"
+  | "field_tasks"
   | "suppliers"
+  | "equipment"
   | "recyclers"
   | "material_receipts"
+  | "material_outgoing"
+  | "site_disposals"
   | "waste_dispatches"
   | "recycling_records"
   | "attendance"
   | "payment_proofs"
   | "progress"
+  | "schedule"
   | "safety"
+  | "hazard_rectification"
   | "material_quantity_report"
   | "material_cost_report"
   | "users"
@@ -74,10 +82,15 @@ export type PortalFeatureKey =
   | "payment_status"
   | "documents"
   | "approvals"
+  | "consultant_applications"
   | "evidence"
   | "notifications"
   | "driver_gps"
   | "site_gps"
+  | "geofences"
+  | "site_access"
+  | "emergency_list"
+  | "company_settings"
   | "integrations"
   | "company_management"
   | "user_management"
@@ -125,6 +138,8 @@ export interface FeatureNavChild {
   /** Full message key, usually under `nav.submodule`. */
   labelKey: string;
   href: string;
+  /** Optional feature required to see and open this child route. */
+  feature?: PortalFeatureKey;
 }
 
 export interface NavGroup {
@@ -855,37 +870,104 @@ export const PORTAL_NAVIGATION = {
   ],
   MSE_TRACE: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
-    item("projects", "/projects", Package, "operations"),
-    item("suppliers", "/suppliers", Truck, "operations"),
-    item("recyclers", "/recyclers", Handshake, "operations"),
-    item("material_receipts", "/receipts", ClipboardList, "operations"),
-    item("waste_dispatches", "/dispatches", Inbox, "operations", [
-      "/deductions",
+    item("projects", "/modules/projects", Package, "operations", undefined, false, [
+      child("2.2.1", "nav.submodule.projectRecords", "/projects", "projects"),
+      child("2.2.2", "nav.submodule.fieldTasks", "/field-tasks", "field_tasks"),
     ]),
-    item("recycling_records", "/weighing", Scale, "operations"),
-    item("attendance", "/attendance", CalendarCheck, "operations"),
-    item("payment_proofs", "/payment-proofs", WalletCards, "operations", [
-      "/settlements",
+    item("suppliers", "/modules/suppliers", Truck, "operations", undefined, false, [
+      child("3.2.1", "nav.submodule.supplierRecords", "/suppliers", "suppliers"),
     ]),
-    item("progress", "/progress", ChartNoAxesCombined, "operations"),
-    item("safety", "/safety", ShieldAlert, "operations"),
-    item("site_gps", "/site-gps", MapPinned, "operations"),
-    item("documents", "/documents", FolderArchive, "operations"),
-    item("approvals", "/approvals", Workflow, "operations"),
-    item("evidence", "/evidence", ScanSearch, "operations"),
+    item("project_categories", "/modules/categories", ListTree, "operations", undefined, false, [
+      child("4.2.1", "nav.submodule.categoryRecords", "/project-categories", "project_categories"),
+    ]),
+    item("material_receipts", "/modules/materials", ClipboardList, "operations", undefined, false, [
+      child("5.2.1", "nav.submodule.materialReceipts", "/receipts", "material_receipts"),
+      child("5.2.2", "nav.submodule.materialOutgoing", "/material-outgoing", "material_outgoing"),
+    ]),
+    item("equipment", "/modules/equipment", HardHat, "operations", undefined, false, [
+      child("6.2.1", "nav.submodule.siteEquipment", "/site-equipment", "equipment"),
+    ]),
+    item("progress", "/modules/progress", ChartNoAxesCombined, "operations", undefined, false, [
+      child("7.2.1", "nav.submodule.progressRecords", "/progress", "progress"),
+      child("7.2.2", "nav.submodule.schedulePlanning", "/schedule", "schedule"),
+    ]),
+    item("recyclers", "/modules/recycling", Handshake, "operations", undefined, false, [
+      child("8.2.1", "nav.submodule.recyclerPartners", "/recyclers", "recyclers"),
+      child("8.2.2", "nav.submodule.wasteDispatches", "/dispatches", "waste_dispatches"),
+      child("8.2.3", "nav.submodule.siteDisposals", "/site-disposals", "site_disposals"),
+      child("8.2.4", "nav.submodule.recyclingRecords", "/weighing", "recycling_records"),
+      child("8.2.5", "nav.submodule.paymentProofs", "/payment-proofs", "payment_proofs"),
+    ]),
+    item("safety", "/modules/safety", ShieldAlert, "operations", undefined, false, [
+      child("9.2.1", "nav.submodule.safetyIncidents", "/safety", "safety"),
+    ]),
     item(
-      "material_quantity_report",
-      "/reports/material-quantity",
+      "consultant_applications",
+      "/modules/consultants",
       ClipboardCheck,
-      "finance",
+      "operations",
+      undefined,
+      false,
+      [
+        child("10.2.1", "nav.submodule.consultantApplications", "/consultant-applications", "consultant_applications"),
+        child("10.2.2", "nav.submodule.consultantWorkflows", "/consultant-workflows", "consultant_applications"),
+        child("10.2.3", "nav.submodule.approvalCredentials", "/approval-credential", "approvals"),
+        child("10.2.4", "nav.submodule.consultantFieldInbox", "/consultant-field-inbox", "field_tasks"),
+      ],
     ),
-    item("material_cost_report", "/reports/material-cost", Receipt, "finance"),
-    item("users", "/users", Users, "system"),
-    item("roles", "/roles", KeyRound, "system"),
-    item("integrations", "/integrations", SlidersHorizontal, "system"),
-    item("user_logs", "/login-records", FileClock, "system"),
-    item("activity_logs", "/audit-logs", History, "system"),
-    item("notifications", "/notifications", Bell, "system"),
+    item("hazard_rectification", "/modules/hazards", ClipboardCheck, "operations", undefined, false, [
+      child("11.2.1", "nav.submodule.hazardRectifications", "/hazard-rectifications", "hazard_rectification"),
+    ]),
+    item("documents", "/modules/documents", FolderArchive, "operations", undefined, false, [
+      child("12.2.1", "nav.submodule.documentArchive", "/documents", "documents"),
+      child("12.2.2", "nav.submodule.approvals", "/approvals", "approvals"),
+      child("12.2.3", "nav.submodule.evidenceArchive", "/evidence", "evidence"),
+    ]),
+    item(
+      "report_center",
+      "/modules/reports",
+      FileText,
+      "finance",
+      undefined,
+      false,
+      [
+        child("13.2.1", "nav.submodule.materialQuantityReport", "/reports/material-quantity", "material_quantity_report"),
+        child("13.2.2", "nav.submodule.materialCostReport", "/reports/material-cost", "material_cost_report"),
+        child("13.2.3", "nav.submodule.transactionReports", "/reports", "report_center"),
+        child("13.2.4", "nav.submodule.progressRecords", "/reports/contractor/progress", "report_center"),
+        child("13.2.5", "nav.submodule.safetyIncidents", "/reports/contractor/safety", "report_center"),
+        child("13.2.6", "nav.submodule.consultantApplications", "/reports/contractor/consultant", "report_center"),
+        child("13.2.7", "nav.submodule.attendanceRecords", "/reports/contractor/attendance", "report_center"),
+        child("13.2.8", "nav.submodule.siteEquipment", "/reports/contractor/equipment", "report_center"),
+        child("13.2.9", "nav.submodule.wasteDispatches", "/reports/contractor/recycling", "report_center"),
+        child("13.2.10", "nav.submodule.schedulePlanning", "/reports/contractor/schedule", "report_center"),
+        child("13.2.11", "nav.submodule.projectRecords", "/reports/contractor/target", "report_center"),
+        child("13.2.12", "nav.submodule.reportHistory", "/reports/contractor/history", "report_center"),
+      ],
+    ),
+    item("notifications", "/modules/notifications", Bell, "system", undefined, false, [
+      child("14.2.1", "nav.submodule.notifications", "/notifications", "notifications"),
+    ]),
+    item("geofences", "/modules/location", MapPinned, "operations", undefined, false, [
+      child("15.2.1", "nav.submodule.attendanceRecords", "/attendance", "attendance"),
+      child("15.2.2", "nav.submodule.geofenceSettings", "/geofences", "geofences"),
+      child("15.2.3", "nav.submodule.workforceGps", "/site-gps", "site_gps"),
+      child("15.2.4", "nav.submodule.emergencyList", "/emergency-list", "emergency_list"),
+    ]),
+    item("users", "/modules/users", Users, "system", undefined, false, [
+      child("16.2.1", "nav.submodule.userManagement", "/users", "users"),
+      child("16.2.2", "nav.submodule.roles", "/roles", "roles"),
+      child("16.2.3", "nav.submodule.loginHistory", "/login-records", "user_logs"),
+      child("16.2.4", "nav.submodule.userActivity", "/audit-logs", "activity_logs"),
+    ]),
+    item("site_access", "/modules/site-access", KeyRound, "operations", undefined, false, [
+      child("17.2.1", "nav.submodule.siteAccessPasses", "/site-access", "site_access"),
+      child("17.2.2", "nav.submodule.gateScanning", "/gate", "site_access"),
+    ]),
+    item("company_settings", "/modules/company-settings", Settings, "system", undefined, false, [
+      child("18.2.1", "nav.submodule.companySettings", "/company-settings", "company_settings"),
+      child("18.2.2", "nav.submodule.integrationSettings", "/integrations", "integrations"),
+    ]),
   ],
   MSE_SCRAP: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
@@ -946,8 +1028,13 @@ function item(
   };
 }
 
-function child(key: string, labelKey: string, href: string): FeatureNavChild {
-  return { key, labelKey, href };
+function child(
+  key: string,
+  labelKey: string,
+  href: string,
+  feature?: PortalFeatureKey,
+): FeatureNavChild {
+  return { key, labelKey, href, feature };
 }
 
 /** Groups containing only features returned for this signed-in user. */
@@ -961,12 +1048,24 @@ export function visibleNavigation(
   const groups: NavGroup[] = [];
 
   for (const navItem of PORTAL_NAVIGATION[portal]) {
-    if (!visible.has(navItem.feature)) continue;
+    const visibleChildren = navItem.children?.filter(
+      (childItem) =>
+        (!childItem.feature && visible.has(navItem.feature)) ||
+        (childItem.feature !== undefined && visible.has(childItem.feature)),
+    );
+    if (!visible.has(navItem.feature) && !visibleChildren?.length) continue;
     const lastGroup = groups.at(-1);
+    const visibleItem = {
+      ...navItem,
+      children: visibleChildren,
+    };
     if (lastGroup?.key === navItem.group) {
-      lastGroup.items.push(navItem);
+      lastGroup.items.push(visibleItem);
     } else {
-      groups.push({ key: navItem.group, items: [navItem] });
+      groups.push({
+        key: navItem.group,
+        items: [visibleItem],
+      });
     }
   }
 
@@ -1071,7 +1170,11 @@ export function isRouteAllowed(
 
   const enabled = new Set(features);
   const owned = PORTAL_NAVIGATION[portal].some((navItem) => {
-    if (!enabled.has(navItem.feature)) return false;
+    const parentEnabled = enabled.has(navItem.feature);
+    const hasEnabledChild = (navItem.children ?? []).some(
+      (childItem) => childItem.feature && enabled.has(childItem.feature),
+    );
+    if (!parentEnabled && !hasEnabledChild) return false;
     const canonical = navItem.href.split("?", 1)[0];
     if (
       navItem.exact
@@ -1080,8 +1183,14 @@ export function isRouteAllowed(
     ) {
       return true;
     }
-    return (navItem.routePrefixes ?? []).some((prefix) =>
-      matchesPrefix(pathname, prefix),
+    if ((navItem.routePrefixes ?? []).some((prefix) => matchesPrefix(pathname, prefix))) {
+      return parentEnabled;
+    }
+    return (navItem.children ?? []).some(
+      (childItem) =>
+        ((!childItem.feature && parentEnabled) ||
+          (childItem.feature !== undefined && enabled.has(childItem.feature))) &&
+        matchesPrefix(pathname, childItem.href),
     );
   });
 

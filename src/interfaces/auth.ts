@@ -4,6 +4,7 @@ import type { Locale } from "@/i18n/config";
 import type { CompanyType } from "@/interfaces/company";
 
 export type UserStatus = "INVITED" | "ACTIVE" | "SUSPENDED";
+export type AccountType = "PLATFORM" | "TENANT" | "CONSULTANT";
 
 /**
  * Wording for a mailed link, resolved through i18n and handed to the backend.
@@ -56,6 +57,8 @@ export interface CurrentUser {
   language: Locale;
   timezone: string;
   status: UserStatus;
+  account_type: AccountType;
+  mobile_access_only: boolean;
   is_platform_staff: boolean;
   is_superuser: boolean;
   role: string | null;
@@ -69,6 +72,29 @@ export interface CurrentUser {
   permissions: string[];
   features: string[];
   project_quota: ProjectQuota | null;
+  consultant_projects: ConsultantProjectAccess[];
+  active_project: ActiveProject | null;
+}
+
+export interface ConsultantProjectAccess {
+  grant_id: string;
+  project_id: string;
+  project_code: string;
+  project_name: string;
+  company_id: string;
+  company_name: string;
+  organization_name: string;
+  permissions: string[];
+  valid_from: string;
+  valid_until: string | null;
+  is_current: boolean;
+}
+
+export interface ActiveProject {
+  project_id: string;
+  project_name: string;
+  company_id: string;
+  company_name: string;
 }
 
 export interface LoginResponse {

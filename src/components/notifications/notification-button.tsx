@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Check, ExternalLink } from "lucide-react";
+import { Bell, BellRing, Check, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -20,6 +20,11 @@ import {
   getUnreadNotificationCount,
   markNotificationRead,
 } from "@/services/platform-ops.service";
+import {
+  enablePushNotifications,
+  getPushConfig,
+  isPushSupported,
+} from "@/services/push-notification.service";
 
 export function NotificationButton() {
   const t = useTranslations();
@@ -27,6 +32,8 @@ export function NotificationButton() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushPending, setPushPending] = useState(false);
   const enabled =
     user?.features.some(
       (feature) =>
@@ -50,6 +57,19 @@ export function NotificationButton() {
     enabled,
     refetchInterval: 30_000,
   });
+  const pushConfig = useQuery({
+    queryKey: ["notifications", "push-config"],
+    queryFn: getPushConfig,
+    enabled: enabled && isPushSupported(),
+    staleTime: 5 * 60_000,
+  });
+  useEffect(() => {
+    if (!enabled || !isPushSupported()) return;
+    void navigator.serviceWorker.ready
+      .then((registration) => registration.pushManager.getSubscription())
+      .then((subscription) => setPushEnabled(Boolean(subscription)))
+      .catch(() => setPushEnabled(false));
+  }, [enabled]);
   const read = useMutation({
     mutationFn: markNotificationRead,
     onSuccess: () => {
@@ -127,6 +147,24 @@ export function NotificationButton() {
               {t("notifications.viewAll")}
             </Link>
           </Button>
+          {pushConfig.data?.configured && !pushEnabled && (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={pushPending}
+              onClick={async () => {
+                setPushPending(true);
+                try {
+                  setPushEnabled(await enablePushNotifications());
+                } finally {
+                  setPushPending(false);
+                }
+              }}
+            >
+              <BellRing />
+              {t("notifications.push.enable")}
+            </Button>
+          )}
         </div>
         <div className="max-h-96 overflow-y-auto">
           {(listQuery.data?.results ?? []).length === 0 ? (
