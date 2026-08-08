@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 
 import {
   Select,
@@ -35,6 +36,7 @@ export function ProjectPicker({
   projectsLoading?: boolean;
   projectsError?: boolean;
 }) {
+  const t = useTranslations("siteControl");
   const shouldLoadProjects = projects === undefined;
   const { data, isLoading, isError } = useQuery({
     queryKey: ["projects", "options"],
@@ -47,6 +49,7 @@ export function ProjectPicker({
   const failed = projectsError ?? (shouldLoadProjects && isError);
 
   return (
+    <div className="min-w-0">
     <Select value={value || undefined} onValueChange={onValueChange}>
       <SelectTrigger
         className={className ?? "w-full"}
@@ -63,5 +66,8 @@ export function ProjectPicker({
         ))}
       </SelectContent>
     </Select>
+    {failed && <p role="alert" className="mt-1.5 text-xs font-medium text-destructive">{t("state.projectLoadError")}</p>}
+    {!loading && !failed && options.length === 0 && <p className="mt-1.5 text-xs text-muted-foreground">{t("noProjects")}</p>}
+    </div>
   );
 }
