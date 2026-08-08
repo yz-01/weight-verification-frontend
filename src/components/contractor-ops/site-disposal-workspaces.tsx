@@ -194,9 +194,9 @@ function CreateDisposalDialog({ onClose, onSaved }: { onClose: () => void; onSav
   };
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader><DialogTitle>{t("create.title")}</DialogTitle><DialogDescription>{t("create.description")}</DialogDescription></DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
+      <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-2xl">
+        <DialogHeader className="shrink-0"><DialogTitle>{t("create.title")}</DialogTitle><DialogDescription>{t("create.description")}</DialogDescription></DialogHeader>
+        <div className="grid min-h-0 min-w-0 flex-1 gap-4 overflow-y-auto overflow-x-hidden pr-1 sm:grid-cols-2">
           <FieldWrapper label={t("field.project")} required className="sm:col-span-2"><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.project")} /></FieldWrapper>
           <FieldWrapper label={t("field.waste")} required className="sm:col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.siteLocation")} required className="sm:col-span-2"><Input value={locationDescription} onChange={(e) => setLocationDescription(e.target.value)} /></FieldWrapper>
@@ -207,7 +207,7 @@ function CreateDisposalDialog({ onClose, onSaved }: { onClose: () => void; onSav
           <FieldWrapper label={t("field.photos")} required className="sm:col-span-2"><Input type="file" accept="image/*" capture="environment" multiple onChange={(e) => setPhotos(Array.from(e.target.files ?? []))} /><p className="text-xs text-muted-foreground">{t("photoCount", { count: photos.length })}</p></FieldWrapper>
           <FieldWrapper label={t("field.note")} optional={t("optional")} className="sm:col-span-2"><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
         </div>
-        <DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!project || !description.trim() || !locationDescription.trim() || !photos.length || !location || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
+        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!project || !description.trim() || !locationDescription.trim() || !photos.length || !location || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );

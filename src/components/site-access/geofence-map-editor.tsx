@@ -22,6 +22,7 @@ export function GeofenceMapEditor({
   useEffect(() => {
     let disposed = false;
     let map: import("leaflet").Map | null = null;
+    let observer: ResizeObserver | null = null;
     void import("leaflet").then(({ default: L }) => {
       if (disposed || !ref.current) return;
       const initial = center ?? points[0] ?? [3.139, 101.6869];
@@ -45,12 +46,21 @@ export function GeofenceMapEditor({
         if (shape === "CIRCLE") onCenter(point);
         else onPoints([...points, point]);
       });
+      observer = new ResizeObserver(() => map?.invalidateSize({ animate: false }));
+      observer.observe(ref.current);
+      requestAnimationFrame(() => map?.invalidateSize({ animate: false }));
     });
     return () => {
       disposed = true;
+      observer?.disconnect();
       map?.remove();
     };
   }, [center, onCenter, onPoints, points, radiusM, shape]);
 
-  return <div ref={ref} className="min-h-72 w-full overflow-hidden rounded-lg border bg-muted/20" />;
+  return (
+    <div
+      ref={ref}
+      className="relative isolate h-72 min-h-72 min-w-0 max-w-full overflow-hidden rounded-lg border bg-muted/20 [contain:layout_paint]"
+    />
+  );
 }
