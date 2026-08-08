@@ -128,6 +128,7 @@ export interface MaterialReceipt {
   project_name: string;
   supplier: string;
   supplier_name: string;
+  movement_type: "ENTRY" | "RETURN";
   material_name: string;
   quantity: string;
   unit: MaterialUnit;
@@ -146,9 +147,12 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
   delivery_note_no: string;
   notes: string;
   signature: string | null;
+  supplier_signature: string | null;
   latitude: string | null;
   longitude: string | null;
   location_accuracy_m: string | null;
+  ocr_status: "NOT_REQUESTED" | "SUCCEEDED" | "NOT_CONFIGURED" | "FAILED" | "MANUAL";
+  ocr_result: DeliveryNoteOCRResult | Record<string, unknown>;
   photos: ReceiptPhoto[];
   created_by: string | null;
   created_by_name: string | null;
@@ -160,6 +164,7 @@ export interface MaterialReceiptPayload {
   project: string;
   supplier: string;
   qr_code?: string | null;
+  movement_type?: "ENTRY" | "RETURN";
   material_name: string;
   quantity: string;
   unit: MaterialUnit;
@@ -168,9 +173,26 @@ export interface MaterialReceiptPayload {
   delivery_note_no?: string;
   notes?: string;
   received_by_name: string;
+  original_captured_at?: string;
+  client_event_id?: string;
   latitude?: string | null;
   longitude?: string | null;
   location_accuracy_m?: string | null;
+  ocr_proof?: string;
+}
+
+export interface DeliveryNoteOCRResult {
+  status: "SUCCEEDED";
+  provider: "AZURE_DOCUMENT_INTELLIGENCE";
+  content: string;
+  suggestions: Partial<{
+    delivery_note_no: string;
+    vehicle_plate: string;
+    supplier_name: string;
+    material_name: string;
+    quantity: string;
+  }>;
+  proof: string;
 }
 
 export interface ReceiptSummary {

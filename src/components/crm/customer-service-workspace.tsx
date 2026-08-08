@@ -56,18 +56,18 @@ function Overview() {
   const summary = useQuery({ queryKey: ["customer-service-summary"], queryFn: getCustomerServiceSummary });
   return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
     <ListHeader title={t("title")} subtitle={t("subtitle")} />
-    <div className="grid border-y bg-card sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid overflow-hidden rounded-lg border bg-card shadow-sm sm:grid-cols-2 xl:grid-cols-4">
       {[["customers", summary.data?.customers ?? 0], ["enquiries", summary.data?.enquiries ?? 0], ["service", summary.data?.service_records ?? 0], ["completion", `${summary.data?.completion_rate ?? 0}%`]].map(([key, value]) => <div key={key} className="border-b border-r px-5 py-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p></div>)}
     </div>
-    <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((item) => <Link key={item.section} href={`/customer-service/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="w-14 text-xs font-semibold text-muted-foreground">{item.number}</span><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>
+    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((item) => <Link key={item.section} href={`/customer-service/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>
   </div>;
 }
 
 function Panel({ loading, error, children }: { loading: boolean; error: boolean; children: React.ReactNode }) {
   const t = useTranslations("adminCustomerService");
-  if (loading) return <div className="flex flex-1 items-center justify-center border-y"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
-  if (error) return <div className="border-y p-5 text-destructive">{t("loadError")}</div>;
-  return <div className="min-h-0 flex-1 overflow-auto border-y bg-card">{children}</div>;
+  if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
+  if (error) return <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>;
+  return <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">{children}</div>;
 }
 
 function CompanySelect({ companies, value, onChange }: { companies: CompanyRow[]; value: string; onChange: (value: string) => void }) {
@@ -148,5 +148,5 @@ function ReportPanel() {
     ["service", ["service_code", "company_name", "type", "service_date", "subject", "handled_by_name", "resolution", "customer_satisfied"]],
   ] as const;
   const exporting = useMutation({ mutationFn: ({ dataset, format, fields }: { dataset: string; format: "pdf" | "xlsx"; fields: readonly string[] }) => exportCustomerServiceReport(dataset, format, t(`report.${dataset}`), fields.map((key) => ({ key, label: t(`exportColumn.${key}`) }))) });
-  return <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card"><div className="grid border-b sm:grid-cols-2 xl:grid-cols-4">{[["customers", summary.data?.customers ?? 0], ["service", summary.data?.service_records ?? 0], ["feedback", summary.data?.feedback ?? 0], ["completion", `${summary.data?.completion_rate ?? 0}%`]].map(([key, value]) => <div key={key} className="border-b border-r p-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-xl font-semibold">{value}</p></div>)}</div><div className="divide-y">{reports.map(([dataset, fields]) => <div key={dataset} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"><div><p className="font-medium">{t(`report.${dataset}`)}</p><p className="text-xs text-muted-foreground">{t(`report.${dataset}Subtitle`)}</p></div><div className="flex gap-2"><Button variant="outline" disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "pdf", fields })}><FileDown />PDF</Button><Button disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "xlsx", fields })}><FileDown />Excel</Button></div></div>)}</div></div>;
+  return <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm"><div className="grid border-b sm:grid-cols-2 xl:grid-cols-4">{[["customers", summary.data?.customers ?? 0], ["service", summary.data?.service_records ?? 0], ["feedback", summary.data?.feedback ?? 0], ["completion", `${summary.data?.completion_rate ?? 0}%`]].map(([key, value]) => <div key={key} className="border-b border-r p-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-xl font-semibold">{value}</p></div>)}</div><div className="divide-y">{reports.map(([dataset, fields]) => <div key={dataset} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"><div><p className="font-medium">{t(`report.${dataset}`)}</p><p className="text-xs text-muted-foreground">{t(`report.${dataset}Subtitle`)}</p></div><div className="flex gap-2"><Button variant="outline" disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "pdf", fields })}><FileDown />PDF</Button><Button disabled={exporting.isPending} onClick={() => exporting.mutate({ dataset, format: "xlsx", fields })}><FileDown />Excel</Button></div></div>)}</div></div>;
 }

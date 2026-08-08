@@ -124,6 +124,7 @@ export function Users({
   const { data, isLoading, isError } = useQuery({
     queryKey: ["users", list.query],
     queryFn: () => getUsers(list.query),
+    enabled: section !== "statistics",
   });
   const stats = useQuery({
     queryKey: ["users", "stats"],
@@ -449,7 +450,8 @@ export function Users({
     },
   ];
 
-  const totalCount = data?.count ?? 0;
+  const totalCount =
+    section === "statistics" ? (stats.data?.total ?? 0) : (data?.count ?? 0);
   const isPending =
     removal.isPending || statusChange.isPending || forceLogout.isPending;
   const visibleColumns = useMemo(
@@ -481,7 +483,7 @@ export function Users({
               : t("users.count", { count: totalCount })
         }
         action={
-          can("user.create") ? (
+          can("user.create") && section === "management" ? (
             <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
               <Link href="/users/create">
                 <Plus className="h-4 w-4" />
@@ -492,8 +494,8 @@ export function Users({
         }
       />
 
-      {me?.is_platform_staff && (
-        <>
+      {me?.is_platform_staff &&
+        (section === "categories" || section === "statistics") && (
           <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-6">
             {(
               [
@@ -525,6 +527,10 @@ export function Users({
               );
             })}
           </div>
+        )}
+
+      {section !== "statistics" && me?.is_platform_staff && (
+        <>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
             <select
               className="h-8 rounded-md border bg-background px-2 text-sm"
@@ -578,26 +584,30 @@ export function Users({
         </>
       )}
 
-      <DataTable
-        columns={visibleColumns}
-        rows={data?.results ?? []}
-        totalCount={totalCount}
-        page={list.page}
-        pageSize={list.pageSize}
-        isLoading={isLoading}
-        isError={isError}
-        hasFilters={list.hasFilters}
-        search={list.search}
-        sortBy={list.sortBy}
-        sortOrder={list.sortOrder}
-        storageKey={me?.is_platform_staff ? `admin-users-${section}` : "users"}
-        filterPills={filterPills}
-        onSearchChange={list.setSearch}
-        onSortChange={list.setSort}
-        onPageChange={list.setPage}
-        onPageSizeChange={list.setPageSize}
-        onClearFilters={list.clearFilters}
-      />
+      {section !== "statistics" && (
+        <DataTable
+          columns={visibleColumns}
+          rows={data?.results ?? []}
+          totalCount={totalCount}
+          page={list.page}
+          pageSize={list.pageSize}
+          isLoading={isLoading}
+          isError={isError}
+          hasFilters={list.hasFilters}
+          search={list.search}
+          sortBy={list.sortBy}
+          sortOrder={list.sortOrder}
+          storageKey={
+            me?.is_platform_staff ? `admin-users-${section}` : "users"
+          }
+          filterPills={filterPills}
+          onSearchChange={list.setSearch}
+          onSortChange={list.setSort}
+          onPageChange={list.setPage}
+          onPageSizeChange={list.setPageSize}
+          onClearFilters={list.clearFilters}
+        />
+      )}
 
       {pending?.kind === "remove" && (
         <ConfirmDialog

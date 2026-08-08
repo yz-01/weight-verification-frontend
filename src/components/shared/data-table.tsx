@@ -169,7 +169,7 @@ export function DataTable<T>({
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border bg-card shadow-sm">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-card shadow-sm">
       <div className="shrink-0 border-b">
         {filterPills && filterPills.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 px-6 pt-4">
@@ -252,7 +252,7 @@ export function DataTable<T>({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="h-11 px-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                    className="h-11 px-6 text-xs font-semibold text-muted-foreground"
                   >
                     {header.isPlaceholder
                       ? null
@@ -438,7 +438,7 @@ export function SortableHeader({
       type="button"
       onClick={onToggle}
       className={cn(
-        "flex items-center gap-1 text-xs font-semibold uppercase tracking-wider transition-colors hover:text-foreground",
+        "flex items-center gap-1 text-xs font-semibold transition-colors hover:text-foreground",
         isSorted ? "text-foreground" : "text-muted-foreground",
       )}
     >

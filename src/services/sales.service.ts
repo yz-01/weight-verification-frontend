@@ -3,6 +3,7 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   CommissionPayout,
+  CommissionCalculationConfig,
   CommissionScheme,
   CustomerAssignment,
   PayoutState,
@@ -58,6 +59,7 @@ export interface CommissionSchemePayload {
   minimum_payout?: string;
   maximum_payout?: string | null;
   target_amount?: string | null;
+  calculation_config?: CommissionCalculationConfig;
   accrual_months?: number | null;
   is_active?: boolean;
 }
@@ -126,18 +128,31 @@ export function getTeamPerformance(id: string): Promise<TeamPerformance> {
 }
 
 // Territories
-export function getTerritories(query?: ListQuery): Promise<Paginated<Territory>> {
+export function getTerritories(
+  query?: ListQuery,
+): Promise<Paginated<Territory>> {
   return api.list("/api/sales-territories/get_territories/", query);
 }
 
-export async function createTerritory(payload: TerritoryPayload): Promise<Territory> {
-  const result = await api.post<Territory>("/api/sales-territories/create_territory/", payload);
+export async function createTerritory(
+  payload: TerritoryPayload,
+): Promise<Territory> {
+  const result = await api.post<Territory>(
+    "/api/sales-territories/create_territory/",
+    payload,
+  );
   toastSuccess("sales.toast.saved");
   return result;
 }
 
-export async function updateTerritory(id: string, payload: Partial<TerritoryPayload>): Promise<Territory> {
-  const result = await api.patch<Territory>(`/api/sales-territories/${id}/update_territory/`, payload);
+export async function updateTerritory(
+  id: string,
+  payload: Partial<TerritoryPayload>,
+): Promise<Territory> {
+  const result = await api.patch<Territory>(
+    `/api/sales-territories/${id}/update_territory/`,
+    payload,
+  );
   toastSuccess("sales.toast.saved");
   return result;
 }
@@ -148,40 +163,89 @@ export async function deleteTerritory(id: string): Promise<void> {
 }
 
 // Customer ownership
-export function getCustomerAssignments(query?: ListQuery): Promise<Paginated<CustomerAssignment>> {
+export function getCustomerAssignments(
+  query?: ListQuery,
+): Promise<Paginated<CustomerAssignment>> {
   return api.list("/api/customer-assignments/get_assignments/", query);
 }
 
-export async function reassignCustomer(id: string, salesperson: string, reason: string): Promise<CustomerAssignment> {
-  const result = await api.post<CustomerAssignment>(`/api/customer-assignments/${id}/reassign/`, { salesperson, reason });
+export async function reassignCustomer(
+  id: string,
+  salesperson: string,
+  reason: string,
+): Promise<CustomerAssignment> {
+  const result = await api.post<CustomerAssignment>(
+    `/api/customer-assignments/${id}/reassign/`,
+    { salesperson, reason },
+  );
   toastSuccess("sales.toast.reassigned");
   return result;
 }
 
 // Commission schemes
-export function getCommissionSchemes(query?: ListQuery): Promise<Paginated<CommissionScheme>> {
+export function getCommissionSchemes(
+  query?: ListQuery,
+): Promise<Paginated<CommissionScheme>> {
   return api.list("/api/commission-schemes/get_schemes/", query);
 }
 
-export async function createCommissionScheme(payload: CommissionSchemePayload): Promise<CommissionScheme> {
-  const result = await api.post<CommissionScheme>("/api/commission-schemes/create_scheme/", payload);
+export async function createCommissionScheme(
+  payload: CommissionSchemePayload,
+): Promise<CommissionScheme> {
+  const result = await api.post<CommissionScheme>(
+    "/api/commission-schemes/create_scheme/",
+    payload,
+  );
   toastSuccess("sales.toast.saved");
   return result;
 }
 
-export async function updateCommissionScheme(id: string, payload: Partial<CommissionSchemePayload>): Promise<CommissionScheme> {
-  const result = await api.patch<CommissionScheme>(`/api/commission-schemes/${id}/update_scheme/`, payload);
+export async function updateCommissionScheme(
+  id: string,
+  payload: Partial<CommissionSchemePayload>,
+): Promise<CommissionScheme> {
+  const result = await api.patch<CommissionScheme>(
+    `/api/commission-schemes/${id}/update_scheme/`,
+    payload,
+  );
+  toastSuccess("sales.toast.saved");
+  return result;
+}
+
+export async function updateCommissionRule(
+  id: string,
+  payload: Pick<CommissionSchemePayload, "basis" | "rate"> &
+    Pick<
+      Partial<CommissionSchemePayload>,
+      "target_amount" | "calculation_config"
+    >,
+): Promise<CommissionScheme> {
+  const result = await api.patch<CommissionScheme>(
+    `/api/commission-schemes/${id}/update_rule/`,
+    payload,
+  );
   toastSuccess("sales.toast.saved");
   return result;
 }
 
 // Versioned sales terms
-export function getSalesTerms(query?: ListQuery): Promise<Paginated<SalesTerms>> {
+export function getSalesTerms(
+  query?: ListQuery,
+): Promise<Paginated<SalesTerms>> {
   return api.list("/api/sales-terms/get_terms/", query);
 }
 
-export async function createSalesTerms(payload: { code: string; title: string; body: string; clauses: Record<string, unknown>; effective_from?: string | null }): Promise<SalesTerms> {
-  const result = await api.post<SalesTerms>("/api/sales-terms/create_terms/", payload);
+export async function createSalesTerms(payload: {
+  code: string;
+  title: string;
+  body: string;
+  clauses: Record<string, unknown>;
+  effective_from?: string | null;
+}): Promise<SalesTerms> {
+  const result = await api.post<SalesTerms>(
+    "/api/sales-terms/create_terms/",
+    payload,
+  );
   toastSuccess("sales.toast.saved");
   return result;
 }
@@ -192,13 +256,22 @@ export async function activateSalesTerms(id: string): Promise<SalesTerms> {
   return result;
 }
 
-export async function acknowledgeSalesTerms(id: string, salesperson: string, note: string): Promise<TermsAcknowledgement> {
-  const result = await api.post<TermsAcknowledgement>(`/api/sales-terms/${id}/acknowledge/`, { salesperson, note });
+export async function acknowledgeSalesTerms(
+  id: string,
+  salesperson: string,
+  note: string,
+): Promise<TermsAcknowledgement> {
+  const result = await api.post<TermsAcknowledgement>(
+    `/api/sales-terms/${id}/acknowledge/`,
+    { salesperson, note },
+  );
   toastSuccess("sales.toast.acknowledged");
   return result;
 }
 
-export function getTermsAcknowledgements(query?: ListQuery): Promise<Paginated<TermsAcknowledgement>> {
+export function getTermsAcknowledgements(
+  query?: ListQuery,
+): Promise<Paginated<TermsAcknowledgement>> {
   return api.list("/api/sales-terms/get_acknowledgements/", query);
 }
 
@@ -207,7 +280,10 @@ export function getTermsAcknowledgements(query?: ListQuery): Promise<Paginated<T
 export function getPayouts(
   query?: ListQuery,
 ): Promise<Paginated<CommissionPayout>> {
-  return api.list<CommissionPayout>("/api/commission-payouts/get_payouts/", query);
+  return api.list<CommissionPayout>(
+    "/api/commission-payouts/get_payouts/",
+    query,
+  );
 }
 
 export async function calculatePayout(
@@ -233,8 +309,15 @@ export async function transitionPayout(
   return payout;
 }
 
-export async function adjustPayout(id: string, adjustment: string, notes: string): Promise<CommissionPayout> {
-  const payout = await api.post<CommissionPayout>(`/api/commission-payouts/${id}/adjust/`, { adjustment, notes });
+export async function adjustPayout(
+  id: string,
+  adjustment: string,
+  notes: string,
+): Promise<CommissionPayout> {
+  const payout = await api.post<CommissionPayout>(
+    `/api/commission-payouts/${id}/adjust/`,
+    { adjustment, notes },
+  );
   toastSuccess("sales.toast.payoutTransitioned");
   return payout;
 }
@@ -246,11 +329,12 @@ export function exportSalesDataset(
   subtitle: string,
   columns: Array<{ key: string; label: string }>,
 ): Promise<void> {
-  const path = endpoint === "salespeople"
-    ? "/api/salespeople/export_salespeople/"
-    : endpoint === "assignments"
-      ? "/api/customer-assignments/export_assignments/"
-      : "/api/commission-payouts/export_payouts/";
+  const path =
+    endpoint === "salespeople"
+      ? "/api/salespeople/export_salespeople/"
+      : endpoint === "assignments"
+        ? "/api/customer-assignments/export_assignments/"
+        : "/api/commission-payouts/export_payouts/";
   return download(path, {
     method: "POST",
     body: { format, title, subtitle, columns, empty_label: "" },

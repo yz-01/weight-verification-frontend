@@ -1,9 +1,5 @@
 export type NotificationKind =
-  | "SYSTEM"
-  | "APPROVAL"
-  | "EVENT"
-  | "REMINDER"
-  | "EXCEPTION";
+  "SYSTEM" | "APPROVAL" | "EVENT" | "REMINDER" | "EXCEPTION";
 
 export interface NotificationRow {
   id: string;
@@ -22,7 +18,13 @@ export interface NotificationSummary {
   by_kind: Partial<Record<NotificationKind, number>>;
 }
 
-export type HealthStatus = "ok" | "configured" | "degraded" | "unhealthy" | "not_running" | "not_configured";
+export type HealthStatus =
+  | "ok"
+  | "configured"
+  | "degraded"
+  | "unhealthy"
+  | "not_running"
+  | "not_configured";
 export type MonitoringMode = "SIMULATED" | "LIVE";
 
 export interface SystemStatus {
@@ -93,6 +95,7 @@ export interface IntegrationMonitor {
   key: string;
   name: string;
   mode: MonitoringMode;
+  requested_mode?: MonitoringMode;
   status: HealthStatus;
   configured: number;
   enabled: number;
@@ -102,6 +105,51 @@ export interface IntegrationMonitor {
   successes_24h: number;
   failures_24h: number;
   last_checked_at: string | null;
+}
+
+export interface IntegrationInventoryConnection {
+  id: string;
+  company_id: string;
+  company_name: string;
+  company_code: string;
+  company_type: "CONTRACTOR" | "RECYCLER";
+  kind: string;
+  name: string;
+  mode: MonitoringMode;
+  requested_mode?: MonitoringMode;
+  status: string;
+  is_enabled: boolean;
+  is_live_ready: boolean;
+  last_success_at: string | null;
+  last_error: string;
+  total_devices: number;
+  online_devices: number;
+  offline_devices: number;
+}
+
+export interface IntegrationInventoryDevice {
+  id: string;
+  company_id: string;
+  company_name: string;
+  company_code: string;
+  company_type: "CONTRACTOR" | "RECYCLER";
+  integration_id: string | null;
+  integration_name: string | null;
+  integration_kind: string | null;
+  integration_mode: MonitoringMode;
+  requested_mode?: MonitoringMode;
+  integration_status: string | null;
+  device_type: string;
+  device_id: string;
+  project_name: string | null;
+  site_name: string | null;
+  scale_name: string | null;
+  firmware_version: string;
+  reported_status: "ONLINE" | "DEGRADED" | "ERROR" | string;
+  is_active: boolean;
+  is_online: boolean;
+  is_live_ready: boolean;
+  last_seen_at: string | null;
 }
 
 export interface MonitoringOverview {
@@ -143,6 +191,10 @@ export interface MonitoringOverview {
   };
   cctv: IntegrationMonitor;
   anpr: IntegrationMonitor;
+  integration_inventory: {
+    connections: IntegrationInventoryConnection[];
+    devices: IntegrationInventoryDevice[];
+  };
   api_gateway: {
     mode: MonitoringMode;
     status: HealthStatus;
@@ -215,10 +267,7 @@ export interface SystemEventResolution {
 }
 
 export type DashboardMarkerKind =
-  | "PROJECT"
-  | "RECYCLER"
-  | "SCALE"
-  | "HEADQUARTERS";
+  "PROJECT" | "RECYCLER" | "SCALE" | "HEADQUARTERS";
 
 export interface AdminDashboardMarker {
   id: string;
@@ -235,6 +284,7 @@ export interface AdminDashboardMarker {
   status: string;
   address: string;
   recycler_names?: string[];
+  recycler_ids?: string[];
   today_orders?: number;
   today_weight_kg?: number | string;
   scale_code?: string;
@@ -247,7 +297,14 @@ export interface AdminDashboardTrendPoint {
 
 export interface AdminDashboardData {
   generated_at: string;
-  map: { markers: AdminDashboardMarker[]; states: string[] };
+  map: {
+    markers: AdminDashboardMarker[];
+    states: string[];
+    coverage?: Record<
+      DashboardMarkerKind,
+      { total: number; mapped: number; missing: number }
+    >;
+  };
   platform: {
     companies: number;
     contractors: number;

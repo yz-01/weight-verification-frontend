@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { CompanyRow, CompanyStatus } from "@/interfaces/company";
 import { useDateFormat } from "@/lib/dates";
+import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
   deleteCompany,
   getCompanies,
@@ -28,25 +29,6 @@ import {
 } from "@/services/companies.service";
 
 const FILTER_KEYS = ["type", "status", "state", "plan", "review_status"];
-const MALAYSIA_STATES = [
-  "Johor",
-  "Kedah",
-  "Kelantan",
-  "Melaka",
-  "Negeri Sembilan",
-  "Pahang",
-  "Penang",
-  "Perak",
-  "Perlis",
-  "Sabah",
-  "Sarawak",
-  "Selangor",
-  "Terengganu",
-  "Kuala Lumpur",
-  "Labuan",
-  "Putrajaya",
-];
-
 /** How each lifecycle state reads in the status pill. */
 const STATUS_TONE: Record<
   CompanyStatus,
@@ -99,6 +81,7 @@ export function Companies({
   const { data, isLoading, isError } = useQuery({
     queryKey: ["companies", section, list.query],
     queryFn: () => getCompanies({ ...list.query, ...fixedQuery }),
+    enabled: section !== "statistics",
   });
   const summary = useQuery({
     queryKey: ["companies", "summary"],
@@ -106,7 +89,7 @@ export function Companies({
   });
   const plans = useQuery({
     queryKey: ["subscription-plans", "company-filter"],
-    queryFn: getSubscriptionPlans,
+    queryFn: () => getSubscriptionPlans(),
   });
 
   function closeDialog() {
@@ -528,7 +511,8 @@ export function Companies({
     },
   ];
 
-  const totalCount = data?.count ?? 0;
+  const totalCount =
+    section === "statistics" ? (summary.data?.total ?? 0) : (data?.count ?? 0);
   const isPending = removal.isPending || statusChange.isPending;
   const sectionColumnIds = useMemo<Record<CompanyManagementSection, string[]>>(
     () => ({
@@ -648,7 +632,7 @@ export function Companies({
             : t(`companies.module.${section}.subtitle`, { count: totalCount })
         }
         action={
-          can("company.create") ? (
+          can("company.create") && section === "directory" ? (
             <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
               <Link href="/companies/create">
                 <Plus className="h-4 w-4" />
@@ -659,90 +643,99 @@ export function Companies({
         }
       />
 
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-5">
-        {(
-          [
-            "total",
-            "contractors",
-            "recyclers",
-            "active",
-            "newThisMonth",
-          ] as const
-        ).map((key) => {
-          const value =
-            key === "contractors"
-              ? summary.data?.by_type.CONTRACTOR
-              : key === "recyclers"
-                ? summary.data?.by_type.RECYCLER
-                : key === "newThisMonth"
-                  ? summary.data?.new_this_month
-                  : summary.data?.[key];
-          return (
-            <div key={key} className="bg-card px-4 py-3">
-              <p className="text-xs text-muted-foreground">
-                {t(`companies.summary.${key}`)}
-              </p>
-              <p className="mt-1 text-xl font-semibold tabular-nums">
-                {value ?? 0}
-              </p>
-            </div>
-          );
-        })}
-      </div>
+      {section === "statistics" && (
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-6">
+          {(
+            [
+              "total",
+              "contractors",
+              "recyclers",
+              "active",
+              "inactive",
+              "newThisMonth",
+            ] as const
+          ).map((key) => {
+            const value =
+              key === "contractors"
+                ? summary.data?.by_type.CONTRACTOR
+                : key === "recyclers"
+                  ? summary.data?.by_type.RECYCLER
+                  : key === "inactive"
+                    ? summary.data?.inactive
+                    : key === "newThisMonth"
+                      ? summary.data?.new_this_month
+                      : summary.data?.[key];
+            return (
+              <div key={key} className="bg-card px-4 py-3">
+                <p className="text-xs text-muted-foreground">
+                  {t(`companies.summary.${key}`)}
+                </p>
+                <p className="mt-1 text-xl font-semibold tabular-nums">
+                  {value ?? 0}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-      <div className="flex flex-wrap gap-2">
-        <select
-          value={list.filters.state ?? ""}
-          onChange={(event) =>
-            list.setFilter("state", event.target.value || undefined)
-          }
-          className="h-8 rounded-md border bg-background px-2 text-sm"
-          aria-label={t("companies.filter.state")}
-        >
-          <option value="">{t("companies.filter.allStates")}</option>
-          {MALAYSIA_STATES.map((state) => (
-            <option key={state} value={state}>
-              {state}
-            </option>
-          ))}
-        </select>
-        <select
-          value={list.filters.plan ?? ""}
-          onChange={(event) =>
-            list.setFilter("plan", event.target.value || undefined)
-          }
-          className="h-8 rounded-md border bg-background px-2 text-sm"
-          aria-label={t("companies.filter.plan")}
-        >
-          <option value="">{t("companies.filter.allPlans")}</option>
-          {(plans.data?.results ?? []).map((plan) => (
-            <option key={plan.id} value={plan.id}>
-              {plan.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {section !== "statistics" && (
+        <>
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={list.filters.state ?? ""}
+              onChange={(event) =>
+                list.setFilter("state", event.target.value || undefined)
+              }
+              className="h-8 rounded-md border bg-background px-2 text-sm"
+              aria-label={t("companies.filter.state")}
+            >
+              <option value="">{t("companies.filter.allStates")}</option>
+              {MALAYSIA_STATES.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </select>
+            <select
+              value={list.filters.plan ?? ""}
+              onChange={(event) =>
+                list.setFilter("plan", event.target.value || undefined)
+              }
+              className="h-8 rounded-md border bg-background px-2 text-sm"
+              aria-label={t("companies.filter.plan")}
+            >
+              <option value="">{t("companies.filter.allPlans")}</option>
+              {(plans.data?.results ?? []).map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {plan.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <DataTable
-        columns={sectionColumns}
-        rows={data?.results ?? []}
-        totalCount={totalCount}
-        page={list.page}
-        pageSize={list.pageSize}
-        isLoading={isLoading}
-        isError={isError}
-        hasFilters={list.hasFilters}
-        search={list.search}
-        sortBy={list.sortBy}
-        sortOrder={list.sortOrder}
-        storageKey={`companies-${section}`}
-        filterPills={filterPills}
-        onSearchChange={list.setSearch}
-        onSortChange={list.setSort}
-        onPageChange={list.setPage}
-        onPageSizeChange={list.setPageSize}
-        onClearFilters={list.clearFilters}
-      />
+          <DataTable
+            columns={sectionColumns}
+            rows={data?.results ?? []}
+            totalCount={totalCount}
+            page={list.page}
+            pageSize={list.pageSize}
+            isLoading={isLoading}
+            isError={isError}
+            hasFilters={list.hasFilters}
+            search={list.search}
+            sortBy={list.sortBy}
+            sortOrder={list.sortOrder}
+            storageKey={`companies-${section}`}
+            filterPills={filterPills}
+            onSearchChange={list.setSearch}
+            onSortChange={list.setSort}
+            onPageChange={list.setPage}
+            onPageSizeChange={list.setPageSize}
+            onClearFilters={list.clearFilters}
+          />
+        </>
+      )}
 
       {pending?.kind === "remove" && (
         <ConfirmDialog

@@ -4,13 +4,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   ExternalLink,
+  Camera,
+  CheckCircle2,
   Loader2,
   LocateFixed,
   Plus,
   Save,
   ShieldAlert,
   SlidersHorizontal,
+  RotateCcw,
+  UserCheck,
 } from "lucide-react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -48,14 +53,20 @@ import type {
   SafetyIncidentPayload,
 } from "@/interfaces/site-operations";
 import { useDateFormat } from "@/lib/dates";
+import { submitSafetyIncidentOfflineAware } from "@/services/offline-sync.service";
 import {
-  createSafetyIncident,
+  assignSafetyRectification,
   getSafetyIncidents,
+  reviewSafetyRectification,
+  submitSafetyRectification,
   updateSafetyStatus,
 } from "@/services/site-operations.service";
+import { getProjectAssignments } from "@/services/contractor.service";
 
 const SEVERITIES: IncidentSeverity[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
-const STATUSES: IncidentStatus[] = ["OPEN", "INVESTIGATING", "RESOLVED"];
+const STATUSES: IncidentStatus[] = [
+  "OPEN", "ASSIGNED", "RECTIFICATION_SUBMITTED", "RETURNED", "VERIFIED",
+];
 
 const SEVERITY_TONE: Record<
   IncidentSeverity,
@@ -69,10 +80,14 @@ const SEVERITY_TONE: Record<
 
 const STATUS_TONE: Record<
   IncidentStatus,
-  "danger" | "warning" | "positive"
+  "danger" | "warning" | "positive" | "info" | "neutral"
 > = {
   OPEN: "danger",
   INVESTIGATING: "warning",
+  ASSIGNED: "info",
+  RECTIFICATION_SUBMITTED: "warning",
+  RETURNED: "danger",
+  VERIFIED: "positive",
   RESOLVED: "positive",
 };
 
@@ -95,17 +110,23 @@ const EMPTY_DRAFT: SafetyDraft = {
   occurredAt: "",
 };
 
-export function Safety() {
+export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectification" }) {
   const t = useTranslations();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const list = useListQuery(["project", "severity", "status"]);
   const [createOpen, setCreateOpen] = useState(false);
   const [updating, setUpdating] = useState<SafetyIncident | null>(null);
+  const [assigning, setAssigning] = useState<SafetyIncident | null>(null);
+  const [submitting, setSubmitting] = useState<SafetyIncident | null>(null);
+  const [reviewing, setReviewing] = useState<SafetyIncident | null>(null);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["safety", list.query],
-    queryFn: () => getSafetyIncidents(list.query),
+    queryKey: ["safety", mode, list.query],
+    queryFn: () => getSafetyIncidents({
+      ...list.query,
+      workflow: mode === "rectification" ? "rectification" : undefined,
+    }),
   });
 
   const columns = useMemo<ColumnDef<SafetyIncident, unknown>[]>(
@@ -185,7 +206,7 @@ export function Safety() {
         ),
         cell: ({ row }) => (
           <StatusBadge
-            label={t(`safety.status.${row.original.status}`)}
+            label={t(`safetyRectification.status.${row.original.status}`)}
             tone={STATUS_TONE[row.original.status]}
           />
         ),
@@ -225,21 +246,25 @@ export function Safety() {
         id: "actions",
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
-        cell: ({ row }) =>
-          can("safety.manage") ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-primary hover:bg-primary/10"
-              title={t("safety.action.updateStatus")}
-              onClick={() => setUpdating(row.original)}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-            </Button>
-          ) : null,
+        cell: ({ row }) => (
+          <div className="flex justify-end gap-1">
+            {can("safety.manage") && ["OPEN", "RETURNED"].includes(row.original.status) && (
+              <Button variant="ghost" size="icon" className="h-7 w-7" title={t("safetyRectification.action.assign")} onClick={() => setAssigning(row.original)}><UserCheck className="h-4 w-4" /></Button>
+            )}
+            {can("safety.manage") && row.original.responsible_person === user?.id && ["ASSIGNED", "RETURNED"].includes(row.original.status) && (
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" title={t("safetyRectification.action.submit")} onClick={() => setSubmitting(row.original)}><Camera className="h-4 w-4" /></Button>
+            )}
+            {can("safety.verify") && row.original.status === "RECTIFICATION_SUBMITTED" && (
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-success" title={t("safetyRectification.action.review")} onClick={() => setReviewing(row.original)}><CheckCircle2 className="h-4 w-4" /></Button>
+            )}
+            {can("safety.manage") && ["OPEN", "INVESTIGATING"].includes(row.original.status) && (
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" title={t("safety.action.updateStatus")} onClick={() => setUpdating(row.original)}><SlidersHorizontal className="h-3.5 w-3.5" /></Button>
+            )}
+          </div>
+        ),
       },
     ],
-    [t, df, can],
+    [t, df, can, user?.id],
   );
 
   const total = data?.count ?? 0;
@@ -249,10 +274,10 @@ export function Safety() {
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
-        title={t("safety.title")}
-        subtitle={isLoading ? t("common.loading") : t("safety.count", { count: total })}
+        title={t(mode === "rectification" ? "safetyRectification.title" : "safety.title")}
+        subtitle={isLoading ? t("common.loading") : t(mode === "rectification" ? "safetyRectification.count" : "safety.count", { count: total })}
         action={
-          can("safety.manage") ? (
+          mode === "incidents" && can("safety.manage") ? (
             <Button size="sm" onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
               {t("safety.new")}
@@ -314,7 +339,7 @@ export function Safety() {
           },
           ...STATUSES.map((status) => ({
             key: status,
-            label: t(`safety.status.${status}`),
+            label: t(`safetyRectification.status.${status}`),
             active: list.filters.status === status,
             onSelect: () => list.setFilter("status", status),
           })),
@@ -330,19 +355,57 @@ export function Safety() {
       {updating && (
         <SafetyStatusDialog incident={updating} onClose={() => setUpdating(null)} />
       )}
+      {assigning && <SafetyAssignDialog incident={assigning} onClose={() => setAssigning(null)} />}
+      {submitting && <SafetySubmitDialog incident={submitting} onClose={() => setSubmitting(null)} />}
+      {reviewing && <SafetyReviewDialog incident={reviewing} onClose={() => setReviewing(null)} />}
     </div>
   );
 }
 
+function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
+  const t = useTranslations("safetyRectification");
+  const qc = useQueryClient();
+  const team = useQuery({ queryKey: ["project-assignments", incident.project, "safety"], queryFn: () => getProjectAssignments(incident.project) });
+  const [person, setPerson] = useState(incident.responsible_person ?? "");
+  const [dueAt, setDueAt] = useState(incident.rectification_due_at ? incident.rectification_due_at.slice(0, 16) : "");
+  const [note, setNote] = useState(incident.rectification_note);
+  const save = useMutation({ mutationFn: () => assignSafetyRectification(incident.id, { responsible_person: person, due_at: new Date(dueAt).toISOString(), note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{t("assign.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><FieldWrapper label={t("field.responsible")} required><Select value={person || undefined} onValueChange={setPerson}><SelectTrigger className="w-full"><SelectValue placeholder={t("field.selectResponsible")} /></SelectTrigger><SelectContent>{(team.data?.results ?? []).map((row) => <SelectItem key={row.user} value={row.user}>{row.user_name}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("field.dueAt")} required><Input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.instructions")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!person || !dueAt || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button></DialogFooter></DialogContent></Dialog>;
+}
+
+function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
+  const t = useTranslations("safetyRectification");
+  const qc = useQueryClient();
+  const [image, setImage] = useState<File>();
+  const [note, setNote] = useState("");
+  const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string } | null>(null);
+  const [locationError, setLocationError] = useState("");
+  const getLocation = () => { setLocationError(""); navigator.geolocation.getCurrentPosition((position) => setLocation({ latitude: position.coords.latitude.toFixed(7), longitude: position.coords.longitude.toFixed(7), accuracy: position.coords.accuracy.toFixed(2) }), () => setLocationError(t("error.location")), { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }); };
+  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { image: image!, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("submit.title")}</DialogTitle><DialogDescription>{incident.rectification_note || t("submit.description")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.photo")} required><Input type="file" accept="image/*" capture="environment" onChange={(e) => setImage(e.target.files?.[0])} /></FieldWrapper><FieldWrapper label={t("field.location")} required error={locationError}><Button className="w-full" variant="outline" onClick={getLocation}><LocateFixed />{location ? t("action.locationReady") : t("action.getLocation")}</Button></FieldWrapper><FieldWrapper label={t("field.workDone")} required><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!image || !location || !note.trim() || save.isPending} onClick={() => save.mutate()}><Camera />{t("action.submit")}</Button></DialogFooter></DialogContent></Dialog>;
+}
+
+function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
+  const t = useTranslations("safetyRectification");
+  const qc = useQueryClient();
+  const [decision, setDecision] = useState<"VERIFIED" | "RETURNED">("VERIFIED");
+  const [note, setNote] = useState("");
+  const [image, setImage] = useState<File>();
+  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision, note, image }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl"><DialogHeader><DialogTitle>{t("review.title")}</DialogTitle><DialogDescription>{t("review.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-3 gap-2">{incident.rectification_evidence.filter((item) => item.kind === "RECTIFICATION").map((item) => <a key={item.id} href={item.image} target="_blank" rel="noreferrer"><Image src={item.image} alt="" width={320} height={320} unoptimized className="aspect-square w-full rounded-lg object-cover" /></a>)}</div><div className="grid grid-cols-2 gap-2"><Button variant={decision === "VERIFIED" ? "default" : "outline"} onClick={() => setDecision("VERIFIED")}><CheckCircle2 />{t("action.verify")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><FieldWrapper label={t("field.reviewNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.verificationPhoto")} optional={t("action.optional")}><Input type="file" accept="image/*" capture="environment" onChange={(e) => setImage(e.target.files?.[0])} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={(decision === "RETURNED" && !note.trim()) || save.isPending} onClick={() => save.mutate()}>{decision === "VERIFIED" ? <CheckCircle2 /> : <RotateCcw />}{t(decision === "VERIFIED" ? "action.verify" : "action.return")}</Button></DialogFooter></DialogContent></Dialog>;
+}
+
 function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
   const t = useTranslations();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<SafetyDraft>(EMPTY_DRAFT);
   const [locating, setLocating] = useState(false);
 
   const create = useMutation({
     mutationFn: () => {
-      const payload: SafetyIncidentPayload = {
+      if (!user) throw new Error("Authentication required.");
+      const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
         title: draft.title.trim(),
         description: draft.description.trim(),
@@ -353,8 +416,9 @@ function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
         latitude: draft.latitude,
         longitude: draft.longitude,
         photo: draft.photo,
+        client_event_id: crypto.randomUUID(),
       };
-      return createSafetyIncident(payload);
+      return submitSafetyIncidentOfflineAware(user.id, payload);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["safety"] });

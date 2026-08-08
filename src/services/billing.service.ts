@@ -3,12 +3,15 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   BillingSummary,
+  AutomaticBillingStatus,
+  BillingJobRun,
   CommissionRule,
   CommissionRulePayload,
   CreatePaymentPayload,
   Invoice,
   InvoiceDetail,
   InvoiceKind,
+  FinancialReportsSummary,
   Payment,
   PaymentState,
 } from "@/interfaces/billing";
@@ -25,6 +28,29 @@ export function getInvoice(id: string): Promise<InvoiceDetail> {
 
 export function getBillingSummary(): Promise<BillingSummary> {
   return api.get<BillingSummary>("/api/invoices/get_summary/");
+}
+
+export function getAutomaticBilling(): Promise<AutomaticBillingStatus> {
+  return api.get<AutomaticBillingStatus>(
+    "/api/invoices/get_automatic_billing/",
+  );
+}
+
+export function getFinancialReports(
+  query?: ListQuery,
+): Promise<FinancialReportsSummary> {
+  return api.get<FinancialReportsSummary>(
+    "/api/invoices/get_financial_reports/",
+    query,
+  );
+}
+
+export async function runAutomaticBilling(): Promise<BillingJobRun> {
+  const run = await api.post<BillingJobRun>(
+    "/api/invoices/run_automatic_billing/",
+  );
+  toastSuccess("billing.automatic.toast.queued");
+  return run;
 }
 
 export async function generateInvoice(payload: {
@@ -74,6 +100,24 @@ export function exportInvoices(request: ExportRequest): Promise<void> {
       columns: request.columns,
     },
     fallbackFilename: `billing.${request.format}`,
+  });
+}
+
+export function exportPayments(request: ExportRequest): Promise<void> {
+  const { page, page_size, ...query } = request.query;
+  void page;
+  void page_size;
+  return download("/api/payments/export_payments/", {
+    method: "POST",
+    query,
+    body: {
+      format: request.format,
+      title: request.title,
+      subtitle: request.subtitle ?? "",
+      empty_label: request.emptyLabel ?? "",
+      columns: request.columns,
+    },
+    fallbackFilename: `payments.${request.format}`,
   });
 }
 

@@ -1,5 +1,5 @@
-import { CustomerServiceWorkspace } from "@/components/crm/customer-service-workspace";
+import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
 
 export default function CustomerServicePage() {
-  return <CustomerServiceWorkspace />;
+  return <AdminModuleLanding feature="customer_service" />;
 }

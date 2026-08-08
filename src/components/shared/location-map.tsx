@@ -1,6 +1,13 @@
 "use client";
 
-import { Building2, FolderKanban, Recycle, Scale, Truck, UserRound } from "lucide-react";
+import {
+  Building2,
+  FolderKanban,
+  Recycle,
+  Scale,
+  Truck,
+  UserRound,
+} from "lucide-react";
 import { createElement, useEffect, useRef } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
@@ -24,8 +31,9 @@ export interface LocationMapPath {
 
 export interface LocationMapZone {
   id: string;
-  center: [number, number];
-  radiusM: number;
+  center?: [number, number];
+  radiusM?: number;
+  points?: Array<[number, number]>;
   label?: string;
   color?: string;
 }
@@ -80,19 +88,29 @@ export function LocationMap({
       ];
       visibleZones.forEach((zone) => {
         const color = zone.color ?? "#087f8c";
-        L.circle(zone.center, {
-          radius: zone.radiusM,
-          color,
-          fillColor: color,
-          fillOpacity: 0.08,
-          weight: 2,
-        })
-          .addTo(map!)
-          .bindTooltip(zone.label ?? "Geofence");
+        if (zone.points && zone.points.length >= 3) {
+          L.polygon(zone.points, {
+            color,
+            fillColor: color,
+            fillOpacity: 0.08,
+            weight: 2,
+          }).addTo(map!).bindTooltip(zone.label ?? "Geofence");
+        } else if (zone.center && zone.radiusM) {
+          L.circle(zone.center, {
+            radius: zone.radiusM,
+            color,
+            fillColor: color,
+            fillOpacity: 0.08,
+            weight: 2,
+          }).addTo(map!).bindTooltip(zone.label ?? "Geofence");
+        }
       });
 
       const bounds = L.latLngBounds([]);
-      visibleZones.forEach((zone) => bounds.extend(zone.center));
+      visibleZones.forEach((zone) => {
+        if (zone.center) bounds.extend(zone.center);
+        zone.points?.forEach((point) => bounds.extend(point));
+      });
       paths.forEach((path) => {
         if (path.points.length < 2) return;
         const line = L.polyline(path.points, {
@@ -137,8 +155,13 @@ export function LocationMap({
         paths.some((path) => path.points.length > 0) ||
         visibleZones.length > 0
       ) {
-        bounds.extend(center);
-        map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
+        const southWest = bounds.getSouthWest();
+        const northEast = bounds.getNorthEast();
+        if (southWest.equals(northEast)) {
+          map.setView(southWest, 16, { animate: false });
+        } else {
+          map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
+        }
       }
     });
 

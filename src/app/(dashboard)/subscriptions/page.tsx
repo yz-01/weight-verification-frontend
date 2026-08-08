@@ -1,5 +1,5 @@
-import { SubscriptionList } from "@/components/subscriptions/subscription-list";
+import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
 
 export default function SubscriptionsPage() {
-  return <SubscriptionList />;
+  return <AdminModuleLanding feature="subscription_management" />;
 }

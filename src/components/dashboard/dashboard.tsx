@@ -5,9 +5,13 @@ import type { LucideIcon } from "lucide-react";
 import {
   CalendarCheck,
   ClipboardList,
+  HardHat,
   Inbox,
+  ListChecks,
   Package,
+  Recycle,
   Scale,
+  ShieldAlert,
   Truck,
   WalletCards,
 } from "lucide-react";
@@ -30,7 +34,14 @@ import {
   getSettlements,
   getTasks,
 } from "@/services/recycler.service";
+import {
+  getDisposalRequests,
+  getFieldTasks,
+  getSiteEquipment,
+  getSiteProgressRecords,
+} from "@/services/contractor-ops.service";
 import { getAttendance } from "@/services/site-operations.service";
+import { getSafetyIncidents } from "@/services/site-operations.service";
 import { getWeighSummary } from "@/services/weighing.service";
 
 interface DashboardStat {
@@ -88,6 +99,11 @@ function TraceDashboard({ features }: { features: string[] }) {
   const receiptsEnabled = features.includes("material_receipts");
   const dispatchesEnabled = features.includes("waste_dispatches");
   const attendanceEnabled = features.includes("attendance");
+  const tasksEnabled = features.includes("field_tasks");
+  const equipmentEnabled = features.includes("equipment");
+  const progressEnabled = features.includes("progress");
+  const safetyEnabled = features.includes("safety");
+  const disposalEnabled = features.includes("site_disposals");
 
   const projects = useQuery({
     queryKey: ["projects", "dashboard-count"],
@@ -108,6 +124,31 @@ function TraceDashboard({ features }: { features: string[] }) {
     queryKey: ["attendance", "dashboard-count"],
     queryFn: () => getAttendance({ page_size: 1 }),
     enabled: attendanceEnabled,
+  });
+  const tasks = useQuery({
+    queryKey: ["field-tasks", "dashboard-count"],
+    queryFn: () => getFieldTasks({ page_size: 1 }),
+    enabled: tasksEnabled,
+  });
+  const equipment = useQuery({
+    queryKey: ["site-equipment", "dashboard-count"],
+    queryFn: () => getSiteEquipment({ page_size: 1 }),
+    enabled: equipmentEnabled,
+  });
+  const progress = useQuery({
+    queryKey: ["site-progress", "dashboard-count"],
+    queryFn: () => getSiteProgressRecords({ page_size: 1 }),
+    enabled: progressEnabled,
+  });
+  const safety = useQuery({
+    queryKey: ["safety-incidents", "dashboard-count"],
+    queryFn: () => getSafetyIncidents({ page_size: 1 }),
+    enabled: safetyEnabled,
+  });
+  const disposals = useQuery({
+    queryKey: ["site-disposals", "dashboard-count"],
+    queryFn: () => getDisposalRequests({ page_size: 1 }),
+    enabled: disposalEnabled,
   });
 
   return (
@@ -144,6 +185,46 @@ function TraceDashboard({ features }: { features: string[] }) {
           value: attendance.data?.count,
           loading: attendance.isLoading,
           enabled: attendanceEnabled,
+        },
+        {
+          key: "fieldTasks",
+          href: "/field-tasks",
+          icon: ListChecks,
+          value: tasks.data?.count,
+          loading: tasks.isLoading,
+          enabled: tasksEnabled,
+        },
+        {
+          key: "siteEquipment",
+          href: "/site-equipment",
+          icon: HardHat,
+          value: equipment.data?.count,
+          loading: equipment.isLoading,
+          enabled: equipmentEnabled,
+        },
+        {
+          key: "progress",
+          href: "/progress",
+          icon: Scale,
+          value: progress.data?.count,
+          loading: progress.isLoading,
+          enabled: progressEnabled,
+        },
+        {
+          key: "safety",
+          href: "/safety",
+          icon: ShieldAlert,
+          value: safety.data?.count,
+          loading: safety.isLoading,
+          enabled: safetyEnabled,
+        },
+        {
+          key: "siteDisposals",
+          href: "/site-disposals",
+          icon: Recycle,
+          value: disposals.data?.count,
+          loading: disposals.isLoading,
+          enabled: disposalEnabled,
         },
       ]}
     />

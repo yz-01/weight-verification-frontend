@@ -24,7 +24,8 @@ export type QRScanOutcome =
   | "VOIDED"
   | "EXPIRED"
   | "WRONG_LOCATION"
-  | "DUPLICATE";
+  | "DUPLICATE"
+  | "DUPLICATE_WARNING";
 
 export interface QRCode {
   id: string;
@@ -101,7 +102,7 @@ export interface IssueQRCodePayload {
   company?: string;
   project?: string;
   site?: string;
-  expires_on?: string;
+  expires_on?: string | null;
   notes?: string;
 }
 
@@ -109,4 +110,20 @@ export interface QRSubjectOptions {
   subjects: Array<{ id: string; label: string }>;
   projects: Array<{ id: string; label: string }>;
   sites: Array<{ id: string; label: string }>;
+}
+
+export interface QRScanPayload {
+  token: string;
+  latitude?: string;
+  longitude?: string;
+  location_label?: string;
+  device_id?: string;
+  note?: string;
+}
+
+export interface QRScanResult {
+  outcome: QRScanOutcome;
+  accepted: boolean;
+  scan: QRScanRecord;
+  code: QRCode | null;
 }

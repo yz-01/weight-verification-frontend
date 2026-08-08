@@ -1,5 +1,5 @@
-import { AssetManagementWorkspace } from "@/components/assets/asset-management-workspace";
+import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
 
 export default function AssetsPage() {
-  return <AssetManagementWorkspace />;
+  return <AdminModuleLanding feature="asset_management" />;
 }

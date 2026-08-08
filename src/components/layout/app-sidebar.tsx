@@ -8,7 +8,6 @@ import { useMemo, useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { UserMenu } from "@/components/layout/user-menu";
-import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import {
@@ -50,7 +49,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const groups = useMemo(
     () => visibleNavigation(user?.portal, user?.features),
@@ -65,7 +64,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
+      <SidebarHeader className="border-b border-sidebar-border/80">
         <div className="flex items-center gap-2.5 px-2 py-1.5">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <ShieldCheck className="h-4.5 w-4.5" />
@@ -90,22 +89,22 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => {
-                  const active = isActivePath(
-                    item.href,
-                    pathname,
-                    item.exact,
-                  );
+                  const active = isActivePath(item.href, pathname, item.exact);
                   const Icon = item.icon;
                   const label = t(`nav.${item.labelKey}`);
-                  const isExpanded =
-                    expanded.has(item.feature) ||
-                    Boolean(item.children?.some((child) => isActivePath(child.href, pathname)));
+                  const childIsActive = Boolean(
+                    item.children?.some((child) =>
+                      isActivePath(child.href, pathname, true),
+                    ),
+                  );
+                  const isExpanded = expanded[item.feature] ?? childIsActive;
                   return (
                     <SidebarMenuItem key={item.feature}>
                       <SidebarMenuButton
                         asChild
                         isActive={active}
                         tooltip={label}
+                        className="h-10 rounded-lg px-3 font-medium"
                       >
                         <Link
                           href={item.href}
@@ -119,31 +118,48 @@ export function AppSidebar() {
                       {item.children && item.children.length > 0 && (
                         <SidebarMenuAction
                           type="button"
-                          aria-label={t("nav.toggleSubmodules", { module: label })}
-                          aria-expanded={isExpanded}
-                          onClick={() => setExpanded((current) => {
-                            const next = new Set(current);
-                            if (next.has(item.feature)) next.delete(item.feature);
-                            else next.add(item.feature);
-                            return next;
+                          aria-label={t("nav.toggleSubmodules", {
+                            module: label,
                           })}
+                          aria-expanded={isExpanded}
+                          onClick={() =>
+                            setExpanded((current) => ({
+                              ...current,
+                              [item.feature]: !isExpanded,
+                            }))
+                          }
                         >
-                          <ChevronDown className={isExpanded ? "rotate-180 transition-transform" : "transition-transform"} />
+                          <ChevronDown
+                            className={
+                              isExpanded
+                                ? "rotate-180 transition-transform"
+                                : "transition-transform"
+                            }
+                          />
                         </SidebarMenuAction>
                       )}
                       {item.children && isExpanded && (
-                        <SidebarMenuSub>
+                        <SidebarMenuSub className="my-1 gap-0.5">
                           {item.children.map((child) => {
-                            const childActive = isActivePath(child.href, pathname, true);
+                            const childActive = isActivePath(
+                              child.href,
+                              pathname,
+                              true,
+                            );
                             return (
                               <SidebarMenuSubItem key={child.key}>
-                                <SidebarMenuSubButton asChild isActive={childActive}>
+                                <SidebarMenuSubButton
+                                  asChild
+                                  isActive={childActive}
+                                  className="h-8 rounded-lg px-3"
+                                >
                                   <Link
                                     href={child.href}
                                     onClick={closeOnMobile}
-                                    aria-current={childActive ? "page" : undefined}
+                                    aria-current={
+                                      childActive ? "page" : undefined
+                                    }
                                   >
-                                    <span className="tabular-nums text-[10px] text-muted-foreground">{child.key}</span>
                                     <span>{t(child.labelKey)}</span>
                                   </Link>
                                 </SidebarMenuSubButton>
@@ -161,12 +177,11 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border/80">
         <div className="flex items-center justify-between gap-1 group-data-[collapsible=icon]:flex-col">
           <UserMenu />
           <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
             <OfflineStatus />
-            <NotificationButton />
             <LanguageSwitcher />
           </div>
         </div>

@@ -1,5 +1,5 @@
-import { CloudServiceManagementWorkspace } from "@/components/cloud-services/cloud-service-management-workspace";
+import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
 
 export default function CloudServicesPage() {
-  return <CloudServiceManagementWorkspace />;
+  return <AdminModuleLanding feature="cloud_service_management" />;
 }

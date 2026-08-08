@@ -8,6 +8,7 @@ import { useState } from "react";
 
 import { AuditLogs } from "@/components/audit/audit-logs";
 import { useAuth } from "@/components/providers/auth-provider";
+import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -63,15 +64,15 @@ function Overview() {
   const summary = useQuery({ queryKey: ["partner-summary"], queryFn: getPartnerSummary });
   return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={t("title")} subtitle={t("subtitle")} />
     <div className="grid border-y bg-card sm:grid-cols-2 xl:grid-cols-4">{[["partners", summary.data?.total_partners ?? 0], ["customers", summary.data?.total_customers_referred ?? 0], ["active", summary.data?.by_status?.ACTIVE ?? 0], ["paid", `RM ${summary.data?.total_commission_paid ?? "0.00"}`]].map(([key, value]) => <div key={key} className="border-b border-r px-5 py-4"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p></div>)}</div>
-    <div className="min-h-0 flex-1 overflow-auto border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((item) => <Link key={item.section} href={`/partners/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="w-14 text-xs font-semibold text-muted-foreground">{item.number}</span><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>
+    <div className="min-h-0 flex-1 overflow-auto border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((item) => <Link key={item.section} href={`/partners/${item.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 hover:bg-muted/40"><span className="flex-1 font-medium">{t(`section.${item.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>
   </div>;
 }
 
 function Panel({ loading, error, children }: { loading: boolean; error: boolean; children: React.ReactNode }) {
   const t = useTranslations("adminPartnerManagement");
-  if (loading) return <div className="flex flex-1 items-center justify-center border-y"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
-  if (error) return <div className="border-y p-5 text-destructive">{t("loadError")}</div>;
-  return <div className="min-h-0 flex-1 overflow-auto border-y bg-card">{children}</div>;
+  if (loading) return <div className="flex min-h-48 flex-1 items-center justify-center rounded-lg border bg-card shadow-sm"><Loader2 className="mr-2 animate-spin" />{t("loading")}</div>;
+  if (error) return <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-5 text-destructive">{t("loadError")}</div>;
+  return <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">{children}</div>;
 }
 
 function PartnerPanel({ detailed }: { detailed: boolean }) {
@@ -144,9 +145,29 @@ function AgreementPanel() {
 }
 
 function AgreementDialog({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
-  const t = useTranslations("adminPartnerManagement"); const partners = useQuery({ queryKey: ["partners", "options"], queryFn: () => getPartners({ page_size: 200, status: "ACTIVE" }) }); const [document, setDocument] = useState<File | null>(null); const [config, setConfig] = useState("{}"); const [form, setForm] = useState({ partner_id: "", title: "", description: "", terms: "", effective_from: "", effective_to: "", commission_basis: "FIXED_PER_CUSTOMER", commission_rate: "0", minimum_payout: "", payout_cycle: "MONTHLY" }); const set = (key: string, value: string) => setForm((x) => ({ ...x, [key]: value }));
-  const save = useMutation({ mutationFn: () => createAgreement({ ...form, calculation_config: JSON.parse(config || "{}") as Record<string, unknown>, document }), onSuccess: () => { onSaved(); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-3xl"><DialogHeader><DialogTitle>{t("action.addAgreement")}</DialogTitle><DialogDescription>{t("dialog.agreement")}</DialogDescription></DialogHeader><div className="grid max-h-[65dvh] gap-3 overflow-auto sm:grid-cols-2"><select className="h-8 rounded-md border bg-background px-2 sm:col-span-2" value={form.partner_id} onChange={(e) => set("partner_id", e.target.value)}><option value="">{t("field.selectPartner")}</option>{(partners.data?.results ?? []).map((x) => <option key={x.id} value={x.id}>{x.code} / {x.name}</option>)}</select><Input placeholder={t("field.title")} value={form.title} onChange={(e) => set("title", e.target.value)} /><Input type="file" accept=".pdf,.doc,.docx" onChange={(e) => setDocument(e.target.files?.[0] ?? null)} /><Textarea placeholder={t("field.description")} value={form.description} onChange={(e) => set("description", e.target.value)} /><Textarea placeholder={t("field.terms")} value={form.terms} onChange={(e) => set("terms", e.target.value)} /><Input type="date" value={form.effective_from} onChange={(e) => set("effective_from", e.target.value)} /><Input type="date" value={form.effective_to} onChange={(e) => set("effective_to", e.target.value)} /><select className="h-8 rounded-md border bg-background px-2" value={form.commission_basis} onChange={(e) => set("commission_basis", e.target.value)}>{["FIXED_PER_CUSTOMER", "PERCENT_OF_SAAS", "PERCENT_OF_TOTAL", "TIERED", "CUSTOM"].map((x) => <option key={x} value={x}>{t(`commissionBasis.${x}`)}</option>)}</select><Input type="number" step="0.01" placeholder={t("field.rate")} value={form.commission_rate} onChange={(e) => set("commission_rate", e.target.value)} /><Input type="number" step="0.01" placeholder={t("field.minimumPayout")} value={form.minimum_payout} onChange={(e) => set("minimum_payout", e.target.value)} /><select className="h-8 rounded-md border bg-background px-2" value={form.payout_cycle} onChange={(e) => set("payout_cycle", e.target.value)}><option value="MONTHLY">{t("cycle.MONTHLY")}</option><option value="QUARTERLY">{t("cycle.QUARTERLY")}</option></select>{(form.commission_basis === "TIERED" || form.commission_basis === "CUSTOM") && <Textarea className="font-mono text-xs sm:col-span-2" placeholder={t("field.calculationConfig")} value={config} onChange={(e) => setConfig(e.target.value)} />}</div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!form.partner_id || !form.title || !form.description || !form.terms || !form.effective_from || !document || save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+  const t = useTranslations("adminPartnerManagement");
+  const technical = useTranslations("adminTechnicalSupport");
+  const partners = useQuery({ queryKey: ["partners", "options"], queryFn: () => getPartners({ page_size: 200, status: "ACTIVE" }) });
+  const [document, setDocument] = useState<File | null>(null);
+  const [config, setConfig] = useState("{}");
+  const [jsonError, setJsonError] = useState("");
+  const [form, setForm] = useState({ partner_id: "", title: "", description: "", terms: "", effective_from: "", effective_to: "", commission_basis: "FIXED_PER_CUSTOMER", commission_rate: "0", minimum_payout: "", payout_cycle: "MONTHLY" });
+  const set = (key: string, value: string) => setForm((x) => ({ ...x, [key]: value }));
+  const save = useMutation({
+    mutationFn: () => {
+      let calculation_config: Record<string, unknown>;
+      try {
+        calculation_config = JSON.parse(config || "{}") as Record<string, unknown>;
+        setJsonError("");
+      } catch {
+        setJsonError(technical("field.invalidJson"));
+        throw new Error("invalid_json");
+      }
+      return createAgreement({ ...form, calculation_config, document });
+    },
+    onSuccess: () => { onSaved(); onClose(); },
+  });
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-3xl"><DialogHeader><DialogTitle>{t("action.addAgreement")}</DialogTitle><DialogDescription>{t("dialog.agreement")}</DialogDescription></DialogHeader><div className="grid max-h-[65dvh] gap-3 overflow-auto sm:grid-cols-2"><select className="h-8 rounded-md border bg-background px-2 sm:col-span-2" value={form.partner_id} onChange={(e) => set("partner_id", e.target.value)}><option value="">{t("field.selectPartner")}</option>{(partners.data?.results ?? []).map((x) => <option key={x.id} value={x.id}>{x.code} / {x.name}</option>)}</select><Input placeholder={t("field.title")} value={form.title} onChange={(e) => set("title", e.target.value)} /><Input type="file" accept=".pdf,.doc,.docx" onChange={(e) => setDocument(e.target.files?.[0] ?? null)} /><Textarea placeholder={t("field.description")} value={form.description} onChange={(e) => set("description", e.target.value)} /><Textarea placeholder={t("field.terms")} value={form.terms} onChange={(e) => set("terms", e.target.value)} /><Input type="date" value={form.effective_from} onChange={(e) => set("effective_from", e.target.value)} /><Input type="date" value={form.effective_to} onChange={(e) => set("effective_to", e.target.value)} /><select className="h-8 rounded-md border bg-background px-2" value={form.commission_basis} onChange={(e) => set("commission_basis", e.target.value)}>{["FIXED_PER_CUSTOMER", "PERCENT_OF_SAAS", "PERCENT_OF_TOTAL", "TIERED", "CUSTOM"].map((x) => <option key={x} value={x}>{t(`commissionBasis.${x}`)}</option>)}</select><Input type="number" step="0.01" placeholder={t("field.rate")} value={form.commission_rate} onChange={(e) => set("commission_rate", e.target.value)} /><Input type="number" step="0.01" placeholder={t("field.minimumPayout")} value={form.minimum_payout} onChange={(e) => set("minimum_payout", e.target.value)} /><select className="h-8 rounded-md border bg-background px-2" value={form.payout_cycle} onChange={(e) => set("payout_cycle", e.target.value)}><option value="MONTHLY">{t("cycle.MONTHLY")}</option><option value="QUARTERLY">{t("cycle.QUARTERLY")}</option></select>{(form.commission_basis === "TIERED" || form.commission_basis === "CUSTOM") && <AdvancedTechnicalSettings><Textarea className="font-mono text-xs sm:col-span-2" placeholder={t("field.calculationConfig")} value={config} onChange={(e) => { setConfig(e.target.value); setJsonError(""); }} />{jsonError && <p className="text-xs text-destructive sm:col-span-2">{jsonError}</p>}</AdvancedTechnicalSettings>}</div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!form.partner_id || !form.title || !form.description || !form.terms || !form.effective_from || !document || save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function AgreementActionDialog({ row, action, onClose, onSaved }: { row: PartnerAgreement; action: "activate" | "renew" | "terminate"; onClose: () => void; onSaved: () => void }) {

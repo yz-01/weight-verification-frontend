@@ -2,7 +2,16 @@ export type OfflineJobKind =
   | "ATTENDANCE"
   | "TASK_TRANSITION"
   | "TASK_PHOTO"
-  | "TASK_POSITION";
+  | "TASK_POSITION"
+  | "FIELD_TASK_TRANSITION"
+  | "FIELD_TASK_PHOTO"
+  | "MATERIAL_RECEIPT"
+  | "EQUIPMENT_MOVEMENT"
+  | "SITE_PROGRESS"
+  | "MATERIAL_OUTGOING"
+  | "DISPOSAL_REQUEST"
+  | "SAFETY_INCIDENT"
+  | "CONSULTANT_SUBMISSION";
 
 export interface StoredFile {
   blob: Blob;
@@ -73,11 +82,177 @@ export interface TaskPositionOfflineJob extends OfflineJobBase {
   };
 }
 
+export interface FieldTaskTransitionOfflineJob extends OfflineJobBase {
+  kind: "FIELD_TASK_TRANSITION";
+  payload: {
+    taskId: string;
+    status: "IN_PROGRESS" | "SUBMITTED";
+    note: string;
+    clientEventId: string;
+  };
+}
+
+export interface FieldTaskPhotoOfflineJob extends OfflineJobBase {
+  kind: "FIELD_TASK_PHOTO";
+  payload: {
+    taskId: string;
+    caption: string;
+    capturedAt: string;
+    latitude?: string;
+    longitude?: string;
+    accuracyM?: string;
+    deviceId?: string;
+    clientEventId: string;
+    file: StoredFile;
+  };
+}
+
+export interface MaterialReceiptOfflineJob extends OfflineJobBase {
+  kind: "MATERIAL_RECEIPT";
+  payload: {
+    receipt: {
+      project: string;
+      supplier: string;
+      qr_code?: string | null;
+      movement_type?: "ENTRY" | "RETURN";
+      material_name: string;
+      quantity: string;
+      unit: "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
+      unit_price?: string | null;
+      vehicle_plate?: string;
+      delivery_note_no?: string;
+      notes?: string;
+      received_by_name: string;
+      original_captured_at?: string;
+      client_event_id?: string;
+      latitude?: string | null;
+      longitude?: string | null;
+      location_accuracy_m?: string | null;
+      ocr_proof?: string;
+    };
+    signature: StoredFile;
+    supplierSignature: StoredFile;
+    deliveryNotePhoto?: StoredFile;
+    sitePhotos: StoredFile[];
+    deviceId: string;
+  };
+}
+
+export interface EquipmentMovementOfflineJob extends OfflineJobBase {
+  kind: "EQUIPMENT_MOVEMENT";
+  payload: {
+    project: string;
+    equipment: string;
+    direction: "ENTRY" | "EXIT";
+    delivery_note_no?: string;
+    vehicle_plate?: string;
+    operator_name: string;
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
+    notes?: string;
+    original_occurred_at: string;
+    client_event_id: string;
+    photos: StoredFile[];
+  };
+}
+
+export interface SiteProgressOfflineJob extends OfflineJobBase {
+  kind: "SITE_PROGRESS";
+  payload: {
+    project: string;
+    phase: string;
+    percent_complete: string;
+    description?: string;
+    captured_at: string;
+    latitude?: string;
+    longitude?: string;
+    client_event_id: string;
+    photos: StoredFile[];
+  };
+}
+
+export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
+  kind: "MATERIAL_OUTGOING";
+  payload: {
+    project: string;
+    material_name: string;
+    quantity: string;
+    unit: string;
+    destination: string;
+    executor_name: string;
+    vehicle_plate?: string;
+    delivery_note_no?: string;
+    reason: string;
+    latitude?: string;
+    longitude?: string;
+    client_event_id: string;
+  };
+}
+
+export interface DisposalRequestOfflineJob extends OfflineJobBase {
+  kind: "DISPOSAL_REQUEST";
+  payload: {
+    project: string;
+    waste_description: string;
+    location_description: string;
+    estimated_volume_m3?: string;
+    estimated_weight_kg?: string;
+    preferred_at?: string;
+    request_note?: string;
+    captured_at: string;
+    latitude: string;
+    longitude: string;
+    accuracy_m: string;
+    client_event_id: string;
+    photos: StoredFile[];
+  };
+}
+
+export interface SafetyIncidentOfflineJob extends OfflineJobBase {
+  kind: "SAFETY_INCIDENT";
+  payload: {
+    project: string;
+    title: string;
+    description: string;
+    severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+    occurred_at?: string;
+    client_event_id: string;
+    latitude?: string;
+    longitude?: string;
+    photo?: StoredFile;
+  };
+}
+
+export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
+  kind: "CONSULTANT_SUBMISSION";
+  payload: {
+    project: string;
+    note?: string;
+    captured_at: string;
+    latitude: string;
+    longitude: string;
+    accuracy_m?: string;
+    device_id?: string;
+    client_event_id: string;
+    photos: StoredFile[];
+  };
+}
+
 export type OfflineJob =
   | AttendanceOfflineJob
   | TaskTransitionOfflineJob
   | TaskPhotoOfflineJob
-  | TaskPositionOfflineJob;
+  | TaskPositionOfflineJob
+  | FieldTaskTransitionOfflineJob
+  | FieldTaskPhotoOfflineJob
+  | MaterialReceiptOfflineJob
+  | EquipmentMovementOfflineJob
+  | SiteProgressOfflineJob
+  | MaterialOutgoingOfflineJob
+  | DisposalRequestOfflineJob
+  | SafetyIncidentOfflineJob
+  | ConsultantSubmissionOfflineJob;
 
 const DB_NAME = "mse-trace-offline";
 const STORE_NAME = "jobs";

@@ -1,5 +1,5 @@
-import { SystemSettingsWorkspace } from "@/components/platform-settings/system-settings-workspace";
+import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
 
 export default function SystemSettingsPage() {
-  return <SystemSettingsWorkspace />;
+  return <AdminModuleLanding feature="platform_settings" />;
 }

@@ -2,9 +2,13 @@
 
 import { useEffect } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
+import { syncPushSubscription } from "@/services/push-notification.service";
+
 export const OFFLINE_SYNC_REQUESTED = "mse:offline-sync-requested";
 
 export function ServiceWorkerRegistration() {
+  const { user } = useAuth();
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
@@ -37,12 +41,15 @@ export function ServiceWorkerRegistration() {
     navigator.serviceWorker.addEventListener("message", onMessage);
     void navigator.serviceWorker
       .register("/sw.js", { scope: "/", updateViaCache: "none" })
-      .then((registration) => registration.update())
+      .then(async (registration) => {
+        await registration.update();
+        if (user) await syncPushSubscription();
+      })
       .catch(() => undefined);
 
     return () =>
       navigator.serviceWorker.removeEventListener("message", onMessage);
-  }, []);
+  }, [user]);
 
   return null;
 }

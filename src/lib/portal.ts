@@ -32,6 +32,20 @@ export function portalLoginPath(portal: Portal | null | undefined): string {
   return portal ? PORTAL_PATHS[portal].login : "/login";
 }
 
+/** Accept only a same-origin application path for post-login navigation. */
+export function safeReturnPath(value: string | string[] | undefined): string | undefined {
+  const path = Array.isArray(value) ? value[0] : value;
+  if (!path || !path.startsWith("/") || path.startsWith("//") || path.includes("\\")) {
+    return undefined;
+  }
+  return path;
+}
+
+export function withReturnPath(path: string, next?: string): string {
+  const safe = safeReturnPath(next);
+  return safe ? `${path}?next=${encodeURIComponent(safe)}` : path;
+}
+
 /**
  * Client-side guards normally use the App Router, but a deep link can be
  * opened before the router has finished booting. Keep a hard-navigation

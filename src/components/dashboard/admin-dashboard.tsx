@@ -11,8 +11,10 @@ import {
   MapPinned,
   Receipt,
   Recycle,
+  RotateCcw,
   Search,
   Settings,
+  SlidersHorizontal,
   FileText,
   Users,
   Weight,
@@ -36,6 +38,7 @@ import {
   type LocationMapMarker,
 } from "@/components/shared/location-map";
 import { StatusBadge } from "@/components/shared/page-primitives";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type {
@@ -260,128 +263,227 @@ export function AdminDashboard({
     },
   ];
   const trendRows = combineTrends(data);
-  const contractorOptions = uniqueSorted(
-    data.map.markers
-      .filter((marker) => marker.kind === "PROJECT")
-      .map((marker) => marker.company_name),
-  );
-  const recyclerOptions = uniqueSorted(
-    data.map.markers.flatMap((marker) =>
-      marker.kind === "RECYCLER"
-        ? [marker.company_name]
-        : (marker.recycler_names ?? []),
-    ),
-  );
   const projectStatusOptions = uniqueSorted(
     data.map.markers
       .filter((marker) => marker.kind === "PROJECT")
       .map((marker) => marker.status),
   );
+  const contractorOptions = uniqueCompanies(
+    data.map.markers.filter((marker) => marker.company_type === "CONTRACTOR"),
+  );
+  const recyclerOptions = uniqueCompanies(
+    data.map.markers.filter((marker) => marker.company_type === "RECYCLER"),
+  );
+  const markerCounts = countMarkerKinds(markers);
+  const coverage = data.map.coverage;
+  const missingLocations = coverage
+    ? Object.values(coverage).reduce((total, item) => total + item.missing, 0)
+    : 0;
+  const hasMapFilters =
+    [state, kind, contractor, recycler, projectStatus].some(
+      (value) => value !== "ALL",
+    ) || Boolean(search.trim());
+  const resetMapFilters = () => {
+    setSearch("");
+    setState("ALL");
+    setKind("ALL");
+    setContractor("ALL");
+    setRecycler("ALL");
+    setProjectStatus("ALL");
+  };
 
   return (
     <div className="space-y-8">
+      {section === undefined && (
+        <header className="flex flex-col gap-3 border-b pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase text-primary">
+              MSE Trace
+            </p>
+            <h1 className="mt-1 text-2xl font-semibold">{t("title")}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("subtitle")}
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t("updatedAt", { value: df.dateTime(data.generated_at) })}
+          </p>
+        </header>
+      )}
       {show("map") && (
-        <section className="space-y-3" aria-labelledby="admin-map-title">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h2 id="admin-map-title" className="text-base font-semibold">
-                {t("map.title")}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {t("updatedAt", { value: df.dateTime(data.generated_at) })}
-              </p>
+        <section
+          className="overflow-hidden rounded-lg border bg-card shadow-sm"
+          aria-labelledby="admin-map-title"
+        >
+          <div className="flex flex-col gap-4 border-b px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="grid size-10 place-items-center rounded-md bg-primary/10 text-primary">
+                <MapPinned className="size-5" />
+              </span>
+              <div>
+                <h2 id="admin-map-title" className="text-base font-semibold">
+                  {t("map.title")}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {t("map.subtitle")}
+                </p>
+              </div>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-[minmax(14rem,1fr)_9rem_11rem_11rem_11rem_10rem]">
-              <label className="relative">
-                <span className="sr-only">{t("map.search")}</span>
-                <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder={t("map.search")}
-                  className="pl-9"
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+              <MapLegend
+                icon={MapPinned}
+                label={t("map.kindValue.PROJECT")}
+                value={markerCounts.PROJECT}
+                tone="primary"
+              />
+              <MapLegend
+                icon={Recycle}
+                label={t("map.kindValue.RECYCLER")}
+                value={markerCounts.RECYCLER}
+                tone="positive"
+              />
+              <MapLegend
+                icon={Weight}
+                label={t("map.kindValue.SCALE")}
+                value={markerCounts.SCALE}
+                tone="warning"
+              />
+              <MapLegend
+                icon={Building2}
+                label={t("map.kindValue.HEADQUARTERS")}
+                value={markerCounts.HEADQUARTERS}
+                tone="neutral"
+              />
+            </div>
+          </div>
+          <div className="border-b bg-muted/20 px-4 py-3">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                <SlidersHorizontal className="size-3.5" />
+                {t("map.filters")}
+              </p>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={!hasMapFilters}
+                onClick={resetMapFilters}
+              >
+                <RotateCcw />
+                {t("map.reset")}
+              </Button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+              <MapFilter label={t("map.search")}>
+                <div className="relative">
+                  <Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground" />
+                  <Input
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder={t("map.searchPlaceholder")}
+                    className="bg-background pl-9"
+                  />
+                </div>
+              </MapFilter>
+              <MapFilter label={t("map.state")}>
+                <MapSelect
+                  value={state}
+                  onChange={setState}
+                  label={t("map.state")}
+                  options={data.map.states.map((item) => ({
+                    value: item,
+                    label: item,
+                  }))}
+                  allLabel={t("map.allStates")}
                 />
-              </label>
-              <select
-                value={state}
-                onChange={(event) => setState(event.target.value)}
-                className="h-9 rounded-md border bg-background px-3 text-sm"
-                aria-label={t("map.state")}
-              >
-                <option value="ALL">{t("map.allStates")}</option>
-                {data.map.states.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={contractor}
-                onChange={(event) => setContractor(event.target.value)}
-                className="h-9 rounded-md border bg-background px-3 text-sm"
-                aria-label={t("map.contractor")}
-              >
-                <option value="ALL">{t("map.allContractors")}</option>
-                {contractorOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={recycler}
-                onChange={(event) => setRecycler(event.target.value)}
-                className="h-9 rounded-md border bg-background px-3 text-sm"
-                aria-label={t("map.recycler")}
-              >
-                <option value="ALL">{t("map.allRecyclers")}</option>
-                {recyclerOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={projectStatus}
-                onChange={(event) => setProjectStatus(event.target.value)}
-                className="h-9 rounded-md border bg-background px-3 text-sm"
-                aria-label={t("map.projectStatus")}
-              >
-                <option value="ALL">{t("map.allStatuses")}</option>
-                {projectStatusOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {t(`map.statusValue.${item}`)}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={kind}
-                onChange={(event) => setKind(event.target.value)}
-                className="h-9 rounded-md border bg-background px-3 text-sm"
-                aria-label={t("map.kind")}
-              >
-                <option value="ALL">{t("map.allKinds")}</option>
-                {(
-                  ["PROJECT", "RECYCLER", "SCALE", "HEADQUARTERS"] as const
-                ).map((item) => (
-                  <option key={item} value={item}>
-                    {t(`map.kindValue.${item}`)}
-                  </option>
-                ))}
-              </select>
+              </MapFilter>
+              <MapFilter label={t("map.contractor")}>
+                <MapSelect
+                  value={contractor}
+                  onChange={(value) => {
+                    setContractor(value);
+                    if (value !== "ALL") setRecycler("ALL");
+                  }}
+                  label={t("map.contractor")}
+                  options={contractorOptions}
+                  allLabel={t("map.allContractors")}
+                />
+              </MapFilter>
+              <MapFilter label={t("map.recycler")}>
+                <MapSelect
+                  value={recycler}
+                  onChange={(value) => {
+                    setRecycler(value);
+                    if (value !== "ALL") setContractor("ALL");
+                  }}
+                  label={t("map.recycler")}
+                  options={recyclerOptions}
+                  allLabel={t("map.allRecyclers")}
+                />
+              </MapFilter>
+              <MapFilter label={t("map.projectStatus")}>
+                <MapSelect
+                  value={projectStatus}
+                  onChange={setProjectStatus}
+                  label={t("map.projectStatus")}
+                  options={projectStatusOptions.map((item) => ({
+                    value: item,
+                    label: t(`map.statusValue.${item}`),
+                  }))}
+                  allLabel={t("map.allStatuses")}
+                />
+              </MapFilter>
+              <MapFilter label={t("map.kind")}>
+                <MapSelect
+                  value={kind}
+                  onChange={setKind}
+                  label={t("map.kind")}
+                  options={(
+                    ["PROJECT", "RECYCLER", "SCALE", "HEADQUARTERS"] as const
+                  ).map((item) => ({
+                    value: item,
+                    label: t(`map.kindValue.${item}`),
+                  }))}
+                  allLabel={t("map.allKinds")}
+                />
+              </MapFilter>
             </div>
           </div>
           <LocationMap
             center={[4.2105, 101.9758]}
             markers={mapMarkers}
-            className="min-h-[28rem]"
+            className="min-h-[30rem] border-0"
           />
-          <p className="text-xs text-muted-foreground">
-            {t("map.visible", {
-              visible: markers.length,
-              total: data.map.markers.length,
-            })}
-          </p>
+          <div className="flex flex-col gap-2 border-t px-4 py-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              {t("map.visible", {
+                visible: markers.length,
+                total: data.map.markers.length,
+              })}
+            </p>
+            {markers.length === 0 && (
+              <p className="font-medium text-warning">{t("map.noMatches")}</p>
+            )}
+          </div>
+          {missingLocations > 0 && coverage && (
+            <div className="border-t border-warning/25 bg-warning/10 px-4 py-3 text-xs text-foreground">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+                <div>
+                  <p className="font-semibold">
+                    {t("map.missingTitle", { count: missingLocations })}
+                  </p>
+                  <p className="mt-1 text-muted-foreground">
+                    {t("map.missingDescription", {
+                      projects: coverage.PROJECT.missing,
+                      recyclers: coverage.RECYCLER.missing,
+                      scales: coverage.SCALE.missing,
+                      headquarters: coverage.HEADQUARTERS.missing,
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
@@ -434,7 +536,7 @@ export function AdminDashboard({
                 >
                   {t("trends.operatingTitle")}
                 </h2>
-                <div className="h-80 border-y py-4">
+                <div className="h-80 rounded-lg border bg-card p-4 shadow-sm">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={trendRows}
@@ -496,7 +598,7 @@ export function AdminDashboard({
                 >
                   {t("trends.revenueTitle")}
                 </h2>
-                <div className="h-72 border-y py-4">
+                <div className="h-72 rounded-lg border bg-card p-4 shadow-sm">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={trendRows}
@@ -542,7 +644,7 @@ export function AdminDashboard({
               <h2 id="admin-pending-title" className="text-base font-semibold">
                 {t("pending.title")}
               </h2>
-              <div className="divide-y border-y">
+              <div className="divide-y rounded-lg border bg-card px-4 shadow-sm">
                 <PendingLink
                   href="/companies?type=CONTRACTOR&review_status=PENDING"
                   label={t("pending.contractorReviews")}
@@ -636,7 +738,7 @@ export function AdminDashboard({
                   {t("notifications.viewAll")}
                 </Link>
               </div>
-              <div className="divide-y border-y">
+              <div className="divide-y rounded-lg border bg-card px-4 shadow-sm">
                 {data.notifications.length === 0 ? (
                   <p className="py-8 text-center text-sm text-muted-foreground">
                     {t("notifications.empty")}
@@ -693,7 +795,7 @@ export function AdminDashboard({
                 <Link
                   key={action.key}
                   href={action.href}
-                  className="flex min-h-16 items-center gap-3 border-y px-1 py-3 text-sm font-medium hover:text-primary"
+                  className="flex min-h-16 items-center gap-3 rounded-lg border bg-card px-4 py-3 text-sm font-medium shadow-sm transition hover:border-primary/30 hover:text-primary hover:shadow-md"
                 >
                   <Icon className="h-4 w-4 text-muted-foreground" />
                   {t(`quickActions.${action.key}`)}
@@ -784,15 +886,17 @@ function MetricSection({
             <Link
               key={metric.key}
               href={metric.href}
-              className="min-h-28 rounded-lg border bg-card p-4 transition-colors hover:border-foreground/30"
+              className="min-h-28 rounded-lg border bg-card p-4 shadow-sm transition hover:border-primary/30 hover:shadow-md"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-medium text-muted-foreground">
                   {t(`metric.${metric.key}`)}
                 </p>
-                <Icon
-                  className={`h-4 w-4 ${metric.tone === "danger" ? "text-destructive" : metric.tone === "warning" ? "text-warning" : "text-muted-foreground"}`}
-                />
+                <span
+                  className={`grid size-8 place-items-center rounded-md ${metric.tone === "danger" ? "bg-destructive/10 text-destructive" : metric.tone === "warning" ? "bg-warning/15 text-warning" : "bg-primary/10 text-primary"}`}
+                >
+                  <Icon className="h-4 w-4" />
+                </span>
               </div>
               <p className="mt-4 text-2xl font-semibold tabular-nums">
                 {formatMetric(metric.value, metric.format, format, t)}
@@ -847,19 +951,15 @@ function filterMarkers(
         return false;
     }
     if (filters.contractor !== "ALL") {
-      if (
-        marker.company_type !== "CONTRACTOR" ||
-        marker.company_name !== filters.contractor
-      )
-        return false;
+      if (marker.company_id !== filters.contractor) return false;
     }
     if (filters.recycler !== "ALL") {
       const isRecyclerLocation =
         marker.company_type === "RECYCLER" &&
-        marker.company_name === filters.recycler;
+        marker.company_id === filters.recycler;
       const isServedProject =
         marker.kind === "PROJECT" &&
-        marker.recycler_names?.includes(filters.recycler);
+        marker.recycler_ids?.includes(filters.recycler);
       if (!isRecyclerLocation && !isServedProject) return false;
     }
     if (!needle) return true;
@@ -935,6 +1035,103 @@ function combineTrends(data: AdminDashboardData) {
 function uniqueSorted(values: string[]) {
   return [...new Set(values.filter(Boolean))].sort((left, right) =>
     left.localeCompare(right),
+  );
+}
+
+function uniqueCompanies(markers: AdminDashboardMarker[]) {
+  const companies = new Map<string, string>();
+  markers.forEach((marker) =>
+    companies.set(marker.company_id, marker.company_name),
+  );
+  return [...companies.entries()]
+    .map(([value, label]) => ({ value, label }))
+    .sort((left, right) => left.label.localeCompare(right.label));
+}
+
+function countMarkerKinds(markers: AdminDashboardMarker[]) {
+  const counts = { PROJECT: 0, RECYCLER: 0, SCALE: 0, HEADQUARTERS: 0 };
+  markers.forEach((marker) => {
+    counts[marker.kind] += 1;
+  });
+  return counts;
+}
+
+function MapFilter({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="min-w-0 space-y-1">
+      <span className="block text-[11px] font-medium text-muted-foreground">
+        {label}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+function MapSelect({
+  value,
+  onChange,
+  label,
+  allLabel,
+  options,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+  allLabel: string;
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+      aria-label={label}
+    >
+      <option value="ALL">{allLabel}</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function MapLegend({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: typeof Building2;
+  label: string;
+  value: number;
+  tone: "primary" | "positive" | "warning" | "neutral";
+}) {
+  const toneClass =
+    tone === "positive"
+      ? "bg-success/10 text-success"
+      : tone === "warning"
+        ? "bg-warning/15 text-warning"
+        : tone === "primary"
+          ? "bg-primary/10 text-primary"
+          : "bg-muted text-muted-foreground";
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span
+        className={`grid size-7 place-items-center rounded-full ${toneClass}`}
+      >
+        <Icon className="size-3.5" />
+      </span>
+      <span>{label}</span>
+      <strong className="tabular-nums text-foreground">{value}</strong>
+    </span>
   );
 }
 

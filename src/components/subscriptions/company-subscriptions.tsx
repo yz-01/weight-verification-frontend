@@ -65,7 +65,18 @@ const TONES: Record<SubscriptionState, "positive" | "warning" | "danger" | "neut
   PAUSED: "info",
 };
 
-export function CompanySubscriptions() {
+export type CompanySubscriptionsMode =
+  | "companies"
+  | "status"
+  | "package-changes"
+  | "account-limits"
+  | "search";
+
+export function CompanySubscriptions({
+  mode = "companies",
+}: {
+  mode?: CompanySubscriptionsMode;
+}) {
   const t = useTranslations("subscriptions");
   const common = useTranslations("common");
   const df = useDateFormat();
@@ -144,35 +155,57 @@ export function CompanySubscriptions() {
       },
     ];
     if (can("subscription.manage")) {
+      const canChangePlan = mode === "companies" || mode === "package-changes" || mode === "search";
+      const canChangeSeats = mode === "companies" || mode === "account-limits" || mode === "search";
+      const canChangeStatus = mode === "companies" || mode === "status" || mode === "search";
       result.push({
         id: "actions",
         enableHiding: false,
         header: () => <span className="sr-only">{common("actions")}</span>,
-        cell: ({ row }) => (
-          <DropdownMenu>
+        cell: ({ row }) => {
+          const rowCanPlan = canChangePlan;
+          const rowCanSeats = canChangeSeats && Boolean(row.original.plan);
+          const rowCanStatus = canChangeStatus
+            && row.original.subscription_state !== "EXPIRED"
+            && row.original.subscription_state !== "NOT_STARTED";
+          if (!rowCanPlan && !rowCanSeats && !rowCanStatus) return null;
+          return <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" title={common("actions")}><EllipsisVertical className="h-4 w-4" /></Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem onSelect={() => openAction(row.original, "plan")}><SquarePen className="h-4 w-4" />{t("action.plan.menu")}</DropdownMenuItem>
-              {row.original.plan && <DropdownMenuItem onSelect={() => openAction(row.original, "extend")}><CalendarPlus className="h-4 w-4" />{t("action.extend.menu")}</DropdownMenuItem>}
-              {row.original.plan && <DropdownMenuItem onSelect={() => openAction(row.original, "seats")}><UserRoundCog className="h-4 w-4" />{t("action.seats.menu")}</DropdownMenuItem>}
-              <DropdownMenuSeparator />
-              {row.original.subscription_state === "PAUSED" ? (
+              {rowCanPlan && <DropdownMenuItem onSelect={() => openAction(row.original, "plan")}><SquarePen className="h-4 w-4" />{t("action.plan.menu")}</DropdownMenuItem>}
+              {rowCanPlan && row.original.plan && <DropdownMenuItem onSelect={() => openAction(row.original, "extend")}><CalendarPlus className="h-4 w-4" />{t("action.extend.menu")}</DropdownMenuItem>}
+              {rowCanSeats && <DropdownMenuItem onSelect={() => openAction(row.original, "seats")}><UserRoundCog className="h-4 w-4" />{t("action.seats.menu")}</DropdownMenuItem>}
+              {rowCanStatus && (rowCanPlan || rowCanSeats) && <DropdownMenuSeparator />}
+              {rowCanStatus && row.original.subscription_state === "PAUSED" ? (
                 <DropdownMenuItem onSelect={() => openAction(row.original, "resume")}><CirclePlay className="h-4 w-4" />{t("action.resume.menu")}</DropdownMenuItem>
-              ) : row.original.subscription_state !== "EXPIRED" && row.original.subscription_state !== "NOT_STARTED" ? (
+              ) : rowCanStatus ? (
                 <DropdownMenuItem onSelect={() => openAction(row.original, "pause")}><CirclePause className="h-4 w-4" />{t("action.pause.menu")}</DropdownMenuItem>
               ) : null}
-              {row.original.subscription_state !== "EXPIRED" && row.original.subscription_state !== "NOT_STARTED" && (
+              {rowCanStatus && (
                 <DropdownMenuItem className="text-destructive" onSelect={() => openAction(row.original, "terminate")}><CirclePause className="h-4 w-4" />{t("action.terminate.menu")}</DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-        ),
+        },
       });
     }
-    return result;
-  }, [can, common, df, t]);
+    const columnsByMode: Record<CompanySubscriptionsMode, string[]> = {
+      companies: ["company_code", "company_name", "company_type", "plan_name", "subscription_state", "subscription_started_on", "subscription_expires_on", "seats", "actions"],
+      status: ["company_code", "company_name", "subscription_state", "subscription_started_on", "subscription_expires_on", "actions"],
+      "package-changes": ["company_code", "company_name", "plan_name", "subscription_started_on", "subscription_expires_on", "actions"],
+      "account-limits": ["company_code", "company_name", "company_type", "seats", "actions"],
+      search: ["company_code", "company_name", "company_type", "plan_name", "subscription_state", "subscription_started_on", "subscription_expires_on", "seats", "actions"],
+    };
+    const visible = new Set(columnsByMode[mode]);
+    return result.filter((column) => {
+      const key = "accessorKey" in column
+        ? String(column.accessorKey)
+        : String(column.id ?? "");
+      return visible.has(key);
+    });
+  }, [can, common, df, mode, t]);
 
   const rows = subscriptions.data?.results ?? [];
   const totalCount = subscriptions.data?.count ?? 0;
@@ -214,13 +247,13 @@ export function CompanySubscriptions() {
         search={list.search}
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
-        storageKey="admin-subscriptions"
-        filterPills={[
+        storageKey={`admin-subscriptions-${mode}`}
+        filterPills={mode === "status" || mode === "search" ? [
           { key: "ALL", label: common("all"), active: !list.filters.state, onSelect: () => list.setFilter("state", undefined) },
           ...STATES.map((state) => ({ key: state, label: t(`state.${state}`), active: list.filters.state === state, onSelect: () => list.setFilter("state", state) })),
-        ]}
+        ] : undefined}
         toolbarActions={
-          <>
+          mode === "search" ? <>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="h-9 rounded-full bg-card px-4">
@@ -237,7 +270,7 @@ export function CompanySubscriptions() {
               </PopoverContent>
             </Popover>
             <ExportButton onExport={runExport} disabled={totalCount === 0} />
-          </>
+          </> : undefined
         }
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}

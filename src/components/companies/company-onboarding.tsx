@@ -263,7 +263,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
             <Landmark className="h-4 w-4 text-muted-foreground" />
             <h4 className="text-sm font-semibold">{t("companies.onboarding.bank.title")}</h4>
           </div>
-          {can("company.create") && (
+          {can("company.update") && (
             <Button variant="outline" size="sm" onClick={() => setShowBankForm((value) => !value)}>
               <Building2 className="h-4 w-4" />
               {t("companies.onboarding.bank.add")}

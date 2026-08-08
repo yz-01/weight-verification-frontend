@@ -1,5 +1,5 @@
-import { AdminQRWorkspace } from "@/components/qrcodes/admin-qr-workspace";
+import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
 
 export default function QRCodesPage() {
-  return <AdminQRWorkspace />;
+  return <AdminModuleLanding feature="qr_code_management" />;
 }

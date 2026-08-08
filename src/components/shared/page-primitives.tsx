@@ -1,8 +1,18 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CircleHelp } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -153,15 +163,63 @@ export function ListHeader({
   subtitle: string;
   action?: React.ReactNode;
 }) {
+  const guide = useTranslations("pageGuide");
   return (
-    <div className="flex items-center justify-between gap-4">
-      <div className="min-w-0">
-        <h2 className="truncate text-lg font-semibold text-foreground">
-          {title}
-        </h2>
-        <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
+    <div className="flex min-h-16 flex-wrap items-center justify-between gap-4 border-b pb-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <span
+          className="h-10 w-1 shrink-0 rounded-full bg-primary"
+          aria-hidden="true"
+        />
+        <div className="min-w-0">
+          <h2 className="truncate text-xl font-semibold leading-tight text-foreground">
+            {title}
+          </h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
+        </div>
       </div>
-      {action}
+      <div className="flex shrink-0 items-center gap-2">
+        {action}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              title={guide("action")}
+              aria-label={guide("action")}
+            >
+              <CircleHelp className="size-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{guide("title", { page: title })}</DialogTitle>
+              <DialogDescription>{subtitle}</DialogDescription>
+            </DialogHeader>
+            <ol className="grid gap-3">
+              {(["review", "operate", "verify"] as const).map((step, index) => (
+                <li
+                  key={step}
+                  className="flex gap-3 rounded-lg border bg-muted/20 px-3 py-3"
+                >
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {guide(`${step}.title`)}
+                    </p>
+                    <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                      {guide(`${step}.description`)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

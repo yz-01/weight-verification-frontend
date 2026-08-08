@@ -5,7 +5,7 @@ import { History, LocateFixed, MapPinned, RefreshCw, Route, UserRound } from "lu
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { LocationMap } from "@/components/shared/location-map";
+import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ApiError } from "@/interfaces/api";
 import type { FieldStaffPosition } from "@/interfaces/site-operations";
+import type { SiteGeofence } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { getProjects } from "@/services/contractor.service";
@@ -23,6 +24,7 @@ import {
   recordFieldStaffPosition,
   stopFieldStaffLocationSharing,
 } from "@/services/field-staff-gps.service";
+import { getSiteGeofences, getSiteLocationPolicy } from "@/services/site-access.service";
 
 export function FieldStaffGps() {
   const t = useTranslations();
@@ -63,6 +65,14 @@ export function FieldStaffGps() {
         error instanceof ApiError ? error.message : t("errors.generic"),
       );
     },
+  });
+  const geofences = useQuery({
+    queryKey: ["site-geofences", "gps-map"],
+    queryFn: () => getSiteGeofences({ page_size: 200, is_active: true }),
+  });
+  const locationPolicy = useQuery({
+    queryKey: ["site-location-policy"],
+    queryFn: getSiteLocationPolicy,
   });
   const lastPositions = useQuery({
     queryKey: ["field-staff-gps", "last", historyProjectId],
@@ -141,33 +151,10 @@ export function FieldStaffGps() {
       })),
     [positions, t],
   );
-  const zones = useMemo(() => {
-    if (selectedProject) return [];
-    const byProject = new Map<string, {
-      id: string;
-      center: [number, number];
-      radiusM: number;
-      label: string;
-    }>();
-    positions.forEach((position) => {
-      if (
-        position.project_latitude &&
-        position.project_longitude &&
-        position.project_geofence_radius_m
-      ) {
-        byProject.set(position.project, {
-          id: position.project,
-          center: [
-            Number(position.project_latitude),
-            Number(position.project_longitude),
-          ],
-          radiusM: position.project_geofence_radius_m,
-          label: position.project_name,
-        });
-      }
-    });
-    return Array.from(byProject.values());
-  }, [positions, selectedProject]);
+  const zones = useMemo(
+    () => buildZones(geofences.data?.results ?? [], positions, projectId),
+    [geofences.data?.results, positions, projectId],
+  );
   const selectedHistoryProject = useMemo(
     () => projects.data?.results.find((project) => project.id === historyProjectId),
     [historyProjectId, projects.data?.results],
@@ -211,33 +198,10 @@ export function FieldStaffGps() {
         }]
       : [];
   }, [historyPositions, selectedLastPosition]);
-  const historyZones = useMemo(() => {
-    if (selectedHistoryProject) return [];
-    const byProject = new Map<string, {
-      id: string;
-      center: [number, number];
-      radiusM: number;
-      label: string;
-    }>();
-    lastRows.forEach((position) => {
-      if (
-        position.project_latitude &&
-        position.project_longitude &&
-        position.project_geofence_radius_m
-      ) {
-        byProject.set(position.project, {
-          id: position.project,
-          center: [
-            Number(position.project_latitude),
-            Number(position.project_longitude),
-          ],
-          radiusM: position.project_geofence_radius_m,
-          label: position.project_name,
-        });
-      }
-    });
-    return Array.from(byProject.values());
-  }, [lastRows, selectedHistoryProject]);
+  const historyZones = useMemo(
+    () => buildZones(geofences.data?.results ?? [], lastRows, historyProjectId),
+    [geofences.data?.results, historyProjectId, lastRows],
+  );
   const historyCenter = useMemo<[number, number] | undefined>(() => {
     if (selectedHistoryProject?.latitude && selectedHistoryProject.longitude) {
       return [
@@ -291,7 +255,8 @@ export function FieldStaffGps() {
     watchId.current = navigator.geolocation.watchPosition(
       (position) => {
         const now = Date.now();
-        if (now - lastSentAt.current < 10_000) return;
+        const interval = (locationPolicy.data?.location_update_interval_seconds ?? 60) * 1000;
+        if (now - lastSentAt.current < interval) return;
         lastSentAt.current = now;
         record.mutate({
           project: projectId,
@@ -312,7 +277,11 @@ export function FieldStaffGps() {
               : "timeout";
         setSharingError(t(`siteGps.error.${key}`));
       },
-      { enableHighAccuracy: true, maximumAge: 10_000, timeout: 15_000 },
+      {
+        enableHighAccuracy: true,
+        maximumAge: (locationPolicy.data?.location_update_interval_seconds ?? 60) * 1000,
+        timeout: 15_000,
+      },
     );
   }
 
@@ -403,7 +372,7 @@ export function FieldStaffGps() {
           <MapSection title={t("siteGps.map")} note={t("siteGps.refreshNote")}>
             <LocationMap
               center={center}
-              radiusM={selectedProject?.geofence_radius_m}
+              radiusM={zones.length ? null : selectedProject?.geofence_radius_m}
               markers={markers}
               zones={zones}
             />
@@ -446,7 +415,7 @@ export function FieldStaffGps() {
           >
             <LocationMap
               center={historyCenter}
-              radiusM={selectedHistoryProject?.geofence_radius_m}
+              radiusM={historyZones.length ? null : selectedHistoryProject?.geofence_radius_m}
               markers={historyMarkers}
               paths={historyPaths}
               zones={historyZones}
@@ -486,6 +455,44 @@ export function FieldStaffGps() {
       </Tabs>
     </div>
   );
+}
+
+function buildZones(
+  geofences: SiteGeofence[],
+  positions: FieldStaffPosition[],
+  projectId: string,
+): LocationMapZone[] {
+  const rows = geofences.filter(
+    (row) => row.is_active && (!projectId || row.project === projectId),
+  );
+  const zones: LocationMapZone[] = rows.map((row) =>
+    row.shape === "POLYGON"
+      ? { id: row.id, label: `${row.project_name} · ${row.name}`, points: row.polygon }
+      : {
+          id: row.id,
+          label: `${row.project_name} · ${row.name}`,
+          center: [Number(row.latitude), Number(row.longitude)],
+          radiusM: row.radius_m ?? 1,
+        },
+  );
+  const projectsWithZones = new Set(rows.map((row) => row.project));
+  const legacy = new Map<string, LocationMapZone>();
+  positions.forEach((position) => {
+    if (
+      projectsWithZones.has(position.project) ||
+      (projectId && position.project !== projectId) ||
+      !position.project_latitude ||
+      !position.project_longitude ||
+      !position.project_geofence_radius_m
+    ) return;
+    legacy.set(position.project, {
+      id: `legacy-${position.project}`,
+      center: [Number(position.project_latitude), Number(position.project_longitude)],
+      radiusM: position.project_geofence_radius_m,
+      label: position.project_name,
+    });
+  });
+  return [...zones, ...legacy.values()];
 }
 
 function MapSection({

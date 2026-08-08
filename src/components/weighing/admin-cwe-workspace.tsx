@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Eye,
-  Gauge,
   Pencil,
   Plus,
   RadioTower,
@@ -82,6 +81,7 @@ export function AdminCWEWorkspace({
   if (section === "activity") {
     return (
       <AuditLogs
+        fixedCategory="CWE"
         title={t("section.activity.title")}
         subtitle={t("section.activity.subtitle")}
       />
@@ -110,7 +110,7 @@ export function AdminCWEWorkspace({
 
 function ModuleIndex() {
   const t = useTranslations("adminCwe");
-  return <div className="border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((module) => <Link key={module.section} href={`/weighing/admin/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="w-14 text-xs font-semibold tabular-nums text-muted-foreground">{module.number}</span><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
+  return <div className="border-y bg-card"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((module) => <Link key={module.section} href={`/weighing/admin/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
 }
 
 function useCWEOverview() {
@@ -156,7 +156,7 @@ function AnomalyLedger() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const anomalies = useQuery({ queryKey: ["admin-cwe", "anomalies", page, search, code, from, to], queryFn: () => getWeighAnomalies({ page, page_size: 25, search, code, date_from: from, date_to: to, sort_by: "detected_at", sort_order: "desc" }) });
-  return <div className="space-y-4"><div className="flex flex-wrap gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("anomalySearchPlaceholder")} /><SelectControl ariaLabel={t("field.anomaly")} value={code} onChange={(value) => { setCode(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...ANOMALY_CODES.map((value) => ({ value, label: t(`anomaly.${value}`) }))]} /></div><DateRange from={from} to={to} setFrom={(value) => { setFrom(value); setPage(1); }} setTo={(value) => { setTo(value); setPage(1); }} /><Table><TableHeader><TableRow><TableHead>{t("field.detectedAt")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.scale")}</TableHead><TableHead>{t("field.session")}</TableHead><TableHead>{t("field.anomaly")}</TableHead><TableHead>{t("field.evidence")}</TableHead></TableRow></TableHeader><TableBody>{anomalies.data?.results.map((row) => <TableRow key={row.id}><TableCell>{df.dateTime(row.detected_at)}</TableCell><TableCell>{row.company_name}</TableCell><TableCell>{row.scale_code} - {row.scale_name}</TableCell><TableCell><Link className="text-primary hover:underline" href={`/weighing/${row.session}`}>{row.session_no}</Link></TableCell><TableCell><StatusBadge label={t(`anomaly.${row.code}`)} tone="danger" /></TableCell><TableCell className="max-w-64 truncate font-mono text-xs">{JSON.stringify(row.evidence)}</TableCell></TableRow>)}{!anomalies.isLoading && (anomalies.data?.results.length ?? 0) === 0 && <EmptyRow columns={6} />}</TableBody></Table><Pagination page={page} totalPages={anomalies.data?.total_pages ?? 0} count={anomalies.data?.count} onPage={setPage} /></div>;
+  return <div className="space-y-4"><div className="flex flex-wrap gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("anomalySearchPlaceholder")} /><SelectControl ariaLabel={t("field.anomaly")} value={code} onChange={(value) => { setCode(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...ANOMALY_CODES.map((value) => ({ value, label: t(`anomaly.${value}`) }))]} /></div><DateRange from={from} to={to} setFrom={(value) => { setFrom(value); setPage(1); }} setTo={(value) => { setTo(value); setPage(1); }} /><Table><TableHeader><TableRow><TableHead>{t("field.detectedAt")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.scale")}</TableHead><TableHead>{t("field.session")}</TableHead><TableHead>{t("field.anomaly")}</TableHead><TableHead>{t("field.evidence")}</TableHead></TableRow></TableHeader><TableBody>{anomalies.data?.results.map((row) => <TableRow key={row.id}><TableCell>{df.dateTime(row.detected_at)}</TableCell><TableCell>{row.company_name}</TableCell><TableCell>{row.scale_code} - {row.scale_name}</TableCell><TableCell><Link className="text-primary hover:underline" href={`/weighing/${row.session}`}>{row.session_no}</Link></TableCell><TableCell><StatusBadge label={t(`anomaly.${row.code}`)} tone="danger" /></TableCell><TableCell><details className="max-w-64"><summary className="cursor-pointer text-xs font-medium text-primary">{t("field.evidence")}</summary><pre className="mt-2 max-h-40 overflow-auto rounded-md border bg-muted/40 p-2 font-mono text-[11px]">{JSON.stringify(row.evidence, null, 2)}</pre></details></TableCell></TableRow>)}{!anomalies.isLoading && (anomalies.data?.results.length ?? 0) === 0 && <EmptyRow columns={6} />}</TableBody></Table><Pagination page={page} totalPages={anomalies.data?.total_pages ?? 0} count={anomalies.data?.count} onPage={setPage} /></div>;
 }
 
 function SessionSearch() {
@@ -182,11 +182,41 @@ function CWEStatistics() {
 
 function CWEServiceStatus() {
   const t = useTranslations("adminCwe");
-  const df = useDateFormat();
   const overview = useCWEOverview();
   const data = overview.data;
-  const cweService = data?.services.find((service) => service.key === "cwe");
-  return <div className="space-y-5"><CWEHeadline data={data} /><MetricGrid items={[["uptime", data ? `${Math.floor(data.runtime.uptime_seconds / 60)} min` : "-"], ["averageLatency", data ? `${data.runtime.average_response_ms} ms` : "-"], ["apiSuccessRate", data ? `${data.runtime.api_success_rate}%` : "-"], ["syncSuccessRate", data ? `${data.runtime.sync_success_rate}%` : "-"], ["failures24h", cweService?.failures_24h ?? 0]]} /><div className="border-y py-4"><div className="flex flex-wrap items-center gap-3"><Gauge className="h-5 w-5 text-muted-foreground" /><span className="font-medium">Cloud Weighing Engine</span>{cweService && <><TypeBadge label={t(`mode.${cweService.mode}`)} /><HealthBadge status={cweService.status} /></>}<span className="ml-auto text-sm text-muted-foreground">{cweService?.last_checked_at ? df.dateTime(cweService.last_checked_at) : "-"}</span></div></div></div>;
+  const cwe = data?.cwe;
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-col gap-4 rounded-lg border bg-card px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="max-w-3xl">
+          <p className="text-sm font-semibold">{t("service.builtinTitle")}</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            {t("service.builtinDescription")}
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/weighing/admin/scales">{t("service.scales")}</Link>
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/weighing/admin/connections">
+              {t("service.gateways")}
+            </Link>
+          </Button>
+        </div>
+      </div>
+      <MetricGrid
+        items={[
+          ["totalScales", cwe?.total_scales ?? 0],
+          ["activeScales", cwe?.active_scales ?? 0],
+          ["onlineGateways", cwe?.online_gateways ?? 0],
+          ["offlineGateways", cwe?.offline_gateways ?? 0],
+          ["weighingsToday", cwe?.weighings_today ?? 0],
+          ["anomaliesToday", cwe?.anomalies_today ?? 0],
+        ]}
+      />
+    </div>
+  );
 }
 
 function CWEHeadline({ data }: { data?: MonitoringOverview }) {

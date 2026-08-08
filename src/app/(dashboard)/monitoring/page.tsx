@@ -1,5 +1,5 @@
-import { MonitoringWorkspace } from "@/components/monitoring/monitoring-workspace";
+import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
 
 export default function MonitoringPage() {
-  return <MonitoringWorkspace />;
+  return <AdminModuleLanding feature="platform_monitoring" />;
 }

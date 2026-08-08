@@ -29,11 +29,14 @@ export interface PlatformConfigEntry {
   is_readonly: boolean;
   is_required: boolean;
   updated_at: string | null;
+  platform_value?: string;
+  is_overridden?: boolean;
+  source?: "COMPANY" | "PLATFORM_DEFAULT" | "RUNTIME";
 }
 
 export interface DeploymentCredentialStatus {
   configured: boolean;
-  source: "DEPLOYMENT_ENV";
+  source: "DEPLOYMENT_ENV" | "COMPANY_INTEGRATION";
 }
 
 export interface PlatformConfigCatalogue {
@@ -44,6 +47,12 @@ export interface PlatformConfigCatalogue {
     email: DeploymentCredentialStatus;
     push: DeploymentCredentialStatus;
   };
+}
+
+export interface CompanyPlatformConfigCatalogue extends PlatformConfigCatalogue {
+  company: string;
+  company_code: string;
+  company_name: string;
 }
 
 export interface FeatureFlagRow {

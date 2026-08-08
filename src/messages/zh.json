@@ -3,6 +3,22 @@
     "name": "MSE Trace",
     "tagline": "重量可核验，废料可追溯"
   },
+  "pageGuide": {
+    "action": "页面说明与教程",
+    "title": "如何使用“{page}”",
+    "review": {
+      "title": "先查看现有资料",
+      "description": "使用搜索、筛选和状态标签，找到需要处理的公司、记录或设备。"
+    },
+    "operate": {
+      "title": "完成需要的操作",
+      "description": "新增或编辑记录，填写所有必填资料，然后保存或确认操作。"
+    },
+    "verify": {
+      "title": "确认操作结果",
+      "description": "刷新页面，并检查最新状态、历史记录、通知或审计记录。"
+    }
+  },
   "common": {
     "save": "保存",
     "cancel": "取消",
@@ -42,6 +58,72 @@
     "copy": "复制",
     "copied": "已复制",
     "copyFirst": "关闭前请先复制密钥"
+  },
+  "contractorOps": {
+    "categories": { "title": "项目栏目", "subtitle": "按项目整理现场记录，并决定现场人员可看到哪些栏目。", "add": "新增栏目", "createTitle": "新增项目栏目", "editTitle": "编辑项目栏目", "formHelp": "每个栏目只属于一个项目，可以排序或从现场手机页面隐藏。", "removeTitle": "移除 {name}？", "removeBody": "只有没有现场记录使用该栏目时才可以移除。" },
+    "tasks": { "title": "现场任务", "subtitle": "派发以拍照为主的工地任务，并审核现场证据。", "consultantInboxTitle": "顾问现场资料收件箱", "consultantInboxSubtitle": "审核现场人员直接提交的照片，再整理到顾问申请。", "assign": "派发任务", "createTitle": "派发现场任务", "formHelp": "选择项目人员、工作类型、期限以及必须上传的照片数量。", "photos": "照片：{current}/{required}", "returnPrompt": "请说明现场人员需要更正的内容。" },
+    "equipment": { "title": "设备管理", "subtitle": "登记工地设备，并以 GPS 和照片记录每次进场或退场。", "add": "新增设备", "createTitle": "登记工地设备", "formHelp": "请填写实体设备上的设备编号或注册号码。", "recordEntry": "记录进场", "recordExit": "记录退场", "entryTitle": "记录 {name} 进场", "exitTitle": "记录 {name} 退场", "movementHelp": "请拍摄当前照片并获取位置；该记录会成为不可修改的现场证据。", "recentMovements": "近期进退场记录" },
+    "progress": { "title": "工程进度", "subtitle": "管理施工阶段、照片进度以及项目经理确认。", "addPhase": "新增阶段", "addRecord": "记录进度", "returnPrompt": "请说明需要更正后再提交的内容。", "phaseTitle": "新增施工阶段", "phaseHelp": "建立用于整理和确认工程进度的施工阶段。", "recordTitle": "新增进度证据", "recordHelp": "拍摄当前工地照片；完成比例必须由项目经理确认才会生效。" },
+    "outgoing": { "title": "材料出场", "subtitle": "申请、审批和放行离开项目的非废料材料。", "add": "新增出场申请", "createTitle": "申请材料出场", "formHelp": "填写实际执行人员，并获取当前 GPS 位置。", "executor": "执行人", "rejectPrompt": "请说明拒绝该出场申请的原因。" },
+    "field": { "project": "项目", "selectProject": "选择项目", "allProjects": "全部项目", "code": "编号", "name": "名称", "parent": "上级栏目", "noParent": "没有上级栏目", "description": "说明", "sortOrder": "显示顺序", "showInPwa": "在现场手机页面显示", "active": "启用", "title": "任务标题", "assignee": "现场人员", "selectStaff": "选择项目人员", "taskType": "任务类型", "category": "栏目", "noCategory": "不选择栏目", "priority": "优先级", "dueAt": "截止日期与时间", "photoRequired": "必须上传照片数", "instructions": "工作说明", "serialNo": "序列号", "registrationNo": "注册号码", "supplier": "供应商", "noSupplier": "没有供应商", "operator": "操作人员", "vehiclePlate": "车牌", "deliveryNote": "送货单", "photos": "现场照片", "photoCount": "已选择 {count} 张照片", "location": "当前 GPS 位置", "notes": "备注", "phase": "施工阶段", "selectPhase": "选择施工阶段", "percentComplete": "实际完成比例（%）", "material": "材料", "quantity": "数量", "executor": "执行人", "destination": "目的地", "reason": "出场原因" },
+    "action": { "edit": "编辑", "remove": "移除", "cancel": "取消", "save": "保存", "return": "退回", "accept": "接收", "assign": "派发", "getLocation": "获取当前 GPS", "locationReady": "已获取 GPS", "record": "记录进退场", "submit": "提交", "confirm": "确认", "reject": "拒绝", "approve": "批准", "release": "放行" },
+    "state": { "loadError": "无法读取记录，请检查网络后重试。", "empty": "该项目目前没有相关记录。", "noDescription": "没有说明", "noIdentifier": "没有序列号或注册号码", "locationError": "无法获取当前 GPS，请开启精确定位后重试。" },
+    "status": { "active": "已启用", "inactive": "已停用", "pwaVisible": "现场人员可见", "pwaHidden": "现场人员隐藏" },
+    "taskStatus": { "OPEN": "待开始", "IN_PROGRESS": "进行中", "SUBMITTED": "已提交", "ACCEPTED": "已接收", "RETURNED": "已退回", "CANCELLED": "已取消" },
+    "taskType": { "PHOTO": "拍照记录", "MATERIAL": "材料", "EQUIPMENT": "设备", "PROGRESS": "工程进度", "SAFETY": "安全", "WASTE": "废料", "CONSULTANT": "顾问提交", "OTHER": "其他" },
+    "priority": { "LOW": "低", "NORMAL": "普通", "HIGH": "高", "URGENT": "紧急" },
+    "equipmentStatus": { "OFF_SITE": "不在场", "ON_SITE": "在场", "MAINTENANCE": "维修中", "RETIRED": "已退役" },
+    "direction": { "ENTRY": "进场", "EXIT": "退场" },
+    "progressStatus": { "SUBMITTED": "等待确认", "CONFIRMED": "已确认", "RETURNED": "已退回" },
+    "outgoingStatus": { "PENDING": "等待审批", "APPROVED": "已批准", "REJECTED": "已拒绝", "RELEASED": "已放行" },
+    "toast": { "saved": "已保存", "removed": "已移除", "taskAssigned": "任务已派发", "taskUpdated": "任务状态已更新", "photoAdded": "照片已添加", "movementSaved": "设备进退场已记录", "progressSubmitted": "进度已提交", "progressReviewed": "进度审核已保存", "outgoingSubmitted": "出场申请已提交", "outgoingReviewed": "出场状态已更新" }
+  },
+  "siteDisposal": {
+    "title": "工地清运",
+    "subtitle": "以不可修改的照片证据完成清运申请、审批、外部执行和管理验收。",
+    "count": "共 {count} 项清运申请",
+    "empty": "该项目目前没有清运申请。",
+    "optional": "选填",
+    "photoCount": "已选择 {count} 张照片",
+    "notAssigned": "尚未指派",
+    "externalActor": "外部执行人员",
+    "evidence": "照片与文件证据",
+    "timeline": "任务时间轴",
+    "create": { "title": "新增清运申请", "description": "拍摄废料、获取当前 GPS，并提交给负责人审批。" },
+    "review": { "title": "审批清运申请" },
+    "assign": { "title": "指派清运公司", "description": "填写公司联系人和链接有效期；该链接只可访问这一项任务。", "copyNow": "请立即分享此链接。系统不会以可读取形式保存密钥，因此关闭后无法再次显示。" },
+    "confirm": { "title": "验收清运结果", "description": "检查 {reference} 的装车、卸货及 Disposal DO 证据。" },
+    "action": { "new": "新增申请", "view": "查看", "review": "审批", "assign": "指派公司", "confirm": "验收", "getLocation": "获取当前 GPS", "locationReady": "已获取 GPS", "cancel": "取消", "submit": "提交申请", "approve": "批准", "reject": "拒绝", "save": "保存决定", "copyLink": "复制任务链接", "close": "关闭", "createLink": "生成任务链接", "complete": "验收完成", "return": "退回" },
+    "field": { "project": "项目", "allProjects": "全部项目", "requestedBy": "申请人", "collector": "清运公司", "waste": "废料说明", "siteLocation": "工地位置", "volume": "预计体积（m³）", "estimatedWeight": "预计重量（kg）", "preferredAt": "期望清运时间", "gps": "当前 GPS", "photos": "废料照片", "note": "备注", "reviewNote": "审批说明", "collectorCompany": "清运公司", "contact": "联系人", "phone": "电话", "email": "电邮", "linkExpiry": "任务链接到期时间", "confirmationNote": "验收说明", "confirmationPhoto": "验收照片", "status": "状态", "actualWeight": "实际重量", "trips": "车次", "doNo": "Disposal DO 编号", "ocr": "DO 识别" },
+    "error": { "load": "无法读取清运申请，请检查网络后重试。", "location": "必须获取当前 GPS，请开启精确定位后重试。" },
+    "status": { "REQUESTED": "等待审批", "APPROVED": "已批准", "ASSIGNED": "已指派公司", "IN_PROGRESS": "执行中", "AWAITING_CONFIRMATION": "等待验收", "RETURNED": "已退回更正", "COMPLETED": "已完成", "REJECTED": "已拒绝", "CANCELLED": "已取消" },
+    "ocr": { "NOT_REQUESTED": "尚未识别", "SUCCEEDED": "Azure OCR 已识别", "NOT_CONFIGURED": "尚未配置 OCR", "FAILED": "OCR 失败，已人工填写", "MANUAL": "人工填写" },
+    "evidenceKind": { "REQUEST": "申请照片", "LOADING": "装车", "UNLOADING": "卸货", "DISPOSAL_DO": "Disposal DO", "CONFIRMATION": "验收" },
+    "timelineEvent": { "REQUESTED": "已提交申请", "APPROVED": "申请已批准", "REJECTED": "申请已拒绝", "COLLECTOR_ASSIGNED": "已指派清运公司", "EXTERNAL_STARTED": "清运工作已开始", "EVIDENCE_LOADING": "已上传装车照片", "EVIDENCE_UNLOADING": "已上传卸货照片", "EVIDENCE_DISPOSAL_DO": "已上传 Disposal DO", "EXTERNAL_SUBMITTED": "执行结果已提交验收", "COMPLETED": "管理人员已验收完成", "RETURNED": "已退回更正", "CANCELLED": "申请已取消" },
+    "toast": { "requested": "清运申请已提交", "reviewed": "清运审批已保存", "assigned": "清运公司已指派", "confirmed": "清运验收已保存", "cancelled": "清运申请已取消" },
+    "external": {
+      "invalid": "任务链接无法使用", "invalidBody": "链接无效、已到期，或任务已经完成。", "title": "清运任务", "photosTitle": "必须拍摄的照片", "uploaded": "已上传", "tapCamera": "按这里打开相机", "submitTitle": "清运资料", "waitingTitle": "已发送验收", "waitingBody": "工地负责人将检查照片和 Disposal DO，目前无需继续操作。",
+      "status": { "REQUESTED": "等待审批", "APPROVED": "已批准", "ASSIGNED": "可以开始", "IN_PROGRESS": "执行中", "AWAITING_CONFIRMATION": "等待工地验收", "RETURNED": "需要更正", "COMPLETED": "已完成", "REJECTED": "已拒绝", "CANCELLED": "已取消" },
+      "action": { "start": "开始清运", "submit": "发送给工地验收" },
+      "evidence": { "LOADING": "装车照片", "UNLOADING": "卸货照片", "DISPOSAL_DO": "Disposal DO 照片" },
+      "field": { "weight": "实际重量（kg）", "trips": "车次数量", "doNo": "Disposal DO 编号", "note": "工作备注" },
+      "error": { "action": "操作无法完成，请检查网络后重试。" }
+    }
+  },
+  "fieldStaffPwa": {
+    "today": "今天 · {date}", "greeting": "你好，{name}",
+    "nav": { "home": "首页", "tasks": "任务", "attendance": "打卡", "records": "拍照", "disposal": "清运", "location": "位置" },
+    "home": { "title": "今天的工作", "subtitle": "按一个大按钮就可以继续。", "tasks": "我的任务", "attendance": "上下班打卡", "records": "现场拍照记录", "location": "共享位置" },
+    "tasks": { "title": "我的任务", "count": "现有 {count} 项任务", "empty": "所有任务已完成", "evidence": "照片 {current}/{required}", "waitingReview": "等待管理员审核" },
+    "status": { "OPEN": "新任务", "IN_PROGRESS": "进行中", "SUBMITTED": "已提交", "ACCEPTED": "已完成", "RETURNED": "需要重拍", "CANCELLED": "已取消" },
+    "type": { "PHOTO": "拍照", "MATERIAL": "材料", "EQUIPMENT": "设备", "PROGRESS": "进度", "SAFETY": "安全", "WASTE": "废料", "CONSULTANT": "顾问", "OTHER": "其他" },
+    "action": { "back": "返回", "refresh": "刷新", "start": "开始", "takePhoto": "拍照", "submit": "提交给管理员", "morePhotos": "还需拍 {count} 张", "retry": "重试" },
+    "consultantTasks": { "title": "顾问现场照片提交" },
+    "consultantCapture": { "project": "项目", "chooseProject": "选择项目", "photos": "顾问现场照片", "note": "简单备注（选填）", "submit": "提交到顾问资料收件箱" },
+    "records": { "title": "现场记录", "subtitle": "先选择工作，再拍摄系统要求的照片。", "material": "材料记录", "equipment": "设备进退场", "progress": "施工进度照片", "disposal": "废料清运", "outgoing": "材料出场", "safety": "安全与隐患", "consultant": "顾问资料提交" },
+    "material": { "project": "项目", "chooseProject": "选择项目", "supplier": "供应商", "chooseSupplier": "选择供应商", "scanSupplierQr": "扫描供应商二维码", "scanTitle": "扫描供应商二维码", "scanHelp": "把相机对准供应商送货二维码，项目和供应商会自动填入。", "cameraError": "无法启动相机，请允许相机权限后重试。", "closeScanner": "关闭扫描", "qrInvalid": "此供应商二维码无效、已撤销或不属于可用项目。", "qrMatched": "已匹配供应商二维码", "qrNotIssued": "没有有效的供应商二维码，记录仍会保存所选供应商。", "direction": "类型", "entry": "材料进场", "return": "材料退场", "unit": "单位", "name": "材料名称", "quantity": "数量", "vehicle": "车牌", "doNo": "送货单编号", "doPhoto": "送货单照片", "ocrReading": "正在读取送货单...", "ocrReady": "已读取送货单，请检查自动填入的资料后再保存。", "ocrManual": "无法读取送货单，请手动填写资料。", "ocrChooseProject": "请先选择项目，再拍摄送货单。", "ocrOffline": "当前离线，请先手动填写；照片上传到服务器后会再次执行 OCR。", "sitePhotos": "材料 / 卸货照片", "receiverSignature": "接收人签名", "supplierSignature": "供应商签名", "tapCamera": "按这里打开相机", "photoReady": "已准备 {count} 张照片", "notes": "备注（选填）", "submit": "保存材料记录" },
+    "attendance": { "title": "工地考勤", "todayCount": "今天已有 {count} 条打卡记录", "selectProject": "选择今天的项目", "clockIn": "上班打卡", "clockOut": "下班打卡", "takeSelfie": "拍摄自拍照", "selfieReady": "自拍照已准备", "getLocation": "获取当前 GPS", "locationReady": "GPS 已准备", "note": "备注（选填）", "submit": "提交打卡" },
+    "error": { "load": "页面读取失败，请检查网络。", "action": "操作未能完成，请重试。", "location": "必须获取当前 GPS，请开启精确定位后重试。" }
   },
   "table": {
     "showing": "显示第 {from} 至 {to} 条，共 {total} 条",
@@ -109,6 +191,11 @@
     "signedOut": "已退出登录"
   },
   "nav": {
+    "project_categories": "项目栏目",
+    "field_tasks": "现场任务",
+    "equipment": "设备管理",
+    "material_outgoing": "材料出场",
+    "site_disposals": "工地清运",
     "dashboard": "仪表板",
     "companies": "客户公司",
     "users": "用户",
@@ -157,7 +244,9 @@
     "attendance": "考勤",
     "payment_proofs": "付款凭证",
     "progress": "工程进度",
+    "schedule": "施工计划",
     "safety": "安全事故",
+    "hazard_rectification": "隐患整改",
     "material_quantity_report": "材料数量报表",
     "material_cost_report": "材料成本报表",
     "user_logs": "用户日志",
@@ -171,10 +260,15 @@
     "payment_status": "付款状态",
     "documents": "文档档案",
     "approvals": "审批流程",
+    "consultant_applications": "顾问申请",
     "evidence": "证据档案",
     "notifications": "通知中心",
     "driver_gps": "司机 GPS",
     "site_gps": "工地人员 GPS",
+    "geofences": "工地电子围栏",
+    "site_access": "工地门禁",
+    "emergency_list": "紧急在场名单",
+    "company_settings": "公司设置",
     "integrations": "系统集成",
     "system_monitoring": "系统监控",
     "customer_service": "客户服务",
@@ -207,6 +301,81 @@
       "dashboardQuickActions": "快捷功能",
       "dashboardTrends": "数据统计图表",
       "dashboardSystemStatus": "实时系统状态",
+      "projectRecords": "项目资料",
+      "categoryRecords": "项目栏目",
+      "fieldTasks": "现场任务",
+      "supplierRecords": "供应商资料",
+      "materialReceipts": "材料进场",
+      "siteEquipment": "工地设备",
+      "materialOutgoing": "材料出场",
+      "progressRecords": "施工进度",
+      "schedulePlanning": "施工计划",
+      "recyclerPartners": "回收商合作",
+      "wasteDispatches": "废料订单",
+      "siteDisposals": "工地清运",
+      "recyclingRecords": "回收称重记录",
+      "paymentProofs": "付款凭证",
+      "attendanceRecords": "考勤记录",
+      "siteGps": "工地人员 GPS",
+      "safetyIncidents": "安全事件",
+      "hazardRectifications": "隐患整改",
+      "consultantApplications": "顾问申请",
+      "consultantWorkflows": "审批流程",
+      "approvalCredentials": "审批凭证",
+      "consultantFieldInbox": "现场资料收件箱",
+      "documentArchive": "文件归档",
+      "evidenceArchive": "证据归档",
+      "materialQuantityReport": "材料数量报表",
+      "materialCostReport": "材料成本报表",
+      "transactionReports": "业务报表",
+      "reportHistory": "报表导出历史",
+      "geofenceSettings": "Geofence 设置",
+      "workforceGps": "人员实时位置",
+      "emergencyList": "紧急名单",
+      "siteAccessPasses": "工地通行证",
+      "gateScanning": "门岗扫描",
+      "userManagement": "用户管理",
+      "roles": "角色与权限",
+      "loginHistory": "登录记录",
+      "userActivity": "操作记录",
+      "companySettings": "公司设置",
+      "integrationSettings": "系统集成",
+      "notifications": "通知中心",
+      "projectRecords": "项目资料",
+      "projectCategories": "项目栏目",
+      "fieldTasks": "现场任务",
+      "supplierRecords": "供应商资料",
+      "materialReceipts": "材料进场",
+      "siteEquipment": "工地设备",
+      "materialOutgoing": "材料出场",
+      "progressRecords": "施工进度",
+      "schedulePlanning": "施工计划",
+      "recyclerPartners": "回收商合作",
+      "wasteDispatches": "废料订单",
+      "siteDisposals": "工地清运",
+      "recyclingRecords": "回收称重记录",
+      "attendanceRecords": "考勤记录",
+      "siteGps": "工地人员 GPS",
+      "safetyIncidents": "安全事件",
+      "consultantApplications": "顾问申请",
+      "consultantWorkflows": "审批流程",
+      "approvalCredentials": "审批凭证",
+      "consultantFieldInbox": "现场资料收件箱",
+      "documentArchive": "文件归档",
+      "evidenceArchive": "证据归档",
+      "materialQuantityReport": "材料数量报表",
+      "materialCostReport": "材料成本报表",
+      "transactionReports": "业务报表",
+      "geofenceSettings": "Geofence 设置",
+      "workforceGps": "人员实时位置",
+      "emergencyList": "紧急名单",
+      "siteAccessPasses": "工地通行证",
+      "gateScanning": "门岗扫描",
+      "userManagement": "用户管理",
+      "roles": "角色与权限",
+      "userActivity": "操作记录",
+      "companySettings": "公司设置",
+      "notifications": "通知中心",
       "companyCreate": "建立公司",
       "companyDirectory": "公司资料管理",
       "companyReview": "公司审核",
@@ -253,7 +422,7 @@
       "serviceSearch": "服务查询",
       "runtimeStatistics": "运行统计",
       "monitoringRecords": "监控记录",
-      "qrTypes": "二维码类别",
+      "qrTypes": "二维码管理",
       "qrRegister": "二维码资料",
       "qrLifecycle": "二维码状态管理",
       "qrSearch": "二维码查询",
@@ -292,7 +461,7 @@
       "basicSettings": "基本设置",
       "saasSettings": "SaaS 设置",
       "commissionSettings": "佣金设置",
-      "cweSettings": "CWE 设置",
+      "cweSettings": "地磅设置参数",
       "cctvSettings": "AI CCTV 设置",
       "anprSettings": "ANPR 设置",
       "qrSettings": "二维码设置",
@@ -377,6 +546,47 @@
       "cloudActivity": "操作记录"
     }
   },
+  "globalSearch": {
+    "open": "打开功能搜索",
+    "placeholder": "搜索模块和功能",
+    "noResults": "找不到相符的模块或功能"
+  },
+  "adminModuleLanding": {
+    "sectionLabel": "可用功能",
+    "searchPlaceholder": "搜索此模块的功能",
+    "noResults": "此模块没有相符的功能",
+    "cardSubtitle": "进入{module}，查看和管理相关资料与业务流程。"
+  },
+  "contractorModuleLanding": {
+    "chooseAction": "选择工作区域",
+    "subtitle": "从下面选择工作区域，完成{module}相关流程。",
+    "searchPlaceholder": "搜索此工作区域",
+    "cardSubtitle": "进入{action}，查看记录并完成下一步。",
+    "noActions": "此账号暂时没有可用工作区域。"
+  },
+  "contractorReportCenter": {
+    "title": "建筑商报表中心",
+    "subtitle": "查看当前项目资料，并进入详细报表或证据页面。",
+    "open": "打开",
+    "tile": { "projects": "项目", "materialQuantity": "材料数量", "materialCost": "材料成本", "dispatches": "废料出场", "attendance": "考勤报表", "tasks": "现场任务", "equipment": "设备报表", "progress": "进度报表", "safety": "安全报表", "disposals": "工地清运", "recycling": "清运与回收", "consultant": "顾问申请", "schedule": "计划对比", "target": "目标达成", "history": "导出历史" },
+    "description": { "projectRecords": "公司有权限查看的项目。", "materialQuantity": "按单位和材料查看进场数量。", "materialCost": "已记录价格的材料进场价值。", "dispatches": "废料订单及当前流程状态。", "attendance": "包含 GPS 与照片的上下班记录。", "tasks": "现场任务与提交的照片证据。", "equipment": "设备进退场、操作员、DO 与照片数量。", "progress": "按施工阶段查看进度、确认与照片证据。", "safety": "安全问题、负责人及整改证据。", "disposals": "清运申请与外部执行证据。", "recycling": "统一查看工地清运与回收订单流程。", "consultant": "顾问申请、证据、审核人及最终决定。", "schedule": "计划与实际进度及延误天数。", "target": "项目目标、达成情况与业务指标。", "history": "永久记录每次报表的生成人员和时间。" }
+  },
+  "contractorReports": {
+    "type": { "progress": "进度与照片报表", "safety": "安全与整改报表", "consultant": "顾问申请报表", "attendance": "考勤与人员报表", "equipment": "设备进退场报表", "recycling": "清运与回收报表", "schedule": "计划与实际对比报表", "target": "目标与达成报表" },
+    "description": { "progress": "查看项目进度、确认状态与照片证据。", "safety": "追踪安全问题从分配、整改到验收的过程。", "consultant": "查看顾问申请、证据与最终结果。", "attendance": "查看现场考勤、GPS 精度与围栏结果。", "equipment": "查看设备进退场、文件、OCR 与照片。", "recycling": "查看清运工作与回收订单直至完成。", "schedule": "对比当前确认计划与现场实际进度。", "target": "对比计划和实际进度及项目活动指标。" },
+    "filter": { "project": "项目", "allProjects": "全部有权限的项目", "dateFrom": "开始日期", "dateTo": "结束日期" },
+    "action": { "excel": "Excel", "pdf": "PDF" },
+    "period": "期间：{from} 至 {to}",
+    "preview": "报表预览",
+    "records": "共 {count} 条记录",
+    "previewLimited": "预览最多显示 500 条",
+    "loadError": "无法加载报表。",
+    "empty": "此项目和日期范围没有符合的记录。",
+    "column": {
+      "project": "项目", "phase": "施工阶段", "captured_at": "拍摄时间", "percent_complete": "进度 (%)", "status": "状态", "photo_count": "照片", "confirmed_by": "确认人", "confirmed_at": "确认时间", "review_note": "审核备注", "incident_no": "事件编号", "title": "标题", "severity": "严重程度", "occurred_at": "发生时间", "responsible_person": "负责人", "rectification_due_at": "整改期限", "evidence_count": "证据", "verified_at": "验收时间", "application_no": "申请编号", "revision": "修订版", "application_type": "申请类型", "discipline": "专业", "consultant": "顾问", "application_date": "申请日期", "submitted_at": "提交时间", "final_decision": "最终决定", "worker": "人员", "event": "事件", "geofence_result": "围栏结果", "distance_m": "距离 (米)", "accuracy_m": "GPS 精度 (米)", "has_photo": "照片", "latitude": "纬度", "longitude": "经度", "equipment": "设备", "direction": "方向", "operator": "执行人", "vehicle_plate": "车牌", "delivery_note_no": "送货单", "ocr_status": "OCR 状态", "record_type": "记录类型", "reference_no": "参考编号", "description": "说明", "counterparty": "外部公司", "estimated_weight_kg": "预计重量 (kg)", "actual_weight_kg": "实际重量 (kg)", "trip_count": "车次", "completed_at": "完成时间", "plan": "计划", "wbs_code": "WBS", "task": "任务", "planned_start": "计划开始", "planned_end": "计划结束", "planned_progress": "计划进度 (%)", "actual_progress": "实际进度 (%)", "variance": "差异 (%)", "delay_days": "延误天数", "progress_records": "进度记录", "attendance_events": "考勤记录", "open_safety_items": "未完成安全问题", "completed_disposals": "已完成清运", "completed_recycle_orders": "已完成回收订单"
+    },
+    "history": { "title": "报表导出历史", "subtitle": "当前公司及有权限项目的永久报表生成记录。", "empty": "尚未导出报表。", "file": "文件", "report": "报表", "project": "项目", "period": "期间", "rows": "行数", "generatedBy": "生成人", "generatedAt": "生成时间" }
+  },
   "integrations": {
     "title": "系统集成",
     "subtitle": "登记连接和现场设备，secret 不会回显。",
@@ -386,6 +596,33 @@
     "connections": "连接配置",
     "devices": "现场设备",
     "empty": "还没有登记集成。",
+    "guide": {
+      "title": "这里才是真实连接外部系统和设备的地方",
+      "description": "系统设置只决定功能是否启用；系统集成负责保存 URL、认证方式和安全凭证。登记后先测试，通过后才启用。没有供应商账号或现场设备时，只能保留配置，不能当作已经上线。",
+      "register": {
+        "title": "登记连接",
+        "description": "选择公司和服务，填写供应商提供的资料。"
+      },
+      "test": {
+        "title": "测试连接",
+        "description": "确认网络、凭证和供应商接口都能访问。"
+      },
+      "enable": {
+        "title": "正式启用",
+        "description": "测试通过后启用，并到平台监控查看状态。"
+      }
+    },
+    "advanced": {
+      "title": "高级技术设置",
+      "description": "供应商有特别参数时才需要打开 JSON。一般连接请保持默认值。"
+    },
+    "authType": {
+      "NONE": "无需认证",
+      "API_KEY": "API Key",
+      "BEARER": "Bearer Token",
+      "BASIC": "用户名和密码",
+      "OAUTH2": "OAuth 2.0"
+    },
     "connection": {
       "removeTitle": "移除连接 {name}？",
       "removeDescription": "该连接将从公司配置中移除，测试历史和审计记录会保留。请先移除或解除正在使用它的设备。",
@@ -414,9 +651,10 @@
       "namePlaceholder": "例如：ERP 生产环境",
       "baseUrl": "基础 URL",
       "authType": "认证类型",
-      "secret": "Secret",
-      "secretPlaceholder": "保存时才会发送",
-      "settings": "设置 JSON"
+      "mode": "运行模式",
+      "secret": "安全凭证",
+      "secretPlaceholder": "输入供应商提供的密钥；保存后不会显示",
+      "settings": "供应商参数（JSON）"
     },
     "device": {
       "type": "设备类型",
@@ -437,13 +675,22 @@
       "removeGatewayBlocked": "请先在地磅管理撤销已绑定的称重网关",
       "removeTitle": "移除设备 {name}？",
       "removeDescription": "设备将不再出现在系统集成列表中，历史记录和审计资料会保留。",
-      "removeConfirm": "移除设备"
+      "removeConfirm": "移除设备",
+      "provisioningTitle": "设备连接资料",
+      "provisioningDescription": "请把这些一次性资料交给安装人员。关闭此窗口后，系统不会再次显示设备密钥。",
+      "heartbeatUrl": "心跳上报网址",
+      "recordId": "平台设备记录 ID",
+      "deviceHeader": "设备身份 Header",
+      "signatureHeader": "签名 Header",
+      "oneTimeSecret": "一次性设备密钥",
+      "heartbeatBody": "需要签名的心跳 JSON 内容"
     },
     "kind": {
       "ERP": "ERP",
       "ACCOUNTING": "会计系统",
       "MYINVOIS": "MyInvois",
       "GOVERNMENT_API": "政府 API",
+      "API_GATEWAY": "API Gateway",
       "CCTV": "CCTV",
       "ANPR": "ANPR",
       "IOT": "IoT",
@@ -517,6 +764,11 @@
       "receipts": "材料收货记录",
       "dispatches": "废料出场记录",
       "attendance": "考勤记录",
+      "fieldTasks": "现场任务",
+      "siteEquipment": "工地设备",
+      "progress": "施工进度",
+      "safety": "安全事件",
+      "siteDisposals": "清运申请",
       "wasteOrders": "待处理废料订单",
       "driverTasks": "司机任务",
       "settlements": "结算记录"
@@ -526,12 +778,18 @@
     "quickLinks": "快捷入口",
     "noMetrics": "你的账号可以进入仪表板；管理员授予对应权限后，其他业务模块会显示在这里。",
     "admin": {
+      "title": "平台营运总览",
+      "subtitle": "集中查看客户、项目、称重、订阅、佣金和系统健康状态。",
       "error": "无法加载平台仪表板。",
       "updatedAt": "更新时间：{value}",
       "weightValue": "{value} 吨",
       "map": {
         "title": "马来西亚项目地图",
-        "search": "搜索项目或公司",
+        "subtitle": "显示建筑项目、回收场、地磅和公司总部的登记位置。",
+        "filters": "地图筛选",
+        "reset": "重置",
+        "search": "搜索",
+        "searchPlaceholder": "项目、公司、地址或地磅编号",
         "state": "州属",
         "kind": "地点类型",
         "contractor": "建筑商",
@@ -543,6 +801,9 @@
         "allRecyclers": "全部回收商",
         "allStatuses": "全部项目状态",
         "visible": "显示 {visible}/{total} 个地图地点",
+        "noMatches": "目前筛选条件没有可显示的地点。",
+        "missingTitle": "有 {count} 笔地点资料尚未填写坐标",
+        "missingDescription": "项目 {projects}、回收场 {recyclers}、地磅 {scales}、公司总部 {headquarters}。请在对应资料页补上经纬度后再刷新地图。",
         "recyclers": "回收商：{value}",
         "orders": "今日订单：{value}",
         "weight": "今日重量：{value} kg",
@@ -783,6 +1044,15 @@
     },
     "onboarding": {
       "title": "公司入驻与资料核验",
+      "create": {
+        "sectionTitle": "注册文件与银行账户",
+        "ssmCertificate": "SSM 证书",
+        "companyProfile": "公司资料文件",
+        "ssmTitle": "SSM 证书",
+        "profileTitle": "公司资料",
+        "ssmRequired": "建立公司前必须上传 SSM 证书。",
+        "bankRequired": "请填写银行名称、账户名称和账号。"
+      },
       "complete": "所有必填资料均已核验，可以审核通过该公司。",
       "incomplete": "还有 {count} 项必填资料需要处理。",
       "verify": "核验通过",
@@ -927,6 +1197,10 @@
     "subscriptionMonthsHint": "更改套餐或周期后，将从今天开始新的订阅周期。",
     "subscriptionExpiryHint": "选填。留空时系统会根据订阅周期自动计算到期日。",
     "subscriptionPeriod": "{months} 个月",
+    "planTerms": {
+      "partner": "一次性 {currency} {fee} + {rate}% 佣金",
+      "standard": "每月 {currency} {fee}"
+    },
     "noSubscriptionExpiry": "未设置到期日",
     "taxIdHint": "为这家公司开通电子发票前必须填写。",
     "languageHint": "这家公司新建用户的默认语言，每个人之后可自行更改。",
@@ -941,6 +1215,7 @@
       "contractors": "建筑商",
       "recyclers": "回收商",
       "active": "活跃公司",
+      "inactive": "停用公司",
       "newThisMonth": "本月新增"
     },
     "projectStats": {
@@ -1086,6 +1361,61 @@
     "toast": {
       "created": "安全事故已上报",
       "updated": "安全事故已更新"
+    }
+  },
+  "safetyRectification": {
+    "title": "隐患整改",
+    "count": "共 {count} 项整改记录",
+    "status": {
+      "OPEN": "待处理",
+      "INVESTIGATING": "调查中",
+      "ASSIGNED": "已指派整改",
+      "RECTIFICATION_SUBMITTED": "待验收",
+      "RETURNED": "已退回整改",
+      "VERIFIED": "已验收",
+      "RESOLVED": "已解决"
+    },
+    "action": {
+      "assign": "指派整改",
+      "submit": "提交整改",
+      "review": "验收整改",
+      "cancel": "取消",
+      "getLocation": "获取 GPS 位置",
+      "locationReady": "已获取 GPS 位置",
+      "verify": "验收通过",
+      "return": "退回整改",
+      "optional": "选填"
+    },
+    "assign": {
+      "title": "指派安全整改",
+      "description": "为 {incident} 指定负责人、完成期限和整改要求。"
+    },
+    "submit": {
+      "title": "提交整改证据",
+      "description": "拍摄完成后的现场照片、获取 GPS，并说明已完成的工作。"
+    },
+    "review": {
+      "title": "验收安全整改",
+      "description": "检查 {incident} 的整改证据，通过验收或填写原因后退回。"
+    },
+    "field": {
+      "responsible": "整改负责人",
+      "selectResponsible": "选择项目人员",
+      "dueAt": "整改期限",
+      "instructions": "整改要求",
+      "photo": "整改完成照片",
+      "location": "整改位置",
+      "workDone": "已完成工作",
+      "reviewNote": "验收说明",
+      "verificationPhoto": "验收照片"
+    },
+    "error": {
+      "location": "无法获取 GPS，请允许位置权限后重试。"
+    },
+    "toast": {
+      "assigned": "已指派整改",
+      "submitted": "已提交整改证据",
+      "reviewed": "已保存验收结果"
     }
   },
   "paymentProofs": {
@@ -1602,6 +1932,8 @@
   },
   "notifications": {
     "title": "通知中心",
+    "viewAll": "查看全部",
+    "noUnread": "目前没有未读通知",
     "count": "共 {count} 条通知",
     "unreadCount": "{count} 条未读通知",
     "field": {
@@ -1623,6 +1955,12 @@
     },
     "markRead": "标记为已读",
     "markAllRead": "全部标记为已读",
+    "push": {
+      "enable": "开启浏览器通知",
+      "enabled": "浏览器通知已开启",
+      "notConfigured": "服务器尚未配置浏览器通知。",
+      "permissionDenied": "浏览器通知权限未获批准。"
+    },
     "toast": {
       "allRead": "所有通知已标记为已读"
     }
@@ -1638,49 +1976,118 @@
     "eventSearchPlaceholder": "搜索事件类型、内容或设备",
     "handlingNotePlaceholder": "处理备注",
     "recordsCount": "共 {count} 条记录",
+    "summary": {
+      "title": "平台健康概览",
+      "description": "每 15 秒自动更新服务、集成与异常状态。",
+      "services": "服务",
+      "live": "真实连接",
+      "attention": "待关注",
+      "openDetails": "查看详情",
+      "detail": {
+        "services": {
+          "title": "受监控的服务",
+          "description": "此健康概览包含的全部平台服务与集成服务。"
+        },
+        "live": {
+          "title": "已验证的真实连接",
+          "description": "目前已通过配置的真实连接接收数据的服务。"
+        },
+        "attention": {
+          "title": "需要关注的项目",
+          "description": "状态异常的服务及尚未处理的监控异常。"
+        },
+        "openExceptions": "待处理异常",
+        "empty": "此类别目前没有项目。"
+      }
+    },
+    "purpose": {
+      "title": "这里是查看状态的地方",
+      "description": "平台监控只读数据，不会修改连接设置。要打开服务或更换账号，请到系统设置；要填写密钥，请到系统集成。",
+      "openSettings": "打开系统设置",
+      "needChange": "需要修改连接吗？",
+      "needChangeDescription": "监控页面只负责告诉你服务是否正常。",
+      "openIntegrations": "打开系统集成"
+    },
+    "modeDescription": {
+      "SIMULATED": "测试模拟器正在提供数据，不代表现场硬件已连接",
+      "LIVE": "显示现场供应商和设备数据，必须先完成真实连接"
+    },
+    "connectionMode": {
+      "requested": "系统设置选择的模式",
+      "actual": "公司集成中验证到的连接",
+      "livePending": "已选择真实模式，但还没有任何已启用的公司连接通过连接测试。请先配置并测试该公司的集成，监控才会把它计为真实连接。"
+    },
+    "inventory": {
+      "title": "各公司连接与设备清单",
+      "description": "统一查看所有建筑商与回收商的连接。真实模式表示已配置真实供应商；设备只有收到近期硬件心跳才会显示在线。",
+      "searchPlaceholder": "搜索公司、连接或设备",
+      "allCompanyTypes": "全部公司类型",
+      "allCompanies": "全部公司",
+      "allCategories": "全部集成类别",
+      "allDeviceTypes": "全部设备类型",
+      "allStatuses": "全部状态",
+      "contractor": "建筑商",
+      "recycler": "回收商",
+      "online": "设备在线",
+      "offline": "设备离线",
+      "liveReady": "真实且已启用",
+      "simulated": "测试模拟模式",
+      "company": "公司",
+      "category": "集成类别",
+      "connection": "连接",
+      "device": "设备",
+      "location": "项目／地点",
+      "mode": "模式",
+      "status": "健康状态",
+      "lastSeen": "最后心跳／测试",
+      "connectionRecord": "连接配置",
+      "devicesCount": "{count} 台设备",
+      "unlinked": "未绑定",
+      "refreshNote": "或等待每 15 秒自动更新，以取得最新硬件心跳。"
+    },
     "section": {
       "live-platform": {
         "title": "实时平台状态",
-        "subtitle": "6.2.1 根据当前活动显示在线公司、项目与用户"
+        "subtitle": "根据当前活动显示在线公司、项目与用户"
       },
       "cwe": {
         "title": "CWE 监控",
-        "subtitle": "6.2.2 地磅连接、当前读数、称重及异常状态"
+        "subtitle": "地磅连接、当前读数、称重及异常状态"
       },
       "cctv": {
         "title": "AI CCTV 监控",
-        "subtitle": "6.2.3 设备及识别状态，并明确区分模拟与真实模式"
+        "subtitle": "设备及识别状态，并明确区分模拟与真实模式"
       },
       "anpr": {
         "title": "ANPR 监控",
-        "subtitle": "6.2.4 摄像头连接、识别失败次数及服务状态"
+        "subtitle": "摄像头连接、识别失败次数及服务状态"
       },
       "api-gateway": {
         "title": "API Gateway 监控",
-        "subtitle": "6.2.5 调用次数、失败、响应时间及服务健康"
+        "subtitle": "调用次数、失败、响应时间及服务健康"
       },
       "sync": {
         "title": "数据同步监控",
-        "subtitle": "6.2.6 建筑商及回收商 ERP、政府 API 与 MyInvois 同步状态"
+        "subtitle": "建筑商及回收商 ERP、政府 API 与 MyInvois 同步状态"
       },
       "exceptions": {
         "title": "异常监控",
-        "subtitle": "6.2.7 确认及解决系统、API、称重、设备与同步异常"
+        "subtitle": "确认及解决系统、API、称重、设备与同步异常"
       },
       "service-search": {
         "title": "服务查询",
-        "subtitle": "6.2.8 按服务名称、状态、最后检查及异常内容查询"
+        "subtitle": "按服务名称、状态、最后检查及异常内容查询"
       },
       "runtime-statistics": {
         "title": "运行统计",
-        "subtitle": "6.2.9 Uptime、响应时间、API 成功率与同步成功率"
+        "subtitle": "Uptime、响应时间、API 成功率与同步成功率"
       },
       "records": {
         "title": "监控记录",
-        "subtitle": "6.2.10 永久保存事件时间、类型、服务、内容及处理历史"
+        "subtitle": "永久保存事件时间、类型、服务、内容及处理历史"
       }
     },
-    "mode": { "SIMULATED": "模拟", "LIVE": "真实" },
+    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式" },
     "metric": {
       "onlineContractors": "在线建筑商",
       "onlineRecyclers": "在线回收商",
@@ -2186,6 +2593,11 @@
     "exportSubtitle": "已筛选的永久操作记录",
     "empty": "没有符合条件的操作记录。",
     "filter": {
+      "actor": "用户姓名或 Email",
+      "action": "操作类别",
+      "allActions": "全部操作",
+      "result": "操作结果",
+      "allResults": "全部结果",
       "objectType": "记录类型",
       "module": "模块",
       "ipAddress": "IP 地址",
@@ -2196,6 +2608,7 @@
       "createdAt": "时间",
       "actor": "操作人",
       "action": "操作",
+      "result": "结果",
       "objectType": "记录类型",
       "objectId": "记录编号",
       "company": "公司",
@@ -2222,6 +2635,204 @@
       "MAINTENANCE": "系统维护",
       "LOCK": "锁定"
     },
+    "result": {
+      "SUCCESS": "成功",
+      "FAILED": "失败"
+    },
+    "operation": {
+      "CREATE": "建立订阅",
+      "UPDATE": "修改订阅",
+      "UPGRADE": "套餐升级",
+      "DOWNGRADE": "套餐降级",
+      "EXTEND": "延长订阅",
+      "PAUSE": "暂停订阅",
+      "RESUME": "恢复订阅",
+      "TERMINATE": "终止订阅",
+      "SEAT_CHANGE": "修改账号数量",
+      "EXPIRE": "订阅到期",
+      "automatic_invoice_generation": "自动生成 SaaS 账单",
+      "automatic_commission_calculation": "计算平台佣金",
+      "run_automatic_billing_now": "执行自动账单任务",
+      "qr_status_change": "二维码状态变更",
+      "qr_reissue": "重新生成二维码",
+      "qr_scan": "使用二维码",
+      "qr_codes_export": "导出二维码资料",
+      "qr_scans_export": "导出扫码记录",
+      "qr_anomalies_export": "导出二维码异常记录",
+      "service_event": "记录 CWE 服务异常",
+      "service_recovery": "记录 CWE 服务恢复",
+      "record_event_resolution": "更新异常处理状态",
+      "create_plan": "建立订阅方案",
+      "update_plan": "修改订阅方案",
+      "bind_project": "绑定项目",
+      "unbind_project": "解除项目绑定",
+      "print_ticket": "打印称重单",
+      "clear_gate_binding": "清除闸口绑定",
+      "company_created": "建立公司",
+      "company_updated": "修改公司资料",
+      "company_status_changed": "变更公司状态",
+      "company_removed": "移除公司",
+      "company_reviewed": "完成公司审核",
+      "department_created": "建立部门",
+      "department_updated": "修改部门",
+      "department_removed": "移除部门",
+      "user_created": "建立用户",
+      "user_updated": "修改用户资料",
+      "user_status_changed": "变更用户状态",
+      "user_removed": "移除未使用用户",
+      "reset_link_sent": "重新发送专属登录链接",
+      "force_logout": "强制用户登出",
+      "commission_rule_created": "建立佣金规则",
+      "commission_rule_updated": "修改佣金规则",
+      "commission_rule_removed": "移除佣金规则",
+      "invoice_generated": "生成账单",
+      "invoice_issued": "发出账单",
+      "invoice_state_changed": "变更付款状态",
+      "payment_submitted": "提交付款凭证",
+      "payment_confirmed": "确认收款",
+      "payment_rejected": "拒绝付款凭证",
+      "scale_created": "登记地磅",
+      "scale_updated": "修改地磅资料",
+      "scale_enabled": "启用地磅",
+      "scale_disabled": "停用地磅",
+      "scale_removed": "移除地磅登记",
+      "audit_logs_exported": "导出操作日志",
+      "cwe_rules_published": "发布 CWE 地磅设置参数",
+      "basic_setting_updated": "修改平台基本资料",
+      "saas_setting_updated": "修改 SaaS 参数",
+      "commission_setting_updated": "修改平台佣金设置",
+      "cwe_setting_updated": "修改 CWE 引擎设置",
+      "cctv_setting_updated": "修改 AI CCTV 设置",
+      "anpr_setting_updated": "修改 ANPR 设置",
+      "qr_setting_updated": "修改二维码设置",
+      "api_gateway_setting_updated": "修改 API Gateway 设置",
+      "notifications_setting_updated": "修改通知设置",
+      "maintenance_setting_updated": "修改系统维护设置",
+      "version_created": "建立系统版本",
+      "version_updated": "修改系统版本",
+      "current_version_changed": "变更当前系统版本",
+      "version_changelog_added": "新增版本说明",
+      "feature_flag_updated": "修改功能发布设置",
+      "feature_flag_removed": "移除功能发布设置",
+      "announcement_created": "建立系统公告",
+      "announcement_updated": "修改系统公告",
+      "announcement_removed": "移除系统公告",
+      "agreement_activation": "启用合作协议",
+      "agreement_expiry": "合作协议到期",
+      "agreement_renewal": "续签合作协议",
+      "agreement_termination": "终止合作协议",
+      "api_integration_status": "更新 API 对接状态",
+      "approval_action": "记录审批决定",
+      "archive_document": "归档文件",
+      "assignment_overdue": "记录逾期资产领用",
+      "calculate": "计算销售佣金",
+      "calculate_all": "计算全部销售佣金",
+      "capture_monitoring_snapshot": "记录平台监控快照",
+      "commission_adjustment": "调整合作伙伴佣金",
+      "commission_calculation": "计算合作伙伴佣金",
+      "commission_settlement": "结算合作伙伴佣金",
+      "customer_assignment": "分配客户归属",
+      "customer_reassigned": "重新分配客户归属",
+      "device_installation": "记录设备安装",
+      "disposal_decision": "记录资产报废决定",
+      "disposal_request": "申请资产报废",
+      "enquiry_status": "更新客户咨询状态",
+      "evidence_revision": "建立证据修订版本",
+      "external_portal_read": "查看外部门户资料",
+      "feedback_response": "记录客户反馈回复",
+      "installation": "记录资产安装",
+      "installation_status": "更新资产安装状态",
+      "issue": "领用资产",
+      "maintenance_completed": "完成设备维护",
+      "maintenance_completion": "完成资产保养",
+      "maintenance_schedule": "安排资产保养",
+      "manual_registration": "手动登记资产",
+      "payout_adjusted": "调整销售佣金",
+      "payout_transition": "变更销售佣金结算状态",
+      "purchase": "记录资产采购",
+      "purchase_receipt": "记录资产采购收货",
+      "return": "归还资产",
+      "revoke_external_access": "撤销外部访问权限",
+      "run_now": "执行定时任务",
+      "stock_receipt": "资产入库",
+      "terms_activated": "启用销售条款",
+      "sales_report_exported": "导出销售报表",
+      "salesperson_created": "建立销售人员",
+      "salesperson_updated": "修改销售人员资料",
+      "salesperson_status_changed": "变更销售人员状态",
+      "sales_territory_assigned": "分配销售区域",
+      "sales_territory_updated": "修改销售区域",
+      "sales_territory_removed": "移除销售区域",
+      "commission_scheme_created": "建立销售佣金方案",
+      "commission_scheme_updated": "修改销售佣金方案",
+      "commission_rule_updated": "修改销售佣金规则",
+      "sales_terms_created": "建立销售条款版本",
+      "sales_terms_activated": "启用销售条款版本",
+      "sales_terms_acknowledged": "记录销售条款确认",
+      "sales_commission_calculated": "计算销售佣金",
+      "commission_supervisor_approved": "主管确认销售佣金",
+      "commission_finance_confirmed": "财务确认销售佣金",
+      "commission_payment_confirmed": "确认销售佣金付款",
+      "commission_settlement_rejected": "驳回销售佣金结算",
+      "commission_settlement_cancelled": "取消销售佣金结算",
+      "customer_service_report_exported": "导出客户服务报表",
+      "customer_enquiry_created": "建立客户咨询",
+      "customer_enquiry_note_added": "新增客户咨询处理记录",
+      "customer_training_scheduled": "安排客户培训",
+      "customer_follow_up_recorded": "记录客户回访",
+      "customer_feedback_recorded": "记录客户反馈",
+      "customer_service_recorded": "记录客户服务历史",
+      "technical_support_report_exported": "导出技术支持报表",
+      "technical_ticket_created": "建立技术工单",
+      "technical_ticket_updated": "修改技术工单资料",
+      "technical_ticket_comment_added": "新增技术工单记录",
+      "bug_record_created": "建立 Bug 记录",
+      "api_integration_created": "建立 API 对接记录",
+      "partner_report_exported": "导出合作伙伴报表",
+      "partner_created": "建立合作伙伴",
+      "partner_updated": "修改合作伙伴资料",
+      "partner_status_changed": "变更合作伙伴状态",
+      "partner_type_created": "建立合作类型",
+      "partner_type_updated": "修改合作类型",
+      "partner_type_removed": "移除合作类型",
+      "partner_territory_created": "建立合作区域",
+      "partner_territory_updated": "修改合作区域",
+      "partner_territory_removed": "移除合作区域",
+      "partner_customer_assigned": "分配合作伙伴客户",
+      "partner_customer_assignment_updated": "修改合作伙伴客户归属",
+      "partner_agreement_created": "建立合作协议",
+      "partner_agreement_updated": "修改合作协议",
+      "partner_agreement_submitted": "提交合作协议",
+      "asset_report_exported": "导出资产报表",
+      "asset_updated": "修改资产资料",
+      "asset_status_changed": "变更资产状态",
+      "asset_category_created": "建立资产分类",
+      "asset_category_updated": "修改资产分类",
+      "asset_category_removed": "移除资产分类",
+      "maintenance_started": "开始资产维修／保养",
+      "cloud_vendor_created": "建立云服务供应商",
+      "cloud_vendor_updated": "修改云服务供应商",
+      "cloud_service_created": "建立云服务",
+      "cloud_service_updated": "修改云服务",
+      "cloud_service_status_changed": "变更云服务状态",
+      "cloud_plan_created": "建立云服务方案",
+      "cloud_plan_updated": "修改云服务方案",
+      "cloud_pricing_rule_created": "建立云服务收费规则",
+      "cloud_pricing_rule_updated": "修改云服务收费规则",
+      "cloud_budget_created": "建立云成本预算",
+      "cloud_budget_updated": "修改云成本预算",
+      "cloud_alert_resolved": "处理云资源预警",
+      "cloud_service_report_exported": "导出云服务报表",
+      "ticket_transition": "更新技术工单状态",
+      "training_status": "更新客户培训状态",
+      "transfer": "记录资产调拨",
+      "update_bank_account": "修改公司银行账号",
+      "usage_record": "记录云资源使用量",
+      "REMOTE_CONFIGURATION": "执行远端设备设置",
+      "REMOTE_TESTING": "执行远端设备测试",
+      "REMOTE_RESTART": "执行远端设备重启",
+      "FIRMWARE_UPGRADE": "执行远端固件升级"
+    },
     "impersonatedBy": "由 {name} 代为操作",
     "before": "变更前",
     "after": "变更后",
@@ -2244,6 +2855,28 @@
       "COMPANY_SUSPENDED": "公司已停用",
       "PORTAL_MISMATCH": "登录入口错误"
     }
+  },
+  "consultantProject": {
+    "label": "当前顾问项目"
+  },
+  "fieldAccess": {
+    "thisPhone": "这台手机",
+    "failed": "暂时无法完成操作，请重试。",
+    "invalidTitle": "链接不可用",
+    "invalidBody": "此现场人员链接无效或已过期，请向项目管理员索取新链接。",
+    "readyTitle": "手机已准备好",
+    "readyBody": "这台手机已安全绑定到你的现场人员账号。",
+    "openWorkspace": "打开拍照工作台",
+    "install": "加入手机桌面",
+    "iosTitle": "加入 iPhone 桌面",
+    "iosBody": "在 Safari 点分享，然后选择“加入主画面”。",
+    "activateTitle": "启用现场人员账号",
+    "loginTitle": "现场人员登录",
+    "loginBody": "请输入项目管理员提供的手机号码和 6 位 PIN。",
+    "phone": "手机号码",
+    "pin": "6 位 PIN",
+    "bind": "绑定这台手机",
+    "signIn": "登录"
   },
   "profile": {
     "title": "个人资料",
@@ -2311,6 +2944,12 @@
       "partnership_not_counterparty": "只有另一方公司可以回应此合作申请。",
       "partnership_not_found": "找不到这条合作关系。",
       "portal_mismatch": "此账号属于另一个后台，请使用对应的登录入口。",
+      "consultant_organization_not_found": "找不到该顾问单位。",
+      "consultant_grant_not_found": "找不到该顾问项目授权。",
+      "field_invitation_invalid": "此现场人员链接无效或已过期。",
+      "field_pin_invalid": "手机号码或 PIN 不正确。",
+      "field_device_invalid": "这台手机未绑定该现场人员账号，请联系项目管理员重置。",
+      "field_device_already_bound": "该现场人员账号已绑定另一台手机，请联系项目管理员重置。",
       "progress_update_not_found": "找不到这条工程进度。",
       "project_already_bound": "此项目已绑定到该合作关系。",
       "safety_incident_not_found": "找不到这条安全事故记录。",
@@ -2339,6 +2978,7 @@
       "integration_not_found": "找不到该集成。",
       "integration_already_exists": "该集成名称已存在。",
       "integration_base_url_required": "请先填写完整的 HTTP 或 HTTPS 基础 URL，再测试连接。",
+      "integration_test_required": "请先成功测试真实连接，然后才能启用。",
       "integration_has_devices": "请先移除或解除正在使用该连接的设备。",
       "integration_device_not_found": "找不到该集成设备。",
       "integration_device_already_exists": "该设备编号已存在。",
@@ -2391,6 +3031,9 @@
       "quota_exceeded": "已超过设定的云服务额度。",
       "receipt_not_found": "找不到该收货单。",
       "receipt_photo_not_found": "找不到该照片。",
+      "receipt_immutable": "已上传的收货记录不能修改或删除，请建立一条更正记录。",
+      "ocr_not_configured": "文件识别尚未设置，请手动填写送货单资料。",
+      "ocr_failed": "无法识别该送货单，请手动填写资料。",
       "dispatch_not_found": "找不到该出场单。",
       "dispatch_not_editable": "该车货物已离场，无法再修改。",
       "dispatch_already_released": "该车货物已放行。",
@@ -2649,8 +3292,19 @@
     }
   },
   "weighingRules": {
-    "title": "检测参数",
-    "subtitle": "决定什么算作弊的那组阈值",
+    "title": "地磅设置参数",
+    "subtitle": "版本化管理默认称重规则、异常判断阈值与数据同步参数",
+    "loadError": "无法载入 CWE 地磅设置参数。",
+    "group": {
+      "rules": {
+        "title": "称重规则与异常判断参数",
+        "subtitle": "以不可修改的版本发布，并由称重引擎实际采用"
+      },
+      "engine": {
+        "title": "通信、Gateway、重磅与数据同步参数",
+        "subtitle": "由平台保存的硬件连接与数据传输设置"
+      }
+    },
     "publish": "发布新版本",
     "immutableHint": "发布会创建一个新版本。已经判定过的称重仍然保留当时判定它的阈值，所以在这里改动数值永远无法洗白已有的历史。",
     "scope": {
@@ -2807,6 +3461,8 @@
     "count": "{count, plural, =0 {暂无送货单} other {# 张送货单}}",
     "new": "签发送货单",
     "createTitle": "签发送货单",
+    "viewQr": "查看二维码",
+    "downloadPng": "下载 PNG",
     "field": {
       "project": "项目",
       "supplier": "供应商",
@@ -2831,42 +3487,43 @@
   "adminQr": {
     "title": "二维码管理",
     "subtitle": "7 签发、管理、查询及审计平台二维码和每一次扫码尝试",
+    "loadError": "无法载入二维码资料。",
     "count": "共 {count} 条二维码记录",
     "empty": "没有符合条件的二维码记录。",
     "searchPlaceholder": "搜索 QR ID、对象或公司",
     "scanSearchPlaceholder": "搜索 QR ID、对象、地点或扫码人员",
     "section": {
       "types": {
-        "title": "二维码类别",
-        "subtitle": "7.2.1 为建筑商、回收商、供应商、司机、车辆、工地人员、访客及设备签发二维码"
+        "title": "二维码管理",
+        "subtitle": "为建筑商、回收商、供应商、司机、车辆、工地人员、访客及设备签发二维码"
       },
       "register": {
         "title": "二维码资料",
-        "subtitle": "7.2.2 QR ID、类别、公司、项目、建立日期、有效状态及使用状态"
+        "subtitle": "QR ID、类别、公司、项目、建立日期、有效状态及使用状态"
       },
       "lifecycle": {
         "title": "二维码状态管理",
-        "subtitle": "7.2.3 启用、停用、永久作废或重新生成二维码"
+        "subtitle": "启用、停用、永久作废或重新生成二维码"
       },
       "search": {
         "title": "二维码查询",
-        "subtitle": "7.2.4 按 QR ID、公司、类别、项目、状态及建立日期查询"
+        "subtitle": "按 QR ID、公司、类别、项目、状态及建立日期查询"
       },
       "scans": {
         "title": "扫码记录",
-        "subtitle": "7.2.5 永久保存扫码时间、地点、人员、项目及结果"
+        "subtitle": "永久保存扫码时间、地点、人员、项目及结果"
       },
       "anomalies": {
         "title": "二维码异常",
-        "subtitle": "7.2.6 无效、停用、作废、重复使用及失败扫码"
+        "subtitle": "无效、停用、作废、重复使用及失败扫码"
       },
       "statistics": {
         "title": "二维码统计",
-        "subtitle": "7.2.7 二维码总数、各类别数量及今日扫码结果"
+        "subtitle": "二维码总数、各类别数量及今日扫码结果"
       },
       "activity": {
         "title": "二维码操作记录",
-        "subtitle": "7.2.8 永久保存建立、状态、重发、使用及导出操作"
+        "subtitle": "永久保存建立、状态、重发、使用及导出操作"
       }
     },
     "subjectType": {
@@ -2893,12 +3550,13 @@
       "VOIDED": "二维码已作废",
       "EXPIRED": "二维码已过期",
       "WRONG_LOCATION": "地点不符",
-      "DUPLICATE": "重复使用"
+      "DUPLICATE": "重复使用",
+      "DUPLICATE_WARNING": "已通过并提示重复"
     },
     "field": {
       "qrId": "QR ID",
       "subjectType": "类别",
-      "subject": "对象",
+      "subject": "绑定对象",
       "company": "公司",
       "project": "项目",
       "site": "回收场",
@@ -2926,18 +3584,32 @@
       "disable": "停用",
       "void": "作废",
       "reissue": "重新生成",
+      "downloadQr": "下载二维码",
+      "downloadPng": "下载 PNG",
+      "downloadJpg": "下载 JPG",
+      "printQr": "打印二维码",
       "excel": "Excel",
       "pdf": "PDF"
     },
     "issue": {
       "title": "签发二维码",
-      "description": "选择真实公司对象及所属项目或回收场。"
+      "description": "把二维码绑定到真实公司资料，让每次扫码都能正确追踪。",
+      "visitorPlaceholder": "填写访客姓名或通行证编号",
+      "visitorHint": "只有访客类别可以手动填写。",
+      "companyAutoBind": "请先选择上方公司",
+      "companyAutoBindHint": "建筑商或回收商会自动绑定到所选公司，不需要再选一次。",
+      "subjectHint": "请从该公司的现有资料选择，避免二维码指向不存在的人员、车辆或设备。",
+      "noSubjects": "该公司没有符合此类别的资料。请先建立人员、车辆或设备，再回来签发二维码。"
     },
-    "edit": { "title": "编辑二维码资料" },
+    "edit": {
+      "title": "编辑二维码资料",
+      "bindingLocked": "签发后绑定对象会锁定，以保护扫码历史。若绑定错误，请用正确对象重新生成二维码。"
+    },
     "issued": {
       "title": "二维码已签发",
-      "description": "Token 只显示一次供打印，关闭后不能再次读取。",
-      "copied": "Token 已复制"
+      "description": "请立即下载或打印。手机相机扫码后会打开安全的 MSE Trace 扫码页面。",
+      "scanLink": "手机扫码链接",
+      "copied": "扫码链接已复制"
     },
     "metric": {
       "total": "二维码总数",
@@ -2953,6 +3625,28 @@
       "reissued": "二维码已重新生成"
     }
   },
+  "qrScan": {
+    "title": "扫描 MSE Trace 二维码",
+    "subtitle": "确认二维码，并把这次扫码保存到永久审计记录。",
+    "invalidLink": "二维码链接不完整",
+    "invalidLinkDescription": "请扫描新下载的 MSE Trace 二维码图片后再试。",
+    "loginRequired": "确认扫码前请先登录",
+    "loginDescription": "请选择你的账号所属后台，登录成功后会自动返回此扫码页面。",
+    "signedInAs": "当前登录账号",
+    "locationTitle": "扫码位置",
+    "locationDescription": "GPS 为选填，但记录位置会让工地审计资料更完整。",
+    "getLocation": "获取 GPS",
+    "locationReady": "GPS 已获取",
+    "accuracy": "精度约 {metres} 米",
+    "locationUnavailable": "此手机浏览器不支持定位。",
+    "locationError": "无法获取 GPS。请允许定位权限后重试，或不带位置继续扫码。",
+    "mobileLocation": "手机二维码扫码",
+    "confirmScan": "确认扫码",
+    "scanAgain": "再次扫描此二维码",
+    "accepted": "扫码通过",
+    "refused": "扫码被拒绝",
+    "scanError": "无法保存扫码记录，请重试。"
+  },
   "adminNotifications": {
     "title": "通知中心",
     "subtitle": "10 管理平台、公司、收费、佣金、称重及系统通知",
@@ -2960,52 +3654,54 @@
     "section": {
       "contractors": {
         "title": "建筑商通知",
-        "subtitle": "10.2.1 注册、启用、停用、订阅到期及续费通知"
+        "subtitle": "注册、启用、停用、订阅到期及续费通知"
       },
       "recyclers": {
         "title": "回收商通知",
-        "subtitle": "10.2.2 注册、启用、停用、订阅到期及续费通知"
+        "subtitle": "注册、启用、停用、订阅到期及续费通知"
       },
       "saas": {
         "title": "SaaS 收费通知",
-        "subtitle": "10.2.3 账单生成、即将到期、已到期、付款及逾期通知"
+        "subtitle": "账单生成、即将到期、已到期、付款及逾期通知"
       },
       "commission": {
         "title": "平台佣金通知",
-        "subtitle": "10.2.4 佣金生成、应收、已收、未收及逾期通知"
+        "subtitle": "佣金生成、应收、已收、未收及逾期通知"
       },
       "cwe": {
         "title": "Cloud Weighing Engine 通知",
-        "subtitle": "10.2.5 地磅离线、恢复、通讯、称重及系统异常通知"
+        "subtitle": "地磅离线、恢复、通讯、称重及系统异常通知"
       },
       "system": {
         "title": "系统通知",
-        "subtitle": "10.2.6 公告、维护、新版本、升级及紧急通知"
+        "subtitle": "公告、维护、新版本、升级及紧急通知"
       },
       "search": {
         "title": "通知查询",
-        "subtitle": "10.2.7 按类别、公司、日期及已读状态查询"
+        "subtitle": "按类别、公司、日期及已读状态查询"
       },
       "manage": {
         "title": "通知管理",
-        "subtitle": "10.2.8 查看、标记已读或未读及移除收件箱记录"
+        "subtitle": "查看、标记已读或未读及移除收件箱记录"
       },
       "channels": {
         "title": "推播方式",
-        "subtitle": "10.2.9 站内、Email 与 Push，并明确显示 LIVE 或 SIMULATED"
+        "subtitle": "站内、Email 与 Push，并明确显示 LIVE 或 SIMULATED"
       },
       "records": {
         "title": "通知记录",
-        "subtitle": "10.2.10 永久保存发送、读取及状态变更记录"
+        "subtitle": "永久保存发送、读取及状态变更记录"
       }
     },
     "filter": {
       "search": "搜索",
+      "category": "通知类别",
       "company": "公司",
       "status": "状态",
       "dateFrom": "开始日期",
       "dateTo": "结束日期",
       "allCompanies": "全部公司",
+      "allCategories": "全部类别",
       "allStatuses": "全部状态"
     },
     "field": {
@@ -3023,6 +3719,7 @@
     "action": {
       "markRead": "标记已读",
       "markUnread": "标记未读",
+      "view": "查看通知",
       "remove": "移除",
       "send": "发送通知"
     },
@@ -3049,43 +3746,43 @@
     "section": {
       "contractors": {
         "title": "建筑商报表",
-        "subtitle": "9.2.1 建筑商总数、新增、启用状态及项目统计"
+        "subtitle": "建筑商总数、新增、启用状态及项目统计"
       },
       "recyclers": {
         "title": "回收商报表",
-        "subtitle": "9.2.2 回收商总数、新增、启用状态及平台业务统计"
+        "subtitle": "回收商总数、新增、启用状态及平台业务统计"
       },
       "business": {
         "title": "平台业务报表",
-        "subtitle": "9.2.3 平台订单、完成订单、回收重量及结算金额"
+        "subtitle": "平台订单、完成订单、回收重量及结算金额"
       },
       "saas": {
         "title": "SaaS 收费报表",
-        "subtitle": "9.2.4 订阅、应收、已收、未收及续费统计"
+        "subtitle": "订阅、应收、已收、未收及续费统计"
       },
       "commission": {
         "title": "平台佣金报表",
-        "subtitle": "9.2.5 佣金业务重量、结算金额、比例及收款统计"
+        "subtitle": "佣金业务重量、结算金额、比例及收款统计"
       },
       "cwe": {
         "title": "Cloud Weighing Engine 报表",
-        "subtitle": "9.2.6 地磅、称重、异常、重新过磅及在线率"
+        "subtitle": "地磅、称重、异常、重新过磅及在线率"
       },
       "operations": {
         "title": "系统运营报表",
-        "subtitle": "9.2.7 在线用户、活跃用户、API、数据同步及系统异常"
+        "subtitle": "在线用户、活跃用户、API、数据同步及系统异常"
       },
       "search": {
         "title": "报表查询",
-        "subtitle": "9.2.8 按公司、项目、州属和日期范围查询各类报表"
+        "subtitle": "按公司、项目、州属和日期范围查询各类报表"
       },
       "export": {
         "title": "导出报表",
-        "subtitle": "9.2.9 按日、周、月、年或自定义日期导出 PDF 与 Excel"
+        "subtitle": "按日、周、月、年或自定义日期导出 PDF 与 Excel"
       },
       "history": {
         "title": "报表历史记录",
-        "subtitle": "9.2.10 永久保存所有报表生成及导出记录"
+        "subtitle": "永久保存所有报表生成及导出记录"
       }
     },
     "filter": {
@@ -3167,38 +3864,44 @@
     "sessionSearchPlaceholder": "搜索称重编号或车牌",
     "statisticsNote": "统计数据来自永久保留的称重记录和异常证据。",
     "refresh15s": "每 15 秒自动刷新",
+    "service": {
+      "builtinTitle": "CWE 已内置在 MSE Trace",
+      "builtinDescription": "不需要再配置第二个 CWE。只需登记地磅、安装对应 Gateway，并确认 Gateway 心跳在线；CWE 就会自动处理已签名的重量数据流。",
+      "scales": "地磅管理",
+      "gateways": "Gateway 状态"
+    },
     "section": {
       "scales": {
         "title": "地磅登记",
-        "subtitle": "8.2.1 设备编号、公司、项目或地点、Gateway、协议及启用状态"
+        "subtitle": "设备编号、公司、项目或地点、Gateway、协议及启用状态"
       },
       "connections": {
         "title": "地磅连接状态",
-        "subtitle": "8.2.2 在线／离线、最后通信、网络及 Gateway 状态"
+        "subtitle": "在线／离线、最后通信、网络及 Gateway 状态"
       },
       "live-weighing": {
         "title": "当前称重状态",
-        "subtitle": "8.2.3 当前重量、稳定状态、最后称重及进行中状态"
+        "subtitle": "当前重量、稳定状态、最后称重及进行中状态"
       },
       "anomalies": {
         "title": "称重异常",
-        "subtitle": "8.2.4 异常称重、重新过磅、通信及设备异常"
+        "subtitle": "异常称重、重新过磅、通信及设备异常"
       },
       "search": {
         "title": "称重查询",
-        "subtitle": "8.2.5 按公司、项目、设备、状态及日期查询"
+        "subtitle": "按公司、项目、设备、状态及日期查询"
       },
       "statistics": {
         "title": "CWE 统计",
-        "subtitle": "8.2.6 地磅、称重、异常、重磅数量及在线率"
+        "subtitle": "地磅、称重、异常、重磅数量及在线率"
       },
       "service-status": {
         "title": "CWE 服务状态",
-        "subtitle": "8.2.7 处理能力、响应时间、错误率及同步状态"
+        "subtitle": "处理能力、响应时间、错误率及同步状态"
       },
       "activity": {
         "title": "CWE 操作记录",
-        "subtitle": "8.2.8 永久保存建立、连接、通信、异常、重磅及状态操作"
+        "subtitle": "永久保存建立、连接、通信、异常、重磅及状态操作"
       }
     },
     "field": {
@@ -3266,8 +3969,10 @@
     "live": { "activeSessions": "进行中的称重" },
     "metric": {
       "totalScales": "地磅总数",
+      "activeScales": "启用地磅",
       "onlineGateways": "在线 Gateway",
       "offlineGateways": "离线 Gateway",
+      "weighingsToday": "今日称重",
       "totalSessions": "称重总数",
       "validSessions": "有效称重",
       "invalidSessions": "异常称重",
@@ -3932,6 +4637,27 @@
   "billing": {
     "title": "账单与佣金管理",
     "subtitle": "管理 SaaS 收费、平台佣金、账单及收款",
+    "workflow": {
+      "title": "收费工作流程",
+      "description": "每个页面负责一个步骤，数据会沿着流程往下走，不是重复功能。",
+      "notDuplicate": "规则 ≠ 账单 ≠ 收款",
+      "stepLabel": "第 {number} 步",
+      "step": {
+        "rules": "设置规则",
+        "generate": "生成账单",
+        "issue": "发出账单",
+        "collect": "确认收款",
+        "report": "查看报表"
+      },
+      "saas": {
+        "title": "SaaS 订阅费：",
+        "description": "建筑商或回收商按套餐周期付给平台的固定费用。"
+      },
+      "commission": {
+        "title": "合作版佣金：",
+        "description": "回收商完成并结算合作业务后，按照佣金规则计算的平台服务收入。"
+      }
+    },
     "count": "{count} 张账单",
     "field": {
       "invoiceNumber": "账单编号",
@@ -4040,8 +4766,74 @@
       "perTonne": "每吨",
       "openEnded": "长期有效",
       "days": "{count} 天",
+      "saveError": "佣金规则保存失败，请检查填写内容后再试。",
       "removeTitle": "移除佣金规则",
       "removeDescription": "确定移除 {name}？已用于账单的规则只能停用。"
+    },
+    "automatic": {
+      "purposeTitle": "这页只负责自动建立账单",
+      "purposeDescription": "系统会根据有效订阅和已结算合作业务建立 SaaS 或佣金账单，并更新逾期状态。它不会代替收款确认，也不会重复建立已经存在的账单。",
+      "runNow": "立即运行",
+      "active": "运行中",
+      "inactive": "已停用",
+      "history": "近期自动账单执行记录",
+      "empty": "还没有自动账单执行记录。",
+      "loadError": "无法加载自动账单状态。",
+      "notConfigured": "尚未配置自动账单排程。",
+      "intervalMinutes": "每 {count} 分钟",
+      "field": {
+        "status": "排程状态",
+        "nextRun": "下次运行",
+        "lastRun": "上次运行",
+        "interval": "执行频率",
+        "scheduledFor": "计划时间",
+        "state": "执行结果",
+        "attempt": "尝试次数",
+        "saasIssued": "SaaS 账单",
+        "commissionIssued": "佣金账单",
+        "overdueUpdated": "更新逾期账单",
+        "error": "错误"
+      },
+      "state": {
+        "QUEUED": "排队中",
+        "RUNNING": "运行中",
+        "RETRY_WAIT": "等待重试",
+        "SUCCEEDED": "成功",
+        "FAILED": "失败",
+        "CANCELLED": "已取消"
+      },
+      "toast": { "queued": "自动账单任务已加入队列" }
+    },
+    "financialReports": {
+      "loadError": "无法加载财务报表汇总。",
+      "metric": {
+        "invoiceCount": "账单数量",
+        "paymentCount": "已确认收款笔数",
+        "billed": "应收金额",
+        "collected": "已收金额",
+        "outstanding": "未收金额",
+        "overdue": "逾期金额"
+      },
+      "saas": {
+        "title": "SaaS 收入报表",
+        "subtitle": "SaaS 订阅账单及收款情况"
+      },
+      "commission": {
+        "title": "平台佣金收入报表",
+        "subtitle": "平台业务佣金账单及收款情况"
+      },
+      "receivables": {
+        "title": "应收账款报表",
+        "subtitle": "全部应收、已收及未收金额"
+      },
+      "paid": {
+        "title": "已收款报表",
+        "subtitle": "所有已确认到账记录，包括部分付款"
+      },
+      "unpaid": {
+        "title": "未收款报表",
+        "subtitle": "仍有未收余额的已发出、部分付款及逾期账单"
+      }
     },
     "metric": {
       "saasBilled": "本月 SaaS 应收",
@@ -4056,43 +4848,43 @@
     "section": {
       "saas-invoices": {
         "title": "SaaS 账单管理",
-        "subtitle": "5.2.1 账单编号、公司、套餐、期间、金额与付款状态"
+        "subtitle": "账单编号、公司、套餐、期间、金额与付款状态"
       },
       "commission": {
         "title": "平台佣金管理",
-        "subtitle": "5.2.2 平台结算业务重量、金额、比例及应收佣金"
+        "subtitle": "平台结算业务重量、金额、比例及应收佣金"
       },
       "automatic-billing": {
         "title": "自动生成账单",
-        "subtitle": "5.2.3 每日生成 SaaS／佣金账单并发送给对应公司"
+        "subtitle": "每日生成 SaaS／佣金账单并发送给对应公司"
       },
       "collections": {
         "title": "收款管理",
-        "subtitle": "5.2.4 未付款、已付款、部分付款及逾期收款确认"
+        "subtitle": "未付款、已付款、部分付款及逾期收款确认"
       },
       "payment-proofs": {
         "title": "付款凭证",
-        "subtitle": "5.2.5 银行凭证、截图、付款日期及备注"
+        "subtitle": "银行凭证、截图、付款日期及备注"
       },
       "commission-rules": {
         "title": "佣金规则管理",
-        "subtitle": "5.2.6 平台佣金比例、计算方式及结算周期"
+        "subtitle": "平台佣金比例、计算方式及结算周期"
       },
       "search": {
         "title": "账单查询",
-        "subtitle": "5.2.7 按公司、编号、类型、日期及付款状态查询"
+        "subtitle": "按公司、编号、类型、日期及付款状态查询"
       },
       "statistics": {
         "title": "收费统计",
-        "subtitle": "5.2.8 本月 SaaS 与平台佣金应收／已收／未收"
+        "subtitle": "本月 SaaS 与平台佣金应收／已收／未收"
       },
       "reports": {
         "title": "财务报表",
-        "subtitle": "5.2.9 SaaS、佣金、应收、已收及未收 PDF／Excel 报表"
+        "subtitle": "SaaS、佣金、应收、已收及未收 PDF／Excel 报表"
       },
       "activity": {
         "title": "账单操作记录",
-        "subtitle": "5.2.10 永久保存账单、计算、收款及规则变更历史"
+        "subtitle": "永久保存账单、计算、收款及规则变更历史"
       }
     },
     "toast": {
@@ -4260,39 +5052,39 @@
     "section": {
       "plans": {
         "title": "订阅方案管理",
-        "subtitle": "4.2.1 套餐价格、期限、账号额度与功能权限"
+        "subtitle": "套餐价格、期限、账号额度与功能权限"
       },
       "companies": {
         "title": "公司订阅管理",
-        "subtitle": "4.2.2 各公司的当前套餐、期限与状态"
+        "subtitle": "各公司的当前套餐、期限与状态"
       },
       "status": {
         "title": "订阅状态",
-        "subtitle": "4.2.3 系统自动管理订阅生命周期状态"
+        "subtitle": "系统自动管理订阅生命周期状态"
       },
       "package-changes": {
         "title": "套餐升级／降级",
-        "subtitle": "4.2.4 升降级、延期、暂停或提前结束订阅"
+        "subtitle": "升降级、延期、暂停或提前结束订阅"
       },
       "account-limits": {
         "title": "账号数量管理",
-        "subtitle": "4.2.5 可用、已用及剩余后台账号"
+        "subtitle": "可用、已用及剩余后台账号"
       },
       "reminders": {
         "title": "到期提醒",
-        "subtitle": "4.2.6 同步给 MSE 与对应公司的续费队列"
+        "subtitle": "同步给 MSE 与对应公司的续费队列"
       },
       "search": {
         "title": "订阅查询",
-        "subtitle": "4.2.7 按公司、类别、套餐、状态及到期日查询"
+        "subtitle": "按公司、类别、套餐、状态及到期日查询"
       },
       "statistics": {
         "title": "订阅统计",
-        "subtitle": "4.2.8 订阅数量、续费及 SaaS 实收统计"
+        "subtitle": "订阅数量、续费及 SaaS 实收统计"
       },
       "activity": {
         "title": "操作记录",
-        "subtitle": "4.2.9 永久保存订阅变更历史"
+        "subtitle": "永久保存订阅变更历史"
       }
     },
     "toast": {
@@ -4633,6 +5425,7 @@
       "selectPerson": "选择销售人员",
       "reason": "必须填写原因",
       "target": "目标金额",
+      "accrualMonths": "佣金累计月数",
       "description": "说明",
       "body": "条款内容",
       "selectStatus": "选择下一状态",
@@ -4647,6 +5440,7 @@
       "addTerritory": "新增区域",
       "reassign": "转移",
       "addScheme": "新增方案",
+      "addRule": "新增规则",
       "addTerms": "新增条款版本",
       "activate": "启用",
       "acknowledge": "记录确认",
@@ -4663,6 +5457,7 @@
     "dialog": {
       "person": "设置销售身份、汇报关系和佣金方案。",
       "territory": "选择一个或多个州属，或全国范围。",
+      "rule": "设置佣金方案所采用的计算基础和公式。",
       "scheme": "系统会在计算应付款时自动应用该公式。",
       "terms": "修改会建立新的不可变条款版本。"
     },
@@ -4681,7 +5476,30 @@
       "PERCENT_OF_BUSINESS_VALUE": "业务金额百分比",
       "FIXED_PER_CONTRACTOR": "每位建筑商固定金额",
       "FIXED_PER_RECYCLER": "每位回收商固定金额",
-      "TARGET_BONUS": "目标奖励"
+      "TARGET_BONUS": "目标奖励",
+      "CUSTOM_FORMULA": "自定义计算公式"
+    },
+    "custom": {
+      "configured": "已设置自定义公式",
+      "fixed_amount": "固定基础金额",
+      "fixed_per_customer": "每位客户固定金额",
+      "fixed_per_contractor": "每位建筑商固定金额",
+      "fixed_per_recycler": "每位回收商固定金额",
+      "saas_percent": "SaaS 收入百分比",
+      "platform_commission_percent": "平台佣金百分比",
+      "business_value_percent": "业务金额百分比",
+      "target_threshold": "目标门槛",
+      "target_bonus": "目标奖励金额",
+      "noTarget": "不设置目标奖励",
+      "metric": {
+        "combined_revenue": "SaaS 与平台佣金合计",
+        "saas_revenue": "SaaS 收入",
+        "platform_commission": "平台佣金",
+        "business_value": "业务金额",
+        "customers": "全部新增客户",
+        "contractors": "新增建筑商",
+        "recyclers": "新增回收商"
+      }
     },
     "cycle": { "MONTHLY": "每月", "QUARTERLY": "每季度", "YEARLY": "每年" },
     "termsStatus": {
@@ -5164,6 +5982,17 @@
   "adminAuditCenter": {
     "title": "操作日志",
     "subtitle": "永久保留用户、公司、财务、称重和系统变更记录。",
+    "immutableStatus": {
+      "total": "已保存记录",
+      "retention": "保留策略",
+      "updates": "修改记录",
+      "deletes": "删除记录",
+      "permanent": "永久保存",
+      "blocked": "已禁止",
+      "oldest": "最早保留记录",
+      "newest": "最新保留记录",
+      "empty": "暂无记录"
+    },
     "section": {
       "users": {
         "title": "用户记录",
@@ -5213,7 +6042,24 @@
     "loading": "正在加载设置...",
     "loadError": "无法加载系统设置。",
     "save": "保存",
-    "toast": { "saved": "设置已保存" },
+    "neverUpdated": "正在使用平台默认值",
+    "toast": {
+      "saved": "设置已保存",
+      "companySaved": "公司设置已保存",
+      "companyReset": "公司设置已恢复为平台默认值"
+    },
+    "scope": {
+      "title": "配置范围",
+      "description": "选择公司，为单独的建筑商或回收商覆盖这些设置。",
+      "company": "配置公司",
+      "platformDefault": "平台默认值",
+      "companyOverride": "公司专属设置",
+      "inherited": "继承平台默认值",
+      "reset": "恢复平台默认值",
+      "companyLoadError": "无法加载这家公司的系统设置。",
+      "loadErrorHint": "请检查网络或公司权限，然后重试；已保存的平台默认值不会受影响。",
+      "type": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" }
+    },
     "section": {
       "basic": { "title": "基本设置", "subtitle": "平台身份和公司联络资料。" },
       "saas": {
@@ -5225,8 +6071,8 @@
         "subtitle": "平台佣金启停、比例、计算方式、结算周期和生效日期。"
       },
       "cwe": {
-        "title": "CWE 设置",
-        "subtitle": "通信、Gateway、异常、重磅和同步参数。"
+        "title": "地磅设置参数",
+        "subtitle": "版本化管理默认称重规则、异常判断阈值与数据同步参数。"
       },
       "cctv": {
         "title": "AI CCTV 设置",
@@ -5262,14 +6108,63 @@
       }
     },
     "credential": {
+      "title": "连接凭证状态",
+      "description": "这里仅显示连接是否已准备好。API 密钥和密码请到系统集成页面安全管理，不要粘贴到 JSON 里面。",
       "apiGateway": "API Gateway 凭证",
       "email": "Email 供应商凭证",
       "push": "Push 供应商凭证",
       "deploymentEnv": "部署环境变量",
+      "companyIntegration": "公司安全连接",
+      "manageConnection": "管理连接",
       "configured": "已配置",
       "missing": "未配置"
     },
-    "mode": { "SIMULATED": "模拟", "LIVE": "真实" },
+    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式" },
+    "updatedAt": "最后保存：{value}",
+    "guide": {
+      "cctv": {
+        "title": "AI CCTV：先设置规则，再接入摄像头",
+        "description": "测试模拟模式只让系统用测试资料演示识别流程；真实连接模式才会读取现场 AI CCTV。选择真实连接后，仍需要在系统集成中填写供应商连接资料并做现场测试。"
+      },
+      "anpr": {
+        "title": "ANPR：管理车牌识别方式",
+        "description": "这里决定系统如何处理车牌识别。模拟模式用于演示，真实模式用于现场摄像头。模式本身不会自动连接硬件，真实设备和供应商资料仍要另外配置。"
+      },
+      "api_gateway": {
+        "title": "API Gateway：系统与外部服务的通道",
+        "description": "这里设置通道是否启用以及运行方式。API Gateway 凭证不是普通参数，应该到系统集成页面建立安全连接，避免把密钥直接写进设置。"
+      },
+      "notifications": {
+        "title": "通知：决定哪些消息发给谁",
+        "description": "这里打开或关闭站内、Email 和 Push 通知，并设定通知规则。通知供应商的账号资料由系统集成负责保存。"
+      },
+      "advancedTitle": "高级技术设置",
+      "advancedDescription": "只有接入工程师需要调整的 JSON、识别参数、超时、重试和频率设置。一般使用者可以保持默认值。",
+      "liveNotice": "看到“真实连接模式”不代表硬件已经接好；还需要供应商账号、设备网络、公司/工地绑定和现场验收。",
+      "manageCredentials": "管理安全连接",
+      "viewStatus": "查看运行状态",
+      "step": {
+        "basic": {
+          "title": "基本设置",
+          "description": "打开服务，选择测试或真实连接。"
+        },
+        "connection": {
+          "title": "建立连接",
+          "description": "在系统集成中填写供应商、设备和凭证。"
+        },
+        "monitoring": {
+          "title": "查看结果",
+          "description": "到平台监控查看在线、失败和响应时间。"
+        }
+      }
+    },
+    "serviceStatus": {
+      "NOT_CONFIGURED": "未配置",
+      "DISABLED": "已停用",
+      "READY": "就绪",
+      "DEGRADED": "部分异常",
+      "ERROR": "错误"
+    },
     "option": {
       "MONTHLY": "每月",
       "QUARTERLY": "每季度",
@@ -5278,11 +6173,31 @@
       "SETTLED_AMOUNT": "结算金额",
       "WEIGHT": "重量",
       "FIXED": "固定金额",
-      "SIMULATED": "模拟",
-      "LIVE": "真实",
+      "SIMULATED": "测试模拟模式",
+      "LIVE": "真实连接模式",
       "REJECT": "拒绝",
       "WARN": "警告",
       "ALLOW": "允许"
+    },
+    "cweField": {
+      "default_protocol": "默认仪表通讯协议",
+      "baud_rate": "串口波特率",
+      "heartbeat_seconds": "心跳间隔（秒）",
+      "connection_timeout_seconds": "连接超时（秒）",
+      "packet_reading_limit": "每个数据包最大读数",
+      "upload_interval_seconds": "上传间隔（秒）",
+      "buffer_capacity": "离线缓存容量",
+      "retry_count": "重试次数",
+      "offline_threshold_seconds": "离线判断时间（秒）",
+      "require_signature": "强制验证 Gateway 数据签名",
+      "batch_size": "同步批次大小",
+      "interval_seconds": "同步间隔（秒）",
+      "retention_days": "离线数据保留天数",
+      "compress_payloads": "压缩同步数据"
+    },
+    "cweOption": {
+      "generic_json": "通用 JSON",
+      "mt_continuous_short": "METTLER TOLEDO Continuous Short"
     },
     "field": {
       "platform_name": "平台名称",
@@ -5327,6 +6242,7 @@
       "api_gateway_timeout_seconds": "超时秒数",
       "api_gateway_retry_count": "重试次数",
       "api_gateway_rate_limit_per_minute": "每分钟频率上限",
+      "api_gateway_service_status": "服务状态",
       "notification_email_enabled": "启用 Email",
       "notification_email_mode": "Email 模式",
       "notification_push_enabled": "启用 Push",
@@ -6008,6 +6924,16 @@
     "subtitle": "统一管理云资源、使用量、成本、收费及营运状态。",
     "loading": "正在加载云服务记录...",
     "loadError": "无法加载云服务记录。",
+    "saveError": "保存失败，请检查输入内容后重试。",
+    "emptyTitle": "暂无记录",
+    "emptyDescription": "建立第一笔资料后会显示在这里。",
+    "recordsCount": "共 {count} 笔记录",
+    "formSection": {
+      "basic": "基本资料",
+      "contract": "合约与计费",
+      "storageQuota": "存储容量",
+      "serviceQuota": "每月服务额度"
+    },
     "metric": {
       "services": "云服务数量",
       "active": "启用服务",
@@ -6111,6 +7037,22 @@
     },
     "field": {
       "vendor": "选择供应商",
+      "chooseVendor": "请选择供应商",
+      "chooseService": "请选择云服务",
+      "serviceType": "服务类型",
+      "operationMode": "运行模式",
+      "pricingModel": "计费方式",
+      "subscriptionStart": "合约开始日期",
+      "subscriptionEnd": "合约结束日期",
+      "status": "服务状态",
+      "company": "公司",
+      "project": "项目",
+      "usageDate": "使用日期",
+      "sourceMode": "数据来源",
+      "year": "年份",
+      "month": "月份",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
       "customType": "自定义服务类型",
       "name": "名称",
       "region": "服务地区",
@@ -6145,7 +7087,17 @@
       "budget": "每月预算",
       "baseFee": "基本费",
       "unitPrice": "单位价格",
-      "tiersJson": "阶梯收费 JSON"
+      "tiersJson": "阶梯收费 JSON",
+      "calculationConfig": "计算规则 JSON",
+      "effectiveFrom": "生效日期",
+      "effectiveTo": "结束日期",
+      "currencyHint": "金额单位：MYR",
+      "percentHint": "输入 0 至 100",
+      "gbHint": "容量单位：GB",
+      "monthlyQuotaHint": "每个月可使用的次数或数量",
+      "optionalHint": "选填；留空表示没有结束日期",
+      "secretEditHint": "编辑时留空将保留现有密钥",
+      "jsonHint": "请输入有效 JSON，例如 []"
     },
     "action": {
       "addService": "新增云服务",
@@ -6268,6 +7220,127 @@
       "budgetSaved": "云成本预算已保存",
       "alertResolved": "云资源预警已处理"
     }
+  },
+  "consultantWorkflow": {
+    "project": { "choose": "选择项目", "all": "全部项目" },
+    "applications": {
+      "title": "顾问申请",
+      "subtitle": "共 {count} 项项目申请与审批记录",
+      "create": "新增申请",
+      "back": "返回顾问申请",
+      "search": "搜索申请编号、位置或顾问"
+    },
+    "state": {
+      "chooseProject": "请选择项目以查看该项目的顾问工作。",
+      "loadError": "无法载入资料，请检查项目权限后重试。",
+      "noApplications": "该项目没有符合条件的顾问申请。",
+      "draftUnavailable": "此草稿无法编辑，可能已经提交或您已没有权限。"
+    },
+    "form": {
+      "title": "建立顾问申请",
+      "editTitle": "编辑顾问申请草稿",
+      "subtitle": "填写现场申请、关联证据，再按项目审批流程提交。",
+      "noConsultantGrant": "此项目没有获授权的顾问，请先授予项目权限。",
+      "section": { "project": "申请分类", "consultant": "指定顾问", "inspection": "现场与检查资料" }
+    },
+    "field": {
+      "project": "项目", "projectAddress": "项目地址", "workflow": "审批流程", "chooseWorkflow": "选择审批流程",
+      "applicationType": "申请类型", "chooseType": "选择申请类型", "discipline": "专业类别", "chooseDiscipline": "选择专业类别",
+      "workType": "检查／工作类型", "chooseWorkType": "选择检查类型", "priority": "优先级", "choosePriority": "选择优先级",
+      "customApplicationType": "自定义申请类型", "customDiscipline": "自定义专业", "customWorkType": "自定义工作类型", "customPriority": "自定义优先级",
+      "consultant": "顾问", "chooseConsultant": "选择获授权顾问", "consultantCompany": "顾问公司",
+      "location": "检查位置", "component": "构件／工作区域", "description": "说明／申请内容", "requiredAt": "要求检查日期与时间",
+      "inspectionActivity": "检查活动", "drawingNo": "图纸编号", "drawingRevision": "图纸版本", "itpNo": "ITP 编号",
+      "checklistReference": "检查表参考", "inspectionCategory": "R／S／W／H 类别", "acceptanceRequirement": "验收要求"
+    },
+    "inspectionCategory": { "NONE": "未指定", "R": "R - 审阅", "S": "S - 巡查", "W": "W - 见证", "H": "H - 停检点" },
+    "action": { "cancel": "取消", "save": "保存", "saveDraft": "保存草稿", "edit": "编辑草稿", "submit": "提交审批", "createRevision": "建立新版本", "downloadReport": "下载最终报告", "remove": "移除" },
+    "status": { "DRAFT": "草稿", "SUBMITTED": "等待审批", "APPROVED": "已批准", "REJECTED": "已拒绝", "REVISE_RESUBMIT": "修改后重提", "ARCHIVED": "已归档" },
+    "stepStatus": { "WAITING": "等待中", "CURRENT": "需要处理", "APPROVED": "已批准", "REJECTED": "已拒绝", "REVISE_RESUBMIT": "需要修改", "SKIPPED": "已跳过" },
+    "decision": { "APPROVE": "批准", "REJECT": "拒绝", "REVISE_RESUBMIT": "修改后重提" },
+    "detail": {
+      "revision": "版本 {revision}", "applicant": "建立人：{name}",
+      "section": { "application": "申请资料", "site": "现场申请", "consultant": "项目与顾问", "evidence": "关联现场证据", "attachments": "申请附件", "approvalProgress": "审批进度", "decisions": "已签署决定", "archive": "自动归档" }
+    },
+    "review": {
+      "pending": "当前步骤：{step}", "reviewerConsultant": "指定顾问：{name}", "reviewerUser": "指定审批人：{name}", "reviewerRole": "指定角色：{name}",
+      "setupCredential": "设置签名与 PIN", "remarks": "决定备注", "pin": "6 位审批 PIN", "pinHint": "PIN 用于确认此签署决定由您本人作出。",
+      "dialog": {
+        "APPROVE": { "title": "批准此申请", "description": "确认现场申请；最后一步完成后系统会生成最终审批报告。" },
+        "REJECT": { "title": "拒绝此申请", "description": "请填写会显示在最终报告中的明确原因。" },
+        "REVISE_RESUBMIT": { "title": "退回修改", "description": "请清楚说明建筑商修改后重新提交的内容。" }
+      }
+    },
+    "workflow": {
+      "title": "顾问审批流程", "shortTitle": "流程设置", "subtitle": "设置各项目申请实际采用的审批顺序。", "create": "新增流程",
+      "createTitle": "建立审批流程", "createHelp": "选择适用的申请类型，保存后再增加审批步骤。", "empty": "此项目尚未设置审批流程。",
+      "name": "流程名称", "allTypes": "全部申请类型", "makeDefault": "设为默认流程", "defaultHelp": "新申请会优先选择此流程。", "default": "默认",
+      "addStep": "增加审批步骤", "addStepTitle": "增加审批步骤", "addStepHelp": "步骤按顺序执行；申请提交后流程会锁定。", "noSteps": "尚无审批步骤，使用前请至少增加一步。",
+      "stepName": "步骤名称", "reviewerKind": "此步骤由谁审批", "reviewer": "审批人", "chooseReviewer": "选择审批人",
+      "requireSignature": "必须电子签名", "requireStamp": "必须顾问盖章", "stampHelp": "审批人未上传印章时将不能批准。"
+    },
+    "reviewerKind": { "CONSULTANT": "申请中指定的顾问", "USER": "指定公司用户", "ROLE": "拥有指定公司角色的用户" },
+    "evidence": { "title": "关联现场证据", "help": "选择现有且不可修改的现场照片，无需重复上传原图。", "link": "关联证据", "caption": "说明", "empty": "尚未关联现场证据。", "noCandidates": "此项目没有可关联的新证据。" },
+    "attachment": { "title": "添加申请附件", "help": "提交前上传检查表、图纸、报告或证书。", "add": "添加附件", "file": "文件", "category": "附件类型", "note": "备注", "empty": "尚未添加申请附件。", "other": "其他附件" },
+    "attachmentType": { "CHECKLIST": "检查表", "IFC_DRAWING": "IFC 图纸", "SURVEY_REPORT": "测量报告", "MATERIAL_TEST": "材料测试报告", "CALIBRATION": "校准证书", "ITP": "ITP", "OTHER": "其他" },
+    "credential": {
+      "title": "审批签名与 PIN", "shortTitle": "签名与 PIN", "subtitle": "设置用于可追溯项目决定的个人签名。",
+      "identityTitle": "签名与顾问印章", "identityHelp": "每次审批都会保存不可修改的副本，日后更换不会影响旧报告。",
+      "signature": "电子签名", "signatureHelp": "上传背景清楚的 PNG 或 JPG 签名。", "stamp": "顾问印章", "stampHelp": "流程步骤要求盖章时才是必填。",
+      "pinTitle": "审批 PIN", "pinHelp": "批准、拒绝或退回申请时输入此 6 位 PIN。", "pin": "新 6 位 PIN", "pinConfirm": "确认 PIN", "pinMismatch": "两次 PIN 不一致。",
+      "currentPassword": "当前登录密码", "passwordHelp": "修改签署凭证前需验证当前密码。", "save": "保存签署凭证"
+    },
+    "archive": { "recordOnly": "结构化归档记录" },
+    "common": { "unknown": "未知" },
+    "verification": {
+      "title": "审批报告验证", "notFoundTitle": "找不到验证记录", "notFoundHelp": "此二维码无效或最终报告已不可用。",
+      "verifiedTitle": "MSE Trace 审批报告验证成功", "verifiedHelp": "以下资料与 MSE Trace 保存的只读最终报告一致。",
+      "applicationNo": "申请编号", "revision": "版本", "company": "建筑商", "project": "项目", "applicationType": "申请类型",
+      "consultantCompany": "顾问公司", "consultant": "顾问", "decision": "最终决定", "finalizedAt": "完成时间", "sha256": "报告 SHA-256", "reference": "验证编号"
+    },
+    "toast": { "workflowSaved": "审批流程已保存", "stepSaved": "审批步骤已保存", "stepRemoved": "审批步骤已移除", "draftSaved": "申请草稿已保存", "submitted": "申请已提交审批", "decisionSaved": "签署决定已保存", "revisionCreated": "新版本已建立", "attachmentAdded": "附件已添加", "evidenceLinked": "现场证据已关联", "credentialSaved": "签署凭证已保存" }
+  },
+  "schedulePlanning": {
+    "title": "施工计划管理",
+    "subtitle": "安排施工任务、保护已批准的基准计划，并确认现场实际进度。",
+    "action": { "importExcel": "导入 Excel", "newPlan": "新建计划", "archive": "归档", "addTask": "新增任务", "newRevision": "新建修订版", "confirmRevision": "确认并锁定", "remove": "移除", "edit": "编辑", "open": "打开", "cancel": "取消", "save": "保存", "createRevision": "建立修订版", "confirmProgress": "确认进度", "preview": "预览文件", "confirmImport": "确认导入" },
+    "field": { "project": "项目", "plan": "施工计划", "selectPlan": "选择计划", "planName": "计划名称", "baselineLabel": "基准计划名称", "description": "说明", "revisionLabel": "修订版名称", "revisionReason": "变更原因", "task": "任务", "wbs": "WBS", "taskName": "任务名称", "parentTask": "上级任务", "noParent": "没有上级任务", "plannedStart": "计划开始", "plannedEnd": "计划完成", "plannedDates": "计划日期", "plannedProgress": "计划进度", "actualProgress": "实际进度（%）", "actualStart": "实际开始", "actualEnd": "实际完成", "managerNote": "经理确认备注", "progressEvidence": "关联现场进度", "progressEvidenceHelp": "这里只显示本项目已经确认的进度照片记录。", "delay": "延误", "actions": "操作", "importTarget": "导入到", "newPlanFromExcel": "建立新计划", "excelFile": "Excel 文件（.xlsx）", "selectStaff": "选择" },
+    "summary": { "tasks": "任务总数", "completed": "已完成", "delayed": "需要关注", "progress": "实际进度", "planned": "计划 {value}%" },
+    "view": { "list": "任务列表", "gantt": "甘特图", "revisions": "基准与修订", "history": "历史记录" },
+    "planStatus": { "DRAFT": "草稿", "ACTIVE": "使用中", "ARCHIVED": "已归档" },
+    "revisionStatus": { "DRAFT": "草稿", "CONFIRMED": "已确认并锁定" },
+    "status": { "delayed": "已延误", "onTrack": "进度正常", "current": "当前版本" },
+    "source": { "MANUAL": "手动建立", "EXCEL": "Excel 导入" },
+    "revision": { "number": "版本 {number}" },
+    "delay": { "days": "延误 {count} 天" },
+    "gantt": { "days": "共 {count} 个日历日", "actual": "实际完成", "planned": "计划工期" },
+    "common": { "day": "天", "tasks": "项任务", "system": "系统" },
+    "state": { "chooseProject": "请选择项目以查看施工计划。", "loadError": "无法载入施工计划，请重试。", "noPlans": "这个项目还没有施工计划。您可以手动建立或导入 Excel。", "noRevision": "没有计划版本", "noTasks": "这个版本还没有任务。", "noReason": "没有额外备注", "noHistory": "还没有施工计划历史。", "noConfirmedProgress": "目前没有已确认的现场进度记录。" },
+    "defaults": { "baseline": "已批准基准计划" },
+    "dialog": { "planTitle": "建立施工计划", "planHelp": "先建立可编辑的基准草稿。完成任务后再确认锁定。", "revisionTitle": "建立施工计划修订版", "revisionHelp": "系统会复制当前版本。新变更会保留在草稿，直到经理确认。", "taskTitle": "新增施工任务", "editTaskTitle": "编辑施工任务", "taskHelp": "使用 WBS 和上级任务整理施工层级。", "progressTitle": "确认实际进度", "progressHelp": "经理确认实际百分比，也可以关联已批准的现场照片。", "importTitle": "导入施工计划", "importHelp": "系统会先预览文件。确认栏位对应之前不会建立任何计划。" },
+    "confirm": { "removeTaskTitle": "移除草稿任务？", "removeTaskBody": "只会从可编辑的草稿移除这个任务。", "removeRevisionTitle": "移除草稿修订版？", "removeRevisionBody": "已确认的基准和修订版本永远不能移除。", "lockTitle": "确认并锁定这个版本？", "lockBody": "确认后不能修改计划日期和 WBS。任何变更必须建立新的修订版。", "archiveTitle": "归档这个施工计划？", "archiveBody": "计划仍会保留在历史和报表，但不再作为当前施工计划使用。" },
+    "import": { "headerRow": "标题在第 {row} 行", "mappingTitle": "对应 Excel 栏位", "mappingHelp": "为每个计划字段选择 Excel 栏位。计划完成日期或工期必须至少选择一个。", "previewTitle": "文件预览" },
+    "mapping": { "wbs_code": "WBS 编号", "parent_wbs": "上级 WBS", "name": "任务名称", "description": "说明", "planned_start": "计划开始", "planned_end": "计划完成", "duration_days": "工期（天）", "actual_progress": "实际进度", "notUsed": "不使用" },
+    "history": { "PLAN_CREATED": "已建立施工计划", "REVISION_CREATED": "已建立修订草稿", "REVISION_CONFIRMED": "版本已确认并锁定", "EXCEL_IMPORTED": "已导入 Excel 计划", "PROGRESS_CONFIRMED": "已确认实际进度" },
+    "toast": { "planCreated": "施工计划已建立", "planArchived": "施工计划已归档", "revisionCreated": "修订草稿已建立", "revisionConfirmed": "施工计划版本已确认并锁定", "revisionRemoved": "修订草稿已移除", "taskSaved": "施工任务已保存", "taskRemoved": "草稿任务已移除", "progressConfirmed": "实际进度已确认", "previewReady": "Excel 预览已准备", "imported": "Excel 施工计划已导入" }
+  },
+  "siteControl": {
+    "action": { "edit": "编辑", "remove": "移除", "save": "保存", "cancel": "取消", "create": "建立", "view": "查看", "qr": "二维码", "approve": "批准", "reject": "拒绝", "revoke": "撤销", "close": "关闭", "refresh": "刷新" },
+    "status": { "active": "启用", "inactive": "停用" },
+    "state": { "loading": "正在加载现场控制资料...", "loadError": "无法加载资料，请检查网络后重试。" },
+    "field": { "project": "项目", "chooseProject": "选择项目", "allProjects": "全部项目", "name": "名称", "location": "位置", "radius": "半径", "latitude": "纬度", "longitude": "经度", "shape": "围栏形状", "address": "地址", "address2": "地址第二行", "defaultRadius": "默认半径（米）", "locationInterval": "GPS 上传间隔（秒）", "liveWindow": "实时位置有效时间（秒）", "visitorHours": "访客证默认时长（小时）", "qrPrefix": "门禁证编号前缀", "emergencyContact": "紧急联系人", "emergencyPhone": "紧急联系电话", "code": "编号", "city": "城市", "state": "州属", "chooseState": "选择州属", "postcode": "邮编", "phone": "电话", "email": "电邮", "status": "状态", "allStatuses": "全部状态", "subjectType": "门禁证类型", "worker": "工地人员", "chooseWorker": "选择人员", "subjectName": "姓名", "subjectCompany": "所属公司", "identityNo": "身份证／护照号码", "vehiclePlate": "车牌", "driverName": "司机姓名", "purpose": "进入目的", "hostName": "工地接待人", "validFrom": "生效时间", "validUntil": "截止时间", "qrValue": "二维码或门禁链接", "direction": "进出方向", "gateName": "门岗名称" },
+    "shape": { "CIRCLE": "圆形范围", "POLYGON": "多点范围" },
+    "geofence": { "title": "工地电子围栏", "subtitle": "管理考勤和人员实时位置所使用的全部有效工地区域。", "new": "新增围栏", "activeZones": "启用区域", "empty": "目前没有符合筛选条件的围栏。", "primary": "主要区域", "pointCount": "{count} 个边界点", "removeTitle": "移除这个围栏？", "removeBody": "考勤与 GPS 将停止检查此区域，原有位置历史仍会保留。", "createTitle": "建立工地围栏", "editTitle": "编辑工地围栏", "formHelp": "选择圆形，或在地图点击至少三个点建立自定义范围。", "useProject": "使用项目位置", "useGps": "获取当前 GPS", "undoPoint": "撤销上一个点", "clearPoints": "清除全部点", "noProjectLocation": "此项目未保存坐标，请获取当前 GPS 或点击地图。", "gpsError": "无法获取当前 GPS，请检查浏览器定位权限。", "pointInstruction": "请沿着工地边界点击地图。已选择 {count} 个点，至少需要 3 个。" },
+    "settings": { "title": "公司现场设置", "subtitle": "统一设置现场 GPS、考勤、访客与紧急应变规则。", "siteRules": "现场作业默认规则", "siteRulesHelp": "每个项目可有独立围栏；这里控制时间与证据要求。", "attendancePhotoHelp": "工地人员每次上班和下班打卡都必须自拍。", "gatePhotoHelp": "门岗人员和已连接设备每次进出都必须提供照片。" },
+    "branches": { "title": "分公司与总部", "subtitle": "保存地图和报表使用的真实办公室与分公司位置。", "new": "新增分公司", "empty": "目前没有登记分公司。", "headquarters": "公司总部", "headquartersHelp": "一家公司只能设置一个总部。", "activeHelp": "停用后仍保留历史，但不能用于新业务。", "createTitle": "建立分公司", "editTitle": "编辑分公司", "formHelp": "填写注册地址，并可选择记录地图位置。", "removeTitle": "移除这个分公司？", "removeBody": "之后不能用于新记录，原有历史仍会保留。" },
+    "access": { "title": "工地门禁", "subtitle": "在同一流程申请、审批和扫描人员、访客与车辆门禁证。", "passes": "门禁证", "gate": "门岗扫码", "newPass": "新增门禁证", "empty": "没有符合筛选条件的门禁证。", "createTitle": "申请工地门禁证", "createHelp": "门禁证会先进入待审批，获授权的负责人确认后才生效。", "approveTitle": "批准这个门禁证？", "approveBody": "二维码将在批准的日期和时间范围内生效。", "rejectTitle": "拒绝这个门禁证？", "rejectBody": "申请人需要重新申请才可进入工地。", "revokeTitle": "撤销这个门禁证？", "revokeBody": "二维码会立即失效，请填写原因以保留审计记录。", "timeline": "进出记录", "noEvents": "这个门禁证尚未在门岗使用。", "unknownGate": "未注明门岗", "integrationReader": "已连接门禁设备", "qrTitle": "工地门禁二维码", "qrHelp": "下载并发送此二维码。扫码后会打开已登录的门岗页面并自动带入门禁证。" },
+    "passStatus": { "PENDING": "等待审批", "APPROVED": "已批准", "REJECTED": "已拒绝", "REVOKED": "已撤销", "EXPIRED": "已过期" },
+    "subjectType": { "WORKER": "工地人员", "VISITOR": "访客", "VEHICLE": "车辆" },
+    "direction": { "AUTO": "自动判断进场／离场", "ENTRY": "进场", "EXIT": "离场" },
+    "gate": { "title": "记录门岗进出", "subtitle": "可使用 USB 扫码器、粘贴门禁链接，或用已登录的手机扫描打印二维码。", "scannerHint": "USB 扫码器会像键盘一样自动填写此栏。", "qrPlaceholder": "扫描或粘贴二维码", "photo": "拍摄门岗照片", "getLocation": "获取门岗 GPS", "locationReady": "GPS 已获取", "record": "记录进出" },
+    "emergency": { "title": "紧急在场名单", "subtitle": "显示最后记录为进场、且尚未登记离场的所有人员与车辆。", "currentCount": "目前在场", "useTitle": "疏散时使用此名单", "useHelp": "在集合点核对人员、致电未到人员，并导出名单作为事故记录。", "empty": "所选工地目前没有登记在场的人员、访客或车辆。", "updated": "系统自动刷新，上次更新时间：{time}", "durationHours": "{hours} 小时 {minutes} 分钟", "durationMinutes": "{minutes} 分钟" },
+    "table": { "passNo": "门禁证编号", "person": "人员／车辆", "type": "类型", "project": "项目", "validity": "有效时间", "status": "状态", "direction": "最后进出", "actions": "操作", "company": "公司", "enteredAt": "进场时间", "duration": "在场时长", "gate": "门岗", "contact": "联系方式" },
+    "toast": { "geofenceSaved": "工地围栏已保存", "geofenceRemoved": "工地围栏已移除", "branchSaved": "分公司已保存", "branchRemoved": "分公司已移除", "settingsSaved": "公司现场设置已保存", "passCreated": "门禁证申请已提交", "passReviewed": "门禁审批结果已保存", "passRevoked": "门禁证已撤销", "gateRecorded": "门岗进出已记录" }
   },
   "versions": {
     "title": "版本管理",

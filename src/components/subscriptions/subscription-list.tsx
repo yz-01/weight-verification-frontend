@@ -46,7 +46,7 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
   if (section === "activity") {
     return (
       <AuditLogs
-        fixedAction="BILLING_CHANGE"
+        fixedCategory="SUBSCRIPTION"
         title={t("section.activity.title")}
         subtitle={t("section.activity.subtitle")}
       />
@@ -67,7 +67,7 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
                 href={`/subscriptions/${module.section}`}
                 className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"
               >
-                <span className="w-12 shrink-0 text-xs font-semibold tabular-nums text-muted-foreground">{module.number}</span>
+                
                 <span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span>
                 <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
               </Link>
@@ -76,7 +76,7 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
         </div>
       );
     }
-    return <CompanySubscriptions />;
+    return <CompanySubscriptions mode={section as "companies" | "status" | "package-changes" | "account-limits" | "search"} />;
   })();
 
   return (

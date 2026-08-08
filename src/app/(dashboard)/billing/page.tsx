@@ -1,5 +1,5 @@
-import { BillingWorkspace } from "@/components/billing/billing-workspace";
+import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
 
 export default function BillingPage() {
-  return <BillingWorkspace />;
+  return <AdminModuleLanding feature="billing_commission" />;
 }
