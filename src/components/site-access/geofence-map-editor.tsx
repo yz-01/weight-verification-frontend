@@ -60,7 +60,8 @@ export function GeofenceMapEditor({
   return (
     <div
       ref={ref}
-      className="relative isolate h-72 min-h-72 min-w-0 max-w-full overflow-hidden rounded-lg border bg-muted/20 [contain:layout_paint]"
+      data-testid="geofence-map-editor"
+      className="relative isolate block h-72 min-h-72 w-full min-w-0 max-w-full shrink-0 overflow-hidden rounded-lg border bg-muted/20 [contain:strict]"
     />
   );
 }
