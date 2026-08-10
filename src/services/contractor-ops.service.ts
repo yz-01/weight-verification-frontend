@@ -70,6 +70,9 @@ export const addFieldTaskPhoto = async (
 export async function createConsultantFieldSubmission(payload: {
   project: string;
   note?: string;
+  application_category: string;
+  description: string;
+  work_location?: string;
   captured_at: string;
   latitude: string;
   longitude: string;
@@ -100,17 +103,32 @@ export const createSiteEquipment = async (payload: EquipmentPayload) => {
 };
 export const getEquipmentMovements = (query: ListQuery = {}) =>
   api.list<EquipmentMovement>("/api/site-equipment/get_movements/", query);
+export async function ocrEquipmentDeliveryNote(project: string, image: File) {
+  const data = new FormData();
+  data.append("project", project);
+  data.append("image", image);
+  return api.post<{
+    status: string;
+    provider?: string;
+    content?: string;
+    suggestions?: Record<string, string>;
+  }>("/api/site-equipment/ocr_delivery_note/", data);
+}
 export async function recordEquipmentMovement(payload: {
   project: string; equipment: string; direction: "ENTRY" | "EXIT"; delivery_note_no?: string;
   vehicle_plate?: string; operator_name: string; latitude?: string; longitude?: string;
-  accuracy_m?: string; notes?: string; original_occurred_at: string; client_event_id: string; photos: File[];
+  accuracy_m?: string; notes?: string; quantity?: string; ocr_confirmed?: boolean;
+  delivery_note_photo?: File; original_occurred_at: string; client_event_id: string; photos: File[];
 }) {
   const data = new FormData();
   for (const [key, value] of Object.entries(payload)) {
-    if (key === "photos") continue;
+    if (key === "photos" || key === "delivery_note_photo") continue;
     if (value !== undefined && value !== "") data.append(key, String(value));
   }
   payload.photos.forEach((photo) => data.append("photos", photo));
+  if (payload.delivery_note_photo) {
+    data.append("delivery_note_photo", payload.delivery_note_photo);
+  }
   const row = await api.post<EquipmentMovement>("/api/site-equipment/record_movement/", data);
   toastSuccess("contractorOps.toast.movementSaved");
   return row;
@@ -125,6 +143,11 @@ export const createConstructionPhase = async (payload: { project: string; code: 
 };
 export const getSiteProgressRecords = (query: ListQuery = {}) =>
   api.list<SiteProgressRecord>("/api/site-progress/get_records/", query);
+export const getSiteProgressSummary = (project?: string) =>
+  api.get<{ today: number; month: number; year: number; total: number }>(
+    "/api/site-progress/get_summary/",
+    project ? { project } : undefined,
+  );
 export async function createSiteProgressRecord(payload: {
   project: string; phase: string; percent_complete: string; description?: string;
   captured_at: string; latitude?: string; longitude?: string; client_event_id: string; photos: File[];

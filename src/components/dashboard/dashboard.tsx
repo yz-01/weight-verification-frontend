@@ -20,6 +20,7 @@ import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
+import { ContractorDashboard } from "@/components/dashboard/contractor-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Portal } from "@/interfaces/auth";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
@@ -59,7 +60,7 @@ export function Dashboard({
   adminSection?: AdminDashboardSection;
 } = {}) {
   const t = useTranslations();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
 
   if (!user) return null;
 
@@ -82,7 +83,15 @@ export function Dashboard({
       {user.portal === "MSE_ADMIN" ? (
         <AdminDashboard section={adminSection} />
       ) : user.portal === "MSE_TRACE" ? (
-        <TraceDashboard features={user.features} />
+        // A contractor holding `dashboard.view` gets the aggregate: one request
+        // for the day's feed, approvals, anomalies and timeline. Without the
+        // grant, fall back to the per-resource counts, which need no permission
+        // beyond the modules they already link to.
+        can("dashboard.view") ? (
+          <ContractorDashboard />
+        ) : (
+          <TraceDashboard features={user.features} />
+        )
       ) : (
         <ScrapDashboard features={user.features} />
       )}

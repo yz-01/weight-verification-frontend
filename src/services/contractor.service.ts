@@ -26,6 +26,7 @@ import type {
   WasteDispatchDetail,
   WasteDispatchPayload,
 } from "@/interfaces/contractor";
+import type { QRCodeIssue } from "@/interfaces/qrcode";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 /** One column in an export, worded by the caller. */
@@ -106,6 +107,53 @@ export function getProjectAssignments(
   return api.get<{ results: ProjectAssignment[]; count: number }>(
     `/api/projects/${id}/get_assignments/`,
   );
+}
+
+export async function archiveProject(id: string): Promise<Project> {
+  const project = await api.post<Project>(
+    `/api/projects/${id}/archive_project/`,
+    { confirm: true },
+  );
+  toastSuccess("projects.toast.archived");
+  return project;
+}
+
+export function getProjectQr(id: string): Promise<QRCodeIssue | null> {
+  return api.get<QRCodeIssue | null>(`/api/projects/${id}/get_project_qr/`);
+}
+
+export async function setProjectQrStatus(
+  id: string,
+  status: "ACTIVE" | "DISABLED",
+  note = "",
+): Promise<QRCodeIssue> {
+  const code = await api.post<QRCodeIssue>(
+    `/api/projects/${id}/set_project_qr_status/`,
+    { status, note },
+  );
+  toastSuccess("projects.toast.qrStatusUpdated");
+  return code;
+}
+
+export async function regenerateProjectQr(
+  id: string,
+  note: string,
+): Promise<QRCodeIssue> {
+  const code = await api.post<QRCodeIssue>(
+    `/api/projects/${id}/regenerate_project_qr/`,
+    { confirm: true, note },
+  );
+  toastSuccess("projects.toast.qrRegenerated");
+  return code;
+}
+
+export function exportProjects(request: ExportRequest): Promise<void> {
+  return download("/api/projects/export_projects/", {
+    method: "POST",
+    body: exportBody(request),
+    query: exportQuery(request),
+    fallbackFilename: `projects.${request.format}`,
+  });
 }
 
 export function getAssignableProjectUsers(
@@ -231,6 +279,15 @@ export async function createReceipt(
   );
   toastSuccess("receipts.toast.created");
   return receipt;
+}
+
+export function exportSuppliers(request: ExportRequest): Promise<void> {
+  return download("/api/suppliers/export_suppliers/", {
+    method: "POST",
+    body: exportBody(request),
+    query: exportQuery(request),
+    fallbackFilename: `suppliers.${request.format}`,
+  });
 }
 
 export function readDeliveryNote(

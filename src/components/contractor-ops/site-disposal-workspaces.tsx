@@ -2,11 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Camera,
   CheckCircle2,
   ClipboardCheck,
   Copy,
-  FileText,
   Loader2,
   LocateFixed,
   PackageCheck,
@@ -21,6 +19,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -204,7 +203,14 @@ function CreateDisposalDialog({ onClose, onSaved }: { onClose: () => void; onSav
           <FieldWrapper label={t("field.estimatedWeight")} optional={t("optional")}><Input type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.preferredAt")} optional={t("optional")}><Input type="datetime-local" value={preferred} onChange={(e) => setPreferred(e.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.gps")} required error={locationError}><Button type="button" variant="outline" className="w-full" onClick={() => void locate()}><LocateFixed />{location ? t("action.locationReady") : t("action.getLocation")}</Button></FieldWrapper>
-          <FieldWrapper label={t("field.photos")} required className="sm:col-span-2"><Input type="file" accept="image/*" capture="environment" multiple onChange={(e) => setPhotos(Array.from(e.target.files ?? []))} /><p className="text-xs text-muted-foreground">{t("photoCount", { count: photos.length })}</p></FieldWrapper>
+          <FieldWrapper label={t("field.photos")} required className="sm:col-span-2">
+            <FieldCamera
+              label={t("field.photos")}
+              fileCount={photos.length}
+              onCapture={(file) => setPhotos((current) => [...current, file])}
+              onClear={() => setPhotos([])}
+            />
+          </FieldWrapper>
           <FieldWrapper label={t("field.note")} optional={t("optional")} className="sm:col-span-2"><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
         </div>
         <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!project || !description.trim() || !locationDescription.trim() || !photos.length || !location || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
@@ -242,7 +248,7 @@ function ConfirmDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest
   const [note, setNote] = useState("");
   const [photo, setPhoto] = useState<File>();
   const save = useMutation({ mutationFn: () => confirmDisposalCompletion(row.id, decision, note, photo), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("confirm.title")}</DialogTitle><DialogDescription>{t("confirm.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "COMPLETED" ? "default" : "outline"} onClick={() => setDecision("COMPLETED")}><CheckCircle2 />{t("action.complete")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><FieldWrapper label={t("field.confirmationNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.confirmationPhoto")} optional={t("optional")}><Input type="file" accept="image/*" capture="environment" onChange={(e) => setPhoto(e.target.files?.[0])} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={(decision === "RETURNED" && !note.trim()) || save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("confirm.title")}</DialogTitle><DialogDescription>{t("confirm.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "COMPLETED" ? "default" : "outline"} onClick={() => setDecision("COMPLETED")}><CheckCircle2 />{t("action.complete")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><FieldWrapper label={t("field.confirmationNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.confirmationPhoto")} optional={t("optional")}><FieldCamera label={t("field.confirmationPhoto")} fileCount={photo ? 1 : 0} onCapture={setPhoto} onClear={() => setPhoto(undefined)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={(decision === "RETURNED" && !note.trim()) || save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function DisposalDetailDialog({ row, onClose }: { row: DisposalRequest; onClose: () => void }) {
@@ -284,9 +290,75 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
 
   if (taskQuery.isLoading) return <main className="grid min-h-dvh place-items-center"><Loader2 className="size-8 animate-spin text-primary" /></main>;
   if (taskQuery.isError || !current) return <main className="mx-auto max-w-xl px-5 py-16"><h1 className="text-xl font-semibold">{t("invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{t("invalidBody")}</p></main>;
-  const evidenceKinds = new Set(current.evidence.map((item) => item.kind));
   const editable = ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
   const waiting = current.status === "AWAITING_CONFIRMATION";
 
-  return <main className="mx-auto min-h-dvh max-w-xl bg-background px-4 py-5 pb-28"><header className="border-b pb-4"><p className="text-xs font-semibold text-primary">{current.company_name}</p><h1 className="mt-1 text-2xl font-semibold">{t("title")}</h1><p className="mt-1 font-mono text-sm text-muted-foreground">{current.reference_no}</p></header><section className="mt-4 rounded-lg border bg-card p-4"><div className="flex items-start gap-3"><span className="grid size-12 place-items-center rounded-lg bg-primary/10 text-primary"><Truck /></span><div><h2 className="font-semibold">{current.waste_description}</h2><p className="mt-1 text-sm text-muted-foreground">{current.project_name}</p><p className="text-sm text-muted-foreground">{current.location_description}</p></div></div><div className="mt-4"><StatusBadge label={t(`status.${current.status}`)} tone={statusTone(current.status)} /></div></section>{error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}{current.status === "ASSIGNED" && <Button size="lg" className="mt-5 h-14 w-full text-base" disabled={start.isPending} onClick={() => start.mutate()}>{start.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}{t("action.start")}</Button>}{editable && current.status !== "ASSIGNED" && <><section className="mt-6"><h2 className="text-base font-semibold">{t("photosTitle")}</h2><div className="mt-3 grid gap-3">{EXECUTION_EVIDENCE.map((kind) => <label key={kind} className="flex min-h-20 cursor-pointer items-center gap-4 rounded-lg border bg-card p-4 shadow-sm"><span className={`grid size-12 shrink-0 place-items-center rounded-lg ${evidenceKinds.has(kind) ? "bg-success/10 text-success" : "bg-primary/10 text-primary"}`}>{uploading === kind ? <Loader2 className="animate-spin" /> : evidenceKinds.has(kind) ? <CheckCircle2 /> : kind === "DISPOSAL_DO" ? <FileText /> : <Camera />}</span><span className="flex-1"><span className="block font-semibold">{t(`evidence.${kind}`)}</span><span className="mt-1 block text-xs text-muted-foreground">{evidenceKinds.has(kind) ? t("uploaded") : t("tapCamera")}</span></span><Input className="sr-only" type="file" accept="image/*" capture="environment" disabled={uploading !== null} onChange={(e) => void upload(kind, e.target.files?.[0])} /></label>)}</div></section><section className="mt-6 space-y-4 rounded-lg border bg-card p-4"><h2 className="font-semibold">{t("submitTitle")}</h2><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} required><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabled={!weight || !doNo.trim() || Number(trips) < 1 || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></section></>}{waiting && <section className="mt-8 rounded-lg border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h2 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h2><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}</main>;
+  return (
+    <main className="mx-auto min-h-dvh max-w-xl bg-background px-4 py-5 pb-28">
+      <header className="border-b pb-4">
+        <p className="text-xs font-semibold text-primary">{current.company_name}</p>
+        <h1 className="mt-1 text-2xl font-semibold">{t("title")}</h1>
+        <p className="mt-1 font-mono text-sm text-muted-foreground">{current.reference_no}</p>
+      </header>
+
+      <section className="mt-4 rounded-lg border bg-card p-4">
+        <div className="flex items-start gap-3">
+          <span className="grid size-12 place-items-center rounded-lg bg-primary/10 text-primary"><Truck /></span>
+          <div>
+            <h2 className="font-semibold">{current.waste_description}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{current.project_name}</p>
+            <p className="text-sm text-muted-foreground">{current.location_description}</p>
+          </div>
+        </div>
+        <div className="mt-4"><StatusBadge label={t(`status.${current.status}`)} tone={statusTone(current.status)} /></div>
+      </section>
+
+      {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
+
+      {current.status === "ASSIGNED" && (
+        <Button size="lg" className="mt-5 h-14 w-full text-base" disabled={start.isPending} onClick={() => start.mutate()}>
+          {start.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}
+          {t("action.start")}
+        </Button>
+      )}
+
+      {editable && current.status !== "ASSIGNED" && (
+        <>
+          <section className="mt-6">
+            <h2 className="text-base font-semibold">{t("photosTitle")}</h2>
+            <div className="mt-3 grid gap-3">
+              {EXECUTION_EVIDENCE.map((kind) => (
+                <FieldCamera
+                  key={kind}
+                  label={t(`evidence.${kind}`)}
+                  fileCount={current.evidence.filter((item) => item.kind === kind).length}
+                  disabled={uploading !== null}
+                  onCapture={(file) => void upload(kind, file)}
+                />
+              ))}
+            </div>
+          </section>
+          <section className="mt-6 space-y-4 rounded-lg border bg-card p-4">
+            <h2 className="font-semibold">{t("submitTitle")}</h2>
+            <FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper>
+            <FieldWrapper label={t("field.trips")} required><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper>
+            <FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper>
+            <FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
+            <Button size="lg" className="h-14 w-full text-base" disabled={!weight || !doNo.trim() || Number(trips) < 1 || submit.isPending} onClick={() => submit.mutate()}>
+              {submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+              {t("action.submit")}
+            </Button>
+          </section>
+        </>
+      )}
+
+      {waiting && (
+        <section className="mt-8 rounded-lg border border-success/30 bg-success/5 p-6 text-center">
+          <CheckCircle2 className="mx-auto size-12 text-success" />
+          <h2 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h2>
+          <p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p>
+        </section>
+      )}
+    </main>
+  );
 }

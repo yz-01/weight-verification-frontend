@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Info, PackageCheck } from "lucide-react";
+import { Info, Loader2, PackageCheck, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -25,13 +25,26 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import {
+  acceptDispatch,
   collectDispatch,
+  createTask,
+  getDrivers,
   getIncoming,
+  getVehicles,
 } from "@/services/recycler.service";
+import { getSites } from "@/services/weighing.service";
 
 /**
  * The yard's inbox.
@@ -50,6 +63,7 @@ export function Incoming() {
   const list = useListQuery(["state"]);
 
   const [collecting, setCollecting] = useState<WasteDispatch | null>(null);
+  const [assigning, setAssigning] = useState<WasteDispatch | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["incoming", list.query],
@@ -181,7 +195,20 @@ export function Incoming() {
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) =>
-          can("dispatch.update") && row.original.state === "RELEASED" ? (
+          can("task.assign") &&
+          ["PENDING_ACCEPTANCE", "ACCEPTED"].includes(row.original.state) ? (
+            <div className="flex items-center justify-end gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-primary hover:bg-primary/10"
+                title={t("incoming.order.action")}
+                onClick={() => setAssigning(row.original)}
+              >
+                <Truck className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : can("dispatch.update") && row.original.state === "RELEASED" ? (
             <div className="flex items-center justify-end gap-0.5">
               <Button
                 variant="ghost"
@@ -233,7 +260,12 @@ export function Incoming() {
             active: (list.filters.state ?? "") === "",
             onSelect: () => list.setFilter("state", undefined),
           },
-          ...(["RELEASED", "COLLECTED"] as const).map((state) => ({
+          ...([
+            "PENDING_ACCEPTANCE",
+            "ACCEPTED",
+            "RELEASED",
+            "COLLECTED",
+          ] as const).map((state) => ({
             key: state,
             label: t(`dispatches.state.${state}`),
             active: list.filters.state === state,
@@ -254,7 +286,147 @@ export function Incoming() {
           onDone={refresh}
         />
       )}
+
+      {assigning && (
+        <OrderAssignmentDialog
+          load={assigning}
+          onClose={() => setAssigning(null)}
+          onDone={refresh}
+        />
+      )}
     </div>
+  );
+}
+
+function OrderAssignmentDialog({
+  load,
+  onClose,
+  onDone,
+}: {
+  load: WasteDispatch;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const t = useTranslations();
+  const [reference, setReference] = useState("");
+  const [site, setSite] = useState("");
+  const [vehicle, setVehicle] = useState("");
+  const [driver, setDriver] = useState("");
+  const [scheduledFor, setScheduledFor] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const sites = useQuery({
+    queryKey: ["sites", "order-assignment"],
+    queryFn: () => getSites({ page_size: 100 }),
+  });
+  const vehicles = useQuery({
+    queryKey: ["vehicles", "order-assignment"],
+    queryFn: () => getVehicles({ page_size: 100, is_active: "true" }),
+  });
+  const drivers = useQuery({
+    queryKey: ["drivers", "order-assignment"],
+    queryFn: () => getDrivers({ page_size: 100, is_active: "true" }),
+  });
+
+  const acceptOnly = useMutation({
+    mutationFn: () => acceptDispatch(load.id, reference.trim()),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+  });
+
+  const assign = useMutation({
+    mutationFn: async () => {
+      if (load.state === "PENDING_ACCEPTANCE") {
+        await acceptDispatch(load.id, reference.trim());
+      }
+      return createTask({
+        dispatch: load.id,
+        site,
+        vehicle,
+        driver,
+        scheduled_for: scheduledFor || null,
+        notes: notes.trim(),
+      });
+    },
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+  });
+
+  const ready = site && vehicle && driver;
+  const pending = acceptOnly.isPending || assign.isPending;
+
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t("incoming.order.title")}</DialogTitle>
+          <DialogDescription>
+            {t("incoming.order.description", { order: load.dispatch_no })}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="rounded-md border bg-muted/40 px-3 py-2">
+          <p className="text-sm font-medium">{load.project_name}</p>
+          <p className="text-xs text-muted-foreground">
+            {t(`dispatches.wasteType.${load.waste_type}`)}
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>{t("incoming.collect.reference")}</Label>
+            <Input value={reference} onChange={(event) => setReference(event.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("tasks.field.site")}</Label>
+            <Select value={site} onValueChange={setSite}>
+              <SelectTrigger><SelectValue placeholder={t("common.selectPlaceholder")} /></SelectTrigger>
+              <SelectContent>{(sites.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.code} - {row.name}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("tasks.field.vehicle")}</Label>
+            <Select value={vehicle} onValueChange={setVehicle}>
+              <SelectTrigger><SelectValue placeholder={t("common.selectPlaceholder")} /></SelectTrigger>
+              <SelectContent>{(vehicles.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.plate_no}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("tasks.field.driver")}</Label>
+            <Select value={driver} onValueChange={setDriver}>
+              <SelectTrigger><SelectValue placeholder={t("common.selectPlaceholder")} /></SelectTrigger>
+              <SelectContent>{(drivers.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("tasks.field.scheduledFor")}</Label>
+            <Input type="datetime-local" value={scheduledFor} onChange={(event) => setScheduledFor(event.target.value)} />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>{t("tasks.field.notes")}</Label>
+            <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} />
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          {load.state === "PENDING_ACCEPTANCE" && (
+            <Button variant="secondary" disabled={pending} onClick={() => acceptOnly.mutate()}>
+              {acceptOnly.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}
+              {t("incoming.order.acceptOnly")}
+            </Button>
+          )}
+          <Button disabled={!ready || pending} onClick={() => assign.mutate()}>
+            {assign.isPending ? <Loader2 className="animate-spin" /> : <Truck />}
+            {load.state === "PENDING_ACCEPTANCE" ? t("incoming.order.acceptAndAssign") : t("incoming.order.assign")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -88,6 +88,10 @@ export interface FieldTaskTransitionOfflineJob extends OfflineJobBase {
     taskId: string;
     status: "IN_PROGRESS" | "SUBMITTED";
     note: string;
+    latitude?: string;
+    longitude?: string;
+    accuracyM?: string;
+    originalOccurredAt: string;
     clientEventId: string;
   };
 }
@@ -144,6 +148,7 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     project: string;
     equipment: string;
     direction: "ENTRY" | "EXIT";
+    quantity?: string;
     delivery_note_no?: string;
     vehicle_plate?: string;
     operator_name: string;
@@ -151,9 +156,11 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     longitude?: string;
     accuracy_m?: string;
     notes?: string;
+    ocr_confirmed?: boolean;
     original_occurred_at: string;
     client_event_id: string;
     photos: StoredFile[];
+    delivery_note_photo?: StoredFile;
   };
 }
 
@@ -229,6 +236,9 @@ export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
   payload: {
     project: string;
     note?: string;
+    application_category: string;
+    description: string;
+    work_location?: string;
     captured_at: string;
     latitude: string;
     longitude: string;

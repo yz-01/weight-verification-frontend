@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ExportButton } from "@/components/shared/export-button";
 import {
   ListHeader,
   StatusBadge,
@@ -18,7 +19,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Project, ProjectStatus } from "@/interfaces/contractor";
-import { deleteProject, getProjects } from "@/services/contractor.service";
+import {
+  deleteProject,
+  exportProjects,
+  getProjects,
+  type ExportFormat,
+} from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
 
 export const PROJECT_STATUS_TONE: Record<
@@ -29,6 +35,7 @@ export const PROJECT_STATUS_TONE: Record<
   PLANNING: "info",
   SUSPENDED: "warning",
   COMPLETED: "neutral",
+  ARCHIVED: "neutral",
 };
 
 export function Projects() {
@@ -214,6 +221,26 @@ export function Projects() {
 
   const totalCount = data?.count ?? 0;
   const activeStatus = list.filters.status ?? "";
+  const runExport = (format: ExportFormat) =>
+    exportProjects({
+      format,
+      title: t("projects.title"),
+      emptyLabel: t("common.emptyValue"),
+      query: list.query,
+      columns: [
+        { key: "code", label: t("projects.field.code") },
+        { key: "name", label: t("projects.field.name") },
+        { key: "status", label: t("projects.field.status") },
+        { key: "client_name", label: t("projects.field.clientName") },
+        { key: "main_contractor", label: t("projects.field.mainContractor") },
+        { key: "consultant", label: t("projects.field.consultant") },
+        { key: "city", label: t("projects.field.city") },
+        { key: "state", label: t("projects.field.state") },
+        { key: "start_date", label: t("projects.field.startDate") },
+        { key: "end_date", label: t("projects.field.endDate") },
+        { key: "site_manager", label: t("projects.field.siteManager") },
+      ],
+    });
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
@@ -221,14 +248,17 @@ export function Projects() {
         title={t("projects.title")}
         subtitle={isLoading ? "—" : t("projects.count", { count: totalCount })}
         action={
-          can("project.create") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href="/projects/create">
-                <Plus className="h-4 w-4" />
-                {t("projects.new")}
-              </Link>
-            </Button>
-          ) : undefined
+          <>
+            <ExportButton onExport={runExport} disabled={totalCount === 0} />
+            {can("project.create") && (
+              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Link href="/projects/create">
+                  <Plus className="h-4 w-4" />
+                  {t("projects.new")}
+                </Link>
+              </Button>
+            )}
+          </>
         }
       />
 
@@ -252,7 +282,7 @@ export function Projects() {
             active: activeStatus === "",
             onSelect: () => list.setFilter("status", undefined),
           },
-          ...(["ACTIVE", "PLANNING", "SUSPENDED", "COMPLETED"] as const).map(
+          ...(["ACTIVE", "PLANNING", "SUSPENDED", "COMPLETED", "ARCHIVED"] as const).map(
             (status) => ({
               key: status,
               label: t(`projects.status.${status}`),

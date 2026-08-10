@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CircleDot, LocateFixed, MapPinned, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 
@@ -42,19 +43,47 @@ export function GeofenceWorkspace() {
     queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
     staleTime: 60_000,
   });
-  const projectOptions = projects.data?.results ?? [];
+  const projectOptions = useMemo(() => projects.data?.results ?? [], [projects.data?.results]);
   const remove = useMutation({
     mutationFn: deleteSiteGeofence,
     onSuccess: async () => { setRemoving(null); await qc.invalidateQueries({ queryKey: ["site-geofences"] }); },
   });
-  const zones = useMemo<LocationMapZone[]>(() => (rows.data?.results ?? []).filter((row) => row.is_active).map(toMapZone), [rows.data?.results]);
+  const defaultGeofences = useMemo<Project[]>(() => {
+    const activeSiteGeofences = new Set(
+      (rows.data?.results ?? [])
+        .filter((row) => row.is_active)
+        .map((row) => row.project),
+    );
+    return projectOptions.filter(
+      (row) =>
+        (project === "all" || row.id === project) &&
+        !activeSiteGeofences.has(row.id) &&
+        row.latitude != null &&
+        row.longitude != null &&
+        row.geofence_radius_m != null &&
+        row.geofence_radius_m > 0,
+    );
+  }, [project, projectOptions, rows.data?.results]);
+  const zones = useMemo<LocationMapZone[]>(
+    () => [
+      ...(rows.data?.results ?? [])
+        .filter((row) => row.is_active)
+        .map(toMapZone),
+      ...defaultGeofences.map(toDefaultMapZone),
+    ],
+    [defaultGeofences, rows.data?.results],
+  );
   const center = useMemo<[number, number] | undefined>(() => {
     const selected = projects.data?.results.find((row) => row.id === project);
     if (selected?.latitude && selected.longitude) return [Number(selected.latitude), Number(selected.longitude)];
     const first = rows.data?.results[0];
     if (first?.latitude && first.longitude) return [Number(first.latitude), Number(first.longitude)];
-    return first?.polygon[0];
-  }, [project, projects.data?.results, rows.data?.results]);
+    if (first?.polygon[0]) return first.polygon[0];
+    const firstDefault = defaultGeofences[0];
+    return firstDefault ? [Number(firstDefault.latitude), Number(firstDefault.longitude)] : undefined;
+  }, [defaultGeofences, project, projects.data?.results, rows.data?.results]);
+
+  const hasDisplayedRows = Boolean(rows.data?.count || defaultGeofences.length);
 
   return <div className="space-y-5">
     <ListHeader title={t("geofence.title")} subtitle={t("geofence.subtitle")} action={can("geofence.manage") ? <Button size="sm" onClick={() => setEditing("new")}><Plus />{t("geofence.new")}</Button> : undefined} />
@@ -65,11 +94,16 @@ export function GeofenceWorkspace() {
       <div className="rounded-lg bg-muted/40 px-4 py-2 text-sm"><span className="text-muted-foreground">{t("geofence.activeZones")}</span><strong className="ml-2 tabular-nums">{zones.length}</strong></div>
     </div>
     <LocationMap center={center} markers={[]} zones={zones} className="rounded-lg" />
-    {rows.isLoading ? <State text={t("state.loading")} /> : rows.isError ? <State text={t("state.loadError")} danger /> : !rows.data?.count ? <State text={t("geofence.empty")} /> : <div className="grid gap-3 lg:grid-cols-2">
-      {rows.data.results.map((row) => <article key={row.id} className="rounded-lg border bg-card p-4 shadow-sm">
+    {rows.isLoading ? <State text={t("state.loading")} /> : rows.isError ? <State text={t("state.loadError")} danger /> : !hasDisplayedRows ? <State text={t("geofence.empty")} /> : <div className="grid gap-3 lg:grid-cols-2">
+      {rows.data?.results.map((row) => <article key={row.id} className="rounded-lg border bg-card p-4 shadow-sm">
         <div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.name}</h3>{row.is_primary && <StatusBadge label={t("geofence.primary")} tone="info" />}<StatusBadge label={t(row.is_active ? "status.active" : "status.inactive")} tone={row.is_active ? "positive" : "neutral"} /></div><p className="mt-1 text-sm text-muted-foreground">{row.project_name} · {t(`shape.${row.shape}`)}</p></div>{can("geofence.manage") && <div className="flex shrink-0"><Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => setEditing(row)}><Pencil /></Button><Button size="icon-sm" variant="ghost" title={t("action.remove")} className="text-destructive" onClick={() => setRemoving(row)}><Trash2 /></Button></div>}</div>
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm"><Info label={t("field.location")} value={row.shape === "CIRCLE" ? `${row.latitude}, ${row.longitude}` : t("geofence.pointCount", { count: row.polygon.length })} /><Info label={t("field.radius")} value={row.radius_m ? `${row.radius_m} m` : "-"} /></div>
         {row.address && <p className="mt-3 border-t pt-3 text-sm text-muted-foreground">{row.address}</p>}
+      </article>)}
+      {defaultGeofences.map((defaultGeofence) => <article key={`project-default-${defaultGeofence.id}`} className="rounded-lg border border-dashed bg-muted/20 p-4 shadow-sm">
+        <div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{defaultGeofence.name}</h3><StatusBadge label={t("field.defaultRadius")} tone="info" /></div><p className="mt-1 text-sm text-muted-foreground">{defaultGeofence.code} · {t("field.project")}</p></div>{can("project.update") && <Button asChild size="icon-sm" variant="ghost" title={t("action.edit")}><Link href={`/projects/${defaultGeofence.id}/edit`}><Pencil /></Link></Button>}</div>
+        <div className="mt-4 grid grid-cols-2 gap-3 text-sm"><Info label={t("field.location")} value={`${defaultGeofence.latitude}, ${defaultGeofence.longitude}`} /><Info label={t("field.radius")} value={`${defaultGeofence.geofence_radius_m} m`} /></div>
+        <p className="mt-3 border-t pt-3 text-sm text-muted-foreground">{t("field.defaultRadius")}</p>
       </article>)}
     </div>}
     {editing && <GeofenceDialog row={editing === "new" ? null : editing} defaultProject={project === "all" ? "" : project} projects={projectOptions} projectsLoading={projects.isLoading} projectsError={projects.isError} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await qc.invalidateQueries({ queryKey: ["site-geofences"] }); }} />}
@@ -109,7 +143,8 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
   </DialogContent></Dialog>;
 }
 
-function toMapZone(row: SiteGeofence): LocationMapZone { return row.shape === "POLYGON" ? { id: row.id, label: row.name, points: row.polygon } : { id: row.id, label: row.name, center: [Number(row.latitude), Number(row.longitude)], radiusM: row.radius_m ?? 1 }; }
+function toMapZone(row: SiteGeofence): LocationMapZone { return row.shape === "POLYGON" ? { id: row.id, label: `${row.project_name} · ${row.name}`, points: row.polygon } : { id: row.id, label: `${row.project_name} · ${row.name}`, center: [Number(row.latitude), Number(row.longitude)], radiusM: row.radius_m ?? 1 }; }
+function toDefaultMapZone(row: Project): LocationMapZone { return { id: `project-default-${row.id}`, label: `${row.name} · ${row.geofence_radius_m} m`, center: [Number(row.latitude), Number(row.longitude)], radiusM: row.geofence_radius_m ?? 1, color: "#64748b" }; }
 function Info({ label, value }: { label: string; value: string }) { return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 break-words font-medium">{value}</p></div>; }
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) { return <label className="flex items-center justify-between rounded-lg border px-3 py-3 text-sm font-medium"><span>{label}</span><Switch checked={checked} onCheckedChange={onChange} /></label>; }
 function State({ text, danger = false }: { text: string; danger?: boolean }) { return <div className={`grid min-h-36 place-items-center rounded-lg border border-dashed p-6 text-center text-sm ${danger ? "text-destructive" : "text-muted-foreground"}`}>{text}</div>; }

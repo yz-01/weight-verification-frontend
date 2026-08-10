@@ -66,6 +66,8 @@ export function CreateProject({ project }: { project?: Project }) {
       name: project?.name ?? "",
       status: (project?.status ?? "ACTIVE") as ProjectStatus,
       client_name: project?.client_name ?? "",
+      main_contractor: project?.main_contractor ?? "",
+      consultant: project?.consultant ?? "",
       description: project?.description ?? "",
       address_line_1: project?.address_line_1 ?? "",
       address_line_2: project?.address_line_2 ?? "",
@@ -193,6 +195,26 @@ export function CreateProject({ project }: { project?: Project }) {
             <TextField
               field={field as unknown as BoundField}
               label={t("projects.field.clientName")}
+              optional
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="main_contractor">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.mainContractor")}
+              optional
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="consultant">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.consultant")}
               optional
             />
           )}

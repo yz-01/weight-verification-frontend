@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellRing, Check, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -30,6 +31,7 @@ export function NotificationButton() {
   const t = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -182,7 +184,14 @@ export function NotificationButton() {
                 key={notification.id}
                 type="button"
                 className="flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-muted/40"
-                onClick={() => read.mutate(notification.id)}
+                onClick={async () => {
+                  await read.mutateAsync(notification.id);
+                  const href = notification.data.href;
+                  if (typeof href === "string" && href.startsWith("/")) {
+                    setOpen(false);
+                    router.push(href);
+                  }
+                }}
               >
                 <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
                 <span className="min-w-0 flex-1">

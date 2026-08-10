@@ -37,6 +37,8 @@ export const DISPATCH_STATE_TONE: Record<
   "neutral" | "info" | "warning" | "positive" | "danger"
 > = {
   DRAFT: "neutral",
+  PENDING_ACCEPTANCE: "warning",
+  ACCEPTED: "info",
   RELEASED: "info",
   COLLECTED: "warning",
   WEIGHED: "info",

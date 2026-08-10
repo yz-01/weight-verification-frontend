@@ -57,6 +57,7 @@ export type PortalFeatureKey =
   | "material_receipts"
   | "material_outgoing"
   | "site_disposals"
+  | "waste_outgoing"
   | "waste_dispatches"
   | "recycling_records"
   | "attendance"
@@ -889,14 +890,17 @@ export const PORTAL_NAVIGATION = {
     ]),
     item("progress", "/modules/progress", ChartNoAxesCombined, "operations", undefined, false, [
       child("7.2.1", "nav.submodule.progressRecords", "/progress", "progress"),
-      child("7.2.2", "nav.submodule.schedulePlanning", "/schedule", "schedule"),
+      child("7.2.14", "nav.submodule.schedulePlanning", "/schedule", "schedule"),
     ]),
     item("recyclers", "/modules/recycling", Handshake, "operations", undefined, false, [
       child("8.2.1", "nav.submodule.recyclerPartners", "/recyclers", "recyclers"),
-      child("8.2.2", "nav.submodule.wasteDispatches", "/dispatches", "waste_dispatches"),
-      child("8.2.3", "nav.submodule.siteDisposals", "/site-disposals", "site_disposals"),
-      child("8.2.4", "nav.submodule.recyclingRecords", "/weighing", "recycling_records"),
-      child("8.2.5", "nav.submodule.paymentProofs", "/payment-proofs", "payment_proofs"),
+      // Recording waste leaving site is the head of the chain: it is what
+      // becomes a dispatch, so it sits ahead of one in the menu.
+      child("8.2.2", "nav.submodule.wasteOutgoing", "/waste-outgoing", "waste_outgoing"),
+      child("8.2.3", "nav.submodule.wasteDispatches", "/dispatches", "waste_dispatches"),
+      child("8.2.4", "nav.submodule.siteDisposals", "/site-disposals", "site_disposals"),
+      child("8.2.5", "nav.submodule.recyclingRecords", "/weighing", "recycling_records"),
+      child("8.2.6", "nav.submodule.paymentProofs", "/payment-proofs", "payment_proofs"),
     ]),
     item("safety", "/modules/safety", ShieldAlert, "operations", undefined, false, [
       child("9.2.1", "nav.submodule.safetyIncidents", "/safety", "safety"),
@@ -913,6 +917,8 @@ export const PORTAL_NAVIGATION = {
         child("10.2.2", "nav.submodule.consultantWorkflows", "/consultant-workflows", "consultant_applications"),
         child("10.2.3", "nav.submodule.approvalCredentials", "/approval-credential", "approvals"),
         child("10.2.4", "nav.submodule.consultantFieldInbox", "/consultant-field-inbox", "field_tasks"),
+        child("10.2.5", "nav.submodule.consultantAccess", "/consultant-access", "users"),
+        child("10.2.6", "nav.submodule.consultantTemplates", "/consultant-templates", "consultant_applications"),
       ],
     ),
     item("hazard_rectification", "/modules/hazards", ClipboardCheck, "operations", undefined, false, [

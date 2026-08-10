@@ -29,6 +29,7 @@ const tones: Record<
   DRAFT: "neutral",
   SUBMITTED: "warning",
   APPROVED: "positive",
+  APPROVED_WITH_REMEDIAL: "warning",
   REJECTED: "danger",
   REVISE_RESUBMIT: "warning",
   ARCHIVED: "info",

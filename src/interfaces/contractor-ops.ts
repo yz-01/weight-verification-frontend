@@ -75,14 +75,21 @@ export interface FieldTask {
   title: string;
   task_type: FieldTaskType;
   instructions: string;
+  work_location: string;
+  submission_category: string;
   assigned_to: string;
   assigned_to_name: string;
+  created_by_name: string;
   category: string | null;
   category_name: string | null;
   priority: "LOW" | "NORMAL" | "HIGH" | "URGENT";
   due_at: string | null;
   status: FieldTaskStatus;
   evidence_required: number;
+  started_at: string | null;
+  start_latitude: string | null;
+  start_longitude: string | null;
+  start_accuracy_m: string | null;
   submitted_at: string | null;
   reviewed_at: string | null;
   review_note: string;
@@ -98,6 +105,8 @@ export interface FieldTaskPayload {
   title: string;
   task_type: FieldTaskType;
   instructions?: string;
+  work_location?: string;
+  submission_category?: string;
   assigned_to: string;
   category?: string | null;
   priority?: FieldTask["priority"];
@@ -121,6 +130,7 @@ export interface SiteEquipment {
   status: EquipmentStatus;
   is_active: boolean;
   movement_count: number;
+  quantity_on_site: string;
   created_at: string;
   updated_at: string;
 }
@@ -147,6 +157,7 @@ export interface EquipmentMovement {
   occurred_at: string;
   original_occurred_at: string;
   uploaded_at: string;
+  quantity: string;
   delivery_note_no: string;
   vehicle_plate: string;
   operator_name: string;
@@ -155,6 +166,9 @@ export interface EquipmentMovement {
   accuracy_m: string | null;
   notes: string;
   ocr_status: string;
+  ocr_result: Record<string, unknown>;
+  ocr_confirmed_by: string | null;
+  ocr_confirmed_at: string | null;
   client_event_id: string;
   photos: Array<{ id: string; image: string; kind: string; captured_at: string }>;
 }

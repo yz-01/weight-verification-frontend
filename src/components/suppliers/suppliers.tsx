@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ExportButton } from "@/components/shared/export-button";
 import {
   ListHeader,
   StatusBadge,
@@ -18,7 +19,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Supplier } from "@/interfaces/contractor";
-import { deleteSupplier, getSuppliers } from "@/services/contractor.service";
+import {
+  deleteSupplier,
+  exportSuppliers,
+  getSuppliers,
+  type ExportFormat,
+} from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
 
 export function Suppliers() {
@@ -185,6 +191,25 @@ export function Suppliers() {
   );
 
   const totalCount = data?.count ?? 0;
+  const runExport = (format: ExportFormat) =>
+    exportSuppliers({
+      format,
+      title: t("suppliers.title"),
+      emptyLabel: t("common.emptyValue"),
+      query: list.query,
+      columns: [
+        { key: "code", label: t("suppliers.field.code") },
+        { key: "name", label: t("suppliers.field.name") },
+        { key: "contact_person", label: t("suppliers.field.contactPerson") },
+        { key: "contact_phone", label: t("suppliers.field.contactPhone") },
+        { key: "contact_email", label: t("suppliers.field.contactEmail") },
+        { key: "city", label: t("suppliers.field.city") },
+        { key: "state", label: t("suppliers.field.state") },
+        { key: "registration_no", label: t("suppliers.field.registrationNo") },
+        { key: "is_active", label: t("suppliers.field.isActive") },
+        { key: "qr_is_active", label: t("suppliers.field.qrActive") },
+      ],
+    });
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
@@ -192,14 +217,17 @@ export function Suppliers() {
         title={t("suppliers.title")}
         subtitle={isLoading ? "—" : t("suppliers.count", { count: totalCount })}
         action={
-          can("supplier.create") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href="/suppliers/create">
-                <Plus className="h-4 w-4" />
-                {t("suppliers.new")}
-              </Link>
-            </Button>
-          ) : undefined
+          <>
+            <ExportButton onExport={runExport} disabled={totalCount === 0} />
+            {can("supplier.create") && (
+              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Link href="/suppliers/create">
+                  <Plus className="h-4 w-4" />
+                  {t("suppliers.new")}
+                </Link>
+              </Button>
+            )}
+          </>
         }
       />
 

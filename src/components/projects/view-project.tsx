@@ -1,12 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, UserMinus, UserPlus } from "lucide-react";
+import { Archive, Pencil, Plus, UserMinus, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
 import { ProjectDockets } from "@/components/projects/project-dockets";
+import { ProjectQrPanel } from "@/components/projects/project-qr-panel";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
@@ -38,6 +39,7 @@ import {
 } from "@/components/ui/select";
 import type { ProjectAssignment } from "@/interfaces/contractor";
 import {
+  archiveProject,
   assignUserToProject,
   getAssignableProjectUsers,
   getProject,
@@ -50,10 +52,21 @@ export function ViewProject({ id }: { id: string }) {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
+  const queryClient = useQueryClient();
+  const [archiving, setArchiving] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["projects", "detail", id],
     queryFn: () => getProject(id),
+  });
+
+  const archiveMutation = useMutation({
+    mutationFn: () => archiveProject(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
+      void queryClient.invalidateQueries({ queryKey: ["projects", "detail", id] });
+      setArchiving(false);
+    },
   });
 
   if (isLoading) return <FormSkeleton sections={4} />;
@@ -84,6 +97,17 @@ export function ViewProject({ id }: { id: string }) {
                 </Link>
               </Button>
             )}
+            {can("project.update") && data.status === "COMPLETED" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full px-4"
+                onClick={() => setArchiving(true)}
+              >
+                <Archive className="h-4 w-4" />
+                {t("projects.archive.action")}
+              </Button>
+            )}
           </div>
         }
       />
@@ -105,6 +129,14 @@ export function ViewProject({ id }: { id: string }) {
             <ReadField
               label={t("projects.field.clientName")}
               value={data.client_name}
+            />
+            <ReadField
+              label={t("projects.field.mainContractor")}
+              value={data.main_contractor}
+            />
+            <ReadField
+              label={t("projects.field.consultant")}
+              value={data.consultant}
             />
             <ReadField
               label={t("projects.field.createdAt")}
@@ -190,8 +222,26 @@ export function ViewProject({ id }: { id: string }) {
         </div>
       </div>
 
+      {can("project.update") && (
+        <ProjectQrPanel
+          projectId={id}
+          projectName={data.name}
+          archived={data.status === "ARCHIVED"}
+        />
+      )}
       <ProjectTeam projectId={id} />
       <ProjectDockets projectId={id} />
+
+      <ConfirmDialog
+        open={archiving}
+        onOpenChange={setArchiving}
+        title={t("projects.archive.title", { name: data.name })}
+        description={t("projects.archive.description")}
+        confirmLabel={t("projects.archive.confirm")}
+        confirmIcon={Archive}
+        isPending={archiveMutation.isPending}
+        onConfirm={() => archiveMutation.mutate()}
+      />
     </div>
   );
 }

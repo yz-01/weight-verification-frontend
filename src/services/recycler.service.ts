@@ -106,6 +106,18 @@ export function getDrivers(query: ListQuery): Promise<Paginated<Driver>> {
   return api.list<Driver>("/api/drivers/get_drivers/", query);
 }
 
+export async function acceptDispatch(
+  id: string,
+  recyclerReference: string,
+): Promise<WasteDispatch> {
+  const dispatch = await api.post<WasteDispatch>(
+    `/api/dispatches/${id}/accept_dispatch/`,
+    { recycler_reference: recyclerReference },
+  );
+  toastSuccess("incoming.toast.accepted");
+  return dispatch;
+}
+
 export interface DriverAccountOption {
   id: string;
   full_name: string;

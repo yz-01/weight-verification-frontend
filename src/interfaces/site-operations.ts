@@ -16,8 +16,12 @@ export interface AttendanceRecord {
   latitude: string | null;
   longitude: string | null;
   location_accuracy_m: string | null;
+  distance_m: string | null;
   photo: string | null;
   note: string;
+  geofence_result: "INSIDE" | "OUTSIDE" | "NOT_EVALUATED";
+  matched_geofence: string | null;
+  matched_geofence_name: string | null;
   created_at: string;
 }
 

@@ -1,10 +1,11 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ClipboardPen, Loader2, Save } from "lucide-react";
+import { ClipboardPen, Images, Loader2, MapPin, Save } from "lucide-react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import {
@@ -22,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ApiError } from "@/interfaces/api";
 import type {
   ConsultantApplication,
   ConsultantApplicationPayload,
@@ -31,15 +33,21 @@ import type {
 import {
   createConsultantApplication,
   getApplicationOptions,
+  getApplicationTemplates,
   getConsultantApplication,
   getConsultantGrants,
   getConsultantWorkflows,
   updateConsultantApplication,
 } from "@/services/consultant-workflow.service";
+import { getFieldTask } from "@/services/contractor-ops.service";
+import { getScheduleTasks } from "@/services/schedule-planning.service";
 
 const emptyForm: ConsultantApplicationPayload = {
   project: "",
   workflow: "",
+  template_version: null,
+  schedule_task: null,
+  source_field_task: null,
   application_type: "",
   discipline: "",
   work_type: "",
@@ -50,6 +58,8 @@ const emptyForm: ConsultantApplicationPayload = {
   component: "",
   description: "",
   required_at: null,
+  inspection_start_at: null,
+  inspection_end_at: null,
   drawing_no: "",
   drawing_revision: "",
   itp_no: "",
@@ -58,12 +68,20 @@ const emptyForm: ConsultantApplicationPayload = {
   custom_fields: {},
 };
 
+const BUILT_IN_CUSTOM_FIELD_KEYS = new Set([
+  "inspection_activity",
+  "acceptance_requirement",
+]);
+
 function payloadFromApplication(
   row: ConsultantApplication,
 ): ConsultantApplicationPayload {
   return {
     project: row.project,
     workflow: row.workflow ?? "",
+    template_version: row.template_version,
+    schedule_task: row.schedule_task,
+    source_field_task: row.source_field_task,
     application_type: row.application_type,
     application_type_custom: row.application_type_custom,
     discipline: row.discipline,
@@ -78,6 +96,8 @@ function payloadFromApplication(
     component: row.component,
     description: row.description,
     required_at: row.required_at,
+    inspection_start_at: row.inspection_start_at,
+    inspection_end_at: row.inspection_end_at,
     drawing_no: row.drawing_no,
     drawing_revision: row.drawing_revision,
     itp_no: row.itp_no,
@@ -87,7 +107,13 @@ function payloadFromApplication(
   };
 }
 
-export function ConsultantApplicationForm({ id }: { id?: string }) {
+export function ConsultantApplicationForm({
+  id,
+  sourceFieldTaskId = "",
+}: {
+  id?: string;
+  sourceFieldTaskId?: string;
+}) {
   const t = useTranslations("consultantWorkflow");
   const existing = useQuery({
     queryKey: ["consultant-application", id],
@@ -105,6 +131,7 @@ export function ConsultantApplicationForm({ id }: { id?: string }) {
       key={id ?? "new"}
       id={id}
       initial={existing.data}
+      sourceFieldTaskId={sourceFieldTaskId}
     />
   );
 }
@@ -112,18 +139,37 @@ export function ConsultantApplicationForm({ id }: { id?: string }) {
 function ConsultantApplicationEditor({
   id,
   initial,
+  sourceFieldTaskId,
 }: {
   id?: string;
   initial?: ConsultantApplication;
+  sourceFieldTaskId: string;
 }) {
   const t = useTranslations("consultantWorkflow");
   const router = useRouter();
   const [form, setForm] = useState<ConsultantApplicationPayload>(() =>
     initial ? payloadFromApplication(initial) : emptyForm,
   );
+  const [sourceApplied, setSourceApplied] = useState(Boolean(initial));
+  const sourceTask = useQuery({
+    queryKey: ["consultant-field-source", sourceFieldTaskId],
+    queryFn: () => getFieldTask(sourceFieldTaskId),
+    enabled: !id && Boolean(sourceFieldTaskId),
+    retry: false,
+  });
   const [requiredAt, setRequiredAt] = useState(() =>
     initial?.required_at
       ? new Date(initial.required_at).toISOString().slice(0, 16)
+      : "",
+  );
+  const [inspectionStartAt, setInspectionStartAt] = useState(() =>
+    initial?.inspection_start_at
+      ? new Date(initial.inspection_start_at).toISOString().slice(0, 16)
+      : "",
+  );
+  const [inspectionEndAt, setInspectionEndAt] = useState(() =>
+    initial?.inspection_end_at
+      ? new Date(initial.inspection_end_at).toISOString().slice(0, 16)
       : "",
   );
   const onProjectChange = useCallback((project: string) => {
@@ -133,6 +179,22 @@ function ConsultantApplicationEditor({
       location: old.project === project ? old.location : "",
     }));
   }, []);
+  useEffect(() => {
+    if (id || sourceApplied || !sourceTask.data) return;
+    const source = sourceTask.data;
+    const timer = window.setTimeout(() => {
+      setForm((old) => ({
+        ...old,
+        project: source.project,
+        source_field_task: source.id,
+        location: source.work_location || old.location,
+        component: source.category_name || old.component,
+        description: source.instructions || old.description,
+      }));
+      setSourceApplied(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [id, sourceApplied, sourceTask.data]);
   const options = useQuery({
     queryKey: ["consultant-options", form.project],
     queryFn: () => getApplicationOptions(form.project),
@@ -143,6 +205,17 @@ function ConsultantApplicationEditor({
     queryFn: () =>
       getConsultantWorkflows({ project: form.project, page_size: 200 }),
     enabled: Boolean(form.project),
+  });
+  const templates = useQuery({
+    queryKey: ["consultant-templates", form.project],
+    queryFn: () => getApplicationTemplates({ project: form.project, page_size: 200 }),
+    enabled: Boolean(form.project),
+  });
+  const scheduleTasks = useQuery({
+    queryKey: ["consultant-schedule-tasks", form.project],
+    queryFn: () => getScheduleTasks({ project: form.project, page_size: 300 }),
+    enabled: Boolean(form.project),
+    retry: false,
   });
   const grants = useQuery({
     queryKey: ["consultant-grant-options", form.project],
@@ -156,11 +229,46 @@ function ConsultantApplicationEditor({
     }
     return result;
   }, [options.data]);
+  useEffect(() => {
+    const source = sourceTask.data;
+    if (!source || !options.data?.results.length || form.application_type) return;
+    const expected = source.submission_category.trim().toLowerCase();
+    const applicationOptions = options.data.results.filter(
+      (row) => row.category === "APPLICATION_TYPE" && row.is_active,
+    );
+    const matched = applicationOptions.find(
+      (row) => row.code.trim().toLowerCase() === expected || row.label.trim().toLowerCase() === expected,
+    );
+    const fallback = applicationOptions.find((row) => row.code === "OTHER");
+    if (!matched && (!fallback || !source.submission_category)) return;
+    const timer = window.setTimeout(() => {
+      if (matched) {
+        setForm((old) => ({ ...old, application_type: matched.id }));
+      } else if (fallback) {
+        setForm((old) => ({
+          ...old,
+          application_type: fallback.id,
+          application_type_custom: source.submission_category,
+        }));
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [form.application_type, options.data, sourceTask.data]);
 
   const preferredWorkflow =
     workflows.data?.results.find((workflow) => workflow.is_default) ??
     workflows.data?.results[0];
   const selectedWorkflow = form.workflow || preferredWorkflow?.id || "";
+  const selectedTemplate = (templates.data?.results ?? []).find((template) =>
+    template.versions.some((version) => version.id === form.template_version),
+  );
+  const selectedTemplateVersion = selectedTemplate?.versions.find(
+    (version) => version.id === form.template_version,
+  );
+  const templateFields = selectedTemplateVersion?.field_schema ?? [];
+  const requiredTemplateFieldsComplete = templateFields
+    .filter((field) => field.required)
+    .every((field) => Boolean(form.custom_fields?.[field.key]?.trim()));
 
   const save = useMutation({
     mutationFn: () =>
@@ -169,11 +277,15 @@ function ConsultantApplicationEditor({
             ...form,
             workflow: selectedWorkflow,
             required_at: requiredAt ? new Date(requiredAt).toISOString() : null,
+            inspection_start_at: inspectionStartAt ? new Date(inspectionStartAt).toISOString() : null,
+            inspection_end_at: inspectionEndAt ? new Date(inspectionEndAt).toISOString() : null,
           })
         : createConsultantApplication({
             ...form,
             workflow: selectedWorkflow,
             required_at: requiredAt ? new Date(requiredAt).toISOString() : null,
+            inspection_start_at: inspectionStartAt ? new Date(inspectionStartAt).toISOString() : null,
+            inspection_end_at: inspectionEndAt ? new Date(inspectionEndAt).toISOString() : null,
           }),
     onSuccess: (row) => router.push(`/consultant-applications/${row.id}`),
   });
@@ -208,8 +320,14 @@ function ConsultantApplicationEditor({
       form.consultant_organization &&
       form.location.trim() &&
       form.component.trim() &&
-      form.description.trim(),
+      form.description.trim() &&
+      requiredTemplateFieldsComplete,
   );
+  const saveError = save.isError
+    ? save.error instanceof ApiError
+      ? save.error.message
+      : t("form.saveError")
+    : "";
 
   return (
     <div className="mx-auto max-w-6xl space-y-5 pb-8">
@@ -227,10 +345,57 @@ function ConsultantApplicationEditor({
         </div>
       </div>
 
+      {sourceTask.isLoading ? (
+        <div className="flex items-center gap-2 rounded-lg border bg-card p-4 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          {t("form.sourceLoading")}
+        </div>
+      ) : sourceTask.isError ? (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          {t("form.sourceLoadError")}
+        </p>
+      ) : sourceTask.data ? (
+        <section className="rounded-lg border border-primary/20 bg-primary/5 p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Images className="size-5" /></span>
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold">{t("form.sourceTitle")}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{t("form.sourceHelp")}</p>
+              <div className="mt-3 grid gap-1 text-sm">
+                <p><strong>{sourceTask.data.project_name}</strong></p>
+                {sourceTask.data.submission_category && <p>{sourceTask.data.submission_category}</p>}
+                {sourceTask.data.work_location && <p>{sourceTask.data.work_location}</p>}
+                {sourceTask.data.submitted_at && <p className="text-muted-foreground">{t("form.sourceSubmittedAt", { value: new Date(sourceTask.data.submitted_at).toLocaleString() })}</p>}
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {sourceTask.data.photos.map((photo) => (
+              <a key={photo.id} href={photo.image} target="_blank" rel="noreferrer">
+                <Image src={photo.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg object-cover" />
+              </a>
+            ))}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span>{t("form.sourcePhotosLinked", { count: sourceTask.data.photos.length })}</span>
+            {sourceTask.data.photos[0]?.latitude && sourceTask.data.photos[0]?.longitude ? (
+              <a
+                className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                href={`https://www.google.com/maps?q=${sourceTask.data.photos[0].latitude},${sourceTask.data.photos[0].longitude}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <MapPin className="size-3.5" />{t("form.sourceGps")}
+              </a>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
       <FormSection title={t("form.section.project")}>
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.project")} required>
-            {id ? <Input value={initial?.project_name ?? ""} readOnly className="bg-muted/40" /> : <ConsultantProjectPicker value={form.project} onChange={onProjectChange} />}
+            {id || sourceTask.data ? <Input value={initial?.project_name ?? sourceTask.data?.project_name ?? ""} readOnly className="bg-muted/40" /> : <ConsultantProjectPicker value={form.project} onChange={onProjectChange} />}
           </FieldWrapper>
           <FieldWrapper label={t("field.workflow")} required>
             <Select
@@ -243,6 +408,48 @@ function ConsultantApplicationEditor({
                 {(workflows.data?.results ?? []).map((row) => (
                   <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.template")}>
+            <Select
+              value={form.template_version || "NONE"}
+              onValueChange={(value) => {
+                if (value === "NONE") {
+                  set("template_version", null);
+                  return;
+                }
+                const template = (templates.data?.results ?? []).find((row) =>
+                  row.versions.some((version) => version.id === value),
+                );
+                setForm((old) => ({
+                  ...old,
+                  template_version: value,
+                  application_type: template?.application_type || old.application_type,
+                }));
+              }}
+              disabled={!form.project || templates.isLoading}
+            >
+              <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseTemplate")} /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NONE">{t("field.noTemplate")}</SelectItem>
+                {(templates.data?.results ?? []).map((template) => {
+                  const version = template.versions.find((item) => item.version === template.current_version);
+                  return version ? (
+                    <SelectItem key={version.id} value={version.id}>
+                      {template.code} - {template.name} (v{version.version})
+                    </SelectItem>
+                  ) : null;
+                })}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.scheduleTask")}>
+            <Select value={form.schedule_task || "NONE"} onValueChange={(value) => set("schedule_task", value === "NONE" ? null : value)} disabled={!form.project || scheduleTasks.isLoading || scheduleTasks.isError}>
+              <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseScheduleTask")} /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NONE">{t("field.noScheduleTask")}</SelectItem>
+                {(scheduleTasks.data?.results ?? []).map((task) => <SelectItem key={task.id} value={task.id}>{task.wbs_code} - {task.name}</SelectItem>)}
               </SelectContent>
             </Select>
           </FieldWrapper>
@@ -288,6 +495,8 @@ function ConsultantApplicationEditor({
           <FieldWrapper label={t("field.component")} required><Input value={form.component} onChange={(event) => set("component", event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.description")} required className="sm:col-span-2"><Textarea rows={4} value={form.description} onChange={(event) => set("description", event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.requiredAt")}><Input type="datetime-local" value={requiredAt} onChange={(event) => setRequiredAt(event.target.value)} /></FieldWrapper>
+          <FieldWrapper label={t("field.inspectionStartAt")}><Input type="datetime-local" value={inspectionStartAt} onChange={(event) => setInspectionStartAt(event.target.value)} /></FieldWrapper>
+          <FieldWrapper label={t("field.inspectionEndAt")}><Input type="datetime-local" min={inspectionStartAt || undefined} value={inspectionEndAt} onChange={(event) => setInspectionEndAt(event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.inspectionActivity")}><Input value={form.custom_fields?.inspection_activity ?? ""} onChange={(event) => setCustom("inspection_activity", event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.drawingNo")}><Input value={form.drawing_no ?? ""} onChange={(event) => set("drawing_no", event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.drawingRevision")}><Input value={form.drawing_revision ?? ""} onChange={(event) => set("drawing_revision", event.target.value)} /></FieldWrapper>
@@ -303,8 +512,24 @@ function ConsultantApplicationEditor({
             </Select>
           </FieldWrapper>
           <FieldWrapper label={t("field.acceptanceRequirement")}><Input value={form.custom_fields?.acceptance_requirement ?? ""} onChange={(event) => setCustom("acceptance_requirement", event.target.value)} /></FieldWrapper>
+          {templateFields.filter((field) => !BUILT_IN_CUSTOM_FIELD_KEYS.has(field.key)).map((field) => (
+            <FieldWrapper key={field.key} label={field.label} required={Boolean(field.required)}>
+              <Input value={form.custom_fields?.[field.key] ?? ""} onChange={(event) => setCustom(field.key, event.target.value)} />
+            </FieldWrapper>
+          ))}
         </div>
+        {selectedTemplateVersion?.required_attachment_codes.length ? (
+          <p className="mt-4 rounded-lg border border-info/30 bg-info/5 p-3 text-sm text-info">
+            {t("form.requiredAttachments", { codes: selectedTemplateVersion.required_attachment_codes.join(", ") })}
+          </p>
+        ) : null}
       </FormSection>
+
+      {saveError ? (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+          {saveError}
+        </p>
+      ) : null}
 
       <div className="sticky bottom-3 flex justify-end gap-2 rounded-lg border bg-background/95 p-3 shadow-lg backdrop-blur">
         <Button variant="outline" onClick={() => router.back()}>{t("action.cancel")}</Button>

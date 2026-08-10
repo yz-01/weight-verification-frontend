@@ -1,6 +1,11 @@
 /** The contractor console's records: sites, suppliers, deliveries and loads out. */
 
-export type ProjectStatus = "PLANNING" | "ACTIVE" | "SUSPENDED" | "COMPLETED";
+export type ProjectStatus =
+  | "PLANNING"
+  | "ACTIVE"
+  | "SUSPENDED"
+  | "COMPLETED"
+  | "ARCHIVED";
 
 export interface Project {
   id: string;
@@ -9,6 +14,8 @@ export interface Project {
   status: ProjectStatus;
   description?: string;
   client_name: string;
+  main_contractor?: string;
+  consultant?: string;
   address_line_1: string;
   address_line_2: string;
   city: string;
@@ -33,6 +40,8 @@ export interface ProjectPayload {
   status: ProjectStatus;
   description?: string;
   client_name?: string;
+  main_contractor?: string;
+  consultant?: string;
   address_line_1?: string;
   address_line_2?: string;
   city?: string;
@@ -63,8 +72,14 @@ export interface Supplier {
   contact_person: string;
   contact_phone: string;
   contact_email: string;
+  address_line_1?: string;
   city: string;
+  state?: string;
+  registration_no?: string;
   is_active: boolean;
+  qr_token?: string;
+  qr_is_active?: boolean;
+  qr_issued_at?: string;
   qr_code_count?: number;
   created_at: string;
 }
@@ -224,6 +239,7 @@ export type WasteType =
   | "METAL"
   | "TIMBER"
   | "PLASTIC"
+  | "PAPER"
   | "SOIL"
   | "HAZARDOUS"
   | "OTHER";
@@ -234,6 +250,7 @@ export const WASTE_TYPES: WasteType[] = [
   "METAL",
   "TIMBER",
   "PLASTIC",
+  "PAPER",
   "SOIL",
   "HAZARDOUS",
   "OTHER",
@@ -241,6 +258,8 @@ export const WASTE_TYPES: WasteType[] = [
 
 export type DispatchState =
   | "DRAFT"
+  | "PENDING_ACCEPTANCE"
+  | "ACCEPTED"
   | "RELEASED"
   | "COLLECTED"
   | "WEIGHED"
@@ -249,6 +268,8 @@ export type DispatchState =
 
 export const DISPATCH_STATES: DispatchState[] = [
   "DRAFT",
+  "PENDING_ACCEPTANCE",
+  "ACCEPTED",
   "RELEASED",
   "COLLECTED",
   "WEIGHED",
@@ -280,6 +301,8 @@ export interface WasteDispatch {
   vehicle_plate: string;
   driver_name: string;
   state: DispatchState;
+  accepted_at: string | null;
+  driver_assigned_at: string | null;
   released_at: string | null;
   /** Only a draft is editable; after release the record is evidence. */
   is_editable: boolean;

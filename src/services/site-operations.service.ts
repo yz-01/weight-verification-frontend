@@ -90,6 +90,12 @@ export function getSafetyIncidents(
   );
 }
 
+export function getSafetyIncident(id: string): Promise<SafetyIncident> {
+  return api.get<SafetyIncident>(
+    `/api/safety-incidents/${id}/get_safety_incident/`,
+  );
+}
+
 export async function createSafetyIncident(
   payload: SafetyIncidentPayload,
 ): Promise<SafetyIncident> {

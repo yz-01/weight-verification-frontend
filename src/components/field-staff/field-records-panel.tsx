@@ -27,6 +27,7 @@ import {
 import { SiteDisposalWorkspace } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
+import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Safety } from "@/components/site-operations/safety";
@@ -59,7 +60,7 @@ import {
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
 
-type RecordMode =
+export type FieldRecordMode =
   | "material"
   | "equipment"
   | "progress"
@@ -69,7 +70,7 @@ type RecordMode =
   | "consultant";
 
 interface RecordOption {
-  key: RecordMode | "consultant";
+  key: FieldRecordMode;
   permission: string;
   icon: typeof Camera;
   tone: string;
@@ -85,32 +86,44 @@ const RECORD_OPTIONS: RecordOption[] = [
   { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary" },
 ];
 
-export function FieldRecordsPanel() {
+export function FieldRecordsPanel({
+  initialMode = null,
+  onModeChange,
+}: {
+  initialMode?: FieldRecordMode | null;
+  onModeChange?: (mode: FieldRecordMode | null) => void;
+} = {}) {
   const t = useTranslations("fieldStaffPwa");
   const { can } = useAuth();
-  const [mode, setMode] = useState<RecordMode | null>(null);
+  const [localMode, setLocalMode] = useState<FieldRecordMode | null>(initialMode);
+  const mode = onModeChange ? initialMode : localMode;
   const options = RECORD_OPTIONS.filter((option) => can(option.permission));
 
+  const chooseMode = (next: FieldRecordMode | null) => {
+    if (!onModeChange) setLocalMode(next);
+    onModeChange?.(next);
+  };
+
   if (mode === "material") {
-    return <RecordFrame title={t("records.material")} onBack={() => setMode(null)}><MaterialCapturePanel onSaved={() => setMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><MaterialCapturePanel onSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "equipment") {
-    return <RecordFrame title={t("records.equipment")} onBack={() => setMode(null)}><SiteEquipmentWorkspace /></RecordFrame>;
+    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><SiteEquipmentWorkspace /></RecordFrame>;
   }
   if (mode === "progress") {
-    return <RecordFrame title={t("records.progress")} onBack={() => setMode(null)}><SiteProgressWorkspace /></RecordFrame>;
+    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><SiteProgressWorkspace /></RecordFrame>;
   }
   if (mode === "disposal") {
-    return <RecordFrame title={t("records.disposal")} onBack={() => setMode(null)}><SiteDisposalWorkspace /></RecordFrame>;
+    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><SiteDisposalWorkspace /></RecordFrame>;
   }
   if (mode === "outgoing") {
-    return <RecordFrame title={t("records.outgoing")} onBack={() => setMode(null)}><MaterialOutgoingWorkspace /></RecordFrame>;
+    return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><MaterialOutgoingWorkspace /></RecordFrame>;
   }
   if (mode === "safety") {
-    return <RecordFrame title={t("records.safety")} onBack={() => setMode(null)}><Safety /></RecordFrame>;
+    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><Safety /></RecordFrame>;
   }
   if (mode === "consultant") {
-    return <RecordFrame title={t("records.consultant")} onBack={() => setMode(null)}><ConsultantCapturePanel onSaved={() => setMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><ConsultantCapturePanel onSaved={() => chooseMode(null)} /></RecordFrame>;
   }
 
   return (
@@ -127,7 +140,7 @@ export function FieldRecordsPanel() {
               key={option.key}
               type="button"
               className="flex min-h-32 flex-col items-start justify-between rounded-xl border bg-card p-4 text-left shadow-sm active:scale-[0.98]"
-              onClick={() => setMode(option.key)}
+              onClick={() => chooseMode(option.key)}
             >
               <span className={`grid size-11 place-items-center rounded-xl ${option.tone}`}>
                 <Icon className="size-6" />
@@ -422,16 +435,16 @@ function MaterialCapturePanel({ onSaved }: { onSaved: () => void }) {
         <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
         <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
       </div>
-      <CameraField label={t("material.doPhoto")} fileCount={deliveryNote ? 1 : 0} onChange={selectDeliveryNote} />
+      <CameraField label={t("material.doPhoto")} files={deliveryNote ? [deliveryNote] : []} onChange={selectDeliveryNote} />
       {(ocr.isPending || ocrMessage) && (
         <p className={`rounded-lg px-3 py-2 text-sm ${ocrProof ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
           {ocr.isPending ? t("material.ocrReading") : ocrMessage}
         </p>
       )}
-      <CameraField label={t("material.sitePhotos")} multiple fileCount={sitePhotos.length} onChange={setSitePhotos} />
+      <CameraField label={t("material.sitePhotos")} multiple files={sitePhotos} onChange={setSitePhotos} />
       <div className="grid grid-cols-2 gap-3">
-        <CameraField label={t("material.receiverSignature")} fileCount={receiverSignature ? 1 : 0} onChange={(files) => setReceiverSignature(files[0])} />
-        <CameraField label={t("material.supplierSignature")} fileCount={supplierSignature ? 1 : 0} onChange={(files) => setSupplierSignature(files[0])} />
+        <CameraField label={t("material.receiverSignature")} files={receiverSignature ? [receiverSignature] : []} onChange={(files) => setReceiverSignature(files[0])} />
+        <CameraField label={t("material.supplierSignature")} files={supplierSignature ? [supplierSignature] : []} onChange={(files) => setSupplierSignature(files[0])} />
       </div>
       <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>
         {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
@@ -467,6 +480,9 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
   const qc = useQueryClient();
   const [project, setProject] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
+  const [category, setCategory] = useState("RFI");
+  const [description, setDescription] = useState("");
+  const [workLocation, setWorkLocation] = useState("");
   const [note, setNote] = useState("");
   const [location, setLocation] = useState<Coordinates>();
   const [locating, setLocating] = useState(false);
@@ -501,6 +517,9 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
       return submitConsultantSubmissionOfflineAware(user.id, {
         project,
         note: note.trim(),
+        application_category: category,
+        description: description.trim(),
+        work_location: workLocation.trim(),
         captured_at: new Date().toISOString(),
         latitude: location.latitude,
         longitude: location.longitude,
@@ -529,10 +548,28 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
           className="h-12 w-full"
         />
       </FieldWrapper>
+      <FieldWrapper label={t("consultantCapture.category")} required>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {(["RFI", "WIR", "MATERIAL", "SAFETY", "OTHER"] as const).map((value) => (
+              <SelectItem key={value} value={value}>{t(`consultantCapture.categoryOption.${value}`)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
+      <FieldWrapper label={t("consultantCapture.workLocation")}>
+        <Input
+          className="h-12"
+          value={workLocation}
+          onChange={(event) => setWorkLocation(event.target.value)}
+          placeholder={t("consultantCapture.workLocationPlaceholder")}
+        />
+      </FieldWrapper>
       <CameraField
         label={t("consultantCapture.photos")}
         multiple
-        fileCount={photos.length}
+        files={photos}
         onChange={setPhotos}
       />
       <Button
@@ -545,6 +582,11 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
         {location ? t("attendance.locationReady") : t("attendance.getLocation")}
       </Button>
       <Textarea
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        placeholder={t("consultantCapture.description")}
+      />
+      <Textarea
         value={note}
         onChange={(event) => setNote(event.target.value)}
         placeholder={t("consultantCapture.note")}
@@ -556,7 +598,7 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
       )}
       <Button
         className="h-14 w-full text-base"
-        disabled={!project || photos.length === 0 || !location || save.isPending}
+        disabled={!project || !category || !description.trim() || photos.length === 0 || !location || save.isPending}
         onClick={() => save.mutate()}
       >
         {save.isPending ? <Loader2 className="animate-spin" /> : <UserRoundCheck />}
@@ -569,29 +611,21 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
 function CameraField({
   label,
   multiple = false,
-  fileCount,
+  files,
   onChange,
 }: {
   label: string;
   multiple?: boolean;
-  fileCount: number;
+  files: File[];
   onChange: (files: File[]) => void;
 }) {
-  const t = useTranslations("fieldStaffPwa");
   return (
-    <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed bg-muted/20 p-3 text-center">
-      <Camera className="size-7 text-primary" />
-      <span className="mt-2 text-sm font-semibold">{label}</span>
-      <span className="mt-1 text-xs text-muted-foreground">{fileCount ? t("material.photoReady", { count: fileCount }) : t("material.tapCamera")}</span>
-      <input
-        className="sr-only"
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple={multiple}
-        onChange={(event) => onChange(Array.from(event.target.files ?? []))}
-      />
-    </label>
+    <FieldCamera
+      label={label}
+      fileCount={files.length}
+      onCapture={(file) => onChange(multiple ? [...files, file] : [file])}
+      onClear={() => onChange([])}
+    />
   );
 }
 

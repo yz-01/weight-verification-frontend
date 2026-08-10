@@ -2,12 +2,23 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Camera, Loader2, LocateFixed, LogIn, LogOut } from "lucide-react";
+import {
+  Camera,
+  CheckCircle2,
+  Eye,
+  Loader2,
+  LocateFixed,
+  LogIn,
+  LogOut,
+  MapPin,
+  XCircle,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { LocationMap } from "@/components/shared/location-map";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -57,6 +68,7 @@ export function Attendance() {
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [clockError, setClockError] = useState("");
+  const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["attendance", list.query],
@@ -176,15 +188,25 @@ export function Attendance() {
         id: "evidence",
         meta: { label: t("attendance.field.evidence") },
         header: () => t("attendance.field.evidence"),
-        cell: ({ row }) => (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            {row.original.photo && <Camera className="h-4 w-4" />}
-            {row.original.latitude && <LocateFixed className="h-4 w-4" />}
-            {!row.original.photo && !row.original.latitude
-              ? t("common.emptyValue")
-              : null}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const record = row.original;
+          const hasEvidence = Boolean(record.photo || record.latitude);
+          return hasEvidence ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-primary"
+              onClick={() => setSelectedRecord(record)}
+            >
+              {record.photo ? <Camera className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+              <span>{t("attendance.evidence.view")}</span>
+              <Eye className="h-3.5 w-3.5" />
+            </Button>
+          ) : (
+            <span className="text-muted-foreground">{t("common.emptyValue")}</span>
+          );
+        },
       },
     ],
     [t, df],
@@ -340,6 +362,143 @@ export function Attendance() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={Boolean(selectedRecord)}
+        onOpenChange={(value) => {
+          if (!value) setSelectedRecord(null);
+        }}
+      >
+        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{t("attendance.evidence.title")}</DialogTitle>
+          </DialogHeader>
+          {selectedRecord && (
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+              <div className="space-y-4">
+                {selectedRecord.photo ? (
+                  <div className="overflow-hidden rounded-lg border bg-muted/20">
+                    <img
+                      src={selectedRecord.photo}
+                      alt={t("attendance.evidence.photoAlt")}
+                      className="max-h-[26rem] w-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex min-h-40 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+                    {t("attendance.evidence.noPhoto")}
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <EvidenceValue label={t("attendance.evidence.worker")} value={selectedRecord.user_name} />
+                  <EvidenceValue label={t("attendance.evidence.project")} value={selectedRecord.project_name} />
+                  <EvidenceValue
+                    label={t("attendance.evidence.event")}
+                    value={t(`attendance.event.${selectedRecord.event}`)}
+                  />
+                  <EvidenceValue
+                    label={t("attendance.evidence.recordedAt")}
+                    value={df.dateTime(selectedRecord.occurred_at)}
+                  />
+                  <EvidenceValue
+                    label={t("attendance.evidence.originalAt")}
+                    value={selectedRecord.original_occurred_at ? df.dateTime(selectedRecord.original_occurred_at) : t("common.emptyValue")}
+                  />
+                  <EvidenceValue
+                    label={t("attendance.evidence.uploadedAt")}
+                    value={df.dateTime(selectedRecord.uploaded_at)}
+                  />
+                </div>
+                {selectedRecord.note && (
+                  <EvidenceValue label={t("attendance.evidence.note")} value={selectedRecord.note} />
+                )}
+              </div>
+              <div className="space-y-4">
+                {selectedRecord.latitude && selectedRecord.longitude ? (
+                  <LocationMap
+                    center={[Number(selectedRecord.latitude), Number(selectedRecord.longitude)]}
+                    markers={[
+                      {
+                        id: selectedRecord.id,
+                        latitude: Number(selectedRecord.latitude),
+                        longitude: Number(selectedRecord.longitude),
+                        label: selectedRecord.user_name,
+                        detail: `${selectedRecord.project_name} · ${t(`attendance.event.${selectedRecord.event}`)}`,
+                        tone: selectedRecord.geofence_result === "OUTSIDE" ? "danger" : "positive",
+                        icon: "person",
+                      },
+                    ]}
+                    className="min-h-[18rem] rounded-lg"
+                  />
+                ) : (
+                  <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+                    {t("attendance.evidence.noLocation")}
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <EvidenceStatus
+                    label={t("attendance.evidence.geofence")}
+                    value={t(`attendance.evidence.geofenceStatus.${selectedRecord.geofence_result}`)}
+                    positive={selectedRecord.geofence_result === "INSIDE"}
+                    negative={selectedRecord.geofence_result === "OUTSIDE"}
+                  />
+                  <EvidenceValue
+                    label={t("attendance.evidence.geofenceName")}
+                    value={selectedRecord.matched_geofence_name || t("attendance.evidence.notMatched")}
+                  />
+                  <EvidenceValue
+                    label={t("attendance.evidence.distance")}
+                    value={selectedRecord.distance_m ? `${selectedRecord.distance_m} m` : t("common.emptyValue")}
+                  />
+                  <EvidenceValue
+                    label={t("attendance.evidence.accuracy")}
+                    value={selectedRecord.location_accuracy_m ? `${selectedRecord.location_accuracy_m} m` : t("common.emptyValue")}
+                  />
+                  <EvidenceValue label={t("attendance.evidence.latitude")} value={selectedRecord.latitude || t("common.emptyValue")} />
+                  <EvidenceValue label={t("attendance.evidence.longitude")} value={selectedRecord.longitude || t("common.emptyValue")} />
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedRecord(null)}>
+              {t("common.close")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function EvidenceValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md border bg-muted/20 p-2.5">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-1 break-words font-medium text-foreground">{value}</div>
+    </div>
+  );
+}
+
+function EvidenceStatus({
+  label,
+  value,
+  positive,
+  negative,
+}: {
+  label: string;
+  value: string;
+  positive: boolean;
+  negative: boolean;
+}) {
+  return (
+    <div className="min-w-0 rounded-md border bg-muted/20 p-2.5">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-1 flex items-center gap-1.5 font-medium text-foreground">
+        {positive ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : null}
+        {negative ? <XCircle className="h-4 w-4 text-destructive" /> : null}
+        {value}
+      </div>
     </div>
   );
 }

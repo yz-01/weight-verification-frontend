@@ -49,7 +49,10 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
       contact_person: supplier?.contact_person ?? "",
       contact_phone: supplier?.contact_phone ?? "",
       contact_email: supplier?.contact_email ?? "",
+      address_line_1: supplier?.address_line_1 ?? "",
       city: supplier?.city ?? "",
+      state: supplier?.state ?? "",
+      registration_no: supplier?.registration_no ?? "",
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -142,12 +145,43 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
       </FormSection>
 
       <FormSection title={t("suppliers.section.address")}>
+        <form.Field name="address_line_1">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("suppliers.field.addressLine1")}
+              optional
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
         <form.Field name="city">
           {(field) => (
             <TextField
               field={field as unknown as BoundField}
               label={t("suppliers.field.city")}
               optional
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="state">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("suppliers.field.state")}
+              optional
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="registration_no">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("suppliers.field.registrationNo")}
+              optional
+              className="md:col-span-2"
             />
           )}
         </form.Field>

@@ -17,10 +17,12 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { FieldCamera } from "@/components/shared/field-camera";
 import {
   FieldWrapper,
   ListHeader,
@@ -56,6 +58,7 @@ import { useDateFormat } from "@/lib/dates";
 import { submitSafetyIncidentOfflineAware } from "@/services/offline-sync.service";
 import {
   assignSafetyRectification,
+  getSafetyIncident,
   getSafetyIncidents,
   reviewSafetyRectification,
   submitSafetyRectification,
@@ -115,11 +118,14 @@ export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectifica
   const df = useDateFormat();
   const { can, user } = useAuth();
   const list = useListQuery(["project", "severity", "status"]);
-  const [createOpen, setCreateOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const requestedIncidentId = searchParams.get("incident");
+  const [createOpen, setCreateOpen] = useState(searchParams.get("create") === "1");
   const [updating, setUpdating] = useState<SafetyIncident | null>(null);
   const [assigning, setAssigning] = useState<SafetyIncident | null>(null);
   const [submitting, setSubmitting] = useState<SafetyIncident | null>(null);
   const [reviewing, setReviewing] = useState<SafetyIncident | null>(null);
+  const openedIncidentRef = useRef("");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["safety", mode, list.query],
@@ -128,6 +134,37 @@ export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectifica
       workflow: mode === "rectification" ? "rectification" : undefined,
     }),
   });
+  const focusedIncident = useQuery({
+    queryKey: ["safety-incident", requestedIncidentId],
+    queryFn: () => getSafetyIncident(requestedIncidentId!),
+    enabled: Boolean(requestedIncidentId),
+  });
+
+  useEffect(() => {
+    const incident = focusedIncident.data;
+    if (!incident || openedIncidentRef.current === incident.id) return;
+    openedIncidentRef.current = incident.id;
+    const timer = window.setTimeout(() => {
+      if (
+        can("safety.verify") &&
+        incident.status === "RECTIFICATION_SUBMITTED"
+      ) {
+        setReviewing(incident);
+      } else if (
+        can("safety.manage") &&
+        incident.responsible_person === user?.id &&
+        ["ASSIGNED", "RETURNED"].includes(incident.status)
+      ) {
+        setSubmitting(incident);
+      } else if (
+        can("safety.manage") &&
+        ["OPEN", "RETURNED"].includes(incident.status)
+      ) {
+        setAssigning(incident);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [can, focusedIncident.data, user?.id]);
 
   const columns = useMemo<ColumnDef<SafetyIncident, unknown>[]>(
     () => [
@@ -382,7 +419,7 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
   const [locationError, setLocationError] = useState("");
   const getLocation = () => { setLocationError(""); navigator.geolocation.getCurrentPosition((position) => setLocation({ latitude: position.coords.latitude.toFixed(7), longitude: position.coords.longitude.toFixed(7), accuracy: position.coords.accuracy.toFixed(2) }), () => setLocationError(t("error.location")), { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }); };
   const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { image: image!, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("submit.title")}</DialogTitle><DialogDescription>{incident.rectification_note || t("submit.description")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.photo")} required><Input type="file" accept="image/*" capture="environment" onChange={(e) => setImage(e.target.files?.[0])} /></FieldWrapper><FieldWrapper label={t("field.location")} required error={locationError}><Button className="w-full" variant="outline" onClick={getLocation}><LocateFixed />{location ? t("action.locationReady") : t("action.getLocation")}</Button></FieldWrapper><FieldWrapper label={t("field.workDone")} required><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!image || !location || !note.trim() || save.isPending} onClick={() => save.mutate()}><Camera />{t("action.submit")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("submit.title")}</DialogTitle><DialogDescription>{incident.rectification_note || t("submit.description")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.photo")} required><FieldCamera label={t("field.photo")} fileCount={image ? 1 : 0} onCapture={setImage} onClear={() => setImage(undefined)} /></FieldWrapper><FieldWrapper label={t("field.location")} required error={locationError}><Button className="w-full" variant="outline" onClick={getLocation}><LocateFixed />{location ? t("action.locationReady") : t("action.getLocation")}</Button></FieldWrapper><FieldWrapper label={t("field.workDone")} required><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!image || !location || !note.trim() || save.isPending} onClick={() => save.mutate()}><Camera />{t("action.submit")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
@@ -392,7 +429,7 @@ function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; o
   const [note, setNote] = useState("");
   const [image, setImage] = useState<File>();
   const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision, note, image }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl"><DialogHeader><DialogTitle>{t("review.title")}</DialogTitle><DialogDescription>{t("review.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-3 gap-2">{incident.rectification_evidence.filter((item) => item.kind === "RECTIFICATION").map((item) => <a key={item.id} href={item.image} target="_blank" rel="noreferrer"><Image src={item.image} alt="" width={320} height={320} unoptimized className="aspect-square w-full rounded-lg object-cover" /></a>)}</div><div className="grid grid-cols-2 gap-2"><Button variant={decision === "VERIFIED" ? "default" : "outline"} onClick={() => setDecision("VERIFIED")}><CheckCircle2 />{t("action.verify")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><FieldWrapper label={t("field.reviewNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.verificationPhoto")} optional={t("action.optional")}><Input type="file" accept="image/*" capture="environment" onChange={(e) => setImage(e.target.files?.[0])} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={(decision === "RETURNED" && !note.trim()) || save.isPending} onClick={() => save.mutate()}>{decision === "VERIFIED" ? <CheckCircle2 /> : <RotateCcw />}{t(decision === "VERIFIED" ? "action.verify" : "action.return")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl"><DialogHeader><DialogTitle>{t("review.title")}</DialogTitle><DialogDescription>{t("review.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-3 gap-2">{incident.rectification_evidence.filter((item) => item.kind === "RECTIFICATION").map((item) => <a key={item.id} href={item.image} target="_blank" rel="noreferrer"><Image src={item.image} alt="" width={320} height={320} unoptimized className="aspect-square w-full rounded-lg object-cover" /></a>)}</div><div className="grid grid-cols-2 gap-2"><Button variant={decision === "VERIFIED" ? "default" : "outline"} onClick={() => setDecision("VERIFIED")}><CheckCircle2 />{t("action.verify")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><FieldWrapper label={t("field.reviewNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.verificationPhoto")} optional={t("action.optional")}><FieldCamera label={t("field.verificationPhoto")} fileCount={image ? 1 : 0} onCapture={setImage} onClear={() => setImage(undefined)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={(decision === "RETURNED" && !note.trim()) || save.isPending} onClick={() => save.mutate()}>{decision === "VERIFIED" ? <CheckCircle2 /> : <RotateCcw />}{t(decision === "VERIFIED" ? "action.verify" : "action.return")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
@@ -512,13 +549,11 @@ function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
             />
           </FieldWrapper>
           <FieldWrapper label={t("safety.field.photo")} optional={t("common.optional")}>
-            <Input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={(event) =>
-                setDraft((value) => ({ ...value, photo: event.target.files?.[0] }))
-              }
+            <FieldCamera
+              label={t("safety.field.photo")}
+              fileCount={draft.photo ? 1 : 0}
+              onCapture={(photo) => setDraft((value) => ({ ...value, photo }))}
+              onClear={() => setDraft((value) => ({ ...value, photo: undefined }))}
             />
           </FieldWrapper>
           <FieldWrapper label={t("safety.field.location")} optional={t("common.optional")}>

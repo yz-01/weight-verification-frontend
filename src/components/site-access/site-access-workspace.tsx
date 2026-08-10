@@ -5,7 +5,7 @@ import { Check, Download, DoorOpen, Eye, KeyRound, Loader2, MapPin, Plus, QrCode
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { QRCodeCanvas } from "qrcode.react";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -18,14 +18,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import type { AccessDirection, AccessSubjectType, SiteAccessPass, SiteAccessPassPayload } from "@/interfaces/site-access";
-import { createSiteAccessPass, getSiteAccessPasses, reviewSiteAccessPass, revokeSiteAccessPass, scanSiteAccessGate } from "@/services/site-access.service";
+import { createSiteAccessPass, getSiteAccessPass, getSiteAccessPasses, reviewSiteAccessPass, revokeSiteAccessPass, scanSiteAccessGate } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
 
 export function SiteAccessWorkspace() {
   const t = useTranslations("siteControl");
   const { can } = useAuth();
   const qc = useQueryClient();
-  const [tab, setTab] = useState("passes");
+  const search = useSearchParams();
+  const requestedPassId = search.get("pass");
+  const [tab, setTab] = useState(search.get("scan") ? "gate" : "passes");
   const [project, setProject] = useState("all");
   const [status, setStatus] = useState("all");
   const [creating, setCreating] = useState(false);
@@ -34,10 +36,22 @@ export function SiteAccessWorkspace() {
   const [review, setReview] = useState<{ row: SiteAccessPass; decision: "APPROVED" | "REJECTED" } | null>(null);
   const [revoke, setRevoke] = useState<SiteAccessPass | null>(null);
   const [reason, setReason] = useState("");
+  const openedPassRef = useRef("");
   const rows = useQuery({
     queryKey: ["site-access-passes", project, status],
     queryFn: () => getSiteAccessPasses({ page_size: 200, ...(project !== "all" ? { project } : {}), ...(status !== "all" ? { status } : {}) }),
   });
+  const focusedPass = useQuery({
+    queryKey: ["site-access-pass", requestedPassId],
+    queryFn: () => getSiteAccessPass(requestedPassId!),
+    enabled: Boolean(requestedPassId),
+  });
+  useEffect(() => {
+    if (!focusedPass.data || openedPassRef.current === focusedPass.data.id) return;
+    openedPassRef.current = focusedPass.data.id;
+    setTab("passes");
+    setViewing(focusedPass.data);
+  }, [focusedPass.data]);
   const invalidate = () => qc.invalidateQueries({ queryKey: ["site-access-passes"] });
   const reviewMutation = useMutation({ mutationFn: () => reviewSiteAccessPass(review!.row.id, review!.decision, reason), onSuccess: async () => { setReview(null); setReason(""); await invalidate(); } });
   const revokeMutation = useMutation({ mutationFn: () => revokeSiteAccessPass(revoke!.id, reason), onSuccess: async () => { setRevoke(null); setReason(""); await invalidate(); } });
