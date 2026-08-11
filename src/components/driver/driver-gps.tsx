@@ -41,6 +41,7 @@ import type {
 import { useDateFormat } from "@/lib/dates";
 import {
   getDriverLivePositions,
+  getDriverLiveRoutes,
   getDriverRouteHistory,
 } from "@/services/driver-gps.service";
 import { getTask, getTasks } from "@/services/recycler.service";
@@ -132,6 +133,11 @@ export function DriverGps() {
       }),
     refetchInterval: 15_000,
   });
+  const liveRoutes = useQuery({
+    queryKey: ["driver-gps", "live-routes"],
+    queryFn: () => getDriverLiveRoutes(50),
+    refetchInterval: 15_000,
+  });
 
   const positions = useMemo(
     () => route.data?.pages.flatMap((page) => page.results) ?? [],
@@ -166,9 +172,60 @@ export function DriverGps() {
               ? ("warning" as const)
               : ("positive" as const),
         stale: position.is_stale,
+        icon: "truck" as const,
       })),
     [livePositions, t],
   );
+  const driverByTask = useMemo(
+    () => new Map(livePositions.map((position) => [position.task, position])),
+    [livePositions],
+  );
+  const livePaths = useMemo(
+    () =>
+      (liveRoutes.data?.routes ?? []).map((route, index) => {
+        const driver = driverByTask.get(route.task);
+        return {
+          id: route.task,
+          points: route.positions.map(
+            (position) =>
+              [Number(position.latitude), Number(position.longitude)] as [number, number],
+          ),
+          color: ROUTE_COLORS[index % ROUTE_COLORS.length],
+          label: driver
+            ? `${driver.driver_name} / ${driver.vehicle_plate}`
+            : undefined,
+        };
+      }),
+    [driverByTask, liveRoutes.data?.routes],
+  );
+  const liveZones = useMemo(() => {
+    const byProject = new Map<string, {
+      id: string;
+      center: [number, number];
+      radiusM: number;
+      label: string;
+    }>();
+    livePositions.forEach((position) => {
+      if (
+        position.project_name &&
+        position.project_latitude &&
+        position.project_longitude &&
+        position.project_geofence_radius_m
+      ) {
+        const key = `${position.project_latitude}:${position.project_longitude}`;
+        byProject.set(key, {
+          id: key,
+          center: [
+            Number(position.project_latitude),
+            Number(position.project_longitude),
+          ],
+          radiusM: position.project_geofence_radius_m,
+          label: position.project_name,
+        });
+      }
+    });
+    return Array.from(byProject.values());
+  }, [livePositions]);
 
   function selectTask(taskId: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -178,8 +235,12 @@ export function DriverGps() {
 
   function refresh() {
     void tasks.refetch();
-    void detail.refetch();
-    void route.refetch();
+    void live.refetch();
+    void liveRoutes.refetch();
+    if (selectedTaskId) {
+      void detail.refetch();
+      void route.refetch();
+    }
   }
 
   return (
@@ -197,11 +258,13 @@ export function DriverGps() {
           <Button
             size="sm"
             variant="outline"
-            disabled={tasks.isFetching || route.isFetching}
+            disabled={
+              tasks.isFetching || route.isFetching || live.isFetching || liveRoutes.isFetching
+            }
             onClick={refresh}
           >
             <RefreshCw
-              className={`h-4 w-4 ${tasks.isFetching || route.isFetching ? "animate-spin" : ""}`}
+              className={`h-4 w-4 ${tasks.isFetching || route.isFetching || live.isFetching || liveRoutes.isFetching ? "animate-spin" : ""}`}
             />
             {t("common.refresh")}
           </Button>
@@ -220,7 +283,12 @@ export function DriverGps() {
             {t("driverGps.liveMap.refresh")}
           </span>
         </div>
-        <LocationMap center={liveCenter} markers={liveMarkers} />
+        <LocationMap
+          center={liveCenter}
+          markers={liveMarkers}
+          paths={livePaths}
+          zones={liveZones}
+        />
       </section>
 
       <div className="grid min-h-0 gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
@@ -405,6 +473,15 @@ export function DriverGps() {
     </div>
   );
 }
+
+const ROUTE_COLORS = [
+  "#087f8c",
+  "#2563eb",
+  "#7c3aed",
+  "#c2410c",
+  "#16825d",
+  "#be123c",
+];
 
 function TaskOption({
   task,

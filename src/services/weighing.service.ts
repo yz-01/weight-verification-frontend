@@ -17,6 +17,7 @@ import type {
   ScalePayload,
   SessionTrace,
   WeighingRuleSet,
+  WeighAnomalyRow,
   WeighSessionDetail,
   WeighSessionRow,
   WeighSessionSummary,
@@ -137,11 +138,33 @@ export async function rotateGatewaySecret(
   return result;
 }
 
+export async function revokeGateway(
+  scaleId: string,
+  gatewayId: string,
+  reason: string,
+): Promise<GatewayDevice> {
+  const result = await api.post<GatewayDevice>(
+    `/api/scales/${scaleId}/revoke_gateway/`,
+    { gateway: gatewayId, reason },
+  );
+  toastSuccess("gateways.toast.revoked");
+  return result;
+}
+
 export function getWeighSessions(
   query: ListQuery,
 ): Promise<Paginated<WeighSessionRow>> {
   return api.list<WeighSessionRow>(
     "/api/weigh-sessions/get_sessions/",
+    query,
+  );
+}
+
+export function getWeighAnomalies(
+  query: ListQuery,
+): Promise<Paginated<WeighAnomalyRow>> {
+  return api.list<WeighAnomalyRow>(
+    "/api/weigh-sessions/get_anomalies/",
     query,
   );
 }

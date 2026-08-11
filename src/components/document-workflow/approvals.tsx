@@ -18,10 +18,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
   FieldWrapper,
   ListHeader,
@@ -106,8 +108,11 @@ export function Approvals() {
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const { user, can } = useAuth();
+  const searchParams = useSearchParams();
   const list = useListQuery(["status", "mine", "resource_type"]);
-  const [editing, setEditing] = useState<ApprovalRecord | null | "new">(null);
+  const [editing, setEditing] = useState<ApprovalRecord | null | "new">(
+    searchParams.get("create") === "1" && can("approval.submit") ? "new" : null,
+  );
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [acting, setActing] = useState<{
     approval: ApprovalRecord;
@@ -665,21 +670,23 @@ function ApprovalEditorDialog({
               onChange={(event) => setDescription(event.target.value)}
             />
           </FieldWrapper>
-          <FieldWrapper
-            label={t("approvals.field.metadata")}
-            optional={t("common.optional")}
-            error={errors.metadata}
-            hint={t("approvals.metadataHint")}
-            className="sm:col-span-2"
-          >
-            <Textarea
-              rows={5}
-              className="font-mono text-xs"
-              spellCheck={false}
-              value={metadataText}
-              onChange={(event) => setMetadataText(event.target.value)}
-            />
-          </FieldWrapper>
+          <AdvancedTechnicalSettings>
+            <FieldWrapper
+              label={t("approvals.field.metadata")}
+              optional={t("common.optional")}
+              error={errors.metadata}
+              hint={t("approvals.metadataHint")}
+              className="sm:col-span-2"
+            >
+              <Textarea
+                rows={5}
+                className="font-mono text-xs"
+                spellCheck={false}
+                value={metadataText}
+                onChange={(event) => setMetadataText(event.target.value)}
+              />
+            </FieldWrapper>
+          </AdvancedTechnicalSettings>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
@@ -876,15 +883,19 @@ function ApprovalDetailBody({
           />
         )}
         {Object.keys(approval.metadata).length > 0 && (
-          <ReadField
-            label={t("approvals.field.metadata")}
-            value={
-              <pre className="max-h-40 w-full overflow-auto whitespace-pre-wrap font-mono text-xs">
-                {JSON.stringify(approval.metadata, null, 2)}
-              </pre>
-            }
-            className="sm:col-span-2 lg:col-span-3"
-          />
+          <div className="sm:col-span-2 lg:col-span-3">
+            <AdvancedTechnicalSettings>
+              <ReadField
+                label={t("approvals.field.metadata")}
+                value={
+                  <pre className="max-h-40 w-full overflow-auto whitespace-pre-wrap font-mono text-xs">
+                    {JSON.stringify(approval.metadata, null, 2)}
+                  </pre>
+                }
+                className="sm:col-span-2"
+              />
+            </AdvancedTechnicalSettings>
+          </div>
         )}
       </div>
 

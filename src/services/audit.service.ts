@@ -1,8 +1,8 @@
 /** Reading the audit trail. There is no write path: entries are append-only. */
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
-import type { AuditLogEntry } from "@/interfaces/audit";
-import { api } from "@/services/api-client";
+import type { AuditLogEntry, AuditSummary } from "@/interfaces/audit";
+import { api, download } from "@/services/api-client";
 
 export function getAuditLogs(
   query: ListQuery,
@@ -23,4 +23,24 @@ export function getObjectHistory(
     "/api/audit-logs/get_object_history/",
     { object_type: objectType, object_id: objectId },
   );
+}
+
+export function getAuditSummary(): Promise<AuditSummary> {
+  return api.get<AuditSummary>("/api/audit-logs/get_audit_summary/");
+}
+
+export function exportAuditLogs(input: {
+  format: "PDF" | "EXCEL";
+  title: string;
+  subtitle: string;
+  empty_label: string;
+  columns: Array<{ key: string; label: string }>;
+  [key: string]: unknown;
+}): Promise<void> {
+  return download("/api/audit-logs/export_audit_logs/", {
+    method: "POST",
+    body: input,
+    fallbackFilename:
+      input.format === "PDF" ? "audit-log.pdf" : "audit-log.xlsx",
+  });
 }

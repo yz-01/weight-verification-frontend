@@ -1,0 +1,49 @@
+name: CI
+
+# Mirrors the backend's Lucas -> develop -> deploy flow. Vercel builds this
+# project (mse-trace-uat) on push, but a Vercel build failing is a deployment
+# that already started: running the same checks here surfaces a type error or a
+# missing translation before the deployment is attempted.
+on:
+  push:
+    branches: [Lucas, develop, deploy]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      # `ci` not `install`: the lockfile is what Vercel builds from, so
+      # resolving fresh versions here would test something else.
+      - name: Install dependencies
+        run: npm ci
+
+      # Every admin screen reads its labels through next-intl. A key that exists
+      # in English but not in the other locales renders the raw key path to the
+      # user, which this catches before it ships.
+      - name: Check translation messages
+        run: npm run check:messages
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Last, and unconditionally: this is the same command Vercel runs, so a
+      # failure here is a failure there.
+      - name: Build
+        run: npm run build
+        env:
+          # Build-time only. The real API base URL is configured per-environment
+          # in the Vercel project; this placeholder just satisfies any module
+          # that reads it while Next.js prerenders.
+          NEXT_PUBLIC_API_BASE_URL: https://api.weight.jgdx.xyz

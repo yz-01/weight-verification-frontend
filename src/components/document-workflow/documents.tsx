@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -90,9 +91,12 @@ export function Documents() {
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const { can } = useAuth();
+  const searchParams = useSearchParams();
   const list = useListQuery(["status", "category"]);
   const [viewingId, setViewingId] = useState<string | null>(null);
-  const [editing, setEditing] = useState<DocumentRecord | null | "new">(null);
+  const [editing, setEditing] = useState<DocumentRecord | null | "new">(
+    searchParams.get("create") === "1" && can("document.manage") ? "new" : null,
+  );
   const [uploading, setUploading] = useState<DocumentRecord | null>(null);
   const [archiving, setArchiving] = useState<DocumentRecord | null>(null);
   const [archiveReason, setArchiveReason] = useState("");

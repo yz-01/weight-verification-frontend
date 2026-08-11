@@ -2,13 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Ban, Info, PackageCheck } from "lucide-react";
+import { Info, Loader2, PackageCheck, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   ListHeader,
@@ -26,14 +25,32 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import {
+  acceptDispatch,
   collectDispatch,
+  createTask,
+  getDrivers,
   getIncoming,
-  rejectDispatch,
+  getVehicles,
 } from "@/services/recycler.service";
+import { getSites } from "@/services/weighing.service";
+
+function localDateTimeInput(value?: string | null) {
+  const date = value ? new Date(value) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return shifted.toISOString().slice(0, 16);
+}
 
 /**
  * The yard's inbox.
@@ -52,8 +69,7 @@ export function Incoming() {
   const list = useListQuery(["state"]);
 
   const [collecting, setCollecting] = useState<WasteDispatch | null>(null);
-  const [rejecting, setRejecting] = useState<WasteDispatch | null>(null);
-  const [reason, setReason] = useState("");
+  const [assigning, setAssigning] = useState<WasteDispatch | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["incoming", list.query],
@@ -64,15 +80,6 @@ export function Incoming() {
     void queryClient.invalidateQueries({ queryKey: ["incoming"] });
     void queryClient.invalidateQueries({ queryKey: ["dispatches"] });
   }
-
-  const rejection = useMutation({
-    mutationFn: (id: string) => rejectDispatch(id, reason),
-    onSuccess: () => {
-      refresh();
-      setRejecting(null);
-      setReason("");
-    },
-  });
 
   const columns = useMemo<ColumnDef<WasteDispatch, unknown>[]>(
     () => [
@@ -194,7 +201,20 @@ export function Incoming() {
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) =>
-          can("dispatch.update") && row.original.state === "RELEASED" ? (
+          can("task.assign") &&
+          ["PENDING_ACCEPTANCE", "ACCEPTED"].includes(row.original.state) ? (
+            <div className="flex items-center justify-end gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-primary hover:bg-primary/10"
+                title={t("incoming.order.action")}
+                onClick={() => setAssigning(row.original)}
+              >
+                <Truck className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : can("dispatch.update") && row.original.state === "RELEASED" ? (
             <div className="flex items-center justify-end gap-0.5">
               <Button
                 variant="ghost"
@@ -204,15 +224,6 @@ export function Incoming() {
                 onClick={() => setCollecting(row.original)}
               >
                 <PackageCheck className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                title={t("incoming.reject.confirm")}
-                onClick={() => setRejecting(row.original)}
-              >
-                <Ban className="h-3.5 w-3.5" />
               </Button>
             </div>
           ) : null,
@@ -255,7 +266,12 @@ export function Incoming() {
             active: (list.filters.state ?? "") === "",
             onSelect: () => list.setFilter("state", undefined),
           },
-          ...(["RELEASED", "COLLECTED"] as const).map((state) => ({
+          ...([
+            "PENDING_ACCEPTANCE",
+            "ACCEPTED",
+            "RELEASED",
+            "COLLECTED",
+          ] as const).map((state) => ({
             key: state,
             label: t(`dispatches.state.${state}`),
             active: list.filters.state === state,
@@ -277,25 +293,189 @@ export function Incoming() {
         />
       )}
 
-      {rejecting && (
-        <ConfirmDialog
-          open
-          onOpenChange={() => {
-            setRejecting(null);
-            setReason("");
-          }}
-          title={t("incoming.reject.title")}
-          description={t("incoming.reject.description")}
-          confirmLabel={t("incoming.reject.confirm")}
-          confirmIcon={Ban}
-          isPending={rejection.isPending}
-          reason={reason}
-          onReasonChange={setReason}
-          reasonRequired
-          onConfirm={() => rejection.mutate(rejecting.id)}
+      {assigning && (
+        <OrderAssignmentDialog
+          load={assigning}
+          onClose={() => setAssigning(null)}
+          onDone={refresh}
         />
       )}
     </div>
+  );
+}
+
+function OrderAssignmentDialog({
+  load,
+  onClose,
+  onDone,
+}: {
+  load: WasteDispatch;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const t = useTranslations();
+  const [reference, setReference] = useState("");
+  const [proposedAt, setProposedAt] = useState(localDateTimeInput());
+  const [proposalNote, setProposalNote] = useState("");
+  const [site, setSite] = useState("");
+  const [vehicle, setVehicle] = useState("");
+  const [driver, setDriver] = useState("");
+  const [scheduledFor, setScheduledFor] = useState(
+    localDateTimeInput(load.confirmed_collection_at),
+  );
+  const [notes, setNotes] = useState("");
+
+  const sites = useQuery({
+    queryKey: ["sites", "order-assignment"],
+    queryFn: () => getSites({ page_size: 100 }),
+  });
+  const vehicles = useQuery({
+    queryKey: ["vehicles", "order-assignment"],
+    queryFn: () => getVehicles({ page_size: 100, is_active: "true" }),
+  });
+  const drivers = useQuery({
+    queryKey: ["drivers", "order-assignment"],
+    queryFn: () => getDrivers({ page_size: 100, is_active: "true" }),
+  });
+
+  const acceptOnly = useMutation({
+    mutationFn: () =>
+      acceptDispatch(load.id, {
+        recyclerReference: reference.trim(),
+        proposedCollectionAt: new Date(proposedAt).toISOString(),
+        proposedCollectionNote: proposalNote.trim(),
+      }),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+  });
+
+  const assign = useMutation({
+    mutationFn: () =>
+      createTask({
+        dispatch: load.id,
+        site,
+        vehicle,
+        driver,
+        scheduled_for: scheduledFor || null,
+        notes: notes.trim(),
+      }),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+  });
+
+  const waitingForContractor =
+    load.state === "ACCEPTED" && !load.confirmed_collection_at;
+  const ready =
+    load.state === "ACCEPTED" &&
+    Boolean(load.confirmed_collection_at) &&
+    Boolean(site && vehicle && driver && scheduledFor);
+  const proposalReady = Boolean(proposedAt);
+  const pending = acceptOnly.isPending || assign.isPending;
+
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t("incoming.order.title")}</DialogTitle>
+          <DialogDescription>
+            {t("incoming.order.description", { order: load.dispatch_no })}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="rounded-md border bg-muted/40 px-3 py-2">
+          <p className="text-sm font-medium">{load.project_name}</p>
+          <p className="text-xs text-muted-foreground">
+            {t(`dispatches.wasteType.${load.waste_type}`)}
+          </p>
+        </div>
+
+        {load.state === "PENDING_ACCEPTANCE" ? (
+          <div className="grid gap-4">
+            <div className="rounded-lg border border-info/25 bg-info/5 p-3 text-sm leading-6">
+              {t("incoming.order.proposalHelp")}
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("incoming.collect.reference")}</Label>
+              <Input value={reference} onChange={(event) => setReference(event.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("incoming.order.proposedAt")}</Label>
+              <Input type="datetime-local" min={localDateTimeInput()} value={proposedAt} onChange={(event) => setProposedAt(event.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("incoming.order.proposalNote")}</Label>
+              <Textarea value={proposalNote} onChange={(event) => setProposalNote(event.target.value)} />
+            </div>
+          </div>
+        ) : waitingForContractor ? (
+          <div className="rounded-lg border border-warning/30 bg-warning/10 p-4">
+            <p className="font-semibold">{t("incoming.order.waitingConfirmation")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {load.proposed_collection_at
+                ? new Date(load.proposed_collection_at).toLocaleString()
+                : t("common.emptyValue")}
+            </p>
+            {load.proposed_collection_note && <p className="mt-2 text-sm">{load.proposed_collection_note}</p>}
+          </div>
+        ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-lg border border-success/30 bg-success/5 p-3 sm:col-span-2">
+            <p className="text-sm font-semibold">{t("incoming.order.confirmedAt")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {load.confirmed_collection_at ? new Date(load.confirmed_collection_at).toLocaleString() : t("common.emptyValue")}
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("tasks.field.site")}</Label>
+            <Select value={site} onValueChange={setSite}>
+              <SelectTrigger><SelectValue placeholder={t("common.selectPlaceholder")} /></SelectTrigger>
+              <SelectContent>{(sites.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.code} - {row.name}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("tasks.field.vehicle")}</Label>
+            <Select value={vehicle} onValueChange={setVehicle}>
+              <SelectTrigger><SelectValue placeholder={t("common.selectPlaceholder")} /></SelectTrigger>
+              <SelectContent>{(vehicles.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.plate_no}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("tasks.field.driver")}</Label>
+            <Select value={driver} onValueChange={setDriver}>
+              <SelectTrigger><SelectValue placeholder={t("common.selectPlaceholder")} /></SelectTrigger>
+              <SelectContent>{(drivers.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("tasks.field.scheduledFor")}</Label>
+            <Input type="datetime-local" value={scheduledFor} onChange={(event) => setScheduledFor(event.target.value)} />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>{t("tasks.field.notes")}</Label>
+            <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} />
+          </div>
+        </div>
+        )}
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          {load.state === "PENDING_ACCEPTANCE" && (
+            <Button disabled={!proposalReady || pending} onClick={() => acceptOnly.mutate()}>
+              {acceptOnly.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}
+              {t("incoming.order.acceptAndPropose")}
+            </Button>
+          )}
+          {load.state === "ACCEPTED" && !waitingForContractor && <Button disabled={!ready || pending} onClick={() => assign.mutate()}>
+            {assign.isPending ? <Loader2 className="animate-spin" /> : <Truck />}
+            {t("incoming.order.assign")}
+          </Button>}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

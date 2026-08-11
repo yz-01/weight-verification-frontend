@@ -183,6 +183,41 @@ export function WeighSessions() {
         ),
       },
       {
+        accessorKey: "dispatch_no",
+        meta: { label: t("dispatches.field.dispatchNo") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("dispatches.field.dispatchNo")}
+          </span>
+        ),
+        cell: ({ row }) => (
+          <div className="min-w-0">
+            <p className="max-w-[180px] truncate">
+              {row.original.dispatch_no ?? t("weighing.noDispatch")}
+            </p>
+            {row.original.project_name && (
+              <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+                {row.original.project_code} - {row.original.project_name}
+              </p>
+            )}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "recycler_name",
+        meta: { label: t("dispatches.field.recycler") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("dispatches.field.recycler")}
+          </span>
+        ),
+        cell: ({ row }) => (
+          <span className="block max-w-[180px] truncate">
+            {row.original.recycler_name ?? t("common.emptyValue")}
+          </span>
+        ),
+      },
+      {
         accessorKey: "started_at",
         meta: { label: t("weighing.field.startedAt") },
         header: ({ column }) => (

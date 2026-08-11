@@ -3,15 +3,15 @@
 import { useQuery } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
-  BadgeCheck,
-  Building2,
   CalendarCheck,
   ClipboardList,
-  Gauge,
+  HardHat,
   Inbox,
+  ListChecks,
   Package,
   Recycle,
   Scale,
+  ShieldAlert,
   Truck,
   WalletCards,
 } from "lucide-react";
@@ -19,10 +19,12 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
+import { ContractorDashboard } from "@/components/dashboard/contractor-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Portal } from "@/interfaces/auth";
+import type { AdminDashboardSection } from "@/lib/admin-dashboard";
 import { visibleNavigation } from "@/lib/navigation";
-import { getCompanies, getCompanySummary } from "@/services/companies.service";
 import {
   getDispatches,
   getProjects,
@@ -33,7 +35,14 @@ import {
   getSettlements,
   getTasks,
 } from "@/services/recycler.service";
+import {
+  getDisposalRequests,
+  getFieldTasks,
+  getSiteEquipment,
+  getSiteProgressRecords,
+} from "@/services/contractor-ops.service";
 import { getAttendance } from "@/services/site-operations.service";
+import { getSafetyIncidents } from "@/services/site-operations.service";
 import { getWeighSummary } from "@/services/weighing.service";
 
 interface DashboardStat {
@@ -45,9 +54,13 @@ interface DashboardStat {
   enabled: boolean;
 }
 
-export function Dashboard() {
+export function Dashboard({
+  adminSection,
+}: {
+  adminSection?: AdminDashboardSection;
+} = {}) {
   const t = useTranslations();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
 
   if (!user) return null;
 
@@ -68,90 +81,26 @@ export function Dashboard() {
       </header>
 
       {user.portal === "MSE_ADMIN" ? (
-        <AdminDashboard features={user.features} />
+        <AdminDashboard section={adminSection} />
       ) : user.portal === "MSE_TRACE" ? (
-        <TraceDashboard features={user.features} />
+        // A contractor holding `dashboard.view` gets the aggregate: one request
+        // for the day's feed, approvals, anomalies and timeline. Without the
+        // grant, fall back to the per-resource counts, which need no permission
+        // beyond the modules they already link to.
+        can("dashboard.view") ? (
+          <ContractorDashboard />
+        ) : (
+          <TraceDashboard features={user.features} />
+        )
       ) : (
         <ScrapDashboard features={user.features} />
       )}
 
-      <QuickLinks portal={user.portal} features={user.features} />
+      {user.portal !== "MSE_ADMIN" && (
+        <QuickLinks portal={user.portal} features={user.features} />
+      )}
     </div>
   );
-}
-
-function AdminDashboard({ features }: { features: string[] }) {
-  const companyEnabled =
-    features.includes("contractor_partners") ||
-    features.includes("recycler_review");
-  const reviewEnabled = features.includes("recycler_review");
-  const weighingEnabled = features.includes("cloud_weighing");
-
-  const companies = useQuery({
-    queryKey: ["companies", "summary"],
-    queryFn: getCompanySummary,
-    enabled: companyEnabled,
-  });
-  const pendingReviews = useQuery({
-    queryKey: ["companies", "recycler-reviews", "pending", "dashboard"],
-    queryFn: () =>
-      getCompanies({
-        type: "RECYCLER",
-        review_status: "PENDING",
-        page_size: 1,
-      }),
-    enabled: reviewEnabled,
-  });
-  const weighing = useQuery({
-    queryKey: ["weighing", "summary"],
-    queryFn: getWeighSummary,
-    enabled: weighingEnabled,
-  });
-
-  const stats: DashboardStat[] = [
-    {
-      key: "contractors",
-      href: "/contractor-partners",
-      icon: Building2,
-      value: companies.data?.by_type.CONTRACTOR,
-      loading: companies.isLoading,
-      enabled: features.includes("contractor_partners"),
-    },
-    {
-      key: "recyclers",
-      href: "/recycler-review",
-      icon: Recycle,
-      value: companies.data?.by_type.RECYCLER,
-      loading: companies.isLoading,
-      enabled: reviewEnabled,
-    },
-    {
-      key: "pendingReviews",
-      href: "/recycler-review",
-      icon: BadgeCheck,
-      value: pendingReviews.data?.count,
-      loading: pendingReviews.isLoading,
-      enabled: reviewEnabled,
-    },
-    {
-      key: "weighingSessions",
-      href: "/weighing",
-      icon: Scale,
-      value: weighing.data?.total,
-      loading: weighing.isLoading,
-      enabled: weighingEnabled,
-    },
-    {
-      key: "requiresReview",
-      href: "/weighing?requires_review=true",
-      icon: Gauge,
-      value: weighing.data?.requires_review,
-      loading: weighing.isLoading,
-      enabled: weighingEnabled,
-    },
-  ];
-
-  return <StatsGrid stats={stats} />;
 }
 
 function TraceDashboard({ features }: { features: string[] }) {
@@ -159,6 +108,11 @@ function TraceDashboard({ features }: { features: string[] }) {
   const receiptsEnabled = features.includes("material_receipts");
   const dispatchesEnabled = features.includes("waste_dispatches");
   const attendanceEnabled = features.includes("attendance");
+  const tasksEnabled = features.includes("field_tasks");
+  const equipmentEnabled = features.includes("equipment");
+  const progressEnabled = features.includes("progress");
+  const safetyEnabled = features.includes("safety");
+  const disposalEnabled = features.includes("site_disposals");
 
   const projects = useQuery({
     queryKey: ["projects", "dashboard-count"],
@@ -179,6 +133,31 @@ function TraceDashboard({ features }: { features: string[] }) {
     queryKey: ["attendance", "dashboard-count"],
     queryFn: () => getAttendance({ page_size: 1 }),
     enabled: attendanceEnabled,
+  });
+  const tasks = useQuery({
+    queryKey: ["field-tasks", "dashboard-count"],
+    queryFn: () => getFieldTasks({ page_size: 1 }),
+    enabled: tasksEnabled,
+  });
+  const equipment = useQuery({
+    queryKey: ["site-equipment", "dashboard-count"],
+    queryFn: () => getSiteEquipment({ page_size: 1 }),
+    enabled: equipmentEnabled,
+  });
+  const progress = useQuery({
+    queryKey: ["site-progress", "dashboard-count"],
+    queryFn: () => getSiteProgressRecords({ page_size: 1 }),
+    enabled: progressEnabled,
+  });
+  const safety = useQuery({
+    queryKey: ["safety-incidents", "dashboard-count"],
+    queryFn: () => getSafetyIncidents({ page_size: 1 }),
+    enabled: safetyEnabled,
+  });
+  const disposals = useQuery({
+    queryKey: ["site-disposals", "dashboard-count"],
+    queryFn: () => getDisposalRequests({ page_size: 1 }),
+    enabled: disposalEnabled,
   });
 
   return (
@@ -215,6 +194,46 @@ function TraceDashboard({ features }: { features: string[] }) {
           value: attendance.data?.count,
           loading: attendance.isLoading,
           enabled: attendanceEnabled,
+        },
+        {
+          key: "fieldTasks",
+          href: "/field-tasks",
+          icon: ListChecks,
+          value: tasks.data?.count,
+          loading: tasks.isLoading,
+          enabled: tasksEnabled,
+        },
+        {
+          key: "siteEquipment",
+          href: "/site-equipment",
+          icon: HardHat,
+          value: equipment.data?.count,
+          loading: equipment.isLoading,
+          enabled: equipmentEnabled,
+        },
+        {
+          key: "progress",
+          href: "/progress",
+          icon: Scale,
+          value: progress.data?.count,
+          loading: progress.isLoading,
+          enabled: progressEnabled,
+        },
+        {
+          key: "safety",
+          href: "/safety",
+          icon: ShieldAlert,
+          value: safety.data?.count,
+          loading: safety.isLoading,
+          enabled: safetyEnabled,
+        },
+        {
+          key: "siteDisposals",
+          href: "/site-disposals",
+          icon: Recycle,
+          value: disposals.data?.count,
+          loading: disposals.isLoading,
+          enabled: disposalEnabled,
         },
       ]}
     />

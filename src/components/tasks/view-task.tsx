@@ -202,7 +202,7 @@ export function ViewTask({ id }: { id: string }) {
                   <figure key={photo.id} className="space-y-1.5">
                     <div className="relative aspect-4/3 overflow-hidden rounded-md border bg-muted/40">
                       <Image
-                        src={photo.image}
+                        src={photo.watermarked || photo.image}
                         alt={photo.caption || photo.kind}
                         fill
                         sizes="(max-width: 768px) 50vw, 25vw"

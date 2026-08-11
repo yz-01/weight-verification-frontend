@@ -52,7 +52,7 @@ export function FormShell({
               asChild
               variant="outline"
               size="sm"
-              className="rounded-full px-4"
+              className="rounded-md px-4"
             >
               <Link href={backHref}>
                 <X className="h-4 w-4" />
@@ -64,7 +64,7 @@ export function FormShell({
               form="mse-form"
               size="sm"
               disabled={isSubmitting}
-              className="rounded-full px-4 shadow-sm"
+              className="rounded-md px-4 shadow-sm"
             >
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -77,11 +77,13 @@ export function FormShell({
         }
       />
 
-      <div className="rounded-xl border bg-card shadow-sm">
+      <div className="rounded-lg border bg-card shadow-sm">
         <div className="px-6 py-5">
           <h2 className="text-base font-semibold text-foreground">{title}</h2>
           {description && (
-            <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
         <form
@@ -126,7 +128,7 @@ export function FormSkeleton({ sections = 3 }: { sections?: number }) {
   return (
     <div className="space-y-4">
       <Skeleton className="h-8 w-40" />
-      <div className="rounded-xl border bg-card shadow-sm">
+      <div className="rounded-lg border bg-card shadow-sm">
         <div className="px-6 py-5">
           <Skeleton className="h-5 w-48" />
         </div>
@@ -162,7 +164,7 @@ export function LoadErrorCard({
   return (
     <div className="space-y-4">
       <DetailHeader backHref={backHref} backLabel={backLabel} />
-      <div className="rounded-xl border bg-card px-6 py-16 text-center shadow-sm">
+      <div className="rounded-lg border bg-card px-6 py-16 text-center shadow-sm">
         <p className="text-sm font-medium text-foreground">
           {t("errors.notFound")}
         </p>
@@ -189,7 +191,8 @@ export function required(message: string) {
 
 export function requiredEmail(requiredMessage: string, emailMessage: string) {
   return ({ value }: { value: unknown }) => {
-    if (typeof value !== "string" || value.trim() === "") return requiredMessage;
+    if (typeof value !== "string" || value.trim() === "")
+      return requiredMessage;
     // `z.email()` rather than the deprecated `z.string().email()`, which zod
     // v4 kept only for compatibility.
     const result = z.email(emailMessage).safeParse(value.trim());

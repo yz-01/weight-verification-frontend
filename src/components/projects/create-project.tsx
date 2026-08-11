@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Save } from "lucide-react";
+import { LocateFixed, Loader2, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -22,11 +22,13 @@ import {
   required,
 } from "@/components/shared/form-shell";
 import { ApiError } from "@/interfaces/api";
+import { Button } from "@/components/ui/button";
 import type {
   Project,
   ProjectPayload,
   ProjectStatus,
 } from "@/interfaces/contractor";
+import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
   createProject,
   getProject,
@@ -47,13 +49,15 @@ export function CreateProject({ project }: { project?: Project }) {
   const queryClient = useQueryClient();
   const isEdit = project !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: (values: ProjectPayload) =>
       isEdit ? updateProject(project.id, values) : createProject(values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["projects"] });
-      router.push("/projects");
+      router.push(isEdit ? `/projects/${project.id}` : "/projects");
     },
   });
 
@@ -63,6 +67,8 @@ export function CreateProject({ project }: { project?: Project }) {
       name: project?.name ?? "",
       status: (project?.status ?? "ACTIVE") as ProjectStatus,
       client_name: project?.client_name ?? "",
+      main_contractor: project?.main_contractor ?? "",
+      consultant: project?.consultant ?? "",
       description: project?.description ?? "",
       address_line_1: project?.address_line_1 ?? "",
       address_line_2: project?.address_line_2 ?? "",
@@ -104,10 +110,40 @@ export function CreateProject({ project }: { project?: Project }) {
     },
   });
 
+  function captureProjectLocation() {
+    setLocationError(null);
+    if (!navigator.geolocation) {
+      setLocationError(t("projects.location.unsupported"));
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        form.setFieldValue("latitude", position.coords.latitude.toFixed(7));
+        form.setFieldValue("longitude", position.coords.longitude.toFixed(7));
+        if (!form.getFieldValue("geofence_radius_m")) {
+          form.setFieldValue("geofence_radius_m", "100");
+        }
+        setIsLocating(false);
+      },
+      (error) => {
+        const key =
+          error.code === error.PERMISSION_DENIED
+            ? "permissionDenied"
+            : error.code === error.POSITION_UNAVAILABLE
+              ? "unavailable"
+              : "timeout";
+        setLocationError(t(`projects.location.${key}`));
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, maximumAge: 10_000, timeout: 15_000 },
+    );
+  }
+
   return (
     <FormShell
-      backHref="/projects"
-      backLabel={t("projects.title")}
+      backHref={isEdit ? `/projects/${project.id}` : "/projects"}
+      backLabel={isEdit ? project.name : t("projects.title")}
       title={isEdit ? t("projects.editTitle") : t("projects.createTitle")}
       isSubmitting={mutation.isPending}
       submitLabel={isEdit ? t("common.save") : t("common.create")}
@@ -165,6 +201,26 @@ export function CreateProject({ project }: { project?: Project }) {
           )}
         </form.Field>
 
+        <form.Field name="main_contractor">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.mainContractor")}
+              optional
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="consultant">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("projects.field.consultant")}
+              optional
+            />
+          )}
+        </form.Field>
+
         <form.Field name="description">
           {(field) => (
             <TextAreaField
@@ -209,9 +265,16 @@ export function CreateProject({ project }: { project?: Project }) {
         </form.Field>
         <form.Field name="state">
           {(field) => (
-            <TextField
+            <SelectField
               field={field as unknown as BoundField}
               label={t("projects.field.state")}
+              options={[
+                ...(!MALAYSIA_STATES.some((state) => state === field.state.value)
+                  && field.state.value
+                  ? [{ value: field.state.value, label: field.state.value }]
+                  : []),
+                ...MALAYSIA_STATES.map((state) => ({ value: state, label: state })),
+              ]}
               optional
             />
           )}
@@ -228,6 +291,30 @@ export function CreateProject({ project }: { project?: Project }) {
       </FormSection>
 
       <FormSection title={t("projects.section.location")}>
+        <div className="flex flex-wrap items-center gap-3 md:col-span-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isLocating}
+            onClick={captureProjectLocation}
+          >
+            {isLocating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <LocateFixed className="h-4 w-4" />
+            )}
+            {t("projects.location.capture")}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            {t("projects.location.captureHint")}
+          </p>
+          {locationError && (
+            <p role="alert" className="w-full text-sm text-destructive">
+              {locationError}
+            </p>
+          )}
+        </div>
         <form.Field name="latitude">
           {(field) => (
             <TextField

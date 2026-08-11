@@ -7,6 +7,7 @@ ever imported together.
 */
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
+import type { UserRow } from "@/interfaces/auth";
 import type {
   DispatchSummary,
   MaterialReceipt,
@@ -15,15 +16,19 @@ import type {
   Project,
   ProjectAssignment,
   ProjectPayload,
+  ProjectStatistics,
+  ProjectStatisticsPeriod,
   ReceiptSummary,
   RecyclerOption,
   Supplier,
   SupplierPayload,
   SupplierQRCode,
+  DeliveryNoteOCRResult,
   WasteDispatch,
   WasteDispatchDetail,
   WasteDispatchPayload,
 } from "@/interfaces/contractor";
+import type { QRCodeIssue } from "@/interfaces/qrcode";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 /** One column in an export, worded by the caller. */
@@ -72,6 +77,15 @@ export function getProject(id: string): Promise<Project> {
   return api.get<Project>(`/api/projects/${id}/get_project/`);
 }
 
+export function getProjectStatistics(
+  id: string,
+  period: ProjectStatisticsPeriod,
+): Promise<ProjectStatistics> {
+  return api.get<ProjectStatistics>(`/api/projects/${id}/get_statistics/`, {
+    period,
+  });
+}
+
 export async function createProject(payload: ProjectPayload): Promise<Project> {
   const project = await api.post<Project>(
     "/api/projects/create_project/",
@@ -93,9 +107,10 @@ export async function updateProject(
   return project;
 }
 
-export async function deleteProject(id: string): Promise<void> {
-  await api.delete(`/api/projects/${id}/delete_project/`);
-  toastSuccess("projects.toast.removed");
+export async function suspendProject(id: string): Promise<Project> {
+  const project = await api.delete<Project>(`/api/projects/${id}/delete_project/`);
+  toastSuccess("projects.toast.suspended");
+  return project;
 }
 
 export function getProjectAssignments(
@@ -103,6 +118,62 @@ export function getProjectAssignments(
 ): Promise<{ results: ProjectAssignment[]; count: number }> {
   return api.get<{ results: ProjectAssignment[]; count: number }>(
     `/api/projects/${id}/get_assignments/`,
+  );
+}
+
+export async function archiveProject(id: string): Promise<Project> {
+  const project = await api.post<Project>(
+    `/api/projects/${id}/archive_project/`,
+    { confirm: true },
+  );
+  toastSuccess("projects.toast.archived");
+  return project;
+}
+
+export function getProjectQr(id: string): Promise<QRCodeIssue | null> {
+  return api.get<QRCodeIssue | null>(`/api/projects/${id}/get_project_qr/`);
+}
+
+export async function setProjectQrStatus(
+  id: string,
+  status: "ACTIVE" | "DISABLED",
+  note = "",
+): Promise<QRCodeIssue> {
+  const code = await api.post<QRCodeIssue>(
+    `/api/projects/${id}/set_project_qr_status/`,
+    { status, note },
+  );
+  toastSuccess("projects.toast.qrStatusUpdated");
+  return code;
+}
+
+export async function regenerateProjectQr(
+  id: string,
+  note: string,
+): Promise<QRCodeIssue> {
+  const code = await api.post<QRCodeIssue>(
+    `/api/projects/${id}/regenerate_project_qr/`,
+    { confirm: true, note },
+  );
+  toastSuccess("projects.toast.qrRegenerated");
+  return code;
+}
+
+export function exportProjects(request: ExportRequest): Promise<void> {
+  return download("/api/projects/export_projects/", {
+    method: "POST",
+    body: exportBody(request),
+    query: exportQuery(request),
+    fallbackFilename: `projects.${request.format}`,
+  });
+}
+
+export function getAssignableProjectUsers(
+  id: string,
+): Promise<Paginated<UserRow>> {
+  return api.list<UserRow>(
+    `/api/projects/${id}/get_assignable_users/`,
+    { page_size: 100, sort_by: "full_name" },
   );
 }
 
@@ -218,6 +289,101 @@ export async function createReceipt(
     "/api/receipts/create_receipt/",
     payload,
   );
+  toastSuccess("receipts.toast.created");
+  return receipt;
+}
+
+export async function regenerateSupplierQr(id: string): Promise<Supplier> {
+  const supplier = await api.post<Supplier>(
+    `/api/suppliers/${id}/regenerate_supplier_qr/`,
+    {},
+  );
+  toastSuccess("suppliers.toast.qrRegenerated");
+  return supplier;
+}
+
+export async function setSupplierQrStatus(
+  id: string,
+  isActive: boolean,
+): Promise<Supplier> {
+  const supplier = await api.post<Supplier>(
+    `/api/suppliers/${id}/set_supplier_qr_status/`,
+    { is_active: isActive },
+  );
+  toastSuccess(isActive ? "suppliers.toast.qrEnabled" : "suppliers.toast.qrDisabled");
+  return supplier;
+}
+
+export function exportSuppliers(request: ExportRequest): Promise<void> {
+  return download("/api/suppliers/export_suppliers/", {
+    method: "POST",
+    body: exportBody(request),
+    query: exportQuery(request),
+    fallbackFilename: `suppliers.${request.format}`,
+  });
+}
+
+export function readDeliveryNote(
+  project: string,
+  image: File,
+): Promise<DeliveryNoteOCRResult> {
+  const data = new FormData();
+  data.append("project", project);
+  data.append("image", image);
+  return api.post<DeliveryNoteOCRResult>(
+    "/api/receipts/ocr_delivery_note/",
+    data,
+    { silent: true },
+  );
+}
+
+export async function createReceiptWithEvidence(payload: {
+  receipt: MaterialReceiptPayload;
+  signature: File;
+  supplierSignature: File;
+  deliveryNotePhoto?: File;
+  sitePhotos: File[];
+  deviceId: string;
+}): Promise<MaterialReceiptDetail> {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload.receipt)) {
+    if (value !== undefined && value !== null && value !== "") {
+      data.append(key, String(value));
+    }
+  }
+  data.append("signature", payload.signature);
+  data.append("supplier_signature", payload.supplierSignature);
+
+  const receipt = await api.post<MaterialReceiptDetail>(
+    "/api/receipts/create_receipt/",
+    data,
+    { silent: true },
+  );
+  const capturedAt = payload.receipt.original_captured_at ?? new Date().toISOString();
+  const photos = [
+    ...(payload.deliveryNotePhoto
+      ? [{ file: payload.deliveryNotePhoto, kind: "DELIVERY_NOTE" }]
+      : []),
+    ...payload.sitePhotos.map((file) => ({ file, kind: "UNLOADING" })),
+  ];
+
+  for (const [index, photo] of photos.entries()) {
+    const evidence = new FormData();
+    evidence.append("image", photo.file);
+    evidence.append("kind", photo.kind);
+    evidence.append("taken_at", capturedAt);
+    evidence.append("device_id", payload.deviceId);
+    evidence.append(
+      "client_event_id",
+      `${payload.receipt.client_event_id ?? receipt.id}:photo:${index}`,
+    );
+    if (payload.receipt.latitude) evidence.append("latitude", payload.receipt.latitude);
+    if (payload.receipt.longitude) evidence.append("longitude", payload.receipt.longitude);
+    await api.post(`/api/receipts/${receipt.id}/add_photo/`, evidence, {
+      silent: true,
+    });
+  }
+
   toastSuccess("receipts.toast.created");
   return receipt;
 }

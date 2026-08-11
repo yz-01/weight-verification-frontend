@@ -168,7 +168,7 @@ export function Progress() {
         cell: ({ row }) =>
           row.original.photo ? (
             <Button asChild variant="ghost" size="icon" title={t("progress.action.viewPhoto")}>
-              <a href={row.original.photo} target="_blank" rel="noreferrer">
+              <a href={row.original.watermarked_photo || row.original.photo} target="_blank" rel="noreferrer">
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>

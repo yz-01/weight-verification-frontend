@@ -8,7 +8,10 @@ import type {
   RolePayload,
   UserDetail,
   UserPayload,
+  UserReplacement,
+  UserReplacementPayload,
   UserRow,
+  UserStats,
 } from "@/interfaces/auth";
 import { api, toastSuccess } from "@/services/api-client";
 
@@ -70,6 +73,36 @@ export async function sendPasswordReset(
     emailCopy ? { email_copy: emailCopy } : {},
   );
   toastSuccess("users.resetPassword.sent");
+}
+
+export async function forceLogoutUser(id: string): Promise<number> {
+  const result = await api.post<{ sessions_revoked: number }>(
+    `/api/users/${id}/force_logout/`,
+  );
+  toastSuccess("users.forceLogout.done");
+  return result.sessions_revoked;
+}
+
+export function getUserStats(query: ListQuery = {}): Promise<UserStats> {
+  return api.get<UserStats>("/api/users/get_user_stats/", query);
+}
+
+export function getUserReplacements(
+  query: ListQuery = {},
+): Promise<Paginated<UserReplacement>> {
+  return api.list<UserReplacement>("/api/users/get_replacements/", query);
+}
+
+export async function replaceUser(
+  outgoingUserId: string,
+  payload: UserReplacementPayload,
+): Promise<UserReplacement> {
+  const replacement = await api.post<UserReplacement>(
+    `/api/users/${outgoingUserId}/replace_user/`,
+    payload,
+  );
+  toastSuccess("userHandover.toast.completed");
+  return replacement;
 }
 
 export function getRoles(query: ListQuery): Promise<Paginated<Role>> {

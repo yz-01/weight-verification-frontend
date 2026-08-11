@@ -3,7 +3,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-if (process.env.NODE_ENV === "production") {
+const isTypeGeneration = process.env.npm_lifecycle_event === "typecheck";
+
+if (process.env.NODE_ENV === "production" && !isTypeGeneration) {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!apiBaseUrl) {
     throw new Error(

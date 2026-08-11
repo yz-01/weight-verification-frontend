@@ -233,11 +233,71 @@
 }
 
 .mse-map-marker span {
-  display: block;
-  width: 18px;
-  height: 18px;
-  border: 3px solid white;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  color: white;
+  border: 2px solid white;
   border-radius: 999px;
   background: var(--marker-color);
   box-shadow: 0 1px 6px rgb(15 23 42 / 35%);
+}
+
+/* Leaflet gives its internal panes z-index values from 200 to 700. Without a
+ * stacking context on the map root, those values can escape a card or dialog
+ * and cover unrelated content elsewhere on the page. Every map is a contained
+ * layer; the dialog and dropdown portals remain above it. */
+.leaflet-container {
+  position: relative !important;
+  z-index: 0 !important;
+  isolation: isolate !important;
+}
+
+/* Leaflet creates absolute panes inside the map root. Keep both the root and
+ * its wrapper inside the dialog's content column, even when a map is mounted
+ * while the dialog is still measuring its responsive width. */
+.geofence-map-viewport,
+.geofence-map-editor,
+.geofence-map-editor.leaflet-container {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: clip !important;
+  contain: paint !important;
+  box-sizing: border-box !important;
+}
+
+.geofence-map-viewport {
+  inline-size: 100% !important;
+  block-size: 18rem;
+}
+
+.geofence-map-editor {
+  inline-size: 100% !important;
+  block-size: 18rem !important;
+}
+
+.geofence-map-editor .leaflet-map-pane,
+.geofence-map-editor .leaflet-control-container {
+  max-width: 100% !important;
+}
+
+.geofence-map-editor .leaflet-map-pane {
+  inset: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Older admin workspaces used full-width top/bottom borders around tables.
+ * Give those remaining table shells the same contained surface as DataTable
+ * without changing their data or interaction code. */
+[class*="border-y"][class*="bg-card"]:has(> [data-slot="table-container"]) {
+  overflow: auto;
+  border-width: 1px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 6%);
 }

@@ -169,7 +169,7 @@ export function DataTable<T>({
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border bg-card shadow-sm">
+    <div className="flex min-h-0 min-w-0 w-full max-w-full flex-1 flex-col overflow-hidden rounded-lg border bg-card shadow-sm">
       <div className="shrink-0 border-b">
         {filterPills && filterPills.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 px-6 pt-4">
@@ -192,8 +192,8 @@ export function DataTable<T>({
           </div>
         )}
 
-        <div className="flex items-center gap-2 px-6 py-4">
-          <div className="relative flex-1 max-w-sm">
+        <div className="flex flex-wrap items-center gap-2 px-4 py-4 sm:px-6">
+          <div className="relative min-w-52 flex-1 sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchDraft}
@@ -244,15 +244,15 @@ export function DataTable<T>({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <Table>
+      <div className="min-h-0 min-w-0 flex-1 overflow-auto">
+        <Table className="min-w-max">
           <TableHeader className="sticky top-0 z-10 bg-card">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="h-11 px-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                    className="h-11 px-6 text-xs font-semibold text-muted-foreground"
                   >
                     {header.isPlaceholder
                       ? null
@@ -438,7 +438,7 @@ export function SortableHeader({
       type="button"
       onClick={onToggle}
       className={cn(
-        "flex items-center gap-1 text-xs font-semibold uppercase tracking-wider transition-colors hover:text-foreground",
+        "flex items-center gap-1 text-xs font-semibold transition-colors hover:text-foreground",
         isSorted ? "text-foreground" : "text-muted-foreground",
       )}
     >

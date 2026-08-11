@@ -52,12 +52,13 @@ export function CreateUser({ user }: { user?: UserDetail }) {
   // platform staff, and a tenant's first user could never be made. A tenant
   // admin has their own company and ignores the parameter.
   const companyFromUrl = searchParams.get("company") ?? undefined;
-  const companyId =
-    user?.company ?? me?.company ?? companyFromUrl ?? undefined;
+  const companyId = user?.company ?? me?.company ?? companyFromUrl ?? undefined;
   const companyReturnHref =
     !isEdit && me?.portal === "MSE_ADMIN" && companyFromUrl
       ? `/companies/${companyFromUrl}`
       : undefined;
+  const userListHref =
+    me?.portal === "MSE_ADMIN" ? "/users/admin/management" : "/users";
 
   const { data: roles } = useQuery({
     queryKey: ["roles", "options", companyId ?? "platform"],
@@ -79,9 +80,9 @@ export function CreateUser({ user }: { user?: UserDetail }) {
               body: t("email.invite.body"),
             },
           ),
-    onSuccess: (saved) => {
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["users"] });
-      router.push(companyReturnHref ?? `/users/${saved.id}`);
+      router.push(companyReturnHref ?? userListHref);
     },
   });
 
@@ -103,7 +104,10 @@ export function CreateUser({ user }: { user?: UserDetail }) {
         } as UserPayload);
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
-          const leftover = applyServerErrors(error.errors, form as unknown as Parameters<typeof applyServerErrors>[1]);
+          const leftover = applyServerErrors(
+            error.errors,
+            form as unknown as Parameters<typeof applyServerErrors>[1],
+          );
           if (leftover.length > 0) setFormError(leftover[0]);
         }
       }
@@ -111,16 +115,16 @@ export function CreateUser({ user }: { user?: UserDetail }) {
   });
 
   const roleOptions =
-    roles?.results.map((role) => ({
-      value: role.id,
-      label: roleName(role, t),
-    })) ?? [];
+    roles?.results
+      .filter((role) => isEdit || role.code !== "site_staff")
+      .map((role) => ({
+        value: role.id,
+        label: roleName(role, t),
+      })) ?? [];
 
   return (
     <FormShell
-      backHref={
-        isEdit ? `/users/${user.id}` : (companyReturnHref ?? "/users")
-      }
+      backHref={companyReturnHref ?? userListHref}
       backLabel={
         companyReturnHref ? t("companies.viewTitle") : t("users.title")
       }

@@ -3,6 +3,7 @@ export type IntegrationKind =
   | "ACCOUNTING"
   | "MYINVOIS"
   | "GOVERNMENT_API"
+  | "API_GATEWAY"
   | "CCTV"
   | "ANPR"
   | "IOT"
@@ -32,8 +33,22 @@ export interface IntegrationConfig {
   updated_at: string;
 }
 
+export interface IntegrationDelivery {
+  id: string;
+  integration: string;
+  integration_name: string;
+  event_type: string;
+  status: "PENDING" | "SENT" | "FAILED";
+  response_status: number | null;
+  error: string;
+  attempted_at: string;
+  created_at: string;
+}
+
 export interface IntegrationDevice {
   id: string;
+  company: string;
+  company_name: string | null;
   gateway: string | null;
   gateway_device_id: string | null;
   integration: string | null;
@@ -54,6 +69,15 @@ export interface IntegrationDevice {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  provisioning?: {
+    heartbeat_url: string;
+    device_record_id: string;
+    device_id: string;
+    secret: string;
+    signature: string;
+    device_header: string;
+    signature_header: string;
+  };
 }
 
 export interface IntegrationPayload {

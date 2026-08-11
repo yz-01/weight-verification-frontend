@@ -8,13 +8,14 @@
     "start": "next start",
     "lint": "npm run check:messages && eslint",
     "check:messages": "node scripts/check-messages.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@tanstack/react-form": "^1.33.2",
     "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-table": "^8.21.3",
     "@types/leaflet": "^1.9.22",
+    "@zxing/browser": "^0.1.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
@@ -23,6 +24,7 @@
     "next": "^16.2.11",
     "next-intl": "^4.13.3",
     "next-themes": "^0.4.6",
+    "qrcode.react": "^4.2.0",
     "radix-ui": "^1.6.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",

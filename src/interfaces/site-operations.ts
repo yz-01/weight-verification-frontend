@@ -10,14 +10,19 @@ export interface AttendanceRecord {
   user_name: string;
   event: AttendanceEvent;
   occurred_at: string;
+  client_event_id: string;
   original_occurred_at: string | null;
   uploaded_at: string;
-  client_event_id: string;
   latitude: string | null;
   longitude: string | null;
   location_accuracy_m: string | null;
+  distance_m: string | null;
   photo: string | null;
+  watermarked_photo?: string | null;
   note: string;
+  geofence_result: "INSIDE" | "OUTSIDE" | "NOT_EVALUATED";
+  matched_geofence: string | null;
+  matched_geofence_name: string | null;
   created_at: string;
 }
 
@@ -36,7 +41,8 @@ export interface AttendancePayload {
 export type FieldPositionEvent =
   | "POSITION"
   | "GEOFENCE_ENTER"
-  | "GEOFENCE_EXIT";
+  | "GEOFENCE_EXIT"
+  | "SHARING_STOPPED";
 
 export interface FieldStaffPosition {
   id: string;
@@ -57,6 +63,8 @@ export interface FieldStaffPosition {
   uploaded_at: string;
   distance_to_project_m: string | null;
   geofence_result: "INSIDE" | "OUTSIDE" | "NOT_EVALUATED";
+  matched_geofence: string | null;
+  matched_geofence_name: string | null;
   is_stale: boolean;
   created_at: string;
 }
@@ -70,6 +78,7 @@ export interface ProgressUpdate {
   percent_complete: string;
   reported_at: string;
   photo: string | null;
+  watermarked_photo?: string | null;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -82,38 +91,85 @@ export interface ProgressPayload {
   percent_complete: string;
   reported_at?: string;
   photo?: File;
+  notify_users?: string[];
 }
 
 export type IncidentSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-export type IncidentStatus = "OPEN" | "INVESTIGATING" | "RESOLVED";
+export type IncidentStatus =
+  | "OPEN"
+  | "INVESTIGATING"
+  | "ASSIGNED"
+  | "RECTIFICATION_SUBMITTED"
+  | "RETURNED"
+  | "VERIFIED"
+  | "RESOLVED";
+
+export interface SafetyRectificationEvidence {
+  id: string;
+  kind: "INCIDENT" | "RECTIFICATION" | "VERIFICATION";
+  image: string;
+  watermarked?: string | null;
+  note: string;
+  captured_at: string;
+  uploaded_at: string;
+  latitude: string | null;
+  longitude: string | null;
+  accuracy_m: string | null;
+  device_id: string;
+  client_event_id: string;
+  submitted_by_name: string | null;
+}
 
 export interface SafetyIncident {
   id: string;
   incident_no: string;
   project: string;
   project_name: string;
+  category: string | null;
+  category_code: string | null;
+  category_name: string | null;
   title: string;
   description: string;
   severity: IncidentSeverity;
   status: IncidentStatus;
   occurred_at: string;
+  client_event_id: string;
   latitude: string | null;
   longitude: string | null;
   photo: string | null;
+  watermarked_photo?: string | null;
+  initial_evidence: SafetyRectificationEvidence[];
   resolution_note: string;
   resolved_at: string | null;
+  responsible_person: string | null;
+  responsible_person_name: string | null;
+  rectification_due_at: string | null;
+  rectification_note: string;
+  rectification_submitted_at: string | null;
+  verified_by: string | null;
+  verified_by_name: string | null;
+  verified_at: string | null;
+  review_note: string;
+  rectification_evidence: SafetyRectificationEvidence[];
+  notified_users: string[];
+  notified_user_names: string[];
   created_by: string;
+  photographer_name: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export interface SafetyIncidentPayload {
   project: string;
+  category: string;
   title: string;
   description: string;
   severity: IncidentSeverity;
   occurred_at?: string;
+  client_event_id?: string;
+  field_task?: string;
   latitude?: string;
   longitude?: string;
-  photo?: File;
+  photos?: File[];
+  notify_users?: string[];
 }

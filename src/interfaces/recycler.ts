@@ -66,6 +66,7 @@ export interface DriverPayload {
   licence_no?: string;
   licence_expires_on?: string | null;
   default_vehicle?: string | null;
+  user?: string | null;
   is_active?: boolean;
 }
 
@@ -115,6 +116,7 @@ export interface TaskPhoto {
   id: string;
   kind: "ARRIVAL" | "LOADING" | "LOADED" | "PLATE" | "ISSUE" | "OTHER";
   image: string;
+  watermarked?: string | null;
   client_event_id: string;
   caption: string;
   latitude: string | null;
@@ -215,6 +217,15 @@ export interface DriverTaskLivePosition extends DriverTaskPosition {
   is_stale: boolean;
 }
 
+export interface DriverLiveRoute {
+  task: string;
+  positions: DriverTaskPosition[];
+}
+
+export interface DriverLiveRoutes {
+  routes: DriverLiveRoute[];
+}
+
 export interface DriverTaskPayload {
   dispatch?: string | null;
   site: string;
@@ -287,6 +298,7 @@ export const DEDUCTION_STATES: DeductionState[] = [
 export interface DeductionPhoto {
   id: string;
   image: string;
+  watermarked?: string | null;
   caption: string;
   taken_at: string | null;
   created_at: string;

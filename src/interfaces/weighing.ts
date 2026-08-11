@@ -35,6 +35,10 @@ export type AnomalyCode =
   | "SUDDEN_RISE"
   | "STREAM_INTERRUPTED"
   | "MID_SESSION_TARE"
+  | "WEIGHT_FREEZE"
+  | "DUPLICATE_WEIGHING"
+  | "DISPATCH_REQUIRED"
+  | "REWEIGH_LIMIT"
   | "SEQ_GAP"
   | "STABLE_FLAG_MISMATCH"
   | "SIGNATURE_INVALID"
@@ -51,6 +55,10 @@ export const ANOMALY_CODES: AnomalyCode[] = [
   "SUDDEN_RISE",
   "STREAM_INTERRUPTED",
   "MID_SESSION_TARE",
+  "WEIGHT_FREEZE",
+  "DUPLICATE_WEIGHING",
+  "DISPATCH_REQUIRED",
+  "REWEIGH_LIMIT",
   "SEQ_GAP",
   "STABLE_FLAG_MISMATCH",
   "SIGNATURE_INVALID",
@@ -62,6 +70,9 @@ export const ANOMALY_CODES: AnomalyCode[] = [
 
 export interface RecyclingSite {
   id: string;
+  company: string;
+  company_code: string;
+  company_name: string;
   code: string;
   name: string;
   address_line_1: string;
@@ -93,6 +104,9 @@ export interface RecyclingSitePayload {
 
 export interface Scale {
   id: string;
+  company: string;
+  company_code: string;
+  company_name: string;
   site: string;
   site_name: string;
   code: string;
@@ -180,13 +194,32 @@ export interface WeighAnomaly {
   params_used: Record<string, number>;
 }
 
+export interface WeighAnomalyRow extends WeighAnomaly {
+  session: string;
+  session_no: string;
+  scale: string;
+  scale_code: string;
+  scale_name: string;
+  company: string;
+  company_name: string;
+}
+
 export interface WeighSessionRow {
   id: string;
+  company: string;
+  company_code: string;
+  company_name: string;
   session_no: string;
   scale: string;
   scale_name: string;
   site: string;
   site_name: string;
+  dispatch_no: string | null;
+  project: string | null;
+  project_code: string | null;
+  project_name: string | null;
+  recycler: string | null;
+  recycler_name: string | null;
   vehicle_plate: string;
   direction: WeighDirection;
   state: SessionState;

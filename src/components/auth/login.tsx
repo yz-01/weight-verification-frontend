@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { landingPathFor } from "@/lib/navigation";
 import * as authService from "@/services/auth.service";
 
-export function Login({ portal }: { portal: Portal }) {
+export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string }) {
   const t = useTranslations();
   const router = useRouter();
   const { setUser } = useAuth();
@@ -38,10 +38,15 @@ export function Login({ portal }: { portal: Portal }) {
         // permissions the sign-in already returned rather than from a role
         // name, so a tenant that renames its roles does not break it.
         const permissions = new Set(result.user.permissions ?? []);
+        const defaultLanding = landingPathFor((code) =>
+          Boolean(result.user.is_superuser) || permissions.has(code),
+        );
         router.replace(
-          landingPathFor((code) =>
-            Boolean(result.user.is_superuser) || permissions.has(code),
-          ),
+          nextPath ??
+            (defaultLanding === "/dashboard"
+              ? result.user.company_preferences?.home_page
+              : undefined) ??
+            defaultLanding,
         );
       } catch (error) {
         setFormError(messageFor(error, t));

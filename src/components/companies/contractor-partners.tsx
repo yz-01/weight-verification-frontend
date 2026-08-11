@@ -1,12 +1,14 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Plus } from "lucide-react";
+import { Ban, Eye, Plus, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   ListHeader,
@@ -17,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { CompanyRow, CompanyStatus } from "@/interfaces/company";
 import { useDateFormat } from "@/lib/dates";
-import { getCompanies } from "@/services/companies.service";
+import { getCompanies, updateCompanyStatus } from "@/services/companies.service";
 
 const STATUS_TONE: Record<
   CompanyStatus,
@@ -30,10 +32,18 @@ const STATUS_TONE: Record<
   CLOSED: "neutral",
 };
 
+type PendingAction =
+  | { kind: "suspend"; company: CompanyRow }
+  | { kind: "reinstate"; company: CompanyRow };
+
 export function ContractorPartners() {
   const t = useTranslations();
   const df = useDateFormat();
+  const { can } = useAuth();
+  const queryClient = useQueryClient();
   const list = useListQuery(["status"]);
+  const [pending, setPending] = useState<PendingAction | null>(null);
+  const [reason, setReason] = useState("");
   const query = useMemo(
     () => ({ ...list.query, type: "CONTRACTOR" as const }),
     [list.query],
@@ -42,6 +52,25 @@ export function ContractorPartners() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["companies", "contractor-partners", query],
     queryFn: () => getCompanies(query),
+  });
+
+  function closeDialog() {
+    setPending(null);
+    setReason("");
+  }
+
+  const statusChange = useMutation({
+    mutationFn: ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: "ACTIVE" | "SUSPENDED";
+    }) => updateCompanyStatus(id, { status, reason }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["companies"] });
+      closeDialog();
+    },
   });
 
   const columns = useMemo<ColumnDef<CompanyRow, unknown>[]>(
@@ -174,22 +203,69 @@ export function ContractorPartners() {
         id: "actions",
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
+        cell: ({ row }) => {
+          const company = row.original;
+          const suspended =
+            company.status === "SUSPENDED" ||
+            company.status === "OVERDUE" ||
+            company.status === "CLOSED";
+          return (
+            <div className="flex items-center justify-end gap-0.5">
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-primary hover:bg-primary/10"
+                title={t("common.view")}
+              >
+                <Link href={`/companies/${company.id}`}>
+                  <Eye className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+              {can("company.suspend") &&
+                (suspended ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-success hover:bg-success/10"
+                    title={t("companies.reinstate.confirm")}
+                    onClick={() => setPending({ kind: "reinstate", company })}
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-warning hover:bg-warning/10"
+                    title={t("companies.suspend.confirm")}
+                    onClick={() => setPending({ kind: "suspend", company })}
+                  >
+                    <Ban className="h-3.5 w-3.5" />
+                  </Button>
+                ))}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "subscription_expires_on",
+        meta: { label: t("companies.field.subscriptionExpiresOn") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("companies.field.subscriptionExpiresOn")}
+          </span>
+        ),
         cell: ({ row }) => (
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-primary hover:bg-primary/10"
-            title={t("common.view")}
-          >
-            <Link href={`/companies/${row.original.id}`}>
-              <Eye className="h-3.5 w-3.5" />
-            </Link>
-          </Button>
+          <span className="tabular whitespace-nowrap text-muted-foreground">
+            {row.original.subscription_expires_on
+              ? df.date(row.original.subscription_expires_on)
+              : t("companies.noSubscriptionExpiry")}
+          </span>
         ),
       },
     ],
-    [df, t],
+    [can, df, t],
   );
 
   const totalCount = data?.count ?? 0;
@@ -249,6 +325,43 @@ export function ContractorPartners() {
         onPageSizeChange={list.setPageSize}
         onClearFilters={list.clearFilters}
       />
+
+      {pending?.kind === "suspend" && (
+        <ConfirmDialog
+          open
+          onOpenChange={closeDialog}
+          title={t("companies.suspend.title", { name: pending.company.name })}
+          description={t("companies.suspend.description")}
+          confirmLabel={t("companies.suspend.confirm")}
+          confirmIcon={Ban}
+          isPending={statusChange.isPending}
+          reason={reason}
+          onReasonChange={setReason}
+          reasonRequired
+          onConfirm={() =>
+            statusChange.mutate({
+              id: pending.company.id,
+              status: "SUSPENDED",
+            })
+          }
+        />
+      )}
+
+      {pending?.kind === "reinstate" && (
+        <ConfirmDialog
+          open
+          onOpenChange={closeDialog}
+          variant="default"
+          title={t("companies.reinstate.title", { name: pending.company.name })}
+          description={t("companies.reinstate.description")}
+          confirmLabel={t("companies.reinstate.confirm")}
+          confirmIcon={RotateCcw}
+          isPending={statusChange.isPending}
+          onConfirm={() =>
+            statusChange.mutate({ id: pending.company.id, status: "ACTIVE" })
+          }
+        />
+      )}
     </div>
   );
 }

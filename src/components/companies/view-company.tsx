@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { CompanyOnboarding } from "@/components/companies/company-onboarding";
 import { FormSection, FormSkeleton, LoadErrorCard } from "@/components/shared/form-shell";
 import {
   DetailHeader,
@@ -92,6 +93,10 @@ export function ViewCompany({ id }: { id: string }) {
             label={t(`companies.status.${data.status}`)}
             tone={STATUS_TONE[data.status]}
           />
+          <StatusBadge
+            label={t(`companies.reviewStatus.${data.review_status}`)}
+            tone={data.review_status === "APPROVED" ? "positive" : data.review_status === "REJECTED" ? "danger" : "warning"}
+          />
           <span className="tabular ml-auto text-sm text-muted-foreground">
             {data.code}
           </span>
@@ -104,7 +109,18 @@ export function ViewCompany({ id }: { id: string }) {
               label={t("companies.field.registrationNo")}
               value={data.registration_no}
             />
+            <ReadField label={t("companies.field.ssmNewRegistrationNo")} value={data.ssm_new_registration_no} />
+            <ReadField label={t("companies.field.ssmRegisteredName")} value={data.ssm_registered_name} />
+            <ReadField label={t("companies.field.ssmIncorporatedOn")} value={data.ssm_incorporated_on ? df.date(data.ssm_incorporated_on) : null} />
+            <ReadField label={t("companies.field.ssmExpiresOn")} value={data.ssm_expires_on ? df.date(data.ssm_expires_on) : null} />
+            <ReadField label={t("companies.field.businessType")} value={data.business_type} />
+            <ReadField label={t("companies.field.industryCode")} value={data.industry_code} />
             <ReadField label={t("companies.field.taxId")} value={data.tax_id} />
+            <ReadField label={t("companies.field.sstNo")} value={data.sst_no} />
+            <ReadField label={t("companies.field.paidUpCapital")} value={data.paid_up_capital} />
+            <ReadField label={t("companies.field.employeeCount")} value={data.employee_count === null ? null : String(data.employee_count)} />
+            <ReadField label={t("companies.field.website")} value={data.website ? <a className="text-primary hover:underline" href={data.website} target="_blank" rel="noreferrer">{data.website}</a> : null} />
+            <ReadField label={t("companies.field.logo")} value={data.logo ? <a className="text-primary hover:underline" href={data.logo} target="_blank" rel="noreferrer">{t("companies.viewLogo")}</a> : null} />
             <ReadField
               label={t("companies.field.createdAt")}
               value={df.date(data.created_at)}
@@ -127,28 +143,62 @@ export function ViewCompany({ id }: { id: string }) {
             )}
           </FormSection>
 
-          {data.type === "CONTRACTOR" && (
+          {data.plan && (
             <FormSection title={t("companies.section.subscription")}>
               <ReadField
                 label={t("companies.field.plan")}
                 value={data.plan_name}
               />
+              {data.type === "CONTRACTOR" && <ReadField label={t("companies.field.projectLimit")} value={data.project_limit === null ? t("contractorPartners.unlimitedProjects") : String(data.project_limit)} />}
+              {data.type === "CONTRACTOR" && <ReadField label={t("companies.field.projectLimitOverride")} value={data.project_limit_override === null ? null : String(data.project_limit_override)} />}
+              <ReadField label={t("companies.field.userLimit")} value={data.user_limit === null ? t("companies.unlimitedUsers") : String(data.user_limit)} />
+              <ReadField label={t("companies.field.usedUserSeats")} value={String(data.used_user_seats)} />
+              <ReadField label={t("companies.field.remainingUserSeats")} value={data.remaining_user_seats === null ? t("companies.unlimitedUsers") : String(data.remaining_user_seats)} />
               <ReadField
-                label={t("companies.field.projectLimit")}
+                label={t("companies.field.subscriptionMonths")}
                 value={
-                  data.project_limit === null
-                    ? t("contractorPartners.unlimitedProjects")
-                    : String(data.project_limit)
+                  data.subscription_months
+                    ? t("companies.subscriptionPeriod", {
+                        months: data.subscription_months,
+                      })
+                    : null
                 }
               />
               <ReadField
-                label={t("companies.field.projectLimitOverride")}
+                label={t("companies.field.subscriptionStartedOn")}
                 value={
-                  data.project_limit_override === null
-                    ? null
-                    : String(data.project_limit_override)
+                  data.subscription_started_on
+                    ? df.date(data.subscription_started_on)
+                    : null
                 }
               />
+              <ReadField
+                label={t("companies.field.subscriptionExpiresOn")}
+                value={
+                  data.subscription_expires_on
+                    ? df.date(data.subscription_expires_on)
+                    : t("companies.noSubscriptionExpiry")
+                }
+              />
+            </FormSection>
+          )}
+
+          {data.project_statistics && (
+            <FormSection title={t("companies.section.projects")}>
+              <ReadField label={t("companies.projectStats.total")} value={String(data.project_statistics.total)} />
+              <ReadField label={t("companies.projectStats.active")} value={String(data.project_statistics.active)} />
+              <ReadField label={t("companies.projectStats.completed")} value={String(data.project_statistics.completed)} />
+              <ReadField label={t("companies.projectStats.archived")} value={String(data.project_statistics.archived)} />
+            </FormSection>
+          )}
+
+          {data.recycler_statistics && (
+            <FormSection title={t("companies.section.recyclerBusiness")}>
+              <ReadField label={t("companies.recyclerStats.serviceContractors")} value={String(data.recycler_statistics.service_contractors)} />
+              <ReadField label={t("companies.recyclerStats.platformWeight")} value={t("companies.weightKg", { value: Number(data.recycler_statistics.platform_weight_kg).toFixed(2) })} />
+              <ReadField label={t("companies.recyclerStats.privateWeight")} value={t("companies.weightKg", { value: Number(data.recycler_statistics.private_weight_kg).toFixed(2) })} />
+              <ReadField label={t("companies.recyclerStats.totalWeight")} value={t("companies.weightKg", { value: Number(data.recycler_statistics.total_weight_kg).toFixed(2) })} />
+              <ReadField label={t("companies.recyclerStats.commissionStatus")} value={t(`companies.commissionStatus.${data.recycler_statistics.commission_status}`)} />
             </FormSection>
           )}
 
@@ -161,11 +211,15 @@ export function ViewCompany({ id }: { id: string }) {
               label={t("companies.field.contactPhone")}
               value={data.contact_phone}
             />
+            <ReadField label={t("companies.field.contactDesignation")} value={data.contact_designation} />
             <ReadField
               label={t("companies.field.contactEmail")}
               value={data.contact_email}
               className="md:col-span-2"
             />
+            <ReadField label={t("companies.field.billingEmail")} value={data.billing_email} />
+            <ReadField label={t("companies.field.financeContactPerson")} value={data.finance_contact_person} />
+            <ReadField label={t("companies.field.financeContactPhone")} value={data.finance_contact_phone} />
           </FormSection>
 
           <FormSection title={t("companies.section.address")}>
@@ -186,6 +240,8 @@ export function ViewCompany({ id }: { id: string }) {
               value={data.postcode}
             />
             <ReadField label={t("companies.field.country")} value={data.country} />
+            <ReadField label={t("companies.field.latitude")} value={data.latitude} />
+            <ReadField label={t("companies.field.longitude")} value={data.longitude} />
           </FormSection>
 
           <FormSection title={t("companies.section.preferences")}>
@@ -199,6 +255,7 @@ export function ViewCompany({ id }: { id: string }) {
             />
           </FormSection>
         </div>
+        <CompanyOnboarding company={data} />
       </div>
     </div>
   );

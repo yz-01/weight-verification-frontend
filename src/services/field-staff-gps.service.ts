@@ -34,3 +34,22 @@ export function recordFieldStaffPosition(payload: {
     payload,
   );
 }
+
+export function getFieldStaffLastPositions(
+  query: ListQuery = {},
+): Promise<Paginated<FieldStaffPosition>> {
+  return api.list<FieldStaffPosition>(
+    "/api/field-staff-positions/get_last_positions/",
+    query,
+  );
+}
+
+export function stopFieldStaffLocationSharing(payload: {
+  project: string;
+  client_event_id: string;
+}): Promise<FieldStaffPosition | null> {
+  return api.post<FieldStaffPosition | null>(
+    "/api/field-staff-positions/stop_sharing/",
+    payload,
+  );
+}

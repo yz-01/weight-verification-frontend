@@ -4,6 +4,7 @@ import type { Locale } from "@/i18n/config";
 import type { CompanyType } from "@/interfaces/company";
 
 export type UserStatus = "INVITED" | "ACTIVE" | "SUSPENDED";
+export type AccountType = "PLATFORM" | "TENANT" | "CONSULTANT";
 
 /**
  * Wording for a mailed link, resolved through i18n and handed to the backend.
@@ -56,6 +57,8 @@ export interface CurrentUser {
   language: Locale;
   timezone: string;
   status: UserStatus;
+  account_type: AccountType;
+  mobile_access_only: boolean;
   is_platform_staff: boolean;
   is_superuser: boolean;
   role: string | null;
@@ -69,6 +72,39 @@ export interface CurrentUser {
   permissions: string[];
   features: string[];
   project_quota: ProjectQuota | null;
+  consultant_projects: ConsultantProjectAccess[];
+  active_project: ActiveProject | null;
+  company_preferences: CompanyPreferences | null;
+}
+
+export interface CompanyPreferences {
+  date_format: "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
+  time_format: "12H" | "24H";
+  language: Locale;
+  timezone: string;
+  home_page: "/dashboard" | "/projects" | "/notifications" | "/field-staff";
+  default_notification_channel: "IN_APP" | "PUSH";
+}
+
+export interface ConsultantProjectAccess {
+  grant_id: string;
+  project_id: string;
+  project_code: string;
+  project_name: string;
+  company_id: string;
+  company_name: string;
+  organization_name: string;
+  permissions: string[];
+  valid_from: string;
+  valid_until: string | null;
+  is_current: boolean;
+}
+
+export interface ActiveProject {
+  project_id: string;
+  project_name: string;
+  company_id: string;
+  company_name: string;
 }
 
 export interface LoginResponse {
@@ -86,6 +122,7 @@ export interface UserRow {
   role_name: string | null;
   company: string | null;
   company_name: string | null;
+  company_type: CompanyType | null;
   is_platform_staff: boolean;
   language: Locale;
   last_login_at: string | null;
@@ -99,6 +136,16 @@ export interface UserDetail extends UserRow {
   updated_at: string;
 }
 
+export interface UserStats {
+  total: number;
+  by_status: Partial<Record<UserStatus, number>>;
+  by_audience: Partial<Record<Audience, number>>;
+  active: number;
+  suspended: number;
+  invited: number;
+  online: number;
+}
+
 export interface UserPayload {
   email: string;
   full_name: string;
@@ -106,6 +153,43 @@ export interface UserPayload {
   role?: string | null;
   language?: Locale;
   timezone?: string;
+}
+
+export interface UserReplacementPayload {
+  incoming_user?: string;
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  reason: string;
+  transfer_role: boolean;
+  transfer_projects: boolean;
+  transfer_responsibilities: boolean;
+  transfer_open_tasks: boolean;
+}
+
+export interface UserReplacement {
+  id: string;
+  company: string;
+  company_name: string;
+  outgoing_user: string;
+  outgoing_user_name: string;
+  outgoing_user_email: string;
+  incoming_user: string;
+  incoming_user_name: string;
+  incoming_user_email: string;
+  reason: string;
+  outgoing_snapshot: Record<string, unknown>;
+  incoming_snapshot: Record<string, unknown>;
+  transfer_summary: {
+    role_transferred?: boolean;
+    project_ids?: string[];
+    responsibility_ids?: string[];
+    task_ids?: string[];
+  };
+  invitation_sent: boolean;
+  completed_at: string;
+  created_by: string | null;
+  completed_by_name: string | null;
 }
 
 export interface Role {
@@ -136,10 +220,7 @@ export interface PermissionEntry {
 }
 
 export type LoginOutcome =
-  | "SUCCESS"
-  | "BAD_CREDENTIALS"
-  | "USER_SUSPENDED"
-  | "COMPANY_SUSPENDED";
+  "SUCCESS" | "BAD_CREDENTIALS" | "USER_SUSPENDED" | "COMPANY_SUSPENDED";
 
 export interface LoginRecord {
   id: string;

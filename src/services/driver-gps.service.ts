@@ -1,5 +1,6 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
+  DriverLiveRoutes,
   DriverTaskLivePosition,
   DriverTaskPosition,
 } from "@/interfaces/recycler";
@@ -12,6 +13,15 @@ export function getDriverRouteHistory(
   return api.list<DriverTaskPosition>(
     "/api/task-positions/get_route_history/",
     { ...query, task: taskId },
+  );
+}
+
+export function getDriverLiveRoutes(
+  pointsPerTask = 50,
+): Promise<DriverLiveRoutes> {
+  return api.get<DriverLiveRoutes>(
+    "/api/task-positions/get_live_routes/",
+    { points_per_task: pointsPerTask },
   );
 }
 

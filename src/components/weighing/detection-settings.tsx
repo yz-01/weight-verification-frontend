@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { History, Info, Loader2, Lock, RotateCcw, Upload } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -13,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/interfaces/api";
-import { useDateFormat } from "@/lib/dates";
 import {
   getRuleParameters,
   getRuleSets,
@@ -39,7 +39,6 @@ import {
  */
 export function DetectionSettings() {
   const t = useTranslations();
-  const df = useDateFormat();
   const queryClient = useQueryClient();
   const { can, user } = useAuth();
 
@@ -163,7 +162,7 @@ export function DetectionSettings() {
               </span>
               <span className="tabular ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
                 <History className="h-3.5 w-3.5" />
-                {df.dateTime(active.effective_from)}
+                {format(new Date(active.effective_from), "dd MMM yyyy HH:mm")}
               </span>
             </>
           )}

@@ -19,14 +19,16 @@ import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { CompanyRow, CompanyStatus } from "@/interfaces/company";
 import { useDateFormat } from "@/lib/dates";
+import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
   deleteCompany,
   getCompanies,
+  getCompanySummary,
+  getSubscriptionPlans,
   updateCompanyStatus,
 } from "@/services/companies.service";
 
-const FILTER_KEYS = ["type", "status"];
-
+const FILTER_KEYS = ["type", "status", "state", "plan", "review_status"];
 /** How each lifecycle state reads in the status pill. */
 const STATUS_TONE: Record<
   CompanyStatus,
@@ -44,7 +46,17 @@ type PendingAction =
   | { kind: "suspend"; company: CompanyRow }
   | { kind: "reinstate"; company: CompanyRow };
 
-export function Companies() {
+export type CompanyManagementSection =
+  | "directory"
+  | "review"
+  | "projects"
+  | "recyclers";
+
+export function Companies({
+  section = "directory",
+}: {
+  section?: CompanyManagementSection;
+}) {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -53,10 +65,26 @@ export function Companies() {
 
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [reason, setReason] = useState("");
+  const fixedQuery =
+    section === "review"
+      ? { review_status: "PENDING" }
+      : section === "projects"
+        ? { type: "CONTRACTOR" }
+        : section === "recyclers"
+          ? { type: "RECYCLER" }
+          : {};
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["companies", list.query],
-    queryFn: () => getCompanies(list.query),
+    queryKey: ["companies", section, list.query],
+    queryFn: () => getCompanies({ ...list.query, ...fixedQuery }),
+  });
+  const summary = useQuery({
+    queryKey: ["companies", "summary"],
+    queryFn: getCompanySummary,
+  });
+  const plans = useQuery({
+    queryKey: ["subscription-plans", "company-filter"],
+    queryFn: () => getSubscriptionPlans(),
   });
 
   function closeDialog() {
@@ -94,7 +122,9 @@ export function Companies() {
           <SortableHeader
             label={t("companies.field.code")}
             isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onToggle={() =>
+              column.toggleSorting(column.getIsSorted() === "asc")
+            }
           />
         ),
         cell: ({ row }) => (
@@ -110,7 +140,9 @@ export function Companies() {
           <SortableHeader
             label={t("companies.field.name")}
             isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onToggle={() =>
+              column.toggleSorting(column.getIsSorted() === "asc")
+            }
           />
         ),
         cell: ({ row }) => (
@@ -129,7 +161,9 @@ export function Companies() {
           <SortableHeader
             label={t("companies.field.type")}
             isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onToggle={() =>
+              column.toggleSorting(column.getIsSorted() === "asc")
+            }
           />
         ),
         cell: ({ row }) => (
@@ -143,13 +177,44 @@ export function Companies() {
           <SortableHeader
             label={t("companies.field.status")}
             isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onToggle={() =>
+              column.toggleSorting(column.getIsSorted() === "asc")
+            }
           />
         ),
         cell: ({ row }) => (
           <StatusBadge
             label={t(`companies.status.${row.original.status}`)}
             tone={STATUS_TONE[row.original.status]}
+          />
+        ),
+      },
+      {
+        accessorKey: "state",
+        meta: { label: t("companies.field.state") },
+        header: () => t("companies.field.state"),
+        cell: ({ row }) => row.original.state || t("common.emptyValue"),
+      },
+      {
+        accessorKey: "plan_name",
+        meta: { label: t("companies.field.plan") },
+        header: () => t("companies.field.plan"),
+        cell: ({ row }) => row.original.plan_name || t("common.emptyValue"),
+      },
+      {
+        accessorKey: "review_status",
+        meta: { label: t("companies.field.reviewStatus") },
+        header: () => t("companies.field.reviewStatus"),
+        cell: ({ row }) => (
+          <StatusBadge
+            label={t(`companies.reviewStatus.${row.original.review_status}`)}
+            tone={
+              row.original.review_status === "APPROVED"
+                ? "positive"
+                : row.original.review_status === "REJECTED"
+                  ? "danger"
+                  : "warning"
+            }
           />
         ),
       },
@@ -193,7 +258,9 @@ export function Companies() {
           <SortableHeader
             label={t("companies.field.createdAt")}
             isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onToggle={() =>
+              column.toggleSorting(column.getIsSorted() === "asc")
+            }
           />
         ),
         cell: ({ row }) => (
@@ -203,11 +270,132 @@ export function Companies() {
         ),
       },
       {
+        accessorKey: "project_total",
+        meta: { label: t("companies.projectStats.total") },
+        header: () => t("companies.projectStats.total"),
+        cell: ({ row }) => (
+          <span className="tabular">{row.original.project_total}</span>
+        ),
+      },
+      {
+        accessorKey: "project_active",
+        meta: { label: t("companies.projectStats.active") },
+        header: () => t("companies.projectStats.active"),
+        cell: ({ row }) => (
+          <span className="tabular">{row.original.project_active}</span>
+        ),
+      },
+      {
+        accessorKey: "project_completed",
+        meta: { label: t("companies.projectStats.completed") },
+        header: () => t("companies.projectStats.completed"),
+        cell: ({ row }) => (
+          <span className="tabular">{row.original.project_completed}</span>
+        ),
+      },
+      {
+        accessorKey: "project_archived",
+        meta: { label: t("companies.projectStats.archived") },
+        header: () => t("companies.projectStats.archived"),
+        cell: ({ row }) => (
+          <span className="tabular">{row.original.project_archived}</span>
+        ),
+      },
+      {
+        accessorKey: "subscription_expires_on",
+        meta: { label: t("companies.field.subscriptionExpiresOn") },
+        header: () => t("companies.field.subscriptionExpiresOn"),
+        cell: ({ row }) =>
+          row.original.subscription_expires_on
+            ? df.date(row.original.subscription_expires_on)
+            : t("companies.noSubscriptionExpiry"),
+      },
+      {
+        accessorKey: "subscription_months",
+        meta: { label: t("companies.field.subscriptionMonths") },
+        header: () => t("companies.field.subscriptionMonths"),
+        cell: ({ row }) =>
+          row.original.subscription_months
+            ? t("companies.subscriptionPeriod", {
+                months: row.original.subscription_months,
+              })
+            : t("common.emptyValue"),
+      },
+      {
+        accessorKey: "remaining_user_seats",
+        meta: { label: t("companies.field.remainingUserSeats") },
+        header: () => t("companies.field.remainingUserSeats"),
+        cell: ({ row }) =>
+          row.original.remaining_user_seats === null ? (
+            t("companies.unlimitedUsers")
+          ) : (
+            <span className="tabular">{row.original.remaining_user_seats}</span>
+          ),
+      },
+      {
+        id: "recycler_service_contractors",
+        meta: { label: t("companies.recyclerStats.serviceContractors") },
+        header: () => t("companies.recyclerStats.serviceContractors"),
+        cell: ({ row }) => (
+          <span className="tabular">
+            {row.original.recycler_statistics?.service_contractors ?? "-"}
+          </span>
+        ),
+      },
+      {
+        id: "recycler_platform_weight",
+        meta: { label: t("companies.recyclerStats.platformWeight") },
+        header: () => t("companies.recyclerStats.platformWeight"),
+        cell: ({ row }) =>
+          row.original.recycler_statistics
+            ? t("companies.weightKg", {
+                value: Number(
+                  row.original.recycler_statistics.platform_weight_kg,
+                ).toFixed(2),
+              })
+            : "-",
+      },
+      {
+        id: "recycler_private_weight",
+        meta: { label: t("companies.recyclerStats.privateWeight") },
+        header: () => t("companies.recyclerStats.privateWeight"),
+        cell: ({ row }) =>
+          row.original.recycler_statistics
+            ? t("companies.weightKg", {
+                value: Number(
+                  row.original.recycler_statistics.private_weight_kg,
+                ).toFixed(2),
+              })
+            : "-",
+      },
+      {
+        id: "recycler_total_weight",
+        meta: { label: t("companies.recyclerStats.totalWeight") },
+        header: () => t("companies.recyclerStats.totalWeight"),
+        cell: ({ row }) =>
+          row.original.recycler_statistics
+            ? t("companies.weightKg", {
+                value: Number(
+                  row.original.recycler_statistics.total_weight_kg,
+                ).toFixed(2),
+              })
+            : "-",
+      },
+      {
+        id: "recycler_commission_status",
+        meta: { label: t("companies.recyclerStats.commissionStatus") },
+        header: () => t("companies.recyclerStats.commissionStatus"),
+        cell: ({ row }) =>
+          row.original.recycler_statistics
+            ? t(
+                `companies.commissionStatus.${row.original.recycler_statistics.commission_status}`,
+              )
+            : "-",
+      },
+      {
         id: "actions",
         enableHiding: false,
-        header: () => (
-          <span className="sr-only">{t("common.actions")}</span>
-        ),
+        header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) => {
           const company = row.original;
           const suspended =
@@ -286,10 +474,13 @@ export function Companies() {
     {
       key: "all",
       label: t("companies.filter.all"),
-      active: !list.filters.type && !list.filters.status,
+      active:
+        !list.filters.type &&
+        !list.filters.status &&
+        !list.filters.state &&
+        !list.filters.plan,
       onSelect: () => {
-        list.setFilter("type", undefined);
-        list.setFilter("status", undefined);
+        list.clearFilters();
       },
     },
     {
@@ -314,14 +505,79 @@ export function Companies() {
 
   const totalCount = data?.count ?? 0;
   const isPending = removal.isPending || statusChange.isPending;
+  const sectionColumnIds = useMemo<Record<CompanyManagementSection, string[]>>(
+    () => ({
+      directory: [
+        "code",
+        "name",
+        "type",
+        "status",
+        "state",
+        "plan_name",
+        "review_status",
+        "contact_person",
+        "user_count",
+        "created_at",
+        "actions",
+      ],
+      review: [
+        "code",
+        "name",
+        "type",
+        "review_status",
+        "contact_person",
+        "created_at",
+        "actions",
+      ],
+      projects: [
+        "code",
+        "name",
+        "status",
+        "state",
+        "project_total",
+        "project_active",
+        "project_completed",
+        "project_archived",
+        "actions",
+      ],
+      recyclers: [
+        "code",
+        "name",
+        "status",
+        "state",
+        "plan_name",
+        "recycler_service_contractors",
+        "recycler_platform_weight",
+        "recycler_private_weight",
+        "recycler_total_weight",
+        "recycler_commission_status",
+        "actions",
+      ],
+    }),
+    [],
+  );
+  const sectionColumns = useMemo(
+    () =>
+      columns.filter((column) => {
+        const id =
+          column.id ??
+          ("accessorKey" in column ? String(column.accessorKey) : "");
+        return sectionColumnIds[section].includes(id);
+      }),
+    [columns, section, sectionColumnIds],
+  );
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
-        title={t("companies.title")}
-        subtitle={isLoading ? "—" : t("companies.count", { count: totalCount })}
+        title={t(`companies.module.${section}.title`)}
+        subtitle={
+          isLoading
+            ? "—"
+            : t(`companies.module.${section}.subtitle`, { count: totalCount })
+        }
         action={
-          can("company.create") ? (
+          can("company.create") && section === "directory" ? (
             <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
               <Link href="/companies/create">
                 <Plus className="h-4 w-4" />
@@ -332,26 +588,97 @@ export function Companies() {
         }
       />
 
-      <DataTable
-        columns={columns}
-        rows={data?.results ?? []}
-        totalCount={totalCount}
-        page={list.page}
-        pageSize={list.pageSize}
-        isLoading={isLoading}
-        isError={isError}
-        hasFilters={list.hasFilters}
-        search={list.search}
-        sortBy={list.sortBy}
-        sortOrder={list.sortOrder}
-        storageKey="companies"
-        filterPills={filterPills}
-        onSearchChange={list.setSearch}
-        onSortChange={list.setSort}
-        onPageChange={list.setPage}
-        onPageSizeChange={list.setPageSize}
-        onClearFilters={list.clearFilters}
-      />
+      {section === "directory" && (
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-6">
+          {(
+            [
+              "total",
+              "contractors",
+              "recyclers",
+              "active",
+              "inactive",
+              "newThisMonth",
+            ] as const
+          ).map((key) => {
+            const value =
+              key === "contractors"
+                ? summary.data?.by_type.CONTRACTOR
+                : key === "recyclers"
+                  ? summary.data?.by_type.RECYCLER
+                  : key === "inactive"
+                    ? summary.data?.inactive
+                    : key === "newThisMonth"
+                      ? summary.data?.new_this_month
+                      : summary.data?.[key];
+            return (
+              <div key={key} className="bg-card px-4 py-3">
+                <p className="text-xs text-muted-foreground">
+                  {t(`companies.summary.${key}`)}
+                </p>
+                <p className="mt-1 text-xl font-semibold tabular-nums">
+                  {value ?? 0}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <>
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={list.filters.state ?? ""}
+              onChange={(event) =>
+                list.setFilter("state", event.target.value || undefined)
+              }
+              className="h-8 rounded-md border bg-background px-2 text-sm"
+              aria-label={t("companies.filter.state")}
+            >
+              <option value="">{t("companies.filter.allStates")}</option>
+              {MALAYSIA_STATES.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </select>
+            <select
+              value={list.filters.plan ?? ""}
+              onChange={(event) =>
+                list.setFilter("plan", event.target.value || undefined)
+              }
+              className="h-8 rounded-md border bg-background px-2 text-sm"
+              aria-label={t("companies.filter.plan")}
+            >
+              <option value="">{t("companies.filter.allPlans")}</option>
+              {(plans.data?.results ?? []).map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {plan.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <DataTable
+            columns={sectionColumns}
+            rows={data?.results ?? []}
+            totalCount={totalCount}
+            page={list.page}
+            pageSize={list.pageSize}
+            isLoading={isLoading}
+            isError={isError}
+            hasFilters={list.hasFilters}
+            search={list.search}
+            sortBy={list.sortBy}
+            sortOrder={list.sortOrder}
+            storageKey={`companies-${section}`}
+            filterPills={filterPills}
+            onSearchChange={list.setSearch}
+            onSortChange={list.setSort}
+            onPageChange={list.setPage}
+            onPageSizeChange={list.setPageSize}
+            onClearFilters={list.clearFilters}
+          />
+      </>
 
       {pending?.kind === "remove" && (
         <ConfirmDialog
