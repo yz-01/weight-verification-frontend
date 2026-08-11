@@ -2538,6 +2538,31 @@
       "description": "They will be able to sign in again straight away."
     }
   },
+  "fieldAccessAdmin": {
+    "action": "Field staff login link",
+    "title": "Create a field staff link",
+    "description": "Create a mobile field account and choose the projects this person can access.",
+    "resultTitle": "Field staff link created",
+    "resultDescription": "Give the activation link and six-digit PIN to the field worker. The link can bind a phone only before it expires.",
+    "fullName": "Full name",
+    "phone": "Mobile number",
+    "email": "Email",
+    "optional": "Optional",
+    "projects": "Accessible projects",
+    "noProjects": "No projects are available.",
+    "activationLink": "Activation link",
+    "pin": "Six-digit PIN",
+    "expiresAt": "Link expires",
+    "qrTitle": "Field staff activation QR code",
+    "copyLink": "Copy link",
+    "copyPin": "Copy PIN",
+    "copyAll": "Copy link and PIN",
+    "copied": "Copied",
+    "create": "Create link",
+    "cancel": "Cancel",
+    "close": "Close",
+    "createError": "The link could not be created. Check the mobile number, projects and account permission, then try again."
+  },
   "roles": {
     "title": "Roles",
     "count": "{count, plural, =0 {No roles} one {# role} other {# roles}}",

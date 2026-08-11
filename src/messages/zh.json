@@ -2532,6 +2532,31 @@
       "description": "此人将可以立即重新登录。"
     }
   },
+  "fieldAccessAdmin": {
+    "action": "现场人员登录链接",
+    "title": "生成现场人员链接",
+    "description": "建立现场人员手机账号，并选择该人员可以进入的项目。",
+    "resultTitle": "现场人员链接已生成",
+    "resultDescription": "请把激活链接和 6 位 PIN 交给现场人员。链接只能在有效期内用于绑定手机。",
+    "fullName": "姓名",
+    "phone": "手机号码",
+    "email": "电子邮箱",
+    "optional": "选填",
+    "projects": "可进入的项目",
+    "noProjects": "目前没有可选择的项目。",
+    "activationLink": "激活链接",
+    "pin": "6 位 PIN",
+    "expiresAt": "链接到期时间",
+    "qrTitle": "现场人员激活二维码",
+    "copyLink": "复制链接",
+    "copyPin": "复制 PIN",
+    "copyAll": "复制链接和 PIN",
+    "copied": "已复制",
+    "create": "生成链接",
+    "cancel": "取消",
+    "close": "关闭",
+    "createError": "无法生成链接，请检查手机号、项目和账号权限后重试。"
+  },
   "roles": {
     "title": "角色权限",
     "count": "{count, plural, =0 {暂无角色} other {# 个角色}}",

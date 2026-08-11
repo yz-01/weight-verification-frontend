@@ -2532,6 +2532,31 @@
       "description": "Mereka boleh log masuk semula dengan serta-merta."
     }
   },
+  "fieldAccessAdmin": {
+    "action": "Pautan log masuk staf tapak",
+    "title": "Cipta pautan staf tapak",
+    "description": "Cipta akaun mudah alih staf tapak dan pilih projek yang boleh diakses.",
+    "resultTitle": "Pautan staf tapak telah dicipta",
+    "resultDescription": "Berikan pautan pengaktifan dan PIN enam digit kepada staf tapak. Pautan hanya boleh mengikat telefon sebelum tamat tempoh.",
+    "fullName": "Nama penuh",
+    "phone": "Nombor telefon bimbit",
+    "email": "E-mel",
+    "optional": "Pilihan",
+    "projects": "Projek yang boleh diakses",
+    "noProjects": "Tiada projek tersedia.",
+    "activationLink": "Pautan pengaktifan",
+    "pin": "PIN enam digit",
+    "expiresAt": "Pautan tamat tempoh",
+    "qrTitle": "Kod QR pengaktifan staf tapak",
+    "copyLink": "Salin pautan",
+    "copyPin": "Salin PIN",
+    "copyAll": "Salin pautan dan PIN",
+    "copied": "Disalin",
+    "create": "Cipta pautan",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "createError": "Pautan tidak dapat dicipta. Semak nombor telefon, projek dan kebenaran akaun, kemudian cuba lagi."
+  },
   "roles": {
     "title": "Peranan",
     "count": "{count, plural, =0 {Tiada peranan} other {# peranan}}",
