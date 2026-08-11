@@ -76,12 +76,12 @@ function statusTone(status: DisposalRequestStatus): "neutral" | "positive" | "wa
   return "neutral";
 }
 
-export function SiteDisposalWorkspace() {
+export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("siteDisposal");
   const { can } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
-  const [creating, setCreating] = useState(false);
+  const [project, setProject] = useState(initialProject);
+  const [creating, setCreating] = useState(Boolean(fieldTaskId));
   const [viewing, setViewing] = useState<DisposalRequest | null>(null);
   const [reviewing, setReviewing] = useState<DisposalRequest | null>(null);
   const [assigning, setAssigning] = useState<DisposalRequest | null>(null);
@@ -144,7 +144,7 @@ export function SiteDisposalWorkspace() {
         </div>
       )}
 
-      {creating && <CreateDisposalDialog onClose={() => setCreating(false)} onSaved={() => { void refresh(); setCreating(false); }} />}
+      {creating && <CreateDisposalDialog initialProject={project} fieldTaskId={fieldTaskId} onClose={() => setCreating(false)} onSaved={() => { void refresh(); setCreating(false); onRecordSaved?.(); }} />}
       {viewing && <DisposalDetailDialog row={viewing} onClose={() => setViewing(null)} />}
       {reviewing && <ReviewDisposalDialog row={reviewing} onClose={() => setReviewing(null)} onSaved={() => { void refresh(); setReviewing(null); }} />}
       {assigning && <AssignCollectorDialog row={assigning} onClose={() => setAssigning(null)} onSaved={() => void refresh()} />}
@@ -153,10 +153,10 @@ export function SiteDisposalWorkspace() {
   );
 }
 
-function CreateDisposalDialog({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSaved }: { initialProject?: string; fieldTaskId?: string; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
   const { user } = useAuth();
-  const [project, setProject] = useState("");
+  const [project, setProject] = useState(initialProject);
   const [description, setDescription] = useState("");
   const [locationDescription, setLocationDescription] = useState("");
   const [volume, setVolume] = useState("");
@@ -182,6 +182,7 @@ function CreateDisposalDialog({ onClose, onSaved }: { onClose: () => void; onSav
         longitude: location!.longitude,
         accuracy_m: location!.accuracy,
         client_event_id: crypto.randomUUID(),
+        field_task: fieldTaskId,
         photos,
       });
     },
@@ -253,7 +254,7 @@ function ConfirmDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest
 
 function DisposalDetailDialog({ row, onClose }: { row: DisposalRequest; onClose: () => void }) {
   const t = useTranslations("siteDisposal");
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>{row.reference_no}</DialogTitle><DialogDescription>{row.project_name} · {row.waste_description}</DialogDescription></DialogHeader><div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-3"><DetailValue label={t("field.status")} value={t(`status.${row.status}`)} /><DetailValue label={t("field.collector")} value={row.collector_company_name || t("notAssigned")} /><DetailValue label={t("field.actualWeight")} value={row.actual_weight_kg ? `${row.actual_weight_kg} kg` : "-"} /><DetailValue label={t("field.trips")} value={row.trip_count ? String(row.trip_count) : "-"} /><DetailValue label={t("field.doNo")} value={row.disposal_do_no || "-"} /><DetailValue label={t("field.ocr")} value={t(`ocr.${row.ocr_status}`)} /></div><section><h3 className="mb-3 text-sm font-semibold">{t("evidence")}</h3><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{row.evidence.map((item) => <a key={item.id} href={item.image} target="_blank" rel="noreferrer" className="group relative overflow-hidden rounded-lg border"><Image src={item.image} alt={t(`evidenceKind.${item.kind}`)} width={320} height={320} unoptimized className="aspect-square w-full object-cover" /><span className="absolute inset-x-0 bottom-0 bg-black/70 px-2 py-1 text-xs text-white">{t(`evidenceKind.${item.kind}`)}</span></a>)}</div></section><section><h3 className="mb-3 text-sm font-semibold">{t("timeline")}</h3><ol className="space-y-2 border-l pl-4">{row.timeline.map((item) => <li key={item.id} className="relative rounded-lg border bg-card p-3 text-sm before:absolute before:-left-[1.3rem] before:top-4 before:size-2 before:rounded-full before:bg-primary"><p className="font-medium">{t.has(`timelineEvent.${item.event}`) ? t(`timelineEvent.${item.event}`) : item.event}</p><p className="mt-1 text-xs text-muted-foreground">{item.actor_name || t("externalActor")} · {new Date(item.happened_at).toLocaleString()}</p>{item.note && <p className="mt-2 text-muted-foreground">{item.note}</p>}</li>)}</ol></section><DialogFooter><Button onClick={onClose}>{t("action.close")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>{row.reference_no}</DialogTitle><DialogDescription>{row.project_name} · {row.waste_description}</DialogDescription></DialogHeader><div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-3"><DetailValue label={t("field.status")} value={t(`status.${row.status}`)} /><DetailValue label={t("field.collector")} value={row.collector_company_name || t("notAssigned")} /><DetailValue label={t("field.actualWeight")} value={row.actual_weight_kg ? `${row.actual_weight_kg} kg` : "-"} /><DetailValue label={t("field.trips")} value={row.trip_count ? String(row.trip_count) : "-"} /><DetailValue label={t("field.doNo")} value={row.disposal_do_no || "-"} /><DetailValue label={t("field.ocr")} value={t(`ocr.${row.ocr_status}`)} /></div><section><h3 className="mb-3 text-sm font-semibold">{t("evidence")}</h3><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{row.evidence.map((item) => <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" className="group relative overflow-hidden rounded-lg border"><Image src={item.watermarked || item.image} alt={t(`evidenceKind.${item.kind}`)} width={320} height={320} unoptimized className="aspect-square w-full object-cover" /><span className="absolute inset-x-0 bottom-0 bg-black/70 px-2 py-1 text-xs text-white">{t(`evidenceKind.${item.kind}`)}</span></a>)}</div></section><section><h3 className="mb-3 text-sm font-semibold">{t("timeline")}</h3><ol className="space-y-2 border-l pl-4">{row.timeline.map((item) => <li key={item.id} className="relative rounded-lg border bg-card p-3 text-sm before:absolute before:-left-[1.3rem] before:top-4 before:size-2 before:rounded-full before:bg-primary"><p className="font-medium">{t.has(`timelineEvent.${item.event}`) ? t(`timelineEvent.${item.event}`) : item.event}</p><p className="mt-1 text-xs text-muted-foreground">{item.actor_name || t("externalActor")} · {new Date(item.happened_at).toLocaleString()}</p>{item.note && <p className="mt-2 text-muted-foreground">{item.note}</p>}</li>)}</ol></section><DialogFooter><Button onClick={onClose}>{t("action.close")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function DetailValue({ label, value }: { label: string; value: string }) {

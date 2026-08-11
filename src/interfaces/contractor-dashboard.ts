@@ -29,6 +29,29 @@ export interface DashboardOverview {
     equipment_movements: number;
     photos: number;
   };
+  safety: {
+    today_inspections: number;
+    pending_rectification: number;
+    in_progress: number;
+    overdue: number;
+    completed: number;
+    recent_notes: Array<{
+      id: string;
+      incident_no: string;
+      title: string;
+      status: string;
+      note: string;
+    }>;
+  };
+  schedule: {
+    active_plans: number;
+    tasks: number;
+    planned_progress: string;
+    actual_progress: string;
+    delayed_tasks: number;
+    completed_tasks: number;
+    due_next_7_days: number;
+  };
 }
 
 export type ActivityKind =
@@ -127,6 +150,7 @@ export interface DashboardPersonnel {
 
 export interface PhotoRow {
   id: string;
+  image: string | null;
   project: string;
   photographer: string;
   captured_at: string | null;

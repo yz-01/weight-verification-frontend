@@ -3,11 +3,15 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  BellPlus,
+  CalendarRange,
   CalendarCheck,
   Camera,
   ClipboardCheck,
   Download,
+  FilePlus2,
   FileSpreadsheet,
+  FolderPlus,
   HardHat,
   Inbox,
   MapPin,
@@ -16,6 +20,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -29,6 +34,7 @@ import type {
   ActivityRow,
   ContractorDashboardSection,
   DashboardAnomalies,
+  DashboardOverview,
   ProjectStatusKey,
   TimelineEntry,
 } from "@/interfaces/contractor-dashboard";
@@ -209,6 +215,36 @@ export function ContractorDashboard() {
                   </span>
                 ))}
               </div>
+              <div className="rounded-lg border bg-card p-4 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-semibold">{t("safetySummary.title")}</h3>
+                    <p className="text-xs text-muted-foreground">{t("safetySummary.subtitle")}</p>
+                  </div>
+                  <Link href="/hazard-rectifications" className="text-xs font-semibold text-primary hover:underline">
+                    {t("safetySummary.open")}
+                  </Link>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+                  {(["today_inspections", "pending_rectification", "in_progress", "overdue", "completed"] as const).map((key) => (
+                    <div key={key} className="rounded-lg bg-muted/40 p-3">
+                      <p className="text-xs text-muted-foreground">{t(`safetySummary.${key}`)}</p>
+                      <p className="mt-1 text-xl font-semibold tabular-nums">{format.number(data.overview?.safety[key] ?? 0)}</p>
+                    </div>
+                  ))}
+                </div>
+                {!!data.overview.safety.recent_notes.length && (
+                  <div className="mt-3 divide-y border-t">
+                    {data.overview.safety.recent_notes.map((row) => (
+                      <Link key={row.id} href={`/hazard-rectifications?incident=${row.id}`} className="block py-2 text-sm hover:bg-muted/30">
+                        <span className="font-medium">{row.incident_no} · {row.title}</span>
+                        <span className="ml-2 text-muted-foreground">{row.note}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <ScheduleSummary schedule={data.overview.schedule} />
             </section>
           )}
 
@@ -348,7 +384,29 @@ export function ContractorDashboard() {
                 <ul className="divide-y">
                   {data.photos.rows.map((row) => (
                     <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
-                      <div className="min-w-0">
+                      <div className="flex min-w-0 items-start gap-3">
+                        {row.image ? (
+                          <a
+                            href={row.image}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="relative size-16 shrink-0 overflow-hidden rounded-md border bg-muted"
+                          >
+                            <Image
+                              src={row.image}
+                              alt={row.project || t("photos.noProject")}
+                              fill
+                              sizes="64px"
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </a>
+                        ) : (
+                          <div className="grid size-16 shrink-0 place-items-center rounded-md border bg-muted text-muted-foreground">
+                            <Camera className="size-5" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
                         <p className="truncate text-sm font-medium">
                           {row.project || t("photos.noProject")}
                         </p>
@@ -356,6 +414,7 @@ export function ContractorDashboard() {
                           {row.photographer || t("photos.unknownPhotographer")} ·{" "}
                           {row.source_model}
                         </p>
+                        </div>
                       </div>
                       <div className="shrink-0 text-right text-xs text-muted-foreground">
                         <p>{df.dateTime(row.captured_at)}</p>
@@ -468,12 +527,11 @@ function QuickActions() {
   const t = useTranslations("contractorDashboard.quickActions");
   const actions: Array<{ href: string; label: string; icon: typeof Inbox }> = [
     { href: "/projects/create", label: t("project"), icon: Plus },
-    { href: "/receipts/create", label: t("material"), icon: Inbox },
-    { href: "/site-equipment?create=1", label: t("equipment"), icon: Camera },
-    { href: "/progress?create=1", label: t("progress"), icon: ClipboardCheck },
-    { href: "/waste-outgoing?create=1", label: t("waste"), icon: FileSpreadsheet },
-    { href: "/safety?create=1", label: t("safety"), icon: ShieldAlert },
-    { href: "/consultant-applications/create", label: t("consultant"), icon: CalendarCheck },
+    { href: "/suppliers/create", label: t("supplier"), icon: Inbox },
+    { href: "/project-categories?create=1", label: t("category"), icon: FolderPlus },
+    { href: "/documents?create=1", label: t("document"), icon: FilePlus2 },
+    { href: "/approvals?create=1", label: t("approval"), icon: ClipboardCheck },
+    { href: "/notifications?create=1", label: t("notification"), icon: BellPlus },
   ];
   return (
     <section aria-label={t("title")} className="space-y-2">
@@ -489,6 +547,69 @@ function QuickActions() {
         })}
       </div>
     </section>
+  );
+}
+
+function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"] }) {
+  const t = useTranslations("contractorDashboard.scheduleSummary");
+  const format = useFormatter();
+  const planned = Math.max(0, Math.min(100, Number(schedule.planned_progress) || 0));
+  const actual = Math.max(0, Math.min(100, Number(schedule.actual_progress) || 0));
+  const metrics = [
+    ["activePlans", schedule.active_plans],
+    ["tasks", schedule.tasks],
+    ["delayed", schedule.delayed_tasks],
+    ["dueNext7Days", schedule.due_next_7_days],
+    ["completed", schedule.completed_tasks],
+  ] as const;
+
+  return (
+    <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-start gap-2.5">
+          <span className="rounded-md bg-primary/10 p-2 text-primary">
+            <CalendarRange className="size-4" />
+          </span>
+          <div>
+            <h3 className="text-sm font-semibold">{t("title")}</h3>
+            <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+          </div>
+        </div>
+        <Link href="/schedule" className="text-xs font-semibold text-primary hover:underline">
+          {t("open")}
+        </Link>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="space-y-3">
+          {([
+            ["planned", planned, "bg-foreground/55"],
+            ["actual", actual, "bg-primary"],
+          ] as const).map(([label, value, colour]) => (
+            <div key={label}>
+              <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
+                <span className="font-medium text-muted-foreground">{t(label)}</span>
+                <span className="font-semibold tabular-nums">
+                  {t("progress", { value: format.number(value, { maximumFractionDigits: 1 }) })}
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-muted">
+                <div className={`h-full rounded-full ${colour}`} style={{ width: `${value}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 lg:grid-cols-3 xl:grid-cols-5">
+          {metrics.map(([label, value]) => (
+            <div key={label} className="min-w-0 rounded-lg bg-muted/40 p-3">
+              <p className="text-xs text-muted-foreground">{t(label)}</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">{format.number(value)}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { TextField, type BoundField } from "@/components/shared/form-fields";
+import { SupplierQrPanel } from "@/components/suppliers/supplier-qr-panel";
 import {
   FormSection,
   FormShell,
@@ -192,6 +193,7 @@ export function CreateSupplier({ supplier }: { supplier?: Supplier }) {
           </p>
         )}
       </FormSection>
+      {supplier && <SupplierQrPanel supplier={supplier} />}
     </FormShell>
   );
 }

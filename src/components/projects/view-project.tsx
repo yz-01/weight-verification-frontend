@@ -1,7 +1,26 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Archive, Pencil, Plus, UserMinus, UserPlus } from "lucide-react";
+import {
+  Archive,
+  BadgeCheck,
+  CalendarDays,
+  Camera,
+  ClipboardCheck,
+  Construction,
+  FileText,
+  Loader2,
+  Package,
+  Pencil,
+  Plus,
+  ShieldAlert,
+  ShieldCheck,
+  Trash2,
+  Truck,
+  UserCog,
+  UserMinus,
+  UserPlus,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
@@ -17,11 +36,13 @@ import {
 } from "@/components/shared/form-shell";
 import {
   DetailHeader,
+  FieldWrapper,
   ReadField,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { PROJECT_STATUS_TONE } from "@/components/projects/projects";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +51,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -37,15 +59,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { ProjectAssignment } from "@/interfaces/contractor";
+import type {
+  ProjectAssignment,
+  ProjectStatisticsPeriod,
+} from "@/interfaces/contractor";
+import type { ProjectResponsibility } from "@/interfaces/contractor-ops";
 import {
   archiveProject,
   assignUserToProject,
   getAssignableProjectUsers,
   getProject,
   getProjectAssignments,
+  getProjectStatistics,
   unassignUserFromProject,
 } from "@/services/contractor.service";
+import {
+  createProjectResponsibility,
+  deleteProjectResponsibility,
+  getProjectResponsibilities,
+  updateProjectResponsibility,
+} from "@/services/contractor-ops.service";
 import { useDateFormat } from "@/lib/dates";
 
 export function ViewProject({ id }: { id: string }) {
@@ -222,6 +255,8 @@ export function ViewProject({ id }: { id: string }) {
         </div>
       </div>
 
+      <ProjectStatistics projectId={id} />
+
       {can("project.update") && (
         <ProjectQrPanel
           projectId={id}
@@ -230,6 +265,7 @@ export function ViewProject({ id }: { id: string }) {
         />
       )}
       <ProjectTeam projectId={id} />
+      <ProjectResponsibilities projectId={id} />
       <ProjectDockets projectId={id} />
 
       <ConfirmDialog
@@ -243,6 +279,389 @@ export function ViewProject({ id }: { id: string }) {
         onConfirm={() => archiveMutation.mutate()}
       />
     </div>
+  );
+}
+
+const PROJECT_STATISTIC_PERIODS: ProjectStatisticsPeriod[] = [
+  "day",
+  "month",
+  "year",
+  "all",
+];
+
+function ProjectStatistics({ projectId }: { projectId: string }) {
+  const t = useTranslations("projects.statistics");
+  const [period, setPeriod] = useState<ProjectStatisticsPeriod>("month");
+  const statistics = useQuery({
+    queryKey: ["projects", "statistics", projectId, period],
+    queryFn: () => getProjectStatistics(projectId, period),
+  });
+  const rows = statistics.data
+    ? [
+        ["material_receipts", statistics.data.totals.material_receipts, Package, "/receipts"],
+        ["equipment_movements", statistics.data.totals.equipment_movements, Construction, "/site-equipment"],
+        ["progress_records", statistics.data.totals.progress_records, ClipboardCheck, "/progress"],
+        ["safety_incidents", statistics.data.totals.safety_incidents, ShieldAlert, "/safety"],
+        ["attendance_events", statistics.data.totals.attendance_events, CalendarDays, "/attendance"],
+        ["waste_dispatches", statistics.data.totals.waste_dispatches, Truck, "/dispatches"],
+        ["consultant_applications", statistics.data.totals.consultant_applications, BadgeCheck, "/consultant-applications"],
+        ["field_tasks", statistics.data.totals.field_tasks, UserCog, "/field-tasks"],
+        ["photos", statistics.data.totals.photos, Camera, "/evidence"],
+        ["documents", statistics.data.totals.documents, FileText, "/documents"],
+      ] as const
+    : [];
+
+  return (
+    <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3 px-6 py-5">
+        <div>
+          <h3 className="text-base font-semibold">{t("title")}</h3>
+          <p className="mt-0.5 text-sm text-muted-foreground">{t("description")}</p>
+        </div>
+        <div className="flex rounded-lg border bg-muted/30 p-1">
+          {PROJECT_STATISTIC_PERIODS.map((value) => (
+            <Button
+              key={value}
+              type="button"
+              size="sm"
+              variant={period === value ? "default" : "ghost"}
+              className="h-7 px-3"
+              onClick={() => setPeriod(value)}
+            >
+              {t(`period.${value}`)}
+            </Button>
+          ))}
+        </div>
+      </div>
+      {statistics.isLoading ? (
+        <p className="border-t px-6 py-8 text-center text-sm text-muted-foreground">
+          {t("loading")}
+        </p>
+      ) : statistics.isError ? (
+        <p className="border-t px-6 py-8 text-center text-sm text-destructive">
+          {t("loadError")}
+        </p>
+      ) : (
+        <div className="grid border-t sm:grid-cols-2 lg:grid-cols-5">
+          {rows.map(([key, value, Icon, href]) => (
+            <Link
+              key={key}
+              href={`${href}?project=${projectId}`}
+              className="flex min-h-24 items-center gap-3 border-b px-5 py-4 transition-colors hover:bg-muted/40 sm:border-r"
+            >
+              <Icon className="size-5 shrink-0 text-primary" />
+              <span className="min-w-0">
+                <span className="block text-xs text-muted-foreground">{t(`metric.${key}`)}</span>
+                <span className="mt-1 block text-xl font-semibold tabular-nums">{value}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+const RESPONSIBILITY_OPTIONS = [
+  "PROJECT_MANAGER",
+  "SITE_ENGINEER",
+  "SAFETY_OFFICER",
+  "QS",
+  "QA_QC",
+  "DOCUMENT_CONTROLLER",
+  "ADMIN",
+  "SUPERVISOR",
+] as const;
+
+function ProjectResponsibilities({ projectId }: { projectId: string }) {
+  const t = useTranslations();
+  const { can } = useAuth();
+  const queryClient = useQueryClient();
+  const [editing, setEditing] = useState<ProjectResponsibility | "new" | null>(null);
+  const [removing, setRemoving] = useState<ProjectResponsibility | null>(null);
+  const responsibilities = useQuery({
+    queryKey: ["project-responsibilities", projectId],
+    queryFn: () => getProjectResponsibilities({ project: projectId, page_size: 100 }),
+  });
+  const removal = useMutation({
+    mutationFn: (id: string) => deleteProjectResponsibility(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["project-responsibilities", projectId],
+      });
+      setRemoving(null);
+    },
+  });
+  const rows = responsibilities.data?.results ?? [];
+  const roleLabel = (value: string) =>
+    RESPONSIBILITY_OPTIONS.includes(value as (typeof RESPONSIBILITY_OPTIONS)[number])
+      ? t(`projects.responsibilities.role.${value}`)
+      : value;
+
+  return (
+    <section className="rounded-xl border bg-card shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-4 px-6 py-5">
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold text-foreground">
+            {t("projects.responsibilities.title")}
+          </h3>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {t("projects.responsibilities.description")}
+          </p>
+        </div>
+        {can("project.assign") && (
+          <Button
+            size="sm"
+            className="rounded-full px-4 shadow-sm"
+            onClick={() => setEditing("new")}
+          >
+            <UserCog className="h-4 w-4" />
+            {t("projects.responsibilities.add")}
+          </Button>
+        )}
+      </div>
+      <div className="divide-y border-t">
+        {responsibilities.isLoading ? (
+          <p className="px-6 py-8 text-center text-sm text-muted-foreground">
+            {t("common.loading")}
+          </p>
+        ) : responsibilities.isError ? (
+          <p className="px-6 py-8 text-center text-sm text-destructive">
+            {t("projects.responsibilities.loadError")}
+          </p>
+        ) : rows.length === 0 ? (
+          <p className="px-6 py-8 text-center text-sm text-muted-foreground">
+            {t("projects.responsibilities.empty")}
+          </p>
+        ) : (
+          rows.map((row) => (
+            <div
+              key={row.id}
+              className="flex flex-wrap items-center gap-3 px-6 py-4"
+            >
+              <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                <UserCog className="size-5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-medium">{row.user_name}</p>
+                  {row.is_primary && (
+                    <StatusBadge
+                      label={t("projects.responsibilities.primary")}
+                      tone="positive"
+                    />
+                  )}
+                  {!row.is_active && (
+                    <StatusBadge
+                      label={t("projects.responsibilities.inactive")}
+                      tone="neutral"
+                    />
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {roleLabel(row.responsibility)}
+                  {row.user_phone ? ` · ${row.user_phone}` : ""}
+                </p>
+                {row.can_confirm_progress && (
+                  <p className="mt-1 flex items-center gap-1 text-xs font-medium text-primary">
+                    <ShieldCheck className="size-3.5" />
+                    {t("projects.responsibilities.canConfirmProgress")}
+                  </p>
+                )}
+              </div>
+              {can("project.assign") && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    title={t("common.edit")}
+                    onClick={() => setEditing(row)}
+                  >
+                    <Pencil className="size-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:bg-destructive/10"
+                    title={t("common.remove")}
+                    onClick={() => setRemoving(row)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+
+      {editing && (
+        <ResponsibilityDialog
+          projectId={projectId}
+          row={editing === "new" ? undefined : editing}
+          onClose={() => setEditing(null)}
+        />
+      )}
+      {removing && (
+        <ConfirmDialog
+          open
+          onOpenChange={() => setRemoving(null)}
+          title={t("projects.responsibilities.removeTitle", {
+            name: removing.user_name,
+          })}
+          description={t("projects.responsibilities.removeDescription")}
+          confirmLabel={t("common.remove")}
+          confirmIcon={Trash2}
+          isPending={removal.isPending}
+          onConfirm={() => removal.mutate(removing.id)}
+        />
+      )}
+    </section>
+  );
+}
+
+function ResponsibilityDialog({
+  projectId,
+  row,
+  onClose,
+}: {
+  projectId: string;
+  row?: ProjectResponsibility;
+  onClose: () => void;
+}) {
+  const t = useTranslations();
+  const queryClient = useQueryClient();
+  const assignments = useQuery({
+    queryKey: ["projects", "assignments", projectId],
+    queryFn: () => getProjectAssignments(projectId),
+  });
+  const isKnownRole = row
+    ? RESPONSIBILITY_OPTIONS.includes(
+        row.responsibility as (typeof RESPONSIBILITY_OPTIONS)[number],
+      )
+    : true;
+  const [user, setUser] = useState(row?.user ?? "");
+  const [role, setRole] = useState(row ? (isKnownRole ? row.responsibility : "OTHER") : "PROJECT_MANAGER");
+  const [customRole, setCustomRole] = useState(row && !isKnownRole ? row.responsibility : "");
+  const [primary, setPrimary] = useState(row?.is_primary ?? false);
+  const [canConfirmProgress, setCanConfirmProgress] = useState(
+    row?.can_confirm_progress ?? false,
+  );
+  const [active, setActive] = useState(row?.is_active ?? true);
+  const responsibility = role === "OTHER" ? customRole.trim() : role;
+  const save = useMutation({
+    mutationFn: () =>
+      row
+        ? updateProjectResponsibility(row.id, {
+            responsibility,
+            is_primary: primary,
+            can_confirm_progress: canConfirmProgress,
+            is_active: active,
+          })
+        : createProjectResponsibility({
+            project: projectId,
+            user,
+            responsibility,
+            is_primary: primary,
+            can_confirm_progress: canConfirmProgress,
+            is_active: active,
+          }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["project-responsibilities", projectId],
+      });
+      onClose();
+    },
+  });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {t(
+              row
+                ? "projects.responsibilities.editTitle"
+                : "projects.responsibilities.addTitle",
+            )}
+          </DialogTitle>
+          <DialogDescription>
+            {t("projects.responsibilities.formHelp")}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <FieldWrapper label={t("projects.responsibilities.person")} required>
+            <Select value={user || undefined} onValueChange={setUser} disabled={Boolean(row)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t("common.selectPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {(assignments.data?.results ?? []).map((assignment) => (
+                  <SelectItem key={assignment.user} value={assignment.user}>
+                    {assignment.user_name} - {assignment.user_email}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("projects.responsibilities.responsibility")} required>
+            <Select value={role} onValueChange={setRole}>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {RESPONSIBILITY_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {t(`projects.responsibilities.role.${option}`)}
+                  </SelectItem>
+                ))}
+                <SelectItem value="OTHER">
+                  {t("projects.responsibilities.role.OTHER")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          {role === "OTHER" && (
+            <FieldWrapper label={t("projects.responsibilities.customRole")} required>
+              <Input value={customRole} onChange={(event) => setCustomRole(event.target.value)} />
+            </FieldWrapper>
+          )}
+          <label className="flex min-h-12 items-center gap-3 rounded-lg border p-3">
+            <Checkbox checked={primary} onCheckedChange={(checked) => setPrimary(checked === true)} />
+            <span>
+              <span className="flex items-center gap-2 font-medium"><BadgeCheck className="size-4 text-primary" />{t("projects.responsibilities.primary")}</span>
+              <span className="block text-xs text-muted-foreground">{t("projects.responsibilities.primaryHelp")}</span>
+            </span>
+          </label>
+          <label className="flex min-h-12 items-center gap-3 rounded-lg border p-3">
+            <Checkbox checked={canConfirmProgress} onCheckedChange={(checked) => setCanConfirmProgress(checked === true)} />
+            <span>
+              <span className="flex items-center gap-2 font-medium"><ShieldCheck className="size-4 text-primary" />{t("projects.responsibilities.canConfirmProgress")}</span>
+              <span className="block text-xs text-muted-foreground">{t("projects.responsibilities.progressHelp")}</span>
+            </span>
+          </label>
+          {row && (
+            <label className="flex min-h-12 items-center gap-3 rounded-lg border p-3">
+              <Checkbox checked={active} onCheckedChange={(checked) => setActive(checked === true)} />
+              <span className="font-medium">{t("projects.responsibilities.active")}</span>
+            </label>
+          )}
+          {save.isError && (
+            <p role="alert" className="text-sm text-destructive">
+              {t("projects.responsibilities.saveError")}
+            </p>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button
+            disabled={!user || !responsibility || save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <UserCog />}
+            {t("common.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

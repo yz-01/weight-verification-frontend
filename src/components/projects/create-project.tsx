@@ -28,6 +28,7 @@ import type {
   ProjectPayload,
   ProjectStatus,
 } from "@/interfaces/contractor";
+import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
   createProject,
   getProject,
@@ -56,7 +57,7 @@ export function CreateProject({ project }: { project?: Project }) {
       isEdit ? updateProject(project.id, values) : createProject(values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["projects"] });
-      router.push("/projects");
+      router.push(isEdit ? `/projects/${project.id}` : "/projects");
     },
   });
 
@@ -141,8 +142,8 @@ export function CreateProject({ project }: { project?: Project }) {
 
   return (
     <FormShell
-      backHref="/projects"
-      backLabel={t("projects.title")}
+      backHref={isEdit ? `/projects/${project.id}` : "/projects"}
+      backLabel={isEdit ? project.name : t("projects.title")}
       title={isEdit ? t("projects.editTitle") : t("projects.createTitle")}
       isSubmitting={mutation.isPending}
       submitLabel={isEdit ? t("common.save") : t("common.create")}
@@ -264,9 +265,16 @@ export function CreateProject({ project }: { project?: Project }) {
         </form.Field>
         <form.Field name="state">
           {(field) => (
-            <TextField
+            <SelectField
               field={field as unknown as BoundField}
               label={t("projects.field.state")}
+              options={[
+                ...(!MALAYSIA_STATES.some((state) => state === field.state.value)
+                  && field.state.value
+                  ? [{ value: field.state.value, label: field.state.value }]
+                  : []),
+                ...MALAYSIA_STATES.map((state) => ({ value: state, label: state })),
+              ]}
               optional
             />
           )}

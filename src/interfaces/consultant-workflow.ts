@@ -158,6 +158,7 @@ export interface ApplicationEvidenceLink {
   evidence: string;
   evidence_kind: string;
   evidence_file: string;
+  evidence_watermarked_file: string | null;
   original_filename: string;
   captured_at: string;
   latitude: string | null;
@@ -289,6 +290,38 @@ export interface ConsultantApplication {
   archive_entries: ApplicationArchiveEntry[];
   created_at: string;
   updated_at: string;
+}
+
+export interface ConsultantDashboardRow {
+  id: string;
+  application_no: string;
+  project: string;
+  project_name: string;
+  application_type: string;
+  status: ConsultantApplicationStatus;
+  priority: string;
+  applicant_name: string;
+  consultant_name: string;
+  required_at: string | null;
+  submitted_at: string | null;
+  updated_at: string;
+  current_step: string;
+  latest_decision: string;
+  latest_decision_at: string | null;
+}
+
+export interface ConsultantDashboardData {
+  generated_at: string;
+  summary: {
+    pending: number;
+    today: number;
+    approved: number;
+    returned: number;
+    due_soon: number;
+  };
+  pending: ConsultantDashboardRow[];
+  due_soon: ConsultantDashboardRow[];
+  recent_decisions: ConsultantDashboardRow[];
 }
 
 export interface EvidenceCandidate {

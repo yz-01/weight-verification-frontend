@@ -27,6 +27,7 @@ export interface EvidenceAsset {
   field_name: string;
   kind: EvidenceKind;
   file: string;
+  watermarked_file: string;
   original_filename: string;
   content_type: string;
   size_bytes: number;
@@ -39,6 +40,14 @@ export interface EvidenceAsset {
   watermark_text: string;
   watermark: Record<string, unknown>;
   metadata: Record<string, unknown>;
+  archive_category_id: string | null;
+  archive_category_code: string;
+  archive_category_name: string;
+  archive_category_path: Array<{
+    id: string;
+    code: string;
+    name: string;
+  }>;
   supersedes: string | null;
   created_at: string;
 }

@@ -46,6 +46,12 @@ import {
 } from "@/services/recycler.service";
 import { getSites } from "@/services/weighing.service";
 
+function localDateTimeInput(value?: string | null) {
+  const date = value ? new Date(value) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return shifted.toISOString().slice(0, 16);
+}
+
 /**
  * The yard's inbox.
  *
@@ -309,10 +315,14 @@ function OrderAssignmentDialog({
 }) {
   const t = useTranslations();
   const [reference, setReference] = useState("");
+  const [proposedAt, setProposedAt] = useState(localDateTimeInput());
+  const [proposalNote, setProposalNote] = useState("");
   const [site, setSite] = useState("");
   const [vehicle, setVehicle] = useState("");
   const [driver, setDriver] = useState("");
-  const [scheduledFor, setScheduledFor] = useState("");
+  const [scheduledFor, setScheduledFor] = useState(
+    localDateTimeInput(load.confirmed_collection_at),
+  );
   const [notes, setNotes] = useState("");
 
   const sites = useQuery({
@@ -329,7 +339,12 @@ function OrderAssignmentDialog({
   });
 
   const acceptOnly = useMutation({
-    mutationFn: () => acceptDispatch(load.id, reference.trim()),
+    mutationFn: () =>
+      acceptDispatch(load.id, {
+        recyclerReference: reference.trim(),
+        proposedCollectionAt: new Date(proposedAt).toISOString(),
+        proposedCollectionNote: proposalNote.trim(),
+      }),
     onSuccess: () => {
       onDone();
       onClose();
@@ -337,26 +352,28 @@ function OrderAssignmentDialog({
   });
 
   const assign = useMutation({
-    mutationFn: async () => {
-      if (load.state === "PENDING_ACCEPTANCE") {
-        await acceptDispatch(load.id, reference.trim());
-      }
-      return createTask({
+    mutationFn: () =>
+      createTask({
         dispatch: load.id,
         site,
         vehicle,
         driver,
         scheduled_for: scheduledFor || null,
         notes: notes.trim(),
-      });
-    },
+      }),
     onSuccess: () => {
       onDone();
       onClose();
     },
   });
 
-  const ready = site && vehicle && driver;
+  const waitingForContractor =
+    load.state === "ACCEPTED" && !load.confirmed_collection_at;
+  const ready =
+    load.state === "ACCEPTED" &&
+    Boolean(load.confirmed_collection_at) &&
+    Boolean(site && vehicle && driver && scheduledFor);
+  const proposalReady = Boolean(proposedAt);
   const pending = acceptOnly.isPending || assign.isPending;
 
   return (
@@ -376,10 +393,41 @@ function OrderAssignmentDialog({
           </p>
         </div>
 
+        {load.state === "PENDING_ACCEPTANCE" ? (
+          <div className="grid gap-4">
+            <div className="rounded-lg border border-info/25 bg-info/5 p-3 text-sm leading-6">
+              {t("incoming.order.proposalHelp")}
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("incoming.collect.reference")}</Label>
+              <Input value={reference} onChange={(event) => setReference(event.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("incoming.order.proposedAt")}</Label>
+              <Input type="datetime-local" min={localDateTimeInput()} value={proposedAt} onChange={(event) => setProposedAt(event.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("incoming.order.proposalNote")}</Label>
+              <Textarea value={proposalNote} onChange={(event) => setProposalNote(event.target.value)} />
+            </div>
+          </div>
+        ) : waitingForContractor ? (
+          <div className="rounded-lg border border-warning/30 bg-warning/10 p-4">
+            <p className="font-semibold">{t("incoming.order.waitingConfirmation")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {load.proposed_collection_at
+                ? new Date(load.proposed_collection_at).toLocaleString()
+                : t("common.emptyValue")}
+            </p>
+            {load.proposed_collection_note && <p className="mt-2 text-sm">{load.proposed_collection_note}</p>}
+          </div>
+        ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>{t("incoming.collect.reference")}</Label>
-            <Input value={reference} onChange={(event) => setReference(event.target.value)} />
+          <div className="rounded-lg border border-success/30 bg-success/5 p-3 sm:col-span-2">
+            <p className="text-sm font-semibold">{t("incoming.order.confirmedAt")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {load.confirmed_collection_at ? new Date(load.confirmed_collection_at).toLocaleString() : t("common.emptyValue")}
+            </p>
           </div>
           <div className="space-y-1.5">
             <Label>{t("tasks.field.site")}</Label>
@@ -411,19 +459,20 @@ function OrderAssignmentDialog({
             <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} />
           </div>
         </div>
+        )}
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
           {load.state === "PENDING_ACCEPTANCE" && (
-            <Button variant="secondary" disabled={pending} onClick={() => acceptOnly.mutate()}>
+            <Button disabled={!proposalReady || pending} onClick={() => acceptOnly.mutate()}>
               {acceptOnly.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}
-              {t("incoming.order.acceptOnly")}
+              {t("incoming.order.acceptAndPropose")}
             </Button>
           )}
-          <Button disabled={!ready || pending} onClick={() => assign.mutate()}>
+          {load.state === "ACCEPTED" && !waitingForContractor && <Button disabled={!ready || pending} onClick={() => assign.mutate()}>
             {assign.isPending ? <Loader2 className="animate-spin" /> : <Truck />}
-            {load.state === "PENDING_ACCEPTANCE" ? t("incoming.order.acceptAndAssign") : t("incoming.order.assign")}
-          </Button>
+            {t("incoming.order.assign")}
+          </Button>}
         </DialogFooter>
       </DialogContent>
     </Dialog>

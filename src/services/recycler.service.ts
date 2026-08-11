@@ -108,11 +108,19 @@ export function getDrivers(query: ListQuery): Promise<Paginated<Driver>> {
 
 export async function acceptDispatch(
   id: string,
-  recyclerReference: string,
+  input: {
+    recyclerReference: string;
+    proposedCollectionAt: string;
+    proposedCollectionNote?: string;
+  },
 ): Promise<WasteDispatch> {
   const dispatch = await api.post<WasteDispatch>(
     `/api/dispatches/${id}/accept_dispatch/`,
-    { recycler_reference: recyclerReference },
+    {
+      recycler_reference: input.recyclerReference,
+      proposed_collection_at: input.proposedCollectionAt,
+      proposed_collection_note: input.proposedCollectionNote ?? "",
+    },
   );
   toastSuccess("incoming.toast.accepted");
   return dispatch;

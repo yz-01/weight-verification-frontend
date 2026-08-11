@@ -43,6 +43,22 @@ export async function markAllNotificationsRead(): Promise<number> {
   return result.updated;
 }
 
+export async function sendProjectNotification(input: {
+  project_id: string;
+  recipient_scope: "ALL" | "ROLE" | "PEOPLE";
+  recipient_ids?: string[];
+  recipient_role_codes?: string[];
+  title: string;
+  message: string;
+}): Promise<{ sent: number; project_id: string }> {
+  const result = await api.post<{ sent: number; project_id: string }>(
+    "/api/notifications/send_project_notification/",
+    input,
+  );
+  toastSuccess("notifications.toast.sent", { count: result.sent });
+  return result;
+}
+
 export function getSystemStatus(): Promise<SystemStatus> {
   return api.get<SystemStatus>("/api/platform-ops/get_system_status/");
 }

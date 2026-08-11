@@ -56,11 +56,36 @@ export interface ProjectPayload {
   site_phone?: string;
 }
 
+export type ProjectStatisticsPeriod = "day" | "month" | "year" | "all";
+
+export interface ProjectStatistics {
+  project: string;
+  period: ProjectStatisticsPeriod;
+  date: string;
+  start: string | null;
+  end: string | null;
+  total_records: number;
+  totals: {
+    material_receipts: number;
+    equipment_movements: number;
+    progress_records: number;
+    safety_incidents: number;
+    attendance_events: number;
+    waste_dispatches: number;
+    consultant_applications: number;
+    field_tasks: number;
+    photos: number;
+    documents: number;
+  };
+}
+
 export interface ProjectAssignment {
   id: string;
   user: string;
   user_name: string;
   user_email: string;
+  role_code: string;
+  role_name: string;
   project: string;
   created_at: string;
 }
@@ -128,6 +153,7 @@ export interface ReceiptPhoto {
   id: string;
   kind: PhotoKind;
   image: string;
+  watermarked?: string | null;
   caption: string;
   latitude: string | null;
   longitude: string | null;
@@ -144,6 +170,7 @@ export interface MaterialReceipt {
   supplier: string;
   supplier_name: string;
   movement_type: "ENTRY" | "RETURN";
+  return_reason: string;
   material_name: string;
   quantity: string;
   unit: MaterialUnit;
@@ -180,6 +207,7 @@ export interface MaterialReceiptPayload {
   supplier: string;
   qr_code?: string | null;
   movement_type?: "ENTRY" | "RETURN";
+  return_reason?: string;
   material_name: string;
   quantity: string;
   unit: MaterialUnit;
@@ -190,6 +218,7 @@ export interface MaterialReceiptPayload {
   received_by_name: string;
   original_captured_at?: string;
   client_event_id?: string;
+  field_task?: string;
   latitude?: string | null;
   longitude?: string | null;
   location_accuracy_m?: string | null;
@@ -281,6 +310,7 @@ export interface DispatchPhoto {
   id: string;
   kind: "LOADING" | "VEHICLE" | "PLATE" | "OTHER";
   image: string;
+  watermarked?: string | null;
   caption: string;
   latitude: string | null;
   longitude: string | null;
@@ -302,6 +332,12 @@ export interface WasteDispatch {
   driver_name: string;
   state: DispatchState;
   accepted_at: string | null;
+  proposed_collection_at: string | null;
+  proposed_collection_note: string;
+  confirmed_collection_at: string | null;
+  confirmed_collection_note: string;
+  collection_plan_confirmed_at: string | null;
+  collection_plan_confirmed_by: string | null;
   driver_assigned_at: string | null;
   released_at: string | null;
   /** Only a draft is editable; after release the record is evidence. */

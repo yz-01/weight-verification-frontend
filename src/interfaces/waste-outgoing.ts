@@ -83,6 +83,11 @@ export interface WasteOutgoingRecord {
   dispatch: string | null;
   dispatch_no: string | null;
   dispatch_state: string | null;
+  proposed_collection_at: string | null;
+  proposed_collection_note: string;
+  confirmed_collection_at: string | null;
+  confirmed_collection_note: string;
+  collection_plan_confirmed_at: string | null;
   ordered_at: string | null;
   ordered_by: string | null;
   ordered_by_name: string | null;

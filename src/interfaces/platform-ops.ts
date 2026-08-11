@@ -1,5 +1,10 @@
 export type NotificationKind =
-  "SYSTEM" | "APPROVAL" | "EVENT" | "REMINDER" | "EXCEPTION";
+  | "SYSTEM"
+  | "APPROVAL"
+  | "EVENT"
+  | "REMINDER"
+  | "EXCEPTION"
+  | "PROJECT_NOTICE";
 
 export interface NotificationRow {
   id: string;

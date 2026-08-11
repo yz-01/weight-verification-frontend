@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -37,10 +38,11 @@ const tones: Record<
 
 export function ConsultantApplicationsList() {
   const t = useTranslations("consultantWorkflow");
+  const searchParams = useSearchParams();
   const { user, can } = useAuth();
   const df = useDateFormat();
   const [project, setProject] = useState("");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const onProjectChange = useCallback((id: string) => setProject(id), []);
   const needsProject = user?.account_type === "CONSULTANT";
   const rows = useQuery({

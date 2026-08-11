@@ -246,7 +246,7 @@ async function uploadJob(job: OfflineJob): Promise<void> {
   if (job.kind === "SAFETY_INCIDENT") {
     await createSafetyIncident({
       ...job.payload,
-      photo: job.payload.photo ? restoreFile(job.payload.photo) : undefined,
+      photos: job.payload.photos.map(restoreFile),
     });
     return;
   }
@@ -630,7 +630,7 @@ export function submitSafetyIncidentOfflineAware(
     lastError: "",
     payload: {
       ...draft,
-      photo: draft.photo ? storeFile(draft.photo) : undefined,
+      photos: (draft.photos ?? []).map(storeFile),
     },
   });
 }

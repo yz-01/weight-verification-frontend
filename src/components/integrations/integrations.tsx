@@ -4,12 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Cable,
   Check,
-  ChevronDown,
   CircleHelp,
   History,
   Plus,
   RefreshCw,
-  Settings2,
   TestTube2,
   Trash2,
 } from "lucide-react";
@@ -101,7 +99,6 @@ export function Integrations() {
   const [authType, setAuthType] = useState("NONE");
   const [mode, setMode] = useState<"SIMULATED" | "LIVE">("SIMULATED");
   const [secret, setSecret] = useState("");
-  const [settings, setSettings] = useState("{}");
   const [device, setDevice] =
     useState<IntegrationDevicePayload>(DEFAULT_DEVICE);
   const [removingDevice, setRemovingDevice] =
@@ -167,32 +164,24 @@ export function Integrations() {
   });
 
   const create = useMutation({
-    mutationFn: async () => {
-      let parsed: Record<string, unknown> = {};
-      try {
-        parsed = JSON.parse(settings) as Record<string, unknown>;
-      } catch {
-        throw new Error(t("integrations.validation.settings"));
-      }
-      return createIntegration(
+    mutationFn: () =>
+      createIntegration(
         {
           kind,
           name: name.trim(),
           base_url: baseUrl.trim(),
           auth_type: authType.trim() || "NONE",
           secret,
-          settings: { ...parsed, mode },
+          settings: { mode },
           is_enabled: false,
         },
         user?.is_platform_staff ? selectedCompany : undefined,
-      );
-    },
+      ),
     onSuccess: () => {
       setName("");
       setBaseUrl("");
       setSecret("");
       setMode("SIMULATED");
-      setSettings("{}");
       void queryClient.invalidateQueries({ queryKey: ["integrations"] });
     },
   });
@@ -474,35 +463,22 @@ export function Integrations() {
                 placeholder={t("integrations.field.secretPlaceholder")}
               />
             </Field>
-            <details className="group md:col-span-2 xl:col-span-3">
-              <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md border bg-muted/25 px-3 py-2.5">
-                <Settings2 className="size-4 text-muted-foreground" />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium">
-                    {t("integrations.advanced.title")}
-                  </span>
-                  <span className="block text-xs text-muted-foreground">
-                    {t("integrations.advanced.description")}
-                  </span>
-                </span>
-                <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
-              </summary>
-              <Field label={t("integrations.field.settings")} className="mt-3">
-                <textarea
-                  className="min-h-20 w-full rounded-md border bg-background px-3 py-2 font-mono text-xs"
-                  value={settings}
-                  onChange={(event) => setSettings(event.target.value)}
-                />
-              </Field>
-            </details>
           </div>
+          <p className="rounded-md border bg-muted/20 px-3 py-2 text-xs leading-5 text-muted-foreground">
+            {t("integrations.guide.description")}
+          </p>
           <Button
-            disabled={!name.trim() || create.isPending}
+            disabled={!name.trim() || (mode === "LIVE" && !baseUrl.trim()) || create.isPending}
             onClick={() => void create.mutateAsync()}
           >
             <Check className="h-4 w-4" />
             {t("integrations.action.create")}
           </Button>
+          {create.isError && (
+            <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              {create.error instanceof Error ? create.error.message : t("common.unknownError")}
+            </p>
+          )}
         </section>
       )}
 

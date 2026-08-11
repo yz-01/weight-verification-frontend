@@ -47,6 +47,8 @@ export interface IntegrationDelivery {
 
 export interface IntegrationDevice {
   id: string;
+  company: string;
+  company_name: string | null;
   gateway: string | null;
   gateway_device_id: string | null;
   integration: string | null;

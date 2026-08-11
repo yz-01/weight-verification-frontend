@@ -2,12 +2,16 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  AlertCircle,
   Building2,
   CalendarClock,
+  CheckCircle2,
+  Copy,
   KeyRound,
   Loader2,
   Pencil,
   Plus,
+  RefreshCw,
   ShieldCheck,
   UserPlus,
   Users,
@@ -54,6 +58,7 @@ import type {
   ConsultantOrganizationOption,
   ConsultantProjectAccessGrant,
 } from "@/interfaces/consultant-workflow";
+import { ApiError } from "@/interfaces/api";
 import { getProjects } from "@/services/contractor.service";
 import {
   createConsultantAccessGrant,
@@ -87,6 +92,18 @@ const DEFAULT_PERMISSIONS = [
   "notification.view",
 ];
 
+const PERMISSION_MESSAGE_KEYS: Record<(typeof PERMISSIONS)[number], string> = {
+  "project.view": "project_view",
+  "document.view": "document_view",
+  "approval.view": "approval_view",
+  "approval.review": "approval_review",
+  "notification.view": "notification_view",
+  "progress.view": "progress_view",
+  "safety.view": "safety_view",
+  "report.view": "report_view",
+  "report.export": "report_export",
+};
+
 function localDateTime(value?: string | null) {
   const date = value ? new Date(value) : new Date();
   const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
@@ -95,6 +112,11 @@ function localDateTime(value?: string | null) {
 
 function toIso(value: string) {
   return value ? new Date(value).toISOString() : null;
+}
+
+function readableError(error: unknown) {
+  if (!(error instanceof ApiError)) return "";
+  return Object.values(error.errors)[0] || error.message;
 }
 
 export function ConsultantAccessManagement() {
@@ -113,18 +135,22 @@ export function ConsultantAccessManagement() {
   const organizations = useQuery({
     queryKey: ["consultant-access", "organizations"],
     queryFn: getConsultantOrganizations,
+    enabled: can("user.view"),
   });
   const members = useQuery({
     queryKey: ["consultant-access", "members"],
     queryFn: () => getConsultantMembers({ page_size: 200 }),
+    enabled: can("user.view"),
   });
   const grants = useQuery({
     queryKey: ["consultant-access", "grants"],
     queryFn: () => getConsultantAccessGrants({ page_size: 200, active: "false" }),
+    enabled: can("project.assign"),
   });
   const projects = useQuery({
     queryKey: ["consultant-access", "projects"],
     queryFn: () => getProjects({ page_size: 200 }),
+    enabled: can("project.assign"),
   });
 
   const refresh = () =>
@@ -138,6 +164,20 @@ export function ConsultantAccessManagement() {
   const organizationRows = organizations.data?.results ?? [];
   const memberRows = members.data?.results ?? [];
   const grantRows = grants.data?.results ?? [];
+  const failedSections = [
+    organizations.isError
+      ? `${t("error.organizations")}: ${readableError(organizations.error)}`
+      : null,
+    members.isError
+      ? `${t("error.consultants")}: ${readableError(members.error)}`
+      : null,
+    grants.isError
+      ? `${t("error.grants")}: ${readableError(grants.error)}`
+      : null,
+    projects.isError
+      ? `${t("error.projects")}: ${readableError(projects.error)}`
+      : null,
+  ].filter((value): value is string => Boolean(value));
 
   return (
     <div className="space-y-5 pb-10">
@@ -146,6 +186,21 @@ export function ConsultantAccessManagement() {
         backLabel={t("back")}
       />
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
+
+      {failedSections.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center">
+          <AlertCircle className="size-5 shrink-0 text-destructive" />
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-destructive">{t("error.title")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {failedSections.join(" · ")}
+            </p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => void refresh()}>
+            <RefreshCw /> {t("error.retry")}
+          </Button>
+        </div>
+      )}
 
       <div className="grid gap-3 md:grid-cols-3">
         <StepTile
@@ -358,7 +413,15 @@ export function ConsultantAccessManagement() {
                       })}
                     </p>
                     <p className="mt-2 text-xs text-muted-foreground">
-                      {row.permissions.map((code) => t(`permission.${code}`)).join(" · ")}
+                      {row.permissions
+                        .map((code) =>
+                          code in PERMISSION_MESSAGE_KEYS
+                            ? t(
+                                `permission.${PERMISSION_MESSAGE_KEYS[code as keyof typeof PERMISSION_MESSAGE_KEYS]}`,
+                              )
+                            : code,
+                        )
+                        .join(" · ")}
                     </p>
                   </div>
                   {can("project.assign") && (
@@ -558,6 +621,11 @@ function OrganizationDialog({
             </label>
           )}
         </div>
+        {save.isError && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            {readableError(save.error)}
+          </p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
           <Button disabled={!form.name.trim() || save.isPending} onClick={() => save.mutate()}>
@@ -580,12 +648,15 @@ function ConsultantInviteDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("consultantAccess");
+  const common = useTranslations("common");
   const [organization, setOrganization] = useState(organizations[0]?.id ?? "");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [language, setLanguage] = useState<"en" | "zh" | "ms">("en");
+  const [invitationUrl, setInvitationUrl] = useState("");
+  const [copied, setCopied] = useState(false);
   const save = useMutation({
     mutationFn: () => inviteConsultantAccount({
       organization,
@@ -595,8 +666,19 @@ function ConsultantInviteDialog({
       job_title: jobTitle.trim(),
       language,
     }),
-    onSuccess: onSaved,
+    onSuccess: (result) => {
+      if (result.invitation_url) {
+        setInvitationUrl(result.invitation_url);
+        return;
+      }
+      onSaved();
+    },
   });
+
+  const copyInvitation = async () => {
+    await navigator.clipboard.writeText(invitationUrl);
+    setCopied(true);
+  };
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-xl">
@@ -604,7 +686,22 @@ function ConsultantInviteDialog({
           <DialogTitle>{t("consultant.inviteTitle")}</DialogTitle>
           <DialogDescription>{t("consultant.inviteHelp")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
+        {invitationUrl ? (
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success/5 p-4">
+              <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" />
+              <div>
+                <p className="font-semibold">{t("consultant.inviteTitle")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("consultant.inviteHelp")}
+                </p>
+              </div>
+            </div>
+            <div className="rounded-lg border bg-muted/20 p-3">
+              <p className="break-all font-mono text-xs">{invitationUrl}</p>
+            </div>
+          </div>
+        ) : <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.organization")} required className="sm:col-span-2">
             <Select value={organization} onValueChange={setOrganization}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -633,13 +730,30 @@ function ConsultantInviteDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
-        </div>
+        </div>}
+        {save.isError && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            {readableError(save.error)}
+          </p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button disabled={!organization || !name.trim() || !email.trim() || save.isPending} onClick={() => save.mutate()}>
-            {save.isPending ? <Loader2 className="animate-spin" /> : <UserPlus />}
-            {t("consultant.sendInvite")}
-          </Button>
+          {invitationUrl ? (
+            <>
+              <Button variant="outline" onClick={() => void copyInvitation()}>
+                {copied ? <CheckCircle2 /> : <Copy />}
+                {common(copied ? "copied" : "copy")}
+              </Button>
+              <Button onClick={onSaved}>{common("close")}</Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+              <Button disabled={!organization || !name.trim() || !email.trim() || save.isPending} onClick={() => save.mutate()}>
+                {save.isPending ? <Loader2 className="animate-spin" /> : <UserPlus />}
+                {t("consultant.sendInvite")}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -668,7 +782,9 @@ function GrantDialog({
     [members, organization],
   );
   const [consultant, setConsultant] = useState(row?.consultant ?? "");
-  const [project, setProject] = useState(row?.project ?? "");
+  const [project, setProject] = useState(
+    row?.project ?? (projects.length === 1 ? projects[0].id : ""),
+  );
   const [validFrom, setValidFrom] = useState(localDateTime(row?.valid_from));
   const [validUntil, setValidUntil] = useState(localDateTime(row?.valid_until));
   const [noExpiry, setNoExpiry] = useState(!row?.valid_until);
@@ -712,6 +828,9 @@ function GrantDialog({
               <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseConsultant")} /></SelectTrigger>
               <SelectContent>{filteredMembers.map((item) => <SelectItem key={item.consultant} value={item.consultant}>{item.consultant_name} - {item.consultant_email}</SelectItem>)}</SelectContent>
             </Select>
+            {!filteredMembers.length && (
+              <p className="mt-1 text-xs text-warning">{t("grant.noConsultants")}</p>
+            )}
           </FieldWrapper>
           <FieldWrapper label={t("field.project")} required className="sm:col-span-2">
             <Select value={project || undefined} onValueChange={setProject} disabled={Boolean(row)}>
@@ -736,7 +855,9 @@ function GrantDialog({
               {PERMISSIONS.map((code) => (
                 <label key={code} className="flex items-start gap-3 rounded-lg border p-3">
                   <Checkbox checked={permissions.includes(code)} onCheckedChange={(value) => togglePermission(code, value === true)} />
-                  <span className="text-sm">{t(`permission.${code}`)}</span>
+                  <span className="text-sm">
+                    {t(`permission.${PERMISSION_MESSAGE_KEYS[code]}`)}
+                  </span>
                 </label>
               ))}
             </div>
@@ -748,6 +869,11 @@ function GrantDialog({
             </label>
           )}
         </div>
+        {save.isError && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            {readableError(save.error)}
+          </p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
           <Button disabled={!organization || !consultant || !project || !permissions.length || !validFrom || (!noExpiry && !validUntil) || save.isPending} onClick={() => save.mutate()}>

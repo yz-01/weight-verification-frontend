@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, PauseCircle, Pencil, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -17,12 +17,22 @@ import {
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Project, ProjectStatus } from "@/interfaces/contractor";
+import { MALAYSIA_STATES } from "@/lib/malaysia";
 import {
-  deleteProject,
   exportProjects,
   getProjects,
+  suspendProject,
   type ExportFormat,
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
@@ -43,7 +53,13 @@ export function Projects() {
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const list = useListQuery(["status"]);
+  const list = useListQuery([
+    "status",
+    "state",
+    "date_from",
+    "date_to",
+    "responsible",
+  ]);
   const [removing, setRemoving] = useState<Project | null>(null);
 
   const { data, isLoading, isError } = useQuery({
@@ -52,7 +68,7 @@ export function Projects() {
   });
 
   const removal = useMutation({
-    mutationFn: (id: string) => deleteProject(id),
+    mutationFn: (id: string) => suspendProject(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["projects"] });
       setRemoving(null);
@@ -205,11 +221,11 @@ export function Projects() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                title={t("common.remove")}
+                className="h-7 w-7 text-warning hover:bg-warning/10"
+                title={t("projects.remove.action")}
                 onClick={() => setRemoving(row.original)}
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <PauseCircle className="h-3.5 w-3.5" />
               </Button>
             )}
           </div>
@@ -262,6 +278,38 @@ export function Projects() {
         }
       />
 
+      <div className="grid gap-3 border-y bg-card/50 py-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">{t("projects.filter.state")}</Label>
+          <Select
+            value={list.filters.state || "all"}
+            onValueChange={(value) => list.setFilter("state", value === "all" ? undefined : value)}
+          >
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("common.all")}</SelectItem>
+              {MALAYSIA_STATES.map((state) => <SelectItem key={state} value={state}>{state}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">{t("projects.filter.dateFrom")}</Label>
+          <Input type="date" value={list.filters.date_from ?? ""} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">{t("projects.filter.dateTo")}</Label>
+          <Input type="date" value={list.filters.date_to ?? ""} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">{t("projects.filter.responsible")}</Label>
+          <Input
+            value={list.filters.responsible ?? ""}
+            placeholder={t("projects.filter.responsiblePlaceholder")}
+            onChange={(event) => list.setFilter("responsible", event.target.value || undefined)}
+          />
+        </div>
+      </div>
+
       <DataTable
         columns={columns}
         rows={data?.results ?? []}
@@ -305,7 +353,7 @@ export function Projects() {
           title={t("projects.remove.title", { name: removing.name })}
           description={t("projects.remove.description")}
           confirmLabel={t("projects.remove.confirm")}
-          confirmIcon={Trash2}
+          confirmIcon={PauseCircle}
           isPending={removal.isPending}
           onConfirm={() => removal.mutate(removing.id)}
         />

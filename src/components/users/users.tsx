@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
+  ArrowRightLeft,
   Ban,
   Eye,
   KeyRound,
@@ -22,6 +23,7 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { UserHandoverDialog } from "@/components/users/user-handover-dialog";
 import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { UserRow, UserStatus } from "@/interfaces/auth";
@@ -54,7 +56,8 @@ type PendingAction =
   | { kind: "remove"; user: UserRow }
   | { kind: "suspend"; user: UserRow }
   | { kind: "reinstate"; user: UserRow }
-  | { kind: "force-logout"; user: UserRow };
+  | { kind: "force-logout"; user: UserRow }
+  | { kind: "handover"; user: UserRow };
 
 export type UserManagementSection =
   "management" | "profiles" | "categories" | "search" | "login" | "statistics";
@@ -362,6 +365,23 @@ export function Users({
                 </Button>
               )}
 
+              {can("user.suspend") &&
+                !isSelf &&
+                target.company_type === "CONTRACTOR" &&
+                target.status !== "SUSPENDED" && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-primary hover:bg-primary/10"
+                    title={t("userHandover.action.open")}
+                    onClick={() =>
+                      setPending({ kind: "handover", user: target })
+                    }
+                  >
+                    <ArrowRightLeft className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+
               {can("user.suspend") && !isSelf && target.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
@@ -619,6 +639,14 @@ export function Users({
           confirmIcon={Trash2}
           isPending={isPending}
           onConfirm={() => removal.mutate(pending.user.id)}
+        />
+      )}
+
+      {pending?.kind === "handover" && (
+        <UserHandoverDialog
+          outgoing={pending.user}
+          onClose={closeDialog}
+          onSaved={invalidate}
         />
       )}
 

@@ -6,6 +6,7 @@ import type {
   ApplicationTemplateVersion,
   ApplicationVerification,
   ConsultantApplication,
+  ConsultantDashboardData,
   ConsultantApplicationPayload,
   ConsultantAccountPayload,
   ConsultantGrantPayload,
@@ -32,6 +33,22 @@ export const getApplicationOptions = (
     "/api/consultant-application-options/get_options/",
     { project, category, page_size: 200 },
   );
+
+export const createApplicationOption = async (payload: {
+  project: string;
+  category: ProjectOptionCategory;
+  code: string;
+  label: string;
+  is_active: boolean;
+  sort_order: number;
+}) => {
+  const row = await api.post<ProjectApplicationOption>(
+    "/api/consultant-application-options/create_option/",
+    payload,
+  );
+  toastSuccess("consultantWorkflow.toast.optionSaved");
+  return row;
+};
 
 export const getConsultantWorkflows = (query: ListQuery = {}) =>
   api.list<ConsultantWorkflow>("/api/consultant-workflows/get_workflows/", query);
@@ -127,6 +144,12 @@ export const getConsultantApplications = (
   api.list<ConsultantApplication>(
     "/api/consultant-applications/get_applications/",
     query,
+  );
+
+export const getConsultantDashboard = (project?: string) =>
+  api.get<ConsultantDashboardData>(
+    "/api/consultant-applications/get_dashboard/",
+    project ? { project } : undefined,
   );
 
 export const getConsultantApplication = (id: string) =>
@@ -327,6 +350,7 @@ export const inviteConsultantAccount = async (
     membership_id: string;
     reused_identity: boolean;
     invitation_sent: boolean;
+    invitation_url: string;
   }>("/api/consultant-access/create_consultant/", payload);
   toastSuccess("consultantAccess.toast.consultantSaved");
   return row;

@@ -16,6 +16,8 @@ import type {
   Project,
   ProjectAssignment,
   ProjectPayload,
+  ProjectStatistics,
+  ProjectStatisticsPeriod,
   ReceiptSummary,
   RecyclerOption,
   Supplier,
@@ -75,6 +77,15 @@ export function getProject(id: string): Promise<Project> {
   return api.get<Project>(`/api/projects/${id}/get_project/`);
 }
 
+export function getProjectStatistics(
+  id: string,
+  period: ProjectStatisticsPeriod,
+): Promise<ProjectStatistics> {
+  return api.get<ProjectStatistics>(`/api/projects/${id}/get_statistics/`, {
+    period,
+  });
+}
+
 export async function createProject(payload: ProjectPayload): Promise<Project> {
   const project = await api.post<Project>(
     "/api/projects/create_project/",
@@ -96,9 +107,10 @@ export async function updateProject(
   return project;
 }
 
-export async function deleteProject(id: string): Promise<void> {
-  await api.delete(`/api/projects/${id}/delete_project/`);
-  toastSuccess("projects.toast.removed");
+export async function suspendProject(id: string): Promise<Project> {
+  const project = await api.delete<Project>(`/api/projects/${id}/delete_project/`);
+  toastSuccess("projects.toast.suspended");
+  return project;
 }
 
 export function getProjectAssignments(
@@ -279,6 +291,27 @@ export async function createReceipt(
   );
   toastSuccess("receipts.toast.created");
   return receipt;
+}
+
+export async function regenerateSupplierQr(id: string): Promise<Supplier> {
+  const supplier = await api.post<Supplier>(
+    `/api/suppliers/${id}/regenerate_supplier_qr/`,
+    {},
+  );
+  toastSuccess("suppliers.toast.qrRegenerated");
+  return supplier;
+}
+
+export async function setSupplierQrStatus(
+  id: string,
+  isActive: boolean,
+): Promise<Supplier> {
+  const supplier = await api.post<Supplier>(
+    `/api/suppliers/${id}/set_supplier_qr_status/`,
+    { is_active: isActive },
+  );
+  toastSuccess(isActive ? "suppliers.toast.qrEnabled" : "suppliers.toast.qrDisabled");
+  return supplier;
 }
 
 export function exportSuppliers(request: ExportRequest): Promise<void> {

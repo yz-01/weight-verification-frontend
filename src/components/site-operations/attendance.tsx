@@ -379,7 +379,7 @@ export function Attendance() {
                 {selectedRecord.photo ? (
                   <div className="overflow-hidden rounded-lg border bg-muted/20">
                     <img
-                      src={selectedRecord.photo}
+                      src={selectedRecord.watermarked_photo || selectedRecord.photo}
                       alt={t("attendance.evidence.photoAlt")}
                       className="max-h-[26rem] w-full object-contain"
                     />

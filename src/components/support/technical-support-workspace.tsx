@@ -3,8 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
+  Cable,
   Check,
+  CircleCheckBig,
+  CircleDashed,
   FileDown,
+  FlaskConical,
+  HardHat,
   Loader2,
   Plus,
   RadioTower,
@@ -17,8 +22,11 @@ import { useState } from "react";
 
 import { AuditLogs } from "@/components/audit/audit-logs";
 import { useAuth } from "@/components/providers/auth-provider";
-import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  FieldWrapper,
+  ListHeader,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,6 +38,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -40,17 +55,24 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type { CompanyRow } from "@/interfaces/company";
 import type {
+  IntegrationConfig,
+  IntegrationDevice,
+} from "@/interfaces/integration";
+import type {
   APIIntegration,
   BugReport,
   BugState,
   DeviceMaintenance,
-  OperationMode,
   RemoteOperation,
   SupportTicket,
   TicketState,
 } from "@/interfaces/support";
 import { useDateFormat } from "@/lib/dates";
 import { getCompanies } from "@/services/companies.service";
+import {
+  getIntegrationDevices,
+  getIntegrations,
+} from "@/services/integration.service";
 import {
   completeMaintenance,
   createAPIIntegration,
@@ -103,6 +125,109 @@ const TICKET_STATES: TicketState[] = [
   "COMPLETED",
   "CLOSED",
 ];
+
+type CapabilityState =
+  | "READY"
+  | "CONFIG_REQUIRED"
+  | "SIMULATOR"
+  | "HARDWARE_REQUIRED";
+
+function connectionMode(settings: Record<string, unknown>) {
+  return String(settings.mode ?? "SIMULATED").toUpperCase() === "LIVE"
+    ? "LIVE"
+    : "SIMULATED";
+}
+
+function normalizeIdentity(value: string | null | undefined) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function apiCapability(
+  row: APIIntegration,
+  integrations: IntegrationConfig[],
+): CapabilityState {
+  const endpoint = normalizeIdentity(row.endpoint);
+  const name = normalizeIdentity(row.api_name);
+  const connection = integrations.find((candidate) =>
+    row.linked_integration
+      ? candidate.id === row.linked_integration
+      : candidate.company === row.company &&
+        ((endpoint && normalizeIdentity(candidate.base_url) === endpoint) ||
+          normalizeIdentity(candidate.name) === name),
+  );
+  if (!connection) return "CONFIG_REQUIRED";
+  if (connectionMode(connection.settings) === "SIMULATED") return "SIMULATOR";
+  if (
+    connection.is_enabled &&
+    connection.status === "READY" &&
+    connection.last_success_at
+  ) {
+    return "READY";
+  }
+  return "CONFIG_REQUIRED";
+}
+
+function deviceCapability(
+  row: DeviceMaintenance,
+  devices: IntegrationDevice[],
+): CapabilityState {
+  if (row.operation_mode === "SIMULATED") return "SIMULATOR";
+  const device = linkedDevice(row, devices);
+  if (!device) return "HARDWARE_REQUIRED";
+  if (!device.is_active || !device.has_secret) return "CONFIG_REQUIRED";
+  return device.is_online ? "READY" : "HARDWARE_REQUIRED";
+}
+
+function deviceTelemetry(row: DeviceMaintenance, devices: IntegrationDevice[]) {
+  const device = linkedDevice(row, devices);
+  const metrics =
+    device?.settings.heartbeat_metrics &&
+    typeof device.settings.heartbeat_metrics === "object"
+      ? (device.settings.heartbeat_metrics as Record<string, unknown>)
+      : {};
+  return {
+    online: device?.is_online ?? row.is_online,
+    lastOnlineAt: device?.last_seen_at ?? row.last_online_at,
+    firmware: device?.firmware_version || row.firmware_version,
+    simStatus:
+      typeof metrics.sim_status === "string"
+        ? metrics.sim_status
+        : row.sim_status,
+    signal:
+      typeof metrics.signal_dbm === "number"
+        ? metrics.signal_dbm
+        : row.signal_strength,
+  };
+}
+
+function linkedDevice(row: DeviceMaintenance, devices: IntegrationDevice[]) {
+  const deviceId = normalizeIdentity(row.device_id);
+  return devices.find((candidate) =>
+    row.linked_device
+      ? candidate.id === row.linked_device
+      : candidate.company === row.company &&
+        (normalizeIdentity(candidate.device_id) === deviceId ||
+          normalizeIdentity(candidate.gateway_device_id) === deviceId),
+  );
+}
+
+function CapabilityStatus({ state }: { state: CapabilityState }) {
+  const t = useTranslations("adminTechnicalSupport");
+  const tone =
+    state === "READY"
+      ? "positive"
+      : state === "SIMULATOR"
+        ? "warning"
+        : "neutral";
+  return (
+    <div className="min-w-44 space-y-1.5">
+      <StatusBadge label={t(`capability.${state}.label`)} tone={tone} />
+      <p className="text-xs leading-5 text-muted-foreground">
+        {t(`capability.${state}.description`)}
+      </p>
+    </div>
+  );
+}
 
 export function TechnicalSupportWorkspace({
   section = "overview",
@@ -161,6 +286,47 @@ function Overview() {
           </div>
         ))}
       </div>
+      <section className="rounded-lg border border-warning/30 bg-warning/5 p-4">
+        <div className="flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-warning/15 text-warning-foreground">
+            <Cable className="size-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">{t("readiness.title")}</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              {t("readiness.description")}
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              {([
+                ["register", "/integrations"],
+                ["connect", "/integrations"],
+                ["commission", "/monitoring/live-platform"],
+              ] as const).map(
+                ([step, href], index) => (
+                  <Link
+                    key={step}
+                    href={href}
+                    className="rounded-lg border bg-background p-3 transition-colors hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    <p className="text-xs font-semibold text-primary">
+                      {t("readiness.step", { number: index + 1 })}
+                    </p>
+                    <p className="mt-1 text-sm font-medium">
+                      {t(`readiness.${step}`)}
+                    </p>
+                  </Link>
+                ),
+              )}
+            </div>
+          </div>
+          <Button asChild variant="outline" size="sm" className="hidden shrink-0 lg:inline-flex">
+            <Link href="/integrations">
+              {t("guide.action.integrations")}
+              <ArrowRight />
+            </Link>
+          </Button>
+        </div>
+      </section>
       <div className="min-h-0 flex-1 overflow-auto">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {SUBMODULES.map((item) => (
@@ -233,20 +399,113 @@ function CompanySelect({
 }) {
   const t = useTranslations("adminTechnicalSupport");
   return (
-    <select
-      className="h-8 rounded-md border bg-background px-2"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
+    <FieldWrapper
+      label={t("field.company")}
+      required={!optional}
+      hint={optional ? t("field.companyOptionalHelp") : undefined}
     >
-      <option value="">
-        {t(optional ? "field.platformIssue" : "field.selectCompany")}
-      </option>
-      {companies.map((x) => (
-        <option key={x.id} value={x.id}>
-          {x.code} / {x.name}
-        </option>
-      ))}
-    </select>
+      <Select
+        value={value || (optional ? "__platform__" : undefined)}
+        onValueChange={(next) => onChange(next === "__platform__" ? "" : next)}
+      >
+        <SelectTrigger className="h-10 w-full">
+          <SelectValue
+            placeholder={t(
+              optional ? "field.platformIssue" : "field.selectCompany",
+            )}
+          />
+        </SelectTrigger>
+        <SelectContent>
+          {optional && (
+            <SelectItem value="__platform__">
+              {t("field.platformIssue")}
+            </SelectItem>
+          )}
+          {companies.map((x) => (
+            <SelectItem key={x.id} value={x.id}>
+              {x.code} / {x.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </FieldWrapper>
+  );
+}
+
+function TechnicalSetupGuide({
+  kind,
+}: {
+  kind: "api" | "installations" | "maintenance";
+}) {
+  const t = useTranslations("adminTechnicalSupport");
+  const links = {
+    api: [
+      ["/integrations", "guide.action.integrations"],
+      ["/system-settings/api-gateway", "guide.action.gatewaySettings"],
+    ],
+    installations: [
+      ["/scales", "guide.action.scales"],
+      ["/integrations", "guide.action.integrations"],
+    ],
+    maintenance: [
+      ["/monitoring/live-platform", "guide.action.monitoring"],
+      ["/integrations", "guide.action.integrations"],
+    ],
+  } as const;
+  const capabilityIcons = {
+    READY: CircleCheckBig,
+    CONFIG_REQUIRED: CircleDashed,
+    SIMULATOR: FlaskConical,
+    HARDWARE_REQUIRED: HardHat,
+  } as const;
+
+  return (
+    <section className="grid gap-4 rounded-lg border border-info/25 bg-info/5 p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      <div className="flex min-w-0 gap-3">
+        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-info/10 text-info">
+          {kind === "maintenance" ? <RadioTower /> : <Settings2 />}
+        </span>
+        <div className="min-w-0">
+          <p className="font-semibold text-foreground">{t(`guide.${kind}.title`)}</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            {t(`guide.${kind}.description`)}
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 lg:justify-end">
+        {links[kind].map(([href, label]) => (
+          <Button key={href} asChild size="sm" variant="outline">
+            <Link href={href}>
+              {t(label)}
+              <ArrowRight />
+            </Link>
+          </Button>
+        ))}
+      </div>
+      <div className="grid overflow-hidden rounded-lg border bg-card sm:grid-cols-2 lg:col-span-2 xl:grid-cols-4">
+        {(Object.keys(capabilityIcons) as CapabilityState[]).map((state) => {
+          const Icon = capabilityIcons[state];
+          return (
+            <div
+              key={state}
+              className="flex gap-3 border-b border-r p-3 last:border-b-0"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+                <Icon className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">
+                  {t(`capability.${state}.label`)}
+                </p>
+                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                  {t(`capability.${state}.description`)}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -766,10 +1025,19 @@ function APIIntegrationPanel() {
     queryKey: ["support-api-integrations"],
     queryFn: () => getAPIIntegrations({ page_size: 200 }),
   });
+  const liveConnections = useQuery({
+    queryKey: ["integrations", "support-capability"],
+    queryFn: () => getIntegrations({ page_size: 500 }),
+  });
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<APIIntegration | null>(null);
   return (
-    <Panel loading={rows.isLoading} error={rows.isError}>
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <TechnicalSetupGuide kind="api" />
+      <Panel
+        loading={rows.isLoading || liveConnections.isLoading}
+        error={rows.isError || liveConnections.isError}
+      >
       <div className="flex justify-end border-b p-3">
         <Button onClick={() => setCreating(true)}>
           <Plus />
@@ -787,6 +1055,7 @@ function APIIntegrationPanel() {
               "handler",
               "testStatus",
               "liveStatus",
+              "capability",
               "actions",
             ].map((x) => (
               <TableHead key={x}>{t(`column.${x}`)}</TableHead>
@@ -804,13 +1073,29 @@ function APIIntegrationPanel() {
               <TableCell>{t(`testStatus.${row.test_status}`)}</TableCell>
               <TableCell>{t(`activationStatus.${row.live_status}`)}</TableCell>
               <TableCell>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setEditing(row)}
-                >
-                  {t("action.process")}
-                </Button>
+                <CapabilityStatus
+                  state={apiCapability(
+                    row,
+                    liveConnections.data?.results ?? [],
+                  )}
+                />
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditing(row)}
+                  >
+                    {t("action.process")}
+                  </Button>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link href={`/integrations?company=${row.company}`}>
+                      <Cable />
+                      {t("action.openConfiguration")}
+                    </Link>
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -819,6 +1104,7 @@ function APIIntegrationPanel() {
       {creating && (
         <IntegrationDialog
           companies={companies.data?.results ?? []}
+          connections={liveConnections.data?.results ?? []}
           onClose={() => setCreating(false)}
           onSaved={() =>
             qc.invalidateQueries({ queryKey: ["support-api-integrations"] })
@@ -828,21 +1114,25 @@ function APIIntegrationPanel() {
       {editing && (
         <IntegrationUpdateDialog
           row={editing}
+          connections={liveConnections.data?.results ?? []}
           onClose={() => setEditing(null)}
           onSaved={() =>
             qc.invalidateQueries({ queryKey: ["support-api-integrations"] })
           }
         />
       )}
-    </Panel>
+      </Panel>
+    </div>
   );
 }
 function IntegrationDialog({
   companies,
+  connections,
   onClose,
   onSaved,
 }: {
   companies: CompanyRow[];
+  connections: IntegrationConfig[];
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -851,10 +1141,14 @@ function IntegrationDialog({
     company: "",
     api_name: "",
     endpoint: "",
+    linked_integration: null,
     integration_date: "",
   });
-  const set = (key: keyof IntegrationPayload, value: string) =>
+  const set = (key: keyof IntegrationPayload, value: string | null) =>
     setForm((x) => ({ ...x, [key]: value }));
+  const availableConnections = connections.filter(
+    (connection) => connection.company === form.company,
+  );
   const save = useMutation({
     mutationFn: () => createAPIIntegration(form),
     onSuccess: () => {
@@ -869,27 +1163,77 @@ function IntegrationDialog({
           <DialogTitle>{t("action.addIntegration")}</DialogTitle>
           <DialogDescription>{t("dialog.api")}</DialogDescription>
         </DialogHeader>
-        <CompanySelect
-          companies={companies}
-          value={form.company}
-          onChange={(x) => set("company", x)}
-        />
-        <Input
-          placeholder={t("field.apiName")}
-          value={form.api_name}
-          onChange={(e) => set("api_name", e.target.value)}
-        />
-        <Input
-          type="url"
-          placeholder={t("field.endpoint")}
-          value={form.endpoint}
-          onChange={(e) => set("endpoint", e.target.value)}
-        />
-        <Input
-          type="date"
-          value={form.integration_date}
-          onChange={(e) => set("integration_date", e.target.value)}
-        />
+        <div className="grid gap-4">
+          <CompanySelect
+            companies={companies}
+            value={form.company}
+            onChange={(x) =>
+              setForm((current) => ({
+                ...current,
+                company: x,
+                linked_integration: null,
+              }))
+            }
+          />
+          <FieldWrapper
+            label={t("field.linkedIntegration")}
+            hint={t("field.linkedIntegrationHelp")}
+          >
+            <Select
+              value={form.linked_integration || "unlinked"}
+              onValueChange={(value) => {
+                const selected = availableConnections.find(
+                  (connection) => connection.id === value,
+                );
+                setForm((current) => ({
+                  ...current,
+                  linked_integration: value === "unlinked" ? null : value,
+                  api_name: selected?.name || current.api_name,
+                  endpoint: selected?.base_url || current.endpoint,
+                }));
+              }}
+            >
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unlinked">{t("field.notLinked")}</SelectItem>
+                {availableConnections.map((connection) => (
+                  <SelectItem key={connection.id} value={connection.id}>
+                    {connection.name} / {t(`integrationKind.${connection.kind}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.apiName")} required>
+            <Input
+              value={form.api_name}
+              onChange={(e) => set("api_name", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("field.endpoint")}
+            hint={t("field.endpointHelp")}
+          >
+            <Input
+              type="url"
+              placeholder="https://vendor.example/api"
+              value={form.endpoint}
+              onChange={(e) => set("endpoint", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.integrationDate")} required>
+            <Input
+              type="date"
+              value={form.integration_date}
+              onChange={(e) => set("integration_date", e.target.value)}
+            />
+          </FieldWrapper>
+        </div>
+        {save.isError && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            {t("state.saveError")}
+          </p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -913,10 +1257,12 @@ function IntegrationDialog({
 }
 function IntegrationUpdateDialog({
   row,
+  connections,
   onClose,
   onSaved,
 }: {
   row: APIIntegration;
+  connections: IntegrationConfig[];
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -924,12 +1270,17 @@ function IntegrationUpdateDialog({
   const [test, setTest] = useState(row.test_status);
   const [live, setLive] = useState(row.live_status);
   const [result, setResult] = useState(row.test_result);
+  const [linkedIntegration, setLinkedIntegration] = useState(
+    row.linked_integration ?? "unlinked",
+  );
   const save = useMutation({
     mutationFn: () =>
       updateAPIIntegration(row.id, {
         test_status: test,
         live_status: live,
         test_result: result,
+        linked_integration:
+          linkedIntegration === "unlinked" ? null : linkedIntegration,
       }),
     onSuccess: () => {
       onSaved();
@@ -945,33 +1296,54 @@ function IntegrationUpdateDialog({
             {row.company_name} / {row.api_name}
           </DialogDescription>
         </DialogHeader>
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={test}
-          onChange={(e) => setTest(e.target.value as typeof test)}
-        >
-          {["PENDING", "PASSED", "FAILED"].map((x) => (
-            <option key={x} value={x}>
-              {t(`testStatus.${x}`)}
-            </option>
-          ))}
-        </select>
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={live}
-          onChange={(e) => setLive(e.target.value as typeof live)}
-        >
-          {["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => (
-            <option key={x} value={x}>
-              {t(`activationStatus.${x}`)}
-            </option>
-          ))}
-        </select>
-        <Textarea
-          placeholder={t("field.testResult")}
-          value={result}
-          onChange={(e) => setResult(e.target.value)}
-        />
+        <div className="grid gap-4">
+          <FieldWrapper
+            label={t("field.linkedIntegration")}
+            hint={t("field.linkedIntegrationHelp")}
+          >
+            <Select value={linkedIntegration} onValueChange={setLinkedIntegration}>
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unlinked">{t("field.notLinked")}</SelectItem>
+                {connections
+                  .filter((connection) => connection.company === row.company)
+                  .map((connection) => (
+                    <SelectItem key={connection.id} value={connection.id}>
+                      {connection.name} / {t(`integrationKind.${connection.kind}`)}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.testStatus")}>
+            <Select value={test} onValueChange={(value) => setTest(value as typeof test)}>
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["PENDING", "PASSED", "FAILED"].map((x) => (
+                  <SelectItem key={x} value={x}>{t(`testStatus.${x}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.liveStatus")} hint={t("field.liveStatusHelp")}>
+            <Select value={live} onValueChange={(value) => setLive(value as typeof live)}>
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => (
+                  <SelectItem key={x} value={x}>{t(`activationStatus.${x}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.testResult")}>
+            <Textarea value={result} onChange={(e) => setResult(e.target.value)} />
+          </FieldWrapper>
+        </div>
+        {save.isError && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            {t("state.saveError")}
+          </p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -1001,14 +1373,23 @@ function DevicePanel({ installations }: { installations: boolean }) {
         ...(installations ? { installation: true } : {}),
       }),
   });
+  const registeredDevices = useQuery({
+    queryKey: ["integration-devices", "support-capability"],
+    queryFn: () => getIntegrationDevices({ page_size: 500 }),
+  });
   const [creating, setCreating] = useState(false);
   const [completing, setCompleting] = useState<DeviceMaintenance | null>(null);
-  const [operating, setOperating] = useState<DeviceMaintenance | null>(null);
+  const [remote, setRemote] = useState<DeviceMaintenance | null>(null);
   const refresh = () =>
     qc.invalidateQueries({ queryKey: ["device-maintenance"] });
 
   return (
-    <Panel loading={rows.isLoading} error={rows.isError}>
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <TechnicalSetupGuide kind={installations ? "installations" : "maintenance"} />
+      <Panel
+        loading={rows.isLoading || registeredDevices.isLoading}
+        error={rows.isError || registeredDevices.isError}
+      >
       <div className="flex justify-end border-b p-3">
         <Button onClick={() => setCreating(true)}>
           <Plus />
@@ -1034,6 +1415,7 @@ function DevicePanel({ installations }: { installations: boolean }) {
               "sim",
               "signal",
               "mode",
+              "capability",
               "actions",
             ].map((x) => (
               <TableHead key={x}>{t(`column.${x}`)}</TableHead>
@@ -1043,7 +1425,12 @@ function DevicePanel({ installations }: { installations: boolean }) {
         <TableBody>
           {(rows.data?.results ?? [])
             .filter((x) => installations || x.type !== "INSTALLATION")
-            .map((row) => (
+            .map((row) => {
+              const telemetry = deviceTelemetry(
+                row,
+                registeredDevices.data?.results ?? [],
+              );
+              return (
               <TableRow key={row.id}>
                 <TableCell>{row.code}</TableCell>
                 <TableCell>{row.company_name}</TableCell>
@@ -1057,7 +1444,7 @@ function DevicePanel({ installations }: { installations: boolean }) {
                 <TableCell>
                   {df.date(row.installed_on || row.scheduled_date)}
                 </TableCell>
-                <TableCell>{row.firmware_version || "-"}</TableCell>
+                <TableCell>{telemetry.firmware || "-"}</TableCell>
                 <TableCell>{t(`testStatus.${row.test_status}`)}</TableCell>
                 <TableCell>
                   {t(`activationStatus.${row.activation_status}`)}
@@ -1065,14 +1452,14 @@ function DevicePanel({ installations }: { installations: boolean }) {
                 <TableCell>
                   <StatusBadge
                     label={t(
-                      row.is_online ? "status.online" : "status.offline",
+                      telemetry.online ? "status.online" : "status.offline",
                     )}
-                    tone={row.is_online ? "positive" : "neutral"}
+                    tone={telemetry.online ? "positive" : "neutral"}
                   />
                 </TableCell>
-                <TableCell>{df.dateTime(row.last_online_at) || "-"}</TableCell>
-                <TableCell>{row.sim_status || "-"}</TableCell>
-                <TableCell>{row.signal_strength ?? "-"}</TableCell>
+                <TableCell>{df.dateTime(telemetry.lastOnlineAt) || "-"}</TableCell>
+                <TableCell>{telemetry.simStatus || "-"}</TableCell>
+                <TableCell>{telemetry.signal ?? "-"}</TableCell>
                 <TableCell>
                   <StatusBadge
                     label={system(`mode.${row.operation_mode}`)}
@@ -1082,7 +1469,15 @@ function DevicePanel({ installations }: { installations: boolean }) {
                   />
                 </TableCell>
                 <TableCell>
-                  <div className="flex gap-1">
+                  <CapabilityStatus
+                    state={deviceCapability(
+                      row,
+                      registeredDevices.data?.results ?? [],
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"
                       variant="outline"
@@ -1090,8 +1485,18 @@ function DevicePanel({ installations }: { installations: boolean }) {
                     >
                       {t("action.complete")}
                     </Button>
-                    {can("support.remote_operate") && (
-                      <Button size="sm" onClick={() => setOperating(row)}>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link href={`/integrations?company=${row.company}`}>
+                        <Cable />
+                        {t("action.openConfiguration")}
+                      </Link>
+                    </Button>
+                    {!installations && can("support.remote_operate") && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setRemote(row)}
+                      >
                         <RadioTower />
                         {t("action.remote")}
                       </Button>
@@ -1099,13 +1504,15 @@ function DevicePanel({ installations }: { installations: boolean }) {
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              );
+            })}
         </TableBody>
       </Table>
       {creating && (
         <DeviceDialog
           installations={installations}
           companies={companies.data?.results ?? []}
+          devices={registeredDevices.data?.results ?? []}
           onClose={() => setCreating(false)}
           onSaved={refresh}
         />
@@ -1117,24 +1524,27 @@ function DevicePanel({ installations }: { installations: boolean }) {
           onSaved={refresh}
         />
       )}
-      {operating && (
-        <RemoteDialog
-          row={operating}
-          onClose={() => setOperating(null)}
+      {remote && (
+        <RemoteOperationDialog
+          row={remote}
+          onClose={() => setRemote(null)}
           onSaved={refresh}
         />
       )}
-    </Panel>
+      </Panel>
+    </div>
   );
 }
 function DeviceDialog({
   installations,
   companies,
+  devices,
   onClose,
   onSaved,
 }: {
   installations: boolean;
   companies: CompanyRow[];
+  devices: IntegrationDevice[];
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -1144,6 +1554,7 @@ function DeviceDialog({
     type: installations ? "INSTALLATION" : "INSPECTION",
     device_type: installations ? "WEIGHBRIDGE" : "AI_CCTV",
     device_id: "",
+    linked_device: null,
     installed_on: "",
     installation_location: "",
     firmware_version: "",
@@ -1155,6 +1566,9 @@ function DeviceDialog({
   });
   const set = (key: keyof DevicePayload, value: unknown) =>
     setForm((x) => ({ ...x, [key]: value }));
+  const availableDevices = devices.filter(
+    (device) => device.company === form.company,
+  );
   const save = useMutation({
     mutationFn: () => createMaintenance(form),
     onSuccess: () => {
@@ -1164,7 +1578,7 @@ function DeviceDialog({
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {t(
@@ -1175,92 +1589,127 @@ function DeviceDialog({
           </DialogTitle>
           <DialogDescription>{t("dialog.device")}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <CompanySelect
             companies={companies}
             value={form.company}
-            onChange={(x) => set("company", x)}
-          />
-          {!installations && (
-            <select
-              className="h-8 rounded-md border bg-background px-2"
-              value={form.type}
-              onChange={(e) => set("type", e.target.value)}
-            >
-              {[
-                "INSPECTION",
-                "REPAIR",
-                "CALIBRATION",
-                "UPGRADE",
-                "REPLACEMENT",
-              ].map((x) => (
-                <option key={x} value={x}>
-                  {t(`maintenanceType.${x}`)}
-                </option>
-              ))}
-            </select>
-          )}
-          <select
-            className="h-8 rounded-md border bg-background px-2"
-            value={form.device_type}
-            onChange={(e) => set("device_type", e.target.value)}
-          >
-            {["WEIGHBRIDGE", "GATEWAY", "AI_CCTV", "ANPR", "CWE", "OTHER"].map(
-              (x) => (
-                <option key={x} value={x}>
-                  {t(`deviceType.${x}`)}
-                </option>
-              ),
-            )}
-          </select>
-          <Input
-            placeholder={t("field.deviceId")}
-            value={form.device_id}
-            onChange={(e) => set("device_id", e.target.value)}
-          />
-          <Input
-            type="date"
-            value={form.scheduled_date}
-            onChange={(e) => {
-              set("scheduled_date", e.target.value);
-              if (installations) set("installed_on", e.target.value);
-            }}
-          />
-          <Input
-            placeholder={t("field.location")}
-            value={form.installation_location}
-            onChange={(e) => set("installation_location", e.target.value)}
-          />
-          <Input
-            placeholder={t("field.firmware")}
-            value={form.firmware_version}
-            onChange={(e) => set("firmware_version", e.target.value)}
-          />
-          <Input
-            placeholder={t("field.sim")}
-            value={form.sim_status}
-            onChange={(e) => set("sim_status", e.target.value)}
-          />
-          <Input
-            type="number"
-            min="-120"
-            max="0"
-            placeholder={t("field.signal")}
-            value={form.signal_strength ?? ""}
-            onChange={(e) =>
-              set(
-                "signal_strength",
-                e.target.value ? Number(e.target.value) : null,
-              )
+            onChange={(x) =>
+              setForm((current) => ({
+                ...current,
+                company: x,
+                linked_device: null,
+              }))
             }
           />
-          <Textarea
-            className="sm:col-span-2"
-            placeholder={t("field.description")}
-            value={form.description}
-            onChange={(e) => set("description", e.target.value)}
-          />
+          <FieldWrapper
+            label={t("field.linkedDevice")}
+            hint={t("field.linkedDeviceHelp")}
+          >
+            <Select
+              value={form.linked_device || "unlinked"}
+              onValueChange={(value) => {
+                const selected = availableDevices.find(
+                  (device) => device.id === value,
+                );
+                setForm((current) => ({
+                  ...current,
+                  linked_device: value === "unlinked" ? null : value,
+                  device_id:
+                    selected?.gateway_device_id ||
+                    selected?.device_id ||
+                    current.device_id,
+                  device_type: selected?.device_type || current.device_type,
+                  firmware_version:
+                    selected?.firmware_version || current.firmware_version,
+                  operation_mode: selected ? "LIVE" : current.operation_mode,
+                }));
+              }}
+            >
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unlinked">{t("field.notLinked")}</SelectItem>
+                {availableDevices.map((device) => (
+                  <SelectItem key={device.id} value={device.id}>
+                    {device.device_id} / {device.device_type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          {!installations && (
+            <FieldWrapper label={t("field.maintenanceType")} required>
+              <Select value={form.type} onValueChange={(value) => set("type", value)}>
+                <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {["INSPECTION", "REPAIR", "CALIBRATION", "UPGRADE", "REPLACEMENT"].map((x) => (
+                    <SelectItem key={x} value={x}>{t(`maintenanceType.${x}`)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldWrapper>
+          )}
+          <FieldWrapper label={t("field.deviceType")} required>
+            <Select value={form.device_type} onValueChange={(value) => set("device_type", value)}>
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["WEIGHBRIDGE", "GATEWAY", "AI_CCTV", "ANPR", "CWE", "OTHER"].map((x) => (
+                  <SelectItem key={x} value={x}>{t(`deviceType.${x}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.deviceId")} required>
+            <Input value={form.device_id} onChange={(e) => set("device_id", e.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.scheduledDate")} required>
+            <Input
+              type="date"
+              value={form.scheduled_date}
+              onChange={(e) => {
+                set("scheduled_date", e.target.value);
+                if (installations) set("installed_on", e.target.value);
+              }}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.location")}>
+            <Input value={form.installation_location} onChange={(e) => set("installation_location", e.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.firmware")}>
+            <Input value={form.firmware_version} onChange={(e) => set("firmware_version", e.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.sim")}>
+            <Input value={form.sim_status} onChange={(e) => set("sim_status", e.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.signal")}>
+            <Input
+              type="number"
+              min="-120"
+              max="0"
+              value={form.signal_strength ?? ""}
+              onChange={(e) => set("signal_strength", e.target.value ? Number(e.target.value) : null)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.operationMode")} hint={t("field.operationModeHelp")}>
+            <Select
+              value={form.operation_mode ?? "SIMULATED"}
+              onValueChange={(value) => set("operation_mode", value)}
+            >
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="SIMULATED">{t("operationMode.SIMULATED")}</SelectItem>
+                <SelectItem value="LIVE">{t("operationMode.LIVE")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.description")} required className="sm:col-span-2">
+            <Textarea value={form.description} onChange={(e) => set("description", e.target.value)} />
+          </FieldWrapper>
         </div>
+        {save.isError && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            {t("state.saveError")}
+          </p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -1320,38 +1769,39 @@ function MaintenanceCompleteDialog({
             {row.code} / {row.device_id}
           </DialogDescription>
         </DialogHeader>
-        <Textarea
-          placeholder={t("field.work")}
-          value={work}
-          onChange={(e) => setWork(e.target.value)}
-        />
-        <Textarea
-          placeholder={t("field.result")}
-          value={result}
-          onChange={(e) => setResult(e.target.value)}
-        />
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={test}
-          onChange={(e) => setTest(e.target.value as typeof test)}
-        >
-          {["PENDING", "PASSED", "FAILED"].map((x) => (
-            <option key={x} value={x}>
-              {t(`testStatus.${x}`)}
-            </option>
-          ))}
-        </select>
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={active}
-          onChange={(e) => setActive(e.target.value as typeof active)}
-        >
-          {["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => (
-            <option key={x} value={x}>
-              {t(`activationStatus.${x}`)}
-            </option>
-          ))}
-        </select>
+        <div className="grid gap-4">
+          <FieldWrapper label={t("field.work")} required>
+            <Textarea value={work} onChange={(e) => setWork(e.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.result")}>
+            <Textarea value={result} onChange={(e) => setResult(e.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.testStatus")}>
+            <Select value={test} onValueChange={(value) => setTest(value as typeof test)}>
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["PENDING", "PASSED", "FAILED"].map((x) => (
+                  <SelectItem key={x} value={x}>{t(`testStatus.${x}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.liveStatus")} hint={t("field.liveStatusHelp")}>
+            <Select value={active} onValueChange={(value) => setActive(value as typeof active)}>
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["INACTIVE", "ACTIVE", "SUSPENDED"].map((x) => (
+                  <SelectItem key={x} value={x}>{t(`activationStatus.${x}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+        </div>
+        {save.isError && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            {t("state.saveError")}
+          </p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -1368,7 +1818,8 @@ function MaintenanceCompleteDialog({
     </Dialog>
   );
 }
-function RemoteDialog({
+
+function RemoteOperationDialog({
   row,
   onClose,
   onSaved,
@@ -1378,104 +1829,124 @@ function RemoteDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("adminTechnicalSupport");
-  const system = useTranslations("adminSystemSettings");
   const [operation, setOperation] = useState<RemoteOperation>("TEST");
-  const [mode, setMode] = useState<OperationMode>("SIMULATED");
   const [reason, setReason] = useState("");
-  const [config, setConfig] = useState("{}");
+  const [configuration, setConfiguration] = useState("{}");
   const [firmware, setFirmware] = useState("");
   const [jsonError, setJsonError] = useState(false);
   const save = useMutation({
     mutationFn: () => {
-      let parsed: Record<string, unknown> = {};
-      try {
-        parsed = JSON.parse(config) as Record<string, unknown>;
-        setJsonError(false);
-      } catch {
-        setJsonError(true);
-        throw new Error("invalid_json");
-      }
-      return remoteOperate(row.id, operation, mode, reason, parsed, firmware);
+      const parsed = operation === "CONFIGURE" ? JSON.parse(configuration) : {};
+      return remoteOperate(
+        row.id,
+        operation,
+        row.operation_mode,
+        reason.trim(),
+        parsed,
+        firmware.trim(),
+      );
     },
     onSuccess: () => {
       onSaved();
       onClose();
     },
   });
+  const errorMessage = save.error instanceof Error ? save.error.message : "";
+
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t("action.remote")}</DialogTitle>
           <DialogDescription>
-            {row.device_type} / {row.device_id}
+            {row.code} / {row.device_id}
           </DialogDescription>
         </DialogHeader>
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={operation}
-          onChange={(e) => setOperation(e.target.value as RemoteOperation)}
-        >
-          {["CONFIGURE", "TEST", "RESTART", "FIRMWARE_UPGRADE"].map((x) => (
-            <option key={x} value={x}>
-              {t(`remoteOperation.${x}`)}
-            </option>
-          ))}
-        </select>
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={mode}
-          onChange={(e) => setMode(e.target.value as OperationMode)}
-        >
-          <option value="SIMULATED">{system("mode.SIMULATED")}</option>
-          <option value="LIVE">{system("mode.LIVE")}</option>
-        </select>
-        {operation === "CONFIGURE" && (
-          <AdvancedTechnicalSettings>
+        <div className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm leading-6">
+          {t(
+            row.operation_mode === "LIVE"
+              ? "mode.live"
+              : "mode.simulatedOnly",
+          )}
+        </div>
+        <div className="grid gap-4">
+          <FieldWrapper label={t("action.remote")} required>
+            <Select
+              value={operation}
+              onValueChange={(value) => setOperation(value as RemoteOperation)}
+            >
+              <SelectTrigger className="h-10 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {(["TEST", "CONFIGURE", "RESTART", "FIRMWARE_UPGRADE"] as const).map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {t(`remoteOperation.${item}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          {operation === "CONFIGURE" && (
+            <FieldWrapper
+              label={t("field.advancedConfig")}
+              hint={t("field.advancedConfigHelp")}
+            >
+              <Textarea
+                className="min-h-28 font-mono text-xs"
+                value={configuration}
+                onChange={(event) => {
+                  setConfiguration(event.target.value);
+                  setJsonError(false);
+                }}
+              />
+              {jsonError && (
+                <p role="alert" className="mt-2 text-xs text-destructive">
+                  {t("field.invalidJson")}
+                </p>
+              )}
+            </FieldWrapper>
+          )}
+          {operation === "FIRMWARE_UPGRADE" && (
+            <FieldWrapper label={t("field.firmware")} required>
+              <Input
+                value={firmware}
+                onChange={(event) => setFirmware(event.target.value)}
+              />
+            </FieldWrapper>
+          )}
+          <FieldWrapper label={t("field.reason")} required>
             <Textarea
-              className="font-mono sm:col-span-2"
-              value={config}
-              onChange={(e) => {
-                setConfig(e.target.value);
-                setJsonError(false);
-              }}
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
             />
-            {jsonError && (
-              <p className="text-xs text-destructive sm:col-span-2">
-                {t("field.invalidJson")}
-              </p>
-            )}
-          </AdvancedTechnicalSettings>
+          </FieldWrapper>
+        </div>
+        {save.isError && (
+          <p
+            role="alert"
+            className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+          >
+            {errorMessage || t("state.saveError")}
+          </p>
         )}
-        {operation === "FIRMWARE_UPGRADE" && (
-          <Input
-            placeholder={t("field.firmware")}
-            value={firmware}
-            onChange={(e) => setFirmware(e.target.value)}
-          />
-        )}
-        <Textarea
-          placeholder={t("field.reason")}
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-        />
-        <p className="text-xs text-muted-foreground">
-          {t(mode === "SIMULATED" ? "mode.simulated" : "mode.live")}
-        </p>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            {t("action.cancel")}
-          </Button>
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
           <Button
             disabled={
               !reason.trim() ||
               (operation === "FIRMWARE_UPGRADE" && !firmware.trim()) ||
               save.isPending
             }
-            onClick={() => save.mutate()}
+            onClick={() => {
+              try {
+                if (operation === "CONFIGURE") JSON.parse(configuration);
+                save.mutate();
+              } catch {
+                setJsonError(true);
+              }
+            }}
           >
-            <RadioTower />
-            {t("action.run")}
+            {save.isPending ? <Loader2 className="animate-spin" /> : <RadioTower />}
+            {t(row.operation_mode === "LIVE" ? "action.confirm" : "action.simulate")}
           </Button>
         </DialogFooter>
       </DialogContent>

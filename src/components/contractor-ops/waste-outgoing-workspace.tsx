@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  CalendarCheck2,
   Camera,
   CheckCircle2,
   Circle,
@@ -56,6 +57,7 @@ import { useDateFormat } from "@/lib/dates";
 import {
   assignWasteRecycler,
   cancelWasteOutgoingRecord,
+  confirmWasteCollectionPlan,
   createWasteOutgoingRecord,
   getRecyclerOptions,
   getWasteOutgoingOptions,
@@ -124,6 +126,7 @@ export function WasteOutgoingWorkspace() {
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
   const [assigning, setAssigning] = useState<WasteOutgoingRecord | null>(null);
   const [tracking, setTracking] = useState<WasteOutgoingRecord | null>(null);
+  const [confirming, setConfirming] = useState<WasteOutgoingRecord | null>(null);
   const [cancelling, setCancelling] = useState<WasteOutgoingRecord | null>(null);
 
   const options = useQuery({
@@ -311,6 +314,16 @@ export function WasteOutgoingWorkspace() {
                       {t("action.track")}
                     </Button>
                   )}
+                  {row.dispatch &&
+                    row.dispatch_state === "ACCEPTED" &&
+                    row.proposed_collection_at &&
+                    !row.confirmed_collection_at &&
+                    can("waste_outgoing.order") && (
+                      <Button size="sm" onClick={() => setConfirming(row)}>
+                        <CalendarCheck2 />
+                        {t("action.confirmSchedule")}
+                      </Button>
+                    )}
                   {["DRAFT", "PENDING_RECYCLER"].includes(row.status) &&
                     can("waste_outgoing.submit") && (
                       <Button
@@ -376,6 +389,16 @@ export function WasteOutgoingWorkspace() {
           onClose={() => setTracking(null)}
         />
       )}
+      {confirming && confirming.dispatch && (
+        <ConfirmCollectionDialog
+          record={confirming}
+          onClose={() => setConfirming(null)}
+          onSaved={() => {
+            setConfirming(null);
+            refresh();
+          }}
+        />
+      )}
       {cancelling && (
         <CancelDialog
           record={cancelling}
@@ -387,6 +410,82 @@ export function WasteOutgoingWorkspace() {
         />
       )}
     </div>
+  );
+}
+
+function localDateTimeInput(value: string) {
+  const date = new Date(value);
+  const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return shifted.toISOString().slice(0, 16);
+}
+
+function ConfirmCollectionDialog({
+  record,
+  onClose,
+  onSaved,
+}: {
+  record: WasteOutgoingRecord;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("wasteOutgoing");
+  const [collectionAt, setCollectionAt] = useState(
+    localDateTimeInput(record.proposed_collection_at!),
+  );
+  const [note, setNote] = useState(record.proposed_collection_note || "");
+  const save = useMutation({
+    mutationFn: () =>
+      confirmWasteCollectionPlan(record.dispatch!, {
+        confirmedCollectionAt: new Date(collectionAt).toISOString(),
+        note: note.trim(),
+      }),
+    onSuccess: onSaved,
+  });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("schedule.title")}</DialogTitle>
+          <DialogDescription>
+            {t("schedule.help", {
+              recycler: record.recycler_name || "",
+              reference: record.dispatch_no || record.reference_no,
+            })}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <div className="rounded-lg border bg-muted/20 p-3 text-sm">
+            <p className="font-semibold">{t("schedule.proposed")}</p>
+            <p className="mt-1 text-muted-foreground">
+              {record.proposed_collection_at
+                ? new Date(record.proposed_collection_at).toLocaleString()
+                : "-"}
+            </p>
+            {record.proposed_collection_note && (
+              <p className="mt-2">{record.proposed_collection_note}</p>
+            )}
+          </div>
+          <FieldWrapper label={t("schedule.confirmedAt")} required>
+            <Input
+              type="datetime-local"
+              value={collectionAt}
+              onChange={(event) => setCollectionAt(event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("schedule.note")} optional={t("field.optional")}>
+            <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
+          </FieldWrapper>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("action.close")}</Button>
+          <Button disabled={!collectionAt || save.isPending} onClick={() => save.mutate()}>
+            {save.isPending ? <Loader2 className="animate-spin" /> : <CalendarCheck2 />}
+            {t("action.confirmSchedule")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -166,6 +166,20 @@ export async function assignWasteRecycler(
   return row;
 }
 
+export async function confirmWasteCollectionPlan(
+  dispatchId: string,
+  input: { confirmedCollectionAt: string; note?: string },
+): Promise<void> {
+  await api.post(
+    `/api/dispatches/${dispatchId}/confirm_collection_plan/`,
+    {
+      confirmed_collection_at: input.confirmedCollectionAt,
+      confirmed_collection_note: input.note ?? "",
+    },
+  );
+  toastSuccess("wasteOutgoing.toast.scheduleConfirmed");
+}
+
 export async function cancelWasteOutgoingRecord(
   id: string,
   reason: string,

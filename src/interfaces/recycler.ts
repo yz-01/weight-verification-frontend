@@ -116,6 +116,7 @@ export interface TaskPhoto {
   id: string;
   kind: "ARRIVAL" | "LOADING" | "LOADED" | "PLATE" | "ISSUE" | "OTHER";
   image: string;
+  watermarked?: string | null;
   client_event_id: string;
   caption: string;
   latitude: string | null;
@@ -297,6 +298,7 @@ export const DEDUCTION_STATES: DeductionState[] = [
 export interface DeductionPhoto {
   id: string;
   image: string;
+  watermarked?: string | null;
   caption: string;
   taken_at: string | null;
   created_at: string;

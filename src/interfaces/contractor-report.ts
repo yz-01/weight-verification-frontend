@@ -8,13 +8,17 @@ export type ContractorReportType =
   | "equipment"
   | "recycling"
   | "schedule"
-  | "target";
+  | "target"
+  | "photos";
 
 export interface ContractorReportFilters {
   report_type: ContractorReportType;
   date_from?: string;
   date_to?: string;
   project?: string;
+  category?: string;
+  actor?: string;
+  keyword?: string;
 }
 
 export interface ContractorReportData {
@@ -31,6 +35,8 @@ export interface ContractorReportData {
 export interface ContractorReportOptions {
   report_types: ContractorReportType[];
   projects: Array<{ id: string; code: string; name: string }>;
+  photo_categories: Array<{ value: string; label: string }>;
+  photo_uploaders: Array<{ id: string; name: string }>;
 }
 
 export interface ContractorReportExportRecord {

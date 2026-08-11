@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -107,8 +108,11 @@ export function Approvals() {
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const { user, can } = useAuth();
+  const searchParams = useSearchParams();
   const list = useListQuery(["status", "mine", "resource_type"]);
-  const [editing, setEditing] = useState<ApprovalRecord | null | "new">(null);
+  const [editing, setEditing] = useState<ApprovalRecord | null | "new">(
+    searchParams.get("create") === "1" && can("approval.submit") ? "new" : null,
+  );
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [acting, setActing] = useState<{
     approval: ApprovalRecord;

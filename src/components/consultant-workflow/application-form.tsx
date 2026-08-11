@@ -1,13 +1,14 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { ClipboardPen, Images, Loader2, MapPin, Save } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ClipboardPen, Images, Loader2, MapPin, Plus, Save } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import { useAuth } from "@/components/providers/auth-provider";
 import {
   DetailHeader,
   FieldWrapper,
@@ -31,6 +32,7 @@ import type {
   ProjectOptionCategory,
 } from "@/interfaces/consultant-workflow";
 import {
+  createApplicationOption,
   createConsultantApplication,
   getApplicationOptions,
   getApplicationTemplates,
@@ -146,7 +148,9 @@ function ConsultantApplicationEditor({
   sourceFieldTaskId: string;
 }) {
   const t = useTranslations("consultantWorkflow");
+  const { can } = useAuth();
   const router = useRouter();
+  const qc = useQueryClient();
   const [form, setForm] = useState<ConsultantApplicationPayload>(() =>
     initial ? payloadFromApplication(initial) : emptyForm,
   );
@@ -289,6 +293,38 @@ function ConsultantApplicationEditor({
           }),
     onSuccess: (row) => router.push(`/consultant-applications/${row.id}`),
   });
+  const saveReusableOption = useMutation({
+    mutationFn: ({
+      category,
+      label,
+    }: {
+      category: Exclude<ProjectOptionCategory, "ATTACHMENT_TYPE">;
+      label: string;
+    }) =>
+      createApplicationOption({
+        project: form.project,
+        category,
+        code: `CUSTOM_${Date.now().toString(36).toUpperCase()}_${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+        label: label.trim(),
+        is_active: true,
+        sort_order: (grouped.get(category)?.length ?? 0) + 100,
+      }),
+    onSuccess: async (row, { category }) => {
+      setForm((old) => {
+        switch (category) {
+          case "APPLICATION_TYPE":
+            return { ...old, application_type: row.id, application_type_custom: "" };
+          case "DISCIPLINE":
+            return { ...old, discipline: row.id, discipline_custom: "" };
+          case "WORK_TYPE":
+            return { ...old, work_type: row.id, work_type_custom: "" };
+          case "PRIORITY":
+            return { ...old, priority: row.id, priority_custom: "" };
+        }
+      });
+      await qc.invalidateQueries({ queryKey: ["consultant-options", form.project] });
+    },
+  });
   const set = <K extends keyof ConsultantApplicationPayload>(
     key: K,
     value: ConsultantApplicationPayload[K],
@@ -371,8 +407,8 @@ function ConsultantApplicationEditor({
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
             {sourceTask.data.photos.map((photo) => (
-              <a key={photo.id} href={photo.image} target="_blank" rel="noreferrer">
-                <Image src={photo.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg object-cover" />
+              <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer">
+                <Image src={photo.watermarked || photo.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg object-cover" />
               </a>
             ))}
           </div>
@@ -457,10 +493,10 @@ function ConsultantApplicationEditor({
           <OptionField category="DISCIPLINE" value={form.discipline} grouped={grouped} onChange={(value) => set("discipline", value)} label={t("field.discipline")} placeholder={t("field.chooseDiscipline")} />
           <OptionField category="WORK_TYPE" value={form.work_type} grouped={grouped} onChange={(value) => set("work_type", value)} label={t("field.workType")} placeholder={t("field.chooseWorkType")} />
           <OptionField category="PRIORITY" value={form.priority} grouped={grouped} onChange={(value) => set("priority", value)} label={t("field.priority")} placeholder={t("field.choosePriority")} />
-          <CustomValue optionId={form.application_type} options={grouped.get("APPLICATION_TYPE") ?? []} value={form.application_type_custom ?? ""} onChange={(value) => set("application_type_custom", value)} label={t("field.customApplicationType")} />
-          <CustomValue optionId={form.discipline} options={grouped.get("DISCIPLINE") ?? []} value={form.discipline_custom ?? ""} onChange={(value) => set("discipline_custom", value)} label={t("field.customDiscipline")} />
-          <CustomValue optionId={form.work_type} options={grouped.get("WORK_TYPE") ?? []} value={form.work_type_custom ?? ""} onChange={(value) => set("work_type_custom", value)} label={t("field.customWorkType")} />
-          <CustomValue optionId={form.priority} options={grouped.get("PRIORITY") ?? []} value={form.priority_custom ?? ""} onChange={(value) => set("priority_custom", value)} label={t("field.customPriority")} />
+          <CustomValue optionId={form.application_type} options={grouped.get("APPLICATION_TYPE") ?? []} value={form.application_type_custom ?? ""} onChange={(value) => set("application_type_custom", value)} label={t("field.customApplicationType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "APPLICATION_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "APPLICATION_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
+          <CustomValue optionId={form.discipline} options={grouped.get("DISCIPLINE") ?? []} value={form.discipline_custom ?? ""} onChange={(value) => set("discipline_custom", value)} label={t("field.customDiscipline")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "DISCIPLINE"} onSave={(label) => saveReusableOption.mutate({ category: "DISCIPLINE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
+          <CustomValue optionId={form.work_type} options={grouped.get("WORK_TYPE") ?? []} value={form.work_type_custom ?? ""} onChange={(value) => set("work_type_custom", value)} label={t("field.customWorkType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "WORK_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "WORK_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
+          <CustomValue optionId={form.priority} options={grouped.get("PRIORITY") ?? []} value={form.priority_custom ?? ""} onChange={(value) => set("priority_custom", value)} label={t("field.customPriority")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "PRIORITY"} onSave={(label) => saveReusableOption.mutate({ category: "PRIORITY", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
         </div>
       </FormSection>
 
@@ -586,17 +622,45 @@ function CustomValue({
   value,
   onChange,
   label,
+  canSave,
+  isSaving,
+  onSave,
+  saveLabel,
+  saveHelp,
 }: {
   optionId: string;
   options: ProjectApplicationOption[];
   value: string;
   onChange: (value: string) => void;
   label: string;
+  canSave: boolean;
+  isSaving: boolean;
+  onSave: (value: string) => void;
+  saveLabel: string;
+  saveHelp: string;
 }) {
   if (options.find((option) => option.id === optionId)?.code !== "OTHER") return null;
   return (
     <FieldWrapper label={label} required>
-      <Input value={value} onChange={(event) => onChange(event.target.value)} />
+      <div className="space-y-2">
+        <Input value={value} onChange={(event) => onChange(event.target.value)} />
+        {canSave ? (
+          <div className="flex flex-col gap-2 rounded-lg border border-dashed bg-muted/30 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-muted-foreground">{saveHelp}</p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="shrink-0"
+              disabled={!value.trim() || isSaving}
+              onClick={() => onSave(value)}
+            >
+              {isSaving ? <Loader2 className="animate-spin" /> : <Plus />}
+              {saveLabel}
+            </Button>
+          </div>
+        ) : null}
+      </div>
     </FieldWrapper>
   );
 }

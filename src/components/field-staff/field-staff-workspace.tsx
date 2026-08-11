@@ -2,11 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  BellRing,
   Camera,
   Check,
   ClipboardCheck,
   ClipboardList,
   Clock3,
+  FileText,
   Grid2X2,
   HardHat,
   House,
@@ -43,13 +45,20 @@ import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
 import type { AttendanceEvent } from "@/interfaces/site-operations";
 import { ApiError } from "@/interfaces/api";
+import type { NotificationRow } from "@/interfaces/platform-ops";
 import { getFieldTasks } from "@/services/contractor-ops.service";
+import { getProjects } from "@/services/contractor.service";
 import {
   submitAttendanceOfflineAware,
   submitFieldTaskPhotoOfflineAware,
   submitFieldTaskTransitionOfflineAware,
 } from "@/services/offline-sync.service";
 import { getAttendance } from "@/services/site-operations.service";
+import {
+  getNotifications,
+  markNotificationRead,
+} from "@/services/platform-ops.service";
+import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 
 type MobileTab = "home" | "tasks" | "attendance" | "records" | "location";
 type LocationFix = { latitude: string; longitude: string; accuracy: string };
@@ -67,37 +76,44 @@ function locate(): Promise<LocationFix> {
   ));
 }
 
-function deviceId(): string {
-  const key = "mse-field-device-id";
-  const existing = window.localStorage.getItem(key);
-  if (existing) return existing;
-  const next = typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  window.localStorage.setItem(key, next);
-  return next;
-}
-
 export function FieldStaffWorkspace() {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const requestedTaskId = searchParams.get("task") ?? "";
   const requestedTab = searchParams.get("tab") as MobileTab | null;
+  const requestedRecord = searchParams.get("record") as FieldRecordMode | null;
+  const supplierToken = searchParams.get("supplier_token") ?? "";
   const [tab, setTab] = useState<MobileTab>(
     requestedTab && ["home", "tasks", "attendance", "records", "location"].includes(requestedTab)
       ? requestedTab
-      : requestedTaskId
+      : requestedRecord
+        ? "records"
+        : requestedTaskId
         ? "tasks"
         : "home",
   );
   const [taskType, setTaskType] = useState<FieldTask["task_type"]>();
-  const [recordMode, setRecordMode] = useState<FieldRecordMode | null>(null);
+  const [activeTask, setActiveTask] = useState<FieldTask | null>(null);
+  const [recordMode, setRecordMode] = useState<FieldRecordMode | null>(
+    requestedRecord,
+  );
+  const projects = useQuery({
+    queryKey: ["projects", "options"],
+    queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
+    staleTime: 60_000,
+  });
+  const projectNames = (projects.data?.results ?? []).map((project) => project.name);
   return (
     <div className="space-y-5 pb-24">
       <section className="rounded-xl bg-foreground px-5 py-5 text-background shadow-sm">
         <p className="text-sm text-background/70">{t("today", { date: new Date().toLocaleDateString() })}</p>
         <h1 className="mt-1 text-2xl font-semibold">{t("greeting", { name: user?.full_name ?? "" })}</h1>
+        <div className="mt-3 grid gap-1 text-sm text-background/75">
+          <p>{t("identity.company", { company: user?.company_name ?? "-" })}</p>
+          <p>{t("identity.role", { role: user?.role_name ?? "-" })}</p>
+          <p>{t("identity.projects", { projects: projectNames.length ? projectNames.join(", ") : t("identity.noProject") })}</p>
+        </div>
       </section>
 
       {tab === "home" && (
@@ -105,18 +121,38 @@ export function FieldStaffWorkspace() {
           onOpen={(next) => {
             setTaskType(undefined);
             setRecordMode(null);
+            setActiveTask(null);
             setTab(next);
           }}
           onRecord={(mode) => {
+            setActiveTask(null);
             setRecordMode(mode);
             setTab("records");
           }}
         />
       )}
-      {tab === "tasks" && <FieldTaskPanel taskType={taskType} requestedTaskId={requestedTaskId} />}
+      {tab === "tasks" && (
+        <FieldTaskPanel
+          taskType={taskType}
+          requestedTaskId={requestedTaskId}
+          onOpenWorkflow={(task, mode) => {
+            setActiveTask(task);
+            setRecordMode(mode);
+            setTab("records");
+          }}
+        />
+      )}
       {tab === "attendance" && <FieldAttendancePanel />}
       {tab === "records" && (
-        <FieldRecordsPanel initialMode={recordMode} onModeChange={setRecordMode} />
+        <FieldRecordsPanel
+          initialMode={recordMode}
+          initialSupplierToken={supplierToken}
+          task={activeTask}
+          onModeChange={(mode) => {
+            setRecordMode(mode);
+            if (!mode) setActiveTask(null);
+          }}
+        />
       )}
       {tab === "location" && <FieldStaffGps />}
 
@@ -129,6 +165,7 @@ export function FieldStaffWorkspace() {
           <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => setTab("location")} />
         </div>
       </nav>
+      {tab === "home" && <p className="text-center text-xs text-muted-foreground">{t("identity.version", { version: process.env.NEXT_PUBLIC_APP_VERSION ?? "0.1.0" })}</p>}
     </div>
   );
 }
@@ -182,7 +219,115 @@ function FieldHomePanel({
           );
         })}
       </div>
+      {can("notification.view") && <FieldNotificationPreview />}
     </section>
+  );
+}
+
+function FieldNotificationPreview() {
+  const t = useTranslations("fieldStaffPwa");
+  const qc = useQueryClient();
+  const notifications = useQuery({
+    queryKey: ["field-staff", "notifications"],
+    queryFn: () => getNotifications({ page_size: 5, sort_by: "-created_at" }),
+    refetchInterval: 30_000,
+  });
+  const read = useMutation({
+    mutationFn: markNotificationRead,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["field-staff", "notifications"] });
+      void qc.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+  const rows = notifications.data?.results ?? [];
+
+  return (
+    <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+      <div className="flex items-center gap-3 border-b px-4 py-3">
+        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+          <BellRing className="size-6" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold">{t("notifications.title")}</h3>
+          <p className="text-sm text-muted-foreground">
+            {t("notifications.subtitle")}
+          </p>
+        </div>
+        <Button size="icon" variant="ghost" title={t("action.refresh")} onClick={() => void notifications.refetch()}>
+          <RefreshCw className={notifications.isFetching ? "animate-spin" : ""} />
+        </Button>
+      </div>
+      {notifications.isLoading && (
+        <div className="grid min-h-28 place-items-center"><Loader2 className="animate-spin text-primary" /></div>
+      )}
+      {notifications.isError && (
+        <p className="p-4 text-sm text-destructive">{t("notifications.loadError")}</p>
+      )}
+      {!notifications.isLoading && !notifications.isError && rows.length === 0 && (
+        <p className="p-5 text-center text-sm text-muted-foreground">{t("notifications.empty")}</p>
+      )}
+      <div className="divide-y">
+        {rows.map((row) => (
+          <FieldNotificationRow
+            key={row.id}
+            row={row}
+            busy={read.isPending}
+            onRead={() => read.mutate(row.id)}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function FieldNotificationRow({
+  row,
+  busy,
+  onRead,
+}: {
+  row: NotificationRow;
+  busy: boolean;
+  onRead: () => void;
+}) {
+  const t = useTranslations("fieldStaffPwa");
+  const href = [row.data.href, row.data.url].find(
+    (value): value is string => typeof value === "string" && value.startsWith("/"),
+  );
+  const body = (
+    <div className="min-w-0 flex-1">
+      <div className="flex items-center gap-2">
+        {!row.is_read && <span className="size-2 shrink-0 rounded-full bg-primary" />}
+        <p className="truncate font-semibold">{row.title}</p>
+      </div>
+      <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">{row.message}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{new Date(row.created_at).toLocaleString()}</p>
+    </div>
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        className="flex min-h-20 items-center gap-3 px-4 py-3 active:bg-muted/50"
+        onClick={() => { if (!row.is_read && !busy) onRead(); }}
+      >
+        {body}
+        <span className="text-sm font-semibold text-primary">{t("notifications.open")}</span>
+      </a>
+    );
+  }
+  return (
+    <button
+      type="button"
+      className="flex min-h-20 w-full items-center gap-3 px-4 py-3 text-left active:bg-muted/50"
+      disabled={busy}
+      onClick={() => { if (!row.is_read) onRead(); }}
+    >
+      {body}
+      <span className="text-sm font-semibold text-primary">
+        {row.is_read ? t("notifications.read") : t("notifications.markRead")}
+      </span>
+    </button>
   );
 }
 
@@ -190,7 +335,22 @@ function MobileNavButton({ active, icon: Icon, label, onClick }: { active: boole
   return <button type="button" onClick={onClick} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg text-xs font-medium ${active ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}><Icon className="size-5" />{label}</button>;
 }
 
-function FieldTaskPanel({ taskType, requestedTaskId }: { taskType?: FieldTask["task_type"]; requestedTaskId?: string }) {
+function taskRecordMode(task: FieldTask): FieldRecordMode | null {
+  if (task.task_type === "MATERIAL") return "material";
+  if (task.task_type === "EQUIPMENT") return "equipment";
+  if (task.task_type === "PROGRESS") return "progress";
+  if (task.task_type === "SAFETY") return "safety";
+  if (task.task_type === "CONSULTANT") return "consultant";
+  if (task.task_type === "WASTE") {
+    const category = task.submission_category.toUpperCase();
+    return category.includes("OUTGOING") || category.includes("RECYCLE")
+      ? "outgoing"
+      : "disposal";
+  }
+  return null;
+}
+
+function FieldTaskPanel({ taskType, requestedTaskId, onOpenWorkflow }: { taskType?: FieldTask["task_type"]; requestedTaskId?: string; onOpenWorkflow: (task: FieldTask, mode: FieldRecordMode) => void }) {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -233,7 +393,7 @@ function FieldTaskPanel({ taskType, requestedTaskId }: { taskType?: FieldTask["t
         latitude: fix.latitude,
         longitude: fix.longitude,
         accuracyM: fix.accuracy,
-        deviceId: deviceId(),
+        deviceId: getOrCreateFieldDeviceId(),
       });
     },
     onSuccess: () => { setActionError(""); void qc.invalidateQueries({ queryKey: ["field-staff", "tasks"] }); },
@@ -241,14 +401,15 @@ function FieldTaskPanel({ taskType, requestedTaskId }: { taskType?: FieldTask["t
   });
   if (tasks.isLoading) return <LoadingState />;
   if (tasks.isError) return <ErrorState onRetry={() => void tasks.refetch()} />;
-  return <section className="space-y-3"><div className="flex items-center justify-between"><div><h2 className="text-lg font-semibold">{taskType === "CONSULTANT" ? t("consultantTasks.title") : t("tasks.title")}</h2><p className="text-sm text-muted-foreground">{t("tasks.count", { count: active.length })}</p></div><Button size="icon" variant="outline" title={t("action.refresh")} onClick={() => void tasks.refetch()}><RefreshCw /></Button></div>{actionError && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{actionError}</p>}{active.length === 0 ? <div className="grid min-h-48 place-items-center rounded-xl border border-dashed bg-card text-center"><div><Check className="mx-auto size-10 text-success" /><p className="mt-3 font-medium">{t("tasks.empty")}</p></div></div> : active.map((task) => <FieldTaskCard key={task.id} task={task} focused={task.id === requestedTaskId} busy={transition.isPending || photo.isPending} onTransition={(status) => transition.mutate({ task, status })} onPhoto={(file) => photo.mutate({ task, file })} />)}</section>;
+  return <section className="space-y-3"><div className="flex items-center justify-between"><div><h2 className="text-lg font-semibold">{taskType === "CONSULTANT" ? t("consultantTasks.title") : t("tasks.title")}</h2><p className="text-sm text-muted-foreground">{t("tasks.count", { count: active.length })}</p></div><Button size="icon" variant="outline" title={t("action.refresh")} onClick={() => void tasks.refetch()}><RefreshCw /></Button></div>{actionError && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{actionError}</p>}{active.length === 0 ? <div className="grid min-h-48 place-items-center rounded-xl border border-dashed bg-card text-center"><div><Check className="mx-auto size-10 text-success" /><p className="mt-3 font-medium">{t("tasks.empty")}</p></div></div> : active.map((task) => <FieldTaskCard key={task.id} task={task} focused={task.id === requestedTaskId} busy={transition.isPending || photo.isPending} onTransition={(status) => transition.mutate({ task, status })} onPhoto={(file) => photo.mutate({ task, file })} onOpenWorkflow={() => { const mode = taskRecordMode(task); if (mode) onOpenWorkflow(task, mode); }} />)}</section>;
 }
 
-function FieldTaskCard({ task, focused, busy, onTransition, onPhoto }: { task: FieldTask; focused: boolean; busy: boolean; onTransition: (status: "IN_PROGRESS" | "SUBMITTED") => void; onPhoto: (file: File) => void }) {
+function FieldTaskCard({ task, focused, busy, onTransition, onPhoto, onOpenWorkflow }: { task: FieldTask; focused: boolean; busy: boolean; onTransition: (status: "IN_PROGRESS" | "SUBMITTED") => void; onPhoto: (file: File) => void; onOpenWorkflow: () => void }) {
   const t = useTranslations("fieldStaffPwa");
   const photos = task.photos.length || task.photo_count || 0;
   const canSubmit = photos >= task.evidence_required;
-  return <article className={`overflow-hidden rounded-xl border bg-card shadow-sm ${task.priority === "URGENT" ? "border-destructive/40" : ""} ${focused ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}><div className="p-4"><div className="flex items-start justify-between gap-3"><div><StatusBadge label={t(`status.${task.status}`)} tone={task.status === "RETURNED" ? "danger" : task.status === "SUBMITTED" ? "warning" : "info"} /><h3 className="mt-3 text-lg font-semibold leading-snug">{task.title}</h3><p className="mt-1 text-sm text-muted-foreground">{task.project_name}</p></div><span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">{t(`type.${task.task_type}`)}</span></div><div className="mt-3 grid gap-1 text-xs text-muted-foreground"><p>{t("tasks.assignedBy", { name: task.created_by_name || task.assigned_to_name })}</p>{task.work_location && <p>{t("tasks.workLocation", { location: task.work_location })}</p>}{task.due_at && <p>{t("tasks.dueAt", { value: new Date(task.due_at).toLocaleString() })}</p>}</div>{task.instructions && <p className="mt-4 rounded-lg bg-muted/50 p-3 text-sm leading-6">{task.instructions}</p>}{task.started_at && <p className="mt-3 text-xs text-muted-foreground">{t("tasks.startedAt", { value: new Date(task.started_at).toLocaleString() })}</p>}{task.status === "RETURNED" && task.review_note && <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{task.review_note}</p>}<div className="mt-4 grid grid-cols-3 gap-2">{task.photos.slice(-3).map((item) => <Image key={item.id} src={item.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg object-cover" />)}</div><p className="mt-3 text-center text-sm font-medium">{t("tasks.evidence", { current: photos, required: task.evidence_required })}</p></div><div className="grid gap-2 border-t bg-muted/20 p-3">{task.status === "OPEN" && <Button className="h-12 text-base" disabled={busy} onClick={() => onTransition("IN_PROGRESS")}><Play />{t("action.start")}</Button>}{["IN_PROGRESS", "RETURNED"].includes(task.status) && <><FieldCamera label={t("action.takePhoto")} fileCount={photos} disabled={busy} onCapture={onPhoto} /><Button className="h-12 text-base" disabled={busy || !canSubmit} onClick={() => onTransition("SUBMITTED")}><Send />{canSubmit ? t("action.submit") : t("action.morePhotos", { count: Math.max(0, task.evidence_required - photos) })}</Button></>}{task.status === "SUBMITTED" && <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-warning"><Clock3 className="size-5" />{t("tasks.waitingReview")}</div>}</div></article>;
+  const workflowMode = taskRecordMode(task);
+  return <article className={`overflow-hidden rounded-xl border bg-card shadow-sm ${task.priority === "URGENT" ? "border-destructive/40" : ""} ${focused ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}><div className="p-4"><div className="flex items-start justify-between gap-3"><div><StatusBadge label={t(`status.${task.status}`)} tone={task.status === "RETURNED" ? "danger" : task.status === "SUBMITTED" ? "warning" : "info"} /><h3 className="mt-3 text-lg font-semibold leading-snug">{task.title}</h3><p className="mt-1 text-sm text-muted-foreground">{task.project_name}</p></div><span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">{t(`type.${task.task_type}`)}</span></div><div className="mt-3 grid gap-1 text-xs text-muted-foreground"><p>{t("tasks.assignedBy", { name: task.created_by_name || task.assigned_to_name })}</p>{task.work_location && <p>{t("tasks.workLocation", { location: task.work_location })}</p>}{task.due_at && <p>{t("tasks.dueAt", { value: new Date(task.due_at).toLocaleString() })}</p>}</div>{task.instructions && <p className="mt-4 rounded-lg bg-muted/50 p-3 text-sm leading-6">{task.instructions}</p>}{task.references.length ? <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3"><p className="mb-3 text-sm font-semibold text-primary">{t("tasks.references", { count: task.references.length })}</p><div className="grid grid-cols-2 gap-2">{task.references.map((reference) => reference.kind === "PHOTO" ? <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer"><Image src={reference.file} alt={reference.label || reference.original_filename} width={320} height={240} unoptimized className="aspect-[4/3] w-full rounded-lg object-cover" /></a> : <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer" className="col-span-2 flex min-h-12 items-center gap-3 rounded-lg border bg-background px-3 py-2 text-sm font-semibold text-primary"><FileText className="size-5 shrink-0" /><span className="truncate">{reference.label || reference.original_filename}</span></a>)}</div></div> : null}{task.started_at && <p className="mt-3 text-xs text-muted-foreground">{t("tasks.startedAt", { value: new Date(task.started_at).toLocaleString() })}</p>}{task.status === "RETURNED" && task.review_note && <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{task.review_note}</p>}{!workflowMode && <><div className="mt-4 grid grid-cols-3 gap-2">{task.photos.slice(-3).map((item) => <Image key={item.id} src={item.watermarked || item.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg object-cover" />)}</div><p className="mt-3 text-center text-sm font-medium">{t("tasks.evidence", { current: photos, required: task.evidence_required })}</p></>}</div><div className="grid gap-2 border-t bg-muted/20 p-3">{task.status === "OPEN" && <Button className="h-12 text-base" disabled={busy} onClick={() => onTransition("IN_PROGRESS")}><Play />{t("action.start")}</Button>}{["IN_PROGRESS", "RETURNED"].includes(task.status) && (workflowMode ? <Button className="h-14 text-base" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <><FieldCamera label={t("action.takePhoto")} fileCount={photos} disabled={busy} onCapture={onPhoto} /><Button className="h-12 text-base" disabled={busy || !canSubmit} onClick={() => onTransition("SUBMITTED")}><Send />{canSubmit ? t("action.submit") : t("action.morePhotos", { count: Math.max(0, task.evidence_required - photos) })}</Button></>)}{task.status === "SUBMITTED" && <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-warning"><Clock3 className="size-5" />{task.linked_record_reference ? t("tasks.linkedSubmission", { reference: task.linked_record_reference }) : t("tasks.waitingReview")}</div>}</div></article>;
 }
 
 function FieldAttendancePanel() {
@@ -267,7 +428,62 @@ function FieldAttendancePanel() {
   const selectedProject = project || today[0]?.project || "";
   const captureLocation = async () => { setLocating(true); setError(""); try { setFix(await locate()); } catch { setError(t("error.location")); } finally { setLocating(false); } };
   const submit = useMutation({ mutationFn: () => { if (!user || !selfie || !fix) throw new Error("missing"); return submitAttendanceOfflineAware(user.id, { project: selectedProject, event, note, photo: selfie, latitude: fix.latitude, longitude: fix.longitude, locationAccuracyM: fix.accuracy }); }, onSuccess: () => { setSelfie(undefined); setFix(null); setNote(""); setError(""); void qc.invalidateQueries({ queryKey: ["field-staff", "attendance"] }); }, onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("error.action")) });
-  return <section className="space-y-4"><div><h2 className="text-lg font-semibold">{t("attendance.title")}</h2><p className="text-sm text-muted-foreground">{t("attendance.todayCount", { count: today.length })}</p></div><div className="rounded-xl border bg-card p-4 shadow-sm"><ProjectPicker value={selectedProject} onValueChange={setProject} placeholder={t("attendance.selectProject")} className="h-11 w-full" /><div className="mt-4 grid grid-cols-2 gap-2"><Button className="h-12" variant={event === "CLOCK_IN" ? "default" : "outline"} onClick={() => setEvent("CLOCK_IN")}><LogIn />{t("attendance.clockIn")}</Button><Button className="h-12" variant={event === "CLOCK_OUT" ? "default" : "outline"} onClick={() => setEvent("CLOCK_OUT")}><LogOut />{t("attendance.clockOut")}</Button></div><FieldCamera className="mt-4" label={selfie ? t("attendance.selfieReady") : t("attendance.takeSelfie")} fileCount={selfie ? 1 : 0} facingMode="user" onCapture={setSelfie} onClear={() => setSelfie(undefined)} /><Button className="mt-3 h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>{locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}{fix ? t("attendance.locationReady") : t("attendance.getLocation")}</Button><Textarea className="mt-3" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("attendance.note")} />{error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}<Button className="mt-4 h-14 w-full text-base" disabled={!selectedProject || !selfie || !fix || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : event === "CLOCK_IN" ? <LogIn /> : <LogOut />}{t("attendance.submit")}</Button></div><div className="space-y-2">{today.map((row) => <div key={row.id} className="flex items-center gap-3 rounded-lg border bg-card p-3"><StatusBadge label={t(row.event === "CLOCK_IN" ? "attendance.clockIn" : "attendance.clockOut")} tone={row.event === "CLOCK_IN" ? "positive" : "neutral"} /><span className="text-sm font-medium">{new Date(row.occurred_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>{row.photo && <Image src={row.photo} alt="" width={80} height={80} unoptimized className="ml-auto size-10 rounded-lg object-cover" />}</div>)}</div></section>;
+  return (
+    <section className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold">{t("attendance.title")}</h2>
+        <p className="text-sm text-muted-foreground">{t("attendance.todayCount", { count: today.length })}</p>
+      </div>
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <ProjectPicker value={selectedProject} onValueChange={setProject} placeholder={t("attendance.selectProject")} className="h-11 w-full" />
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <Button className="h-12" variant={event === "CLOCK_IN" ? "default" : "outline"} onClick={() => setEvent("CLOCK_IN")}><LogIn />{t("attendance.clockIn")}</Button>
+          <Button className="h-12" variant={event === "CLOCK_OUT" ? "default" : "outline"} onClick={() => setEvent("CLOCK_OUT")}><LogOut />{t("attendance.clockOut")}</Button>
+        </div>
+        <FieldCamera className="mt-4" label={selfie ? t("attendance.selfieReady") : t("attendance.takeSelfie")} fileCount={selfie ? 1 : 0} facingMode="user" onCapture={setSelfie} onClear={() => setSelfie(undefined)} />
+        <Button className="mt-3 h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>{locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}{fix ? t("attendance.locationReady") : t("attendance.getLocation")}</Button>
+        <Textarea className="mt-3" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("attendance.note")} />
+        {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
+        <Button className="mt-4 h-14 w-full text-base" disabled={!selectedProject || !selfie || !fix || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : event === "CLOCK_IN" ? <LogIn /> : <LogOut />}{t("attendance.submit")}</Button>
+      </div>
+      <div className="space-y-3">
+        {today.length === 0 && <p className="rounded-xl border border-dashed bg-card p-5 text-center text-sm text-muted-foreground">{t("attendance.noRecords")}</p>}
+        {today.map((row) => {
+          const photoUrl = row.watermarked_photo || row.photo;
+          const mapUrl = row.latitude && row.longitude
+            ? `https://www.google.com/maps?q=${row.latitude},${row.longitude}`
+            : "";
+          return (
+            <article key={row.id} className="rounded-xl border bg-card p-3 shadow-sm">
+              <div className="flex items-start gap-3">
+                {photoUrl ? (
+                  <a href={photoUrl} target="_blank" rel="noreferrer" title={t("attendance.openPhoto")}>
+                    <Image src={photoUrl} alt="" width={160} height={160} unoptimized className="size-16 rounded-lg object-cover" />
+                  </a>
+                ) : <span className="grid size-16 place-items-center rounded-lg bg-muted"><Camera className="size-6 text-muted-foreground" /></span>}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap gap-2">
+                    <StatusBadge label={t(row.event === "CLOCK_IN" ? "attendance.clockIn" : "attendance.clockOut")} tone={row.event === "CLOCK_IN" ? "positive" : "neutral"} />
+                    <StatusBadge label={t(`attendance.geofence.${row.geofence_result}`)} tone={row.geofence_result === "INSIDE" ? "positive" : row.geofence_result === "OUTSIDE" ? "danger" : "neutral"} />
+                  </div>
+                  <p className="mt-2 truncate text-sm font-semibold">{row.project_name}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(row.occurred_at).toLocaleString()}</p>
+                  {row.matched_geofence_name && <p className="mt-1 text-xs text-muted-foreground">{row.matched_geofence_name}</p>}
+                  {row.distance_m && <p className="mt-1 text-xs text-muted-foreground">{t("attendance.distance", { distance: Math.round(Number(row.distance_m)) })}</p>}
+                </div>
+              </div>
+              {mapUrl && (
+                <a href={mapUrl} target="_blank" rel="noreferrer" className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-lg border bg-background text-sm font-semibold text-primary">
+                  <MapPinned className="size-5" />
+                  {t("attendance.viewMap")}
+                </a>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function LoadingState() {
