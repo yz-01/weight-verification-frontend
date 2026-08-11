@@ -23,7 +23,8 @@ export interface FieldInvitationResult extends FieldInvitationInfo {
 }
 
 export interface FieldInvitationPayload {
-  full_name: string;
+  user?: string;
+  full_name?: string;
   phone: string;
   email?: string;
   project_ids: string[];
@@ -36,6 +37,10 @@ export function createFieldInvitation(
     "/api/field-access/create_invitation/",
     payload,
   );
+}
+
+export function resetFieldDevice(userId: string): Promise<void> {
+  return api.post<void>(`/api/field-access/${userId}/reset_device/`, {});
 }
 
 export function inspectFieldInvitation(token: string): Promise<FieldInvitationInfo> {

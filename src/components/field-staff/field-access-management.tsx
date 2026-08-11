@@ -1,7 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Copy, Smartphone, UserRoundPlus } from "lucide-react";
+import {
+  CheckCircle2,
+  Copy,
+  Smartphone,
+  UserRoundCheck,
+  UserRoundPlus,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
@@ -19,11 +25,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProjects } from "@/services/contractor.service";
 import {
   createFieldInvitation,
+  resetFieldDevice,
   type FieldInvitationResult,
 } from "@/services/field-access.service";
+import { getRoles, getUsers } from "@/services/users.service";
+
+type AccessMode = "new" | "existing";
 
 export function FieldAccessManagementDialog({
   onClose,
@@ -32,6 +50,8 @@ export function FieldAccessManagementDialog({
 }) {
   const t = useTranslations("fieldAccessAdmin");
   const queryClient = useQueryClient();
+  const [mode, setMode] = useState<AccessMode>("new");
+  const [existingUserId, setExistingUserId] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -45,19 +65,71 @@ export function FieldAccessManagementDialog({
       getProjects({ page_size: 500, sort_by: "name", sort_order: "asc" }),
   });
 
-  const create = useMutation({
-    mutationFn: () =>
-      createFieldInvitation({
-        full_name: fullName.trim(),
-        phone: phone.trim(),
-        ...(email.trim() ? { email: email.trim() } : {}),
-        project_ids: projectIds,
+  const roles = useQuery({
+    queryKey: ["roles", "field-access-options"],
+    queryFn: () => getRoles({ page_size: 100, sort_by: "name" }),
+  });
+  const siteStaffRole = roles.data?.results.find(
+    (role) => role.code === "site_staff",
+  );
+  const fieldUsers = useQuery({
+    queryKey: ["users", "field-access-options", siteStaffRole?.id],
+    queryFn: () =>
+      getUsers({
+        page_size: 500,
+        role: siteStaffRole!.id,
+        sort_by: "full_name",
+        sort_order: "asc",
       }),
+    enabled: mode === "existing" && Boolean(siteStaffRole?.id),
+  });
+
+  const create = useMutation({
+    mutationFn: async () => {
+      const invitation = await createFieldInvitation(
+        mode === "existing"
+          ? {
+              user: existingUserId,
+              phone: phone.trim(),
+              project_ids: projectIds,
+            }
+          : {
+              full_name: fullName.trim(),
+              phone: phone.trim(),
+              ...(email.trim() ? { email: email.trim() } : {}),
+              project_ids: projectIds,
+            },
+      );
+      if (mode === "existing") {
+        await resetFieldDevice(invitation.user_id);
+      }
+      return invitation;
+    },
     onSuccess: (invitation) => {
       setResult(invitation);
       void queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
+
+  function changeMode(value: string) {
+    const nextMode = value as AccessMode;
+    setMode(nextMode);
+    setExistingUserId("");
+    setFullName("");
+    setPhone("");
+    setEmail("");
+    setProjectIds([]);
+    setResult(null);
+    create.reset();
+  }
+
+  function chooseExistingUser(userId: string) {
+    const selected = fieldUsers.data?.results.find((user) => user.id === userId);
+    setExistingUserId(userId);
+    setPhone(selected?.phone ?? "");
+    setProjectIds([]);
+    create.reset();
+  }
 
   function toggleProject(id: string, checked: boolean) {
     setProjectIds((current) =>
@@ -75,7 +147,9 @@ export function FieldAccessManagementDialog({
   }
 
   const canCreate =
-    fullName.trim().length > 0 &&
+    (mode === "existing"
+      ? existingUserId.length > 0
+      : fullName.trim().length > 0) &&
     phone.trim().length > 0 &&
     projectIds.length > 0 &&
     !create.isPending;
@@ -163,13 +237,57 @@ export function FieldAccessManagementDialog({
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
-            <FieldWrapper label={t("fullName")} required>
-              <Input
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
-                autoComplete="off"
-              />
-            </FieldWrapper>
+            <Tabs
+              value={mode}
+              onValueChange={changeMode}
+              className="sm:col-span-2"
+            >
+              <TabsList className="grid h-10 w-full grid-cols-2">
+                <TabsTrigger value="new">
+                  <UserRoundPlus />
+                  {t("modeNew")}
+                </TabsTrigger>
+                <TabsTrigger value="existing">
+                  <UserRoundCheck />
+                  {t("modeExisting")}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {mode === "new" ? (
+              <FieldWrapper label={t("fullName")} required>
+                <Input
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
+                  autoComplete="off"
+                />
+              </FieldWrapper>
+            ) : (
+              <FieldWrapper
+                label={t("existingStaff")}
+                required
+                className="sm:col-span-2"
+              >
+                <Select value={existingUserId} onValueChange={chooseExistingUser}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder={t("selectStaff")} />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    {(fieldUsers.data?.results ?? []).map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.full_name} · {user.phone || user.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {!fieldUsers.isLoading &&
+                  (fieldUsers.data?.results.length ?? 0) === 0 && (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {t("noExistingStaff")}
+                    </p>
+                  )}
+              </FieldWrapper>
+            )}
             <FieldWrapper label={t("phone")} required>
               <Input
                 type="tel"
@@ -178,18 +296,25 @@ export function FieldAccessManagementDialog({
                 autoComplete="off"
               />
             </FieldWrapper>
-            <FieldWrapper
-              label={t("email")}
-              optional={t("optional")}
-              className="sm:col-span-2"
-            >
-              <Input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                autoComplete="off"
-              />
-            </FieldWrapper>
+            {mode === "new" && (
+              <FieldWrapper
+                label={t("email")}
+                optional={t("optional")}
+                className="sm:col-span-2"
+              >
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="off"
+                />
+              </FieldWrapper>
+            )}
+            {mode === "existing" && (
+              <p className="rounded-md border border-info/25 bg-info/8 px-3 py-2.5 text-sm text-foreground sm:col-span-2">
+                {t("existingHelp")}
+              </p>
+            )}
             <FieldWrapper
               label={t("projects")}
               required

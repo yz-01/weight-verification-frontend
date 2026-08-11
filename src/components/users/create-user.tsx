@@ -115,10 +115,12 @@ export function CreateUser({ user }: { user?: UserDetail }) {
   });
 
   const roleOptions =
-    roles?.results.map((role) => ({
-      value: role.id,
-      label: roleName(role, t),
-    })) ?? [];
+    roles?.results
+      .filter((role) => isEdit || role.code !== "site_staff")
+      .map((role) => ({
+        value: role.id,
+        label: roleName(role, t),
+      })) ?? [];
 
   return (
     <FormShell
