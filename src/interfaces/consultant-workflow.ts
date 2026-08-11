@@ -259,6 +259,7 @@ export interface ConsultantApplication {
   location: string;
   component: string;
   description: string;
+  remarks: string;
   required_at: string | null;
   inspection_start_at: string | null;
   inspection_end_at: string | null;
@@ -355,6 +356,7 @@ export interface ConsultantApplicationPayload {
   location: string;
   component: string;
   description: string;
+  remarks?: string;
   required_at?: string | null;
   inspection_start_at?: string | null;
   inspection_end_at?: string | null;

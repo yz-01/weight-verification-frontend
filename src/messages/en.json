@@ -156,8 +156,8 @@
     "today": "Today · {date}", "greeting": "Hello, {name}",
     "identity": { "company": "Company: {company}", "role": "Role: {role}", "projects": "Projects: {projects}", "noProject": "No assigned project", "version": "MSE Trace version {version}" },
     "camera": { "open": "Open camera", "ready": "{count} photo(s) ready", "help": "Frame the site evidence clearly, then press the large capture button.", "capture": "Take photo", "switch": "Switch camera", "clear": "Clear photos", "unsupported": "This browser cannot open the camera. Use an HTTPS site and a current mobile browser.", "permissionError": "The camera could not start. Allow camera permission and try again.", "captureError": "The photo could not be captured. Try again." },
-    "nav": { "home": "Home", "tasks": "Tasks", "attendance": "Attendance", "records": "Record", "disposal": "Disposal", "location": "Location" },
-    "home": { "title": "Today's work", "subtitle": "Tap one large button to continue.", "tasks": "My tasks", "attendance": "Clock in / out", "records": "Take site photos", "location": "Share location", "material": "Material", "equipment": "Equipment", "progress": "Progress", "disposal": "Waste disposal", "outgoing": "Material outgoing", "safety": "Safety issue", "consultant": "Consultant photo" },
+    "nav": { "home": "Home", "tasks": "Tasks", "attendance": "Attendance", "records": "Record", "disposal": "Disposal", "location": "Location", "incidents": "Incidents" },
+    "home": { "title": "Today's work", "subtitle": "Tap one large button to continue.", "tasks": "My tasks", "attendance": "Clock in / out", "records": "Take site photos", "location": "Share location", "material": "Material", "equipment": "Equipment", "progress": "Progress", "disposal": "Waste disposal", "outgoing": "Material outgoing", "safety": "Safety issue", "consultant": "Consultant photo", "incidents": "Report incident" },
     "notifications": { "title": "My work alerts", "subtitle": "Tasks, approvals and incident results appear here.", "empty": "No new alerts", "loadError": "Alerts could not be loaded. Check the connection and try again.", "open": "Open", "markRead": "Got it", "read": "Read" },
     "tasks": { "title": "My tasks", "count": "{count, plural, =0 {No active tasks} one {# active task} other {# active tasks}}", "empty": "All tasks are complete", "evidence": "Photos {current}/{required}", "references": "Look at these references ({count})", "startedAt": "Started {value}", "assignedBy": "Assigned by {name}", "workLocation": "Work area: {location}", "dueAt": "Due: {value}", "waitingReview": "Waiting for manager review", "linkedSubmission": "Submitted: {reference}" },
     "status": { "OPEN": "New", "IN_PROGRESS": "In progress", "SUBMITTED": "Submitted", "ACCEPTED": "Complete", "RETURNED": "Take again", "CANCELLED": "Cancelled" },
@@ -165,6 +165,7 @@
     "action": { "back": "Back", "refresh": "Refresh", "start": "Start", "openWorkflow": "Open work form", "takePhoto": "Take photo", "submit": "Send to manager", "morePhotos": "Take {count} more photo(s)", "retry": "Try again", "clearSignature": "Clear signature" },
     "consultantTasks": { "title": "Consultant photo submissions" },
     "consultantCapture": { "project": "Project", "chooseProject": "Choose project", "category": "Request type", "categoryOption": { "RFI": "RFI / site question", "WIR": "Work inspection", "MATERIAL": "Material approval", "SAFETY": "Safety review", "OTHER": "Other" }, "workLocation": "Work area / grid line", "workLocationPlaceholder": "Example: Block A, Grid C1-D1", "description": "What should the office or consultant review?", "photos": "Consultant site photos", "note": "Extra note (optional)", "submit": "Send to consultant inbox" },
+    "incidents": { "title": "Incident reports", "subtitle": "Report accidents and safety concerns to supervisors." },
     "records": { "title": "Site records", "subtitle": "Choose the work, then take the required photos.", "material": "Material record", "equipment": "Equipment movement", "progress": "Progress photos", "disposal": "Waste disposal", "outgoing": "Material outgoing", "safety": "Safety / hazard", "consultant": "Consultant submission" },
     "material": { "project": "Project", "chooseProject": "Choose project", "supplier": "Supplier", "chooseSupplier": "Choose supplier", "scanSupplierQr": "Scan supplier QR", "scanTitle": "Scan supplier QR", "scanHelp": "Point the camera at the supplier docket. Project and supplier will fill automatically.", "cameraError": "The camera could not start. Allow camera access and try again.", "closeScanner": "Close scanner", "qrInvalid": "This supplier QR is invalid, revoked, or not available to this project.", "qrMatched": "Supplier QR matched", "qrNotIssued": "No active supplier QR; the record will still keep the selected supplier.", "direction": "Movement", "entry": "Material entry", "return": "Material return", "returnReason": "Return reason", "chooseReturnReason": "Choose why the material is leaving", "returnReasonOther": "Enter the return reason", "returnReasonOption": { "QUALITY_REJECTED": "Rejected by quality inspection", "WRONG_DELIVERY": "Wrong material delivered", "DAMAGED": "Damaged material", "EXCESS_MATERIAL": "Excess material returned", "OTHER": "Other reason" }, "unit": "Unit", "name": "Material name", "quantity": "Quantity", "vehicle": "Vehicle plate", "doNo": "Delivery note no.", "doPhoto": "Delivery note photo", "ocrReading": "Reading the delivery note...", "ocrReady": "Delivery note read. Check the filled fields before saving.", "ocrManual": "The delivery note could not be read. Enter the details manually.", "ocrChooseProject": "Choose the project before taking the delivery note photo.", "ocrOffline": "Offline: enter the delivery note details manually. OCR will run when the photo reaches the server.", "sitePhotos": "Material / unloading photos", "receiverSignature": "Receiver signature", "supplierSignature": "Supplier signature", "tapCamera": "Tap to open camera", "photoReady": "{count} photo(s) ready", "notes": "Notes (optional)", "submit": "Save material record" },
     "attendance": { "title": "Site attendance", "todayCount": "{count, plural, =0 {No check-in today} one {# attendance record today} other {# attendance records today}}", "selectProject": "Select today's project", "clockIn": "Clock in", "clockOut": "Clock out", "takeSelfie": "Take a selfie", "selfieReady": "Selfie ready", "getLocation": "Get current GPS", "locationReady": "GPS ready", "note": "Note (optional)", "submit": "Submit attendance", "noRecords": "No attendance record today", "openPhoto": "Open check-in photo", "viewMap": "View check-in location", "distance": "Distance from geofence: {distance} m", "geofence": { "INSIDE": "Inside geofence", "OUTSIDE": "Outside geofence", "NOT_EVALUATED": "Geofence not configured" } },
@@ -3135,6 +3136,7 @@
       "consultant_grant_not_found": "That consultant project access record could not be found.",
       "field_invitation_invalid": "This field access link is invalid or has expired.",
       "field_pin_invalid": "The mobile number or PIN is incorrect.",
+      "field_pin_expired": "Your PIN has expired. Please contact your project administrator to issue a new invitation.",
       "field_device_invalid": "This phone is not linked to the field account. Ask a project administrator to reset it.",
       "field_device_already_bound": "This field account is already linked to another phone. Ask a project administrator to reset it.",
       "progress_update_not_found": "That progress update could not be found.",
@@ -7827,6 +7829,7 @@
       "location": "Inspection location",
       "component": "Component / work area",
       "description": "Description / request",
+      "remarks": "Remarks",
       "requiredAt": "Required inspection date and time",
       "inspectionStartAt": "Inspection window starts",
       "inspectionEndAt": "Inspection window ends",
@@ -8135,5 +8138,71 @@
     },
     "current": "Current",
     "forceUpdateOn": "Force Update"
+  },
+  "incidentReporting": {
+    "title": "Incident Reporting",
+    "subtitle": "Report accidents, emergencies and safety concerns to workers and supervisors.",
+    "empty": "No incident has been reported yet.",
+    "newReport": "New incident report",
+    "previousReports": "Previous reports",
+    "noReports": "No reports yet",
+    "project": "Project",
+    "chooseProject": "Choose project",
+    "severity": "Severity",
+    "severityLow": "Low",
+    "severityMedium": "Medium",
+    "severityHigh": "High",
+    "severityCritical": "Critical",
+    "location": "Location",
+    "locationPlaceholder": "Building, floor, grid reference",
+    "description": "What happened?",
+    "descriptionPlaceholder": "Describe the incident clearly",
+    "recipients": "Report to",
+    "chooseProjectFirst": "Choose a project first to select recipients",
+    "photos": "Photos",
+    "submit": "Submit report",
+    "fillRequired": "Fill all required fields",
+    "submitSuccess": "Incident report submitted",
+    "submitError": "Could not submit report",
+    "statusOpen": "Open",
+    "statusInvestigating": "Investigating",
+    "statusAssigned": "Assigned",
+    "statusRectificationSubmitted": "Rectification submitted",
+    "statusReturned": "Returned",
+    "statusVerified": "Verified",
+    "statusResolved": "Resolved",
+    "statusClosed": "Closed",
+    "action": {
+      "reportIncident": "Report incident",
+      "cancel": "Cancel",
+      "create": "Create report",
+      "resolve": "Mark as resolved"
+    },
+    "dialog": {
+      "create": {
+        "title": "Report an incident",
+        "description": "Record the incident details. Supervisors and relevant workers will be notified immediately."
+      }
+    },
+    "field": {
+      "project": "Project",
+      "title": "Incident title",
+      "titlePlaceholder": "Brief description of the incident",
+      "severity": "Severity",
+      "messagePlaceholder": "Add details, photos or updates"
+    },
+    "severity": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "status": {
+      "open": "Open",
+      "resolved": "Resolved"
+    },
+    "label": {
+      "messages": "messages"
+    }
   }
 }

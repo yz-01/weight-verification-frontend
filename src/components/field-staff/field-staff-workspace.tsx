@@ -18,6 +18,7 @@ import {
   LogIn,
   LogOut,
   MapPinned,
+  MessageSquarePlus,
   Play,
   Recycle,
   RefreshCw,
@@ -36,6 +37,7 @@ import {
   FieldRecordsPanel,
   type FieldRecordMode,
 } from "@/components/field-staff/field-records-panel";
+import { IncidentReporting } from "@/components/incident-reporting/incident-reporting";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -60,7 +62,7 @@ import {
 } from "@/services/platform-ops.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 
-type MobileTab = "home" | "tasks" | "attendance" | "records" | "location";
+type MobileTab = "home" | "tasks" | "attendance" | "records" | "location" | "incidents";
 type LocationFix = { latitude: string; longitude: string; accuracy: string };
 
 function locate(): Promise<LocationFix> {
@@ -85,7 +87,7 @@ export function FieldStaffWorkspace() {
   const requestedRecord = searchParams.get("record") as FieldRecordMode | null;
   const supplierToken = searchParams.get("supplier_token") ?? "";
   const [tab, setTab] = useState<MobileTab>(
-    requestedTab && ["home", "tasks", "attendance", "records", "location"].includes(requestedTab)
+    requestedTab && ["home", "tasks", "attendance", "records", "location", "incidents"].includes(requestedTab)
       ? requestedTab
       : requestedRecord
         ? "records"
@@ -155,6 +157,7 @@ export function FieldStaffWorkspace() {
         />
       )}
       {tab === "location" && <FieldStaffGps />}
+      {tab === "incidents" && <FieldIncidentsPanel />}
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 backdrop-blur">
         <div className="mx-auto grid max-w-2xl grid-cols-5 gap-1 px-3">
@@ -162,7 +165,7 @@ export function FieldStaffWorkspace() {
           <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => { setTaskType(undefined); setTab("tasks"); }} />
           <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => setTab("attendance")} />
           <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => { setRecordMode(null); setTab("records"); }} />
-          <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => setTab("location")} />
+          <MobileNavButton active={tab === "incidents"} icon={MessageSquarePlus} label={t("nav.incidents")} onClick={() => setTab("incidents")} />
         </div>
       </nav>
       {tab === "home" && <p className="text-center text-xs text-muted-foreground">{t("identity.version", { version: process.env.NEXT_PUBLIC_APP_VERSION ?? "0.1.0" })}</p>}
@@ -195,6 +198,7 @@ function FieldHomePanel({
     { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive", open: () => onRecord("outgoing") },
     { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning", open: () => onRecord("safety") },
     { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary", open: () => onRecord("consultant") },
+    { key: "incidents", permission: "incident_report.view", icon: MessageSquarePlus, tone: "bg-destructive/10 text-destructive", open: () => onOpen("incidents") },
   ];
   const visibleActions = actions.filter((action) => !action.permission || can(action.permission));
   return (
@@ -482,6 +486,19 @@ function FieldAttendancePanel() {
           );
         })}
       </div>
+    </section>
+  );
+}
+
+function FieldIncidentsPanel() {
+  const t = useTranslations("fieldStaffPwa");
+  return (
+    <section className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold">{t("incidents.title")}</h2>
+        <p className="text-sm text-muted-foreground">{t("incidents.subtitle")}</p>
+      </div>
+      <IncidentReporting />
     </section>
   );
 }

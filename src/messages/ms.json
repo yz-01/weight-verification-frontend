@@ -3129,6 +3129,7 @@
       "consultant_grant_not_found": "Akses projek perunding itu tidak dijumpai.",
       "field_invitation_invalid": "Pautan kakitangan tapak ini tidak sah atau telah tamat.",
       "field_pin_invalid": "Nombor telefon atau PIN salah.",
+      "field_pin_expired": "PIN anda telah tamat tempoh. Sila hubungi pentadbir projek untuk mengeluarkan jemputan baharu.",
       "field_device_invalid": "Telefon ini tidak dipautkan kepada akaun tapak. Minta pentadbir projek menetapkannya semula.",
       "field_device_already_bound": "Akaun tapak ini telah dipautkan kepada telefon lain. Minta pentadbir projek menetapkannya semula.",
       "progress_update_not_found": "Kemas kini kemajuan itu tidak dijumpai.",
@@ -7775,7 +7776,7 @@
       "workType": "Jenis pemeriksaan / kerja", "chooseWorkType": "Pilih jenis pemeriksaan", "priority": "Keutamaan", "choosePriority": "Pilih keutamaan",
       "customApplicationType": "Jenis permohonan tersuai", "customDiscipline": "Disiplin tersuai", "customWorkType": "Jenis kerja tersuai", "customPriority": "Keutamaan tersuai",
       "consultant": "Perunding", "chooseConsultant": "Pilih perunding yang dibenarkan", "consultantCompany": "Syarikat perunding",
-      "location": "Lokasi pemeriksaan", "component": "Komponen / kawasan kerja", "description": "Penerangan / permintaan", "requiredAt": "Tarikh dan masa pemeriksaan diperlukan",
+      "location": "Lokasi pemeriksaan", "component": "Komponen / kawasan kerja", "description": "Penerangan / permintaan", "remarks": "Catatan", "requiredAt": "Tarikh dan masa pemeriksaan diperlukan",
       "inspectionStartAt": "Mula tempoh pemeriksaan", "inspectionEndAt": "Tamat tempoh pemeriksaan",
       "inspectionActivity": "Aktiviti pemeriksaan", "drawingNo": "Nombor lukisan", "drawingRevision": "Semakan lukisan", "itpNo": "Nombor ITP", "checklistReference": "Rujukan senarai semak", "inspectionCategory": "Kategori R / S / W / H", "acceptanceRequirement": "Keperluan penerimaan"
     },
@@ -7908,5 +7909,42 @@
     },
     "current": "Versi Semasa",
     "forceUpdateOn": "Kemas Kini Paksa"
+  },
+  "incidentReporting": {
+    "title": "Laporan Insiden",
+    "subtitle": "Laporkan kemalangan, kecemasan dan kebimbangan keselamatan kepada pekerja dan penyelia.",
+    "empty": "Tiada insiden dilaporkan lagi.",
+    "action": {
+      "reportIncident": "Laporkan insiden",
+      "cancel": "Batal",
+      "create": "Cipta laporan",
+      "resolve": "Tandakan sebagai selesai"
+    },
+    "dialog": {
+      "create": {
+        "title": "Laporkan insiden",
+        "description": "Rekod butiran insiden. Penyelia dan pekerja berkaitan akan dimaklumkan segera."
+      }
+    },
+    "field": {
+      "project": "Projek",
+      "title": "Tajuk insiden",
+      "titlePlaceholder": "Penerangan ringkas insiden",
+      "severity": "Keterukan",
+      "messagePlaceholder": "Tambah butiran, foto atau kemaskini"
+    },
+    "severity": {
+      "LOW": "Rendah",
+      "MEDIUM": "Sederhana",
+      "HIGH": "Tinggi",
+      "CRITICAL": "Kritikal"
+    },
+    "status": {
+      "open": "Terbuka",
+      "resolved": "Selesai"
+    },
+    "label": {
+      "messages": "mesej"
+    }
   }
 }

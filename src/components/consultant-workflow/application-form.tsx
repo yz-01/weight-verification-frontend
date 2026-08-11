@@ -59,6 +59,7 @@ const emptyForm: ConsultantApplicationPayload = {
   location: "",
   component: "",
   description: "",
+  remarks: "",
   required_at: null,
   inspection_start_at: null,
   inspection_end_at: null,
@@ -97,6 +98,7 @@ function payloadFromApplication(
     location: row.location,
     component: row.component,
     description: row.description,
+    remarks: row.remarks,
     required_at: row.required_at,
     inspection_start_at: row.inspection_start_at,
     inspection_end_at: row.inspection_end_at,
@@ -530,6 +532,7 @@ function ConsultantApplicationEditor({
           <FieldWrapper label={t("field.location")} required><Input value={form.location} onChange={(event) => set("location", event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.component")} required><Input value={form.component} onChange={(event) => set("component", event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.description")} required className="sm:col-span-2"><Textarea rows={4} value={form.description} onChange={(event) => set("description", event.target.value)} /></FieldWrapper>
+          <FieldWrapper label={t("field.remarks")} className="sm:col-span-2"><Textarea rows={3} value={form.remarks ?? ""} onChange={(event) => set("remarks", event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.requiredAt")}><Input type="datetime-local" value={requiredAt} onChange={(event) => setRequiredAt(event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.inspectionStartAt")}><Input type="datetime-local" value={inspectionStartAt} onChange={(event) => setInspectionStartAt(event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("field.inspectionEndAt")}><Input type="datetime-local" min={inspectionStartAt || undefined} value={inspectionEndAt} onChange={(event) => setInspectionEndAt(event.target.value)} /></FieldWrapper>

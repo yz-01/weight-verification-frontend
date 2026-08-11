@@ -156,8 +156,8 @@
     "today": "今天 · {date}", "greeting": "你好，{name}",
     "identity": { "company": "公司：{company}", "role": "角色：{role}", "projects": "负责项目：{projects}", "noProject": "尚未分配项目", "version": "MSE Trace 版本 {version}" },
     "camera": { "open": "打开相机", "ready": "已拍摄 {count} 张", "help": "把现场情况完整放进画面，然后按下方的大按钮拍照。", "capture": "拍照", "switch": "切换镜头", "clear": "清除照片", "unsupported": "此浏览器无法打开相机，请使用 HTTPS 网站和较新的手机浏览器。", "permissionError": "无法启动相机，请允许相机权限后再试。", "captureError": "拍照失败，请再试一次。" },
-    "nav": { "home": "首页", "tasks": "任务", "attendance": "打卡", "records": "拍照", "disposal": "清运", "location": "位置" },
-    "home": { "title": "今天的工作", "subtitle": "按一个大按钮就可以继续。", "tasks": "我的任务", "attendance": "上下班打卡", "records": "现场拍照记录", "location": "共享位置", "material": "材料拍照", "equipment": "设备拍照", "progress": "进度拍照", "disposal": "废料清运", "outgoing": "材料出场", "safety": "安全问题", "consultant": "顾问资料" },
+    "nav": { "home": "首页", "tasks": "任务", "attendance": "打卡", "records": "拍照", "disposal": "清运", "location": "位置", "incidents": "事故" },
+    "home": { "title": "今天的工作", "subtitle": "按一个大按钮就可以继续。", "tasks": "我的任务", "attendance": "上下班打卡", "records": "现场拍照记录", "location": "共享位置", "material": "材料拍照", "equipment": "设备拍照", "progress": "进度拍照", "disposal": "废料清运", "outgoing": "材料出场", "safety": "安全问题", "consultant": "顾问资料", "incidents": "报告事故" },
     "notifications": { "title": "我的工作通知", "subtitle": "任务、审批和事故处理结果会显示在这里。", "empty": "目前没有新通知", "loadError": "通知读取失败，请检查网络后重试。", "open": "打开", "markRead": "知道了", "read": "已读" },
     "tasks": { "title": "我的任务", "count": "现有 {count} 项任务", "empty": "所有任务已完成", "evidence": "照片 {current}/{required}", "references": "先看参考资料（{count}）", "startedAt": "开始时间：{value}", "assignedBy": "指派人：{name}", "workLocation": "工作位置：{location}", "dueAt": "期限：{value}", "waitingReview": "等待管理员审核", "linkedSubmission": "已提交：{reference}" },
     "status": { "OPEN": "新任务", "IN_PROGRESS": "进行中", "SUBMITTED": "已提交", "ACCEPTED": "已完成", "RETURNED": "需要重拍", "CANCELLED": "已取消" },
@@ -165,6 +165,7 @@
     "action": { "back": "返回", "refresh": "刷新", "start": "开始", "openWorkflow": "打开工作表单", "takePhoto": "拍照", "submit": "提交给管理员", "morePhotos": "还需拍 {count} 张", "retry": "重试", "clearSignature": "清除签名" },
     "consultantTasks": { "title": "顾问现场照片提交" },
     "consultantCapture": { "project": "项目", "chooseProject": "选择项目", "category": "申请类别", "categoryOption": { "RFI": "RFI / 现场问题", "WIR": "施工检查", "MATERIAL": "材料审批", "SAFETY": "安全审核", "OTHER": "其他" }, "workLocation": "现场位置 / 轴线", "workLocationPlaceholder": "例如：A座，C1-D1轴线", "description": "请简单说明要办公室或顾问查看什么", "photos": "顾问现场照片", "note": "额外备注（选填）", "submit": "提交到顾问资料收件箱" },
+    "incidents": { "title": "事故报告", "subtitle": "向监管人员报告意外事故和安全问题。" },
     "records": { "title": "现场记录", "subtitle": "先选择工作，再拍摄系统要求的照片。", "material": "材料记录", "equipment": "设备进退场", "progress": "施工进度照片", "disposal": "废料清运", "outgoing": "材料出场", "safety": "安全与隐患", "consultant": "顾问资料提交" },
     "material": { "project": "项目", "chooseProject": "选择项目", "supplier": "供应商", "chooseSupplier": "选择供应商", "scanSupplierQr": "扫描供应商二维码", "scanTitle": "扫描供应商二维码", "scanHelp": "把相机对准供应商送货二维码，项目和供应商会自动填入。", "cameraError": "无法启动相机，请允许相机权限后重试。", "closeScanner": "关闭扫描", "qrInvalid": "此供应商二维码无效、已撤销或不属于可用项目。", "qrMatched": "已匹配供应商二维码", "qrNotIssued": "没有有效的供应商二维码，记录仍会保存所选供应商。", "direction": "类型", "entry": "材料进场", "return": "材料退场", "returnReason": "退场原因", "chooseReturnReason": "请选择材料为什么退场", "returnReasonOther": "填写其他退场原因", "returnReasonOption": { "QUALITY_REJECTED": "质量检查不合格", "WRONG_DELIVERY": "送错材料", "DAMAGED": "材料损坏", "EXCESS_MATERIAL": "多余材料退回", "OTHER": "其他原因" }, "unit": "单位", "name": "材料名称", "quantity": "数量", "vehicle": "车牌", "doNo": "送货单编号", "doPhoto": "送货单照片", "ocrReading": "正在读取送货单...", "ocrReady": "已读取送货单，请检查自动填入的资料后再保存。", "ocrManual": "无法读取送货单，请手动填写资料。", "ocrChooseProject": "请先选择项目，再拍摄送货单。", "ocrOffline": "当前离线，请先手动填写；照片上传到服务器后会再次执行 OCR。", "sitePhotos": "材料 / 卸货照片", "receiverSignature": "接收人签名", "supplierSignature": "供应商签名", "tapCamera": "按这里打开相机", "photoReady": "已准备 {count} 张照片", "notes": "备注（选填）", "submit": "保存材料记录" },
     "attendance": { "title": "工地考勤", "todayCount": "今天已有 {count} 条打卡记录", "selectProject": "选择今天的项目", "clockIn": "上班打卡", "clockOut": "下班打卡", "takeSelfie": "拍摄自拍照", "selfieReady": "自拍照已准备", "getLocation": "获取当前 GPS", "locationReady": "GPS 已准备", "note": "备注（选填）", "submit": "提交打卡", "noRecords": "今天还没有打卡记录", "openPhoto": "查看打卡照片", "viewMap": "查看打卡位置", "distance": "距离围栏：{distance} 米", "geofence": { "INSIDE": "围栏范围内", "OUTSIDE": "围栏范围外", "NOT_EVALUATED": "尚未设置围栏" } },
@@ -3129,6 +3130,7 @@
       "consultant_grant_not_found": "找不到该顾问项目授权。",
       "field_invitation_invalid": "此现场人员链接无效或已过期。",
       "field_pin_invalid": "手机号码或 PIN 不正确。",
+      "field_pin_expired": "您的 PIN 已过期。请联系项目管理员重新发送邀请。",
       "field_device_invalid": "这台手机未绑定该现场人员账号，请联系项目管理员重置。",
       "field_device_already_bound": "该现场人员账号已绑定另一台手机，请联系项目管理员重置。",
       "progress_update_not_found": "找不到这条工程进度。",
@@ -7760,7 +7762,7 @@
       "workType": "检查／工作类型", "chooseWorkType": "选择检查类型", "priority": "优先级", "choosePriority": "选择优先级",
       "customApplicationType": "自定义申请类型", "customDiscipline": "自定义专业", "customWorkType": "自定义工作类型", "customPriority": "自定义优先级",
       "consultant": "顾问", "chooseConsultant": "选择获授权顾问", "consultantCompany": "顾问公司",
-      "location": "检查位置", "component": "构件／工作区域", "description": "说明／申请内容", "requiredAt": "要求检查日期与时间",
+      "location": "检查位置", "component": "构件／工作区域", "description": "说明／申请内容", "remarks": "备注", "requiredAt": "要求检查日期与时间",
       "inspectionStartAt": "检查时段开始", "inspectionEndAt": "检查时段结束",
       "inspectionActivity": "检查活动", "drawingNo": "图纸编号", "drawingRevision": "图纸版本", "itpNo": "ITP 编号",
       "checklistReference": "检查表参考", "inspectionCategory": "R／S／W／H 类别", "acceptanceRequirement": "验收要求"
@@ -7919,5 +7921,71 @@
     },
     "current": "当前版本",
     "forceUpdateOn": "强制更新"
+  },
+  "incidentReporting": {
+    "title": "事故上报",
+    "subtitle": "向工人和监管人员报告意外事故、紧急情况和安全问题。",
+    "empty": "目前还没有事故报告。",
+    "newReport": "新事故报告",
+    "previousReports": "历史报告",
+    "noReports": "暂无报告",
+    "project": "项目",
+    "chooseProject": "选择项目",
+    "severity": "严重程度",
+    "severityLow": "低",
+    "severityMedium": "中",
+    "severityHigh": "高",
+    "severityCritical": "紧急",
+    "location": "地点",
+    "locationPlaceholder": "建筑物、楼层、格网参考",
+    "description": "发生了什么？",
+    "descriptionPlaceholder": "清楚描述事故情况",
+    "recipients": "报告给",
+    "chooseProjectFirst": "请先选择项目以选择接收人",
+    "photos": "照片",
+    "submit": "提交报告",
+    "fillRequired": "请填写所有必填项",
+    "submitSuccess": "事故报告已提交",
+    "submitError": "无法提交报告",
+    "statusOpen": "未处理",
+    "statusInvestigating": "调查中",
+    "statusAssigned": "已分配",
+    "statusRectificationSubmitted": "整改已提交",
+    "statusReturned": "已退回",
+    "statusVerified": "已验证",
+    "statusResolved": "已解决",
+    "statusClosed": "已关闭",
+    "action": {
+      "reportIncident": "报告事故",
+      "cancel": "取消",
+      "create": "建立报告",
+      "resolve": "标记为已解决"
+    },
+    "dialog": {
+      "create": {
+        "title": "报告事故",
+        "description": "记录事故详情。相关监管人员和工人会立即收到通知。"
+      }
+    },
+    "field": {
+      "project": "项目",
+      "title": "事故标题",
+      "titlePlaceholder": "简述事故情况",
+      "severity": "严重程度",
+      "messagePlaceholder": "新增详情、照片或更新"
+    },
+    "severity": {
+      "LOW": "低",
+      "MEDIUM": "中",
+      "HIGH": "高",
+      "CRITICAL": "紧急"
+    },
+    "status": {
+      "open": "未解决",
+      "resolved": "已解决"
+    },
+    "label": {
+      "messages": "条消息"
+    }
   }
 }
