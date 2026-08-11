@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -26,18 +25,17 @@ import {
   type ServiceRecordPayload, type TrainingPayload, type VisitPayload,
 } from "@/services/crm.service";
 
-export type CustomerServiceSection = "overview" | "customers" | "enquiries" | "training" | "visits" | "feedback" | "service" | "reports" | "activity";
+export type CustomerServiceSection = "overview" | "customers" | "enquiries" | "training" | "visits" | "feedback" | "service" | "reports";
 const SUBMODULES: Array<{ section: Exclude<CustomerServiceSection, "overview">; number: string }> = [
   { section: "customers", number: "14.2.1" }, { section: "enquiries", number: "14.2.2" },
   { section: "training", number: "14.2.3" }, { section: "visits", number: "14.2.4" },
   { section: "feedback", number: "14.2.5" }, { section: "service", number: "14.2.6" },
-  { section: "reports", number: "14.2.7" }, { section: "activity", number: "14.2.8" },
+  { section: "reports", number: "14.2.7" },
 ];
 const ENQUIRY_STATUSES: EnquiryStatus[] = ["NEW", "CONTACTED", "IN_PROGRESS", "QUOTED", "WON", "LOST", "CANCELLED"];
 
 export function CustomerServiceWorkspace({ section = "overview" }: { section?: CustomerServiceSection }) {
   const t = useTranslations("adminCustomerService");
-  if (section === "activity") return <AuditLogs fixedCategory="CUSTOMER_SERVICE" title={t("section.activity.title")} subtitle={t("section.activity.subtitle")} />;
   if (section === "overview") return <Overview />;
   return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
     <ListHeader title={t(`section.${section}.title`)} subtitle={t(`section.${section}.subtitle`)} />

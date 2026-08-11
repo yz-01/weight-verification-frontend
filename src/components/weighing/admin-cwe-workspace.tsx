@@ -12,7 +12,6 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import {
   FieldWrapper,
   ListHeader,
@@ -55,8 +54,7 @@ export type AdminCWESection =
   | "anomalies"
   | "search"
   | "statistics"
-  | "service-status"
-  | "activity";
+  | "service-status";
 
 const SUBMODULES: Array<{
   section: Exclude<AdminCWESection, "overview">;
@@ -69,7 +67,6 @@ const SUBMODULES: Array<{
   { section: "search", number: "8.2.5" },
   { section: "statistics", number: "8.2.6" },
   { section: "service-status", number: "8.2.7" },
-  { section: "activity", number: "8.2.8" },
 ];
 
 export function AdminCWEWorkspace({
@@ -78,15 +75,6 @@ export function AdminCWEWorkspace({
   section?: AdminCWESection;
 }) {
   const t = useTranslations("adminCwe");
-  if (section === "activity") {
-    return (
-      <AuditLogs
-        fixedCategory="CWE"
-        title={t("section.activity.title")}
-        subtitle={t("section.activity.subtitle")}
-      />
-    );
-  }
   let content: React.ReactNode;
   if (section === "overview") content = <ModuleIndex />;
   else if (section === "scales") content = <ScaleRegister />;

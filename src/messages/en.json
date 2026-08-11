@@ -431,10 +431,10 @@
       "companySettings": "Company settings",
       "notifications": "Notification center",
       "companyCreate": "Create company",
-      "companyDirectory": "Company records",
+      "companyDirectory": "Company management and search",
       "companyReview": "Company review",
       "companyStatus": "Company status",
-      "companySubscriptions": "Company subscriptions",
+      "companySubscriptions": "Company subscription management",
       "companyProjects": "Company projects",
       "companyRecyclerData": "Recycler information",
       "companySearch": "Company search",
@@ -461,11 +461,11 @@
       "collections": "Collections",
       "paymentProofs": "Payment proofs",
       "commissionRules": "Commission rules",
-      "invoiceSearch": "Invoice search",
+      "invoiceSearch": "Invoice management and search",
       "billingStatistics": "Billing statistics",
       "financialReports": "Financial reports",
       "billingActivity": "Billing records",
-      "livePlatform": "Live platform status",
+      "livePlatform": "Platform and service monitoring",
       "cweMonitoring": "CWE monitoring",
       "cctvMonitoring": "AI CCTV monitoring",
       "anprMonitoring": "ANPR monitoring",
@@ -498,7 +498,7 @@
       "commissionReports": "Platform commission reports",
       "cweReports": "CWE reports",
       "operationsReports": "System operations reports",
-      "reportSearch": "Report search",
+      "reportSearch": "Report center",
       "reportExports": "Report export",
       "reportHistory": "Report history",
       "contractorNotifications": "Contractor notifications",
@@ -530,10 +530,10 @@
       "cweAudit": "CWE records",
       "settingsAudit": "Setting records",
       "loginAudit": "Sign-in records",
-      "auditSearch": "Audit search",
+      "auditSearch": "Audit records",
       "auditExport": "Audit export",
       "immutableAudit": "Permanent records",
-      "salesPeople": "Salespeople",
+      "salesPeople": "Salespeople management",
       "salesDetails": "Salesperson details",
       "salesTerritories": "Territories",
       "salesHierarchy": "Team hierarchy",
@@ -554,7 +554,7 @@
       "crmService": "Service history",
       "crmReports": "Customer service reports",
       "crmActivity": "Customer service records",
-      "supportTickets": "Technical tickets",
+      "supportTickets": "Technical support tickets",
       "supportStates": "Ticket status",
       "supportBugs": "Bug management",
       "supportAPI": "API integrations",
@@ -572,7 +572,7 @@
       "partnerPerformance": "Performance",
       "partnerReports": "Partner reports",
       "partnerActivity": "Partner records",
-      "assetManagement": "Asset management",
+      "assetManagement": "Asset management and search",
       "assetDetails": "Asset details",
       "assetCategories": "Asset categories",
       "assetPurchases": "Purchases",
@@ -978,8 +978,8 @@
     "new": "New company",
     "module": {
       "directory": {
-        "title": "Company records",
-        "subtitle": "{count} companies with profile, status and contact controls"
+        "title": "Company management and search",
+        "subtitle": "Search and manage {count} companies with profile, type, state, plan, status, contacts and summary statistics"
       },
       "review": {
         "title": "Company review",
@@ -2182,8 +2182,8 @@
     },
     "section": {
       "live-platform": {
-        "title": "Live platform status",
-        "subtitle": "Online companies, projects and users based on current activity"
+        "title": "Platform and service monitoring",
+        "subtitle": "Online companies, users, runtime statistics, connected services and device inventory in one workspace"
       },
       "cwe": {
         "title": "CWE monitoring",
@@ -2425,7 +2425,7 @@
     "module": {
       "management": {
         "title": "User management",
-        "subtitle": "{count} platform and tenant accounts with lifecycle controls"
+        "subtitle": "{count} accounts with profiles, categories, roles, login status, statistics and lifecycle controls"
       },
       "profiles": {
         "title": "User profiles and search",
@@ -2766,11 +2766,28 @@
       "allActions": "All actions",
       "result": "Result",
       "allResults": "All results",
+      "category": "Business category",
+      "allCategories": "All business categories",
       "objectType": "Record type",
       "module": "Module",
       "ipAddress": "IP address",
       "dateFrom": "From date",
       "dateTo": "To date"
+    },
+    "category": {
+      "USER": "Users and login",
+      "COMPANY": "Companies",
+      "SUBSCRIPTION": "Subscriptions",
+      "BILLING": "Billing and commission",
+      "QR": "QR codes",
+      "CWE": "CWE and weighing",
+      "SETTINGS": "System settings",
+      "SALES": "Sales",
+      "CUSTOMER_SERVICE": "Customer service",
+      "TECHNICAL_SUPPORT": "Technical support",
+      "PARTNER": "Partners",
+      "ASSET": "Assets",
+      "CLOUD_SERVICE": "Cloud services"
     },
     "field": {
       "createdAt": "When",
@@ -4050,8 +4067,8 @@
         "subtitle": "Online users, active users, API calls, synchronisation and exceptions"
       },
       "search": {
-        "title": "Report search",
-        "subtitle": "Query any report by company, project, state and date range"
+        "title": "Report center",
+        "subtitle": "Choose any report type, filter it by company, project, state and date, then export PDF or Excel"
       },
       "export": {
         "title": "Report export",
@@ -5173,8 +5190,8 @@
         "subtitle": "Platform rate, calculation basis and settlement cycle"
       },
       "search": {
-        "title": "Invoice Search",
-        "subtitle": "Search by company, number, type, date and payment status"
+        "title": "Invoice management and search",
+        "subtitle": "Manage SaaS and commission invoices together, with statistics and filters by company, type, date and payment status"
       },
       "statistics": {
         "title": "Billing Statistics",
@@ -5360,8 +5377,8 @@
         "subtitle": "Plan pricing, terms, allowances and feature entitlements"
       },
       "companies": {
-        "title": "Company Subscriptions",
-        "subtitle": "Current plan, term and status for every company"
+        "title": "Company subscription management",
+        "subtitle": "Search and manage each company plan, status, term, account limit and expiry date"
       },
       "status": {
         "title": "Subscription Status",
@@ -5633,8 +5650,8 @@
     },
     "section": {
       "people": {
-        "title": "Salespeople",
-        "subtitle": "Add, edit, activate and deactivate sales staff and agents."
+        "title": "Salespeople management",
+        "subtitle": "View full profiles and add, edit, activate or deactivate sales staff and agents."
       },
       "details": {
         "title": "Salesperson details",
@@ -6100,8 +6117,8 @@
     },
     "section": {
       "tickets": {
-        "title": "Technical tickets",
-        "subtitle": "Create bug, system, API, weighbridge, CCTV, ANPR and other technical tickets."
+        "title": "Technical support tickets",
+        "subtitle": "Create, filter and update the status of bug, system, API, weighbridge, CCTV, ANPR and other technical tickets."
       },
       "states": {
         "title": "Ticket status",
@@ -6428,8 +6445,8 @@
         "subtitle": "Time, IP address, device and successful or failed access attempts."
       },
       "search": {
-        "title": "Audit search",
-        "subtitle": "Search by user, company, type, date, module, record or IP address."
+        "title": "Audit records",
+        "subtitle": "Filter and export all operation records by category, user, company, type, date, module, record or IP address."
       },
       "export": {
         "title": "Audit export",
@@ -6673,7 +6690,7 @@
     "section": {
       "management": {
         "title": "Partner management",
-        "subtitle": "Create, edit, activate and deactivate platform partners."
+        "subtitle": "View full partner profiles and create, edit, activate or deactivate platform partners."
       },
       "details": {
         "title": "Partner details",
@@ -6956,8 +6973,8 @@
     },
     "section": {
       "management": {
-        "title": "Asset management",
-        "subtitle": "Register, edit, activate and deactivate MSE assets."
+        "title": "Asset management and search",
+        "subtitle": "Search full asset details and register, edit, activate or deactivate MSE assets."
       },
       "details": {
         "title": "Asset details",

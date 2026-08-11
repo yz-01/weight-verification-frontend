@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import {
   UserManagementWorkspace,
@@ -7,11 +7,6 @@ import {
 
 const USER_ADMIN_SECTIONS = new Set<UserAdminSection>([
   "management",
-  "profiles",
-  "categories",
-  "login",
-  "statistics",
-  "activity",
 ]);
 
 export default async function UserManagementSectionPage({
@@ -20,11 +15,9 @@ export default async function UserManagementSectionPage({
   params: Promise<{ section: string }>;
 }) {
   const { section } = await params;
-  if (section === "search") {
-    redirect("/users/admin/profiles");
-  }
+  if (section === "activity") redirect("/audit-logs/search?category=USER");
   if (!USER_ADMIN_SECTIONS.has(section as UserAdminSection)) {
-    notFound();
+    redirect("/users/admin/management");
   }
   return <UserManagementWorkspace section={section as UserAdminSection} />;
 }

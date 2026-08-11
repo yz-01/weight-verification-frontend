@@ -431,7 +431,7 @@
       "companySettings": "Tetapan syarikat",
       "notifications": "Pusat notifikasi",
       "companyCreate": "Wujudkan syarikat",
-      "companyDirectory": "Rekod syarikat",
+      "companyDirectory": "Pengurusan dan carian syarikat",
       "companyReview": "Semakan syarikat",
       "companyStatus": "Status syarikat",
       "companySubscriptions": "Langganan syarikat",
@@ -461,11 +461,11 @@
       "collections": "Kutipan",
       "paymentProofs": "Bukti pembayaran",
       "commissionRules": "Peraturan komisen",
-      "invoiceSearch": "Carian invois",
+      "invoiceSearch": "Pengurusan dan carian invois",
       "billingStatistics": "Statistik bil",
       "financialReports": "Laporan kewangan",
       "billingActivity": "Rekod bil",
-      "livePlatform": "Status platform langsung",
+      "livePlatform": "Pemantauan platform dan servis",
       "cweMonitoring": "Pemantauan CWE",
       "cctvMonitoring": "Pemantauan AI CCTV",
       "anprMonitoring": "Pemantauan ANPR",
@@ -498,7 +498,7 @@
       "commissionReports": "Laporan komisen platform",
       "cweReports": "Laporan CWE",
       "operationsReports": "Laporan operasi sistem",
-      "reportSearch": "Carian laporan",
+      "reportSearch": "Pusat laporan",
       "reportExports": "Eksport laporan",
       "reportHistory": "Sejarah laporan",
       "contractorNotifications": "Notifikasi kontraktor",
@@ -530,10 +530,10 @@
       "cweAudit": "Rekod CWE",
       "settingsAudit": "Rekod tetapan",
       "loginAudit": "Rekod log masuk",
-      "auditSearch": "Carian audit",
+      "auditSearch": "Rekod audit",
       "auditExport": "Eksport audit",
       "immutableAudit": "Rekod kekal",
-      "salesPeople": "Kakitangan jualan",
+      "salesPeople": "Pengurusan kakitangan jualan",
       "salesDetails": "Butiran jurujual",
       "salesTerritories": "Wilayah jualan",
       "salesHierarchy": "Hierarki pasukan",
@@ -554,7 +554,7 @@
       "crmService": "Sejarah perkhidmatan",
       "crmReports": "Laporan khidmat pelanggan",
       "crmActivity": "Rekod khidmat pelanggan",
-      "supportTickets": "Tiket teknikal",
+      "supportTickets": "Tiket sokongan teknikal",
       "supportStates": "Status tiket",
       "supportBugs": "Pengurusan bug",
       "supportAPI": "Integrasi API",
@@ -572,7 +572,7 @@
       "partnerPerformance": "Prestasi",
       "partnerReports": "Laporan rakan kongsi",
       "partnerActivity": "Rekod rakan kongsi",
-      "assetManagement": "Pengurusan aset",
+      "assetManagement": "Pengurusan dan carian aset",
       "assetDetails": "Butiran aset",
       "assetCategories": "Kategori aset",
       "assetPurchases": "Pembelian",
@@ -978,8 +978,8 @@
     "new": "Syarikat baharu",
     "module": {
       "directory": {
-        "title": "Rekod syarikat",
-        "subtitle": "{count} syarikat dengan profil, status dan kawalan hubungan"
+        "title": "Pengurusan dan carian syarikat",
+        "subtitle": "Cari dan urus {count} syarikat mengikut profil, jenis, negeri, pelan, status, hubungan dan statistik"
       },
       "review": {
         "title": "Semakan syarikat",
@@ -2182,8 +2182,8 @@
     },
     "section": {
       "live-platform": {
-        "title": "Status platform langsung",
-        "subtitle": "Syarikat, projek dan pengguna dalam talian berdasarkan aktiviti semasa"
+        "title": "Pemantauan platform dan servis",
+        "subtitle": "Lihat syarikat, pengguna, statistik operasi, servis bersambung dan inventori peranti dalam satu halaman"
       },
       "cwe": {
         "title": "Pemantauan CWE",
@@ -2419,7 +2419,7 @@
     "module": {
       "management": {
         "title": "Pengurusan pengguna",
-        "subtitle": "{count} akaun platform dan penyewa dengan kawalan kitar hayat"
+        "subtitle": "{count} akaun dengan profil, kategori, peranan, status log masuk, statistik dan kawalan akaun"
       },
       "profiles": {
         "title": "Profil dan carian pengguna",
@@ -2760,11 +2760,28 @@
       "allActions": "Semua tindakan",
       "result": "Keputusan",
       "allResults": "Semua keputusan",
+      "category": "Kategori perniagaan",
+      "allCategories": "Semua kategori perniagaan",
       "objectType": "Jenis rekod",
       "module": "Modul",
       "ipAddress": "Alamat IP",
       "dateFrom": "Tarikh mula",
       "dateTo": "Tarikh tamat"
+    },
+    "category": {
+      "USER": "Pengguna dan log masuk",
+      "COMPANY": "Syarikat",
+      "SUBSCRIPTION": "Langganan",
+      "BILLING": "Bil dan komisen",
+      "QR": "Kod QR",
+      "CWE": "CWE dan timbangan",
+      "SETTINGS": "Tetapan sistem",
+      "SALES": "Jualan",
+      "CUSTOMER_SERVICE": "Khidmat pelanggan",
+      "TECHNICAL_SUPPORT": "Sokongan teknikal",
+      "PARTNER": "Rakan kongsi",
+      "ASSET": "Aset",
+      "CLOUD_SERVICE": "Servis awan"
     },
     "field": {
       "createdAt": "Bila",
@@ -4048,8 +4065,8 @@
         "subtitle": "Pengguna dalam talian, pengguna aktif, API, penyegerakan dan pengecualian"
       },
       "search": {
-        "title": "Carian laporan",
-        "subtitle": "Cari laporan mengikut syarikat, projek, negeri dan julat tarikh"
+        "title": "Pusat laporan",
+        "subtitle": "Pilih jenis laporan, tapis mengikut syarikat, projek, negeri dan tarikh, kemudian eksport PDF atau Excel"
       },
       "export": {
         "title": "Eksport laporan",
@@ -5181,8 +5198,8 @@
         "subtitle": "Kadar, asas pengiraan dan kitaran penyelesaian platform"
       },
       "search": {
-        "title": "Carian Invois",
-        "subtitle": "Cari mengikut syarikat, nombor, jenis, tarikh dan status"
+        "title": "Pengurusan dan carian invois",
+        "subtitle": "Urus invois SaaS dan komisen bersama statistik serta penapis syarikat, jenis, tarikh dan status bayaran"
       },
       "statistics": {
         "title": "Statistik Bil",
@@ -5371,8 +5388,8 @@
         "subtitle": "Harga, tempoh, had akaun dan kelayakan ciri"
       },
       "companies": {
-        "title": "Langganan Syarikat",
-        "subtitle": "Pelan, tempoh dan status semasa setiap syarikat"
+        "title": "Pengurusan langganan syarikat",
+        "subtitle": "Cari dan urus pelan, status, tempoh, had akaun dan tarikh tamat setiap syarikat"
       },
       "status": {
         "title": "Status Langganan",
@@ -5644,8 +5661,8 @@
     },
     "section": {
       "people": {
-        "title": "Kakitangan jualan",
-        "subtitle": "Tambah, edit, aktifkan dan nyahaktifkan kakitangan atau ejen jualan."
+        "title": "Pengurusan kakitangan jualan",
+        "subtitle": "Lihat profil lengkap serta tambah, edit, aktifkan atau nyahaktifkan kakitangan dan ejen jualan."
       },
       "details": {
         "title": "Butiran jurujual",
@@ -6114,8 +6131,8 @@
     },
     "section": {
       "tickets": {
-        "title": "Tiket teknikal",
-        "subtitle": "Cipta tiket bug, sistem, API, jambatan timbang, CCTV, ANPR dan perkara lain."
+        "title": "Tiket sokongan teknikal",
+        "subtitle": "Cipta, tapis dan kemas kini status tiket bug, sistem, API, jambatan timbang, CCTV, ANPR dan perkara lain."
       },
       "states": {
         "title": "Status tiket",
@@ -6442,8 +6459,8 @@
         "subtitle": "Masa, IP, peranti dan percubaan akses berjaya atau gagal."
       },
       "search": {
-        "title": "Carian audit",
-        "subtitle": "Cari mengikut pengguna, syarikat, jenis, tarikh, modul, rekod atau IP."
+        "title": "Rekod audit",
+        "subtitle": "Tapis dan eksport semua rekod operasi mengikut kategori, pengguna, syarikat, jenis, tarikh, modul, rekod atau IP."
       },
       "export": {
         "title": "Eksport audit",
@@ -6687,7 +6704,7 @@
     "section": {
       "management": {
         "title": "Pengurusan rakan kongsi",
-        "subtitle": "Cipta, sunting, aktifkan dan nyahaktifkan rakan platform."
+        "subtitle": "Lihat profil lengkap serta cipta, sunting, aktifkan atau nyahaktifkan rakan platform."
       },
       "details": {
         "title": "Butiran rakan kongsi",
@@ -6976,8 +6993,8 @@
     },
     "section": {
       "management": {
-        "title": "Pengurusan aset",
-        "subtitle": "Daftar, edit, aktifkan dan nyahaktifkan aset MSE."
+        "title": "Pengurusan dan carian aset",
+        "subtitle": "Cari butiran penuh serta daftar, edit, aktifkan atau nyahaktifkan aset MSE."
       },
       "details": {
         "title": "Butiran aset",

@@ -1,19 +1,9 @@
-"use client";
-
-import { useTranslations } from "next-intl";
-
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { Users, type UserManagementSection } from "@/components/users/users";
 
-export type UserAdminSection = UserManagementSection | "activity";
+export type UserAdminSection = UserManagementSection;
 
 const SECTIONS = new Set<UserAdminSection>([
   "management",
-  "profiles",
-  "categories",
-  "login",
-  "statistics",
-  "activity",
 ]);
 
 export function isUserAdminSection(value: string): value is UserAdminSection {
@@ -25,15 +15,5 @@ export function UserManagementWorkspace({
 }: {
   section: UserAdminSection;
 }) {
-  const t = useTranslations("users");
-  if (section === "activity") {
-    return (
-      <AuditLogs
-        fixedCategory="USER"
-        title={t("module.activity.title")}
-        subtitle={t("module.activity.subtitle")}
-      />
-    );
-  }
   return <Users section={section} />;
 }

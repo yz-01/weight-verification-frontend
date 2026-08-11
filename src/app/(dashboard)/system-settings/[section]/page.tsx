@@ -2,6 +2,7 @@ import {
   SystemSettingsWorkspace,
   type SystemSettingsSection,
 } from "@/components/platform-settings/system-settings-workspace";
+import { redirect } from "next/navigation";
 
 const SECTIONS = new Set<SystemSettingsSection>([
   "basic",
@@ -15,7 +16,6 @@ const SECTIONS = new Set<SystemSettingsSection>([
   "versions",
   "notifications",
   "maintenance",
-  "activity",
 ]);
 
 export default async function SystemSettingsSectionPage({
@@ -24,6 +24,7 @@ export default async function SystemSettingsSectionPage({
   params: Promise<{ section: string }>;
 }) {
   const { section } = await params;
+  if (section === "activity") redirect("/audit-logs/search?category=SETTINGS");
   return (
     <SystemSettingsWorkspace
       section={

@@ -23,6 +23,7 @@ const FILTER_KEYS = [
   "action",
   "result",
   "company",
+  "category",
   "object_type",
   "module",
   "ip_address",
@@ -88,6 +89,22 @@ const ALL_ACTIONS: AuditAction[] = [
   "SEARCH",
 ];
 
+const AUDIT_CATEGORIES = [
+  "USER",
+  "COMPANY",
+  "SUBSCRIPTION",
+  "BILLING",
+  "QR",
+  "CWE",
+  "SETTINGS",
+  "SALES",
+  "CUSTOMER_SERVICE",
+  "TECHNICAL_SUPPORT",
+  "PARTNER",
+  "ASSET",
+  "CLOUD_SERVICE",
+] as const;
+
 export function AuditLogs({
   fixedAction,
   fixedModule,
@@ -117,7 +134,7 @@ export function AuditLogs({
       ...list.query,
       action: fixedAction ?? list.query.action,
       module: fixedModule,
-      category: fixedCategory,
+      category: fixedCategory ?? list.query.category,
     }),
   });
   const companies = useQuery({
@@ -334,7 +351,7 @@ export function AuditLogs({
         ...list.query,
         action: fixedAction ?? list.query.action,
         module: fixedModule,
-        category: fixedCategory,
+        category: fixedCategory ?? list.query.category,
         format,
         title: title ?? t("audit.title"),
         subtitle: subtitle ?? t("audit.exportSubtitle"),
@@ -394,6 +411,23 @@ export function AuditLogs({
 
       {advanced && (
         <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+          {!fixedCategory && (
+            <select
+              className="h-9 rounded-md border bg-background px-3 text-sm"
+              value={list.filters.category ?? ""}
+              aria-label={t("audit.filter.category")}
+              onChange={(event) =>
+                list.setFilter("category", event.target.value || undefined)
+              }
+            >
+              <option value="">{t("audit.filter.allCategories")}</option>
+              {AUDIT_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {t(`audit.category.${category}`)}
+                </option>
+              ))}
+            </select>
+          )}
           <Input
             value={list.filters.actor ?? ""}
             placeholder={t("audit.filter.actor")}

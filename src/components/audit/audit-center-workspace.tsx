@@ -19,31 +19,16 @@ import { getAuditSummary } from "@/services/audit.service";
 
 export type AuditCenterSection =
   | "overview"
-  | "users"
-  | "companies"
-  | "subscriptions"
-  | "billing"
-  | "cwe"
-  | "settings"
   | "login"
   | "search"
-  | "export"
   | "immutable";
 
 const SUBMODULES: Array<{
   section: Exclude<AuditCenterSection, "overview">;
   number: string;
-  category?: string;
 }> = [
-  { section: "users", number: "12.2.1", category: "USER" },
-  { section: "companies", number: "12.2.2", category: "COMPANY" },
-  { section: "subscriptions", number: "12.2.3", category: "SUBSCRIPTION" },
-  { section: "billing", number: "12.2.4", category: "BILLING" },
-  { section: "cwe", number: "12.2.5", category: "CWE" },
-  { section: "settings", number: "12.2.6", category: "SETTINGS" },
   { section: "login", number: "12.2.7" },
   { section: "search", number: "12.2.8" },
-  { section: "export", number: "12.2.9" },
   { section: "immutable", number: "12.2.10" },
 ];
 
@@ -53,16 +38,13 @@ export function AuditCenterWorkspace({
   section?: AuditCenterSection;
 }) {
   const t = useTranslations("adminAuditCenter");
-  const current = SUBMODULES.find((item) => item.section === section);
-
   if (section === "login") return <LoginRecords />;
   if (section === "immutable") return <ImmutableAuditStatus />;
   if (section !== "overview") {
     return (
       <AuditLogs
-        fixedCategory={current?.category}
-        advanced={section === "search" || section === "export"}
-        showExport={section === "export"}
+        advanced
+        showExport
         title={t(`section.${section}.title`)}
         subtitle={t(`section.${section}.subtitle`)}
       />

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import {
   CompanyManagementWorkspace,
@@ -8,13 +8,8 @@ import {
 const COMPANY_ADMIN_SECTIONS = new Set<CompanyAdminSection>([
   "directory",
   "review",
-  "status",
-  "subscriptions",
   "projects",
   "recyclers",
-  "search",
-  "statistics",
-  "activity",
 ]);
 
 export default async function CompanyManagementSectionPage({
@@ -23,8 +18,10 @@ export default async function CompanyManagementSectionPage({
   params: Promise<{ section: string }>;
 }) {
   const { section } = await params;
+  if (section === "subscriptions") redirect("/subscriptions/companies");
+  if (section === "activity") redirect("/audit-logs/search?category=COMPANY");
   if (!COMPANY_ADMIN_SECTIONS.has(section as CompanyAdminSection)) {
-    notFound();
+    redirect("/companies/admin/directory");
   }
   return <CompanyManagementWorkspace section={section as CompanyAdminSection} />;
 }

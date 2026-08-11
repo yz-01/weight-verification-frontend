@@ -2,6 +2,7 @@ import {
   AdminCWEWorkspace,
   type AdminCWESection,
 } from "@/components/weighing/admin-cwe-workspace";
+import { redirect } from "next/navigation";
 
 const SECTIONS = new Set<AdminCWESection>([
   "scales",
@@ -11,7 +12,6 @@ const SECTIONS = new Set<AdminCWESection>([
   "search",
   "statistics",
   "service-status",
-  "activity",
 ]);
 
 export default async function AdminCWESectionPage({
@@ -20,6 +20,7 @@ export default async function AdminCWESectionPage({
   params: Promise<{ section: string }>;
 }) {
   const { section } = await params;
+  if (section === "activity") redirect("/audit-logs/search?category=CWE");
   return (
     <AdminCWEWorkspace
       section={

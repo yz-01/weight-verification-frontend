@@ -18,7 +18,6 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import { useRef, useState } from "react";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import {
   FieldWrapper,
   ListHeader,
@@ -71,13 +70,8 @@ import {
 export type AdminQRSection =
   | "overview"
   | "types"
-  | "register"
-  | "lifecycle"
-  | "search"
   | "scans"
-  | "anomalies"
-  | "statistics"
-  | "activity";
+  | "anomalies";
 
 const SUBJECT_TYPES: QRSubjectType[] = [
   "CONTRACTOR",
@@ -96,13 +90,8 @@ const SUBMODULES: Array<{
   number: string;
 }> = [
   { section: "types", number: "7.2.1" },
-  { section: "register", number: "7.2.2" },
-  { section: "lifecycle", number: "7.2.3" },
-  { section: "search", number: "7.2.4" },
   { section: "scans", number: "7.2.5" },
   { section: "anomalies", number: "7.2.6" },
-  { section: "statistics", number: "7.2.7" },
-  { section: "activity", number: "7.2.8" },
 ];
 
 export function AdminQRWorkspace({
@@ -111,42 +100,25 @@ export function AdminQRWorkspace({
   section?: AdminQRSection;
 }) {
   const t = useTranslations("adminQr");
-  if (section === "activity") {
-    return (
-      <AuditLogs
-        fixedCategory="QR"
-        title={t("section.activity.title")}
-        subtitle={t("section.activity.subtitle")}
-      />
-    );
-  }
-
   const content = (() => {
     if (section === "overview") return <ModuleIndex />;
     if (section === "types") {
       return (
         <div className="space-y-5">
+          <QRStatistics />
           <QRTypeCatalogue />
           <QRCodeRegister
             allowIssue
             allowEdit
-            allowLifecycle={false}
-            advancedFilters={false}
+            allowLifecycle
+            advancedFilters
           />
         </div>
       );
     }
     if (section === "scans") return <ScanLedger anomaliesOnly={false} />;
     if (section === "anomalies") return <ScanLedger anomaliesOnly />;
-    if (section === "statistics") return <QRStatistics />;
-    return (
-      <QRCodeRegister
-        allowIssue={false}
-        allowEdit={false}
-        allowLifecycle={section === "lifecycle"}
-        advancedFilters={section === "search"}
-      />
-    );
+    return null;
   })();
 
   return (

@@ -15,7 +15,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
@@ -83,7 +82,6 @@ import {
 export type SalesAdminSection =
   | "overview"
   | "people"
-  | "details"
   | "territories"
   | "hierarchy"
   | "assignments"
@@ -93,15 +91,13 @@ export type SalesAdminSection =
   | "payouts"
   | "performance"
   | "settlements"
-  | "reports"
-  | "activity";
+  | "reports";
 
 const SUBMODULES: Array<{
   section: Exclude<SalesAdminSection, "overview">;
   number: string;
 }> = [
   { section: "people", number: "13.2.1" },
-  { section: "details", number: "13.2.2" },
   { section: "territories", number: "13.2.3" },
   { section: "hierarchy", number: "13.2.4" },
   { section: "assignments", number: "13.2.5" },
@@ -112,7 +108,6 @@ const SUBMODULES: Array<{
   { section: "performance", number: "13.2.10" },
   { section: "settlements", number: "13.2.11" },
   { section: "reports", number: "13.2.12" },
-  { section: "activity", number: "13.2.13" },
 ];
 
 const STATES = [
@@ -150,14 +145,6 @@ export function SalesAdminWorkspace({
   section?: SalesAdminSection;
 }) {
   const t = useTranslations("adminSales");
-  if (section === "activity")
-    return (
-      <AuditLogs
-        fixedCategory="SALES"
-        title={t("section.activity.title")}
-        subtitle={t("section.activity.subtitle")}
-      />
-    );
   if (section === "overview") return <Overview />;
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
@@ -165,9 +152,7 @@ export function SalesAdminWorkspace({
         title={t(`section.${section}.title`)}
         subtitle={t(`section.${section}.subtitle`)}
       />
-      {section === "people" || section === "details" ? (
-        <PeoplePanel manageable={section === "people"} />
-      ) : null}
+      {section === "people" ? <PeoplePanel manageable /> : null}
       {section === "territories" ? <TerritoryPanel /> : null}
       {section === "hierarchy" ? <HierarchyPanel /> : null}
       {section === "assignments" ? <AssignmentPanel /> : null}

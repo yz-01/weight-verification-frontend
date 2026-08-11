@@ -431,7 +431,7 @@
       "companySettings": "公司设置",
       "notifications": "通知中心",
       "companyCreate": "建立公司",
-      "companyDirectory": "公司资料管理",
+      "companyDirectory": "公司管理与查询",
       "companyReview": "公司审核",
       "companyStatus": "公司状态",
       "companySubscriptions": "公司订阅资料",
@@ -461,11 +461,11 @@
       "collections": "收款管理",
       "paymentProofs": "付款凭证",
       "commissionRules": "佣金规则管理",
-      "invoiceSearch": "账单查询",
+      "invoiceSearch": "账单管理与查询",
       "billingStatistics": "收费统计",
       "financialReports": "财务报表",
       "billingActivity": "操作记录",
-      "livePlatform": "实时平台状态",
+      "livePlatform": "平台与服务监控",
       "cweMonitoring": "CWE 监控",
       "cctvMonitoring": "AI CCTV 监控",
       "anprMonitoring": "ANPR 监控",
@@ -498,7 +498,7 @@
       "commissionReports": "平台佣金报表",
       "cweReports": "CWE 报表",
       "operationsReports": "系统运营报表",
-      "reportSearch": "报表查询",
+      "reportSearch": "报表中心",
       "reportExports": "导出报表",
       "reportHistory": "报表历史记录",
       "contractorNotifications": "建筑商通知",
@@ -530,10 +530,10 @@
       "cweAudit": "CWE 记录",
       "settingsAudit": "设置记录",
       "loginAudit": "登录记录",
-      "auditSearch": "日志查询",
+      "auditSearch": "审计记录",
       "auditExport": "日志导出",
       "immutableAudit": "永久记录",
-      "salesPeople": "销售人员",
+      "salesPeople": "销售人员管理",
       "salesDetails": "销售人员资料",
       "salesTerritories": "销售区域",
       "salesHierarchy": "团队层级",
@@ -554,7 +554,7 @@
       "crmService": "服务记录",
       "crmReports": "客户服务报表",
       "crmActivity": "客户服务操作记录",
-      "supportTickets": "技术工单",
+      "supportTickets": "技术支持工单",
       "supportStates": "工单状态",
       "supportBugs": "Bug 管理",
       "supportAPI": "API 对接",
@@ -572,7 +572,7 @@
       "partnerPerformance": "业绩统计",
       "partnerReports": "合作伙伴报表",
       "partnerActivity": "操作记录",
-      "assetManagement": "资产管理",
+      "assetManagement": "资产管理与查询",
       "assetDetails": "资产资料",
       "assetCategories": "资产类别",
       "assetPurchases": "采购管理",
@@ -978,8 +978,8 @@
     "new": "新增公司",
     "module": {
       "directory": {
-        "title": "公司资料管理",
-        "subtitle": "共 {count} 家公司，可查看资料、状态、联系人及执行管理操作"
+        "title": "公司管理与查询",
+        "subtitle": "共 {count} 家公司，可按资料、类别、州属、套餐与状态查询，并查看联系人及汇总统计"
       },
       "review": {
         "title": "公司审核",
@@ -2182,8 +2182,8 @@
     },
     "section": {
       "live-platform": {
-        "title": "实时平台状态",
-        "subtitle": "根据当前活动显示在线公司、项目与用户"
+        "title": "平台与服务监控",
+        "subtitle": "统一查看在线公司、用户、运行统计、已连接服务及设备清单"
       },
       "cwe": {
         "title": "CWE 监控",
@@ -2419,7 +2419,7 @@
     "module": {
       "management": {
         "title": "用户管理",
-        "subtitle": "共 {count} 个平台及租户账号，可执行账号生命周期管理"
+        "subtitle": "共 {count} 个账号，可统一查看资料、类别、角色、登录状态、统计及执行账号管理"
       },
       "profiles": {
         "title": "用户资料与查询",
@@ -2760,11 +2760,28 @@
       "allActions": "全部操作",
       "result": "操作结果",
       "allResults": "全部结果",
+      "category": "业务类别",
+      "allCategories": "全部业务类别",
       "objectType": "记录类型",
       "module": "模块",
       "ipAddress": "IP 地址",
       "dateFrom": "开始日期",
       "dateTo": "结束日期"
+    },
+    "category": {
+      "USER": "用户与登录",
+      "COMPANY": "公司",
+      "SUBSCRIPTION": "订阅",
+      "BILLING": "账单与佣金",
+      "QR": "二维码",
+      "CWE": "CWE 与称重",
+      "SETTINGS": "系统设置",
+      "SALES": "销售",
+      "CUSTOMER_SERVICE": "客户服务",
+      "TECHNICAL_SUPPORT": "技术支持",
+      "PARTNER": "合作伙伴",
+      "ASSET": "资产",
+      "CLOUD_SERVICE": "云服务"
     },
     "field": {
       "createdAt": "时间",
@@ -4041,8 +4058,8 @@
         "subtitle": "在线用户、活跃用户、API、数据同步及系统异常"
       },
       "search": {
-        "title": "报表查询",
-        "subtitle": "按公司、项目、州属和日期范围查询各类报表"
+        "title": "报表中心",
+        "subtitle": "选择报表类型，按公司、项目、州属和日期筛选，并导出 PDF 或 Excel"
       },
       "export": {
         "title": "导出报表",
@@ -5157,8 +5174,8 @@
         "subtitle": "平台佣金比例、计算方式及结算周期"
       },
       "search": {
-        "title": "账单查询",
-        "subtitle": "按公司、编号、类型、日期及付款状态查询"
+        "title": "账单管理与查询",
+        "subtitle": "统一管理 SaaS 与佣金账单，并查看统计及按公司、类型、日期和付款状态筛选"
       },
       "statistics": {
         "title": "收费统计",
@@ -5342,7 +5359,7 @@
       },
       "companies": {
         "title": "公司订阅管理",
-        "subtitle": "各公司的当前套餐、期限与状态"
+        "subtitle": "统一查询及管理各公司的套餐、状态、期限、账号数量与到期日"
       },
       "status": {
         "title": "订阅状态",
@@ -5614,8 +5631,8 @@
     },
     "section": {
       "people": {
-        "title": "销售人员",
-        "subtitle": "新增、编辑、启用和停用销售人员或代理。"
+        "title": "销售人员管理",
+        "subtitle": "查看完整资料，并新增、编辑、启用或停用销售人员及代理。"
       },
       "details": {
         "title": "销售人员资料",
@@ -6077,8 +6094,8 @@
     },
     "section": {
       "tickets": {
-        "title": "技术工单",
-        "subtitle": "建立 Bug、系统异常、API、地磅、CCTV、ANPR 及其他技术工单。"
+        "title": "技术支持工单",
+        "subtitle": "建立、筛选及更新 Bug、系统异常、API、地磅、CCTV、ANPR 等技术工单状态。"
       },
       "states": {
         "title": "工单状态",
@@ -6400,8 +6417,8 @@
         "subtitle": "时间、IP、设备和成功或失败的访问记录。"
       },
       "search": {
-        "title": "日志查询",
-        "subtitle": "按用户、公司、类型、日期、模块、记录或 IP 查询。"
+        "title": "审计记录",
+        "subtitle": "按业务类别、用户、公司、类型、日期、模块、记录或 IP 筛选及导出全部操作记录。"
       },
       "export": {
         "title": "日志导出",
@@ -6642,7 +6659,7 @@
     "section": {
       "management": {
         "title": "合作伙伴管理",
-        "subtitle": "新增、编辑、启用及停用平台合作伙伴。"
+        "subtitle": "查看完整合作伙伴资料，并新增、编辑、启用或停用平台合作伙伴。"
       },
       "details": {
         "title": "合作伙伴资料",
@@ -6922,8 +6939,8 @@
     },
     "section": {
       "management": {
-        "title": "资产管理",
-        "subtitle": "新增、编辑、启用及停用 MSE 资产。"
+        "title": "资产管理与查询",
+        "subtitle": "查询完整资产资料，并新增、编辑、启用或停用 MSE 资产。"
       },
       "details": {
         "title": "资产资料",

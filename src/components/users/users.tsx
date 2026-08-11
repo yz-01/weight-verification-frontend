@@ -61,47 +61,19 @@ type PendingAction =
   | { kind: "force-logout"; user: UserRow }
   | { kind: "handover"; user: UserRow };
 
-export type UserManagementSection =
-  "management" | "profiles" | "categories" | "login" | "statistics";
+export type UserManagementSection = "management";
 
-const ADMIN_SECTION_COLUMNS: Record<UserManagementSection, string[]> = {
-  management: [
-    "full_name",
-    "company_name",
-    "audience",
-    "status",
-    "last_login_at",
-    "created_at",
-    "actions",
-  ],
-  profiles: [
-    "full_name",
-    "phone",
-    "company_name",
-    "audience",
-    "status",
-    "last_login_at",
-    "created_at",
-    "actions",
-  ],
-  categories: [
-    "full_name",
-    "company_name",
-    "audience",
-    "status",
-    "created_at",
-    "actions",
-  ],
-  login: ["full_name", "company_name", "status", "last_login_at", "actions"],
-  statistics: [
-    "full_name",
-    "company_name",
-    "audience",
-    "status",
-    "created_at",
-    "actions",
-  ],
-};
+const ADMIN_COLUMNS = [
+  "full_name",
+  "phone",
+  "company_name",
+  "audience",
+  "role_name",
+  "status",
+  "last_login_at",
+  "created_at",
+  "actions",
+];
 
 export function Users({
   section = "management",
@@ -125,7 +97,6 @@ export function Users({
   const { data, isLoading, isError } = useQuery({
     queryKey: ["users", list.query],
     queryFn: () => getUsers(list.query),
-    enabled: section !== "statistics",
   });
   const stats = useQuery({
     queryKey: ["users", "stats"],
@@ -322,7 +293,6 @@ export function Users({
           // are looking at. Their own row keeps view and edit only.
           const isSelf = target.id === me?.id;
           const suspended = target.status === "SUSPENDED";
-          const isProfileDirectory = section === "profiles";
           return (
             <div className="flex items-center justify-end gap-0.5">
               <Button
@@ -337,7 +307,7 @@ export function Users({
                 </Link>
               </Button>
 
-              {!isProfileDirectory && can("user.update") && (
+              {can("user.update") && (
                 <Button
                   asChild
                   variant="ghost"
@@ -351,7 +321,7 @@ export function Users({
                 </Button>
               )}
 
-              {!isProfileDirectory && can("user.update") && !isSelf && (
+              {can("user.update") && !isSelf && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -364,8 +334,7 @@ export function Users({
                 </Button>
               )}
 
-              {!isProfileDirectory &&
-                can("user.suspend") &&
+              {can("user.suspend") &&
                 !isSelf &&
                 target.company_type === "CONTRACTOR" &&
                 target.status !== "SUSPENDED" && (
@@ -382,8 +351,7 @@ export function Users({
                   </Button>
                 )}
 
-              {!isProfileDirectory &&
-                can("user.suspend") &&
+              {can("user.suspend") &&
                 !isSelf &&
                 target.status === "ACTIVE" && (
                 <Button
@@ -399,8 +367,7 @@ export function Users({
                 </Button>
               )}
 
-              {!isProfileDirectory &&
-                can("user.suspend") &&
+              {can("user.suspend") &&
                 !isSelf &&
                 (suspended ? (
                   <Button
@@ -428,8 +395,7 @@ export function Users({
                   </Button>
                 ))}
 
-              {!isProfileDirectory &&
-                can("user.suspend") &&
+              {can("user.suspend") &&
                 !isSelf &&
                 !target.last_login_at && (
                 <Button
@@ -447,7 +413,7 @@ export function Users({
         },
       },
     ],
-    [t, can, df, me?.id, resetLink, section],
+    [t, can, df, me?.id, resetLink],
   );
 
   const filterPills = [
@@ -477,8 +443,7 @@ export function Users({
     },
   ];
 
-  const totalCount =
-    section === "statistics" ? (stats.data?.total ?? 0) : (data?.count ?? 0);
+  const totalCount = data?.count ?? 0;
   const isPending =
     removal.isPending || statusChange.isPending || forceLogout.isPending;
   const visibleColumns = useMemo(
@@ -488,10 +453,10 @@ export function Users({
             const id =
               column.id ??
               ("accessorKey" in column ? String(column.accessorKey) : "");
-            return ADMIN_SECTION_COLUMNS[section].includes(id);
+            return ADMIN_COLUMNS.includes(id);
           })
         : columns,
-    [columns, me?.is_platform_staff, section],
+    [columns, me?.is_platform_staff],
   );
 
   return (
@@ -543,8 +508,7 @@ export function Users({
         />
       )}
 
-      {me?.is_platform_staff &&
-        (section === "categories" || section === "statistics") && (
+      {me?.is_platform_staff && (
           <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-6">
             {(
               [
@@ -578,7 +542,7 @@ export function Users({
           </div>
         )}
 
-      {section !== "statistics" && me?.is_platform_staff && (
+      {me?.is_platform_staff && (
         <>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
             <select
@@ -633,8 +597,7 @@ export function Users({
         </>
       )}
 
-      {section !== "statistics" && (
-        <DataTable
+      <DataTable
           columns={visibleColumns}
           rows={data?.results ?? []}
           totalCount={totalCount}
@@ -646,9 +609,7 @@ export function Users({
           search={list.search}
           sortBy={list.sortBy}
           sortOrder={list.sortOrder}
-          storageKey={
-            me?.is_platform_staff ? `admin-users-${section}` : "users"
-          }
+          storageKey={me?.is_platform_staff ? "admin-users-management" : "users"}
           filterPills={filterPills}
           onSearchChange={list.setSearch}
           onSortChange={list.setSort}
@@ -656,7 +617,6 @@ export function Users({
           onPageSizeChange={list.setPageSize}
           onClearFilters={list.clearFilters}
         />
-      )}
 
       {pending?.kind === "remove" && (
         <ConfirmDialog

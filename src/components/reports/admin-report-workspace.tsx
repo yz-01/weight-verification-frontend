@@ -38,15 +38,7 @@ import {
 
 export type AdminReportSection =
   | "overview"
-  | "contractors"
-  | "recyclers"
-  | "business"
-  | "saas"
-  | "commission"
-  | "cwe"
-  | "operations"
   | "search"
-  | "export"
   | "history";
 
 const REPORT_TYPES: AdminReportType[] = [
@@ -63,15 +55,7 @@ const SUBMODULES: Array<{
   section: Exclude<AdminReportSection, "overview">;
   number: string;
 }> = [
-  { section: "contractors", number: "9.2.1" },
-  { section: "recyclers", number: "9.2.2" },
-  { section: "business", number: "9.2.3" },
-  { section: "saas", number: "9.2.4" },
-  { section: "commission", number: "9.2.5" },
-  { section: "cwe", number: "9.2.6" },
-  { section: "operations", number: "9.2.7" },
   { section: "search", number: "9.2.8" },
-  { section: "export", number: "9.2.9" },
   { section: "history", number: "9.2.10" },
 ];
 
@@ -188,7 +172,7 @@ function ReportPanel({
   const projects = (options.data?.projects ?? []).filter(
     (row) => !company || row.company === company,
   );
-  const showType = section === "search" || section === "export";
+  const showType = section === "search";
 
   return (
     <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">

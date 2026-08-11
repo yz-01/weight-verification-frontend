@@ -16,7 +16,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
@@ -96,8 +95,7 @@ export type CloudSection =
   | "pricing"
   | "alerts"
   | "analysis"
-  | "reports"
-  | "activity";
+  | "reports";
 const SUBMODULES: Array<{
   section: Exclude<CloudSection, "overview">;
   number: string;
@@ -112,7 +110,6 @@ const SUBMODULES: Array<{
   { section: "alerts", number: "A17.2.8" },
   { section: "analysis", number: "A17.2.9" },
   { section: "reports", number: "A17.2.10" },
-  { section: "activity", number: "A17.2.11" },
 ];
 const TYPES: ServiceType[] = [
   "CLOUD_STORAGE",
@@ -161,14 +158,6 @@ export function CloudServiceManagementWorkspace({
   section?: CloudSection;
 }) {
   const t = useTranslations("adminCloudServiceManagement");
-  if (section === "activity")
-    return (
-      <AuditLogs
-        fixedCategory="CLOUD_SERVICE"
-        title={t("section.activity.title")}
-        subtitle={t("section.activity.subtitle")}
-      />
-    );
   if (section === "overview") return <Overview />;
   return (
     <div className="space-y-5">

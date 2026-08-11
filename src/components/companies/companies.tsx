@@ -49,12 +49,8 @@ type PendingAction =
 export type CompanyManagementSection =
   | "directory"
   | "review"
-  | "status"
-  | "subscriptions"
   | "projects"
-  | "recyclers"
-  | "search"
-  | "statistics";
+  | "recyclers";
 
 export function Companies({
   section = "directory",
@@ -81,7 +77,6 @@ export function Companies({
   const { data, isLoading, isError } = useQuery({
     queryKey: ["companies", section, list.query],
     queryFn: () => getCompanies({ ...list.query, ...fixedQuery }),
-    enabled: section !== "statistics",
   });
   const summary = useQuery({
     queryKey: ["companies", "summary"],
@@ -511,8 +506,7 @@ export function Companies({
     },
   ];
 
-  const totalCount =
-    section === "statistics" ? (summary.data?.total ?? 0) : (data?.count ?? 0);
+  const totalCount = data?.count ?? 0;
   const isPending = removal.isPending || statusChange.isPending;
   const sectionColumnIds = useMemo<Record<CompanyManagementSection, string[]>>(
     () => ({
@@ -538,27 +532,6 @@ export function Companies({
         "created_at",
         "actions",
       ],
-      status: [
-        "code",
-        "name",
-        "type",
-        "status",
-        "subscription_expires_on",
-        "review_status",
-        "actions",
-      ],
-      subscriptions: [
-        "code",
-        "name",
-        "type",
-        "plan_name",
-        "subscription_months",
-        "subscription_expires_on",
-        "user_count",
-        "remaining_user_seats",
-        "status",
-        "actions",
-      ],
       projects: [
         "code",
         "name",
@@ -581,31 +554,6 @@ export function Companies({
         "recycler_private_weight",
         "recycler_total_weight",
         "recycler_commission_status",
-        "actions",
-      ],
-      search: [
-        "code",
-        "name",
-        "type",
-        "status",
-        "state",
-        "plan_name",
-        "review_status",
-        "contact_person",
-        "created_at",
-        "actions",
-      ],
-      statistics: [
-        "code",
-        "name",
-        "type",
-        "status",
-        "project_total",
-        "project_active",
-        "project_completed",
-        "project_archived",
-        "user_count",
-        "created_at",
         "actions",
       ],
     }),
@@ -643,7 +591,7 @@ export function Companies({
         }
       />
 
-      {section === "statistics" && (
+      {section === "directory" && (
         <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-6">
           {(
             [
@@ -679,8 +627,7 @@ export function Companies({
         </div>
       )}
 
-      {section !== "statistics" && (
-        <>
+      <>
           <div className="flex flex-wrap gap-2">
             <select
               value={list.filters.state ?? ""}
@@ -734,8 +681,7 @@ export function Companies({
             onPageSizeChange={list.setPageSize}
             onClearFilters={list.clearFilters}
           />
-        </>
-      )}
+      </>
 
       {pending?.kind === "remove" && (
         <ConfirmDialog

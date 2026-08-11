@@ -2,6 +2,7 @@ import {
   MonitoringWorkspace,
   type MonitoringSection,
 } from "@/components/monitoring/monitoring-workspace";
+import { redirect } from "next/navigation";
 
 const SECTIONS = new Set<MonitoringSection>([
   "live-platform",
@@ -11,8 +12,6 @@ const SECTIONS = new Set<MonitoringSection>([
   "api-gateway",
   "sync",
   "exceptions",
-  "service-search",
-  "runtime-statistics",
   "records",
 ]);
 
@@ -22,6 +21,9 @@ export default async function MonitoringSectionPage({
   params: Promise<{ section: string }>;
 }) {
   const { section } = await params;
+  if (["service-search", "runtime-statistics"].includes(section)) {
+    redirect("/monitoring/live-platform");
+  }
   return (
     <MonitoringWorkspace
       section={

@@ -54,13 +54,6 @@ import {
 
 export type AdminNotificationSection =
   | "overview"
-  | "contractors"
-  | "recyclers"
-  | "saas"
-  | "commission"
-  | "cwe"
-  | "system"
-  | "search"
   | "manage"
   | "channels"
   | "records";
@@ -69,30 +62,14 @@ const SUBMODULES: Array<{
   section: Exclude<AdminNotificationSection, "overview">;
   number: string;
 }> = [
-  { section: "contractors", number: "10.2.1" },
-  { section: "recyclers", number: "10.2.2" },
-  { section: "saas", number: "10.2.3" },
-  { section: "commission", number: "10.2.4" },
-  { section: "cwe", number: "10.2.5" },
-  { section: "system", number: "10.2.6" },
-  { section: "search", number: "10.2.7" },
   { section: "manage", number: "10.2.8" },
   { section: "channels", number: "10.2.9" },
   { section: "records", number: "10.2.10" },
 ];
 
-const CATEGORY: Partial<Record<AdminNotificationSection, AdminNotificationCategory>> = {
-  contractors: "CONTRACTOR",
-  recyclers: "RECYCLER",
-  saas: "SAAS",
-  commission: "COMMISSION",
-  cwe: "CWE",
-  system: "SYSTEM",
-};
-
 const CATEGORY_OPTIONS: Array<{
   value: AdminNotificationCategory;
-  section: keyof typeof CATEGORY;
+  section: "contractors" | "recyclers" | "saas" | "commission" | "cwe" | "system";
 }> = [
   { value: "CONTRACTOR", section: "contractors" },
   { value: "RECYCLER", section: "recyclers" },
@@ -143,9 +120,8 @@ export function AdminNotificationWorkspace({
         <NotificationRecords />
       ) : (
         <AdminNotificationList
-          category={CATEGORY[section]}
-          searchable={section === "search" || section === "manage"}
-          manageable={section === "manage"}
+          searchable
+          manageable
         />
       )}
     </div>

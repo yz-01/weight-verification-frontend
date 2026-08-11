@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -33,18 +32,18 @@ import {
 } from "@/services/asset.service";
 
 export type AssetSection =
-  | "overview" | "management" | "details" | "categories" | "purchases"
+  | "overview" | "management" | "categories" | "purchases"
   | "inventory" | "assignments" | "installations" | "transfers" | "repairs"
-  | "maintenance" | "disposals" | "search" | "reports" | "activity";
+  | "maintenance" | "disposals" | "reports";
 
 const SUBMODULES: Array<{ section: Exclude<AssetSection, "overview">; number: string }> = [
-  { section: "management", number: "17.2.1" }, { section: "details", number: "17.2.2" },
+  { section: "management", number: "17.2.1" },
   { section: "categories", number: "17.2.3" }, { section: "purchases", number: "17.2.4" },
   { section: "inventory", number: "17.2.5" }, { section: "assignments", number: "17.2.6" },
   { section: "installations", number: "17.2.7" }, { section: "transfers", number: "17.2.8" },
   { section: "repairs", number: "17.2.9" }, { section: "maintenance", number: "17.2.10" },
-  { section: "disposals", number: "17.2.11" }, { section: "search", number: "17.2.12" },
-  { section: "reports", number: "17.2.13" }, { section: "activity", number: "17.2.14" },
+  { section: "disposals", number: "17.2.11" },
+  { section: "reports", number: "17.2.13" },
 ];
 
 const CATEGORIES: AssetCategory[] = [
@@ -65,12 +64,10 @@ const statusTone = (status: string): "positive" | "info" | "warning" | "danger" 
 
 export function AssetManagementWorkspace({ section = "overview" }: { section?: AssetSection }) {
   const t = useTranslations("adminAssetManagement");
-  if (section === "activity") return <AuditLogs fixedCategory="ASSET" title={t("section.activity.title")} subtitle={t("section.activity.subtitle")} />;
   if (section === "overview") return <Overview />;
   return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
     <ListHeader title={t(`section.${section}.title`)} subtitle={t(`section.${section}.subtitle`)} />
-    {section === "management" && <AssetPanel mode="management" />}
-    {section === "details" && <AssetPanel mode="details" />}
+    {section === "management" && <AssetPanel mode="search" />}
     {section === "categories" && <CategoryPanel />}
     {section === "purchases" && <PurchasePanel />}
     {section === "inventory" && <InventoryPanel />}
@@ -80,7 +77,6 @@ export function AssetManagementWorkspace({ section = "overview" }: { section?: A
     {section === "repairs" && <MaintenancePanel repairs />}
     {section === "maintenance" && <MaintenancePanel repairs={false} />}
     {section === "disposals" && <DisposalPanel />}
-    {section === "search" && <AssetPanel mode="search" />}
     {section === "reports" && <ReportPanel />}
   </div>;
 }

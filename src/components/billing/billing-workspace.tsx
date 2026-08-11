@@ -12,7 +12,6 @@ import {
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { AutomaticBilling } from "@/components/billing/automatic-billing";
 import { CommissionRuleManager } from "@/components/billing/commission-rule-manager";
 import { FinancialReports } from "@/components/billing/financial-reports";
@@ -23,53 +22,33 @@ import { getBillingSummary } from "@/services/billing.service";
 
 export type BillingSection =
   | "overview"
-  | "saas-invoices"
-  | "commission"
   | "automatic-billing"
   | "collections"
   | "payment-proofs"
   | "commission-rules"
   | "search"
-  | "statistics"
-  | "reports"
-  | "activity";
+  | "reports";
 
 const SUBMODULES: Array<{ section: Exclude<BillingSection, "overview">; number: string }> = [
-  { section: "saas-invoices", number: "5.2.1" }, { section: "commission", number: "5.2.2" },
+  { section: "search", number: "5.2.1" },
   { section: "automatic-billing", number: "5.2.3" }, { section: "collections", number: "5.2.4" },
   { section: "payment-proofs", number: "5.2.5" }, { section: "commission-rules", number: "5.2.6" },
-  { section: "search", number: "5.2.7" }, { section: "statistics", number: "5.2.8" },
-  { section: "reports", number: "5.2.9" }, { section: "activity", number: "5.2.10" },
+  { section: "reports", number: "5.2.9" },
 ];
 
 export function BillingWorkspace({ section = "overview" }: { section?: BillingSection }) {
   const t = useTranslations("billing");
   const summary = useQuery({ queryKey: ["billing", "summary"], queryFn: getBillingSummary });
-  if (section === "activity") {
-    return (
-      <AuditLogs
-        fixedCategory="BILLING"
-        advanced
-        showExport
-        title={t("section.activity.title")}
-        subtitle={t("section.activity.subtitle")}
-      />
-    );
-  }
-
   let content: React.ReactNode;
   if (section === "overview") content = <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((module) => <Link key={module.section} href={`/billing/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
-  else if (section === "saas-invoices") content = <InvoiceList fixedKind="SAAS" embedded />;
-  else if (section === "commission") content = <InvoiceList fixedKind="COMMISSION" embedded />;
   else if (section === "automatic-billing") content = <AutomaticBilling />;
   else if (section === "collections") content = <PaymentManager />;
   else if (section === "payment-proofs") content = <PaymentManager proofsOnly />;
   else if (section === "commission-rules") content = <CommissionRuleManager />;
-  else if (section === "statistics") content = <BillingMetrics expanded />;
   else if (section === "reports") content = <FinancialReports />;
   else content = <InvoiceList embedded />;
 
-  return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={section === "overview" ? t("title") : t(`section.${section}.title`)} subtitle={section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`)} /><BillingWorkflow section={section} />{section === "overview" && <Summary data={summary.data} loading={summary.isLoading} />}{content}</div>;
+  return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={section === "overview" ? t("title") : t(`section.${section}.title`)} subtitle={section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`)} /><BillingWorkflow section={section} />{(section === "overview" || section === "search") && <Summary data={summary.data} loading={summary.isLoading} expanded={section === "search"} />}{content}</div>;
 }
 
 const WORKFLOW_STEPS = [
@@ -86,11 +65,11 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
     ? "rules"
     : ["automatic-billing"].includes(section)
       ? "generate"
-      : ["search", "saas-invoices", "commission"].includes(section)
+      : section === "search"
         ? "issue"
       : ["collections", "payment-proofs"].includes(section)
         ? "collect"
-        : ["statistics", "reports", "activity"].includes(section)
+        : section === "reports"
           ? "report"
           : undefined;
   const icons = {
@@ -144,11 +123,6 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
       </div>
     </section>
   );
-}
-
-function BillingMetrics({ expanded = false }: { expanded?: boolean }) {
-  const summary = useQuery({ queryKey: ["billing", "summary"], queryFn: getBillingSummary });
-  return <div className="overflow-hidden rounded-lg border bg-card shadow-sm"><Summary data={summary.data} loading={summary.isLoading} expanded={expanded} /></div>;
 }
 
 function Summary({ data, loading, expanded = false }: { data: Awaited<ReturnType<typeof getBillingSummary>> | undefined; loading: boolean; expanded?: boolean }) {

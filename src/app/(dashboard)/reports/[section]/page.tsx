@@ -2,17 +2,10 @@ import {
   AdminReportWorkspace,
   type AdminReportSection,
 } from "@/components/reports/admin-report-workspace";
+import { redirect } from "next/navigation";
 
 const SECTIONS = new Set<AdminReportSection>([
-  "contractors",
-  "recyclers",
-  "business",
-  "saas",
-  "commission",
-  "cwe",
-  "operations",
   "search",
-  "export",
   "history",
 ]);
 
@@ -22,6 +15,9 @@ export default async function AdminReportSectionPage({
   params: Promise<{ section: string }>;
 }) {
   const { section } = await params;
+  if (["contractors", "recyclers", "business", "saas", "commission", "cwe", "operations", "export"].includes(section)) {
+    redirect("/reports/search");
+  }
   return (
     <AdminReportWorkspace
       section={

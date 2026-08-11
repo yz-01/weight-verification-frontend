@@ -20,7 +20,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   FieldWrapper,
@@ -98,25 +97,21 @@ import {
 export type TechnicalSupportSection =
   | "overview"
   | "tickets"
-  | "states"
   | "bugs"
   | "api"
   | "installations"
   | "maintenance"
-  | "reports"
-  | "activity";
+  | "reports";
 const SUBMODULES: Array<{
   section: Exclude<TechnicalSupportSection, "overview">;
   number: string;
 }> = [
   { section: "tickets", number: "15.2.1" },
-  { section: "states", number: "15.2.2" },
   { section: "bugs", number: "15.2.3" },
   { section: "api", number: "15.2.4" },
   { section: "installations", number: "15.2.5" },
   { section: "maintenance", number: "15.2.6" },
   { section: "reports", number: "15.2.7" },
-  { section: "activity", number: "15.2.8" },
 ];
 const TICKET_STATES: TicketState[] = [
   "PENDING",
@@ -235,14 +230,6 @@ export function TechnicalSupportWorkspace({
   section?: TechnicalSupportSection;
 }) {
   const t = useTranslations("adminTechnicalSupport");
-  if (section === "activity")
-    return (
-      <AuditLogs
-        fixedCategory="TECHNICAL_SUPPORT"
-        title={t("section.activity.title")}
-        subtitle={t("section.activity.subtitle")}
-      />
-    );
   if (section === "overview") return <Overview />;
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
@@ -250,9 +237,7 @@ export function TechnicalSupportWorkspace({
         title={t(`section.${section}.title`)}
         subtitle={t(`section.${section}.subtitle`)}
       />
-      {(section === "tickets" || section === "states") && (
-        <TicketPanel createAllowed={section === "tickets"} />
-      )}
+      {section === "tickets" && <TicketPanel createAllowed />}
       {section === "bugs" && <BugPanel />}
       {section === "api" && <APIIntegrationPanel />}
       {section === "installations" && <DevicePanel installations />}

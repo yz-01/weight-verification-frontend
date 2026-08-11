@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
@@ -30,13 +29,13 @@ import {
   updateReferral, updateTerritory, viewAgreementDocument,
 } from "@/services/partner.service";
 
-export type PartnerSection = "overview" | "management" | "details" | "types" | "territories" | "customers" | "agreements" | "schemes" | "performance" | "reports" | "activity";
+export type PartnerSection = "overview" | "management" | "types" | "territories" | "customers" | "agreements" | "schemes" | "performance" | "reports";
 const SUBMODULES: Array<{ section: Exclude<PartnerSection, "overview">; number: string }> = [
-  { section: "management", number: "16.2.1" }, { section: "details", number: "16.2.2" },
+  { section: "management", number: "16.2.1" },
   { section: "types", number: "16.2.3" }, { section: "territories", number: "16.2.4" },
   { section: "customers", number: "16.2.5" }, { section: "agreements", number: "16.2.6" },
   { section: "schemes", number: "16.2.7" }, { section: "performance", number: "16.2.8" },
-  { section: "reports", number: "16.2.9" }, { section: "activity", number: "16.2.10" },
+  { section: "reports", number: "16.2.9" },
 ];
 const PARTNER_TYPES: PartnerType[] = ["INSTALLER", "DISTRIBUTOR", "REGIONAL_AGENT", "REFERRAL", "TECHNOLOGY", "CUSTOM"];
 const PARTNER_STATUSES = ["ACTIVE", "INACTIVE", "SUSPENDED", "TERMINATED"] as const;
@@ -44,11 +43,9 @@ const STATES = ["JOHOR", "KEDAH", "KELANTAN", "MELAKA", "NEGERI_SEMBILAN", "PAHA
 
 export function PartnerManagementWorkspace({ section = "overview" }: { section?: PartnerSection }) {
   const t = useTranslations("adminPartnerManagement");
-  if (section === "activity") return <AuditLogs fixedCategory="PARTNER" title={t("section.activity.title")} subtitle={t("section.activity.subtitle")} />;
   if (section === "overview") return <Overview />;
   return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={t(`section.${section}.title`)} subtitle={t(`section.${section}.subtitle`)} />
-    {section === "management" && <PartnerPanel detailed={false} />}
-    {section === "details" && <PartnerPanel detailed />}
+    {section === "management" && <PartnerPanel detailed />}
     {section === "types" && <TypePanel />}
     {section === "territories" && <TerritoryPanel />}
     {section === "customers" && <CustomerPanel />}

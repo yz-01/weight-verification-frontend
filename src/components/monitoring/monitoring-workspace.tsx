@@ -7,7 +7,6 @@ import {
   ArrowRight,
   Cable,
   Camera,
-  ChartNoAxesCombined,
   CheckCircle2,
   CircleGauge,
   DatabaseZap,
@@ -15,7 +14,6 @@ import {
   Info,
   RefreshCw,
   ScanLine,
-  Search,
   ServerCog,
   Settings2,
   Weight,
@@ -74,8 +72,6 @@ export type MonitoringSection =
   | "api-gateway"
   | "sync"
   | "exceptions"
-  | "service-search"
-  | "runtime-statistics"
   | "records";
 
 const SUBMODULES: Array<{
@@ -89,8 +85,6 @@ const SUBMODULES: Array<{
   { section: "api-gateway", number: "6.2.5" },
   { section: "sync", number: "6.2.6" },
   { section: "exceptions", number: "6.2.7" },
-  { section: "service-search", number: "6.2.8" },
-  { section: "runtime-statistics", number: "6.2.9" },
   { section: "records", number: "6.2.10" },
 ];
 
@@ -105,8 +99,6 @@ const MODULE_ICONS: Record<
   "api-gateway": Cable,
   sync: DatabaseZap,
   exceptions: AlertTriangle,
-  "service-search": Search,
-  "runtime-statistics": ChartNoAxesCombined,
   records: History,
 };
 
@@ -391,18 +383,60 @@ function SectionContent({
   const format = useFormatter();
 
   if (section === "live-platform") {
+    const needle = serviceSearch.trim().toLowerCase();
+    const services = data.services.filter((service) =>
+      [service.name, service.key, service.status, service.mode]
+        .join(" ")
+        .toLowerCase()
+        .includes(needle),
+    );
     return (
-      <MetricGrid
-        items={[
-          ["onlineContractors", data.platform.online_contractors],
-          ["onlineRecyclers", data.platform.online_recyclers],
-          ["onlineProjects", data.platform.online_projects],
-          ["activeProjects", data.platform.active_projects],
-          ["onlineUsers", data.platform.online_users],
-          ["activeUsersToday", data.platform.active_users_today],
-          ["activeCompanies", data.platform.active_companies],
-        ]}
-      />
+      <div className="space-y-5">
+        <MetricGrid
+          items={[
+            ["onlineContractors", data.platform.online_contractors],
+            ["onlineRecyclers", data.platform.online_recyclers],
+            ["onlineProjects", data.platform.online_projects],
+            ["activeProjects", data.platform.active_projects],
+            ["onlineUsers", data.platform.online_users],
+            ["activeUsersToday", data.platform.active_users_today],
+            ["activeCompanies", data.platform.active_companies],
+          ]}
+        />
+        <MetricGrid
+          items={[
+            [
+              "uptime",
+              t("value.uptime", {
+                value: Math.floor(data.runtime.uptime_seconds / 60),
+              }),
+            ],
+            ["exceptions24h", data.runtime.exceptions_24h],
+            [
+              "averageLatency",
+              `${format.number(data.runtime.average_response_ms)} ms`,
+            ],
+            [
+              "apiSuccessRate",
+              `${format.number(data.runtime.api_success_rate)}%`,
+            ],
+            [
+              "syncSuccessRate",
+              `${format.number(data.runtime.sync_success_rate)}%`,
+            ],
+            ["onlineWorkers", data.runtime.worker_status.online],
+            ["staleWorkers", data.runtime.worker_status.stale],
+          ]}
+        />
+        <Input
+          value={serviceSearch}
+          onChange={(event) => setServiceSearch(event.target.value)}
+          placeholder={t("serviceSearchPlaceholder")}
+          className="max-w-md bg-card shadow-sm"
+        />
+        <ServiceTable services={services} />
+        <InventoryPanel inventory={data.integration_inventory} />
+      </div>
     );
   }
 
@@ -578,58 +612,7 @@ function SectionContent({
     return <EventLedger exceptionsOnly={section === "exceptions"} />;
   }
 
-  if (section === "service-search") {
-    const needle = serviceSearch.trim().toLowerCase();
-    const services = data.services.filter((service) =>
-      [service.name, service.key, service.status, service.mode]
-        .join(" ")
-        .toLowerCase()
-        .includes(needle),
-    );
-    return (
-      <div className="space-y-4">
-        <Input
-          value={serviceSearch}
-          onChange={(event) => setServiceSearch(event.target.value)}
-          placeholder={t("serviceSearchPlaceholder")}
-          className="max-w-md bg-card shadow-sm"
-        />
-        <ServiceTable services={services} />
-        <InventoryPanel inventory={data.integration_inventory} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-5">
-      <MetricGrid
-        items={[
-          [
-            "uptime",
-            t("value.uptime", {
-              value: Math.floor(data.runtime.uptime_seconds / 60),
-            }),
-          ],
-          ["exceptions24h", data.runtime.exceptions_24h],
-          [
-            "averageLatency",
-            `${format.number(data.runtime.average_response_ms)} ms`,
-          ],
-          [
-            "apiSuccessRate",
-            `${format.number(data.runtime.api_success_rate)}%`,
-          ],
-          [
-            "syncSuccessRate",
-            `${format.number(data.runtime.sync_success_rate)}%`,
-          ],
-          ["onlineWorkers", data.runtime.worker_status.online],
-          ["staleWorkers", data.runtime.worker_status.stale],
-        ]}
-      />
-      <ServiceTable services={data.services} />
-    </div>
-  );
+  return null;
 }
 
 function IntegrationSection({

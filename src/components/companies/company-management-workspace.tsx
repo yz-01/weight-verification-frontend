@@ -1,25 +1,15 @@
-"use client";
-
-import { useTranslations } from "next-intl";
-
-import { AuditLogs } from "@/components/audit/audit-logs";
 import {
   Companies,
   type CompanyManagementSection,
 } from "@/components/companies/companies";
 
-export type CompanyAdminSection = CompanyManagementSection | "activity";
+export type CompanyAdminSection = CompanyManagementSection;
 
 const SECTIONS = new Set<CompanyAdminSection>([
   "directory",
   "review",
-  "status",
-  "subscriptions",
   "projects",
   "recyclers",
-  "search",
-  "statistics",
-  "activity",
 ]);
 
 export function isCompanyAdminSection(
@@ -33,15 +23,5 @@ export function CompanyManagementWorkspace({
 }: {
   section: CompanyAdminSection;
 }) {
-  const t = useTranslations("companies");
-  if (section === "activity") {
-    return (
-      <AuditLogs
-        fixedCategory="COMPANY"
-        title={t("module.activity.title")}
-        subtitle={t("module.activity.subtitle")}
-      />
-    );
-  }
   return <Companies section={section} />;
 }

@@ -5,7 +5,6 @@ import { ArrowRight } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { CompanySubscriptions } from "@/components/subscriptions/company-subscriptions";
 import { PlanManager } from "@/components/subscriptions/plan-manager";
 import { RenewalQueue } from "@/components/subscriptions/renewal-queue";
@@ -16,24 +15,12 @@ export type SubscriptionSection =
   | "overview"
   | "plans"
   | "companies"
-  | "status"
-  | "package-changes"
-  | "account-limits"
-  | "reminders"
-  | "search"
-  | "statistics"
-  | "activity";
+  | "reminders";
 
 const SUBMODULES: Array<{ section: Exclude<SubscriptionSection, "overview">; number: string }> = [
   { section: "plans", number: "4.2.1" },
   { section: "companies", number: "4.2.2" },
-  { section: "status", number: "4.2.3" },
-  { section: "package-changes", number: "4.2.4" },
-  { section: "account-limits", number: "4.2.5" },
   { section: "reminders", number: "4.2.6" },
-  { section: "search", number: "4.2.7" },
-  { section: "statistics", number: "4.2.8" },
-  { section: "activity", number: "4.2.9" },
 ];
 
 export function SubscriptionList({ section = "overview" }: { section?: SubscriptionSection }) {
@@ -43,20 +30,9 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
     queryFn: getSubscriptionSummary,
   });
 
-  if (section === "activity") {
-    return (
-      <AuditLogs
-        fixedCategory="SUBSCRIPTION"
-        title={t("section.activity.title")}
-        subtitle={t("section.activity.subtitle")}
-      />
-    );
-  }
-
   const content = (() => {
     if (section === "plans") return <PlanManager />;
     if (section === "reminders") return <RenewalQueue />;
-    if (section === "statistics") return <SubscriptionMetrics />;
     if (section === "overview") {
       return (
         <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card">
@@ -76,7 +52,7 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
         </div>
       );
     }
-    return <CompanySubscriptions mode={section as "companies" | "status" | "package-changes" | "account-limits" | "search"} />;
+    return <CompanySubscriptions mode="search" />;
   })();
 
   return (
@@ -85,20 +61,16 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
         title={section === "overview" ? t("title") : t(`section.${section}.title`)}
         subtitle={section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`)}
       />
-      {section === "overview" && (
-        <SummaryStrip data={summary.data} loading={summary.isLoading} />
+      {(section === "overview" || section === "companies") && (
+        <SummaryStrip
+          data={summary.data}
+          loading={summary.isLoading}
+          expanded={section === "companies"}
+        />
       )}
       {content}
     </div>
   );
-}
-
-function SubscriptionMetrics() {
-  const summary = useQuery({
-    queryKey: ["subscriptions", "summary"],
-    queryFn: getSubscriptionSummary,
-  });
-  return <div className="border-y bg-card"><SummaryStrip data={summary.data} loading={summary.isLoading} expanded /></div>;
 }
 
 function SummaryStrip({

@@ -17,7 +17,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { AuditLogs } from "@/components/audit/audit-logs";
 import { VersionList } from "@/components/platform-settings/version-list";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
@@ -53,8 +52,7 @@ export type SystemSettingsSection =
   | "api-gateway"
   | "versions"
   | "notifications"
-  | "maintenance"
-  | "activity";
+  | "maintenance";
 
 const SUBMODULES: Array<{
   section: Exclude<SystemSettingsSection, "overview">;
@@ -72,7 +70,6 @@ const SUBMODULES: Array<{
   { section: "versions", number: "11.2.9" },
   { section: "notifications", number: "11.2.10", group: "notifications" },
   { section: "maintenance", number: "11.2.11", group: "maintenance" },
-  { section: "activity", number: "11.2.12" },
 ];
 
 const CHOICES: Record<string, string[]> = {
@@ -102,16 +99,6 @@ export function SystemSettingsWorkspace({
 
   if (section === "versions") return <VersionList />;
   if (section === "cwe") return <DetectionSettings />;
-  if (section === "activity") {
-    return (
-      <AuditLogs
-        fixedModule="SYSTEM_SETTINGS"
-        title={t("section.activity.title")}
-        subtitle={t("section.activity.subtitle")}
-      />
-    );
-  }
-
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
