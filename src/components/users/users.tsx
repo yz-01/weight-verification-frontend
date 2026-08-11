@@ -62,7 +62,7 @@ type PendingAction =
   | { kind: "handover"; user: UserRow };
 
 export type UserManagementSection =
-  "management" | "profiles" | "categories" | "search" | "login" | "statistics";
+  "management" | "profiles" | "categories" | "login" | "statistics";
 
 const ADMIN_SECTION_COLUMNS: Record<UserManagementSection, string[]> = {
   management: [
@@ -80,6 +80,7 @@ const ADMIN_SECTION_COLUMNS: Record<UserManagementSection, string[]> = {
     "company_name",
     "audience",
     "status",
+    "last_login_at",
     "created_at",
     "actions",
   ],
@@ -88,16 +89,6 @@ const ADMIN_SECTION_COLUMNS: Record<UserManagementSection, string[]> = {
     "company_name",
     "audience",
     "status",
-    "created_at",
-    "actions",
-  ],
-  search: [
-    "full_name",
-    "phone",
-    "company_name",
-    "audience",
-    "status",
-    "last_login_at",
     "created_at",
     "actions",
   ],
@@ -331,6 +322,7 @@ export function Users({
           // are looking at. Their own row keeps view and edit only.
           const isSelf = target.id === me?.id;
           const suspended = target.status === "SUSPENDED";
+          const isProfileDirectory = section === "profiles";
           return (
             <div className="flex items-center justify-end gap-0.5">
               <Button
@@ -345,7 +337,7 @@ export function Users({
                 </Link>
               </Button>
 
-              {can("user.update") && (
+              {!isProfileDirectory && can("user.update") && (
                 <Button
                   asChild
                   variant="ghost"
@@ -359,7 +351,7 @@ export function Users({
                 </Button>
               )}
 
-              {can("user.update") && !isSelf && (
+              {!isProfileDirectory && can("user.update") && !isSelf && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -372,7 +364,8 @@ export function Users({
                 </Button>
               )}
 
-              {can("user.suspend") &&
+              {!isProfileDirectory &&
+                can("user.suspend") &&
                 !isSelf &&
                 target.company_type === "CONTRACTOR" &&
                 target.status !== "SUSPENDED" && (
@@ -389,7 +382,10 @@ export function Users({
                   </Button>
                 )}
 
-              {can("user.suspend") && !isSelf && target.status === "ACTIVE" && (
+              {!isProfileDirectory &&
+                can("user.suspend") &&
+                !isSelf &&
+                target.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -403,7 +399,8 @@ export function Users({
                 </Button>
               )}
 
-              {can("user.suspend") &&
+              {!isProfileDirectory &&
+                can("user.suspend") &&
                 !isSelf &&
                 (suspended ? (
                   <Button
@@ -431,7 +428,10 @@ export function Users({
                   </Button>
                 ))}
 
-              {can("user.suspend") && !isSelf && !target.last_login_at && (
+              {!isProfileDirectory &&
+                can("user.suspend") &&
+                !isSelf &&
+                !target.last_login_at && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -447,7 +447,7 @@ export function Users({
         },
       },
     ],
-    [t, can, df, me?.id, resetLink],
+    [t, can, df, me?.id, resetLink, section],
   );
 
   const filterPills = [

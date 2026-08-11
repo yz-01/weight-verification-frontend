@@ -11,7 +11,6 @@ const SECTIONS = new Set<UserAdminSection>([
   "management",
   "profiles",
   "categories",
-  "search",
   "login",
   "statistics",
   "activity",

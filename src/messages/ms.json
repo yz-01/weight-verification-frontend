@@ -441,9 +441,8 @@
       "companyStatistics": "Statistik syarikat",
       "companyActivity": "Rekod operasi syarikat",
       "userManagement": "Pengurusan pengguna",
-      "userProfiles": "Profil pengguna",
+      "userProfiles": "Profil dan carian pengguna",
       "userCategories": "Kategori pengguna",
-      "userSearch": "Carian pengguna",
       "userLoginManagement": "Pengurusan log masuk",
       "userStatistics": "Statistik pengguna",
       "userActivity": "Rekod operasi pengguna",
@@ -2423,16 +2422,12 @@
         "subtitle": "{count} akaun platform dan penyewa dengan kawalan kitar hayat"
       },
       "profiles": {
-        "title": "Profil pengguna",
-        "subtitle": "{count} pengguna dengan hubungan, syarikat, kategori, status dan tarikh ciptaan"
+        "title": "Profil dan carian pengguna",
+        "subtitle": "Cari {count} profil pengguna lengkap mengikut nama, syarikat, kategori, status dan tarikh ciptaan"
       },
       "categories": {
         "title": "Kategori pengguna",
         "subtitle": "{count} pengguna MSE, kontraktor dan pengitar semula; peranan penyewa diurus oleh penyewa"
-      },
-      "search": {
-        "title": "Carian pengguna",
-        "subtitle": "Cari dan tapis {count} pengguna mengikut nama, syarikat, kategori, status dan tarikh"
       },
       "login": {
         "title": "Pengurusan log masuk",

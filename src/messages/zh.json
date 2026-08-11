@@ -441,9 +441,8 @@
       "companyStatistics": "公司统计",
       "companyActivity": "公司操作记录",
       "userManagement": "用户管理",
-      "userProfiles": "用户资料",
+      "userProfiles": "用户资料与查询",
       "userCategories": "用户类别",
-      "userSearch": "用户查询",
       "userLoginManagement": "登录管理",
       "userStatistics": "用户统计",
       "userActivity": "用户操作记录",
@@ -2423,16 +2422,12 @@
         "subtitle": "共 {count} 个平台及租户账号，可执行账号生命周期管理"
       },
       "profiles": {
-        "title": "用户资料",
-        "subtitle": "共 {count} 名用户，显示联络、公司、类别、状态及建立日期"
+        "title": "用户资料与查询",
+        "subtitle": "共 {count} 名用户，可按姓名、公司、类别、状态及建立日期查询完整资料"
       },
       "categories": {
         "title": "用户类别",
         "subtitle": "共 {count} 名 MSE、建筑商及回收商用户；租户内部职位由租户自行管理"
-      },
-      "search": {
-        "title": "用户查询",
-        "subtitle": "按姓名、公司、类别、状态及建立日期查询 {count} 名用户"
       },
       "login": {
         "title": "登录管理",

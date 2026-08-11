@@ -281,7 +281,6 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.userCategories",
           "/users/admin/categories",
         ),
-        child("3.2.4", "nav.submodule.userSearch", "/users/admin/search"),
         child(
           "3.2.5",
           "nav.submodule.userLoginManagement",

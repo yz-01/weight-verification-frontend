@@ -441,9 +441,8 @@
       "companyStatistics": "Company statistics",
       "companyActivity": "Company operation records",
       "userManagement": "User management",
-      "userProfiles": "User profiles",
+      "userProfiles": "User profiles and search",
       "userCategories": "User categories",
-      "userSearch": "User search",
       "userLoginManagement": "Login management",
       "userStatistics": "User statistics",
       "userActivity": "User operation records",
@@ -2429,16 +2428,12 @@
         "subtitle": "{count} platform and tenant accounts with lifecycle controls"
       },
       "profiles": {
-        "title": "User profiles",
-        "subtitle": "{count} users with contact, company, category, status and creation date"
+        "title": "User profiles and search",
+        "subtitle": "Search {count} complete user profiles by name, company, category, status and creation date"
       },
       "categories": {
         "title": "User categories",
         "subtitle": "{count} MSE, contractor and recycler users; tenant roles remain tenant-managed"
-      },
-      "search": {
-        "title": "User search",
-        "subtitle": "Search and filter {count} users by name, company, category, status and creation date"
       },
       "login": {
         "title": "Login management",
