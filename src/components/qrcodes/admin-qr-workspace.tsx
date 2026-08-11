@@ -82,6 +82,7 @@ export type AdminQRSection =
 const SUBJECT_TYPES: QRSubjectType[] = [
   "CONTRACTOR",
   "RECYCLER",
+  "PROJECT",
   "SUPPLIER",
   "DRIVER",
   "VEHICLE",

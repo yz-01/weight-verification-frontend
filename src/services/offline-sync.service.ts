@@ -186,6 +186,10 @@ async function uploadJob(job: OfflineJob): Promise<void> {
       {
         status: job.payload.status,
         note: job.payload.note,
+        latitude: job.payload.latitude,
+        longitude: job.payload.longitude,
+        accuracy_m: job.payload.accuracyM,
+        original_occurred_at: job.payload.originalOccurredAt,
         client_event_id: job.payload.clientEventId,
       },
       { silent: true },
@@ -211,6 +215,9 @@ async function uploadJob(job: OfflineJob): Promise<void> {
     await recordEquipmentMovement({
       ...job.payload,
       photos: job.payload.photos.map(restoreFile),
+      delivery_note_photo: job.payload.delivery_note_photo
+        ? restoreFile(job.payload.delivery_note_photo)
+        : undefined,
     });
     return;
   }
@@ -239,7 +246,7 @@ async function uploadJob(job: OfflineJob): Promise<void> {
   if (job.kind === "SAFETY_INCIDENT") {
     await createSafetyIncident({
       ...job.payload,
-      photo: job.payload.photo ? restoreFile(job.payload.photo) : undefined,
+      photos: job.payload.photos.map(restoreFile),
     });
     return;
   }
@@ -407,6 +414,7 @@ export async function submitFieldTaskTransitionOfflineAware(
   ownerId: string,
   taskId: string,
   status: "IN_PROGRESS" | "SUBMITTED",
+  location?: { latitude: string; longitude: string; accuracyM: string },
   note = "",
 ): Promise<OfflineSubmission> {
   const now = new Date().toISOString();
@@ -421,6 +429,10 @@ export async function submitFieldTaskTransitionOfflineAware(
       taskId,
       status,
       note,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      accuracyM: location?.accuracyM,
+      originalOccurredAt: now,
       clientEventId: newId("field-task-transition"),
     },
   };
@@ -534,8 +546,8 @@ export function submitEquipmentMovementOfflineAware(
   ownerId: string,
   draft: Omit<
     Extract<OfflineJob, { kind: "EQUIPMENT_MOVEMENT" }>["payload"],
-    "photos"
-  > & { photos: File[] },
+    "photos" | "delivery_note_photo"
+  > & { photos: File[]; delivery_note_photo?: File },
 ): Promise<OfflineSubmission> {
   return submitCaptureJob({
     id: newId("equipment-movement-job"),
@@ -544,7 +556,13 @@ export function submitEquipmentMovementOfflineAware(
     queuedAt: new Date().toISOString(),
     attempts: 0,
     lastError: "",
-    payload: { ...draft, photos: draft.photos.map(storeFile) },
+    payload: {
+      ...draft,
+      photos: draft.photos.map(storeFile),
+      delivery_note_photo: draft.delivery_note_photo
+        ? storeFile(draft.delivery_note_photo)
+        : undefined,
+    },
   });
 }
 
@@ -612,7 +630,7 @@ export function submitSafetyIncidentOfflineAware(
     lastError: "",
     payload: {
       ...draft,
-      photo: draft.photo ? storeFile(draft.photo) : undefined,
+      photos: (draft.photos ?? []).map(storeFile),
     },
   });
 }

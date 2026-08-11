@@ -1,6 +1,7 @@
 import type { ListQuery } from "@/interfaces/api";
 import type {
   CompanyBranch,
+  ContractorCompanyProfile,
   ContractorSiteSettings,
   EmergencyPresence,
   SiteAccessEvent,
@@ -55,12 +56,35 @@ export async function deleteCompanyBranch(id: string) {
 export const getContractorSiteSettings = () =>
   api.get<ContractorSiteSettings>("/api/contractor-site-settings/get_settings/");
 
+export const getContractorCompanyProfile = () =>
+  api.get<ContractorCompanyProfile>(
+    "/api/contractor-site-settings/get_company_profile/",
+  );
+
 export const getSiteLocationPolicy = () =>
   api.get<SiteLocationPolicy>("/api/contractor-site-settings/get_location_policy/");
 
 export async function updateContractorSiteSettings(payload: Partial<ContractorSiteSettings>) {
   const row = await api.patch<ContractorSiteSettings>("/api/contractor-site-settings/update_settings/", payload);
   toastSuccess("siteControl.toast.settingsSaved");
+  return row;
+}
+
+export async function updateContractorCompanyProfile(
+  payload: Partial<ContractorCompanyProfile>,
+  logo?: File | null,
+) {
+  const body = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (key === "logo" || value === undefined || value === null) return;
+    body.append(key, String(value));
+  });
+  if (logo) body.append("logo", logo);
+  const row = await api.patch<ContractorCompanyProfile>(
+    "/api/contractor-site-settings/update_company_profile/",
+    body,
+  );
+  toastSuccess("siteControl.toast.profileSaved");
   return row;
 }
 

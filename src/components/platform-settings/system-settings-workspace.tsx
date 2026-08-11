@@ -304,6 +304,12 @@ function GroupGuide({ group }: { group: PlatformConfigGroup }) {
     group === "notifications"
       ? "/notifications"
       : `/monitoring/${group.replace("_", "-")}`;
+  const basicHref = `/system-settings/${group.replace("_", "-")}`;
+  const stepHrefs = {
+    basic: basicHref,
+    connection: "/integrations",
+    monitoring: monitoringHref,
+  } as const;
 
   return (
     <div className="border-b bg-primary/[0.035] px-5 py-5">
@@ -321,17 +327,17 @@ function GroupGuide({ group }: { group: PlatformConfigGroup }) {
         </div>
         <div className="grid overflow-hidden rounded-md border bg-background sm:grid-cols-3 sm:divide-x">
           {["basic", "connection", "monitoring"].map((step, index) => (
-            <div key={step} className="flex gap-3 border-b px-4 py-3 last:border-b-0 sm:border-b-0">
+            <Link key={step} href={stepHrefs[step as keyof typeof stepHrefs]} className="flex gap-3 border-b px-4 py-3 transition-colors hover:bg-primary/5 last:border-b-0 sm:border-b-0">
               <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                 {index + 1}
               </span>
-              <div>
-                <p className="text-xs font-semibold">{t(`guide.step.${step}.title`)}</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              <span>
+                <span className="block text-xs font-semibold">{t(`guide.step.${step}.title`)}</span>
+                <span className="mt-1 block text-xs leading-5 text-muted-foreground">
                   {t(`guide.step.${step}.description`)}
-                </p>
-              </div>
-            </div>
+                </span>
+              </span>
+            </Link>
           ))}
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

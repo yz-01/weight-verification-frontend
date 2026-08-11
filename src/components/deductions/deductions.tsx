@@ -381,7 +381,7 @@ function RespondDialog({
                     className="relative aspect-4/3 overflow-hidden rounded-md border bg-muted/40"
                   >
                     <Image
-                      src={photo.image}
+                      src={photo.watermarked || photo.image}
                       alt={photo.caption || t("deductions.section.photos")}
                       fill
                       sizes="200px"

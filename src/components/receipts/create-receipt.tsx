@@ -52,6 +52,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
   const queryClient = useQueryClient();
   const isEdit = receipt !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
 
   const { data: projectPage } = useQuery({
     queryKey: ["projects", "options"],
@@ -113,6 +114,27 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
           return;
         }
 
+        if (!("geolocation" in navigator)) {
+          setFormError(t("fieldStaffPwa.error.location"));
+          return;
+        }
+        setIsLocating(true);
+        let fix: GeolocationPosition;
+        try {
+          fix = await new Promise<GeolocationPosition>((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 15_000,
+              maximumAge: 0,
+            }),
+          );
+        } catch {
+          setFormError(t("fieldStaffPwa.error.location"));
+          return;
+        } finally {
+          setIsLocating(false);
+        }
+
         // The docket for this exact pair, when one has been issued. Sending it
         // is what ties the receipt back to the printed slip; the backend
         // refuses any docket that names a different project or supplier.
@@ -128,6 +150,11 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
           project: value.project,
           supplier: value.supplier,
           qr_code: docket?.id ?? null,
+          original_captured_at: new Date().toISOString(),
+          client_event_id: crypto.randomUUID(),
+          latitude: fix.coords.latitude.toFixed(7),
+          longitude: fix.coords.longitude.toFixed(7),
+          location_accuracy_m: fix.coords.accuracy.toFixed(2),
         });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
@@ -147,7 +174,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
       backLabel={t("receipts.title")}
       title={isEdit ? t("receipts.editTitle") : t("receipts.createTitle")}
       description={isEdit ? t("receipts.editNote") : t("receipts.stampNote")}
-      isSubmitting={mutation.isPending}
+      isSubmitting={mutation.isPending || isLocating}
       submitLabel={isEdit ? t("common.save") : t("common.create")}
       submitIcon={isEdit ? Save : Plus}
       onSubmit={() => void form.handleSubmit()}

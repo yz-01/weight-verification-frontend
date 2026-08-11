@@ -8,6 +8,8 @@ import type {
   RolePayload,
   UserDetail,
   UserPayload,
+  UserReplacement,
+  UserReplacementPayload,
   UserRow,
   UserStats,
 } from "@/interfaces/auth";
@@ -83,6 +85,24 @@ export async function forceLogoutUser(id: string): Promise<number> {
 
 export function getUserStats(query: ListQuery = {}): Promise<UserStats> {
   return api.get<UserStats>("/api/users/get_user_stats/", query);
+}
+
+export function getUserReplacements(
+  query: ListQuery = {},
+): Promise<Paginated<UserReplacement>> {
+  return api.list<UserReplacement>("/api/users/get_replacements/", query);
+}
+
+export async function replaceUser(
+  outgoingUserId: string,
+  payload: UserReplacementPayload,
+): Promise<UserReplacement> {
+  const replacement = await api.post<UserReplacement>(
+    `/api/users/${outgoingUserId}/replace_user/`,
+    payload,
+  );
+  toastSuccess("userHandover.toast.completed");
+  return replacement;
 }
 
 export function getRoles(query: ListQuery): Promise<Paginated<Role>> {

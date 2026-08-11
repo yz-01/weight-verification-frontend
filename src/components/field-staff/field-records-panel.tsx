@@ -17,7 +17,7 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   MaterialOutgoingWorkspace,
@@ -27,6 +27,8 @@ import {
 import { SiteDisposalWorkspace } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
+import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
+import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Safety } from "@/components/site-operations/safety";
@@ -41,6 +43,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
+import type { FieldTask } from "@/interfaces/contractor-ops";
 import {
   MATERIAL_UNITS,
   type MaterialUnit,
@@ -56,10 +59,11 @@ import {
   submitConsultantSubmissionOfflineAware,
   submitMaterialReceiptOfflineAware,
 } from "@/services/offline-sync.service";
+import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
 
-type RecordMode =
+export type FieldRecordMode =
   | "material"
   | "equipment"
   | "progress"
@@ -69,7 +73,7 @@ type RecordMode =
   | "consultant";
 
 interface RecordOption {
-  key: RecordMode | "consultant";
+  key: FieldRecordMode;
   permission: string;
   icon: typeof Camera;
   tone: string;
@@ -85,32 +89,48 @@ const RECORD_OPTIONS: RecordOption[] = [
   { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary" },
 ];
 
-export function FieldRecordsPanel() {
+export function FieldRecordsPanel({
+  initialMode = null,
+  initialSupplierToken = "",
+  task = null,
+  onModeChange,
+}: {
+  initialMode?: FieldRecordMode | null;
+  initialSupplierToken?: string;
+  task?: FieldTask | null;
+  onModeChange?: (mode: FieldRecordMode | null) => void;
+} = {}) {
   const t = useTranslations("fieldStaffPwa");
   const { can } = useAuth();
-  const [mode, setMode] = useState<RecordMode | null>(null);
+  const [localMode, setLocalMode] = useState<FieldRecordMode | null>(initialMode);
+  const mode = onModeChange ? initialMode : localMode;
   const options = RECORD_OPTIONS.filter((option) => can(option.permission));
 
+  const chooseMode = (next: FieldRecordMode | null) => {
+    if (!onModeChange) setLocalMode(next);
+    onModeChange?.(next);
+  };
+
   if (mode === "material") {
-    return <RecordFrame title={t("records.material")} onBack={() => setMode(null)}><MaterialCapturePanel onSaved={() => setMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "equipment") {
-    return <RecordFrame title={t("records.equipment")} onBack={() => setMode(null)}><SiteEquipmentWorkspace /></RecordFrame>;
+    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><SiteEquipmentWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "progress") {
-    return <RecordFrame title={t("records.progress")} onBack={() => setMode(null)}><SiteProgressWorkspace /></RecordFrame>;
+    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><SiteProgressWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "disposal") {
-    return <RecordFrame title={t("records.disposal")} onBack={() => setMode(null)}><SiteDisposalWorkspace /></RecordFrame>;
+    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><SiteDisposalWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "outgoing") {
-    return <RecordFrame title={t("records.outgoing")} onBack={() => setMode(null)}><MaterialOutgoingWorkspace /></RecordFrame>;
+    return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><MaterialOutgoingWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "safety") {
-    return <RecordFrame title={t("records.safety")} onBack={() => setMode(null)}><Safety /></RecordFrame>;
+    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "consultant") {
-    return <RecordFrame title={t("records.consultant")} onBack={() => setMode(null)}><ConsultantCapturePanel onSaved={() => setMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><ConsultantCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
   }
 
   return (
@@ -127,7 +147,7 @@ export function FieldRecordsPanel() {
               key={option.key}
               type="button"
               className="flex min-h-32 flex-col items-start justify-between rounded-xl border bg-card p-4 text-left shadow-sm active:scale-[0.98]"
-              onClick={() => setMode(option.key)}
+              onClick={() => chooseMode(option.key)}
             >
               <span className={`grid size-11 place-items-center rounded-xl ${option.tone}`}>
                 <Icon className="size-6" />
@@ -170,6 +190,8 @@ interface MaterialDraft {
   project: string;
   supplier: string;
   movementType: "ENTRY" | "RETURN";
+  returnReason: string;
+  returnReasonOther: string;
   materialName: string;
   quantity: string;
   unit: MaterialUnit;
@@ -182,6 +204,8 @@ const EMPTY_MATERIAL: MaterialDraft = {
   project: "",
   supplier: "",
   movementType: "ENTRY",
+  returnReason: "",
+  returnReasonOther: "",
   materialName: "",
   quantity: "",
   unit: "TONNE",
@@ -190,12 +214,25 @@ const EMPTY_MATERIAL: MaterialDraft = {
   notes: "",
 };
 
-function MaterialCapturePanel({ onSaved }: { onSaved: () => void }) {
+function MaterialCapturePanel({
+  initialSupplierToken,
+  initialProject = "",
+  fieldTaskId,
+  onSaved,
+}: {
+  initialSupplierToken?: string;
+  initialProject?: string;
+  fieldTaskId?: string;
+  onSaved: () => void;
+}) {
   const t = useTranslations("fieldStaffPwa");
   const allT = useTranslations();
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [draft, setDraft] = useState<MaterialDraft>(EMPTY_MATERIAL);
+  const [draft, setDraft] = useState<MaterialDraft>({
+    ...EMPTY_MATERIAL,
+    project: initialProject,
+  });
   const [deliveryNote, setDeliveryNote] = useState<File>();
   const [sitePhotos, setSitePhotos] = useState<File[]>([]);
   const [receiverSignature, setReceiverSignature] = useState<File>();
@@ -207,6 +244,7 @@ function MaterialCapturePanel({ onSaved }: { onSaved: () => void }) {
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
+  const initialScanRef = useRef("");
 
   const suppliers = useQuery({
     queryKey: ["suppliers", "field-material"],
@@ -240,6 +278,17 @@ function MaterialCapturePanel({ onSaved }: { onSaved: () => void }) {
       reason instanceof ApiError ? reason.message : t("material.qrInvalid"),
     ),
   });
+
+  useEffect(() => {
+    if (
+      !initialSupplierToken ||
+      initialScanRef.current === initialSupplierToken
+    ) {
+      return;
+    }
+    initialScanRef.current = initialSupplierToken;
+    qrScan.mutate(initialSupplierToken);
+  }, [initialSupplierToken, qrScan]);
 
   const ocr = useMutation({
     mutationFn: ({ project, image }: { project: string; image: File }) =>
@@ -315,6 +364,12 @@ function MaterialCapturePanel({ onSaved }: { onSaved: () => void }) {
           supplier: draft.supplier,
           qr_code: qrCode?.id ?? null,
           movement_type: draft.movementType,
+          return_reason:
+            draft.movementType === "RETURN"
+              ? draft.returnReason === "OTHER"
+                ? draft.returnReasonOther.trim()
+                : draft.returnReason
+              : "",
           material_name: draft.materialName.trim(),
           quantity: draft.quantity,
           unit: draft.unit,
@@ -324,6 +379,7 @@ function MaterialCapturePanel({ onSaved }: { onSaved: () => void }) {
           received_by_name: user.full_name,
           original_captured_at: new Date().toISOString(),
           client_event_id: eventId,
+          field_task: fieldTaskId,
           latitude: location.latitude,
           longitude: location.longitude,
           location_accuracy_m: location.accuracy,
@@ -333,7 +389,7 @@ function MaterialCapturePanel({ onSaved }: { onSaved: () => void }) {
         supplierSignature,
         deliveryNotePhoto: deliveryNote,
         sitePhotos,
-        deviceId: fieldDeviceId(),
+        deviceId: getOrCreateFieldDeviceId(),
       });
     },
     onSuccess: () => {
@@ -350,6 +406,9 @@ function MaterialCapturePanel({ onSaved }: { onSaved: () => void }) {
       draft.supplier &&
       draft.materialName.trim() &&
       Number(draft.quantity) > 0 &&
+      (draft.movementType === "ENTRY" ||
+        (draft.returnReason &&
+          (draft.returnReason !== "OTHER" || draft.returnReasonOther.trim()))) &&
       deliveryNote &&
       sitePhotos.length > 0 &&
       receiverSignature &&
@@ -416,22 +475,64 @@ function MaterialCapturePanel({ onSaved }: { onSaved: () => void }) {
           </Select>
         </FieldWrapper>
       </div>
+      {draft.movementType === "RETURN" ? (
+        <div className="space-y-3 rounded-lg border border-warning/30 bg-warning/5 p-3">
+          <FieldWrapper label={t("material.returnReason")} required>
+            <Select
+              value={draft.returnReason || undefined}
+              onValueChange={(returnReason) =>
+                setDraft((old) => ({
+                  ...old,
+                  returnReason,
+                  returnReasonOther:
+                    returnReason === "OTHER" ? old.returnReasonOther : "",
+                }))
+              }
+            >
+              <SelectTrigger className="h-12 w-full">
+                <SelectValue placeholder={t("material.chooseReturnReason")} />
+              </SelectTrigger>
+              <SelectContent>
+                {["QUALITY_REJECTED", "WRONG_DELIVERY", "DAMAGED", "EXCESS_MATERIAL", "OTHER"].map((reason) => (
+                  <SelectItem key={reason} value={reason}>
+                    {t(`material.returnReasonOption.${reason}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          {draft.returnReason === "OTHER" ? (
+            <FieldWrapper label={t("material.returnReasonOther")} required>
+              <Input
+                className="h-12"
+                value={draft.returnReasonOther}
+                onChange={(event) =>
+                  setDraft((old) => ({
+                    ...old,
+                    returnReasonOther: event.target.value,
+                  }))
+                }
+              />
+            </FieldWrapper>
+          ) : null}
+        </div>
+      ) : null}
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
       <div className="grid grid-cols-2 gap-3">
         <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
         <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
       </div>
-      <CameraField label={t("material.doPhoto")} fileCount={deliveryNote ? 1 : 0} onChange={selectDeliveryNote} />
+      <CameraField label={t("material.doPhoto")} files={deliveryNote ? [deliveryNote] : []} onChange={selectDeliveryNote} />
       {(ocr.isPending || ocrMessage) && (
         <p className={`rounded-lg px-3 py-2 text-sm ${ocrProof ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
           {ocr.isPending ? t("material.ocrReading") : ocrMessage}
         </p>
       )}
-      <CameraField label={t("material.sitePhotos")} multiple fileCount={sitePhotos.length} onChange={setSitePhotos} />
-      <div className="grid grid-cols-2 gap-3">
-        <CameraField label={t("material.receiverSignature")} fileCount={receiverSignature ? 1 : 0} onChange={(files) => setReceiverSignature(files[0])} />
-        <CameraField label={t("material.supplierSignature")} fileCount={supplierSignature ? 1 : 0} onChange={(files) => setSupplierSignature(files[0])} />
+      <CameraField label={t("material.sitePhotos")} multiple files={sitePhotos} onChange={setSitePhotos} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} value={receiverSignature} onChange={setReceiverSignature} />
+        <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} value={supplierSignature} onChange={setSupplierSignature} />
       </div>
       <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>
         {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
@@ -461,12 +562,15 @@ function numericSuggestion(value?: string): string {
   return match?.[0] ?? "";
 }
 
-function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
+function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: { initialProject?: string; fieldTaskId?: string; onSaved: () => void }) {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
+  const [project, setProject] = useState(initialProject);
   const [photos, setPhotos] = useState<File[]>([]);
+  const [category, setCategory] = useState("RFI");
+  const [description, setDescription] = useState("");
+  const [workLocation, setWorkLocation] = useState("");
   const [note, setNote] = useState("");
   const [location, setLocation] = useState<Coordinates>();
   const [locating, setLocating] = useState(false);
@@ -501,12 +605,16 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
       return submitConsultantSubmissionOfflineAware(user.id, {
         project,
         note: note.trim(),
+        application_category: category,
+        description: description.trim(),
+        work_location: workLocation.trim(),
         captured_at: new Date().toISOString(),
         latitude: location.latitude,
         longitude: location.longitude,
         accuracy_m: location.accuracy,
-        device_id: fieldDeviceId(),
+        device_id: getOrCreateFieldDeviceId(),
         client_event_id: crypto.randomUUID(),
+        field_task: fieldTaskId,
         photos,
       });
     },
@@ -529,10 +637,28 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
           className="h-12 w-full"
         />
       </FieldWrapper>
+      <FieldWrapper label={t("consultantCapture.category")} required>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {(["RFI", "WIR", "MATERIAL", "SAFETY", "OTHER"] as const).map((value) => (
+              <SelectItem key={value} value={value}>{t(`consultantCapture.categoryOption.${value}`)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
+      <FieldWrapper label={t("consultantCapture.workLocation")}>
+        <Input
+          className="h-12"
+          value={workLocation}
+          onChange={(event) => setWorkLocation(event.target.value)}
+          placeholder={t("consultantCapture.workLocationPlaceholder")}
+        />
+      </FieldWrapper>
       <CameraField
         label={t("consultantCapture.photos")}
         multiple
-        fileCount={photos.length}
+        files={photos}
         onChange={setPhotos}
       />
       <Button
@@ -545,6 +671,11 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
         {location ? t("attendance.locationReady") : t("attendance.getLocation")}
       </Button>
       <Textarea
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        placeholder={t("consultantCapture.description")}
+      />
+      <Textarea
         value={note}
         onChange={(event) => setNote(event.target.value)}
         placeholder={t("consultantCapture.note")}
@@ -556,7 +687,7 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
       )}
       <Button
         className="h-14 w-full text-base"
-        disabled={!project || photos.length === 0 || !location || save.isPending}
+        disabled={!project || !category || !description.trim() || photos.length === 0 || !location || save.isPending}
         onClick={() => save.mutate()}
       >
         {save.isPending ? <Loader2 className="animate-spin" /> : <UserRoundCheck />}
@@ -569,37 +700,20 @@ function ConsultantCapturePanel({ onSaved }: { onSaved: () => void }) {
 function CameraField({
   label,
   multiple = false,
-  fileCount,
+  files,
   onChange,
 }: {
   label: string;
   multiple?: boolean;
-  fileCount: number;
+  files: File[];
   onChange: (files: File[]) => void;
 }) {
-  const t = useTranslations("fieldStaffPwa");
   return (
-    <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed bg-muted/20 p-3 text-center">
-      <Camera className="size-7 text-primary" />
-      <span className="mt-2 text-sm font-semibold">{label}</span>
-      <span className="mt-1 text-xs text-muted-foreground">{fileCount ? t("material.photoReady", { count: fileCount }) : t("material.tapCamera")}</span>
-      <input
-        className="sr-only"
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple={multiple}
-        onChange={(event) => onChange(Array.from(event.target.files ?? []))}
-      />
-    </label>
+    <FieldCamera
+      label={label}
+      fileCount={files.length}
+      onCapture={(file) => onChange(multiple ? [...files, file] : [file])}
+      onClear={() => onChange([])}
+    />
   );
-}
-
-function fieldDeviceId(): string {
-  const key = "mse-field-device-id";
-  const existing = window.localStorage.getItem(key);
-  if (existing) return existing;
-  const id = crypto.randomUUID();
-  window.localStorage.setItem(key, id);
-  return id;
 }

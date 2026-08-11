@@ -3,6 +3,7 @@
 export type QRSubjectType =
   | "CONTRACTOR"
   | "RECYCLER"
+  | "PROJECT"
   | "SUPPLIER"
   | "DRIVER"
   | "VEHICLE"

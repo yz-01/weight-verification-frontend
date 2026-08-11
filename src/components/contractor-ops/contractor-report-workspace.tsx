@@ -62,6 +62,9 @@ export function ContractorReportWorkspace({
   );
   const [dateTo, setDateTo] = useState(dateValue(now));
   const [project, setProject] = useState("all");
+  const [category, setCategory] = useState("all");
+  const [actor, setActor] = useState("all");
+  const [keyword, setKeyword] = useState("");
   const options = useQuery({
     queryKey: ["contractor-reports", "options"],
     queryFn: getContractorReportOptions,
@@ -72,8 +75,13 @@ export function ContractorReportWorkspace({
       date_from: dateFrom,
       date_to: dateTo,
       project: project === "all" ? undefined : project,
+      category:
+        reportType === "photos" && category !== "all" ? category : undefined,
+      actor: reportType === "photos" && actor !== "all" ? actor : undefined,
+      keyword:
+        reportType === "photos" && keyword.trim() ? keyword.trim() : undefined,
     }),
-    [dateFrom, dateTo, project, reportType],
+    [actor, category, dateFrom, dateTo, keyword, project, reportType],
   );
   const report = useQuery({
     queryKey: ["contractor-reports", "report", filters],
@@ -140,6 +148,38 @@ export function ContractorReportWorkspace({
             <FileText />{t("action.pdf")}
           </Button>
         </div>
+        {reportType === "photos" ? (
+          <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-3">
+            <label className="space-y-1.5 text-sm font-medium">
+              {t("filter.category")}
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("filter.allCategories")}</SelectItem>
+                  {(options.data?.photo_categories ?? []).map((row) => (
+                    <SelectItem key={row.value} value={row.value}>{row.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </label>
+            <label className="space-y-1.5 text-sm font-medium">
+              {t("filter.uploader")}
+              <Select value={actor} onValueChange={setActor}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("filter.allUploaders")}</SelectItem>
+                  {(options.data?.photo_uploaders ?? []).map((row) => (
+                    <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </label>
+            <label className="space-y-1.5 text-sm font-medium">
+              {t("filter.keyword")}
+              <Input value={keyword} onChange={(event) => setKeyword(event.target.value)} />
+            </label>
+          </div>
+        ) : null}
       </section>
 
       <section className="overflow-hidden rounded-lg border bg-card">

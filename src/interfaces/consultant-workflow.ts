@@ -67,6 +67,63 @@ export interface ConsultantOrganizationOption {
   id: string;
   name: string;
   registration_no: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string;
+  address: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConsultantOrganizationPayload {
+  name: string;
+  registration_no?: string;
+  contact_name?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  address?: string;
+  is_active?: boolean;
+}
+
+export interface ConsultantOrganizationMember {
+  id: string;
+  organization: string;
+  organization_name: string;
+  consultant: string;
+  consultant_name: string;
+  consultant_email: string;
+  consultant_phone: string;
+  consultant_status: "INVITED" | "ACTIVE" | "SUSPENDED";
+  job_title: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConsultantAccountPayload {
+  organization: string;
+  email: string;
+  full_name: string;
+  phone?: string;
+  job_title?: string;
+  language: "en" | "zh" | "ms";
+}
+
+export interface ConsultantProjectAccessGrant extends ConsultantGrantOption {
+  valid_from: string;
+  valid_until: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConsultantGrantPayload {
+  organization: string;
+  consultant: string;
+  project: string;
+  permissions: string[];
+  valid_from: string;
+  valid_until?: string | null;
   is_active: boolean;
 }
 
@@ -79,6 +136,7 @@ export type ConsultantApplicationStatus =
   | "DRAFT"
   | "SUBMITTED"
   | "APPROVED"
+  | "APPROVED_WITH_REMEDIAL"
   | "REJECTED"
   | "REVISE_RESUBMIT"
   | "ARCHIVED";
@@ -100,6 +158,7 @@ export interface ApplicationEvidenceLink {
   evidence: string;
   evidence_kind: string;
   evidence_file: string;
+  evidence_watermarked_file: string | null;
   original_filename: string;
   captured_at: string;
   latitude: string | null;
@@ -121,7 +180,7 @@ export interface ApplicationReviewStep {
   reviewer_role_name: string | null;
   requires_signature: boolean;
   requires_stamp: boolean;
-  status: "WAITING" | "CURRENT" | "APPROVED" | "REJECTED" | "REVISE_RESUBMIT" | "SKIPPED";
+  status: "WAITING" | "CURRENT" | "APPROVED" | "APPROVED_WITH_REMEDIAL" | "REJECTED" | "REVISE_RESUBMIT" | "SKIPPED";
   decided_by: string | null;
   decided_by_name: string | null;
   decided_at: string | null;
@@ -132,7 +191,7 @@ export interface ApplicationApprovalAction {
   step: string;
   step_name: string;
   step_sequence: number;
-  decision: "APPROVE" | "REJECT" | "REVISE_RESUBMIT";
+  decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT";
   remarks: string;
   acted_by: string;
   actor_name: string;
@@ -163,6 +222,21 @@ export interface ConsultantApplication {
   project_address: string;
   workflow: string | null;
   workflow_name: string | null;
+  template_version: string | null;
+  template_name: string | null;
+  template_version_number: number | null;
+  template_field_schema: Array<{
+    key: string;
+    label: string;
+    required?: boolean;
+    type?: string;
+  }>;
+  template_required_attachment_codes: string[];
+  schedule_task: string | null;
+  schedule_task_name: string | null;
+  schedule_task_wbs: string | null;
+  source_field_task: string | null;
+  source_field_task_title: string | null;
   status: ConsultantApplicationStatus;
   application_date: string;
   application_type: string;
@@ -186,6 +260,8 @@ export interface ConsultantApplication {
   component: string;
   description: string;
   required_at: string | null;
+  inspection_start_at: string | null;
+  inspection_end_at: string | null;
   drawing_no: string;
   drawing_revision: string;
   itp_no: string;
@@ -193,6 +269,12 @@ export interface ConsultantApplication {
   inspection_category: "R" | "S" | "W" | "H" | "";
   custom_fields: Record<string, string>;
   submitted_at: string | null;
+  received_at: string | null;
+  received_by: string | null;
+  received_by_name: string | null;
+  acknowledged_at: string | null;
+  acknowledged_by: string | null;
+  acknowledged_by_name: string | null;
   finalized_at: string | null;
   archived_at: string | null;
   final_decision: string;
@@ -210,6 +292,38 @@ export interface ConsultantApplication {
   updated_at: string;
 }
 
+export interface ConsultantDashboardRow {
+  id: string;
+  application_no: string;
+  project: string;
+  project_name: string;
+  application_type: string;
+  status: ConsultantApplicationStatus;
+  priority: string;
+  applicant_name: string;
+  consultant_name: string;
+  required_at: string | null;
+  submitted_at: string | null;
+  updated_at: string;
+  current_step: string;
+  latest_decision: string;
+  latest_decision_at: string | null;
+}
+
+export interface ConsultantDashboardData {
+  generated_at: string;
+  summary: {
+    pending: number;
+    today: number;
+    approved: number;
+    returned: number;
+    due_soon: number;
+  };
+  pending: ConsultantDashboardRow[];
+  due_soon: ConsultantDashboardRow[];
+  recent_decisions: ConsultantDashboardRow[];
+}
+
 export interface EvidenceCandidate {
   id: string;
   kind: string;
@@ -225,6 +339,9 @@ export interface EvidenceCandidate {
 export interface ConsultantApplicationPayload {
   project: string;
   workflow: string;
+  template_version?: string | null;
+  schedule_task?: string | null;
+  source_field_task?: string | null;
   application_type: string;
   application_type_custom?: string;
   discipline: string;
@@ -239,12 +356,57 @@ export interface ConsultantApplicationPayload {
   component: string;
   description: string;
   required_at?: string | null;
+  inspection_start_at?: string | null;
+  inspection_end_at?: string | null;
   drawing_no?: string;
   drawing_revision?: string;
   itp_no?: string;
   checklist_reference?: string;
   inspection_category?: "R" | "S" | "W" | "H" | "";
   custom_fields?: Record<string, string>;
+}
+
+export interface ApplicationTemplateVersion {
+  id: string;
+  template: string;
+  project: string;
+  version: number;
+  template_snapshot: Record<string, string>;
+  field_schema: Array<{ key: string; label: string; required?: boolean; type?: string }>;
+  required_attachment_codes: string[];
+  report_mapping: Record<string, string>;
+  change_note: string;
+  created_at: string;
+}
+
+export interface ApplicationTemplate {
+  id: string;
+  project: string;
+  code: string;
+  name: string;
+  application_type: string | null;
+  application_type_label: string | null;
+  description: string;
+  numbering_pattern: string;
+  current_version: number;
+  is_active: boolean;
+  versions: ApplicationTemplateVersion[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApplicationTemplatePayload {
+  project: string;
+  code: string;
+  name: string;
+  application_type?: string | null;
+  description?: string;
+  numbering_pattern: string;
+  field_schema?: ApplicationTemplateVersion["field_schema"];
+  required_attachment_codes?: string[];
+  report_mapping?: Record<string, string>;
+  change_note: string;
+  is_active?: boolean;
 }
 
 export interface ApprovalCredential {

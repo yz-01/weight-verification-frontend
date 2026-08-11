@@ -56,10 +56,62 @@ export interface ContractorSiteSettings {
   live_position_window_seconds: number;
   visitor_pass_hours: number;
   qr_prefix: string;
+  qr_style: "STANDARD" | "COMPACT" | "LARGE";
+  enable_site_access_qr: boolean;
+  enable_visitor_qr: boolean;
+  enable_vehicle_qr: boolean;
+  default_project_status: "PLANNING" | "ACTIVE";
+  default_project_categories: Array<{
+    code: string;
+    name: string;
+    description?: string;
+    is_visible_in_pwa: boolean;
+  }>;
+  default_archive_rules: Record<string, boolean>;
+  default_notification_rules: Record<string, boolean>;
+  default_user_role_code: string;
+  default_approval_role_code: string;
+  default_guest_role_code: string;
+  default_consultant_permissions: string[];
+  date_format: "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
+  time_format: "12H" | "24H";
+  language: "en" | "zh" | "ms";
+  timezone: string;
+  home_page: "/dashboard" | "/projects" | "/notifications" | "/field-staff";
+  default_notification_channel: "IN_APP" | "PUSH";
+  email_notifications: boolean;
+  system_notifications: boolean;
+  approval_notifications: boolean;
+  rectification_notifications: boolean;
+  expiry_notifications: boolean;
+  target_reminder_percent: number;
   require_attendance_photo: boolean;
   require_gate_photo: boolean;
   emergency_contact_name: string;
   emergency_contact_phone: string;
+  updated_at: string;
+}
+
+export interface ContractorCompanyProfile {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  registration_no: string;
+  logo: string | null;
+  address_line_1: string;
+  address_line_2: string;
+  city: string;
+  state: string;
+  postcode: string;
+  country: string;
+  latitude: string | null;
+  longitude: string | null;
+  contact_phone: string;
+  contact_email: string;
+  website: string;
+  default_language: "en" | "zh" | "ms";
+  timezone: string;
   updated_at: string;
 }
 

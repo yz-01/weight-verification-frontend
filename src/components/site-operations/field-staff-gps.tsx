@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { History, LocateFixed, MapPinned, RefreshCw, Route, UserRound } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -30,13 +31,20 @@ export function FieldStaffGps() {
   const t = useTranslations();
   const dates = useDateFormat();
   const { can, user } = useAuth();
+  const searchParams = useSearchParams();
+  const requestedProjectId = searchParams.get("project") ?? "";
+  const requestedUserId = searchParams.get("user") ?? "";
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState("live");
-  const [projectId, setProjectId] = useState("");
+  const [tab, setTab] = useState(requestedUserId ? "history" : "live");
+  const [projectId, setProjectId] = useState(requestedProjectId);
   const [sharing, setSharing] = useState(false);
   const [sharingError, setSharingError] = useState("");
-  const [historyProjectId, setHistoryProjectId] = useState("");
-  const [historySelection, setHistorySelection] = useState("");
+  const [historyProjectId, setHistoryProjectId] = useState(requestedProjectId);
+  const [historySelection, setHistorySelection] = useState(
+    requestedProjectId && requestedUserId
+      ? `${requestedProjectId}:${requestedUserId}`
+      : "",
+  );
   const watchId = useRef<number | null>(null);
   const lastSentAt = useRef(0);
 
@@ -88,10 +96,12 @@ export function FieldStaffGps() {
   );
   const selectedLastPosition = useMemo(
     () =>
-      lastRows.find(
-        (position) =>
-          `${position.project}:${position.user}` === historySelection,
-      ) ?? lastRows[0],
+      historySelection
+        ? lastRows.find(
+            (position) =>
+              `${position.project}:${position.user}` === historySelection,
+          )
+        : lastRows[0],
     [historySelection, lastRows],
   );
   const history = useQuery({

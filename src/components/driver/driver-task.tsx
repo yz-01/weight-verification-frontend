@@ -282,7 +282,7 @@ export function DriverTask({ id }: { id: string }) {
                 className="relative aspect-square overflow-hidden rounded-md border bg-muted/40"
               >
                 <Image
-                  src={photo.image}
+                  src={photo.watermarked || photo.image}
                   alt={photo.caption || photo.kind}
                   fill
                   sizes="120px"

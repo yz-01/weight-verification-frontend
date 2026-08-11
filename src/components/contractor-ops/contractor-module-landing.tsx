@@ -1,6 +1,28 @@
 "use client";
 
-import { ArrowUpRight, Search, type LucideIcon } from "lucide-react";
+import {
+  ArrowUpRight,
+  BarChart3,
+  Bell,
+  Building2,
+  CalendarDays,
+  ClipboardCheck,
+  Files,
+  FolderKanban,
+  HardHat,
+  ListTree,
+  MapPinned,
+  PackageCheck,
+  PackageOpen,
+  Recycle,
+  ScanLine,
+  Search,
+  Settings2,
+  ShieldAlert,
+  SlidersHorizontal,
+  UsersRound,
+  type LucideIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -19,13 +41,28 @@ const TONES = [
 ] as const;
 
 const ICON_BY_WORD: Array<{ pattern: RegExp; icon: LucideIcon }> = [
-  { pattern: /map|gps|access|geofence/, icon: ArrowUpRight },
-  { pattern: /report|document|evidence|log/, icon: ArrowUpRight },
-  { pattern: /setting|role|user|integration/, icon: ArrowUpRight },
+  { pattern: /material-outgoing/, icon: PackageOpen },
+  { pattern: /site-equipment/, icon: HardHat },
+  { pattern: /site-progress/, icon: BarChart3 },
+  { pattern: /schedule/, icon: CalendarDays },
+  { pattern: /site-disposal|recycl|waste/, icon: Recycle },
+  { pattern: /safety|hazard/, icon: ShieldAlert },
+  { pattern: /consultant|approval/, icon: ClipboardCheck },
+  { pattern: /document|archive|evidence/, icon: Files },
+  { pattern: /report/, icon: BarChart3 },
+  { pattern: /notification/, icon: Bell },
+  { pattern: /geofence|workforce|location|map|gps/, icon: MapPinned },
+  { pattern: /site-access|gate|permit/, icon: ScanLine },
+  { pattern: /supplier/, icon: Building2 },
+  { pattern: /project-categor|categor/, icon: ListTree },
+  { pattern: /material/, icon: PackageCheck },
+  { pattern: /project/, icon: FolderKanban },
+  { pattern: /user|role|team/, icon: UsersRound },
+  { pattern: /setting|integration/, icon: Settings2 },
 ];
 
 function childIcon(label: string): LucideIcon {
-  return ICON_BY_WORD.find(({ pattern }) => pattern.test(label))?.icon ?? ArrowUpRight;
+  return ICON_BY_WORD.find(({ pattern }) => pattern.test(label))?.icon ?? SlidersHorizontal;
 }
 
 /** The entry page for a contractor module; existing workspaces remain the actions. */

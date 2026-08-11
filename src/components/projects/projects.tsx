@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, PauseCircle, Pencil, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -10,15 +10,31 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ExportButton } from "@/components/shared/export-button";
 import {
   ListHeader,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Project, ProjectStatus } from "@/interfaces/contractor";
-import { deleteProject, getProjects } from "@/services/contractor.service";
+import { MALAYSIA_STATES } from "@/lib/malaysia";
+import {
+  exportProjects,
+  getProjects,
+  suspendProject,
+  type ExportFormat,
+} from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
 
 export const PROJECT_STATUS_TONE: Record<
@@ -29,6 +45,7 @@ export const PROJECT_STATUS_TONE: Record<
   PLANNING: "info",
   SUSPENDED: "warning",
   COMPLETED: "neutral",
+  ARCHIVED: "neutral",
 };
 
 export function Projects() {
@@ -36,7 +53,13 @@ export function Projects() {
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const list = useListQuery(["status"]);
+  const list = useListQuery([
+    "status",
+    "state",
+    "date_from",
+    "date_to",
+    "responsible",
+  ]);
   const [removing, setRemoving] = useState<Project | null>(null);
 
   const { data, isLoading, isError } = useQuery({
@@ -45,7 +68,7 @@ export function Projects() {
   });
 
   const removal = useMutation({
-    mutationFn: (id: string) => deleteProject(id),
+    mutationFn: (id: string) => suspendProject(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["projects"] });
       setRemoving(null);
@@ -198,11 +221,11 @@ export function Projects() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                title={t("common.remove")}
+                className="h-7 w-7 text-warning hover:bg-warning/10"
+                title={t("projects.remove.action")}
                 onClick={() => setRemoving(row.original)}
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <PauseCircle className="h-3.5 w-3.5" />
               </Button>
             )}
           </div>
@@ -214,6 +237,26 @@ export function Projects() {
 
   const totalCount = data?.count ?? 0;
   const activeStatus = list.filters.status ?? "";
+  const runExport = (format: ExportFormat) =>
+    exportProjects({
+      format,
+      title: t("projects.title"),
+      emptyLabel: t("common.emptyValue"),
+      query: list.query,
+      columns: [
+        { key: "code", label: t("projects.field.code") },
+        { key: "name", label: t("projects.field.name") },
+        { key: "status", label: t("projects.field.status") },
+        { key: "client_name", label: t("projects.field.clientName") },
+        { key: "main_contractor", label: t("projects.field.mainContractor") },
+        { key: "consultant", label: t("projects.field.consultant") },
+        { key: "city", label: t("projects.field.city") },
+        { key: "state", label: t("projects.field.state") },
+        { key: "start_date", label: t("projects.field.startDate") },
+        { key: "end_date", label: t("projects.field.endDate") },
+        { key: "site_manager", label: t("projects.field.siteManager") },
+      ],
+    });
 
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
@@ -221,16 +264,51 @@ export function Projects() {
         title={t("projects.title")}
         subtitle={isLoading ? "—" : t("projects.count", { count: totalCount })}
         action={
-          can("project.create") ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href="/projects/create">
-                <Plus className="h-4 w-4" />
-                {t("projects.new")}
-              </Link>
-            </Button>
-          ) : undefined
+          <>
+            <ExportButton onExport={runExport} disabled={totalCount === 0} />
+            {can("project.create") && (
+              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Link href="/projects/create">
+                  <Plus className="h-4 w-4" />
+                  {t("projects.new")}
+                </Link>
+              </Button>
+            )}
+          </>
         }
       />
+
+      <div className="grid gap-3 border-y bg-card/50 py-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">{t("projects.filter.state")}</Label>
+          <Select
+            value={list.filters.state || "all"}
+            onValueChange={(value) => list.setFilter("state", value === "all" ? undefined : value)}
+          >
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("common.all")}</SelectItem>
+              {MALAYSIA_STATES.map((state) => <SelectItem key={state} value={state}>{state}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">{t("projects.filter.dateFrom")}</Label>
+          <Input type="date" value={list.filters.date_from ?? ""} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">{t("projects.filter.dateTo")}</Label>
+          <Input type="date" value={list.filters.date_to ?? ""} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">{t("projects.filter.responsible")}</Label>
+          <Input
+            value={list.filters.responsible ?? ""}
+            placeholder={t("projects.filter.responsiblePlaceholder")}
+            onChange={(event) => list.setFilter("responsible", event.target.value || undefined)}
+          />
+        </div>
+      </div>
 
       <DataTable
         columns={columns}
@@ -252,7 +330,7 @@ export function Projects() {
             active: activeStatus === "",
             onSelect: () => list.setFilter("status", undefined),
           },
-          ...(["ACTIVE", "PLANNING", "SUSPENDED", "COMPLETED"] as const).map(
+          ...(["ACTIVE", "PLANNING", "SUSPENDED", "COMPLETED", "ARCHIVED"] as const).map(
             (status) => ({
               key: status,
               label: t(`projects.status.${status}`),
@@ -275,7 +353,7 @@ export function Projects() {
           title={t("projects.remove.title", { name: removing.name })}
           description={t("projects.remove.description")}
           confirmLabel={t("projects.remove.confirm")}
-          confirmIcon={Trash2}
+          confirmIcon={PauseCircle}
           isPending={removal.isPending}
           onConfirm={() => removal.mutate(removing.id)}
         />

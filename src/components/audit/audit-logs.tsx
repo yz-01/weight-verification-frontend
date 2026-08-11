@@ -55,6 +55,10 @@ const ACTION_TONE: Record<
   IMPERSONATE: "warning",
   MAINTENANCE: "warning",
   LOCK: "info",
+  // Reads, not changes. Neutral on purpose: a dashboard view is only
+  // interesting next to the rest of a session, never on its own.
+  VIEW: "neutral",
+  SEARCH: "neutral",
 };
 
 const FILTERABLE_ACTIONS: AuditAction[] = [
@@ -80,6 +84,8 @@ const ALL_ACTIONS: AuditAction[] = [
   "IMPERSONATE",
   "MAINTENANCE",
   "LOCK",
+  "VIEW",
+  "SEARCH",
 ];
 
 export function AuditLogs({

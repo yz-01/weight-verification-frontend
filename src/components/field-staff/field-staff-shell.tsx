@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="ml-auto flex items-center gap-1">
             <OfflineStatus />
+            <NotificationButton />
             <LanguageSwitcher />
             <Button variant="ghost" size="icon" className="h-9 w-9" title={t("common.signOut")} onClick={() => void signOut()}>
               <LogOut className="h-4 w-4" />

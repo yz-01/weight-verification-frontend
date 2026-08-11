@@ -36,7 +36,7 @@ export function setTokens(tokens: { access: string; refresh: string }): void {
   if (!isBrowser()) return;
   window.localStorage.setItem(ACCESS_KEY, tokens.access);
   window.localStorage.setItem(REFRESH_KEY, tokens.refresh);
-  setCookie(SESSION_COOKIE, "1", 60 * 60 * 24 * 30);
+  setCookie(SESSION_COOKIE, "1", 60 * 60 * 24 * 90);
 }
 
 export function clearTokens(): void {

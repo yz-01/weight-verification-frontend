@@ -16,6 +16,28 @@ export interface FieldInvitationInfo {
   activated_at: string | null;
 }
 
+export interface FieldInvitationResult extends FieldInvitationInfo {
+  token: string;
+  pin: string;
+  activation_url: string;
+}
+
+export interface FieldInvitationPayload {
+  full_name: string;
+  phone: string;
+  email?: string;
+  project_ids: string[];
+}
+
+export function createFieldInvitation(
+  payload: FieldInvitationPayload,
+): Promise<FieldInvitationResult> {
+  return api.post<FieldInvitationResult>(
+    "/api/field-access/create_invitation/",
+    payload,
+  );
+}
+
 export function inspectFieldInvitation(token: string): Promise<FieldInvitationInfo> {
   return api.get<FieldInvitationInfo>(
     "/api/field-access/inspect_invitation/",

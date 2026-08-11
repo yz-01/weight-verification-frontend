@@ -38,6 +38,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useListQuery } from "@/hooks/use-list-query";
 import {
   EVIDENCE_KINDS,
@@ -48,6 +55,8 @@ import {
   getEvidenceAssets,
   verifyEvidenceIntegrity,
 } from "@/services/evidence.service";
+import { getProjectCategories } from "@/services/contractor-ops.service";
+import { getProjects } from "@/services/contractor.service";
 
 export function EvidenceArchive() {
   const t = useTranslations();
@@ -57,8 +66,27 @@ export function EvidenceArchive() {
     "has_gps",
     "captured_from",
     "captured_to",
+    "project",
+    "category",
   ]);
   const [viewing, setViewing] = useState<EvidenceAsset | null>(null);
+  const selectedProject = list.filters.project ?? "";
+
+  const projects = useQuery({
+    queryKey: ["projects", "evidence-filter"],
+    queryFn: () => getProjects({ page_size: 200, sort_by: "name" }),
+    staleTime: 60_000,
+  });
+  const categories = useQuery({
+    queryKey: ["project-categories", "evidence-filter", selectedProject],
+    queryFn: () => getProjectCategories({
+      project: selectedProject,
+      page_size: 500,
+      sort_by: "sort_order",
+    }),
+    enabled: Boolean(selectedProject),
+    staleTime: 60_000,
+  });
 
   const query = useQuery({
     queryKey: ["evidence", list.query],
@@ -132,7 +160,9 @@ export function EvidenceArchive() {
               {row.original.project_name ?? row.original.company_name}
             </p>
             <p className="max-w-[220px] truncate text-xs text-muted-foreground">
-              {row.original.actor_name ?? t("common.emptyValue")}
+              {row.original.archive_category_path.length
+                ? row.original.archive_category_path.map((item) => item.name).join(" / ")
+                : row.original.actor_name ?? t("common.emptyValue")}
             </p>
           </div>
         ),
@@ -241,6 +271,40 @@ export function EvidenceArchive() {
       />
 
       <div className="flex flex-wrap items-end gap-3 border-y bg-card/50 py-3">
+        <div className="w-full space-y-1 sm:w-[220px]">
+          <Label className="text-xs text-muted-foreground">{t("evidence.filter.project")}</Label>
+          <Select
+            value={selectedProject || "all"}
+            onValueChange={(value) => {
+              list.setFilter("project", value === "all" ? undefined : value);
+              list.setFilter("category", undefined);
+            }}
+          >
+            <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("common.all")}</SelectItem>
+              {(projects.data?.results ?? []).map((project) => (
+                <SelectItem key={project.id} value={project.id}>{project.code} - {project.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-full space-y-1 sm:w-[220px]">
+          <Label className="text-xs text-muted-foreground">{t("evidence.filter.category")}</Label>
+          <Select
+            disabled={!selectedProject}
+            value={list.filters.category || "all"}
+            onValueChange={(value) => list.setFilter("category", value === "all" ? undefined : value)}
+          >
+            <SelectTrigger className="w-full"><SelectValue placeholder={t("evidence.filter.chooseCategory")} /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("common.all")}</SelectItem>
+              {(categories.data?.results ?? []).map((category) => (
+                <SelectItem key={category.id} value={category.id}>{category.code} - {category.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <DateFilter
           label={t("evidence.filter.capturedFrom")}
           value={list.filters.captured_from ?? ""}
@@ -362,10 +426,10 @@ function EvidenceDialog({
         </DialogHeader>
 
         <div className="-mx-1 max-h-[70dvh] space-y-6 overflow-y-auto px-1">
-          {asset.kind === "PHOTO" && asset.file && (
+          {asset.kind === "PHOTO" && (asset.watermarked_file || asset.file) && (
             <div className="relative aspect-[16/7] overflow-hidden rounded-md border bg-muted/40">
               <Image
-                src={asset.file}
+                src={asset.watermarked_file || asset.file}
                 alt={asset.original_filename}
                 fill
                 sizes="(max-width: 768px) 100vw, 800px"
@@ -383,6 +447,12 @@ function EvidenceDialog({
             <Detail
               label={t("evidence.field.project")}
               value={asset.project_name ?? t("common.emptyValue")}
+            />
+            <Detail
+              label={t("evidence.field.archiveCategory")}
+              value={asset.archive_category_path.length
+                ? asset.archive_category_path.map((item) => item.name).join(" / ")
+                : t("common.emptyValue")}
             />
             <Detail
               label={t("evidence.field.actor")}
@@ -555,6 +625,14 @@ function EvidenceDialog({
               {t("evidence.action.openOriginal")}
             </a>
           </Button>
+          {asset.watermarked_file && (
+            <Button asChild>
+              <a href={asset.watermarked_file} target="_blank" rel="noreferrer">
+                <FileImage className="h-4 w-4" />
+                {t("evidence.action.openWatermarked")}
+              </a>
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

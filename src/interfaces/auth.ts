@@ -74,6 +74,16 @@ export interface CurrentUser {
   project_quota: ProjectQuota | null;
   consultant_projects: ConsultantProjectAccess[];
   active_project: ActiveProject | null;
+  company_preferences: CompanyPreferences | null;
+}
+
+export interface CompanyPreferences {
+  date_format: "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
+  time_format: "12H" | "24H";
+  language: Locale;
+  timezone: string;
+  home_page: "/dashboard" | "/projects" | "/notifications" | "/field-staff";
+  default_notification_channel: "IN_APP" | "PUSH";
 }
 
 export interface ConsultantProjectAccess {
@@ -145,6 +155,43 @@ export interface UserPayload {
   timezone?: string;
 }
 
+export interface UserReplacementPayload {
+  incoming_user?: string;
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  reason: string;
+  transfer_role: boolean;
+  transfer_projects: boolean;
+  transfer_responsibilities: boolean;
+  transfer_open_tasks: boolean;
+}
+
+export interface UserReplacement {
+  id: string;
+  company: string;
+  company_name: string;
+  outgoing_user: string;
+  outgoing_user_name: string;
+  outgoing_user_email: string;
+  incoming_user: string;
+  incoming_user_name: string;
+  incoming_user_email: string;
+  reason: string;
+  outgoing_snapshot: Record<string, unknown>;
+  incoming_snapshot: Record<string, unknown>;
+  transfer_summary: {
+    role_transferred?: boolean;
+    project_ids?: string[];
+    responsibility_ids?: string[];
+    task_ids?: string[];
+  };
+  invitation_sent: boolean;
+  completed_at: string;
+  created_by: string | null;
+  completed_by_name: string | null;
+}
+
 export interface Role {
   id: string;
   company: string | null;
@@ -173,10 +220,7 @@ export interface PermissionEntry {
 }
 
 export type LoginOutcome =
-  | "SUCCESS"
-  | "BAD_CREDENTIALS"
-  | "USER_SUSPENDED"
-  | "COMPANY_SUSPENDED";
+  "SUCCESS" | "BAD_CREDENTIALS" | "USER_SUSPENDED" | "COMPANY_SUSPENDED";
 
 export interface LoginRecord {
   id: string;

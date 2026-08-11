@@ -1,6 +1,11 @@
 /** The contractor console's records: sites, suppliers, deliveries and loads out. */
 
-export type ProjectStatus = "PLANNING" | "ACTIVE" | "SUSPENDED" | "COMPLETED";
+export type ProjectStatus =
+  | "PLANNING"
+  | "ACTIVE"
+  | "SUSPENDED"
+  | "COMPLETED"
+  | "ARCHIVED";
 
 export interface Project {
   id: string;
@@ -9,6 +14,8 @@ export interface Project {
   status: ProjectStatus;
   description?: string;
   client_name: string;
+  main_contractor?: string;
+  consultant?: string;
   address_line_1: string;
   address_line_2: string;
   city: string;
@@ -33,6 +40,8 @@ export interface ProjectPayload {
   status: ProjectStatus;
   description?: string;
   client_name?: string;
+  main_contractor?: string;
+  consultant?: string;
   address_line_1?: string;
   address_line_2?: string;
   city?: string;
@@ -47,11 +56,36 @@ export interface ProjectPayload {
   site_phone?: string;
 }
 
+export type ProjectStatisticsPeriod = "day" | "month" | "year" | "all";
+
+export interface ProjectStatistics {
+  project: string;
+  period: ProjectStatisticsPeriod;
+  date: string;
+  start: string | null;
+  end: string | null;
+  total_records: number;
+  totals: {
+    material_receipts: number;
+    equipment_movements: number;
+    progress_records: number;
+    safety_incidents: number;
+    attendance_events: number;
+    waste_dispatches: number;
+    consultant_applications: number;
+    field_tasks: number;
+    photos: number;
+    documents: number;
+  };
+}
+
 export interface ProjectAssignment {
   id: string;
   user: string;
   user_name: string;
   user_email: string;
+  role_code: string;
+  role_name: string;
   project: string;
   created_at: string;
 }
@@ -63,8 +97,14 @@ export interface Supplier {
   contact_person: string;
   contact_phone: string;
   contact_email: string;
+  address_line_1?: string;
   city: string;
+  state?: string;
+  registration_no?: string;
   is_active: boolean;
+  qr_token?: string;
+  qr_is_active?: boolean;
+  qr_issued_at?: string;
   qr_code_count?: number;
   created_at: string;
 }
@@ -113,6 +153,7 @@ export interface ReceiptPhoto {
   id: string;
   kind: PhotoKind;
   image: string;
+  watermarked?: string | null;
   caption: string;
   latitude: string | null;
   longitude: string | null;
@@ -129,6 +170,7 @@ export interface MaterialReceipt {
   supplier: string;
   supplier_name: string;
   movement_type: "ENTRY" | "RETURN";
+  return_reason: string;
   material_name: string;
   quantity: string;
   unit: MaterialUnit;
@@ -165,6 +207,7 @@ export interface MaterialReceiptPayload {
   supplier: string;
   qr_code?: string | null;
   movement_type?: "ENTRY" | "RETURN";
+  return_reason?: string;
   material_name: string;
   quantity: string;
   unit: MaterialUnit;
@@ -175,6 +218,7 @@ export interface MaterialReceiptPayload {
   received_by_name: string;
   original_captured_at?: string;
   client_event_id?: string;
+  field_task?: string;
   latitude?: string | null;
   longitude?: string | null;
   location_accuracy_m?: string | null;
@@ -224,6 +268,7 @@ export type WasteType =
   | "METAL"
   | "TIMBER"
   | "PLASTIC"
+  | "PAPER"
   | "SOIL"
   | "HAZARDOUS"
   | "OTHER";
@@ -234,6 +279,7 @@ export const WASTE_TYPES: WasteType[] = [
   "METAL",
   "TIMBER",
   "PLASTIC",
+  "PAPER",
   "SOIL",
   "HAZARDOUS",
   "OTHER",
@@ -241,6 +287,8 @@ export const WASTE_TYPES: WasteType[] = [
 
 export type DispatchState =
   | "DRAFT"
+  | "PENDING_ACCEPTANCE"
+  | "ACCEPTED"
   | "RELEASED"
   | "COLLECTED"
   | "WEIGHED"
@@ -249,6 +297,8 @@ export type DispatchState =
 
 export const DISPATCH_STATES: DispatchState[] = [
   "DRAFT",
+  "PENDING_ACCEPTANCE",
+  "ACCEPTED",
   "RELEASED",
   "COLLECTED",
   "WEIGHED",
@@ -260,6 +310,7 @@ export interface DispatchPhoto {
   id: string;
   kind: "LOADING" | "VEHICLE" | "PLATE" | "OTHER";
   image: string;
+  watermarked?: string | null;
   caption: string;
   latitude: string | null;
   longitude: string | null;
@@ -280,6 +331,14 @@ export interface WasteDispatch {
   vehicle_plate: string;
   driver_name: string;
   state: DispatchState;
+  accepted_at: string | null;
+  proposed_collection_at: string | null;
+  proposed_collection_note: string;
+  confirmed_collection_at: string | null;
+  confirmed_collection_note: string;
+  collection_plan_confirmed_at: string | null;
+  collection_plan_confirmed_by: string | null;
+  driver_assigned_at: string | null;
   released_at: string | null;
   /** Only a draft is editable; after release the record is evidence. */
   is_editable: boolean;

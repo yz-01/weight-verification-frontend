@@ -9,6 +9,19 @@ export interface ProjectCategory {
   sort_order: number;
   is_visible_in_pwa: boolean;
   is_active: boolean;
+  access_mode: "ALL" | "RESTRICTED";
+  allowed_roles: string[];
+  allowed_role_names: string[];
+  allowed_users: string[];
+  allowed_user_names: string[];
+  upload_roles: string[];
+  upload_role_names: string[];
+  upload_users: string[];
+  upload_user_names: string[];
+  edit_roles: string[];
+  edit_role_names: string[];
+  edit_users: string[];
+  edit_user_names: string[];
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +35,13 @@ export interface ProjectCategoryPayload {
   sort_order?: number;
   is_visible_in_pwa?: boolean;
   is_active?: boolean;
+  access_mode?: "ALL" | "RESTRICTED";
+  allowed_roles?: string[];
+  allowed_users?: string[];
+  upload_roles?: string[];
+  upload_users?: string[];
+  edit_roles?: string[];
+  edit_users?: string[];
 }
 
 export interface ProjectResponsibility {
@@ -58,6 +78,7 @@ export type FieldTaskStatus =
 export interface FieldTaskPhoto {
   id: string;
   image: string;
+  watermarked?: string | null;
   caption: string;
   captured_at: string;
   uploaded_at: string;
@@ -68,6 +89,17 @@ export interface FieldTaskPhoto {
   client_event_id: string;
 }
 
+export interface FieldTaskReference {
+  id: string;
+  kind: "PHOTO" | "FILE";
+  file: string;
+  label: string;
+  original_filename: string;
+  content_type: string;
+  size_bytes: number;
+  created_at: string;
+}
+
 export interface FieldTask {
   id: string;
   project: string;
@@ -75,19 +107,31 @@ export interface FieldTask {
   title: string;
   task_type: FieldTaskType;
   instructions: string;
+  work_location: string;
+  submission_category: string;
   assigned_to: string;
   assigned_to_name: string;
+  created_by_name: string;
   category: string | null;
   category_name: string | null;
   priority: "LOW" | "NORMAL" | "HIGH" | "URGENT";
   due_at: string | null;
   status: FieldTaskStatus;
   evidence_required: number;
+  started_at: string | null;
+  start_latitude: string | null;
+  start_longitude: string | null;
+  start_accuracy_m: string | null;
   submitted_at: string | null;
   reviewed_at: string | null;
   review_note: string;
   client_event_id: string;
+  linked_record_type: string;
+  linked_record_id: string | null;
+  linked_record_reference: string;
+  linked_at: string | null;
   photos: FieldTaskPhoto[];
+  references: FieldTaskReference[];
   photo_count: number;
   created_at: string;
   updated_at: string;
@@ -98,12 +142,15 @@ export interface FieldTaskPayload {
   title: string;
   task_type: FieldTaskType;
   instructions?: string;
+  work_location?: string;
+  submission_category?: string;
   assigned_to: string;
   category?: string | null;
   priority?: FieldTask["priority"];
   due_at?: string | null;
   evidence_required?: number;
   client_event_id?: string;
+  references?: File[];
 }
 
 export type EquipmentStatus = "OFF_SITE" | "ON_SITE" | "MAINTENANCE" | "RETIRED";
@@ -121,6 +168,7 @@ export interface SiteEquipment {
   status: EquipmentStatus;
   is_active: boolean;
   movement_count: number;
+  quantity_on_site: string;
   created_at: string;
   updated_at: string;
 }
@@ -147,6 +195,9 @@ export interface EquipmentMovement {
   occurred_at: string;
   original_occurred_at: string;
   uploaded_at: string;
+  quantity: string;
+  unit: "UNIT" | "PIECE" | "SET" | "LOAD" | "TONNE" | "KG" | "M3" | "OTHER";
+  supplier_name: string | null;
   delivery_note_no: string;
   vehicle_plate: string;
   operator_name: string;
@@ -155,8 +206,26 @@ export interface EquipmentMovement {
   accuracy_m: string | null;
   notes: string;
   ocr_status: string;
+  ocr_result: Record<string, unknown>;
+  ocr_confirmed_by: string | null;
+  ocr_confirmed_at: string | null;
   client_event_id: string;
-  photos: Array<{ id: string; image: string; kind: string; captured_at: string }>;
+  photos: Array<{ id: string; image: string; watermarked?: string | null; kind: string; captured_at: string }>;
+}
+
+export interface EquipmentSummary {
+  today: string;
+  month: string;
+  year: string;
+  project_total: string;
+  quantity_on_site: string;
+  equipment_count: number;
+  by_equipment: Array<{
+    equipment: string;
+    code: string;
+    name: string;
+    quantity_on_site: string;
+  }>;
 }
 
 export interface ConstructionPhase {
@@ -189,7 +258,7 @@ export interface SiteProgressRecord {
   confirmed_by_name: string | null;
   confirmed_at: string | null;
   review_note: string;
-  photos: Array<{ id: string; image: string; caption: string; captured_at: string }>;
+  photos: Array<{ id: string; image: string; watermarked?: string | null; caption: string; captured_at: string }>;
 }
 
 export interface MaterialOutgoing {
@@ -237,6 +306,7 @@ export interface DisposalEvidence {
   id: string;
   kind: DisposalEvidenceKind;
   image: string;
+  watermarked?: string | null;
   note: string;
   captured_at: string;
   uploaded_at: string;

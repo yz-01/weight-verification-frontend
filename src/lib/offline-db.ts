@@ -88,6 +88,10 @@ export interface FieldTaskTransitionOfflineJob extends OfflineJobBase {
     taskId: string;
     status: "IN_PROGRESS" | "SUBMITTED";
     note: string;
+    latitude?: string;
+    longitude?: string;
+    accuracyM?: string;
+    originalOccurredAt: string;
     clientEventId: string;
   };
 }
@@ -115,6 +119,7 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       supplier: string;
       qr_code?: string | null;
       movement_type?: "ENTRY" | "RETURN";
+      return_reason?: string;
       material_name: string;
       quantity: string;
       unit: "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
@@ -125,6 +130,7 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       received_by_name: string;
       original_captured_at?: string;
       client_event_id?: string;
+      field_task?: string;
       latitude?: string | null;
       longitude?: string | null;
       location_accuracy_m?: string | null;
@@ -144,6 +150,8 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     project: string;
     equipment: string;
     direction: "ENTRY" | "EXIT";
+    quantity?: string;
+    unit?: "UNIT" | "PIECE" | "SET" | "LOAD" | "TONNE" | "KG" | "M3" | "OTHER";
     delivery_note_no?: string;
     vehicle_plate?: string;
     operator_name: string;
@@ -151,9 +159,12 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     longitude?: string;
     accuracy_m?: string;
     notes?: string;
+    ocr_confirmed?: boolean;
     original_occurred_at: string;
     client_event_id: string;
+    field_task?: string;
     photos: StoredFile[];
+    delivery_note_photo?: StoredFile;
   };
 }
 
@@ -168,6 +179,7 @@ export interface SiteProgressOfflineJob extends OfflineJobBase {
     latitude?: string;
     longitude?: string;
     client_event_id: string;
+    field_task?: string;
     photos: StoredFile[];
   };
 }
@@ -187,6 +199,7 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     latitude?: string;
     longitude?: string;
     client_event_id: string;
+    field_task?: string;
   };
 }
 
@@ -205,6 +218,7 @@ export interface DisposalRequestOfflineJob extends OfflineJobBase {
     longitude: string;
     accuracy_m: string;
     client_event_id: string;
+    field_task?: string;
     photos: StoredFile[];
   };
 }
@@ -213,14 +227,17 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
   kind: "SAFETY_INCIDENT";
   payload: {
     project: string;
+    category: string;
     title: string;
     description: string;
     severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
     occurred_at?: string;
     client_event_id: string;
+    field_task?: string;
     latitude?: string;
     longitude?: string;
-    photo?: StoredFile;
+    photos: StoredFile[];
+    notify_users?: string[];
   };
 }
 
@@ -229,12 +246,16 @@ export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
   payload: {
     project: string;
     note?: string;
+    application_category: string;
+    description: string;
+    work_location?: string;
     captured_at: string;
     latitude: string;
     longitude: string;
     accuracy_m?: string;
     device_id?: string;
     client_event_id: string;
+    field_task?: string;
     photos: StoredFile[];
   };
 }

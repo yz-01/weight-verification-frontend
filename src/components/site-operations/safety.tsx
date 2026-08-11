@@ -3,7 +3,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
-  ExternalLink,
   Camera,
   CheckCircle2,
   Loader2,
@@ -17,10 +16,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { ExportButton } from "@/components/shared/export-button";
+import { FieldCamera } from "@/components/shared/field-camera";
 import {
   FieldWrapper,
   ListHeader,
@@ -28,6 +30,7 @@ import {
 } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -54,8 +57,11 @@ import type {
 } from "@/interfaces/site-operations";
 import { useDateFormat } from "@/lib/dates";
 import { submitSafetyIncidentOfflineAware } from "@/services/offline-sync.service";
+import { getProjectCategories } from "@/services/contractor-ops.service";
 import {
   assignSafetyRectification,
+  exportSafetyIncidents,
+  getSafetyIncident,
   getSafetyIncidents,
   reviewSafetyRectification,
   submitSafetyRectification,
@@ -93,33 +99,61 @@ const STATUS_TONE: Record<
 
 interface SafetyDraft {
   project: string;
+  category: string;
   title: string;
   description: string;
   severity: IncidentSeverity;
   occurredAt: string;
   latitude?: string;
   longitude?: string;
-  photo?: File;
+  photos: File[];
+  notifyUsers: string[];
 }
 
 const EMPTY_DRAFT: SafetyDraft = {
   project: "",
+  category: "",
   title: "",
   description: "",
   severity: "MEDIUM",
   occurredAt: "",
+  photos: [],
+  notifyUsers: [],
 };
 
-export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectification" }) {
+export function Safety({
+  mode = "incidents",
+  fieldMode = false,
+  initialProject = "",
+  fieldTaskId,
+  onRecordSaved,
+}: {
+  mode?: "incidents" | "rectification";
+  fieldMode?: boolean;
+  initialProject?: string;
+  fieldTaskId?: string;
+  onRecordSaved?: () => void;
+}) {
   const t = useTranslations();
   const df = useDateFormat();
   const { can, user } = useAuth();
-  const list = useListQuery(["project", "severity", "status"]);
-  const [createOpen, setCreateOpen] = useState(false);
+  const list = useListQuery([
+    "project",
+    "category",
+    "severity",
+    "status",
+    "responsible_person",
+    "date_from",
+    "date_to",
+  ]);
+  const searchParams = useSearchParams();
+  const requestedIncidentId = searchParams.get("incident");
+  const [createOpen, setCreateOpen] = useState(Boolean(fieldTaskId) || searchParams.get("create") === "1");
   const [updating, setUpdating] = useState<SafetyIncident | null>(null);
   const [assigning, setAssigning] = useState<SafetyIncident | null>(null);
   const [submitting, setSubmitting] = useState<SafetyIncident | null>(null);
   const [reviewing, setReviewing] = useState<SafetyIncident | null>(null);
+  const openedIncidentRef = useRef("");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["safety", mode, list.query],
@@ -128,6 +162,55 @@ export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectifica
       workflow: mode === "rectification" ? "rectification" : undefined,
     }),
   });
+  const focusedIncident = useQuery({
+    queryKey: ["safety-incident", requestedIncidentId],
+    queryFn: () => getSafetyIncident(requestedIncidentId!),
+    enabled: Boolean(requestedIncidentId),
+  });
+  const selectedProject = list.filters.project ?? "all";
+  const selectedSeverity = list.filters.severity ?? "all";
+  const selectedCategory = list.filters.category ?? "all";
+  const selectedResponsible = list.filters.responsible_person ?? "all";
+  const filterCategories = useQuery({
+    queryKey: ["safety-categories", selectedProject],
+    queryFn: () =>
+      getProjectCategories({
+        project: selectedProject === "all" ? undefined : selectedProject,
+        is_active: true,
+        page_size: 200,
+      }),
+  });
+  const responsiblePeople = useQuery({
+    queryKey: ["safety-responsible-people", selectedProject],
+    queryFn: () => getProjectAssignments(selectedProject),
+    enabled: selectedProject !== "all",
+  });
+
+  useEffect(() => {
+    const incident = focusedIncident.data;
+    if (!incident || openedIncidentRef.current === incident.id) return;
+    openedIncidentRef.current = incident.id;
+    const timer = window.setTimeout(() => {
+      if (
+        can("safety.verify") &&
+        incident.status === "RECTIFICATION_SUBMITTED"
+      ) {
+        setReviewing(incident);
+      } else if (
+        can("safety.manage") &&
+        incident.responsible_person === user?.id &&
+        ["ASSIGNED", "RETURNED"].includes(incident.status)
+      ) {
+        setSubmitting(incident);
+      } else if (
+        can("safety.manage") &&
+        ["OPEN", "RETURNED"].includes(incident.status)
+      ) {
+        setAssigning(incident);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [can, focusedIncident.data, user?.id]);
 
   const columns = useMemo<ColumnDef<SafetyIncident, unknown>[]>(
     () => [
@@ -178,6 +261,16 @@ export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectifica
         ),
       },
       {
+        accessorKey: "category_name",
+        meta: { label: t("safety.field.category") },
+        header: () => t("safety.field.category"),
+        cell: ({ row }) => (
+          <span className="block max-w-[180px] truncate">
+            {row.original.category_name || t("common.emptyValue")}
+          </span>
+        ),
+      },
+      {
         accessorKey: "severity",
         meta: { label: t("safety.field.severity") },
         header: ({ column }) => (
@@ -223,20 +316,31 @@ export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectifica
                 aria-label={t("safety.evidence.location")}
               />
             )}
-            {row.original.photo && (
-              <Button
-                asChild
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                title={t("safety.evidence.photo")}
+            {(row.original.initial_evidence ?? []).slice(0, 3).map((item, index) => (
+              <a
+                key={item.id}
+                href={item.watermarked || item.image}
+                target="_blank"
+                rel="noreferrer"
+                className="relative overflow-hidden rounded-md border"
+                title={`${t("safety.evidence.photo")} ${index + 1}`}
               >
-                <a href={row.original.photo} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </Button>
+                <Image
+                  src={item.watermarked || item.image}
+                  alt={`${t("safety.evidence.photo")} ${index + 1}`}
+                  width={32}
+                  height={32}
+                  unoptimized
+                  className="size-7 object-cover"
+                />
+              </a>
+            ))}
+            {(row.original.initial_evidence?.length ?? 0) > 3 && (
+              <span className="text-xs font-semibold text-muted-foreground">
+                +{row.original.initial_evidence.length - 3}
+              </span>
             )}
-            {!row.original.latitude && !row.original.photo && (
+            {!row.original.latitude && !(row.original.initial_evidence?.length ?? 0) && (
               <span className="text-muted-foreground">{t("common.emptyValue")}</span>
             )}
           </div>
@@ -268,36 +372,67 @@ export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectifica
   );
 
   const total = data?.count ?? 0;
-  const selectedProject = list.filters.project ?? "all";
-  const selectedSeverity = list.filters.severity ?? "all";
+  const runExport = (format: "xlsx" | "pdf") =>
+    exportSafetyIncidents({
+      format,
+      title: t("safety.title"),
+      subtitle: t("safety.form.description"),
+      emptyLabel: t("common.emptyValue"),
+      query: {
+        ...list.query,
+        workflow: mode === "rectification" ? "rectification" : undefined,
+      },
+      columns: [
+        { key: "incident_no", label: t("safety.field.incidentNo") },
+        { key: "occurred_at", label: t("safety.field.occurredAt") },
+        { key: "project_name", label: t("safety.field.project") },
+        { key: "category_name", label: t("safety.field.category") },
+        { key: "title", label: t("safety.field.title") },
+        { key: "description", label: t("safety.field.description") },
+        { key: "severity", label: t("safety.field.severity") },
+        { key: "status", label: t("safety.field.status") },
+        { key: "responsible_person_name", label: t("safety.field.responsible") },
+        { key: "rectification_due_at", label: t("safety.field.dueAt") },
+        { key: "photographer_name", label: t("safety.field.photographer") },
+        { key: "latitude", label: t("safety.field.latitude") },
+        { key: "longitude", label: t("safety.field.longitude") },
+      ],
+    });
 
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+    <div className={fieldMode ? "flex min-h-0 flex-col gap-4" : "flex h-[calc(100dvh-5rem)] flex-col gap-4"}>
       <ListHeader
-        title={t(mode === "rectification" ? "safetyRectification.title" : "safety.title")}
-        subtitle={isLoading ? t("common.loading") : t(mode === "rectification" ? "safetyRectification.count" : "safety.count", { count: total })}
+        title={t(fieldMode ? "safety.fieldReport.title" : mode === "rectification" ? "safetyRectification.title" : "safety.title")}
+        subtitle={fieldMode ? t("safety.fieldReport.subtitle") : isLoading ? t("common.loading") : t(mode === "rectification" ? "safetyRectification.count" : "safety.count", { count: total })}
         action={
-          mode === "incidents" && can("safety.manage") ? (
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
+          <div className="flex flex-wrap items-center gap-2">
+            {can("report.export") && !fieldMode && (
+              <ExportButton onExport={runExport} disabled={!total} />
+            )}
+            {mode === "incidents" && can("safety.manage") && (
+            <Button size={fieldMode ? "lg" : "sm"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
-              {t("safety.new")}
+              {t(fieldMode ? "safety.fieldReport.new" : "safety.new")}
             </Button>
-          ) : undefined
+            )}
+          </div>
         }
       />
 
       <div className="flex flex-wrap items-center gap-2 border-y bg-card/50 py-3">
         <ProjectPicker
           value={selectedProject}
-          onValueChange={(value) =>
-            list.setFilter("project", value === "all" ? undefined : value)
-          }
+          onValueChange={(value) => {
+            list.setFilter("project", value === "all" ? undefined : value);
+            list.setFilter("category", undefined);
+            list.setFilter("responsible_person", undefined);
+          }}
           placeholder={t("safety.filter.project")}
           allowAll
           allLabel={t("safety.filter.allProjects")}
           className="w-full sm:w-[260px]"
         />
-        <Select
+        {!fieldMode && <Select
           value={selectedSeverity}
           onValueChange={(value) =>
             list.setFilter("severity", value === "all" ? undefined : value)
@@ -314,10 +449,86 @@ export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectifica
               </SelectItem>
             ))}
           </SelectContent>
-        </Select>
+        </Select>}
+        {!fieldMode && (
+          <Select
+            value={selectedCategory}
+            onValueChange={(value) =>
+              list.setFilter("category", value === "all" ? undefined : value)
+            }
+          >
+            <SelectTrigger className="w-full sm:w-[210px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("safety.filter.allCategories")}</SelectItem>
+              {(filterCategories.data?.results ?? []).map((category) => (
+                <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        {!fieldMode && selectedProject !== "all" && (
+          <Select
+            value={selectedResponsible}
+            onValueChange={(value) =>
+              list.setFilter("responsible_person", value === "all" ? undefined : value)
+            }
+          >
+            <SelectTrigger className="w-full sm:w-[210px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("safety.filter.allResponsible")}</SelectItem>
+              {(responsiblePeople.data?.results ?? []).map((person) => (
+                <SelectItem key={person.user} value={person.user}>{person.user_name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        {!fieldMode && (
+          <Input
+            type="date"
+            aria-label={t("safety.filter.dateFrom")}
+            value={list.filters.date_from ?? ""}
+            onChange={(event) => list.setFilter("date_from", event.target.value || undefined)}
+            className="w-full sm:w-[165px]"
+          />
+        )}
+        {!fieldMode && (
+          <Input
+            type="date"
+            aria-label={t("safety.filter.dateTo")}
+            value={list.filters.date_to ?? ""}
+            onChange={(event) => list.setFilter("date_to", event.target.value || undefined)}
+            className="w-full sm:w-[165px]"
+          />
+        )}
       </div>
 
-      <DataTable
+      {fieldMode ? (
+        <div className="grid gap-3">
+          {isLoading && <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin text-primary" /></div>}
+          {isError && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("safety.fieldReport.loadError")}</div>}
+          {!isLoading && !isError && (data?.results ?? []).length === 0 && (
+            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
+          )}
+          {(data?.results ?? []).map((incident) => (
+            <article key={incident.id} className="rounded-lg border bg-card p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-warning/15 text-warning"><ShieldAlert /></span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold">{incident.title}</p>
+                    <StatusBadge label={t(`safetyRectification.status.${incident.status}`)} tone={STATUS_TONE[incident.status]} />
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">{incident.project_name} · {df.dateTime(incident.occurred_at)}</p>
+                  {incident.notified_user_names.length > 0 && <p className="mt-2 text-sm">{t("safety.fieldReport.sentTo", { names: incident.notified_user_names.join(", ") })}</p>}
+                </div>
+              </div>
+              {incident.responsible_person === user?.id && ["ASSIGNED", "RETURNED"].includes(incident.status) && (
+                <Button className="mt-4 w-full min-h-11" onClick={() => setSubmitting(incident)}><Camera />{t("safetyRectification.action.submit")}</Button>
+              )}
+            </article>
+          ))}
+        </div>
+      ) : <DataTable
         columns={columns}
         rows={data?.results ?? []}
         totalCount={total}
@@ -349,9 +560,9 @@ export function Safety({ mode = "incidents" }: { mode?: "incidents" | "rectifica
         onPageChange={list.setPage}
         onPageSizeChange={list.setPageSize}
         onClearFilters={list.clearFilters}
-      />
+      />}
 
-      {createOpen && <SafetyCreateDialog onClose={() => setCreateOpen(false)} />}
+      {createOpen && <SafetyCreateDialog fieldMode={fieldMode} initialProject={initialProject} fieldTaskId={fieldTaskId} onSaved={onRecordSaved} onClose={() => setCreateOpen(false)} />}
       {updating && (
         <SafetyStatusDialog incident={updating} onClose={() => setUpdating(null)} />
       )}
@@ -376,13 +587,46 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
 function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
   const qc = useQueryClient();
-  const [image, setImage] = useState<File>();
+  const [images, setImages] = useState<File[]>([]);
   const [note, setNote] = useState("");
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string } | null>(null);
   const [locationError, setLocationError] = useState("");
   const getLocation = () => { setLocationError(""); navigator.geolocation.getCurrentPosition((position) => setLocation({ latitude: position.coords.latitude.toFixed(7), longitude: position.coords.longitude.toFixed(7), accuracy: position.coords.accuracy.toFixed(2) }), () => setLocationError(t("error.location")), { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }); };
-  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { image: image!, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("submit.title")}</DialogTitle><DialogDescription>{incident.rectification_note || t("submit.description")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.photo")} required><Input type="file" accept="image/*" capture="environment" onChange={(e) => setImage(e.target.files?.[0])} /></FieldWrapper><FieldWrapper label={t("field.location")} required error={locationError}><Button className="w-full" variant="outline" onClick={getLocation}><LocateFixed />{location ? t("action.locationReady") : t("action.getLocation")}</Button></FieldWrapper><FieldWrapper label={t("field.workDone")} required><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!image || !location || !note.trim() || save.isPending} onClick={() => save.mutate()}><Camera />{t("action.submit")}</Button></DialogFooter></DialogContent></Dialog>;
+  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("submit.title")}</DialogTitle>
+          <DialogDescription>{incident.rectification_note || t("submit.description")}</DialogDescription>
+        </DialogHeader>
+        <FieldWrapper label={t("field.photo")} required>
+          <FieldCamera
+            label={t("field.photo")}
+            fileCount={images.length}
+            onCapture={(image) => setImages((current) => [...current, image])}
+            onClear={() => setImages([])}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.location")} required error={locationError}>
+          <Button className="w-full" variant="outline" onClick={getLocation}>
+            <LocateFixed />
+            {location ? t("action.locationReady") : t("action.getLocation")}
+          </Button>
+        </FieldWrapper>
+        <FieldWrapper label={t("field.workDone")} required>
+          <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
+        </FieldWrapper>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button disabled={!images.length || !location || !note.trim() || save.isPending} onClick={() => save.mutate()}>
+            <Camera />
+            {t("action.submit")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
@@ -391,22 +635,120 @@ function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; o
   const [decision, setDecision] = useState<"VERIFIED" | "RETURNED">("VERIFIED");
   const [note, setNote] = useState("");
   const [image, setImage] = useState<File>();
-  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision, note, image }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl"><DialogHeader><DialogTitle>{t("review.title")}</DialogTitle><DialogDescription>{t("review.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-3 gap-2">{incident.rectification_evidence.filter((item) => item.kind === "RECTIFICATION").map((item) => <a key={item.id} href={item.image} target="_blank" rel="noreferrer"><Image src={item.image} alt="" width={320} height={320} unoptimized className="aspect-square w-full rounded-lg object-cover" /></a>)}</div><div className="grid grid-cols-2 gap-2"><Button variant={decision === "VERIFIED" ? "default" : "outline"} onClick={() => setDecision("VERIFIED")}><CheckCircle2 />{t("action.verify")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><FieldWrapper label={t("field.reviewNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.verificationPhoto")} optional={t("action.optional")}><Input type="file" accept="image/*" capture="environment" onChange={(e) => setImage(e.target.files?.[0])} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={(decision === "RETURNED" && !note.trim()) || save.isPending} onClick={() => save.mutate()}>{decision === "VERIFIED" ? <CheckCircle2 /> : <RotateCcw />}{t(decision === "VERIFIED" ? "action.verify" : "action.return")}</Button></DialogFooter></DialogContent></Dialog>;
+  const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string } | null>(null);
+  const [locationError, setLocationError] = useState("");
+  const getLocation = () => {
+    setLocationError("");
+    navigator.geolocation.getCurrentPosition(
+      (position) => setLocation({
+        latitude: position.coords.latitude.toFixed(7),
+        longitude: position.coords.longitude.toFixed(7),
+        accuracy: position.coords.accuracy.toFixed(2),
+      }),
+      () => setLocationError(t("error.location")),
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
+    );
+  };
+  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision, note, image, latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{t("review.title")}</DialogTitle>
+          <DialogDescription>{t("review.description", { incident: incident.incident_no })}</DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-3 gap-2">
+          {incident.rectification_evidence.filter((item) => item.kind === "RECTIFICATION").map((item) => (
+            <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer">
+              <Image src={item.watermarked || item.image} alt="" width={320} height={320} unoptimized className="aspect-square w-full rounded-lg object-cover" />
+            </a>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant={decision === "VERIFIED" ? "default" : "outline"} onClick={() => setDecision("VERIFIED")}><CheckCircle2 />{t("action.verify")}</Button>
+          <Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button>
+        </div>
+        <FieldWrapper label={t("field.reviewNote")} required={decision === "RETURNED"}>
+          <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.verificationPhoto")} optional={t("action.optional")}>
+          <FieldCamera label={t("field.verificationPhoto")} fileCount={image ? 1 : 0} onCapture={setImage} onClear={() => { setImage(undefined); setLocation(null); }} />
+        </FieldWrapper>
+        {image && (
+          <FieldWrapper label={t("field.location")} required error={locationError}>
+            <Button className="w-full" variant="outline" onClick={getLocation}>
+              <LocateFixed />
+              {location ? t("action.locationReady") : t("action.getLocation")}
+            </Button>
+          </FieldWrapper>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button disabled={(decision === "RETURNED" && !note.trim()) || Boolean(image && !location) || save.isPending} onClick={() => save.mutate()}>
+            {decision === "VERIFIED" ? <CheckCircle2 /> : <RotateCcw />}
+            {t(decision === "VERIFIED" ? "action.verify" : "action.return")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
-function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
+function SafetyCreateDialog({
+  onClose,
+  fieldMode = false,
+  initialProject = "",
+  fieldTaskId,
+  onSaved,
+}: {
+  onClose: () => void;
+  fieldMode?: boolean;
+  initialProject?: string;
+  fieldTaskId?: string;
+  onSaved?: () => void;
+}) {
   const t = useTranslations();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [draft, setDraft] = useState<SafetyDraft>(EMPTY_DRAFT);
+  const [draft, setDraft] = useState<SafetyDraft>({
+    ...EMPTY_DRAFT,
+    project: initialProject,
+  });
   const [locating, setLocating] = useState(false);
+  const categories = useQuery({
+    queryKey: ["safety-create-categories", draft.project],
+    queryFn: () =>
+      getProjectCategories({
+        project: draft.project,
+        is_active: true,
+        page_size: 200,
+      }),
+    enabled: Boolean(draft.project),
+  });
+  const team = useQuery({
+    queryKey: ["project-assignments", draft.project, "incident-notify"],
+    queryFn: () => getProjectAssignments(draft.project),
+    enabled: Boolean(draft.project),
+  });
+  const selectableWorkers = (team.data?.results ?? []).filter(
+    (row) => row.user !== user?.id,
+  );
+
+  function toggleRecipient(userId: string, checked: boolean) {
+    setDraft((value) => ({
+      ...value,
+      notifyUsers: checked
+        ? [...new Set([...value.notifyUsers, userId])]
+        : value.notifyUsers.filter((id) => id !== userId),
+    }));
+  }
 
   const create = useMutation({
     mutationFn: () => {
       if (!user) throw new Error("Authentication required.");
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
+        category: draft.category,
         title: draft.title.trim(),
         description: draft.description.trim(),
         severity: draft.severity,
@@ -415,14 +757,17 @@ function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
           : undefined,
         latitude: draft.latitude,
         longitude: draft.longitude,
-        photo: draft.photo,
+        photos: draft.photos,
+        notify_users: draft.notifyUsers,
         client_event_id: crypto.randomUUID(),
+        field_task: fieldTaskId,
       };
       return submitSafetyIncidentOfflineAware(user.id, payload);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["safety"] });
       onClose();
+      onSaved?.();
     },
   });
 
@@ -445,8 +790,11 @@ function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
 
   const valid =
     draft.project !== "" &&
+    draft.category !== "" &&
     draft.title.trim() !== "" &&
-    draft.description.trim() !== "";
+    draft.photos.length > 0 &&
+    Boolean(draft.latitude && draft.longitude) &&
+    (!fieldMode || draft.notifyUsers.length > 0);
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -460,12 +808,61 @@ function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
           <FieldWrapper label={t("safety.field.project")} required className="sm:col-span-2">
             <ProjectPicker
               value={draft.project}
-              onValueChange={(project) => setDraft((value) => ({ ...value, project }))}
+              onValueChange={(project) =>
+                setDraft((value) => ({
+                  ...value,
+                  project,
+                  category: "",
+                  notifyUsers: [],
+                }))
+              }
               placeholder={t("safety.filter.project")}
               className="w-full"
             />
           </FieldWrapper>
+          <FieldWrapper label={t("safety.field.category")} required className="sm:col-span-2">
+            <Select
+              value={draft.category || undefined}
+              onValueChange={(categoryId) => {
+                const category = categories.data?.results.find(
+                  (item) => item.id === categoryId,
+                );
+                setDraft((value) => ({
+                  ...value,
+                  category: categoryId,
+                  title: value.title.trim() || category?.name || "",
+                }));
+              }}
+              disabled={!draft.project}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t("safety.filter.selectCategory")} />
+              </SelectTrigger>
+              <SelectContent>
+                {(categories.data?.results ?? []).map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
           <FieldWrapper label={t("safety.field.title")} required className="sm:col-span-2">
+            {fieldMode && (
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                {["accident", "hazard", "damage", "other"].map((preset) => (
+                  <Button
+                    key={preset}
+                    type="button"
+                    variant={draft.title === t(`safety.fieldReport.preset.${preset}`) ? "default" : "outline"}
+                    className="min-h-12"
+                    onClick={() => setDraft((value) => ({ ...value, title: t(`safety.fieldReport.preset.${preset}`) }))}
+                  >
+                    {t(`safety.fieldReport.preset.${preset}`)}
+                  </Button>
+                ))}
+              </div>
+            )}
             <Input
               value={draft.title}
               onChange={(event) =>
@@ -502,7 +899,7 @@ function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
               }
             />
           </FieldWrapper>
-          <FieldWrapper label={t("safety.field.description")} required className="sm:col-span-2">
+          <FieldWrapper label={t("safety.field.description")} optional={t("common.optional")} className="sm:col-span-2">
             <Textarea
               rows={4}
               value={draft.description}
@@ -511,17 +908,32 @@ function SafetyCreateDialog({ onClose }: { onClose: () => void }) {
               }
             />
           </FieldWrapper>
-          <FieldWrapper label={t("safety.field.photo")} optional={t("common.optional")}>
-            <Input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={(event) =>
-                setDraft((value) => ({ ...value, photo: event.target.files?.[0] }))
+          <FieldWrapper label={t("safety.field.photo")} required>
+            <FieldCamera
+              label={t("safety.field.photo")}
+              fileCount={draft.photos.length}
+              onCapture={(photo) =>
+                setDraft((value) => ({
+                  ...value,
+                  photos: [...value.photos, photo],
+                }))
               }
+              onClear={() => setDraft((value) => ({ ...value, photos: [] }))}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("safety.field.location")} optional={t("common.optional")}>
+          <FieldWrapper label={t("safety.fieldReport.notifyPeople")} required={fieldMode} className="sm:col-span-2">
+            <p className="mb-2 text-xs text-muted-foreground">{t("safety.fieldReport.supervisorAutomatic")}</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {selectableWorkers.map((row) => (
+                <label key={row.user} className="flex min-h-12 items-center gap-3 rounded-lg border p-3">
+                  <Checkbox checked={draft.notifyUsers.includes(row.user)} onCheckedChange={(checked) => toggleRecipient(row.user, checked === true)} />
+                  <span className="font-medium">{row.user_name}</span>
+                </label>
+              ))}
+              {!team.isLoading && selectableWorkers.length === 0 && <p className="text-sm text-muted-foreground">{t("safety.fieldReport.noWorkers")}</p>}
+            </div>
+          </FieldWrapper>
+          <FieldWrapper label={t("safety.field.location")} required>
             <Button
               type="button"
               variant="outline"

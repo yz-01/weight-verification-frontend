@@ -1,4 +1,5 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
+import type { ExportRequest } from "@/services/contractor.service";
 import type {
   ConstructionPhase,
   DisposalEvidence,
@@ -6,6 +7,7 @@ import type {
   DisposalRequest,
   ExternalDisposalTask,
   EquipmentMovement,
+  EquipmentSummary,
   EquipmentPayload,
   FieldTask,
   FieldTaskPayload,
@@ -16,7 +18,7 @@ import type {
   SiteEquipment,
   SiteProgressRecord,
 } from "@/interfaces/contractor-ops";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, toastSuccess } from "@/services/api-client";
 
 export const getProjectCategories = (query: ListQuery) =>
   api.list<ProjectCategory>("/api/project-categories/get_categories/", query);
@@ -39,6 +41,10 @@ export const getProjectResponsibilities = (query: ListQuery) =>
   api.list<ProjectResponsibility>("/api/project-team/get_responsibilities/", query);
 export const createProjectResponsibility = (payload: Omit<ProjectResponsibility, "id" | "user_name" | "user_phone" | "created_at" | "updated_at">) =>
   api.post<ProjectResponsibility>("/api/project-team/create_responsibility/", payload);
+export const updateProjectResponsibility = (
+  id: string,
+  payload: Partial<Pick<ProjectResponsibility, "responsibility" | "is_primary" | "can_confirm_progress" | "is_active">>,
+) => api.patch<ProjectResponsibility>(`/api/project-team/${id}/update_responsibility/`, payload);
 export const deleteProjectResponsibility = (id: string) =>
   api.delete(`/api/project-team/${id}/delete_responsibility/`);
 
@@ -47,7 +53,18 @@ export const getFieldTasks = (query: ListQuery = {}) =>
 export const getFieldTask = (id: string) =>
   api.get<FieldTask>(`/api/field-tasks/${id}/get_task/`);
 export const createFieldTask = async (payload: FieldTaskPayload) => {
-  const row = await api.post<FieldTask>("/api/field-tasks/create_task/", payload);
+  const references = payload.references ?? [];
+  let body: FieldTaskPayload | FormData = payload;
+  if (references.length) {
+    const data = new FormData();
+    for (const [key, value] of Object.entries(payload)) {
+      if (key === "references" || value === undefined || value === null || value === "") continue;
+      data.append(key, String(value));
+    }
+    references.forEach((file) => data.append("references", file));
+    body = data;
+  }
+  const row = await api.post<FieldTask>("/api/field-tasks/create_task/", body);
   toastSuccess("contractorOps.toast.taskAssigned");
   return row;
 };
@@ -70,12 +87,16 @@ export const addFieldTaskPhoto = async (
 export async function createConsultantFieldSubmission(payload: {
   project: string;
   note?: string;
+  application_category: string;
+  description: string;
+  work_location?: string;
   captured_at: string;
   latitude: string;
   longitude: string;
   accuracy_m?: string;
   device_id?: string;
   client_event_id: string;
+  field_task?: string;
   photos: File[];
 }) {
   const data = new FormData();
@@ -100,17 +121,57 @@ export const createSiteEquipment = async (payload: EquipmentPayload) => {
 };
 export const getEquipmentMovements = (query: ListQuery = {}) =>
   api.list<EquipmentMovement>("/api/site-equipment/get_movements/", query);
+export function exportEquipmentMovements(request: ExportRequest): Promise<void> {
+  const { page, page_size, ...query } = request.query;
+  void page;
+  void page_size;
+  return download("/api/site-equipment/export_movements/", {
+    method: "POST",
+    query,
+    body: {
+      format: request.format,
+      title: request.title,
+      subtitle: request.subtitle ?? "",
+      empty_label: request.emptyLabel ?? "",
+      columns: request.columns,
+    },
+    fallbackFilename: `equipment-movements.${request.format}`,
+  });
+}
+export const getEquipmentSummary = (project?: string) =>
+  api.get<EquipmentSummary>(
+    "/api/site-equipment/get_summary/",
+    project ? { project } : undefined,
+  );
+export async function ocrEquipmentDeliveryNote(project: string, image: File) {
+  const data = new FormData();
+  data.append("project", project);
+  data.append("image", image);
+  return api.post<{
+    status: string;
+    provider?: string;
+    content?: string;
+    suggestions?: Record<string, string>;
+  }>("/api/site-equipment/ocr_delivery_note/", data);
+}
 export async function recordEquipmentMovement(payload: {
   project: string; equipment: string; direction: "ENTRY" | "EXIT"; delivery_note_no?: string;
   vehicle_plate?: string; operator_name: string; latitude?: string; longitude?: string;
-  accuracy_m?: string; notes?: string; original_occurred_at: string; client_event_id: string; photos: File[];
+  accuracy_m?: string; notes?: string; quantity?: string;
+  unit?: "UNIT" | "PIECE" | "SET" | "LOAD" | "TONNE" | "KG" | "M3" | "OTHER";
+  ocr_confirmed?: boolean;
+  field_task?: string;
+  delivery_note_photo?: File; original_occurred_at: string; client_event_id: string; photos: File[];
 }) {
   const data = new FormData();
   for (const [key, value] of Object.entries(payload)) {
-    if (key === "photos") continue;
+    if (key === "photos" || key === "delivery_note_photo") continue;
     if (value !== undefined && value !== "") data.append(key, String(value));
   }
   payload.photos.forEach((photo) => data.append("photos", photo));
+  if (payload.delivery_note_photo) {
+    data.append("delivery_note_photo", payload.delivery_note_photo);
+  }
   const row = await api.post<EquipmentMovement>("/api/site-equipment/record_movement/", data);
   toastSuccess("contractorOps.toast.movementSaved");
   return row;
@@ -125,9 +186,15 @@ export const createConstructionPhase = async (payload: { project: string; code: 
 };
 export const getSiteProgressRecords = (query: ListQuery = {}) =>
   api.list<SiteProgressRecord>("/api/site-progress/get_records/", query);
+export const getSiteProgressSummary = (project?: string) =>
+  api.get<{ today: number; month: number; year: number; total: number }>(
+    "/api/site-progress/get_summary/",
+    project ? { project } : undefined,
+  );
 export async function createSiteProgressRecord(payload: {
   project: string; phase: string; percent_complete: string; description?: string;
   captured_at: string; latitude?: string; longitude?: string; client_event_id: string; photos: File[];
+  field_task?: string;
 }) {
   const data = new FormData();
   for (const [key, value] of Object.entries(payload)) {
@@ -151,6 +218,7 @@ export const createMaterialOutgoing = async (payload: {
   project: string; material_name: string; quantity: string; unit: string; destination: string;
   executor_name: string; vehicle_plate?: string; delivery_note_no?: string; reason: string;
   latitude?: string; longitude?: string; client_event_id?: string;
+  field_task?: string;
 }) => {
   const row = await api.post<MaterialOutgoing>("/api/material-outgoing/create_record/", payload);
   toastSuccess("contractorOps.toast.outgoingSubmitted");
@@ -181,6 +249,7 @@ export async function createDisposalRequest(payload: {
   longitude: string;
   accuracy_m: string;
   client_event_id: string;
+  field_task?: string;
   photos: File[];
 }) {
   const data = new FormData();

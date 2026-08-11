@@ -3,9 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
+  ArrowRightLeft,
   Ban,
   Eye,
   KeyRound,
+  Link2,
   LogOut,
   Pencil,
   Plus,
@@ -18,10 +20,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { FieldAccessManagementDialog } from "@/components/field-staff/field-access-management";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { UserHandoverDialog } from "@/components/users/user-handover-dialog";
 import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { UserRow, UserStatus } from "@/interfaces/auth";
@@ -54,7 +58,8 @@ type PendingAction =
   | { kind: "remove"; user: UserRow }
   | { kind: "suspend"; user: UserRow }
   | { kind: "reinstate"; user: UserRow }
-  | { kind: "force-logout"; user: UserRow };
+  | { kind: "force-logout"; user: UserRow }
+  | { kind: "handover"; user: UserRow };
 
 export type UserManagementSection =
   "management" | "profiles" | "categories" | "search" | "login" | "statistics";
@@ -117,8 +122,13 @@ export function Users({
   const { user: me, can } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery(FILTER_KEYS);
+  const canCreateUser = can("user.create");
+  const canManageFieldAccess =
+    me?.company_type === "CONTRACTOR" &&
+    (canCreateUser || can("user.update"));
 
   const [pending, setPending] = useState<PendingAction | null>(null);
+  const [fieldAccessOpen, setFieldAccessOpen] = useState(false);
   const [reason, setReason] = useState("");
 
   const { data, isLoading, isError } = useQuery({
@@ -362,6 +372,23 @@ export function Users({
                 </Button>
               )}
 
+              {can("user.suspend") &&
+                !isSelf &&
+                target.company_type === "CONTRACTOR" &&
+                target.status !== "SUSPENDED" && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-primary hover:bg-primary/10"
+                    title={t("userHandover.action.open")}
+                    onClick={() =>
+                      setPending({ kind: "handover", user: target })
+                    }
+                  >
+                    <ArrowRightLeft className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+
               {can("user.suspend") && !isSelf && target.status === "ACTIVE" && (
                 <Button
                   variant="ghost"
@@ -483,16 +510,38 @@ export function Users({
               : t("users.count", { count: totalCount })
         }
         action={
-          can("user.create") && section === "management" ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href="/users/create">
-                <Plus className="h-4 w-4" />
-                {t("users.new")}
-              </Link>
-            </Button>
+          section === "management" &&
+          (canCreateUser || canManageFieldAccess) ? (
+            <div className="flex flex-wrap justify-end gap-2">
+              {canManageFieldAccess && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="rounded-full px-4 shadow-sm"
+                  onClick={() => setFieldAccessOpen(true)}
+                >
+                  <Link2 className="h-4 w-4" />
+                  {t("fieldAccessAdmin.action")}
+                </Button>
+              )}
+              {canCreateUser && (
+                <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                  <Link href="/users/create">
+                    <Plus className="h-4 w-4" />
+                    {t("users.new")}
+                  </Link>
+                </Button>
+              )}
+            </div>
           ) : undefined
         }
       />
+
+      {fieldAccessOpen && (
+        <FieldAccessManagementDialog
+          onClose={() => setFieldAccessOpen(false)}
+        />
+      )}
 
       {me?.is_platform_staff &&
         (section === "categories" || section === "statistics") && (
@@ -619,6 +668,14 @@ export function Users({
           confirmIcon={Trash2}
           isPending={isPending}
           onConfirm={() => removal.mutate(pending.user.id)}
+        />
+      )}
+
+      {pending?.kind === "handover" && (
+        <UserHandoverDialog
+          outgoing={pending.user}
+          onClose={closeDialog}
+          onSaved={invalidate}
         />
       )}
 
