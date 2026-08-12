@@ -1732,9 +1732,8 @@ function MovementDialog({
           .join(" ");
         setError(
           hiddenDetails ||
-            (Object.keys(reason.errors).length === 0
-              ? t("equipment.submissionError")
-              : ""),
+            reason.message ||
+            t("equipment.submissionError"),
         );
         return;
       }

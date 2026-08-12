@@ -7983,6 +7983,7 @@
     "statusClosed": "已关闭",
     "action": {
       "reportIncident": "报告事故",
+      "back": "返回事故列表",
       "cancel": "取消",
       "create": "建立报告",
       "resolve": "标记为已解决"

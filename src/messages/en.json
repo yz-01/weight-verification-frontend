@@ -8200,6 +8200,7 @@
     "statusClosed": "Closed",
     "action": {
       "reportIncident": "Report incident",
+      "back": "Back to incidents",
       "cancel": "Cancel",
       "create": "Create report",
       "resolve": "Mark as resolved"

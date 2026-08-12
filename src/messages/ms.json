@@ -7943,6 +7943,7 @@
     "empty": "Tiada insiden dilaporkan lagi.",
     "action": {
       "reportIncident": "Laporkan insiden",
+      "back": "Kembali ke insiden",
       "cancel": "Batal",
       "create": "Cipta laporan",
       "resolve": "Tandakan sebagai selesai"

@@ -81,7 +81,7 @@ export function NotificationButton() {
   });
   const count = countQuery.data?.total ?? 0;
   const notificationHref =
-    user?.mobile_access_only
+    user?.is_field_staff
       ? "/field-staff"
       : user?.portal === "MSE_ADMIN"
         ? "/notifications/search"
@@ -91,6 +91,7 @@ export function NotificationButton() {
     if (
       !enabled ||
       !user ||
+      user.is_field_staff ||
       !countQuery.isSuccess ||
       !listQuery.isSuccess ||
       typeof window === "undefined"
@@ -191,8 +192,8 @@ export function NotificationButton() {
                 className="flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-muted/40"
                 onClick={async () => {
                   await read.mutateAsync(notification.id);
-                  const rawHref = notification.data.href;
-                  const href = user?.mobile_access_only
+                  const rawHref = notification.data.href ?? notification.data.url;
+                  const href = user?.is_field_staff
                     ? fieldNotificationHref(rawHref)
                     : typeof rawHref === "string" && rawHref.startsWith("/")
                       ? rawHref

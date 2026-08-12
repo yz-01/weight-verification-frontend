@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BellRing,
+  ArrowLeft,
+  ChevronRight,
   Camera,
   Check,
   ClipboardCheck,
@@ -29,7 +31,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -80,13 +82,37 @@ function locate(): Promise<LocationFix> {
 }
 
 export function FieldStaffWorkspace() {
-  const t = useTranslations("fieldStaffPwa");
-  const { user } = useAuth();
   const searchParams = useSearchParams();
   const requestedTaskId = searchParams.get("task") ?? "";
   const requestedTab = searchParams.get("tab") as MobileTab | null;
   const requestedRecord = searchParams.get("record") as FieldRecordMode | null;
   const supplierToken = searchParams.get("supplier_token") ?? "";
+
+  return (
+    <FieldStaffWorkspaceContent
+      key={searchParams.toString()}
+      requestedTaskId={requestedTaskId}
+      requestedTab={requestedTab}
+      requestedRecord={requestedRecord}
+      supplierToken={supplierToken}
+    />
+  );
+}
+
+function FieldStaffWorkspaceContent({
+  requestedTaskId,
+  requestedTab,
+  requestedRecord,
+  supplierToken,
+}: {
+  requestedTaskId: string;
+  requestedTab: MobileTab | null;
+  requestedRecord: FieldRecordMode | null;
+  supplierToken: string;
+}) {
+  const t = useTranslations("fieldStaffPwa");
+  const { user } = useAuth();
+  const router = useRouter();
   const [tab, setTab] = useState<MobileTab>(
     requestedTab && ["home", "tasks", "attendance", "records", "location", "incidents"].includes(requestedTab)
       ? requestedTab
@@ -108,15 +134,29 @@ export function FieldStaffWorkspace() {
   });
   const projectNames = (projects.data?.results ?? []).map((project) => project.name);
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] flex-col space-y-5">
-      <section className="rounded-xl bg-foreground px-5 py-5 text-background shadow-sm">
-        <p className="text-sm text-background/70">{t("today", { date: new Date().toLocaleDateString() })}</p>
-        <h1 className="mt-1 text-2xl font-semibold">{t("greeting", { name: user?.full_name ?? "" })}</h1>
-        <div className="mt-3 grid gap-1 text-sm text-background/75">
-          <p>{t("identity.company", { company: user?.company_name ?? "-" })}</p>
-          <p>{t("identity.role", { role: user?.role_name ?? "-" })}</p>
-          <p>{t("identity.projects", { projects: projectNames.length ? projectNames.join(", ") : t("identity.noProject") })}</p>
+    <div className="flex min-h-[calc(100dvh-4rem)] flex-col gap-5 pb-24">
+      <section className="-mx-4 -mt-5 border-b bg-card px-4 py-5 shadow-[0_8px_24px_rgb(0_0_0/0.035)]">
+        <p className="text-xs font-medium text-muted-foreground">
+          {t("today", { date: new Date().toLocaleDateString() })}
+        </p>
+        <h1 className="mt-1 text-2xl font-semibold leading-tight">
+          {t("greeting", { name: user?.full_name ?? "" })}
+        </h1>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs">
+          <span className="rounded-md border bg-muted/40 px-2.5 py-1.5 font-medium">
+            {t("identity.company", { company: user?.company_name ?? "-" })}
+          </span>
+          <span className="rounded-md border bg-muted/40 px-2.5 py-1.5 font-medium">
+            {t("identity.role", { role: user?.role_name ?? "-" })}
+          </span>
         </div>
+        <p className="mt-3 text-sm leading-5 text-muted-foreground">
+          {t("identity.projects", {
+            projects: projectNames.length
+              ? projectNames.join(", ")
+              : t("identity.noProject"),
+          })}
+        </p>
       </section>
 
       {tab === "home" && (
@@ -158,18 +198,33 @@ export function FieldStaffWorkspace() {
         />
       )}
       {tab === "location" && <FieldStaffGps />}
-      {tab === "incidents" && <FieldIncidentsPanel />}
+      {tab === "incidents" && (
+        <FieldIncidentsPanel
+          onHome={() => {
+            setTab("home");
+            setRecordMode(null);
+            setActiveTask(null);
+            router.replace("/field-staff", { scroll: false });
+          }}
+        />
+      )}
 
-      <nav className="sticky bottom-0 z-30 mt-auto border-t bg-card pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgb(0_0_0/0.06)] backdrop-blur">
         <div className="mx-auto grid max-w-2xl grid-cols-5 gap-1 px-3">
-          <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => setTab("home")} />
-          <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => { setTaskType(undefined); setTab("tasks"); }} />
-          <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => setTab("attendance")} />
-          <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => { setRecordMode(null); setTab("records"); }} />
-          <MobileNavButton active={tab === "incidents"} icon={MessageSquarePlus} label={t("nav.incidents")} onClick={() => setTab("incidents")} />
+          <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => { setTab("home"); setRecordMode(null); setActiveTask(null); router.replace("/field-staff", { scroll: false }); }} />
+          <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => { setTaskType(undefined); setTab("tasks"); router.replace("/field-staff?tab=tasks", { scroll: false }); }} />
+          <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => { setTab("attendance"); router.replace("/field-staff?tab=attendance", { scroll: false }); }} />
+          <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => { setRecordMode(null); setTab("records"); router.replace("/field-staff?tab=records", { scroll: false }); }} />
+          <MobileNavButton active={tab === "incidents"} icon={MessageSquarePlus} label={t("nav.incidents")} onClick={() => { setTab("incidents"); router.replace("/field-staff?tab=incidents", { scroll: false }); }} />
         </div>
       </nav>
-      {tab === "home" && <p className="text-center text-xs text-muted-foreground">{t("identity.version", { version: process.env.NEXT_PUBLIC_APP_VERSION ?? "0.1.0" })}</p>}
+      {tab === "home" && (
+        <p className="text-center text-xs text-muted-foreground">
+          {t("identity.version", {
+            version: process.env.NEXT_PUBLIC_APP_VERSION ?? "0.1.0",
+          })}
+        </p>
+      )}
     </div>
   );
 }
@@ -204,9 +259,11 @@ function FieldHomePanel({
   const visibleActions = actions.filter((action) => !action.permission || can(action.permission));
   return (
     <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold">{t("home.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">{t("home.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {visibleActions.map((action) => {
@@ -215,11 +272,14 @@ function FieldHomePanel({
             <button
               key={action.key}
               type="button"
-              className="flex min-h-36 flex-col items-start justify-between rounded-xl border bg-card p-4 text-left shadow-sm active:scale-[0.98]"
+              className="group flex min-h-32 flex-col items-start justify-between rounded-lg border bg-card p-4 text-left shadow-sm transition-[border-color,background-color,transform,box-shadow] hover:border-primary/30 hover:bg-muted/20 hover:shadow-md active:scale-[0.98]"
               onClick={action.open}
             >
-              <span className={`grid size-12 place-items-center rounded-xl ${action.tone}`}><Icon className="size-7" /></span>
-              <span className="mt-5 text-lg font-semibold leading-6">{t(`home.${action.key}`)}</span>
+              <span className={`grid size-11 place-items-center rounded-lg ${action.tone}`}><Icon className="size-6" /></span>
+              <span className="mt-5 flex w-full items-end justify-between gap-2">
+                <span className="text-base font-semibold leading-5">{t(`home.${action.key}`)}</span>
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </span>
             </button>
           );
         })}
@@ -247,9 +307,9 @@ function FieldNotificationPreview() {
   const rows = notifications.data?.results ?? [];
 
   return (
-    <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
       <div className="flex items-center gap-3 border-b px-4 py-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+        <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
           <BellRing className="size-6" />
         </span>
         <div className="min-w-0 flex-1">
@@ -314,7 +374,7 @@ function FieldNotificationRow({
     return (
       <a
         href={href}
-        className="flex min-h-20 items-center gap-3 px-4 py-3 active:bg-muted/50"
+        className="flex min-h-20 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30 active:bg-muted/50"
         onClick={() => { if (!row.is_read && !busy) onRead(); }}
       >
         {body}
@@ -325,7 +385,7 @@ function FieldNotificationRow({
   return (
     <button
       type="button"
-      className="flex min-h-20 w-full items-center gap-3 px-4 py-3 text-left active:bg-muted/50"
+      className="flex min-h-20 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30 active:bg-muted/50"
       disabled={busy}
       onClick={() => { if (!row.is_read) onRead(); }}
     >
@@ -338,7 +398,7 @@ function FieldNotificationRow({
 }
 
 function MobileNavButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Camera; label: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg text-xs font-medium ${active ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}><Icon className="size-5" />{label}</button>;
+  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-xs font-medium transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}><Icon className="size-5" />{label}</button>;
 }
 
 function taskRecordMode(task: FieldTask): FieldRecordMode | null {
@@ -492,13 +552,25 @@ function FieldAttendancePanel() {
   );
 }
 
-function FieldIncidentsPanel() {
+function FieldIncidentsPanel({ onHome }: { onHome: () => void }) {
   const t = useTranslations("fieldStaffPwa");
   return (
     <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold">{t("incidents.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("incidents.subtitle")}</p>
+      <div className="flex items-start gap-3">
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          className="shrink-0"
+          title={t("action.back")}
+          onClick={onHome}
+        >
+          <ArrowLeft />
+        </Button>
+        <div>
+          <h2 className="text-lg font-semibold">{t("incidents.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("incidents.subtitle")}</p>
+        </div>
       </div>
       <IncidentReporting />
     </section>

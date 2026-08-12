@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Loader2, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { StatusBadge } from "@/components/shared/page-primitives";
@@ -16,10 +16,10 @@ import { IncidentThreadDetail } from "./incident-thread-detail";
 
 export function IncidentThreadList() {
   const t = useTranslations("incidentReporting");
+  const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedThread, setSelectedThread] = useState<string | null>(
-    searchParams.get("thread"),
-  );
+  const selectedThread = searchParams.get("thread");
   const [showCreate, setShowCreate] = useState(false);
 
   const threads = useQuery({
@@ -27,11 +27,19 @@ export function IncidentThreadList() {
     queryFn: () => getIncidentThreads({ page_size: 100, sort_by: "-created_at" }),
   });
 
+  const selectThread = (threadId: string | null) => {
+    const next = new URLSearchParams(searchParams.toString());
+    if (threadId) next.set("thread", threadId);
+    else next.delete("thread");
+    const query = next.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
   if (selectedThread) {
     return (
       <IncidentThreadDetail
         threadId={selectedThread}
-        onBack={() => setSelectedThread(null)}
+        onBack={() => selectThread(null)}
       />
     );
   }
@@ -63,7 +71,7 @@ export function IncidentThreadList() {
             <ThreadCard
               key={thread.id}
               thread={thread}
-              onClick={() => setSelectedThread(thread.id)}
+              onClick={() => selectThread(thread.id)}
             />
           ))}
         </div>
