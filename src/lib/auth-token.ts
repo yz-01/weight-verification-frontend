@@ -64,9 +64,37 @@ export function isFieldSessionContext(pathname?: string): boolean {
 }
 
 function tokenKeys() {
-  return isFieldSessionContext()
-    ? { access: FIELD_ACCESS_KEY, refresh: FIELD_REFRESH_KEY }
-    : { access: ACCESS_KEY, refresh: REFRESH_KEY };
+  if (isFieldSessionContext()) {
+    migrateLegacyFieldSession();
+    return { access: FIELD_ACCESS_KEY, refresh: FIELD_REFRESH_KEY };
+  }
+  return { access: ACCESS_KEY, refresh: REFRESH_KEY };
+}
+
+function migrateLegacyFieldSession(): void {
+  if (!isBrowser() || window.localStorage.getItem(FIELD_ACCESS_KEY)) return;
+  const access = window.localStorage.getItem(ACCESS_KEY);
+  const refresh = window.localStorage.getItem(REFRESH_KEY);
+  if (!isFieldDeviceToken(access) || !isFieldDeviceToken(refresh)) return;
+  window.localStorage.setItem(FIELD_ACCESS_KEY, access);
+  window.localStorage.setItem(FIELD_REFRESH_KEY, refresh);
+  window.localStorage.removeItem(ACCESS_KEY);
+  window.localStorage.removeItem(REFRESH_KEY);
+}
+
+function isFieldDeviceToken(token: string | null): token is string {
+  if (!token) return false;
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return false;
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(
+      window.atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")),
+    ) as { session_kind?: string; device?: string };
+    return decoded.session_kind === "FIELD_DEVICE" && Boolean(decoded.device);
+  } catch {
+    return false;
+  }
 }
 
 export function getAccessToken(): string | null {
