@@ -90,17 +90,14 @@ export function IncidentThreadDetail({
     });
   };
 
-  const handlePhotoCapture = (dataUrl: string) => {
-    fetch(dataUrl)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const file = new File([blob], `incident-${Date.now()}.jpg`, {
-          type: "image/jpeg",
-        });
-        setPhoto(file);
-        setPhotoPreview(dataUrl);
-        setShowCamera(false);
-      });
+  const handlePhotoCapture = (file: File) => {
+    setPhoto(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    setShowCamera(false);
   };
 
   const severityTone =
@@ -115,8 +112,8 @@ export function IncidentThreadDetail({
   if (showCamera) {
     return (
       <FieldCamera
+        label={t("photoLabel")}
         onCapture={handlePhotoCapture}
-        onCancel={() => setShowCamera(false)}
       />
     );
   }
