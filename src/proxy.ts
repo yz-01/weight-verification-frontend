@@ -21,6 +21,8 @@ const PUBLIC_PREFIXES = [
   "/_next",
   "/favicon.ico",
   "/manifest.webmanifest",
+  "/field-manifest.webmanifest",
+  "/field-pwa-bootstrap",
   "/sw.js",
   "/mse-icon",
   "/offline",
