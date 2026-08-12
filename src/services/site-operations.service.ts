@@ -16,6 +16,7 @@ import type {
   IncidentReportThreadPayload,
   IncidentReportMessage,
   IncidentReportMessagePayload,
+  IncidentReportRecipient,
 } from "@/interfaces/incident-report";
 import { api, download, toastSuccess } from "@/services/api-client";
 
@@ -236,6 +237,15 @@ export async function createIncidentThread(
   return thread;
 }
 
+export function getIncidentRecipientOptions(
+  projectId: string,
+): Promise<IncidentReportRecipient[]> {
+  return api.get<IncidentReportRecipient[]>(
+    "/api/incident-reports/recipient_options/",
+    { project: projectId },
+  );
+}
+
 export async function sendIncidentMessage(
   threadId: string,
   payload: IncidentReportMessagePayload,
@@ -256,8 +266,4 @@ export async function resolveIncidentThread(
   );
   toastSuccess("incidentReporting.action.resolve");
   return thread;
-}
-
-export function getProjectWorkers(projectId: string): Promise<any[]> {
-  return api.get<any[]>(`/api/projects/${projectId}/workers/`);
 }

@@ -854,7 +854,15 @@ export const PORTAL_NAVIGATION = {
       "operations",
       undefined,
       false,
-      [child("9.2.1", "nav.submodule.safetyIncidents", "/safety", "safety")],
+      [
+        child("9.2.1", "nav.submodule.safetyIncidents", "/safety", "safety"),
+        child(
+          "9.2.2",
+          "nav.submodule.incidentReports",
+          "/incident-reports",
+          "safety",
+        ),
+      ],
     ),
     item(
       "consultant_applications",

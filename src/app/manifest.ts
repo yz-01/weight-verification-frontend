@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "MSE Trace",
     short_name: "MSE Trace",
     description: "Verified construction material and recycling records.",
-    start_url: "/login",
+    start_url: "/field-staff",
     scope: "/",
     display: "standalone",
     background_color: "#f8fafb",

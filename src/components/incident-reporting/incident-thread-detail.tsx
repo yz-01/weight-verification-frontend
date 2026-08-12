@@ -1,19 +1,19 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Camera, Loader2, Send } from "lucide-react";
+import { ArrowLeft, Camera, Loader2, Send, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
 
 import { FieldCamera } from "@/components/shared/field-camera";
+import { useAuth } from "@/components/providers/auth-provider";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type {
   IncidentReportMessage,
-  IncidentReportThread,
 } from "@/interfaces/incident-report";
 import {
   getIncidentThread,
@@ -30,6 +30,7 @@ export function IncidentThreadDetail({
   onBack: () => void;
 }) {
   const t = useTranslations("incidentReporting");
+  const { can } = useAuth();
   const qc = useQueryClient();
   const [body, setBody] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -145,7 +146,7 @@ export function IncidentThreadDetail({
               {thread.data.thread.project_name}
             </p>
             <p className="text-xs text-muted-foreground">
-              {t("field.project")}: {thread.data.thread.reported_by_name} •{" "}
+              {t("field.reportedBy")}: {thread.data.thread.reported_by_name} /{" "}
               {new Date(thread.data.thread.created_at).toLocaleString()}
             </p>
           </div>
@@ -182,7 +183,7 @@ export function IncidentThreadDetail({
                 }}
                 className="absolute -right-2 -top-2 grid size-6 place-items-center rounded-full bg-destructive text-destructive-foreground"
               >
-                ×
+                <X className="size-3.5" />
               </button>
             </div>
           )}
@@ -216,7 +217,9 @@ export function IncidentThreadDetail({
             </Button>
           </div>
 
-          {thread.data && !thread.data.thread.is_resolved && (
+          {thread.data &&
+            !thread.data.thread.is_resolved &&
+            can("safety.verify") && (
             <Button
               variant="outline"
               className="mt-3 w-full"

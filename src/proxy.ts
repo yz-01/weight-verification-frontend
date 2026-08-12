@@ -21,9 +21,11 @@ const PUBLIC_PREFIXES = [
   "/_next",
   "/favicon.ico",
   "/manifest.webmanifest",
+  "/sw.js",
   "/mse-icon",
   "/offline",
   "/external",
+  "/field-staff",
   "/scan",
   "/verify",
 ];

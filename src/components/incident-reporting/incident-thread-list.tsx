@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Loader2, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { StatusBadge } from "@/components/shared/page-primitives";
@@ -15,7 +16,10 @@ import { IncidentThreadDetail } from "./incident-thread-detail";
 
 export function IncidentThreadList() {
   const t = useTranslations("incidentReporting");
-  const [selectedThread, setSelectedThread] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const [selectedThread, setSelectedThread] = useState<string | null>(
+    searchParams.get("thread"),
+  );
   const [showCreate, setShowCreate] = useState(false);
 
   const threads = useQuery({

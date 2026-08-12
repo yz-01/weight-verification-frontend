@@ -10,6 +10,7 @@ export interface IncidentReportThread {
   project_name: string;
   reported_by: string;
   reported_by_name: string;
+  recipients: IncidentReportRecipient[];
   latitude: string | null;
   longitude: string | null;
   is_resolved: boolean;
@@ -18,6 +19,13 @@ export interface IncidentReportThread {
   last_message_at: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface IncidentReportRecipient {
+  id: string;
+  full_name: string;
+  role_name: string;
+  is_supervisor?: boolean;
 }
 
 export interface IncidentReportMessage {
@@ -40,6 +48,8 @@ export interface IncidentReportThreadPayload {
   project: string;
   title: string;
   severity: IncidentSeverity;
+  description: string;
+  recipient_ids: string[];
   occurred_at?: string;
   latitude?: string;
   longitude?: string;

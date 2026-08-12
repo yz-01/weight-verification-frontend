@@ -2,7 +2,7 @@
   "name": "MSE Trace",
   "short_name": "MSE Trace",
   "description": "Verified weight and traceable waste for construction and recycling",
-  "start_url": "/",
+  "start_url": "/field-staff",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#087f8c",

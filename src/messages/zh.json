@@ -366,6 +366,7 @@
       "attendanceRecords": "考勤记录",
       "siteGps": "工地人员 GPS",
       "safetyIncidents": "安全事件",
+      "incidentReports": "事故上报",
       "hazardRectifications": "隐患整改",
       "consultantDashboard": "顾问首页",
       "consultantApplications": "顾问申请",
@@ -411,6 +412,7 @@
       "attendanceRecords": "考勤记录",
       "siteGps": "工地人员 GPS",
       "safetyIncidents": "安全事件",
+      "incidentReports": "事故上报",
       "consultantApplications": "顾问申请",
       "consultantWorkflows": "审批流程",
       "approvalCredentials": "审批凭证",
@@ -636,10 +638,22 @@
     "previewLimited": "预览最多显示 500 条",
     "loadError": "无法加载报表。",
     "empty": "此项目和日期范围没有符合的记录。",
+    "targetReport": { "title": "达成报表与导出", "filterHelp": "所选日期会包含目标期间与该日期范围有重叠的目标。" },
     "column": {
-      "project": "项目", "category": "照片来源", "uploaded_at": "上传时间", "uploaded_by": "上传人员", "file_name": "文件", "device_id": "设备", "source": "来源记录", "phase": "施工阶段", "captured_at": "拍摄时间", "percent_complete": "进度 (%)", "status": "状态", "photo_count": "照片", "confirmed_by": "确认人", "confirmed_at": "确认时间", "review_note": "审核备注", "incident_no": "事件编号", "title": "标题", "severity": "严重程度", "occurred_at": "发生时间", "responsible_person": "负责人", "rectification_due_at": "整改期限", "evidence_count": "证据", "verified_at": "验收时间", "application_no": "申请编号", "revision": "修订版", "application_type": "申请类型", "discipline": "专业", "consultant": "顾问", "application_date": "申请日期", "submitted_at": "提交时间", "final_decision": "最终决定", "worker": "人员", "event": "事件", "geofence_result": "围栏结果", "distance_m": "距离 (米)", "accuracy_m": "GPS 精度 (米)", "has_photo": "照片", "latitude": "纬度", "longitude": "经度", "equipment": "设备", "direction": "方向", "operator": "执行人", "vehicle_plate": "车牌", "delivery_note_no": "送货单", "ocr_status": "OCR 状态", "record_type": "记录类型", "reference_no": "参考编号", "description": "说明", "counterparty": "外部公司", "estimated_weight_kg": "预计重量 (kg)", "actual_weight_kg": "实际重量 (kg)", "trip_count": "车次", "completed_at": "完成时间", "plan": "计划", "wbs_code": "WBS", "task": "任务", "planned_start": "计划开始", "planned_end": "计划结束", "planned_progress": "计划进度 (%)", "actual_progress": "实际进度 (%)", "variance": "差异 (%)", "delay_days": "延误天数", "progress_records": "进度记录", "attendance_events": "考勤记录", "open_safety_items": "未完成安全问题", "completed_disposals": "已完成清运", "completed_recycle_orders": "已完成回收订单"
+      "company": "公司", "target_name": "目标", "target_type": "目标类型", "period": "周期", "period_start": "目标开始", "period_end": "目标结束", "target_value": "目标值", "current_value": "已完成", "remaining_value": "剩余", "completion_percent": "达成率 (%)", "project": "项目", "category": "栏目", "uploaded_at": "上传时间", "uploaded_by": "上传人员", "file_name": "文件", "device_id": "设备", "source": "来源记录", "phase": "施工阶段", "captured_at": "拍摄时间", "percent_complete": "进度 (%)", "status": "状态", "photo_count": "照片", "confirmed_by": "确认人", "confirmed_at": "确认时间", "review_note": "审核备注", "incident_no": "事件编号", "title": "标题", "severity": "严重程度", "occurred_at": "发生时间", "responsible_person": "负责人", "rectification_due_at": "整改期限", "evidence_count": "证据", "verified_at": "验收时间", "application_no": "申请编号", "revision": "修订版", "application_type": "申请类型", "discipline": "专业", "consultant": "顾问", "application_date": "申请日期", "submitted_at": "提交时间", "final_decision": "最终决定", "worker": "人员", "event": "事件", "geofence_result": "围栏结果", "distance_m": "距离 (米)", "accuracy_m": "GPS 精度 (米)", "has_photo": "照片", "latitude": "纬度", "longitude": "经度", "equipment": "设备", "direction": "方向", "operator": "执行人", "vehicle_plate": "车牌", "delivery_note_no": "送货单", "ocr_status": "OCR 状态", "record_type": "记录类型", "reference_no": "参考编号", "description": "说明", "counterparty": "外部公司", "estimated_weight_kg": "预计重量 (kg)", "actual_weight_kg": "实际重量 (kg)", "trip_count": "车次", "completed_at": "完成时间", "plan": "计划", "wbs_code": "WBS", "task": "任务", "planned_start": "计划开始", "planned_end": "计划结束", "planned_progress": "计划进度 (%)", "actual_progress": "实际进度 (%)", "variance": "差异 (%)", "delay_days": "延误天数", "progress_records": "进度记录", "attendance_events": "考勤记录", "open_safety_items": "未完成安全问题", "completed_disposals": "已完成清运", "completed_recycle_orders": "已完成回收订单"
     },
     "history": { "title": "报表导出历史", "subtitle": "当前公司及有权限项目的永久报表生成记录。", "empty": "尚未导出报表。", "file": "文件", "report": "报表", "project": "项目", "period": "期间", "rows": "行数", "generatedBy": "生成人", "generatedAt": "生成时间" }
+  },
+  "businessTargets": {
+    "management": { "title": "业务目标", "subtitle": "设定公司、项目或栏目的可量化目标，并在达到各提醒比例时通知负责人。", "new": "新增目标", "newTitle": "建立业务目标", "editTitle": "编辑业务目标", "formHelp": "选择范围、真实业务指标、目标期间和通知人员；进度会从已验收或已结算的业务记录自动计算。", "empty": "尚未建立业务目标。", "companyWide": "全公司", "refresh": "刷新进度", "edit": "编辑", "remove": "移除", "save": "保存目标", "cancel": "取消", "removeTitle": "移除 {name}？", "removeDescription": "此目标将不再出现在目标报表中，既有通知和审计记录仍会保留。", "removeConfirm": "移除目标" },
+    "field": { "name": "目标名称", "description": "说明", "project": "项目范围", "allProjects": "全部项目", "companyWide": "全公司目标", "category": "栏目范围", "allCategories": "全部栏目", "categoryHint": "请先选择项目，才能限定目标栏目。", "categoryMetricHint": "栏目范围只适用于已验收现场任务指标。", "metric": "业务指标", "materialKeyword": "材料名称包含", "materialKeywordHint": "选填，例如输入“钢筋”，只累计名称相符的材料进场记录。", "materialUnit": "材料单位", "chooseUnit": "选择一个单位", "wasteType": "回收废料类型", "allWasteTypes": "全部废料类型", "targetValue": "目标值", "targetValueHint": { "FIELD_TASK_COUNT": "已验收现场任务的次数。", "MATERIAL_RECEIPT_COUNT": "材料进场批次数。", "MATERIAL_RECEIPT_QUANTITY": "所选材料单位的进场总数量。", "SETTLED_RECYCLING_WEIGHT": "已结算回收重量，单位为公斤。" }, "period": "目标周期", "periodStart": "目标开始", "periodEnd": "目标结束", "notifyUsers": "通知人员", "notifyUsersHint": "达到已启用的提醒比例时，系统会通知所选人员。", "noUsers": "没有可选择的用户。", "milestones": "通知比例", "milestonesHint": "公司设置中的目标提醒比例会取代 80% 这一档。" },
+    "metric": { "FIELD_TASK_COUNT": "已验收现场任务", "MATERIAL_RECEIPT_COUNT": "材料进场批次", "MATERIAL_RECEIPT_QUANTITY": "材料进场数量", "SETTLED_RECYCLING_WEIGHT": "已结算回收重量" },
+    "materialUnit": { "TONNE": "吨", "KG": "公斤", "M3": "立方米", "PIECE": "件", "LOAD": "车／批", "BAG": "袋" },
+    "wasteType": { "MIXED": "混合建筑废料", "CONCRETE": "混凝土及砖石", "METAL": "废金属", "TIMBER": "木材", "PLASTIC": "塑料", "PAPER": "纸张及纸板", "SOIL": "泥土及骨料", "HAZARDOUS": "危险废料", "OTHER": "其他" },
+    "period": { "DAILY": "每日", "WEEKLY": "每周", "MONTHLY": "每月", "QUARTERLY": "每季度", "YEARLY": "每年", "ONE_TIME": "一次性" },
+    "status": { "active": "使用中", "inactive": "已停用" },
+    "loadError": "无法加载业务目标。", "saveError": "无法保存目标，请检查日期、范围和通知人员。",
+    "toast": { "created": "业务目标已建立。", "updated": "业务目标已更新。", "removed": "业务目标已移除。", "refreshed": "目标进度已刷新。" }
   },
   "integrations": {
     "title": "系统集成",
@@ -5042,7 +5056,11 @@
     "generate": {
       "title": "生成账单草稿",
       "description": "生成 SaaS 或佣金账单，审核后再发出。",
-      "runDate": "账单运行日期"
+      "runDate": "账单运行日期",
+      "noEligible": {
+        "SAAS": "目前没有可生成 SaaS 账单的公司。请先分配订阅套餐，并确认公司不是暂停或关闭状态。",
+        "COMMISSION": "目前没有可生成佣金账单的回收商。只有采用合作版且承担平台佣金的有效回收商才会显示。"
+      }
     },
     "close": {
       "title": "关闭账单",
@@ -7973,8 +7991,17 @@
       "title": "事故标题",
       "titlePlaceholder": "简述事故情况",
       "severity": "严重程度",
+      "description": "发生了什么？",
+      "descriptionPlaceholder": "清楚描述事故情况",
+      "recipients": "报告给",
+      "reportedBy": "报告人",
       "messagePlaceholder": "新增详情、照片或更新"
     },
+    "chooseProjectFirst": "请先选择项目以选择接收人",
+    "loadingRecipients": "正在加载项目人员...",
+    "noRecipients": "目前没有可选择的项目人员。",
+    "supervisor": "主管",
+    "photoLabel": "事故照片",
     "severity": {
       "LOW": "低",
       "MEDIUM": "中",

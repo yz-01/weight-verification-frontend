@@ -36,7 +36,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProjects } from "@/services/contractor.service";
 import {
   createFieldInvitation,
-  resetFieldDevice,
   type FieldInvitationResult,
 } from "@/services/field-access.service";
 import { getRoles, getUsers } from "@/services/users.service";
@@ -85,8 +84,8 @@ export function FieldAccessManagementDialog({
   });
 
   const create = useMutation({
-    mutationFn: async () => {
-      const invitation = await createFieldInvitation(
+    mutationFn: () =>
+      createFieldInvitation(
         mode === "existing"
           ? {
               user: existingUserId,
@@ -99,12 +98,7 @@ export function FieldAccessManagementDialog({
               ...(email.trim() ? { email: email.trim() } : {}),
               project_ids: projectIds,
             },
-      );
-      if (mode === "existing") {
-        await resetFieldDevice(invitation.user_id);
-      }
-      return invitation;
-    },
+      ),
     onSuccess: (invitation) => {
       setResult(invitation);
       void queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -275,7 +269,7 @@ export function FieldAccessManagementDialog({
                   <SelectContent position="popper">
                     {(fieldUsers.data?.results ?? []).map((user) => (
                       <SelectItem key={user.id} value={user.id}>
-                        {user.full_name} · {user.phone || user.email}
+                        {user.full_name} / {user.phone || user.email}
                       </SelectItem>
                     ))}
                   </SelectContent>

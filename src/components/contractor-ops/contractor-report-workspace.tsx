@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -105,8 +106,13 @@ export function ContractorReportWorkspace({
 
   return (
     <div className="space-y-5">
+      {reportType === "target" && <BusinessTargetManagement />}
       <ListHeader
-        title={t(`type.${reportType}`)}
+        title={
+          reportType === "target"
+            ? t("targetReport.title")
+            : t(`type.${reportType}`)
+        }
         subtitle={t(`description.${reportType}`)}
       />
       <section className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-2 lg:grid-cols-[minmax(14rem,1fr)_11rem_11rem_auto]">
@@ -178,6 +184,12 @@ export function ContractorReportWorkspace({
               {t("filter.keyword")}
               <Input value={keyword} onChange={(event) => setKeyword(event.target.value)} />
             </label>
+          </div>
+        ) : reportType === "target" ? (
+          <div className="sm:col-span-2 lg:col-span-4">
+            <p className="text-xs leading-5 text-muted-foreground">
+              {t("targetReport.filterHelp")}
+            </p>
           </div>
         ) : null}
       </section>
