@@ -108,7 +108,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         ) : undefined}
       />
 
-      <div className="grid gap-3 border-y bg-card/50 py-4 md:grid-cols-[minmax(220px,1fr)_180px_180px_auto] md:items-end">
+      <div className="grid gap-3 rounded-lg border bg-card/50 p-4 shadow-sm md:grid-cols-[minmax(220px,1fr)_180px_180px_auto] md:items-end">
         {can("project.view") && (
           <div className="space-y-1.5">
             <Label>{t("reports.filter.project")}</Label>
@@ -157,7 +157,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       {summary.isLoading ? (
         <ReportSkeleton />
       ) : summary.isError ? (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-8 text-center text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-8 text-center text-sm text-destructive">
           {t("errors.generic")}
         </div>
       ) : mode === "quantity" ? (
@@ -174,10 +174,10 @@ function ReportSkeleton() {
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-3">
         {[0, 1, 2].map((value) => (
-          <Skeleton key={value} className="h-24 rounded-md" />
+          <Skeleton key={value} className="h-24 rounded-lg" />
         ))}
       </div>
-      <Skeleton className="h-72 rounded-md" />
+      <Skeleton className="h-72 rounded-lg" />
     </div>
   );
 }
@@ -287,7 +287,7 @@ function CostReport({
       </div>
 
       {data.unpriced_receipts > 0 && (
-        <div className="flex items-start gap-3 rounded-md border border-warning/30 bg-warning/10 p-4 text-sm text-foreground">
+        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm text-foreground">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
           <p>{t("materialReports.cost.incompleteWarning", { count: data.unpriced_receipts })}</p>
         </div>
@@ -370,7 +370,7 @@ function Metric({
   warning?: boolean;
 }) {
   return (
-    <div className="rounded-md border bg-card p-4">
+    <div className="rounded-lg border bg-card p-4">
       <div className="flex items-center gap-2 text-muted-foreground">
         <Icon className={warning ? "h-4 w-4 text-warning" : "h-4 w-4 text-primary"} />
         <p className="truncate text-xs font-medium uppercase">{label}</p>
@@ -385,7 +385,7 @@ function Metric({
 
 function ReportTable({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-md border bg-card">
+    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
       <h3 className="border-b px-4 py-3 text-sm font-semibold">{title}</h3>
       <div className="overflow-x-auto">{children}</div>
     </section>
@@ -395,7 +395,7 @@ function ReportTable({ title, children }: { title: string; children: React.React
 function EmptyReport() {
   const t = useTranslations();
   return (
-    <div className="rounded-md border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
+    <div className="rounded-lg border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
       {t("reports.empty")}
     </div>
   );

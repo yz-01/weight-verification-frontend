@@ -50,6 +50,48 @@ function displayValue(value: string | number | boolean | null): string {
   return String(value);
 }
 
+const REPORT_DATE_COLUMNS = new Set([
+  "captured_at",
+  "uploaded_at",
+  "occurred_at",
+  "completed_at",
+  "confirmed_at",
+  "submitted_at",
+  "application_date",
+  "planned_start",
+  "planned_end",
+  "period_start",
+  "period_end",
+  "rectification_due_at",
+  "verified_at",
+]);
+
+const REPORT_LONG_COLUMNS = new Set([
+  "description",
+  "file_name",
+  "review_note",
+  "source",
+  "target_name",
+  "task",
+  "title",
+]);
+
+function reportColumnClass(key: string): string {
+  if (key === "latitude" || key === "longitude") {
+    return "w-36 min-w-36 max-w-36 whitespace-nowrap tabular-nums";
+  }
+  if (REPORT_DATE_COLUMNS.has(key)) {
+    return "w-44 min-w-44 max-w-44 whitespace-nowrap tabular-nums";
+  }
+  if (key === "device_id") {
+    return "w-52 min-w-52 max-w-52 break-all";
+  }
+  if (REPORT_LONG_COLUMNS.has(key)) {
+    return "w-64 min-w-64 max-w-64 break-words";
+  }
+  return "w-40 min-w-40 max-w-56 break-words";
+}
+
 export function ContractorReportWorkspace({
   reportType,
 }: {
@@ -216,11 +258,16 @@ export function ContractorReportWorkspace({
           <p className="p-10 text-center text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
           <div className="max-h-[60dvh] overflow-auto">
-            <Table>
+            <Table className="min-w-max table-fixed">
               <TableHeader className="sticky top-0 z-10 bg-card">
                 <TableRow>
                   {report.data?.columns.map((key) => (
-                    <TableHead key={key} className="whitespace-nowrap">{t(`column.${key}`)}</TableHead>
+                    <TableHead
+                      key={key}
+                      className={`whitespace-normal [overflow-wrap:anywhere] ${reportColumnClass(key)}`}
+                    >
+                      {t(`column.${key}`)}
+                    </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
@@ -228,7 +275,10 @@ export function ContractorReportWorkspace({
                 {report.data?.rows.map((row, index) => (
                   <TableRow key={index}>
                     {report.data.columns.map((key) => (
-                      <TableCell key={key} className="max-w-80 whitespace-nowrap">
+                      <TableCell
+                        key={key}
+                        className={`align-top leading-5 ${reportColumnClass(key)}`}
+                      >
                         {displayValue(row[key] ?? null)}
                       </TableCell>
                     ))}
