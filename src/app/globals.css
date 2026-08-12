@@ -69,12 +69,12 @@
 }
 
 :root {
-  /* Latin face first, then the CJK face. A Chinese user reading a table of
-   * English column headers and Chinese values gets one consistent stack rather
-   * than whatever the operating system happens to substitute. */
+  /* Keep CJK rendering on stable platform fonts so production builds do not
+   * depend on fetching the large Noto Sans SC font set from Google. */
   --font-sans:
-    var(--font-geist-sans), var(--font-cjk), ui-sans-serif, system-ui,
-    -apple-system, "Segoe UI", sans-serif;
+    var(--font-geist-sans), "PingFang SC", "Microsoft YaHei",
+    "Noto Sans CJK SC", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
 
   /* Surfaces sit a touch cool rather than pure white. Operators read these
    * tables for whole shifts under site lighting, and a dead-neutral white
