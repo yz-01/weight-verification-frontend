@@ -107,7 +107,7 @@ export function FieldStaffWorkspace() {
   });
   const projectNames = (projects.data?.results ?? []).map((project) => project.name);
   return (
-    <div className="space-y-5 pb-24">
+    <div className="flex min-h-[calc(100dvh-4rem)] flex-col space-y-5">
       <section className="rounded-xl bg-foreground px-5 py-5 text-background shadow-sm">
         <p className="text-sm text-background/70">{t("today", { date: new Date().toLocaleDateString() })}</p>
         <h1 className="mt-1 text-2xl font-semibold">{t("greeting", { name: user?.full_name ?? "" })}</h1>
@@ -159,7 +159,7 @@ export function FieldStaffWorkspace() {
       {tab === "location" && <FieldStaffGps />}
       {tab === "incidents" && <FieldIncidentsPanel />}
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 backdrop-blur">
+      <nav className="sticky bottom-0 z-30 mt-auto border-t bg-card pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2">
         <div className="mx-auto grid max-w-2xl grid-cols-5 gap-1 px-3">
           <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => setTab("home")} />
           <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => { setTaskType(undefined); setTab("tasks"); }} />
