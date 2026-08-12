@@ -322,7 +322,7 @@ export function Users({
                 </Button>
               )}
 
-              {can("user.update") && !isSelf && target.mobile_access_only && (
+              {can("user.update") && !isSelf && target.is_field_staff && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -337,7 +337,7 @@ export function Users({
                 </Button>
               )}
 
-              {can("user.update") && !isSelf && !target.mobile_access_only && (
+              {can("user.update") && !isSelf && !target.is_field_staff && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -352,6 +352,7 @@ export function Users({
 
               {can("user.suspend") &&
                 !isSelf &&
+                !target.is_field_staff &&
                 target.company_type === "CONTRACTOR" &&
                 target.status !== "SUSPENDED" && (
                   <Button

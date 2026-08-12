@@ -59,6 +59,7 @@ export interface CurrentUser {
   status: UserStatus;
   account_type: AccountType;
   mobile_access_only: boolean;
+  is_field_staff: boolean;
   is_platform_staff: boolean;
   is_superuser: boolean;
   role: string | null;
@@ -125,6 +126,7 @@ export interface UserRow {
   company_type: CompanyType | null;
   is_platform_staff: boolean;
   mobile_access_only: boolean;
+  is_field_staff: boolean;
   language: Locale;
   last_login_at: string | null;
   created_at: string;

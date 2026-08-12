@@ -157,7 +157,7 @@ export function Profile() {
                   label={t("users.field.phone")}
                   optional
                   type="tel"
-                  disabled={user.mobile_access_only}
+                  disabled={user.is_field_staff}
                 />
               )}
             </profileForm.Field>
@@ -202,51 +202,52 @@ export function Profile() {
         </form>
       </div>
 
-      <div className="rounded-xl border bg-card shadow-sm">
-        <div className="flex flex-wrap items-center gap-3 px-6 py-5">
-          <h3 className="text-base font-semibold text-foreground">
-            {t("auth.changePassword.title")}
-          </h3>
-          <div className="ml-auto flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="rounded-full px-4"
-              onClick={() => {
-                passwordForm.reset();
-                setPasswordError(null);
-              }}
-            >
-              <X className="h-4 w-4" />
-              {t("common.cancel")}
-            </Button>
-            <Button
-              type="submit"
-              form="password-form"
-              size="sm"
-              disabled={passwordMutation.isPending}
-              className="rounded-full px-4 shadow-sm"
-            >
-              {passwordMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <KeyRound className="h-4 w-4" />
-              )}
-              {t("auth.changePassword.submit")}
-            </Button>
+      {!user.is_field_staff && (
+        <div className="rounded-xl border bg-card shadow-sm">
+          <div className="flex flex-wrap items-center gap-3 px-6 py-5">
+            <h3 className="text-base font-semibold text-foreground">
+              {t("auth.changePassword.title")}
+            </h3>
+            <div className="ml-auto flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="rounded-full px-4"
+                onClick={() => {
+                  passwordForm.reset();
+                  setPasswordError(null);
+                }}
+              >
+                <X className="h-4 w-4" />
+                {t("common.cancel")}
+              </Button>
+              <Button
+                type="submit"
+                form="password-form"
+                size="sm"
+                disabled={passwordMutation.isPending}
+                className="rounded-full px-4 shadow-sm"
+              >
+                {passwordMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <KeyRound className="h-4 w-4" />
+                )}
+                {t("auth.changePassword.submit")}
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <form
-          id="password-form"
-          className="border-t"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void passwordForm.handleSubmit();
-          }}
-        >
-          <FormSection title={t("profile.section.security")}>
+          <form
+            id="password-form"
+            className="border-t"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void passwordForm.handleSubmit();
+            }}
+          >
+            <FormSection title={t("profile.section.security")}>
             <passwordForm.Field
               name="current_password"
               validators={{ onSubmit: required(t("validation.required")) }}
@@ -300,9 +301,10 @@ export function Profile() {
                 {passwordError}
               </p>
             )}
-          </FormSection>
-        </form>
-      </div>
+            </FormSection>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

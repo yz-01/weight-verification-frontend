@@ -1717,8 +1717,25 @@ function MovementDialog({
     onError: (reason) => {
       if (reason instanceof ApiError) {
         setFieldErrors(reason.errors);
-        const details = Object.values(reason.errors).filter(Boolean).join(" ");
-        setError(details || reason.message);
+        const inlineFields = new Set([
+          "operator_name",
+          "quantity",
+          "unit",
+          "photos",
+          "latitude",
+          "longitude",
+          "accuracy_m",
+        ]);
+        const hiddenDetails = Object.entries(reason.errors)
+          .filter(([field, message]) => !inlineFields.has(field) && message)
+          .map(([, message]) => message)
+          .join(" ");
+        setError(
+          hiddenDetails ||
+            (Object.keys(reason.errors).length === 0
+              ? t("equipment.submissionError")
+              : ""),
+        );
         return;
       }
       setFieldErrors({});

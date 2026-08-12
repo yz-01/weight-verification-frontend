@@ -117,9 +117,7 @@ export function FieldAccessManagementDialog({
   }
 
   function chooseExistingUser(userId: string) {
-    const selected = fieldUsers.data?.results.find(
-      (user) => user.id === userId && user.mobile_access_only,
-    );
+    const selected = fieldUsers.data?.results.find((user) => user.id === userId);
     setExistingUserId(userId);
     setPhone(selected?.phone ?? "");
     setProjectIds([]);
@@ -282,9 +280,7 @@ export function FieldAccessManagementDialog({
                     <SelectValue placeholder={t("selectStaff")} />
                   </SelectTrigger>
                   <SelectContent position="popper">
-                    {(fieldUsers.data?.results ?? [])
-                      .filter((user) => user.mobile_access_only)
-                      .map((user) => (
+                    {(fieldUsers.data?.results ?? []).map((user) => (
                         <SelectItem key={user.id} value={user.id}>
                           {user.full_name} / {user.phone || user.email}
                         </SelectItem>
@@ -292,9 +288,7 @@ export function FieldAccessManagementDialog({
                   </SelectContent>
                 </Select>
                 {!fieldUsers.isLoading &&
-                  (fieldUsers.data?.results ?? []).filter(
-                    (user) => user.mobile_access_only,
-                  ).length === 0 && (
+                  (fieldUsers.data?.results ?? []).length === 0 && (
                     <p className="mt-2 text-sm text-muted-foreground">
                       {t("noExistingStaff")}
                     </p>
