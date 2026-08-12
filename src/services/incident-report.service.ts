@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/api-client";
+import { api } from "@/services/api-client";
 import type {
   IncidentReportMessage,
   IncidentReportMessagePayload,
@@ -8,33 +8,27 @@ import type {
 import type { ListResponse } from "@/interfaces/common";
 
 export async function getIncidentThreads(params?: Record<string, unknown>) {
-  const response = await apiClient.get<ListResponse<IncidentReportThread>>(
+  return api.get<ListResponse<IncidentReportThread>>(
     "/site-operations/incident-reports/get_incident_threads/",
-    { params }
+    params
   );
-  return response.data;
 }
 
 export async function getIncidentThread(id: string) {
-  const response = await apiClient.get<{
-    success: boolean;
-    data: {
-      thread: IncidentReportThread;
-      messages: IncidentReportMessage[];
-    };
+  return api.get<{
+    thread: IncidentReportThread;
+    messages: IncidentReportMessage[];
   }>(`/site-operations/incident-reports/${id}/get_incident_thread/`);
-  return response.data.data;
 }
 
 export async function createIncidentThread(payload: IncidentReportThreadPayload) {
-  const response = await apiClient.post<{
-    success: boolean;
-    data: IncidentReportThread;
-  }>("/site-operations/incident-reports/create_incident_thread/", payload);
-  return response.data.data;
+  return api.post<IncidentReportThread>(
+    "/site-operations/incident-reports/create_incident_thread/",
+    payload
+  );
 }
 
-export async function postIncidentMessage(
+export async function sendIncidentMessage(
   threadId: string,
   payload: IncidentReportMessagePayload
 ) {
@@ -46,17 +40,14 @@ export async function postIncidentMessage(
   if (payload.accuracy_m) formData.append("accuracy_m", payload.accuracy_m);
   if (payload.client_event_id) formData.append("client_event_id", payload.client_event_id);
 
-  const response = await apiClient.post<{
-    success: boolean;
-    data: IncidentReportMessage;
-  }>(`/site-operations/incident-reports/${threadId}/post_incident_message/`, formData);
-  return response.data.data;
+  return api.post<IncidentReportMessage>(
+    `/site-operations/incident-reports/${threadId}/post_incident_message/`,
+    formData
+  );
 }
 
 export async function resolveIncidentThread(threadId: string) {
-  const response = await apiClient.post<{
-    success: boolean;
-    data: IncidentReportThread;
-  }>(`/site-operations/incident-reports/${threadId}/resolve_incident_thread/`);
-  return response.data.data;
+  return api.post<IncidentReportThread>(
+    `/site-operations/incident-reports/${threadId}/resolve_incident_thread/`
+  );
 }
