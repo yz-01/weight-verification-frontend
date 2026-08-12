@@ -2563,6 +2563,7 @@
     "activationLink": "Pautan pengaktifan",
     "pin": "PIN enam digit",
     "expiresAt": "Pautan tamat tempoh",
+    "pinExpiresAt": "PIN tamat tempoh",
     "qrTitle": "Kod QR pengaktifan staf tapak",
     "copyLink": "Salin pautan",
     "copyPin": "Salin PIN",

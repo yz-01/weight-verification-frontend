@@ -17,6 +17,7 @@ import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ApiError } from "@/interfaces/api";
+import type { UserRow } from "@/interfaces/auth";
 import {
   Dialog,
   DialogContent,
@@ -46,15 +47,17 @@ type AccessMode = "new" | "existing";
 
 export function FieldAccessManagementDialog({
   onClose,
+  initialUser,
 }: {
   onClose: () => void;
+  initialUser?: Pick<UserRow, "id" | "full_name" | "phone">;
 }) {
   const t = useTranslations("fieldAccessAdmin");
   const queryClient = useQueryClient();
-  const [mode, setMode] = useState<AccessMode>("new");
-  const [existingUserId, setExistingUserId] = useState("");
+  const [mode, setMode] = useState<AccessMode>(initialUser ? "existing" : "new");
+  const [existingUserId, setExistingUserId] = useState(initialUser?.id ?? "");
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(initialUser?.phone ?? "");
   const [email, setEmail] = useState("");
   const [projectIds, setProjectIds] = useState<string[]>([]);
   const [result, setResult] = useState<FieldInvitationResult | null>(null);
@@ -206,11 +209,19 @@ export function FieldAccessManagementDialog({
                 </div>
               </FieldWrapper>
 
-              <div className="rounded-md border px-3 py-2 text-sm">
-                <p className="font-medium">{t("expiresAt")}</p>
-                <p className="mt-1 text-muted-foreground">
-                  {new Date(result.invitation_expires_at).toLocaleString()}
-                </p>
+              <div className="grid gap-3 rounded-md border px-3 py-2 text-sm sm:grid-cols-2">
+                <div>
+                  <p className="font-medium">{t("expiresAt")}</p>
+                  <p className="mt-1 text-muted-foreground">
+                    {new Date(result.invitation_expires_at).toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-medium">{t("pinExpiresAt")}</p>
+                  <p className="mt-1 text-muted-foreground">
+                    {new Date(result.pin_expires_at).toLocaleString()}
+                  </p>
+                </div>
               </div>
 
               <Button
@@ -229,22 +240,24 @@ export function FieldAccessManagementDialog({
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
-            <Tabs
-              value={mode}
-              onValueChange={changeMode}
-              className="sm:col-span-2"
-            >
-              <TabsList className="grid h-10 w-full grid-cols-2">
-                <TabsTrigger value="new">
-                  <UserRoundPlus />
-                  {t("modeNew")}
-                </TabsTrigger>
-                <TabsTrigger value="existing">
-                  <UserRoundCheck />
-                  {t("modeExisting")}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            {!initialUser && (
+              <Tabs
+                value={mode}
+                onValueChange={changeMode}
+                className="sm:col-span-2"
+              >
+                <TabsList className="grid h-10 w-full grid-cols-2">
+                  <TabsTrigger value="new">
+                    <UserRoundPlus />
+                    {t("modeNew")}
+                  </TabsTrigger>
+                  <TabsTrigger value="existing">
+                    <UserRoundCheck />
+                    {t("modeExisting")}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
 
             {mode === "new" ? (
               <FieldWrapper label={t("fullName")} required>
@@ -254,6 +267,10 @@ export function FieldAccessManagementDialog({
                   autoComplete="off"
                 />
               </FieldWrapper>
+            ) : initialUser ? (
+              <div className="rounded-md border bg-muted/20 px-3 py-2.5 sm:col-span-2">
+                <p className="text-sm font-medium">{initialUser.full_name}</p>
+              </div>
             ) : (
               <FieldWrapper
                 label={t("existingStaff")}

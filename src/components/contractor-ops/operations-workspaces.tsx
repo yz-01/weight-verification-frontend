@@ -119,9 +119,9 @@ async function currentCoordinates(): Promise<Coordinates> {
     navigator.geolocation.getCurrentPosition(
       (position) =>
         resolve({
-          latitude: String(position.coords.latitude),
-          longitude: String(position.coords.longitude),
-          accuracy: String(position.coords.accuracy),
+          latitude: position.coords.latitude.toFixed(7),
+          longitude: position.coords.longitude.toFixed(7),
+          accuracy: position.coords.accuracy.toFixed(2),
         }),
       reject,
       { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
@@ -1661,6 +1661,7 @@ function MovementDialog({
     suggestions?: Record<string, string>;
   }>();
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState(false);
   const ocrMutation = useMutation({
@@ -1708,11 +1709,21 @@ function MovementDialog({
         delivery_note_photo: deliveryNotePhoto,
       });
     },
+    onMutate: () => {
+      setError("");
+      setFieldErrors({});
+    },
     onSuccess: onSaved,
-    onError: (reason) =>
-      setError(
-        reason instanceof ApiError ? reason.message : t("state.loadError"),
-      ),
+    onError: (reason) => {
+      if (reason instanceof ApiError) {
+        setFieldErrors(reason.errors);
+        const details = Object.values(reason.errors).filter(Boolean).join(" ");
+        setError(details || reason.message);
+        return;
+      }
+      setFieldErrors({});
+      setError(t("state.loadError"));
+    },
   });
   const locate = async () => {
     setLocationError(false);
@@ -1737,13 +1748,21 @@ function MovementDialog({
           <DialogDescription>{t("equipment.movementHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper label={t("field.operator")} required>
+          <FieldWrapper
+            label={t("field.operator")}
+            required
+            error={fieldErrors.operator_name}
+          >
             <Input
               value={operator}
               onChange={(e) => setOperator(e.target.value)}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.quantity")} required>
+          <FieldWrapper
+            label={t("field.quantity")}
+            required
+            error={fieldErrors.quantity}
+          >
             <Input
               type="number"
               min="0.001"
@@ -1752,7 +1771,11 @@ function MovementDialog({
               onChange={(e) => setQuantity(e.target.value)}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.unit")} required>
+          <FieldWrapper
+            label={t("field.unit")}
+            required
+            error={fieldErrors.unit}
+          >
             <Select
               value={unit}
               onValueChange={(value) => setUnit(value as EquipmentUnit)}
@@ -1821,6 +1844,7 @@ function MovementDialog({
           <FieldWrapper
             label={t("field.photos")}
             required
+            error={fieldErrors.photos}
             className="sm:col-span-2"
           >
             <FieldCamera
@@ -1832,7 +1856,14 @@ function MovementDialog({
           </FieldWrapper>
           <FieldWrapper
             label={t("field.location")}
-            error={locationError ? t("state.locationError") : undefined}
+            required
+            error={
+              locationError
+                ? t("state.locationError")
+                : fieldErrors.latitude ||
+                  fieldErrors.longitude ||
+                  fieldErrors.accuracy_m
+            }
             className="sm:col-span-2"
           >
             <Button

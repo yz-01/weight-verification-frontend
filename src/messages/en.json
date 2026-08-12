@@ -2569,6 +2569,7 @@
     "activationLink": "Activation link",
     "pin": "Six-digit PIN",
     "expiresAt": "Link expires",
+    "pinExpiresAt": "PIN expires",
     "qrTitle": "Field staff activation QR code",
     "copyLink": "Copy link",
     "copyPin": "Copy PIN",

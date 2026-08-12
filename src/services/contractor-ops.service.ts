@@ -172,7 +172,11 @@ export async function recordEquipmentMovement(payload: {
   if (payload.delivery_note_photo) {
     data.append("delivery_note_photo", payload.delivery_note_photo);
   }
-  const row = await api.post<EquipmentMovement>("/api/site-equipment/record_movement/", data);
+  const row = await api.post<EquipmentMovement>(
+    "/api/site-equipment/record_movement/",
+    data,
+    { silent: true },
+  );
   toastSuccess("contractorOps.toast.movementSaved");
   return row;
 }

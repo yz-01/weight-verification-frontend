@@ -13,6 +13,7 @@ export interface FieldInvitationInfo {
   phone: string;
   projects: Array<{ id: string; code: string; name: string }>;
   invitation_expires_at: string;
+  pin_expires_at: string;
   activated_at: string | null;
 }
 

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/popover";
 import { useDateFormat } from "@/lib/dates";
 import { getRefreshToken } from "@/lib/auth-token";
+import { fieldNotificationHref } from "@/lib/field-notification";
 import {
   getNotifications,
   getUnreadNotificationCount,
@@ -80,7 +81,11 @@ export function NotificationButton() {
   });
   const count = countQuery.data?.total ?? 0;
   const notificationHref =
-    user?.portal === "MSE_ADMIN" ? "/notifications/search" : "/notifications";
+    user?.mobile_access_only
+      ? "/field-staff"
+      : user?.portal === "MSE_ADMIN"
+        ? "/notifications/search"
+        : "/notifications";
 
   useEffect(() => {
     if (
@@ -186,8 +191,13 @@ export function NotificationButton() {
                 className="flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-muted/40"
                 onClick={async () => {
                   await read.mutateAsync(notification.id);
-                  const href = notification.data.href;
-                  if (typeof href === "string" && href.startsWith("/")) {
+                  const rawHref = notification.data.href;
+                  const href = user?.mobile_access_only
+                    ? fieldNotificationHref(rawHref)
+                    : typeof rawHref === "string" && rawHref.startsWith("/")
+                      ? rawHref
+                      : null;
+                  if (href) {
                     setOpen(false);
                     router.push(href);
                   }

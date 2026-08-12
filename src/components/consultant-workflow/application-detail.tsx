@@ -6,7 +6,6 @@ import {
   ClipboardCheck,
   Download,
   FileArchive,
-  ImageIcon,
   KeyRound,
   Link2,
   Loader2,
@@ -18,9 +17,11 @@ import {
   Send,
   ShieldCheck,
   BadgeCheck,
+  ExternalLink,
   XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -34,6 +35,7 @@ import {
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -248,7 +250,75 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
             </div>
           </Section>
           <Section title={t("detail.section.evidence")} action={application.status === "DRAFT" && can("consultant.submit") ? <Button size="sm" variant="outline" onClick={() => setEvidenceOpen(true)}><Link2 />{t("evidence.link")}</Button> : undefined}>
-            {!application.evidence_links.length ? <Empty text={t("evidence.empty")} /> : <div className="grid gap-3 sm:grid-cols-2">{application.evidence_links.map((link) => <a key={link.id} href={link.evidence_watermarked_file || link.evidence_file} target="_blank" rel="noreferrer" className="flex min-w-0 gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/30"><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-info/10 text-info"><ImageIcon className="size-5" /></span><div className="min-w-0"><p className="truncate font-medium">{link.caption || link.original_filename}</p><p className="truncate text-xs text-muted-foreground">{link.photographer_name || t("common.unknown")} - {new Date(link.captured_at).toLocaleString()}</p><p className="mt-1 truncate font-mono text-[10px] text-muted-foreground">{link.sha256}</p></div></a>)}</div>}
+            {!application.evidence_links.length ? (
+              <Empty text={t("evidence.empty")} />
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {application.evidence_links.map((link) => (
+                  <a
+                    key={link.id}
+                    href={link.evidence_watermarked_file || link.evidence_file}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group min-w-0 overflow-hidden rounded-lg border bg-background transition-colors hover:border-primary/40"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                      <Image
+                        src={link.evidence_watermarked_file || link.evidence_file}
+                        alt={link.caption || link.original_filename}
+                        fill
+                        unoptimized
+                        className="object-cover transition-transform group-hover:scale-[1.02]"
+                      />
+                    </div>
+                    <div className="space-y-1 p-3">
+                      <p className="truncate text-sm font-medium">{link.caption || link.original_filename}</p>
+                      <p className="truncate text-xs text-muted-foreground">{link.photographer_name || t("common.unknown")} - {new Date(link.captured_at).toLocaleString()}</p>
+                      <p className="truncate font-mono text-[10px] text-muted-foreground">{link.sha256}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </Section>
+          <Section title="Related Records / 相关记录">
+            {!application.related_record_groups.length ? (
+              <Empty text={t("state.noApplications")} />
+            ) : (
+              <div className="space-y-4">
+                {application.related_record_groups.map((group) => (
+                  <div key={group.key}>
+                    <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{group.label}</p>
+                    <div className="divide-y rounded-lg border">
+                      {group.records.map((record) => {
+                        const content = (
+                          <>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium">{record.reference}</p>
+                              <p className="mt-0.5 break-words text-xs text-muted-foreground">{record.title}</p>
+                            </div>
+                            <div className="shrink-0 text-right text-xs text-muted-foreground">
+                              <p>{record.date ? new Date(record.date).toLocaleDateString() : "-"}</p>
+                              <p>{record.created_by_name || "-"}</p>
+                            </div>
+                            {record.href && <ExternalLink className="size-4 shrink-0 text-primary" />}
+                          </>
+                        );
+                        return record.href ? (
+                          <Link key={`${record.type}-${record.record_id}`} href={record.href} className="flex items-center gap-3 p-3 transition-colors hover:bg-muted/30">
+                            {content}
+                          </Link>
+                        ) : (
+                          <div key={`${record.type}-${record.record_id}`} className="flex items-center gap-3 p-3">
+                            {content}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </Section>
           <Section title={t("detail.section.attachments")} action={application.status === "DRAFT" && can("consultant.submit") ? <Button size="sm" variant="outline" onClick={() => setAttachmentOpen(true)}><Plus />{t("attachment.add")}</Button> : undefined}>
             {application.template_required_attachment_codes.length ? (
@@ -281,14 +351,22 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
             </div>
           </Section>
           <Section title={t("detail.section.approvalProgress")}>
-            <div className="space-y-0">
-              {application.review_steps.map((step, index) => (
-                <div key={step.id} className="relative flex gap-3 pb-5 last:pb-0">
-                  {index < application.review_steps.length - 1 && <span className="absolute left-[15px] top-8 h-[calc(100%-1rem)] w-px bg-border" />}
-                  <span className={`z-10 grid size-8 shrink-0 place-items-center rounded-full border text-xs font-semibold ${step.status === "APPROVED" ? "border-success bg-success text-white" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "border-warning bg-warning text-white" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "border-destructive bg-destructive text-white" : "bg-background text-muted-foreground"}`}>{step.sequence}</span>
-                  <div className="min-w-0 pt-1"><p className="font-medium">{step.name}</p><p className="text-xs text-muted-foreground">{reviewerLabel(step, application, t)}</p><p className="mt-1 text-xs font-medium">{t(`stepStatus.${step.status}`)}</p></div>
-                </div>
-              ))}
+            <div className="overflow-x-auto pb-1">
+              <div className="flex min-w-max items-stretch">
+                {application.review_steps.map((step, index) => (
+                  <div key={step.id} className="flex items-center">
+                    <div className={`w-48 rounded-lg border p-3 ${step.status === "APPROVED" ? "border-success/40 bg-success/5" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "border-warning/40 bg-warning/5" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "border-destructive/40 bg-destructive/5" : "bg-muted/15"}`}>
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold ${step.status === "APPROVED" ? "bg-success text-white" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "bg-warning text-white" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "bg-destructive text-white" : "bg-muted text-muted-foreground"}`}>{step.sequence}</span>
+                        <p className="line-clamp-2 text-sm font-medium">{step.name}</p>
+                      </div>
+                      <p className="line-clamp-2 min-h-8 text-xs text-muted-foreground">{reviewerLabel(step, application, t)}</p>
+                      <p className="mt-2 text-xs font-semibold">{t(`stepStatus.${step.status}`)}</p>
+                    </div>
+                    {index < application.review_steps.length - 1 && <span className="h-px w-8 bg-border" />}
+                  </div>
+                ))}
+              </div>
             </div>
           </Section>
           {!!application.approval_actions.length && (
@@ -326,13 +404,14 @@ function AttachmentDialog({ application, onClose, onSaved }: { application: Cons
 
 function EvidenceDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("consultantWorkflow");
-  const [evidence, setEvidence] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
   const rows = useQuery({ queryKey: ["application-evidence-candidates", application.project], queryFn: () => getApplicationEvidenceCandidates(application.project) });
   const linkedIds = useMemo(() => new Set(application.evidence_links.map((link) => link.evidence)), [application.evidence_links]);
   const candidates = (rows.data?.results ?? []).filter((row) => !linkedIds.has(row.id));
-  const save = useMutation({ mutationFn: () => linkApplicationEvidence(application.id, evidence, caption), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : <div className="space-y-3">{candidates.map((row) => <button type="button" key={row.id} onClick={() => setEvidence(row.id)} className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${evidence === row.id ? "border-primary bg-primary/5" : "hover:bg-muted/30"}`}><ImageIcon className="size-5 shrink-0 text-primary" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{row.original_filename}</p><p className="truncate text-xs text-muted-foreground">{row.photographer_name || t("common.unknown")} - {new Date(row.captured_at).toLocaleString()}</p></div>{evidence === row.id && <CheckCircle2 className="size-5 text-primary" />}</button>)}{!candidates.length && <Empty text={t("evidence.noCandidates")} />}<FieldWrapper label={t("evidence.caption")}><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!evidence || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")}</Button></DialogFooter></DialogContent></Dialog>;
+  const save = useMutation({ mutationFn: () => linkApplicationEvidence(application.id, selected, caption), onSuccess: onSaved });
+  const toggle = (id: string) => setSelected((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : <div className="space-y-4"><div className="grid max-h-[56dvh] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">{candidates.map((row) => { const checked = selected.includes(row.id); return <button type="button" key={row.id} onClick={() => toggle(row.id)} className={`overflow-hidden rounded-lg border text-left transition-colors ${checked ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/40"}`}><div className="relative aspect-[4/3] bg-muted"><Image src={row.file} alt={row.original_filename} fill unoptimized className="object-cover" /><span className="absolute left-2 top-2 grid size-7 place-items-center rounded-md bg-background/90 shadow-sm"><Checkbox checked={checked} tabIndex={-1} aria-hidden /></span></div><div className="p-2.5"><p className="truncate text-sm font-medium">{row.original_filename}</p><p className="mt-1 truncate text-xs text-muted-foreground">{row.photographer_name || t("common.unknown")}</p><p className="truncate text-xs text-muted-foreground">{new Date(row.captured_at).toLocaleString()}</p></div></button>; })}{!candidates.length && <div className="col-span-full"><Empty text={t("evidence.noCandidates")} /></div>}</div><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!selected.length || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function DecisionDialog({ application, decision, onClose, onSaved }: { application: ConsultantApplication; decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT"; onClose: () => void; onSaved: () => void }) {

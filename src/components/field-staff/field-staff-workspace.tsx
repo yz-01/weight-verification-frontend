@@ -48,6 +48,7 @@ import type { FieldTask } from "@/interfaces/contractor-ops";
 import type { AttendanceEvent } from "@/interfaces/site-operations";
 import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
+import { fieldNotificationHref } from "@/lib/field-notification";
 import { getFieldTasks } from "@/services/contractor-ops.service";
 import { getProjects } from "@/services/contractor.service";
 import {
@@ -294,9 +295,10 @@ function FieldNotificationRow({
   onRead: () => void;
 }) {
   const t = useTranslations("fieldStaffPwa");
-  const href = [row.data.href, row.data.url].find(
+  const rawHref = [row.data.href, row.data.url].find(
     (value): value is string => typeof value === "string" && value.startsWith("/"),
   );
+  const href = fieldNotificationHref(rawHref) ?? undefined;
   const body = (
     <div className="min-w-0 flex-1">
       <div className="flex items-center gap-2">

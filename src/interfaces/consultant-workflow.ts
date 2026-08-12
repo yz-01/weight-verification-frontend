@@ -210,6 +210,24 @@ export interface ApplicationArchiveEntry {
   archived_at: string;
 }
 
+export interface ApplicationRelatedRecord {
+  type: string;
+  type_label: string;
+  record_id: string;
+  reference: string;
+  title: string;
+  date: string | null;
+  created_by_name: string;
+  href: string;
+  source_model: string;
+}
+
+export interface ApplicationRelatedRecordGroup {
+  key: string;
+  label: string;
+  records: ApplicationRelatedRecord[];
+}
+
 export interface ConsultantApplication {
   id: string;
   application_no: string;
@@ -289,6 +307,7 @@ export interface ConsultantApplication {
   review_steps: ApplicationReviewStep[];
   approval_actions: ApplicationApprovalAction[];
   archive_entries: ApplicationArchiveEntry[];
+  related_record_groups: ApplicationRelatedRecordGroup[];
   created_at: string;
   updated_at: string;
 }
@@ -335,6 +354,8 @@ export interface EvidenceCandidate {
   longitude: string | null;
   photographer_name: string | null;
   sha256: string;
+  source_model: string;
+  source_id: string;
 }
 
 export interface ConsultantApplicationPayload {

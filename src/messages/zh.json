@@ -2563,6 +2563,7 @@
     "activationLink": "激活链接",
     "pin": "6 位 PIN",
     "expiresAt": "链接到期时间",
+    "pinExpiresAt": "PIN 到期时间",
     "qrTitle": "现场人员激活二维码",
     "copyLink": "复制链接",
     "copyPin": "复制 PIN",

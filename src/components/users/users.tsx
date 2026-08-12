@@ -92,6 +92,7 @@ export function Users({
 
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [fieldAccessOpen, setFieldAccessOpen] = useState(false);
+  const [fieldAccessUser, setFieldAccessUser] = useState<UserRow | null>(null);
   const [reason, setReason] = useState("");
 
   const { data, isLoading, isError } = useQuery({
@@ -321,7 +322,22 @@ export function Users({
                 </Button>
               )}
 
-              {can("user.update") && !isSelf && (
+              {can("user.update") && !isSelf && target.mobile_access_only && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-primary hover:bg-primary/10"
+                  title={t("fieldAccessAdmin.reissue")}
+                  onClick={() => {
+                    setFieldAccessUser(target);
+                    setFieldAccessOpen(true);
+                  }}
+                >
+                  <Link2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
+
+              {can("user.update") && !isSelf && !target.mobile_access_only && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -483,7 +499,10 @@ export function Users({
                   size="sm"
                   variant="outline"
                   className="rounded-full px-4 shadow-sm"
-                  onClick={() => setFieldAccessOpen(true)}
+                  onClick={() => {
+                    setFieldAccessUser(null);
+                    setFieldAccessOpen(true);
+                  }}
                 >
                   <Link2 className="h-4 w-4" />
                   {t("fieldAccessAdmin.action")}
@@ -504,7 +523,11 @@ export function Users({
 
       {fieldAccessOpen && (
         <FieldAccessManagementDialog
-          onClose={() => setFieldAccessOpen(false)}
+          initialUser={fieldAccessUser ?? undefined}
+          onClose={() => {
+            setFieldAccessOpen(false);
+            setFieldAccessUser(null);
+          }}
         />
       )}
 
