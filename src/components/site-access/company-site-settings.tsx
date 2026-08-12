@@ -98,7 +98,7 @@ export function CompanySiteSettingsWorkspace() {
   if (settings.isError || profile.isError || branches.isError) return <State text={t("state.loadError")} danger />;
 
   const categories = form.default_project_categories ?? [];
-  const roleOptions = roles.data?.results.map((role) => role.code) ?? Array.from(new Set([form.default_user_role_code, form.default_approval_role_code, form.default_guest_role_code]));
+  const roleOptions = roles.data?.results.map((role) => role.code) ?? Array.from(new Set([form.default_user_role_code, form.default_approval_role_code]));
   const roleLabel = (code: string) => roles.data?.results.find((role) => role.code === code)?.name ?? code;
   const updateCategory = (index: number, patch: Partial<(typeof categories)[number]>) => {
     const next = categories.map((row, rowIndex) => rowIndex === index ? { ...row, ...patch } : row);
@@ -174,10 +174,9 @@ export function CompanySiteSettingsWorkspace() {
 
     <section className="space-y-4">
       <SectionTitle icon={Settings2} title={t("permissionDefaults.title")} description={t("permissionDefaults.subtitle")} action={can("role.view") ? <Button asChild size="sm" variant="outline"><Link href="/roles">{t("permissionDefaults.manageRoles")}</Link></Button> : undefined} />
-      <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2">
         <ChoiceField label={t("field.defaultUserRole")} value={form.default_user_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_user_role_code: value })} />
         <ChoiceField label={t("field.defaultApprovalRole")} value={form.default_approval_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_approval_role_code: value })} />
-        <ChoiceField label={t("field.defaultGuestRole")} value={form.default_guest_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_guest_role_code: value })} />
       </div>
       <div className="rounded-lg border bg-card p-4"><h3 className="font-medium">{t("permissionDefaults.consultant")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("permissionDefaults.consultantHelp")}</p><div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{CONSULTANT_PERMISSIONS.map((code) => <Toggle key={code} compact label={t(`permissionDefaults.permission.${code.replaceAll(".", "_")}`)} description={code} checked={form.default_consultant_permissions.includes(code)} disabled={!canManage} onChange={(checked) => setForm({ ...form, default_consultant_permissions: checked ? [...form.default_consultant_permissions, code] : form.default_consultant_permissions.filter((item) => item !== code) })} />)}</div></div>
     </section>

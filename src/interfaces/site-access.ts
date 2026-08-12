@@ -71,7 +71,6 @@ export interface ContractorSiteSettings {
   default_notification_rules: Record<string, boolean>;
   default_user_role_code: string;
   default_approval_role_code: string;
-  default_guest_role_code: string;
   default_consultant_permissions: string[];
   date_format: "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
   time_format: "12H" | "24H";

@@ -91,6 +91,11 @@ export async function updateContractorCompanyProfile(
 export const getSiteAccessPasses = (query: ListQuery = {}) =>
   api.list<SiteAccessPass>("/api/site-access-passes/get_passes/", query);
 
+export const getSiteAccessDefaults = () =>
+  api.get<{ visitor_pass_hours: number }>(
+    "/api/site-access-passes/get_defaults/",
+  );
+
 export const getSiteAccessPass = (id: string) =>
   api.get<SiteAccessPass>(`/api/site-access-passes/${id}/get_pass/`);
 
