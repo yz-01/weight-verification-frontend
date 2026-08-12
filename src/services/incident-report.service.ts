@@ -5,10 +5,10 @@ import type {
   IncidentReportThread,
   IncidentReportThreadPayload,
 } from "@/interfaces/incident-report";
-import type { ListResponse } from "@/interfaces/common";
+import type { Paginated } from "@/interfaces/api";
 
 export async function getIncidentThreads(params?: Record<string, unknown>) {
-  return api.get<ListResponse<IncidentReportThread>>(
+  return api.get<Paginated<IncidentReportThread>>(
     "/site-operations/incident-reports/get_incident_threads/",
     params
   );
