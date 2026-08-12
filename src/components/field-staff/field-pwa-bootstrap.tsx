@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
-import { hasSession } from "@/lib/auth-token";
+import { hasFieldSession, markFieldAppContext } from "@/lib/auth-token";
 import {
   getOrCreateFieldDeviceId,
   restoreFieldPwaSession,
@@ -28,10 +28,8 @@ export function FieldPwaBootstrap({ token }: { token: string }) {
     started.current = true;
     if (!token) return;
     const completionKey = "mse_field_pwa_bootstrap_complete";
-    if (
-      hasSession() &&
-      window.localStorage.getItem(completionKey) === token
-    ) {
+    if (hasFieldSession()) {
+      markFieldAppContext();
       router.replace("/field-staff");
       return;
     }

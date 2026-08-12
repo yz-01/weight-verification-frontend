@@ -10,9 +10,8 @@ import { NotificationButton } from "@/components/notifications/notification-butt
 import { useAuth } from "@/components/providers/auth-provider";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { Button } from "@/components/ui/button";
-import { firstAllowedDashboardPath } from "@/lib/navigation";
-import { getSessionPortal } from "@/lib/auth-token";
-import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
+import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
+import { redirectWithFallback } from "@/lib/portal";
 
 export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
@@ -20,14 +19,14 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   const { user, isLoading, signOut } = useAuth();
   const allowed = user?.portal === "MSE_TRACE" && user.is_field_staff;
 
+  useEffect(() => markFieldAppContext(), []);
+
   useEffect(() => {
     if (!isLoading && user === null) {
-      redirectWithFallback(router, portalLoginPath(getSessionPortal()));
+      redirectWithFallback(router, "/trace/field-login");
     } else if (!isLoading && user !== null && !allowed) {
-      redirectWithFallback(
-        router,
-        firstAllowedDashboardPath(user.portal, user.features),
-      );
+      clearFieldTokens();
+      redirectWithFallback(router, "/trace/field-login");
     }
   }, [allowed, isLoading, router, user]);
 

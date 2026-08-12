@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     {
       name: "MSE Trace Field Staff",
       short_name: "MSE Field",
+      id: "/field-staff",
       description: "MSE Trace field staff workspace",
       start_url: startUrl,
       scope: "/",

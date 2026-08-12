@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { hasFieldSession, markFieldAppContext } from "@/lib/auth-token";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -28,10 +29,13 @@ export function FieldInstallReady({ token }: { token: string }) {
       ("standalone" in navigator &&
         (navigator as Navigator & { standalone?: boolean }).standalone === true);
     if (standalone) {
+      markFieldAppContext();
       router.replace(
-        token
+        hasFieldSession()
+          ? "/field-staff"
+          : token
           ? `/field-pwa-bootstrap?token=${encodeURIComponent(token)}`
-          : "/field-staff",
+          : "/trace/field-login",
       );
       return;
     }
@@ -39,8 +43,16 @@ export function FieldInstallReady({ token }: { token: string }) {
       event.preventDefault();
       setInstallPrompt(event as BeforeInstallPromptEvent);
     };
+    const installed = () => {
+      setInstallPrompt(null);
+      router.replace("/field-staff");
+    };
     window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", installed);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installed);
+    };
   }, [router, token]);
 
   return (
@@ -53,18 +65,9 @@ export function FieldInstallReady({ token }: { token: string }) {
         {t("readyBody")}
       </p>
       <div className="grid w-full max-w-sm gap-3">
-        <Button
-          size="lg"
-          className="h-14 text-base"
-          onClick={() => router.replace("/field-staff")}
-        >
-          <Camera />
-          {t("openWorkspace")}
-        </Button>
         {installPrompt && (
           <Button
             size="lg"
-            variant="outline"
             className="h-14 text-base"
             onClick={async () => {
               await installPrompt.prompt();
@@ -76,6 +79,15 @@ export function FieldInstallReady({ token }: { token: string }) {
             {t("install")}
           </Button>
         )}
+        <Button
+          size="lg"
+          variant={installPrompt ? "outline" : "default"}
+          className="h-14 text-base"
+          onClick={() => router.replace("/field-staff")}
+        >
+          <Camera />
+          {t("openWorkspace")}
+        </Button>
         {isIos && (
           <div className="rounded-lg border bg-card p-4 text-sm">
             <p className="flex items-center gap-2 font-medium">

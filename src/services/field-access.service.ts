@@ -1,9 +1,9 @@
 import type { LoginResponse } from "@/interfaces/auth";
 import { clearActiveProjectId } from "@/lib/project-context";
 import {
+  markFieldAppContext,
+  setFieldTokens,
   setLocaleCookie,
-  setSessionPortal,
-  setTokens,
 } from "@/lib/auth-token";
 import { api } from "@/services/api-client";
 
@@ -51,9 +51,25 @@ export function createFieldInvitation(
 
 export function reissueFieldInvitation(
   userId: string,
+  projectIds?: string[],
 ): Promise<FieldInvitationResult> {
   return api.post<FieldInvitationResult>(
     `/api/field-access/${userId}/reissue_invitation/`,
+    projectIds ? { project_ids: projectIds } : {},
+  );
+}
+
+export function getFieldAccessInfo(userId: string): Promise<FieldInvitationInfo> {
+  return api.get<FieldInvitationInfo>(
+    `/api/field-access/${userId}/access_info/`,
+  );
+}
+
+export function createFieldPwaBootstrap(): Promise<
+  FieldLoginResponse["pwa_bootstrap"]
+> {
+  return api.post<FieldLoginResponse["pwa_bootstrap"]>(
+    "/api/field-access/create_pwa_bootstrap/",
     {},
   );
 }
@@ -86,7 +102,7 @@ export async function activateFieldDevice(payload: {
 }
 
 export async function fieldLogin(payload: {
-  phone: string;
+  phone?: string;
   pin: string;
   device_id: string;
 }): Promise<FieldLoginResponse> {
@@ -115,8 +131,8 @@ export async function restoreFieldPwaSession(payload: {
 
 function beginFieldSession(result: LoginResponse): void {
   clearActiveProjectId();
-  setTokens(result.tokens);
-  setSessionPortal("MSE_TRACE");
+  setFieldTokens(result.tokens);
+  markFieldAppContext();
   setLocaleCookie(result.user.language);
 }
 

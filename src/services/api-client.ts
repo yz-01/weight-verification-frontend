@@ -24,6 +24,7 @@ import {
   getAccessToken,
   getRefreshToken,
   getSessionPortal,
+  isFieldSessionContext,
   setTokens,
 } from "@/lib/auth-token";
 import { portalLoginPath } from "@/lib/portal";
@@ -105,7 +106,9 @@ function ensureRefresh(): Promise<boolean> {
 function endSession(): void {
   const portal = getSessionPortal();
   clearTokens();
-  const loginPath = portalLoginPath(portal);
+  const loginPath = isFieldSessionContext()
+    ? "/trace/field-login"
+    : portalLoginPath(portal);
   if (typeof window !== "undefined" && window.location.pathname !== loginPath) {
     toast.error(t("auth.sessionExpired"));
     window.location.href = loginPath;

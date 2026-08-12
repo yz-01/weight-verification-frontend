@@ -2,10 +2,24 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useMemo } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 
 import type { CurrentUser } from "@/interfaces/auth";
-import { clearTokens, getSessionPortal, hasSession } from "@/lib/auth-token";
+import {
+  clearFieldTokens,
+  clearTokens,
+  getSessionPortal,
+  hasSession,
+  isFieldStandaloneApp,
+  isFieldSessionPath,
+} from "@/lib/auth-token";
 import { portalLoginPath } from "@/lib/portal";
 import * as authService from "@/services/auth.service";
 
@@ -25,11 +39,18 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const subscribeStandaloneMode = () => () => {};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
+  const fieldApp = useSyncExternalStore(
+    subscribeStandaloneMode,
+    isFieldStandaloneApp,
+    () => false,
+  );
+  const fieldSession = isFieldSessionPath(pathname) || fieldApp;
   const isFieldCredentialExchange = [
     "/trace/field-activate",
     "/trace/field-login",
@@ -37,12 +58,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     "/field-pwa-bootstrap",
   ].includes(pathname);
   const sessionPresent = hasSession();
+  const currentUserKey = useMemo(
+    () => [...CURRENT_USER_KEY, fieldSession ? "field" : "standard"] as const,
+    [fieldSession],
+  );
+
+  useEffect(() => {
+    if (fieldApp && !isFieldSessionPath(pathname)) {
+      router.replace("/field-staff");
+    }
+  }, [fieldApp, pathname, router]);
 
   // The session lives in the query cache rather than in component state, so
   // that a profile update and the shell read the same record and neither can
   // go stale against the other.
   const { data, isPending, isFetched } = useQuery({
-    queryKey: CURRENT_USER_KEY,
+    queryKey: currentUserKey,
     queryFn: async () => {
       try {
         return await authService.getMe();
@@ -50,7 +81,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // A token that is present but no longer accepted: expired, revoked, or
         // the account was suspended. Drop it rather than leaving the shell in
         // a half-signed-in state.
-        clearTokens();
+        if (fieldSession) clearFieldTokens();
+        else clearTokens();
         return null;
       }
     },
@@ -81,14 +113,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           query.queryKey[0] !== CURRENT_USER_KEY[0] ||
           query.queryKey[1] !== CURRENT_USER_KEY[1],
       });
-      queryClient.setQueryData(CURRENT_USER_KEY, next);
+      queryClient.setQueryData(currentUserKey, next);
     },
-    [queryClient],
+    [currentUserKey, queryClient],
   );
 
   const refresh = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: CURRENT_USER_KEY });
-  }, [queryClient]);
+    await queryClient.invalidateQueries({ queryKey: currentUserKey });
+  }, [currentUserKey, queryClient]);
 
   const signOut = useCallback(async () => {
     const portal = getSessionPortal();
@@ -109,13 +141,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           query.queryKey[0] !== CURRENT_USER_KEY[0] ||
           query.queryKey[1] !== CURRENT_USER_KEY[1],
       });
-      queryClient.setQueryData(CURRENT_USER_KEY, null);
+      queryClient.setQueryData(currentUserKey, null);
       // Keep the last portal marker. The signed-out shell also observes the
       // user becoming null; retaining this value makes every redirect converge
       // on the same branded login instead of racing back to generic `/login`.
-      router.replace(portalLoginPath(portal));
+      router.replace(fieldSession ? "/trace/field-login" : portalLoginPath(portal));
     }
-  }, [queryClient, router]);
+  }, [currentUserKey, fieldSession, queryClient, router]);
 
   const permissions = useMemo(
     () => new Set(user?.permissions ?? []),

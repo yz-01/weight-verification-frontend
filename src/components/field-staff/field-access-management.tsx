@@ -38,6 +38,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProjects } from "@/services/contractor.service";
 import {
   createFieldInvitation,
+  getFieldAccessInfo,
   reissueFieldInvitation,
   type FieldInvitationResult,
 } from "@/services/field-access.service";
@@ -59,7 +60,7 @@ export function FieldAccessManagementDialog({
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState(initialUser?.phone ?? "");
   const [email, setEmail] = useState("");
-  const [projectIds, setProjectIds] = useState<string[]>([]);
+  const [projectIds, setProjectIds] = useState<string[] | null>(null);
   const [result, setResult] = useState<FieldInvitationResult | null>(null);
   const [copied, setCopied] = useState<"link" | "pin" | "all" | null>(null);
 
@@ -87,16 +88,27 @@ export function FieldAccessManagementDialog({
       }),
     enabled: mode === "existing" && Boolean(siteStaffRole?.id),
   });
+  const accessInfo = useQuery({
+    queryKey: ["field-access", "info", existingUserId],
+    queryFn: () => getFieldAccessInfo(existingUserId),
+    enabled: mode === "existing" && Boolean(existingUserId),
+  });
+
+  const selectedProjectIds =
+    projectIds ??
+    (mode === "existing"
+      ? (accessInfo.data?.projects.map((project) => project.id) ?? [])
+      : []);
 
   const create = useMutation({
     mutationFn: () =>
       mode === "existing"
-        ? reissueFieldInvitation(existingUserId)
+        ? reissueFieldInvitation(existingUserId, selectedProjectIds)
         : createFieldInvitation({
               full_name: fullName.trim(),
               phone: phone.trim(),
               ...(email.trim() ? { email: email.trim() } : {}),
-              project_ids: projectIds,
+              project_ids: selectedProjectIds,
             }),
     onSuccess: (invitation) => {
       setResult(invitation);
@@ -111,7 +123,7 @@ export function FieldAccessManagementDialog({
     setFullName("");
     setPhone("");
     setEmail("");
-    setProjectIds([]);
+    setProjectIds(null);
     setResult(null);
     create.reset();
   }
@@ -120,17 +132,17 @@ export function FieldAccessManagementDialog({
     const selected = fieldUsers.data?.results.find((user) => user.id === userId);
     setExistingUserId(userId);
     setPhone(selected?.phone ?? "");
-    setProjectIds([]);
+    setProjectIds(null);
     create.reset();
   }
 
   function toggleProject(id: string, checked: boolean) {
-    setProjectIds((current) =>
+    setProjectIds(
       checked
-        ? current.includes(id)
-          ? current
-          : [...current, id]
-        : current.filter((value) => value !== id),
+        ? selectedProjectIds.includes(id)
+          ? selectedProjectIds
+          : [...selectedProjectIds, id]
+        : selectedProjectIds.filter((value) => value !== id),
     );
   }
 
@@ -141,10 +153,10 @@ export function FieldAccessManagementDialog({
 
   const canCreate =
     (mode === "existing"
-      ? existingUserId.length > 0
+      ? existingUserId.length > 0 && selectedProjectIds.length > 0
       : fullName.trim().length > 0 &&
         phone.trim().length > 0 &&
-        projectIds.length > 0) &&
+        selectedProjectIds.length > 0) &&
     !create.isPending;
 
   return (
@@ -306,7 +318,11 @@ export function FieldAccessManagementDialog({
               </FieldWrapper>
             ) : (
               <FieldWrapper label={t("phone")} className="sm:col-span-2">
-                <Input type="tel" value={phone} disabled />
+                <Input
+                  type="tel"
+                  value={accessInfo.data?.phone ?? phone}
+                  disabled
+                />
               </FieldWrapper>
             )}
             {mode === "new" && (
@@ -328,7 +344,7 @@ export function FieldAccessManagementDialog({
                 {t("existingHelp")}
               </p>
             )}
-            {mode === "new" && (
+            {(mode === "new" || existingUserId) && (
               <FieldWrapper
                 label={t("projects")}
                 required
@@ -341,7 +357,8 @@ export function FieldAccessManagementDialog({
                       className="flex min-h-11 cursor-pointer items-center gap-3 border-b px-3 py-2 last:border-b-0 hover:bg-muted/40"
                     >
                       <Checkbox
-                        checked={projectIds.includes(project.id)}
+                        checked={selectedProjectIds.includes(project.id)}
+                        disabled={accessInfo.isLoading}
                         onCheckedChange={(checked) =>
                           toggleProject(project.id, checked === true)
                         }

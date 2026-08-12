@@ -30,7 +30,6 @@ export function FieldAccess() {
     enabled: Boolean(token),
     retry: false,
   });
-  const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -47,7 +46,10 @@ export function FieldAccess() {
             device_id: deviceId,
             device_name: navigator.platform || t("thisPhone"),
           })
-        : await fieldLogin({ phone, pin, device_id: deviceId });
+        : await fieldLogin({
+            pin,
+            device_id: deviceId,
+          });
       await setUser(result.user);
       router.replace(
         `/trace/field-ready?bootstrap=${encodeURIComponent(result.pwa_bootstrap.token)}`,
@@ -92,19 +94,6 @@ export function FieldAccess() {
               <p className="mt-1 text-muted-foreground">{invitation.data.phone}</p>
             </div>
           )}
-          {!token && (
-            <div className="space-y-2">
-              <Label htmlFor="field-phone">{t("phone")}</Label>
-              <Input
-                id="field-phone"
-                inputMode="tel"
-                autoComplete="tel"
-                className="h-12 text-base"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-              />
-            </div>
-          )}
           <div className="space-y-2">
             <Label htmlFor="field-pin">{t("pin")}</Label>
             <Input
@@ -121,7 +110,7 @@ export function FieldAccess() {
           <Button
             size="lg"
             className="h-14 w-full text-base"
-            disabled={pin.length !== 6 || (!token && !phone.trim()) || pending}
+            disabled={pin.length !== 6 || pending}
             onClick={() => void submit()}
           >
             {pending ? <Loader2 className="animate-spin" /> : <LogIn />}
