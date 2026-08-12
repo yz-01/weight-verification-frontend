@@ -30,12 +30,30 @@ export interface FieldInvitationPayload {
   project_ids: string[];
 }
 
+export interface FieldLoginResponse {
+  tokens: LoginResponse["tokens"];
+  user: LoginResponse["user"];
+  pwa_bootstrap: {
+    token: string;
+    expires_at: string;
+  };
+}
+
 export function createFieldInvitation(
   payload: FieldInvitationPayload,
 ): Promise<FieldInvitationResult> {
   return api.post<FieldInvitationResult>(
     "/api/field-access/create_invitation/",
     payload,
+  );
+}
+
+export function reissueFieldInvitation(
+  userId: string,
+): Promise<FieldInvitationResult> {
+  return api.post<FieldInvitationResult>(
+    `/api/field-access/${userId}/reissue_invitation/`,
+    {},
   );
 }
 
@@ -47,7 +65,7 @@ export function inspectFieldInvitation(token: string): Promise<FieldInvitationIn
   return api.get<FieldInvitationInfo>(
     "/api/field-access/inspect_invitation/",
     { token },
-    { silent: true },
+    { silent: true, auth: false },
   );
 }
 
@@ -56,11 +74,11 @@ export async function activateFieldDevice(payload: {
   pin: string;
   device_id: string;
   device_name?: string;
-}): Promise<LoginResponse> {
-  const result = await api.post<LoginResponse>(
+}): Promise<FieldLoginResponse> {
+  const result = await api.post<FieldLoginResponse>(
     "/api/field-access/activate/",
     payload,
-    { silent: true },
+    { silent: true, auth: false },
   );
   beginFieldSession(result);
   return result;
@@ -70,11 +88,25 @@ export async function fieldLogin(payload: {
   phone: string;
   pin: string;
   device_id: string;
-}): Promise<LoginResponse> {
-  const result = await api.post<LoginResponse>(
+}): Promise<FieldLoginResponse> {
+  const result = await api.post<FieldLoginResponse>(
     "/api/field-access/field_login/",
     payload,
-    { silent: true },
+    { silent: true, auth: false },
+  );
+  beginFieldSession(result);
+  return result;
+}
+
+export async function restoreFieldPwaSession(payload: {
+  token: string;
+  device_id: string;
+  device_name?: string;
+}): Promise<LoginResponse> {
+  const result = await api.post<LoginResponse>(
+    "/api/field-access/pwa_bootstrap/",
+    payload,
+    { silent: true, auth: false },
   );
   beginFieldSession(result);
   return result;

@@ -27,7 +27,8 @@ export function SiteAccessWorkspace() {
   const qc = useQueryClient();
   const search = useSearchParams();
   const requestedPassId = search.get("pass");
-  const [tab, setTab] = useState(search.get("scan") ? "gate" : "passes");
+  const requestedGate = search.get("tab") === "gate" || Boolean(search.get("scan"));
+  const [tab, setTab] = useState(requestedGate ? "gate" : "passes");
   const [project, setProject] = useState("all");
   const [status, setStatus] = useState("all");
   const [creating, setCreating] = useState(false);

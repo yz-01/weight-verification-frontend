@@ -157,6 +157,7 @@ export function Profile() {
                   label={t("users.field.phone")}
                   optional
                   type="tel"
+                  disabled={user.mobile_access_only}
                 />
               )}
             </profileForm.Field>

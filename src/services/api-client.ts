@@ -45,6 +45,8 @@ interface RequestOptions {
   query?: ListQuery;
   /** Suppress the automatic error toast when the caller renders its own. */
   silent?: boolean;
+  /** Skip a previous bearer session for public credential exchanges. */
+  auth?: boolean;
   signal?: AbortSignal;
 }
 
@@ -111,13 +113,15 @@ function endSession(): void {
 }
 
 async function send(path: string, options: RequestOptions): Promise<Response> {
-  const { method = "GET", body, query, signal } = options;
+  const { method = "GET", body, query, signal, auth = true } = options;
   const headers: Record<string, string> = {};
 
-  const token = getAccessToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
-  const projectId = getActiveProjectId();
-  if (projectId) headers["X-MSE-Project"] = projectId;
+  if (auth) {
+    const token = getAccessToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const projectId = getActiveProjectId();
+    if (projectId) headers["X-MSE-Project"] = projectId;
+  }
 
   let payload: BodyInit | undefined;
   if (body instanceof FormData) {
@@ -164,6 +168,7 @@ export async function request<T>(
   // in, or a failed login would try to refresh and bounce the user out.
   if (
     response.status === 401 &&
+    options.auth !== false &&
     !AUTH_ENDPOINTS.some((endpoint) => path.startsWith(endpoint))
   ) {
     const refreshed = await ensureRefresh();
@@ -186,7 +191,7 @@ export async function request<T>(
     );
     const failure = new ApiError(message, response.status, errors, code);
 
-    if (response.status === 401) {
+    if (response.status === 401 && options.auth !== false) {
       endSession();
     } else if (!options.silent) {
       toast.error(message);

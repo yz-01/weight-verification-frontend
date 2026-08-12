@@ -124,6 +124,7 @@ export interface UserRow {
   company_name: string | null;
   company_type: CompanyType | null;
   is_platform_staff: boolean;
+  mobile_access_only: boolean;
   language: Locale;
   last_login_at: string | null;
   created_at: string;

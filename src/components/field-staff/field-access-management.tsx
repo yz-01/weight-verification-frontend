@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   Copy,
+  RefreshCw,
   Smartphone,
   UserRoundCheck,
   UserRoundPlus,
@@ -36,6 +37,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProjects } from "@/services/contractor.service";
 import {
   createFieldInvitation,
+  reissueFieldInvitation,
   type FieldInvitationResult,
 } from "@/services/field-access.service";
 import { getRoles, getUsers } from "@/services/users.service";
@@ -85,20 +87,14 @@ export function FieldAccessManagementDialog({
 
   const create = useMutation({
     mutationFn: () =>
-      createFieldInvitation(
-        mode === "existing"
-          ? {
-              user: existingUserId,
-              phone: phone.trim(),
-              project_ids: projectIds,
-            }
-          : {
+      mode === "existing"
+        ? reissueFieldInvitation(existingUserId)
+        : createFieldInvitation({
               full_name: fullName.trim(),
               phone: phone.trim(),
               ...(email.trim() ? { email: email.trim() } : {}),
               project_ids: projectIds,
-            },
-      ),
+            }),
     onSuccess: (invitation) => {
       setResult(invitation);
       void queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -118,7 +114,9 @@ export function FieldAccessManagementDialog({
   }
 
   function chooseExistingUser(userId: string) {
-    const selected = fieldUsers.data?.results.find((user) => user.id === userId);
+    const selected = fieldUsers.data?.results.find(
+      (user) => user.id === userId && user.mobile_access_only,
+    );
     setExistingUserId(userId);
     setPhone(selected?.phone ?? "");
     setProjectIds([]);
@@ -143,9 +141,9 @@ export function FieldAccessManagementDialog({
   const canCreate =
     (mode === "existing"
       ? existingUserId.length > 0
-      : fullName.trim().length > 0) &&
-    phone.trim().length > 0 &&
-    projectIds.length > 0 &&
+      : fullName.trim().length > 0 &&
+        phone.trim().length > 0 &&
+        projectIds.length > 0) &&
     !create.isPending;
 
   return (
@@ -267,29 +265,39 @@ export function FieldAccessManagementDialog({
                     <SelectValue placeholder={t("selectStaff")} />
                   </SelectTrigger>
                   <SelectContent position="popper">
-                    {(fieldUsers.data?.results ?? []).map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.full_name} / {user.phone || user.email}
-                      </SelectItem>
-                    ))}
+                    {(fieldUsers.data?.results ?? [])
+                      .filter((user) => user.mobile_access_only)
+                      .map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.full_name} / {user.phone || user.email}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 {!fieldUsers.isLoading &&
-                  (fieldUsers.data?.results.length ?? 0) === 0 && (
+                  (fieldUsers.data?.results ?? []).filter(
+                    (user) => user.mobile_access_only,
+                  ).length === 0 && (
                     <p className="mt-2 text-sm text-muted-foreground">
                       {t("noExistingStaff")}
                     </p>
                   )}
               </FieldWrapper>
             )}
-            <FieldWrapper label={t("phone")} required>
-              <Input
-                type="tel"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                autoComplete="off"
-              />
-            </FieldWrapper>
+            {mode === "new" ? (
+              <FieldWrapper label={t("phone")} required>
+                <Input
+                  type="tel"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  autoComplete="off"
+                />
+              </FieldWrapper>
+            ) : (
+              <FieldWrapper label={t("phone")} className="sm:col-span-2">
+                <Input type="tel" value={phone} disabled />
+              </FieldWrapper>
+            )}
             {mode === "new" && (
               <FieldWrapper
                 label={t("email")}
@@ -309,41 +317,43 @@ export function FieldAccessManagementDialog({
                 {t("existingHelp")}
               </p>
             )}
-            <FieldWrapper
-              label={t("projects")}
-              required
-              className="sm:col-span-2"
-            >
-              <div className="max-h-56 overflow-y-auto rounded-md border">
-                {(projects.data?.results ?? []).map((project) => (
-                  <label
-                    key={project.id}
-                    className="flex min-h-11 cursor-pointer items-center gap-3 border-b px-3 py-2 last:border-b-0 hover:bg-muted/40"
-                  >
-                    <Checkbox
-                      checked={projectIds.includes(project.id)}
-                      onCheckedChange={(checked) =>
-                        toggleProject(project.id, checked === true)
-                      }
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium">
-                        {project.name}
+            {mode === "new" && (
+              <FieldWrapper
+                label={t("projects")}
+                required
+                className="sm:col-span-2"
+              >
+                <div className="max-h-56 overflow-y-auto rounded-md border">
+                  {(projects.data?.results ?? []).map((project) => (
+                    <label
+                      key={project.id}
+                      className="flex min-h-11 cursor-pointer items-center gap-3 border-b px-3 py-2 last:border-b-0 hover:bg-muted/40"
+                    >
+                      <Checkbox
+                        checked={projectIds.includes(project.id)}
+                        onCheckedChange={(checked) =>
+                          toggleProject(project.id, checked === true)
+                        }
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">
+                          {project.name}
+                        </span>
+                        <span className="block text-xs text-muted-foreground">
+                          {project.code}
+                        </span>
                       </span>
-                      <span className="block text-xs text-muted-foreground">
-                        {project.code}
-                      </span>
-                    </span>
-                  </label>
-                ))}
-                {!projects.isLoading &&
-                  (projects.data?.results.length ?? 0) === 0 && (
-                    <p className="p-4 text-center text-sm text-muted-foreground">
-                      {t("noProjects")}
-                    </p>
-                  )}
-              </div>
-            </FieldWrapper>
+                    </label>
+                  ))}
+                  {!projects.isLoading &&
+                    (projects.data?.results.length ?? 0) === 0 && (
+                      <p className="p-4 text-center text-sm text-muted-foreground">
+                        {t("noProjects")}
+                      </p>
+                    )}
+                </div>
+              </FieldWrapper>
+            )}
             {create.isError && (
               <p className="text-sm font-medium text-destructive sm:col-span-2">
                 {create.error instanceof ApiError
@@ -360,8 +370,14 @@ export function FieldAccessManagementDialog({
           </Button>
           {!result && (
             <Button disabled={!canCreate} onClick={() => create.mutate()}>
-              {create.isPending ? <Smartphone /> : <UserRoundPlus />}
-              {t("create")}
+              {create.isPending ? (
+                <Smartphone />
+              ) : mode === "existing" ? (
+                <RefreshCw />
+              ) : (
+                <UserRoundPlus />
+              )}
+              {t(mode === "existing" ? "reissue" : "create")}
             </Button>
           )}
         </DialogFooter>

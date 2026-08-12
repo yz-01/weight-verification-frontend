@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useMemo } from "react";
 
 import type { CurrentUser } from "@/interfaces/auth";
@@ -28,7 +28,15 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
+  const isFieldCredentialExchange = [
+    "/trace/field-activate",
+    "/trace/field-login",
+    "/trace/field-ready",
+    "/field-pwa-bootstrap",
+  ].includes(pathname);
+  const sessionPresent = hasSession();
 
   // The session lives in the query cache rather than in component state, so
   // that a profile update and the shell read the same record and neither can
@@ -48,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     // Nothing to ask about without a token, and asking would 401 on every load
     // of the sign-in page.
-    enabled: hasSession(),
+    enabled: sessionPresent && !isFieldCredentialExchange,
     // Roles are editable while their users are signed in. Keep the shell's
     // menu close to the backend's live permission decision without requiring
     // a logout after an administrator changes a role.
@@ -59,7 +67,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const user = data ?? null;
-  const isLoading = hasSession() && isPending && !isFetched;
+  const isLoading =
+    sessionPresent && !isFieldCredentialExchange && isPending && !isFetched;
 
   const setUser = useCallback(
     async (next: CurrentUser) => {

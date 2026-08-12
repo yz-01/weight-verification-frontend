@@ -1124,7 +1124,12 @@ export const PORTAL_NAVIGATION = {
           "/site-access",
           "site_access",
         ),
-        child("17.2.2", "nav.submodule.gateScanning", "/gate", "site_access"),
+        child(
+          "17.2.2",
+          "nav.submodule.gateScanning",
+          "/site-access?tab=gate",
+          "site_access",
+        ),
       ],
     ),
     item(
