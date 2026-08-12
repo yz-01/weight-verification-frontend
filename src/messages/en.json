@@ -3156,6 +3156,7 @@
       "progress_update_not_found": "That progress update could not be found.",
       "project_already_bound": "This project is already bound to the partnership.",
       "safety_incident_not_found": "That safety incident could not be found.",
+      "incident_thread_not_found": "That incident report could not be found.",
       "scheduled_job_not_found": "That scheduled job could not be found.",
       "invalid_credentials": "Incorrect email or password.",
       "user_suspended": "This account is not active. Contact your administrator.",

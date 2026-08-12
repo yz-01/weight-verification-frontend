@@ -3150,6 +3150,7 @@
       "progress_update_not_found": "Kemas kini kemajuan itu tidak dijumpai.",
       "project_already_bound": "Projek ini sudah terikat kepada kerjasama tersebut.",
       "safety_incident_not_found": "Insiden keselamatan itu tidak dijumpai.",
+      "incident_thread_not_found": "Laporan insiden itu tidak dijumpai.",
       "scheduled_job_not_found": "Tugas berjadual itu tidak dijumpai.",
       "invalid_credentials": "E-mel atau kata laluan salah.",
       "user_suspended": "Akaun ini tidak aktif. Hubungi pentadbir anda.",

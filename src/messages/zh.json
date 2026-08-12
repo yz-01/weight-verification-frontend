@@ -3150,6 +3150,7 @@
       "progress_update_not_found": "找不到这条工程进度。",
       "project_already_bound": "此项目已绑定到该合作关系。",
       "safety_incident_not_found": "找不到这条安全事故记录。",
+      "incident_thread_not_found": "找不到这份事故报告。",
       "scheduled_job_not_found": "找不到这个计划任务。",
       "invalid_credentials": "邮箱或密码不正确。",
       "user_suspended": "此账号已停用，请联系管理员。",
