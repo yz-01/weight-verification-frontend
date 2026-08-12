@@ -85,6 +85,7 @@ export interface ContractorSiteSettings {
   rectification_notifications: boolean;
   expiry_notifications: boolean;
   target_reminder_percent: number;
+  field_pin_expiry_days: number;
   require_attendance_photo: boolean;
   require_gate_photo: boolean;
   emergency_contact_name: string;
