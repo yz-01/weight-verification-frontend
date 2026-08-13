@@ -3153,7 +3153,7 @@
       "field_pin_invalid": "PIN 不正确。",
       "field_pin_expired": "您的 PIN 已过期。请联系项目管理员重新发送邀请。",
       "field_device_invalid": "这台设备尚未绑定现场人员账号，请先打开管理员最新生成的邀请链接。",
-      "field_device_already_bound": "这台设备已绑定其他现场人员账号，请打开正确的邀请链接切换账号。",
+      "field_device_already_bound": "此现场人员账号已绑定一台设备。如需换机，请先让管理员重置设备。",
       "field_pwa_bootstrap_invalid": "这个一次性桌面登录已过期或已经使用，请重新登录并再次加入主画面。",
       "progress_update_not_found": "找不到这条工程进度。",
       "project_already_bound": "此项目已绑定到该合作关系。",

@@ -3159,7 +3159,7 @@
       "field_pin_invalid": "The PIN is incorrect.",
       "field_pin_expired": "Your PIN has expired. Please contact your project administrator to issue a new invitation.",
       "field_device_invalid": "This device is not linked to a field account. Open the latest invitation link first.",
-      "field_device_already_bound": "This device is already linked to a different field account. Open the correct invitation link to switch it.",
+      "field_device_already_bound": "This field account already has a bound device. Ask an administrator to reset it before changing devices.",
       "field_pwa_bootstrap_invalid": "This one-time desktop sign-in has expired or was already used. Sign in again and add the shortcut again.",
       "progress_update_not_found": "That progress update could not be found.",
       "project_already_bound": "This project is already bound to the partnership.",

@@ -3153,7 +3153,7 @@
       "field_pin_invalid": "PIN salah.",
       "field_pin_expired": "PIN anda telah tamat tempoh. Sila hubungi pentadbir projek untuk mengeluarkan jemputan baharu.",
       "field_device_invalid": "Peranti ini belum dipautkan kepada akaun tapak. Buka pautan jemputan terkini dahulu.",
-      "field_device_already_bound": "Peranti ini dipautkan kepada akaun tapak lain. Buka pautan jemputan yang betul untuk menukar akaun.",
+      "field_device_already_bound": "Akaun kakitangan tapak ini sudah mempunyai satu peranti terikat. Minta pentadbir menetapkan semula peranti sebelum menukarnya.",
       "field_pwa_bootstrap_invalid": "Log masuk desktop sekali guna ini telah tamat tempoh atau telah digunakan. Log masuk semula dan tambah pintasan sekali lagi.",
       "progress_update_not_found": "Kemas kini kemajuan itu tidak dijumpai.",
       "project_already_bound": "Projek ini sudah terikat kepada kerjasama tersebut.",
