@@ -109,6 +109,7 @@ export function AppSidebar() {
                       >
                         <Link
                           href={item.href}
+                          prefetch
                           onClick={closeOnMobile}
                           aria-current={active ? "page" : undefined}
                         >
@@ -156,6 +157,7 @@ export function AppSidebar() {
                                 >
                                   <Link
                                     href={child.href}
+                                    prefetch
                                     onClick={closeOnMobile}
                                     aria-current={
                                       childActive ? "page" : undefined

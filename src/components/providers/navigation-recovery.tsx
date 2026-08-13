@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const NAVIGATION_TIMEOUT_MS = 4_000;
+const NAVIGATION_TIMEOUT_MS = 900;
 const RECOVERY_COOLDOWN_MS = 30_000;
 const RECOVERY_KEY = "mse-navigation-recovery-at";
 
@@ -18,11 +18,17 @@ const RECOVERY_KEY = "mse-navigation-recovery-at";
 export function NavigationRecovery() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const committedRoute = useRef(`${pathname}?${searchParams}`);
+  const currentRoute = `${pathname}?${searchParams}`;
+  const committedRoute = useRef(currentRoute);
+  const [navigationDestination, setNavigationDestination] = useState<
+    string | null
+  >(null);
+  const isNavigating =
+    navigationDestination !== null && navigationDestination !== currentRoute;
 
   useEffect(() => {
-    committedRoute.current = `${pathname}?${searchParams}`;
-  }, [pathname, searchParams]);
+    committedRoute.current = currentRoute;
+  }, [currentRoute]);
 
   useEffect(() => {
     let navigationTimer: number | undefined;
@@ -61,6 +67,9 @@ export function NavigationRecovery() {
       }
 
       const startingRoute = committedRoute.current;
+      setNavigationDestination(
+        `${destination.pathname}?${destination.searchParams}`,
+      );
       window.clearTimeout(navigationTimer);
       navigationTimer = window.setTimeout(() => {
         if (
@@ -110,7 +119,16 @@ export function NavigationRecovery() {
     };
   }, []);
 
-  return null;
+  return (
+    <div
+      aria-hidden="true"
+      className={`pointer-events-none fixed inset-x-0 top-0 z-[100] h-0.5 overflow-hidden transition-opacity ${
+        isNavigating ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      <span className="block h-full w-2/3 animate-[navigation-progress_900ms_ease-out_infinite] bg-primary" />
+    </div>
+  );
 }
 
 function isVersionSkewError(message: string): boolean {

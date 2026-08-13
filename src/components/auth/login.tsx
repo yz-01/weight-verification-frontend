@@ -15,7 +15,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
 import type { Portal } from "@/interfaces/auth";
-import { PORTAL_LABELS, portalPaths } from "@/lib/portal";
+import {
+  PORTAL_LABELS,
+  portalPaths,
+  redirectWithFallback,
+} from "@/lib/portal";
 import { cn } from "@/lib/utils";
 import { landingPathFor } from "@/lib/navigation";
 import * as authService from "@/services/auth.service";
@@ -32,7 +36,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
       setFormError(null);
       try {
         const result = await authService.login(value.email, value.password, portal);
-        await setUser(result.user);
+        setUser(result.user);
 
         // Drivers land on the driver page, not the console. Decided from the
         // permissions the sign-in already returned rather than from a role
@@ -41,13 +45,18 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
         const defaultLanding = landingPathFor((code) =>
           Boolean(result.user.is_superuser) || permissions.has(code),
         );
-        router.replace(
+        const destination =
           nextPath ??
             (defaultLanding === "/dashboard"
               ? result.user.company_preferences?.home_page
               : undefined) ??
-            defaultLanding,
-        );
+            defaultLanding;
+
+        // Start loading the destination immediately. The hard-navigation
+        // fallback handles a stale browser bundle without leaving the person
+        // on a permanently spinning login button.
+        router.prefetch(destination);
+        redirectWithFallback(router, destination, 900);
       } catch (error) {
         setFormError(messageFor(error, t));
       }

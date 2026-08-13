@@ -6,6 +6,7 @@ import { iconPath } from "@/lib/branding";
 export async function GET(request: Request) {
   const search = new URL(request.url).searchParams;
   const company = search.get("company");
+  const revision = search.get("brand");
   const branding = await getPublicBranding({ company });
   return NextResponse.json(
     {
@@ -36,7 +37,9 @@ export async function GET(request: Request) {
     },
     {
       headers: {
-        "Cache-Control": "no-store",
+        "Cache-Control": revision
+          ? "public, max-age=31536000, immutable"
+          : "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
         "Content-Type": "application/manifest+json",
       },
     },

@@ -33,6 +33,7 @@ export async function GET(
   const parsed = Number((await params).size);
   const size = ALLOWED_SIZES.has(parsed) ? parsed : 192;
   const search = new URL(request.url).searchParams;
+  const revision = search.get("v");
   const branding = await getPublicBranding({
     company: search.get("company"),
     bootstrap: search.get("bootstrap"),
@@ -62,7 +63,9 @@ export async function GET(
       .toBuffer();
     return new NextResponse(new Uint8Array(icon), {
       headers: {
-        "Cache-Control": "no-store",
+        "Cache-Control": revision
+          ? "public, max-age=31536000, immutable"
+          : "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
         "Content-Type": "image/png",
         "Cross-Origin-Resource-Policy": "same-origin",
       },

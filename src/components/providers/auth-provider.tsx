@@ -34,7 +34,7 @@ interface AuthContextValue {
   can: (code: string) => boolean;
   /** True if the user holds at least one of the codes. */
   canAny: (codes: string[]) => boolean;
-  setUser: (user: CurrentUser) => Promise<void>;
+  setUser: (user: CurrentUser) => void;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -107,11 +107,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     sessionPresent && !isFieldCredentialExchange && isPending && !isFetched;
 
   const setUser = useCallback(
-    async (next: CurrentUser) => {
+    (next: CurrentUser) => {
       // Login pages remain reachable while a session exists. A person can
-      // therefore switch accounts without first pressing Sign out; clear the
-      // previous tenant's requests before publishing the new account.
-      await queryClient.cancelQueries();
+      // therefore switch accounts without first pressing Sign out. Publish
+      // the new account immediately; cancellation is intentionally not
+      // awaited because a slow request from the previous tenant must never
+      // hold the login screen open or block the dashboard navigation.
+      void queryClient.cancelQueries(
+        {
+          predicate: (query) =>
+            query.queryKey[0] !== CURRENT_USER_KEY[0] ||
+            query.queryKey[1] !== CURRENT_USER_KEY[1],
+        },
+        { silent: true },
+      );
       queryClient.removeQueries({
         predicate: (query) =>
           query.queryKey[0] !== CURRENT_USER_KEY[0] ||

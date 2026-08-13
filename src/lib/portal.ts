@@ -54,6 +54,7 @@ export function withReturnPath(path: string, next?: string): string {
 export function redirectWithFallback(
   router: { replace: (href: string) => void },
   path: string,
+  fallbackDelayMs = 250,
 ): void {
   if (typeof window === "undefined" || window.location.pathname === path) {
     return;
@@ -64,5 +65,5 @@ export function redirectWithFallback(
     if (window.location.pathname !== path) {
       window.location.replace(path);
     }
-  }, 250);
+  }, fallbackDelayMs);
 }
