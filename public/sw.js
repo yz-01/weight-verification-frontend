@@ -1,4 +1,4 @@
-const CACHE_NAME = "mse-trace-shell-v6";
+const CACHE_NAME = "mse-trace-shell-v7";
 const PRECACHE = [
   "/offline",
   "/login",

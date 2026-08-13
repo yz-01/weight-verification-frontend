@@ -7,6 +7,7 @@ import { useState } from "react";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { BrandingSync } from "@/components/providers/branding-sync";
 import { LocaleSync } from "@/components/providers/locale-sync";
+import { NavigationRecovery } from "@/components/providers/navigation-recovery";
 import { OfflineSyncProvider } from "@/components/providers/offline-sync-provider";
 import { ServiceWorkerRegistration } from "@/components/providers/service-worker-registration";
 import { TranslationBridge } from "@/components/providers/translation-bridge";
@@ -56,6 +57,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <AuthProvider>
           <BrandingSync />
           <LocaleSync />
+          <NavigationRecovery />
           <ServiceWorkerRegistration />
           <OfflineSyncProvider>
             <TooltipProvider delayDuration={300}>{children}</TooltipProvider>

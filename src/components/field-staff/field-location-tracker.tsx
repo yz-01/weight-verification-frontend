@@ -98,13 +98,14 @@ export function FieldLocationTracker() {
 
   useEffect(() => {
     mounted.current = true;
-    void start();
+    const startTimer = window.setTimeout(() => void start(), 0);
     const handleVisibility = () => {
       if (document.visibilityState === "visible") void start();
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => {
       mounted.current = false;
+      window.clearTimeout(startTimer);
       document.removeEventListener("visibilitychange", handleVisibility);
       clearWatcher();
     };
