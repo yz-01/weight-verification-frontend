@@ -33,6 +33,11 @@ export function FieldPwaBootstrap({ token }: { token: string }) {
       router.replace("/field-staff");
       return;
     }
+    if (window.localStorage.getItem(completionKey) === token) {
+      markFieldAppContext();
+      router.replace("/trace/field-login");
+      return;
+    }
     void restoreFieldPwaSession({
       token,
       device_id: getOrCreateFieldDeviceId(),
