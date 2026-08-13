@@ -3,7 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-const NAVIGATION_TIMEOUT_MS = 900;
+const NAVIGATION_TIMEOUT_MS = 3_000;
 const RECOVERY_COOLDOWN_MS = 30_000;
 const RECOVERY_KEY = "mse-navigation-recovery-at";
 

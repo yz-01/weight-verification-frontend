@@ -56,7 +56,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
         // fallback handles a stale browser bundle without leaving the person
         // on a permanently spinning login button.
         router.prefetch(destination);
-        redirectWithFallback(router, destination, 900);
+        redirectWithFallback(router, destination, 3_000);
       } catch (error) {
         setFormError(messageFor(error, t));
       }
