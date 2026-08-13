@@ -83,6 +83,7 @@ export async function createWasteOutgoingRecord(input: {
   longitude?: string;
   device_id?: string;
   client_event_id?: string;
+  field_task?: string;
   photos: File[];
 }): Promise<WasteOutgoingRecord> {
   const data = new FormData();
@@ -96,6 +97,7 @@ export async function createWasteOutgoingRecord(input: {
     "longitude",
     "device_id",
     "client_event_id",
+    "field_task",
   ] as const) {
     const value = input[key];
     if (value) data.append(key, value);
@@ -140,6 +142,23 @@ export async function submitWasteCollectionRequest(
     overrides,
   );
   toastSuccess("wasteOutgoing.toast.submitted");
+  return row;
+}
+
+export async function reviewWasteOutgoingRequest(
+  id: string,
+  decision: "APPROVED" | "RETURNED",
+  note = "",
+): Promise<WasteOutgoingRecord> {
+  const row = await api.post<WasteOutgoingRecord>(
+    `/api/waste-outgoing/${id}/review_request/`,
+    { decision, note },
+  );
+  toastSuccess(
+    decision === "APPROVED"
+      ? "wasteOutgoing.toast.approved"
+      : "wasteOutgoing.toast.returned",
+  );
   return row;
 }
 

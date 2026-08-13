@@ -1,9 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Info, MapPin, Pencil, Truck } from "lucide-react";
+import { Ban, Camera, Info, MapPin, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
@@ -32,6 +32,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useDateFormat } from "@/lib/dates";
+import { getWasteTracking } from "@/services/waste-outgoing.service";
+import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
   cancelDispatch,
   getDispatch,
@@ -50,6 +52,12 @@ export function ViewDispatch({ id }: { id: string }) {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["dispatches", "detail", id],
     queryFn: () => getDispatch(id),
+  });
+  const tracking = useQuery({
+    queryKey: ["waste-outgoing", "tracking", data?.source_record_id],
+    queryFn: () => getWasteTracking(data!.source_record_id!),
+    enabled: Boolean(data?.source_record_id),
+    refetchInterval: 30_000,
   });
 
   const cancellation = useMutation({
@@ -79,16 +87,6 @@ export function ViewDispatch({ id }: { id: string }) {
       <DetailHeader
         backHref="/dispatches"
         backLabel={t("dispatches.title")}
-        action={
-          can("dispatch.update") && data.is_editable ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href={`/dispatches/${data.id}/edit`}>
-                <Pencil className="h-4 w-4" />
-                {t("common.edit")}
-              </Link>
-            </Button>
-          ) : undefined
-        }
       />
 
       <div className="rounded-xl border bg-card shadow-sm">
@@ -135,6 +133,28 @@ export function ViewDispatch({ id }: { id: string }) {
         )}
 
         <div className="divide-y border-t">
+          {data.source_record && (
+            <FormSection title={t("dispatches.section.application")}>
+              <ReadField label={t("dispatches.field.applicationNo")} value={data.source_record.reference_no} />
+              <ReadField label={t("dispatches.field.applicant")} value={data.source_record.submitted_by_name} />
+              <ReadField label={t("dispatches.field.approvedBy")} value={data.source_record.reviewed_by_name} />
+              <ReadField label={t("dispatches.field.approvedAt")} value={data.source_record.reviewed_at ? df.dateTime(data.source_record.reviewed_at) : null} />
+              <ReadField label={t("dispatches.field.applicationNote")} value={data.source_record.note} className="md:col-span-2" />
+              <ReadField label={t("dispatches.field.approvalNote")} value={data.source_record.review_note} className="md:col-span-2" />
+              {data.source_record.photos.length > 0 && (
+                <div className="md:col-span-2">
+                  <p className="mb-2 text-xs font-medium text-muted-foreground">{t("dispatches.section.applicationPhotos")}</p>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {data.source_record.photos.map((photo) => (
+                      <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
+                        <Image src={photo.watermarked || photo.image} alt={photo.caption || data.source_record!.reference_no} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </FormSection>
+          )}
           <FormSection title={t("dispatches.section.destination")}>
             <ReadField
               label={t("dispatches.field.project")}
@@ -207,6 +227,50 @@ export function ViewDispatch({ id }: { id: string }) {
               className="md:col-span-2"
             />
           </FormSection>
+          {data.source_record_id && (
+            <FormSection title={t("dispatches.section.execution")}>
+              {tracking.isLoading ? (
+                <p className="md:col-span-2 text-sm text-muted-foreground">{t("common.loading")}</p>
+              ) : tracking.data ? (
+                <>
+                  <ReadField label={t("dispatches.field.collectionPlan")} value={data.confirmed_collection_at ? df.dateTime(data.confirmed_collection_at) : data.proposed_collection_at ? df.dateTime(data.proposed_collection_at) : null} />
+                  <ReadField label={t("dispatches.field.driverName")} value={tracking.data.driver_name} />
+                  <ReadField label={t("dispatches.field.vehiclePlate")} value={tracking.data.vehicle_plate} />
+                  <ReadField label={t("dispatches.field.executionProgress")} value={`${tracking.data.milestones.filter((row) => row.done).length}/${tracking.data.milestones.length}`} />
+                  {(tracking.data.tasks ?? []).some((task) => task.photos.length > 0) && (
+                    <div className="md:col-span-2">
+                      <p className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><Camera className="size-4" />{t("dispatches.section.executionPhotos")}</p>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        {(tracking.data.tasks ?? []).flatMap((task) => task.photos).map((photo) => (
+                          <a key={photo.id} href={photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
+                            <Image src={photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
+                            <p className="truncate px-2 py-1 text-xs">{photo.caption || photo.kind}</p>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : null}
+            </FormSection>
+          )}
+          {tracking.data?.weighing && (
+            <FormSection title={t("dispatches.section.weighing")}>
+              <ReadField label={t("dispatches.field.weighingNo")} value={tracking.data.weighing.session_no} />
+              <ReadField label={t("dispatches.field.firstWeight")} value={tracking.data.weighing.first_weight_kg ? `${tracking.data.weighing.first_weight_kg} kg` : null} />
+              <ReadField label={t("dispatches.field.secondWeight")} value={tracking.data.weighing.second_weight_kg ? `${tracking.data.weighing.second_weight_kg} kg` : null} />
+              <ReadField label={t("dispatches.field.netWeight")} value={tracking.data.weighing.net_weight_kg ? `${tracking.data.weighing.net_weight_kg} kg` : null} />
+              <div className="md:col-span-2"><PrintTicketButton sessionId={tracking.data.weighing.session_id} sessionNo={tracking.data.weighing.session_no} /></div>
+            </FormSection>
+          )}
+          {tracking.data?.settlement && (
+            <FormSection title={t("dispatches.section.settlement")}>
+              <ReadField label={t("dispatches.field.settlementNo")} value={tracking.data.settlement.settlement_no} />
+              <ReadField label={t("dispatches.field.settlementState")} value={tracking.data.settlement.state} />
+              <ReadField label={t("dispatches.field.settledWeight")} value={`${tracking.data.settlement.settled_weight_kg} kg`} />
+              <ReadField label={t("dispatches.field.settlementAmount")} value={tracking.data.settlement.total_amount ? `${tracking.data.settlement.currency} ${tracking.data.settlement.total_amount}` : null} />
+            </FormSection>
+          )}
         </div>
       </div>
 

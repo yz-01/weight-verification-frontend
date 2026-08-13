@@ -21,6 +21,7 @@ import {
   recordEquipmentMovement,
 } from "@/services/contractor-ops.service";
 import { createSafetyIncident } from "@/services/site-operations.service";
+import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 
 export const OFFLINE_QUEUE_CHANGED = "mse:offline-queue-changed";
 
@@ -232,6 +233,14 @@ async function uploadJob(job: OfflineJob): Promise<void> {
 
   if (job.kind === "MATERIAL_OUTGOING") {
     await createMaterialOutgoing(job.payload);
+    return;
+  }
+
+  if (job.kind === "WASTE_OUTGOING") {
+    await createWasteOutgoingRecord({
+      ...job.payload,
+      photos: job.payload.photos.map(restoreFile),
+    });
     return;
   }
 
@@ -525,6 +534,7 @@ async function submitCaptureJob(
         | "EQUIPMENT_MOVEMENT"
         | "SITE_PROGRESS"
         | "MATERIAL_OUTGOING"
+        | "WASTE_OUTGOING"
         | "DISPOSAL_REQUEST"
         | "SAFETY_INCIDENT"
         | "CONSULTANT_SUBMISSION";
@@ -596,6 +606,24 @@ export function submitMaterialOutgoingOfflineAware(
     attempts: 0,
     lastError: "",
     payload: draft,
+  });
+}
+
+export function submitWasteOutgoingOfflineAware(
+  ownerId: string,
+  draft: Omit<
+    Extract<OfflineJob, { kind: "WASTE_OUTGOING" }>["payload"],
+    "photos"
+  > & { photos: File[] },
+): Promise<OfflineSubmission> {
+  return submitCaptureJob({
+    id: newId("waste-outgoing-job"),
+    ownerId,
+    kind: "WASTE_OUTGOING",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: { ...draft, photos: draft.photos.map(storeFile) },
   });
 }
 

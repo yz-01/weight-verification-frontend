@@ -58,8 +58,8 @@ function getCoordinates(): Promise<Coordinates> {
     if (!("geolocation" in navigator)) return reject(new Error("location_unavailable"));
     navigator.geolocation.getCurrentPosition(
       (position) => resolve({
-        latitude: String(position.coords.latitude),
-        longitude: String(position.coords.longitude),
+        latitude: position.coords.latitude.toFixed(7),
+        longitude: position.coords.longitude.toFixed(7),
         accuracy: String(position.coords.accuracy),
       }),
       reject,

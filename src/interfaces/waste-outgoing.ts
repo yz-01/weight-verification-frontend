@@ -15,13 +15,13 @@ export const WASTE_UNITS: WasteUnit[] = [
 /**
  * Where a waste-out record is in its life.
  *
- * `PENDING_RECYCLER` is the customer's own wording (8.2.2, "Pending Recycler
- * Assignment"): the site has asked for a collection and the office has not yet
- * chosen which bound recycler gets it.
+ * A field submission is approved before the office can send a recycle order.
  */
 export type WasteOutgoingStatus =
   | "DRAFT"
-  | "PENDING_RECYCLER"
+  | "PENDING_APPROVAL"
+  | "RETURNED"
+  | "APPROVED"
   | "ORDERED"
   | "IN_PROGRESS"
   | "COMPLETED"
@@ -78,6 +78,10 @@ export interface WasteOutgoingRecord {
   submitted_by_name: string | null;
   site_contact_name: string;
   site_contact_phone: string;
+  reviewed_at: string | null;
+  reviewed_by: string | null;
+  reviewed_by_name: string | null;
+  review_note: string;
   recycler: string | null;
   recycler_name: string | null;
   dispatch: string | null;
@@ -128,6 +132,8 @@ export interface TrackingMilestone {
  * a load that is fully weighed.
  */
 export interface WasteWeighing {
+  session_id: string;
+  session_no: string;
   first_weight_kg: string | null;
   second_weight_kg: string | null;
   net_weight_kg: string | null;
@@ -136,6 +142,39 @@ export interface WasteWeighing {
   requires_review: boolean;
   anomalies: string[];
   weighed_at: string | null;
+}
+
+export interface WasteTaskPhoto {
+  id: string;
+  kind: string;
+  image: string;
+  caption: string;
+  latitude: string | null;
+  longitude: string | null;
+  taken_at: string | null;
+}
+
+export interface WasteCollectionTask {
+  id: string;
+  task_no: string;
+  state: string;
+  driver_name: string;
+  vehicle_plate: string;
+  scheduled_for: string | null;
+  photos: WasteTaskPhoto[];
+}
+
+export interface WasteSettlementSummary {
+  id: string;
+  settlement_no: string;
+  state: string;
+  net_weight_kg: string | null;
+  deduction_weight_kg: string | null;
+  settled_weight_kg: string | null;
+  unit_price: string | null;
+  total_amount: string | null;
+  currency: string;
+  issued_at: string | null;
 }
 
 export interface WasteTracking {
@@ -148,6 +187,8 @@ export interface WasteTracking {
   vehicle_plate?: string;
   milestones: TrackingMilestone[];
   weighing: WasteWeighing | null;
+  tasks?: WasteCollectionTask[];
+  settlement?: WasteSettlementSummary | null;
   /**
    * Present only before an order exists. Carries the reason there is nothing to
    * track, rather than showing an empty timeline that would read as "nothing has

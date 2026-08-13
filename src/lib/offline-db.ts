@@ -9,6 +9,7 @@ export type OfflineJobKind =
   | "EQUIPMENT_MOVEMENT"
   | "SITE_PROGRESS"
   | "MATERIAL_OUTGOING"
+  | "WASTE_OUTGOING"
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
   | "CONSULTANT_SUBMISSION";
@@ -203,6 +204,23 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   };
 }
 
+export interface WasteOutgoingOfflineJob extends OfflineJobBase {
+  kind: "WASTE_OUTGOING";
+  payload: {
+    project: string;
+    category: string;
+    quantity?: string;
+    unit?: string;
+    note?: string;
+    latitude: string;
+    longitude: string;
+    device_id?: string;
+    client_event_id: string;
+    field_task?: string;
+    photos: StoredFile[];
+  };
+}
+
 export interface DisposalRequestOfflineJob extends OfflineJobBase {
   kind: "DISPOSAL_REQUEST";
   payload: {
@@ -271,6 +289,7 @@ export type OfflineJob =
   | EquipmentMovementOfflineJob
   | SiteProgressOfflineJob
   | MaterialOutgoingOfflineJob
+  | WasteOutgoingOfflineJob
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob
   | ConsultantSubmissionOfflineJob;

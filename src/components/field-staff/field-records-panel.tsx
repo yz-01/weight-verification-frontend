@@ -58,8 +58,11 @@ import {
 import {
   submitConsultantSubmissionOfflineAware,
   submitMaterialReceiptOfflineAware,
+  submitWasteOutgoingOfflineAware,
 } from "@/services/offline-sync.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
+import { getWasteOutgoingOptions } from "@/services/waste-outgoing.service";
+import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
 
@@ -69,6 +72,7 @@ export type FieldRecordMode =
   | "progress"
   | "disposal"
   | "outgoing"
+  | "waste"
   | "safety"
   | "consultant";
 
@@ -85,6 +89,7 @@ const RECORD_OPTIONS: RecordOption[] = [
   { key: "progress", permission: "progress.manage", icon: ListChecks, tone: "bg-primary/10 text-primary" },
   { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive" },
+  { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning" },
   { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary" },
 ];
@@ -125,6 +130,9 @@ export function FieldRecordsPanel({
   }
   if (mode === "outgoing") {
     return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><MaterialOutgoingWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+  }
+  if (mode === "waste") {
+    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><WasteOutgoingCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "safety") {
     return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
@@ -692,6 +700,153 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
       >
         {save.isPending ? <Loader2 className="animate-spin" /> : <UserRoundCheck />}
         {t("consultantCapture.submit")}
+      </Button>
+    </div>
+  );
+}
+
+function WasteOutgoingCapturePanel({
+  initialProject = "",
+  fieldTaskId,
+  onSaved,
+}: {
+  initialProject?: string;
+  fieldTaskId?: string;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("wasteOutgoing");
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [project, setProject] = useState(initialProject);
+  const [category, setCategory] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [unit, setUnit] = useState("");
+  const [note, setNote] = useState("");
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [location, setLocation] = useState<Coordinates>();
+  const [locating, setLocating] = useState(false);
+  const [error, setError] = useState("");
+
+  const options = useQuery({
+    queryKey: ["waste-outgoing", "options"],
+    queryFn: getWasteOutgoingOptions,
+  });
+  const categories = (options.data?.categories ?? []).filter(
+    (row) => row.is_active,
+  );
+
+  const save = useMutation({
+    mutationFn: () => {
+      if (!user || !location) throw new Error("invalid_waste_submission");
+      return submitWasteOutgoingOfflineAware(user.id, {
+        project,
+        category,
+        quantity: quantity.trim() || undefined,
+        unit: quantity.trim() ? unit : undefined,
+        note: note.trim() || undefined,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        device_id: getOrCreateFieldDeviceId(),
+        client_event_id: crypto.randomUUID(),
+        field_task: fieldTaskId,
+        photos,
+      });
+    },
+    onSuccess: () => {
+      setError("");
+      void qc.invalidateQueries({ queryKey: ["field-staff", "tasks"] });
+      onSaved();
+    },
+    onError: (failure) => {
+      if (failure instanceof ApiError) {
+        setError(Object.values(failure.errors)[0] || failure.message);
+        return;
+      }
+      setError(t("form.submitFailed"));
+    },
+  });
+
+  const locate = async () => {
+    setLocating(true);
+    setError("");
+    try {
+      const fix = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 15_000,
+          maximumAge: 0,
+        });
+      });
+      setLocation({
+        latitude: fix.coords.latitude.toFixed(7),
+        longitude: fix.coords.longitude.toFixed(7),
+        accuracy: fix.coords.accuracy.toFixed(2),
+      });
+    } catch {
+      setError(t("form.locationFailed"));
+    } finally {
+      setLocating(false);
+    }
+  };
+
+  const quantityIncomplete = quantity.trim() !== "" && unit === "";
+  const ready =
+    Boolean(user && project && category && location) &&
+    photos.length > 0 &&
+    !quantityIncomplete;
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm leading-6 text-muted-foreground">{t("form.help")}</p>
+      <FieldWrapper label={t("field.project")} required>
+        <ProjectPicker
+          value={project}
+          onValueChange={setProject}
+          placeholder={t("filter.selectProject")}
+          className="w-full"
+          disabled={Boolean(initialProject)}
+        />
+      </FieldWrapper>
+      <FieldWrapper label={t("field.category")} required>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="h-12 w-full">
+            <SelectValue placeholder={t("field.selectCategory")} />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((row) => (
+              <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
+      <div className="grid grid-cols-2 gap-3">
+        <FieldWrapper label={t("field.quantity")} optional={t("field.optional")}>
+          <Input className="h-12" type="number" min="0" step="0.001" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.unit")} optional={t("field.optional")} error={quantityIncomplete ? t("field.unitRequired") : undefined}>
+          <Select value={unit} onValueChange={setUnit}>
+            <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("field.selectUnit")} /></SelectTrigger>
+            <SelectContent>
+              {WASTE_UNITS.map((value) => (
+                <SelectItem key={value} value={value}>{t(`unit.${value}`)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FieldWrapper>
+      </div>
+      <FieldWrapper label={t("field.note")} optional={t("field.optional")}>
+        <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
+      </FieldWrapper>
+      <CameraField label={t("field.photos")} multiple files={photos} onChange={setPhotos} />
+      <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void locate()}>
+        {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
+        {location ? t("field.locationReady") : t("action.locate")}
+      </Button>
+      {location && <p className="text-center text-xs tabular-nums text-muted-foreground">{location.latitude}, {location.longitude}</p>}
+      {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
+      <Button className="h-14 w-full text-base" disabled={!ready || save.isPending} onClick={() => save.mutate()}>
+        {save.isPending ? <Loader2 className="animate-spin" /> : <Recycle />}
+        {t("action.submit")}
       </Button>
     </div>
   );

@@ -11,7 +11,6 @@ import {
   LocateFixed,
   Plus,
   Scale,
-  Send,
   Truck,
   XCircle,
 } from "lucide-react";
@@ -22,6 +21,7 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldCamera } from "@/components/shared/field-camera";
+import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
   FieldWrapper,
   ListHeader,
@@ -52,6 +52,7 @@ import type {
   WasteOutgoingRecord,
   WasteOutgoingStatus,
 } from "@/interfaces/waste-outgoing";
+import { ApiError } from "@/interfaces/api";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
 import { useDateFormat } from "@/lib/dates";
 import {
@@ -64,7 +65,7 @@ import {
   getWasteOutgoingRecords,
   getWasteOutgoingTotals,
   getWasteTracking,
-  submitWasteCollectionRequest,
+  reviewWasteOutgoingRequest,
 } from "@/services/waste-outgoing.service";
 
 /** The eleven stages of 8.2.12, in the order the customer lists them. */
@@ -87,7 +88,9 @@ const STATUS_TONE: Record<
   "neutral" | "info" | "warning" | "positive" | "danger"
 > = {
   DRAFT: "neutral",
-  PENDING_RECYCLER: "warning",
+  PENDING_APPROVAL: "warning",
+  RETURNED: "danger",
+  APPROVED: "positive",
   ORDERED: "info",
   IN_PROGRESS: "info",
   COMPLETED: "positive",
@@ -104,8 +107,8 @@ function getCoordinates(): Promise<Coordinates> {
     navigator.geolocation.getCurrentPosition(
       (position) =>
         resolve({
-          latitude: String(position.coords.latitude),
-          longitude: String(position.coords.longitude),
+          latitude: position.coords.latitude.toFixed(7),
+          longitude: position.coords.longitude.toFixed(7),
         }),
       reject,
       { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
@@ -125,6 +128,7 @@ export function WasteOutgoingWorkspace() {
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
   const [assigning, setAssigning] = useState<WasteOutgoingRecord | null>(null);
+  const [reviewing, setReviewing] = useState<WasteOutgoingRecord | null>(null);
   const [tracking, setTracking] = useState<WasteOutgoingRecord | null>(null);
   const [confirming, setConfirming] = useState<WasteOutgoingRecord | null>(null);
   const [cancelling, setCancelling] = useState<WasteOutgoingRecord | null>(null);
@@ -151,11 +155,6 @@ export function WasteOutgoingWorkspace() {
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["waste-outgoing"] });
   };
-
-  const submit = useMutation({
-    mutationFn: (id: string) => submitWasteCollectionRequest(id),
-    onSuccess: refresh,
-  });
 
   const rows = records.data?.results ?? [];
   const categories = (options.data?.categories ?? []).filter(
@@ -282,26 +281,21 @@ export function WasteOutgoingWorkspace() {
                   )}
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
-                  {row.status === "DRAFT" && can("waste_outgoing.submit") && (
+                  {row.status === "PENDING_APPROVAL" && can("waste_outgoing.approve") && (
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={submit.isPending}
-                      onClick={() => submit.mutate(row.id)}
+                      onClick={() => setReviewing(row)}
                     >
-                      {submit.isPending ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <Send />
-                      )}
-                      {t("action.submit")}
+                      <CheckCircle2 />
+                      {t("action.review")}
                     </Button>
                   )}
-                  {row.status === "PENDING_RECYCLER" &&
+                  {row.status === "APPROVED" &&
                     can("waste_outgoing.order") && (
                       <Button size="sm" onClick={() => setAssigning(row)}>
                         <Truck />
-                        {t("action.assign")}
+                        {t("action.sendOrder")}
                       </Button>
                     )}
                   {row.dispatch_no && (
@@ -324,7 +318,7 @@ export function WasteOutgoingWorkspace() {
                         {t("action.confirmSchedule")}
                       </Button>
                     )}
-                  {["DRAFT", "PENDING_RECYCLER"].includes(row.status) &&
+                  {["DRAFT", "PENDING_APPROVAL", "RETURNED", "APPROVED"].includes(row.status) &&
                     can("waste_outgoing.submit") && (
                       <Button
                         size="sm"
@@ -337,6 +331,12 @@ export function WasteOutgoingWorkspace() {
                     )}
                 </div>
               </div>
+
+              {row.review_note && (
+                <p className={`mt-3 rounded-md border px-3 py-2 text-xs ${row.status === "RETURNED" ? "border-destructive/30 bg-destructive/5 text-destructive" : "bg-muted/30 text-muted-foreground"}`}>
+                  {t("review.noteLabel")}: {row.review_note}
+                </p>
+              )}
 
               {row.photos.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -383,6 +383,16 @@ export function WasteOutgoingWorkspace() {
           }}
         />
       )}
+      {reviewing && (
+        <ReviewDialog
+          record={reviewing}
+          onClose={() => setReviewing(null)}
+          onSaved={() => {
+            setReviewing(null);
+            refresh();
+          }}
+        />
+      )}
       {tracking && (
         <TrackingDialog
           record={tracking}
@@ -417,6 +427,64 @@ function localDateTimeInput(value: string) {
   const date = new Date(value);
   const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
   return shifted.toISOString().slice(0, 16);
+}
+
+function ReviewDialog({
+  record,
+  onClose,
+  onSaved,
+}: {
+  record: WasteOutgoingRecord;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("wasteOutgoing");
+  const [decision, setDecision] = useState<"APPROVED" | "RETURNED">("APPROVED");
+  const [note, setNote] = useState("");
+  const [error, setError] = useState("");
+  const save = useMutation({
+    mutationFn: () => reviewWasteOutgoingRequest(record.id, decision, note.trim()),
+    onSuccess: onSaved,
+    onError: (failure) => {
+      if (failure instanceof ApiError) {
+        setError(Object.values(failure.errors)[0] || failure.message);
+        return;
+      }
+      setError(t("review.failed"));
+    },
+  });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("review.title")}</DialogTitle>
+          <DialogDescription>{t("review.help", { reference: record.reference_no })}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <div className="grid grid-cols-2 gap-2">
+            <Button type="button" variant={decision === "APPROVED" ? "default" : "outline"} onClick={() => setDecision("APPROVED")}>
+              <CheckCircle2 />{t("action.approve")}
+            </Button>
+            <Button type="button" variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}>
+              <XCircle />{t("action.return")}
+            </Button>
+          </div>
+          <FieldWrapper label={t("review.note")} optional={decision === "APPROVED" ? t("field.optional") : undefined} required={decision === "RETURNED"}>
+            <Textarea rows={4} value={note} onChange={(event) => setNote(event.target.value)} />
+          </FieldWrapper>
+          {error && <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("action.close")}</Button>
+          <Button disabled={save.isPending || (decision === "RETURNED" && !note.trim())} onClick={() => save.mutate()}>
+            {save.isPending ? <Loader2 className="animate-spin" /> : decision === "APPROVED" ? <CheckCircle2 /> : <XCircle />}
+            {decision === "APPROVED" ? t("action.approve") : t("action.return")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function ConfirmCollectionDialog({
@@ -707,7 +775,7 @@ function AssignDialog({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{t("assign.title")}</DialogTitle>
           <DialogDescription>
@@ -888,11 +956,36 @@ function TrackingDialog({
               })}
             </ol>
 
+            {(data.tasks ?? []).some((task) => task.photos.length > 0) && (
+              <section className="space-y-3">
+                <h3 className="text-sm font-semibold">{t("tracking.executionPhotos")}</h3>
+                {(data.tasks ?? []).map((task) => task.photos.length > 0 && (
+                  <div key={task.id} className="space-y-2">
+                    <p className="text-xs text-muted-foreground">{task.task_no} · {task.driver_name} · {task.vehicle_plate}</p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {task.photos.map((photo) => (
+                        <a key={photo.id} href={photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
+                          <Image src={photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
+                          <p className="truncate px-2 py-1.5 text-xs">{photo.caption || photo.kind}</p>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </section>
+            )}
+
             {/* 8.2.13. Absent until the weighbridge has produced a valid pass,
                 which is a normal state, not a failure. */}
             {data.weighing ? (
               <div className="rounded-lg border bg-card p-3">
-                <p className="text-sm font-semibold">{t("weighing.title")}</p>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-semibold">{t("weighing.title")}</p>
+                    <p className="text-xs text-muted-foreground">{data.weighing.session_no}</p>
+                  </div>
+                  <PrintTicketButton sessionId={data.weighing.session_id} sessionNo={data.weighing.session_no} />
+                </div>
                 <dl className="mt-2 grid grid-cols-2 gap-2 text-xs">
                   {(
                     [
@@ -930,6 +1023,17 @@ function TrackingDialog({
               <p className="text-xs text-muted-foreground">
                 {t("weighing.pending")}
               </p>
+            )}
+            {data.settlement && (
+              <div className="rounded-lg border bg-card p-3">
+                <p className="text-sm font-semibold">{t("settlement.title")}</p>
+                <dl className="mt-2 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
+                  <div><dt className="text-muted-foreground">{t("settlement.number")}</dt><dd className="font-medium">{data.settlement.settlement_no}</dd></div>
+                  <div><dt className="text-muted-foreground">{t("settlement.state")}</dt><dd className="font-medium">{data.settlement.state}</dd></div>
+                  <div><dt className="text-muted-foreground">{t("settlement.weight")}</dt><dd className="font-medium tabular-nums">{data.settlement.settled_weight_kg} kg</dd></div>
+                  <div><dt className="text-muted-foreground">{t("settlement.amount")}</dt><dd className="font-medium tabular-nums">{data.settlement.total_amount ? `${data.settlement.currency} ${data.settlement.total_amount}` : "-"}</dd></div>
+                </dl>
+              </div>
             )}
           </div>
         )}

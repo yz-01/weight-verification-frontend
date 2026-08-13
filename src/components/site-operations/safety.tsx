@@ -778,8 +778,8 @@ function SafetyCreateDialog({
       (position) => {
         setDraft((value) => ({
           ...value,
-          latitude: String(position.coords.latitude),
-          longitude: String(position.coords.longitude),
+          latitude: position.coords.latitude.toFixed(7),
+          longitude: position.coords.longitude.toFixed(7),
         }));
         setLocating(false);
       },

@@ -347,6 +347,9 @@ export interface WasteDispatch {
 }
 
 export interface WasteDispatchDetail extends WasteDispatch {
+  source_record_id: string | null;
+  source_reference_no: string | null;
+  source_record: import("@/interfaces/waste-outgoing").WasteOutgoingRecord | null;
   description: string;
   driver_phone: string;
   driver_ic: string;

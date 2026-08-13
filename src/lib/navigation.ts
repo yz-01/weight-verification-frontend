@@ -835,12 +835,6 @@ export const PORTAL_NAVIGATION = {
         ),
         child(
           "8.2.5",
-          "nav.submodule.recyclingRecords",
-          "/weighing",
-          "recycling_records",
-        ),
-        child(
-          "8.2.6",
           "nav.submodule.paymentProofs",
           "/payment-proofs",
           "payment_proofs",
