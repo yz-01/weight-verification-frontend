@@ -46,6 +46,7 @@ export function createFieldInvitation(
   return api.post<FieldInvitationResult>(
     "/api/field-access/create_invitation/",
     payload,
+    { silent: true },
   );
 }
 
@@ -56,6 +57,7 @@ export function reissueFieldInvitation(
   return api.post<FieldInvitationResult>(
     `/api/field-access/${userId}/reissue_invitation/`,
     projectIds ? { project_ids: projectIds } : {},
+    { silent: true },
   );
 }
 

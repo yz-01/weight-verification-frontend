@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { getProjects } from "@/services/contractor.service";
 import {
   createFieldInvitation,
@@ -45,6 +46,12 @@ import {
 import { getRoles, getUsers } from "@/services/users.service";
 
 type AccessMode = "new" | "existing";
+
+function toMobileSubscriberDigits(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (digits.startsWith("60")) return digits.slice(2);
+  return digits.startsWith("0") ? digits.slice(1) : digits;
+}
 
 export function FieldAccessManagementDialog({
   onClose,
@@ -58,11 +65,16 @@ export function FieldAccessManagementDialog({
   const [mode, setMode] = useState<AccessMode>(initialUser ? "existing" : "new");
   const [existingUserId, setExistingUserId] = useState(initialUser?.id ?? "");
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState(initialUser?.phone ?? "");
+  const [phone, setPhone] = useState(
+    toMobileSubscriberDigits(initialUser?.phone ?? ""),
+  );
   const [email, setEmail] = useState("");
   const [projectIds, setProjectIds] = useState<string[] | null>(null);
   const [result, setResult] = useState<FieldInvitationResult | null>(null);
   const [copied, setCopied] = useState<"link" | "pin" | "all" | null>(null);
+
+  const phoneDigits = phone.replace(/\D/g, "");
+  const canonicalPhone = phoneDigits ? `+60${phoneDigits}` : "";
 
   const projects = useQuery({
     queryKey: ["projects", "field-access-options"],
@@ -106,7 +118,7 @@ export function FieldAccessManagementDialog({
         ? reissueFieldInvitation(existingUserId, selectedProjectIds)
         : createFieldInvitation({
               full_name: fullName.trim(),
-              phone: phone.trim(),
+              phone: canonicalPhone,
               ...(email.trim() ? { email: email.trim() } : {}),
               project_ids: selectedProjectIds,
             }),
@@ -115,6 +127,15 @@ export function FieldAccessManagementDialog({
       void queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
+
+  const fieldErrors = create.error instanceof ApiError ? create.error : null;
+  const firstFieldError = fieldErrors
+    ? Object.values(fieldErrors.errors)[0]
+    : undefined;
+
+  function clearCreateError() {
+    if (create.isError) create.reset();
+  }
 
   function changeMode(value: string) {
     const nextMode = value as AccessMode;
@@ -131,12 +152,13 @@ export function FieldAccessManagementDialog({
   function chooseExistingUser(userId: string) {
     const selected = fieldUsers.data?.results.find((user) => user.id === userId);
     setExistingUserId(userId);
-    setPhone(selected?.phone ?? "");
+    setPhone(toMobileSubscriberDigits(selected?.phone ?? ""));
     setProjectIds(null);
     create.reset();
   }
 
   function toggleProject(id: string, checked: boolean) {
+    clearCreateError();
     setProjectIds(
       checked
         ? selectedProjectIds.includes(id)
@@ -221,7 +243,7 @@ export function FieldAccessManagementDialog({
 
               <div className="grid gap-3 rounded-md border px-3 py-2 text-sm sm:grid-cols-2">
                 <div>
-                  <p className="font-medium">{t("expiresAt")}</p>
+                  <p className="font-medium">{t("linkExpiresAt")}</p>
                   <p className="mt-1 text-muted-foreground">
                     {new Date(result.invitation_expires_at).toLocaleString()}
                   </p>
@@ -233,6 +255,7 @@ export function FieldAccessManagementDialog({
                   </p>
                 </div>
               </div>
+              <p className="text-xs text-muted-foreground">{t("expiryHelp")}</p>
 
               <Button
                 className="w-full"
@@ -270,11 +293,19 @@ export function FieldAccessManagementDialog({
             )}
 
             {mode === "new" ? (
-              <FieldWrapper label={t("fullName")} required>
+              <FieldWrapper
+                label={t("fullName")}
+                required
+                error={fieldErrors?.fieldError("full_name")}
+              >
                 <Input
                   value={fullName}
-                  onChange={(event) => setFullName(event.target.value)}
+                  onChange={(event) => {
+                    setFullName(event.target.value);
+                    clearCreateError();
+                  }}
                   autoComplete="off"
+                  aria-invalid={Boolean(fieldErrors?.fieldError("full_name"))}
                 />
               </FieldWrapper>
             ) : initialUser ? (
@@ -308,19 +339,45 @@ export function FieldAccessManagementDialog({
               </FieldWrapper>
             )}
             {mode === "new" ? (
-              <FieldWrapper label={t("phone")} required>
-                <Input
-                  type="tel"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  autoComplete="off"
-                />
+              <FieldWrapper
+                label={t("phone")}
+                required
+                error={fieldErrors?.fieldError("phone")}
+                hint={t("phoneHint")}
+              >
+                <div
+                  className={cn(
+                    "flex h-8 overflow-hidden rounded-lg border border-input bg-transparent focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50",
+                    fieldErrors?.fieldError("phone") &&
+                      "border-destructive ring-3 ring-destructive/20",
+                  )}
+                >
+                  <span className="flex items-center border-r border-input bg-muted/40 px-3 text-sm font-medium text-muted-foreground">
+                    +60
+                  </span>
+                  <Input
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={phoneDigits}
+                    onChange={(event) => {
+                      setPhone(
+                        toMobileSubscriberDigits(event.target.value).slice(0, 10),
+                      );
+                      clearCreateError();
+                    }}
+                    autoComplete="tel-national"
+                    placeholder="123456789"
+                    className="h-full rounded-none border-0 bg-transparent focus-visible:ring-0"
+                    aria-invalid={Boolean(fieldErrors?.fieldError("phone"))}
+                  />
+                </div>
               </FieldWrapper>
             ) : (
               <FieldWrapper label={t("phone")} className="sm:col-span-2">
                 <Input
                   type="tel"
-                  value={accessInfo.data?.phone ?? phone}
+                  value={accessInfo.data?.phone ?? canonicalPhone}
                   disabled
                 />
               </FieldWrapper>
@@ -329,13 +386,19 @@ export function FieldAccessManagementDialog({
               <FieldWrapper
                 label={t("email")}
                 optional={t("optional")}
+                error={fieldErrors?.fieldError("email")}
+                hint={t("emailHint")}
                 className="sm:col-span-2"
               >
                 <Input
                   type="email"
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    clearCreateError();
+                  }}
                   autoComplete="off"
+                  aria-invalid={Boolean(fieldErrors?.fieldError("email"))}
                 />
               </FieldWrapper>
             )}
@@ -348,9 +411,16 @@ export function FieldAccessManagementDialog({
               <FieldWrapper
                 label={t("projects")}
                 required
+                error={fieldErrors?.fieldError("project_ids")}
                 className="sm:col-span-2"
               >
-                <div className="max-h-56 overflow-y-auto rounded-md border">
+                <div
+                  className={cn(
+                    "max-h-56 overflow-y-auto rounded-md border",
+                    fieldErrors?.fieldError("project_ids") &&
+                      "border-destructive",
+                  )}
+                >
                   {(projects.data?.results ?? []).map((project) => (
                     <label
                       key={project.id}
@@ -382,11 +452,9 @@ export function FieldAccessManagementDialog({
                 </div>
               </FieldWrapper>
             )}
-            {create.isError && (
+            {create.isError && !firstFieldError && (
               <p className="text-sm font-medium text-destructive sm:col-span-2">
-                {create.error instanceof ApiError
-                  ? create.error.message
-                  : t("createError")}
+                {fieldErrors?.message ?? t("createError")}
               </p>
             )}
           </div>
