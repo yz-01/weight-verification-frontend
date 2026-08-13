@@ -26,6 +26,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import {
+  completedFieldEvidence,
+  createEmptyFieldEvidence,
+  FIELD_EVIDENCE_PHOTO_COUNT,
+  FieldEvidenceGrid,
+  hasRequiredFieldEvidence,
+} from "@/components/field-staff/field-evidence-grid";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -213,9 +220,14 @@ export function ProjectCategoriesWorkspace() {
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
-  const [project, setProject] = useState("");
+  const requestedProject = searchParams.get("project")?.trim() ?? "";
+  const [project, setProject] = useState(requestedProject);
   const [editing, setEditing] = useState<ProjectCategory | "new" | null>(
-    searchParams.get("create") === "1" && can("category.manage") ? "new" : null,
+    searchParams.get("create") === "1" &&
+      can("category.manage") &&
+      requestedProject
+      ? "new"
+      : null,
   );
   const [removing, setRemoving] = useState<ProjectCategory | null>(null);
   const rows = useQuery({
@@ -232,6 +244,8 @@ export function ProjectCategoriesWorkspace() {
       setRemoving(null);
     },
   });
+  const dialogProject =
+    editing === "new" ? project : editing?.project ?? "";
   return (
     <div className="space-y-5">
       <ListHeader
@@ -320,11 +334,13 @@ export function ProjectCategoriesWorkspace() {
           ))}
         </div>
       )}
-      {editing && (
+      {editing && dialogProject && (
         <CategoryDialog
-          project={project}
+          project={dialogProject}
           row={editing === "new" ? null : editing}
-          categories={rows.data?.results ?? []}
+          categories={(rows.data?.results ?? []).filter(
+            (item) => item.project === dialogProject,
+          )}
           onClose={() => setEditing(null)}
           onSaved={() => {
             void refresh();
@@ -672,6 +688,7 @@ function CategoryDialog({
           </Button>
           <Button
             disabled={
+              !form.project ||
               !form.code.trim() ||
               !form.name.trim() ||
               restrictedEmpty ||
@@ -1647,6 +1664,7 @@ function MovementDialog({
 }) {
   const t = useTranslations("contractorOps");
   const { user } = useAuth();
+  const isFieldStaff = Boolean(user?.is_field_staff);
   const direction = row.status === "ON_SITE" ? "EXIT" : "ENTRY";
   const [operator, setOperator] = useState("");
   const [vehicle, setVehicle] = useState("");
@@ -1655,6 +1673,7 @@ function MovementDialog({
   const [unit, setUnit] = useState<EquipmentUnit>("UNIT");
   const [notes, setNotes] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
+  const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
   const [deliveryNotePhoto, setDeliveryNotePhoto] = useState<File>();
   const [ocr, setOcr] = useState<{
     status: string;
@@ -1664,6 +1683,14 @@ function MovementDialog({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState(false);
+  const fieldPhotos = completedFieldEvidence(fieldEvidence);
+  const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
+  const equipmentEvidenceLabels = [
+    t("equipmentEvidence.overview"),
+    t("equipmentEvidence.identity"),
+    t("equipmentEvidence.transport"),
+    t("equipmentEvidence.condition"),
+  ];
   const ocrMutation = useMutation({
     mutationFn: () => {
       if (!deliveryNotePhoto)
@@ -1694,7 +1721,7 @@ function MovementDialog({
         direction,
         quantity,
         unit,
-        operator_name: operator.trim(),
+        operator_name: isFieldStaff ? user.full_name : operator.trim(),
         vehicle_plate: vehicle.trim(),
         delivery_note_no: deliveryNote.trim(),
         notes: notes.trim(),
@@ -1705,7 +1732,7 @@ function MovementDialog({
         latitude: location?.latitude,
         longitude: location?.longitude,
         accuracy_m: location?.accuracy,
-        photos,
+        photos: submissionPhotos,
         delivery_note_photo: deliveryNotePhoto,
       });
     },
@@ -1764,16 +1791,18 @@ function MovementDialog({
           <DialogDescription>{t("equipment.movementHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper
-            label={t("field.operator")}
-            required
-            error={fieldErrors.operator_name}
-          >
-            <Input
-              value={operator}
-              onChange={(e) => setOperator(e.target.value)}
-            />
-          </FieldWrapper>
+          {!isFieldStaff ? (
+            <FieldWrapper
+              label={t("field.operator")}
+              required
+              error={fieldErrors.operator_name}
+            >
+              <Input
+                value={operator}
+                onChange={(e) => setOperator(e.target.value)}
+              />
+            </FieldWrapper>
+          ) : null}
           <FieldWrapper
             label={t("field.quantity")}
             required
@@ -1863,12 +1892,24 @@ function MovementDialog({
             error={fieldErrors.photos}
             className="sm:col-span-2"
           >
-            <FieldCamera
-              label={t("field.photos")}
-              fileCount={photos.length}
-              onCapture={(file) => setPhotos((items) => [...items, file])}
-              onClear={() => setPhotos([])}
-            />
+            {isFieldStaff ? (
+              <FieldEvidenceGrid
+                labels={equipmentEvidenceLabels}
+                files={fieldEvidence}
+                progressLabel={t("evidenceProgress", {
+                  current: fieldPhotos.length,
+                  required: FIELD_EVIDENCE_PHOTO_COUNT,
+                })}
+                onChange={setFieldEvidence}
+              />
+            ) : (
+              <FieldCamera
+                label={t("field.photos")}
+                fileCount={photos.length}
+                onCapture={(file) => setPhotos((items) => [...items, file])}
+                onClear={() => setPhotos([])}
+              />
+            )}
           </FieldWrapper>
           <FieldWrapper
             label={t("field.location")}
@@ -1912,10 +1953,12 @@ function MovementDialog({
           </Button>
           <Button
             disabled={
-              !operator.trim() ||
+              (!isFieldStaff && !operator.trim()) ||
               !quantity ||
               Number(quantity) <= 0 ||
-              photos.length === 0 ||
+              submissionPhotos.length <
+                (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) ||
+              (isFieldStaff && !hasRequiredFieldEvidence(fieldEvidence)) ||
               !location ||
               save.isPending
             }
@@ -2229,14 +2272,24 @@ function ProgressDialog({
   // empty select the submit button would silently refuse.
   const t = useTranslations("contractorOps");
   const { user } = useAuth();
+  const isFieldStaff = Boolean(user?.is_field_staff);
   const [project, setProject] = useState(initialProject);
   const [phase, setPhase] = useState("");
   const [percent, setPercent] = useState("");
   const [description, setDescription] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
+  const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState(false);
   const [error, setError] = useState("");
+  const fieldPhotos = completedFieldEvidence(fieldEvidence);
+  const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
+  const progressEvidenceLabels = [
+    t("progressEvidence.overview"),
+    t("progressEvidence.activity"),
+    t("progressEvidence.detail"),
+    t("progressEvidence.reference"),
+  ];
   const phases = useQuery({
     queryKey: ["construction-phases", project],
     queryFn: () => getConstructionPhases({ project, page_size: 200 }),
@@ -2256,7 +2309,7 @@ function ProgressDialog({
         longitude: location?.longitude,
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,
-        photos,
+        photos: submissionPhotos,
       });
     },
     onSuccess: onSaved,
@@ -2328,12 +2381,24 @@ function ProgressDialog({
           />
         </FieldWrapper>
         <FieldWrapper label={t("field.photos")} required>
-          <FieldCamera
-            label={t("field.photos")}
-            fileCount={photos.length}
-            onCapture={(file) => setPhotos((items) => [...items, file])}
-            onClear={() => setPhotos([])}
-          />
+          {isFieldStaff ? (
+            <FieldEvidenceGrid
+              labels={progressEvidenceLabels}
+              files={fieldEvidence}
+              progressLabel={t("evidenceProgress", {
+                current: fieldPhotos.length,
+                required: FIELD_EVIDENCE_PHOTO_COUNT,
+              })}
+              onChange={setFieldEvidence}
+            />
+          ) : (
+            <FieldCamera
+              label={t("field.photos")}
+              fileCount={photos.length}
+              onCapture={(file) => setPhotos((items) => [...items, file])}
+              onClear={() => setPhotos([])}
+            />
+          )}
         </FieldWrapper>
         <FieldWrapper
           label={t("field.location")}
@@ -2368,7 +2433,9 @@ function ProgressDialog({
               !project ||
               !phase ||
               !percent ||
-              photos.length === 0 ||
+              submissionPhotos.length <
+                (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) ||
+              (isFieldStaff && !hasRequiredFieldEvidence(fieldEvidence)) ||
               !location ||
               save.isPending
             }
@@ -2528,6 +2595,7 @@ function OutgoingDialog({
   // control permanently dead with nothing on screen explaining why.
   const t = useTranslations("contractorOps");
   const { user } = useAuth();
+  const isFieldStaff = Boolean(user?.is_field_staff);
   const [project, setProject] = useState(initialProject);
   const [form, setForm] = useState({
     material_name: "",
@@ -2539,8 +2607,21 @@ function OutgoingDialog({
     delivery_note_no: "",
     reason: "",
   });
+  const [photos, setPhotos] = useState(createEmptyFieldEvidence);
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState(false);
+  const photoPrompts = [
+    t("outgoing.evidence.overview"),
+    t("outgoing.evidence.quantity"),
+    t("outgoing.evidence.vehicle"),
+    t("outgoing.evidence.loading"),
+  ];
+  const evidencePhotos = photos.filter((file): file is File => Boolean(file));
+  const photoCaptions = evidencePhotos.map((_, index) =>
+    index < photoPrompts.length
+      ? photoPrompts[index]
+      : t("outgoing.evidence.other"),
+  );
   const set = (key: keyof typeof form, value: string) =>
     setForm((old) => ({ ...old, [key]: value }));
   const save = useMutation({
@@ -2549,10 +2630,15 @@ function OutgoingDialog({
       return submitMaterialOutgoingOfflineAware(user.id, {
         project,
         ...form,
+        destination: isFieldStaff ? "" : form.destination,
+        executor_name: isFieldStaff ? user.full_name : form.executor_name,
+        delivery_note_no: isFieldStaff ? "" : form.delivery_note_no,
         latitude: location?.latitude,
         longitude: location?.longitude,
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,
+        photos: evidencePhotos,
+        photo_captions: photoCaptions,
       });
     },
     onSuccess: onSaved,
@@ -2570,7 +2656,9 @@ function OutgoingDialog({
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("outgoing.createTitle")}</DialogTitle>
-          <DialogDescription>{t("outgoing.formHelp")}</DialogDescription>
+          <DialogDescription>
+            {t(isFieldStaff ? "outgoing.fieldFormHelp" : "outgoing.formHelp")}
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper
@@ -2613,12 +2701,14 @@ function OutgoingDialog({
               </Select>
             </div>
           </FieldWrapper>
-          <FieldWrapper label={t("field.executor")} required>
-            <Input
-              value={form.executor_name}
-              onChange={(e) => set("executor_name", e.target.value)}
-            />
-          </FieldWrapper>
+          {!isFieldStaff ? (
+            <FieldWrapper label={t("field.executor")} required>
+              <Input
+                value={form.executor_name}
+                onChange={(e) => set("executor_name", e.target.value)}
+              />
+            </FieldWrapper>
+          ) : null}
           <FieldWrapper label={t("field.vehiclePlate")}>
             <Input
               value={form.vehicle_plate}
@@ -2627,25 +2717,48 @@ function OutgoingDialog({
               }
             />
           </FieldWrapper>
-          <FieldWrapper
-            label={t("field.destination")}
-            required
-            className="sm:col-span-2"
-          >
-            <Input
-              value={form.destination}
-              onChange={(e) => set("destination", e.target.value)}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.deliveryNote")}>
-            <Input
-              value={form.delivery_note_no}
-              onChange={(e) => set("delivery_note_no", e.target.value)}
-            />
-          </FieldWrapper>
+          {!isFieldStaff ? (
+            <>
+              <FieldWrapper
+                label={t("field.destination")}
+                required
+                className="sm:col-span-2"
+              >
+                <Input
+                  value={form.destination}
+                  onChange={(e) => set("destination", e.target.value)}
+                />
+              </FieldWrapper>
+              <FieldWrapper label={t("field.deliveryNote")}>
+                <Input
+                  value={form.delivery_note_no}
+                  onChange={(e) => set("delivery_note_no", e.target.value)}
+                />
+              </FieldWrapper>
+            </>
+          ) : null}
+          {isFieldStaff ? (
+            <FieldWrapper
+              label={t("outgoing.evidence.title")}
+              required
+              className="sm:col-span-2"
+            >
+              <FieldEvidenceGrid
+                labels={photoPrompts}
+                files={photos}
+                progressLabel={t("outgoing.evidence.progress", {
+                  current: evidencePhotos.length,
+                  required: FIELD_EVIDENCE_PHOTO_COUNT,
+                })}
+                onChange={setPhotos}
+              />
+            </FieldWrapper>
+          ) : null}
           <FieldWrapper
             label={t("field.location")}
+            required={isFieldStaff}
             error={locationError ? t("state.locationError") : undefined}
+            className="sm:col-span-2"
           >
             <Button variant="outline" onClick={() => void locate()}>
               <MapPin />
@@ -2653,8 +2766,8 @@ function OutgoingDialog({
             </Button>
           </FieldWrapper>
           <FieldWrapper
-            label={t("field.reason")}
-            required
+            label={isFieldStaff ? t("field.notes") : t("field.reason")}
+            required={!isFieldStaff}
             className="sm:col-span-2"
           >
             <Textarea
@@ -2672,9 +2785,11 @@ function OutgoingDialog({
               !project ||
               !form.material_name.trim() ||
               !form.quantity ||
-              !form.destination.trim() ||
-              !form.executor_name.trim() ||
-              !form.reason.trim() ||
+              (!isFieldStaff && !form.destination.trim()) ||
+              (!isFieldStaff && !form.executor_name.trim()) ||
+              (!isFieldStaff && !form.reason.trim()) ||
+              (isFieldStaff && !hasRequiredFieldEvidence(photos)) ||
+              (isFieldStaff && !location) ||
               save.isPending
             }
             onClick={() => save.mutate()}

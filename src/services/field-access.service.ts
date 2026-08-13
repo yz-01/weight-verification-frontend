@@ -1,4 +1,4 @@
-import type { LoginResponse } from "@/interfaces/auth";
+import type { Branding, LoginResponse } from "@/interfaces/auth";
 import { clearActiveProjectId } from "@/lib/project-context";
 import {
   markFieldAppContext,
@@ -15,6 +15,7 @@ export interface FieldInvitationInfo {
   invitation_expires_at: string;
   pin_expires_at: string;
   activated_at: string | null;
+  branding: Branding;
 }
 
 export interface FieldInvitationResult extends FieldInvitationInfo {

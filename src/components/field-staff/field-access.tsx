@@ -4,13 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Camera, Loader2, LogIn, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
+import { safeReturnPath } from "@/lib/portal";
+import { iconPath } from "@/lib/branding";
 import {
   activateFieldDevice,
   fieldLogin,
@@ -24,6 +26,7 @@ export function FieldAccess() {
   const router = useRouter();
   const { setUser } = useAuth();
   const token = searchParams.get("token") ?? "";
+  const next = safeReturnPath(searchParams.get("next") ?? undefined);
   const invitation = useQuery({
     queryKey: ["field-invitation", token],
     queryFn: () => inspectFieldInvitation(token),
@@ -33,6 +36,30 @@ export function FieldAccess() {
   const [pin, setPin] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!token || !invitation.data?.branding) return;
+    const icon = document.createElement("link");
+    icon.rel = "icon";
+    icon.href = iconPath(32, {
+      invitation: token,
+      revision: invitation.data.branding.icon_url,
+    });
+    const apple = document.createElement("link");
+    apple.rel = "apple-touch-icon";
+    apple.sizes = "180x180";
+    apple.href = iconPath(180, {
+      invitation: token,
+      revision: invitation.data.branding.icon_url,
+    });
+    document.head
+      .querySelectorAll<HTMLLinkElement>(
+        'link[rel="icon"], link[rel="apple-touch-icon"]',
+      )
+      .forEach((link) => link.remove());
+    document.head.append(icon, apple);
+    document.title = invitation.data.branding.name;
+  }, [invitation.data, token]);
 
   const submit = async () => {
     setError("");
@@ -52,7 +79,9 @@ export function FieldAccess() {
           });
       await setUser(result.user);
       router.replace(
-        `/trace/field-ready?bootstrap=${encodeURIComponent(result.pwa_bootstrap.token)}`,
+        next
+          ? next
+          : `/trace/field-ready?bootstrap=${encodeURIComponent(result.pwa_bootstrap.token)}`,
       );
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : t("failed"));

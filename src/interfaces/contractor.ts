@@ -86,6 +86,7 @@ export interface ProjectAssignment {
   user_email: string;
   role_code: string;
   role_name: string;
+  is_field_staff: boolean;
   project: string;
   created_at: string;
 }
@@ -134,6 +135,95 @@ export interface SupplierQRCode {
   is_active: boolean;
   revoked_at: string | null;
   created_at: string;
+}
+
+export type DeliveryNoteStatus =
+  | "ISSUED"
+  | "ARRIVED"
+  | "COMPLETED"
+  | "CLOSED"
+  | "CANCELLED"
+  | "VOIDED";
+
+export type DeliveryNoteDecision = "RECEIVED" | "REJECTED";
+export type DeliveryNoteEvidenceKind = "VEHICLE" | "UNLOADING" | "DELIVERY_NOTE" | "OTHER";
+
+export interface DeliveryNoteEvidence {
+  id: string;
+  kind: DeliveryNoteEvidenceKind;
+  image: string;
+  watermarked?: string | null;
+  caption: string;
+  captured_at: string;
+  latitude: string | null;
+  longitude: string | null;
+  created_at: string;
+}
+
+export interface DeliveryNote {
+  id: string;
+  note_no: string;
+  project: string;
+  project_code: string;
+  project_name: string;
+  supplier: string;
+  supplier_code: string;
+  supplier_name: string;
+  qr_code: string | null;
+  qr_serial: string | null;
+  qr_token: string | null;
+  qr_url: string | null;
+  status: DeliveryNoteStatus;
+  decision: DeliveryNoteDecision | "";
+  vehicle_plate: string;
+  driver_name: string;
+  material_name: string;
+  expected_quantity: string;
+  actual_quantity: string | null;
+  unit: MaterialUnit;
+  expected_delivery_at: string;
+  notes: string;
+  issued_at: string;
+  arrived_at: string | null;
+  completed_at: string | null;
+  closed_at: string | null;
+  cancelled_at: string | null;
+  voided_at: string | null;
+  receiver_name: string;
+  receiver_signature: string | null;
+  rejection_reason: string;
+  completion_note: string;
+  latitude: string | null;
+  longitude: string | null;
+  location_accuracy_m: string | null;
+  receipt_id: string | null;
+  receipt_no: string | null;
+  evidence: DeliveryNoteEvidence[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DeliveryNotePublic {
+  note_no: string;
+  company_name: string;
+  project_name: string;
+  supplier_name: string;
+  status: DeliveryNoteStatus;
+  decision: DeliveryNoteDecision | "";
+  vehicle_plate: string;
+  driver_name: string;
+  material_name: string;
+  expected_quantity: string;
+  actual_quantity: string | null;
+  unit: MaterialUnit;
+  expected_delivery_at: string;
+  notes: string;
+  arrived_at: string | null;
+  completed_at: string | null;
+  receiver_name: string;
+  rejection_reason: string;
+  completion_note: string;
+  evidence: DeliveryNoteEvidence[];
 }
 
 export type MaterialUnit = "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";

@@ -28,14 +28,9 @@ export function FieldPwaBootstrap({ token }: { token: string }) {
     started.current = true;
     if (!token) return;
     const completionKey = "mse_field_pwa_bootstrap_complete";
-    if (hasFieldSession()) {
-      markFieldAppContext();
-      router.replace("/field-staff");
-      return;
-    }
     if (window.localStorage.getItem(completionKey) === token) {
       markFieldAppContext();
-      router.replace("/trace/field-login");
+      router.replace(hasFieldSession() ? "/field-staff" : "/trace/field-login");
       return;
     }
     void restoreFieldPwaSession({
@@ -49,6 +44,11 @@ export function FieldPwaBootstrap({ token }: { token: string }) {
         router.replace("/field-staff");
       })
       .catch((cause) => {
+        if (hasFieldSession()) {
+          markFieldAppContext();
+          router.replace("/field-staff");
+          return;
+        }
         setError(cause instanceof ApiError ? cause.message : t("failed"));
       });
   }, [router, setUser, t, token]);

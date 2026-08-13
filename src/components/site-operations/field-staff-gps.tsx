@@ -147,7 +147,7 @@ export function FieldStaffGps() {
   }, [selectedProject]);
   const markers = useMemo(
     () =>
-      positions.map((position) => ({
+      positions.filter(hasVisibleCoordinates).map((position) => ({
         id: position.id,
         latitude: Number(position.latitude),
         longitude: Number(position.longitude),
@@ -175,7 +175,7 @@ export function FieldStaffGps() {
   );
   const historyMarkers = useMemo(
     () =>
-      lastRows.map((position) => ({
+      lastRows.filter(hasVisibleCoordinates).map((position) => ({
         id: `${position.project}:${position.user}`,
         latitude: Number(position.latitude),
         longitude: Number(position.longitude),
@@ -195,7 +195,7 @@ export function FieldStaffGps() {
   const historyPaths = useMemo(() => {
     if (!selectedLastPosition) return [];
     const points = historyPositions
-      .filter((position) => position.event_type !== "SHARING_STOPPED")
+      .filter((position) => position.event_type !== "SHARING_STOPPED" && hasVisibleCoordinates(position))
       .map(
         (position) =>
           [Number(position.latitude), Number(position.longitude)] as [number, number],
@@ -219,7 +219,7 @@ export function FieldStaffGps() {
         Number(selectedHistoryProject.longitude),
       ];
     }
-    if (selectedLastPosition) {
+    if (selectedLastPosition && hasVisibleCoordinates(selectedLastPosition)) {
       return [
         Number(selectedLastPosition.latitude),
         Number(selectedLastPosition.longitude),
@@ -503,6 +503,12 @@ function buildZones(
     });
   });
   return [...zones, ...legacy.values()];
+}
+
+function hasVisibleCoordinates(
+  position: FieldStaffPosition,
+): position is FieldStaffPosition & { latitude: string; longitude: string } {
+  return position.latitude !== null && position.longitude !== null;
 }
 
 function MapSection({

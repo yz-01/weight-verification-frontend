@@ -3,7 +3,7 @@
 import { ChevronDown, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
@@ -47,6 +47,7 @@ import { PORTAL_LABELS } from "@/lib/portal";
 export function AppSidebar() {
   const t = useTranslations();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -141,10 +142,10 @@ export function AppSidebar() {
                       {item.children && isExpanded && (
                         <SidebarMenuSub className="my-1 gap-0.5">
                           {item.children.map((child) => {
-                            const childActive = isActivePath(
+                            const childActive = isActiveChild(
                               child.href,
                               pathname,
-                              true,
+                              searchParams,
                             );
                             return (
                               <SidebarMenuSubItem key={child.key}>
@@ -188,4 +189,21 @@ export function AppSidebar() {
       </SidebarFooter>
     </Sidebar>
   );
+}
+
+function isActiveChild(
+  href: string,
+  pathname: string,
+  searchParams: Pick<URLSearchParams, "get">,
+) {
+  const [route, query = ""] = href.split("?", 2);
+  if (pathname !== route) return false;
+
+  const expected = new URLSearchParams(query);
+  if (expected.has("tab")) {
+    return searchParams.get("tab") === expected.get("tab");
+  }
+
+  // A scanned gate link also belongs to the gate view, not the pass list.
+  return searchParams.get("tab") !== "gate" && !searchParams.get("scan");
 }

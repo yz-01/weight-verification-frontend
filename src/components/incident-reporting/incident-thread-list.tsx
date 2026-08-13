@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { StatusBadge } from "@/components/shared/page-primitives";
+import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import type { IncidentReportThread } from "@/interfaces/incident-report";
 import { getIncidentThreads } from "@/services/site-operations.service";
@@ -16,16 +17,32 @@ import { IncidentThreadDetail } from "./incident-thread-detail";
 
 export function IncidentThreadList() {
   const t = useTranslations("incidentReporting");
+  const safetyT = useTranslations("safety.filter");
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedThread = searchParams.get("thread");
+  const selectedProject = searchParams.get("project") ?? "all";
   const [showCreate, setShowCreate] = useState(false);
 
   const threads = useQuery({
-    queryKey: ["incident-threads"],
-    queryFn: () => getIncidentThreads({ page_size: 100, sort_by: "-created_at" }),
+    queryKey: ["incident-threads", selectedProject],
+    queryFn: () =>
+      getIncidentThreads({
+        page_size: 100,
+        sort_by: "-created_at",
+        project: selectedProject === "all" ? undefined : selectedProject,
+      }),
   });
+
+  const selectProject = (projectId: string) => {
+    const next = new URLSearchParams(searchParams.toString());
+    next.delete("thread");
+    if (projectId === "all") next.delete("project");
+    else next.set("project", projectId);
+    const query = next.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
 
   const selectThread = (threadId: string | null) => {
     const next = new URLSearchParams(searchParams.toString());
@@ -52,6 +69,17 @@ export function IncidentThreadList() {
           <Button onClick={() => setShowCreate(true)}>
             {t("action.reportIncident")}
           </Button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 border-y bg-card/50 py-3">
+          <ProjectPicker
+            value={selectedProject}
+            onValueChange={selectProject}
+            placeholder={safetyT("project")}
+            allowAll
+            allLabel={safetyT("allProjects")}
+            className="w-full sm:w-[280px]"
+          />
         </div>
 
         {threads.isLoading && (

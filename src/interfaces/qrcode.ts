@@ -9,7 +9,8 @@ export type QRSubjectType =
   | "VEHICLE"
   | "FIELD_STAFF"
   | "VISITOR"
-  | "DEVICE";
+  | "DEVICE"
+  | "DELIVERY_NOTE";
 
 export type QRCodeStatus =
   | "ACTIVE"

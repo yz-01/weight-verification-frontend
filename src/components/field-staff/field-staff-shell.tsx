@@ -2,7 +2,7 @@
 
 import { HardHat, Loader2, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
@@ -12,10 +12,13 @@ import { OfflineStatus } from "@/components/shared/offline-status";
 import { Button } from "@/components/ui/button";
 import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
 import { redirectWithFallback } from "@/lib/portal";
+import { FieldLocationTracker } from "@/components/field-staff/field-location-tracker";
 
 export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { user, isLoading, signOut } = useAuth();
   const allowed = user?.portal === "MSE_TRACE" && user.is_field_staff;
 
@@ -23,12 +26,16 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && user === null) {
-      redirectWithFallback(router, "/trace/field-login");
+      const currentPath = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+      redirectWithFallback(
+        router,
+        `/trace/field-login?next=${encodeURIComponent(currentPath)}`,
+      );
     } else if (!isLoading && user !== null && !allowed) {
       clearFieldTokens();
       redirectWithFallback(router, "/trace/field-login");
     }
-  }, [allowed, isLoading, router, user]);
+  }, [allowed, isLoading, pathname, router, searchParams, user]);
 
   if (isLoading || user === null || !allowed) {
     return <div className="flex min-h-dvh items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
@@ -36,6 +43,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-background">
+      <FieldLocationTracker />
       <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur">
         <div className="mx-auto flex min-h-16 w-full max-w-2xl items-center gap-2 px-4 py-2.5">
           <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, QrCode, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -17,11 +17,14 @@ import {
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SupplierQrPanel } from "@/components/suppliers/supplier-qr-panel";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Supplier } from "@/interfaces/contractor";
 import {
   deleteSupplier,
   exportSuppliers,
+  getSupplier,
   getSuppliers,
   type ExportFormat,
 } from "@/services/contractor.service";
@@ -34,6 +37,12 @@ export function Suppliers() {
   const queryClient = useQueryClient();
   const list = useListQuery();
   const [removing, setRemoving] = useState<Supplier | null>(null);
+  const [qrPreviewId, setQrPreviewId] = useState<string | null>(null);
+  const qrPreview = useQuery({
+    queryKey: ["suppliers", "qr-preview", qrPreviewId],
+    queryFn: () => getSupplier(qrPreviewId as string),
+    enabled: Boolean(qrPreviewId),
+  });
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["suppliers", list.query],
@@ -172,6 +181,17 @@ export function Suppliers() {
                 </Link>
               </Button>
             )}
+            {can("supplier.view") && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-primary hover:bg-primary/10"
+                title={t("suppliers.qr.title")}
+                onClick={() => setQrPreviewId(row.original.id)}
+              >
+                <QrCode className="h-3.5 w-3.5" />
+              </Button>
+            )}
             {can("supplier.delete") && (
               <Button
                 variant="ghost"
@@ -263,6 +283,19 @@ export function Suppliers() {
           onConfirm={() => removal.mutate(removing.id)}
         />
       )}
+      <Dialog open={Boolean(qrPreviewId)} onOpenChange={(open) => !open && setQrPreviewId(null)}>
+        <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{t("suppliers.qr.title")}</DialogTitle>
+            <DialogDescription>{t("suppliers.qr.description")}</DialogDescription>
+          </DialogHeader>
+          {qrPreview.isLoading ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">{t("common.loading")}</p>
+          ) : qrPreview.data ? (
+            <SupplierQrPanel supplier={qrPreview.data} />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

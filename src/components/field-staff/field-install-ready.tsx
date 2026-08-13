@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/providers/auth-provider";
 import { hasFieldSession, markFieldAppContext } from "@/lib/auth-token";
+import { iconPath } from "@/lib/branding";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -16,6 +18,7 @@ interface BeforeInstallPromptEvent extends Event {
 export function FieldInstallReady({ token }: { token: string }) {
   const t = useTranslations("fieldAccess");
   const router = useRouter();
+  const { user } = useAuth();
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isIos] = useState(() =>
@@ -24,6 +27,37 @@ export function FieldInstallReady({ token }: { token: string }) {
   );
 
   useEffect(() => {
+    const manifest = document.createElement("link");
+    manifest.rel = "manifest";
+    manifest.href = token
+      ? `/field-manifest.webmanifest?bootstrap=${encodeURIComponent(token)}`
+      : "/manifest.webmanifest";
+    document.head
+      .querySelectorAll<HTMLLinkElement>('link[rel="manifest"]')
+      .forEach((link) => link.remove());
+    document.head.appendChild(manifest);
+
+    const icon = document.createElement("link");
+    icon.rel = "icon";
+    icon.href = iconPath(32, {
+      bootstrap: token,
+      revision: user?.branding.icon_url,
+    });
+    const apple = document.createElement("link");
+    apple.rel = "apple-touch-icon";
+    apple.sizes = "180x180";
+    apple.href = iconPath(180, {
+      bootstrap: token,
+      revision: user?.branding.icon_url,
+    });
+    document.head
+      .querySelectorAll<HTMLLinkElement>(
+        'link[rel="icon"], link[rel="apple-touch-icon"]',
+      )
+      .forEach((link) => link.remove());
+    document.head.append(icon, apple);
+    document.title = user?.branding.name ?? "MSE Trace";
+
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       ("standalone" in navigator &&
@@ -31,11 +65,11 @@ export function FieldInstallReady({ token }: { token: string }) {
     if (standalone) {
       markFieldAppContext();
       router.replace(
-        hasFieldSession()
-          ? "/field-staff"
-          : token
+        token
           ? `/field-pwa-bootstrap?token=${encodeURIComponent(token)}`
-          : "/trace/field-login",
+          : hasFieldSession()
+            ? "/field-staff"
+            : "/trace/field-login",
       );
       return;
     }
@@ -50,10 +84,11 @@ export function FieldInstallReady({ token }: { token: string }) {
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("appinstalled", installed);
     return () => {
+      manifest.remove();
       window.removeEventListener("beforeinstallprompt", handler);
       window.removeEventListener("appinstalled", installed);
     };
-  }, [router, token]);
+  }, [router, token, user?.branding.icon_url, user?.branding.name]);
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6">

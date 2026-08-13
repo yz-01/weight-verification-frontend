@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { BrandingSync } from "@/components/providers/branding-sync";
 import { LocaleSync } from "@/components/providers/locale-sync";
 import { OfflineSyncProvider } from "@/components/providers/offline-sync-provider";
 import { ServiceWorkerRegistration } from "@/components/providers/service-worker-registration";
@@ -53,6 +54,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         disableTransitionOnChange
       >
         <AuthProvider>
+          <BrandingSync />
           <LocaleSync />
           <ServiceWorkerRegistration />
           <OfflineSyncProvider>

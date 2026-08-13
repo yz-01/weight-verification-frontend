@@ -201,6 +201,8 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     longitude?: string;
     client_event_id: string;
     field_task?: string;
+    photos: StoredFile[];
+    photo_captions?: string[];
   };
 }
 

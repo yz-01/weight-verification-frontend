@@ -218,16 +218,30 @@ export const reviewSiteProgressRecord = async (id: string, status: "CONFIRMED" |
 
 export const getMaterialOutgoing = (query: ListQuery = {}): Promise<Paginated<MaterialOutgoing>> =>
   api.list<MaterialOutgoing>("/api/material-outgoing/get_records/", query);
-export const createMaterialOutgoing = async (payload: {
+export async function createMaterialOutgoing(payload: {
   project: string; material_name: string; quantity: string; unit: string; destination: string;
   executor_name: string; vehicle_plate?: string; delivery_note_no?: string; reason: string;
   latitude?: string; longitude?: string; client_event_id?: string;
   field_task?: string;
-}) => {
-  const row = await api.post<MaterialOutgoing>("/api/material-outgoing/create_record/", payload);
+  photos: File[]; photo_captions?: string[];
+}) {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === "photos" || key === "photo_captions") continue;
+    if (value !== undefined && value !== "") data.append(key, String(value));
+  }
+  payload.photos.forEach((photo, index) => {
+    data.append("photos", photo);
+    const caption = payload.photo_captions?.[index];
+    if (caption) data.append(`photo_caption_${index}`, caption);
+  });
+  const row = await api.post<MaterialOutgoing>(
+    "/api/material-outgoing/create_record/",
+    data,
+  );
   toastSuccess("contractorOps.toast.outgoingSubmitted");
   return row;
-};
+}
 export const reviewMaterialOutgoing = async (id: string, status: MaterialOutgoing["status"], note = "") => {
   const row = await api.post<MaterialOutgoing>(`/api/material-outgoing/${id}/review_record/`, { status, note });
   toastSuccess("contractorOps.toast.outgoingReviewed");
@@ -297,6 +311,75 @@ export async function assignDisposalCollector(
   toastSuccess("siteDisposal.toast.assigned");
   return row;
 }
+
+export async function assignDisposalInternal(
+  id: string,
+  payload: { assigned_staff: string; due_at?: string },
+) {
+  const row = await api.post<DisposalRequest>(
+    `/api/site-disposals/${id}/assign_internal/`,
+    payload,
+  );
+  toastSuccess("siteDisposal.toast.assignedInternal");
+  return row;
+}
+
+export async function regenerateDisposalExternalLink(
+  id: string,
+  expiresAt: string,
+) {
+  const row = await api.post<DisposalRequest & { external_url: string; external_token: string }>(
+    `/api/site-disposals/${id}/regenerate_external_link/`,
+    { expires_at: expiresAt },
+  );
+  toastSuccess("siteDisposal.toast.linkRegenerated");
+  return row;
+}
+
+export const getInternalDisposalTask = (id: string) =>
+  api.get<DisposalRequest>(`/api/site-disposals/${id}/execute_internal/`);
+
+export const startInternalDisposalTask = (
+  id: string,
+  location: { latitude: string; longitude: string; accuracy_m?: string },
+) => api.post<DisposalRequest>(`/api/site-disposals/${id}/execute_internal/`, {
+  operation: "start",
+  ...location,
+});
+
+export const addInternalDisposalEvidence = (
+  id: string,
+  payload: {
+    kind: Exclude<DisposalEvidenceKind, "REQUEST" | "CONFIRMATION">;
+    image: File;
+    note?: string;
+    latitude: string;
+    longitude: string;
+    accuracy_m?: string;
+    client_event_id: string;
+  },
+) => {
+  const data = new FormData();
+  data.append("operation", "add_evidence");
+  for (const [key, value] of Object.entries(payload)) {
+    if (value !== undefined && value !== "") {
+      data.append(key, value instanceof File ? value : String(value));
+    }
+  }
+  return api.post<{
+    evidence: DisposalEvidence;
+    ocr: Record<string, unknown> | null;
+    ocr_status: DisposalRequest["ocr_status"];
+  }>(`/api/site-disposals/${id}/execute_internal/`, data);
+};
+
+export const submitInternalDisposalTask = (
+  id: string,
+  payload: { actual_weight_kg: string; trip_count: number; disposal_do_no: string; note?: string },
+) => api.post<DisposalRequest>(`/api/site-disposals/${id}/execute_internal/`, {
+  operation: "submit",
+  ...payload,
+});
 
 export async function confirmDisposalCompletion(
   id: string,

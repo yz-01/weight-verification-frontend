@@ -160,7 +160,7 @@ export function ContractorDashboard() {
 
       {can("dashboard.search") && <QuickSearch project={project} />}
 
-      <QuickActions />
+      <QuickActions project={project} />
 
       {!data ? (
         <DashboardSkeleton />
@@ -523,12 +523,22 @@ export function ContractorDashboard() {
   );
 }
 
-function QuickActions() {
+function QuickActions({ project }: { project: string }) {
   const t = useTranslations("contractorDashboard.quickActions");
-  const actions: Array<{ href: string; label: string; icon: typeof Inbox }> = [
+  const actions: Array<{
+    href: string;
+    label: string;
+    icon: typeof Inbox;
+    requiresProject?: boolean;
+  }> = [
     { href: "/projects/create", label: t("project"), icon: Plus },
     { href: "/suppliers/create", label: t("supplier"), icon: Inbox },
-    { href: "/project-categories?create=1", label: t("category"), icon: FolderPlus },
+    {
+      href: `/project-categories?project=${encodeURIComponent(project)}&create=1`,
+      label: t("category"),
+      icon: FolderPlus,
+      requiresProject: true,
+    },
     { href: "/documents?create=1", label: t("document"), icon: FilePlus2 },
     { href: "/approvals?create=1", label: t("approval"), icon: ClipboardCheck },
     { href: "/notifications?create=1", label: t("notification"), icon: BellPlus },
@@ -539,6 +549,20 @@ function QuickActions() {
       <div className="flex gap-2 overflow-x-auto pb-1">
         {actions.map((action) => {
           const Icon = action.icon;
+          if (action.requiresProject && !project) {
+            return (
+              <Button
+                key={action.href}
+                disabled
+                variant="outline"
+                className="shrink-0"
+                title={t("selectProjectFirst")}
+              >
+                <Icon />
+                {action.label}
+              </Button>
+            );
+          }
           return (
             <Button key={action.href} asChild variant="outline" className="shrink-0">
               <Link href={action.href}><Icon />{action.label}</Link>

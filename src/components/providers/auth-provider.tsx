@@ -16,6 +16,7 @@ import {
   clearFieldTokens,
   clearTokens,
   getSessionPortal,
+  hasFieldSession,
   hasSession,
   isFieldStandaloneApp,
   isFieldSessionPath,
@@ -57,7 +58,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     "/trace/field-ready",
     "/field-pwa-bootstrap",
   ].includes(pathname);
-  const sessionPresent = hasSession();
+  // Field Staff uses an isolated device session. Checking the standard
+  // account token here makes a deep-linked supplier QR open the PIN page even
+  // though the Field Staff device is already signed in.
+  const sessionPresent = fieldSession ? hasFieldSession() : hasSession();
   const currentUserKey = useMemo(
     () => [...CURRENT_USER_KEY, fieldSession ? "field" : "standard"] as const,
     [fieldSession],

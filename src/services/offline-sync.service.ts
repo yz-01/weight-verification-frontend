@@ -232,7 +232,10 @@ async function uploadJob(job: OfflineJob): Promise<void> {
   }
 
   if (job.kind === "MATERIAL_OUTGOING") {
-    await createMaterialOutgoing(job.payload);
+    await createMaterialOutgoing({
+      ...job.payload,
+      photos: job.payload.photos.map(restoreFile),
+    });
     return;
   }
 
@@ -596,7 +599,10 @@ export function submitSiteProgressOfflineAware(
 
 export function submitMaterialOutgoingOfflineAware(
   ownerId: string,
-  draft: Extract<OfflineJob, { kind: "MATERIAL_OUTGOING" }>["payload"],
+  draft: Omit<
+    Extract<OfflineJob, { kind: "MATERIAL_OUTGOING" }>["payload"],
+    "photos"
+  > & { photos: File[] },
 ): Promise<OfflineSubmission> {
   return submitCaptureJob({
     id: newId("material-outgoing-job"),
@@ -605,7 +611,7 @@ export function submitMaterialOutgoingOfflineAware(
     queuedAt: new Date().toISOString(),
     attempts: 0,
     lastError: "",
-    payload: draft,
+    payload: { ...draft, photos: draft.photos.map(storeFile) },
   });
 }
 

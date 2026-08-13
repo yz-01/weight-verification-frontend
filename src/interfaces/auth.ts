@@ -37,6 +37,17 @@ export interface ProjectQuota {
   remaining: number | null;
 }
 
+export interface Branding {
+  name: string;
+  short_name: string;
+  company_id: string | null;
+  company_name: string | null;
+  company_logo_url: string | null;
+  platform_icon_url: string | null;
+  icon_url: string | null;
+  uses_platform_default: boolean;
+}
+
 export interface TokenPair {
   access: string;
   refresh: string;
@@ -76,6 +87,7 @@ export interface CurrentUser {
   consultant_projects: ConsultantProjectAccess[];
   active_project: ActiveProject | null;
   company_preferences: CompanyPreferences | null;
+  branding: Branding;
 }
 
 export interface CompanyPreferences {

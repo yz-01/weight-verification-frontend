@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export function SupplierQrScanner({
+export function GateQrScanner({
   open,
   onClose,
   onDetected,
@@ -24,21 +24,22 @@ export function SupplierQrScanner({
   onClose: () => void;
   onDetected: (token: string) => void;
 }) {
-  const t = useTranslations("fieldStaffPwa.material");
-  const commonT = useTranslations("common");
+  const t = useTranslations("siteControl");
   const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const controlsRef = useRef<IScannerControls | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const onDetectedRef = useRef(onDetected);
+  const controlsRef = useRef<IScannerControls | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const detectedRef = useRef(false);
+  const onDetectedRef = useRef(onDetected);
+  const onCloseRef = useRef(onClose);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     onDetectedRef.current = onDetected;
-  }, [onDetected]);
+    onCloseRef.current = onClose;
+  }, [onClose, onDetected]);
 
   const stop = useCallback(() => {
     controlsRef.current?.stop();
@@ -59,7 +60,7 @@ export function SupplierQrScanner({
       setError("");
       if (!navigator.mediaDevices?.getUserMedia) {
         setStarting(false);
-        setError(t("cameraError"));
+        setError(t("gate.cameraUnsupported"));
         return;
       }
       await new Promise<void>((resolve) => {
@@ -75,20 +76,24 @@ export function SupplierQrScanner({
         try {
           stream = await navigator.mediaDevices.getUserMedia({
             audio: false,
-            video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+            video: {
+              facingMode: { ideal: "environment" },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+            },
           });
         } catch {
-          stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: true,
+          });
         }
         if (disposed) {
           stream.getTracks().forEach((track) => track.stop());
           return;
         }
         const video = videoRef.current;
-        if (!video) {
-          stream.getTracks().forEach((track) => track.stop());
-          throw new Error("video_unavailable");
-        }
+        if (!video) throw new Error("video_unavailable");
         streamRef.current = stream;
         video.autoplay = true;
         video.muted = true;
@@ -97,23 +102,29 @@ export function SupplierQrScanner({
         video.srcObject = stream;
         await waitForVideoReady(video);
         await video.play();
-        const reader = new BrowserQRCodeReader(undefined, { delayBetweenScanAttempts: 250 });
-        controlsRef.current = await reader.decodeFromVideoElement(video, (result) => {
-          if (!result || detectedRef.current) return;
-          detectedRef.current = true;
-          stop();
-          onDetectedRef.current(extractSupplierToken(result.getText()));
+        const reader = new BrowserQRCodeReader(undefined, {
+          delayBetweenScanAttempts: 250,
         });
+        controlsRef.current = await reader.decodeFromVideoElement(
+          video,
+          (result) => {
+            if (!result || detectedRef.current) return;
+            detectedRef.current = true;
+            stop();
+            onDetectedRef.current(extractToken(result.getText()));
+            onCloseRef.current();
+          },
+        );
         if (!disposed) setStarting(false);
       } catch {
         if (!disposed) {
           setStarting(false);
-          setError(t("cameraError"));
+          setError(t("gate.cameraError"));
         }
       }
     };
-    void start();
 
+    void start();
     return () => {
       disposed = true;
       cancelAnimationFrame(frame);
@@ -123,15 +134,11 @@ export function SupplierQrScanner({
 
   async function decodeImage(file: File) {
     setError("");
-    let url = "";
     try {
-      url = URL.createObjectURL(file);
-      const result = await new BrowserQRCodeReader().decodeFromImageUrl(url);
-      onDetectedRef.current(extractSupplierToken(result.getText()));
+      onDetectedRef.current(await decodeGateQrImage(file));
+      onCloseRef.current();
     } catch {
-      setError(t("qrInvalid"));
-    } finally {
-      if (url) URL.revokeObjectURL(url);
+      setError(t("gate.imageError"));
     }
   }
 
@@ -139,8 +146,8 @@ export function SupplierQrScanner({
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("scanTitle")}</DialogTitle>
-          <DialogDescription>{t("scanHelp")}</DialogDescription>
+          <DialogTitle>{t("gate.cameraTitle")}</DialogTitle>
+          <DialogDescription>{t("gate.cameraHelp")}</DialogDescription>
         </DialogHeader>
         <div className="relative aspect-[3/4] max-h-[65dvh] overflow-hidden rounded-lg bg-black sm:aspect-[4/3]">
           <video
@@ -158,7 +165,10 @@ export function SupplierQrScanner({
           <div className="pointer-events-none absolute inset-[16%] rounded-lg border-2 border-white/80 shadow-[0_0_0_999px_rgba(0,0,0,0.25)]" />
         </div>
         {error && (
-          <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p
+            role="alert"
+            className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
             {error}
           </p>
         )}
@@ -177,17 +187,20 @@ export function SupplierQrScanner({
           />
           <Button variant="outline" onClick={() => fileRef.current?.click()}>
             <ImagePlus />
-            {t("scanSupplierQr")}
+            {t("gate.uploadImage")}
           </Button>
           {error && (
-            <Button variant="outline" onClick={() => setRetry((value) => value + 1)}>
+            <Button
+              variant="outline"
+              onClick={() => setRetry((value) => value + 1)}
+            >
               <RefreshCw />
-              {commonT("retry")}
+              {t("gate.retryCamera")}
             </Button>
           )}
           <Button variant="outline" onClick={onClose}>
             <ScanLine />
-            {t("closeScanner")}
+            {t("action.close")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -196,9 +209,11 @@ export function SupplierQrScanner({
 }
 
 function waitForVideoReady(video: HTMLVideoElement): Promise<void> {
-  if (video.readyState >= HTMLMediaElement.HAVE_METADATA && video.videoWidth > 0) {
+  if (
+    video.readyState >= HTMLMediaElement.HAVE_METADATA &&
+    video.videoWidth > 0
+  )
     return Promise.resolve();
-  }
   return new Promise((resolve, reject) => {
     const timeout = window.setTimeout(() => {
       cleanup();
@@ -214,20 +229,32 @@ function waitForVideoReady(video: HTMLVideoElement): Promise<void> {
       cleanup();
       resolve();
     };
-    video.addEventListener("loadedmetadata", onReady, { once: false });
-    video.addEventListener("canplay", onReady, { once: false });
+    video.addEventListener("loadedmetadata", onReady);
+    video.addEventListener("canplay", onReady);
   });
 }
 
-function extractSupplierToken(rawValue: string): string {
+function extractToken(rawValue: string): string {
   const value = rawValue.trim();
   try {
     const url = new URL(value);
-    const queryToken = url.searchParams.get("token") ?? url.searchParams.get("supplier_token");
-    if (queryToken) return queryToken;
+    const token = url.searchParams.get("scan") ?? url.searchParams.get("token");
+    if (token) return token;
     const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
-    return hash.get("token") ?? value;
+    return hash.get("scan") ?? hash.get("token") ?? value;
   } catch {
-    return value;
+    return value.startsWith("MSEACCESS:")
+      ? value.slice("MSEACCESS:".length)
+      : value;
+  }
+}
+
+export async function decodeGateQrImage(file: File): Promise<string> {
+  const url = URL.createObjectURL(file);
+  try {
+    const result = await new BrowserQRCodeReader().decodeFromImageUrl(url);
+    return extractToken(result.getText());
+  } finally {
+    URL.revokeObjectURL(url);
   }
 }

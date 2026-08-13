@@ -24,10 +24,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/mse-icon.svg", type: "image/svg+xml" },
-      { url: "/mse-icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/brand-icon/32", sizes: "32x32", type: "image/png" },
     ],
-    apple: [{ url: "/mse-icon-192.png", sizes: "192x192" }],
+    apple: [{ url: "/brand-icon/180", sizes: "180x180" }],
   },
   appleWebApp: {
     capable: true,

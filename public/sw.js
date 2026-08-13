@@ -1,4 +1,4 @@
-const CACHE_NAME = "mse-trace-shell-v5";
+const CACHE_NAME = "mse-trace-shell-v6";
 const PRECACHE = [
   "/offline",
   "/login",
@@ -48,6 +48,8 @@ self.addEventListener("fetch", (event) => {
     url.pathname === "/trace/field-ready" ||
     url.pathname === "/field-pwa-bootstrap" ||
     url.pathname === "/field-manifest.webmanifest"
+    || url.pathname === "/manifest.webmanifest"
+    || url.pathname.startsWith("/brand-icon/")
   ) {
     event.respondWith(fetch(request, { cache: "no-store" }));
     return;

@@ -66,22 +66,39 @@ export function FieldCamera({
         return;
       }
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: {
-            facingMode: { ideal: facing },
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-          },
-        });
+        let stream: MediaStream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              facingMode: { ideal: facing },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+            },
+          });
+        } catch {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: true,
+          });
+        }
         if (cancelled) {
           stream.getTracks().forEach((track) => track.stop());
           return;
         }
         streamRef.current = stream;
-        if (!videoRef.current) return;
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        const video = videoRef.current;
+        if (!video) {
+          stream.getTracks().forEach((track) => track.stop());
+          throw new Error("video_unavailable");
+        }
+        video.autoplay = true;
+        video.muted = true;
+        video.playsInline = true;
+        video.setAttribute("playsinline", "true");
+        video.srcObject = stream;
+        await waitForVideoReady(video);
+        await video.play();
         setReady(true);
       } catch {
         setError(t("permissionError"));
@@ -222,4 +239,28 @@ export function FieldCamera({
       </Dialog>
     </>
   );
+}
+
+function waitForVideoReady(video: HTMLVideoElement): Promise<void> {
+  if (video.readyState >= HTMLMediaElement.HAVE_METADATA && video.videoWidth > 0) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("video_metadata_timeout"));
+    }, 8_000);
+    const cleanup = () => {
+      window.clearTimeout(timeout);
+      video.removeEventListener("loadedmetadata", onReady);
+      video.removeEventListener("canplay", onReady);
+    };
+    const onReady = () => {
+      if (video.videoWidth <= 0) return;
+      cleanup();
+      resolve();
+    };
+    video.addEventListener("loadedmetadata", onReady, { once: false });
+    video.addEventListener("canplay", onReady, { once: false });
+  });
 }

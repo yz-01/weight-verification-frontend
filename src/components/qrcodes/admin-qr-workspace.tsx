@@ -83,6 +83,7 @@ const SUBJECT_TYPES: QRSubjectType[] = [
   "FIELD_STAFF",
   "VISITOR",
   "DEVICE",
+  "DELIVERY_NOTE",
 ];
 
 const SUBMODULES: Array<{
