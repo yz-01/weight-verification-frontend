@@ -8,6 +8,7 @@ import {
   BUILTIN_BRANDING,
   cacheBranding,
   getCachedBranding,
+  versionedBrandIconUrl,
 } from "@/lib/branding";
 import { isFieldSessionPath } from "@/lib/auth-token";
 
@@ -17,8 +18,14 @@ function replaceLink(rel: string, href: string, sizes?: string) {
     document.head.querySelector<HTMLLinkElement>(selector) ??
     document.createElement("link");
 
+  document.head
+    .querySelectorAll<HTMLLinkElement>(`link[rel="${rel}"]`)
+    .forEach((candidate) => {
+      if (candidate !== link) candidate.remove();
+    });
+
   link.rel = rel;
-  link.href = href;
+  if (link.href !== new URL(href, window.location.href).href) link.href = href;
   if (sizes) link.sizes = sizes;
   link.dataset.mseBranding = rel;
   if (!link.isConnected) document.head.appendChild(link);
@@ -36,7 +43,8 @@ export function BrandingSync() {
     user?.branding ?? getCachedBranding(fieldSession) ?? BUILTIN_BRANDING;
   const company = branding.company_id;
   const name = branding.name;
-  const revision = branding.icon_url;
+  const revision = branding.revision;
+  const icon = versionedBrandIconUrl(branding);
 
   useEffect(() => {
     if (user?.branding) cacheBranding(user.branding, fieldSession);
@@ -48,23 +56,43 @@ export function BrandingSync() {
     // the unauthenticated platform fallback during hydration.
     if (fieldBrandingFromLink && !user?.branding) return;
 
-    const brandRevision = `${name}:${revision ?? "default"}`;
+    const brandRevision = `${name}:${revision ?? icon}`;
     const links = {
-      // The API already returns a public image URL. Using it directly avoids
-      // a serverless image conversion request on every browser navigation.
-      icon: revision ?? "/mse-icon-192.png",
-      apple: revision ?? "/mse-icon-192.png",
+      icon,
+      apple: icon,
       manifest: `/manifest.webmanifest${company ? `?company=${encodeURIComponent(company)}&brand=${encodeURIComponent(brandRevision)}` : ""}`,
     };
 
-    replaceLink("icon", links.icon, "32x32");
-    replaceLink("apple-touch-icon", links.apple, "180x180");
-    if (!fieldSession) replaceLink("manifest", links.manifest);
-    if (document.title !== name) document.title = name;
+    const applyBranding = () => {
+      replaceLink("icon", links.icon, "any");
+      replaceLink("apple-touch-icon", links.apple, "180x180");
+      if (!fieldSession) replaceLink("manifest", links.manifest);
+      if (document.title !== name) document.title = name;
+    };
+
+    applyBranding();
+
+    // Route metadata can be committed after React effects and replace the
+    // tenant tab branding. Observe only the document head and restore it when
+    // that happens; normal application renders and API calls are untouched.
+    let animationFrame: number | null = null;
+    const observer = new MutationObserver(() => {
+      if (animationFrame !== null) return;
+      animationFrame = window.requestAnimationFrame(() => {
+        animationFrame = null;
+        applyBranding();
+      });
+    });
+    observer.observe(document.head, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
+    };
   }, [
     company,
     fieldBrandingFromLink,
     fieldSession,
+    icon,
     name,
     revision,
     user?.branding,

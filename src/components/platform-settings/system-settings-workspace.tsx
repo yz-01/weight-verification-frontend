@@ -525,7 +525,7 @@ function ConfigRow({
 }) {
   const t = useTranslations("adminSystemSettings");
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, refresh } = useAuth();
   const queryClient = useQueryClient();
   const [value, setValue] = useState(row.value);
   const save = useMutation({
@@ -533,7 +533,7 @@ function ConfigRow({
       company
         ? setCompanyPlatformConfig({ company, key: row.key, value })
         : setPlatformConfig({ key: row.key, value }),
-    onSuccess: () => {
+    onSuccess: async () => {
       void queryClient.invalidateQueries({
         queryKey: ["platform-config-catalogue"],
       });
@@ -545,6 +545,7 @@ function ConfigRow({
           queryKey: ["company-platform-config-catalogue", company],
         });
       }
+      if (!company && row.key === "platform.name") await refresh();
     },
   });
   const reset = useMutation({

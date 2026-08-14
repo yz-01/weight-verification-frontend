@@ -1,6 +1,7 @@
 "use client";
 
 import type { Branding } from "@/interfaces/auth";
+import { versionedBrandIconUrl } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 export function BrandIcon({
@@ -17,7 +18,7 @@ export function BrandIcon({
     // platform-default, then built-in fallback order.
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={branding?.icon_url ?? "/mse-icon.svg"}
+      src={versionedBrandIconUrl(branding, "/mse-icon.svg")}
       alt={alt}
       className={cn("size-full object-contain", className)}
       draggable={false}

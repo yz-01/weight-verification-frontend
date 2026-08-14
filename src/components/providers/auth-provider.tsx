@@ -22,6 +22,7 @@ import {
   isFieldStandaloneApp,
   isFieldSessionPath,
 } from "@/lib/auth-token";
+import { cacheBranding } from "@/lib/branding";
 import { portalLoginPath } from "@/lib/portal";
 import * as authService from "@/services/auth.service";
 
@@ -136,9 +137,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           query.queryKey[0] !== CURRENT_USER_KEY[0] ||
           query.queryKey[1] !== CURRENT_USER_KEY[1],
       });
+      cacheBranding(next.branding, fieldSession);
       queryClient.setQueryData(currentUserKey, next);
     },
-    [currentUserKey, queryClient],
+    [currentUserKey, fieldSession, queryClient],
   );
 
   const refresh = useCallback(async () => {

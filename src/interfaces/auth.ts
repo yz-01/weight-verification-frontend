@@ -45,6 +45,7 @@ export interface Branding {
   company_logo_url: string | null;
   platform_icon_url: string | null;
   icon_url: string | null;
+  revision: string | null;
   uses_platform_default: boolean;
 }
 

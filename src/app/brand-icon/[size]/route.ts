@@ -34,9 +34,12 @@ export async function GET(
   const parsed = Number((await params).size);
   const size = ALLOWED_SIZES.has(parsed) ? parsed : 192;
   const search = new URL(request.url).searchParams;
-  const revision = search.get("v");
+  const directRevision = search.get("v");
+  const brandRevision = search.get("brand");
   const directSource =
-    revision && isAllowedIconSource(revision) ? revision : null;
+    directRevision && isAllowedIconSource(directRevision)
+      ? directRevision
+      : null;
   const branding = directSource
     ? null
     : await getPublicBranding({
@@ -44,6 +47,10 @@ export async function GET(
         bootstrap: search.get("bootstrap"),
         invitation: search.get("invitation"),
       });
+  const immutable = Boolean(
+    directSource ||
+      (brandRevision && branding?.revision === brandRevision && branding.icon_url),
+  );
 
   let source: Buffer;
   try {
@@ -72,7 +79,7 @@ export async function GET(
       .toBuffer();
     return new NextResponse(new Uint8Array(icon), {
       headers: {
-        "Cache-Control": revision
+        "Cache-Control": immutable
           ? "public, max-age=31536000, immutable"
           : "no-store",
         "Content-Type": "image/png",
