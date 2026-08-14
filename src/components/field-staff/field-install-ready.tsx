@@ -1,6 +1,14 @@
 "use client";
 
-import { Camera, Download, Menu, Share } from "lucide-react";
+import {
+  BookOpen,
+  Camera,
+  ChevronDown,
+  Download,
+  Loader2,
+  Menu,
+  Share,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,7 +22,15 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-type InstallPlatform = "ios" | "android" | "other";
+type InstallEnvironment =
+  | "ios-safari"
+  | "ios-chrome"
+  | "ios-other"
+  | "android"
+  | "desktop-chromium"
+  | "other";
+
+type InstallStatus = "idle" | "preparing" | "unavailable";
 
 type InstallWindow = Window & {
   __mseFieldInstallPrompt?: BeforeInstallPromptEvent | null;
@@ -35,7 +51,9 @@ export function FieldInstallReady({
         ? null
         : (window as InstallWindow).__mseFieldInstallPrompt ?? null,
     );
-  const [platform] = useState<InstallPlatform>(detectInstallPlatform);
+  const [environment] = useState<InstallEnvironment>(detectInstallEnvironment);
+  const [showGuide, setShowGuide] = useState(false);
+  const [installStatus, setInstallStatus] = useState<InstallStatus>("idle");
   const workspace = next ?? "/field-staff";
 
   useEffect(() => {
@@ -56,10 +74,10 @@ export function FieldInstallReady({
     }
 
     const handler = (event: Event) => {
-      event.preventDefault();
       const prompt = event as BeforeInstallPromptEvent;
       (window as InstallWindow).__mseFieldInstallPrompt = prompt;
       setInstallPrompt(prompt);
+      setInstallStatus("idle");
     };
     const promptReady = () => {
       setInstallPrompt(
@@ -83,13 +101,52 @@ export function FieldInstallReady({
     };
   }, [next, router, token, workspace]);
 
-  const guidance =
-    platform === "ios"
-      ? { icon: Share, title: t("iosTitle"), body: t("iosBody") }
-      : platform === "android"
-        ? { icon: Menu, title: t("androidTitle"), body: t("androidBody") }
-        : { icon: Menu, title: t("browserTitle"), body: t("browserBody") };
+  const guidance = installGuidance(environment, t);
   const GuidanceIcon = guidance.icon;
+  const supportsNativePrompt =
+    environment === "android" || environment === "desktop-chromium";
+  const guideVisible = showGuide || environment.startsWith("ios-");
+
+  const requestInstall = async () => {
+    setInstallStatus("preparing");
+    const prompt =
+      installPrompt ??
+      (window as InstallWindow).__mseFieldInstallPrompt ??
+      (await waitForInstallPrompt());
+    if (!prompt) {
+      setInstallStatus("unavailable");
+      setShowGuide(true);
+      return;
+    }
+
+    try {
+      await prompt.prompt();
+      const choice = await prompt.userChoice;
+      (window as InstallWindow).__mseFieldInstallPrompt = null;
+      setInstallPrompt(null);
+      if (choice.outcome === "accepted") {
+        redirectWithFallback(router, workspace, 150);
+        return;
+      }
+      setInstallStatus("unavailable");
+      setShowGuide(true);
+    } catch {
+      (window as InstallWindow).__mseFieldInstallPrompt = null;
+      setInstallPrompt(null);
+      setInstallStatus("unavailable");
+      setShowGuide(true);
+    }
+  };
+
+  const openInstallHelp = () => {
+    const prompt =
+      installPrompt ?? (window as InstallWindow).__mseFieldInstallPrompt;
+    if (supportsNativePrompt && prompt) {
+      void requestInstall();
+      return;
+    }
+    setShowGuide((visible) => !visible);
+  };
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-5 py-10">
@@ -101,36 +158,54 @@ export function FieldInstallReady({
         {t("readyBody")}
       </p>
       <div className="grid w-full max-w-sm gap-3">
-        <div className="rounded-lg border bg-card p-4 text-sm shadow-sm">
-          <p className="flex items-center gap-2 font-semibold">
-            <GuidanceIcon className="size-4 text-primary" />
-            {guidance.title}
-          </p>
-          <p className="mt-2 leading-6 text-muted-foreground">
-            {guidance.body}
-          </p>
-        </div>
-        {installPrompt && (
+        {supportsNativePrompt && (
           <Button
             size="lg"
             className="h-14 text-base"
-            onClick={async () => {
-              await installPrompt.prompt();
-              const choice = await installPrompt.userChoice;
-              (window as InstallWindow).__mseFieldInstallPrompt = null;
-              setInstallPrompt(null);
-              if (choice.outcome === "accepted") {
-                redirectWithFallback(router, workspace, 150);
-              }
-            }}
+            disabled={installStatus === "preparing"}
+            onClick={() => void requestInstall()}
           >
-            <Download />
-            {t("install")}
+            {installStatus === "preparing" ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Download />
+            )}
+            {installStatus === "preparing" ? t("installPreparing") : t("install")}
           </Button>
         )}
         <Button
           size="lg"
-          variant={installPrompt ? "outline" : "default"}
+          variant="outline"
+          className="h-12 justify-between px-4"
+          onClick={openInstallHelp}
+        >
+          <span className="flex items-center gap-2">
+            <BookOpen />
+            {t("installHelp")}
+          </span>
+          <ChevronDown
+            className={`transition-transform ${guideVisible ? "rotate-180" : ""}`}
+          />
+        </Button>
+        {guideVisible && (
+          <div className="rounded-lg border bg-card p-4 text-sm shadow-sm">
+            <p className="flex items-center gap-2 font-semibold">
+              <GuidanceIcon className="size-4 text-primary" />
+              {guidance.title}
+            </p>
+            <p className="mt-2 leading-6 text-muted-foreground">
+              {guidance.body}
+            </p>
+            {installStatus === "unavailable" && supportsNativePrompt && (
+              <p className="mt-3 rounded-md bg-warning/10 px-3 py-2 leading-5 text-warning-foreground">
+                {t("installUnavailable")}
+              </p>
+            )}
+          </div>
+        )}
+        <Button
+          size="lg"
+          variant={supportsNativePrompt ? "outline" : "default"}
           className="h-14 text-base"
           onClick={() => redirectWithFallback(router, workspace, 150)}
         >
@@ -150,10 +225,60 @@ function isStandalone(): boolean {
   );
 }
 
-function detectInstallPlatform(): InstallPlatform {
+function detectInstallEnvironment(): InstallEnvironment {
   if (typeof navigator === "undefined") return "other";
   const agent = navigator.userAgent.toLowerCase();
-  if (/iphone|ipad|ipod/.test(agent)) return "ios";
+  const ios =
+    /iphone|ipad|ipod/.test(agent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (ios) {
+    if (agent.includes("crios")) return "ios-chrome";
+    if (
+      agent.includes("fxios") ||
+      agent.includes("edgios") ||
+      agent.includes("opios")
+    ) {
+      return "ios-other";
+    }
+    return "ios-safari";
+  }
   if (agent.includes("android")) return "android";
+  if (/chrome|chromium|edg|opr/.test(agent)) return "desktop-chromium";
   return "other";
+}
+
+function installGuidance(
+  environment: InstallEnvironment,
+  t: ReturnType<typeof useTranslations<"fieldAccess">>,
+) {
+  if (environment === "ios-safari") {
+    return { icon: Share, title: t("iosSafariTitle"), body: t("iosSafariBody") };
+  }
+  if (environment === "ios-chrome") {
+    return { icon: Share, title: t("iosChromeTitle"), body: t("iosChromeBody") };
+  }
+  if (environment === "ios-other") {
+    return { icon: Share, title: t("iosOtherTitle"), body: t("iosOtherBody") };
+  }
+  if (environment === "android") {
+    return { icon: Menu, title: t("androidTitle"), body: t("androidBody") };
+  }
+  if (environment === "desktop-chromium") {
+    return { icon: Menu, title: t("desktopTitle"), body: t("desktopBody") };
+  }
+  return { icon: Menu, title: t("browserTitle"), body: t("browserBody") };
+}
+
+function waitForInstallPrompt(timeoutMs = 2_000): Promise<BeforeInstallPromptEvent | null> {
+  const existing = (window as InstallWindow).__mseFieldInstallPrompt;
+  if (existing) return Promise.resolve(existing);
+  return new Promise((resolve) => {
+    const complete = () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("mse:field-install-ready", complete);
+      resolve((window as InstallWindow).__mseFieldInstallPrompt ?? null);
+    };
+    const timer = window.setTimeout(complete, timeoutMs);
+    window.addEventListener("mse:field-install-ready", complete, { once: true });
+  });
 }

@@ -245,7 +245,7 @@ export function DataTable<T>({
       </div>
 
       <div className="min-h-0 min-w-0 flex-1 overflow-auto">
-        <Table className="min-w-max">
+        <Table className="w-full min-w-max">
           <TableHeader className="sticky top-0 z-10 bg-card">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">

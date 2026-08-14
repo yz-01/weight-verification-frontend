@@ -2,7 +2,6 @@ export const FIELD_INSTALL_PROMPT_BOOTSTRAP_SCRIPT = `(function(){
   if (window.__mseFieldInstallCaptureReady) return;
   window.__mseFieldInstallCaptureReady = true;
   window.addEventListener("beforeinstallprompt", function(event) {
-    event.preventDefault();
     window.__mseFieldInstallPrompt = event;
     window.dispatchEvent(new Event("mse:field-install-ready"));
   });
