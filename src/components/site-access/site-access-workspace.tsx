@@ -18,7 +18,7 @@ import {
   ShieldX,
   X,
 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { QRCodeCanvas } from "qrcode.react";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -75,12 +75,13 @@ export function SiteAccessWorkspace() {
   const t = useTranslations("siteControl");
   const { can } = useAuth();
   const qc = useQueryClient();
-  const router = useRouter();
   const search = useSearchParams();
   const requestedPassId = search.get("pass");
   const requestedGate =
     search.get("tab") === "gate" || Boolean(search.get("scan"));
-  const tab = requestedGate && can("site_access.scan") ? "gate" : "passes";
+  const [tab, setTab] = useState<"passes" | "gate">(
+    requestedGate && can("site_access.scan") ? "gate" : "passes",
+  );
   const [project, setProject] = useState("all");
   const [status, setStatus] = useState("all");
   const [creating, setCreating] = useState(false);
@@ -96,8 +97,18 @@ export function SiteAccessWorkspace() {
   const changeTab = (value: string) => {
     const nextTab =
       value === "gate" && can("site_access.scan") ? "gate" : "passes";
-    router.replace(
-      nextTab === "gate" ? "/site-access?tab=gate" : "/site-access",
+    setTab(nextTab);
+
+    const url = new URL(window.location.href);
+    if (nextTab === "gate") url.searchParams.set("tab", "gate");
+    else {
+      url.searchParams.delete("tab");
+      url.searchParams.delete("scan");
+    }
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
     );
   };
   const defaults = useQuery({

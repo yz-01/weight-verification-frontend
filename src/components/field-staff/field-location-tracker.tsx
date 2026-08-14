@@ -29,6 +29,7 @@ export function FieldLocationTracker() {
   }, []);
 
   const explainError = useCallback((locationError: GeolocationPositionError) => {
+    watchId.current = null;
     const key = locationError.code === locationError.PERMISSION_DENIED
       ? "permissionDenied"
       : locationError.code === locationError.POSITION_UNAVAILABLE
@@ -61,22 +62,23 @@ export function FieldLocationTracker() {
     }
   }, [t]);
 
-  const start = useCallback(async () => {
+  const start = useCallback((background = false) => {
     clearWatcher();
     setError("");
-    setState("starting");
+    if (!background) setState("starting");
     if (!("geolocation" in navigator)) {
       setError(t("error.unsupported"));
       setState("blocked");
       return;
     }
 
-    try {
-      const policy = await getSiteLocationPolicy();
-      intervalMs.current = policy.location_update_interval_seconds * 1000;
-    } catch {
-      intervalMs.current = 60_000;
-    }
+    void getSiteLocationPolicy()
+      .then((policy) => {
+        intervalMs.current = policy.location_update_interval_seconds * 1000;
+      })
+      .catch(() => {
+        intervalMs.current = 60_000;
+      });
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -98,9 +100,11 @@ export function FieldLocationTracker() {
 
   useEffect(() => {
     mounted.current = true;
-    const startTimer = window.setTimeout(() => void start(), 0);
+    const startTimer = window.setTimeout(() => start(), 0);
     const handleVisibility = () => {
-      if (document.visibilityState === "visible") void start();
+      if (document.visibilityState === "visible" && watchId.current === null) {
+        start(true);
+      }
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => {
@@ -130,7 +134,7 @@ export function FieldLocationTracker() {
           </DialogDescription>
         </DialogHeader>
         {state !== "starting" && (
-          <Button className="w-full" onClick={() => void start()}>
+          <Button className="w-full" onClick={() => start()}>
             <RefreshCw className="size-4" />
             {t("retry")}
           </Button>

@@ -1,11 +1,6 @@
-const CACHE_NAME = "mse-trace-shell-v8";
+const CACHE_NAME = "mse-trace-shell-v9";
 const PRECACHE = [
   "/offline",
-  "/login",
-  "/admin/login",
-  "/trace/login",
-  "/trace/field-login",
-  "/scrap/login",
   "/mse-icon.svg",
   "/mse-icon-192.png",
   "/mse-icon-512.png",
@@ -57,19 +52,7 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            event.waitUntil(
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)),
-            );
-          }
-          return response;
-        })
-        .catch(async () =>
-          (await caches.match(request)) || (await caches.match("/offline")),
-        ),
+      fetch(request, { cache: "no-store" }).catch(() => caches.match("/offline")),
     );
     return;
   }

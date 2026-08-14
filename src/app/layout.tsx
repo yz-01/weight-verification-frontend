@@ -23,10 +23,8 @@ export const metadata: Metadata = {
   applicationName: "MSE Trace",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: [
-      { url: "/brand-icon/32", sizes: "32x32", type: "image/png" },
-    ],
-    apple: [{ url: "/brand-icon/180", sizes: "180x180" }],
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    apple: [{ url: "/mse-icon-192.png", sizes: "192x192" }],
   },
   appleWebApp: {
     capable: true,

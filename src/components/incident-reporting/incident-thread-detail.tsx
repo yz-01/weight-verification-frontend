@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -40,6 +41,8 @@ export function IncidentThreadDetail({
   onBack: () => void;
 }) {
   const t = useTranslations("incidentReporting");
+  const pathname = usePathname();
+  const fieldMode = pathname.startsWith("/field-staff");
   const { can, user } = useAuth();
   const qc = useQueryClient();
   const [body, setBody] = useState("");
@@ -130,7 +133,13 @@ export function IncidentThreadDetail({
   }
 
   return (
-    <div className="flex min-h-[70dvh] flex-col overflow-hidden rounded-xl border bg-card shadow-sm">
+    <div
+      className={
+        fieldMode
+          ? "flex min-w-0 flex-col rounded-xl border bg-card shadow-sm"
+          : "flex min-h-[70dvh] flex-col overflow-hidden rounded-xl border bg-card shadow-sm"
+      }
+    >
       <header className="border-b bg-card px-4 py-4">
         <div className="flex items-start gap-3">
           <Button
@@ -187,7 +196,13 @@ export function IncidentThreadDetail({
         ) : null}
       </header>
 
-      <div className="flex-1 space-y-4 overflow-y-auto bg-muted/25 p-4">
+      <div
+        className={
+          fieldMode
+            ? "min-w-0 space-y-4 bg-muted/25 p-3 sm:p-4"
+            : "flex-1 space-y-4 overflow-y-auto bg-muted/25 p-4"
+        }
+      >
         {thread.isLoading && (
           <div className="grid min-h-32 place-items-center">
             <Loader2 className="size-6 animate-spin text-primary" />

@@ -31,8 +31,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -91,7 +91,6 @@ export function FieldStaffWorkspace() {
 
   return (
     <FieldStaffWorkspaceContent
-      key={searchParams.toString()}
       requestedTaskId={requestedTaskId}
       requestedTab={requestedTab}
       requestedRecord={requestedRecord}
@@ -113,7 +112,6 @@ function FieldStaffWorkspaceContent({
 }) {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
-  const router = useRouter();
   const [tab, setTab] = useState<MobileTab>(
     requestedTab && ["home", "tasks", "attendance", "records", "location", "incidents"].includes(requestedTab)
       ? requestedTab
@@ -124,10 +122,70 @@ function FieldStaffWorkspaceContent({
         : "home",
   );
   const [taskType, setTaskType] = useState<FieldTask["task_type"]>();
+  const [focusedTaskId, setFocusedTaskId] = useState(requestedTaskId);
   const [activeTask, setActiveTask] = useState<FieldTask | null>(null);
   const [recordMode, setRecordMode] = useState<FieldRecordMode | null>(
     requestedRecord,
   );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (requestedTaskId) {
+        setFocusedTaskId(requestedTaskId);
+        setTab("tasks");
+        return;
+      }
+      if (requestedRecord) {
+        setRecordMode(requestedRecord);
+        setTab("records");
+        return;
+      }
+      if (
+        requestedTab &&
+        ["home", "tasks", "attendance", "records", "location", "incidents"].includes(
+          requestedTab,
+        )
+      ) {
+        setTab(requestedTab);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [requestedRecord, requestedTab, requestedTaskId]);
+
+  const replaceFieldUrl = (
+    nextTab: MobileTab,
+    nextRecord?: FieldRecordMode | null,
+  ) => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("task");
+    url.searchParams.delete("record");
+    url.searchParams.delete("supplier_token");
+    if (nextTab === "home") url.searchParams.delete("tab");
+    else url.searchParams.set("tab", nextTab);
+    if (nextRecord) url.searchParams.set("record", nextRecord);
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
+  };
+
+  const openTab = (nextTab: MobileTab) => {
+    setFocusedTaskId("");
+    setTaskType(undefined);
+    setRecordMode(null);
+    setActiveTask(null);
+    setTab(nextTab);
+    replaceFieldUrl(nextTab);
+  };
+
+  const openRecord = (mode: FieldRecordMode) => {
+    setFocusedTaskId("");
+    setActiveTask(null);
+    setRecordMode(mode);
+    setTab("records");
+    replaceFieldUrl("records", mode);
+  };
   const projects = useQuery({
     queryKey: ["projects", "options"],
     queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
@@ -135,7 +193,7 @@ function FieldStaffWorkspaceContent({
   });
   const projectNames = (projects.data?.results ?? []).map((project) => project.name);
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] flex-col gap-5 pb-24">
+    <div className="flex min-h-[calc(100dvh-4rem)] min-w-0 flex-col gap-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
       <section className="-mx-4 -mt-5 border-b bg-card px-4 py-5 shadow-[0_8px_24px_rgb(0_0_0/0.035)]">
         <p className="text-xs font-medium text-muted-foreground">
           {t("today", { date: new Date().toLocaleDateString() })}
@@ -162,27 +220,19 @@ function FieldStaffWorkspaceContent({
 
       {tab === "home" && (
         <FieldHomePanel
-          onOpen={(next) => {
-            setTaskType(undefined);
-            setRecordMode(null);
-            setActiveTask(null);
-            setTab(next);
-          }}
-          onRecord={(mode) => {
-            setActiveTask(null);
-            setRecordMode(mode);
-            setTab("records");
-          }}
+          onOpen={openTab}
+          onRecord={openRecord}
         />
       )}
       {tab === "tasks" && (
         <FieldTaskPanel
           taskType={taskType}
-          requestedTaskId={requestedTaskId}
+          requestedTaskId={focusedTaskId}
           onOpenWorkflow={(task, mode) => {
             setActiveTask(task);
             setRecordMode(mode);
             setTab("records");
+            replaceFieldUrl("records", mode);
           }}
         />
       )}
@@ -195,6 +245,7 @@ function FieldStaffWorkspaceContent({
           onModeChange={(mode) => {
             setRecordMode(mode);
             if (!mode) setActiveTask(null);
+            replaceFieldUrl("records", mode);
           }}
         />
       )}
@@ -202,22 +253,19 @@ function FieldStaffWorkspaceContent({
       {tab === "incidents" && (
         <FieldIncidentsPanel
           onHome={() => {
-            setTab("home");
-            setRecordMode(null);
-            setActiveTask(null);
-            router.replace("/field-staff", { scroll: false });
+            openTab("home");
           }}
         />
       )}
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgb(0_0_0/0.06)] backdrop-blur">
         <div className="mx-auto grid max-w-2xl grid-cols-6 gap-1 px-3">
-          <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => { setTab("home"); setRecordMode(null); setActiveTask(null); router.replace("/field-staff", { scroll: false }); }} />
-          <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => { setTaskType(undefined); setTab("tasks"); router.replace("/field-staff?tab=tasks", { scroll: false }); }} />
-          <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => { setTab("attendance"); router.replace("/field-staff?tab=attendance", { scroll: false }); }} />
-          <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => { setRecordMode(null); setTab("records"); router.replace("/field-staff?tab=records", { scroll: false }); }} />
-          <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => { setTab("location"); router.replace("/field-staff?tab=location", { scroll: false }); }} />
-          <MobileNavButton active={tab === "incidents"} icon={MessageSquarePlus} label={t("nav.incidents")} onClick={() => { setTab("incidents"); router.replace("/field-staff?tab=incidents", { scroll: false }); }} />
+          <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => openTab("home")} />
+          <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => openTab("tasks")} />
+          <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
+          <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
+          <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => openTab("location")} />
+          <MobileNavButton active={tab === "incidents"} icon={MessageSquarePlus} label={t("nav.incidents")} onClick={() => openTab("incidents")} />
         </div>
       </nav>
       {tab === "home" && (
@@ -402,7 +450,7 @@ function FieldNotificationRow({
 }
 
 function MobileNavButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Camera; label: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-xs font-medium transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}><Icon className="size-5" />{label}</button>;
+  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-14 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
 }
 
 function taskRecordMode(task: FieldTask): FieldRecordMode | null {

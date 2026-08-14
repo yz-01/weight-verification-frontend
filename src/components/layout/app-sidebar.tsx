@@ -3,7 +3,7 @@
 import { ChevronDown, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
@@ -47,6 +47,7 @@ import { PORTAL_LABELS } from "@/lib/portal";
 export function AppSidebar() {
   const t = useTranslations();
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -109,7 +110,9 @@ export function AppSidebar() {
                       >
                         <Link
                           href={item.href}
-                          prefetch
+                          prefetch={false}
+                          onPointerEnter={() => router.prefetch(item.href)}
+                          onFocus={() => router.prefetch(item.href)}
                           onClick={closeOnMobile}
                           aria-current={active ? "page" : undefined}
                         >
@@ -157,7 +160,9 @@ export function AppSidebar() {
                                 >
                                   <Link
                                     href={child.href}
-                                    prefetch
+                                    prefetch={false}
+                                    onPointerEnter={() => router.prefetch(child.href)}
+                                    onFocus={() => router.prefetch(child.href)}
                                     onClick={closeOnMobile}
                                     aria-current={
                                       childActive ? "page" : undefined

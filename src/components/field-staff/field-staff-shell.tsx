@@ -42,7 +42,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-dvh min-w-0 overflow-x-hidden bg-background">
       <FieldLocationTracker />
       <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur">
         <div className="mx-auto flex min-h-16 w-full max-w-2xl items-center gap-2 px-4 py-2.5">
@@ -63,7 +63,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-2xl px-4 py-5">{children}</main>
+      <main className="mx-auto min-w-0 w-full max-w-2xl px-4 py-5">{children}</main>
     </div>
   );
 }

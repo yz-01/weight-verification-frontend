@@ -34,37 +34,28 @@ export function ServiceWorkerRegistration() {
 
     const requestSync = () =>
       window.dispatchEvent(new Event(OFFLINE_SYNC_REQUESTED));
-    const controlledBeforeUpdate = navigator.serviceWorker.controller !== null;
-    let reloadingForUpdate = false;
     const onMessage = (event: MessageEvent<{ type?: string }>) => {
       if (event.data?.type === "MSE_SYNC_REQUESTED") requestSync();
     };
-    const onControllerChange = () => {
-      // Do not reload on a person's first installation. When an existing
-      // worker is replaced, reload once so the open page and cached assets all
-      // belong to the newly deployed build.
-      if (!controlledBeforeUpdate || reloadingForUpdate) return;
-      reloadingForUpdate = true;
-      window.location.reload();
-    };
 
     navigator.serviceWorker.addEventListener("message", onMessage);
-    navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
     void navigator.serviceWorker
       .register("/sw.js", { scope: "/", updateViaCache: "none" })
       .then(async (registration) => {
         await registration.update();
-        if (user) await syncPushSubscription();
       })
       .catch(() => undefined);
 
     return () => {
       navigator.serviceWorker.removeEventListener("message", onMessage);
-      navigator.serviceWorker.removeEventListener(
-        "controllerchange",
-        onControllerChange,
-      );
     };
+  }, []);
+
+  useEffect(() => {
+    if (!user || !("serviceWorker" in navigator)) return;
+    void navigator.serviceWorker.ready
+      .then(() => syncPushSubscription())
+      .catch(() => undefined);
   }, [user]);
 
   return null;

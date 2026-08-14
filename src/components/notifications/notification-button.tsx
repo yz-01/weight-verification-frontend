@@ -15,7 +15,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useDateFormat } from "@/lib/dates";
-import { getRefreshToken } from "@/lib/auth-token";
 import { fieldNotificationHref } from "@/lib/field-notification";
 import {
   getNotifications,
@@ -86,24 +85,6 @@ export function NotificationButton() {
       : user?.portal === "MSE_ADMIN"
         ? "/notifications/search"
         : "/notifications";
-
-  useEffect(() => {
-    if (
-      !enabled ||
-      !user ||
-      user.is_field_staff ||
-      !countQuery.isSuccess ||
-      !listQuery.isSuccess ||
-      typeof window === "undefined"
-    )
-      return;
-    const sessionId = getRefreshToken()?.slice(-12) ?? "session";
-    const key = `mse-notification-popup:${user.id}:${sessionId}`;
-    if (window.sessionStorage.getItem(key)) return;
-    window.sessionStorage.setItem(key, "shown");
-    const timer = window.setTimeout(() => setOpen(true), 0);
-    return () => window.clearTimeout(timer);
-  }, [countQuery.isSuccess, enabled, listQuery.isSuccess, user]);
 
   if (!enabled) return null;
 

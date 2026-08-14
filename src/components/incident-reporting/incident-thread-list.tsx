@@ -3,8 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Loader2, MessageSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -18,12 +18,33 @@ import { IncidentThreadDetail } from "./incident-thread-detail";
 export function IncidentThreadList() {
   const t = useTranslations("incidentReporting");
   const safetyT = useTranslations("safety.filter");
-  const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedThread = searchParams.get("thread");
-  const selectedProject = searchParams.get("project") ?? "all";
+  const requestedThread = searchParams.get("thread");
+  const requestedProject = searchParams.get("project") ?? "all";
+  const [selectedThread, setSelectedThread] = useState(requestedThread);
+  const [selectedProject, setSelectedProject] = useState(requestedProject);
   const [showCreate, setShowCreate] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSelectedThread(requestedThread);
+      setSelectedProject(requestedProject);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [requestedProject, requestedThread]);
+
+  const replaceUrl = (projectId: string, threadId: string | null) => {
+    const url = new URL(window.location.href);
+    if (projectId === "all") url.searchParams.delete("project");
+    else url.searchParams.set("project", projectId);
+    if (threadId) url.searchParams.set("thread", threadId);
+    else url.searchParams.delete("thread");
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
+  };
 
   const threads = useQuery({
     queryKey: ["incident-threads", selectedProject],
@@ -36,20 +57,14 @@ export function IncidentThreadList() {
   });
 
   const selectProject = (projectId: string) => {
-    const next = new URLSearchParams(searchParams.toString());
-    next.delete("thread");
-    if (projectId === "all") next.delete("project");
-    else next.set("project", projectId);
-    const query = next.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    setSelectedProject(projectId);
+    setSelectedThread(null);
+    replaceUrl(projectId, null);
   };
 
   const selectThread = (threadId: string | null) => {
-    const next = new URLSearchParams(searchParams.toString());
-    if (threadId) next.set("thread", threadId);
-    else next.delete("thread");
-    const query = next.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    setSelectedThread(threadId);
+    replaceUrl(selectedProject, threadId);
   };
 
   if (selectedThread) {

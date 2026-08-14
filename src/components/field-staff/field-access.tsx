@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
 import { safeReturnPath } from "@/lib/portal";
-import { iconPath } from "@/lib/branding";
+import { cacheBranding, iconPath } from "@/lib/branding";
 import {
   activateFieldDevice,
   fieldLogin,
@@ -59,6 +59,7 @@ export function FieldAccess() {
       .forEach((link) => link.remove());
     document.head.append(icon, apple);
     document.title = invitation.data.branding.name;
+    cacheBranding(invitation.data.branding, true);
   }, [invitation.data, token]);
 
   const submit = async () => {

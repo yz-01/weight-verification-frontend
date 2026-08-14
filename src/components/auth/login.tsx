@@ -18,10 +18,13 @@ import type { Portal } from "@/interfaces/auth";
 import {
   PORTAL_LABELS,
   portalPaths,
-  redirectWithFallback,
 } from "@/lib/portal";
 import { cn } from "@/lib/utils";
-import { landingPathFor } from "@/lib/navigation";
+import {
+  firstAllowedDashboardPath,
+  isRouteAllowed,
+  landingPathFor,
+} from "@/lib/navigation";
 import * as authService from "@/services/auth.service";
 
 export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string }) {
@@ -45,18 +48,25 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
         const defaultLanding = landingPathFor((code) =>
           Boolean(result.user.is_superuser) || permissions.has(code),
         );
+        const preferredHome = result.user.company_preferences?.home_page;
+        const consoleHome =
+          preferredHome &&
+          isRouteAllowed(
+            result.user.portal,
+            result.user.features,
+            preferredHome,
+            result.user.permissions,
+            result.user.is_superuser,
+          )
+            ? preferredHome
+            : firstAllowedDashboardPath(
+                result.user.portal,
+                result.user.features,
+              );
         const destination =
-          nextPath ??
-            (defaultLanding === "/dashboard"
-              ? result.user.company_preferences?.home_page
-              : undefined) ??
-            defaultLanding;
+          nextPath ?? (defaultLanding === "/dashboard" ? consoleHome : defaultLanding);
 
-        // Start loading the destination immediately. The hard-navigation
-        // fallback handles a stale browser bundle without leaving the person
-        // on a permanently spinning login button.
-        router.prefetch(destination);
-        redirectWithFallback(router, destination, 3_000);
+        router.replace(destination);
       } catch (error) {
         setFormError(messageFor(error, t));
       }
