@@ -259,7 +259,7 @@ export function Projects() {
     });
 
   return (
-    <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+    <div className="flex min-h-0 min-w-0 flex-col gap-4 pb-4">
       <ListHeader
         title={t("projects.title")}
         subtitle={isLoading ? "—" : t("projects.count", { count: totalCount })}

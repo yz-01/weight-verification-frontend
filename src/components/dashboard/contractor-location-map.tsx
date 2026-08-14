@@ -228,6 +228,8 @@ export function ContractorLocationMap({
               center={center}
               markers={markers}
               zones={zoneRows}
+              preserveViewOnDataUpdate
+              fitBoundsKey={project || "all"}
               ariaLabel={t("mapLabel")}
               className="h-[22rem] min-h-[22rem] rounded-md sm:h-[24rem] sm:min-h-[24rem]"
             />

@@ -932,6 +932,7 @@
         "permissionDenied": "Location permission is off. Allow precise location for this site in the browser or phone settings, then try again.",
         "unavailable": "The device cannot determine its current location. Turn on Location Services and move to an area with a clearer GPS signal.",
         "timeout": "GPS took too long to respond. Check Location Services and try again.",
+        "noProject": "No assigned project has a usable site location or geofence. Ask the project administrator to configure the project location.",
         "upload": "The location could not be sent. Check the connection; tracking will retry while the app remains open."
       }
     },
@@ -3292,6 +3293,8 @@
     "startSharing": "Start sharing",
     "stopSharing": "Stop sharing",
     "sharing": "Sharing location",
+    "autoSharing": "Automatic GPS is on",
+    "autoSharingBody": "Your position is sent automatically while this page or installed app remains open.",
     "refreshNote": "Refreshes every 15 seconds",
     "map": "Live site map",
     "historyMap": "Last position and route",
@@ -4355,6 +4358,10 @@
     "install": "Install field staff app",
     "iosTitle": "Add on iPhone",
     "iosBody": "On this page, tap Share in Safari, then Add to Home Screen. Opening that icon will sign you in automatically.",
+    "androidTitle": "Install on Android",
+    "androidBody": "Tap Install below. If the button is not shown, open the browser menu and choose Install app or Add to Home screen.",
+    "browserTitle": "Add this app to your device",
+    "browserBody": "Open the browser menu and choose Install app or Add to Home screen. Then open the new icon to return without signing in again.",
     "desktopSigningIn": "Restoring your field staff sign-in...",
     "desktopExpiredTitle": "App automatic sign-in unavailable",
     "desktopExpired": "This installation cannot restore its session. If an administrator reissued access, open the latest link, enter the PIN, and add it to the Home Screen again.",

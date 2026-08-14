@@ -8,7 +8,7 @@ import {
   Truck,
   UserRound,
 } from "lucide-react";
-import { createElement, useEffect, useRef } from "react";
+import { createElement, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 export interface LocationMapMarker {
@@ -46,6 +46,8 @@ interface LocationMapProps {
   zones?: LocationMapZone[];
   className?: string;
   ariaLabel?: string;
+  preserveViewOnDataUpdate?: boolean;
+  fitBoundsKey?: string | number;
 }
 
 const DEFAULT_CENTER: [number, number] = [3.139, 101.6869];
@@ -58,18 +60,25 @@ export function LocationMap({
   zones = [],
   className = "",
   ariaLabel = "Location map",
+  preserveViewOnDataUpdate = false,
+  fitBoundsKey,
 }: LocationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<import("leaflet").Map | null>(null);
+  const layerGroupRef = useRef<import("leaflet").LayerGroup | null>(null);
+  const leafletRef = useRef<typeof import("leaflet") | null>(null);
+  const fittedKeyRef = useRef<string | number | undefined>(undefined);
+  const hasFittedRef = useRef(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let disposed = false;
-    let map: import("leaflet").Map | null = null;
 
     void import("leaflet").then(({ default: L }) => {
       if (disposed || !containerRef.current) return;
 
-      map = L.map(containerRef.current, {
-        center,
+      const map = L.map(containerRef.current, {
+        center: DEFAULT_CENTER,
         zoom: 15,
         zoomControl: true,
         attributionControl: true,
@@ -80,7 +89,30 @@ export function LocationMap({
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map!);
+      }).addTo(map);
+      mapRef.current = map;
+      layerGroupRef.current = L.layerGroup().addTo(map);
+      leafletRef.current = L;
+      setReady(true);
+    });
+
+    return () => {
+      disposed = true;
+      layerGroupRef.current = null;
+      leafletRef.current = null;
+      mapRef.current?.stop();
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const layers = layerGroupRef.current;
+    const L = leafletRef.current;
+    if (!ready || !map || !layers || !L) return;
+
+    layers.clearLayers();
 
       const visibleZones: LocationMapZone[] = [
         ...(radiusM && radiusM > 0
@@ -96,7 +128,7 @@ export function LocationMap({
             fillColor: color,
             fillOpacity: 0.08,
             weight: 2,
-          }).addTo(map!).bindTooltip(zone.label ?? "Geofence");
+          }).addTo(layers).bindTooltip(zone.label ?? "Geofence");
         } else if (zone.center && zone.radiusM) {
           L.circle(zone.center, {
             radius: zone.radiusM,
@@ -104,7 +136,7 @@ export function LocationMap({
             fillColor: color,
             fillOpacity: 0.08,
             weight: 2,
-          }).addTo(map!).bindTooltip(zone.label ?? "Geofence");
+          }).addTo(layers).bindTooltip(zone.label ?? "Geofence");
         }
       });
 
@@ -119,7 +151,7 @@ export function LocationMap({
           color: path.color ?? "#087f8c",
           weight: 4,
           opacity: 0.75,
-        }).addTo(map!);
+        }).addTo(layers);
         if (path.label) line.bindTooltip(path.label);
         path.points.forEach((point) => bounds.extend(point));
       });
@@ -145,34 +177,44 @@ export function LocationMap({
           iconAnchor: [15, 15],
         });
         const point = L.marker([marker.latitude, marker.longitude], { icon })
-          .addTo(map!)
+          .addTo(layers)
           .bindPopup(
             `<strong>${escapeHtml(marker.label)}</strong>${marker.detail ? `<br>${escapeHtml(marker.detail)}` : ""}`,
           );
         bounds.extend(point.getLatLng());
       });
 
+      const viewKey = fitBoundsKey ?? "default";
+      if (fittedKeyRef.current !== viewKey) {
+        fittedKeyRef.current = viewKey;
+        hasFittedRef.current = false;
+      }
       if (
         markers.length > 0 ||
         paths.some((path) => path.points.length > 0) ||
         visibleZones.length > 0
       ) {
-        const southWest = bounds.getSouthWest();
-        const northEast = bounds.getNorthEast();
-        if (southWest.equals(northEast)) {
-          map.setView(southWest, 16, { animate: false });
-        } else {
-          map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
+        if (!preserveViewOnDataUpdate || !hasFittedRef.current) {
+          const southWest = bounds.getSouthWest();
+          const northEast = bounds.getNorthEast();
+          if (southWest.equals(northEast)) {
+            map.setView(southWest, 16, { animate: false });
+          } else {
+            map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
+          }
+          hasFittedRef.current = true;
         }
       }
-    });
-
-    return () => {
-      disposed = true;
-      map?.stop();
-      map?.remove();
-    };
-  }, [center, markers, paths, radiusM, zones]);
+  }, [
+    center,
+    fitBoundsKey,
+    markers,
+    paths,
+    preserveViewOnDataUpdate,
+    radiusM,
+    ready,
+    zones,
+  ]);
 
   return (
     <div

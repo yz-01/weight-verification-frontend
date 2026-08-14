@@ -3,8 +3,12 @@ import type { Metadata } from "next";
 import { FieldInstallReady } from "@/components/field-staff/field-install-ready";
 import { getPublicBranding } from "@/lib/branding-server";
 import { iconPath } from "@/lib/branding";
+import { safeReturnPath } from "@/lib/portal";
 
-type Search = Promise<{ bootstrap?: string | string[] }>;
+type Search = Promise<{
+  bootstrap?: string | string[];
+  next?: string | string[];
+}>;
 
 function bootstrapValue(value: string | string[] | undefined): string {
   return typeof value === "string" && /^[A-Za-z0-9_-]{20,200}$/.test(value)
@@ -61,6 +65,7 @@ export default async function FieldReadyPage({
 }: {
   searchParams: Search;
 }) {
-  const token = bootstrapValue((await searchParams).bootstrap);
-  return <FieldInstallReady token={token} />;
+  const search = await searchParams;
+  const token = bootstrapValue(search.bootstrap);
+  return <FieldInstallReady token={token} next={safeReturnPath(search.next)} />;
 }

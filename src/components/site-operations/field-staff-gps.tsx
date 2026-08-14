@@ -27,7 +27,11 @@ import {
 } from "@/services/field-staff-gps.service";
 import { getSiteGeofences, getSiteLocationPolicy } from "@/services/site-access.service";
 
-export function FieldStaffGps() {
+export function FieldStaffGps({
+  managedAutomatically = false,
+}: {
+  managedAutomatically?: boolean;
+}) {
   const t = useTranslations();
   const dates = useDateFormat();
   const { can, user } = useAuth();
@@ -354,7 +358,17 @@ export function FieldStaffGps() {
               placeholder={t("siteGps.project")}
               className="w-full sm:w-[280px]"
             />
-            {can("field_position.submit") && (
+            {managedAutomatically ? (
+              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md border border-success/25 bg-success/5 px-3 py-2">
+                <LocateFixed className="size-4 shrink-0 text-success" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{t("siteGps.autoSharing")}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("siteGps.autoSharingBody")}
+                  </p>
+                </div>
+              </div>
+            ) : can("field_position.submit") && (
               <Button
                 size="sm"
                 variant={sharing ? "destructive" : "default"}
@@ -369,7 +383,7 @@ export function FieldStaffGps() {
                 {sharing ? t("siteGps.stopSharing") : t("siteGps.startSharing")}
               </Button>
             )}
-            {sharing && (
+            {!managedAutomatically && sharing && (
               <StatusBadge label={t("siteGps.sharing")} tone="positive" />
             )}
             {sharingError && (

@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import { AppProviders } from "@/components/providers/app-providers";
 import { BRANDING_BOOTSTRAP_SCRIPT } from "@/lib/branding";
+import { FIELD_INSTALL_PROMPT_BOOTSTRAP_SCRIPT } from "@/lib/pwa-install";
 
 import "./globals.css";
 
@@ -56,6 +57,10 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <script
+          data-mse-field-install-bootstrap
+          dangerouslySetInnerHTML={{ __html: FIELD_INSTALL_PROMPT_BOOTSTRAP_SCRIPT }}
+        />
         <script
           data-mse-branding-bootstrap
           dangerouslySetInnerHTML={{ __html: BRANDING_BOOTSTRAP_SCRIPT }}

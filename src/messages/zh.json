@@ -919,6 +919,7 @@
         "permissionDenied": "定位权限已关闭。请在浏览器或手机设置中允许此网站使用精确定位，然后重试。",
         "unavailable": "设备目前无法取得位置。请开启手机定位服务，并移动到 GPS 信号较好的地方。",
         "timeout": "GPS 定位超时。请检查手机定位服务后重试。",
+        "noProject": "已分配项目尚未设置可用的工地位置或电子围栏，请让项目管理员先完成项目定位设置。",
         "upload": "位置暂时无法上传。请检查网络；应用保持开启时会继续重试。"
       }
     },
@@ -3279,6 +3280,8 @@
     "startSharing": "开始共享位置",
     "stopSharing": "停止共享位置",
     "sharing": "正在共享位置",
+    "autoSharing": "GPS 已自动开启",
+    "autoSharingBody": "只要此网页或桌面 App 保持开启，系统就会自动上报工地定位。",
     "refreshNote": "每 15 秒刷新",
     "map": "工地实时地图",
     "historyMap": "最后位置与历史轨迹",
@@ -4332,6 +4335,10 @@
     "install": "安装现场人员 App",
     "iosTitle": "加入 iPhone 桌面",
     "iosBody": "请在这个页面从 Safari 点分享，再选择“加入主画面”。之后从桌面图标打开会自动登录。",
+    "androidTitle": "安装到 Android 桌面",
+    "androidBody": "请按下方的“安装现场人员 App”。如果没有显示安装按钮，请打开浏览器菜单，再选择“安装应用”或“添加到主屏幕”。",
+    "browserTitle": "把现场 App 加到桌面",
+    "browserBody": "请打开浏览器菜单，选择“安装应用”或“添加到主屏幕”。以后从新图标打开，不需要再次登录。",
     "desktopSigningIn": "正在恢复现场人员登录……",
     "desktopExpiredTitle": "应用自动登录不可用",
     "desktopExpired": "此安装目前无法自动恢复登录。如果管理员已重新生成链接，请从最新链接输入 PIN，再重新加入主画面。",

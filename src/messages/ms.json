@@ -932,6 +932,7 @@
         "permissionDenied": "Kebenaran lokasi dimatikan. Benarkan lokasi tepat untuk laman ini dalam tetapan pelayar atau telefon, kemudian cuba lagi.",
         "unavailable": "Peranti tidak dapat menentukan lokasi semasa. Hidupkan Perkhidmatan Lokasi dan bergerak ke kawasan dengan isyarat GPS lebih jelas.",
         "timeout": "GPS mengambil masa terlalu lama. Semak Perkhidmatan Lokasi dan cuba lagi.",
+        "noProject": "Tiada projek yang ditugaskan mempunyai lokasi tapak atau geofence yang boleh digunakan. Minta pentadbir projek melengkapkan tetapan lokasi projek.",
         "upload": "Lokasi tidak dapat dihantar. Semak sambungan; penjejakan akan cuba lagi selagi aplikasi dibuka."
       }
     },
@@ -3292,6 +3293,8 @@
     "startSharing": "Mula berkongsi",
     "stopSharing": "Henti berkongsi",
     "sharing": "Lokasi sedang dikongsi",
+    "autoSharing": "GPS automatik dihidupkan",
+    "autoSharingBody": "Lokasi dihantar secara automatik selagi halaman atau aplikasi yang dipasang ini dibuka.",
     "refreshNote": "Menyegar semula setiap 15 saat",
     "map": "Peta tapak masa nyata",
     "historyMap": "Lokasi terakhir dan laluan",
@@ -4349,6 +4352,10 @@
     "install": "Pasang aplikasi staf tapak",
     "iosTitle": "Tambah pada iPhone",
     "iosBody": "Pada halaman ini, tekan Kongsi dalam Safari dan Tambah ke Skrin Utama. Membuka ikon itu akan melog masuk secara automatik.",
+    "androidTitle": "Pasang pada Android",
+    "androidBody": "Tekan Pasang aplikasi staf tapak di bawah. Jika butang tidak dipaparkan, buka menu pelayar dan pilih Pasang aplikasi atau Tambah ke Skrin Utama.",
+    "browserTitle": "Tambah aplikasi ini pada peranti",
+    "browserBody": "Buka menu pelayar dan pilih Pasang aplikasi atau Tambah ke Skrin Utama. Kemudian buka ikon baharu tanpa perlu log masuk semula.",
     "desktopSigningIn": "Memulihkan log masuk staf tapak...",
     "desktopExpiredTitle": "Log masuk automatik aplikasi tidak tersedia",
     "desktopExpired": "Pemasangan ini tidak dapat memulihkan sesi. Jika pentadbir menjana semula akses, buka pautan terkini, masukkan PIN dan tambah semula ke Skrin Utama.",

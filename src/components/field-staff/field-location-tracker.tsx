@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Loader2, LocateFixed, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -14,10 +15,18 @@ type TrackerState = "starting" | "active" | "blocked" | "unavailable";
 
 export function FieldLocationTracker() {
   const t = useTranslations("fieldStaffPwa.locationTracker");
+  const queryClient = useQueryClient();
   const [state, setState] = useState<TrackerState>("starting");
   const [error, setError] = useState("");
   const watchId = useRef<number | null>(null);
+  const heartbeatTimer = useRef<number | null>(null);
+  const latestPosition = useRef<GeolocationPosition | null>(null);
+  const uploadInFlight = useRef(false);
+  const uploadRef = useRef<
+    ((position: GeolocationPosition, force?: boolean, heartbeat?: boolean) => void) | null
+  >(null);
   const lastSentAt = useRef(0);
+  const eventSequence = useRef(0);
   const intervalMs = useRef(60_000);
   const mounted = useRef(true);
 
@@ -25,6 +34,10 @@ export function FieldLocationTracker() {
     if (watchId.current !== null && "geolocation" in navigator) {
       navigator.geolocation.clearWatch(watchId.current);
       watchId.current = null;
+    }
+    if (heartbeatTimer.current !== null) {
+      window.clearTimeout(heartbeatTimer.current);
+      heartbeatTimer.current = null;
     }
   }, []);
 
@@ -39,28 +52,69 @@ export function FieldLocationTracker() {
     setState(locationError.code === locationError.PERMISSION_DENIED ? "blocked" : "unavailable");
   }, [t]);
 
-  const upload = useCallback(async (position: GeolocationPosition, force = false) => {
+  const upload = useCallback(async (
+    position: GeolocationPosition,
+    force = false,
+    heartbeat = false,
+  ) => {
     const now = Date.now();
-    if (!force && now - lastSentAt.current < intervalMs.current) return;
-    lastSentAt.current = now;
+    if (
+      uploadInFlight.current ||
+      (!force && now - lastSentAt.current < intervalMs.current)
+    ) {
+      return;
+    }
+    uploadInFlight.current = true;
+    const occurredAt = heartbeat ? now : position.timestamp;
     try {
-      await recordAutomaticFieldStaffPosition({
+      const result = await recordAutomaticFieldStaffPosition({
         latitude: position.coords.latitude.toFixed(7),
         longitude: position.coords.longitude.toFixed(7),
         accuracy_m: position.coords.accuracy.toFixed(2),
-        original_occurred_at: new Date(position.timestamp).toISOString(),
-        client_event_id: `auto-${position.timestamp}`,
+        original_occurred_at: new Date(occurredAt).toISOString(),
+        client_event_id: `auto-${occurredAt}-${eventSequence.current++}`,
       });
       if (mounted.current) {
+        if (!result.position) {
+          setError(t("error.noProject"));
+          setState("unavailable");
+          return;
+        }
+        lastSentAt.current = now;
         setError("");
         setState("active");
+        void queryClient.invalidateQueries({ queryKey: ["field-staff-gps"] });
+        if (heartbeatTimer.current !== null) {
+          window.clearTimeout(heartbeatTimer.current);
+        }
+        heartbeatTimer.current = window.setTimeout(() => {
+          const latest = latestPosition.current;
+          if (latest && document.visibilityState === "visible") {
+            uploadRef.current?.(latest, true, true);
+          }
+        }, intervalMs.current);
       }
     } catch (uploadError) {
       if (!mounted.current) return;
       setError(uploadError instanceof ApiError ? uploadError.message : t("error.upload"));
       setState("active");
+      heartbeatTimer.current = window.setTimeout(() => {
+        const latest = latestPosition.current;
+        if (latest && document.visibilityState === "visible") {
+          uploadRef.current?.(latest, true, true);
+        }
+      }, Math.min(intervalMs.current, 15_000));
+    } finally {
+      uploadInFlight.current = false;
     }
-  }, [t]);
+  }, [queryClient, t]);
+
+  useEffect(() => {
+    uploadRef.current = upload;
+    return () => {
+      uploadRef.current = null;
+    };
+  }, [upload]);
 
   const start = useCallback((background = false) => {
     clearWatcher();
@@ -74,27 +128,30 @@ export function FieldLocationTracker() {
 
     void getSiteLocationPolicy()
       .then((policy) => {
-        intervalMs.current = policy.location_update_interval_seconds * 1000;
+        const configuredInterval = policy.location_update_interval_seconds * 1000;
+        const liveHeartbeat = Math.max(
+          30_000,
+          Math.floor((policy.live_position_window_seconds * 1000) / 2),
+        );
+        intervalMs.current = Math.min(configuredInterval, liveHeartbeat);
       })
       .catch(() => {
         intervalMs.current = 60_000;
       });
 
-    navigator.geolocation.getCurrentPosition(
+    let firstFix = true;
+    watchId.current = navigator.geolocation.watchPosition(
       (position) => {
-        void upload(position, true);
-        watchId.current = navigator.geolocation.watchPosition(
-          (next) => void upload(next),
-          explainError,
-          {
-            enableHighAccuracy: true,
-            maximumAge: Math.min(intervalMs.current, 30_000),
-            timeout: 20_000,
-          },
-        );
+        latestPosition.current = position;
+        void upload(position, firstFix);
+        firstFix = false;
       },
       explainError,
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 20_000 },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 20_000,
+      },
     );
   }, [clearWatcher, explainError, t, upload]);
 
@@ -102,15 +159,20 @@ export function FieldLocationTracker() {
     mounted.current = true;
     const startTimer = window.setTimeout(() => start(), 0);
     const handleVisibility = () => {
-      if (document.visibilityState === "visible" && watchId.current === null) {
+      if (document.visibilityState === "hidden") {
+        clearWatcher();
+      } else {
         start(true);
       }
     };
+    const handleOnline = () => start(true);
     document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("online", handleOnline);
     return () => {
       mounted.current = false;
       window.clearTimeout(startTimer);
       document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("online", handleOnline);
       clearWatcher();
     };
   }, [clearWatcher, start]);

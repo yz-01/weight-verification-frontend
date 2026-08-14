@@ -250,7 +250,7 @@ function FieldStaffWorkspaceContent({
           }}
         />
       )}
-      {tab === "location" && <FieldStaffGps />}
+      {tab === "location" && <FieldStaffGps managedAutomatically />}
       {tab === "incidents" && (
         <FieldIncidentsPanel
           onHome={() => {

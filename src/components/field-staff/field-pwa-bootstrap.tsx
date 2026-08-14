@@ -15,7 +15,13 @@ import {
   restoreFieldPwaSession,
 } from "@/services/field-access.service";
 
-export function FieldPwaBootstrap({ token }: { token: string }) {
+export function FieldPwaBootstrap({
+  token,
+  next,
+}: {
+  token: string;
+  next?: string;
+}) {
   const t = useTranslations("fieldAccess");
   const router = useRouter();
   const { setUser } = useAuth();
@@ -33,7 +39,7 @@ export function FieldPwaBootstrap({ token }: { token: string }) {
       markFieldAppContext();
       redirectWithFallback(
         router,
-        hasFieldSession() ? "/field-staff" : "/trace/field-login",
+        hasFieldSession() ? next ?? "/field-staff" : "/trace/field-login",
         150,
       );
       return;
@@ -46,17 +52,17 @@ export function FieldPwaBootstrap({ token }: { token: string }) {
       .then(async (result) => {
         window.localStorage.setItem(completionKey, token);
         setUser(result.user);
-        redirectWithFallback(router, "/field-staff", 150);
+        redirectWithFallback(router, next ?? "/field-staff", 150);
       })
       .catch((cause) => {
         if (hasFieldSession()) {
           markFieldAppContext();
-          redirectWithFallback(router, "/field-staff", 150);
+          redirectWithFallback(router, next ?? "/field-staff", 150);
           return;
         }
         setError(cause instanceof ApiError ? cause.message : t("failed"));
       });
-  }, [router, setUser, t, token]);
+  }, [next, router, setUser, t, token]);
 
   if (!error) {
     return (

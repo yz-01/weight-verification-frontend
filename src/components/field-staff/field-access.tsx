@@ -61,11 +61,11 @@ export function FieldAccess() {
           });
       setUser(result.user);
       const bootstrapToken = result.pwa_bootstrap?.token;
-      const destination = next
-        ? next
-        : bootstrapToken
-          ? `/trace/field-ready?bootstrap=${encodeURIComponent(bootstrapToken)}`
-          : "/field-staff";
+      const destination = bootstrapToken
+        ? `/trace/field-ready?bootstrap=${encodeURIComponent(bootstrapToken)}${
+            next ? `&next=${encodeURIComponent(next)}` : ""
+          }`
+        : next ?? "/field-staff";
       redirectWithFallback(
         router,
         destination,
