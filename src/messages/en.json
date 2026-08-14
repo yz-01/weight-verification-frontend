@@ -982,6 +982,7 @@
       "waste": "Environmental waste outgoing",
       "safety": "Safety issue",
       "consultant": "Consultant photo",
+      "category": "Site record folders",
       "incidents": "Report incident"
     },
     "notifications": {
@@ -1075,7 +1076,37 @@
       "outgoing": "Material outgoing",
       "waste": "Environmental material outgoing",
       "safety": "Safety / hazard",
-      "consultant": "Consultant submission"
+      "consultant": "Consultant submission",
+      "category": "Site record folders"
+    },
+    "categoryEvidence": {
+      "title": "File site photo evidence",
+      "subtitle": "Choose the project and folder. Take at least four photos, capture GPS, then send them for manager review.",
+      "project": "Project",
+      "chooseProject": "Choose project",
+      "chooseCategory": "Choose a site record folder",
+      "loading": "Loading site record folders...",
+      "loadError": "Site record folders could not be loaded. Check the connection and try again.",
+      "noCategories": "No Field Staff folders are open for this project.",
+      "openSubcategory": "Open subfolders",
+      "takePhotos": "Take photos in this folder",
+      "readOnly": "You can view this folder but cannot upload",
+      "uploadNotAllowed": "You do not have permission to upload to this folder.",
+      "changeCategory": "Change",
+      "evidenceTitle": "Required site photos",
+      "getLocation": "Get current GPS",
+      "locationReady": "GPS captured",
+      "locationError": "GPS could not be captured. Allow precise location and try again.",
+      "note": "Short note (optional)",
+      "notePlaceholder": "Add only information the office needs to know.",
+      "submit": "Send for manager review",
+      "submitError": "The site evidence could not be submitted. Check the photos, GPS and connection, then try again.",
+      "photo": {
+        "overview": "1. Site overview",
+        "detail": "2. Work or issue detail",
+        "peopleEquipment": "3. People or equipment involved",
+        "completion": "4. Completion or current condition"
+      }
     },
     "material": {
       "project": "Project",

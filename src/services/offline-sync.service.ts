@@ -15,6 +15,7 @@ import { api, toastSuccess } from "@/services/api-client";
 import { createReceiptWithEvidence } from "@/services/contractor.service";
 import {
   createDisposalRequest,
+  createCategoryFieldSubmission,
   createConsultantFieldSubmission,
   createMaterialOutgoing,
   createSiteProgressRecord,
@@ -265,6 +266,14 @@ async function uploadJob(job: OfflineJob): Promise<void> {
 
   if (job.kind === "CONSULTANT_SUBMISSION") {
     await createConsultantFieldSubmission({
+      ...job.payload,
+      photos: job.payload.photos.map(restoreFile),
+    });
+    return;
+  }
+
+  if (job.kind === "CATEGORY_EVIDENCE") {
+    await createCategoryFieldSubmission({
       ...job.payload,
       photos: job.payload.photos.map(restoreFile),
     });
@@ -540,7 +549,8 @@ async function submitCaptureJob(
         | "WASTE_OUTGOING"
         | "DISPOSAL_REQUEST"
         | "SAFETY_INCIDENT"
-        | "CONSULTANT_SUBMISSION";
+        | "CONSULTANT_SUBMISSION"
+        | "CATEGORY_EVIDENCE";
     }
   >,
 ): Promise<OfflineSubmission> {
@@ -680,6 +690,24 @@ export function submitConsultantSubmissionOfflineAware(
     id: newId("consultant-submission-job"),
     ownerId,
     kind: "CONSULTANT_SUBMISSION",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: { ...draft, photos: draft.photos.map(storeFile) },
+  });
+}
+
+export function submitCategoryEvidenceOfflineAware(
+  ownerId: string,
+  draft: Omit<
+    Extract<OfflineJob, { kind: "CATEGORY_EVIDENCE" }>["payload"],
+    "photos"
+  > & { photos: File[] },
+): Promise<OfflineSubmission> {
+  return submitCaptureJob({
+    id: newId("category-evidence-job"),
+    ownerId,
+    kind: "CATEGORY_EVIDENCE",
     queuedAt: new Date().toISOString(),
     attempts: 0,
     lastError: "",

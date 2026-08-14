@@ -12,7 +12,8 @@ export type OfflineJobKind =
   | "WASTE_OUTGOING"
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
-  | "CONSULTANT_SUBMISSION";
+  | "CONSULTANT_SUBMISSION"
+  | "CATEGORY_EVIDENCE";
 
 export interface StoredFile {
   blob: Blob;
@@ -280,6 +281,22 @@ export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
   };
 }
 
+export interface CategoryEvidenceOfflineJob extends OfflineJobBase {
+  kind: "CATEGORY_EVIDENCE";
+  payload: {
+    category: string;
+    project: string;
+    note?: string;
+    captured_at: string;
+    latitude: string;
+    longitude: string;
+    accuracy_m?: string;
+    device_id: string;
+    client_event_id: string;
+    photos: StoredFile[];
+  };
+}
+
 export type OfflineJob =
   | AttendanceOfflineJob
   | TaskTransitionOfflineJob
@@ -294,7 +311,8 @@ export type OfflineJob =
   | WasteOutgoingOfflineJob
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob
-  | ConsultantSubmissionOfflineJob;
+  | ConsultantSubmissionOfflineJob
+  | CategoryEvidenceOfflineJob;
 
 const DB_NAME = "mse-trace-offline";
 const STORE_NAME = "jobs";

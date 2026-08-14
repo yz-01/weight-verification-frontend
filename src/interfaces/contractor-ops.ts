@@ -22,6 +22,7 @@ export interface ProjectCategory {
   edit_role_names: string[];
   edit_users: string[];
   edit_user_names: string[];
+  can_upload: boolean;
   created_at: string;
   updated_at: string;
 }

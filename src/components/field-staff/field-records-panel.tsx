@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Camera,
   ClipboardList,
+  FolderOpen,
   HardHat,
   ListChecks,
   Loader2,
@@ -31,6 +32,7 @@ import {
 import { useAuth } from "@/components/providers/auth-provider";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
+import { CategoryEvidenceCapture } from "@/components/field-staff/category-evidence-capture";
 import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
@@ -83,11 +85,12 @@ export type FieldRecordMode =
   | "outgoing"
   | "waste"
   | "safety"
-  | "consultant";
+  | "consultant"
+  | "category";
 
 interface RecordOption {
   key: FieldRecordMode;
-  permission: string;
+  permission: string | string[];
   icon: typeof Camera;
   tone: string;
 }
@@ -101,6 +104,7 @@ const RECORD_OPTIONS: RecordOption[] = [
   { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning" },
   { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary" },
+  { key: "category", permission: ["category.view", "field_task.submit"], icon: FolderOpen, tone: "bg-info/10 text-info" },
 ];
 
 export function FieldRecordsPanel({
@@ -118,7 +122,11 @@ export function FieldRecordsPanel({
   const { can } = useAuth();
   const [localMode, setLocalMode] = useState<FieldRecordMode | null>(initialMode);
   const mode = onModeChange ? initialMode : localMode;
-  const options = RECORD_OPTIONS.filter((option) => can(option.permission));
+  const options = RECORD_OPTIONS.filter((option) =>
+    Array.isArray(option.permission)
+      ? option.permission.every((permission) => can(permission))
+      : can(option.permission),
+  );
 
   const chooseMode = (next: FieldRecordMode | null) => {
     if (!onModeChange) setLocalMode(next);
@@ -154,6 +162,9 @@ export function FieldRecordsPanel({
   }
   if (mode === "consultant") {
     return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><ConsultantCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
+  }
+  if (mode === "category") {
+    return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><CategoryEvidenceCapture initialProject={task?.project} onSaved={() => chooseMode(null)} /></RecordFrame>;
   }
 
   return (

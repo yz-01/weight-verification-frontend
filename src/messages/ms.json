@@ -982,6 +982,7 @@
       "waste": "Bahan alam sekitar keluar",
       "safety": "Isu keselamatan",
       "consultant": "Foto perunding",
+      "category": "Folder rekod tapak",
       "incidents": "Laporkan insiden"
     },
     "incidents": {
@@ -1075,7 +1076,37 @@
       "outgoing": "Bahan keluar",
       "waste": "Permohonan bahan alam sekitar keluar",
       "safety": "Keselamatan / bahaya",
-      "consultant": "Penyerahan perunding"
+      "consultant": "Penyerahan perunding",
+      "category": "Folder rekod tapak"
+    },
+    "categoryEvidence": {
+      "title": "Failkan bukti foto tapak",
+      "subtitle": "Pilih projek dan folder. Ambil sekurang-kurangnya empat foto, dapatkan GPS, kemudian hantar untuk semakan pengurus.",
+      "project": "Projek",
+      "chooseProject": "Pilih projek",
+      "chooseCategory": "Pilih folder rekod tapak",
+      "loading": "Memuatkan folder rekod tapak...",
+      "loadError": "Folder rekod tapak tidak dapat dimuatkan. Semak rangkaian dan cuba lagi.",
+      "noCategories": "Tiada folder Field Staff dibuka untuk projek ini.",
+      "openSubcategory": "Buka subfolder",
+      "takePhotos": "Ambil foto dalam folder ini",
+      "readOnly": "Anda boleh melihat tetapi tidak boleh memuat naik",
+      "uploadNotAllowed": "Anda tidak mempunyai kebenaran untuk memuat naik ke folder ini.",
+      "changeCategory": "Tukar",
+      "evidenceTitle": "Foto tapak wajib",
+      "getLocation": "Dapatkan GPS semasa",
+      "locationReady": "GPS diperoleh",
+      "locationError": "GPS tidak dapat diperoleh. Benarkan lokasi tepat dan cuba lagi.",
+      "note": "Catatan ringkas (pilihan)",
+      "notePlaceholder": "Masukkan hanya maklumat yang perlu diketahui oleh pejabat.",
+      "submit": "Hantar untuk semakan pengurus",
+      "submitError": "Bukti tapak tidak dapat dihantar. Semak foto, GPS dan rangkaian, kemudian cuba lagi.",
+      "photo": {
+        "overview": "1. Gambaran keseluruhan tapak",
+        "detail": "2. Butiran kerja atau isu",
+        "peopleEquipment": "3. Orang atau peralatan terlibat",
+        "completion": "4. Keadaan siap atau semasa"
+      }
     },
     "material": {
       "project": "Projek",

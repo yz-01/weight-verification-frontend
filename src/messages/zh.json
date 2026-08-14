@@ -969,6 +969,7 @@
       "waste": "环保材料出场",
       "safety": "安全问题",
       "consultant": "顾问资料",
+      "category": "现场资料栏目",
       "incidents": "报告事故"
     },
     "notifications": {
@@ -1062,7 +1063,37 @@
       "outgoing": "材料出场",
       "waste": "环保材料出场申请",
       "safety": "安全与隐患",
-      "consultant": "顾问资料提交"
+      "consultant": "顾问资料提交",
+      "category": "现场资料栏目"
+    },
+    "categoryEvidence": {
+      "title": "归档现场拍照证据",
+      "subtitle": "选择项目和栏目，拍摄至少四张照片，取得 GPS 后提交给管理人员审核。",
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "chooseCategory": "选择现场资料栏目",
+      "loading": "正在读取现场资料栏目...",
+      "loadError": "无法读取现场资料栏目，请检查网络后重试。",
+      "noCategories": "这个项目暂时没有开放给现场工作人员的栏目。",
+      "openSubcategory": "进入下一级栏目",
+      "takePhotos": "在此栏目拍照归档",
+      "readOnly": "可以查看，但没有上传权限",
+      "uploadNotAllowed": "你没有权限上传资料到这个栏目。",
+      "changeCategory": "更换",
+      "evidenceTitle": "必须拍摄的现场照片",
+      "getLocation": "取得当前 GPS",
+      "locationReady": "GPS 已取得",
+      "locationError": "无法取得 GPS，请允许精确定位后重试。",
+      "note": "简单备注（选填）",
+      "notePlaceholder": "只填写办公室需要知道的内容。",
+      "submit": "提交给管理人员审核",
+      "submitError": "现场资料无法提交，请检查照片、GPS 和网络后重试。",
+      "photo": {
+        "overview": "1. 现场整体情况",
+        "detail": "2. 工作或问题细节",
+        "peopleEquipment": "3. 相关人员或设备",
+        "completion": "4. 完成情况或当前状态"
+      }
     },
     "material": {
       "project": "项目",

@@ -37,6 +37,31 @@ export const deleteProjectCategory = async (id: string) => {
   toastSuccess("contractorOps.toast.removed");
 };
 
+export async function createCategoryFieldSubmission(payload: {
+  category: string;
+  project: string;
+  note?: string;
+  captured_at: string;
+  latitude: string;
+  longitude: string;
+  accuracy_m?: string;
+  device_id: string;
+  client_event_id: string;
+  photos: File[];
+}) {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === "category" || key === "photos") continue;
+    if (value !== undefined && value !== "") data.append(key, String(value));
+  }
+  payload.photos.forEach((photo) => data.append("photos", photo));
+  return api.post<FieldTask>(
+    `/api/project-categories/${payload.category}/submit_evidence/`,
+    data,
+    { silent: true },
+  );
+}
+
 export const getProjectResponsibilities = (query: ListQuery) =>
   api.list<ProjectResponsibility>("/api/project-team/get_responsibilities/", query);
 export const createProjectResponsibility = (payload: Omit<ProjectResponsibility, "id" | "user_name" | "user_phone" | "created_at" | "updated_at">) =>

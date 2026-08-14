@@ -11,6 +11,7 @@ import {
   ClipboardList,
   Clock3,
   FileText,
+  FolderOpen,
   Grid2X2,
   HardHat,
   House,
@@ -306,6 +307,7 @@ function FieldHomePanel({
     { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success", open: () => onRecord("waste") },
     { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning", open: () => onRecord("safety") },
     { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary", open: () => onRecord("consultant") },
+    { key: "category", permission: "category.view", icon: FolderOpen, tone: "bg-info/10 text-info", open: () => onRecord("category") },
     { key: "incidents", permission: "safety.view", icon: MessageSquarePlus, tone: "bg-destructive/10 text-destructive", open: () => onOpen("incidents") },
   ];
   const visibleActions = actions.filter((action) => !action.permission || can(action.permission));
