@@ -82,6 +82,13 @@ export interface PayoutTransitionPayload {
   payment_reference?: string;
 }
 
+export interface CustomerAssignmentPayload {
+  company: string;
+  salesperson: string;
+  won_on: string;
+  notes?: string;
+}
+
 // ── Salespeople ───────────────────────────────────────────────────────────
 
 export function getSalespeople(
@@ -167,6 +174,17 @@ export function getCustomerAssignments(
   query?: ListQuery,
 ): Promise<Paginated<CustomerAssignment>> {
   return api.list("/api/customer-assignments/get_assignments/", query);
+}
+
+export async function createCustomerAssignment(
+  payload: CustomerAssignmentPayload,
+): Promise<CustomerAssignment> {
+  const result = await api.post<CustomerAssignment>(
+    "/api/customer-assignments/create_assignment/",
+    payload,
+  );
+  toastSuccess("sales.toast.saved");
+  return result;
 }
 
 export async function reassignCustomer(

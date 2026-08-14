@@ -1383,7 +1383,7 @@ function DevicePanel({ installations }: { installations: boolean }) {
           )}
         </Button>
       </div>
-      <Table>
+      <Table className="min-w-[1880px]">
         <TableHeader>
           <TableRow>
             {[
@@ -1403,7 +1403,20 @@ function DevicePanel({ installations }: { installations: boolean }) {
               "capability",
               "actions",
             ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
+              <TableHead
+                key={x}
+                className={
+                  x === "capability"
+                    ? "min-w-72"
+                    : x === "actions"
+                      ? "min-w-64"
+                      : ["code", "company", "device", "location"].includes(x)
+                        ? "min-w-32"
+                        : undefined
+                }
+              >
+                {t(`column.${x}`)}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -1417,9 +1430,9 @@ function DevicePanel({ installations }: { installations: boolean }) {
               );
               return (
               <TableRow key={row.id}>
-                <TableCell>{row.code}</TableCell>
+                <TableCell className="font-mono">{row.code}</TableCell>
                 <TableCell>{row.company_name}</TableCell>
-                <TableCell>
+                <TableCell className="min-w-32">
                   {row.device_type}
                   <p className="text-xs text-muted-foreground">
                     {row.device_id}
@@ -1453,7 +1466,7 @@ function DevicePanel({ installations }: { installations: boolean }) {
                     }
                   />
                 </TableCell>
-                <TableCell>
+                <TableCell className="min-w-72 max-w-80 whitespace-normal">
                   <CapabilityStatus
                     state={deviceCapability(
                       row,
@@ -1461,7 +1474,7 @@ function DevicePanel({ installations }: { installations: boolean }) {
                     )}
                   />
                 </TableCell>
-                <TableCell>
+                <TableCell className="min-w-64">
                   <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"

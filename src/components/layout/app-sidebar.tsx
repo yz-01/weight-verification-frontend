@@ -78,7 +78,7 @@ export function AppSidebar() {
           <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-background p-1">
             <BrandIcon
               branding={user?.branding}
-              alt={user?.branding.company_name ?? user?.branding.name ?? ""}
+              alt={user?.branding?.company_name ?? user?.branding?.name ?? ""}
             />
           </span>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">

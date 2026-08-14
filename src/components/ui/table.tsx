@@ -13,7 +13,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
     >
       <table
         data-slot="table"
-        className={cn("w-full min-w-full caption-bottom text-sm", className)}
+        className={cn("w-max min-w-full caption-bottom text-sm", className)}
         {...props}
       />
     </div>
@@ -98,7 +98,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "px-4 py-3 align-middle whitespace-normal [overflow-wrap:anywhere] [&:has([role=checkbox])]:pr-0",
+        "px-4 py-3 align-middle whitespace-nowrap [overflow-wrap:normal] [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}
