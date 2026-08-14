@@ -7,6 +7,12 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
   FIELD_EVIDENCE_PHOTO_COUNT,
@@ -137,20 +143,25 @@ export function CreateIncidentDialog({
   const projectOptions = projects.data?.results ?? [];
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
-      <div className="w-full max-w-md space-y-4 rounded-xl border bg-card p-6 shadow-lg">
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        showCloseButton={false}
+        className="max-h-[calc(100dvh-1rem)] touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] p-5 sm:max-w-md sm:p-6"
+      >
         <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-semibold">{t("dialog.create.title")}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
+          <div className="min-w-0 pr-2">
+            <DialogTitle>{t("dialog.create.title")}</DialogTitle>
+            <DialogDescription className="mt-1">
               {t("dialog.create.description")}
-            </p>
+            </DialogDescription>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="grid size-8 place-items-center rounded-lg hover:bg-muted"
+            className="grid size-9 shrink-0 place-items-center rounded-lg hover:bg-muted"
           >
             <X className="size-4" />
+            <span className="sr-only">{t("action.cancel")}</span>
           </button>
         </div>
 
@@ -298,7 +309,7 @@ export function CreateIncidentDialog({
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex gap-2 border-t bg-card p-5 sm:-mx-6 sm:-mb-6 sm:p-6">
           <Button
             variant="outline"
             className="flex-1"
@@ -324,7 +335,7 @@ export function CreateIncidentDialog({
             {t("action.create")}
           </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

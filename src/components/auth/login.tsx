@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { Loader2, LogIn, ShieldCheck } from "lucide-react";
+import { Loader2, LogIn } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { required, requiredEmail } from "@/components/shared/form-shell";
+import { BrandIcon } from "@/components/shared/brand-icon";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,8 +78,8 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
     <div className="flex min-h-dvh flex-col bg-background">
       <header className="flex items-center justify-between px-6 py-5 lg:px-10">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <ShieldCheck className="h-4.5 w-4.5" />
+          <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border bg-background p-1">
+            <BrandIcon alt={t("app.name")} />
           </span>
           <span className="text-sm font-semibold tracking-tight">
             {t("app.name")}

@@ -1,6 +1,6 @@
 "use client";
 
-import { HardHat, Loader2, LogOut } from "lucide-react";
+import { Loader2, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -9,6 +9,7 @@ import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { OfflineStatus } from "@/components/shared/offline-status";
+import { BrandIcon } from "@/components/shared/brand-icon";
 import { Button } from "@/components/ui/button";
 import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
 import { redirectWithFallback } from "@/lib/portal";
@@ -46,8 +47,11 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
       <FieldLocationTracker />
       <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur">
         <div className="mx-auto flex min-h-16 w-full max-w-2xl items-center gap-2 px-4 py-2.5">
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-            <HardHat className="size-5" />
+          <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border bg-background p-1">
+            <BrandIcon
+              branding={user.branding}
+              alt={user.branding.company_name ?? user.branding.name}
+            />
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">{user.full_name}</p>

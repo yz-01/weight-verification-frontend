@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
 import { safeReturnPath } from "@/lib/portal";
-import { cacheBranding, iconPath } from "@/lib/branding";
+import { cacheBranding } from "@/lib/branding";
 import {
   activateFieldDevice,
   fieldLogin,
@@ -39,29 +39,6 @@ export function FieldAccess() {
 
   useEffect(() => {
     if (!token || !invitation.data?.branding) return;
-    const icon =
-      document.head.querySelector<HTMLLinkElement>(
-        'link[data-mse-field-access="icon"]',
-      ) ?? document.createElement("link");
-    icon.rel = "icon";
-    icon.dataset.mseFieldAccess = "icon";
-    icon.href = iconPath(32, {
-      invitation: token,
-      revision: invitation.data.branding.icon_url,
-    });
-    const apple =
-      document.head.querySelector<HTMLLinkElement>(
-        'link[data-mse-field-access="apple"]',
-      ) ?? document.createElement("link");
-    apple.rel = "apple-touch-icon";
-    apple.dataset.mseFieldAccess = "apple";
-    apple.sizes = "180x180";
-    apple.href = iconPath(180, {
-      invitation: token,
-      revision: invitation.data.branding.icon_url,
-    });
-    if (!icon.isConnected) document.head.appendChild(icon);
-    if (!apple.isConnected) document.head.appendChild(apple);
     document.title = invitation.data.branding.name;
     cacheBranding(invitation.data.branding, true);
   }, [invitation.data, token]);

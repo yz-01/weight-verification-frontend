@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { hasFieldSession, markFieldAppContext } from "@/lib/auth-token";
-import { iconPath } from "@/lib/branding";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -27,42 +26,6 @@ export function FieldInstallReady({ token }: { token: string }) {
   );
 
   useEffect(() => {
-    const manifest =
-      document.head.querySelector<HTMLLinkElement>(
-        'link[data-mse-field-ready="manifest"]',
-      ) ?? document.createElement("link");
-    manifest.rel = "manifest";
-    manifest.dataset.mseFieldReady = "manifest";
-    manifest.href = token
-      ? `/field-manifest.webmanifest?bootstrap=${encodeURIComponent(token)}`
-      : "/manifest.webmanifest";
-    if (!manifest.isConnected) document.head.appendChild(manifest);
-
-    const icon =
-      document.head.querySelector<HTMLLinkElement>(
-        'link[data-mse-field-ready="icon"]',
-      ) ?? document.createElement("link");
-    icon.rel = "icon";
-    icon.dataset.mseFieldReady = "icon";
-    icon.href = iconPath(32, {
-      bootstrap: token,
-      revision: user?.branding.icon_url,
-    });
-    const apple =
-      document.head.querySelector<HTMLLinkElement>(
-        'link[data-mse-field-ready="apple"]',
-      ) ?? document.createElement("link");
-    apple.rel = "apple-touch-icon";
-    apple.dataset.mseFieldReady = "apple";
-    apple.sizes = "180x180";
-    apple.href = iconPath(180, {
-      bootstrap: token,
-      revision: user?.branding.icon_url,
-    });
-    if (!icon.isConnected) document.head.appendChild(icon);
-    if (!apple.isConnected) document.head.appendChild(apple);
-    document.title = user?.branding.name ?? "MSE Trace";
-
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       ("standalone" in navigator &&
@@ -89,13 +52,10 @@ export function FieldInstallReady({ token }: { token: string }) {
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("appinstalled", installed);
     return () => {
-      manifest.remove();
-      icon.remove();
-      apple.remove();
       window.removeEventListener("beforeinstallprompt", handler);
       window.removeEventListener("appinstalled", installed);
     };
-  }, [router, token, user?.branding.icon_url, user?.branding.name]);
+  }, [router, token]);
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6">

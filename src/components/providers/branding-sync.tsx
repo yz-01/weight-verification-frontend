@@ -18,6 +18,12 @@ function replaceLink(rel: string, href: string, sizes?: string) {
     document.head.querySelector<HTMLLinkElement>(selector) ??
     document.createElement("link");
 
+  document.head
+    .querySelectorAll<HTMLLinkElement>(`link[rel="${rel}"]`)
+    .forEach((candidate) => {
+      if (candidate !== link) candidate.remove();
+    });
+
   link.rel = rel;
   link.href = href;
   if (sizes) link.sizes = sizes;
@@ -29,6 +35,10 @@ export function BrandingSync() {
   const { user } = useAuth();
   const pathname = usePathname();
   const fieldSession = isFieldSessionPath(pathname);
+  const fieldBrandingFromLink =
+    pathname === "/trace/field-activate" ||
+    pathname === "/trace/field-ready" ||
+    pathname === "/field-pwa-bootstrap";
   const branding =
     user?.branding ?? getCachedBranding(fieldSession) ?? BUILTIN_BRANDING;
   const company = branding.company_id;
@@ -40,12 +50,15 @@ export function BrandingSync() {
   }, [fieldSession, user?.branding]);
 
   useEffect(() => {
+    // These pages resolve the tenant from a one-time invitation/bootstrap
+    // token in their server metadata. Do not replace that company icon with
+    // the unauthenticated platform fallback during hydration.
+    if (fieldBrandingFromLink && !user?.branding) return;
+
     const brandRevision = `${name}:${revision ?? "default"}`;
     const links = {
-      icon: company ? iconPath(32, { company, revision }) : "/favicon.ico",
-      apple: company
-        ? iconPath(180, { company, revision })
-        : "/mse-icon-192.png",
+      icon: iconPath(32, { company, revision }),
+      apple: iconPath(180, { company, revision }),
       manifest: `/manifest.webmanifest${company ? `?company=${encodeURIComponent(company)}&brand=${encodeURIComponent(brandRevision)}` : ""}`,
     };
 
@@ -53,7 +66,15 @@ export function BrandingSync() {
     replaceLink("apple-touch-icon", links.apple, "180x180");
     if (!fieldSession) replaceLink("manifest", links.manifest);
     if (document.title !== name) document.title = name;
-  }, [company, fieldSession, name, pathname, revision]);
+  }, [
+    company,
+    fieldBrandingFromLink,
+    fieldSession,
+    name,
+    pathname,
+    revision,
+    user?.branding,
+  ]);
 
   return null;
 }

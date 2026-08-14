@@ -58,7 +58,7 @@ const CONSULTANT_PERMISSIONS = ["project.view", "document.view", "approval.view"
 
 export function CompanySiteSettingsWorkspace() {
   const t = useTranslations("siteControl");
-  const { can } = useAuth();
+  const { can, refresh } = useAuth();
   const qc = useQueryClient();
   const canManage = can("company_settings.manage");
   const settings = useQuery({ queryKey: ["contractor-site-settings"], queryFn: getContractorSiteSettings });
@@ -86,10 +86,14 @@ export function CompanySiteSettingsWorkspace() {
   });
   const saveProfile = useMutation({
     mutationFn: () => updateContractorCompanyProfile(profileForm ?? {}, logoFile),
-    onSuccess: async () => {
+    onSuccess: async (savedProfile) => {
       setProfileDraft({});
       setLogoFile(null);
-      await qc.invalidateQueries({ queryKey: ["contractor-company-profile"] });
+      qc.setQueryData(["contractor-company-profile"], savedProfile);
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["contractor-company-profile"] }),
+        refresh(),
+      ]);
     },
   });
   const remove = useMutation({ mutationFn: deleteCompanyBranch, onSuccess: async () => { setRemoving(null); await qc.invalidateQueries({ queryKey: ["company-branches"] }); } });

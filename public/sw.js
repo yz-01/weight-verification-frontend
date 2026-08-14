@@ -1,4 +1,4 @@
-const CACHE_NAME = "mse-trace-shell-v9";
+const CACHE_NAME = "mse-trace-shell-v10";
 const PRECACHE = [
   "/offline",
   "/mse-icon.svg",

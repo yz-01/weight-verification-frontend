@@ -18,8 +18,9 @@ function isAllowedIconSource(value: string): boolean {
     return (
       source.origin === api.origin ||
       (source.protocol === "https:" &&
-        source.hostname === "ap-south-1.linodeobjects.com" &&
-        source.pathname.startsWith("/weight-verification/"))
+        ((source.hostname === "ap-south-1.linodeobjects.com" &&
+          source.pathname.startsWith("/weight-verification/")) ||
+          source.hostname.endsWith(".ap-south-1.linodeobjects.com")))
     );
   } catch {
     return false;
@@ -65,7 +66,7 @@ export async function GET(
       headers: {
         "Cache-Control": revision
           ? "public, max-age=31536000, immutable"
-          : "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
+          : "no-store",
         "Content-Type": "image/png",
         "Cross-Origin-Resource-Policy": "same-origin",
       },
