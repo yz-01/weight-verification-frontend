@@ -8,7 +8,6 @@ import {
   BUILTIN_BRANDING,
   cacheBranding,
   getCachedBranding,
-  iconPath,
 } from "@/lib/branding";
 import { isFieldSessionPath } from "@/lib/auth-token";
 
@@ -17,12 +16,6 @@ function replaceLink(rel: string, href: string, sizes?: string) {
   const link =
     document.head.querySelector<HTMLLinkElement>(selector) ??
     document.createElement("link");
-
-  document.head
-    .querySelectorAll<HTMLLinkElement>(`link[rel="${rel}"]`)
-    .forEach((candidate) => {
-      if (candidate !== link) candidate.remove();
-    });
 
   link.rel = rel;
   link.href = href;
@@ -57,8 +50,10 @@ export function BrandingSync() {
 
     const brandRevision = `${name}:${revision ?? "default"}`;
     const links = {
-      icon: iconPath(32, { company, revision }),
-      apple: iconPath(180, { company, revision }),
+      // The API already returns a public image URL. Using it directly avoids
+      // a serverless image conversion request on every browser navigation.
+      icon: revision ?? "/mse-icon-192.png",
+      apple: revision ?? "/mse-icon-192.png",
       manifest: `/manifest.webmanifest${company ? `?company=${encodeURIComponent(company)}&brand=${encodeURIComponent(brandRevision)}` : ""}`,
     };
 
@@ -71,7 +66,6 @@ export function BrandingSync() {
     fieldBrandingFromLink,
     fieldSession,
     name,
-    pathname,
     revision,
     user?.branding,
   ]);

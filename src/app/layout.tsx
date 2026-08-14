@@ -23,8 +23,10 @@ export const metadata: Metadata = {
   applicationName: "MSE Trace",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: [{ url: "/brand-icon/32", sizes: "32x32", type: "image/png" }],
-    apple: [{ url: "/brand-icon/180", sizes: "180x180", type: "image/png" }],
+    // Keep the initial document entirely local. Tenant branding is applied
+    // from the cached/session profile after hydration without delaying routes.
+    icon: [{ url: "/mse-icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/mse-icon-192.png", sizes: "192x192", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,
@@ -48,6 +50,10 @@ export default async function RootLayout({
   // Read from the locale cookie rather than a URL segment. Language is a
   // property of the account, so it must not appear in any shareable link.
   const locale = await getLocale();
+  const deploymentId =
+    process.env.VERCEL_GIT_COMMIT_SHA ??
+    process.env.GITHUB_SHA ??
+    "development";
 
   return (
     <html
@@ -57,7 +63,7 @@ export default async function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider>
-          <AppProviders>{children}</AppProviders>
+          <AppProviders deploymentId={deploymentId}>{children}</AppProviders>
         </NextIntlClientProvider>
       </body>
     </html>

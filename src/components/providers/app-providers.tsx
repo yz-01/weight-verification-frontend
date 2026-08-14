@@ -40,7 +40,13 @@ function createQueryClient() {
   });
 }
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+export function AppProviders({
+  children,
+  deploymentId,
+}: {
+  children: React.ReactNode;
+  deploymentId: string;
+}) {
   // Created in state so each browser session gets one client, and so a server
   // render never shares a cache between two users' requests.
   const [queryClient] = useState(createQueryClient);
@@ -57,7 +63,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <AuthProvider>
           <BrandingSync />
           <LocaleSync />
-          <NavigationRecovery />
+          <NavigationRecovery deploymentId={deploymentId} />
           <ServiceWorkerRegistration />
           <OfflineSyncProvider>
             <TooltipProvider delayDuration={300}>{children}</TooltipProvider>

@@ -12,7 +12,12 @@ export async function getPublicBranding(
   try {
     const response = await fetch(
       `${API_BASE_URL}/api/branding/${query.size ? `?${query}` : ""}`,
-      { cache: "no-store" },
+      {
+        cache: "no-store",
+        // Branding must never hold a page open when the API or object storage
+        // is cold. The client can still apply cached branding after hydration.
+        signal: AbortSignal.timeout(800),
+      },
     );
     if (!response.ok) return BUILTIN_BRANDING;
     const envelope = (await response.json()) as {

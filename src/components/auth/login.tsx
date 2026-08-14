@@ -19,6 +19,7 @@ import type { Portal } from "@/interfaces/auth";
 import {
   PORTAL_LABELS,
   portalPaths,
+  redirectWithFallback,
 } from "@/lib/portal";
 import { cn } from "@/lib/utils";
 import {
@@ -67,7 +68,8 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
         const destination =
           nextPath ?? (defaultLanding === "/dashboard" ? consoleHome : defaultLanding);
 
-        router.replace(destination);
+        router.prefetch(destination);
+        redirectWithFallback(router, destination, 1_200);
       } catch (error) {
         setFormError(messageFor(error, t));
       }

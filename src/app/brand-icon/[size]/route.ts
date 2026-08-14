@@ -35,18 +35,26 @@ export async function GET(
   const size = ALLOWED_SIZES.has(parsed) ? parsed : 192;
   const search = new URL(request.url).searchParams;
   const revision = search.get("v");
-  const branding = await getPublicBranding({
-    company: search.get("company"),
-    bootstrap: search.get("bootstrap"),
-    invitation: search.get("invitation"),
-  });
+  const directSource =
+    revision && isAllowedIconSource(revision) ? revision : null;
+  const branding = directSource
+    ? null
+    : await getPublicBranding({
+        company: search.get("company"),
+        bootstrap: search.get("bootstrap"),
+        invitation: search.get("invitation"),
+      });
 
   let source: Buffer;
   try {
-    if (!branding.icon_url || !isAllowedIconSource(branding.icon_url)) {
+    const iconSource = directSource ?? branding?.icon_url;
+    if (!iconSource || !isAllowedIconSource(iconSource)) {
       throw new Error("No permitted uploaded icon");
     }
-    const response = await fetch(branding.icon_url, { cache: "no-store" });
+    const response = await fetch(iconSource, {
+      cache: "force-cache",
+      signal: AbortSignal.timeout(1_500),
+    });
     if (!response.ok) throw new Error("Icon source unavailable");
     source = Buffer.from(await response.arrayBuffer());
   } catch {
