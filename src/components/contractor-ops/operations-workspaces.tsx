@@ -887,13 +887,15 @@ export function FieldTasksWorkspace({
                           </div>
                         </div>
                       ) : null}
-                      <div className="mt-3 grid grid-cols-3 gap-2">
-                        {row.photos.slice(0, 3).map((photo) => (
+                      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
+                        {row.photos.map((photo, index) => (
                           <a
                             key={photo.id}
                             href={photo.watermarked || photo.image}
                             target="_blank"
                             rel="noreferrer"
+                            className="w-24 shrink-0"
+                            title={`${index + 1} / ${row.photos.length}`}
                           >
                             <Image
                               src={photo.watermarked || photo.image}
@@ -901,7 +903,7 @@ export function FieldTasksWorkspace({
                               width={180}
                               height={180}
                               unoptimized
-                              className="aspect-square w-full rounded-lg object-cover"
+                              className="aspect-square w-full rounded-lg border object-cover"
                             />
                           </a>
                         ))}

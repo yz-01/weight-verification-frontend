@@ -340,10 +340,14 @@ export function WasteOutgoingWorkspace() {
 
               {row.photos.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {row.photos.slice(0, 6).map((photo) => (
-                    <div
+                  {row.photos.map((photo, index) => (
+                    <a
                       key={photo.id}
+                      href={photo.watermarked || photo.image}
+                      target="_blank"
+                      rel="noreferrer"
                       className="relative size-16 overflow-hidden rounded border"
+                      title={`${index + 1} / ${row.photos.length}`}
                     >
                       <Image
                         // The watermarked derivative when one exists: 8.2.6 wants
@@ -354,7 +358,7 @@ export function WasteOutgoingWorkspace() {
                         sizes="64px"
                         className="object-cover"
                       />
-                    </div>
+                    </a>
                   ))}
                 </div>
               )}

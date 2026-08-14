@@ -318,20 +318,20 @@ export function Safety({
         meta: { label: t("safety.field.evidence") },
         header: () => t("safety.field.evidence"),
         cell: ({ row }) => (
-          <div className="flex items-center gap-1">
+          <div className="flex max-w-[18rem] items-center gap-1 overflow-x-auto py-1 [scrollbar-width:thin]">
             {row.original.latitude && (
               <LocateFixed
-                className="h-4 w-4 text-success"
+                className="h-4 w-4 shrink-0 text-success"
                 aria-label={t("safety.evidence.location")}
               />
             )}
-            {(row.original.initial_evidence ?? []).slice(0, 3).map((item, index) => (
+            {(row.original.initial_evidence ?? []).map((item, index) => (
               <a
                 key={item.id}
                 href={item.watermarked || item.image}
                 target="_blank"
                 rel="noreferrer"
-                className="relative overflow-hidden rounded-md border"
+                className="relative shrink-0 overflow-hidden rounded-md border"
                 title={`${t("safety.evidence.photo")} ${index + 1}`}
               >
                 <Image
@@ -344,11 +344,6 @@ export function Safety({
                 />
               </a>
             ))}
-            {(row.original.initial_evidence?.length ?? 0) > 3 && (
-              <span className="text-xs font-semibold text-muted-foreground">
-                +{row.original.initial_evidence.length - 3}
-              </span>
-            )}
             {!row.original.latitude && !(row.original.initial_evidence?.length ?? 0) && (
               <span className="text-muted-foreground">{t("common.emptyValue")}</span>
             )}
