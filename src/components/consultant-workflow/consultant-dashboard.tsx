@@ -2,14 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle,
+  Archive,
+  ArrowRight,
   Bell,
-  CalendarClock,
-  CheckCircle2,
   ClipboardCheck,
+  FileCheck2,
+  FileText,
   Plus,
-  RotateCcw,
   Search,
+  Settings2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -63,6 +64,11 @@ export function ConsultantDashboard() {
           <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {can("consultant.config") && (
+            <Button asChild variant="outline">
+              <Link href="/consultant-workflows"><Settings2 />{t("workflowSettings")}</Link>
+            </Button>
+          )}
           {can("approval.review") && (
             <Button asChild variant="outline">
               <Link href="/approval-credential"><ClipboardCheck />{t("credential")}</Link>
@@ -107,12 +113,49 @@ export function ConsultantDashboard() {
         <DashboardSkeleton />
       ) : (
         <>
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <Metric label={t("metric.pending")} value={data.summary.pending} icon={ClipboardCheck} tone="warning" />
-            <Metric label={t("metric.today")} value={data.summary.today} icon={CalendarClock} />
-            <Metric label={t("metric.approved")} value={data.summary.approved} icon={CheckCircle2} tone="positive" />
-            <Metric label={t("metric.returned")} value={data.summary.returned} icon={RotateCcw} tone="danger" />
-            <Metric label={t("metric.dueSoon")} value={data.summary.due_soon} icon={AlertTriangle} tone="warning" />
+          <section aria-labelledby="consultant-flow-title" className="space-y-3">
+            <div>
+              <h2 id="consultant-flow-title" className="text-lg font-semibold">{t("flow.title")}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{t("flow.subtitle")}</p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <LifecycleStep
+                number={1}
+                label={t("flow.application")}
+                help={t("flow.applicationHelp")}
+                value={data.summary.draft}
+                href="/consultant-applications?stage=draft"
+                icon={FileText}
+                tone="neutral"
+              />
+              <LifecycleStep
+                number={2}
+                label={t("flow.approval")}
+                help={t("flow.approvalHelp")}
+                value={data.summary.in_approval}
+                href="/consultant-applications?stage=approval"
+                icon={ClipboardCheck}
+                tone="warning"
+              />
+              <LifecycleStep
+                number={3}
+                label={t("flow.final")}
+                help={t("flow.finalHelp")}
+                value={data.summary.final_reports}
+                href="/consultant-applications?stage=final"
+                icon={FileCheck2}
+                tone="positive"
+              />
+              <LifecycleStep
+                number={4}
+                label={t("flow.archive")}
+                help={t("flow.archiveHelp")}
+                value={data.summary.archived}
+                href="/consultant-applications?stage=archive"
+                icon={Archive}
+                tone="info"
+              />
+            </div>
           </section>
 
           <div className="grid gap-6 xl:grid-cols-2">
@@ -169,31 +212,47 @@ export function ConsultantDashboard() {
   );
 }
 
-function Metric({
+function LifecycleStep({
+  number,
   label,
+  help,
   value,
+  href,
   icon: Icon,
   tone = "neutral",
 }: {
+  number: number;
   label: string;
+  help: string;
   value: number;
+  href: string;
   icon: typeof ClipboardCheck;
-  tone?: "neutral" | "positive" | "warning" | "danger";
+  tone?: "neutral" | "positive" | "warning" | "info";
 }) {
   const toneClass = {
     neutral: "bg-primary/10 text-primary",
     positive: "bg-success/10 text-success",
     warning: "bg-warning/15 text-warning",
-    danger: "bg-destructive/10 text-destructive",
+    info: "bg-info/10 text-info",
   }[tone];
   return (
-    <div className="min-h-28 rounded-lg border bg-card p-4 shadow-sm">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <span className={`grid size-9 place-items-center rounded-lg ${toneClass}`}><Icon className="size-4" /></span>
+    <Link
+      href={href}
+      className="group flex min-h-40 flex-col rounded-lg border bg-card p-4 shadow-sm transition-colors hover:border-primary/35 hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="grid size-8 shrink-0 place-items-center rounded-full border bg-background text-sm font-bold tabular-nums">{number}</span>
+          <span className={`grid size-10 place-items-center rounded-lg ${toneClass}`}><Icon className="size-5" /></span>
+        </div>
+        <span className="text-3xl font-semibold tabular-nums">{value}</span>
       </div>
-      <p className="mt-3 text-2xl font-semibold tabular-nums">{value}</p>
-    </div>
+      <p className="mt-4 text-base font-semibold">{label}</p>
+      <p className="mt-1 flex-1 text-sm leading-5 text-muted-foreground">{help}</p>
+      <span className="mt-3 flex items-center gap-1 text-sm font-semibold text-primary">
+        <span>{label}</span><ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </Link>
   );
 }
 

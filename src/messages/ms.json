@@ -401,11 +401,11 @@
       "clear": "Kosongkan penapis"
     },
     "categories": {
-      "title": "Kategori projek",
+      "title": "Kategori rekod tapak",
       "subtitle": "Susun rekod setiap projek dan tentukan kategori yang dapat dilihat oleh pekerja tapak.",
       "add": "Tambah kategori",
-      "createTitle": "Kategori projek baharu",
-      "editTitle": "Edit kategori projek",
+      "createTitle": "Kategori rekod tapak baharu",
+      "editTitle": "Edit kategori rekod tapak",
       "formHelp": "Kategori adalah khusus untuk satu projek dan boleh disusun atau disembunyikan daripada aplikasi tapak.",
       "removeTitle": "Buang {name}?",
       "removeBody": "Kategori hanya boleh dibuang jika tiada rekod aktif masih menggunakannya.",
@@ -1198,7 +1198,7 @@
     "signedOut": "Telah log keluar"
   },
   "nav": {
-    "project_categories": "Kategori projek",
+    "project_categories": "Kategori rekod tapak",
     "field_tasks": "Tugas tapak",
     "equipment": "Peralatan tapak",
     "material_outgoing": "Bahan keluar",
@@ -1310,7 +1310,7 @@
       "dashboardTrends": "Trend data",
       "dashboardSystemStatus": "Status sistem langsung",
       "projectRecords": "Rekod projek",
-      "categoryRecords": "Kategori projek",
+      "categoryRecords": "Kategori rekod tapak",
       "fieldTasks": "Tugasan tapak",
       "supplierRecords": "Rekod pembekal",
       "materialReceipts": "Bahan masuk",
@@ -1358,7 +1358,7 @@
       "integrationSettings": "Integrasi sistem",
       "notifications": "Pusat notifikasi",
       "projectRecords": "Rekod projek",
-      "projectCategories": "Kategori projek",
+      "projectCategories": "Kategori rekod tapak",
       "fieldTasks": "Tugasan tapak",
       "supplierRecords": "Rekod pembekal",
       "materialReceipts": "Bahan masuk",
@@ -3123,8 +3123,8 @@
       "capturedFrom": "Dirakam dari",
       "capturedTo": "Dirakam hingga",
       "project": "Projek",
-      "category": "Kategori projek",
-      "chooseCategory": "Pilih kategori projek",
+      "category": "Kategori rekod tapak",
+      "chooseCategory": "Pilih kategori rekod tapak",
       "withGps": "Dengan GPS",
       "withoutGps": "Tanpa GPS"
     },
@@ -9076,6 +9076,19 @@
     "search": "Cari",
     "openAll": "Buka semua",
     "currentStep": "Langkah semasa: {step}",
+    "workflowSettings": "Tetapan aliran kelulusan",
+    "flow": {
+      "title": "Empat langkah mudah",
+      "subtitle": "Buka langkah yang perlu diurus. Setiap permohonan bergerak daripada penyediaan hingga arkib yang dilindungi.",
+      "application": "Permohonan",
+      "applicationHelp": "Sediakan butiran RFI, bukti tapak dan lampiran wajib.",
+      "approval": "Kelulusan",
+      "approvalHelp": "Perunding menyemak mengikut turutan dan menandatangani setiap keputusan dengan PIN.",
+      "final": "PDF akhir",
+      "finalHelp": "Muat turun laporan kelulusan RFI dalam format pelanggan.",
+      "archive": "Arkib",
+      "archiveHelp": "Pastikan permohonan, sejarah kelulusan dan laporan akhir telah disimpan."
+    },
     "metric": {
       "pending": "Menunggu semakan",
       "today": "Permohonan hari ini",
@@ -9237,7 +9250,15 @@
       "subtitle": "{count} permohonan projek dan rekod kelulusan",
       "create": "Permohonan baharu",
       "back": "Kembali ke permohonan perunding",
-      "search": "Cari nombor, lokasi atau perunding"
+      "search": "Cari nombor, lokasi atau perunding",
+      "stageLabel": "Peringkat permohonan",
+      "stage": {
+        "all": "Semua",
+        "draft": "Permohonan",
+        "approval": "Kelulusan",
+        "final": "PDF akhir",
+        "archive": "Arkib"
+      }
     },
     "state": {
       "chooseProject": "Pilih projek untuk melihat kerja perunding.",
@@ -9356,14 +9377,38 @@
       "applicant": "Disediakan oleh {name}",
       "receivedAt": "Diterima oleh perunding",
       "acknowledgedAt": "Disahkan oleh perunding",
+      "nextAction": "Apa yang berlaku seterusnya",
+      "revisionCurrent": "Versi semasa",
+      "noRevisions": "Tiada sejarah semakan tersedia.",
+      "next": {
+        "draft": "Lengkapkan borang, pautkan foto tapak dan lampiran, kemudian hantar untuk kelulusan.",
+        "review": "Permohonan ini menunggu keputusan anda. Semak bukti, kemudian pilih keputusan kelulusan.",
+        "waiting": "Anda tidak perlu bertindak sekarang. Permohonan sedang menunggu di {step}.",
+        "revise": "Permohonan telah dikembalikan. Cipta semakan baharu, buat pembetulan dan hantar semula.",
+        "final": "Kelulusan telah selesai. Muat turun PDF akhir dan semak rekod pengesahan.",
+        "archived": "Permohonan ini telah selesai. Permohonan, sejarah kelulusan bertandatangan dan PDF akhir telah diarkibkan dengan selamat.",
+        "complete": "Keputusan kelulusan telah selesai. Laporan akhir sedang disediakan."
+      },
+      "lifecycle": {
+        "title": "Kemajuan permohonan",
+        "application": "Permohonan",
+        "approval": "Kelulusan",
+        "final": "PDF akhir",
+        "archive": "Arkib",
+        "complete": "Selesai",
+        "current": "Langkah semasa",
+        "pending": "Belum bermula"
+      },
       "section": {
         "application": "Butiran permohonan",
         "site": "Permintaan tapak",
         "consultant": "Projek dan perunding",
         "evidence": "Bukti tapak dipautkan",
+        "relatedRecords": "Rekod tapak berkaitan",
         "attachments": "Lampiran permohonan",
         "approvalProgress": "Kemajuan kelulusan",
         "decisions": "Keputusan ditandatangani",
+        "revisions": "Sejarah semakan",
         "archive": "Arkib automatik"
       }
     },
@@ -9449,6 +9494,8 @@
       "code": "Kod templat",
       "name": "Nama templat",
       "reportLayout": "Susun atur laporan akhir",
+      "standardLayout": "PDF RFI pelanggan standard",
+      "standardLayoutHelp": "PDF akhir menggunakan format RFI dan kelulusan perunding yang diluluskan pelanggan. Format ini dikunci supaya pengguna tidak tersalah pilih susun atur yang belum disokong.",
       "description": "Penerangan",
       "changeNote": "Catatan perubahan versi",
       "cancel": "Batal",
@@ -9511,7 +9558,17 @@
       "passwordHelp": "Kata laluan semasa melindungi perubahan kelayakan tandatangan.",
       "save": "Simpan kelayakan tandatangan"
     },
-    "archive": { "recordOnly": "Rekod arkib berstruktur" },
+    "archive": {
+      "recordOnly": "Rekod arkib berstruktur",
+      "complete": "Selesai",
+      "pending": "Menunggu",
+      "verify": "Buka pengesahan QR",
+      "kind": {
+        "APPLICATION": "Arkib permohonan",
+        "APPROVAL": "Sejarah kelulusan bertandatangan",
+        "FINAL_REPORT": "Arkib PDF akhir"
+      }
+    },
     "common": { "unknown": "Tidak diketahui" },
     "verification": {
       "title": "Pengesahan Laporan Kelulusan",
@@ -9839,7 +9896,7 @@
     },
     "projectStatus": { "PLANNING": "Perancangan", "ACTIVE": "Aktif" },
     "categories": {
-      "title": "Kategori projek lalai",
+      "title": "Kategori rekod tapak lalai",
       "subtitle": "Kategori ini dicipta secara automatik untuk setiap projek baharu.",
       "add": "Tambah kategori",
       "empty": "Tiada kategori lalai. Projek baharu bermula dengan senarai kosong.",

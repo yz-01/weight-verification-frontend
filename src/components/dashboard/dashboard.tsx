@@ -97,7 +97,12 @@ export function Dashboard({
       )}
 
       {user.portal !== "MSE_ADMIN" && (
-        <QuickLinks portal={user.portal} features={user.features} />
+        <QuickLinks
+          portal={user.portal}
+          features={user.features}
+          permissions={user.permissions}
+          isSuperuser={user.is_superuser}
+        />
       )}
     </div>
   );
@@ -356,12 +361,16 @@ function StatsGrid({ stats }: { stats: DashboardStat[] }) {
 function QuickLinks({
   portal,
   features,
+  permissions,
+  isSuperuser,
 }: {
   portal: Portal;
   features: string[];
+  permissions: string[];
+  isSuperuser: boolean;
 }) {
   const t = useTranslations();
-  const items = visibleNavigation(portal, features)
+  const items = visibleNavigation(portal, features, permissions, isSuperuser)
     .flatMap((group) => group.items)
     .filter((item) => item.feature !== "dashboard")
     .slice(0, 6);

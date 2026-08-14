@@ -2,7 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
+  Archive,
   ClipboardCheck,
+  FileCheck2,
+  FileText,
   FilePlus2,
   KeyRound,
   Loader2,
@@ -22,6 +25,9 @@ import { Input } from "@/components/ui/input";
 import type { ConsultantApplicationStatus } from "@/interfaces/consultant-workflow";
 import { useDateFormat } from "@/lib/dates";
 import { getConsultantApplications } from "@/services/consultant-workflow.service";
+
+const STAGES = ["all", "draft", "approval", "final", "archive"] as const;
+type ApplicationStage = (typeof STAGES)[number];
 
 const tones: Record<
   ConsultantApplicationStatus,
@@ -43,14 +49,19 @@ export function ConsultantApplicationsList() {
   const df = useDateFormat();
   const [project, setProject] = useState("");
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
+  const stageParam = searchParams.get("stage");
+  const stage: ApplicationStage = STAGES.includes(stageParam as ApplicationStage)
+    ? (stageParam as ApplicationStage)
+    : "all";
   const onProjectChange = useCallback((id: string) => setProject(id), []);
   const needsProject = user?.account_type === "CONSULTANT";
   const rows = useQuery({
-    queryKey: ["consultant-applications", project, search],
+    queryKey: ["consultant-applications", project, search, stage],
     queryFn: () =>
       getConsultantApplications({
         project: project || undefined,
         search: search || undefined,
+        stage: stage === "all" ? undefined : stage,
         page_size: 200,
       }),
     enabled: !needsProject || Boolean(project),
@@ -107,6 +118,40 @@ export function ConsultantApplicationsList() {
           />
         </div>
       </div>
+
+      <nav
+        aria-label={t("applications.stageLabel")}
+        className="grid grid-cols-2 gap-2 rounded-lg border bg-muted/20 p-2 sm:grid-cols-5"
+      >
+        {STAGES.map((value) => {
+          const Icon =
+            value === "draft"
+              ? FileText
+              : value === "approval"
+                ? ClipboardCheck
+                : value === "final"
+                  ? FileCheck2
+                  : value === "archive"
+                    ? Archive
+                    : Search;
+          const href = value === "all" ? "/consultant-applications" : `/consultant-applications?stage=${value}`;
+          return (
+            <Link
+              key={value}
+              href={href}
+              aria-current={stage === value ? "page" : undefined}
+              className={`flex min-h-14 items-center justify-center gap-2 rounded-md px-3 text-center text-base font-semibold transition-colors ${
+                stage === value
+                  ? "bg-background text-primary shadow-sm ring-1 ring-border"
+                  : "text-muted-foreground hover:bg-background/70 hover:text-foreground"
+              }`}
+            >
+              <Icon className="size-4 shrink-0" />
+              <span>{t(`applications.stage.${value}`)}</span>
+            </Link>
+          );
+        })}
+      </nav>
 
       {needsProject && !project ? (
         <EmptyState text={t("state.chooseProject")} />

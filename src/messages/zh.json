@@ -398,11 +398,11 @@
       "clear": "清除筛选"
     },
     "categories": {
-      "title": "项目栏目",
+      "title": "现场资料栏目",
       "subtitle": "按项目整理现场记录，并决定现场人员可看到哪些栏目。",
       "add": "新增栏目",
-      "createTitle": "新增项目栏目",
-      "editTitle": "编辑项目栏目",
+      "createTitle": "新增现场资料栏目",
+      "editTitle": "编辑现场资料栏目",
       "formHelp": "每个栏目只属于一个项目，可以排序或从现场手机页面隐藏。",
       "removeTitle": "移除 {name}？",
       "removeBody": "只有没有现场记录使用该栏目时才可以移除。",
@@ -1185,7 +1185,7 @@
     "signedOut": "已退出登录"
   },
   "nav": {
-    "project_categories": "项目栏目",
+    "project_categories": "现场资料栏目",
     "field_tasks": "现场任务",
     "equipment": "设备管理",
     "material_outgoing": "材料出场",
@@ -1297,7 +1297,7 @@
       "dashboardTrends": "数据统计图表",
       "dashboardSystemStatus": "实时系统状态",
       "projectRecords": "项目资料",
-      "categoryRecords": "项目栏目",
+      "categoryRecords": "现场资料栏目",
       "fieldTasks": "现场任务",
       "supplierRecords": "供应商资料",
       "materialReceipts": "材料进场",
@@ -1345,7 +1345,7 @@
       "integrationSettings": "系统集成",
       "notifications": "通知中心",
       "projectRecords": "项目资料",
-      "projectCategories": "项目栏目",
+      "projectCategories": "现场资料栏目",
       "fieldTasks": "现场任务",
       "supplierRecords": "供应商资料",
       "materialReceipts": "材料进场",
@@ -3110,8 +3110,8 @@
       "capturedFrom": "拍摄起始日",
       "capturedTo": "拍摄截止日",
       "project": "项目",
-      "category": "项目栏目",
-      "chooseCategory": "选择项目栏目",
+      "category": "现场资料栏目",
+      "chooseCategory": "选择现场资料栏目",
       "withGps": "有 GPS",
       "withoutGps": "无 GPS"
     },
@@ -8994,6 +8994,19 @@
     "search": "搜索",
     "openAll": "查看全部",
     "currentStep": "当前步骤：{step}",
+    "workflowSettings": "审批流程设置",
+    "flow": {
+      "title": "四个简单步骤",
+      "subtitle": "直接打开需要处理的步骤。每份申请都会从填写资料一直保存到安全归档。",
+      "application": "申请",
+      "applicationHelp": "填写 RFI 资料，并关联现场照片和必需附件。",
+      "approval": "审批",
+      "approvalHelp": "顾问按顺序审核，并使用 PIN 签署每项决定。",
+      "final": "最终 PDF",
+      "finalHelp": "下载已经完成的客户格式 RFI 审批报告。",
+      "archive": "归档",
+      "archiveHelp": "确认申请、审批记录和最终报告都已保存。"
+    },
     "metric": {
       "pending": "待我审批",
       "today": "今日申请",
@@ -9155,7 +9168,15 @@
       "subtitle": "共 {count} 项项目申请与审批记录",
       "create": "新增申请",
       "back": "返回顾问申请",
-      "search": "搜索申请编号、位置或顾问"
+      "search": "搜索申请编号、位置或顾问",
+      "stageLabel": "申请阶段",
+      "stage": {
+        "all": "全部",
+        "draft": "申请",
+        "approval": "审批",
+        "final": "最终 PDF",
+        "archive": "归档"
+      }
     },
     "state": {
       "chooseProject": "请选择项目以查看该项目的顾问工作。",
@@ -9274,14 +9295,38 @@
       "applicant": "建立人：{name}",
       "receivedAt": "顾问接收时间",
       "acknowledgedAt": "顾问确认时间",
+      "nextAction": "下一步要做什么",
+      "revisionCurrent": "当前版本",
+      "noRevisions": "目前没有版本记录。",
+      "next": {
+        "draft": "完成表格，关联现场照片和附件，然后提交审批。",
+        "review": "这份申请正在等待您的决定。请查看现场证据，然后选择审批结果。",
+        "waiting": "您现在不需要操作，申请正在等待“{step}”处理。",
+        "revise": "申请已被退回。请建立新版本，按照意见修改后再次提交。",
+        "final": "审批已经完成。请下载最终 PDF，并查看验证记录。",
+        "archived": "这份申请已经完成。申请资料、签名审批记录和最终 PDF 都已安全归档。",
+        "complete": "审批决定已经完成，系统正在准备最终报告。"
+      },
+      "lifecycle": {
+        "title": "申请进度",
+        "application": "申请",
+        "approval": "审批",
+        "final": "最终 PDF",
+        "archive": "归档",
+        "complete": "已完成",
+        "current": "当前步骤",
+        "pending": "尚未开始"
+      },
       "section": {
         "application": "申请资料",
         "site": "现场申请",
         "consultant": "项目与顾问",
         "evidence": "关联现场证据",
+        "relatedRecords": "关联现场资料",
         "attachments": "申请附件",
         "approvalProgress": "审批进度",
         "decisions": "已签署决定",
+        "revisions": "版本记录",
         "archive": "自动归档"
       }
     },
@@ -9367,6 +9412,8 @@
       "code": "模板编号",
       "name": "模板名称",
       "reportLayout": "最终报告版式",
+      "standardLayout": "标准客户 RFI PDF",
+      "standardLayoutHelp": "最终 PDF 固定使用客户确认的 RFI 与顾问审批格式，避免用户误选尚未支持的版式。",
       "description": "说明",
       "changeNote": "版本变更说明",
       "cancel": "取消",
@@ -9429,7 +9476,17 @@
       "passwordHelp": "修改签署凭证前需验证当前密码。",
       "save": "保存签署凭证"
     },
-    "archive": { "recordOnly": "结构化归档记录" },
+    "archive": {
+      "recordOnly": "结构化归档记录",
+      "complete": "已完成",
+      "pending": "等待中",
+      "verify": "打开二维码验证",
+      "kind": {
+        "APPLICATION": "申请资料归档",
+        "APPROVAL": "签名审批记录归档",
+        "FINAL_REPORT": "最终 PDF 归档"
+      }
+    },
     "common": { "unknown": "未知" },
     "verification": {
       "title": "审批报告验证",
@@ -9750,7 +9807,7 @@
     },
     "projectStatus": { "PLANNING": "规划中", "ACTIVE": "进行中" },
     "categories": {
-      "title": "默认项目栏目",
+      "title": "默认现场资料栏目",
       "subtitle": "每个新项目都会自动建立这些栏目。",
       "add": "新增栏目",
       "empty": "尚未设置默认栏目，新项目将使用空白栏目清单。",

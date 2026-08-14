@@ -228,6 +228,18 @@ export interface ApplicationRelatedRecordGroup {
   records: ApplicationRelatedRecord[];
 }
 
+export interface ApplicationRevisionSummary {
+  id: string;
+  application_no: string;
+  revision: number;
+  status: ConsultantApplicationStatus;
+  submitted_at: string | null;
+  finalized_at: string | null;
+  archived_at: string | null;
+  final_decision: string;
+  is_current: boolean;
+}
+
 export interface ConsultantApplication {
   id: string;
   application_no: string;
@@ -307,6 +319,7 @@ export interface ConsultantApplication {
   review_steps: ApplicationReviewStep[];
   approval_actions: ApplicationApprovalAction[];
   archive_entries: ApplicationArchiveEntry[];
+  revision_chain: ApplicationRevisionSummary[];
   related_record_groups: ApplicationRelatedRecordGroup[];
   created_at: string;
   updated_at: string;
@@ -334,6 +347,10 @@ export interface ConsultantDashboardData {
   generated_at: string;
   summary: {
     pending: number;
+    draft: number;
+    in_approval: number;
+    final_reports: number;
+    archived: number;
     today: number;
     approved: number;
     returned: number;

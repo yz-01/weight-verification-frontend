@@ -55,8 +55,14 @@ export function AppSidebar() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const groups = useMemo(
-    () => visibleNavigation(user?.portal, user?.features),
-    [user?.portal, user?.features],
+    () =>
+      visibleNavigation(
+        user?.portal,
+        user?.features,
+        user?.permissions,
+        user?.is_superuser,
+      ),
+    [user?.features, user?.is_superuser, user?.permissions, user?.portal],
   );
 
   // Tapping a link on a phone should reveal the page it went to, not leave the

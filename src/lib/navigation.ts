@@ -141,6 +141,8 @@ export interface FeatureNavChild {
   href: string;
   /** Optional feature required to see and open this child route. */
   feature?: PortalFeatureKey;
+  /** Optional action permission required to expose this child entry. */
+  requiredPermission?: string;
 }
 
 export interface NavGroup {
@@ -883,30 +885,35 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.consultantWorkflows",
           "/consultant-workflows",
           "consultant_applications",
+          "consultant.config",
         ),
         child(
           "10.2.2B",
           "nav.submodule.approvalCredentials",
           "/approval-credential",
           "approvals",
+          "approval.review",
         ),
         child(
           "10.2.4",
           "nav.submodule.consultantFieldInbox",
           "/consultant-field-inbox",
           "field_tasks",
+          "consultant.submit",
         ),
         child(
           "10.2.8",
           "nav.submodule.consultantAccess",
           "/consultant-access",
           "users",
+          "consultant.config",
         ),
         child(
           "10.2.5",
           "nav.submodule.consultantTemplates",
           "/consultant-templates",
           "consultant_applications",
+          "consultant.config",
         ),
       ],
     ),
@@ -1213,14 +1220,17 @@ function child(
   labelKey: string,
   href: string,
   feature?: PortalFeatureKey,
+  requiredPermission?: string,
 ): FeatureNavChild {
-  return { key, labelKey, href, feature };
+  return { key, labelKey, href, feature, requiredPermission };
 }
 
 /** Groups containing only features returned for this signed-in user. */
 export function visibleNavigation(
   portal: Portal | undefined,
   features: readonly string[] | undefined,
+  permissions: readonly string[] = [],
+  isSuperuser = false,
 ): NavGroup[] {
   if (!portal || !features) return [];
 
@@ -1228,11 +1238,15 @@ export function visibleNavigation(
   const groups: NavGroup[] = [];
 
   for (const navItem of PORTAL_NAVIGATION[portal]) {
-    const visibleChildren = navItem.children?.filter(
-      (childItem) =>
+    const visibleChildren = navItem.children?.filter((childItem) => {
+      const featureVisible =
         (!childItem.feature && visible.has(navItem.feature)) ||
-        (childItem.feature !== undefined && visible.has(childItem.feature)),
-    );
+        (childItem.feature !== undefined && visible.has(childItem.feature));
+      const permissionVisible =
+        !childItem.requiredPermission ||
+        hasPermission(permissions, childItem.requiredPermission, isSuperuser);
+      return featureVisible && permissionVisible;
+    });
     if (!visible.has(navItem.feature) && !visibleChildren?.length) continue;
     const lastGroup = groups.at(-1);
     const visibleItem = {
@@ -1303,6 +1317,13 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/roles/create", permission: "role.create" },
   { pattern: "/roles/:id/edit", permission: "role.update" },
   { pattern: "/gate", permission: "weighing.operate" },
+  { pattern: "/consultant-workflows", permission: "consultant.config" },
+  { pattern: "/consultant-templates", permission: "consultant.config" },
+  { pattern: "/consultant-access", permission: "consultant.config" },
+  { pattern: "/approval-credential", permission: "approval.review" },
+  { pattern: "/consultant-applications/create", permission: "consultant.submit" },
+  { pattern: "/consultant-applications/:id/edit", permission: "consultant.submit" },
+  { pattern: "/consultant-field-inbox", permission: "consultant.submit" },
 ];
 
 function matchesPattern(pathname: string, pattern: string): boolean {

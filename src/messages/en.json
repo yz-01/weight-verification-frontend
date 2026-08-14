@@ -390,11 +390,11 @@
       "reference": "4. Grid line or surrounding reference"
     },
     "categories": {
-      "title": "Project categories",
+      "title": "Site record categories",
       "subtitle": "Organise each project's site records and choose what field staff can see.",
       "add": "Add category",
-      "createTitle": "New project category",
-      "editTitle": "Edit project category",
+      "createTitle": "New site record category",
+      "editTitle": "Edit site record category",
       "formHelp": "Categories belong to one project and can be ordered or hidden from the field app.",
       "removeTitle": "Remove {name}?",
       "removeBody": "The category can only be removed when no live record still uses it.",
@@ -1239,7 +1239,7 @@
     "contractor_partners": "Contractor partners",
     "recycler_review": "Recycler review",
     "transaction_reports": "Transaction reports",
-    "project_categories": "Project categories",
+    "project_categories": "Site record categories",
     "field_tasks": "Site tasks",
     "equipment": "Site equipment",
     "recyclers": "Recyclers",
@@ -1310,7 +1310,7 @@
       "dashboardTrends": "Data trends",
       "dashboardSystemStatus": "Live system status",
       "projectRecords": "Project records",
-      "categoryRecords": "Project categories",
+      "categoryRecords": "Site record categories",
       "fieldTasks": "Site tasks",
       "supplierRecords": "Supplier records",
       "materialReceipts": "Material receipts",
@@ -1358,7 +1358,7 @@
       "integrationSettings": "System integrations",
       "notifications": "Notification center",
       "projectRecords": "Project records",
-      "projectCategories": "Project categories",
+      "projectCategories": "Site record categories",
       "fieldTasks": "Site tasks",
       "supplierRecords": "Supplier records",
       "materialReceipts": "Material receipts",
@@ -3123,8 +3123,8 @@
       "capturedFrom": "Captured from",
       "capturedTo": "Captured to",
       "project": "Project",
-      "category": "Project category",
-      "chooseCategory": "Choose a project category",
+      "category": "Site record category",
+      "chooseCategory": "Choose a site record category",
       "withGps": "With GPS",
       "withoutGps": "Without GPS"
     },
@@ -9056,6 +9056,19 @@
     "search": "Search",
     "openAll": "Open all",
     "currentStep": "Current step: {step}",
+    "workflowSettings": "Workflow settings",
+    "flow": {
+      "title": "Four simple steps",
+      "subtitle": "Open the step you need. Every application moves from preparation to a protected archive.",
+      "application": "Application",
+      "applicationHelp": "Prepare the RFI details, site evidence and required attachments.",
+      "approval": "Approval",
+      "approvalHelp": "Consultants review in order and sign each decision with their PIN.",
+      "final": "Final PDF",
+      "finalHelp": "Download the completed customer-format RFI approval report.",
+      "archive": "Archive",
+      "archiveHelp": "Confirm the application, approval history and final report are stored."
+    },
     "metric": {
       "pending": "Pending review",
       "today": "Applications today",
@@ -9217,7 +9230,15 @@
       "subtitle": "{count} project applications and approval records",
       "create": "New application",
       "back": "Back to consultant applications",
-      "search": "Search application number, location or consultant"
+      "search": "Search application number, location or consultant",
+      "stageLabel": "Application stage",
+      "stage": {
+        "all": "All",
+        "draft": "Application",
+        "approval": "Approval",
+        "final": "Final PDF",
+        "archive": "Archive"
+      }
     },
     "state": {
       "chooseProject": "Choose a project to view its consultant work.",
@@ -9336,14 +9357,38 @@
       "applicant": "Prepared by {name}",
       "receivedAt": "Received by consultant",
       "acknowledgedAt": "Acknowledged by consultant",
+      "nextAction": "What happens next",
+      "revisionCurrent": "Current version",
+      "noRevisions": "No revision history is available.",
+      "next": {
+        "draft": "Complete the form, link the site photographs and attachments, then submit it for approval.",
+        "review": "This application is waiting for your decision. Review the evidence, then choose an approval result.",
+        "waiting": "No action is needed from you now. It is waiting at {step}.",
+        "revise": "The application was returned. Create a new revision, make the requested changes and submit again.",
+        "final": "The approval is complete. Download the final PDF and check its verification record.",
+        "archived": "This application is complete. The application, signed approval history and final PDF are safely archived.",
+        "complete": "The approval decision is complete. The final report is being prepared."
+      },
+      "lifecycle": {
+        "title": "Application progress",
+        "application": "Application",
+        "approval": "Approval",
+        "final": "Final PDF",
+        "archive": "Archive",
+        "complete": "Complete",
+        "current": "Current step",
+        "pending": "Not started"
+      },
       "section": {
         "application": "Application details",
         "site": "Site request",
         "consultant": "Project and consultant",
         "evidence": "Linked site evidence",
+        "relatedRecords": "Linked site records",
         "attachments": "Application attachments",
         "approvalProgress": "Approval progress",
         "decisions": "Signed decisions",
+        "revisions": "Revision history",
         "archive": "Automatic archive"
       }
     },
@@ -9429,6 +9474,8 @@
       "code": "Template code",
       "name": "Template name",
       "reportLayout": "Final report layout",
+      "standardLayout": "Standard customer RFI PDF",
+      "standardLayoutHelp": "The final PDF follows the approved customer RFI and consultant approval format. This output is fixed so users cannot accidentally choose an unsupported layout.",
       "description": "Description",
       "changeNote": "Version change note",
       "cancel": "Cancel",
@@ -9491,7 +9538,17 @@
       "passwordHelp": "Your current password protects changes to signing credentials.",
       "save": "Save signing credentials"
     },
-    "archive": { "recordOnly": "Structured archive record" },
+    "archive": {
+      "recordOnly": "Structured archive record",
+      "complete": "Complete",
+      "pending": "Pending",
+      "verify": "Open QR verification",
+      "kind": {
+        "APPLICATION": "Application archive",
+        "APPROVAL": "Signed approval history",
+        "FINAL_REPORT": "Final PDF archive"
+      }
+    },
     "common": { "unknown": "Unknown" },
     "verification": {
       "title": "Approval Report Verification",
@@ -9819,7 +9876,7 @@
     },
     "projectStatus": { "PLANNING": "Planning", "ACTIVE": "Active" },
     "categories": {
-      "title": "Default project categories",
+      "title": "Default site record categories",
       "subtitle": "These categories are created automatically for each new project.",
       "add": "Add category",
       "empty": "No default category. New projects will start with an empty category list.",

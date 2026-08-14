@@ -3,9 +3,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
+  CircleDashed,
   ClipboardCheck,
   Download,
-  FileArchive,
+  History,
   KeyRound,
   Link2,
   Loader2,
@@ -189,28 +190,35 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
         </div>
       </div>
 
-      {currentStep && (
-        <section className="rounded-lg border border-warning/30 bg-warning/5 p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-semibold">{t("review.pending", { step: currentStep.name })}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{reviewerLabel(currentStep, application, t)}</p>
-            </div>
-            {canAct && (
-              credential.data ? (
-                <div className="flex flex-wrap gap-2">
-                  <Button size="sm" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
-                  <Button size="sm" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
-                  <Button size="sm" variant="outline" onClick={() => setDecision("REVISE_RESUBMIT")}><RotateCcw />{t("decision.REVISE_RESUBMIT")}</Button>
-                  <Button size="sm" variant="destructive" onClick={() => setDecision("REJECT")}><XCircle />{t("decision.REJECT")}</Button>
-                </div>
-              ) : (
-                <Button asChild size="sm"><Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link></Button>
-              )
+      <ApplicationLifecycle application={application} />
+
+      <section className="rounded-lg border border-primary/25 bg-primary/5 p-4 sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-base font-semibold">{t("detail.nextAction")}</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              {nextActionText(application, currentStep, canAct, t)}
+            </p>
+            {currentStep && (
+              <p className="mt-2 text-sm font-medium text-foreground">
+                {t("review.pending", { step: currentStep.name })} · {reviewerLabel(currentStep, application, t)}
+              </p>
             )}
           </div>
-        </section>
-      )}
+          {currentStep && canAct && (
+            credential.data ? (
+              <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:min-w-[22rem] sm:grid-cols-2 lg:flex lg:min-w-0">
+                <Button className="min-h-11 justify-start sm:justify-center" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
+                <Button className="min-h-11 justify-start sm:justify-center" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
+                <Button className="min-h-11 justify-start sm:justify-center" variant="outline" onClick={() => setDecision("REVISE_RESUBMIT")}><RotateCcw />{t("decision.REVISE_RESUBMIT")}</Button>
+                <Button className="min-h-11 justify-start sm:justify-center" variant="destructive" onClick={() => setDecision("REJECT")}><XCircle />{t("decision.REJECT")}</Button>
+              </div>
+            ) : (
+              <Button asChild className="min-h-11 w-full sm:w-auto"><Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link></Button>
+            )
+          )}
+        </div>
+      </section>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
         <div className="space-y-5">
@@ -281,7 +289,7 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
               </div>
             )}
           </Section>
-          <Section title="Related Records / 相关记录">
+          <Section title={t("detail.section.relatedRecords")}>
             {!application.related_record_groups.length ? (
               <Empty text={t("state.noApplications")} />
             ) : (
@@ -351,22 +359,20 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
             </div>
           </Section>
           <Section title={t("detail.section.approvalProgress")}>
-            <div className="overflow-x-auto pb-1">
-              <div className="flex min-w-max items-stretch">
-                {application.review_steps.map((step, index) => (
-                  <div key={step.id} className="flex items-center">
-                    <div className={`w-48 rounded-lg border p-3 ${step.status === "APPROVED" ? "border-success/40 bg-success/5" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "border-warning/40 bg-warning/5" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "border-destructive/40 bg-destructive/5" : "bg-muted/15"}`}>
-                      <div className="mb-2 flex items-center gap-2">
-                        <span className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold ${step.status === "APPROVED" ? "bg-success text-white" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "bg-warning text-white" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "bg-destructive text-white" : "bg-muted text-muted-foreground"}`}>{step.sequence}</span>
-                        <p className="line-clamp-2 text-sm font-medium">{step.name}</p>
-                      </div>
-                      <p className="line-clamp-2 min-h-8 text-xs text-muted-foreground">{reviewerLabel(step, application, t)}</p>
-                      <p className="mt-2 text-xs font-semibold">{t(`stepStatus.${step.status}`)}</p>
+            <div className="space-y-2">
+              {application.review_steps.map((step) => (
+                <div key={step.id} className={`flex gap-3 rounded-lg border p-3 ${step.status === "APPROVED" ? "border-success/40 bg-success/5" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "border-warning/40 bg-warning/5" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "border-destructive/40 bg-destructive/5" : "bg-muted/15"}`}>
+                  <span className={`grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold ${step.status === "APPROVED" ? "bg-success text-white" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "bg-warning text-white" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "bg-destructive text-white" : "bg-muted text-muted-foreground"}`}>{step.sequence}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <p className="font-medium">{step.name}</p>
+                      <span className="text-xs font-semibold">{t(`stepStatus.${step.status}`)}</span>
                     </div>
-                    {index < application.review_steps.length - 1 && <span className="h-px w-8 bg-border" />}
+                    <p className="mt-1 text-sm text-muted-foreground">{reviewerLabel(step, application, t)}</p>
+                    {step.decided_at && <p className="mt-1 text-xs text-muted-foreground">{new Date(step.decided_at).toLocaleString()}</p>}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </Section>
           {!!application.approval_actions.length && (
@@ -374,11 +380,12 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
               <div className="space-y-3">{application.approval_actions.map((entry) => <div key={entry.id} className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><p className="font-medium">{entry.actor_name}</p><StatusBadge label={t(`decision.${entry.decision}`)} tone={entry.decision === "APPROVE" ? "positive" : entry.decision === "REJECT" ? "danger" : "warning"} /></div><p className="mt-1 text-xs text-muted-foreground">{entry.step_name} - {new Date(entry.acted_at).toLocaleString()}</p>{entry.remarks && <p className="mt-2 text-sm">{entry.remarks}</p>}<div className="mt-3 flex gap-2"><a href={entry.signature_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.signature")}</a>{entry.stamp_snapshot && <a href={entry.stamp_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.stamp")}</a>}</div></div>)}</div>
             </Section>
           )}
-          {!!application.archive_entries.length && (
-            <Section title={t("detail.section.archive")}>
-              <div className="space-y-2">{application.archive_entries.map((entry) => <div key={entry.id} className="flex items-center gap-3 rounded-lg border p-3"><FileArchive className="size-4 shrink-0 text-primary" /><div className="min-w-0"><p className="truncate text-sm font-medium">{entry.title}</p><p className="truncate font-mono text-[10px] text-muted-foreground">{entry.sha256 || t("archive.recordOnly")}</p></div></div>)}</div>
-            </Section>
-          )}
+          <Section title={t("detail.section.revisions")}>
+            <RevisionTimeline application={application} />
+          </Section>
+          <Section title={t("detail.section.archive")}>
+            <ArchiveChecklist application={application} />
+          </Section>
         </div>
       </div>
 
@@ -387,6 +394,151 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
       {decision && <DecisionDialog application={application} decision={decision} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
     </div>
   );
+}
+
+function ApplicationLifecycle({ application }: { application: ConsultantApplication }) {
+  const t = useTranslations("consultantWorkflow");
+  const submitted = application.status !== "DRAFT";
+  const hasFinalReport = Boolean(application.final_report);
+  const archived = Boolean(application.archived_at);
+  const stages = [
+    {
+      key: "application",
+      complete: submitted,
+      current: !submitted,
+    },
+    {
+      key: "approval",
+      complete: hasFinalReport,
+      current: submitted && !hasFinalReport,
+    },
+    {
+      key: "final",
+      complete: hasFinalReport,
+      current: hasFinalReport && !archived,
+    },
+    {
+      key: "archive",
+      complete: archived,
+      current: false,
+    },
+  ];
+
+  return (
+    <section aria-label={t("detail.lifecycle.title")} className="grid gap-2 sm:grid-cols-4">
+      {stages.map((stage, index) => (
+        <div
+          key={stage.key}
+          className={`flex min-h-20 items-center gap-3 rounded-lg border px-4 py-3 ${
+            stage.complete
+              ? "border-success/30 bg-success/5"
+              : stage.current
+                ? "border-primary/35 bg-primary/5"
+                : "bg-muted/10 text-muted-foreground"
+          }`}
+        >
+          <span className={`grid size-9 shrink-0 place-items-center rounded-full ${stage.complete ? "bg-success text-white" : stage.current ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+            {stage.complete ? <CheckCircle2 className="size-5" /> : index + 1}
+          </span>
+          <div className="min-w-0">
+            <p className="text-base font-semibold">{t(`detail.lifecycle.${stage.key}`)}</p>
+            <p className="text-sm leading-5">{t(stage.complete ? "detail.lifecycle.complete" : stage.current ? "detail.lifecycle.current" : "detail.lifecycle.pending")}</p>
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function RevisionTimeline({ application }: { application: ConsultantApplication }) {
+  const t = useTranslations("consultantWorkflow");
+  if (!application.revision_chain.length) return <Empty text={t("detail.noRevisions")} />;
+
+  return (
+    <div className="space-y-2">
+      {application.revision_chain.map((row) => {
+        const timestamp = row.archived_at || row.finalized_at || row.submitted_at;
+        return (
+          <Link
+            key={row.id}
+            href={`/consultant-applications/${row.id}`}
+            aria-current={row.is_current ? "page" : undefined}
+            className={`flex items-center gap-3 rounded-lg border p-3 transition-colors hover:border-primary/35 ${row.is_current ? "border-primary/35 bg-primary/5" : "bg-background"}`}
+          >
+            <span className={`grid size-9 shrink-0 place-items-center rounded-full ${row.is_current ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+              <History className="size-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-medium">{t("detail.revision", { revision: row.revision })}</p>
+                {row.is_current && <span className="text-xs font-semibold text-primary">{t("detail.revisionCurrent")}</span>}
+              </div>
+              <p className="truncate text-xs text-muted-foreground">{row.application_no}</p>
+              {timestamp && <p className="mt-1 text-xs text-muted-foreground">{new Date(timestamp).toLocaleString()}</p>}
+            </div>
+            <StatusBadge label={t(`status.${row.status}`)} tone={statusTone(row.status)} />
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+function ArchiveChecklist({ application }: { application: ConsultantApplication }) {
+  const t = useTranslations("consultantWorkflow");
+  const kinds = ["APPLICATION", "APPROVAL", "FINAL_REPORT"] as const;
+  return (
+    <div className="space-y-2">
+      {kinds.map((kind) => {
+        const entry = application.archive_entries.find((row) => row.kind === kind);
+        return (
+          <div key={kind} className={`flex items-start gap-3 rounded-lg border p-3 ${entry ? "border-success/30 bg-success/5" : "bg-muted/10"}`}>
+            <span className={`grid size-9 shrink-0 place-items-center rounded-full ${entry ? "bg-success text-white" : "bg-muted text-muted-foreground"}`}>
+              {entry ? <CheckCircle2 className="size-5" /> : <CircleDashed className="size-5" />}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-medium">{t(`archive.kind.${kind}`)}</p>
+                <span className={`text-xs font-semibold ${entry ? "text-success" : "text-muted-foreground"}`}>
+                  {t(entry ? "archive.complete" : "archive.pending")}
+                </span>
+              </div>
+              {entry?.sha256 && <p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">SHA-256: {entry.sha256}</p>}
+              {kind === "FINAL_REPORT" && entry && (
+                <div className="mt-2 flex flex-wrap gap-3 text-xs font-semibold">
+                  <button type="button" className="text-primary hover:underline" onClick={() => downloadApplicationFinalReport(application.id, application.application_no)}>
+                    {t("action.downloadReport")}
+                  </button>
+                  {application.verification_code && (
+                    <Link href={`/verify/application/${application.verification_code}`} className="text-primary hover:underline">
+                      {t("archive.verify")}
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function nextActionText(
+  application: ConsultantApplication,
+  currentStep: ApplicationReviewStep | undefined,
+  canAct: boolean,
+  t: ReturnType<typeof useTranslations<"consultantWorkflow">>,
+) {
+  if (application.status === "DRAFT") return t("detail.next.draft");
+  if (application.status === "REVISE_RESUBMIT") return t("detail.next.revise");
+  if (application.status === "SUBMITTED" && canAct) return t("detail.next.review");
+  if (application.status === "SUBMITTED" && currentStep) {
+    return t("detail.next.waiting", { step: currentStep.name });
+  }
+  if (application.archived_at) return t("detail.next.archived");
+  if (application.final_report) return t("detail.next.final");
+  return t("detail.next.complete");
 }
 
 function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
