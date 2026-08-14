@@ -45,6 +45,7 @@ interface LocationMapProps {
   paths?: LocationMapPath[];
   zones?: LocationMapZone[];
   className?: string;
+  ariaLabel?: string;
 }
 
 const DEFAULT_CENTER: [number, number] = [3.139, 101.6869];
@@ -56,6 +57,7 @@ export function LocationMap({
   paths = [],
   zones = [],
   className = "",
+  ariaLabel = "Location map",
 }: LocationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -176,7 +178,7 @@ export function LocationMap({
     <div
       ref={containerRef}
       className={`min-h-[22rem] w-full overflow-hidden border bg-muted/20 ${className}`}
-      aria-label="Location map"
+      aria-label={ariaLabel}
     />
   );
 }

@@ -24,6 +24,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
+import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { useAuth } from "@/components/providers/auth-provider";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -140,7 +141,7 @@ export function ContractorDashboard() {
             {t("filter.project")}
           </span>
           <ProjectPicker
-            value={project}
+            value={project || "all"}
             onValueChange={(next) => setProject(next === "all" ? "" : next)}
             placeholder={t("filter.selectProject")}
             allowAll
@@ -246,6 +247,13 @@ export function ContractorDashboard() {
               </div>
               <ScheduleSummary schedule={data.overview.schedule} />
             </section>
+          )}
+
+          {can("field_position.view") && (
+            <ContractorLocationMap
+              project={project}
+              onProjectChange={setProject}
+            />
           )}
 
           <div className="grid gap-6 xl:grid-cols-2">
