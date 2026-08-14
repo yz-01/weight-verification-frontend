@@ -27,35 +27,40 @@ export function FieldInstallReady({ token }: { token: string }) {
   );
 
   useEffect(() => {
-    const manifest = document.createElement("link");
+    const manifest =
+      document.head.querySelector<HTMLLinkElement>(
+        'link[data-mse-field-ready="manifest"]',
+      ) ?? document.createElement("link");
     manifest.rel = "manifest";
+    manifest.dataset.mseFieldReady = "manifest";
     manifest.href = token
       ? `/field-manifest.webmanifest?bootstrap=${encodeURIComponent(token)}`
       : "/manifest.webmanifest";
-    document.head
-      .querySelectorAll<HTMLLinkElement>('link[rel="manifest"]')
-      .forEach((link) => link.remove());
-    document.head.appendChild(manifest);
+    if (!manifest.isConnected) document.head.appendChild(manifest);
 
-    const icon = document.createElement("link");
+    const icon =
+      document.head.querySelector<HTMLLinkElement>(
+        'link[data-mse-field-ready="icon"]',
+      ) ?? document.createElement("link");
     icon.rel = "icon";
+    icon.dataset.mseFieldReady = "icon";
     icon.href = iconPath(32, {
       bootstrap: token,
       revision: user?.branding.icon_url,
     });
-    const apple = document.createElement("link");
+    const apple =
+      document.head.querySelector<HTMLLinkElement>(
+        'link[data-mse-field-ready="apple"]',
+      ) ?? document.createElement("link");
     apple.rel = "apple-touch-icon";
+    apple.dataset.mseFieldReady = "apple";
     apple.sizes = "180x180";
     apple.href = iconPath(180, {
       bootstrap: token,
       revision: user?.branding.icon_url,
     });
-    document.head
-      .querySelectorAll<HTMLLinkElement>(
-        'link[rel="icon"], link[rel="apple-touch-icon"]',
-      )
-      .forEach((link) => link.remove());
-    document.head.append(icon, apple);
+    if (!icon.isConnected) document.head.appendChild(icon);
+    if (!apple.isConnected) document.head.appendChild(apple);
     document.title = user?.branding.name ?? "MSE Trace";
 
     const standalone =
@@ -85,6 +90,8 @@ export function FieldInstallReady({ token }: { token: string }) {
     window.addEventListener("appinstalled", installed);
     return () => {
       manifest.remove();
+      icon.remove();
+      apple.remove();
       window.removeEventListener("beforeinstallprompt", handler);
       window.removeEventListener("appinstalled", installed);
     };

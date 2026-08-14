@@ -12,6 +12,7 @@ import {
 } from "react";
 
 import type { CurrentUser } from "@/interfaces/auth";
+import { ApiError } from "@/interfaces/api";
 import {
   clearFieldTokens,
   clearTokens,
@@ -81,13 +82,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     queryFn: async () => {
       try {
         return await authService.getMe();
-      } catch {
+      } catch (error) {
         // A token that is present but no longer accepted: expired, revoked, or
         // the account was suspended. Drop it rather than leaving the shell in
         // a half-signed-in state.
-        if (fieldSession) clearFieldTokens();
-        else clearTokens();
-        return null;
+        if (error instanceof ApiError && [401, 403].includes(error.status)) {
+          if (fieldSession) clearFieldTokens();
+          else clearTokens();
+          return null;
+        }
+        // A temporary network or server failure must not sign a field device
+        // out. Keeping the last successful user lets offline work continue.
+        throw error;
       }
     },
     // Nothing to ask about without a token, and asking would 401 on every load
@@ -96,8 +102,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Roles are editable while their users are signed in. Keep the shell's
     // menu close to the backend's live permission decision without requiring
     // a logout after an administrator changes a role.
-    staleTime: 60_000,
-    refetchInterval: 60_000,
+    staleTime: fieldSession ? 5_000 : 60_000,
+    // Reissuing a field invitation revokes the old device on the backend.
+    // Check the lightweight profile often enough for an open installed app to
+    // leave the workspace promptly; returning to the app also checks at once.
+    refetchInterval: fieldSession ? 15_000 : 60_000,
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: "always",
     retry: false,
   });
