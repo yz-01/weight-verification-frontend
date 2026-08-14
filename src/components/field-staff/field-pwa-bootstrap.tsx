@@ -9,6 +9,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
 import { hasFieldSession, markFieldAppContext } from "@/lib/auth-token";
+import { redirectWithFallback } from "@/lib/portal";
 import {
   getOrCreateFieldDeviceId,
   restoreFieldPwaSession,
@@ -30,7 +31,11 @@ export function FieldPwaBootstrap({ token }: { token: string }) {
     const completionKey = "mse_field_pwa_bootstrap_complete";
     if (window.localStorage.getItem(completionKey) === token) {
       markFieldAppContext();
-      router.replace(hasFieldSession() ? "/field-staff" : "/trace/field-login");
+      redirectWithFallback(
+        router,
+        hasFieldSession() ? "/field-staff" : "/trace/field-login",
+        150,
+      );
       return;
     }
     void restoreFieldPwaSession({
@@ -40,13 +45,13 @@ export function FieldPwaBootstrap({ token }: { token: string }) {
     })
       .then(async (result) => {
         window.localStorage.setItem(completionKey, token);
-        await setUser(result.user);
-        router.replace("/field-staff");
+        setUser(result.user);
+        redirectWithFallback(router, "/field-staff", 150);
       })
       .catch((cause) => {
         if (hasFieldSession()) {
           markFieldAppContext();
-          router.replace("/field-staff");
+          redirectWithFallback(router, "/field-staff", 150);
           return;
         }
         setError(cause instanceof ApiError ? cause.message : t("failed"));
@@ -67,7 +72,7 @@ export function FieldPwaBootstrap({ token }: { token: string }) {
       <Smartphone className="size-12 text-destructive" />
       <h1 className="text-xl font-semibold">{t("desktopExpiredTitle")}</h1>
       <p className="max-w-sm text-sm text-muted-foreground">{error}</p>
-      <Button onClick={() => router.replace("/trace/field-login")}>
+      <Button onClick={() => redirectWithFallback(router, "/trace/field-login", 150)}>
         {t("signIn")}
       </Button>
     </main>

@@ -35,7 +35,8 @@ export interface FieldInvitationPayload {
 export interface FieldLoginResponse {
   tokens: LoginResponse["tokens"];
   user: LoginResponse["user"];
-  pwa_bootstrap: {
+  /** Older deployed backends can authenticate without returning this hand-off token. */
+  pwa_bootstrap?: {
     token: string;
     expires_at: string;
   };
@@ -69,9 +70,9 @@ export function getFieldAccessInfo(userId: string): Promise<FieldInvitationInfo>
 }
 
 export function createFieldPwaBootstrap(): Promise<
-  FieldLoginResponse["pwa_bootstrap"]
+  NonNullable<FieldLoginResponse["pwa_bootstrap"]>
 > {
-  return api.post<FieldLoginResponse["pwa_bootstrap"]>(
+  return api.post<NonNullable<FieldLoginResponse["pwa_bootstrap"]>>(
     "/api/field-access/create_pwa_bootstrap/",
     {},
   );

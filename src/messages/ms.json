@@ -4748,6 +4748,8 @@
     "param": {
       "stable_window_ms": "Tetingkap kestabilan (ms)",
       "stable_tolerance_kg": "Toleransi kestabilan (kg)",
+      "weight_freeze_window_ms": "Tetingkap beku berat (ms)",
+      "weight_freeze_tolerance_kg": "Toleransi beku berat (kg)",
       "drop_threshold_kg": "Ambang jatuh mengejut (kg)",
       "drop_window_ms": "Tetingkap jatuh mengejut (ms)",
       "rise_threshold_kg": "Ambang naik mengejut (kg)",
@@ -5312,7 +5314,7 @@
       },
       "channels": {
         "title": "Saluran notifikasi",
-        "subtitle": "Dalam aplikasi, Email dan Push dengan status LIVE atau SIMULATED yang jelas"
+        "subtitle": "Semak ketersediaan saluran dan hantar notifikasi kepada syarikat yang dipilih"
       },
       "records": {
         "title": "Rekod notifikasi",
@@ -5360,10 +5362,36 @@
     "channel": {
       "IN_APP": "Dalam aplikasi",
       "EMAIL": "Email",
-      "PUSH": "Push notification",
+      "PUSH": "Notifikasi push",
       "sent": "{count} dihantar",
       "failed": "{count} gagal",
-      "never": "Belum ada percubaan"
+      "sentLabel": "Berjaya dihantar",
+      "failedLabel": "Gagal",
+      "lastAttempt": "Percubaan terkini",
+      "never": "Belum ada percubaan",
+      "loadError": "Status saluran notifikasi tidak dapat dimuatkan. Sila cuba lagi."
+    },
+    "composer": {
+      "title": "Hantar notifikasi syarikat",
+      "subtitle": "Pilih syarikat penerima, masukkan mesej, kemudian pilih saluran penghantaran.",
+      "chooseCompany": "Pilih syarikat penerima",
+      "titlePlaceholder": "Masukkan tajuk notifikasi",
+      "messagePlaceholder": "Masukkan mesej notifikasi",
+      "channels": "Saluran penghantaran",
+      "channelsHint": "Pilih sekurang-kurangnya satu saluran yang tersedia.",
+      "notConfigured": "Belum dikonfigurasi dan tidak boleh digunakan",
+      "channelDescription": {
+        "IN_APP": "Paparkan dalam pusat notifikasi pengguna",
+        "EMAIL": "Hantar ke alamat e-mel pengguna yang didaftarkan",
+        "PUSH": "Tolak ke telefon atau peranti desktop yang dibenarkan"
+      },
+      "sendError": "Notifikasi tidak dapat dihantar. Semak maklumat dan cuba lagi.",
+      "sending": "Menghantar..."
+    },
+    "deliveryStatus": {
+      "PENDING": "Menunggu",
+      "SENT": "Dihantar",
+      "FAILED": "Gagal"
     },
     "record": { "delivery": "Rekod penghantaran", "status": "Rekod status" }
   },
@@ -7954,7 +7982,7 @@
       "configured": "Dikonfigurasi",
       "missing": "Belum dikonfigurasi"
     },
-    "mode": { "SIMULATED": "Simulator ujian", "LIVE": "Sambungan sebenar" },
+    "mode": { "SIMULATED": "Simulator ujian", "LIVE": "Sambungan sebenar", "NOT_CONFIGURED": "Belum dikonfigurasi" },
     "updatedAt": "Terakhir disimpan: {value}",
     "guide": {
       "cctv": {

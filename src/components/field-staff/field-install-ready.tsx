@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/components/providers/auth-provider";
 import { hasFieldSession, markFieldAppContext } from "@/lib/auth-token";
+import { redirectWithFallback } from "@/lib/portal";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -17,7 +17,6 @@ interface BeforeInstallPromptEvent extends Event {
 export function FieldInstallReady({ token }: { token: string }) {
   const t = useTranslations("fieldAccess");
   const router = useRouter();
-  const { user } = useAuth();
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isIos] = useState(() =>
@@ -32,12 +31,14 @@ export function FieldInstallReady({ token }: { token: string }) {
         (navigator as Navigator & { standalone?: boolean }).standalone === true);
     if (standalone) {
       markFieldAppContext();
-      router.replace(
+      redirectWithFallback(
+        router,
         token
           ? `/field-pwa-bootstrap?token=${encodeURIComponent(token)}`
           : hasFieldSession()
             ? "/field-staff"
             : "/trace/field-login",
+        150,
       );
       return;
     }
@@ -47,7 +48,7 @@ export function FieldInstallReady({ token }: { token: string }) {
     };
     const installed = () => {
       setInstallPrompt(null);
-      router.replace("/field-staff");
+      redirectWithFallback(router, "/field-staff", 150);
     };
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("appinstalled", installed);
@@ -85,7 +86,7 @@ export function FieldInstallReady({ token }: { token: string }) {
           size="lg"
           variant={installPrompt ? "outline" : "default"}
           className="h-14 text-base"
-          onClick={() => router.replace("/field-staff")}
+          onClick={() => redirectWithFallback(router, "/field-staff", 150)}
         >
           <Camera />
           {t("openWorkspace")}

@@ -4731,6 +4731,8 @@
     "param": {
       "stable_window_ms": "稳定窗口（毫秒）",
       "stable_tolerance_kg": "稳定误差值（公斤）",
+      "weight_freeze_window_ms": "重量冻结判断窗口（毫秒）",
+      "weight_freeze_tolerance_kg": "重量冻结容差（公斤）",
       "drop_threshold_kg": "突然下降阈值（公斤）",
       "drop_window_ms": "突然下降窗口（毫秒）",
       "rise_threshold_kg": "突然上升阈值（公斤）",
@@ -5289,7 +5291,7 @@
       },
       "channels": {
         "title": "推播方式",
-        "subtitle": "站内、Email 与 Push，并明确显示 LIVE 或 SIMULATED"
+        "subtitle": "查看各通知方式是否可用，并向指定公司发送通知"
       },
       "records": {
         "title": "通知记录",
@@ -5333,10 +5335,36 @@
     "channel": {
       "IN_APP": "系统站内通知",
       "EMAIL": "Email",
-      "PUSH": "Push Notification",
+      "PUSH": "手机推送",
       "sent": "已发送 {count} 次",
       "failed": "失败 {count} 次",
-      "never": "还没有发送记录"
+      "sentLabel": "发送成功",
+      "failedLabel": "发送失败",
+      "lastAttempt": "最近发送",
+      "never": "还没有发送记录",
+      "loadError": "无法加载通知方式状态，请稍后重试。"
+    },
+    "composer": {
+      "title": "发送公司通知",
+      "subtitle": "选择接收公司、填写通知内容，再选择发送方式。",
+      "chooseCompany": "请选择接收公司",
+      "titlePlaceholder": "输入通知标题",
+      "messagePlaceholder": "输入需要通知的内容",
+      "channels": "发送方式",
+      "channelsHint": "至少选择一种可用的发送方式。",
+      "notConfigured": "尚未配置，暂时不能使用",
+      "channelDescription": {
+        "IN_APP": "显示在用户的系统通知中心",
+        "EMAIL": "发送到用户登记的邮箱",
+        "PUSH": "推送到已授权的手机或桌面设备"
+      },
+      "sendError": "通知发送失败，请检查资料后重试。",
+      "sending": "发送中..."
+    },
+    "deliveryStatus": {
+      "PENDING": "等待发送",
+      "SENT": "已发送",
+      "FAILED": "发送失败"
     },
     "record": { "delivery": "发送记录", "status": "状态记录" }
   },
@@ -7889,7 +7917,7 @@
       "configured": "已配置",
       "missing": "未配置"
     },
-    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式" },
+    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式", "NOT_CONFIGURED": "尚未配置" },
     "updatedAt": "最后保存：{value}",
     "guide": {
       "cctv": {

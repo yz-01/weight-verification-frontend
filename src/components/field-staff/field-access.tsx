@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
-import { safeReturnPath } from "@/lib/portal";
+import { redirectWithFallback, safeReturnPath } from "@/lib/portal";
 import { cacheBranding } from "@/lib/branding";
 import {
   activateFieldDevice,
@@ -59,11 +59,17 @@ export function FieldAccess() {
             pin,
             device_id: deviceId,
           });
-      await setUser(result.user);
-      router.replace(
-        next
-          ? next
-          : `/trace/field-ready?bootstrap=${encodeURIComponent(result.pwa_bootstrap.token)}`,
+      setUser(result.user);
+      const bootstrapToken = result.pwa_bootstrap?.token;
+      const destination = next
+        ? next
+        : bootstrapToken
+          ? `/trace/field-ready?bootstrap=${encodeURIComponent(bootstrapToken)}`
+          : "/field-staff";
+      redirectWithFallback(
+        router,
+        destination,
+        150,
       );
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : t("failed"));

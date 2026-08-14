@@ -4754,6 +4754,8 @@
     "param": {
       "stable_window_ms": "Stability window (ms)",
       "stable_tolerance_kg": "Stability tolerance (kg)",
+      "weight_freeze_window_ms": "Weight freeze window (ms)",
+      "weight_freeze_tolerance_kg": "Weight freeze tolerance (kg)",
       "drop_threshold_kg": "Sudden drop threshold (kg)",
       "drop_window_ms": "Sudden drop window (ms)",
       "rise_threshold_kg": "Sudden rise threshold (kg)",
@@ -5318,7 +5320,7 @@
       },
       "channels": {
         "title": "Notification channels",
-        "subtitle": "In-app, Email and Push delivery with explicit LIVE or SIMULATED status"
+        "subtitle": "Review channel availability and send a notification to a selected company"
       },
       "records": {
         "title": "Notification records",
@@ -5365,7 +5367,33 @@
       "PUSH": "Push notification",
       "sent": "{count} sent",
       "failed": "{count} failed",
-      "never": "No attempts yet"
+      "sentLabel": "Delivered",
+      "failedLabel": "Failed",
+      "lastAttempt": "Last attempt",
+      "never": "No attempts yet",
+      "loadError": "Notification channel status could not be loaded. Please try again."
+    },
+    "composer": {
+      "title": "Send company notification",
+      "subtitle": "Choose the recipient company, enter the message, then select delivery channels.",
+      "chooseCompany": "Choose a recipient company",
+      "titlePlaceholder": "Enter a notification title",
+      "messagePlaceholder": "Enter the notification message",
+      "channels": "Delivery channels",
+      "channelsHint": "Select at least one available channel.",
+      "notConfigured": "Not configured and currently unavailable",
+      "channelDescription": {
+        "IN_APP": "Show in the user's notification centre",
+        "EMAIL": "Send to the user's registered email address",
+        "PUSH": "Push to an authorised phone or desktop device"
+      },
+      "sendError": "The notification could not be sent. Check the details and try again.",
+      "sending": "Sending..."
+    },
+    "deliveryStatus": {
+      "PENDING": "Pending",
+      "SENT": "Sent",
+      "FAILED": "Failed"
     },
     "record": { "delivery": "Delivery records", "status": "Status records" }
   },
@@ -7940,7 +7968,7 @@
       "configured": "Configured",
       "missing": "Not configured"
     },
-    "mode": { "SIMULATED": "Test simulator", "LIVE": "Live connection" },
+    "mode": { "SIMULATED": "Test simulator", "LIVE": "Live connection", "NOT_CONFIGURED": "Not configured" },
     "updatedAt": "Last saved: {value}",
     "guide": {
       "cctv": {
