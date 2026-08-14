@@ -29,11 +29,11 @@ const PROJECT_COLORS = [
   "#087f8c",
   "#2563eb",
   "#7c3aed",
-  "#c2410c",
   "#15803d",
-  "#be123c",
   "#a16207",
   "#0f766e",
+  "#0369a1",
+  "#4d7c0f",
 ];
 
 type PositionState = "inside" | "outside" | "stale" | "lastInside" | "unknown";
@@ -330,11 +330,17 @@ function MapCount({
 
 function buildZones(projects: Project[], geofences: SiteGeofence[]): LocationMapZone[] {
   const projectIds = new Set(projects.map((project) => project.id));
+  const projectColors = new Map(
+    projects.map((project, index) => [
+      project.id,
+      PROJECT_COLORS[projects.length === 1 ? 0 : index % PROJECT_COLORS.length],
+    ]),
+  );
   const validCustomZones: LocationMapZone[] = [];
   const projectsWithCustomZones = new Set<string>();
   geofences.forEach((row) => {
     if (!row.is_active || !projectIds.has(row.project)) return;
-    const color = projectColor(row.project);
+    const color = projectColors.get(row.project) ?? PROJECT_COLORS[0];
     if (row.shape === "POLYGON") {
       const points = row.polygon.filter(isValidPoint);
       if (points.length < 3) return;
@@ -373,7 +379,7 @@ function buildZones(projects: Project[], geofences: SiteGeofence[]): LocationMap
         label: project.name,
         center: point,
         radiusM,
-        color: projectColor(project.id),
+        color: projectColors.get(project.id) ?? PROJECT_COLORS[0],
       },
     ];
   });
@@ -420,12 +426,4 @@ function hasVisibleCoordinates(
 
 function isValidPoint(point: [number, number]): boolean {
   return Number.isFinite(point[0]) && Number.isFinite(point[1]);
-}
-
-function projectColor(projectId: string): string {
-  let hash = 0;
-  for (const character of projectId) {
-    hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
-  }
-  return PROJECT_COLORS[hash % PROJECT_COLORS.length];
 }

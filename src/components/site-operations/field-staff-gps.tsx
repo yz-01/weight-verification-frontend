@@ -418,9 +418,7 @@ export function FieldStaffGps({
               markers={markers}
               zones={zones}
               preserveViewOnDataUpdate
-              fitBoundsKey={`live:${projectId || "all"}:${
-                projects.isSuccess && !geofences.isLoading ? "ready" : "loading"
-              }`}
+              fitBoundsKey={`live:${projectId || "all"}`}
             />
           </MapSection>
 
@@ -468,7 +466,7 @@ export function FieldStaffGps({
               preserveViewOnDataUpdate
               fitBoundsKey={`history:${historyProjectId || "all"}:${
                 selectedLastPosition?.user ?? "all"
-              }:${projects.isSuccess && !geofences.isLoading ? "ready" : "loading"}`}
+              }`}
             />
           </MapSection>
 
