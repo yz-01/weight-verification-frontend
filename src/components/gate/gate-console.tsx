@@ -25,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ApiError } from "@/interfaces/api";
-import type { WeighDirection } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import {
@@ -56,7 +55,6 @@ export function GateConsole() {
 
   const [chosenScale, setChosenScale] = useState("");
   const [dispatchNo, setDispatchNo] = useState("");
-  const [direction, setDirection] = useState<WeighDirection>("GROSS");
   const [plate, setPlate] = useState("");
   const [scannedBy, setScannedBy] = useState("");
   const [clearing, setClearing] = useState(false);
@@ -88,7 +86,6 @@ export function GateConsole() {
       scanDispatch({
         scale: scaleId,
         dispatch_no: dispatchNo.trim(),
-        direction,
         vehicle_plate: plate.trim(),
         scanned_by_name: scannedBy.trim(),
       }),
@@ -276,48 +273,49 @@ export function GateConsole() {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label className="text-sm font-medium">
-                  {t("gate.field.direction")}
-                </Label>
-                <Select
-                  value={direction}
-                  onValueChange={(value) =>
-                    setDirection(value as WeighDirection)
-                  }
-                >
-                  <SelectTrigger className="w-full bg-card">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GROSS">
-                      {t("gate.direction.GROSS")}
-                    </SelectItem>
-                    <SelectItem value="TARE">
-                      {t("gate.direction.TARE")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                {t("gate.sequenceTitle")}
+              </Label>
+              <div className="grid grid-cols-1 divide-y rounded-md border bg-muted/20 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+                <div className="flex items-center gap-3 px-3 py-2.5">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                    1
+                  </span>
+                  <span className="text-sm font-medium text-foreground">
+                    {t("gate.firstPass")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 px-3 py-2.5">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
+                    2
+                  </span>
+                  <span className="text-sm font-medium text-foreground">
+                    {t("gate.secondPass")}
+                  </span>
+                </div>
               </div>
+              <p className="text-xs text-muted-foreground">
+                {t("gate.sequenceHelp")}
+              </p>
+            </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-sm font-medium">
-                  {t("gate.field.vehiclePlate")}
-                </Label>
-                <Input
-                  value={plate}
-                  onChange={(event) => setPlate(event.target.value)}
-                  className="tabular"
-                />
-                {plateMismatch && (
-                  <p className="text-xs font-medium text-warning">
-                    {t("gate.plateMismatch", {
-                      expected: waiting?.expected_plate ?? "",
-                    })}
-                  </p>
-                )}
-              </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">
+                {t("gate.field.vehiclePlate")}
+              </Label>
+              <Input
+                value={plate}
+                onChange={(event) => setPlate(event.target.value)}
+                className="tabular"
+              />
+              {plateMismatch && (
+                <p className="text-xs font-medium text-warning">
+                  {t("gate.plateMismatch", {
+                    expected: waiting?.expected_plate ?? "",
+                  })}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">

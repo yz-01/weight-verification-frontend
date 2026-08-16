@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   BellPlus,
   CalendarRange,
   CalendarCheck,
@@ -648,7 +647,6 @@ function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"]
 function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
   const t = useTranslations("contractorDashboard");
   const df = useDateFormat();
-  const unavailable = Object.keys(anomalies.unavailable);
   const nothing =
     anomalies.geofence_failures.length === 0 &&
     anomalies.overdue_rectifications.length === 0 &&
@@ -720,25 +718,6 @@ function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
           </li>
         ))}
       </ul>
-
-      {/* An empty list would read as "nothing wrong today". These two parts
-          have no stored field to derive them from, which is a different claim
-          and has to be said out loud rather than shown as a zero. */}
-      {unavailable.length > 0 && (
-        <div className="mt-3 rounded-lg border border-dashed bg-muted/20 p-3">
-          <p className="flex items-center gap-2 text-xs font-medium">
-            <AlertTriangle className="size-3.5 shrink-0 text-muted-foreground" />
-            {t("anomalies.unavailableTitle")}
-          </p>
-          <ul className="mt-1.5 space-y-1">
-            {unavailable.map((key) => (
-              <li key={key} className="text-xs text-muted-foreground">
-                {t(`anomalies.part.${key}`)}: {anomalies.unavailable[key]}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </Block>
   );
 }

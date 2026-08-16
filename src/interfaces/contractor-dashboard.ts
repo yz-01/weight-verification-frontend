@@ -116,19 +116,10 @@ export interface ExpiringPermitRow {
   status: string;
 }
 
-/**
- * `offline_submissions` and `late_uploads` are `null` rather than `[]` on
- * purpose: no model stores a sync flag and no upload SLA is defined, so the
- * platform cannot tell. An empty array would read as "nothing wrong today",
- * which is a different claim. `unavailable` carries the reason per key.
- */
 export interface DashboardAnomalies {
   geofence_failures: GeofenceFailureRow[];
   overdue_rectifications: OverdueRectificationRow[];
   expiring_permits: ExpiringPermitRow[];
-  offline_submissions: null;
-  late_uploads: null;
-  unavailable: Record<string, string>;
   total: number;
 }
 

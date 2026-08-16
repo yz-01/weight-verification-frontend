@@ -272,12 +272,7 @@
       "geofenceFailure": "Outside the geofence",
       "outside": "Outside",
       "distance": "{metres}m away",
-      "expiresAt": "Expires {at}",
-      "unavailableTitle": "Two exception types cannot be reported yet",
-      "part": {
-        "offline_submissions": "Offline submissions",
-        "late_uploads": "Late uploads"
-      }
+      "expiresAt": "Expires {at}"
     },
     "personnel": {
       "title": "People on site",
@@ -4493,6 +4488,7 @@
       "integration_device_already_exists": "A device with that id already exists.",
       "integration_device_gateway_linked": "Revoke the linked weighing gateway before removing this device.",
       "gateway_revoked": "This weighing gateway has already been revoked.",
+      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
       "project_not_found": "That project could not be found.",
       "supplier_not_found": "That supplier could not be found.",
       "qr_code_not_found": "This QR code is not recognised.",
@@ -5999,6 +5995,10 @@
       "GROSS": "Loaded (gross)",
       "TARE": "Empty (tare)"
     },
+    "sequenceTitle": "Two-pass weighing order",
+    "firstPass": "Loaded gross weight",
+    "secondPass": "Empty tare weight",
+    "sequenceHelp": "The system selects the pass from this dispatch automatically: gross must be first and tare must be second.",
     "plateMismatch": "The plate on the paperwork is {expected}. Check the cab.",
     "scan": "Queue this load",
     "clear": "Clear",

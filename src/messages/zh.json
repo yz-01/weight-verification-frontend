@@ -272,9 +272,7 @@
       "geofenceFailure": "超出电子围栏",
       "outside": "围栏外",
       "distance": "距离 {metres} 米",
-      "expiresAt": "{at} 到期",
-      "unavailableTitle": "有两类异常暂时无法统计",
-      "part": { "offline_submissions": "离线提交", "late_uploads": "延迟上传" }
+      "expiresAt": "{at} 到期"
     },
     "personnel": {
       "title": "今日人员统计",
@@ -4470,6 +4468,7 @@
       "integration_device_already_exists": "该设备编号已存在。",
       "integration_device_gateway_linked": "请先撤销已绑定的称重网关，再移除该设备。",
       "gateway_revoked": "该称重网关已经撤销。",
+      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
       "project_not_found": "找不到这个项目。",
       "supplier_not_found": "找不到这家供应商。",
       "qr_code_not_found": "无法识别这个二维码。",
@@ -5970,6 +5969,10 @@
       "GROSS": "重车（毛重）",
       "TARE": "空车（皮重）"
     },
+    "sequenceTitle": "两次过磅顺序",
+    "firstPass": "重车毛重",
+    "secondPass": "空车皮重",
+    "sequenceHelp": "系统会按这张出场单自动选择，第一次只能记录毛重，第二次只能记录皮重。",
     "plateMismatch": "单据上的车牌是 {expected}，请核对车头。",
     "scan": "排入这车货",
     "clear": "清除",

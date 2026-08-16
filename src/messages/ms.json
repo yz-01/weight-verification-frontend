@@ -272,12 +272,7 @@
       "geofenceFailure": "Di luar geofen",
       "outside": "Di luar",
       "distance": "{metres}m jauh",
-      "expiresAt": "Tamat {at}",
-      "unavailableTitle": "Dua jenis pengecualian belum boleh dilaporkan",
-      "part": {
-        "offline_submissions": "Penghantaran luar talian",
-        "late_uploads": "Muat naik lewat"
-      }
+      "expiresAt": "Tamat {at}"
     },
     "personnel": {
       "title": "Pekerja di tapak",
@@ -4487,6 +4482,7 @@
       "integration_device_already_exists": "ID peranti itu telah digunakan.",
       "integration_device_gateway_linked": "Batalkan gateway timbang yang dipautkan sebelum membuang peranti ini.",
       "gateway_revoked": "Gateway timbang ini telah dibatalkan.",
+      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
       "project_not_found": "Projek itu tidak dijumpai.",
       "supplier_not_found": "Pembekal itu tidak dijumpai.",
       "qr_code_not_found": "Kod QR ini tidak dikenali.",
@@ -6001,6 +5997,10 @@
       "GROSS": "Bermuatan (kasar)",
       "TARE": "Kosong (tara)"
     },
+    "sequenceTitle": "Turutan penimbangan dua kali",
+    "firstPass": "Berat kasar bermuatan",
+    "secondPass": "Berat tara kosong",
+    "sequenceHelp": "Sistem memilih sesi secara automatik daripada nota ini: berat kasar mesti dahulu dan berat tara mesti kemudian.",
     "plateMismatch": "Plat pada dokumen ialah {expected}. Periksa kabin.",
     "scan": "Bariskan muatan ini",
     "clear": "Kosongkan",
