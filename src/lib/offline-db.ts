@@ -67,6 +67,8 @@ export interface TaskPhotoOfflineJob extends OfflineJobBase {
     kind: string;
     originalOccurredAt: string;
     clientEventId: string;
+    latitude?: string;
+    longitude?: string;
     file: StoredFile;
   };
 }

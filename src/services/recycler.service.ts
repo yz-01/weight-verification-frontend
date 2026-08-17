@@ -13,6 +13,8 @@ import type {
   DeductionDecision,
   DeductionPayload,
   Driver,
+  DriverDashboard,
+  DriverNotificationSettings,
   DriverPayload,
   DriverTask,
   DriverTaskDetail,
@@ -145,6 +147,16 @@ export function getDriver(id: string): Promise<Driver> {
   return api.get<Driver>(`/api/drivers/${id}/get_driver/`);
 }
 
+export function getMyDriverProfile(): Promise<Driver> {
+  return api.get<Driver>("/api/drivers/get_my_profile/");
+}
+
+export function updateMyDriverSettings(
+  payload: DriverNotificationSettings,
+): Promise<Driver> {
+  return api.patch<Driver>("/api/drivers/update_my_settings/", payload);
+}
+
 export async function createDriver(payload: DriverPayload): Promise<Driver> {
   const driver = await api.post<Driver>("/api/drivers/create_driver/", payload);
   toastSuccess("drivers.toast.created");
@@ -170,6 +182,10 @@ export async function deleteDriver(id: string): Promise<void> {
 
 export function getTasks(query: ListQuery): Promise<Paginated<DriverTask>> {
   return api.list<DriverTask>("/api/tasks/get_tasks/", query);
+}
+
+export function getDriverDashboard(): Promise<DriverDashboard> {
+  return api.get<DriverDashboard>("/api/tasks/get_driver_dashboard/");
 }
 
 export function getTask(id: string): Promise<DriverTaskDetail> {

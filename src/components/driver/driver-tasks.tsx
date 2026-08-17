@@ -32,7 +32,7 @@ export function DriverTasks() {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["tasks", "mine"],
-    queryFn: () => getTasks({ page_size: 50 }),
+    queryFn: () => getTasks({ page_size: 50, today: true }),
     // A driver leaves this open in the cab; a dispatcher may add a job while
     // they are driving. Polling is cheaper than teaching them to pull down.
     refetchInterval: 30_000,

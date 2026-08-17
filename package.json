@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "npm run check:messages && eslint",
-    "check:messages": "node scripts/check-messages.mjs",
+    "check:messages": "node scripts/check-messages.mjs && node scripts/check-untranslated-ui.mjs",
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {

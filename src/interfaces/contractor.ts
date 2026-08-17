@@ -411,6 +411,7 @@ export interface DispatchPhoto {
 export interface WasteDispatch {
   id: string;
   dispatch_no: string;
+  contractor_name: string;
   project: string;
   project_code: string;
   project_name: string;
@@ -448,6 +449,9 @@ export interface WasteDispatchDetail extends WasteDispatch {
   longitude: string | null;
   location_accuracy_m: string | null;
   photos: DispatchPhoto[];
+  weighing: import("@/interfaces/waste-outgoing").WasteWeighing | null;
+  tasks: import("@/interfaces/waste-outgoing").WasteCollectionTask[];
+  settlement: import("@/interfaces/waste-outgoing").WasteSettlementSummary | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

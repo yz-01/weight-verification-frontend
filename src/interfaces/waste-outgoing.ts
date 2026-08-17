@@ -154,6 +154,17 @@ export interface WasteTaskPhoto {
   taken_at: string | null;
 }
 
+export interface WasteDriverPosition {
+  id: string;
+  event_type: string;
+  latitude: string;
+  longitude: string;
+  accuracy_m: string | null;
+  occurred_at: string;
+  uploaded_at: string;
+  geofence_result: "INSIDE" | "OUTSIDE" | "NOT_EVALUATED";
+}
+
 export interface WasteCollectionTask {
   id: string;
   task_no: string;
@@ -161,6 +172,8 @@ export interface WasteCollectionTask {
   driver_name: string;
   vehicle_plate: string;
   scheduled_for: string | null;
+  latest_position: WasteDriverPosition | null;
+  route: WasteDriverPosition[];
   photos: WasteTaskPhoto[];
 }
 

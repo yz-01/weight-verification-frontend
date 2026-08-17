@@ -2,7 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Info, Loader2, PackageCheck, Truck } from "lucide-react";
+import { Eye, Info, Loader2, PackageCheck, Truck } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -52,15 +53,7 @@ function localDateTimeInput(value?: string | null) {
   return shifted.toISOString().slice(0, 16);
 }
 
-/**
- * The yard's inbox.
- *
- * A separate screen from the dispatch list rather than a filter on it, because
- * they answer different questions. The list is every load this company can
- * see, which for a recycler includes ones long since weighed and settled. This
- * is what is coming through the gate today, and it is the screen a yard leaves
- * open.
- */
+/** The recycler's complete order book; state pills narrow it to live work. */
 export function Incoming() {
   const t = useTranslations();
   const df = useDateFormat();
@@ -124,7 +117,8 @@ export function Incoming() {
         ),
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="max-w-[200px] truncate">{row.original.project_name}</p>
+            <p className="max-w-[200px] truncate font-medium">{row.original.contractor_name}</p>
+            <p className="max-w-[200px] truncate text-xs">{row.original.project_name}</p>
             <p className="tabular truncate text-xs text-muted-foreground">
               {row.original.project_code}
             </p>
@@ -200,10 +194,15 @@ export function Incoming() {
         id: "actions",
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
-        cell: ({ row }) =>
-          can("task.assign") &&
-          ["PENDING_ACCEPTANCE", "ACCEPTED"].includes(row.original.state) ? (
-            <div className="flex items-center justify-end gap-0.5">
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-0.5">
+            <Button asChild variant="ghost" size="icon" className="h-7 w-7" title={t("common.view")}>
+              <Link href={`/dispatches/${row.original.id}`}>
+                <Eye className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+            {can("task.assign") &&
+            ["PENDING_ACCEPTANCE", "ACCEPTED"].includes(row.original.state) ? (
               <Button
                 variant="ghost"
                 size="icon"
@@ -213,9 +212,7 @@ export function Incoming() {
               >
                 <Truck className="h-3.5 w-3.5" />
               </Button>
-            </div>
           ) : can("dispatch.update") && row.original.state === "RELEASED" ? (
-            <div className="flex items-center justify-end gap-0.5">
               <Button
                 variant="ghost"
                 size="icon"
@@ -225,8 +222,9 @@ export function Incoming() {
               >
                 <PackageCheck className="h-3.5 w-3.5" />
               </Button>
-            </div>
-          ) : null,
+          ) : null}
+          </div>
+        ),
       },
     ],
     [t, df, can],
@@ -271,6 +269,9 @@ export function Incoming() {
             "ACCEPTED",
             "RELEASED",
             "COLLECTED",
+            "WEIGHED",
+            "SETTLED",
+            "CANCELLED",
           ] as const).map((state) => ({
             key: state,
             label: t(`dispatches.state.${state}`),

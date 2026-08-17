@@ -13,8 +13,8 @@ import {
 import { useAuth } from "@/components/providers/auth-provider";
 import { OFFLINE_SYNC_REQUESTED } from "@/components/providers/service-worker-registration";
 import {
-  countOfflineJobs,
   flushOfflineJobs,
+  getOfflineQueueSummary,
   OFFLINE_QUEUE_CHANGED,
 } from "@/services/offline-sync.service";
 
@@ -22,6 +22,8 @@ interface OfflineSyncContextValue {
   isOnline: boolean;
   isSyncing: boolean;
   pendingCount: number;
+  failedCount: number;
+  lastSyncedAt: string | null;
   refreshCount: () => Promise<void>;
   syncNow: () => Promise<void>;
 }
@@ -36,16 +38,22 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
   );
   const [isSyncing, setIsSyncing] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [failedCount, setFailedCount] = useState(0);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
 
   const refreshCount = useCallback(async () => {
     if (!user) {
       setPendingCount(0);
+      setFailedCount(0);
       return;
     }
     try {
-      setPendingCount(await countOfflineJobs(user.id));
+      const summary = await getOfflineQueueSummary(user.id);
+      setPendingCount(summary.pending);
+      setFailedCount(summary.failed);
     } catch {
       setPendingCount(0);
+      setFailedCount(0);
     }
   }, [user]);
 
@@ -55,7 +63,9 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
     try {
       const result = await flushOfflineJobs(user.id);
       setPendingCount(result.remaining);
+      await refreshCount();
       if (result.synced > 0) {
+        setLastSyncedAt(new Date().toISOString());
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["attendance"] }),
           queryClient.invalidateQueries({ queryKey: ["tasks"] }),
@@ -64,7 +74,7 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
     } finally {
       setIsSyncing(false);
     }
-  }, [queryClient, user]);
+  }, [queryClient, refreshCount, user]);
 
   useEffect(() => {
     const initialRefresh = window.setTimeout(() => void refreshCount(), 0);
@@ -97,8 +107,24 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
   }, [refreshCount, syncNow]);
 
   const value = useMemo(
-    () => ({ isOnline, isSyncing, pendingCount, refreshCount, syncNow }),
-    [isOnline, isSyncing, pendingCount, refreshCount, syncNow],
+    () => ({
+      isOnline,
+      isSyncing,
+      pendingCount,
+      failedCount,
+      lastSyncedAt,
+      refreshCount,
+      syncNow,
+    }),
+    [
+      isOnline,
+      isSyncing,
+      pendingCount,
+      failedCount,
+      lastSyncedAt,
+      refreshCount,
+      syncNow,
+    ],
   );
 
   return (

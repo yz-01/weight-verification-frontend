@@ -393,7 +393,10 @@
     "unknownError": "Something went wrong. Try again.",
     "copy": "Copy",
     "copied": "Copied",
-    "copyFirst": "Copy the secret before closing"
+    "copyFirst": "Copy the secret before closing",
+    "sidebar": "Sidebar",
+    "mobileSidebarDescription": "Displays the mobile sidebar.",
+    "toggleSidebar": "Toggle sidebar"
   },
   "contractorOps": {
     "evidenceProgress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
@@ -1207,6 +1210,7 @@
     "positiveInteger": "Enter a whole number of at least 1"
   },
   "auth": {
+    "portalNavigation": "MSE portals",
     "login": {
       "title": "Sign in",
       "subtitle": "Access your MSE Trace workspace",
@@ -1312,11 +1316,14 @@
     "user_logs": "User logs",
     "activity_logs": "Activity logs",
     "partnerships": "Contractor partnerships",
+    "customer_management": "Customers & private intake",
     "yards": "Recycling yards",
     "weighbridges": "Weighbridges",
     "waste_orders": "Waste orders",
     "driver_tasks": "Driver tasks",
     "weighing_records": "Weighing records",
+    "inventory_management": "Inventory",
+    "outbound_management": "Buyers & outbound",
     "payment_status": "Payment status",
     "documents": "Document archive",
     "approvals": "Approvals",
@@ -2230,6 +2237,7 @@
     }
   },
   "offline": {
+    "pageDescription": "This page is not cached yet. Reconnect once, then open it again for offline use.",
     "queued": "Saved offline and queued for upload",
     "synced": "Uploaded {count, plural, one {# offline record} other {# offline records}}",
     "status": {
@@ -3933,6 +3941,7 @@
       "receipt": "Material receipts",
       "dispatch": "Waste dispatches",
       "task": "Driver tasks",
+      "yard": "Recycling yards",
       "scale": "Weighbridges",
       "weighing": "Weighing",
       "deduction": "Deductions",
@@ -3995,6 +4004,10 @@
         "assign": "Assign drivers and vehicles",
         "submit": "Submit task photos and reports",
         "task_view_all": "See every trip in the yard"
+      },
+      "yard": {
+        "view": "View recycling yards",
+        "manage": "Create and manage recycling yards"
       },
       "scale": {
         "view": "View weighbridges",
@@ -6118,7 +6131,8 @@
       "acceptedAt": "Accepted",
       "arrivedAt": "Arrived",
       "loadedAt": "Loaded",
-      "deliveredAt": "Delivered",
+      "deliveredAt": "Arrived at yard",
+      "completedAt": "Completed after weighing",
       "arrivalLocation": "Arrival location",
       "notes": "Notes",
       "failureReason": "Why it failed",
@@ -6133,7 +6147,8 @@
       "ARRIVED": "At site",
       "LOADED": "Loaded",
       "RETURNING": "Returning",
-      "DELIVERED": "Delivered",
+      "DELIVERED": "At yard - awaiting weighing",
+      "COMPLETED": "Completed",
       "CANCELLED": "Cancelled",
       "FAILED": "Failed"
     },
@@ -6333,6 +6348,11 @@
     "back": "All trips",
     "takePhoto": "Take a photo",
     "navigate": "Navigate to project",
+    "returnYard": "Navigate to recycling yard",
+    "awaitingWeighing": "Arrived at the recycling yard",
+    "awaitingWeighingBody": "Please wait for the gross and tare weighing. The task completes automatically after a valid net weight is recorded.",
+    "gpsUnavailable": "GPS is not available. Enable location permission so the route and photo evidence include the correct location.",
+    "photoGpsRequired": "Turn on precise location before taking a task photo. The photo was not uploaded.",
     "photoRequired": "Take a loading photo before marking this trip as loaded.",
     "cannotComplete": "I cannot complete this",
     "arrivedNote": "Records that you are at the site, with your phone's location if it will give one.",
@@ -6342,10 +6362,89 @@
       "ARRIVED": "I have arrived",
       "LOADED": "Loaded",
       "RETURNING": "Heading back",
-      "DELIVERED": "Delivered to the yard",
+      "DELIVERED": "I have arrived at the yard",
+      "COMPLETED": "Completed after weighing",
       "FAILED": "Could not complete",
       "CANCELLED": "Cancel",
       "ASSIGNED": "Assigned"
+    },
+    "nav": {
+      "home": "Home",
+      "jobs": "My jobs",
+      "notifications": "Notices",
+      "profile": "Profile",
+      "settings": "Settings"
+    },
+    "dashboard": {
+      "title": "Driver home",
+      "today": "Today's jobs",
+      "pending": "Waiting",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "currentTask": "Current job",
+      "allJobs": "View all",
+      "quickActions": "Quick actions",
+      "navigation": "Navigation",
+      "jobStatus": "Job status",
+      "photo": "Take photo",
+      "status": "Device status",
+      "workStatus": "Work status",
+      "network": "Network and sync",
+      "gps": "GPS",
+      "notifications": "Today's notices",
+      "openTask": "Open job"
+    },
+    "device": {
+      "work": {
+        "online": "Online",
+        "offline": "Offline",
+        "working": "Working on a job"
+      },
+      "network": {
+        "online": "Online - all data uploaded",
+        "offline": "Offline - {count} waiting to upload",
+        "syncing": "Uploading offline data",
+        "pending": "Online - {count} waiting to upload",
+        "failed": "Some uploads need attention"
+      },
+      "permission": {
+        "unknown": "Not checked yet",
+        "prompt": "Permission not given yet",
+        "granted": "Enabled",
+        "denied": "Blocked in browser settings",
+        "unsupported": "Not supported on this device"
+      },
+      "enable": "Enable",
+      "test": "Test"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "unread": "{count, plural, =0 {No unread notices} one {# unread notice} other {# unread notices}}",
+      "empty": "No notifications yet.",
+      "open": "Open notification",
+      "remove": "Remove from inbox"
+    },
+    "profile": {
+      "title": "My profile",
+      "readOnly": "Your recycler administrator manages these details."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Language, permissions, notifications and sync status.",
+      "language": "Language",
+      "permissions": "Phone permissions",
+      "gps": "Location permission",
+      "camera": "Camera permission",
+      "notifications": "Notification choices",
+      "newTasks": "New job notifications",
+      "taskChanges": "Job change and completion notifications",
+      "systemNotifications": "System notifications",
+      "network": "Network and offline data",
+      "failedCount": "{count, plural, one {# upload needs attention} other {# uploads need attention}}",
+      "syncNow": "Upload now",
+      "about": "About",
+      "driverApp": "Driver app",
+      "version": "Version"
     },
     "toast": {
       "photoSent": "Photo sent"
@@ -10267,6 +10366,101 @@
     },
     "current": "Current",
     "forceUpdateOn": "Force Update"
+  },
+  "recyclerBusiness": {
+    "customers": {
+      "title": "Recycler customers",
+      "subtitle": "Keep platform customers separate from your own private customers, their QR codes and weighing intake.",
+      "tab": "Customers",
+      "createTitle": "Add private customer",
+      "editTitle": "Edit private customer",
+      "formHelp": "Platform customers are synchronised automatically and stay read-only. These fields are for your own customer only."
+    },
+    "intakes": {
+      "tab": "Private intake",
+      "startTitle": "Start private customer intake",
+      "startHelp": "Scan the customer's current QR, choose your recycling yard and material, then complete it only with a valid two-pass weighing.",
+      "scanHelp": "Use the camera, upload a QR image, or leave the cursor here and scan with a USB scanner.",
+      "completeTitle": "Complete {no}",
+      "completeHelp": "Choose the valid gross session that contains the paired gross, tare and positive net weight for this intake.",
+      "noEligibleSession": "No unused, valid private gross weighing is available at this yard yet.",
+      "cancelTitle": "Cancel private intake",
+      "cancelHelp": "The intake remains in the permanent history and will not add inventory."
+    },
+    "inventory": {
+      "title": "Recycler inventory",
+      "subtitle": "Platform and private stock are kept in separate ledgers and combined only in the company total.",
+      "platform": "Platform inventory",
+      "private": "Private inventory",
+      "total": "Company total",
+      "balances": "Current balances",
+      "movements": "Permanent movements",
+      "empty": "Inventory appears automatically after a confirmed weighing or adjustment.",
+      "adjustTitle": "Record inventory adjustment",
+      "adjustHelp": "Every change is permanent and records who made it, when and why.",
+      "adjustmentHint": "Use a positive number to add stock or a negative number to remove stock."
+    },
+    "outbound": {
+      "title": "Buyers and outbound",
+      "subtitle": "Prepare an outbound draft, check stock, confirm it once, then keep its DO, E-Invoice and photos together.",
+      "shipmentsTab": "Outbound records",
+      "buyersTab": "Buyers",
+      "createTitle": "New outbound draft",
+      "editTitle": "Edit outbound draft",
+      "formHelp": "A draft does not change inventory. Check all details before confirming it.",
+      "sourceHelp": "Choose the same source ledger as the material being sold.",
+      "confirmTitle": "Confirm {no}",
+      "confirmHelp": "This permanently deducts {weight} kg from the selected inventory source. It cannot be edited or cancelled afterwards.",
+      "cancelTitle": "Cancel {no}",
+      "cancelHelp": "The cancelled draft stays in the audit history and does not deduct inventory.",
+      "detailHelp": "Confirmed details and permanent supporting files for this outbound movement.",
+      "attachments": "Supporting files",
+      "noAttachments": "No DO, E-Invoice, photo or other file has been uploaded yet."
+    },
+    "buyers": {
+      "createTitle": "Add buyer",
+      "editTitle": "Edit buyer",
+      "formHelp": "Store the organisation and contact details used for outbound records."
+    },
+    "qr": {
+      "action": "Customer QR",
+      "title": "QR for {name}",
+      "help": "Only the latest active QR starts a private weighing intake. Regenerating it invalidates the old code immediately.",
+      "reissueReason": "Reason for regenerating",
+      "notIssued": "No customer QR yet",
+      "notIssuedHelp": "Issue one before this customer arrives at the yard."
+    },
+    "filter": { "all": "All" },
+    "source": { "PLATFORM": "Platform business", "PRIVATE": "Private customer" },
+    "status": { "active": "Active", "inactive": "Inactive" },
+    "intakeState": { "WAITING_WEIGHING": "Waiting for weighing", "COMPLETED": "Completed", "CANCELLED": "Cancelled" },
+    "outboundState": { "DRAFT": "Draft", "CONFIRMED": "Confirmed", "CANCELLED": "Cancelled" },
+    "movementKind": { "INBOUND": "Inbound weighing", "OUTBOUND": "Outbound shipment", "ADJUSTMENT": "Adjustment" },
+    "attachmentKind": { "DELIVERY_ORDER": "Delivery order", "E_INVOICE": "E-Invoice", "PHOTO": "Photo", "OTHER": "Other" },
+    "material": { "MIXED": "Mixed construction waste", "CONCRETE": "Concrete and masonry", "METAL": "Scrap metal", "TIMBER": "Timber", "PLASTIC": "Plastic", "PAPER": "Paper and cardboard", "SOIL": "Soil and aggregate", "HAZARDOUS": "Hazardous", "OTHER": "Other" },
+    "action": {
+      "sync": "Sync platform customers", "addCustomer": "Add customer", "deactivate": "Deactivate", "activate": "Activate",
+      "download": "Download", "print": "Print", "disableQr": "Disable QR", "enableQr": "Enable QR", "reissue": "Regenerate", "issueQr": "Issue QR",
+      "scan": "Scan QR", "startIntake": "Start intake", "complete": "Complete", "cancelIntake": "Cancel intake",
+      "adjustInventory": "Adjust", "recordAdjustment": "Record adjustment", "confirmShipment": "Confirm", "newShipment": "New outbound", "cancelShipment": "Cancel outbound", "upload": "Upload", "addBuyer": "Add buyer"
+    },
+    "field": {
+      "customerNo": "Customer no.", "companyName": "Company name", "source": "Business source", "totalWeight": "Total weight", "status": "Status",
+      "registrationNo": "Registration no.", "contactPerson": "Contact person", "phone": "Phone", "email": "Email", "address": "Address", "notes": "Notes",
+      "bankName": "Bank", "bankAccountName": "Account name", "bankAccountNo": "Account no.", "bankNotes": "Bank notes",
+      "serial": "QR serial", "scanCount": "Scans", "issuedOn": "Issued on", "intakeNo": "Intake no.", "customer": "Customer", "material": "Material",
+      "netWeight": "Net weight", "createdAt": "Created", "qrToken": "Customer QR", "yard": "Recycling yard", "vehiclePlate": "Vehicle plate", "weighSession": "Completed weighing",
+      "currentWeight": "Current weight", "lastMovement": "Last movement", "movementNo": "Movement no.", "type": "Type", "change": "Change", "balance": "Balance", "occurredAt": "Time",
+      "adjustmentWeight": "Adjustment (kg)", "reason": "Reason", "shipmentNo": "Outbound no.", "buyer": "Buyer", "weight": "Weight", "outboundDate": "Outbound date",
+      "driverName": "Driver", "eInvoiceNo": "E-Invoice no.", "description": "File description", "buyerNo": "Buyer no.", "shipmentCount": "Confirmed shipments"
+    },
+    "toast": {
+      "customerCreated": "Private customer created.", "customerUpdated": "Private customer updated.", "customerStatusUpdated": "Customer status updated.", "customersSynced": "Platform customers synchronised.",
+      "qrIssued": "Customer QR issued.", "qrReissued": "Customer QR regenerated; the old code is invalid.", "qrStatusUpdated": "Customer QR status updated.",
+      "intakeStarted": "Private intake is ready for weighing.", "intakeCompleted": "Private intake completed and inventory added.", "intakeCancelled": "Private intake cancelled.",
+      "inventoryAdjusted": "Inventory adjustment recorded.", "buyerCreated": "Buyer created.", "buyerUpdated": "Buyer updated.", "buyerStatusUpdated": "Buyer status updated.",
+      "shipmentCreated": "Outbound draft created.", "shipmentUpdated": "Outbound draft updated.", "shipmentConfirmed": "Outbound confirmed and inventory deducted.", "shipmentCancelled": "Outbound draft cancelled.", "attachmentUploaded": "Supporting file uploaded."
+    }
   },
   "incidentReporting": {
     "title": "Incident Reporting",

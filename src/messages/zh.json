@@ -393,7 +393,10 @@
     "unknownError": "出了点问题，请重试。",
     "copy": "复制",
     "copied": "已复制",
-    "copyFirst": "关闭前请先复制密钥"
+    "copyFirst": "关闭前请先复制密钥",
+    "sidebar": "侧栏",
+    "mobileSidebarDescription": "显示手机端侧栏。",
+    "toggleSidebar": "切换侧栏"
   },
   "contractorOps": {
     "evidenceProgress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
@@ -1197,6 +1200,7 @@
     "positiveInteger": "请输入不小于 1 的整数"
   },
   "auth": {
+    "portalNavigation": "MSE 登录入口",
     "login": {
       "title": "登录",
       "subtitle": "进入你的 MSE Trace 工作台",
@@ -1302,11 +1306,14 @@
     "user_logs": "用户日志",
     "activity_logs": "活动日志",
     "partnerships": "建筑商合作",
+    "customer_management": "客户与私人入库",
     "yards": "回收场",
     "weighbridges": "地磅",
     "waste_orders": "废料订单",
     "driver_tasks": "司机任务",
     "weighing_records": "称重记录",
+    "inventory_management": "库存管理",
+    "outbound_management": "买家与出货",
     "payment_status": "付款状态",
     "documents": "文档档案",
     "approvals": "审批流程",
@@ -2220,6 +2227,7 @@
     }
   },
   "offline": {
+    "pageDescription": "此页面尚未缓存。请先恢复网络并打开一次，之后即可离线使用。",
     "queued": "已离线保存，等待自动上传",
     "synced": "已上传 {count} 条离线记录",
     "status": {
@@ -3913,6 +3921,7 @@
       "receipt": "材料收货",
       "dispatch": "废料出场",
       "task": "司机任务",
+      "yard": "回收场",
       "scale": "地磅",
       "weighing": "称重",
       "deduction": "扣杂",
@@ -3975,6 +3984,10 @@
         "assign": "分配司机与车辆",
         "submit": "提交任务照片与报备",
         "task_view_all": "查看回收场全部任务"
+      },
+      "yard": {
+        "view": "查看回收场",
+        "manage": "新增及管理回收场"
       },
       "scale": {
         "view": "查看地磅",
@@ -6092,7 +6105,8 @@
       "acceptedAt": "接单时间",
       "arrivedAt": "到场时间",
       "loadedAt": "装货时间",
-      "deliveredAt": "送达时间",
+      "deliveredAt": "到达回收场时间",
+      "completedAt": "称重完成时间",
       "arrivalLocation": "到场位置",
       "notes": "备注",
       "failureReason": "失败原因",
@@ -6107,7 +6121,8 @@
       "ARRIVED": "已到场",
       "LOADED": "已装货",
       "RETURNING": "返程中",
-      "DELIVERED": "已送达",
+      "DELIVERED": "已到回收场，等待称重",
+      "COMPLETED": "已完成",
       "CANCELLED": "已取消",
       "FAILED": "未完成"
     },
@@ -6307,6 +6322,11 @@
     "back": "全部任务",
     "takePhoto": "拍照",
     "navigate": "导航到项目",
+    "returnYard": "导航返回回收场",
+    "awaitingWeighing": "已到达回收场",
+    "awaitingWeighingBody": "请等待毛重和皮重称重。系统取得有效净重后会自动完成任务。",
+    "gpsUnavailable": "目前无法取得 GPS。请开启定位权限，让路线和照片证据包含正确位置。",
+    "photoGpsRequired": "请先开启精确定位再拍摄任务照片；这张照片尚未上传。",
     "photoRequired": "请先拍摄装载照片，再将任务标记为已装载。",
     "cannotComplete": "我完成不了这趟",
     "arrivedNote": "记录你已到达现场，如果手机允许会一并记录位置。",
@@ -6316,10 +6336,89 @@
       "ARRIVED": "我到了",
       "LOADED": "装好货了",
       "RETURNING": "返程",
-      "DELIVERED": "已送回场",
+      "DELIVERED": "我已到回收场",
+      "COMPLETED": "称重后已完成",
       "FAILED": "无法完成",
       "CANCELLED": "取消",
       "ASSIGNED": "已派单"
+    },
+    "nav": {
+      "home": "首页",
+      "jobs": "我的任务",
+      "notifications": "通知",
+      "profile": "个人资料",
+      "settings": "设置"
+    },
+    "dashboard": {
+      "title": "司机首页",
+      "today": "今日任务",
+      "pending": "待执行",
+      "inProgress": "进行中",
+      "completed": "已完成",
+      "currentTask": "当前任务",
+      "allJobs": "查看全部",
+      "quickActions": "快捷功能",
+      "navigation": "导航",
+      "jobStatus": "任务状态",
+      "photo": "拍照上传",
+      "status": "设备状态",
+      "workStatus": "在线状态",
+      "network": "网络与同步",
+      "gps": "GPS 定位",
+      "notifications": "今日通知",
+      "openTask": "打开任务"
+    },
+    "device": {
+      "work": {
+        "online": "在线",
+        "offline": "离线",
+        "working": "执行任务中"
+      },
+      "network": {
+        "online": "在线，资料已全部上传",
+        "offline": "离线，{count} 条资料等待上传",
+        "syncing": "正在上传离线资料",
+        "pending": "在线，{count} 条资料等待上传",
+        "failed": "部分资料上传失败，需要处理"
+      },
+      "permission": {
+        "unknown": "尚未检查",
+        "prompt": "尚未允许",
+        "granted": "已开启",
+        "denied": "已在浏览器设置中阻止",
+        "unsupported": "此设备不支持"
+      },
+      "enable": "开启",
+      "test": "测试"
+    },
+    "notifications": {
+      "title": "通知中心",
+      "unread": "{count} 条未读通知",
+      "empty": "目前没有通知。",
+      "open": "打开通知",
+      "remove": "从收件箱移除"
+    },
+    "profile": {
+      "title": "个人资料",
+      "readOnly": "这些资料由回收商管理员管理。"
+    },
+    "settings": {
+      "title": "系统设置",
+      "subtitle": "管理语言、手机权限、通知及同步状态。",
+      "language": "语言",
+      "permissions": "手机权限",
+      "gps": "定位权限",
+      "camera": "相机权限",
+      "notifications": "通知设置",
+      "newTasks": "新任务通知",
+      "taskChanges": "任务变更及完成通知",
+      "systemNotifications": "系统通知",
+      "network": "网络与离线资料",
+      "failedCount": "{count} 条资料上传失败，需要处理",
+      "syncNow": "立即上传",
+      "about": "关于系统",
+      "driverApp": "司机应用",
+      "version": "版本"
     },
     "toast": {
       "photoSent": "照片已上传"
@@ -10193,6 +10292,92 @@
     },
     "current": "当前版本",
     "forceUpdateOn": "强制更新"
+  },
+  "recyclerBusiness": {
+    "customers": {
+      "title": "回收商客户",
+      "subtitle": "平台客户、原有私人客户、客户二维码和私人称重入库集中管理，并保持业务来源分开。",
+      "tab": "客户资料",
+      "createTitle": "新增私人客户",
+      "editTitle": "编辑私人客户",
+      "formHelp": "平台客户由系统自动同步且不可修改。这里填写的是回收商自己的私人客户资料。"
+    },
+    "intakes": {
+      "tab": "私人入库",
+      "startTitle": "开始私人客户入库",
+      "startHelp": "扫描客户目前有效的二维码，选择回收场和材料，并只使用有效的两次过磅完成入库。",
+      "scanHelp": "可以用相机、上传二维码图片，或把光标放在这里后使用 USB 扫码器。",
+      "completeTitle": "完成 {no}",
+      "completeHelp": "请选择包含毛重、皮重和正数净重的有效毛重称重记录。",
+      "noEligibleSession": "这个回收场目前没有可用且尚未使用的有效私人毛重记录。",
+      "cancelTitle": "取消私人入库",
+      "cancelHelp": "记录会永久保留，但不会增加库存。"
+    },
+    "inventory": {
+      "title": "回收商库存",
+      "subtitle": "平台库存和私人客户库存分账记录，只在公司总库存中合计。",
+      "platform": "平台库存",
+      "private": "私人库存",
+      "total": "公司总库存",
+      "balances": "当前库存",
+      "movements": "永久库存流水",
+      "empty": "完成称重或库存调整后，库存会自动显示。",
+      "adjustTitle": "记录库存调整",
+      "adjustHelp": "每次调整都会永久记录操作人、时间和原因。",
+      "adjustmentHint": "正数增加库存，负数扣减库存。"
+    },
+    "outbound": {
+      "title": "买家与出货",
+      "subtitle": "先建立出货草稿，核对库存后确认，并集中保存 DO、E-Invoice 和照片。",
+      "shipmentsTab": "出货记录",
+      "buyersTab": "买家",
+      "createTitle": "新增出货草稿",
+      "editTitle": "编辑出货草稿",
+      "formHelp": "草稿不会扣减库存。确认前请检查所有资料。",
+      "sourceHelp": "必须选择实际出售材料所属的库存来源。",
+      "confirmTitle": "确认 {no}",
+      "confirmHelp": "系统会从所选库存永久扣减 {weight} kg，确认后不能再编辑或取消。",
+      "cancelTitle": "取消 {no}",
+      "cancelHelp": "已取消的草稿会保留在审计记录，而且不会扣减库存。",
+      "detailHelp": "这笔出货的确认资料及永久证明文件。",
+      "attachments": "证明文件",
+      "noAttachments": "尚未上传 DO、E-Invoice、照片或其他文件。"
+    },
+    "buyers": { "createTitle": "新增买家", "editTitle": "编辑买家", "formHelp": "保存出货记录使用的公司和联系人资料。" },
+    "qr": {
+      "action": "客户二维码", "title": "{name} 的二维码", "help": "只有最新且启用的二维码可以开始私人称重。重新生成后，旧二维码会立即失效。",
+      "reissueReason": "重新生成原因", "notIssued": "尚未签发客户二维码", "notIssuedHelp": "请在客户到达回收场前签发。"
+    },
+    "filter": { "all": "全部" },
+    "source": { "PLATFORM": "平台业务", "PRIVATE": "私人客户" },
+    "status": { "active": "启用", "inactive": "停用" },
+    "intakeState": { "WAITING_WEIGHING": "等待称重", "COMPLETED": "已完成", "CANCELLED": "已取消" },
+    "outboundState": { "DRAFT": "草稿", "CONFIRMED": "已确认", "CANCELLED": "已取消" },
+    "movementKind": { "INBOUND": "称重入库", "OUTBOUND": "出货扣减", "ADJUSTMENT": "库存调整" },
+    "attachmentKind": { "DELIVERY_ORDER": "送货单 DO", "E_INVOICE": "电子发票", "PHOTO": "照片", "OTHER": "其他" },
+    "material": { "MIXED": "混合建筑废料", "CONCRETE": "混凝土与砖石", "METAL": "废金属", "TIMBER": "木材", "PLASTIC": "塑料", "PAPER": "纸张与纸板", "SOIL": "泥土与骨料", "HAZARDOUS": "危险废料", "OTHER": "其他" },
+    "action": {
+      "sync": "同步平台客户", "addCustomer": "新增客户", "deactivate": "停用", "activate": "启用", "download": "下载", "print": "打印",
+      "disableQr": "停用二维码", "enableQr": "启用二维码", "reissue": "重新生成", "issueQr": "签发二维码", "scan": "扫描二维码",
+      "startIntake": "开始入库", "complete": "完成", "cancelIntake": "取消入库", "adjustInventory": "调整库存", "recordAdjustment": "记录调整",
+      "confirmShipment": "确认出货", "newShipment": "新增出货", "cancelShipment": "取消出货", "upload": "上传", "addBuyer": "新增买家"
+    },
+    "field": {
+      "customerNo": "客户编号", "companyName": "公司名称", "source": "业务来源", "totalWeight": "累计重量", "status": "状态", "registrationNo": "注册编号",
+      "contactPerson": "联系人", "phone": "电话", "email": "邮箱", "address": "地址", "notes": "备注", "bankName": "银行", "bankAccountName": "账户名称",
+      "bankAccountNo": "账号", "bankNotes": "银行备注", "serial": "二维码序号", "scanCount": "扫描次数", "issuedOn": "签发日期", "intakeNo": "入库编号",
+      "customer": "客户", "material": "材料", "netWeight": "净重", "createdAt": "建立时间", "qrToken": "客户二维码", "yard": "回收场", "vehiclePlate": "车牌",
+      "weighSession": "已完成称重", "currentWeight": "当前重量", "lastMovement": "最后变动", "movementNo": "流水编号", "type": "类型", "change": "变动",
+      "balance": "结余", "occurredAt": "时间", "adjustmentWeight": "调整重量（kg）", "reason": "原因", "shipmentNo": "出货编号", "buyer": "买家",
+      "weight": "重量", "outboundDate": "出货日期", "driverName": "司机", "eInvoiceNo": "电子发票编号", "description": "文件说明", "buyerNo": "买家编号", "shipmentCount": "已确认出货次数"
+    },
+    "toast": {
+      "customerCreated": "私人客户已建立。", "customerUpdated": "私人客户已更新。", "customerStatusUpdated": "客户状态已更新。", "customersSynced": "平台客户已同步。",
+      "qrIssued": "客户二维码已签发。", "qrReissued": "客户二维码已重新生成，旧二维码已经失效。", "qrStatusUpdated": "客户二维码状态已更新。",
+      "intakeStarted": "私人入库已建立，可以开始称重。", "intakeCompleted": "私人入库已完成并增加库存。", "intakeCancelled": "私人入库已取消。",
+      "inventoryAdjusted": "库存调整已记录。", "buyerCreated": "买家已建立。", "buyerUpdated": "买家已更新。", "buyerStatusUpdated": "买家状态已更新。",
+      "shipmentCreated": "出货草稿已建立。", "shipmentUpdated": "出货草稿已更新。", "shipmentConfirmed": "出货已确认并扣减库存。", "shipmentCancelled": "出货草稿已取消。", "attachmentUploaded": "证明文件已上传。"
+    }
   },
   "incidentReporting": {
     "title": "事故上报",

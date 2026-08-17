@@ -1,5 +1,7 @@
 /** The recycler console's records: fleet, trips, the gate, and the money. */
 
+import type { NotificationRow } from "@/interfaces/platform-ops";
+
 export type VehicleType =
   | "LORRY"
   | "TIPPER"
@@ -55,7 +57,12 @@ export interface Driver {
   default_vehicle: string | null;
   default_vehicle_plate: string | null;
   user: string | null;
+  user_email: string | null;
+  company_name: string;
   is_active: boolean;
+  notify_new_tasks: boolean;
+  notify_task_changes: boolean;
+  notify_system: boolean;
   created_at: string;
 }
 
@@ -78,6 +85,7 @@ export type TaskState =
   | "LOADED"
   | "RETURNING"
   | "DELIVERED"
+  | "COMPLETED"
   | "CANCELLED"
   | "FAILED";
 
@@ -89,6 +97,7 @@ export const TASK_STATES: TaskState[] = [
   "LOADED",
   "RETURNING",
   "DELIVERED",
+  "COMPLETED",
   "CANCELLED",
   "FAILED",
 ];
@@ -108,6 +117,7 @@ export const TASK_TRANSITIONS: Record<TaskState, TaskState[]> = {
   LOADED: ["RETURNING", "FAILED"],
   RETURNING: ["DELIVERED", "FAILED"],
   DELIVERED: [],
+  COMPLETED: [],
   CANCELLED: [],
   FAILED: [],
 };
@@ -136,8 +146,8 @@ export interface DriverTaskTransition {
   longitude: string | null;
   notes: string;
   reason: string;
-  recorded_by: string;
-  recorded_by_name: string;
+  recorded_by: string | null;
+  recorded_by_name: string | null;
 }
 
 export interface DriverTask {
@@ -156,6 +166,7 @@ export interface DriverTask {
   driver_name: string;
   scheduled_for: string | null;
   delivered_at: string | null;
+  completed_at: string | null;
   photo_count?: number;
 }
 
@@ -170,6 +181,13 @@ export interface DriverTaskDetail extends DriverTask {
   project_longitude: string | null;
   project_geofence_radius_m: number | null;
   contractor_name: string | null;
+  site_address_line_1: string;
+  site_address_line_2: string;
+  site_city: string;
+  site_state: string;
+  site_postcode: string;
+  site_latitude: string | null;
+  site_longitude: string | null;
   accepted_at: string | null;
   arrived_at: string | null;
   loaded_at: string | null;
@@ -179,8 +197,38 @@ export interface DriverTaskDetail extends DriverTask {
   failure_reason: string;
   photos: TaskPhoto[];
   transitions: DriverTaskTransition[];
+  weighing: DriverWeighingSummary | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface DriverWeighingSummary {
+  session_id: string;
+  session_no: string;
+  gross_weight_kg: string | null;
+  tare_weight_kg: string | null;
+  net_weight_kg: string | null;
+  state: string;
+  verdict: string;
+  requires_review: boolean;
+  weighed_at: string | null;
+}
+
+export interface DriverDashboard {
+  date: string;
+  counts: {
+    pending: number;
+    in_progress: number;
+    completed: number;
+  };
+  current_task: DriverTaskDetail | null;
+  latest_notifications: NotificationRow[];
+}
+
+export interface DriverNotificationSettings {
+  notify_new_tasks: boolean;
+  notify_task_changes: boolean;
+  notify_system: boolean;
 }
 
 export type TaskPositionEvent =

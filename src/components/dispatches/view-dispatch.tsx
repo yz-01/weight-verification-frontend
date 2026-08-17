@@ -43,7 +43,7 @@ import {
 export function ViewDispatch({ id }: { id: string }) {
   const t = useTranslations();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const queryClient = useQueryClient();
   const [releasing, setReleasing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -56,8 +56,8 @@ export function ViewDispatch({ id }: { id: string }) {
   const tracking = useQuery({
     queryKey: ["waste-outgoing", "tracking", data?.source_record_id],
     queryFn: () => getWasteTracking(data!.source_record_id!),
-    enabled: Boolean(data?.source_record_id),
-    refetchInterval: 30_000,
+    enabled: Boolean(data?.source_record_id && user?.portal !== "MSE_SCRAP"),
+    refetchInterval: 15_000,
   });
 
   const cancellation = useMutation({
@@ -78,7 +78,21 @@ export function ViewDispatch({ id }: { id: string }) {
 
   const coordinates =
     data.latitude && data.longitude ? `${data.latitude}, ${data.longitude}` : null;
+  const isRecycler = user?.portal === "MSE_SCRAP";
+  const execution =
+    tracking.data ??
+    (isRecycler
+      ? {
+          driver_name: data.driver_name,
+          vehicle_plate: data.vehicle_plate,
+          milestones: [],
+          tasks: data.tasks,
+          weighing: data.weighing,
+          settlement: data.settlement,
+        }
+      : null);
   const canCancel =
+    !isRecycler &&
     can("dispatch.update") &&
     (data.state === "DRAFT" || data.state === "RELEASED");
 
@@ -101,7 +115,7 @@ export function ViewDispatch({ id }: { id: string }) {
           <TypeBadge label={t(`dispatches.wasteType.${data.waste_type}`)} />
 
           <div className="ml-auto flex items-center gap-2">
-            {can("dispatch.update") && data.state === "DRAFT" && (
+            {!isRecycler && can("dispatch.update") && data.state === "DRAFT" && (
               <Button
                 size="sm"
                 className="rounded-full px-4 shadow-sm"
@@ -227,21 +241,46 @@ export function ViewDispatch({ id }: { id: string }) {
               className="md:col-span-2"
             />
           </FormSection>
-          {data.source_record_id && (
+          {(data.source_record_id || data.tasks.length > 0) && (
             <FormSection title={t("dispatches.section.execution")}>
-              {tracking.isLoading ? (
+              {tracking.isLoading && user?.portal !== "MSE_SCRAP" ? (
                 <p className="md:col-span-2 text-sm text-muted-foreground">{t("common.loading")}</p>
-              ) : tracking.data ? (
+              ) : execution ? (
                 <>
                   <ReadField label={t("dispatches.field.collectionPlan")} value={data.confirmed_collection_at ? df.dateTime(data.confirmed_collection_at) : data.proposed_collection_at ? df.dateTime(data.proposed_collection_at) : null} />
-                  <ReadField label={t("dispatches.field.driverName")} value={tracking.data.driver_name} />
-                  <ReadField label={t("dispatches.field.vehiclePlate")} value={tracking.data.vehicle_plate} />
-                  <ReadField label={t("dispatches.field.executionProgress")} value={`${tracking.data.milestones.filter((row) => row.done).length}/${tracking.data.milestones.length}`} />
-                  {(tracking.data.tasks ?? []).some((task) => task.photos.length > 0) && (
+                  <ReadField label={t("dispatches.field.driverName")} value={execution.driver_name} />
+                  <ReadField label={t("dispatches.field.vehiclePlate")} value={execution.vehicle_plate} />
+                  {execution.milestones.length > 0 && <ReadField label={t("dispatches.field.executionProgress")} value={`${execution.milestones.filter((row) => row.done).length}/${execution.milestones.length}`} />}
+                  {(execution.tasks ?? []).map((task) =>
+                    task.latest_position ? (
+                      <ReadField
+                        key={`${task.id}-position`}
+                        label={t("dispatches.field.location")}
+                        value={
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${task.latest_position.latitude},${task.latest_position.longitude}`)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 text-primary hover:underline"
+                          >
+                            <MapPin className="h-3.5 w-3.5" />
+                            <span className="tabular">
+                              {task.latest_position.latitude}, {task.latest_position.longitude}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {df.dateTime(task.latest_position.occurred_at)}
+                            </span>
+                          </a>
+                        }
+                        className="md:col-span-2"
+                      />
+                    ) : null,
+                  )}
+                  {(execution.tasks ?? []).some((task) => task.photos.length > 0) && (
                     <div className="md:col-span-2">
                       <p className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><Camera className="size-4" />{t("dispatches.section.executionPhotos")}</p>
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                        {(tracking.data.tasks ?? []).flatMap((task) => task.photos).map((photo) => (
+                        {(execution.tasks ?? []).flatMap((task) => task.photos).map((photo) => (
                           <a key={photo.id} href={photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
                             <Image src={photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
                             <p className="truncate px-2 py-1 text-xs">{photo.caption || photo.kind}</p>
@@ -254,31 +293,31 @@ export function ViewDispatch({ id }: { id: string }) {
               ) : null}
             </FormSection>
           )}
-          {tracking.data?.weighing && (
+          {execution?.weighing && (
             <FormSection title={t("dispatches.section.weighing")}>
-              <ReadField label={t("dispatches.field.weighingNo")} value={tracking.data.weighing.session_no} />
-              <ReadField label={t("dispatches.field.firstWeight")} value={tracking.data.weighing.first_weight_kg ? `${tracking.data.weighing.first_weight_kg} kg` : null} />
-              <ReadField label={t("dispatches.field.secondWeight")} value={tracking.data.weighing.second_weight_kg ? `${tracking.data.weighing.second_weight_kg} kg` : null} />
-              <ReadField label={t("dispatches.field.netWeight")} value={tracking.data.weighing.net_weight_kg ? `${tracking.data.weighing.net_weight_kg} kg` : null} />
-              <div className="md:col-span-2"><PrintTicketButton sessionId={tracking.data.weighing.session_id} sessionNo={tracking.data.weighing.session_no} /></div>
+              <ReadField label={t("dispatches.field.weighingNo")} value={execution.weighing.session_no} />
+              <ReadField label={t("dispatches.field.firstWeight")} value={execution.weighing.first_weight_kg ? `${execution.weighing.first_weight_kg} kg` : null} />
+              <ReadField label={t("dispatches.field.secondWeight")} value={execution.weighing.second_weight_kg ? `${execution.weighing.second_weight_kg} kg` : null} />
+              <ReadField label={t("dispatches.field.netWeight")} value={execution.weighing.net_weight_kg ? `${execution.weighing.net_weight_kg} kg` : null} />
+              <div className="md:col-span-2"><PrintTicketButton sessionId={execution.weighing.session_id} sessionNo={execution.weighing.session_no} /></div>
             </FormSection>
           )}
-          {tracking.data?.settlement && (
+          {execution?.settlement && (
             <FormSection title={t("dispatches.section.settlement")}>
-              <ReadField label={t("dispatches.field.settlementNo")} value={tracking.data.settlement.settlement_no} />
-              <ReadField label={t("dispatches.field.settlementState")} value={tracking.data.settlement.state} />
-              <ReadField label={t("dispatches.field.settledWeight")} value={`${tracking.data.settlement.settled_weight_kg} kg`} />
-              <ReadField label={t("dispatches.field.settlementAmount")} value={tracking.data.settlement.total_amount ? `${tracking.data.settlement.currency} ${tracking.data.settlement.total_amount}` : null} />
+              <ReadField label={t("dispatches.field.settlementNo")} value={execution.settlement.settlement_no} />
+              <ReadField label={t("dispatches.field.settlementState")} value={execution.settlement.state} />
+              <ReadField label={t("dispatches.field.settledWeight")} value={`${execution.settlement.settled_weight_kg} kg`} />
+              <ReadField label={t("dispatches.field.settlementAmount")} value={execution.settlement.total_amount ? `${execution.settlement.currency} ${execution.settlement.total_amount}` : null} />
             </FormSection>
           )}
         </div>
       </div>
 
-      {releasing && (
+      {!isRecycler && releasing && (
         <ReleaseDialog id={id} onClose={() => setReleasing(false)} />
       )}
 
-      {cancelling && (
+      {!isRecycler && cancelling && (
         <ConfirmDialog
           open
           onOpenChange={() => {

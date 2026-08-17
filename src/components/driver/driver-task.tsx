@@ -11,6 +11,7 @@ import {
   Loader2,
   MapPin,
   PackageOpen,
+  Scale,
   Truck,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -68,6 +69,7 @@ export function DriverTask({ id }: { id: string }) {
   const [moving, setMoving] = useState<TaskState | null>(null);
   const [reason, setReason] = useState("");
   const [locating, setLocating] = useState(false);
+  const [gpsUnavailable, setGpsUnavailable] = useState(false);
   const [hasQueuedPhoto, setHasQueuedPhoto] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const lastPositionAt = useRef(0);
@@ -75,6 +77,7 @@ export function DriverTask({ id }: { id: string }) {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["tasks", "detail", id],
     queryFn: () => getTask(id),
+    refetchInterval: 15_000,
   });
 
   const advance = useMutation({
@@ -127,9 +130,16 @@ export function DriverTask({ id }: { id: string }) {
   });
 
   const upload = useMutation({
-    mutationFn: (file: File) => {
+    mutationFn: async (file: File) => {
       if (!user) throw new Error("A signed-in user is required.");
-      return submitTaskPhotoOfflineAware(user.id, id, file);
+      const position = await currentPosition();
+      const missingGps = !position.latitude || !position.longitude;
+      setGpsUnavailable(missingGps);
+      if (missingGps) throw new Error("driver_photo_gps_required");
+      return submitTaskPhotoOfflineAware(user.id, id, file, "LOADING", {
+        latitude: position.latitude,
+        longitude: position.longitude,
+      });
     },
     onSuccess: (result) => {
       if (result === "queued") {
@@ -147,6 +157,7 @@ export function DriverTask({ id }: { id: string }) {
 
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
+        setGpsUnavailable(false);
         const now = Date.now();
         if (now - lastPositionAt.current < 30_000) return;
         lastPositionAt.current = now;
@@ -158,7 +169,7 @@ export function DriverTask({ id }: { id: string }) {
           originalOccurredAt: new Date(position.timestamp).toISOString(),
         }).catch(() => undefined);
       },
-      () => undefined,
+      () => setGpsUnavailable(true),
       { enableHighAccuracy: true, maximumAge: 15_000, timeout: 20_000 },
     );
 
@@ -176,7 +187,7 @@ export function DriverTask({ id }: { id: string }) {
   return (
     <div className="space-y-4 pb-4">
       <Link
-        href="/driver"
+        href="/driver/jobs"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -250,7 +261,11 @@ export function DriverTask({ id }: { id: string }) {
         )}
       </div>
 
-      {data.project_latitude && data.project_longitude && (
+      {data.project_latitude &&
+        data.project_longitude &&
+        data.state !== "RETURNING" &&
+        data.state !== "DELIVERED" &&
+        data.state !== "COMPLETED" && (
         <Button asChild variant="outline" size="lg" className="h-12 w-full">
           <a
             href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${data.project_latitude},${data.project_longitude}`)}`}
@@ -262,6 +277,69 @@ export function DriverTask({ id }: { id: string }) {
             <ExternalLink className="ml-auto h-4 w-4" />
           </a>
         </Button>
+      )}
+
+      {data.site_latitude &&
+        data.site_longitude &&
+        data.state === "RETURNING" && (
+          <Button asChild variant="outline" size="lg" className="h-12 w-full">
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${data.site_latitude},${data.site_longitude}`)}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Truck className="h-4 w-4" />
+              {t("driver.returnYard")}
+              <ExternalLink className="ml-auto h-4 w-4" />
+            </a>
+          </Button>
+        )}
+
+      {data.weighing && (
+        <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Scale className="h-4 w-4 text-primary" />
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("ticket.section.weighing")}
+            </h2>
+          </div>
+          <dl className="space-y-2.5 text-sm">
+            <Row
+              icon={Scale}
+              label={t("ticket.field.grossWeight")}
+              value={data.weighing.gross_weight_kg ? `${data.weighing.gross_weight_kg} kg` : "—"}
+            />
+            <Row
+              icon={Scale}
+              label={t("ticket.field.tareWeight")}
+              value={data.weighing.tare_weight_kg ? `${data.weighing.tare_weight_kg} kg` : "—"}
+            />
+            <Row
+              icon={Scale}
+              label={t("ticket.field.netWeight")}
+              value={data.weighing.net_weight_kg ? `${data.weighing.net_weight_kg} kg` : "—"}
+            />
+          </dl>
+        </div>
+      )}
+
+      {data.state === "DELIVERED" && (
+        <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-4">
+          <p className="text-sm font-semibold text-foreground">
+            {t("driver.awaitingWeighing")}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("driver.awaitingWeighingBody")}
+          </p>
+        </div>
+      )}
+
+      {gpsUnavailable && (
+        <p className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground">
+          {upload.isError
+            ? t("driver.photoGpsRequired")
+            : t("driver.gpsUnavailable")}
+        </p>
       )}
 
       <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">

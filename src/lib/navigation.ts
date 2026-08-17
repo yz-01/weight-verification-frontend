@@ -73,6 +73,7 @@ export type PortalFeatureKey =
   | "user_logs"
   | "activity_logs"
   | "partnerships"
+  | "customer_management"
   | "yards"
   | "weighbridges"
   | "vehicles"
@@ -80,6 +81,8 @@ export type PortalFeatureKey =
   | "waste_orders"
   | "driver_tasks"
   | "weighing_records"
+  | "inventory_management"
+  | "outbound_management"
   | "payment_status"
   | "documents"
   | "approvals"
@@ -1159,6 +1162,7 @@ export const PORTAL_NAVIGATION = {
   MSE_SCRAP: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
     item("partnerships", "/partnerships", Handshake, "operations"),
+    item("customer_management", "/recycler-customers", Users, "operations"),
     item("yards", "/sites", Warehouse, "operations"),
     item("weighbridges", "/scales", Scale, "operations"),
     item("vehicles", "/vehicles", Truck, "operations"),
@@ -1173,6 +1177,8 @@ export const PORTAL_NAVIGATION = {
       "/gate",
       "/deductions",
     ]),
+    item("inventory_management", "/recycler-inventory", Box, "operations"),
+    item("outbound_management", "/recycler-outbound", Package, "operations"),
     item("payment_status", "/settlements", WalletCards, "finance"),
     item(
       "transaction_reports",
@@ -1235,7 +1241,15 @@ export function visibleNavigation(
   if (!portal || !features) return [];
 
   const visible = new Set(features);
-  const groups: NavGroup[] = [];
+  const groupOrder: FeatureNavItem["group"][] = [
+    "overview",
+    "operations",
+    "finance",
+    "system",
+  ];
+  const grouped = new Map<FeatureNavItem["group"], FeatureNavItem[]>(
+    groupOrder.map((key) => [key, []]),
+  );
 
   for (const navItem of PORTAL_NAVIGATION[portal]) {
     const visibleChildren = navItem.children?.filter((childItem) => {
@@ -1248,22 +1262,16 @@ export function visibleNavigation(
       return featureVisible && permissionVisible;
     });
     if (!visible.has(navItem.feature) && !visibleChildren?.length) continue;
-    const lastGroup = groups.at(-1);
     const visibleItem = {
       ...navItem,
       children: visibleChildren,
     };
-    if (lastGroup?.key === navItem.group) {
-      lastGroup.items.push(visibleItem);
-    } else {
-      groups.push({
-        key: navItem.group,
-        items: [visibleItem],
-      });
-    }
+    grouped.get(navItem.group)?.push(visibleItem);
   }
 
-  return groups;
+  return groupOrder
+    .map((key) => ({ key, items: grouped.get(key) ?? [] }))
+    .filter((group) => group.items.length > 0);
 }
 
 /** Whether a navigation entry matches the current route. */
@@ -1303,8 +1311,8 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/dispatches/create", permission: "dispatch.create" },
   { pattern: "/dispatches/:id/edit", permission: "dispatch.update" },
   { pattern: "/deductions/create", permission: "deduction.create" },
-  { pattern: "/sites/create", permission: "scale.manage" },
-  { pattern: "/sites/:id/edit", permission: "scale.manage" },
+  { pattern: "/sites/create", permission: "yard.manage" },
+  { pattern: "/sites/:id/edit", permission: "yard.manage" },
   { pattern: "/scales/create", permission: "scale.manage" },
   { pattern: "/scales/:id/edit", permission: "scale.manage" },
   { pattern: "/vehicles/create", permission: "fleet.manage" },

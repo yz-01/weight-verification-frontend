@@ -159,6 +159,8 @@ async function uploadJob(job: OfflineJob): Promise<void> {
     data.append("kind", job.payload.kind);
     data.append("taken_at", job.payload.originalOccurredAt);
     data.append("client_event_id", job.payload.clientEventId);
+    if (job.payload.latitude) data.append("latitude", job.payload.latitude);
+    if (job.payload.longitude) data.append("longitude", job.payload.longitude);
     await api.post(`/api/tasks/${job.payload.taskId}/add_photo/`, data, {
       silent: true,
     });
@@ -367,6 +369,7 @@ export async function submitTaskPhotoOfflineAware(
   taskId: string,
   file: File,
   kind = "LOADING",
+  location: { latitude?: string; longitude?: string } = {},
 ): Promise<OfflineSubmission> {
   const now = new Date().toISOString();
   const job: Extract<OfflineJob, { kind: "TASK_PHOTO" }> = {
@@ -381,6 +384,8 @@ export async function submitTaskPhotoOfflineAware(
       kind,
       originalOccurredAt: now,
       clientEventId: newId("task-photo"),
+      latitude: location.latitude,
+      longitude: location.longitude,
       file: storeFile(file),
     },
   };
@@ -743,6 +748,17 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
   notifyQueueChanged();
   if (synced > 0) toastSuccess("offline.synced", { count: synced });
   return { synced, remaining };
+}
+
+export async function getOfflineQueueSummary(ownerId: string): Promise<{
+  pending: number;
+  failed: number;
+}> {
+  const jobs = await getOfflineJobs(ownerId);
+  return {
+    pending: jobs.length,
+    failed: jobs.filter((job) => job.attempts > 0).length,
+  };
 }
 
 export { countOfflineJobs };
