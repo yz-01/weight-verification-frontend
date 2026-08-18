@@ -5,7 +5,11 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const isTypeGeneration = process.env.npm_lifecycle_event === "typecheck";
 const deploymentId =
-  (process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA)?.slice(0, 32);
+  (
+    process.env.VERCEL_DEPLOYMENT_ID ??
+    process.env.VERCEL_GIT_COMMIT_SHA ??
+    process.env.GITHUB_SHA
+  )?.slice(0, 32);
 
 if (process.env.NODE_ENV === "production" && !isTypeGeneration) {
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;

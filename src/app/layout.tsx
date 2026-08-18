@@ -46,6 +46,7 @@ export default async function RootLayout({
   // property of the account, so it must not appear in any shareable link.
   const locale = await getLocale();
   const deploymentId =
+    process.env.VERCEL_DEPLOYMENT_ID ??
     process.env.VERCEL_GIT_COMMIT_SHA ??
     process.env.GITHUB_SHA ??
     "development";
