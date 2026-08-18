@@ -94,6 +94,29 @@ export function WeighSessions() {
         ),
       },
       {
+        accessorKey: "ticket_status",
+        meta: { label: t("weighing.field.ticketStatus") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("weighing.field.ticketStatus")}
+          </span>
+        ),
+        cell: ({ row }) => (
+          <StatusBadge
+            label={t(`weighing.ticketStatus.${row.original.ticket_status}`)}
+            tone={
+              row.original.ticket_status === "CONFIRMED"
+                ? "positive"
+                : row.original.ticket_status === "VOIDED"
+                  ? "danger"
+                  : row.original.ticket_status === "PENDING_CONFIRMATION"
+                    ? "warning"
+                    : "neutral"
+            }
+          />
+        ),
+      },
+      {
         accessorKey: "stable_weight_kg",
         meta: { label: t("weighing.field.stableWeight") },
         header: ({ column }) => (

@@ -24,6 +24,13 @@ import {
   getMyDriverProfile,
   updateMyDriverSettings,
 } from "@/services/recycler.service";
+import {
+  disablePushNotifications,
+  enablePushNotifications,
+  getPushConfig,
+  getPushSubscriptionStatus,
+  isPushSupported,
+} from "@/services/push-notification.service";
 
 export function DriverSettings() {
   const t = useTranslations();
@@ -40,6 +47,42 @@ export function DriverSettings() {
     mutationFn: updateMyDriverSettings,
     onSuccess: (driver) => {
       queryClient.setQueryData(["driver", "profile"], driver);
+    },
+  });
+  const pushQuery = useQuery({
+    queryKey: ["driver", "push-subscription"],
+    queryFn: async () => {
+      const supported = isPushSupported();
+      if (!supported) {
+        return { configured: false, enabled: false, permission: "default" };
+      }
+      const config = await getPushConfig();
+      return {
+        configured: config.configured,
+        enabled: config.configured
+          ? await getPushSubscriptionStatus()
+          : false,
+        permission: Notification.permission,
+      };
+    },
+    retry: false,
+    staleTime: 30_000,
+  });
+  const updatePush = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      if (enabled) return enablePushNotifications();
+      await disablePushNotifications();
+      return false;
+    },
+    onSuccess: (enabled) => {
+      queryClient.setQueryData(["driver", "push-subscription"], {
+        configured: pushQuery.data?.configured ?? false,
+        enabled,
+        permission:
+          typeof Notification === "undefined"
+            ? "default"
+            : Notification.permission,
+      });
     },
   });
 
@@ -104,6 +147,37 @@ export function DriverSettings() {
       </SettingsSection>
 
       <SettingsSection icon={Bell} title={t("driver.settings.notifications")}>
+        <div className="flex min-h-16 items-center gap-3 px-4 py-3">
+          <Bell className="h-5 w-5 shrink-0 text-primary" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">
+              {t(
+                pushQuery.data?.enabled
+                  ? "notifications.push.enabled"
+                  : "notifications.push.enable",
+              )}
+            </p>
+            {pushQuery.data && !pushQuery.data.configured && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("notifications.push.notConfigured")}
+              </p>
+            )}
+            {pushQuery.data?.permission === "denied" && (
+              <p className="mt-1 text-xs text-destructive">
+                {t("notifications.push.permissionDenied")}
+              </p>
+            )}
+          </div>
+          <Switch
+            checked={pushQuery.data?.enabled ?? false}
+            disabled={
+              !pushQuery.data?.configured ||
+              pushQuery.isFetching ||
+              updatePush.isPending
+            }
+            onCheckedChange={(checked) => updatePush.mutate(checked)}
+          />
+        </div>
         <ToggleRow
           label={t("driver.settings.newTasks")}
           checked={preferences.notify_new_tasks}
@@ -121,6 +195,10 @@ export function DriverSettings() {
           checked={preferences.notify_system}
           disabled={update.isPending}
           onChange={(checked) => setPreference("notify_system", checked)}
+        />
+        <AboutRow
+          label={t("users.field.email")}
+          value={driver.user_email || t("common.emptyValue")}
         />
       </SettingsSection>
 

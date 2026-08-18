@@ -1,4 +1,4 @@
-const CACHE_NAME = "mse-trace-shell-v11";
+const CACHE_NAME = "mse-trace-shell-v12";
 const PRECACHE = [
   "/offline",
   "/mse-icon.svg",
@@ -51,8 +51,30 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (request.mode === "navigate") {
+    const isDriverNavigation =
+      url.pathname === "/driver" || url.pathname.startsWith("/driver/");
     event.respondWith(
-      fetch(request, { cache: "no-store" }).catch(() => caches.match("/offline")),
+      fetch(request, { cache: "no-store" })
+        .then((response) => {
+          if (isDriverNavigation && response.ok) {
+            const cachedResponse = response.clone();
+            event.waitUntil(
+              caches
+                .open(CACHE_NAME)
+                .then((cache) => cache.put(request, cachedResponse)),
+            );
+          }
+          return response;
+        })
+        .catch(async () => {
+          if (isDriverNavigation) {
+            const exact = await caches.match(request, { ignoreSearch: true });
+            if (exact) return exact;
+            const driverShell = await caches.match("/driver");
+            if (driverShell) return driverShell;
+          }
+          return caches.match("/offline");
+        }),
     );
     return;
   }

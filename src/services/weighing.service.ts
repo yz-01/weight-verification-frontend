@@ -1,8 +1,7 @@
 /** The Cloud Weighing Engine's read and configuration paths.
 
-There is deliberately no way to alter a reading or a verdict from here. The
-backend refuses it and offers no action for it: a weighing is judged once, by
-the rules in force at the time, and afterwards it can only be looked at.
+Raw readings and the engine verdict remain immutable. Operator actions below
+only control when a valid gross/tare pair becomes an official business ticket.
 */
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
@@ -19,6 +18,7 @@ import type {
   WeighingRuleSet,
   WeighAnomalyRow,
   WeighSessionDetail,
+  WeighSessionAttachment,
   WeighSessionRow,
   WeighSessionSummary,
 } from "@/interfaces/weighing";
@@ -173,6 +173,58 @@ export function getWeighSession(id: string): Promise<WeighSessionDetail> {
   return api.get<WeighSessionDetail>(
     `/api/weigh-sessions/${id}/get_session/`,
   );
+}
+
+export async function confirmWeighTicket(
+  id: string,
+  note = "",
+): Promise<WeighSessionDetail> {
+  const ticket = await api.post<WeighSessionDetail>(
+    `/api/weigh-sessions/${id}/confirm_ticket/`,
+    { note },
+  );
+  toastSuccess("weighing.toast.confirmed");
+  return ticket;
+}
+
+export async function voidWeighTicket(
+  id: string,
+  reason: string,
+): Promise<WeighSessionDetail> {
+  const ticket = await api.post<WeighSessionDetail>(
+    `/api/weigh-sessions/${id}/void_ticket/`,
+    { reason },
+  );
+  toastSuccess("weighing.toast.voided");
+  return ticket;
+}
+
+export async function requestTicketReweigh(
+  id: string,
+  reason: string,
+): Promise<WeighSessionDetail> {
+  const result = await api.post<{
+    ticket: WeighSessionDetail;
+    gate_binding: unknown;
+  }>(`/api/weigh-sessions/${id}/request_reweigh/`, { reason });
+  toastSuccess("weighing.toast.reweighQueued");
+  return result.ticket;
+}
+
+export async function uploadWeighAttachment(
+  id: string,
+  kind: WeighSessionAttachment["kind"],
+  file: File,
+): Promise<WeighSessionAttachment> {
+  const body = new FormData();
+  body.append("kind", kind);
+  body.append("file", file);
+  const attachment = await api.post<WeighSessionAttachment>(
+    `/api/weigh-sessions/${id}/upload_attachment/`,
+    body,
+  );
+  toastSuccess("weighing.toast.attachmentUploaded");
+  return attachment;
 }
 
 /** Every reading, for replaying the weighing as a curve. */

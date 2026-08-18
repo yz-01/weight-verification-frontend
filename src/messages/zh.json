@@ -4719,7 +4719,19 @@
       "readingCount": "读数条数",
       "anomalyCount": "异常数",
       "stableAt": "稳定时刻",
-      "duration": "时长"
+      "duration": "时长",
+      "ticketStatus": "地磅单状态",
+      "grossWeight": "毛重",
+      "tareWeight": "皮重",
+      "netWeight": "净重",
+      "confirmedAt": "确认时间",
+      "confirmedBy": "确认人员",
+      "confirmationNote": "确认备注",
+      "voidedAt": "作废时间",
+      "voidedBy": "作废人员",
+      "voidReason": "作废原因",
+      "reweighOf": "重磅原单",
+      "attachmentCount": "证据文件"
     },
     "direction": {
       "GROSS": "毛重",
@@ -4736,6 +4748,47 @@
       "PENDING": "待判定",
       "VALID": "有效",
       "INVALID": "无效"
+    },
+    "ticketStatus": {
+      "WEIGHING": "称重中",
+      "PENDING_CONFIRMATION": "待操作员确认",
+      "CONFIRMED": "正式地磅单已确认",
+      "VOIDED": "地磅单已作废"
+    },
+    "action": {
+      "confirm": "确认地磅单",
+      "void": "作废地磅单",
+      "reweigh": "申请重新过磅",
+      "uploadEvidence": "添加证据"
+    },
+    "confirmDialog": {
+      "title": "确认这张地磅单吗？",
+      "description": "确认后地磅单会锁定，订单、库存和结算可能随之更新。",
+      "noteLabel": "备注（可选）",
+      "reweighTitle": "申请重新过磅吗？",
+      "reweighDescription": "当前地磅单会保留在历史中并标记为作废，系统会为此订单排队新的毛重过磅。",
+      "voidTitle": "作废这张地磅单吗？",
+      "voidDescription": "原始读数会永久保留在审计记录中，不能修改。",
+      "reasonLabel": "原因（必填）"
+    },
+    "attachment": {
+      "title": "证据文件",
+      "kind": "证据类型",
+      "file": "文件",
+      "choose": "选择文件",
+      "LOADING": "装货照片",
+      "WEIGHBRIDGE": "地磅照片",
+      "CCTV": "CCTV 图像",
+      "ANPR": "ANPR 图像",
+      "OTHER": "其他证据",
+      "upload": "上传证据",
+      "empty": "暂时没有证据文件。"
+    },
+    "toast": {
+      "confirmed": "地磅单已确认",
+      "voided": "地磅单已作废",
+      "reweighQueued": "已排队重新过磅",
+      "attachmentUploaded": "证据已上传"
     },
     "requiresReview": "需人工介入",
     "requiresReviewHint": "重称次数已超过上限，这笔交易停下来等人处理。",

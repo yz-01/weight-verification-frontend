@@ -5,6 +5,7 @@ import { ChevronRight, MapPin, PackageOpen, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import {
   DriverError,
   DriverLoading,
@@ -13,7 +14,7 @@ import { TASK_STATE_TONE } from "@/components/tasks/tasks";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import type { DriverTask } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { getTasks } from "@/services/recycler.service";
+import { getDriverTasksOfflineAware } from "@/services/driver-offline.service";
 
 /**
  * The driver's day.
@@ -29,10 +30,12 @@ import { getTasks } from "@/services/recycler.service";
  */
 export function DriverTasks() {
   const t = useTranslations();
+  const { user } = useAuth();
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["tasks", "mine"],
-    queryFn: () => getTasks({ page_size: 50, today: true }),
+    queryFn: () => getDriverTasksOfflineAware(user!.id),
+    enabled: Boolean(user),
     // A driver leaves this open in the cab; a dispatcher may add a job while
     // they are driving. Polling is cheaper than teaching them to pull down.
     refetchInterval: 30_000,

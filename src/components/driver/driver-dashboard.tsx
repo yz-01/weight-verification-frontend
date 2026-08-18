@@ -21,6 +21,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { useOfflineSync } from "@/components/providers/offline-sync-provider";
+import { useAuth } from "@/components/providers/auth-provider";
 import { DriverError, DriverLoading } from "@/components/driver/driver-shell";
 import { useDriverDeviceStatus } from "@/components/driver/use-driver-device-status";
 import { StatusBadge } from "@/components/shared/page-primitives";
@@ -28,16 +29,18 @@ import { TASK_STATE_TONE } from "@/components/tasks/tasks";
 import { Button } from "@/components/ui/button";
 import type { DriverTaskDetail } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { getDriverDashboard } from "@/services/recycler.service";
+import { getDriverDashboardOfflineAware } from "@/services/driver-offline.service";
 
 export function DriverDashboard() {
   const t = useTranslations();
   const df = useDateFormat();
   const sync = useOfflineSync();
+  const { user } = useAuth();
   const { gpsStatus, requestGps } = useDriverDeviceStatus();
   const query = useQuery({
     queryKey: ["driver", "dashboard"],
-    queryFn: getDriverDashboard,
+    queryFn: () => getDriverDashboardOfflineAware(user!.id),
+    enabled: Boolean(user),
     refetchInterval: 15_000,
   });
 

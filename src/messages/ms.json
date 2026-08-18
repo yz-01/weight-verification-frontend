@@ -4733,7 +4733,19 @@
       "readingCount": "Bacaan",
       "anomalyCount": "Anomali",
       "stableAt": "Stabil pada",
-      "duration": "Tempoh"
+      "duration": "Tempoh",
+      "ticketStatus": "Status tiket timbang",
+      "grossWeight": "Berat kasar",
+      "tareWeight": "Berat kosong",
+      "netWeight": "Berat bersih",
+      "confirmedAt": "Disahkan pada",
+      "confirmedBy": "Disahkan oleh",
+      "confirmationNote": "Catatan pengesahan",
+      "voidedAt": "Dibatalkan pada",
+      "voidedBy": "Dibatalkan oleh",
+      "voidReason": "Sebab pembatalan",
+      "reweighOf": "Timbang semula daripada",
+      "attachmentCount": "Fail bukti"
     },
     "direction": {
       "GROSS": "Kasar",
@@ -4750,6 +4762,47 @@
       "PENDING": "Menunggu",
       "VALID": "Sah",
       "INVALID": "Tidak sah"
+    },
+    "ticketStatus": {
+      "WEIGHING": "Sedang menimbang",
+      "PENDING_CONFIRMATION": "Menunggu pengesahan operator",
+      "CONFIRMED": "Tiket rasmi disahkan",
+      "VOIDED": "Tiket dibatalkan"
+    },
+    "action": {
+      "confirm": "Sahkan tiket",
+      "void": "Batalkan tiket",
+      "reweigh": "Minta timbang semula",
+      "uploadEvidence": "Tambah bukti"
+    },
+    "confirmDialog": {
+      "title": "Sahkan tiket timbang ini?",
+      "description": "Selepas disahkan, tiket dikunci dan pesanan, inventori serta penyelesaian mungkin dikemas kini.",
+      "noteLabel": "Catatan pilihan",
+      "reweighTitle": "Minta timbang semula?",
+      "reweighDescription": "Tiket semasa kekal dalam sejarah sebagai dibatalkan. Timbangan kasar baharu akan beratur untuk pesanan ini.",
+      "voidTitle": "Batalkan tiket timbang ini?",
+      "voidDescription": "Bacaan asal kekal dalam rekod audit dan tidak boleh disunting.",
+      "reasonLabel": "Sebab (wajib)"
+    },
+    "attachment": {
+      "title": "Fail bukti",
+      "kind": "Jenis bukti",
+      "file": "Fail",
+      "choose": "Pilih fail",
+      "LOADING": "Foto memuat",
+      "WEIGHBRIDGE": "Foto jambatan timbang",
+      "CCTV": "Imej CCTV",
+      "ANPR": "Imej ANPR",
+      "OTHER": "Bukti lain",
+      "upload": "Muat naik bukti",
+      "empty": "Tiada fail bukti dilampirkan."
+    },
+    "toast": {
+      "confirmed": "Tiket timbang disahkan",
+      "voided": "Tiket timbang dibatalkan",
+      "reweighQueued": "Timbang semula telah beratur",
+      "attachmentUploaded": "Bukti dimuat naik"
     },
     "requiresReview": "Perlu semakan",
     "requiresReviewHint": "Percubaan telah melebihi had. Transaksi ini menunggu orang.",

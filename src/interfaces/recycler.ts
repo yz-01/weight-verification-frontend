@@ -58,6 +58,7 @@ export interface Driver {
   default_vehicle_plate: string | null;
   user: string | null;
   user_email: string | null;
+  language: "en" | "zh" | "ms" | null;
   company_name: string;
   is_active: boolean;
   notify_new_tasks: boolean;
@@ -200,6 +201,8 @@ export interface DriverTaskDetail extends DriverTask {
   weighing: DriverWeighingSummary | null;
   created_at: string;
   updated_at: string;
+  /** Photos held in IndexedDB until connectivity returns. */
+  local_pending_photo_count?: number;
 }
 
 export interface DriverWeighingSummary {

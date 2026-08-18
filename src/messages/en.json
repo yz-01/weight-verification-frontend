@@ -4739,7 +4739,19 @@
       "readingCount": "Readings",
       "anomalyCount": "Anomalies",
       "stableAt": "Settled at",
-      "duration": "Duration"
+      "duration": "Duration",
+      "ticketStatus": "Ticket status",
+      "grossWeight": "Gross weight",
+      "tareWeight": "Tare weight",
+      "netWeight": "Net weight",
+      "confirmedAt": "Confirmed at",
+      "confirmedBy": "Confirmed by",
+      "confirmationNote": "Confirmation note",
+      "voidedAt": "Voided at",
+      "voidedBy": "Voided by",
+      "voidReason": "Void reason",
+      "reweighOf": "Re-weigh of",
+      "attachmentCount": "Evidence files"
     },
     "direction": {
       "GROSS": "Gross",
@@ -4756,6 +4768,47 @@
       "PENDING": "Pending",
       "VALID": "Valid",
       "INVALID": "Invalid"
+    },
+    "ticketStatus": {
+      "WEIGHING": "Weighing",
+      "PENDING_CONFIRMATION": "Waiting for operator confirmation",
+      "CONFIRMED": "Official ticket confirmed",
+      "VOIDED": "Ticket voided"
+    },
+    "action": {
+      "confirm": "Confirm ticket",
+      "void": "Void ticket",
+      "reweigh": "Request re-weigh",
+      "uploadEvidence": "Add evidence"
+    },
+    "confirmDialog": {
+      "title": "Confirm this weighing ticket?",
+      "description": "After confirmation, the ticket is locked and the order, inventory and settlement may update.",
+      "noteLabel": "Optional note",
+      "reweighTitle": "Request a re-weigh?",
+      "reweighDescription": "The current ticket stays in the history as voided. A new gross weighing will be queued for this order.",
+      "voidTitle": "Void this weighing ticket?",
+      "voidDescription": "The original readings stay in the audit history and cannot be edited.",
+      "reasonLabel": "Reason (required)"
+    },
+    "attachment": {
+      "title": "Evidence files",
+      "kind": "Evidence type",
+      "file": "File",
+      "choose": "Choose a file",
+      "LOADING": "Loading photo",
+      "WEIGHBRIDGE": "Weighbridge photo",
+      "CCTV": "CCTV image",
+      "ANPR": "ANPR image",
+      "OTHER": "Other evidence",
+      "upload": "Upload evidence",
+      "empty": "No evidence files attached yet."
+    },
+    "toast": {
+      "confirmed": "Weighing ticket confirmed",
+      "voided": "Weighing ticket voided",
+      "reweighQueued": "Re-weigh queued",
+      "attachmentUploaded": "Evidence uploaded"
     },
     "requiresReview": "Needs review",
     "requiresReviewHint": "Attempts have run past the limit. This transaction waits for a person.",

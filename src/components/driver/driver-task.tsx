@@ -38,9 +38,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TASK_TRANSITIONS, type TaskState } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import {
-  getTask,
-} from "@/services/recycler.service";
+import { getDriverTaskOfflineAware } from "@/services/driver-offline.service";
 import {
   submitTaskPhotoOfflineAware,
   submitTaskPositionOfflineAware,
@@ -76,7 +74,8 @@ export function DriverTask({ id }: { id: string }) {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["tasks", "detail", id],
-    queryFn: () => getTask(id),
+    queryFn: () => getDriverTaskOfflineAware(user!.id, id),
+    enabled: Boolean(user),
     refetchInterval: 15_000,
   });
 
@@ -118,7 +117,13 @@ export function DriverTask({ id }: { id: string }) {
         queryClient.setQueryData(
           ["tasks", "detail", id],
           (current: typeof data) =>
-            current ? { ...current, state, is_running: true } : current,
+            current
+              ? {
+                  ...current,
+                  state,
+                  is_running: !["COMPLETED", "CANCELLED", "FAILED"].includes(state),
+                }
+              : current,
         );
       } else {
         void queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -180,6 +185,8 @@ export function DriverTask({ id }: { id: string }) {
   if (isError || !data) return <DriverError onRetry={() => void refetch()} />;
 
   const next = TASK_TRANSITIONS[data.state];
+  const hasPendingPhoto =
+    hasQueuedPhoto || (data.local_pending_photo_count ?? 0) > 0;
   // The step that carries the trip forward, as opposed to abandoning it.
   const forward = next.find((state) => state !== "FAILED" && state !== "CANCELLED");
   const canFail = next.includes("FAILED");
@@ -410,7 +417,7 @@ export function DriverTask({ id }: { id: string }) {
       )}
 
       {/* The next step, as one button the size of a thumb. */}
-      {forward === "LOADED" && data.photos.length === 0 && !hasQueuedPhoto && (
+      {forward === "LOADED" && data.photos.length === 0 && !hasPendingPhoto && (
         <p className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground">
           {t("driver.photoRequired")}
         </p>
@@ -424,7 +431,7 @@ export function DriverTask({ id }: { id: string }) {
             locating ||
             (forward === "LOADED" &&
               data.photos.length === 0 &&
-              !hasQueuedPhoto)
+              !hasPendingPhoto)
           }
           onClick={() => setMoving(forward)}
         >

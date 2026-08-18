@@ -2,6 +2,7 @@ import { ApiError } from "@/interfaces/api";
 import type { AttendanceEvent } from "@/interfaces/site-operations";
 import type { SafetyIncidentPayload } from "@/interfaces/site-operations";
 import type { MaterialReceiptPayload } from "@/interfaces/contractor";
+import type { TaskState } from "@/interfaces/recycler";
 import {
   countOfflineJobs,
   deleteOfflineJob,
@@ -23,6 +24,11 @@ import {
 } from "@/services/contractor-ops.service";
 import { createSafetyIncident } from "@/services/site-operations.service";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
+import {
+  cleanupSettledDriverSnapshots,
+  recordDriverTaskPhotoLocally,
+  recordDriverTaskTransitionLocally,
+} from "@/services/driver-offline.service";
 
 export const OFFLINE_QUEUE_CHANGED = "mse:offline-queue-changed";
 
@@ -38,7 +44,7 @@ interface AttendanceDraft {
 
 interface TaskTransitionDraft {
   taskId: string;
-  state: string;
+  state: TaskState;
   latitude?: string;
   longitude?: string;
   notes?: string;
@@ -355,13 +361,25 @@ export async function submitTaskTransitionOfflineAware(
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
       await uploadJob(job);
+      await recordDriverTaskTransitionLocally(
+        ownerId,
+        draft.taskId,
+        draft.state,
+      ).catch(() => undefined);
+      await cleanupSettledDriverSnapshots(ownerId).catch(() => undefined);
       toastSuccess("tasks.toast.advanced");
       return "uploaded";
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
     }
   }
-  return enqueue(job);
+  const result = await enqueue(job);
+  await recordDriverTaskTransitionLocally(
+    ownerId,
+    draft.taskId,
+    draft.state,
+  ).catch(() => undefined);
+  return result;
 }
 
 export async function submitTaskPhotoOfflineAware(
@@ -399,7 +417,9 @@ export async function submitTaskPhotoOfflineAware(
       if (!isNetworkFailure(error)) throw error;
     }
   }
-  return enqueue(job);
+  const result = await enqueue(job);
+  await recordDriverTaskPhotoLocally(ownerId, taskId).catch(() => undefined);
+  return result;
 }
 
 export async function submitTaskPositionOfflineAware(
@@ -745,6 +765,7 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
   }
 
   const remaining = await countOfflineJobs(ownerId);
+  await cleanupSettledDriverSnapshots(ownerId).catch(() => undefined);
   notifyQueueChanged();
   if (synced > 0) toastSuccess("offline.synced", { count: synced });
   return { synced, remaining };

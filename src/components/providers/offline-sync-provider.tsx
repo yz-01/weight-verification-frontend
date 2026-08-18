@@ -7,11 +7,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { OFFLINE_SYNC_REQUESTED } from "@/components/providers/service-worker-registration";
+import { clearDriverSnapshots } from "@/lib/offline-db";
 import {
   flushOfflineJobs,
   getOfflineQueueSummary,
@@ -40,6 +42,16 @@ export function OfflineSyncProvider({ children }: { children: React.ReactNode })
   const [pendingCount, setPendingCount] = useState(0);
   const [failedCount, setFailedCount] = useState(0);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const previousOwnerId = useRef<string | null>(null);
+
+  useEffect(() => {
+    const previous = previousOwnerId.current;
+    const current = user?.id ?? null;
+    if (previous && previous !== current) {
+      void clearDriverSnapshots(previous).catch(() => undefined);
+    }
+    previousOwnerId.current = current;
+  }, [user?.id]);
 
   const refreshCount = useCallback(async () => {
     if (!user) {
