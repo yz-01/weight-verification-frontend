@@ -3,12 +3,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BellRing,
+  ArrowLeft,
+  ChevronRight,
   Camera,
   Check,
   ClipboardCheck,
   ClipboardList,
   Clock3,
   FileText,
+  FolderOpen,
   Grid2X2,
   HardHat,
   House,
@@ -30,13 +33,14 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   FieldRecordsPanel,
   type FieldRecordMode,
 } from "@/components/field-staff/field-records-panel";
+import { FIELD_EVIDENCE_PHOTO_COUNT } from "@/components/field-staff/field-evidence-grid";
 import { IncidentReporting } from "@/components/incident-reporting/incident-reporting";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
@@ -48,6 +52,7 @@ import type { FieldTask } from "@/interfaces/contractor-ops";
 import type { AttendanceEvent } from "@/interfaces/site-operations";
 import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
+import { fieldNotificationHref } from "@/lib/field-notification";
 import { getFieldTasks } from "@/services/contractor-ops.service";
 import { getProjects } from "@/services/contractor.service";
 import {
@@ -79,13 +84,35 @@ function locate(): Promise<LocationFix> {
 }
 
 export function FieldStaffWorkspace() {
-  const t = useTranslations("fieldStaffPwa");
-  const { user } = useAuth();
   const searchParams = useSearchParams();
   const requestedTaskId = searchParams.get("task") ?? "";
   const requestedTab = searchParams.get("tab") as MobileTab | null;
   const requestedRecord = searchParams.get("record") as FieldRecordMode | null;
   const supplierToken = searchParams.get("supplier_token") ?? "";
+
+  return (
+    <FieldStaffWorkspaceContent
+      requestedTaskId={requestedTaskId}
+      requestedTab={requestedTab}
+      requestedRecord={requestedRecord}
+      supplierToken={supplierToken}
+    />
+  );
+}
+
+function FieldStaffWorkspaceContent({
+  requestedTaskId,
+  requestedTab,
+  requestedRecord,
+  supplierToken,
+}: {
+  requestedTaskId: string;
+  requestedTab: MobileTab | null;
+  requestedRecord: FieldRecordMode | null;
+  supplierToken: string;
+}) {
+  const t = useTranslations("fieldStaffPwa");
+  const { user } = useAuth();
   const [tab, setTab] = useState<MobileTab>(
     requestedTab && ["home", "tasks", "attendance", "records", "location", "incidents"].includes(requestedTab)
       ? requestedTab
@@ -96,10 +123,70 @@ export function FieldStaffWorkspace() {
         : "home",
   );
   const [taskType, setTaskType] = useState<FieldTask["task_type"]>();
+  const [focusedTaskId, setFocusedTaskId] = useState(requestedTaskId);
   const [activeTask, setActiveTask] = useState<FieldTask | null>(null);
   const [recordMode, setRecordMode] = useState<FieldRecordMode | null>(
     requestedRecord,
   );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (requestedTaskId) {
+        setFocusedTaskId(requestedTaskId);
+        setTab("tasks");
+        return;
+      }
+      if (requestedRecord) {
+        setRecordMode(requestedRecord);
+        setTab("records");
+        return;
+      }
+      if (
+        requestedTab &&
+        ["home", "tasks", "attendance", "records", "location", "incidents"].includes(
+          requestedTab,
+        )
+      ) {
+        setTab(requestedTab);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [requestedRecord, requestedTab, requestedTaskId]);
+
+  const replaceFieldUrl = (
+    nextTab: MobileTab,
+    nextRecord?: FieldRecordMode | null,
+  ) => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("task");
+    url.searchParams.delete("record");
+    url.searchParams.delete("supplier_token");
+    if (nextTab === "home") url.searchParams.delete("tab");
+    else url.searchParams.set("tab", nextTab);
+    if (nextRecord) url.searchParams.set("record", nextRecord);
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
+  };
+
+  const openTab = (nextTab: MobileTab) => {
+    setFocusedTaskId("");
+    setTaskType(undefined);
+    setRecordMode(null);
+    setActiveTask(null);
+    setTab(nextTab);
+    replaceFieldUrl(nextTab);
+  };
+
+  const openRecord = (mode: FieldRecordMode) => {
+    setFocusedTaskId("");
+    setActiveTask(null);
+    setRecordMode(mode);
+    setTab("records");
+    replaceFieldUrl("records", mode);
+  };
   const projects = useQuery({
     queryKey: ["projects", "options"],
     queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
@@ -107,40 +194,46 @@ export function FieldStaffWorkspace() {
   });
   const projectNames = (projects.data?.results ?? []).map((project) => project.name);
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] flex-col space-y-5">
-      <section className="rounded-xl bg-foreground px-5 py-5 text-background shadow-sm">
-        <p className="text-sm text-background/70">{t("today", { date: new Date().toLocaleDateString() })}</p>
-        <h1 className="mt-1 text-2xl font-semibold">{t("greeting", { name: user?.full_name ?? "" })}</h1>
-        <div className="mt-3 grid gap-1 text-sm text-background/75">
-          <p>{t("identity.company", { company: user?.company_name ?? "-" })}</p>
-          <p>{t("identity.role", { role: user?.role_name ?? "-" })}</p>
-          <p>{t("identity.projects", { projects: projectNames.length ? projectNames.join(", ") : t("identity.noProject") })}</p>
+    <div className="flex min-h-[calc(100dvh-4rem)] min-w-0 flex-col gap-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+      <section className="-mx-4 -mt-5 border-b bg-card px-4 py-5 shadow-[0_8px_24px_rgb(0_0_0/0.035)]">
+        <p className="text-xs font-medium text-muted-foreground">
+          {t("today", { date: new Date().toLocaleDateString() })}
+        </p>
+        <h1 className="mt-1 text-2xl font-semibold leading-tight">
+          {t("greeting", { name: user?.full_name ?? "" })}
+        </h1>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs">
+          <span className="rounded-md border bg-muted/40 px-2.5 py-1.5 font-medium">
+            {t("identity.company", { company: user?.company_name ?? "-" })}
+          </span>
+          <span className="rounded-md border bg-muted/40 px-2.5 py-1.5 font-medium">
+            {t("identity.role", { role: user?.role_name ?? "-" })}
+          </span>
         </div>
+        <p className="mt-3 text-sm leading-5 text-muted-foreground">
+          {t("identity.projects", {
+            projects: projectNames.length
+              ? projectNames.join(", ")
+              : t("identity.noProject"),
+          })}
+        </p>
       </section>
 
       {tab === "home" && (
         <FieldHomePanel
-          onOpen={(next) => {
-            setTaskType(undefined);
-            setRecordMode(null);
-            setActiveTask(null);
-            setTab(next);
-          }}
-          onRecord={(mode) => {
-            setActiveTask(null);
-            setRecordMode(mode);
-            setTab("records");
-          }}
+          onOpen={openTab}
+          onRecord={openRecord}
         />
       )}
       {tab === "tasks" && (
         <FieldTaskPanel
           taskType={taskType}
-          requestedTaskId={requestedTaskId}
+          requestedTaskId={focusedTaskId}
           onOpenWorkflow={(task, mode) => {
             setActiveTask(task);
             setRecordMode(mode);
             setTab("records");
+            replaceFieldUrl("records", mode);
           }}
         />
       )}
@@ -153,22 +246,36 @@ export function FieldStaffWorkspace() {
           onModeChange={(mode) => {
             setRecordMode(mode);
             if (!mode) setActiveTask(null);
+            replaceFieldUrl("records", mode);
           }}
         />
       )}
-      {tab === "location" && <FieldStaffGps />}
-      {tab === "incidents" && <FieldIncidentsPanel />}
+      {tab === "location" && <FieldStaffGps managedAutomatically />}
+      {tab === "incidents" && (
+        <FieldIncidentsPanel
+          onHome={() => {
+            openTab("home");
+          }}
+        />
+      )}
 
-      <nav className="sticky bottom-0 z-30 mt-auto border-t bg-card pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2">
-        <div className="mx-auto grid max-w-2xl grid-cols-5 gap-1 px-3">
-          <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => setTab("home")} />
-          <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => { setTaskType(undefined); setTab("tasks"); }} />
-          <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => setTab("attendance")} />
-          <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => { setRecordMode(null); setTab("records"); }} />
-          <MobileNavButton active={tab === "incidents"} icon={MessageSquarePlus} label={t("nav.incidents")} onClick={() => setTab("incidents")} />
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgb(0_0_0/0.06)] backdrop-blur">
+        <div className="mx-auto grid max-w-2xl grid-cols-6 gap-1 px-3">
+          <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => openTab("home")} />
+          <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => openTab("tasks")} />
+          <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
+          <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
+          <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => openTab("location")} />
+          <MobileNavButton active={tab === "incidents"} icon={MessageSquarePlus} label={t("nav.incidents")} onClick={() => openTab("incidents")} />
         </div>
       </nav>
-      {tab === "home" && <p className="text-center text-xs text-muted-foreground">{t("identity.version", { version: process.env.NEXT_PUBLIC_APP_VERSION ?? "0.1.0" })}</p>}
+      {tab === "home" && (
+        <p className="text-center text-xs text-muted-foreground">
+          {t("identity.version", {
+            version: process.env.NEXT_PUBLIC_APP_VERSION ?? "0.1.0",
+          })}
+        </p>
+      )}
     </div>
   );
 }
@@ -191,21 +298,26 @@ function FieldHomePanel({
   }> = [
     { key: "tasks", permission: "field_task.view", icon: ClipboardCheck, tone: "bg-primary/10 text-primary", open: () => onOpen("tasks") },
     { key: "attendance", permission: "attendance.clock", icon: Clock3, tone: "bg-success/10 text-success", open: () => onOpen("attendance") },
+    { key: "location", permission: "field_position.submit", icon: MapPinned, tone: "bg-info/10 text-info", open: () => onOpen("location") },
     { key: "material", permission: "receipt.create", icon: ClipboardList, tone: "bg-info/10 text-info", open: () => onRecord("material") },
     { key: "equipment", permission: "equipment.capture", icon: HardHat, tone: "bg-warning/15 text-warning", open: () => onRecord("equipment") },
     { key: "progress", permission: "progress.manage", icon: ListChecks, tone: "bg-primary/10 text-primary", open: () => onRecord("progress") },
     { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success", open: () => onRecord("disposal") },
     { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive", open: () => onRecord("outgoing") },
+    { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success", open: () => onRecord("waste") },
     { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning", open: () => onRecord("safety") },
     { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary", open: () => onRecord("consultant") },
+    { key: "category", permission: "category.view", icon: FolderOpen, tone: "bg-info/10 text-info", open: () => onRecord("category") },
     { key: "incidents", permission: "safety.view", icon: MessageSquarePlus, tone: "bg-destructive/10 text-destructive", open: () => onOpen("incidents") },
   ];
   const visibleActions = actions.filter((action) => !action.permission || can(action.permission));
   return (
     <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold">{t("home.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">{t("home.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {visibleActions.map((action) => {
@@ -214,11 +326,14 @@ function FieldHomePanel({
             <button
               key={action.key}
               type="button"
-              className="flex min-h-36 flex-col items-start justify-between rounded-xl border bg-card p-4 text-left shadow-sm active:scale-[0.98]"
+              className="group flex min-h-32 flex-col items-start justify-between rounded-lg border bg-card p-4 text-left shadow-sm transition-[border-color,background-color,transform,box-shadow] hover:border-primary/30 hover:bg-muted/20 hover:shadow-md active:scale-[0.98]"
               onClick={action.open}
             >
-              <span className={`grid size-12 place-items-center rounded-xl ${action.tone}`}><Icon className="size-7" /></span>
-              <span className="mt-5 text-lg font-semibold leading-6">{t(`home.${action.key}`)}</span>
+              <span className={`grid size-11 place-items-center rounded-lg ${action.tone}`}><Icon className="size-6" /></span>
+              <span className="mt-5 flex w-full items-end justify-between gap-2">
+                <span className="text-base font-semibold leading-5">{t(`home.${action.key}`)}</span>
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </span>
             </button>
           );
         })}
@@ -246,9 +361,9 @@ function FieldNotificationPreview() {
   const rows = notifications.data?.results ?? [];
 
   return (
-    <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
       <div className="flex items-center gap-3 border-b px-4 py-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+        <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
           <BellRing className="size-6" />
         </span>
         <div className="min-w-0 flex-1">
@@ -294,9 +409,10 @@ function FieldNotificationRow({
   onRead: () => void;
 }) {
   const t = useTranslations("fieldStaffPwa");
-  const href = [row.data.href, row.data.url].find(
+  const rawHref = [row.data.href, row.data.url].find(
     (value): value is string => typeof value === "string" && value.startsWith("/"),
   );
+  const href = fieldNotificationHref(rawHref) ?? undefined;
   const body = (
     <div className="min-w-0 flex-1">
       <div className="flex items-center gap-2">
@@ -312,7 +428,7 @@ function FieldNotificationRow({
     return (
       <a
         href={href}
-        className="flex min-h-20 items-center gap-3 px-4 py-3 active:bg-muted/50"
+        className="flex min-h-20 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30 active:bg-muted/50"
         onClick={() => { if (!row.is_read && !busy) onRead(); }}
       >
         {body}
@@ -323,7 +439,7 @@ function FieldNotificationRow({
   return (
     <button
       type="button"
-      className="flex min-h-20 w-full items-center gap-3 px-4 py-3 text-left active:bg-muted/50"
+      className="flex min-h-20 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30 active:bg-muted/50"
       disabled={busy}
       onClick={() => { if (!row.is_read) onRead(); }}
     >
@@ -336,7 +452,7 @@ function FieldNotificationRow({
 }
 
 function MobileNavButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Camera; label: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg text-xs font-medium ${active ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}><Icon className="size-5" />{label}</button>;
+  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-14 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
 }
 
 function taskRecordMode(task: FieldTask): FieldRecordMode | null {
@@ -348,7 +464,7 @@ function taskRecordMode(task: FieldTask): FieldRecordMode | null {
   if (task.task_type === "WASTE") {
     const category = task.submission_category.toUpperCase();
     return category.includes("OUTGOING") || category.includes("RECYCLE")
-      ? "outgoing"
+      ? "waste"
       : "disposal";
   }
   return null;
@@ -411,9 +527,14 @@ function FieldTaskPanel({ taskType, requestedTaskId, onOpenWorkflow }: { taskTyp
 function FieldTaskCard({ task, focused, busy, onTransition, onPhoto, onOpenWorkflow }: { task: FieldTask; focused: boolean; busy: boolean; onTransition: (status: "IN_PROGRESS" | "SUBMITTED") => void; onPhoto: (file: File) => void; onOpenWorkflow: () => void }) {
   const t = useTranslations("fieldStaffPwa");
   const photos = task.photos.length || task.photo_count || 0;
-  const canSubmit = photos >= task.evidence_required;
+  const requiredPhotos = Math.max(
+    task.evidence_required,
+    FIELD_EVIDENCE_PHOTO_COUNT,
+  );
+  const canSubmit = photos >= requiredPhotos;
   const workflowMode = taskRecordMode(task);
-  return <article className={`overflow-hidden rounded-xl border bg-card shadow-sm ${task.priority === "URGENT" ? "border-destructive/40" : ""} ${focused ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}><div className="p-4"><div className="flex items-start justify-between gap-3"><div><StatusBadge label={t(`status.${task.status}`)} tone={task.status === "RETURNED" ? "danger" : task.status === "SUBMITTED" ? "warning" : "info"} /><h3 className="mt-3 text-lg font-semibold leading-snug">{task.title}</h3><p className="mt-1 text-sm text-muted-foreground">{task.project_name}</p></div><span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">{t(`type.${task.task_type}`)}</span></div><div className="mt-3 grid gap-1 text-xs text-muted-foreground"><p>{t("tasks.assignedBy", { name: task.created_by_name || task.assigned_to_name })}</p>{task.work_location && <p>{t("tasks.workLocation", { location: task.work_location })}</p>}{task.due_at && <p>{t("tasks.dueAt", { value: new Date(task.due_at).toLocaleString() })}</p>}</div>{task.instructions && <p className="mt-4 rounded-lg bg-muted/50 p-3 text-sm leading-6">{task.instructions}</p>}{task.references.length ? <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3"><p className="mb-3 text-sm font-semibold text-primary">{t("tasks.references", { count: task.references.length })}</p><div className="grid grid-cols-2 gap-2">{task.references.map((reference) => reference.kind === "PHOTO" ? <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer"><Image src={reference.file} alt={reference.label || reference.original_filename} width={320} height={240} unoptimized className="aspect-[4/3] w-full rounded-lg object-cover" /></a> : <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer" className="col-span-2 flex min-h-12 items-center gap-3 rounded-lg border bg-background px-3 py-2 text-sm font-semibold text-primary"><FileText className="size-5 shrink-0" /><span className="truncate">{reference.label || reference.original_filename}</span></a>)}</div></div> : null}{task.started_at && <p className="mt-3 text-xs text-muted-foreground">{t("tasks.startedAt", { value: new Date(task.started_at).toLocaleString() })}</p>}{task.status === "RETURNED" && task.review_note && <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{task.review_note}</p>}{!workflowMode && <><div className="mt-4 grid grid-cols-3 gap-2">{task.photos.slice(-3).map((item) => <Image key={item.id} src={item.watermarked || item.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg object-cover" />)}</div><p className="mt-3 text-center text-sm font-medium">{t("tasks.evidence", { current: photos, required: task.evidence_required })}</p></>}</div><div className="grid gap-2 border-t bg-muted/20 p-3">{task.status === "OPEN" && <Button className="h-12 text-base" disabled={busy} onClick={() => onTransition("IN_PROGRESS")}><Play />{t("action.start")}</Button>}{["IN_PROGRESS", "RETURNED"].includes(task.status) && (workflowMode ? <Button className="h-14 text-base" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <><FieldCamera label={t("action.takePhoto")} fileCount={photos} disabled={busy} onCapture={onPhoto} /><Button className="h-12 text-base" disabled={busy || !canSubmit} onClick={() => onTransition("SUBMITTED")}><Send />{canSubmit ? t("action.submit") : t("action.morePhotos", { count: Math.max(0, task.evidence_required - photos) })}</Button></>)}{task.status === "SUBMITTED" && <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-warning"><Clock3 className="size-5" />{task.linked_record_reference ? t("tasks.linkedSubmission", { reference: task.linked_record_reference }) : t("tasks.waitingReview")}</div>}</div></article>;
+  const opensLinkedDisposal = task.linked_record_type === "DISPOSAL_EXECUTION";
+  return <article className={`overflow-hidden rounded-xl border bg-card shadow-sm ${task.priority === "URGENT" ? "border-destructive/40" : ""} ${focused ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}><div className="p-4"><div className="flex items-start justify-between gap-3"><div><StatusBadge label={t(`status.${task.status}`)} tone={task.status === "RETURNED" ? "danger" : task.status === "SUBMITTED" ? "warning" : "info"} /><h3 className="mt-3 text-lg font-semibold leading-snug">{task.title}</h3><p className="mt-1 text-sm text-muted-foreground">{task.project_name}</p></div><span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">{t(`type.${task.task_type}`)}</span></div><div className="mt-3 grid gap-1 text-xs text-muted-foreground"><p>{t("tasks.assignedBy", { name: task.created_by_name || task.assigned_to_name })}</p>{task.work_location && <p>{t("tasks.workLocation", { location: task.work_location })}</p>}{task.due_at && <p>{t("tasks.dueAt", { value: new Date(task.due_at).toLocaleString() })}</p>}</div>{task.instructions && <p className="mt-4 rounded-lg bg-muted/50 p-3 text-sm leading-6">{task.instructions}</p>}{task.references.length ? <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3"><p className="mb-3 text-sm font-semibold text-primary">{t("tasks.references", { count: task.references.length })}</p><div className="grid grid-cols-2 gap-2">{task.references.map((reference) => reference.kind === "PHOTO" ? <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer"><Image src={reference.file} alt={reference.label || reference.original_filename} width={320} height={240} unoptimized className="aspect-[4/3] w-full rounded-lg object-cover" /></a> : <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer" className="col-span-2 flex min-h-12 items-center gap-3 rounded-lg border bg-background px-3 py-2 text-sm font-semibold text-primary"><FileText className="size-5 shrink-0" /><span className="truncate">{reference.label || reference.original_filename}</span></a>)}</div></div> : null}{task.started_at && <p className="mt-3 text-xs text-muted-foreground">{t("tasks.startedAt", { value: new Date(task.started_at).toLocaleString() })}</p>}{task.status === "RETURNED" && task.review_note && <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{task.review_note}</p>}{!workflowMode && <><div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">{task.photos.map((item, index) => <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" className="w-24 shrink-0" title={`${index + 1} / ${task.photos.length}`}><Image src={item.watermarked || item.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg border object-cover" /></a>)}</div><p className="mt-3 text-center text-sm font-medium">{t("tasks.evidence", { current: photos, required: requiredPhotos })}</p></>}</div><div className="grid gap-2 border-t bg-muted/20 p-3">{task.status === "OPEN" && (opensLinkedDisposal ? <Button className="h-14 text-base" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <Button className="h-12 text-base" disabled={busy} onClick={() => onTransition("IN_PROGRESS")}><Play />{t("action.start")}</Button>)}{["IN_PROGRESS", "RETURNED"].includes(task.status) && (workflowMode ? <Button className="h-14 text-base" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <><FieldCamera label={t("action.takePhoto")} fileCount={photos} disabled={busy} onCapture={onPhoto} /><Button className="h-12 text-base" disabled={busy || !canSubmit} onClick={() => onTransition("SUBMITTED")}><Send />{canSubmit ? t("action.submit") : t("action.morePhotos", { count: Math.max(0, requiredPhotos - photos) })}</Button></>)}{task.status === "SUBMITTED" && <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-warning"><Clock3 className="size-5" />{task.linked_record_reference ? t("tasks.linkedSubmission", { reference: task.linked_record_reference }) : t("tasks.waitingReview")}</div>}</div></article>;
 }
 
 function FieldAttendancePanel() {
@@ -490,13 +611,25 @@ function FieldAttendancePanel() {
   );
 }
 
-function FieldIncidentsPanel() {
+function FieldIncidentsPanel({ onHome }: { onHome: () => void }) {
   const t = useTranslations("fieldStaffPwa");
   return (
     <section className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold">{t("incidents.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("incidents.subtitle")}</p>
+      <div className="flex items-start gap-3">
+        <Button
+          type="button"
+          size="icon"
+          variant="outline"
+          className="shrink-0"
+          title={t("action.back")}
+          onClick={onHome}
+        >
+          <ArrowLeft />
+        </Button>
+        <div>
+          <h2 className="text-lg font-semibold">{t("incidents.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("incidents.subtitle")}</p>
+        </div>
       </div>
       <IncidentReporting />
     </section>

@@ -210,6 +210,36 @@ export interface ApplicationArchiveEntry {
   archived_at: string;
 }
 
+export interface ApplicationRelatedRecord {
+  type: string;
+  type_label: string;
+  record_id: string;
+  reference: string;
+  title: string;
+  date: string | null;
+  created_by_name: string;
+  href: string;
+  source_model: string;
+}
+
+export interface ApplicationRelatedRecordGroup {
+  key: string;
+  label: string;
+  records: ApplicationRelatedRecord[];
+}
+
+export interface ApplicationRevisionSummary {
+  id: string;
+  application_no: string;
+  revision: number;
+  status: ConsultantApplicationStatus;
+  submitted_at: string | null;
+  finalized_at: string | null;
+  archived_at: string | null;
+  final_decision: string;
+  is_current: boolean;
+}
+
 export interface ConsultantApplication {
   id: string;
   application_no: string;
@@ -289,6 +319,8 @@ export interface ConsultantApplication {
   review_steps: ApplicationReviewStep[];
   approval_actions: ApplicationApprovalAction[];
   archive_entries: ApplicationArchiveEntry[];
+  revision_chain: ApplicationRevisionSummary[];
+  related_record_groups: ApplicationRelatedRecordGroup[];
   created_at: string;
   updated_at: string;
 }
@@ -315,6 +347,10 @@ export interface ConsultantDashboardData {
   generated_at: string;
   summary: {
     pending: number;
+    draft: number;
+    in_approval: number;
+    final_reports: number;
+    archived: number;
     today: number;
     approved: number;
     returned: number;
@@ -335,6 +371,8 @@ export interface EvidenceCandidate {
   longitude: string | null;
   photographer_name: string | null;
   sha256: string;
+  source_model: string;
+  source_id: string;
 }
 
 export interface ConsultantApplicationPayload {

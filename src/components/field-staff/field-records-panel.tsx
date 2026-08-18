@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Camera,
   ClipboardList,
+  FolderOpen,
   HardHat,
   ListChecks,
   Loader2,
@@ -24,11 +25,21 @@ import {
   SiteEquipmentWorkspace,
   SiteProgressWorkspace,
 } from "@/components/contractor-ops/operations-workspaces";
-import { SiteDisposalWorkspace } from "@/components/contractor-ops/site-disposal-workspaces";
+import {
+  InternalDisposalWorkspace,
+  SiteDisposalWorkspace,
+} from "@/components/contractor-ops/site-disposal-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
-import { FieldCamera } from "@/components/shared/field-camera";
+import { CategoryEvidenceCapture } from "@/components/field-staff/category-evidence-capture";
+import {
+  completedFieldEvidence,
+  createEmptyFieldEvidence,
+  FIELD_EVIDENCE_PHOTO_COUNT,
+  FieldEvidenceGrid,
+  hasRequiredFieldEvidence,
+} from "@/components/field-staff/field-evidence-grid";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Safety } from "@/components/site-operations/safety";
@@ -58,8 +69,11 @@ import {
 import {
   submitConsultantSubmissionOfflineAware,
   submitMaterialReceiptOfflineAware,
+  submitWasteOutgoingOfflineAware,
 } from "@/services/offline-sync.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
+import { getWasteOutgoingOptions } from "@/services/waste-outgoing.service";
+import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
 
@@ -69,12 +83,14 @@ export type FieldRecordMode =
   | "progress"
   | "disposal"
   | "outgoing"
+  | "waste"
   | "safety"
-  | "consultant";
+  | "consultant"
+  | "category";
 
 interface RecordOption {
   key: FieldRecordMode;
-  permission: string;
+  permission: string | string[];
   icon: typeof Camera;
   tone: string;
 }
@@ -85,8 +101,10 @@ const RECORD_OPTIONS: RecordOption[] = [
   { key: "progress", permission: "progress.manage", icon: ListChecks, tone: "bg-primary/10 text-primary" },
   { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive" },
+  { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning" },
   { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary" },
+  { key: "category", permission: ["category.view", "field_task.submit"], icon: FolderOpen, tone: "bg-info/10 text-info" },
 ];
 
 export function FieldRecordsPanel({
@@ -104,7 +122,11 @@ export function FieldRecordsPanel({
   const { can } = useAuth();
   const [localMode, setLocalMode] = useState<FieldRecordMode | null>(initialMode);
   const mode = onModeChange ? initialMode : localMode;
-  const options = RECORD_OPTIONS.filter((option) => can(option.permission));
+  const options = RECORD_OPTIONS.filter((option) =>
+    Array.isArray(option.permission)
+      ? option.permission.every((permission) => can(permission))
+      : can(option.permission),
+  );
 
   const chooseMode = (next: FieldRecordMode | null) => {
     if (!onModeChange) setLocalMode(next);
@@ -121,16 +143,28 @@ export function FieldRecordsPanel({
     return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><SiteProgressWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "disposal") {
+    if (
+      task?.linked_record_type === "DISPOSAL_EXECUTION" &&
+      task.linked_record_id
+    ) {
+      return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><InternalDisposalWorkspace disposalId={task.linked_record_id} onSubmitted={() => chooseMode(null)} /></RecordFrame>;
+    }
     return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><SiteDisposalWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "outgoing") {
     return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><MaterialOutgoingWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+  }
+  if (mode === "waste") {
+    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><WasteOutgoingCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "safety") {
     return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "consultant") {
     return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><ConsultantCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
+  }
+  if (mode === "category") {
+    return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><CategoryEvidenceCapture initialProject={task?.project} onSaved={() => chooseMode(null)} /></RecordFrame>;
   }
 
   return (
@@ -233,8 +267,9 @@ function MaterialCapturePanel({
     ...EMPTY_MATERIAL,
     project: initialProject,
   });
-  const [deliveryNote, setDeliveryNote] = useState<File>();
-  const [sitePhotos, setSitePhotos] = useState<File[]>([]);
+  const [materialEvidence, setMaterialEvidence] = useState(
+    createEmptyFieldEvidence,
+  );
   const [receiverSignature, setReceiverSignature] = useState<File>();
   const [supplierSignature, setSupplierSignature] = useState<File>();
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
@@ -245,6 +280,18 @@ function MaterialCapturePanel({
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
   const initialScanRef = useRef("");
+  const completedMaterialEvidence = completedFieldEvidence(materialEvidence);
+  const deliveryNote = materialEvidence[3];
+  const sitePhotos = [
+    ...materialEvidence.slice(0, 3),
+    ...materialEvidence.slice(FIELD_EVIDENCE_PHOTO_COUNT),
+  ].filter((file): file is File => Boolean(file));
+  const materialEvidenceLabels = [
+    t("materialEvidence.arrival"),
+    t("materialEvidence.unloading"),
+    t("materialEvidence.emptyVehicle"),
+    t("materialEvidence.deliveryOrder"),
+  ];
 
   const suppliers = useQuery({
     queryKey: ["suppliers", "field-material"],
@@ -312,9 +359,7 @@ function MaterialCapturePanel({
     },
   });
 
-  function selectDeliveryNote(files: File[]) {
-    const image = files[0];
-    setDeliveryNote(image);
+  function inspectDeliveryNote(image?: File) {
     setOcrProof("");
     setOcrMessage("");
     if (!image) return;
@@ -409,8 +454,7 @@ function MaterialCapturePanel({
       (draft.movementType === "ENTRY" ||
         (draft.returnReason &&
           (draft.returnReason !== "OTHER" || draft.returnReasonOther.trim()))) &&
-      deliveryNote &&
-      sitePhotos.length > 0 &&
+      hasRequiredFieldEvidence(materialEvidence) &&
       receiverSignature &&
       supplierSignature &&
       location,
@@ -433,7 +477,7 @@ function MaterialCapturePanel({
           onValueChange={(project) => {
             setScannedQr(undefined);
             setOcrProof("");
-            setDeliveryNote(undefined);
+            setMaterialEvidence(createEmptyFieldEvidence());
             setDraft((old) => ({ ...old, project }));
           }}
           placeholder={t("material.chooseProject")}
@@ -523,13 +567,28 @@ function MaterialCapturePanel({
         <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
         <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
       </div>
-      <CameraField label={t("material.doPhoto")} files={deliveryNote ? [deliveryNote] : []} onChange={selectDeliveryNote} />
+      <FieldWrapper label={t("materialEvidence.title")} required>
+        <FieldEvidenceGrid
+          labels={materialEvidenceLabels}
+          files={materialEvidence}
+          progressLabel={t("evidenceProgress", {
+            current: completedMaterialEvidence.length,
+            required: FIELD_EVIDENCE_PHOTO_COUNT,
+          })}
+          onChange={(next) => {
+            const nextDeliveryNote = next[3];
+            setMaterialEvidence(next);
+            if (nextDeliveryNote !== deliveryNote) {
+              inspectDeliveryNote(nextDeliveryNote);
+            }
+          }}
+        />
+      </FieldWrapper>
       {(ocr.isPending || ocrMessage) && (
         <p className={`rounded-lg px-3 py-2 text-sm ${ocrProof ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
           {ocr.isPending ? t("material.ocrReading") : ocrMessage}
         </p>
       )}
-      <CameraField label={t("material.sitePhotos")} multiple files={sitePhotos} onChange={setSitePhotos} />
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} value={receiverSignature} onChange={setReceiverSignature} />
         <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} value={supplierSignature} onChange={setSupplierSignature} />
@@ -567,14 +626,19 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [project, setProject] = useState(initialProject);
-  const [photos, setPhotos] = useState<File[]>([]);
+  const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
   const [category, setCategory] = useState("RFI");
-  const [description, setDescription] = useState("");
-  const [workLocation, setWorkLocation] = useState("");
   const [note, setNote] = useState("");
   const [location, setLocation] = useState<Coordinates>();
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
+  const photos = completedFieldEvidence(evidence);
+  const evidenceLabels = [
+    t("consultantEvidence.overview"),
+    t("consultantEvidence.detail"),
+    t("consultantEvidence.location"),
+    t("consultantEvidence.reference"),
+  ];
 
   const locate = async () => {
     setLocating(true);
@@ -606,8 +670,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         project,
         note: note.trim(),
         application_category: category,
-        description: description.trim(),
-        work_location: workLocation.trim(),
+        description: note.trim(),
         captured_at: new Date().toISOString(),
         latitude: location.latitude,
         longitude: location.longitude,
@@ -647,20 +710,17 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
           </SelectContent>
         </Select>
       </FieldWrapper>
-      <FieldWrapper label={t("consultantCapture.workLocation")}>
-        <Input
-          className="h-12"
-          value={workLocation}
-          onChange={(event) => setWorkLocation(event.target.value)}
-          placeholder={t("consultantCapture.workLocationPlaceholder")}
+      <FieldWrapper label={t("consultantEvidence.title")} required>
+        <FieldEvidenceGrid
+          labels={evidenceLabels}
+          files={evidence}
+          progressLabel={t("evidenceProgress", {
+            current: photos.length,
+            required: FIELD_EVIDENCE_PHOTO_COUNT,
+          })}
+          onChange={setEvidence}
         />
       </FieldWrapper>
-      <CameraField
-        label={t("consultantCapture.photos")}
-        multiple
-        files={photos}
-        onChange={setPhotos}
-      />
       <Button
         className="h-12 w-full"
         variant="outline"
@@ -670,11 +730,6 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
         {location ? t("attendance.locationReady") : t("attendance.getLocation")}
       </Button>
-      <Textarea
-        value={description}
-        onChange={(event) => setDescription(event.target.value)}
-        placeholder={t("consultantCapture.description")}
-      />
       <Textarea
         value={note}
         onChange={(event) => setNote(event.target.value)}
@@ -687,7 +742,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
       )}
       <Button
         className="h-14 w-full text-base"
-        disabled={!project || !category || !description.trim() || photos.length === 0 || !location || save.isPending}
+        disabled={!project || !category || !hasRequiredFieldEvidence(evidence) || !location || save.isPending}
         onClick={() => save.mutate()}
       >
         {save.isPending ? <Loader2 className="animate-spin" /> : <UserRoundCheck />}
@@ -697,23 +752,166 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   );
 }
 
-function CameraField({
-  label,
-  multiple = false,
-  files,
-  onChange,
+function WasteOutgoingCapturePanel({
+  initialProject = "",
+  fieldTaskId,
+  onSaved,
 }: {
-  label: string;
-  multiple?: boolean;
-  files: File[];
-  onChange: (files: File[]) => void;
+  initialProject?: string;
+  fieldTaskId?: string;
+  onSaved: () => void;
 }) {
+  const t = useTranslations("wasteOutgoing");
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [project, setProject] = useState(initialProject);
+  const [category, setCategory] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [unit, setUnit] = useState("");
+  const [note, setNote] = useState("");
+  const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
+  const [location, setLocation] = useState<Coordinates>();
+  const [locating, setLocating] = useState(false);
+  const [error, setError] = useState("");
+  const photos = completedFieldEvidence(evidence);
+  const evidenceLabels = [
+    t("evidence.overview"),
+    t("evidence.quantity"),
+    t("evidence.vehicle"),
+    t("evidence.loading"),
+  ];
+
+  const options = useQuery({
+    queryKey: ["waste-outgoing", "options"],
+    queryFn: getWasteOutgoingOptions,
+  });
+  const categories = (options.data?.categories ?? []).filter(
+    (row) => row.is_active,
+  );
+
+  const save = useMutation({
+    mutationFn: () => {
+      if (!user || !location) throw new Error("invalid_waste_submission");
+      return submitWasteOutgoingOfflineAware(user.id, {
+        project,
+        category,
+        quantity: quantity.trim() || undefined,
+        unit: quantity.trim() ? unit : undefined,
+        note: note.trim() || undefined,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        device_id: getOrCreateFieldDeviceId(),
+        client_event_id: crypto.randomUUID(),
+        field_task: fieldTaskId,
+        photos,
+      });
+    },
+    onSuccess: () => {
+      setError("");
+      void qc.invalidateQueries({ queryKey: ["field-staff", "tasks"] });
+      onSaved();
+    },
+    onError: (failure) => {
+      if (failure instanceof ApiError) {
+        setError(Object.values(failure.errors)[0] || failure.message);
+        return;
+      }
+      setError(t("form.submitFailed"));
+    },
+  });
+
+  const locate = async () => {
+    setLocating(true);
+    setError("");
+    try {
+      const fix = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 15_000,
+          maximumAge: 0,
+        });
+      });
+      setLocation({
+        latitude: fix.coords.latitude.toFixed(7),
+        longitude: fix.coords.longitude.toFixed(7),
+        accuracy: fix.coords.accuracy.toFixed(2),
+      });
+    } catch {
+      setError(t("form.locationFailed"));
+    } finally {
+      setLocating(false);
+    }
+  };
+
+  const quantityIncomplete = quantity.trim() !== "" && unit === "";
+  const ready =
+    Boolean(user && project && category && location) &&
+    hasRequiredFieldEvidence(evidence) &&
+    !quantityIncomplete;
+
   return (
-    <FieldCamera
-      label={label}
-      fileCount={files.length}
-      onCapture={(file) => onChange(multiple ? [...files, file] : [file])}
-      onClear={() => onChange([])}
-    />
+    <div className="space-y-4">
+      <p className="text-sm leading-6 text-muted-foreground">{t("form.help")}</p>
+      <FieldWrapper label={t("field.project")} required>
+        <ProjectPicker
+          value={project}
+          onValueChange={setProject}
+          placeholder={t("filter.selectProject")}
+          className="w-full"
+          disabled={Boolean(initialProject)}
+        />
+      </FieldWrapper>
+      <FieldWrapper label={t("field.category")} required>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="h-12 w-full">
+            <SelectValue placeholder={t("field.selectCategory")} />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((row) => (
+              <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
+      <div className="grid grid-cols-2 gap-3">
+        <FieldWrapper label={t("field.quantity")} optional={t("field.optional")}>
+          <Input className="h-12" type="number" min="0" step="0.001" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.unit")} optional={t("field.optional")} error={quantityIncomplete ? t("field.unitRequired") : undefined}>
+          <Select value={unit} onValueChange={setUnit}>
+            <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("field.selectUnit")} /></SelectTrigger>
+            <SelectContent>
+              {WASTE_UNITS.map((value) => (
+                <SelectItem key={value} value={value}>{t(`unit.${value}`)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FieldWrapper>
+      </div>
+      <FieldWrapper label={t("field.note")} optional={t("field.optional")}>
+        <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
+      </FieldWrapper>
+      <FieldWrapper label={t("evidence.title")} required>
+        <FieldEvidenceGrid
+          labels={evidenceLabels}
+          files={evidence}
+          progressLabel={t("evidence.progress", {
+            current: photos.length,
+            required: FIELD_EVIDENCE_PHOTO_COUNT,
+          })}
+          onChange={setEvidence}
+        />
+      </FieldWrapper>
+      <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void locate()}>
+        {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
+        {location ? t("field.locationReady") : t("action.locate")}
+      </Button>
+      {location && <p className="text-center text-xs tabular-nums text-muted-foreground">{location.latitude}, {location.longitude}</p>}
+      {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
+      <Button className="h-14 w-full text-base" disabled={!ready || save.isPending} onClick={() => save.mutate()}>
+        {save.isPending ? <Loader2 className="animate-spin" /> : <Recycle />}
+        {t("action.submit")}
+      </Button>
+    </div>
   );
 }

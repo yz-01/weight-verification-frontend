@@ -30,7 +30,8 @@ export const TASK_STATE_TONE: Record<
   ARRIVED: "warning",
   LOADED: "warning",
   RETURNING: "info",
-  DELIVERED: "positive",
+  DELIVERED: "warning",
+  COMPLETED: "positive",
   CANCELLED: "neutral",
   FAILED: "danger",
 };
@@ -236,7 +237,7 @@ export function Tasks() {
             active: list.filters.running === "true",
             onSelect: () => list.setFilter("running", "true"),
           },
-          ...(["DELIVERED", "FAILED"] as const).map((state) => ({
+          ...(["DELIVERED", "COMPLETED", "FAILED"] as const).map((state) => ({
             key: state,
             label: t(`tasks.state.${state}`),
             active: list.filters.state === state,

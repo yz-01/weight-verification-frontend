@@ -168,7 +168,6 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
   const [pattern, setPattern] = useState("{project}-{discipline}-{type}-{sequence}");
   const [required, setRequired] = useState<string[]>([]);
   const [fields, setFields] = useState<FieldDefinition[]>(EMPTY_FIELDS);
-  const [layout, setLayout] = useState("RFI FORM");
   const [note, setNote] = useState("");
   const save = useMutation({
     mutationFn: () => createApplicationTemplate({
@@ -180,7 +179,7 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
       numbering_pattern: pattern,
       field_schema: cleanFields(fields),
       required_attachment_codes: required,
-      report_mapping: { layout },
+      report_mapping: { layout: "RFI FORM" },
       change_note: note.trim(),
       is_active: true,
     }),
@@ -199,7 +198,10 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
           <FieldWrapper label={t("code")} required><Input value={code} onChange={(event) => setCode(event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("name")} required><Input value={name} onChange={(event) => setName(event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("applicationType")}><Select value={type || "ALL"} onValueChange={(value) => setType(value === "ALL" ? null : value)}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ALL">{t("allTypes")}</SelectItem>{(options.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.label}</SelectItem>)}</SelectContent></Select></FieldWrapper>
-          <FieldWrapper label={t("reportLayout")}><Input value={layout} onChange={(event) => setLayout(event.target.value)} /></FieldWrapper>
+          <div className="rounded-lg border border-info/25 bg-info/5 p-3 sm:col-span-2">
+            <p className="text-sm font-semibold">{t("standardLayout")}</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("standardLayoutHelp")}</p>
+          </div>
           <FieldWrapper label={t("description")} className="sm:col-span-2"><Textarea value={description} onChange={(event) => setDescription(event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("numbering")} required hint={t("numberingHelp")} className="sm:col-span-2"><Input value={pattern} onChange={(event) => setPattern(event.target.value)} /></FieldWrapper>
         </div>
@@ -233,13 +235,15 @@ function VersionDialog({ template, onClose, onSaved }: { template: ApplicationTe
   });
   const [required, setRequired] = useState<string[]>(latest?.required_attachment_codes ?? []);
   const [fields, setFields] = useState<FieldDefinition[]>(latest?.field_schema ?? []);
-  const [layout, setLayout] = useState(latest?.report_mapping.layout ?? "RFI FORM");
   const [note, setNote] = useState("");
   const save = useMutation({
     mutationFn: () => createApplicationTemplateVersion(template.id, {
       field_schema: cleanFields(fields),
       required_attachment_codes: required,
-      report_mapping: { layout },
+      report_mapping: {
+        ...(latest?.report_mapping ?? {}),
+        layout: latest?.report_mapping.layout ?? "RFI FORM",
+      },
       change_note: note.trim(),
     }),
     onSuccess: onSaved,
@@ -251,7 +255,10 @@ function VersionDialog({ template, onClose, onSaved }: { template: ApplicationTe
           <DialogTitle>{t("versionTitle", { name: template.name, version: template.current_version + 1 })}</DialogTitle>
           <DialogDescription>{t("versionHelp")}</DialogDescription>
         </DialogHeader>
-        <FieldWrapper label={t("reportLayout")}><Input value={layout} onChange={(event) => setLayout(event.target.value)} /></FieldWrapper>
+        <div className="rounded-lg border border-info/25 bg-info/5 p-3">
+          <p className="text-sm font-semibold">{t("standardLayout")}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("standardLayoutHelp")}</p>
+        </div>
         <OptionChecks title={t("requiredFiles")} options={(attachments.data?.results ?? []).map((row) => ({ code: row.code, label: row.label }))} selected={required} onChange={setRequired} />
         <CustomFields fields={fields} onChange={setFields} />
         <FieldWrapper label={t("changeNote")} required><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper>

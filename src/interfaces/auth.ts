@@ -37,6 +37,18 @@ export interface ProjectQuota {
   remaining: number | null;
 }
 
+export interface Branding {
+  name: string;
+  short_name: string;
+  company_id: string | null;
+  company_name: string | null;
+  company_logo_url: string | null;
+  platform_icon_url: string | null;
+  icon_url: string | null;
+  revision: string | null;
+  uses_platform_default: boolean;
+}
+
 export interface TokenPair {
   access: string;
   refresh: string;
@@ -59,6 +71,7 @@ export interface CurrentUser {
   status: UserStatus;
   account_type: AccountType;
   mobile_access_only: boolean;
+  is_field_staff: boolean;
   is_platform_staff: boolean;
   is_superuser: boolean;
   role: string | null;
@@ -75,6 +88,7 @@ export interface CurrentUser {
   consultant_projects: ConsultantProjectAccess[];
   active_project: ActiveProject | null;
   company_preferences: CompanyPreferences | null;
+  branding: Branding;
 }
 
 export interface CompanyPreferences {
@@ -125,6 +139,7 @@ export interface UserRow {
   company_type: CompanyType | null;
   is_platform_staff: boolean;
   mobile_access_only: boolean;
+  is_field_staff: boolean;
   language: Locale;
   last_login_at: string | null;
   created_at: string;

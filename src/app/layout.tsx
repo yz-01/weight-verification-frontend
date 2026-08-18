@@ -4,6 +4,8 @@ import { getLocale } from "next-intl/server";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { AppProviders } from "@/components/providers/app-providers";
+import { BRANDING_BOOTSTRAP_SCRIPT } from "@/lib/branding";
+import { FIELD_INSTALL_PROMPT_BOOTSTRAP_SCRIPT } from "@/lib/pwa-install";
 
 import "./globals.css";
 
@@ -21,14 +23,6 @@ export const metadata: Metadata = {
   title: "MSE Trace",
   description: "Verified weight and traceable waste for construction and recycling.",
   applicationName: "MSE Trace",
-  manifest: "/manifest.webmanifest",
-  icons: {
-    icon: [
-      { url: "/mse-icon.svg", type: "image/svg+xml" },
-      { url: "/mse-icon-192.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: [{ url: "/mse-icon-192.png", sizes: "192x192" }],
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -51,6 +45,11 @@ export default async function RootLayout({
   // Read from the locale cookie rather than a URL segment. Language is a
   // property of the account, so it must not appear in any shareable link.
   const locale = await getLocale();
+  const deploymentId =
+    process.env.VERCEL_DEPLOYMENT_ID ??
+    process.env.VERCEL_GIT_COMMIT_SHA ??
+    process.env.GITHUB_SHA ??
+    "development";
 
   return (
     <html
@@ -59,8 +58,16 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <script
+          data-mse-field-install-bootstrap
+          dangerouslySetInnerHTML={{ __html: FIELD_INSTALL_PROMPT_BOOTSTRAP_SCRIPT }}
+        />
+        <script
+          data-mse-branding-bootstrap
+          dangerouslySetInnerHTML={{ __html: BRANDING_BOOTSTRAP_SCRIPT }}
+        />
         <NextIntlClientProvider>
-          <AppProviders>{children}</AppProviders>
+          <AppProviders deploymentId={deploymentId}>{children}</AppProviders>
         </NextIntlClientProvider>
       </body>
     </html>

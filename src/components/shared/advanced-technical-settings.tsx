@@ -31,10 +31,10 @@ export function AdvancedTechnicalSettings({
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-medium text-foreground">
-            {title ?? t("advancedTitle")}
+            {title ?? t("guide.advancedTitle")}
           </span>
           <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">
-            {description ?? t("advancedDescription")}
+            {description ?? t("guide.advancedDescription")}
           </span>
         </span>
         <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />

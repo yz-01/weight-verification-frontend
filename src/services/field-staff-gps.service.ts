@@ -35,6 +35,20 @@ export function recordFieldStaffPosition(payload: {
   );
 }
 
+export function recordAutomaticFieldStaffPosition(payload: {
+  latitude: string;
+  longitude: string;
+  accuracy_m?: string;
+  original_occurred_at: string;
+  client_event_id: string;
+}): Promise<{ matched: boolean; position: FieldStaffPosition | null }> {
+  return api.post<{ matched: boolean; position: FieldStaffPosition | null }>(
+    "/api/field-staff-positions/record_auto_position/",
+    payload,
+    { silent: true },
+  );
+}
+
 export function getFieldStaffLastPositions(
   query: ListQuery = {},
 ): Promise<Paginated<FieldStaffPosition>> {

@@ -17,6 +17,7 @@ import type {
   IncidentReportMessage,
   IncidentReportMessagePayload,
   IncidentReportRecipient,
+  IncidentReportThreadDetail,
 } from "@/interfaces/incident-report";
 import { api, download, toastSuccess } from "@/services/api-client";
 
@@ -218,11 +219,10 @@ export function getIncidentThreads(
 
 export async function getIncidentThread(
   id: string,
-): Promise<{ thread: IncidentReportThread; messages: IncidentReportMessage[] }> {
-  const response = await api.get<{
-    thread: IncidentReportThread;
-    messages: IncidentReportMessage[];
-  }>(`/api/incident-reports/${id}/get_incident_thread/`);
+): Promise<IncidentReportThreadDetail> {
+  const response = await api.get<IncidentReportThreadDetail>(
+    `/api/incident-reports/${id}/get_incident_thread/`,
+  );
   return response;
 }
 
@@ -231,7 +231,7 @@ export async function createIncidentThread(
 ): Promise<IncidentReportThread> {
   const thread = await api.post<IncidentReportThread>(
     "/api/incident-reports/create_incident_thread/",
-    payload,
+    multipart(payload as unknown as Record<string, unknown>),
   );
   toastSuccess("incidentReporting.submitSuccess");
   return thread;

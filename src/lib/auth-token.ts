@@ -16,34 +16,135 @@ import type { Portal } from "@/interfaces/auth";
 
 const ACCESS_KEY = "mse_access_token";
 const REFRESH_KEY = "mse_refresh_token";
+const FIELD_ACCESS_KEY = "mse_field_access_token";
+const FIELD_REFRESH_KEY = "mse_field_refresh_token";
+const FIELD_APP_KEY = "mse_field_app_context";
 const PORTAL_KEY = "mse_portal";
 const SESSION_COOKIE = "mse_session";
 const PORTAL_COOKIE = "mse_portal";
 
 const isBrowser = () => typeof window !== "undefined";
 
+export function isFieldSessionPath(pathname?: string): boolean {
+  if (!isBrowser() && pathname === undefined) return false;
+  const path = pathname ?? window.location.pathname;
+  return (
+    path === "/field-staff" ||
+    path.startsWith("/field-staff/") ||
+    path === "/trace/field-activate" ||
+    path === "/trace/field-login" ||
+    path === "/trace/field-ready" ||
+    path === "/field-pwa-bootstrap"
+  );
+}
+
+export function isStandaloneApp(): boolean {
+  if (!isBrowser()) return false;
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    ("standalone" in navigator &&
+      (navigator as Navigator & { standalone?: boolean }).standalone === true)
+  );
+}
+
+export function markFieldAppContext(): void {
+  if (isBrowser() && isStandaloneApp()) {
+    window.localStorage.setItem(FIELD_APP_KEY, "1");
+  }
+}
+
+export function isFieldStandaloneApp(): boolean {
+  return (
+    isStandaloneApp() && window.localStorage.getItem(FIELD_APP_KEY) === "1"
+  );
+}
+
+export function isFieldSessionContext(pathname?: string): boolean {
+  return isFieldSessionPath(pathname) || isFieldStandaloneApp();
+}
+
+function tokenKeys() {
+  if (isFieldSessionContext()) {
+    migrateLegacyFieldSession();
+    return { access: FIELD_ACCESS_KEY, refresh: FIELD_REFRESH_KEY };
+  }
+  return { access: ACCESS_KEY, refresh: REFRESH_KEY };
+}
+
+function migrateLegacyFieldSession(): void {
+  if (!isBrowser() || window.localStorage.getItem(FIELD_ACCESS_KEY)) return;
+  const access = window.localStorage.getItem(ACCESS_KEY);
+  const refresh = window.localStorage.getItem(REFRESH_KEY);
+  if (!isFieldDeviceToken(access) || !isFieldDeviceToken(refresh)) return;
+  window.localStorage.setItem(FIELD_ACCESS_KEY, access);
+  window.localStorage.setItem(FIELD_REFRESH_KEY, refresh);
+  window.localStorage.removeItem(ACCESS_KEY);
+  window.localStorage.removeItem(REFRESH_KEY);
+}
+
+function isFieldDeviceToken(token: string | null): token is string {
+  if (!token) return false;
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return false;
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(
+      window.atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")),
+    ) as { session_kind?: string; device?: string };
+    return decoded.session_kind === "FIELD_DEVICE" && Boolean(decoded.device);
+  } catch {
+    return false;
+  }
+}
+
 export function getAccessToken(): string | null {
   if (!isBrowser()) return null;
-  return window.localStorage.getItem(ACCESS_KEY);
+  return window.localStorage.getItem(tokenKeys().access);
 }
 
 export function getRefreshToken(): string | null {
   if (!isBrowser()) return null;
-  return window.localStorage.getItem(REFRESH_KEY);
+  return window.localStorage.getItem(tokenKeys().refresh);
 }
 
 export function setTokens(tokens: { access: string; refresh: string }): void {
   if (!isBrowser()) return;
-  window.localStorage.setItem(ACCESS_KEY, tokens.access);
-  window.localStorage.setItem(REFRESH_KEY, tokens.refresh);
+  const keys = tokenKeys();
+  window.localStorage.setItem(keys.access, tokens.access);
+  window.localStorage.setItem(keys.refresh, tokens.refresh);
   setCookie(SESSION_COOKIE, "1", 60 * 60 * 24 * 90);
 }
 
 export function clearTokens(): void {
   if (!isBrowser()) return;
-  window.localStorage.removeItem(ACCESS_KEY);
-  window.localStorage.removeItem(REFRESH_KEY);
-  deleteCookie(SESSION_COOKIE);
+  const keys = tokenKeys();
+  window.localStorage.removeItem(keys.access);
+  window.localStorage.removeItem(keys.refresh);
+  if (
+    window.localStorage.getItem(ACCESS_KEY) === null &&
+    window.localStorage.getItem(FIELD_ACCESS_KEY) === null
+  ) {
+    deleteCookie(SESSION_COOKIE);
+  }
+}
+
+export function setFieldTokens(tokens: { access: string; refresh: string }): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(FIELD_ACCESS_KEY, tokens.access);
+  window.localStorage.setItem(FIELD_REFRESH_KEY, tokens.refresh);
+  setCookie(SESSION_COOKIE, "1", 60 * 60 * 24 * 90);
+}
+
+export function clearFieldTokens(): void {
+  if (!isBrowser()) return;
+  window.localStorage.removeItem(FIELD_ACCESS_KEY);
+  window.localStorage.removeItem(FIELD_REFRESH_KEY);
+  if (window.localStorage.getItem(ACCESS_KEY) === null) deleteCookie(SESSION_COOKIE);
+}
+
+export function hasFieldSession(): boolean {
+  if (!isBrowser()) return false;
+  return window.localStorage.getItem(FIELD_ACCESS_KEY) !== null;
 }
 
 /**
@@ -65,8 +166,12 @@ export function setSessionPortal(portal: Portal): void {
 }
 
 export function clearSession(): void {
-  clearTokens();
   if (!isBrowser()) return;
+  window.localStorage.removeItem(ACCESS_KEY);
+  window.localStorage.removeItem(REFRESH_KEY);
+  window.localStorage.removeItem(FIELD_ACCESS_KEY);
+  window.localStorage.removeItem(FIELD_REFRESH_KEY);
+  deleteCookie(SESSION_COOKIE);
   window.localStorage.removeItem(PORTAL_KEY);
   deleteCookie(PORTAL_COOKIE);
 }

@@ -29,7 +29,12 @@ export function GlobalModuleSearch() {
   }, []);
 
   const entries = useMemo(() => {
-    const groups = visibleNavigation(user?.portal, user?.features);
+    const groups = visibleNavigation(
+      user?.portal,
+      user?.features,
+      user?.permissions,
+      user?.is_superuser,
+    );
     return groups.flatMap((group) =>
       group.items.flatMap((item) => {
         const moduleLabel = t(`nav.${item.labelKey}`);
@@ -44,7 +49,7 @@ export function GlobalModuleSearch() {
         ];
       }),
     );
-  }, [t, user?.features, user?.portal]);
+  }, [t, user?.features, user?.is_superuser, user?.permissions, user?.portal]);
 
   const results = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase();

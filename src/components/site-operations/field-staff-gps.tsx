@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ApiError } from "@/interfaces/api";
+import type { Project } from "@/interfaces/contractor";
 import type { FieldStaffPosition } from "@/interfaces/site-operations";
 import type { SiteGeofence } from "@/interfaces/site-access";
 import { useDateFormat } from "@/lib/dates";
@@ -27,7 +28,11 @@ import {
 } from "@/services/field-staff-gps.service";
 import { getSiteGeofences, getSiteLocationPolicy } from "@/services/site-access.service";
 
-export function FieldStaffGps() {
+export function FieldStaffGps({
+  managedAutomatically = false,
+}: {
+  managedAutomatically?: boolean;
+}) {
   const t = useTranslations();
   const dates = useDateFormat();
   const { can, user } = useAuth();
@@ -147,7 +152,7 @@ export function FieldStaffGps() {
   }, [selectedProject]);
   const markers = useMemo(
     () =>
-      positions.map((position) => ({
+      positions.filter(hasVisibleCoordinates).map((position) => ({
         id: position.id,
         latitude: Number(position.latitude),
         longitude: Number(position.longitude),
@@ -162,8 +167,14 @@ export function FieldStaffGps() {
     [positions, t],
   );
   const zones = useMemo(
-    () => buildZones(geofences.data?.results ?? [], positions, projectId),
-    [geofences.data?.results, positions, projectId],
+    () =>
+      buildZones(
+        geofences.data?.results ?? [],
+        projects.data?.results ?? [],
+        positions,
+        projectId,
+      ),
+    [geofences.data?.results, positions, projectId, projects.data?.results],
   );
   const selectedHistoryProject = useMemo(
     () => projects.data?.results.find((project) => project.id === historyProjectId),
@@ -175,7 +186,7 @@ export function FieldStaffGps() {
   );
   const historyMarkers = useMemo(
     () =>
-      lastRows.map((position) => ({
+      lastRows.filter(hasVisibleCoordinates).map((position) => ({
         id: `${position.project}:${position.user}`,
         latitude: Number(position.latitude),
         longitude: Number(position.longitude),
@@ -195,7 +206,7 @@ export function FieldStaffGps() {
   const historyPaths = useMemo(() => {
     if (!selectedLastPosition) return [];
     const points = historyPositions
-      .filter((position) => position.event_type !== "SHARING_STOPPED")
+      .filter((position) => position.event_type !== "SHARING_STOPPED" && hasVisibleCoordinates(position))
       .map(
         (position) =>
           [Number(position.latitude), Number(position.longitude)] as [number, number],
@@ -209,8 +220,19 @@ export function FieldStaffGps() {
       : [];
   }, [historyPositions, selectedLastPosition]);
   const historyZones = useMemo(
-    () => buildZones(geofences.data?.results ?? [], lastRows, historyProjectId),
-    [geofences.data?.results, historyProjectId, lastRows],
+    () =>
+      buildZones(
+        geofences.data?.results ?? [],
+        projects.data?.results ?? [],
+        lastRows,
+        historyProjectId,
+      ),
+    [
+      geofences.data?.results,
+      historyProjectId,
+      lastRows,
+      projects.data?.results,
+    ],
   );
   const historyCenter = useMemo<[number, number] | undefined>(() => {
     if (selectedHistoryProject?.latitude && selectedHistoryProject.longitude) {
@@ -219,7 +241,7 @@ export function FieldStaffGps() {
         Number(selectedHistoryProject.longitude),
       ];
     }
-    if (selectedLastPosition) {
+    if (selectedLastPosition && hasVisibleCoordinates(selectedLastPosition)) {
       return [
         Number(selectedLastPosition.latitude),
         Number(selectedLastPosition.longitude),
@@ -354,7 +376,17 @@ export function FieldStaffGps() {
               placeholder={t("siteGps.project")}
               className="w-full sm:w-[280px]"
             />
-            {can("field_position.submit") && (
+            {managedAutomatically ? (
+              <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md border border-success/25 bg-success/5 px-3 py-2">
+                <LocateFixed className="size-4 shrink-0 text-success" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{t("siteGps.autoSharing")}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("siteGps.autoSharingBody")}
+                  </p>
+                </div>
+              </div>
+            ) : can("field_position.submit") && (
               <Button
                 size="sm"
                 variant={sharing ? "destructive" : "default"}
@@ -369,7 +401,7 @@ export function FieldStaffGps() {
                 {sharing ? t("siteGps.stopSharing") : t("siteGps.startSharing")}
               </Button>
             )}
-            {sharing && (
+            {!managedAutomatically && sharing && (
               <StatusBadge label={t("siteGps.sharing")} tone="positive" />
             )}
             {sharingError && (
@@ -385,6 +417,8 @@ export function FieldStaffGps() {
               radiusM={zones.length ? null : selectedProject?.geofence_radius_m}
               markers={markers}
               zones={zones}
+              preserveViewOnDataUpdate
+              fitBoundsKey={`live:${projectId || "all"}`}
             />
           </MapSection>
 
@@ -429,6 +463,10 @@ export function FieldStaffGps() {
               markers={historyMarkers}
               paths={historyPaths}
               zones={historyZones}
+              preserveViewOnDataUpdate
+              fitBoundsKey={`history:${historyProjectId || "all"}:${
+                selectedLastPosition?.user ?? "all"
+              }`}
             />
           </MapSection>
 
@@ -469,27 +507,77 @@ export function FieldStaffGps() {
 
 function buildZones(
   geofences: SiteGeofence[],
+  projects: Project[],
   positions: FieldStaffPosition[],
   projectId: string,
 ): LocationMapZone[] {
   const rows = geofences.filter(
     (row) => row.is_active && (!projectId || row.project === projectId),
   );
-  const zones: LocationMapZone[] = rows.map((row) =>
-    row.shape === "POLYGON"
-      ? { id: row.id, label: `${row.project_name} · ${row.name}`, points: row.polygon }
-      : {
-          id: row.id,
-          label: `${row.project_name} · ${row.name}`,
-          center: [Number(row.latitude), Number(row.longitude)],
-          radiusM: row.radius_m ?? 1,
-        },
-  );
-  const projectsWithZones = new Set(rows.map((row) => row.project));
+  const zones: LocationMapZone[] = [];
+  const projectsWithZones = new Set<string>();
+  rows.forEach((row) => {
+    if (row.shape === "POLYGON") {
+      const points = row.polygon.filter(isValidPoint);
+      if (points.length < 3) return;
+      zones.push({
+        id: row.id,
+        label: `${row.project_name} · ${row.name}`,
+        points,
+      });
+      projectsWithZones.add(row.project);
+      return;
+    }
+    const latitude = Number(row.latitude);
+    const longitude = Number(row.longitude);
+    const radiusM = Number(row.radius_m);
+    if (
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude) ||
+      !Number.isFinite(radiusM) ||
+      radiusM <= 0
+    ) {
+      return;
+    }
+    zones.push({
+      id: row.id,
+      label: `${row.project_name} · ${row.name}`,
+      center: [latitude, longitude],
+      radiusM,
+    });
+    projectsWithZones.add(row.project);
+  });
+
   const legacy = new Map<string, LocationMapZone>();
+  projects.forEach((project) => {
+    if (
+      projectsWithZones.has(project.id) ||
+      (projectId && project.id !== projectId)
+    ) {
+      return;
+    }
+    const latitude = Number(project.latitude);
+    const longitude = Number(project.longitude);
+    const radiusM = Number(project.geofence_radius_m);
+    if (
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude) ||
+      !Number.isFinite(radiusM) ||
+      radiusM <= 0
+    ) {
+      return;
+    }
+    legacy.set(project.id, {
+      id: `project-${project.id}`,
+      center: [latitude, longitude],
+      radiusM,
+      label: project.name,
+    });
+  });
   positions.forEach((position) => {
     if (
       projectsWithZones.has(position.project) ||
+      legacy.has(position.project) ||
       (projectId && position.project !== projectId) ||
       !position.project_latitude ||
       !position.project_longitude ||
@@ -503,6 +591,16 @@ function buildZones(
     });
   });
   return [...zones, ...legacy.values()];
+}
+
+function isValidPoint(point: [number, number]): boolean {
+  return Number.isFinite(point[0]) && Number.isFinite(point[1]);
+}
+
+function hasVisibleCoordinates(
+  position: FieldStaffPosition,
+): position is FieldStaffPosition & { latitude: string; longitude: string } {
+  return position.latitude !== null && position.longitude !== null;
 }
 
 function MapSection({

@@ -25,6 +25,13 @@ export function isPushSupported(): boolean {
   );
 }
 
+export async function getPushSubscriptionStatus(): Promise<boolean> {
+  if (!isPushSupported()) return false;
+  const registration = await navigator.serviceWorker.getRegistration();
+  if (!registration) return false;
+  return Boolean(await registration.pushManager.getSubscription());
+}
+
 export async function syncPushSubscription(): Promise<boolean> {
   if (!isPushSupported()) return false;
   const registration = await navigator.serviceWorker.ready;

@@ -1,8 +1,18 @@
 "use client";
 
-import { Loader2, LogOut, RefreshCw } from "lucide-react";
+import {
+  Bell,
+  ClipboardList,
+  Home,
+  Loader2,
+  LogOut,
+  RefreshCw,
+  Settings,
+  UserRound,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
@@ -32,6 +42,7 @@ import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
 export function DriverShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isLoading, signOut } = useAuth();
   const isDriverOnly =
     user !== null &&
@@ -88,9 +99,42 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4">
+      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-24">
         {children}
       </main>
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+        <div className="mx-auto grid w-full max-w-lg grid-cols-5">
+          {[
+            { href: "/driver", label: "driver.nav.home", icon: Home },
+            { href: "/driver/jobs", label: "driver.nav.jobs", icon: ClipboardList },
+            { href: "/driver/notifications", label: "driver.nav.notifications", icon: Bell },
+            { href: "/driver/profile", label: "driver.nav.profile", icon: UserRound },
+            { href: "/driver/settings", label: "driver.nav.settings", icon: Settings },
+          ].map((item) => {
+            const taskDetail = /^\/driver\/[0-9a-f-]{36}$/i.test(pathname);
+            const active =
+              item.href === "/driver"
+                ? pathname === "/driver"
+                : item.href === "/driver/jobs"
+                  ? pathname.startsWith(item.href) || taskDetail
+                  : pathname.startsWith(item.href);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={`flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[11px] font-medium ${
+                  active ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <span className="max-w-full truncate">{t(item.label)}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

@@ -24,6 +24,8 @@ import type {
   SupplierPayload,
   SupplierQRCode,
   DeliveryNoteOCRResult,
+  DeliveryNote,
+  DeliveryNotePublic,
   WasteDispatch,
   WasteDispatchDetail,
   WasteDispatchPayload,
@@ -237,6 +239,84 @@ export function getQRCodes(query: ListQuery): Promise<Paginated<SupplierQRCode>>
   return api.list<SupplierQRCode>("/api/supplier-qr-codes/get_qr_codes/", query);
 }
 
+export function getDeliveryNotes(query: ListQuery = {}): Promise<Paginated<DeliveryNote>> {
+  return api.list<DeliveryNote>("/api/delivery-notes/get_notes/", query);
+}
+
+export function getDeliveryNote(id: string): Promise<DeliveryNote> {
+  return api.get<DeliveryNote>(`/api/delivery-notes/${id}/get_note/`);
+}
+
+export async function issueDeliveryNote(payload: {
+  project: string;
+  supplier: string;
+  vehicle_plate: string;
+  driver_name: string;
+  material_name: string;
+  expected_quantity: string;
+  unit: string;
+  expected_delivery_at: string;
+  notes?: string;
+}): Promise<DeliveryNote> {
+  const note = await api.post<DeliveryNote>("/api/delivery-notes/issue_note/", payload, { silent: true });
+  toastSuccess("qrCodes.toast.created");
+  return note;
+}
+
+export async function closeDeliveryNote(id: string): Promise<DeliveryNote> {
+  const note = await api.post<DeliveryNote>(`/api/delivery-notes/${id}/close_note/`, {});
+  toastSuccess("qrCodes.toast.closed");
+  return note;
+}
+
+export async function cancelDeliveryNote(id: string, reason: string): Promise<DeliveryNote> {
+  return api.post<DeliveryNote>(`/api/delivery-notes/${id}/cancel_note/`, { reason });
+}
+
+export async function voidDeliveryNote(id: string, reason: string): Promise<DeliveryNote> {
+  return api.post<DeliveryNote>(`/api/delivery-notes/${id}/void_note/`, { reason });
+}
+
+export function getPublicDeliveryNote(token: string): Promise<DeliveryNotePublic> {
+  return api.get<DeliveryNotePublic>(`/api/delivery-note-task/${encodeURIComponent(token)}/`, undefined, { auth: false, silent: true });
+}
+
+export function recordPublicDeliveryArrival(token: string, location: { latitude: string; longitude: string; location_accuracy_m?: string }): Promise<DeliveryNotePublic> {
+  return api.post<DeliveryNotePublic>(`/api/delivery-note-task/${encodeURIComponent(token)}/`, { operation: "arrive", ...location }, { auth: false, silent: true });
+}
+
+export async function uploadPublicDeliveryEvidence(token: string, payload: { kind: string; image: File; latitude: string; longitude: string; device_id?: string; client_event_id: string; caption?: string }): Promise<DeliveryNotePublic> {
+  const data = new FormData();
+  data.append("operation", "add_evidence");
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === "image" || value === undefined || value === "") continue;
+    data.append(key, String(value));
+  }
+  data.append("image", payload.image);
+  return api.post<DeliveryNotePublic>(`/api/delivery-note-task/${encodeURIComponent(token)}/`, data, { auth: false, silent: true });
+}
+
+export async function completePublicDeliveryNote(token: string, payload: {
+  decision: "RECEIVED" | "REJECTED";
+  actual_quantity: string;
+  receiver_name: string;
+  receiver_signature: File;
+  rejection_reason?: string;
+  note?: string;
+  latitude: string;
+  longitude: string;
+  location_accuracy_m?: string;
+}): Promise<DeliveryNotePublic> {
+  const data = new FormData();
+  data.append("operation", "complete");
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === "receiver_signature" || value === undefined || value === "") continue;
+    data.append(key, String(value));
+  }
+  data.append("receiver_signature", payload.receiver_signature);
+  return api.post<DeliveryNotePublic>(`/api/delivery-note-task/${encodeURIComponent(token)}/`, data, { auth: false, silent: true });
+}
+
 export async function createQRCode(payload: {
   project: string;
   supplier: string;
@@ -353,36 +433,39 @@ export async function createReceiptWithEvidence(payload: {
   }
   data.append("signature", payload.signature);
   data.append("supplier_signature", payload.supplierSignature);
+  const photos = [
+    ...payload.sitePhotos.map((file, index) => ({
+      file,
+      kind: index === 0 ? "VEHICLE" : index === 1 ? "UNLOADING" : "OTHER",
+      caption:
+        index === 0
+          ? "Arriving vehicle"
+          : index === 1
+            ? "Unloading process"
+            : index === 2
+              ? "Empty vehicle after unloading"
+              : "Other site photo",
+    })),
+    ...(payload.deliveryNotePhoto
+      ? [{
+          file: payload.deliveryNotePhoto,
+          kind: "DELIVERY_NOTE",
+          caption: "Delivery Order",
+        }]
+      : []),
+  ];
+  for (const [index, photo] of photos.entries()) {
+    data.append("photos", photo.file);
+    data.append(`photo_kind_${index}`, photo.kind);
+    data.append(`photo_caption_${index}`, photo.caption);
+  }
+  data.append("device_id", payload.deviceId);
 
   const receipt = await api.post<MaterialReceiptDetail>(
     "/api/receipts/create_receipt/",
     data,
     { silent: true },
   );
-  const capturedAt = payload.receipt.original_captured_at ?? new Date().toISOString();
-  const photos = [
-    ...(payload.deliveryNotePhoto
-      ? [{ file: payload.deliveryNotePhoto, kind: "DELIVERY_NOTE" }]
-      : []),
-    ...payload.sitePhotos.map((file) => ({ file, kind: "UNLOADING" })),
-  ];
-
-  for (const [index, photo] of photos.entries()) {
-    const evidence = new FormData();
-    evidence.append("image", photo.file);
-    evidence.append("kind", photo.kind);
-    evidence.append("taken_at", capturedAt);
-    evidence.append("device_id", payload.deviceId);
-    evidence.append(
-      "client_event_id",
-      `${payload.receipt.client_event_id ?? receipt.id}:photo:${index}`,
-    );
-    if (payload.receipt.latitude) evidence.append("latitude", payload.receipt.latitude);
-    if (payload.receipt.longitude) evidence.append("longitude", payload.receipt.longitude);
-    await api.post(`/api/receipts/${receipt.id}/add_photo/`, evidence, {
-      silent: true,
-    });
-  }
 
   toastSuccess("receipts.toast.created");
   return receipt;

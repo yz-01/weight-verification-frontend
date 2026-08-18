@@ -2,10 +2,27 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useMemo } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 
 import type { CurrentUser } from "@/interfaces/auth";
-import { clearTokens, getSessionPortal, hasSession } from "@/lib/auth-token";
+import { ApiError } from "@/interfaces/api";
+import {
+  clearFieldTokens,
+  clearTokens,
+  getSessionPortal,
+  hasFieldSession,
+  hasSession,
+  isFieldStandaloneApp,
+  isFieldSessionPath,
+} from "@/lib/auth-token";
+import { cacheBranding } from "@/lib/branding";
 import { portalLoginPath } from "@/lib/portal";
 import * as authService from "@/services/auth.service";
 
@@ -19,39 +36,65 @@ interface AuthContextValue {
   can: (code: string) => boolean;
   /** True if the user holds at least one of the codes. */
   canAny: (codes: string[]) => boolean;
-  setUser: (user: CurrentUser) => Promise<void>;
+  setUser: (user: CurrentUser) => void;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const subscribeStandaloneMode = () => () => {};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
+  const fieldApp = useSyncExternalStore(
+    subscribeStandaloneMode,
+    isFieldStandaloneApp,
+    () => false,
+  );
+  const fieldSession = isFieldSessionPath(pathname) || fieldApp;
   const isFieldCredentialExchange = [
     "/trace/field-activate",
     "/trace/field-login",
     "/trace/field-ready",
     "/field-pwa-bootstrap",
   ].includes(pathname);
-  const sessionPresent = hasSession();
+  // Field Staff uses an isolated device session. Checking the standard
+  // account token here makes a deep-linked supplier QR open the PIN page even
+  // though the Field Staff device is already signed in.
+  const sessionPresent = fieldSession ? hasFieldSession() : hasSession();
+  const currentUserKey = useMemo(
+    () => [...CURRENT_USER_KEY, fieldSession ? "field" : "standard"] as const,
+    [fieldSession],
+  );
+
+  useEffect(() => {
+    if (fieldApp && !isFieldSessionPath(pathname)) {
+      router.replace("/field-staff");
+    }
+  }, [fieldApp, pathname, router]);
 
   // The session lives in the query cache rather than in component state, so
   // that a profile update and the shell read the same record and neither can
   // go stale against the other.
   const { data, isPending, isFetched } = useQuery({
-    queryKey: CURRENT_USER_KEY,
+    queryKey: currentUserKey,
     queryFn: async () => {
       try {
         return await authService.getMe();
-      } catch {
+      } catch (error) {
         // A token that is present but no longer accepted: expired, revoked, or
         // the account was suspended. Drop it rather than leaving the shell in
         // a half-signed-in state.
-        clearTokens();
-        return null;
+        if (error instanceof ApiError && [401, 403].includes(error.status)) {
+          if (fieldSession) clearFieldTokens();
+          else clearTokens();
+          return null;
+        }
+        // A temporary network or server failure must not sign a field device
+        // out. Keeping the last successful user lets offline work continue.
+        throw error;
       }
     },
     // Nothing to ask about without a token, and asking would 401 on every load
@@ -60,8 +103,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Roles are editable while their users are signed in. Keep the shell's
     // menu close to the backend's live permission decision without requiring
     // a logout after an administrator changes a role.
-    staleTime: 60_000,
-    refetchInterval: 60_000,
+    staleTime: fieldSession ? 5_000 : 60_000,
+    // Reissuing a field invitation revokes the old device on the backend.
+    // Check the lightweight profile often enough for an open installed app to
+    // leave the workspace promptly; returning to the app also checks at once.
+    refetchInterval: fieldSession ? 15_000 : 60_000,
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: "always",
     retry: false,
   });
@@ -71,24 +118,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     sessionPresent && !isFieldCredentialExchange && isPending && !isFetched;
 
   const setUser = useCallback(
-    async (next: CurrentUser) => {
+    (next: CurrentUser) => {
       // Login pages remain reachable while a session exists. A person can
-      // therefore switch accounts without first pressing Sign out; clear the
-      // previous tenant's requests before publishing the new account.
-      await queryClient.cancelQueries();
+      // therefore switch accounts without first pressing Sign out. Publish
+      // the new account immediately; cancellation is intentionally not
+      // awaited because a slow request from the previous tenant must never
+      // hold the login screen open or block the dashboard navigation.
+      void queryClient.cancelQueries(
+        {
+          predicate: (query) =>
+            query.queryKey[0] !== CURRENT_USER_KEY[0] ||
+            query.queryKey[1] !== CURRENT_USER_KEY[1],
+        },
+        { silent: true },
+      );
       queryClient.removeQueries({
         predicate: (query) =>
           query.queryKey[0] !== CURRENT_USER_KEY[0] ||
           query.queryKey[1] !== CURRENT_USER_KEY[1],
       });
-      queryClient.setQueryData(CURRENT_USER_KEY, next);
+      cacheBranding(next.branding, fieldSession);
+      queryClient.setQueryData(currentUserKey, next);
     },
-    [queryClient],
+    [currentUserKey, fieldSession, queryClient],
   );
 
   const refresh = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: CURRENT_USER_KEY });
-  }, [queryClient]);
+    await queryClient.invalidateQueries({ queryKey: currentUserKey });
+  }, [currentUserKey, queryClient]);
 
   const signOut = useCallback(async () => {
     const portal = getSessionPortal();
@@ -109,13 +166,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           query.queryKey[0] !== CURRENT_USER_KEY[0] ||
           query.queryKey[1] !== CURRENT_USER_KEY[1],
       });
-      queryClient.setQueryData(CURRENT_USER_KEY, null);
+      queryClient.setQueryData(currentUserKey, null);
       // Keep the last portal marker. The signed-out shell also observes the
       // user becoming null; retaining this value makes every redirect converge
       // on the same branded login instead of racing back to generic `/login`.
-      router.replace(portalLoginPath(portal));
+      router.replace(fieldSession ? "/trace/field-login" : portalLoginPath(portal));
     }
-  }, [queryClient, router]);
+  }, [currentUserKey, fieldSession, queryClient, router]);
 
   const permissions = useMemo(
     () => new Set(user?.permissions ?? []),

@@ -158,6 +158,10 @@ export function ViewTask({ id }: { id: string }) {
               value={data.delivered_at ? df.dateTime(data.delivered_at) : null}
             />
             <ReadField
+              label={t("tasks.field.completedAt")}
+              value={data.completed_at ? df.dateTime(data.completed_at) : null}
+            />
+            <ReadField
               label={t("tasks.field.arrivalLocation")}
               value={
                 coordinates ? (

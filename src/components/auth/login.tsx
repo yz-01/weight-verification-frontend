@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { Loader2, LogIn, ShieldCheck } from "lucide-react";
+import { Loader2, LogIn } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,15 +9,24 @@ import { useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { required, requiredEmail } from "@/components/shared/form-shell";
+import { BrandIcon } from "@/components/shared/brand-icon";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
 import type { Portal } from "@/interfaces/auth";
-import { PORTAL_LABELS, portalPaths } from "@/lib/portal";
+import {
+  PORTAL_LABELS,
+  portalPaths,
+  redirectWithFallback,
+} from "@/lib/portal";
 import { cn } from "@/lib/utils";
-import { landingPathFor } from "@/lib/navigation";
+import {
+  firstAllowedDashboardPath,
+  isRouteAllowed,
+  landingPathFor,
+} from "@/lib/navigation";
 import * as authService from "@/services/auth.service";
 
 export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string }) {
@@ -32,7 +41,7 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
       setFormError(null);
       try {
         const result = await authService.login(value.email, value.password, portal);
-        await setUser(result.user);
+        setUser(result.user);
 
         // Drivers land on the driver page, not the console. Decided from the
         // permissions the sign-in already returned rather than from a role
@@ -41,13 +50,26 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
         const defaultLanding = landingPathFor((code) =>
           Boolean(result.user.is_superuser) || permissions.has(code),
         );
-        router.replace(
-          nextPath ??
-            (defaultLanding === "/dashboard"
-              ? result.user.company_preferences?.home_page
-              : undefined) ??
-            defaultLanding,
-        );
+        const preferredHome = result.user.company_preferences?.home_page;
+        const consoleHome =
+          preferredHome &&
+          isRouteAllowed(
+            result.user.portal,
+            result.user.features,
+            preferredHome,
+            result.user.permissions,
+            result.user.is_superuser,
+          )
+            ? preferredHome
+            : firstAllowedDashboardPath(
+                result.user.portal,
+                result.user.features,
+              );
+        const destination =
+          nextPath ?? (defaultLanding === "/dashboard" ? consoleHome : defaultLanding);
+
+        router.prefetch(destination);
+        redirectWithFallback(router, destination, 1_200);
       } catch (error) {
         setFormError(messageFor(error, t));
       }
@@ -58,8 +80,8 @@ export function Login({ portal, nextPath }: { portal: Portal; nextPath?: string 
     <div className="flex min-h-dvh flex-col bg-background">
       <header className="flex items-center justify-between px-6 py-5 lg:px-10">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <ShieldCheck className="h-4.5 w-4.5" />
+          <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border bg-background p-1">
+            <BrandIcon alt={t("app.name")} />
           </span>
           <span className="text-sm font-semibold tracking-tight">
             {t("app.name")}

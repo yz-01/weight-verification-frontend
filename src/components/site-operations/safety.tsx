@@ -20,6 +20,13 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import {
+  completedFieldEvidence,
+  createEmptyFieldEvidence,
+  FIELD_EVIDENCE_PHOTO_COUNT,
+  FieldEvidenceGrid,
+  hasRequiredFieldEvidence,
+} from "@/components/field-staff/field-evidence-grid";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -58,16 +65,18 @@ import type {
 import { useDateFormat } from "@/lib/dates";
 import { submitSafetyIncidentOfflineAware } from "@/services/offline-sync.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
+import { getProjectAssignments } from "@/services/contractor.service";
 import {
   assignSafetyRectification,
   exportSafetyIncidents,
   getSafetyIncident,
   getSafetyIncidents,
+  getIncidentRecipientOptions,
   reviewSafetyRectification,
   submitSafetyRectification,
   updateSafetyStatus,
 } from "@/services/site-operations.service";
-import { getProjectAssignments } from "@/services/contractor.service";
+import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 
 const SEVERITIES: IncidentSeverity[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 const STATUSES: IncidentStatus[] = [
@@ -106,7 +115,7 @@ interface SafetyDraft {
   occurredAt: string;
   latitude?: string;
   longitude?: string;
-  photos: File[];
+  photos: Array<File | undefined>;
   notifyUsers: string[];
 }
 
@@ -117,7 +126,7 @@ const EMPTY_DRAFT: SafetyDraft = {
   description: "",
   severity: "MEDIUM",
   occurredAt: "",
-  photos: [],
+  photos: createEmptyFieldEvidence(),
   notifyUsers: [],
 };
 
@@ -309,20 +318,20 @@ export function Safety({
         meta: { label: t("safety.field.evidence") },
         header: () => t("safety.field.evidence"),
         cell: ({ row }) => (
-          <div className="flex items-center gap-1">
+          <div className="flex max-w-[18rem] items-center gap-1 overflow-x-auto py-1 [scrollbar-width:thin]">
             {row.original.latitude && (
               <LocateFixed
-                className="h-4 w-4 text-success"
+                className="h-4 w-4 shrink-0 text-success"
                 aria-label={t("safety.evidence.location")}
               />
             )}
-            {(row.original.initial_evidence ?? []).slice(0, 3).map((item, index) => (
+            {(row.original.initial_evidence ?? []).map((item, index) => (
               <a
                 key={item.id}
                 href={item.watermarked || item.image}
                 target="_blank"
                 rel="noreferrer"
-                className="relative overflow-hidden rounded-md border"
+                className="relative shrink-0 overflow-hidden rounded-md border"
                 title={`${t("safety.evidence.photo")} ${index + 1}`}
               >
                 <Image
@@ -335,11 +344,6 @@ export function Safety({
                 />
               </a>
             ))}
-            {(row.original.initial_evidence?.length ?? 0) > 3 && (
-              <span className="text-xs font-semibold text-muted-foreground">
-                +{row.original.initial_evidence.length - 3}
-              </span>
-            )}
             {!row.original.latitude && !(row.original.initial_evidence?.length ?? 0) && (
               <span className="text-muted-foreground">{t("common.emptyValue")}</span>
             )}
@@ -423,9 +427,11 @@ export function Safety({
         <ProjectPicker
           value={selectedProject}
           onValueChange={(value) => {
-            list.setFilter("project", value === "all" ? undefined : value);
-            list.setFilter("category", undefined);
-            list.setFilter("responsible_person", undefined);
+            list.setFilters({
+              project: value === "all" ? undefined : value,
+              category: undefined,
+              responsible_person: undefined,
+            });
           }}
           placeholder={t("safety.filter.project")}
           allowAll
@@ -587,12 +593,22 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
 function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
   const qc = useQueryClient();
-  const [images, setImages] = useState<File[]>([]);
+  const { user } = useAuth();
+  const fieldMode = Boolean(user?.is_field_staff);
+  const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
+  const [officeImages, setOfficeImages] = useState<File[]>([]);
   const [note, setNote] = useState("");
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string } | null>(null);
   const [locationError, setLocationError] = useState("");
+  const images = fieldMode ? completedFieldEvidence(fieldEvidence) : officeImages;
+  const evidenceLabels = [
+    t("evidence.before"),
+    t("evidence.completed"),
+    t("evidence.detail"),
+    t("evidence.surroundings"),
+  ];
   const getLocation = () => { setLocationError(""); navigator.geolocation.getCurrentPosition((position) => setLocation({ latitude: position.coords.latitude.toFixed(7), longitude: position.coords.longitude.toFixed(7), accuracy: position.coords.accuracy.toFixed(2) }), () => setLocationError(t("error.location")), { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }); };
-  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
@@ -601,12 +617,24 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
           <DialogDescription>{incident.rectification_note || t("submit.description")}</DialogDescription>
         </DialogHeader>
         <FieldWrapper label={t("field.photo")} required>
-          <FieldCamera
-            label={t("field.photo")}
-            fileCount={images.length}
-            onCapture={(image) => setImages((current) => [...current, image])}
-            onClear={() => setImages([])}
-          />
+          {fieldMode ? (
+            <FieldEvidenceGrid
+              labels={evidenceLabels}
+              files={fieldEvidence}
+              progressLabel={t("evidence.progress", {
+                current: images.length,
+                required: FIELD_EVIDENCE_PHOTO_COUNT,
+              })}
+              onChange={setFieldEvidence}
+            />
+          ) : (
+            <FieldCamera
+              label={t("field.photo")}
+              fileCount={officeImages.length}
+              onCapture={(image) => setOfficeImages((current) => [...current, image])}
+              onClear={() => setOfficeImages([])}
+            />
+          )}
         </FieldWrapper>
         <FieldWrapper label={t("field.location")} required error={locationError}>
           <Button className="w-full" variant="outline" onClick={getLocation}>
@@ -614,12 +642,12 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
             {location ? t("action.locationReady") : t("action.getLocation")}
           </Button>
         </FieldWrapper>
-        <FieldWrapper label={t("field.workDone")} required>
+        <FieldWrapper label={t("field.workDone")} optional={fieldMode ? t("action.optional") : undefined} required={!fieldMode}>
           <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
         </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button disabled={!images.length || !location || !note.trim() || save.isPending} onClick={() => save.mutate()}>
+          <Button disabled={images.length < (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) || (fieldMode && !hasRequiredFieldEvidence(fieldEvidence)) || !location || (!fieldMode && !note.trim()) || save.isPending} onClick={() => save.mutate()}>
             <Camera />
             {t("action.submit")}
           </Button>
@@ -726,13 +754,18 @@ function SafetyCreateDialog({
     enabled: Boolean(draft.project),
   });
   const team = useQuery({
-    queryKey: ["project-assignments", draft.project, "incident-notify"],
-    queryFn: () => getProjectAssignments(draft.project),
+    queryKey: ["incident-recipient-options", draft.project],
+    queryFn: () => getIncidentRecipientOptions(draft.project),
     enabled: Boolean(draft.project),
   });
-  const selectableWorkers = (team.data?.results ?? []).filter(
-    (row) => row.user !== user?.id,
-  );
+  const selectableWorkers = team.data ?? [];
+  const completedPhotos = completedFieldEvidence(draft.photos);
+  const fieldEvidenceLabels = [
+    t("safety.fieldEvidence.overview"),
+    t("safety.fieldEvidence.detail"),
+    t("safety.fieldEvidence.risk"),
+    t("safety.fieldEvidence.surroundings"),
+  ];
 
   function toggleRecipient(userId: string, checked: boolean) {
     setDraft((value) => ({
@@ -757,7 +790,7 @@ function SafetyCreateDialog({
           : undefined,
         latitude: draft.latitude,
         longitude: draft.longitude,
-        photos: draft.photos,
+        photos: completedPhotos,
         notify_users: draft.notifyUsers,
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,
@@ -778,8 +811,8 @@ function SafetyCreateDialog({
       (position) => {
         setDraft((value) => ({
           ...value,
-          latitude: String(position.coords.latitude),
-          longitude: String(position.coords.longitude),
+          latitude: position.coords.latitude.toFixed(7),
+          longitude: position.coords.longitude.toFixed(7),
         }));
         setLocating(false);
       },
@@ -792,7 +825,8 @@ function SafetyCreateDialog({
     draft.project !== "" &&
     draft.category !== "" &&
     draft.title.trim() !== "" &&
-    draft.photos.length > 0 &&
+    completedPhotos.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) &&
+    (!fieldMode || hasRequiredFieldEvidence(draft.photos)) &&
     Boolean(draft.latitude && draft.longitude) &&
     (!fieldMode || draft.notifyUsers.length > 0);
 
@@ -908,26 +942,45 @@ function SafetyCreateDialog({
               }
             />
           </FieldWrapper>
-          <FieldWrapper label={t("safety.field.photo")} required>
-            <FieldCamera
-              label={t("safety.field.photo")}
-              fileCount={draft.photos.length}
-              onCapture={(photo) =>
-                setDraft((value) => ({
-                  ...value,
-                  photos: [...value.photos, photo],
-                }))
-              }
-              onClear={() => setDraft((value) => ({ ...value, photos: [] }))}
-            />
+          <FieldWrapper label={t("safety.field.photo")} required className="sm:col-span-2">
+            {fieldMode ? (
+              <FieldEvidenceGrid
+                labels={fieldEvidenceLabels}
+                files={draft.photos}
+                progressLabel={t("safety.fieldEvidence.progress", {
+                  current: completedPhotos.length,
+                  required: FIELD_EVIDENCE_PHOTO_COUNT,
+                })}
+                onChange={(photos) => setDraft((value) => ({ ...value, photos }))}
+              />
+            ) : (
+              <FieldCamera
+                label={t("safety.field.photo")}
+                fileCount={completedPhotos.length}
+                onCapture={(photo) =>
+                  setDraft((value) => ({
+                    ...value,
+                    photos: [photo],
+                  }))
+                }
+                onClear={() => setDraft((value) => ({ ...value, photos: [] }))}
+              />
+            )}
           </FieldWrapper>
           <FieldWrapper label={t("safety.fieldReport.notifyPeople")} required={fieldMode} className="sm:col-span-2">
             <p className="mb-2 text-xs text-muted-foreground">{t("safety.fieldReport.supervisorAutomatic")}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {selectableWorkers.map((row) => (
-                <label key={row.user} className="flex min-h-12 items-center gap-3 rounded-lg border p-3">
-                  <Checkbox checked={draft.notifyUsers.includes(row.user)} onCheckedChange={(checked) => toggleRecipient(row.user, checked === true)} />
-                  <span className="font-medium">{row.user_name}</span>
+                <label key={row.id} className="flex min-h-12 items-center gap-3 rounded-lg border p-3">
+                  <Checkbox checked={draft.notifyUsers.includes(row.id)} onCheckedChange={(checked) => toggleRecipient(row.id, checked === true)} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">{row.full_name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {row.is_supervisor
+                        ? `${row.role_name} / ${t("incidentReporting.supervisor")}`
+                        : row.role_name}
+                    </span>
+                  </span>
                 </label>
               ))}
               {!team.isLoading && selectableWorkers.length === 0 && <p className="text-sm text-muted-foreground">{t("safety.fieldReport.noWorkers")}</p>}

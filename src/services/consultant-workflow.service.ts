@@ -258,12 +258,12 @@ export const getApplicationEvidenceCandidates = (project: string) =>
 
 export const linkApplicationEvidence = async (
   id: string,
-  evidence: string,
+  evidenceIds: string[],
   caption: string,
 ) => {
   const row = await api.post<ConsultantApplication>(
     `/api/consultant-applications/${id}/link_evidence/`,
-    { evidence, caption },
+    { evidence_ids: evidenceIds, caption },
   );
   toastSuccess("consultantWorkflow.toast.evidenceLinked");
   return row;

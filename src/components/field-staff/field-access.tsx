@@ -4,13 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Camera, Loader2, LogIn, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
+import { redirectWithFallback, safeReturnPath } from "@/lib/portal";
+import { cacheBranding } from "@/lib/branding";
 import {
   activateFieldDevice,
   fieldLogin,
@@ -24,16 +26,22 @@ export function FieldAccess() {
   const router = useRouter();
   const { setUser } = useAuth();
   const token = searchParams.get("token") ?? "";
+  const next = safeReturnPath(searchParams.get("next") ?? undefined);
   const invitation = useQuery({
     queryKey: ["field-invitation", token],
     queryFn: () => inspectFieldInvitation(token),
     enabled: Boolean(token),
     retry: false,
   });
-  const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!token || !invitation.data?.branding) return;
+    document.title = invitation.data.branding.name;
+    cacheBranding(invitation.data.branding, true);
+  }, [invitation.data, token]);
 
   const submit = async () => {
     setError("");
@@ -47,10 +55,21 @@ export function FieldAccess() {
             device_id: deviceId,
             device_name: navigator.platform || t("thisPhone"),
           })
-        : await fieldLogin({ phone, pin, device_id: deviceId });
-      await setUser(result.user);
-      router.replace(
-        `/trace/field-ready?bootstrap=${encodeURIComponent(result.pwa_bootstrap.token)}`,
+        : await fieldLogin({
+            pin,
+            device_id: deviceId,
+          });
+      setUser(result.user);
+      const bootstrapToken = result.pwa_bootstrap?.token;
+      const destination = bootstrapToken
+        ? `/trace/field-ready?bootstrap=${encodeURIComponent(bootstrapToken)}${
+            next ? `&next=${encodeURIComponent(next)}` : ""
+          }`
+        : next ?? "/field-staff";
+      redirectWithFallback(
+        router,
+        destination,
+        150,
       );
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : t("failed"));
@@ -92,19 +111,6 @@ export function FieldAccess() {
               <p className="mt-1 text-muted-foreground">{invitation.data.phone}</p>
             </div>
           )}
-          {!token && (
-            <div className="space-y-2">
-              <Label htmlFor="field-phone">{t("phone")}</Label>
-              <Input
-                id="field-phone"
-                inputMode="tel"
-                autoComplete="tel"
-                className="h-12 text-base"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-              />
-            </div>
-          )}
           <div className="space-y-2">
             <Label htmlFor="field-pin">{t("pin")}</Label>
             <Input
@@ -121,7 +127,7 @@ export function FieldAccess() {
           <Button
             size="lg"
             className="h-14 w-full text-base"
-            disabled={pin.length !== 6 || (!token && !phone.trim()) || pending}
+            disabled={pin.length !== 6 || pending}
             onClick={() => void submit()}
           >
             {pending ? <Loader2 className="animate-spin" /> : <LogIn />}

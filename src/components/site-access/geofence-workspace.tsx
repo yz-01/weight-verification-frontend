@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CircleDot, LocateFixed, MapPinned, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Check, CircleDot, LocateFixed, MapPinned, MousePointerClick, Pencil, Pentagon, Plus, RotateCcw, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
@@ -14,7 +14,6 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import type { Project } from "@/interfaces/contractor";
 import type { SiteGeofence, SiteGeofencePayload } from "@/interfaces/site-access";
@@ -113,14 +112,56 @@ export function GeofenceWorkspace() {
 
 function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projectsError, onClose, onSaved }: { row: SiteGeofence | null; defaultProject: string; projects: Project[]; projectsLoading: boolean; projectsError: boolean; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteControl");
-  const [form, setForm] = useState<SiteGeofencePayload>(() => row ? { project: row.project, name: row.name, shape: row.shape, address: row.address, latitude: row.latitude, longitude: row.longitude, radius_m: row.radius_m, polygon: row.polygon, is_primary: row.is_primary, is_active: row.is_active } : { ...EMPTY, project: defaultProject });
+  const [form, setForm] = useState<SiteGeofencePayload>(() => {
+    if (row) return { project: row.project, name: row.name, shape: row.shape, address: row.address, latitude: row.latitude, longitude: row.longitude, radius_m: row.radius_m, polygon: row.polygon, is_primary: row.is_primary, is_active: row.is_active };
+    const project = projects.find((item) => item.id === defaultProject);
+    return {
+      ...EMPTY,
+      project: defaultProject,
+      ...(project?.latitude && project.longitude
+        ? {
+            latitude: String(project.latitude),
+            longitude: String(project.longitude),
+            radius_m: project.geofence_radius_m ?? EMPTY.radius_m,
+          }
+        : {}),
+    };
+  });
   const [locationError, setLocationError] = useState("");
+  const [drawing, setDrawing] = useState(false);
   const save = useMutation({ mutationFn: () => row ? updateSiteGeofence(row.id, form) : createSiteGeofence(form), onSuccess: onSaved });
   const selectedProject = projects.find((project) => project.id === form.project);
   const center = form.latitude && form.longitude ? [Number(form.latitude), Number(form.longitude)] as [number, number] : undefined;
   const setCenter = useCallback((point: [number, number]) => setForm((current) => ({ ...current, latitude: point[0].toFixed(7), longitude: point[1].toFixed(7) })), []);
   const setPoints = useCallback((points: Array<[number, number]>) => setForm((current) => ({ ...current, polygon: points })), []);
-  const valid = Boolean(form.project && form.name.trim() && (form.shape === "CIRCLE" ? center && form.radius_m : form.polygon.length >= 3));
+  const pointsNeeded = Math.max(0, 3 - form.polygon.length);
+  const valid = Boolean(form.project && form.name.trim() && (form.shape === "CIRCLE" ? center && form.radius_m : form.polygon.length >= 3 && !drawing));
+
+  function selectProject(value: string) {
+    const project = projects.find((item) => item.id === value);
+    setLocationError("");
+    setForm((current) => ({
+      ...current,
+      project: value,
+      ...(project?.latitude && project.longitude
+        ? {
+            latitude: String(project.latitude),
+            longitude: String(project.longitude),
+            radius_m: project.geofence_radius_m ?? current.radius_m,
+          }
+        : {}),
+    }));
+  }
+
+  function selectShape(shape: "CIRCLE" | "POLYGON") {
+    setForm((current) => ({
+      ...current,
+      shape,
+      polygon: shape === "POLYGON" ? current.polygon : [],
+    }));
+    setDrawing(shape === "POLYGON" && form.polygon.length < 3);
+  }
+
   function useProjectLocation() {
     if (!selectedProject?.latitude || !selectedProject.longitude) { setLocationError(t("geofence.noProjectLocation")); return; }
     setLocationError(""); setCenter([Number(selectedProject.latitude), Number(selectedProject.longitude)]);
@@ -128,19 +169,107 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
   }
   function useGps() {
     setLocationError("");
-    navigator.geolocation?.getCurrentPosition((position) => setCenter([position.coords.latitude, position.coords.longitude]), () => setLocationError(t("geofence.gpsError")), { enableHighAccuracy: true, timeout: 15000 });
+    if (!("geolocation" in navigator)) { setLocationError(t("geofence.gpsError")); return; }
+    navigator.geolocation.getCurrentPosition((position) => setCenter([position.coords.latitude, position.coords.longitude]), () => setLocationError(t("geofence.gpsError")), { enableHighAccuracy: true, timeout: 15000 });
   }
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-3xl"><DialogHeader className="min-w-0 shrink-0"><DialogTitle>{t(row ? "geofence.editTitle" : "geofence.createTitle")}</DialogTitle><DialogDescription>{t("geofence.formHelp")}</DialogDescription></DialogHeader>
-    <div className="min-h-0 w-0 min-w-full max-w-full flex-1 space-y-4 overflow-y-auto overflow-x-hidden pr-1">
-    <div className="grid w-full min-w-0 max-w-full gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.project")} required error={projectsError ? t("state.projectLoadError") : undefined} hint={!projectsLoading && !projectsError && !projects.length ? t("noProjects") : undefined}><ProjectPicker value={form.project} onValueChange={(value) => setForm({ ...form, project: value })} placeholder={t("field.chooseProject")} disabled={Boolean(row)} projects={projects} projectsLoading={projectsLoading} projectsError={projectsError} /></FieldWrapper><FieldWrapper label={t("field.name")} required><Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></FieldWrapper><FieldWrapper label={t("field.shape")}><Select value={form.shape} onValueChange={(value: "CIRCLE" | "POLYGON") => setForm({ ...form, shape: value, polygon: value === "POLYGON" ? form.polygon : [] })}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="CIRCLE">{t("shape.CIRCLE")}</SelectItem><SelectItem value="POLYGON">{t("shape.POLYGON")}</SelectItem></SelectContent></Select></FieldWrapper><FieldWrapper label={t("field.address")}><Input value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} /></FieldWrapper></div>
-    <div className="flex flex-wrap gap-2"><Button type="button" size="sm" variant="outline" onClick={useProjectLocation}><MapPinned />{t("geofence.useProject")}</Button><Button type="button" size="sm" variant="outline" onClick={useGps}><LocateFixed />{t("geofence.useGps")}</Button>{form.shape === "POLYGON" && <><Button type="button" size="sm" variant="outline" disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: form.polygon.slice(0, -1) })}><RotateCcw />{t("geofence.undoPoint")}</Button><Button type="button" size="sm" variant="ghost" disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: [] })}>{t("geofence.clearPoints")}</Button></>}</div>
-    {locationError && <p className="text-sm text-destructive">{locationError}</p>}
-    <div className="geofence-map-viewport block w-full min-w-0 max-w-full overflow-hidden"><GeofenceMapEditor shape={form.shape} center={center} radiusM={form.radius_m ?? 150} points={form.polygon} onCenter={setCenter} onPoints={setPoints} /></div>
-    {form.shape === "CIRCLE" ? <div className="grid gap-4 sm:grid-cols-3"><FieldWrapper label={t("field.latitude")} required><Input inputMode="decimal" value={form.latitude ?? ""} onChange={(event) => setForm({ ...form, latitude: event.target.value })} /></FieldWrapper><FieldWrapper label={t("field.longitude")} required><Input inputMode="decimal" value={form.longitude ?? ""} onChange={(event) => setForm({ ...form, longitude: event.target.value })} /></FieldWrapper><FieldWrapper label={t("field.radius")} required><Input type="number" min={1} value={form.radius_m ?? ""} onChange={(event) => setForm({ ...form, radius_m: Number(event.target.value) })} /></FieldWrapper></div> : <p className="rounded-lg bg-muted/40 p-3 text-sm">{t("geofence.pointInstruction", { count: form.polygon.length })}</p>}
-    <div className="grid gap-3 sm:grid-cols-2"><Toggle label={t("geofence.primary")} checked={form.is_primary} onChange={(checked) => setForm({ ...form, is_primary: checked })} /><Toggle label={t("status.active")} checked={form.is_active} onChange={(checked) => setForm({ ...form, is_active: checked })} /></div>
-    </div>
-    <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!valid || save.isPending} onClick={() => save.mutate()}><CircleDot />{t("action.save")}</Button></DialogFooter>
-  </DialogContent></Dialog>;
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-3xl">
+        <DialogHeader className="min-w-0 shrink-0">
+          <DialogTitle>{t(row ? "geofence.editTitle" : "geofence.createTitle")}</DialogTitle>
+          <DialogDescription>{t("geofence.formHelp")}</DialogDescription>
+        </DialogHeader>
+
+        <div className="min-h-0 w-0 min-w-full max-w-full flex-1 space-y-4 overflow-y-auto overflow-x-hidden pr-1">
+          <div className="grid w-full min-w-0 max-w-full gap-4 sm:grid-cols-2">
+            <FieldWrapper label={t("field.project")} required error={projectsError ? t("state.projectLoadError") : undefined} hint={!projectsLoading && !projectsError && !projects.length ? t("noProjects") : undefined}>
+              <ProjectPicker value={form.project} onValueChange={selectProject} placeholder={t("field.chooseProject")} disabled={Boolean(row)} projects={projects} projectsLoading={projectsLoading} projectsError={projectsError} />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.name")} required>
+              <Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+            </FieldWrapper>
+          </div>
+
+          <FieldWrapper label={t("field.shape")}>
+            <div className="grid grid-cols-2 gap-2" role="group" aria-label={t("field.shape")}>
+              <Button type="button" variant={form.shape === "CIRCLE" ? "default" : "outline"} className="h-auto min-h-16 justify-start whitespace-normal px-3 py-3 text-left" aria-pressed={form.shape === "CIRCLE"} onClick={() => selectShape("CIRCLE")}>
+                <CircleDot className="size-5 shrink-0" />
+                <span><span className="block font-semibold">{t("shape.CIRCLE")}</span><span className="mt-0.5 block text-xs opacity-80">{t("geofence.circleChoiceHelp")}</span></span>
+              </Button>
+              <Button type="button" variant={form.shape === "POLYGON" ? "default" : "outline"} className="h-auto min-h-16 justify-start whitespace-normal px-3 py-3 text-left" aria-pressed={form.shape === "POLYGON"} onClick={() => selectShape("POLYGON")}>
+                <Pentagon className="size-5 shrink-0" />
+                <span><span className="block font-semibold">{t("shape.POLYGON")}</span><span className="mt-0.5 block text-xs opacity-80">{t("geofence.polygonChoiceHelp")}</span></span>
+              </Button>
+            </div>
+          </FieldWrapper>
+
+          <FieldWrapper label={t("field.address")}>
+            <Input value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} />
+          </FieldWrapper>
+
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" variant="outline" onClick={useProjectLocation}><MapPinned />{t("geofence.useProject")}</Button>
+            <Button type="button" size="sm" variant="outline" onClick={useGps}><LocateFixed />{t("geofence.useGps")}</Button>
+          </div>
+          {locationError && <p role="alert" className="text-sm text-destructive">{locationError}</p>}
+
+          {form.shape === "POLYGON" && (
+            <div className={`flex items-start gap-3 rounded-lg border p-3 ${drawing ? "border-primary/30 bg-primary/5" : "border-success/30 bg-success/5"}`}>
+              <span className={`grid size-9 shrink-0 place-items-center rounded-full ${drawing ? "bg-primary text-primary-foreground" : "bg-success text-success-foreground"}`}>
+                {drawing ? <MousePointerClick className="size-5" /> : <Check className="size-5" />}
+              </span>
+              <div className="min-w-0">
+                <p className="font-semibold">{drawing ? t("geofence.drawingTitle") : t("geofence.drawingComplete", { count: form.polygon.length })}</p>
+                <p className="mt-1 text-sm leading-5 text-muted-foreground">{drawing ? t("geofence.drawingBody") : t("geofence.adjustHelp")}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="geofence-map-viewport block w-full min-w-0 max-w-full overflow-hidden">
+            <GeofenceMapEditor shape={form.shape} center={center} radiusM={form.radius_m ?? 150} points={form.polygon} drawingEnabled={form.shape === "POLYGON" && drawing} onCenter={setCenter} onPoints={setPoints} />
+          </div>
+
+          {form.shape === "CIRCLE" ? (
+            <div className="space-y-3">
+              <p className="rounded-lg bg-muted/40 p-3 text-sm">{t("geofence.circleInstruction")}</p>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <FieldWrapper label={t("field.latitude")} required><Input inputMode="decimal" value={form.latitude ?? ""} onChange={(event) => setForm({ ...form, latitude: event.target.value })} /></FieldWrapper>
+                <FieldWrapper label={t("field.longitude")} required><Input inputMode="decimal" value={form.longitude ?? ""} onChange={(event) => setForm({ ...form, longitude: event.target.value })} /></FieldWrapper>
+                <FieldWrapper label={t("field.radius")} required><Input type="number" min={1} value={form.radius_m ?? ""} onChange={(event) => setForm({ ...form, radius_m: Number(event.target.value) })} /></FieldWrapper>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[50, 100, 150, 300].map((radius) => <Button key={radius} type="button" size="sm" variant={form.radius_m === radius ? "default" : "outline"} onClick={() => setForm({ ...form, radius_m: radius })}>{radius} m</Button>)}
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div><p className="font-semibold tabular-nums">{t("geofence.drawingCount", { count: form.polygon.length })}</p><p className="mt-1 text-sm text-muted-foreground">{drawing && pointsNeeded > 0 ? t("geofence.finishNeedThree", { count: pointsNeeded }) : t("geofence.dragPointHelp")}</p></div>
+              <div className="flex flex-wrap gap-2">
+                {drawing ? <>
+                  <Button type="button" size="sm" variant="outline" disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: form.polygon.slice(0, -1) })}><RotateCcw />{t("geofence.undoPoint")}</Button>
+                  <Button type="button" size="sm" variant="outline" disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: [] })}><Trash2 />{t("geofence.clearPoints")}</Button>
+                  <Button type="button" size="sm" disabled={form.polygon.length < 3} onClick={() => setDrawing(false)}><Check />{t("geofence.finishDrawing")}</Button>
+                </> : <>
+                  <Button type="button" size="sm" variant="outline" onClick={() => setDrawing(true)}><MousePointerClick />{t("geofence.continueDrawing")}</Button>
+                  <Button type="button" size="sm" variant="outline" onClick={() => { setForm({ ...form, polygon: [] }); setDrawing(true); }}><RotateCcw />{t("geofence.redraw")}</Button>
+                </>}
+              </div>
+            </div>
+          )}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Toggle label={t("geofence.primary")} checked={form.is_primary} onChange={(checked) => setForm({ ...form, is_primary: checked })} />
+            <Toggle label={t("status.active")} checked={form.is_active} onChange={(checked) => setForm({ ...form, is_active: checked })} />
+          </div>
+        </div>
+
+        <DialogFooter className="shrink-0">
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button disabled={!valid || save.isPending} onClick={() => save.mutate()}><CircleDot />{t("action.save")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function toMapZone(row: SiteGeofence): LocationMapZone { return row.shape === "POLYGON" ? { id: row.id, label: `${row.project_name} · ${row.name}`, points: row.polygon } : { id: row.id, label: `${row.project_name} · ${row.name}`, center: [Number(row.latitude), Number(row.longitude)], radiusM: row.radius_m ?? 1 }; }

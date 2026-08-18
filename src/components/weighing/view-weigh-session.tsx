@@ -1,20 +1,25 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Ban,
   CheckCircle2,
   Flag,
   Loader2,
+  RotateCcw,
   ShieldAlert,
   ShieldCheck,
+  Upload,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { useRef, useState } from "react";
 
 import {
   FormSection,
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
+import { useAuth } from "@/components/providers/auth-provider";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
   DetailHeader,
@@ -23,13 +28,29 @@ import {
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { WeightTrace } from "@/components/weighing/weight-trace";
-import type { SessionVerdict } from "@/interfaces/weighing";
+import type {
+  SessionVerdict,
+  WeighSessionAttachment,
+} from "@/interfaces/weighing";
 import { useDateFormat } from "@/lib/dates";
 import {
   getSessionTrace,
   getWeighSession,
+  confirmWeighTicket,
+  requestTicketReweigh,
+  uploadWeighAttachment,
+  voidWeighTicket,
   verifySessionChain,
 } from "@/services/weighing.service";
 
@@ -50,6 +71,15 @@ export function ViewWeighSession({ id }: { id: string }) {
   const t = useTranslations();
   const df = useDateFormat();
   const formatter = useFormatter();
+  const queryClient = useQueryClient();
+  const { can } = useAuth();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [reweighOpen, setReweighOpen] = useState(false);
+  const [voidOpen, setVoidOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [reason, setReason] = useState("");
+  const [attachmentKind, setAttachmentKind] = useState<WeighSessionAttachment["kind"]>("WEIGHBRIDGE");
+  const attachmentInput = useRef<HTMLInputElement>(null);
 
   const session = useQuery({
     queryKey: ["weigh-sessions", "detail", id],
@@ -64,6 +94,45 @@ export function ViewWeighSession({ id }: { id: string }) {
 
   const verification = useMutation({
     mutationFn: () => verifySessionChain(id),
+  });
+
+  const refreshSession = () => {
+    void queryClient.invalidateQueries({
+      queryKey: ["weigh-sessions", "detail", id],
+    });
+    void queryClient.invalidateQueries({ queryKey: ["weigh-sessions"] });
+  };
+
+  const confirmMutation = useMutation({
+    mutationFn: () => confirmWeighTicket(id, note),
+    onSuccess: () => {
+      setConfirmOpen(false);
+      setNote("");
+      refreshSession();
+    },
+  });
+  const voidMutation = useMutation({
+    mutationFn: () => voidWeighTicket(id, reason),
+    onSuccess: () => {
+      setVoidOpen(false);
+      setReason("");
+      refreshSession();
+    },
+  });
+  const reweighMutation = useMutation({
+    mutationFn: () => requestTicketReweigh(id, reason),
+    onSuccess: () => {
+      setReweighOpen(false);
+      setReason("");
+      refreshSession();
+    },
+  });
+  const attachmentMutation = useMutation({
+    mutationFn: (file: File) => uploadWeighAttachment(id, attachmentKind, file),
+    onSuccess: () => {
+      refreshSession();
+      if (attachmentInput.current) attachmentInput.current.value = "";
+    },
   });
 
   if (session.isLoading) return <FormSkeleton sections={3} />;
@@ -81,10 +150,30 @@ export function ViewWeighSession({ id }: { id: string }) {
         backHref="/weighing"
         backLabel={t("weighing.title")}
         action={
-          <PrintTicketButton
-            sessionId={record.id}
-            sessionNo={record.session_no}
-          />
+          <div className="flex flex-wrap justify-end gap-2">
+            {record.ticket_status === "CONFIRMED" && (
+              <PrintTicketButton
+                sessionId={record.id}
+                sessionNo={record.session_no}
+              />
+            )}
+            {can("weighing.operate") && record.ticket_status === "PENDING_CONFIRMATION" && (
+              <>
+                <Button size="sm" onClick={() => setConfirmOpen(true)}>
+                  <CheckCircle2 className="h-4 w-4" />
+                  {t("weighing.action.confirm")}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setReweighOpen(true)}>
+                  <RotateCcw className="h-4 w-4" />
+                  {t("weighing.action.reweigh")}
+                </Button>
+                <Button size="sm" variant="destructive" onClick={() => setVoidOpen(true)}>
+                  <Ban className="h-4 w-4" />
+                  {t("weighing.action.void")}
+                </Button>
+              </>
+            )}
+          </div>
         }
       />
 
@@ -97,6 +186,18 @@ export function ViewWeighSession({ id }: { id: string }) {
           <StatusBadge
             label={t(`weighing.verdict.${record.verdict}`)}
             tone={VERDICT_TONE[record.verdict]}
+          />
+          <StatusBadge
+            label={t(`weighing.ticketStatus.${record.ticket_status}`)}
+            tone={
+              record.ticket_status === "CONFIRMED"
+                ? "positive"
+                : record.ticket_status === "VOIDED"
+                  ? "danger"
+                  : record.ticket_status === "PENDING_CONFIRMATION"
+                    ? "warning"
+                    : "neutral"
+            }
           />
           {record.requires_review && (
             <span
@@ -142,6 +243,22 @@ export function ViewWeighSession({ id }: { id: string }) {
 
           <FormSection title={t("weighing.section.outcome")}>
             <ReadField
+              label={t("weighing.field.ticketStatus")}
+              value={t(`weighing.ticketStatus.${record.ticket_status}`)}
+            />
+            <ReadField
+              label={t("weighing.field.grossWeight")}
+              value={record.gross_weight_kg ? `${record.gross_weight_kg} kg` : null}
+            />
+            <ReadField
+              label={t("weighing.field.tareWeight")}
+              value={record.tare_weight_kg ? `${record.tare_weight_kg} kg` : null}
+            />
+            <ReadField
+              label={t("weighing.field.netWeight")}
+              value={record.net_weight_kg ? `${record.net_weight_kg} kg` : null}
+            />
+            <ReadField
               label={t("weighing.field.scale")}
               value={record.scale_name}
             />
@@ -182,6 +299,36 @@ export function ViewWeighSession({ id }: { id: string }) {
               label={t("weighing.field.readingCount")}
               value={formatter.number(record.reading_count)}
             />
+            {record.confirmed_at && (
+              <ReadField
+                label={t("weighing.field.confirmedAt")}
+                value={df.precise(record.confirmed_at)}
+              />
+            )}
+            {record.confirmed_by_name && (
+              <ReadField
+                label={t("weighing.field.confirmedBy")}
+                value={record.confirmed_by_name}
+              />
+            )}
+            {record.confirmation_note && (
+              <ReadField
+                label={t("weighing.field.confirmationNote")}
+                value={record.confirmation_note}
+              />
+            )}
+            {record.void_reason && (
+              <ReadField
+                label={t("weighing.field.voidReason")}
+                value={record.void_reason}
+              />
+            )}
+            {record.reweigh_of_session_no && (
+              <ReadField
+                label={t("weighing.field.reweighOf")}
+                value={record.reweigh_of_session_no}
+              />
+            )}
           </FormSection>
 
           <section className="px-6 py-5">
@@ -226,6 +373,87 @@ export function ViewWeighSession({ id }: { id: string }) {
                 </div>
               ))}
             </div>
+          </section>
+
+          <section className="px-6 py-5">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("weighing.attachment.title")}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {record.attachments?.length
+                    ? t("weighing.field.attachmentCount") + `: ${record.attachments.length}`
+                    : t("weighing.attachment.empty")}
+                </p>
+              </div>
+              {can("weighing.operate") && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <Select
+                    value={attachmentKind}
+                    onValueChange={(value) =>
+                      setAttachmentKind(value as WeighSessionAttachment["kind"])
+                    }
+                  >
+                    <SelectTrigger className="min-w-[10rem]">
+                      <SelectValue aria-label={t("weighing.attachment.kind")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(["LOADING", "WEIGHBRIDGE", "CCTV", "ANPR", "OTHER"] as const).map(
+                        (kind) => (
+                          <SelectItem key={kind} value={kind}>
+                            {t(`weighing.attachment.${kind}`)}
+                          </SelectItem>
+                        ),
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    ref={attachmentInput}
+                    type="file"
+                    accept="image/*,.pdf,.mp4"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) attachmentMutation.mutate(file);
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={attachmentMutation.isPending}
+                    onClick={() => attachmentInput.current?.click()}
+                  >
+                    {attachmentMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    {t("weighing.action.uploadEvidence")}
+                  </Button>
+                </div>
+              )}
+            </div>
+            {!!record.attachments?.length && (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {record.attachments.map((attachment) => (
+                  <a
+                    key={attachment.id}
+                    href={attachment.file}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm hover:bg-muted/50"
+                  >
+                    <span className="min-w-0 truncate">
+                      {t(`weighing.attachment.${attachment.kind}`)} · {attachment.original_filename}
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {df.precise(attachment.captured_at)}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="px-6 py-5">
@@ -314,6 +542,49 @@ export function ViewWeighSession({ id }: { id: string }) {
           </section>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title={t("weighing.confirmDialog.title")}
+        description={t("weighing.confirmDialog.description")}
+        confirmLabel={t("weighing.action.confirm")}
+        confirmIcon={CheckCircle2}
+        variant="default"
+        isPending={confirmMutation.isPending}
+        reason={note}
+        onReasonChange={setNote}
+        reasonLabel={t("weighing.confirmDialog.noteLabel")}
+        onConfirm={() => confirmMutation.mutate()}
+      />
+      <ConfirmDialog
+        open={reweighOpen}
+        onOpenChange={setReweighOpen}
+        title={t("weighing.confirmDialog.reweighTitle")}
+        description={t("weighing.confirmDialog.reweighDescription")}
+        confirmLabel={t("weighing.action.reweigh")}
+        confirmIcon={RotateCcw}
+        variant="default"
+        isPending={reweighMutation.isPending}
+        reason={reason}
+        onReasonChange={setReason}
+        reasonRequired
+        reasonLabel={t("weighing.confirmDialog.reasonLabel")}
+        onConfirm={() => reweighMutation.mutate()}
+      />
+      <ConfirmDialog
+        open={voidOpen}
+        onOpenChange={setVoidOpen}
+        title={t("weighing.confirmDialog.voidTitle")}
+        description={t("weighing.confirmDialog.voidDescription")}
+        confirmLabel={t("weighing.action.void")}
+        confirmIcon={Ban}
+        isPending={voidMutation.isPending}
+        reason={reason}
+        onReasonChange={setReason}
+        reasonRequired
+        reasonLabel={t("weighing.confirmDialog.reasonLabel")}
+        onConfirm={() => voidMutation.mutate()}
+      />
     </div>
   );
 }

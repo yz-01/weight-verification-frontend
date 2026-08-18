@@ -1,11 +1,25 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2, X } from "lucide-react";
+import { Check, Loader2, LocateFixed, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  completedFieldEvidence,
+  createEmptyFieldEvidence,
+  FIELD_EVIDENCE_PHOTO_COUNT,
+  FieldEvidenceGrid,
+  hasRequiredFieldEvidence,
+} from "@/components/field-staff/field-evidence-grid";
+import { useAuth } from "@/components/providers/auth-provider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
@@ -33,12 +47,28 @@ export function CreateIncidentDialog({
   onSuccess: () => void;
 }) {
   const t = useTranslations("incidentReporting");
+  const { user } = useAuth();
   const qc = useQueryClient();
   const [project, setProject] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState<IncidentSeverity>("MEDIUM");
   const [recipientIds, setRecipientIds] = useState<string[]>([]);
+  const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
+  const [location, setLocation] = useState<{
+    latitude: string;
+    longitude: string;
+    accuracy: string;
+  }>();
+  const [locating, setLocating] = useState(false);
+  const fieldMode = Boolean(user?.is_field_staff);
+  const photos = completedFieldEvidence(evidence);
+  const evidenceLabels = [
+    t("evidence.overview"),
+    t("evidence.detail"),
+    t("evidence.risk"),
+    t("evidence.surroundings"),
+  ];
 
   const projects = useQuery({
     queryKey: ["projects", "options"],
@@ -68,8 +98,10 @@ export function CreateIncidentDialog({
     if (
       !project ||
       !title.trim() ||
-      !description.trim() ||
-      !recipientIds.length
+      (!fieldMode && !description.trim()) ||
+      !recipientIds.length ||
+      (fieldMode &&
+        (!hasRequiredFieldEvidence(evidence) || !location))
     ) {
       toast.error(t("fillRequired"));
       return;
@@ -82,26 +114,54 @@ export function CreateIncidentDialog({
       recipient_ids: recipientIds,
       severity,
       occurred_at: new Date().toISOString(),
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      accuracy_m: location?.accuracy,
+      photos: fieldMode ? photos : undefined,
     });
+  };
+
+  const captureLocation = () => {
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude.toFixed(7),
+          longitude: position.coords.longitude.toFixed(7),
+          accuracy: position.coords.accuracy.toFixed(2),
+        });
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        toast.error(t("locationError"));
+      },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
+    );
   };
 
   const projectOptions = projects.data?.results ?? [];
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
-      <div className="w-full max-w-md space-y-4 rounded-xl border bg-card p-6 shadow-lg">
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent
+        showCloseButton={false}
+        className="max-h-[calc(100dvh-1rem)] touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] p-5 sm:max-w-md sm:p-6"
+      >
         <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-semibold">{t("dialog.create.title")}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
+          <div className="min-w-0 pr-2">
+            <DialogTitle>{t("dialog.create.title")}</DialogTitle>
+            <DialogDescription className="mt-1">
               {t("dialog.create.description")}
-            </p>
+            </DialogDescription>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="grid size-8 place-items-center rounded-lg hover:bg-muted"
+            className="grid size-9 shrink-0 place-items-center rounded-lg hover:bg-muted"
           >
             <X className="size-4" />
+            <span className="sr-only">{t("action.cancel")}</span>
           </button>
         </div>
 
@@ -158,7 +218,10 @@ export function CreateIncidentDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">{t("field.description")}</Label>
+            <Label htmlFor="description">
+              {t("field.description")}
+              {fieldMode ? ` (${t("optional")})` : ""}
+            </Label>
             <Textarea
               id="description"
               value={description}
@@ -167,6 +230,31 @@ export function CreateIncidentDialog({
               rows={4}
             />
           </div>
+
+          {fieldMode ? (
+            <div className="space-y-3">
+              <Label>{t("evidence.title")}</Label>
+              <FieldEvidenceGrid
+                labels={evidenceLabels}
+                files={evidence}
+                progressLabel={t("evidence.progress", {
+                  current: photos.length,
+                  required: FIELD_EVIDENCE_PHOTO_COUNT,
+                })}
+                onChange={setEvidence}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11 w-full"
+                disabled={locating}
+                onClick={captureLocation}
+              >
+                {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
+                {location ? t("locationReady") : t("captureLocation")}
+              </Button>
+            </div>
+          ) : null}
 
           <div className="space-y-2">
             <Label>{t("field.recipients")}</Label>
@@ -221,7 +309,7 @@ export function CreateIncidentDialog({
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex gap-2 border-t bg-card p-5 sm:-mx-6 sm:-mb-6 sm:p-6">
           <Button
             variant="outline"
             className="flex-1"
@@ -236,8 +324,10 @@ export function CreateIncidentDialog({
             disabled={
               !project ||
               !title.trim() ||
-              !description.trim() ||
+              (!fieldMode && !description.trim()) ||
               !recipientIds.length ||
+              (fieldMode &&
+                (!hasRequiredFieldEvidence(evidence) || !location)) ||
               submit.isPending
             }
           >
@@ -245,7 +335,7 @@ export function CreateIncidentDialog({
             {t("action.create")}
           </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

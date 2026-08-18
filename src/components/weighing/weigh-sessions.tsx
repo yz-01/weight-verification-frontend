@@ -94,6 +94,29 @@ export function WeighSessions() {
         ),
       },
       {
+        accessorKey: "ticket_status",
+        meta: { label: t("weighing.field.ticketStatus") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("weighing.field.ticketStatus")}
+          </span>
+        ),
+        cell: ({ row }) => (
+          <StatusBadge
+            label={t(`weighing.ticketStatus.${row.original.ticket_status}`)}
+            tone={
+              row.original.ticket_status === "CONFIRMED"
+                ? "positive"
+                : row.original.ticket_status === "VOIDED"
+                  ? "danger"
+                  : row.original.ticket_status === "PENDING_CONFIRMATION"
+                    ? "warning"
+                    : "neutral"
+            }
+          />
+        ),
+      },
+      {
         accessorKey: "stable_weight_kg",
         meta: { label: t("weighing.field.stableWeight") },
         header: ({ column }) => (
@@ -267,28 +290,32 @@ export function WeighSessions() {
       key: "all",
       label: t("weighing.filter.all"),
       active: !list.filters.verdict && !list.filters.requires_review,
-      onSelect: () => {
-        list.setFilter("verdict", undefined);
-        list.setFilter("requires_review", undefined);
-      },
+      onSelect: () =>
+        list.setFilters({ verdict: undefined, requires_review: undefined }),
     },
     {
       key: "valid",
       label: t("weighing.filter.valid"),
-      active: list.filters.verdict === "VALID",
-      onSelect: () => list.setFilter("verdict", "VALID"),
+      active:
+        list.filters.verdict === "VALID" && !list.filters.requires_review,
+      onSelect: () =>
+        list.setFilters({ verdict: "VALID", requires_review: undefined }),
     },
     {
       key: "invalid",
       label: t("weighing.filter.invalid"),
-      active: list.filters.verdict === "INVALID",
-      onSelect: () => list.setFilter("verdict", "INVALID"),
+      active:
+        list.filters.verdict === "INVALID" && !list.filters.requires_review,
+      onSelect: () =>
+        list.setFilters({ verdict: "INVALID", requires_review: undefined }),
     },
     {
       key: "review",
       label: t("weighing.filter.review"),
-      active: list.filters.requires_review === "1",
-      onSelect: () => list.setFilter("requires_review", "1"),
+      active:
+        list.filters.requires_review === "1" && !list.filters.verdict,
+      onSelect: () =>
+        list.setFilters({ verdict: undefined, requires_review: "1" }),
     },
   ];
 

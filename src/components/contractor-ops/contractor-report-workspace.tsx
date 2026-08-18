@@ -50,20 +50,23 @@ function displayValue(value: string | number | boolean | null): string {
   return String(value);
 }
 
-const REPORT_DATE_COLUMNS = new Set([
+const REPORT_DATE_TIME_COLUMNS = new Set([
   "captured_at",
   "uploaded_at",
   "occurred_at",
   "completed_at",
   "confirmed_at",
   "submitted_at",
+  "verified_at",
+]);
+
+const REPORT_DATE_ONLY_COLUMNS = new Set([
   "application_date",
   "planned_start",
   "planned_end",
   "period_start",
   "period_end",
   "rectification_due_at",
-  "verified_at",
 ]);
 
 const REPORT_LONG_COLUMNS = new Set([
@@ -76,20 +79,39 @@ const REPORT_LONG_COLUMNS = new Set([
   "title",
 ]);
 
-function reportColumnClass(key: string): string {
+function reportColumnWidth(key: string): number {
   if (key === "latitude" || key === "longitude") {
-    return "w-36 min-w-36 max-w-36 whitespace-nowrap tabular-nums";
+    return 136;
   }
-  if (REPORT_DATE_COLUMNS.has(key)) {
-    return "w-44 min-w-44 max-w-44 whitespace-nowrap tabular-nums";
+  if (REPORT_DATE_TIME_COLUMNS.has(key)) {
+    return 216;
+  }
+  if (REPORT_DATE_ONLY_COLUMNS.has(key)) {
+    return 152;
   }
   if (key === "device_id") {
-    return "w-52 min-w-52 max-w-52 break-all";
+    return 216;
+  }
+  if (key === "file_name") {
+    return 304;
   }
   if (REPORT_LONG_COLUMNS.has(key)) {
-    return "w-64 min-w-64 max-w-64 break-words";
+    return 264;
   }
-  return "w-40 min-w-40 max-w-56 break-words";
+  return 176;
+}
+
+function reportCellClass(key: string): string {
+  if (key === "latitude" || key === "longitude") {
+    return "whitespace-nowrap tabular-nums";
+  }
+  if (REPORT_DATE_TIME_COLUMNS.has(key) || REPORT_DATE_ONLY_COLUMNS.has(key)) {
+    return "whitespace-nowrap tabular-nums";
+  }
+  if (key === "device_id" || key === "file_name") {
+    return "line-clamp-2 break-all";
+  }
+  return "line-clamp-2 break-words [overflow-wrap:anywhere]";
 }
 
 export function ContractorReportWorkspace({
@@ -98,6 +120,7 @@ export function ContractorReportWorkspace({
   reportType: ContractorReportType;
 }) {
   const t = useTranslations("contractorReports");
+  const df = useDateFormat();
   const queryClient = useQueryClient();
   const now = new Date();
   const [dateFrom, setDateFrom] = useState(
@@ -145,6 +168,24 @@ export function ContractorReportWorkspace({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["contractor-reports", "history"] }),
   });
+  const previewWidth = (report.data?.columns ?? []).reduce(
+    (total, key) => total + reportColumnWidth(key),
+    0,
+  );
+
+  function formatReportValue(
+    key: string,
+    value: string | number | boolean | null,
+  ): string {
+    if (value === null || value === "") return "-";
+    if (REPORT_DATE_TIME_COLUMNS.has(key)) {
+      return df.precise(String(value)) || displayValue(value);
+    }
+    if (REPORT_DATE_ONLY_COLUMNS.has(key)) {
+      return df.date(String(value)) || displayValue(value);
+    }
+    return displayValue(value);
+  }
 
   return (
     <div className="space-y-5">
@@ -258,13 +299,21 @@ export function ContractorReportWorkspace({
           <p className="p-10 text-center text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
           <div className="max-h-[60dvh] overflow-auto">
-            <Table className="min-w-max table-fixed">
+            <Table
+              className="table-fixed"
+              style={{ width: previewWidth, minWidth: "100%" }}
+            >
+              <colgroup>
+                {report.data?.columns.map((key) => (
+                  <col key={key} style={{ width: reportColumnWidth(key) }} />
+                ))}
+              </colgroup>
               <TableHeader className="sticky top-0 z-10 bg-card">
                 <TableRow>
                   {report.data?.columns.map((key) => (
                     <TableHead
                       key={key}
-                      className={`whitespace-normal [overflow-wrap:anywhere] ${reportColumnClass(key)}`}
+                      className="whitespace-normal [overflow-wrap:anywhere]"
                     >
                       {t(`column.${key}`)}
                     </TableHead>
@@ -277,9 +326,14 @@ export function ContractorReportWorkspace({
                     {report.data.columns.map((key) => (
                       <TableCell
                         key={key}
-                        className={`align-top leading-5 ${reportColumnClass(key)}`}
+                        className="overflow-hidden align-top leading-5"
                       >
-                        {displayValue(row[key] ?? null)}
+                        <span
+                          className={`block ${reportCellClass(key)}`}
+                          title={displayValue(row[key] ?? null)}
+                        >
+                          {formatReportValue(key, row[key] ?? null)}
+                        </span>
                       </TableCell>
                     ))}
                   </TableRow>
@@ -315,7 +369,16 @@ export function ContractorReportHistoryWorkspace() {
           <p className="p-10 text-center text-sm text-muted-foreground">{t("history.empty")}</p>
         ) : (
           <div className="overflow-auto">
-            <Table>
+            <Table className="min-w-[1040px] table-fixed">
+              <colgroup>
+                <col className="w-64" />
+                <col className="w-36" />
+                <col className="w-48" />
+                <col className="w-48" />
+                <col className="w-24" />
+                <col className="w-48" />
+                <col className="w-52" />
+              </colgroup>
               <TableHeader><TableRow>
                 <TableHead>{t("history.file")}</TableHead>
                 <TableHead>{t("history.report")}</TableHead>
@@ -328,7 +391,12 @@ export function ContractorReportHistoryWorkspace() {
               <TableBody>
                 {history.data?.results.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell><span className="flex items-center gap-2 whitespace-nowrap"><FileClock className="size-4 text-muted-foreground" />{row.file_name}</span></TableCell>
+                    <TableCell className="overflow-hidden">
+                      <span className="flex min-w-0 items-start gap-2" title={row.file_name}>
+                        <FileClock className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                        <span className="line-clamp-2 min-w-0 break-all">{row.file_name}</span>
+                      </span>
+                    </TableCell>
                     <TableCell>{t(`type.${row.report_type}`)}</TableCell>
                     <TableCell>{row.project_name || t("filter.allProjects")}</TableCell>
                     <TableCell className="whitespace-nowrap">{row.date_from} - {row.date_to}</TableCell>

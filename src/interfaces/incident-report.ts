@@ -26,6 +26,13 @@ export interface IncidentReportRecipient {
   full_name: string;
   role_name: string;
   is_supervisor?: boolean;
+  is_reporter?: boolean;
+}
+
+export interface IncidentReportThreadDetail {
+  thread: IncidentReportThread;
+  messages: IncidentReportMessage[];
+  participants: IncidentReportRecipient[];
 }
 
 export interface IncidentReportMessage {
@@ -53,6 +60,8 @@ export interface IncidentReportThreadPayload {
   occurred_at?: string;
   latitude?: string;
   longitude?: string;
+  accuracy_m?: string;
+  photos?: File[];
 }
 
 export interface IncidentReportMessagePayload {

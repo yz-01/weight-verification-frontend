@@ -190,7 +190,9 @@ export function CreateCompany({
             : null,
           latitude: value.latitude ? Number(value.latitude) : null,
           longitude: value.longitude ? Number(value.longitude) : null,
-          logo,
+          // Editing another field without choosing a new image must preserve
+          // the existing company logo instead of sending an explicit null.
+          logo: logo ?? undefined,
         };
         const subscriptionMonths = Number(value.subscription_months) as
           1 | 3 | 6 | 12;

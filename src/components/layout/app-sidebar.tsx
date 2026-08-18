@@ -1,15 +1,16 @@
 "use client";
 
-import { ChevronDown, ShieldCheck } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { UserMenu } from "@/components/layout/user-menu";
 import { useAuth } from "@/components/providers/auth-provider";
 import { OfflineStatus } from "@/components/shared/offline-status";
+import { BrandIcon } from "@/components/shared/brand-icon";
 import {
   Sidebar,
   SidebarContent,
@@ -47,13 +48,21 @@ import { PORTAL_LABELS } from "@/lib/portal";
 export function AppSidebar() {
   const t = useTranslations();
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const groups = useMemo(
-    () => visibleNavigation(user?.portal, user?.features),
-    [user?.portal, user?.features],
+    () =>
+      visibleNavigation(
+        user?.portal,
+        user?.features,
+        user?.permissions,
+        user?.is_superuser,
+      ),
+    [user?.features, user?.is_superuser, user?.permissions, user?.portal],
   );
 
   // Tapping a link on a phone should reveal the page it went to, not leave the
@@ -66,8 +75,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border/80">
         <div className="flex items-center gap-2.5 px-2 py-1.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <ShieldCheck className="h-4.5 w-4.5" />
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-background p-1">
+            <BrandIcon
+              branding={user?.branding}
+              alt={user?.branding?.company_name ?? user?.branding?.name ?? ""}
+            />
           </span>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="truncate text-sm font-semibold tracking-tight">
@@ -108,6 +120,9 @@ export function AppSidebar() {
                       >
                         <Link
                           href={item.href}
+                          prefetch={false}
+                          onPointerEnter={() => router.prefetch(item.href)}
+                          onFocus={() => router.prefetch(item.href)}
                           onClick={closeOnMobile}
                           aria-current={active ? "page" : undefined}
                         >
@@ -141,10 +156,10 @@ export function AppSidebar() {
                       {item.children && isExpanded && (
                         <SidebarMenuSub className="my-1 gap-0.5">
                           {item.children.map((child) => {
-                            const childActive = isActivePath(
+                            const childActive = isActiveChild(
                               child.href,
                               pathname,
-                              true,
+                              searchParams,
                             );
                             return (
                               <SidebarMenuSubItem key={child.key}>
@@ -155,6 +170,9 @@ export function AppSidebar() {
                                 >
                                   <Link
                                     href={child.href}
+                                    prefetch={false}
+                                    onPointerEnter={() => router.prefetch(child.href)}
+                                    onFocus={() => router.prefetch(child.href)}
                                     onClick={closeOnMobile}
                                     aria-current={
                                       childActive ? "page" : undefined
@@ -188,4 +206,21 @@ export function AppSidebar() {
       </SidebarFooter>
     </Sidebar>
   );
+}
+
+function isActiveChild(
+  href: string,
+  pathname: string,
+  searchParams: Pick<URLSearchParams, "get">,
+) {
+  const [route, query = ""] = href.split("?", 2);
+  if (pathname !== route) return false;
+
+  const expected = new URLSearchParams(query);
+  if (expected.has("tab")) {
+    return searchParams.get("tab") === expected.get("tab");
+  }
+
+  // A scanned gate link also belongs to the gate view, not the pass list.
+  return searchParams.get("tab") !== "gate" && !searchParams.get("scan");
 }

@@ -9,9 +9,11 @@ export type OfflineJobKind =
   | "EQUIPMENT_MOVEMENT"
   | "SITE_PROGRESS"
   | "MATERIAL_OUTGOING"
+  | "WASTE_OUTGOING"
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
-  | "CONSULTANT_SUBMISSION";
+  | "CONSULTANT_SUBMISSION"
+  | "CATEGORY_EVIDENCE";
 
 export interface StoredFile {
   blob: Blob;
@@ -65,6 +67,8 @@ export interface TaskPhotoOfflineJob extends OfflineJobBase {
     kind: string;
     originalOccurredAt: string;
     clientEventId: string;
+    latitude?: string;
+    longitude?: string;
     file: StoredFile;
   };
 }
@@ -200,6 +204,25 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     longitude?: string;
     client_event_id: string;
     field_task?: string;
+    photos: StoredFile[];
+    photo_captions?: string[];
+  };
+}
+
+export interface WasteOutgoingOfflineJob extends OfflineJobBase {
+  kind: "WASTE_OUTGOING";
+  payload: {
+    project: string;
+    category: string;
+    quantity?: string;
+    unit?: string;
+    note?: string;
+    latitude: string;
+    longitude: string;
+    device_id?: string;
+    client_event_id: string;
+    field_task?: string;
+    photos: StoredFile[];
   };
 }
 
@@ -260,6 +283,22 @@ export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
   };
 }
 
+export interface CategoryEvidenceOfflineJob extends OfflineJobBase {
+  kind: "CATEGORY_EVIDENCE";
+  payload: {
+    category: string;
+    project: string;
+    note?: string;
+    captured_at: string;
+    latitude: string;
+    longitude: string;
+    accuracy_m?: string;
+    device_id: string;
+    client_event_id: string;
+    photos: StoredFile[];
+  };
+}
+
 export type OfflineJob =
   | AttendanceOfflineJob
   | TaskTransitionOfflineJob
@@ -271,13 +310,27 @@ export type OfflineJob =
   | EquipmentMovementOfflineJob
   | SiteProgressOfflineJob
   | MaterialOutgoingOfflineJob
+  | WasteOutgoingOfflineJob
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob
-  | ConsultantSubmissionOfflineJob;
+  | ConsultantSubmissionOfflineJob
+  | CategoryEvidenceOfflineJob;
 
 const DB_NAME = "mse-trace-offline";
 const STORE_NAME = "jobs";
-const DB_VERSION = 1;
+const DRIVER_SNAPSHOT_STORE = "driverSnapshots";
+const DB_VERSION = 2;
+
+export type DriverSnapshotKind = "DASHBOARD" | "TASK_LIST" | "TASK_DETAIL";
+
+export interface DriverSnapshot<T = unknown> {
+  id: string;
+  ownerId: string;
+  kind: DriverSnapshotKind;
+  taskId?: string;
+  savedAt: string;
+  data: T;
+}
 
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -303,10 +356,18 @@ function openDatabase(): Promise<IDBDatabase> {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = () => {
       const database = request.result;
-      if (database.objectStoreNames.contains(STORE_NAME)) return;
-      const store = database.createObjectStore(STORE_NAME, { keyPath: "id" });
-      store.createIndex("ownerId", "ownerId", { unique: false });
-      store.createIndex("queuedAt", "queuedAt", { unique: false });
+      if (!database.objectStoreNames.contains(STORE_NAME)) {
+        const store = database.createObjectStore(STORE_NAME, { keyPath: "id" });
+        store.createIndex("ownerId", "ownerId", { unique: false });
+        store.createIndex("queuedAt", "queuedAt", { unique: false });
+      }
+      if (!database.objectStoreNames.contains(DRIVER_SNAPSHOT_STORE)) {
+        const store = database.createObjectStore(DRIVER_SNAPSHOT_STORE, {
+          keyPath: "id",
+        });
+        store.createIndex("ownerId", "ownerId", { unique: false });
+        store.createIndex("taskId", "taskId", { unique: false });
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -356,6 +417,80 @@ export async function countOfflineJobs(ownerId: string): Promise<number> {
     const count = await requestResult(index.count(ownerId));
     await transactionDone(transaction);
     return count;
+  } finally {
+    database.close();
+  }
+}
+
+export async function putDriverSnapshot<T>(
+  snapshot: DriverSnapshot<T>,
+): Promise<void> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(DRIVER_SNAPSHOT_STORE, "readwrite");
+    transaction.objectStore(DRIVER_SNAPSHOT_STORE).put(snapshot);
+    await transactionDone(transaction);
+  } finally {
+    database.close();
+  }
+}
+
+export async function getDriverSnapshot<T>(
+  id: string,
+): Promise<DriverSnapshot<T> | null> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(DRIVER_SNAPSHOT_STORE, "readonly");
+    const snapshot = await requestResult(
+      transaction.objectStore(DRIVER_SNAPSHOT_STORE).get(id) as IDBRequest<
+        DriverSnapshot<T> | undefined
+      >,
+    );
+    await transactionDone(transaction);
+    return snapshot ?? null;
+  } finally {
+    database.close();
+  }
+}
+
+export async function getDriverSnapshots(
+  ownerId: string,
+): Promise<DriverSnapshot[]> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(DRIVER_SNAPSHOT_STORE, "readonly");
+    const index = transaction.objectStore(DRIVER_SNAPSHOT_STORE).index("ownerId");
+    const snapshots = await requestResult(
+      index.getAll(ownerId) as IDBRequest<DriverSnapshot[]>,
+    );
+    await transactionDone(transaction);
+    return snapshots;
+  } finally {
+    database.close();
+  }
+}
+
+export async function deleteDriverSnapshot(id: string): Promise<void> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(DRIVER_SNAPSHOT_STORE, "readwrite");
+    transaction.objectStore(DRIVER_SNAPSHOT_STORE).delete(id);
+    await transactionDone(transaction);
+  } finally {
+    database.close();
+  }
+}
+
+export async function clearDriverSnapshots(ownerId: string): Promise<void> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(DRIVER_SNAPSHOT_STORE, "readwrite");
+    const index = transaction.objectStore(DRIVER_SNAPSHOT_STORE).index("ownerId");
+    const keys = await requestResult(index.getAllKeys(ownerId));
+    for (const key of keys) {
+      transaction.objectStore(DRIVER_SNAPSHOT_STORE).delete(key);
+    }
+    await transactionDone(transaction);
   } finally {
     database.close();
   }

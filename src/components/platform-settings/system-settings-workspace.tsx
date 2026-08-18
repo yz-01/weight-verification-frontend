@@ -12,6 +12,7 @@ import {
   Save,
   Settings2,
   ShieldCheck,
+  Upload,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -38,6 +39,7 @@ import {
   resetCompanyPlatformConfig,
   setCompanyPlatformConfig,
   setPlatformConfig,
+  uploadPlatformBranding,
 } from "@/services/platform-settings.service";
 
 export type SystemSettingsSection =
@@ -232,6 +234,9 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
       ) : (
         <div>
           <GroupGuide group={group} />
+          {group === "basic" && activeCatalogue?.branding && (
+            <BrandingEditor branding={activeCatalogue.branding} />
+          )}
           {(group === "api_gateway" || group === "notifications") && (
             <CredentialRows
               group={group}
@@ -278,6 +283,73 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function BrandingEditor({
+  branding,
+}: {
+  branding: import("@/interfaces/auth").Branding;
+}) {
+  const t = useTranslations("adminSystemSettings");
+  const { can, refresh } = useAuth();
+  const queryClient = useQueryClient();
+  const upload = useMutation({
+    mutationFn: uploadPlatformBranding,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["platform-config-catalogue"],
+      });
+      await refresh();
+    },
+  });
+
+  return (
+    <div className="border-b bg-muted/15 px-5 py-5">
+      <div className="mx-auto flex max-w-5xl flex-col gap-4 sm:flex-row sm:items-center">
+        <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-lg border bg-background">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={branding.icon_url ?? "/mse-icon-192.png"}
+            alt=""
+            className="size-full object-contain p-2"
+          />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">{t("branding.title")}</p>
+          <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
+            {t("branding.description")}
+          </p>
+          <p className="mt-1 text-xs font-medium text-primary">
+            {t("branding.priority")}
+          </p>
+        </div>
+        {can("platform_settings.manage") && (
+          <Button asChild size="sm" className="shrink-0">
+            <label htmlFor="platform-branding-upload">
+              {upload.isPending ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <Upload />
+              )}
+              {t("branding.upload")}
+              <input
+                id="platform-branding-upload"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="sr-only"
+                disabled={upload.isPending}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) upload.mutate(file);
+                  event.target.value = "";
+                }}
+              />
+            </label>
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
@@ -453,7 +525,7 @@ function ConfigRow({
 }) {
   const t = useTranslations("adminSystemSettings");
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, refresh } = useAuth();
   const queryClient = useQueryClient();
   const [value, setValue] = useState(row.value);
   const save = useMutation({
@@ -461,7 +533,7 @@ function ConfigRow({
       company
         ? setCompanyPlatformConfig({ company, key: row.key, value })
         : setPlatformConfig({ key: row.key, value }),
-    onSuccess: () => {
+    onSuccess: async () => {
       void queryClient.invalidateQueries({
         queryKey: ["platform-config-catalogue"],
       });
@@ -473,6 +545,7 @@ function ConfigRow({
           queryKey: ["company-platform-config-catalogue", company],
         });
       }
+      if (!company && row.key === "platform.name") await refresh();
     },
   });
   const reset = useMutation({

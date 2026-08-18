@@ -178,7 +178,7 @@ export function CreateUser({ user }: { user?: UserDetail }) {
               label={t("users.field.phone")}
               optional
               type="tel"
-              disabled={user?.mobile_access_only}
+              disabled={user?.is_field_staff}
             />
           )}
         </form.Field>

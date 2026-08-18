@@ -1,10 +1,6 @@
-const CACHE_NAME = "mse-trace-shell-v3";
+const CACHE_NAME = "mse-trace-shell-v12";
 const PRECACHE = [
   "/offline",
-  "/login",
-  "/admin/login",
-  "/trace/login",
-  "/scrap/login",
   "/mse-icon.svg",
   "/mse-icon-192.png",
   "/mse-icon-512.png",
@@ -47,26 +43,38 @@ self.addEventListener("fetch", (event) => {
     url.pathname === "/trace/field-ready" ||
     url.pathname === "/field-pwa-bootstrap" ||
     url.pathname === "/field-manifest.webmanifest"
+    || url.pathname === "/manifest.webmanifest"
+    || url.pathname.startsWith("/brand-icon/")
   ) {
     event.respondWith(fetch(request, { cache: "no-store" }));
     return;
   }
 
   if (request.mode === "navigate") {
+    const isDriverNavigation =
+      url.pathname === "/driver" || url.pathname.startsWith("/driver/");
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: "no-store" })
         .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
+          if (isDriverNavigation && response.ok) {
+            const cachedResponse = response.clone();
             event.waitUntil(
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)),
+              caches
+                .open(CACHE_NAME)
+                .then((cache) => cache.put(request, cachedResponse)),
             );
           }
           return response;
         })
-        .catch(async () =>
-          (await caches.match(request)) || (await caches.match("/offline")),
-        ),
+        .catch(async () => {
+          if (isDriverNavigation) {
+            const exact = await caches.match(request, { ignoreSearch: true });
+            if (exact) return exact;
+            const driverShell = await caches.match("/driver");
+            if (driverShell) return driverShell;
+          }
+          return caches.match("/offline");
+        }),
     );
     return;
   }

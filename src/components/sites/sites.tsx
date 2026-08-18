@@ -164,7 +164,7 @@ export function Sites() {
                 <Eye className="h-3.5 w-3.5" />
               </Link>
             </Button>
-            {can("scale.manage") && (
+            {can("yard.manage") && (
               <>
                 <Button
                   asChild
@@ -206,7 +206,7 @@ export function Sites() {
         title={t("sites.title")}
         subtitle={isLoading ? "—" : t("sites.count", { count: totalCount })}
         action={
-          can("scale.manage") ? (
+          can("yard.manage") ? (
             <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
               <Link href="/sites/create">
                 <Plus className="h-4 w-4" />
