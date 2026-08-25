@@ -63,6 +63,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: yz-01/weight-verification-backend
+          # The integration branch, stated explicitly: the backend repo's
+          # default branch is deploy, which trails develop and once shipped
+          # a checkout without the seed command the suite depends on.
+          ref: develop
           token: ${{ secrets.BACKEND_REPO_TOKEN }}
           path: backend
 
