@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Pencil, Plus, Trash2, TriangleAlert } from "lucide-react";
+import { Eye, Pencil, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -13,21 +13,37 @@ import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
-import type { Driver } from "@/interfaces/recycler";
+import type { Driver, DriverWorkStatus } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { deleteDriver, getDrivers } from "@/services/recycler.service";
+import {
+  deleteDriver,
+  getDrivers,
+  getDriverSummary,
+} from "@/services/recycler.service";
+
+const WORK_STATUSES: DriverWorkStatus[] = [
+  "AVAILABLE",
+  "ON_TASK",
+  "COMPLETED_TODAY",
+  "ON_LEAVE",
+  "INACTIVE",
+];
 
 export function Drivers() {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const list = useListQuery();
+  const list = useListQuery(["work_status"]);
   const [removing, setRemoving] = useState<Driver | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["drivers", list.query],
     queryFn: () => getDrivers(list.query),
+  });
+  const summary = useQuery({
+    queryKey: ["drivers", "summary"],
+    queryFn: getDriverSummary,
   });
 
   const removal = useMutation({
@@ -118,21 +134,17 @@ export function Drivers() {
         },
       },
       {
-        accessorKey: "is_active",
-        meta: { label: t("drivers.field.isActive") },
+        accessorKey: "work_status",
+        meta: { label: t("drivers.field.workStatus") },
         header: () => (
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("drivers.field.isActive")}
+            {t("drivers.field.workStatus")}
           </span>
         ),
         cell: ({ row }) => (
           <StatusBadge
-            label={
-              row.original.is_active
-                ? t("projects.status.ACTIVE")
-                : t("qrCodes.status.revoked")
-            }
-            tone={row.original.is_active ? "positive" : "neutral"}
+            label={t(`drivers.status.${row.original.work_status}`)}
+            tone={driverStatusTone(row.original.work_status)}
           />
         ),
       },
@@ -140,9 +152,21 @@ export function Drivers() {
         id: "actions",
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
-        cell: ({ row }) =>
-          can("fleet.manage") ? (
+        cell: ({ row }) => (
             <div className="flex items-center justify-end gap-0.5">
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-primary hover:bg-primary/10"
+                title={t("common.view")}
+              >
+                <Link href={`/drivers/${row.original.id}`}>
+                  <Eye className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+              {can("fleet.manage") && (
+                <>
               <Button
                 asChild
                 variant="ghost"
@@ -163,8 +187,10 @@ export function Drivers() {
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
+                </>
+              )}
             </div>
-          ) : null,
+          ),
       },
     ],
     [t, df, can],
@@ -189,6 +215,19 @@ export function Drivers() {
         }
       />
 
+      <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        {(["total", "online", "on_task", "available", "on_leave", "inactive"] as const).map(
+          (key) => (
+            <div key={key} className="rounded-lg border bg-card px-3 py-2.5">
+              <p className="text-xs text-muted-foreground">{t(`drivers.summary.${key}`)}</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {summary.data?.[key] ?? "—"}
+              </p>
+            </div>
+          ),
+        )}
+      </div>
+
       <DataTable
         columns={columns}
         rows={data?.results ?? []}
@@ -202,6 +241,16 @@ export function Drivers() {
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
         storageKey="drivers"
+        filterPills={WORK_STATUSES.map((status) => ({
+          key: status,
+          label: t(`drivers.status.${status}`),
+          active: list.filters.work_status === status,
+          onSelect: () =>
+            list.setFilter(
+              "work_status",
+              list.filters.work_status === status ? undefined : status,
+            ),
+        }))}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
         onPageChange={list.setPage}
@@ -223,4 +272,11 @@ export function Drivers() {
       )}
     </div>
   );
+}
+
+function driverStatusTone(status: DriverWorkStatus) {
+  if (status === "AVAILABLE" || status === "COMPLETED_TODAY") return "positive" as const;
+  if (status === "ON_TASK") return "info" as const;
+  if (status === "ON_LEAVE") return "warning" as const;
+  return "neutral" as const;
 }

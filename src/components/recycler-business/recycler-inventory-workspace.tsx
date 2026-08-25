@@ -117,8 +117,11 @@ export function RecyclerInventoryWorkspace() {
             {t("inventory.movements")}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="balances" className="min-h-0 overflow-auto rounded-lg border bg-card">
-          <Table className="min-w-[720px]">
+        <TabsContent
+          value="balances"
+          className="min-h-0 flex-none overflow-auto rounded-lg border bg-card shadow-sm"
+        >
+          <Table className="min-w-[720px] table-fixed">
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
                 <TableHead>{t("field.material")}</TableHead>
@@ -129,7 +132,13 @@ export function RecyclerInventoryWorkspace() {
             </TableHeader>
             <TableBody>
               {inventory.isLoading ? (
-                <TableRow><TableCell colSpan={4} className="h-32 text-center"><Loader2 className="mx-auto animate-spin" /></TableCell></TableRow>
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={4} className="h-36 p-0 text-center">
+                    <div className="sticky left-0 grid w-[100cqw] place-items-center">
+                      <Loader2 className="size-5 animate-spin text-muted-foreground" />
+                    </div>
+                  </TableCell>
+                </TableRow>
               ) : inventory.data?.results.length ? (
                 inventory.data.results.map((account) => (
                   <TableRow key={account.id}>
@@ -140,7 +149,18 @@ export function RecyclerInventoryWorkspace() {
                   </TableRow>
                 ))
               ) : (
-                <TableRow><TableCell colSpan={4} className="h-32 text-center text-muted-foreground">{t("inventory.empty")}</TableCell></TableRow>
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={4} className="h-36 p-0 text-center">
+                    <div className="sticky left-0 flex w-[100cqw] flex-col items-center gap-2 px-6 text-muted-foreground">
+                      <div className="grid size-10 place-items-center rounded-md bg-muted">
+                        <Boxes className="size-5" />
+                      </div>
+                      <p className="max-w-md whitespace-normal leading-6">
+                        {t("inventory.empty")}
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>

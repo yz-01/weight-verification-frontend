@@ -4,7 +4,25 @@ export type NotificationKind =
   | "EVENT"
   | "REMINDER"
   | "EXCEPTION"
-  | "PROJECT_NOTICE";
+  | "PROJECT_NOTICE"
+  | "SUBSCRIPTION"
+  | "BILLING"
+  | "COMPANY"
+  | "PARTNERSHIP"
+  | "DISPATCH"
+  | "DRIVER_TASK"
+  | "DRIVER_TASK_ASSIGNED"
+  | "DRIVER_TASK_UPDATED"
+  | "DRIVER_TASK_REMOVED"
+  | "DRIVER_TASK_CANCELLED"
+  | "DRIVER_TASK_COMPLETED"
+  | "WEIGHING"
+  | "SAFETY"
+  | "ORDER"
+  | "ASSET"
+  | "PARTNER"
+  | "waste.collection_date_proposed"
+  | "waste.collection_date_confirmed";
 
 export interface NotificationRow {
   id: string;

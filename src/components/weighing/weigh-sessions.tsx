@@ -216,7 +216,7 @@ export function WeighSessions() {
         cell: ({ row }) => (
           <div className="min-w-0">
             <p className="max-w-[180px] truncate">
-              {row.original.dispatch_no ?? t("weighing.noDispatch")}
+              {row.original.dispatch_no ?? t("tasks.noDispatch")}
             </p>
             {row.original.project_name && (
               <p className="max-w-[180px] truncate text-xs text-muted-foreground">

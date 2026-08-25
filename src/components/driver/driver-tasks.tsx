@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, MapPin, PackageOpen, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -15,6 +16,7 @@ import { StatusBadge } from "@/components/shared/page-primitives";
 import type { DriverTask } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
 import { getDriverTasksOfflineAware } from "@/services/driver-offline.service";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 
 /**
  * The driver's day.
@@ -31,6 +33,11 @@ import { getDriverTasksOfflineAware } from "@/services/driver-offline.service";
 export function DriverTasks() {
   const t = useTranslations();
   const { user } = useAuth();
+  const realtimeKeys = useMemo(
+    () => [["tasks", "mine"], ["tasks"], ["driver", "dashboard"]],
+    [],
+  );
+  useOrderRealtime(realtimeKeys);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["tasks", "mine"],

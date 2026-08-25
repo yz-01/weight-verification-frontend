@@ -7,48 +7,53 @@ import { useAuth } from "@/components/providers/auth-provider";
 import {
   BUILTIN_BRANDING,
   cacheBranding,
+  clearStandardBrandingForCompany,
   getCachedBranding,
   versionedBrandIconUrl,
 } from "@/lib/branding";
 import { isFieldSessionPath } from "@/lib/auth-token";
+import { isDriverOnlyAccount } from "@/lib/navigation";
 
 function replaceLink(rel: string, href: string, sizes?: string) {
   const selector = `link[data-mse-branding="${rel}"]`;
-  const link =
-    document.head.querySelector<HTMLLinkElement>(selector) ??
-    document.createElement("link");
+  const link = document.head.querySelector<HTMLLinkElement>(selector);
+  if (!link) return;
 
-  document.head
-    .querySelectorAll<HTMLLinkElement>(`link[rel="${rel}"]`)
-    .forEach((candidate) => {
-      if (candidate !== link) candidate.remove();
-    });
-
-  link.rel = rel;
   if (link.href !== new URL(href, window.location.href).href) link.href = href;
   if (sizes) link.sizes = sizes;
-  link.dataset.mseBranding = rel;
-  if (!link.isConnected) document.head.appendChild(link);
 }
 
 export function BrandingSync() {
   const { user } = useAuth();
   const pathname = usePathname();
   const fieldSession = isFieldSessionPath(pathname);
+  const driverSession = pathname === "/driver" || pathname.startsWith("/driver/");
+  const driverAccount = Boolean(
+    user &&
+      isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser),
+  );
+  const driverBranding = driverSession || driverAccount;
   const fieldBrandingFromLink =
     pathname === "/trace/field-activate" ||
     pathname === "/trace/field-ready" ||
     pathname === "/field-pwa-bootstrap";
   const branding =
-    user?.branding ?? getCachedBranding(fieldSession) ?? BUILTIN_BRANDING;
+    user?.branding ??
+    getCachedBranding(fieldSession, driverBranding) ??
+    BUILTIN_BRANDING;
   const company = branding.company_id;
   const name = branding.name;
   const revision = branding.revision;
   const icon = versionedBrandIconUrl(branding);
 
   useEffect(() => {
-    if (user?.branding) cacheBranding(user.branding, fieldSession);
-  }, [fieldSession, user?.branding]);
+    if (user?.branding) {
+      if (driverAccount) {
+        clearStandardBrandingForCompany(user.branding.company_id);
+      }
+      cacheBranding(user.branding, fieldSession, driverBranding);
+    }
+  }, [driverAccount, driverBranding, fieldSession, user?.branding]);
 
   useEffect(() => {
     // These pages resolve the tenant from a one-time invitation/bootstrap
@@ -60,7 +65,9 @@ export function BrandingSync() {
     const links = {
       icon,
       apple: icon,
-      manifest: `/manifest.webmanifest${company ? `?company=${encodeURIComponent(company)}&brand=${encodeURIComponent(brandRevision)}` : ""}`,
+      manifest: driverBranding
+        ? `/driver-manifest.webmanifest${company ? `?company=${encodeURIComponent(company)}` : ""}`
+        : `/manifest.webmanifest${company ? `?company=${encodeURIComponent(company)}&brand=${encodeURIComponent(brandRevision)}` : ""}`,
     };
 
     const applyBranding = () => {
@@ -90,6 +97,7 @@ export function BrandingSync() {
     };
   }, [
     company,
+    driverBranding,
     fieldBrandingFromLink,
     fieldSession,
     icon,

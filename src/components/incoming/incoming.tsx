@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import {
@@ -45,6 +46,7 @@ import {
   getIncoming,
   getVehicles,
 } from "@/services/recycler.service";
+import { getDispatchSummary } from "@/services/contractor.service";
 import { getSites } from "@/services/weighing.service";
 
 function localDateTimeInput(value?: string | null) {
@@ -59,14 +61,24 @@ export function Incoming() {
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const list = useListQuery(["state"]);
+  const list = useListQuery([
+    "state",
+    "collection_date_from",
+    "collection_date_to",
+  ]);
 
   const [collecting, setCollecting] = useState<WasteDispatch | null>(null);
   const [assigning, setAssigning] = useState<WasteDispatch | null>(null);
+  const realtimeKeys = useMemo(() => [["incoming"], ["dispatches"], ["tasks"]], []);
+  useOrderRealtime(realtimeKeys);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["incoming", list.query],
     queryFn: () => getIncoming(list.query),
+  });
+  const summary = useQuery({
+    queryKey: ["incoming", "summary"],
+    queryFn: () => getDispatchSummary({}),
   });
 
   function refresh() {
@@ -244,6 +256,50 @@ export function Incoming() {
         {t("incoming.declaredNote")}
       </p>
 
+      <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {(["today_orders", "month_orders", "completed_orders", "recycling_orders", "cancelled_orders"] as const).map(
+          (key) => (
+            <div key={key} className="rounded-lg border bg-card px-3 py-2.5">
+              <p className="text-xs text-muted-foreground">{t(`incoming.summary.${key}`)}</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {summary.data?.[key] ?? "—"}
+              </p>
+            </div>
+          ),
+        )}
+      </div>
+
+      <div className="grid shrink-0 gap-2 sm:grid-cols-2 lg:max-w-xl">
+        <div className="space-y-1">
+          <Label htmlFor="incoming-date-from" className="text-xs text-muted-foreground">
+            {t("incoming.filter.collectionDateFrom")}
+          </Label>
+          <Input
+            id="incoming-date-from"
+            type="date"
+            max={list.filters.collection_date_to}
+            value={list.filters.collection_date_from ?? ""}
+            onChange={(event) =>
+              list.setFilter("collection_date_from", event.target.value || undefined)
+            }
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="incoming-date-to" className="text-xs text-muted-foreground">
+            {t("incoming.filter.collectionDateTo")}
+          </Label>
+          <Input
+            id="incoming-date-to"
+            type="date"
+            min={list.filters.collection_date_from}
+            value={list.filters.collection_date_to ?? ""}
+            onChange={(event) =>
+              list.setFilter("collection_date_to", event.target.value || undefined)
+            }
+          />
+        </div>
+      </div>
+
       <DataTable
         columns={columns}
         rows={data?.results ?? []}
@@ -261,7 +317,10 @@ export function Incoming() {
           {
             key: "all",
             label: t("common.all"),
-            active: (list.filters.state ?? "") === "",
+            active:
+              (list.filters.state ?? "") === "" &&
+              !list.filters.collection_date_from &&
+              !list.filters.collection_date_to,
             onSelect: () => list.setFilter("state", undefined),
           },
           ...([

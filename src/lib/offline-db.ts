@@ -77,7 +77,13 @@ export interface TaskPositionOfflineJob extends OfflineJobBase {
   kind: "TASK_POSITION";
   payload: {
     taskId: string;
-    eventType: "POSITION" | "ARRIVAL" | "GEOFENCE_ENTER" | "GEOFENCE_EXIT";
+    eventType:
+      | "POSITION"
+      | "ARRIVAL"
+      | "GEOFENCE_ENTER"
+      | "GEOFENCE_EXIT"
+      | "NAVIGATION_START"
+      | "NAVIGATION_RETURN";
     latitude: string;
     longitude: string;
     accuracyM?: string;

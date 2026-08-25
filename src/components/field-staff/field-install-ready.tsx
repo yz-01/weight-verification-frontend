@@ -45,13 +45,12 @@ export function FieldInstallReady({
 }) {
   const t = useTranslations("fieldAccess");
   const router = useRouter();
+  // Keep the server and first client render identical. Browser capability and
+  // a deferred install event are only known after hydration.
   const [installPrompt, setInstallPrompt] =
-    useState<BeforeInstallPromptEvent | null>(() =>
-      typeof window === "undefined"
-        ? null
-        : (window as InstallWindow).__mseFieldInstallPrompt ?? null,
-    );
-  const [environment] = useState<InstallEnvironment>(detectInstallEnvironment);
+    useState<BeforeInstallPromptEvent | null>(null);
+  const [environment, setEnvironment] =
+    useState<InstallEnvironment>("other");
   const [showGuide, setShowGuide] = useState(false);
   const [installStatus, setInstallStatus] = useState<InstallStatus>("idle");
   const workspace = next ?? "/field-staff";
@@ -72,6 +71,13 @@ export function FieldInstallReady({
       );
       return;
     }
+
+    const hydrationFrame = window.requestAnimationFrame(() => {
+      setEnvironment(detectInstallEnvironment());
+      setInstallPrompt(
+        (window as InstallWindow).__mseFieldInstallPrompt ?? null,
+      );
+    });
 
     const handler = (event: Event) => {
       const prompt = event as BeforeInstallPromptEvent;
@@ -94,6 +100,7 @@ export function FieldInstallReady({
     window.addEventListener("appinstalled", installed);
     window.addEventListener("mse:field-app-installed", installed);
     return () => {
+      window.cancelAnimationFrame(hydrationFrame);
       window.removeEventListener("beforeinstallprompt", handler);
       window.removeEventListener("mse:field-install-ready", promptReady);
       window.removeEventListener("appinstalled", installed);

@@ -372,6 +372,8 @@
     "retry": "Try again",
     "optional": "optional",
     "all": "All",
+    "active": "Active",
+    "inactive": "Inactive",
     "none": "None",
     "export": "Export",
     "refresh": "Refresh",
@@ -631,6 +633,34 @@
       "ACCEPTED": "Accepted",
       "RETURNED": "Returned",
       "CANCELLED": "Cancelled"
+    },
+    "event": {
+      "DISPATCH_CREATED": "Order created",
+      "DISPATCH_RELEASED": "Load released from site",
+      "DISPATCH_CANCELLED": "Order cancelled",
+      "RECYCLER_ACCEPTED": "Recycler accepted the order",
+      "LOAD_COLLECTED": "Load collected",
+      "COLLECTION_PROPOSED": "Collection time proposed",
+      "COLLECTION_CONFIRMED": "Collection time confirmed",
+      "DRIVER_ASSIGNED": "Driver assigned",
+      "DRIVER_REASSIGNED": "Driver reassigned",
+      "DRIVER_ACCEPTED": "Driver accepted the task",
+      "DRIVER_EN_ROUTE": "Driver is on the way",
+      "DRIVER_ARRIVED": "Driver arrived at site",
+      "LOAD_COMPLETED": "Loading completed",
+      "RETURNING_TO_YARD": "Driver returning to yard",
+      "ARRIVED_AT_YARD": "Arrived at recycling yard",
+      "WEIGHING_STARTED": "Weighing started",
+      "WEIGHING_CONFIRMED": "Weighing confirmed",
+      "WEIGHING_VOIDED": "Weighing voided",
+      "DISPATCH_SETTLED": "Order settled",
+      "DEDUCTION_RECORDED": "Deduction recorded",
+      "DEDUCTION_RESPONDED": "Deduction response recorded",
+      "PAYMENT_RECORDED": "Payment recorded",
+      "SETTLEMENT_LOCKED": "Settlement locked",
+      "GPS_RECORDED": "GPS location recorded",
+      "PHOTO_ATTACHED": "Evidence photo added",
+      "EXCEPTION_RECORDED": "Exception recorded"
     },
     "taskType": {
       "PHOTO": "Photo record",
@@ -3351,7 +3381,17 @@
       "EVENT": "Event",
       "REMINDER": "Reminder",
       "EXCEPTION": "Exception alert",
-      "PROJECT_NOTICE": "Project notice"
+      "PROJECT_NOTICE": "Project notice",
+      "SUBSCRIPTION": "Subscription",
+      "BILLING": "Billing and payment",
+      "COMPANY": "Company account",
+      "PARTNERSHIP": "Business partner",
+      "DISPATCH": "Recycling order",
+      "DRIVER_TASK": "Driver task",
+      "WEIGHING": "Weighing",
+      "SAFETY": "Safety",
+      "ACCESS": "Site access",
+      "ASSET": "Equipment"
     },
     "status": {
       "read": "Read",
@@ -3359,6 +3399,18 @@
     },
     "markRead": "Mark as read",
     "markAllRead": "Mark all as read",
+    "remove": "Remove from inbox",
+    "filter": {
+      "today": "Today",
+      "readStatus": "Read status",
+      "allStatus": "All status",
+      "category": "Notification category",
+      "allCategories": "All categories",
+      "billing": "Billing",
+      "weighing": "Weighing",
+      "order": "Orders",
+      "system": "System"
+    },
     "push": {
       "enable": "Enable browser alerts",
       "enabled": "Browser alerts enabled",
@@ -4364,6 +4416,12 @@
     "readyBody": "This phone is now securely linked to your field account.",
     "openWorkspace": "Open camera workspace",
     "install": "Install field staff app",
+    "driverInstallTitle": "Install the driver app",
+    "driverInstallBody": "Add this driver workspace to your Home Screen for faster access.",
+    "driverInstallIos": "On iPhone, add this page to the Home Screen from the browser menu.",
+    "driverInstallIosGuide": "Tap Share, then Add to Home Screen.",
+    "driverInstallBrowserGuide": "Open the browser menu, then choose Install app or Add to Home screen.",
+    "driverInstallDismiss": "Dismiss installation prompt",
     "installHelp": "Installation guide",
     "installPreparing": "Preparing installation...",
     "installUnavailable": "The system prompt is not ready. Make sure private browsing is off, then open the browser menu and choose Install app or Add to Home screen. You can also press Install again shortly.",
@@ -5862,18 +5920,34 @@
     "editTitle": "Edit load",
     "viewTitle": "Load out",
     "section": {
+      "application": "Outgoing application",
+      "applicationPhotos": "Application photos",
       "destination": "Destination",
+      "execution": "Collection execution",
+      "executionPhotos": "Execution photos",
       "load": "Load",
+      "settlement": "Settlement result",
       "vehicle": "Vehicle and driver",
+      "weighing": "Weighing result",
       "release": "Release",
-      "photos": "Photos"
+      "photos": "Photos",
+      "timeline": "Order timeline"
     },
     "field": {
+      "applicant": "Applicant",
+      "applicationNo": "Application no.",
+      "applicationNote": "Application note",
+      "approvalNote": "Approval note",
+      "approvedAt": "Approved at",
+      "approvedBy": "Approved by",
+      "collectionPlan": "Collection plan",
       "dispatchNo": "Dispatch no.",
       "project": "Project",
       "recycler": "Recycler",
       "wasteType": "Waste type",
       "estimatedWeight": "Estimated weight (kg)",
+      "executionProgress": "Execution progress",
+      "firstWeight": "Gross weight",
       "description": "Description",
       "vehiclePlate": "Vehicle",
       "driverName": "Driver",
@@ -5883,7 +5957,14 @@
       "releasedAt": "Released",
       "releasedBy": "Released by",
       "location": "Location",
-      "photoCount": "Photos"
+      "netWeight": "Net weight",
+      "photoCount": "Photos",
+      "secondWeight": "Tare weight",
+      "settledWeight": "Final settlement weight",
+      "settlementAmount": "Settlement amount",
+      "settlementNo": "Settlement no.",
+      "settlementState": "Settlement status",
+      "weighingNo": "Weighbridge ticket no."
     },
     "wasteType": {
       "MIXED": "Mixed construction waste",
@@ -5939,6 +6020,19 @@
       "released": "Load released",
       "cancelled": "Load cancelled"
     }
+  },
+  "recyclerReports": {
+    "title": "Report centre",
+    "count": "{count, plural, =0 {No records} one {# record} other {# records}}",
+    "type": { "orders": "Orders", "weights": "Recycling weight", "sources": "Business source", "commission": "Platform commission", "weighing": "Weighbridge tickets", "inventory": "Inventory", "outbound": "Outbound", "customers": "Customers", "fleet": "Drivers and vehicles", "exceptions": "Exceptions and audit" },
+    "filter": { "title": "Filters", "reportType": "Report", "from": "From", "to": "To", "search": "Search results", "project": "Project", "material": "Material", "source": "Business source", "customer": "Customer", "driver": "Driver", "vehicle": "Vehicle", "scale": "Weighbridge", "status": "Status", "all": "All" },
+    "source": { "PLATFORM": "Platform orders", "PRIVATE": "Private customers" },
+    "summary": { "records": "Records", "pending_dispatch": "Pending dispatch", "collecting": "Collection in progress", "completed": "Completed", "cancelled": "Cancelled", "total_weight": "Total weight", "platform_weight": "Platform weight", "private_weight": "Private customer weight", "settlement_amount": "Settlement amount", "commission_due": "Commission due", "pending_confirmation": "Pending confirmation", "confirmed": "Confirmed", "voided": "Voided", "current_inventory": "Current inventory", "period_movement": "Movement in period", "adjustments": "Adjustments", "platform_customers": "Platform customers", "private_customers": "Private customers", "services": "Services", "drivers": "Drivers", "vehicles": "Vehicles", "weighing_anomalies": "Weighing anomalies", "reweighs": "Re-weighs", "voided_tickets": "Voided tickets", "inventory_adjustments": "Inventory adjustments", "deduction_confirmations": "Deduction confirmations" },
+    "column": { "reference": "Reference", "date": "Date", "category": "Category", "party": "Customer / party", "status": "Status", "quantity": "Weight / count", "detail": "Details" },
+    "action": { "print": "Print", "retry": "Try again" },
+    "empty": { "title": "No report records", "description": "Change the date or filters to view another period." },
+      "error": { "title": "Report could not load", "description": "Check the connection and try again." },
+      "history": { "title": "Export history", "description": "Every PDF and spreadsheet export is kept as a permanent record.", "file": "File", "period": "Period", "format": "Format", "generated": "Generated", "empty": "No exports yet." }
   },
   "export": {
     "excel": "Excel spreadsheet",
@@ -6014,6 +6108,17 @@
       "state": "Status"
     },
     "declaredNote": "The producer's declaration. Your weighbridge decides the final weight, and both are kept.",
+    "summary": {
+      "today_orders": "Today's orders",
+      "month_orders": "This month",
+      "completed_orders": "Completed",
+      "recycling_orders": "In collection",
+      "cancelled_orders": "Cancelled"
+    },
+    "filter": {
+      "collectionDateFrom": "Collection date from",
+      "collectionDateTo": "Collection date to"
+    },
     "order": {
       "title": "Collection order",
       "description": "Order {order} came from the contractor. Propose a collection time first; assign a driver only after the contractor confirms it.",
@@ -6084,19 +6189,39 @@
     "editTitle": "Edit vehicle",
     "section": {
       "identity": "Identity",
-      "limits": "Limits and documents"
+      "limits": "Limits and documents",
+      "availability": "Availability"
     },
     "field": {
       "plateNo": "Plate no.",
       "vehicleType": "Type",
+      "brand": "Brand",
+      "model": "Model",
+      "brandModel": "Brand and model",
       "makeModel": "Make and model",
+      "legacyMakeModel": "Existing make and model",
+      "payloadCapacity": "Payload capacity (kg)",
       "tareWeight": "Tare weight (kg)",
       "maxLaden": "Max laden weight (kg)",
       "roadTaxExpires": "Road tax expires",
+      "insuranceExpires": "Insurance expires",
       "permitExpires": "Permit expires",
+      "photo": "Vehicle photo",
+      "choosePhoto": "Choose a photo",
       "notes": "Notes",
       "isActive": "Active",
+      "isActiveHelp": "Available for dispatch when it is not under maintenance.",
+      "maintenance": "Under maintenance",
+      "maintenanceHelp": "Maintenance vehicles cannot be assigned to a collection.",
+      "workStatus": "Work status",
+      "currentTask": "Current task",
       "createdAt": "Added"
+    },
+    "status": {
+      "AVAILABLE": "Available",
+      "ON_TASK": "On a task",
+      "MAINTENANCE": "Under maintenance",
+      "INACTIVE": "Inactive"
     },
     "type": {
       "LORRY": "Lorry",
@@ -6135,18 +6260,54 @@
     "editTitle": "Edit driver",
     "section": {
       "identity": "Identity",
-      "licence": "Licence"
+      "account": "Driver app account",
+      "licence": "Licence",
+      "availability": "Availability"
     },
     "field": {
+      "driverNo": "Driver no.",
+      "driverNoAuto": "Leave blank to generate automatically",
       "fullName": "Name",
       "phone": "Phone",
       "icNo": "IC no.",
       "licenceNo": "Licence no.",
       "licenceExpires": "Licence expires",
+      "licencePhoto": "Licence photo",
+      "driverPhoto": "Driver photo",
+      "choosePhoto": "Choose a photo",
+      "emergencyContact": "Emergency contact",
+      "emergencyContactExample": "Name / phone number",
       "defaultVehicle": "Usual vehicle",
       "account": "Driver login account",
+      "newAccountEmail": "Or create account with email",
+      "initialPassword": "Initial password",
+      "loginIdleExpiryDays": "Sign in again after inactive days",
       "isActive": "Active",
+      "isActiveHelp": "Active drivers can be assigned to collections.",
+      "onLeave": "On leave",
+      "onLeaveHelp": "Drivers on leave cannot be assigned to a collection.",
+      "workStatus": "Work status",
+      "currentTask": "Current task",
+      "lastPosition": "Last GPS update",
+      "notes": "Notes",
       "createdAt": "Added"
+    },
+    "status": {
+      "AVAILABLE": "Available",
+      "ON_TASK": "On a task",
+      "COMPLETED_TODAY": "Completed today",
+      "ON_LEAVE": "On leave",
+      "INACTIVE": "Inactive"
+    },
+    "online": "Online",
+    "offline": "Offline",
+    "summary": {
+      "total": "Total drivers",
+      "online": "Online",
+      "on_task": "On a task",
+      "available": "Available",
+      "on_leave": "On leave",
+      "inactive": "Inactive"
     },
     "licenceExpired": "Licence expired",
     "remove": {
@@ -6160,6 +6321,16 @@
       "removed": "Driver removed"
     }
   },
+  "fleetHistory": {
+    "title": "Service history",
+    "count": "{count, plural, =0 {No service records} one {# service record} other {# service records}}",
+    "task": "Task",
+    "order": "Order",
+    "project": "Project",
+    "completed": "Completed",
+    "netWeight": "Net weight",
+    "ticket": "Weighbridge ticket"
+  },
   "tasks": {
     "title": "Collection trips",
     "count": "{count, plural, =0 {No trips} one {# trip} other {# trips}}",
@@ -6167,6 +6338,17 @@
     "createTitle": "Assign a trip",
     "editTitle": "Reassign the trip",
     "viewTitle": "Trip",
+    "summary": {
+      "today_dispatches": "Today's dispatches",
+      "today_completed": "Completed today",
+      "running": "In progress",
+      "vehicles_used_today": "Vehicles used",
+      "drivers_used_today": "Drivers working"
+    },
+    "filter": {
+      "dateFrom": "Dispatch date from",
+      "dateTo": "Dispatch date to"
+    },
     "section": {
       "load": "Load",
       "crew": "Vehicle and driver",
@@ -6214,10 +6396,18 @@
     "noPhotos": "The driver has not sent any photos.",
     "locationNote": "Where the driver's device said it was. Browser location can be faked, so this records what was reported, not where the lorry was.",
     "reassignNote": "Only before the driver accepts. After that the roster is a record of who actually went.",
+    "reassign": "Reassign",
+    "cancel": {
+      "action": "Cancel trip",
+      "title": "Cancel this trip?",
+      "description": "This releases the driver and vehicle so the order can be assigned again. The cancellation and reason stay in the history.",
+      "confirm": "Cancel trip"
+    },
     "toast": {
       "created": "Trip assigned",
       "updated": "Trip updated",
-      "advanced": "Trip updated"
+      "advanced": "Trip updated",
+      "cancelled": "Trip cancelled"
     }
   },
   "deductions": {
@@ -6394,6 +6584,19 @@
       "paymentRecorded": "Payment recorded"
     }
   },
+  "recyclerCompanySettings": {
+    "title": "Company settings",
+    "subtitle": "Manage your recycler company, business rules and access in one place.",
+    "profile": { "title": "Company profile", "help": "This information and logo identify your company across the recycler portal.", "logo": "Choose logo", "name": "Company name", "registration": "Registration no.", "taxId": "Tax identification no.", "sst": "SST registration no.", "contactPerson": "Contact person", "designation": "Designation", "address": "Address", "phone": "Phone", "email": "Email", "billingEmail": "Billing email" },
+    "bank": { "title": "Bank accounts", "help": "Manage your company's payment accounts. New or changed account details return to pending platform verification.", "add": "Add account", "empty": "No bank account has been added.", "primary": "Primary", "makePrimary": "Make primary", "edit": "Edit bank account", "remove": "Remove bank account", "removeTitle": "Remove this bank account?", "removeDescription": "{account} will no longer be available for new payments. Existing billing records remain unchanged.", "removeConfirm": "Remove account", "addTitle": "Add bank account", "editTitle": "Edit bank account", "formHelp": "The account number is masked after saving. Platform staff verifies account changes before payment use.", "bankName": "Bank name", "branch": "Branch", "accountName": "Account holder name", "accountNumber": "Account number", "numberKeep": "Leave blank to keep the existing number.", "accountType": "Account type", "currency": "Currency", "swift": "SWIFT / BIC", "type": { "CURRENT": "Current", "SAVINGS": "Savings" }, "verification": { "PENDING": "Pending verification", "VERIFIED": "Verified", "REJECTED": "Rejected" } },
+    "notifications": { "title": "Notifications", "help": "Choose how your team receives business updates.", "system": "In-app notifications", "systemHelp": "Show order, weighing, billing and system notices in MSE Trace.", "email": "Email", "emailHelp": "Send a copy to the user's registered email address.", "push": "PWA push", "pushHelp": "Send browser notifications to subscribed phones and computers." },
+    "business": { "title": "Business controls", "help": "Simple company rules. Hardware remains under platform administrator control.", "deduction": "Both-party deduction confirmation above (kg)", "cctv": "AI CCTV", "cctvHelp": "Use AI CCTV evidence when platform hardware is connected.", "anpr": "ANPR", "anprHelp": "Use number plate authorization when platform hardware is connected.", "deviceCount": "{count} bound", "hardwareOwner": "Only the MSE platform administrator can bind or change weighbridges, gateways, CCTV and ANPR devices." },
+    "commission": { "title": "Platform commission", "help": "Read-only terms set by the MSE platform administrator. Private-customer business is excluded.", "rule": "Rule", "basis": "Basis", "rate": "Rate", "cycle": "Billing cycle", "none": "No active commission rule is assigned.", "basisValue": { "SETTLED_AMOUNT": "Settled amount", "SETTLED_WEIGHT": "Settled weight" }, "cycleValue": { "MONTHLY": "Monthly", "QUARTERLY": "Quarterly", "YEARLY": "Yearly" } },
+    "links": { "title": "People, integrations and security", "help": "Open the area you need. Each area keeps its own permissions and audit history.", "users": "Users", "usersHelp": "Add, suspend and manage recycler staff.", "roles": "Roles and permissions", "rolesHelp": "Control what each recycler role can see and do.", "integrations": "Integrations", "integrationsHelp": "View ERP, MyInvois and platform-bound hardware connections.", "scales": "Assigned weighbridges", "scalesHelp": "View weighbridges assigned by the platform administrator.", "login": "Login records", "loginHelp": "Review successful and failed sign-in attempts.", "audit": "Audit log", "auditHelp": "Review permanent changes and business actions." },
+    "action": { "saveProfile": "Save company profile", "saveSettings": "Save business settings" },
+    "state": { "loading": "Loading company settings...", "error": "Company settings could not be loaded." },
+    "toast": { "saved": "Recycler settings saved" }
+  },
   "driver": {
     "today": "Your trips",
     "finished": "Finished",
@@ -6409,6 +6612,7 @@
     "photoRequired": "Take a loading photo before marking this trip as loaded.",
     "cannotComplete": "I cannot complete this",
     "arrivedNote": "Records that you are at the site, with your phone's location if it will give one.",
+    "settlement": { "title": "Weight and payment", "deduction": "Deduction", "payableWeight": "Payable weight", "amount": "Amount", "paid": "Paid", "outstanding": "Outstanding" },
     "action": {
       "ACCEPTED": "Accept this trip",
       "EN_ROUTE": "Start driving",
@@ -6610,6 +6814,7 @@
       "received": "Received",
       "outstanding": "Outstanding",
       "dueDate": "Due date",
+      "issuedDate": "Issued date",
       "state": "Status",
       "notes": "Notes",
       "businessWeight": "Platform business weight",
@@ -6673,7 +6878,9 @@
     "action": {
       "generate": "Generate invoice",
       "issue": "Issue invoice",
-      "close": "Close invoice"
+      "close": "Close invoice",
+      "downloadPdf": "Download PDF",
+      "print": "Open to print"
     },
     "filters": { "title": "Filters", "from": "Period from", "to": "Period to" },
     "export": {
@@ -7062,12 +7269,21 @@
       "fullName": "Name",
       "email": "Email",
       "phone": "Phone",
+      "salesRole": "Sales role",
       "supervisor": "Supervisor",
       "commissionScheme": "Commission Scheme",
       "isActive": "Status",
       "territories": "Territory",
       "customersWon": "Customers Won",
-      "totalCommission": "Total Commission"
+      "totalCommission": "Total Commission",
+      "joinedOn": "Joined on",
+      "status": "Status"
+    },
+    "role": {
+      "EXECUTIVE": "Sales executive",
+      "SUPERVISOR": "Sales supervisor",
+      "MANAGER": "Sales manager",
+      "AGENT": "Sales agent"
     },
     "toast": {
       "created": "Salesperson created",
@@ -10179,7 +10395,7 @@
         "report_export": "Export reports"
       }
     },
-    "language": { "en": "English", "zh": "Chinese", "ms": "Malay" },
+    "language": { "en": "English", "zh": "Chinese", "zh-TW": "Traditional Chinese", "ms": "Malay" },
     "homePage": {
       "dashboard": "Dashboard",
       "projects": "Projects",
@@ -10421,6 +10637,14 @@
     "forceUpdateOn": "Force Update"
   },
   "recyclerBusiness": {
+    "liveDrivers": {
+      "title": "Live driver locations",
+      "count": "{count} active drivers",
+      "empty": "No active driver GPS positions yet.",
+      "unavailable": "Live driver locations are temporarily unavailable.",
+      "mapLabel": "Map of active recycler drivers",
+      "project": "Project geofence"
+    },
     "customers": {
       "title": "Recycler customers",
       "subtitle": "Keep platform customers separate from your own private customers, their QR codes and weighing intake.",

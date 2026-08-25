@@ -372,6 +372,8 @@
     "retry": "Cuba lagi",
     "optional": "pilihan",
     "all": "Semua",
+    "active": "Aktif",
+    "inactive": "Tidak aktif",
     "none": "Tiada",
     "export": "Eksport",
     "refresh": "Muat semula",
@@ -631,6 +633,34 @@
       "ACCEPTED": "Diterima",
       "RETURNED": "Dikembalikan",
       "CANCELLED": "Dibatalkan"
+    },
+    "event": {
+      "DISPATCH_CREATED": "Pesanan dicipta",
+      "DISPATCH_RELEASED": "Muatan keluar dari tapak",
+      "DISPATCH_CANCELLED": "Pesanan dibatalkan",
+      "RECYCLER_ACCEPTED": "Pengitar semula menerima pesanan",
+      "LOAD_COLLECTED": "Muatan telah dikutip",
+      "COLLECTION_PROPOSED": "Masa kutipan dicadangkan",
+      "COLLECTION_CONFIRMED": "Masa kutipan disahkan",
+      "DRIVER_ASSIGNED": "Pemandu ditugaskan",
+      "DRIVER_REASSIGNED": "Pemandu ditukar",
+      "DRIVER_ACCEPTED": "Pemandu menerima tugasan",
+      "DRIVER_EN_ROUTE": "Pemandu dalam perjalanan",
+      "DRIVER_ARRIVED": "Pemandu tiba di tapak",
+      "LOAD_COMPLETED": "Muat naik selesai",
+      "RETURNING_TO_YARD": "Pemandu kembali ke pusat kitar semula",
+      "ARRIVED_AT_YARD": "Tiba di pusat kitar semula",
+      "WEIGHING_STARTED": "Timbangan bermula",
+      "WEIGHING_CONFIRMED": "Timbangan disahkan",
+      "WEIGHING_VOIDED": "Timbangan dibatalkan",
+      "DISPATCH_SETTLED": "Pesanan diselesaikan",
+      "DEDUCTION_RECORDED": "Potongan direkod",
+      "DEDUCTION_RESPONDED": "Jawapan potongan direkod",
+      "PAYMENT_RECORDED": "Bayaran direkod",
+      "SETTLEMENT_LOCKED": "Penyelesaian dikunci",
+      "GPS_RECORDED": "Lokasi GPS direkodkan",
+      "PHOTO_ATTACHED": "Foto bukti ditambah",
+      "EXCEPTION_RECORDED": "Pengecualian direkodkan"
     },
     "taskType": {
       "PHOTO": "Rekod foto",
@@ -3351,7 +3381,17 @@
       "EVENT": "Peristiwa",
       "REMINDER": "Peringatan",
       "EXCEPTION": "Amaran pengecualian",
-      "PROJECT_NOTICE": "Notis projek"
+      "PROJECT_NOTICE": "Notis projek",
+      "SUBSCRIPTION": "Langganan",
+      "BILLING": "Bil dan bayaran",
+      "COMPANY": "Akaun syarikat",
+      "PARTNERSHIP": "Rakan perniagaan",
+      "DISPATCH": "Pesanan kitar semula",
+      "DRIVER_TASK": "Tugas pemandu",
+      "WEIGHING": "Penimbangan",
+      "SAFETY": "Keselamatan",
+      "ACCESS": "Akses tapak",
+      "ASSET": "Peralatan"
     },
     "status": {
       "read": "Dibaca",
@@ -3359,6 +3399,18 @@
     },
     "markRead": "Tandakan sebagai dibaca",
     "markAllRead": "Tandakan semua sebagai dibaca",
+    "remove": "Alih keluar dari peti masuk",
+    "filter": {
+      "today": "Hari ini",
+      "readStatus": "Status bacaan",
+      "allStatus": "Semua status",
+      "category": "Kategori notifikasi",
+      "allCategories": "Semua kategori",
+      "billing": "Pengebilan",
+      "weighing": "Penimbangan",
+      "order": "Pesanan",
+      "system": "Sistem"
+    },
     "push": {
       "enable": "Aktifkan amaran pelayar",
       "enabled": "Amaran pelayar diaktifkan",
@@ -4358,6 +4410,12 @@
     "readyBody": "Telefon ini kini dipautkan dengan selamat kepada akaun tapak anda.",
     "openWorkspace": "Buka ruang kerja kamera",
     "install": "Pasang aplikasi staf tapak",
+    "driverInstallTitle": "Pasang aplikasi pemandu",
+    "driverInstallBody": "Tambah ruang kerja pemandu ini ke skrin utama untuk akses lebih cepat.",
+    "driverInstallIos": "Pada iPhone, tambah halaman ini ke skrin utama melalui menu pelayar.",
+    "driverInstallIosGuide": "Tekan Kongsi, kemudian Tambah ke Skrin Utama.",
+    "driverInstallBrowserGuide": "Buka menu pelayar dan pilih Pasang aplikasi atau Tambah ke skrin utama.",
+    "driverInstallDismiss": "Tutup panduan pemasangan",
     "installHelp": "Panduan pemasangan",
     "installPreparing": "Menyediakan pemasangan...",
     "installUnavailable": "Prom sistem belum sedia. Pastikan mod peribadi dimatikan, kemudian buka menu pelayar dan pilih Pasang aplikasi atau Tambah ke Skrin Utama. Anda juga boleh tekan Pasang sekali lagi sebentar lagi.",
@@ -5864,18 +5922,34 @@
     "editTitle": "Sunting muatan",
     "viewTitle": "Muatan keluar",
     "section": {
+      "application": "Permohonan keluar",
+      "applicationPhotos": "Foto permohonan",
       "destination": "Destinasi",
+      "execution": "Pelaksanaan kutipan",
+      "executionPhotos": "Foto pelaksanaan",
       "load": "Muatan",
+      "settlement": "Keputusan penyelesaian",
       "vehicle": "Kenderaan dan pemandu",
+      "weighing": "Keputusan timbang",
       "release": "Pelepasan",
-      "photos": "Foto"
+      "photos": "Foto",
+      "timeline": "Garis masa pesanan"
     },
     "field": {
+      "applicant": "Pemohon",
+      "applicationNo": "No. permohonan",
+      "applicationNote": "Catatan permohonan",
+      "approvalNote": "Catatan kelulusan",
+      "approvedAt": "Masa kelulusan",
+      "approvedBy": "Diluluskan oleh",
+      "collectionPlan": "Jadual kutipan",
       "dispatchNo": "No. penghantaran",
       "project": "Projek",
       "recycler": "Pengitar semula",
       "wasteType": "Jenis sisa",
       "estimatedWeight": "Anggaran berat (kg)",
+      "executionProgress": "Kemajuan pelaksanaan",
+      "firstWeight": "Berat kasar",
       "description": "Keterangan",
       "vehiclePlate": "Kenderaan",
       "driverName": "Pemandu",
@@ -5885,7 +5959,14 @@
       "releasedAt": "Dilepaskan",
       "releasedBy": "Dilepaskan oleh",
       "location": "Lokasi",
-      "photoCount": "Foto"
+      "netWeight": "Berat bersih",
+      "photoCount": "Foto",
+      "secondWeight": "Berat tara",
+      "settledWeight": "Berat penyelesaian akhir",
+      "settlementAmount": "Jumlah penyelesaian",
+      "settlementNo": "No. penyelesaian",
+      "settlementState": "Status penyelesaian",
+      "weighingNo": "No. tiket timbang"
     },
     "wasteType": {
       "MIXED": "Sisa binaan bercampur",
@@ -5941,6 +6022,19 @@
       "released": "Muatan dilepaskan",
       "cancelled": "Muatan dibatalkan"
     }
+  },
+  "recyclerReports": {
+    "title": "Pusat laporan",
+    "count": "{count} rekod",
+    "type": { "orders": "Pesanan", "weights": "Berat kitar semula", "sources": "Sumber perniagaan", "commission": "Komisen platform", "weighing": "Tiket jambatan timbang", "inventory": "Inventori", "outbound": "Penghantaran keluar", "customers": "Pelanggan", "fleet": "Pemandu dan kenderaan", "exceptions": "Pengecualian dan audit" },
+    "filter": { "title": "Penapis", "reportType": "Laporan", "from": "Dari", "to": "Hingga", "search": "Cari hasil", "project": "Projek", "material": "Bahan", "source": "Sumber perniagaan", "customer": "Pelanggan", "driver": "Pemandu", "vehicle": "Kenderaan", "scale": "Jambatan timbang", "status": "Status", "all": "Semua" },
+    "source": { "PLATFORM": "Pesanan platform", "PRIVATE": "Pelanggan persendirian" },
+    "summary": { "records": "Jumlah rekod", "pending_dispatch": "Menunggu penghantaran", "collecting": "Kutipan sedang berjalan", "completed": "Selesai", "cancelled": "Dibatalkan", "total_weight": "Jumlah berat", "platform_weight": "Berat perniagaan platform", "private_weight": "Berat pelanggan persendirian", "settlement_amount": "Jumlah penyelesaian", "commission_due": "Komisen perlu dibayar", "pending_confirmation": "Menunggu pengesahan", "confirmed": "Disahkan", "voided": "Dibatalkan", "current_inventory": "Inventori semasa", "period_movement": "Pergerakan tempoh", "adjustments": "Pelarasan", "platform_customers": "Pelanggan platform", "private_customers": "Pelanggan persendirian", "services": "Bilangan perkhidmatan", "drivers": "Pemandu", "vehicles": "Kenderaan", "weighing_anomalies": "Anomali timbangan", "reweighs": "Timbang semula", "voided_tickets": "Tiket dibatalkan", "inventory_adjustments": "Pelarasan inventori", "deduction_confirmations": "Pengesahan potongan" },
+    "column": { "reference": "Rujukan", "date": "Tarikh", "category": "Kategori", "party": "Pelanggan / pihak", "status": "Status", "quantity": "Berat / bilangan", "detail": "Butiran" },
+    "action": { "print": "Cetak", "retry": "Cuba lagi" },
+    "empty": { "title": "Tiada rekod laporan", "description": "Tukar tarikh atau penapis untuk melihat tempoh lain." },
+    "error": { "title": "Laporan tidak dapat dimuatkan", "description": "Semak sambungan dan cuba lagi." },
+    "history": { "title": "Sejarah eksport", "description": "Setiap eksport PDF dan Excel disimpan sebagai rekod kekal.", "file": "Fail", "period": "Tempoh", "format": "Format", "generated": "Dijana", "empty": "Belum ada eksport." }
   },
   "export": {
     "excel": "Hamparan Excel",
@@ -6016,6 +6110,17 @@
       "state": "Status"
     },
     "declaredNote": "Pengisytiharan penghasil. Jambatan timbang anda menentukan berat akhir, dan kedua-duanya disimpan.",
+    "summary": {
+      "today_orders": "Pesanan hari ini",
+      "month_orders": "Bulan ini",
+      "completed_orders": "Selesai",
+      "recycling_orders": "Dalam kutipan",
+      "cancelled_orders": "Dibatalkan"
+    },
+    "filter": {
+      "collectionDateFrom": "Tarikh kutipan dari",
+      "collectionDateTo": "Tarikh kutipan hingga"
+    },
     "order": {
       "title": "Pesanan kutipan",
       "description": "Pesanan {order} datang daripada kontraktor. Cadangkan masa kutipan dahulu; pemandu hanya boleh ditugaskan selepas kontraktor mengesahkannya.",
@@ -6086,19 +6191,39 @@
     "editTitle": "Sunting kenderaan",
     "section": {
       "identity": "Maklumat asas",
-      "limits": "Had dan dokumen"
+      "limits": "Had dan dokumen",
+      "availability": "Ketersediaan"
     },
     "field": {
       "plateNo": "No. plat",
       "vehicleType": "Jenis",
+      "brand": "Jenama",
+      "model": "Model",
+      "brandModel": "Jenama dan model",
       "makeModel": "Jenama dan model",
+      "legacyMakeModel": "Jenama dan model sedia ada",
+      "payloadCapacity": "Muatan maksimum (kg)",
       "tareWeight": "Berat tara (kg)",
       "maxLaden": "Berat maksimum (kg)",
       "roadTaxExpires": "Cukai jalan tamat",
+      "insuranceExpires": "Insurans tamat",
       "permitExpires": "Permit tamat",
+      "photo": "Foto kenderaan",
+      "choosePhoto": "Pilih foto",
       "notes": "Nota",
       "isActive": "Aktif",
+      "isActiveHelp": "Boleh ditugaskan apabila tidak dalam penyelenggaraan.",
+      "maintenance": "Dalam penyelenggaraan",
+      "maintenanceHelp": "Kenderaan dalam penyelenggaraan tidak boleh ditugaskan.",
+      "workStatus": "Status kerja",
+      "currentTask": "Tugasan semasa",
       "createdAt": "Ditambah"
+    },
+    "status": {
+      "AVAILABLE": "Sedia",
+      "ON_TASK": "Sedang bertugas",
+      "MAINTENANCE": "Dalam penyelenggaraan",
+      "INACTIVE": "Tidak aktif"
     },
     "type": {
       "LORRY": "Lori",
@@ -6137,18 +6262,54 @@
     "editTitle": "Sunting pemandu",
     "section": {
       "identity": "Maklumat asas",
-      "licence": "Lesen"
+      "account": "Akaun aplikasi pemandu",
+      "licence": "Lesen",
+      "availability": "Status kerja"
     },
     "field": {
+      "driverNo": "No. pemandu",
+      "driverNoAuto": "Biarkan kosong untuk dijana automatik",
       "fullName": "Nama",
       "phone": "Telefon",
       "icNo": "No. IC",
       "licenceNo": "No. lesen",
       "licenceExpires": "Lesen tamat",
+      "licencePhoto": "Foto lesen",
+      "driverPhoto": "Foto pemandu",
+      "choosePhoto": "Pilih foto",
+      "emergencyContact": "Hubungan kecemasan",
+      "emergencyContactExample": "Nama / nombor telefon",
       "defaultVehicle": "Kenderaan biasa",
       "account": "Akaun log masuk pemandu",
+      "newAccountEmail": "Atau cipta akaun dengan e-mel",
+      "initialPassword": "Kata laluan awal",
+      "loginIdleExpiryDays": "Log masuk semula selepas tidak aktif (hari)",
       "isActive": "Aktif",
+      "isActiveHelp": "Pemandu aktif boleh ditugaskan.",
+      "onLeave": "Cuti",
+      "onLeaveHelp": "Pemandu bercuti tidak boleh ditugaskan.",
+      "workStatus": "Status kerja",
+      "currentTask": "Tugasan semasa",
+      "lastPosition": "Kemas kini GPS terakhir",
+      "notes": "Nota",
       "createdAt": "Ditambah"
+    },
+    "status": {
+      "AVAILABLE": "Sedia",
+      "ON_TASK": "Sedang bertugas",
+      "COMPLETED_TODAY": "Selesai hari ini",
+      "ON_LEAVE": "Cuti",
+      "INACTIVE": "Tidak aktif"
+    },
+    "online": "Dalam talian",
+    "offline": "Luar talian",
+    "summary": {
+      "total": "Jumlah pemandu",
+      "online": "Dalam talian",
+      "on_task": "Sedang bertugas",
+      "available": "Sedia",
+      "on_leave": "Cuti",
+      "inactive": "Tidak aktif"
     },
     "licenceExpired": "Lesen tamat tempoh",
     "remove": {
@@ -6162,6 +6323,16 @@
       "removed": "Pemandu dibuang"
     }
   },
+  "fleetHistory": {
+    "title": "Sejarah perkhidmatan",
+    "count": "{count, plural, =0 {Tiada rekod} other {# rekod}}",
+    "task": "Tugasan",
+    "order": "Pesanan",
+    "project": "Projek",
+    "completed": "Selesai",
+    "netWeight": "Berat bersih",
+    "ticket": "Tiket jambatan timbang"
+  },
   "tasks": {
     "title": "Perjalanan kutipan",
     "count": "{count, plural, =0 {Tiada perjalanan} other {# perjalanan}}",
@@ -6169,6 +6340,17 @@
     "createTitle": "Tugaskan perjalanan",
     "editTitle": "Tugaskan semula",
     "viewTitle": "Perjalanan",
+    "summary": {
+      "today_dispatches": "Penghantaran hari ini",
+      "today_completed": "Selesai hari ini",
+      "running": "Sedang berjalan",
+      "vehicles_used_today": "Kenderaan digunakan",
+      "drivers_used_today": "Pemandu bertugas"
+    },
+    "filter": {
+      "dateFrom": "Tarikh penghantaran dari",
+      "dateTo": "Tarikh penghantaran hingga"
+    },
     "section": {
       "load": "Muatan",
       "crew": "Kenderaan dan pemandu",
@@ -6216,10 +6398,18 @@
     "noPhotos": "Pemandu belum menghantar sebarang foto.",
     "locationNote": "Lokasi yang dilaporkan peranti pemandu. Lokasi pelayar boleh dipalsukan, jadi ini merekod apa yang dilaporkan, bukan di mana lori berada.",
     "reassignNote": "Hanya sebelum pemandu menerima. Selepas itu, senarai tugas ialah rekod siapa yang benar-benar pergi.",
+    "reassign": "Tugas semula",
+    "cancel": {
+      "action": "Batalkan perjalanan",
+      "title": "Batalkan perjalanan ini?",
+      "description": "Pemandu dan kenderaan akan tersedia semula supaya pesanan boleh ditugaskan lagi. Rekod dan sebab pembatalan akan disimpan.",
+      "confirm": "Batalkan perjalanan"
+    },
     "toast": {
       "created": "Perjalanan ditugaskan",
       "updated": "Perjalanan dikemas kini",
-      "advanced": "Perjalanan dikemas kini"
+      "advanced": "Perjalanan dikemas kini",
+      "cancelled": "Perjalanan dibatalkan"
     }
   },
   "deductions": {
@@ -6396,6 +6586,19 @@
       "paymentRecorded": "Pembayaran direkod"
     }
   },
+  "recyclerCompanySettings": {
+    "title": "Tetapan syarikat",
+    "subtitle": "Urus profil syarikat kitar semula, peraturan perniagaan dan akses di satu tempat.",
+    "profile": { "title": "Profil syarikat", "help": "Maklumat dan logo ini digunakan di seluruh portal kitar semula.", "logo": "Pilih logo", "name": "Nama syarikat", "registration": "No. pendaftaran", "taxId": "No. pengenalan cukai", "sst": "No. pendaftaran SST", "contactPerson": "Pegawai untuk dihubungi", "designation": "Jawatan", "address": "Alamat", "phone": "Telefon", "email": "E-mel", "billingEmail": "E-mel bil" },
+    "bank": { "title": "Akaun bank", "help": "Urus akaun bayaran syarikat. Butiran baru atau berubah perlu disahkan semula oleh platform.", "add": "Tambah akaun", "empty": "Belum ada akaun bank.", "primary": "Utama", "makePrimary": "Jadikan utama", "edit": "Edit akaun bank", "remove": "Buang akaun bank", "removeTitle": "Buang akaun bank ini?", "removeDescription": "{account} tidak lagi boleh digunakan untuk bayaran baru. Rekod bil sedia ada tidak berubah.", "removeConfirm": "Buang akaun", "addTitle": "Tambah akaun bank", "editTitle": "Edit akaun bank", "formHelp": "Nombor akaun disembunyikan selepas disimpan. Kakitangan platform mengesahkan perubahan sebelum digunakan untuk bayaran.", "bankName": "Nama bank", "branch": "Cawangan", "accountName": "Nama pemegang akaun", "accountNumber": "Nombor akaun", "numberKeep": "Biarkan kosong untuk kekalkan nombor sedia ada.", "accountType": "Jenis akaun", "currency": "Mata wang", "swift": "SWIFT / BIC", "type": { "CURRENT": "Semasa", "SAVINGS": "Simpanan" }, "verification": { "PENDING": "Menunggu pengesahan", "VERIFIED": "Disahkan", "REJECTED": "Ditolak" } },
+    "notifications": { "title": "Notifikasi", "help": "Pilih cara pasukan menerima kemas kini perniagaan.", "system": "Notifikasi dalam sistem", "systemHelp": "Paparkan notis pesanan, timbangan, bil dan sistem dalam MSE Trace.", "email": "E-mel", "emailHelp": "Hantar salinan ke e-mel pengguna yang didaftarkan.", "push": "Push PWA", "pushHelp": "Hantar notifikasi pelayar ke telefon dan komputer yang dilanggan." },
+    "business": { "title": "Kawalan perniagaan", "help": "Tetapan ini mengawal operasi. Perkakasan kekal di bawah pentadbir platform.", "deduction": "Pengesahan potongan dua pihak melebihi (kg)", "cctv": "AI CCTV", "cctvHelp": "Guna bukti AI CCTV selepas perkakasan disambungkan oleh platform.", "anpr": "ANPR", "anprHelp": "Guna kebenaran nombor plat selepas perkakasan disambungkan oleh platform.", "deviceCount": "{count} dipautkan", "hardwareOwner": "Hanya pentadbir platform MSE boleh memaut atau menukar jambatan timbang, Gateway, CCTV dan ANPR." },
+    "commission": { "title": "Komisen platform", "help": "Syarat baca sahaja yang ditetapkan oleh pentadbir platform MSE. Urusan pelanggan persendirian dikecualikan.", "rule": "Peraturan", "basis": "Asas", "rate": "Kadar", "cycle": "Kitaran bil", "none": "Tiada peraturan komisen aktif.", "basisValue": { "SETTLED_AMOUNT": "Amaun penyelesaian", "SETTLED_WEIGHT": "Berat penyelesaian" }, "cycleValue": { "MONTHLY": "Bulanan", "QUARTERLY": "Suku tahunan", "YEARLY": "Tahunan" } },
+    "links": { "title": "Pengguna, integrasi dan keselamatan", "help": "Buka bahagian yang diperlukan. Setiap bahagian mempunyai kebenaran dan audit sendiri.", "users": "Pengguna", "usersHelp": "Tambah, gantung dan urus kakitangan kitar semula.", "roles": "Peranan dan kebenaran", "rolesHelp": "Kawal fungsi yang boleh dilihat dan digunakan oleh setiap peranan.", "integrations": "Integrasi", "integrationsHelp": "Lihat sambungan ERP, MyInvois dan perkakasan platform.", "scales": "Jambatan timbang ditugaskan", "scalesHelp": "Lihat jambatan timbang yang ditugaskan oleh pentadbir platform.", "login": "Rekod log masuk", "loginHelp": "Semak cubaan log masuk berjaya dan gagal.", "audit": "Log audit", "auditHelp": "Semak perubahan dan tindakan perniagaan kekal." },
+    "action": { "saveProfile": "Simpan profil syarikat", "saveSettings": "Simpan tetapan perniagaan" },
+    "state": { "loading": "Memuatkan tetapan syarikat...", "error": "Tetapan syarikat tidak dapat dimuatkan." },
+    "toast": { "saved": "Tetapan kitar semula disimpan" }
+  },
   "driver": {
     "today": "Perjalanan anda",
     "finished": "Selesai",
@@ -6411,6 +6614,7 @@
     "photoRequired": "Ambil foto muatan sebelum menandakan perjalanan ini sebagai dimuatkan.",
     "cannotComplete": "Saya tidak dapat menyiapkannya",
     "arrivedNote": "Merekodkan bahawa anda berada di tapak, bersama lokasi telefon jika dibenarkan.",
+    "settlement": { "title": "Berat dan bayaran", "deduction": "Potongan", "payableWeight": "Berat dibayar", "amount": "Jumlah", "paid": "Sudah dibayar", "outstanding": "Belum dibayar" },
     "action": {
       "ACCEPTED": "Terima perjalanan ini",
       "EN_ROUTE": "Mula memandu",
@@ -6612,6 +6816,7 @@
       "received": "Diterima",
       "outstanding": "Baki",
       "dueDate": "Tarikh akhir",
+      "issuedDate": "Tarikh dikeluarkan",
       "state": "Status",
       "notes": "Catatan",
       "businessWeight": "Berat perniagaan platform",
@@ -6675,7 +6880,9 @@
     "action": {
       "generate": "Jana invois",
       "issue": "Keluarkan invois",
-      "close": "Tutup invois"
+      "close": "Tutup invois",
+      "downloadPdf": "Muat turun PDF",
+      "print": "Buka untuk cetak"
     },
     "filters": {
       "title": "Penapis",
@@ -7073,12 +7280,21 @@
       "fullName": "Nama",
       "email": "E-mel",
       "phone": "Telefon",
+      "salesRole": "Peranan jualan",
       "supervisor": "Penyelia",
       "commissionScheme": "Skim Komisen",
       "isActive": "Status",
       "territories": "Wilayah",
       "customersWon": "Pelanggan Dimenangi",
-      "totalCommission": "Jumlah Komisen"
+      "totalCommission": "Jumlah Komisen",
+      "joinedOn": "Tarikh menyertai",
+      "status": "Status"
+    },
+    "role": {
+      "EXECUTIVE": "Eksekutif jualan",
+      "SUPERVISOR": "Penyelia jualan",
+      "MANAGER": "Pengurus jualan",
+      "AGENT": "Ejen jualan"
     },
     "toast": {
       "created": "Jurujual dicipta",
@@ -10202,6 +10418,7 @@
     "language": {
       "en": "Bahasa Inggeris",
       "zh": "Bahasa Cina",
+      "zh-TW": "Bahasa Cina Tradisional",
       "ms": "Bahasa Melayu"
     },
     "homePage": {
@@ -10445,6 +10662,14 @@
     "forceUpdateOn": "Kemas Kini Paksa"
   },
   "recyclerBusiness": {
+    "liveDrivers": {
+      "title": "Lokasi pemandu secara langsung",
+      "count": "{count} pemandu aktif",
+      "empty": "Belum ada lokasi GPS pemandu aktif.",
+      "unavailable": "Lokasi pemandu tidak tersedia buat sementara.",
+      "mapLabel": "Peta pemandu pengitar semula aktif",
+      "project": "Geofence projek"
+    },
     "customers": {
       "title": "Pelanggan pengitar semula", "subtitle": "Urus pelanggan platform dan persendirian, kod QR serta penerimaan timbangan secara berasingan.", "tab": "Pelanggan",
       "createTitle": "Tambah pelanggan persendirian", "editTitle": "Edit pelanggan persendirian", "formHelp": "Pelanggan platform disegerakkan secara automatik dan tidak boleh diedit. Medan ini hanya untuk pelanggan anda sendiri."

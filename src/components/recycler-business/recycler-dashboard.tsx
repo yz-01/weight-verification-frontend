@@ -34,8 +34,10 @@ import {
 } from "recharts";
 
 import { StatusBadge } from "@/components/shared/page-primitives";
+import { LocationMap, type LocationMapMarker, type LocationMapPath, type LocationMapZone } from "@/components/shared/location-map";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type {
   RecyclerDashboardData,
   RecyclerDashboardInvoice,
@@ -46,6 +48,7 @@ import type {
 } from "@/interfaces/recycler-dashboard";
 import { useDateFormat } from "@/lib/dates";
 import { getRecyclerDashboard } from "@/services/recycler-dashboard.service";
+import { getDriverLivePositions, getDriverLiveRoutes } from "@/services/driver-gps.service";
 
 interface MetricCardProps {
   label: string;
@@ -76,9 +79,20 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
   const dashboard = useQuery({
     queryKey: ["recycler-dashboard"],
     queryFn: getRecyclerDashboard,
-    refetchInterval: 60_000,
+    refetchInterval: 15_000,
     staleTime: 30_000,
   });
+  const realtimeKeys = useMemo(
+    () => [
+      ["recycler-dashboard"],
+      ["incoming"],
+      ["tasks"],
+      ["driver-gps", "live"],
+      ["driver-gps", "live-routes"],
+    ],
+    [],
+  );
+  useOrderRealtime(realtimeKeys);
 
   const chartRows = useMemo(() => {
     const charts = dashboard.data?.charts;
@@ -230,6 +244,8 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
           </div>
         </section>
       )}
+
+      <RecyclerDriverMap />
 
       <div className="grid gap-8 xl:grid-cols-3">
         {data.recovery_today && (
@@ -457,6 +473,114 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
       <LatestNotifications notifications={data.notifications} />
       <RecentBusiness data={data} money={money} weight={weight} />
     </div>
+  );
+}
+
+function RecyclerDriverMap() {
+  const t = useTranslations();
+  const live = useQuery({
+    queryKey: ["driver-gps", "live"],
+    queryFn: () => getDriverLivePositions({ page_size: 200, running: true }),
+    refetchInterval: 15_000,
+  });
+  const routes = useQuery({
+    queryKey: ["driver-gps", "live-routes"],
+    queryFn: () => getDriverLiveRoutes(50),
+    refetchInterval: 15_000,
+  });
+  const positions = useMemo(
+    () => live.data?.results ?? [],
+    [live.data?.results],
+  );
+  const byTask = useMemo(
+    () => new Map(positions.map((position) => [position.task, position])),
+    [positions],
+  );
+  const markers = useMemo<LocationMapMarker[]>(
+    () =>
+      positions.map((position) => ({
+        id: position.id,
+        latitude: Number(position.latitude),
+        longitude: Number(position.longitude),
+        label: `${position.driver_name} · ${position.vehicle_plate}`,
+        detail: `${position.task_no}${position.project_name ? ` · ${position.project_name}` : ""}`,
+        tone: position.is_stale
+          ? "warning"
+          : position.geofence_result === "OUTSIDE"
+            ? "danger"
+            : "positive",
+        stale: position.is_stale,
+        icon: "truck",
+      })),
+    [positions],
+  );
+  const zones = useMemo<LocationMapZone[]>(() => {
+    const seen = new Set<string>();
+    return positions.flatMap((position) => {
+      if (
+        !position.project_latitude ||
+        !position.project_longitude ||
+        !position.project_geofence_radius_m
+      ) {
+        return [];
+      }
+      const id = `${position.project_latitude}:${position.project_longitude}`;
+      if (seen.has(id)) return [];
+      seen.add(id);
+      return [{
+        id,
+        center: [Number(position.project_latitude), Number(position.project_longitude)] as [number, number],
+        radiusM: position.project_geofence_radius_m,
+        label: position.project_name ?? t("recyclerBusiness.liveDrivers.project"),
+        color: "#087f8c",
+      }];
+    });
+  }, [positions, t]);
+  const paths = useMemo<LocationMapPath[]>(
+    () =>
+      (routes.data?.routes ?? []).flatMap((route, index) => {
+        const points = route.positions.map(
+          (point) => [Number(point.latitude), Number(point.longitude)] as [number, number],
+        );
+        if (points.length < 2) return [];
+        const driver = byTask.get(route.task);
+        return [{
+          id: route.task,
+          points,
+          color: ["#2563eb", "#7c3aed", "#15803d", "#a16207"][index % 4],
+          label: driver ? `${driver.driver_name} · ${driver.vehicle_plate}` : undefined,
+        }];
+      }),
+    [byTask, routes.data?.routes],
+  );
+
+  return (
+    <section className="space-y-3" aria-labelledby="recycler-live-drivers-title">
+      <SectionHeading
+        id="recycler-live-drivers-title"
+        title={t("recyclerBusiness.liveDrivers.title")}
+        meta={t("recyclerBusiness.liveDrivers.count", { count: positions.length })}
+      />
+      {live.isError ? (
+        <div className="border-y py-8 text-center text-sm text-muted-foreground">
+          {t("recyclerBusiness.liveDrivers.unavailable")}
+        </div>
+      ) : positions.length === 0 ? (
+        <div className="border-y py-8 text-center text-sm text-muted-foreground">
+          {t("recyclerBusiness.liveDrivers.empty")}
+        </div>
+      ) : (
+        <LocationMap
+          markers={markers}
+          zones={zones}
+          paths={paths}
+          preserveViewOnDataUpdate
+          fitBoundsKey="recycler-live-drivers"
+          ariaLabel={t("recyclerBusiness.liveDrivers.mapLabel")}
+          className="h-[24rem] min-h-[24rem] rounded-md sm:h-[28rem] sm:min-h-[28rem]"
+        />
+      )}
+    </section>
   );
 }
 

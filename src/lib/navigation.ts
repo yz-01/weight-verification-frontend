@@ -30,9 +30,7 @@ import {
   SlidersHorizontal,
   TrendingUp,
   Truck,
-  UserRound,
   Users,
-  WalletCards,
   Warehouse,
   Workflow,
   HardHat,
@@ -1161,25 +1159,49 @@ export const PORTAL_NAVIGATION = {
   ],
   MSE_SCRAP: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
-    item("partnerships", "/partnerships", Handshake, "operations"),
-    item("customer_management", "/recycler-customers", Users, "operations"),
-    item("yards", "/sites", Warehouse, "operations"),
-    item("weighbridges", "/scales", Scale, "operations"),
-    item("vehicles", "/vehicles", Truck, "operations"),
-    item("drivers", "/drivers", UserRound, "operations"),
+    item("customer_management", "/recycler-customers", Users, "operations", [
+      "/partnerships",
+    ], false, [
+      child("recycler-customers", "nav.customer_management", "/recycler-customers", "customer_management"),
+      child("recycler-partnerships", "nav.partnerships", "/partnerships", "partnerships"),
+    ]),
+    item("yards", "/sites", Warehouse, "operations", [
+      "/vehicles",
+      "/drivers",
+    ], false, [
+      child("recycler-yards", "nav.yards", "/sites", "yards"),
+      child("recycler-vehicles", "nav.vehicles", "/vehicles", "vehicles"),
+      child("recycler-drivers", "nav.drivers", "/drivers", "drivers"),
+    ]),
     item("waste_orders", "/waste-orders", Inbox, "operations", [
       "/incoming",
       "/dispatches",
+      "/tasks",
+      "/driver-gps",
+      "/driver",
+    ], false, [
+      child("recycler-orders", "nav.waste_orders", "/waste-orders", "waste_orders"),
+      child("recycler-tasks", "nav.driver_tasks", "/tasks", "driver_tasks"),
+      child("recycler-driver-gps", "nav.driver_gps", "/driver-gps", "driver_gps"),
     ]),
-    item("driver_tasks", "/tasks", ClipboardList, "operations", ["/driver"]),
-    item("driver_gps", "/driver-gps", MapPinned, "operations"),
     item("weighing_records", "/weighing", Gauge, "operations", [
       "/gate",
       "/deductions",
+      "/settlements",
+      "/scales",
+    ], false, [
+      child("recycler-weighing", "nav.weighing_records", "/weighing", "weighing_records"),
+      child("recycler-scales", "nav.weighbridges", "/scales", "weighbridges"),
+      child("recycler-deductions", "nav.deductions", "/deductions", "weighing_records"),
+      child("recycler-settlements", "nav.payment_status", "/settlements", "payment_status"),
     ]),
-    item("inventory_management", "/recycler-inventory", Box, "operations"),
-    item("outbound_management", "/recycler-outbound", Package, "operations"),
-    item("payment_status", "/settlements", WalletCards, "finance"),
+    item("inventory_management", "/recycler-inventory", Box, "operations", [
+      "/recycler-outbound",
+    ], false, [
+      child("recycler-inventory", "nav.inventory_management", "/recycler-inventory", "inventory_management"),
+      child("recycler-outbound", "nav.outbound_management", "/recycler-outbound", "outbound_management"),
+    ]),
+    item("billing_commission", "/billing", Receipt, "finance"),
     item(
       "transaction_reports",
       "/reports",
@@ -1194,6 +1216,7 @@ export const PORTAL_NAVIGATION = {
     item("users", "/users", Users, "system"),
     item("roles", "/roles", KeyRound, "system"),
     item("integrations", "/integrations", SlidersHorizontal, "system"),
+    item("company_settings", "/company-settings", Settings, "system"),
     item("user_logs", "/login-records", FileClock, "system"),
     item("activity_logs", "/audit-logs", History, "system"),
     item("notifications", "/notifications", Bell, "system"),
@@ -1264,6 +1287,10 @@ export function visibleNavigation(
     if (!visible.has(navItem.feature) && !visibleChildren?.length) continue;
     const visibleItem = {
       ...navItem,
+      href:
+        visible.has(navItem.feature) || !visibleChildren?.length
+          ? navItem.href
+          : visibleChildren[0].href,
       children: visibleChildren,
     };
     grouped.get(navItem.group)?.push(visibleItem);

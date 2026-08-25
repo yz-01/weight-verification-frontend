@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { EllipsisVertical, Eye, FileCheck2, FilePlus2, Filter, XCircle } from "lucide-react";
+import { Download, EllipsisVertical, Eye, FileCheck2, FilePlus2, Filter, Printer, XCircle } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -127,6 +127,31 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
     ] });
   }
 
+  async function runInvoicePdf(invoice: Invoice, openInNewTab: boolean) {
+    await exportInvoices({
+      format: "pdf",
+      title: invoice.invoice_no,
+      subtitle: `${invoice.company_name} / ${t(`kind.${invoice.kind}`)}`,
+      emptyLabel: common("emptyValue"),
+      query: { invoice: invoice.id },
+      columns: [
+        { key: "invoice_no", label: t("field.invoiceNumber") },
+        { key: "kind", label: t("field.kind"), values: { SAAS: t("kind.SAAS"), COMMISSION: t("kind.COMMISSION") } },
+        { key: "state", label: t("field.state"), values: Object.fromEntries(STATES.map((state) => [state, t(`state.${state}`)])) },
+        { key: "period_start", label: t("field.periodStart") },
+        { key: "period_end", label: t("field.periodEnd") },
+        { key: "total_amount", label: t("field.receivable") },
+        { key: "amount_paid", label: t("field.received") },
+        { key: "amount_outstanding", label: t("field.outstanding") },
+        { key: "issued_on", label: t("field.issuedDate") },
+        { key: "due_on", label: t("field.dueDate") },
+      ],
+    }, {
+      openInNewTab,
+      fallbackFilename: `${invoice.invoice_no}.pdf`,
+    });
+  }
+
   return (
     <div className={embedded ? "flex min-h-0 flex-1 flex-col" : "flex h-[calc(100dvh-5rem)] flex-col gap-4"}>
       <DataTable columns={columns} rows={invoices.data?.results ?? []} totalCount={totalCount} page={list.page} pageSize={list.pageSize} isLoading={invoices.isLoading} isError={invoices.isError} hasFilters={list.hasFilters} search={list.search} sortBy={list.sortBy} sortOrder={list.sortOrder} storageKey={`billing-${fixedKind ?? "all"}`}
@@ -147,7 +172,7 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
 
       <Dialog open={closing !== null} onOpenChange={(open) => !open && setClosing(null)}><DialogContent><DialogHeader><DialogTitle>{t("close.title")}</DialogTitle><DialogDescription>{t("close.description", { invoice: closing?.invoice_no ?? "" })}</DialogDescription></DialogHeader><div className="space-y-4 py-2"><FilterSelect label={t("field.state")} value={closeState} onChange={(value) => setCloseState(value as "CANCELLED" | "WRITTEN_OFF")} options={[{ value: "CANCELLED", label: t("state.CANCELLED") }, { value: "WRITTEN_OFF", label: t("state.WRITTEN_OFF") }]} /><FieldWrapper label={t("field.notes")} required><Textarea value={notes} onChange={(event) => setNotes(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={() => setClosing(null)}>{common("cancel")}</Button><Button variant="destructive" disabled={!notes.trim() || close.isPending} onClick={() => close.mutate()}>{t("action.close")}</Button></DialogFooter></DialogContent></Dialog>
 
-      <Dialog open={viewing !== null} onOpenChange={(open) => !open && setViewing(null)}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>{viewing?.invoice_no}</DialogTitle><DialogDescription>{viewing ? `${viewing.company_name} / ${t(`kind.${viewing.kind}`)}` : ""}</DialogDescription></DialogHeader>{detail.isLoading ? <p>{common("loading")}</p> : detail.data && <InvoiceDetailView invoice={detail.data} />}</DialogContent></Dialog>
+      <Dialog open={viewing !== null} onOpenChange={(open) => !open && setViewing(null)}><DialogContent className="flex max-h-[90dvh] flex-col overflow-hidden sm:max-w-3xl"><DialogHeader className="shrink-0"><DialogTitle>{viewing?.invoice_no}</DialogTitle><DialogDescription>{viewing ? `${viewing.company_name} / ${t(`kind.${viewing.kind}`)}` : ""}</DialogDescription></DialogHeader><div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{detail.isLoading ? <p>{common("loading")}</p> : detail.data && <InvoiceDetailView invoice={detail.data} />}</div>{detail.data && <DialogFooter className="shrink-0 border-t pt-4"><Button variant="outline" onClick={() => void runInvoicePdf(detail.data, false)}><Download className="h-4 w-4" />{t("action.downloadPdf")}</Button><Button onClick={() => void runInvoicePdf(detail.data, true)}><Printer className="h-4 w-4" />{t("action.print")}</Button></DialogFooter>}</DialogContent></Dialog>
     </div>
   );
 }

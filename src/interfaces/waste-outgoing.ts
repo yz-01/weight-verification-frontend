@@ -178,9 +178,9 @@ export interface WasteCollectionTask {
 }
 
 export interface WasteSettlementSummary {
-  id: string;
-  settlement_no: string;
-  state: string;
+  id?: string;
+  settlement_no?: string;
+  state?: string;
   net_weight_kg: string | null;
   deduction_weight_kg: string | null;
   settled_weight_kg: string | null;
@@ -188,6 +188,27 @@ export interface WasteSettlementSummary {
   total_amount: string | null;
   currency: string;
   issued_at: string | null;
+  amount_paid: string;
+  outstanding: string | null;
+  deductions: Array<{
+    id: string;
+    kind: string;
+    weight_kg: string;
+    reason: string;
+    state: string;
+    inspected_by_name: string;
+    inspected_at: string;
+    responded_at: string | null;
+    response_note: string;
+  }>;
+  payments: Array<{
+    id: string;
+    amount: string;
+    paid_on: string;
+    method: string;
+    reference: string;
+    notes: string;
+  }>;
 }
 
 export interface WasteTracking {

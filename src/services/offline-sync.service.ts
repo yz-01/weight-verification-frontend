@@ -2,7 +2,7 @@ import { ApiError } from "@/interfaces/api";
 import type { AttendanceEvent } from "@/interfaces/site-operations";
 import type { SafetyIncidentPayload } from "@/interfaces/site-operations";
 import type { MaterialReceiptPayload } from "@/interfaces/contractor";
-import type { TaskState } from "@/interfaces/recycler";
+import type { TaskPositionEvent, TaskState } from "@/interfaces/recycler";
 import {
   countOfflineJobs,
   deleteOfflineJob,
@@ -53,7 +53,7 @@ interface TaskTransitionDraft {
 
 interface TaskPositionDraft {
   taskId: string;
-  eventType?: "POSITION" | "ARRIVAL" | "GEOFENCE_ENTER" | "GEOFENCE_EXIT";
+  eventType?: TaskPositionEvent;
   latitude: string;
   longitude: string;
   accuracyM?: string;
@@ -650,6 +650,27 @@ export function submitMaterialOutgoingOfflineAware(
   });
 }
 
+async function uploadPositionBatch(
+  jobs: Extract<OfflineJob, { kind: "TASK_POSITION" }>[],
+): Promise<void> {
+  if (jobs.length === 0) return;
+  await api.post(
+    "/api/task-positions/record_positions/",
+    {
+      task: jobs[0].payload.taskId,
+      positions: jobs.map((job) => ({
+        client_event_id: job.payload.clientEventId,
+        event_type: job.payload.eventType,
+        latitude: job.payload.latitude,
+        longitude: job.payload.longitude,
+        accuracy_m: job.payload.accuracyM,
+        original_occurred_at: job.payload.originalOccurredAt,
+      })),
+    },
+    { silent: true },
+  );
+}
+
 export function submitWasteOutgoingOfflineAware(
   ownerId: string,
   draft: Omit<
@@ -747,21 +768,51 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
   const jobs = await getOfflineJobs(ownerId);
   let synced = 0;
 
-  for (const job of jobs) {
+  for (let index = 0; index < jobs.length; index += 1) {
+    const job = jobs[index];
+    const positions: Extract<OfflineJob, { kind: "TASK_POSITION" }>[] = [];
+    if (job.kind === "TASK_POSITION") {
+      for (
+        let cursor = index;
+        cursor < jobs.length && positions.length < 200;
+        cursor += 1
+      ) {
+        const candidate = jobs[cursor];
+        if (
+          candidate.kind !== "TASK_POSITION" ||
+          candidate.payload.taskId !== job.payload.taskId
+        ) {
+          break;
+        }
+        positions.push(candidate);
+      }
+    }
     try {
-      await uploadJob(job);
-      await deleteOfflineJob(job.id);
-      synced += 1;
+      if (positions.length > 0) {
+        await uploadPositionBatch(positions);
+        await Promise.all(positions.map((position) => deleteOfflineJob(position.id)));
+        synced += positions.length;
+      } else {
+        await uploadJob(job);
+        await deleteOfflineJob(job.id);
+        synced += 1;
+      }
     } catch (error) {
       if (isNetworkFailure(error) || (error instanceof ApiError && error.isUnauthorized)) {
         break;
       }
-      await putOfflineJob({
-        ...job,
-        attempts: job.attempts + 1,
-        lastError: error instanceof Error ? error.message : String(error),
-      });
+      const failedJobs: OfflineJob[] = positions.length > 0 ? positions : [job];
+      await Promise.all(
+        failedJobs.map((failedJob) =>
+          putOfflineJob({
+            ...failedJob,
+            attempts: failedJob.attempts + 1,
+            lastError: error instanceof Error ? error.message : String(error),
+          }),
+        ),
+      );
     }
+    index += Math.max(positions.length - 1, 0);
   }
 
   const remaining = await countOfflineJobs(ownerId);

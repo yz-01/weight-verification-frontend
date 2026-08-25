@@ -17,6 +17,7 @@ import { CommissionRuleManager } from "@/components/billing/commission-rule-mana
 import { FinancialReports } from "@/components/billing/financial-reports";
 import { InvoiceList } from "@/components/billing/invoice-list";
 import { PaymentManager } from "@/components/billing/payment-manager";
+import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader } from "@/components/shared/page-primitives";
 import { getBillingSummary } from "@/services/billing.service";
 
@@ -38,13 +39,23 @@ const SUBMODULES: Array<{ section: Exclude<BillingSection, "overview">; number: 
 
 export function BillingWorkspace({ section = "overview" }: { section?: BillingSection }) {
   const t = useTranslations("billing");
+  const { can } = useAuth();
+  const canManage = can("billing.manage");
+  const canCollect = can("billing.collect");
+  const canPay = can("billing.pay");
   const summary = useQuery({ queryKey: ["billing", "summary"], queryFn: getBillingSummary });
+  const visibleModules = SUBMODULES.filter((module) => {
+    if (["automatic-billing", "commission-rules"].includes(module.section)) return canManage;
+    if (module.section === "collections") return canCollect;
+    if (module.section === "payment-proofs") return canPay || canCollect;
+    return true;
+  });
   let content: React.ReactNode;
-  if (section === "overview") content = <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm"><div className="grid md:grid-cols-2 xl:grid-cols-3">{SUBMODULES.map((module) => <Link key={module.section} href={`/billing/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
-  else if (section === "automatic-billing") content = <AutomaticBilling />;
-  else if (section === "collections") content = <PaymentManager />;
-  else if (section === "payment-proofs") content = <PaymentManager proofsOnly />;
-  else if (section === "commission-rules") content = <CommissionRuleManager />;
+  if (section === "overview") content = <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm"><div className="grid md:grid-cols-2 xl:grid-cols-3">{visibleModules.map((module) => <Link key={module.section} href={`/billing/${module.section}`} className="flex min-h-20 items-center gap-3 border-b border-r px-5 py-4 transition-colors hover:bg-muted/40"><span className="min-w-0 flex-1 font-medium">{t(`section.${module.section}.title`)}</span><ArrowRight className="h-4 w-4 text-muted-foreground" /></Link>)}</div></div>;
+  else if (section === "automatic-billing" && canManage) content = <AutomaticBilling />;
+  else if (section === "collections" && canCollect) content = <PaymentManager />;
+  else if (section === "payment-proofs" && (canPay || canCollect)) content = <PaymentManager proofsOnly />;
+  else if (section === "commission-rules" && canManage) content = <CommissionRuleManager />;
   else if (section === "reports") content = <FinancialReports />;
   else content = <InvoiceList embedded />;
 

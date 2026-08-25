@@ -36,10 +36,10 @@ export function EnquiryList() {
     () => [
       {
         accessorKey: "enquiry_code",
-        meta: { label: t("crm.field.code") },
+        meta: { label: t("crm.field.enquiryCode") },
         header: ({ column }) => (
           <SortableHeader
-            label={t("crm.field.code")}
+            label={t("crm.field.enquiryCode")}
             isSorted={column.getIsSorted()}
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />

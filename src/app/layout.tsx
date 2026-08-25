@@ -57,6 +57,25 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <link
+          rel="icon"
+          href="/mse-icon-192.png"
+          sizes="any"
+          data-mse-branding="icon"
+        />
+        <link
+          rel="apple-touch-icon"
+          href="/mse-icon-192.png"
+          sizes="180x180"
+          data-mse-branding="apple-touch-icon"
+        />
+        <link
+          rel="manifest"
+          href="/manifest.webmanifest"
+          data-mse-branding="manifest"
+        />
+      </head>
       <body className="flex min-h-full flex-col">
         <script
           data-mse-field-install-bootstrap

@@ -16,6 +16,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { DriverInstallPrompt } from "@/components/driver/driver-install-prompt";
+import { DriverLiveTracker } from "@/components/driver/driver-live-tracker";
 import { useAuth } from "@/components/providers/auth-provider";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { Button } from "@/components/ui/button";
@@ -23,8 +25,8 @@ import {
   firstAllowedDashboardPath,
   isDriverOnlyAccount,
 } from "@/lib/navigation";
-import { getSessionPortal } from "@/lib/auth-token";
-import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
+import { markDriverAppContext } from "@/lib/auth-token";
+import { redirectWithFallback } from "@/lib/portal";
 
 /**
  * The driver's shell. Deliberately not the console's.
@@ -49,8 +51,12 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
 
   useEffect(() => {
+    markDriverAppContext();
+  }, []);
+
+  useEffect(() => {
     if (!isLoading && user === null) {
-      redirectWithFallback(router, portalLoginPath(getSessionPortal()));
+      redirectWithFallback(router, "/scrap/login");
       return;
     }
     if (!isLoading && user !== null && !isDriverOnly) {
@@ -71,6 +77,7 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col bg-muted/30">
+      <DriverLiveTracker />
       {/* Sticky, because the driver's own name is how they know the phone is
           signed in as them and not as whoever used it last. */}
       <header className="sticky top-0 z-20 border-b bg-card">
@@ -100,6 +107,7 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
       </header>
 
       <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-24">
+        <DriverInstallPrompt />
         {children}
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">

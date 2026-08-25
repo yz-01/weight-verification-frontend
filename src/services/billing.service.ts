@@ -95,7 +95,10 @@ export async function closeInvoice(
   return invoice;
 }
 
-export function exportInvoices(request: ExportRequest): Promise<void> {
+export function exportInvoices(
+  request: ExportRequest,
+  options: { openInNewTab?: boolean; fallbackFilename?: string } = {},
+): Promise<void> {
   const { page, page_size, ...query } = request.query;
   void page;
   void page_size;
@@ -109,7 +112,8 @@ export function exportInvoices(request: ExportRequest): Promise<void> {
       empty_label: request.emptyLabel ?? "",
       columns: request.columns,
     },
-    fallbackFilename: `billing.${request.format}`,
+    fallbackFilename: options.fallbackFilename ?? `billing.${request.format}`,
+    openInNewTab: options.openInNewTab,
   });
 }
 

@@ -49,7 +49,7 @@ export function DriverProfile() {
         />
         <ProfileRow
           icon={CalendarDays}
-          label={t("drivers.field.licenceExpiry")}
+          label={t("drivers.field.licenceExpires")}
           value={
             driver.licence_expires_on
               ? df.date(driver.licence_expires_on)

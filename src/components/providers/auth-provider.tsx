@@ -15,14 +15,22 @@ import type { CurrentUser } from "@/interfaces/auth";
 import { ApiError } from "@/interfaces/api";
 import {
   clearFieldTokens,
+  clearDriverTokens,
   clearTokens,
   getSessionPortal,
   hasFieldSession,
+  hasDriverSession,
   hasSession,
+  isDriverSessionPath,
+  isDriverStandaloneApp,
   isFieldStandaloneApp,
   isFieldSessionPath,
 } from "@/lib/auth-token";
-import { cacheBranding } from "@/lib/branding";
+import {
+  cacheBranding,
+  clearStandardBrandingForCompany,
+} from "@/lib/branding";
+import { isDriverOnlyAccount } from "@/lib/navigation";
 import { portalLoginPath } from "@/lib/portal";
 import * as authService from "@/services/auth.service";
 
@@ -53,7 +61,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isFieldStandaloneApp,
     () => false,
   );
+  const driverApp = useSyncExternalStore(
+    subscribeStandaloneMode,
+    isDriverStandaloneApp,
+    () => false,
+  );
   const fieldSession = isFieldSessionPath(pathname) || fieldApp;
+  const driverSession = isDriverSessionPath(pathname) || driverApp;
   const isFieldCredentialExchange = [
     "/trace/field-activate",
     "/trace/field-login",
@@ -63,10 +77,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Field Staff uses an isolated device session. Checking the standard
   // account token here makes a deep-linked supplier QR open the PIN page even
   // though the Field Staff device is already signed in.
-  const sessionPresent = fieldSession ? hasFieldSession() : hasSession();
+  const sessionPresent = fieldSession
+    ? hasFieldSession()
+    : driverSession
+      ? hasDriverSession()
+      : hasSession();
   const currentUserKey = useMemo(
-    () => [...CURRENT_USER_KEY, fieldSession ? "field" : "standard"] as const,
-    [fieldSession],
+    () => [
+      ...CURRENT_USER_KEY,
+      fieldSession ? "field" : driverSession ? "driver" : "standard",
+    ] as const,
+    [driverSession, fieldSession],
   );
 
   useEffect(() => {
@@ -74,6 +95,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.replace("/field-staff");
     }
   }, [fieldApp, pathname, router]);
+
+  useEffect(() => {
+    if (
+      driverApp &&
+      !isDriverSessionPath(pathname) &&
+      !pathname.startsWith("/scrap/")
+    ) {
+      router.replace("/driver");
+    }
+  }, [driverApp, pathname, router]);
 
   // The session lives in the query cache rather than in component state, so
   // that a profile update and the shell read the same record and neither can
@@ -89,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // a half-signed-in state.
         if (error instanceof ApiError && [401, 403].includes(error.status)) {
           if (fieldSession) clearFieldTokens();
+          else if (driverSession) clearDriverTokens();
           else clearTokens();
           return null;
         }
@@ -137,10 +169,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           query.queryKey[0] !== CURRENT_USER_KEY[0] ||
           query.queryKey[1] !== CURRENT_USER_KEY[1],
       });
-      cacheBranding(next.branding, fieldSession);
+      const driverAccount = isDriverOnlyAccount(
+        next.portal,
+        next.permissions,
+        next.is_superuser,
+      );
+      if (driverAccount) {
+        clearStandardBrandingForCompany(next.branding.company_id);
+      }
+      cacheBranding(
+        next.branding,
+        fieldSession,
+        driverSession || driverAccount,
+      );
       queryClient.setQueryData(currentUserKey, next);
     },
-    [currentUserKey, fieldSession, queryClient],
+    [currentUserKey, driverSession, fieldSession, queryClient],
   );
 
   const refresh = useCallback(async () => {
@@ -170,9 +214,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Keep the last portal marker. The signed-out shell also observes the
       // user becoming null; retaining this value makes every redirect converge
       // on the same branded login instead of racing back to generic `/login`.
-      router.replace(fieldSession ? "/trace/field-login" : portalLoginPath(portal));
+      router.replace(
+        fieldSession
+          ? "/trace/field-login"
+          : driverSession
+            ? "/scrap/login"
+            : portalLoginPath(portal),
+      );
     }
-  }, [currentUserKey, fieldSession, queryClient, router]);
+  }, [currentUserKey, driverSession, fieldSession, queryClient, router]);
 
   const permissions = useMemo(
     () => new Set(user?.permissions ?? []),

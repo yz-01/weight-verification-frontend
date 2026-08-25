@@ -107,7 +107,7 @@ export interface ConsultantAccountPayload {
   full_name: string;
   phone?: string;
   job_title?: string;
-  language: "en" | "zh" | "ms";
+  language: "en" | "zh" | "zh-TW" | "ms";
 }
 
 export interface ConsultantProjectAccessGrant extends ConsultantGrantOption {

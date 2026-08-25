@@ -2,10 +2,10 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Info, Plus } from "lucide-react";
+import { Info, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   SelectField,
@@ -15,17 +15,24 @@ import {
 } from "@/components/shared/form-fields";
 import {
   FormSection,
+  FormSkeleton,
+  LoadErrorCard,
   FormShell,
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
 import { ApiError } from "@/interfaces/api";
-import type { DriverTaskPayload } from "@/interfaces/recycler";
+import type {
+  DriverTaskDetail,
+  DriverTaskPayload,
+} from "@/interfaces/recycler";
 import {
   createTask,
+  getTask,
   getDrivers,
   getIncoming,
   getVehicles,
+  updateTask,
 } from "@/services/recycler.service";
 import { getSites } from "@/services/weighing.service";
 
@@ -36,7 +43,36 @@ import { getSites } from "@/services/weighing.service";
  * collected, addressed to this yard. Offering everything and refusing on
  * submit would teach dispatchers to guess.
  */
-export function CreateTask() {
+function localDateTimeInput(value?: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return shifted.toISOString().slice(0, 16);
+}
+
+export function CreateTask({ id }: { id?: string } = {}) {
+  const t = useTranslations();
+  const existing = useQuery({
+    queryKey: ["tasks", "detail", id],
+    queryFn: () => getTask(id!),
+    enabled: Boolean(id),
+  });
+
+  if (id && existing.isLoading) return <FormSkeleton sections={2} />;
+  if (id && (existing.isError || !existing.data)) {
+    return <LoadErrorCard backHref="/tasks" backLabel={t("tasks.title")} />;
+  }
+
+  return <TaskForm id={id} existingTask={existing.data} />;
+}
+
+function TaskForm({
+  id,
+  existingTask,
+}: {
+  id?: string;
+  existingTask?: DriverTaskDetail;
+}) {
   const t = useTranslations();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -44,7 +80,7 @@ export function CreateTask() {
 
   const { data: loadPage } = useQuery({
     queryKey: ["incoming", "options"],
-    queryFn: () => getIncoming({ page_size: 100, state: "RELEASED" }),
+    queryFn: () => getIncoming({ page_size: 100 }),
   });
   const { data: sitePage } = useQuery({
     queryKey: ["sites", "options"],
@@ -58,30 +94,41 @@ export function CreateTask() {
     queryKey: ["drivers", "options"],
     queryFn: () => getDrivers({ page_size: 100, is_active: "true" }),
   });
+  const defaultValues = useMemo(
+    () => ({
+      dispatch: existingTask?.dispatch ?? "",
+      site: existingTask?.site ?? "",
+      vehicle: existingTask?.vehicle ?? "",
+      driver: existingTask?.driver ?? "",
+      scheduled_for: localDateTimeInput(existingTask?.scheduled_for),
+      notes: existingTask?.notes ?? "",
+    }),
+    [existingTask],
+  );
+  const collectableLoads = (loadPage?.results ?? []).filter(
+    (load) =>
+      load.state === "RELEASED" ||
+      load.state === "COLLECTED" ||
+      (load.state === "ACCEPTED" && load.confirmed_collection_at !== null),
+  );
 
   const mutation = useMutation({
-    mutationFn: (values: DriverTaskPayload) => createTask(values),
-    onSuccess: () => {
+    mutationFn: (values: DriverTaskPayload) =>
+      id ? updateTask(id, values) : createTask(values),
+    onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      router.push("/tasks");
+      router.push(`/tasks/${saved.id}`);
     },
   });
 
   const form = useForm({
-    defaultValues: {
-      dispatch: "",
-      site: "",
-      vehicle: "",
-      driver: "",
-      scheduled_for: "",
-      notes: "",
-    },
+    defaultValues,
     onSubmit: async ({ value }) => {
       setFormError(null);
       try {
         await mutation.mutateAsync({
           ...value,
-          dispatch: value.dispatch || null,
+          dispatch: value.dispatch,
           scheduled_for: value.scheduled_for || null,
         });
       } catch (error) {
@@ -104,20 +151,23 @@ export function CreateTask() {
     <FormShell
       backHref="/tasks"
       backLabel={t("tasks.title")}
-      title={t("tasks.createTitle")}
+      title={t(id ? "tasks.editTitle" : "tasks.createTitle")}
       isSubmitting={mutation.isPending}
-      submitLabel={t("common.create")}
-      submitIcon={Plus}
+      submitLabel={t(id ? "common.save" : "common.create")}
+      submitIcon={id ? Save : Plus}
       onSubmit={() => void form.handleSubmit()}
     >
       <FormSection title={t("tasks.section.load")}>
-        <form.Field name="dispatch">
+        <form.Field
+          name="dispatch"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
           {(field) => (
             <SelectField
               field={field as unknown as BoundField}
               label={t("tasks.field.dispatch")}
-              optional
-              options={(loadPage?.results ?? []).map((load) => ({
+              required
+              options={collectableLoads.map((load) => ({
                 value: load.id,
                 label: `${load.dispatch_no} — ${load.project_name}`,
               }))}
@@ -155,7 +205,15 @@ export function CreateTask() {
               required
               options={(vehiclePage?.results ?? []).map((vehicle) => ({
                 value: vehicle.id,
-                label: vehicle.plate_no,
+                label: [
+                  vehicle.plate_no,
+                  t(`vehicles.status.${vehicle.work_status}`),
+                  vehicle.current_task_no
+                    ? `${t("vehicles.field.currentTask")}: ${vehicle.current_task_no}`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · "),
               }))}
             />
           )}
@@ -172,7 +230,15 @@ export function CreateTask() {
               required
               options={(driverPage?.results ?? []).map((driver) => ({
                 value: driver.id,
-                label: driver.full_name,
+                label: [
+                  driver.full_name,
+                  t(`drivers.status.${driver.work_status}`),
+                  driver.current_task_no
+                    ? `${t("drivers.field.currentTask")}: ${driver.current_task_no}`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · "),
               }))}
             />
           )}
