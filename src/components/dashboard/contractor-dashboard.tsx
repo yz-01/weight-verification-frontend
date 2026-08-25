@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   BellPlus,
   CalendarRange,
   CalendarCheck,
@@ -24,6 +23,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
+import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { useAuth } from "@/components/providers/auth-provider";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -140,7 +140,7 @@ export function ContractorDashboard() {
             {t("filter.project")}
           </span>
           <ProjectPicker
-            value={project}
+            value={project || "all"}
             onValueChange={(next) => setProject(next === "all" ? "" : next)}
             placeholder={t("filter.selectProject")}
             allowAll
@@ -160,7 +160,7 @@ export function ContractorDashboard() {
 
       {can("dashboard.search") && <QuickSearch project={project} />}
 
-      <QuickActions />
+      <QuickActions project={project} />
 
       {!data ? (
         <DashboardSkeleton />
@@ -246,6 +246,13 @@ export function ContractorDashboard() {
               </div>
               <ScheduleSummary schedule={data.overview.schedule} />
             </section>
+          )}
+
+          {can("field_position.view") && (
+            <ContractorLocationMap
+              project={project}
+              onProjectChange={setProject}
+            />
           )}
 
           <div className="grid gap-6 xl:grid-cols-2">
@@ -523,12 +530,22 @@ export function ContractorDashboard() {
   );
 }
 
-function QuickActions() {
+function QuickActions({ project }: { project: string }) {
   const t = useTranslations("contractorDashboard.quickActions");
-  const actions: Array<{ href: string; label: string; icon: typeof Inbox }> = [
+  const actions: Array<{
+    href: string;
+    label: string;
+    icon: typeof Inbox;
+    requiresProject?: boolean;
+  }> = [
     { href: "/projects/create", label: t("project"), icon: Plus },
     { href: "/suppliers/create", label: t("supplier"), icon: Inbox },
-    { href: "/project-categories?create=1", label: t("category"), icon: FolderPlus },
+    {
+      href: `/project-categories?project=${encodeURIComponent(project)}&create=1`,
+      label: t("category"),
+      icon: FolderPlus,
+      requiresProject: true,
+    },
     { href: "/documents?create=1", label: t("document"), icon: FilePlus2 },
     { href: "/approvals?create=1", label: t("approval"), icon: ClipboardCheck },
     { href: "/notifications?create=1", label: t("notification"), icon: BellPlus },
@@ -539,6 +556,20 @@ function QuickActions() {
       <div className="flex gap-2 overflow-x-auto pb-1">
         {actions.map((action) => {
           const Icon = action.icon;
+          if (action.requiresProject && !project) {
+            return (
+              <Button
+                key={action.href}
+                disabled
+                variant="outline"
+                className="shrink-0"
+                title={t("selectProjectFirst")}
+              >
+                <Icon />
+                {action.label}
+              </Button>
+            );
+          }
           return (
             <Button key={action.href} asChild variant="outline" className="shrink-0">
               <Link href={action.href}><Icon />{action.label}</Link>
@@ -616,7 +647,6 @@ function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"]
 function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
   const t = useTranslations("contractorDashboard");
   const df = useDateFormat();
-  const unavailable = Object.keys(anomalies.unavailable);
   const nothing =
     anomalies.geofence_failures.length === 0 &&
     anomalies.overdue_rectifications.length === 0 &&
@@ -688,25 +718,6 @@ function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
           </li>
         ))}
       </ul>
-
-      {/* An empty list would read as "nothing wrong today". These two parts
-          have no stored field to derive them from, which is a different claim
-          and has to be said out loud rather than shown as a zero. */}
-      {unavailable.length > 0 && (
-        <div className="mt-3 rounded-lg border border-dashed bg-muted/20 p-3">
-          <p className="flex items-center gap-2 text-xs font-medium">
-            <AlertTriangle className="size-3.5 shrink-0 text-muted-foreground" />
-            {t("anomalies.unavailableTitle")}
-          </p>
-          <ul className="mt-1.5 space-y-1">
-            {unavailable.map((key) => (
-              <li key={key} className="text-xs text-muted-foreground">
-                {t(`anomalies.part.${key}`)}: {anomalies.unavailable[key]}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </Block>
   );
 }

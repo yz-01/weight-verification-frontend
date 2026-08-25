@@ -245,7 +245,7 @@ export function DataTable<T>({
       </div>
 
       <div className="min-h-0 min-w-0 flex-1 overflow-auto">
-        <Table className="min-w-max">
+        <Table className="w-full min-w-max">
           <TableHeader className="sticky top-0 z-10 bg-card">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
@@ -279,34 +279,38 @@ export function DataTable<T>({
               ))
             ) : isError ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={columnCount} className="px-6 py-16 text-center">
-                  <p className="text-sm font-medium text-foreground">
-                    {t("table.errorTitle")}
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {t("table.errorBody")}
-                  </p>
+                <TableCell colSpan={columnCount} className="p-0 text-center">
+                  <div className="sticky left-0 flex min-h-36 w-[100cqw] flex-col items-center justify-center px-6 whitespace-normal">
+                    <p className="text-sm font-medium text-foreground">
+                      {t("table.errorTitle")}
+                    </p>
+                    <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                      {t("table.errorBody")}
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : rows.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={columnCount} className="px-6 py-16 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    {hasFilters
-                      ? t("table.noResultsFiltered")
-                      : t("table.noResults")}
-                  </p>
-                  {hasFilters && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-4 rounded-full px-4"
-                      onClick={onClearFilters}
-                    >
-                      <FilterX className="h-3.5 w-3.5" />
-                      {t("table.clearFilters")}
-                    </Button>
-                  )}
+                <TableCell colSpan={columnCount} className="p-0 text-center">
+                  <div className="sticky left-0 flex min-h-36 w-[100cqw] flex-col items-center justify-center px-6 whitespace-normal">
+                    <p className="max-w-md text-sm text-muted-foreground">
+                      {hasFilters
+                        ? t("table.noResultsFiltered")
+                        : t("table.noResults")}
+                    </p>
+                    {hasFilters && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4 rounded-full px-4"
+                        onClick={onClearFilters}
+                      >
+                        <FilterX className="h-3.5 w-3.5" />
+                        {t("table.clearFilters")}
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (

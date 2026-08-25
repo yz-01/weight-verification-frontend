@@ -43,12 +43,19 @@ export function ServiceWorkerRegistration() {
       .register("/sw.js", { scope: "/", updateViaCache: "none" })
       .then(async (registration) => {
         await registration.update();
-        if (user) await syncPushSubscription();
       })
       .catch(() => undefined);
 
-    return () =>
+    return () => {
       navigator.serviceWorker.removeEventListener("message", onMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!user || !("serviceWorker" in navigator)) return;
+    void navigator.serviceWorker.ready
+      .then(() => syncPushSubscription())
+      .catch(() => undefined);
   }, [user]);
 
   return null;

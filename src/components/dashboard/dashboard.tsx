@@ -6,14 +6,12 @@ import {
   CalendarCheck,
   ClipboardList,
   HardHat,
-  Inbox,
   ListChecks,
   Package,
   Recycle,
   Scale,
   ShieldAlert,
   Truck,
-  WalletCards,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
@@ -21,6 +19,7 @@ import Link from "next/link";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
 import { ContractorDashboard } from "@/components/dashboard/contractor-dashboard";
+import { RecyclerDashboard } from "@/components/recycler-business/recycler-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Portal } from "@/interfaces/auth";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
@@ -31,11 +30,6 @@ import {
   getReceipts,
 } from "@/services/contractor.service";
 import {
-  getIncoming,
-  getSettlements,
-  getTasks,
-} from "@/services/recycler.service";
-import {
   getDisposalRequests,
   getFieldTasks,
   getSiteEquipment,
@@ -43,7 +37,6 @@ import {
 } from "@/services/contractor-ops.service";
 import { getAttendance } from "@/services/site-operations.service";
 import { getSafetyIncidents } from "@/services/site-operations.service";
-import { getWeighSummary } from "@/services/weighing.service";
 
 interface DashboardStat {
   key: string;
@@ -93,11 +86,16 @@ export function Dashboard({
           <TraceDashboard features={user.features} />
         )
       ) : (
-        <ScrapDashboard features={user.features} />
+        <RecyclerDashboard features={user.features} />
       )}
 
-      {user.portal !== "MSE_ADMIN" && (
-        <QuickLinks portal={user.portal} features={user.features} />
+      {user.portal === "MSE_TRACE" && (
+        <QuickLinks
+          portal={user.portal}
+          features={user.features}
+          permissions={user.permissions}
+          isSuperuser={user.is_superuser}
+        />
       )}
     </div>
   );
@@ -240,73 +238,6 @@ function TraceDashboard({ features }: { features: string[] }) {
   );
 }
 
-function ScrapDashboard({ features }: { features: string[] }) {
-  const ordersEnabled = features.includes("waste_orders");
-  const tasksEnabled = features.includes("driver_tasks");
-  const weighingEnabled = features.includes("weighing_records");
-  const settlementsEnabled = features.includes("payment_status");
-
-  const incoming = useQuery({
-    queryKey: ["incoming", "dashboard-count"],
-    queryFn: () => getIncoming({ page_size: 1 }),
-    enabled: ordersEnabled,
-  });
-  const tasks = useQuery({
-    queryKey: ["tasks", "dashboard-count"],
-    queryFn: () => getTasks({ page_size: 1 }),
-    enabled: tasksEnabled,
-  });
-  const weighing = useQuery({
-    queryKey: ["weighing", "summary"],
-    queryFn: getWeighSummary,
-    enabled: weighingEnabled,
-  });
-  const settlements = useQuery({
-    queryKey: ["settlements", "dashboard-count"],
-    queryFn: () => getSettlements({ page_size: 1 }),
-    enabled: settlementsEnabled,
-  });
-
-  return (
-    <StatsGrid
-      stats={[
-        {
-          key: "wasteOrders",
-          href: "/waste-orders",
-          icon: Inbox,
-          value: incoming.data?.count,
-          loading: incoming.isLoading,
-          enabled: ordersEnabled,
-        },
-        {
-          key: "driverTasks",
-          href: "/tasks",
-          icon: Truck,
-          value: tasks.data?.count,
-          loading: tasks.isLoading,
-          enabled: tasksEnabled,
-        },
-        {
-          key: "weighingSessions",
-          href: "/weighing",
-          icon: Scale,
-          value: weighing.data?.total,
-          loading: weighing.isLoading,
-          enabled: weighingEnabled,
-        },
-        {
-          key: "settlements",
-          href: "/settlements",
-          icon: WalletCards,
-          value: settlements.data?.count,
-          loading: settlements.isLoading,
-          enabled: settlementsEnabled,
-        },
-      ]}
-    />
-  );
-}
-
 function StatsGrid({ stats }: { stats: DashboardStat[] }) {
   const t = useTranslations();
   const format = useFormatter();
@@ -356,12 +287,16 @@ function StatsGrid({ stats }: { stats: DashboardStat[] }) {
 function QuickLinks({
   portal,
   features,
+  permissions,
+  isSuperuser,
 }: {
   portal: Portal;
   features: string[];
+  permissions: string[];
+  isSuperuser: boolean;
 }) {
   const t = useTranslations();
-  const items = visibleNavigation(portal, features)
+  const items = visibleNavigation(portal, features, permissions, isSuperuser)
     .flatMap((group) => group.items)
     .filter((item) => item.feature !== "dashboard")
     .slice(0, 6);

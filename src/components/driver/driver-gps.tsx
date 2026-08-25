@@ -743,7 +743,8 @@ function geofenceTone(result: DriverTaskPosition["geofence_result"]) {
 }
 
 function taskStateTone(state: TaskState) {
-  if (state === "DELIVERED") return "positive" as const;
+  if (state === "COMPLETED") return "positive" as const;
+  if (state === "DELIVERED") return "warning" as const;
   if (state === "FAILED") return "danger" as const;
   if (state === "ARRIVED" || state === "LOADED") return "warning" as const;
   if (state === "ACCEPTED" || state === "EN_ROUTE" || state === "RETURNING") {

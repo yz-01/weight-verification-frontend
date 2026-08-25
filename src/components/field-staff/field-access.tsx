@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Camera, Download, Loader2, LogIn, Share, Smartphone } from "lucide-react";
+import { Camera, Loader2, LogIn, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
+import { redirectWithFallback, safeReturnPath } from "@/lib/portal";
+import { cacheBranding } from "@/lib/branding";
 import {
   activateFieldDevice,
   fieldLogin,
@@ -18,41 +20,28 @@ import {
   inspectFieldInvitation,
 } from "@/services/field-access.service";
 
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
-
 export function FieldAccess() {
   const t = useTranslations("fieldAccess");
   const searchParams = useSearchParams();
   const router = useRouter();
   const { setUser } = useAuth();
   const token = searchParams.get("token") ?? "";
+  const next = safeReturnPath(searchParams.get("next") ?? undefined);
   const invitation = useQuery({
     queryKey: ["field-invitation", token],
     queryFn: () => inspectFieldInvitation(token),
     enabled: Boolean(token),
     retry: false,
   });
-  const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
-  const [ready, setReady] = useState(false);
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isIos] = useState(() =>
-    typeof navigator !== "undefined" && /iphone|ipad|ipod/i.test(navigator.userAgent),
-  );
 
   useEffect(() => {
-    const handler = (event: Event) => {
-      event.preventDefault();
-      setInstallPrompt(event as BeforeInstallPromptEvent);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
+    if (!token || !invitation.data?.branding) return;
+    document.title = invitation.data.branding.name;
+    cacheBranding(invitation.data.branding, true);
+  }, [invitation.data, token]);
 
   const submit = async () => {
     setError("");
@@ -66,9 +55,22 @@ export function FieldAccess() {
             device_id: deviceId,
             device_name: navigator.platform || t("thisPhone"),
           })
-        : await fieldLogin({ phone, pin, device_id: deviceId });
-      await setUser(result.user);
-      setReady(true);
+        : await fieldLogin({
+            pin,
+            device_id: deviceId,
+          });
+      setUser(result.user);
+      const bootstrapToken = result.pwa_bootstrap?.token;
+      const destination = bootstrapToken
+        ? `/trace/field-ready?bootstrap=${encodeURIComponent(bootstrapToken)}${
+            next ? `&next=${encodeURIComponent(next)}` : ""
+          }`
+        : next ?? "/field-staff";
+      redirectWithFallback(
+        router,
+        destination,
+        150,
+      );
     } catch (cause) {
       setError(cause instanceof ApiError ? cause.message : t("failed"));
     } finally {
@@ -86,45 +88,6 @@ export function FieldAccess() {
         <Smartphone className="size-12 text-destructive" />
         <h1 className="text-xl font-semibold">{t("invalidTitle")}</h1>
         <p className="max-w-sm text-center text-sm text-muted-foreground">{t("invalidBody")}</p>
-      </Centered>
-    );
-  }
-
-  if (ready) {
-    return (
-      <Centered>
-        <span className="flex size-20 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Camera className="size-10" />
-        </span>
-        <h1 className="text-2xl font-semibold">{t("readyTitle")}</h1>
-        <p className="max-w-sm text-center text-sm text-muted-foreground">{t("readyBody")}</p>
-        <div className="grid w-full max-w-sm gap-3">
-          <Button size="lg" className="h-14 text-base" onClick={() => router.replace("/field-staff")}>
-            <Camera />
-            {t("openWorkspace")}
-          </Button>
-          {installPrompt && (
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-14 text-base"
-              onClick={async () => {
-                await installPrompt.prompt();
-                await installPrompt.userChoice;
-                setInstallPrompt(null);
-              }}
-            >
-              <Download />
-              {t("install")}
-            </Button>
-          )}
-          {isIos && (
-            <div className="rounded-lg border bg-card p-4 text-sm">
-              <p className="flex items-center gap-2 font-medium"><Share className="size-4" />{t("iosTitle")}</p>
-              <p className="mt-1 text-muted-foreground">{t("iosBody")}</p>
-            </div>
-          )}
-        </div>
       </Centered>
     );
   }
@@ -148,19 +111,6 @@ export function FieldAccess() {
               <p className="mt-1 text-muted-foreground">{invitation.data.phone}</p>
             </div>
           )}
-          {!token && (
-            <div className="space-y-2">
-              <Label htmlFor="field-phone">{t("phone")}</Label>
-              <Input
-                id="field-phone"
-                inputMode="tel"
-                autoComplete="tel"
-                className="h-12 text-base"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-              />
-            </div>
-          )}
           <div className="space-y-2">
             <Label htmlFor="field-pin">{t("pin")}</Label>
             <Input
@@ -177,7 +127,7 @@ export function FieldAccess() {
           <Button
             size="lg"
             className="h-14 w-full text-base"
-            disabled={pin.length !== 6 || (!token && !phone.trim()) || pending}
+            disabled={pin.length !== 6 || pending}
             onClick={() => void submit()}
           >
             {pending ? <Loader2 className="animate-spin" /> : <LogIn />}

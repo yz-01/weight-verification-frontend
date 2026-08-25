@@ -18,7 +18,7 @@ export interface AdminNotificationRow extends Omit<NotificationRow, "kind"> {
   latest_delivery_status: Record<
     string,
     {
-      mode: "SIMULATED" | "LIVE";
+      mode: "SIMULATED" | "LIVE" | "NOT_CONFIGURED";
       status: "PENDING" | "SENT" | "FAILED";
       attempted_at: string;
       error: string;
@@ -29,7 +29,7 @@ export interface AdminNotificationRow extends Omit<NotificationRow, "kind"> {
 
 export interface NotificationChannelStatus {
   channel: "IN_APP" | "EMAIL" | "PUSH";
-  mode: "SIMULATED" | "LIVE";
+  mode: "SIMULATED" | "LIVE" | "NOT_CONFIGURED";
   sent: number;
   failed: number;
   last_attempt_at: string | null;
@@ -41,7 +41,7 @@ export interface NotificationDeliveryRecord {
   notification_title: string;
   recipient_email: string;
   channel: "IN_APP" | "EMAIL" | "PUSH";
-  mode: "SIMULATED" | "LIVE";
+  mode: "SIMULATED" | "LIVE" | "NOT_CONFIGURED";
   status: "PENDING" | "SENT" | "FAILED";
   provider_message_id: string;
   error: string;

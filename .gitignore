@@ -13,6 +13,8 @@
 # testing
 /coverage
 /.tmp/
+/.playwright-cli/
+/output/
 
 # next.js
 /.next/

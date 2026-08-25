@@ -224,11 +224,29 @@ export interface WeighSessionRow {
   direction: WeighDirection;
   state: SessionState;
   verdict: SessionVerdict;
+  ticket_status:
+    | "WEIGHING"
+    | "PENDING_CONFIRMATION"
+    | "CONFIRMED"
+    | "VOIDED";
+  confirmed_at: string | null;
+  confirmed_by: string | null;
+  confirmed_by_name: string | null;
+  confirmation_note: string;
+  voided_at: string | null;
+  voided_by: string | null;
+  voided_by_name: string | null;
+  void_reason: string;
+  reweigh_of: string | null;
+  reweigh_of_session_no: string | null;
   attempt_no: number;
   requires_review: boolean;
   started_at: string | null;
   ended_at: string | null;
   stable_weight_kg: string | null;
+  gross_weight_kg: string | null;
+  tare_weight_kg: string | null;
+  net_weight_kg: string | null;
   reading_count: number;
   anomaly_count?: number;
 }
@@ -246,6 +264,23 @@ export interface WeighSessionDetail extends WeighSessionRow {
   first_reading_hash: string;
   last_reading_hash: string;
   anomalies: WeighAnomaly[];
+  attachments: WeighSessionAttachment[];
+  created_at: string;
+}
+
+export interface WeighSessionAttachment {
+  id: string;
+  session: string;
+  kind: "LOADING" | "WEIGHBRIDGE" | "CCTV" | "ANPR" | "OTHER";
+  file: string;
+  original_filename: string;
+  content_type: string;
+  size_bytes: number;
+  sha256: string;
+  captured_at: string;
+  uploaded_by: string | null;
+  uploaded_by_name: string | null;
+  metadata: Record<string, unknown>;
   created_at: string;
 }
 
@@ -295,6 +330,7 @@ export interface ChainVerification {
 export interface WeighSessionSummary {
   total: number;
   by_verdict: Partial<Record<SessionVerdict, number>>;
+  by_ticket_status: Partial<Record<WeighSessionRow["ticket_status"], number>>;
   requires_review: number;
 }
 

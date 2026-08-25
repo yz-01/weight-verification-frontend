@@ -47,6 +47,7 @@ export interface PlatformConfigCatalogue {
     email: DeploymentCredentialStatus;
     push: DeploymentCredentialStatus;
   };
+  branding: import("@/interfaces/auth").Branding;
 }
 
 export interface CompanyPlatformConfigCatalogue extends PlatformConfigCatalogue {

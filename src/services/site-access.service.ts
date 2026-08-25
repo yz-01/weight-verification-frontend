@@ -11,6 +11,7 @@ import type {
   SiteGeofencePayload,
   SiteLocationPolicy,
 } from "@/interfaces/site-access";
+import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 export const getSiteGeofences = (query: ListQuery = {}) =>
@@ -88,8 +89,42 @@ export async function updateContractorCompanyProfile(
   return row;
 }
 
+export const getOwnCompanyBankAccounts = () =>
+  api.list<CompanyBankAccount>(
+    "/api/contractor-site-settings/get_bank_accounts/",
+    { page_size: 100 },
+  );
+
+export const createOwnCompanyBankAccount = (payload: CompanyBankAccountPayload) =>
+  api.post<CompanyBankAccount>(
+    "/api/contractor-site-settings/create_bank_account/",
+    payload,
+  );
+
+export const updateOwnCompanyBankAccount = (
+  id: string,
+  payload: Partial<CompanyBankAccountPayload> & { is_active?: boolean },
+) =>
+  api.patch<CompanyBankAccount>(
+    `/api/contractor-site-settings/${id}/update_bank_account/`,
+    payload,
+  );
+
+export const setOwnPrimaryBankAccount = (id: string) =>
+  api.post<CompanyBankAccount>(
+    `/api/contractor-site-settings/${id}/set_primary_bank_account/`,
+  );
+
+export const deleteOwnCompanyBankAccount = (id: string) =>
+  api.delete(`/api/contractor-site-settings/${id}/delete_bank_account/`);
+
 export const getSiteAccessPasses = (query: ListQuery = {}) =>
   api.list<SiteAccessPass>("/api/site-access-passes/get_passes/", query);
+
+export const getSiteAccessDefaults = () =>
+  api.get<{ visitor_pass_hours: number }>(
+    "/api/site-access-passes/get_defaults/",
+  );
 
 export const getSiteAccessPass = (id: string) =>
   api.get<SiteAccessPass>(`/api/site-access-passes/${id}/get_pass/`);

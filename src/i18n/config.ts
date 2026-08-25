@@ -12,7 +12,7 @@
  * every sign-in.
  */
 
-export const LOCALES = ["en", "zh", "ms"] as const;
+export const LOCALES = ["en", "zh", "zh-TW", "ms"] as const;
 
 export type Locale = (typeof LOCALES)[number];
 
@@ -28,6 +28,7 @@ export const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 export const LOCALE_LABELS: Record<Locale, string> = {
   en: "English",
   zh: "中文",
+  "zh-TW": "繁體中文",
   ms: "Bahasa Malaysia",
 };
 
@@ -35,6 +36,7 @@ export const LOCALE_LABELS: Record<Locale, string> = {
 export const DATE_FNS_LOCALES: Record<Locale, string> = {
   en: "en-GB",
   zh: "zh-CN",
+  "zh-TW": "zh-TW",
   ms: "ms",
 };
 

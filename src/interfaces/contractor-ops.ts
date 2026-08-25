@@ -22,6 +22,7 @@ export interface ProjectCategory {
   edit_role_names: string[];
   edit_users: string[];
   edit_user_names: string[];
+  can_upload: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -282,6 +283,13 @@ export interface MaterialOutgoing {
   approved_by_name: string | null;
   approved_at: string | null;
   review_note: string;
+  photos: Array<{
+    id: string;
+    image: string;
+    watermarked?: string | null;
+    caption: string;
+    captured_at: string;
+  }>;
 }
 
 export type DisposalRequestStatus =
@@ -300,6 +308,7 @@ export type DisposalEvidenceKind =
   | "LOADING"
   | "UNLOADING"
   | "DISPOSAL_DO"
+  | "OTHER"
   | "CONFIRMATION";
 
 export interface DisposalEvidence {
@@ -343,6 +352,10 @@ export interface DisposalRequest {
   reviewed_by_name: string | null;
   reviewed_at: string | null;
   review_note: string;
+  assignment_type: "INTERNAL" | "EXTERNAL" | "";
+  assigned_staff: string | null;
+  assigned_staff_name: string | null;
+  execution_task: string | null;
   collector_company_name: string;
   collector_contact_name: string;
   collector_phone: string;

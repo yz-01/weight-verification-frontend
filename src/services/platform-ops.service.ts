@@ -43,6 +43,10 @@ export async function markAllNotificationsRead(): Promise<number> {
   return result.updated;
 }
 
+export async function dismissNotification(id: string): Promise<void> {
+  await api.delete(`/api/notifications/${id}/dismiss/`);
+}
+
 export async function sendProjectNotification(input: {
   project_id: string;
   recipient_scope: "ALL" | "ROLE" | "PEOPLE";

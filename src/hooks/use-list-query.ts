@@ -96,6 +96,11 @@ export function useListQuery(extraKeys: string[] = []) {
     [write],
   );
 
+  const setFilters = useCallback(
+    (updates: Record<string, string | undefined>) => write(updates),
+    [write],
+  );
+
   const clearFilters = useCallback(() => {
     const cleared: Record<string, undefined> = { search: undefined };
     for (const key of keys) cleared[key] = undefined;
@@ -132,6 +137,7 @@ export function useListQuery(extraKeys: string[] = []) {
     setSearch,
     setSort,
     setFilter,
+    setFilters,
     clearFilters,
   };
 }

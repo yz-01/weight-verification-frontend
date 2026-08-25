@@ -480,10 +480,7 @@ export function Companies({
         !list.filters.state &&
         !list.filters.plan,
       onSelect: () => {
-        list.setFilter("type", undefined);
-        list.setFilter("status", undefined);
-        list.setFilter("state", undefined);
-        list.setFilter("plan", undefined);
+        list.clearFilters();
       },
     },
     {

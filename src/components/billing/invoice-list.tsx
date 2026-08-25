@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { EllipsisVertical, Eye, FileCheck2, FilePlus2, Filter, XCircle } from "lucide-react";
+import { Download, EllipsisVertical, Eye, FileCheck2, FilePlus2, Filter, Printer, XCircle } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -36,6 +36,7 @@ import {
   closeInvoice,
   exportInvoices,
   generateInvoice,
+  getBillingCompanyOptions,
   getInvoice,
   getInvoices,
   issueInvoice,
@@ -67,9 +68,14 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
   const query = { ...list.query, kind: fixedKind ?? list.query.kind };
   const invoices = useQuery({ queryKey: ["billing", "invoices", query], queryFn: () => getInvoices(query) });
   const companies = useQuery({
-    queryKey: ["companies", "billing-options"],
-    queryFn: () => getCompanies({ page_size: 100, sort_by: "name", status: "ACTIVE" }),
+    queryKey: ["companies", "billing-filter-options"],
+    queryFn: () => getCompanies({ page_size: 500, sort_by: "name" }),
     enabled: Boolean(user?.is_platform_staff),
+  });
+  const billableCompanies = useQuery({
+    queryKey: ["billing", "company-options", kind],
+    queryFn: () => getBillingCompanyOptions(kind),
+    enabled: Boolean(user?.is_platform_staff && showGenerate),
   });
   const detail = useQuery({
     queryKey: ["billing", "invoice", viewing?.id],
@@ -114,10 +120,36 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
 
   const totalCount = invoices.data?.count ?? 0;
   const companyRows = companies.data?.results ?? [];
+  const billableCompanyRows = billableCompanies.data ?? [];
   async function runExport(exportFormat: "xlsx" | "pdf") {
     await exportInvoices({ format: exportFormat, title: t("export.title"), subtitle: t("export.subtitle"), emptyLabel: common("emptyValue"), query, columns: [
       { key: "invoice_no", label: t("field.invoiceNumber") }, { key: "kind", label: t("field.kind"), values: { SAAS: t("kind.SAAS"), COMMISSION: t("kind.COMMISSION") } }, { key: "state", label: t("field.state"), values: Object.fromEntries(STATES.map((state) => [state, t(`state.${state}`)])) }, { key: "company_name", label: t("field.company") }, { key: "period_start", label: t("field.periodStart") }, { key: "period_end", label: t("field.periodEnd") }, { key: "total_amount", label: t("field.receivable") }, { key: "amount_paid", label: t("field.received") }, { key: "amount_outstanding", label: t("field.outstanding") }, { key: "due_on", label: t("field.dueDate") },
     ] });
+  }
+
+  async function runInvoicePdf(invoice: Invoice, openInNewTab: boolean) {
+    await exportInvoices({
+      format: "pdf",
+      title: invoice.invoice_no,
+      subtitle: `${invoice.company_name} / ${t(`kind.${invoice.kind}`)}`,
+      emptyLabel: common("emptyValue"),
+      query: { invoice: invoice.id },
+      columns: [
+        { key: "invoice_no", label: t("field.invoiceNumber") },
+        { key: "kind", label: t("field.kind"), values: { SAAS: t("kind.SAAS"), COMMISSION: t("kind.COMMISSION") } },
+        { key: "state", label: t("field.state"), values: Object.fromEntries(STATES.map((state) => [state, t(`state.${state}`)])) },
+        { key: "period_start", label: t("field.periodStart") },
+        { key: "period_end", label: t("field.periodEnd") },
+        { key: "total_amount", label: t("field.receivable") },
+        { key: "amount_paid", label: t("field.received") },
+        { key: "amount_outstanding", label: t("field.outstanding") },
+        { key: "issued_on", label: t("field.issuedDate") },
+        { key: "due_on", label: t("field.dueDate") },
+      ],
+    }, {
+      openInNewTab,
+      fallbackFilename: `${invoice.invoice_no}.pdf`,
+    });
   }
 
   return (
@@ -129,18 +161,18 @@ export function InvoiceList({ fixedKind, embedded = false }: { fixedKind?: Invoi
           <FilterSelect label={t("field.company")} value={list.filters.company ?? ""} onChange={(value) => list.setFilter("company", value || undefined)} options={[{ value: "", label: common("all") }, ...companyRows.map((row) => ({ value: row.id, label: row.name }))]} />
           <label className="block space-y-1 text-xs font-medium"><span>{t("filters.from")}</span><Input type="date" value={list.filters.date_from ?? ""} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} /></label>
           <label className="block space-y-1 text-xs font-medium"><span>{t("filters.to")}</span><Input type="date" value={list.filters.date_to ?? ""} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} /></label>
-        </PopoverContent></Popover><ExportButton onExport={runExport} disabled={totalCount === 0} />{can("billing.manage") && <Button size="sm" onClick={() => { setKind(fixedKind ?? "SAAS"); setCompany(companyRows[0]?.id ?? ""); setShowGenerate(true); }}><FilePlus2 className="h-4 w-4" />{t("action.generate")}</Button>}</>}
+        </PopoverContent></Popover><ExportButton onExport={runExport} disabled={totalCount === 0} />{can("billing.manage") && <Button size="sm" onClick={() => { setKind(fixedKind ?? "SAAS"); setCompany(""); setShowGenerate(true); }}><FilePlus2 className="h-4 w-4" />{t("action.generate")}</Button>}</>}
         onSearchChange={list.setSearch} onSortChange={list.setSort} onPageChange={list.setPage} onPageSizeChange={list.setPageSize} onClearFilters={list.clearFilters} />
 
       <Dialog open={showGenerate} onOpenChange={setShowGenerate}><DialogContent><DialogHeader><DialogTitle>{t("generate.title")}</DialogTitle><DialogDescription>{t("generate.description")}</DialogDescription></DialogHeader><div className="space-y-4 py-2">
-        <FilterSelect label={t("field.company")} value={company} onChange={setCompany} options={companyRows.map((row) => ({ value: row.id, label: `${row.code} / ${row.name}` }))} />
-        {!fixedKind && <FilterSelect label={t("field.kind")} value={kind} onChange={(value) => setKind(value as InvoiceKind)} options={[{ value: "SAAS", label: t("kind.SAAS") }, { value: "COMMISSION", label: t("kind.COMMISSION") }]} />}
+        {!fixedKind && <FilterSelect label={t("field.kind")} value={kind} onChange={(value) => { setKind(value as InvoiceKind); setCompany(""); }} options={[{ value: "SAAS", label: t("kind.SAAS") }, { value: "COMMISSION", label: t("kind.COMMISSION") }]} />}
+        {billableCompanies.isLoading ? <p className="text-sm text-muted-foreground">{common("loading")}</p> : billableCompanyRows.length > 0 ? <FilterSelect label={t("field.company")} value={company} onChange={setCompany} options={[{ value: "", label: common("selectPlaceholder") }, ...billableCompanyRows.map((row) => ({ value: row.id, label: `${row.code} / ${row.name} / ${row.plan_name}` }))]} /> : <p className="rounded-md border border-warning/30 bg-warning/8 px-3 py-2.5 text-sm">{t(`generate.noEligible.${kind}`)}</p>}
         <FieldWrapper label={t("generate.runDate")} optional={common("optional")}><Input type="date" value={onDate} onChange={(event) => setOnDate(event.target.value)} /></FieldWrapper>
       </div><DialogFooter><Button variant="outline" onClick={() => setShowGenerate(false)}>{common("cancel")}</Button><Button disabled={!company || generate.isPending} onClick={() => generate.mutate()}>{t("action.generate")}</Button></DialogFooter></DialogContent></Dialog>
 
       <Dialog open={closing !== null} onOpenChange={(open) => !open && setClosing(null)}><DialogContent><DialogHeader><DialogTitle>{t("close.title")}</DialogTitle><DialogDescription>{t("close.description", { invoice: closing?.invoice_no ?? "" })}</DialogDescription></DialogHeader><div className="space-y-4 py-2"><FilterSelect label={t("field.state")} value={closeState} onChange={(value) => setCloseState(value as "CANCELLED" | "WRITTEN_OFF")} options={[{ value: "CANCELLED", label: t("state.CANCELLED") }, { value: "WRITTEN_OFF", label: t("state.WRITTEN_OFF") }]} /><FieldWrapper label={t("field.notes")} required><Textarea value={notes} onChange={(event) => setNotes(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={() => setClosing(null)}>{common("cancel")}</Button><Button variant="destructive" disabled={!notes.trim() || close.isPending} onClick={() => close.mutate()}>{t("action.close")}</Button></DialogFooter></DialogContent></Dialog>
 
-      <Dialog open={viewing !== null} onOpenChange={(open) => !open && setViewing(null)}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>{viewing?.invoice_no}</DialogTitle><DialogDescription>{viewing ? `${viewing.company_name} / ${t(`kind.${viewing.kind}`)}` : ""}</DialogDescription></DialogHeader>{detail.isLoading ? <p>{common("loading")}</p> : detail.data && <InvoiceDetailView invoice={detail.data} />}</DialogContent></Dialog>
+      <Dialog open={viewing !== null} onOpenChange={(open) => !open && setViewing(null)}><DialogContent className="flex max-h-[90dvh] flex-col overflow-hidden sm:max-w-3xl"><DialogHeader className="shrink-0"><DialogTitle>{viewing?.invoice_no}</DialogTitle><DialogDescription>{viewing ? `${viewing.company_name} / ${t(`kind.${viewing.kind}`)}` : ""}</DialogDescription></DialogHeader><div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{detail.isLoading ? <p>{common("loading")}</p> : detail.data && <InvoiceDetailView invoice={detail.data} />}</div>{detail.data && <DialogFooter className="shrink-0 border-t pt-4"><Button variant="outline" onClick={() => void runInvoicePdf(detail.data, false)}><Download className="h-4 w-4" />{t("action.downloadPdf")}</Button><Button onClick={() => void runInvoicePdf(detail.data, true)}><Printer className="h-4 w-4" />{t("action.print")}</Button></DialogFooter>}</DialogContent></Dialog>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import type {
   FeatureFlagRow,
   PlatformConfigCatalogue,
 } from "@/interfaces/platform-settings";
+import type { Branding } from "@/interfaces/auth";
 import { api, toastSuccess } from "@/services/api-client";
 
 export function getPlatformConfigCatalogue(): Promise<PlatformConfigCatalogue> {
@@ -18,6 +19,17 @@ export async function setPlatformConfig(input: {
     input,
   );
   toastSuccess("adminSystemSettings.toast.saved");
+  return result;
+}
+
+export async function uploadPlatformBranding(icon: File): Promise<Branding> {
+  const body = new FormData();
+  body.append("icon", icon);
+  const result = await api.post<Branding>(
+    "/api/platform-config/upload_branding/",
+    body,
+  );
+  toastSuccess("adminSystemSettings.toast.brandingSaved");
   return result;
 }
 

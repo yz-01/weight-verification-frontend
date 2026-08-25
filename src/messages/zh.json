@@ -1,44 +1,339 @@
 {
   "wasteOutgoing": {
-    "title": "废料出场",
-    "subtitle": "记录废料出场，并建立回收订单交由回收商处理。",
-    "empty": "还没有废料出场记录。",
-    "toast": { "categorySaved": "废料类别已保存。", "recorded": "废料记录已上传。", "photosAdded": "照片已添加。", "submitted": "出场申请已提交。", "ordered": "回收订单已发送。", "scheduleConfirmed": "回收时间已确认。", "cancelled": "废料记录已取消。" },
-    "action": { "record": "记录废料", "submit": "提交申请", "assign": "安排回收商", "track": "追踪", "confirmSchedule": "确认回收时间", "cancel": "取消", "close": "关闭", "upload": "上传", "locate": "获取定位", "sendOrder": "发送订单", "confirmCancel": "确认取消" },
-    "totals": { "today": "今日", "month": "本月", "year": "本年", "all_time": "累计" },
-    "filter": { "selectProject": "选择项目", "allProjects": "全部项目", "allCategories": "全部类别", "allStatuses": "全部状态" },
-    "status": { "DRAFT": "已记录", "PENDING_RECYCLER": "待安排回收商", "ORDERED": "订单已发送", "IN_PROGRESS": "回收中", "COMPLETED": "已完成", "CANCELLED": "已取消" },
-    "unit": { "TONNE": "吨", "KG": "公斤", "M3": "立方米", "BAG": "袋", "PIECE": "个", "OTHER": "其他", "UNSPECIFIED": "未填单位" },
-    "form": { "title": "记录废料出场", "help": "拍摄废料照片并选择类别。日期、时间和 GPS 自动记录，不可修改。", "locationFailed": "无法获取定位，请允许定位权限后重试。" },
-    "field": { "project": "项目", "category": "废料类别", "selectCategory": "选择类别", "quantity": "数量", "quantityHint": "没有数量资料可留空。", "unit": "单位", "selectUnit": "选择单位", "unitRequired": "填了数量必须选择单位。", "optional": "可选", "note": "备注", "photos": "废料照片", "photosHint": "至少一张。照片永久保存，不可替换。", "location": "定位", "locationHint": "与照片一同记录，作为废料出场地点的凭证。", "recycler": "回收商", "selectRecycler": "选择回收商", "vehiclePlate": "车牌", "driverName": "司机姓名", "driverPhone": "司机电话", "estimatedWeight": "预估重量（公斤）", "reason": "原因", "dispatchNo": "订单编号" },
-    "assign": { "title": "安排回收商", "help": "选择已绑定此项目的回收商。{reference} 的订单会立即发送至对方系统。", "noPartners": "此项目尚未绑定回收商。请先在「合作回收商」中绑定，再建立订单。" },
-    "schedule": { "title": "确认回收时间", "help": "{recycler} 已为 {reference} 提议时间。你可以保留或修改，然后确认最终安排。", "proposed": "回收商提议", "confirmedAt": "最终回收日期与时间", "note": "工地注意事项" },
-    "tracking": { "title": "回收流程", "help": "{reference} 的每个回收环节，以回收商上报为准。", "notOrdered": "尚未建立回收订单。", "notYetAssigned": "尚未安排" },
-    "milestone": { "ORDER_SENT": "订单已发送", "RECYCLER_ACCEPTED": "回收商已接单", "DRIVER_ASSIGNED": "已安排司机", "DRIVER_EN_ROUTE": "司机前往工地", "DRIVER_ARRIVED": "司机已到达", "LOADED": "废料装车完成", "LEFT_SITE": "已离开工地", "ARRIVED_AT_PLANT": "已到达回收厂", "WEIGHED": "已过磅", "COMPLETED": "回收完成", "SETTLED": "结算完成" },
-    "weighing": { "title": "过磅数据", "firstWeight": "第一次过磅", "secondWeight": "第二次过磅", "netWeight": "净重", "verdict": "状态", "anomalies": "称重异常：{codes}", "pending": "尚未过磅。" },
-    "cancel": { "title": "取消废料记录", "help": "{reference} 将被取消，并从数量累计中排除。" }
+    "title": "环保材料出场申请",
+    "subtitle": "现场人员提交申请，项目经理或办公室批准后再发送正式回收订单。",
+    "empty": "还没有环保材料出场申请。",
+    "toast": {
+      "categorySaved": "废料类别已保存。",
+      "recorded": "申请已提交审批。",
+      "photosAdded": "照片已添加。",
+      "submitted": "出场申请已提交。",
+      "approved": "申请已批准。",
+      "returned": "申请已退回。",
+      "ordered": "回收订单已发送。",
+      "scheduleConfirmed": "回收时间已确认。",
+      "cancelled": "出场申请已取消。"
+    },
+    "action": {
+      "record": "新增申请",
+      "submit": "提交申请",
+      "review": "审批",
+      "approve": "批准",
+      "return": "退回",
+      "assign": "安排回收商",
+      "track": "查看订单",
+      "confirmSchedule": "确认回收时间",
+      "cancel": "取消",
+      "close": "关闭",
+      "upload": "提交",
+      "locate": "获取定位",
+      "sendOrder": "发送回收订单",
+      "confirmCancel": "取消申请"
+    },
+    "totals": {
+      "today": "今日",
+      "month": "本月",
+      "year": "本年",
+      "all_time": "累计"
+    },
+    "filter": {
+      "selectProject": "选择项目",
+      "allProjects": "全部项目",
+      "allCategories": "全部类别",
+      "allStatuses": "全部状态"
+    },
+    "status": {
+      "DRAFT": "旧草稿",
+      "PENDING_APPROVAL": "待审批",
+      "RETURNED": "已退回",
+      "APPROVED": "已批准",
+      "ORDERED": "订单已发送",
+      "IN_PROGRESS": "回收中",
+      "COMPLETED": "已完成",
+      "CANCELLED": "已取消"
+    },
+    "unit": {
+      "TONNE": "吨",
+      "KG": "公斤",
+      "M3": "立方米",
+      "BAG": "袋",
+      "PIECE": "个",
+      "OTHER": "其他",
+      "UNSPECIFIED": "未填单位"
+    },
+    "form": {
+      "title": "环保材料出场申请",
+      "help": "选择废料类别，完成前四类必拍证据，也可以继续新增其他照片，并获取 GPS。提交后会建立待审批申请。",
+      "locationFailed": "无法获取定位，请开启精确定位权限后重试。",
+      "submitFailed": "申请提交失败，请检查标示的资料后重试。"
+    },
+    "evidence": {
+      "title": "必须拍摄的现场证据",
+      "progress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
+      "overview": "1. 废料整体全景",
+      "quantity": "2. 数量与材料细节",
+      "vehicle": "3. 车辆或清运设备",
+      "loading": "4. 装载或门岗过程"
+    },
+    "field": {
+      "project": "项目",
+      "category": "废料类别",
+      "selectCategory": "选择类别",
+      "quantity": "数量",
+      "quantityHint": "没有数量资料可留空。",
+      "unit": "单位",
+      "selectUnit": "选择单位",
+      "unitRequired": "填了数量必须选择单位。",
+      "optional": "可选",
+      "note": "备注",
+      "photos": "废料照片",
+      "photosHint": "至少完成前四类必拍照片，也可以继续新增；所有照片都会永久保存。",
+      "location": "定位",
+      "locationReady": "已获取 GPS",
+      "locationHint": "与照片一同记录，作为废料出场地点的凭证。",
+      "recycler": "回收商",
+      "selectRecycler": "选择回收商",
+      "vehiclePlate": "车牌",
+      "driverName": "司机姓名",
+      "driverPhone": "司机电话",
+      "estimatedWeight": "预估重量（公斤）",
+      "reason": "原因",
+      "dispatchNo": "订单编号"
+    },
+    "assign": {
+      "title": "安排回收商",
+      "help": "选择已绑定此项目的回收商。{reference} 的订单会立即发送至对方系统。",
+      "noPartners": "此项目尚未绑定回收商。请先在「合作回收商」中绑定，再建立订单。"
+    },
+    "schedule": {
+      "title": "确认回收时间",
+      "help": "{recycler} 已为 {reference} 提议时间。你可以保留或修改，然后确认最终安排。",
+      "proposed": "回收商提议",
+      "confirmedAt": "最终回收日期与时间",
+      "note": "工地注意事项"
+    },
+    "review": {
+      "title": "审批出场申请",
+      "help": "批准 {reference} 后才可发送回收订单，或填写原因退回。",
+      "note": "审批意见",
+      "noteLabel": "审批意见",
+      "failed": "审批结果未能保存。"
+    },
+    "tracking": {
+      "title": "回收订单详情",
+      "help": "{reference} 的申请、执行、称重与结算资料。",
+      "notOrdered": "尚未建立回收订单。",
+      "notYetAssigned": "尚未安排",
+      "executionPhotos": "回收执行照片"
+    },
+    "milestone": {
+      "ORDER_SENT": "订单已发送",
+      "RECYCLER_ACCEPTED": "回收商已接单",
+      "DRIVER_ASSIGNED": "已安排司机",
+      "DRIVER_EN_ROUTE": "司机前往工地",
+      "DRIVER_ARRIVED": "司机已到达",
+      "LOADED": "废料装车完成",
+      "LEFT_SITE": "已离开工地",
+      "ARRIVED_AT_PLANT": "已到达回收厂",
+      "WEIGHED": "已过磅",
+      "COMPLETED": "回收完成",
+      "SETTLED": "结算完成"
+    },
+    "weighing": {
+      "title": "过磅数据",
+      "firstWeight": "第一次过磅",
+      "secondWeight": "第二次过磅",
+      "netWeight": "净重",
+      "verdict": "状态",
+      "anomalies": "称重异常：{codes}",
+      "pending": "尚未过磅。"
+    },
+    "settlement": {
+      "title": "结算资料",
+      "number": "结算编号",
+      "state": "状态",
+      "weight": "结算重量",
+      "amount": "金额"
+    },
+    "cancel": {
+      "title": "取消出场申请",
+      "help": "{reference} 将被取消，并从数量累计中排除。"
+    }
   },
   "contractorDashboard": {
     "error": "看板加载失败，请稍后重试。",
     "refreshedAt": "更新于 {at}",
-    "filter": { "project": "项目", "selectProject": "选择项目", "allProjects": "全部项目" },
-    "projectStatus": { "PLANNING": "筹备中", "ACTIVE": "进行中", "SUSPENDED": "已暂停", "COMPLETED": "已完工" },
+    "filter": {
+      "project": "项目",
+      "selectProject": "选择项目",
+      "allProjects": "全部项目"
+    },
+    "locationMap": {
+      "title": "项目与现场人员地图",
+      "subtitle": "查看每个项目的电子围栏及现场人员最新位置。",
+      "allProjects": "全部项目",
+      "selectProject": "选择项目",
+      "refresh": "刷新",
+      "openGps": "查看 GPS 详情",
+      "projects": "项目",
+      "people": "人员",
+      "inside": "围栏内",
+      "outside": "围栏外",
+      "stale": "非实时位置",
+      "lastInside": "显示最后一次围栏内位置",
+      "unknown": "暂无状态",
+      "staffStatus": "现场人员状态",
+      "staffCount": "当前显示 {count} 人",
+      "lastSeen": "最后更新于 {at}",
+      "noPosition": "尚未收到定位资料",
+      "noPeople": "所选项目目前没有可显示的现场人员位置。",
+      "projectMarker": "项目 {code}",
+      "personMarker": "{project} · 更新于 {seen}",
+      "empty": "所选项目还没有可显示的位置或电子围栏。",
+      "loadError": "项目地图加载失败，请稍后重试。",
+      "mapLabel": "项目电子围栏及现场人员位置"
+    },
+    "projectStatus": {
+      "PLANNING": "筹备中",
+      "ACTIVE": "进行中",
+      "SUSPENDED": "已暂停",
+      "COMPLETED": "已完工"
+    },
     "attendanceEvent": { "CLOCK_IN": "上班打卡", "CLOCK_OUT": "下班打卡" },
-    "overview": { "title": "今日概览", "projects": "项目", "progressRecords": "进度记录", "attendance": "考勤事件", "safety": "安全事件", "photos": "现场照片" },
-    "safetySummary": { "title": "安全巡检与整改", "subtitle": "直接读取安全流程的实时统计，不是手动填写的看板数字。", "open": "查看安全记录", "today_inspections": "今日巡检", "pending_rectification": "待安排整改", "in_progress": "整改中", "overdue": "已逾期", "completed": "已完成" },
-    "scheduleSummary": { "title": "施工计划进度", "subtitle": "读取当前已确认计划及现场实际进度。", "open": "查看施工计划", "planned": "计划进度", "actual": "实际进度", "progress": "{value}%", "activePlans": "执行中计划", "tasks": "任务总数", "delayed": "延误任务", "dueNext7Days": "7天内到期", "completed": "已完成" },
-    "quickActions": { "title": "快速新增", "project": "新增项目", "supplier": "新增供应商", "category": "新增栏目", "document": "上传文件", "approval": "新增审批", "notification": "新增通知" },
-    "activity": { "title": "今日现场动态", "subtitle": "涵盖各现场模块的 {count} 条事件。", "empty": "今天现场还没有任何记录。" },
-    "activityKind": {"MATERIAL_OUTGOING":"材料出场","EQUIPMENT_MOVEMENT":"设备进出","SITE_PROGRESS":"施工进度","DISPOSAL":"废料处置","WASTE_DISPATCH":"回收派车","SAFETY_INCIDENT":"安全","CONSULTANT_APPLICATION":"顾问申请","FIELD_TASK":"现场任务"},
-    "approvals": { "title": "待审批事项", "subtitle": "待处理 {total} 项，指派给你 {mine} 项，未指派 {unassigned} 项。", "empty": "目前没有待审批事项。", "openCenter": "审批中心", "unassigned": "未指派", "companyWide": "公司级" },
-    "anomalies": { "title": "今日异常事件", "subtitle": "{count} 项需要处理。", "empty": "今天没有检测到异常。", "daysOverdue": "{days, plural, =0 {今天到期} other {逾期 # 天}}", "geofenceFailure": "超出电子围栏", "outside": "围栏外", "distance": "距离 {metres} 米", "expiresAt": "{at} 到期", "unavailableTitle": "有两类异常暂时无法统计", "part": { "offline_submissions": "离线提交", "late_uploads": "延迟上传" } },
-    "personnel": { "title": "今日人员统计", "subtitle": "今天共 {workers} 名人员。", "empty": "今天没有考勤记录。", "geofenceFailures": "{count} 次超出围栏" },
-    "photos": { "title": "今日现场照片", "subtitle": "今天拍摄 {count} 张照片。", "empty": "今天没有拍摄照片。", "noProject": "无项目", "unknownPhotographer": "未知", "noGps": "无定位" },
-    "notifications": { "title": "今日通知", "subtitle": "今天 {count} 条，未读 {unread} 条。", "empty": "今天没有通知。", "openAll": "全部通知", "unread": "未读", "recipientScope": "仅显示你本人的通知，不随项目筛选变化。" },
-    "timeline": { "title": "时间轴", "subtitle": "共 {count} 条，最新在前。", "empty": "时间轴暂时没有内容。" },
-    "timelineKind": {"MATERIAL_OUTGOING":"材料出场","EQUIPMENT_MOVEMENT":"设备进出","SITE_PROGRESS":"施工进度","DISPOSAL":"废料处置","WASTE_DISPATCH":"回收派车","SAFETY_INCIDENT":"安全","CONSULTANT_APPLICATION":"顾问申请","FIELD_TASK":"现场任务","GEOFENCE_FAILURE":"电子围栏","OVERDUE_RECTIFICATION":"逾期整改"},
-    "search": { "title": "快速查询", "placeholder": "搜索编号、材料、标题或人员", "action": "搜索", "clear": "清除", "noResults": "没有匹配「{term}」的结果。" },
-    "export": { "title": "现场看板", "subtitle": "今日现场动态", "excel": "Excel", "pdf": "PDF", "column": {"occurred_at":"时间","kind":"类型","project":"项目","reference":"编号","summary":"详情","status":"状态"} }
+    "overview": {
+      "title": "今日概览",
+      "projects": "项目",
+      "progressRecords": "进度记录",
+      "attendance": "考勤事件",
+      "safety": "安全事件",
+      "photos": "现场照片"
+    },
+    "safetySummary": {
+      "title": "安全巡检与整改",
+      "subtitle": "直接读取安全流程的实时统计，不是手动填写的看板数字。",
+      "open": "查看安全记录",
+      "today_inspections": "今日巡检",
+      "pending_rectification": "待安排整改",
+      "in_progress": "整改中",
+      "overdue": "已逾期",
+      "completed": "已完成"
+    },
+    "scheduleSummary": {
+      "title": "施工计划进度",
+      "subtitle": "读取当前已确认计划及现场实际进度。",
+      "open": "查看施工计划",
+      "planned": "计划进度",
+      "actual": "实际进度",
+      "progress": "{value}%",
+      "activePlans": "执行中计划",
+      "tasks": "任务总数",
+      "delayed": "延误任务",
+      "dueNext7Days": "7天内到期",
+      "completed": "已完成"
+    },
+    "quickActions": {
+      "title": "快速新增",
+      "project": "新增项目",
+      "supplier": "新增供应商",
+      "category": "新增栏目",
+      "document": "上传文件",
+      "approval": "新增审批",
+      "notification": "新增通知",
+      "selectProjectFirst": "请先选择项目，再新增栏目。"
+    },
+    "activity": {
+      "title": "今日现场动态",
+      "subtitle": "涵盖各现场模块的 {count} 条事件。",
+      "empty": "今天现场还没有任何记录。"
+    },
+    "activityKind": {
+      "MATERIAL_OUTGOING": "材料出场",
+      "EQUIPMENT_MOVEMENT": "设备进出",
+      "SITE_PROGRESS": "施工进度",
+      "DISPOSAL": "废料处置",
+      "WASTE_DISPATCH": "回收派车",
+      "SAFETY_INCIDENT": "安全",
+      "CONSULTANT_APPLICATION": "顾问申请",
+      "FIELD_TASK": "现场任务"
+    },
+    "approvals": {
+      "title": "待审批事项",
+      "subtitle": "待处理 {total} 项，指派给你 {mine} 项，未指派 {unassigned} 项。",
+      "empty": "目前没有待审批事项。",
+      "openCenter": "审批中心",
+      "unassigned": "未指派",
+      "companyWide": "公司级"
+    },
+    "anomalies": {
+      "title": "今日异常事件",
+      "subtitle": "{count} 项需要处理。",
+      "empty": "今天没有检测到异常。",
+      "daysOverdue": "{days, plural, =0 {今天到期} other {逾期 # 天}}",
+      "geofenceFailure": "超出电子围栏",
+      "outside": "围栏外",
+      "distance": "距离 {metres} 米",
+      "expiresAt": "{at} 到期"
+    },
+    "personnel": {
+      "title": "今日人员统计",
+      "subtitle": "今天共 {workers} 名人员。",
+      "empty": "今天没有考勤记录。",
+      "geofenceFailures": "{count} 次超出围栏"
+    },
+    "photos": {
+      "title": "今日现场照片",
+      "subtitle": "今天拍摄 {count} 张照片。",
+      "empty": "今天没有拍摄照片。",
+      "noProject": "无项目",
+      "unknownPhotographer": "未知",
+      "noGps": "无定位"
+    },
+    "notifications": {
+      "title": "今日通知",
+      "subtitle": "今天 {count} 条，未读 {unread} 条。",
+      "empty": "今天没有通知。",
+      "openAll": "全部通知",
+      "unread": "未读",
+      "recipientScope": "仅显示你本人的通知，不随项目筛选变化。"
+    },
+    "timeline": {
+      "title": "时间轴",
+      "subtitle": "共 {count} 条，最新在前。",
+      "empty": "时间轴暂时没有内容。"
+    },
+    "timelineKind": {
+      "MATERIAL_OUTGOING": "材料出场",
+      "EQUIPMENT_MOVEMENT": "设备进出",
+      "SITE_PROGRESS": "施工进度",
+      "DISPOSAL": "废料处置",
+      "WASTE_DISPATCH": "回收派车",
+      "SAFETY_INCIDENT": "安全",
+      "CONSULTANT_APPLICATION": "顾问申请",
+      "FIELD_TASK": "现场任务",
+      "GEOFENCE_FAILURE": "电子围栏",
+      "OVERDUE_RECTIFICATION": "逾期整改"
+    },
+    "search": {
+      "title": "快速查询",
+      "placeholder": "搜索编号、材料、标题或人员",
+      "action": "搜索",
+      "clear": "清除",
+      "noResults": "没有匹配「{term}」的结果。"
+    },
+    "export": {
+      "title": "现场看板",
+      "subtitle": "今日现场动态",
+      "excel": "Excel",
+      "pdf": "PDF",
+      "column": {
+        "occurred_at": "时间",
+        "kind": "类型",
+        "project": "项目",
+        "reference": "编号",
+        "summary": "详情",
+        "status": "状态"
+      }
+    }
   },
   "app": {
     "name": "MSE Trace",
@@ -77,6 +372,8 @@
     "retry": "重试",
     "optional": "选填",
     "all": "全部",
+    "active": "启用",
+    "inactive": "停用",
     "none": "无",
     "export": "导出",
     "refresh": "刷新",
@@ -98,31 +395,323 @@
     "unknownError": "出了点问题，请重试。",
     "copy": "复制",
     "copied": "已复制",
-    "copyFirst": "关闭前请先复制密钥"
+    "copyFirst": "关闭前请先复制密钥",
+    "sidebar": "侧栏",
+    "mobileSidebarDescription": "显示手机端侧栏。",
+    "toggleSidebar": "切换侧栏"
   },
   "contractorOps": {
-    "equipmentFilter": { "search": "搜索进退场记录", "searchPlaceholder": "设备、供应商、操作员、车辆或送货单", "equipment": "设备", "allEquipment": "全部设备", "allSuppliers": "全部供应商", "deliveryNoteNo": "送货单编号", "dateFrom": "开始日期", "dateTo": "结束日期", "clear": "清除筛选" },
-    "categories": { "title": "项目栏目", "subtitle": "按项目整理现场记录，并决定现场人员可看到哪些栏目。", "add": "新增栏目", "createTitle": "新增项目栏目", "editTitle": "编辑项目栏目", "formHelp": "每个栏目只属于一个项目，可以排序或从现场手机页面隐藏。", "removeTitle": "移除 {name}？", "removeBody": "只有没有现场记录使用该栏目时才可以移除。", "accessTitle": "谁可以看到此栏目", "accessAll": "所有项目人员", "accessRestricted": "只限指定角色和人员", "accessRoles": "可查看的角色", "accessUsers": "可查看的人员", "noRoles": "目前没有可选择的角色。", "noUsers": "目前没有可选择的项目人员。", "accessRequired": "限制栏目必须至少选择一个角色或人员。", "uploadTitle": "谁可以上传到此栏目", "uploadHelp": "角色和人员都留空时，所有可查看人员都能上传；选择后只允许所选对象上传。", "uploadRoles": "可上传的角色", "uploadUsers": "可上传的人员", "editPermissionTitle": "谁可以编辑此栏目", "editPermissionHelp": "角色和人员都留空时沿用栏目管理权限；公司管理员始终保留恢复权限。", "editRoles": "可编辑的角色", "editUsers": "可编辑的人员" },
-    "tasks": { "title": "现场任务", "subtitle": "派发以拍照为主的工地任务，并审核现场证据。", "consultantInboxTitle": "顾问现场资料收件箱", "consultantInboxSubtitle": "审核现场人员直接提交的照片，再整理到顾问申请。", "assign": "派发任务", "createTitle": "派发现场任务", "formHelp": "选择项目、现场人员、工作位置、期限和必须上传的照片数量。", "photos": "照片：{current}/{required}", "assignedBy": "指派人：{name}", "workLocation": "工作位置：{location}", "submittedAt": "提交时间：{value}", "openGps": "打开 GPS 位置", "prepareApplication": "整理为顾问申请", "sourceTitle": "来源现场资料", "sourceHelp": "此申请来自现场人员提交的资料，原始照片会继续关联并且不能被替换。", "sourceLoading": "正在加载现场资料……", "sourceLoadError": "现场资料无法加载，请检查链接后重试。", "sourceSubmittedAt": "提交时间：{value}", "sourcePhotosLinked": "已关联 {count} 张原始照片", "sourceGps": "打开来源 GPS", "dueAt": "期限：{value}", "returnPrompt": "请说明现场人员需要更正的内容。", "referenceFiles": "参考照片或文件", "addReferences": "选择参考照片或文件", "referenceHelp": "现场人员开始任务前会先看到这些资料。", "referencesSelected": "已选择 {count} 个参考文件", "references": "参考资料（{count}）", "saveError": "任务派发失败，请检查项目人员后重试。" },
-    "equipment": { "title": "设备管理", "subtitle": "登记工地设备，并以 GPS 和照片记录每次进场或退场。", "add": "新增设备", "createTitle": "登记工地设备", "formHelp": "请填写实体设备上的设备编号或注册号码。", "recordEntry": "记录进场", "recordExit": "记录退场", "entryTitle": "记录 {name} 进场", "exitTitle": "记录 {name} 退场", "movementHelp": "请拍摄当前照片并获取位置；该记录会成为不可修改的现场证据。", "recentMovements": "近期进退场记录", "occurredAt": "进退场时间", "directionLabel": "进退场", "deliveryNotePhoto": "Delivery Order 照片", "takeDeliveryNote": "拍摄 Delivery Order", "deliveryNoteReady": "Delivery Order 照片已准备", "readDeliveryNote": "使用 Azure OCR 读取", "ocrReady": "OCR 已读取文件，请检查并确认填入的资料后保存。", "ocrManual": "无法读取 Delivery Order，请手动填写资料。", "summary": { "today": "今日进场数量", "month": "本月进场数量", "year": "本年进场数量", "project_total": "项目累计进场", "quantity_on_site": "目前在场数量" } },
-    "progress": { "title": "工程进度", "subtitle": "管理施工阶段、照片进度以及项目经理确认。", "addPhase": "新增阶段", "addRecord": "记录进度", "returnPrompt": "请说明需要更正后再提交的内容。", "phaseTitle": "新增施工阶段", "phaseHelp": "建立用于整理和确认工程进度的施工阶段。", "recordTitle": "新增进度证据", "recordHelp": "拍摄当前工地照片；完成比例必须由项目经理确认才会生效。", "noPhasesHelp": "此项目尚未建立施工阶段。请先新增阶段，才能记录进度。", "addFirstPhase": "新增第一个阶段", "saveError": "施工进度保存失败，请检查项目、施工阶段、照片和 GPS 后重试。", "summary": { "today": "今日记录", "month": "本月记录", "year": "本年记录", "total": "项目累计" } },
-    "outgoing": { "title": "材料出场", "subtitle": "申请、审批和放行离开项目的非废料材料。", "add": "新增出场申请", "createTitle": "申请材料出场", "formHelp": "填写实际执行人员，并获取当前 GPS 位置。", "executor": "执行人", "rejectPrompt": "请说明拒绝该出场申请的原因。" },
-    "field": { "project": "项目", "selectProject": "选择项目", "allProjects": "全部项目", "code": "编号", "name": "名称", "parent": "上级栏目", "noParent": "没有上级栏目", "description": "说明", "sortOrder": "显示顺序", "showInPwa": "在现场手机页面显示", "active": "启用", "title": "任务标题", "assignee": "现场人员", "selectStaff": "选择项目人员", "taskType": "任务类型", "category": "栏目", "noCategory": "不选择栏目", "priority": "优先级", "workLocation": "工作区域 / 位置", "dueAt": "截止日期与时间", "photoRequired": "必须上传照片数", "instructions": "工作说明", "serialNo": "序列号", "registrationNo": "注册号码", "supplier": "供应商", "noSupplier": "没有供应商", "operator": "操作人员", "vehiclePlate": "车牌", "deliveryNote": "送货单", "photos": "现场照片", "photoCount": "已选择 {count} 张照片", "location": "当前 GPS 位置", "notes": "备注", "phase": "施工阶段", "selectPhase": "选择施工阶段", "percentComplete": "实际完成比例（%）", "material": "材料", "quantity": "数量", "unit": "单位", "executor": "执行人", "destination": "目的地", "reason": "出场原因" },
-    "action": { "edit": "编辑", "remove": "移除", "cancel": "取消", "save": "保存", "return": "退回", "accept": "接收", "assign": "派发", "getLocation": "获取当前 GPS", "locationReady": "已获取 GPS", "record": "记录进退场", "submit": "提交", "confirm": "确认", "reject": "拒绝", "approve": "批准", "release": "放行" },
-    "state": { "loadError": "无法读取记录，请检查网络后重试。", "empty": "该项目目前没有相关记录。", "noDescription": "没有说明", "noIdentifier": "没有序列号或注册号码", "unknown": "未知", "locationError": "无法获取当前 GPS，请开启精确定位后重试。" },
-    "status": { "active": "已启用", "inactive": "已停用", "pwaVisible": "现场人员可见", "pwaHidden": "现场人员隐藏", "accessAll": "所有项目人员可见", "accessRestricted": "限制人员可见" },
-    "taskStatus": { "OPEN": "待开始", "IN_PROGRESS": "进行中", "SUBMITTED": "已提交", "ACCEPTED": "已接收", "RETURNED": "已退回", "CANCELLED": "已取消" },
-    "taskType": { "PHOTO": "拍照记录", "MATERIAL": "材料", "EQUIPMENT": "设备", "PROGRESS": "工程进度", "SAFETY": "安全", "WASTE": "废料", "CONSULTANT": "顾问提交", "OTHER": "其他" },
-    "priority": { "LOW": "低", "NORMAL": "普通", "HIGH": "高", "URGENT": "紧急" },
-    "equipmentStatus": { "OFF_SITE": "不在场", "ON_SITE": "在场", "MAINTENANCE": "维修中", "RETIRED": "已退役" },
+    "evidenceProgress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
+    "equipmentEvidence": {
+      "overview": "1. 设备整体全景",
+      "identity": "2. 序列号或登记牌",
+      "transport": "3. 运输车辆、送货或门岗",
+      "condition": "4. 设备状况细节"
+    },
+    "progressEvidence": {
+      "overview": "1. 施工区域全景",
+      "activity": "2. 施工活动",
+      "detail": "3. 完工细节",
+      "reference": "4. 轴线或周边参照"
+    },
+    "equipmentFilter": {
+      "search": "搜索进退场记录",
+      "searchPlaceholder": "设备、供应商、操作员、车辆或送货单",
+      "equipment": "设备",
+      "allEquipment": "全部设备",
+      "allSuppliers": "全部供应商",
+      "deliveryNoteNo": "送货单编号",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
+      "clear": "清除筛选"
+    },
+    "categories": {
+      "title": "现场资料栏目",
+      "subtitle": "按项目整理现场记录，并决定现场人员可看到哪些栏目。",
+      "add": "新增栏目",
+      "createTitle": "新增现场资料栏目",
+      "editTitle": "编辑现场资料栏目",
+      "formHelp": "每个栏目只属于一个项目，可以排序或从现场手机页面隐藏。",
+      "removeTitle": "移除 {name}？",
+      "removeBody": "只有没有现场记录使用该栏目时才可以移除。",
+      "accessTitle": "谁可以看到此栏目",
+      "accessAll": "所有项目人员",
+      "accessRestricted": "只限指定角色和人员",
+      "accessRoles": "可查看的角色",
+      "accessUsers": "可查看的人员",
+      "noRoles": "目前没有可选择的角色。",
+      "noUsers": "目前没有可选择的项目人员。",
+      "accessRequired": "限制栏目必须至少选择一个角色或人员。",
+      "uploadTitle": "谁可以上传到此栏目",
+      "uploadHelp": "角色和人员都留空时，所有可查看人员都能上传；选择后只允许所选对象上传。",
+      "uploadRoles": "可上传的角色",
+      "uploadUsers": "可上传的人员",
+      "editPermissionTitle": "谁可以编辑此栏目",
+      "editPermissionHelp": "角色和人员都留空时沿用栏目管理权限；公司管理员始终保留恢复权限。",
+      "editRoles": "可编辑的角色",
+      "editUsers": "可编辑的人员"
+    },
+    "tasks": {
+      "title": "现场任务",
+      "subtitle": "派发以拍照为主的工地任务，并审核现场证据。",
+      "consultantInboxTitle": "顾问现场资料收件箱",
+      "consultantInboxSubtitle": "审核现场人员直接提交的照片，再整理到顾问申请。",
+      "assign": "派发任务",
+      "createTitle": "派发现场任务",
+      "formHelp": "选择项目、现场人员、工作位置、期限和必须上传的照片数量。",
+      "photos": "照片：{current}/{required}",
+      "assignedBy": "指派人：{name}",
+      "workLocation": "工作位置：{location}",
+      "submittedAt": "提交时间：{value}",
+      "openGps": "打开 GPS 位置",
+      "prepareApplication": "整理为顾问申请",
+      "sourceTitle": "来源现场资料",
+      "sourceHelp": "此申请来自现场人员提交的资料，原始照片会继续关联并且不能被替换。",
+      "sourceLoading": "正在加载现场资料……",
+      "sourceLoadError": "现场资料无法加载，请检查链接后重试。",
+      "sourceSubmittedAt": "提交时间：{value}",
+      "sourcePhotosLinked": "已关联 {count} 张原始照片",
+      "sourceGps": "打开来源 GPS",
+      "dueAt": "期限：{value}",
+      "returnPrompt": "请说明现场人员需要更正的内容。",
+      "referenceFiles": "参考照片或文件",
+      "addReferences": "选择参考照片或文件",
+      "referenceHelp": "现场人员开始任务前会先看到这些资料。",
+      "referencesSelected": "已选择 {count} 个参考文件",
+      "references": "参考资料（{count}）",
+      "saveError": "任务派发失败，请检查项目人员后重试。"
+    },
+    "equipment": {
+      "title": "设备管理",
+      "subtitle": "登记工地设备，并以 GPS 和照片记录每次进场或退场。",
+      "add": "新增设备",
+      "createTitle": "登记工地设备",
+      "formHelp": "请填写实体设备上的设备编号或注册号码。",
+      "recordEntry": "记录进场",
+      "recordExit": "记录退场",
+      "entryTitle": "记录 {name} 进场",
+      "exitTitle": "记录 {name} 退场",
+      "movementHelp": "请拍摄当前照片并获取位置；该记录会成为不可修改的现场证据。",
+      "recentMovements": "近期进退场记录",
+      "occurredAt": "进退场时间",
+      "directionLabel": "进退场",
+      "deliveryNotePhoto": "Delivery Order 照片",
+      "takeDeliveryNote": "拍摄 Delivery Order",
+      "deliveryNoteReady": "Delivery Order 照片已准备",
+      "readDeliveryNote": "使用 Azure OCR 读取",
+      "ocrReady": "OCR 已读取文件，请检查并确认填入的资料后保存。",
+      "ocrManual": "无法读取 Delivery Order，请手动填写资料。",
+      "submissionError": "设备进退场未能记录，请重新打开该设备后再试。",
+      "summary": {
+        "today": "今日进场数量",
+        "month": "本月进场数量",
+        "year": "本年进场数量",
+        "project_total": "项目累计进场",
+        "quantity_on_site": "目前在场数量"
+      }
+    },
+    "progress": {
+      "title": "工程进度",
+      "subtitle": "管理施工阶段、照片进度以及项目经理确认。",
+      "addPhase": "新增阶段",
+      "addRecord": "记录进度",
+      "returnPrompt": "请说明需要更正后再提交的内容。",
+      "phaseTitle": "新增施工阶段",
+      "phaseHelp": "建立用于整理和确认工程进度的施工阶段。",
+      "recordTitle": "新增进度证据",
+      "recordHelp": "拍摄当前工地照片；完成比例必须由项目经理确认才会生效。",
+      "noPhasesHelp": "此项目尚未建立施工阶段。请先新增阶段，才能记录进度。",
+      "addFirstPhase": "新增第一个阶段",
+      "saveError": "施工进度保存失败，请检查项目、施工阶段、照片和 GPS 后重试。",
+      "summary": {
+        "today": "今日记录",
+        "month": "本月记录",
+        "year": "本年记录",
+        "total": "项目累计"
+      }
+    },
+    "outgoing": {
+      "title": "材料出场",
+      "subtitle": "申请、审批和放行离开项目的非废料材料。",
+      "add": "新增出场申请",
+      "createTitle": "申请材料出场",
+      "formHelp": "填写实际执行人员，并获取当前 GPS 位置。",
+      "fieldFormHelp": "填写最少资料，至少完成 4 张现场取证照片并获取 GPS。执行人会自动记录。",
+      "executor": "执行人",
+      "rejectPrompt": "请说明拒绝该出场申请的原因。",
+      "evidence": {
+        "title": "现场拍照取证",
+        "progress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
+        "overview": "1. 材料全景",
+        "quantity": "2. 数量与堆放细节",
+        "vehicle": "3. 运输车辆与车牌",
+        "loading": "4. 装载或门岗现场",
+        "other": "其他现场照片"
+      }
+    },
+    "field": {
+      "project": "项目",
+      "selectProject": "选择项目",
+      "allProjects": "全部项目",
+      "code": "编号",
+      "name": "名称",
+      "parent": "上级栏目",
+      "noParent": "没有上级栏目",
+      "description": "说明",
+      "sortOrder": "显示顺序",
+      "showInPwa": "在现场手机页面显示",
+      "active": "启用",
+      "title": "任务标题",
+      "assignee": "现场人员",
+      "selectStaff": "选择项目人员",
+      "taskType": "任务类型",
+      "category": "栏目",
+      "noCategory": "不选择栏目",
+      "priority": "优先级",
+      "workLocation": "工作区域 / 位置",
+      "dueAt": "截止日期与时间",
+      "photoRequired": "必须上传照片数",
+      "instructions": "工作说明",
+      "serialNo": "序列号",
+      "registrationNo": "注册号码",
+      "supplier": "供应商",
+      "noSupplier": "没有供应商",
+      "operator": "操作人员",
+      "vehiclePlate": "车牌",
+      "deliveryNote": "送货单",
+      "photos": "现场照片",
+      "photoCount": "已选择 {count} 张照片",
+      "location": "当前 GPS 位置",
+      "notes": "备注",
+      "phase": "施工阶段",
+      "selectPhase": "选择施工阶段",
+      "percentComplete": "实际完成比例（%）",
+      "material": "材料",
+      "quantity": "数量",
+      "unit": "单位",
+      "executor": "执行人",
+      "destination": "目的地",
+      "reason": "出场原因"
+    },
+    "action": {
+      "edit": "编辑",
+      "remove": "移除",
+      "cancel": "取消",
+      "save": "保存",
+      "return": "退回",
+      "accept": "接收",
+      "assign": "派发",
+      "getLocation": "获取当前 GPS",
+      "locationReady": "已获取 GPS",
+      "record": "记录进退场",
+      "submit": "提交",
+      "confirm": "确认",
+      "reject": "拒绝",
+      "approve": "批准",
+      "release": "放行"
+    },
+    "state": {
+      "loadError": "无法读取记录，请检查网络后重试。",
+      "empty": "该项目目前没有相关记录。",
+      "noDescription": "没有说明",
+      "noIdentifier": "没有序列号或注册号码",
+      "unknown": "未知",
+      "locationError": "无法获取当前 GPS，请开启精确定位后重试。"
+    },
+    "status": {
+      "active": "已启用",
+      "inactive": "已停用",
+      "pwaVisible": "现场人员可见",
+      "pwaHidden": "现场人员隐藏",
+      "accessAll": "所有项目人员可见",
+      "accessRestricted": "限制人员可见"
+    },
+    "taskStatus": {
+      "OPEN": "待开始",
+      "IN_PROGRESS": "进行中",
+      "SUBMITTED": "已提交",
+      "ACCEPTED": "已接收",
+      "RETURNED": "已退回",
+      "CANCELLED": "已取消"
+    },
+    "event": {
+      "DISPATCH_CREATED": "已建立订单",
+      "DISPATCH_RELEASED": "已从工地出场",
+      "DISPATCH_CANCELLED": "订单已取消",
+      "RECYCLER_ACCEPTED": "回收商已接单",
+      "LOAD_COLLECTED": "已收货",
+      "COLLECTION_PROPOSED": "回收时间已提议",
+      "COLLECTION_CONFIRMED": "回收时间已确认",
+      "DRIVER_ASSIGNED": "已指派司机",
+      "DRIVER_REASSIGNED": "司机已改派",
+      "DRIVER_ACCEPTED": "司机已接受任务",
+      "DRIVER_EN_ROUTE": "司机前往工地中",
+      "DRIVER_ARRIVED": "司机已到达工地",
+      "LOAD_COMPLETED": "装货已完成",
+      "RETURNING_TO_YARD": "司机返回回收场",
+      "ARRIVED_AT_YARD": "已到达回收场",
+      "WEIGHING_STARTED": "已开始称重",
+      "WEIGHING_CONFIRMED": "称重已确认",
+      "WEIGHING_VOIDED": "称重已作废",
+      "DISPATCH_SETTLED": "订单已结算",
+      "DEDUCTION_RECORDED": "已记录扣杂",
+      "DEDUCTION_RESPONDED": "已记录扣杂回复",
+      "PAYMENT_RECORDED": "已记录付款",
+      "SETTLEMENT_LOCKED": "结算已锁定",
+      "GPS_RECORDED": "已记录 GPS 位置",
+      "PHOTO_ATTACHED": "已添加证据照片",
+      "EXCEPTION_RECORDED": "已记录异常"
+    },
+    "taskType": {
+      "PHOTO": "拍照记录",
+      "MATERIAL": "材料",
+      "EQUIPMENT": "设备",
+      "PROGRESS": "工程进度",
+      "SAFETY": "安全",
+      "WASTE": "废料",
+      "CONSULTANT": "顾问提交",
+      "OTHER": "其他"
+    },
+    "priority": {
+      "LOW": "低",
+      "NORMAL": "普通",
+      "HIGH": "高",
+      "URGENT": "紧急"
+    },
+    "equipmentStatus": {
+      "OFF_SITE": "不在场",
+      "ON_SITE": "在场",
+      "MAINTENANCE": "维修中",
+      "RETIRED": "已退役"
+    },
     "direction": { "ENTRY": "进场", "EXIT": "退场" },
-    "progressStatus": { "SUBMITTED": "等待确认", "CONFIRMED": "已确认", "RETURNED": "已退回" },
-    "outgoingStatus": { "PENDING": "等待审批", "APPROVED": "已批准", "REJECTED": "已拒绝", "RELEASED": "已放行" },
-    "toast": { "saved": "已保存", "removed": "已移除", "taskAssigned": "任务已派发", "taskUpdated": "任务状态已更新", "photoAdded": "照片已添加", "movementSaved": "设备进退场已记录", "progressSubmitted": "进度已提交", "progressReviewed": "进度审核已保存", "outgoingSubmitted": "出场申请已提交", "outgoingReviewed": "出场状态已更新" }
+    "progressStatus": {
+      "SUBMITTED": "等待确认",
+      "CONFIRMED": "已确认",
+      "RETURNED": "已退回"
+    },
+    "outgoingStatus": {
+      "PENDING": "等待审批",
+      "APPROVED": "已批准",
+      "REJECTED": "已拒绝",
+      "RELEASED": "已放行"
+    },
+    "toast": {
+      "saved": "已保存",
+      "removed": "已移除",
+      "taskAssigned": "任务已派发",
+      "taskUpdated": "任务状态已更新",
+      "photoAdded": "照片已添加",
+      "movementSaved": "设备进退场已记录",
+      "progressSubmitted": "进度已提交",
+      "progressReviewed": "进度审核已保存",
+      "outgoingSubmitted": "出场申请已提交",
+      "outgoingReviewed": "出场状态已更新"
+    }
   },
   "siteDisposal": {
     "title": "工地清运",
-    "subtitle": "以不可修改的照片证据完成清运申请、审批、外部执行和管理验收。",
+    "subtitle": "普通工地杂物、泥土和非回收废弃物的清理任务。可直接指派现场工作人员，或发送免登录链接给外部清运商。",
     "count": "共 {count} 项清运申请",
     "empty": "该项目目前没有清运申请。",
     "optional": "选填",
@@ -130,45 +719,493 @@
     "notAssigned": "尚未指派",
     "externalActor": "外部执行人员",
     "evidence": "照片与文件证据",
+    "fieldEvidence": {
+      "progress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
+      "overview": "1. 废料区域全景",
+      "quantity": "2. 废料数量细节",
+      "access": "3. 清运入口或车辆路线",
+      "surroundings": "4. 工地周边状况"
+    },
     "timeline": "任务时间轴",
-    "create": { "title": "新增清运申请", "description": "拍摄废料、获取当前 GPS，并提交给负责人审批。" },
+    "create": {
+      "title": "新增清运申请",
+      "description": "拍摄废料、获取当前 GPS，并提交给负责人审批。"
+    },
     "review": { "title": "审批清运申请" },
-    "assign": { "title": "指派清运公司", "description": "填写公司联系人和链接有效期；该链接只可访问这一项任务。", "copyNow": "请立即分享此链接。系统不会以可读取形式保存密钥，因此关闭后无法再次显示。" },
-    "confirm": { "title": "验收清运结果", "description": "检查 {reference} 的装车、卸货及 Disposal DO 证据。" },
-    "action": { "new": "新增申请", "view": "查看", "review": "审批", "assign": "指派公司", "confirm": "验收", "getLocation": "获取当前 GPS", "locationReady": "已获取 GPS", "cancel": "取消", "submit": "提交申请", "approve": "批准", "reject": "拒绝", "save": "保存决定", "copyLink": "复制任务链接", "close": "关闭", "createLink": "生成任务链接", "complete": "验收完成", "return": "退回" },
-    "field": { "project": "项目", "allProjects": "全部项目", "requestedBy": "申请人", "collector": "清运公司", "waste": "废料说明", "siteLocation": "工地位置", "volume": "预计体积（m³）", "estimatedWeight": "预计重量（kg）", "preferredAt": "期望清运时间", "gps": "当前 GPS", "photos": "废料照片", "note": "备注", "reviewNote": "审批说明", "collectorCompany": "清运公司", "contact": "联系人", "phone": "电话", "email": "电邮", "linkExpiry": "任务链接到期时间", "confirmationNote": "验收说明", "confirmationPhoto": "验收照片", "status": "状态", "actualWeight": "实际重量", "trips": "车次", "doNo": "Disposal DO 编号", "ocr": "DO 识别" },
-    "error": { "load": "无法读取清运申请，请检查网络后重试。", "location": "必须获取当前 GPS，请开启精确定位后重试。" },
-    "status": { "REQUESTED": "等待审批", "APPROVED": "已批准", "ASSIGNED": "已指派公司", "IN_PROGRESS": "执行中", "AWAITING_CONFIRMATION": "等待验收", "RETURNED": "已退回更正", "COMPLETED": "已完成", "REJECTED": "已拒绝", "CANCELLED": "已取消" },
-    "ocr": { "NOT_REQUESTED": "尚未识别", "SUCCEEDED": "Azure OCR 已识别", "NOT_CONFIGURED": "尚未配置 OCR", "FAILED": "OCR 失败，已人工填写", "MANUAL": "人工填写" },
-    "evidenceKind": { "REQUEST": "申请照片", "LOADING": "装车", "UNLOADING": "卸货", "DISPOSAL_DO": "Disposal DO", "CONFIRMATION": "验收" },
-    "timelineEvent": { "REQUESTED": "已提交申请", "APPROVED": "申请已批准", "REJECTED": "申请已拒绝", "COLLECTOR_ASSIGNED": "已指派清运公司", "EXTERNAL_STARTED": "清运工作已开始", "EVIDENCE_LOADING": "已上传装车照片", "EVIDENCE_UNLOADING": "已上传卸货照片", "EVIDENCE_DISPOSAL_DO": "已上传 Disposal DO", "EXTERNAL_SUBMITTED": "执行结果已提交验收", "COMPLETED": "管理人员已验收完成", "RETURNED": "已退回更正", "CANCELLED": "申请已取消" },
-    "toast": { "requested": "清运申请已提交", "reviewed": "清运审批已保存", "assigned": "清运公司已指派", "confirmed": "清运验收已保存", "cancelled": "清运申请已取消" },
+    "assign": {
+      "title": "选择清运执行人",
+      "description": "内部工作人员会在自己的现场任务中收到工作，不生成链接；外部清运商使用只限本任务的免登录链接。",
+      "copyNow": "复制后发送给外部清运商。链接不需要登录；如遗失，可在清运列表重新生成，旧链接会立即失效。",
+      "noFieldStaff": "此项目没有可指派的现场工作人员，请先在项目成员中加入工作人员。"
+    },
+    "assignment": { "internal": "内部工作人员", "external": "外部清运商" },
+    "regenerate": {
+      "title": "重新生成外部链接",
+      "description": "生成新链接后，之前的链接会立即失效。",
+      "copyNow": "新链接已经生成。请复制并发送给外部清运商。"
+    },
+    "cancel": {
+      "title": "取消清运",
+      "description": "取消 {reference} 后，工作人员任务及外部链接会立即失效。记录和照片会保留供审计。"
+    },
+    "confirm": {
+      "title": "验收清运结果",
+      "description": "检查 {reference} 的装车、卸货及 Disposal DO 证据。"
+    },
+    "action": {
+      "new": "新增申请",
+      "view": "查看",
+      "review": "审批",
+      "assign": "选择执行人",
+      "confirm": "验收",
+      "regenerateLink": "重新生成链接",
+      "cancelDisposal": "取消清运",
+      "sendToStaff": "发送给工作人员",
+      "getLocation": "获取当前 GPS",
+      "locationReady": "已获取 GPS",
+      "cancel": "取消",
+      "submit": "提交申请",
+      "approve": "批准",
+      "reject": "拒绝",
+      "save": "保存决定",
+      "copyLink": "复制任务链接",
+      "close": "关闭",
+      "createLink": "生成免登录链接",
+      "complete": "验收完成",
+      "return": "退回"
+    },
+    "field": {
+      "project": "项目",
+      "allProjects": "全部项目",
+      "requestedBy": "申请人",
+      "executor": "执行人",
+      "collector": "清运公司",
+      "fieldStaff": "现场工作人员",
+      "chooseFieldStaff": "选择项目工作人员",
+      "cancelReason": "取消原因",
+      "waste": "杂物/废弃物说明",
+      "siteLocation": "工地位置",
+      "volume": "预计体积（m³）",
+      "estimatedWeight": "预计重量（kg）",
+      "preferredAt": "期望清运时间",
+      "gps": "当前 GPS",
+      "photos": "现场照片",
+      "note": "备注",
+      "reviewNote": "审批说明",
+      "collectorCompany": "外部清运公司",
+      "contact": "联系人",
+      "phone": "电话",
+      "email": "电邮",
+      "linkExpiry": "任务链接到期时间",
+      "confirmationNote": "验收说明",
+      "confirmationPhoto": "验收照片",
+      "status": "状态",
+      "actualWeight": "实际重量",
+      "trips": "车次",
+      "doNo": "Disposal DO 编号",
+      "ocr": "DO 识别"
+    },
+    "error": {
+      "load": "无法读取清运申请，请检查网络后重试。",
+      "location": "必须获取当前 GPS，请开启精确定位后重试。"
+    },
+    "status": {
+      "REQUESTED": "等待审批",
+      "APPROVED": "已批准",
+      "ASSIGNED": "已指派执行人",
+      "IN_PROGRESS": "执行中",
+      "AWAITING_CONFIRMATION": "等待验收",
+      "RETURNED": "已退回更正",
+      "COMPLETED": "已完成",
+      "REJECTED": "已拒绝",
+      "CANCELLED": "已取消"
+    },
+    "ocr": {
+      "NOT_REQUESTED": "尚未识别",
+      "SUCCEEDED": "Azure OCR 已识别",
+      "NOT_CONFIGURED": "尚未配置 OCR",
+      "FAILED": "OCR 失败，已人工填写",
+      "MANUAL": "人工填写"
+    },
+    "evidenceKind": {
+      "REQUEST": "申请照片",
+      "LOADING": "装车",
+      "UNLOADING": "卸货",
+      "DISPOSAL_DO": "Disposal DO",
+      "OTHER": "其他现场照片",
+      "CONFIRMATION": "验收"
+    },
+    "timelineEvent": {
+      "REQUESTED": "已提交申请",
+      "APPROVED": "申请已批准",
+      "REJECTED": "申请已拒绝",
+      "COLLECTOR_ASSIGNED": "已指派外部清运商",
+      "INTERNAL_ASSIGNED": "已指派现场工作人员",
+      "EXTERNAL_LINK_REGENERATED": "已重新生成外部链接",
+      "EXTERNAL_STARTED": "外部清运工作已开始",
+      "INTERNAL_STARTED": "工作人员已开始清运",
+      "EVIDENCE_LOADING": "已上传装车照片",
+      "EVIDENCE_UNLOADING": "已上传卸货照片",
+      "EVIDENCE_DISPOSAL_DO": "已上传 Disposal DO",
+      "EVIDENCE_OTHER": "已上传其他现场照片",
+      "EXTERNAL_SUBMITTED": "外部执行结果已提交验收",
+      "INTERNAL_SUBMITTED": "工作人员执行结果已提交验收",
+      "COMPLETED": "管理人员已验收完成",
+      "RETURNED": "已退回更正",
+      "CANCELLED": "申请已取消"
+    },
+    "toast": {
+      "requested": "清运申请已提交",
+      "reviewed": "清运审批已保存",
+      "assigned": "外部清运商已指派",
+      "assignedInternal": "已发送给现场工作人员",
+      "linkRegenerated": "外部清运链接已重新生成",
+      "confirmed": "清运验收已保存",
+      "cancelled": "清运申请已取消"
+    },
     "external": {
-      "invalid": "任务链接无法使用", "invalidBody": "链接无效、已到期，或任务已经完成。", "title": "清运任务", "photosTitle": "必须拍摄的照片", "uploaded": "已上传", "tapCamera": "按这里打开相机", "submitTitle": "清运资料", "waitingTitle": "已发送验收", "waitingBody": "工地负责人将检查照片和 Disposal DO，目前无需继续操作。",
-      "status": { "REQUESTED": "等待审批", "APPROVED": "已批准", "ASSIGNED": "可以开始", "IN_PROGRESS": "执行中", "AWAITING_CONFIRMATION": "等待工地验收", "RETURNED": "需要更正", "COMPLETED": "已完成", "REJECTED": "已拒绝", "CANCELLED": "已取消" },
+      "invalid": "任务链接无法使用",
+      "invalidBody": "链接无效、已到期，或任务已经完成。",
+      "title": "清运任务",
+      "photosTitle": "必须拍摄的照片",
+      "uploaded": "已上传",
+      "tapCamera": "按这里打开相机",
+      "submitTitle": "清运资料",
+      "waitingTitle": "已发送验收",
+      "waitingBody": "工地负责人将检查照片和 Disposal DO，目前无需继续操作。",
+      "status": {
+        "REQUESTED": "等待审批",
+        "APPROVED": "已批准",
+        "ASSIGNED": "可以开始",
+        "IN_PROGRESS": "执行中",
+        "AWAITING_CONFIRMATION": "等待工地验收",
+        "RETURNED": "需要更正",
+        "COMPLETED": "已完成",
+        "REJECTED": "已拒绝",
+        "CANCELLED": "已取消"
+      },
       "action": { "start": "开始清运", "submit": "发送给工地验收" },
-      "evidence": { "LOADING": "装车照片", "UNLOADING": "卸货照片", "DISPOSAL_DO": "Disposal DO 照片" },
-      "field": { "weight": "实际重量（kg）", "trips": "车次数量", "doNo": "Disposal DO 编号", "note": "工作备注" },
+      "evidence": {
+        "LOADING": "装车照片",
+        "UNLOADING": "卸货照片",
+        "DISPOSAL_DO": "Disposal DO 照片",
+        "OTHER": "其他现场照片"
+      },
+      "field": {
+        "weight": "实际重量（kg）",
+        "trips": "车次数量",
+        "doNo": "Disposal DO 编号",
+        "note": "工作备注"
+      },
       "error": { "action": "操作无法完成，请检查网络后重试。" }
+    },
+    "internal": {
+      "invalid": "无法打开这项清运任务，请刷新任务列表后重试。",
+      "photosTitle": "必须拍摄的清运证据",
+      "photosBody": "装车、卸货、Disposal DO 和其他现场照片各至少一张；之后仍可继续补拍。",
+      "submitTitle": "清运结果",
+      "waitingTitle": "已发送验收",
+      "waitingBody": "负责人会检查照片和 Disposal DO。退回时，这项任务会重新出现在我的任务。",
+      "status": {
+        "REQUESTED": "等待审批",
+        "APPROVED": "已批准",
+        "ASSIGNED": "可以开始",
+        "IN_PROGRESS": "执行中",
+        "AWAITING_CONFIRMATION": "等待验收",
+        "RETURNED": "需要更正",
+        "COMPLETED": "已完成",
+        "REJECTED": "已拒绝",
+        "CANCELLED": "已取消"
+      },
+      "action": {
+        "start": "开始清运",
+        "submit": "发送给负责人验收",
+        "photosRequired": "先完成四类必拍照片"
+      },
+      "evidence": {
+        "LOADING": "1. 装车照片",
+        "UNLOADING": "2. 卸货照片",
+        "DISPOSAL_DO": "3. Disposal DO 照片",
+        "OTHER": "4. 其他现场照片"
+      },
+      "field": {
+        "weight": "实际重量（kg）",
+        "trips": "车次数量",
+        "doNo": "Disposal DO 编号",
+        "note": "工作备注"
+      },
+      "error": { "action": "操作无法完成，请检查网络和 GPS 后重试。" }
     }
   },
   "fieldStaffPwa": {
-    "today": "今天 · {date}", "greeting": "你好，{name}",
-    "identity": { "company": "公司：{company}", "role": "角色：{role}", "projects": "负责项目：{projects}", "noProject": "尚未分配项目", "version": "MSE Trace 版本 {version}" },
-    "camera": { "open": "打开相机", "ready": "已拍摄 {count} 张", "help": "把现场情况完整放进画面，然后按下方的大按钮拍照。", "capture": "拍照", "switch": "切换镜头", "clear": "清除照片", "unsupported": "此浏览器无法打开相机，请使用 HTTPS 网站和较新的手机浏览器。", "permissionError": "无法启动相机，请允许相机权限后再试。", "captureError": "拍照失败，请再试一次。" },
-    "nav": { "home": "首页", "tasks": "任务", "attendance": "打卡", "records": "拍照", "disposal": "清运", "location": "位置" },
-    "home": { "title": "今天的工作", "subtitle": "按一个大按钮就可以继续。", "tasks": "我的任务", "attendance": "上下班打卡", "records": "现场拍照记录", "location": "共享位置", "material": "材料拍照", "equipment": "设备拍照", "progress": "进度拍照", "disposal": "废料清运", "outgoing": "材料出场", "safety": "安全问题", "consultant": "顾问资料" },
-    "notifications": { "title": "我的工作通知", "subtitle": "任务、审批和事故处理结果会显示在这里。", "empty": "目前没有新通知", "loadError": "通知读取失败，请检查网络后重试。", "open": "打开", "markRead": "知道了", "read": "已读" },
-    "tasks": { "title": "我的任务", "count": "现有 {count} 项任务", "empty": "所有任务已完成", "evidence": "照片 {current}/{required}", "references": "先看参考资料（{count}）", "startedAt": "开始时间：{value}", "assignedBy": "指派人：{name}", "workLocation": "工作位置：{location}", "dueAt": "期限：{value}", "waitingReview": "等待管理员审核", "linkedSubmission": "已提交：{reference}" },
-    "status": { "OPEN": "新任务", "IN_PROGRESS": "进行中", "SUBMITTED": "已提交", "ACCEPTED": "已完成", "RETURNED": "需要重拍", "CANCELLED": "已取消" },
-    "type": { "PHOTO": "拍照", "MATERIAL": "材料", "EQUIPMENT": "设备", "PROGRESS": "进度", "SAFETY": "安全", "WASTE": "废料", "CONSULTANT": "顾问", "OTHER": "其他" },
-    "action": { "back": "返回", "refresh": "刷新", "start": "开始", "openWorkflow": "打开工作表单", "takePhoto": "拍照", "submit": "提交给管理员", "morePhotos": "还需拍 {count} 张", "retry": "重试", "clearSignature": "清除签名" },
+    "locationTracker": {
+      "startingTitle": "必须开启定位",
+      "startingBody": "请允许精确定位，MSE Trace 才能确认此设备是否在获分配工地的电子围栏内。",
+      "requiredTitle": "开启定位后才能继续",
+      "requiredBody": "这台现场设备在使用应用时必须提供 GPS。",
+      "retry": "重新检查定位",
+      "foregroundOnly": "网页应用只可在开启期间上报位置。iPhone 或 Android 在应用关闭或进入后台后可能暂停 GPS。",
+      "error": {
+        "unsupported": "此浏览器不支持 GPS 定位。请在受支持手机的 Safari 或 Chrome 打开现场应用。",
+        "permissionDenied": "定位权限已关闭。请在浏览器或手机设置中允许此网站使用精确定位，然后重试。",
+        "unavailable": "设备目前无法取得位置。请开启手机定位服务，并移动到 GPS 信号较好的地方。",
+        "timeout": "GPS 定位超时。请检查手机定位服务后重试。",
+        "noProject": "已分配项目尚未设置可用的工地位置或电子围栏，请让项目管理员先完成项目定位设置。",
+        "upload": "位置暂时无法上传。请检查网络；应用保持开启时会继续重试。"
+      }
+    },
+    "today": "今天 · {date}",
+    "greeting": "你好，{name}",
+    "identity": {
+      "company": "公司：{company}",
+      "role": "角色：{role}",
+      "projects": "负责项目：{projects}",
+      "noProject": "尚未分配项目",
+      "version": "MSE Trace 版本 {version}"
+    },
+    "camera": {
+      "open": "打开相机",
+      "ready": "已拍摄 {count} 张",
+      "help": "把现场情况完整放进画面，然后按下方的大按钮拍照。",
+      "capture": "拍照",
+      "switch": "切换镜头",
+      "clear": "清除照片",
+      "addOtherPhoto": "新增其他照片",
+      "otherPhotoNumber": "其他现场照片 {number}",
+      "unsupported": "此浏览器无法打开相机，请使用 HTTPS 网站和较新的手机浏览器。",
+      "permissionError": "无法启动相机，请允许相机权限后再试。",
+      "captureError": "拍照失败，请再试一次。"
+    },
+    "evidenceProgress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
+    "nav": {
+      "home": "首页",
+      "tasks": "任务",
+      "attendance": "打卡",
+      "records": "拍照",
+      "disposal": "清运",
+      "location": "位置",
+      "incidents": "事故"
+    },
+    "home": {
+      "title": "今天的工作",
+      "subtitle": "按一个大按钮就可以继续。",
+      "tasks": "我的任务",
+      "attendance": "上下班打卡",
+      "records": "现场拍照记录",
+      "location": "共享位置",
+      "material": "材料拍照",
+      "equipment": "设备拍照",
+      "progress": "进度拍照",
+      "disposal": "废料清运",
+      "outgoing": "材料出场",
+      "waste": "环保材料出场",
+      "safety": "安全问题",
+      "consultant": "顾问资料",
+      "category": "现场资料栏目",
+      "incidents": "报告事故"
+    },
+    "notifications": {
+      "title": "我的工作通知",
+      "subtitle": "任务、审批和事故处理结果会显示在这里。",
+      "empty": "目前没有新通知",
+      "loadError": "通知读取失败，请检查网络后重试。",
+      "open": "打开",
+      "markRead": "知道了",
+      "read": "已读"
+    },
+    "tasks": {
+      "title": "我的任务",
+      "count": "现有 {count} 项任务",
+      "empty": "所有任务已完成",
+      "evidence": "照片 {current}/{required}",
+      "references": "先看参考资料（{count}）",
+      "startedAt": "开始时间：{value}",
+      "assignedBy": "指派人：{name}",
+      "workLocation": "工作位置：{location}",
+      "dueAt": "期限：{value}",
+      "waitingReview": "等待管理员审核",
+      "linkedSubmission": "已提交：{reference}"
+    },
+    "status": {
+      "OPEN": "新任务",
+      "IN_PROGRESS": "进行中",
+      "SUBMITTED": "已提交",
+      "ACCEPTED": "已完成",
+      "RETURNED": "需要重拍",
+      "CANCELLED": "已取消"
+    },
+    "type": {
+      "PHOTO": "拍照",
+      "MATERIAL": "材料",
+      "EQUIPMENT": "设备",
+      "PROGRESS": "进度",
+      "SAFETY": "安全",
+      "WASTE": "废料",
+      "CONSULTANT": "顾问",
+      "OTHER": "其他"
+    },
+    "action": {
+      "back": "返回",
+      "refresh": "刷新",
+      "start": "开始",
+      "openWorkflow": "打开工作表单",
+      "takePhoto": "拍照",
+      "submit": "提交给管理员",
+      "morePhotos": "还需拍 {count} 张",
+      "retry": "重试",
+      "clearSignature": "清除签名"
+    },
     "consultantTasks": { "title": "顾问现场照片提交" },
-    "consultantCapture": { "project": "项目", "chooseProject": "选择项目", "category": "申请类别", "categoryOption": { "RFI": "RFI / 现场问题", "WIR": "施工检查", "MATERIAL": "材料审批", "SAFETY": "安全审核", "OTHER": "其他" }, "workLocation": "现场位置 / 轴线", "workLocationPlaceholder": "例如：A座，C1-D1轴线", "description": "请简单说明要办公室或顾问查看什么", "photos": "顾问现场照片", "note": "额外备注（选填）", "submit": "提交到顾问资料收件箱" },
-    "records": { "title": "现场记录", "subtitle": "先选择工作，再拍摄系统要求的照片。", "material": "材料记录", "equipment": "设备进退场", "progress": "施工进度照片", "disposal": "废料清运", "outgoing": "材料出场", "safety": "安全与隐患", "consultant": "顾问资料提交" },
-    "material": { "project": "项目", "chooseProject": "选择项目", "supplier": "供应商", "chooseSupplier": "选择供应商", "scanSupplierQr": "扫描供应商二维码", "scanTitle": "扫描供应商二维码", "scanHelp": "把相机对准供应商送货二维码，项目和供应商会自动填入。", "cameraError": "无法启动相机，请允许相机权限后重试。", "closeScanner": "关闭扫描", "qrInvalid": "此供应商二维码无效、已撤销或不属于可用项目。", "qrMatched": "已匹配供应商二维码", "qrNotIssued": "没有有效的供应商二维码，记录仍会保存所选供应商。", "direction": "类型", "entry": "材料进场", "return": "材料退场", "returnReason": "退场原因", "chooseReturnReason": "请选择材料为什么退场", "returnReasonOther": "填写其他退场原因", "returnReasonOption": { "QUALITY_REJECTED": "质量检查不合格", "WRONG_DELIVERY": "送错材料", "DAMAGED": "材料损坏", "EXCESS_MATERIAL": "多余材料退回", "OTHER": "其他原因" }, "unit": "单位", "name": "材料名称", "quantity": "数量", "vehicle": "车牌", "doNo": "送货单编号", "doPhoto": "送货单照片", "ocrReading": "正在读取送货单...", "ocrReady": "已读取送货单，请检查自动填入的资料后再保存。", "ocrManual": "无法读取送货单，请手动填写资料。", "ocrChooseProject": "请先选择项目，再拍摄送货单。", "ocrOffline": "当前离线，请先手动填写；照片上传到服务器后会再次执行 OCR。", "sitePhotos": "材料 / 卸货照片", "receiverSignature": "接收人签名", "supplierSignature": "供应商签名", "tapCamera": "按这里打开相机", "photoReady": "已准备 {count} 张照片", "notes": "备注（选填）", "submit": "保存材料记录" },
-    "attendance": { "title": "工地考勤", "todayCount": "今天已有 {count} 条打卡记录", "selectProject": "选择今天的项目", "clockIn": "上班打卡", "clockOut": "下班打卡", "takeSelfie": "拍摄自拍照", "selfieReady": "自拍照已准备", "getLocation": "获取当前 GPS", "locationReady": "GPS 已准备", "note": "备注（选填）", "submit": "提交打卡", "noRecords": "今天还没有打卡记录", "openPhoto": "查看打卡照片", "viewMap": "查看打卡位置", "distance": "距离围栏：{distance} 米", "geofence": { "INSIDE": "围栏范围内", "OUTSIDE": "围栏范围外", "NOT_EVALUATED": "尚未设置围栏" } },
-    "error": { "load": "页面读取失败，请检查网络。", "action": "操作未能完成，请重试。", "location": "必须获取当前 GPS，请开启精确定位后重试。" }
+    "consultantCapture": {
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "category": "申请类别",
+      "categoryOption": {
+        "RFI": "RFI / 现场问题",
+        "WIR": "施工检查",
+        "MATERIAL": "材料审批",
+        "SAFETY": "安全审核",
+        "OTHER": "其他"
+      },
+      "workLocation": "现场位置 / 轴线",
+      "workLocationPlaceholder": "例如：A座，C1-D1轴线",
+      "description": "请简单说明要办公室或顾问查看什么",
+      "photos": "顾问现场照片",
+      "note": "额外备注（选填）",
+      "submit": "提交到顾问资料收件箱"
+    },
+    "consultantEvidence": {
+      "title": "必须拍摄的顾问现场证据",
+      "overview": "1. 工作区域全景",
+      "detail": "2. 问题或施工细节",
+      "location": "3. 轴线或位置参照",
+      "reference": "4. 图纸、标签或周边参照"
+    },
+    "incidents": {
+      "title": "事故报告",
+      "subtitle": "向监管人员报告意外事故和安全问题。"
+    },
+    "records": {
+      "title": "现场记录",
+      "subtitle": "先选择工作，再拍摄系统要求的照片。",
+      "material": "材料记录",
+      "equipment": "设备进退场",
+      "progress": "施工进度照片",
+      "disposal": "废料清运",
+      "outgoing": "材料出场",
+      "waste": "环保材料出场申请",
+      "safety": "安全与隐患",
+      "consultant": "顾问资料提交",
+      "category": "现场资料栏目"
+    },
+    "categoryEvidence": {
+      "title": "归档现场拍照证据",
+      "subtitle": "选择项目和栏目，拍摄至少四张照片，取得 GPS 后提交给管理人员审核。",
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "chooseCategory": "选择现场资料栏目",
+      "loading": "正在读取现场资料栏目...",
+      "loadError": "无法读取现场资料栏目，请检查网络后重试。",
+      "noCategories": "这个项目暂时没有开放给现场工作人员的栏目。",
+      "openSubcategory": "进入下一级栏目",
+      "takePhotos": "在此栏目拍照归档",
+      "readOnly": "可以查看，但没有上传权限",
+      "uploadNotAllowed": "你没有权限上传资料到这个栏目。",
+      "changeCategory": "更换",
+      "evidenceTitle": "必须拍摄的现场照片",
+      "getLocation": "取得当前 GPS",
+      "locationReady": "GPS 已取得",
+      "locationError": "无法取得 GPS，请允许精确定位后重试。",
+      "note": "简单备注（选填）",
+      "notePlaceholder": "只填写办公室需要知道的内容。",
+      "submit": "提交给管理人员审核",
+      "submitError": "现场资料无法提交，请检查照片、GPS 和网络后重试。",
+      "photo": {
+        "overview": "1. 现场整体情况",
+        "detail": "2. 工作或问题细节",
+        "peopleEquipment": "3. 相关人员或设备",
+        "completion": "4. 完成情况或当前状态"
+      }
+    },
+    "material": {
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "supplier": "供应商",
+      "chooseSupplier": "选择供应商",
+      "scanSupplierQr": "扫描供应商二维码",
+      "scanTitle": "扫描供应商二维码",
+      "scanHelp": "把相机对准供应商送货二维码，项目和供应商会自动填入。",
+      "cameraError": "无法启动相机，请允许相机权限后重试。",
+      "closeScanner": "关闭扫描",
+      "qrInvalid": "此供应商二维码无效、已撤销或不属于可用项目。",
+      "qrMatched": "已匹配供应商二维码",
+      "qrNotIssued": "没有有效的供应商二维码，记录仍会保存所选供应商。",
+      "direction": "类型",
+      "entry": "材料进场",
+      "return": "材料退场",
+      "returnReason": "退场原因",
+      "chooseReturnReason": "请选择材料为什么退场",
+      "returnReasonOther": "填写其他退场原因",
+      "returnReasonOption": {
+        "QUALITY_REJECTED": "质量检查不合格",
+        "WRONG_DELIVERY": "送错材料",
+        "DAMAGED": "材料损坏",
+        "EXCESS_MATERIAL": "多余材料退回",
+        "OTHER": "其他原因"
+      },
+      "unit": "单位",
+      "name": "材料名称",
+      "quantity": "数量",
+      "vehicle": "车牌",
+      "doNo": "送货单编号",
+      "doPhoto": "送货单照片",
+      "ocrReading": "正在读取送货单...",
+      "ocrReady": "已读取送货单，请检查自动填入的资料后再保存。",
+      "ocrManual": "无法读取送货单，请手动填写资料。",
+      "ocrChooseProject": "请先选择项目，再拍摄送货单。",
+      "ocrOffline": "当前离线，请先手动填写；照片上传到服务器后会再次执行 OCR。",
+      "sitePhotos": "材料 / 卸货照片",
+      "receiverSignature": "接收人签名",
+      "supplierSignature": "供应商签名",
+      "tapCamera": "按这里打开相机",
+      "photoReady": "已准备 {count} 张照片",
+      "notes": "备注（选填）",
+      "submit": "保存材料记录"
+    },
+    "materialEvidence": {
+      "title": "必须拍摄的材料证据",
+      "arrival": "1. 车辆到场",
+      "unloading": "2. 材料卸货",
+      "emptyVehicle": "3. 卸货后的空车",
+      "deliveryOrder": "4. 送货单 DO"
+    },
+    "attendance": {
+      "title": "工地考勤",
+      "todayCount": "今天已有 {count} 条打卡记录",
+      "selectProject": "选择今天的项目",
+      "clockIn": "上班打卡",
+      "clockOut": "下班打卡",
+      "takeSelfie": "拍摄自拍照",
+      "selfieReady": "自拍照已准备",
+      "getLocation": "获取当前 GPS",
+      "locationReady": "GPS 已准备",
+      "note": "备注（选填）",
+      "submit": "提交打卡",
+      "noRecords": "今天还没有打卡记录",
+      "openPhoto": "查看打卡照片",
+      "viewMap": "查看打卡位置",
+      "distance": "距离围栏：{distance} 米",
+      "geofence": {
+        "INSIDE": "围栏范围内",
+        "OUTSIDE": "围栏范围外",
+        "NOT_EVALUATED": "尚未设置围栏"
+      }
+    },
+    "error": {
+      "load": "页面读取失败，请检查网络。",
+      "action": "操作未能完成，请重试。",
+      "location": "必须获取当前 GPS，请开启精确定位后重试。"
+    }
   },
   "table": {
     "showing": "显示第 {from} 至 {to} 条，共 {total} 条",
@@ -193,6 +1230,7 @@
     "positiveInteger": "请输入不小于 1 的整数"
   },
   "auth": {
+    "portalNavigation": "MSE 登录入口",
     "login": {
       "title": "登录",
       "subtitle": "进入你的 MSE Trace 工作台",
@@ -236,7 +1274,7 @@
     "signedOut": "已退出登录"
   },
   "nav": {
-    "project_categories": "项目栏目",
+    "project_categories": "现场资料栏目",
     "field_tasks": "现场任务",
     "equipment": "设备管理",
     "material_outgoing": "材料出场",
@@ -284,8 +1322,8 @@
     "transaction_reports": "交易报表",
     "recyclers": "合作回收商",
     "material_receipts": "材料收货",
-    "waste_dispatches": "废料出场",
-    "waste_outgoing": "废料出场",
+    "waste_dispatches": "废料订单",
+    "waste_outgoing": "环保材料出场申请",
     "recycling_records": "回收称重记录",
     "attendance": "考勤",
     "payment_proofs": "付款凭证",
@@ -298,11 +1336,14 @@
     "user_logs": "用户日志",
     "activity_logs": "活动日志",
     "partnerships": "建筑商合作",
+    "customer_management": "客户与私人入库",
     "yards": "回收场",
     "weighbridges": "地磅",
     "waste_orders": "废料订单",
     "driver_tasks": "司机任务",
     "weighing_records": "称重记录",
+    "inventory_management": "库存管理",
+    "outbound_management": "买家与出货",
     "payment_status": "付款状态",
     "documents": "文档档案",
     "approvals": "审批流程",
@@ -348,7 +1389,7 @@
       "dashboardTrends": "数据统计图表",
       "dashboardSystemStatus": "实时系统状态",
       "projectRecords": "项目资料",
-      "categoryRecords": "项目栏目",
+      "categoryRecords": "现场资料栏目",
       "fieldTasks": "现场任务",
       "supplierRecords": "供应商资料",
       "materialReceipts": "材料进场",
@@ -358,13 +1399,14 @@
       "schedulePlanning": "施工计划",
       "recyclerPartners": "回收商合作",
       "wasteDispatches": "废料订单",
-      "wasteOutgoing": "废料出场",
+      "wasteOutgoing": "环保材料出场申请",
       "siteDisposals": "工地清运",
       "recyclingRecords": "回收称重记录",
       "paymentProofs": "付款凭证",
       "attendanceRecords": "考勤记录",
       "siteGps": "工地人员 GPS",
       "safetyIncidents": "安全事件",
+      "incidentReports": "事故上报",
       "hazardRectifications": "隐患整改",
       "consultantDashboard": "顾问首页",
       "consultantApplications": "顾问申请",
@@ -395,7 +1437,7 @@
       "integrationSettings": "系统集成",
       "notifications": "通知中心",
       "projectRecords": "项目资料",
-      "projectCategories": "项目栏目",
+      "projectCategories": "现场资料栏目",
       "fieldTasks": "现场任务",
       "supplierRecords": "供应商资料",
       "materialReceipts": "材料进场",
@@ -410,6 +1452,7 @@
       "attendanceRecords": "考勤记录",
       "siteGps": "工地人员 GPS",
       "safetyIncidents": "安全事件",
+      "incidentReports": "事故上报",
       "consultantApplications": "顾问申请",
       "consultantWorkflows": "审批流程",
       "approvalCredentials": "审批凭证",
@@ -621,13 +1664,77 @@
     "title": "建筑商报表中心",
     "subtitle": "查看当前项目资料，并进入详细报表或证据页面。",
     "open": "打开",
-    "tile": { "projects": "项目", "materialQuantity": "材料数量", "materialCost": "材料成本", "dispatches": "废料出场", "attendance": "考勤报表", "tasks": "现场任务", "equipment": "设备报表", "progress": "进度报表", "photos": "照片报表", "safety": "安全报表", "disposals": "工地清运", "recycling": "清运与回收", "consultant": "顾问申请", "schedule": "计划对比", "target": "目标达成", "history": "导出历史" },
-    "description": { "projectRecords": "公司有权限查看的项目。", "materialQuantity": "按单位和材料查看进场数量。", "materialCost": "已记录价格的材料进场价值。", "dispatches": "废料订单及当前流程状态。", "attendance": "包含 GPS 与照片的上下班记录。", "tasks": "现场任务与提交的照片证据。", "equipment": "设备进退场、操作员、DO 与照片数量。", "progress": "按施工阶段查看进度、确认与照片证据。", "photos": "按项目、来源、上传人、日期和 GPS 查询全部永久照片证据。", "safety": "安全问题、负责人及整改证据。", "disposals": "清运申请与外部执行证据。", "recycling": "统一查看工地清运与回收订单流程。", "consultant": "顾问申请、证据、审核人及最终决定。", "schedule": "计划与实际进度及延误天数。", "target": "项目目标、达成情况与业务指标。", "history": "永久记录每次报表的生成人员和时间。" }
+    "tile": {
+      "projects": "项目",
+      "materialQuantity": "材料数量",
+      "materialCost": "材料成本",
+      "dispatches": "废料出场",
+      "attendance": "考勤报表",
+      "tasks": "现场任务",
+      "equipment": "设备报表",
+      "progress": "进度报表",
+      "photos": "照片报表",
+      "safety": "安全报表",
+      "disposals": "工地清运",
+      "recycling": "清运与回收",
+      "consultant": "顾问申请",
+      "schedule": "计划对比",
+      "target": "目标达成",
+      "history": "导出历史"
+    },
+    "description": {
+      "projectRecords": "公司有权限查看的项目。",
+      "materialQuantity": "按单位和材料查看进场数量。",
+      "materialCost": "已记录价格的材料进场价值。",
+      "dispatches": "废料订单及当前流程状态。",
+      "attendance": "包含 GPS 与照片的上下班记录。",
+      "tasks": "现场任务与提交的照片证据。",
+      "equipment": "设备进退场、操作员、DO 与照片数量。",
+      "progress": "按施工阶段查看进度、确认与照片证据。",
+      "photos": "按项目、来源、上传人、日期和 GPS 查询全部永久照片证据。",
+      "safety": "安全问题、负责人及整改证据。",
+      "disposals": "清运申请与外部执行证据。",
+      "recycling": "统一查看工地清运与回收订单流程。",
+      "consultant": "顾问申请、证据、审核人及最终决定。",
+      "schedule": "计划与实际进度及延误天数。",
+      "target": "项目目标、达成情况与业务指标。",
+      "history": "永久记录每次报表的生成人员和时间。"
+    }
   },
   "contractorReports": {
-    "type": { "progress": "进度与照片报表", "photos": "现场照片报表", "safety": "安全与整改报表", "consultant": "顾问申请报表", "attendance": "考勤与人员报表", "equipment": "设备进退场报表", "recycling": "清运与回收报表", "schedule": "计划与实际对比报表", "target": "目标与达成报表" },
-    "description": { "progress": "查看项目进度、确认状态与照片证据。", "photos": "按项目、来源、上传人、日期及 GPS 查询永久照片证据账本。", "safety": "追踪安全问题从分配、整改到验收的过程。", "consultant": "查看顾问申请、证据与最终结果。", "attendance": "查看现场考勤、GPS 精度与围栏结果。", "equipment": "查看设备进退场、文件、OCR 与照片。", "recycling": "查看清运工作与回收订单直至完成。", "schedule": "对比当前确认计划与现场实际进度。", "target": "对比计划和实际进度及项目活动指标。" },
-    "filter": { "project": "项目", "allProjects": "全部有权限的项目", "dateFrom": "开始日期", "dateTo": "结束日期", "category": "照片来源", "allCategories": "全部照片来源", "uploader": "上传人员", "allUploaders": "全部上传人员", "keyword": "文件或来源关键字" },
+    "type": {
+      "progress": "进度与照片报表",
+      "photos": "现场照片报表",
+      "safety": "安全与整改报表",
+      "consultant": "顾问申请报表",
+      "attendance": "考勤与人员报表",
+      "equipment": "设备进退场报表",
+      "recycling": "清运与回收报表",
+      "schedule": "计划与实际对比报表",
+      "target": "目标与达成报表"
+    },
+    "description": {
+      "progress": "查看项目进度、确认状态与照片证据。",
+      "photos": "按项目、来源、上传人、日期及 GPS 查询永久照片证据账本。",
+      "safety": "追踪安全问题从分配、整改到验收的过程。",
+      "consultant": "查看顾问申请、证据与最终结果。",
+      "attendance": "查看现场考勤、GPS 精度与围栏结果。",
+      "equipment": "查看设备进退场、文件、OCR 与照片。",
+      "recycling": "查看清运工作与回收订单直至完成。",
+      "schedule": "对比当前确认计划与现场实际进度。",
+      "target": "对比计划和实际进度及项目活动指标。"
+    },
+    "filter": {
+      "project": "项目",
+      "allProjects": "全部有权限的项目",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
+      "category": "照片来源",
+      "allCategories": "全部照片来源",
+      "uploader": "上传人员",
+      "allUploaders": "全部上传人员",
+      "keyword": "文件或来源关键字"
+    },
     "action": { "excel": "Excel", "pdf": "PDF" },
     "period": "期间：{from} 至 {to}",
     "preview": "报表预览",
@@ -635,10 +1742,196 @@
     "previewLimited": "预览最多显示 500 条",
     "loadError": "无法加载报表。",
     "empty": "此项目和日期范围没有符合的记录。",
-    "column": {
-      "project": "项目", "category": "照片来源", "uploaded_at": "上传时间", "uploaded_by": "上传人员", "file_name": "文件", "device_id": "设备", "source": "来源记录", "phase": "施工阶段", "captured_at": "拍摄时间", "percent_complete": "进度 (%)", "status": "状态", "photo_count": "照片", "confirmed_by": "确认人", "confirmed_at": "确认时间", "review_note": "审核备注", "incident_no": "事件编号", "title": "标题", "severity": "严重程度", "occurred_at": "发生时间", "responsible_person": "负责人", "rectification_due_at": "整改期限", "evidence_count": "证据", "verified_at": "验收时间", "application_no": "申请编号", "revision": "修订版", "application_type": "申请类型", "discipline": "专业", "consultant": "顾问", "application_date": "申请日期", "submitted_at": "提交时间", "final_decision": "最终决定", "worker": "人员", "event": "事件", "geofence_result": "围栏结果", "distance_m": "距离 (米)", "accuracy_m": "GPS 精度 (米)", "has_photo": "照片", "latitude": "纬度", "longitude": "经度", "equipment": "设备", "direction": "方向", "operator": "执行人", "vehicle_plate": "车牌", "delivery_note_no": "送货单", "ocr_status": "OCR 状态", "record_type": "记录类型", "reference_no": "参考编号", "description": "说明", "counterparty": "外部公司", "estimated_weight_kg": "预计重量 (kg)", "actual_weight_kg": "实际重量 (kg)", "trip_count": "车次", "completed_at": "完成时间", "plan": "计划", "wbs_code": "WBS", "task": "任务", "planned_start": "计划开始", "planned_end": "计划结束", "planned_progress": "计划进度 (%)", "actual_progress": "实际进度 (%)", "variance": "差异 (%)", "delay_days": "延误天数", "progress_records": "进度记录", "attendance_events": "考勤记录", "open_safety_items": "未完成安全问题", "completed_disposals": "已完成清运", "completed_recycle_orders": "已完成回收订单"
+    "targetReport": {
+      "title": "达成报表与导出",
+      "filterHelp": "所选日期会包含目标期间与该日期范围有重叠的目标。"
     },
-    "history": { "title": "报表导出历史", "subtitle": "当前公司及有权限项目的永久报表生成记录。", "empty": "尚未导出报表。", "file": "文件", "report": "报表", "project": "项目", "period": "期间", "rows": "行数", "generatedBy": "生成人", "generatedAt": "生成时间" }
+    "column": {
+      "company": "公司",
+      "target_name": "目标",
+      "target_type": "目标类型",
+      "period": "周期",
+      "period_start": "目标开始",
+      "period_end": "目标结束",
+      "target_value": "目标值",
+      "current_value": "已完成",
+      "remaining_value": "剩余",
+      "completion_percent": "达成率 (%)",
+      "project": "项目",
+      "category": "栏目",
+      "uploaded_at": "上传时间",
+      "uploaded_by": "上传人员",
+      "file_name": "文件",
+      "device_id": "设备",
+      "source": "来源记录",
+      "phase": "施工阶段",
+      "captured_at": "拍摄时间",
+      "percent_complete": "进度 (%)",
+      "status": "状态",
+      "photo_count": "照片",
+      "confirmed_by": "确认人",
+      "confirmed_at": "确认时间",
+      "review_note": "审核备注",
+      "incident_no": "事件编号",
+      "title": "标题",
+      "severity": "严重程度",
+      "occurred_at": "发生时间",
+      "responsible_person": "负责人",
+      "rectification_due_at": "整改期限",
+      "evidence_count": "证据",
+      "verified_at": "验收时间",
+      "application_no": "申请编号",
+      "revision": "修订版",
+      "application_type": "申请类型",
+      "discipline": "专业",
+      "consultant": "顾问",
+      "application_date": "申请日期",
+      "submitted_at": "提交时间",
+      "final_decision": "最终决定",
+      "worker": "人员",
+      "event": "事件",
+      "geofence_result": "围栏结果",
+      "distance_m": "距离 (米)",
+      "accuracy_m": "GPS 精度 (米)",
+      "has_photo": "照片",
+      "latitude": "纬度",
+      "longitude": "经度",
+      "equipment": "设备",
+      "direction": "方向",
+      "operator": "执行人",
+      "vehicle_plate": "车牌",
+      "delivery_note_no": "送货单",
+      "ocr_status": "OCR 状态",
+      "record_type": "记录类型",
+      "reference_no": "参考编号",
+      "description": "说明",
+      "counterparty": "外部公司",
+      "estimated_weight_kg": "预计重量 (kg)",
+      "actual_weight_kg": "实际重量 (kg)",
+      "trip_count": "车次",
+      "completed_at": "完成时间",
+      "plan": "计划",
+      "wbs_code": "WBS",
+      "task": "任务",
+      "planned_start": "计划开始",
+      "planned_end": "计划结束",
+      "planned_progress": "计划进度 (%)",
+      "actual_progress": "实际进度 (%)",
+      "variance": "差异 (%)",
+      "delay_days": "延误天数",
+      "progress_records": "进度记录",
+      "attendance_events": "考勤记录",
+      "open_safety_items": "未完成安全问题",
+      "completed_disposals": "已完成清运",
+      "completed_recycle_orders": "已完成回收订单"
+    },
+    "history": {
+      "title": "报表导出历史",
+      "subtitle": "当前公司及有权限项目的永久报表生成记录。",
+      "empty": "尚未导出报表。",
+      "file": "文件",
+      "report": "报表",
+      "project": "项目",
+      "period": "期间",
+      "rows": "行数",
+      "generatedBy": "生成人",
+      "generatedAt": "生成时间"
+    }
+  },
+  "businessTargets": {
+    "management": {
+      "title": "业务目标",
+      "subtitle": "设定公司、项目或栏目的可量化目标，并在达到各提醒比例时通知负责人。",
+      "new": "新增目标",
+      "newTitle": "建立业务目标",
+      "editTitle": "编辑业务目标",
+      "formHelp": "选择范围、真实业务指标、目标期间和通知人员；进度会从已验收或已结算的业务记录自动计算。",
+      "empty": "尚未建立业务目标。",
+      "companyWide": "全公司",
+      "refresh": "刷新进度",
+      "edit": "编辑",
+      "remove": "移除",
+      "save": "保存目标",
+      "cancel": "取消",
+      "removeTitle": "移除 {name}？",
+      "removeDescription": "此目标将不再出现在目标报表中，既有通知和审计记录仍会保留。",
+      "removeConfirm": "移除目标"
+    },
+    "field": {
+      "name": "目标名称",
+      "description": "说明",
+      "project": "项目范围",
+      "allProjects": "全部项目",
+      "companyWide": "全公司目标",
+      "category": "栏目范围",
+      "allCategories": "全部栏目",
+      "categoryHint": "请先选择项目，才能限定目标栏目。",
+      "categoryMetricHint": "栏目范围只适用于已验收现场任务指标。",
+      "metric": "业务指标",
+      "materialKeyword": "材料名称包含",
+      "materialKeywordHint": "选填，例如输入“钢筋”，只累计名称相符的材料进场记录。",
+      "materialUnit": "材料单位",
+      "chooseUnit": "选择一个单位",
+      "wasteType": "回收废料类型",
+      "allWasteTypes": "全部废料类型",
+      "targetValue": "目标值",
+      "targetValueHint": {
+        "FIELD_TASK_COUNT": "已验收现场任务的次数。",
+        "MATERIAL_RECEIPT_COUNT": "材料进场批次数。",
+        "MATERIAL_RECEIPT_QUANTITY": "所选材料单位的进场总数量。",
+        "SETTLED_RECYCLING_WEIGHT": "已结算回收重量，单位为公斤。"
+      },
+      "period": "目标周期",
+      "periodStart": "目标开始",
+      "periodEnd": "目标结束",
+      "notifyUsers": "通知人员",
+      "notifyUsersHint": "达到已启用的提醒比例时，系统会通知所选人员。",
+      "noUsers": "没有可选择的用户。",
+      "milestones": "通知比例",
+      "milestonesHint": "公司设置中的目标提醒比例会取代 80% 这一档。"
+    },
+    "metric": {
+      "FIELD_TASK_COUNT": "已验收现场任务",
+      "MATERIAL_RECEIPT_COUNT": "材料进场批次",
+      "MATERIAL_RECEIPT_QUANTITY": "材料进场数量",
+      "SETTLED_RECYCLING_WEIGHT": "已结算回收重量"
+    },
+    "materialUnit": {
+      "TONNE": "吨",
+      "KG": "公斤",
+      "M3": "立方米",
+      "PIECE": "件",
+      "LOAD": "车／批",
+      "BAG": "袋"
+    },
+    "wasteType": {
+      "MIXED": "混合建筑废料",
+      "CONCRETE": "混凝土及砖石",
+      "METAL": "废金属",
+      "TIMBER": "木材",
+      "PLASTIC": "塑料",
+      "PAPER": "纸张及纸板",
+      "SOIL": "泥土及骨料",
+      "HAZARDOUS": "危险废料",
+      "OTHER": "其他"
+    },
+    "period": {
+      "DAILY": "每日",
+      "WEEKLY": "每周",
+      "MONTHLY": "每月",
+      "QUARTERLY": "每季度",
+      "YEARLY": "每年",
+      "ONE_TIME": "一次性"
+    },
+    "status": { "active": "使用中", "inactive": "已停用" },
+    "loadError": "无法加载业务目标。",
+    "saveError": "无法保存目标，请检查日期、范围和通知人员。",
+    "toast": {
+      "created": "业务目标已建立。",
+      "updated": "业务目标已更新。",
+      "removed": "业务目标已移除。",
+      "refreshed": "目标进度已刷新。"
+    }
   },
   "integrations": {
     "title": "系统集成",
@@ -964,6 +2257,7 @@
     }
   },
   "offline": {
+    "pageDescription": "此页面尚未缓存。请先恢复网络并打开一次，之后即可离线使用。",
     "queued": "已离线保存，等待自动上传",
     "synced": "已上传 {count} 条离线记录",
     "status": {
@@ -1451,11 +2745,23 @@
       "new": "马上上报",
       "empty": "目前没有上报记录。",
       "loadError": "无法读取上报记录，请检查网络后重试。",
-      "notifyPeople": "需要通知的工人",
-      "supervisorAutomatic": "项目主管会自动收到通知。请选择还需要处理或知情的其他工人。",
-      "noWorkers": "这个项目没有其他已分配工人。",
+      "notifyPeople": "负责人及工地人员",
+      "supervisorAutomatic": "请选择一名或多名负责人或工地人员。有安全审批权限的项目主管即使未勾选，也会自动收到通知。",
+      "noWorkers": "这个项目没有其他可通知的负责人或工地人员。",
       "sentTo": "另外通知：{names}",
-      "preset": { "accident": "发生事故", "hazard": "发现危险", "damage": "设备损坏", "other": "其他事项" }
+      "preset": {
+        "accident": "发生事故",
+        "hazard": "发现危险",
+        "damage": "设备损坏",
+        "other": "其他事项"
+      }
+    },
+    "fieldEvidence": {
+      "progress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
+      "overview": "1. 事故区域全景",
+      "detail": "2. 隐患或损坏细节",
+      "risk": "3. 涉及的设备、人员或通道",
+      "surroundings": "4. 工地周边状况"
     },
     "update": {
       "title": "更新事故状态",
@@ -1511,6 +2817,13 @@
       "workDone": "已完成工作",
       "reviewNote": "验收说明",
       "verificationPhoto": "验收照片"
+    },
+    "evidence": {
+      "progress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
+      "before": "1. 整改前区域或指定问题",
+      "completed": "2. 整改完成全景",
+      "detail": "3. 修复细节",
+      "surroundings": "4. 周边安全状况"
     },
     "error": {
       "location": "无法获取 GPS，请允许位置权限后重试。"
@@ -1890,8 +3203,8 @@
       "capturedFrom": "拍摄起始日",
       "capturedTo": "拍摄截止日",
       "project": "项目",
-      "category": "项目栏目",
-      "chooseCategory": "选择项目栏目",
+      "category": "现场资料栏目",
+      "chooseCategory": "选择现场资料栏目",
       "withGps": "有 GPS",
       "withoutGps": "无 GPS"
     },
@@ -2003,6 +3316,8 @@
     "startSharing": "开始共享位置",
     "stopSharing": "停止共享位置",
     "sharing": "正在共享位置",
+    "autoSharing": "GPS 已自动开启",
+    "autoSharingBody": "只要此网页或桌面 App 保持开启，系统就会自动上报工地定位。",
     "refreshNote": "每 15 秒刷新",
     "map": "工地实时地图",
     "historyMap": "最后位置与历史轨迹",
@@ -2056,7 +3371,17 @@
       "EVENT": "事件",
       "REMINDER": "提醒",
       "EXCEPTION": "异常警报",
-      "PROJECT_NOTICE": "项目通知"
+      "PROJECT_NOTICE": "项目通知",
+      "SUBSCRIPTION": "订阅",
+      "BILLING": "账单与付款",
+      "COMPANY": "公司账号",
+      "PARTNERSHIP": "合作伙伴",
+      "DISPATCH": "回收订单",
+      "DRIVER_TASK": "司机任务",
+      "WEIGHING": "称重",
+      "SAFETY": "安全",
+      "ACCESS": "工地门禁",
+      "ASSET": "设备"
     },
     "status": {
       "read": "已读",
@@ -2064,6 +3389,18 @@
     },
     "markRead": "标记为已读",
     "markAllRead": "全部标记为已读",
+    "remove": "从收件箱移除",
+    "filter": {
+      "today": "今日通知",
+      "readStatus": "阅读状态",
+      "allStatus": "全部状态",
+      "category": "通知类别",
+      "allCategories": "全部类别",
+      "billing": "收费通知",
+      "weighing": "地磅通知",
+      "order": "订单通知",
+      "system": "系统通知"
+    },
     "push": {
       "enable": "开启浏览器通知",
       "enabled": "浏览器通知已开启",
@@ -2536,24 +3873,29 @@
     "existingStaff": "选择现场人员",
     "selectStaff": "请选择现场人员",
     "noExistingStaff": "目前没有现有现场人员，请使用“新增现场人员”。",
-    "existingHelp": "重新生成后，旧手机会解除绑定，旧登录会失效。请重新选择此人可以进入的全部项目。",
+    "existingHelp": "手机号码不可修改。重新生成链接会立即解绑原有设备并注销所有旧登录；第一个打开新链接并正确输入 PIN 的设备将成为唯一绑定设备。你也可以同时调整可进入的项目。",
     "resultTitle": "现场人员链接已生成",
     "resultDescription": "请把激活链接和 6 位 PIN 交给现场人员。链接只能在有效期内用于绑定手机。",
     "fullName": "姓名",
     "phone": "手机号码",
+    "phoneHint": "本地号码示例：(0123456789)。+60 已预设，请输入 123456789。",
     "email": "电子邮箱",
+    "emailHint": "选填。不填写时，系统会自动生成内部登录邮箱。",
     "optional": "选填",
     "projects": "可进入的项目",
     "noProjects": "目前没有可选择的项目。",
     "activationLink": "激活链接",
     "pin": "6 位 PIN",
-    "expiresAt": "链接到期时间",
+    "linkExpiresAt": "设备绑定链接有效至",
+    "pinExpiresAt": "连续未使用期限截至",
+    "expiryHelp": "激活链接只在显示的期限内用于首次绑定。绑定并安装后会自动登录，无须重复输入 PIN；每次成功使用都会重新计算闲置期限，默认连续 90 天未使用才需要重新登录。",
     "qrTitle": "现场人员激活二维码",
     "copyLink": "复制链接",
     "copyPin": "复制 PIN",
     "copyAll": "复制链接和 PIN",
     "copied": "已复制",
     "create": "生成链接",
+    "reissue": "重新生成登录链接",
     "cancel": "取消",
     "close": "关闭",
     "createError": "无法生成链接，请检查手机号、项目和账号权限后重试。"
@@ -2631,6 +3973,7 @@
       "receipt": "材料收货",
       "dispatch": "废料出场",
       "task": "司机任务",
+      "yard": "回收场",
       "scale": "地磅",
       "weighing": "称重",
       "deduction": "扣杂",
@@ -2693,6 +4036,10 @@
         "assign": "分配司机与车辆",
         "submit": "提交任务照片与报备",
         "task_view_all": "查看回收场全部任务"
+      },
+      "yard": {
+        "view": "查看回收场",
+        "manage": "新增及管理回收场"
       },
       "scale": {
         "view": "查看地磅",
@@ -3048,12 +4395,36 @@
     "readyTitle": "手机已准备好",
     "readyBody": "这台手机已安全绑定到你的现场人员账号。",
     "openWorkspace": "打开拍照工作台",
-    "install": "加入手机桌面",
+    "install": "安装现场人员 App",
+    "driverInstallTitle": "安装司机应用",
+    "driverInstallBody": "把司机工作页面添加到桌面，下次可以直接打开。",
+    "driverInstallIos": "iPhone 请从浏览器菜单把此页面添加到主屏幕。",
+    "driverInstallIosGuide": "按分享，然后选择添加到主屏幕。",
+    "driverInstallBrowserGuide": "打开浏览器菜单，选择安装应用或添加到主屏幕。",
+    "driverInstallDismiss": "关闭安装提示",
+    "installHelp": "查看安装教程",
+    "installPreparing": "正在准备安装……",
+    "installUnavailable": "系统安装提示尚未准备好。请确认没有使用无痕模式，再打开浏览器菜单选择“安装应用”或“添加到主屏幕”；也可以稍后再按一次安装按钮。",
     "iosTitle": "加入 iPhone 桌面",
-    "iosBody": "在 Safari 点分享，然后选择“加入主画面”。",
+    "iosBody": "请在这个页面从 Safari 点分享，再选择“加入主画面”。之后从桌面图标打开会自动登录。",
+    "iosSafariTitle": "使用 iPhone Safari 安装",
+    "iosSafariBody": "按“分享”，选择“加入主画面”，保持“以网页 App 打开”开启，再按“添加”。以后从主画面的新图标打开。",
+    "iosChromeTitle": "使用 iPhone Chrome 安装",
+    "iosChromeBody": "按地址栏旁边的“分享”图标，选择“添加到主屏幕”，再按“添加”。如果没有这个选项，请把同一个链接改用 Safari 打开。",
+    "iosOtherTitle": "在 iPhone 或 iPad 安装",
+    "iosOtherBody": "打开浏览器的“分享”菜单并选择“添加到主屏幕”。如果没有这个选项，请用 Safari 打开同一个链接，再按“分享”和“加入主画面”。",
+    "androidTitle": "安装到 Android 桌面",
+    "androidBody": "按上方“安装现场人员 App”会直接打开 Android 系统安装提示。如果没有弹出，请打开 Chrome、Edge 或当前浏览器菜单，选择“安装应用”或“添加到主屏幕”。",
+    "desktopTitle": "使用 Chrome 或 Edge 安装",
+    "desktopBody": "按上方“安装现场人员 App”。也可以按地址栏中的安装图标，或从浏览器菜单选择“安装应用”。",
+    "browserTitle": "把现场 App 加到桌面",
+    "browserBody": "请打开浏览器菜单，选择“安装应用”或“添加到主屏幕”。以后从新图标打开，不需要再次登录。",
+    "desktopSigningIn": "正在恢复现场人员登录……",
+    "desktopExpiredTitle": "应用自动登录不可用",
+    "desktopExpired": "此安装目前无法自动恢复登录。如果管理员已重新生成链接，请从最新链接输入 PIN，再重新加入主画面。",
     "activateTitle": "启用现场人员账号",
     "loginTitle": "现场人员登录",
-    "loginBody": "请输入项目管理员提供的手机号码和 6 位 PIN。",
+    "loginBody": "请输入这台已绑定设备的 6 位 PIN。新设备必须先打开管理员生成的邀请链接。",
     "phone": "手机号码",
     "pin": "6 位 PIN",
     "bind": "绑定这台手机",
@@ -3128,12 +4499,15 @@
       "consultant_organization_not_found": "找不到该顾问单位。",
       "consultant_grant_not_found": "找不到该顾问项目授权。",
       "field_invitation_invalid": "此现场人员链接无效或已过期。",
-      "field_pin_invalid": "手机号码或 PIN 不正确。",
-      "field_device_invalid": "这台手机未绑定该现场人员账号，请联系项目管理员重置。",
-      "field_device_already_bound": "该现场人员账号已绑定另一台手机，请联系项目管理员重置。",
+      "field_pin_invalid": "PIN 不正确。",
+      "field_pin_expired": "此现场账号已连续超过设定期限未使用。请联系项目管理员重新生成登录链接。",
+      "field_device_invalid": "这台设备尚未绑定现场人员账号，请先打开管理员最新生成的邀请链接。",
+      "field_device_already_bound": "此现场人员账号已绑定一台设备。如需换机，请先让管理员重置设备。",
+      "field_pwa_bootstrap_invalid": "这个一次性桌面登录已过期或已经使用，请重新登录并再次加入主画面。",
       "progress_update_not_found": "找不到这条工程进度。",
       "project_already_bound": "此项目已绑定到该合作关系。",
       "safety_incident_not_found": "找不到这条安全事故记录。",
+      "incident_thread_not_found": "找不到这份事故报告。",
       "scheduled_job_not_found": "找不到这个计划任务。",
       "invalid_credentials": "邮箱或密码不正确。",
       "user_suspended": "此账号已停用，请联系管理员。",
@@ -3165,6 +4539,7 @@
       "integration_device_already_exists": "该设备编号已存在。",
       "integration_device_gateway_linked": "请先撤销已绑定的称重网关，再移除该设备。",
       "gateway_revoked": "该称重网关已经撤销。",
+      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
       "project_not_found": "找不到这个项目。",
       "supplier_not_found": "找不到这家供应商。",
       "qr_code_not_found": "无法识别这个二维码。",
@@ -3255,6 +4630,10 @@
       "min_length": "内容过短",
       "invalid_choice": "请从可选项中选择",
       "does_not_exist": "找不到该记录",
+      "invalid_malaysian_mobile": "请输入有效的马来西亚手机号码",
+      "phone_in_use": "该手机号码已被其他现场人员账号使用",
+      "email_in_use": "该电子邮箱已注册",
+      "field_phone_locked": "已绑定的手机号码不能修改",
       "incorrect_type": "此值无效"
     }
   },
@@ -3398,7 +4777,19 @@
       "readingCount": "读数条数",
       "anomalyCount": "异常数",
       "stableAt": "稳定时刻",
-      "duration": "时长"
+      "duration": "时长",
+      "ticketStatus": "地磅单状态",
+      "grossWeight": "毛重",
+      "tareWeight": "皮重",
+      "netWeight": "净重",
+      "confirmedAt": "确认时间",
+      "confirmedBy": "确认人员",
+      "confirmationNote": "确认备注",
+      "voidedAt": "作废时间",
+      "voidedBy": "作废人员",
+      "voidReason": "作废原因",
+      "reweighOf": "重磅原单",
+      "attachmentCount": "证据文件"
     },
     "direction": {
       "GROSS": "毛重",
@@ -3415,6 +4806,47 @@
       "PENDING": "待判定",
       "VALID": "有效",
       "INVALID": "无效"
+    },
+    "ticketStatus": {
+      "WEIGHING": "称重中",
+      "PENDING_CONFIRMATION": "待操作员确认",
+      "CONFIRMED": "正式地磅单已确认",
+      "VOIDED": "地磅单已作废"
+    },
+    "action": {
+      "confirm": "确认地磅单",
+      "void": "作废地磅单",
+      "reweigh": "申请重新过磅",
+      "uploadEvidence": "添加证据"
+    },
+    "confirmDialog": {
+      "title": "确认这张地磅单吗？",
+      "description": "确认后地磅单会锁定，订单、库存和结算可能随之更新。",
+      "noteLabel": "备注（可选）",
+      "reweighTitle": "申请重新过磅吗？",
+      "reweighDescription": "当前地磅单会保留在历史中并标记为作废，系统会为此订单排队新的毛重过磅。",
+      "voidTitle": "作废这张地磅单吗？",
+      "voidDescription": "原始读数会永久保留在审计记录中，不能修改。",
+      "reasonLabel": "原因（必填）"
+    },
+    "attachment": {
+      "title": "证据文件",
+      "kind": "证据类型",
+      "file": "文件",
+      "choose": "选择文件",
+      "LOADING": "装货照片",
+      "WEIGHBRIDGE": "地磅照片",
+      "CCTV": "CCTV 图像",
+      "ANPR": "ANPR 图像",
+      "OTHER": "其他证据",
+      "upload": "上传证据",
+      "empty": "暂时没有证据文件。"
+    },
+    "toast": {
+      "confirmed": "地磅单已确认",
+      "voided": "地磅单已作废",
+      "reweighQueued": "已排队重新过磅",
+      "attachmentUploaded": "证据已上传"
     },
     "requiresReview": "需人工介入",
     "requiresReviewHint": "重称次数已超过上限，这笔交易停下来等人处理。",
@@ -3496,6 +4928,8 @@
     "param": {
       "stable_window_ms": "稳定窗口（毫秒）",
       "stable_tolerance_kg": "稳定误差值（公斤）",
+      "weight_freeze_window_ms": "重量冻结判断窗口（毫秒）",
+      "weight_freeze_tolerance_kg": "重量冻结容差（公斤）",
       "drop_threshold_kg": "突然下降阈值（公斤）",
       "drop_window_ms": "突然下降窗口（毫秒）",
       "rise_threshold_kg": "突然上升阈值（公斤）",
@@ -3628,7 +5062,30 @@
         "OTHER": "其他职责"
       }
     },
-    "statistics": { "title": "项目业务统计", "description": "按所选时间范围统计此项目的真实业务记录。", "loading": "正在载入项目统计...", "loadError": "无法载入项目统计。", "period": { "day": "今天", "month": "本月", "year": "今年", "all": "全部" }, "metric": { "material_receipts": "材料进场", "equipment_movements": "设备进出", "progress_records": "施工进度", "safety_incidents": "安全事件", "attendance_events": "考勤记录", "waste_dispatches": "废料订单", "consultant_applications": "顾问申请", "field_tasks": "现场任务", "photos": "现场照片", "documents": "项目文件" } },
+    "statistics": {
+      "title": "项目业务统计",
+      "description": "按所选时间范围统计此项目的真实业务记录。",
+      "loading": "正在载入项目统计...",
+      "loadError": "无法载入项目统计。",
+      "period": {
+        "day": "今天",
+        "month": "本月",
+        "year": "今年",
+        "all": "全部"
+      },
+      "metric": {
+        "material_receipts": "材料进场",
+        "equipment_movements": "设备进出",
+        "progress_records": "施工进度",
+        "safety_incidents": "安全事件",
+        "attendance_events": "考勤记录",
+        "waste_dispatches": "废料订单",
+        "consultant_applications": "顾问申请",
+        "field_tasks": "现场任务",
+        "photos": "现场照片",
+        "documents": "项目文件"
+      }
+    },
     "remove": {
       "action": "停用项目",
       "title": "停用 {name}？",
@@ -3745,14 +5202,27 @@
     "count": "{count, plural, =0 {暂无送货单} other {# 张送货单}}",
     "new": "签发送货单",
     "createTitle": "签发送货单",
+    "formHelp": "请先填写完整送货资料。二维码打开后无需重新登录。",
+    "chooseSupplier": "选择供应商",
     "viewQr": "查看二维码",
+    "viewResult": "查看签收结果",
+    "close": "关闭送货单",
+    "cancel": "取消送货单",
+    "void": "作废送货单",
     "downloadPng": "下载 PNG",
     "field": {
       "project": "项目",
       "supplier": "供应商",
       "token": "编码",
       "isActive": "有效",
-      "createdAt": "签发时间"
+      "createdAt": "签发时间",
+      "vehicle": "车辆号码",
+      "driver": "司机姓名",
+      "material": "材料",
+      "quantity": "预计数量",
+      "unit": "单位",
+      "expectedAt": "预计送货时间",
+      "notes": "备注"
     },
     "status": {
       "active": "有效",
@@ -3765,7 +5235,53 @@
     },
     "toast": {
       "created": "送货单已签发",
+      "closed": "送货单已关闭",
       "revoked": "送货单已作废"
+    }
+  },
+  "deliveryNotePublic": {
+    "title": "送货收货",
+    "invalid": "此送货链接已无法使用",
+    "invalidBody": "二维码可能已取消、关闭或无效。",
+    "photosTitle": "必须上传的证据照片",
+    "photosBody": "每个类别至少拍一张，其他类别可以继续添加更多照片。",
+    "decisionTitle": "收货决定",
+    "completeBody": "这张送货单的现场决定已经记录。",
+    "optional": "选填",
+    "status": {
+      "ISSUED": "已签发",
+      "ARRIVED": "已到场",
+      "COMPLETED": "已完成",
+      "CLOSED": "已关闭",
+      "CANCELLED": "已取消",
+      "VOIDED": "已作废"
+    },
+    "decision": { "RECEIVED": "已接收送货", "REJECTED": "拒收送货" },
+    "evidence": {
+      "VEHICLE": "车辆到场",
+      "UNLOADING": "卸货过程",
+      "DELIVERY_NOTE": "送货单",
+      "OTHER": "其他现场证据"
+    },
+    "field": {
+      "quantity": "实际数量",
+      "receiver": "接收人",
+      "rejectionReason": "拒收原因",
+      "note": "备注",
+      "signature": "接收人签名"
+    },
+    "action": {
+      "arrive": "记录到场",
+      "receive": "接收",
+      "reject": "拒收",
+      "submit": "保存收货决定",
+      "photosRequired": "请先完成四类必需照片",
+      "clearSignature": "清除签名"
+    },
+    "error": {
+      "action": "操作无法完成。",
+      "signatureRequired": "请先画接收人签名。",
+      "quantityRequired": "请输入实际数量。"
     }
   },
   "adminQr": {
@@ -3819,7 +5335,8 @@
       "VEHICLE": "车辆",
       "FIELD_STAFF": "工地人员",
       "VISITOR": "访客",
-      "DEVICE": "设备"
+      "DEVICE": "设备",
+      "DELIVERY_NOTE": "送货单"
     },
     "status": {
       "ACTIVE": "启用",
@@ -3971,7 +5488,7 @@
       },
       "channels": {
         "title": "推播方式",
-        "subtitle": "站内、Email 与 Push，并明确显示 LIVE 或 SIMULATED"
+        "subtitle": "查看各通知方式是否可用，并向指定公司发送通知"
       },
       "records": {
         "title": "通知记录",
@@ -4015,10 +5532,36 @@
     "channel": {
       "IN_APP": "系统站内通知",
       "EMAIL": "Email",
-      "PUSH": "Push Notification",
+      "PUSH": "手机推送",
       "sent": "已发送 {count} 次",
       "failed": "失败 {count} 次",
-      "never": "还没有发送记录"
+      "sentLabel": "发送成功",
+      "failedLabel": "发送失败",
+      "lastAttempt": "最近发送",
+      "never": "还没有发送记录",
+      "loadError": "无法加载通知方式状态，请稍后重试。"
+    },
+    "composer": {
+      "title": "发送公司通知",
+      "subtitle": "选择接收公司、填写通知内容，再选择发送方式。",
+      "chooseCompany": "请选择接收公司",
+      "titlePlaceholder": "输入通知标题",
+      "messagePlaceholder": "输入需要通知的内容",
+      "channels": "发送方式",
+      "channelsHint": "至少选择一种可用的发送方式。",
+      "notConfigured": "尚未配置，暂时不能使用",
+      "channelDescription": {
+        "IN_APP": "显示在用户的系统通知中心",
+        "EMAIL": "发送到用户登记的邮箱",
+        "PUSH": "推送到已授权的手机或桌面设备"
+      },
+      "sendError": "通知发送失败，请检查资料后重试。",
+      "sending": "发送中..."
+    },
+    "deliveryStatus": {
+      "PENDING": "等待发送",
+      "SENT": "已发送",
+      "FAILED": "发送失败"
     },
     "record": { "delivery": "发送记录", "status": "状态记录" }
   },
@@ -4351,18 +5894,34 @@
     "editTitle": "编辑出场",
     "viewTitle": "出场记录",
     "section": {
+      "application": "出场申请",
+      "applicationPhotos": "申请照片",
       "destination": "去向",
+      "execution": "收运执行",
+      "executionPhotos": "执行照片",
       "load": "货物",
+      "settlement": "结算结果",
       "vehicle": "车辆与司机",
+      "weighing": "称重结果",
       "release": "放行",
-      "photos": "照片"
+      "photos": "照片",
+      "timeline": "订单时间线"
     },
     "field": {
+      "applicant": "申请人",
+      "applicationNo": "申请编号",
+      "applicationNote": "申请备注",
+      "approvalNote": "审批意见",
+      "approvedAt": "审批时间",
+      "approvedBy": "审批人",
+      "collectionPlan": "回收安排",
       "dispatchNo": "出场单号",
       "project": "项目",
       "recycler": "回收商",
       "wasteType": "废料类型",
       "estimatedWeight": "预估重量（公斤）",
+      "executionProgress": "执行进度",
+      "firstWeight": "毛重",
       "description": "说明",
       "vehiclePlate": "车牌",
       "driverName": "司机",
@@ -4372,7 +5931,14 @@
       "releasedAt": "放行时间",
       "releasedBy": "放行人",
       "location": "位置",
-      "photoCount": "照片"
+      "netWeight": "净重",
+      "photoCount": "照片",
+      "secondWeight": "皮重",
+      "settledWeight": "最终结算重量",
+      "settlementAmount": "结算金额",
+      "settlementNo": "结算单号",
+      "settlementState": "结算状态",
+      "weighingNo": "地磅单号"
     },
     "wasteType": {
       "MIXED": "混合建筑废料",
@@ -4428,6 +5994,19 @@
       "released": "已放行",
       "cancelled": "已取消"
     }
+  },
+  "recyclerReports": {
+    "title": "报表中心",
+    "count": "共 {count} 项记录",
+    "type": { "orders": "订单报表", "weights": "回收重量", "sources": "业务来源", "commission": "平台佣金", "weighing": "地磅单", "inventory": "库存", "outbound": "出货", "customers": "客户", "fleet": "司机与车辆", "exceptions": "异常与审计" },
+    "filter": { "title": "筛选条件", "reportType": "报表", "from": "开始日期", "to": "结束日期", "search": "搜索结果", "project": "项目", "material": "材料", "source": "业务来源", "customer": "客户", "driver": "司机", "vehicle": "车辆", "scale": "地磅", "status": "状态", "all": "全部" },
+    "source": { "PLATFORM": "平台订单", "PRIVATE": "私人客户" },
+    "summary": { "records": "记录总数", "pending_dispatch": "待派车", "collecting": "回收中", "completed": "已完成", "cancelled": "已取消", "total_weight": "总重量", "platform_weight": "平台业务重量", "private_weight": "私人客户重量", "settlement_amount": "结算金额", "commission_due": "应付佣金", "pending_confirmation": "待确认", "confirmed": "已确认", "voided": "已作废", "current_inventory": "当前库存", "period_movement": "期间变动", "adjustments": "库存调整", "platform_customers": "平台客户", "private_customers": "私人客户", "services": "服务次数", "drivers": "司机人数", "vehicles": "车辆数量", "weighing_anomalies": "称重异常", "reweighs": "重新过磅", "voided_tickets": "作废地磅单", "inventory_adjustments": "库存调整", "deduction_confirmations": "扣杂双方确认" },
+    "column": { "reference": "编号", "date": "日期", "category": "类别", "party": "客户/相关方", "status": "状态", "quantity": "重量/次数", "detail": "详情" },
+    "action": { "print": "打印", "retry": "重试" },
+    "empty": { "title": "没有报表记录", "description": "更改日期或筛选条件查看其他期间。" },
+    "error": { "title": "无法载入报表", "description": "请检查网络后重试。" },
+    "history": { "title": "导出记录", "description": "每一次 PDF 和 Excel 导出都会永久保存。", "file": "文件", "period": "日期范围", "format": "格式", "generated": "生成时间", "empty": "还没有导出记录。" }
   },
   "export": {
     "excel": "Excel 表格",
@@ -4503,6 +6082,17 @@
       "state": "状态"
     },
     "declaredNote": "这是产废方的申报。最终重量由你的地磅决定，两个数字都会保留。",
+    "summary": {
+      "today_orders": "今日订单",
+      "month_orders": "本月订单",
+      "completed_orders": "已完成",
+      "recycling_orders": "回收中",
+      "cancelled_orders": "已取消"
+    },
+    "filter": {
+      "collectionDateFrom": "回收日期从",
+      "collectionDateTo": "回收日期至"
+    },
     "order": {
       "title": "回收订单",
       "description": "建筑商发来了订单 {order}。先提议回收时间；建筑商确认后才能安排司机。",
@@ -4550,6 +6140,10 @@
       "GROSS": "重车（毛重）",
       "TARE": "空车（皮重）"
     },
+    "sequenceTitle": "两次过磅顺序",
+    "firstPass": "重车毛重",
+    "secondPass": "空车皮重",
+    "sequenceHelp": "系统会按这张出场单自动选择，第一次只能记录毛重，第二次只能记录皮重。",
     "plateMismatch": "单据上的车牌是 {expected}，请核对车头。",
     "scan": "排入这车货",
     "clear": "清除",
@@ -4569,19 +6163,39 @@
     "editTitle": "编辑车辆",
     "section": {
       "identity": "基本信息",
-      "limits": "限重与证件"
+      "limits": "限重与证件",
+      "availability": "车辆状态"
     },
     "field": {
       "plateNo": "车牌",
       "vehicleType": "车型",
+      "brand": "品牌",
+      "model": "型号",
+      "brandModel": "品牌与型号",
       "makeModel": "厂牌型号",
+      "legacyMakeModel": "原有厂牌型号",
+      "payloadCapacity": "载重量（公斤）",
       "tareWeight": "皮重（公斤）",
       "maxLaden": "最大总重（公斤）",
       "roadTaxExpires": "路税到期",
+      "insuranceExpires": "保险到期",
       "permitExpires": "准证到期",
+      "photo": "车辆照片",
+      "choosePhoto": "选择照片",
       "notes": "备注",
       "isActive": "启用",
+      "isActiveHelp": "启用且不在维修中的车辆可以派车。",
+      "maintenance": "维修中",
+      "maintenanceHelp": "维修中的车辆不能安排回收任务。",
+      "workStatus": "车辆状态",
+      "currentTask": "当前任务",
       "createdAt": "添加时间"
+    },
+    "status": {
+      "AVAILABLE": "待命",
+      "ON_TASK": "执行任务",
+      "MAINTENANCE": "维修中",
+      "INACTIVE": "停用"
     },
     "type": {
       "LORRY": "货车",
@@ -4620,18 +6234,54 @@
     "editTitle": "编辑司机",
     "section": {
       "identity": "基本信息",
-      "licence": "驾照"
+      "account": "司机应用账号",
+      "licence": "驾照",
+      "availability": "工作状态"
     },
     "field": {
+      "driverNo": "司机编号",
+      "driverNoAuto": "留空由系统自动生成",
       "fullName": "姓名",
       "phone": "电话",
       "icNo": "身份证号",
       "licenceNo": "驾照号",
       "licenceExpires": "驾照到期",
+      "licencePhoto": "驾照照片",
+      "driverPhoto": "司机照片",
+      "choosePhoto": "选择照片",
+      "emergencyContact": "紧急联系人",
+      "emergencyContactExample": "姓名 / 电话号码",
       "defaultVehicle": "常用车辆",
       "account": "司机登录账号",
+      "newAccountEmail": "或用邮箱新建账号",
+      "initialPassword": "初始密码",
+      "loginIdleExpiryDays": "连续未使用后重新登录（天）",
       "isActive": "启用",
+      "isActiveHelp": "启用的司机可以被安排回收任务。",
+      "onLeave": "请假",
+      "onLeaveHelp": "请假中的司机不能被安排回收任务。",
+      "workStatus": "工作状态",
+      "currentTask": "当前任务",
+      "lastPosition": "最后 GPS 更新时间",
+      "notes": "备注",
       "createdAt": "添加时间"
+    },
+    "status": {
+      "AVAILABLE": "待命",
+      "ON_TASK": "执行任务",
+      "COMPLETED_TODAY": "今日已完成",
+      "ON_LEAVE": "请假",
+      "INACTIVE": "停用"
+    },
+    "online": "在线",
+    "offline": "离线",
+    "summary": {
+      "total": "司机总数",
+      "online": "在线司机",
+      "on_task": "执行任务",
+      "available": "待命司机",
+      "on_leave": "请假司机",
+      "inactive": "停用司机"
     },
     "licenceExpired": "驾照已过期",
     "remove": {
@@ -4645,6 +6295,16 @@
       "removed": "司机已删除"
     }
   },
+  "fleetHistory": {
+    "title": "历史服务记录",
+    "count": "{count, plural, =0 {暂无服务记录} other {共 # 条服务记录}}",
+    "task": "任务",
+    "order": "订单",
+    "project": "项目",
+    "completed": "完成时间",
+    "netWeight": "净重",
+    "ticket": "地磅单"
+  },
   "tasks": {
     "title": "出车任务",
     "count": "{count, plural, =0 {暂无任务} other {# 趟}}",
@@ -4652,6 +6312,17 @@
     "createTitle": "派车",
     "editTitle": "改派",
     "viewTitle": "出车任务",
+    "summary": {
+      "today_dispatches": "今日派车",
+      "today_completed": "今日完成",
+      "running": "执行中",
+      "vehicles_used_today": "今日使用车辆",
+      "drivers_used_today": "今日执行司机"
+    },
+    "filter": {
+      "dateFrom": "派车日期从",
+      "dateTo": "派车日期至"
+    },
     "section": {
       "load": "货物",
       "crew": "车辆与司机",
@@ -4669,7 +6340,8 @@
       "acceptedAt": "接单时间",
       "arrivedAt": "到场时间",
       "loadedAt": "装货时间",
-      "deliveredAt": "送达时间",
+      "deliveredAt": "到达回收场时间",
+      "completedAt": "称重完成时间",
       "arrivalLocation": "到场位置",
       "notes": "备注",
       "failureReason": "失败原因",
@@ -4684,7 +6356,8 @@
       "ARRIVED": "已到场",
       "LOADED": "已装货",
       "RETURNING": "返程中",
-      "DELIVERED": "已送达",
+      "DELIVERED": "已到回收场，等待称重",
+      "COMPLETED": "已完成",
       "CANCELLED": "已取消",
       "FAILED": "未完成"
     },
@@ -4697,10 +6370,18 @@
     "noPhotos": "司机还没有传照片。",
     "locationNote": "这是司机设备上报的位置。浏览器定位可以伪造，所以这只是「上报了什么」，不是「车在哪里」。",
     "reassignNote": "只能在司机接单前改派。接单之后，派工记录就是「谁真的去了」的凭据。",
+    "reassign": "改派",
+    "cancel": {
+      "action": "取消派车",
+      "title": "取消这趟派车？",
+      "description": "司机和车辆会恢复可用，订单可以重新派车。取消记录和原因会永久保留。",
+      "confirm": "确认取消"
+    },
     "toast": {
       "created": "已派车",
       "updated": "任务已更新",
-      "advanced": "任务已更新"
+      "advanced": "任务已更新",
+      "cancelled": "派车已取消"
     }
   },
   "deductions": {
@@ -4794,6 +6475,41 @@
       "lockedAt": "锁定时间",
       "notes": "备注"
     },
+    "noteStatus": {
+      "ISSUED": "已签发",
+      "ARRIVED": "已到场",
+      "COMPLETED": "已完成签收",
+      "CLOSED": "已关闭",
+      "CANCELLED": "已取消",
+      "VOIDED": "已作废"
+    },
+    "cancelDialog": {
+      "title": "取消这张送货单？",
+      "description": "二维码会立即失效。请填写取消原因。"
+    },
+    "voidDialog": {
+      "title": "作废这张已到场送货单？",
+      "description": "现场签收流程会停止，二维码也不能再使用。请填写原因。"
+    },
+    "required": {
+      "supplier": "请选择供应商。",
+      "vehicle": "请输入车辆号码。",
+      "driver": "请输入司机姓名。",
+      "material": "请输入材料名称。",
+      "quantity": "请输入大于零的预计数量。",
+      "expectedAt": "请选择预计送货日期和时间。"
+    },
+    "result": {
+      "expectedQuantity": "预计数量",
+      "actualQuantity": "实际数量",
+      "receiptNo": "材料收货记录编号",
+      "decision": "现场决定",
+      "receiver": "接收人",
+      "status": "状态",
+      "pending": "现场还没有完成签收决定。",
+      "evidence": "现场证据照片",
+      "signature": "查看接收人签名"
+    },
     "state": {
       "DRAFT": "草稿",
       "ISSUED": "已开出",
@@ -4842,6 +6558,19 @@
       "paymentRecorded": "付款已记录"
     }
   },
+  "recyclerCompanySettings": {
+    "title": "公司设置",
+    "subtitle": "在一个页面管理回收商公司资料、业务规则和权限入口。",
+    "profile": { "title": "公司资料", "help": "这些资料和 Logo 会显示在回收商后台。", "logo": "选择 Logo", "name": "公司名称", "registration": "公司注册号", "taxId": "税务识别号", "sst": "SST 注册号", "contactPerson": "联系人", "designation": "职位", "address": "公司地址", "phone": "联系电话", "email": "联系邮箱", "billingEmail": "账单邮箱" },
+    "bank": { "title": "银行账户", "help": "管理公司的收付款账户。新增或修改账户资料后，需要平台重新验证。", "add": "新增账户", "empty": "还没有银行账户。", "primary": "主要账户", "makePrimary": "设为主要账户", "edit": "编辑银行账户", "remove": "移除银行账户", "removeTitle": "确定移除这个银行账户？", "removeDescription": "移除 {account} 后不能用于新的付款，已有账单记录不会改变。", "removeConfirm": "移除账户", "addTitle": "新增银行账户", "editTitle": "编辑银行账户", "formHelp": "保存后账号会被遮罩；平台验证账户变更后才可用于付款。", "bankName": "银行名称", "branch": "分行", "accountName": "账户持有人", "accountNumber": "银行账号", "numberKeep": "留空即可保留现有账号。", "accountType": "账户类型", "currency": "币种", "swift": "SWIFT / BIC", "type": { "CURRENT": "来往账户", "SAVINGS": "储蓄账户" }, "verification": { "PENDING": "待验证", "VERIFIED": "已验证", "REJECTED": "已拒绝" } },
+    "notifications": { "title": "通知设置", "help": "选择团队接收业务通知的方式。", "system": "系统内通知", "systemHelp": "在 MSE Trace 显示订单、称重、账单和系统通知。", "email": "Email 通知", "emailHelp": "发送副本到用户登记的邮箱。", "push": "手机/浏览器推送", "pushHelp": "推送到已订阅的手机和电脑。" },
+    "business": { "title": "业务设置", "help": "这里只控制业务开关，硬件仍由平台管理员绑定。", "deduction": "超过此扣杂重量需双方确认（kg）", "cctv": "AI CCTV", "cctvHelp": "平台完成硬件连接后，使用 AI CCTV 证据。", "anpr": "车牌识别 ANPR", "anprHelp": "平台完成硬件连接后，使用车牌授权称重。", "deviceCount": "已绑定 {count} 台", "hardwareOwner": "只有 MSE 平台管理员可以绑定或更换地磅、Gateway、CCTV 和 ANPR 设备。" },
+    "commission": { "title": "平台佣金", "help": "由 MSE 平台管理员设置，只可查看；私人客户业务不计算佣金。", "rule": "佣金规则", "basis": "计算方式", "rate": "费率", "cycle": "账单周期", "none": "目前没有生效中的佣金规则。", "basisValue": { "SETTLED_AMOUNT": "按结算金额", "SETTLED_WEIGHT": "按结算重量" }, "cycleValue": { "MONTHLY": "每月", "QUARTERLY": "每季度", "YEARLY": "每年" } },
+    "links": { "title": "人员、接口和安全", "help": "选择要管理的项目，每个入口都有独立权限和审计记录。", "users": "用户管理", "usersHelp": "新增、停用和管理回收商员工。", "roles": "角色与权限", "rolesHelp": "设置每个回收商角色可以查看和操作的功能。", "integrations": "系统连接", "integrationsHelp": "查看 ERP、MyInvois 和平台绑定的硬件连接。", "scales": "已分配地磅", "scalesHelp": "查看平台管理员为公司分配的地磅。", "login": "登录记录", "loginHelp": "查看成功和失败的登录记录。", "audit": "审计记录", "auditHelp": "查看不可删除的设置变更和业务操作。" },
+    "action": { "saveProfile": "保存公司资料", "saveSettings": "保存业务设置" },
+    "state": { "loading": "正在读取公司设置...", "error": "无法读取公司设置。" },
+    "toast": { "saved": "回收商设置已保存" }
+  },
   "driver": {
     "today": "你的任务",
     "finished": "已完成",
@@ -4849,19 +6578,104 @@
     "back": "全部任务",
     "takePhoto": "拍照",
     "navigate": "导航到项目",
+    "returnYard": "导航返回回收场",
+    "awaitingWeighing": "已到达回收场",
+    "awaitingWeighingBody": "请等待毛重和皮重称重。系统取得有效净重后会自动完成任务。",
+    "gpsUnavailable": "目前无法取得 GPS。请开启定位权限，让路线和照片证据包含正确位置。",
+    "photoGpsRequired": "请先开启精确定位再拍摄任务照片；这张照片尚未上传。",
     "photoRequired": "请先拍摄装载照片，再将任务标记为已装载。",
     "cannotComplete": "我完成不了这趟",
     "arrivedNote": "记录你已到达现场，如果手机允许会一并记录位置。",
+    "settlement": { "title": "称重与付款", "deduction": "扣杂", "payableWeight": "结算重量", "amount": "结算金额", "paid": "已付款", "outstanding": "未付款" },
     "action": {
       "ACCEPTED": "接下这趟",
       "EN_ROUTE": "出发",
       "ARRIVED": "我到了",
       "LOADED": "装好货了",
       "RETURNING": "返程",
-      "DELIVERED": "已送回场",
+      "DELIVERED": "我已到回收场",
+      "COMPLETED": "称重后已完成",
       "FAILED": "无法完成",
       "CANCELLED": "取消",
       "ASSIGNED": "已派单"
+    },
+    "nav": {
+      "home": "首页",
+      "jobs": "我的任务",
+      "notifications": "通知",
+      "profile": "个人资料",
+      "settings": "设置"
+    },
+    "dashboard": {
+      "title": "司机首页",
+      "today": "今日任务",
+      "pending": "待执行",
+      "inProgress": "进行中",
+      "completed": "已完成",
+      "currentTask": "当前任务",
+      "allJobs": "查看全部",
+      "quickActions": "快捷功能",
+      "navigation": "导航",
+      "jobStatus": "任务状态",
+      "photo": "拍照上传",
+      "status": "设备状态",
+      "workStatus": "在线状态",
+      "network": "网络与同步",
+      "gps": "GPS 定位",
+      "notifications": "今日通知",
+      "openTask": "打开任务"
+    },
+    "device": {
+      "work": {
+        "online": "在线",
+        "offline": "离线",
+        "working": "执行任务中"
+      },
+      "network": {
+        "online": "在线，资料已全部上传",
+        "offline": "离线，{count} 条资料等待上传",
+        "syncing": "正在上传离线资料",
+        "pending": "在线，{count} 条资料等待上传",
+        "failed": "部分资料上传失败，需要处理"
+      },
+      "permission": {
+        "unknown": "尚未检查",
+        "prompt": "尚未允许",
+        "granted": "已开启",
+        "denied": "已在浏览器设置中阻止",
+        "unsupported": "此设备不支持"
+      },
+      "enable": "开启",
+      "test": "测试"
+    },
+    "notifications": {
+      "title": "通知中心",
+      "unread": "{count} 条未读通知",
+      "empty": "目前没有通知。",
+      "open": "打开通知",
+      "remove": "从收件箱移除"
+    },
+    "profile": {
+      "title": "个人资料",
+      "readOnly": "这些资料由回收商管理员管理。"
+    },
+    "settings": {
+      "title": "系统设置",
+      "subtitle": "管理语言、手机权限、通知及同步状态。",
+      "language": "语言",
+      "permissions": "手机权限",
+      "gps": "定位权限",
+      "camera": "相机权限",
+      "notifications": "通知设置",
+      "newTasks": "新任务通知",
+      "taskChanges": "任务变更及完成通知",
+      "systemNotifications": "系统通知",
+      "network": "网络与离线资料",
+      "failedCount": "{count} 条资料上传失败，需要处理",
+      "syncNow": "立即上传",
+      "about": "关于系统",
+      "driverApp": "司机应用",
+      "version": "版本"
     },
     "toast": {
       "photoSent": "照片已上传"
@@ -4974,6 +6788,7 @@
       "received": "已收金额",
       "outstanding": "未收金额",
       "dueDate": "到期日期",
+      "issuedDate": "发出日期",
       "state": "付款状态",
       "notes": "备注",
       "businessWeight": "平台业务总重量",
@@ -5030,7 +6845,9 @@
     "action": {
       "generate": "生成账单",
       "issue": "发出账单",
-      "close": "关闭账单"
+      "close": "关闭账单",
+      "downloadPdf": "下载 PDF",
+      "print": "打开打印"
     },
     "filters": { "title": "筛选", "from": "期间开始", "to": "期间结束" },
     "export": {
@@ -5040,7 +6857,11 @@
     "generate": {
       "title": "生成账单草稿",
       "description": "生成 SaaS 或佣金账单，审核后再发出。",
-      "runDate": "账单运行日期"
+      "runDate": "账单运行日期",
+      "noEligible": {
+        "SAAS": "目前没有可生成 SaaS 账单的公司。请先分配订阅套餐，并确认公司不是暂停或关闭状态。",
+        "COMMISSION": "目前没有可生成佣金账单的回收商。只有采用合作版且承担平台佣金的有效回收商才会显示。"
+      }
     },
     "close": {
       "title": "关闭账单",
@@ -5065,6 +6886,7 @@
       "create": "建立规则",
       "edit": "编辑规则",
       "empty": "没有佣金规则。",
+      "emptyHint": "点击上方「建立规则」按钮可以创建第一条佣金计算规则。",
       "description": "此平台统一规则适用于所有合作版回收商。",
       "perTonne": "每吨",
       "openEnded": "长期有效",
@@ -5411,12 +7233,21 @@
       "fullName": "姓名",
       "email": "电子邮件",
       "phone": "电话",
+      "salesRole": "销售职务",
       "supervisor": "主管",
       "commissionScheme": "佣金方案",
       "isActive": "状态",
       "territories": "负责区域",
       "customersWon": "开发客户",
-      "totalCommission": "总佣金"
+      "totalCommission": "总佣金",
+      "joinedOn": "入职日期",
+      "status": "状态"
+    },
+    "role": {
+      "EXECUTIVE": "销售专员",
+      "SUPERVISOR": "销售主管",
+      "MANAGER": "销售经理",
+      "AGENT": "销售代理"
     },
     "toast": {
       "created": "销售人员已建立",
@@ -5621,6 +7452,7 @@
     "subtitle": "管理客户归属、区域、条款、团队业绩和佣金结算。",
     "loading": "正在加载销售记录...",
     "loadError": "无法加载销售记录。",
+    "saveError": "无法保存客户归属，请检查所选客户和销售人员后重试。",
     "yes": "是",
     "no": "否",
     "metric": {
@@ -5725,7 +7557,11 @@
       "noSupervisor": "没有主管",
       "noScheme": "没有佣金方案",
       "notes": "备注",
+      "noUnassignedCompanies": "目前所有客户都已有销售负责人。如需更换负责人，请在现有记录点击“转移”。",
+      "selectCompany": "选择尚未归属的客户",
       "selectPerson": "选择销售人员",
+      "wonOn": "签约日期",
+      "effectiveFrom": "生效日期",
       "reason": "必须填写原因",
       "target": "目标金额",
       "accrualMonths": "佣金累计月数",
@@ -5741,6 +7577,7 @@
       "cancel": "取消",
       "save": "保存",
       "addTerritory": "新增区域",
+      "addAssignment": "新增客户归属",
       "reassign": "转移",
       "addScheme": "新增方案",
       "addRule": "新增规则",
@@ -5759,6 +7596,7 @@
     },
     "dialog": {
       "person": "设置销售身份、汇报关系和佣金方案。",
+      "assignment": "选择尚未归属的客户，并记录负责签约的销售人员。保存后，该客户会进入佣金计算流程。",
       "territory": "选择一个或多个州属，或全国范围。",
       "rule": "设置佣金方案所采用的计算基础和公式。",
       "scheme": "系统会在计算应付款时自动应用该公式。",
@@ -6310,7 +8148,11 @@
       "CWE": "Cloud Weighing Engine",
       "OTHER": "其他"
     },
-    "status": { "online": "在线", "offline": "离线", "remoteNotConnected": "远端控制未接入" },
+    "status": {
+      "online": "在线",
+      "offline": "离线",
+      "remoteNotConnected": "远端控制未接入"
+    },
     "operationMode": {
       "SIMULATED": "测试记录（不连接设备）",
       "LIVE": "真实现场记录（仍需完成硬件接入）"
@@ -6440,7 +8282,14 @@
     "toast": {
       "saved": "设置已保存",
       "companySaved": "公司设置已保存",
-      "companyReset": "公司设置已恢复为平台默认值"
+      "companyReset": "公司设置已恢复为平台默认值",
+      "brandingSaved": "默认应用图标已更新"
+    },
+    "branding": {
+      "title": "默认应用图标",
+      "description": "当公司没有上传自己的 Logo 时，浏览器标签和添加到桌面的快捷方式会使用此图标。支持 5 MB 以内的 PNG、JPG 和 WebP。",
+      "priority": "优先使用公司 Logo；没有公司 Logo 时才使用这个默认图标。",
+      "upload": "上传图标"
     },
     "scope": {
       "title": "配置范围",
@@ -6513,7 +8362,7 @@
       "configured": "已配置",
       "missing": "未配置"
     },
-    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式" },
+    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式", "NOT_CONFIGURED": "尚未配置" },
     "updatedAt": "最后保存：{value}",
     "guide": {
       "cctv": {
@@ -7625,6 +9474,19 @@
     "search": "搜索",
     "openAll": "查看全部",
     "currentStep": "当前步骤：{step}",
+    "workflowSettings": "审批流程设置",
+    "flow": {
+      "title": "四个简单步骤",
+      "subtitle": "直接打开需要处理的步骤。每份申请都会从填写资料一直保存到安全归档。",
+      "application": "申请",
+      "applicationHelp": "填写 RFI 资料，并关联现场照片和必需附件。",
+      "approval": "审批",
+      "approvalHelp": "顾问按顺序审核，并使用 PIN 签署每项决定。",
+      "final": "最终 PDF",
+      "finalHelp": "下载已经完成的客户格式 RFI 审批报告。",
+      "archive": "归档",
+      "archiveHelp": "确认申请、审批记录和最终报告都已保存。"
+    },
     "metric": {
       "pending": "待我审批",
       "today": "今日申请",
@@ -7674,7 +9536,11 @@
       "grant": "3. 项目授权",
       "grantHelp": "选择项目、权限和到期时间。"
     },
-    "tab": { "organizations": "顾问单位", "consultants": "顾问账号", "grants": "项目授权" },
+    "tab": {
+      "organizations": "顾问单位",
+      "consultants": "顾问账号",
+      "grants": "项目授权"
+    },
     "organization": {
       "title": "顾问单位",
       "subtitle": "每个顾问单位登记在你的建筑商公司名下，无法查看其他建筑商资料。",
@@ -7708,17 +9574,72 @@
       "noConsultants": "请先在这个顾问单位登记顾问账号，再建立项目授权。"
     },
     "field": {
-      "organizationName": "顾问单位名称", "registrationNo": "注册编号", "contactName": "联系人", "email": "电邮", "phone": "电话", "address": "地址", "active": "启用", "organization": "顾问单位", "fullName": "姓名", "jobTitle": "职位", "language": "语言", "consultant": "顾问", "chooseConsultant": "选择顾问", "project": "项目", "chooseProject": "选择项目", "validFrom": "开始时间", "validUntil": "到期时间", "permissions": "允许使用的功能"
+      "organizationName": "顾问单位名称",
+      "registrationNo": "注册编号",
+      "contactName": "联系人",
+      "email": "电邮",
+      "phone": "电话",
+      "address": "地址",
+      "active": "启用",
+      "organization": "顾问单位",
+      "fullName": "姓名",
+      "jobTitle": "职位",
+      "language": "语言",
+      "consultant": "顾问",
+      "chooseConsultant": "选择顾问",
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "validFrom": "开始时间",
+      "validUntil": "到期时间",
+      "permissions": "允许使用的功能"
     },
     "permission": {
-      "project_view": "查看项目", "document_view": "查看项目文件", "approval_view": "查看申请与审批", "approval_review": "审核并决定申请", "notification_view": "查看通知", "progress_view": "查看施工进度", "safety_view": "查看安全记录", "report_view": "查看报表", "report_export": "导出报表"
+      "project_view": "查看项目",
+      "document_view": "查看项目文件",
+      "approval_view": "查看申请与审批",
+      "approval_review": "审核并决定申请",
+      "notification_view": "查看通知",
+      "progress_view": "查看施工进度",
+      "safety_view": "查看安全记录",
+      "report_view": "查看报表",
+      "report_export": "导出报表"
     },
-    "error": { "title": "部分顾问授权资料无法读取", "organizations": "顾问单位", "consultants": "顾问账号", "grants": "项目授权", "projects": "项目", "retry": "重新加载" },
-    "status": { "active": "已启用", "inactive": "已停用", "current": "授权有效", "expired": "已到期或撤销" },
-    "userStatus": { "INVITED": "等待接受邀请", "ACTIVE": "正常", "SUSPENDED": "已停用" },
-    "common": { "noRegistration": "未填写注册编号", "noContact": "未填写联系人资料", "noJobTitle": "顾问" },
-    "action": { "edit": "编辑", "save": "保存", "cancel": "取消", "revoke": "撤销授权" },
-    "toast": { "organizationSaved": "顾问单位已保存。", "consultantSaved": "顾问账号已登记。", "grantSaved": "项目授权已保存。", "grantRevoked": "项目授权已撤销。" }
+    "error": {
+      "title": "部分顾问授权资料无法读取",
+      "organizations": "顾问单位",
+      "consultants": "顾问账号",
+      "grants": "项目授权",
+      "projects": "项目",
+      "retry": "重新加载"
+    },
+    "status": {
+      "active": "已启用",
+      "inactive": "已停用",
+      "current": "授权有效",
+      "expired": "已到期或撤销"
+    },
+    "userStatus": {
+      "INVITED": "等待接受邀请",
+      "ACTIVE": "正常",
+      "SUSPENDED": "已停用"
+    },
+    "common": {
+      "noRegistration": "未填写注册编号",
+      "noContact": "未填写联系人资料",
+      "noJobTitle": "顾问"
+    },
+    "action": {
+      "edit": "编辑",
+      "save": "保存",
+      "cancel": "取消",
+      "revoke": "撤销授权"
+    },
+    "toast": {
+      "organizationSaved": "顾问单位已保存。",
+      "consultantSaved": "顾问账号已登记。",
+      "grantSaved": "项目授权已保存。",
+      "grantRevoked": "项目授权已撤销。"
+    }
   },
   "consultantWorkflow": {
     "project": { "choose": "选择项目", "all": "全部项目" },
@@ -7727,7 +9648,15 @@
       "subtitle": "共 {count} 项项目申请与审批记录",
       "create": "新增申请",
       "back": "返回顾问申请",
-      "search": "搜索申请编号、位置或顾问"
+      "search": "搜索申请编号、位置或顾问",
+      "stageLabel": "申请阶段",
+      "stage": {
+        "all": "全部",
+        "draft": "申请",
+        "approval": "审批",
+        "final": "最终 PDF",
+        "archive": "归档"
+      }
     },
     "state": {
       "chooseProject": "请选择项目以查看该项目的顾问工作。",
@@ -7750,134 +9679,847 @@
       "sourceGps": "打开来源 GPS",
       "saveError": "申请草稿保存失败，请检查填写内容后重试。",
       "saveReusableOptionHelp": "把这个内容加入本项目的选项，下次团队可直接选择。",
-      "section": { "project": "申请分类", "consultant": "指定顾问", "inspection": "现场与检查资料" }
+      "section": {
+        "project": "申请分类",
+        "consultant": "指定顾问",
+        "inspection": "现场与检查资料"
+      }
     },
     "field": {
-      "project": "项目", "projectAddress": "项目地址", "workflow": "审批流程", "chooseWorkflow": "选择审批流程",
-      "template": "RFI 表格模板", "chooseTemplate": "选择表格模板", "noTemplate": "不使用模板",
-      "scheduleTask": "施工计划活动 / WBS", "chooseScheduleTask": "选择计划活动", "noScheduleTask": "不关联施工计划",
-      "applicationType": "申请类型", "chooseType": "选择申请类型", "discipline": "专业类别", "chooseDiscipline": "选择专业类别",
-      "workType": "检查／工作类型", "chooseWorkType": "选择检查类型", "priority": "优先级", "choosePriority": "选择优先级",
-      "customApplicationType": "自定义申请类型", "customDiscipline": "自定义专业", "customWorkType": "自定义工作类型", "customPriority": "自定义优先级",
-      "consultant": "顾问", "chooseConsultant": "选择获授权顾问", "consultantCompany": "顾问公司",
-      "location": "检查位置", "component": "构件／工作区域", "description": "说明／申请内容", "requiredAt": "要求检查日期与时间",
-      "inspectionStartAt": "检查时段开始", "inspectionEndAt": "检查时段结束",
-      "inspectionActivity": "检查活动", "drawingNo": "图纸编号", "drawingRevision": "图纸版本", "itpNo": "ITP 编号",
-      "checklistReference": "检查表参考", "inspectionCategory": "R／S／W／H 类别", "acceptanceRequirement": "验收要求"
+      "project": "项目",
+      "projectAddress": "项目地址",
+      "workflow": "审批流程",
+      "chooseWorkflow": "选择审批流程",
+      "template": "RFI 表格模板",
+      "chooseTemplate": "选择表格模板",
+      "noTemplate": "不使用模板",
+      "scheduleTask": "施工计划活动 / WBS",
+      "chooseScheduleTask": "选择计划活动",
+      "noScheduleTask": "不关联施工计划",
+      "applicationType": "申请类型",
+      "chooseType": "选择申请类型",
+      "discipline": "专业类别",
+      "chooseDiscipline": "选择专业类别",
+      "workType": "检查／工作类型",
+      "chooseWorkType": "选择检查类型",
+      "priority": "优先级",
+      "choosePriority": "选择优先级",
+      "customApplicationType": "自定义申请类型",
+      "customDiscipline": "自定义专业",
+      "customWorkType": "自定义工作类型",
+      "customPriority": "自定义优先级",
+      "consultant": "顾问",
+      "chooseConsultant": "选择获授权顾问",
+      "consultantCompany": "顾问公司",
+      "location": "检查位置",
+      "component": "构件／工作区域",
+      "description": "说明／申请内容",
+      "remarks": "备注",
+      "requiredAt": "要求检查日期与时间",
+      "inspectionStartAt": "检查时段开始",
+      "inspectionEndAt": "检查时段结束",
+      "inspectionActivity": "检查活动",
+      "drawingNo": "图纸编号",
+      "drawingRevision": "图纸版本",
+      "itpNo": "ITP 编号",
+      "checklistReference": "检查表参考",
+      "inspectionCategory": "R／S／W／H 类别",
+      "acceptanceRequirement": "验收要求"
     },
-    "inspectionCategory": { "NONE": "未指定", "R": "R - 审阅", "S": "S - 巡查", "W": "W - 见证", "H": "H - 停检点" },
-    "action": { "cancel": "取消", "save": "保存", "saveDraft": "保存草稿", "saveReusableOption": "保存为项目选项", "edit": "编辑草稿", "submit": "提交审批", "createRevision": "建立新版本", "downloadReport": "下载最终报告", "remove": "移除", "receive": "标记为已接收", "acknowledge": "确认申请" },
-    "status": { "DRAFT": "草稿", "SUBMITTED": "等待审批", "APPROVED": "已批准", "APPROVED_WITH_REMEDIAL": "已批准，需完成整改", "REJECTED": "已拒绝", "REVISE_RESUBMIT": "修改后重提", "ARCHIVED": "已归档" },
-    "stepStatus": { "WAITING": "等待中", "CURRENT": "需要处理", "APPROVED": "已批准", "APPROVED_WITH_REMEDIAL": "已批准，需完成整改", "REJECTED": "已拒绝", "REVISE_RESUBMIT": "需要修改", "SKIPPED": "已跳过" },
-    "decision": { "APPROVE": "批准", "APPROVE_WITH_REMEDIAL": "批准并要求整改", "REJECT": "拒绝", "REVISE_RESUBMIT": "修改后重提" },
+    "inspectionCategory": {
+      "NONE": "未指定",
+      "R": "R - 审阅",
+      "S": "S - 巡查",
+      "W": "W - 见证",
+      "H": "H - 停检点"
+    },
+    "action": {
+      "cancel": "取消",
+      "save": "保存",
+      "saveDraft": "保存草稿",
+      "saveReusableOption": "保存为项目选项",
+      "edit": "编辑草稿",
+      "submit": "提交审批",
+      "createRevision": "建立新版本",
+      "downloadReport": "下载最终报告",
+      "remove": "移除",
+      "receive": "标记为已接收",
+      "acknowledge": "确认申请"
+    },
+    "status": {
+      "DRAFT": "草稿",
+      "SUBMITTED": "等待审批",
+      "APPROVED": "已批准",
+      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "REJECTED": "已拒绝",
+      "REVISE_RESUBMIT": "修改后重提",
+      "ARCHIVED": "已归档"
+    },
+    "stepStatus": {
+      "WAITING": "等待中",
+      "CURRENT": "需要处理",
+      "APPROVED": "已批准",
+      "APPROVED_WITH_REMEDIAL": "已批准，需完成整改",
+      "REJECTED": "已拒绝",
+      "REVISE_RESUBMIT": "需要修改",
+      "SKIPPED": "已跳过"
+    },
+    "decision": {
+      "APPROVE": "批准",
+      "APPROVE_WITH_REMEDIAL": "批准并要求整改",
+      "REJECT": "拒绝",
+      "REVISE_RESUBMIT": "修改后重提"
+    },
     "detail": {
-      "revision": "版本 {revision}", "applicant": "建立人：{name}", "receivedAt": "顾问接收时间", "acknowledgedAt": "顾问确认时间",
-      "section": { "application": "申请资料", "site": "现场申请", "consultant": "项目与顾问", "evidence": "关联现场证据", "attachments": "申请附件", "approvalProgress": "审批进度", "decisions": "已签署决定", "archive": "自动归档" }
+      "revision": "版本 {revision}",
+      "applicant": "建立人：{name}",
+      "receivedAt": "顾问接收时间",
+      "acknowledgedAt": "顾问确认时间",
+      "nextAction": "下一步要做什么",
+      "revisionCurrent": "当前版本",
+      "noRevisions": "目前没有版本记录。",
+      "next": {
+        "draft": "完成表格，关联现场照片和附件，然后提交审批。",
+        "review": "这份申请正在等待您的决定。请查看现场证据，然后选择审批结果。",
+        "waiting": "您现在不需要操作，申请正在等待“{step}”处理。",
+        "revise": "申请已被退回。请建立新版本，按照意见修改后再次提交。",
+        "final": "审批已经完成。请下载最终 PDF，并查看验证记录。",
+        "archived": "这份申请已经完成。申请资料、签名审批记录和最终 PDF 都已安全归档。",
+        "complete": "审批决定已经完成，系统正在准备最终报告。"
+      },
+      "lifecycle": {
+        "title": "申请进度",
+        "application": "申请",
+        "approval": "审批",
+        "final": "最终 PDF",
+        "archive": "归档",
+        "complete": "已完成",
+        "current": "当前步骤",
+        "pending": "尚未开始"
+      },
+      "section": {
+        "application": "申请资料",
+        "site": "现场申请",
+        "consultant": "项目与顾问",
+        "evidence": "关联现场证据",
+        "relatedRecords": "关联现场资料",
+        "attachments": "申请附件",
+        "approvalProgress": "审批进度",
+        "decisions": "已签署决定",
+        "revisions": "版本记录",
+        "archive": "自动归档"
+      }
     },
     "review": {
-      "pending": "当前步骤：{step}", "reviewerConsultant": "指定顾问：{name}", "reviewerUser": "指定审批人：{name}", "reviewerRole": "指定角色：{name}",
-      "setupCredential": "设置签名与 PIN", "remarks": "决定备注", "pin": "6 位审批 PIN", "pinHint": "PIN 用于确认此签署决定由您本人作出。",
+      "pending": "当前步骤：{step}",
+      "reviewerConsultant": "指定顾问：{name}",
+      "reviewerUser": "指定审批人：{name}",
+      "reviewerRole": "指定角色：{name}",
+      "setupCredential": "设置签名与 PIN",
+      "remarks": "决定备注",
+      "pin": "6 位审批 PIN",
+      "pinHint": "PIN 用于确认此签署决定由您本人作出。",
       "dialog": {
-        "APPROVE": { "title": "批准此申请", "description": "确认现场申请；最后一步完成后系统会生成最终审批报告。" },
-        "APPROVE_WITH_REMEDIAL": { "title": "批准并要求整改", "description": "请列出仍必须完成的整改事项；此决定不要求再次复检。" },
-        "REJECT": { "title": "拒绝此申请", "description": "请填写会显示在最终报告中的明确原因。" },
-        "REVISE_RESUBMIT": { "title": "退回修改", "description": "请清楚说明建筑商修改后重新提交的内容。" }
+        "APPROVE": {
+          "title": "批准此申请",
+          "description": "确认现场申请；最后一步完成后系统会生成最终审批报告。"
+        },
+        "APPROVE_WITH_REMEDIAL": {
+          "title": "批准并要求整改",
+          "description": "请列出仍必须完成的整改事项；此决定不要求再次复检。"
+        },
+        "REJECT": {
+          "title": "拒绝此申请",
+          "description": "请填写会显示在最终报告中的明确原因。"
+        },
+        "REVISE_RESUBMIT": {
+          "title": "退回修改",
+          "description": "请清楚说明建筑商修改后重新提交的内容。"
+        }
       }
     },
     "workflow": {
-      "title": "顾问审批流程", "shortTitle": "流程设置", "subtitle": "设置各项目申请实际采用的审批顺序。", "create": "新增流程",
-      "createTitle": "建立审批流程", "createHelp": "选择适用的申请类型，保存后再增加审批步骤。", "empty": "此项目尚未设置审批流程。",
-      "name": "流程名称", "allTypes": "全部申请类型", "makeDefault": "设为默认流程", "defaultHelp": "新申请会优先选择此流程。", "default": "默认",
-      "addStep": "增加审批步骤", "addStepTitle": "增加审批步骤", "addStepHelp": "步骤按顺序执行；申请提交后流程会锁定。", "noSteps": "尚无审批步骤，使用前请至少增加一步。",
-      "stepName": "步骤名称", "reviewerKind": "此步骤由谁审批", "reviewer": "审批人", "chooseReviewer": "选择审批人",
-      "requireSignature": "必须电子签名", "requireStamp": "必须顾问盖章", "stampHelp": "审批人未上传印章时将不能批准。"
+      "title": "顾问审批流程",
+      "shortTitle": "流程设置",
+      "subtitle": "设置各项目申请实际采用的审批顺序。",
+      "create": "新增流程",
+      "createTitle": "建立审批流程",
+      "createHelp": "选择适用的申请类型，保存后再增加审批步骤。",
+      "empty": "此项目尚未设置审批流程。",
+      "name": "流程名称",
+      "allTypes": "全部申请类型",
+      "makeDefault": "设为默认流程",
+      "defaultHelp": "新申请会优先选择此流程。",
+      "default": "默认",
+      "addStep": "增加审批步骤",
+      "addStepTitle": "增加审批步骤",
+      "addStepHelp": "步骤按顺序执行；申请提交后流程会锁定。",
+      "noSteps": "尚无审批步骤，使用前请至少增加一步。",
+      "stepName": "步骤名称",
+      "reviewerKind": "此步骤由谁审批",
+      "reviewer": "审批人",
+      "chooseReviewer": "选择审批人",
+      "requireSignature": "必须电子签名",
+      "requireStamp": "必须顾问盖章",
+      "stampHelp": "审批人未上传印章时将不能批准。"
     },
-    "reviewerKind": { "CONSULTANT": "申请中指定的顾问", "USER": "指定公司用户", "ROLE": "拥有指定公司角色的用户" },
-    "templateManager": { "title": "RFI 表格模板", "subtitle": "按项目管理表格栏位、必需附件和不可修改版本，不需要填写技术 JSON。", "new": "新增模板", "chooseProject": "请选择项目以管理该项目的 RFI 表格。", "loading": "正在加载模板...", "loadError": "无法加载模板。", "empty": "这个项目还没有 RFI 表格模板。", "active": "启用", "inactive": "停用", "noDescription": "没有说明", "applicationType": "申请类型", "allTypes": "全部申请类型", "numbering": "申请编号规则", "numberingHelp": "可使用 {project}、{discipline}、{type} 和 {sequence}，流水号固定为四位。", "requiredFiles": "必需附件", "customFields": "额外表格栏位", "none": "没有", "newVersion": "建立新版本", "createTitle": "建立 RFI 表格模板", "createHelp": "为这个项目设置真实表格；日后修改会建立新版本，不会改动已提交申请。", "code": "模板编号", "name": "模板名称", "reportLayout": "最终报告版式", "description": "说明", "changeNote": "版本变更说明", "cancel": "取消", "save": "保存模板", "versionTitle": "{name} 第 {version} 版", "versionHelp": "系统会建立不可修改的新版本，旧申请继续保留原本栏位与附件规则。", "saveVersion": "建立版本", "customFieldsHelp": "只添加这个项目真实 RFI 表格需要的额外问题。", "addField": "增加栏位", "fieldLabel": "显示给用户的问题", "fieldKey": "系统栏位名称", "required": "必填", "removeField": "移除栏位" },
-    "evidence": { "title": "关联现场证据", "help": "选择现有且不可修改的现场照片，无需重复上传原图。", "link": "关联证据", "caption": "说明", "empty": "尚未关联现场证据。", "noCandidates": "此项目没有可关联的新证据。" },
-    "attachment": { "title": "添加申请附件", "help": "提交前上传检查表、图纸、报告或证书。", "add": "添加附件", "file": "文件", "category": "附件类型", "note": "备注", "empty": "尚未添加申请附件。", "other": "其他附件", "attached": "已上传", "required": "必须上传" },
-    "attachmentType": { "CHECKLIST": "检查表", "IFC_DRAWING": "IFC 图纸", "SURVEY_REPORT": "测量报告", "MATERIAL_TEST": "材料测试报告", "CALIBRATION": "校准证书", "ITP": "ITP", "OTHER": "其他" },
+    "reviewerKind": {
+      "CONSULTANT": "申请中指定的顾问",
+      "USER": "指定公司用户",
+      "ROLE": "拥有指定公司角色的用户"
+    },
+    "templateManager": {
+      "title": "RFI 表格模板",
+      "subtitle": "按项目管理表格栏位、必需附件和不可修改版本，不需要填写技术 JSON。",
+      "new": "新增模板",
+      "chooseProject": "请选择项目以管理该项目的 RFI 表格。",
+      "loading": "正在加载模板...",
+      "loadError": "无法加载模板。",
+      "empty": "这个项目还没有 RFI 表格模板。",
+      "active": "启用",
+      "inactive": "停用",
+      "noDescription": "没有说明",
+      "applicationType": "申请类型",
+      "allTypes": "全部申请类型",
+      "numbering": "申请编号规则",
+      "numberingHelp": "可使用 {project}、{discipline}、{type} 和 {sequence}，流水号固定为四位。",
+      "requiredFiles": "必需附件",
+      "customFields": "额外表格栏位",
+      "none": "没有",
+      "newVersion": "建立新版本",
+      "createTitle": "建立 RFI 表格模板",
+      "createHelp": "为这个项目设置真实表格；日后修改会建立新版本，不会改动已提交申请。",
+      "code": "模板编号",
+      "name": "模板名称",
+      "reportLayout": "最终报告版式",
+      "standardLayout": "标准客户 RFI PDF",
+      "standardLayoutHelp": "最终 PDF 固定使用客户确认的 RFI 与顾问审批格式，避免用户误选尚未支持的版式。",
+      "description": "说明",
+      "changeNote": "版本变更说明",
+      "cancel": "取消",
+      "save": "保存模板",
+      "versionTitle": "{name} 第 {version} 版",
+      "versionHelp": "系统会建立不可修改的新版本，旧申请继续保留原本栏位与附件规则。",
+      "saveVersion": "建立版本",
+      "customFieldsHelp": "只添加这个项目真实 RFI 表格需要的额外问题。",
+      "addField": "增加栏位",
+      "fieldLabel": "显示给用户的问题",
+      "fieldKey": "系统栏位名称",
+      "required": "必填",
+      "removeField": "移除栏位"
+    },
+    "evidence": {
+      "title": "关联现场证据",
+      "help": "选择现有且不可修改的现场照片，无需重复上传原图。",
+      "link": "关联证据",
+      "caption": "说明",
+      "empty": "尚未关联现场证据。",
+      "noCandidates": "此项目没有可关联的新证据。"
+    },
+    "attachment": {
+      "title": "添加申请附件",
+      "help": "提交前上传检查表、图纸、报告或证书。",
+      "add": "添加附件",
+      "file": "文件",
+      "category": "附件类型",
+      "note": "备注",
+      "empty": "尚未添加申请附件。",
+      "other": "其他附件",
+      "attached": "已上传",
+      "required": "必须上传"
+    },
+    "attachmentType": {
+      "CHECKLIST": "检查表",
+      "IFC_DRAWING": "IFC 图纸",
+      "SURVEY_REPORT": "测量报告",
+      "MATERIAL_TEST": "材料测试报告",
+      "CALIBRATION": "校准证书",
+      "ITP": "ITP",
+      "OTHER": "其他"
+    },
     "credential": {
-      "title": "审批签名与 PIN", "shortTitle": "签名与 PIN", "subtitle": "设置用于可追溯项目决定的个人签名。",
-      "identityTitle": "签名与顾问印章", "identityHelp": "每次审批都会保存不可修改的副本，日后更换不会影响旧报告。",
-      "signature": "电子签名", "signatureHelp": "上传背景清楚的 PNG 或 JPG 签名。", "stamp": "顾问印章", "stampHelp": "流程步骤要求盖章时才是必填。",
-      "pinTitle": "审批 PIN", "pinHelp": "批准、拒绝或退回申请时输入此 6 位 PIN。", "pin": "新 6 位 PIN", "pinConfirm": "确认 PIN", "pinMismatch": "两次 PIN 不一致。",
-      "currentPassword": "当前登录密码", "passwordHelp": "修改签署凭证前需验证当前密码。", "save": "保存签署凭证"
+      "title": "审批签名与 PIN",
+      "shortTitle": "签名与 PIN",
+      "subtitle": "设置用于可追溯项目决定的个人签名。",
+      "identityTitle": "签名与顾问印章",
+      "identityHelp": "每次审批都会保存不可修改的副本，日后更换不会影响旧报告。",
+      "signature": "电子签名",
+      "signatureHelp": "上传背景清楚的 PNG 或 JPG 签名。",
+      "stamp": "顾问印章",
+      "stampHelp": "流程步骤要求盖章时才是必填。",
+      "pinTitle": "审批 PIN",
+      "pinHelp": "批准、拒绝或退回申请时输入此 6 位 PIN。",
+      "pin": "新 6 位 PIN",
+      "pinConfirm": "确认 PIN",
+      "pinMismatch": "两次 PIN 不一致。",
+      "currentPassword": "当前登录密码",
+      "passwordHelp": "修改签署凭证前需验证当前密码。",
+      "save": "保存签署凭证"
     },
-    "archive": { "recordOnly": "结构化归档记录" },
+    "archive": {
+      "recordOnly": "结构化归档记录",
+      "complete": "已完成",
+      "pending": "等待中",
+      "verify": "打开二维码验证",
+      "kind": {
+        "APPLICATION": "申请资料归档",
+        "APPROVAL": "签名审批记录归档",
+        "FINAL_REPORT": "最终 PDF 归档"
+      }
+    },
     "common": { "unknown": "未知" },
     "verification": {
-      "title": "审批报告验证", "notFoundTitle": "找不到验证记录", "notFoundHelp": "此二维码无效或最终报告已不可用。",
-      "verifiedTitle": "MSE Trace 审批报告验证成功", "verifiedHelp": "以下资料与 MSE Trace 保存的只读最终报告一致。",
-      "applicationNo": "申请编号", "revision": "版本", "company": "建筑商", "project": "项目", "applicationType": "申请类型",
-      "consultantCompany": "顾问公司", "consultant": "顾问", "decision": "最终决定", "finalizedAt": "完成时间", "sha256": "报告 SHA-256", "reference": "验证编号"
+      "title": "审批报告验证",
+      "notFoundTitle": "找不到验证记录",
+      "notFoundHelp": "此二维码无效或最终报告已不可用。",
+      "verifiedTitle": "MSE Trace 审批报告验证成功",
+      "verifiedHelp": "以下资料与 MSE Trace 保存的只读最终报告一致。",
+      "applicationNo": "申请编号",
+      "revision": "版本",
+      "company": "建筑商",
+      "project": "项目",
+      "applicationType": "申请类型",
+      "consultantCompany": "顾问公司",
+      "consultant": "顾问",
+      "decision": "最终决定",
+      "finalizedAt": "完成时间",
+      "sha256": "报告 SHA-256",
+      "reference": "验证编号"
     },
-    "toast": { "workflowSaved": "审批流程已保存", "stepSaved": "审批步骤已保存", "stepRemoved": "审批步骤已移除", "draftSaved": "申请草稿已保存", "submitted": "申请已提交审批", "decisionSaved": "签署决定已保存", "revisionCreated": "新版本已建立", "attachmentAdded": "附件已添加", "evidenceLinked": "现场证据已关联", "credentialSaved": "签署凭证已保存", "templateSaved": "RFI 表格模板已保存", "templateVersionSaved": "RFI 表格模板版本已保存", "received": "申请已标记为已接收", "acknowledged": "申请已确认" }
+    "toast": {
+      "workflowSaved": "审批流程已保存",
+      "stepSaved": "审批步骤已保存",
+      "stepRemoved": "审批步骤已移除",
+      "draftSaved": "申请草稿已保存",
+      "submitted": "申请已提交审批",
+      "decisionSaved": "签署决定已保存",
+      "revisionCreated": "新版本已建立",
+      "attachmentAdded": "附件已添加",
+      "evidenceLinked": "现场证据已关联",
+      "credentialSaved": "签署凭证已保存",
+      "templateSaved": "RFI 表格模板已保存",
+      "templateVersionSaved": "RFI 表格模板版本已保存",
+      "received": "申请已标记为已接收",
+      "acknowledged": "申请已确认"
+    }
   },
   "schedulePlanning": {
     "title": "施工计划管理",
     "subtitle": "安排施工任务、保护已批准的基准计划，并确认现场实际进度。",
-    "action": { "importExcel": "导入 Excel", "newPlan": "新建计划", "archive": "归档", "addTask": "新增任务", "newRevision": "新建修订版", "confirmRevision": "确认并锁定", "remove": "移除", "edit": "编辑", "open": "打开", "cancel": "取消", "save": "保存", "createRevision": "建立修订版", "confirmProgress": "确认进度", "preview": "预览文件", "confirmImport": "确认导入" },
-    "field": { "project": "项目", "plan": "施工计划", "selectPlan": "选择计划", "planName": "计划名称", "baselineLabel": "基准计划名称", "description": "说明", "revisionLabel": "修订版名称", "revisionReason": "变更原因", "task": "任务", "wbs": "WBS", "taskName": "任务名称", "parentTask": "上级任务", "noParent": "没有上级任务", "plannedStart": "计划开始", "plannedEnd": "计划完成", "plannedDates": "计划日期", "plannedProgress": "计划进度", "actualProgress": "实际进度（%）", "actualStart": "实际开始", "actualEnd": "实际完成", "managerNote": "经理确认备注", "progressEvidence": "关联现场进度", "progressEvidenceHelp": "这里只显示本项目已经确认的进度照片记录。", "delay": "延误", "actions": "操作", "importTarget": "导入到", "newPlanFromExcel": "建立新计划", "excelFile": "Excel 文件（.xlsx）", "selectStaff": "选择" },
-    "summary": { "tasks": "任务总数", "completed": "已完成", "delayed": "需要关注", "progress": "实际进度", "planned": "计划 {value}%" },
-    "view": { "list": "任务列表", "gantt": "甘特图", "revisions": "基准与修订", "history": "历史记录" },
+    "action": {
+      "importExcel": "导入 Excel",
+      "newPlan": "新建计划",
+      "archive": "归档",
+      "addTask": "新增任务",
+      "newRevision": "新建修订版",
+      "confirmRevision": "确认并锁定",
+      "remove": "移除",
+      "edit": "编辑",
+      "open": "打开",
+      "cancel": "取消",
+      "save": "保存",
+      "createRevision": "建立修订版",
+      "confirmProgress": "确认进度",
+      "preview": "预览文件",
+      "confirmImport": "确认导入"
+    },
+    "field": {
+      "project": "项目",
+      "plan": "施工计划",
+      "selectPlan": "选择计划",
+      "planName": "计划名称",
+      "baselineLabel": "基准计划名称",
+      "description": "说明",
+      "revisionLabel": "修订版名称",
+      "revisionReason": "变更原因",
+      "task": "任务",
+      "wbs": "WBS",
+      "taskName": "任务名称",
+      "parentTask": "上级任务",
+      "noParent": "没有上级任务",
+      "plannedStart": "计划开始",
+      "plannedEnd": "计划完成",
+      "plannedDates": "计划日期",
+      "plannedProgress": "计划进度",
+      "actualProgress": "实际进度（%）",
+      "actualStart": "实际开始",
+      "actualEnd": "实际完成",
+      "managerNote": "经理确认备注",
+      "progressEvidence": "关联现场进度",
+      "progressEvidenceHelp": "这里只显示本项目已经确认的进度照片记录。",
+      "delay": "延误",
+      "actions": "操作",
+      "importTarget": "导入到",
+      "newPlanFromExcel": "建立新计划",
+      "excelFile": "Excel 文件（.xlsx）",
+      "selectStaff": "选择"
+    },
+    "summary": {
+      "tasks": "任务总数",
+      "completed": "已完成",
+      "delayed": "需要关注",
+      "progress": "实际进度",
+      "planned": "计划 {value}%"
+    },
+    "view": {
+      "list": "任务列表",
+      "gantt": "甘特图",
+      "revisions": "基准与修订",
+      "history": "历史记录"
+    },
     "planStatus": { "DRAFT": "草稿", "ACTIVE": "使用中", "ARCHIVED": "已归档" },
     "revisionStatus": { "DRAFT": "草稿", "CONFIRMED": "已确认并锁定" },
-    "status": { "delayed": "已延误", "onTrack": "进度正常", "current": "当前版本" },
+    "status": {
+      "delayed": "已延误",
+      "onTrack": "进度正常",
+      "current": "当前版本"
+    },
     "source": { "MANUAL": "手动建立", "EXCEL": "Excel 导入" },
     "revision": { "number": "版本 {number}" },
     "delay": { "days": "延误 {count} 天" },
-    "gantt": { "days": "共 {count} 个日历日", "actual": "实际完成", "planned": "计划工期" },
+    "gantt": {
+      "days": "共 {count} 个日历日",
+      "actual": "实际完成",
+      "planned": "计划工期"
+    },
     "common": { "day": "天", "tasks": "项任务", "system": "系统" },
-    "state": { "chooseProject": "请选择项目以查看施工计划。", "loadError": "无法载入施工计划，请重试。", "noPlans": "这个项目还没有施工计划。您可以手动建立或导入 Excel。", "noRevision": "没有计划版本", "noTasks": "这个版本还没有任务。", "noReason": "没有额外备注", "noHistory": "还没有施工计划历史。", "noConfirmedProgress": "目前没有已确认的现场进度记录。" },
+    "state": {
+      "chooseProject": "请选择项目以查看施工计划。",
+      "loadError": "无法载入施工计划，请重试。",
+      "noPlans": "这个项目还没有施工计划。您可以手动建立或导入 Excel。",
+      "noRevision": "没有计划版本",
+      "noTasks": "这个版本还没有任务。",
+      "noReason": "没有额外备注",
+      "noHistory": "还没有施工计划历史。",
+      "noConfirmedProgress": "目前没有已确认的现场进度记录。"
+    },
     "defaults": { "baseline": "已批准基准计划" },
-    "dialog": { "planTitle": "建立施工计划", "planHelp": "先建立可编辑的基准草稿。完成任务后再确认锁定。", "revisionTitle": "建立施工计划修订版", "revisionHelp": "系统会复制当前版本。新变更会保留在草稿，直到经理确认。", "taskTitle": "新增施工任务", "editTaskTitle": "编辑施工任务", "taskHelp": "使用 WBS 和上级任务整理施工层级。", "progressTitle": "确认实际进度", "progressHelp": "经理确认实际百分比，也可以关联已批准的现场照片。", "importTitle": "导入施工计划", "importHelp": "系统会先预览文件。确认栏位对应之前不会建立任何计划。" },
-    "confirm": { "removeTaskTitle": "移除草稿任务？", "removeTaskBody": "只会从可编辑的草稿移除这个任务。", "removeRevisionTitle": "移除草稿修订版？", "removeRevisionBody": "已确认的基准和修订版本永远不能移除。", "lockTitle": "确认并锁定这个版本？", "lockBody": "确认后不能修改计划日期和 WBS。任何变更必须建立新的修订版。", "archiveTitle": "归档这个施工计划？", "archiveBody": "计划仍会保留在历史和报表，但不再作为当前施工计划使用。" },
-    "import": { "headerRow": "标题在第 {row} 行", "mappingTitle": "对应 Excel 栏位", "mappingHelp": "为每个计划字段选择 Excel 栏位。计划完成日期或工期必须至少选择一个。", "previewTitle": "文件预览" },
-    "mapping": { "wbs_code": "WBS 编号", "parent_wbs": "上级 WBS", "name": "任务名称", "description": "说明", "planned_start": "计划开始", "planned_end": "计划完成", "duration_days": "工期（天）", "actual_progress": "实际进度", "notUsed": "不使用" },
-    "history": { "PLAN_CREATED": "已建立施工计划", "REVISION_CREATED": "已建立修订草稿", "REVISION_CONFIRMED": "版本已确认并锁定", "EXCEL_IMPORTED": "已导入 Excel 计划", "PROGRESS_CONFIRMED": "已确认实际进度" },
-    "toast": { "planCreated": "施工计划已建立", "planArchived": "施工计划已归档", "revisionCreated": "修订草稿已建立", "revisionConfirmed": "施工计划版本已确认并锁定", "revisionRemoved": "修订草稿已移除", "taskSaved": "施工任务已保存", "taskRemoved": "草稿任务已移除", "progressConfirmed": "实际进度已确认", "previewReady": "Excel 预览已准备", "imported": "Excel 施工计划已导入" }
+    "dialog": {
+      "planTitle": "建立施工计划",
+      "planHelp": "先建立可编辑的基准草稿。完成任务后再确认锁定。",
+      "revisionTitle": "建立施工计划修订版",
+      "revisionHelp": "系统会复制当前版本。新变更会保留在草稿，直到经理确认。",
+      "taskTitle": "新增施工任务",
+      "editTaskTitle": "编辑施工任务",
+      "taskHelp": "使用 WBS 和上级任务整理施工层级。",
+      "progressTitle": "确认实际进度",
+      "progressHelp": "经理确认实际百分比，也可以关联已批准的现场照片。",
+      "importTitle": "导入施工计划",
+      "importHelp": "系统会先预览文件。确认栏位对应之前不会建立任何计划。"
+    },
+    "confirm": {
+      "removeTaskTitle": "移除草稿任务？",
+      "removeTaskBody": "只会从可编辑的草稿移除这个任务。",
+      "removeRevisionTitle": "移除草稿修订版？",
+      "removeRevisionBody": "已确认的基准和修订版本永远不能移除。",
+      "lockTitle": "确认并锁定这个版本？",
+      "lockBody": "确认后不能修改计划日期和 WBS。任何变更必须建立新的修订版。",
+      "archiveTitle": "归档这个施工计划？",
+      "archiveBody": "计划仍会保留在历史和报表，但不再作为当前施工计划使用。"
+    },
+    "import": {
+      "headerRow": "标题在第 {row} 行",
+      "mappingTitle": "对应 Excel 栏位",
+      "mappingHelp": "为每个计划字段选择 Excel 栏位。计划完成日期或工期必须至少选择一个。",
+      "previewTitle": "文件预览"
+    },
+    "mapping": {
+      "wbs_code": "WBS 编号",
+      "parent_wbs": "上级 WBS",
+      "name": "任务名称",
+      "description": "说明",
+      "planned_start": "计划开始",
+      "planned_end": "计划完成",
+      "duration_days": "工期（天）",
+      "actual_progress": "实际进度",
+      "notUsed": "不使用"
+    },
+    "history": {
+      "PLAN_CREATED": "已建立施工计划",
+      "REVISION_CREATED": "已建立修订草稿",
+      "REVISION_CONFIRMED": "版本已确认并锁定",
+      "EXCEL_IMPORTED": "已导入 Excel 计划",
+      "PROGRESS_CONFIRMED": "已确认实际进度"
+    },
+    "toast": {
+      "planCreated": "施工计划已建立",
+      "planArchived": "施工计划已归档",
+      "revisionCreated": "修订草稿已建立",
+      "revisionConfirmed": "施工计划版本已确认并锁定",
+      "revisionRemoved": "修订草稿已移除",
+      "taskSaved": "施工任务已保存",
+      "taskRemoved": "草稿任务已移除",
+      "progressConfirmed": "实际进度已确认",
+      "previewReady": "Excel 预览已准备",
+      "imported": "Excel 施工计划已导入"
+    }
   },
   "siteControl": {
-    "action": { "edit": "编辑", "remove": "移除", "save": "保存", "saveProfile": "保存公司资料", "saveSettings": "保存设置", "cancel": "取消", "create": "建立", "view": "查看", "qr": "二维码", "approve": "批准", "reject": "拒绝", "revoke": "撤销", "close": "关闭", "refresh": "刷新" },
+    "action": {
+      "edit": "编辑",
+      "remove": "移除",
+      "save": "保存",
+      "saveProfile": "保存公司资料",
+      "saveSettings": "保存设置",
+      "cancel": "取消",
+      "create": "建立",
+      "view": "查看",
+      "qr": "二维码",
+      "approve": "批准",
+      "reject": "拒绝",
+      "revoke": "撤销",
+      "close": "关闭",
+      "refresh": "刷新"
+    },
     "status": { "active": "启用", "inactive": "停用" },
-    "state": { "loading": "正在加载现场控制资料...", "loadError": "无法加载资料，请检查网络后重试。", "projectLoadError": "无法加载项目，请检查此账号的项目权限后重试。" },
+    "state": {
+      "loading": "正在加载现场控制资料...",
+      "loadError": "无法加载资料，请检查网络后重试。",
+      "projectLoadError": "无法加载项目，请检查此账号的项目权限后重试。"
+    },
     "noProjects": "此账号目前没有可用项目，请公司管理员检查项目人员分配。",
-    "field": { "project": "项目", "chooseProject": "选择项目", "allProjects": "全部项目", "name": "名称", "companyName": "公司名称", "registrationNo": "公司注册号码", "companyIntro": "公司简介", "website": "公司网站", "location": "位置", "radius": "半径", "latitude": "纬度", "longitude": "经度", "shape": "围栏形状", "address": "地址", "address2": "地址第二行", "defaultRadius": "默认半径（米）", "defaultProjectStatus": "新项目默认状态", "targetReminder": "目标提醒比例（%）", "dateFormat": "日期格式", "timeFormat": "时间格式", "language": "语言", "timezone": "时区", "homePage": "登录后首页", "notificationChannel": "默认通知方式", "defaultUserRole": "新用户默认角色", "defaultApprovalRole": "默认审批角色", "defaultGuestRole": "默认只读角色", "qrStyle": "二维码打印大小", "locationInterval": "GPS 上传间隔（秒）", "liveWindow": "实时位置有效时间（秒）", "visitorHours": "访客证默认时长（小时）", "qrPrefix": "门禁证编号前缀", "emergencyContact": "紧急联系人", "emergencyPhone": "紧急联系电话", "code": "编号", "city": "城市", "state": "州属", "chooseState": "选择州属", "postcode": "邮编", "phone": "电话", "email": "电邮", "status": "状态", "allStatuses": "全部状态", "subjectType": "门禁证类型", "worker": "工地人员", "chooseWorker": "选择人员", "subjectName": "姓名", "subjectCompany": "所属公司", "identityNo": "身份证／护照号码", "vehiclePlate": "车牌", "driverName": "司机姓名", "purpose": "进入目的", "hostName": "工地接待人", "validFrom": "生效时间", "validUntil": "截止时间", "qrValue": "二维码或门禁链接", "direction": "进出方向", "gateName": "门岗名称" },
+    "field": {
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "allProjects": "全部项目",
+      "name": "名称",
+      "companyName": "公司名称",
+      "registrationNo": "公司注册号码",
+      "companyIntro": "公司简介",
+      "website": "公司网站",
+      "location": "位置",
+      "radius": "半径",
+      "latitude": "纬度",
+      "longitude": "经度",
+      "shape": "围栏形状",
+      "address": "地址",
+      "address2": "地址第二行",
+      "defaultRadius": "默认半径（米）",
+      "defaultProjectStatus": "新项目默认状态",
+      "targetReminder": "目标提醒比例（%）",
+      "dateFormat": "日期格式",
+      "timeFormat": "时间格式",
+      "language": "语言",
+      "timezone": "时区",
+      "homePage": "登录后首页",
+      "notificationChannel": "默认通知方式",
+      "defaultUserRole": "新用户默认角色",
+      "defaultApprovalRole": "默认审批角色",
+      "defaultGuestRole": "默认只读角色",
+      "qrStyle": "二维码打印大小",
+      "locationInterval": "GPS 上传间隔（秒）",
+      "liveWindow": "实时位置有效时间（秒）",
+      "visitorHours": "访客证默认时长（小时）",
+      "fieldPinExpiry": "现场人员 PIN 过期天数",
+      "qrPrefix": "门禁证编号前缀",
+      "emergencyContact": "紧急联系人",
+      "emergencyPhone": "紧急联系电话",
+      "code": "编号",
+      "city": "城市",
+      "state": "州属",
+      "chooseState": "选择州属",
+      "postcode": "邮编",
+      "phone": "电话",
+      "email": "电邮",
+      "status": "状态",
+      "allStatuses": "全部状态",
+      "subjectType": "门禁证类型",
+      "worker": "工地人员",
+      "chooseWorker": "选择人员",
+      "subjectName": "姓名",
+      "subjectCompany": "所属公司",
+      "identityNo": "身份证／护照号码",
+      "vehiclePlate": "车牌",
+      "driverName": "司机姓名",
+      "purpose": "进入目的",
+      "hostName": "工地接待人",
+      "validFrom": "生效时间",
+      "validUntil": "截止时间",
+      "qrValue": "二维码或门禁链接",
+      "direction": "进出方向",
+      "gateName": "门岗名称"
+    },
     "shape": { "CIRCLE": "圆形范围", "POLYGON": "多点范围" },
-    "geofence": { "title": "工地电子围栏", "subtitle": "管理考勤和人员实时位置所使用的全部有效工地区域。", "new": "新增围栏", "activeZones": "启用区域", "empty": "目前没有符合筛选条件的围栏。", "primary": "主要区域", "pointCount": "{count} 个边界点", "removeTitle": "移除这个围栏？", "removeBody": "考勤与 GPS 将停止检查此区域，原有位置历史仍会保留。", "createTitle": "建立工地围栏", "editTitle": "编辑工地围栏", "formHelp": "选择圆形，或在地图点击至少三个点建立自定义范围。", "useProject": "使用项目位置", "useGps": "获取当前 GPS", "undoPoint": "撤销上一个点", "clearPoints": "清除全部点", "noProjectLocation": "此项目未保存坐标，请获取当前 GPS 或点击地图。", "gpsError": "无法获取当前 GPS，请检查浏览器定位权限。", "pointInstruction": "请沿着工地边界点击地图。已选择 {count} 个点，至少需要 3 个。" },
-    "settings": { "title": "公司设置", "subtitle": "维护建筑商公司资料，以及每个新项目自动套用的默认规则。", "realRulesTitle": "这些设置会真正影响业务。", "realRulesHelp": "二维码开关会控制许可证建立，通知开关会控制流程提醒，项目默认值会复制到新项目。", "saveError": "无法保存，请检查填写内容后重试。", "siteRules": "现场作业默认规则", "siteRulesHelp": "每个项目可有独立围栏；这里控制时间与证据要求。", "attendancePhotoHelp": "工地人员每次上班和下班打卡都必须自拍。", "gatePhotoHelp": "门岗人员和已连接设备每次进出都必须提供照片。" },
-    "profile": { "title": "公司资料", "subtitle": "显示在报表、二维码记录和项目文件中的正式建筑商资料。", "chooseLogo": "选择公司 Logo" },
-    "projectDefaults": { "title": "新项目默认设置", "subtitle": "建立新项目时，系统会自动复制这些规则和栏目。", "archiveLock": "归档后锁定记录", "archiveLockHelp": "新项目的归档资料完成后保持只读。", "notifyManager": "通知项目经理", "notifyManagerHelp": "新项目默认把项目经理加入业务流程通知。" },
+    "geofence": {
+      "title": "工地电子围栏",
+      "subtitle": "管理考勤和人员实时位置所使用的全部有效工地区域。",
+      "new": "新增围栏",
+      "activeZones": "启用区域",
+      "empty": "目前没有符合筛选条件的围栏。",
+      "primary": "主要区域",
+      "pointCount": "{count} 个边界点",
+      "removeTitle": "移除这个围栏？",
+      "removeBody": "考勤与 GPS 将停止检查此区域，原有位置历史仍会保留。",
+      "createTitle": "建立工地围栏",
+      "editTitle": "编辑工地围栏",
+      "formHelp": "先选择项目和范围形状，再直接在地图上完成设置。",
+      "useProject": "使用项目位置",
+      "useGps": "获取当前 GPS",
+      "circleChoiceHelp": "最容易使用，适合大多数工地",
+      "polygonChoiceHelp": "适合边界不规则的工地",
+      "circleInstruction": "点击地图选择圆心，或使用上方的项目位置。可直接选择常用半径。",
+      "drawingTitle": "正在绘制：请依次点击工地外围角位",
+      "drawingBody": "地图可以拖动和缩放。点位会自动编号，也可以拖动点位调整位置。",
+      "drawingComplete": "范围已完成，共 {count} 个边界点",
+      "adjustHelp": "如需修改，可继续增加或拖动点位；也可以重新绘制。",
+      "drawingCount": "已标记 {count} 个点",
+      "finishNeedThree": "还需要 {count} 个点才可以完成范围。",
+      "dragPointHelp": "范围已可保存；拖动编号点位可以微调边界。",
+      "finishDrawing": "完成范围",
+      "continueDrawing": "继续调整",
+      "redraw": "重新绘制",
+      "undoPoint": "撤销上一个点",
+      "clearPoints": "清除全部点",
+      "noProjectLocation": "此项目未保存坐标，请获取当前 GPS 或点击地图。",
+      "gpsError": "无法获取当前 GPS，请检查浏览器定位权限。",
+      "pointInstruction": "请沿着工地边界点击地图。已选择 {count} 个点，至少需要 3 个。"
+    },
+    "settings": {
+      "title": "公司设置",
+      "subtitle": "维护建筑商公司资料，以及每个新项目自动套用的默认规则。",
+      "realRulesTitle": "这些设置会真正影响业务。",
+      "realRulesHelp": "二维码开关会控制许可证建立，通知开关会控制流程提醒，项目默认值会复制到新项目。",
+      "saveError": "无法保存，请检查填写内容后重试。",
+      "siteRules": "现场作业默认规则",
+      "siteRulesHelp": "每个项目可有独立围栏；这里控制时间与证据要求。",
+      "attendancePhotoHelp": "工地人员每次上班和下班打卡都必须自拍。",
+      "gatePhotoHelp": "门岗人员和已连接设备每次进出都必须提供照片。"
+    },
+    "profile": {
+      "title": "公司资料",
+      "subtitle": "显示在报表、二维码记录和项目文件中的正式建筑商资料。",
+      "chooseLogo": "选择公司 Logo"
+    },
+    "projectDefaults": {
+      "title": "新项目默认设置",
+      "subtitle": "建立新项目时，系统会自动复制这些规则和栏目。",
+      "archiveLock": "归档后锁定记录",
+      "archiveLockHelp": "新项目的归档资料完成后保持只读。",
+      "notifyManager": "通知项目经理",
+      "notifyManagerHelp": "新项目默认把项目经理加入业务流程通知。"
+    },
     "projectStatus": { "PLANNING": "规划中", "ACTIVE": "进行中" },
-    "categories": { "title": "默认项目栏目", "subtitle": "每个新项目都会自动建立这些栏目。", "add": "新增栏目", "empty": "尚未设置默认栏目，新项目将使用空白栏目清单。", "fieldVisible": "现场人员可见", "fieldVisibleHelp": "工人可在拍照优先的手机工作台选择此栏目。" },
-    "preferences": { "title": "公司偏好", "subtitle": "设置公司用户使用的语言、时间显示和登录首页。" },
-    "permissionDefaults": { "title": "默认权限", "subtitle": "设置新账号的默认角色，以及新增顾问项目授权时预选的权限。", "manageRoles": "管理角色权限", "consultant": "顾问项目默认权限", "consultantHelp": "新增顾问项目授权时会自动预选，管理员保存前仍可调整。", "permission": { "project_view": "查看项目", "document_view": "查看文件", "approval_view": "查看审批", "approval_review": "执行审批", "notification_view": "查看通知", "progress_view": "查看施工进度", "safety_view": "查看安全记录", "report_view": "查看报表", "report_export": "导出报表" } },
-    "language": { "en": "英文", "zh": "中文", "ms": "马来文" },
-    "homePage": { "dashboard": "Dashboard 首页", "projects": "项目管理", "notifications": "通知中心", "field_staff": "现场人员工作台" },
-    "notificationChannel": { "IN_APP": "仅站内通知", "PUSH": "站内通知及手机推送" },
+    "categories": {
+      "title": "默认现场资料栏目",
+      "subtitle": "每个新项目都会自动建立这些栏目。",
+      "add": "新增栏目",
+      "empty": "尚未设置默认栏目，新项目将使用空白栏目清单。",
+      "fieldVisible": "现场人员可见",
+      "fieldVisibleHelp": "工人可在拍照优先的手机工作台选择此栏目。"
+    },
+    "preferences": {
+      "title": "公司偏好",
+      "subtitle": "设置公司用户使用的语言、时间显示和登录首页。"
+    },
+    "permissionDefaults": {
+      "title": "默认权限",
+      "subtitle": "设置新账号的默认角色，以及新增顾问项目授权时预选的权限。",
+      "manageRoles": "管理角色权限",
+      "consultant": "顾问项目默认权限",
+      "consultantHelp": "新增顾问项目授权时会自动预选，管理员保存前仍可调整。",
+      "permission": {
+        "project_view": "查看项目",
+        "document_view": "查看文件",
+        "approval_view": "查看审批",
+        "approval_review": "执行审批",
+        "notification_view": "查看通知",
+        "progress_view": "查看施工进度",
+        "safety_view": "查看安全记录",
+        "report_view": "查看报表",
+        "report_export": "导出报表"
+      }
+    },
+    "language": { "en": "英文", "zh": "中文", "zh-TW": "繁體中文", "ms": "马来文" },
+    "homePage": {
+      "dashboard": "Dashboard 首页",
+      "projects": "项目管理",
+      "notifications": "通知中心",
+      "field_staff": "现场人员工作台"
+    },
+    "notificationChannel": {
+      "IN_APP": "仅站内通知",
+      "PUSH": "站内通知及手机推送"
+    },
     "qrStyle": { "STANDARD": "标准", "COMPACT": "小型", "LARGE": "大字打印" },
-    "qrSettings": { "title": "二维码规则", "subtitle": "控制可建立的现场许可证，关闭后系统会阻止新的二维码建立。", "siteAccess": "现场门禁二维码", "siteAccessHelp": "人员、访客和车辆许可证的总开关。", "visitor": "访客二维码", "visitorHelp": "允许获授权用户建立访客证。", "vehicle": "车辆二维码", "vehicleHelp": "允许获授权用户建立车辆证。" },
-    "notificationSettings": { "title": "通知规则", "subtitle": "选择公司用户需要收到的业务流程提醒。", "system": "系统通知", "systemHelp": "建筑商所有业务通知的总开关。", "approval": "审批通知", "approvalHelp": "项目申请、审核及门禁审批。", "rectification": "安全与整改通知", "rectificationHelp": "隐患、事故、整改提交及验收。", "expiry": "到期提醒", "expiryHelp": "许可证、门禁证及其他到期提醒。", "email": "Email 通知", "emailHelp": "连接真实公司邮件服务后使用。" },
-    "branches": { "title": "分公司与总部", "subtitle": "保存地图和报表使用的真实办公室与分公司位置。", "new": "新增分公司", "empty": "目前没有登记分公司。", "headquarters": "公司总部", "headquartersHelp": "一家公司只能设置一个总部。", "activeHelp": "停用后仍保留历史，但不能用于新业务。", "createTitle": "建立分公司", "editTitle": "编辑分公司", "formHelp": "填写注册地址，并可选择记录地图位置。", "removeTitle": "移除这个分公司？", "removeBody": "之后不能用于新记录，原有历史仍会保留。" },
-    "access": { "title": "工地门禁", "subtitle": "在同一流程申请、审批和扫描人员、访客与车辆门禁证。", "passes": "门禁证", "gate": "门岗扫码", "newPass": "新增门禁证", "empty": "没有符合筛选条件的门禁证。", "createTitle": "申请工地门禁证", "createHelp": "门禁证会先进入待审批，获授权的负责人确认后才生效。", "approveTitle": "批准这个门禁证？", "approveBody": "二维码将在批准的日期和时间范围内生效。", "rejectTitle": "拒绝这个门禁证？", "rejectBody": "申请人需要重新申请才可进入工地。", "revokeTitle": "撤销这个门禁证？", "revokeBody": "二维码会立即失效，请填写原因以保留审计记录。", "timeline": "进出记录", "noEvents": "这个门禁证尚未在门岗使用。", "unknownGate": "未注明门岗", "integrationReader": "已连接门禁设备", "qrTitle": "工地门禁二维码", "qrHelp": "下载并发送此二维码。扫码后会打开已登录的门岗页面并自动带入门禁证。" },
-    "passStatus": { "PENDING": "等待审批", "APPROVED": "已批准", "REJECTED": "已拒绝", "REVOKED": "已撤销", "EXPIRED": "已过期" },
-    "subjectType": { "WORKER": "工地人员", "VISITOR": "访客", "VEHICLE": "车辆" },
-    "direction": { "AUTO": "自动判断进场／离场", "ENTRY": "进场", "EXIT": "离场" },
-    "gate": { "title": "记录门岗进出", "subtitle": "可使用 USB 扫码器、粘贴门禁链接，或用已登录的手机扫描打印二维码。", "scannerHint": "USB 扫码器会像键盘一样自动填写此栏。", "qrPlaceholder": "扫描或粘贴二维码", "photo": "拍摄门岗照片", "getLocation": "获取门岗 GPS", "locationReady": "GPS 已获取", "record": "记录进出" },
-    "emergency": { "title": "紧急在场名单", "subtitle": "显示最后记录为进场、且尚未登记离场的所有人员与车辆。", "currentCount": "目前在场", "useTitle": "疏散时使用此名单", "useHelp": "在集合点核对人员、致电未到人员，并导出名单作为事故记录。", "empty": "所选工地目前没有登记在场的人员、访客或车辆。", "updated": "系统自动刷新，上次更新时间：{time}", "durationHours": "{hours} 小时 {minutes} 分钟", "durationMinutes": "{minutes} 分钟" },
-    "table": { "passNo": "门禁证编号", "person": "人员／车辆", "type": "类型", "project": "项目", "validity": "有效时间", "status": "状态", "direction": "最后进出", "actions": "操作", "company": "公司", "enteredAt": "进场时间", "duration": "在场时长", "gate": "门岗", "contact": "联系方式" },
-    "toast": { "geofenceSaved": "工地围栏已保存", "geofenceRemoved": "工地围栏已移除", "branchSaved": "分公司已保存", "branchRemoved": "分公司已移除", "profileSaved": "公司资料已保存", "settingsSaved": "公司现场设置已保存", "passCreated": "门禁证申请已提交", "passReviewed": "门禁审批结果已保存", "passRevoked": "门禁证已撤销", "gateRecorded": "门岗进出已记录" }
+    "qrSettings": {
+      "title": "二维码规则",
+      "subtitle": "控制可建立的现场许可证，关闭后系统会阻止新的二维码建立。",
+      "siteAccess": "现场门禁二维码",
+      "siteAccessHelp": "人员、访客和车辆许可证的总开关。",
+      "visitor": "访客二维码",
+      "visitorHelp": "允许获授权用户建立访客证。",
+      "vehicle": "车辆二维码",
+      "vehicleHelp": "允许获授权用户建立车辆证。"
+    },
+    "notificationSettings": {
+      "title": "通知规则",
+      "subtitle": "选择公司用户需要收到的业务流程提醒。",
+      "system": "系统通知",
+      "systemHelp": "建筑商所有业务通知的总开关。",
+      "approval": "审批通知",
+      "approvalHelp": "项目申请、审核及门禁审批。",
+      "rectification": "安全与整改通知",
+      "rectificationHelp": "隐患、事故、整改提交及验收。",
+      "expiry": "到期提醒",
+      "expiryHelp": "许可证、门禁证及其他到期提醒。",
+      "email": "Email 通知",
+      "emailHelp": "连接真实公司邮件服务后使用。"
+    },
+    "branches": {
+      "title": "分公司与总部",
+      "subtitle": "保存地图和报表使用的真实办公室与分公司位置。",
+      "new": "新增分公司",
+      "empty": "目前没有登记分公司。",
+      "headquarters": "公司总部",
+      "headquartersHelp": "一家公司只能设置一个总部。",
+      "activeHelp": "停用后仍保留历史，但不能用于新业务。",
+      "createTitle": "建立分公司",
+      "editTitle": "编辑分公司",
+      "formHelp": "填写注册地址，并可选择记录地图位置。",
+      "removeTitle": "移除这个分公司？",
+      "removeBody": "之后不能用于新记录，原有历史仍会保留。"
+    },
+    "access": {
+      "title": "工地门禁",
+      "subtitle": "在同一流程申请、审批和扫描人员、访客与车辆门禁证。",
+      "passes": "门禁证",
+      "gate": "门岗扫码",
+      "newPass": "新增门禁证",
+      "empty": "没有符合筛选条件的门禁证。",
+      "createTitle": "申请工地门禁证",
+      "createHelp": "门禁证会先进入待审批，获授权的负责人确认后才生效。",
+      "approveTitle": "批准这个门禁证？",
+      "approveBody": "二维码将在批准的日期和时间范围内生效。",
+      "rejectTitle": "拒绝这个门禁证？",
+      "rejectBody": "申请人需要重新申请才可进入工地。",
+      "revokeTitle": "撤销这个门禁证？",
+      "revokeBody": "二维码会立即失效，请填写原因以保留审计记录。",
+      "timeline": "进出记录",
+      "noEvents": "这个门禁证尚未在门岗使用。",
+      "unknownGate": "未注明门岗",
+      "integrationReader": "已连接门禁设备",
+      "qrTitle": "工地门禁二维码",
+      "qrHelp": "下载并发送此二维码。扫码后会打开已登录的门岗页面并自动带入门禁证。"
+    },
+    "passStatus": {
+      "PENDING": "等待审批",
+      "APPROVED": "已批准",
+      "REJECTED": "已拒绝",
+      "REVOKED": "已撤销",
+      "EXPIRED": "已过期"
+    },
+    "subjectType": {
+      "WORKER": "工地人员",
+      "VISITOR": "访客",
+      "VEHICLE": "车辆"
+    },
+    "direction": {
+      "AUTO": "自动判断进场／离场",
+      "ENTRY": "进场",
+      "EXIT": "离场"
+    },
+    "gate": {
+      "title": "记录门岗进出",
+      "subtitle": "请选择相机扫码、上传二维码图片，或使用选配的 USB 扫码器 / 粘贴输入。",
+      "cameraScan": "打开相机扫码",
+      "uploadImage": "上传二维码图片",
+      "usbOrPaste": "USB 扫码器或粘贴",
+      "scannerHint": "USB 扫码器是选配设备，会像键盘一样工作：先点选这个输入栏，再扫描纸上的二维码，编码会自动出现在这里。",
+      "qrPlaceholder": "扫描或粘贴二维码",
+      "cameraTitle": "扫描门禁二维码",
+      "cameraHelp": "把手机后置相机对准纸上的二维码，识别后会自动填入。",
+      "cameraError": "无法启动相机。请允许相机权限后重试，或上传二维码图片。",
+      "cameraUnsupported": "此浏览器无法打开相机，请上传二维码图片或使用下方输入栏。",
+      "imageError": "这张图片里找不到可读取的二维码。",
+      "retryCamera": "重试相机",
+      "qrReady": "二维码已读取。请检查进出方向、门岗照片和 GPS，然后记录进出。",
+      "photo": "拍摄门岗照片",
+      "photoReady": "门岗照片已准备",
+      "getLocation": "获取门岗 GPS",
+      "locationReady": "GPS 已获取",
+      "readyHint": "手机和平板通常使用相机扫码；USB 扫码器只是固定门岗电脑的选配方式，不是客户强制要求。",
+      "record": "记录进出",
+      "recordError": "无法记录这次门岗进出。",
+      "locationError": "无法获取 GPS，请允许精确定位权限后重试。"
+    },
+    "emergency": {
+      "title": "紧急在场名单",
+      "subtitle": "显示最后记录为进场、且尚未登记离场的所有人员与车辆。",
+      "currentCount": "目前在场",
+      "useTitle": "疏散时使用此名单",
+      "useHelp": "在集合点核对人员、致电未到人员，并导出名单作为事故记录。",
+      "empty": "所选工地目前没有登记在场的人员、访客或车辆。",
+      "updated": "系统自动刷新，上次更新时间：{time}",
+      "durationHours": "{hours} 小时 {minutes} 分钟",
+      "durationMinutes": "{minutes} 分钟"
+    },
+    "table": {
+      "passNo": "门禁证编号",
+      "person": "人员／车辆",
+      "type": "类型",
+      "project": "项目",
+      "validity": "有效时间",
+      "status": "状态",
+      "direction": "最后进出",
+      "actions": "操作",
+      "company": "公司",
+      "enteredAt": "进场时间",
+      "duration": "在场时长",
+      "gate": "门岗",
+      "contact": "联系方式"
+    },
+    "toast": {
+      "geofenceSaved": "工地围栏已保存",
+      "geofenceRemoved": "工地围栏已移除",
+      "branchSaved": "分公司已保存",
+      "branchRemoved": "分公司已移除",
+      "profileSaved": "公司资料已保存",
+      "settingsSaved": "公司现场设置已保存",
+      "passCreated": "门禁证申请已提交",
+      "passReviewed": "门禁审批结果已保存",
+      "passRevoked": "门禁证已撤销",
+      "gateRecorded": "门岗进出已记录"
+    }
   },
   "userHandover": {
     "action": { "open": "人员交接", "cancel": "取消", "confirm": "完成交接" },
-    "dialog": { "title": "更换 {name}", "description": "选择或建立接替人员。旧账号和已经完成的所有证据都会原样保留。" },
+    "dialog": {
+      "title": "更换 {name}",
+      "description": "选择或建立接替人员。旧账号和已经完成的所有证据都会原样保留。"
+    },
     "mode": { "existing": "现有人员", "new": "建立新人员" },
-    "field": { "incomingUser": "接替人员", "chooseUser": "请选择接替人员", "fullName": "姓名", "email": "电邮", "phone": "手机号码", "reason": "交接原因", "reasonPlaceholder": "例如：员工离职、调职或转到其他项目" },
-    "transfer": { "title": "需要转移的内容", "role": "角色与权限", "projects": "项目权限", "responsibilities": "项目负责人职责", "tasks": "尚未完成的现场任务" },
-    "warning": { "title": "旧账号会被停用", "description": "旧人员的照片、审批、考勤和操作记录仍保留原姓名；接替人员只会取得目前权限和未完成工作。" },
-    "history": { "title": "人员交接记录", "subtitle": "共 {count} 笔已完成交接", "projects": "{count} 个项目", "tasks": "{count} 个任务", "completedBy": "操作人：{name}" },
-    "state": { "noCandidate": "没有其他可用人员，请选择“建立新人员”。", "loadError": "人员交接记录无法读取。", "empty": "目前还没有人员交接记录。" },
+    "field": {
+      "incomingUser": "接替人员",
+      "chooseUser": "请选择接替人员",
+      "fullName": "姓名",
+      "email": "电邮",
+      "phone": "手机号码",
+      "reason": "交接原因",
+      "reasonPlaceholder": "例如：员工离职、调职或转到其他项目"
+    },
+    "transfer": {
+      "title": "需要转移的内容",
+      "role": "角色与权限",
+      "projects": "项目权限",
+      "responsibilities": "项目负责人职责",
+      "tasks": "尚未完成的现场任务"
+    },
+    "warning": {
+      "title": "旧账号会被停用",
+      "description": "旧人员的照片、审批、考勤和操作记录仍保留原姓名；接替人员只会取得目前权限和未完成工作。"
+    },
+    "history": {
+      "title": "人员交接记录",
+      "subtitle": "共 {count} 笔已完成交接",
+      "projects": "{count} 个项目",
+      "tasks": "{count} 个任务",
+      "completedBy": "操作人：{name}"
+    },
+    "state": {
+      "noCandidate": "没有其他可用人员，请选择“建立新人员”。",
+      "loadError": "人员交接记录无法读取。",
+      "empty": "目前还没有人员交接记录。"
+    },
     "toast": { "completed": "人员交接已完成" }
   },
   "versions": {
@@ -7919,5 +10561,189 @@
     },
     "current": "当前版本",
     "forceUpdateOn": "强制更新"
+  },
+  "recyclerBusiness": {
+    "liveDrivers": {
+      "title": "司机实时位置",
+      "count": "{count} 名执行中司机",
+      "empty": "暂时没有执行中司机的 GPS 位置。",
+      "unavailable": "司机实时位置暂时无法读取。",
+      "mapLabel": "执行中回收商司机地图",
+      "project": "项目地理围栏"
+    },
+    "customers": {
+      "title": "回收商客户",
+      "subtitle": "平台客户、原有私人客户、客户二维码和私人称重入库集中管理，并保持业务来源分开。",
+      "tab": "客户资料",
+      "createTitle": "新增私人客户",
+      "editTitle": "编辑私人客户",
+      "formHelp": "平台客户由系统自动同步且不可修改。这里填写的是回收商自己的私人客户资料。"
+    },
+    "intakes": {
+      "tab": "私人入库",
+      "startTitle": "开始私人客户入库",
+      "startHelp": "扫描客户目前有效的二维码，选择回收场和材料，并只使用有效的两次过磅完成入库。",
+      "scanHelp": "可以用相机、上传二维码图片，或把光标放在这里后使用 USB 扫码器。",
+      "completeTitle": "完成 {no}",
+      "completeHelp": "请选择包含毛重、皮重和正数净重的有效毛重称重记录。",
+      "noEligibleSession": "这个回收场目前没有可用且尚未使用的有效私人毛重记录。",
+      "cancelTitle": "取消私人入库",
+      "cancelHelp": "记录会永久保留，但不会增加库存。"
+    },
+    "inventory": {
+      "title": "回收商库存",
+      "subtitle": "平台库存和私人客户库存分账记录，只在公司总库存中合计。",
+      "platform": "平台库存",
+      "private": "私人库存",
+      "total": "公司总库存",
+      "balances": "当前库存",
+      "movements": "永久库存流水",
+      "empty": "完成称重或库存调整后，库存会自动显示。",
+      "adjustTitle": "记录库存调整",
+      "adjustHelp": "每次调整都会永久记录操作人、时间和原因。",
+      "adjustmentHint": "正数增加库存，负数扣减库存。"
+    },
+    "outbound": {
+      "title": "买家与出货",
+      "subtitle": "先建立出货草稿，核对库存后确认，并集中保存 DO、E-Invoice 和照片。",
+      "shipmentsTab": "出货记录",
+      "buyersTab": "买家",
+      "createTitle": "新增出货草稿",
+      "editTitle": "编辑出货草稿",
+      "formHelp": "草稿不会扣减库存。确认前请检查所有资料。",
+      "sourceHelp": "必须选择实际出售材料所属的库存来源。",
+      "confirmTitle": "确认 {no}",
+      "confirmHelp": "系统会从所选库存永久扣减 {weight} kg，确认后不能再编辑或取消。",
+      "cancelTitle": "取消 {no}",
+      "cancelHelp": "已取消的草稿会保留在审计记录，而且不会扣减库存。",
+      "detailHelp": "这笔出货的确认资料及永久证明文件。",
+      "attachments": "证明文件",
+      "noAttachments": "尚未上传 DO、E-Invoice、照片或其他文件。"
+    },
+    "buyers": { "createTitle": "新增买家", "editTitle": "编辑买家", "formHelp": "保存出货记录使用的公司和联系人资料。" },
+    "qr": {
+      "action": "客户二维码", "title": "{name} 的二维码", "help": "只有最新且启用的二维码可以开始私人称重。重新生成后，旧二维码会立即失效。",
+      "reissueReason": "重新生成原因", "notIssued": "尚未签发客户二维码", "notIssuedHelp": "请在客户到达回收场前签发。"
+    },
+    "filter": { "all": "全部" },
+    "source": { "PLATFORM": "平台业务", "PRIVATE": "私人客户" },
+    "status": { "active": "启用", "inactive": "停用" },
+    "intakeState": { "WAITING_WEIGHING": "等待称重", "COMPLETED": "已完成", "CANCELLED": "已取消" },
+    "outboundState": { "DRAFT": "草稿", "CONFIRMED": "已确认", "CANCELLED": "已取消" },
+    "movementKind": { "INBOUND": "称重入库", "OUTBOUND": "出货扣减", "ADJUSTMENT": "库存调整" },
+    "attachmentKind": { "DELIVERY_ORDER": "送货单 DO", "E_INVOICE": "电子发票", "PHOTO": "照片", "OTHER": "其他" },
+    "material": { "MIXED": "混合建筑废料", "CONCRETE": "混凝土与砖石", "METAL": "废金属", "TIMBER": "木材", "PLASTIC": "塑料", "PAPER": "纸张与纸板", "SOIL": "泥土与骨料", "HAZARDOUS": "危险废料", "OTHER": "其他" },
+    "action": {
+      "sync": "同步平台客户", "addCustomer": "新增客户", "deactivate": "停用", "activate": "启用", "download": "下载", "print": "打印",
+      "disableQr": "停用二维码", "enableQr": "启用二维码", "reissue": "重新生成", "issueQr": "签发二维码", "scan": "扫描二维码",
+      "startIntake": "开始入库", "complete": "完成", "cancelIntake": "取消入库", "adjustInventory": "调整库存", "recordAdjustment": "记录调整",
+      "confirmShipment": "确认出货", "newShipment": "新增出货", "cancelShipment": "取消出货", "upload": "上传", "addBuyer": "新增买家"
+    },
+    "field": {
+      "customerNo": "客户编号", "companyName": "公司名称", "source": "业务来源", "totalWeight": "累计重量", "status": "状态", "registrationNo": "注册编号",
+      "contactPerson": "联系人", "phone": "电话", "email": "邮箱", "address": "地址", "notes": "备注", "bankName": "银行", "bankAccountName": "账户名称",
+      "bankAccountNo": "账号", "bankNotes": "银行备注", "serial": "二维码序号", "scanCount": "扫描次数", "issuedOn": "签发日期", "intakeNo": "入库编号",
+      "customer": "客户", "material": "材料", "netWeight": "净重", "createdAt": "建立时间", "qrToken": "客户二维码", "yard": "回收场", "vehiclePlate": "车牌",
+      "weighSession": "已完成称重", "currentWeight": "当前重量", "lastMovement": "最后变动", "movementNo": "流水编号", "type": "类型", "change": "变动",
+      "balance": "结余", "occurredAt": "时间", "adjustmentWeight": "调整重量（kg）", "reason": "原因", "shipmentNo": "出货编号", "buyer": "买家",
+      "weight": "重量", "outboundDate": "出货日期", "driverName": "司机", "eInvoiceNo": "电子发票编号", "description": "文件说明", "buyerNo": "买家编号", "shipmentCount": "已确认出货次数"
+    },
+    "toast": {
+      "customerCreated": "私人客户已建立。", "customerUpdated": "私人客户已更新。", "customerStatusUpdated": "客户状态已更新。", "customersSynced": "平台客户已同步。",
+      "qrIssued": "客户二维码已签发。", "qrReissued": "客户二维码已重新生成，旧二维码已经失效。", "qrStatusUpdated": "客户二维码状态已更新。",
+      "intakeStarted": "私人入库已建立，可以开始称重。", "intakeCompleted": "私人入库已完成并增加库存。", "intakeCancelled": "私人入库已取消。",
+      "inventoryAdjusted": "库存调整已记录。", "buyerCreated": "买家已建立。", "buyerUpdated": "买家已更新。", "buyerStatusUpdated": "买家状态已更新。",
+      "shipmentCreated": "出货草稿已建立。", "shipmentUpdated": "出货草稿已更新。", "shipmentConfirmed": "出货已确认并扣减库存。", "shipmentCancelled": "出货草稿已取消。", "attachmentUploaded": "证明文件已上传。"
+    }
+  },
+  "incidentReporting": {
+    "title": "事故上报",
+    "subtitle": "向工人和监管人员报告意外事故、紧急情况和安全问题。",
+    "empty": "目前还没有事故报告。",
+    "newReport": "新事故报告",
+    "previousReports": "历史报告",
+    "noReports": "暂无报告",
+    "project": "项目",
+    "chooseProject": "选择项目",
+    "severity": "严重程度",
+    "severityLow": "低",
+    "severityMedium": "中",
+    "severityHigh": "高",
+    "severityCritical": "紧急",
+    "location": "地点",
+    "locationPlaceholder": "建筑物、楼层、格网参考",
+    "description": "发生了什么？",
+    "descriptionPlaceholder": "清楚描述事故情况",
+    "recipients": "报告给",
+    "chooseProjectFirst": "请先选择项目以选择接收人",
+    "photos": "照片",
+    "submit": "提交报告",
+    "fillRequired": "请填写所有必填项",
+    "submitSuccess": "事故报告已提交",
+    "submitError": "无法提交报告",
+    "optional": "选填",
+    "captureLocation": "获取当前 GPS",
+    "locationReady": "已获取 GPS",
+    "locationError": "无法获取当前 GPS，请允许精确定位后重试。",
+    "evidence": {
+      "title": "必须拍摄的事故证据",
+      "progress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
+      "overview": "1. 事故区域全景",
+      "detail": "2. 伤情、隐患或损坏细节",
+      "risk": "3. 涉及的设备、人员或通道",
+      "surroundings": "4. 工地周边状况"
+    },
+    "statusOpen": "未处理",
+    "statusInvestigating": "调查中",
+    "statusAssigned": "已分配",
+    "statusRectificationSubmitted": "整改已提交",
+    "statusReturned": "已退回",
+    "statusVerified": "已验证",
+    "statusResolved": "已解决",
+    "statusClosed": "已关闭",
+    "action": {
+      "reportIncident": "报告事故",
+      "back": "返回事故列表",
+      "cancel": "取消",
+      "create": "建立报告",
+      "resolve": "标记为已解决"
+    },
+    "dialog": {
+      "create": {
+        "title": "报告事故",
+        "description": "记录事故详情。相关监管人员和工人会立即收到通知。"
+      }
+    },
+    "field": {
+      "project": "项目",
+      "title": "事故标题",
+      "titlePlaceholder": "简述事故情况",
+      "severity": "严重程度",
+      "description": "发生了什么？",
+      "descriptionPlaceholder": "清楚描述事故情况",
+      "recipients": "报告给",
+      "participants": "群组成员",
+      "reportedBy": "报告人",
+      "messagePlaceholder": "新增详情、照片或更新"
+    },
+    "chooseProjectFirst": "请先选择项目以选择接收人",
+    "loadingRecipients": "正在加载项目人员...",
+    "noRecipients": "目前没有可选择的项目人员。",
+    "supervisor": "主管",
+    "reporter": "上报人",
+    "photoLabel": "事故照片",
+    "severity": {
+      "LOW": "低",
+      "MEDIUM": "中",
+      "HIGH": "高",
+      "CRITICAL": "紧急"
+    },
+    "status": {
+      "open": "未解决",
+      "resolved": "已解决"
+    },
+    "label": {
+      "messages": "条消息"
+    }
   }
 }

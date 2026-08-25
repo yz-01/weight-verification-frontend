@@ -13,16 +13,22 @@ import type {
   DeductionDecision,
   DeductionPayload,
   Driver,
+  DriverDashboard,
+  DriverSummary,
+  DriverNotificationSettings,
   DriverPayload,
   DriverTask,
   DriverTaskDetail,
   DriverTaskPayload,
+  FleetTaskHistory,
   GateBinding,
+  RecyclerSettings,
   ScanDispatchPayload,
   Settlement,
   SettlementQuote,
   TransactionReport,
   TaskState,
+  TaskSummary,
   Vehicle,
   VehiclePayload,
 } from "@/interfaces/recycler";
@@ -56,10 +62,47 @@ export function getVehicle(id: string): Promise<Vehicle> {
   return api.get<Vehicle>(`/api/vehicles/${id}/get_vehicle/`);
 }
 
+export function getRecyclerSettings(): Promise<RecyclerSettings> {
+  return api.get<RecyclerSettings>("/api/recycler-settings/get-settings/");
+}
+
+export async function updateRecyclerSettings(
+  payload: Partial<
+    Pick<
+      RecyclerSettings,
+      | "system_notifications"
+      | "email_notifications"
+      | "push_notifications"
+      | "deduction_confirmation_kg"
+      | "ai_cctv_enabled"
+      | "anpr_enabled"
+    >
+  >,
+): Promise<RecyclerSettings> {
+  const settings = await api.patch<RecyclerSettings>(
+    "/api/recycler-settings/update-settings/",
+    payload,
+  );
+  toastSuccess("recyclerCompanySettings.toast.saved");
+  return settings;
+}
+
+function fleetPayload(
+  payload: Partial<DriverPayload | VehiclePayload>,
+): FormData {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined) continue;
+    if (value instanceof File) data.append(key, value);
+    else data.append(key, value === null ? "" : String(value));
+  }
+  return data;
+}
+
 export async function createVehicle(payload: VehiclePayload): Promise<Vehicle> {
   const vehicle = await api.post<Vehicle>(
     "/api/vehicles/create_vehicle/",
-    payload,
+    fleetPayload(payload),
   );
   toastSuccess("vehicles.toast.created");
   return vehicle;
@@ -71,7 +114,7 @@ export async function updateVehicle(
 ): Promise<Vehicle> {
   const vehicle = await api.patch<Vehicle>(
     `/api/vehicles/${id}/update_vehicle/`,
-    payload,
+    fleetPayload(payload),
   );
   toastSuccess("vehicles.toast.updated");
   return vehicle;
@@ -80,6 +123,16 @@ export async function updateVehicle(
 export async function deleteVehicle(id: string): Promise<void> {
   await api.delete(`/api/vehicles/${id}/delete_vehicle/`);
   toastSuccess("vehicles.toast.removed");
+}
+
+export function getVehicleHistory(
+  id: string,
+  query: ListQuery = {},
+): Promise<Paginated<FleetTaskHistory>> {
+  return api.list<FleetTaskHistory>(
+    `/api/vehicles/${id}/get_history/`,
+    query,
+  );
 }
 
 /**
@@ -104,6 +157,10 @@ export async function setVehicleTare(
 
 export function getDrivers(query: ListQuery): Promise<Paginated<Driver>> {
   return api.list<Driver>("/api/drivers/get_drivers/", query);
+}
+
+export function getDriverSummary(): Promise<DriverSummary> {
+  return api.get<DriverSummary>("/api/drivers/get_summary/");
 }
 
 export async function acceptDispatch(
@@ -145,8 +202,21 @@ export function getDriver(id: string): Promise<Driver> {
   return api.get<Driver>(`/api/drivers/${id}/get_driver/`);
 }
 
+export function getMyDriverProfile(): Promise<Driver> {
+  return api.get<Driver>("/api/drivers/get_my_profile/");
+}
+
+export function updateMyDriverSettings(
+  payload: DriverNotificationSettings,
+): Promise<Driver> {
+  return api.patch<Driver>("/api/drivers/update_my_settings/", payload);
+}
+
 export async function createDriver(payload: DriverPayload): Promise<Driver> {
-  const driver = await api.post<Driver>("/api/drivers/create_driver/", payload);
+  const driver = await api.post<Driver>(
+    "/api/drivers/create_driver/",
+    fleetPayload(payload),
+  );
   toastSuccess("drivers.toast.created");
   return driver;
 }
@@ -157,7 +227,7 @@ export async function updateDriver(
 ): Promise<Driver> {
   const driver = await api.patch<Driver>(
     `/api/drivers/${id}/update_driver/`,
-    payload,
+    fleetPayload(payload),
   );
   toastSuccess("drivers.toast.updated");
   return driver;
@@ -168,8 +238,26 @@ export async function deleteDriver(id: string): Promise<void> {
   toastSuccess("drivers.toast.removed");
 }
 
+export function getDriverHistory(
+  id: string,
+  query: ListQuery = {},
+): Promise<Paginated<FleetTaskHistory>> {
+  return api.list<FleetTaskHistory>(
+    `/api/drivers/${id}/get_history/`,
+    query,
+  );
+}
+
 export function getTasks(query: ListQuery): Promise<Paginated<DriverTask>> {
   return api.list<DriverTask>("/api/tasks/get_tasks/", query);
+}
+
+export function getTaskSummary(): Promise<TaskSummary> {
+  return api.get<TaskSummary>("/api/tasks/get_summary/");
+}
+
+export function getDriverDashboard(): Promise<DriverDashboard> {
+  return api.get<DriverDashboard>("/api/tasks/get_driver_dashboard/");
 }
 
 export function getTask(id: string): Promise<DriverTaskDetail> {
@@ -196,6 +284,18 @@ export async function updateTask(
     payload,
   );
   toastSuccess("tasks.toast.updated");
+  return task;
+}
+
+export async function cancelTask(
+  id: string,
+  reason: string,
+): Promise<DriverTaskDetail> {
+  const task = await api.post<DriverTaskDetail>(
+    `/api/tasks/${id}/cancel_task/`,
+    { reason },
+  );
+  toastSuccess("tasks.toast.cancelled");
   return task;
 }
 

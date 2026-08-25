@@ -1,5 +1,7 @@
 /** The recycler console's records: fleet, trips, the gate, and the money. */
 
+import type { NotificationRow } from "@/interfaces/platform-ops";
+
 export type VehicleType =
   | "LORRY"
   | "TIPPER"
@@ -17,57 +19,144 @@ export const VEHICLE_TYPES: VehicleType[] = [
   "OTHER",
 ];
 
+export type VehicleWorkStatus =
+  | "AVAILABLE"
+  | "ON_TASK"
+  | "MAINTENANCE"
+  | "INACTIVE";
+
 export interface Vehicle {
   id: string;
   plate_no: string;
   vehicle_type: VehicleType;
+  brand: string;
+  model: string;
   make_model: string;
+  payload_capacity_kg: string | null;
   /** Only used by yards weighing against a stored tare. Set via its own action. */
   tare_weight_kg: string | null;
   tare_measured_at: string | null;
   has_stored_tare: boolean;
   max_laden_kg: string | null;
   road_tax_expires_on: string | null;
+  insurance_expires_on: string | null;
   permit_expires_on: string | null;
+  photo: string | null;
   notes: string;
+  is_under_maintenance: boolean;
   is_active: boolean;
+  work_status: VehicleWorkStatus;
+  current_task_id: string | null;
+  current_task_no: string | null;
   created_at: string;
 }
 
 export interface VehiclePayload {
   plate_no: string;
   vehicle_type: VehicleType;
+  brand?: string;
+  model?: string;
   make_model?: string;
+  payload_capacity_kg?: string | null;
   max_laden_kg?: string | null;
   road_tax_expires_on?: string | null;
+  insurance_expires_on?: string | null;
   permit_expires_on?: string | null;
+  photo?: File | null;
   notes?: string;
+  is_under_maintenance?: boolean;
   is_active?: boolean;
 }
 
+export type DriverWorkStatus =
+  | "AVAILABLE"
+  | "ON_TASK"
+  | "COMPLETED_TODAY"
+  | "ON_LEAVE"
+  | "INACTIVE";
+
 export interface Driver {
   id: string;
+  driver_no: string;
   full_name: string;
   phone: string;
   ic_no: string;
   licence_no: string;
   licence_expires_on: string | null;
+  licence_photo: string | null;
+  photo: string | null;
+  emergency_contact: string;
+  notes: string;
   default_vehicle: string | null;
   default_vehicle_plate: string | null;
   user: string | null;
+  user_email: string | null;
+  login_idle_expiry_days: number;
+  language: "en" | "zh" | "zh-TW" | "ms" | null;
+  company_name: string;
+  work_status: DriverWorkStatus;
+  is_online: boolean;
+  current_task_id: string | null;
+  current_task_no: string | null;
+  last_position_at: string | null;
+  is_on_leave: boolean;
   is_active: boolean;
+  notify_new_tasks: boolean;
+  notify_task_changes: boolean;
+  notify_system: boolean;
   created_at: string;
 }
 
 export interface DriverPayload {
+  driver_no?: string;
   full_name: string;
   phone: string;
   ic_no?: string;
   licence_no?: string;
   licence_expires_on?: string | null;
+  licence_photo?: File | null;
+  photo?: File | null;
+  emergency_contact?: string;
+  notes?: string;
   default_vehicle?: string | null;
   user?: string | null;
+  account_email?: string;
+  account_password?: string;
+  login_idle_expiry_days?: number;
+  is_on_leave?: boolean;
   is_active?: boolean;
+}
+
+export interface DriverSummary {
+  total: number;
+  online: number;
+  on_task: number;
+  available: number;
+  completed_today: number;
+  on_leave: number;
+  inactive: number;
+}
+
+export interface FleetTaskHistory {
+  id: string;
+  task_no: string;
+  dispatch: string | null;
+  dispatch_no: string | null;
+  project_name: string | null;
+  state: TaskState;
+  scheduled_for: string | null;
+  completed_at: string | null;
+  net_weight_kg: string | null;
+  weigh_session_id: string | null;
+  weigh_session_no: string | null;
+}
+
+export interface TaskSummary {
+  today_dispatches: number;
+  today_completed: number;
+  running: number;
+  vehicles_used_today: number;
+  drivers_used_today: number;
 }
 
 export type TaskState =
@@ -78,6 +167,7 @@ export type TaskState =
   | "LOADED"
   | "RETURNING"
   | "DELIVERED"
+  | "COMPLETED"
   | "CANCELLED"
   | "FAILED";
 
@@ -89,6 +179,7 @@ export const TASK_STATES: TaskState[] = [
   "LOADED",
   "RETURNING",
   "DELIVERED",
+  "COMPLETED",
   "CANCELLED",
   "FAILED",
 ];
@@ -108,6 +199,7 @@ export const TASK_TRANSITIONS: Record<TaskState, TaskState[]> = {
   LOADED: ["RETURNING", "FAILED"],
   RETURNING: ["DELIVERED", "FAILED"],
   DELIVERED: [],
+  COMPLETED: [],
   CANCELLED: [],
   FAILED: [],
 };
@@ -136,8 +228,8 @@ export interface DriverTaskTransition {
   longitude: string | null;
   notes: string;
   reason: string;
-  recorded_by: string;
-  recorded_by_name: string;
+  recorded_by: string | null;
+  recorded_by_name: string | null;
 }
 
 export interface DriverTask {
@@ -156,6 +248,7 @@ export interface DriverTask {
   driver_name: string;
   scheduled_for: string | null;
   delivered_at: string | null;
+  completed_at: string | null;
   photo_count?: number;
 }
 
@@ -170,6 +263,13 @@ export interface DriverTaskDetail extends DriverTask {
   project_longitude: string | null;
   project_geofence_radius_m: number | null;
   contractor_name: string | null;
+  site_address_line_1: string;
+  site_address_line_2: string;
+  site_city: string;
+  site_state: string;
+  site_postcode: string;
+  site_latitude: string | null;
+  site_longitude: string | null;
   accepted_at: string | null;
   arrived_at: string | null;
   loaded_at: string | null;
@@ -179,6 +279,71 @@ export interface DriverTaskDetail extends DriverTask {
   failure_reason: string;
   photos: TaskPhoto[];
   transitions: DriverTaskTransition[];
+  latest_position: DriverTaskPosition | null;
+  route: DriverTaskPosition[];
+  weighing: DriverWeighingSummary | null;
+  settlement: import("@/interfaces/waste-outgoing").WasteSettlementSummary | null;
+  created_at: string;
+  updated_at: string;
+  /** Photos held in IndexedDB until connectivity returns. */
+  local_pending_photo_count?: number;
+}
+
+export interface DriverWeighingSummary {
+  session_id: string;
+  session_no: string;
+  gross_weight_kg: string | null;
+  tare_weight_kg: string | null;
+  net_weight_kg: string | null;
+  state: string;
+  verdict: string;
+  requires_review: boolean;
+  weighed_at: string | null;
+}
+
+export interface DriverDashboard {
+  date: string;
+  counts: {
+    pending: number;
+    in_progress: number;
+    completed: number;
+  };
+  current_task: DriverTaskDetail | null;
+  latest_notifications: NotificationRow[];
+}
+
+export interface DriverNotificationSettings {
+  notify_new_tasks: boolean;
+  notify_task_changes: boolean;
+  notify_system: boolean;
+}
+
+export interface RecyclerCommissionSetting {
+  id: string;
+  name: string;
+  basis: "SETTLED_AMOUNT" | "SETTLED_WEIGHT";
+  rate: string;
+  cycle: "MONTHLY" | "QUARTERLY" | "YEARLY";
+  payment_term_days: number;
+  minimum_amount: string;
+  maximum_amount: string | null;
+  effective_from: string;
+  effective_to: string | null;
+  source: "COMPANY" | "PLATFORM_DEFAULT";
+}
+
+export interface RecyclerSettings {
+  id: string;
+  company: string;
+  system_notifications: boolean;
+  email_notifications: boolean;
+  push_notifications: boolean;
+  deduction_confirmation_kg: string;
+  ai_cctv_enabled: boolean;
+  anpr_enabled: boolean;
+  commission: RecyclerCommissionSetting | null;
+  ai_cctv_device_count: number;
+  anpr_device_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -187,7 +352,9 @@ export type TaskPositionEvent =
   | "POSITION"
   | "ARRIVAL"
   | "GEOFENCE_ENTER"
-  | "GEOFENCE_EXIT";
+  | "GEOFENCE_EXIT"
+  | "NAVIGATION_START"
+  | "NAVIGATION_RETURN";
 
 export interface DriverTaskPosition {
   id: string;

@@ -92,8 +92,11 @@ export function CreateUser({ user }: { user?: UserDetail }) {
       full_name: user?.full_name ?? "",
       phone: user?.phone ?? "",
       role: user?.role ?? "",
-      language: user?.language ?? "en",
-      timezone: user?.timezone ?? "Asia/Kuala_Lumpur",
+      language: user?.language ?? me?.company_preferences?.language ?? "en",
+      timezone:
+        user?.timezone ??
+        me?.company_preferences?.timezone ??
+        "Asia/Kuala_Lumpur",
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -175,6 +178,7 @@ export function CreateUser({ user }: { user?: UserDetail }) {
               label={t("users.field.phone")}
               optional
               type="tel"
+              disabled={user?.is_field_staff}
             />
           )}
         </form.Field>

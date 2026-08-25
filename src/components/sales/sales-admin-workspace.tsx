@@ -17,7 +17,11 @@ import { useState } from "react";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  FieldWrapper,
+  ListHeader,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -48,13 +52,16 @@ import type {
   SalesTerms,
   Territory,
 } from "@/interfaces/sales";
+import type { CompanyRow } from "@/interfaces/company";
 import { useDateFormat } from "@/lib/dates";
+import { getCompanies } from "@/services/companies.service";
 import {
   acknowledgeSalesTerms,
   activateSalesTerms,
   adjustPayout,
   calculatePayout,
   createCommissionScheme,
+  createCustomerAssignment,
   createSalesperson,
   createSalesTerms,
   createTerritory,
@@ -761,6 +768,7 @@ function AssignmentPanel() {
   const t = useTranslations("adminSales");
   const qc = useQueryClient();
   const [selected, setSelected] = useState<CustomerAssignment | null>(null);
+  const [creating, setCreating] = useState(false);
   const rows = useQuery({
     queryKey: ["customer-assignments"],
     queryFn: () => getCustomerAssignments({ page_size: 200 }),
@@ -769,8 +777,30 @@ function AssignmentPanel() {
     queryKey: ["salespeople", "options"],
     queryFn: () => getSalespeople({ page_size: 200, is_active: true }),
   });
+  const companies = useQuery({
+    queryKey: ["companies", "sales-assignment-options"],
+    queryFn: () => getCompanies({ page_size: 500, sort_by: "name" }),
+  });
+  const assignedCompanyIds = new Set(
+    (rows.data?.results ?? []).map((assignment) => assignment.company),
+  );
+  const availableCompanies = (companies.data?.results ?? []).filter(
+    (company) => !assignedCompanyIds.has(company.id),
+  );
   return (
-    <PanelState loading={rows.isLoading} error={rows.isError}>
+    <PanelState
+      loading={rows.isLoading || companies.isLoading}
+      error={rows.isError || companies.isError}
+    >
+      <div className="flex justify-end border-b p-3">
+        <Button
+          disabled={people.isLoading}
+          onClick={() => setCreating(true)}
+        >
+          <Plus />
+          {t("action.addAssignment")}
+        </Button>
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
@@ -824,7 +854,145 @@ function AssignmentPanel() {
           }
         />
       )}
+      {creating && (
+        <AssignmentDialog
+          companies={availableCompanies}
+          people={people.data?.results ?? []}
+          onClose={() => setCreating(false)}
+          onSaved={() => {
+            qc.invalidateQueries({ queryKey: ["customer-assignments"] });
+            qc.invalidateQueries({ queryKey: ["sales-summary"] });
+          }}
+        />
+      )}
     </PanelState>
+  );
+}
+
+function AssignmentDialog({
+  companies,
+  people,
+  onClose,
+  onSaved,
+}: {
+  companies: CompanyRow[];
+  people: Salesperson[];
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("adminSales");
+  const [form, setForm] = useState({
+    company: "",
+    salesperson: "",
+    won_on: new Date().toISOString().slice(0, 10),
+    notes: "",
+  });
+  const save = useMutation({
+    mutationFn: () => createCustomerAssignment(form),
+    onSuccess: () => {
+      onSaved();
+      onClose();
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("action.addAssignment")}</DialogTitle>
+          <DialogDescription>{t("dialog.assignment")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          {companies.length === 0 && (
+            <p className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
+              {t("field.noUnassignedCompanies")}
+            </p>
+          )}
+          <FieldWrapper label={t("field.selectCompany")} required>
+            <select
+              className="h-9 w-full rounded-md border bg-background px-3"
+              disabled={companies.length === 0}
+              value={form.company}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  company: event.target.value,
+                }))
+              }
+            >
+              <option value="">{t("field.selectCompany")}</option>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.code} / {company.name}
+                </option>
+              ))}
+            </select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.selectPerson")} required>
+            <select
+              className="h-9 w-full rounded-md border bg-background px-3"
+              value={form.salesperson}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  salesperson: event.target.value,
+                }))
+              }
+            >
+              <option value="">{t("field.selectPerson")}</option>
+              {people.map((person) => (
+                <option key={person.id} value={person.id}>
+                  {person.code} / {person.full_name}
+                </option>
+              ))}
+            </select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.wonOn")} required>
+            <Input
+              type="date"
+              value={form.won_on}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  won_on: event.target.value,
+                }))
+              }
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.notes")}>
+            <Textarea
+              rows={3}
+              value={form.notes}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  notes: event.target.value,
+                }))
+              }
+            />
+          </FieldWrapper>
+          {save.isError && (
+            <p className="text-sm text-destructive">{t("saveError")}</p>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            disabled={
+              !form.company ||
+              !form.salesperson ||
+              !form.won_on ||
+              save.isPending
+            }
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+            {t("action.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -1381,40 +1549,55 @@ function TermsDialog({
           <DialogTitle>{t("action.addTerms")}</DialogTitle>
           <DialogDescription>{t("dialog.terms")}</DialogDescription>
         </DialogHeader>
-        <Input
-          placeholder={t("column.code")}
-          value={form.code}
-          onChange={(e) => setForm({ ...form, code: e.target.value })}
-        />
-        <Input
-          placeholder={t("column.name")}
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-        />
-        <Input
-          type="date"
-          value={form.effective_from}
-          onChange={(e) => setForm({ ...form, effective_from: e.target.value })}
-        />
-        <Textarea
-          rows={6}
-          placeholder={t("field.body")}
-          value={form.body}
-          onChange={(e) => setForm({ ...form, body: e.target.value })}
-        />
-        <AdvancedTechnicalSettings>
-          <Textarea
-            className="font-mono sm:col-span-2"
-            value={form.clauses}
-            onChange={(e) => {
-              setForm({ ...form, clauses: e.target.value });
-              setJsonError("");
-            }}
-          />
-          {jsonError && (
-            <p className="text-xs text-destructive sm:col-span-2">{jsonError}</p>
-          )}
-        </AdvancedTechnicalSettings>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FieldWrapper label={t("column.code")} required>
+            <Input
+              value={form.code}
+              onChange={(e) => setForm({ ...form, code: e.target.value })}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("column.name")} required>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.effectiveFrom")}>
+            <Input
+              type="date"
+              value={form.effective_from}
+              onChange={(e) =>
+                setForm({ ...form, effective_from: e.target.value })
+              }
+            />
+          </FieldWrapper>
+          <FieldWrapper
+            className="sm:col-span-2"
+            label={t("field.body")}
+            required
+          >
+            <Textarea
+              rows={6}
+              value={form.body}
+              onChange={(e) => setForm({ ...form, body: e.target.value })}
+            />
+          </FieldWrapper>
+          <AdvancedTechnicalSettings>
+            <Textarea
+              className="font-mono sm:col-span-2"
+              value={form.clauses}
+              onChange={(e) => {
+                setForm({ ...form, clauses: e.target.value });
+                setJsonError("");
+              }}
+            />
+            {jsonError && (
+              <p className="text-xs text-destructive sm:col-span-2">
+                {jsonError}
+              </p>
+            )}
+          </AdvancedTechnicalSettings>
+        </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}

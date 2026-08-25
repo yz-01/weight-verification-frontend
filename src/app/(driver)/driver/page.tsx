@@ -1,5 +1,5 @@
-import { DriverTasks } from "@/components/driver/driver-tasks";
+import { DriverDashboard } from "@/components/driver/driver-dashboard";
 
 export default function DriverTasksPage() {
-  return <DriverTasks />;
+  return <DriverDashboard />;
 }

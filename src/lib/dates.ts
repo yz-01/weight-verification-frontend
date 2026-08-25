@@ -1,11 +1,12 @@
 "use client";
 
-import { format, formatDistanceToNow } from "date-fns";
-import { enGB, ms, zhCN } from "date-fns/locale";
+import { formatDistanceToNow } from "date-fns";
+import { enGB, ms, zhCN, zhTW } from "date-fns/locale";
 import type { Locale as DateFnsLocale } from "date-fns";
 import { useLocale } from "next-intl";
 import { useMemo } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { resolveLocale, type Locale } from "@/i18n/config";
 
 /**
@@ -24,12 +25,16 @@ import { resolveLocale, type Locale } from "@/i18n/config";
 const DATE_LOCALES: Record<Locale, DateFnsLocale> = {
   en: enGB,
   zh: zhCN,
+  "zh-TW": zhTW,
   ms,
 };
 
-export const DATE_PATTERN = "dd MMM yyyy";
-export const DATE_TIME_PATTERN = "dd MMM yyyy HH:mm";
-export const PRECISE_PATTERN = "dd MMM yyyy HH:mm:ss";
+const INTL_LOCALES: Record<Locale, string> = {
+  en: "en-GB",
+  zh: "zh-CN",
+  "zh-TW": "zh-TW",
+  ms: "ms-MY",
+};
 
 type DateInput = string | number | Date | null | undefined;
 
@@ -45,7 +50,13 @@ export interface DateFormatter {
 }
 
 export function useDateFormat(): DateFormatter {
-  const locale = DATE_LOCALES[resolveLocale(useLocale())];
+  const resolvedLocale = resolveLocale(useLocale());
+  const locale = DATE_LOCALES[resolvedLocale];
+  const { user } = useAuth();
+  const dateFormat = user?.company_preferences?.date_format;
+  const timeFormat = user?.company_preferences?.time_format ?? "24H";
+  const configuredTimezone =
+    user?.company_preferences?.timezone || user?.timezone || "Asia/Kuala_Lumpur";
 
   return useMemo(() => {
     // A record can carry a null date, and an API can return something
@@ -57,18 +68,74 @@ export function useDateFormat(): DateFormatter {
       return Number.isNaN(parsed.getTime()) ? null : parsed;
     }
 
+    function parts(
+      value: Date,
+      options: Intl.DateTimeFormatOptions,
+    ): Record<string, string> {
+      return Object.fromEntries(
+        new Intl.DateTimeFormat(INTL_LOCALES[resolvedLocale], {
+          ...options,
+          timeZone: configuredTimezone,
+        })
+          .formatToParts(value)
+          .filter((part) => part.type !== "literal")
+          .map((part) => [part.type, part.value]),
+      );
+    }
+
+    function renderDate(value: Date): string {
+      if (!dateFormat) {
+        return new Intl.DateTimeFormat(INTL_LOCALES[resolvedLocale], {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          timeZone: configuredTimezone,
+        }).format(value);
+      }
+      const dateParts = parts(value, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      if (dateFormat === "MM/DD/YYYY") {
+        return `${dateParts.month}/${dateParts.day}/${dateParts.year}`;
+      }
+      if (dateFormat === "YYYY-MM-DD") {
+        return `${dateParts.year}-${dateParts.month}-${dateParts.day}`;
+      }
+      return `${dateParts.day}/${dateParts.month}/${dateParts.year}`;
+    }
+
+    function renderTime(value: Date, includeSeconds = false): string {
+      const timeParts = parts(value, {
+        hour: "2-digit",
+        minute: "2-digit",
+        ...(includeSeconds ? { second: "2-digit" } : {}),
+        hour12: timeFormat === "12H",
+        ...(timeFormat === "24H" ? { hourCycle: "h23" } : {}),
+      });
+      const clock = [
+        timeParts.hour,
+        timeParts.minute,
+        ...(includeSeconds ? [timeParts.second] : []),
+      ].join(":");
+      return timeParts.dayPeriod ? `${clock} ${timeParts.dayPeriod}` : clock;
+    }
+
     return {
       date: (value) => {
         const parsed = parse(value);
-        return parsed ? format(parsed, DATE_PATTERN, { locale }) : "";
+        return parsed ? renderDate(parsed) : "";
       },
       dateTime: (value) => {
         const parsed = parse(value);
-        return parsed ? format(parsed, DATE_TIME_PATTERN, { locale }) : "";
+        return parsed ? `${renderDate(parsed)} ${renderTime(parsed)}` : "";
       },
       precise: (value) => {
         const parsed = parse(value);
-        return parsed ? format(parsed, PRECISE_PATTERN, { locale }) : "";
+        return parsed
+          ? `${renderDate(parsed)} ${renderTime(parsed, true)}`
+          : "";
       },
       relative: (value) => {
         const parsed = parse(value);
@@ -77,5 +144,5 @@ export function useDateFormat(): DateFormatter {
           : "";
       },
     };
-  }, [locale]);
+  }, [configuredTimezone, dateFormat, locale, resolvedLocale, timeFormat]);
 }

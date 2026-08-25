@@ -88,7 +88,7 @@ export function AdminReportWorkspace({
         }
       />
       {section === "overview" ? (
-        <div className="min-h-0 flex-1 overflow-y-auto border-y bg-card">
+        <div className="min-h-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
           <div className="grid md:grid-cols-2 xl:grid-cols-3">
             {SUBMODULES.map((module) => (
               <Link
@@ -176,7 +176,7 @@ function ReportPanel({
 
   return (
     <div className="min-h-0 flex-1 space-y-4 overflow-y-auto">
-      <div className="grid gap-3 border-y bg-card p-4 sm:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-3 rounded-lg border bg-card p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-6">
         {showType && (
           <FilterSelect
             label={t("filter.reportType")}
@@ -247,17 +247,17 @@ function ReportPanel({
       </div>
 
       {report.isError ? (
-        <div className="border-y py-12 text-center text-sm text-muted-foreground">
+        <div className="rounded-lg border bg-card py-12 text-center text-sm text-muted-foreground">
           {t("loadError")}
         </div>
       ) : report.isLoading || !report.data ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-24 rounded-md" />
+            <Skeleton key={index} className="h-24 rounded-lg" />
           ))}
         </div>
       ) : (
-        <div className="grid border-l sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid overflow-hidden rounded-lg border bg-card sm:grid-cols-2 xl:grid-cols-3">
           {report.data.metrics.map((metric) => (
             <div key={metric.key} className="min-h-28 border-b border-r px-5 py-4">
               <p className="text-sm text-muted-foreground">
@@ -337,7 +337,7 @@ function ReportHistory() {
         title={t("section.history.title")}
         subtitle={t("section.history.subtitle")}
       />
-      <div className="min-h-0 flex-1 overflow-auto border-y bg-card">
+      <div className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>

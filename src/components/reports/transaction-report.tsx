@@ -135,7 +135,7 @@ export function TransactionReport() {
 
       <section
         aria-label={t("reports.transaction.filters")}
-        className="border-y py-4"
+        className="rounded-lg border bg-card p-4 shadow-sm"
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <div className="space-y-1.5">
@@ -215,7 +215,7 @@ export function TransactionReport() {
       {report.isLoading ? (
         <ReportSkeleton />
       ) : report.isError ? (
-        <p role="alert" className="border-y py-10 text-sm text-destructive">
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-8 text-sm text-destructive">
           {t("errors.genericBody")}
         </p>
       ) : (
@@ -279,7 +279,7 @@ function ReportBody({
 
   if (report.total_transactions === 0) {
     return (
-      <p className="border-y py-12 text-center text-sm text-muted-foreground">
+      <p className="rounded-lg border bg-card py-12 text-center text-sm text-muted-foreground">
         {t("reports.empty")}
       </p>
     );
@@ -337,7 +337,7 @@ function ReportBody({
         <h2 className="text-sm font-semibold">
           {t("reports.transaction.byState")}
         </h2>
-        <div className="overflow-x-auto border-y">
+        <div className="overflow-hidden rounded-lg border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
@@ -433,7 +433,7 @@ function ReportTable({
   return (
     <section className="space-y-3">
       <h2 className="text-sm font-semibold">{title}</h2>
-      <div className="overflow-x-auto border-y">
+      <div className="overflow-hidden rounded-lg border bg-card">
         <Table>
           <TableHeader>
             <TableRow>

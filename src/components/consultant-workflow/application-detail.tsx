@@ -3,10 +3,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
+  CircleDashed,
   ClipboardCheck,
   Download,
-  FileArchive,
-  ImageIcon,
+  History,
   KeyRound,
   Link2,
   Loader2,
@@ -18,9 +18,11 @@ import {
   Send,
   ShieldCheck,
   BadgeCheck,
+  ExternalLink,
   XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -34,6 +36,7 @@ import {
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -187,28 +190,35 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
         </div>
       </div>
 
-      {currentStep && (
-        <section className="rounded-lg border border-warning/30 bg-warning/5 p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-semibold">{t("review.pending", { step: currentStep.name })}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{reviewerLabel(currentStep, application, t)}</p>
-            </div>
-            {canAct && (
-              credential.data ? (
-                <div className="flex flex-wrap gap-2">
-                  <Button size="sm" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
-                  <Button size="sm" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
-                  <Button size="sm" variant="outline" onClick={() => setDecision("REVISE_RESUBMIT")}><RotateCcw />{t("decision.REVISE_RESUBMIT")}</Button>
-                  <Button size="sm" variant="destructive" onClick={() => setDecision("REJECT")}><XCircle />{t("decision.REJECT")}</Button>
-                </div>
-              ) : (
-                <Button asChild size="sm"><Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link></Button>
-              )
+      <ApplicationLifecycle application={application} />
+
+      <section className="rounded-lg border border-primary/25 bg-primary/5 p-4 sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-base font-semibold">{t("detail.nextAction")}</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              {nextActionText(application, currentStep, canAct, t)}
+            </p>
+            {currentStep && (
+              <p className="mt-2 text-sm font-medium text-foreground">
+                {t("review.pending", { step: currentStep.name })} · {reviewerLabel(currentStep, application, t)}
+              </p>
             )}
           </div>
-        </section>
-      )}
+          {currentStep && canAct && (
+            credential.data ? (
+              <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:min-w-[22rem] sm:grid-cols-2 lg:flex lg:min-w-0">
+                <Button className="min-h-11 justify-start sm:justify-center" onClick={() => setDecision("APPROVE")}><CheckCircle2 />{t("decision.APPROVE")}</Button>
+                <Button className="min-h-11 justify-start sm:justify-center" variant="outline" onClick={() => setDecision("APPROVE_WITH_REMEDIAL")}><ClipboardCheck />{t("decision.APPROVE_WITH_REMEDIAL")}</Button>
+                <Button className="min-h-11 justify-start sm:justify-center" variant="outline" onClick={() => setDecision("REVISE_RESUBMIT")}><RotateCcw />{t("decision.REVISE_RESUBMIT")}</Button>
+                <Button className="min-h-11 justify-start sm:justify-center" variant="destructive" onClick={() => setDecision("REJECT")}><XCircle />{t("decision.REJECT")}</Button>
+              </div>
+            ) : (
+              <Button asChild className="min-h-11 w-full sm:w-auto"><Link href="/approval-credential"><KeyRound />{t("review.setupCredential")}</Link></Button>
+            )
+          )}
+        </div>
+      </section>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
         <div className="space-y-5">
@@ -248,7 +258,75 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
             </div>
           </Section>
           <Section title={t("detail.section.evidence")} action={application.status === "DRAFT" && can("consultant.submit") ? <Button size="sm" variant="outline" onClick={() => setEvidenceOpen(true)}><Link2 />{t("evidence.link")}</Button> : undefined}>
-            {!application.evidence_links.length ? <Empty text={t("evidence.empty")} /> : <div className="grid gap-3 sm:grid-cols-2">{application.evidence_links.map((link) => <a key={link.id} href={link.evidence_watermarked_file || link.evidence_file} target="_blank" rel="noreferrer" className="flex min-w-0 gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/30"><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-info/10 text-info"><ImageIcon className="size-5" /></span><div className="min-w-0"><p className="truncate font-medium">{link.caption || link.original_filename}</p><p className="truncate text-xs text-muted-foreground">{link.photographer_name || t("common.unknown")} - {new Date(link.captured_at).toLocaleString()}</p><p className="mt-1 truncate font-mono text-[10px] text-muted-foreground">{link.sha256}</p></div></a>)}</div>}
+            {!application.evidence_links.length ? (
+              <Empty text={t("evidence.empty")} />
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {application.evidence_links.map((link) => (
+                  <a
+                    key={link.id}
+                    href={link.evidence_watermarked_file || link.evidence_file}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group min-w-0 overflow-hidden rounded-lg border bg-background transition-colors hover:border-primary/40"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                      <Image
+                        src={link.evidence_watermarked_file || link.evidence_file}
+                        alt={link.caption || link.original_filename}
+                        fill
+                        unoptimized
+                        className="object-cover transition-transform group-hover:scale-[1.02]"
+                      />
+                    </div>
+                    <div className="space-y-1 p-3">
+                      <p className="truncate text-sm font-medium">{link.caption || link.original_filename}</p>
+                      <p className="truncate text-xs text-muted-foreground">{link.photographer_name || t("common.unknown")} - {new Date(link.captured_at).toLocaleString()}</p>
+                      <p className="truncate font-mono text-[10px] text-muted-foreground">{link.sha256}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </Section>
+          <Section title={t("detail.section.relatedRecords")}>
+            {!application.related_record_groups.length ? (
+              <Empty text={t("state.noApplications")} />
+            ) : (
+              <div className="space-y-4">
+                {application.related_record_groups.map((group) => (
+                  <div key={group.key}>
+                    <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{group.label}</p>
+                    <div className="divide-y rounded-lg border">
+                      {group.records.map((record) => {
+                        const content = (
+                          <>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium">{record.reference}</p>
+                              <p className="mt-0.5 break-words text-xs text-muted-foreground">{record.title}</p>
+                            </div>
+                            <div className="shrink-0 text-right text-xs text-muted-foreground">
+                              <p>{record.date ? new Date(record.date).toLocaleDateString() : "-"}</p>
+                              <p>{record.created_by_name || "-"}</p>
+                            </div>
+                            {record.href && <ExternalLink className="size-4 shrink-0 text-primary" />}
+                          </>
+                        );
+                        return record.href ? (
+                          <Link key={`${record.type}-${record.record_id}`} href={record.href} className="flex items-center gap-3 p-3 transition-colors hover:bg-muted/30">
+                            {content}
+                          </Link>
+                        ) : (
+                          <div key={`${record.type}-${record.record_id}`} className="flex items-center gap-3 p-3">
+                            {content}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </Section>
           <Section title={t("detail.section.attachments")} action={application.status === "DRAFT" && can("consultant.submit") ? <Button size="sm" variant="outline" onClick={() => setAttachmentOpen(true)}><Plus />{t("attachment.add")}</Button> : undefined}>
             {application.template_required_attachment_codes.length ? (
@@ -281,12 +359,18 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
             </div>
           </Section>
           <Section title={t("detail.section.approvalProgress")}>
-            <div className="space-y-0">
-              {application.review_steps.map((step, index) => (
-                <div key={step.id} className="relative flex gap-3 pb-5 last:pb-0">
-                  {index < application.review_steps.length - 1 && <span className="absolute left-[15px] top-8 h-[calc(100%-1rem)] w-px bg-border" />}
-                  <span className={`z-10 grid size-8 shrink-0 place-items-center rounded-full border text-xs font-semibold ${step.status === "APPROVED" ? "border-success bg-success text-white" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "border-warning bg-warning text-white" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "border-destructive bg-destructive text-white" : "bg-background text-muted-foreground"}`}>{step.sequence}</span>
-                  <div className="min-w-0 pt-1"><p className="font-medium">{step.name}</p><p className="text-xs text-muted-foreground">{reviewerLabel(step, application, t)}</p><p className="mt-1 text-xs font-medium">{t(`stepStatus.${step.status}`)}</p></div>
+            <div className="space-y-2">
+              {application.review_steps.map((step) => (
+                <div key={step.id} className={`flex gap-3 rounded-lg border p-3 ${step.status === "APPROVED" ? "border-success/40 bg-success/5" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "border-warning/40 bg-warning/5" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "border-destructive/40 bg-destructive/5" : "bg-muted/15"}`}>
+                  <span className={`grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold ${step.status === "APPROVED" ? "bg-success text-white" : step.status === "CURRENT" || step.status === "APPROVED_WITH_REMEDIAL" ? "bg-warning text-white" : step.status === "REJECTED" || step.status === "REVISE_RESUBMIT" ? "bg-destructive text-white" : "bg-muted text-muted-foreground"}`}>{step.sequence}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <p className="font-medium">{step.name}</p>
+                      <span className="text-xs font-semibold">{t(`stepStatus.${step.status}`)}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">{reviewerLabel(step, application, t)}</p>
+                    {step.decided_at && <p className="mt-1 text-xs text-muted-foreground">{new Date(step.decided_at).toLocaleString()}</p>}
+                  </div>
                 </div>
               ))}
             </div>
@@ -296,11 +380,12 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
               <div className="space-y-3">{application.approval_actions.map((entry) => <div key={entry.id} className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><p className="font-medium">{entry.actor_name}</p><StatusBadge label={t(`decision.${entry.decision}`)} tone={entry.decision === "APPROVE" ? "positive" : entry.decision === "REJECT" ? "danger" : "warning"} /></div><p className="mt-1 text-xs text-muted-foreground">{entry.step_name} - {new Date(entry.acted_at).toLocaleString()}</p>{entry.remarks && <p className="mt-2 text-sm">{entry.remarks}</p>}<div className="mt-3 flex gap-2"><a href={entry.signature_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.signature")}</a>{entry.stamp_snapshot && <a href={entry.stamp_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.stamp")}</a>}</div></div>)}</div>
             </Section>
           )}
-          {!!application.archive_entries.length && (
-            <Section title={t("detail.section.archive")}>
-              <div className="space-y-2">{application.archive_entries.map((entry) => <div key={entry.id} className="flex items-center gap-3 rounded-lg border p-3"><FileArchive className="size-4 shrink-0 text-primary" /><div className="min-w-0"><p className="truncate text-sm font-medium">{entry.title}</p><p className="truncate font-mono text-[10px] text-muted-foreground">{entry.sha256 || t("archive.recordOnly")}</p></div></div>)}</div>
-            </Section>
-          )}
+          <Section title={t("detail.section.revisions")}>
+            <RevisionTimeline application={application} />
+          </Section>
+          <Section title={t("detail.section.archive")}>
+            <ArchiveChecklist application={application} />
+          </Section>
         </div>
       </div>
 
@@ -309,6 +394,151 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
       {decision && <DecisionDialog application={application} decision={decision} onClose={() => setDecision(null)} onSaved={() => { void refresh(); void queryClient.invalidateQueries({ queryKey: ["approval-credential"] }); setDecision(null); }} />}
     </div>
   );
+}
+
+function ApplicationLifecycle({ application }: { application: ConsultantApplication }) {
+  const t = useTranslations("consultantWorkflow");
+  const submitted = application.status !== "DRAFT";
+  const hasFinalReport = Boolean(application.final_report);
+  const archived = Boolean(application.archived_at);
+  const stages = [
+    {
+      key: "application",
+      complete: submitted,
+      current: !submitted,
+    },
+    {
+      key: "approval",
+      complete: hasFinalReport,
+      current: submitted && !hasFinalReport,
+    },
+    {
+      key: "final",
+      complete: hasFinalReport,
+      current: hasFinalReport && !archived,
+    },
+    {
+      key: "archive",
+      complete: archived,
+      current: false,
+    },
+  ];
+
+  return (
+    <section aria-label={t("detail.lifecycle.title")} className="grid gap-2 sm:grid-cols-4">
+      {stages.map((stage, index) => (
+        <div
+          key={stage.key}
+          className={`flex min-h-20 items-center gap-3 rounded-lg border px-4 py-3 ${
+            stage.complete
+              ? "border-success/30 bg-success/5"
+              : stage.current
+                ? "border-primary/35 bg-primary/5"
+                : "bg-muted/10 text-muted-foreground"
+          }`}
+        >
+          <span className={`grid size-9 shrink-0 place-items-center rounded-full ${stage.complete ? "bg-success text-white" : stage.current ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+            {stage.complete ? <CheckCircle2 className="size-5" /> : index + 1}
+          </span>
+          <div className="min-w-0">
+            <p className="text-base font-semibold">{t(`detail.lifecycle.${stage.key}`)}</p>
+            <p className="text-sm leading-5">{t(stage.complete ? "detail.lifecycle.complete" : stage.current ? "detail.lifecycle.current" : "detail.lifecycle.pending")}</p>
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function RevisionTimeline({ application }: { application: ConsultantApplication }) {
+  const t = useTranslations("consultantWorkflow");
+  if (!application.revision_chain.length) return <Empty text={t("detail.noRevisions")} />;
+
+  return (
+    <div className="space-y-2">
+      {application.revision_chain.map((row) => {
+        const timestamp = row.archived_at || row.finalized_at || row.submitted_at;
+        return (
+          <Link
+            key={row.id}
+            href={`/consultant-applications/${row.id}`}
+            aria-current={row.is_current ? "page" : undefined}
+            className={`flex items-center gap-3 rounded-lg border p-3 transition-colors hover:border-primary/35 ${row.is_current ? "border-primary/35 bg-primary/5" : "bg-background"}`}
+          >
+            <span className={`grid size-9 shrink-0 place-items-center rounded-full ${row.is_current ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+              <History className="size-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-medium">{t("detail.revision", { revision: row.revision })}</p>
+                {row.is_current && <span className="text-xs font-semibold text-primary">{t("detail.revisionCurrent")}</span>}
+              </div>
+              <p className="truncate text-xs text-muted-foreground">{row.application_no}</p>
+              {timestamp && <p className="mt-1 text-xs text-muted-foreground">{new Date(timestamp).toLocaleString()}</p>}
+            </div>
+            <StatusBadge label={t(`status.${row.status}`)} tone={statusTone(row.status)} />
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+function ArchiveChecklist({ application }: { application: ConsultantApplication }) {
+  const t = useTranslations("consultantWorkflow");
+  const kinds = ["APPLICATION", "APPROVAL", "FINAL_REPORT"] as const;
+  return (
+    <div className="space-y-2">
+      {kinds.map((kind) => {
+        const entry = application.archive_entries.find((row) => row.kind === kind);
+        return (
+          <div key={kind} className={`flex items-start gap-3 rounded-lg border p-3 ${entry ? "border-success/30 bg-success/5" : "bg-muted/10"}`}>
+            <span className={`grid size-9 shrink-0 place-items-center rounded-full ${entry ? "bg-success text-white" : "bg-muted text-muted-foreground"}`}>
+              {entry ? <CheckCircle2 className="size-5" /> : <CircleDashed className="size-5" />}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-medium">{t(`archive.kind.${kind}`)}</p>
+                <span className={`text-xs font-semibold ${entry ? "text-success" : "text-muted-foreground"}`}>
+                  {t(entry ? "archive.complete" : "archive.pending")}
+                </span>
+              </div>
+              {entry?.sha256 && <p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">SHA-256: {entry.sha256}</p>}
+              {kind === "FINAL_REPORT" && entry && (
+                <div className="mt-2 flex flex-wrap gap-3 text-xs font-semibold">
+                  <button type="button" className="text-primary hover:underline" onClick={() => downloadApplicationFinalReport(application.id, application.application_no)}>
+                    {t("action.downloadReport")}
+                  </button>
+                  {application.verification_code && (
+                    <Link href={`/verify/application/${application.verification_code}`} className="text-primary hover:underline">
+                      {t("archive.verify")}
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function nextActionText(
+  application: ConsultantApplication,
+  currentStep: ApplicationReviewStep | undefined,
+  canAct: boolean,
+  t: ReturnType<typeof useTranslations<"consultantWorkflow">>,
+) {
+  if (application.status === "DRAFT") return t("detail.next.draft");
+  if (application.status === "REVISE_RESUBMIT") return t("detail.next.revise");
+  if (application.status === "SUBMITTED" && canAct) return t("detail.next.review");
+  if (application.status === "SUBMITTED" && currentStep) {
+    return t("detail.next.waiting", { step: currentStep.name });
+  }
+  if (application.archived_at) return t("detail.next.archived");
+  if (application.final_report) return t("detail.next.final");
+  return t("detail.next.complete");
 }
 
 function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
@@ -326,13 +556,14 @@ function AttachmentDialog({ application, onClose, onSaved }: { application: Cons
 
 function EvidenceDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("consultantWorkflow");
-  const [evidence, setEvidence] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
   const rows = useQuery({ queryKey: ["application-evidence-candidates", application.project], queryFn: () => getApplicationEvidenceCandidates(application.project) });
   const linkedIds = useMemo(() => new Set(application.evidence_links.map((link) => link.evidence)), [application.evidence_links]);
   const candidates = (rows.data?.results ?? []).filter((row) => !linkedIds.has(row.id));
-  const save = useMutation({ mutationFn: () => linkApplicationEvidence(application.id, evidence, caption), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : <div className="space-y-3">{candidates.map((row) => <button type="button" key={row.id} onClick={() => setEvidence(row.id)} className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${evidence === row.id ? "border-primary bg-primary/5" : "hover:bg-muted/30"}`}><ImageIcon className="size-5 shrink-0 text-primary" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{row.original_filename}</p><p className="truncate text-xs text-muted-foreground">{row.photographer_name || t("common.unknown")} - {new Date(row.captured_at).toLocaleString()}</p></div>{evidence === row.id && <CheckCircle2 className="size-5 text-primary" />}</button>)}{!candidates.length && <Empty text={t("evidence.noCandidates")} />}<FieldWrapper label={t("evidence.caption")}><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!evidence || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")}</Button></DialogFooter></DialogContent></Dialog>;
+  const save = useMutation({ mutationFn: () => linkApplicationEvidence(application.id, selected, caption), onSuccess: onSaved });
+  const toggle = (id: string) => setSelected((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : <div className="space-y-4"><div className="grid max-h-[56dvh] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">{candidates.map((row) => { const checked = selected.includes(row.id); return <button type="button" key={row.id} onClick={() => toggle(row.id)} className={`overflow-hidden rounded-lg border text-left transition-colors ${checked ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/40"}`}><div className="relative aspect-[4/3] bg-muted"><Image src={row.file} alt={row.original_filename} fill unoptimized className="object-cover" /><span className="absolute left-2 top-2 grid size-7 place-items-center rounded-md bg-background/90 shadow-sm"><Checkbox checked={checked} tabIndex={-1} aria-hidden /></span></div><div className="p-2.5"><p className="truncate text-sm font-medium">{row.original_filename}</p><p className="mt-1 truncate text-xs text-muted-foreground">{row.photographer_name || t("common.unknown")}</p><p className="truncate text-xs text-muted-foreground">{new Date(row.captured_at).toLocaleString()}</p></div></button>; })}{!candidates.length && <div className="col-span-full"><Empty text={t("evidence.noCandidates")} /></div>}</div><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!selected.length || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function DecisionDialog({ application, decision, onClose, onSaved }: { application: ConsultantApplication; decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT"; onClose: () => void; onSaved: () => void }) {

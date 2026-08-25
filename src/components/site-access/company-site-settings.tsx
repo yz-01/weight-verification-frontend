@@ -58,7 +58,7 @@ const CONSULTANT_PERMISSIONS = ["project.view", "document.view", "approval.view"
 
 export function CompanySiteSettingsWorkspace() {
   const t = useTranslations("siteControl");
-  const { can } = useAuth();
+  const { can, refresh } = useAuth();
   const qc = useQueryClient();
   const canManage = can("company_settings.manage");
   const settings = useQuery({ queryKey: ["contractor-site-settings"], queryFn: getContractorSiteSettings });
@@ -86,10 +86,14 @@ export function CompanySiteSettingsWorkspace() {
   });
   const saveProfile = useMutation({
     mutationFn: () => updateContractorCompanyProfile(profileForm ?? {}, logoFile),
-    onSuccess: async () => {
+    onSuccess: async (savedProfile) => {
       setProfileDraft({});
       setLogoFile(null);
-      await qc.invalidateQueries({ queryKey: ["contractor-company-profile"] });
+      qc.setQueryData(["contractor-company-profile"], savedProfile);
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["contractor-company-profile"] }),
+        refresh(),
+      ]);
     },
   });
   const remove = useMutation({ mutationFn: deleteCompanyBranch, onSuccess: async () => { setRemoving(null); await qc.invalidateQueries({ queryKey: ["company-branches"] }); } });
@@ -98,7 +102,7 @@ export function CompanySiteSettingsWorkspace() {
   if (settings.isError || profile.isError || branches.isError) return <State text={t("state.loadError")} danger />;
 
   const categories = form.default_project_categories ?? [];
-  const roleOptions = roles.data?.results.map((role) => role.code) ?? Array.from(new Set([form.default_user_role_code, form.default_approval_role_code, form.default_guest_role_code]));
+  const roleOptions = roles.data?.results.map((role) => role.code) ?? Array.from(new Set([form.default_user_role_code, form.default_approval_role_code]));
   const roleLabel = (code: string) => roles.data?.results.find((role) => role.code === code)?.name ?? code;
   const updateCategory = (index: number, patch: Partial<(typeof categories)[number]>) => {
     const next = categories.map((row, rowIndex) => rowIndex === index ? { ...row, ...patch } : row);
@@ -165,7 +169,7 @@ export function CompanySiteSettingsWorkspace() {
       <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2 xl:grid-cols-3">
         <ChoiceField label={t("field.dateFormat")} value={form.date_format} disabled={!canManage} options={["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"]} onChange={(value) => setForm({ ...form, date_format: value as ContractorSiteSettings["date_format"] })} />
         <ChoiceField label={t("field.timeFormat")} value={form.time_format} disabled={!canManage} options={["12H", "24H"]} onChange={(value) => setForm({ ...form, time_format: value as ContractorSiteSettings["time_format"] })} />
-        <ChoiceField label={t("field.language")} value={form.language} disabled={!canManage} options={["en", "zh", "ms"]} optionLabel={(value) => t(`language.${value}`)} onChange={(value) => setForm({ ...form, language: value as ContractorSiteSettings["language"] })} />
+        <ChoiceField label={t("field.language")} value={form.language} disabled={!canManage} options={["en", "zh", "zh-TW", "ms"]} optionLabel={(value) => t(`language.${value}`)} onChange={(value) => setForm({ ...form, language: value as ContractorSiteSettings["language"] })} />
         <ChoiceField label={t("field.timezone")} value={form.timezone} disabled={!canManage} options={TIMEZONES} onChange={(value) => setForm({ ...form, timezone: value })} />
         <ChoiceField label={t("field.homePage")} value={form.home_page} disabled={!canManage} options={["/dashboard", "/projects", "/notifications", "/field-staff"]} optionLabel={(value) => t(`homePage.${value.slice(1).replace("-", "_")}`)} onChange={(value) => setForm({ ...form, home_page: value as ContractorSiteSettings["home_page"] })} />
         <ChoiceField label={t("field.notificationChannel")} value={form.default_notification_channel} disabled={!canManage} options={["IN_APP", "PUSH"]} optionLabel={(value) => t(`notificationChannel.${value}`)} onChange={(value) => setForm({ ...form, default_notification_channel: value as ContractorSiteSettings["default_notification_channel"] })} />
@@ -174,10 +178,9 @@ export function CompanySiteSettingsWorkspace() {
 
     <section className="space-y-4">
       <SectionTitle icon={Settings2} title={t("permissionDefaults.title")} description={t("permissionDefaults.subtitle")} action={can("role.view") ? <Button asChild size="sm" variant="outline"><Link href="/roles">{t("permissionDefaults.manageRoles")}</Link></Button> : undefined} />
-      <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2">
         <ChoiceField label={t("field.defaultUserRole")} value={form.default_user_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_user_role_code: value })} />
         <ChoiceField label={t("field.defaultApprovalRole")} value={form.default_approval_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_approval_role_code: value })} />
-        <ChoiceField label={t("field.defaultGuestRole")} value={form.default_guest_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_guest_role_code: value })} />
       </div>
       <div className="rounded-lg border bg-card p-4"><h3 className="font-medium">{t("permissionDefaults.consultant")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("permissionDefaults.consultantHelp")}</p><div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{CONSULTANT_PERMISSIONS.map((code) => <Toggle key={code} compact label={t(`permissionDefaults.permission.${code.replaceAll(".", "_")}`)} description={code} checked={form.default_consultant_permissions.includes(code)} disabled={!canManage} onChange={(checked) => setForm({ ...form, default_consultant_permissions: checked ? [...form.default_consultant_permissions, code] : form.default_consultant_permissions.filter((item) => item !== code) })} />)}</div></div>
     </section>
@@ -210,6 +213,7 @@ export function CompanySiteSettingsWorkspace() {
         <NumberField label={t("field.locationInterval")} value={form.location_update_interval_seconds} min={30} max={900} disabled={!canManage} onChange={(value) => setForm({ ...form, location_update_interval_seconds: value })} />
         <NumberField label={t("field.liveWindow")} value={form.live_position_window_seconds} min={60} max={3600} disabled={!canManage} onChange={(value) => setForm({ ...form, live_position_window_seconds: value })} />
         <NumberField label={t("field.visitorHours")} value={form.visitor_pass_hours} min={1} max={168} disabled={!canManage} onChange={(value) => setForm({ ...form, visitor_pass_hours: value })} />
+        <NumberField label={t("field.fieldPinExpiry")} value={form.field_pin_expiry_days} min={1} max={365} disabled={!canManage} onChange={(value) => setForm({ ...form, field_pin_expiry_days: value })} />
         <FieldWrapper label={t("field.emergencyContact")}><Input disabled={!canManage} value={form.emergency_contact_name} onChange={(event) => setForm({ ...form, emergency_contact_name: event.target.value })} /></FieldWrapper>
         <FieldWrapper label={t("field.emergencyPhone")}><Input disabled={!canManage} value={form.emergency_contact_phone} onChange={(event) => setForm({ ...form, emergency_contact_phone: event.target.value })} /></FieldWrapper>
       </div>

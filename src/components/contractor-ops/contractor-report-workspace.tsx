@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -49,12 +50,77 @@ function displayValue(value: string | number | boolean | null): string {
   return String(value);
 }
 
+const REPORT_DATE_TIME_COLUMNS = new Set([
+  "captured_at",
+  "uploaded_at",
+  "occurred_at",
+  "completed_at",
+  "confirmed_at",
+  "submitted_at",
+  "verified_at",
+]);
+
+const REPORT_DATE_ONLY_COLUMNS = new Set([
+  "application_date",
+  "planned_start",
+  "planned_end",
+  "period_start",
+  "period_end",
+  "rectification_due_at",
+]);
+
+const REPORT_LONG_COLUMNS = new Set([
+  "description",
+  "file_name",
+  "review_note",
+  "source",
+  "target_name",
+  "task",
+  "title",
+]);
+
+function reportColumnWidth(key: string): number {
+  if (key === "latitude" || key === "longitude") {
+    return 136;
+  }
+  if (REPORT_DATE_TIME_COLUMNS.has(key)) {
+    return 216;
+  }
+  if (REPORT_DATE_ONLY_COLUMNS.has(key)) {
+    return 152;
+  }
+  if (key === "device_id") {
+    return 216;
+  }
+  if (key === "file_name") {
+    return 304;
+  }
+  if (REPORT_LONG_COLUMNS.has(key)) {
+    return 264;
+  }
+  return 176;
+}
+
+function reportCellClass(key: string): string {
+  if (key === "latitude" || key === "longitude") {
+    return "whitespace-nowrap tabular-nums";
+  }
+  if (REPORT_DATE_TIME_COLUMNS.has(key) || REPORT_DATE_ONLY_COLUMNS.has(key)) {
+    return "whitespace-nowrap tabular-nums";
+  }
+  if (key === "device_id" || key === "file_name") {
+    return "line-clamp-2 break-all";
+  }
+  return "line-clamp-2 break-words [overflow-wrap:anywhere]";
+}
+
 export function ContractorReportWorkspace({
   reportType,
 }: {
   reportType: ContractorReportType;
 }) {
   const t = useTranslations("contractorReports");
+  const df = useDateFormat();
   const queryClient = useQueryClient();
   const now = new Date();
   const [dateFrom, setDateFrom] = useState(
@@ -102,11 +168,34 @@ export function ContractorReportWorkspace({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["contractor-reports", "history"] }),
   });
+  const previewWidth = (report.data?.columns ?? []).reduce(
+    (total, key) => total + reportColumnWidth(key),
+    0,
+  );
+
+  function formatReportValue(
+    key: string,
+    value: string | number | boolean | null,
+  ): string {
+    if (value === null || value === "") return "-";
+    if (REPORT_DATE_TIME_COLUMNS.has(key)) {
+      return df.precise(String(value)) || displayValue(value);
+    }
+    if (REPORT_DATE_ONLY_COLUMNS.has(key)) {
+      return df.date(String(value)) || displayValue(value);
+    }
+    return displayValue(value);
+  }
 
   return (
     <div className="space-y-5">
+      {reportType === "target" && <BusinessTargetManagement />}
       <ListHeader
-        title={t(`type.${reportType}`)}
+        title={
+          reportType === "target"
+            ? t("targetReport.title")
+            : t(`type.${reportType}`)
+        }
         subtitle={t(`description.${reportType}`)}
       />
       <section className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-2 lg:grid-cols-[minmax(14rem,1fr)_11rem_11rem_auto]">
@@ -179,6 +268,12 @@ export function ContractorReportWorkspace({
               <Input value={keyword} onChange={(event) => setKeyword(event.target.value)} />
             </label>
           </div>
+        ) : reportType === "target" ? (
+          <div className="sm:col-span-2 lg:col-span-4">
+            <p className="text-xs leading-5 text-muted-foreground">
+              {t("targetReport.filterHelp")}
+            </p>
+          </div>
         ) : null}
       </section>
 
@@ -204,11 +299,24 @@ export function ContractorReportWorkspace({
           <p className="p-10 text-center text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
           <div className="max-h-[60dvh] overflow-auto">
-            <Table>
+            <Table
+              className="table-fixed"
+              style={{ width: previewWidth, minWidth: "100%" }}
+            >
+              <colgroup>
+                {report.data?.columns.map((key) => (
+                  <col key={key} style={{ width: reportColumnWidth(key) }} />
+                ))}
+              </colgroup>
               <TableHeader className="sticky top-0 z-10 bg-card">
                 <TableRow>
                   {report.data?.columns.map((key) => (
-                    <TableHead key={key} className="whitespace-nowrap">{t(`column.${key}`)}</TableHead>
+                    <TableHead
+                      key={key}
+                      className="whitespace-normal [overflow-wrap:anywhere]"
+                    >
+                      {t(`column.${key}`)}
+                    </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
@@ -216,8 +324,16 @@ export function ContractorReportWorkspace({
                 {report.data?.rows.map((row, index) => (
                   <TableRow key={index}>
                     {report.data.columns.map((key) => (
-                      <TableCell key={key} className="max-w-80 whitespace-nowrap">
-                        {displayValue(row[key] ?? null)}
+                      <TableCell
+                        key={key}
+                        className="overflow-hidden align-top leading-5"
+                      >
+                        <span
+                          className={`block ${reportCellClass(key)}`}
+                          title={displayValue(row[key] ?? null)}
+                        >
+                          {formatReportValue(key, row[key] ?? null)}
+                        </span>
                       </TableCell>
                     ))}
                   </TableRow>
@@ -253,7 +369,16 @@ export function ContractorReportHistoryWorkspace() {
           <p className="p-10 text-center text-sm text-muted-foreground">{t("history.empty")}</p>
         ) : (
           <div className="overflow-auto">
-            <Table>
+            <Table className="min-w-[1040px] table-fixed">
+              <colgroup>
+                <col className="w-64" />
+                <col className="w-36" />
+                <col className="w-48" />
+                <col className="w-48" />
+                <col className="w-24" />
+                <col className="w-48" />
+                <col className="w-52" />
+              </colgroup>
               <TableHeader><TableRow>
                 <TableHead>{t("history.file")}</TableHead>
                 <TableHead>{t("history.report")}</TableHead>
@@ -266,7 +391,12 @@ export function ContractorReportHistoryWorkspace() {
               <TableBody>
                 {history.data?.results.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell><span className="flex items-center gap-2 whitespace-nowrap"><FileClock className="size-4 text-muted-foreground" />{row.file_name}</span></TableCell>
+                    <TableCell className="overflow-hidden">
+                      <span className="flex min-w-0 items-start gap-2" title={row.file_name}>
+                        <FileClock className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                        <span className="line-clamp-2 min-w-0 break-all">{row.file_name}</span>
+                      </span>
+                    </TableCell>
                     <TableCell>{t(`type.${row.report_type}`)}</TableCell>
                     <TableCell>{row.project_name || t("filter.allProjects")}</TableCell>
                     <TableCell className="whitespace-nowrap">{row.date_from} - {row.date_to}</TableCell>

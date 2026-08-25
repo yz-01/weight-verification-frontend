@@ -30,9 +30,7 @@ import {
   SlidersHorizontal,
   TrendingUp,
   Truck,
-  UserRound,
   Users,
-  WalletCards,
   Warehouse,
   Workflow,
   HardHat,
@@ -73,6 +71,7 @@ export type PortalFeatureKey =
   | "user_logs"
   | "activity_logs"
   | "partnerships"
+  | "customer_management"
   | "yards"
   | "weighbridges"
   | "vehicles"
@@ -80,6 +79,8 @@ export type PortalFeatureKey =
   | "waste_orders"
   | "driver_tasks"
   | "weighing_records"
+  | "inventory_management"
+  | "outbound_management"
   | "payment_status"
   | "documents"
   | "approvals"
@@ -141,6 +142,8 @@ export interface FeatureNavChild {
   href: string;
   /** Optional feature required to see and open this child route. */
   feature?: PortalFeatureKey;
+  /** Optional action permission required to expose this child entry. */
+  requiredPermission?: string;
 }
 
 export interface NavGroup {
@@ -835,12 +838,6 @@ export const PORTAL_NAVIGATION = {
         ),
         child(
           "8.2.5",
-          "nav.submodule.recyclingRecords",
-          "/weighing",
-          "recycling_records",
-        ),
-        child(
-          "8.2.6",
           "nav.submodule.paymentProofs",
           "/payment-proofs",
           "payment_proofs",
@@ -854,7 +851,15 @@ export const PORTAL_NAVIGATION = {
       "operations",
       undefined,
       false,
-      [child("9.2.1", "nav.submodule.safetyIncidents", "/safety", "safety")],
+      [
+        child("9.2.1", "nav.submodule.safetyIncidents", "/safety", "safety"),
+        child(
+          "9.2.2",
+          "nav.submodule.incidentReports",
+          "/incident-reports",
+          "safety",
+        ),
+      ],
     ),
     item(
       "consultant_applications",
@@ -881,30 +886,35 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.consultantWorkflows",
           "/consultant-workflows",
           "consultant_applications",
+          "consultant.config",
         ),
         child(
           "10.2.2B",
           "nav.submodule.approvalCredentials",
           "/approval-credential",
           "approvals",
+          "approval.review",
         ),
         child(
           "10.2.4",
           "nav.submodule.consultantFieldInbox",
           "/consultant-field-inbox",
           "field_tasks",
+          "consultant.submit",
         ),
         child(
           "10.2.8",
           "nav.submodule.consultantAccess",
           "/consultant-access",
           "users",
+          "consultant.config",
         ),
         child(
           "10.2.5",
           "nav.submodule.consultantTemplates",
           "/consultant-templates",
           "consultant_applications",
+          "consultant.config",
         ),
       ],
     ),
@@ -1116,7 +1126,12 @@ export const PORTAL_NAVIGATION = {
           "/site-access",
           "site_access",
         ),
-        child("17.2.2", "nav.submodule.gateScanning", "/gate", "site_access"),
+        child(
+          "17.2.2",
+          "nav.submodule.gateScanning",
+          "/site-access?tab=gate",
+          "site_access",
+        ),
       ],
     ),
     item(
@@ -1144,22 +1159,49 @@ export const PORTAL_NAVIGATION = {
   ],
   MSE_SCRAP: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
-    item("partnerships", "/partnerships", Handshake, "operations"),
-    item("yards", "/sites", Warehouse, "operations"),
-    item("weighbridges", "/scales", Scale, "operations"),
-    item("vehicles", "/vehicles", Truck, "operations"),
-    item("drivers", "/drivers", UserRound, "operations"),
+    item("customer_management", "/recycler-customers", Users, "operations", [
+      "/partnerships",
+    ], false, [
+      child("recycler-customers", "nav.customer_management", "/recycler-customers", "customer_management"),
+      child("recycler-partnerships", "nav.partnerships", "/partnerships", "partnerships"),
+    ]),
+    item("yards", "/sites", Warehouse, "operations", [
+      "/vehicles",
+      "/drivers",
+    ], false, [
+      child("recycler-yards", "nav.yards", "/sites", "yards"),
+      child("recycler-vehicles", "nav.vehicles", "/vehicles", "vehicles"),
+      child("recycler-drivers", "nav.drivers", "/drivers", "drivers"),
+    ]),
     item("waste_orders", "/waste-orders", Inbox, "operations", [
       "/incoming",
       "/dispatches",
+      "/tasks",
+      "/driver-gps",
+      "/driver",
+    ], false, [
+      child("recycler-orders", "nav.waste_orders", "/waste-orders", "waste_orders"),
+      child("recycler-tasks", "nav.driver_tasks", "/tasks", "driver_tasks"),
+      child("recycler-driver-gps", "nav.driver_gps", "/driver-gps", "driver_gps"),
     ]),
-    item("driver_tasks", "/tasks", ClipboardList, "operations", ["/driver"]),
-    item("driver_gps", "/driver-gps", MapPinned, "operations"),
     item("weighing_records", "/weighing", Gauge, "operations", [
       "/gate",
       "/deductions",
+      "/settlements",
+      "/scales",
+    ], false, [
+      child("recycler-weighing", "nav.weighing_records", "/weighing", "weighing_records"),
+      child("recycler-scales", "nav.weighbridges", "/scales", "weighbridges"),
+      child("recycler-deductions", "nav.deductions", "/deductions", "weighing_records"),
+      child("recycler-settlements", "nav.payment_status", "/settlements", "payment_status"),
     ]),
-    item("payment_status", "/settlements", WalletCards, "finance"),
+    item("inventory_management", "/recycler-inventory", Box, "operations", [
+      "/recycler-outbound",
+    ], false, [
+      child("recycler-inventory", "nav.inventory_management", "/recycler-inventory", "inventory_management"),
+      child("recycler-outbound", "nav.outbound_management", "/recycler-outbound", "outbound_management"),
+    ]),
+    item("billing_commission", "/billing", Receipt, "finance"),
     item(
       "transaction_reports",
       "/reports",
@@ -1174,6 +1216,7 @@ export const PORTAL_NAVIGATION = {
     item("users", "/users", Users, "system"),
     item("roles", "/roles", KeyRound, "system"),
     item("integrations", "/integrations", SlidersHorizontal, "system"),
+    item("company_settings", "/company-settings", Settings, "system"),
     item("user_logs", "/login-records", FileClock, "system"),
     item("activity_logs", "/audit-logs", History, "system"),
     item("notifications", "/notifications", Bell, "system"),
@@ -1206,43 +1249,56 @@ function child(
   labelKey: string,
   href: string,
   feature?: PortalFeatureKey,
+  requiredPermission?: string,
 ): FeatureNavChild {
-  return { key, labelKey, href, feature };
+  return { key, labelKey, href, feature, requiredPermission };
 }
 
 /** Groups containing only features returned for this signed-in user. */
 export function visibleNavigation(
   portal: Portal | undefined,
   features: readonly string[] | undefined,
+  permissions: readonly string[] = [],
+  isSuperuser = false,
 ): NavGroup[] {
   if (!portal || !features) return [];
 
   const visible = new Set(features);
-  const groups: NavGroup[] = [];
+  const groupOrder: FeatureNavItem["group"][] = [
+    "overview",
+    "operations",
+    "finance",
+    "system",
+  ];
+  const grouped = new Map<FeatureNavItem["group"], FeatureNavItem[]>(
+    groupOrder.map((key) => [key, []]),
+  );
 
   for (const navItem of PORTAL_NAVIGATION[portal]) {
-    const visibleChildren = navItem.children?.filter(
-      (childItem) =>
+    const visibleChildren = navItem.children?.filter((childItem) => {
+      const featureVisible =
         (!childItem.feature && visible.has(navItem.feature)) ||
-        (childItem.feature !== undefined && visible.has(childItem.feature)),
-    );
+        (childItem.feature !== undefined && visible.has(childItem.feature));
+      const permissionVisible =
+        !childItem.requiredPermission ||
+        hasPermission(permissions, childItem.requiredPermission, isSuperuser);
+      return featureVisible && permissionVisible;
+    });
     if (!visible.has(navItem.feature) && !visibleChildren?.length) continue;
-    const lastGroup = groups.at(-1);
     const visibleItem = {
       ...navItem,
+      href:
+        visible.has(navItem.feature) || !visibleChildren?.length
+          ? navItem.href
+          : visibleChildren[0].href,
       children: visibleChildren,
     };
-    if (lastGroup?.key === navItem.group) {
-      lastGroup.items.push(visibleItem);
-    } else {
-      groups.push({
-        key: navItem.group,
-        items: [visibleItem],
-      });
-    }
+    grouped.get(navItem.group)?.push(visibleItem);
   }
 
-  return groups;
+  return groupOrder
+    .map((key) => ({ key, items: grouped.get(key) ?? [] }))
+    .filter((group) => group.items.length > 0);
 }
 
 /** Whether a navigation entry matches the current route. */
@@ -1282,8 +1338,8 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/dispatches/create", permission: "dispatch.create" },
   { pattern: "/dispatches/:id/edit", permission: "dispatch.update" },
   { pattern: "/deductions/create", permission: "deduction.create" },
-  { pattern: "/sites/create", permission: "scale.manage" },
-  { pattern: "/sites/:id/edit", permission: "scale.manage" },
+  { pattern: "/sites/create", permission: "yard.manage" },
+  { pattern: "/sites/:id/edit", permission: "yard.manage" },
   { pattern: "/scales/create", permission: "scale.manage" },
   { pattern: "/scales/:id/edit", permission: "scale.manage" },
   { pattern: "/vehicles/create", permission: "fleet.manage" },
@@ -1296,6 +1352,13 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/roles/create", permission: "role.create" },
   { pattern: "/roles/:id/edit", permission: "role.update" },
   { pattern: "/gate", permission: "weighing.operate" },
+  { pattern: "/consultant-workflows", permission: "consultant.config" },
+  { pattern: "/consultant-templates", permission: "consultant.config" },
+  { pattern: "/consultant-access", permission: "consultant.config" },
+  { pattern: "/approval-credential", permission: "approval.review" },
+  { pattern: "/consultant-applications/create", permission: "consultant.submit" },
+  { pattern: "/consultant-applications/:id/edit", permission: "consultant.submit" },
+  { pattern: "/consultant-field-inbox", permission: "consultant.submit" },
 ];
 
 function matchesPattern(pathname: string, pattern: string): boolean {

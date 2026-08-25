@@ -56,8 +56,8 @@ export interface FieldStaffPosition {
   user_name: string;
   client_event_id: string;
   event_type: FieldPositionEvent;
-  latitude: string;
-  longitude: string;
+  latitude: string | null;
+  longitude: string | null;
   accuracy_m: string | null;
   original_occurred_at: string;
   uploaded_at: string;
@@ -65,6 +65,7 @@ export interface FieldStaffPosition {
   geofence_result: "INSIDE" | "OUTSIDE" | "NOT_EVALUATED";
   matched_geofence: string | null;
   matched_geofence_name: string | null;
+  coordinates_are_last_in_geofence?: boolean;
   is_stale: boolean;
   created_at: string;
 }

@@ -12,6 +12,7 @@ import type {
 import {
   clearTokens,
   getRefreshToken,
+  setDriverTokens,
   setLocaleCookie,
   setSessionPortal,
   setTokens,
@@ -34,7 +35,15 @@ export async function login(
     { email, password, ...(portal ? { portal } : {}) },
     { silent: true },
   );
-  setTokens(data.tokens);
+  const permissions = new Set(data.user.permissions ?? []);
+  const isDriver =
+    data.user.portal === "MSE_SCRAP" &&
+    !data.user.is_superuser &&
+    permissions.has("task.view") &&
+    permissions.has("task.submit") &&
+    !permissions.has("task.assign");
+  if (isDriver) setDriverTokens(data.tokens);
+  else setTokens(data.tokens);
   setSessionPortal(data.user.portal);
   setLocaleCookie(data.user.language);
   if (data.user.account_type === "CONSULTANT") {

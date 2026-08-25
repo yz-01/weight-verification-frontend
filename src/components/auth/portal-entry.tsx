@@ -20,7 +20,7 @@ export function PortalEntry() {
 
   return (
     <AuthCard title={t("auth.login.title")} subtitle={t("auth.login.subtitle")}>
-      <nav className="grid gap-2" aria-label="MSE portals">
+      <nav className="grid gap-2" aria-label={t("auth.portalNavigation")}>
         {PORTALS.map(({ portal, icon: Icon }) => (
           <Link
             key={portal}

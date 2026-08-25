@@ -276,8 +276,10 @@ export function EvidenceArchive() {
           <Select
             value={selectedProject || "all"}
             onValueChange={(value) => {
-              list.setFilter("project", value === "all" ? undefined : value);
-              list.setFilter("category", undefined);
+              list.setFilters({
+                project: value === "all" ? undefined : value,
+                category: undefined,
+              });
             }}
           >
             <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>

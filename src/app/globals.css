@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
 @import "shadcn/tailwind.css";
 @import "leaflet/dist/leaflet.css";
 
@@ -69,12 +70,12 @@
 }
 
 :root {
-  /* Latin face first, then the CJK face. A Chinese user reading a table of
-   * English column headers and Chinese values gets one consistent stack rather
-   * than whatever the operating system happens to substitute. */
+  /* Keep CJK rendering on stable platform fonts so production builds do not
+   * depend on fetching the large Noto Sans SC font set from Google. */
   --font-sans:
-    var(--font-geist-sans), var(--font-cjk), ui-sans-serif, system-ui,
-    -apple-system, "Segoe UI", sans-serif;
+    var(--font-geist-sans), "PingFang SC", "Microsoft YaHei",
+    "Noto Sans CJK SC", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
 
   /* Surfaces sit a touch cool rather than pure white. Operators read these
    * tables for whole shifts under site lighting, and a dead-neutral white
@@ -266,7 +267,6 @@
   min-width: 0 !important;
   max-width: 100% !important;
   overflow: clip !important;
-  contain: paint !important;
   box-sizing: border-box !important;
 }
 
@@ -280,16 +280,32 @@
   block-size: 18rem !important;
 }
 
-.geofence-map-editor .leaflet-map-pane,
-.geofence-map-editor .leaflet-control-container {
-  max-width: 100% !important;
+.geofence-map-editor .leaflet-tile {
+  width: 256px !important;
+  height: 256px !important;
+  max-width: none !important;
+  max-height: none !important;
 }
 
-.geofence-map-editor .leaflet-map-pane {
-  inset: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow: hidden !important;
+.geofence-point-marker {
+  display: grid !important;
+  place-items: center;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.geofence-point-marker span {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 3px solid white;
+  border-radius: 999px;
+  background: #087f8c;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 35%);
 }
 
 /* Older admin workspaces used full-width top/bottom borders around tables.

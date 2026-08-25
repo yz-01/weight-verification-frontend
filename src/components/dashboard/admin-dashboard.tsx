@@ -401,7 +401,7 @@ export function AdminDashboard({
                   value={contractor}
                   onChange={(value) => {
                     setContractor(value);
-                    if (value !== "ALL") setRecycler("ALL");
+                    if (value !== "ALL" && recycler !== "ALL") setRecycler("ALL");
                   }}
                   label={t("map.contractor")}
                   options={contractorOptions}
@@ -413,7 +413,7 @@ export function AdminDashboard({
                   value={recycler}
                   onChange={(value) => {
                     setRecycler(value);
-                    if (value !== "ALL") setContractor("ALL");
+                    if (value !== "ALL" && contractor !== "ALL") setContractor("ALL");
                   }}
                   label={t("map.recycler")}
                   options={recyclerOptions}

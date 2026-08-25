@@ -10,6 +10,7 @@ export function GeofenceMapEditor({
   center,
   radiusM,
   points,
+  drawingEnabled,
   onCenter,
   onPoints,
 }: {
@@ -17,6 +18,7 @@ export function GeofenceMapEditor({
   center?: Point;
   radiusM: number;
   points: Point[];
+  drawingEnabled?: boolean;
   onCenter: (point: Point) => void;
   onPoints: (points: Point[]) => void;
 }) {
@@ -26,13 +28,14 @@ export function GeofenceMapEditor({
   const layersRef = useRef<import("leaflet").LayerGroup | null>(null);
   const observerRef = useRef<ResizeObserver | null>(null);
   const initialRenderRef = useRef(true);
+  const previousDrawingRef = useRef(drawingEnabled);
   const [mapReady, setMapReady] = useState(false);
 
-  const propsRef = useRef({ shape, center, radiusM, points, onCenter, onPoints });
+  const propsRef = useRef({ shape, center, radiusM, points, drawingEnabled, onCenter, onPoints });
 
   useEffect(() => {
-    propsRef.current = { shape, center, radiusM, points, onCenter, onPoints };
-  }, [center, onCenter, onPoints, points, radiusM, shape]);
+    propsRef.current = { shape, center, radiusM, points, drawingEnabled, onCenter, onPoints };
+  }, [center, drawingEnabled, onCenter, onPoints, points, radiusM, shape]);
 
   // Keep one Leaflet instance alive while the form changes. Recreating the map
   // after every click used to reset the viewport and made polygon input flaky.
@@ -51,8 +54,11 @@ export function GeofenceMapEditor({
         fadeAnimation: false,
         markerZoomAnimation: false,
       });
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
+        keepBuffer: 4,
+        updateWhenIdle: false,
+        updateWhenZooming: true,
         attribution: "&copy; OpenStreetMap contributors",
       }).addTo(map);
 
@@ -64,16 +70,43 @@ export function GeofenceMapEditor({
         const point: Point = [event.latlng.lat, event.latlng.lng];
         if (current.shape === "CIRCLE") {
           current.onCenter(point);
-        } else {
+        } else if (current.drawingEnabled) {
           current.onPoints([...current.points, point]);
         }
       });
 
-      const observer = new ResizeObserver(() => map.invalidateSize({ animate: false }));
+      let resizeFrame = 0;
+      const refreshSize = () => {
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(() => {
+          map.invalidateSize({ animate: false });
+          const current = propsRef.current;
+          if (
+            current.shape === "POLYGON" &&
+            !current.drawingEnabled &&
+            current.points.length >= 3
+          ) {
+            map.fitBounds(current.points, {
+              animate: false,
+              maxZoom: 17,
+              padding: [24, 24],
+            });
+          }
+        });
+      };
+      const observer = new ResizeObserver(refreshSize);
       observer.observe(ref.current);
       observerRef.current = observer;
+      window.addEventListener("resize", refreshSize);
       setMapReady(true);
-      requestAnimationFrame(() => map.invalidateSize({ animate: false }));
+      refreshSize();
+      const dialogAnimationTimer = window.setTimeout(refreshSize, 250);
+
+      map.once("unload", () => {
+        cancelAnimationFrame(resizeFrame);
+        window.clearTimeout(dialogAnimationTimer);
+        window.removeEventListener("resize", refreshSize);
+      });
     });
 
     return () => {
@@ -110,6 +143,10 @@ export function GeofenceMapEditor({
       map.setView(center, map.getZoom(), { animate: false });
     }
 
+    if (shape === "POLYGON" && center && points.length === 0) {
+      map.setView(center, map.getZoom(), { animate: false });
+    }
+
     if (shape === "POLYGON" && points.length > 0) {
       const boundary = points.length >= 3
         ? L.polygon(points, {
@@ -121,31 +158,46 @@ export function GeofenceMapEditor({
         : L.polyline(points, { color: "#087f8c", weight: 2 });
       boundary.addTo(layers);
       points.forEach((point, index) => {
-        L.circleMarker(point, {
-          radius: 6,
-          color: "#ffffff",
-          weight: 2,
-          fillColor: "#087f8c",
-          fillOpacity: 1,
-        }).addTo(layers).bindTooltip(String(index + 1), { direction: "top" });
+        const marker = L.marker(point, {
+          draggable: Boolean(drawingEnabled),
+          icon: L.divIcon({
+            className: "geofence-point-marker",
+            html: `<span>${index + 1}</span>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+          }),
+        }).addTo(layers);
+        marker.on("dragend", () => {
+          const current = propsRef.current;
+          const next = [...current.points];
+          const moved = marker.getLatLng();
+          next[index] = [moved.lat, moved.lng];
+          current.onPoints(next);
+        });
       });
 
-      // Fit only when opening an existing polygon. Never fit after a click:
-      // that changes the zoom and makes it look as if the map ignored the click.
-      if (initialRenderRef.current && points.length >= 2) {
-        map.fitBounds(boundary.getBounds().pad(0.2), { maxZoom: 17, animate: false });
+      // Fit when opening an existing polygon or when the user explicitly
+      // finishes drawing. Individual clicks must not move the viewport.
+      const justFinished = previousDrawingRef.current && !drawingEnabled;
+      if ((initialRenderRef.current || justFinished) && points.length >= 2) {
+        map.fitBounds(boundary.getBounds(), {
+          maxZoom: 17,
+          animate: false,
+          padding: [24, 24],
+        });
       }
     }
 
     initialRenderRef.current = false;
+    previousDrawingRef.current = drawingEnabled;
     requestAnimationFrame(() => map.invalidateSize({ animate: false }));
-  }, [center, mapReady, points, radiusM, shape]);
+  }, [center, drawingEnabled, mapReady, points, radiusM, shape]);
 
   return (
     <div
       ref={ref}
       data-testid="geofence-map-editor"
-      className="geofence-map-editor relative z-0 isolate block h-72 min-h-72 w-full min-w-0 max-w-full shrink-0 overflow-hidden rounded-lg border bg-muted/20 [contain:strict]"
+      className={`geofence-map-editor relative z-0 isolate block h-72 min-h-72 w-full min-w-0 max-w-full shrink-0 overflow-hidden rounded-lg border bg-muted/20 ${shape === "POLYGON" && drawingEnabled ? "cursor-crosshair" : ""}`}
     />
   );
 }

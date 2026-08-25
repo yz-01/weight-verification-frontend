@@ -54,15 +54,28 @@ export function withReturnPath(path: string, next?: string): string {
 export function redirectWithFallback(
   router: { replace: (href: string) => void },
   path: string,
+  fallbackDelayMs = 250,
 ): void {
-  if (typeof window === "undefined" || window.location.pathname === path) {
+  if (typeof window === "undefined") {
     return;
   }
 
+  const target = new URL(path, window.location.origin);
+  const source = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const isAtTarget = () =>
+    window.location.pathname === target.pathname &&
+    window.location.search === target.search &&
+    window.location.hash === target.hash;
+  if (isAtTarget()) return;
+
   router.replace(path);
   window.setTimeout(() => {
-    if (window.location.pathname !== path) {
+    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    // Only rescue a router that never left the original screen. If the user
+    // has already reached the destination and moved to another page, an old
+    // login timer must not drag them back and abort their new navigation.
+    if (!isAtTarget() && current === source) {
       window.location.replace(path);
     }
-  }, 250);
+  }, fallbackDelayMs);
 }

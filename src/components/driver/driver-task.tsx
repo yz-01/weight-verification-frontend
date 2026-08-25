@@ -11,18 +11,25 @@ import {
   Loader2,
   MapPin,
   PackageOpen,
+  Scale,
   Truck,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   DriverError,
   DriverLoading,
 } from "@/components/driver/driver-shell";
 import { StatusBadge } from "@/components/shared/page-primitives";
+import {
+  LocationMap,
+  type LocationMapMarker,
+  type LocationMapPath,
+  type LocationMapZone,
+} from "@/components/shared/location-map";
 import { TASK_STATE_TONE } from "@/components/tasks/tasks";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,17 +42,21 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { TASK_TRANSITIONS, type TaskState } from "@/interfaces/recycler";
-import { useDateFormat } from "@/lib/dates";
 import {
-  getTask,
-} from "@/services/recycler.service";
+  TASK_TRANSITIONS,
+  type DriverTaskDetail,
+  type TaskPositionEvent,
+  type TaskState,
+} from "@/interfaces/recycler";
+import { useDateFormat } from "@/lib/dates";
+import { getDriverTaskOfflineAware } from "@/services/driver-offline.service";
 import {
   submitTaskPhotoOfflineAware,
   submitTaskPositionOfflineAware,
   submitTaskTransitionOfflineAware,
 } from "@/services/offline-sync.service";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 
 /**
  * One trip, on a phone.
@@ -64,17 +75,25 @@ export function DriverTask({ id }: { id: string }) {
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const realtimeKeys = useMemo(
+    () => [["tasks", "detail", id], ["tasks", "mine"], ["driver", "dashboard"]],
+    [id],
+  );
+  useOrderRealtime(realtimeKeys);
 
   const [moving, setMoving] = useState<TaskState | null>(null);
   const [reason, setReason] = useState("");
   const [locating, setLocating] = useState(false);
+  const [gpsUnavailable, setGpsUnavailable] = useState(false);
   const [hasQueuedPhoto, setHasQueuedPhoto] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const lastPositionAt = useRef(0);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["tasks", "detail", id],
-    queryFn: () => getTask(id),
+    queryFn: () => getDriverTaskOfflineAware(user!.id, id),
+    enabled: Boolean(user),
+    refetchInterval: 15_000,
   });
 
   const advance = useMutation({
@@ -115,7 +134,13 @@ export function DriverTask({ id }: { id: string }) {
         queryClient.setQueryData(
           ["tasks", "detail", id],
           (current: typeof data) =>
-            current ? { ...current, state, is_running: true } : current,
+            current
+              ? {
+                  ...current,
+                  state,
+                  is_running: !["COMPLETED", "CANCELLED", "FAILED"].includes(state),
+                }
+              : current,
         );
       } else {
         void queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -127,9 +152,16 @@ export function DriverTask({ id }: { id: string }) {
   });
 
   const upload = useMutation({
-    mutationFn: (file: File) => {
+    mutationFn: async (file: File) => {
       if (!user) throw new Error("A signed-in user is required.");
-      return submitTaskPhotoOfflineAware(user.id, id, file);
+      const position = await currentPosition();
+      const missingGps = !position.latitude || !position.longitude;
+      setGpsUnavailable(missingGps);
+      if (missingGps) throw new Error("driver_photo_gps_required");
+      return submitTaskPhotoOfflineAware(user.id, id, file, "LOADING", {
+        latitude: position.latitude,
+        longitude: position.longitude,
+      });
     },
     onSuccess: (result) => {
       if (result === "queued") {
@@ -142,11 +174,28 @@ export function DriverTask({ id }: { id: string }) {
     },
   });
 
+  function recordNavigation(eventType: TaskPositionEvent): void {
+    if (!user) return;
+    void currentPosition()
+      .then((position) => {
+        if (!position.latitude || !position.longitude) return;
+        return submitTaskPositionOfflineAware(user.id, {
+          taskId: id,
+          eventType,
+          latitude: position.latitude,
+          longitude: position.longitude,
+          accuracyM: position.accuracyM,
+        });
+      })
+      .catch(() => setGpsUnavailable(true));
+  }
+
   useEffect(() => {
     if (!user || !data?.is_running || !navigator.geolocation) return;
 
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
+        setGpsUnavailable(false);
         const now = Date.now();
         if (now - lastPositionAt.current < 30_000) return;
         lastPositionAt.current = now;
@@ -158,7 +207,7 @@ export function DriverTask({ id }: { id: string }) {
           originalOccurredAt: new Date(position.timestamp).toISOString(),
         }).catch(() => undefined);
       },
-      () => undefined,
+      () => setGpsUnavailable(true),
       { enableHighAccuracy: true, maximumAge: 15_000, timeout: 20_000 },
     );
 
@@ -169,6 +218,30 @@ export function DriverTask({ id }: { id: string }) {
   if (isError || !data) return <DriverError onRetry={() => void refetch()} />;
 
   const next = TASK_TRANSITIONS[data.state];
+  const projectDestination = mapDestination(
+    data.project_latitude,
+    data.project_longitude,
+    [
+      data.project_address_line_1,
+      data.project_address_line_2,
+      data.project_city,
+      data.project_state,
+      data.project_postcode,
+    ],
+  );
+  const yardDestination = mapDestination(
+    data.site_latitude,
+    data.site_longitude,
+    [
+      data.site_address_line_1,
+      data.site_address_line_2,
+      data.site_city,
+      data.site_state,
+      data.site_postcode,
+    ],
+  );
+  const hasPendingPhoto =
+    hasQueuedPhoto || (data.local_pending_photo_count ?? 0) > 0;
   // The step that carries the trip forward, as opposed to abandoning it.
   const forward = next.find((state) => state !== "FAILED" && state !== "CANCELLED");
   const canFail = next.includes("FAILED");
@@ -176,7 +249,7 @@ export function DriverTask({ id }: { id: string }) {
   return (
     <div className="space-y-4 pb-4">
       <Link
-        href="/driver"
+        href="/driver/jobs"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -250,18 +323,114 @@ export function DriverTask({ id }: { id: string }) {
         )}
       </div>
 
-      {data.project_latitude && data.project_longitude && (
+      <DriverTripMap data={data} />
+
+      {projectDestination &&
+        data.state !== "RETURNING" &&
+        data.state !== "DELIVERED" &&
+        data.state !== "COMPLETED" && (
         <Button asChild variant="outline" size="lg" className="h-12 w-full">
           <a
-            href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${data.project_latitude},${data.project_longitude}`)}`}
+            href={googleMapsDirections(projectDestination)}
             target="_blank"
             rel="noreferrer"
+            onClick={() => recordNavigation("NAVIGATION_START")}
           >
             <MapPin className="h-4 w-4" />
             {t("driver.navigate")}
             <ExternalLink className="ml-auto h-4 w-4" />
           </a>
         </Button>
+      )}
+
+      {yardDestination && data.state === "RETURNING" && (
+          <Button asChild variant="outline" size="lg" className="h-12 w-full">
+            <a
+              href={googleMapsDirections(yardDestination)}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => recordNavigation("NAVIGATION_RETURN")}
+            >
+              <Truck className="h-4 w-4" />
+              {t("driver.returnYard")}
+              <ExternalLink className="ml-auto h-4 w-4" />
+            </a>
+          </Button>
+        )}
+
+      {data.weighing && (
+        <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Scale className="h-4 w-4 text-primary" />
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("ticket.section.weighing")}
+            </h2>
+          </div>
+          <dl className="space-y-2.5 text-sm">
+            <Row
+              icon={Scale}
+              label={t("ticket.field.grossWeight")}
+              value={data.weighing.gross_weight_kg ? `${data.weighing.gross_weight_kg} kg` : "—"}
+            />
+            <Row
+              icon={Scale}
+              label={t("ticket.field.tareWeight")}
+              value={data.weighing.tare_weight_kg ? `${data.weighing.tare_weight_kg} kg` : "—"}
+            />
+            <Row
+              icon={Scale}
+              label={t("ticket.field.netWeight")}
+              value={data.weighing.net_weight_kg ? `${data.weighing.net_weight_kg} kg` : "—"}
+            />
+          </dl>
+        </div>
+      )}
+
+      {data.settlement && (
+        <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Scale className="h-4 w-4 text-primary" />
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("driver.settlement.title")}
+            </h2>
+          </div>
+          <dl className="space-y-2.5 text-sm">
+            <Row icon={Scale} label={t("driver.settlement.deduction")} value={`${data.settlement.deduction_weight_kg ?? "0"} kg`} />
+            <Row icon={Scale} label={t("driver.settlement.payableWeight")} value={`${data.settlement.settled_weight_kg ?? "0"} kg`} />
+            <Row icon={Scale} label={t("driver.settlement.amount")} value={data.settlement.total_amount ? `${data.settlement.currency} ${data.settlement.total_amount}` : "—"} />
+            <Row icon={Scale} label={t("driver.settlement.paid")} value={`${data.settlement.currency ?? "MYR"} ${data.settlement.amount_paid}`} />
+            <Row icon={Scale} label={t("driver.settlement.outstanding")} value={data.settlement.outstanding === null ? "—" : `${data.settlement.currency ?? "MYR"} ${data.settlement.outstanding}`} />
+          </dl>
+          {data.settlement.deductions.length > 0 && (
+            <div className="divide-y border-y">
+              {data.settlement.deductions.map((deduction) => (
+                <div key={deduction.id} className="py-2 text-xs">
+                  <p className="font-medium text-foreground">{deduction.kind} · {deduction.weight_kg} kg</p>
+                  <p className="mt-0.5 text-muted-foreground">{deduction.reason} · {deduction.state}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {data.state === "DELIVERED" && (
+        <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-4">
+          <p className="text-sm font-semibold text-foreground">
+            {t("driver.awaitingWeighing")}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("driver.awaitingWeighingBody")}
+          </p>
+        </div>
+      )}
+
+      {gpsUnavailable && (
+        <p className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground">
+          {upload.isError
+            ? t("driver.photoGpsRequired")
+            : t("driver.gpsUnavailable")}
+        </p>
       )}
 
       <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
@@ -332,7 +501,7 @@ export function DriverTask({ id }: { id: string }) {
       )}
 
       {/* The next step, as one button the size of a thumb. */}
-      {forward === "LOADED" && data.photos.length === 0 && !hasQueuedPhoto && (
+      {forward === "LOADED" && data.photos.length === 0 && !hasPendingPhoto && (
         <p className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground">
           {t("driver.photoRequired")}
         </p>
@@ -346,7 +515,7 @@ export function DriverTask({ id }: { id: string }) {
             locating ||
             (forward === "LOADED" &&
               data.photos.length === 0 &&
-              !hasQueuedPhoto)
+              !hasPendingPhoto)
           }
           onClick={() => setMoving(forward)}
         >
@@ -445,6 +614,103 @@ export function DriverTask({ id }: { id: string }) {
       )}
     </div>
   );
+}
+
+function DriverTripMap({ data }: { data: DriverTaskDetail }) {
+  const t = useTranslations();
+  const df = useDateFormat();
+  const latest = data.latest_position;
+  if (!latest) return null;
+
+  const latitude = Number(latest.latitude);
+  const longitude = Number(latest.longitude);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+
+  const projectLatitude = Number(data.project_latitude);
+  const projectLongitude = Number(data.project_longitude);
+  const hasProject =
+    Number.isFinite(projectLatitude) && Number.isFinite(projectLongitude);
+  const markers: LocationMapMarker[] = [
+    {
+      id: `driver-${data.id}`,
+      latitude,
+      longitude,
+      label: data.driver_name,
+      detail: data.vehicle_plate,
+      tone: latest.geofence_result === "OUTSIDE" ? "warning" : "positive",
+      icon: "truck",
+    },
+    ...(hasProject
+      ? [
+          {
+            id: `project-${data.id}`,
+            latitude: projectLatitude,
+            longitude: projectLongitude,
+            label: data.project_name ?? data.contractor_name ?? data.dispatch_no ?? data.task_no,
+            icon: "project" as const,
+          },
+        ]
+      : []),
+  ];
+  const routePoints = data.route
+    .map(
+      (point) =>
+        [Number(point.latitude), Number(point.longitude)] as [number, number],
+    )
+    .filter(([lat, lng]) => Number.isFinite(lat) && Number.isFinite(lng));
+  const paths: LocationMapPath[] =
+    routePoints.length > 1
+      ? [{ id: `route-${data.id}`, points: routePoints, label: data.task_no }]
+      : [];
+  const zones: LocationMapZone[] =
+    hasProject && data.project_geofence_radius_m
+      ? [
+          {
+            id: `geofence-${data.id}`,
+            center: [projectLatitude, projectLongitude],
+            radiusM: data.project_geofence_radius_m,
+            label: data.project_name ?? data.task_no,
+            color: "#087f8c",
+          },
+        ]
+      : [];
+
+  return (
+    <section className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {t("driver.dashboard.gps")}
+        </h2>
+        <span className="text-xs tabular-nums text-muted-foreground">
+          {df.dateTime(latest.original_occurred_at)}
+        </span>
+      </div>
+      <LocationMap
+        markers={markers}
+        paths={paths}
+        zones={zones}
+        preserveViewOnDataUpdate
+        fitBoundsKey={data.id}
+        ariaLabel={t("driver.dashboard.gps")}
+        className="h-64 min-h-64 rounded-md"
+      />
+      <p className="text-xs text-muted-foreground">{t("tasks.locationNote")}</p>
+    </section>
+  );
+}
+
+function mapDestination(
+  latitude: string | null,
+  longitude: string | null,
+  addressParts: string[],
+): string | null {
+  if (latitude && longitude) return `${latitude},${longitude}`;
+  const address = addressParts.map((part) => part.trim()).filter(Boolean).join(", ");
+  return address || null;
+}
+
+function googleMapsDirections(destination: string): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
 
 function Row({

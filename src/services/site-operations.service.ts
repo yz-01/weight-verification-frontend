@@ -11,6 +11,14 @@ import type {
   SafetyIncident,
   SafetyIncidentPayload,
 } from "@/interfaces/site-operations";
+import type {
+  IncidentReportThread,
+  IncidentReportThreadPayload,
+  IncidentReportMessage,
+  IncidentReportMessagePayload,
+  IncidentReportRecipient,
+  IncidentReportThreadDetail,
+} from "@/interfaces/incident-report";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 function multipart(payload: Record<string, unknown>): FormData {
@@ -198,4 +206,64 @@ export async function reviewSafetyRectification(
   );
   toastSuccess("safetyRectification.toast.reviewed");
   return incident;
+}
+
+export function getIncidentThreads(
+  query: ListQuery,
+): Promise<Paginated<IncidentReportThread>> {
+  return api.list<IncidentReportThread>(
+    "/api/incident-reports/get_incident_threads/",
+    query,
+  );
+}
+
+export async function getIncidentThread(
+  id: string,
+): Promise<IncidentReportThreadDetail> {
+  const response = await api.get<IncidentReportThreadDetail>(
+    `/api/incident-reports/${id}/get_incident_thread/`,
+  );
+  return response;
+}
+
+export async function createIncidentThread(
+  payload: IncidentReportThreadPayload,
+): Promise<IncidentReportThread> {
+  const thread = await api.post<IncidentReportThread>(
+    "/api/incident-reports/create_incident_thread/",
+    multipart(payload as unknown as Record<string, unknown>),
+  );
+  toastSuccess("incidentReporting.submitSuccess");
+  return thread;
+}
+
+export function getIncidentRecipientOptions(
+  projectId: string,
+): Promise<IncidentReportRecipient[]> {
+  return api.get<IncidentReportRecipient[]>(
+    "/api/incident-reports/recipient_options/",
+    { project: projectId },
+  );
+}
+
+export async function sendIncidentMessage(
+  threadId: string,
+  payload: IncidentReportMessagePayload,
+): Promise<IncidentReportMessage> {
+  const message = await api.post<IncidentReportMessage>(
+    `/api/incident-reports/${threadId}/post_incident_message/`,
+    multipart(payload as unknown as Record<string, unknown>),
+  );
+  return message;
+}
+
+export async function resolveIncidentThread(
+  id: string,
+): Promise<IncidentReportThread> {
+  const thread = await api.post<IncidentReportThread>(
+    `/api/incident-reports/${id}/resolve_incident_thread/`,
+    {},
+  );
+  toastSuccess("incidentReporting.action.resolve");
+  return thread;
 }

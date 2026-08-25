@@ -15,10 +15,12 @@ import {
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { DriverTask, TaskState } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { getTasks } from "@/services/recycler.service";
+import { getTasks, getTaskSummary } from "@/services/recycler.service";
 
 export const TASK_STATE_TONE: Record<
   TaskState,
@@ -30,7 +32,8 @@ export const TASK_STATE_TONE: Record<
   ARRIVED: "warning",
   LOADED: "warning",
   RETURNING: "info",
-  DELIVERED: "positive",
+  DELIVERED: "warning",
+  COMPLETED: "positive",
   CANCELLED: "neutral",
   FAILED: "danger",
 };
@@ -40,11 +43,15 @@ export function Tasks() {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
-  const list = useListQuery(["state", "running"]);
+  const list = useListQuery(["state", "running", "date_from", "date_to"]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["tasks", list.query],
     queryFn: () => getTasks(list.query),
+  });
+  const summary = useQuery({
+    queryKey: ["tasks", "summary"],
+    queryFn: getTaskSummary,
   });
 
   const columns = useMemo<ColumnDef<DriverTask, unknown>[]>(
@@ -210,6 +217,50 @@ export function Tasks() {
         }
       />
 
+      <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {(["today_dispatches", "today_completed", "running", "vehicles_used_today", "drivers_used_today"] as const).map(
+          (key) => (
+            <div key={key} className="rounded-lg border bg-card px-3 py-2.5">
+              <p className="text-xs text-muted-foreground">{t(`tasks.summary.${key}`)}</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {summary.data?.[key] ?? "—"}
+              </p>
+            </div>
+          ),
+        )}
+      </div>
+
+      <div className="grid shrink-0 gap-2 sm:grid-cols-2 lg:max-w-xl">
+        <div className="space-y-1">
+          <Label htmlFor="task-date-from" className="text-xs text-muted-foreground">
+            {t("tasks.filter.dateFrom")}
+          </Label>
+          <Input
+            id="task-date-from"
+            type="date"
+            max={list.filters.date_to}
+            value={list.filters.date_from ?? ""}
+            onChange={(event) =>
+              list.setFilter("date_from", event.target.value || undefined)
+            }
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="task-date-to" className="text-xs text-muted-foreground">
+            {t("tasks.filter.dateTo")}
+          </Label>
+          <Input
+            id="task-date-to"
+            type="date"
+            min={list.filters.date_from}
+            value={list.filters.date_to ?? ""}
+            onChange={(event) =>
+              list.setFilter("date_to", event.target.value || undefined)
+            }
+          />
+        </div>
+      </div>
+
       <DataTable
         columns={columns}
         rows={data?.results ?? []}
@@ -227,7 +278,11 @@ export function Tasks() {
           {
             key: "all",
             label: t("common.all"),
-            active: !list.filters.running && !list.filters.state,
+            active:
+              !list.filters.running &&
+              !list.filters.state &&
+              !list.filters.date_from &&
+              !list.filters.date_to,
             onSelect: () => list.clearFilters(),
           },
           {
@@ -236,7 +291,7 @@ export function Tasks() {
             active: list.filters.running === "true",
             onSelect: () => list.setFilter("running", "true"),
           },
-          ...(["DELIVERED", "FAILED"] as const).map((state) => ({
+          ...(["DELIVERED", "COMPLETED", "FAILED"] as const).map((state) => ({
             key: state,
             label: t(`tasks.state.${state}`),
             active: list.filters.state === state,

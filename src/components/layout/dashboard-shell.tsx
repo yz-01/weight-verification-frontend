@@ -39,6 +39,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const isDriverOnly =
     user !== null &&
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
+  const isFieldStaff = user?.is_field_staff ?? false;
 
   useEffect(() => {
     if (!isLoading && user === null) {
@@ -47,6 +48,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     }
     if (!isLoading && user !== null && isDriverOnly) {
       redirectWithFallback(router, "/driver");
+      return;
+    }
+    if (!isLoading && user !== null && isFieldStaff) {
+      redirectWithFallback(router, "/field-staff");
       return;
     }
     if (
@@ -65,11 +70,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         firstAllowedDashboardPath(user.portal, user.features),
       );
     }
-  }, [isDriverOnly, isLoading, pathname, user, router]);
+  }, [isDriverOnly, isFieldStaff, isLoading, pathname, user, router]);
 
   const isAllowed =
     user !== null &&
     !isDriverOnly &&
+    !isFieldStaff &&
     isRouteAllowed(
       user.portal,
       user.features,

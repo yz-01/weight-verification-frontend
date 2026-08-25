@@ -14,6 +14,17 @@ export type PaymentMethod = "BANK_TRANSFER" | "CHEQUE" | "CASH" | "ONLINE" | "OT
 export type CommissionBasis = "SETTLED_AMOUNT" | "SETTLED_WEIGHT";
 export type SettlementCycle = "MONTHLY" | "QUARTERLY" | "YEARLY";
 
+export interface BillingCompanyOption {
+  id: string;
+  code: string;
+  name: string;
+  company_type: "CONTRACTOR" | "RECYCLER";
+  status: "ACTIVE" | "TRIAL" | "OVERDUE";
+  plan: string;
+  plan_name: string;
+  plan_tier: "SUBSCRIPTION" | "PARTNER" | "STANDARD";
+}
+
 export interface Invoice {
   id: string;
   invoice_no: string;

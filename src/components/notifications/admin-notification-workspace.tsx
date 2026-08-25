@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
+  Bell,
   Check,
   Eye,
   Mail,
@@ -16,8 +17,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  FieldWrapper,
+  ListHeader,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +32,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -327,6 +340,7 @@ function NotificationDetails({
   onClose: () => void;
 }) {
   const t = useTranslations("adminNotifications");
+  const system = useTranslations("adminSystemSettings");
   const df = useDateFormat();
 
   return (
@@ -365,8 +379,16 @@ function NotificationDetails({
                 <p className="text-xs text-muted-foreground">{t("field.channelStatus")}</p>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(row.latest_delivery_status).map(([channel, delivery]) => (
-                    <span key={channel} className="inline-flex items-center gap-2 rounded-md border px-2.5 py-1 text-xs">
-                      {channel} / {delivery.mode} / {delivery.status}
+                    <span key={channel} className="inline-flex flex-wrap items-center gap-2 rounded-md border px-2.5 py-1.5">
+                      <StatusBadge label={t(`channel.${channel}`)} />
+                      <StatusBadge
+                        label={system(`mode.${delivery.mode}`)}
+                        tone={delivery.mode === "LIVE" ? "positive" : delivery.mode === "SIMULATED" ? "warning" : "neutral"}
+                      />
+                      <StatusBadge
+                        label={t(`deliveryStatus.${delivery.status}`)}
+                        tone={delivery.status === "FAILED" ? "danger" : delivery.status === "SENT" ? "positive" : "neutral"}
+                      />
                     </span>
                   ))}
                 </div>
@@ -409,72 +431,183 @@ function ChannelWorkspace() {
         : [...current, channel],
     );
 
+  const channelRows = status.data?.channels ?? [];
+  const modeFor = (channel: "IN_APP" | "EMAIL" | "PUSH") =>
+    channelRows.find((row) => row.channel === channel)?.mode ?? "NOT_CONFIGURED";
+  const channelIcon = {
+    IN_APP: Bell,
+    EMAIL: Mail,
+    PUSH: Radio,
+  } as const;
+
   return (
-    <div className="min-h-0 flex-1 space-y-5 overflow-y-auto">
-      <div className="grid border-l sm:grid-cols-3">
-        {(status.data?.channels ?? []).map((row) => (
-          <div key={row.channel} className="min-h-32 border-b border-r p-4">
-            <div className="flex items-center justify-between gap-3">
-              <span className="inline-flex items-center gap-2 font-medium">
-                {row.channel === "EMAIL" ? <Mail className="h-4 w-4" /> : <Radio className="h-4 w-4" />}
-                {t(`channel.${row.channel}`)}
-              </span>
-              <StatusBadge
-                label={system(`mode.${row.mode}`)}
-                tone={row.mode === "LIVE" ? "positive" : "warning"}
+    <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pb-2">
+      <section className="overflow-hidden rounded-lg border bg-card">
+        <div className="grid md:grid-cols-3">
+          {status.isLoading
+            ? (["IN_APP", "EMAIL", "PUSH"] as const).map((channel) => (
+                <div
+                  key={channel}
+                  className="min-h-44 animate-pulse border-b p-5 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+                >
+                  <div className="h-5 w-32 rounded bg-muted" />
+                  <div className="mt-7 h-12 rounded bg-muted/70" />
+                  <div className="mt-5 h-4 w-40 rounded bg-muted/70" />
+                </div>
+              ))
+            : channelRows.map((row) => {
+                const Icon = channelIcon[row.channel];
+                return (
+                  <div
+                    key={row.channel}
+                    className="min-h-44 border-b p-5 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0"
+                  >
+                    <div className="flex min-w-0 items-start justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="grid size-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+                          <Icon className="size-4" />
+                        </span>
+                        <span className="min-w-0 font-medium leading-5">
+                          {t(`channel.${row.channel}`)}
+                        </span>
+                      </div>
+                      <StatusBadge
+                        label={system(`mode.${row.mode}`)}
+                        tone={
+                          row.mode === "LIVE"
+                            ? "positive"
+                            : row.mode === "SIMULATED"
+                              ? "warning"
+                              : "neutral"
+                        }
+                      />
+                    </div>
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+                      <div className="rounded-md bg-muted/35 px-3 py-2.5">
+                        <p className="text-xs text-muted-foreground">{t("channel.sentLabel")}</p>
+                        <p className="mt-1 text-lg font-semibold tabular-nums">{row.sent}</p>
+                      </div>
+                      <div className="rounded-md bg-muted/35 px-3 py-2.5">
+                        <p className="text-xs text-muted-foreground">{t("channel.failedLabel")}</p>
+                        <p className="mt-1 text-lg font-semibold tabular-nums">{row.failed}</p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-xs leading-5 text-muted-foreground">
+                      {t("channel.lastAttempt")}: {row.last_attempt_at ? df.dateTime(row.last_attempt_at) : t("channel.never")}
+                    </p>
+                  </div>
+                );
+              })}
+        </div>
+        {status.isError && (
+          <p className="border-t px-5 py-3 text-sm text-destructive">
+            {t("channel.loadError")}
+          </p>
+        )}
+      </section>
+
+      <section className="overflow-hidden rounded-lg border bg-card">
+        <div className="border-b px-5 py-4">
+          <h3 className="font-semibold">{t("composer.title")}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{t("composer.subtitle")}</p>
+        </div>
+        <div className="grid gap-6 p-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
+          <div className="grid content-start gap-4">
+            <FieldWrapper label={t("filter.company")} required>
+              <Select
+                value={company || undefined}
+                onValueChange={setCompany}
+                disabled={companies.isLoading || companies.isError}
+              >
+                <SelectTrigger className="h-10 w-full">
+                  <SelectValue placeholder={t("composer.chooseCompany")} />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  {(companies.data?.results ?? []).map((row) => (
+                    <SelectItem key={row.id} value={row.id}>
+                      {row.code} - {row.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldWrapper>
+            <FieldWrapper label={t("field.title")} required>
+              <Input
+                value={title}
+                maxLength={200}
+                placeholder={t("composer.titlePlaceholder")}
+                onChange={(event) => setTitle(event.target.value)}
               />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.message")} required>
+              <Textarea
+                rows={6}
+                value={message}
+                placeholder={t("composer.messagePlaceholder")}
+                onChange={(event) => setMessage(event.target.value)}
+              />
+            </FieldWrapper>
+          </div>
+
+          <div className="flex min-w-0 flex-col">
+            <div>
+              <p className="text-sm font-medium">{t("composer.channels")}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                {t("composer.channelsHint")}
+              </p>
+              <div className="mt-3 grid gap-2">
+                {(["IN_APP", "EMAIL", "PUSH"] as const).map((channel) => {
+                  const Icon = channelIcon[channel];
+                  const mode = modeFor(channel);
+                  const unavailable = mode === "NOT_CONFIGURED";
+                  return (
+                    <label
+                      key={channel}
+                      className={`flex min-h-16 items-center gap-3 rounded-md border px-3.5 py-3 transition-colors ${
+                        unavailable
+                          ? "cursor-not-allowed bg-muted/25 text-muted-foreground"
+                          : "cursor-pointer hover:bg-muted/35"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={!unavailable && channels.includes(channel)}
+                        disabled={unavailable}
+                        onCheckedChange={() => !unavailable && toggle(channel)}
+                      />
+                      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+                        <Icon className="size-4" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-medium text-foreground">
+                          {t(`channel.${channel}`)}
+                        </span>
+                        <span className="mt-0.5 block text-xs leading-4 text-muted-foreground">
+                          {unavailable
+                            ? t("composer.notConfigured")
+                            : t(`composer.channelDescription.${channel}`)}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
-            <p className="mt-4 text-sm tabular-nums">{t("channel.sent", { count: row.sent })}</p>
-            <p className="text-sm tabular-nums text-muted-foreground">{t("channel.failed", { count: row.failed })}</p>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {row.last_attempt_at ? df.dateTime(row.last_attempt_at) : t("channel.never")}
-            </p>
+            {send.isError && (
+              <p role="alert" className="mt-4 text-sm text-destructive">
+                {t("composer.sendError")}
+              </p>
+            )}
+            <Button
+              className="mt-6 w-full xl:mt-auto"
+              disabled={!company || !title.trim() || !message.trim() || channels.length === 0 || send.isPending}
+              onClick={() => send.mutate({ company_id: company, kind: "SYSTEM", title, message, channels })}
+            >
+              <Send />
+              {send.isPending ? t("composer.sending") : t("action.send")}
+            </Button>
           </div>
-        ))}
-      </div>
-      <div className="grid gap-4 rounded-lg border bg-card p-4 shadow-sm lg:grid-cols-2">
-        <div className="space-y-3">
-          <SelectFilter
-            label={t("filter.company")}
-            value={company}
-            onChange={setCompany}
-            options={(companies.data?.results ?? []).map((row) => ({
-              value: row.id,
-              label: `${row.code} - ${row.name}`,
-            }))}
-          />
-          <label className="block space-y-1.5 text-xs font-medium text-muted-foreground">
-            <span>{t("field.title")}</span>
-            <Input value={title} onChange={(event) => setTitle(event.target.value)} />
-          </label>
-          <label className="block space-y-1.5 text-xs font-medium text-muted-foreground">
-            <span>{t("field.message")}</span>
-            <Textarea rows={4} value={message} onChange={(event) => setMessage(event.target.value)} />
-          </label>
         </div>
-        <div className="flex flex-col justify-between gap-4">
-          <div className="space-y-2">
-            {(["IN_APP", "EMAIL", "PUSH"] as const).map((channel) => (
-              <label key={channel} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={channels.includes(channel)}
-                  onChange={() => toggle(channel)}
-                />
-                {t(`channel.${channel}`)}
-              </label>
-            ))}
-          </div>
-          <Button
-            className="self-end"
-            disabled={!company || !title.trim() || !message.trim() || channels.length === 0 || send.isPending}
-            onClick={() => send.mutate({ company_id: company, kind: "SYSTEM", title, message, channels })}
-          >
-            <Send />
-            {t("action.send")}
-          </Button>
-        </div>
-      </div>
+      </section>
     </div>
   );
 }
@@ -503,11 +636,45 @@ function NotificationRecords() {
       </div>
       <div className="overflow-auto rounded-lg border bg-card shadow-sm">
         <Table>
-          <TableHeader><TableRow><TableHead>{t("field.notification")}</TableHead><TableHead>{t("field.recipient")}</TableHead><TableHead>{t("field.channelStatus")}</TableHead><TableHead>{t("field.time")}</TableHead></TableRow></TableHeader>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("field.notification")}</TableHead>
+              <TableHead>{t("field.recipient")}</TableHead>
+              <TableHead>{t("field.channelStatus")}</TableHead>
+              <TableHead>{t("field.time")}</TableHead>
+            </TableRow>
+          </TableHeader>
           <TableBody>
             {recordType === "DELIVERY"
-              ? (delivery.data?.results ?? []).map((row) => <TableRow key={row.id}><TableCell>{row.notification_title}</TableCell><TableCell>{row.recipient_email}</TableCell><TableCell><span className="inline-flex gap-2"><StatusBadge label={row.channel} /><StatusBadge label={system(`mode.${row.mode}`)} tone={row.mode === "LIVE" ? "positive" : "warning"} /><StatusBadge label={row.status} tone={row.status === "FAILED" ? "danger" : "positive"} /></span>{row.error && <p className="mt-1 text-xs text-destructive">{row.error}</p>}</TableCell><TableCell>{df.dateTime(row.attempted_at)}</TableCell></TableRow>)
-              : (statuses.data?.results ?? []).map((row) => <TableRow key={row.id}><TableCell>{row.notification_title}</TableCell><TableCell>{row.recipient_email}</TableCell><TableCell><StatusBadge label={t(`status.${row.status}`)} /></TableCell><TableCell>{df.dateTime(row.changed_at)}</TableCell></TableRow>)}
+              ? (delivery.data?.results ?? []).map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.notification_title}</TableCell>
+                    <TableCell>{row.recipient_email}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex flex-wrap gap-2">
+                        <StatusBadge label={t(`channel.${row.channel}`)} />
+                        <StatusBadge
+                          label={system(`mode.${row.mode}`)}
+                          tone={row.mode === "LIVE" ? "positive" : row.mode === "SIMULATED" ? "warning" : "neutral"}
+                        />
+                        <StatusBadge
+                          label={t(`deliveryStatus.${row.status}`)}
+                          tone={row.status === "FAILED" ? "danger" : row.status === "SENT" ? "positive" : "neutral"}
+                        />
+                      </span>
+                      {row.error && <p className="mt-1 max-w-xl whitespace-normal text-xs text-destructive">{row.error}</p>}
+                    </TableCell>
+                    <TableCell>{df.dateTime(row.attempted_at)}</TableCell>
+                  </TableRow>
+                ))
+              : (statuses.data?.results ?? []).map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.notification_title}</TableCell>
+                    <TableCell>{row.recipient_email}</TableCell>
+                    <TableCell><StatusBadge label={t(`status.${row.status}`)} /></TableCell>
+                    <TableCell>{df.dateTime(row.changed_at)}</TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </div>

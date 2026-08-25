@@ -112,61 +112,90 @@ export function CommissionRuleManager() {
           </Button>
         )}
       </div>
-      <div className="min-h-0 overflow-x-auto rounded-lg border bg-card [scrollbar-gutter:stable]">
-        <table className="min-w-max text-sm">
-          <thead className="sticky top-0 bg-card text-left text-xs text-muted-foreground">
+      <div className="min-h-0 overflow-x-auto rounded-lg border bg-card shadow-sm [scrollbar-gutter:stable]">
+        <table className="w-full min-w-max">
+          <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             <tr className="border-b">
-              <th className="px-4 py-3">{t("field.name")}</th>
-              <th className="px-4 py-3">{t("field.calculationBasis")}</th>
-              <th className="px-4 py-3">{t("field.rate")}</th>
-              <th className="px-4 py-3">{t("field.settlementCycle")}</th>
-              <th className="px-4 py-3">{t("field.effectivePeriod")}</th>
-              <th className="px-4 py-3">{t("field.paymentTerm")}</th>
-              <th className="px-4 py-3">{t("field.invoices")}</th>
-              <th className="px-4 py-3">{t("field.state")}</th>
-              <th className="px-4 py-3">
+              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.name")}</th>
+              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.calculationBasis")}</th>
+              <th className="px-4 py-3.5 text-right whitespace-nowrap">{t("field.rate")}</th>
+              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.settlementCycle")}</th>
+              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.effectivePeriod")}</th>
+              <th className="px-4 py-3.5 text-right whitespace-nowrap">{t("field.paymentTerm")}</th>
+              <th className="px-4 py-3.5 text-right whitespace-nowrap">{t("field.invoices")}</th>
+              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.state")}</th>
+              <th className="px-4 py-3.5 text-right">
                 <span className="sr-only">{common("actions")}</span>
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y">
             {rules.isLoading ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8">
-                  {common("loading")}
+                <td colSpan={9} className="px-4 py-16 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    <p className="text-sm text-muted-foreground">{common("loading")}</p>
+                  </div>
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-muted-foreground">
-                  {t("rules.empty")}
+                <td colSpan={9} className="px-4 py-16">
+                  <div className="flex flex-col items-center gap-4 text-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                      <svg className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-medium text-foreground">{t("rules.empty")}</p>
+                      <p className="text-sm text-muted-foreground">{t("rules.emptyHint")}</p>
+                    </div>
+                    {can("commission.manage") && (
+                      <Button size="sm" variant="outline" onClick={() => openEditor(null)}>
+                        <Plus className="h-4 w-4" />
+                        {t("rules.create")}
+                      </Button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ) : (
               rows.map((rule) => (
-                <tr key={rule.id} className="border-b">
-                  <td className="px-4 py-3 font-medium">{rule.name}</td>
-                  <td className="px-4 py-3">{t(`basis.${rule.basis}`)}</td>
-                  <td className="px-4 py-3 tabular-nums">
-                    {rule.rate}
-                    {rule.basis === "SETTLED_AMOUNT"
-                      ? "%"
-                      : ` ${t("rules.perTonne")}`}
+                <tr key={rule.id} className="group hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-4">
+                    <span className="font-medium text-foreground">{rule.name}</span>
                   </td>
-                  <td className="px-4 py-3">{t(`cycle.${rule.cycle}`)}</td>
-                  <td className="px-4 py-3 tabular-nums">
-                    {df.date(rule.effective_from)} -{" "}
-                    {rule.effective_to
-                      ? df.date(rule.effective_to)
-                      : t("rules.openEnded")}
+                  <td className="px-4 py-4 text-sm text-muted-foreground">
+                    {t(`basis.${rule.basis}`)}
                   </td>
-                  <td className="px-4 py-3 tabular-nums">
+                  <td className="px-4 py-4 text-right">
+                    <span className="font-mono text-sm font-medium text-foreground">
+                      {rule.rate}
+                      {rule.basis === "SETTLED_AMOUNT"
+                        ? "%"
+                        : ` ${t("rules.perTonne")}`}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-sm text-muted-foreground">
+                    {t(`cycle.${rule.cycle}`)}
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="font-mono text-sm text-muted-foreground whitespace-nowrap">
+                      {df.date(rule.effective_from)} -{" "}
+                      {rule.effective_to
+                        ? df.date(rule.effective_to)
+                        : t("rules.openEnded")}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-right font-mono text-sm text-muted-foreground">
                     {t("rules.days", { count: rule.payment_term_days })}
                   </td>
-                  <td className="px-4 py-3 tabular-nums">
+                  <td className="px-4 py-4 text-right font-mono text-sm font-medium text-foreground">
                     {rule.invoice_count}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     <StatusBadge
                       label={t(
                         rule.is_active
@@ -176,13 +205,14 @@ export function CommissionRuleManager() {
                       tone={rule.is_active ? "positive" : "neutral"}
                     />
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1">
+                  <td className="px-4 py-4">
+                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       {can("commission.manage") && (
                         <>
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-8 w-8"
                             title={common("edit")}
                             onClick={() => openEditor(rule)}
                           >
@@ -191,6 +221,7 @@ export function CommissionRuleManager() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-8 w-8"
                             title={common("remove")}
                             disabled={rule.invoice_count > 0}
                             onClick={() => setRemoving(rule)}
