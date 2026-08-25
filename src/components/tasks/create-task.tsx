@@ -26,15 +26,15 @@ import type {
   DriverTaskDetail,
   DriverTaskPayload,
 } from "@/interfaces/recycler";
+import { useAuth } from "@/components/providers/auth-provider";
+import { createTask, getTask, updateTask } from "@/services/recycler.service";
+import { enqueueTripAssign } from "@/services/offline-sync.service";
 import {
-  createTask,
-  getTask,
-  getDrivers,
-  getIncoming,
-  getVehicles,
-  updateTask,
-} from "@/services/recycler.service";
-import { getSites } from "@/services/weighing.service";
+  getDriversOfflineAware,
+  getIncomingOfflineAware,
+  getSitesOfflineAware,
+  getVehiclesOfflineAware,
+} from "@/services/recycler-offline.service";
 
 /**
  * Rostering a trip.
@@ -76,23 +76,31 @@ function TaskForm({
   const t = useTranslations();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const ownerId = user?.id ?? "";
   const [formError, setFormError] = useState<string | null>(null);
 
   const { data: loadPage } = useQuery({
     queryKey: ["incoming", "options"],
-    queryFn: () => getIncoming({ page_size: 100 }),
+    queryFn: () => getIncomingOfflineAware(ownerId, { page_size: 100 }),
+    enabled: Boolean(ownerId),
   });
   const { data: sitePage } = useQuery({
     queryKey: ["sites", "options"],
-    queryFn: () => getSites({ page_size: 100 }),
+    queryFn: () => getSitesOfflineAware(ownerId, { page_size: 100 }),
+    enabled: Boolean(ownerId),
   });
   const { data: vehiclePage } = useQuery({
     queryKey: ["vehicles", "options"],
-    queryFn: () => getVehicles({ page_size: 100, is_active: "true" }),
+    queryFn: () =>
+      getVehiclesOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
+    enabled: Boolean(ownerId),
   });
   const { data: driverPage } = useQuery({
     queryKey: ["drivers", "options"],
-    queryFn: () => getDrivers({ page_size: 100, is_active: "true" }),
+    queryFn: () =>
+      getDriversOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
+    enabled: Boolean(ownerId),
   });
   const defaultValues = useMemo(
     () => ({
@@ -113,11 +121,34 @@ function TaskForm({
   );
 
   const mutation = useMutation({
-    mutationFn: (values: DriverTaskPayload) =>
-      id ? updateTask(id, values) : createTask(values),
+    mutationFn: async (values: DriverTaskPayload) => {
+      if (id) return updateTask(id, values);
+      try {
+        return await createTask(values);
+      } catch (error) {
+        // A dead network queues the assignment instead of losing the form.
+        // Editing stays online-only: a reassignment must see the live roster.
+        if (!(error instanceof ApiError && error.isNetwork)) throw error;
+        const load = collectableLoads.find(
+          (row) => row.id === values.dispatch,
+        );
+        await enqueueTripAssign(ownerId, {
+          dispatchId: values.dispatch ?? "",
+          dispatchNo: load?.dispatch_no ?? "",
+          site: values.site,
+          vehicle: values.vehicle,
+          driver: values.driver,
+          scheduledFor: values.scheduled_for
+            ? new Date(values.scheduled_for).toISOString()
+            : null,
+          notes: values.notes ?? "",
+        });
+        return null;
+      }
+    },
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      router.push(`/tasks/${saved.id}`);
+      router.push(saved ? `/tasks/${saved.id}` : "/tasks");
     },
   });
 

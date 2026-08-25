@@ -288,6 +288,49 @@ async function uploadJob(job: OfflineJob): Promise<void> {
     return;
   }
 
+  if (job.kind === "DISPATCH_ACCEPT") {
+    await api.post(
+      `/api/dispatches/${job.payload.dispatchId}/accept_dispatch/`,
+      {
+        recycler_reference: job.payload.recyclerReference,
+        proposed_collection_at: job.payload.proposedCollectionAt,
+        proposed_collection_note: job.payload.proposedCollectionNote,
+        client_event_id: job.payload.clientEventId,
+      },
+      { silent: true },
+    );
+    return;
+  }
+
+  if (job.kind === "DISPATCH_COLLECT") {
+    await api.post(
+      `/api/dispatches/${job.payload.dispatchId}/collect_dispatch/`,
+      {
+        recycler_reference: job.payload.recyclerReference,
+        client_event_id: job.payload.clientEventId,
+      },
+      { silent: true },
+    );
+    return;
+  }
+
+  if (job.kind === "TRIP_ASSIGN") {
+    await api.post(
+      "/api/tasks/create_task/",
+      {
+        dispatch: job.payload.dispatchId || null,
+        site: job.payload.site,
+        vehicle: job.payload.vehicle,
+        driver: job.payload.driver,
+        scheduled_for: job.payload.scheduledFor,
+        notes: job.payload.notes,
+        client_event_id: job.payload.clientEventId,
+      },
+      { silent: true },
+    );
+    return;
+  }
+
   const data = new FormData();
   data.append("image", restoreFile(job.payload.file));
   data.append("caption", job.payload.caption);
@@ -759,6 +802,185 @@ export function submitCategoryEvidenceOfflineAware(
     lastError: "",
     payload: { ...draft, photos: draft.photos.map(storeFile) },
   });
+}
+
+interface DispatchAcceptDraft {
+  dispatchId: string;
+  dispatchNo: string;
+  recyclerReference: string;
+  proposedCollectionAt: string;
+  proposedCollectionNote?: string;
+}
+
+interface DispatchCollectDraft {
+  dispatchId: string;
+  dispatchNo: string;
+  recyclerReference: string;
+}
+
+interface TripAssignDraft {
+  dispatchId: string;
+  dispatchNo: string;
+  site: string;
+  vehicle: string;
+  driver: string;
+  scheduledFor?: string | null;
+  notes?: string;
+}
+
+export async function submitDispatchAcceptOfflineAware(
+  ownerId: string,
+  draft: DispatchAcceptDraft,
+): Promise<OfflineSubmission> {
+  const job: Extract<OfflineJob, { kind: "DISPATCH_ACCEPT" }> = {
+    id: newId("dispatch-accept-job"),
+    ownerId,
+    kind: "DISPATCH_ACCEPT",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      dispatchId: draft.dispatchId,
+      dispatchNo: draft.dispatchNo,
+      recyclerReference: draft.recyclerReference,
+      proposedCollectionAt: draft.proposedCollectionAt,
+      proposedCollectionNote: draft.proposedCollectionNote ?? "",
+      clientEventId: newId("dispatch-accept"),
+    },
+  };
+
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      await uploadJob(job);
+      toastSuccess("incoming.toast.accepted");
+      return "uploaded";
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  return enqueue(job);
+}
+
+export async function submitDispatchCollectOfflineAware(
+  ownerId: string,
+  draft: DispatchCollectDraft,
+): Promise<OfflineSubmission> {
+  const job: Extract<OfflineJob, { kind: "DISPATCH_COLLECT" }> = {
+    id: newId("dispatch-collect-job"),
+    ownerId,
+    kind: "DISPATCH_COLLECT",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      dispatchId: draft.dispatchId,
+      dispatchNo: draft.dispatchNo,
+      recyclerReference: draft.recyclerReference,
+      clientEventId: newId("dispatch-collect"),
+    },
+  };
+
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      await uploadJob(job);
+      toastSuccess("incoming.toast.collected");
+      return "uploaded";
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  return enqueue(job);
+}
+
+function buildTripAssignJob(
+  ownerId: string,
+  draft: TripAssignDraft,
+): Extract<OfflineJob, { kind: "TRIP_ASSIGN" }> {
+  return {
+    id: newId("trip-assign-job"),
+    ownerId,
+    kind: "TRIP_ASSIGN",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      dispatchId: draft.dispatchId,
+      dispatchNo: draft.dispatchNo,
+      site: draft.site,
+      vehicle: draft.vehicle,
+      driver: draft.driver,
+      scheduledFor: draft.scheduledFor ?? null,
+      notes: draft.notes ?? "",
+      clientEventId: newId("trip-assign"),
+    },
+  };
+}
+
+/** Queue an assignment without trying the network first — for callers that
+ * already saw the network fail and have their own online path. */
+export function enqueueTripAssign(
+  ownerId: string,
+  draft: TripAssignDraft,
+): Promise<OfflineSubmission> {
+  return enqueue(buildTripAssignJob(ownerId, draft));
+}
+
+export async function submitTripAssignOfflineAware(
+  ownerId: string,
+  draft: TripAssignDraft,
+): Promise<OfflineSubmission> {
+  const job = buildTripAssignJob(ownerId, draft);
+
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      await uploadJob(job);
+      toastSuccess("tasks.toast.created");
+      return "uploaded";
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  return enqueue(job);
+}
+
+/** What the queue holds, shaped for the status popover — no blobs attached. */
+export interface OfflineQueueEntry {
+  id: string;
+  kind: OfflineJob["kind"];
+  reference: string;
+  queuedAt: string;
+  attempts: number;
+  lastError: string;
+}
+
+function jobReference(job: OfflineJob): string {
+  const payload = job.payload as { dispatchNo?: string; taskId?: string };
+  return payload.dispatchNo ?? payload.taskId ?? "";
+}
+
+export async function getOfflineQueueEntries(
+  ownerId: string,
+): Promise<OfflineQueueEntry[]> {
+  const jobs = await getOfflineJobs(ownerId);
+  return jobs.map((job) => ({
+    id: job.id,
+    kind: job.kind,
+    reference: jobReference(job),
+    queuedAt: job.queuedAt,
+    attempts: job.attempts,
+    lastError: job.lastError,
+  }));
+}
+
+/**
+ * Drop one queued action the user has decided not to send.
+ *
+ * Only the user drops jobs — sync never discards silently, because a queued
+ * action is a record of work someone did on the yard floor.
+ */
+export async function discardOfflineJob(id: string): Promise<void> {
+  await deleteOfflineJob(id);
+  notifyQueueChanged();
 }
 
 export async function flushOfflineJobs(ownerId: string): Promise<{

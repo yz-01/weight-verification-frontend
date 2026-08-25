@@ -13,7 +13,10 @@ export type OfflineJobKind =
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
   | "CONSULTANT_SUBMISSION"
-  | "CATEGORY_EVIDENCE";
+  | "CATEGORY_EVIDENCE"
+  | "DISPATCH_ACCEPT"
+  | "DISPATCH_COLLECT"
+  | "TRIP_ASSIGN";
 
 export interface StoredFile {
   blob: Blob;
@@ -305,6 +308,42 @@ export interface CategoryEvidenceOfflineJob extends OfflineJobBase {
   };
 }
 
+export interface DispatchAcceptOfflineJob extends OfflineJobBase {
+  kind: "DISPATCH_ACCEPT";
+  payload: {
+    dispatchId: string;
+    dispatchNo: string;
+    recyclerReference: string;
+    proposedCollectionAt: string;
+    proposedCollectionNote: string;
+    clientEventId: string;
+  };
+}
+
+export interface DispatchCollectOfflineJob extends OfflineJobBase {
+  kind: "DISPATCH_COLLECT";
+  payload: {
+    dispatchId: string;
+    dispatchNo: string;
+    recyclerReference: string;
+    clientEventId: string;
+  };
+}
+
+export interface TripAssignOfflineJob extends OfflineJobBase {
+  kind: "TRIP_ASSIGN";
+  payload: {
+    dispatchId: string;
+    dispatchNo: string;
+    site: string;
+    vehicle: string;
+    driver: string;
+    scheduledFor: string | null;
+    notes: string;
+    clientEventId: string;
+  };
+}
+
 export type OfflineJob =
   | AttendanceOfflineJob
   | TaskTransitionOfflineJob
@@ -320,12 +359,16 @@ export type OfflineJob =
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob
   | ConsultantSubmissionOfflineJob
-  | CategoryEvidenceOfflineJob;
+  | CategoryEvidenceOfflineJob
+  | DispatchAcceptOfflineJob
+  | DispatchCollectOfflineJob
+  | TripAssignOfflineJob;
 
 const DB_NAME = "mse-trace-offline";
 const STORE_NAME = "jobs";
 const DRIVER_SNAPSHOT_STORE = "driverSnapshots";
-const DB_VERSION = 2;
+const RECYCLER_SNAPSHOT_STORE = "recyclerSnapshots";
+const DB_VERSION = 3;
 
 export type DriverSnapshotKind = "DASHBOARD" | "TASK_LIST" | "TASK_DETAIL";
 
@@ -334,6 +377,22 @@ export interface DriverSnapshot<T = unknown> {
   ownerId: string;
   kind: DriverSnapshotKind;
   taskId?: string;
+  savedAt: string;
+  data: T;
+}
+
+export type RecyclerSnapshotKind =
+  | "INCOMING"
+  | "INCOMING_SUMMARY"
+  | "TASK_LIST"
+  | "SITES"
+  | "VEHICLES"
+  | "DRIVERS";
+
+export interface RecyclerSnapshot<T = unknown> {
+  id: string;
+  ownerId: string;
+  kind: RecyclerSnapshotKind;
   savedAt: string;
   data: T;
 }
@@ -373,6 +432,12 @@ function openDatabase(): Promise<IDBDatabase> {
         });
         store.createIndex("ownerId", "ownerId", { unique: false });
         store.createIndex("taskId", "taskId", { unique: false });
+      }
+      if (!database.objectStoreNames.contains(RECYCLER_SNAPSHOT_STORE)) {
+        const store = database.createObjectStore(RECYCLER_SNAPSHOT_STORE, {
+          keyPath: "id",
+        });
+        store.createIndex("ownerId", "ownerId", { unique: false });
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -495,6 +560,63 @@ export async function clearDriverSnapshots(ownerId: string): Promise<void> {
     const keys = await requestResult(index.getAllKeys(ownerId));
     for (const key of keys) {
       transaction.objectStore(DRIVER_SNAPSHOT_STORE).delete(key);
+    }
+    await transactionDone(transaction);
+  } finally {
+    database.close();
+  }
+}
+
+export async function putRecyclerSnapshot<T>(
+  snapshot: RecyclerSnapshot<T>,
+): Promise<void> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(
+      RECYCLER_SNAPSHOT_STORE,
+      "readwrite",
+    );
+    transaction.objectStore(RECYCLER_SNAPSHOT_STORE).put(snapshot);
+    await transactionDone(transaction);
+  } finally {
+    database.close();
+  }
+}
+
+export async function getRecyclerSnapshot<T>(
+  id: string,
+): Promise<RecyclerSnapshot<T> | null> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(
+      RECYCLER_SNAPSHOT_STORE,
+      "readonly",
+    );
+    const snapshot = await requestResult(
+      transaction.objectStore(RECYCLER_SNAPSHOT_STORE).get(id) as IDBRequest<
+        RecyclerSnapshot<T> | undefined
+      >,
+    );
+    await transactionDone(transaction);
+    return snapshot ?? null;
+  } finally {
+    database.close();
+  }
+}
+
+export async function clearRecyclerSnapshots(ownerId: string): Promise<void> {
+  const database = await openDatabase();
+  try {
+    const transaction = database.transaction(
+      RECYCLER_SNAPSHOT_STORE,
+      "readwrite",
+    );
+    const index = transaction
+      .objectStore(RECYCLER_SNAPSHOT_STORE)
+      .index("ownerId");
+    const keys = await requestResult(index.getAllKeys(ownerId));
+    for (const key of keys) {
+      transaction.objectStore(RECYCLER_SNAPSHOT_STORE).delete(key);
     }
     await transactionDone(transaction);
   } finally {

@@ -2248,7 +2248,34 @@
     "status": {
       "offline": "當前離線，{count} 條記錄等待上傳",
       "pending": "{count} 條記錄等待同步",
-      "syncing": "正在上傳離線記錄"
+      "syncing": "正在上傳離線記錄",
+      "failed": "{count} 條動作同步失敗"
+    },
+    "queue": {
+      "retry": "立即重試",
+      "empty": "沒有等待同步的動作。",
+      "discard": "放棄這條動作",
+      "attemptFailed": "已失敗 {count} 次"
+    },
+    "kind": {
+      "ATTENDANCE": "考勤打卡",
+      "TASK_TRANSITION": "行程進度",
+      "TASK_PHOTO": "行程照片",
+      "TASK_POSITION": "GPS 位置",
+      "FIELD_TASK_TRANSITION": "現場任務更新",
+      "FIELD_TASK_PHOTO": "現場任務照片",
+      "MATERIAL_RECEIPT": "材料收貨",
+      "EQUIPMENT_MOVEMENT": "設備進退場",
+      "SITE_PROGRESS": "工地進度",
+      "MATERIAL_OUTGOING": "材料出場",
+      "WASTE_OUTGOING": "廢料出場",
+      "DISPOSAL_REQUEST": "處置申請",
+      "SAFETY_INCIDENT": "安全事件",
+      "CONSULTANT_SUBMISSION": "顧問提交",
+      "CATEGORY_EVIDENCE": "欄目證據",
+      "DISPATCH_ACCEPT": "接受訂單",
+      "DISPATCH_COLLECT": "確認收貨",
+      "TRIP_ASSIGN": "指派行程"
     }
   },
   "companies": {

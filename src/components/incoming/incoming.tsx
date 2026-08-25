@@ -39,15 +39,17 @@ import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import {
-  acceptDispatch,
-  collectDispatch,
-  createTask,
-  getDrivers,
-  getIncoming,
-  getVehicles,
-} from "@/services/recycler.service";
-import { getDispatchSummary } from "@/services/contractor.service";
-import { getSites } from "@/services/weighing.service";
+  getDriversOfflineAware,
+  getIncomingOfflineAware,
+  getIncomingSummaryOfflineAware,
+  getSitesOfflineAware,
+  getVehiclesOfflineAware,
+} from "@/services/recycler-offline.service";
+import {
+  submitDispatchAcceptOfflineAware,
+  submitDispatchCollectOfflineAware,
+  submitTripAssignOfflineAware,
+} from "@/services/offline-sync.service";
 
 function localDateTimeInput(value?: string | null) {
   const date = value ? new Date(value) : new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -59,13 +61,14 @@ function localDateTimeInput(value?: string | null) {
 export function Incoming() {
   const t = useTranslations();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const queryClient = useQueryClient();
   const list = useListQuery([
     "state",
     "collection_date_from",
     "collection_date_to",
   ]);
+  const ownerId = user?.id ?? "";
 
   const [collecting, setCollecting] = useState<WasteDispatch | null>(null);
   const [assigning, setAssigning] = useState<WasteDispatch | null>(null);
@@ -74,11 +77,13 @@ export function Incoming() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["incoming", list.query],
-    queryFn: () => getIncoming(list.query),
+    queryFn: () => getIncomingOfflineAware(ownerId, list.query),
+    enabled: Boolean(ownerId),
   });
   const summary = useQuery({
     queryKey: ["incoming", "summary"],
-    queryFn: () => getDispatchSummary({}),
+    queryFn: () => getIncomingSummaryOfflineAware(ownerId),
+    enabled: Boolean(ownerId),
   });
 
   function refresh() {
@@ -374,6 +379,8 @@ function OrderAssignmentDialog({
   onDone: () => void;
 }) {
   const t = useTranslations();
+  const { user } = useAuth();
+  const ownerId = user?.id ?? "";
   const [reference, setReference] = useState("");
   const [proposedAt, setProposedAt] = useState(localDateTimeInput());
   const [proposalNote, setProposalNote] = useState("");
@@ -387,20 +394,27 @@ function OrderAssignmentDialog({
 
   const sites = useQuery({
     queryKey: ["sites", "order-assignment"],
-    queryFn: () => getSites({ page_size: 100 }),
+    queryFn: () => getSitesOfflineAware(ownerId, { page_size: 100 }),
+    enabled: Boolean(ownerId),
   });
   const vehicles = useQuery({
     queryKey: ["vehicles", "order-assignment"],
-    queryFn: () => getVehicles({ page_size: 100, is_active: "true" }),
+    queryFn: () =>
+      getVehiclesOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
+    enabled: Boolean(ownerId),
   });
   const drivers = useQuery({
     queryKey: ["drivers", "order-assignment"],
-    queryFn: () => getDrivers({ page_size: 100, is_active: "true" }),
+    queryFn: () =>
+      getDriversOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
+    enabled: Boolean(ownerId),
   });
 
   const acceptOnly = useMutation({
     mutationFn: () =>
-      acceptDispatch(load.id, {
+      submitDispatchAcceptOfflineAware(ownerId, {
+        dispatchId: load.id,
+        dispatchNo: load.dispatch_no,
         recyclerReference: reference.trim(),
         proposedCollectionAt: new Date(proposedAt).toISOString(),
         proposedCollectionNote: proposalNote.trim(),
@@ -413,12 +427,15 @@ function OrderAssignmentDialog({
 
   const assign = useMutation({
     mutationFn: () =>
-      createTask({
-        dispatch: load.id,
+      submitTripAssignOfflineAware(ownerId, {
+        dispatchId: load.id,
+        dispatchNo: load.dispatch_no,
         site,
         vehicle,
         driver,
-        scheduled_for: scheduledFor || null,
+        scheduledFor: scheduledFor
+          ? new Date(scheduledFor).toISOString()
+          : null,
         notes: notes.trim(),
       }),
     onSuccess: () => {
@@ -556,10 +573,16 @@ function CollectDialog({
   onDone: () => void;
 }) {
   const t = useTranslations();
+  const { user } = useAuth();
   const [reference, setReference] = useState("");
 
   const collect = useMutation({
-    mutationFn: () => collectDispatch(load.id, reference.trim()),
+    mutationFn: () =>
+      submitDispatchCollectOfflineAware(user?.id ?? "", {
+        dispatchId: load.id,
+        dispatchNo: load.dispatch_no,
+        recyclerReference: reference.trim(),
+      }),
     onSuccess: () => {
       onDone();
       onClose();

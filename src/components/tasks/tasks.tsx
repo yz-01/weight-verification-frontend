@@ -20,7 +20,8 @@ import { Label } from "@/components/ui/label";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { DriverTask, TaskState } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { getTasks, getTaskSummary } from "@/services/recycler.service";
+import { getTaskSummary } from "@/services/recycler.service";
+import { getTasksOfflineAware } from "@/services/recycler-offline.service";
 
 export const TASK_STATE_TONE: Record<
   TaskState,
@@ -42,12 +43,13 @@ export const TASK_STATE_TONE: Record<
 export function Tasks() {
   const t = useTranslations();
   const df = useDateFormat();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const list = useListQuery(["state", "running", "date_from", "date_to"]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["tasks", list.query],
-    queryFn: () => getTasks(list.query),
+    queryFn: () => getTasksOfflineAware(user?.id ?? "", list.query),
+    enabled: Boolean(user?.id),
   });
   const summary = useQuery({
     queryKey: ["tasks", "summary"],
