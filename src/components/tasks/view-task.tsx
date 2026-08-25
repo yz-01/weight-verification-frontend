@@ -1,10 +1,11 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Info, MapPin } from "lucide-react";
+import { ArrowRight, Info, MapPin, Pencil, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useState } from "react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -25,7 +26,8 @@ import {
   type TaskState,
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { advanceTask, getTask } from "@/services/recycler.service";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
+import { advanceTask, cancelTask, getTask } from "@/services/recycler.service";
 
 /**
  * One trip, and the buttons that move it.
@@ -41,7 +43,13 @@ export function ViewTask({ id }: { id: string }) {
   const queryClient = useQueryClient();
 
   const [moving, setMoving] = useState<TaskState | null>(null);
+  const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
+  const realtimeKeys = useMemo(
+    () => [["tasks", "detail", id], ["tasks"], ["incoming"]],
+    [id],
+  );
+  useOrderRealtime(realtimeKeys);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["tasks", "detail", id],
@@ -55,6 +63,15 @@ export function ViewTask({ id }: { id: string }) {
       void queryClient.invalidateQueries({ queryKey: ["tasks"] });
       void queryClient.invalidateQueries({ queryKey: ["incoming"] });
       setMoving(null);
+      setReason("");
+    },
+  });
+  const cancel = useMutation({
+    mutationFn: () => cancelTask(id, reason.trim()),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      void queryClient.invalidateQueries({ queryKey: ["incoming"] });
+      setCancelling(false);
       setReason("");
     },
   });
@@ -72,7 +89,34 @@ export function ViewTask({ id }: { id: string }) {
 
   return (
     <div className="space-y-4">
-      <DetailHeader backHref="/tasks" backLabel={t("tasks.title")} />
+      <DetailHeader
+        backHref="/tasks"
+        backLabel={t("tasks.title")}
+        action={
+          can("task.assign") &&
+          (data.state === "ASSIGNED" || data.state === "ACCEPTED") ? (
+            <div className="flex flex-wrap gap-2">
+              {data.state === "ASSIGNED" && (
+                <Button asChild size="sm" variant="outline">
+                  <Link href={`/tasks/${id}/edit`}>
+                    <Pencil className="h-4 w-4" />
+                    {t("tasks.reassign")}
+                  </Link>
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-destructive"
+                onClick={() => setCancelling(true)}
+              >
+                <XCircle className="h-4 w-4" />
+                {t("tasks.cancel.action")}
+              </Button>
+            </div>
+          ) : undefined
+        }
+      />
 
       <div className="rounded-xl border bg-card shadow-sm">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
@@ -250,6 +294,25 @@ export function ViewTask({ id }: { id: string }) {
           onReasonChange={moving === "FAILED" ? setReason : undefined}
           reasonRequired={moving === "FAILED"}
           onConfirm={() => advance.mutate(moving)}
+        />
+      )}
+      {cancelling && (
+        <ConfirmDialog
+          open
+          onOpenChange={() => {
+            setCancelling(false);
+            setReason("");
+          }}
+          title={t("tasks.cancel.title")}
+          description={t("tasks.cancel.description")}
+          confirmLabel={t("tasks.cancel.confirm")}
+          confirmIcon={XCircle}
+          variant="destructive"
+          isPending={cancel.isPending}
+          reason={reason}
+          onReasonChange={setReason}
+          reasonRequired
+          onConfirm={() => cancel.mutate()}
         />
       )}
     </div>

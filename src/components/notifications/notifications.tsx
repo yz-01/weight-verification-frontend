@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { BellPlus, CheckCheck, Eye, Loader2, Send } from "lucide-react";
+import { BellPlus, CheckCheck, Eye, Loader2, Send, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
@@ -43,6 +44,7 @@ import {
 } from "@/services/contractor.service";
 import {
   getNotifications,
+  dismissNotification,
   markAllNotificationsRead,
   markNotificationRead,
   sendProjectNotification,
@@ -54,10 +56,12 @@ export function Notifications() {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const { can } = useAuth();
-  const list = useListQuery(["unread", "kind"]);
+  const list = useListQuery(["unread", "category", "today"]);
   const [composeOpen, setComposeOpen] = useState(
     searchParams.get("create") === "1" && can("notification.send"),
   );
+  const realtimeKeys = useMemo(() => [["notifications"]], []);
+  useOrderRealtime(realtimeKeys);
 
   const query = useQuery({
     queryKey: ["notifications", list.query],
@@ -73,6 +77,12 @@ export function Notifications() {
   });
   const readAll = useMutation({
     mutationFn: markAllNotificationsRead,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+  const dismiss = useMutation({
+    mutationFn: dismissNotification,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
@@ -104,7 +114,7 @@ export function Notifications() {
         header: () => t("notifications.field.kind"),
         cell: ({ row }) => (
           <StatusBadge
-            label={t(`notifications.kind.${row.original.kind}`)}
+            label={t(`notifications.kind.${notificationKindKey(row.original.kind)}`)}
             tone={row.original.kind === "EXCEPTION" ? "danger" : "neutral"}
           />
         ),
@@ -143,8 +153,9 @@ export function Notifications() {
         id: "actions",
         meta: { label: t("common.actions") },
         header: () => null,
-        cell: ({ row }) =>
-          row.original.is_read ? null : (
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1">
+            {!row.original.is_read && (
             <Button
               variant="ghost"
               size="icon"
@@ -155,10 +166,22 @@ export function Notifications() {
             >
               <Eye className="h-4 w-4" />
             </Button>
-          ),
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-destructive"
+              title={t("notifications.remove")}
+              disabled={dismiss.isPending}
+              onClick={() => dismiss.mutate(row.original.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
       },
     ],
-    [df, read, t],
+    [df, dismiss, read, t],
   );
 
   const count = query.data?.count ?? 0;
@@ -208,16 +231,58 @@ export function Notifications() {
           {
             key: "all",
             label: t("common.all"),
-            active: !list.filters.unread,
-            onSelect: () => list.setFilter("unread", undefined),
+            active: !list.filters.today,
+            onSelect: () => list.setFilter("today", undefined),
           },
           {
-            key: "unread",
-            label: t("notifications.status.unread"),
-            active: list.filters.unread === "true",
-            onSelect: () => list.setFilter("unread", "true"),
+            key: "today",
+            label: t("notifications.filter.today"),
+            active: list.filters.today === "true",
+            onSelect: () => list.setFilter("today", "true"),
           },
         ]}
+        toolbarActions={
+          <div className="flex min-w-0 flex-1 flex-wrap justify-end gap-2">
+            <Select
+              value={list.filters.unread ?? "all"}
+              onValueChange={(value) =>
+                list.setFilter("unread", value === "all" ? undefined : value)
+              }
+            >
+              <SelectTrigger
+                className="h-9 min-w-28 rounded-full"
+                aria-label={t("notifications.filter.readStatus")}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("notifications.filter.allStatus")}</SelectItem>
+                <SelectItem value="true">{t("notifications.status.unread")}</SelectItem>
+                <SelectItem value="false">{t("notifications.status.read")}</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={list.filters.category ?? "all"}
+              onValueChange={(value) =>
+                list.setFilter("category", value === "all" ? undefined : value)
+              }
+            >
+              <SelectTrigger
+                className="h-9 min-w-32 rounded-full"
+                aria-label={t("notifications.filter.category")}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("notifications.filter.allCategories")}</SelectItem>
+                <SelectItem value="BILLING">{t("notifications.filter.billing")}</SelectItem>
+                <SelectItem value="WEIGHING">{t("notifications.filter.weighing")}</SelectItem>
+                <SelectItem value="ORDER">{t("notifications.filter.order")}</SelectItem>
+                <SelectItem value="SYSTEM">{t("notifications.filter.system")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        }
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
         onPageChange={list.setPage}
@@ -234,6 +299,31 @@ export function Notifications() {
       )}
     </div>
   );
+}
+
+function notificationKindKey(kind: string): string {
+  if (kind.startsWith("DRIVER_TASK")) return "DRIVER_TASK";
+  if (kind.startsWith("waste.") || kind === "ORDER") return "DISPATCH";
+  if (kind.includes("WEIGH")) return "WEIGHING";
+  if (kind.includes("BILL") || kind.includes("PAYMENT") || kind.includes("COMMISSION")) {
+    return "BILLING";
+  }
+  if (kind.includes("SUBSCRIPTION")) return "SUBSCRIPTION";
+  if (kind.includes("PARTNER")) return "PARTNERSHIP";
+  if (kind.includes("SAFETY") || kind.startsWith("incident.")) return "SAFETY";
+  if (kind.includes("ACCESS")) return "ACCESS";
+  if (kind.includes("ASSET")) return "ASSET";
+  const known = new Set([
+    "SYSTEM",
+    "APPROVAL",
+    "EVENT",
+    "REMINDER",
+    "EXCEPTION",
+    "PROJECT_NOTICE",
+    "COMPANY",
+    "DISPATCH",
+  ]);
+  return known.has(kind) ? kind : "EVENT";
 }
 
 function ProjectNotificationDialog({

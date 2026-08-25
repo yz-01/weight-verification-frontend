@@ -64,6 +64,10 @@ const KINDS: IntegrationKind[] = [
   "API_GATEWAY",
   "CCTV",
   "ANPR",
+  "ACCESS_CONTROL",
+  "RFID",
+  "FACE_RECOGNITION",
+  "VISITOR_MANAGEMENT",
   "IOT",
   "AI",
   "DRONE",
@@ -126,6 +130,9 @@ export function Integrations() {
         ?.type ?? null
     );
   }, [companies.data?.results, selectedCompany, user]);
+  const canManageHardware =
+    can("integration.manage") &&
+    (Boolean(user?.is_platform_staff) || selectedCompanyType !== "RECYCLER");
   const companyQuery = user?.is_platform_staff
     ? { company: selectedCompany }
     : {};
@@ -620,7 +627,7 @@ export function Integrations() {
       {selectedCompany && (
         <section className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
           <h2 className="text-sm font-semibold">{t("integrations.devices")}</h2>
-          {can("integration.manage") && (
+          {canManageHardware && (
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <Field label={t("integrations.device.type")}>
                 <Input
@@ -808,7 +815,7 @@ export function Integrations() {
                     }
                     tone={item.is_online ? "positive" : "neutral"}
                   />
-                  {can("integration.manage") && (
+                  {canManageHardware && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -919,6 +926,18 @@ function DeviceProvisioningDialog({
             label={t("integrations.device.heartbeatUrl")}
             value={provisioning.heartbeat_url}
           />
+          {provisioning.access_event_url && (
+            <ProvisioningValue
+              label={t("integrations.device.accessEventUrl")}
+              value={provisioning.access_event_url}
+            />
+          )}
+          {provisioning.gate_event_url && (
+            <ProvisioningValue
+              label={t("integrations.device.gateEventUrl")}
+              value={provisioning.gate_event_url}
+            />
+          )}
           <ProvisioningValue
             label={t("integrations.device.recordId")}
             value={provisioning.device_record_id}

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Info, Pencil, Plus, Scale, Trash2 } from "lucide-react";
+import { Eye, Info, Pencil, Plus, Scale, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -28,7 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
-import type { Vehicle } from "@/interfaces/recycler";
+import type { Vehicle, VehicleWorkStatus } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
 import {
   deleteVehicle,
@@ -36,12 +36,19 @@ import {
   setVehicleTare,
 } from "@/services/recycler.service";
 
+const WORK_STATUSES: VehicleWorkStatus[] = [
+  "AVAILABLE",
+  "ON_TASK",
+  "MAINTENANCE",
+  "INACTIVE",
+];
+
 export function Vehicles() {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const list = useListQuery();
+  const list = useListQuery(["work_status"]);
 
   const [removing, setRemoving] = useState<Vehicle | null>(null);
   const [taring, setTaring] = useState<Vehicle | null>(null);
@@ -114,35 +121,33 @@ export function Vehicles() {
           ),
       },
       {
-        accessorKey: "make_model",
-        meta: { label: t("vehicles.field.makeModel") },
+        accessorKey: "brand",
+        meta: { label: t("vehicles.field.brandModel") },
         header: () => (
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("vehicles.field.makeModel")}
+            {t("vehicles.field.brandModel")}
           </span>
         ),
         cell: ({ row }) => (
           <span className="block max-w-[200px] truncate">
-            {row.original.make_model || t("common.emptyValue")}
+            {[row.original.brand, row.original.model].filter(Boolean).join(" ") ||
+              row.original.make_model ||
+              t("common.emptyValue")}
           </span>
         ),
       },
       {
-        accessorKey: "is_active",
-        meta: { label: t("vehicles.field.isActive") },
+        accessorKey: "work_status",
+        meta: { label: t("vehicles.field.workStatus") },
         header: () => (
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("vehicles.field.isActive")}
+            {t("vehicles.field.workStatus")}
           </span>
         ),
         cell: ({ row }) => (
           <StatusBadge
-            label={
-              row.original.is_active
-                ? t("projects.status.ACTIVE")
-                : t("qrCodes.status.revoked")
-            }
-            tone={row.original.is_active ? "positive" : "neutral"}
+            label={t(`vehicles.status.${row.original.work_status}`)}
+            tone={vehicleStatusTone(row.original.work_status)}
           />
         ),
       },
@@ -152,6 +157,17 @@ export function Vehicles() {
         header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-0.5">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-primary hover:bg-primary/10"
+              title={t("common.view")}
+            >
+              <Link href={`/vehicles/${row.original.id}`}>
+                <Eye className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
             {can("fleet.set_tare") && (
               <Button
                 variant="ghost"
@@ -226,6 +242,16 @@ export function Vehicles() {
         sortBy={list.sortBy}
         sortOrder={list.sortOrder}
         storageKey="vehicles"
+        filterPills={WORK_STATUSES.map((status) => ({
+          key: status,
+          label: t(`vehicles.status.${status}`),
+          active: list.filters.work_status === status,
+          onSelect: () =>
+            list.setFilter(
+              "work_status",
+              list.filters.work_status === status ? undefined : status,
+            ),
+        }))}
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
         onPageChange={list.setPage}
@@ -251,6 +277,13 @@ export function Vehicles() {
       )}
     </div>
   );
+}
+
+function vehicleStatusTone(status: VehicleWorkStatus) {
+  if (status === "AVAILABLE") return "positive" as const;
+  if (status === "ON_TASK") return "info" as const;
+  if (status === "MAINTENANCE") return "warning" as const;
+  return "neutral" as const;
 }
 
 /**

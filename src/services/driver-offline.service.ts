@@ -24,6 +24,29 @@ const TERMINAL_STATES = new Set<TaskState>([
   "FAILED",
 ]);
 
+async function cacheDriverRoute(pathname: string): Promise<void> {
+  if (
+    typeof window === "undefined" ||
+    typeof caches === "undefined" ||
+    !navigator.onLine
+  ) {
+    return;
+  }
+
+  const response = await fetch(pathname, {
+    cache: "no-store",
+    credentials: "same-origin",
+    headers: { Accept: "text/html" },
+  });
+  if (!response.ok) return;
+
+  const cacheNames = await caches.keys();
+  const shellCache =
+    cacheNames.find((name) => name.startsWith("mse-trace-shell-")) ??
+    "mse-trace-shell-v13";
+  await (await caches.open(shellCache)).put(pathname, response);
+}
+
 function dashboardId(ownerId: string): string {
   return `driver:${ownerId}:dashboard`;
 }
@@ -132,6 +155,7 @@ export async function getDriverDashboardOfflineAware(
         savedAt: new Date().toISOString(),
         data: cached,
       });
+      await cacheDriverRoute("/driver");
     } catch {
       // IndexedDB may be unavailable in private browsing; online work still proceeds.
     }
@@ -168,6 +192,7 @@ export async function getDriverTasksOfflineAware(
         data: cached,
       });
       await pruneTaskDetails(ownerId, new Set(active.map((task) => task.id)));
+      await cacheDriverRoute("/driver/jobs");
     } catch {
       // Cache failures must never turn a successful API response into a page error.
     }
@@ -188,7 +213,13 @@ export async function getDriverTaskOfflineAware(
 ): Promise<DriverTaskDetail> {
   try {
     const task = await getTask(taskId);
-    return await saveTaskDetail(ownerId, task).catch(() => task);
+    try {
+      const cachedTask = await saveTaskDetail(ownerId, task);
+      await cacheDriverRoute(`/driver/${taskId}`);
+      return cachedTask;
+    } catch {
+      return task;
+    }
   } catch (error) {
     if (!isOfflineFailure(error)) throw error;
     const cached = await getDriverSnapshot<DriverTaskDetail>(

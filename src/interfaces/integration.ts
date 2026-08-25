@@ -6,6 +6,10 @@ export type IntegrationKind =
   | "API_GATEWAY"
   | "CCTV"
   | "ANPR"
+  | "ACCESS_CONTROL"
+  | "RFID"
+  | "FACE_RECOGNITION"
+  | "VISITOR_MANAGEMENT"
   | "IOT"
   | "AI"
   | "DRONE"
@@ -71,6 +75,8 @@ export interface IntegrationDevice {
   updated_at: string;
   provisioning?: {
     heartbeat_url: string;
+    access_event_url?: string;
+    gate_event_url?: string;
     device_record_id: string;
     device_id: string;
     secret: string;

@@ -13,6 +13,7 @@ import {
   MapPin,
   Plus,
   QrCode,
+  RadioTower,
   ScanLine,
   ShieldCheck,
   ShieldX,
@@ -55,17 +56,23 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import type {
+  AccessCredentialType,
   AccessDirection,
   AccessSubjectType,
+  SiteAccessCredentialPayload,
   SiteAccessPass,
   SiteAccessPassPayload,
 } from "@/interfaces/site-access";
 import {
   createSiteAccessPass,
+  getSiteAccessCredentials,
   getSiteAccessDefaults,
   getSiteAccessPass,
   getSiteAccessPasses,
+  getThirdPartyAccessEvents,
+  registerSiteAccessCredential,
   reviewSiteAccessPass,
+  revokeSiteAccessCredential,
   revokeSiteAccessPass,
   scanSiteAccessGate,
 } from "@/services/site-access.service";
@@ -79,7 +86,7 @@ export function SiteAccessWorkspace() {
   const requestedPassId = search.get("pass");
   const requestedGate =
     search.get("tab") === "gate" || Boolean(search.get("scan"));
-  const [tab, setTab] = useState<"passes" | "gate">(
+  const [tab, setTab] = useState<"passes" | "gate" | "devices">(
     requestedGate && can("site_access.scan") ? "gate" : "passes",
   );
   const [project, setProject] = useState("all");
@@ -96,7 +103,11 @@ export function SiteAccessWorkspace() {
   const openedPassRef = useRef("");
   const changeTab = (value: string) => {
     const nextTab =
-      value === "gate" && can("site_access.scan") ? "gate" : "passes";
+      value === "gate" && can("site_access.scan")
+        ? ("gate" as const)
+        : value === "devices"
+          ? ("devices" as const)
+          : ("passes" as const);
     setTab(nextTab);
 
     const url = new URL(window.location.href);
@@ -185,6 +196,10 @@ export function SiteAccessWorkspace() {
               {t("access.gate")}
             </TabsTrigger>
           )}
+          <TabsTrigger value="devices">
+            <RadioTower />
+            {t("access.deviceEvents")}
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="passes" className="space-y-4">
           <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
@@ -345,6 +360,9 @@ export function SiteAccessWorkspace() {
           <Suspense fallback={<State text={t("state.loading")} />}>
             <GatePanel onRecorded={invalidate} />
           </Suspense>
+        </TabsContent>
+        <TabsContent value="devices">
+          <DeviceEventsPanel />
         </TabsContent>
       </Tabs>
       {creating && (
@@ -881,6 +899,287 @@ function PassDialog({
   );
 }
 
+/**
+ * The append-only ledger of what ANPR, RFID, face and visitor devices
+ * reported at the gates. Denials are records too — an auditor asking "who
+ * was turned away and why" reads this, not the device vendor's portal.
+ */
+function DeviceEventsPanel() {
+  const t = useTranslations("siteControl");
+  const [project, setProject] = useState("all");
+  const [result, setResult] = useState("all");
+  const rows = useQuery({
+    queryKey: ["site-access-device-events", project, result],
+    queryFn: () =>
+      getThirdPartyAccessEvents({
+        page_size: 200,
+        ...(project !== "all" ? { project } : {}),
+        ...(result !== "all" ? { verification_result: result } : {}),
+      }),
+  });
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
+        <FieldWrapper label={t("field.project")}>
+          <ProjectPicker
+            value={project}
+            onValueChange={setProject}
+            placeholder={t("field.chooseProject")}
+            allowAll
+            allLabel={t("field.allProjects")}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("deviceEvent.result")}>
+          <Select value={result} onValueChange={setResult}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("field.allStatuses")}</SelectItem>
+              <SelectItem value="ALLOWED">
+                {t("deviceEvent.allowed")}
+              </SelectItem>
+              <SelectItem value="DENIED">{t("deviceEvent.denied")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </FieldWrapper>
+      </div>
+      {rows.isLoading ? (
+        <State text={t("state.loading")} />
+      ) : rows.isError ? (
+        <State text={t("state.loadError")} danger />
+      ) : !rows.data?.count ? (
+        <State text={t("deviceEvent.empty")} />
+      ) : (
+        <div className="overflow-x-auto rounded-lg border">
+          <table className="w-full min-w-[1080px] text-sm">
+            <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <tr>
+                {[
+                  "occurredAt",
+                  "device",
+                  "gate",
+                  "credential",
+                  "pass",
+                  "direction",
+                  "result",
+                  "reason",
+                ].map((key) => (
+                  <th key={key} className="px-4 py-3 font-medium">
+                    {t(`deviceEvent.${key}`)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {rows.data.results.map((event) => (
+                <tr key={event.id} className="bg-card hover:bg-muted/20">
+                  <td className="px-4 py-3 text-xs">
+                    <p>{formatDate(event.occurred_at)}</p>
+                    <p className="text-muted-foreground">
+                      {event.project_name}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3 font-medium tabular-nums">
+                    {event.device_id}
+                  </td>
+                  <td className="px-4 py-3">
+                    {event.gate_name || t("access.unknownGate")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <p>{t(`credentialType.${event.credential_type}`)}</p>
+                    <p className="text-xs text-muted-foreground tabular-nums">
+                      {event.credential_hint || "-"}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3 tabular-nums">
+                    {event.pass_no || "-"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {t(`direction.${event.direction}`)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge
+                      label={
+                        event.verification_result === "ALLOWED"
+                          ? t("deviceEvent.allowed")
+                          : t("deviceEvent.denied")
+                      }
+                      tone={
+                        event.verification_result === "ALLOWED"
+                          ? "positive"
+                          : "danger"
+                      }
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {event.reason_code || "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const EXTERNAL_CREDENTIAL_TYPES: Exclude<AccessCredentialType, "QR">[] = [
+  "ANPR",
+  "RFID",
+  "FACE",
+  "VISITOR_ID",
+];
+
+/**
+ * External credentials bound to one pass. The value itself is hashed on
+ * the server and never comes back — the list shows the hint, so revoking
+ * the right card is possible without ever re-exposing the card number.
+ */
+function PassCredentials({ row }: { row: SiteAccessPass }) {
+  const t = useTranslations("siteControl");
+  const { can } = useAuth();
+  const qc = useQueryClient();
+  const [draft, setDraft] = useState<SiteAccessCredentialPayload>({
+    credential_type: "RFID",
+    credential_value: "",
+    label: "",
+  });
+  const credentials = useQuery({
+    queryKey: ["site-access-credentials", row.id],
+    queryFn: () => getSiteAccessCredentials(row.id),
+  });
+  const refresh = () =>
+    qc.invalidateQueries({ queryKey: ["site-access-credentials", row.id] });
+  const register = useMutation({
+    mutationFn: () =>
+      registerSiteAccessCredential(row.id, {
+        ...draft,
+        credential_value: draft.credential_value.trim(),
+        label: draft.label?.trim(),
+      }),
+    onSuccess: async () => {
+      setDraft((old) => ({ ...old, credential_value: "", label: "" }));
+      await refresh();
+    },
+  });
+  const revoke = useMutation({
+    mutationFn: (credentialId: string) =>
+      revokeSiteAccessCredential(row.id, credentialId, ""),
+    onSuccess: refresh,
+  });
+  const canManage = can("site_access.manage") && row.status === "APPROVED";
+
+  return (
+    <div className="space-y-3">
+      <h3 className="mt-2 font-semibold">{t("credential.title")}</h3>
+      {credentials.isLoading ? (
+        <State text={t("state.loading")} />
+      ) : !credentials.data?.length ? (
+        <State text={t("credential.empty")} />
+      ) : (
+        <ul className="divide-y rounded-lg border">
+          {credentials.data.map((credential) => (
+            <li
+              key={credential.id}
+              className="flex items-center gap-3 px-4 py-2.5"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">
+                  {t(`credentialType.${credential.credential_type}`)}
+                  <span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">
+                    {credential.identifier_hint}
+                  </span>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {credential.label || "-"}
+                </p>
+              </div>
+              <StatusBadge
+                label={
+                  credential.is_active
+                    ? t("credential.active")
+                    : t("credential.revoked")
+                }
+                tone={credential.is_active ? "positive" : "danger"}
+              />
+              {canManage && credential.is_active && (
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  className="text-destructive"
+                  title={t("credential.revoke")}
+                  disabled={revoke.isPending}
+                  onClick={() => revoke.mutate(credential.id)}
+                >
+                  <ShieldX />
+                </Button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {canManage && (
+        <div className="grid gap-3 rounded-lg border bg-muted/20 p-3 sm:grid-cols-[10rem_1fr_1fr_auto]">
+          <FieldWrapper label={t("credential.type")}>
+            <Select
+              value={draft.credential_type}
+              onValueChange={(value) =>
+                setDraft((old) => ({
+                  ...old,
+                  credential_type: value as Exclude<AccessCredentialType, "QR">,
+                }))
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {EXTERNAL_CREDENTIAL_TYPES.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {t(`credentialType.${value}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("credential.value")}>
+            <Input
+              value={draft.credential_value}
+              placeholder={t("credential.valuePlaceholder")}
+              onChange={(event) =>
+                setDraft((old) => ({
+                  ...old,
+                  credential_value: event.target.value,
+                }))
+              }
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("credential.label")}>
+            <Input
+              value={draft.label ?? ""}
+              onChange={(event) =>
+                setDraft((old) => ({ ...old, label: event.target.value }))
+              }
+            />
+          </FieldWrapper>
+          <div className="flex items-end">
+            <Button
+              size="sm"
+              disabled={!draft.credential_value.trim() || register.isPending}
+              onClick={() => register.mutate()}
+            >
+              {register.isPending ? <Loader2 className="animate-spin" /> : <Plus />}
+              {t("credential.register")}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PassDetail({
   row,
   onClose,
@@ -936,6 +1235,7 @@ function PassDetail({
             ))}
           </div>
         )}
+        <PassCredentials row={row} />
         <DialogFooter>
           <Button onClick={onClose}>{t("action.close")}</Button>
         </DialogFooter>

@@ -1,10 +1,10 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Camera, Info, MapPin, Truck } from "lucide-react";
+import { Ban, Camera, Clock3, Info, MapPin, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -32,6 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useDateFormat } from "@/lib/dates";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { getWasteTracking } from "@/services/waste-outgoing.service";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
@@ -48,6 +49,16 @@ export function ViewDispatch({ id }: { id: string }) {
   const [releasing, setReleasing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
+  const realtimeKeys = useMemo(
+    () => [
+      ["dispatches", "detail", id],
+      ["waste-outgoing", "tracking"],
+      ["incoming"],
+      ["tasks"],
+    ],
+    [id],
+  );
+  useOrderRealtime(realtimeKeys);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["dispatches", "detail", id],
@@ -60,6 +71,15 @@ export function ViewDispatch({ id }: { id: string }) {
     refetchInterval: 15_000,
   });
 
+  // The same detail route is shared by the contractor and recycler portals.
+  // Keep the back link on the portal's canonical list page instead of sending
+  // recycler users to the contractor-only dispatch list.
+  const isRecycler = user?.portal === "MSE_SCRAP";
+  const backHref = isRecycler ? "/waste-orders" : "/dispatches";
+  const backLabel = isRecycler
+    ? t("nav.waste_orders")
+    : t("dispatches.title");
+
   const cancellation = useMutation({
     mutationFn: () => cancelDispatch(id, reason),
     onSuccess: () => {
@@ -71,26 +91,23 @@ export function ViewDispatch({ id }: { id: string }) {
 
   if (isLoading) return <FormSkeleton sections={4} />;
   if (isError || !data) {
-    return (
-      <LoadErrorCard backHref="/dispatches" backLabel={t("dispatches.title")} />
-    );
+    return <LoadErrorCard backHref={backHref} backLabel={backLabel} />;
   }
 
   const coordinates =
     data.latitude && data.longitude ? `${data.latitude}, ${data.longitude}` : null;
-  const isRecycler = user?.portal === "MSE_SCRAP";
-  const execution =
-    tracking.data ??
-    (isRecycler
-      ? {
-          driver_name: data.driver_name,
-          vehicle_plate: data.vehicle_plate,
-          milestones: [],
-          tasks: data.tasks,
-          weighing: data.weighing,
-          settlement: data.settlement,
-        }
-      : null);
+  // Some migrated orders predate WasteOutgoingRecord. Their shared dispatch
+  // still owns the driver, route, evidence, weighing and settlement, so the
+  // contractor must not lose those sections merely because there is no source
+  // application to ask for milestones.
+  const execution = tracking.data ?? {
+    driver_name: data.driver_name,
+    vehicle_plate: data.vehicle_plate,
+    milestones: [],
+    tasks: data.tasks,
+    weighing: data.weighing,
+    settlement: data.settlement,
+  };
   const canCancel =
     !isRecycler &&
     can("dispatch.update") &&
@@ -99,8 +116,8 @@ export function ViewDispatch({ id }: { id: string }) {
   return (
     <div className="space-y-4">
       <DetailHeader
-        backHref="/dispatches"
-        backLabel={t("dispatches.title")}
+        backHref={backHref}
+        backLabel={backLabel}
       />
 
       <div className="rounded-xl border bg-card shadow-sm">
@@ -304,11 +321,66 @@ export function ViewDispatch({ id }: { id: string }) {
           )}
           {execution?.settlement && (
             <FormSection title={t("dispatches.section.settlement")}>
-              <ReadField label={t("dispatches.field.settlementNo")} value={execution.settlement.settlement_no} />
-              <ReadField label={t("dispatches.field.settlementState")} value={execution.settlement.state} />
-              <ReadField label={t("dispatches.field.settledWeight")} value={`${execution.settlement.settled_weight_kg} kg`} />
+              <ReadField label={t("dispatches.field.settlementNo")} value={execution.settlement.settlement_no ?? null} />
+              <ReadField label={t("dispatches.field.settlementState")} value={execution.settlement.state ?? null} />
+              <ReadField label={t("settlements.field.deductionWeight")} value={execution.settlement.deduction_weight_kg ? `${execution.settlement.deduction_weight_kg} kg` : "0 kg"} />
+              <ReadField label={t("dispatches.field.settledWeight")} value={execution.settlement.settled_weight_kg ? `${execution.settlement.settled_weight_kg} kg` : null} />
               <ReadField label={t("dispatches.field.settlementAmount")} value={execution.settlement.total_amount ? `${execution.settlement.currency} ${execution.settlement.total_amount}` : null} />
+              <ReadField label={t("settlements.field.amountPaid")} value={`${execution.settlement.currency} ${execution.settlement.amount_paid}`} />
+              <ReadField label={t("settlements.field.outstanding")} value={execution.settlement.outstanding === null ? null : `${execution.settlement.currency} ${execution.settlement.outstanding}`} />
+              {execution.settlement.deductions.length > 0 && (
+                <div className="md:col-span-2 divide-y border-y">
+                  {execution.settlement.deductions.map((deduction) => (
+                    <div key={deduction.id} className="py-2 text-sm">
+                      <p className="font-medium">{deduction.kind} · {t("companies.weightKg", { value: deduction.weight_kg })} · {deduction.state}</p>
+                      <p className="mt-0.5 text-muted-foreground">{deduction.reason}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {execution.settlement.payments.length > 0 && (
+                <div className="md:col-span-2 divide-y border-y">
+                  {execution.settlement.payments.map((payment) => (
+                    <div key={payment.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                      <span>{payment.method}{payment.reference ? ` · ${payment.reference}` : ""}</span>
+                      <span className="font-medium tabular-nums">{execution.settlement!.currency} {payment.amount} · {df.date(payment.paid_on)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </FormSection>
+          )}
+          {data.events.length > 0 && (
+            <section className="px-4 py-5 sm:px-6">
+              <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+                <Clock3 className="h-4 w-4 text-primary" />
+                {t("dispatches.section.timeline")}
+              </h3>
+              <ol>
+                {data.events.map((event, index) => (
+                  <li key={event.id} className="relative flex gap-3 pb-5 last:pb-0">
+                    {index < data.events.length - 1 && (
+                      <span className="absolute left-[7px] top-4 h-full w-px bg-border" />
+                    )}
+                    <span className="relative mt-1.5 h-3.5 w-3.5 shrink-0 rounded-full border-2 border-primary bg-background" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">
+                        {t.has(`dispatches.event.${event.event_type}`)
+                          ? t(`dispatches.event.${event.event_type}`)
+                          : event.event_label}
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {df.dateTime(event.occurred_at)}
+                        {event.actor_name ? ` · ${event.actor_name}` : ""}
+                        {event.actor_company_name
+                          ? ` · ${event.actor_company_name}`
+                          : ""}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
           )}
         </div>
       </div>

@@ -1,19 +1,47 @@
 "use client";
 
-import { CloudOff, CloudUpload, RefreshCw } from "lucide-react";
+import { CloudOff, CloudUpload, RefreshCw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { useOfflineSync } from "@/components/providers/offline-sync-provider";
 import { Button } from "@/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useDateFormat } from "@/lib/dates";
+import {
+  discardOfflineJob,
+  getOfflineQueueEntries,
+  type OfflineQueueEntry,
+} from "@/services/offline-sync.service";
 
 export function OfflineStatus() {
   const t = useTranslations();
-  const { isOnline, isSyncing, pendingCount, syncNow } = useOfflineSync();
+  const df = useDateFormat();
+  const { user } = useAuth();
+  const { isOnline, isSyncing, pendingCount, failedCount, syncNow } =
+    useOfflineSync();
+  const [open, setOpen] = useState(false);
+  const [entries, setEntries] = useState<OfflineQueueEntry[]>([]);
+
+  useEffect(() => {
+    if (!open || !user) return;
+    let cancelled = false;
+    void getOfflineQueueEntries(user.id)
+      .then((rows) => {
+        if (!cancelled) setEntries(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setEntries([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, user, pendingCount, isSyncing]);
 
   if (isOnline && pendingCount === 0 && !isSyncing) return null;
 
@@ -25,26 +53,106 @@ export function OfflineStatus() {
   const Icon = !isOnline ? CloudOff : isSyncing ? RefreshCw : CloudUpload;
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
         <Button
           type="button"
           variant="ghost"
           size="icon"
           className="relative h-9 w-9 text-warning"
           aria-label={label}
-          disabled={!isOnline || isSyncing}
-          onClick={() => void syncNow()}
         >
           <Icon className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
           {pendingCount > 0 && (
-            <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-warning px-1 text-[10px] font-semibold leading-none text-warning-foreground">
+            <span
+              className={`absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold leading-none ${
+                failedCount > 0
+                  ? "bg-destructive text-destructive-foreground"
+                  : "bg-warning text-warning-foreground"
+              }`}
+            >
               {pendingCount > 99 ? "99+" : pendingCount}
             </span>
           )}
         </Button>
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 p-0">
+        <div className="flex items-center justify-between border-b px-3 py-2.5">
+          <div>
+            <p className="text-sm font-semibold">{label}</p>
+            {failedCount > 0 && (
+              <p className="text-xs font-medium text-destructive">
+                {t("offline.status.failed", { count: failedCount })}
+              </p>
+            )}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full px-3"
+            disabled={!isOnline || isSyncing || pendingCount === 0}
+            onClick={() => void syncNow()}
+          >
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${isSyncing ? "animate-spin" : ""}`}
+            />
+            {t("offline.queue.retry")}
+          </Button>
+        </div>
+        <div className="max-h-72 overflow-y-auto">
+          {entries.length === 0 ? (
+            <p className="px-3 py-4 text-sm text-muted-foreground">
+              {t("offline.queue.empty")}
+            </p>
+          ) : (
+            <ul className="divide-y">
+              {entries.map((entry) => (
+                <li key={entry.id} className="flex items-start gap-2 px-3 py-2.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {t(`offline.kind.${entry.kind}`)}
+                      {entry.reference && (
+                        <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                          {entry.reference}
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {df.dateTime(entry.queuedAt)}
+                    </p>
+                    {entry.attempts > 0 && (
+                      <p
+                        className="mt-0.5 truncate text-xs font-medium text-destructive"
+                        title={entry.lastError}
+                      >
+                        {t("offline.queue.attemptFailed", {
+                          count: entry.attempts,
+                        })}
+                        {entry.lastError ? ` · ${entry.lastError}` : ""}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
+                    title={t("offline.queue.discard")}
+                    onClick={() =>
+                      void discardOfflineJob(entry.id).then(() =>
+                        setEntries((current) =>
+                          current.filter((row) => row.id !== entry.id),
+                        ),
+                      )
+                    }
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

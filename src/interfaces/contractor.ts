@@ -315,17 +315,21 @@ export interface MaterialReceiptPayload {
   ocr_proof?: string;
 }
 
+export type DeliveryNoteOCRField =
+  | "delivery_note_no"
+  | "vehicle_plate"
+  | "supplier_name"
+  | "material_name"
+  | "quantity";
+
 export interface DeliveryNoteOCRResult {
   status: "SUCCEEDED";
   provider: "AZURE_DOCUMENT_INTELLIGENCE";
   content: string;
-  suggestions: Partial<{
-    delivery_note_no: string;
-    vehicle_plate: string;
-    supplier_name: string;
-    material_name: string;
-    quantity: string;
-  }>;
+  suggestions: Partial<Record<DeliveryNoteOCRField, string>>;
+  confidence: Partial<Record<DeliveryNoteOCRField, number>>;
+  low_confidence_fields: DeliveryNoteOCRField[];
+  confidence_threshold: number;
   proof: string;
 }
 
@@ -408,6 +412,22 @@ export interface DispatchPhoto {
   created_at: string;
 }
 
+export interface WasteDispatchEvent {
+  id: string;
+  event_type: string;
+  event_label: string;
+  actor: string | null;
+  actor_name: string | null;
+  actor_company: string | null;
+  actor_company_name: string | null;
+  from_state: string;
+  to_state: string;
+  occurred_at: string;
+  payload: Record<string, unknown>;
+  correlation_id: string;
+  created_at: string;
+}
+
 export interface WasteDispatch {
   id: string;
   dispatch_no: string;
@@ -449,6 +469,7 @@ export interface WasteDispatchDetail extends WasteDispatch {
   longitude: string | null;
   location_accuracy_m: string | null;
   photos: DispatchPhoto[];
+  events: WasteDispatchEvent[];
   weighing: import("@/interfaces/waste-outgoing").WasteWeighing | null;
   tasks: import("@/interfaces/waste-outgoing").WasteCollectionTask[];
   settlement: import("@/interfaces/waste-outgoing").WasteSettlementSummary | null;
@@ -483,6 +504,11 @@ export interface RecyclerOption {
 
 export interface DispatchSummary {
   total_dispatches: number;
+  today_orders: number;
+  month_orders: number;
+  completed_orders: number;
+  recycling_orders: number;
+  cancelled_orders: number;
   by_type: Array<{
     waste_type: WasteType;
     dispatches: number;

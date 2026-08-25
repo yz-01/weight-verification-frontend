@@ -34,10 +34,10 @@ export function QRCodeList() {
     () => [
       {
         accessorKey: "serial",
-        meta: { label: t("qrCodes.field.serial") },
+        meta: { label: t("adminQr.field.qrId") },
         header: ({ column }) => (
           <SortableHeader
-            label={t("qrCodes.field.serial")}
+            label={t("adminQr.field.qrId")}
             isSorted={column.getIsSorted()}
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
@@ -48,24 +48,24 @@ export function QRCodeList() {
       },
       {
         accessorKey: "subject_type",
-        meta: { label: t("qrCodes.field.subjectType") },
+        meta: { label: t("adminQr.field.subjectType") },
         header: () => (
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("qrCodes.field.subjectType")}
+            {t("adminQr.field.subjectType")}
           </span>
         ),
         cell: ({ row }) => (
           <TypeBadge
-            label={t(`qrCodes.subjectType.${row.original.subject_type}`)}
+            label={t(`adminQr.subjectType.${row.original.subject_type}`)}
           />
         ),
       },
       {
         accessorKey: "subject_label",
-        meta: { label: t("qrCodes.field.subjectLabel") },
+        meta: { label: t("adminQr.field.subject") },
         header: () => (
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("qrCodes.field.subjectLabel")}
+            {t("adminQr.field.subject")}
           </span>
         ),
         cell: ({ row }) => (
@@ -74,10 +74,10 @@ export function QRCodeList() {
       },
       {
         accessorKey: "company",
-        meta: { label: t("qrCodes.field.company") },
+        meta: { label: t("adminQr.field.company") },
         header: () => (
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("qrCodes.field.company")}
+            {t("adminQr.field.company")}
           </span>
         ),
         cell: ({ row }) => (
@@ -86,25 +86,25 @@ export function QRCodeList() {
       },
       {
         accessorKey: "status",
-        meta: { label: t("qrCodes.field.status") },
+        meta: { label: t("adminQr.field.status") },
         header: () => (
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("qrCodes.field.status")}
+            {t("adminQr.field.status")}
           </span>
         ),
         cell: ({ row }) => (
           <StatusBadge
-            label={t(`qrCodes.status.${row.original.status}`)}
+            label={t(`adminQr.status.${row.original.status}`)}
             tone={STATUS_TONE[row.original.status]}
           />
         ),
       },
       {
         accessorKey: "issued_on",
-        meta: { label: t("qrCodes.field.issuedOn") },
+        meta: { label: t("adminQr.field.issuedOn") },
         header: ({ column }) => (
           <SortableHeader
-            label={t("qrCodes.field.issuedOn")}
+            label={t("adminQr.field.issuedOn")}
             isSorted={column.getIsSorted()}
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
@@ -124,11 +124,11 @@ export function QRCodeList() {
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
-        title={t("qrCodes.title")}
+        title={t("adminQr.title")}
         subtitle={
           isLoading
             ? t("common.loading")
-            : t("qrCodes.count", { count: totalCount })
+            : t("adminQr.count", { count: totalCount })
         }
       />
       <DataTable
@@ -146,7 +146,7 @@ export function QRCodeList() {
         storageKey="qr-codes"
         filterPills={["ACTIVE", "DISABLED", "VOIDED", "EXPIRED"].map((s) => ({
           key: s,
-          label: t(`qrCodes.status.${s}`),
+          label: t(`adminQr.status.${s}`),
           active: list.filters.status === s,
           onSelect: () => list.setFilter("status", s),
         }))}

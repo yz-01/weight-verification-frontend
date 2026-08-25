@@ -199,7 +199,10 @@
       "SUSPENDED": "已暂停",
       "COMPLETED": "已完工"
     },
-    "attendanceEvent": { "CLOCK_IN": "上班打卡", "CLOCK_OUT": "下班打卡" },
+    "attendanceEvent": {
+      "CLOCK_IN": "上班打卡",
+      "CLOCK_OUT": "下班打卡"
+    },
     "overview": {
       "title": "今日概览",
       "projects": "项目",
@@ -372,6 +375,8 @@
     "retry": "重试",
     "optional": "选填",
     "all": "全部",
+    "active": "启用",
+    "inactive": "停用",
     "none": "无",
     "export": "导出",
     "refresh": "刷新",
@@ -632,6 +637,34 @@
       "RETURNED": "已退回",
       "CANCELLED": "已取消"
     },
+    "event": {
+      "DISPATCH_CREATED": "已建立订单",
+      "DISPATCH_RELEASED": "已从工地出场",
+      "DISPATCH_CANCELLED": "订单已取消",
+      "RECYCLER_ACCEPTED": "回收商已接单",
+      "LOAD_COLLECTED": "已收货",
+      "COLLECTION_PROPOSED": "回收时间已提议",
+      "COLLECTION_CONFIRMED": "回收时间已确认",
+      "DRIVER_ASSIGNED": "已指派司机",
+      "DRIVER_REASSIGNED": "司机已改派",
+      "DRIVER_ACCEPTED": "司机已接受任务",
+      "DRIVER_EN_ROUTE": "司机前往工地中",
+      "DRIVER_ARRIVED": "司机已到达工地",
+      "LOAD_COMPLETED": "装货已完成",
+      "RETURNING_TO_YARD": "司机返回回收场",
+      "ARRIVED_AT_YARD": "已到达回收场",
+      "WEIGHING_STARTED": "已开始称重",
+      "WEIGHING_CONFIRMED": "称重已确认",
+      "WEIGHING_VOIDED": "称重已作废",
+      "DISPATCH_SETTLED": "订单已结算",
+      "DEDUCTION_RECORDED": "已记录扣杂",
+      "DEDUCTION_RESPONDED": "已记录扣杂回复",
+      "PAYMENT_RECORDED": "已记录付款",
+      "SETTLEMENT_LOCKED": "结算已锁定",
+      "GPS_RECORDED": "已记录 GPS 位置",
+      "PHOTO_ATTACHED": "已添加证据照片",
+      "EXCEPTION_RECORDED": "已记录异常"
+    },
     "taskType": {
       "PHOTO": "拍照记录",
       "MATERIAL": "材料",
@@ -654,7 +687,10 @@
       "MAINTENANCE": "维修中",
       "RETIRED": "已退役"
     },
-    "direction": { "ENTRY": "进场", "EXIT": "退场" },
+    "direction": {
+      "ENTRY": "进场",
+      "EXIT": "退场"
+    },
     "progressStatus": {
       "SUBMITTED": "等待确认",
       "CONFIRMED": "已确认",
@@ -701,14 +737,19 @@
       "title": "新增清运申请",
       "description": "拍摄废料、获取当前 GPS，并提交给负责人审批。"
     },
-    "review": { "title": "审批清运申请" },
+    "review": {
+      "title": "审批清运申请"
+    },
     "assign": {
       "title": "选择清运执行人",
       "description": "内部工作人员会在自己的现场任务中收到工作，不生成链接；外部清运商使用只限本任务的免登录链接。",
       "copyNow": "复制后发送给外部清运商。链接不需要登录；如遗失，可在清运列表重新生成，旧链接会立即失效。",
       "noFieldStaff": "此项目没有可指派的现场工作人员，请先在项目成员中加入工作人员。"
     },
-    "assignment": { "internal": "内部工作人员", "external": "外部清运商" },
+    "assignment": {
+      "internal": "内部工作人员",
+      "external": "外部清运商"
+    },
     "regenerate": {
       "title": "重新生成外部链接",
       "description": "生成新链接后，之前的链接会立即失效。",
@@ -854,7 +895,10 @@
         "REJECTED": "已拒绝",
         "CANCELLED": "已取消"
       },
-      "action": { "start": "开始清运", "submit": "发送给工地验收" },
+      "action": {
+        "start": "开始清运",
+        "submit": "发送给工地验收"
+      },
       "evidence": {
         "LOADING": "装车照片",
         "UNLOADING": "卸货照片",
@@ -867,7 +911,9 @@
         "doNo": "Disposal DO 编号",
         "note": "工作备注"
       },
-      "error": { "action": "操作无法完成，请检查网络后重试。" }
+      "error": {
+        "action": "操作无法完成，请检查网络后重试。"
+      }
     },
     "internal": {
       "invalid": "无法打开这项清运任务，请刷新任务列表后重试。",
@@ -904,7 +950,9 @@
         "doNo": "Disposal DO 编号",
         "note": "工作备注"
       },
-      "error": { "action": "操作无法完成，请检查网络和 GPS 后重试。" }
+      "error": {
+        "action": "操作无法完成，请检查网络和 GPS 后重试。"
+      }
     }
   },
   "fieldStaffPwa": {
@@ -1025,7 +1073,9 @@
       "retry": "重试",
       "clearSignature": "清除签名"
     },
-    "consultantTasks": { "title": "顾问现场照片提交" },
+    "consultantTasks": {
+      "title": "顾问现场照片提交"
+    },
     "consultantCapture": {
       "project": "项目",
       "chooseProject": "选择项目",
@@ -1140,7 +1190,15 @@
       "tapCamera": "按这里打开相机",
       "photoReady": "已准备 {count} 张照片",
       "notes": "备注（选填）",
-      "submit": "保存材料记录"
+      "submit": "保存材料记录",
+      "ocrLowConfidence": "以下字段识别置信度较低：{fields}。保存前请对照纸质单据核对。",
+      "ocrField": {
+        "delivery_note_no": "送货单号",
+        "vehicle_plate": "车牌",
+        "supplier_name": "供应商",
+        "material_name": "材料",
+        "quantity": "数量"
+      }
     },
     "materialEvidence": {
       "title": "必须拍摄的材料证据",
@@ -1392,7 +1450,7 @@
       "materialQuantityReport": "材料数量报表",
       "materialCostReport": "材料成本报表",
       "transactionReports": "业务报表",
-      "reportHistory": "报表导出历史",
+      "reportHistory": "报表历史记录",
       "geofenceSettings": "Geofence 设置",
       "workforceGps": "人员实时位置",
       "emergencyList": "紧急名单",
@@ -1402,65 +1460,26 @@
       "roles": "角色与权限",
       "loginHistory": "登录记录",
       "userHandovers": "人员交接记录",
-      "userActivity": "操作记录",
+      "userActivity": "用户操作记录",
       "companySettings": "公司设置",
       "integrationSettings": "系统集成",
       "notifications": "通知中心",
-      "projectRecords": "项目资料",
       "projectCategories": "现场资料栏目",
-      "fieldTasks": "现场任务",
-      "supplierRecords": "供应商资料",
-      "materialReceipts": "材料进场",
-      "siteEquipment": "工地设备",
-      "materialOutgoing": "材料出场",
-      "progressRecords": "施工进度",
-      "schedulePlanning": "施工计划",
-      "recyclerPartners": "回收商合作",
-      "wasteDispatches": "废料订单",
-      "siteDisposals": "工地清运",
-      "recyclingRecords": "回收称重记录",
-      "attendanceRecords": "考勤记录",
-      "siteGps": "工地人员 GPS",
-      "safetyIncidents": "安全事件",
-      "incidentReports": "事故上报",
-      "consultantApplications": "顾问申请",
-      "consultantWorkflows": "审批流程",
-      "approvalCredentials": "审批凭证",
-      "consultantFieldInbox": "现场资料收件箱",
-      "consultantAccess": "顾问账号与项目授权",
-      "documentArchive": "文件归档",
-      "evidenceArchive": "证据归档",
-      "materialQuantityReport": "材料数量报表",
-      "materialCostReport": "材料成本报表",
-      "transactionReports": "业务报表",
-      "geofenceSettings": "Geofence 设置",
-      "workforceGps": "人员实时位置",
-      "emergencyList": "紧急名单",
-      "siteAccessPasses": "工地通行证",
-      "gateScanning": "门岗扫描",
-      "userManagement": "用户管理",
-      "roles": "角色与权限",
-      "userActivity": "操作记录",
-      "companySettings": "公司设置",
-      "notifications": "通知中心",
       "companyCreate": "建立公司",
       "companyDirectory": "公司管理与查询",
       "companyReview": "公司审核",
       "companyStatus": "公司状态",
-      "companySubscriptions": "公司订阅资料",
+      "companySubscriptions": "公司订阅管理",
       "companyProjects": "项目管理",
       "companyRecyclerData": "回收商资料",
       "companySearch": "公司查询",
       "companyStatistics": "公司统计",
       "companyActivity": "公司操作记录",
-      "userManagement": "用户管理",
       "userProfiles": "用户资料与查询",
       "userCategories": "用户类别",
       "userLoginManagement": "登录管理",
       "userStatistics": "用户统计",
-      "userActivity": "用户操作记录",
       "subscriptionPlans": "订阅方案管理",
-      "companySubscriptions": "公司订阅管理",
       "subscriptionStatus": "订阅状态",
       "packageChanges": "套餐升级／降级",
       "accountLimits": "账号数量管理",
@@ -1472,7 +1491,6 @@
       "platformCommission": "平台佣金管理",
       "automaticBilling": "自动生成账单",
       "collections": "收款管理",
-      "paymentProofs": "付款凭证",
       "commissionRules": "佣金规则管理",
       "invoiceSearch": "账单管理与查询",
       "billingStatistics": "收费统计",
@@ -1513,7 +1531,6 @@
       "operationsReports": "系统运营报表",
       "reportSearch": "报表中心",
       "reportExports": "导出报表",
-      "reportHistory": "报表历史记录",
       "contractorNotifications": "建筑商通知",
       "recyclerNotifications": "回收商通知",
       "saasNotifications": "SaaS 收费通知",
@@ -1705,7 +1722,10 @@
       "allUploaders": "全部上传人员",
       "keyword": "文件或来源关键字"
     },
-    "action": { "excel": "Excel", "pdf": "PDF" },
+    "action": {
+      "excel": "Excel",
+      "pdf": "PDF"
+    },
     "period": "期间：{from} 至 {to}",
     "preview": "报表预览",
     "records": "共 {count} 条记录",
@@ -1893,7 +1913,10 @@
       "YEARLY": "每年",
       "ONE_TIME": "一次性"
     },
-    "status": { "active": "使用中", "inactive": "已停用" },
+    "status": {
+      "active": "使用中",
+      "inactive": "已停用"
+    },
     "loadError": "无法加载业务目标。",
     "saveError": "无法保存目标，请检查日期、范围和通知人员。",
     "toast": {
@@ -1995,6 +2018,8 @@
       "provisioningTitle": "设备连接资料",
       "provisioningDescription": "请把这些一次性资料交给安装人员。关闭此窗口后，系统不会再次显示设备密钥。",
       "heartbeatUrl": "心跳上报网址",
+      "accessEventUrl": "门禁事件上报地址",
+      "gateEventUrl": "地磅门岗事件上报地址",
       "recordId": "平台设备记录 ID",
       "deviceHeader": "设备身份 Header",
       "signatureHeader": "签名 Header",
@@ -2009,6 +2034,10 @@
       "API_GATEWAY": "API Gateway",
       "CCTV": "CCTV",
       "ANPR": "ANPR",
+      "ACCESS_CONTROL": "门禁控制",
+      "RFID": "RFID",
+      "FACE_RECOGNITION": "人脸识别",
+      "VISITOR_MANAGEMENT": "访客管理",
       "IOT": "IoT",
       "AI": "AI",
       "DRONE": "无人机",
@@ -2233,7 +2262,34 @@
     "status": {
       "offline": "当前离线，{count} 条记录等待上传",
       "pending": "{count} 条记录等待同步",
-      "syncing": "正在上传离线记录"
+      "syncing": "正在上传离线记录",
+      "failed": "{count} 条动作同步失败"
+    },
+    "queue": {
+      "retry": "立即重试",
+      "empty": "没有等待同步的动作。",
+      "discard": "放弃这条动作",
+      "attemptFailed": "已失败 {count} 次"
+    },
+    "kind": {
+      "ATTENDANCE": "考勤打卡",
+      "TASK_TRANSITION": "行程进度",
+      "TASK_PHOTO": "行程照片",
+      "TASK_POSITION": "GPS 位置",
+      "FIELD_TASK_TRANSITION": "现场任务更新",
+      "FIELD_TASK_PHOTO": "现场任务照片",
+      "MATERIAL_RECEIPT": "材料收货",
+      "EQUIPMENT_MOVEMENT": "设备进退场",
+      "SITE_PROGRESS": "工地进度",
+      "MATERIAL_OUTGOING": "材料出场",
+      "WASTE_OUTGOING": "废料出场",
+      "DISPOSAL_REQUEST": "处置申请",
+      "SAFETY_INCIDENT": "安全事件",
+      "CONSULTANT_SUBMISSION": "顾问提交",
+      "CATEGORY_EVIDENCE": "栏目证据",
+      "DISPATCH_ACCEPT": "接受订单",
+      "DISPATCH_COLLECT": "确认收货",
+      "TRIP_ASSIGN": "指派行程"
     }
   },
   "companies": {
@@ -2418,7 +2474,10 @@
         "empty": "尚未添加银行账户。",
         "primary": "主要账户",
         "makePrimary": "设为主要账户",
-        "type": { "CURRENT": "来往账户", "SAVINGS": "储蓄账户" }
+        "type": {
+          "CURRENT": "来往账户",
+          "SAVINGS": "储蓄账户"
+        }
       },
       "toast": {
         "documentUploaded": "文件已上传",
@@ -3341,7 +3400,17 @@
       "EVENT": "事件",
       "REMINDER": "提醒",
       "EXCEPTION": "异常警报",
-      "PROJECT_NOTICE": "项目通知"
+      "PROJECT_NOTICE": "项目通知",
+      "SUBSCRIPTION": "订阅",
+      "BILLING": "账单与付款",
+      "COMPANY": "公司账号",
+      "PARTNERSHIP": "合作伙伴",
+      "DISPATCH": "回收订单",
+      "DRIVER_TASK": "司机任务",
+      "WEIGHING": "称重",
+      "SAFETY": "安全",
+      "ACCESS": "工地门禁",
+      "ASSET": "设备"
     },
     "status": {
       "read": "已读",
@@ -3349,6 +3418,18 @@
     },
     "markRead": "标记为已读",
     "markAllRead": "全部标记为已读",
+    "remove": "从收件箱移除",
+    "filter": {
+      "today": "今日通知",
+      "readStatus": "阅读状态",
+      "allStatus": "全部状态",
+      "category": "通知类别",
+      "allCategories": "全部类别",
+      "billing": "收费通知",
+      "weighing": "地磅通知",
+      "order": "订单通知",
+      "system": "系统通知"
+    },
     "push": {
       "enable": "开启浏览器通知",
       "enabled": "浏览器通知已开启",
@@ -3367,7 +3448,11 @@
       "selectProject": "选择项目",
       "audience": "发送范围",
       "audienceHelp": "可以发送给全项目、一个或多个角色，或指定人员。",
-      "scope": { "ALL": "全项目", "ROLE": "按角色", "PEOPLE": "指定人员" },
+      "scope": {
+        "ALL": "全项目",
+        "ROLE": "按角色",
+        "PEOPLE": "指定人员"
+      },
       "recipients": "接收人",
       "recipientsHelp": "只能选择已分配到所选项目的用户。",
       "chooseProjectFirst": "请先选择项目。",
@@ -3507,7 +3592,10 @@
         "subtitle": "永久保存事件时间、类型、服务、内容及处理历史"
       }
     },
-    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式" },
+    "mode": {
+      "SIMULATED": "测试模拟模式",
+      "LIVE": "真实连接模式"
+    },
     "metric": {
       "onlineContractors": "在线建筑商",
       "onlineRecyclers": "在线回收商",
@@ -3568,7 +3656,10 @@
       "ACKNOWLEDGED": "已确认",
       "RESOLVED": "已解决"
     },
-    "action": { "acknowledge": "确认", "resolve": "解决" },
+    "action": {
+      "acknowledge": "确认",
+      "resolve": "解决"
+    },
     "tile": {
       "server": "服务器",
       "api": "API",
@@ -4159,7 +4250,7 @@
       "reset_link_sent": "重新发送专属登录链接",
       "force_logout": "强制用户登出",
       "commission_rule_created": "建立佣金规则",
-      "commission_rule_updated": "修改佣金规则",
+      "commission_rule_updated": "修改销售佣金规则",
       "commission_rule_removed": "移除佣金规则",
       "invoice_generated": "生成账单",
       "invoice_issued": "发出账单",
@@ -4241,7 +4332,6 @@
       "sales_territory_removed": "移除销售区域",
       "commission_scheme_created": "建立销售佣金方案",
       "commission_scheme_updated": "修改销售佣金方案",
-      "commission_rule_updated": "修改销售佣金规则",
       "sales_terms_created": "建立销售条款版本",
       "sales_terms_activated": "启用销售条款版本",
       "sales_terms_acknowledged": "记录销售条款确认",
@@ -4344,6 +4434,12 @@
     "readyBody": "这台手机已安全绑定到你的现场人员账号。",
     "openWorkspace": "打开拍照工作台",
     "install": "安装现场人员 App",
+    "driverInstallTitle": "安装司机应用",
+    "driverInstallBody": "把司机工作页面添加到桌面，下次可以直接打开。",
+    "driverInstallIos": "iPhone 请从浏览器菜单把此页面添加到主屏幕。",
+    "driverInstallIosGuide": "按分享，然后选择添加到主屏幕。",
+    "driverInstallBrowserGuide": "打开浏览器菜单，选择安装应用或添加到主屏幕。",
+    "driverInstallDismiss": "关闭安装提示",
     "installHelp": "查看安装教程",
     "installPreparing": "正在准备安装……",
     "installUnavailable": "系统安装提示尚未准备好。请确认没有使用无痕模式，再打开浏览器菜单选择“安装应用”或“添加到主屏幕”；也可以稍后再按一次安装按钮。",
@@ -5198,7 +5294,10 @@
       "CANCELLED": "已取消",
       "VOIDED": "已作废"
     },
-    "decision": { "RECEIVED": "已接收送货", "REJECTED": "拒收送货" },
+    "decision": {
+      "RECEIVED": "已接收送货",
+      "REJECTED": "拒收送货"
+    },
     "evidence": {
       "VEHICLE": "车辆到场",
       "UNLOADING": "卸货过程",
@@ -5361,7 +5460,10 @@
       "scansToday": "今日扫码",
       "failedScansToday": "今日失败扫码"
     },
-    "statistics": { "byType": "按类别统计", "byStatus": "按状态统计" },
+    "statistics": {
+      "byType": "按类别统计",
+      "byStatus": "按状态统计"
+    },
     "toast": {
       "issued": "二维码已签发",
       "updated": "二维码资料已更新",
@@ -5459,7 +5561,11 @@
       "message": "内容",
       "channelStatus": "频道／状态"
     },
-    "status": { "READ": "已读", "UNREAD": "未读", "DELETED": "已移除" },
+    "status": {
+      "READ": "已读",
+      "UNREAD": "未读",
+      "DELETED": "已移除"
+    },
     "action": {
       "markRead": "标记已读",
       "markUnread": "标记未读",
@@ -5505,7 +5611,10 @@
       "SENT": "已发送",
       "FAILED": "发送失败"
     },
-    "record": { "delivery": "发送记录", "status": "状态记录" }
+    "record": {
+      "delivery": "发送记录",
+      "status": "状态记录"
+    }
   },
   "adminReports": {
     "title": "报表中心",
@@ -5575,7 +5684,10 @@
       "cwe": "Cloud Weighing Engine 报表",
       "operations": "系统运营报表"
     },
-    "action": { "excel": "Excel", "pdf": "PDF" },
+    "action": {
+      "excel": "Excel",
+      "pdf": "PDF"
+    },
     "field": {
       "metric": "统计项目",
       "value": "数值",
@@ -5708,7 +5820,10 @@
       "ENABLED": "启用",
       "DISABLED": "停用"
     },
-    "mode": { "SIMULATED": "模拟", "LIVE": "真实" },
+    "mode": {
+      "SIMULATED": "模拟",
+      "LIVE": "真实"
+    },
     "state": {
       "OPEN": "已建立",
       "ON_SCALE": "车辆在磅",
@@ -5716,7 +5831,11 @@
       "COMPLETED": "已完成",
       "VOID": "无效"
     },
-    "verdict": { "PENDING": "待判定", "VALID": "有效", "INVALID": "异常" },
+    "verdict": {
+      "PENDING": "待判定",
+      "VALID": "有效",
+      "INVALID": "异常"
+    },
     "anomaly": {
       "SINGLE_READING_ONLY": "只有一次读数",
       "NO_CONTINUOUS_STREAM": "没有连续读数",
@@ -5736,7 +5855,9 @@
       "FRAME_MISMATCH": "原始与解析重量不符",
       "PLATE_MISMATCH": "车牌不符"
     },
-    "live": { "activeSessions": "进行中的称重" },
+    "live": {
+      "activeSessions": "进行中的称重"
+    },
     "metric": {
       "totalScales": "地磅总数",
       "activeScales": "启用地磅",
@@ -5836,18 +5957,34 @@
     "editTitle": "编辑出场",
     "viewTitle": "出场记录",
     "section": {
+      "application": "出场申请",
+      "applicationPhotos": "申请照片",
       "destination": "去向",
+      "execution": "收运执行",
+      "executionPhotos": "执行照片",
       "load": "货物",
+      "settlement": "结算结果",
       "vehicle": "车辆与司机",
+      "weighing": "称重结果",
       "release": "放行",
-      "photos": "照片"
+      "photos": "照片",
+      "timeline": "订单时间线"
     },
     "field": {
+      "applicant": "申请人",
+      "applicationNo": "申请编号",
+      "applicationNote": "申请备注",
+      "approvalNote": "审批意见",
+      "approvedAt": "审批时间",
+      "approvedBy": "审批人",
+      "collectionPlan": "回收安排",
       "dispatchNo": "出场单号",
       "project": "项目",
       "recycler": "回收商",
       "wasteType": "废料类型",
       "estimatedWeight": "预估重量（公斤）",
+      "executionProgress": "执行进度",
+      "firstWeight": "毛重",
       "description": "说明",
       "vehiclePlate": "车牌",
       "driverName": "司机",
@@ -5857,7 +5994,14 @@
       "releasedAt": "放行时间",
       "releasedBy": "放行人",
       "location": "位置",
-      "photoCount": "照片"
+      "netWeight": "净重",
+      "photoCount": "照片",
+      "secondWeight": "皮重",
+      "settledWeight": "最终结算重量",
+      "settlementAmount": "结算金额",
+      "settlementNo": "结算单号",
+      "settlementState": "结算状态",
+      "weighingNo": "地磅单号"
     },
     "wasteType": {
       "MIXED": "混合建筑废料",
@@ -5912,6 +6056,100 @@
       "removed": "出场已删除",
       "released": "已放行",
       "cancelled": "已取消"
+    }
+  },
+  "recyclerReports": {
+    "title": "报表中心",
+    "count": "共 {count} 项记录",
+    "type": {
+      "orders": "订单报表",
+      "weights": "回收重量",
+      "sources": "业务来源",
+      "commission": "平台佣金",
+      "weighing": "地磅单",
+      "inventory": "库存",
+      "outbound": "出货",
+      "customers": "客户",
+      "fleet": "司机与车辆",
+      "exceptions": "异常与审计"
+    },
+    "filter": {
+      "title": "筛选条件",
+      "reportType": "报表",
+      "from": "开始日期",
+      "to": "结束日期",
+      "search": "搜索结果",
+      "project": "项目",
+      "material": "材料",
+      "source": "业务来源",
+      "customer": "客户",
+      "driver": "司机",
+      "vehicle": "车辆",
+      "scale": "地磅",
+      "status": "状态",
+      "all": "全部"
+    },
+    "source": {
+      "PLATFORM": "平台订单",
+      "PRIVATE": "私人客户"
+    },
+    "summary": {
+      "records": "记录总数",
+      "pending_dispatch": "待派车",
+      "collecting": "回收中",
+      "completed": "已完成",
+      "cancelled": "已取消",
+      "total_weight": "总重量",
+      "platform_weight": "平台业务重量",
+      "private_weight": "私人客户重量",
+      "settlement_amount": "结算金额",
+      "commission_due": "应付佣金",
+      "pending_confirmation": "待确认",
+      "confirmed": "已确认",
+      "voided": "已作废",
+      "current_inventory": "当前库存",
+      "period_movement": "期间变动",
+      "adjustments": "库存调整",
+      "platform_customers": "平台客户",
+      "private_customers": "私人客户",
+      "services": "服务次数",
+      "drivers": "司机人数",
+      "vehicles": "车辆数量",
+      "weighing_anomalies": "称重异常",
+      "reweighs": "重新过磅",
+      "voided_tickets": "作废地磅单",
+      "inventory_adjustments": "库存调整",
+      "deduction_confirmations": "扣杂双方确认"
+    },
+    "column": {
+      "reference": "编号",
+      "date": "日期",
+      "category": "类别",
+      "party": "客户/相关方",
+      "status": "状态",
+      "quantity": "重量/次数",
+      "detail": "详情"
+    },
+    "action": {
+      "print": "打印",
+      "retry": "重试"
+    },
+    "empty": {
+      "title": "没有报表记录",
+      "description": "更改日期或筛选条件查看其他期间。"
+    },
+    "error": {
+      "title": "无法载入报表",
+      "description": "请检查网络后重试。"
+    },
+    "history": {
+      "title": "导出记录",
+      "description": "每一次 PDF 和 Excel 导出都会永久保存。",
+      "file": "文件",
+      "period": "日期范围",
+      "format": "格式",
+      "generated": "生成时间",
+      "empty": "还没有导出记录。"
     }
   },
   "export": {
@@ -5988,6 +6226,17 @@
       "state": "状态"
     },
     "declaredNote": "这是产废方的申报。最终重量由你的地磅决定，两个数字都会保留。",
+    "summary": {
+      "today_orders": "今日订单",
+      "month_orders": "本月订单",
+      "completed_orders": "已完成",
+      "recycling_orders": "回收中",
+      "cancelled_orders": "已取消"
+    },
+    "filter": {
+      "collectionDateFrom": "回收日期从",
+      "collectionDateTo": "回收日期至"
+    },
     "order": {
       "title": "回收订单",
       "description": "建筑商发来了订单 {order}。先提议回收时间；建筑商确认后才能安排司机。",
@@ -6058,19 +6307,39 @@
     "editTitle": "编辑车辆",
     "section": {
       "identity": "基本信息",
-      "limits": "限重与证件"
+      "limits": "限重与证件",
+      "availability": "车辆状态"
     },
     "field": {
       "plateNo": "车牌",
       "vehicleType": "车型",
+      "brand": "品牌",
+      "model": "型号",
+      "brandModel": "品牌与型号",
       "makeModel": "厂牌型号",
+      "legacyMakeModel": "原有厂牌型号",
+      "payloadCapacity": "载重量（公斤）",
       "tareWeight": "皮重（公斤）",
       "maxLaden": "最大总重（公斤）",
       "roadTaxExpires": "路税到期",
+      "insuranceExpires": "保险到期",
       "permitExpires": "准证到期",
+      "photo": "车辆照片",
+      "choosePhoto": "选择照片",
       "notes": "备注",
       "isActive": "启用",
+      "isActiveHelp": "启用且不在维修中的车辆可以派车。",
+      "maintenance": "维修中",
+      "maintenanceHelp": "维修中的车辆不能安排回收任务。",
+      "workStatus": "车辆状态",
+      "currentTask": "当前任务",
       "createdAt": "添加时间"
+    },
+    "status": {
+      "AVAILABLE": "待命",
+      "ON_TASK": "执行任务",
+      "MAINTENANCE": "维修中",
+      "INACTIVE": "停用"
     },
     "type": {
       "LORRY": "货车",
@@ -6109,18 +6378,54 @@
     "editTitle": "编辑司机",
     "section": {
       "identity": "基本信息",
-      "licence": "驾照"
+      "account": "司机应用账号",
+      "licence": "驾照",
+      "availability": "工作状态"
     },
     "field": {
+      "driverNo": "司机编号",
+      "driverNoAuto": "留空由系统自动生成",
       "fullName": "姓名",
       "phone": "电话",
       "icNo": "身份证号",
       "licenceNo": "驾照号",
       "licenceExpires": "驾照到期",
+      "licencePhoto": "驾照照片",
+      "driverPhoto": "司机照片",
+      "choosePhoto": "选择照片",
+      "emergencyContact": "紧急联系人",
+      "emergencyContactExample": "姓名 / 电话号码",
       "defaultVehicle": "常用车辆",
       "account": "司机登录账号",
+      "newAccountEmail": "或用邮箱新建账号",
+      "initialPassword": "初始密码",
+      "loginIdleExpiryDays": "连续未使用后重新登录（天）",
       "isActive": "启用",
+      "isActiveHelp": "启用的司机可以被安排回收任务。",
+      "onLeave": "请假",
+      "onLeaveHelp": "请假中的司机不能被安排回收任务。",
+      "workStatus": "工作状态",
+      "currentTask": "当前任务",
+      "lastPosition": "最后 GPS 更新时间",
+      "notes": "备注",
       "createdAt": "添加时间"
+    },
+    "status": {
+      "AVAILABLE": "待命",
+      "ON_TASK": "执行任务",
+      "COMPLETED_TODAY": "今日已完成",
+      "ON_LEAVE": "请假",
+      "INACTIVE": "停用"
+    },
+    "online": "在线",
+    "offline": "离线",
+    "summary": {
+      "total": "司机总数",
+      "online": "在线司机",
+      "on_task": "执行任务",
+      "available": "待命司机",
+      "on_leave": "请假司机",
+      "inactive": "停用司机"
     },
     "licenceExpired": "驾照已过期",
     "remove": {
@@ -6134,6 +6439,16 @@
       "removed": "司机已删除"
     }
   },
+  "fleetHistory": {
+    "title": "历史服务记录",
+    "count": "{count, plural, =0 {暂无服务记录} other {共 # 条服务记录}}",
+    "task": "任务",
+    "order": "订单",
+    "project": "项目",
+    "completed": "完成时间",
+    "netWeight": "净重",
+    "ticket": "地磅单"
+  },
   "tasks": {
     "title": "出车任务",
     "count": "{count, plural, =0 {暂无任务} other {# 趟}}",
@@ -6141,6 +6456,17 @@
     "createTitle": "派车",
     "editTitle": "改派",
     "viewTitle": "出车任务",
+    "summary": {
+      "today_dispatches": "今日派车",
+      "today_completed": "今日完成",
+      "running": "执行中",
+      "vehicles_used_today": "今日使用车辆",
+      "drivers_used_today": "今日执行司机"
+    },
+    "filter": {
+      "dateFrom": "派车日期从",
+      "dateTo": "派车日期至"
+    },
     "section": {
       "load": "货物",
       "crew": "车辆与司机",
@@ -6188,10 +6514,18 @@
     "noPhotos": "司机还没有传照片。",
     "locationNote": "这是司机设备上报的位置。浏览器定位可以伪造，所以这只是「上报了什么」，不是「车在哪里」。",
     "reassignNote": "只能在司机接单前改派。接单之后，派工记录就是「谁真的去了」的凭据。",
+    "reassign": "改派",
+    "cancel": {
+      "action": "取消派车",
+      "title": "取消这趟派车？",
+      "description": "司机和车辆会恢复可用，订单可以重新派车。取消记录和原因会永久保留。",
+      "confirm": "确认取消"
+    },
     "toast": {
       "created": "已派车",
       "updated": "任务已更新",
-      "advanced": "任务已更新"
+      "advanced": "任务已更新",
+      "cancelled": "派车已取消"
     }
   },
   "deductions": {
@@ -6368,6 +6702,124 @@
       "paymentRecorded": "付款已记录"
     }
   },
+  "recyclerCompanySettings": {
+    "title": "公司设置",
+    "subtitle": "在一个页面管理回收商公司资料、业务规则和权限入口。",
+    "profile": {
+      "title": "公司资料",
+      "help": "这些资料和 Logo 会显示在回收商后台。",
+      "logo": "选择 Logo",
+      "name": "公司名称",
+      "registration": "公司注册号",
+      "taxId": "税务识别号",
+      "sst": "SST 注册号",
+      "contactPerson": "联系人",
+      "designation": "职位",
+      "address": "公司地址",
+      "phone": "联系电话",
+      "email": "联系邮箱",
+      "billingEmail": "账单邮箱"
+    },
+    "bank": {
+      "title": "银行账户",
+      "help": "管理公司的收付款账户。新增或修改账户资料后，需要平台重新验证。",
+      "add": "新增账户",
+      "empty": "还没有银行账户。",
+      "primary": "主要账户",
+      "makePrimary": "设为主要账户",
+      "edit": "编辑银行账户",
+      "remove": "移除银行账户",
+      "removeTitle": "确定移除这个银行账户？",
+      "removeDescription": "移除 {account} 后不能用于新的付款，已有账单记录不会改变。",
+      "removeConfirm": "移除账户",
+      "addTitle": "新增银行账户",
+      "editTitle": "编辑银行账户",
+      "formHelp": "保存后账号会被遮罩；平台验证账户变更后才可用于付款。",
+      "bankName": "银行名称",
+      "branch": "分行",
+      "accountName": "账户持有人",
+      "accountNumber": "银行账号",
+      "numberKeep": "留空即可保留现有账号。",
+      "accountType": "账户类型",
+      "currency": "币种",
+      "swift": "SWIFT / BIC",
+      "type": {
+        "CURRENT": "来往账户",
+        "SAVINGS": "储蓄账户"
+      },
+      "verification": {
+        "PENDING": "待验证",
+        "VERIFIED": "已验证",
+        "REJECTED": "已拒绝"
+      }
+    },
+    "notifications": {
+      "title": "通知设置",
+      "help": "选择团队接收业务通知的方式。",
+      "system": "系统内通知",
+      "systemHelp": "在 MSE Trace 显示订单、称重、账单和系统通知。",
+      "email": "Email 通知",
+      "emailHelp": "发送副本到用户登记的邮箱。",
+      "push": "手机/浏览器推送",
+      "pushHelp": "推送到已订阅的手机和电脑。"
+    },
+    "business": {
+      "title": "业务设置",
+      "help": "这里只控制业务开关，硬件仍由平台管理员绑定。",
+      "deduction": "超过此扣杂重量需双方确认（kg）",
+      "cctv": "AI CCTV",
+      "cctvHelp": "平台完成硬件连接后，使用 AI CCTV 证据。",
+      "anpr": "车牌识别 ANPR",
+      "anprHelp": "平台完成硬件连接后，使用车牌授权称重。",
+      "deviceCount": "已绑定 {count} 台",
+      "hardwareOwner": "只有 MSE 平台管理员可以绑定或更换地磅、Gateway、CCTV 和 ANPR 设备。"
+    },
+    "commission": {
+      "title": "平台佣金",
+      "help": "由 MSE 平台管理员设置，只可查看；私人客户业务不计算佣金。",
+      "rule": "佣金规则",
+      "basis": "计算方式",
+      "rate": "费率",
+      "cycle": "账单周期",
+      "none": "目前没有生效中的佣金规则。",
+      "basisValue": {
+        "SETTLED_AMOUNT": "按结算金额",
+        "SETTLED_WEIGHT": "按结算重量"
+      },
+      "cycleValue": {
+        "MONTHLY": "每月",
+        "QUARTERLY": "每季度",
+        "YEARLY": "每年"
+      }
+    },
+    "links": {
+      "title": "人员、接口和安全",
+      "help": "选择要管理的项目，每个入口都有独立权限和审计记录。",
+      "users": "用户管理",
+      "usersHelp": "新增、停用和管理回收商员工。",
+      "roles": "角色与权限",
+      "rolesHelp": "设置每个回收商角色可以查看和操作的功能。",
+      "integrations": "系统连接",
+      "integrationsHelp": "查看 ERP、MyInvois 和平台绑定的硬件连接。",
+      "scales": "已分配地磅",
+      "scalesHelp": "查看平台管理员为公司分配的地磅。",
+      "login": "登录记录",
+      "loginHelp": "查看成功和失败的登录记录。",
+      "audit": "审计记录",
+      "auditHelp": "查看不可删除的设置变更和业务操作。"
+    },
+    "action": {
+      "saveProfile": "保存公司资料",
+      "saveSettings": "保存业务设置"
+    },
+    "state": {
+      "loading": "正在读取公司设置...",
+      "error": "无法读取公司设置。"
+    },
+    "toast": {
+      "saved": "回收商设置已保存"
+    }
+  },
   "driver": {
     "today": "你的任务",
     "finished": "已完成",
@@ -6383,6 +6835,14 @@
     "photoRequired": "请先拍摄装载照片，再将任务标记为已装载。",
     "cannotComplete": "我完成不了这趟",
     "arrivedNote": "记录你已到达现场，如果手机允许会一并记录位置。",
+    "settlement": {
+      "title": "称重与付款",
+      "deduction": "扣杂",
+      "payableWeight": "结算重量",
+      "amount": "结算金额",
+      "paid": "已付款",
+      "outstanding": "未付款"
+    },
     "action": {
       "ACCEPTED": "接下这趟",
       "EN_ROUTE": "出发",
@@ -6584,6 +7044,7 @@
       "received": "已收金额",
       "outstanding": "未收金额",
       "dueDate": "到期日期",
+      "issuedDate": "发出日期",
       "state": "付款状态",
       "notes": "备注",
       "businessWeight": "平台业务总重量",
@@ -6608,8 +7069,14 @@
       "effectiveTo": "结束日期",
       "activeRule": "启用规则"
     },
-    "kind": { "SAAS": "SaaS 订阅", "COMMISSION": "平台佣金" },
-    "companyType": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" },
+    "kind": {
+      "SAAS": "SaaS 订阅",
+      "COMMISSION": "平台佣金"
+    },
+    "companyType": {
+      "CONTRACTOR": "建筑商",
+      "RECYCLER": "回收商"
+    },
     "state": {
       "DRAFT": "草稿",
       "ISSUED": "未付款",
@@ -6635,14 +7102,27 @@
       "SETTLED_AMOUNT": "按结算金额百分比",
       "SETTLED_WEIGHT": "按结算吨数费率"
     },
-    "cycle": { "MONTHLY": "每月", "QUARTERLY": "每季", "YEARLY": "每年" },
-    "ruleState": { "active": "已启用", "inactive": "已停用" },
+    "cycle": {
+      "MONTHLY": "每月",
+      "QUARTERLY": "每季",
+      "YEARLY": "每年"
+    },
+    "ruleState": {
+      "active": "已启用",
+      "inactive": "已停用"
+    },
     "action": {
       "generate": "生成账单",
       "issue": "发出账单",
-      "close": "关闭账单"
+      "close": "关闭账单",
+      "downloadPdf": "下载 PDF",
+      "print": "打开打印"
     },
-    "filters": { "title": "筛选", "from": "期间开始", "to": "期间结束" },
+    "filters": {
+      "title": "筛选",
+      "from": "期间开始",
+      "to": "期间结束"
+    },
     "export": {
       "title": "账单与佣金",
       "subtitle": "SaaS 与平台佣金账单登记表"
@@ -6720,7 +7200,9 @@
         "FAILED": "失败",
         "CANCELLED": "已取消"
       },
-      "toast": { "queued": "自动账单任务已加入队列" }
+      "toast": {
+        "queued": "自动账单任务已加入队列"
+      }
     },
     "financialReports": {
       "loadError": "无法加载财务报表汇总。",
@@ -6868,7 +7350,10 @@
       "EXPIRED": "已到期",
       "PAUSED": "已暂停"
     },
-    "audience": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" },
+    "audience": {
+      "CONTRACTOR": "建筑商",
+      "RECYCLER": "回收商"
+    },
     "tier": {
       "SUBSCRIPTION": "订阅版",
       "PARTNER": "合作版",
@@ -6880,14 +7365,22 @@
       "HALF_YEARLY": "半年付",
       "YEARLY": "年付"
     },
-    "fee": { "once": "一次", "monthly": "每月" },
+    "fee": {
+      "once": "一次",
+      "monthly": "每月"
+    },
     "entitlement": {
       "commission": "佣金",
       "integration": "外部 API",
       "cwe": "CWE"
     },
-    "planState": { "active": "已启用", "inactive": "已停用" },
-    "value": { "unlimited": "不限" },
+    "planState": {
+      "active": "已启用",
+      "inactive": "已停用"
+    },
+    "value": {
+      "unlimited": "不限"
+    },
     "seatUsage": "{used} / {limit}",
     "daysRemaining": "剩余 {count} 天",
     "plans": {
@@ -6944,14 +7437,20 @@
       "partnerServiceFee": "合作版只在首次开通收取此服务费，之后只运行佣金制度，月费与年费保持为零。",
       "features": "以逗号分隔此套餐启用的功能权限键。"
     },
-    "extensionMode": { "months": "增加月数", "date": "设定到期日" },
+    "extensionMode": {
+      "months": "增加月数",
+      "date": "设定到期日"
+    },
     "filters": {
       "title": "筛选",
       "expiresAfter": "到期日不早于",
       "expiresBefore": "到期日不晚于",
       "clear": "清除筛选"
     },
-    "export": { "title": "公司订阅", "subtitle": "MSE SaaS 订阅登记表" },
+    "export": {
+      "title": "公司订阅",
+      "subtitle": "MSE SaaS 订阅登记表"
+    },
     "renewals": {
       "count": "{count} 个订阅需要处理",
       "window": "未来 {count} 天",
@@ -7015,7 +7514,9 @@
       "resumed": "订阅已恢复。",
       "terminated": "订阅已结束。"
     },
-    "error": { "load": "无法载入订阅资料。" }
+    "error": {
+      "load": "无法载入订阅资料。"
+    }
   },
   "sales": {
     "title": "销售与佣金",
@@ -7026,12 +7527,21 @@
       "fullName": "姓名",
       "email": "电子邮件",
       "phone": "电话",
+      "salesRole": "销售职务",
       "supervisor": "主管",
       "commissionScheme": "佣金方案",
       "isActive": "状态",
       "territories": "负责区域",
       "customersWon": "开发客户",
-      "totalCommission": "总佣金"
+      "totalCommission": "总佣金",
+      "joinedOn": "入职日期",
+      "status": "状态"
+    },
+    "role": {
+      "EXECUTIVE": "销售专员",
+      "SUPERVISOR": "销售主管",
+      "MANAGER": "销售经理",
+      "AGENT": "销售代理"
     },
     "toast": {
       "created": "销售人员已建立",
@@ -7392,8 +7902,14 @@
       "MANAGER": "销售经理",
       "AGENT": "外部代理"
     },
-    "scope": { "STATES": "指定州属", "NATIONAL": "全国" },
-    "status": { "active": "启用", "inactive": "停用" },
+    "scope": {
+      "STATES": "指定州属",
+      "NATIONAL": "全国"
+    },
+    "status": {
+      "active": "启用",
+      "inactive": "停用"
+    },
     "basis": {
       "FIXED_PER_CUSTOMER": "每位客户固定金额",
       "PERCENT_OF_SAAS": "SaaS 收入百分比",
@@ -7426,7 +7942,11 @@
         "recyclers": "新增回收商"
       }
     },
-    "cycle": { "MONTHLY": "每月", "QUARTERLY": "每季度", "YEARLY": "每年" },
+    "cycle": {
+      "MONTHLY": "每月",
+      "QUARTERLY": "每季度",
+      "YEARLY": "每年"
+    },
     "termsStatus": {
       "DRAFT": "草稿",
       "ACTIVE": "生效",
@@ -7571,7 +8091,10 @@
       "feedback": "分类并设置客户反馈优先级。",
       "service": "新增一笔永久客户服务历史。"
     },
-    "companyType": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" },
+    "companyType": {
+      "CONTRACTOR": "建筑商",
+      "RECYCLER": "回收商"
+    },
     "enquiryStatus": {
       "NEW": "新咨询",
       "CONTACTED": "已联系",
@@ -7609,7 +8132,11 @@
       "COMPLIMENT": "表扬",
       "OTHER": "其他意见"
     },
-    "priority": { "LOW": "低", "MEDIUM": "中", "HIGH": "高" },
+    "priority": {
+      "LOW": "低",
+      "MEDIUM": "中",
+      "HIGH": "高"
+    },
     "status": {
       "open": "待处理",
       "resolved": "已解决",
@@ -7884,7 +8411,12 @@
       "DEVICE_MAINTENANCE": "设备维护",
       "OTHER": "其他"
     },
-    "priority": { "LOW": "低", "MEDIUM": "中", "HIGH": "高", "URGENT": "紧急" },
+    "priority": {
+      "LOW": "低",
+      "MEDIUM": "中",
+      "HIGH": "高",
+      "URGENT": "紧急"
+    },
     "ticketState": {
       "PENDING": "待处理",
       "IN_PROGRESS": "处理中",
@@ -8085,10 +8617,16 @@
       "reset": "恢复平台默认值",
       "companyLoadError": "无法加载这家公司的系统设置。",
       "loadErrorHint": "请检查网络或公司权限，然后重试；已保存的平台默认值不会受影响。",
-      "type": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" }
+      "type": {
+        "CONTRACTOR": "建筑商",
+        "RECYCLER": "回收商"
+      }
     },
     "section": {
-      "basic": { "title": "基本设置", "subtitle": "平台身份和公司联络资料。" },
+      "basic": {
+        "title": "基本设置",
+        "subtitle": "平台身份和公司联络资料。"
+      },
       "saas": {
         "title": "SaaS 设置",
         "subtitle": "默认配套、收费周期、试用期、账号上限和配套启停。"
@@ -8146,7 +8684,11 @@
       "configured": "已配置",
       "missing": "未配置"
     },
-    "mode": { "SIMULATED": "测试模拟模式", "LIVE": "真实连接模式", "NOT_CONFIGURED": "尚未配置" },
+    "mode": {
+      "SIMULATED": "测试模拟模式",
+      "LIVE": "真实连接模式",
+      "NOT_CONFIGURED": "尚未配置"
+    },
     "updatedAt": "最后保存：{value}",
     "guide": {
       "cctv": {
@@ -8479,9 +9021,18 @@
       "TIERED": "按客户数量分级",
       "CUSTOM": "自定义计算"
     },
-    "cycle": { "MONTHLY": "每月", "QUARTERLY": "每季度" },
-    "scope": { "national": "全国", "regional": "州属／城市／指定区域" },
-    "companyType": { "CONTRACTOR": "建筑商", "RECYCLER": "回收商" },
+    "cycle": {
+      "MONTHLY": "每月",
+      "QUARTERLY": "每季度"
+    },
+    "scope": {
+      "national": "全国",
+      "regional": "州属／城市／指定区域"
+    },
+    "companyType": {
+      "CONTRACTOR": "建筑商",
+      "RECYCLER": "回收商"
+    },
     "status": {
       "system": "系统预设",
       "custom": "自定义",
@@ -8492,7 +9043,10 @@
       "openEnded": "长期有效",
       "manualAdjustment": "人工调整"
     },
-    "heading": { "schemes": "协议佣金规则", "payouts": "合作伙伴佣金结算" },
+    "heading": {
+      "schemes": "协议佣金规则",
+      "payouts": "合作伙伴佣金结算"
+    },
     "state": {
       "JOHOR": "柔佛",
       "KEDAH": "吉打",
@@ -8850,7 +9404,11 @@
       "project": "项目",
       "company": "客户"
     },
-    "decision": { "APPROVE": "批准", "REJECT": "驳回", "COMPLETE": "完成报废" },
+    "decision": {
+      "APPROVE": "批准",
+      "REJECT": "驳回",
+      "COMPLETE": "完成报废"
+    },
     "report": {
       "assets": "资产清单",
       "inventory": "库存报表",
@@ -9183,7 +9741,11 @@
       "MAINTENANCE": "维护中",
       "SUSPENDED": "已暂停"
     },
-    "mode": { "MANUAL": "手动", "SIMULATED": "模拟", "LIVE": "真实供应商" },
+    "mode": {
+      "MANUAL": "手动",
+      "SIMULATED": "模拟",
+      "LIVE": "真实供应商"
+    },
     "pricingModel": {
       "PAY_AS_YOU_GO": "按使用量收费",
       "FIXED_MONTHLY": "固定月费",
@@ -9426,7 +9988,10 @@
     }
   },
   "consultantWorkflow": {
-    "project": { "choose": "选择项目", "all": "全部项目" },
+    "project": {
+      "choose": "选择项目",
+      "all": "全部项目"
+    },
     "applications": {
       "title": "顾问申请",
       "subtitle": "共 {count} 项项目申请与审批记录",
@@ -9751,7 +10316,9 @@
         "FINAL_REPORT": "最终 PDF 归档"
       }
     },
-    "common": { "unknown": "未知" },
+    "common": {
+      "unknown": "未知"
+    },
     "verification": {
       "title": "审批报告验证",
       "notFoundTitle": "找不到验证记录",
@@ -9851,22 +10418,40 @@
       "revisions": "基准与修订",
       "history": "历史记录"
     },
-    "planStatus": { "DRAFT": "草稿", "ACTIVE": "使用中", "ARCHIVED": "已归档" },
-    "revisionStatus": { "DRAFT": "草稿", "CONFIRMED": "已确认并锁定" },
+    "planStatus": {
+      "DRAFT": "草稿",
+      "ACTIVE": "使用中",
+      "ARCHIVED": "已归档"
+    },
+    "revisionStatus": {
+      "DRAFT": "草稿",
+      "CONFIRMED": "已确认并锁定"
+    },
     "status": {
       "delayed": "已延误",
       "onTrack": "进度正常",
       "current": "当前版本"
     },
-    "source": { "MANUAL": "手动建立", "EXCEL": "Excel 导入" },
-    "revision": { "number": "版本 {number}" },
-    "delay": { "days": "延误 {count} 天" },
+    "source": {
+      "MANUAL": "手动建立",
+      "EXCEL": "Excel 导入"
+    },
+    "revision": {
+      "number": "版本 {number}"
+    },
+    "delay": {
+      "days": "延误 {count} 天"
+    },
     "gantt": {
       "days": "共 {count} 个日历日",
       "actual": "实际完成",
       "planned": "计划工期"
     },
-    "common": { "day": "天", "tasks": "项任务", "system": "系统" },
+    "common": {
+      "day": "天",
+      "tasks": "项任务",
+      "system": "系统"
+    },
     "state": {
       "chooseProject": "请选择项目以查看施工计划。",
       "loadError": "无法载入施工计划，请重试。",
@@ -9877,7 +10462,9 @@
       "noHistory": "还没有施工计划历史。",
       "noConfirmedProgress": "目前没有已确认的现场进度记录。"
     },
-    "defaults": { "baseline": "已批准基准计划" },
+    "defaults": {
+      "baseline": "已批准基准计划"
+    },
     "dialog": {
       "planTitle": "建立施工计划",
       "planHelp": "先建立可编辑的基准草稿。完成任务后再确认锁定。",
@@ -9955,7 +10542,10 @@
       "close": "关闭",
       "refresh": "刷新"
     },
-    "status": { "active": "启用", "inactive": "停用" },
+    "status": {
+      "active": "启用",
+      "inactive": "停用"
+    },
     "state": {
       "loading": "正在加载现场控制资料...",
       "loadError": "无法加载资料，请检查网络后重试。",
@@ -10023,7 +10613,10 @@
       "direction": "进出方向",
       "gateName": "门岗名称"
     },
-    "shape": { "CIRCLE": "圆形范围", "POLYGON": "多点范围" },
+    "shape": {
+      "CIRCLE": "圆形范围",
+      "POLYGON": "多点范围"
+    },
     "geofence": {
       "title": "工地电子围栏",
       "subtitle": "管理考勤和人员实时位置所使用的全部有效工地区域。",
@@ -10082,7 +10675,10 @@
       "notifyManager": "通知项目经理",
       "notifyManagerHelp": "新项目默认把项目经理加入业务流程通知。"
     },
-    "projectStatus": { "PLANNING": "规划中", "ACTIVE": "进行中" },
+    "projectStatus": {
+      "PLANNING": "规划中",
+      "ACTIVE": "进行中"
+    },
     "categories": {
       "title": "默认现场资料栏目",
       "subtitle": "每个新项目都会自动建立这些栏目。",
@@ -10113,7 +10709,12 @@
         "report_export": "导出报表"
       }
     },
-    "language": { "en": "英文", "zh": "中文", "ms": "马来文" },
+    "language": {
+      "en": "英文",
+      "zh": "中文",
+      "zh-TW": "繁體中文",
+      "ms": "马来文"
+    },
     "homePage": {
       "dashboard": "Dashboard 首页",
       "projects": "项目管理",
@@ -10124,7 +10725,11 @@
       "IN_APP": "仅站内通知",
       "PUSH": "站内通知及手机推送"
     },
-    "qrStyle": { "STANDARD": "标准", "COMPACT": "小型", "LARGE": "大字打印" },
+    "qrStyle": {
+      "STANDARD": "标准",
+      "COMPACT": "小型",
+      "LARGE": "大字打印"
+    },
     "qrSettings": {
       "title": "二维码规则",
       "subtitle": "控制可建立的现场许可证，关闭后系统会阻止新的二维码建立。",
@@ -10183,7 +10788,8 @@
       "unknownGate": "未注明门岗",
       "integrationReader": "已连接门禁设备",
       "qrTitle": "工地门禁二维码",
-      "qrHelp": "下载并发送此二维码。扫码后会打开已登录的门岗页面并自动带入门禁证。"
+      "qrHelp": "下载并发送此二维码。扫码后会打开已登录的门岗页面并自动带入门禁证。",
+      "deviceEvents": "设备事件"
     },
     "passStatus": {
       "PENDING": "等待审批",
@@ -10262,16 +10868,57 @@
       "passCreated": "门禁证申请已提交",
       "passReviewed": "门禁审批结果已保存",
       "passRevoked": "门禁证已撤销",
-      "gateRecorded": "门岗进出已记录"
+      "gateRecorded": "门岗进出已记录",
+      "credentialRegistered": "外部通行凭证已登记",
+      "credentialRevoked": "外部通行凭证已吊销"
+    },
+    "deviceEvent": {
+      "result": "结果",
+      "allowed": "放行",
+      "denied": "拒绝",
+      "empty": "还没有设备上报的进出事件。",
+      "occurredAt": "发生时间",
+      "device": "设备",
+      "gate": "门岗",
+      "credential": "凭证",
+      "pass": "通行证",
+      "direction": "方向",
+      "reason": "原因"
+    },
+    "credential": {
+      "title": "外部凭证",
+      "empty": "此通行证还没有绑定外部凭证。",
+      "active": "生效中",
+      "revoked": "已吊销",
+      "revoke": "吊销凭证",
+      "type": "类型",
+      "value": "凭证值",
+      "valuePlaceholder": "车牌号、卡号或人员编号",
+      "label": "备注",
+      "register": "登记"
+    },
+    "credentialType": {
+      "QR": "二维码",
+      "ANPR": "车牌 (ANPR)",
+      "RFID": "RFID 卡",
+      "FACE": "人脸",
+      "VISITOR_ID": "访客编号"
     }
   },
   "userHandover": {
-    "action": { "open": "人员交接", "cancel": "取消", "confirm": "完成交接" },
+    "action": {
+      "open": "人员交接",
+      "cancel": "取消",
+      "confirm": "完成交接"
+    },
     "dialog": {
       "title": "更换 {name}",
       "description": "选择或建立接替人员。旧账号和已经完成的所有证据都会原样保留。"
     },
-    "mode": { "existing": "现有人员", "new": "建立新人员" },
+    "mode": {
+      "existing": "现有人员",
+      "new": "建立新人员"
+    },
     "field": {
       "incomingUser": "接替人员",
       "chooseUser": "请选择接替人员",
@@ -10304,7 +10951,9 @@
       "loadError": "人员交接记录无法读取。",
       "empty": "目前还没有人员交接记录。"
     },
-    "toast": { "completed": "人员交接已完成" }
+    "toast": {
+      "completed": "人员交接已完成"
+    }
   },
   "versions": {
     "title": "版本管理",
@@ -10347,6 +10996,14 @@
     "forceUpdateOn": "强制更新"
   },
   "recyclerBusiness": {
+    "liveDrivers": {
+      "title": "司机实时位置",
+      "count": "{count} 名执行中司机",
+      "empty": "暂时没有执行中司机的 GPS 位置。",
+      "unavailable": "司机实时位置暂时无法读取。",
+      "mapLabel": "执行中回收商司机地图",
+      "project": "项目地理围栏"
+    },
     "customers": {
       "title": "回收商客户",
       "subtitle": "平台客户、原有私人客户、客户二维码和私人称重入库集中管理，并保持业务来源分开。",
@@ -10396,40 +11053,152 @@
       "attachments": "证明文件",
       "noAttachments": "尚未上传 DO、E-Invoice、照片或其他文件。"
     },
-    "buyers": { "createTitle": "新增买家", "editTitle": "编辑买家", "formHelp": "保存出货记录使用的公司和联系人资料。" },
-    "qr": {
-      "action": "客户二维码", "title": "{name} 的二维码", "help": "只有最新且启用的二维码可以开始私人称重。重新生成后，旧二维码会立即失效。",
-      "reissueReason": "重新生成原因", "notIssued": "尚未签发客户二维码", "notIssuedHelp": "请在客户到达回收场前签发。"
+    "buyers": {
+      "createTitle": "新增买家",
+      "editTitle": "编辑买家",
+      "formHelp": "保存出货记录使用的公司和联系人资料。"
     },
-    "filter": { "all": "全部" },
-    "source": { "PLATFORM": "平台业务", "PRIVATE": "私人客户" },
-    "status": { "active": "启用", "inactive": "停用" },
-    "intakeState": { "WAITING_WEIGHING": "等待称重", "COMPLETED": "已完成", "CANCELLED": "已取消" },
-    "outboundState": { "DRAFT": "草稿", "CONFIRMED": "已确认", "CANCELLED": "已取消" },
-    "movementKind": { "INBOUND": "称重入库", "OUTBOUND": "出货扣减", "ADJUSTMENT": "库存调整" },
-    "attachmentKind": { "DELIVERY_ORDER": "送货单 DO", "E_INVOICE": "电子发票", "PHOTO": "照片", "OTHER": "其他" },
-    "material": { "MIXED": "混合建筑废料", "CONCRETE": "混凝土与砖石", "METAL": "废金属", "TIMBER": "木材", "PLASTIC": "塑料", "PAPER": "纸张与纸板", "SOIL": "泥土与骨料", "HAZARDOUS": "危险废料", "OTHER": "其他" },
+    "qr": {
+      "action": "客户二维码",
+      "title": "{name} 的二维码",
+      "help": "只有最新且启用的二维码可以开始私人称重。重新生成后，旧二维码会立即失效。",
+      "reissueReason": "重新生成原因",
+      "notIssued": "尚未签发客户二维码",
+      "notIssuedHelp": "请在客户到达回收场前签发。"
+    },
+    "filter": {
+      "all": "全部"
+    },
+    "source": {
+      "PLATFORM": "平台业务",
+      "PRIVATE": "私人客户"
+    },
+    "status": {
+      "active": "启用",
+      "inactive": "停用"
+    },
+    "intakeState": {
+      "WAITING_WEIGHING": "等待称重",
+      "COMPLETED": "已完成",
+      "CANCELLED": "已取消"
+    },
+    "outboundState": {
+      "DRAFT": "草稿",
+      "CONFIRMED": "已确认",
+      "CANCELLED": "已取消"
+    },
+    "movementKind": {
+      "INBOUND": "称重入库",
+      "OUTBOUND": "出货扣减",
+      "ADJUSTMENT": "库存调整"
+    },
+    "attachmentKind": {
+      "DELIVERY_ORDER": "送货单 DO",
+      "E_INVOICE": "电子发票",
+      "PHOTO": "照片",
+      "OTHER": "其他"
+    },
+    "material": {
+      "MIXED": "混合建筑废料",
+      "CONCRETE": "混凝土与砖石",
+      "METAL": "废金属",
+      "TIMBER": "木材",
+      "PLASTIC": "塑料",
+      "PAPER": "纸张与纸板",
+      "SOIL": "泥土与骨料",
+      "HAZARDOUS": "危险废料",
+      "OTHER": "其他"
+    },
     "action": {
-      "sync": "同步平台客户", "addCustomer": "新增客户", "deactivate": "停用", "activate": "启用", "download": "下载", "print": "打印",
-      "disableQr": "停用二维码", "enableQr": "启用二维码", "reissue": "重新生成", "issueQr": "签发二维码", "scan": "扫描二维码",
-      "startIntake": "开始入库", "complete": "完成", "cancelIntake": "取消入库", "adjustInventory": "调整库存", "recordAdjustment": "记录调整",
-      "confirmShipment": "确认出货", "newShipment": "新增出货", "cancelShipment": "取消出货", "upload": "上传", "addBuyer": "新增买家"
+      "sync": "同步平台客户",
+      "addCustomer": "新增客户",
+      "deactivate": "停用",
+      "activate": "启用",
+      "download": "下载",
+      "print": "打印",
+      "disableQr": "停用二维码",
+      "enableQr": "启用二维码",
+      "reissue": "重新生成",
+      "issueQr": "签发二维码",
+      "scan": "扫描二维码",
+      "startIntake": "开始入库",
+      "complete": "完成",
+      "cancelIntake": "取消入库",
+      "adjustInventory": "调整库存",
+      "recordAdjustment": "记录调整",
+      "confirmShipment": "确认出货",
+      "newShipment": "新增出货",
+      "cancelShipment": "取消出货",
+      "upload": "上传",
+      "addBuyer": "新增买家"
     },
     "field": {
-      "customerNo": "客户编号", "companyName": "公司名称", "source": "业务来源", "totalWeight": "累计重量", "status": "状态", "registrationNo": "注册编号",
-      "contactPerson": "联系人", "phone": "电话", "email": "邮箱", "address": "地址", "notes": "备注", "bankName": "银行", "bankAccountName": "账户名称",
-      "bankAccountNo": "账号", "bankNotes": "银行备注", "serial": "二维码序号", "scanCount": "扫描次数", "issuedOn": "签发日期", "intakeNo": "入库编号",
-      "customer": "客户", "material": "材料", "netWeight": "净重", "createdAt": "建立时间", "qrToken": "客户二维码", "yard": "回收场", "vehiclePlate": "车牌",
-      "weighSession": "已完成称重", "currentWeight": "当前重量", "lastMovement": "最后变动", "movementNo": "流水编号", "type": "类型", "change": "变动",
-      "balance": "结余", "occurredAt": "时间", "adjustmentWeight": "调整重量（kg）", "reason": "原因", "shipmentNo": "出货编号", "buyer": "买家",
-      "weight": "重量", "outboundDate": "出货日期", "driverName": "司机", "eInvoiceNo": "电子发票编号", "description": "文件说明", "buyerNo": "买家编号", "shipmentCount": "已确认出货次数"
+      "customerNo": "客户编号",
+      "companyName": "公司名称",
+      "source": "业务来源",
+      "totalWeight": "累计重量",
+      "status": "状态",
+      "registrationNo": "注册编号",
+      "contactPerson": "联系人",
+      "phone": "电话",
+      "email": "邮箱",
+      "address": "地址",
+      "notes": "备注",
+      "bankName": "银行",
+      "bankAccountName": "账户名称",
+      "bankAccountNo": "账号",
+      "bankNotes": "银行备注",
+      "serial": "二维码序号",
+      "scanCount": "扫描次数",
+      "issuedOn": "签发日期",
+      "intakeNo": "入库编号",
+      "customer": "客户",
+      "material": "材料",
+      "netWeight": "净重",
+      "createdAt": "建立时间",
+      "qrToken": "客户二维码",
+      "yard": "回收场",
+      "vehiclePlate": "车牌",
+      "weighSession": "已完成称重",
+      "currentWeight": "当前重量",
+      "lastMovement": "最后变动",
+      "movementNo": "流水编号",
+      "type": "类型",
+      "change": "变动",
+      "balance": "结余",
+      "occurredAt": "时间",
+      "adjustmentWeight": "调整重量（kg）",
+      "reason": "原因",
+      "shipmentNo": "出货编号",
+      "buyer": "买家",
+      "weight": "重量",
+      "outboundDate": "出货日期",
+      "driverName": "司机",
+      "eInvoiceNo": "电子发票编号",
+      "description": "文件说明",
+      "buyerNo": "买家编号",
+      "shipmentCount": "已确认出货次数"
     },
     "toast": {
-      "customerCreated": "私人客户已建立。", "customerUpdated": "私人客户已更新。", "customerStatusUpdated": "客户状态已更新。", "customersSynced": "平台客户已同步。",
-      "qrIssued": "客户二维码已签发。", "qrReissued": "客户二维码已重新生成，旧二维码已经失效。", "qrStatusUpdated": "客户二维码状态已更新。",
-      "intakeStarted": "私人入库已建立，可以开始称重。", "intakeCompleted": "私人入库已完成并增加库存。", "intakeCancelled": "私人入库已取消。",
-      "inventoryAdjusted": "库存调整已记录。", "buyerCreated": "买家已建立。", "buyerUpdated": "买家已更新。", "buyerStatusUpdated": "买家状态已更新。",
-      "shipmentCreated": "出货草稿已建立。", "shipmentUpdated": "出货草稿已更新。", "shipmentConfirmed": "出货已确认并扣减库存。", "shipmentCancelled": "出货草稿已取消。", "attachmentUploaded": "证明文件已上传。"
+      "customerCreated": "私人客户已建立。",
+      "customerUpdated": "私人客户已更新。",
+      "customerStatusUpdated": "客户状态已更新。",
+      "customersSynced": "平台客户已同步。",
+      "qrIssued": "客户二维码已签发。",
+      "qrReissued": "客户二维码已重新生成，旧二维码已经失效。",
+      "qrStatusUpdated": "客户二维码状态已更新。",
+      "intakeStarted": "私人入库已建立，可以开始称重。",
+      "intakeCompleted": "私人入库已完成并增加库存。",
+      "intakeCancelled": "私人入库已取消。",
+      "inventoryAdjusted": "库存调整已记录。",
+      "buyerCreated": "买家已建立。",
+      "buyerUpdated": "买家已更新。",
+      "buyerStatusUpdated": "买家状态已更新。",
+      "shipmentCreated": "出货草稿已建立。",
+      "shipmentUpdated": "出货草稿已更新。",
+      "shipmentConfirmed": "出货已确认并扣减库存。",
+      "shipmentCancelled": "出货草稿已取消。",
+      "attachmentUploaded": "证明文件已上传。"
     }
   },
   "incidentReporting": {
@@ -10441,7 +11210,12 @@
     "noReports": "暂无报告",
     "project": "项目",
     "chooseProject": "选择项目",
-    "severity": "严重程度",
+    "severity": {
+      "LOW": "低",
+      "MEDIUM": "中",
+      "HIGH": "高",
+      "CRITICAL": "紧急"
+    },
     "severityLow": "低",
     "severityMedium": "中",
     "severityHigh": "高",
@@ -10502,18 +11276,11 @@
       "reportedBy": "报告人",
       "messagePlaceholder": "新增详情、照片或更新"
     },
-    "chooseProjectFirst": "请先选择项目以选择接收人",
     "loadingRecipients": "正在加载项目人员...",
     "noRecipients": "目前没有可选择的项目人员。",
     "supervisor": "主管",
     "reporter": "上报人",
     "photoLabel": "事故照片",
-    "severity": {
-      "LOW": "低",
-      "MEDIUM": "中",
-      "HIGH": "高",
-      "CRITICAL": "紧急"
-    },
     "status": {
       "open": "未解决",
       "resolved": "已解决"

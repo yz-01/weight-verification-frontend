@@ -1,7 +1,7 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { enGB, ms, zhCN } from "date-fns/locale";
+import { enGB, ms, zhCN, zhTW } from "date-fns/locale";
 import type { Locale as DateFnsLocale } from "date-fns";
 import { useLocale } from "next-intl";
 import { useMemo } from "react";
@@ -25,12 +25,14 @@ import { resolveLocale, type Locale } from "@/i18n/config";
 const DATE_LOCALES: Record<Locale, DateFnsLocale> = {
   en: enGB,
   zh: zhCN,
+  "zh-TW": zhTW,
   ms,
 };
 
 const INTL_LOCALES: Record<Locale, string> = {
   en: "en-GB",
   zh: "zh-CN",
+  "zh-TW": "zh-TW",
   ms: "ms-MY",
 };
 

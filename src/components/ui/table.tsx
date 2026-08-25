@@ -9,11 +9,11 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative min-w-0 max-w-full overflow-x-auto overscroll-x-contain"
+      className="relative min-w-0 max-w-full overflow-x-auto overscroll-x-contain [container-type:inline-size]"
     >
       <table
         data-slot="table"
-        className={cn("w-max min-w-full caption-bottom text-sm", className)}
+        className={cn("w-full caption-bottom text-sm", className)}
         {...props}
       />
     </div>
@@ -44,9 +44,11 @@ function TableBody({ className, children, ...props }: React.ComponentProps<"tbod
         <tr className="hover:bg-transparent">
           <td
             colSpan={100}
-            className="h-36 px-6 text-center text-sm text-muted-foreground"
+            className="h-36 p-0 text-center text-sm text-muted-foreground"
           >
-            {t("noResults")}
+            <div className="sticky left-0 flex w-[100cqw] items-center justify-center px-6 whitespace-normal">
+              {t("noResults")}
+            </div>
           </td>
         </tr>
       )}
@@ -93,16 +95,23 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   )
 }
 
-function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+function TableCell({ className, children, colSpan, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       data-slot="table-cell"
+      colSpan={colSpan}
       className={cn(
         "px-4 py-3 align-middle whitespace-nowrap [overflow-wrap:normal] [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}
-    />
+    >
+      {colSpan ? (
+        <div className="sticky left-0 flex w-[100cqw] max-w-[100cqw] items-center whitespace-normal">
+          {children}
+        </div>
+      ) : children}
+    </td>
   )
 }
 

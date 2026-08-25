@@ -2,7 +2,7 @@ import { ApiError } from "@/interfaces/api";
 import type { AttendanceEvent } from "@/interfaces/site-operations";
 import type { SafetyIncidentPayload } from "@/interfaces/site-operations";
 import type { MaterialReceiptPayload } from "@/interfaces/contractor";
-import type { TaskState } from "@/interfaces/recycler";
+import type { TaskPositionEvent, TaskState } from "@/interfaces/recycler";
 import {
   countOfflineJobs,
   deleteOfflineJob,
@@ -53,7 +53,7 @@ interface TaskTransitionDraft {
 
 interface TaskPositionDraft {
   taskId: string;
-  eventType?: "POSITION" | "ARRIVAL" | "GEOFENCE_ENTER" | "GEOFENCE_EXIT";
+  eventType?: TaskPositionEvent;
   latitude: string;
   longitude: string;
   accuracyM?: string;
@@ -104,7 +104,11 @@ async function requestBackgroundSync(): Promise<void> {
     return;
   }
   try {
-    const registration = await navigator.serviceWorker.ready;
+    // getRegistration, not `.ready`: `.ready` never resolves when no
+    // service worker is registered (dev unregisters it), and awaiting it
+    // here left every enqueue hanging with its dialog stuck on a spinner.
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) return;
     const syncRegistration = registration as ServiceWorkerRegistration & {
       sync?: { register: (tag: string) => Promise<void> };
     };
@@ -285,6 +289,49 @@ async function uploadJob(job: OfflineJob): Promise<void> {
       ...job.payload,
       photos: job.payload.photos.map(restoreFile),
     });
+    return;
+  }
+
+  if (job.kind === "DISPATCH_ACCEPT") {
+    await api.post(
+      `/api/dispatches/${job.payload.dispatchId}/accept_dispatch/`,
+      {
+        recycler_reference: job.payload.recyclerReference,
+        proposed_collection_at: job.payload.proposedCollectionAt,
+        proposed_collection_note: job.payload.proposedCollectionNote,
+        client_event_id: job.payload.clientEventId,
+      },
+      { silent: true },
+    );
+    return;
+  }
+
+  if (job.kind === "DISPATCH_COLLECT") {
+    await api.post(
+      `/api/dispatches/${job.payload.dispatchId}/collect_dispatch/`,
+      {
+        recycler_reference: job.payload.recyclerReference,
+        client_event_id: job.payload.clientEventId,
+      },
+      { silent: true },
+    );
+    return;
+  }
+
+  if (job.kind === "TRIP_ASSIGN") {
+    await api.post(
+      "/api/tasks/create_task/",
+      {
+        dispatch: job.payload.dispatchId || null,
+        site: job.payload.site,
+        vehicle: job.payload.vehicle,
+        driver: job.payload.driver,
+        scheduled_for: job.payload.scheduledFor,
+        notes: job.payload.notes,
+        client_event_id: job.payload.clientEventId,
+      },
+      { silent: true },
+    );
     return;
   }
 
@@ -650,6 +697,27 @@ export function submitMaterialOutgoingOfflineAware(
   });
 }
 
+async function uploadPositionBatch(
+  jobs: Extract<OfflineJob, { kind: "TASK_POSITION" }>[],
+): Promise<void> {
+  if (jobs.length === 0) return;
+  await api.post(
+    "/api/task-positions/record_positions/",
+    {
+      task: jobs[0].payload.taskId,
+      positions: jobs.map((job) => ({
+        client_event_id: job.payload.clientEventId,
+        event_type: job.payload.eventType,
+        latitude: job.payload.latitude,
+        longitude: job.payload.longitude,
+        accuracy_m: job.payload.accuracyM,
+        original_occurred_at: job.payload.originalOccurredAt,
+      })),
+    },
+    { silent: true },
+  );
+}
+
 export function submitWasteOutgoingOfflineAware(
   ownerId: string,
   draft: Omit<
@@ -740,6 +808,185 @@ export function submitCategoryEvidenceOfflineAware(
   });
 }
 
+interface DispatchAcceptDraft {
+  dispatchId: string;
+  dispatchNo: string;
+  recyclerReference: string;
+  proposedCollectionAt: string;
+  proposedCollectionNote?: string;
+}
+
+interface DispatchCollectDraft {
+  dispatchId: string;
+  dispatchNo: string;
+  recyclerReference: string;
+}
+
+interface TripAssignDraft {
+  dispatchId: string;
+  dispatchNo: string;
+  site: string;
+  vehicle: string;
+  driver: string;
+  scheduledFor?: string | null;
+  notes?: string;
+}
+
+export async function submitDispatchAcceptOfflineAware(
+  ownerId: string,
+  draft: DispatchAcceptDraft,
+): Promise<OfflineSubmission> {
+  const job: Extract<OfflineJob, { kind: "DISPATCH_ACCEPT" }> = {
+    id: newId("dispatch-accept-job"),
+    ownerId,
+    kind: "DISPATCH_ACCEPT",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      dispatchId: draft.dispatchId,
+      dispatchNo: draft.dispatchNo,
+      recyclerReference: draft.recyclerReference,
+      proposedCollectionAt: draft.proposedCollectionAt,
+      proposedCollectionNote: draft.proposedCollectionNote ?? "",
+      clientEventId: newId("dispatch-accept"),
+    },
+  };
+
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      await uploadJob(job);
+      toastSuccess("incoming.toast.accepted");
+      return "uploaded";
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  return enqueue(job);
+}
+
+export async function submitDispatchCollectOfflineAware(
+  ownerId: string,
+  draft: DispatchCollectDraft,
+): Promise<OfflineSubmission> {
+  const job: Extract<OfflineJob, { kind: "DISPATCH_COLLECT" }> = {
+    id: newId("dispatch-collect-job"),
+    ownerId,
+    kind: "DISPATCH_COLLECT",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      dispatchId: draft.dispatchId,
+      dispatchNo: draft.dispatchNo,
+      recyclerReference: draft.recyclerReference,
+      clientEventId: newId("dispatch-collect"),
+    },
+  };
+
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      await uploadJob(job);
+      toastSuccess("incoming.toast.collected");
+      return "uploaded";
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  return enqueue(job);
+}
+
+function buildTripAssignJob(
+  ownerId: string,
+  draft: TripAssignDraft,
+): Extract<OfflineJob, { kind: "TRIP_ASSIGN" }> {
+  return {
+    id: newId("trip-assign-job"),
+    ownerId,
+    kind: "TRIP_ASSIGN",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      dispatchId: draft.dispatchId,
+      dispatchNo: draft.dispatchNo,
+      site: draft.site,
+      vehicle: draft.vehicle,
+      driver: draft.driver,
+      scheduledFor: draft.scheduledFor ?? null,
+      notes: draft.notes ?? "",
+      clientEventId: newId("trip-assign"),
+    },
+  };
+}
+
+/** Queue an assignment without trying the network first — for callers that
+ * already saw the network fail and have their own online path. */
+export function enqueueTripAssign(
+  ownerId: string,
+  draft: TripAssignDraft,
+): Promise<OfflineSubmission> {
+  return enqueue(buildTripAssignJob(ownerId, draft));
+}
+
+export async function submitTripAssignOfflineAware(
+  ownerId: string,
+  draft: TripAssignDraft,
+): Promise<OfflineSubmission> {
+  const job = buildTripAssignJob(ownerId, draft);
+
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      await uploadJob(job);
+      toastSuccess("tasks.toast.created");
+      return "uploaded";
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  return enqueue(job);
+}
+
+/** What the queue holds, shaped for the status popover — no blobs attached. */
+export interface OfflineQueueEntry {
+  id: string;
+  kind: OfflineJob["kind"];
+  reference: string;
+  queuedAt: string;
+  attempts: number;
+  lastError: string;
+}
+
+function jobReference(job: OfflineJob): string {
+  const payload = job.payload as { dispatchNo?: string; taskId?: string };
+  return payload.dispatchNo ?? payload.taskId ?? "";
+}
+
+export async function getOfflineQueueEntries(
+  ownerId: string,
+): Promise<OfflineQueueEntry[]> {
+  const jobs = await getOfflineJobs(ownerId);
+  return jobs.map((job) => ({
+    id: job.id,
+    kind: job.kind,
+    reference: jobReference(job),
+    queuedAt: job.queuedAt,
+    attempts: job.attempts,
+    lastError: job.lastError,
+  }));
+}
+
+/**
+ * Drop one queued action the user has decided not to send.
+ *
+ * Only the user drops jobs — sync never discards silently, because a queued
+ * action is a record of work someone did on the yard floor.
+ */
+export async function discardOfflineJob(id: string): Promise<void> {
+  await deleteOfflineJob(id);
+  notifyQueueChanged();
+}
+
 export async function flushOfflineJobs(ownerId: string): Promise<{
   synced: number;
   remaining: number;
@@ -747,21 +994,51 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
   const jobs = await getOfflineJobs(ownerId);
   let synced = 0;
 
-  for (const job of jobs) {
+  for (let index = 0; index < jobs.length; index += 1) {
+    const job = jobs[index];
+    const positions: Extract<OfflineJob, { kind: "TASK_POSITION" }>[] = [];
+    if (job.kind === "TASK_POSITION") {
+      for (
+        let cursor = index;
+        cursor < jobs.length && positions.length < 200;
+        cursor += 1
+      ) {
+        const candidate = jobs[cursor];
+        if (
+          candidate.kind !== "TASK_POSITION" ||
+          candidate.payload.taskId !== job.payload.taskId
+        ) {
+          break;
+        }
+        positions.push(candidate);
+      }
+    }
     try {
-      await uploadJob(job);
-      await deleteOfflineJob(job.id);
-      synced += 1;
+      if (positions.length > 0) {
+        await uploadPositionBatch(positions);
+        await Promise.all(positions.map((position) => deleteOfflineJob(position.id)));
+        synced += positions.length;
+      } else {
+        await uploadJob(job);
+        await deleteOfflineJob(job.id);
+        synced += 1;
+      }
     } catch (error) {
       if (isNetworkFailure(error) || (error instanceof ApiError && error.isUnauthorized)) {
         break;
       }
-      await putOfflineJob({
-        ...job,
-        attempts: job.attempts + 1,
-        lastError: error instanceof Error ? error.message : String(error),
-      });
+      const failedJobs: OfflineJob[] = positions.length > 0 ? positions : [job];
+      await Promise.all(
+        failedJobs.map((failedJob) =>
+          putOfflineJob({
+            ...failedJob,
+            attempts: failedJob.attempts + 1,
+            lastError: error instanceof Error ? error.message : String(error),
+          }),
+        ),
+      );
     }
+    index += Math.max(positions.length - 1, 0);
   }
 
   const remaining = await countOfflineJobs(ownerId);

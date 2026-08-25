@@ -199,7 +199,10 @@
       "SUSPENDED": "Suspended",
       "COMPLETED": "Completed"
     },
-    "attendanceEvent": { "CLOCK_IN": "Clock in", "CLOCK_OUT": "Clock out" },
+    "attendanceEvent": {
+      "CLOCK_IN": "Clock in",
+      "CLOCK_OUT": "Clock out"
+    },
     "overview": {
       "title": "Today at a glance",
       "projects": "Projects",
@@ -372,6 +375,8 @@
     "retry": "Try again",
     "optional": "optional",
     "all": "All",
+    "active": "Active",
+    "inactive": "Inactive",
     "none": "None",
     "export": "Export",
     "refresh": "Refresh",
@@ -632,6 +637,34 @@
       "RETURNED": "Returned",
       "CANCELLED": "Cancelled"
     },
+    "event": {
+      "DISPATCH_CREATED": "Order created",
+      "DISPATCH_RELEASED": "Load released from site",
+      "DISPATCH_CANCELLED": "Order cancelled",
+      "RECYCLER_ACCEPTED": "Recycler accepted the order",
+      "LOAD_COLLECTED": "Load collected",
+      "COLLECTION_PROPOSED": "Collection time proposed",
+      "COLLECTION_CONFIRMED": "Collection time confirmed",
+      "DRIVER_ASSIGNED": "Driver assigned",
+      "DRIVER_REASSIGNED": "Driver reassigned",
+      "DRIVER_ACCEPTED": "Driver accepted the task",
+      "DRIVER_EN_ROUTE": "Driver is on the way",
+      "DRIVER_ARRIVED": "Driver arrived at site",
+      "LOAD_COMPLETED": "Loading completed",
+      "RETURNING_TO_YARD": "Driver returning to yard",
+      "ARRIVED_AT_YARD": "Arrived at recycling yard",
+      "WEIGHING_STARTED": "Weighing started",
+      "WEIGHING_CONFIRMED": "Weighing confirmed",
+      "WEIGHING_VOIDED": "Weighing voided",
+      "DISPATCH_SETTLED": "Order settled",
+      "DEDUCTION_RECORDED": "Deduction recorded",
+      "DEDUCTION_RESPONDED": "Deduction response recorded",
+      "PAYMENT_RECORDED": "Payment recorded",
+      "SETTLEMENT_LOCKED": "Settlement locked",
+      "GPS_RECORDED": "GPS location recorded",
+      "PHOTO_ATTACHED": "Evidence photo added",
+      "EXCEPTION_RECORDED": "Exception recorded"
+    },
     "taskType": {
       "PHOTO": "Photo record",
       "MATERIAL": "Material",
@@ -654,7 +687,10 @@
       "MAINTENANCE": "Maintenance",
       "RETIRED": "Retired"
     },
-    "direction": { "ENTRY": "Entry", "EXIT": "Exit" },
+    "direction": {
+      "ENTRY": "Entry",
+      "EXIT": "Exit"
+    },
     "progressStatus": {
       "SUBMITTED": "Awaiting confirmation",
       "CONFIRMED": "Confirmed",
@@ -701,7 +737,9 @@
       "title": "New disposal request",
       "description": "Photograph the waste, capture the current GPS location and send the request for approval."
     },
-    "review": { "title": "Review disposal request" },
+    "review": {
+      "title": "Review disposal request"
+    },
     "assign": {
       "title": "Choose the disposal executor",
       "description": "Internal field staff receive the work in My Tasks without a link. External contractors receive a sign-in-free link limited to this task.",
@@ -1035,7 +1073,9 @@
       "retry": "Try again",
       "clearSignature": "Clear signature"
     },
-    "consultantTasks": { "title": "Consultant photo submissions" },
+    "consultantTasks": {
+      "title": "Consultant photo submissions"
+    },
     "consultantCapture": {
       "project": "Project",
       "chooseProject": "Choose project",
@@ -1150,7 +1190,15 @@
       "tapCamera": "Tap to open camera",
       "photoReady": "{count} photo(s) ready",
       "notes": "Notes (optional)",
-      "submit": "Save material record"
+      "submit": "Save material record",
+      "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
+      "ocrField": {
+        "delivery_note_no": "delivery note no.",
+        "vehicle_plate": "vehicle plate",
+        "supplier_name": "supplier",
+        "material_name": "material",
+        "quantity": "quantity"
+      }
     },
     "materialEvidence": {
       "title": "Required material photo evidence",
@@ -1378,7 +1426,7 @@
       "progressRecords": "Progress records",
       "schedulePlanning": "Schedule planning",
       "recyclerPartners": "Recycler partners",
-      "wasteDispatches": "Recycle orders",
+      "wasteDispatches": "Waste dispatches",
       "wasteOutgoing": "Environmental material outgoing applications",
       "siteDisposals": "Site disposal",
       "recyclingRecords": "Weighing records",
@@ -1402,7 +1450,7 @@
       "materialQuantityReport": "Material quantity report",
       "materialCostReport": "Material cost report",
       "transactionReports": "Operational reports",
-      "reportHistory": "Report export history",
+      "reportHistory": "Report history",
       "geofenceSettings": "Geofence settings",
       "workforceGps": "Workforce live location",
       "emergencyList": "Emergency list",
@@ -1412,65 +1460,26 @@
       "roles": "Roles and permissions",
       "loginHistory": "Login history",
       "userHandovers": "User handover records",
-      "userActivity": "Activity logs",
+      "userActivity": "User operation records",
       "companySettings": "Company settings",
       "integrationSettings": "System integrations",
       "notifications": "Notification center",
-      "projectRecords": "Project records",
       "projectCategories": "Site record categories",
-      "fieldTasks": "Site tasks",
-      "supplierRecords": "Supplier records",
-      "materialReceipts": "Material receipts",
-      "siteEquipment": "Site equipment",
-      "materialOutgoing": "Material outgoing",
-      "progressRecords": "Progress records",
-      "schedulePlanning": "Schedule planning",
-      "recyclerPartners": "Recycler partners",
-      "wasteDispatches": "Waste dispatches",
-      "siteDisposals": "Site disposal",
-      "recyclingRecords": "Weighing records",
-      "attendanceRecords": "Attendance records",
-      "siteGps": "Site personnel GPS",
-      "safetyIncidents": "Safety incidents",
-      "incidentReports": "Incident reports",
-      "consultantApplications": "Consultant applications",
-      "consultantWorkflows": "Approval workflow",
-      "approvalCredentials": "Approval credentials",
-      "consultantFieldInbox": "Field evidence inbox",
-      "consultantAccess": "Consultant access",
-      "documentArchive": "Document archive",
-      "evidenceArchive": "Evidence archive",
-      "materialQuantityReport": "Material quantity report",
-      "materialCostReport": "Material cost report",
-      "transactionReports": "Operational reports",
-      "geofenceSettings": "Geofence settings",
-      "workforceGps": "Workforce live location",
-      "emergencyList": "Emergency list",
-      "siteAccessPasses": "Site access passes",
-      "gateScanning": "Gate scanning",
-      "userManagement": "User management",
-      "roles": "Roles and permissions",
-      "userActivity": "Activity logs",
-      "companySettings": "Company settings",
-      "notifications": "Notification center",
       "companyCreate": "Create company",
       "companyDirectory": "Company management and search",
       "companyReview": "Company review",
       "companyStatus": "Company status",
-      "companySubscriptions": "Company subscription management",
+      "companySubscriptions": "Company subscriptions",
       "companyProjects": "Company projects",
       "companyRecyclerData": "Recycler information",
       "companySearch": "Company search",
       "companyStatistics": "Company statistics",
       "companyActivity": "Company operation records",
-      "userManagement": "User management",
       "userProfiles": "User profiles and search",
       "userCategories": "User categories",
       "userLoginManagement": "Login management",
       "userStatistics": "User statistics",
-      "userActivity": "User operation records",
       "subscriptionPlans": "Subscription plans",
-      "companySubscriptions": "Company subscriptions",
       "subscriptionStatus": "Subscription status",
       "packageChanges": "Package changes",
       "accountLimits": "Account limits",
@@ -1482,7 +1491,6 @@
       "platformCommission": "Platform commission",
       "automaticBilling": "Automatic billing",
       "collections": "Collections",
-      "paymentProofs": "Payment proofs",
       "commissionRules": "Commission rules",
       "invoiceSearch": "Invoice management and search",
       "billingStatistics": "Billing statistics",
@@ -1523,7 +1531,6 @@
       "operationsReports": "System operations reports",
       "reportSearch": "Report center",
       "reportExports": "Report export",
-      "reportHistory": "Report history",
       "contractorNotifications": "Contractor notifications",
       "recyclerNotifications": "Recycler notifications",
       "saasNotifications": "SaaS notifications",
@@ -1715,7 +1722,10 @@
       "allUploaders": "All uploaders",
       "keyword": "File or source keyword"
     },
-    "action": { "excel": "Excel", "pdf": "PDF" },
+    "action": {
+      "excel": "Excel",
+      "pdf": "PDF"
+    },
     "period": "Period: {from} to {to}",
     "preview": "Report preview",
     "records": "{count} records",
@@ -1903,7 +1913,10 @@
       "YEARLY": "Yearly",
       "ONE_TIME": "One-time"
     },
-    "status": { "active": "Active", "inactive": "Inactive" },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
     "loadError": "Business targets could not be loaded.",
     "saveError": "The target could not be saved. Check its dates, scope and recipients.",
     "toast": {
@@ -2005,6 +2018,8 @@
       "provisioningTitle": "Device connection details",
       "provisioningDescription": "Give these one-time credentials to the installer. The secret is not shown again after this window closes.",
       "heartbeatUrl": "Heartbeat URL",
+      "accessEventUrl": "Access event URL",
+      "gateEventUrl": "Weighing gate event URL",
       "recordId": "Platform device record ID",
       "deviceHeader": "Device identity header",
       "signatureHeader": "Signature header",
@@ -2019,6 +2034,10 @@
       "API_GATEWAY": "API Gateway",
       "CCTV": "CCTV",
       "ANPR": "ANPR",
+      "ACCESS_CONTROL": "Access Control",
+      "RFID": "RFID",
+      "FACE_RECOGNITION": "Face Recognition",
+      "VISITOR_MANAGEMENT": "Visitor Management",
       "IOT": "IoT",
       "AI": "AI",
       "DRONE": "Drone",
@@ -2243,7 +2262,34 @@
     "status": {
       "offline": "Offline; {count, plural, one {# record is waiting} other {# records are waiting}}",
       "pending": "{count, plural, one {# record is waiting to sync} other {# records are waiting to sync}}",
-      "syncing": "Uploading offline records"
+      "syncing": "Uploading offline records",
+      "failed": "{count, plural, one {# action failed to sync} other {# actions failed to sync}}"
+    },
+    "queue": {
+      "retry": "Retry now",
+      "empty": "Nothing is waiting to sync.",
+      "discard": "Discard this action",
+      "attemptFailed": "{count, plural, one {Failed once} other {Failed # times}}"
+    },
+    "kind": {
+      "ATTENDANCE": "Attendance",
+      "TASK_TRANSITION": "Trip progress",
+      "TASK_PHOTO": "Trip photo",
+      "TASK_POSITION": "GPS position",
+      "FIELD_TASK_TRANSITION": "Field task update",
+      "FIELD_TASK_PHOTO": "Field task photo",
+      "MATERIAL_RECEIPT": "Material receipt",
+      "EQUIPMENT_MOVEMENT": "Equipment movement",
+      "SITE_PROGRESS": "Site progress",
+      "MATERIAL_OUTGOING": "Material outgoing",
+      "WASTE_OUTGOING": "Waste outgoing",
+      "DISPOSAL_REQUEST": "Disposal request",
+      "SAFETY_INCIDENT": "Safety incident",
+      "CONSULTANT_SUBMISSION": "Consultant submission",
+      "CATEGORY_EVIDENCE": "Category evidence",
+      "DISPATCH_ACCEPT": "Accept order",
+      "DISPATCH_COLLECT": "Collect load",
+      "TRIP_ASSIGN": "Assign trip"
     }
   },
   "companies": {
@@ -2428,7 +2474,10 @@
         "empty": "No bank accounts added.",
         "primary": "Primary",
         "makePrimary": "Make primary",
-        "type": { "CURRENT": "Current", "SAVINGS": "Savings" }
+        "type": {
+          "CURRENT": "Current",
+          "SAVINGS": "Savings"
+        }
       },
       "toast": {
         "documentUploaded": "Document uploaded",
@@ -3351,7 +3400,17 @@
       "EVENT": "Event",
       "REMINDER": "Reminder",
       "EXCEPTION": "Exception alert",
-      "PROJECT_NOTICE": "Project notice"
+      "PROJECT_NOTICE": "Project notice",
+      "SUBSCRIPTION": "Subscription",
+      "BILLING": "Billing and payment",
+      "COMPANY": "Company account",
+      "PARTNERSHIP": "Business partner",
+      "DISPATCH": "Recycling order",
+      "DRIVER_TASK": "Driver task",
+      "WEIGHING": "Weighing",
+      "SAFETY": "Safety",
+      "ACCESS": "Site access",
+      "ASSET": "Equipment"
     },
     "status": {
       "read": "Read",
@@ -3359,6 +3418,18 @@
     },
     "markRead": "Mark as read",
     "markAllRead": "Mark all as read",
+    "remove": "Remove from inbox",
+    "filter": {
+      "today": "Today",
+      "readStatus": "Read status",
+      "allStatus": "All status",
+      "category": "Notification category",
+      "allCategories": "All categories",
+      "billing": "Billing",
+      "weighing": "Weighing",
+      "order": "Orders",
+      "system": "System"
+    },
     "push": {
       "enable": "Enable browser alerts",
       "enabled": "Browser alerts enabled",
@@ -4179,7 +4250,7 @@
       "reset_link_sent": "Dedicated sign-in link resent",
       "force_logout": "User forcibly signed out",
       "commission_rule_created": "Commission rule created",
-      "commission_rule_updated": "Commission rule updated",
+      "commission_rule_updated": "Sales commission rule updated",
       "commission_rule_removed": "Commission rule removed",
       "invoice_generated": "Invoice generated",
       "invoice_issued": "Invoice issued",
@@ -4261,7 +4332,6 @@
       "sales_territory_removed": "Sales territory removed",
       "commission_scheme_created": "Sales commission scheme created",
       "commission_scheme_updated": "Sales commission scheme updated",
-      "commission_rule_updated": "Sales commission rule updated",
       "sales_terms_created": "Sales terms version created",
       "sales_terms_activated": "Sales terms version activated",
       "sales_terms_acknowledged": "Sales terms confirmation recorded",
@@ -4364,6 +4434,12 @@
     "readyBody": "This phone is now securely linked to your field account.",
     "openWorkspace": "Open camera workspace",
     "install": "Install field staff app",
+    "driverInstallTitle": "Install the driver app",
+    "driverInstallBody": "Add this driver workspace to your Home Screen for faster access.",
+    "driverInstallIos": "On iPhone, add this page to the Home Screen from the browser menu.",
+    "driverInstallIosGuide": "Tap Share, then Add to Home Screen.",
+    "driverInstallBrowserGuide": "Open the browser menu, then choose Install app or Add to Home screen.",
+    "driverInstallDismiss": "Dismiss installation prompt",
     "installHelp": "Installation guide",
     "installPreparing": "Preparing installation...",
     "installUnavailable": "The system prompt is not ready. Make sure private browsing is off, then open the browser menu and choose Install app or Add to Home screen. You can also press Install again shortly.",
@@ -5485,7 +5561,11 @@
       "message": "Message",
       "channelStatus": "Channel / status"
     },
-    "status": { "READ": "Read", "UNREAD": "Unread", "DELETED": "Removed" },
+    "status": {
+      "READ": "Read",
+      "UNREAD": "Unread",
+      "DELETED": "Removed"
+    },
     "action": {
       "markRead": "Mark read",
       "markUnread": "Mark unread",
@@ -5531,7 +5611,10 @@
       "SENT": "Sent",
       "FAILED": "Failed"
     },
-    "record": { "delivery": "Delivery records", "status": "Status records" }
+    "record": {
+      "delivery": "Delivery records",
+      "status": "Status records"
+    }
   },
   "adminReports": {
     "title": "Report Center",
@@ -5601,7 +5684,10 @@
       "cwe": "Cloud Weighing Engine report",
       "operations": "System operations report"
     },
-    "action": { "excel": "Excel", "pdf": "PDF" },
+    "action": {
+      "excel": "Excel",
+      "pdf": "PDF"
+    },
     "field": {
       "metric": "Metric",
       "value": "Value",
@@ -5734,7 +5820,10 @@
       "ENABLED": "Enabled",
       "DISABLED": "Disabled"
     },
-    "mode": { "SIMULATED": "Test simulator", "LIVE": "Live connection" },
+    "mode": {
+      "SIMULATED": "Test simulator",
+      "LIVE": "Live connection"
+    },
     "state": {
       "OPEN": "Open",
       "ON_SCALE": "On scale",
@@ -5742,7 +5831,11 @@
       "COMPLETED": "Completed",
       "VOID": "Void"
     },
-    "verdict": { "PENDING": "Pending", "VALID": "Valid", "INVALID": "Invalid" },
+    "verdict": {
+      "PENDING": "Pending",
+      "VALID": "Valid",
+      "INVALID": "Invalid"
+    },
     "anomaly": {
       "SINGLE_READING_ONLY": "Single reading only",
       "NO_CONTINUOUS_STREAM": "No continuous stream",
@@ -5762,7 +5855,9 @@
       "FRAME_MISMATCH": "Frame value mismatch",
       "PLATE_MISMATCH": "Vehicle plate mismatch"
     },
-    "live": { "activeSessions": "Active weighing sessions" },
+    "live": {
+      "activeSessions": "Active weighing sessions"
+    },
     "metric": {
       "totalScales": "Total weighbridges",
       "activeScales": "Active weighbridges",
@@ -5862,18 +5957,34 @@
     "editTitle": "Edit load",
     "viewTitle": "Load out",
     "section": {
+      "application": "Outgoing application",
+      "applicationPhotos": "Application photos",
       "destination": "Destination",
+      "execution": "Collection execution",
+      "executionPhotos": "Execution photos",
       "load": "Load",
+      "settlement": "Settlement result",
       "vehicle": "Vehicle and driver",
+      "weighing": "Weighing result",
       "release": "Release",
-      "photos": "Photos"
+      "photos": "Photos",
+      "timeline": "Order timeline"
     },
     "field": {
+      "applicant": "Applicant",
+      "applicationNo": "Application no.",
+      "applicationNote": "Application note",
+      "approvalNote": "Approval note",
+      "approvedAt": "Approved at",
+      "approvedBy": "Approved by",
+      "collectionPlan": "Collection plan",
       "dispatchNo": "Dispatch no.",
       "project": "Project",
       "recycler": "Recycler",
       "wasteType": "Waste type",
       "estimatedWeight": "Estimated weight (kg)",
+      "executionProgress": "Execution progress",
+      "firstWeight": "Gross weight",
       "description": "Description",
       "vehiclePlate": "Vehicle",
       "driverName": "Driver",
@@ -5883,7 +5994,14 @@
       "releasedAt": "Released",
       "releasedBy": "Released by",
       "location": "Location",
-      "photoCount": "Photos"
+      "netWeight": "Net weight",
+      "photoCount": "Photos",
+      "secondWeight": "Tare weight",
+      "settledWeight": "Final settlement weight",
+      "settlementAmount": "Settlement amount",
+      "settlementNo": "Settlement no.",
+      "settlementState": "Settlement status",
+      "weighingNo": "Weighbridge ticket no."
     },
     "wasteType": {
       "MIXED": "Mixed construction waste",
@@ -5938,6 +6056,100 @@
       "removed": "Load removed",
       "released": "Load released",
       "cancelled": "Load cancelled"
+    }
+  },
+  "recyclerReports": {
+    "title": "Report centre",
+    "count": "{count, plural, =0 {No records} one {# record} other {# records}}",
+    "type": {
+      "orders": "Orders",
+      "weights": "Recycling weight",
+      "sources": "Business source",
+      "commission": "Platform commission",
+      "weighing": "Weighbridge tickets",
+      "inventory": "Inventory",
+      "outbound": "Outbound",
+      "customers": "Customers",
+      "fleet": "Drivers and vehicles",
+      "exceptions": "Exceptions and audit"
+    },
+    "filter": {
+      "title": "Filters",
+      "reportType": "Report",
+      "from": "From",
+      "to": "To",
+      "search": "Search results",
+      "project": "Project",
+      "material": "Material",
+      "source": "Business source",
+      "customer": "Customer",
+      "driver": "Driver",
+      "vehicle": "Vehicle",
+      "scale": "Weighbridge",
+      "status": "Status",
+      "all": "All"
+    },
+    "source": {
+      "PLATFORM": "Platform orders",
+      "PRIVATE": "Private customers"
+    },
+    "summary": {
+      "records": "Records",
+      "pending_dispatch": "Pending dispatch",
+      "collecting": "Collection in progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "total_weight": "Total weight",
+      "platform_weight": "Platform weight",
+      "private_weight": "Private customer weight",
+      "settlement_amount": "Settlement amount",
+      "commission_due": "Commission due",
+      "pending_confirmation": "Pending confirmation",
+      "confirmed": "Confirmed",
+      "voided": "Voided",
+      "current_inventory": "Current inventory",
+      "period_movement": "Movement in period",
+      "adjustments": "Adjustments",
+      "platform_customers": "Platform customers",
+      "private_customers": "Private customers",
+      "services": "Services",
+      "drivers": "Drivers",
+      "vehicles": "Vehicles",
+      "weighing_anomalies": "Weighing anomalies",
+      "reweighs": "Re-weighs",
+      "voided_tickets": "Voided tickets",
+      "inventory_adjustments": "Inventory adjustments",
+      "deduction_confirmations": "Deduction confirmations"
+    },
+    "column": {
+      "reference": "Reference",
+      "date": "Date",
+      "category": "Category",
+      "party": "Customer / party",
+      "status": "Status",
+      "quantity": "Weight / count",
+      "detail": "Details"
+    },
+    "action": {
+      "print": "Print",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "No report records",
+      "description": "Change the date or filters to view another period."
+    },
+    "error": {
+      "title": "Report could not load",
+      "description": "Check the connection and try again."
+    },
+    "history": {
+      "title": "Export history",
+      "description": "Every PDF and spreadsheet export is kept as a permanent record.",
+      "file": "File",
+      "period": "Period",
+      "format": "Format",
+      "generated": "Generated",
+      "empty": "No exports yet."
     }
   },
   "export": {
@@ -6014,6 +6226,17 @@
       "state": "Status"
     },
     "declaredNote": "The producer's declaration. Your weighbridge decides the final weight, and both are kept.",
+    "summary": {
+      "today_orders": "Today's orders",
+      "month_orders": "This month",
+      "completed_orders": "Completed",
+      "recycling_orders": "In collection",
+      "cancelled_orders": "Cancelled"
+    },
+    "filter": {
+      "collectionDateFrom": "Collection date from",
+      "collectionDateTo": "Collection date to"
+    },
     "order": {
       "title": "Collection order",
       "description": "Order {order} came from the contractor. Propose a collection time first; assign a driver only after the contractor confirms it.",
@@ -6084,19 +6307,39 @@
     "editTitle": "Edit vehicle",
     "section": {
       "identity": "Identity",
-      "limits": "Limits and documents"
+      "limits": "Limits and documents",
+      "availability": "Availability"
     },
     "field": {
       "plateNo": "Plate no.",
       "vehicleType": "Type",
+      "brand": "Brand",
+      "model": "Model",
+      "brandModel": "Brand and model",
       "makeModel": "Make and model",
+      "legacyMakeModel": "Existing make and model",
+      "payloadCapacity": "Payload capacity (kg)",
       "tareWeight": "Tare weight (kg)",
       "maxLaden": "Max laden weight (kg)",
       "roadTaxExpires": "Road tax expires",
+      "insuranceExpires": "Insurance expires",
       "permitExpires": "Permit expires",
+      "photo": "Vehicle photo",
+      "choosePhoto": "Choose a photo",
       "notes": "Notes",
       "isActive": "Active",
+      "isActiveHelp": "Available for dispatch when it is not under maintenance.",
+      "maintenance": "Under maintenance",
+      "maintenanceHelp": "Maintenance vehicles cannot be assigned to a collection.",
+      "workStatus": "Work status",
+      "currentTask": "Current task",
       "createdAt": "Added"
+    },
+    "status": {
+      "AVAILABLE": "Available",
+      "ON_TASK": "On a task",
+      "MAINTENANCE": "Under maintenance",
+      "INACTIVE": "Inactive"
     },
     "type": {
       "LORRY": "Lorry",
@@ -6135,18 +6378,54 @@
     "editTitle": "Edit driver",
     "section": {
       "identity": "Identity",
-      "licence": "Licence"
+      "account": "Driver app account",
+      "licence": "Licence",
+      "availability": "Availability"
     },
     "field": {
+      "driverNo": "Driver no.",
+      "driverNoAuto": "Leave blank to generate automatically",
       "fullName": "Name",
       "phone": "Phone",
       "icNo": "IC no.",
       "licenceNo": "Licence no.",
       "licenceExpires": "Licence expires",
+      "licencePhoto": "Licence photo",
+      "driverPhoto": "Driver photo",
+      "choosePhoto": "Choose a photo",
+      "emergencyContact": "Emergency contact",
+      "emergencyContactExample": "Name / phone number",
       "defaultVehicle": "Usual vehicle",
       "account": "Driver login account",
+      "newAccountEmail": "Or create account with email",
+      "initialPassword": "Initial password",
+      "loginIdleExpiryDays": "Sign in again after inactive days",
       "isActive": "Active",
+      "isActiveHelp": "Active drivers can be assigned to collections.",
+      "onLeave": "On leave",
+      "onLeaveHelp": "Drivers on leave cannot be assigned to a collection.",
+      "workStatus": "Work status",
+      "currentTask": "Current task",
+      "lastPosition": "Last GPS update",
+      "notes": "Notes",
       "createdAt": "Added"
+    },
+    "status": {
+      "AVAILABLE": "Available",
+      "ON_TASK": "On a task",
+      "COMPLETED_TODAY": "Completed today",
+      "ON_LEAVE": "On leave",
+      "INACTIVE": "Inactive"
+    },
+    "online": "Online",
+    "offline": "Offline",
+    "summary": {
+      "total": "Total drivers",
+      "online": "Online",
+      "on_task": "On a task",
+      "available": "Available",
+      "on_leave": "On leave",
+      "inactive": "Inactive"
     },
     "licenceExpired": "Licence expired",
     "remove": {
@@ -6160,6 +6439,16 @@
       "removed": "Driver removed"
     }
   },
+  "fleetHistory": {
+    "title": "Service history",
+    "count": "{count, plural, =0 {No service records} one {# service record} other {# service records}}",
+    "task": "Task",
+    "order": "Order",
+    "project": "Project",
+    "completed": "Completed",
+    "netWeight": "Net weight",
+    "ticket": "Weighbridge ticket"
+  },
   "tasks": {
     "title": "Collection trips",
     "count": "{count, plural, =0 {No trips} one {# trip} other {# trips}}",
@@ -6167,6 +6456,17 @@
     "createTitle": "Assign a trip",
     "editTitle": "Reassign the trip",
     "viewTitle": "Trip",
+    "summary": {
+      "today_dispatches": "Today's dispatches",
+      "today_completed": "Completed today",
+      "running": "In progress",
+      "vehicles_used_today": "Vehicles used",
+      "drivers_used_today": "Drivers working"
+    },
+    "filter": {
+      "dateFrom": "Dispatch date from",
+      "dateTo": "Dispatch date to"
+    },
     "section": {
       "load": "Load",
       "crew": "Vehicle and driver",
@@ -6214,10 +6514,18 @@
     "noPhotos": "The driver has not sent any photos.",
     "locationNote": "Where the driver's device said it was. Browser location can be faked, so this records what was reported, not where the lorry was.",
     "reassignNote": "Only before the driver accepts. After that the roster is a record of who actually went.",
+    "reassign": "Reassign",
+    "cancel": {
+      "action": "Cancel trip",
+      "title": "Cancel this trip?",
+      "description": "This releases the driver and vehicle so the order can be assigned again. The cancellation and reason stay in the history.",
+      "confirm": "Cancel trip"
+    },
     "toast": {
       "created": "Trip assigned",
       "updated": "Trip updated",
-      "advanced": "Trip updated"
+      "advanced": "Trip updated",
+      "cancelled": "Trip cancelled"
     }
   },
   "deductions": {
@@ -6394,6 +6702,124 @@
       "paymentRecorded": "Payment recorded"
     }
   },
+  "recyclerCompanySettings": {
+    "title": "Company settings",
+    "subtitle": "Manage your recycler company, business rules and access in one place.",
+    "profile": {
+      "title": "Company profile",
+      "help": "This information and logo identify your company across the recycler portal.",
+      "logo": "Choose logo",
+      "name": "Company name",
+      "registration": "Registration no.",
+      "taxId": "Tax identification no.",
+      "sst": "SST registration no.",
+      "contactPerson": "Contact person",
+      "designation": "Designation",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "billingEmail": "Billing email"
+    },
+    "bank": {
+      "title": "Bank accounts",
+      "help": "Manage your company's payment accounts. New or changed account details return to pending platform verification.",
+      "add": "Add account",
+      "empty": "No bank account has been added.",
+      "primary": "Primary",
+      "makePrimary": "Make primary",
+      "edit": "Edit bank account",
+      "remove": "Remove bank account",
+      "removeTitle": "Remove this bank account?",
+      "removeDescription": "{account} will no longer be available for new payments. Existing billing records remain unchanged.",
+      "removeConfirm": "Remove account",
+      "addTitle": "Add bank account",
+      "editTitle": "Edit bank account",
+      "formHelp": "The account number is masked after saving. Platform staff verifies account changes before payment use.",
+      "bankName": "Bank name",
+      "branch": "Branch",
+      "accountName": "Account holder name",
+      "accountNumber": "Account number",
+      "numberKeep": "Leave blank to keep the existing number.",
+      "accountType": "Account type",
+      "currency": "Currency",
+      "swift": "SWIFT / BIC",
+      "type": {
+        "CURRENT": "Current",
+        "SAVINGS": "Savings"
+      },
+      "verification": {
+        "PENDING": "Pending verification",
+        "VERIFIED": "Verified",
+        "REJECTED": "Rejected"
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "help": "Choose how your team receives business updates.",
+      "system": "In-app notifications",
+      "systemHelp": "Show order, weighing, billing and system notices in MSE Trace.",
+      "email": "Email",
+      "emailHelp": "Send a copy to the user's registered email address.",
+      "push": "PWA push",
+      "pushHelp": "Send browser notifications to subscribed phones and computers."
+    },
+    "business": {
+      "title": "Business controls",
+      "help": "Simple company rules. Hardware remains under platform administrator control.",
+      "deduction": "Both-party deduction confirmation above (kg)",
+      "cctv": "AI CCTV",
+      "cctvHelp": "Use AI CCTV evidence when platform hardware is connected.",
+      "anpr": "ANPR",
+      "anprHelp": "Use number plate authorization when platform hardware is connected.",
+      "deviceCount": "{count} bound",
+      "hardwareOwner": "Only the MSE platform administrator can bind or change weighbridges, gateways, CCTV and ANPR devices."
+    },
+    "commission": {
+      "title": "Platform commission",
+      "help": "Read-only terms set by the MSE platform administrator. Private-customer business is excluded.",
+      "rule": "Rule",
+      "basis": "Basis",
+      "rate": "Rate",
+      "cycle": "Billing cycle",
+      "none": "No active commission rule is assigned.",
+      "basisValue": {
+        "SETTLED_AMOUNT": "Settled amount",
+        "SETTLED_WEIGHT": "Settled weight"
+      },
+      "cycleValue": {
+        "MONTHLY": "Monthly",
+        "QUARTERLY": "Quarterly",
+        "YEARLY": "Yearly"
+      }
+    },
+    "links": {
+      "title": "People, integrations and security",
+      "help": "Open the area you need. Each area keeps its own permissions and audit history.",
+      "users": "Users",
+      "usersHelp": "Add, suspend and manage recycler staff.",
+      "roles": "Roles and permissions",
+      "rolesHelp": "Control what each recycler role can see and do.",
+      "integrations": "Integrations",
+      "integrationsHelp": "View ERP, MyInvois and platform-bound hardware connections.",
+      "scales": "Assigned weighbridges",
+      "scalesHelp": "View weighbridges assigned by the platform administrator.",
+      "login": "Login records",
+      "loginHelp": "Review successful and failed sign-in attempts.",
+      "audit": "Audit log",
+      "auditHelp": "Review permanent changes and business actions."
+    },
+    "action": {
+      "saveProfile": "Save company profile",
+      "saveSettings": "Save business settings"
+    },
+    "state": {
+      "loading": "Loading company settings...",
+      "error": "Company settings could not be loaded."
+    },
+    "toast": {
+      "saved": "Recycler settings saved"
+    }
+  },
   "driver": {
     "today": "Your trips",
     "finished": "Finished",
@@ -6409,6 +6835,14 @@
     "photoRequired": "Take a loading photo before marking this trip as loaded.",
     "cannotComplete": "I cannot complete this",
     "arrivedNote": "Records that you are at the site, with your phone's location if it will give one.",
+    "settlement": {
+      "title": "Weight and payment",
+      "deduction": "Deduction",
+      "payableWeight": "Payable weight",
+      "amount": "Amount",
+      "paid": "Paid",
+      "outstanding": "Outstanding"
+    },
     "action": {
       "ACCEPTED": "Accept this trip",
       "EN_ROUTE": "Start driving",
@@ -6610,6 +7044,7 @@
       "received": "Received",
       "outstanding": "Outstanding",
       "dueDate": "Due date",
+      "issuedDate": "Issued date",
       "state": "Status",
       "notes": "Notes",
       "businessWeight": "Platform business weight",
@@ -6638,7 +7073,10 @@
       "SAAS": "SaaS subscription",
       "COMMISSION": "Platform commission"
     },
-    "companyType": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" },
+    "companyType": {
+      "CONTRACTOR": "Contractor",
+      "RECYCLER": "Recycler"
+    },
     "state": {
       "DRAFT": "Draft",
       "ISSUED": "Unpaid",
@@ -6669,13 +7107,22 @@
       "QUARTERLY": "Quarterly",
       "YEARLY": "Yearly"
     },
-    "ruleState": { "active": "Enabled", "inactive": "Disabled" },
+    "ruleState": {
+      "active": "Enabled",
+      "inactive": "Disabled"
+    },
     "action": {
       "generate": "Generate invoice",
       "issue": "Issue invoice",
-      "close": "Close invoice"
+      "close": "Close invoice",
+      "downloadPdf": "Download PDF",
+      "print": "Open to print"
     },
-    "filters": { "title": "Filters", "from": "Period from", "to": "Period to" },
+    "filters": {
+      "title": "Filters",
+      "from": "Period from",
+      "to": "Period to"
+    },
     "export": {
       "title": "Billing and commission",
       "subtitle": "SaaS and platform commission invoice register"
@@ -6753,7 +7200,9 @@
         "FAILED": "Failed",
         "CANCELLED": "Cancelled"
       },
-      "toast": { "queued": "Automatic billing run queued" }
+      "toast": {
+        "queued": "Automatic billing run queued"
+      }
     },
     "financialReports": {
       "loadError": "Financial report totals could not be loaded.",
@@ -6901,7 +7350,10 @@
       "EXPIRED": "Expired",
       "PAUSED": "Paused"
     },
-    "audience": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" },
+    "audience": {
+      "CONTRACTOR": "Contractor",
+      "RECYCLER": "Recycler"
+    },
     "tier": {
       "SUBSCRIPTION": "Subscription",
       "PARTNER": "Partner",
@@ -6913,14 +7365,22 @@
       "HALF_YEARLY": "Half-yearly",
       "YEARLY": "Yearly"
     },
-    "fee": { "once": "once", "monthly": "per month" },
+    "fee": {
+      "once": "once",
+      "monthly": "per month"
+    },
     "entitlement": {
       "commission": "Commission",
       "integration": "External API",
       "cwe": "CWE"
     },
-    "planState": { "active": "Enabled", "inactive": "Disabled" },
-    "value": { "unlimited": "Unlimited" },
+    "planState": {
+      "active": "Enabled",
+      "inactive": "Disabled"
+    },
+    "value": {
+      "unlimited": "Unlimited"
+    },
     "seatUsage": "{used} / {limit}",
     "daysRemaining": "{count} days remaining",
     "plans": {
@@ -6977,7 +7437,10 @@
       "partnerServiceFee": "Partner plans charge this once, then use commission only. Monthly and yearly fees stay at zero.",
       "features": "Comma-separated feature keys enabled by this plan."
     },
-    "extensionMode": { "months": "Add months", "date": "Set expiry date" },
+    "extensionMode": {
+      "months": "Add months",
+      "date": "Set expiry date"
+    },
     "filters": {
       "title": "Filters",
       "expiresAfter": "Expires on or after",
@@ -7051,7 +7514,9 @@
       "resumed": "Subscription resumed.",
       "terminated": "Subscription ended."
     },
-    "error": { "load": "Unable to load subscription data." }
+    "error": {
+      "load": "Unable to load subscription data."
+    }
   },
   "sales": {
     "title": "Sales & Commission",
@@ -7062,12 +7527,21 @@
       "fullName": "Name",
       "email": "Email",
       "phone": "Phone",
+      "salesRole": "Sales role",
       "supervisor": "Supervisor",
       "commissionScheme": "Commission Scheme",
       "isActive": "Status",
       "territories": "Territory",
       "customersWon": "Customers Won",
-      "totalCommission": "Total Commission"
+      "totalCommission": "Total Commission",
+      "joinedOn": "Joined on",
+      "status": "Status"
+    },
+    "role": {
+      "EXECUTIVE": "Sales executive",
+      "SUPERVISOR": "Sales supervisor",
+      "MANAGER": "Sales manager",
+      "AGENT": "Sales agent"
     },
     "toast": {
       "created": "Salesperson created",
@@ -7428,8 +7902,14 @@
       "MANAGER": "Sales manager",
       "AGENT": "External agent"
     },
-    "scope": { "STATES": "Named states", "NATIONAL": "Nationwide" },
-    "status": { "active": "Active", "inactive": "Inactive" },
+    "scope": {
+      "STATES": "Named states",
+      "NATIONAL": "Nationwide"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
     "basis": {
       "FIXED_PER_CUSTOMER": "Fixed per customer",
       "PERCENT_OF_SAAS": "% of SaaS revenue",
@@ -7611,7 +8091,10 @@
       "feedback": "Classify and prioritise customer feedback.",
       "service": "Add a permanent customer service interaction record."
     },
-    "companyType": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" },
+    "companyType": {
+      "CONTRACTOR": "Contractor",
+      "RECYCLER": "Recycler"
+    },
     "enquiryStatus": {
       "NEW": "New",
       "CONTACTED": "Contacted",
@@ -7649,7 +8132,11 @@
       "COMPLIMENT": "Compliment",
       "OTHER": "Other"
     },
-    "priority": { "LOW": "Low", "MEDIUM": "Medium", "HIGH": "High" },
+    "priority": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High"
+    },
     "status": {
       "open": "Open",
       "resolved": "Resolved",
@@ -8130,7 +8617,10 @@
       "reset": "Restore platform default",
       "companyLoadError": "This company's system settings could not be loaded.",
       "loadErrorHint": "Check the connection or company access and retry. Saved platform defaults are not affected.",
-      "type": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" }
+      "type": {
+        "CONTRACTOR": "Contractor",
+        "RECYCLER": "Recycler"
+      }
     },
     "section": {
       "basic": {
@@ -8194,7 +8684,11 @@
       "configured": "Configured",
       "missing": "Not configured"
     },
-    "mode": { "SIMULATED": "Test simulator", "LIVE": "Live connection", "NOT_CONFIGURED": "Not configured" },
+    "mode": {
+      "SIMULATED": "Test simulator",
+      "LIVE": "Live connection",
+      "NOT_CONFIGURED": "Not configured"
+    },
     "updatedAt": "Last saved: {value}",
     "guide": {
       "cctv": {
@@ -8527,9 +9021,18 @@
       "TIERED": "Tiered by customer volume",
       "CUSTOM": "Custom formula"
     },
-    "cycle": { "MONTHLY": "Monthly", "QUARTERLY": "Quarterly" },
-    "scope": { "national": "Nationwide", "regional": "State / city / area" },
-    "companyType": { "CONTRACTOR": "Contractor", "RECYCLER": "Recycler" },
+    "cycle": {
+      "MONTHLY": "Monthly",
+      "QUARTERLY": "Quarterly"
+    },
+    "scope": {
+      "national": "Nationwide",
+      "regional": "State / city / area"
+    },
+    "companyType": {
+      "CONTRACTOR": "Contractor",
+      "RECYCLER": "Recycler"
+    },
     "status": {
       "system": "System",
       "custom": "Custom",
@@ -9485,7 +9988,10 @@
     }
   },
   "consultantWorkflow": {
-    "project": { "choose": "Choose project", "all": "All projects" },
+    "project": {
+      "choose": "Choose project",
+      "all": "All projects"
+    },
     "applications": {
       "title": "Consultant Applications",
       "subtitle": "{count} project applications and approval records",
@@ -9810,7 +10316,9 @@
         "FINAL_REPORT": "Final PDF archive"
       }
     },
-    "common": { "unknown": "Unknown" },
+    "common": {
+      "unknown": "Unknown"
+    },
     "verification": {
       "title": "Approval Report Verification",
       "notFoundTitle": "Verification record not found",
@@ -9915,21 +10423,35 @@
       "ACTIVE": "Active",
       "ARCHIVED": "Archived"
     },
-    "revisionStatus": { "DRAFT": "Draft", "CONFIRMED": "Confirmed & locked" },
+    "revisionStatus": {
+      "DRAFT": "Draft",
+      "CONFIRMED": "Confirmed & locked"
+    },
     "status": {
       "delayed": "Delayed",
       "onTrack": "On track",
       "current": "Current"
     },
-    "source": { "MANUAL": "Manual", "EXCEL": "Excel import" },
-    "revision": { "number": "Version {number}" },
-    "delay": { "days": "{count} days late" },
+    "source": {
+      "MANUAL": "Manual",
+      "EXCEL": "Excel import"
+    },
+    "revision": {
+      "number": "Version {number}"
+    },
+    "delay": {
+      "days": "{count} days late"
+    },
     "gantt": {
       "days": "{count} calendar days",
       "actual": "Actual completion",
       "planned": "Planned duration"
     },
-    "common": { "day": "days", "tasks": "tasks", "system": "System" },
+    "common": {
+      "day": "days",
+      "tasks": "tasks",
+      "system": "System"
+    },
     "state": {
       "chooseProject": "Choose a project to view its construction schedule.",
       "loadError": "The schedule could not be loaded. Try again.",
@@ -9940,7 +10462,9 @@
       "noHistory": "No schedule history yet.",
       "noConfirmedProgress": "No confirmed site progress records are available."
     },
-    "defaults": { "baseline": "Approved Baseline" },
+    "defaults": {
+      "baseline": "Approved Baseline"
+    },
     "dialog": {
       "planTitle": "Create construction schedule",
       "planHelp": "Start with an editable baseline. Add tasks, review them, then confirm to lock the baseline.",
@@ -10018,7 +10542,10 @@
       "close": "Close",
       "refresh": "Refresh"
     },
-    "status": { "active": "Active", "inactive": "Inactive" },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
     "state": {
       "loading": "Loading site controls...",
       "loadError": "This information could not be loaded. Check the connection and try again.",
@@ -10148,7 +10675,10 @@
       "notifyManager": "Notify project manager",
       "notifyManagerHelp": "New projects include the project manager in workflow alerts."
     },
-    "projectStatus": { "PLANNING": "Planning", "ACTIVE": "Active" },
+    "projectStatus": {
+      "PLANNING": "Planning",
+      "ACTIVE": "Active"
+    },
     "categories": {
       "title": "Default site record categories",
       "subtitle": "These categories are created automatically for each new project.",
@@ -10179,7 +10709,12 @@
         "report_export": "Export reports"
       }
     },
-    "language": { "en": "English", "zh": "Chinese", "ms": "Malay" },
+    "language": {
+      "en": "English",
+      "zh": "Chinese",
+      "zh-TW": "Traditional Chinese",
+      "ms": "Malay"
+    },
     "homePage": {
       "dashboard": "Dashboard",
       "projects": "Projects",
@@ -10253,7 +10788,8 @@
       "unknownGate": "Gate not named",
       "integrationReader": "Connected gate reader",
       "qrTitle": "Site access QR code",
-      "qrHelp": "Download and send this code. Scanning it opens the authenticated gate page with the pass ready."
+      "qrHelp": "Download and send this code. Scanning it opens the authenticated gate page with the pass ready.",
+      "deviceEvents": "Device events"
     },
     "passStatus": {
       "PENDING": "Pending review",
@@ -10332,7 +10868,41 @@
       "passCreated": "Access pass requested",
       "passReviewed": "Access decision saved",
       "passRevoked": "Access pass revoked",
-      "gateRecorded": "Gate movement recorded"
+      "gateRecorded": "Gate movement recorded",
+      "credentialRegistered": "External access credential registered",
+      "credentialRevoked": "External access credential revoked"
+    },
+    "deviceEvent": {
+      "result": "Result",
+      "allowed": "Allowed",
+      "denied": "Denied",
+      "empty": "No device events have been reported yet.",
+      "occurredAt": "Occurred",
+      "device": "Device",
+      "gate": "Gate",
+      "credential": "Credential",
+      "pass": "Pass",
+      "direction": "Direction",
+      "reason": "Reason"
+    },
+    "credential": {
+      "title": "External credentials",
+      "empty": "No external credentials are bound to this pass.",
+      "active": "Active",
+      "revoked": "Revoked",
+      "revoke": "Revoke credential",
+      "type": "Type",
+      "value": "Credential value",
+      "valuePlaceholder": "Plate number, card ID or subject ID",
+      "label": "Label",
+      "register": "Register"
+    },
+    "credentialType": {
+      "QR": "QR",
+      "ANPR": "Vehicle plate (ANPR)",
+      "RFID": "RFID card",
+      "FACE": "Face ID",
+      "VISITOR_ID": "Visitor ID"
     }
   },
   "userHandover": {
@@ -10345,7 +10915,10 @@
       "title": "Replace {name}",
       "description": "Choose or create the person taking over. The old account and all completed evidence remain unchanged."
     },
-    "mode": { "existing": "Existing user", "new": "New user" },
+    "mode": {
+      "existing": "Existing user",
+      "new": "New user"
+    },
     "field": {
       "incomingUser": "Person taking over",
       "chooseUser": "Choose a user",
@@ -10378,7 +10951,9 @@
       "loadError": "Handover records could not be loaded.",
       "empty": "No user handover has been recorded yet."
     },
-    "toast": { "completed": "User handover completed" }
+    "toast": {
+      "completed": "User handover completed"
+    }
   },
   "versions": {
     "title": "Version Management",
@@ -10421,6 +10996,14 @@
     "forceUpdateOn": "Force Update"
   },
   "recyclerBusiness": {
+    "liveDrivers": {
+      "title": "Live driver locations",
+      "count": "{count} active drivers",
+      "empty": "No active driver GPS positions yet.",
+      "unavailable": "Live driver locations are temporarily unavailable.",
+      "mapLabel": "Map of active recycler drivers",
+      "project": "Project geofence"
+    },
     "customers": {
       "title": "Recycler customers",
       "subtitle": "Keep platform customers separate from your own private customers, their QR codes and weighing intake.",
@@ -10483,36 +11066,139 @@
       "notIssued": "No customer QR yet",
       "notIssuedHelp": "Issue one before this customer arrives at the yard."
     },
-    "filter": { "all": "All" },
-    "source": { "PLATFORM": "Platform business", "PRIVATE": "Private customer" },
-    "status": { "active": "Active", "inactive": "Inactive" },
-    "intakeState": { "WAITING_WEIGHING": "Waiting for weighing", "COMPLETED": "Completed", "CANCELLED": "Cancelled" },
-    "outboundState": { "DRAFT": "Draft", "CONFIRMED": "Confirmed", "CANCELLED": "Cancelled" },
-    "movementKind": { "INBOUND": "Inbound weighing", "OUTBOUND": "Outbound shipment", "ADJUSTMENT": "Adjustment" },
-    "attachmentKind": { "DELIVERY_ORDER": "Delivery order", "E_INVOICE": "E-Invoice", "PHOTO": "Photo", "OTHER": "Other" },
-    "material": { "MIXED": "Mixed construction waste", "CONCRETE": "Concrete and masonry", "METAL": "Scrap metal", "TIMBER": "Timber", "PLASTIC": "Plastic", "PAPER": "Paper and cardboard", "SOIL": "Soil and aggregate", "HAZARDOUS": "Hazardous", "OTHER": "Other" },
+    "filter": {
+      "all": "All"
+    },
+    "source": {
+      "PLATFORM": "Platform business",
+      "PRIVATE": "Private customer"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "intakeState": {
+      "WAITING_WEIGHING": "Waiting for weighing",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "outboundState": {
+      "DRAFT": "Draft",
+      "CONFIRMED": "Confirmed",
+      "CANCELLED": "Cancelled"
+    },
+    "movementKind": {
+      "INBOUND": "Inbound weighing",
+      "OUTBOUND": "Outbound shipment",
+      "ADJUSTMENT": "Adjustment"
+    },
+    "attachmentKind": {
+      "DELIVERY_ORDER": "Delivery order",
+      "E_INVOICE": "E-Invoice",
+      "PHOTO": "Photo",
+      "OTHER": "Other"
+    },
+    "material": {
+      "MIXED": "Mixed construction waste",
+      "CONCRETE": "Concrete and masonry",
+      "METAL": "Scrap metal",
+      "TIMBER": "Timber",
+      "PLASTIC": "Plastic",
+      "PAPER": "Paper and cardboard",
+      "SOIL": "Soil and aggregate",
+      "HAZARDOUS": "Hazardous",
+      "OTHER": "Other"
+    },
     "action": {
-      "sync": "Sync platform customers", "addCustomer": "Add customer", "deactivate": "Deactivate", "activate": "Activate",
-      "download": "Download", "print": "Print", "disableQr": "Disable QR", "enableQr": "Enable QR", "reissue": "Regenerate", "issueQr": "Issue QR",
-      "scan": "Scan QR", "startIntake": "Start intake", "complete": "Complete", "cancelIntake": "Cancel intake",
-      "adjustInventory": "Adjust", "recordAdjustment": "Record adjustment", "confirmShipment": "Confirm", "newShipment": "New outbound", "cancelShipment": "Cancel outbound", "upload": "Upload", "addBuyer": "Add buyer"
+      "sync": "Sync platform customers",
+      "addCustomer": "Add customer",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "download": "Download",
+      "print": "Print",
+      "disableQr": "Disable QR",
+      "enableQr": "Enable QR",
+      "reissue": "Regenerate",
+      "issueQr": "Issue QR",
+      "scan": "Scan QR",
+      "startIntake": "Start intake",
+      "complete": "Complete",
+      "cancelIntake": "Cancel intake",
+      "adjustInventory": "Adjust",
+      "recordAdjustment": "Record adjustment",
+      "confirmShipment": "Confirm",
+      "newShipment": "New outbound",
+      "cancelShipment": "Cancel outbound",
+      "upload": "Upload",
+      "addBuyer": "Add buyer"
     },
     "field": {
-      "customerNo": "Customer no.", "companyName": "Company name", "source": "Business source", "totalWeight": "Total weight", "status": "Status",
-      "registrationNo": "Registration no.", "contactPerson": "Contact person", "phone": "Phone", "email": "Email", "address": "Address", "notes": "Notes",
-      "bankName": "Bank", "bankAccountName": "Account name", "bankAccountNo": "Account no.", "bankNotes": "Bank notes",
-      "serial": "QR serial", "scanCount": "Scans", "issuedOn": "Issued on", "intakeNo": "Intake no.", "customer": "Customer", "material": "Material",
-      "netWeight": "Net weight", "createdAt": "Created", "qrToken": "Customer QR", "yard": "Recycling yard", "vehiclePlate": "Vehicle plate", "weighSession": "Completed weighing",
-      "currentWeight": "Current weight", "lastMovement": "Last movement", "movementNo": "Movement no.", "type": "Type", "change": "Change", "balance": "Balance", "occurredAt": "Time",
-      "adjustmentWeight": "Adjustment (kg)", "reason": "Reason", "shipmentNo": "Outbound no.", "buyer": "Buyer", "weight": "Weight", "outboundDate": "Outbound date",
-      "driverName": "Driver", "eInvoiceNo": "E-Invoice no.", "description": "File description", "buyerNo": "Buyer no.", "shipmentCount": "Confirmed shipments"
+      "customerNo": "Customer no.",
+      "companyName": "Company name",
+      "source": "Business source",
+      "totalWeight": "Total weight",
+      "status": "Status",
+      "registrationNo": "Registration no.",
+      "contactPerson": "Contact person",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "notes": "Notes",
+      "bankName": "Bank",
+      "bankAccountName": "Account name",
+      "bankAccountNo": "Account no.",
+      "bankNotes": "Bank notes",
+      "serial": "QR serial",
+      "scanCount": "Scans",
+      "issuedOn": "Issued on",
+      "intakeNo": "Intake no.",
+      "customer": "Customer",
+      "material": "Material",
+      "netWeight": "Net weight",
+      "createdAt": "Created",
+      "qrToken": "Customer QR",
+      "yard": "Recycling yard",
+      "vehiclePlate": "Vehicle plate",
+      "weighSession": "Completed weighing",
+      "currentWeight": "Current weight",
+      "lastMovement": "Last movement",
+      "movementNo": "Movement no.",
+      "type": "Type",
+      "change": "Change",
+      "balance": "Balance",
+      "occurredAt": "Time",
+      "adjustmentWeight": "Adjustment (kg)",
+      "reason": "Reason",
+      "shipmentNo": "Outbound no.",
+      "buyer": "Buyer",
+      "weight": "Weight",
+      "outboundDate": "Outbound date",
+      "driverName": "Driver",
+      "eInvoiceNo": "E-Invoice no.",
+      "description": "File description",
+      "buyerNo": "Buyer no.",
+      "shipmentCount": "Confirmed shipments"
     },
     "toast": {
-      "customerCreated": "Private customer created.", "customerUpdated": "Private customer updated.", "customerStatusUpdated": "Customer status updated.", "customersSynced": "Platform customers synchronised.",
-      "qrIssued": "Customer QR issued.", "qrReissued": "Customer QR regenerated; the old code is invalid.", "qrStatusUpdated": "Customer QR status updated.",
-      "intakeStarted": "Private intake is ready for weighing.", "intakeCompleted": "Private intake completed and inventory added.", "intakeCancelled": "Private intake cancelled.",
-      "inventoryAdjusted": "Inventory adjustment recorded.", "buyerCreated": "Buyer created.", "buyerUpdated": "Buyer updated.", "buyerStatusUpdated": "Buyer status updated.",
-      "shipmentCreated": "Outbound draft created.", "shipmentUpdated": "Outbound draft updated.", "shipmentConfirmed": "Outbound confirmed and inventory deducted.", "shipmentCancelled": "Outbound draft cancelled.", "attachmentUploaded": "Supporting file uploaded."
+      "customerCreated": "Private customer created.",
+      "customerUpdated": "Private customer updated.",
+      "customerStatusUpdated": "Customer status updated.",
+      "customersSynced": "Platform customers synchronised.",
+      "qrIssued": "Customer QR issued.",
+      "qrReissued": "Customer QR regenerated; the old code is invalid.",
+      "qrStatusUpdated": "Customer QR status updated.",
+      "intakeStarted": "Private intake is ready for weighing.",
+      "intakeCompleted": "Private intake completed and inventory added.",
+      "intakeCancelled": "Private intake cancelled.",
+      "inventoryAdjusted": "Inventory adjustment recorded.",
+      "buyerCreated": "Buyer created.",
+      "buyerUpdated": "Buyer updated.",
+      "buyerStatusUpdated": "Buyer status updated.",
+      "shipmentCreated": "Outbound draft created.",
+      "shipmentUpdated": "Outbound draft updated.",
+      "shipmentConfirmed": "Outbound confirmed and inventory deducted.",
+      "shipmentCancelled": "Outbound draft cancelled.",
+      "attachmentUploaded": "Supporting file uploaded."
     }
   },
   "incidentReporting": {
@@ -10524,7 +11210,12 @@
     "noReports": "No reports yet",
     "project": "Project",
     "chooseProject": "Choose project",
-    "severity": "Severity",
+    "severity": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
     "severityLow": "Low",
     "severityMedium": "Medium",
     "severityHigh": "High",
@@ -10585,18 +11276,11 @@
       "reportedBy": "Reported by",
       "messagePlaceholder": "Add details, photos or updates"
     },
-    "chooseProjectFirst": "Choose a project first to select recipients",
     "loadingRecipients": "Loading project members...",
     "noRecipients": "No eligible project members are available.",
     "supervisor": "Supervisor",
     "reporter": "Reporter",
     "photoLabel": "Incident photo",
-    "severity": {
-      "LOW": "Low",
-      "MEDIUM": "Medium",
-      "HIGH": "High",
-      "CRITICAL": "Critical"
-    },
     "status": {
       "open": "Open",
       "resolved": "Resolved"

@@ -23,6 +23,12 @@ function createQueryClient() {
         // list should feel instant while the fresh page loads behind it.
         staleTime: 30_000,
         refetchOnWindowFocus: false,
+        // Run even when the browser knows it is offline. The default
+        // ("online") pauses the function itself, which silently disabled the
+        // whole offline layer: an offline-aware reader was never invoked, so
+        // it could not serve its IndexedDB snapshot, and a queued action's
+        // mutation sat paused instead of entering the offline queue.
+        networkMode: "always",
         retry: (failureCount, error) => {
           // Retrying an authorisation or validation failure just repeats it.
           // Only transient faults are worth a second attempt.
@@ -35,6 +41,10 @@ function createQueryClient() {
       },
       mutations: {
         retry: false,
+        // Same reason as queries: the offline-aware submit helpers decide
+        // for themselves what "offline" means, and they can only decide if
+        // they actually run.
+        networkMode: "always",
       },
     },
   });

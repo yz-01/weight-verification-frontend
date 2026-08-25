@@ -74,7 +74,7 @@ export interface ContractorSiteSettings {
   default_consultant_permissions: string[];
   date_format: "DD/MM/YYYY" | "MM/DD/YYYY" | "YYYY-MM-DD";
   time_format: "12H" | "24H";
-  language: "en" | "zh" | "ms";
+  language: "en" | "zh" | "zh-TW" | "ms";
   timezone: string;
   home_page: "/dashboard" | "/projects" | "/notifications" | "/field-staff";
   default_notification_channel: "IN_APP" | "PUSH";
@@ -98,6 +98,10 @@ export interface ContractorCompanyProfile {
   name: string;
   description: string;
   registration_no: string;
+  tax_id: string;
+  sst_no: string;
+  contact_person: string;
+  contact_designation: string;
   logo: string | null;
   address_line_1: string;
   address_line_2: string;
@@ -109,8 +113,9 @@ export interface ContractorCompanyProfile {
   longitude: string | null;
   contact_phone: string;
   contact_email: string;
+  billing_email: string;
   website: string;
-  default_language: "en" | "zh" | "ms";
+  default_language: "en" | "zh" | "zh-TW" | "ms";
   timezone: string;
   updated_at: string;
 }
@@ -204,4 +209,55 @@ export interface EmergencyPresence {
   gate_name: string;
   minutes_on_site: number;
   last_updated_at: string;
+}
+
+export type AccessCredentialType =
+  | "QR"
+  | "ANPR"
+  | "RFID"
+  | "FACE"
+  | "VISITOR_ID";
+
+export interface SiteAccessCredential {
+  id: string;
+  credential_type: AccessCredentialType;
+  identifier_hint: string;
+  label: string;
+  valid_from: string | null;
+  valid_until: string | null;
+  is_active: boolean;
+  revoked_at: string | null;
+  created_at: string;
+}
+
+export interface SiteAccessCredentialPayload {
+  credential_type: Exclude<AccessCredentialType, "QR">;
+  credential_value: string;
+  label?: string;
+  valid_from?: string | null;
+  valid_until?: string | null;
+}
+
+export interface ThirdPartyAccessEvent {
+  id: string;
+  project: string;
+  project_name: string;
+  device: string;
+  device_id: string;
+  access_pass: string | null;
+  pass_no: string | null;
+  site_access_event: string | null;
+  credential_type: AccessCredentialType;
+  recognition_result: string;
+  credential_hint: string;
+  direction: AccessDirection;
+  occurred_at: string;
+  received_at: string;
+  client_event_id: string;
+  gate_name: string;
+  latitude: string | null;
+  longitude: string | null;
+  verification_result: string;
+  reason_code: string;
+  payload_sha256: string;
 }

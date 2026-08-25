@@ -654,7 +654,7 @@ function ConsultantInviteDialog({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [jobTitle, setJobTitle] = useState("");
-  const [language, setLanguage] = useState<"en" | "zh" | "ms">("en");
+  const [language, setLanguage] = useState<"en" | "zh" | "zh-TW" | "ms">("en");
   const [invitationUrl, setInvitationUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const save = useMutation({

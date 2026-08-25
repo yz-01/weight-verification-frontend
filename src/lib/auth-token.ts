@@ -19,6 +19,9 @@ const REFRESH_KEY = "mse_refresh_token";
 const FIELD_ACCESS_KEY = "mse_field_access_token";
 const FIELD_REFRESH_KEY = "mse_field_refresh_token";
 const FIELD_APP_KEY = "mse_field_app_context";
+const DRIVER_ACCESS_KEY = "mse_driver_access_token";
+const DRIVER_REFRESH_KEY = "mse_driver_refresh_token";
+const DRIVER_APP_KEY = "mse_driver_app_context";
 const PORTAL_KEY = "mse_portal";
 const SESSION_COOKIE = "mse_session";
 const PORTAL_COOKIE = "mse_portal";
@@ -36,6 +39,12 @@ export function isFieldSessionPath(pathname?: string): boolean {
     path === "/trace/field-ready" ||
     path === "/field-pwa-bootstrap"
   );
+}
+
+export function isDriverSessionPath(pathname?: string): boolean {
+  if (!isBrowser() && pathname === undefined) return false;
+  const path = pathname ?? window.location.pathname;
+  return path === "/driver" || path.startsWith("/driver/");
 }
 
 export function isStandaloneApp(): boolean {
@@ -59,14 +68,33 @@ export function isFieldStandaloneApp(): boolean {
   );
 }
 
+export function markDriverAppContext(): void {
+  if (isBrowser() && isStandaloneApp()) {
+    window.localStorage.setItem(DRIVER_APP_KEY, "1");
+  }
+}
+
+export function isDriverStandaloneApp(): boolean {
+  return (
+    isStandaloneApp() && window.localStorage.getItem(DRIVER_APP_KEY) === "1"
+  );
+}
+
 export function isFieldSessionContext(pathname?: string): boolean {
   return isFieldSessionPath(pathname) || isFieldStandaloneApp();
+}
+
+export function isDriverSessionContext(pathname?: string): boolean {
+  return isDriverSessionPath(pathname) || isDriverStandaloneApp();
 }
 
 function tokenKeys() {
   if (isFieldSessionContext()) {
     migrateLegacyFieldSession();
     return { access: FIELD_ACCESS_KEY, refresh: FIELD_REFRESH_KEY };
+  }
+  if (isDriverSessionContext()) {
+    return { access: DRIVER_ACCESS_KEY, refresh: DRIVER_REFRESH_KEY };
   }
   return { access: ACCESS_KEY, refresh: REFRESH_KEY };
 }
@@ -122,7 +150,8 @@ export function clearTokens(): void {
   window.localStorage.removeItem(keys.refresh);
   if (
     window.localStorage.getItem(ACCESS_KEY) === null &&
-    window.localStorage.getItem(FIELD_ACCESS_KEY) === null
+    window.localStorage.getItem(FIELD_ACCESS_KEY) === null &&
+    window.localStorage.getItem(DRIVER_ACCESS_KEY) === null
   ) {
     deleteCookie(SESSION_COOKIE);
   }
@@ -139,7 +168,37 @@ export function clearFieldTokens(): void {
   if (!isBrowser()) return;
   window.localStorage.removeItem(FIELD_ACCESS_KEY);
   window.localStorage.removeItem(FIELD_REFRESH_KEY);
-  if (window.localStorage.getItem(ACCESS_KEY) === null) deleteCookie(SESSION_COOKIE);
+  if (
+    window.localStorage.getItem(ACCESS_KEY) === null &&
+    window.localStorage.getItem(DRIVER_ACCESS_KEY) === null
+  ) {
+    deleteCookie(SESSION_COOKIE);
+  }
+}
+
+export function setDriverTokens(tokens: { access: string; refresh: string }): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(DRIVER_ACCESS_KEY, tokens.access);
+  window.localStorage.setItem(DRIVER_REFRESH_KEY, tokens.refresh);
+  setCookie(SESSION_COOKIE, "1", 60 * 60 * 24 * 90);
+}
+
+export function clearDriverTokens(): void {
+  if (!isBrowser()) return;
+  window.localStorage.removeItem(DRIVER_ACCESS_KEY);
+  window.localStorage.removeItem(DRIVER_REFRESH_KEY);
+  if (
+    window.localStorage.getItem(ACCESS_KEY) === null &&
+    window.localStorage.getItem(FIELD_ACCESS_KEY) === null &&
+    window.localStorage.getItem(DRIVER_ACCESS_KEY) === null
+  ) {
+    deleteCookie(SESSION_COOKIE);
+  }
+}
+
+export function hasDriverSession(): boolean {
+  if (!isBrowser()) return false;
+  return window.localStorage.getItem(DRIVER_ACCESS_KEY) !== null;
 }
 
 export function hasFieldSession(): boolean {
@@ -171,6 +230,8 @@ export function clearSession(): void {
   window.localStorage.removeItem(REFRESH_KEY);
   window.localStorage.removeItem(FIELD_ACCESS_KEY);
   window.localStorage.removeItem(FIELD_REFRESH_KEY);
+  window.localStorage.removeItem(DRIVER_ACCESS_KEY);
+  window.localStorage.removeItem(DRIVER_REFRESH_KEY);
   deleteCookie(SESSION_COOKIE);
   window.localStorage.removeItem(PORTAL_KEY);
   deleteCookie(PORTAL_COOKIE);

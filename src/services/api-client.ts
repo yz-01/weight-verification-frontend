@@ -24,6 +24,7 @@ import {
   getAccessToken,
   getRefreshToken,
   getSessionPortal,
+  isDriverSessionContext,
   isFieldSessionContext,
   setTokens,
 } from "@/lib/auth-token";
@@ -108,7 +109,9 @@ function endSession(): void {
   clearTokens();
   const loginPath = isFieldSessionContext()
     ? "/trace/field-login"
-    : portalLoginPath(portal);
+    : isDriverSessionContext()
+      ? "/scrap/login"
+      : portalLoginPath(portal);
   if (typeof window !== "undefined" && window.location.pathname !== loginPath) {
     toast.error(t("auth.sessionExpired"));
     window.location.href = loginPath;

@@ -4,13 +4,17 @@ import type {
   ContractorCompanyProfile,
   ContractorSiteSettings,
   EmergencyPresence,
+  SiteAccessCredential,
+  SiteAccessCredentialPayload,
   SiteAccessEvent,
   SiteAccessPass,
   SiteAccessPassPayload,
+  ThirdPartyAccessEvent,
   SiteGeofence,
   SiteGeofencePayload,
   SiteLocationPolicy,
 } from "@/interfaces/site-access";
+import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 export const getSiteGeofences = (query: ListQuery = {}) =>
@@ -88,6 +92,35 @@ export async function updateContractorCompanyProfile(
   return row;
 }
 
+export const getOwnCompanyBankAccounts = () =>
+  api.list<CompanyBankAccount>(
+    "/api/contractor-site-settings/get_bank_accounts/",
+    { page_size: 100 },
+  );
+
+export const createOwnCompanyBankAccount = (payload: CompanyBankAccountPayload) =>
+  api.post<CompanyBankAccount>(
+    "/api/contractor-site-settings/create_bank_account/",
+    payload,
+  );
+
+export const updateOwnCompanyBankAccount = (
+  id: string,
+  payload: Partial<CompanyBankAccountPayload> & { is_active?: boolean },
+) =>
+  api.patch<CompanyBankAccount>(
+    `/api/contractor-site-settings/${id}/update_bank_account/`,
+    payload,
+  );
+
+export const setOwnPrimaryBankAccount = (id: string) =>
+  api.post<CompanyBankAccount>(
+    `/api/contractor-site-settings/${id}/set_primary_bank_account/`,
+  );
+
+export const deleteOwnCompanyBankAccount = (id: string) =>
+  api.delete(`/api/contractor-site-settings/${id}/delete_bank_account/`);
+
 export const getSiteAccessPasses = (query: ListQuery = {}) =>
   api.list<SiteAccessPass>("/api/site-access-passes/get_passes/", query);
 
@@ -151,3 +184,39 @@ export const exportEmergencyList = (project?: string) =>
     query: project ? { project } : undefined,
     fallbackFilename: "emergency-list.xlsx",
   });
+
+export const getSiteAccessCredentials = (passId: string) =>
+  api.get<SiteAccessCredential[]>(
+    `/api/site-access-passes/${passId}/get_credentials/`,
+  );
+
+export async function registerSiteAccessCredential(
+  passId: string,
+  payload: SiteAccessCredentialPayload,
+) {
+  const row = await api.post<SiteAccessCredential>(
+    `/api/site-access-passes/${passId}/register_credential/`,
+    payload,
+  );
+  toastSuccess("siteControl.toast.credentialRegistered");
+  return row;
+}
+
+export async function revokeSiteAccessCredential(
+  passId: string,
+  credentialId: string,
+  reason: string,
+) {
+  const row = await api.post<SiteAccessCredential>(
+    `/api/site-access-passes/${passId}/revoke_credential/`,
+    { credential: credentialId, reason },
+  );
+  toastSuccess("siteControl.toast.credentialRevoked");
+  return row;
+}
+
+export const getThirdPartyAccessEvents = (query: ListQuery = {}) =>
+  api.list<ThirdPartyAccessEvent>(
+    "/api/site-access-passes/get_third_party_events/",
+    query,
+  );

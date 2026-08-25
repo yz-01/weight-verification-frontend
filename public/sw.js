@@ -1,4 +1,24 @@
-const CACHE_NAME = "mse-trace-shell-v12";
+const CACHE_NAME = "mse-trace-shell-v14";
+
+// Route families whose navigations are cached for offline replay. Driver
+// pages are the PWA shell; the recycler set is the yard's daily working
+// surface. Weighing screens are deliberately absent — a cached weighing
+// console must never stand in for the live weighbridge.
+const OFFLINE_NAVIGATION_PREFIXES = [
+  "/driver",
+  "/incoming",
+  "/tasks",
+  "/drivers",
+  "/vehicles",
+  "/sites",
+  "/dashboard",
+];
+
+function isOfflineNavigation(pathname) {
+  return OFFLINE_NAVIGATION_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
 const PRECACHE = [
   "/offline",
   "/mse-icon.svg",
@@ -44,6 +64,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname === "/field-pwa-bootstrap" ||
     url.pathname === "/field-manifest.webmanifest"
     || url.pathname === "/manifest.webmanifest"
+    || url.pathname === "/driver-manifest.webmanifest"
     || url.pathname.startsWith("/brand-icon/")
   ) {
     event.respondWith(fetch(request, { cache: "no-store" }));
@@ -51,12 +72,13 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (request.mode === "navigate") {
+    const isCachedNavigation = isOfflineNavigation(url.pathname);
     const isDriverNavigation =
       url.pathname === "/driver" || url.pathname.startsWith("/driver/");
     event.respondWith(
       fetch(request, { cache: "no-store" })
         .then((response) => {
-          if (isDriverNavigation && response.ok) {
+          if (isCachedNavigation && response.ok) {
             const cachedResponse = response.clone();
             event.waitUntil(
               caches
@@ -67,9 +89,11 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(async () => {
-          if (isDriverNavigation) {
+          if (isCachedNavigation) {
             const exact = await caches.match(request, { ignoreSearch: true });
             if (exact) return exact;
+          }
+          if (isDriverNavigation) {
             const driverShell = await caches.match("/driver");
             if (driverShell) return driverShell;
           }

@@ -13,6 +13,8 @@
 # testing
 /coverage
 /.tmp/
+/.playwright-cli/
+/output/
 
 # next.js
 /.next/
@@ -43,3 +45,7 @@ next-env.d.ts
 
 # keep the template committed
 !.env.example
+
+# Playwright
+/playwright-report/
+/test-results/
