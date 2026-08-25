@@ -10788,7 +10788,8 @@
       "unknownGate": "Pintu tidak dinyatakan",
       "integrationReader": "Pembaca pintu bersambung",
       "qrTitle": "Kod QR akses tapak",
-      "qrHelp": "Muat turun dan hantar kod ini. Imbasan membuka halaman pintu yang telah dilog masuk."
+      "qrHelp": "Muat turun dan hantar kod ini. Imbasan membuka halaman pintu yang telah dilog masuk.",
+      "deviceEvents": "Acara peranti"
     },
     "passStatus": {
       "PENDING": "Menunggu semakan",
@@ -10867,7 +10868,41 @@
       "passCreated": "Pas akses dimohon",
       "passReviewed": "Keputusan akses disimpan",
       "passRevoked": "Pas akses dibatalkan",
-      "gateRecorded": "Pergerakan pintu direkod"
+      "gateRecorded": "Pergerakan pintu direkod",
+      "credentialRegistered": "Kelayakan akses luaran didaftarkan",
+      "credentialRevoked": "Kelayakan akses luaran dibatalkan"
+    },
+    "deviceEvent": {
+      "result": "Keputusan",
+      "allowed": "Dibenarkan",
+      "denied": "Ditolak",
+      "empty": "Belum ada acara yang dilaporkan oleh peranti.",
+      "occurredAt": "Masa berlaku",
+      "device": "Peranti",
+      "gate": "Pintu",
+      "credential": "Kelayakan",
+      "pass": "Pas",
+      "direction": "Arah",
+      "reason": "Sebab"
+    },
+    "credential": {
+      "title": "Kelayakan luaran",
+      "empty": "Tiada kelayakan luaran diikat pada pas ini.",
+      "active": "Aktif",
+      "revoked": "Dibatalkan",
+      "revoke": "Batalkan kelayakan",
+      "type": "Jenis",
+      "value": "Nilai kelayakan",
+      "valuePlaceholder": "No. plat, ID kad atau ID subjek",
+      "label": "Label",
+      "register": "Daftar"
+    },
+    "credentialType": {
+      "QR": "QR",
+      "ANPR": "Plat kenderaan (ANPR)",
+      "RFID": "Kad RFID",
+      "FACE": "Wajah",
+      "VISITOR_ID": "ID pelawat"
     }
   },
   "userHandover": {

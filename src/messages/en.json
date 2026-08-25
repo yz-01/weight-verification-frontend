@@ -10788,7 +10788,8 @@
       "unknownGate": "Gate not named",
       "integrationReader": "Connected gate reader",
       "qrTitle": "Site access QR code",
-      "qrHelp": "Download and send this code. Scanning it opens the authenticated gate page with the pass ready."
+      "qrHelp": "Download and send this code. Scanning it opens the authenticated gate page with the pass ready.",
+      "deviceEvents": "Device events"
     },
     "passStatus": {
       "PENDING": "Pending review",
@@ -10867,7 +10868,41 @@
       "passCreated": "Access pass requested",
       "passReviewed": "Access decision saved",
       "passRevoked": "Access pass revoked",
-      "gateRecorded": "Gate movement recorded"
+      "gateRecorded": "Gate movement recorded",
+      "credentialRegistered": "External access credential registered",
+      "credentialRevoked": "External access credential revoked"
+    },
+    "deviceEvent": {
+      "result": "Result",
+      "allowed": "Allowed",
+      "denied": "Denied",
+      "empty": "No device events have been reported yet.",
+      "occurredAt": "Occurred",
+      "device": "Device",
+      "gate": "Gate",
+      "credential": "Credential",
+      "pass": "Pass",
+      "direction": "Direction",
+      "reason": "Reason"
+    },
+    "credential": {
+      "title": "External credentials",
+      "empty": "No external credentials are bound to this pass.",
+      "active": "Active",
+      "revoked": "Revoked",
+      "revoke": "Revoke credential",
+      "type": "Type",
+      "value": "Credential value",
+      "valuePlaceholder": "Plate number, card ID or subject ID",
+      "label": "Label",
+      "register": "Register"
+    },
+    "credentialType": {
+      "QR": "QR",
+      "ANPR": "Vehicle plate (ANPR)",
+      "RFID": "RFID card",
+      "FACE": "Face ID",
+      "VISITOR_ID": "Visitor ID"
     }
   },
   "userHandover": {

@@ -10788,7 +10788,8 @@
       "unknownGate": "未註明門崗",
       "integrationReader": "已連接門禁設備",
       "qrTitle": "工地門禁二維碼",
-      "qrHelp": "下載併發送此二維碼。掃碼後會打開已登錄的門崗頁面並自動帶入門禁證。"
+      "qrHelp": "下載併發送此二維碼。掃碼後會打開已登錄的門崗頁面並自動帶入門禁證。",
+      "deviceEvents": "設備事件"
     },
     "passStatus": {
       "PENDING": "等待審批",
@@ -10867,7 +10868,41 @@
       "passCreated": "門禁證申請已提交",
       "passReviewed": "門禁審批結果已保存",
       "passRevoked": "門禁證已撤銷",
-      "gateRecorded": "門崗進出已記錄"
+      "gateRecorded": "門崗進出已記錄",
+      "credentialRegistered": "外部通行憑證已登記",
+      "credentialRevoked": "外部通行憑證已吊銷"
+    },
+    "deviceEvent": {
+      "result": "結果",
+      "allowed": "放行",
+      "denied": "拒絕",
+      "empty": "還沒有設備上報的進出事件。",
+      "occurredAt": "發生時間",
+      "device": "設備",
+      "gate": "門崗",
+      "credential": "憑證",
+      "pass": "通行證",
+      "direction": "方向",
+      "reason": "原因"
+    },
+    "credential": {
+      "title": "外部憑證",
+      "empty": "此通行證還沒有綁定外部憑證。",
+      "active": "生效中",
+      "revoked": "已吊銷",
+      "revoke": "吊銷憑證",
+      "type": "類型",
+      "value": "憑證值",
+      "valuePlaceholder": "車牌號、卡號或人員編號",
+      "label": "備註",
+      "register": "登記"
+    },
+    "credentialType": {
+      "QR": "二維碼",
+      "ANPR": "車牌 (ANPR)",
+      "RFID": "RFID 卡",
+      "FACE": "人臉",
+      "VISITOR_ID": "訪客編號"
     }
   },
   "userHandover": {

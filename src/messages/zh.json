@@ -10788,7 +10788,8 @@
       "unknownGate": "未注明门岗",
       "integrationReader": "已连接门禁设备",
       "qrTitle": "工地门禁二维码",
-      "qrHelp": "下载并发送此二维码。扫码后会打开已登录的门岗页面并自动带入门禁证。"
+      "qrHelp": "下载并发送此二维码。扫码后会打开已登录的门岗页面并自动带入门禁证。",
+      "deviceEvents": "设备事件"
     },
     "passStatus": {
       "PENDING": "等待审批",
@@ -10867,7 +10868,41 @@
       "passCreated": "门禁证申请已提交",
       "passReviewed": "门禁审批结果已保存",
       "passRevoked": "门禁证已撤销",
-      "gateRecorded": "门岗进出已记录"
+      "gateRecorded": "门岗进出已记录",
+      "credentialRegistered": "外部通行凭证已登记",
+      "credentialRevoked": "外部通行凭证已吊销"
+    },
+    "deviceEvent": {
+      "result": "结果",
+      "allowed": "放行",
+      "denied": "拒绝",
+      "empty": "还没有设备上报的进出事件。",
+      "occurredAt": "发生时间",
+      "device": "设备",
+      "gate": "门岗",
+      "credential": "凭证",
+      "pass": "通行证",
+      "direction": "方向",
+      "reason": "原因"
+    },
+    "credential": {
+      "title": "外部凭证",
+      "empty": "此通行证还没有绑定外部凭证。",
+      "active": "生效中",
+      "revoked": "已吊销",
+      "revoke": "吊销凭证",
+      "type": "类型",
+      "value": "凭证值",
+      "valuePlaceholder": "车牌号、卡号或人员编号",
+      "label": "备注",
+      "register": "登记"
+    },
+    "credentialType": {
+      "QR": "二维码",
+      "ANPR": "车牌 (ANPR)",
+      "RFID": "RFID 卡",
+      "FACE": "人脸",
+      "VISITOR_ID": "访客编号"
     }
   },
   "userHandover": {

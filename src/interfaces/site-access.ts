@@ -210,3 +210,54 @@ export interface EmergencyPresence {
   minutes_on_site: number;
   last_updated_at: string;
 }
+
+export type AccessCredentialType =
+  | "QR"
+  | "ANPR"
+  | "RFID"
+  | "FACE"
+  | "VISITOR_ID";
+
+export interface SiteAccessCredential {
+  id: string;
+  credential_type: AccessCredentialType;
+  identifier_hint: string;
+  label: string;
+  valid_from: string | null;
+  valid_until: string | null;
+  is_active: boolean;
+  revoked_at: string | null;
+  created_at: string;
+}
+
+export interface SiteAccessCredentialPayload {
+  credential_type: Exclude<AccessCredentialType, "QR">;
+  credential_value: string;
+  label?: string;
+  valid_from?: string | null;
+  valid_until?: string | null;
+}
+
+export interface ThirdPartyAccessEvent {
+  id: string;
+  project: string;
+  project_name: string;
+  device: string;
+  device_id: string;
+  access_pass: string | null;
+  pass_no: string | null;
+  site_access_event: string | null;
+  credential_type: AccessCredentialType;
+  recognition_result: string;
+  credential_hint: string;
+  direction: AccessDirection;
+  occurred_at: string;
+  received_at: string;
+  client_event_id: string;
+  gate_name: string;
+  latitude: string | null;
+  longitude: string | null;
+  verification_result: string;
+  reason_code: string;
+  payload_sha256: string;
+}

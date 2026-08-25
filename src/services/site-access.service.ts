@@ -4,9 +4,12 @@ import type {
   ContractorCompanyProfile,
   ContractorSiteSettings,
   EmergencyPresence,
+  SiteAccessCredential,
+  SiteAccessCredentialPayload,
   SiteAccessEvent,
   SiteAccessPass,
   SiteAccessPassPayload,
+  ThirdPartyAccessEvent,
   SiteGeofence,
   SiteGeofencePayload,
   SiteLocationPolicy,
@@ -181,3 +184,39 @@ export const exportEmergencyList = (project?: string) =>
     query: project ? { project } : undefined,
     fallbackFilename: "emergency-list.xlsx",
   });
+
+export const getSiteAccessCredentials = (passId: string) =>
+  api.get<SiteAccessCredential[]>(
+    `/api/site-access-passes/${passId}/get_credentials/`,
+  );
+
+export async function registerSiteAccessCredential(
+  passId: string,
+  payload: SiteAccessCredentialPayload,
+) {
+  const row = await api.post<SiteAccessCredential>(
+    `/api/site-access-passes/${passId}/register_credential/`,
+    payload,
+  );
+  toastSuccess("siteControl.toast.credentialRegistered");
+  return row;
+}
+
+export async function revokeSiteAccessCredential(
+  passId: string,
+  credentialId: string,
+  reason: string,
+) {
+  const row = await api.post<SiteAccessCredential>(
+    `/api/site-access-passes/${passId}/revoke_credential/`,
+    { credential: credentialId, reason },
+  );
+  toastSuccess("siteControl.toast.credentialRevoked");
+  return row;
+}
+
+export const getThirdPartyAccessEvents = (query: ListQuery = {}) =>
+  api.list<ThirdPartyAccessEvent>(
+    "/api/site-access-passes/get_third_party_events/",
+    query,
+  );
