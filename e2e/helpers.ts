@@ -1,4 +1,10 @@
-import { expect, type Page } from "@playwright/test";
+import {
+  expect,
+  type APIRequestContext,
+  type Page,
+} from "@playwright/test";
+
+export const API = "http://127.0.0.1:8199";
 
 /** Fixed credentials created by `backend manage.py seed_e2e`. */
 export const PASSWORD = "E2e-Pass-1234!";
@@ -60,4 +66,68 @@ export async function expectConsoleShell(page: Page): Promise<void> {
   await expect(page.locator('a[href="/dashboard"]').first()).toBeVisible({
     timeout: 20_000,
   });
+}
+
+export async function apiLogin(
+  request: APIRequestContext,
+  email: string,
+  portal: string,
+): Promise<string> {
+  const response = await request.post(`${API}/api/auth/login/`, {
+    data: { email, password: PASSWORD, portal },
+  });
+  expect(response.ok()).toBe(true);
+  return (await response.json()).data.tokens.access;
+}
+
+/**
+ * Raise and release a fresh load as the contractor, over the API. Returns
+ * its dispatch number. Business-flow tests use a fresh load each run so
+ * they stay repeatable without resetting the seeded fixture.
+ */
+export async function raiseReleasedDispatch(
+  request: APIRequestContext,
+): Promise<string> {
+  const token = await apiLogin(request, ACCOUNTS.contractor, "MSE_TRACE");
+  const headers = { Authorization: `Bearer ${token}` };
+
+  const projects = await request.get(
+    `${API}/api/projects/get_projects/?page_size=10`,
+    { headers },
+  );
+  expect(projects.ok()).toBe(true);
+  const project = (await projects.json()).data.results.find(
+    (row: { code: string }) => row.code === "P-E2E",
+  );
+  expect(project).toBeTruthy();
+
+  const recyclers = await request.get(
+    `${API}/api/dispatches/get_recyclers/?project=${project.id}`,
+    { headers },
+  );
+  expect(recyclers.ok()).toBe(true);
+  const recyclersBody = (await recyclers.json()).data;
+  const recycler = (recyclersBody.results ?? recyclersBody)[0];
+  expect(recycler).toBeTruthy();
+
+  const created = await request.post(`${API}/api/dispatches/create_dispatch/`, {
+    headers,
+    data: {
+      project: project.id,
+      recycler: recycler.id,
+      waste_type: "MIXED",
+      estimated_weight_kg: "1200.00",
+      vehicle_plate: "WFL 7001",
+      driver_name: "Flow Driver",
+    },
+  });
+  expect(created.status(), await created.text()).toBe(201);
+  const dispatch = (await created.json()).data;
+
+  const released = await request.post(
+    `${API}/api/dispatches/${dispatch.id}/release_dispatch/`,
+    { headers, data: { released_by_name: "Flow Clerk" } },
+  );
+  expect(released.status(), await released.text()).toBe(200);
+  return dispatch.dispatch_no as string;
 }

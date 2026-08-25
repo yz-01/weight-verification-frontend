@@ -104,7 +104,11 @@ async function requestBackgroundSync(): Promise<void> {
     return;
   }
   try {
-    const registration = await navigator.serviceWorker.ready;
+    // getRegistration, not `.ready`: `.ready` never resolves when no
+    // service worker is registered (dev unregisters it), and awaiting it
+    // here left every enqueue hanging with its dialog stuck on a spinner.
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) return;
     const syncRegistration = registration as ServiceWorkerRegistration & {
       sync?: { register: (tag: string) => Promise<void> };
     };
