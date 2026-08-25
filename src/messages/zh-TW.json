@@ -1190,7 +1190,15 @@
       "tapCamera": "按這裡打開相機",
       "photoReady": "已準備 {count} 張照片",
       "notes": "備註（選填）",
-      "submit": "保存材料記錄"
+      "submit": "保存材料記錄",
+      "ocrLowConfidence": "以下欄位識別置信度較低：{fields}。保存前請對照紙質單據核對。",
+      "ocrField": {
+        "delivery_note_no": "送貨單號",
+        "vehicle_plate": "車牌",
+        "supplier_name": "供應商",
+        "material_name": "材料",
+        "quantity": "數量"
+      }
     },
     "materialEvidence": {
       "title": "必須拍攝的材料證據",
@@ -2010,6 +2018,8 @@
       "provisioningTitle": "設備連接資料",
       "provisioningDescription": "請把這些一次性資料交給安裝人員。關閉此窗口後，系統不會再次顯示設備密鑰。",
       "heartbeatUrl": "心跳上報網址",
+      "accessEventUrl": "門禁事件上報地址",
+      "gateEventUrl": "地磅門崗事件上報地址",
       "recordId": "平臺設備記錄 ID",
       "deviceHeader": "設備身份 Header",
       "signatureHeader": "簽名 Header",
@@ -2024,6 +2034,10 @@
       "API_GATEWAY": "API Gateway",
       "CCTV": "CCTV",
       "ANPR": "ANPR",
+      "ACCESS_CONTROL": "門禁控制",
+      "RFID": "RFID",
+      "FACE_RECOGNITION": "人臉識別",
+      "VISITOR_MANAGEMENT": "訪客管理",
       "IOT": "IoT",
       "AI": "AI",
       "DRONE": "無人機",

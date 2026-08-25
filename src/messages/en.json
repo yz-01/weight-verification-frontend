@@ -1190,7 +1190,15 @@
       "tapCamera": "Tap to open camera",
       "photoReady": "{count} photo(s) ready",
       "notes": "Notes (optional)",
-      "submit": "Save material record"
+      "submit": "Save material record",
+      "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
+      "ocrField": {
+        "delivery_note_no": "delivery note no.",
+        "vehicle_plate": "vehicle plate",
+        "supplier_name": "supplier",
+        "material_name": "material",
+        "quantity": "quantity"
+      }
     },
     "materialEvidence": {
       "title": "Required material photo evidence",
@@ -2010,6 +2018,8 @@
       "provisioningTitle": "Device connection details",
       "provisioningDescription": "Give these one-time credentials to the installer. The secret is not shown again after this window closes.",
       "heartbeatUrl": "Heartbeat URL",
+      "accessEventUrl": "Access event URL",
+      "gateEventUrl": "Weighing gate event URL",
       "recordId": "Platform device record ID",
       "deviceHeader": "Device identity header",
       "signatureHeader": "Signature header",
@@ -2024,6 +2034,10 @@
       "API_GATEWAY": "API Gateway",
       "CCTV": "CCTV",
       "ANPR": "ANPR",
+      "ACCESS_CONTROL": "Access Control",
+      "RFID": "RFID",
+      "FACE_RECOGNITION": "Face Recognition",
+      "VISITOR_MANAGEMENT": "Visitor Management",
       "IOT": "IoT",
       "AI": "AI",
       "DRONE": "Drone",

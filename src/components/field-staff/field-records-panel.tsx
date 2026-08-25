@@ -342,7 +342,16 @@ function MaterialCapturePanel({
       readDeliveryNote(project, image),
     onSuccess: (result) => {
       setOcrProof(result.proof);
-      setOcrMessage(t("material.ocrReady"));
+      const doubtful = result.low_confidence_fields ?? [];
+      setOcrMessage(
+        doubtful.length > 0
+          ? t("material.ocrLowConfidence", {
+              fields: doubtful
+                .map((field) => t(`material.ocrField.${field}`))
+                .join(", "),
+            })
+          : t("material.ocrReady"),
+      );
       setDraft((old) => ({
         ...old,
         deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,

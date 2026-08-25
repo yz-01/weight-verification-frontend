@@ -1190,7 +1190,15 @@
       "tapCamera": "Tekan untuk buka kamera",
       "photoReady": "{count} foto sedia",
       "notes": "Catatan (pilihan)",
-      "submit": "Simpan rekod bahan"
+      "submit": "Simpan rekod bahan",
+      "ocrLowConfidence": "Dibaca dengan keyakinan rendah: {fields}. Semak dengan dokumen kertas sebelum menyimpan.",
+      "ocrField": {
+        "delivery_note_no": "no. nota penghantaran",
+        "vehicle_plate": "plat kenderaan",
+        "supplier_name": "pembekal",
+        "material_name": "bahan",
+        "quantity": "kuantiti"
+      }
     },
     "materialEvidence": {
       "title": "Bukti foto bahan wajib",
@@ -2010,6 +2018,8 @@
       "provisioningTitle": "Butiran sambungan peranti",
       "provisioningDescription": "Berikan butiran sekali ini kepada pemasang. Rahsia tidak akan dipaparkan lagi selepas tetingkap ditutup.",
       "heartbeatUrl": "URL degupan",
+      "accessEventUrl": "URL acara akses",
+      "gateEventUrl": "URL acara pintu penimbang",
       "recordId": "ID rekod peranti platform",
       "deviceHeader": "Header identiti peranti",
       "signatureHeader": "Header tandatangan",
@@ -2024,6 +2034,10 @@
       "API_GATEWAY": "API Gateway",
       "CCTV": "CCTV",
       "ANPR": "ANPR",
+      "ACCESS_CONTROL": "Kawalan Akses",
+      "RFID": "RFID",
+      "FACE_RECOGNITION": "Pengecaman Wajah",
+      "VISITOR_MANAGEMENT": "Pengurusan Pelawat",
       "IOT": "IoT",
       "AI": "AI",
       "DRONE": "Dron",

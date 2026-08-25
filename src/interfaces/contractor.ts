@@ -315,17 +315,21 @@ export interface MaterialReceiptPayload {
   ocr_proof?: string;
 }
 
+export type DeliveryNoteOCRField =
+  | "delivery_note_no"
+  | "vehicle_plate"
+  | "supplier_name"
+  | "material_name"
+  | "quantity";
+
 export interface DeliveryNoteOCRResult {
   status: "SUCCEEDED";
   provider: "AZURE_DOCUMENT_INTELLIGENCE";
   content: string;
-  suggestions: Partial<{
-    delivery_note_no: string;
-    vehicle_plate: string;
-    supplier_name: string;
-    material_name: string;
-    quantity: string;
-  }>;
+  suggestions: Partial<Record<DeliveryNoteOCRField, string>>;
+  confidence: Partial<Record<DeliveryNoteOCRField, number>>;
+  low_confidence_fields: DeliveryNoteOCRField[];
+  confidence_threshold: number;
   proof: string;
 }
 
