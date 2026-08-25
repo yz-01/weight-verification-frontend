@@ -11,10 +11,12 @@
 
 name: E2E
 
+# push-only: release PRs go develop → deploy, so the push run on develop
+# already covers the PR's head commit and its check lands on the same SHA.
+# A pull_request trigger would run the identical suite a second time.
 on:
   push:
     branches: [develop, deploy]
-  pull_request:
 
 jobs:
   e2e:

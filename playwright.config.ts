@@ -58,7 +58,7 @@ export default defineConfig({
       cwd: BACKEND_DIR,
       url: `http://127.0.0.1:${BACKEND_PORT}/health`,
       reuseExistingServer: !process.env.CI,
-      timeout: 180_000,
+      timeout: 300_000,
       env: {
         ...process.env,
         POSTGRES_DB: process.env.E2E_POSTGRES_DB ?? "weightverification_e2e",
@@ -70,7 +70,7 @@ export default defineConfig({
       command: `npx next dev -p ${FRONTEND_PORT}`,
       url: `http://localhost:${FRONTEND_PORT}`,
       reuseExistingServer: !process.env.CI,
-      timeout: 180_000,
+      timeout: 300_000,
       env: {
         ...process.env,
         NEXT_PUBLIC_API_BASE_URL: `http://127.0.0.1:${BACKEND_PORT}`,
