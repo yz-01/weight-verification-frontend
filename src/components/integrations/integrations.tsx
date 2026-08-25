@@ -64,6 +64,10 @@ const KINDS: IntegrationKind[] = [
   "API_GATEWAY",
   "CCTV",
   "ANPR",
+  "ACCESS_CONTROL",
+  "RFID",
+  "FACE_RECOGNITION",
+  "VISITOR_MANAGEMENT",
   "IOT",
   "AI",
   "DRONE",
@@ -922,6 +926,18 @@ function DeviceProvisioningDialog({
             label={t("integrations.device.heartbeatUrl")}
             value={provisioning.heartbeat_url}
           />
+          {provisioning.access_event_url && (
+            <ProvisioningValue
+              label={t("integrations.device.accessEventUrl")}
+              value={provisioning.access_event_url}
+            />
+          )}
+          {provisioning.gate_event_url && (
+            <ProvisioningValue
+              label={t("integrations.device.gateEventUrl")}
+              value={provisioning.gate_event_url}
+            />
+          )}
           <ProvisioningValue
             label={t("integrations.device.recordId")}
             value={provisioning.device_record_id}
