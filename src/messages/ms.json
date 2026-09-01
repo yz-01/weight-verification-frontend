@@ -1198,6 +1198,11 @@
         "supplier_name": "pembekal",
         "material_name": "bahan",
         "quantity": "kuantiti"
+      },
+      "ocrItems": {
+        "title": "Bahan dibaca dari nota",
+        "confirmHint": "Semak dengan dokumen kertas",
+        "unclassified": "Pilih kategori"
       }
     },
     "materialEvidence": {

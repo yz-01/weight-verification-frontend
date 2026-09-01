@@ -1198,6 +1198,11 @@
         "supplier_name": "供应商",
         "material_name": "材料",
         "quantity": "数量"
+      },
+      "ocrItems": {
+        "title": "从送货单读到的物料",
+        "confirmHint": "请对照纸质单核对",
+        "unclassified": "选择栏目"
       }
     },
     "materialEvidence": {
