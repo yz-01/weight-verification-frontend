@@ -18,7 +18,7 @@ export function BrandIcon({
     // platform-default, then built-in fallback order.
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={versionedBrandIconUrl(branding, "/mse-icon.svg")}
+      src={versionedBrandIconUrl(branding, "/mse-icon-192.png")}
       alt={alt}
       className={cn("size-full object-contain", className)}
       draggable={false}
