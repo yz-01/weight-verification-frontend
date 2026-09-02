@@ -57,6 +57,7 @@ import { ApiError } from "@/interfaces/api";
 import type { FieldTask } from "@/interfaces/contractor-ops";
 import {
   MATERIAL_UNITS,
+  type DeliveryNoteOCRLineItem,
   type MaterialUnit,
   type SupplierQRCode,
 } from "@/interfaces/contractor";
@@ -276,6 +277,7 @@ function MaterialCapturePanel({
   const [scannerOpen, setScannerOpen] = useState(false);
   const [ocrProof, setOcrProof] = useState("");
   const [ocrMessage, setOcrMessage] = useState("");
+  const [ocrLineItems, setOcrLineItems] = useState<DeliveryNoteOCRLineItem[]>([]);
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
@@ -342,6 +344,8 @@ function MaterialCapturePanel({
       readDeliveryNote(project, image),
     onSuccess: (result) => {
       setOcrProof(result.proof);
+      const items = result.line_items ?? [];
+      setOcrLineItems(items);
       const doubtful = result.low_confidence_fields ?? [];
       setOcrMessage(
         doubtful.length > 0
@@ -356,12 +360,21 @@ function MaterialCapturePanel({
         ...old,
         deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,
         vehiclePlate: result.suggestions.vehicle_plate || old.vehiclePlate,
-        materialName: result.suggestions.material_name || old.materialName,
-        quantity: numericSuggestion(result.suggestions.quantity) || old.quantity,
+        // With a line-item table, prefill from its first row; otherwise fall
+        // back to the single-field suggestion.
+        materialName:
+          items[0]?.material_name ||
+          result.suggestions.material_name ||
+          old.materialName,
+        quantity:
+          numericSuggestion(items[0]?.quantity) ||
+          numericSuggestion(result.suggestions.quantity) ||
+          old.quantity,
       }));
     },
     onError: (reason) => {
       setOcrProof("");
+      setOcrLineItems([]);
       setOcrMessage(
         reason instanceof ApiError ? reason.message : t("material.ocrManual"),
       );
@@ -371,6 +384,7 @@ function MaterialCapturePanel({
   function inspectDeliveryNote(image?: File) {
     setOcrProof("");
     setOcrMessage("");
+    setOcrLineItems([]);
     if (!image) return;
     if (!draft.project) {
       setOcrMessage(t("material.ocrChooseProject"));
@@ -486,6 +500,7 @@ function MaterialCapturePanel({
           onValueChange={(project) => {
             setScannedQr(undefined);
             setOcrProof("");
+            setOcrLineItems([]);
             setMaterialEvidence(createEmptyFieldEvidence());
             setDraft((old) => ({ ...old, project }));
           }}
@@ -597,6 +612,44 @@ function MaterialCapturePanel({
         <p className={`rounded-lg px-3 py-2 text-sm ${ocrProof ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
           {ocr.isPending ? t("material.ocrReading") : ocrMessage}
         </p>
+      )}
+      {ocrLineItems.length > 0 && (
+        <div className="rounded-lg border">
+          <div className="flex items-center justify-between border-b bg-muted/40 px-3 py-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("material.ocrItems.title")}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {t("material.ocrItems.confirmHint")}
+            </span>
+          </div>
+          <ul className="divide-y">
+            {ocrLineItems.map((item, index) => (
+              <li key={index} className="flex items-start gap-2 px-3 py-2">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
+                    {item.material_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {item.quantity}
+                    {item.unit ? ` ${item.unit}` : ""}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                    item.classified
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {item.classified
+                    ? item.category_name
+                    : t("material.ocrItems.unclassified")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} value={receiverSignature} onChange={setReceiverSignature} />

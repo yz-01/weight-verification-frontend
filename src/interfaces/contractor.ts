@@ -322,14 +322,24 @@ export type DeliveryNoteOCRField =
   | "material_name"
   | "quantity";
 
+export interface DeliveryNoteOCRLineItem {
+  material_name: string;
+  quantity: string;
+  unit: string;
+  category_code: string;
+  category_name: string;
+  classified: boolean;
+}
+
 export interface DeliveryNoteOCRResult {
   status: "SUCCEEDED";
-  provider: "AZURE_DOCUMENT_INTELLIGENCE";
+  provider: string;
   content: string;
   suggestions: Partial<Record<DeliveryNoteOCRField, string>>;
   confidence: Partial<Record<DeliveryNoteOCRField, number>>;
   low_confidence_fields: DeliveryNoteOCRField[];
   confidence_threshold: number;
+  line_items: DeliveryNoteOCRLineItem[];
   proof: string;
 }
 

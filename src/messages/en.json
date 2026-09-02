@@ -1198,6 +1198,11 @@
         "supplier_name": "supplier",
         "material_name": "material",
         "quantity": "quantity"
+      },
+      "ocrItems": {
+        "title": "Materials read from the note",
+        "confirmHint": "Check against the paper",
+        "unclassified": "Pick category"
       }
     },
     "materialEvidence": {
