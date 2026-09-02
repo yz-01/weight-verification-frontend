@@ -32,11 +32,25 @@ jobs:
       - name: Check translation messages
         run: npm run check:messages
 
+      # A variable the code reads but `.env.example` does not list is a variable
+      # that will be missing in Vercel, and nothing fails loudly when it is —
+      # the code just takes its fallback. That is how the backend ran for months
+      # with dead push notifications and silently disabled OCR.
+      - name: Check environment variable parity
+        run: npm run check:env
+
       - name: Lint
         run: npm run lint
 
       - name: Typecheck
         run: npm run typecheck
+
+      # Types and a successful build say nothing about runtime behaviour. The
+      # realtime hook decides how long to wait after the server refuses a stream
+      # and which events mean the screen is stale — both are wrong silently, and
+      # both were wrong until recently.
+      - name: Test
+        run: npm run test
 
       # Last, and unconditionally: this is the same command Vercel runs, so a
       # failure here is a failure there.

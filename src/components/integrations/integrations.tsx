@@ -6,6 +6,8 @@ import {
   Check,
   CircleHelp,
   History,
+  Activity,
+  Pencil,
   Plus,
   RefreshCw,
   TestTube2,
@@ -35,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CompanyType } from "@/interfaces/company";
 import type {
+  DeviceTelemetry,
   IntegrationConfig,
   IntegrationDelivery,
   IntegrationDevice,
@@ -48,10 +51,13 @@ import {
   createIntegrationDevice,
   deleteIntegration,
   deleteIntegrationDevice,
+  getDeviceTelemetry,
   getIntegrationDevices,
   getIntegrationDeliveries,
+  getIntegrationEventCatalogue,
   getIntegrations,
   testIntegration,
+  updateIntegrationDevice,
   updateIntegration,
 } from "@/services/integration.service";
 import { getScales, getSites } from "@/services/weighing.service";
@@ -64,6 +70,10 @@ const KINDS: IntegrationKind[] = [
   "API_GATEWAY",
   "CCTV",
   "ANPR",
+  "ACCESS_CONTROL",
+  "RFID",
+  "FACE_RECOGNITION",
+  "VISITOR_MANAGEMENT",
   "IOT",
   "AI",
   "DRONE",
@@ -71,6 +81,144 @@ const KINDS: IntegrationKind[] = [
   "RF",
   "WEBHOOK",
 ];
+
+/**
+ * Which way the data moves, and which kinds share one pipe.
+ *
+ * An audit asked whether seventeen integration types were seventeen features.
+ * Mostly they are three shared, audited pipes with seventeen filing labels -
+ * a sound design that was invisible on this screen, so "there is a DRONE
+ * option" read as "there is drone-specific functionality". These two tables
+ * are what let the screen say otherwise. They mirror
+ * `integrations/catalogue.py`, and a backend test fails if they drift.
+ */
+const OUTBOUND_KINDS: IntegrationKind[] = [
+  "ERP",
+  "ACCOUNTING",
+  "MYINVOIS",
+  "GOVERNMENT_API",
+  "WEBHOOK",
+  "API_GATEWAY",
+];
+
+const SHARED_CHANNEL: Partial<Record<IntegrationKind, "TELEMETRY" | "ACCESS">> =
+  {
+    IOT: "TELEMETRY",
+    AI: "TELEMETRY",
+    DRONE: "TELEMETRY",
+    TOWER_CRANE: "TELEMETRY",
+    RF: "TELEMETRY",
+    ANPR: "ACCESS",
+    ACCESS_CONTROL: "ACCESS",
+    RFID: "ACCESS",
+    FACE_RECOGNITION: "ACCESS",
+    VISITOR_MANAGEMENT: "ACCESS",
+  };
+
+function directionOf(kind: IntegrationKind) {
+  if (kind === "API_GATEWAY") return "BOTH";
+  return OUTBOUND_KINDS.includes(kind) ? "OUTBOUND" : "INBOUND";
+}
+
+/** What this is for, in words the person choosing it can check. */
+function KindHelp({ kind }: { kind: IntegrationKind }) {
+  const t = useTranslations();
+  const channel = SHARED_CHANNEL[kind];
+  return (
+    <div className="space-y-2 rounded-md border bg-muted/20 px-3 py-2.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-semibold text-foreground">
+          {t(`integrations.kindHelp.${kind}.title`)}
+        </span>
+        <TypeBadge
+          label={t(`integrations.kindHelp.direction.${directionOf(kind)}`)}
+        />
+      </div>
+      <p className="text-xs leading-5 text-muted-foreground">
+        {t(`integrations.kindHelp.${kind}.what`)}
+      </p>
+      <p className="text-xs leading-5 text-muted-foreground">
+        <span className="font-medium text-foreground">
+          {t("integrations.kindHelp.needsLabel")}
+        </span>{" "}
+        {t(`integrations.kindHelp.${kind}.needs`)}
+      </p>
+      {channel && (
+        <p className="rounded border-l-2 border-info/40 bg-info/5 px-2 py-1.5 text-xs leading-5 text-muted-foreground">
+          <span className="font-medium text-foreground">
+            {t("integrations.sharedChannelTitle")}
+          </span>{" "}
+          {t(`integrations.kindHelp.channel.${channel}`)}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Which business events this connection is sent.
+ *
+ * Ticking nothing is allowed and is called out loudly, because an enabled
+ * connection subscribed to nothing is exactly the failure this whole screen
+ * came from: it looks configured, it tests green, and it never sends a byte.
+ */
+function EventPicker({
+  available,
+  selected,
+  onChange,
+  disabled,
+}: {
+  available: string[];
+  selected: string[];
+  onChange: (next: string[]) => void;
+  disabled?: boolean;
+}) {
+  const t = useTranslations();
+  if (available.length === 0) return null;
+  const toggle = (name: string) =>
+    onChange(
+      selected.includes(name)
+        ? selected.filter((item) => item !== name)
+        : [...selected, name],
+    );
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-foreground">
+        {t("integrations.eventsTitle")}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {t("integrations.eventsHelp")}
+      </p>
+      <ul className="space-y-1.5">
+        {available.map((name) => (
+          <li key={name} className="flex items-start gap-2">
+            <input
+              id={`event-${name}`}
+              type="checkbox"
+              className="mt-1 h-4 w-4 rounded border"
+              checked={selected.includes(name)}
+              disabled={disabled}
+              onChange={() => toggle(name)}
+            />
+            <label htmlFor={`event-${name}`} className="cursor-pointer text-sm">
+              <span className="font-medium text-foreground">
+                {t(`integrations.event.${name}.title`)}
+              </span>
+              <span className="block text-xs leading-5 text-muted-foreground">
+                {t(`integrations.event.${name}.what`)}
+              </span>
+            </label>
+          </li>
+        ))}
+      </ul>
+      {selected.length === 0 && (
+        <p className="rounded-md bg-warning/12 px-3 py-2 text-xs font-medium text-warning">
+          {t("integrations.noEventsSelected")}
+        </p>
+      )}
+    </div>
+  );
+}
 
 const AUTH_TYPES = ["NONE", "API_KEY", "BEARER", "BASIC", "OAUTH2"];
 
@@ -98,9 +246,31 @@ export function Integrations() {
   const [baseUrl, setBaseUrl] = useState("");
   const [authType, setAuthType] = useState("NONE");
   const [mode, setMode] = useState<"SIMULATED" | "LIVE">("SIMULATED");
+  // Left null until the operator touches it: null means "whatever the server
+  // says this kind should have", which is what create does when nothing is
+  // sent. Once they tick or untick anything, their choice is what goes.
+  const [events, setEvents] = useState<string[] | null>(null);
+
+  // Which events this kind may be sent is the server's decision, fetched
+  // rather than restated here: a second copy of that table in the console is
+  // how a checkbox appears for something nothing would ever send.
+  const eventCatalogue = useQuery({
+    queryKey: ["integration-event-catalogue"],
+    queryFn: getIntegrationEventCatalogue,
+  });
+  const availableEvents = useMemo(
+    () =>
+      (eventCatalogue.data ?? [])
+        .filter((row) => row.kinds.includes(kind))
+        .map((row) => row.event_type),
+    [eventCatalogue.data, kind],
+  );
   const [secret, setSecret] = useState("");
   const [device, setDevice] =
     useState<IntegrationDevicePayload>(DEFAULT_DEVICE);
+  const [editingDevice, setEditingDevice] = useState<IntegrationDevice | null>(
+    null,
+  );
   const [removingDevice, setRemovingDevice] =
     useState<IntegrationDevice | null>(null);
   const [removingIntegration, setRemovingIntegration] =
@@ -108,6 +278,8 @@ export function Integrations() {
   const [historyIntegration, setHistoryIntegration] =
     useState<IntegrationConfig | null>(null);
   const [provisionedDevice, setProvisionedDevice] =
+    useState<IntegrationDevice | null>(null);
+  const [telemetryDevice, setTelemetryDevice] =
     useState<IntegrationDevice | null>(null);
 
   const companies = useQuery({
@@ -176,6 +348,7 @@ export function Integrations() {
           auth_type: authType.trim() || "NONE",
           secret,
           settings: { mode },
+          ...(events === null ? {} : { subscribed_events: events }),
           is_enabled: false,
         },
         user?.is_platform_staff ? selectedCompany : undefined,
@@ -417,6 +590,9 @@ export function Integrations() {
                 ))}
               </select>
             </Field>
+            <div className="md:col-span-2 xl:col-span-3">
+              <KindHelp kind={kind} />
+            </div>
             <Field label={t("integrations.field.name")}>
               <Input
                 value={name}
@@ -467,19 +643,35 @@ export function Integrations() {
               />
             </Field>
           </div>
+          {directionOf(kind) !== "INBOUND" && (
+            <EventPicker
+              available={availableEvents}
+              selected={events ?? availableEvents}
+              onChange={setEvents}
+            />
+          )}
           <p className="rounded-md border bg-muted/20 px-3 py-2 text-xs leading-5 text-muted-foreground">
             {t("integrations.guide.description")}
           </p>
           <Button
-            disabled={!name.trim() || (mode === "LIVE" && !baseUrl.trim()) || create.isPending}
+            disabled={
+              !name.trim() ||
+              (mode === "LIVE" && !baseUrl.trim()) ||
+              create.isPending
+            }
             onClick={() => void create.mutateAsync()}
           >
             <Check className="h-4 w-4" />
             {t("integrations.action.create")}
           </Button>
           {create.isError && (
-            <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-              {create.error instanceof Error ? create.error.message : t("common.unknownError")}
+            <p
+              role="alert"
+              className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+            >
+              {create.error instanceof Error
+                ? create.error.message
+                : t("common.unknownError")}
             </p>
           )}
         </section>
@@ -811,6 +1003,28 @@ export function Integrations() {
                     }
                     tone={item.is_online ? "positive" : "neutral"}
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    title={t("integrations.telemetry.open")}
+                    aria-label={t("integrations.telemetry.open")}
+                    onClick={() => setTelemetryDevice(item)}
+                  >
+                    <Activity className="h-4 w-4" />
+                  </Button>
+                  {canManageHardware && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      title={t("integrations.device.editTitle")}
+                      aria-label={t("integrations.device.editTitle")}
+                      onClick={() => setEditingDevice(item)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  )}
                   {canManageHardware && (
                     <Button
                       type="button"
@@ -837,6 +1051,25 @@ export function Integrations() {
             ))}
           </div>
         </section>
+      )}
+
+      {editingDevice && (
+        <DeviceEditDialog
+          device={editingDevice}
+          companyType={selectedCompanyType}
+          company={user?.is_platform_staff ? selectedCompany : undefined}
+          integrationOptions={integrationOptions}
+          projectOptions={projectOptions}
+          siteOptions={siteOptions}
+          scaleOptions={scaleOptions}
+          onClose={() => setEditingDevice(null)}
+          onSaved={() => {
+            setEditingDevice(null);
+            void queryClient.invalidateQueries({
+              queryKey: ["integration-devices"],
+            });
+          }}
+        />
       )}
 
       {removingDevice && (
@@ -882,7 +1115,202 @@ export function Integrations() {
           onClose={() => setProvisionedDevice(null)}
         />
       )}
+      {telemetryDevice && (
+        <DeviceTelemetryDialog
+          device={telemetryDevice}
+          onClose={() => setTelemetryDevice(null)}
+        />
+      )}
     </div>
+  );
+}
+
+/** What a device row can honestly be edited into. */
+interface Option {
+  value: string;
+  label: string;
+}
+
+/**
+ * Correcting a registered device, and rotating its key.
+ *
+ * The id and the type are shown but fixed: they are the identity the unit
+ * signs its requests with, and editing either would leave a device that looks
+ * configured and is rejected on every call. Everything offered here is
+ * something that genuinely changes in the field - a unit moved to another
+ * weighbridge, new firmware, or a key that has to be replaced because someone
+ * left. Until now the console could only register and delete, so any of those
+ * meant deleting the device and losing its history with it (F-101).
+ */
+function DeviceEditDialog({
+  device,
+  companyType,
+  company,
+  integrationOptions,
+  projectOptions,
+  siteOptions,
+  scaleOptions,
+  onClose,
+  onSaved,
+}: {
+  device: IntegrationDevice;
+  companyType: CompanyType | null;
+  company?: string;
+  integrationOptions: Option[];
+  projectOptions: Option[];
+  siteOptions: Option[];
+  scaleOptions: Option[];
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations();
+  const [integration, setIntegration] = useState(device.integration ?? "");
+  const [project, setProject] = useState(device.project ?? "");
+  const [site, setSite] = useState(device.site ?? "");
+  const [scale, setScale] = useState(device.scale ?? "");
+  const [firmware, setFirmware] = useState(device.firmware_version ?? "");
+  const [isActive, setIsActive] = useState(device.is_active);
+  const [secret, setSecret] = useState("");
+
+  const save = useMutation({
+    mutationFn: () =>
+      updateIntegrationDevice(
+        device.id,
+        {
+          integration: integration || null,
+          project: companyType === "CONTRACTOR" ? project || null : null,
+          site: companyType === "RECYCLER" ? site || null : null,
+          scale: companyType === "RECYCLER" ? scale || null : null,
+          firmware_version: firmware.trim(),
+          is_active: isActive,
+          // An empty box means "leave the key alone", not "clear the key".
+          ...(secret ? { secret } : {}),
+        },
+        company,
+      ),
+    onSuccess: onSaved,
+  });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("integrations.device.editTitle")}</DialogTitle>
+          <DialogDescription>
+            {device.device_type} / {device.device_id}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-3">
+          <Field label={t("integrations.device.integration")}>
+            <select
+              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              value={integration}
+              onChange={(event) => setIntegration(event.target.value)}
+            >
+              <option value="">{t("integrations.device.unlinked")}</option>
+              {integrationOptions.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          {companyType === "CONTRACTOR" && (
+            <Field label={t("integrations.device.project")}>
+              <select
+                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                value={project}
+                onChange={(event) => setProject(event.target.value)}
+              >
+                <option value="">{t("integrations.device.unlinked")}</option>
+                {projectOptions.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+
+          {companyType === "RECYCLER" && (
+            <>
+              <Field label={t("integrations.device.site")}>
+                <select
+                  className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                  value={site}
+                  onChange={(event) => {
+                    setSite(event.target.value);
+                    setScale("");
+                  }}
+                >
+                  <option value="">{t("integrations.device.unlinked")}</option>
+                  {siteOptions.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label={t("integrations.device.scale")}>
+                <select
+                  className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                  value={scale}
+                  onChange={(event) => setScale(event.target.value)}
+                >
+                  <option value="">{t("integrations.device.unlinked")}</option>
+                  {scaleOptions.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </>
+          )}
+
+          <Field label={t("integrations.device.firmware")}>
+            <Input
+              value={firmware}
+              onChange={(event) => setFirmware(event.target.value)}
+            />
+          </Field>
+
+          <Field label={t("integrations.device.rotateSecret")}>
+            <Input
+              type="password"
+              value={secret}
+              onChange={(event) => setSecret(event.target.value)}
+              placeholder={t("integrations.device.rotateSecretPlaceholder")}
+            />
+          </Field>
+          <p className="text-xs text-muted-foreground">
+            {t("integrations.device.rotateSecretHelp")}
+          </p>
+
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border"
+              checked={isActive}
+              onChange={(event) => setIsActive(event.target.checked)}
+            />
+            {t("integrations.device.active")}
+          </label>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("common.cancel")}
+          </Button>
+          <Button disabled={save.isPending} onClick={() => save.mutate()}>
+            <Check className="h-4 w-4" />
+            {t("common.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -1058,6 +1486,102 @@ function IntegrationHistoryDialog({
             ))
           )}
         </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * What one device has actually reported.
+ *
+ * The online badge on the row above answers "is it reachable". This answers
+ * "is it still saying anything", which is the failure a heartbeat cannot show:
+ * a crane controller can heartbeat happily for a week while its telemetry feed
+ * has been dead since a firmware update, and the only way to notice is to look
+ * at what arrived and when.
+ *
+ * A load failure is rendered as a load failure and never as an empty list.
+ * "This device has reported nothing" and "we could not ask" lead to opposite
+ * actions, and showing the first when the second is true sends someone to a
+ * site to check hardware that is working.
+ */
+function DeviceTelemetryDialog({
+  device,
+  onClose,
+}: {
+  device: IntegrationDevice;
+  onClose: () => void;
+}) {
+  const t = useTranslations();
+  const telemetry = useQuery({
+    queryKey: ["device-telemetry", device.id],
+    queryFn: () =>
+      getDeviceTelemetry(device.id, {
+        page_size: 50,
+        sort_by: "observed_at",
+        sort_order: "desc",
+      }),
+  });
+  const rows: DeviceTelemetry[] = telemetry.data?.results ?? [];
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>
+            {t("integrations.telemetry.title", { name: device.device_id })}
+          </DialogTitle>
+          <DialogDescription>
+            {t("integrations.telemetry.description")}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[60vh] divide-y overflow-y-auto rounded-lg border bg-card shadow-sm">
+          {telemetry.isLoading ? (
+            <p className="px-3 py-8 text-center text-muted-foreground">
+              {t("common.loading")}
+            </p>
+          ) : telemetry.isError ? (
+            <p className="px-3 py-8 text-center text-destructive">
+              {t("integrations.telemetry.loadError")}
+            </p>
+          ) : rows.length === 0 ? (
+            <p className="px-3 py-8 text-center text-muted-foreground">
+              {t("integrations.telemetry.empty")}
+            </p>
+          ) : (
+            rows.map((row) => (
+              <div
+                key={row.id}
+                className="grid gap-2 px-3 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-center"
+              >
+                <StatusBadge
+                  label={t(`integrations.telemetry.kind.${row.kind}`)}
+                  tone={
+                    row.kind === "ALERT"
+                      ? "danger"
+                      : row.kind === "EVENT"
+                        ? "info"
+                        : "neutral"
+                  }
+                />
+                <div className="min-w-0">
+                  <p className="truncate font-mono text-sm">{row.metric}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(row.observed_at).toLocaleString()}
+                  </p>
+                </div>
+                <span className="text-right text-sm tabular-nums">
+                  {row.value === null
+                    ? t("common.emptyValue")
+                    : `${row.value}${row.unit ? ` ${row.unit}` : ""}`}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {t("integrations.telemetry.boundary")}
+        </p>
       </DialogContent>
     </Dialog>
   );

@@ -391,3 +391,51 @@ export interface AdminDashboardData {
     commission_revenue: AdminDashboardTrendPoint[];
   };
 }
+
+/** A recurring background job the platform runs for itself. */
+export interface ScheduledJob {
+  id: string;
+  company: string | null;
+  code: string;
+  name: string;
+  kind: string;
+  handler: string;
+  payload: Record<string, unknown>;
+  interval_minutes: number | null;
+  next_run_at: string;
+  is_active: boolean;
+  max_attempts: number;
+  retry_delay_seconds: number;
+  last_run_at: string | null;
+  last_run_state: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** One execution of a job, including its retry state and error. */
+export interface JobRun {
+  id: string;
+  job: string | null;
+  job_code: string | null;
+  company: string | null;
+  company_name: string | null;
+  handler: string;
+  state: "QUEUED" | "RUNNING" | "RETRY_WAIT" | "SUCCEEDED" | "FAILED" | "CANCELLED";
+  attempt: number;
+  max_attempts: number;
+  scheduled_for: string;
+  available_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  worker_id: string;
+  result: Record<string, unknown>;
+  error: string;
+  correlation_id: string;
+}
+
+/** Background worker health, as the monitoring page shows it. */
+export interface WorkerStatusSummary {
+  total: number;
+  active: number;
+  stale: number;
+}

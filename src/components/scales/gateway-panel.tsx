@@ -31,7 +31,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { GatewayDevice } from "@/interfaces/weighing";
-import type { GatewayInstallerManifest } from "@/interfaces/weighing";
+import type {
+  GatewayDtuBlock,
+  GatewayInstallerManifest,
+} from "@/interfaces/weighing";
 import {
   createGateway,
   getGateways,
@@ -58,6 +61,9 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
   const [deviceId, setDeviceId] = useState("");
   const [revealed, setRevealed] = useState<string | null>(null);
   const [manifest, setManifest] = useState<GatewayInstallerManifest | null>(null);
+  // Only set by rotation. A freshly registered gateway carries its DTU block
+  // inside the manifest, so showing both would repeat the same panel twice.
+  const [dtu, setDtu] = useState<GatewayDtuBlock | null>(null);
   const [rotating, setRotating] = useState<GatewayDevice | null>(null);
   const [revoking, setRevoking] = useState<GatewayDevice | null>(null);
   const [reason, setReason] = useState("");
@@ -86,6 +92,11 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
       setRotating(null);
       setReason("");
       setRevealed(result.secret);
+      // The registration token rotated with the secret, so a DTU installation
+      // needs reconfiguring on the device itself. Showing only the new secret
+      // would leave the field engineer reconnecting with a token that no
+      // longer resolves, and nothing on screen would have said so.
+      setDtu(result.dtu);
     },
   });
   const revocation = useMutation({
@@ -248,6 +259,28 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
         onClose={() => setManifest(null)}
       />
 
+      {revealed === null && manifest === null && dtu !== null && (
+        <Dialog open onOpenChange={(next) => !next && setDtu(null)}>
+          <DialogContent className="sm:max-w-[640px]">
+            <DialogHeader>
+              <DialogTitle>{t("gateways.dtu.rotatedTitle")}</DialogTitle>
+              <DialogDescription>
+                {t("gateways.dtu.rotatedBody")}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[24rem] overflow-auto">
+              <DtuPanel dtu={dtu} />
+            </div>
+            <DialogFooter>
+              <Button type="button" onClick={() => setDtu(null)}>
+                <Check className="h-4 w-4" />
+                {t("common.close")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
       {rotating && (
         <ConfirmDialog
           open
@@ -314,9 +347,12 @@ function ManifestDialog({
           <DialogTitle>{t("gateways.manifestTitle")}</DialogTitle>
           <DialogDescription>{t("gateways.manifestBody")}</DialogDescription>
         </DialogHeader>
-        <pre className="max-h-[24rem] overflow-auto rounded-md border bg-muted/40 p-3 text-xs">
-          {JSON.stringify({ ...manifest, auth: { ...manifest.auth, secret: "[shown above]" } }, null, 2)}
-        </pre>
+        <div className="max-h-[24rem] space-y-4 overflow-auto">
+          <DtuPanel dtu={manifest.dtu} />
+          <pre className="overflow-auto rounded-md border bg-muted/40 p-3 text-xs">
+            {JSON.stringify({ ...manifest, auth: { ...manifest.auth, secret: "[shown above]" } }, null, 2)}
+          </pre>
+        </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => void copy()}>
             <Copy className="h-4 w-4" />
@@ -329,6 +365,123 @@ function ManifestDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * The DTU half of an installation, laid out to be worked through in order.
+ *
+ * An installer in a weighbridge hut has a laptop, a serial cable and no
+ * context. Handing them the manifest JSON and expecting them to derive which
+ * AT command carries which field is how devices end up half-configured — so
+ * the indicator settings, the wiring and the commands are set out as steps.
+ *
+ * The limitations are shown here rather than filed in a document, because this
+ * is the moment someone decides whether a transparent DTU is good enough for
+ * this yard, and they are the reason it might not be.
+ */
+function DtuPanel({ dtu }: { dtu: GatewayDtuBlock | undefined }) {
+  const t = useTranslations();
+  const [copied, setCopied] = useState(false);
+
+  if (!dtu) return null;
+
+  const commands = dtu.at_commands.join("\n");
+
+  async function copyCommands() {
+    await navigator.clipboard.writeText(commands);
+    setCopied(true);
+  }
+
+  return (
+    <section className="space-y-3 rounded-md border p-3">
+      <div className="flex items-center gap-2">
+        <RadioTower className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {t("gateways.dtu.title")}
+        </h4>
+      </div>
+
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+        <dt className="text-muted-foreground">{t("gateways.dtu.host")}</dt>
+        <dd className="break-all font-mono">
+          {dtu.collector_host || t("gateways.dtu.hostUnset")}
+        </dd>
+        <dt className="text-muted-foreground">{t("gateways.dtu.port")}</dt>
+        <dd className="font-mono">{dtu.collector_port}</dd>
+        <dt className="text-muted-foreground">{t("gateways.dtu.enrolToken")}</dt>
+        <dd className="break-all font-mono">{dtu.enrol_token}</dd>
+      </dl>
+
+      {dtu.indicator && (
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium">
+            {t("gateways.dtu.indicatorStep", { model: dtu.indicator.model })}
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <tbody>
+                {dtu.indicator.settings.map((setting) => (
+                  <tr key={setting.code} className="border-b last:border-0">
+                    <td className="py-1 pr-3 font-mono">{setting.code}</td>
+                    <td className="py-1 pr-3 font-mono">{setting.value}</td>
+                    <td className="py-1 text-muted-foreground">{setting.means}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-muted-foreground">{dtu.indicator.wiring}</p>
+        </div>
+      )}
+
+      {dtu.at_commands.length > 0 && (
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-medium">{t("gateways.dtu.atStep")}</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 shrink-0 rounded-full px-3 text-xs"
+              onClick={() => void copyCommands()}
+            >
+              {copied ? (
+                <Check className="h-3.5 w-3.5 text-success" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
+              {copied ? t("common.copied") : t("common.copy")}
+            </Button>
+          </div>
+          <pre className="overflow-x-auto rounded-md border bg-muted/40 p-2 text-xs">
+            {commands}
+          </pre>
+          {dtu.at_note && (
+            <p className="text-xs text-muted-foreground">{dtu.at_note}</p>
+          )}
+        </div>
+      )}
+
+      {dtu.note && (
+        <p className="flex gap-2 text-xs text-muted-foreground">
+          <TriangleAlert className="h-3.5 w-3.5 shrink-0 text-warning" />
+          {dtu.note}
+        </p>
+      )}
+
+      <div className="space-y-1 rounded-md border border-warning/40 bg-warning/5 p-2">
+        <p className="flex items-center gap-1.5 text-xs font-medium">
+          <TriangleAlert className="h-3.5 w-3.5 shrink-0 text-warning" />
+          {t("gateways.dtu.limitationsTitle")}
+        </p>
+        <ul className="list-disc space-y-0.5 pl-6 text-xs text-muted-foreground">
+          {dtu.limitations.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 

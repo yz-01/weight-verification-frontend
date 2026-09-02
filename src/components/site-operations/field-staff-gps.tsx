@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { WorkforcePresencePanel } from "@/components/site-operations/workforce-presence-panel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -319,6 +320,10 @@ export function FieldStaffGps({
 
   return (
     <div className="space-y-5">
+      {/* 15.2.3 asks for the headcount before it asks for the map. */}
+      {can("field_position.view") && (
+        <WorkforcePresencePanel projectId={tab === "live" ? projectId : historyProjectId} />
+      )}
       <ListHeader
         title={t("siteGps.title")}
         subtitle={

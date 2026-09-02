@@ -44,6 +44,10 @@ export interface ConsultantWorkflow {
   is_default: boolean;
   is_active: boolean;
   steps: ConsultantWorkflowStep[];
+  /** Something has been filed here, so the project and type are fixed. */
+  has_applications: boolean;
+  /** Something has been submitted, so the approval route is part of the record. */
+  steps_locked: boolean;
   created_at: string;
   updated_at: string;
 }

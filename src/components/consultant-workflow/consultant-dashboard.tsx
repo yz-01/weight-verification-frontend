@@ -43,7 +43,11 @@ export function ConsultantDashboard() {
   });
   const notifications = useQuery({
     queryKey: ["consultant-dashboard", "notifications"],
-    queryFn: () => getNotifications({ page_size: 5, sort_by: "-created_at" }),
+    queryFn: () => getNotifications({
+        page_size: 5,
+        sort_by: "created_at",
+        sort_order: "desc",
+      }),
     refetchInterval: 30_000,
   });
 

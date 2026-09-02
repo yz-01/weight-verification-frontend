@@ -276,6 +276,23 @@ export interface MaterialReceipt {
 
 export interface MaterialReceiptDetail extends MaterialReceipt {
   qr_code: string | null;
+  /**
+   * The receipt this one corrects, when it is a correction.
+   *
+   * Carried through to the screen because a corrected figure with nothing
+   * saying what it replaced, and why, is the part of the trail a dispute
+   * actually asks for.
+   */
+  supersedes?: string | null;
+  correction_reason?: string;
+  /**
+   * The correction that replaced this receipt, when one exists.
+   *
+   * A superseded receipt stays readable by id but leaves the list and the
+   * totals, so an old link would otherwise open a receipt that looks entirely
+   * current while its figures have been corrected away.
+   */
+  superseded_by?: { id: string; receipt_no: string } | null;
   delivery_note_no: string;
   notes: string;
   signature: string | null;
@@ -395,6 +412,9 @@ export const DISPATCH_STATES: DispatchState[] = [
   "SETTLED",
   "CANCELLED",
 ];
+
+/** What a dispatch photograph is evidence of. */
+export type DispatchPhotoKind = "LOADING" | "VEHICLE" | "PLATE" | "OTHER";
 
 export interface DispatchPhoto {
   id: string;

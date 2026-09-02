@@ -1,14 +1,13 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, MapPin, Pencil, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
 import { ListHeader, TypeBadge } from "@/components/shared/page-primitives";
@@ -17,7 +16,6 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { MATERIAL_UNITS, type MaterialReceipt } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import {
-  deleteReceipt,
   getReceipts,
   exportReceipts,
   type ExportFormat,
@@ -27,21 +25,11 @@ export function Receipts() {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
-  const queryClient = useQueryClient();
   const list = useListQuery(["project", "supplier", "unit"]);
-  const [removing, setRemoving] = useState<MaterialReceipt | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["receipts", list.query],
     queryFn: () => getReceipts(list.query),
-  });
-
-  const removal = useMutation({
-    mutationFn: (id: string) => deleteReceipt(id),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["receipts"] });
-      setRemoving(null);
-    },
   });
 
   const columns = useMemo<ColumnDef<MaterialReceipt, unknown>[]>(
@@ -184,29 +172,24 @@ export function Receipts() {
                 <Eye className="h-3.5 w-3.5" />
               </Link>
             </Button>
+            {/*
+              No bin. A filed receipt is evidence and the backend has always
+              refused to delete one - the button that used to sit here promised
+              the row would leave the material totals and returned 409 every
+              time it was pressed (F-129). Correcting supersedes instead.
+            */}
             {can("receipt.update") && (
-              <>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-info hover:bg-info/10"
-                  title={t("common.edit")}
-                >
-                  <Link href={`/receipts/${row.original.id}/edit`}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                  title={t("common.remove")}
-                  onClick={() => setRemoving(row.original)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </>
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-info hover:bg-info/10"
+                title={t("receipts.editTitle")}
+              >
+                <Link href={`/receipts/${row.original.id}/edit`}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
             )}
           </div>
         ),
@@ -296,18 +279,6 @@ export function Receipts() {
         onClearFilters={list.clearFilters}
       />
 
-      {removing && (
-        <ConfirmDialog
-          open
-          onOpenChange={() => setRemoving(null)}
-          title={t("receipts.remove.title", { name: removing.receipt_no })}
-          description={t("receipts.remove.description")}
-          confirmLabel={t("receipts.remove.confirm")}
-          confirmIcon={Trash2}
-          isPending={removal.isPending}
-          onConfirm={() => removal.mutate(removing.id)}
-        />
-      )}
     </div>
   );
 }

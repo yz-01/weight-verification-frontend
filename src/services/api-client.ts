@@ -130,13 +130,21 @@ async function send(path: string, options: RequestOptions): Promise<Response> {
   }
 
   let payload: BodyInit | undefined;
+  const offlineCreatedAt = currentOfflineCreatedAt;
   if (body instanceof FormData) {
+    if (offlineCreatedAt && !body.has("offline_created_at")) {
+      body.append("offline_created_at", offlineCreatedAt);
+    }
     // Let the browser set the multipart boundary. Setting Content-Type here
     // would produce a header with no boundary and the upload would fail.
     payload = body;
   } else if (body !== undefined) {
     headers["Content-Type"] = "application/json";
-    payload = JSON.stringify(body);
+    const stamped =
+      offlineCreatedAt && body !== null && typeof body === "object" && !Array.isArray(body)
+        ? { offline_created_at: offlineCreatedAt, ...(body as object) }
+        : body;
+    payload = JSON.stringify(stamped);
   }
 
   return fetch(buildUrl(path, query), { method, headers, body: payload, signal });
@@ -315,6 +323,34 @@ function resolveMessage(code: string, serverMessage: string): string {
 }
 
 /**
+ * DRF codes whose catalogue wording replaces the server's sentence.
+ *
+ * These are failures of a field's *shape*, and the server's English for them
+ * is boilerplate it generated itself — "This field is required." carries
+ * nothing the reader's own language would not carry better.
+ *
+ * `invalid` is deliberately not here, and it is the important one. DRF uses it
+ * as the catch-all for every hand-written `ValidationError("...")` in the
+ * backend, and those sentences are the only place the reason lives: which
+ * driver, which trip already has them, what to do about it. Wording them from
+ * the catalogue replaced all of it with "This value is not valid" under the
+ * field — which is what a dispatcher saw while trying to work out why the
+ * lorry would not go out.
+ */
+const CATALOGUE_WINS = new Set([
+  "required",
+  "blank",
+  "null",
+  "unique",
+  "max_length",
+  "min_length",
+  "max_value",
+  "min_value",
+  "invalid_choice",
+  "does_not_exist",
+]);
+
+/**
  * Word each field's failure, keeping only the first per field.
  *
  * A form shows one message under an input, so the rest would never be read.
@@ -330,13 +366,52 @@ function translateFieldErrors(
     if (first === undefined) continue;
     if (typeof first === "string") {
       result[field] = first;
-    } else {
-      const key = `errors.field.${first.code}`;
-      const translated = t(key);
-      result[field] = translated === key ? first.message : translated;
+      continue;
     }
+
+    const key = `errors.field.${first.code}`;
+    const translated = t(key);
+    const catalogue = translated === key ? "" : translated;
+
+    // Outside the structural set the server's sentence is the specific one, so
+    // it wins; the catalogue stays as the fallback for a failure that arrived
+    // with no message at all.
+    result[field] = CATALOGUE_WINS.has(first.code)
+      ? catalogue || first.message
+      : first.message || catalogue;
   }
   return result;
+}
+
+/**
+ * The offline queue's provenance stamp, in force for the current replay.
+ *
+ * A record created on a device and uploaded hours later, and one typed in
+ * minutes ago about that morning, arrive at the server looking identical —
+ * same occurrence time, same upload time. The queue has always known which is
+ * which; this is what carries that knowledge across.
+ *
+ * Ambient rather than a parameter because the replay reaches the server through
+ * fourteen different service functions, several of which build their own
+ * FormData. Threading an argument through all of them would leave a new offline
+ * path silently unstamped the day it is added, which is exactly the failure
+ * this is fixing. The replay loop is strictly sequential — one job is awaited
+ * before the next begins — so there is no request this could attach to by
+ * accident.
+ */
+let currentOfflineCreatedAt: string | null = null;
+
+export async function withOfflineProvenance<T>(
+  createdAt: string,
+  run: () => Promise<T>,
+): Promise<T> {
+  const previous = currentOfflineCreatedAt;
+  currentOfflineCreatedAt = createdAt;
+  try {
+    return await run();
+  } finally {
+    currentOfflineCreatedAt = previous;
+  }
 }
 
 /** Convenience wrappers. */

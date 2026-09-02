@@ -44,6 +44,7 @@ import type {
   WeighSessionAttachment,
 } from "@/interfaces/weighing";
 import { useDateFormat } from "@/lib/dates";
+import { getDeviceMedia } from "@/services/integration.service";
 import {
   getSessionTrace,
   getWeighSession,
@@ -454,6 +455,8 @@ export function ViewWeighSession({ id }: { id: string }) {
                 ))}
               </div>
             )}
+
+            <DeviceMediaList sessionId={id} />
           </section>
 
           <section className="px-6 py-5">
@@ -585,6 +588,76 @@ export function ViewWeighSession({ id }: { id: string }) {
         reasonLabel={t("weighing.confirmDialog.reasonLabel")}
         onConfirm={() => voidMutation.mutate()}
       />
+    </div>
+  );
+}
+
+
+/**
+ * What the cameras sent for this weighing, beside what the operator uploaded.
+ *
+ * Kept visually separate from the operator's own attachments because the two
+ * are worth different amounts. A photograph an operator chose and uploaded is
+ * a photograph an operator chose; one a camera pushed at the moment of the
+ * weighing, hashed on arrival, is evidence. Merging them into one list would
+ * quietly level that difference.
+ */
+function DeviceMediaList({ sessionId }: { sessionId: string }) {
+  const t = useTranslations();
+  const df = useDateFormat();
+  const media = useQuery({
+    queryKey: ["device-media", "weighsession", sessionId],
+    queryFn: () => getDeviceMedia("weighing.weighsession", sessionId),
+  });
+
+  const rows = media.data?.results ?? [];
+  if (media.isLoading || rows.length === 0) return null;
+
+  return (
+    <div className="mt-4 space-y-2">
+      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("weighing.deviceMedia.title")}
+      </h4>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {rows.map((row) => {
+          const label = `${t(`weighing.deviceMedia.kind.${row.kind}`)} · ${row.device_name}`;
+          const inner = (
+            <>
+              <span className="min-w-0 truncate">{label}</span>
+              <span className="shrink-0 text-xs text-muted-foreground">
+                {df.precise(row.captured_at)}
+              </span>
+            </>
+          );
+          // A purged record is not a broken link. The bytes went on schedule;
+          // the hash and the fact of them did not, and saying so is a better
+          // answer than an empty space.
+          if (row.is_purged || !row.file_url) {
+            return (
+              <div
+                key={row.id}
+                className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-dashed px-3 py-2 text-sm text-muted-foreground"
+                title={t("weighing.deviceMedia.purgedHint", {
+                  hash: row.sha256.slice(0, 12),
+                })}
+              >
+                {inner}
+              </div>
+            );
+          }
+          return (
+            <a
+              key={row.id}
+              href={row.file_url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm hover:bg-muted/50"
+            >
+              {inner}
+            </a>
+          );
+        })}
+      </div>
     </div>
   );
 }

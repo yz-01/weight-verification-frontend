@@ -65,6 +65,7 @@ import {
   getSuppliers,
   readDeliveryNote,
   scanQRCode,
+  scanSupplierQr,
 } from "@/services/contractor.service";
 import {
   submitConsultantSubmissionOfflineAware,
@@ -310,16 +311,41 @@ function MaterialCapturePanel({
     [dockets.data, draft.project, draft.supplier, scannedQr],
   );
 
+  /*
+    Two different codes get printed on a site and a clerk cannot tell them
+    apart by looking. A *docket* names one delivery and brings the project and
+    the supplier with it; a *supplier* code is the company's own card and names
+    only the supplier. Only the first was ever resolved, so scanning the second
+    said "this code is not valid" - which reads as a broken sticker rather than
+    the wrong lookup, and there is no way for the person holding the phone to
+    tell the difference (F-101).
+
+    So: try the docket, and on a miss try the supplier before giving up. The
+    supplier fills itself in and the project stays for the clerk to pick,
+    because a supplier code genuinely does not know which site it is on.
+  */
   const qrScan = useMutation({
-    mutationFn: scanQRCode,
-    onSuccess: (code) => {
-      setScannedQr(code);
-      setDraft((old) => ({
-        ...old,
-        project: code.project,
-        supplier: code.supplier,
-      }));
+    mutationFn: async (token: string) => {
+      try {
+        return { kind: "DOCKET" as const, code: await scanQRCode(token) };
+      } catch (reason) {
+        if (!(reason instanceof ApiError) || reason.status !== 404) throw reason;
+        return { kind: "SUPPLIER" as const, supplier: await scanSupplierQr(token) };
+      }
+    },
+    onSuccess: (result) => {
       setError("");
+      if (result.kind === "DOCKET") {
+        setScannedQr(result.code);
+        setDraft((old) => ({
+          ...old,
+          project: result.code.project,
+          supplier: result.code.supplier,
+        }));
+        return;
+      }
+      setScannedQr(undefined);
+      setDraft((old) => ({ ...old, supplier: result.supplier.id }));
     },
     onError: (reason) => setError(
       reason instanceof ApiError ? reason.message : t("material.qrInvalid"),

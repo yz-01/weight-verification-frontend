@@ -13,17 +13,21 @@ import type {
   MaterialReceipt,
   MaterialReceiptDetail,
   MaterialReceiptPayload,
+  PhotoKind,
   Project,
   ProjectAssignment,
   ProjectPayload,
   ProjectStatistics,
   ProjectStatisticsPeriod,
+  ReceiptPhoto,
   ReceiptSummary,
   RecyclerOption,
   Supplier,
   SupplierPayload,
   SupplierQRCode,
   DeliveryNoteOCRResult,
+  DispatchPhoto,
+  DispatchPhotoKind,
   DeliveryNote,
   DeliveryNotePublic,
   WasteDispatch,
@@ -346,6 +350,23 @@ export function scanQRCode(token: string): Promise<SupplierQRCode> {
   });
 }
 
+/**
+ * Resolve a supplier's own printed QR code.
+ *
+ * Two different codes get printed on a site. A *docket* names one delivery and
+ * carries the project and the supplier with it; a *supplier* code is the
+ * company's own card and names only the supplier. The scanner understood the
+ * first and answered "not recognised" to the second, which reads as a broken
+ * code rather than the wrong lookup (F-101).
+ */
+export function scanSupplierQr(token: string): Promise<Supplier> {
+  return api.post<Supplier>(
+    "/api/suppliers/scan_supplier_qr/",
+    { token },
+    { silent: true },
+  );
+}
+
 export function getReceipts(
   query: ListQuery,
 ): Promise<Paginated<MaterialReceipt>> {
@@ -471,21 +492,85 @@ export async function createReceiptWithEvidence(payload: {
   return receipt;
 }
 
-export async function updateReceipt(
+/**
+ * Correct a filed receipt.
+ *
+ * This posts a correction rather than an edit, and the difference is the whole
+ * point: the original stays readable and the new record points back at it, so
+ * a dispute can see both the figure that was filed and the figure that
+ * replaced it. `update_receipt` and `delete_receipt` exist only to refuse -
+ * this screen used to call them, so every correction failed with a 409 after
+ * the form had been filled in (F-129).
+ */
+export async function correctReceipt(
   id: string,
-  payload: Partial<MaterialReceiptPayload>,
+  payload: Partial<MaterialReceiptPayload> & { reason: string },
 ): Promise<MaterialReceiptDetail> {
-  const receipt = await api.patch<MaterialReceiptDetail>(
-    `/api/receipts/${id}/update_receipt/`,
+  const receipt = await api.post<MaterialReceiptDetail>(
+    `/api/receipts/${id}/correct_receipt/`,
     payload,
   );
-  toastSuccess("receipts.toast.updated");
+  toastSuccess("receipts.toast.corrected");
   return receipt;
 }
 
-export async function deleteReceipt(id: string): Promise<void> {
-  await api.delete(`/api/receipts/${id}/delete_receipt/`);
-  toastSuccess("receipts.toast.removed");
+/**
+ * Attach one photograph to a receipt that has already been filed.
+ *
+ * One at a time on purpose: a site on a weak signal gets the receipt in
+ * immediately and the photos as they can, rather than one large upload that
+ * fails as a whole. The backend falls back to the receipt's own GPS fix when
+ * the browser will not give one, and refuses the photo if neither has a
+ * location - evidence with no place attached is not evidence.
+ */
+export async function addReceiptPhoto(
+  id: string,
+  payload: {
+    image: File;
+    kind: PhotoKind;
+    caption?: string;
+    latitude?: string;
+    longitude?: string;
+  },
+): Promise<ReceiptPhoto> {
+  const data = new FormData();
+  data.append("image", payload.image);
+  data.append("kind", payload.kind);
+  if (payload.caption) data.append("caption", payload.caption);
+  if (payload.latitude && payload.longitude) {
+    data.append("latitude", payload.latitude);
+    data.append("longitude", payload.longitude);
+  }
+  const photo = await api.post<ReceiptPhoto>(
+    `/api/receipts/${id}/add_photo/`,
+    data,
+  );
+  toastSuccess("receipts.toast.photoAdded");
+  return photo;
+}
+
+/**
+ * Attach a photograph to a dispatch after it was raised.
+ *
+ * The load is photographed at the gate, and the gate is not always where the
+ * dispatch was created - a plate shot taken two minutes later had nowhere to
+ * go, because the endpoint has always existed and no screen offered it
+ * (F-101).
+ */
+export async function addDispatchPhoto(
+  id: string,
+  payload: { image: File; kind: DispatchPhotoKind; caption?: string },
+): Promise<DispatchPhoto> {
+  const data = new FormData();
+  data.append("image", payload.image);
+  data.append("kind", payload.kind);
+  if (payload.caption) data.append("caption", payload.caption);
+  const photo = await api.post<DispatchPhoto>(
+    `/api/dispatches/${id}/add_photo/`,
+    data,
+  );
+  toastSuccess("dispatches.toast.photoAdded");
+  return photo;
 }
 
 export function getReceiptSummary(query: ListQuery): Promise<ReceiptSummary> {
@@ -587,3 +672,4 @@ export function exportDispatches(request: ExportRequest): Promise<void> {
     fallbackFilename: `dispatches.${request.format}`,
   });
 }
+

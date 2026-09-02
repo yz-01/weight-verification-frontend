@@ -11,6 +11,12 @@ import {
 import { createElement, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+import {
+  MAP_TILE_OPTIONS,
+  MAP_TILE_URL,
+  warnIfFallbackTiles,
+} from "@/lib/map-tiles";
+
 export interface LocationMapMarker {
   id: string;
   latitude: number;
@@ -27,6 +33,15 @@ export interface LocationMapPath {
   points: Array<[number, number]>;
   color?: string;
   label?: string;
+  /**
+   * Draw as a broken line rather than a solid one.
+   *
+   * Used for the stretches of a driver's track where the phone recorded
+   * nothing — the screen was locked, or the app was in the background. A solid
+   * line there would claim a road that was never observed, and the straight
+   * one at that.
+   */
+  dashed?: boolean;
 }
 
 export interface LocationMapZone {
@@ -86,10 +101,8 @@ export function LocationMap({
         markerZoomAnimation: false,
         zoomAnimation: false,
       });
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map);
+      warnIfFallbackTiles();
+      L.tileLayer(MAP_TILE_URL, { ...MAP_TILE_OPTIONS }).addTo(map);
       mapRef.current = map;
       layerGroupRef.current = L.layerGroup().addTo(map);
       leafletRef.current = L;
@@ -149,8 +162,9 @@ export function LocationMap({
         if (path.points.length < 2) return;
         const line = L.polyline(path.points, {
           color: path.color ?? "#087f8c",
-          weight: 4,
-          opacity: 0.75,
+          weight: path.dashed ? 3 : 4,
+          opacity: path.dashed ? 0.55 : 0.75,
+          dashArray: path.dashed ? "6 8" : undefined,
         }).addTo(layers);
         if (path.label) line.bindTooltip(path.label);
         path.points.forEach((point) => bounds.extend(point));

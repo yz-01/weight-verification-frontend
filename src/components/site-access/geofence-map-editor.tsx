@@ -2,6 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import {
+  MAP_TILE_OPTIONS,
+  MAP_TILE_URL,
+  warnIfFallbackTiles,
+} from "@/lib/map-tiles";
+
 type Point = [number, number];
 type Shape = "CIRCLE" | "POLYGON";
 
@@ -54,12 +60,15 @@ export function GeofenceMapEditor({
         fadeAnimation: false,
         markerZoomAnimation: false,
       });
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
+      warnIfFallbackTiles();
+      L.tileLayer(MAP_TILE_URL, {
+        ...MAP_TILE_OPTIONS,
+        // Drawing tuning, specific to this editor: the extra buffer and the
+        // eager updates keep tiles under the cursor while a polygon is being
+        // placed. Unrelated to which provider serves them.
         keepBuffer: 4,
         updateWhenIdle: false,
         updateWhenZooming: true,
-        attribution: "&copy; OpenStreetMap contributors",
       }).addTo(map);
 
       mapRef.current = map;

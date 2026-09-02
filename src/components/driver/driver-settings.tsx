@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { APP_VERSION } from "@/lib/app-version";
+
 import { useAuth } from "@/components/providers/auth-provider";
 import { useOfflineSync } from "@/components/providers/offline-sync-provider";
 import { DriverError, DriverLoading } from "@/components/driver/driver-shell";
@@ -20,6 +22,7 @@ import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import type { DriverNotificationSettings } from "@/interfaces/recycler";
+import { networkStatus } from "@/lib/network-status";
 import {
   getMyDriverProfile,
   updateMyDriverSettings,
@@ -101,15 +104,7 @@ export function DriverSettings() {
     key: keyof DriverNotificationSettings,
     checked: boolean,
   ) => update.mutate({ ...preferences, [key]: checked });
-  const networkKey = !sync.isOnline
-    ? "offline"
-    : sync.isSyncing
-      ? "syncing"
-      : sync.failedCount > 0
-        ? "failed"
-        : sync.pendingCount > 0
-          ? "pending"
-          : "online";
+  const networkKey = networkStatus(sync);
 
   return (
     <div className="space-y-6">
@@ -239,7 +234,7 @@ export function DriverSettings() {
         <AboutRow label={t("driver.settings.driverApp")} value="MSE Trace Driver H5" />
         <AboutRow
           label={t("driver.settings.version")}
-          value={process.env.NEXT_PUBLIC_APP_VERSION ?? "1.0.0"}
+          value={APP_VERSION}
         />
         <AboutRow
           label={t("users.field.company")}

@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { AnnouncementPanel } from "@/components/platform-settings/announcement-panel";
 import { VersionList } from "@/components/platform-settings/version-list";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
@@ -244,6 +245,10 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
               company={company || undefined}
             />
           )}
+          {/* 11.2.10 lists 系统公告 as one of the notification channels, and it
+              is the platform's own, so it is edited here rather than per
+              tenant. */}
+          {group === "notifications" && !company && <AnnouncementPanel />}
           <div className="divide-y">
             {basicRows.map((row) => (
               <ConfigRow

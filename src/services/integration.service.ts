@@ -1,10 +1,13 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
+  DeviceMedia,
+  DeviceTelemetry,
   IntegrationConfig,
   IntegrationDelivery,
   IntegrationDevice,
   IntegrationDevicePayload,
   IntegrationPayload,
+  ThirdPartyAccessEvent,
 } from "@/interfaces/integration";
 import { api, toastSuccess } from "@/services/api-client";
 
@@ -39,6 +42,22 @@ export async function updateIntegration(
   );
   toastSuccess("integrations.toast.updated");
   return result;
+}
+
+/**
+ * What the platform can send outward, and which kinds may receive each one.
+ *
+ * Fetched rather than restated in the console: the same table drives the
+ * publisher and the validator, so a checkbox can never appear for an event
+ * nothing would ever send.
+ */
+export async function getIntegrationEventCatalogue(): Promise<
+  { event_type: string; kinds: string[] }[]
+> {
+  const result = await api.get<{
+    events: { event_type: string; kinds: string[] }[];
+  }>("/api/integrations/get_event_catalogue/");
+  return result.events;
 }
 
 export async function testIntegration(
@@ -98,6 +117,29 @@ export async function createIntegrationDevice(
   return result;
 }
 
+/**
+ * Correct a registered device, or give it a new secret.
+ *
+ * Until now the console could only register a device and delete one, so a
+ * device that moved to another weighbridge, shipped new firmware, or needed
+ * its key rotated had to be deleted and re-registered - which throws away its
+ * history and every reading traced back to it (F-101). The device id and type
+ * are deliberately not sent: they are the identity the unit signs with, and
+ * changing either silently breaks every request it makes from then on.
+ */
+export async function updateIntegrationDevice(
+  id: string,
+  payload: Partial<IntegrationDevicePayload>,
+  company?: string,
+): Promise<IntegrationDevice> {
+  const result = await api.patch<IntegrationDevice>(
+    `/api/integration-devices/${id}/update_device/`,
+    company ? { ...payload, company } : payload,
+  );
+  toastSuccess("integrations.toast.deviceUpdated");
+  return result;
+}
+
 export async function deleteIntegrationDevice(
   id: string,
   company?: string,
@@ -107,4 +149,53 @@ export async function deleteIntegrationDevice(
     company ? { query: { company } } : undefined,
   );
   toastSuccess("integrations.toast.deviceRemoved");
+}
+
+/** Everything a device pushed for one business record. */
+export function getDeviceMedia(
+  sourceModel: string,
+  sourceId: string,
+): Promise<Paginated<DeviceMedia>> {
+  return api.list<DeviceMedia>("/api/device-media/get_media/", {
+    source_model: sourceModel,
+    source_id: sourceId,
+  });
+}
+
+/** The estate-wide feed, newest first. */
+export function getRecentDeviceMedia(
+  query: ListQuery = {},
+): Promise<Paginated<DeviceMedia>> {
+  return api.list<DeviceMedia>("/api/device-media/get_recent_media/", query);
+}
+
+/** Plate reads, card swipes and face matches reported by vendor adapters. */
+export function getThirdPartyAccessEvents(
+  query: ListQuery = {},
+): Promise<Paginated<ThirdPartyAccessEvent>> {
+  return api.list<ThirdPartyAccessEvent>(
+    "/api/site-access-passes/get_third_party_events/",
+    query,
+  );
+}
+
+/** The estate-wide observation feed, newest first. */
+export function getRecentDeviceTelemetry(
+  query: ListQuery = {},
+): Promise<Paginated<DeviceTelemetry>> {
+  return api.list<DeviceTelemetry>(
+    "/api/device-telemetry/get_telemetry/",
+    query,
+  );
+}
+
+/** One device's own history. `device` is required by the endpoint. */
+export function getDeviceTelemetry(
+  device: string,
+  query: ListQuery = {},
+): Promise<Paginated<DeviceTelemetry>> {
+  return api.list<DeviceTelemetry>(
+    "/api/device-telemetry/get_device_telemetry/",
+    { ...query, device },
+  );
 }

@@ -174,3 +174,33 @@ export interface SafetyIncidentPayload {
   photos?: File[];
   notify_users?: string[];
 }
+
+/** One worker currently inside a project's geofence. */
+export interface WorkforcePresencePerson {
+  user_id: string;
+  full_name: string;
+  phone: string;
+  project_id: string;
+  project_name: string;
+  department_id: string | null;
+  department_name: string;
+  trade_id: string | null;
+  trade_name: string;
+  since: string;
+}
+
+/**
+ * The headcount requirement 15.2.3 asks for.
+ *
+ * `by_department` and `by_trade` are keyed by name; the empty-string key is
+ * everyone with that field unset, which is why the parts always sum to
+ * `on_site_now` rather than quietly dropping the unassigned.
+ */
+export interface WorkforcePresence {
+  on_site_now: number;
+  entered_today: number;
+  left_today: number;
+  by_department: Record<string, number>;
+  by_trade: Record<string, number>;
+  people: WorkforcePresencePerson[];
+}

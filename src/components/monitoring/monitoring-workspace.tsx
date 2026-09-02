@@ -61,6 +61,13 @@ import {
   getMonitoringOverview,
   getSystemEvents,
   recordSystemEventResolution,
+  getRecentAccessReads,
+  getRecentDeviceMediaForPlatform,
+  getJobRuns,
+  getScheduledJobs,
+  getWorkerStatus,
+  runJobNow,
+  setScheduledJobActive,
 } from "@/services/platform-ops.service";
 
 export type MonitoringSection =
@@ -72,7 +79,8 @@ export type MonitoringSection =
   | "api-gateway"
   | "sync"
   | "exceptions"
-  | "records";
+  | "records"
+  | "jobs";
 
 const SUBMODULES: Array<{
   section: Exclude<MonitoringSection, "overview">;
@@ -86,6 +94,10 @@ const SUBMODULES: Array<{
   { section: "sync", number: "6.2.6" },
   { section: "exceptions", number: "6.2.7" },
   { section: "records", number: "6.2.10" },
+  // Not a numbered clause of its own: this is the background work behind
+  // the recovery and exception counters in 6.2.9, so it carries the "A"
+  // prefix the repo already uses for supporting screens.
+  { section: "jobs", number: "A6.2.9" },
 ];
 
 const MODULE_ICONS: Record<
@@ -100,6 +112,7 @@ const MODULE_ICONS: Record<
   sync: DatabaseZap,
   exceptions: AlertTriangle,
   records: History,
+  jobs: ServerCog,
 };
 
 export function MonitoringWorkspace({
@@ -507,6 +520,7 @@ function SectionContent({
         inventory={data.integration_inventory}
         kindFilter={["CCTV"]}
         requestedMode={requestedModes.cctv}
+        feed={<RecentCapturesPanel />}
       />
     );
   if (section === "anpr")
@@ -518,6 +532,7 @@ function SectionContent({
         inventory={data.integration_inventory}
         kindFilter={["ANPR"]}
         requestedMode={requestedModes.anpr}
+        feed={<PlateReadsPanel />}
       />
     );
 
@@ -612,7 +627,300 @@ function SectionContent({
     return <EventLedger exceptionsOnly={section === "exceptions"} />;
   }
 
+  if (section === "jobs") return <JobsPanel />;
+
   return null;
+}
+
+/**
+ * The platform's own background work.
+ *
+ * Billing generation, subscription reminders, announcement publication and
+ * monitoring snapshots all run as scheduled jobs. Nine endpoints served them
+ * and nothing called any of them, so a failed run was invisible and there was
+ * no way to re-run one without a shell.
+ */
+function JobsPanel() {
+  const t = useTranslations("monitoring.jobs");
+  const df = useDateFormat();
+  const queryClient = useQueryClient();
+  const [selected, setSelected] = useState<string>("");
+
+  const jobs = useQuery({
+    queryKey: ["scheduled-jobs"],
+    queryFn: () => getScheduledJobs({ page_size: 100, sort_by: "code" }),
+  });
+  const workers = useQuery({
+    queryKey: ["worker-status"],
+    queryFn: getWorkerStatus,
+  });
+  const runs = useQuery({
+    queryKey: ["job-runs", selected],
+    queryFn: () =>
+      getJobRuns({
+        page_size: 50,
+        job: selected || undefined,
+        sort_by: "scheduled_for",
+        sort_order: "desc",
+      }),
+  });
+
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: ["scheduled-jobs"] });
+    void queryClient.invalidateQueries({ queryKey: ["job-runs"] });
+  };
+  const runNow = useMutation({ mutationFn: runJobNow, onSuccess: refresh });
+  const toggle = useMutation({
+    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
+      setScheduledJobActive(id, active),
+    onSuccess: refresh,
+  });
+
+  const rows = jobs.data?.results ?? [];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <SummaryTile label={t("workers.total")} value={workers.data?.total ?? 0} />
+        <SummaryTile
+          label={t("workers.active")}
+          value={workers.data?.active ?? 0}
+          tone={(workers.data?.active ?? 0) > 0 ? "positive" : "warning"}
+        />
+        <SummaryTile
+          label={t("workers.stale")}
+          value={workers.data?.stale ?? 0}
+          tone={(workers.data?.stale ?? 0) > 0 ? "danger" : "neutral"}
+        />
+      </div>
+
+      <section className="rounded-lg border bg-card shadow-sm">
+        <div className="flex flex-wrap items-center gap-2 border-b p-3">
+          <ServerCog className="size-4 text-muted-foreground" />
+          <p className="text-sm font-semibold">{t("title")}</p>
+          <p className="text-xs text-muted-foreground">{t("help")}</p>
+        </div>
+        {jobs.isLoading ? (
+          <Skeleton className="m-4 h-32" />
+        ) : jobs.isError ? (
+          <LoadFailed onRetry={() => void jobs.refetch()} />
+        ) : !rows.length ? (
+          <p className="m-4 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+            {t("empty")}
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {["job", "schedule", "nextRun", "lastRun", "status"].map((key) => (
+                    <TableHead key={key}>{t(`column.${key}`)}</TableHead>
+                  ))}
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((job) => (
+                  <TableRow
+                    key={job.id}
+                    data-state={selected === job.id ? "selected" : undefined}
+                  >
+                    <TableCell>
+                      <button
+                        type="button"
+                        className="text-left"
+                        onClick={() =>
+                          setSelected(selected === job.id ? "" : job.id)
+                        }
+                      >
+                        <span className="font-medium">{job.name}</span>
+                        <span className="block font-mono text-xs text-muted-foreground">
+                          {job.handler}
+                        </span>
+                      </button>
+                    </TableCell>
+                    <TableCell className="tabular-nums">
+                      {job.interval_minutes
+                        ? t("everyMinutes", { minutes: job.interval_minutes })
+                        : t("oneOff")}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap tabular-nums">
+                      {df.dateTime(job.next_run_at)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap tabular-nums">
+                      {job.last_run_at ? df.dateTime(job.last_run_at) : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        <StatusBadge
+                          label={
+                            job.last_run_state
+                              ? t(`state.${job.last_run_state}`)
+                              : t("state.NEVER")
+                          }
+                          tone={runTone(job.last_run_state)}
+                        />
+                        {!job.is_active && (
+                          <StatusBadge label={t("paused")} tone="neutral" />
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={runNow.isPending}
+                          onClick={() => runNow.mutate(job.id)}
+                        >
+                          <RefreshCw />
+                          {t("action.runNow")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={toggle.isPending}
+                          onClick={() =>
+                            toggle.mutate({ id: job.id, active: !job.is_active })
+                          }
+                        >
+                          {t(job.is_active ? "action.pause" : "action.resume")}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-lg border bg-card shadow-sm">
+        <div className="flex flex-wrap items-center gap-2 border-b p-3">
+          <History className="size-4 text-muted-foreground" />
+          <p className="text-sm font-semibold">{t("runs.title")}</p>
+          <p className="text-xs text-muted-foreground">
+            {selected ? t("runs.filtered") : t("runs.all")}
+          </p>
+          {selected && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="ml-auto"
+              onClick={() => setSelected("")}
+            >
+              {t("runs.clearFilter")}
+            </Button>
+          )}
+        </div>
+        {runs.isLoading ? (
+          <Skeleton className="m-4 h-24" />
+        ) : runs.isError ? (
+          <LoadFailed onRetry={() => void runs.refetch()} />
+        ) : !(runs.data?.results ?? []).length ? (
+          <p className="m-4 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+            {t("runs.empty")}
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {[
+                    "scheduled",
+                    "handler",
+                    "state",
+                    "attempt",
+                    "finished",
+                    "detail",
+                  ].map((key) => (
+                    <TableHead key={key}>{t(`runs.column.${key}`)}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(runs.data?.results ?? []).map((run) => (
+                  <TableRow key={run.id}>
+                    <TableCell className="whitespace-nowrap tabular-nums">
+                      {df.dateTime(run.scheduled_for)}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {run.handler}
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        label={t(`state.${run.state}`)}
+                        tone={runTone(run.state)}
+                      />
+                    </TableCell>
+                    <TableCell className="tabular-nums">
+                      {run.attempt}/{run.max_attempts}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap tabular-nums">
+                      {run.completed_at ? df.dateTime(run.completed_at) : "-"}
+                    </TableCell>
+                    <TableCell className="max-w-80 truncate text-xs text-muted-foreground">
+                      {run.error || JSON.stringify(run.result ?? {})}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function LoadFailed({ onRetry }: { onRetry: () => void }) {
+  const t = useTranslations("monitoring");
+  const common = useTranslations("common");
+  return (
+    <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-4">
+      <p className="text-sm text-destructive">{t("jobs.loadError")}</p>
+      <Button size="sm" variant="outline" onClick={onRetry}>
+        <RefreshCw />
+        {common("retry")}
+      </Button>
+    </div>
+  );
+}
+
+function runTone(
+  state: string,
+): "positive" | "warning" | "danger" | "neutral" | "info" {
+  if (state === "SUCCEEDED") return "positive";
+  if (state === "FAILED" || state === "CANCELLED") return "danger";
+  if (state === "RUNNING" || state === "QUEUED") return "info";
+  if (state === "RETRY_WAIT") return "warning";
+  return "neutral";
+}
+
+function SummaryTile({
+  label,
+  value,
+  tone = "neutral",
+}: {
+  label: string;
+  value: number;
+  tone?: "positive" | "warning" | "danger" | "neutral";
+}) {
+  const colour = {
+    positive: "text-success",
+    warning: "text-warning",
+    danger: "text-destructive",
+    neutral: "text-foreground",
+  }[tone];
+  return (
+    <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`mt-1 text-2xl font-semibold tabular-nums ${colour}`}>
+        {value}
+      </p>
+    </div>
+  );
 }
 
 function IntegrationSection({
@@ -622,6 +930,7 @@ function IntegrationSection({
   inventory,
   kindFilter,
   requestedMode,
+  feed,
 }: {
   monitor: IntegrationMonitor;
   icon: typeof Camera;
@@ -629,6 +938,9 @@ function IntegrationSection({
   inventory: MonitoringOverview["integration_inventory"];
   kindFilter: string[];
   requestedMode?: "SIMULATED" | "LIVE";
+  /** What the devices actually sent. Counters say a camera is online; only
+   *  this says it is still producing anything. */
+  feed?: React.ReactNode;
 }) {
   const t = useTranslations("monitoring");
   const verifiedLive = inventory.connections.some(
@@ -693,6 +1005,7 @@ function IntegrationSection({
         ]}
       />
       <InventoryPanel inventory={inventory} kindFilter={kindFilter} />
+      {feed}
     </div>
   );
 }
@@ -1495,4 +1808,198 @@ function resolutionTone(status: SystemEvent["resolution_status"]) {
   if (status === "RESOLVED") return "positive" as const;
   if (status === "ACKNOWLEDGED") return "warning" as const;
   return "danger" as const;
+}
+
+/**
+ * What the cameras have actually sent.
+ *
+ * The counters above answer "is the device reachable". This answers "is it
+ * still producing evidence", which is the failure that matters and the one a
+ * heartbeat cannot show: a camera can sit online for a week, cheerfully
+ * heartbeating, and push nothing because its trigger stopped firing. The only
+ * way to notice is to look at what arrived and when.
+ */
+function RecentCapturesPanel() {
+  const t = useTranslations("monitoring");
+  const df = useDateFormat();
+  const format = useFormatter();
+  const captures = useQuery({
+    queryKey: ["device-media", "recent"],
+    queryFn: () => getRecentDeviceMediaForPlatform({ page_size: 20 }),
+  });
+
+  const rows = captures.data?.results ?? [];
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("captures.title")}
+      </h3>
+      {captures.isLoading ? (
+        <Skeleton className="h-24 w-full" />
+      ) : rows.length === 0 ? (
+        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+          {t("captures.none")}
+        </p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("captures.capturedAt")}</TableHead>
+                <TableHead>{t("captures.device")}</TableHead>
+                <TableHead>{t("captures.kind")}</TableHead>
+                <TableHead>{t("captures.size")}</TableHead>
+                <TableHead>{t("captures.attachedTo")}</TableHead>
+                <TableHead className="text-right">
+                  {t("captures.action")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{df.dateTime(row.captured_at)}</TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {row.device_name}
+                  </TableCell>
+                  <TableCell>
+                    <TypeBadge label={t(`captures.kindLabel.${row.kind}`)} />
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {format.number(Math.round(row.size_bytes / 1024))} KB
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {row.source_model.split(".").pop()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {row.is_purged ? (
+                      // Not an error. The bytes went on schedule and the
+                      // record of them did not, which is the whole point of
+                      // the retention design.
+                      <span className="text-xs text-muted-foreground">
+                        {t("captures.purged", {
+                          date: row.purged_at ? df.date(row.purged_at) : "",
+                        })}
+                      </span>
+                    ) : row.file_url ? (
+                      <Button asChild size="sm" variant="ghost">
+                        <a
+                          href={row.file_url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {t("captures.view")}
+                        </a>
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {t("captures.unavailable")}
+                      </span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Every plate read, card swipe and face match, with why it was allowed.
+ *
+ * "Could not read the plate" and "read it, and that vehicle has no permit" are
+ * shown apart on purpose. Merged into one denial count, a dirty lens looks
+ * exactly like a surge of unauthorised lorries, and the yard would go looking
+ * for a security problem instead of a cloth.
+ */
+function PlateReadsPanel() {
+  const t = useTranslations("monitoring");
+  const df = useDateFormat();
+  const events = useQuery({
+    queryKey: ["third-party-access-events", "recent"],
+    queryFn: () => getRecentAccessReads({ page_size: 20 }),
+  });
+
+  const rows = events.data?.results ?? [];
+  const unreadable = rows.filter(
+    (row) => row.recognition_result === "FAILED",
+  ).length;
+  const denied = rows.filter(
+    (row) =>
+      row.recognition_result === "RECOGNIZED" &&
+      row.verification_result === "DENIED",
+  ).length;
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("plateReads.title")}
+      </h3>
+      {events.isLoading ? (
+        <Skeleton className="h-24 w-full" />
+      ) : rows.length === 0 ? (
+        <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+          {t("plateReads.none")}
+        </p>
+      ) : (
+        <>
+          <MetricGrid
+            items={[
+              ["plateReads.recent", rows.length],
+              ["plateReads.unreadable", unreadable],
+              ["plateReads.denied", denied],
+            ]}
+          />
+          <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("plateReads.occurredAt")}</TableHead>
+                  <TableHead>{t("plateReads.gate")}</TableHead>
+                  <TableHead>{t("plateReads.credential")}</TableHead>
+                  <TableHead>{t("plateReads.direction")}</TableHead>
+                  <TableHead>{t("plateReads.outcome")}</TableHead>
+                  <TableHead>{t("plateReads.reason")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{df.dateTime(row.occurred_at)}</TableCell>
+                    <TableCell>{row.gate_name || row.device_id}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {row.credential_hint || "-"}
+                    </TableCell>
+                    <TableCell>
+                      <TypeBadge
+                        label={t(`plateReads.directionLabel.${row.direction}`)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {row.recognition_result === "FAILED" ? (
+                        <HealthBadge status="degraded" />
+                      ) : row.verification_result === "ALLOWED" ? (
+                        <HealthBadge status="ok" />
+                      ) : (
+                        <HealthBadge status="unhealthy" />
+                      )}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {row.recognition_result === "FAILED"
+                        ? t("plateReads.couldNotRead")
+                        : row.reason_code}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }

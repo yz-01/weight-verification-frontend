@@ -12,7 +12,11 @@ import {
   restoreFile,
   storeFile,
 } from "@/lib/offline-db";
-import { api, toastSuccess } from "@/services/api-client";
+import {
+  api,
+  toastSuccess,
+  withOfflineProvenance,
+} from "@/services/api-client";
 import { createReceiptWithEvidence } from "@/services/contractor.service";
 import {
   createDisposalRequest,
@@ -122,7 +126,10 @@ async function enqueue(job: OfflineJob): Promise<OfflineSubmission> {
   return "queued";
 }
 
-function appendAttendance(data: FormData, job: Extract<OfflineJob, { kind: "ATTENDANCE" }>) {
+function appendAttendance(
+  data: FormData,
+  job: Extract<OfflineJob, { kind: "ATTENDANCE" }>,
+) {
   const payload = job.payload;
   data.append("project", payload.project);
   data.append("event", payload.event);
@@ -137,7 +144,19 @@ function appendAttendance(data: FormData, job: Extract<OfflineJob, { kind: "ATTE
   if (payload.photo) data.append("photo", restoreFile(payload.photo));
 }
 
+/**
+ * Send one queued job, carrying the moment it was created on this device.
+ *
+ * The stamp is set for the whole replay rather than passed to each call:
+ * eleven of the fourteen job kinds reach the server through their own service
+ * function, several of which build their own FormData, so an argument would
+ * leave a new offline path unstamped the day it is written.
+ */
 async function uploadJob(job: OfflineJob): Promise<void> {
+  return withOfflineProvenance(job.queuedAt, () => sendJob(job));
+}
+
+async function sendJob(job: OfflineJob): Promise<void> {
   if (job.kind === "ATTENDANCE") {
     const data = new FormData();
     appendAttendance(data, job);
@@ -146,7 +165,8 @@ async function uploadJob(job: OfflineJob): Promise<void> {
   }
 
   if (job.kind === "TASK_TRANSITION") {
-    const { taskId, originalOccurredAt, clientEventId, ...payload } = job.payload;
+    const { taskId, originalOccurredAt, clientEventId, ...payload } =
+      job.payload;
     await api.post(
       `/api/tasks/${taskId}/advance_task/`,
       {
@@ -650,6 +670,15 @@ export function submitMaterialOutgoingOfflineAware(
   });
 }
 
+/**
+ * Automatic GPS samples, sent as one batch.
+ *
+ * Deliberately not stamped with an offline creation time. That stamp exists to
+ * separate "recorded on the spot, uploaded late" from "typed in hours after the
+ * fact", and a GPS fix has no such gap: nobody back-fills a position, so its
+ * occurrence time *is* its creation time and `original_occurred_at` already
+ * carries it.
+ */
 async function uploadPositionBatch(
   jobs: Extract<OfflineJob, { kind: "TASK_POSITION" }>[],
 ): Promise<void> {
@@ -790,7 +819,9 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
     try {
       if (positions.length > 0) {
         await uploadPositionBatch(positions);
-        await Promise.all(positions.map((position) => deleteOfflineJob(position.id)));
+        await Promise.all(
+          positions.map((position) => deleteOfflineJob(position.id)),
+        );
         synced += positions.length;
       } else {
         await uploadJob(job);
@@ -798,7 +829,10 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
         synced += 1;
       }
     } catch (error) {
-      if (isNetworkFailure(error) || (error instanceof ApiError && error.isUnauthorized)) {
+      if (
+        isNetworkFailure(error) ||
+        (error instanceof ApiError && error.isUnauthorized)
+      ) {
         break;
       }
       const failedJobs: OfflineJob[] = positions.length > 0 ? positions : [job];

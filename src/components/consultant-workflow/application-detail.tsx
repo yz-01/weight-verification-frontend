@@ -63,6 +63,7 @@ import {
   acknowledgeConsultantApplication,
   createApplicationRevision,
   downloadApplicationFinalReport,
+  retryApplicationFinalReport,
   getApplicationEvidenceCandidates,
   getApprovalCredential,
   getConsultantApplication,
@@ -484,9 +485,31 @@ function RevisionTimeline({ application }: { application: ConsultantApplication 
   );
 }
 
+/** Decisions that are final, and therefore owe a report. Mirrors the backend. */
+const DECIDED = ["APPROVED", "APPROVED_WITH_REMEDIAL", "REJECTED"];
+
 function ArchiveChecklist({ application }: { application: ConsultantApplication }) {
   const t = useTranslations("consultantWorkflow");
+  const { can } = useAuth();
+  const queryClient = useQueryClient();
   const kinds = ["APPLICATION", "APPROVAL", "FINAL_REPORT"] as const;
+
+  /*
+    The decision is the act; the PDF is only its record. When archiving fails
+    the application stays decided and this row reads "pending" forever - the
+    recovery existed on the backend from the start and no screen offered it,
+    so the only way out was a developer with a shell (F-101).
+  */
+  const retry = useMutation({
+    mutationFn: () => retryApplicationFinalReport(application.id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["consultant-application", application.id],
+      }),
+  });
+  const reportOwedButMissing =
+    !application.final_report && DECIDED.includes(application.final_decision);
+
   return (
     <div className="space-y-2">
       {kinds.map((kind) => {
@@ -504,6 +527,26 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
                 </span>
               </div>
               {entry?.sha256 && <p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">SHA-256: {entry.sha256}</p>}
+              {kind === "FINAL_REPORT" && !entry && reportOwedButMissing && can("approval.review") && (
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    {t("archive.reportMissing")}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={retry.isPending}
+                    onClick={() => retry.mutate()}
+                  >
+                    {retry.isPending ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <RotateCcw />
+                    )}
+                    {t("action.retryReport")}
+                  </Button>
+                </div>
+              )}
               {kind === "FINAL_REPORT" && entry && (
                 <div className="mt-2 flex flex-wrap gap-3 text-xs font-semibold">
                   <button type="button" className="text-primary hover:underline" onClick={() => downloadApplicationFinalReport(application.id, application.application_no)}>

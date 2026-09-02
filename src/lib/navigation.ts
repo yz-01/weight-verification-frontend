@@ -113,7 +113,7 @@ export type PortalFeatureKey =
   | "version_management";
 
 export interface FeatureNavItem {
-  /** Exact key returned by `GET /api/auth/me/`. */
+  /** Exact key returned by `GET /api/auth/get_me/`. */
   feature: PortalFeatureKey;
   /** Message key under `nav`. */
   labelKey: PortalFeatureKey;
@@ -340,6 +340,8 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.monitoringRecords",
           "/monitoring/records",
         ),
+        // The background work behind the recovery and exception counters.
+        child("A6.2.9", "nav.submodule.platformJobs", "/monitoring/jobs"),
       ],
     ),
     item(
@@ -641,6 +643,9 @@ export const PORTAL_NAVIGATION = {
         "/assets/installations",
       ),
       child("17.2.8", "nav.submodule.assetTransfers", "/assets/transfers"),
+      // Transfers can name a department, so the department list has to be
+      // reachable from the same place.
+      child("17.2.8", "nav.submodule.assetDepartments", "/assets/departments"),
       child("17.2.9", "nav.submodule.assetRepairs", "/assets/repairs"),
       child("17.2.10", "nav.submodule.assetMaintenance", "/assets/maintenance"),
       child("17.2.11", "nav.submodule.assetDisposals", "/assets/disposals"),
@@ -1154,6 +1159,16 @@ export const PORTAL_NAVIGATION = {
           "/integrations",
           "integrations",
         ),
+        // External Access Portal is one of the six application ends in the
+        // architecture document (七、应用层架构). It has no numbered clause in
+        // the role documents, hence the "A" prefix the repo uses elsewhere.
+        child(
+          "A7",
+          "nav.submodule.externalAccess",
+          "/external-access",
+          "company_settings",
+          "external_access.manage",
+        ),
       ],
     ),
   ],
@@ -1359,6 +1374,7 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/consultant-applications/create", permission: "consultant.submit" },
   { pattern: "/consultant-applications/:id/edit", permission: "consultant.submit" },
   { pattern: "/consultant-field-inbox", permission: "consultant.submit" },
+  { pattern: "/external-access", permission: "external_access.manage" },
 ];
 
 function matchesPattern(pathname: string, pattern: string): boolean {

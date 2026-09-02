@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import type { Department } from "@/interfaces/auth";
 import type {
   Asset, AssetAssignment, AssetCategory, AssetCategoryDefinition, AssetDisposal,
   AssetInstallation, AssetMaintenance, AssetPurchase, AssetStatus,
@@ -30,17 +31,19 @@ import {
   returnAssetAssignment, setAssetActive, startAssetMaintenance,
   transitionAssetInstallation, updateAsset, updateAssetCategory,
 } from "@/services/asset.service";
+import { createDepartment, deleteDepartment, getDepartments, updateDepartment } from "@/services/users.service";
 
 export type AssetSection =
   | "overview" | "management" | "categories" | "purchases"
   | "inventory" | "assignments" | "installations" | "transfers" | "repairs"
-  | "maintenance" | "disposals" | "reports";
+  | "maintenance" | "disposals" | "reports" | "departments";
 
 const SUBMODULES: Array<{ section: Exclude<AssetSection, "overview">; number: string }> = [
   { section: "management", number: "17.2.1" },
   { section: "categories", number: "17.2.3" }, { section: "purchases", number: "17.2.4" },
   { section: "inventory", number: "17.2.5" }, { section: "assignments", number: "17.2.6" },
   { section: "installations", number: "17.2.7" }, { section: "transfers", number: "17.2.8" },
+  { section: "departments", number: "17.2.8" },
   { section: "repairs", number: "17.2.9" }, { section: "maintenance", number: "17.2.10" },
   { section: "disposals", number: "17.2.11" },
   { section: "reports", number: "17.2.13" },
@@ -74,6 +77,7 @@ export function AssetManagementWorkspace({ section = "overview" }: { section?: A
     {section === "assignments" && <AssignmentPanel />}
     {section === "installations" && <InstallationPanel />}
     {section === "transfers" && <TransferPanel />}
+    {section === "departments" && <DepartmentPanel />}
     {section === "repairs" && <MaintenancePanel repairs />}
     {section === "maintenance" && <MaintenancePanel repairs={false} />}
     {section === "disposals" && <DisposalPanel />}
@@ -200,6 +204,65 @@ function InstallationDialog({ onClose, onSaved }: { onClose: () => void; onSaved
 function InstallationStatusDialog({ row, onClose, onSaved }: { row: AssetInstallation; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("adminAssetManagement"); const choices: InstallationStatus[] = row.status === "INSTALLED" ? ["ACTIVE", "REMOVED"] : row.status === "ACTIVE" ? ["INACTIVE", "REMOVED"] : ["ACTIVE", "REMOVED"]; const [status, setStatus] = useState<InstallationStatus>(choices[0]); const [date, setDate] = useState(new Date().toISOString().slice(0, 10)); const save = useMutation({ mutationFn: () => transitionAssetInstallation(row.id, { status, ...(status === "ACTIVE" ? { activated_on: date } : status === "REMOVED" ? { removed_on: date } : {}) }), onSuccess: () => { onSaved(); onClose(); } });
   return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent><DialogHeader><DialogTitle>{t("action.changeStatus")}</DialogTitle><DialogDescription>{row.installation_code}</DialogDescription></DialogHeader><SelectField value={status} onChange={(v) => setStatus(v as InstallationStatus)}>{choices.map((x) => <option key={x} value={x}>{t(`installationStatus.${x}`)}</option>)}</SelectField>{status !== "INACTIVE" && <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}><Check />{t("action.confirm")}</Button></DialogFooter></DialogContent></Dialog>;
+}
+
+/**
+ * MSE's own departments.
+ *
+ * 17.2.8 lists "部门之间调拨" as one of the four ways platform equipment moves.
+ * The transfer picker offered a department all along, but nothing anywhere
+ * could create one, so the list was always empty and that quarter of the
+ * requirement could not be exercised. This is the screen that fills it.
+ */
+function DepartmentPanel() {
+  const t = useTranslations("adminAssetManagement"); const qc = useQueryClient(); const { can } = useAuth();
+  const rows = useQuery({ queryKey: ["departments", "platform"], queryFn: () => getDepartments({ page_size: 200, sort_by: "code" }) });
+  const [editing, setEditing] = useState<Department | null | undefined>(undefined);
+  const drop = useMutation({ mutationFn: (row: Department) => deleteDepartment(row.id), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["departments"] }); void qc.invalidateQueries({ queryKey: ["asset-options"] }); } });
+  return <Panel loading={rows.isLoading} error={rows.isError}>
+    <div className="flex flex-wrap items-center gap-2 border-b p-3">
+      <p className="text-sm text-muted-foreground">{t("department.help")}</p>
+      {can("department.manage") && <Button className="ml-auto" onClick={() => setEditing(null)}><Plus />{t("department.action.add")}</Button>}
+    </div>
+    {!(rows.data?.results ?? []).length
+      ? <p className="m-5 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">{t("department.empty")}</p>
+      : <Table><TableHeader><TableRow>{["code", "name", "parent", "status"].map((x) => <TableHead key={x}>{t(`department.column.${x}`)}</TableHead>)}<TableHead /></TableRow></TableHeader><TableBody>
+        {(rows.data?.results ?? []).map((row) => <TableRow key={row.id}>
+          <TableCell className="font-medium">{row.code}</TableCell>
+          <TableCell>{row.name}</TableCell>
+          <TableCell>{row.parent_name || "-"}</TableCell>
+          <TableCell><StatusBadge label={t(row.is_active ? "status.active" : "status.inactive")} tone={row.is_active ? "positive" : "neutral"} /></TableCell>
+          <TableCell>{can("department.manage") && <div className="flex gap-1">
+            <Button size="icon-sm" variant="ghost" title={t("action.edit")} onClick={() => setEditing(row)}><Pencil /></Button>
+            <Button size="icon-sm" variant="ghost" title={t("department.action.remove")} disabled={drop.isPending} onClick={() => drop.mutate(row)}><Trash2 /></Button>
+          </div>}</TableCell>
+        </TableRow>)}
+      </TableBody></Table>}
+    {editing !== undefined && <DepartmentDialog row={editing} parents={rows.data?.results ?? []} onClose={() => setEditing(undefined)} onSaved={() => { void qc.invalidateQueries({ queryKey: ["departments"] }); void qc.invalidateQueries({ queryKey: ["asset-options"] }); }} />}
+  </Panel>;
+}
+
+function DepartmentDialog({ row, parents, onClose, onSaved }: { row: Department | null; parents: Department[]; onClose: () => void; onSaved: () => void }) {
+  const t = useTranslations("adminAssetManagement");
+  const [code, setCode] = useState(row?.code ?? ""); const [name, setName] = useState(row?.name ?? "");
+  const [parent, setParent] = useState(row?.parent ?? ""); const [isActive, setIsActive] = useState(row?.is_active ?? true);
+  const save = useMutation({
+    mutationFn: () => {
+      const payload = { code: code.trim(), name: name.trim(), parent: parent || null, is_active: isActive };
+      return row ? updateDepartment(row.id, payload) : createDepartment(payload);
+    },
+    onSuccess: () => { onSaved(); onClose(); },
+  });
+  // A department cannot parent itself, and the backend rejects a cycle anyway.
+  const options = parents.filter((x) => x.id !== row?.id);
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent>
+    <DialogHeader><DialogTitle>{row ? t("department.action.edit") : t("department.action.add")}</DialogTitle><DialogDescription>{t("department.help")}</DialogDescription></DialogHeader>
+    <Input placeholder={t("department.column.code")} value={code} onChange={(e) => setCode(e.target.value)} />
+    <Input placeholder={t("department.column.name")} value={name} onChange={(e) => setName(e.target.value)} />
+    <SelectField value={parent} onChange={setParent}><option value="">{t("department.noParent")}</option>{options.map((x) => <option key={x.id} value={x.id}>{x.code} / {x.name}</option>)}</SelectField>
+    <label className="flex items-center gap-3 rounded-lg border p-3"><Switch checked={isActive} onCheckedChange={setIsActive} /><span className="text-sm">{t("status.active")}</span></label>
+    <DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!code.trim() || !name.trim() || save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter>
+  </DialogContent></Dialog>;
 }
 
 function TransferPanel() {

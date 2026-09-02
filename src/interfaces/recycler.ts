@@ -404,6 +404,49 @@ export interface DriverTaskPayload {
 
 export type WeighDirection = "GROSS" | "TARE";
 
+export type CommandState =
+  | "PENDING"
+  | "ACKNOWLEDGED"
+  | "REJECTED"
+  | "TIMED_OUT"
+  | "CLOSED_MANUALLY";
+
+/** One instruction sent to a controller at the barrier, and what came back. */
+export interface ReleaseCommand {
+  id: string;
+  kind: "GATE_OPEN" | "GATE_CLOSE" | "LED_MESSAGE" | "VOICE_ANNOUNCEMENT" | "OTHER";
+  device_id: string;
+  device_type: string;
+  state: CommandState;
+  detail: string;
+  /** The only field that means the controller confirmed it acted. */
+  acted: boolean;
+  is_open: boolean;
+  issued_at: string;
+  expires_at: string;
+  delivered_at: string | null;
+  settled_at: string | null;
+  text: string;
+}
+
+/**
+ * What the yard's LED board, voice unit and barrier were told, and answered.
+ *
+ * `gate_open` is the field to read for anything that matters, and it is false
+ * in three different situations that must not be collapsed: a command still in
+ * flight, a controller that went quiet, and a yard with no barrier registered
+ * at all. The platform says a barrier opened only when a barrier said so.
+ */
+export interface GateRelease {
+  gate_open: boolean;
+  barrier_configured: boolean;
+  waiting: boolean;
+  needs_operator: boolean;
+  released_manually: boolean;
+  manual_release_by_name: string;
+  commands: ReleaseCommand[];
+}
+
 /** What a weighbridge is currently expecting to weigh. */
 export interface GateBinding {
   id: string;
@@ -421,6 +464,9 @@ export interface GateBinding {
   consumed_at: string | null;
   session: string | null;
   created_at: string;
+  released_manually_at: string | null;
+  manual_release_reason: string;
+  release: GateRelease;
 }
 
 export interface ScanDispatchPayload {

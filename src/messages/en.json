@@ -1,19 +1,5 @@
 {
   "wasteOutgoing": {
-    "title": "Waste outgoing",
-    "subtitle": "Record waste leaving site, then raise the recycling order that collects it.",
-    "empty": "No waste has been recorded yet.",
-    "toast": {
-      "categorySaved": "Waste category saved.",
-      "recorded": "Application submitted for approval.",
-      "photosAdded": "Photos added.",
-      "submitted": "Application submitted.",
-      "approved": "Application approved.",
-      "returned": "Application returned.",
-      "ordered": "Recycle order sent.",
-      "scheduleConfirmed": "Collection time confirmed.",
-      "cancelled": "Waste application cancelled."
-    },
     "action": {
       "record": "New application",
       "submit": "Submit application",
@@ -30,43 +16,29 @@
       "sendOrder": "Send recycle order",
       "confirmCancel": "Cancel application"
     },
-    "totals": {
-      "today": "Today",
-      "month": "This month",
-      "year": "This year",
-      "all_time": "Total"
+    "assign": {
+      "title": "Assign a recycler",
+      "help": "Choose a recycler bound to this project. The order for {reference} is sent to their system immediately.",
+      "noPartners": "No recycler is bound to this project yet. Bind one under Recycler partners before raising an order."
     },
-    "filter": {
-      "selectProject": "Select project",
-      "allProjects": "All projects",
-      "allCategories": "All categories",
-      "allStatuses": "All statuses"
+    "cancel": {
+      "title": "Cancel waste application",
+      "help": "{reference} will be cancelled and excluded from the quantity totals."
     },
-    "status": {
-      "DRAFT": "Legacy draft",
-      "PENDING_APPROVAL": "Pending approval",
-      "RETURNED": "Returned",
-      "APPROVED": "Approved",
-      "ORDERED": "Order sent",
-      "IN_PROGRESS": "Collection in progress",
-      "COMPLETED": "Complete",
-      "CANCELLED": "Cancelled"
+    "category": {
+      "activate": "Turn on",
+      "add": "Add category",
+      "code": "Code",
+      "deactivate": "Turn off",
+      "dispatchType": "Waste type on the dispatch",
+      "help": "This is your own list. The seven standard ones cannot be removed because records already cite them - turn one off instead and it stops being offered on new records.",
+      "manage": "Waste categories",
+      "name": "Name",
+      "standard": "Standard",
+      "standardHelp": "Standard - turn off instead",
+      "title": "Your waste categories"
     },
-    "unit": {
-      "TONNE": "Ton",
-      "KG": "Kg",
-      "M3": "m³",
-      "BAG": "Bag",
-      "PIECE": "Unit",
-      "OTHER": "Other",
-      "UNSPECIFIED": "No unit"
-    },
-    "form": {
-      "title": "Environmental material outgoing application",
-      "help": "Choose the waste category, complete the first four required evidence photos, add any other useful photos and capture GPS. Submitting creates a pending approval application.",
-      "locationFailed": "Location could not be captured. Allow precise location access and try again.",
-      "submitFailed": "The application could not be submitted. Check the marked information and try again."
-    },
+    "empty": "No waste has been recorded yet.",
     "evidence": {
       "title": "Required photo evidence",
       "progress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
@@ -74,6 +46,12 @@
       "quantity": "2. Quantity and material detail",
       "vehicle": "3. Vehicle or removal equipment",
       "loading": "4. Loading or gate activity"
+    },
+    "export": {
+      "capturedAt": "Recorded at",
+      "dispatchNo": "Dispatch no.",
+      "recordedBy": "Recorded by",
+      "status": "Status"
     },
     "field": {
       "project": "Project",
@@ -100,31 +78,17 @@
       "reason": "Reason",
       "dispatchNo": "Order no"
     },
-    "assign": {
-      "title": "Assign a recycler",
-      "help": "Choose a recycler bound to this project. The order for {reference} is sent to their system immediately.",
-      "noPartners": "No recycler is bound to this project yet. Bind one under Recycler partners before raising an order."
+    "filter": {
+      "selectProject": "Select project",
+      "allProjects": "All projects",
+      "allCategories": "All categories",
+      "allStatuses": "All statuses"
     },
-    "schedule": {
-      "title": "Confirm collection time",
-      "help": "{recycler} proposed a time for {reference}. Keep it or choose another time, then confirm the final arrangement.",
-      "proposed": "Recycler proposal",
-      "confirmedAt": "Final collection date and time",
-      "note": "Site instructions"
-    },
-    "review": {
-      "title": "Review outgoing application",
-      "help": "Approve {reference} before sending a recycle order, or return it with a reason.",
-      "note": "Approval comment",
-      "noteLabel": "Approval comment",
-      "failed": "The approval decision could not be saved."
-    },
-    "tracking": {
-      "title": "Recycle order details",
-      "help": "Application, collection execution, weighing and settlement for {reference}.",
-      "notOrdered": "No recycle order has been raised yet.",
-      "notYetAssigned": "Not yet assigned",
-      "executionPhotos": "Collection photos"
+    "form": {
+      "title": "Environmental material outgoing application",
+      "help": "Choose the waste category, complete the first four required evidence photos, add any other useful photos and capture GPS. Submitting creates a pending approval application.",
+      "locationFailed": "Location could not be captured. Allow precise location access and try again.",
+      "submitFailed": "The application could not be submitted. Check the marked information and try again."
     },
     "milestone": {
       "ORDER_SENT": "Order sent to recycler",
@@ -139,14 +103,22 @@
       "COMPLETED": "Recycling complete",
       "SETTLED": "Settlement complete"
     },
-    "weighing": {
-      "title": "Weighbridge",
-      "firstWeight": "First weight",
-      "secondWeight": "Second weight",
-      "netWeight": "Net weight",
-      "verdict": "Status",
-      "anomalies": "Weighing exception: {codes}",
-      "pending": "Not yet weighed."
+    "photos": {
+      "caption": "Note (optional)"
+    },
+    "review": {
+      "title": "Review outgoing application",
+      "help": "Approve {reference} before sending a recycle order, or return it with a reason.",
+      "note": "Approval comment",
+      "noteLabel": "Approval comment",
+      "failed": "The approval decision could not be saved."
+    },
+    "schedule": {
+      "title": "Confirm collection time",
+      "help": "{recycler} proposed a time for {reference}. Keep it or choose another time, then confirm the final arrangement.",
+      "proposed": "Recycler proposal",
+      "confirmedAt": "Final collection date and time",
+      "note": "Site instructions"
     },
     "settlement": {
       "title": "Settlement",
@@ -155,9 +127,66 @@
       "weight": "Settled weight",
       "amount": "Amount"
     },
-    "cancel": {
-      "title": "Cancel waste application",
-      "help": "{reference} will be cancelled and excluded from the quantity totals."
+    "status": {
+      "DRAFT": "Legacy draft",
+      "PENDING_APPROVAL": "Pending approval",
+      "RETURNED": "Returned",
+      "APPROVED": "Approved",
+      "ORDERED": "Order sent",
+      "IN_PROGRESS": "Collection in progress",
+      "COMPLETED": "Complete",
+      "CANCELLED": "Cancelled"
+    },
+    "submit": {
+      "needPhotos": "Photos are what the record is made of, so attach them before asking for a collection. The exact number your company requires comes back if there are still too few."
+    },
+    "subtitle": "Record waste leaving site, then raise the recycling order that collects it.",
+    "title": "Waste outgoing",
+    "toast": {
+      "categorySaved": "Waste category saved.",
+      "recorded": "Application submitted for approval.",
+      "photosAdded": "Photos added.",
+      "submitted": "Application submitted.",
+      "approved": "Application approved.",
+      "returned": "Application returned.",
+      "ordered": "Recycle order sent.",
+      "scheduleConfirmed": "Collection time confirmed.",
+      "cancelled": "Waste application cancelled.",
+      "categoryRemoved": "Category removed"
+    },
+    "totals": {
+      "today": "Today",
+      "month": "This month",
+      "year": "This year",
+      "all_time": "Total"
+    },
+    "tracking": {
+      "title": "Recycle order details",
+      "help": "Application, collection execution, weighing and settlement for {reference}.",
+      "notOrdered": "No recycle order has been raised yet.",
+      "notYetAssigned": "Not yet assigned",
+      "executionPhotos": "Collection photos",
+      "driverRoute": "Where the lorry went",
+      "driverRouteNote": "Recorded by the driver's phone. Broken lines are stretches where nothing was recorded — the screen was off or the app was in the background.",
+      "routeGap": "No location recorded · about {minutes} min"
+    },
+    "unit": {
+      "TONNE": "Ton",
+      "KG": "Kg",
+      "M3": "m³",
+      "BAG": "Bag",
+      "PIECE": "Unit",
+      "OTHER": "Other",
+      "UNSPECIFIED": "No unit"
+    },
+    "weighing": {
+      "title": "Weighbridge",
+      "firstWeight": "First weight",
+      "secondWeight": "Second weight",
+      "netWeight": "Net weight",
+      "verdict": "Status",
+      "anomalies": "Weighing exception: {codes}",
+      "pending": "Not yet weighed."
     }
   },
   "contractorDashboard": {
@@ -415,89 +444,98 @@
       "reference": "4. Grid line or surrounding reference"
     },
     "categories": {
-      "title": "Site record categories",
-      "subtitle": "Organise each project's site records and choose what field staff can see.",
-      "add": "Add category",
-      "createTitle": "New site record category",
-      "editTitle": "Edit site record category",
-      "formHelp": "Categories belong to one project and can be ordered or hidden from the field app.",
-      "removeTitle": "Remove {name}?",
-      "removeBody": "The category can only be removed when no live record still uses it.",
-      "accessTitle": "Who can see this category",
       "accessAll": "All project members",
+      "accessRequired": "Choose at least one role or person before saving this restricted category.",
       "accessRestricted": "Selected roles and people only",
       "accessRoles": "Allowed roles",
+      "accessTitle": "Who can see this category",
       "accessUsers": "Allowed people",
+      "add": "Add category",
+      "createTitle": "New site record category",
+      "editPermissionHelp": "Leave both lists empty to use the normal category manager permission. Company administrators always retain recovery access.",
+      "editPermissionTitle": "Who can edit this category",
+      "editRoles": "Roles allowed to edit",
+      "editTitle": "Edit site record category",
+      "editUsers": "People allowed to edit",
+      "formHelp": "Categories belong to one project and can be ordered or hidden from the field app.",
+      "moveDown": "Move down",
+      "moveUp": "Move up",
       "noRoles": "No roles are available for selection.",
       "noUsers": "No project members are available for selection.",
-      "accessRequired": "Choose at least one role or person before saving this restricted category.",
-      "uploadTitle": "Who can upload to this category",
+      "removeBody": "The category can only be removed when no live record still uses it.",
+      "removeTitle": "Remove {name}?",
+      "reorderNeedsProject": "Choose one site to put its categories in order. The order is what the field app shows, and it only means something within one site.",
+      "subtitle": "Organise each project's site records and choose what field staff can see.",
+      "title": "Site record categories",
       "uploadHelp": "Leave both lists empty to let everyone who can see the category upload. Selecting roles or people restricts uploads to them.",
       "uploadRoles": "Roles allowed to upload",
-      "uploadUsers": "People allowed to upload",
-      "editPermissionTitle": "Who can edit this category",
-      "editPermissionHelp": "Leave both lists empty to use the normal category manager permission. Company administrators always retain recovery access.",
-      "editRoles": "Roles allowed to edit",
-      "editUsers": "People allowed to edit"
+      "uploadTitle": "Who can upload to this category",
+      "uploadUsers": "People allowed to upload"
     },
     "tasks": {
-      "title": "Site tasks",
-      "subtitle": "Assign photo-based work to project staff and review their evidence.",
-      "consultantInboxTitle": "Consultant field inbox",
-      "consultantInboxSubtitle": "Review photo evidence sent directly by field staff before attaching it to a consultant application.",
-      "assign": "Assign task",
-      "createTitle": "Assign a site task",
-      "formHelp": "Choose the project, field worker, work location, deadline and required photos.",
-      "photos": "Photos: {current}/{required}",
-      "assignedBy": "Assigned by {name}",
-      "workLocation": "Work area: {location}",
-      "submittedAt": "Submitted {value}",
-      "openGps": "Open GPS location",
-      "prepareApplication": "Prepare consultant application",
-      "sourceTitle": "Source field submission",
-      "sourceHelp": "This application was prepared from evidence submitted by field staff. The original photos remain linked and cannot be replaced.",
-      "sourceLoading": "Loading the field submission...",
-      "sourceLoadError": "The field submission could not be loaded. Check the link and try again.",
-      "sourceSubmittedAt": "Submitted {value}",
-      "sourcePhotosLinked": "{count} original photo(s) linked",
-      "sourceGps": "Open source GPS",
-      "dueAt": "Due: {value}",
-      "returnPrompt": "Explain what the field staff must correct before resubmitting.",
-      "referenceFiles": "Reference photos or files",
       "addReferences": "Choose reference photos or files",
+      "assign": "Assign task",
+      "assignedBy": "Assigned by {name}",
+      "consultantInboxSubtitle": "Review photo evidence sent directly by field staff before attaching it to a consultant application.",
+      "consultantInboxTitle": "Consultant field inbox",
+      "createTitle": "Assign a site task",
+      "dueAt": "Due: {value}",
+      "edit": "Edit task",
+      "editTitle": "Edit this task",
+      "formHelp": "Choose the project, field worker, work location, deadline and required photos.",
+      "openGps": "Open GPS location",
+      "photos": "Photos: {current}/{required}",
+      "prepareApplication": "Prepare consultant application",
+      "projectFixed": "The site cannot change - the assignee is drawn from this site's team.",
+      "referenceFiles": "Reference photos or files",
       "referenceHelp": "Field staff will see these before starting the task.",
-      "referencesSelected": "{count} reference file(s) selected",
       "references": "References ({count})",
-      "saveError": "The task could not be assigned. Check the project team and try again."
+      "referencesSelected": "{count} reference file(s) selected",
+      "returnPrompt": "Explain what the field staff must correct before resubmitting.",
+      "saveError": "The task could not be assigned. Check the project team and try again.",
+      "sourceGps": "Open source GPS",
+      "sourceHelp": "This application was prepared from evidence submitted by field staff. The original photos remain linked and cannot be replaced.",
+      "sourceLoadError": "The field submission could not be loaded. Check the link and try again.",
+      "sourceLoading": "Loading the field submission...",
+      "sourcePhotosLinked": "{count} original photo(s) linked",
+      "sourceSubmittedAt": "Submitted {value}",
+      "sourceTitle": "Source field submission",
+      "submittedAt": "Submitted {value}",
+      "subtitle": "Assign photo-based work to project staff and review their evidence.",
+      "title": "Site tasks",
+      "workLocation": "Work area: {location}"
     },
     "equipment": {
-      "title": "Site equipment",
-      "subtitle": "Register equipment and record each entry or exit with GPS and photos.",
       "add": "Add equipment",
       "createTitle": "Register site equipment",
-      "formHelp": "Use the equipment or registration number found on the physical machine.",
-      "recordEntry": "Record entry",
-      "recordExit": "Record exit",
+      "deliveryNotePhoto": "Delivery note photo",
+      "deliveryNoteReady": "Delivery note photo ready",
+      "directionLabel": "Movement",
+      "editTitle": "Edit this equipment",
       "entryTitle": "Record {name} entering site",
       "exitTitle": "Record {name} leaving site",
+      "formHelp": "Use the equipment or registration number found on the physical machine.",
       "movementHelp": "Take current photos and location. This movement becomes permanent site evidence.",
-      "recentMovements": "Recent movement history",
       "occurredAt": "Movement time",
-      "directionLabel": "Movement",
-      "deliveryNotePhoto": "Delivery note photo",
-      "takeDeliveryNote": "Take delivery note photo",
-      "deliveryNoteReady": "Delivery note photo ready",
-      "readDeliveryNote": "Read with Azure OCR",
-      "ocrReady": "OCR read the document. Check and confirm the filled details before saving.",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
+      "ocrReady": "OCR read the document. Check and confirm the filled details before saving.",
+      "readDeliveryNote": "Read with Azure OCR",
+      "recentMovements": "Recent movement history",
+      "recordEntry": "Record entry",
+      "recordExit": "Record exit",
+      "stillInUse": "Still in use",
+      "stillInUseHelp": "Turn off for a machine that has left for good. Movements already recorded against it stay exactly as they are.",
       "submissionError": "The movement could not be recorded. Reopen the equipment and try again.",
+      "subtitle": "Register equipment and record each entry or exit with GPS and photos.",
       "summary": {
         "today": "Entered today",
         "month": "Entered this month",
         "year": "Entered this year",
         "project_total": "Project entry total",
         "quantity_on_site": "Currently on site"
-      }
+      },
+      "takeDeliveryNote": "Take delivery note photo",
+      "title": "Site equipment"
     },
     "equipmentFilter": {
       "search": "Search movements",
@@ -511,24 +549,30 @@
       "clear": "Clear filters"
     },
     "progress": {
-      "title": "Construction progress",
-      "subtitle": "Manage construction phases, photo updates and project-manager confirmation.",
+      "addFirstPhase": "Add first phase",
       "addPhase": "Add phase",
       "addRecord": "Record progress",
-      "returnPrompt": "Explain what must be corrected before this progress is resubmitted.",
-      "phaseTitle": "New construction phase",
-      "phaseHelp": "Create the stages used to organise and confirm progress.",
-      "recordTitle": "New progress evidence",
-      "recordHelp": "Take current site photos. A manager must confirm the percentage before it is final.",
+      "capturedAt": "Recorded at",
+      "confirmedAt": "Confirmed at",
+      "confirmedBy": "Confirmed by",
+      "editPhase": "Correct this phase",
       "noPhasesHelp": "This project has no construction phases yet. Add one before recording progress against it.",
-      "addFirstPhase": "Add first phase",
+      "phaseActive": "In use. Turn this off to retire a phase instead of deleting it - progress records point at it, and removing it would take their meaning with them.",
+      "phaseHelp": "Create the stages used to organise and confirm progress.",
+      "phaseTitle": "New construction phase",
+      "recordHelp": "Take current site photos. A manager must confirm the percentage before it is final.",
+      "recordTitle": "New progress evidence",
+      "returnPrompt": "Explain what must be corrected before this progress is resubmitted.",
       "saveError": "The progress record could not be saved. Check the project, phase, photo and GPS, then try again.",
+      "submittedBy": "Recorded by",
+      "subtitle": "Manage construction phases, photo updates and project-manager confirmation.",
       "summary": {
         "today": "Today",
         "month": "This month",
         "year": "This year",
         "total": "Project total"
-      }
+      },
+      "title": "Construction progress"
     },
     "outgoing": {
       "title": "Material outgoing",
@@ -550,48 +594,51 @@
       }
     },
     "field": {
-      "project": "Project",
-      "selectProject": "Select project",
-      "allProjects": "All projects",
-      "code": "Code",
-      "name": "Name",
-      "parent": "Parent category",
-      "noParent": "No parent category",
-      "description": "Description",
-      "sortOrder": "Display order",
-      "showInPwa": "Show in field app",
       "active": "Active",
-      "title": "Task title",
+      "allProjects": "All projects",
       "assignee": "Field staff",
-      "selectStaff": "Select project staff",
-      "taskType": "Task type",
       "category": "Category",
-      "noCategory": "No category",
-      "priority": "Priority",
-      "workLocation": "Work area / location",
-      "dueAt": "Due date and time",
-      "photoRequired": "Required photos",
-      "instructions": "Instructions",
-      "serialNo": "Serial number",
-      "registrationNo": "Registration number",
-      "supplier": "Supplier",
-      "noSupplier": "No supplier",
-      "operator": "Operator",
-      "vehiclePlate": "Vehicle plate",
+      "code": "Code",
       "deliveryNote": "Delivery note",
-      "photos": "Current photos",
-      "photoCount": "{count} photo(s) selected",
-      "location": "Current GPS location",
-      "notes": "Notes",
-      "phase": "Construction phase",
-      "selectPhase": "Select phase",
-      "percentComplete": "Actual completion (%)",
-      "material": "Material",
-      "quantity": "Quantity",
-      "unit": "Unit",
-      "executor": "Executor",
+      "description": "Description",
       "destination": "Destination",
-      "reason": "Reason for outgoing"
+      "dueAt": "Due date and time",
+      "executor": "Executor",
+      "instructions": "Instructions",
+      "latitude": "Latitude",
+      "location": "Current GPS location",
+      "longitude": "Longitude",
+      "material": "Material",
+      "name": "Name",
+      "noCategory": "No category",
+      "noParent": "No parent category",
+      "noSupplier": "No supplier",
+      "notes": "Notes",
+      "operator": "Operator",
+      "parent": "Parent category",
+      "percentComplete": "Actual completion (%)",
+      "phase": "Construction phase",
+      "photoCount": "{count} photo(s) selected",
+      "photoRequired": "Required photos",
+      "photos": "Current photos",
+      "priority": "Priority",
+      "project": "Project",
+      "quantity": "Quantity",
+      "reason": "Reason for outgoing",
+      "registrationNo": "Registration number",
+      "selectPhase": "Select phase",
+      "selectProject": "Select project",
+      "selectStaff": "Select project staff",
+      "serialNo": "Serial number",
+      "showInPwa": "Show in field app",
+      "sortOrder": "Display order",
+      "status": "Status",
+      "supplier": "Supplier",
+      "taskType": "Task type",
+      "title": "Task title",
+      "unit": "Unit",
+      "vehiclePlate": "Vehicle plate",
+      "workLocation": "Work area / location"
     },
     "action": {
       "edit": "Edit",
@@ -697,16 +744,19 @@
       "RELEASED": "Released"
     },
     "toast": {
-      "saved": "Saved",
-      "removed": "Removed",
-      "taskAssigned": "Task assigned",
-      "taskUpdated": "Task updated",
-      "photoAdded": "Photo added",
       "movementSaved": "Equipment movement recorded",
-      "progressSubmitted": "Progress submitted",
-      "progressReviewed": "Progress review saved",
+      "orderSaved": "Order saved",
+      "outgoingReviewed": "Outgoing status updated",
       "outgoingSubmitted": "Outgoing request submitted",
-      "outgoingReviewed": "Outgoing status updated"
+      "phaseSaved": "Phase saved",
+      "photoAdded": "Photo added",
+      "progressReviewed": "Progress review saved",
+      "progressSubmitted": "Progress submitted",
+      "referenceAdded": "Reference added",
+      "removed": "Removed",
+      "saved": "Saved",
+      "taskAssigned": "Task assigned",
+      "taskUpdated": "Task updated"
     }
   },
   "siteDisposal": {
@@ -1408,7 +1458,7 @@
       "progressRecords": "Progress records",
       "schedulePlanning": "Schedule planning",
       "recyclerPartners": "Recycler partners",
-      "wasteDispatches": "Recycle orders",
+      "wasteDispatches": "Waste dispatches",
       "wasteOutgoing": "Environmental material outgoing applications",
       "siteDisposals": "Site disposal",
       "recyclingRecords": "Weighing records",
@@ -1432,7 +1482,7 @@
       "materialQuantityReport": "Material quantity report",
       "materialCostReport": "Material cost report",
       "transactionReports": "Operational reports",
-      "reportHistory": "Report export history",
+      "reportHistory": "Report history",
       "geofenceSettings": "Geofence settings",
       "workforceGps": "Workforce live location",
       "emergencyList": "Emergency list",
@@ -1442,65 +1492,26 @@
       "roles": "Roles and permissions",
       "loginHistory": "Login history",
       "userHandovers": "User handover records",
-      "userActivity": "Activity logs",
+      "userActivity": "User operation records",
       "companySettings": "Company settings",
       "integrationSettings": "System integrations",
       "notifications": "Notification center",
-      "projectRecords": "Project records",
       "projectCategories": "Site record categories",
-      "fieldTasks": "Site tasks",
-      "supplierRecords": "Supplier records",
-      "materialReceipts": "Material receipts",
-      "siteEquipment": "Site equipment",
-      "materialOutgoing": "Material outgoing",
-      "progressRecords": "Progress records",
-      "schedulePlanning": "Schedule planning",
-      "recyclerPartners": "Recycler partners",
-      "wasteDispatches": "Waste dispatches",
-      "siteDisposals": "Site disposal",
-      "recyclingRecords": "Weighing records",
-      "attendanceRecords": "Attendance records",
-      "siteGps": "Site personnel GPS",
-      "safetyIncidents": "Safety incidents",
-      "incidentReports": "Incident reports",
-      "consultantApplications": "Consultant applications",
-      "consultantWorkflows": "Approval workflow",
-      "approvalCredentials": "Approval credentials",
-      "consultantFieldInbox": "Field evidence inbox",
-      "consultantAccess": "Consultant access",
-      "documentArchive": "Document archive",
-      "evidenceArchive": "Evidence archive",
-      "materialQuantityReport": "Material quantity report",
-      "materialCostReport": "Material cost report",
-      "transactionReports": "Operational reports",
-      "geofenceSettings": "Geofence settings",
-      "workforceGps": "Workforce live location",
-      "emergencyList": "Emergency list",
-      "siteAccessPasses": "Site access passes",
-      "gateScanning": "Gate scanning",
-      "userManagement": "User management",
-      "roles": "Roles and permissions",
-      "userActivity": "Activity logs",
-      "companySettings": "Company settings",
-      "notifications": "Notification center",
       "companyCreate": "Create company",
       "companyDirectory": "Company management and search",
       "companyReview": "Company review",
       "companyStatus": "Company status",
-      "companySubscriptions": "Company subscription management",
+      "companySubscriptions": "Company subscriptions",
       "companyProjects": "Company projects",
       "companyRecyclerData": "Recycler information",
       "companySearch": "Company search",
       "companyStatistics": "Company statistics",
       "companyActivity": "Company operation records",
-      "userManagement": "User management",
       "userProfiles": "User profiles and search",
       "userCategories": "User categories",
       "userLoginManagement": "Login management",
       "userStatistics": "User statistics",
-      "userActivity": "User operation records",
       "subscriptionPlans": "Subscription plans",
-      "companySubscriptions": "Company subscriptions",
       "subscriptionStatus": "Subscription status",
       "packageChanges": "Package changes",
       "accountLimits": "Account limits",
@@ -1512,7 +1523,6 @@
       "platformCommission": "Platform commission",
       "automaticBilling": "Automatic billing",
       "collections": "Collections",
-      "paymentProofs": "Payment proofs",
       "commissionRules": "Commission rules",
       "invoiceSearch": "Invoice management and search",
       "billingStatistics": "Billing statistics",
@@ -1553,7 +1563,6 @@
       "operationsReports": "System operations reports",
       "reportSearch": "Report center",
       "reportExports": "Report export",
-      "reportHistory": "Report history",
       "contractorNotifications": "Contractor notifications",
       "recyclerNotifications": "Recycler notifications",
       "saasNotifications": "SaaS notifications",
@@ -1649,7 +1658,10 @@
       "cloudAlerts": "Resource alerts",
       "cloudAnalysis": "Resource analysis",
       "cloudReports": "Cloud reports",
-      "cloudActivity": "Cloud records"
+      "cloudActivity": "Cloud records",
+      "assetDepartments": "Departments",
+      "platformJobs": "Scheduled jobs",
+      "externalAccess": "External access"
     }
   },
   "globalSearch": {
@@ -2001,6 +2013,20 @@
         "FAILED": "Failed"
       }
     },
+    "telemetry": {
+      "open": "Reported readings",
+      "title": "Reported readings: {name}",
+      "description": "What this device has actually sent, newest first. The online badge says it is reachable; this says it is still reporting.",
+      "empty": "This device has not reported anything yet.",
+      "loadError": "Readings could not be loaded.",
+      "boundary": "MSE Trace receives and records these readings. It does not command the device — what happens next is decided by the vendor's own controller.",
+      "kind": {
+        "OBSERVATION": "Reading",
+        "EVENT": "Event",
+        "STATUS": "Status",
+        "ALERT": "Alert"
+      }
+    },
     "field": {
       "kind": "Integration type",
       "name": "Name",
@@ -2039,7 +2065,12 @@
       "deviceHeader": "Device identity header",
       "signatureHeader": "Signature header",
       "oneTimeSecret": "One-time device secret",
-      "heartbeatBody": "Signed heartbeat JSON body"
+      "heartbeatBody": "Signed heartbeat JSON body",
+      "editTitle": "Edit this device",
+      "active": "In service",
+      "rotateSecret": "New key",
+      "rotateSecretPlaceholder": "Leave blank to keep the current key",
+      "rotateSecretHelp": "A new key takes effect the moment you save. The device is refused until the same key is entered on the unit itself, so change it when someone can reach the hardware."
     },
     "kind": {
       "ERP": "ERP",
@@ -2049,6 +2080,10 @@
       "API_GATEWAY": "API Gateway",
       "CCTV": "CCTV",
       "ANPR": "ANPR",
+      "ACCESS_CONTROL": "Access controller",
+      "RFID": "RFID cards",
+      "FACE_RECOGNITION": "Face recognition",
+      "VISITOR_MANAGEMENT": "Visitor system",
       "IOT": "IoT",
       "AI": "AI",
       "DRONE": "Drone",
@@ -2076,27 +2111,136 @@
       "testFailed": "Connection test failed",
       "removed": "Connection removed",
       "deviceCreated": "Device registered",
-      "deviceRemoved": "Device removed"
+      "deviceRemoved": "Device removed",
+      "deviceUpdated": "Device updated"
     },
     "validation": {
       "settings": "Settings must be valid JSON."
-    }
-  },
-  "externalPortal": {
-    "invalid": "This external link is unavailable",
-    "invalidBody": "It may have expired, been revoked, or been entered incorrectly.",
-    "expiry": "Access expires {date}",
-    "project": "Project",
-    "progress": "Progress",
-    "weighing": "Verified weighing",
-    "documents": "Documents",
-    "evidence": "Evidence",
-    "field": {
-      "code": "Code",
-      "name": "Name",
-      "status": "Status",
-      "location": "Location"
-    }
+    },
+    "kindHelp": {
+      "ERP": {
+        "needs": "An endpoint address and a key from your ERP supplier. What we send is our own format, so someone on that side writes a short piece of code to read it.",
+        "title": "Your company's own ERP system",
+        "what": "Sends a copy of what happens here into the ERP your office already uses - a load weighed, an order accepted, an invoice issued - so nobody has to type it in a second time."
+      },
+      "ACCOUNTING": {
+        "needs": "The accounting system's endpoint address and key, and a short piece of code on that side to read our format.",
+        "title": "Accounting software",
+        "what": "Only the money side: invoices issued, outbound shipments confirmed, weighings settled. Day-to-day vehicle movements are not sent."
+      },
+      "MYINVOIS": {
+        "needs": "Credentials from the tax authority. Note: what leaves here is our general format, **not yet the form the authority specifies** - a translation step in between has to be provided by you or your supplier.",
+        "title": "Malaysian e-invoicing (MyInvois)",
+        "what": "Sends an invoice onward the moment it is issued."
+      },
+      "GOVERNMENT_API": {
+        "needs": "The authority's endpoint address and key. As above, we send our general format; the specific form needs translating.",
+        "title": "Government or authority endpoint",
+        "what": "Reports where the waste went: the lorry loaded and left, the weighbridge settled, the shipment confirmed. Those three are exactly the trail an authority follows."
+      },
+      "API_GATEWAY": {
+        "needs": "The gateway's address and key.",
+        "title": "Your own gateway",
+        "what": "If your company runs a middle layer, everything can go through it: it can push your devices' data in, and it can receive what we send out. Both directions."
+      },
+      "WEBHOOK": {
+        "needs": "An address that can receive a web request. Leave it in simulated mode first and you can see what would be sent without connecting anything real.",
+        "title": "General notifications (webhook)",
+        "what": "The simplest one. When something happens here, we post a notification to an address you choose and you do what you like with it. Best for a company with no ERP, and the easiest way to see what we would send."
+      },
+      "CCTV": {
+        "needs": "The camera or recorder must be able to push images out. **An RTSP stream on its own is not enough** - that is a picture, and it never tells us that something happened.",
+        "title": "Camera or recorder",
+        "what": "The camera sends stills and clips in, kept as evidence alongside the paperwork."
+      },
+      "ANPR": {
+        "needs": "A camera that can send the plate it read, registered against one specific weighbridge.",
+        "title": "Number-plate camera",
+        "what": "The camera reads a plate and sends it in; we check it against the orders waiting. A match is let through, and the LED board, the voice unit and the barrier are told. No match is not let through, and the operator is asked."
+      },
+      "ACCESS_CONTROL": {
+        "needs": "A controller, or the software beside it, that can push events out.",
+        "title": "Access controller",
+        "what": "Card-and-door records come in: who, when, in or out, allowed or refused. Kept unchangeable."
+      },
+      "RFID": {
+        "needs": "A reader or its controller that can push the reads out.",
+        "title": "RFID cards",
+        "what": "Worker and vehicle cards, read and sent in, kept with the rest of the gate record."
+      },
+      "FACE_RECOGNITION": {
+        "needs": "A unit that can output its own person reference, matched to the people on this platform.",
+        "title": "Face recognition unit",
+        "what": "Once the unit recognises somebody, it sends us who it was. **Only the person's reference, never the face image** - the picture stays on your equipment."
+      },
+      "VISITOR_MANAGEMENT": {
+        "needs": "A visitor system that can push its events out.",
+        "title": "Visitor system",
+        "what": "Visitor sign-in and movements come in, kept in the same place as the workers' record."
+      },
+      "IOT": {
+        "needs": "A sensor or its gateway that can send in our format and sign what it sends.",
+        "title": "Sensors",
+        "what": "Readings such as temperature, fuel level or vibration, sent in on a schedule and kept."
+      },
+      "AI": {
+        "needs": "A device that can send its conclusions in our format.",
+        "title": "AI analysis box",
+        "what": "Whatever the box concluded arrives as a reading and is kept. **We receive and store; we do not analyse** - the analysis is that device's job."
+      },
+      "DRONE": {
+        "needs": "A ground station or software that can push the record out.",
+        "title": "Drone",
+        "what": "After a flight, the log and any readings are sent in and kept. **We do not fly it, plan a route, or handle take-off and landing** - only the record."
+      },
+      "TOWER_CRANE": {
+        "needs": "A crane monitor that can push readings out.",
+        "title": "Tower crane monitor",
+        "what": "Load, wind speed and radius readings are sent in and kept, so there is a record if anything happens. **No moment interlock, no part in any safety control** - that belongs to the crane's own system and must never depend on an instruction from the internet."
+      },
+      "RF": {
+        "needs": "A monitor that can push its observations out.",
+        "title": "Radio anti-tamper monitor",
+        "what": "Suspicious radio signals near the weighbridge come in and sit beside that load's weighing record, which is how remote-control tampering shows up."
+      },
+      "channel": {
+        "ACCESS": "These (plate, door, card, face, visitor) all use **the same access-decision channel**. Which one you pick changes how the record files itself.",
+        "TELEMETRY": "These (sensors, AI, drone, crane, radio) all use **the same channel**. Which one you pick changes how the record files itself and **not what it can do** - what arrives is the same kind of reading either way."
+      },
+      "direction": {
+        "BOTH": "Both directions",
+        "INBOUND": "Equipment sends in",
+        "OUTBOUND": "We send out"
+      },
+      "needsLabel": "You will need:"
+    },
+    "event": {
+      "weighing.session.settled": {
+        "title": "Weighing settled (net weight known)",
+        "what": "Gross and tare are both in and the net weight has just been worked out. This is the one an ERP actually wants."
+      },
+      "waste.dispatch.accepted": {
+        "title": "Recycler accepted the order",
+        "what": "The recycler took on the contractor's order and proposed a collection time."
+      },
+      "waste.dispatch.collected": {
+        "title": "Loaded and left the site",
+        "what": "The driver loaded up and drove off the site. This is where an authority's trail begins."
+      },
+      "recycler.outbound.confirmed": {
+        "title": "Outbound shipment confirmed",
+        "what": "The recycler sold processed material on and confirmed it leaving the yard."
+      },
+      "billing.invoice.issued": {
+        "title": "Invoice issued",
+        "what": "An invoice moved from draft to issued, so somebody now owes money."
+      }
+    },
+    "kindHelpTitle": "What this is for",
+    "eventsTitle": "What to send out",
+    "eventsHelp": "Whatever is ticked gets posted to the address above as soon as it happens. Anything unticked is not sent. You can change this at any time.",
+    "noEventsSelected": "Nothing is ticked - this connection will not send anything.",
+    "sharedChannelTitle": "Shared channel"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -3174,7 +3318,36 @@
       "approve": "Approval approved",
       "reject": "Approval rejected",
       "return": "Approval returned",
-      "close": "Approval closed"
+      "close": "Approval closed",
+      "templateSaved": "Approval chain saved",
+      "templateRemoved": "Approval chain removed",
+      "stepSaved": "Step saved",
+      "stepRemoved": "Step removed"
+    },
+    "workflow": {
+      "action": "Approval chains",
+      "title": "Approval chains",
+      "help": "Define who signs off, and in what order. With no chain configured, anyone holding the review permission approves in a single step — which is not what a multi-level approval was promised to be.",
+      "name": "Chain name",
+      "namePlaceholder": "e.g. Two-level document approval",
+      "addTemplate": "Add chain",
+      "loading": "Loading…",
+      "noTemplates": "No approval chain configured. Approvals are being signed off in one step by anyone with the review permission.",
+      "stepCount": "{count} steps",
+      "inactive": "Inactive",
+      "removeTemplate": "Remove",
+      "removeTitle": "Remove this approval chain?",
+      "removeConfirm": "{name} will no longer apply. Approvals will fall back to a single step by any reviewer.",
+      "close": "Close",
+      "noSteps": "No steps yet. A chain with no steps behaves the same as no chain at all.",
+      "noReviewer": "No reviewer assigned",
+      "removeStep": "Remove",
+      "stepName": "Step name",
+      "stepNamePlaceholder": "e.g. Site manager review",
+      "reviewer": "Reviewer",
+      "reviewerPlaceholder": "Choose a role or a person",
+      "byRole": "Anyone with role: {name}",
+      "addStep": "Add step"
     }
   },
   "evidence": {
@@ -3391,7 +3564,8 @@
       "WEIGHING": "Weighing",
       "SAFETY": "Safety",
       "ACCESS": "Site access",
-      "ASSET": "Equipment"
+      "ASSET": "Equipment",
+      "ANNOUNCEMENT": "Announcement"
     },
     "status": {
       "read": "Read",
@@ -3571,6 +3745,10 @@
       "records": {
         "title": "Monitoring records",
         "subtitle": "Permanent event time, type, service, content and handling history"
+      },
+      "jobs": {
+        "title": "Scheduled jobs",
+        "subtitle": "The platform's own background work, its run history and worker health."
       }
     },
     "mode": {
@@ -3677,6 +3855,95 @@
     "toast": {
       "captured": "Monitoring snapshot captured",
       "resolutionSaved": "Exception handling status saved"
+    },
+    "captures": {
+      "title": "Recent captures",
+      "none": "No device has pushed an image yet",
+      "capturedAt": "Captured",
+      "device": "Device",
+      "kind": "Type",
+      "size": "Size",
+      "attachedTo": "Attached to",
+      "action": "",
+      "view": "View",
+      "purged": "Purged {date}",
+      "unavailable": "Unavailable",
+      "kindLabel": {
+        "PHOTO": "Photo",
+        "CLIP": "Clip"
+      }
+    },
+    "plateReads": {
+      "title": "Recent reads",
+      "none": "No reads recorded yet",
+      "occurredAt": "Time",
+      "gate": "Gate",
+      "credential": "Credential",
+      "direction": "Direction",
+      "outcome": "Outcome",
+      "reason": "Reason",
+      "recent": "Reads shown",
+      "unreadable": "Could not read",
+      "denied": "Read but denied",
+      "couldNotRead": "Could not read the credential",
+      "directionLabel": {
+        "ENTRY": "In",
+        "EXIT": "Out"
+      }
+    },
+    "jobs": {
+      "title": "Scheduled jobs",
+      "help": "Billing, reminders, announcements and monitoring snapshots run here.",
+      "empty": "No scheduled job is defined yet.",
+      "paused": "Paused",
+      "everyMinutes": "Every {minutes} min",
+      "oneOff": "One-off",
+      "action": {
+        "runNow": "Run now",
+        "pause": "Pause",
+        "resume": "Resume"
+      },
+      "column": {
+        "job": "Job",
+        "schedule": "Schedule",
+        "nextRun": "Next run",
+        "lastRun": "Last run",
+        "status": "Status"
+      },
+      "state": {
+        "QUEUED": "Queued",
+        "RUNNING": "Running",
+        "RETRY_WAIT": "Waiting to retry",
+        "SUCCEEDED": "Succeeded",
+        "FAILED": "Failed",
+        "CANCELLED": "Cancelled",
+        "NEVER": "Never run"
+      },
+      "workers": {
+        "total": "Workers",
+        "active": "Active",
+        "stale": "Stale"
+      },
+      "runs": {
+        "title": "Run history",
+        "all": "All jobs",
+        "filtered": "Filtered to the selected job.",
+        "clearFilter": "Show all",
+        "empty": "No run recorded yet.",
+        "column": {
+          "scheduled": "Scheduled for",
+          "handler": "Handler",
+          "state": "State",
+          "attempt": "Attempt",
+          "finished": "Finished",
+          "detail": "Result / error"
+        }
+      },
+      "toast": {
+        "queued": "Job queued.",
+        "updated": "Job updated."
+      },
+      "loadError": "Could not load scheduled jobs."
     }
   },
   "contractorPartners": {
@@ -4231,7 +4498,7 @@
       "reset_link_sent": "Dedicated sign-in link resent",
       "force_logout": "User forcibly signed out",
       "commission_rule_created": "Commission rule created",
-      "commission_rule_updated": "Commission rule updated",
+      "commission_rule_updated": "Sales commission rule updated",
       "commission_rule_removed": "Commission rule removed",
       "invoice_generated": "Invoice generated",
       "invoice_issued": "Invoice issued",
@@ -4286,7 +4553,6 @@
       "disposal_request": "Asset disposal requested",
       "enquiry_status": "Customer enquiry status updated",
       "evidence_revision": "Evidence revision created",
-      "external_portal_read": "External portal record viewed",
       "feedback_response": "Customer feedback response recorded",
       "installation": "Asset installation recorded",
       "installation_status": "Asset installation status updated",
@@ -4300,7 +4566,6 @@
       "purchase": "Asset purchase recorded",
       "purchase_receipt": "Asset purchase receipt recorded",
       "return": "Asset returned",
-      "revoke_external_access": "External access revoked",
       "run_now": "Scheduled operation started",
       "stock_receipt": "Asset stock received",
       "terms_activated": "Sales terms activated",
@@ -4313,7 +4578,6 @@
       "sales_territory_removed": "Sales territory removed",
       "commission_scheme_created": "Sales commission scheme created",
       "commission_scheme_updated": "Sales commission scheme updated",
-      "commission_rule_updated": "Sales commission rule updated",
       "sales_terms_created": "Sales terms version created",
       "sales_terms_activated": "Sales terms version activated",
       "sales_terms_acknowledged": "Sales terms confirmation recorded",
@@ -4379,7 +4643,9 @@
       "REMOTE_CONFIGURATION": "Remote device configuration run",
       "REMOTE_TESTING": "Remote device test run",
       "REMOTE_RESTART": "Remote device restart run",
-      "FIRMWARE_UPGRADE": "Remote firmware upgrade run"
+      "FIRMWARE_UPGRADE": "Remote firmware upgrade run",
+      "external_portal_read": "External portal record viewed",
+      "revoke_external_access": "External access revoked"
     },
     "impersonatedBy": "Acting through {name}",
     "before": "Before",
@@ -4549,6 +4815,7 @@
       "site_not_found": "That site could not be found.",
       "session_not_found": "That weighing could not be found.",
       "gateway_not_found": "That gateway could not be found.",
+      "gate_binding_not_found": "Nothing is waiting at this weighbridge.",
       "invalid_rule_params": "Check the detection settings and try again.",
       "integration_not_found": "That integration could not be found.",
       "integration_already_exists": "An integration with that name already exists.",
@@ -4556,6 +4823,7 @@
       "integration_test_required": "Test this live connection successfully before enabling it.",
       "integration_has_devices": "Remove or unlink the devices using this connection first.",
       "integration_device_not_found": "That integration device could not be found.",
+      "integration_command_not_found": "That command was not found for this device.",
       "integration_device_already_exists": "A device with that id already exists.",
       "integration_device_gateway_linked": "Revoke the linked weighing gateway before removing this device.",
       "gateway_revoked": "This weighing gateway has already been revoked.",
@@ -4617,6 +4885,7 @@
       "export_no_columns": "Choose at least one column to export.",
       "export_too_large": "This selection is too large to export. Narrow it with a filter and try again.",
       "export_unavailable": "PDF export is not available right now. Try the spreadsheet instead.",
+      "event_stream_unavailable": "Live updates are busy right now. The page will keep refreshing on its own, just a little slower.",
       "dispatch_not_collectable": "This load is not waiting to be collected.",
       "dispatch_not_rejectable": "This load can no longer be refused.",
       "dispatch_not_owner": "Only the site that raised this load can change it.",
@@ -4727,6 +4996,7 @@
     "protocolLabel": {
       "mt_continuous_short": "METTLER TOLEDO Continuous Short",
       "generic_json": "Generic JSON",
+      "bdi_2001b": "BDE BDI-2001B",
       "sma": "SMA (not implemented)",
       "mt_8142": "METTLER TOLEDO 8142 (not implemented)",
       "mt_8530": "METTLER TOLEDO 8530 (not implemented)",
@@ -4768,6 +5038,18 @@
     "rotate": "Rotate secret",
     "rotateTitle": "Rotate the secret for {name}?",
     "rotateBody": "The current secret stops working immediately. The gateway cannot send readings until the new one is installed on it.",
+    "dtu": {
+      "title": "4G DTU installation",
+      "host": "Collector host",
+      "hostUnset": "Not configured — set DTU_COLLECTOR_PUBLIC_HOST",
+      "port": "Collector port",
+      "enrolToken": "Registration token",
+      "indicatorStep": "1. Set the {model} indicator",
+      "atStep": "2. Send these to the DTU, after ZL+LOGIN=666666",
+      "limitationsTitle": "What this mode cannot do",
+      "rotatedTitle": "Reconfigure the DTU",
+      "rotatedBody": "The registration token rotated with the secret. Until these commands are sent to the device, it will connect and be turned away."
+    },
     "revoke": "Revoke gateway",
     "revokeTitle": "Revoke gateway {name}?",
     "revokeBody": "The current credential will stop working immediately and the device will be unlinked from the integration registry. Historical weighing evidence will be retained.",
@@ -4899,7 +5181,8 @@
       "CLOCK_SKEW": "The device clock jumped",
       "FRAME_PARSE_FAILED": "A raw frame could not be read",
       "FRAME_MISMATCH": "The raw frame disagrees with what the gateway sent",
-      "PLATE_MISMATCH": "The plate does not match the dispatch"
+      "PLATE_MISMATCH": "The plate does not match the dispatch",
+      "ZERO_RETURN_FAILED": "Deck did not return to zero"
     },
     "integrity": {
       "verify": "Verify integrity",
@@ -4922,6 +5205,14 @@
       "valid": "Valid",
       "invalid": "Invalid",
       "review": "Needs review"
+    },
+    "deviceMedia": {
+      "title": "Pushed by devices",
+      "kind": {
+        "PHOTO": "Photo",
+        "CLIP": "Clip"
+      },
+      "purgedHint": "Bytes purged on retention. Recorded hash began {hash}"
     }
   },
   "weighingRules": {
@@ -5214,6 +5505,18 @@
       "qrRegenerated": "Supplier QR code regenerated",
       "qrEnabled": "Supplier QR code enabled",
       "qrDisabled": "Supplier QR code disabled"
+    },
+    "siteCodes": {
+      "allSitesCovered": "Every site already has a live code for this supplier.",
+      "chooseSite": "Choose a site",
+      "description": "A site code names this supplier and one site at once, so a delivery scanned with it needs neither typed in. Every receipt for that pair cites the live code.",
+      "empty": "No site code has been issued for this supplier yet.",
+      "issue": "Issue code",
+      "issuedOn": "Issued {date}",
+      "noSites": "There are no sites to issue a code for.",
+      "revokedOn": "Revoked {date}",
+      "scanHelp": "Print this for the gate house. Scanning it opens a material record with the site and the supplier already filled in.",
+      "title": "Site codes"
     }
   },
   "qrCodes": {
@@ -5674,11 +5977,13 @@
       "contractor_total": "Contractors",
       "contractor_new": "New contractors",
       "contractor_active": "Active contractors",
+      "contractor_trial": "Contractors on trial",
       "contractor_inactive": "Inactive contractors",
       "project_total": "Projects",
       "recycler_total": "Recyclers",
       "recycler_new": "New recyclers",
       "recycler_active": "Active recyclers",
+      "recycler_trial": "Recyclers on trial",
       "recycler_inactive": "Inactive recyclers",
       "platform_business_total": "Platform business orders",
       "platform_order_total": "Platform orders",
@@ -5901,15 +6206,28 @@
       "quantity": "Quantity",
       "note": "Quantities are grouped by unit. Tonnes and pieces are not added together."
     },
-    "remove": {
-      "title": "Remove receipt {name}?",
-      "description": "It will no longer appear in your deliveries or your material totals.",
-      "confirm": "Remove"
-    },
     "toast": {
       "created": "Delivery recorded",
-      "updated": "Receipt updated",
-      "removed": "Receipt removed"
+      "corrected": "Correction recorded",
+      "photoAdded": "Photo added"
+    },
+    "correction": {
+      "action": "Correct",
+      "note": "A correction files a new receipt that points back at this one. Both stay on record, so anyone checking later can see what was changed and why.",
+      "reason": "Reason",
+      "supersedes": "Corrects an earlier receipt",
+      "title": "Why this correction",
+      "supersededTitle": "This receipt has been corrected",
+      "supersededBody": "It is kept so the original figures can still be read, but it no longer counts in your deliveries or your material totals.",
+      "supersededLink": "Open the corrected receipt {name}"
+    },
+    "addPhoto": {
+      "caption": "Note (optional)",
+      "choose": "Choose a photo",
+      "kind": "What it shows",
+      "needLocation": "This receipt has no location on file, so the photo has to carry one. Allow location access when the browser asks.",
+      "title": "Add a photo",
+      "upload": "Upload"
     }
   },
   "dispatches": {
@@ -6018,8 +6336,21 @@
       "updated": "Load updated",
       "removed": "Load removed",
       "released": "Load released",
-      "cancelled": "Load cancelled"
-    }
+      "cancelled": "Load cancelled",
+      "photoAdded": "Photo added"
+    },
+    "photoKind": {
+      "LOADING": "Loading",
+      "OTHER": "Other",
+      "PLATE": "Number plate",
+      "VEHICLE": "Vehicle"
+    },
+    "addPhoto": {
+      "choose": "Choose a photo",
+      "kind": "What it shows",
+      "upload": "Upload"
+    },
+    "noPhotos": "No photos have been attached to this load."
   },
   "recyclerReports": {
     "title": "Report centre",
@@ -6031,8 +6362,8 @@
     "column": { "reference": "Reference", "date": "Date", "category": "Category", "party": "Customer / party", "status": "Status", "quantity": "Weight / count", "detail": "Details" },
     "action": { "print": "Print", "retry": "Try again" },
     "empty": { "title": "No report records", "description": "Change the date or filters to view another period." },
-      "error": { "title": "Report could not load", "description": "Check the connection and try again." },
-      "history": { "title": "Export history", "description": "Every PDF and spreadsheet export is kept as a permanent record.", "file": "File", "period": "Period", "format": "Format", "generated": "Generated", "empty": "No exports yet." }
+    "error": { "title": "Report could not load", "description": "Check the connection and try again." },
+    "history": { "title": "Export history", "description": "Every PDF and spreadsheet export is kept as a permanent record.", "file": "File", "period": "Period", "format": "Format", "generated": "Generated", "empty": "No exports yet." }
   },
   "export": {
     "excel": "Excel spreadsheet",
@@ -6176,9 +6507,37 @@
     "clearTitle": "Clear the weighbridge?",
     "clearDescription": "Nothing will be attached to the next vehicle that drives on. Use this if the driver turned around or the wrong note was scanned.",
     "clearConfirm": "Clear",
+    "release": {
+      "title": "Release",
+      "gateOpen": "Barrier open",
+      "gateClosed": "Barrier did not open",
+      "waiting": "Waiting for the controllers",
+      "noBarrier": "No barrier on this weighbridge",
+      "releasedByHand": "Let through by hand",
+      "deviceType": {
+        "LED_DISPLAY": "LED board",
+        "VOICE": "Voice unit",
+        "BARRIER": "Barrier"
+      },
+      "state": {
+        "PENDING": "Waiting",
+        "ACKNOWLEDGED": "Done",
+        "REJECTED": "Refused",
+        "TIMED_OUT": "No answer",
+        "CLOSED_MANUALLY": "Closed by hand"
+      },
+      "needsOperator": "A controller did not carry this out. The vehicle has not been let through by the system — deal with the barrier and record what you did.",
+      "manualRelease": "Let through by hand",
+      "manualTitle": "Let this vehicle through by hand?",
+      "manualDescription": "This records that a person let the vehicle through. It does not open anything and it is not recorded as the barrier having worked.",
+      "manualReason": "What happened",
+      "manualConfirm": "Record it",
+      "manualNote": "Let through by hand by {name}: {reason}"
+    },
     "toast": {
       "scanned": "Load queued at the weighbridge",
-      "cleared": "Weighbridge cleared"
+      "cleared": "Weighbridge cleared",
+      "manualReleased": "Recorded as released by hand"
     }
   },
   "vehicles": {
@@ -6290,7 +6649,8 @@
       "currentTask": "Current task",
       "lastPosition": "Last GPS update",
       "notes": "Notes",
-      "createdAt": "Added"
+      "createdAt": "Added",
+      "accountHint": "One login belongs to one driver. To move this driver onto a different account, pick it here."
     },
     "status": {
       "AVAILABLE": "Available",
@@ -6319,7 +6679,9 @@
       "created": "Driver added",
       "updated": "Driver updated",
       "removed": "Driver removed"
-    }
+    },
+    "accountRequired": "Choose this driver's login, or fill in an email and password to create one.",
+    "accountRequiredHelp": "Every driver needs a login. Without one their task list stays empty no matter what is assigned to them, and nothing on either screen says why."
   },
   "fleetHistory": {
     "title": "Service history",
@@ -6407,7 +6769,16 @@
       "created": "Trip assigned",
       "updated": "Trip updated",
       "advanced": "Trip updated",
-      "cancelled": "Trip cancelled"
+      "cancelled": "Trip cancelled",
+      "closed": "Trip closed without a weighing"
+    },
+    "oneTripPerDriverNote": "A driver runs one trip at a time. A trip stays open until the weighbridge finishes, so a driver waiting at the yard is not free yet.",
+    "everyDriverBusyNote": "Every driver is already out. Wait for a trip to finish weighing, or add another driver under Drivers.",
+    "close": {
+      "action": "Close without weighing",
+      "title": "Close this trip without a weighing",
+      "description": "Use this when the load reached the yard but was never weighed — the session was voided, the wrong lorry went on the deck, or the load was turned away. The trip is recorded as could not complete, not cancelled: the driver did go and the load did come back. The driver and the load are both freed for a new trip.",
+      "confirm": "Close trip"
     }
   },
   "deductions": {
@@ -6549,7 +6920,9 @@
       "notes": "Notes",
       "confirm": "Issue",
       "blockedByDeductions": "{count, plural, one {# deduction is} other {# deductions are}} still waiting on the producer. Settle that first.",
-      "blockedByWeighing": "This load has no completed weighing to settle from."
+      "blockedByWeighing": "This load has no completed weighing to settle from.",
+      "pickLoad": "Choose a weighed load to see the figures.",
+      "loadHint": "Only loads that have finished weighing appear here."
     },
     "lock": {
       "title": "Lock this settlement?",
@@ -6705,6 +7078,13 @@
     },
     "toast": {
       "photoSent": "Photo sent"
+    },
+    "track": {
+      "recording": "Recording your location. Keep this screen on.",
+      "mayPause": "Your location is recorded only while this screen is on. If the phone locks, the track will show a gap.",
+      "noWakeLock": "This browser will not keep the screen awake. Set the phone's screen timeout longer, or the track will show gaps.",
+      "denied": "Location is switched off for this site, so nothing is being recorded. Allow location in the browser settings.",
+      "gap": "No location recorded · about {minutes} min"
     }
   },
   "ticket": {
@@ -7381,10 +7761,30 @@
       "created": "Technical ticket created",
       "transitioned": "Ticket state updated",
       "bugCreated": "Bug report created",
-      "updated": "Technical record updated",
+      "updated": "Ticket updated",
       "integrationCreated": "API integration recorded",
       "deviceCreated": "Device lifecycle record created",
-      "remoteCompleted": "Simulated remote operation completed"
+      "remoteCompleted": "Simulated remote operation completed",
+      "commentAdded": "Comment added"
+    },
+    "remoteHistory": {
+      "title": "Remote operation history",
+      "help": "Kept permanently (15.2.8).",
+      "empty": "No remote operation has been run yet.",
+      "simulated": "Simulated",
+      "column": {
+        "when": "When",
+        "company": "Company",
+        "operation": "Operation",
+        "operator": "Operator",
+        "reason": "Reason",
+        "result": "Result"
+      },
+      "loadError": "Could not load the remote operation history.",
+      "loading": "Loading…"
+    },
+    "action": {
+      "retry": "Try again"
     }
   },
   "partners": {
@@ -8258,6 +8658,20 @@
       "last_online_at": "Last online",
       "sim_status": "SIM",
       "signal_strength": "Signal"
+    },
+    "ticketEdit": {
+      "moveOn": "Move it along",
+      "save": "Save corrections",
+      "title": "Correct this ticket"
+    },
+    "ticketComment": {
+      "empty": "Nothing has been said on this ticket yet.",
+      "internal": "Internal",
+      "internalHelp": "Internal note - for staff only, the customer does not see it",
+      "placeholder": "Write a reply",
+      "send": "Add comment",
+      "title": "Conversation",
+      "unknownAuthor": "Unknown"
     }
   },
   "adminAuditCenter": {
@@ -8546,6 +8960,64 @@
       "maintenance_starts_at": "Starts at",
       "maintenance_ends_at": "Ends at",
       "maintenance_notice": "Maintenance notice"
+    },
+    "announcements": {
+      "title": "System announcements",
+      "help": "Written here and delivered into every addressed user's notification list.",
+      "empty": "No announcements yet.",
+      "inactive": "Not active",
+      "delivered": "Delivered to {count} notification lists.",
+      "editorHelp": "Saving publishes it. Anyone already notified is not notified again.",
+      "translations": "Other languages",
+      "translationsHelp": "Left blank, a reader falls back to the English text field by field.",
+      "removeConfirm": "Remove “{title}”? Notifications already delivered stay in place.",
+      "action": {
+        "create": "New announcement",
+        "edit": "Edit announcement",
+        "publish": "Publish",
+        "remove": "Remove"
+      },
+      "field": {
+        "title": "Title",
+        "message": "Message",
+        "level": "Level",
+        "audience": "Audience",
+        "publishFrom": "Publish from",
+        "publishUntil": "Publish until",
+        "isActive": "Active"
+      },
+      "level": {
+        "INFO": "Information",
+        "WARNING": "Warning",
+        "CRITICAL": "Urgent",
+        "MAINTENANCE": "Maintenance"
+      },
+      "audience": {
+        "ALL": "Everyone",
+        "PLATFORM": "Platform staff",
+        "CONTRACTOR": "Contractors",
+        "RECYCLER": "Recyclers"
+      },
+      "language": {
+        "zh": {
+          "title": "Title (Simplified Chinese)",
+          "message": "Message (Simplified Chinese)"
+        },
+        "zh_tw": {
+          "title": "Title (Traditional Chinese)",
+          "message": "Message (Traditional Chinese)"
+        },
+        "ms": {
+          "title": "Title (Bahasa Malaysia)",
+          "message": "Message (Bahasa Malaysia)"
+        }
+      },
+      "toast": {
+        "published": "Announcement published.",
+        "saved": "Announcement updated.",
+        "removed": "Announcement removed."
+      },
+      "loadError": "Could not load announcements."
     }
   },
   "adminPartnerManagement": {
@@ -8893,6 +9365,10 @@
       "activity": {
         "title": "Asset records",
         "subtitle": "Permanent asset lifecycle operation history."
+      },
+      "departments": {
+        "title": "Departments",
+        "subtitle": "MSE Trace's own departments, the destinations a transfer can name."
       }
     },
     "column": {
@@ -9215,6 +9691,22 @@
       "maintenanceCompleted": "Maintenance completed",
       "disposalRequested": "Disposal requested",
       "disposalUpdated": "Disposal status updated"
+    },
+    "department": {
+      "help": "MSE Trace's own departments. Equipment can be transferred between them.",
+      "empty": "No departments yet. Add one before transferring equipment to a department.",
+      "noParent": "No parent department",
+      "action": {
+        "add": "New department",
+        "edit": "Edit department",
+        "remove": "Remove"
+      },
+      "column": {
+        "code": "Code",
+        "name": "Name",
+        "parent": "Parent",
+        "status": "Status"
+      }
     }
   },
   "adminCloudServiceManagement": {
@@ -9701,7 +10193,20 @@
     }
   },
   "consultantWorkflow": {
-    "project": { "choose": "Choose project", "all": "All projects" },
+    "action": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saveDraft": "Save draft",
+      "saveReusableOption": "Save as project option",
+      "edit": "Edit draft",
+      "submit": "Submit for approval",
+      "createRevision": "Create new revision",
+      "downloadReport": "Download final report",
+      "remove": "Remove",
+      "receive": "Mark as received",
+      "acknowledge": "Acknowledge application",
+      "retryReport": "Rebuild the report"
+    },
     "applications": {
       "title": "Consultant Applications",
       "subtitle": "{count} project applications and approval records",
@@ -9717,111 +10222,58 @@
         "archive": "Archive"
       }
     },
-    "state": {
-      "chooseProject": "Choose a project to view its consultant work.",
-      "loadError": "This information could not be loaded. Check your project access and try again.",
-      "noApplications": "No consultant applications match this project and search.",
-      "draftUnavailable": "This draft cannot be edited. It may already have been submitted or you no longer have access."
+    "archive": {
+      "recordOnly": "Structured archive record",
+      "complete": "Complete",
+      "pending": "Pending",
+      "verify": "Open QR verification",
+      "kind": {
+        "APPLICATION": "Application archive",
+        "APPROVAL": "Signed approval history",
+        "FINAL_REPORT": "Final PDF archive"
+      },
+      "reportMissing": "The decision is on record but the PDF was never filed. Rebuilding it does not change the decision - it writes the same result out again."
     },
-    "form": {
-      "title": "Create consultant application",
-      "editTitle": "Edit consultant application draft",
-      "subtitle": "Prepare the site request, attach evidence, then submit it through the project's approval flow.",
-      "noConsultantGrant": "No active consultant is authorised for this project. Grant project access before creating an application.",
-      "requiredAttachments": "Before submission, attach these required documents: {codes}.",
-      "sourceTitle": "Source field submission",
-      "sourceHelp": "The project, location, description and original evidence from this field submission are carried into the application.",
-      "sourceLoading": "Loading the field submission...",
-      "sourceLoadError": "The field submission could not be loaded. Check the link and try again.",
-      "sourceSubmittedAt": "Submitted {value}",
-      "sourcePhotosLinked": "{count} original photo(s) linked",
-      "sourceGps": "Open source GPS",
-      "saveError": "The application draft could not be saved. Check the highlighted information and try again.",
-      "saveReusableOptionHelp": "Add this value to the project's list so the team can select it next time.",
-      "section": {
-        "project": "Application classification",
-        "consultant": "Assigned consultant",
-        "inspection": "Site and inspection details"
-      }
+    "attachment": {
+      "title": "Add application attachment",
+      "help": "Upload a checklist, drawing, report or certificate before submitting.",
+      "add": "Add attachment",
+      "file": "File",
+      "category": "Attachment type",
+      "note": "Note",
+      "empty": "No application attachments have been added.",
+      "other": "Other attachment",
+      "attached": "Attached",
+      "required": "Required"
     },
-    "field": {
-      "project": "Project",
-      "projectAddress": "Project address",
-      "workflow": "Approval workflow",
-      "chooseWorkflow": "Choose approval workflow",
-      "template": "RFI form template",
-      "chooseTemplate": "Choose a form template",
-      "noTemplate": "No template",
-      "scheduleTask": "Schedule activity / WBS",
-      "chooseScheduleTask": "Choose schedule activity",
-      "noScheduleTask": "No schedule link",
-      "applicationType": "Application type",
-      "chooseType": "Choose application type",
-      "discipline": "Discipline",
-      "chooseDiscipline": "Choose discipline",
-      "workType": "Inspection / work type",
-      "chooseWorkType": "Choose inspection type",
-      "priority": "Priority",
-      "choosePriority": "Choose priority",
-      "customApplicationType": "Custom application type",
-      "customDiscipline": "Custom discipline",
-      "customWorkType": "Custom work type",
-      "customPriority": "Custom priority",
-      "consultant": "Consultant",
-      "chooseConsultant": "Choose authorised consultant",
-      "consultantCompany": "Consultant company",
-      "location": "Inspection location",
-      "component": "Component / work area",
-      "description": "Description / request",
-      "remarks": "Remarks",
-      "requiredAt": "Required inspection date and time",
-      "inspectionStartAt": "Inspection window starts",
-      "inspectionEndAt": "Inspection window ends",
-      "inspectionActivity": "Inspection activity",
-      "drawingNo": "Drawing number",
-      "drawingRevision": "Drawing revision",
-      "itpNo": "ITP number",
-      "checklistReference": "Checklist reference",
-      "inspectionCategory": "R / S / W / H category",
-      "acceptanceRequirement": "Acceptance requirement"
+    "attachmentType": {
+      "CHECKLIST": "Inspection checklist",
+      "IFC_DRAWING": "IFC drawing",
+      "SURVEY_REPORT": "Survey report",
+      "MATERIAL_TEST": "Material test report",
+      "CALIBRATION": "Calibration certificate",
+      "ITP": "ITP",
+      "OTHER": "Other"
     },
-    "inspectionCategory": {
-      "NONE": "Not specified",
-      "R": "R - Review",
-      "S": "S - Surveillance",
-      "W": "W - Witness",
-      "H": "H - Hold point"
-    },
-    "action": {
-      "cancel": "Cancel",
-      "save": "Save",
-      "saveDraft": "Save draft",
-      "saveReusableOption": "Save as project option",
-      "edit": "Edit draft",
-      "submit": "Submit for approval",
-      "createRevision": "Create new revision",
-      "downloadReport": "Download final report",
-      "remove": "Remove",
-      "receive": "Mark as received",
-      "acknowledge": "Acknowledge application"
-    },
-    "status": {
-      "DRAFT": "Draft",
-      "SUBMITTED": "Pending approval",
-      "APPROVED": "Approved",
-      "APPROVED_WITH_REMEDIAL": "Approved with remedial work",
-      "REJECTED": "Rejected",
-      "REVISE_RESUBMIT": "Revise and resubmit",
-      "ARCHIVED": "Archived"
-    },
-    "stepStatus": {
-      "WAITING": "Waiting",
-      "CURRENT": "Action required",
-      "APPROVED": "Approved",
-      "APPROVED_WITH_REMEDIAL": "Approved with remedial work",
-      "REJECTED": "Rejected",
-      "REVISE_RESUBMIT": "Revision required",
-      "SKIPPED": "Skipped"
+    "common": { "unknown": "Unknown" },
+    "credential": {
+      "title": "Approval Signature and PIN",
+      "shortTitle": "Signature and PIN",
+      "subtitle": "Set the personal signature used for traceable project decisions.",
+      "identityTitle": "Signature and consultant stamp",
+      "identityHelp": "Every approval stores an immutable copy, so changing this later does not alter old reports.",
+      "signature": "Electronic signature",
+      "signatureHelp": "Upload a clear PNG or JPG signature on a plain background.",
+      "stamp": "Consultant stamp",
+      "stampHelp": "Optional until a workflow step explicitly requires it.",
+      "pinTitle": "Approval PIN",
+      "pinHelp": "Enter this six-digit PIN whenever you approve, reject or return an application.",
+      "pin": "New 6-digit PIN",
+      "pinConfirm": "Confirm PIN",
+      "pinMismatch": "The PINs do not match.",
+      "currentPassword": "Current login password",
+      "passwordHelp": "Your current password protects changes to signing credentials.",
+      "save": "Save signing credentials"
     },
     "decision": {
       "APPROVE": "Approve",
@@ -9869,6 +10321,99 @@
         "archive": "Automatic archive"
       }
     },
+    "evidence": {
+      "title": "Link site evidence",
+      "help": "Use an existing, immutable site photograph. The original file is not uploaded twice.",
+      "link": "Link evidence",
+      "caption": "Caption",
+      "empty": "No site evidence has been linked.",
+      "noCandidates": "No unlinked evidence is available in this project."
+    },
+    "field": {
+      "project": "Project",
+      "projectAddress": "Project address",
+      "workflow": "Approval workflow",
+      "chooseWorkflow": "Choose approval workflow",
+      "template": "RFI form template",
+      "chooseTemplate": "Choose a form template",
+      "noTemplate": "No template",
+      "scheduleTask": "Schedule activity / WBS",
+      "chooseScheduleTask": "Choose schedule activity",
+      "noScheduleTask": "No schedule link",
+      "applicationType": "Application type",
+      "chooseType": "Choose application type",
+      "discipline": "Discipline",
+      "chooseDiscipline": "Choose discipline",
+      "workType": "Inspection / work type",
+      "chooseWorkType": "Choose inspection type",
+      "priority": "Priority",
+      "choosePriority": "Choose priority",
+      "customApplicationType": "Custom application type",
+      "customDiscipline": "Custom discipline",
+      "customWorkType": "Custom work type",
+      "customPriority": "Custom priority",
+      "consultant": "Consultant",
+      "chooseConsultant": "Choose authorised consultant",
+      "consultantCompany": "Consultant company",
+      "location": "Inspection location",
+      "component": "Component / work area",
+      "description": "Description / request",
+      "remarks": "Remarks",
+      "requiredAt": "Required inspection date and time",
+      "inspectionStartAt": "Inspection window starts",
+      "inspectionEndAt": "Inspection window ends",
+      "inspectionActivity": "Inspection activity",
+      "drawingNo": "Drawing number",
+      "drawingRevision": "Drawing revision",
+      "itpNo": "ITP number",
+      "checklistReference": "Checklist reference",
+      "inspectionCategory": "R / S / W / H category",
+      "acceptanceRequirement": "Acceptance requirement"
+    },
+    "form": {
+      "title": "Create consultant application",
+      "editTitle": "Edit consultant application draft",
+      "subtitle": "Prepare the site request, attach evidence, then submit it through the project's approval flow.",
+      "noConsultantGrant": "No active consultant is authorised for this project. Grant project access before creating an application.",
+      "requiredAttachments": "Before submission, attach these required documents: {codes}.",
+      "sourceTitle": "Source field submission",
+      "sourceHelp": "The project, location, description and original evidence from this field submission are carried into the application.",
+      "sourceLoading": "Loading the field submission...",
+      "sourceLoadError": "The field submission could not be loaded. Check the link and try again.",
+      "sourceSubmittedAt": "Submitted {value}",
+      "sourcePhotosLinked": "{count} original photo(s) linked",
+      "sourceGps": "Open source GPS",
+      "saveError": "The application draft could not be saved. Check the highlighted information and try again.",
+      "saveReusableOptionHelp": "Add this value to the project's list so the team can select it next time.",
+      "section": {
+        "project": "Application classification",
+        "consultant": "Assigned consultant",
+        "inspection": "Site and inspection details"
+      }
+    },
+    "inspectionCategory": {
+      "NONE": "Not specified",
+      "R": "R - Review",
+      "S": "S - Surveillance",
+      "W": "W - Witness",
+      "H": "H - Hold point"
+    },
+    "optionCategory": {
+      "APPLICATION_TYPE": "Application type",
+      "ATTACHMENT_TYPE": "Attachment type",
+      "DISCIPLINE": "Discipline",
+      "PRIORITY": "Priority",
+      "WORK_TYPE": "Work type"
+    },
+    "options": {
+      "empty": "No choices in this group yet.",
+      "offered": "Offered",
+      "rename": "Rename",
+      "seeded": "Standard",
+      "subtitle": "What the application form offers. Every project starts with a standard list and people add to it while filing, so this is where a typo or a duplicate gets fixed.",
+      "title": "Form choices"
+    },
+    "project": { "choose": "Choose project", "all": "All projects" },
     "review": {
       "pending": "Current step: {step}",
       "reviewerConsultant": "Assigned consultant: {name}",
@@ -9897,136 +10442,98 @@
         }
       }
     },
-    "workflow": {
-      "title": "Consultant Approval Workflows",
-      "shortTitle": "Workflow settings",
-      "subtitle": "Set the real approval sequence used by each project's applications.",
-      "create": "New workflow",
-      "createTitle": "Create approval workflow",
-      "createHelp": "Choose which applications use this workflow. Add approval steps after saving.",
-      "empty": "This project has no approval workflow yet.",
-      "name": "Workflow name",
-      "allTypes": "All application types",
-      "makeDefault": "Use as default workflow",
-      "defaultHelp": "New applications select this workflow first.",
-      "default": "Default",
-      "addStep": "Add approval step",
-      "addStepTitle": "Add approval step",
-      "addStepHelp": "Steps run in order and are locked after an application is submitted.",
-      "noSteps": "No approval steps. Add at least one before using this workflow.",
-      "stepName": "Step name",
-      "reviewerKind": "Who reviews this step",
-      "reviewer": "Reviewer",
-      "chooseReviewer": "Choose reviewer",
-      "requireSignature": "Require electronic signature",
-      "requireStamp": "Require consultant stamp",
-      "stampHelp": "Approval is blocked until the reviewer has uploaded a stamp."
-    },
     "reviewerKind": {
       "CONSULTANT": "Consultant selected on the application",
       "USER": "Specific company user",
       "ROLE": "Any user with a company role"
     },
+    "state": {
+      "chooseProject": "Choose a project to view its consultant work.",
+      "loadError": "This information could not be loaded. Check your project access and try again.",
+      "noApplications": "No consultant applications match this project and search.",
+      "draftUnavailable": "This draft cannot be edited. It may already have been submitted or you no longer have access."
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Pending approval",
+      "APPROVED": "Approved",
+      "APPROVED_WITH_REMEDIAL": "Approved with remedial work",
+      "REJECTED": "Rejected",
+      "REVISE_RESUBMIT": "Revise and resubmit",
+      "ARCHIVED": "Archived"
+    },
+    "stepStatus": {
+      "WAITING": "Waiting",
+      "CURRENT": "Action required",
+      "APPROVED": "Approved",
+      "APPROVED_WITH_REMEDIAL": "Approved with remedial work",
+      "REJECTED": "Rejected",
+      "REVISE_RESUBMIT": "Revision required",
+      "SKIPPED": "Skipped"
+    },
     "templateManager": {
-      "title": "RFI Form Templates",
-      "subtitle": "Maintain project-specific form fields, required attachments and immutable versions without technical JSON settings.",
-      "new": "New template",
-      "chooseProject": "Choose a project to manage its RFI forms.",
-      "loading": "Loading templates...",
-      "loadError": "Templates could not be loaded.",
-      "empty": "No RFI form template has been created for this project.",
       "active": "Active",
-      "inactive": "Inactive",
-      "noDescription": "No description",
-      "applicationType": "Application type",
+      "addField": "Add field",
       "allTypes": "All application types",
+      "applicationType": "Application type",
+      "cancel": "Cancel",
+      "changeNote": "Version change note",
+      "chooseProject": "Choose a project to manage its RFI forms.",
+      "code": "Template code",
+      "codeFixed": "The code cannot change - filed applications refer to it.",
+      "createHelp": "Set the form once for this project. Future changes create a new version and never alter submitted applications.",
+      "createTitle": "Create RFI form template",
+      "customFields": "Additional form fields",
+      "customFieldsHelp": "Add only the extra questions required by this project's real RFI form.",
+      "description": "Description",
+      "editDetails": "Edit details",
+      "editHelp": "The template's own details. The fields applicants fill in are versioned separately, so correcting a name here does not put a change in the form's history.",
+      "editTitle": "Edit {name}",
+      "empty": "No RFI form template has been created for this project.",
+      "fieldKey": "System field key",
+      "fieldLabel": "Question shown to users",
+      "inactive": "Inactive",
+      "loadError": "Templates could not be loaded.",
+      "loading": "Loading templates...",
+      "name": "Template name",
+      "new": "New template",
+      "newVersion": "Create new version",
+      "noDescription": "No description",
+      "none": "None",
       "numbering": "Application number rule",
       "numberingHelp": "Use {project}, {discipline}, {type} and {sequence}. The sequence is always four digits.",
-      "requiredFiles": "Required attachments",
-      "customFields": "Additional form fields",
-      "none": "None",
-      "newVersion": "Create new version",
-      "createTitle": "Create RFI form template",
-      "createHelp": "Set the form once for this project. Future changes create a new version and never alter submitted applications.",
-      "code": "Template code",
-      "name": "Template name",
+      "removeField": "Remove field",
       "reportLayout": "Final report layout",
+      "required": "Required",
+      "requiredFiles": "Required attachments",
+      "save": "Save template",
+      "saveVersion": "Create version",
       "standardLayout": "Standard customer RFI PDF",
       "standardLayoutHelp": "The final PDF follows the approved customer RFI and consultant approval format. This output is fixed so users cannot accidentally choose an unsupported layout.",
-      "description": "Description",
-      "changeNote": "Version change note",
-      "cancel": "Cancel",
-      "save": "Save template",
-      "versionTitle": "{name} version {version}",
+      "stillOffered": "Still offered",
+      "stillOfferedHelp": "Turn off to stop new applications using it. Filed ones are untouched.",
+      "subtitle": "Maintain project-specific form fields, required attachments and immutable versions without technical JSON settings.",
+      "title": "RFI Form Templates",
       "versionHelp": "This creates a new immutable version. Existing applications keep their original fields and attachment rules.",
-      "saveVersion": "Create version",
-      "customFieldsHelp": "Add only the extra questions required by this project's real RFI form.",
-      "addField": "Add field",
-      "fieldLabel": "Question shown to users",
-      "fieldKey": "System field key",
-      "required": "Required",
-      "removeField": "Remove field"
+      "versionTitle": "{name} version {version}"
     },
-    "evidence": {
-      "title": "Link site evidence",
-      "help": "Use an existing, immutable site photograph. The original file is not uploaded twice.",
-      "link": "Link evidence",
-      "caption": "Caption",
-      "empty": "No site evidence has been linked.",
-      "noCandidates": "No unlinked evidence is available in this project."
+    "toast": {
+      "workflowSaved": "Approval workflow saved",
+      "stepSaved": "Approval step saved",
+      "stepRemoved": "Approval step removed",
+      "draftSaved": "Application draft saved",
+      "submitted": "Application submitted for approval",
+      "decisionSaved": "Signed decision saved",
+      "revisionCreated": "New revision created",
+      "attachmentAdded": "Attachment added",
+      "evidenceLinked": "Site evidence linked",
+      "credentialSaved": "Signing credentials saved",
+      "templateSaved": "RFI form template saved",
+      "templateVersionSaved": "RFI form template version saved",
+      "received": "Application marked as received",
+      "acknowledged": "Application acknowledged",
+      "reportRebuilt": "Report rebuilt"
     },
-    "attachment": {
-      "title": "Add application attachment",
-      "help": "Upload a checklist, drawing, report or certificate before submitting.",
-      "add": "Add attachment",
-      "file": "File",
-      "category": "Attachment type",
-      "note": "Note",
-      "empty": "No application attachments have been added.",
-      "other": "Other attachment",
-      "attached": "Attached",
-      "required": "Required"
-    },
-    "attachmentType": {
-      "CHECKLIST": "Inspection checklist",
-      "IFC_DRAWING": "IFC drawing",
-      "SURVEY_REPORT": "Survey report",
-      "MATERIAL_TEST": "Material test report",
-      "CALIBRATION": "Calibration certificate",
-      "ITP": "ITP",
-      "OTHER": "Other"
-    },
-    "credential": {
-      "title": "Approval Signature and PIN",
-      "shortTitle": "Signature and PIN",
-      "subtitle": "Set the personal signature used for traceable project decisions.",
-      "identityTitle": "Signature and consultant stamp",
-      "identityHelp": "Every approval stores an immutable copy, so changing this later does not alter old reports.",
-      "signature": "Electronic signature",
-      "signatureHelp": "Upload a clear PNG or JPG signature on a plain background.",
-      "stamp": "Consultant stamp",
-      "stampHelp": "Optional until a workflow step explicitly requires it.",
-      "pinTitle": "Approval PIN",
-      "pinHelp": "Enter this six-digit PIN whenever you approve, reject or return an application.",
-      "pin": "New 6-digit PIN",
-      "pinConfirm": "Confirm PIN",
-      "pinMismatch": "The PINs do not match.",
-      "currentPassword": "Current login password",
-      "passwordHelp": "Your current password protects changes to signing credentials.",
-      "save": "Save signing credentials"
-    },
-    "archive": {
-      "recordOnly": "Structured archive record",
-      "complete": "Complete",
-      "pending": "Pending",
-      "verify": "Open QR verification",
-      "kind": {
-        "APPLICATION": "Application archive",
-        "APPROVAL": "Signed approval history",
-        "FINAL_REPORT": "Final PDF archive"
-      }
-    },
-    "common": { "unknown": "Unknown" },
     "verification": {
       "title": "Approval Report Verification",
       "notFoundTitle": "Verification record not found",
@@ -10045,42 +10552,61 @@
       "sha256": "Report SHA-256",
       "reference": "Verification reference"
     },
-    "toast": {
-      "workflowSaved": "Approval workflow saved",
-      "stepSaved": "Approval step saved",
-      "stepRemoved": "Approval step removed",
-      "draftSaved": "Application draft saved",
-      "submitted": "Application submitted for approval",
-      "decisionSaved": "Signed decision saved",
-      "revisionCreated": "New revision created",
-      "attachmentAdded": "Attachment added",
-      "evidenceLinked": "Site evidence linked",
-      "credentialSaved": "Signing credentials saved",
-      "templateSaved": "RFI form template saved",
-      "templateVersionSaved": "RFI form template version saved",
-      "received": "Application marked as received",
-      "acknowledged": "Application acknowledged"
+    "workflow": {
+      "addStep": "Add approval step",
+      "addStepHelp": "Steps run in order and are locked after an application is submitted.",
+      "addStepTitle": "Add approval step",
+      "allTypes": "All application types",
+      "chooseReviewer": "Choose reviewer",
+      "create": "New workflow",
+      "createHelp": "Choose which applications use this workflow. Add approval steps after saving.",
+      "createTitle": "Create approval workflow",
+      "default": "Default",
+      "defaultHelp": "New applications select this workflow first.",
+      "edit": "Edit workflow",
+      "editStep": "Edit step",
+      "editStepTitle": "Edit this step",
+      "editTitle": "Edit this workflow",
+      "empty": "This project has no approval workflow yet.",
+      "makeDefault": "Use as default workflow",
+      "name": "Workflow name",
+      "noSteps": "No approval steps. Add at least one before using this workflow.",
+      "requireSignature": "Require electronic signature",
+      "requireStamp": "Require consultant stamp",
+      "reviewer": "Reviewer",
+      "reviewerKind": "Who reviews this step",
+      "shortTitle": "Workflow settings",
+      "stampHelp": "Approval is blocked until the reviewer has uploaded a stamp.",
+      "stepName": "Step name",
+      "stepsLocked": "An application on this workflow has been submitted, so its approval route is now part of the record and cannot be changed. Create a new workflow for a different route.",
+      "stillOffered": "Still offered",
+      "stillOfferedHelp": "Turn off to stop new applications choosing it. Existing ones are untouched.",
+      "subtitle": "Set the real approval sequence used by each project's applications.",
+      "title": "Consultant Approval Workflows",
+      "typeFixed": "Fixed - applications have already been filed on this workflow."
     }
   },
   "schedulePlanning": {
     "title": "Construction Schedule",
     "subtitle": "Plan work, protect the approved baseline and confirm actual site progress.",
     "action": {
+      "addTask": "Add task",
+      "archive": "Archive",
+      "cancel": "Cancel",
+      "confirmImport": "Confirm import",
+      "confirmProgress": "Confirm progress",
+      "confirmRevision": "Confirm & lock",
+      "createRevision": "Create revision",
+      "edit": "Edit",
+      "editPlan": "Rename plan",
+      "editRevision": "Edit revision",
       "importExcel": "Import Excel",
       "newPlan": "New plan",
-      "archive": "Archive",
-      "addTask": "Add task",
       "newRevision": "New revision",
-      "confirmRevision": "Confirm & lock",
-      "remove": "Remove",
-      "edit": "Edit",
       "open": "Open",
-      "cancel": "Cancel",
-      "save": "Save",
-      "createRevision": "Create revision",
-      "confirmProgress": "Confirm progress",
       "preview": "Preview file",
-      "confirmImport": "Confirm import"
+      "remove": "Remove",
+      "save": "Save"
     },
     "field": {
       "project": "Project",
@@ -10158,17 +10684,21 @@
     },
     "defaults": { "baseline": "Approved Baseline" },
     "dialog": {
-      "planTitle": "Create construction schedule",
-      "planHelp": "Start with an editable baseline. Add tasks, review them, then confirm to lock the baseline.",
-      "revisionTitle": "Create schedule revision",
-      "revisionHelp": "The current version is copied. Your changes stay in a draft until a manager confirms them.",
-      "taskTitle": "Add schedule task",
+      "editPlanHelp": "The name and description only. Two schedules on one site cannot share a name.",
+      "editPlanTitle": "Rename this schedule",
+      "editRevisionHelp": "Only a draft can be changed. Once confirmed, the reason recorded here is part of why the dates moved.",
+      "editRevisionTitle": "Edit this draft revision",
       "editTaskTitle": "Edit schedule task",
-      "taskHelp": "Use WBS and parent tasks to keep the programme hierarchy clear.",
-      "progressTitle": "Confirm actual progress",
-      "progressHelp": "A manager confirms the measured percentage and may link approved site photos.",
+      "importHelp": "The workbook is previewed first. No schedule is created until you confirm the column mapping.",
       "importTitle": "Import construction schedule",
-      "importHelp": "The workbook is previewed first. No schedule is created until you confirm the column mapping."
+      "planHelp": "Start with an editable baseline. Add tasks, review them, then confirm to lock the baseline.",
+      "planTitle": "Create construction schedule",
+      "progressHelp": "A manager confirms the measured percentage and may link approved site photos.",
+      "progressTitle": "Confirm actual progress",
+      "revisionHelp": "The current version is copied. Your changes stay in a draft until a manager confirms them.",
+      "revisionTitle": "Create schedule revision",
+      "taskHelp": "Use WBS and parent tasks to keep the programme hierarchy clear.",
+      "taskTitle": "Add schedule task"
     },
     "confirm": {
       "removeTaskTitle": "Remove draft task?",
@@ -10205,16 +10735,18 @@
       "PROGRESS_CONFIRMED": "Actual progress confirmed"
     },
     "toast": {
-      "planCreated": "Schedule plan created",
+      "imported": "Excel schedule imported",
       "planArchived": "Schedule archived",
-      "revisionCreated": "Revision draft created",
-      "revisionConfirmed": "Schedule version confirmed and locked",
-      "revisionRemoved": "Draft revision removed",
-      "taskSaved": "Schedule task saved",
-      "taskRemoved": "Draft task removed",
-      "progressConfirmed": "Actual progress confirmed",
+      "planCreated": "Schedule plan created",
+      "planUpdated": "Schedule updated",
       "previewReady": "Excel preview ready",
-      "imported": "Excel schedule imported"
+      "progressConfirmed": "Actual progress confirmed",
+      "revisionConfirmed": "Schedule version confirmed and locked",
+      "revisionCreated": "Revision draft created",
+      "revisionRemoved": "Draft revision removed",
+      "revisionUpdated": "Revision updated",
+      "taskRemoved": "Draft task removed",
+      "taskSaved": "Schedule task saved"
     }
   },
   "siteControl": {
@@ -10300,7 +10832,9 @@
       "validUntil": "Valid until",
       "qrValue": "QR code or pass link",
       "direction": "Movement",
-      "gateName": "Gate name"
+      "gateName": "Gate name",
+      "attendancePhoto": "Photo required for attendance",
+      "gatePhoto": "Photo required at the gate"
     },
     "shape": {
       "CIRCLE": "Circular boundary",
@@ -10469,7 +11003,9 @@
       "unknownGate": "Gate not named",
       "integrationReader": "Connected gate reader",
       "qrTitle": "Site access QR code",
-      "qrHelp": "Download and send this code. Scanning it opens the authenticated gate page with the pass ready."
+      "qrHelp": "Download and send this code. Scanning it opens the authenticated gate page with the pass ready.",
+      "editTitle": "Edit pass",
+      "editHelp": "Only a pending pass can be corrected. The project cannot be changed."
     },
     "passStatus": {
       "PENDING": "Pending review",
@@ -10548,7 +11084,35 @@
       "passCreated": "Access pass requested",
       "passReviewed": "Access decision saved",
       "passRevoked": "Access pass revoked",
-      "gateRecorded": "Gate movement recorded"
+      "gateRecorded": "Gate movement recorded",
+      "credentialRegistered": "Credential registered",
+      "credentialRevoked": "Credential revoked",
+      "passUpdated": "Pass updated."
+    },
+    "credential": {
+      "title": "Gate hardware credentials",
+      "help": "Card readers, face units and visitor systems match against a credential registered here. Without one they refuse every scan. QR entry and plate recognition use the pass itself and need nothing.",
+      "approveFirst": "Approve this pass before registering a credential.",
+      "type": "Credential type",
+      "value": "Card number, plate or reference",
+      "valuePlaceholder": "Card number, plate or reference",
+      "label": "Label",
+      "labelPlaceholder": "Label (optional)",
+      "register": "Register",
+      "loading": "Loading credentials…",
+      "none": "No credential registered. Card and plate lanes will refuse this pass.",
+      "noLabel": "No label",
+      "revoked": "Revoked",
+      "revoke": "Revoke",
+      "revokeTitle": "Revoke this credential?",
+      "revokeConfirm": "{hint} will stop opening the gate immediately. This cannot be undone; register a new credential instead."
+    },
+    "credentialType": {
+      "QR": "QR code",
+      "ANPR": "Vehicle plate",
+      "RFID": "RFID card",
+      "FACE": "Face reference",
+      "VISITOR_ID": "Visitor system reference"
     }
   },
   "userHandover": {
@@ -10716,27 +11280,95 @@
     "attachmentKind": { "DELIVERY_ORDER": "Delivery order", "E_INVOICE": "E-Invoice", "PHOTO": "Photo", "OTHER": "Other" },
     "material": { "MIXED": "Mixed construction waste", "CONCRETE": "Concrete and masonry", "METAL": "Scrap metal", "TIMBER": "Timber", "PLASTIC": "Plastic", "PAPER": "Paper and cardboard", "SOIL": "Soil and aggregate", "HAZARDOUS": "Hazardous", "OTHER": "Other" },
     "action": {
-      "sync": "Sync platform customers", "addCustomer": "Add customer", "deactivate": "Deactivate", "activate": "Activate",
-      "download": "Download", "print": "Print", "disableQr": "Disable QR", "enableQr": "Enable QR", "reissue": "Regenerate", "issueQr": "Issue QR",
-      "scan": "Scan QR", "startIntake": "Start intake", "complete": "Complete", "cancelIntake": "Cancel intake",
-      "adjustInventory": "Adjust", "recordAdjustment": "Record adjustment", "confirmShipment": "Confirm", "newShipment": "New outbound", "cancelShipment": "Cancel outbound", "upload": "Upload", "addBuyer": "Add buyer"
+      "sync": "Sync platform customers",
+      "addCustomer": "Add customer",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "download": "Download",
+      "print": "Print",
+      "disableQr": "Disable QR",
+      "enableQr": "Enable QR",
+      "reissue": "Regenerate",
+      "issueQr": "Issue QR",
+      "scan": "Scan QR",
+      "startIntake": "Start intake",
+      "complete": "Complete",
+      "cancelIntake": "Cancel intake",
+      "adjustInventory": "Adjust",
+      "recordAdjustment": "Record adjustment",
+      "confirmShipment": "Confirm",
+      "newShipment": "New outbound",
+      "cancelShipment": "Cancel outbound",
+      "upload": "Upload",
+      "addBuyer": "Add buyer"
     },
     "field": {
-      "customerNo": "Customer no.", "companyName": "Company name", "source": "Business source", "totalWeight": "Total weight", "status": "Status",
-      "registrationNo": "Registration no.", "contactPerson": "Contact person", "phone": "Phone", "email": "Email", "address": "Address", "notes": "Notes",
-      "bankName": "Bank", "bankAccountName": "Account name", "bankAccountNo": "Account no.", "bankNotes": "Bank notes",
-      "serial": "QR serial", "scanCount": "Scans", "issuedOn": "Issued on", "intakeNo": "Intake no.", "customer": "Customer", "material": "Material",
-      "netWeight": "Net weight", "createdAt": "Created", "qrToken": "Customer QR", "yard": "Recycling yard", "vehiclePlate": "Vehicle plate", "weighSession": "Completed weighing",
-      "currentWeight": "Current weight", "lastMovement": "Last movement", "movementNo": "Movement no.", "type": "Type", "change": "Change", "balance": "Balance", "occurredAt": "Time",
-      "adjustmentWeight": "Adjustment (kg)", "reason": "Reason", "shipmentNo": "Outbound no.", "buyer": "Buyer", "weight": "Weight", "outboundDate": "Outbound date",
-      "driverName": "Driver", "eInvoiceNo": "E-Invoice no.", "description": "File description", "buyerNo": "Buyer no.", "shipmentCount": "Confirmed shipments"
+      "customerNo": "Customer no.",
+      "companyName": "Company name",
+      "source": "Business source",
+      "totalWeight": "Total weight",
+      "status": "Status",
+      "registrationNo": "Registration no.",
+      "contactPerson": "Contact person",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "notes": "Notes",
+      "bankName": "Bank",
+      "bankAccountName": "Account name",
+      "bankAccountNo": "Account no.",
+      "bankNotes": "Bank notes",
+      "serial": "QR serial",
+      "scanCount": "Scans",
+      "issuedOn": "Issued on",
+      "intakeNo": "Intake no.",
+      "customer": "Customer",
+      "material": "Material",
+      "netWeight": "Net weight",
+      "createdAt": "Created",
+      "qrToken": "Customer QR",
+      "yard": "Recycling yard",
+      "vehiclePlate": "Vehicle plate",
+      "weighSession": "Completed weighing",
+      "currentWeight": "Current weight",
+      "lastMovement": "Last movement",
+      "movementNo": "Movement no.",
+      "type": "Type",
+      "change": "Change",
+      "balance": "Balance",
+      "occurredAt": "Time",
+      "adjustmentWeight": "Adjustment (kg)",
+      "reason": "Reason",
+      "shipmentNo": "Outbound no.",
+      "buyer": "Buyer",
+      "weight": "Weight",
+      "outboundDate": "Outbound date",
+      "driverName": "Driver",
+      "eInvoiceNo": "E-Invoice no.",
+      "description": "File description",
+      "buyerNo": "Buyer no.",
+      "shipmentCount": "Confirmed shipments"
     },
     "toast": {
-      "customerCreated": "Private customer created.", "customerUpdated": "Private customer updated.", "customerStatusUpdated": "Customer status updated.", "customersSynced": "Platform customers synchronised.",
-      "qrIssued": "Customer QR issued.", "qrReissued": "Customer QR regenerated; the old code is invalid.", "qrStatusUpdated": "Customer QR status updated.",
-      "intakeStarted": "Private intake is ready for weighing.", "intakeCompleted": "Private intake completed and inventory added.", "intakeCancelled": "Private intake cancelled.",
-      "inventoryAdjusted": "Inventory adjustment recorded.", "buyerCreated": "Buyer created.", "buyerUpdated": "Buyer updated.", "buyerStatusUpdated": "Buyer status updated.",
-      "shipmentCreated": "Outbound draft created.", "shipmentUpdated": "Outbound draft updated.", "shipmentConfirmed": "Outbound confirmed and inventory deducted.", "shipmentCancelled": "Outbound draft cancelled.", "attachmentUploaded": "Supporting file uploaded."
+      "customerCreated": "Private customer created.",
+      "customerUpdated": "Private customer updated.",
+      "customerStatusUpdated": "Customer status updated.",
+      "customersSynced": "Platform customers synchronised.",
+      "qrIssued": "Customer QR issued.",
+      "qrReissued": "Customer QR regenerated; the old code is invalid.",
+      "qrStatusUpdated": "Customer QR status updated.",
+      "intakeStarted": "Private intake is ready for weighing.",
+      "intakeCompleted": "Private intake completed and inventory added.",
+      "intakeCancelled": "Private intake cancelled.",
+      "inventoryAdjusted": "Inventory adjustment recorded.",
+      "buyerCreated": "Buyer created.",
+      "buyerUpdated": "Buyer updated.",
+      "buyerStatusUpdated": "Buyer status updated.",
+      "shipmentCreated": "Outbound draft created.",
+      "shipmentUpdated": "Outbound draft updated.",
+      "shipmentConfirmed": "Outbound confirmed and inventory deducted.",
+      "shipmentCancelled": "Outbound draft cancelled.",
+      "attachmentUploaded": "Supporting file uploaded."
     }
   },
   "incidentReporting": {
@@ -10748,7 +11380,12 @@
     "noReports": "No reports yet",
     "project": "Project",
     "chooseProject": "Choose project",
-    "severity": "Severity",
+    "severity": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
     "severityLow": "Low",
     "severityMedium": "Medium",
     "severityHigh": "High",
@@ -10809,18 +11446,11 @@
       "reportedBy": "Reported by",
       "messagePlaceholder": "Add details, photos or updates"
     },
-    "chooseProjectFirst": "Choose a project first to select recipients",
     "loadingRecipients": "Loading project members...",
     "noRecipients": "No eligible project members are available.",
     "supervisor": "Supervisor",
     "reporter": "Reporter",
     "photoLabel": "Incident photo",
-    "severity": {
-      "LOW": "Low",
-      "MEDIUM": "Medium",
-      "HIGH": "High",
-      "CRITICAL": "Critical"
-    },
     "status": {
       "open": "Open",
       "resolved": "Resolved"
@@ -10828,5 +11458,132 @@
     "label": {
       "messages": "messages"
     }
+  },
+  "departments": {
+    "toast": {
+      "created": "Department created.",
+      "updated": "Department updated.",
+      "removed": "Department removed."
+    }
+  },
+  "externalPortal": {
+    "invalid": "This external link is unavailable",
+    "invalidBody": "It may have expired, been revoked, or been entered incorrectly.",
+    "expiry": "Access expires {date}",
+    "project": "Project",
+    "progress": "Progress",
+    "weighing": "Verified weighing",
+    "documents": "Documents",
+    "evidence": "Evidence",
+    "field": {
+      "code": "Code",
+      "name": "Name",
+      "status": "Status",
+      "location": "Location"
+    }
+  },
+  "externalAccess": {
+    "title": "External access links",
+    "help": "Read-only links for people outside your company. Every link is scoped to a project, limited to the sections you pick, expires, and can be revoked.",
+    "empty": "No external link has been issued yet.",
+    "wholeCompany": "Whole company",
+    "neverUsed": "Never opened",
+    "createHelp": "The link is read-only. Financial figures are never exposed through it.",
+    "nameHint": "Who is it for — so you can tell the links apart later.",
+    "projectHint": "Leave empty to cover the whole company.",
+    "showsHint": "Only the sections you tick are visible through the link.",
+    "revokeConfirm": "Revoke “{name}”? Anyone holding that link stops seeing anything immediately.",
+    "action": {
+      "create": "New link",
+      "revoke": "Revoke"
+    },
+    "column": {
+      "name": "Name",
+      "project": "Project",
+      "shows": "Shows",
+      "expires": "Expires",
+      "lastUsed": "Last opened",
+      "status": "Status"
+    },
+    "field": {
+      "project": "Project details",
+      "progress": "Progress",
+      "weighing": "Weighing",
+      "documents": "Documents",
+      "evidence": "Evidence"
+    },
+    "status": {
+      "valid": "Active",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
+    "issued": {
+      "title": "Link created",
+      "help": "Send this address to the person it is for.",
+      "onceOnly": "This is the only time the address is shown. We keep just a fingerprint of it, so if it is lost you have to revoke this link and issue a new one.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "done": "Done"
+    },
+    "toast": {
+      "created": "External link created.",
+      "revoked": "External link revoked."
+    },
+    "loadError": "Could not load the external links."
+  },
+  "organisation": {
+    "title": "Organisation",
+    "help": "Your own departments and trades. Both are used to break down the on-site headcount.",
+    "inactive": "Inactive",
+    "loadError": "Could not load the list.",
+    "field": {
+      "code": "Code",
+      "name": "Name",
+      "active": "Active"
+    },
+    "department": {
+      "title": "Departments",
+      "help": "How your company is organised. Used for headcount and asset transfers.",
+      "empty": "No department yet.",
+      "add": "New department",
+      "edit": "Edit department"
+    },
+    "trade": {
+      "title": "Trades",
+      "help": "What people do on site — steel fixer, scaffolder, electrician. Kept as a list so the headcount by trade adds up.",
+      "empty": "No trade yet. Add one before the headcount can be broken down by trade.",
+      "add": "New trade",
+      "edit": "Edit trade"
+    },
+    "toast": {
+      "tradeCreated": "Trade created.",
+      "tradeUpdated": "Trade updated.",
+      "tradeRemoved": "Trade removed."
+    }
+  },
+  "workforcePresence": {
+    "title": "On site now",
+    "help": "Judged by the project geofence, not the gate.",
+    "onSiteNow": "On site now",
+    "enteredToday": "Entered today",
+    "leftToday": "Left today",
+    "byDepartment": "By department",
+    "byTrade": "By trade",
+    "unassigned": "Unassigned",
+    "noBreakdown": "Nothing to break down yet.",
+    "nobodyOnSite": "Nobody is inside the fence right now.",
+    "since": "since {at}",
+    "loadError": "Could not load the headcount.",
+    "filter": {
+      "department": "Department",
+      "trade": "Trade",
+      "allDepartments": "All departments",
+      "allTrades": "All trades"
+    }
+  },
+  "recyclerYard": {
+    "filter": "Yard",
+    "all": "All yards",
+    "companyWideNote": "Stock, outbound and billing are kept per company and are not narrowed by this filter."
   }
 }

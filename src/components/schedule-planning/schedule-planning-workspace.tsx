@@ -84,6 +84,8 @@ import {
   getSchedulePlans,
   getScheduleRevisions,
   getScheduleTasks,
+  updateSchedulePlan,
+  updateScheduleRevision,
   updateScheduleTask,
 } from "@/services/schedule-planning.service";
 
@@ -112,6 +114,8 @@ export function SchedulePlanningWorkspace() {
   const [removingRevision, setRemovingRevision] = useState<ScheduleRevision | null>(null);
   const [confirmingRevision, setConfirmingRevision] = useState<ScheduleRevision | null>(null);
   const [archivingPlan, setArchivingPlan] = useState<SchedulePlan | null>(null);
+  const [editingPlan, setEditingPlan] = useState<SchedulePlan | null>(null);
+  const [editingRevision, setEditingRevision] = useState<ScheduleRevision | null>(null);
 
   const plans = useQuery({
     queryKey: ["schedule-plans", project],
@@ -258,6 +262,11 @@ export function SchedulePlanningWorkspace() {
               </Button>
             </>
           )}
+          {plan && can("schedule.manage") && (
+            <Button variant="ghost" size="icon-sm" title={t("action.editPlan")} onClick={() => setEditingPlan(plan)}>
+              <Pencil />
+            </Button>
+          )}
           {plan && can("schedule.manage") && plan.status !== "ARCHIVED" && (
             <Button variant="ghost" size="icon-sm" title={t("action.archive")} onClick={() => setArchivingPlan(plan)}>
               <Archive />
@@ -328,6 +337,7 @@ export function SchedulePlanningWorkspace() {
               canConfirm={can("schedule.confirm")}
               onSelect={(id) => { setSelectedRevision(id); setView("list"); }}
               onConfirm={setConfirmingRevision}
+              onEdit={setEditingRevision}
               onRemove={setRemovingRevision}
             />
           )}
@@ -353,6 +363,12 @@ export function SchedulePlanningWorkspace() {
       )}
       {revisionDialog && plan && (
         <RevisionDialog plan={plan.id} onClose={() => setRevisionDialog(false)} onSaved={async (id) => { setRevisionDialog(false); setSelectedRevision(id); await invalidate(); }} />
+      )}
+      {editingPlan && (
+        <PlanDialog project={project} plan={editingPlan} onClose={() => setEditingPlan(null)} onSaved={async () => { setEditingPlan(null); await invalidate(); }} />
+      )}
+      {editingRevision && (
+        <RevisionDialog plan={editingRevision.plan} revision={editingRevision} onClose={() => setEditingRevision(null)} onSaved={async () => { setEditingRevision(null); await invalidate(); }} />
       )}
       {editingTask && revision && (
         <TaskDialog
@@ -403,9 +419,16 @@ function ProgressValue({ value }: { value: number }) {
   return <div className="w-28"><div className="mb-1 flex justify-between text-xs"><span>{safe.toFixed(1)}%</span></div><div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: safe + "%" }} /></div></div>;
 }
 
-function RevisionList({ rows, selected, canManage, canConfirm, onSelect, onConfirm, onRemove }: { rows: ScheduleRevision[]; selected: string; canManage: boolean; canConfirm: boolean; onSelect: (id: string) => void; onConfirm: (row: ScheduleRevision) => void; onRemove: (row: ScheduleRevision) => void }) {
+/**
+ * The revisions of one plan.
+ *
+ * Editing and removing are offered on drafts only, matching the API word for
+ * word: a confirmed revision is the schedule everyone is working to, and the
+ * reason recorded against it is part of why the dates changed.
+ */
+function RevisionList({ rows, selected, canManage, canConfirm, onSelect, onConfirm, onEdit, onRemove }: { rows: ScheduleRevision[]; selected: string; canManage: boolean; canConfirm: boolean; onSelect: (id: string) => void; onConfirm: (row: ScheduleRevision) => void; onEdit: (row: ScheduleRevision) => void; onRemove: (row: ScheduleRevision) => void }) {
   const t = useTranslations("schedulePlanning"); const df = useDateFormat();
-  return <div className="grid gap-3 lg:grid-cols-2">{rows.map((row) => <article key={row.id} className={"rounded-lg border bg-card p-4 shadow-sm " + (selected === row.id ? "ring-2 ring-primary/30" : "")}><div className="flex items-start justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.label}</h3><StatusBadge label={t("revisionStatus." + row.status)} tone={tone(row.status)} />{row.is_current && <StatusBadge label={t("status.current")} tone="info" />}</div><p className="mt-1 text-sm text-muted-foreground">{t("revision.number", { number: row.revision_number })} / {t("source." + row.source)}</p></div><GitBranch className="size-5 text-muted-foreground" /></div><p className="mt-3 min-h-10 text-sm">{row.reason || t("state.noReason")}</p><div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3"><span className="text-xs text-muted-foreground">{row.task_count} {t("common.tasks")} {row.confirmed_at ? " / " + df.dateTime(row.confirmed_at) : ""}</span><div className="ml-auto flex gap-1"><Button size="sm" variant="outline" onClick={() => onSelect(row.id)}>{t("action.open")}</Button>{canConfirm && row.status === "DRAFT" && row.task_count > 0 && <Button size="icon-sm" title={t("action.confirmRevision")} onClick={() => onConfirm(row)}><Check /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => onRemove(row)}><Trash2 /></Button>}</div></div></article>)}</div>;
+  return <div className="grid gap-3 lg:grid-cols-2">{rows.map((row) => <article key={row.id} className={"rounded-lg border bg-card p-4 shadow-sm " + (selected === row.id ? "ring-2 ring-primary/30" : "")}><div className="flex items-start justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.label}</h3><StatusBadge label={t("revisionStatus." + row.status)} tone={tone(row.status)} />{row.is_current && <StatusBadge label={t("status.current")} tone="info" />}</div><p className="mt-1 text-sm text-muted-foreground">{t("revision.number", { number: row.revision_number })} / {t("source." + row.source)}</p></div><GitBranch className="size-5 text-muted-foreground" /></div><p className="mt-3 min-h-10 text-sm">{row.reason || t("state.noReason")}</p><div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3"><span className="text-xs text-muted-foreground">{row.task_count} {t("common.tasks")} {row.confirmed_at ? " / " + df.dateTime(row.confirmed_at) : ""}</span><div className="ml-auto flex gap-1"><Button size="sm" variant="outline" onClick={() => onSelect(row.id)}>{t("action.open")}</Button>{canConfirm && row.status === "DRAFT" && row.task_count > 0 && <Button size="icon-sm" title={t("action.confirmRevision")} onClick={() => onConfirm(row)}><Check /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" title={t("action.editRevision")} onClick={() => onEdit(row)}><Pencil /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => onRemove(row)}><Trash2 /></Button>}</div></div></article>)}</div>;
 }
 
 function HistoryList({ loading, rows }: { loading: boolean; rows: Array<{ id: string; event: string; note: string; revision_label: string | null; task_name: string | null; actor_name: string | null; created_at: string }> }) {
@@ -415,17 +438,42 @@ function HistoryList({ loading, rows }: { loading: boolean; rows: Array<{ id: st
   return <div className="overflow-hidden rounded-lg border bg-card shadow-sm"><div className="divide-y">{rows.map((row) => <div key={row.id} className="flex gap-3 p-4"><span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><History className="size-4" /></span><div className="min-w-0 flex-1"><p className="font-medium">{t("history." + row.event)}</p><p className="text-sm text-muted-foreground">{[row.revision_label, row.task_name, row.note].filter(Boolean).join(" / ") || t("state.noReason")}</p></div><div className="shrink-0 text-right text-xs text-muted-foreground"><p>{row.actor_name || t("common.system")}</p><p>{df.dateTime(row.created_at)}</p></div></div>)}</div></div>;
 }
 
-function PlanDialog({ project, onClose, onSaved }: { project: string; onClose: () => void; onSaved: (id: string) => void }) {
+/**
+ * Create a plan, or correct its name and description.
+ *
+ * The baseline label is only asked for on creation: it names the plan's first
+ * revision, and revisions are edited in their own dialog. Offering it here
+ * when renaming would let someone type into a field the request does not
+ * carry.
+ */
+function PlanDialog({ project, plan, onClose, onSaved }: { project: string; plan?: SchedulePlan; onClose: () => void; onSaved: (id: string) => void }) {
   const t = useTranslations("schedulePlanning");
-  const [form, setForm] = useState({ name: "", description: "", baseline_label: t("defaults.baseline") });
-  const save = useMutation({ mutationFn: () => createSchedulePlan({ project, ...form }), onSuccess: (row) => onSaved(row.plan.id) });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>{t("dialog.planTitle")}</DialogTitle><DialogDescription>{t("dialog.planHelp")}</DialogDescription></DialogHeader><div className="grid gap-4"><FieldWrapper label={t("field.planName")} required><Input value={form.name} onChange={(event) => setForm((old) => ({ ...old, name: event.target.value }))} /></FieldWrapper><FieldWrapper label={t("field.baselineLabel")} required><Input value={form.baseline_label} onChange={(event) => setForm((old) => ({ ...old, baseline_label: event.target.value }))} /></FieldWrapper><FieldWrapper label={t("field.description")}><Textarea value={form.description} onChange={(event) => setForm((old) => ({ ...old, description: event.target.value }))} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!form.name.trim() || !form.baseline_label.trim() || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Save />}{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+  const [form, setForm] = useState({ name: plan?.name ?? "", description: plan?.description ?? "", baseline_label: t("defaults.baseline") });
+  const save = useMutation({
+    mutationFn: () => plan
+      ? updateSchedulePlan(plan.id, { name: form.name, description: form.description }).then((row) => ({ plan: row }))
+      : createSchedulePlan({ project, ...form }),
+    onSuccess: (row) => onSaved(row.plan.id),
+  });
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>{t(plan ? "dialog.editPlanTitle" : "dialog.planTitle")}</DialogTitle><DialogDescription>{t(plan ? "dialog.editPlanHelp" : "dialog.planHelp")}</DialogDescription></DialogHeader><div className="grid gap-4"><FieldWrapper label={t("field.planName")} required><Input value={form.name} onChange={(event) => setForm((old) => ({ ...old, name: event.target.value }))} /></FieldWrapper>{!plan && <FieldWrapper label={t("field.baselineLabel")} required><Input value={form.baseline_label} onChange={(event) => setForm((old) => ({ ...old, baseline_label: event.target.value }))} /></FieldWrapper>}<FieldWrapper label={t("field.description")}><Textarea value={form.description} onChange={(event) => setForm((old) => ({ ...old, description: event.target.value }))} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!form.name.trim() || (!plan && !form.baseline_label.trim()) || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Save />}{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
-function RevisionDialog({ plan, onClose, onSaved }: { plan: string; onClose: () => void; onSaved: (id: string) => void }) {
-  const t = useTranslations("schedulePlanning"); const [label, setLabel] = useState(""); const [reason, setReason] = useState("");
-  const save = useMutation({ mutationFn: () => createScheduleRevision({ plan, label, reason }), onSuccess: (row) => onSaved(row.id) });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>{t("dialog.revisionTitle")}</DialogTitle><DialogDescription>{t("dialog.revisionHelp")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.revisionLabel")} required><Input value={label} onChange={(event) => setLabel(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.revisionReason")} required><Textarea value={reason} onChange={(event) => setReason(event.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!label.trim() || !reason.trim() || save.isPending} onClick={() => save.mutate()}><GitBranch />{t("action.createRevision")}</Button></DialogFooter></DialogContent></Dialog>;
+/**
+ * Open a revision, or correct a draft before it is confirmed.
+ *
+ * The reason is required either way. It is the sentence that explains to
+ * everyone reading the schedule later why the dates moved, so a revision
+ * without one is a change nobody can account for.
+ */
+function RevisionDialog({ plan, revision, onClose, onSaved }: { plan: string; revision?: ScheduleRevision; onClose: () => void; onSaved: (id: string) => void }) {
+  const t = useTranslations("schedulePlanning"); const [label, setLabel] = useState(revision?.label ?? ""); const [reason, setReason] = useState(revision?.reason ?? "");
+  const save = useMutation({
+    mutationFn: () => revision
+      ? updateScheduleRevision(revision.id, { label, reason })
+      : createScheduleRevision({ plan, label, reason }),
+    onSuccess: (row) => onSaved(row.id),
+  });
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>{t(revision ? "dialog.editRevisionTitle" : "dialog.revisionTitle")}</DialogTitle><DialogDescription>{t(revision ? "dialog.editRevisionHelp" : "dialog.revisionHelp")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.revisionLabel")} required><Input value={label} onChange={(event) => setLabel(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.revisionReason")} required><Textarea value={reason} onChange={(event) => setReason(event.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!label.trim() || !reason.trim() || save.isPending} onClick={() => save.mutate()}>{revision ? <Save /> : <GitBranch />}{t(revision ? "action.save" : "action.createRevision")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function TaskDialog({ revision, row, tasks, onClose, onSaved }: { revision: ScheduleRevision; row: ScheduleTask | null; tasks: ScheduleTask[]; onClose: () => void; onSaved: () => void }) {

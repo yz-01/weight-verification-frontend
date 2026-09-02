@@ -302,6 +302,7 @@ export function Notifications() {
 }
 
 function notificationKindKey(kind: string): string {
+  if (kind === "PLATFORM_ANNOUNCEMENT") return "ANNOUNCEMENT";
   if (kind.startsWith("DRIVER_TASK")) return "DRIVER_TASK";
   if (kind.startsWith("waste.") || kind === "ORDER") return "DISPATCH";
   if (kind.includes("WEIGH")) return "WEIGHING";

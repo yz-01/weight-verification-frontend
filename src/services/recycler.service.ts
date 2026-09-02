@@ -300,6 +300,25 @@ export async function cancelTask(
 }
 
 /**
+ * Close a trip that reached the yard and was never weighed.
+ *
+ * Recorded as "could not complete" rather than cancelled: the driver did go
+ * and the load did come back, and the record has to keep saying so. Until this
+ * existed the trip had no exit at all and the driver stayed occupied for good.
+ */
+export async function closeTask(
+  id: string,
+  reason: string,
+): Promise<DriverTaskDetail> {
+  const task = await api.post<DriverTaskDetail>(
+    `/api/tasks/${id}/close_task/`,
+    { reason },
+  );
+  toastSuccess("tasks.toast.closed");
+  return task;
+}
+
+/**
  * Move a trip one step.
  *
  * There is no way to set a state directly, here or on the server. Every change
@@ -364,6 +383,25 @@ export function getGateBinding(scaleId: string): Promise<GateBinding | null> {
 export async function clearGateBinding(scaleId: string): Promise<void> {
   await api.post("/api/weigh-sessions/clear_gate_binding/", { scale: scaleId });
   toastSuccess("gate.toast.cleared");
+}
+
+/**
+ * Record that a person let the vehicle through when the barrier did not answer.
+ *
+ * Not a command: nothing is being asked to open. Somebody walked over and
+ * lifted it, and the reason they give is the only account of why a lorry moved
+ * without a controller ever reporting that it opened.
+ */
+export async function manualRelease(
+  scaleId: string,
+  reason: string,
+): Promise<GateBinding> {
+  const binding = await api.post<GateBinding>(
+    "/api/weigh-sessions/manual_release/",
+    { scale: scaleId, reason },
+  );
+  toastSuccess("gate.toast.manualReleased");
+  return binding;
 }
 
 export function getDeductions(query: ListQuery): Promise<Paginated<Deduction>> {

@@ -45,6 +45,7 @@ import {
   getDriverRouteHistory,
 } from "@/services/driver-gps.service";
 import { getTask, getTasks } from "@/services/recycler.service";
+import { trackPaths } from "@/lib/track-paths";
 
 type TaskFilter = "ALL" | "RUNNING" | "FINISHED";
 
@@ -182,21 +183,23 @@ export function DriverGps() {
   );
   const livePaths = useMemo(
     () =>
-      (liveRoutes.data?.routes ?? []).map((route, index) => {
+      (liveRoutes.data?.routes ?? []).flatMap((route, index) => {
         const driver = driverByTask.get(route.task);
-        return {
+        return trackPaths({
           id: route.task,
-          points: route.positions.map(
-            (position) =>
-              [Number(position.latitude), Number(position.longitude)] as [number, number],
-          ),
+          points: route.positions.map((position) => ({
+            latitude: position.latitude,
+            longitude: position.longitude,
+            occurredAt: position.original_occurred_at,
+          })),
           color: ROUTE_COLORS[index % ROUTE_COLORS.length],
           label: driver
             ? `${driver.driver_name} / ${driver.vehicle_plate}`
             : undefined,
-        };
+          gapLabel: (minutes) => t("driver.track.gap", { minutes }),
+        });
       }),
-    [driverByTask, liveRoutes.data?.routes],
+    [driverByTask, liveRoutes.data?.routes, t],
   );
   const liveZones = useMemo(() => {
     const byProject = new Map<string, {

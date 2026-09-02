@@ -10,6 +10,7 @@ import {
   FileDown,
   FlaskConical,
   HardHat,
+  History,
   Loader2,
   Plus,
   RadioTower,
@@ -64,6 +65,7 @@ import type {
   DeviceMaintenance,
   RemoteOperation,
   SupportTicket,
+  TicketPriority,
   TicketState,
 } from "@/interfaces/support";
 import { useDateFormat } from "@/lib/dates";
@@ -84,7 +86,10 @@ import {
   getMaintenance,
   getTechnicalSupportSummary,
   getTickets,
+  getRemoteSessions,
   remoteOperate,
+  updateTicket,
+  addTicketComment,
   transitionTicket,
   updateAPIIntegration,
   updateBug,
@@ -113,6 +118,8 @@ const SUBMODULES: Array<{
   { section: "maintenance", number: "15.2.6" },
   { section: "reports", number: "15.2.7" },
 ];
+const TICKET_PRIORITIES: TicketPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
+
 const TICKET_STATES: TicketState[] = [
   "PENDING",
   "IN_PROGRESS",
@@ -702,6 +709,15 @@ function TicketDialog({
     </Dialog>
   );
 }
+/**
+ * Working one ticket: move it, correct it, and talk on it.
+ *
+ * It used to do only the first of those. The backend has accepted an edit and
+ * a comment since the module was written, and no screen ever called either, so
+ * a ticket raised with the wrong priority stayed wrong for its whole life and
+ * nobody could reply on it at all (F-101). For a support system, a ticket you
+ * cannot comment on is most of the product missing.
+ */
 function TicketStateDialog({
   row,
   onClose,
@@ -712,8 +728,15 @@ function TicketStateDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("adminTechnicalSupport");
+  const df = useDateFormat();
   const [state, setState] = useState<TicketState>(row.state);
   const [note, setNote] = useState("");
+  const [priority, setPriority] = useState<TicketPriority>(row.priority);
+  const [title, setTitle] = useState(row.title);
+  const [description, setDescription] = useState(row.description);
+  const [comment, setComment] = useState("");
+  const [internal, setInternal] = useState(false);
+
   const save = useMutation({
     mutationFn: () => transitionTicket(row.id, state, note),
     onSuccess: () => {
@@ -721,31 +744,139 @@ function TicketStateDialog({
       onClose();
     },
   });
+  const edit = useMutation({
+    mutationFn: () =>
+      updateTicket(row.id, { priority, title, description }),
+    onSuccess: onSaved,
+  });
+  const speak = useMutation({
+    mutationFn: () => addTicketComment(row.id, comment.trim(), internal),
+    onSuccess: () => {
+      setComment("");
+      onSaved();
+    },
+  });
+
+  const edited =
+    priority !== row.priority ||
+    title !== row.title ||
+    description !== row.description;
+  const comments = row.comments ?? [];
+
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("action.process")}</DialogTitle>
           <DialogDescription>
             {row.code} / {row.title}
           </DialogDescription>
         </DialogHeader>
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={state}
-          onChange={(e) => setState(e.target.value as TicketState)}
-        >
-          {TICKET_STATES.map((x) => (
-            <option key={x} value={x}>
-              {t(`ticketState.${x}`)}
-            </option>
-          ))}
-        </select>
-        <Textarea
-          placeholder={t("field.result")}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        />
+
+        <div className="space-y-2">
+          <p className="text-sm font-medium">{t("ticketEdit.title")}</p>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+          <select
+            className="h-8 w-full rounded-md border bg-background px-2"
+            aria-label={t("field.priority")}
+            value={priority}
+            onChange={(e) => setPriority(e.target.value as TicketPriority)}
+          >
+            {TICKET_PRIORITIES.map((x) => (
+              <option key={x} value={x}>
+                {t(`ticketPriority.${x}`)}
+              </option>
+            ))}
+          </select>
+          <Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!edited || !title.trim() || edit.isPending}
+            onClick={() => edit.mutate()}
+          >
+            <Check className="h-4 w-4" />
+            {t("ticketEdit.save")}
+          </Button>
+        </div>
+
+        <div className="space-y-2 border-t pt-3">
+          <p className="text-sm font-medium">{t("ticketComment.title")}</p>
+          {comments.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              {t("ticketComment.empty")}
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {comments.map((item) => (
+                <li key={item.id} className="rounded-md border px-3 py-2">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                      {item.author_name ?? t("ticketComment.unknownAuthor")}
+                    </span>
+                    <span>{df.dateTime(item.created_at)}</span>
+                    {item.is_internal && (
+                      <StatusBadge
+                        label={t("ticketComment.internal")}
+                        tone="warning"
+                      />
+                    )}
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap text-sm">{item.body}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Textarea
+            placeholder={t("ticketComment.placeholder")}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={2}
+          />
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border"
+              checked={internal}
+              onChange={(e) => setInternal(e.target.checked)}
+            />
+            {t("ticketComment.internalHelp")}
+          </label>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!comment.trim() || speak.isPending}
+            onClick={() => speak.mutate()}
+          >
+            {t("ticketComment.send")}
+          </Button>
+        </div>
+
+        <div className="space-y-2 border-t pt-3">
+          <p className="text-sm font-medium">{t("ticketEdit.moveOn")}</p>
+          <select
+            className="h-8 w-full rounded-md border bg-background px-2"
+            aria-label={t("action.process")}
+            value={state}
+            onChange={(e) => setState(e.target.value as TicketState)}
+          >
+            {TICKET_STATES.map((x) => (
+              <option key={x} value={x}>
+                {t(`ticketState.${x}`)}
+              </option>
+            ))}
+          </select>
+          <Textarea
+            placeholder={t("field.result")}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+        </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -1530,7 +1661,89 @@ function DevicePanel({ installations }: { installations: boolean }) {
         />
       )}
       </Panel>
+      {/* 15.2.8 keeps the maintenance record permanently, so it has to be
+          readable. Every remote operation writes a session; nothing read them
+          back until now. */}
+      {!installations && <RemoteSessionHistory />}
     </div>
+  );
+}
+
+function RemoteSessionHistory() {
+  const t = useTranslations("support");
+  const df = useDateFormat();
+  const sessions = useQuery({
+    queryKey: ["remote-sessions"],
+    queryFn: () => getRemoteSessions({
+        page_size: 100,
+        sort_by: "started_at",
+        sort_order: "desc",
+      }),
+  });
+  const rows = sessions.data?.results ?? [];
+  return (
+    <section className="rounded-lg border bg-card shadow-sm">
+      <div className="flex flex-wrap items-center gap-2 border-b p-3">
+        <History className="size-4 text-muted-foreground" />
+        <p className="text-sm font-semibold">{t("remoteHistory.title")}</p>
+        <p className="text-xs text-muted-foreground">{t("remoteHistory.help")}</p>
+      </div>
+      {sessions.isLoading ? (
+        <p className="p-4 text-sm text-muted-foreground">
+          {t("remoteHistory.loading")}
+        </p>
+      ) : sessions.isError ? (
+        <div className="m-4 flex flex-wrap items-center gap-3 rounded-lg border border-destructive/25 bg-destructive/5 p-4">
+          <p className="text-sm text-destructive">{t("remoteHistory.loadError")}</p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => void sessions.refetch()}
+          >
+            {t("action.retry")}
+          </Button>
+        </div>
+      ) : !rows.length ? (
+        <p className="m-4 rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+          {t("remoteHistory.empty")}
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {["when", "company", "operation", "operator", "reason", "result"].map((key) => (
+                  <TableHead key={key}>{t(`remoteHistory.column.${key}`)}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell className="whitespace-nowrap tabular-nums">
+                    {df.dateTime(row.started_at)}
+                  </TableCell>
+                  <TableCell>{row.company_name}</TableCell>
+                  <TableCell>{row.session_type}</TableCell>
+                  <TableCell>{row.operator_name || "-"}</TableCell>
+                  <TableCell className="max-w-64 truncate">{row.description}</TableCell>
+                  <TableCell>
+                    <StatusBadge
+                      label={
+                        row.result === "SIMULATED_SUCCESS"
+                          ? t("remoteHistory.simulated")
+                          : row.result
+                      }
+                      tone={row.result === "SIMULATED_SUCCESS" ? "warning" : "positive"}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </section>
   );
 }
 function DeviceDialog({

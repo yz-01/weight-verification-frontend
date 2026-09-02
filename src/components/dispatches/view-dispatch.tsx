@@ -30,16 +30,85 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import type { DispatchPhotoKind } from "@/interfaces/contractor";
 import { Label } from "@/components/ui/label";
 import { useDateFormat } from "@/lib/dates";
 import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { getWasteTracking } from "@/services/waste-outgoing.service";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
+  addDispatchPhoto,
   cancelDispatch,
   getDispatch,
   releaseDispatch,
 } from "@/services/contractor.service";
+
+const DISPATCH_PHOTO_KINDS: DispatchPhotoKind[] = [
+  "LOADING",
+  "VEHICLE",
+  "PLATE",
+  "OTHER",
+];
+
+/**
+ * Attach a photograph to a dispatch that is already raised.
+ *
+ * The load is photographed at the gate, and the gate is not where the dispatch
+ * was created. The endpoint has always taken them; no screen offered it, so a
+ * plate shot taken two minutes late had nowhere to go (F-101).
+ */
+function AddDispatchPhoto({
+  dispatchId,
+  onAdded,
+}: {
+  dispatchId: string;
+  onAdded: () => void;
+}) {
+  const t = useTranslations();
+  const [file, setFile] = useState<File | null>(null);
+  const [kind, setKind] = useState<DispatchPhotoKind>("LOADING");
+
+  const upload = useMutation({
+    mutationFn: (image: File) =>
+      addDispatchPhoto(dispatchId, { image, kind }),
+    onSuccess: () => {
+      setFile(null);
+      onAdded();
+    },
+  });
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md border border-dashed p-3">
+      <Input
+        type="file"
+        accept="image/*"
+        className="h-8 max-w-xs text-xs"
+        aria-label={t("dispatches.addPhoto.choose")}
+        onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+      />
+      <select
+        className="h-8 rounded-md border bg-background px-2 text-sm"
+        aria-label={t("dispatches.addPhoto.kind")}
+        value={kind}
+        onChange={(event) => setKind(event.target.value as DispatchPhotoKind)}
+      >
+        {DISPATCH_PHOTO_KINDS.map((option) => (
+          <option key={option} value={option}>
+            {t(`dispatches.photoKind.${option}`)}
+          </option>
+        ))}
+      </select>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={!file || upload.isPending}
+        onClick={() => file && upload.mutate(file)}
+      >
+        {t("dispatches.addPhoto.upload")}
+      </Button>
+    </div>
+  );
+}
 
 export function ViewDispatch({ id }: { id: string }) {
   const t = useTranslations();
@@ -186,6 +255,52 @@ export function ViewDispatch({ id }: { id: string }) {
               )}
             </FormSection>
           )}
+          {/*
+            The dispatch's own photographs, which had nowhere to be seen and no
+            way to be added: only the application's photos and the driver's
+            were on this page (F-101).
+          */}
+          <FormSection title={t("dispatches.section.photos")}>
+            <div className="md:col-span-2">
+              {data.photos.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("dispatches.noPhotos")}
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {data.photos.map((photo) => (
+                    <a
+                      key={photo.id}
+                      href={photo.watermarked || photo.image}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="overflow-hidden rounded-md border bg-muted/20"
+                    >
+                      <Image
+                        src={photo.watermarked || photo.image}
+                        alt={t(`dispatches.photoKind.${photo.kind}`)}
+                        width={360}
+                        height={270}
+                        unoptimized
+                        className="aspect-[4/3] w-full object-cover"
+                      />
+                    </a>
+                  ))}
+                </div>
+              )}
+              {can("dispatch.create") && (
+                <AddDispatchPhoto
+                  dispatchId={data.id}
+                  onAdded={() =>
+                    void queryClient.invalidateQueries({
+                      queryKey: ["dispatch", data.id],
+                    })
+                  }
+                />
+              )}
+            </div>
+          </FormSection>
+
           <FormSection title={t("dispatches.section.destination")}>
             <ReadField
               label={t("dispatches.field.project")}

@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Camera,
   Check,
+  ChevronDown,
+  ChevronUp,
   ClipboardCheck,
   FileText,
   FilePlus2,
@@ -23,7 +25,7 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -62,6 +64,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type {
+  ConstructionPhase,
   EquipmentPayload,
   FieldTask,
   FieldTaskPayload,
@@ -75,9 +78,13 @@ import { ApiError } from "@/interfaces/api";
 import { MATERIAL_UNITS } from "@/interfaces/contractor";
 import {
   createConstructionPhase,
+  updateConstructionPhase,
+  addFieldTaskReferences,
   createFieldTask,
   createProjectCategory,
   createSiteEquipment,
+  exportSiteProgressRecords,
+  reorderProjectCategories,
   deleteProjectCategory,
   exportEquipmentMovements,
   getConstructionPhases,
@@ -93,7 +100,9 @@ import {
   reviewMaterialOutgoing,
   reviewSiteProgressRecord,
   transitionFieldTask,
+  updateFieldTask,
   updateProjectCategory,
+  updateSiteEquipment,
 } from "@/services/contractor-ops.service";
 import {
   getProjectAssignments,
@@ -244,6 +253,24 @@ export function ProjectCategoriesWorkspace() {
       setRemoving(null);
     },
   });
+  const reorder = useMutation({
+    mutationFn: reorderProjectCategories,
+    onSuccess: refresh,
+  });
+  const ordered = rows.data?.results ?? [];
+  // Only offered on one site at a time. Across projects the card above a card
+  // belongs to a different list, so "move up" would have nothing meaningful
+  // to swap places with.
+  const canReorder = can("category.manage") && Boolean(project);
+  /** Swap this category with its neighbour, sending both places at once. */
+  const move = (index: number, delta: number) => {
+    const target = index + delta;
+    if (target < 0 || target >= ordered.length) return;
+    reorder.mutate([
+      { id: ordered[index].id, sort_order: target },
+      { id: ordered[target].id, sort_order: index },
+    ]);
+  };
   const dialogProject =
     editing === "new" ? project : editing?.project ?? "";
   return (
@@ -261,6 +288,11 @@ export function ProjectCategoriesWorkspace() {
         }
       />
       <ProjectFilter value={project} onChange={setProject} />
+      {can("category.manage") && !project && !!rows.data?.count && (
+        <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
+          {t("categories.reorderNeedsProject")}
+        </p>
+      )}
       <WorkspaceState
         loading={rows.isLoading}
         error={rows.isError}
@@ -268,7 +300,7 @@ export function ProjectCategoriesWorkspace() {
       />
       {!!rows.data?.count && (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {rows.data.results.map((row) => (
+          {ordered.map((row, index) => (
             <article
               key={row.id}
               className="rounded-lg border bg-card p-4 shadow-sm"
@@ -310,6 +342,28 @@ export function ProjectCategoriesWorkspace() {
                 />
                 {can("category.manage") && (
                   <div className="ml-auto flex gap-1">
+                    {canReorder && (
+                      <>
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          title={t("categories.moveUp")}
+                          disabled={index === 0 || reorder.isPending}
+                          onClick={() => move(index, -1)}
+                        >
+                          <ChevronUp />
+                        </Button>
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          title={t("categories.moveDown")}
+                          disabled={index === ordered.length - 1 || reorder.isPending}
+                          onClick={() => move(index, 1)}
+                        >
+                          <ChevronDown />
+                        </Button>
+                      </>
+                    )}
                     <Button
                       size="icon-sm"
                       variant="ghost"
@@ -714,6 +768,9 @@ export function FieldTasksWorkspace({
   const qc = useQueryClient();
   const [project, setProject] = useState("");
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<FieldTask | null>(null);
+  const referenceInput = useRef<HTMLInputElement>(null);
+  const [addingRefsTo, setAddingRefsTo] = useState<FieldTask | null>(null);
   const rows = useQuery({
     queryKey: ["field-tasks", project, taskType],
     queryFn: () =>
@@ -733,6 +790,11 @@ export function FieldTasksWorkspace({
       status: FieldTask["status"];
       note?: string;
     }) => transitionFieldTask(id, status, note),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["field-tasks"] }),
+  });
+  const addReferences = useMutation({
+    mutationFn: ({ id, files }: { id: string; files: File[] }) =>
+      addFieldTaskReferences(id, files),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["field-tasks"] }),
   });
   const review = (row: FieldTask, status: FieldTask["status"]) => {
@@ -931,8 +993,32 @@ export function FieldTasksWorkspace({
                   </div>
                 </div>
                 {(canPrepareApplication ||
-                  (can("field_task.manage") && row.status === "SUBMITTED")) && (
+                  (can("field_task.manage") &&
+                    ["SUBMITTED", "OPEN", "RETURNED"].includes(row.status))) && (
                   <div className="flex flex-wrap justify-end gap-2 border-t bg-muted/20 p-3">
+                    {can("field_task.manage") &&
+                    ["OPEN", "RETURNED"].includes(row.status) ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          onClick={() => setEditing(row)}
+                        >
+                          <Pencil />
+                          {t("tasks.edit")}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          disabled={addReferences.isPending}
+                          onClick={() => {
+                            setAddingRefsTo(row);
+                            referenceInput.current?.click();
+                          }}
+                        >
+                          <Paperclip />
+                          {t("tasks.addReferences")}
+                        </Button>
+                      </>
+                    ) : null}
                     {can("field_task.manage") && row.status === "SUBMITTED" ? (
                       <>
                         <Button
@@ -982,30 +1068,69 @@ export function FieldTasksWorkspace({
           }}
         />
       )}
+      {editing && (
+        <TaskDialog
+          project={editing.project}
+          task={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            void qc.invalidateQueries({ queryKey: ["field-tasks"] });
+            setEditing(null);
+          }}
+        />
+      )}
+      {/* One input for the whole list: the card that opened it is remembered
+          in state, so every row does not carry a hidden file field. */}
+      <input
+        ref={referenceInput}
+        className="hidden"
+        type="file"
+        multiple
+        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+        onChange={(event) => {
+          const files = Array.from(event.target.files ?? []);
+          if (addingRefsTo && files.length) {
+            addReferences.mutate({ id: addingRefsTo.id, files });
+          }
+          event.target.value = "";
+          setAddingRefsTo(null);
+        }}
+      />
     </div>
   );
 }
 
+/**
+ * Assign a task, or correct one nobody has started.
+ *
+ * The project stays fixed when correcting. Moving a task to another site
+ * would leave it assigned to someone who is not on that site's team, and the
+ * assignee list on this form is drawn from the project - so the two would
+ * disagree without anything on screen saying why.
+ */
 function TaskDialog({
   project,
+  task,
   onClose,
   onSaved,
 }: {
   project: string;
+  task?: FieldTask;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const t = useTranslations("contractorOps");
   const [form, setForm] = useState<FieldTaskPayload>({
-    project,
-    title: "",
-    task_type: "PHOTO",
-    instructions: "",
-    assigned_to: "",
-    category: null,
-    priority: "NORMAL",
-    due_at: null,
-    evidence_required: 1,
+    project: task?.project ?? project,
+    title: task?.title ?? "",
+    task_type: task?.task_type ?? "PHOTO",
+    instructions: task?.instructions ?? "",
+    work_location: task?.work_location ?? "",
+    assigned_to: task?.assigned_to ?? "",
+    category: task?.category ?? null,
+    priority: task?.priority ?? "NORMAL",
+    due_at: task?.due_at ?? null,
+    evidence_required: task?.evidence_required ?? 1,
   });
   const team = useQuery({
     queryKey: ["project-assignments", form.project],
@@ -1023,7 +1148,19 @@ function TaskDialog({
     value: FieldTaskPayload[K],
   ) => setForm((old) => ({ ...old, [key]: value }));
   const save = useMutation({
-    mutationFn: () => createFieldTask(form),
+    mutationFn: () => task
+      ? updateFieldTask(task.id, {
+          title: form.title,
+          task_type: form.task_type,
+          instructions: form.instructions,
+          work_location: form.work_location,
+          assigned_to: form.assigned_to,
+          category: form.category,
+          priority: form.priority,
+          due_at: form.due_at,
+          evidence_required: form.evidence_required,
+        })
+      : createFieldTask(form),
     onSuccess: onSaved,
   });
   const chooseProject = (next: string) =>
@@ -1037,7 +1174,7 @@ function TaskDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{t("tasks.createTitle")}</DialogTitle>
+          <DialogTitle>{t(task ? "tasks.editTitle" : "tasks.createTitle")}</DialogTitle>
           <DialogDescription>{t("tasks.formHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -1046,11 +1183,20 @@ function TaskDialog({
             required
             className="sm:col-span-2"
           >
-            <ProjectPicker
-              value={form.project}
-              onValueChange={chooseProject}
-              placeholder={t("field.selectProject")}
-            />
+            {task ? (
+              <p className="rounded-lg border bg-muted/30 p-3 text-sm">
+                {task.project_name}
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  {t("tasks.projectFixed")}
+                </span>
+              </p>
+            ) : (
+              <ProjectPicker
+                value={form.project}
+                onValueChange={chooseProject}
+                placeholder={t("field.selectProject")}
+              />
+            )}
           </FieldWrapper>
           <FieldWrapper
             label={t("field.title")}
@@ -1157,6 +1303,7 @@ function TaskDialog({
           <FieldWrapper label={t("field.dueAt")}>
             <Input
               type="datetime-local"
+              defaultValue={localDateTime(form.due_at)}
               onChange={(e) =>
                 set(
                   "due_at",
@@ -1188,7 +1335,7 @@ function TaskDialog({
           </FieldWrapper>
           <FieldWrapper
             label={t("tasks.referenceFiles")}
-            className="sm:col-span-2"
+            className={task ? "hidden" : "sm:col-span-2"}
           >
             <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed bg-muted/20 px-4 py-3 text-center hover:border-primary/50 hover:bg-primary/5">
               <Paperclip className="mb-2 size-6 text-primary" />
@@ -1241,12 +1388,21 @@ function TaskDialog({
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
-            {t("action.assign")}
+            {t(task ? "action.save" : "action.assign")}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
+}
+
+/** A datetime-local field wants local wall-clock text, not an ISO instant. */
+function localDateTime(value?: string | null) {
+  if (!value) return "";
+  const at = new Date(value);
+  if (Number.isNaN(at.getTime())) return "";
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}T${pad(at.getHours())}:${pad(at.getMinutes())}`;
 }
 
 export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
@@ -1263,6 +1419,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const [dateTo, setDateTo] = useState("");
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
   const [moving, setMoving] = useState<SiteEquipment | null>(null);
+  const [editingEquipment, setEditingEquipment] = useState<SiteEquipment | null>(null);
   const rows = useQuery({
     queryKey: ["site-equipment", project],
     queryFn: () =>
@@ -1411,10 +1568,22 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
                     {t("field.quantity")}: {row.quantity_on_site}
                   </p>
                 </div>
-                <StatusBadge
-                  label={t(`equipmentStatus.${row.status}`)}
-                  tone={tone(row.status)}
-                />
+                <div className="flex shrink-0 items-center gap-1">
+                  <StatusBadge
+                    label={t(`equipmentStatus.${row.status}`)}
+                    tone={tone(row.status)}
+                  />
+                  {can("equipment.manage") && (
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      title={t("action.edit")}
+                      onClick={() => setEditingEquipment(row)}
+                    >
+                      <Pencil />
+                    </Button>
+                  )}
+                </div>
               </div>
               {can("equipment.capture") && (
                 <Button
@@ -1528,6 +1697,17 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           }}
         />
       )}
+      {editingEquipment && (
+        <EquipmentDialog
+          project={editingEquipment.project}
+          equipment={editingEquipment}
+          onClose={() => setEditingEquipment(null)}
+          onSaved={() => {
+            refresh();
+            setEditingEquipment(null);
+          }}
+        />
+      )}
       {moving && (
         <MovementDialog
           row={moving}
@@ -1544,12 +1724,22 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   );
 }
 
+/**
+ * Register a machine, or correct its details.
+ *
+ * The movements already logged against it are untouched: this is the plate
+ * and the serial number on the register, not the history of what went in and
+ * out. That is also why the site is not offered when correcting - the
+ * movements belong to the site the machine was registered on.
+ */
 function EquipmentDialog({
   project,
+  equipment,
   onClose,
   onSaved,
 }: {
   project: string;
+  equipment?: SiteEquipment;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -1560,27 +1750,37 @@ function EquipmentDialog({
   });
   const [form, setForm] = useState<EquipmentPayload>({
     project,
-    code: "",
-    name: "",
-    serial_no: "",
-    registration_no: "",
-    supplier: null,
-    description: "",
-    is_active: true,
+    code: equipment?.code ?? "",
+    name: equipment?.name ?? "",
+    serial_no: equipment?.serial_no ?? "",
+    registration_no: equipment?.registration_no ?? "",
+    supplier: equipment?.supplier ?? null,
+    description: equipment?.description ?? "",
+    is_active: equipment?.is_active ?? true,
   });
   const set = <K extends keyof EquipmentPayload>(
     key: K,
     value: EquipmentPayload[K],
   ) => setForm((old) => ({ ...old, [key]: value }));
   const save = useMutation({
-    mutationFn: () => createSiteEquipment(form),
+    mutationFn: () => equipment
+      ? updateSiteEquipment(equipment.id, {
+          code: form.code,
+          name: form.name,
+          serial_no: form.serial_no,
+          registration_no: form.registration_no,
+          supplier: form.supplier,
+          description: form.description,
+          is_active: form.is_active,
+        })
+      : createSiteEquipment(form),
     onSuccess: onSaved,
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{t("equipment.createTitle")}</DialogTitle>
+          <DialogTitle>{t(equipment ? "equipment.editTitle" : "equipment.createTitle")}</DialogTitle>
           <DialogDescription>{t("equipment.formHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -1635,6 +1835,20 @@ function EquipmentDialog({
               onChange={(e) => set("description", e.target.value)}
             />
           </FieldWrapper>
+          {equipment && (
+            <label className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm sm:col-span-2">
+              <span>
+                <span className="block font-medium">{t("equipment.stillInUse")}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("equipment.stillInUseHelp")}
+                </span>
+              </span>
+              <Checkbox
+                checked={form.is_active}
+                onCheckedChange={(checked) => set("is_active", Boolean(checked))}
+              />
+            </label>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -1982,6 +2196,9 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
   const searchParams = useSearchParams();
   const [project, setProject] = useState(initialProject);
   const [addingPhase, setAddingPhase] = useState(false);
+  const [editingPhase, setEditingPhase] = useState<ConstructionPhase | null>(
+    null,
+  );
   const [addingRecord, setAddingRecord] = useState(
     Boolean(fieldTaskId) || searchParams.get("create") === "1",
   );
@@ -2030,13 +2247,50 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
   // the phase dialog rather than a disabled button.
   const noPhases =
     !!project && !phases.isLoading && !phases.isError && !phases.data?.count;
+  // The same filter the list is showing, so the file and the screen agree -
+  // the API renders the filtered queryset rather than running its own.
+  const runProgressExport = (format: "xlsx" | "pdf") =>
+    exportSiteProgressRecords({
+      format,
+      title: t("progress.title"),
+      subtitle: t("progress.subtitle"),
+      emptyLabel: t("state.empty"),
+      query: { ...(project ? { project } : {}) },
+      columns: [
+        { key: "captured_at", label: t("progress.capturedAt") },
+        { key: "project_name", label: t("field.project") },
+        { key: "phase_name", label: t("field.phase") },
+        { key: "percent_complete", label: t("field.percentComplete") },
+        { key: "description", label: t("field.description") },
+        {
+          key: "status",
+          label: t("field.status"),
+          values: {
+            SUBMITTED: t("progressStatus.SUBMITTED"),
+            CONFIRMED: t("progressStatus.CONFIRMED"),
+            RETURNED: t("progressStatus.RETURNED"),
+          },
+        },
+        { key: "submitted_by_name", label: t("progress.submittedBy") },
+        { key: "confirmed_by_name", label: t("progress.confirmedBy") },
+        { key: "confirmed_at", label: t("progress.confirmedAt") },
+        { key: "latitude", label: t("field.latitude") },
+        { key: "longitude", label: t("field.longitude") },
+      ],
+    });
   return (
     <div className="space-y-5">
       <ListHeader
         title={t("progress.title")}
         subtitle={t("progress.subtitle")}
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {can("report.export") && (
+              <ExportButton
+                onExport={runProgressExport}
+                disabled={!rows.data?.count}
+              />
+            )}
             {can("progress.manage") && (
               <Button variant="outline" onClick={() => setAddingPhase(true)}>
                 <Plus />
@@ -2068,14 +2322,26 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
         </div>
       )}
       <div className="flex flex-wrap gap-2">
-        {(phases.data?.results ?? []).map((phase) => (
-          <span
-            key={phase.id}
-            className="rounded-full border bg-card px-3 py-1 text-xs font-medium"
-          >
-            {phase.code} · {phase.name}
-          </span>
-        ))}
+        {(phases.data?.results ?? []).map((phase) =>
+          can("progress.manage") ? (
+            <button
+              key={phase.id}
+              type="button"
+              title={t("progress.editPhase")}
+              className={`rounded-full border px-3 py-1 text-xs font-medium hover:bg-muted ${phase.is_active ? "bg-card" : "bg-muted/40 text-muted-foreground line-through"}`}
+              onClick={() => setEditingPhase(phase)}
+            >
+              {phase.code} · {phase.name}
+            </button>
+          ) : (
+            <span
+              key={phase.id}
+              className={`rounded-full border px-3 py-1 text-xs font-medium ${phase.is_active ? "bg-card" : "bg-muted/40 text-muted-foreground line-through"}`}
+            >
+              {phase.code} · {phase.name}
+            </span>
+          ),
+        )}
       </div>
       {noPhases && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed bg-muted/20 p-4">
@@ -2163,6 +2429,17 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
           ))}
         </div>
       )}
+      {editingPhase && (
+        <PhaseDialog
+          project={project}
+          phase={editingPhase}
+          onClose={() => setEditingPhase(null)}
+          onSaved={() => {
+            void qc.invalidateQueries({ queryKey: ["construction-phases"] });
+            setEditingPhase(null);
+          }}
+        />
+      )}
       {addingPhase && (
         <PhaseDialog
           project={project}
@@ -2192,21 +2469,32 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
 
 function PhaseDialog({
   project: initialProject,
+  phase,
   onClose,
   onSaved,
 }: {
   project: string;
+  /** Present when correcting one that already exists. */
+  phase?: ConstructionPhase;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const t = useTranslations("contractorOps");
-  const [project, setProject] = useState(initialProject);
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [project, setProject] = useState(phase?.project ?? initialProject);
+  const [code, setCode] = useState(phase?.code ?? "");
+  const [name, setName] = useState(phase?.name ?? "");
+  const [description, setDescription] = useState(phase?.description ?? "");
+  const [isActive, setIsActive] = useState(phase?.is_active ?? true);
   const save = useMutation({
     mutationFn: () =>
-      createConstructionPhase({ project, code, name, description }),
+      phase
+        ? updateConstructionPhase(phase.id, {
+            code,
+            name,
+            description,
+            is_active: isActive,
+          })
+        : createConstructionPhase({ project, code, name, description }),
     onSuccess: onSaved,
   });
   return (
@@ -2238,6 +2526,17 @@ function PhaseDialog({
             onChange={(e) => setDescription(e.target.value)}
           />
         </FieldWrapper>
+        {phase && (
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border"
+              checked={isActive}
+              onChange={(event) => setIsActive(event.target.checked)}
+            />
+            {t("progress.phaseActive")}
+          </label>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}

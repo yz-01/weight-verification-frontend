@@ -15,6 +15,11 @@ import type {
   DocumentSubcategory,
   DocumentSubcategoryPayload,
   DocumentVersion,
+  WorkflowStep,
+  WorkflowStepPayload,
+  WorkflowTemplate,
+  WorkflowTemplateDetail,
+  WorkflowTemplatePayload,
 } from "@/interfaces/document-workflow";
 import { api, download, toastSuccess } from "@/services/api-client";
 
@@ -196,4 +201,83 @@ export async function actOnApproval(
   );
   toastSuccess(`approvals.toast.${payload.action.toLowerCase()}`);
   return approval;
+}
+
+/**
+ * Approval chain templates.
+ *
+ * Every one of these endpoints already existed; nothing in the product called
+ * them, so a chain could not be configured and every approval quietly ran as a
+ * single step. These are what the configuration screen uses.
+ */
+export function getWorkflowTemplates(
+  query: ListQuery = {},
+): Promise<Paginated<WorkflowTemplate>> {
+  return api.list<WorkflowTemplate>(
+    "/api/workflow-templates/get_workflow_templates/",
+    query,
+  );
+}
+
+export function getWorkflowTemplate(id: string): Promise<WorkflowTemplateDetail> {
+  return api.get<WorkflowTemplateDetail>(
+    `/api/workflow-templates/${id}/get_workflow_template/`,
+  );
+}
+
+export async function createWorkflowTemplate(payload: WorkflowTemplatePayload) {
+  const row = await api.post<WorkflowTemplateDetail>(
+    "/api/workflow-templates/create_workflow_template/",
+    payload,
+  );
+  toastSuccess("approvals.toast.templateSaved");
+  return row;
+}
+
+export async function updateWorkflowTemplate(
+  id: string,
+  payload: Partial<WorkflowTemplatePayload>,
+) {
+  const row = await api.patch<WorkflowTemplateDetail>(
+    `/api/workflow-templates/${id}/update_workflow_template/`,
+    payload,
+  );
+  toastSuccess("approvals.toast.templateSaved");
+  return row;
+}
+
+export async function deleteWorkflowTemplate(id: string) {
+  await api.delete(`/api/workflow-templates/${id}/delete_workflow_template/`);
+  toastSuccess("approvals.toast.templateRemoved");
+}
+
+export async function addWorkflowStep(
+  templateId: string,
+  payload: WorkflowStepPayload,
+) {
+  const row = await api.post<WorkflowStep>(
+    `/api/workflow-templates/${templateId}/add_step/`,
+    payload,
+  );
+  toastSuccess("approvals.toast.stepSaved");
+  return row;
+}
+
+export async function updateWorkflowStep(
+  templateId: string,
+  payload: WorkflowStepPayload & { id: string },
+) {
+  const row = await api.patch<WorkflowStep>(
+    `/api/workflow-templates/${templateId}/update_step/`,
+    payload,
+  );
+  toastSuccess("approvals.toast.stepSaved");
+  return row;
+}
+
+export async function deleteWorkflowStep(templateId: string, stepId: string) {
+  await api.post(`/api/workflow-templates/${templateId}/delete_step/`, {
+    step: stepId,
+  });
+  toastSuccess("approvals.toast.stepRemoved");
 }

@@ -32,6 +32,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+
+import { APP_VERSION } from "@/lib/app-version";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -272,7 +274,7 @@ function FieldStaffWorkspaceContent({
       {tab === "home" && (
         <p className="text-center text-xs text-muted-foreground">
           {t("identity.version", {
-            version: process.env.NEXT_PUBLIC_APP_VERSION ?? "0.1.0",
+            version: APP_VERSION,
           })}
         </p>
       )}
@@ -348,7 +350,11 @@ function FieldNotificationPreview() {
   const qc = useQueryClient();
   const notifications = useQuery({
     queryKey: ["field-staff", "notifications"],
-    queryFn: () => getNotifications({ page_size: 5, sort_by: "-created_at" }),
+    queryFn: () => getNotifications({
+        page_size: 5,
+        sort_by: "created_at",
+        sort_order: "desc",
+      }),
     refetchInterval: 30_000,
   });
   const read = useMutation({
@@ -548,7 +554,7 @@ function FieldAttendancePanel() {
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [locating, setLocating] = useState(false);
-  const attendance = useQuery({ queryKey: ["field-staff", "attendance"], queryFn: () => getAttendance({ page_size: 30, sort_by: "-occurred_at" }) });
+  const attendance = useQuery({ queryKey: ["field-staff", "attendance"], queryFn: () => getAttendance({ page_size: 30, sort_by: "occurred_at", sort_order: "desc" }) });
   const today = useMemo(() => (attendance.data?.results ?? []).filter((row) => row.user === user?.id && new Date(row.occurred_at).toDateString() === new Date().toDateString()), [attendance.data, user?.id]);
   const selectedProject = project || today[0]?.project || "";
   const captureLocation = async () => { setLocating(true); setError(""); try { setFix(await locate()); } catch { setError(t("error.location")); } finally { setLocating(false); } };

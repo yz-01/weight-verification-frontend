@@ -51,7 +51,12 @@ export function IncidentThreadList() {
     queryFn: () =>
       getIncidentThreads({
         page_size: 100,
-        sort_by: "-created_at",
+        // The API takes a field and a direction. A "-field" string matches
+        // no allowed field and silently falls back to the viewset's own
+        // default, which here is -occurred_at: an incident that happened last
+        // week but was filed today would sort as a week-old thread.
+        sort_by: "created_at",
+        sort_order: "desc",
         project: selectedProject === "all" ? undefined : selectedProject,
       }),
   });

@@ -1,7 +1,7 @@
 import { AssetManagementWorkspace, type AssetSection } from "@/components/assets/asset-management-workspace";
 import { redirect } from "next/navigation";
 
-const SECTIONS = new Set<AssetSection>(["management", "categories", "purchases", "inventory", "assignments", "installations", "transfers", "repairs", "maintenance", "disposals", "reports"]);
+const SECTIONS = new Set<AssetSection>(["management", "categories", "purchases", "inventory", "assignments", "installations", "transfers", "departments", "repairs", "maintenance", "disposals", "reports"]);
 
 export default async function AssetSectionPage({ params }: { params: Promise<{ section: string }> }) {
   const { section } = await params;

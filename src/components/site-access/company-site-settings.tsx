@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { OrganisationPanel } from "@/components/companies/organisation-panel";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
@@ -225,6 +226,9 @@ export function CompanySiteSettingsWorkspace() {
     </section>
     {editingBranch && <BranchDialog row={editingBranch === "new" ? null : editingBranch} onClose={() => setEditingBranch(null)} onSaved={async () => { setEditingBranch(null); await qc.invalidateQueries({ queryKey: ["company-branches"] }); }} />}
     <ConfirmDialog open={removing !== null} onOpenChange={(open) => !open && setRemoving(null)} title={t("branches.removeTitle")} description={t("branches.removeBody")} confirmLabel={t("action.remove")} isPending={remove.isPending} onConfirm={() => removing && remove.mutate(removing.id)} />
+    {/* Departments and trades: the contractor's own vocabulary, and the two
+        slices requirement 15.2.3 asks the on-site headcount to be broken by. */}
+    <OrganisationPanel />
   </div>;
 }
 
