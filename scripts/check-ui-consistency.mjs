@@ -33,8 +33,9 @@
  */
 
 import { readFileSync } from "node:fs";
-import { globSync } from "node:fs";
 import path from "node:path";
+
+import { walkFiles } from "./lib/walk.mjs";
 
 const ROOT = path.join(process.cwd(), "src");
 
@@ -221,9 +222,7 @@ let tablesSeen = 0;
 let columnsCompared = 0;
 let wideChecked = 0;
 
-const files = globSync("**/*.tsx", { cwd: ROOT })
-  .map((name) => name.split(path.sep).join("/"))
-  .sort();
+const files = walkFiles(ROOT, /\.tsx$/);
 
 for (const relative of files) {
   if (relative === "components/ui/table.tsx") continue;

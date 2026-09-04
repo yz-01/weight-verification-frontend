@@ -30,7 +30,9 @@
  * Run with `npm run check:messages`. Also runs as part of `npm run lint`.
  */
 
-import { readFileSync, globSync } from "node:fs";
+import { readFileSync } from "node:fs";
+
+import { walkFiles } from "./lib/walk.mjs";
 
 const messages = JSON.parse(readFileSync("src/messages/en.json", "utf8"));
 
@@ -66,7 +68,8 @@ function withoutComments(text) {
 
 const problems = [];
 
-for (const file of [...globSync("src/**/*.tsx"), ...globSync("src/**/*.ts")]) {
+for (const name of walkFiles("src", /\.tsx?$/)) {
+  const file = `src/${name}`;
   const text = withoutComments(readFileSync(file, "utf8"));
   // Keys the file asks about before using: those carry their own fallback.
   const guarded = new Set(

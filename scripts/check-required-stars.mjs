@@ -30,8 +30,9 @@
  */
 
 import { readFileSync } from "node:fs";
-import { globSync } from "node:fs";
 import path from "node:path";
+
+import { walkFiles } from "./lib/walk.mjs";
 
 const ROOT = path.join(process.cwd(), "src", "components");
 
@@ -135,9 +136,7 @@ function components(source) {
 const problems = [];
 let matched = 0;
 
-const files = globSync("**/*.tsx", { cwd: ROOT })
-  .map((name) => name.split(path.sep).join("/"))
-  .sort();
+const files = walkFiles(ROOT, /\.tsx$/);
 
 for (const relative of files) {
   const source = readFileSync(path.join(ROOT, relative), "utf8");

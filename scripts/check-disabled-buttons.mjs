@@ -22,8 +22,9 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { globSync } from "node:fs";
 import path from "node:path";
+
+import { walkFiles } from "./lib/walk.mjs";
 
 const ROOT = path.join(process.cwd(), "src");
 
@@ -126,9 +127,9 @@ function unexplainedIn(file) {
 
 // The Button component itself is where the mechanism lives, not a place
 // that uses it: its own `disabled={disabled}` is the derived value.
-const files = globSync("**/*.tsx", { cwd: ROOT })
-  .filter((file) => file.split(path.sep).join("/") !== "components/ui/button.tsx")
-  .sort();
+const files = walkFiles(ROOT, /\.tsx$/).filter(
+  (file) => file !== "components/ui/button.tsx",
+);
 const counts = new Map();
 for (const relative of files) {
   const lines = unexplainedIn(path.join(ROOT, relative));
