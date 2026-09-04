@@ -22,11 +22,31 @@
  * next to `[noExpiry || validUntil, ...]` - because an asterisk that is not
  * always true is its own small lie.
  *
+ * A SECOND SHAPE, added after the first version missed it. Some required
+ * things are not fields at all: the GPS fix on every field-staff screen is
+ * obtained by pressing a button, and a bare button has no label to hang a
+ * star on. The submit button listed the fix in `requires`, the only asterisk
+ * on the screen was on the photos, and a worker who had taken all four photos
+ * could not see why submit still would not go (F-202). This check could not
+ * see it either: it only ever compared `requires` against `FieldWrapper`, so
+ * a requirement with no wrapper anywhere was silently unchecked.
+ *
+ * The rule that catches it without inventing noise: if a demanded key is also
+ * the visible text of a Button in the same component, then the way to satisfy
+ * that requirement is to press that button, and it needs a marked wrapper.
+ * Measured over the whole tree that is 2 findings against 234 already-marked
+ * fields, and both were real. The looser rule "every demanded key must have a
+ * wrapper" was tried first and reports 220, almost all of them inputs written
+ * with no wrapper at all - a different and much larger question than this
+ * check is about. A noisy check earns its way onto an ignore list.
+ *
  * What this CANNOT check: whether the label on a pair names the field the
  * value actually watches. Three buttons were found saying "still needs:
- * caption" while waiting on a photo selection, and no static rule sees that -
- * both halves are valid, they simply disagree about meaning. Those were found
- * by reading, and finding the next one will need reading too.
+ * caption" while waiting on a photo selection, and a fourth in `safety.tsx`
+ * demanded `safety.evidence.location` while the field beside it was labelled
+ * `safety.field.location`. No static rule sees those - both halves are valid,
+ * they simply disagree about meaning. They were found by reading, and finding
+ * the next one will need reading too.
  */
 
 import { readFileSync } from "node:fs";
@@ -116,6 +136,34 @@ function lastKey(fragment) {
   return found;
 }
 
+/** Every message key that is the visible text of a Button in this body.
+
+ *
+ * The attributes are skipped deliberately: `requires` and `disabledReason`
+ * live there and name *other* fields, so reading them would make every submit
+ * button look like the control for everything it demands.
+ */
+function buttonLabelKeys(body) {
+  const keys = new Set();
+  const opens = /<Button\b/g;
+  let hit = opens.exec(body);
+  while (hit) {
+    const close = body.indexOf("</Button>", hit.index);
+    if (close !== -1) {
+      const attrs = attrsOf(body, hit.index + hit[0].length);
+      const inner = body.slice(hit.index + hit[0].length + attrs.length, close);
+      KEY.lastIndex = 0;
+      let match = KEY.exec(inner);
+      while (match) {
+        keys.add(match[1]);
+        match = KEY.exec(inner);
+      }
+    }
+    hit = opens.exec(body);
+  }
+  return keys;
+}
+
 /** (name, start, end) per top-level component. */
 function components(source) {
   COMPONENT.lastIndex = 0;
@@ -162,6 +210,9 @@ for (const relative of files) {
     }
     if (demanded.size === 0) continue;
 
+    // Which demanded keys turned out to have a field carrying them at all.
+    const carried = new Set();
+
     // The fields in this same form, and whether they wear a star.
     const wrappers = /<FieldWrapper\b/g;
     let wrapper = wrappers.exec(body);
@@ -170,6 +221,7 @@ for (const relative of files) {
       const label = /label=\{([^}]*)\}/.exec(attrs);
       const key = label ? lastKey(label[1]) : null;
       if (key && demanded.has(key)) {
+        carried.add(key);
         matched += 1;
         if (!/\brequired\b(?!\w)/.test(attrs)) {
           const line =
@@ -183,6 +235,21 @@ for (const relative of files) {
         }
       }
       wrapper = wrappers.exec(body);
+    }
+
+    // Anything demanded that no field carries, and that a button in this same
+    // component offers by name, is obtained by pressing that button. The
+    // button cannot wear a star, so the wrapper round it has to.
+    const buttons = buttonLabelKeys(body);
+    for (const [key, pair] of demanded) {
+      if (carried.has(key) || !buttons.has(key)) continue;
+      const line = source.slice(0, start).split("\n").length;
+      problems.push(
+        `${relative}:${line}: in ${component}, the button will not submit ` +
+          `without ${key} \u2014 ${pair} \u2014 and the only way to supply ` +
+          `it is to press a button, which has nowhere to show a required ` +
+          `marker. Wrap that button in a FieldWrapper marked required.`,
+      );
     }
   }
 }
