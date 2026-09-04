@@ -155,6 +155,27 @@ export async function createCompanyBankAccount(
   return account;
 }
 
+/**
+ * Correct a bank account already on file.
+ *
+ * Deleting and re-adding loses the verification decision with it, so a
+ * mistyped digit would cost the reviewer another round trip. The backend
+ * re-opens verification when the money-carrying fields change, which is the
+ * right trade: a corrected account is a different account until somebody
+ * confirms it again.
+ */
+export async function updateCompanyBankAccount(
+  id: string,
+  payload: Partial<CompanyBankAccountPayload>,
+): Promise<CompanyBankAccount> {
+  const account = await api.post<CompanyBankAccount>(
+    "/api/company-bank-accounts/update_account/",
+    { id, ...payload },
+  );
+  toastSuccess("companies.onboarding.toast.bankUpdated");
+  return account;
+}
+
 export function verifyCompanyBankAccount(
   id: string,
   verification_status: "VERIFIED" | "REJECTED",

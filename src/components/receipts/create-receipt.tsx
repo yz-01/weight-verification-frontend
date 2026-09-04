@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   SelectField,
@@ -35,7 +35,7 @@ import {
   getQRCodes,
   getReceipt,
   getSuppliers,
-  updateReceipt,
+  correctReceipt,
 } from "@/services/contractor.service";
 
 /**
@@ -45,6 +45,11 @@ import {
  * editable. The backend refuses to change them, and for the same reason: they
  * are what the receipt is evidence of. Only the figures a clerk can honestly
  * have got wrong stay open.
+ *
+ * A correction files a *new* receipt that points back at the original, so both
+ * figures survive. This screen used to send the edit to `update_receipt`, an
+ * endpoint that exists only to refuse - the form filled in, the button pressed,
+ * and a 409 every single time (F-129).
  */
 export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) {
   const t = useTranslations();
@@ -70,12 +75,25 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
     enabled: !isEdit,
   });
 
+  // One id for the whole attempt, so a retry after a dropped connection
+  // returns the correction already filed instead of filing a second one.
+  const correctionEvent = useRef<string | null>(null);
+
   const mutation = useMutation({
-    mutationFn: (values: MaterialReceiptPayload) =>
-      isEdit ? updateReceipt(receipt.id, values) : createReceipt(values),
-    onSuccess: () => {
+    mutationFn: (values: MaterialReceiptPayload & { reason?: string }) => {
+      if (!isEdit) return createReceipt(values);
+      correctionEvent.current ??= crypto.randomUUID();
+      return correctReceipt(receipt.id, {
+        ...values,
+        reason: values.reason ?? "",
+        client_event_id: correctionEvent.current,
+      });
+    },
+    // A correction is a new record with a new id. Landing on it is the point:
+    // the clerk sees the figure that was actually filed, not the one they typed.
+    onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["receipts"] });
-      router.push("/receipts");
+      router.push(isEdit ? `/receipts/${saved.id}` : "/receipts");
     },
   });
 
@@ -91,6 +109,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
       delivery_note_no: receipt?.delivery_note_no ?? "",
       notes: receipt?.notes ?? "",
       received_by_name: receipt?.received_by_name ?? "",
+      reason: "",
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -110,7 +129,10 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
 
       try {
         if (isEdit) {
-          await mutation.mutateAsync(common as MaterialReceiptPayload);
+          await mutation.mutateAsync({
+            ...common,
+            reason: value.reason,
+          } as MaterialReceiptPayload & { reason: string });
           return;
         }
 
@@ -229,6 +251,28 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
           </>
         )}
       </FormSection>
+
+      {isEdit && (
+        <FormSection title={t("receipts.correction.title")}>
+          <form.Field
+            name="reason"
+            validators={{ onSubmit: required(t("validation.required")) }}
+          >
+            {(field) => (
+              <TextAreaField
+                field={field as unknown as BoundField}
+                label={t("receipts.correction.reason")}
+                required
+                className="md:col-span-2"
+              />
+            )}
+          </form.Field>
+          <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            {t("receipts.correction.note")}
+          </p>
+        </FormSection>
+      )}
 
       <FormSection title={t("receipts.section.material")}>
         <form.Field

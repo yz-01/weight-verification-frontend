@@ -1,47 +1,52 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, MapPin, Pencil, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
 import { ListHeader, TypeBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MATERIAL_UNITS, type MaterialReceipt } from "@/interfaces/contractor";
+import { getProjectCategories } from "@/services/contractor-ops.service";
 import { useDateFormat } from "@/lib/dates";
 import {
-  deleteReceipt,
   getReceipts,
   exportReceipts,
   type ExportFormat,
 } from "@/services/contractor.service";
 
+// Sentinels rather than "": a Radix SelectItem cannot carry an empty
+// value, and the two "no column chosen" answers are different questions -
+// every column, versus the ones nobody has filed yet.
+const ALL_COLUMNS = "__all__";
+const UNFILED = "__unfiled__";
+const ALL_STATES = "__any__";
+
 export function Receipts() {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
-  const queryClient = useQueryClient();
-  const list = useListQuery(["project", "supplier", "unit"]);
-  const [removing, setRemoving] = useState<MaterialReceipt | null>(null);
+  const list = useListQuery(["project", "supplier", "unit", "category", "uncategorised", "seen"]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["receipts", list.query],
     queryFn: () => getReceipts(list.query),
   });
-
-  const removal = useMutation({
-    mutationFn: (id: string) => deleteReceipt(id),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["receipts"] });
-      setRemoving(null);
-    },
+  const categories = useQuery({
+    queryKey: ["project-categories", "receipt-columns", list.filters.project],
+    queryFn: () =>
+      getProjectCategories({
+        page_size: 200,
+        ...(list.filters.project ? { project: list.filters.project } : {}),
+      }),
   });
 
   const columns = useMemo<ColumnDef<MaterialReceipt, unknown>[]>(
@@ -57,10 +62,45 @@ export function Receipts() {
           />
         ),
         cell: ({ row }) => (
-          <span className="tabular font-medium text-foreground">
-            {row.original.receipt_no}
+          <span className="flex items-center gap-2">
+            <span
+              className={
+                row.original.is_seen
+                  ? "size-1.5 shrink-0 rounded-full bg-transparent"
+                  : "size-1.5 shrink-0 rounded-full bg-primary"
+              }
+              aria-label={row.original.is_seen ? undefined : t("receipts.waiting")}
+            />
+            <span
+              className={
+                row.original.is_seen
+                  ? "tabular text-foreground"
+                  : "tabular font-semibold text-foreground"
+              }
+            >
+              {row.original.receipt_no}
+            </span>
           </span>
         ),
+      },
+      {
+        accessorKey: "category_name",
+        meta: { label: t("receipts.field.category") },
+        header: ({ column }) => (
+          <SortableHeader
+            label={t("receipts.field.category")}
+            isSorted={column.getIsSorted()}
+            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          />
+        ),
+        cell: ({ row }) =>
+          row.original.category_name ? (
+            <span className="text-foreground">{row.original.category_name}</span>
+          ) : (
+            // Not an empty cell: "unfiled" is a state somebody has to act on,
+            // and a blank reads as a rendering fault rather than a backlog.
+            <span className="text-muted-foreground">{t("receipts.unfiled")}</span>
+          ),
       },
       {
         accessorKey: "captured_at",
@@ -184,29 +224,24 @@ export function Receipts() {
                 <Eye className="h-3.5 w-3.5" />
               </Link>
             </Button>
+            {/*
+              No bin. A filed receipt is evidence and the backend has always
+              refused to delete one - the button that used to sit here promised
+              the row would leave the material totals and returned 409 every
+              time it was pressed (F-129). Correcting supersedes instead.
+            */}
             {can("receipt.update") && (
-              <>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-info hover:bg-info/10"
-                  title={t("common.edit")}
-                >
-                  <Link href={`/receipts/${row.original.id}/edit`}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                  title={t("common.remove")}
-                  onClick={() => setRemoving(row.original)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </>
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-info hover:bg-info/10"
+                title={t("receipts.editTitle")}
+              >
+                <Link href={`/receipts/${row.original.id}/edit`}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
             )}
           </div>
         ),
@@ -236,6 +271,7 @@ export function Receipts() {
         { key: "captured_at", label: t("receipts.field.capturedAt") },
         { key: "project_code", label: t("receipts.field.project") },
         { key: "supplier_name", label: t("receipts.field.supplier") },
+        { key: "category_name", label: t("receipts.field.category") },
         { key: "material_name", label: t("receipts.field.materialName") },
         { key: "quantity", label: t("receipts.field.quantity") },
         {
@@ -285,9 +321,46 @@ export function Receipts() {
         sortOrder={list.sortOrder}
         storageKey="receipts"
         toolbarActions={
-          can("report.export") ? (
-            <ExportButton onExport={runExport} disabled={totalCount === 0} />
-          ) : undefined
+          <div className="ml-auto flex items-center gap-2">
+            <Select
+              value={list.filters.category ?? (list.filters.uncategorised === "true" ? UNFILED : ALL_COLUMNS)}
+              onValueChange={(value) =>
+                list.setFilters({
+                  category: value === ALL_COLUMNS || value === UNFILED ? undefined : value,
+                  uncategorised: value === UNFILED ? "true" : undefined,
+                })
+              }
+            >
+              <SelectTrigger size="sm" className="w-[190px]">
+                <SelectValue placeholder={t("receipts.allColumns")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_COLUMNS}>{t("receipts.allColumns")}</SelectItem>
+                <SelectItem value={UNFILED}>{t("receipts.unfiled")}</SelectItem>
+                {(categories.data?.results ?? []).map((row) => (
+                  <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={list.filters.seen ?? ALL_STATES}
+              onValueChange={(value) =>
+                list.setFilter("seen", value === ALL_STATES ? undefined : value)
+              }
+            >
+              <SelectTrigger size="sm" className="w-[150px]">
+                <SelectValue placeholder={t("receipts.allStates")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_STATES}>{t("receipts.allStates")}</SelectItem>
+                <SelectItem value="false">{t("receipts.waiting")}</SelectItem>
+                <SelectItem value="true">{t("receipts.archived")}</SelectItem>
+              </SelectContent>
+            </Select>
+            {can("report.export") ? (
+              <ExportButton onExport={runExport} disabled={totalCount === 0} />
+            ) : null}
+          </div>
         }
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}
@@ -296,18 +369,6 @@ export function Receipts() {
         onClearFilters={list.clearFilters}
       />
 
-      {removing && (
-        <ConfirmDialog
-          open
-          onOpenChange={() => setRemoving(null)}
-          title={t("receipts.remove.title", { name: removing.receipt_no })}
-          description={t("receipts.remove.description")}
-          confirmLabel={t("receipts.remove.confirm")}
-          confirmIcon={Trash2}
-          isPending={removal.isPending}
-          onConfirm={() => removal.mutate(removing.id)}
-        />
-      )}
     </div>
   );
 }

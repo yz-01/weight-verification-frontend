@@ -2,7 +2,14 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileUp, Landmark, Plus, Save } from "lucide-react";
+import {
+  CheckCircle2,
+  Copy,
+  FileUp,
+  Landmark,
+  Plus,
+  Save,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -20,11 +27,14 @@ import {
   optionalEmail,
   optionalPositiveInteger,
   required,
+  requiredEmail,
 } from "@/components/shared/form-shell";
 import { FieldWrapper } from "@/components/shared/page-primitives";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { ApiError } from "@/interfaces/api";
+import type { EmailCopy } from "@/interfaces/auth";
 import type {
   CompanyBankAccountPayload,
   CompanyDetail,
@@ -69,6 +79,11 @@ export function CreateCompany({
   const isEdit = company !== undefined;
   const fixedType = company?.type ?? defaultType;
   const [formError, setFormError] = useState<string | null>(null);
+  // Non-empty only when the owner's activation email could not be sent, in
+  // which case this link is the only way into the company that was just
+  // created — so the form is replaced by it rather than navigating away.
+  const [ownerLink, setOwnerLink] = useState("");
+  const [ownerLinkCopied, setOwnerLinkCopied] = useState(false);
   const [logo, setLogo] = useState<File | null>(null);
   const [ssmCertificate, setSsmCertificate] = useState<File | null>(null);
   const [companyProfile, setCompanyProfile] = useState<File | null>(null);
@@ -113,8 +128,12 @@ export function CreateCompany({
       }
       return saved;
     },
-    onSuccess: () => {
+    onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["companies"] });
+      if (saved.owner_invitation_url) {
+        setOwnerLink(saved.owner_invitation_url);
+        return;
+      }
       router.push(listHref);
     },
   });
@@ -143,6 +162,9 @@ export function CreateCompany({
       country: company?.country ?? "Malaysia",
       latitude: company?.latitude ?? "",
       longitude: company?.longitude ?? "",
+      owner_name: "",
+      owner_email: "",
+      owner_phone: "",
       contact_person: company?.contact_person ?? "",
       contact_designation: company?.contact_designation ?? "",
       contact_phone: company?.contact_phone ?? "",
@@ -177,8 +199,27 @@ export function CreateCompany({
       try {
         const override = value.project_limit_override.trim();
         const type = (fixedType ?? value.type) as CompanyType;
+        // The owner belongs to creation only. On edit the backend refuses
+        // these fields outright rather than accepting them and doing nothing,
+        // so they are stripped here instead of being sent and rejected.
+        const { owner_name, owner_email, owner_phone, ...companyValues } = value;
+        const ownerFields: Partial<CompanyPayload> = isEdit
+          ? {}
+          : {
+              owner_name,
+              owner_email,
+              owner_phone,
+              // Wording comes from the message catalogue so the owner is
+              // written to in their own language; the backend only splices in
+              // the token, which is the one thing the frontend cannot know.
+              owner_email_copy: {
+                subject: t("email.invite.subject"),
+                body: t("email.invite.body"),
+              } satisfies EmailCopy,
+            };
         const basePayload = {
-          ...value,
+          ...companyValues,
+          ...ownerFields,
           type,
           ssm_incorporated_on: value.ssm_incorporated_on || null,
           ssm_expires_on: value.ssm_expires_on || null,
@@ -251,11 +292,48 @@ export function CreateCompany({
   const listHref =
     user?.portal === "MSE_ADMIN"
       ? "/companies/admin/directory"
-      : fixedType === "CONTRACTOR"
-        ? "/contractor-partners"
-        : fixedType === "RECYCLER"
-          ? "/recycler-review"
-          : "/companies";
+      : "/companies";
+
+  if (ownerLink) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-4 p-6">
+        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/5 p-4">
+          <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-warning" />
+          <div>
+            <p className="font-semibold">
+              {t("companies.owner.notSentTitle")}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("companies.owner.notSentBody")}
+            </p>
+          </div>
+        </div>
+        <div className="rounded-lg border bg-muted/20 p-3">
+          <p className="break-all font-mono text-xs">{ownerLink}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              void navigator.clipboard.writeText(ownerLink);
+              setOwnerLinkCopied(true);
+            }}
+          >
+            <Copy />
+            {t("common.copy")}
+          </Button>
+          <Button onClick={() => router.push(listHref)}>
+            {t("common.close")}
+          </Button>
+        </div>
+        {ownerLinkCopied && (
+          <p className="text-xs text-success">
+            {t("companies.owner.linkCopied")}
+          </p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <FormShell
@@ -569,6 +647,54 @@ export function CreateCompany({
           ) : null;
         }}
       </form.Subscribe>
+
+      {!isEdit && (
+        <FormSection title={t("companies.section.owner")}>
+          <form.Field
+            name="owner_name"
+            validators={{ onSubmit: required(t("validation.required")) }}
+          >
+            {(field) => (
+              <TextField
+                field={field as unknown as BoundField}
+                label={t("companies.field.ownerName")}
+                required
+              />
+            )}
+          </form.Field>
+
+          <form.Field
+            name="owner_email"
+            validators={{
+              onSubmit: requiredEmail(
+                t("validation.required"),
+                t("validation.email"),
+              ),
+            }}
+          >
+            {(field) => (
+              <TextField
+                field={field as unknown as BoundField}
+                label={t("companies.field.ownerEmail")}
+                required
+                type="email"
+                hint={t("companies.owner.emailHint")}
+              />
+            )}
+          </form.Field>
+
+          <form.Field name="owner_phone">
+            {(field) => (
+              <TextField
+                field={field as unknown as BoundField}
+                label={t("companies.field.ownerPhone")}
+                optional
+                type="tel"
+              />
+            )}
+          </form.Field>
+        </FormSection>
+      )}
 
       <FormSection title={t("companies.section.contact")}>
         <form.Field

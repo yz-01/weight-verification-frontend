@@ -57,6 +57,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import { ApiError } from "@/interfaces/api";
+import type { Requirement } from "@/lib/missing-fields";
 import type { Project } from "@/interfaces/contractor";
 import type {
   DocumentCategory,
@@ -663,7 +664,11 @@ function DocumentEditorDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={!title.trim() || !category || mutation.isPending}
+            requires={[
+              [title, t("documents.field.title")],
+              [category, t("documents.field.category")],
+            ]}
+            disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
           >
             {mutation.isPending ? (
@@ -748,7 +753,8 @@ function VersionUploadDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={!file || mutation.isPending}
+            requires={[[file, t("documents.field.file")]]}
+            disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
           >
             {mutation.isPending ? (
@@ -947,6 +953,11 @@ function DocumentDetailBody({
                         size="icon"
                         className="h-8 w-8"
                         title={t("documents.download")}
+                        disabledReason={
+                          downloading === version.id
+                            ? t("documents.downloading")
+                            : undefined
+                        }
                         disabled={downloading === version.id}
                         onClick={() => onDownload(version)}
                       >
@@ -1189,7 +1200,10 @@ function CategoryForm({
     <TaxonomyFormShell
       title={t(category ? "documents.categories.edit" : "documents.categories.create")}
       isPending={mutation.isPending}
-      isValid={Boolean(code.trim() && name.trim())}
+      requires={[
+        [code, t("documents.field.code")],
+        [name, t("documents.field.name")],
+      ]}
       onCancel={onCancel}
       onSubmit={() => mutation.mutate()}
     >
@@ -1273,7 +1287,11 @@ function SubcategoryForm({
           : "documents.subcategories.create",
       )}
       isPending={mutation.isPending}
-      isValid={Boolean(category && code.trim() && name.trim())}
+      requires={[
+        [category, t("documents.field.category")],
+        [code, t("documents.field.code")],
+        [name, t("documents.field.name")],
+      ]}
       onCancel={onCancel}
       onSubmit={() => mutation.mutate()}
     >
@@ -1334,14 +1352,14 @@ function SubcategoryForm({
 function TaxonomyFormShell({
   title,
   isPending,
-  isValid,
+  requires,
   onCancel,
   onSubmit,
   children,
 }: {
   title: string;
   isPending: boolean;
-  isValid: boolean;
+  requires: readonly Requirement[];
   onCancel: () => void;
   onSubmit: () => void;
   children: React.ReactNode;
@@ -1356,7 +1374,7 @@ function TaxonomyFormShell({
           <X className="h-4 w-4" />
           {t("common.cancel")}
         </Button>
-        <Button size="sm" disabled={!isValid || isPending} onClick={onSubmit}>
+        <Button size="sm" requires={requires} disabled={isPending} onClick={onSubmit}>
           {isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

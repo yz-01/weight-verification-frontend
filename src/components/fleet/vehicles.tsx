@@ -373,7 +373,8 @@ function TareDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={weight === "" || reason.trim() === "" || save.isPending}
+            requires={[[weight, t("vehicles.field.tareWeight")], [reason, t("common.reason")]]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Scale className="h-4 w-4" />

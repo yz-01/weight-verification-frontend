@@ -34,14 +34,18 @@ export function FieldPwaBootstrap({
     if (started.current) return;
     started.current = true;
     if (!token) return;
+    // Skip the round trip only when there is a session to skip it for. The
+    // link is reusable within the access window now (T-127), so a device that
+    // kept this marker but lost its tokens should ask the server again rather
+    // than fall back to the PIN - that fallback was half of the reported bug,
+    // and browsers do clear storage in pieces.
     const completionKey = "mse_field_pwa_bootstrap_complete";
-    if (window.localStorage.getItem(completionKey) === token) {
+    if (
+      window.localStorage.getItem(completionKey) === token &&
+      hasFieldSession()
+    ) {
       markFieldAppContext();
-      redirectWithFallback(
-        router,
-        hasFieldSession() ? next ?? "/field-staff" : "/trace/field-login",
-        150,
-      );
+      redirectWithFallback(router, next ?? "/field-staff", 150);
       return;
     }
     void restoreFieldPwaSession({
@@ -76,7 +80,7 @@ export function FieldPwaBootstrap({
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
       <Smartphone className="size-12 text-destructive" />
-      <h1 className="text-xl font-semibold">{t("desktopExpiredTitle")}</h1>
+      <h1 className="text-base font-semibold">{t("desktopExpiredTitle")}</h1>
       <p className="max-w-sm text-sm text-muted-foreground">{error}</p>
       <Button onClick={() => redirectWithFallback(router, "/trace/field-login", 150)}>
         {t("signIn")}

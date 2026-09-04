@@ -27,7 +27,12 @@ import {
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
 import { useOrderRealtime } from "@/hooks/use-order-realtime";
-import { advanceTask, cancelTask, getTask } from "@/services/recycler.service";
+import {
+  advanceTask,
+  cancelTask,
+  closeTask,
+  getTask,
+} from "@/services/recycler.service";
 
 /**
  * One trip, and the buttons that move it.
@@ -44,6 +49,7 @@ export function ViewTask({ id }: { id: string }) {
 
   const [moving, setMoving] = useState<TaskState | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [reason, setReason] = useState("");
   const realtimeKeys = useMemo(
     () => [["tasks", "detail", id], ["tasks"], ["incoming"]],
@@ -75,6 +81,18 @@ export function ViewTask({ id }: { id: string }) {
       setReason("");
     },
   });
+  const close = useMutation({
+    mutationFn: () => closeTask(id, reason.trim()),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      void queryClient.invalidateQueries({ queryKey: ["incoming"] });
+      // The driver's own screens change too: they were occupied and now are
+      // not, so anything holding their roster has to be re-read.
+      void queryClient.invalidateQueries({ queryKey: ["drivers"] });
+      setClosing(false);
+      setReason("");
+    },
+  });
 
   if (isLoading) return <FormSkeleton sections={3} />;
   if (isError || !data) {
@@ -94,7 +112,9 @@ export function ViewTask({ id }: { id: string }) {
         backLabel={t("tasks.title")}
         action={
           can("task.assign") &&
-          (data.state === "ASSIGNED" || data.state === "ACCEPTED") ? (
+          (data.state === "ASSIGNED" ||
+            data.state === "ACCEPTED" ||
+            data.state === "DELIVERED") ? (
             <div className="flex flex-wrap gap-2">
               {data.state === "ASSIGNED" && (
                 <Button asChild size="sm" variant="outline">
@@ -104,15 +124,33 @@ export function ViewTask({ id }: { id: string }) {
                   </Link>
                 </Button>
               )}
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-destructive"
-                onClick={() => setCancelling(true)}
-              >
-                <XCircle className="h-4 w-4" />
-                {t("tasks.cancel.action")}
-              </Button>
+              {/*
+                A trip at the yard normally closes itself when the weighbridge
+                produces a net weight. When that never happens the driver is
+                occupied for good, so this is the only way out — and it is not
+                "cancel", because the driver did go.
+              */}
+              {data.state === "DELIVERED" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive"
+                  onClick={() => setClosing(true)}
+                >
+                  <XCircle className="h-4 w-4" />
+                  {t("tasks.close.action")}
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive"
+                  onClick={() => setCancelling(true)}
+                >
+                  <XCircle className="h-4 w-4" />
+                  {t("tasks.cancel.action")}
+                </Button>
+              )}
             </div>
           ) : undefined
         }
@@ -296,6 +334,26 @@ export function ViewTask({ id }: { id: string }) {
           onConfirm={() => advance.mutate(moving)}
         />
       )}
+      {closing && (
+        <ConfirmDialog
+          open
+          onOpenChange={() => {
+            setClosing(false);
+            setReason("");
+          }}
+          title={t("tasks.close.title")}
+          description={t("tasks.close.description")}
+          confirmLabel={t("tasks.close.confirm")}
+          confirmIcon={XCircle}
+          variant="destructive"
+          isPending={close.isPending}
+          reason={reason}
+          onReasonChange={setReason}
+          reasonRequired
+          onConfirm={() => close.mutate()}
+        />
+      )}
+
       {cancelling && (
         <ConfirmDialog
           open

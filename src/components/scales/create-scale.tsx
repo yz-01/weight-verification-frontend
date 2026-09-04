@@ -42,6 +42,7 @@ import {
 const PROTOCOLS: Array<{ value: ScaleProtocol; implemented: boolean }> = [
   { value: "mt_continuous_short", implemented: true },
   { value: "generic_json", implemented: true },
+  { value: "bdi_2001b", implemented: true },
   { value: "sma", implemented: false },
   { value: "mt_8142", implemented: false },
   { value: "mt_8530", implemented: false },

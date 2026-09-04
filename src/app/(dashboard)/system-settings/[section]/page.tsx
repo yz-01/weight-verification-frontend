@@ -16,6 +16,7 @@ const SECTIONS = new Set<SystemSettingsSection>([
   "versions",
   "notifications",
   "maintenance",
+  "feature-flags",
 ]);
 
 export default async function SystemSettingsSectionPage({

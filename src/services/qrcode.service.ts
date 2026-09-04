@@ -97,7 +97,17 @@ export function exportQRRegister(
   format: "pdf" | "xlsx",
   query: ListQuery = {},
 ): Promise<void> {
-  const endpoint = kind === "codes" ? "export_codes" : kind === "scans" ? "export_scans" : "export_anomalies";
+  // Written out as three whole paths rather than one path with the action
+  // spliced in. Both call the same three endpoints; only this version says
+  // which ones, to anything reading the source. The reachability guard reads
+  // the source, so the spliced version made three working buttons look like
+  // three missing screens (F-147).
+  const endpoint =
+    kind === "codes"
+      ? "/api/qr-codes/export_codes/"
+      : kind === "scans"
+        ? "/api/qr-codes/export_scans/"
+        : "/api/qr-codes/export_anomalies/";
   const labelKeys: Record<string, string> = {
     serial: "qrId",
     subject_type: "subjectType",
@@ -124,7 +134,7 @@ export function exportQRRegister(
     key,
     label: t(`adminQr.field.${labelKeys[key]}`),
   }));
-  return download(`/api/qr-codes/${endpoint}/`, {
+  return download(endpoint, {
     method: "POST",
     query,
     body: {

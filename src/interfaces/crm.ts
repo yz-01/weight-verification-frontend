@@ -54,3 +54,13 @@ export interface CustomerServiceSummary {
   feedback: number; service_records: number; completion_rate: number;
   issue_categories: Record<string, number>;
 }
+
+/** One line of what happened on an enquiry, between status changes. */
+export interface EnquiryNote {
+  id: string;
+  enquiry: string;
+  author: string | null;
+  author_name: string | null;
+  note: string;
+  created_at: string;
+}

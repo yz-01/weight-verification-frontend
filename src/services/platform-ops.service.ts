@@ -7,13 +7,21 @@ import type {
 } from "@/interfaces/admin-notification";
 import type {
   AdminDashboardData,
+  JobRun,
   MonitoringOverview,
   NotificationRow,
   NotificationSummary,
   SystemEvent,
+  ScheduledJob,
+  ScheduledJobPayload,
   SystemStatus,
   SystemEventResolution,
+  WorkerStatusSummary,
 } from "@/interfaces/platform-ops";
+import type {
+  DeviceMedia,
+  ThirdPartyAccessEvent,
+} from "@/interfaces/integration";
 import { api, toastSuccess } from "@/services/api-client";
 
 export function getNotifications(
@@ -162,4 +170,94 @@ export async function recordSystemEventResolution(
   );
   toastSuccess("monitoring.toast.resolutionSaved");
   return result;
+}
+
+/**
+ * Plate reads across every tenant, for the platform monitoring page.
+ *
+ * Deliberately not the site-access module's list: that one is scoped to one
+ * contractor and gated by a contractor permission, so a platform operator
+ * watching every yard gets a 403 from it. Same data, different audience.
+ */
+export function getRecentAccessReads(
+  query: ListQuery = {},
+): Promise<Paginated<ThirdPartyAccessEvent>> {
+  return api.list<ThirdPartyAccessEvent>(
+    "/api/platform-ops/get_recent_access_reads/",
+    query,
+  );
+}
+
+/** Captures across every tenant, for the same page and the same reason. */
+export function getRecentDeviceMediaForPlatform(
+  query: ListQuery = {},
+): Promise<Paginated<DeviceMedia>> {
+  return api.list<DeviceMedia>(
+    "/api/platform-ops/get_recent_device_media/",
+    query,
+  );
+}
+
+/**
+ * Background jobs (F-077).
+ *
+ * The platform runs its own recurring work — billing generation, subscription
+ * reminders, announcement publication, monitoring snapshots. All nine
+ * endpoints existed with no caller, so an administrator could neither see a
+ * failed run nor re-run it.
+ */
+export function getScheduledJobs(
+  query?: ListQuery & { kind?: string },
+): Promise<Paginated<ScheduledJob>> {
+  return api.list<ScheduledJob>("/api/platform-ops/get_jobs/", query);
+}
+
+export function getJobRuns(
+  query?: ListQuery & { job?: string; state?: string },
+): Promise<Paginated<JobRun>> {
+  return api.list<JobRun>("/api/platform-ops/get_job_runs/", query);
+}
+
+/**
+ * The handler names this deployment can actually run.
+ *
+ * The API refuses a job pointed at anything else, so the create form offers
+ * this list rather than a free text box - a box would mostly produce a 400,
+ * and a control that mostly fails is worse than no control.
+ */
+export function getJobHandlers(): Promise<string[]> {
+  return api.get<string[]>("/api/platform-ops/get_job_handlers/");
+}
+
+export async function createScheduledJob(
+  payload: ScheduledJobPayload,
+): Promise<ScheduledJob> {
+  const job = await api.post<ScheduledJob>(
+    "/api/platform-ops/create_job/",
+    payload,
+  );
+  toastSuccess("monitoring.jobs.toast.created");
+  return job;
+}
+
+export async function runJobNow(id: string): Promise<JobRun> {
+  const run = await api.post<JobRun>(`/api/platform-ops/${id}/run_job_now/`, {});
+  toastSuccess("monitoring.jobs.toast.queued");
+  return run;
+}
+
+export async function setScheduledJobActive(
+  id: string,
+  isActive: boolean,
+): Promise<ScheduledJob> {
+  const job = await api.patch<ScheduledJob>(
+    `/api/platform-ops/${id}/update_job/`,
+    { is_active: isActive },
+  );
+  toastSuccess("monitoring.jobs.toast.updated");
+  return job;
+}
+
+export function getWorkerStatus(): Promise<WorkerStatusSummary> {
+  return api.get("/api/platform-ops/get_worker_status/");
 }

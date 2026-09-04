@@ -23,7 +23,7 @@ import {
 import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { roleName } from "@/lib/role-labels";
 import { ApiError } from "@/interfaces/api";
-import type { UserDetail, UserPayload } from "@/interfaces/auth";
+import type { Role, UserDetail, UserPayload } from "@/interfaces/auth";
 import { createUser, getRoles, updateUser } from "@/services/users.service";
 
 /**
@@ -34,6 +34,17 @@ import { createUser, getRoles, updateUser } from "@/services/users.service";
  * are emailed, so a plaintext password never passes through an administrator's
  * hands and cannot be reused or shared.
  */
+/** A driver role by what it can do, not by what it is called.
+
+ * Mirrors `UserWriteSerializer._is_driver_role`: role codes belong to the
+ * tenant and can be renamed, so the rule reads the permissions instead. A
+ * driver submits its own trips and cannot see the whole yard's.
+ */
+function isDriverRole(role: Role): boolean {
+  const permissions = new Set(role.permissions);
+  return permissions.has("task.submit") && !permissions.has("task.view_all");
+}
+
 export function CreateUser({ user }: { user?: UserDetail }) {
   const t = useTranslations();
   const router = useRouter();
@@ -117,9 +128,18 @@ export function CreateUser({ user }: { user?: UserDetail }) {
     },
   });
 
+  // Field staff and drivers are both created on their own screens, where the
+  // login is made together with the record it needs — the field login link
+  // screen, and Drivers, which also requires the lorry. The server refuses
+  // both here, so neither is offered: a role that can only ever come back as
+  // an error is not a choice.
   const roleOptions =
     roles?.results
-      .filter((role) => isEdit || role.code !== "site_staff")
+      .filter(
+        (role) =>
+          isEdit ||
+          (role.code !== "site_staff" && !isDriverRole(role)),
+      )
       .map((role) => ({
         value: role.id,
         label: roleName(role, t),

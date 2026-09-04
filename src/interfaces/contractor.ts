@@ -198,6 +198,21 @@ export interface DeliveryNote {
   location_accuracy_m: string | null;
   receipt_id: string | null;
   receipt_no: string | null;
+  /** The material column the receipt files under once this note is signed. */
+  category: string | null;
+  category_code: string | null;
+  category_name: string | null;
+  /**
+   * What the site changed the quantity from, and who changed it.
+   *
+   * Present only when the site actually amended the figure. An untouched
+   * delivery leaves these empty on purpose, so the flag keeps its meaning on
+   * the deliveries where somebody did override the docket.
+   */
+  quantity_amended_from: string | null;
+  quantity_amended_by_name: string;
+  quantity_amended_at: string | null;
+  quantity_was_amended: boolean;
   evidence: DeliveryNoteEvidence[];
   created_at: string;
   updated_at: string;
@@ -223,6 +238,9 @@ export interface DeliveryNotePublic {
   receiver_name: string;
   rejection_reason: string;
   completion_note: string;
+  category_name: string | null;
+  quantity_amended_from: string | null;
+  quantity_was_amended: boolean;
   evidence: DeliveryNoteEvidence[];
 }
 
@@ -261,6 +279,10 @@ export interface MaterialReceipt {
   supplier_name: string;
   movement_type: "ENTRY" | "RETURN";
   return_reason: string;
+  /** Which material column this delivery is filed in; null when unfiled. */
+  category: string | null;
+  category_code: string | null;
+  category_name: string | null;
   material_name: string;
   quantity: string;
   unit: MaterialUnit;
@@ -271,11 +293,36 @@ export interface MaterialReceipt {
   /** Stamped by the platform, never by the device that filed the receipt. */
   captured_at: string;
   has_location: boolean;
+  /**
+   * Whether *the person asking* has read this delivery.
+   *
+   * Answered per request, never stored on the row: head office and the
+   * project manager wait on the same arrival and clear it separately, so a
+   * shared flag would let whoever opened it first close it for both.
+   */
+  is_seen: boolean;
   photo_count?: number;
 }
 
 export interface MaterialReceiptDetail extends MaterialReceipt {
   qr_code: string | null;
+  /**
+   * The receipt this one corrects, when it is a correction.
+   *
+   * Carried through to the screen because a corrected figure with nothing
+   * saying what it replaced, and why, is the part of the trail a dispute
+   * actually asks for.
+   */
+  supersedes?: string | null;
+  correction_reason?: string;
+  /**
+   * The correction that replaced this receipt, when one exists.
+   *
+   * A superseded receipt stays readable by id but leaves the list and the
+   * totals, so an old link would otherwise open a receipt that looks entirely
+   * current while its figures have been corrected away.
+   */
+  superseded_by?: { id: string; receipt_no: string } | null;
   delivery_note_no: string;
   notes: string;
   signature: string | null;
@@ -409,6 +456,9 @@ export const DISPATCH_STATES: DispatchState[] = [
   "SETTLED",
   "CANCELLED",
 ];
+
+/** What a dispatch photograph is evidence of. */
+export type DispatchPhotoKind = "LOADING" | "VEHICLE" | "PLATE" | "OTHER";
 
 export interface DispatchPhoto {
   id: string;

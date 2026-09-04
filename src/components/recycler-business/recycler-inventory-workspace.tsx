@@ -323,7 +323,6 @@ function AdjustmentDialog({ onClose }: { onClose: () => void }) {
       onClose();
     },
   });
-  const valid = Number(form.quantity_kg) !== 0 && Number.isFinite(Number(form.quantity_kg)) && form.reason.trim();
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -354,7 +353,8 @@ function AdjustmentDialog({ onClose }: { onClose: () => void }) {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}><X />{common("cancel")}</Button>
-          <Button disabled={!valid || save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[Number(form.quantity_kg) !== 0 && Number.isFinite(Number(form.quantity_kg)), t("field.adjustmentWeight")], [form.reason, t("field.reason")]]}
+                  disabled={save.isPending} onClick={() => save.mutate()}>
             {save.isPending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
             {t("action.recordAdjustment")}
           </Button>

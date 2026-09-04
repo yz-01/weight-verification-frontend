@@ -2,6 +2,8 @@
 
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
+  Department,
+  DepartmentPayload,
   EmailCopy,
   LoginRecord,
   Role,
@@ -12,6 +14,8 @@ import type {
   UserReplacementPayload,
   UserRow,
   UserStats,
+  WorkTrade,
+  WorkTradePayload,
 } from "@/interfaces/auth";
 import { api, toastSuccess } from "@/services/api-client";
 
@@ -139,4 +143,84 @@ export function getLoginRecords(
   query: ListQuery,
 ): Promise<Paginated<LoginRecord>> {
   return api.list<LoginRecord>("/api/login-records/get_login_records/", query);
+}
+
+/**
+ * Departments.
+ *
+ * A department with no company is MSE Trace's own, the same rule that makes a
+ * user platform staff. Platform asset transfers (superadmin 17.2.8) move
+ * equipment between these, so without a way to create one the transfer picker
+ * stays empty.
+ */
+export function getDepartments(
+  query: ListQuery & { company?: string },
+): Promise<Paginated<Department>> {
+  return api.list<Department>("/api/departments/get_departments/", query);
+}
+
+export async function createDepartment(
+  payload: DepartmentPayload,
+): Promise<Department> {
+  const row = await api.post<Department>(
+    "/api/departments/create_department/",
+    payload,
+  );
+  toastSuccess("departments.toast.created");
+  return row;
+}
+
+export async function updateDepartment(
+  id: string,
+  payload: Partial<DepartmentPayload>,
+): Promise<Department> {
+  const row = await api.patch<Department>(
+    `/api/departments/${id}/update_department/`,
+    payload,
+  );
+  toastSuccess("departments.toast.updated");
+  return row;
+}
+
+export async function deleteDepartment(id: string): Promise<void> {
+  await api.delete(`/api/departments/${id}/delete_department/`);
+  toastSuccess("departments.toast.removed");
+}
+
+/**
+ * Work trades (requirement 15.2.3).
+ *
+ * A maintained list rather than free text on each worker, so the on-site
+ * headcount breakdown the requirement asks for actually adds up: typed by hand
+ * one trade becomes three spellings and the numbers stop agreeing.
+ */
+export function getWorkTrades(
+  query: ListQuery = {},
+): Promise<Paginated<WorkTrade>> {
+  return api.list<WorkTrade>("/api/work-trades/get_trades/", query);
+}
+
+export async function createWorkTrade(
+  payload: WorkTradePayload,
+): Promise<WorkTrade> {
+  const row = await api.post<WorkTrade>("/api/work-trades/create_trade/", payload);
+  toastSuccess("organisation.toast.tradeCreated");
+  return row;
+}
+
+export async function updateWorkTrade(
+  id: string,
+  payload: Partial<WorkTradePayload>,
+): Promise<WorkTrade> {
+  const row = await api.patch<WorkTrade>(
+    `/api/work-trades/${id}/update_trade/`,
+    payload,
+  );
+  toastSuccess("organisation.toast.tradeUpdated");
+  return row;
+}
+
+export async function deleteWorkTrade(id: string): Promise<void> {
+  await api.delete(`/api/work-trades/${id}/delete_trade/`);
+  toastSuccess("organisation.toast.tradeRemoved");
 }

@@ -3,6 +3,7 @@
 export type ScaleProtocol =
   | "mt_continuous_short"
   | "generic_json"
+  | "bdi_2001b"
   | "sma"
   | "mt_8142"
   | "mt_8530"
@@ -39,6 +40,7 @@ export type AnomalyCode =
   | "DUPLICATE_WEIGHING"
   | "DISPATCH_REQUIRED"
   | "REWEIGH_LIMIT"
+  | "ZERO_RETURN_FAILED"
   | "SEQ_GAP"
   | "STABLE_FLAG_MISMATCH"
   | "SIGNATURE_INVALID"
@@ -59,6 +61,7 @@ export const ANOMALY_CODES: AnomalyCode[] = [
   "DUPLICATE_WEIGHING",
   "DISPATCH_REQUIRED",
   "REWEIGH_LIMIT",
+  "ZERO_RETURN_FAILED",
   "SEQ_GAP",
   "STABLE_FLAG_MISMATCH",
   "SIGNATURE_INVALID",
@@ -175,12 +178,47 @@ export interface GatewayInstallerManifest {
     signature: string;
     secret: string;
   };
+  dtu: GatewayDtuBlock;
   delivery: {
     persist_sequence_on_gateway: boolean;
     retry_on: number[];
     backoff_seconds: number[];
     batch_size: number;
   };
+}
+
+/**
+ * How to configure a transparent 4G DTU for this gateway.
+ *
+ * A DTU forwards the indicator's serial bytes and nothing else — it cannot
+ * sign, buffer or speak HTTPS — so the platform meets it on a raw TCP port and
+ * signs on its behalf. `limitations` says what that costs; it is shown rather
+ * than hidden because the installer is usually the person who has to explain
+ * it to the customer.
+ */
+export interface GatewayDtuBlock {
+  mode: string;
+  collector_host: string;
+  collector_port: number;
+  enrol_token: string;
+  /** False when this scale's protocol has no documented DTU recipe yet. */
+  supported: boolean;
+  limitations: string[];
+  indicator: {
+    model: string;
+    reference: string;
+    serial: {
+      baud: number;
+      data_bits: number;
+      parity: string;
+      stop_bits: number;
+    };
+    settings: { code: string; value: string; means: string }[];
+    wiring: string;
+  } | null;
+  at_commands: string[];
+  at_note?: string;
+  note?: string;
 }
 
 export interface WeighAnomaly {
@@ -214,6 +252,7 @@ export interface WeighSessionRow {
   scale_name: string;
   site: string;
   site_name: string;
+  dispatch: string | null;
   dispatch_no: string | null;
   project: string | null;
   project_code: string | null;

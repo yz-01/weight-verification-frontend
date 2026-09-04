@@ -46,8 +46,13 @@ export function ViewCompany({ id }: { id: string }) {
     return <LoadErrorCard backHref="/companies" backLabel={t("companies.title")} />;
   }
 
+  // The sidebar pages that own these two lists. Sending someone back to a
+  // page they cannot find again in the sidebar is how the orphan pair got used
+  // in the first place.
   const listHref =
-    data.type === "CONTRACTOR" ? "/contractor-partners" : "/recycler-review";
+    data.type === "CONTRACTOR"
+      ? "/companies/admin/directory"
+      : "/companies/admin/review";
 
   return (
     <div className="space-y-4">

@@ -1,5 +1,8 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
-import type { FieldStaffPosition } from "@/interfaces/site-operations";
+import type {
+  FieldStaffPosition,
+  WorkforcePresence,
+} from "@/interfaces/site-operations";
 import { api } from "@/services/api-client";
 
 export function getFieldStaffLivePositions(
@@ -65,5 +68,22 @@ export function stopFieldStaffLocationSharing(payload: {
   return api.post<FieldStaffPosition | null>(
     "/api/field-staff-positions/stop_sharing/",
     payload,
+  );
+}
+
+/**
+ * On-site headcount and its breakdown (requirement 15.2.3).
+ *
+ * Presence here is the geofence verdict, not a gate scan: the requirement is
+ * explicit that a worker counts as on site once inside the project fence.
+ */
+export function getWorkforcePresence(params: {
+  project?: string;
+  department?: string;
+  trade?: string;
+}): Promise<WorkforcePresence> {
+  return api.get<WorkforcePresence>(
+    "/api/field-staff-positions/get_workforce_presence/",
+    params,
   );
 }

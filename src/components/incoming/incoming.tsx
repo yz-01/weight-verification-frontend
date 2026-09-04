@@ -26,29 +26,18 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import {
-  getDriversOfflineAware,
   getIncomingOfflineAware,
   getIncomingSummaryOfflineAware,
-  getSitesOfflineAware,
-  getVehiclesOfflineAware,
 } from "@/services/recycler-offline.service";
 import {
   submitDispatchAcceptOfflineAware,
   submitDispatchCollectOfflineAware,
-  submitTripAssignOfflineAware,
 } from "@/services/offline-sync.service";
 
 function localDateTimeInput(value?: string | null) {
@@ -384,31 +373,6 @@ function OrderAssignmentDialog({
   const [reference, setReference] = useState("");
   const [proposedAt, setProposedAt] = useState(localDateTimeInput());
   const [proposalNote, setProposalNote] = useState("");
-  const [site, setSite] = useState("");
-  const [vehicle, setVehicle] = useState("");
-  const [driver, setDriver] = useState("");
-  const [scheduledFor, setScheduledFor] = useState(
-    localDateTimeInput(load.confirmed_collection_at),
-  );
-  const [notes, setNotes] = useState("");
-
-  const sites = useQuery({
-    queryKey: ["sites", "order-assignment"],
-    queryFn: () => getSitesOfflineAware(ownerId, { page_size: 100 }),
-    enabled: Boolean(ownerId),
-  });
-  const vehicles = useQuery({
-    queryKey: ["vehicles", "order-assignment"],
-    queryFn: () =>
-      getVehiclesOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
-    enabled: Boolean(ownerId),
-  });
-  const drivers = useQuery({
-    queryKey: ["drivers", "order-assignment"],
-    queryFn: () =>
-      getDriversOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
-    enabled: Boolean(ownerId),
-  });
 
   const acceptOnly = useMutation({
     mutationFn: () =>
@@ -425,33 +389,9 @@ function OrderAssignmentDialog({
     },
   });
 
-  const assign = useMutation({
-    mutationFn: () =>
-      submitTripAssignOfflineAware(ownerId, {
-        dispatchId: load.id,
-        dispatchNo: load.dispatch_no,
-        site,
-        vehicle,
-        driver,
-        scheduledFor: scheduledFor
-          ? new Date(scheduledFor).toISOString()
-          : null,
-        notes: notes.trim(),
-      }),
-    onSuccess: () => {
-      onDone();
-      onClose();
-    },
-  });
-
   const waitingForContractor =
     load.state === "ACCEPTED" && !load.confirmed_collection_at;
-  const ready =
-    load.state === "ACCEPTED" &&
-    Boolean(load.confirmed_collection_at) &&
-    Boolean(site && vehicle && driver && scheduledFor);
-  const proposalReady = Boolean(proposedAt);
-  const pending = acceptOnly.isPending || assign.isPending;
+  const pending = acceptOnly.isPending;
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -499,57 +439,36 @@ function OrderAssignmentDialog({
             {load.proposed_collection_note && <p className="mt-2 text-sm">{load.proposed_collection_note}</p>}
           </div>
         ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border border-success/30 bg-success/5 p-3 sm:col-span-2">
+        <div className="grid gap-4">
+          <div className="rounded-lg border border-success/30 bg-success/5 p-3">
             <p className="text-sm font-semibold">{t("incoming.order.confirmedAt")}</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {load.confirmed_collection_at ? new Date(load.confirmed_collection_at).toLocaleString() : t("common.emptyValue")}
             </p>
           </div>
-          <div className="space-y-1.5">
-            <Label>{t("tasks.field.site")}</Label>
-            <Select value={site} onValueChange={setSite}>
-              <SelectTrigger><SelectValue placeholder={t("common.selectPlaceholder")} /></SelectTrigger>
-              <SelectContent>{(sites.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.code} - {row.name}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("tasks.field.vehicle")}</Label>
-            <Select value={vehicle} onValueChange={setVehicle}>
-              <SelectTrigger><SelectValue placeholder={t("common.selectPlaceholder")} /></SelectTrigger>
-              <SelectContent>{(vehicles.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.plate_no}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("tasks.field.driver")}</Label>
-            <Select value={driver} onValueChange={setDriver}>
-              <SelectTrigger><SelectValue placeholder={t("common.selectPlaceholder")} /></SelectTrigger>
-              <SelectContent>{(drivers.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("tasks.field.scheduledFor")}</Label>
-            <Input type="datetime-local" value={scheduledFor} onChange={(event) => setScheduledFor(event.target.value)} />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>{t("tasks.field.notes")}</Label>
-            <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} />
-          </div>
+          <p className="text-sm leading-6 text-muted-foreground">
+            {t("incoming.order.dispatchElsewhere")}
+          </p>
         </div>
         )}
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
           {load.state === "PENDING_ACCEPTANCE" && (
-            <Button disabled={!proposalReady || pending} onClick={() => acceptOnly.mutate()}>
+            <Button requires={[[proposedAt, t("incoming.field.releasedAt")]]}
+                    disabled={pending} onClick={() => acceptOnly.mutate()}>
               {acceptOnly.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}
               {t("incoming.order.acceptAndPropose")}
             </Button>
           )}
-          {load.state === "ACCEPTED" && !waitingForContractor && <Button disabled={!ready || pending} onClick={() => assign.mutate()}>
-            {assign.isPending ? <Loader2 className="animate-spin" /> : <Truck />}
-            {t("incoming.order.assign")}
-          </Button>}
+          {load.state === "ACCEPTED" && !waitingForContractor && (
+            <Button asChild>
+              <Link href="/tasks/create">
+                <Truck />
+                {t("incoming.order.goToDispatch")}
+              </Link>
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

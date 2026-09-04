@@ -321,15 +321,8 @@ export function CreateIncidentDialog({
           <Button
             className="flex-1"
             onClick={handleSubmit}
-            disabled={
-              !project ||
-              !title.trim() ||
-              (!fieldMode && !description.trim()) ||
-              !recipientIds.length ||
-              (fieldMode &&
-                (!hasRequiredFieldEvidence(evidence) || !location)) ||
-              submit.isPending
-            }
+            requires={[[project, t("chooseProject")], [title, t("field.title")], [fieldMode || description, t("field.description")], [recipientIds.length, t("field.recipients")], [!fieldMode || hasRequiredFieldEvidence(evidence), t("evidence.title")], [!fieldMode || location, t("location")]]}
+            disabled={submit.isPending}
           >
             {submit.isPending && <Loader2 className="animate-spin" />}
             {t("action.create")}

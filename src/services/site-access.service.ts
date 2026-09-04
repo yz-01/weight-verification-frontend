@@ -9,10 +9,10 @@ import type {
   SiteAccessEvent,
   SiteAccessPass,
   SiteAccessPassPayload,
-  ThirdPartyAccessEvent,
   SiteGeofence,
   SiteGeofencePayload,
   SiteLocationPolicy,
+  ThirdPartyAccessEvent,
 } from "@/interfaces/site-access";
 import type { CompanyBankAccount, CompanyBankAccountPayload } from "@/interfaces/company";
 import { api, download, toastSuccess } from "@/services/api-client";
@@ -138,6 +138,25 @@ export async function createSiteAccessPass(payload: SiteAccessPassPayload) {
   return row;
 }
 
+/**
+ * Correct a pass before anyone reviews it.
+ *
+ * The backend refuses this once a pass leaves PENDING, and refuses moving a
+ * pass to a different project, so the screen only offers it on a pending pass
+ * and keeps the project fixed.
+ */
+export async function updateSiteAccessPass(
+  id: string,
+  payload: Partial<SiteAccessPassPayload>,
+) {
+  const row = await api.patch<SiteAccessPass>(
+    `/api/site-access-passes/${id}/update_pass/`,
+    payload,
+  );
+  toastSuccess("siteControl.toast.passUpdated");
+  return row;
+}
+
 export async function reviewSiteAccessPass(id: string, decision: "APPROVED" | "REJECTED", note: string) {
   const row = await api.post<SiteAccessPass>(`/api/site-access-passes/${id}/review_pass/`, { decision, note });
   toastSuccess("siteControl.toast.passReviewed");
@@ -147,6 +166,43 @@ export async function reviewSiteAccessPass(id: string, decision: "APPROVED" | "R
 export async function revokeSiteAccessPass(id: string, reason: string) {
   const row = await api.post<SiteAccessPass>(`/api/site-access-passes/${id}/revoke_pass/`, { reason });
   toastSuccess("siteControl.toast.passRevoked");
+  return row;
+}
+
+/**
+ * Credentials the gate hardware will present for this pass.
+ *
+ * Until one is registered, a card reader or plate camera has nothing to match
+ * against and the gate answers every scan with "unknown credential" — so this
+ * screen is what makes the hardware lane usable at all.
+ */
+export const getSiteAccessCredentials = (passId: string) =>
+  api.get<SiteAccessCredential[]>(
+    `/api/site-access-passes/${passId}/get_credentials/`,
+  );
+
+export async function registerSiteAccessCredential(
+  passId: string,
+  payload: SiteAccessCredentialPayload,
+) {
+  const row = await api.post<SiteAccessCredential>(
+    `/api/site-access-passes/${passId}/register_credential/`,
+    payload,
+  );
+  toastSuccess("siteControl.toast.credentialRegistered");
+  return row;
+}
+
+export async function revokeSiteAccessCredential(
+  passId: string,
+  credentialId: string,
+  reason: string,
+) {
+  const row = await api.post<SiteAccessCredential>(
+    `/api/site-access-passes/${passId}/revoke_credential/`,
+    { credential: credentialId, reason },
+  );
+  toastSuccess("siteControl.toast.credentialRevoked");
   return row;
 }
 
@@ -184,36 +240,6 @@ export const exportEmergencyList = (project?: string) =>
     query: project ? { project } : undefined,
     fallbackFilename: "emergency-list.xlsx",
   });
-
-export const getSiteAccessCredentials = (passId: string) =>
-  api.get<SiteAccessCredential[]>(
-    `/api/site-access-passes/${passId}/get_credentials/`,
-  );
-
-export async function registerSiteAccessCredential(
-  passId: string,
-  payload: SiteAccessCredentialPayload,
-) {
-  const row = await api.post<SiteAccessCredential>(
-    `/api/site-access-passes/${passId}/register_credential/`,
-    payload,
-  );
-  toastSuccess("siteControl.toast.credentialRegistered");
-  return row;
-}
-
-export async function revokeSiteAccessCredential(
-  passId: string,
-  credentialId: string,
-  reason: string,
-) {
-  const row = await api.post<SiteAccessCredential>(
-    `/api/site-access-passes/${passId}/revoke_credential/`,
-    { credential: credentialId, reason },
-  );
-  toastSuccess("siteControl.toast.credentialRevoked");
-  return row;
-}
 
 export const getThirdPartyAccessEvents = (query: ListQuery = {}) =>
   api.list<ThirdPartyAccessEvent>(

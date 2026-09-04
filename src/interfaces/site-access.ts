@@ -178,6 +178,46 @@ export interface SiteAccessPass {
   updated_at: string;
 }
 
+/**
+ * What a card reader, plate camera or face unit presents at the gate.
+ *
+ * `QR` is here for completeness but is not what the pass itself uses: a QR
+ * entry matches the pass's own token directly and needs no registration.
+ */
+export type AccessCredentialType =
+  | "QR"
+  | "ANPR"
+  | "RFID"
+  | "FACE"
+  | "VISITOR_ID";
+
+/**
+ * A registered credential, as the server is willing to give it back.
+ *
+ * The card number or plate itself is never returned — the server stores only a
+ * hash and a short hint. So a credential can be recognised in a list and
+ * revoked, but never read back out, which is the point.
+ */
+export interface SiteAccessCredential {
+  id: string;
+  credential_type: AccessCredentialType;
+  identifier_hint: string;
+  label: string;
+  valid_from: string | null;
+  valid_until: string | null;
+  is_active: boolean;
+  revoked_at: string | null;
+  created_at: string;
+}
+
+export interface SiteAccessCredentialPayload {
+  credential_type: Exclude<AccessCredentialType, "QR">;
+  credential_value: string;
+  label?: string;
+  valid_from?: string | null;
+  valid_until?: string | null;
+}
+
 export interface SiteAccessPassPayload {
   project: string;
   subject_type: AccessSubjectType;
@@ -209,33 +249,6 @@ export interface EmergencyPresence {
   gate_name: string;
   minutes_on_site: number;
   last_updated_at: string;
-}
-
-export type AccessCredentialType =
-  | "QR"
-  | "ANPR"
-  | "RFID"
-  | "FACE"
-  | "VISITOR_ID";
-
-export interface SiteAccessCredential {
-  id: string;
-  credential_type: AccessCredentialType;
-  identifier_hint: string;
-  label: string;
-  valid_from: string | null;
-  valid_until: string | null;
-  is_active: boolean;
-  revoked_at: string | null;
-  created_at: string;
-}
-
-export interface SiteAccessCredentialPayload {
-  credential_type: Exclude<AccessCredentialType, "QR">;
-  credential_value: string;
-  label?: string;
-  valid_from?: string | null;
-  valid_until?: string | null;
 }
 
 export interface ThirdPartyAccessEvent {

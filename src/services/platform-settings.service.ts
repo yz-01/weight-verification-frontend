@@ -1,4 +1,7 @@
 import type {
+  Announcement,
+  AnnouncementInput,
+  AnnouncementPublishResult,
   CompanyPlatformConfigCatalogue,
   FeatureFlagRow,
   PlatformConfigCatalogue,
@@ -76,4 +79,59 @@ export async function setFeatureFlag(
   );
   toastSuccess("adminSystemSettings.toast.saved");
   return result;
+}
+
+/**
+ * Remove a feature flag.
+ *
+ * Removing a flag is not the same as switching it off: code asking for a flag
+ * that no longer exists is told it is off, so this both disables the feature
+ * and drops the row. Switching off keeps the row and its company targeting for
+ * next time.
+ */
+export async function deleteFeatureFlag(key: string): Promise<void> {
+  await api.delete(`/api/feature-flags/delete_flag/${key}/`);
+  toastSuccess("adminSystemSettings.toast.flagRemoved");
+}
+
+/**
+ * Platform announcements.
+ *
+ * 系统公告 is written here and read in every portal's notification list.
+ * Creating or updating one publishes it: the API answers with how many
+ * notifications it delivered, which is the only honest confirmation that the
+ * announcement reached anybody.
+ */
+export function getAnnouncements(params?: {
+  level?: string;
+}): Promise<Announcement[]> {
+  return api.get("/api/announcements/get_announcements/", params);
+}
+
+export async function createAnnouncement(
+  input: AnnouncementInput,
+): Promise<AnnouncementPublishResult> {
+  const result = await api.post<AnnouncementPublishResult>(
+    "/api/announcements/create_announcement/",
+    input,
+  );
+  toastSuccess("adminSystemSettings.announcements.toast.published");
+  return result;
+}
+
+export async function updateAnnouncement(
+  id: string,
+  input: Partial<AnnouncementInput>,
+): Promise<AnnouncementPublishResult> {
+  const result = await api.patch<AnnouncementPublishResult>(
+    `/api/announcements/update_announcement/${id}/`,
+    input,
+  );
+  toastSuccess("adminSystemSettings.announcements.toast.saved");
+  return result;
+}
+
+export async function deleteAnnouncement(id: string): Promise<void> {
+  await api.delete(`/api/announcements/delete_announcement/${id}/`);
+  toastSuccess("adminSystemSettings.announcements.toast.removed");
 }

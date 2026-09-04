@@ -15,7 +15,12 @@ import { isFieldSessionPath } from "@/lib/auth-token";
 import { isDriverOnlyAccount } from "@/lib/navigation";
 
 function replaceLink(rel: string, href: string, sizes?: string) {
-  const selector = `link[data-mse-branding="${rel}"]`;
+  // The manifest link is written by route metadata, so it carries no branding
+  // attribute; the icons are literal tags in the root layout and do.
+  const selector =
+    rel === "manifest"
+      ? 'link[rel="manifest"]'
+      : `link[data-mse-branding="${rel}"]`;
   const link = document.head.querySelector<HTMLLinkElement>(selector);
   if (!link) return;
 

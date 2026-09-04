@@ -2,7 +2,11 @@
 
 import { ArrowLeft, CircleHelp } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+
+import { useAuth } from "@/components/providers/auth-provider";
+import { helpKeyFor } from "@/lib/page-help";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -153,6 +157,19 @@ export function TypeBadge({
   );
 }
 
+/**
+ * The five things someone needs to know about the screen they are on.
+ *
+ * Deliberately the same five questions everywhere, so a person who has read
+ * one of these knows where to look in the next: what it does, who may use it,
+ * what it will not let you leave blank, what pressing the button actually
+ * causes, and what usually goes wrong.
+ *
+ * `need` is optional because plenty of screens are read-only and inventing a
+ * "nothing required" line for them would be noise.
+ */
+const HELP_SECTIONS = ["what", "who", "need", "then", "trouble"] as const;
+
 /** List page header: title and count on the left, one action on the right. */
 export function ListHeader({
   title,
@@ -164,6 +181,17 @@ export function ListHeader({
   action?: React.ReactNode;
 }) {
   const guide = useTranslations("pageGuide");
+  const help = useTranslations("pageHelp");
+  const { user } = useAuth();
+  const pathname = usePathname();
+  const helpKey = helpKeyFor(user?.portal, pathname);
+
+  // A screen with nothing true to say about itself shows no help button.
+  // Silence beats the three generic sentences this used to open.
+  const sections = helpKey
+    ? HELP_SECTIONS.filter((name) => help.has(`${helpKey}.${name}`))
+    : [];
+
   return (
     <div className="flex min-h-16 flex-wrap items-center justify-between gap-4 border-b pb-4">
       <div className="flex min-w-0 items-center gap-3">
@@ -180,45 +208,42 @@ export function ListHeader({
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {action}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              title={guide("action")}
-              aria-label={guide("action")}
-            >
-              <CircleHelp className="size-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>{guide("title", { page: title })}</DialogTitle>
-              <DialogDescription>{subtitle}</DialogDescription>
-            </DialogHeader>
-            <ol className="grid gap-3">
-              {(["review", "operate", "verify"] as const).map((step, index) => (
-                <li
-                  key={step}
-                  className="flex gap-3 rounded-lg border bg-muted/20 px-3 py-3"
-                >
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                    {index + 1}
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium">
-                      {guide(`${step}.title`)}
-                    </p>
-                    <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
-                      {guide(`${step}.description`)}
-                    </p>
+        {sections.length > 0 && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                title={guide("action")}
+                aria-label={guide("action")}
+              >
+                <CircleHelp className="size-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>{guide("title", { page: title })}</DialogTitle>
+                <DialogDescription>{subtitle}</DialogDescription>
+              </DialogHeader>
+              <dl className="grid gap-3">
+                {sections.map((name) => (
+                  <div
+                    key={name}
+                    className="rounded-lg border bg-muted/20 px-3 py-3"
+                  >
+                    <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      {guide(`section.${name}`)}
+                    </dt>
+                    <dd className="mt-1 text-sm leading-6">
+                      {help(`${helpKey}.${name}`)}
+                    </dd>
                   </div>
-                </li>
-              ))}
-            </ol>
-          </DialogContent>
-        </Dialog>
+                ))}
+              </dl>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );

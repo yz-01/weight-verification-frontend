@@ -173,3 +173,60 @@ export interface ApprovalHistory {
   count: number;
   results: ApprovalAction[];
 }
+
+/**
+ * One rung of an approval chain.
+ *
+ * A step names either a specific reviewer or a role, never both. With no
+ * template configured at all the backend falls back to "anyone holding the
+ * review permission may approve, in one step" — which is why a chain that
+ * exists only in the customer's expectations looks like it is working.
+ */
+export interface WorkflowStep {
+  id: string;
+  template: string;
+  sequence: number;
+  name: string;
+  reviewer_user: string | null;
+  reviewer_user_name: string | null;
+  reviewer_role: string | null;
+  reviewer_role_name: string | null;
+  is_required: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkflowStepPayload {
+  sequence: number;
+  name: string;
+  reviewer_user?: string | null;
+  reviewer_role?: string | null;
+  is_required?: boolean;
+}
+
+export interface WorkflowTemplate {
+  id: string;
+  name: string;
+  resource_type: string;
+  description: string;
+  project: string | null;
+  project_name: string | null;
+  version: number;
+  is_active: boolean;
+  step_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkflowTemplateDetail extends WorkflowTemplate {
+  steps: WorkflowStep[];
+}
+
+export interface WorkflowTemplatePayload {
+  name: string;
+  resource_type: string;
+  description?: string;
+  project?: string | null;
+  version?: number;
+  is_active?: boolean;
+}

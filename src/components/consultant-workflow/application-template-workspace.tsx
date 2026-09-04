@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileCog, History, Loader2, Plus, Save, Trash2 } from "lucide-react";
+import { FileCog, History, Loader2, Pencil, Plus, Save, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -36,6 +36,7 @@ import {
   createApplicationTemplateVersion,
   getApplicationOptions,
   getApplicationTemplates,
+  updateApplicationTemplate,
 } from "@/services/consultant-workflow.service";
 
 type FieldDefinition = ApplicationTemplateVersion["field_schema"][number];
@@ -48,6 +49,7 @@ export function ApplicationTemplateWorkspace() {
   const [project, setProject] = useState("");
   const [creating, setCreating] = useState(false);
   const [versioning, setVersioning] = useState<ApplicationTemplate | null>(null);
+  const [editing, setEditing] = useState<ApplicationTemplate | null>(null);
   const templates = useQuery({
     queryKey: ["consultant-templates", project],
     queryFn: () => getApplicationTemplates({ project, active: "false", page_size: 200 }),
@@ -61,7 +63,7 @@ export function ApplicationTemplateWorkspace() {
         title={t("title")}
         subtitle={t("subtitle")}
         action={
-          <Button disabled={!project} onClick={() => setCreating(true)}>
+          <Button disabledReason={!project ? t("chooseProject") : undefined} disabled={!project} onClick={() => setCreating(true)}>
             <Plus />{t("new")}
           </Button>
         }
@@ -118,9 +120,14 @@ export function ApplicationTemplateWorkspace() {
                     value={String(current?.field_schema.length ?? 0)}
                   />
                 </dl>
-                <Button className="mt-4 w-full" variant="outline" onClick={() => setVersioning(template)}>
-                  <History />{t("newVersion")}
-                </Button>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <Button variant="outline" onClick={() => setEditing(template)}>
+                    <Pencil />{t("editDetails")}
+                  </Button>
+                  <Button variant="outline" onClick={() => setVersioning(template)}>
+                    <History />{t("newVersion")}
+                  </Button>
+                </div>
               </article>
             );
           })}
@@ -134,6 +141,16 @@ export function ApplicationTemplateWorkspace() {
           onSaved={() => {
             void refresh();
             setCreating(false);
+          }}
+        />
+      ) : null}
+      {editing ? (
+        <TemplateDetailsDialog
+          template={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            void refresh();
+            setEditing(null);
           }}
         />
       ) : null}
@@ -216,7 +233,117 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
         {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("cancel")}</Button>
-          <Button disabled={!code.trim() || !name.trim() || !pattern.includes("{sequence}") || !note.trim() || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Save />}{t("save")}</Button>
+          <Button requires={[[code, t("code")], [name, t("name")], [pattern.includes("{sequence}"), t("numbering")], [note, t("changeNote")]]} disabledReason={pattern.trim() && !pattern.includes("{sequence}") ? t("numberingNeedsSequence") : undefined} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Save />}{t("save")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * The template's own details - deliberately not its form.
+ *
+ * The fields applicants fill in are versioned, because changing one changes
+ * what an already-filed application meant. A name, a description, a numbering
+ * pattern or whether the template is still offered are none of those things,
+ * and forcing a version bump to fix a typo would put a change in the history
+ * that never happened to the form.
+ */
+function TemplateDetailsDialog({
+  template,
+  onClose,
+  onSaved,
+}: {
+  template: ApplicationTemplate;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("consultantWorkflow.templateManager");
+  const options = useQuery({
+    queryKey: ["consultant-options", template.project, "APPLICATION_TYPE"],
+    queryFn: () => getApplicationOptions(template.project, "APPLICATION_TYPE"),
+  });
+  const [name, setName] = useState(template.name);
+  const [description, setDescription] = useState(template.description);
+  const [type, setType] = useState<string | null>(template.application_type);
+  const [pattern, setPattern] = useState(template.numbering_pattern);
+  const [isActive, setIsActive] = useState(template.is_active);
+  const save = useMutation({
+    mutationFn: () =>
+      updateApplicationTemplate(template.id, {
+        name: name.trim(),
+        description: description.trim(),
+        application_type: type,
+        numbering_pattern: pattern,
+        is_active: isActive,
+      }),
+    onSuccess: onSaved,
+  });
+  const error = save.error instanceof ApiError ? save.error.message : "";
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t("editTitle", { name: template.name })}</DialogTitle>
+          <DialogDescription>{t("editHelp")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FieldWrapper label={t("code")}>
+            <p className="rounded-lg border bg-muted/30 p-3 font-mono text-sm">
+              {template.code}
+              <span className="mt-1 block font-sans text-xs text-muted-foreground">
+                {t("codeFixed")}
+              </span>
+            </p>
+          </FieldWrapper>
+          <FieldWrapper label={t("name")} required>
+            <Input value={name} onChange={(event) => setName(event.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("applicationType")}>
+            <Select value={type || "ALL"} onValueChange={(value) => setType(value === "ALL" ? null : value)}>
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">{t("allTypes")}</SelectItem>
+                {(options.data?.results ?? []).map((row) => (
+                  <SelectItem key={row.id} value={row.id}>{row.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("numbering")} required hint={t("numberingHelp")}>
+            <Input value={pattern} onChange={(event) => setPattern(event.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("description")} className="sm:col-span-2">
+            <Textarea value={description} onChange={(event) => setDescription(event.target.value)} />
+          </FieldWrapper>
+        </div>
+        <label className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
+          <span>
+            <span className="block font-medium">{t("stillOffered")}</span>
+            <span className="text-xs text-muted-foreground">{t("stillOfferedHelp")}</span>
+          </span>
+          <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(Boolean(checked))} />
+        </label>
+        {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("cancel")}</Button>
+          <Button
+            requires={[
+              [name, t("name")],
+              [pattern.includes("{sequence}"), t("numbering")],
+            ]}
+            disabledReason={
+              pattern.trim() && !pattern.includes("{sequence}")
+                ? t("numberingNeedsSequence")
+                : undefined
+            }
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+            {t("save")}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -262,7 +389,7 @@ function VersionDialog({ template, onClose, onSaved }: { template: ApplicationTe
         <OptionChecks title={t("requiredFiles")} options={(attachments.data?.results ?? []).map((row) => ({ code: row.code, label: row.label }))} selected={required} onChange={setRequired} />
         <CustomFields fields={fields} onChange={setFields} />
         <FieldWrapper label={t("changeNote")} required><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper>
-        <DialogFooter><Button variant="outline" onClick={onClose}>{t("cancel")}</Button><Button disabled={!note.trim() || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Save />}{t("saveVersion")}</Button></DialogFooter>
+        <DialogFooter><Button variant="outline" onClick={onClose}>{t("cancel")}</Button><Button requires={[[note, t("changeNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Save />}{t("saveVersion")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );

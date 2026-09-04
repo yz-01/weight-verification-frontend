@@ -57,12 +57,17 @@ import { Textarea } from "@/components/ui/textarea";
 import type {
   ApplicationReviewStep,
   ConsultantApplication,
+  RemedialItem,
 } from "@/interfaces/consultant-workflow";
+import { ApiError } from "@/interfaces/api";
 import {
   addApplicationAttachment,
+  addRemedialItem,
+  closeRemedialItem,
   acknowledgeConsultantApplication,
   createApplicationRevision,
   downloadApplicationFinalReport,
+  retryApplicationFinalReport,
   getApplicationEvidenceCandidates,
   getApprovalCredential,
   getConsultantApplication,
@@ -242,10 +247,13 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
               <ReadField label={t("field.drawingNo")} value={application.drawing_no} />
               <ReadField label={t("field.drawingRevision")} value={application.drawing_revision} />
               <ReadField label={t("field.itpNo")} value={application.itp_no} />
+              <ReadField label={t("field.additionalDisciplines")} value={application.additional_discipline_labels.join(", ")} />
+              <ReadField label={t("field.additionalWorkTypes")} value={application.additional_work_type_labels.join(", ")} />
               <ReadField label={t("field.checklistReference")} value={application.checklist_reference} />
               <ReadField label={t("field.requiredAt")} value={application.required_at ? new Date(application.required_at).toLocaleString() : ""} />
               <ReadField label={t("field.inspectionStartAt")} value={application.inspection_start_at ? new Date(application.inspection_start_at).toLocaleString() : ""} />
               <ReadField label={t("field.inspectionEndAt")} value={application.inspection_end_at ? new Date(application.inspection_end_at).toLocaleString() : ""} />
+              <ReadField label={t("field.inspectionTimezone")} value={application.inspection_timezone} />
               <ReadField label={t("field.inspectionActivity")} value={application.custom_fields.inspection_activity} />
               <ReadField label={t("field.acceptanceRequirement")} value={application.custom_fields.acceptance_requirement} />
               {templateCustomFields.map((field) => (
@@ -380,6 +388,7 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
               <div className="space-y-3">{application.approval_actions.map((entry) => <div key={entry.id} className="rounded-lg border p-3"><div className="flex items-center justify-between gap-2"><p className="font-medium">{entry.actor_name}</p><StatusBadge label={t(`decision.${entry.decision}`)} tone={entry.decision === "APPROVE" ? "positive" : entry.decision === "REJECT" ? "danger" : "warning"} /></div><p className="mt-1 text-xs text-muted-foreground">{entry.step_name} - {new Date(entry.acted_at).toLocaleString()}</p>{entry.remarks && <p className="mt-2 text-sm">{entry.remarks}</p>}<div className="mt-3 flex gap-2"><a href={entry.signature_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.signature")}</a>{entry.stamp_snapshot && <a href={entry.stamp_snapshot} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary hover:underline">{t("credential.stamp")}</a>}</div></div>)}</div>
             </Section>
           )}
+          <RemedialSection application={application} onChanged={refresh} />
           <Section title={t("detail.section.revisions")}>
             <RevisionTimeline application={application} />
           </Section>
@@ -484,9 +493,31 @@ function RevisionTimeline({ application }: { application: ConsultantApplication 
   );
 }
 
+/** Decisions that are final, and therefore owe a report. Mirrors the backend. */
+const DECIDED = ["APPROVED", "APPROVED_WITH_REMEDIAL", "REJECTED"];
+
 function ArchiveChecklist({ application }: { application: ConsultantApplication }) {
   const t = useTranslations("consultantWorkflow");
+  const { can } = useAuth();
+  const queryClient = useQueryClient();
   const kinds = ["APPLICATION", "APPROVAL", "FINAL_REPORT"] as const;
+
+  /*
+    The decision is the act; the PDF is only its record. When archiving fails
+    the application stays decided and this row reads "pending" forever - the
+    recovery existed on the backend from the start and no screen offered it,
+    so the only way out was a developer with a shell (F-101).
+  */
+  const retry = useMutation({
+    mutationFn: () => retryApplicationFinalReport(application.id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["consultant-application", application.id],
+      }),
+  });
+  const reportOwedButMissing =
+    !application.final_report && DECIDED.includes(application.final_decision);
+
   return (
     <div className="space-y-2">
       {kinds.map((kind) => {
@@ -504,6 +535,26 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
                 </span>
               </div>
               {entry?.sha256 && <p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">SHA-256: {entry.sha256}</p>}
+              {kind === "FINAL_REPORT" && !entry && reportOwedButMissing && can("approval.review") && (
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    {t("archive.reportMissing")}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={retry.isPending}
+                    onClick={() => retry.mutate()}
+                  >
+                    {retry.isPending ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <RotateCcw />
+                    )}
+                    {t("action.retryReport")}
+                  </Button>
+                </div>
+              )}
               {kind === "FINAL_REPORT" && entry && (
                 <div className="mt-2 flex flex-wrap gap-3 text-xs font-semibold">
                   <button type="button" className="text-primary hover:underline" onClick={() => downloadApplicationFinalReport(application.id, application.application_no)}>
@@ -541,6 +592,319 @@ function nextActionText(
   return t("detail.next.complete");
 }
 
+/**
+ * What is still owed after an approval given on condition, and closing it.
+ *
+ * Raising an item is the reviewer's finding; closing it is the contractor's
+ * work, and it needs a note and evidence — the API refuses a bare tick, and so
+ * does the button. Without that, a conditional approval could be marked done
+ * with nothing behind it, which is exactly the hole this panel fills.
+ */
+function RemedialSection({
+  application,
+  onChanged,
+}: {
+  application: ConsultantApplication;
+  onChanged: () => void;
+}) {
+  const t = useTranslations("consultantWorkflow");
+  const { can } = useAuth();
+  const [raising, setRaising] = useState(false);
+  const [closing, setClosing] = useState<RemedialItem | null>(null);
+  const items = application.remedial_items ?? [];
+
+  if (!items.length && !can("approval.review")) return null;
+
+  return (
+    <Section
+      title={t("detail.section.remedial")}
+      action={
+        can("approval.review") && !application.is_locked ? (
+          <Button size="sm" variant="outline" onClick={() => setRaising(true)}>
+            <Plus />
+            {t("action.raiseRemedial")}
+          </Button>
+        ) : undefined
+      }
+    >
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("remedial.empty")}</p>
+      ) : (
+        <div className="space-y-3">
+          {items.map((item) => (
+            <div key={item.id} className="rounded-lg border p-3">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-medium">{item.description}</p>
+                <StatusBadge
+                  label={
+                    item.status === "CLOSED"
+                      ? t("remedial.closed")
+                      : item.is_overdue
+                        ? t("remedial.overdue")
+                        : t("remedial.open")
+                  }
+                  tone={
+                    item.status === "CLOSED"
+                      ? "positive"
+                      : item.is_overdue
+                        ? "danger"
+                        : "warning"
+                  }
+                />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {[
+                  item.assigned_to_name ?? t("remedial.unassigned"),
+                  item.due_on ? t("remedial.dueOn", { date: item.due_on }) : "",
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+              {item.status === "CLOSED" && (
+                <p className="mt-2 text-sm">
+                  {item.closure_note}
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {t("remedial.closedBy", {
+                      name: item.closed_by_name ?? "",
+                      when: item.closed_at
+                        ? new Date(item.closed_at).toLocaleString()
+                        : "",
+                      count: item.evidence.length,
+                    })}
+                  </span>
+                </p>
+              )}
+              {item.status === "OPEN" && can("consultant.submit") && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-3"
+                  onClick={() => setClosing(item)}
+                >
+                  <CheckCircle2 />
+                  {t("action.closeRemedial")}
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {raising && (
+        <RaiseRemedialDialog
+          application={application}
+          onClose={() => setRaising(false)}
+          onSaved={() => {
+            setRaising(false);
+            onChanged();
+          }}
+        />
+      )}
+      {closing && (
+        <CloseRemedialDialog
+          application={application}
+          item={closing}
+          onClose={() => setClosing(null)}
+          onSaved={() => {
+            setClosing(null);
+            onChanged();
+          }}
+        />
+      )}
+    </Section>
+  );
+}
+
+function RaiseRemedialDialog({
+  application,
+  onClose,
+  onSaved,
+}: {
+  application: ConsultantApplication;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("consultantWorkflow");
+  const [description, setDescription] = useState("");
+  const [dueOn, setDueOn] = useState("");
+  const [error, setError] = useState("");
+  const save = useMutation({
+    mutationFn: () =>
+      addRemedialItem(application.id, {
+        description: description.trim(),
+        due_on: dueOn || null,
+      }),
+    onSuccess: onSaved,
+    onError: (failure) =>
+      setError(
+        failure instanceof ApiError
+          ? Object.values(failure.errors)[0] || failure.message
+          : t("remedial.failed"),
+      ),
+  });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("remedial.raiseTitle")}</DialogTitle>
+          <DialogDescription>{t("remedial.raiseHelp")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <FieldWrapper label={t("remedial.description")} required>
+            <Textarea
+              rows={3}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("remedial.dueDate")} hint={t("remedial.dueHint")}>
+            <Input
+              type="date"
+              value={dueOn}
+              onChange={(event) => setDueOn(event.target.value)}
+            />
+          </FieldWrapper>
+          {error && (
+            <p role="alert" className="text-sm font-medium text-destructive">
+              {error}
+            </p>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            requires={[[description, t("remedial.description")]]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            <Plus />
+            {t("action.raiseRemedial")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CloseRemedialDialog({
+  application,
+  item,
+  onClose,
+  onSaved,
+}: {
+  application: ConsultantApplication;
+  item: RemedialItem;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("consultantWorkflow");
+  const [note, setNote] = useState("");
+  const [chosen, setChosen] = useState<string[]>([]);
+  const [error, setError] = useState("");
+  const candidates = useQuery({
+    queryKey: ["consultant-evidence-candidates", application.project],
+    queryFn: () => getApplicationEvidenceCandidates(application.project),
+  });
+  const save = useMutation({
+    mutationFn: () =>
+      closeRemedialItem(application.id, {
+        item: item.id,
+        closure_note: note.trim(),
+        evidence: chosen,
+      }),
+    onSuccess: onSaved,
+    onError: (failure) =>
+      setError(
+        failure instanceof ApiError
+          ? Object.values(failure.errors)[0] || failure.message
+          : t("remedial.failed"),
+      ),
+  });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{t("remedial.closeTitle")}</DialogTitle>
+          <DialogDescription>{t("remedial.closeHelp")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <p className="rounded-md border bg-muted/30 p-3 text-sm">
+            {item.description}
+          </p>
+          <FieldWrapper label={t("remedial.closureNote")} required>
+            <Textarea
+              rows={3}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("remedial.evidence")}
+            required
+            hint={t("remedial.evidenceHint")}
+          >
+            <div className="grid max-h-56 gap-2 overflow-y-auto rounded-md border p-3">
+              {(candidates.data?.results ?? []).map((asset) => (
+                <label
+                  key={asset.id}
+                  className="flex items-center gap-2 text-sm"
+                  htmlFor={`remedial-evidence-${asset.id}`}
+                >
+                  <Checkbox
+                    id={`remedial-evidence-${asset.id}`}
+                    checked={chosen.includes(asset.id)}
+                    onCheckedChange={(checked) =>
+                      setChosen(
+                        checked
+                          ? [...chosen, asset.id]
+                          : chosen.filter((id) => id !== asset.id),
+                      )
+                    }
+                  />
+                  <span className="truncate">
+                    {asset.original_filename} ·{" "}
+                    {new Date(asset.captured_at).toLocaleString()}
+                  </span>
+                </label>
+              ))}
+              {!candidates.isLoading &&
+                !(candidates.data?.results ?? []).length && (
+                  <p className="text-sm text-muted-foreground">
+                    {t("remedial.noEvidence")}
+                  </p>
+                )}
+            </div>
+          </FieldWrapper>
+          {error && (
+            <p role="alert" className="text-sm font-medium text-destructive">
+              {error}
+            </p>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            requires={[
+              [note, t("remedial.closureNote")],
+              [chosen.length, t("remedial.evidence")],
+            ]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            <CheckCircle2 />
+            {t("action.closeRemedial")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return <section className="rounded-lg border bg-card p-4 shadow-sm"><div className="mb-4 flex items-center justify-between gap-3"><SectionHeader title={title} />{action}</div>{children}</section>;
 }
@@ -551,7 +915,7 @@ function AttachmentDialog({ application, onClose, onSaved }: { application: Cons
   const [category, setCategory] = useState("OTHER");
   const [note, setNote] = useState("");
   const save = useMutation({ mutationFn: () => addApplicationAttachment(application.id, file as File, category, note), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{["CHECKLIST", "IFC_DRAWING", "SURVEY_REPORT", "MATERIAL_TEST", "CALIBRATION", "ITP", "OTHER"].map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!file || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{["CHECKLIST", "IFC_DRAWING", "SURVEY_REPORT", "MATERIAL_TEST", "CALIBRATION", "ITP", "OTHER"].map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function EvidenceDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
@@ -563,7 +927,7 @@ function EvidenceDialog({ application, onClose, onSaved }: { application: Consul
   const candidates = (rows.data?.results ?? []).filter((row) => !linkedIds.has(row.id));
   const save = useMutation({ mutationFn: () => linkApplicationEvidence(application.id, selected, caption), onSuccess: onSaved });
   const toggle = (id: string) => setSelected((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : <div className="space-y-4"><div className="grid max-h-[56dvh] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">{candidates.map((row) => { const checked = selected.includes(row.id); return <button type="button" key={row.id} onClick={() => toggle(row.id)} className={`overflow-hidden rounded-lg border text-left transition-colors ${checked ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/40"}`}><div className="relative aspect-[4/3] bg-muted"><Image src={row.file} alt={row.original_filename} fill unoptimized className="object-cover" /><span className="absolute left-2 top-2 grid size-7 place-items-center rounded-md bg-background/90 shadow-sm"><Checkbox checked={checked} tabIndex={-1} aria-hidden /></span></div><div className="p-2.5"><p className="truncate text-sm font-medium">{row.original_filename}</p><p className="mt-1 truncate text-xs text-muted-foreground">{row.photographer_name || t("common.unknown")}</p><p className="truncate text-xs text-muted-foreground">{new Date(row.captured_at).toLocaleString()}</p></div></button>; })}{!candidates.length && <div className="col-span-full"><Empty text={t("evidence.noCandidates")} /></div>}</div><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!selected.length || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : <div className="space-y-4"><div className="grid max-h-[56dvh] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">{candidates.map((row) => { const checked = selected.includes(row.id); return <button type="button" key={row.id} onClick={() => toggle(row.id)} className={`overflow-hidden rounded-lg border text-left transition-colors ${checked ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/40"}`}><div className="relative aspect-[4/3] bg-muted"><Image src={row.file} alt={row.original_filename} fill unoptimized className="object-cover" /><span className="absolute left-2 top-2 grid size-7 place-items-center rounded-md bg-background/90 shadow-sm"><Checkbox checked={checked} tabIndex={-1} aria-hidden /></span></div><div className="p-2.5"><p className="truncate text-sm font-medium">{row.original_filename}</p><p className="mt-1 truncate text-xs text-muted-foreground">{row.photographer_name || t("common.unknown")}</p><p className="truncate text-xs text-muted-foreground">{new Date(row.captured_at).toLocaleString()}</p></div></button>; })}{!candidates.length && <div className="col-span-full"><Empty text={t("evidence.noCandidates")} /></div>}</div><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[selected.length, t("evidence.selectPhotos")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function DecisionDialog({ application, decision, onClose, onSaved }: { application: ConsultantApplication; decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT"; onClose: () => void; onSaved: () => void }) {
@@ -572,7 +936,7 @@ function DecisionDialog({ application, decision, onClose, onSaved }: { applicati
   const [pin, setPin] = useState("");
   const save = useMutation({ mutationFn: () => reviewConsultantApplication(application.id, { decision, remarks, approval_pin: pin }), onSuccess: onSaved });
   const remarksRequired = decision !== "APPROVE";
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t(`review.dialog.${decision}.title`)}</DialogTitle><DialogDescription>{t(`review.dialog.${decision}.description`)}</DialogDescription></DialogHeader><div className="space-y-4"><FieldWrapper label={t("review.remarks")} required={remarksRequired}><Textarea rows={4} value={remarks} onChange={(event) => setRemarks(event.target.value)} /></FieldWrapper><FieldWrapper label={t("review.pin")} required hint={t("review.pinHint")}><Input type="password" inputMode="numeric" maxLength={6} value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, ""))} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button variant={decision === "REJECT" ? "destructive" : "default"} disabled={pin.length !== 6 || (remarksRequired && !remarks.trim()) || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : decision === "APPROVE" ? <ShieldCheck /> : decision === "REJECT" ? <XCircle /> : <RotateCcw />}{t(`decision.${decision}`)}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t(`review.dialog.${decision}.title`)}</DialogTitle><DialogDescription>{t(`review.dialog.${decision}.description`)}</DialogDescription></DialogHeader><div className="space-y-4"><FieldWrapper label={t("review.remarks")} required={remarksRequired}><Textarea rows={4} value={remarks} onChange={(event) => setRemarks(event.target.value)} /></FieldWrapper><FieldWrapper label={t("review.pin")} required hint={t("review.pinHint")}><Input type="password" inputMode="numeric" maxLength={6} value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, ""))} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button variant={decision === "REJECT" ? "destructive" : "default"} requires={[[pin.length === 6, t("review.pin")], [!remarksRequired || remarks, t("review.remarks")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : decision === "APPROVE" ? <ShieldCheck /> : decision === "REJECT" ? <XCircle /> : <RotateCcw />}{t(`decision.${decision}`)}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function reviewerMatches(step: ApplicationReviewStep, application: ConsultantApplication, user: NonNullable<ReturnType<typeof useAuth>["user"]>) {

@@ -4,7 +4,7 @@ import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   CustomerEnquiry, CustomerFeedback, CustomerServiceRecord,
   CustomerServiceSummary, CustomerTraining, CustomerVisit,
-  EnquiryStatus, TrainingStatus,
+  EnquiryNote, EnquiryStatus, TrainingStatus,
 } from "@/interfaces/crm";
 import { api, download, toastSuccess } from "@/services/api-client";
 
@@ -39,6 +39,26 @@ export interface ServiceRecordPayload {
 
 export const getEnquiries = (query?: ListQuery): Promise<Paginated<CustomerEnquiry>> => api.list("/api/customer-enquiries/get_enquiries/", query);
 export async function createEnquiry(payload: EnquiryPayload) { const row = await api.post<CustomerEnquiry>("/api/customer-enquiries/create_enquiry/", payload); toastSuccess("crm.toast.enquiryCreated"); return row; }
+export const getEnquiryNotes = (id: string): Promise<Paginated<EnquiryNote>> =>
+  api.list(`/api/customer-enquiries/${id}/get_notes/`);
+
+/**
+ * Add a note to an enquiry.
+ *
+ * Separate from the status change on purpose: a status is the outcome, a note
+ * is what happened on the way there. Forcing every "called them back, no
+ * answer" through a status change would either invent a status or lose the
+ * record.
+ */
+export async function addEnquiryNote(id: string, note: string) {
+  const row = await api.post<EnquiryNote>(
+    `/api/customer-enquiries/${id}/add_note/`,
+    { note },
+  );
+  toastSuccess("crm.toast.noteAdded");
+  return row;
+}
+
 export async function updateEnquiryStatus(id: string, status: EnquiryStatus, result: string, lostReason = "") { const row = await api.post<CustomerEnquiry>(`/api/customer-enquiries/${id}/update_status/`, { status, result, lost_reason: lostReason }); toastSuccess("crm.toast.statusUpdated"); return row; }
 
 export const getTraining = (query?: ListQuery): Promise<Paginated<CustomerTraining>> => api.list("/api/customer-training/get_training/", query);

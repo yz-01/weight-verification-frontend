@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Eraser, PenLine } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ export function FieldSignaturePad({
   value?: File;
   onChange: (file?: File) => void;
 }) {
+  const t = useTranslations("common");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const [hasInk, setHasInk] = useState(Boolean(value));
@@ -102,6 +104,7 @@ export function FieldSignaturePad({
         variant="outline"
         size="sm"
         className="w-full"
+        disabledReason={!hasInk && !value ? t("signatureMissing") : undefined}
         disabled={!hasInk && !value}
         onClick={clear}
       >

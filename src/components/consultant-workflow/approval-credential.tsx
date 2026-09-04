@@ -46,12 +46,6 @@ export function ApprovalCredentialSettings() {
       await queryClient.invalidateQueries({ queryKey: ["approval-credential"] });
     },
   });
-  const valid = Boolean(
-    password &&
-      pin.length === 6 &&
-      pin === pinConfirm &&
-      (credential.data || signature),
-  );
 
   return (
     <div className="mx-auto max-w-4xl space-y-5 pb-8">
@@ -142,7 +136,9 @@ export function ApprovalCredentialSettings() {
       </section>
 
       <div className="flex justify-end">
-        <Button disabled={!valid || save.isPending} onClick={() => save.mutate()}>
+        <Button requires={[[password, t("credential.currentPassword")], [pin.length === 6, t("credential.pin")], [pinConfirm.length === 6, t("credential.pinConfirm")], [credential.data || signature, t("credential.signature")]]}
+disabledReason={pin.length === 6 && pinConfirm.length === 6 && pin !== pinConfirm ? t("credential.pinMismatch") : undefined}
+                disabled={pin !== pinConfirm || save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : credential.data ? <Save /> : <Stamp />}
           {t("credential.save")}
         </Button>

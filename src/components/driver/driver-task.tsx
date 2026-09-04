@@ -57,6 +57,12 @@ import {
 } from "@/services/offline-sync.service";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useOrderRealtime } from "@/hooks/use-order-realtime";
+import { trackPaths } from "@/lib/track-paths";
+import {
+  useDriverDeviceStatus,
+  type DevicePermissionStatus,
+} from "@/components/driver/use-driver-device-status";
+import { useScreenWakeLock } from "@/components/driver/use-screen-wake-lock";
 
 /**
  * One trip, on a phone.
@@ -80,6 +86,8 @@ export function DriverTask({ id }: { id: string }) {
     [id],
   );
   useOrderRealtime(realtimeKeys);
+
+  const { gpsStatus } = useDriverDeviceStatus();
 
   const [moving, setMoving] = useState<TaskState | null>(null);
   const [reason, setReason] = useState("");
@@ -214,21 +222,31 @@ export function DriverTask({ id }: { id: string }) {
     return () => navigator.geolocation.clearWatch(watchId);
   }, [data?.is_running, id, user]);
 
+  // Declared before the early returns: a hook that only runs on some renders
+  // is the one React rule this file cannot bend.
+  const wakeLock = useScreenWakeLock(Boolean(data?.is_running));
+
   if (isLoading) return <DriverLoading />;
   if (isError || !data) return <DriverError onRetry={() => void refetch()} />;
 
   const next = TASK_TRANSITIONS[data.state];
-  const projectDestination = mapDestination(
-    data.project_latitude,
-    data.project_longitude,
-    [
-      data.project_address_line_1,
-      data.project_address_line_2,
-      data.project_city,
-      data.project_state,
-      data.project_postcode,
-    ],
-  );
+  // A gate somebody typed beats the project pin: the pin is the site, and the
+  // whole point of typing an address was that the site has more than one way
+  // in. An address merely inherited from the project record is not more precise
+  // than the project's own coordinates, so that case keeps the pin.
+  const projectDestination = data.pickup_address_is_manual
+    ? mapDestination(null, null, [data.pickup_address])
+    : mapDestination(
+        data.project_latitude,
+        data.project_longitude,
+        [
+          data.project_address_line_1,
+          data.project_address_line_2,
+          data.project_city,
+          data.project_state,
+          data.project_postcode,
+        ],
+      );
   const yardDestination = mapDestination(
     data.site_latitude,
     data.site_longitude,
@@ -255,6 +273,19 @@ export function DriverTask({ id }: { id: string }) {
         <ArrowLeft className="h-4 w-4" />
         {t("driver.back")}
       </Link>
+
+      {/*
+        Whether the phone is recording, in one line, always visible while a
+        trip is running.
+
+        The platform records position only while this page is open and the
+        screen is on (D-020). Saying so is not an apology — it is the
+        difference between a driver who keeps the phone awake and a customer
+        who concludes the GPS is broken (R-019).
+      */}
+      {data.is_running && (
+        <TrackingBanner gpsStatus={gpsStatus} wakeLock={wakeLock} />
+      )}
 
       <div className="space-y-3 rounded-xl border bg-card px-4 py-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-2">
@@ -324,6 +355,15 @@ export function DriverTask({ id }: { id: string }) {
       </div>
 
       <DriverTripMap data={data} />
+
+      {data.pickup_address && (
+        <div className="rounded-lg border bg-card p-3">
+          <p className="text-xs text-muted-foreground">
+            {t("driver.pickupAddress")}
+          </p>
+          <p className="mt-0.5 text-sm font-medium">{data.pickup_address}</p>
+        </div>
+      )}
 
       {projectDestination &&
         data.state !== "RETURNING" &&
@@ -510,13 +550,8 @@ export function DriverTask({ id }: { id: string }) {
         <Button
           size="lg"
           className="h-14 w-full rounded-full text-base shadow-sm"
-          disabled={
-            advance.isPending ||
-            locating ||
-            (forward === "LOADED" &&
-              data.photos.length === 0 &&
-              !hasPendingPhoto)
-          }
+          disabledReason={forward === "LOADED" && data.photos.length === 0 && !hasPendingPhoto ? t("driver.photoRequired") : undefined}
+          disabled={advance.isPending || locating || (forward === "LOADED" && data.photos.length === 0 && !hasPendingPhoto)}
           onClick={() => setMoving(forward)}
         >
           {advance.isPending || locating ? (
@@ -594,11 +629,8 @@ export function DriverTask({ id }: { id: string }) {
                 size="lg"
                 variant={moving === "FAILED" ? "destructive" : "default"}
                 className="h-12 rounded-full px-6 shadow-sm"
-                disabled={
-                  advance.isPending ||
-                  locating ||
-                  (moving === "FAILED" && reason.trim() === "")
-                }
+                requires={[[moving !== "FAILED" || reason, t("common.reason")]]}
+                disabled={advance.isPending || locating}
                 onClick={() => advance.mutate(moving)}
               >
                 {advance.isPending || locating ? (
@@ -613,6 +645,48 @@ export function DriverTask({ id }: { id: string }) {
         </Dialog>
       )}
     </div>
+  );
+}
+
+/**
+ * One line saying whether the phone is actually recording.
+ *
+ * Three states worth telling apart, because the fix for each is different:
+ * permission was refused (the driver must change a browser setting), the
+ * browser will not hold the screen awake (the driver must stop it locking),
+ * or everything is running (nothing to do, and worth saying so — silence
+ * reads as "no idea").
+ */
+function TrackingBanner({
+  gpsStatus,
+  wakeLock,
+}: {
+  gpsStatus: DevicePermissionStatus;
+  wakeLock: { supported: boolean; held: boolean };
+}) {
+  const t = useTranslations();
+  const denied = gpsStatus === "denied" || gpsStatus === "unsupported";
+  const tone = denied
+    ? "border-destructive/40 bg-destructive/10 text-destructive"
+    : wakeLock.held
+      ? "border-success/40 bg-success/10 text-success"
+      : "border-amber-500/40 bg-amber-500/10 text-amber-900 dark:text-amber-200";
+  const message = denied
+    ? t("driver.track.denied")
+    : wakeLock.held
+      ? t("driver.track.recording")
+      : wakeLock.supported
+        ? t("driver.track.mayPause")
+        : t("driver.track.noWakeLock");
+
+  return (
+    <p
+      role="status"
+      className={`flex items-start gap-2 rounded-xl border px-3 py-2 text-xs font-medium ${tone}`}
+    >
+      <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+      {message}
+    </p>
   );
 }
 
@@ -652,16 +726,18 @@ function DriverTripMap({ data }: { data: DriverTaskDetail }) {
         ]
       : []),
   ];
-  const routePoints = data.route
-    .map(
-      (point) =>
-        [Number(point.latitude), Number(point.longitude)] as [number, number],
-    )
-    .filter(([lat, lng]) => Number.isFinite(lat) && Number.isFinite(lng));
-  const paths: LocationMapPath[] =
-    routePoints.length > 1
-      ? [{ id: `route-${data.id}`, points: routePoints, label: data.task_no }]
-      : [];
+  // Broken into recorded runs and holes: geolocation stops when the screen
+  // locks, and a solid line through that would claim a road nobody recorded.
+  const paths: LocationMapPath[] = trackPaths({
+    id: `route-${data.id}`,
+    points: data.route.map((point) => ({
+      latitude: point.latitude,
+      longitude: point.longitude,
+      occurredAt: point.original_occurred_at,
+    })),
+    label: data.task_no,
+    gapLabel: (minutes) => t("driver.track.gap", { minutes }),
+  });
   const zones: LocationMapZone[] =
     hasProject && data.project_geofence_radius_m
       ? [

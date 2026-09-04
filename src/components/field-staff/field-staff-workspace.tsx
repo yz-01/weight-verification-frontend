@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { QRCodeCanvas } from "qrcode.react";
 import {
   BellRing,
   ArrowLeft,
@@ -27,11 +28,14 @@ import {
   RefreshCw,
   Send,
   ShieldAlert,
+  Smartphone,
   Truck,
   UserRoundCheck,
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+
+import { APP_VERSION } from "@/lib/app-version";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -65,7 +69,10 @@ import {
   getNotifications,
   markNotificationRead,
 } from "@/services/platform-ops.service";
-import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
+import {
+  createFieldPwaBootstrap,
+  getOrCreateFieldDeviceId,
+} from "@/services/field-access.service";
 
 type MobileTab = "home" | "tasks" | "attendance" | "records" | "location" | "incidents";
 type LocationFix = { latitude: string; longitude: string; accuracy: string };
@@ -199,7 +206,7 @@ function FieldStaffWorkspaceContent({
         <p className="text-xs font-medium text-muted-foreground">
           {t("today", { date: new Date().toLocaleDateString() })}
         </p>
-        <h1 className="mt-1 text-2xl font-semibold leading-tight">
+        <h1 className="mt-1 text-xl font-semibold leading-tight">
           {t("greeting", { name: user?.full_name ?? "" })}
         </h1>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -272,7 +279,7 @@ function FieldStaffWorkspaceContent({
       {tab === "home" && (
         <p className="text-center text-xs text-muted-foreground">
           {t("identity.version", {
-            version: process.env.NEXT_PUBLIC_APP_VERSION ?? "0.1.0",
+            version: APP_VERSION,
           })}
         </p>
       )}
@@ -315,7 +322,7 @@ function FieldHomePanel({
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">{t("home.title")}</h2>
+          <h2 className="text-base font-semibold">{t("home.title")}</h2>
           <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
         </div>
       </div>
@@ -326,19 +333,93 @@ function FieldHomePanel({
             <button
               key={action.key}
               type="button"
-              className="group flex min-h-32 flex-col items-start justify-between rounded-lg border bg-card p-4 text-left shadow-sm transition-[border-color,background-color,transform,box-shadow] hover:border-primary/30 hover:bg-muted/20 hover:shadow-md active:scale-[0.98]"
+              className="group flex min-h-28 flex-col items-start justify-between rounded-lg border bg-card p-3.5 text-left shadow-sm transition-[border-color,background-color,transform,box-shadow] hover:border-primary/30 hover:bg-muted/20 hover:shadow-md active:scale-[0.98]"
               onClick={action.open}
             >
-              <span className={`grid size-11 place-items-center rounded-lg ${action.tone}`}><Icon className="size-6" /></span>
-              <span className="mt-5 flex w-full items-end justify-between gap-2">
-                <span className="text-base font-semibold leading-5">{t(`home.${action.key}`)}</span>
+              <span className={`grid size-10 place-items-center rounded-lg ${action.tone}`}><Icon className="size-5" /></span>
+              <span className="mt-3 flex w-full items-end justify-between gap-2">
+                <span className="text-sm font-semibold leading-5">{t(`home.${action.key}`)}</span>
                 <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
               </span>
             </button>
           );
         })}
       </div>
+      <FieldDeviceHandoff />
       {can("notification.view") && <FieldNotificationPreview />}
+    </section>
+  );
+}
+
+/**
+ * Move this field session onto another phone.
+ *
+ * The API issues the link from the *bound* device only, which is the whole
+ * security property: whoever is already signed in on the old phone is the one
+ * saying the new phone is theirs. So this lives here, on the field portal,
+ * rather than in the admin screens - an administrator has no field session to
+ * call it with, and giving them the button would put a control on the screen
+ * that answers 403 every time.
+ *
+ * The link is shown once and is short-lived. It is not stored anywhere this
+ * screen can read it back, so if it is lost the answer is to issue another,
+ * not to hunt for it.
+ */
+function FieldDeviceHandoff() {
+  const t = useTranslations("fieldStaffPwa");
+  const [handoff, setHandoff] = useState<{
+    url: string;
+    expiresAt: string;
+  } | null>(null);
+
+  const issue = useMutation({
+    mutationFn: createFieldPwaBootstrap,
+    // The API answers with the token, not a link. The new phone opens the same
+    // deployment, so the origin this page is already served from is the right
+    // one to build with - hardcoding a host would break every environment but
+    // the one it was written in.
+    onSuccess: (result) =>
+      setHandoff({
+        url: `${window.location.origin}/field-pwa-bootstrap?token=${encodeURIComponent(result.token)}`,
+        expiresAt: result.expires_at,
+      }),
+  });
+
+  return (
+    <section className="rounded-lg border bg-card p-4 shadow-sm">
+      <p className="text-sm font-semibold">{t("handoff.title")}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{t("handoff.help")}</p>
+
+      {handoff ? (
+        <div className="mt-3 space-y-2">
+          <div className="grid place-items-center rounded-md border bg-background p-3">
+            <QRCodeCanvas value={handoff.url} size={168} />
+          </div>
+          <p className="break-all rounded-md bg-muted/40 p-2 font-mono text-xs">
+            {handoff.url}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {t("handoff.expires", {
+              at: new Date(handoff.expiresAt).toLocaleString(),
+            })}
+          </p>
+          <p className="text-xs text-muted-foreground">{t("handoff.once")}</p>
+        </div>
+      ) : (
+        <Button
+          className="mt-3"
+          size="sm"
+          disabled={issue.isPending}
+          onClick={() => issue.mutate()}
+        >
+          <Smartphone className="size-4" />
+          {t("handoff.action")}
+        </Button>
+      )}
+
+      {issue.isError && (
+        <p className="mt-2 text-xs text-destructive">{t("handoff.failed")}</p>
+      )}
     </section>
   );
 }
@@ -348,7 +429,11 @@ function FieldNotificationPreview() {
   const qc = useQueryClient();
   const notifications = useQuery({
     queryKey: ["field-staff", "notifications"],
-    queryFn: () => getNotifications({ page_size: 5, sort_by: "-created_at" }),
+    queryFn: () => getNotifications({
+        page_size: 5,
+        sort_by: "created_at",
+        sort_order: "desc",
+      }),
     refetchInterval: 30_000,
   });
   const read = useMutation({
@@ -452,7 +537,7 @@ function FieldNotificationRow({
 }
 
 function MobileNavButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Camera; label: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-14 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
+  return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-12 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
 }
 
 function taskRecordMode(task: FieldTask): FieldRecordMode | null {
@@ -521,7 +606,7 @@ function FieldTaskPanel({ taskType, requestedTaskId, onOpenWorkflow }: { taskTyp
   });
   if (tasks.isLoading) return <LoadingState />;
   if (tasks.isError) return <ErrorState onRetry={() => void tasks.refetch()} />;
-  return <section className="space-y-3"><div className="flex items-center justify-between"><div><h2 className="text-lg font-semibold">{taskType === "CONSULTANT" ? t("consultantTasks.title") : t("tasks.title")}</h2><p className="text-sm text-muted-foreground">{t("tasks.count", { count: active.length })}</p></div><Button size="icon" variant="outline" title={t("action.refresh")} onClick={() => void tasks.refetch()}><RefreshCw /></Button></div>{actionError && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{actionError}</p>}{active.length === 0 ? <div className="grid min-h-48 place-items-center rounded-xl border border-dashed bg-card text-center"><div><Check className="mx-auto size-10 text-success" /><p className="mt-3 font-medium">{t("tasks.empty")}</p></div></div> : active.map((task) => <FieldTaskCard key={task.id} task={task} focused={task.id === requestedTaskId} busy={transition.isPending || photo.isPending} onTransition={(status) => transition.mutate({ task, status })} onPhoto={(file) => photo.mutate({ task, file })} onOpenWorkflow={() => { const mode = taskRecordMode(task); if (mode) onOpenWorkflow(task, mode); }} />)}</section>;
+  return <section className="space-y-3"><div className="flex items-center justify-between"><div><h2 className="text-base font-semibold">{taskType === "CONSULTANT" ? t("consultantTasks.title") : t("tasks.title")}</h2><p className="text-sm text-muted-foreground">{t("tasks.count", { count: active.length })}</p></div><Button size="icon" variant="outline" title={t("action.refresh")} onClick={() => void tasks.refetch()}><RefreshCw /></Button></div>{actionError && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{actionError}</p>}{active.length === 0 ? <div className="grid min-h-48 place-items-center rounded-xl border border-dashed bg-card text-center"><div><Check className="mx-auto size-10 text-success" /><p className="mt-3 font-medium">{t("tasks.empty")}</p></div></div> : active.map((task) => <FieldTaskCard key={task.id} task={task} focused={task.id === requestedTaskId} busy={transition.isPending || photo.isPending} onTransition={(status) => transition.mutate({ task, status })} onPhoto={(file) => photo.mutate({ task, file })} onOpenWorkflow={() => { const mode = taskRecordMode(task); if (mode) onOpenWorkflow(task, mode); }} />)}</section>;
 }
 
 function FieldTaskCard({ task, focused, busy, onTransition, onPhoto, onOpenWorkflow }: { task: FieldTask; focused: boolean; busy: boolean; onTransition: (status: "IN_PROGRESS" | "SUBMITTED") => void; onPhoto: (file: File) => void; onOpenWorkflow: () => void }) {
@@ -534,7 +619,7 @@ function FieldTaskCard({ task, focused, busy, onTransition, onPhoto, onOpenWorkf
   const canSubmit = photos >= requiredPhotos;
   const workflowMode = taskRecordMode(task);
   const opensLinkedDisposal = task.linked_record_type === "DISPOSAL_EXECUTION";
-  return <article className={`overflow-hidden rounded-xl border bg-card shadow-sm ${task.priority === "URGENT" ? "border-destructive/40" : ""} ${focused ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}><div className="p-4"><div className="flex items-start justify-between gap-3"><div><StatusBadge label={t(`status.${task.status}`)} tone={task.status === "RETURNED" ? "danger" : task.status === "SUBMITTED" ? "warning" : "info"} /><h3 className="mt-3 text-lg font-semibold leading-snug">{task.title}</h3><p className="mt-1 text-sm text-muted-foreground">{task.project_name}</p></div><span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">{t(`type.${task.task_type}`)}</span></div><div className="mt-3 grid gap-1 text-xs text-muted-foreground"><p>{t("tasks.assignedBy", { name: task.created_by_name || task.assigned_to_name })}</p>{task.work_location && <p>{t("tasks.workLocation", { location: task.work_location })}</p>}{task.due_at && <p>{t("tasks.dueAt", { value: new Date(task.due_at).toLocaleString() })}</p>}</div>{task.instructions && <p className="mt-4 rounded-lg bg-muted/50 p-3 text-sm leading-6">{task.instructions}</p>}{task.references.length ? <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3"><p className="mb-3 text-sm font-semibold text-primary">{t("tasks.references", { count: task.references.length })}</p><div className="grid grid-cols-2 gap-2">{task.references.map((reference) => reference.kind === "PHOTO" ? <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer"><Image src={reference.file} alt={reference.label || reference.original_filename} width={320} height={240} unoptimized className="aspect-[4/3] w-full rounded-lg object-cover" /></a> : <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer" className="col-span-2 flex min-h-12 items-center gap-3 rounded-lg border bg-background px-3 py-2 text-sm font-semibold text-primary"><FileText className="size-5 shrink-0" /><span className="truncate">{reference.label || reference.original_filename}</span></a>)}</div></div> : null}{task.started_at && <p className="mt-3 text-xs text-muted-foreground">{t("tasks.startedAt", { value: new Date(task.started_at).toLocaleString() })}</p>}{task.status === "RETURNED" && task.review_note && <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{task.review_note}</p>}{!workflowMode && <><div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">{task.photos.map((item, index) => <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" className="w-24 shrink-0" title={`${index + 1} / ${task.photos.length}`}><Image src={item.watermarked || item.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg border object-cover" /></a>)}</div><p className="mt-3 text-center text-sm font-medium">{t("tasks.evidence", { current: photos, required: requiredPhotos })}</p></>}</div><div className="grid gap-2 border-t bg-muted/20 p-3">{task.status === "OPEN" && (opensLinkedDisposal ? <Button className="h-14 text-base" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <Button className="h-12 text-base" disabled={busy} onClick={() => onTransition("IN_PROGRESS")}><Play />{t("action.start")}</Button>)}{["IN_PROGRESS", "RETURNED"].includes(task.status) && (workflowMode ? <Button className="h-14 text-base" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <><FieldCamera label={t("action.takePhoto")} fileCount={photos} disabled={busy} onCapture={onPhoto} /><Button className="h-12 text-base" disabled={busy || !canSubmit} onClick={() => onTransition("SUBMITTED")}><Send />{canSubmit ? t("action.submit") : t("action.morePhotos", { count: Math.max(0, requiredPhotos - photos) })}</Button></>)}{task.status === "SUBMITTED" && <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-warning"><Clock3 className="size-5" />{task.linked_record_reference ? t("tasks.linkedSubmission", { reference: task.linked_record_reference }) : t("tasks.waitingReview")}</div>}</div></article>;
+  return <article className={`overflow-hidden rounded-xl border bg-card shadow-sm ${task.priority === "URGENT" ? "border-destructive/40" : ""} ${focused ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}><div className="p-4"><div className="flex items-start justify-between gap-3"><div><StatusBadge label={t(`status.${task.status}`)} tone={task.status === "RETURNED" ? "danger" : task.status === "SUBMITTED" ? "warning" : "info"} /><h3 className="mt-3 text-base font-semibold leading-snug">{task.title}</h3><p className="mt-1 text-sm text-muted-foreground">{task.project_name}</p></div><span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">{t(`type.${task.task_type}`)}</span></div><div className="mt-3 grid gap-1 text-xs text-muted-foreground"><p>{t("tasks.assignedBy", { name: task.created_by_name || task.assigned_to_name })}</p>{task.work_location && <p>{t("tasks.workLocation", { location: task.work_location })}</p>}{task.due_at && <p>{t("tasks.dueAt", { value: new Date(task.due_at).toLocaleString() })}</p>}</div>{task.instructions && <p className="mt-4 rounded-lg bg-muted/50 p-3 text-sm leading-6">{task.instructions}</p>}{task.references.length ? <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3"><p className="mb-3 text-sm font-semibold text-primary">{t("tasks.references", { count: task.references.length })}</p><div className="grid grid-cols-2 gap-2">{task.references.map((reference) => reference.kind === "PHOTO" ? <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer"><Image src={reference.file} alt={reference.label || reference.original_filename} width={320} height={240} unoptimized className="aspect-[4/3] w-full rounded-lg object-cover" /></a> : <a key={reference.id} href={reference.file} target="_blank" rel="noreferrer" className="col-span-2 flex min-h-12 items-center gap-3 rounded-lg border bg-background px-3 py-2 text-sm font-semibold text-primary"><FileText className="size-5 shrink-0" /><span className="truncate">{reference.label || reference.original_filename}</span></a>)}</div></div> : null}{task.started_at && <p className="mt-3 text-xs text-muted-foreground">{t("tasks.startedAt", { value: new Date(task.started_at).toLocaleString() })}</p>}{task.status === "RETURNED" && task.review_note && <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{task.review_note}</p>}{!workflowMode && <><div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">{task.photos.map((item, index) => <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" className="w-24 shrink-0" title={`${index + 1} / ${task.photos.length}`}><Image src={item.watermarked || item.image} alt="" width={240} height={240} unoptimized className="aspect-square w-full rounded-lg border object-cover" /></a>)}</div><p className="mt-3 text-center text-sm font-medium">{t("tasks.evidence", { current: photos, required: requiredPhotos })}</p></>}</div><div className="grid gap-2 border-t bg-muted/20 p-3">{task.status === "OPEN" && (opensLinkedDisposal ? <Button className="h-12 text-sm" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <Button className="h-12 text-sm" disabled={busy} onClick={() => onTransition("IN_PROGRESS")}><Play />{t("action.start")}</Button>)}{["IN_PROGRESS", "RETURNED"].includes(task.status) && (workflowMode ? <Button className="h-12 text-sm" disabled={busy} onClick={onOpenWorkflow}><Camera />{t("action.openWorkflow")}</Button> : <><FieldCamera label={t("action.takePhoto")} fileCount={photos} disabled={busy} onCapture={onPhoto} /><Button className="h-12 text-sm" disabledReason={!canSubmit ? t("action.morePhotos", { count: Math.max(0, requiredPhotos - photos) }) : undefined} disabled={busy || !canSubmit} onClick={() => onTransition("SUBMITTED")}><Send />{canSubmit ? t("action.submit") : t("action.morePhotos", { count: Math.max(0, requiredPhotos - photos) })}</Button></>)}{task.status === "SUBMITTED" && <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-warning"><Clock3 className="size-5" />{task.linked_record_reference ? t("tasks.linkedSubmission", { reference: task.linked_record_reference }) : t("tasks.waitingReview")}</div>}</div></article>;
 }
 
 function FieldAttendancePanel() {
@@ -548,7 +633,7 @@ function FieldAttendancePanel() {
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [locating, setLocating] = useState(false);
-  const attendance = useQuery({ queryKey: ["field-staff", "attendance"], queryFn: () => getAttendance({ page_size: 30, sort_by: "-occurred_at" }) });
+  const attendance = useQuery({ queryKey: ["field-staff", "attendance"], queryFn: () => getAttendance({ page_size: 30, sort_by: "occurred_at", sort_order: "desc" }) });
   const today = useMemo(() => (attendance.data?.results ?? []).filter((row) => row.user === user?.id && new Date(row.occurred_at).toDateString() === new Date().toDateString()), [attendance.data, user?.id]);
   const selectedProject = project || today[0]?.project || "";
   const captureLocation = async () => { setLocating(true); setError(""); try { setFix(await locate()); } catch { setError(t("error.location")); } finally { setLocating(false); } };
@@ -556,7 +641,7 @@ function FieldAttendancePanel() {
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">{t("attendance.title")}</h2>
+        <h2 className="text-base font-semibold">{t("attendance.title")}</h2>
         <p className="text-sm text-muted-foreground">{t("attendance.todayCount", { count: today.length })}</p>
       </div>
       <div className="rounded-xl border bg-card p-4 shadow-sm">
@@ -569,7 +654,8 @@ function FieldAttendancePanel() {
         <Button className="mt-3 h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>{locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}{fix ? t("attendance.locationReady") : t("attendance.getLocation")}</Button>
         <Textarea className="mt-3" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("attendance.note")} />
         {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
-        <Button className="mt-4 h-14 w-full text-base" disabled={!selectedProject || !selfie || !fix || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : event === "CLOCK_IN" ? <LogIn /> : <LogOut />}{t("attendance.submit")}</Button>
+        <Button className="mt-4 h-12 w-full text-sm" requires={[[selectedProject, t("attendance.selectProject")], [selfie, t("attendance.takeSelfie")], [fix, t("attendance.getLocation")]]}
+                                                       disabled={submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : event === "CLOCK_IN" ? <LogIn /> : <LogOut />}{t("attendance.submit")}</Button>
       </div>
       <div className="space-y-3">
         {today.length === 0 && <p className="rounded-xl border border-dashed bg-card p-5 text-center text-sm text-muted-foreground">{t("attendance.noRecords")}</p>}
@@ -627,7 +713,7 @@ function FieldIncidentsPanel({ onHome }: { onHome: () => void }) {
           <ArrowLeft />
         </Button>
         <div>
-          <h2 className="text-lg font-semibold">{t("incidents.title")}</h2>
+          <h2 className="text-base font-semibold">{t("incidents.title")}</h2>
           <p className="text-sm text-muted-foreground">{t("incidents.subtitle")}</p>
         </div>
       </div>

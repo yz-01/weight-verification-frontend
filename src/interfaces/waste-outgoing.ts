@@ -78,10 +78,28 @@ export interface WasteOutgoingRecord {
   submitted_by_name: string | null;
   site_contact_name: string;
   site_contact_phone: string;
+  /**
+   * Where the lorry is sent. `pickup_address_source` is the half that matters
+   * afterwards: a wrong typed address and a wrong project address read the
+   * same, and they are two different conversations.
+   */
+  pickup_address: string;
+  pickup_address_source: "MANUAL" | "PROJECT" | "";
   reviewed_at: string | null;
   reviewed_by: string | null;
   reviewed_by_name: string | null;
   review_note: string;
+  /**
+   * The handover trail. `delegated_to` is null while the application is still
+   * head office's to decide, which is the normal state: head office reads
+   * every one and passes on the ones it chooses to, one at a time.
+   */
+  delegated_to: string | null;
+  delegated_to_name: string | null;
+  delegated_by: string | null;
+  delegated_by_name: string | null;
+  delegated_at: string | null;
+  delegation_note: string;
   recycler: string | null;
   recycler_name: string | null;
   dispatch: string | null;

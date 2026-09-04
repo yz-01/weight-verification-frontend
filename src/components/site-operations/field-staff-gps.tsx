@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { WorkforcePresencePanel } from "@/components/site-operations/workforce-presence-panel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -95,6 +96,8 @@ export function FieldStaffGps({
         ...(historyProjectId ? { project: historyProjectId } : {}),
       }),
   });
+  // Whichever list this tab shows, the refresh button waits on that one.
+  const refreshing = tab === "live" ? live.isFetching : lastPositions.isFetching;
   const lastRows = useMemo(
     () => lastPositions.data?.results ?? [],
     [lastPositions.data?.results],
@@ -319,6 +322,10 @@ export function FieldStaffGps({
 
   return (
     <div className="space-y-5">
+      {/* 15.2.3 asks for the headcount before it asks for the map. */}
+      {can("field_position.view") && (
+        <WorkforcePresencePanel projectId={tab === "live" ? projectId : historyProjectId} />
+      )}
       <ListHeader
         title={t("siteGps.title")}
         subtitle={
@@ -330,7 +337,7 @@ export function FieldStaffGps({
           <Button
             size="sm"
             variant="outline"
-            disabled={tab === "live" ? live.isFetching : lastPositions.isFetching}
+            disabled={refreshing}
             onClick={() => {
               if (tab === "live") {
                 void live.refetch();
@@ -390,7 +397,8 @@ export function FieldStaffGps({
               <Button
                 size="sm"
                 variant={sharing ? "destructive" : "default"}
-                disabled={!projectId || record.isPending || stop.isPending}
+                requires={[[projectId, t("siteGps.project")]]}
+                disabled={record.isPending || stop.isPending}
                 onClick={sharing ? stopSharing : startSharing}
               >
                 {sharing ? (

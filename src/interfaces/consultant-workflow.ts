@@ -44,6 +44,10 @@ export interface ConsultantWorkflow {
   is_default: boolean;
   is_active: boolean;
   steps: ConsultantWorkflowStep[];
+  /** Something has been filed here, so the project and type are fixed. */
+  has_applications: boolean;
+  /** Something has been submitted, so the approval route is part of the record. */
+  steps_locked: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -240,6 +244,31 @@ export interface ApplicationRevisionSummary {
   is_current: boolean;
 }
 
+/**
+ * One piece of work owed after an approval given on condition.
+ *
+ * `is_overdue` is the server's answer, not a date comparison done here: an
+ * item closed after its date is not overdue, and two screens computing that
+ * rule separately is how they end up disagreeing.
+ */
+export interface RemedialItem {
+  id: string;
+  application: string;
+  description: string;
+  assigned_to: string | null;
+  assigned_to_name: string | null;
+  due_on: string | null;
+  status: "OPEN" | "CLOSED";
+  is_overdue: boolean;
+  closure_note: string;
+  evidence: string[];
+  closed_at: string | null;
+  closed_by: string | null;
+  closed_by_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ConsultantApplication {
   id: string;
   application_no: string;
@@ -275,6 +304,19 @@ export interface ConsultantApplication {
   discipline: string;
   discipline_label: string;
   discipline_custom: string;
+  /**
+   * The other trades and activities this one inspection also covers. Both
+   * customer forms tick a list; the single fields above are the primary
+   * choice, which the reference number and the report header read.
+   */
+  additional_disciplines: string[];
+  additional_discipline_labels: string[];
+  additional_work_types: string[];
+  additional_work_type_labels: string[];
+  /** The zone the inspection window was agreed in, stamped at creation. */
+  inspection_timezone: string;
+  /** Work owed after a conditional approval, and how it was discharged. */
+  remedial_items: RemedialItem[];
   work_type: string;
   work_type_label: string;
   work_type_custom: string;
@@ -385,6 +427,8 @@ export interface ConsultantApplicationPayload {
   application_type_custom?: string;
   discipline: string;
   discipline_custom?: string;
+  additional_disciplines?: string[];
+  additional_work_types?: string[];
   work_type: string;
   work_type_custom?: string;
   priority: string;

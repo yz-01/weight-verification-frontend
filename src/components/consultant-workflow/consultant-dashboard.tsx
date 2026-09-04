@@ -30,6 +30,7 @@ import { getNotifications } from "@/services/platform-ops.service";
 
 export function ConsultantDashboard() {
   const t = useTranslations("consultantDashboard");
+  const common = useTranslations("common");
   const router = useRouter();
   const { can, user } = useAuth();
   const [search, setSearch] = useState("");
@@ -43,7 +44,11 @@ export function ConsultantDashboard() {
   });
   const notifications = useQuery({
     queryKey: ["consultant-dashboard", "notifications"],
-    queryFn: () => getNotifications({ page_size: 5, sort_by: "-created_at" }),
+    queryFn: () => getNotifications({
+        page_size: 5,
+        sort_by: "created_at",
+        sort_order: "desc",
+      }),
     refetchInterval: 30_000,
   });
 
@@ -104,7 +109,8 @@ export function ConsultantDashboard() {
           placeholder={t("searchPlaceholder")}
           aria-label={t("search")}
         />
-        <Button type="submit" variant="outline" disabled={search.trim().length < 2}>
+        <Button type="submit" variant="outline" disabledReason={search.trim().length < 2 ? common("searchMinLength", { count: 2 }) : undefined}
+                                                disabled={search.trim().length < 2}>
           <Search />{t("search")}
         </Button>
       </form>

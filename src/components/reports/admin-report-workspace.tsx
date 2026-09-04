@@ -118,6 +118,7 @@ function ReportPanel({
   section: Exclude<AdminReportSection, "overview" | "history">;
 }) {
   const t = useTranslations("adminReports");
+  const common = useTranslations("common");
   const format = useFormatter();
   const now = new Date();
   const [reportType, setReportType] = useState<AdminReportType>(
@@ -229,6 +230,7 @@ function ReportPanel({
         <Button
           size="sm"
           variant="outline"
+          disabledReason={!report.data ? common("noReportYet") : undefined}
           disabled={exportMutation.isPending || !report.data}
           onClick={() => exportMutation.mutate("EXCEL")}
         >
@@ -238,6 +240,7 @@ function ReportPanel({
         <Button
           size="sm"
           variant="outline"
+          disabledReason={!report.data ? common("noReportYet") : undefined}
           disabled={exportMutation.isPending || !report.data}
           onClick={() => exportMutation.mutate("PDF")}
         >

@@ -24,7 +24,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { DeliveryNote, MaterialUnit, Supplier } from "@/interfaces/contractor";
+import type { ProjectCategory } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
+import { getProjectCategories } from "@/services/contractor-ops.service";
 import {
   cancelDeliveryNote,
   closeDeliveryNote,
@@ -101,7 +103,7 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge label={t(`qrCodes.noteStatus.${row.status}`)} tone={noteTone(row.status)} />
+                <StatusBadge label={t(`deliveryNotePublic.status.${row.status}`)} tone={noteTone(row.status)} />
                 {row.qr_url && (
                   <Button variant="outline" size="sm" onClick={() => setViewingQr(row)}>
                     <QrCode />
@@ -193,10 +195,17 @@ function IssueDeliveryNoteDialog({
   const [unit, setUnit] = useState<MaterialUnit>("TONNE");
   const [expectedAt, setExpectedAt] = useState("");
   const [notes, setNotes] = useState("");
+  // Optional on purpose: a project that has not set up its columns yet
+  // must still be able to raise a docket (the receipt files as unsorted).
+  const [category, setCategory] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const suppliers = useQuery({
     queryKey: ["suppliers", "delivery-note-options", projectId],
     queryFn: () => getSuppliers({ page_size: 200 }),
+  });
+  const categories = useQuery({
+    queryKey: ["project-categories", "delivery-note-options", projectId],
+    queryFn: () => getProjectCategories({ project: projectId, page_size: 200 }),
   });
   const creation = useMutation({
     mutationFn: () => issueDeliveryNote({
@@ -209,6 +218,7 @@ function IssueDeliveryNoteDialog({
       unit,
       expected_delivery_at: new Date(expectedAt).toISOString(),
       notes: notes.trim(),
+      ...(category ? { category } : {}),
     }),
     onSuccess: onSaved,
     onError: (error) => {
@@ -268,7 +278,13 @@ function IssueDeliveryNoteDialog({
           <FieldWrapper label={t("qrCodes.field.expectedAt")} required error={errors.expected_delivery_at} className="sm:col-span-2">
             <Input type="datetime-local" value={expectedAt} onChange={(event) => setExpectedAt(event.target.value)} />
           </FieldWrapper>
-          <FieldWrapper label={t("qrCodes.field.notes")} optional={t("optional")} error={errors.notes} className="sm:col-span-2">
+          <FieldWrapper label={t("qrCodes.field.category")} optional={t("common.optional")} error={errors.category} className="sm:col-span-2" hint={t("qrCodes.categoryHelp")}>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="w-full"><SelectValue placeholder={t("qrCodes.chooseCategory")} /></SelectTrigger>
+              <SelectContent>{(categories.data?.results ?? []).map((row: ProjectCategory) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("qrCodes.field.notes")} optional={t("common.optional")} error={errors.notes} className="sm:col-span-2">
             <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} />
           </FieldWrapper>
         </div>
@@ -334,7 +350,7 @@ function DeliveryNoteResultDialog({ note, onClose }: { note: DeliveryNote; onClo
           <ResultField label={t("qrCodes.result.receiptNo")} value={note.receipt_no ?? "-"} />
           <ResultField label={t("qrCodes.result.decision")} value={note.decision ? t(`deliveryNotePublic.decision.${note.decision}`) : "-"} />
           <ResultField label={t("qrCodes.result.receiver")} value={note.receiver_name || "-"} />
-          <ResultField label={t("qrCodes.result.status")} value={t(`qrCodes.noteStatus.${note.status}`)} />
+          <ResultField label={t("qrCodes.result.status")} value={t(`deliveryNotePublic.status.${note.status}`)} />
         </div>
         {!resultReady && <p className="rounded-lg border border-dashed p-5 text-center text-sm text-muted-foreground">{t("qrCodes.result.pending")}</p>}
         {note.rejection_reason && <ResultField label={t("deliveryNotePublic.field.rejectionReason")} value={note.rejection_reason} />}

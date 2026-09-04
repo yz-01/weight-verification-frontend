@@ -171,6 +171,7 @@ export function Roles() {
                   // Disabled rather than hidden, with the reason in the tooltip:
                   // a button that vanishes leaves the user wondering whether
                   // they lack the permission or the action is unavailable.
+                  disabledReason={role.is_system ? t("roles.remove.blockedBySystem") : inUse ? t("roles.remove.blockedByUsers") : undefined}
                   disabled={role.is_system || inUse}
                   title={
                     role.is_system

@@ -8,6 +8,7 @@ import {
   FileCheck2,
   FileUp,
   Landmark,
+  Pencil,
   Star,
   Trash2,
   XCircle,
@@ -21,6 +22,7 @@ import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type {
+  CompanyBankAccount,
   CompanyBankAccountPayload,
   CompanyDetail,
   CompanyDocumentType,
@@ -33,6 +35,7 @@ import {
   getCompanyOnboarding,
   reviewCompany,
   setPrimaryCompanyBankAccount,
+  updateCompanyBankAccount,
   uploadCompanyDocument,
   verifyCompanyBankAccount,
   verifyCompanyDocument,
@@ -66,6 +69,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
   const [documentReference, setDocumentReference] = useState("");
   const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [showBankForm, setShowBankForm] = useState(false);
+  const [editingBank, setEditingBank] = useState<CompanyBankAccount | null>(null);
   const [bank, setBank] = useState<CompanyBankAccountPayload>({
     bank_name: "",
     account_name: company.ssm_registered_name || company.name,
@@ -107,6 +111,40 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
     mutationFn: () => createCompanyBankAccount(company.id, bank),
     onSuccess: () => {
       setShowBankForm(false);
+      setBank({
+        bank_name: "",
+        account_name: company.ssm_registered_name || company.name,
+        account_number: "",
+        account_type: "CURRENT",
+        currency: "MYR",
+        is_primary: true,
+      });
+      refresh();
+    },
+  });
+
+  // Same form, different verb. `currency` and `is_primary` are left out on
+  // purpose: currency is fixed once the account exists, and which account is
+  // primary has its own control, so sending them here would let an edit
+  // quietly change something the person did not touch.
+  const saveBank = useMutation({
+    mutationFn: (account: CompanyBankAccount) =>
+      updateCompanyBankAccount(account.id, {
+        bank_name: bank.bank_name,
+        account_name: bank.account_name,
+        // Omitted when the box was left alone. The API patches, so an absent
+        // field keeps the stored number - which is the only sane reading of
+        // an empty box on a field the screen was never allowed to show.
+        ...(bank.account_number.trim()
+          ? { account_number: bank.account_number.trim() }
+          : {}),
+        branch: bank.branch,
+        swift_code: bank.swift_code,
+        account_type: bank.account_type,
+      }),
+    onSuccess: () => {
+      setShowBankForm(false);
+      setEditingBank(null);
       setBank({
         bank_name: "",
         account_name: company.ssm_registered_name || company.name,
@@ -212,7 +250,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
               <Input type="file" accept="application/pdf,image/png,image/jpeg" onChange={(event) => setDocumentFile(event.target.files?.[0] ?? null)} />
             </FieldWrapper>
             <div className="flex items-end">
-              <Button size="sm" disabled={!documentFile || upload.isPending} onClick={() => upload.mutate()}>
+              <Button size="sm" requires={[[documentFile, t("companies.onboarding.documents.file")]]} disabled={upload.isPending} onClick={() => upload.mutate()}>
                 <FileUp className="h-4 w-4" />
                 {t("companies.onboarding.documents.upload")}
               </Button>
@@ -275,7 +313,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
           <div className="grid gap-3 border-y py-4 md:grid-cols-2 xl:grid-cols-3">
             <BankInput label={t("companies.onboarding.bank.bankName")} value={bank.bank_name} onChange={(value) => setBank({ ...bank, bank_name: value })} required />
             <BankInput label={t("companies.onboarding.bank.accountName")} value={bank.account_name} onChange={(value) => setBank({ ...bank, account_name: value })} required />
-            <BankInput label={t("companies.onboarding.bank.accountNumber")} value={bank.account_number} onChange={(value) => setBank({ ...bank, account_number: value })} required />
+            <BankInput label={t("companies.onboarding.bank.accountNumber")} value={bank.account_number} onChange={(value) => setBank({ ...bank, account_number: value })} required={!editingBank} hint={editingBank ? t("companies.onboarding.bank.numberUnchanged", { masked: editingBank.masked_account_number }) : undefined} />
             <BankInput label={t("companies.onboarding.bank.branch")} value={bank.branch ?? ""} onChange={(value) => setBank({ ...bank, branch: value })} />
             <BankInput label={t("companies.onboarding.bank.swiftCode")} value={bank.swift_code ?? ""} onChange={(value) => setBank({ ...bank, swift_code: value })} />
             <FieldWrapper label={t("companies.onboarding.bank.accountType")} required>
@@ -285,11 +323,11 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
               </select>
             </FieldWrapper>
             <div className="flex items-end gap-2 md:col-span-2 xl:col-span-3">
-              <Button size="sm" disabled={!bank.bank_name.trim() || !bank.account_name.trim() || !bank.account_number.trim() || addBank.isPending} onClick={() => addBank.mutate()}>
+              <Button size="sm" requires={[[bank.bank_name, t("companies.onboarding.bank.bankName")], [bank.account_name, t("companies.onboarding.bank.accountName")], [Boolean(editingBank) || bank.account_number, t("companies.onboarding.bank.accountNumber")]]} disabled={addBank.isPending || saveBank.isPending} onClick={() => (editingBank ? saveBank.mutate(editingBank) : addBank.mutate())}>
                 <Landmark className="h-4 w-4" />
                 {t("companies.onboarding.bank.save")}
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowBankForm(false)}>{t("common.cancel")}</Button>
+              <Button variant="outline" size="sm" onClick={() => { setShowBankForm(false); setEditingBank(null); }}>{t("common.cancel")}</Button>
             </div>
           </div>
         )}
@@ -311,6 +349,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
               <div className="flex items-center gap-1">
                 {can("company.review") && account.verification_status !== "VERIFIED" && <Button variant="ghost" size="icon" title={t("companies.onboarding.verify")} onClick={() => setPending({ kind: "verify-bank", id: account.id })}><CheckCircle2 className="h-4 w-4 text-success" /></Button>}
                 {can("company.review") && account.verification_status !== "REJECTED" && <Button variant="ghost" size="icon" title={t("companies.onboarding.reject")} onClick={() => setPending({ kind: "reject-bank", id: account.id })}><XCircle className="h-4 w-4 text-destructive" /></Button>}
+                {can("company.update") && <Button variant="ghost" size="icon" title={t("common.edit")} onClick={() => { setEditingBank(account); setBank({ bank_name: account.bank_name, account_name: account.account_name, account_number: "", branch: account.branch ?? "", swift_code: account.swift_code ?? "", account_type: account.account_type }); setShowBankForm(true); }}><Pencil className="h-4 w-4" /></Button>}
                 {can("company.update") && !account.is_primary && <Button variant="ghost" size="icon" title={t("companies.onboarding.bank.makePrimary")} onClick={() => setPending({ kind: "primary-bank", id: account.id })}><Star className="h-4 w-4" /></Button>}
                 {can("company.update") && <Button variant="ghost" size="icon" title={t("common.remove")} onClick={() => setPending({ kind: "remove-bank", id: account.id })}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
               </div>
@@ -325,7 +364,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
             <XCircle className="h-4 w-4" />
             {t("companies.onboarding.companyReject")}
           </Button>
-          <Button disabled={!data.is_complete || executeAction.isPending} onClick={() => setPending({ kind: "approve-company", id: company.id })}>
+          <Button disabledReason={!data.is_complete ? t("companies.onboarding.incomplete", { count: data.missing.length }) : undefined} disabled={!data.is_complete || executeAction.isPending} onClick={() => setPending({ kind: "approve-company", id: company.id })}>
             <BadgeCheck className="h-4 w-4" />
             {t("companies.onboarding.companyApprove")}
           </Button>
@@ -352,9 +391,9 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
   );
 }
 
-function BankInput({ label, value, onChange, required = false }: { label: string; value: string; onChange: (value: string) => void; required?: boolean }) {
+function BankInput({ label, value, onChange, required = false, hint }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; hint?: string }) {
   const t = useTranslations();
-  return <FieldWrapper label={label} required={required} optional={required ? undefined : t("common.optional")}><Input value={value} onChange={(event) => onChange(event.target.value)} /></FieldWrapper>;
+  return <FieldWrapper label={label} required={required} optional={required ? undefined : t("common.optional")} hint={hint}><Input value={value} onChange={(event) => onChange(event.target.value)} /></FieldWrapper>;
 }
 
 function verificationTone(status: VerificationStatus) {

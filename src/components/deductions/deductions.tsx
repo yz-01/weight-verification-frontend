@@ -23,6 +23,7 @@ import {
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -40,7 +41,11 @@ import type {
   DeductionState,
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { getDeductions, respondToDeduction } from "@/services/recycler.service";
+import {
+  addDeductionPhoto,
+  getDeductions,
+  respondToDeduction,
+} from "@/services/recycler.service";
 
 const STATE_TONE: Record<
   DeductionState,
@@ -72,6 +77,8 @@ export function Deductions() {
   const { can } = useAuth();
   const list = useListQuery(["state", "kind", "awaiting_me"]);
   const [answering, setAnswering] = useState<Deduction | null>(null);
+  const [addingPhoto, setAddingPhoto] = useState<Deduction | null>(null);
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["deductions", list.query],
@@ -197,6 +204,17 @@ export function Deductions() {
                 {row.original.photos.length}
               </span>
             )}
+            {can("deduction.create") && row.original.is_open && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 rounded-full px-3 text-xs"
+                onClick={() => setAddingPhoto(row.original)}
+              >
+                <Camera className="h-3.5 w-3.5" />
+                {t("deductions.photo.add")}
+              </Button>
+            )}
             {can("deduction.approve") && row.original.is_open && (
               <Button
                 size="sm"
@@ -280,7 +298,82 @@ export function Deductions() {
           onClose={() => setAnswering(null)}
         />
       )}
+
+      {addingPhoto && (
+        <AddDeductionPhotoDialog
+          deduction={addingPhoto}
+          onClose={() => setAddingPhoto(null)}
+          onSaved={async () => {
+            setAddingPhoto(null);
+            await queryClient.invalidateQueries({ queryKey: ["deductions"] });
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+/**
+ * Add one more photograph to a deduction that is still open.
+ *
+ * A caption is optional but asked for, because a photo of a skip means
+ * nothing to the producer reading it a week later without a sentence saying
+ * what they are looking at. Only one file at a time: the API takes one, and
+ * batching them here would hide a partial failure behind a single spinner.
+ */
+function AddDeductionPhotoDialog({
+  deduction,
+  onClose,
+  onSaved,
+}: {
+  deduction: Deduction;
+  onClose: () => void;
+  onSaved: () => void | Promise<void>;
+}) {
+  const t = useTranslations();
+  const [file, setFile] = useState<File | null>(null);
+  const [caption, setCaption] = useState("");
+
+  const save = useMutation({
+    mutationFn: () => addDeductionPhoto(deduction.id, file as File, caption),
+    onSuccess: onSaved,
+  });
+
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("deductions.photo.add")}</DialogTitle>
+          <DialogDescription>{deduction.dispatch_no}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3">
+          <Input
+            type="file"
+            accept="image/*"
+            aria-label={t("deductions.photo.file")}
+            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+          />
+          <Input
+            value={caption}
+            placeholder={t("deductions.photo.caption")}
+            aria-label={t("deductions.photo.caption")}
+            onChange={(event) => setCaption(event.target.value)}
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("common.cancel")}
+          </Button>
+          <Button
+            requires={[[file, t("deductions.photo.file")]]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {t("common.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -315,7 +408,6 @@ function RespondDialog({
   });
 
   const noteRequired = decision !== "ACCEPT";
-  const blocked = noteRequired && note.trim() === "";
 
   const choices: Array<{
     value: DeductionDecision;
@@ -457,7 +549,8 @@ function RespondDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={blocked || respond.isPending}
+            requires={[[!noteRequired || note, t("deductions.respond.note")]]}
+            disabled={respond.isPending}
             onClick={() => respond.mutate()}
           >
             <ScrollText className="h-4 w-4" />

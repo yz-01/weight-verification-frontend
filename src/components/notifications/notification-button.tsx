@@ -5,7 +5,7 @@ import { Bell, BellRing, Check, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { playAlertTone, wantsAlertSound } from "@/lib/alert-sound";
 import { useDateFormat } from "@/lib/dates";
 import { fieldNotificationHref } from "@/lib/field-notification";
 import {
@@ -72,6 +73,36 @@ export function NotificationButton() {
       .then((subscription) => setPushEnabled(Boolean(subscription)))
       .catch(() => setPushEnabled(false));
   }, [enabled]);
+  // Sound the alert for notices that asked for one - today that is a material
+  // budget threshold, which is money and worth interrupting somebody for.
+  //
+  // Only for notices that arrive while the page is open, and only once each:
+  // the ids already seen are remembered so a refetch of the same five rows
+  // every thirty seconds does not beep every thirty seconds.
+  const soundedIds = useRef<Set<string>>(new Set());
+  const firstLoad = useRef(true);
+  useEffect(() => {
+    const rows = listQuery.data?.results ?? [];
+    if (firstLoad.current) {
+      // Everything already waiting when the page opened is history, not news.
+      // Beeping through a backlog on every page load is how people turn the
+      // sound off, and then the next real one is silent too.
+      rows.forEach((row) => soundedIds.current.add(row.id));
+      if (listQuery.data) firstLoad.current = false;
+      return;
+    }
+    const fresh = rows.filter(
+      (row) => !soundedIds.current.has(row.id) && wantsAlertSound(row.data),
+    );
+    rows.forEach((row) => soundedIds.current.add(row.id));
+    if (fresh.length > 0) {
+      // Browsers refuse audio until the person has interacted with the page.
+      // That refusal is correct, and the notice is visible either way, so a
+      // silent outcome is not an error worth showing anybody.
+      void playAlertTone();
+    }
+  }, [listQuery.data]);
+
   const read = useMutation({
     mutationFn: markNotificationRead,
     onSuccess: () => {

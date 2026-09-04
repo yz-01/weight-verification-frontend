@@ -305,7 +305,8 @@ export function PlanManager() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(undefined)}>{common("cancel")}</Button>
-            <Button disabled={!form.code.trim() || !form.name.trim() || save.isPending} onClick={() => save.mutate()}>{common("save")}</Button>
+            <Button requires={[[form.code, t("field.code")], [form.name, t("field.name")]]}
+                    disabled={save.isPending} onClick={() => save.mutate()}>{common("save")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

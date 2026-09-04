@@ -135,7 +135,6 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
   const setCenter = useCallback((point: [number, number]) => setForm((current) => ({ ...current, latitude: point[0].toFixed(7), longitude: point[1].toFixed(7) })), []);
   const setPoints = useCallback((points: Array<[number, number]>) => setForm((current) => ({ ...current, polygon: points })), []);
   const pointsNeeded = Math.max(0, 3 - form.polygon.length);
-  const valid = Boolean(form.project && form.name.trim() && (form.shape === "CIRCLE" ? center && form.radius_m : form.polygon.length >= 3 && !drawing));
 
   function selectProject(value: string) {
     const project = projects.find((item) => item.id === value);
@@ -246,9 +245,9 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
               <div><p className="font-semibold tabular-nums">{t("geofence.drawingCount", { count: form.polygon.length })}</p><p className="mt-1 text-sm text-muted-foreground">{drawing && pointsNeeded > 0 ? t("geofence.finishNeedThree", { count: pointsNeeded }) : t("geofence.dragPointHelp")}</p></div>
               <div className="flex flex-wrap gap-2">
                 {drawing ? <>
-                  <Button type="button" size="sm" variant="outline" disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: form.polygon.slice(0, -1) })}><RotateCcw />{t("geofence.undoPoint")}</Button>
-                  <Button type="button" size="sm" variant="outline" disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: [] })}><Trash2 />{t("geofence.clearPoints")}</Button>
-                  <Button type="button" size="sm" disabled={form.polygon.length < 3} onClick={() => setDrawing(false)}><Check />{t("geofence.finishDrawing")}</Button>
+                  <Button type="button" size="sm" variant="outline" disabledReason={!form.polygon.length ? t("geofence.noPointsYet") : undefined} disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: form.polygon.slice(0, -1) })}><RotateCcw />{t("geofence.undoPoint")}</Button>
+                  <Button type="button" size="sm" variant="outline" disabledReason={!form.polygon.length ? t("geofence.noPointsYet") : undefined} disabled={!form.polygon.length} onClick={() => setForm({ ...form, polygon: [] })}><Trash2 />{t("geofence.clearPoints")}</Button>
+                  <Button type="button" size="sm" disabledReason={form.polygon.length < 3 ? t("geofence.finishNeedThree", { count: 3 - form.polygon.length }) : undefined} disabled={form.polygon.length < 3} onClick={() => setDrawing(false)}><Check />{t("geofence.finishDrawing")}</Button>
                 </> : <>
                   <Button type="button" size="sm" variant="outline" onClick={() => setDrawing(true)}><MousePointerClick />{t("geofence.continueDrawing")}</Button>
                   <Button type="button" size="sm" variant="outline" onClick={() => { setForm({ ...form, polygon: [] }); setDrawing(true); }}><RotateCcw />{t("geofence.redraw")}</Button>
@@ -265,7 +264,7 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
 
         <DialogFooter className="shrink-0">
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button disabled={!valid || save.isPending} onClick={() => save.mutate()}><CircleDot />{t("action.save")}</Button>
+          <Button requires={[[form.project, t("field.project")], [form.name, t("field.name")], [form.shape === "CIRCLE" ? center && form.radius_m : form.polygon.length >= 3 && !drawing, form.shape === "CIRCLE" ? t("field.radius") : t("geofence.pointCount", { count: 3 })]]} disabled={save.isPending} onClick={() => save.mutate()}><CircleDot />{t("action.save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,6 +1,23 @@
 /** Technical support centre API (module 15). */
 import type { ListQuery, Paginated } from "@/interfaces/api";
-import type { APIIntegration, ActivationStatus, BugReport, BugSeverity, BugState, DeviceMaintenance, OperationMode, RemoteOperation, SupportTicket, TechnicalSupportSummary, TestStatus, TicketPriority, TicketState, TicketType } from "@/interfaces/support";
+import type {
+  APIIntegration,
+  ActivationStatus,
+  BugReport,
+  BugSeverity,
+  BugState,
+  DeviceMaintenance,
+  OperationMode,
+  RemoteOperation,
+  RemoteSession,
+  SupportTicket,
+  TicketComment,
+  TechnicalSupportSummary,
+  TestStatus,
+  TicketPriority,
+  TicketState,
+  TicketType,
+} from "@/interfaces/support";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 export interface TicketPayload { type: TicketType; priority: TicketPriority; title: string; description: string; company?: string | null; assigned_to?: string | null; environment?: string; steps_to_reproduce?: string; expected_result?: string; actual_result?: string; due_date?: string | null; }
@@ -10,6 +27,42 @@ export interface DevicePayload { company: string; type: string; device_type: str
 
 export const getTickets = (query?: ListQuery): Promise<Paginated<SupportTicket>> => api.list("/api/support-tickets/get_tickets/", query);
 export async function createTicket(payload: TicketPayload) { const row = await api.post<SupportTicket>("/api/support-tickets/create_ticket/", payload); toastSuccess("support.toast.created"); return row; }
+/**
+ * Edit a ticket that is already open.
+ *
+ * The backend has accepted this since the module was written and no screen ever
+ * called it, so a ticket raised with the wrong company, priority or description
+ * could only ever be moved along its states, never corrected (F-101).
+ */
+export async function updateTicket(id: string, payload: Partial<TicketPayload>) {
+  const row = await api.patch<SupportTicket>(
+    `/api/support-tickets/${id}/update_ticket/`,
+    payload,
+  );
+  toastSuccess("support.toast.updated");
+  return row;
+}
+
+/**
+ * Add a comment to a ticket.
+ *
+ * `is_internal` keeps a note between staff. It is a real field on the record
+ * rather than a convention, so the screen has to make the difference obvious -
+ * a note written as internal and shown to the customer is worse than no note.
+ */
+export async function addTicketComment(
+  id: string,
+  body: string,
+  isInternal: boolean,
+) {
+  const row = await api.post<TicketComment>(
+    `/api/support-tickets/${id}/add_comment/`,
+    { body, is_internal: isInternal },
+  );
+  toastSuccess("support.toast.commentAdded");
+  return row;
+}
+
 export async function transitionTicket(id: string, state: TicketState, note = "") { const row = await api.post<SupportTicket>(`/api/support-tickets/${id}/transition_ticket/`, { state, note }); toastSuccess("support.toast.transitioned"); return row; }
 
 export const getBugs = (query?: ListQuery): Promise<Paginated<BugReport>> => api.list("/api/bug-reports/get_bugs/", query);
@@ -27,3 +80,13 @@ export async function remoteOperate(id: string, operation: RemoteOperation, mode
 
 export const getTechnicalSupportSummary = (): Promise<TechnicalSupportSummary> => api.get("/api/technical-support-reports/get_summary/");
 export function exportTechnicalSupportReport(dataset: string, format: "pdf" | "xlsx", title: string, columns: Array<{ key: string; label: string }>) { return download("/api/technical-support-reports/export_report/", { method: "POST", body: { dataset, format, title, columns, empty_label: "" }, fallbackFilename: `technical-${dataset}.${format}` }); }
+
+/**
+ * Remote-operation history (15.2.6, kept permanently by 15.2.8).
+ *
+ * Every remote configure / test / restart / firmware upgrade already writes a
+ * session row. Nothing read them back, so a maintenance record that the
+ * requirement says must be preserved forever was write-only.
+ */
+export const getRemoteSessions = (query?: ListQuery): Promise<Paginated<RemoteSession>> =>
+  api.list("/api/remote-sessions/get_sessions/", query);

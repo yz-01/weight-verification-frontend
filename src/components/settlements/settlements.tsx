@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/providers/auth-provider";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Settlement, SettlementState } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
@@ -28,6 +29,7 @@ export const SETTLEMENT_STATE_TONE: Record<
 export function Settlements() {
   const t = useTranslations();
   const df = useDateFormat();
+  const { can } = useAuth();
   const list = useListQuery(["state"]);
 
   const { data, isLoading, isError } = useQuery({
@@ -197,6 +199,16 @@ export function Settlements() {
         title={t("settlements.title")}
         subtitle={
           isLoading ? "—" : t("settlements.count", { count: totalCount })
+        }
+        action={
+          can("settlement.create") ? (
+            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+              <Link href="/settlements/create">
+                <Plus className="h-4 w-4" />
+                {t("settlements.new")}
+              </Link>
+            </Button>
+          ) : undefined
         }
       />
 

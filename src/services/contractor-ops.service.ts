@@ -93,6 +93,39 @@ export const createFieldTask = async (payload: FieldTaskPayload) => {
   toastSuccess("contractorOps.toast.taskAssigned");
   return row;
 };
+/**
+ * Correct a task that has not been worked yet.
+ *
+ * Refused with 409 once the task is anything but open or returned - from the
+ * moment someone starts walking the site, the instructions they were given
+ * are what the evidence answers to, and editing them afterwards would make
+ * the photos look like a reply to a question nobody was asked. The console
+ * offers the control only in those two states.
+ */
+export const updateFieldTask = async (
+  id: string,
+  payload: Partial<Omit<FieldTaskPayload, "project" | "references" | "client_event_id">>,
+) => {
+  const row = await api.patch<FieldTask>(`/api/field-tasks/${id}/update_task/`, payload);
+  toastSuccess("contractorOps.toast.taskUpdated");
+  return row;
+};
+
+/**
+ * Hand a drawing or a photo to whoever is doing the work.
+ *
+ * A separate endpoint rather than part of the edit, because it is additive:
+ * references already sent stay, and the same 409 applies once the task has
+ * left the open or returned state.
+ */
+export const addFieldTaskReferences = async (id: string, files: File[]) => {
+  const data = new FormData();
+  files.forEach((file) => data.append("references", file));
+  const row = await api.post<FieldTask>(`/api/field-tasks/${id}/add_reference/`, data);
+  toastSuccess("contractorOps.toast.referenceAdded");
+  return row;
+};
+
 export const transitionFieldTask = async (id: string, status: FieldTask["status"], note = "") => {
   const row = await api.post<FieldTask>(`/api/field-tasks/${id}/transition_task/`, { status, note });
   toastSuccess("contractorOps.toast.taskUpdated");
@@ -137,6 +170,21 @@ export async function createConsultantFieldSubmission(payload: {
   );
 }
 
+/**
+ * Put a category where it belongs in the list.
+ *
+ * The whole run is sent at once because the API checks every row before it
+ * writes any: a reorder that half applied would leave two categories claiming
+ * the same place, which reads on screen as an arbitrary order rather than a
+ * failure.
+ */
+export const reorderProjectCategories = async (
+  items: Array<{ id: string; sort_order: number }>,
+) => {
+  await api.post("/api/project-categories/reorder_categories/", { items });
+  toastSuccess("contractorOps.toast.orderSaved");
+};
+
 export const getSiteEquipment = (query: ListQuery = {}) =>
   api.list<SiteEquipment>("/api/site-equipment/get_equipment/", query);
 export const createSiteEquipment = async (payload: EquipmentPayload) => {
@@ -144,6 +192,26 @@ export const createSiteEquipment = async (payload: EquipmentPayload) => {
   toastSuccess("contractorOps.toast.saved");
   return row;
 };
+/**
+ * Correct an equipment record.
+ *
+ * The movements already logged against it are untouched - this is the plate
+ * and the serial number on the register, not the history of what went in and
+ * out. Retiring a machine is `is_active`, which stops it being offered on a
+ * new movement without hiding the ones already recorded.
+ */
+export const updateSiteEquipment = async (
+  id: string,
+  payload: Partial<Omit<EquipmentPayload, "project">>,
+) => {
+  const row = await api.patch<SiteEquipment>(
+    `/api/site-equipment/${id}/update_equipment/`,
+    payload,
+  );
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+
 export const getEquipmentMovements = (query: ListQuery = {}) =>
   api.list<EquipmentMovement>("/api/site-equipment/get_movements/", query);
 export function exportEquipmentMovements(request: ExportRequest): Promise<void> {
@@ -213,8 +281,61 @@ export const createConstructionPhase = async (payload: { project: string; code: 
   toastSuccess("contractorOps.toast.saved");
   return row;
 };
+/**
+ * Correct a construction phase.
+ *
+ * Phases are typed in once and lived with for the length of the job, so a
+ * mistyped code or a revised planned tonnage had to be worked around rather
+ * than fixed - the backend has accepted this since the module was written and
+ * no screen called it (F-101). Deactivating rather than deleting is the way
+ * out of a phase nobody wants, because progress records point at it.
+ */
+export const updateConstructionPhase = async (
+  id: string,
+  payload: Partial<{
+    code: string;
+    name: string;
+    description: string;
+    sort_order: number;
+    planned_weight: string;
+    is_active: boolean;
+  }>,
+) => {
+  const row = await api.patch<ConstructionPhase>(
+    `/api/site-progress/${id}/update_phase/`,
+    payload,
+  );
+  toastSuccess("contractorOps.toast.phaseSaved");
+  return row;
+};
+
 export const getSiteProgressRecords = (query: ListQuery = {}) =>
   api.list<SiteProgressRecord>("/api/site-progress/get_records/", query);
+/**
+ * Hand over the progress list as it stands on screen.
+ *
+ * The filters ride along as query parameters because the API exports the
+ * filtered queryset, not a fresh one - so what downloads is what the person
+ * was looking at, which is the only version they can vouch for.
+ */
+export function exportSiteProgressRecords(request: ExportRequest): Promise<void> {
+  const { page, page_size, ...query } = request.query;
+  void page;
+  void page_size;
+  return download("/api/site-progress/export_records/", {
+    method: "POST",
+    query,
+    body: {
+      format: request.format,
+      title: request.title,
+      subtitle: request.subtitle ?? "",
+      empty_label: request.emptyLabel ?? "",
+      columns: request.columns,
+    },
+    fallbackFilename: `site-progress.${request.format}`,
+  });
+}
+
 export const getSiteProgressSummary = (project?: string) =>
   api.get<{ today: number; month: number; year: number; total: number }>(
     "/api/site-progress/get_summary/",

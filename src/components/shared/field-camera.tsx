@@ -230,7 +230,8 @@ export function FieldCamera({
             >
               <SwitchCamera />
             </Button>
-            <Button type="button" className="h-12" disabled={!ready || starting} onClick={capture}>
+            <Button type="button" className="h-12" disabledReason={!ready ? t("starting") : undefined}
+                                                   disabled={!ready || starting} onClick={capture}>
               {ready ? <Camera /> : <RefreshCw className="animate-spin" />}
               {t("capture")}
             </Button>

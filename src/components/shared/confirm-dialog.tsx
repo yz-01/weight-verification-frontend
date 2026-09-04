@@ -107,7 +107,8 @@ export function ConfirmDialog({
             variant={variant}
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={isPending || blocked}
+            requires={[[!blocked, reasonLabel ?? t("common.reason")]]}
+            disabled={isPending}
             onClick={onConfirm}
           >
             {isPending ? (

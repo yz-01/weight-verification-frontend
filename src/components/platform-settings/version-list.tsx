@@ -108,7 +108,7 @@ export function VersionList() {
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) => (
-          <div className="flex justify-end gap-1">
+          <div className="flex items-center justify-end gap-0.5">
             {!row.original.is_current && (
               <Button
                 size="icon-sm"
@@ -287,7 +287,8 @@ function VersionEditor({
             </select>
           </div>
           <Textarea placeholder={t("versions.changeDescription")} value={change.description} onChange={(event) => setChange((current) => ({ ...current, description: event.target.value }))} />
-          <Button variant="outline" disabled={!change.module.trim() || !change.description.trim() || addChange.isPending} onClick={() => addChange.mutate()}>
+          <Button variant="outline" requires={[[change.module, t("versions.changeModule")], [change.description, t("versions.changeDescription")]]}
+                                    disabled={addChange.isPending} onClick={() => addChange.mutate()}>
             {addChange.isPending ? <Loader2 className="animate-spin" /> : <Plus />}
             {t("versions.addChange")}
           </Button>
@@ -302,7 +303,8 @@ function VersionEditor({
 
       <DialogFooter>
         <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
-        <Button disabled={!form.version.trim() || !form.release_notes.trim() || save.isPending} onClick={() => save.mutate()}>
+        <Button requires={[[form.version, t("versions.field.version")], [form.release_notes, t("versions.field.releaseNotes")]]}
+                disabled={save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
           {t("common.save")}
         </Button>

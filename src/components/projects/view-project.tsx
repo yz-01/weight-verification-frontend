@@ -653,7 +653,8 @@ function ResponsibilityDialog({
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
           <Button
-            disabled={!user || !responsibility || save.isPending}
+            requires={[[user, t("projects.responsibilities.person")], [responsibility, t("projects.responsibilities.responsibility")]]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <UserCog />}
@@ -859,7 +860,8 @@ function AssignUserDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={selected === "" || assignment.isPending}
+            requires={[[selected, t("common.selectPlaceholder")]]}
+            disabled={assignment.isPending}
             onClick={() => assignment.mutate(selected)}
           >
             <Plus className="h-4 w-4" />

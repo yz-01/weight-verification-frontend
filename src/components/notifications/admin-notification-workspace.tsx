@@ -248,7 +248,7 @@ function AdminNotificationList({
               <TableHead>{t("field.kind")}</TableHead>
               <TableHead>{t("field.status")}</TableHead>
               <TableHead>{t("field.time")}</TableHead>
-              {manageable && <TableHead />}
+              {manageable && <TableHead className="text-right" />}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -273,7 +273,7 @@ function AdminNotificationList({
                 <TableCell>{df.dateTime(row.created_at)}</TableCell>
                 {manageable && (
                   <TableCell>
-                    <div className="flex justify-end gap-1">
+                    <div className="flex items-center justify-end gap-0.5">
                       <Button
                         size="icon"
                         variant="ghost"
@@ -599,7 +599,8 @@ function ChannelWorkspace() {
             )}
             <Button
               className="mt-6 w-full xl:mt-auto"
-              disabled={!company || !title.trim() || !message.trim() || channels.length === 0 || send.isPending}
+              requires={[[company, t("composer.chooseCompany")], [title, t("field.title")], [message, t("field.message")], [channels.length, t("filter.category")]]}
+              disabled={send.isPending}
               onClick={() => send.mutate({ company_id: company, kind: "SYSTEM", title, message, channels })}
             >
               <Send />

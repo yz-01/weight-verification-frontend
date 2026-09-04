@@ -724,6 +724,7 @@ function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
 
 function QuickSearch({ project }: { project: string }) {
   const t = useTranslations("contractorDashboard");
+  const common = useTranslations("common");
   const [term, setTerm] = useState("");
   const [submitted, setSubmitted] = useState("");
   const results = useQuery({
@@ -753,7 +754,16 @@ function QuickSearch({ project }: { project: string }) {
           aria-label={t("search.title")}
           className="w-full sm:max-w-sm"
         />
-        <Button type="submit" variant="outline" disabled={term.trim().length < 2}>
+        <Button
+          type="submit"
+          variant="outline"
+          disabledReason={
+            term.trim().length < 2
+              ? common("searchMinLength", { count: 2 })
+              : undefined
+          }
+          disabled={term.trim().length < 2}
+        >
           <Search />
           {t("search.action")}
         </Button>

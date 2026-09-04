@@ -8,6 +8,7 @@ import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   ChainVerification,
   GatewayDevice,
+  GatewayDtuBlock,
   GatewayInstallerManifest,
   RecyclingSite,
   RecyclingSitePayload,
@@ -129,8 +130,11 @@ export async function rotateGatewaySecret(
   scaleId: string,
   gatewayId: string,
   reason: string,
-): Promise<{ secret: string }> {
-  const result = await api.post<{ secret: string }>(
+  // The DTU registration token rotates with the secret, so the device has to
+  // be reconfigured, not just re-keyed. Returning the block means the caller
+  // can show the new commands at the same moment it shows the new secret.
+): Promise<{ secret: string; dtu: GatewayDtuBlock }> {
+  const result = await api.post<{ secret: string; dtu: GatewayDtuBlock }>(
     `/api/scales/${scaleId}/rotate_gateway_secret/`,
     { gateway: gatewayId, reason },
   );

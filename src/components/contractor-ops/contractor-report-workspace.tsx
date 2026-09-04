@@ -120,6 +120,7 @@ export function ContractorReportWorkspace({
   reportType: ContractorReportType;
 }) {
   const t = useTranslations("contractorReports");
+  const common = useTranslations("common");
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const now = new Date();
@@ -224,6 +225,7 @@ export function ContractorReportWorkspace({
         <div className="flex items-end gap-2">
           <Button
             variant="outline"
+            disabledReason={!report.data ? common("noReportYet") : undefined}
             disabled={exportMutation.isPending || !report.data}
             onClick={() => exportMutation.mutate("EXCEL")}
           >
@@ -231,6 +233,7 @@ export function ContractorReportWorkspace({
           </Button>
           <Button
             variant="outline"
+            disabledReason={!report.data ? common("noReportYet") : undefined}
             disabled={exportMutation.isPending || !report.data}
             onClick={() => exportMutation.mutate("PDF")}
           >

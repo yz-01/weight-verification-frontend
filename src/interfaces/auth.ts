@@ -249,3 +249,40 @@ export interface LoginRecord {
   user_agent: string;
   created_at: string;
 }
+
+/** An organisational unit. `company` is null for MSE Trace's own departments. */
+export interface Department {
+  id: string;
+  company: string | null;
+  parent: string | null;
+  parent_name: string | null;
+  code: string;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DepartmentPayload {
+  parent: string | null;
+  code: string;
+  name: string;
+  is_active: boolean;
+}
+
+/** A trade a site worker practises. Maintained per contractor (15.2.3). */
+export interface WorkTrade {
+  id: string;
+  company: string | null;
+  code: string;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkTradePayload {
+  code: string;
+  name: string;
+  is_active: boolean;
+}

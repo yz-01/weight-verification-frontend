@@ -1,5 +1,6 @@
 /** Tenant companies. */
 
+import type { EmailCopy } from "@/interfaces/auth";
 import type { Locale } from "@/i18n/config";
 
 export type CompanyType = "CONTRACTOR" | "RECYCLER";
@@ -154,6 +155,15 @@ export interface CompanyRow {
 
 export interface CompanyDetail {
   id: string;
+  /**
+   * Present only on the create response. `owner_invitation_url` is non-empty
+   * only when the activation email could *not* be sent, so the operator can
+   * hand the link over instead of leaving the owner locked out.
+   */
+  owner_id?: string;
+  owner_email?: string;
+  owner_invitation_sent?: boolean;
+  owner_invitation_url?: string;
   code: string;
   name: string;
   type: CompanyType;
@@ -238,6 +248,19 @@ export interface CompanyDetail {
 export interface CompanyPayload {
   name: string;
   type: CompanyType;
+  /**
+   * The tenant's first account, collected when the company is created.
+   *
+   * A company opened without one has nobody who can sign in to it, so the
+   * backend requires the address on create and refuses it on edit: changing
+   * who owns a company is User Management's job, not a side effect of editing
+   * an address.
+   */
+  owner_email?: string;
+  owner_name?: string;
+  owner_phone?: string;
+  /** Activation wording, so the email arrives in the reader's language. */
+  owner_email_copy?: EmailCopy;
   registration_no?: string;
   ssm_new_registration_no?: string;
   ssm_registered_name?: string;

@@ -160,7 +160,7 @@ export function FieldInstallReady({
       <span className="flex size-20 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Camera className="size-10" />
       </span>
-      <h1 className="text-2xl font-semibold">{t("readyTitle")}</h1>
+      <h1 className="text-base font-semibold">{t("readyTitle")}</h1>
       <p className="max-w-sm text-center text-sm text-muted-foreground">
         {t("readyBody")}
       </p>
@@ -168,7 +168,8 @@ export function FieldInstallReady({
         {supportsNativePrompt && (
           <Button
             size="lg"
-            className="h-14 text-base"
+            className="h-12 text-sm"
+            disabledReason={installStatus === "preparing" ? t("installPreparing") : undefined}
             disabled={installStatus === "preparing"}
             onClick={() => void requestInstall()}
           >
@@ -213,7 +214,7 @@ export function FieldInstallReady({
         <Button
           size="lg"
           variant={supportsNativePrompt ? "outline" : "default"}
-          className="h-14 text-base"
+          className="h-12 text-sm"
           onClick={() => redirectWithFallback(router, workspace, 150)}
         >
           <Camera />

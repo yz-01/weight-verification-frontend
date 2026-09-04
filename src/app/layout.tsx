@@ -23,6 +23,14 @@ export const metadata: Metadata = {
   title: "MSE Trace",
   description: "Verified weight and traceable waste for construction and recycling.",
   applicationName: "MSE Trace",
+  // Declared here rather than as a literal <link> in <head> below, because a
+  // browser installs the **first** `rel="manifest"` it finds and ignores the
+  // rest. A literal tag here always won, so the field portal's own manifest -
+  // rendered second by route metadata - was never the one installed, and the
+  // installed app started at "/" and landed on the portal chooser instead of
+  // the worker's screen (F-172). Route metadata replaces this value rather
+  // than adding to it, so every page carries exactly one.
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -69,11 +77,6 @@ export default async function RootLayout({
           href="/mse-icon-192.png"
           sizes="180x180"
           data-mse-branding="apple-touch-icon"
-        />
-        <link
-          rel="manifest"
-          href="/manifest.webmanifest"
-          data-mse-branding="manifest"
         />
       </head>
       <body className="flex min-h-full flex-col">

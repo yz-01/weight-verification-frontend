@@ -13,6 +13,7 @@ const SECTIONS = new Set<MonitoringSection>([
   "sync",
   "exceptions",
   "records",
+  "jobs",
 ]);
 
 export default async function MonitoringSectionPage({

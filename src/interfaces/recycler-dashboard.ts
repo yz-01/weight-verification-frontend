@@ -149,9 +149,20 @@ export interface RecyclerRecentOutbound {
   href: string;
 }
 
+/** Which yard the figures cover, and which sections the filter reached. */
+export interface RecyclerDashboardSiteScope {
+  id: string | null;
+  name: string | null;
+  /** Sections the yard filter actually narrowed. */
+  scoped: string[];
+  /** Sections with no yard column; these stay company-wide either way. */
+  company_wide: string[];
+}
+
 export interface RecyclerDashboardData {
   generated_at: string;
   date: string;
+  site: RecyclerDashboardSiteScope;
   permissions: RecyclerDashboardPermissions;
   business_today: RecyclerBusinessToday | null;
   recovery_today: RecyclerRecoveryToday | null;

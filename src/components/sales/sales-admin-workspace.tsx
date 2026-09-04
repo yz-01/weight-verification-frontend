@@ -9,13 +9,11 @@ import {
   Loader2,
   Plus,
   Save,
-  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
   FieldWrapper,
@@ -50,7 +48,6 @@ import type {
   PayoutState,
   Salesperson,
   SalesTerms,
-  Territory,
 } from "@/interfaces/sales";
 import type { CompanyRow } from "@/interfaces/company";
 import { useDateFormat } from "@/lib/dates";
@@ -64,8 +61,6 @@ import {
   createCustomerAssignment,
   createSalesperson,
   createSalesTerms,
-  createTerritory,
-  deleteTerritory,
   exportSalesDataset,
   getCommissionSchemes,
   getCustomerAssignments,
@@ -74,16 +69,13 @@ import {
   getSalesSummary,
   getSalesTerms,
   getTeamPerformance,
-  getTerritories,
   reassignCustomer,
   transitionPayout,
   updateCommissionRule,
   updateCommissionScheme,
   updateSalesperson,
-  updateTerritory,
   type CommissionSchemePayload,
   type SalespersonPayload,
-  type TerritoryPayload,
 } from "@/services/sales.service";
 
 export type SalesAdminSection =
@@ -117,24 +109,6 @@ const SUBMODULES: Array<{
   { section: "reports", number: "13.2.12" },
 ];
 
-const STATES = [
-  "JOHOR",
-  "KEDAH",
-  "KELANTAN",
-  "MELAKA",
-  "NEGERI_SEMBILAN",
-  "PAHANG",
-  "PENANG",
-  "PERAK",
-  "PERLIS",
-  "SABAH",
-  "SARAWAK",
-  "SELANGOR",
-  "TERENGGANU",
-  "KUALA_LUMPUR",
-  "LABUAN",
-  "PUTRAJAYA",
-];
 const BASES = [
   "FIXED_PER_CUSTOMER",
   "PERCENT_OF_SAAS",
@@ -160,7 +134,6 @@ export function SalesAdminWorkspace({
         subtitle={t(`section.${section}.subtitle`)}
       />
       {section === "people" ? <PeoplePanel manageable /> : null}
-      {section === "territories" ? <TerritoryPanel /> : null}
       {section === "hierarchy" ? <HierarchyPanel /> : null}
       {section === "assignments" ? <AssignmentPanel /> : null}
       {section === "rules" ? <SchemePanel mode="rules" /> : null}
@@ -480,236 +453,14 @@ function PersonDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={!form.code || !form.full_name || save.isPending}
+            requires={[
+              [form.code, t("column.code")],
+              [form.full_name, t("column.name")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
-            {t("action.save")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function TerritoryPanel() {
-  const t = useTranslations("adminSales");
-  const qc = useQueryClient();
-  const rows = useQuery({
-    queryKey: ["sales-territories"],
-    queryFn: () => getTerritories({ page_size: 200 }),
-  });
-  const people = useQuery({
-    queryKey: ["salespeople", "options"],
-    queryFn: () => getSalespeople({ page_size: 200, is_active: true }),
-  });
-  const [editing, setEditing] = useState<Territory | null | undefined>(
-    undefined,
-  );
-  const [pendingRemoval, setPendingRemoval] = useState<Territory | null>(null);
-  const remove = useMutation({
-    mutationFn: deleteTerritory,
-    onSuccess: () => {
-      setPendingRemoval(null);
-      qc.invalidateQueries({ queryKey: ["sales-territories"] });
-    },
-  });
-  return (
-    <PanelState loading={rows.isLoading} error={rows.isError}>
-      <div className="flex justify-end border-b p-3">
-        <Button onClick={() => setEditing(null)}>
-          <Plus />
-          {t("action.addTerritory")}
-        </Button>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {[
-              "name",
-              "salesperson",
-              "scope",
-              "states",
-              "exclusive",
-              "effective",
-              "actions",
-            ].map((x) => (
-              <TableHead key={x}>{t(`column.${x}`)}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {(rows.data?.results ?? []).map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.salesperson_name}</TableCell>
-              <TableCell>{t(`scope.${row.scope}`)}</TableCell>
-              <TableCell>
-                {row.states.join(", ") || t("scope.NATIONAL")}
-              </TableCell>
-              <TableCell>{row.is_exclusive ? t("yes") : t("no")}</TableCell>
-              <TableCell>
-                {row.effective_from}
-                {row.effective_to ? ` - ${row.effective_to}` : ""}
-              </TableCell>
-              <TableCell className="flex gap-1">
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  onClick={() => setEditing(row)}
-                >
-                  <Edit3 />
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant="destructive"
-                  onClick={() => setPendingRemoval(row)}
-                >
-                  <Trash2 />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      {editing !== undefined && (
-        <TerritoryDialog
-          initial={editing}
-          people={people.data?.results ?? []}
-          onClose={() => setEditing(undefined)}
-          onSaved={() =>
-            qc.invalidateQueries({ queryKey: ["sales-territories"] })
-          }
-        />
-      )}
-      <ConfirmDialog
-        open={pendingRemoval !== null}
-        onOpenChange={(open) => !open && setPendingRemoval(null)}
-        title={t("remove.title", { name: pendingRemoval?.name ?? "" })}
-        description={t("remove.description")}
-        confirmLabel={t("remove.confirm")}
-        isPending={remove.isPending}
-        onConfirm={() => pendingRemoval && remove.mutate(pendingRemoval.id)}
-      />
-    </PanelState>
-  );
-}
-
-function TerritoryDialog({
-  initial,
-  people,
-  onClose,
-  onSaved,
-}: {
-  initial: Territory | null;
-  people: Salesperson[];
-  onClose: () => void;
-  onSaved: () => void;
-}) {
-  const t = useTranslations("adminSales");
-  const [form, setForm] = useState<TerritoryPayload>({
-    salesperson: initial?.salesperson ?? "",
-    name: initial?.name ?? "",
-    scope: initial?.scope ?? "STATES",
-    states: initial?.states ?? [],
-    is_exclusive: initial?.is_exclusive ?? true,
-    effective_from:
-      initial?.effective_from ?? new Date().toISOString().slice(0, 10),
-    effective_to: initial?.effective_to,
-  });
-  const save = useMutation({
-    mutationFn: () =>
-      initial ? updateTerritory(initial.id, form) : createTerritory(form),
-    onSuccess: () => {
-      onSaved();
-      onClose();
-    },
-  });
-  const set = (key: keyof TerritoryPayload, value: unknown) =>
-    setForm((x) => ({ ...x, [key]: value }));
-  return (
-    <Dialog
-      open
-      onOpenChange={(x) => {
-        if (!x) onClose();
-      }}
-    >
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{t("action.addTerritory")}</DialogTitle>
-          <DialogDescription>{t("dialog.territory")}</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <select
-            className="h-8 rounded-md border bg-background px-2"
-            value={form.salesperson}
-            onChange={(e) => set("salesperson", e.target.value)}
-          >
-            <option value="">{t("field.selectPerson")}</option>
-            {people.map((x) => (
-              <option key={x.id} value={x.id}>
-                {x.code} / {x.full_name}
-              </option>
-            ))}
-          </select>
-          <Input
-            placeholder={t("column.name")}
-            value={form.name}
-            onChange={(e) => set("name", e.target.value)}
-          />
-          <select
-            className="h-8 rounded-md border bg-background px-2"
-            value={form.scope}
-            onChange={(e) => set("scope", e.target.value)}
-          >
-            <option value="STATES">{t("scope.STATES")}</option>
-            <option value="NATIONAL">{t("scope.NATIONAL")}</option>
-          </select>
-          <select
-            multiple
-            className="min-h-32 rounded-md border bg-background p-2 text-sm"
-            disabled={form.scope === "NATIONAL"}
-            value={form.states}
-            onChange={(e) =>
-              set(
-                "states",
-                Array.from(e.currentTarget.selectedOptions, (x) => x.value),
-              )
-            }
-          >
-            {STATES.map((x) => (
-              <option key={x} value={x}>
-                {x.replaceAll("_", " ")}
-              </option>
-            ))}
-          </select>
-          <Input
-            type="date"
-            value={form.effective_from}
-            onChange={(e) => set("effective_from", e.target.value)}
-          />
-          <Input
-            type="date"
-            value={form.effective_to ?? ""}
-            onChange={(e) => set("effective_to", e.target.value || null)}
-          />
-          <label className="flex items-center gap-2">
-            <Switch
-              checked={form.is_exclusive}
-              onCheckedChange={(x) => set("is_exclusive", x)}
-            />
-            {t("column.exclusive")}
-          </label>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            {t("action.cancel")}
-          </Button>
-          <Button
-            disabled={!form.salesperson || !form.name || save.isPending}
-            onClick={() => save.mutate()}
-          >
-            <Save />
             {t("action.save")}
           </Button>
         </DialogFooter>
@@ -979,12 +730,12 @@ function AssignmentDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={
-              !form.company ||
-              !form.salesperson ||
-              !form.won_on ||
-              save.isPending
-            }
+            requires={[
+              [form.company, t("field.selectCompany")],
+              [form.salesperson, t("field.selectPerson")],
+              [form.won_on, t("field.wonOn")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
@@ -1053,7 +804,11 @@ function ReassignDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={!person || !reason.trim() || save.isPending}
+            requires={[
+              [person, t("field.selectPerson")],
+              [reason, t("field.reason")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Save />
@@ -1306,7 +1061,11 @@ function SchemeDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={!form.code || !form.name || save.isPending}
+            requires={[
+              [form.code, t("column.code")],
+              [form.name, t("column.name")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Save />
@@ -1603,7 +1362,12 @@ function TermsDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={!form.code || !form.title || !form.body || save.isPending}
+            requires={[
+              [form.code, t("column.code")],
+              [form.title, t("column.name")],
+              [form.body, t("field.body")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Save />
@@ -1672,7 +1436,8 @@ function AcknowledgeDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={!person || save.isPending}
+            requires={[[person, t("field.selectPerson")]]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Check />
@@ -1853,7 +1618,11 @@ function PayoutDialog({
             />
             <Button
               variant="outline"
-              disabled={!note.trim() || adjust.isPending}
+              requires={[
+                [adjustment, t("column.adjustment")],
+                [note, t("field.reason")],
+              ]}
+              disabled={adjust.isPending}
               onClick={() => adjust.mutate()}
             >
               <Save />
@@ -1890,12 +1659,14 @@ function PayoutDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={
-              !target ||
-              ((target === "REJECTED" || target === "CANCELLED") &&
-                !note.trim()) ||
-              transition.isPending
-            }
+            requires={[
+              [target, t("field.selectStatus")],
+              [
+                (target !== "REJECTED" && target !== "CANCELLED") || note,
+                t("field.reason"),
+              ],
+            ]}
+            disabled={transition.isPending}
             onClick={() => transition.mutate()}
           >
             <Check />

@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { FieldPwaBootstrap } from "@/components/field-staff/field-pwa-bootstrap";
 import { safeReturnPath } from "@/lib/portal";
 
-export const metadata: Metadata = { referrer: "no-referrer" };
+export const metadata: Metadata = {
+  referrer: "no-referrer",
+  manifest: "/field-manifest.webmanifest",
+};
 
 export default async function FieldPwaBootstrapPage({
   searchParams,
