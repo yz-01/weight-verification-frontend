@@ -355,7 +355,7 @@ export function Safety({
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) => (
-          <div className="flex justify-end gap-1">
+          <div className="flex items-center justify-end gap-0.5">
             {can("safety.manage") && ["OPEN", "RETURNED"].includes(row.original.status) && (
               <Button variant="ghost" size="icon" className="h-7 w-7" title={t("safetyRectification.action.assign")} onClick={() => setAssigning(row.original)}><UserCheck className="h-4 w-4" /></Button>
             )}
@@ -587,7 +587,7 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
   const [dueAt, setDueAt] = useState(incident.rectification_due_at ? incident.rectification_due_at.slice(0, 16) : "");
   const [note, setNote] = useState(incident.rectification_note);
   const save = useMutation({ mutationFn: () => assignSafetyRectification(incident.id, { responsible_person: person, due_at: new Date(dueAt).toISOString(), note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{t("assign.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><FieldWrapper label={t("field.responsible")} required><Select value={person || undefined} onValueChange={setPerson}><SelectTrigger className="w-full"><SelectValue placeholder={t("field.selectResponsible")} /></SelectTrigger><SelectContent>{(team.data?.results ?? []).map((row) => <SelectItem key={row.user} value={row.user}>{row.user_name}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("field.dueAt")} required><Input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.instructions")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={!person || !dueAt || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{t("assign.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><FieldWrapper label={t("field.responsible")} required><Select value={person || undefined} onValueChange={setPerson}><SelectTrigger className="w-full"><SelectValue placeholder={t("field.selectResponsible")} /></SelectTrigger><SelectContent>{(team.data?.results ?? []).map((row) => <SelectItem key={row.user} value={row.user}>{row.user_name}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("field.dueAt")} required><Input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.instructions")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[person, t("field.responsible")], [dueAt, t("field.dueAt")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
@@ -647,7 +647,7 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
         </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button disabled={images.length < (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) || (fieldMode && !hasRequiredFieldEvidence(fieldEvidence)) || !location || (!fieldMode && !note.trim()) || save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[images.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(fieldEvidence)), t("field.verificationPhoto")], [location, t("field.location")], [fieldMode || note, t("field.workDone")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             <Camera />
             {t("action.submit")}
           </Button>
@@ -712,7 +712,7 @@ function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; o
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button disabled={(decision === "RETURNED" && !note.trim()) || Boolean(image && !location) || save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[decision !== "RETURNED" || note, t("field.reviewNote")], [!image || location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             {decision === "VERIFIED" ? <CheckCircle2 /> : <RotateCcw />}
             {t(decision === "VERIFIED" ? "action.verify" : "action.return")}
           </Button>
@@ -820,15 +820,6 @@ function SafetyCreateDialog({
       { enableHighAccuracy: true, timeout: 10_000 },
     );
   }
-
-  const valid =
-    draft.project !== "" &&
-    draft.category !== "" &&
-    draft.title.trim() !== "" &&
-    completedPhotos.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) &&
-    (!fieldMode || hasRequiredFieldEvidence(draft.photos)) &&
-    Boolean(draft.latitude && draft.longitude) &&
-    (!fieldMode || draft.notifyUsers.length > 0);
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -1010,7 +1001,7 @@ function SafetyCreateDialog({
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button disabled={!valid || create.isPending} onClick={() => create.mutate()}>
+          <Button requires={[[draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.title, t("safety.field.title")], [completedPhotos.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(draft.photos)), t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.evidence.location")], [!fieldMode || draft.notifyUsers.length > 0, t("safety.fieldReport.notifyPeople")]]} disabled={create.isPending} onClick={() => create.mutate()}>
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -1043,8 +1034,6 @@ function SafetyStatusDialog({
       onClose();
     },
   });
-
-  const valid = status !== "RESOLVED" || note.trim() !== "";
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -1083,7 +1072,7 @@ function SafetyStatusDialog({
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button disabled={!valid || update.isPending} onClick={() => update.mutate()}>
+          <Button requires={[[status !== "RESOLVED" || note, t("safety.field.resolutionNote")]]} disabled={update.isPending} onClick={() => update.mutate()}>
             {update.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

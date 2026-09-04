@@ -172,14 +172,6 @@ export function CategoryEvidenceCapture({
       setError(reason instanceof ApiError ? reason.message : t("submitError")),
   });
 
-  const ready = Boolean(
-    project &&
-      selected &&
-      selected.can_upload &&
-      hasRequiredFieldEvidence(evidence) &&
-      location,
-  );
-
   return (
     <div className="space-y-5">
       <div>
@@ -329,8 +321,9 @@ export function CategoryEvidenceCapture({
 
           <Button
             type="button"
-            className="h-14 w-full text-base"
-            disabled={!ready || save.isPending}
+            className="h-12 w-full text-sm"
+            requires={[[project, t("project")], [selected && selected.can_upload, t("chooseCategory")], [hasRequiredFieldEvidence(evidence), t("evidenceTitle")], [location, t("getLocation")]]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Send />}

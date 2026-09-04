@@ -58,6 +58,22 @@ function placeholders(message) {
 const source = flatten(load(SOURCE));
 const problems = [];
 
+/**
+ * Source with its comments taken out.
+ *
+ * A doc comment that shows how to call `t("field.name")` is documentation, not
+ * a lookup: scanning it reports a key nobody asks the catalogue for. Only
+ * whole-line comments and block comments are removed, so a `//` inside a URL
+ * in real code is left alone.
+ */
+function withoutComments(text) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .split("\n")
+    .map((line) => (/^\s*(?:\/\/|\*)/.test(line) ? "" : line))
+    .join("\n");
+}
+
 function sourceFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const fullPath = join(directory, entry.name);
@@ -69,7 +85,7 @@ function sourceFiles(directory) {
 // Resolve literal calls through their useTranslations namespace. Catalogue
 // parity alone cannot catch a key that is absent from all four files.
 for (const file of sourceFiles(join(here, "..", "src"))) {
-  const text = readFileSync(file, "utf8");
+  const text = withoutComments(readFileSync(file, "utf8"));
   const translators = [
     ...text.matchAll(
       /const\s+(\w+)\s*=\s*useTranslations\(\s*(?:["']([^"']+)["'])?\s*\)/g,

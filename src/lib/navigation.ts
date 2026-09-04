@@ -42,9 +42,6 @@ import type { Portal } from "@/interfaces/auth";
 export type PortalFeatureKey =
   | "dashboard"
   | "cloud_weighing"
-  | "weighing_parameters"
-  | "contractor_partners"
-  | "recycler_review"
   | "transaction_reports"
   | "projects"
   | "project_categories"
@@ -109,11 +106,10 @@ export type PortalFeatureKey =
   | "technical_support"
   | "partner_management"
   | "asset_management"
-  | "cloud_service_management"
-  | "version_management";
+  | "cloud_service_management";
 
 export interface FeatureNavItem {
-  /** Exact key returned by `GET /api/auth/me/`. */
+  /** Exact key returned by `GET /api/auth/get_me/`. */
   feature: PortalFeatureKey;
   /** Message key under `nav`. */
   labelKey: PortalFeatureKey;
@@ -214,7 +210,7 @@ export const PORTAL_NAVIGATION = {
       "/companies",
       Building2,
       "operations",
-      ["/contractor-partners", "/recycler-review"],
+      undefined,
       false,
       [
         child("2.2.1", "nav.submodule.companyCreate", "/companies/create"),
@@ -340,6 +336,8 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.monitoringRecords",
           "/monitoring/records",
         ),
+        // The background work behind the recovery and exception counters.
+        child("A6.2.9", "nav.submodule.platformJobs", "/monitoring/jobs"),
       ],
     ),
     item(
@@ -641,6 +639,9 @@ export const PORTAL_NAVIGATION = {
         "/assets/installations",
       ),
       child("17.2.8", "nav.submodule.assetTransfers", "/assets/transfers"),
+      // Transfers can name a department, so the department list has to be
+      // reachable from the same place.
+      child("17.2.8", "nav.submodule.assetDepartments", "/assets/departments"),
       child("17.2.9", "nav.submodule.assetRepairs", "/assets/repairs"),
       child("17.2.10", "nav.submodule.assetMaintenance", "/assets/maintenance"),
       child("17.2.11", "nav.submodule.assetDisposals", "/assets/disposals"),
@@ -708,6 +709,12 @@ export const PORTAL_NAVIGATION = {
           "/field-tasks",
           "field_tasks",
         ),
+        child(
+          "2.2.3",
+          "nav.submodule.photoApprovals",
+          "/photo-approvals",
+          "field_tasks",
+        ),
       ],
     ),
     item(
@@ -754,6 +761,12 @@ export const PORTAL_NAVIGATION = {
           "5.2.1",
           "nav.submodule.materialReceipts",
           "/receipts",
+          "material_receipts",
+        ),
+        child(
+          "5.2.3",
+          "nav.submodule.materialColumns",
+          "/material-columns",
           "material_receipts",
         ),
         child(
@@ -841,6 +854,16 @@ export const PORTAL_NAVIGATION = {
           "nav.submodule.paymentProofs",
           "/payment-proofs",
           "payment_proofs",
+        ),
+        // The weighings of this contractor's own loads. The list is the same
+        // page the recycler yard uses; what differs is who the rows belong to,
+        // and the backend already decides that - a producer sees the weighing
+        // of a load they can see, and nothing else.
+        child(
+          "8.2.6",
+          "nav.recycling_records",
+          "/weighing",
+          "recycling_records",
         ),
       ],
     ),
@@ -1154,6 +1177,16 @@ export const PORTAL_NAVIGATION = {
           "/integrations",
           "integrations",
         ),
+        // External Access Portal is one of the six application ends in the
+        // architecture document (七、应用层架构). It has no numbered clause in
+        // the role documents, hence the "A" prefix the repo uses elsewhere.
+        child(
+          "A7",
+          "nav.submodule.externalAccess",
+          "/external-access",
+          "company_settings",
+          "external_access.manage",
+        ),
       ],
     ),
   ],
@@ -1359,6 +1392,7 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/consultant-applications/create", permission: "consultant.submit" },
   { pattern: "/consultant-applications/:id/edit", permission: "consultant.submit" },
   { pattern: "/consultant-field-inbox", permission: "consultant.submit" },
+  { pattern: "/external-access", permission: "external_access.manage" },
 ];
 
 function matchesPattern(pathname: string, pattern: string): boolean {

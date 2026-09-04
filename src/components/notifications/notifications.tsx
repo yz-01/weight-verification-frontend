@@ -154,7 +154,7 @@ export function Notifications() {
         meta: { label: t("common.actions") },
         header: () => null,
         cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-1">
+          <div className="flex items-center justify-end gap-0.5">
             {!row.original.is_read && (
             <Button
               variant="ghost"
@@ -205,6 +205,7 @@ export function Notifications() {
             <Button
               size="sm"
               variant="outline"
+              disabledReason={count === 0 ? t("common.nothingUnread") : undefined}
               disabled={readAll.isPending || count === 0}
               onClick={() => readAll.mutate()}
             >
@@ -302,6 +303,7 @@ export function Notifications() {
 }
 
 function notificationKindKey(kind: string): string {
+  if (kind === "PLATFORM_ANNOUNCEMENT") return "ANNOUNCEMENT";
   if (kind.startsWith("DRIVER_TASK")) return "DRIVER_TASK";
   if (kind.startsWith("waste.") || kind === "ORDER") return "DISPATCH";
   if (kind.includes("WEIGH")) return "WEIGHING";
@@ -546,13 +548,8 @@ function ProjectNotificationDialog({
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("cancel")}</Button>
           <Button
-            disabled={
-              !project ||
-              !recipientsReady ||
-              !title.trim() ||
-              !message.trim() ||
-              save.isPending
-            }
+            requires={[[project, t("project")], [recipientsReady, t("recipients")], [title, t("subject")], [message, t("message")]]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Send />}

@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import type { DriverTaskDetail } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
 import { getDriverDashboardOfflineAware } from "@/services/driver-offline.service";
+import { networkStatus } from "@/lib/network-status";
 
 export function DriverDashboard() {
   const t = useTranslations();
@@ -51,15 +52,7 @@ export function DriverDashboard() {
 
   const { counts, current_task: current, latest_notifications: notifications } =
     query.data;
-  const networkKey = !sync.isOnline
-    ? "offline"
-    : sync.isSyncing
-      ? "syncing"
-      : sync.failedCount > 0
-        ? "failed"
-        : sync.pendingCount > 0
-          ? "pending"
-          : "online";
+  const networkKey = networkStatus(sync);
   const workKey = !sync.isOnline
     ? "offline"
     : current && current.state !== "ASSIGNED"

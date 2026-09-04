@@ -90,6 +90,13 @@ export function OfflineStatus() {
             variant="outline"
             size="sm"
             className="rounded-full px-3"
+            disabledReason={
+              !isOnline
+                ? t("common.offline")
+                : pendingCount === 0
+                  ? t("common.nothingToSync")
+                  : undefined
+            }
             disabled={!isOnline || isSyncing || pendingCount === 0}
             onClick={() => void syncNow()}
           >

@@ -20,6 +20,7 @@ import type {
   EvidenceCandidate,
   ProjectApplicationOption,
   ProjectOptionCategory,
+  RemedialItem,
   WorkflowReviewerKind,
   WorkflowReviewerChoices,
 } from "@/interfaces/consultant-workflow";
@@ -44,6 +45,26 @@ export const createApplicationOption = async (payload: {
 }) => {
   const row = await api.post<ProjectApplicationOption>(
     "/api/consultant-application-options/create_option/",
+    payload,
+  );
+  toastSuccess("consultantWorkflow.toast.optionSaved");
+  return row;
+};
+
+/**
+ * Correct an option already in the list.
+ *
+ * The list is seeded once per project and then added to from the application
+ * form, so a mistyped label survives every application filed after it. This
+ * is the only way to fix one, and turning an option off is how a retired one
+ * stops being offered without rewriting what was filed under it.
+ */
+export const updateApplicationOption = async (
+  id: string,
+  payload: Partial<Pick<ProjectApplicationOption, "label" | "is_active" | "sort_order">>,
+) => {
+  const row = await api.patch<ProjectApplicationOption>(
+    `/api/consultant-application-options/${id}/update_option/`,
     payload,
   );
   toastSuccess("consultantWorkflow.toast.optionSaved");
@@ -82,6 +103,28 @@ export const createApplicationTemplateVersion = async (
   return row;
 };
 
+/**
+ * Edit a template's own details - not its form.
+ *
+ * The fields applicants fill in are versioned separately, because changing
+ * them would change what an already-filed application meant. Everything here
+ * is the label on the outside: name, description, numbering, whether it is
+ * still offered.
+ */
+export const updateApplicationTemplate = async (
+  id: string,
+  payload: Partial<Omit<ApplicationTemplatePayload, "project" | "field_schema" | "required_attachment_codes" | "report_mapping" | "change_note">> & {
+    is_active?: boolean;
+  },
+) => {
+  const row = await api.patch<ApplicationTemplate>(
+    `/api/consultant-application-templates/${id}/update_template/`,
+    payload,
+  );
+  toastSuccess("consultantWorkflow.toast.templateSaved");
+  return row;
+};
+
 export const createConsultantWorkflow = async (payload: {
   project: string;
   name: string;
@@ -92,6 +135,31 @@ export const createConsultantWorkflow = async (payload: {
 }) => {
   const row = await api.post<ConsultantWorkflow>(
     "/api/consultant-workflows/create_workflow/",
+    payload,
+  );
+  toastSuccess("consultantWorkflow.toast.workflowSaved");
+  return row;
+};
+
+/**
+ * Edit a workflow's own details.
+ *
+ * ``application_type`` is only accepted while nothing has been filed against
+ * the workflow - the API answers 409 once something has, because the
+ * applications already filed would otherwise describe a route that never
+ * existed. The console reads ``has_applications`` and leaves the field out.
+ */
+export const updateConsultantWorkflow = async (
+  id: string,
+  payload: Partial<
+    Pick<
+      ConsultantWorkflow,
+      "name" | "description" | "is_default" | "is_active" | "application_type"
+    >
+  >,
+) => {
+  const row = await api.patch<ConsultantWorkflow>(
+    `/api/consultant-workflows/${id}/update_workflow/`,
     payload,
   );
   toastSuccess("consultantWorkflow.toast.workflowSaved");
@@ -118,15 +186,26 @@ export const addConsultantWorkflowStep = async (
   return row;
 };
 
-export const updateConsultantWorkflowStep = (
+/**
+ * Edit one step of an approval route.
+ *
+ * Refused with 409 once any application on this workflow has been submitted:
+ * from that point the route is part of the record. ``steps_locked`` says so
+ * ahead of time, and the console leaves the control out rather than offer a
+ * button that always fails.
+ */
+export const updateConsultantWorkflowStep = async (
   workflowId: string,
   stepId: string,
   payload: Partial<ConsultantWorkflowStep>,
-) =>
-  api.patch<ConsultantWorkflowStep>(
+) => {
+  const row = await api.patch<ConsultantWorkflowStep>(
     `/api/consultant-workflows/${workflowId}/update_step/`,
     { ...payload, step: stepId },
   );
+  toastSuccess("consultantWorkflow.toast.stepSaved");
+  return row;
+};
 
 export const deleteConsultantWorkflowStep = async (
   workflowId: string,
@@ -269,6 +348,25 @@ export const linkApplicationEvidence = async (
   return row;
 };
 
+/**
+ * Rebuild an approval report that was decided but never archived.
+ *
+ * The decision is the act; the PDF is its record. When archiving fails - a
+ * storage blip at the wrong second - the application sits decided with the
+ * report row showing "pending" and nothing to press, which is the state the
+ * archive panel now offers a way out of. The backend refuses unless the
+ * decision is final and the report really is missing, so this cannot be used
+ * to regenerate a report that already exists.
+ */
+export const retryApplicationFinalReport = async (id: string) => {
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/retry_final_report/`,
+    {},
+  );
+  toastSuccess("consultantWorkflow.toast.reportRebuilt");
+  return row;
+};
+
 export const downloadApplicationFinalReport = (id: string, applicationNo: string) =>
   download(
     `/api/consultant-applications/${id}/download_final_report/`,
@@ -395,6 +493,34 @@ export const getWorkflowReviewerChoices = (project: string) =>
     "/api/consultant-workflows/get_reviewer_choices/",
     { project },
   );
+
+export const addRemedialItem = async (
+  application: string,
+  payload: {
+    description: string;
+    assigned_to?: string | null;
+    due_on?: string | null;
+  },
+): Promise<RemedialItem> => {
+  const item = await api.post<RemedialItem>(
+    `/api/consultant-applications/${application}/add_remedial_item/`,
+    payload,
+  );
+  toastSuccess("consultantWorkflow.toast.remedialRaised");
+  return item;
+};
+
+export const closeRemedialItem = async (
+  application: string,
+  payload: { item: string; closure_note: string; evidence: string[] },
+): Promise<RemedialItem> => {
+  const item = await api.post<RemedialItem>(
+    `/api/consultant-applications/${application}/close_remedial_item/`,
+    payload,
+  );
+  toastSuccess("consultantWorkflow.toast.remedialClosed");
+  return item;
+};
 
 export const verifyConsultantApplication = (code: string) =>
   api.get<ApplicationVerification>(

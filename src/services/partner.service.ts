@@ -15,6 +15,7 @@ import type {
   PartnerType,
 } from "@/interfaces/partner";
 import { api, download, toastSuccess } from "@/services/api-client";
+import type { ExportRequest } from "@/services/contractor.service";
 
 /**
  * The filters the partner list accepts.
@@ -98,6 +99,32 @@ export async function createPartner(
   return partner;
 }
 
+/**
+ * Suspend, terminate or reinstate a partner.
+ *
+ * The screen has had this button all along, but it built the request inline
+ * with a dynamic import of the API client instead of coming through here.
+ * Everything else in the app writes through this layer, and the reachability
+ * guard reads this layer to decide whether a backend action has a way in - so
+ * the inline version made a working button look like a missing one (F-140).
+ *
+ * A reason is mandatory on the two statuses that take something away, because
+ * the backend records it on the audit entry; sending a blank one there would
+ * be recording that nobody gave a reason.
+ */
+export async function changePartnerStatus(
+  id: string,
+  status: PartnerStatus,
+  reason: string,
+): Promise<Partner> {
+  const row = await api.post<Partner>(`/api/partners/change-status/${id}/`, {
+    status,
+    reason,
+  });
+  toastSuccess("adminPartnerManagement.toast.statusChanged");
+  return row;
+}
+
 export async function updatePartner(
   id: string,
   payload: Partial<CreatePartnerPayload>,
@@ -136,6 +163,40 @@ export async function createAgreement(
   return agreement;
 }
 
+/**
+ * Edit an agreement that is still a draft.
+ *
+ * Only a draft may be edited - once it has been submitted for signature the
+ * document is what the two parties agreed, so the backend answers 409. The
+ * screen therefore offers this button on drafts only, rather than offering it
+ * everywhere and explaining the refusal afterwards.
+ */
+export async function updateAgreement(
+  id: string,
+  payload: Partial<CreateAgreementPayload>,
+): Promise<PartnerAgreement> {
+  // Multipart, like creation, so a draft's signed document can be swapped for
+  // a corrected one. Leaving the file out keeps the document already on the
+  // draft - an omitted key is not an instruction to clear it.
+  const body = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    if (key === "document") {
+      if (value instanceof File) body.append(key, value);
+    } else if (key === "calculation_config") {
+      body.append(key, JSON.stringify(value));
+    } else {
+      body.append(key, String(value));
+    }
+  });
+  const row = await api.patch<PartnerAgreement>(
+    `/api/partner-agreements/update-agreement/${id}/`,
+    body,
+  );
+  toastSuccess("adminPartnerManagement.toast.agreementUpdated");
+  return row;
+}
+
 export async function submitAgreement(id: string) { return api.post<PartnerAgreement>(`/api/partner-agreements/submit-agreement/${id}/`, {}); }
 export async function activateAgreement(id: string, signedBy: string, signedOn?: string) { return api.post<PartnerAgreement>(`/api/partner-agreements/activate-agreement/${id}/`, { signed_by: signedBy, signed_on: signedOn }); }
 export async function renewAgreement(id: string, payload: Partial<CreateAgreementPayload>) {
@@ -144,6 +205,32 @@ export async function renewAgreement(id: string, payload: Partial<CreateAgreemen
 export async function terminateAgreement(id: string, reason: string) { return api.post<PartnerAgreement>(`/api/partner-agreements/terminate-agreement/${id}/`, { reason }); }
 export function viewAgreementDocument(id: string) { return download(`/api/partner-agreements/view-document/${id}/`, { method: "GET", fallbackFilename: "agreement", openInNewTab: true }); }
 export function downloadAgreementDocument(id: string) { return download(`/api/partner-agreements/download-document/${id}/`, { method: "GET", fallbackFilename: "agreement" }); }
+
+/**
+ * Download the partner list.
+ *
+ * The filters on screen ride along as query parameters: the API exports the
+ * filtered queryset rather than running a fresh unfiltered one, so the file
+ * matches what the person was looking at when they pressed the button - which
+ * is the only version they can vouch for.
+ */
+export function exportPartners(request: ExportRequest): Promise<void> {
+  const { page, page_size, ...query } = request.query;
+  void page;
+  void page_size;
+  return download("/api/partners/export-partners/", {
+    method: "POST",
+    query,
+    body: {
+      format: request.format,
+      title: request.title,
+      subtitle: request.subtitle ?? "",
+      empty_label: request.emptyLabel ?? "",
+      columns: request.columns,
+    },
+    fallbackFilename: `partners.${request.format}`,
+  });
+}
 
 export function getTerritories(query?: ListQuery): Promise<Paginated<PartnerTerritory>> { return api.list("/api/partner-territories/get-territories/", query); }
 export async function createTerritory(payload: Record<string, unknown>) { return api.post<PartnerTerritory>("/api/partner-territories/create-territory/", payload); }

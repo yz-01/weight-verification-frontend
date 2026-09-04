@@ -337,12 +337,6 @@ function ProgressDialog({
   });
 
   const percentage = Number(draft.percentComplete);
-  const valid =
-    draft.project !== "" &&
-    draft.title.trim() !== "" &&
-    Number.isFinite(percentage) &&
-    percentage >= 0 &&
-    percentage <= 100;
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -433,7 +427,8 @@ function ProgressDialog({
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button disabled={!valid || save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[draft.project, t("progress.field.project")], [draft.title, t("progress.field.title")], [Number.isFinite(percentage) && percentage >= 0 && percentage <= 100, t("progress.field.percentComplete")]]}
+                  disabled={save.isPending} onClick={() => save.mutate()}>
             {save.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

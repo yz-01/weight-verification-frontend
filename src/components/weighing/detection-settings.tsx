@@ -136,6 +136,7 @@ export function DetectionSettings() {
             <Button
               size="sm"
               className="rounded-full px-4 shadow-sm"
+              disabledReason={changed.length === 0 ? t("common.noChanges") : undefined}
               disabled={changed.length === 0 || publish.isPending}
               onClick={() => setConfirming(true)}
             >

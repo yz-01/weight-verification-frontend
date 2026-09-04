@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -40,6 +41,7 @@ import { getProjects } from "@/services/contractor.service";
 import {
   createFieldInvitation,
   getFieldAccessInfo,
+  resetFieldDevice,
   reissueFieldInvitation,
   type FieldInvitationResult,
 } from "@/services/field-access.service";
@@ -64,6 +66,7 @@ export function FieldAccessManagementDialog({
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<AccessMode>(initialUser ? "existing" : "new");
   const [existingUserId, setExistingUserId] = useState(initialUser?.id ?? "");
+  const [unbinding, setUnbinding] = useState(false);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState(
     toMobileSubscriberDigits(initialUser?.phone ?? ""),
@@ -133,6 +136,19 @@ export function FieldAccessManagementDialog({
     ? Object.values(fieldErrors.errors)[0]
     : undefined;
 
+  // Unbinding is the other half of "this person changed phones". It revokes
+  // the binding, expires the PIN and kills the sessions, so the only way back
+  // in is a fresh invitation - which is exactly what the dialog above issues.
+  const unbind = useMutation({
+    mutationFn: () => resetFieldDevice(existingUserId),
+    onSuccess: async () => {
+      setUnbinding(false);
+      await queryClient.invalidateQueries({
+        queryKey: ["field-access", "info", existingUserId],
+      });
+    },
+  });
+
   function clearCreateError() {
     if (create.isError) create.reset();
   }
@@ -172,14 +188,6 @@ export function FieldAccessManagementDialog({
     await navigator.clipboard.writeText(value);
     setCopied(kind);
   }
-
-  const canCreate =
-    (mode === "existing"
-      ? existingUserId.length > 0 && selectedProjectIds.length > 0
-      : fullName.trim().length > 0 &&
-        phone.trim().length > 0 &&
-        selectedProjectIds.length > 0) &&
-    !create.isPending;
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -460,12 +468,44 @@ export function FieldAccessManagementDialog({
           </div>
         )}
 
+        {mode === "existing" && existingUserId && !result && (
+          <div className="rounded-md border border-destructive/25 bg-destructive/5 p-3">
+            <p className="text-sm font-medium">{t("unbind.title")}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {t("unbind.help")}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              disabled={unbind.isPending}
+              onClick={() => setUnbinding(true)}
+            >
+              <Smartphone className="size-4" />
+              {t("unbind.action")}
+            </Button>
+          </div>
+        )}
+
+        {unbinding && (
+          <ConfirmDialog
+            open
+            onOpenChange={(next) => !next && setUnbinding(false)}
+            title={t("unbind.title")}
+            description={t("unbind.confirm")}
+            confirmLabel={t("unbind.action")}
+            isPending={unbind.isPending}
+            onConfirm={() => unbind.mutate()}
+          />
+        )}
+
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {result ? t("close") : t("cancel")}
           </Button>
           {!result && (
-            <Button disabled={!canCreate} onClick={() => create.mutate()}>
+            <Button requires={mode === "existing" ? [[existingUserId, t("existingStaff")], [selectedProjectIds.length, t("projects")]] : [[fullName, t("fullName")], [phone, t("phone")], [selectedProjectIds.length, t("projects")]]}
+                    disabled={create.isPending} onClick={() => create.mutate()}>
               {create.isPending ? (
                 <Smartphone />
               ) : mode === "existing" ? (

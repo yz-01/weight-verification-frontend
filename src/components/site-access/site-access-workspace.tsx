@@ -9,8 +9,10 @@ import {
   Eye,
   ImagePlus,
   KeyRound,
+  Ban,
   Loader2,
   MapPin,
+  Pencil,
   Plus,
   QrCode,
   RadioTower,
@@ -47,6 +49,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -57,9 +67,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import type {
   AccessCredentialType,
+  SiteAccessCredential,
   AccessDirection,
   AccessSubjectType,
-  SiteAccessCredentialPayload,
   SiteAccessPass,
   SiteAccessPassPayload,
 } from "@/interfaces/site-access";
@@ -75,6 +85,7 @@ import {
   revokeSiteAccessCredential,
   revokeSiteAccessPass,
   scanSiteAccessGate,
+  updateSiteAccessPass,
 } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
 
@@ -92,6 +103,8 @@ export function SiteAccessWorkspace() {
   const [project, setProject] = useState("all");
   const [status, setStatus] = useState("all");
   const [creating, setCreating] = useState(false);
+  // Only a pending pass can be corrected; the backend answers 409 after that.
+  const [editing, setEditing] = useState<SiteAccessPass | null>(null);
   const [viewing, setViewing] = useState<SiteAccessPass | null>(null);
   const [qr, setQr] = useState<SiteAccessPass | null>(null);
   const [review, setReview] = useState<{
@@ -237,10 +250,10 @@ export function SiteAccessWorkspace() {
           ) : !rows.data?.count ? (
             <State text={t("access.empty")} />
           ) : (
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full min-w-[940px] text-sm">
-                <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-                  <tr>
+            <div className="overflow-hidden rounded-lg border bg-card">
+              <Table className="min-w-[940px]">
+                <TableHeader>
+                  <TableRow>
                     {[
                       "passNo",
                       "person",
@@ -251,47 +264,47 @@ export function SiteAccessWorkspace() {
                       "direction",
                       "actions",
                     ].map((key) => (
-                      <th key={key} className="px-4 py-3 font-medium">
+                      <TableHead key={key}>
                         {t(`table.${key}`)}
-                      </th>
+                      </TableHead>
                     ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {rows.data.results.map((row) => (
-                    <tr key={row.id} className="bg-card hover:bg-muted/20">
-                      <td className="px-4 py-3 font-medium tabular-nums">
+                    <TableRow key={row.id}>
+                      <TableCell className="font-medium tabular-nums">
                         {row.pass_no}
-                      </td>
-                      <td className="px-4 py-3">
+                      </TableCell>
+                      <TableCell>
                         <p className="font-medium">{row.subject_name}</p>
                         <p className="text-xs text-muted-foreground">
                           {row.subject_company || row.phone}
                         </p>
-                      </td>
-                      <td className="px-4 py-3">
+                      </TableCell>
+                      <TableCell>
                         {t(`subjectType.${row.subject_type}`)}
-                      </td>
-                      <td className="px-4 py-3">{row.project_name}</td>
-                      <td className="px-4 py-3 text-xs">
+                      </TableCell>
+                      <TableCell>{row.project_name}</TableCell>
+                      <TableCell className="text-xs">
                         <p>{formatDate(row.valid_from)}</p>
                         <p className="text-muted-foreground">
                           {formatDate(row.valid_until)}
                         </p>
-                      </td>
-                      <td className="px-4 py-3">
+                      </TableCell>
+                      <TableCell>
                         <StatusBadge
                           label={t(`passStatus.${row.effective_status}`)}
                           tone={passTone(row.effective_status)}
                         />
-                      </td>
-                      <td className="px-4 py-3">
+                      </TableCell>
+                      <TableCell>
                         {row.current_direction
                           ? t(`direction.${row.current_direction}`)
                           : "-"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center">
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-0.5">
                           <Button
                             size="icon-sm"
                             variant="ghost"
@@ -311,6 +324,14 @@ export function SiteAccessWorkspace() {
                           {can("site_access.manage") &&
                             row.status === "PENDING" && (
                               <>
+                                <Button
+                                  size="icon-sm"
+                                  variant="ghost"
+                                  title={t("action.edit")}
+                                  onClick={() => setEditing(row)}
+                                >
+                                  <Pencil />
+                                </Button>
                                 <Button
                                   size="icon-sm"
                                   variant="ghost"
@@ -348,11 +369,11 @@ export function SiteAccessWorkspace() {
                               </Button>
                             )}
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </TabsContent>
@@ -372,6 +393,18 @@ export function SiteAccessWorkspace() {
           onClose={() => setCreating(false)}
           onSaved={async () => {
             setCreating(false);
+            await invalidate();
+          }}
+        />
+      )}
+      {editing && (
+        <PassDialog
+          row={editing}
+          defaultProject={editing.project}
+          visitorPassHours={defaults.data?.visitor_pass_hours ?? 12}
+          onClose={() => setEditing(null)}
+          onSaved={async () => {
+            setEditing(null);
             await invalidate();
           }}
         />
@@ -601,7 +634,8 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
       <Button
         size="lg"
         className="h-12 w-full"
-        disabled={!token.trim() || scan.isPending}
+        requires={[[token, t("gate.usbOrPaste")]]}
+        disabled={scan.isPending}
         onClick={() => scan.mutate()}
       >
         {scan.isPending ? <Loader2 className="animate-spin" /> : <ScanLine />}
@@ -642,11 +676,14 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
 }
 
 function PassDialog({
+  row,
   defaultProject,
   visitorPassHours,
   onClose,
   onSaved,
 }: {
+  /** Passed when correcting an existing pending pass, absent when creating. */
+  row?: SiteAccessPass;
   defaultProject: string;
   visitorPassHours: number;
   onClose: () => void;
@@ -656,45 +693,50 @@ function PassDialog({
   const now = new Date();
   const later = new Date(now.getTime() + visitorPassHours * 3600_000);
   const [form, setForm] = useState<SiteAccessPassPayload>({
-    project: defaultProject,
-    subject_type: "VISITOR",
-    subject_name: "",
-    subject_company: "",
-    phone: "",
-    identity_no: "",
-    vehicle_plate: "",
-    driver_name: "",
-    purpose: "",
-    host_name: "",
-    valid_from: localInput(now),
-    valid_until: localInput(later),
+    project: row?.project ?? defaultProject,
+    subject_type: row?.subject_type ?? "VISITOR",
+    worker: row?.worker ?? undefined,
+    subject_name: row?.subject_name ?? "",
+    subject_company: row?.subject_company ?? "",
+    phone: row?.phone ?? "",
+    identity_no: row?.identity_no ?? "",
+    vehicle_plate: row?.vehicle_plate ?? "",
+    driver_name: row?.driver_name ?? "",
+    purpose: row?.purpose ?? "",
+    host_name: row?.host_name ?? "",
+    valid_from: row ? localInput(new Date(row.valid_from)) : localInput(now),
+    valid_until: row ? localInput(new Date(row.valid_until)) : localInput(later),
   });
   const users = useQuery({
     queryKey: ["users", "access-worker"],
     queryFn: () => getUsers({ page_size: 200, status: "ACTIVE" }),
   });
   const save = useMutation({
-    mutationFn: () =>
-      createSiteAccessPass({
+    mutationFn: () => {
+      const payload = {
         ...form,
         valid_from: new Date(form.valid_from).toISOString(),
         valid_until: new Date(form.valid_until).toISOString(),
-      }),
+      };
+      if (!row) return createSiteAccessPass(payload);
+      // The backend refuses a project change on an existing pass, so an edit
+      // never sends one.
+      const editable: Partial<SiteAccessPassPayload> = { ...payload };
+      delete editable.project;
+      return updateSiteAccessPass(row.id, editable);
+    },
     onSuccess: onSaved,
   });
-  const valid =
-    form.project &&
-    form.purpose.trim() &&
-    form.valid_from &&
-    form.valid_until &&
-    (form.subject_type === "WORKER" ? form.worker : form.subject_name.trim()) &&
-    (form.subject_type !== "VEHICLE" || form.vehicle_plate.trim());
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{t("access.createTitle")}</DialogTitle>
-          <DialogDescription>{t("access.createHelp")}</DialogDescription>
+          <DialogTitle>
+            {t(row ? "access.editTitle" : "access.createTitle")}
+          </DialogTitle>
+          <DialogDescription>
+            {t(row ? "access.editHelp" : "access.createHelp")}
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.project")} required>
@@ -702,6 +744,7 @@ function PassDialog({
               value={form.project}
               onValueChange={(value) => setForm({ ...form, project: value })}
               placeholder={t("field.chooseProject")}
+              disabled={Boolean(row)}
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.subjectType")}>
@@ -887,7 +930,25 @@ function PassDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={!valid || save.isPending}
+            requires={[
+              [form.project, t("field.project")],
+              [form.purpose, t("field.purpose")],
+              [form.valid_from, t("field.validFrom")],
+              [form.valid_until, t("field.validUntil")],
+              [
+                form.subject_type === "WORKER"
+                  ? form.worker
+                  : form.subject_name,
+                form.subject_type === "WORKER"
+                  ? t("field.worker")
+                  : t("field.subjectName"),
+              ],
+              [
+                form.subject_type !== "VEHICLE" || form.vehicle_plate,
+                t("field.vehiclePlate"),
+              ],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Plus />
@@ -951,10 +1012,10 @@ function DeviceEventsPanel() {
       ) : !rows.data?.count ? (
         <State text={t("deviceEvent.empty")} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[1080px] text-sm">
-            <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-              <tr>
+        <div className="overflow-hidden rounded-lg border bg-card">
+          <Table className="min-w-[1080px]">
+            <TableHeader>
+              <TableRow>
                 {[
                   "occurredAt",
                   "device",
@@ -965,40 +1026,40 @@ function DeviceEventsPanel() {
                   "result",
                   "reason",
                 ].map((key) => (
-                  <th key={key} className="px-4 py-3 font-medium">
+                  <TableHead key={key}>
                     {t(`deviceEvent.${key}`)}
-                  </th>
+                  </TableHead>
                 ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y">
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {rows.data.results.map((event) => (
-                <tr key={event.id} className="bg-card hover:bg-muted/20">
-                  <td className="px-4 py-3 text-xs">
+                <TableRow key={event.id}>
+                  <TableCell className="text-xs">
                     <p>{formatDate(event.occurred_at)}</p>
                     <p className="text-muted-foreground">
                       {event.project_name}
                     </p>
-                  </td>
-                  <td className="px-4 py-3 font-medium tabular-nums">
+                  </TableCell>
+                  <TableCell className="font-medium tabular-nums">
                     {event.device_id}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     {event.gate_name || t("access.unknownGate")}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     <p>{t(`credentialType.${event.credential_type}`)}</p>
                     <p className="text-xs text-muted-foreground tabular-nums">
                       {event.credential_hint || "-"}
                     </p>
-                  </td>
-                  <td className="px-4 py-3 tabular-nums">
+                  </TableCell>
+                  <TableCell className="tabular-nums">
                     {event.pass_no || "-"}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     {t(`direction.${event.direction}`)}
-                  </td>
-                  <td className="px-4 py-3">
+                  </TableCell>
+                  <TableCell>
                     <StatusBadge
                       label={
                         event.verification_result === "ALLOWED"
@@ -1011,14 +1072,14 @@ function DeviceEventsPanel() {
                           : "danger"
                       }
                     />
-                  </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
                     {event.reason_code || "-"}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>
@@ -1037,149 +1098,6 @@ const EXTERNAL_CREDENTIAL_TYPES: Exclude<AccessCredentialType, "QR">[] = [
  * the server and never comes back — the list shows the hint, so revoking
  * the right card is possible without ever re-exposing the card number.
  */
-function PassCredentials({ row }: { row: SiteAccessPass }) {
-  const t = useTranslations("siteControl");
-  const { can } = useAuth();
-  const qc = useQueryClient();
-  const [draft, setDraft] = useState<SiteAccessCredentialPayload>({
-    credential_type: "RFID",
-    credential_value: "",
-    label: "",
-  });
-  const credentials = useQuery({
-    queryKey: ["site-access-credentials", row.id],
-    queryFn: () => getSiteAccessCredentials(row.id),
-  });
-  const refresh = () =>
-    qc.invalidateQueries({ queryKey: ["site-access-credentials", row.id] });
-  const register = useMutation({
-    mutationFn: () =>
-      registerSiteAccessCredential(row.id, {
-        ...draft,
-        credential_value: draft.credential_value.trim(),
-        label: draft.label?.trim(),
-      }),
-    onSuccess: async () => {
-      setDraft((old) => ({ ...old, credential_value: "", label: "" }));
-      await refresh();
-    },
-  });
-  const revoke = useMutation({
-    mutationFn: (credentialId: string) =>
-      revokeSiteAccessCredential(row.id, credentialId, ""),
-    onSuccess: refresh,
-  });
-  const canManage = can("site_access.manage") && row.status === "APPROVED";
-
-  return (
-    <div className="space-y-3">
-      <h3 className="mt-2 font-semibold">{t("credential.title")}</h3>
-      {credentials.isLoading ? (
-        <State text={t("state.loading")} />
-      ) : !credentials.data?.length ? (
-        <State text={t("credential.empty")} />
-      ) : (
-        <ul className="divide-y rounded-lg border">
-          {credentials.data.map((credential) => (
-            <li
-              key={credential.id}
-              className="flex items-center gap-3 px-4 py-2.5"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">
-                  {t(`credentialType.${credential.credential_type}`)}
-                  <span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">
-                    {credential.identifier_hint}
-                  </span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {credential.label || "-"}
-                </p>
-              </div>
-              <StatusBadge
-                label={
-                  credential.is_active
-                    ? t("credential.active")
-                    : t("credential.revoked")
-                }
-                tone={credential.is_active ? "positive" : "danger"}
-              />
-              {canManage && credential.is_active && (
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  className="text-destructive"
-                  title={t("credential.revoke")}
-                  disabled={revoke.isPending}
-                  onClick={() => revoke.mutate(credential.id)}
-                >
-                  <ShieldX />
-                </Button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-      {canManage && (
-        <div className="grid gap-3 rounded-lg border bg-muted/20 p-3 sm:grid-cols-[10rem_1fr_1fr_auto]">
-          <FieldWrapper label={t("credential.type")}>
-            <Select
-              value={draft.credential_type}
-              onValueChange={(value) =>
-                setDraft((old) => ({
-                  ...old,
-                  credential_type: value as Exclude<AccessCredentialType, "QR">,
-                }))
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {EXTERNAL_CREDENTIAL_TYPES.map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {t(`credentialType.${value}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          <FieldWrapper label={t("credential.value")}>
-            <Input
-              value={draft.credential_value}
-              placeholder={t("credential.valuePlaceholder")}
-              onChange={(event) =>
-                setDraft((old) => ({
-                  ...old,
-                  credential_value: event.target.value,
-                }))
-              }
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("credential.label")}>
-            <Input
-              value={draft.label ?? ""}
-              onChange={(event) =>
-                setDraft((old) => ({ ...old, label: event.target.value }))
-              }
-            />
-          </FieldWrapper>
-          <div className="flex items-end">
-            <Button
-              size="sm"
-              disabled={!draft.credential_value.trim() || register.isPending}
-              onClick={() => register.mutate()}
-            >
-              {register.isPending ? <Loader2 className="animate-spin" /> : <Plus />}
-              {t("credential.register")}
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function PassDetail({
   row,
   onClose,
@@ -1211,6 +1129,8 @@ function PassDetail({
             value={formatDate(row.valid_until)}
           />
         </div>
+        <CredentialsPanel pass={row} />
+
         <h3 className="mt-2 font-semibold">{t("access.timeline")}</h3>
         {!row.events.length ? (
           <State text={t("access.noEvents")} />
@@ -1235,12 +1155,185 @@ function PassDetail({
             ))}
           </div>
         )}
-        <PassCredentials row={row} />
         <DialogFooter>
           <Button onClick={onClose}>{t("action.close")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Register what the gate hardware will actually read for this pass.
+ *
+ * A QR entry matches the pass's own token and needs nothing here. Every other
+ * lane — plate camera, card reader, face unit — matches against a credential
+ * registered in advance, and answers "unknown credential" when there is none.
+ * Without this screen those lanes refuse everybody, which is why the hardware
+ * integration could never be used even once a brand was chosen.
+ *
+ * The value is write-only by design: the server keeps a hash and a short hint,
+ * so a card can be recognised in this list and revoked, but never read back.
+ */
+function CredentialsPanel({ pass }: { pass: SiteAccessPass }) {
+  const t = useTranslations("siteControl");
+  const queryClient = useQueryClient();
+  const [type, setType] = useState<Exclude<AccessCredentialType, "QR">>("RFID");
+  const [value, setValue] = useState("");
+  const [label, setLabel] = useState("");
+  const [revoking, setRevoking] = useState<SiteAccessCredential | null>(null);
+  // The backend writes this into the audit entry for the revocation. Asking
+  // for it is the only reason a confirmation step earns its interruption.
+  const [revokeReason, setRevokeReason] = useState("");
+
+  const approved = pass.status === "APPROVED";
+
+  const credentials = useQuery({
+    queryKey: ["site-access-credentials", pass.id],
+    queryFn: () => getSiteAccessCredentials(pass.id),
+  });
+
+  const refresh = () =>
+    queryClient.invalidateQueries({
+      queryKey: ["site-access-credentials", pass.id],
+    });
+
+  const register = useMutation({
+    mutationFn: () =>
+      registerSiteAccessCredential(pass.id, {
+        credential_type: type,
+        credential_value: value.trim(),
+        label: label.trim(),
+      }),
+    onSuccess: async () => {
+      setValue("");
+      setLabel("");
+      await refresh();
+    },
+  });
+
+  const revoke = useMutation({
+    mutationFn: (credential: SiteAccessCredential) =>
+      revokeSiteAccessCredential(pass.id, credential.id, revokeReason.trim()),
+    onSuccess: async () => {
+      setRevoking(null);
+      setRevokeReason("");
+      await refresh();
+    },
+  });
+
+  const rows = credentials.data ?? [];
+
+  return (
+    <section className="mt-2 space-y-3">
+      <div>
+        <h3 className="font-semibold">{t("credential.title")}</h3>
+        <p className="text-sm text-muted-foreground">{t("credential.help")}</p>
+      </div>
+
+      {!approved ? (
+        <State text={t("credential.approveFirst")} />
+      ) : (
+        <div className="grid gap-2 rounded-lg border p-3 sm:grid-cols-[10rem_1fr_1fr_auto]">
+          <Select
+            value={type}
+            onValueChange={(next) => setType(next as Exclude<AccessCredentialType, "QR">)}
+          >
+            <SelectTrigger aria-label={t("credential.type")}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {EXTERNAL_CREDENTIAL_TYPES.map((kind) => (
+                <SelectItem key={kind} value={kind}>
+                  {t(`credentialType.${kind}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Input
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+            placeholder={t("credential.valuePlaceholder")}
+            aria-label={t("credential.value")}
+          />
+          <Input
+            value={label}
+            onChange={(event) => setLabel(event.target.value)}
+            placeholder={t("credential.labelPlaceholder")}
+            aria-label={t("credential.label")}
+          />
+          <Button
+            requires={[[value, t("credential.value")]]}
+            disabled={register.isPending}
+            onClick={() => register.mutate()}
+          >
+            {register.isPending ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Plus />
+            )}
+            {t("credential.register")}
+          </Button>
+        </div>
+      )}
+
+      {credentials.isLoading ? (
+        <State text={t("credential.loading")} />
+      ) : !rows.length ? (
+        <State text={t("credential.none")} />
+      ) : (
+        <ul className="divide-y rounded-lg border">
+          {rows.map((row) => (
+            <li
+              key={row.id}
+              className="flex flex-wrap items-center justify-between gap-3 p-3"
+            >
+              <div className="min-w-0">
+                <p className="font-medium">
+                  {t(`credentialType.${row.credential_type}`)} ·{" "}
+                  <span className="font-mono">{row.identifier_hint}</span>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {row.label || t("credential.noLabel")}
+                  {row.is_active ? "" : ` · ${t("credential.revoked")}`}
+                </p>
+              </div>
+              {row.is_active ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setRevoking(row)}
+                >
+                  {t("credential.revoke")}
+                </Button>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {revoking ? (
+        <ConfirmDialog
+          open
+          onOpenChange={(next) => {
+            if (!next) {
+              setRevoking(null);
+              setRevokeReason("");
+            }
+          }}
+          title={t("credential.revokeTitle")}
+          description={t("credential.revokeConfirm", {
+            hint: revoking.identifier_hint,
+          })}
+          confirmLabel={t("credential.revoke")}
+          confirmIcon={Ban}
+          isPending={revoke.isPending}
+          reason={revokeReason}
+          onReasonChange={setRevokeReason}
+          onConfirm={() => revoke.mutate(revoking)}
+        />
+      ) : null}
+    </section>
   );
 }
 

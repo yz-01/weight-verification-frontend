@@ -1,6 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   CheckCircle2,
@@ -13,6 +15,7 @@ import {
   ScanEye,
   Send,
   Undo2,
+  Workflow,
   X,
   XCircle,
   type LucideIcon,
@@ -21,6 +24,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import { ApprovalWorkflowDialog } from "@/components/document-workflow/approval-workflow-dialog";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
@@ -103,10 +107,15 @@ const RESOURCE_TYPES = [
   "other",
 ] as const;
 
+/** Stable identity: a fresh array each render would resubscribe forever. */
+const REALTIME_KEYS = [["approvals"]];
+
 export function Approvals() {
   const t = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
+  // A decision made by somebody else has to land here without a refresh.
+  useOrderRealtime(REALTIME_KEYS);
   const { user, can } = useAuth();
   const searchParams = useSearchParams();
   const list = useListQuery(["status", "mine", "resource_type"]);
@@ -114,6 +123,7 @@ export function Approvals() {
     searchParams.get("create") === "1" && can("approval.submit") ? "new" : null,
   );
   const [viewingId, setViewingId] = useState<string | null>(null);
+  const [configuringWorkflow, setConfiguringWorkflow] = useState(false);
   const [acting, setActing] = useState<{
     approval: ApprovalRecord;
     action: ApprovalActionType;
@@ -324,18 +334,39 @@ export function Approvals() {
             : t("approvals.count", { count: totalCount })
         }
         action={
-          can("approval.submit") ? (
-            <Button
-              size="sm"
-              className="rounded-full px-4 shadow-sm"
-              onClick={() => setEditing("new")}
-            >
-              <Plus className="h-4 w-4" />
-              {t("approvals.create.action")}
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap items-center gap-2">
+            {can("workflow.manage") ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full px-4"
+                onClick={() => setConfiguringWorkflow(true)}
+              >
+                <Workflow className="h-4 w-4" />
+                {t("approvals.workflow.action")}
+              </Button>
+            ) : null}
+            {can("approval.submit") ? (
+              <Button
+                size="sm"
+                className="rounded-full px-4 shadow-sm"
+                onClick={() => setEditing("new")}
+              >
+                <Plus className="h-4 w-4" />
+                {t("approvals.create.action")}
+              </Button>
+            ) : null}
+          </div>
         }
       />
+
+      {configuringWorkflow ? (
+        <ApprovalWorkflowDialog
+          users={users.data?.results ?? []}
+          roles={roles.data?.results ?? []}
+          onClose={() => setConfiguringWorkflow(false)}
+        />
+      ) : null}
 
       <DataTable
         columns={columns}
@@ -703,12 +734,8 @@ function ApprovalEditorDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={
-              !title.trim() ||
-              !resourceType.trim() ||
-              !resourceId.trim() ||
-              mutation.isPending
-            }
+            requires={[[title, t("approvals.field.title")], [resourceType, t("approvals.field.resourceType")], [resourceId, t("approvals.field.resourceId")]]}
+            disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
           >
             {mutation.isPending ? (
@@ -1035,9 +1062,8 @@ function ApprovalActionDialog({
             variant={action === "REJECT" ? "destructive" : "default"}
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={
-              mutation.isPending || (commentRequired && !comment.trim())
-            }
+            requires={[[!commentRequired || comment, t("approvals.field.comment")]]}
+            disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
           >
             {mutation.isPending ? (

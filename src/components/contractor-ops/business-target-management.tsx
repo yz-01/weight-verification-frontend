@@ -191,16 +191,6 @@ export function BusinessTargetManagement() {
     setDraft((current) => ({ ...current, [key]: value }));
   }
 
-  const ready = Boolean(
-    draft.name.trim() &&
-      decimal(draft.target_value) &&
-      Number(decimal(draft.target_value)) > 0 &&
-      draft.period_start &&
-      draft.period_end &&
-      draft.period_start <= draft.period_end &&
-      (draft.metric !== "MATERIAL_RECEIPT_QUANTITY" || Boolean(draft.material_unit)),
-  );
-
   return (
     <section className="space-y-4">
       <ListHeader
@@ -259,7 +249,8 @@ export function BusinessTargetManagement() {
               <div className="grid gap-2 sm:col-span-2"><p className="text-sm font-medium">{t("field.milestones")}</p><div className="grid gap-2 sm:grid-cols-4">{([50, 80, 90, 100] as const).map((threshold) => { const key = `notify_at_${threshold}` as keyof Draft; return <label key={threshold} className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm"><Checkbox checked={draft[key] === true} onCheckedChange={(checked) => setField(key, checked === true)} />{threshold}%</label>; })}</div><p className="text-xs text-muted-foreground">{t("field.milestonesHint")}</p></div>
               {save.isError && <p className="text-sm text-destructive sm:col-span-2">{t("saveError")}</p>}
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => setEditing(null)}><X />{t("management.cancel")}</Button><Button disabled={!ready || save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Check />}{t("management.save")}</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => setEditing(null)}><X />{t("management.cancel")}</Button><Button requires={[[draft.name, t("field.name")], [decimal(draft.target_value) && Number(decimal(draft.target_value)) > 0, t("field.targetValue")], [draft.period_start, t("field.periodStart")], [draft.period_end && draft.period_start <= draft.period_end, t("field.periodEnd")], [draft.metric !== "MATERIAL_RECEIPT_QUANTITY" || draft.material_unit, t("field.materialUnit")]]}
+                                                                                                                                   disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Check />}{t("management.save")}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       )}

@@ -57,6 +57,7 @@ import {
 
 export function RecyclerCompanySettingsWorkspace() {
   const t = useTranslations("recyclerCompanySettings");
+  const common = useTranslations("common");
   const { can, refresh } = useAuth();
   const queryClient = useQueryClient();
   const canManage = can("company_settings.manage");
@@ -160,7 +161,7 @@ export function RecyclerCompanySettingsWorkspace() {
             <FieldWrapper label={t("profile.phone")}><Input disabled={!canManage} value={profile.contact_phone} onChange={(event) => setProfileDraft((current) => ({ ...current, contact_phone: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("profile.email")}><Input disabled={!canManage} type="email" value={profile.contact_email} onChange={(event) => setProfileDraft((current) => ({ ...current, contact_email: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("profile.billingEmail")}><Input disabled={!canManage} type="email" value={profile.billing_email} onChange={(event) => setProfileDraft((current) => ({ ...current, billing_email: event.target.value }))} /></FieldWrapper>
-            {canManage && <div className="sm:col-span-2"><Button disabled={saveProfile.isPending || (!Object.keys(profileDraft).length && !logoFile)} onClick={() => saveProfile.mutate()}><Save />{t("action.saveProfile")}</Button></div>}
+            {canManage && <div className="sm:col-span-2"><Button disabledReason={!Object.keys(profileDraft).length && !logoFile ? common("noChanges") : undefined} disabled={saveProfile.isPending || (!Object.keys(profileDraft).length && !logoFile)} onClick={() => saveProfile.mutate()}><Save />{t("action.saveProfile")}</Button></div>}
           </div>
         </div>
       </section>
@@ -232,7 +233,7 @@ export function RecyclerCompanySettingsWorkspace() {
 
       {canManage && (
         <div className="sticky bottom-3 z-10 flex justify-end">
-          <Button size="lg" disabled={saveSettings.isPending || !Object.keys(settingsDraft).length} onClick={() => saveSettings.mutate()}>
+          <Button size="lg" disabledReason={!Object.keys(settingsDraft).length ? common("noChanges") : undefined} disabled={saveSettings.isPending || !Object.keys(settingsDraft).length} onClick={() => saveSettings.mutate()}>
             <Save />{t("action.saveSettings")}
           </Button>
         </div>
@@ -298,7 +299,7 @@ function BankAccountDialog({ account, onClose, onSaved }: { account: CompanyBank
     <FieldWrapper label={t("bank.accountType")}><select className="h-10 w-full rounded-md border bg-background px-3" value={draft.account_type} onChange={(event) => set("account_type", event.target.value)}><option value="CURRENT">{t("bank.type.CURRENT")}</option><option value="SAVINGS">{t("bank.type.SAVINGS")}</option></select></FieldWrapper>
     <FieldWrapper label={t("bank.currency")}><Input maxLength={3} value={draft.currency ?? "MYR"} onChange={(event) => set("currency", event.target.value.toUpperCase())} /></FieldWrapper>
     <FieldWrapper className="sm:col-span-2" label={t("bank.swift")}><Input value={draft.swift_code ?? ""} onChange={(event) => set("swift_code", event.target.value.toUpperCase())} /></FieldWrapper>
-  </div><DialogFooter><Button variant="outline" onClick={onClose}>{common("cancel")}</Button><Button disabled={!draft.bank_name.trim() || !draft.account_name.trim() || (!account && !draft.account_number.trim()) || save.isPending} onClick={() => save.mutate()}><Save />{common("save")}</Button></DialogFooter></DialogContent></Dialog>;
+  </div><DialogFooter><Button variant="outline" onClick={onClose}>{common("cancel")}</Button><Button requires={[[draft.bank_name, t("bank.bankName")], [draft.account_name, t("bank.accountName")], [Boolean(account) || draft.account_number, t("bank.accountNumber")]]} disabled={save.isPending} onClick={() => save.mutate()}><Save />{common("save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function SectionHeading({ icon: Icon, title, description }: { icon: typeof Building2; title: string; description: string }) {

@@ -7,6 +7,30 @@ export interface ProjectCategory {
   name: string;
   description: string;
   sort_order: number;
+  /** Whether spending filed here counts against a budget; the owner's switch. */
+  tracks_spend: boolean;
+  /** Money, not weight - the amount comes off the supplier's delivery order. */
+  budget_amount: string | null;
+  budget_alert_percentages: number[];
+  spend_amount: string;
+  /**
+   * Deliveries whose amount could not be read off the paperwork.
+   *
+   * Surfaced rather than swallowed: a total that quietly skipped them reads
+   * as under budget precisely when the documents were unreadable.
+   */
+  spend_uncounted_deliveries: number;
+  budget_used_percent: number | null;
+  /** Shown because it was asked for; never used to decide an alert. */
+  tonnes_received: string;
+  tonnes_excluded_deliveries: number;
+  /**
+   * How many of this column's deliveries *the person asking* still owes a
+   * look, and how many they have filed away. Per reader, never shared: head
+   * office reading one must not empty the project manager's pile.
+   */
+  pending_deliveries: number | null;
+  archived_deliveries: number | null;
   is_visible_in_pwa: boolean;
   is_active: boolean;
   access_mode: "ALL" | "RESTRICTED";

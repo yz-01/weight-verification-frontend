@@ -86,7 +86,7 @@ export function FieldAccess() {
     return (
       <Centered>
         <Smartphone className="size-12 text-destructive" />
-        <h1 className="text-xl font-semibold">{t("invalidTitle")}</h1>
+        <h1 className="text-base font-semibold">{t("invalidTitle")}</h1>
         <p className="max-w-sm text-center text-sm text-muted-foreground">{t("invalidBody")}</p>
       </Centered>
     );
@@ -99,7 +99,7 @@ export function FieldAccess() {
           <span className="mb-4 flex size-12 items-center justify-center rounded-lg bg-white/15">
             <Camera className="size-7" />
           </span>
-          <h1 className="text-2xl font-semibold">{token ? t("activateTitle") : t("loginTitle")}</h1>
+          <h1 className="text-base font-semibold">{token ? t("activateTitle") : t("loginTitle")}</h1>
           <p className="mt-1 text-sm text-primary-foreground/80">
             {token ? invitation.data?.full_name : t("loginBody")}
           </p>
@@ -118,7 +118,7 @@ export function FieldAccess() {
               inputMode="numeric"
               autoComplete="one-time-code"
               maxLength={6}
-              className="h-14 text-center text-2xl"
+              className="h-12 text-center text-xl"
               value={pin}
               onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
             />
@@ -126,8 +126,9 @@ export function FieldAccess() {
           {error && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
           <Button
             size="lg"
-            className="h-14 w-full text-base"
-            disabled={pin.length !== 6 || pending}
+            className="h-12 w-full text-sm"
+            requires={[[pin.length === 6, t("pin")]]}
+            disabled={pending}
             onClick={() => void submit()}
           >
             {pending ? <Loader2 className="animate-spin" /> : <LogIn />}

@@ -15,6 +15,7 @@ const safeText = new Set([
   "RM",
   "SHA-256:",
   "XLSX",
+  "KB",
   "kg",
   "m",
   "s",

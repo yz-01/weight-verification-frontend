@@ -206,7 +206,7 @@ function CustomersPanel() {
         enableHiding: false,
         header: () => <span className="sr-only">{common("actions")}</span>,
         cell: ({ row }) => (
-          <div className="flex justify-end gap-1">
+          <div className="flex items-center justify-end gap-0.5">
             {row.original.customer_type === "PRIVATE" && (
               <Button
                 size="icon"
@@ -360,7 +360,7 @@ function CustomerDialog({ customer, onClose }: { customer: RecyclerCustomer | nu
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}><X />{common("cancel")}</Button>
-          <Button disabled={!form.company_name.trim() || save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[form.company_name, t("field.companyName")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             {save.isPending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
             {common("save")}
           </Button>
@@ -432,10 +432,10 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
                 <Power />{t(value.status === "ACTIVE" ? "action.disableQr" : "action.enableQr")}
               </Button>
             </div>
-            <FieldWrapper label={t("qr.reissueReason")}>
+            <FieldWrapper label={t("qr.reissueReason")} required>
               <div className="flex gap-2">
                 <Input value={reason} onChange={(event) => setReason(event.target.value)} />
-                <Button variant="outline" disabled={!reason.trim() || reissue.isPending} onClick={() => reissue.mutate()}>
+                <Button variant="outline" requires={[[reason, t("qr.reissueReason")]]} disabled={reissue.isPending} onClick={() => reissue.mutate()}>
                   <RefreshCw />{t("action.reissue")}
                 </Button>
               </div>
@@ -448,7 +448,7 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}><X />{common("close")}</Button>
-          {!value && <Button disabled={issue.isPending || !customer.is_active} onClick={() => issue.mutate()}><QrCode />{t("action.issueQr")}</Button>}
+          {!value && <Button disabledReason={!customer.is_active ? t("qr.needsActiveCustomer") : undefined} disabled={issue.isPending || !customer.is_active} onClick={() => issue.mutate()}><QrCode />{t("action.issueQr")}</Button>}
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -476,7 +476,7 @@ function PrivateIntakesPanel() {
     { accessorKey: "state", meta: { label: t("field.status") }, header: () => t("field.status"), cell: ({ row }) => <StatusBadge label={t(`intakeState.${row.original.state}`)} tone={row.original.state === "COMPLETED" ? "positive" : row.original.state === "CANCELLED" ? "danger" : "warning"} /> },
     { accessorKey: "net_weight_kg", meta: { label: t("field.netWeight") }, header: () => t("field.netWeight"), cell: ({ row }) => <span className="tabular-nums">{row.original.net_weight_kg ? `${row.original.net_weight_kg} kg` : common("emptyValue")}</span> },
     { accessorKey: "created_at", meta: { label: t("field.createdAt") }, header: ({ column }) => <SortableHeader label={t("field.createdAt")} isSorted={column.getIsSorted()} onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")} />, cell: ({ row }) => <span className="tabular-nums">{df.dateTime(row.original.created_at)}</span> },
-    { id: "actions", enableHiding: false, header: () => <span className="sr-only">{common("actions")}</span>, cell: ({ row }) => row.original.state === "WAITING_WEIGHING" && can("weighing.operate") ? <div className="flex justify-end gap-1"><Button size="sm" variant="outline" onClick={() => setCompleting(row.original)}><CheckCircle2 />{t("action.complete")}</Button><Button size="icon" variant="ghost" title={common("cancel")} onClick={() => setCancelling(row.original)}><X /></Button></div> : null },
+    { id: "actions", enableHiding: false, header: () => <span className="sr-only">{common("actions")}</span>, cell: ({ row }) => row.original.state === "WAITING_WEIGHING" && can("weighing.operate") ? <div className="flex items-center justify-end gap-0.5"><Button size="sm" variant="outline" onClick={() => setCompleting(row.original)}><CheckCircle2 />{t("action.complete")}</Button><Button size="icon" variant="ghost" title={common("cancel")} onClick={() => setCancelling(row.original)}><X /></Button></div> : null },
   ], [can, common, df, t]);
 
   return (
@@ -508,7 +508,6 @@ function StartIntakeDialog({ onClose }: { onClose: () => void }) {
   const [form, setForm] = useState<StartPrivateIntakePayload>({ token: "", site: "", material_type: "METAL", vehicle_plate: "", notes: "" });
   const sites = useQuery({ queryKey: ["sites", "private-intake"], queryFn: () => getSites({ page_size: 100 }) });
   const start = useMutation({ mutationFn: () => startPrivateIntake(form), onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["private-intakes"] }); onClose(); } });
-  const ready = form.token.trim() && form.site && form.material_type;
   return <>
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-xl">
@@ -524,7 +523,7 @@ function StartIntakeDialog({ onClose }: { onClose: () => void }) {
             <FieldWrapper label={t("field.notes")}><Input value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} /></FieldWrapper>
           </div>
         </div>
-        <DialogFooter><Button variant="outline" onClick={onClose}><X />{common("cancel")}</Button><Button disabled={!ready || start.isPending} onClick={() => start.mutate()}>{start.isPending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}{t("action.startIntake")}</Button></DialogFooter>
+        <DialogFooter><Button variant="outline" onClick={onClose}><X />{common("cancel")}</Button><Button requires={[[form.token, t("field.qrToken")], [form.site, t("field.yard")], [form.material_type, t("field.material")]]} disabled={start.isPending} onClick={() => start.mutate()}>{start.isPending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}{t("action.startIntake")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
     <GateQrScanner open={scanner} onClose={() => setScanner(false)} onDetected={(token) => setForm((current) => ({ ...current, token }))} />
@@ -541,5 +540,5 @@ function CompleteIntakeDialog({ intake, onClose }: { intake: PrivateIntake; onCl
   const usedSessionIds = new Set((completedIntakes.data?.results ?? []).map((row) => row.gross_session).filter(Boolean));
   const candidates = completedIntakes.isSuccess ? (sessions.data?.results ?? []).filter((row: WeighSessionRow) => row.direction === "GROSS" && row.state === "COMPLETED" && row.verdict === "VALID" && !row.dispatch_no && !usedSessionIds.has(row.id)) : [];
   const complete = useMutation({ mutationFn: () => completePrivateIntake(intake.id, session), onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["private-intakes"] }); void queryClient.invalidateQueries({ queryKey: ["recycler-inventory"] }); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("intakes.completeTitle", { no: intake.intake_no })}</DialogTitle><DialogDescription>{t("intakes.completeHelp")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.weighSession")} required><Select value={session} onValueChange={setSession}><SelectTrigger className="w-full"><SelectValue placeholder={common("selectPlaceholder")} /></SelectTrigger><SelectContent>{candidates.map((row) => <SelectItem key={row.id} value={row.id}>{row.session_no} · {row.vehicle_plate} · {row.stable_weight_kg ?? "—"} kg</SelectItem>)}</SelectContent></Select>{!sessions.isLoading && !completedIntakes.isLoading && candidates.length === 0 && <p className="mt-2 text-sm text-warning">{t("intakes.noEligibleSession")}</p>}</FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}><X />{common("cancel")}</Button><Button disabled={!session || complete.isPending} onClick={() => complete.mutate()}><CheckCircle2 />{t("action.complete")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("intakes.completeTitle", { no: intake.intake_no })}</DialogTitle><DialogDescription>{t("intakes.completeHelp")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.weighSession")} required><Select value={session} onValueChange={setSession}><SelectTrigger className="w-full"><SelectValue placeholder={common("selectPlaceholder")} /></SelectTrigger><SelectContent>{candidates.map((row) => <SelectItem key={row.id} value={row.id}>{row.session_no} · {row.vehicle_plate} · {row.stable_weight_kg ?? "—"} kg</SelectItem>)}</SelectContent></Select>{!sessions.isLoading && !completedIntakes.isLoading && candidates.length === 0 && <p className="mt-2 text-sm text-warning">{t("intakes.noEligibleSession")}</p>}</FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}><X />{common("cancel")}</Button><Button requires={[[session, t("field.weighSession")]]} disabled={complete.isPending} onClick={() => complete.mutate()}><CheckCircle2 />{t("action.complete")}</Button></DialogFooter></DialogContent></Dialog>;
 }

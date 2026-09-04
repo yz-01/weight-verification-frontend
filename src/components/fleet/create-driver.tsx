@@ -2,10 +2,11 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ImageUp, Plus, Save } from "lucide-react";
+import { ImageUp, Info, Plus, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import {
   SelectField,
@@ -48,9 +49,16 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
     queryKey: ["vehicles", "options"],
     queryFn: () => getVehicles({ page_size: 100, is_active: "true" }),
   });
+  // `driver` keeps this driver's own login in the list. The endpoint hides
+  // accounts that are already somebody's login — offering a taken one is a
+  // choice that can only be refused — and without this the edit form's account
+  // field would empty itself the moment it loaded.
   const { data: accountPage } = useQuery({
-    queryKey: ["driver-accounts", "options"],
-    queryFn: () => getDriverAccounts({ page_size: 100 }),
+    queryKey: ["driver-accounts", "options", driver?.id ?? ""],
+    queryFn: () =>
+      getDriverAccounts(
+        driver ? { page_size: 100, driver: driver.id } : { page_size: 100 },
+      ),
   });
 
   const mutation = useMutation({
@@ -82,11 +90,26 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
+      // A driver without a login is a driver whose task list is empty forever,
+      // with nothing on either screen to say why. Caught here as well as on
+      // the server so the answer arrives before the round trip.
+      if (!value.user && !(value.account_email.trim() && value.account_password)) {
+        setFormError(t("drivers.accountRequired"));
+        toast.error(t("drivers.accountRequired"));
+        return;
+      }
+      // Same reason as the account above: the server refuses this, and the
+      // answer is already here, so say it now rather than after a round trip.
+      if (!value.default_vehicle) {
+        setFormError(t("drivers.vehicleRequired"));
+        toast.error(t("drivers.vehicleRequired"));
+        return;
+      }
       try {
         await mutation.mutateAsync({
           ...value,
           licence_expires_on: value.licence_expires_on || null,
-          default_vehicle: value.default_vehicle || null,
+          default_vehicle: value.default_vehicle,
           user: value.user || null,
           account_email: value.account_email.trim() || undefined,
           account_password: value.account_password || undefined,
@@ -95,12 +118,24 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
           ...(driverPhoto ? { photo: driverPhoto } : {}),
         });
       } catch (error) {
-        if (error instanceof ApiError && error.isValidation) {
-          const leftover = applyServerErrors(
-            error.errors,
-            form as unknown as Parameters<typeof applyServerErrors>[1],
-          );
-          if (leftover.length > 0) setFormError(leftover[0]);
+        if (error instanceof ApiError) {
+          if (error.isValidation) {
+            const leftover = applyServerErrors(
+              error.errors,
+              form as unknown as Parameters<typeof applyServerErrors>[1],
+            );
+            if (leftover.length > 0) setFormError(leftover[0]);
+            toast.error(
+              leftover[0] ??
+                error.errors.user ??
+                error.errors.account_email ??
+                error.errors.account_password ??
+                error.message,
+            );
+          } else {
+            setFormError(error.message);
+            toast.error(error.message);
+          }
         }
       }
     },
@@ -176,7 +211,6 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
             <SelectField
               field={field as unknown as BoundField}
               label={t("drivers.field.defaultVehicle")}
-              optional
               options={(vehiclePage?.results ?? []).map((vehicle) => ({
                 value: vehicle.id,
                 label: vehicle.plate_no,
@@ -184,15 +218,25 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
             />
           )}
         </form.Field>
+        <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          {t("drivers.vehicleRequiredHelp")}
+        </p>
       </FormSection>
 
       <FormSection title={t("drivers.section.account")}>
+        <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          {t("drivers.accountRequiredHelp")}
+        </p>
+
         <form.Field name="user">
           {(field) => (
             <SelectField
               field={field as unknown as BoundField}
               label={t("drivers.field.account")}
-              optional
+              required
+              hint={t("drivers.field.accountHint")}
               options={(accountPage?.results ?? []).map((account) => ({
                 value: account.id,
                 label: `${account.full_name} (${account.email})`,
@@ -200,31 +244,41 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
             />
           )}
         </form.Field>
-        {!driver?.user && (
-          <>
-            <form.Field name="account_email">
-              {(field) => (
-                <TextField
-                  field={field as unknown as BoundField}
-                  label={t("drivers.field.newAccountEmail")}
-                  type="email"
-                  optional
-                  placeholder={t("auth.login.emailPlaceholder")}
-                />
-              )}
-            </form.Field>
-            <form.Field name="account_password">
-              {(field) => (
-                <TextField
-                  field={field as unknown as BoundField}
-                  label={t("drivers.field.initialPassword")}
-                  type="password"
-                  optional
-                />
-              )}
-            </form.Field>
-          </>
-        )}
+
+        {/*
+          The two ways to bind an account are exclusive, and the server says so:
+          sending both is refused. So the "make a new one" half appears only
+          while nothing is picked — which is also the path for moving a driver
+          onto a brand-new login, since clearing the picker brings it back.
+        */}
+        <form.Subscribe selector={(state) => state.values.user}>
+          {(selected) =>
+            selected ? null : (
+              <>
+                <form.Field name="account_email">
+                  {(field) => (
+                    <TextField
+                      field={field as unknown as BoundField}
+                      label={t("drivers.field.newAccountEmail")}
+                      type="email"
+                      placeholder={t("auth.login.emailPlaceholder")}
+                    />
+                  )}
+                </form.Field>
+                <form.Field name="account_password">
+                  {(field) => (
+                    <TextField
+                      field={field as unknown as BoundField}
+                      label={t("drivers.field.initialPassword")}
+                      type="password"
+                    />
+                  )}
+                </form.Field>
+              </>
+            )
+          }
+        </form.Subscribe>
+
         <form.Field name="login_idle_expiry_days">
           {(field) => (
             <TextField

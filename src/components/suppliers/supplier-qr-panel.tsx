@@ -15,6 +15,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { useRef, useState } from "react";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { SupplierSiteCodes } from "@/components/suppliers/supplier-site-codes";
 import { FormSection } from "@/components/shared/form-shell";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,24 @@ import {
   setSupplierQrStatus,
 } from "@/services/contractor.service";
 
+/**
+ * Everything printable about one supplier.
+ *
+ * Two codes live here and they are not interchangeable. The supplier's own
+ * code identifies the company alone, so a clerk scanning it still has to say
+ * which site the load arrived at. A site code names both, and is the one a
+ * receipt cites.
+ */
 export function SupplierQrPanel({ supplier }: { supplier: Supplier }) {
+  return (
+    <>
+      <SupplierOwnQrPanel supplier={supplier} />
+      <SupplierSiteCodes supplier={supplier} />
+    </>
+  );
+}
+
+function SupplierOwnQrPanel({ supplier }: { supplier: Supplier }) {
   const t = useTranslations("suppliers.qr");
   const queryClient = useQueryClient();
   const qrRef = useRef<HTMLCanvasElement>(null);

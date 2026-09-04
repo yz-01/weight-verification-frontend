@@ -146,6 +146,9 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         </div>
         <Button
           variant="outline"
+          disabledReason={
+            !list.hasFilters ? t("common.noFiltersSet") : undefined
+          }
           disabled={!list.hasFilters}
           onClick={list.clearFilters}
         >

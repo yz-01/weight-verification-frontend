@@ -66,6 +66,7 @@ import {
   getSuppliers,
   readDeliveryNote,
   scanQRCode,
+  scanSupplierQr,
 } from "@/services/contractor.service";
 import {
   submitConsultantSubmissionOfflineAware,
@@ -171,7 +172,7 @@ export function FieldRecordsPanel({
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">{t("records.title")}</h2>
+        <h2 className="text-base font-semibold">{t("records.title")}</h2>
         <p className="text-sm text-muted-foreground">{t("records.subtitle")}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -181,13 +182,13 @@ export function FieldRecordsPanel({
             <button
               key={option.key}
               type="button"
-              className="flex min-h-32 flex-col items-start justify-between rounded-xl border bg-card p-4 text-left shadow-sm active:scale-[0.98]"
+              className="flex min-h-28 flex-col items-start justify-between rounded-lg border bg-card p-3.5 text-left shadow-sm active:scale-[0.98]"
               onClick={() => chooseMode(option.key)}
             >
-              <span className={`grid size-11 place-items-center rounded-xl ${option.tone}`}>
-                <Icon className="size-6" />
+              <span className={`grid size-10 place-items-center rounded-lg ${option.tone}`}>
+                <Icon className="size-5" />
               </span>
-              <span className="mt-4 text-base font-semibold leading-5">
+              <span className="mt-4 text-sm font-semibold leading-5">
                 {t(`records.${option.key}`)}
               </span>
             </button>
@@ -214,7 +215,7 @@ function RecordFrame({
         <Button size="icon" variant="outline" title={t("action.back")} onClick={onBack}>
           <ArrowLeft />
         </Button>
-        <h2 className="text-lg font-semibold">{title}</h2>
+        <h2 className="text-base font-semibold">{title}</h2>
       </div>
       {children}
     </section>
@@ -312,16 +313,41 @@ function MaterialCapturePanel({
     [dockets.data, draft.project, draft.supplier, scannedQr],
   );
 
+  /*
+    Two different codes get printed on a site and a clerk cannot tell them
+    apart by looking. A *docket* names one delivery and brings the project and
+    the supplier with it; a *supplier* code is the company's own card and names
+    only the supplier. Only the first was ever resolved, so scanning the second
+    said "this code is not valid" - which reads as a broken sticker rather than
+    the wrong lookup, and there is no way for the person holding the phone to
+    tell the difference (F-101).
+
+    So: try the docket, and on a miss try the supplier before giving up. The
+    supplier fills itself in and the project stays for the clerk to pick,
+    because a supplier code genuinely does not know which site it is on.
+  */
   const qrScan = useMutation({
-    mutationFn: scanQRCode,
-    onSuccess: (code) => {
-      setScannedQr(code);
-      setDraft((old) => ({
-        ...old,
-        project: code.project,
-        supplier: code.supplier,
-      }));
+    mutationFn: async (token: string) => {
+      try {
+        return { kind: "DOCKET" as const, code: await scanQRCode(token) };
+      } catch (reason) {
+        if (!(reason instanceof ApiError) || reason.status !== 404) throw reason;
+        return { kind: "SUPPLIER" as const, supplier: await scanSupplierQr(token) };
+      }
+    },
+    onSuccess: (result) => {
       setError("");
+      if (result.kind === "DOCKET") {
+        setScannedQr(result.code);
+        setDraft((old) => ({
+          ...old,
+          project: result.code.project,
+          supplier: result.code.supplier,
+        }));
+        return;
+      }
+      setScannedQr(undefined);
+      setDraft((old) => ({ ...old, supplier: result.supplier.id }));
     },
     onError: (reason) => setError(
       reason instanceof ApiError ? reason.message : t("material.qrInvalid"),
@@ -469,24 +495,10 @@ function MaterialCapturePanel({
     ),
   });
 
-  const valid = Boolean(
-    draft.project &&
-      draft.supplier &&
-      draft.materialName.trim() &&
-      Number(draft.quantity) > 0 &&
-      (draft.movementType === "ENTRY" ||
-        (draft.returnReason &&
-          (draft.returnReason !== "OTHER" || draft.returnReasonOther.trim()))) &&
-      hasRequiredFieldEvidence(materialEvidence) &&
-      receiverSignature &&
-      supplierSignature &&
-      location,
-  );
-
   return (
     <div className="space-y-4 rounded-xl border bg-card p-4 shadow-sm">
       <Button
-        className="h-14 w-full text-base"
+        className="h-12 w-full text-sm"
         variant="outline"
         disabled={qrScan.isPending}
         onClick={() => setScannerOpen(true)}
@@ -661,7 +673,7 @@ function MaterialCapturePanel({
       </Button>
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-14 w-full text-base" disabled={!valid || save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [receiverSignature, t("material.receiverSignature")], [supplierSignature, t("material.supplierSignature")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {t("material.submit")}
       </Button>
@@ -803,8 +815,14 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         </p>
       )}
       <Button
-        className="h-14 w-full text-base"
-        disabled={!project || !category || !hasRequiredFieldEvidence(evidence) || !location || save.isPending}
+        className="h-12 w-full text-sm"
+        requires={[
+          [project, t("consultantCapture.project")],
+          [category, t("consultantCapture.category")],
+          [hasRequiredFieldEvidence(evidence), t("consultantEvidence.title")],
+          [location, t("consultantEvidence.location")],
+        ]}
+        disabled={save.isPending}
         onClick={() => save.mutate()}
       >
         {save.isPending ? <Loader2 className="animate-spin" /> : <UserRoundCheck />}
@@ -831,6 +849,7 @@ function WasteOutgoingCapturePanel({
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("");
   const [note, setNote] = useState("");
+  const [pickupAddress, setPickupAddress] = useState("");
   const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
   const [location, setLocation] = useState<Coordinates>();
   const [locating, setLocating] = useState(false);
@@ -860,6 +879,7 @@ function WasteOutgoingCapturePanel({
         quantity: quantity.trim() || undefined,
         unit: quantity.trim() ? unit : undefined,
         note: note.trim() || undefined,
+        pickup_address: pickupAddress.trim() || undefined,
         latitude: location.latitude,
         longitude: location.longitude,
         device_id: getOrCreateFieldDeviceId(),
@@ -906,10 +926,6 @@ function WasteOutgoingCapturePanel({
   };
 
   const quantityIncomplete = quantity.trim() !== "" && unit === "";
-  const ready =
-    Boolean(user && project && category && location) &&
-    hasRequiredFieldEvidence(evidence) &&
-    !quantityIncomplete;
 
   return (
     <div className="space-y-4">
@@ -939,7 +955,7 @@ function WasteOutgoingCapturePanel({
         <FieldWrapper label={t("field.quantity")} optional={t("field.optional")}>
           <Input className="h-12" type="number" min="0" step="0.001" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={t("field.unit")} optional={t("field.optional")} error={quantityIncomplete ? t("field.unitRequired") : undefined}>
+        <FieldWrapper label={t("field.unit")} required={quantity.trim() !== ""} error={quantityIncomplete ? t("field.unitRequired") : undefined}>
           <Select value={unit} onValueChange={setUnit}>
             <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("field.selectUnit")} /></SelectTrigger>
             <SelectContent>
@@ -950,6 +966,17 @@ function WasteOutgoingCapturePanel({
           </Select>
         </FieldWrapper>
       </div>
+      <FieldWrapper
+        label={t("field.pickupAddress")}
+        optional={t("field.optional")}
+        hint={t("field.pickupAddressHint")}
+      >
+        <Textarea
+          rows={2}
+          value={pickupAddress}
+          onChange={(event) => setPickupAddress(event.target.value)}
+        />
+      </FieldWrapper>
       <FieldWrapper label={t("field.note")} optional={t("field.optional")}>
         <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
       </FieldWrapper>
@@ -970,7 +997,7 @@ function WasteOutgoingCapturePanel({
       </Button>
       {location && <p className="text-center text-xs tabular-nums text-muted-foreground">{location.latitude}, {location.longitude}</p>}
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-14 w-full text-base" disabled={!ready || save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("field.photos")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <Recycle />}
         {t("action.submit")}
       </Button>

@@ -72,13 +72,21 @@ import {
   updateConsultantOrganization,
 } from "@/services/consultant-workflow.service";
 
+/**
+ * Everything a consultant may be granted, and what a new grant starts with.
+ *
+ * Mirrors `CONSULTANT_PERMISSION_CODES` and `default_consultant_permissions`
+ * on the backend, which are authoritative: a tick the API refuses comes back
+ * as a 400 on the permissions field. Company documents and construction
+ * progress are deliberately absent — a consultant inspects the safety record
+ * and signs approvals, and the rest of the contractor's business is not
+ * theirs to read.
+ */
 const PERMISSIONS = [
   "project.view",
-  "document.view",
   "approval.view",
   "approval.review",
   "notification.view",
-  "progress.view",
   "safety.view",
   "report.view",
   "report.export",
@@ -86,19 +94,17 @@ const PERMISSIONS = [
 
 const DEFAULT_PERMISSIONS = [
   "project.view",
-  "document.view",
   "approval.view",
   "approval.review",
   "notification.view",
+  "safety.view",
 ];
 
 const PERMISSION_MESSAGE_KEYS: Record<(typeof PERMISSIONS)[number], string> = {
   "project.view": "project_view",
-  "document.view": "document_view",
   "approval.view": "approval_view",
   "approval.review": "approval_review",
   "notification.view": "notification_view",
-  "progress.view": "progress_view",
   "safety.view": "safety_view",
   "report.view": "report_view",
   "report.export": "report_export",
@@ -370,6 +376,13 @@ export function ConsultantAccessManagement() {
               can("project.assign") ? (
                 <Button
                   size="sm"
+                  disabledReason={
+                    !memberRows.length
+                      ? t("grant.needsConsultants")
+                      : !projects.data?.count
+                        ? t("grant.needsProjects")
+                        : undefined
+                  }
                   disabled={!memberRows.length || !projects.data?.count}
                   onClick={() => setGrantDialog(null)}
                 >
@@ -628,7 +641,7 @@ function OrganizationDialog({
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button disabled={!form.name.trim() || save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[form.name, t("field.organizationName")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             {save.isPending ? <Loader2 className="animate-spin" /> : <Building2 />}
             {t("action.save")}
           </Button>
@@ -748,7 +761,7 @@ function ConsultantInviteDialog({
           ) : (
             <>
               <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-              <Button disabled={!organization || !name.trim() || !email.trim() || save.isPending} onClick={() => save.mutate()}>
+              <Button requires={[[organization, t("field.organization")], [name, t("field.fullName")], [email, t("field.email")]]} disabled={save.isPending} onClick={() => save.mutate()}>
                 {save.isPending ? <Loader2 className="animate-spin" /> : <UserPlus />}
                 {t("consultant.sendInvite")}
               </Button>
@@ -841,7 +854,7 @@ function GrantDialog({
           <FieldWrapper label={t("field.validFrom")} required>
             <Input type="datetime-local" value={validFrom} onChange={(event) => setValidFrom(event.target.value)} />
           </FieldWrapper>
-          <FieldWrapper label={t("field.validUntil")}>
+          <FieldWrapper label={t("field.validUntil")} required={!noExpiry}>
             <Input type="datetime-local" disabled={noExpiry} value={validUntil} onChange={(event) => setValidUntil(event.target.value)} />
           </FieldWrapper>
           <label className="flex items-center gap-3 rounded-lg border p-3 sm:col-span-2">
@@ -876,7 +889,7 @@ function GrantDialog({
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button disabled={!organization || !consultant || !project || !permissions.length || !validFrom || (!noExpiry && !validUntil) || save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[organization, t("field.organization")], [consultant, t("field.consultant")], [project, t("field.project")], [permissions.length, t("field.permissions")], [validFrom, t("field.validFrom")], [noExpiry || validUntil, t("field.validUntil")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             {save.isPending ? <Loader2 className="animate-spin" /> : <ShieldCheck />}
             {t("action.save")}
           </Button>

@@ -94,9 +94,6 @@ export function UserHandoverDialog({
       }),
     onSuccess: onSaved,
   });
-  const blocked =
-    !reason.trim() ||
-    (mode === "existing" ? !incomingUser : !fullName.trim() || !email.trim());
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -231,7 +228,8 @@ export function UserHandoverDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={blocked || save.isPending}
+            requires={[[reason, t("field.reason")], [mode === "existing" ? incomingUser : fullName, mode === "existing" ? t("field.incomingUser") : t("field.fullName")], [mode === "existing" || email, t("field.email")]]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             {save.isPending ? (

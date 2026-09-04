@@ -18,6 +18,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { AnnouncementPanel } from "@/components/platform-settings/announcement-panel";
+import { FeatureFlagPanel } from "@/components/platform-settings/feature-flag-panel";
 import { VersionList } from "@/components/platform-settings/version-list";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
@@ -54,7 +56,8 @@ export type SystemSettingsSection =
   | "api-gateway"
   | "versions"
   | "notifications"
-  | "maintenance";
+  | "maintenance"
+  | "feature-flags";
 
 const SUBMODULES: Array<{
   section: Exclude<SystemSettingsSection, "overview">;
@@ -72,6 +75,7 @@ const SUBMODULES: Array<{
   { section: "versions", number: "11.2.9" },
   { section: "notifications", number: "11.2.10", group: "notifications" },
   { section: "maintenance", number: "11.2.11", group: "maintenance" },
+  { section: "feature-flags", number: "11.2.12" },
 ];
 
 const CHOICES: Record<string, string[]> = {
@@ -101,6 +105,17 @@ export function SystemSettingsWorkspace({
 
   if (section === "versions") return <VersionList />;
   if (section === "cwe") return <DetectionSettings />;
+  if (section === "feature-flags") {
+    return (
+      <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+        <ListHeader
+          title={t("section.feature-flags.title")}
+          subtitle={t("section.feature-flags.subtitle")}
+        />
+        <FeatureFlagPanel />
+      </div>
+    );
+  }
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
@@ -244,6 +259,10 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
               company={company || undefined}
             />
           )}
+          {/* 11.2.10 lists 系统公告 as one of the notification channels, and it
+              is the platform's own, so it is edited here rather than per
+              tenant. */}
+          {group === "notifications" && !company && <AnnouncementPanel />}
           <div className="divide-y">
             {basicRows.map((row) => (
               <ConfigRow
@@ -524,6 +543,7 @@ function ConfigRow({
   advanced?: boolean;
 }) {
   const t = useTranslations("adminSystemSettings");
+  const common = useTranslations("common");
   const df = useDateFormat();
   const { can, refresh } = useAuth();
   const queryClient = useQueryClient();
@@ -683,6 +703,7 @@ function ConfigRow({
           <Button
             size="sm"
             className="flex-1 lg:flex-none"
+            disabledReason={row.is_readonly ? common("readOnlySetting") : value === row.value ? common("noChanges") : undefined}
             disabled={row.is_readonly || value === row.value || save.isPending}
             onClick={() => save.mutate()}
           >

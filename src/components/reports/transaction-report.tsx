@@ -202,6 +202,9 @@ export function TransactionReport() {
               variant="outline"
               size="sm"
               className="rounded-full px-4"
+              disabledReason={
+                !list.hasFilters ? t("common.noFiltersSet") : undefined
+              }
               disabled={!list.hasFilters}
               onClick={list.clearFilters}
             >

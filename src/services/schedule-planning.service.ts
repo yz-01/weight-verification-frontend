@@ -31,6 +31,25 @@ export const createSchedulePlan = async (payload: {
   return row;
 };
 
+/**
+ * Rename a plan, or fix its description.
+ *
+ * Only those two - the baseline that came with the plan is a revision, and
+ * revisions are edited on their own. Two plans on one site may not share a
+ * name, so the API answers 409 and the error toast carries the reason.
+ */
+export const updateSchedulePlan = async (
+  id: string,
+  payload: { name?: string; description?: string },
+) => {
+  const row = await api.patch<SchedulePlan>(
+    `/api/schedules/${id}/update_plan/`,
+    payload,
+  );
+  toastSuccess("schedulePlanning.toast.planUpdated");
+  return row;
+};
+
 export const archiveSchedulePlan = async (id: string, reason: string) => {
   const row = await api.post<SchedulePlan>(
     `/api/schedules/${id}/archive_plan/`,
@@ -53,6 +72,25 @@ export const createScheduleRevision = async (payload: {
     payload,
   );
   toastSuccess("schedulePlanning.toast.revisionCreated");
+  return row;
+};
+
+/**
+ * Correct a draft revision's label or the reason it exists.
+ *
+ * Refused with 409 once the revision is confirmed: from that point it is the
+ * schedule everyone is working to, and the reason recorded against it is part
+ * of why the dates changed. The console offers the control on drafts only.
+ */
+export const updateScheduleRevision = async (
+  id: string,
+  payload: { label?: string; reason?: string },
+) => {
+  const row = await api.patch<ScheduleRevision>(
+    `/api/schedule-revisions/${id}/update_revision/`,
+    payload,
+  );
+  toastSuccess("schedulePlanning.toast.revisionUpdated");
   return row;
 };
 

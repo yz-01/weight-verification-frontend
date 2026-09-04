@@ -359,6 +359,9 @@ export function DataTable<T>({
           <Button
             variant="outline"
             size="sm"
+            disabledReason={
+              page <= 1 ? t("common.alreadyFirstPage") : undefined
+            }
             disabled={page <= 1}
             onClick={() => onPageChange(page - 1)}
             className="h-8 rounded-full border-border bg-card px-3 text-xs"

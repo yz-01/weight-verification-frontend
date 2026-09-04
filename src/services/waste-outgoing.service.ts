@@ -7,7 +7,8 @@ import type {
   WasteOutgoingTotals,
   WasteTracking,
 } from "@/interfaces/waste-outgoing";
-import { api, toastSuccess } from "@/services/api-client";
+import { api, download, toastSuccess } from "@/services/api-client";
+import type { ExportRequest } from "@/services/contractor.service";
 
 export const getWasteCategories = (query: ListQuery = {}) =>
   api.list<WasteCategory>("/api/waste-categories/get_categories/", query);
@@ -49,6 +50,44 @@ export const updateWasteCategory = async (
   return row;
 };
 
+/**
+ * Remove a category outright.
+ *
+ * Refused for the seven the customer named and for any category records
+ * already cite - deactivating is the supported way to retire those, because a
+ * record pointing at a category the picker no longer offers reads as corrupt
+ * data rather than as history.
+ */
+export const deleteWasteCategory = async (id: string) => {
+  await api.delete(`/api/waste-categories/${id}/delete_category/`);
+  toastSuccess("wasteOutgoing.toast.categoryRemoved");
+};
+
+/**
+ * Hand over the waste list as it stands on screen.
+ *
+ * Same rule as every other export here: the filters go as query parameters
+ * and the API renders the filtered queryset, so the file matches the screen
+ * rather than being a second, differently scoped query.
+ */
+export function exportWasteOutgoingRecords(request: ExportRequest): Promise<void> {
+  const { page, page_size, ...query } = request.query;
+  void page;
+  void page_size;
+  return download("/api/waste-outgoing/export_records/", {
+    method: "POST",
+    query,
+    body: {
+      format: request.format,
+      title: request.title,
+      subtitle: request.subtitle ?? "",
+      empty_label: request.emptyLabel ?? "",
+      columns: request.columns,
+    },
+    fallbackFilename: `waste-outgoing.${request.format}`,
+  });
+}
+
 /** 8.2.12-B: query by date, project, recycler, category and status. */
 export const getWasteOutgoingRecords = (query: ListQuery = {}) =>
   api.list<WasteOutgoingRecord>("/api/waste-outgoing/get_records/", query);
@@ -84,6 +123,7 @@ export async function createWasteOutgoingRecord(input: {
   device_id?: string;
   client_event_id?: string;
   field_task?: string;
+  pickup_address?: string;
   photos: File[];
 }): Promise<WasteOutgoingRecord> {
   const data = new FormData();
@@ -98,6 +138,7 @@ export async function createWasteOutgoingRecord(input: {
     "device_id",
     "client_event_id",
     "field_task",
+    "pickup_address",
   ] as const) {
     const value = input[key];
     if (value) data.append(key, value);
@@ -145,6 +186,26 @@ export async function submitWasteCollectionRequest(
   return row;
 }
 
+/** The people this company has authorised to decide these applications. */
+export function getWasteOutgoingDelegateOptions(): Promise<{
+  results: { id: string; name: string; role: string }[];
+}> {
+  return api.get("/api/waste-outgoing/get_delegate_options/");
+}
+
+export async function delegateWasteOutgoingReview(
+  id: string,
+  user: string,
+  note = "",
+): Promise<WasteOutgoingRecord> {
+  const row = await api.post<WasteOutgoingRecord>(
+    `/api/waste-outgoing/${id}/delegate_review/`,
+    { user, note },
+  );
+  toastSuccess("wasteOutgoing.toast.handedOver");
+  return row;
+}
+
 export async function reviewWasteOutgoingRequest(
   id: string,
   decision: "APPROVED" | "RETURNED",
@@ -175,6 +236,8 @@ export async function assignWasteRecycler(
     recycler: string;
     estimated_weight_kg?: string;
     description?: string;
+    /** Left out and whatever the site recorded stands. */
+    pickup_address?: string;
   },
 ): Promise<WasteOutgoingRecord> {
   const row = await api.post<WasteOutgoingRecord>(

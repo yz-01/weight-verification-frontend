@@ -266,7 +266,8 @@ export function IncidentThreadDetail({
               size="icon"
               className="size-11 shrink-0"
               title={t("action.create")}
-              disabled={(!body.trim() && !photo) || sendMessage.isPending}
+              requires={[[body || photo, t("field.messagePlaceholder")]]}
+              disabled={sendMessage.isPending}
               onClick={handleSend}
             >
               {sendMessage.isPending ? (

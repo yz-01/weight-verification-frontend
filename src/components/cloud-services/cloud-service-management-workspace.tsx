@@ -715,14 +715,14 @@ function ServiceDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={
-              !form.vendor ||
-              !form.type ||
-              !form.name ||
-              !form.description ||
-              !form.subscription_start ||
-              save.isPending
-            }
+            requires={[
+              [form.vendor, t("field.vendor")],
+              [form.type, t("field.serviceType")],
+              [form.name, t("field.name")],
+              [form.description, t("field.description")],
+              [form.subscription_start, t("field.subscriptionStart")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Save />
@@ -1023,7 +1023,11 @@ function VendorDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={!form.code || !form.name || save.isPending}
+            requires={[
+              [form.code, t("field.code")],
+              [form.name, t("field.name")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Save />
@@ -1280,7 +1284,11 @@ function PlanDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={!form.plan_code || !form.name || save.isPending}
+            requires={[
+              [form.plan_code, t("field.code")],
+              [form.name, t("field.planName")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Save />
@@ -1532,13 +1540,13 @@ function UsageDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={
-              !form.service_id ||
-              !form.usage_date ||
-              !form.usage_amount ||
-              !form.usage_unit ||
-              save.isPending
-            }
+            requires={[
+              [form.service_id, t("field.service")],
+              [form.usage_date, t("field.usageDate")],
+              [form.usage_amount, t("field.usageAmount")],
+              [form.usage_unit, t("field.usageUnit")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Save />
@@ -1811,9 +1819,12 @@ function BudgetDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={
-              !form.year || !form.month || !form.amount || save.isPending
-            }
+            requires={[
+              [form.year, t("field.year")],
+              [form.month, t("field.month")],
+              [form.amount, t("field.budget")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Save />
@@ -2107,12 +2118,12 @@ function PricingDialog({
             {t("action.cancel")}
           </Button>
           <Button
-            disabled={
-              !form.rule_code ||
-              !form.name ||
-              !form.effective_from ||
-              save.isPending
-            }
+            requires={[
+              [form.rule_code, t("field.code")],
+              [form.name, t("field.name")],
+              [form.effective_from, t("field.effectiveFrom")],
+            ]}
+            disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Save />

@@ -7,8 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "npm run check:messages && eslint",
-    "check:messages": "node scripts/check-messages.mjs && node scripts/check-untranslated-ui.mjs",
+    "check:messages": "node scripts/check-messages.mjs && node scripts/check-message-keys.mjs && node scripts/check-untranslated-ui.mjs && node scripts/check-list-params.mjs && node scripts/check-disabled-buttons.mjs && node scripts/check-ui-consistency.mjs && node scripts/check-required-stars.mjs",
+    "check:env": "node scripts/check-env-parity.mjs",
     "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -47,6 +49,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

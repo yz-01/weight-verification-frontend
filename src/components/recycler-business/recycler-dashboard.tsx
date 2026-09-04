@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -48,7 +48,16 @@ import type {
 } from "@/interfaces/recycler-dashboard";
 import { useDateFormat } from "@/lib/dates";
 import { getRecyclerDashboard } from "@/services/recycler-dashboard.service";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getSites } from "@/services/weighing.service";
 import { getDriverLivePositions, getDriverLiveRoutes } from "@/services/driver-gps.service";
+import { trackPaths } from "@/lib/track-paths";
 
 interface MetricCardProps {
   label: string;
@@ -72,25 +81,33 @@ const CHART_COLORS = {
   outbound: "#16825d",
 } as const;
 
+/** Sentinel for "the whole company"; an empty string is not a valid id. */
+const ALL_YARDS = "__all__";
+
 export function RecyclerDashboard({ features }: { features: string[] }) {
   const t = useTranslations();
   const format = useFormatter();
   const df = useDateFormat();
+  const [site, setSite] = useState(ALL_YARDS);
+  const yards = useQuery({
+    queryKey: ["recycling-sites", "dashboard"],
+    queryFn: () => getSites({ page_size: 100, sort_by: "name" }),
+  });
   const dashboard = useQuery({
-    queryKey: ["recycler-dashboard"],
-    queryFn: getRecyclerDashboard,
+    queryKey: ["recycler-dashboard", site],
+    queryFn: () => getRecyclerDashboard(site === ALL_YARDS ? undefined : site),
     refetchInterval: 15_000,
     staleTime: 30_000,
   });
   const realtimeKeys = useMemo(
     () => [
-      ["recycler-dashboard"],
+      ["recycler-dashboard", site],
       ["incoming"],
       ["tasks"],
       ["driver-gps", "live"],
       ["driver-gps", "live-routes"],
     ],
-    [],
+    [site],
   );
   useOrderRealtime(realtimeKeys);
 
@@ -191,8 +208,34 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
     },
   ].filter((action) => features.includes(action.feature));
 
+  const yardRows = yards.data?.results ?? [];
+  const narrowed = data.site?.id != null;
+
   return (
     <div className="space-y-8">
+      {yardRows.length > 1 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3">
+          <span className="text-sm font-medium">{t("recyclerYard.filter")}</span>
+          <Select value={site} onValueChange={setSite}>
+            <SelectTrigger className="h-9 w-56" aria-label={t("recyclerYard.filter")}>
+              <SelectValue placeholder={t("recyclerYard.all")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_YARDS}>{t("recyclerYard.all")}</SelectItem>
+              {yardRows.map((yard) => (
+                <SelectItem key={yard.id} value={yard.id}>
+                  {yard.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {narrowed && (
+            <p className="text-xs text-muted-foreground">
+              {t("recyclerYard.companyWideNote")}
+            </p>
+          )}
+        </div>
+      )}
       {data.business_today && (
         <section className="space-y-3" aria-labelledby="recycler-today-title">
           <SectionHeading
@@ -539,19 +582,20 @@ function RecyclerDriverMap() {
   const paths = useMemo<LocationMapPath[]>(
     () =>
       (routes.data?.routes ?? []).flatMap((route, index) => {
-        const points = route.positions.map(
-          (point) => [Number(point.latitude), Number(point.longitude)] as [number, number],
-        );
-        if (points.length < 2) return [];
         const driver = byTask.get(route.task);
-        return [{
+        return trackPaths({
           id: route.task,
-          points,
+          points: route.positions.map((point) => ({
+            latitude: point.latitude,
+            longitude: point.longitude,
+            occurredAt: point.original_occurred_at,
+          })),
           color: ["#2563eb", "#7c3aed", "#15803d", "#a16207"][index % 4],
           label: driver ? `${driver.driver_name} · ${driver.vehicle_plate}` : undefined,
-        }];
+          gapLabel: (minutes) => t("driver.track.gap", { minutes }),
+        });
       }),
-    [byTask, routes.data?.routes],
+    [byTask, routes.data?.routes, t],
   );
 
   return (

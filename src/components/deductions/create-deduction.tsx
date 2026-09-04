@@ -4,7 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import {
@@ -42,10 +42,19 @@ export function CreateDeduction() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);
+  // Arrived here from the weighing screen: the operator has already told us
+  // which load they are standing in front of, so do not make them find it in a
+  // list of a hundred.
+  const presetDispatch = useSearchParams().get("dispatch") ?? "";
 
   const { data: loadPage } = useQuery({
     queryKey: ["incoming", "options", "collected"],
-    queryFn: () => getIncoming({ page_size: 100, state: "COLLECTED" }),
+    // Both states, because the inspection that finds contamination
+    // happens on either side of the weighbridge. Asking for COLLECTED alone
+    // hid every load that had already been weighed - which is most of the
+    // ones an operator actually wants.
+    queryFn: () =>
+      getIncoming({ page_size: 100, state: "COLLECTED,WEIGHED" }),
   });
   const { data: sitePage } = useQuery({
     queryKey: ["sites", "options"],
@@ -62,7 +71,7 @@ export function CreateDeduction() {
 
   const form = useForm({
     defaultValues: {
-      dispatch: "",
+      dispatch: presetDispatch,
       site: "",
       kind: "MOISTURE" as DeductionKind,
       weight_kg: "",

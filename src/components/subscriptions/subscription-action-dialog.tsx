@@ -76,6 +76,9 @@ export function SubscriptionActionDialog({
   );
   const [reason, setReason] = useState("");
 
+  // Below the minimum is a wrong answer, not an absent one, so it shows
+  // as an error on the field rather than as "still needs" on the button.
+  const seatLimitTooLow = seatLimit !== "" && Number(seatLimit) < 1;
   const mutation = useMutation({
     mutationFn: async () => {
       if (!subscription) throw new Error("subscription_required");
@@ -119,14 +122,6 @@ export function SubscriptionActionDialog({
   });
 
   if (!subscription) return null;
-
-  const invalid =
-    reason.trim() === "" ||
-    (mode === "plan" && plan === "") ||
-    (mode === "extend" &&
-      ((expiryMode === "months" && Number(months) < 1) ||
-        (expiryMode === "date" && expiresOn === ""))) ||
-    (mode === "seats" && seatLimit !== "" && Number(seatLimit) < 1);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -220,6 +215,7 @@ export function SubscriptionActionDialog({
               label={t("field.userLimit")}
               optional={common("optional")}
               hint={t("hint.seatOverride")}
+              error={seatLimitTooLow ? t("field.userLimitMin") : undefined}
             >
               <Input
                 type="number"
@@ -253,7 +249,13 @@ export function SubscriptionActionDialog({
           </Button>
           <Button
             variant={mode === "terminate" ? "destructive" : "default"}
-            disabled={invalid || mutation.isPending}
+            requires={[[reason, t("field.reason")], [mode !== "plan" || plan, t("field.activePlan")], [mode !== "extend" || (expiryMode === "months" ? Number(months) >= 1 : expiresOn !== ""), t("field.expiresOn")]]}
+            disabledReason={
+              mode === "seats" && seatLimitTooLow
+                ? t("field.userLimitMin")
+                : undefined
+            }
+            disabled={mutation.isPending || (mode === "seats" && seatLimitTooLow)}
             onClick={() => mutation.mutate()}
           >
             {t(`action.${mode}.confirm`)}

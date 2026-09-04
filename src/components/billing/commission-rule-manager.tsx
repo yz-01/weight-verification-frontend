@@ -17,6 +17,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type {
@@ -112,36 +120,36 @@ export function CommissionRuleManager() {
           </Button>
         )}
       </div>
-      <div className="min-h-0 overflow-x-auto rounded-lg border bg-card shadow-sm [scrollbar-gutter:stable]">
-        <table className="w-full min-w-max">
-          <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <tr className="border-b">
-              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.name")}</th>
-              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.calculationBasis")}</th>
-              <th className="px-4 py-3.5 text-right whitespace-nowrap">{t("field.rate")}</th>
-              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.settlementCycle")}</th>
-              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.effectivePeriod")}</th>
-              <th className="px-4 py-3.5 text-right whitespace-nowrap">{t("field.paymentTerm")}</th>
-              <th className="px-4 py-3.5 text-right whitespace-nowrap">{t("field.invoices")}</th>
-              <th className="px-4 py-3.5 whitespace-nowrap">{t("field.state")}</th>
-              <th className="px-4 py-3.5 text-right">
+      <div className="min-h-0 overflow-hidden rounded-lg border bg-card shadow-sm">
+        <Table className="min-w-max">
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("field.name")}</TableHead>
+              <TableHead>{t("field.calculationBasis")}</TableHead>
+              <TableHead className="text-right">{t("field.rate")}</TableHead>
+              <TableHead>{t("field.settlementCycle")}</TableHead>
+              <TableHead>{t("field.effectivePeriod")}</TableHead>
+              <TableHead className="text-right">{t("field.paymentTerm")}</TableHead>
+              <TableHead className="text-right">{t("field.invoices")}</TableHead>
+              <TableHead>{t("field.state")}</TableHead>
+              <TableHead className="text-right">
                 <span className="sr-only">{common("actions")}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {rules.isLoading ? (
-              <tr>
-                <td colSpan={9} className="px-4 py-16 text-center">
+              <TableRow>
+                <TableCell colSpan={9} className="h-40 text-center">
                   <div className="flex flex-col items-center gap-3">
                     <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                     <p className="text-sm text-muted-foreground">{common("loading")}</p>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : rows.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="px-4 py-16">
+              <TableRow>
+                <TableCell colSpan={9} className="px-4 py-16">
                   <div className="flex flex-col items-center gap-4 text-center">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
                       <svg className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,43 +167,43 @@ export function CommissionRuleManager() {
                       </Button>
                     )}
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               rows.map((rule) => (
-                <tr key={rule.id} className="group hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-4">
+                <TableRow key={rule.id} className="group hover:bg-muted/30 transition-colors">
+                  <TableCell>
                     <span className="font-medium text-foreground">{rule.name}</span>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-muted-foreground">
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
                     {t(`basis.${rule.basis}`)}
-                  </td>
-                  <td className="px-4 py-4 text-right">
+                  </TableCell>
+                  <TableCell className="text-right">
                     <span className="font-mono text-sm font-medium text-foreground">
                       {rule.rate}
                       {rule.basis === "SETTLED_AMOUNT"
                         ? "%"
                         : ` ${t("rules.perTonne")}`}
                     </span>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-muted-foreground">
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
                     {t(`cycle.${rule.cycle}`)}
-                  </td>
-                  <td className="px-4 py-4">
+                  </TableCell>
+                  <TableCell>
                     <span className="font-mono text-sm text-muted-foreground whitespace-nowrap">
                       {df.date(rule.effective_from)} -{" "}
                       {rule.effective_to
                         ? df.date(rule.effective_to)
                         : t("rules.openEnded")}
                     </span>
-                  </td>
-                  <td className="px-4 py-4 text-right font-mono text-sm text-muted-foreground">
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-sm text-muted-foreground">
                     {t("rules.days", { count: rule.payment_term_days })}
-                  </td>
-                  <td className="px-4 py-4 text-right font-mono text-sm font-medium text-foreground">
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-sm font-medium text-foreground">
                     {rule.invoice_count}
-                  </td>
-                  <td className="px-4 py-4">
+                  </TableCell>
+                  <TableCell>
                     <StatusBadge
                       label={t(
                         rule.is_active
@@ -204,8 +212,8 @@ export function CommissionRuleManager() {
                       )}
                       tone={rule.is_active ? "positive" : "neutral"}
                     />
-                  </td>
-                  <td className="px-4 py-4">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       {can("commission.manage") && (
                         <>
@@ -223,6 +231,11 @@ export function CommissionRuleManager() {
                             size="icon"
                             className="h-8 w-8"
                             title={common("remove")}
+                            disabledReason={
+                              rule.invoice_count > 0
+                                ? t("rules.hasInvoices")
+                                : undefined
+                            }
                             disabled={rule.invoice_count > 0}
                             onClick={() => setRemoving(rule)}
                           >
@@ -231,12 +244,12 @@ export function CommissionRuleManager() {
                         </>
                       )}
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       <Dialog
@@ -414,9 +427,11 @@ export function CommissionRuleManager() {
               {common("cancel")}
             </Button>
             <Button
-              disabled={
-                !form.name.trim() || !form.effective_from || save.isPending
-              }
+              requires={[
+                [form.name.trim(), t("field.name")],
+                [form.effective_from, t("field.effectiveFrom")],
+              ]}
+              disabled={save.isPending}
               onClick={() => save.mutate()}
             >
               {common("save")}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   CheckCircle2,
@@ -20,9 +20,11 @@ import Image from "next/image";
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
+  FieldWrapper,
   ListHeader,
   StatusBadge,
   TypeBadge,
@@ -45,14 +47,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import {
   EVIDENCE_KINDS,
   type EvidenceAsset,
+  type EvidenceRevisionAction,
 } from "@/interfaces/evidence";
 import { useDateFormat } from "@/lib/dates";
 import {
   getEvidenceAssets,
+  getEvidenceRevisions,
+  reviseEvidence,
   verifyEvidenceIntegrity,
 } from "@/services/evidence.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
@@ -615,6 +621,7 @@ function EvidenceDialog({
               )}
             </div>
           )}
+          <RevisionHistory asset={asset} />
         </div>
 
         <DialogFooter>
@@ -638,6 +645,164 @@ function EvidenceDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+const REVISION_ACTIONS: EvidenceRevisionAction[] = [
+  "HIDE",
+  "RESTORE",
+  "REPLACE",
+  "CORRECT",
+];
+
+/**
+ * The decisions taken about one piece of evidence, and the form to add one.
+ *
+ * Nothing here edits the asset. It cannot be edited - its hash is the whole
+ * reason it is worth anything in a dispute - so a decision about it is a
+ * separate, equally permanent record laid on top: hidden, restored, replaced
+ * by a named asset, or corrected. Two consequences shape this panel:
+ *
+ * * the reason is required, because an unexplained withdrawal leaves the
+ *   archive saying a photo was pulled with nobody accountable for pulling it;
+ * * REPLACE needs the asset that supersedes it, so that field appears only
+ *   for REPLACE and the save button waits for it. The backend refuses a
+ *   REPLACE without one, and offering a button that cannot succeed is the
+ *   failure this whole review exists to remove.
+ */
+function RevisionHistory({ asset }: { asset: EvidenceAsset }) {
+  const t = useTranslations();
+  const df = useDateFormat();
+  const queryClient = useQueryClient();
+  const { can } = useAuth();
+  const [action, setAction] = useState<EvidenceRevisionAction>("HIDE");
+  const [reason, setReason] = useState("");
+  const [replacement, setReplacement] = useState("");
+
+  const key = ["evidence-revisions", asset.id];
+  const rows = useQuery({
+    queryKey: key,
+    queryFn: () => getEvidenceRevisions(asset.id),
+  });
+
+  const needsReplacement = action === "REPLACE";
+  const save = useMutation({
+    mutationFn: () =>
+      reviseEvidence(asset.id, {
+        action,
+        reason: reason.trim(),
+        ...(needsReplacement ? { replacement: replacement.trim() } : {}),
+      }),
+    onSuccess: async () => {
+      setReason("");
+      setReplacement("");
+      await queryClient.invalidateQueries({ queryKey: key });
+      await queryClient.invalidateQueries({ queryKey: ["evidence-assets"] });
+    },
+  });
+
+  return (
+    <section className="rounded-lg border">
+      <p className="border-b px-4 py-2.5 text-sm font-medium">
+        {t("evidence.revision.title")}
+      </p>
+
+      {rows.isLoading ? (
+        <p className="px-4 py-3 text-sm text-muted-foreground">
+          {t("common.loading")}
+        </p>
+      ) : rows.isError ? (
+        <div className="flex flex-wrap items-center gap-2 px-4 py-3">
+          <p className="text-sm text-destructive">
+            {t("evidence.revision.loadError")}
+          </p>
+          <Button size="sm" variant="outline" onClick={() => void rows.refetch()}>
+            {t("common.retry")}
+          </Button>
+        </div>
+      ) : !(rows.data?.results ?? []).length ? (
+        <p className="px-4 py-3 text-sm text-muted-foreground">
+          {t("evidence.revision.empty")}
+        </p>
+      ) : (
+        <ul className="max-h-56 divide-y overflow-y-auto">
+          {(rows.data?.results ?? []).map((row) => (
+            <li key={row.id} className="px-4 py-2.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge
+                  label={t(`evidence.revision.action.${row.action}`)}
+                  tone={row.action === "RESTORE" ? "positive" : "warning"}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {row.actor_name || "-"} · {df.dateTime(row.created_at)}
+                </span>
+              </div>
+              <p className="mt-1 text-sm whitespace-pre-wrap">{row.reason}</p>
+              {row.replacement_filename && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t("evidence.revision.replacedBy", {
+                    name: row.replacement_filename,
+                  })}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {can("evidence.manage") && (
+        <div className="grid gap-3 border-t p-4">
+          <FieldWrapper label={t("evidence.revision.field.action")}>
+            <select
+              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+              value={action}
+              onChange={(event) =>
+                setAction(event.target.value as EvidenceRevisionAction)
+              }
+            >
+              {REVISION_ACTIONS.map((value) => (
+                <option key={value} value={value}>
+                  {t(`evidence.revision.action.${value}`)}
+                </option>
+              ))}
+            </select>
+          </FieldWrapper>
+
+          {needsReplacement && (
+            <FieldWrapper
+              label={t("evidence.revision.field.replacement")} required={needsReplacement}
+              hint={t("evidence.revision.field.replacementHint")}
+            >
+              <Input
+                value={replacement}
+                onChange={(event) => setReplacement(event.target.value)}
+              />
+            </FieldWrapper>
+          )}
+
+          <FieldWrapper
+            label={t("evidence.revision.field.reason")} required
+            hint={t("evidence.revision.field.reasonHint")}
+          >
+            <Textarea
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+            />
+          </FieldWrapper>
+
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              requires={[[reason, t("evidence.revision.field.reason")], [!needsReplacement || replacement, t("evidence.revision.field.replacement")]]}
+              disabled={save.isPending}
+              onClick={() => save.mutate()}
+            >
+              {t("evidence.revision.submit")}
+            </Button>
+          </div>
+        </div>
+      )}
+    </section>
   );
 }
 

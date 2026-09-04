@@ -431,7 +431,8 @@ function RequestRecyclerDialog({
             {t("common.cancel")}
           </Button>
           <Button
-            disabled={!company || request.isPending}
+            requires={[[company, t("recyclers.request.choose")]]}
+            disabled={request.isPending}
             onClick={() => request.mutate()}
           >
             {request.isPending ? (
@@ -524,7 +525,8 @@ function PartnershipProjectsDialog({
               <Button
                 size="icon"
                 title={t("recyclers.projects.bind")}
-                disabled={!project || bind.isPending}
+                requires={[[project, t("recyclers.projects.choose")]]}
+                disabled={bind.isPending}
                 onClick={() => bind.mutate()}
               >
                 {bind.isPending ? (

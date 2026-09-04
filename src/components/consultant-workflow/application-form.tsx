@@ -15,6 +15,7 @@ import {
   SectionHeader,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -53,6 +54,8 @@ const emptyForm: ConsultantApplicationPayload = {
   application_type: "",
   discipline: "",
   work_type: "",
+  additional_disciplines: [],
+  additional_work_types: [],
   priority: "",
   consultant_organization: "",
   consultant: "",
@@ -89,8 +92,10 @@ function payloadFromApplication(
     application_type_custom: row.application_type_custom,
     discipline: row.discipline,
     discipline_custom: row.discipline_custom,
+    additional_disciplines: row.additional_disciplines,
     work_type: row.work_type,
     work_type_custom: row.work_type_custom,
+    additional_work_types: row.additional_work_types,
     priority: row.priority,
     priority_custom: row.priority_custom,
     consultant_organization: row.consultant_organization,
@@ -347,20 +352,6 @@ function ConsultantApplicationEditor({
       consultant_organization: grant?.organization ?? "",
     }));
   };
-  const complete = Boolean(
-    form.project &&
-      selectedWorkflow &&
-      form.application_type &&
-      form.discipline &&
-      form.work_type &&
-      form.priority &&
-      form.consultant &&
-      form.consultant_organization &&
-      form.location.trim() &&
-      form.component.trim() &&
-      form.description.trim() &&
-      requiredTemplateFieldsComplete,
-  );
   const saveError = save.isError
     ? save.error instanceof ApiError
       ? save.error.message
@@ -449,7 +440,7 @@ function ConsultantApplicationEditor({
               </SelectContent>
             </Select>
           </FieldWrapper>
-          <FieldWrapper label={t("field.template")}>
+          <FieldWrapper label={t("field.template")} required>
             <Select
               value={form.template_version || "NONE"}
               onValueChange={(value) => {
@@ -495,6 +486,24 @@ function ConsultantApplicationEditor({
           <OptionField category="DISCIPLINE" value={form.discipline} grouped={grouped} onChange={(value) => set("discipline", value)} label={t("field.discipline")} placeholder={t("field.chooseDiscipline")} />
           <OptionField category="WORK_TYPE" value={form.work_type} grouped={grouped} onChange={(value) => set("work_type", value)} label={t("field.workType")} placeholder={t("field.chooseWorkType")} />
           <OptionField category="PRIORITY" value={form.priority} grouped={grouped} onChange={(value) => set("priority", value)} label={t("field.priority")} placeholder={t("field.choosePriority")} />
+          <ExtraTicks
+            category="DISCIPLINE"
+            grouped={grouped}
+            primary={form.discipline}
+            chosen={form.additional_disciplines ?? []}
+            onChange={(value) => set("additional_disciplines", value)}
+            label={t("field.additionalDisciplines")}
+            hint={t("field.additionalDisciplinesHint")}
+          />
+          <ExtraTicks
+            category="WORK_TYPE"
+            grouped={grouped}
+            primary={form.work_type}
+            chosen={form.additional_work_types ?? []}
+            onChange={(value) => set("additional_work_types", value)}
+            label={t("field.additionalWorkTypes")}
+            hint={t("field.additionalWorkTypesHint")}
+          />
           <CustomValue optionId={form.application_type} options={grouped.get("APPLICATION_TYPE") ?? []} value={form.application_type_custom ?? ""} onChange={(value) => set("application_type_custom", value)} label={t("field.customApplicationType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "APPLICATION_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "APPLICATION_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
           <CustomValue optionId={form.discipline} options={grouped.get("DISCIPLINE") ?? []} value={form.discipline_custom ?? ""} onChange={(value) => set("discipline_custom", value)} label={t("field.customDiscipline")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "DISCIPLINE"} onSave={(label) => saveReusableOption.mutate({ category: "DISCIPLINE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
           <CustomValue optionId={form.work_type} options={grouped.get("WORK_TYPE") ?? []} value={form.work_type_custom ?? ""} onChange={(value) => set("work_type_custom", value)} label={t("field.customWorkType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "WORK_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "WORK_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
@@ -516,7 +525,7 @@ function ConsultantApplicationEditor({
               </SelectContent>
             </Select>
           </FieldWrapper>
-          <FieldWrapper label={t("field.consultantCompany")}>
+          <FieldWrapper label={t("field.consultantCompany")} required>
             <Input value={selectedGrant?.organization_name ?? ""} readOnly className="bg-muted/40" />
           </FieldWrapper>
         </div>
@@ -572,7 +581,8 @@ function ConsultantApplicationEditor({
 
       <div className="sticky bottom-3 flex justify-end gap-2 rounded-lg border bg-background/95 p-3 shadow-lg backdrop-blur">
         <Button variant="outline" onClick={() => router.back()}>{t("action.cancel")}</Button>
-        <Button disabled={!complete || save.isPending} onClick={() => save.mutate()}>
+        <Button requires={[[form.project, t("field.project")], [selectedWorkflow, t("field.workflow")], [form.application_type, t("field.applicationType")], [form.discipline, t("field.discipline")], [form.work_type, t("field.workType")], [form.priority, t("field.priority")], [form.consultant, t("field.consultant")], [form.consultant_organization, t("field.consultantCompany")], [form.location, t("field.location")], [form.component, t("field.component")], [form.description, t("field.description")], [requiredTemplateFieldsComplete, t("field.template")]]}
+                disabled={save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
           {t("action.saveDraft")}
         </Button>
@@ -587,6 +597,62 @@ function FormSection({ title, children }: { title: string; children: React.React
       <SectionHeader title={title} />
       {children}
     </section>
+  );
+}
+
+/**
+ * The other trades or activities one inspection also covers.
+ *
+ * Checkboxes rather than a multi-select listbox because the customer's own
+ * forms are tick lists and the office reads them that way. The primary choice
+ * is filtered out: it already has its own labelled row on the form, and the
+ * API refuses it here anyway rather than printing the same trade twice.
+ */
+function ExtraTicks({
+  category,
+  grouped,
+  primary,
+  chosen,
+  onChange,
+  label,
+  hint,
+}: {
+  category: ProjectOptionCategory;
+  grouped: Map<ProjectOptionCategory, ProjectApplicationOption[]>;
+  primary: string;
+  chosen: string[];
+  onChange: (value: string[]) => void;
+  label: string;
+  hint: string;
+}) {
+  const options = (grouped.get(category) ?? []).filter(
+    (row) => row.id !== primary,
+  );
+  return (
+    <FieldWrapper label={label} hint={hint} className="sm:col-span-2">
+      <div className="grid max-h-44 grid-cols-2 gap-x-4 gap-y-2 overflow-y-auto rounded-md border p-3 sm:grid-cols-3">
+        {options.map((row) => (
+          <label
+            key={row.id}
+            className="flex items-center gap-2 text-sm"
+            htmlFor={`extra-${category}-${row.id}`}
+          >
+            <Checkbox
+              id={`extra-${category}-${row.id}`}
+              checked={chosen.includes(row.id)}
+              onCheckedChange={(checked) =>
+                onChange(
+                  checked
+                    ? [...chosen, row.id]
+                    : chosen.filter((id) => id !== row.id),
+                )
+              }
+            />
+            {row.label}
+          </label>
+        ))}
+      </div>
+    </FieldWrapper>
   );
 }
 
@@ -655,7 +721,8 @@ function CustomValue({
               size="sm"
               variant="outline"
               className="shrink-0"
-              disabled={!value.trim() || isSaving}
+              requires={[[value, label]]}
+              disabled={isSaving}
               onClick={() => onSave(value)}
             >
               {isSaving ? <Loader2 className="animate-spin" /> : <Plus />}

@@ -312,7 +312,7 @@ export function AuditLogs({
         enableHiding: false,
         header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) => (
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-0.5">
             <Button
               variant="ghost"
               size="icon"

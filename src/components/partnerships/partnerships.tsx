@@ -569,7 +569,8 @@ function RequestPartnershipDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={!company || request.isPending}
+            requires={[[company, t("common.selectPlaceholder")]]}
+            disabled={request.isPending}
             onClick={() => request.mutate()}
           >
             {request.isPending ? (
@@ -738,7 +739,8 @@ function ManageProjectsDialog({
                     </Select>
                     <Button
                       className="shrink-0"
-                      disabled={!project || binding.isPending}
+                      requires={[[project, t("common.selectPlaceholder")]]}
+                      disabled={binding.isPending}
                       onClick={() => binding.mutate()}
                     >
                       {binding.isPending ? (

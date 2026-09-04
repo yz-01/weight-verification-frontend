@@ -69,6 +69,7 @@ export function AdminDashboard({
   section?: AdminDashboardSection;
 }) {
   const t = useTranslations("dashboard.admin");
+  const common = useTranslations("common");
   const df = useDateFormat();
   const format = useFormatter();
   const [search, setSearch] = useState("");
@@ -365,6 +366,9 @@ export function AdminDashboard({
               <Button
                 size="sm"
                 variant="ghost"
+                disabledReason={
+                  !hasMapFilters ? common("noFiltersSet") : undefined
+                }
                 disabled={!hasMapFilters}
                 onClick={resetMapFilters}
               >

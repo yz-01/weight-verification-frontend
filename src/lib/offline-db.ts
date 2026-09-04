@@ -226,6 +226,7 @@ export interface WasteOutgoingOfflineJob extends OfflineJobBase {
     quantity?: string;
     unit?: string;
     note?: string;
+    pickup_address?: string;
     latitude: string;
     longitude: string;
     device_id?: string;

@@ -65,6 +65,9 @@ export function DriverNotifications() {
         <Button
           size="sm"
           variant="outline"
+          disabledReason={
+            unread === 0 ? t("common.nothingUnread") : undefined
+          }
           disabled={unread === 0 || readAll.isPending}
           onClick={() => readAll.mutate()}
         >

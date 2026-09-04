@@ -433,7 +433,8 @@ function PaymentDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            disabled={amount === "" || record.isPending}
+            requires={[[amount, t("settlements.field.amountPaid")]]}
+            disabled={record.isPending}
             onClick={() => record.mutate()}
           >
             <Banknote className="h-4 w-4" />

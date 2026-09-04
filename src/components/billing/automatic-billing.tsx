@@ -7,6 +7,14 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/providers/auth-provider";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { BillingJobState } from "@/interfaces/billing";
 import { useDateFormat } from "@/lib/dates";
 import { getAutomaticBilling, runAutomaticBilling } from "@/services/billing.service";
@@ -73,11 +81,11 @@ export function AutomaticBilling() {
 
       <section>
         <div className="mb-3 flex items-center gap-2"><Clock3 className="size-4 text-muted-foreground" /><h3 className="text-sm font-semibold">{t("history")}</h3></div>
-        <div className="overflow-x-auto rounded-lg border bg-card">
-          <table className="w-full min-w-[760px] text-sm">
-            <thead className="border-b bg-muted/35 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-3">{t("field.scheduledFor")}</th><th className="px-4 py-3">{t("field.state")}</th><th className="px-4 py-3">{t("field.attempt")}</th><th className="px-4 py-3">{t("field.saasIssued")}</th><th className="px-4 py-3">{t("field.commissionIssued")}</th><th className="px-4 py-3">{t("field.overdueUpdated")}</th><th className="px-4 py-3">{t("field.error")}</th></tr></thead>
-            <tbody>{runs.length === 0 ? <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">{t("empty")}</td></tr> : runs.map((run) => <tr key={run.id} className="border-b last:border-0"><td className="px-4 py-3 tabular-nums">{df.dateTime(run.scheduled_for)}</td><td className="px-4 py-3"><StatusBadge label={t(`state.${run.state}`)} tone={STATE_TONE[run.state]} /></td><td className="px-4 py-3 tabular-nums">{run.attempt}/{run.max_attempts}</td><td className="px-4 py-3 tabular-nums">{numberResult(run.result.saas_issued)}</td><td className="px-4 py-3 tabular-nums">{numberResult(run.result.commission_issued)}</td><td className="px-4 py-3 tabular-nums">{numberResult(run.result.overdue_updated)}</td><td className="max-w-64 truncate px-4 py-3 text-destructive" title={run.error}>{run.error || common("emptyValue")}</td></tr>)}</tbody>
-          </table>
+        <div className="overflow-hidden rounded-lg border bg-card">
+          <Table className="min-w-[760px]">
+            <TableHeader><TableRow><TableHead>{t("field.scheduledFor")}</TableHead><TableHead>{t("field.state")}</TableHead><TableHead>{t("field.attempt")}</TableHead><TableHead>{t("field.saasIssued")}</TableHead><TableHead>{t("field.commissionIssued")}</TableHead><TableHead>{t("field.overdueUpdated")}</TableHead><TableHead>{t("field.error")}</TableHead></TableRow></TableHeader>
+            <TableBody>{runs.length === 0 ? <TableRow><TableCell colSpan={7} className="h-24 justify-center text-center text-muted-foreground">{t("empty")}</TableCell></TableRow> : runs.map((run) => <TableRow key={run.id}><TableCell className="tabular-nums">{df.dateTime(run.scheduled_for)}</TableCell><TableCell><StatusBadge label={t(`state.${run.state}`)} tone={STATE_TONE[run.state]} /></TableCell><TableCell className="tabular-nums">{run.attempt}/{run.max_attempts}</TableCell><TableCell className="tabular-nums">{numberResult(run.result.saas_issued)}</TableCell><TableCell className="tabular-nums">{numberResult(run.result.commission_issued)}</TableCell><TableCell className="tabular-nums">{numberResult(run.result.overdue_updated)}</TableCell><TableCell className="max-w-64 truncate text-destructive" title={run.error}>{run.error || common("emptyValue")}</TableCell></TableRow>)}</TableBody>
+          </Table>
         </div>
       </section>
     </div>
