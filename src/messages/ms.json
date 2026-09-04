@@ -6942,7 +6942,10 @@
       "ocrItems": {
         "confirmHint": "Semak dengan dokumen kertas",
         "title": "Bahan dibaca dari nota",
-        "unclassified": "Pilih kategori"
+        "unclassified": "Pilih kategori",
+        "editHint": "Betulkan teks salah, pilih kategori, buang baris salah, kemudian tekan Guna.",
+        "remove": "Buang baris",
+        "use": "Guna"
       },
       "ocrLowConfidence": "Dibaca dengan keyakinan rendah: {fields}. Semak dengan dokumen kertas sebelum menyimpan.",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Isi butiran secara manual.",
@@ -6975,7 +6978,10 @@
       "supplierSignature": "Tandatangan pembekal",
       "tapCamera": "Tekan untuk buka kamera",
       "unit": "Unit",
-      "vehicle": "No. kenderaan"
+      "vehicle": "No. kenderaan",
+      "category": "Kategori (lajur)",
+      "categoryPlaceholder": "Failkan di bawah lajur",
+      "categoryNone": "Tiada"
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",

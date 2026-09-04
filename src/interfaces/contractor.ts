@@ -348,6 +348,7 @@ export interface MaterialReceiptPayload {
   material_name: string;
   quantity: string;
   unit: MaterialUnit;
+  category?: string;
   unit_price?: string | null;
   vehicle_plate?: string;
   delivery_note_no?: string;

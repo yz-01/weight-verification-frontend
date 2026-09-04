@@ -14,6 +14,7 @@ import {
   Recycle,
   ScanLine,
   ShieldAlert,
+  Trash2,
   Truck,
   UserRoundCheck,
 } from "lucide-react";
@@ -68,6 +69,7 @@ import {
   scanQRCode,
   scanSupplierQr,
 } from "@/services/contractor.service";
+import { getProjectCategories } from "@/services/contractor-ops.service";
 import {
   submitConsultantSubmissionOfflineAware,
   submitMaterialReceiptOfflineAware,
@@ -231,6 +233,7 @@ interface MaterialDraft {
   materialName: string;
   quantity: string;
   unit: MaterialUnit;
+  category: string;
   vehiclePlate: string;
   deliveryNoteNo: string;
   notes: string;
@@ -245,6 +248,7 @@ const EMPTY_MATERIAL: MaterialDraft = {
   materialName: "",
   quantity: "",
   unit: "TONNE",
+  category: "",
   vehiclePlate: "",
   deliveryNoteNo: "",
   notes: "",
@@ -304,6 +308,33 @@ function MaterialCapturePanel({
     queryKey: ["qr-codes", "field-material"],
     queryFn: () => getQRCodes({ page_size: 300 }),
   });
+  const categoriesQuery = useQuery({
+    queryKey: ["project-categories", "field-material", draft.project],
+    queryFn: () =>
+      getProjectCategories({ project: draft.project, page_size: 200 }),
+    enabled: Boolean(draft.project),
+  });
+  const categoryOptions = categoriesQuery.data?.results ?? [];
+  const categoryIdForCode = (code: string) =>
+    categoryOptions.find((category) => category.code === code)?.id ?? "";
+
+  const updateLineItem = (
+    index: number,
+    patch: Partial<DeliveryNoteOCRLineItem>,
+  ) =>
+    setOcrLineItems((rows) =>
+      rows.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+    );
+  const removeLineItem = (index: number) =>
+    setOcrLineItems((rows) => rows.filter((_, i) => i !== index));
+  const loadLineItem = (item: DeliveryNoteOCRLineItem) =>
+    setDraft((old) => ({
+      ...old,
+      materialName: item.material_name,
+      quantity: numericSuggestion(item.quantity) || old.quantity,
+      unit: (item.unit as MaterialUnit) || old.unit,
+      category: categoryIdForCode(item.category_code) || old.category,
+    }));
   const qrCode = useMemo(
     () => scannedQr && scannedQr.project === draft.project && scannedQr.supplier === draft.supplier
       ? scannedQr
@@ -382,6 +413,7 @@ function MaterialCapturePanel({
             })
           : t("material.ocrReady"),
       );
+      const firstCategory = items[0] ? categoryIdForCode(items[0].category_code) : "";
       setDraft((old) => ({
         ...old,
         deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,
@@ -396,6 +428,8 @@ function MaterialCapturePanel({
           numericSuggestion(items[0]?.quantity) ||
           numericSuggestion(result.suggestions.quantity) ||
           old.quantity,
+        unit: (items[0]?.unit as MaterialUnit) || old.unit,
+        category: firstCategory || old.category,
       }));
     },
     onError: (reason) => {
@@ -467,6 +501,7 @@ function MaterialCapturePanel({
           material_name: draft.materialName.trim(),
           quantity: draft.quantity,
           unit: draft.unit,
+          category: draft.category || undefined,
           vehicle_plate: draft.vehiclePlate.trim(),
           delivery_note_no: draft.deliveryNoteNo.trim(),
           notes: draft.notes.trim(),
@@ -599,6 +634,24 @@ function MaterialCapturePanel({
       ) : null}
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
+      <FieldWrapper label={t("material.category")}>
+        <Select
+          value={draft.category || "none"}
+          onValueChange={(value) =>
+            setDraft((old) => ({ ...old, category: value === "none" ? "" : value }))
+          }
+        >
+          <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.categoryPlaceholder")} /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{t("material.categoryNone")}</SelectItem>
+            {categoryOptions.map((category) => (
+              <SelectItem key={category.id} value={category.id}>
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
       <div className="grid grid-cols-2 gap-3">
         <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
         <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
@@ -627,37 +680,100 @@ function MaterialCapturePanel({
       )}
       {ocrLineItems.length > 0 && (
         <div className="rounded-lg border">
-          <div className="flex items-center justify-between border-b bg-muted/40 px-3 py-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="border-b bg-muted/40 px-3 py-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("material.ocrItems.title")}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {t("material.ocrItems.confirmHint")}
-            </span>
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {t("material.ocrItems.editHint")}
+            </p>
           </div>
           <ul className="divide-y">
             {ocrLineItems.map((item, index) => (
-              <li key={index} className="flex items-start gap-2 px-3 py-2">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
-                    {item.material_name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.quantity}
-                    {item.unit ? ` ${item.unit}` : ""}
-                  </p>
+              <li key={index} className="space-y-2 px-3 py-3">
+                <div className="flex items-center gap-2">
+                  <Input
+                    className="h-10 flex-1"
+                    value={item.material_name}
+                    placeholder={t("material.name")}
+                    onChange={(event) =>
+                      updateLineItem(index, { material_name: event.target.value })
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 text-destructive hover:bg-destructive/10"
+                    title={t("material.ocrItems.remove")}
+                    onClick={() => removeLineItem(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                    item.classified
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {item.classified
-                    ? item.category_name
-                    : t("material.ocrItems.unclassified")}
-                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    className="h-10"
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    inputMode="decimal"
+                    value={item.quantity}
+                    placeholder={t("material.quantity")}
+                    onChange={(event) =>
+                      updateLineItem(index, { quantity: event.target.value })
+                    }
+                  />
+                  <Select
+                    value={item.unit || "none"}
+                    onValueChange={(value) =>
+                      updateLineItem(index, { unit: value === "none" ? "" : value })
+                    }
+                  >
+                    <SelectTrigger className="h-10 w-full"><SelectValue placeholder={t("material.unit")} /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("material.categoryNone")}</SelectItem>
+                      {MATERIAL_UNITS.map((unit) => (
+                        <SelectItem key={unit} value={unit}>
+                          {allT(`receipts.unit.${unit}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={item.category_code || "none"}
+                    onValueChange={(value) => {
+                      const code = value === "none" ? "" : value;
+                      const match = categoryOptions.find((c) => c.code === code);
+                      updateLineItem(index, {
+                        category_code: code,
+                        category_name: match?.name ?? "",
+                        classified: Boolean(match),
+                      });
+                    }}
+                  >
+                    <SelectTrigger className="h-10 flex-1"><SelectValue placeholder={t("material.ocrItems.unclassified")} /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("material.ocrItems.unclassified")}</SelectItem>
+                      {categoryOptions.map((category) => (
+                        <SelectItem key={category.id} value={category.code}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-10 shrink-0 rounded-full px-4"
+                    onClick={() => loadLineItem(item)}
+                  >
+                    {t("material.ocrItems.use")}
+                  </Button>
+                </div>
               </li>
             ))}
           </ul>

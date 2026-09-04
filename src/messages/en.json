@@ -6942,7 +6942,10 @@
       "ocrItems": {
         "confirmHint": "Check against the paper",
         "title": "Materials read from the note",
-        "unclassified": "Pick category"
+        "unclassified": "Pick category",
+        "editHint": "Fix any wrong text, pick a category, delete a bad row, then tap Use.",
+        "remove": "Remove row",
+        "use": "Use"
       },
       "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -6975,7 +6978,10 @@
       "supplierSignature": "Supplier signature",
       "tapCamera": "Tap to open camera",
       "unit": "Unit",
-      "vehicle": "Vehicle plate"
+      "vehicle": "Vehicle plate",
+      "category": "Category (column)",
+      "categoryPlaceholder": "File under a column",
+      "categoryNone": "None"
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",

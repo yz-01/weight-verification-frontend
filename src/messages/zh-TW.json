@@ -6942,7 +6942,10 @@
       "ocrItems": {
         "confirmHint": "請對照紙質單核對",
         "title": "從送貨單讀到的物料",
-        "unclassified": "選擇欄目"
+        "unclassified": "選擇欄目",
+        "editHint": "改掉讀錯的文字、選欄目、刪掉多餘行,再點「填入」。",
+        "remove": "刪除此行",
+        "use": "填入"
       },
       "ocrLowConfidence": "以下欄位識別置信度較低：{fields}。保存前請對照紙質單據核對。",
       "ocrManual": "無法讀取送貨單，請手動填寫資料。",
@@ -6975,7 +6978,10 @@
       "supplierSignature": "供應商簽名",
       "tapCamera": "按這裡打開相機",
       "unit": "單位",
-      "vehicle": "車牌"
+      "vehicle": "車牌",
+      "category": "欄目分類",
+      "categoryPlaceholder": "歸入哪個欄目",
+      "categoryNone": "不歸類"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
