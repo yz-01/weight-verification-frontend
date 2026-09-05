@@ -367,14 +367,7 @@ function MaterialCapturePanel({
     staleTime: 30_000,
   });
   const columnRows: ProjectCategory[] = columns.data?.results ?? [];
-  /**
-   * Open a column for this delivery, and select it.
-   *
-   * Needs the network: the column is a row other people will file against, so
-   * it cannot be minted offline and reconciled later without two workers
-   * inventing the same column twice. Offline, the delivery is still taken -
-   * unfiled - which is what the receipt model already allowed for.
-   */
+  /** Open a column for this delivery, and select it. See `openColumn`. */
   const columnCreation = useMutation({
     mutationFn: ({ name }: { name: string; index?: number }) =>
       createMaterialColumn({ project: draft.project, name }),
