@@ -61,6 +61,10 @@ export function CategoryEvidenceCapture({
       getProjectCategories({
         project,
         pwa: true,
+        // Site records go in site-record columns. A material column holds a
+        // delivery and its money; a photograph filed there would show on the
+        // material screen as spending with no delivery order behind it.
+        kind: "FIELD",
         page_size: 200,
         sort_by: "sort_order",
         sort_order: "asc",

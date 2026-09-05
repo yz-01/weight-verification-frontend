@@ -70,6 +70,7 @@ import type {
   FieldTaskPayload,
   MaterialOutgoing,
   ProjectCategory,
+  ProjectCategoryKind,
   ProjectCategoryPayload,
   SiteEquipment,
   SiteProgressRecord,
@@ -241,9 +242,16 @@ export function ProjectCategoriesWorkspace() {
   );
   const [removing, setRemoving] = useState<ProjectCategory | null>(null);
   const rows = useQuery({
-    queryKey: ["project-categories", project],
+    queryKey: ["project-categories", "field", project],
+    // The other half of the split (T-161). This screen is the site-record
+    // columns - "Site record categories" is its own title - so it stops
+    // listing the material columns, which are managed on /material-columns.
     queryFn: () =>
-      getProjectCategories({ page_size: 200, project: project || undefined }),
+      getProjectCategories({
+        page_size: 200,
+        project: project || undefined,
+        kind: "FIELD",
+      }),
   });
   const refresh = () =>
     qc.invalidateQueries({ queryKey: ["project-categories"] });
@@ -461,6 +469,11 @@ function CategoryDialog({
     parent: row?.parent ?? null,
     code: row?.code ?? "",
     name: row?.name ?? "",
+    // This dialog belongs to the site-record screen, so a column created here
+    // is a site-record column. An existing row keeps whatever it already is,
+    // including the BOTH marker on a column the split could not classify -
+    // the picker below is where somebody who knows settles it (T-161).
+    kind: row?.kind ?? "FIELD",
     description: row?.description ?? "",
     sort_order: row?.sort_order ?? categories.length,
     is_visible_in_pwa: row?.is_visible_in_pwa ?? true,
@@ -523,6 +536,36 @@ function CategoryDialog({
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
             />
+          </FieldWrapper>
+          <FieldWrapper label={t("categories.kind")} required>
+            <Select
+              value={form.kind}
+              onValueChange={(value) =>
+                set("kind", value as ProjectCategoryKind)
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="FIELD">
+                  {t("categories.kindField")}
+                </SelectItem>
+                <SelectItem value="MATERIAL">
+                  {t("categories.kindMaterial")}
+                </SelectItem>
+                {/* Only offered on a column that already carries the marker.
+                    It is not a scheme somebody should pick on purpose - it
+                    means "not separated yet" - but taking it off the form
+                    would silently reclassify a legacy column on the next
+                    unrelated edit. */}
+                {row?.kind === "BOTH" && (
+                  <SelectItem value="BOTH">
+                    {t("categories.kindBoth")}
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
           </FieldWrapper>
           <FieldWrapper label={t("field.parent")} className="sm:col-span-2">
             <Select
@@ -1153,8 +1196,15 @@ function TaskDialog({
   });
   const categories = useQuery({
     queryKey: ["project-categories", form.project, "task-options"],
+    // A field task's category is where its photographs file, so it offers
+    // site-record columns. The submission endpoint now refuses a material
+    // column (T-161), which would have made those options fail on save.
     queryFn: () =>
-      getProjectCategories({ project: form.project, page_size: 200 }),
+      getProjectCategories({
+        project: form.project,
+        page_size: 200,
+        kind: "FIELD",
+      }),
     enabled: Boolean(form.project),
   });
   const set = <K extends keyof FieldTaskPayload>(

@@ -11,6 +11,7 @@ import {
   Loader2,
   LocateFixed,
   PackageOpen,
+  Plus,
   Recycle,
   ScanLine,
   ShieldAlert,
@@ -54,7 +55,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
-import type { FieldTask } from "@/interfaces/contractor-ops";
+import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
 import {
   MATERIAL_UNITS,
   type DeliveryNoteOCRLineItem,
@@ -73,6 +74,10 @@ import {
   submitMaterialReceiptOfflineAware,
   submitWasteOutgoingOfflineAware,
 } from "@/services/offline-sync.service";
+import {
+  createMaterialColumn,
+  getProjectCategories,
+} from "@/services/contractor-ops.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 import { getWasteOutgoingOptions } from "@/services/waste-outgoing.service";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
@@ -225,6 +230,15 @@ function RecordFrame({
 interface MaterialDraft {
   project: string;
   supplier: string;
+  /**
+   * The material column this delivery files under, or "" for unfiled.
+   *
+   * Empty is a real answer, not a missing one: a receipt with no column is
+   * simply unfiled and can be filed later, which is why the picker below is
+   * not a required field. Before T-161 it was the only answer this screen
+   * could give - it never sent a column at all.
+   */
+  category: string;
   movementType: "ENTRY" | "RETURN";
   returnReason: string;
   returnReasonOther: string;
@@ -236,9 +250,18 @@ interface MaterialDraft {
   notes: string;
 }
 
+/**
+ * "No column chosen" as a Select value.
+ *
+ * A Radix `SelectItem` cannot carry an empty string, and unfiled is a real
+ * choice here rather than the absence of one, so it needs a value of its own.
+ */
+const UNFILED_COLUMN = "__unfiled__";
+
 const EMPTY_MATERIAL: MaterialDraft = {
   project: "",
   supplier: "",
+  category: "",
   movementType: "ENTRY",
   returnReason: "",
   returnReasonOther: "",
@@ -279,6 +302,8 @@ function MaterialCapturePanel({
   const [ocrProof, setOcrProof] = useState("");
   const [ocrMessage, setOcrMessage] = useState("");
   const [ocrLineItems, setOcrLineItems] = useState<DeliveryNoteOCRLineItem[]>([]);
+  const [newColumnName, setNewColumnName] = useState("");
+  const [columnError, setColumnError] = useState("");
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
@@ -304,6 +329,63 @@ function MaterialCapturePanel({
     queryKey: ["qr-codes", "field-material"],
     queryFn: () => getQRCodes({ page_size: 300 }),
   });
+  // The material columns of this site. Only the material ones: a site-record
+  // column is not somewhere a delivery can be filed, and the server refuses
+  // one here (T-161).
+  const columns = useQuery({
+    queryKey: ["project-categories", "field-material", draft.project],
+    queryFn: () =>
+      getProjectCategories({
+        project: draft.project,
+        kind: "MATERIAL",
+        is_active: true,
+        page_size: 200,
+        sort_by: "sort_order",
+        sort_order: "asc",
+      }),
+    enabled: Boolean(draft.project),
+    staleTime: 30_000,
+  });
+  const columnRows: ProjectCategory[] = columns.data?.results ?? [];
+  /**
+   * Open a column for this delivery, and select it.
+   *
+   * Needs the network: the column is a row other people will file against, so
+   * it cannot be minted offline and reconciled later without two workers
+   * inventing the same column twice. Offline, the delivery is still taken -
+   * unfiled - which is what the receipt model already allowed for.
+   */
+  const columnCreation = useMutation({
+    mutationFn: (name: string) =>
+      createMaterialColumn({ project: draft.project, name }),
+    onSuccess: (row) => {
+      setColumnError("");
+      setNewColumnName("");
+      setDraft((old) => ({ ...old, category: row.id }));
+      void qc.invalidateQueries({ queryKey: ["project-categories"] });
+    },
+    onError: (reason) =>
+      setColumnError(
+        reason instanceof ApiError ? reason.message : t("error.action"),
+      ),
+  });
+  /**
+   * Open a column, or say plainly why it cannot be opened right now.
+   *
+   * A column is a row other people file against, so it cannot be minted
+   * offline and reconciled later - two workers on the same site would invent
+   * the same column twice, and the second would be a duplicate budget line.
+   * Saying so beats a spinner that fails: the delivery can still be taken
+   * unfiled and filed once there is a connection.
+   */
+  const openColumn = (name: string) => {
+    setColumnError("");
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setColumnError(t("material.columnOffline"));
+      return;
+    }
+    columnCreation.mutate(name);
+  };
   const qrCode = useMemo(
     () => scannedQr && scannedQr.project === draft.project && scannedQr.supplier === draft.supplier
       ? scannedQr
@@ -467,6 +549,10 @@ function MaterialCapturePanel({
           material_name: draft.materialName.trim(),
           quantity: draft.quantity,
           unit: draft.unit,
+          // Null rather than "" when nothing is chosen: the serializer reads
+          // an empty string as an invalid id, while null is the "unfiled"
+          // the receipt model documents.
+          category: draft.category || null,
           vehicle_plate: draft.vehiclePlate.trim(),
           delivery_note_no: draft.deliveryNoteNo.trim(),
           notes: draft.notes.trim(),
@@ -514,7 +600,11 @@ function MaterialCapturePanel({
             setOcrProof("");
             setOcrLineItems([]);
             setMaterialEvidence(createEmptyFieldEvidence());
-            setDraft((old) => ({ ...old, project }));
+            setNewColumnName("");
+            setColumnError("");
+            // A column belongs to one site, so the one chosen for the old
+            // project is not a valid answer for the new one.
+            setDraft((old) => ({ ...old, project, category: "" }));
           }}
           placeholder={t("material.chooseProject")}
           className="h-12 w-full"
@@ -620,6 +710,75 @@ function MaterialCapturePanel({
           }}
         />
       </FieldWrapper>
+      {/* Which column this delivery files under, and a way to open one.
+          Before T-161 this screen sent no column at all, so every delivery
+          taken on site arrived unfiled however many columns the site had, and
+          somebody in the office had to re-file each one by hand. */}
+      <FieldWrapper label={t("material.column")}>
+        <Select
+          value={draft.category || UNFILED_COLUMN}
+          onValueChange={(value) =>
+            setDraft((old) => ({
+              ...old,
+              category: value === UNFILED_COLUMN ? "" : value,
+            }))
+          }
+          disabled={!draft.project}
+        >
+          <SelectTrigger className="h-12 w-full">
+            <SelectValue placeholder={t("material.chooseColumn")} />
+          </SelectTrigger>
+          <SelectContent>
+            {/* Unfiled stays on offer. It is the honest answer when nobody at
+                the gate knows where this belongs, and better than parking the
+                delivery in an arbitrary column somebody later pays against. */}
+            <SelectItem value={UNFILED_COLUMN}>
+              {t("material.columnUnfiled")}
+            </SelectItem>
+            {columnRows.map((column) => (
+              <SelectItem key={column.id} value={column.id}>
+                {column.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {draft.project && !columns.isLoading && !columnRows.length && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t("material.noColumnsYet")}
+          </p>
+        )}
+        <div className="mt-2 flex gap-2">
+          <Input
+            className="h-12"
+            value={newColumnName}
+            disabled={!draft.project}
+            onChange={(event) => setNewColumnName(event.target.value)}
+            placeholder={t("material.newColumnName")}
+          />
+          <Button
+            className="h-12 shrink-0"
+            variant="outline"
+            requires={[
+              [draft.project, t("material.project")],
+              [newColumnName.trim(), t("material.newColumnName")],
+            ]}
+            disabled={columnCreation.isPending}
+            onClick={() => openColumn(newColumnName.trim())}
+          >
+            {columnCreation.isPending ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Plus />
+            )}
+            {t("material.addColumn")}
+          </Button>
+        </div>
+        {columnError && (
+          <p role="alert" className="mt-2 text-xs text-destructive">
+            {columnError}
+          </p>
+        )}
+      </FieldWrapper>
       {(ocr.isPending || ocrMessage) && (
         <p className={`rounded-lg px-3 py-2 text-sm ${ocrProof ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
           {ocr.isPending ? t("material.ocrReading") : ocrMessage}
@@ -647,17 +806,43 @@ function MaterialCapturePanel({
                     {item.unit ? ` ${item.unit}` : ""}
                   </p>
                 </div>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                    item.classified
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {item.classified
-                    ? item.category_name
-                    : t("material.ocrItems.unclassified")}
-                </span>
+                {/* The reader's answer, and something to do with it. It used
+                    to be a label and nothing more: a line it could not place
+                    read "unclassified" and there was no way to act on it,
+                    because classifying could only ever pick a column that
+                    already existed (F-200). */}
+                {item.classified && item.category_id ? (
+                  <Button
+                    size="sm"
+                    variant={
+                      draft.category === item.category_id ? "default" : "outline"
+                    }
+                    className="shrink-0"
+                    onClick={() =>
+                      setDraft((old) => ({
+                        ...old,
+                        category: item.category_id ?? "",
+                      }))
+                    }
+                  >
+                    {item.category_name}
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0"
+                    disabled={columnCreation.isPending}
+                    onClick={() => openColumn(item.material_name.trim())}
+                  >
+                    {columnCreation.isPending ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <Plus />
+                    )}
+                    {t("material.ocrItems.makeColumn")}
+                  </Button>
+                )}
               </li>
             ))}
           </ul>

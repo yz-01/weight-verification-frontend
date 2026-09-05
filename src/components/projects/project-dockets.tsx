@@ -205,7 +205,13 @@ function IssueDeliveryNoteDialog({
   });
   const categories = useQuery({
     queryKey: ["project-categories", "delivery-note-options", projectId],
-    queryFn: () => getProjectCategories({ project: projectId, page_size: 200 }),
+    // A delivery note names the material column its receipt will file into
+    // once the load is signed for, so it offers the columns a delivery can
+    // actually be filed in. The backend now refuses a site-record column here
+    // (T-161), which would have made those options a dropdown that always
+    // errored.
+    queryFn: () =>
+      getProjectCategories({ project: projectId, page_size: 200, kind: "MATERIAL" }),
   });
   const creation = useMutation({
     mutationFn: () => issueDeliveryNote({
