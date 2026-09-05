@@ -3860,7 +3860,19 @@
       "linkCopied": "Link copied",
       "notSentBody": "The account was created. Copy the set-up link below and pass it to the owner yourself.",
       "notSentTitle": "The email could not be sent",
-      "emailHint": "The set-up link is sent here. Everyone else in the company is created by this account afterwards."
+      "emailHint": "The set-up link is sent here. Everyone else in the company is created by this account afterwards.",
+      "account": {
+        "title": "Owner account",
+        "description": "Where this tenant activation key was sent. The account itself belongs to the customer.",
+        "none": "This company has no owner account. It was created before the owner became part of opening a company.",
+        "readOnly": "Only a platform superadmin can change this.",
+        "warning": "Changing the address signs the owner out and makes them activate again, because the old password belongs to an address that no longer reaches this tenant.",
+        "save": "Save and resend the key",
+        "sent": "A new activation email has been sent to {email}.",
+        "notSent": "The email could not be sent. Pass this link to the owner:",
+        "status": "Status",
+        "needsAChange": "Enter a new email address or phone number first."
+      }
     },
     "addUser": "Add user",
     "commissionStatus": {
@@ -6518,7 +6530,8 @@
       "visit_not_found": "That customer visit could not be found.",
       "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
       "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
-      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again."
+      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again.",
+      "permission_denied": "You are not allowed to do that."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -6843,7 +6856,9 @@
       "permissionError": "The camera could not start. Allow camera permission and try again.",
       "ready": "{count} photo(s) ready",
       "switch": "Switch camera",
-      "unsupported": "This browser cannot open the camera. Use an HTTPS site and a current mobile browser."
+      "unsupported": "This browser cannot open the camera. Use an HTTPS site and a current mobile browser.",
+      "retake": "Tap to retake",
+      "preview": "Photo taken"
     },
     "categoryEvidence": {
       "changeCategory": "Change",
@@ -7094,6 +7109,54 @@
       "PROGRESS": "Progress",
       "SAFETY": "Safety",
       "WASTE": "Waste"
+    },
+    "locationAccess": {
+      "why": {
+        "title": "This needs your location",
+        "body": "Deliveries, attendance and site records are stamped with where they happened, so the office does not have to ring you to check you were on site. It is read once, when you press the button.",
+        "allow": "Allow location",
+        "later": "Not now"
+      },
+      "denied": {
+        "title": "The browser will not give this page your location",
+        "iosNote": "If you never saw a box asking, location is switched off for this browser in the phone settings. No web page can bring that box back - it has to be turned on below."
+      },
+      "steps": {
+        "iosSafari": {
+          "1": "Open Settings, then Privacy & Security, then Location Services, and check the switch at the top is on.",
+          "2": "Still on that page, scroll down to Safari Websites and choose While Using the App.",
+          "3": "Come back here, tap the aA on the left of the address bar, then Website Settings, then Location, and choose Allow.",
+          "4": "Reload this page and press the button again."
+        },
+        "iosOtherBrowser": {
+          "1": "Open Settings, then Privacy & Security, then Location Services, and check the switch at the top is on.",
+          "2": "Still on that page, scroll down to your browser (Chrome, Firefox or Edge) and choose While Using the App.",
+          "3": "Close the browser completely, then open this link again.",
+          "4": "Press the button again. This time it will ask - choose Allow."
+        },
+        "androidChrome": {
+          "1": "Swipe down from the top of the screen and check Location is on.",
+          "2": "Tap the icon on the left of the address bar, then Permissions, then Location, and choose Allow.",
+          "3": "If Location is not listed there, open Settings, then Apps, then Chrome, then Permissions, then Location, and choose Allow only while using the app.",
+          "4": "Reload this page and press the button again."
+        },
+        "androidOtherBrowser": {
+          "1": "Swipe down from the top of the screen and check Location is on.",
+          "2": "Open Settings, then Apps, then your browser, then Permissions, then Location, and choose Allow only while using the app.",
+          "3": "In the browser own site settings, set this site location permission to Allow.",
+          "4": "Reload this page and press the button again."
+        },
+        "desktop": {
+          "1": "Click the icon on the left of the address bar.",
+          "2": "Find Location and set it to Allow.",
+          "3": "Check that location services are switched on for the computer itself.",
+          "4": "Reload this page and press the button again."
+        }
+      },
+      "retry": "Try again",
+      "unavailable": "The phone could not get a fix - often indoors or under cover. Step outside and try again.",
+      "timeout": "Getting a location took too long. Try again.",
+      "unsupported": "This browser cannot read a location. Open this link in Safari or Chrome on the phone."
     }
   },
   "fieldStaffWorkspace": {

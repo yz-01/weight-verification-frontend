@@ -3860,7 +3860,19 @@
       "linkCopied": "Pautan disalin",
       "notSentBody": "Akaun telah dibuka. Salin pautan persediaan di bawah dan serahkan kepada pemilik sendiri.",
       "notSentTitle": "E-mel tidak dapat dihantar",
-      "emailHint": "Pautan persediaan dihantar ke sini. Akaun orang lain dalam syarikat dibuka oleh akaun ini kemudian."
+      "emailHint": "Pautan persediaan dihantar ke sini. Akaun orang lain dalam syarikat dibuka oleh akaun ini kemudian.",
+      "account": {
+        "title": "Akaun pemilik",
+        "description": "Ke sinilah kunci pengaktifan penyewa ini dihantar. Akaun itu sendiri milik pelanggan.",
+        "none": "Syarikat ini tiada akaun pemilik. Ia dibuka sebelum pemilik menjadi sebahagian daripada membuka syarikat.",
+        "readOnly": "Hanya superadmin platform boleh mengubah ini.",
+        "warning": "Menukar alamat akan log keluar pemilik dan mewajibkan pengaktifan semula, kerana kata laluan lama milik alamat yang tidak lagi menghubungi penyewa ini.",
+        "save": "Simpan dan hantar semula kunci",
+        "sent": "E-mel pengaktifan baharu telah dihantar ke {email}.",
+        "notSent": "E-mel tidak dapat dihantar. Berikan pautan ini kepada pemilik:",
+        "status": "Status",
+        "needsAChange": "Masukkan alamat e-mel atau nombor telefon baharu dahulu."
+      }
     },
     "addUser": "Tambah pengguna",
     "commissionStatus": {
@@ -6518,7 +6530,8 @@
       "visit_not_found": "Lawatan pelanggan itu tidak dijumpai.",
       "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
       "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
-      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi."
+      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
+      "permission_denied": "Anda tidak dibenarkan berbuat demikian."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -6843,7 +6856,9 @@
       "permissionError": "Kamera tidak dapat dimulakan. Benarkan kebenaran kamera dan cuba lagi.",
       "ready": "{count} foto sedia",
       "switch": "Tukar kamera",
-      "unsupported": "Pelayar ini tidak boleh membuka kamera. Gunakan laman HTTPS dan pelayar mudah alih terkini."
+      "unsupported": "Pelayar ini tidak boleh membuka kamera. Gunakan laman HTTPS dan pelayar mudah alih terkini.",
+      "retake": "Ketik untuk ambil semula",
+      "preview": "Gambar diambil"
     },
     "categoryEvidence": {
       "changeCategory": "Tukar",
@@ -7094,6 +7109,54 @@
       "PROGRESS": "Kemajuan",
       "SAFETY": "Keselamatan",
       "WASTE": "Sisa"
+    },
+    "locationAccess": {
+      "why": {
+        "title": "Ini memerlukan lokasi anda",
+        "body": "Penghantaran, kehadiran dan rekod tapak dicap dengan tempat ia berlaku, supaya pejabat tidak perlu menelefon untuk mengesahkan anda berada di tapak. Ia dibaca sekali sahaja, ketika anda menekan butang.",
+        "allow": "Benarkan lokasi",
+        "later": "Bukan sekarang"
+      },
+      "denied": {
+        "title": "Pelayar tidak memberikan lokasi anda kepada halaman ini",
+        "iosNote": "Jika anda tidak pernah nampak kotak bertanya, lokasi dimatikan untuk pelayar ini dalam tetapan telefon. Tiada halaman web boleh memunculkan kotak itu semula - ia mesti dihidupkan di bawah."
+      },
+      "steps": {
+        "iosSafari": {
+          "1": "Buka Settings, kemudian Privacy & Security, kemudian Location Services, dan pastikan suis di atas dihidupkan.",
+          "2": "Pada halaman yang sama, tatal ke bawah ke Safari Websites dan pilih While Using the App.",
+          "3": "Kembali ke sini, ketik aA di kiri bar alamat, kemudian Website Settings, kemudian Location, dan pilih Allow.",
+          "4": "Muat semula halaman ini dan tekan butang itu sekali lagi."
+        },
+        "iosOtherBrowser": {
+          "1": "Buka Settings, kemudian Privacy & Security, kemudian Location Services, dan pastikan suis di atas dihidupkan.",
+          "2": "Pada halaman yang sama, tatal ke bawah ke pelayar anda (Chrome, Firefox atau Edge) dan pilih While Using the App.",
+          "3": "Tutup pelayar sepenuhnya, kemudian buka pautan ini semula.",
+          "4": "Tekan butang itu sekali lagi. Kali ini ia akan bertanya - pilih Allow."
+        },
+        "androidChrome": {
+          "1": "Leret ke bawah dari atas skrin dan pastikan Lokasi dihidupkan.",
+          "2": "Ketik ikon di kiri bar alamat, kemudian Kebenaran, kemudian Lokasi, dan pilih Benarkan.",
+          "3": "Jika Lokasi tiada di situ, buka Tetapan, Apl, Chrome, Kebenaran, Lokasi, dan pilih Benarkan semasa menggunakan apl sahaja.",
+          "4": "Muat semula halaman ini dan tekan butang itu sekali lagi."
+        },
+        "androidOtherBrowser": {
+          "1": "Leret ke bawah dari atas skrin dan pastikan Lokasi dihidupkan.",
+          "2": "Buka Tetapan, Apl, pelayar anda, Kebenaran, Lokasi, dan pilih Benarkan semasa menggunakan apl sahaja.",
+          "3": "Dalam tetapan tapak pelayar itu sendiri, tetapkan kebenaran lokasi tapak ini kepada Benarkan.",
+          "4": "Muat semula halaman ini dan tekan butang itu sekali lagi."
+        },
+        "desktop": {
+          "1": "Klik ikon di kiri bar alamat.",
+          "2": "Cari Lokasi dan tetapkan kepada Benarkan.",
+          "3": "Pastikan perkhidmatan lokasi dihidupkan untuk komputer itu sendiri.",
+          "4": "Muat semula halaman ini dan tekan butang itu sekali lagi."
+        }
+      },
+      "retry": "Cuba lagi",
+      "unavailable": "Telefon tidak dapat menentukan kedudukan - selalunya di dalam bangunan atau berbumbung. Keluar ke kawasan lapang dan cuba lagi.",
+      "timeout": "Mendapatkan lokasi mengambil masa terlalu lama. Cuba lagi.",
+      "unsupported": "Pelayar ini tidak boleh membaca lokasi. Buka pautan ini dalam Safari atau Chrome pada telefon."
     }
   },
   "fieldStaffWorkspace": {
