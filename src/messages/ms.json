@@ -6759,7 +6759,13 @@
     "readyTitle": "Telefon sudah sedia",
     "signIn": "Log masuk",
     "thisPhone": "Telefon ini",
-    "storageBlocked": "Pelayar ini tidak menyimpan data tapak, jadi telefon ini tidak boleh kekal terpaut. Buka pautan jemputan dalam tetingkap biasa dan bukan tetingkap peribadi, dan benarkan data tapak untuk alamat ini."
+    "storageBlocked": "Pelayar ini tidak menyimpan data tapak, jadi telefon ini tidak boleh kekal terpaut. Buka pautan jemputan dalam tetingkap biasa dan bukan tetingkap peribadi, dan benarkan data tapak untuk alamat ini.",
+    "browserWarningTitle": "Buka pautan ini dalam pelayar biasa telefon anda",
+    "browserWarning": "Telefon ini dipautkan kepada pelayar tempat anda mengaktifkannya. Mengaktifkan di dalam apl sembang hanya memautkan apl itu, dan membuka tapak ini kemudian dalam Safari atau Chrome akan tiba sebagai telefon yang berlainan.",
+    "browserWarningNamed": "Pautan ini dibuka di dalam {app}. Salin dan buka dalam Safari atau Chrome dahulu, kemudian aktifkan di sana.",
+    "copyLink": "Salin pautan",
+    "copied": "Pautan disalin. Tampal ke dalam Safari atau Chrome.",
+    "resuming": "Membuka ruang kerja anda..."
   },
   "fieldAccessAdmin": {
     "unbind": {

@@ -6759,7 +6759,13 @@
     "readyTitle": "手機已準備好",
     "signIn": "登錄",
     "thisPhone": "這臺手機",
-    "storageBlocked": "這個瀏覽器沒有保存網站資料，所以這台手機沒辦法保持關聯。請用一般視窗（不要無痕視窗）開啟邀請連結，並允許這個網址保存網站資料。"
+    "storageBlocked": "這個瀏覽器沒有保存網站資料，所以這台手機沒辦法保持關聯。請用一般視窗（不要無痕視窗）開啟邀請連結，並允許這個網址保存網站資料。",
+    "browserWarningTitle": "請用手機內建的瀏覽器開啟這個連結",
+    "browserWarning": "這台手機是跟你啟用時用的那個瀏覽器綁定的。在聊天軟體裡面啟用，綁定的只是那個軟體；之後用 Safari 或 Chrome 開啟，會被當成另一台手機。",
+    "browserWarningNamed": "這個連結是在 {app} 裡面開啟的。請先複製連結，用 Safari 或 Chrome 開啟，再在那裡啟用。",
+    "copyLink": "複製連結",
+    "copied": "連結已複製。貼到 Safari 或 Chrome 開啟。",
+    "resuming": "正在開啟你的工作台…"
   },
   "fieldAccessAdmin": {
     "unbind": {

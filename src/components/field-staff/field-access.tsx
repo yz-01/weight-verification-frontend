@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Camera, Loader2, LogIn, Smartphone } from "lucide-react";
+import { Camera, Copy, Loader2, LogIn, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,7 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
-import { setFieldBootstrapToken } from "@/lib/auth-token";
+import {
+  getFieldBootstrapToken,
+  setFieldBootstrapToken,
+} from "@/lib/auth-token";
+import { inAppBrowserName } from "@/lib/in-app-browser";
 import { redirectWithFallback, safeReturnPath } from "@/lib/portal";
 import { cacheBranding } from "@/lib/branding";
 import {
@@ -20,6 +24,7 @@ import {
   fieldLogin,
   getOrCreateFieldDeviceId,
   inspectFieldInvitation,
+  restoreFieldPwaSession,
 } from "@/services/field-access.service";
 
 export function FieldAccess() {
@@ -42,12 +47,57 @@ export function FieldAccess() {
   // id. Without this the refusal reads as the worker having done
   // something wrong, when the browser is discarding their identity.
   const [storageBlocked, setStorageBlocked] = useState(false);
+  // Whether the stored install key is worth trying, decided once at mount
+  // rather than set from inside the effect - the PIN form stays hidden until
+  // the attempt has failed, so the app does not flash a form the worker will
+  // usually not need.
+  const [resuming, setResuming] = useState(
+    () => typeof window !== "undefined" && !token && Boolean(getFieldBootstrapToken()),
+  );
+  const [copied, setCopied] = useState(false);
+  const chatApp = typeof window === "undefined" ? null : inAppBrowserName();
 
   useEffect(() => {
     if (!token || !invitation.data?.branding) return;
     document.title = invitation.data.branding.name;
     cacheBranding(invitation.data.branding, true);
   }, [invitation.data, token]);
+
+  /**
+   * Try the key the install left behind, before asking for a PIN.
+   *
+   * The installed app opens at this screen whenever it was added from a page
+   * that had no install key to hand, and the worker gets a PIN box for a
+   * device the server may not recognise - a dead end they cannot solve, since
+   * the way out is an invitation link they no longer have.
+   *
+   * The key is already sitting in this browser storage; it was only ever read
+   * to build the manifest URL. Spending it here turns that dead end into a
+   * sign-in, and when it fails nothing is lost - the PIN form appears exactly
+   * as it did before.
+   */
+  useEffect(() => {
+    if (token) return;
+    const stored = getFieldBootstrapToken();
+    if (!stored) return;
+    let abandoned = false;
+    void restoreFieldPwaSession({
+      token: stored,
+      device_id: getOrCreateFieldDeviceId(),
+      device_name: navigator.platform || t("thisPhone"),
+    })
+      .then((result) => {
+        if (abandoned) return;
+        setUser(result.user);
+        redirectWithFallback(router, next ?? "/field-staff", 150);
+      })
+      .catch(() => {
+        if (!abandoned) setResuming(false);
+      });
+    return () => {
+      abandoned = true;
+    };
+  }, [next, router, setUser, t, token]);
 
   const submit = async () => {
     setError("");
@@ -94,6 +144,18 @@ export function FieldAccess() {
     return <Centered><Loader2 className="size-8 animate-spin text-primary" /></Centered>;
   }
 
+  // The installed app opening on a lapsed session. Showing the PIN box while
+  // the stored install key is still being tried would offer a form that is
+  // usually about to become unnecessary.
+  if (resuming) {
+    return (
+      <Centered>
+        <Loader2 className="size-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">{t("resuming")}</p>
+      </Centered>
+    );
+  }
+
   if (token && invitation.isError) {
     return (
       <Centered>
@@ -135,6 +197,44 @@ export function FieldAccess() {
               onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
             />
           </div>
+          {/* Said to everybody activating, loudly when the web view names
+              itself. A phone is linked to the storage of the browser it was
+              activated in, so a link opened inside a chat app links that app
+              and nothing else - and the same phone, opened later in Safari or
+              from the home screen, arrives as a device the server has never
+              seen. WhatsApp does not identify itself, which is why the plain
+              sentence is shown regardless. */}
+          {token ? (
+            <div
+              className={`rounded-md px-3 py-2 text-sm ${
+                chatApp
+                  ? "bg-warning/15 text-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              <p className="font-semibold">{t("browserWarningTitle")}</p>
+              <p className="mt-1 text-xs">
+                {chatApp
+                  ? t("browserWarningNamed", { app: chatApp })
+                  : t("browserWarning")}
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="mt-2"
+                onClick={() => {
+                  void navigator.clipboard
+                    ?.writeText(window.location.href)
+                    .then(() => setCopied(true))
+                    .catch(() => setCopied(false));
+                }}
+              >
+                <Copy />
+                {copied ? t("copied") : t("copyLink")}
+              </Button>
+            </div>
+          ) : null}
           {error && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
           {storageBlocked && (
             <p className="rounded-md bg-warning/10 px-3 py-2 text-sm text-muted-foreground">

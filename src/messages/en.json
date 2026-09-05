@@ -6759,7 +6759,13 @@
     "readyTitle": "Phone ready",
     "signIn": "Sign in",
     "thisPhone": "This phone",
-    "storageBlocked": "This browser is not keeping site data, so this phone cannot stay linked. Open the invitation link in a normal window rather than a private one, and allow site data for this address."
+    "storageBlocked": "This browser is not keeping site data, so this phone cannot stay linked. Open the invitation link in a normal window rather than a private one, and allow site data for this address.",
+    "browserWarningTitle": "Open this link in your normal browser",
+    "browserWarning": "This phone is linked to whichever browser you activate in. Activating inside a chat app links only that app, and opening the site later in Safari or Chrome will arrive as a different phone.",
+    "browserWarningNamed": "This link opened inside {app}. Copy it and open it in Safari or Chrome first, then activate there.",
+    "copyLink": "Copy the link",
+    "copied": "Link copied. Paste it into Safari or Chrome.",
+    "resuming": "Opening your workspace..."
   },
   "fieldAccessAdmin": {
     "unbind": {
