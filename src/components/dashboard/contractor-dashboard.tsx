@@ -57,6 +57,10 @@ const LIVE_SECTIONS: ContractorDashboardSection[] = [
   "activity",
   "anomalies",
   "notifications",
+  // The unread pile moves while the page is open - this reader opens a
+  // delivery in another tab and the number here has to follow, or the home
+  // page keeps advertising work that is already done.
+  "unread",
 ];
 
 const PROJECT_STATUSES: ProjectStatusKey[] = [
@@ -123,6 +127,7 @@ export function ContractorDashboard() {
   const activity = live.data?.activity ?? data?.activity;
   const anomalies = live.data?.anomalies ?? data?.anomalies;
   const notifications = live.data?.notifications ?? data?.notifications;
+  const unread = live.data?.unread ?? data?.unread;
 
   if (full.isError) {
     return (
@@ -286,6 +291,61 @@ export function ContractorDashboard() {
                           {df.dateTime(row.occurred_at)}
                         </p>
                       </div>
+                    </li>
+                  ))}
+                </ul>
+              </Block>
+            )}
+
+            {unread && (unread.receipts > 0 || unread.approvals > 0) && (
+              // Only drawn when something is actually waiting. A card that is
+              // always there, reading zero, is the shape of thing people stop
+              // seeing - and being seen is the entire point of this one
+              // (user, 2026-09-05: "it should be obvious").
+              <Block
+                title={t("unread.title")}
+                subtitle={t("unread.subtitle", {
+                  receipts: unread.receipts,
+                  approvals: unread.approvals,
+                })}
+                empty={false}
+                emptyLabel=""
+                action={
+                  <Link
+                    href="/material-columns"
+                    className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {t("unread.openColumns")}
+                  </Link>
+                }
+              >
+                <p className="pb-2 text-xs text-muted-foreground">
+                  {t("unread.help")}
+                </p>
+                <ul className="divide-y">
+                  {unread.columns.map((column) => (
+                    <li
+                      key={column.category ?? "unfiled"}
+                      className="flex items-center justify-between gap-3 py-2.5"
+                    >
+                      <Link
+                        href={
+                          column.category
+                            ? `/receipts?category=${column.category}&seen=false`
+                            : "/receipts?category=__unfiled__&seen=false"
+                        }
+                        className="min-w-0 flex-1 text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        {column.name || t("unread.unfiled")}
+                        {column.code && (
+                          <span className="ml-2 text-xs font-normal text-muted-foreground">
+                            {column.code}
+                          </span>
+                        )}
+                      </Link>
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary">
+                        {column.count}
+                      </span>
                     </li>
                   ))}
                 </ul>
