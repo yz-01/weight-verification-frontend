@@ -2,7 +2,7 @@
 
 import { Camera, CameraIcon, Loader2, RefreshCw, SwitchCamera, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,20 @@ type FacingMode = "user" | "environment";
 interface FieldCameraProps {
   label: string;
   fileCount?: number;
+  /**
+   * The photograph this tile holds, shown as a thumbnail.
+   *
+   * Until this existed the tile said "1 photo(s) ready" and drew a camera
+   * icon, which looks exactly like an empty slot. A worker could not see what
+   * they had taken, so they could not tell a usable photograph of a delivery
+   * note from a blurred one - and retaking, which has always worked by
+   * pressing the tile again, did not look like it did anything either
+   * (2026-09-05).
+   *
+   * Optional: several callers hold a list rather than one file and keep
+   * passing only `fileCount`.
+   */
+  file?: File;
   facingMode?: FacingMode;
   disabled?: boolean;
   className?: string;
@@ -29,6 +43,7 @@ interface FieldCameraProps {
 export function FieldCamera({
   label,
   fileCount = 0,
+  file,
   facingMode = "environment",
   disabled = false,
   className = "",
@@ -43,6 +58,21 @@ export function FieldCamera({
   const [error, setError] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  // Derived rather than stored, so the thumbnail is right on the render that
+  // receives the photograph rather than one render later.
+  const previewUrl = useMemo(
+    () => (file ? URL.createObjectURL(file) : ""),
+    [file],
+  );
+  // A blob URL is a handle the page owns, so it has to be released when the
+  // photograph is replaced or the tile goes away. Leaving them to accumulate
+  // pins every retaken shot in memory for the life of the page, on the one
+  // device least able to spare it.
+  useEffect(() => {
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -160,15 +190,42 @@ export function FieldCamera({
             setFacing(facingMode);
             setOpen(true);
           }}
-          className="flex min-h-24 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed bg-muted/20 p-3 text-center transition-colors hover:border-primary/50 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+          className={`flex min-h-24 w-full flex-col items-center justify-center overflow-hidden rounded-xl border-2 bg-muted/20 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+            previewUrl
+              ? "border-solid border-primary/40 p-0"
+              : "border-dashed p-3 hover:border-primary/50 hover:bg-primary/5"
+          }`}
         >
-          <Camera className="size-7 text-primary" />
-          <span className="mt-2 text-sm font-semibold">{label}</span>
-          <span className="mt-1 text-xs text-muted-foreground">
-            {fileCount ? t("ready", { count: fileCount }) : t("open")}
-          </span>
+          {previewUrl ? (
+            <span className="relative block w-full">
+              {/* A blob URL cannot go through the image optimiser, and this
+                  is a photograph the phone already holds in memory. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewUrl}
+                alt={`${label} - ${t("preview")}`}
+                className="aspect-4/3 w-full object-cover"
+              />
+              <span className="block bg-background/95 px-2 py-1.5">
+                <span className="block truncate text-sm font-semibold">
+                  {label}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {t("retake")}
+                </span>
+              </span>
+            </span>
+          ) : (
+            <>
+              <Camera className="size-7 text-primary" />
+              <span className="mt-2 text-sm font-semibold">{label}</span>
+              <span className="mt-1 text-xs text-muted-foreground">
+                {fileCount ? t("ready", { count: fileCount }) : t("open")}
+              </span>
+            </>
+          )}
         </button>
-        {fileCount > 0 && onClear ? (
+        {(fileCount > 0 || previewUrl) && onClear ? (
           <Button
             type="button"
             size="icon"

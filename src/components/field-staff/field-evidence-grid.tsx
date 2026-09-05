@@ -53,6 +53,7 @@ export function FieldEvidenceGrid({
           <FieldCamera
             key={`${index}-${label}`}
             label={label}
+            file={requiredFiles[index]}
             fileCount={requiredFiles[index] ? 1 : 0}
             onCapture={(file) =>
               onChange(
@@ -82,6 +83,7 @@ export function FieldEvidenceGrid({
             <FieldCamera
               key={`${file.name}-${file.lastModified}-${additionalIndex}`}
               label={t("otherPhotoNumber", { number: additionalIndex + 1 })}
+              file={file}
               fileCount={1}
               onCapture={(replacement) =>
                 onChange(
