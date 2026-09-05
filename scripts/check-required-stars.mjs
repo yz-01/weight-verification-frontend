@@ -214,7 +214,11 @@ for (const relative of files) {
     const carried = new Set();
 
     // The fields in this same form, and whether they wear a star.
-    const wrappers = /<FieldWrapper\b/g;
+    // A signature pad counts as a field here. It draws its own label
+    // instead of sitting in a wrapper, so it used to be invisible to
+    // this check - and both signatures on the delivery screen are
+    // compulsory, which is exactly the case the check exists for.
+    const wrappers = /<(?:FieldWrapper|FieldSignaturePad)\b/g;
     let wrapper = wrappers.exec(body);
     while (wrapper) {
       const attrs = attrsOf(body, wrapper.index + wrapper[0].length);

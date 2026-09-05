@@ -933,8 +933,8 @@ function MaterialCapturePanel({
         </div>
       )}
       <div className="grid gap-4 sm:grid-cols-2">
-        <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} value={receiverSignature} onChange={setReceiverSignature} />
-        <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} value={supplierSignature} onChange={setSupplierSignature} />
+        <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} required value={receiverSignature} onChange={setReceiverSignature} />
+        <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} required value={supplierSignature} onChange={setSupplierSignature} />
       </div>
       <FieldWrapper label={t("material.location")} required>
         <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>
