@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { WorkforcePresencePanel } from "@/components/site-operations/workforce-presence-panel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,6 +46,12 @@ export function FieldStaffGps({
   const [projectId, setProjectId] = useState(requestedProjectId);
   const [sharing, setSharing] = useState(false);
   const [sharingError, setSharingError] = useState("");
+  /**
+   * Whether sharing stopped because the phone refused, rather than
+   * because it could not get a fix. Only the refusal has a switch the
+   * reader can move, and only then are the settings steps any use.
+   */
+  const [sharingRefused, setSharingRefused] = useState(false);
   const [historyProjectId, setHistoryProjectId] = useState(requestedProjectId);
   const [historySelection, setHistorySelection] = useState(
     requestedProjectId && requestedUserId
@@ -319,6 +326,7 @@ export function FieldStaffGps({
 
   function startSharing() {
     setSharingError("");
+    setSharingRefused(false);
     if (!projectId || !user) return;
     if (!navigator.geolocation) {
       setSharingError(t("siteGps.error.unsupported"));
@@ -343,13 +351,14 @@ export function FieldStaffGps({
       },
       (error) => {
         stopWatcher();
-        const key =
-          error.code === error.PERMISSION_DENIED
-            ? "permissionDenied"
-            : error.code === error.POSITION_UNAVAILABLE
-              ? "unavailable"
-              : "timeout";
+        const denied = error.code === error.PERMISSION_DENIED;
+        const key = denied
+          ? "permissionDenied"
+          : error.code === error.POSITION_UNAVAILABLE
+            ? "unavailable"
+            : "timeout";
         setSharingError(t(`siteGps.error.${key}`));
+        setSharingRefused(denied);
       },
       {
         enableHighAccuracy: true,
@@ -468,6 +477,10 @@ export function FieldStaffGps({
                 {sharingError}
               </p>
             )}
+            {/* One sentence is not enough when the answer is a switch in the
+                phone's own settings, and the path there differs by phone and
+                by browser. Same guidance the field app shows. */}
+            {sharingRefused && <LocationDenialSteps className="w-full" />}
           </div>
 
           <MapSection title={t("siteGps.map")} note={t("siteGps.refreshNote")}>

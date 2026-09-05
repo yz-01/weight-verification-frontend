@@ -7,7 +7,6 @@ import {
   Folder,
   FolderOpen,
   Loader2,
-  LocateFixed,
   LockKeyhole,
   RefreshCw,
   Send,
@@ -22,6 +21,7 @@ import {
   FieldEvidenceGrid,
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
+import { LocationField } from "@/components/field-staff/location-field";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -29,11 +29,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import type { ProjectCategory } from "@/interfaces/contractor-ops";
+import type { LocationFix } from "@/lib/field-location";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 import { submitCategoryEvidenceOfflineAware } from "@/services/offline-sync.service";
 
-type Coordinates = { latitude: string; longitude: string; accuracy: string };
 
 export function CategoryEvidenceCapture({
   initialProject = "",
@@ -51,8 +51,7 @@ export function CategoryEvidenceCapture({
   const [selected, setSelected] = useState<ProjectCategory | null>(null);
   const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
   const [note, setNote] = useState("");
-  const [location, setLocation] = useState<Coordinates>();
-  const [locating, setLocating] = useState(false);
+  const [location, setLocation] = useState<LocationFix | null>(null);
   const [error, setError] = useState("");
 
   const categories = useQuery({
@@ -97,7 +96,7 @@ export function CategoryEvidenceCapture({
     setSelected(null);
     setEvidence(createEmptyFieldEvidence());
     setNote("");
-    setLocation(undefined);
+    setLocation(null);
     setError("");
   }
 
@@ -120,35 +119,12 @@ export function CategoryEvidenceCapture({
     setSelected(category);
     setEvidence(createEmptyFieldEvidence());
     setNote("");
-    setLocation(undefined);
+    setLocation(null);
   }
 
   function goUp() {
     setTrail((current) => current.slice(0, -1));
     setError("");
-  }
-
-  async function locate() {
-    setLocating(true);
-    setError("");
-    try {
-      const fix = await new Promise<GeolocationPosition>((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 15_000,
-          maximumAge: 0,
-        }),
-      );
-      setLocation({
-        latitude: fix.coords.latitude.toFixed(7),
-        longitude: fix.coords.longitude.toFixed(7),
-        accuracy: fix.coords.accuracy.toFixed(2),
-      });
-    } catch {
-      setError(t("locationError"));
-    } finally {
-      setLocating(false);
-    }
   }
 
   const save = useMutation({
@@ -307,18 +283,14 @@ export function CategoryEvidenceCapture({
               without a fix, but the only red asterisk on this screen was on
               the photos, so a worker who had taken four photos could not see
               why submit still would not go (F-202). */}
-          <FieldWrapper label={t("getLocation")} required>
-            <Button
-              type="button"
-              className="h-12 w-full"
-              variant="outline"
-              disabled={locating}
-              onClick={() => void locate()}
-            >
-              {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-              {location ? t("locationReady") : t("getLocation")}
-            </Button>
-          </FieldWrapper>
+          <LocationField
+            label={t("getLocation")}
+            actionLabel={t("getLocation")}
+            readyLabel={t("locationReady")}
+            value={location}
+            onChange={setLocation}
+            required
+          />
 
           <FieldWrapper label={t("note")}>
             <Textarea

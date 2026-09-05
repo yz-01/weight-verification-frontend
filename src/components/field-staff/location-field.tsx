@@ -1,16 +1,15 @@
 "use client";
 
-import { Loader2, LocateFixed, MapPin, ShieldAlert } from "lucide-react";
+import { Loader2, LocateFixed, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 
+import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   type LocationFix,
   type LocationProblem,
-  isIos,
-  locationHelpTarget,
   problemOf,
   requestLocation,
 } from "@/lib/field-location";
@@ -115,8 +114,6 @@ export function LocationField({
     void ask();
   };
 
-  const target = locationHelpTarget();
-
   return (
     <FieldWrapper className={className} label={label} required={required}>
       <Button
@@ -156,32 +153,18 @@ export function LocationField({
       ) : null}
 
       {problem === "denied" ? (
-        <div
-          role="alert"
-          className="mt-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3"
-        >
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-destructive">
-            <ShieldAlert className="size-4" />
-            {t("denied.title")}
-          </p>
-          {isIos() ? (
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("denied.iosNote")}
-            </p>
-          ) : null}
-          <ol className="mt-2 list-decimal space-y-1 pl-5 text-xs text-muted-foreground">
-            {(["1", "2", "3", "4"] as const).map((step) => (
-              <li key={step}>{t(`steps.${target}.${step}`)}</li>
-            ))}
-          </ol>
-          <Button
-            className="mt-3 h-10 w-full"
-            variant="outline"
-            onClick={() => void ask()}
-          >
-            {t("retry")}
-          </Button>
-        </div>
+        <LocationDenialSteps
+          className="mt-2"
+          action={
+            <Button
+              className="mt-3 h-10 w-full"
+              variant="outline"
+              onClick={() => void ask()}
+            >
+              {t("retry")}
+            </Button>
+          }
+        />
       ) : null}
 
       {problem && problem !== "denied" ? (
