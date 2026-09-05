@@ -6977,7 +6977,11 @@
         "confirmHint": "Semak dengan dokumen kertas",
         "title": "Bahan dibaca dari nota",
         "unclassified": "Pilih kategori",
-        "makeColumn": "Jadikan kolum"
+        "makeColumn": "Jadikan kolum",
+        "editHint": "Betulkan teks salah, pilih kategori, buang baris salah, kemudian tekan Guna.",
+        "remove": "Buang baris",
+        "use": "Guna",
+        "noUnit": "Tiada unit"
       },
       "ocrLowConfidence": "Dibaca dengan keyakinan rendah: {fields}. Semak dengan dokumen kertas sebelum menyimpan.",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Isi butiran secara manual.",

@@ -15,6 +15,7 @@ import {
   Recycle,
   ScanLine,
   ShieldAlert,
+  Trash2,
   Truck,
   UserRoundCheck,
 } from "lucide-react";
@@ -329,6 +330,25 @@ function MaterialCapturePanel({
     queryKey: ["qr-codes", "field-material"],
     queryFn: () => getQRCodes({ page_size: 300 }),
   });
+  const updateLineItem = (
+    index: number,
+    patch: Partial<DeliveryNoteOCRLineItem>,
+  ) =>
+    setOcrLineItems((rows) =>
+      rows.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+    );
+  const removeLineItem = (index: number) =>
+    setOcrLineItems((rows) => rows.filter((_, i) => i !== index));
+  const loadLineItem = (item: DeliveryNoteOCRLineItem) =>
+    setDraft((old) => ({
+      ...old,
+      materialName: item.material_name,
+      quantity: numericSuggestion(item.quantity) || old.quantity,
+      unit: (item.unit as MaterialUnit) || old.unit,
+      // The reader now hands back the column id, so the line does not have to
+      // be matched back to one by its code.
+      category: item.category_id || old.category,
+    }));
   // The material columns of this site. Only the material ones: a site-record
   // column is not somewhere a delivery can be filed, and the server refuses
   // one here (T-161).
@@ -356,12 +376,23 @@ function MaterialCapturePanel({
    * unfiled - which is what the receipt model already allowed for.
    */
   const columnCreation = useMutation({
-    mutationFn: (name: string) =>
+    mutationFn: ({ name }: { name: string; index?: number }) =>
       createMaterialColumn({ project: draft.project, name }),
-    onSuccess: (row) => {
+    onSuccess: (row, { index }) => {
       setColumnError("");
       setNewColumnName("");
       setDraft((old) => ({ ...old, category: row.id }));
+      // A column opened from a scanned line belongs to that line too.
+      // Without this the row still reads "pick a category" straight after
+      // somebody opened one for exactly that material.
+      if (index !== undefined) {
+        updateLineItem(index, {
+          category_id: row.id,
+          category_code: row.code,
+          category_name: row.name,
+          classified: true,
+        });
+      }
       void qc.invalidateQueries({ queryKey: ["project-categories"] });
     },
     onError: (reason) =>
@@ -378,13 +409,13 @@ function MaterialCapturePanel({
    * Saying so beats a spinner that fails: the delivery can still be taken
    * unfiled and filed once there is a connection.
    */
-  const openColumn = (name: string) => {
+  const openColumn = (name: string, index?: number) => {
     setColumnError("");
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       setColumnError(t("material.columnOffline"));
       return;
     }
-    columnCreation.mutate(name);
+    columnCreation.mutate({ name, index });
   };
   const qrCode = useMemo(
     () => scannedQr && scannedQr.project === draft.project && scannedQr.supplier === draft.supplier
@@ -464,6 +495,7 @@ function MaterialCapturePanel({
             })
           : t("material.ocrReady"),
       );
+      const firstCategory = items[0]?.category_id ?? "";
       setDraft((old) => ({
         ...old,
         deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,
@@ -478,6 +510,8 @@ function MaterialCapturePanel({
           numericSuggestion(items[0]?.quantity) ||
           numericSuggestion(result.suggestions.quantity) ||
           old.quantity,
+        unit: (items[0]?.unit as MaterialUnit) || old.unit,
+        category: firstCategory || old.category,
       }));
     },
     onError: (reason) => {
@@ -689,27 +723,6 @@ function MaterialCapturePanel({
       ) : null}
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
-      <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
-        <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
-      </div>
-      <FieldWrapper label={t("materialEvidence.title")} required>
-        <FieldEvidenceGrid
-          labels={materialEvidenceLabels}
-          files={materialEvidence}
-          progressLabel={t("evidenceProgress", {
-            current: completedMaterialEvidence.length,
-            required: FIELD_EVIDENCE_PHOTO_COUNT,
-          })}
-          onChange={(next) => {
-            const nextDeliveryNote = next[3];
-            setMaterialEvidence(next);
-            if (nextDeliveryNote !== deliveryNote) {
-              inspectDeliveryNote(nextDeliveryNote);
-            }
-          }}
-        />
-      </FieldWrapper>
       {/* Which column this delivery files under, and a way to open one.
           Before T-161 this screen sent no column at all, so every delivery
           taken on site arrived unfiled however many columns the site had, and
@@ -779,6 +792,27 @@ function MaterialCapturePanel({
           </p>
         )}
       </FieldWrapper>
+      <div className="grid grid-cols-2 gap-3">
+        <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
+        <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
+      </div>
+      <FieldWrapper label={t("materialEvidence.title")} required>
+        <FieldEvidenceGrid
+          labels={materialEvidenceLabels}
+          files={materialEvidence}
+          progressLabel={t("evidenceProgress", {
+            current: completedMaterialEvidence.length,
+            required: FIELD_EVIDENCE_PHOTO_COUNT,
+          })}
+          onChange={(next) => {
+            const nextDeliveryNote = next[3];
+            setMaterialEvidence(next);
+            if (nextDeliveryNote !== deliveryNote) {
+              inspectDeliveryNote(nextDeliveryNote);
+            }
+          }}
+        />
+      </FieldWrapper>
       {(ocr.isPending || ocrMessage) && (
         <p className={`rounded-lg px-3 py-2 text-sm ${ocrProof ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
           {ocr.isPending ? t("material.ocrReading") : ocrMessage}
@@ -786,54 +820,111 @@ function MaterialCapturePanel({
       )}
       {ocrLineItems.length > 0 && (
         <div className="rounded-lg border">
-          <div className="flex items-center justify-between border-b bg-muted/40 px-3 py-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="border-b bg-muted/40 px-3 py-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("material.ocrItems.title")}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {t("material.ocrItems.confirmHint")}
-            </span>
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {t("material.ocrItems.editHint")}
+            </p>
           </div>
           <ul className="divide-y">
             {ocrLineItems.map((item, index) => (
-              <li key={index} className="flex items-start gap-2 px-3 py-2">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
-                    {item.material_name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.quantity}
-                    {item.unit ? ` ${item.unit}` : ""}
-                  </p>
-                </div>
-                {/* The reader's answer, and something to do with it. It used
-                    to be a label and nothing more: a line it could not place
-                    read "unclassified" and there was no way to act on it,
-                    because classifying could only ever pick a column that
-                    already existed (F-200). */}
-                {item.classified && item.category_id ? (
-                  <Button
-                    size="sm"
-                    variant={
-                      draft.category === item.category_id ? "default" : "outline"
+              <li key={index} className="space-y-2 px-3 py-3">
+                <div className="flex items-center gap-2">
+                  <Input
+                    className="h-10 flex-1"
+                    value={item.material_name}
+                    placeholder={t("material.name")}
+                    onChange={(event) =>
+                      updateLineItem(index, { material_name: event.target.value })
                     }
-                    className="shrink-0"
-                    onClick={() =>
-                      setDraft((old) => ({
-                        ...old,
-                        category: item.category_id ?? "",
-                      }))
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 text-destructive hover:bg-destructive/10"
+                    title={t("material.ocrItems.remove")}
+                    onClick={() => removeLineItem(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    className="h-10"
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    inputMode="decimal"
+                    value={item.quantity}
+                    placeholder={t("material.quantity")}
+                    onChange={(event) =>
+                      updateLineItem(index, { quantity: event.target.value })
+                    }
+                  />
+                  <Select
+                    value={item.unit || "none"}
+                    onValueChange={(value) =>
+                      updateLineItem(index, { unit: value === "none" ? "" : value })
                     }
                   >
-                    {item.category_name}
-                  </Button>
-                ) : (
+                    <SelectTrigger className="h-10 w-full"><SelectValue placeholder={t("material.unit")} /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("material.ocrItems.noUnit")}</SelectItem>
+                      {MATERIAL_UNITS.map((unit) => (
+                        <SelectItem key={unit} value={unit}>
+                          {allT(`receipts.unit.${unit}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={item.category_id || "none"}
+                    onValueChange={(value) => {
+                      const match = columnRows.find((row) => row.id === value);
+                      updateLineItem(index, {
+                        category_id: match?.id ?? null,
+                        category_code: match?.code ?? "",
+                        category_name: match?.name ?? "",
+                        classified: Boolean(match),
+                      });
+                    }}
+                  >
+                    <SelectTrigger className="h-10 flex-1"><SelectValue placeholder={t("material.ocrItems.unclassified")} /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("material.ocrItems.unclassified")}</SelectItem>
+                      {columnRows.map((column) => (
+                        <SelectItem key={column.id} value={column.id}>
+                          {column.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-10 shrink-0 rounded-full px-4"
+                    onClick={() => loadLineItem(item)}
+                  >
+                    {t("material.ocrItems.use")}
+                  </Button>
+                </div>
+                {/* A material nobody has a column for. Classifying could only
+                    ever pick a column that already existed (F-200), so a line
+                    the reader could not place used to be a dead label. */}
+                {!item.category_id && (
+                  <Button
+                    type="button"
                     size="sm"
                     variant="outline"
-                    className="shrink-0"
+                    className="h-10 w-full"
                     disabled={columnCreation.isPending}
-                    onClick={() => openColumn(item.material_name.trim())}
+                    onClick={() => openColumn(item.material_name.trim(), index)}
                   >
                     {columnCreation.isPending ? (
                       <Loader2 className="animate-spin" />

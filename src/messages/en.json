@@ -6977,7 +6977,11 @@
         "confirmHint": "Check against the paper",
         "title": "Materials read from the note",
         "unclassified": "Pick category",
-        "makeColumn": "Make a column"
+        "makeColumn": "Make a column",
+        "editHint": "Fix any wrong text, pick a category, delete a bad row, then tap Use.",
+        "remove": "Remove row",
+        "use": "Use",
+        "noUnit": "No unit"
       },
       "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",

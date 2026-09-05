@@ -6977,7 +6977,11 @@
         "confirmHint": "请对照纸质单核对",
         "title": "从送货单读到的物料",
         "unclassified": "选择栏目",
-        "makeColumn": "建成栏目"
+        "makeColumn": "建成栏目",
+        "editHint": "改掉读错的文字、选栏目、删掉多余行,再点「填入」。",
+        "remove": "删除此行",
+        "use": "填入",
+        "noUnit": "无单位"
       },
       "ocrLowConfidence": "以下字段识别置信度较低：{fields}。保存前请对照纸质单据核对。",
       "ocrManual": "无法读取送货单，请手动填写资料。",
