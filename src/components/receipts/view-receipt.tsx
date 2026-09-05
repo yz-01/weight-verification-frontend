@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, MapPin, Pencil } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, MapPin, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +19,13 @@ import {
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type {
   MaterialReceiptDetail,
@@ -148,6 +155,8 @@ export function ViewReceipt({ id }: { id: string }) {
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
+  // Which photograph is open full size, by index, or null for none.
+  const [openPhoto, setOpenPhoto] = useState<number | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["receipts", "detail", id],
@@ -334,18 +343,32 @@ export function ViewReceipt({ id }: { id: string }) {
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                {data.photos.map((photo) => (
+                {data.photos.map((photo, index) => (
                   <figure key={photo.id} className="space-y-1.5">
-                    <div className="relative aspect-4/3 overflow-hidden rounded-md border bg-muted/40">
+                    {/* A thumbnail cropped to 4:3 is not the evidence, it is a
+                        pointer to it. Until this was clickable there was no
+                        way to see a delivery note well enough to read it. */}
+                    <button
+                      type="button"
+                      title={t("receipts.photoViewer.open")}
+                      onClick={() => setOpenPhoto(index)}
+                      className="relative block aspect-4/3 w-full overflow-hidden rounded-md border bg-muted/40 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      {/* The original, not the stamped copy. A project manager
+                          reuses these photographs elsewhere, and a location and
+                          time burnt into the corner travels with them into
+                          documents where it means nothing. The stamped version
+                          still exists and is still what the evidence trail
+                          shows. */}
                       <Image
-                        src={photo.watermarked || photo.image}
+                        src={photo.image}
                         alt={t(`receipts.photoKind.${photo.kind}`)}
                         fill
                         sizes="(max-width: 768px) 50vw, 25vw"
                         className="object-cover"
                         unoptimized
                       />
-                    </div>
+                    </button>
                     <figcaption className="text-xs text-muted-foreground">
                       {t(`receipts.photoKind.${photo.kind}`)}
                     </figcaption>
@@ -364,8 +387,115 @@ export function ViewReceipt({ id }: { id: string }) {
               />
             )}
           </section>
+
+          {/* The signatures belong with the delivery they were given for.
+              They were captured on site and stored on this record all along,
+              and this screen simply never drew them - so the one place a
+              project manager looks to check a delivery was the one place that
+              could not show who signed for it. */}
+          <section className="rounded-lg border bg-card p-5">
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("receipts.section.signatures")}
+            </h3>
+            {data.signature || data.supplier_signature ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {(
+                  [
+                    ["receiver", data.signature],
+                    ["supplier", data.supplier_signature],
+                  ] as const
+                ).map(([who, source]) =>
+                  source ? (
+                    <figure key={who} className="space-y-1.5">
+                      <div className="relative aspect-3/1 overflow-hidden rounded-md border bg-white">
+                        <Image
+                          src={source}
+                          alt={t(`receipts.signature.${who}`)}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 50vw"
+                          className="object-contain"
+                          unoptimized
+                        />
+                      </div>
+                      <figcaption className="text-xs text-muted-foreground">
+                        {t(`receipts.signature.${who}`)}
+                      </figcaption>
+                    </figure>
+                  ) : null,
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {t("receipts.signature.none")}
+              </p>
+            )}
+          </section>
         </div>
       </div>
+
+      {/* Full size, with the neighbours one key away: a delivery note is
+          usually checked against the one before it. */}
+      <Dialog
+        open={openPhoto !== null}
+        onOpenChange={(open) => !open && setOpenPhoto(null)}
+      >
+        <DialogContent className="sm:max-w-4xl">
+          {openPhoto !== null && data.photos[openPhoto] ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  {t(`receipts.photoKind.${data.photos[openPhoto].kind}`)}
+                </DialogTitle>
+                <DialogDescription>
+                  {t("receipts.photoViewer.clean")}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="relative max-h-[70dvh] min-h-[40dvh] overflow-hidden rounded-md bg-muted/40">
+                <Image
+                  src={data.photos[openPhoto].image}
+                  alt={t(`receipts.photoKind.${data.photos[openPhoto].kind}`)}
+                  width={1600}
+                  height={1200}
+                  className="max-h-[70dvh] w-full object-contain"
+                  unoptimized
+                />
+              </div>
+              {data.photos.length > 1 && (
+                <div className="flex items-center justify-between">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    title={t("receipts.photoViewer.previous")}
+                    onClick={() =>
+                      setOpenPhoto(
+                        (openPhoto + data.photos.length - 1) %
+                          data.photos.length,
+                      )
+                    }
+                  >
+                    <ChevronLeft />
+                    {t("receipts.photoViewer.previous")}
+                  </Button>
+                  <span className="text-xs tabular-nums text-muted-foreground">
+                    {openPhoto + 1} / {data.photos.length}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    title={t("receipts.photoViewer.next")}
+                    onClick={() =>
+                      setOpenPhoto((openPhoto + 1) % data.photos.length)
+                    }
+                  >
+                    {t("receipts.photoViewer.next")}
+                    <ChevronRight />
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
