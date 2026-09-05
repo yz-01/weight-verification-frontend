@@ -37,6 +37,7 @@ import {
   createIncidentThread,
   getIncidentRecipientOptions,
 } from "@/services/site-operations.service";
+import { LoadFailed } from "@/components/shared/page-primitives";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
@@ -268,6 +269,8 @@ export function CreateIncidentDialog({
               <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
                 {t("chooseProjectFirst")}
               </p>
+            ) : recipients.isError ? (
+              <LoadFailed onRetry={() => void recipients.refetch()} />
             ) : recipients.isLoading ? (
               <div className="flex items-center gap-2 rounded-md border p-3 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />

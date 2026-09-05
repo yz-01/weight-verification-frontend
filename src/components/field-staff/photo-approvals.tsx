@@ -6,7 +6,10 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
 
-import { ListHeader } from "@/components/shared/page-primitives";
+import {
+  ListHeader,
+  LoadFailed,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -76,7 +79,9 @@ export function PhotoApprovals() {
         subtitle={t("photoApprovals.subtitle", { count: waiting.data?.count ?? 0 })}
       />
 
-      {waiting.isLoading ? (
+      {waiting.isError ? (
+        <LoadFailed onRetry={() => void waiting.refetch()} />
+      ) : waiting.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : rows.length === 0 ? (
         <p className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">

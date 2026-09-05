@@ -38,6 +38,7 @@ import {
   updateWorkflowStep,
   updateWorkflowTemplate,
 } from "@/services/document-workflow.service";
+import { LoadFailed } from "@/components/shared/page-primitives";
 
 /** The only resource type approvals are raised against today. */
 const DEFAULT_RESOURCE_TYPE = "document";
@@ -152,7 +153,9 @@ export function ApprovalWorkflowDialog({
           </Button>
         </div>
 
-        {templates.isLoading ? (
+        {templates.isError ? (
+          <LoadFailed onRetry={() => void templates.refetch()} />
+        ) : templates.isLoading ? (
           <p className="text-sm text-muted-foreground">{t("workflow.loading")}</p>
         ) : !rows.length ? (
           <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">

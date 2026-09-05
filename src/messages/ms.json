@@ -1,37 +1,40 @@
 {
   "materialColumns": {
-    "uncounted": "Beberapa pesanan penghantaran tiada jumlah yang boleh dibaca, jadi ia tidak termasuk dalam jumlah ini.",
-    "tonnes": "{tonnes} t diterima",
+    "alertHelp": "Dipisahkan koma, contohnya 80, 100. Menukar bajet mengira semula garis yang telah dilepasi.",
+    "alertInvalid": "Guna nombor bulat antara 1 dan 500, dipisahkan koma.",
+    "alertPercentages": "Beri amaran pada peratusan ini",
+    "archived": "Difailkan mengikut ruangan",
+    "archivedHelp": "Bajet ialah wang, dijumlahkan daripada pesanan penghantaran dalam ruangan ini.",
+    "budgetAmount": "Bajet (RM)",
+    "budgetNone": "Biarkan kosong untuk kolum yang tidak dikira terhadap bajet",
+    "columnsFailed": "Lajur tidak dapat dimuatkan, jadi tidak diketahui sama ada tapak ini mempunyai sebarang lajur. Cuba lagi.",
+    "columnsFailedRefile": "Lajur tidak dapat dimuatkan, jadi pemilih di atas kosong. Itu tidak bermakna tapak ini tiada lajur - jangan buat yang baharu sehingga ia dimuatkan.",
+    "edit": "Sunting kolum",
+    "editHelp": "Nama, bajet dan garis amaran sahaja. Gambar, kuantiti dan tandatangan yang difailkan di sini adalah bukti dan tidak disentuh.",
+    "editTitle": "Sunting {name}",
+    "fileInto": "Failkan ke",
     "filed": "{count} difailkan",
     "noBudget": "Tiada bajet ditetapkan",
     "noColumns": "Belum ada ruangan disediakan",
-    "archivedHelp": "Bajet ialah wang, dijumlahkan daripada pesanan penghantaran dalam ruangan ini.",
-    "archived": "Difailkan mengikut ruangan",
-    "seeAllPending": "Lihat semua {count}",
-    "pendingEmpty": "Tiada yang menunggu",
-    "pendingHelp": "Ini difailkan ke dalam ruangannya setelah anda membukanya. Setiap akaun mempunyai status bacaannya sendiri.",
+    "noMaterialColumns": "Projek ini tiada kolum bahan untuk difailkan.",
     "pending": "Menunggu anda ({count})",
-    "subtitle": "Apa yang diterima setiap ruangan dan berapa yang dibelanjakan",
-    "title": "Ruangan bahan",
-    "edit": "Sunting kolum",
-    "editTitle": "Sunting {name}",
-    "editHelp": "Nama, bajet dan garis amaran sahaja. Gambar, kuantiti dan tandatangan yang difailkan di sini adalah bukti dan tidak disentuh.",
-    "budgetAmount": "Bajet (RM)",
-    "budgetNone": "Biarkan kosong untuk kolum yang tidak dikira terhadap bajet",
-    "tracksSpend": "Kira perbelanjaan kolum ini terhadap bajet",
-    "alertPercentages": "Beri amaran pada peratusan ini",
-    "alertHelp": "Dipisahkan koma, contohnya 80, 100. Menukar bajet mengira semula garis yang telah dilepasi.",
-    "alertInvalid": "Guna nombor bulat antara 1 dan 500, dipisahkan koma.",
-    "fileInto": "Failkan ke",
-    "refileTitle": "Failkan {receipt} ke satu kolum",
+    "pendingEmpty": "Tiada yang menunggu",
+    "pendingFailed": "Senarai penghantaran yang menunggu untuk difailkan tidak dapat dimuatkan, jadi tidak diketahui sama ada ada yang menunggu. Cuba lagi.",
+    "pendingHelp": "Ini difailkan ke dalam ruangannya setelah anda membukanya. Setiap akaun mempunyai status bacaannya sendiri.",
+    "refileConfirm": "Failkan",
     "refileHelp": "Hanya kolum yang berubah. Gambar, kuantiti, tandatangan, masa dan tempat kekal seperti direkodkan.",
     "refileReason": "Sebab",
-    "refileConfirm": "Failkan",
-    "noMaterialColumns": "Projek ini tiada kolum bahan untuk difailkan.",
+    "refileTitle": "Failkan {receipt} ke satu kolum",
     "saveFailed": "Tidak berjaya. Cuba lagi, atau muat semula halaman.",
+    "seeAllPending": "Lihat semua {count}",
+    "subtitle": "Apa yang diterima setiap ruangan dan berapa yang dibelanjakan",
+    "title": "Ruangan bahan",
     "toast": {
       "refiled": "Penghantaran difailkan."
-    }
+    },
+    "tonnes": "{tonnes} t diterima",
+    "tracksSpend": "Kira perbelanjaan kolum ini terhadap bajet",
+    "uncounted": "Beberapa pesanan penghantaran tiada jumlah yang boleh dibaca, jadi ia tidak termasuk dalam jumlah ini."
   },
   "photoApprovals": {
     "noLocation": "Lokasi tidak direkodkan",
@@ -2847,6 +2850,7 @@
     "commentPlaceholder": "Tambah sebab atau catatan semakan",
     "companyWide": "Seluruh syarikat",
     "count": "{count} kelulusan",
+    "countUnknown": "Bilangan yang menunggu tidak dapat dimuatkan",
     "create": {
       "action": "Kelulusan baharu",
       "description": "Cipta permintaan draf yang dipautkan kepada rekod perniagaan.",
@@ -2884,6 +2888,7 @@
       "title": "Sejarah audit",
       "transition": "Perubahan status"
     },
+    "historyFailed": "Sejarah kelulusan terkini tidak dapat dimuatkan. Apa yang dipaparkan di bawah ialah petikan yang disimpan dengan permohonan ini, yang mungkin sudah lapuk.",
     "metadataHint": "Objek JSON pilihan untuk data khusus aliran kerja.",
     "resource": {
       "all": "Semua jenis rekod",
@@ -2908,6 +2913,7 @@
       "RETURNED": "Dikembalikan",
       "SUBMITTED": "Dihantar"
     },
+    "supportingDataFailed": "Senarai projek, orang atau peranan tidak dapat dimuatkan, jadi pemilih di bawah mungkin tidak lengkap atau kosong. Kosong di sini tidak bermakna tiada pilihan. Cuba lagi.",
     "title": "Kelulusan",
     "toast": {
       "approve": "Kelulusan diluluskan",
@@ -3795,25 +3801,12 @@
     }
   },
   "common": {
-    "readOnlySetting": "Yang ini baca sahaja",
-    "minLength": "{field} memerlukan sekurang-kurangnya {count} aksara",
-    "signatureMissing": "Tandatangan di sini dahulu",
-    "searchMinLength": "Taip sekurang-kurangnya {count} aksara untuk mencari",
-    "outOfRange": "{field} mesti antara {min} dan {max}",
-    "offline": "Tiada sambungan buat masa ini",
-    "nothingUnread": "Tiada yang belum dibaca",
-    "nothingToSync": "Tiada apa-apa menunggu dihantar",
-    "noReportYet": "Jana laporan dahulu",
-    "noFiltersSet": "Tetapkan penapis dahulu",
-    "noChanges": "Tiada perubahan lagi",
-    "missingFields": "Isi dahulu: {fields}",
-    "listSeparator": ", ",
-    "alreadyFirstPage": "Sudah di halaman pertama",
-    "alreadyLast": "Sudah yang terakhir",
-    "alreadyFirst": "Sudah yang pertama",
     "actions": "Tindakan",
     "active": "Aktif",
     "all": "Semua",
+    "alreadyFirst": "Sudah yang pertama",
+    "alreadyFirstPage": "Sudah di halaman pertama",
+    "alreadyLast": "Sudah yang terakhir",
     "back": "Kembali",
     "cancel": "Batal",
     "close": "Tutup",
@@ -3828,12 +3821,24 @@
     "export": "Eksport",
     "inactive": "Tidak aktif",
     "language": "Bahasa",
+    "listSeparator": ", ",
+    "loadFailed": "{what} tidak dapat dimuatkan, jadi apa yang dipaparkan di sini bukan keadaan sebenar. Cuba lagi.",
     "loading": "Memuatkan",
+    "minLength": "{field} memerlukan sekurang-kurangnya {count} aksara",
+    "missingFields": "Isi dahulu: {fields}",
     "mobileSidebarDescription": "Memaparkan bar sisi mudah alih.",
+    "noChanges": "Tiada perubahan lagi",
+    "noFiltersSet": "Tetapkan penapis dahulu",
     "noOptions": "Tiada pilihan",
+    "noReportYet": "Jana laporan dahulu",
     "none": "Tiada",
+    "nothingToSync": "Tiada apa-apa menunggu dihantar",
+    "nothingUnread": "Tiada yang belum dibaca",
+    "offline": "Tiada sambungan buat masa ini",
     "optional": "pilihan",
+    "outOfRange": "{field} mesti antara {min} dan {max}",
     "profile": "Profil",
+    "readOnlySetting": "Yang ini baca sahaja",
     "reason": "Sebab",
     "reasonPlaceholder": "Mengapa perubahan ini dibuat?",
     "refresh": "Muat semula",
@@ -3842,11 +3847,14 @@
     "save": "Simpan",
     "saving": "Menyimpan",
     "search": "Cari",
+    "searchMinLength": "Taip sekurang-kurangnya {count} aksara untuk mencari",
     "searchPlaceholder": "Cari",
+    "sectionLoadFailed": "Bahagian ini tidak dimuatkan, jadi apa yang dipaparkan di sini bukan keadaan sebenar. Cuba lagi.",
     "selectPlaceholder": "Pilih",
     "settings": "Tetapan",
     "sidebar": "Bar sisi",
     "signOut": "Log keluar",
+    "signatureMissing": "Tandatangan di sini dahulu",
     "theme": "Tema",
     "themeDark": "Gelap",
     "themeLight": "Cerah",
@@ -4884,6 +4892,7 @@
       "project": "Projek",
       "selectProject": "Pilih projek"
     },
+    "liveStopped": "Bahagian langsung telah berhenti dikemas kini. Suapan, amaran dan bilangan belum dibaca di bawah adalah dari ketika halaman dibuka, bukan sekarang.",
     "locationMap": {
       "allProjects": "Semua projek",
       "empty": "Projek yang dipilih tiada lokasi atau geofence untuk dipaparkan.",
@@ -5757,6 +5766,7 @@
       "wasteOrders": "Pesanan sisa masuk",
       "weighingSessions": "Sesi penimbangan"
     },
+    "tileFailed": "Tidak dimuatkan",
     "title": "Papan pemuka"
   },
   "deductions": {
@@ -8516,6 +8526,7 @@
       "chooseProjectFirst": "Pilih projek dahulu.",
       "description": "Hantar notis dalam aplikasi kepada ahli aktif salah satu projek syarikat anda.",
       "loadingMembers": "Memuatkan ahli projek...",
+      "membersFailed": "Orang dalam projek ini tidak dapat dimuatkan, jadi tiada penerima disenaraikan. Itu tidak bermakna projek ini tiada orang.",
       "message": "Mesej",
       "messagePlaceholder": "Tulis tindakan atau maklumat yang perlu diketahui pasukan.",
       "noMembers": "Projek ini belum mempunyai ahli aktif yang ditugaskan.",
@@ -8537,6 +8548,7 @@
       "title": "Hantar notis projek"
     },
     "count": "{count, plural, =0 {Tiada pemberitahuan} other {# pemberitahuan}}",
+    "countFailed": "Bilangan belum dibaca tidak dapat dimuatkan, jadi tidak diketahui sama ada ada apa-apa yang menunggu.",
     "field": {
       "kind": "Jenis",
       "notification": "Pemberitahuan",
@@ -8573,6 +8585,7 @@
       "SYSTEM": "Sistem",
       "WEIGHING": "Penimbangan"
     },
+    "listFailed": "Pemberitahuan anda tidak dapat dimuatkan. Ini bukan bermakna tiada - cuba lagi.",
     "markAllRead": "Tandakan semua sebagai dibaca",
     "markRead": "Tandakan sebagai dibaca",
     "noUnread": "Tiada pemberitahuan belum dibaca",
@@ -12523,16 +12536,6 @@
     }
   },
   "wasteOutgoing": {
-    "handover": {
-      "trail": "{from} menyerahkan ini kepada {to} pada {when}",
-      "failed": "Penyerahan tidak berjaya",
-      "loading": "Memuatkan senarai",
-      "note": "Nota",
-      "choose": "Pilih seseorang",
-      "person": "Serahkan kepada",
-      "help": "Permohonan {reference}. Satu permohonan sahaja, bukan keseluruhan kategori.",
-      "title": "Serahkan permohonan ini kepada seseorang"
-    },
     "action": {
       "handOverAgain": "Serahkan semula",
       "handOver": "Serahkan",
@@ -12554,6 +12557,7 @@
     "assign": {
       "help": "Pilih pengitar yang terikat pada projek ini. Pesanan untuk {reference} dihantar ke sistem mereka serta-merta.",
       "noPartners": "Tiada pengitar terikat pada projek ini. Ikat satu di bawah Rakan pengitar sebelum mengeluarkan pesanan.",
+      "partnersFailed": "Rakan kitar semula tidak dapat dimuatkan, jadi pemilih kosong. Itu tidak bermakna anda tiada.",
       "title": "Tetapkan pengitar"
     },
     "cancel": {
@@ -12629,6 +12633,16 @@
       "submitFailed": "Permohonan tidak dapat dihantar. Semak maklumat dan cuba lagi.",
       "title": "Permohonan bahan alam sekitar keluar"
     },
+    "handover": {
+      "trail": "{from} menyerahkan ini kepada {to} pada {when}",
+      "failed": "Penyerahan tidak berjaya",
+      "loading": "Memuatkan senarai",
+      "note": "Nota",
+      "choose": "Pilih seseorang",
+      "person": "Serahkan kepada",
+      "help": "Permohonan {reference}. Satu permohonan sahaja, bukan keseluruhan kategori.",
+      "title": "Serahkan permohonan ini kepada seseorang"
+    },
     "milestone": {
       "ARRIVED_AT_PLANT": "Tiba di kilang kitar semula",
       "COMPLETED": "Kitar semula selesai",
@@ -12645,6 +12659,7 @@
     "photos": {
       "caption": "Nota (pilihan)"
     },
+    "recordsFailed": "Rekod pelupusan tidak dapat dimuatkan, jadi tidak diketahui sama ada ada. Cuba lagi.",
     "review": {
       "failed": "Keputusan kelulusan tidak dapat disimpan.",
       "help": "Luluskan {reference} sebelum menghantar pesanan kitar semula, atau kembalikan dengan sebab.",

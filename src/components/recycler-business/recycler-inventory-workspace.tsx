@@ -19,6 +19,7 @@ import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
   ListHeader,
+  LoadFailed,
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -131,7 +132,9 @@ export function RecyclerInventoryWorkspace() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {inventory.isLoading ? (
+              {inventory.isError ? (
+                <LoadFailed onRetry={() => void inventory.refetch()} />
+              ) : inventory.isLoading ? (
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={4} className="h-36 p-0 text-center">
                     <div className="sticky left-0 grid w-[100cqw] place-items-center">

@@ -26,7 +26,12 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  FieldWrapper,
+  ListHeader,
+  LoadFailed,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -172,7 +177,9 @@ export function RecyclerCompanySettingsWorkspace() {
           {canManage && <Button size="sm" onClick={() => setBankEditing(null)}><Plus />{t("bank.add")}</Button>}
         </div>
         <div className="divide-y overflow-hidden border bg-card">
-          {bankAccounts.isLoading ? (
+          {bankAccounts.isError ? (
+            <LoadFailed onRetry={() => void bankAccounts.refetch()} />
+          ) : bankAccounts.isLoading ? (
             <p className="p-4 text-sm text-muted-foreground">{t("state.loading")}</p>
           ) : (bankAccounts.data?.results ?? []).length === 0 ? (
             <p className="p-4 text-sm text-muted-foreground">{t("bank.empty")}</p>

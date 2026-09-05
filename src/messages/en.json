@@ -1,37 +1,40 @@
 {
   "materialColumns": {
-    "uncounted": "Some delivery orders had no readable amount, so they are not in this total.",
-    "tonnes": "{tonnes} t received",
+    "alertHelp": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
+    "alertInvalid": "Use whole numbers between 1 and 500, separated by commas.",
+    "alertPercentages": "Warn at these percentages",
+    "archived": "Filed by column",
+    "archivedHelp": "Budget is money, added up from the delivery orders in this column.",
+    "budgetAmount": "Budget (RM)",
+    "budgetNone": "Leave empty for a column that does not count against a budget",
+    "columnsFailed": "The columns could not be loaded, so it is not known whether this site has any. Try again.",
+    "columnsFailedRefile": "The columns could not be loaded, so the picker above is empty. That does not mean this site has no columns - do not create a new one until it has loaded.",
+    "edit": "Edit column",
+    "editHelp": "The name, the budget and the warning lines. The photographs, quantities and signatures filed in this column are evidence and are not touched here.",
+    "editTitle": "Edit {name}",
+    "fileInto": "File into",
     "filed": "{count} filed",
     "noBudget": "No budget set",
     "noColumns": "No columns set up yet",
-    "archivedHelp": "Budget is money, added up from the delivery orders in this column.",
-    "archived": "Filed by column",
-    "seeAllPending": "See all {count}",
-    "pendingEmpty": "Nothing waiting",
-    "pendingHelp": "These are filed into their column once you have opened them. Every account has its own read state.",
+    "noMaterialColumns": "This project has no material columns to file into.",
     "pending": "Waiting for you ({count})",
-    "subtitle": "What each column has taken in, and what it has spent",
-    "title": "Material columns",
-    "edit": "Edit column",
-    "editTitle": "Edit {name}",
-    "editHelp": "The name, the budget and the warning lines. The photographs, quantities and signatures filed in this column are evidence and are not touched here.",
-    "budgetAmount": "Budget (RM)",
-    "budgetNone": "Leave empty for a column that does not count against a budget",
-    "tracksSpend": "Count spending in this column against a budget",
-    "alertPercentages": "Warn at these percentages",
-    "alertHelp": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
-    "alertInvalid": "Use whole numbers between 1 and 500, separated by commas.",
-    "fileInto": "File into",
-    "refileTitle": "File {receipt} into a column",
+    "pendingEmpty": "Nothing waiting",
+    "pendingFailed": "The list of deliveries waiting to be filed could not be loaded, so it is not known whether any are waiting. Try again.",
+    "pendingHelp": "These are filed into their column once you have opened them. Every account has its own read state.",
+    "refileConfirm": "File it",
     "refileHelp": "Only the column changes. The photographs, quantity, signature, time and place stay exactly as they were recorded.",
     "refileReason": "Why",
-    "refileConfirm": "File it",
-    "noMaterialColumns": "This project has no material columns to file into.",
+    "refileTitle": "File {receipt} into a column",
     "saveFailed": "That did not go through. Try again, or reload the page.",
+    "seeAllPending": "See all {count}",
+    "subtitle": "What each column has taken in, and what it has spent",
+    "title": "Material columns",
     "toast": {
       "refiled": "Delivery filed."
-    }
+    },
+    "tonnes": "{tonnes} t received",
+    "tracksSpend": "Count spending in this column against a budget",
+    "uncounted": "Some delivery orders had no readable amount, so they are not in this total."
   },
   "photoApprovals": {
     "noLocation": "No location recorded",
@@ -2847,6 +2850,7 @@
     "commentPlaceholder": "Add the reason or review note",
     "companyWide": "Company-wide",
     "count": "{count} approvals",
+    "countUnknown": "The number waiting could not be loaded",
     "create": {
       "action": "New approval",
       "description": "Create a draft request linked to a business record.",
@@ -2884,6 +2888,7 @@
       "title": "Audit history",
       "transition": "Status change"
     },
+    "historyFailed": "The latest approval history could not be loaded. What is shown below is the snapshot stored with this request, which may be out of date.",
     "metadataHint": "Optional JSON object for workflow-specific data.",
     "resource": {
       "all": "All record types",
@@ -2908,6 +2913,7 @@
       "RETURNED": "Returned",
       "SUBMITTED": "Submitted"
     },
+    "supportingDataFailed": "The project, people or role lists could not be loaded, so the pickers below may be short or empty. An empty picker here does not mean there is nothing to choose. Try again.",
     "title": "Approvals",
     "toast": {
       "approve": "Approval approved",
@@ -3795,25 +3801,12 @@
     }
   },
   "common": {
-    "readOnlySetting": "This one is read-only",
-    "minLength": "{field} needs at least {count} characters",
-    "signatureMissing": "Sign here first",
-    "searchMinLength": "Type at least {count} characters to search",
-    "outOfRange": "{field} must be between {min} and {max}",
-    "offline": "No connection right now",
-    "nothingUnread": "Nothing unread",
-    "nothingToSync": "Nothing waiting to be sent",
-    "noReportYet": "Run the report first",
-    "noFiltersSet": "Set a filter first",
-    "noChanges": "Nothing has been changed yet",
-    "missingFields": "Fill in first: {fields}",
-    "listSeparator": ", ",
-    "alreadyFirstPage": "Already on the first page",
-    "alreadyLast": "Already the last one",
-    "alreadyFirst": "Already the first one",
     "actions": "Actions",
     "active": "Active",
     "all": "All",
+    "alreadyFirst": "Already the first one",
+    "alreadyFirstPage": "Already on the first page",
+    "alreadyLast": "Already the last one",
     "back": "Back",
     "cancel": "Cancel",
     "close": "Close",
@@ -3828,12 +3821,24 @@
     "export": "Export",
     "inactive": "Inactive",
     "language": "Language",
+    "listSeparator": ", ",
+    "loadFailed": "{what} could not be loaded, so what is shown here is not what is there. Try again.",
     "loading": "Loading",
+    "minLength": "{field} needs at least {count} characters",
+    "missingFields": "Fill in first: {fields}",
     "mobileSidebarDescription": "Displays the mobile sidebar.",
+    "noChanges": "Nothing has been changed yet",
+    "noFiltersSet": "Set a filter first",
     "noOptions": "Nothing to choose from",
+    "noReportYet": "Run the report first",
     "none": "None",
+    "nothingToSync": "Nothing waiting to be sent",
+    "nothingUnread": "Nothing unread",
+    "offline": "No connection right now",
     "optional": "optional",
+    "outOfRange": "{field} must be between {min} and {max}",
     "profile": "Profile",
+    "readOnlySetting": "This one is read-only",
     "reason": "Reason",
     "reasonPlaceholder": "Why is this change being made?",
     "refresh": "Refresh",
@@ -3842,11 +3847,14 @@
     "save": "Save",
     "saving": "Saving",
     "search": "Search",
+    "searchMinLength": "Type at least {count} characters to search",
     "searchPlaceholder": "Search",
+    "sectionLoadFailed": "This did not load, so what is shown here is not what is there. Try again.",
     "selectPlaceholder": "Select",
     "settings": "Settings",
     "sidebar": "Sidebar",
     "signOut": "Sign out",
+    "signatureMissing": "Sign here first",
     "theme": "Theme",
     "themeDark": "Dark",
     "themeLight": "Light",
@@ -4884,6 +4892,7 @@
       "project": "Project",
       "selectProject": "Select project"
     },
+    "liveStopped": "The live sections have stopped updating. The feed, alerts and unread counts below are from when the page was opened, not from now.",
     "locationMap": {
       "allProjects": "All projects",
       "empty": "The selected project has no location or geofence to display.",
@@ -5757,6 +5766,7 @@
       "wasteOrders": "Incoming waste orders",
       "weighingSessions": "Weighing sessions"
     },
+    "tileFailed": "Not loaded",
     "title": "Dashboard"
   },
   "deductions": {
@@ -8516,6 +8526,7 @@
       "chooseProjectFirst": "Choose a project first.",
       "description": "Send a clear in-app notice to active members of one of your projects.",
       "loadingMembers": "Loading project members...",
+      "membersFailed": "The people on this project could not be loaded, so no recipients are listed. That does not mean the project has none.",
       "message": "Message",
       "messagePlaceholder": "Write the action or information the team needs.",
       "noMembers": "This project has no active assigned members yet.",
@@ -8537,6 +8548,7 @@
       "title": "Send a project notice"
     },
     "count": "{count, plural, =0 {No notifications} one {# notification} other {# notifications}}",
+    "countFailed": "The unread count could not be loaded, so it is not known whether anything is waiting.",
     "field": {
       "kind": "Type",
       "notification": "Notification",
@@ -8573,6 +8585,7 @@
       "SYSTEM": "System",
       "WEIGHING": "Weighing"
     },
+    "listFailed": "Your notifications could not be loaded. This is not the same as having none - try again.",
     "markAllRead": "Mark all as read",
     "markRead": "Mark as read",
     "noUnread": "No unread notifications",
@@ -12523,16 +12536,6 @@
     }
   },
   "wasteOutgoing": {
-    "handover": {
-      "trail": "{from} handed this to {to} on {when}",
-      "failed": "The hand-over did not go through",
-      "loading": "Loading the list",
-      "note": "Note",
-      "choose": "Pick a person",
-      "person": "Hand it to",
-      "help": "Application {reference}. One application at a time, not a whole category.",
-      "title": "Hand this application to somebody"
-    },
     "action": {
       "handOverAgain": "Hand over again",
       "handOver": "Hand over",
@@ -12554,6 +12557,7 @@
     "assign": {
       "help": "Choose a recycler bound to this project. The order for {reference} is sent to their system immediately.",
       "noPartners": "No recycler is bound to this project yet. Bind one under Recycler partners before raising an order.",
+      "partnersFailed": "The recycling partners could not be loaded, so the picker is empty. That does not mean you have none.",
       "title": "Assign a recycler"
     },
     "cancel": {
@@ -12629,6 +12633,16 @@
       "submitFailed": "The application could not be submitted. Check the marked information and try again.",
       "title": "Environmental material outgoing application"
     },
+    "handover": {
+      "trail": "{from} handed this to {to} on {when}",
+      "failed": "The hand-over did not go through",
+      "loading": "Loading the list",
+      "note": "Note",
+      "choose": "Pick a person",
+      "person": "Hand it to",
+      "help": "Application {reference}. One application at a time, not a whole category.",
+      "title": "Hand this application to somebody"
+    },
     "milestone": {
       "ARRIVED_AT_PLANT": "Arrived at recycling plant",
       "COMPLETED": "Recycling complete",
@@ -12645,6 +12659,7 @@
     "photos": {
       "caption": "Note (optional)"
     },
+    "recordsFailed": "The disposal records could not be loaded, so it is not known whether there are any. Try again.",
     "review": {
       "failed": "The approval decision could not be saved.",
       "help": "Approve {reference} before sending a recycle order, or return it with a reason.",

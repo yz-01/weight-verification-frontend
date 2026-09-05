@@ -25,6 +25,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
   DetailHeader,
+  LoadFailed,
   ReadField,
   StatusBadge,
   TypeBadge,
@@ -241,7 +242,9 @@ export function ViewWeighSession({ id }: { id: string }) {
               {t("weighing.trace.caption")}
             </p>
 
-            {trace.isLoading ? (
+            {trace.isError ? (
+              <LoadFailed onRetry={() => void trace.refetch()} />
+            ) : trace.isLoading ? (
               <Skeleton className="h-80 w-full" />
             ) : (
               <WeightTrace

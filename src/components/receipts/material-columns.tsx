@@ -113,7 +113,11 @@ export function MaterialColumns() {
           {t("materialColumns.pendingHelp")}
         </p>
 
-        {pending.isLoading ? (
+        {pending.isError ? (
+          <p className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center text-sm text-destructive">
+            {t("materialColumns.pendingFailed")}
+          </p>
+        ) : pending.isLoading ? (
           <p className="mt-4 text-sm text-muted-foreground">{t("common.loading")}</p>
         ) : pendingRows.length === 0 ? (
           <p className="mt-4 rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
@@ -182,7 +186,11 @@ export function MaterialColumns() {
           {t("materialColumns.archivedHelp")}
         </p>
 
-        {columns.isLoading ? (
+        {columns.isError ? (
+          <p className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center text-sm text-destructive">
+            {t("materialColumns.columnsFailed")}
+          </p>
+        ) : columns.isLoading ? (
           <p className="mt-4 text-sm text-muted-foreground">{t("common.loading")}</p>
         ) : columnRows.length === 0 ? (
           <p className="mt-4 rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
@@ -566,11 +574,15 @@ function RefileDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
-          {!columns.isLoading && options.length === 0 && (
+          {columns.isError ? (
+            <p className="text-sm text-destructive">
+              {t("materialColumns.columnsFailedRefile")}
+            </p>
+          ) : !columns.isLoading && options.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {t("materialColumns.noMaterialColumns")}
             </p>
-          )}
+          ) : null}
           <FieldWrapper
             label={t("materialColumns.refileReason")}
             optional={t("common.optional")}

@@ -25,7 +25,10 @@ import { useState } from "react";
 
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { useAuth } from "@/components/providers/auth-provider";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import {
+  LoadFailed,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -169,6 +172,11 @@ export function ContractorDashboard() {
 
   return (
     <div className="space-y-6">
+      {live.isError && (
+        <p className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm">
+          {t("liveStopped")}
+        </p>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">
@@ -884,7 +892,9 @@ function QuickSearch({ project }: { project: string }) {
       </form>
       {submitted.trim().length >= 2 && (
         <div className="rounded-lg border bg-card p-3 shadow-sm">
-          {results.isLoading ? (
+          {results.isError ? (
+            <LoadFailed onRetry={() => void results.refetch()} />
+          ) : results.isLoading ? (
             <Skeleton className="h-16 w-full" />
           ) : results.data?.rows.length ? (
             <ul className="divide-y">

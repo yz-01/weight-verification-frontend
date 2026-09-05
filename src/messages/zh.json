@@ -1,37 +1,40 @@
 {
   "materialColumns": {
-    "uncounted": "有几张送货单读不出金额，没有算进这个合计里。",
-    "tonnes": "累计 {tonnes} 吨",
+    "alertHelp": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
+    "alertInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
+    "alertPercentages": "在这些百分比提醒",
+    "archived": "已归栏目",
+    "archivedHelp": "预算是钱，由这个栏目下的送货单金额累计而来。",
+    "budgetAmount": "预算（RM）",
+    "budgetNone": "不计预算的栏目留空",
+    "columnsFailed": "无法载入栏目，因此无法确定这个工地到底有没有栏目。请重试。",
+    "columnsFailedRefile": "无法载入栏目，所以上面的选择框是空的。这不代表这个工地没有栏目 —— 在载入成功之前，请不要新建一个。",
+    "edit": "编辑栏目",
+    "editHelp": "只改名称、预算和预警线。归在这个栏目里的照片、数量与签名是证据，这里一个字节都不动。",
+    "editTitle": "编辑 {name}",
+    "fileInto": "归到",
     "filed": "已归档 {count} 条",
     "noBudget": "没有设预算",
     "noColumns": "还没有设栏目",
-    "archivedHelp": "预算是钱，由这个栏目下的送货单金额累计而来。",
-    "archived": "已归栏目",
-    "seeAllPending": "查看全部 {count} 条",
-    "pendingEmpty": "没有待看的",
-    "pendingHelp": "你看过之后才会归到各自的栏目里。每个账号的已读状态是各自独立的。",
+    "noMaterialColumns": "这个项目还没有可归的材料栏目。",
     "pending": "待你查看（{count}）",
-    "subtitle": "每个栏目收了多少、花了多少",
-    "title": "材料栏目",
-    "edit": "编辑栏目",
-    "editTitle": "编辑 {name}",
-    "editHelp": "只改名称、预算和预警线。归在这个栏目里的照片、数量与签名是证据，这里一个字节都不动。",
-    "budgetAmount": "预算（RM）",
-    "budgetNone": "不计预算的栏目留空",
-    "tracksSpend": "这个栏目的支出计入预算",
-    "alertPercentages": "在这些百分比提醒",
-    "alertHelp": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
-    "alertInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
-    "fileInto": "归到",
-    "refileTitle": "把 {receipt} 归到某个栏目",
+    "pendingEmpty": "没有待看的",
+    "pendingFailed": "无法载入待归档的送货清单，因此无法确定到底有没有在等。请重试。",
+    "pendingHelp": "你看过之后才会归到各自的栏目里。每个账号的已读状态是各自独立的。",
+    "refileConfirm": "归档",
     "refileHelp": "只改归在哪。照片、数量、签名、时间、位置全部保持记录时的样子。",
     "refileReason": "原因",
-    "refileConfirm": "归档",
-    "noMaterialColumns": "这个项目还没有可归的材料栏目。",
+    "refileTitle": "把 {receipt} 归到某个栏目",
     "saveFailed": "没有成功。请再试一次，或者刷新页面。",
+    "seeAllPending": "查看全部 {count} 条",
+    "subtitle": "每个栏目收了多少、花了多少",
+    "title": "材料栏目",
     "toast": {
       "refiled": "已归档。"
-    }
+    },
+    "tonnes": "累计 {tonnes} 吨",
+    "tracksSpend": "这个栏目的支出计入预算",
+    "uncounted": "有几张送货单读不出金额，没有算进这个合计里。"
   },
   "photoApprovals": {
     "noLocation": "没有记录位置",
@@ -2847,6 +2850,7 @@
     "commentPlaceholder": "填写原因或审核备注",
     "companyWide": "公司级",
     "count": "共 {count} 项审批",
+    "countUnknown": "待办数量没有载入",
     "create": {
       "action": "新建审批",
       "description": "建立与业务记录关联的审批草稿。",
@@ -2884,6 +2888,7 @@
       "title": "审批记录",
       "transition": "状态变化"
     },
+    "historyFailed": "无法载入最新的审批记录。下面显示的是这条申请自带的快照，可能不是最新的。",
     "metadataHint": "可选的流程专用 JSON 对象。",
     "resource": {
       "all": "全部记录类型",
@@ -2908,6 +2913,7 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交"
     },
+    "supportingDataFailed": "无法载入项目、人员或角色清单，所以下面选择框里的选项可能不全甚至是空的。这里空白不代表真的没有可选项。请重试。",
     "title": "审批流程",
     "toast": {
       "approve": "审批已批准",
@@ -3795,25 +3801,12 @@
     }
   },
   "common": {
-    "readOnlySetting": "这一项只能看，不能改",
-    "minLength": "{field} 至少要 {count} 个字",
-    "signatureMissing": "请先在这里签名",
-    "searchMinLength": "搜索至少要输入 {count} 个字",
-    "outOfRange": "{field} 要在 {min} 到 {max} 之间",
-    "offline": "目前没有网络",
-    "nothingUnread": "没有未读的",
-    "nothingToSync": "没有待上传的内容",
-    "noReportYet": "请先生成报表",
-    "noFiltersSet": "请先设定筛选条件",
-    "noChanges": "还没有任何改动",
-    "missingFields": "还差这些没填：{fields}",
-    "listSeparator": "、",
-    "alreadyFirstPage": "已经在第一页",
-    "alreadyLast": "已经是最后一个了",
-    "alreadyFirst": "已经是第一个了",
     "actions": "操作",
     "active": "启用",
     "all": "全部",
+    "alreadyFirst": "已经是第一个了",
+    "alreadyFirstPage": "已经在第一页",
+    "alreadyLast": "已经是最后一个了",
     "back": "返回",
     "cancel": "取消",
     "close": "关闭",
@@ -3828,12 +3821,24 @@
     "export": "导出",
     "inactive": "停用",
     "language": "语言",
+    "listSeparator": "、",
+    "loadFailed": "无法载入{what}，所以这里显示的不是实际情况。请重试。",
     "loading": "加载中",
+    "minLength": "{field} 至少要 {count} 个字",
+    "missingFields": "还差这些没填：{fields}",
     "mobileSidebarDescription": "显示手机端侧栏。",
+    "noChanges": "还没有任何改动",
+    "noFiltersSet": "请先设定筛选条件",
     "noOptions": "没有可选项",
+    "noReportYet": "请先生成报表",
     "none": "无",
+    "nothingToSync": "没有待上传的内容",
+    "nothingUnread": "没有未读的",
+    "offline": "目前没有网络",
     "optional": "选填",
+    "outOfRange": "{field} 要在 {min} 到 {max} 之间",
     "profile": "个人资料",
+    "readOnlySetting": "这一项只能看，不能改",
     "reason": "原因",
     "reasonPlaceholder": "请说明此次变更的原因",
     "refresh": "刷新",
@@ -3842,11 +3847,14 @@
     "save": "保存",
     "saving": "保存中",
     "search": "搜索",
+    "searchMinLength": "搜索至少要输入 {count} 个字",
     "searchPlaceholder": "搜索",
+    "sectionLoadFailed": "这一部分没有载入成功，所以这里显示的不是实际情况。请重试。",
     "selectPlaceholder": "请选择",
     "settings": "设置",
     "sidebar": "侧栏",
     "signOut": "退出登录",
+    "signatureMissing": "请先在这里签名",
     "theme": "主题",
     "themeDark": "深色",
     "themeLight": "浅色",
@@ -4884,6 +4892,7 @@
       "project": "项目",
       "selectProject": "选择项目"
     },
+    "liveStopped": "实时部分已经停止更新。下面的动态、异常和未读数量是打开这一页时的，不是现在的。",
     "locationMap": {
       "allProjects": "全部项目",
       "empty": "所选项目还没有可显示的位置或电子围栏。",
@@ -5757,6 +5766,7 @@
       "wasteOrders": "待处理废料订单",
       "weighingSessions": "称重次数"
     },
+    "tileFailed": "没有载入",
     "title": "仪表板"
   },
   "deductions": {
@@ -8516,6 +8526,7 @@
       "chooseProjectFirst": "请先选择项目。",
       "description": "向你公司其中一个项目的有效成员发送站内通知。",
       "loadingMembers": "正在加载项目成员……",
+      "membersFailed": "无法载入这个项目的人员，所以下面没有列出收件人。这不代表项目里没有人。",
       "message": "内容",
       "messagePlaceholder": "写下团队需要知道或执行的事情。",
       "noMembers": "这个项目目前还没有有效的项目成员。",
@@ -8537,6 +8548,7 @@
       "title": "发送项目通知"
     },
     "count": "共 {count} 条通知",
+    "countFailed": "无法载入未读数量，因此无法确定到底有没有东西在等你。",
     "field": {
       "kind": "类型",
       "notification": "通知",
@@ -8573,6 +8585,7 @@
       "SYSTEM": "系统",
       "WEIGHING": "称重"
     },
+    "listFailed": "无法载入你的通知。这和「没有通知」不是一回事 —— 请重试。",
     "markAllRead": "全部标记为已读",
     "markRead": "标记为已读",
     "noUnread": "目前没有未读通知",
@@ -12523,16 +12536,6 @@
     }
   },
   "wasteOutgoing": {
-    "handover": {
-      "trail": "{from} 于 {when} 转交给 {to}",
-      "failed": "转交没成功",
-      "loading": "名单加载中",
-      "note": "备注",
-      "choose": "选一个人",
-      "person": "转交给",
-      "help": "申请 {reference}。一次只转交这一份，不是整个类别。",
-      "title": "把这份申请转交给别人"
-    },
     "action": {
       "handOverAgain": "再转交",
       "handOver": "转交",
@@ -12554,6 +12557,7 @@
     "assign": {
       "help": "选择已绑定此项目的回收商。{reference} 的订单会立即发送至对方系统。",
       "noPartners": "此项目尚未绑定回收商。请先在「合作回收商」中绑定，再建立订单。",
+      "partnersFailed": "无法载入回收合作商，所以选择框是空的。这不代表你没有合作商。",
       "title": "安排回收商"
     },
     "cancel": {
@@ -12629,6 +12633,16 @@
       "submitFailed": "申请提交失败，请检查标示的资料后重试。",
       "title": "环保材料出场申请"
     },
+    "handover": {
+      "trail": "{from} 于 {when} 转交给 {to}",
+      "failed": "转交没成功",
+      "loading": "名单加载中",
+      "note": "备注",
+      "choose": "选一个人",
+      "person": "转交给",
+      "help": "申请 {reference}。一次只转交这一份，不是整个类别。",
+      "title": "把这份申请转交给别人"
+    },
     "milestone": {
       "ARRIVED_AT_PLANT": "已到达回收厂",
       "COMPLETED": "回收完成",
@@ -12645,6 +12659,7 @@
     "photos": {
       "caption": "备注（可不填）"
     },
+    "recordsFailed": "无法载入清运记录，因此无法确定到底有没有。请重试。",
     "review": {
       "failed": "审批结果未能保存。",
       "help": "批准 {reference} 后才可发送回收订单，或填写原因退回。",

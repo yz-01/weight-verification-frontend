@@ -7,7 +7,11 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  FieldWrapper,
+  LoadFailed,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -301,7 +305,9 @@ function FeatureFlagEditor({
             <p className="mt-0.5 text-xs text-muted-foreground">
               {t("field.companiesHelp")}
             </p>
-            {companyRows.isLoading ? (
+            {companyRows.isError ? (
+              <LoadFailed onRetry={() => void companyRows.refetch()} />
+            ) : companyRows.isLoading ? (
               <p className="mt-2 text-sm text-muted-foreground">
                 <Loader2 className="mr-2 inline size-4 animate-spin" />
                 {common("loading")}

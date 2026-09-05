@@ -5,7 +5,10 @@ import { Check, Loader2, Pencil, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { StatusBadge } from "@/components/shared/page-primitives";
+import {
+  LoadFailed,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -94,7 +97,9 @@ export function ConsultantOptionManager({ project }: { project: string }) {
         </div>
       </div>
 
-      {rows.isLoading ? (
+      {rows.isError ? (
+        <LoadFailed onRetry={() => void rows.refetch()} />
+      ) : rows.isLoading ? (
         <div className="grid min-h-24 place-items-center">
           <Loader2 className="animate-spin text-primary" />
         </div>

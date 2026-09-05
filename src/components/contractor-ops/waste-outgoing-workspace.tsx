@@ -31,6 +31,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import {
   FieldWrapper,
   ListHeader,
+  LoadFailed,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -337,7 +338,11 @@ export function WasteOutgoingWorkspace() {
         </Select>
       </div>
 
-      {records.isLoading ? (
+      {records.isError ? (
+        <p className="rounded-lg border border-destructive/30 bg-destructive/5 py-12 text-center text-sm text-destructive">
+          {t("recordsFailed")}
+        </p>
+      ) : records.isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-28 w-full" />
@@ -1112,7 +1117,11 @@ function AssignDialog({
         </DialogHeader>
         <div className="grid gap-4">
           <FieldWrapper label={t("field.recycler")} required>
-            {recyclers.isLoading ? (
+            {recyclers.isError ? (
+              <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
+                {t("assign.partnersFailed")}
+              </p>
+            ) : recyclers.isLoading ? (
               <Skeleton className="h-9 w-full" />
             ) : rows.length === 0 ? (
               <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
@@ -1286,7 +1295,9 @@ function TrackingDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {tracking.isLoading ? (
+        {tracking.isError ? (
+          <LoadFailed onRetry={() => void tracking.refetch()} />
+        ) : tracking.isLoading ? (
           <Skeleton className="h-64 w-full" />
         ) : !data?.ordered ? (
           <div className="rounded-lg border border-dashed bg-muted/20 p-4">

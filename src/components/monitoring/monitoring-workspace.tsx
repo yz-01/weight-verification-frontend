@@ -1857,7 +1857,9 @@ function RecentCapturesPanel() {
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {t("captures.title")}
       </h3>
-      {captures.isLoading ? (
+      {captures.isError ? (
+        <LoadFailed onRetry={() => void captures.refetch()} />
+      ) : captures.isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : rows.length === 0 ? (
         <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
@@ -1961,7 +1963,9 @@ function PlateReadsPanel() {
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {t("plateReads.title")}
       </h3>
-      {events.isLoading ? (
+      {events.isError ? (
+        <LoadFailed onRetry={() => void events.refetch()} />
+      ) : events.isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : rows.length === 0 ? (
         <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">

@@ -19,7 +19,10 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import {
+  LoadFailed,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -193,7 +196,9 @@ export function ConsultantDashboard() {
                 </div>
                 <Link href="/notifications" className="text-xs font-semibold text-primary hover:underline">{t("openAll")}</Link>
               </div>
-              {notifications.isLoading ? (
+              {notifications.isError ? (
+                <LoadFailed onRetry={() => void notifications.refetch()} />
+              ) : notifications.isLoading ? (
                 <Skeleton className="mt-3 h-36 w-full" />
               ) : (notifications.data?.results ?? []).length === 0 ? (
                 <p className="py-8 text-center text-sm text-muted-foreground">{t("notifications.empty")}</p>

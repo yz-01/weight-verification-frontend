@@ -1,37 +1,40 @@
 {
   "materialColumns": {
-    "uncounted": "有幾張送貨單讀不出金額，沒有算進這個合計裡。",
-    "tonnes": "累計 {tonnes} 噸",
+    "alertHelp": "用逗號分隔，例如 80, 100。改了預算會重新算已經越過哪幾條線。",
+    "alertInvalid": "請填 1 到 500 之間的整數，用逗號分隔。",
+    "alertPercentages": "在這些百分比提醒",
+    "archived": "已歸欄目",
+    "archivedHelp": "預算是錢，由這個欄目下的送貨單金額累計而來。",
+    "budgetAmount": "預算（RM）",
+    "budgetNone": "不計預算的欄目留空",
+    "columnsFailed": "無法載入欄目，因此無法確定這個工地到底有沒有欄目。請重試。",
+    "columnsFailedRefile": "無法載入欄目，所以上面的選擇框是空的。這不代表這個工地沒有欄目 —— 在載入成功之前，請不要新建一個。",
+    "edit": "編輯欄目",
+    "editHelp": "只改名稱、預算和預警線。歸在這個欄目裡的照片、數量與簽名是證據，這裡一個位元都不動。",
+    "editTitle": "編輯 {name}",
+    "fileInto": "歸到",
     "filed": "已歸檔 {count} 筆",
     "noBudget": "沒有設預算",
     "noColumns": "還沒有設欄目",
-    "archivedHelp": "預算是錢，由這個欄目下的送貨單金額累計而來。",
-    "archived": "已歸欄目",
-    "seeAllPending": "查看全部 {count} 筆",
-    "pendingEmpty": "沒有待看的",
-    "pendingHelp": "你看過之後才會歸到各自的欄目裡。每個帳號的已讀狀態是各自獨立的。",
+    "noMaterialColumns": "這個專案還沒有可歸的材料欄目。",
     "pending": "待你查看（{count}）",
-    "subtitle": "每個欄目收了多少、花了多少",
-    "title": "材料欄目",
-    "edit": "編輯欄目",
-    "editTitle": "編輯 {name}",
-    "editHelp": "只改名稱、預算和預警線。歸在這個欄目裡的照片、數量與簽名是證據，這裡一個位元都不動。",
-    "budgetAmount": "預算（RM）",
-    "budgetNone": "不計預算的欄目留空",
-    "tracksSpend": "這個欄目的支出計入預算",
-    "alertPercentages": "在這些百分比提醒",
-    "alertHelp": "用逗號分隔，例如 80, 100。改了預算會重新算已經越過哪幾條線。",
-    "alertInvalid": "請填 1 到 500 之間的整數，用逗號分隔。",
-    "fileInto": "歸到",
-    "refileTitle": "把 {receipt} 歸到某個欄目",
+    "pendingEmpty": "沒有待看的",
+    "pendingFailed": "無法載入待歸檔的送貨清單，因此無法確定到底有沒有在等。請重試。",
+    "pendingHelp": "你看過之後才會歸到各自的欄目裡。每個帳號的已讀狀態是各自獨立的。",
+    "refileConfirm": "歸檔",
     "refileHelp": "只改歸在哪。照片、數量、簽名、時間、位置全部保持記錄時的樣子。",
     "refileReason": "原因",
-    "refileConfirm": "歸檔",
-    "noMaterialColumns": "這個專案還沒有可歸的材料欄目。",
+    "refileTitle": "把 {receipt} 歸到某個欄目",
     "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。",
+    "seeAllPending": "查看全部 {count} 筆",
+    "subtitle": "每個欄目收了多少、花了多少",
+    "title": "材料欄目",
     "toast": {
       "refiled": "已歸檔。"
-    }
+    },
+    "tonnes": "累計 {tonnes} 噸",
+    "tracksSpend": "這個欄目的支出計入預算",
+    "uncounted": "有幾張送貨單讀不出金額，沒有算進這個合計裡。"
   },
   "photoApprovals": {
     "noLocation": "沒有記錄位置",
@@ -2847,6 +2850,7 @@
     "commentPlaceholder": "填寫原因或審核備註",
     "companyWide": "公司級",
     "count": "共 {count} 項審批",
+    "countUnknown": "待辦數量沒有載入",
     "create": {
       "action": "新建審批",
       "description": "建立與業務記錄關聯的審批草稿。",
@@ -2884,6 +2888,7 @@
       "title": "審批記錄",
       "transition": "狀態變化"
     },
+    "historyFailed": "無法載入最新的審批紀錄。下面顯示的是這條申請自帶的快照，可能不是最新的。",
     "metadataHint": "可選的流程專用 JSON 對象。",
     "resource": {
       "all": "全部記錄類型",
@@ -2908,6 +2913,7 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交"
     },
+    "supportingDataFailed": "無法載入項目、人員或角色清單，所以下面選擇框裡的選項可能不全甚至是空的。這裡空白不代表真的沒有可選項。請重試。",
     "title": "審批流程",
     "toast": {
       "approve": "審批已批准",
@@ -3795,25 +3801,12 @@
     }
   },
   "common": {
-    "readOnlySetting": "這一項只能看，不能改",
-    "minLength": "{field} 至少要 {count} 個字",
-    "signatureMissing": "請先在這裡簽名",
-    "searchMinLength": "搜尋至少要輸入 {count} 個字",
-    "outOfRange": "{field} 要在 {min} 到 {max} 之間",
-    "offline": "目前沒有網路",
-    "nothingUnread": "沒有未讀的",
-    "nothingToSync": "沒有待上傳的內容",
-    "noReportYet": "請先產生報表",
-    "noFiltersSet": "請先設定篩選條件",
-    "noChanges": "還沒有任何改動",
-    "missingFields": "還差這些沒填：{fields}",
-    "listSeparator": "、",
-    "alreadyFirstPage": "已經在第一頁",
-    "alreadyLast": "已經是最後一個了",
-    "alreadyFirst": "已經是第一個了",
     "actions": "操作",
     "active": "啟用",
     "all": "全部",
+    "alreadyFirst": "已經是第一個了",
+    "alreadyFirstPage": "已經在第一頁",
+    "alreadyLast": "已經是最後一個了",
     "back": "返回",
     "cancel": "取消",
     "close": "關閉",
@@ -3828,12 +3821,24 @@
     "export": "導出",
     "inactive": "停用",
     "language": "語言",
+    "listSeparator": "、",
+    "loadFailed": "無法載入{what}，所以這裡顯示的不是實際情況。請重試。",
     "loading": "加載中",
+    "minLength": "{field} 至少要 {count} 個字",
+    "missingFields": "還差這些沒填：{fields}",
     "mobileSidebarDescription": "顯示手機端側欄。",
+    "noChanges": "還沒有任何改動",
+    "noFiltersSet": "請先設定篩選條件",
     "noOptions": "沒有可選項",
+    "noReportYet": "請先產生報表",
     "none": "無",
+    "nothingToSync": "沒有待上傳的內容",
+    "nothingUnread": "沒有未讀的",
+    "offline": "目前沒有網路",
     "optional": "選填",
+    "outOfRange": "{field} 要在 {min} 到 {max} 之間",
     "profile": "個人資料",
+    "readOnlySetting": "這一項只能看，不能改",
     "reason": "原因",
     "reasonPlaceholder": "請說明此次變更的原因",
     "refresh": "刷新",
@@ -3842,11 +3847,14 @@
     "save": "保存",
     "saving": "保存中",
     "search": "搜索",
+    "searchMinLength": "搜尋至少要輸入 {count} 個字",
     "searchPlaceholder": "搜索",
+    "sectionLoadFailed": "這一部分沒有載入成功，所以這裡顯示的不是實際情況。請重試。",
     "selectPlaceholder": "請選擇",
     "settings": "設置",
     "sidebar": "側欄",
     "signOut": "退出登錄",
+    "signatureMissing": "請先在這裡簽名",
     "theme": "主題",
     "themeDark": "深色",
     "themeLight": "淺色",
@@ -4884,6 +4892,7 @@
       "project": "項目",
       "selectProject": "選擇項目"
     },
+    "liveStopped": "即時部分已經停止更新。下面的動態、異常和未讀數量是打開這一頁時的，不是現在的。",
     "locationMap": {
       "allProjects": "全部項目",
       "empty": "所選項目還沒有可顯示的位置或電子圍欄。",
@@ -5757,6 +5766,7 @@
       "wasteOrders": "待處理廢料訂單",
       "weighingSessions": "稱重次數"
     },
+    "tileFailed": "沒有載入",
     "title": "儀表板"
   },
   "deductions": {
@@ -8516,6 +8526,7 @@
       "chooseProjectFirst": "請先選擇項目。",
       "description": "向你公司其中一個項目的有效成員發送站內通知。",
       "loadingMembers": "正在加載項目成員……",
+      "membersFailed": "無法載入這個項目的人員，所以下面沒有列出收件人。這不代表項目裡沒有人。",
       "message": "內容",
       "messagePlaceholder": "寫下團隊需要知道或執行的事情。",
       "noMembers": "這個項目目前還沒有有效的項目成員。",
@@ -8537,6 +8548,7 @@
       "title": "發送項目通知"
     },
     "count": "共 {count} 條通知",
+    "countFailed": "無法載入未讀數量，因此無法確定到底有沒有東西在等你。",
     "field": {
       "kind": "類型",
       "notification": "通知",
@@ -8573,6 +8585,7 @@
       "SYSTEM": "系統",
       "WEIGHING": "稱重"
     },
+    "listFailed": "無法載入你的通知。這和「沒有通知」不是一回事 —— 請重試。",
     "markAllRead": "全部標記為已讀",
     "markRead": "標記為已讀",
     "noUnread": "目前沒有未讀通知",
@@ -12523,16 +12536,6 @@
     }
   },
   "wasteOutgoing": {
-    "handover": {
-      "trail": "{from} 於 {when} 轉交給 {to}",
-      "failed": "轉交沒成功",
-      "loading": "名單載入中",
-      "note": "備註",
-      "choose": "選一個人",
-      "person": "轉交給",
-      "help": "申請 {reference}。一次只轉交這一份，不是整個類別。",
-      "title": "把這份申請轉交給別人"
-    },
     "action": {
       "handOverAgain": "再轉交",
       "handOver": "轉交",
@@ -12554,6 +12557,7 @@
     "assign": {
       "help": "選擇已綁定此項目的回收商。{reference} 的訂單會立即發送至對方系統。",
       "noPartners": "此項目尚未綁定回收商。請先在「合作回收商」中綁定，再建立訂單。",
+      "partnersFailed": "無法載入回收合作商，所以選擇框是空的。這不代表你沒有合作商。",
       "title": "安排回收商"
     },
     "cancel": {
@@ -12629,6 +12633,16 @@
       "submitFailed": "申請提交失敗，請檢查標示的資料後重試。",
       "title": "環保材料出場申請"
     },
+    "handover": {
+      "trail": "{from} 於 {when} 轉交給 {to}",
+      "failed": "轉交沒成功",
+      "loading": "名單載入中",
+      "note": "備註",
+      "choose": "選一個人",
+      "person": "轉交給",
+      "help": "申請 {reference}。一次只轉交這一份，不是整個類別。",
+      "title": "把這份申請轉交給別人"
+    },
     "milestone": {
       "ARRIVED_AT_PLANT": "已到達回收廠",
       "COMPLETED": "回收完成",
@@ -12645,6 +12659,7 @@
     "photos": {
       "caption": "備註（可不填）"
     },
+    "recordsFailed": "無法載入清運紀錄，因此無法確定到底有沒有。請重試。",
     "review": {
       "failed": "審批結果未能保存。",
       "help": "批准 {reference} 後才可發送回收訂單，或填寫原因退回。",

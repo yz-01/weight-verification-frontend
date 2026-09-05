@@ -60,6 +60,7 @@ import {
   updateConsultantWorkflow,
   updateConsultantWorkflowStep,
 } from "@/services/consultant-workflow.service";
+import { LoadFailed } from "@/components/shared/page-primitives";
 
 export function ConsultantWorkflowSettings() {
   const t = useTranslations("consultantWorkflow");
@@ -99,7 +100,9 @@ export function ConsultantWorkflowSettings() {
       </div>
       {!project ? (
         <Empty text={t("state.chooseProject")} />
-      ) : rows.isLoading ? (
+      ) : rows.isError ? (
+              <LoadFailed onRetry={() => void rows.refetch()} />
+            ) : rows.isLoading ? (
         <div className="grid min-h-48 place-items-center"><Loader2 className="animate-spin text-primary" /></div>
       ) : !rows.data?.count ? (
         <Empty text={t("workflow.empty")} />

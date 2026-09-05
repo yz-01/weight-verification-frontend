@@ -15,7 +15,11 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import {
+  LoadFailed,
+  StatusBadge,
+  TypeBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -300,7 +304,9 @@ export function GateConsole() {
           </div>
 
           <div className="px-6 py-6">
-            {binding.isLoading ? (
+            {binding.isError ? (
+              <LoadFailed onRetry={() => void binding.refetch()} />
+            ) : binding.isLoading ? (
               <p className="text-sm text-muted-foreground">
                 {t("common.loading")}
               </p>

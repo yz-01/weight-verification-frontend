@@ -32,6 +32,7 @@ import {
   type CreateVersionPayload,
   type VersionDetail,
 } from "@/services/version.service";
+import { LoadFailed } from "@/components/shared/page-primitives";
 
 export function VersionList() {
   const t = useTranslations();
@@ -174,7 +175,9 @@ export function VersionList() {
         }}
       >
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
-          {editor.id && detail.isLoading ? (
+          {editor.id && detail.isError ? (
+              <LoadFailed onRetry={() => void detail.refetch()} />
+            ) : detail.isLoading ? (
             <div className="flex min-h-40 items-center justify-center">
               <Loader2 className="animate-spin" />
             </div>

@@ -26,6 +26,7 @@ import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
   ListHeader,
+  LoadFailed,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -412,7 +413,9 @@ function CustomerQrDialog({ customer, onClose }: { customer: RecyclerCustomer; o
           <DialogTitle>{t("qr.title", { name: customer.company_name })}</DialogTitle>
           <DialogDescription>{t("qr.help")}</DialogDescription>
         </DialogHeader>
-        {qr.isLoading ? (
+        {qr.isError ? (
+          <LoadFailed onRetry={() => void qr.refetch()} />
+        ) : qr.isLoading ? (
           <div className="grid min-h-64 place-items-center"><Loader2 className="animate-spin" /></div>
         ) : value ? (
           <div className="space-y-4">
