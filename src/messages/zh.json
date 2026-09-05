@@ -10832,14 +10832,19 @@
       "MANUAL": "手动建立"
     },
     "state": {
+      "candidatesLoadError": "无法载入已确认的现场进度，因此无法确定到底有没有证据可以附上。请先重试再确认。",
       "chooseProject": "请选择项目以查看施工计划。",
+      "historyLoadError": "无法载入施工计划历史，因此无法确定到底有没有历史记录。请重试。",
       "loadError": "无法载入施工计划，请重试。",
       "noConfirmedProgress": "目前没有已确认的现场进度记录。",
       "noHistory": "还没有施工计划历史。",
       "noPlans": "这个项目还没有施工计划。您可以手动建立或导入 Excel。",
       "noReason": "没有额外备注",
       "noRevision": "没有计划版本",
-      "noTasks": "这个版本还没有任务。"
+      "noTasks": "这个版本还没有任务。",
+      "overviewLoadError": "无法载入进度汇总，因此任务数与进度百分比没有显示出来。请重试。",
+      "revisionsLoadError": "无法载入计划版本，请重试。",
+      "tasksLoadError": "无法载入任务清单，因此这个版本的任务没有显示出来。请重试。"
     },
     "status": {
       "current": "当前版本",

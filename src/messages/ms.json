@@ -10832,14 +10832,19 @@
       "MANUAL": "Manual"
     },
     "state": {
+      "candidatesLoadError": "Kemajuan tapak yang disahkan tidak dapat dimuatkan, jadi tidak diketahui sama ada ada bukti untuk dilampirkan. Cuba lagi sebelum mengesahkan.",
       "chooseProject": "Pilih projek untuk melihat jadual pembinaannya.",
+      "historyLoadError": "Sejarah jadual tidak dapat dimuatkan, jadi tidak diketahui sama ada ada sejarah. Cuba lagi.",
       "loadError": "Jadual tidak dapat dimuatkan. Cuba lagi.",
       "noConfirmedProgress": "Tiada rekod kemajuan tapak yang disahkan.",
       "noHistory": "Belum ada sejarah jadual.",
       "noPlans": "Projek ini belum mempunyai jadual. Cipta secara manual atau import Excel.",
       "noReason": "Tiada catatan tambahan",
       "noRevision": "Tiada versi jadual",
-      "noTasks": "Versi ini belum mempunyai tugas."
+      "noTasks": "Versi ini belum mempunyai tugas.",
+      "overviewLoadError": "Ringkasan kemajuan tidak dapat dimuatkan, jadi bilangan tugas dan peratus kemajuan tidak dipaparkan. Cuba lagi.",
+      "revisionsLoadError": "Revisi tidak dapat dimuatkan. Cuba lagi.",
+      "tasksLoadError": "Senarai tugas tidak dapat dimuatkan, jadi tugas revisi ini tidak dipaparkan. Cuba lagi."
     },
     "status": {
       "current": "Semasa",

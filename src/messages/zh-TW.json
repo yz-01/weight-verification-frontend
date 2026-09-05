@@ -10832,14 +10832,19 @@
       "MANUAL": "手動建立"
     },
     "state": {
+      "candidatesLoadError": "無法載入已確認的現場進度，因此無法確定到底有沒有證據可以附上。請先重試再確認。",
       "chooseProject": "請選擇項目以查看施工計劃。",
+      "historyLoadError": "無法載入施工計劃歷史，因此無法確定到底有沒有歷史紀錄。請重試。",
       "loadError": "無法載入施工計劃，請重試。",
       "noConfirmedProgress": "目前沒有已確認的現場進度記錄。",
       "noHistory": "還沒有施工計劃歷史。",
       "noPlans": "這個項目還沒有施工計劃。您可以手動建立或導入 Excel。",
       "noReason": "沒有額外備註",
       "noRevision": "沒有計劃版本",
-      "noTasks": "這個版本還沒有任務。"
+      "noTasks": "這個版本還沒有任務。",
+      "overviewLoadError": "無法載入進度匯總，因此任務數與進度百分比沒有顯示出來。請重試。",
+      "revisionsLoadError": "無法載入計劃版本，請重試。",
+      "tasksLoadError": "無法載入任務清單，因此這個版本的任務沒有顯示出來。請重試。"
     },
     "status": {
       "current": "當前版本",

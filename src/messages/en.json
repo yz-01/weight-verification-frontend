@@ -10832,14 +10832,19 @@
       "MANUAL": "Manual"
     },
     "state": {
+      "candidatesLoadError": "The confirmed site progress could not be loaded, so it is not known whether there is any evidence to attach. Try again before confirming.",
       "chooseProject": "Choose a project to view its construction schedule.",
+      "historyLoadError": "The schedule history could not be loaded, so it is not known whether there is any. Try again.",
       "loadError": "The schedule could not be loaded. Try again.",
       "noConfirmedProgress": "No confirmed site progress records are available.",
       "noHistory": "No schedule history yet.",
       "noPlans": "No schedule exists for this project. Create one manually or import Excel.",
       "noReason": "No additional note",
       "noRevision": "No schedule version",
-      "noTasks": "No tasks in this version yet."
+      "noTasks": "No tasks in this version yet.",
+      "overviewLoadError": "The progress summary could not be loaded, so the task and progress figures are not shown. Try again.",
+      "revisionsLoadError": "The revisions could not be loaded. Try again.",
+      "tasksLoadError": "The task list could not be loaded, so this revision's tasks are not shown. Try again."
     },
     "status": {
       "current": "Current",
