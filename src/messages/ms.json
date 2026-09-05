@@ -6516,7 +6516,9 @@
       "version_already_exists": "Versi platform itu sudah wujud.",
       "version_not_found": "Versi platform itu tidak dijumpai.",
       "visit_not_found": "Lawatan pelanggan itu tidak dijumpai.",
-      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian."
+      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
+      "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
+      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9699,7 +9701,8 @@
       "photos": "Foto",
       "received": "Diterima oleh",
       "stamp": "Direkod oleh platform",
-      "vehicle": "Kenderaan dan dokumen"
+      "vehicle": "Kenderaan dan dokumen",
+      "signatures": "Tandatangan"
     },
     "stampNote": "Masa, lokasi dan orang yang merekod ditulis oleh platform semasa resit difailkan. Ia tidak boleh ditaip atau diubah kemudian.",
     "summary": {
@@ -9726,7 +9729,18 @@
       "PIECE": "Unit",
       "TONNE": "Tan"
     },
-    "viewTitle": "Resit"
+    "viewTitle": "Resit",
+    "signature": {
+      "receiver": "Diterima oleh",
+      "supplier": "Pembekal",
+      "none": "Tiada tandatangan dirakam."
+    },
+    "photoViewer": {
+      "open": "Buka gambar",
+      "previous": "Gambar sebelumnya",
+      "next": "Gambar seterusnya",
+      "clean": "Dipaparkan tanpa cap lokasi dan masa, supaya boleh digunakan semula di tempat lain."
+    }
   },
   "recyclerBusiness": {
     "action": {

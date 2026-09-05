@@ -6516,7 +6516,9 @@
       "version_already_exists": "That platform version already exists.",
       "version_not_found": "That platform version could not be found.",
       "visit_not_found": "That customer visit could not be found.",
-      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second."
+      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
+      "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
+      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9699,7 +9701,8 @@
       "photos": "Photos",
       "received": "Received by",
       "stamp": "Recorded by the platform",
-      "vehicle": "Vehicle and paperwork"
+      "vehicle": "Vehicle and paperwork",
+      "signatures": "Signatures"
     },
     "stampNote": "The time, place and person are recorded by the platform when the receipt is filed. They cannot be typed in or changed afterwards.",
     "summary": {
@@ -9726,7 +9729,18 @@
       "PIECE": "Piece",
       "TONNE": "Tonne"
     },
-    "viewTitle": "Receipt"
+    "viewTitle": "Receipt",
+    "signature": {
+      "receiver": "Received by",
+      "supplier": "Supplier",
+      "none": "No signature was captured."
+    },
+    "photoViewer": {
+      "open": "Open photograph",
+      "previous": "Previous photograph",
+      "next": "Next photograph",
+      "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
+    }
   },
   "recyclerBusiness": {
     "action": {

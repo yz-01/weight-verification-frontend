@@ -6516,7 +6516,9 @@
       "version_already_exists": "该平台版本已经存在。",
       "version_not_found": "找不到该平台版本。",
       "visit_not_found": "找不到该客户回访。",
-      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。"
+      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
+      "attendance_outside_geofence": "你不在工地围栏内，离最近围栏 {distance} 米。走近一点再试。",
+      "attendance_gps_required": "这个项目设了工地范围，打卡需要你的位置。请打开定位再试一次。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9699,7 +9701,8 @@
       "photos": "照片",
       "received": "收货人",
       "stamp": "系统自动记录",
-      "vehicle": "车辆与单据"
+      "vehicle": "车辆与单据",
+      "signatures": "签名"
     },
     "stampNote": "时间、位置和记录人由系统在提交时自动写入，无法手动填写或事后修改。",
     "summary": {
@@ -9726,7 +9729,18 @@
       "PIECE": "件",
       "TONNE": "吨"
     },
-    "viewTitle": "收货记录"
+    "viewTitle": "收货记录",
+    "signature": {
+      "receiver": "收货人",
+      "supplier": "供应商",
+      "none": "没有采集到签名。"
+    },
+    "photoViewer": {
+      "open": "打开照片",
+      "previous": "上一张",
+      "next": "下一张",
+      "clean": "这里显示的是不带位置与时间水印的原图，方便复制到别处使用。"
+    }
   },
   "recyclerBusiness": {
     "action": {
