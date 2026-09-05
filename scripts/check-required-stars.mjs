@@ -218,7 +218,15 @@ for (const relative of files) {
     // instead of sitting in a wrapper, so it used to be invisible to
     // this check - and both signatures on the delivery screen are
     // compulsory, which is exactly the case the check exists for.
-    const wrappers = /<(?:FieldWrapper|FieldSignaturePad)\b/g;
+    //
+    // LocationField is here for the same reason and was added later. It takes
+    // `label` and `required` and puts a FieldWrapper round them itself, so
+    // moving a location control onto it is invisible from here: the demanded
+    // key stops being carried by any field this check can see, and stops being
+    // offered by a button either, so the pair vanishes from both halves and
+    // the total quietly falls by one. A guard that stops covering a field is
+    // the same failure as F-219, one level up (2026-09-05).
+    const wrappers = /<(?:FieldWrapper|FieldSignaturePad|LocationField)\b/g;
     let wrapper = wrappers.exec(body);
     while (wrapper) {
       const attrs = attrsOf(body, wrapper.index + wrapper[0].length);
