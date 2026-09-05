@@ -12,7 +12,26 @@
     "pendingHelp": "Ini difailkan ke dalam ruangannya setelah anda membukanya. Setiap akaun mempunyai status bacaannya sendiri.",
     "pending": "Menunggu anda ({count})",
     "subtitle": "Apa yang diterima setiap ruangan dan berapa yang dibelanjakan",
-    "title": "Ruangan bahan"
+    "title": "Ruangan bahan",
+    "edit": "Sunting kolum",
+    "editTitle": "Sunting {name}",
+    "editHelp": "Nama, bajet dan garis amaran sahaja. Gambar, kuantiti dan tandatangan yang difailkan di sini adalah bukti dan tidak disentuh.",
+    "budgetAmount": "Bajet (RM)",
+    "budgetNone": "Biarkan kosong untuk kolum yang tidak dikira terhadap bajet",
+    "tracksSpend": "Kira perbelanjaan kolum ini terhadap bajet",
+    "alertPercentages": "Beri amaran pada peratusan ini",
+    "alertHelp": "Dipisahkan koma, contohnya 80, 100. Menukar bajet mengira semula garis yang telah dilepasi.",
+    "alertInvalid": "Guna nombor bulat antara 1 dan 500, dipisahkan koma.",
+    "fileInto": "Failkan ke",
+    "refileTitle": "Failkan {receipt} ke satu kolum",
+    "refileHelp": "Hanya kolum yang berubah. Gambar, kuantiti, tandatangan, masa dan tempat kekal seperti direkodkan.",
+    "refileReason": "Sebab",
+    "refileConfirm": "Failkan",
+    "noMaterialColumns": "Projek ini tiada kolum bahan untuk difailkan.",
+    "saveFailed": "Tidak berjaya. Cuba lagi, atau muat semula halaman.",
+    "toast": {
+      "refiled": "Penghantaran difailkan."
+    }
   },
   "photoApprovals": {
     "noLocation": "Lokasi tidak direkodkan",
@@ -1590,7 +1609,11 @@
       "yes": "Ya"
     },
     "subtitle": "Urus profil, wilayah, pemilikan pelanggan, perjanjian dan penyelesaian komisen.",
-    "title": "Pengurusan Rakan Kongsi"
+    "title": "Pengurusan Rakan Kongsi",
+    "schemes": {
+      "help": "Skim komisen ialah sebahagian daripada perjanjian rakan kongsi dan dibekukan bersamanya, jadi ia dicipta dan diubah di sana, bukan di sini.",
+      "goToAgreements": "Buka perjanjian rakan kongsi"
+    }
   },
   "adminQr": {
     "action": {
@@ -4952,6 +4975,13 @@
       "SAFETY_INCIDENT": "Keselamatan",
       "SITE_PROGRESS": "Kemajuan",
       "WASTE_DISPATCH": "Penghantaran"
+    },
+    "unread": {
+      "title": "Menunggu anda",
+      "subtitle": "{receipts} penghantaran dan {approvals} kelulusan yang belum ada sesiapa selesaikan untuk anda",
+      "help": "Ini milik anda sahaja. Membukanya memfailkannya untuk anda dan mengekalkannya dalam senarai orang lain.",
+      "openColumns": "Kolum bahan",
+      "unfiled": "Belum difailkan dalam kolum"
     }
   },
   "contractorModuleLanding": {
@@ -5006,7 +5036,11 @@
       "uploadHelp": "Biarkan kedua-dua senarai kosong untuk membenarkan semua yang boleh melihat memuat naik. Pilihan akan mengehadkan muat naik.",
       "uploadRoles": "Peranan boleh memuat naik",
       "uploadTitle": "Siapa boleh memuat naik ke kategori ini",
-      "uploadUsers": "Individu boleh memuat naik"
+      "uploadUsers": "Individu boleh memuat naik",
+      "kind": "Skema failan yang mana",
+      "kindField": "Kolum rekod tapak",
+      "kindMaterial": "Kolum bahan",
+      "kindBoth": "Belum dipisahkan"
     },
     "direction": {
       "ENTRY": "Masuk",
@@ -6942,7 +6976,8 @@
       "ocrItems": {
         "confirmHint": "Semak dengan dokumen kertas",
         "title": "Bahan dibaca dari nota",
-        "unclassified": "Pilih kategori"
+        "unclassified": "Pilih kategori",
+        "makeColumn": "Jadikan kolum"
       },
       "ocrLowConfidence": "Dibaca dengan keyakinan rendah: {fields}. Semak dengan dokumen kertas sebelum menyimpan.",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Isi butiran secara manual.",
@@ -6975,7 +7010,14 @@
       "supplierSignature": "Tandatangan pembekal",
       "tapCamera": "Tekan untuk buka kamera",
       "unit": "Unit",
-      "vehicle": "No. kenderaan"
+      "vehicle": "No. kenderaan",
+      "column": "Kolum bahan",
+      "chooseColumn": "Pilih kolum bahan",
+      "columnUnfiled": "Belum difailkan",
+      "noColumnsYet": "Tapak ini belum ada kolum bahan. Tambah yang pertama di bawah.",
+      "newColumnName": "Nama kolum baharu",
+      "addColumn": "Tambah kolum",
+      "columnOffline": "Luar talian: kolum tidak boleh dibuka tanpa sambungan. Terima penghantaran tanpa difailkan dan failkan kemudian."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -8370,7 +8412,8 @@
     "weighing": "Penimbangan",
     "weighing_parameters": "Parameter pengesanan",
     "weighing_records": "Rekod penimbangan",
-    "yards": "Tapak kitar semula"
+    "yards": "Tapak kitar semula",
+    "waitingForYou": "{count} menunggu anda"
   },
   "notifications": {
     "compose": {

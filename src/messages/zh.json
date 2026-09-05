@@ -12,7 +12,26 @@
     "pendingHelp": "你看过之后才会归到各自的栏目里。每个账号的已读状态是各自独立的。",
     "pending": "待你查看（{count}）",
     "subtitle": "每个栏目收了多少、花了多少",
-    "title": "材料栏目"
+    "title": "材料栏目",
+    "edit": "编辑栏目",
+    "editTitle": "编辑 {name}",
+    "editHelp": "只改名称、预算和预警线。归在这个栏目里的照片、数量与签名是证据，这里一个字节都不动。",
+    "budgetAmount": "预算（RM）",
+    "budgetNone": "不计预算的栏目留空",
+    "tracksSpend": "这个栏目的支出计入预算",
+    "alertPercentages": "在这些百分比提醒",
+    "alertHelp": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
+    "alertInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
+    "fileInto": "归到",
+    "refileTitle": "把 {receipt} 归到某个栏目",
+    "refileHelp": "只改归在哪。照片、数量、签名、时间、位置全部保持记录时的样子。",
+    "refileReason": "原因",
+    "refileConfirm": "归档",
+    "noMaterialColumns": "这个项目还没有可归的材料栏目。",
+    "saveFailed": "没有成功。请再试一次，或者刷新页面。",
+    "toast": {
+      "refiled": "已归档。"
+    }
   },
   "photoApprovals": {
     "noLocation": "没有记录位置",
@@ -1590,7 +1609,11 @@
       "yes": "是"
     },
     "subtitle": "统一管理合作伙伴资料、区域、客户归属、协议和佣金结算。",
-    "title": "合作伙伴管理"
+    "title": "合作伙伴管理",
+    "schemes": {
+      "help": "佣金方案是合作协议的一部分，跟着协议版本一起冻结，所以要在协议那边建立和修改，不在这一页。",
+      "goToAgreements": "去合作协议管理"
+    }
   },
   "adminQr": {
     "action": {
@@ -4952,6 +4975,13 @@
       "SAFETY_INCIDENT": "安全",
       "SITE_PROGRESS": "施工进度",
       "WASTE_DISPATCH": "回收派车"
+    },
+    "unread": {
+      "title": "等你处理",
+      "subtitle": "{receipts} 笔送货、{approvals} 项待审，还没有人替你看过",
+      "help": "这是你自己的清单。点进去看过就算你归档了，别人那边不受影响。",
+      "openColumns": "材料栏目",
+      "unfiled": "暂未归档"
     }
   },
   "contractorModuleLanding": {
@@ -5006,7 +5036,11 @@
       "uploadHelp": "角色和人员都留空时，所有可查看人员都能上传；选择后只允许所选对象上传。",
       "uploadRoles": "可上传的角色",
       "uploadTitle": "谁可以上传到此栏目",
-      "uploadUsers": "可上传的人员"
+      "uploadUsers": "可上传的人员",
+      "kind": "属于哪一类栏目",
+      "kindField": "现场资料栏目",
+      "kindMaterial": "材料栏目",
+      "kindBoth": "尚未分家"
     },
     "direction": {
       "ENTRY": "进场",
@@ -6942,7 +6976,8 @@
       "ocrItems": {
         "confirmHint": "请对照纸质单核对",
         "title": "从送货单读到的物料",
-        "unclassified": "选择栏目"
+        "unclassified": "选择栏目",
+        "makeColumn": "建成栏目"
       },
       "ocrLowConfidence": "以下字段识别置信度较低：{fields}。保存前请对照纸质单据核对。",
       "ocrManual": "无法读取送货单，请手动填写资料。",
@@ -6975,7 +7010,14 @@
       "supplierSignature": "供应商签名",
       "tapCamera": "按这里打开相机",
       "unit": "单位",
-      "vehicle": "车牌"
+      "vehicle": "车牌",
+      "column": "材料栏目",
+      "chooseColumn": "选择材料栏目",
+      "columnUnfiled": "暂未归档",
+      "noColumnsYet": "这个工地还没有材料栏目。在下面新增第一个。",
+      "newColumnName": "新栏目名称",
+      "addColumn": "新增栏目",
+      "columnOffline": "离线：没有网络时开不了新栏目。先把这批货收下（暂未归档），有网络再归。"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -8370,7 +8412,8 @@
     "weighing": "称重",
     "weighing_parameters": "地磅检测参数",
     "weighing_records": "称重记录",
-    "yards": "回收场"
+    "yards": "回收场",
+    "waitingForYou": "{count} 项等你处理"
   },
   "notifications": {
     "compose": {

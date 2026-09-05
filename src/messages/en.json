@@ -12,7 +12,26 @@
     "pendingHelp": "These are filed into their column once you have opened them. Every account has its own read state.",
     "pending": "Waiting for you ({count})",
     "subtitle": "What each column has taken in, and what it has spent",
-    "title": "Material columns"
+    "title": "Material columns",
+    "edit": "Edit column",
+    "editTitle": "Edit {name}",
+    "editHelp": "The name, the budget and the warning lines. The photographs, quantities and signatures filed in this column are evidence and are not touched here.",
+    "budgetAmount": "Budget (RM)",
+    "budgetNone": "Leave empty for a column that does not count against a budget",
+    "tracksSpend": "Count spending in this column against a budget",
+    "alertPercentages": "Warn at these percentages",
+    "alertHelp": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
+    "alertInvalid": "Use whole numbers between 1 and 500, separated by commas.",
+    "fileInto": "File into",
+    "refileTitle": "File {receipt} into a column",
+    "refileHelp": "Only the column changes. The photographs, quantity, signature, time and place stay exactly as they were recorded.",
+    "refileReason": "Why",
+    "refileConfirm": "File it",
+    "noMaterialColumns": "This project has no material columns to file into.",
+    "saveFailed": "That did not go through. Try again, or reload the page.",
+    "toast": {
+      "refiled": "Delivery filed."
+    }
   },
   "photoApprovals": {
     "noLocation": "No location recorded",
@@ -1590,7 +1609,11 @@
       "yes": "Yes"
     },
     "subtitle": "Platform partner profiles, territories, customer ownership, agreements and commission settlement.",
-    "title": "Partner Management"
+    "title": "Partner Management",
+    "schemes": {
+      "help": "A commission scheme is part of a partner agreement and is frozen with it, so it is created and changed there rather than here.",
+      "goToAgreements": "Open partner agreements"
+    }
   },
   "adminQr": {
     "action": {
@@ -4952,6 +4975,13 @@
       "SAFETY_INCIDENT": "Safety",
       "SITE_PROGRESS": "Progress",
       "WASTE_DISPATCH": "Dispatch"
+    },
+    "unread": {
+      "title": "Waiting for you",
+      "subtitle": "{receipts} deliveries and {approvals} approvals nobody has cleared for you yet",
+      "help": "These are yours alone. Opening one files it away for you and leaves it in everyone else's pile.",
+      "openColumns": "Material columns",
+      "unfiled": "Not filed in a column"
     }
   },
   "contractorModuleLanding": {
@@ -5006,7 +5036,11 @@
       "uploadHelp": "Leave both lists empty to let everyone who can see the category upload. Selecting roles or people restricts uploads to them.",
       "uploadRoles": "Roles allowed to upload",
       "uploadTitle": "Who can upload to this category",
-      "uploadUsers": "People allowed to upload"
+      "uploadUsers": "People allowed to upload",
+      "kind": "Which filing scheme",
+      "kindField": "Site record column",
+      "kindMaterial": "Material column",
+      "kindBoth": "Not separated yet"
     },
     "direction": {
       "ENTRY": "Entry",
@@ -6942,7 +6976,8 @@
       "ocrItems": {
         "confirmHint": "Check against the paper",
         "title": "Materials read from the note",
-        "unclassified": "Pick category"
+        "unclassified": "Pick category",
+        "makeColumn": "Make a column"
       },
       "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -6975,7 +7010,14 @@
       "supplierSignature": "Supplier signature",
       "tapCamera": "Tap to open camera",
       "unit": "Unit",
-      "vehicle": "Vehicle plate"
+      "vehicle": "Vehicle plate",
+      "column": "Material column",
+      "chooseColumn": "Choose a material column",
+      "columnUnfiled": "Not filed yet",
+      "noColumnsYet": "This site has no material columns yet. Add the first one below.",
+      "newColumnName": "New column name",
+      "addColumn": "Add column",
+      "columnOffline": "Offline: a column cannot be opened until there is a connection. Take the delivery unfiled and file it later."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -8370,7 +8412,8 @@
     "weighing": "Weighing",
     "weighing_parameters": "Detection parameters",
     "weighing_records": "Weighing records",
-    "yards": "Recycling yards"
+    "yards": "Recycling yards",
+    "waitingForYou": "{count} waiting for you"
   },
   "notifications": {
     "compose": {

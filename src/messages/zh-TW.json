@@ -12,7 +12,26 @@
     "pendingHelp": "你看過之後才會歸到各自的欄目裡。每個帳號的已讀狀態是各自獨立的。",
     "pending": "待你查看（{count}）",
     "subtitle": "每個欄目收了多少、花了多少",
-    "title": "材料欄目"
+    "title": "材料欄目",
+    "edit": "編輯欄目",
+    "editTitle": "編輯 {name}",
+    "editHelp": "只改名稱、預算和預警線。歸在這個欄目裡的照片、數量與簽名是證據，這裡一個位元都不動。",
+    "budgetAmount": "預算（RM）",
+    "budgetNone": "不計預算的欄目留空",
+    "tracksSpend": "這個欄目的支出計入預算",
+    "alertPercentages": "在這些百分比提醒",
+    "alertHelp": "用逗號分隔，例如 80, 100。改了預算會重新算已經越過哪幾條線。",
+    "alertInvalid": "請填 1 到 500 之間的整數，用逗號分隔。",
+    "fileInto": "歸到",
+    "refileTitle": "把 {receipt} 歸到某個欄目",
+    "refileHelp": "只改歸在哪。照片、數量、簽名、時間、位置全部保持記錄時的樣子。",
+    "refileReason": "原因",
+    "refileConfirm": "歸檔",
+    "noMaterialColumns": "這個專案還沒有可歸的材料欄目。",
+    "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。",
+    "toast": {
+      "refiled": "已歸檔。"
+    }
   },
   "photoApprovals": {
     "noLocation": "沒有記錄位置",
@@ -1590,7 +1609,11 @@
       "yes": "是"
     },
     "subtitle": "統一管理合作伙伴資料、區域、客戶歸屬、協議和佣金結算。",
-    "title": "合作伙伴管理"
+    "title": "合作伙伴管理",
+    "schemes": {
+      "help": "佣金方案是合作協議的一部分，跟著協議版本一起凍結，所以要在協議那邊建立和修改，不在這一頁。",
+      "goToAgreements": "去合作協議管理"
+    }
   },
   "adminQr": {
     "action": {
@@ -4952,6 +4975,13 @@
       "SAFETY_INCIDENT": "安全",
       "SITE_PROGRESS": "施工進度",
       "WASTE_DISPATCH": "回收派車"
+    },
+    "unread": {
+      "title": "等你處理",
+      "subtitle": "{receipts} 筆送貨、{approvals} 項待審，還沒有人替你看過",
+      "help": "這是你自己的清單。點進去看過就算你歸檔了，別人那邊不受影響。",
+      "openColumns": "材料欄目",
+      "unfiled": "尚未歸檔"
     }
   },
   "contractorModuleLanding": {
@@ -5006,7 +5036,11 @@
       "uploadHelp": "角色和人員都留空時，所有可查看人員都能上傳；選擇後只允許所選對象上傳。",
       "uploadRoles": "可上傳的角色",
       "uploadTitle": "誰可以上傳到此欄目",
-      "uploadUsers": "可上傳的人員"
+      "uploadUsers": "可上傳的人員",
+      "kind": "屬於哪一類欄目",
+      "kindField": "現場資料欄目",
+      "kindMaterial": "材料欄目",
+      "kindBoth": "尚未分家"
     },
     "direction": {
       "ENTRY": "進場",
@@ -6942,7 +6976,8 @@
       "ocrItems": {
         "confirmHint": "請對照紙質單核對",
         "title": "從送貨單讀到的物料",
-        "unclassified": "選擇欄目"
+        "unclassified": "選擇欄目",
+        "makeColumn": "建成欄目"
       },
       "ocrLowConfidence": "以下欄位識別置信度較低：{fields}。保存前請對照紙質單據核對。",
       "ocrManual": "無法讀取送貨單，請手動填寫資料。",
@@ -6975,7 +7010,14 @@
       "supplierSignature": "供應商簽名",
       "tapCamera": "按這裡打開相機",
       "unit": "單位",
-      "vehicle": "車牌"
+      "vehicle": "車牌",
+      "column": "材料欄目",
+      "chooseColumn": "選擇材料欄目",
+      "columnUnfiled": "尚未歸檔",
+      "noColumnsYet": "這個工地還沒有材料欄目。在下面新增第一個。",
+      "newColumnName": "新欄目名稱",
+      "addColumn": "新增欄目",
+      "columnOffline": "離線：沒有網路時開不了新欄目。先把這批貨收下（尚未歸檔），有網路再歸。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -8370,7 +8412,8 @@
     "weighing": "稱重",
     "weighing_parameters": "地磅檢測參數",
     "weighing_records": "稱重記錄",
-    "yards": "回收場"
+    "yards": "回收場",
+    "waitingForYou": "{count} 項等你處理"
   },
   "notifications": {
     "compose": {
