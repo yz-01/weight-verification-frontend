@@ -1001,7 +1001,7 @@ function SafetyCreateDialog({
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button requires={[[draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.title, t("safety.field.title")], [completedPhotos.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(draft.photos)), t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.evidence.location")], [!fieldMode || draft.notifyUsers.length > 0, t("safety.fieldReport.notifyPeople")]]} disabled={create.isPending} onClick={() => create.mutate()}>
+          <Button requires={[[draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.title, t("safety.field.title")], [completedPhotos.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(draft.photos)), t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.field.location")], [!fieldMode || draft.notifyUsers.length > 0, t("safety.fieldReport.notifyPeople")]]} disabled={create.isPending} onClick={() => create.mutate()}>
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

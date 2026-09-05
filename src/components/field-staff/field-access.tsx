@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
+import { setFieldBootstrapToken } from "@/lib/auth-token";
 import { redirectWithFallback, safeReturnPath } from "@/lib/portal";
 import { cacheBranding } from "@/lib/branding";
 import {
@@ -61,6 +62,9 @@ export function FieldAccess() {
           });
       setUser(result.user);
       const bootstrapToken = result.pwa_bootstrap?.token;
+      // Kept so that installing later, from any screen, still produces an app
+      // that opens signed in. This is the only moment it is handed to us.
+      if (bootstrapToken) setFieldBootstrapToken(bootstrapToken);
       const destination = bootstrapToken
         ? `/trace/field-ready?bootstrap=${encodeURIComponent(bootstrapToken)}${
             next ? `&next=${encodeURIComponent(next)}` : ""

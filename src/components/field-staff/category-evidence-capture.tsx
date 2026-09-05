@@ -299,16 +299,22 @@ export function CategoryEvidenceCapture({
             />
           </FieldWrapper>
 
-          <Button
-            type="button"
-            className="h-12 w-full"
-            variant="outline"
-            disabled={locating}
-            onClick={() => void locate()}
-          >
-            {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-            {location ? t("locationReady") : t("getLocation")}
-          </Button>
+          {/* Compulsory, and it did not say so. The submit button refuses
+              without a fix, but the only red asterisk on this screen was on
+              the photos, so a worker who had taken four photos could not see
+              why submit still would not go (F-202). */}
+          <FieldWrapper label={t("getLocation")} required>
+            <Button
+              type="button"
+              className="h-12 w-full"
+              variant="outline"
+              disabled={locating}
+              onClick={() => void locate()}
+            >
+              {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
+              {location ? t("locationReady") : t("getLocation")}
+            </Button>
+          </FieldWrapper>
 
           <FieldWrapper label={t("note")}>
             <Textarea

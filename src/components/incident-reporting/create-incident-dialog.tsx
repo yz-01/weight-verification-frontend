@@ -5,6 +5,7 @@ import { Check, Loader2, LocateFixed, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -243,16 +244,21 @@ export function CreateIncidentDialog({
                 })}
                 onChange={setEvidence}
               />
-              <Button
-                type="button"
-                variant="outline"
-                className="h-11 w-full"
-                disabled={locating}
-                onClick={captureLocation}
-              >
-                {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-                {location ? t("locationReady") : t("captureLocation")}
-              </Button>
+              {/* Only field mode refuses to submit without a fix, so the
+                  asterisk appears only there. A star that is not always true
+                  is its own small lie. */}
+              <FieldWrapper label={t("location")} required={fieldMode}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full"
+                  disabled={locating}
+                  onClick={captureLocation}
+                >
+                  {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
+                  {location ? t("locationReady") : t("captureLocation")}
+                </Button>
+              </FieldWrapper>
             </div>
           ) : null}
 

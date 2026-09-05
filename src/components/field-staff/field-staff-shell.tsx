@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
 import { redirectWithFallback } from "@/lib/portal";
 import { FieldLocationTracker } from "@/components/field-staff/field-location-tracker";
+import { FieldManifestToken } from "@/components/field-staff/field-manifest-token";
 
 export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
@@ -45,6 +46,7 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh min-w-0 overflow-x-hidden bg-background">
       <FieldLocationTracker />
+      <FieldManifestToken />
       <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur">
         <div className="mx-auto flex min-h-16 w-full max-w-2xl items-center gap-2 px-4 py-2.5">
           <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border bg-background p-1">

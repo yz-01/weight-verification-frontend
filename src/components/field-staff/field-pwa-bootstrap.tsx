@@ -8,7 +8,11 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/interfaces/api";
-import { hasFieldSession, markFieldAppContext } from "@/lib/auth-token";
+import {
+  hasFieldSession,
+  markFieldAppContext,
+  setFieldBootstrapToken,
+} from "@/lib/auth-token";
 import { redirectWithFallback } from "@/lib/portal";
 import {
   getOrCreateFieldDeviceId,
@@ -55,6 +59,9 @@ export function FieldPwaBootstrap({
     })
       .then(async (result) => {
         window.localStorage.setItem(completionKey, token);
+        // The app's own storage now holds the way back in, so a re-install
+        // from inside the app carries it too.
+        setFieldBootstrapToken(token);
         setUser(result.user);
         redirectWithFallback(router, next ?? "/field-staff", 150);
       })

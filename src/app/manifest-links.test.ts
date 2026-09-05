@@ -55,6 +55,52 @@ describe("manifest links", () => {
     );
   });
 
+  /**
+   * The install page is not the only place people install from.
+   *
+   * A browser reads the manifest at the moment of installing, and the
+   * `start_url` it finds is where the app opens for good. Only
+   * `/trace/field-ready` ever served a manifest carrying the handoff token,
+   * and that screen is shown once, straight after a PIN. Anybody who
+   * installed the ordinary way - Share, Add to Home Screen, from whatever
+   * screen they were on - got an app whose start_url is the PIN screen, and
+   * got asked for a PIN every single launch (F-206).
+   *
+   * So the field shell rewrites the manifest href to the token-carrying URL
+   * on every field page. These check the pieces that has to be made of,
+   * because the failure is invisible until somebody installs a build.
+   */
+  it("keeps the handoff token so a later install can use it", () => {
+    // The token reaches the client exactly once, when a PIN is accepted.
+    expect(
+      readFileSync("src/components/field-staff/field-access.tsx", "utf8"),
+    ).toContain("setFieldBootstrapToken(bootstrapToken)");
+    // And again whenever the installed app signs itself back in, so an app
+    // re-installed from inside the app carries it too.
+    expect(
+      readFileSync("src/components/field-staff/field-pwa-bootstrap.tsx", "utf8"),
+    ).toContain("setFieldBootstrapToken(token)");
+  });
+
+  it("points every field page's manifest at the bootstrap start_url", () => {
+    const shell = readFileSync(
+      "src/components/field-staff/field-staff-shell.tsx",
+      "utf8",
+    );
+    expect(shell).toContain("<FieldManifestToken />");
+
+    const patcher = readFileSync(
+      "src/components/field-staff/field-manifest-token.tsx",
+      "utf8",
+    );
+    expect(patcher).toContain("/field-manifest.webmanifest?bootstrap=");
+    // The href of the link that is already there, not a second link: a
+    // browser installs the first rel="manifest" it finds and ignores the
+    // rest, which is the trap F-172 was.
+    expect(patcher).toContain('link[rel="manifest"]');
+    expect(patcher).toContain("link.href =");
+  });
+
   it("lets the install page carry the handoff token into start_url", () => {
     // The one page that has a token: the installed app must start at the
     // bootstrap URL so the standalone storage gets its own session, which is

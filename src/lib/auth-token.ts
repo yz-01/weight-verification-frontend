@@ -19,6 +19,7 @@ const REFRESH_KEY = "mse_refresh_token";
 const FIELD_ACCESS_KEY = "mse_field_access_token";
 const FIELD_REFRESH_KEY = "mse_field_refresh_token";
 const FIELD_APP_KEY = "mse_field_app_context";
+const FIELD_BOOTSTRAP_KEY = "mse_field_pwa_bootstrap_token";
 const DRIVER_ACCESS_KEY = "mse_driver_access_token";
 const DRIVER_REFRESH_KEY = "mse_driver_refresh_token";
 const DRIVER_APP_KEY = "mse_driver_app_context";
@@ -60,6 +61,34 @@ export function markFieldAppContext(): void {
   if (isBrowser() && isStandaloneApp()) {
     window.localStorage.setItem(FIELD_APP_KEY, "1");
   }
+}
+
+/**
+ * Keep the handoff token that lets an installed app sign itself in.
+ *
+ * It is written on every PIN entry and read when a field page points its
+ * manifest at the bootstrap `start_url`, so that installing from *any* field
+ * screen produces an app that opens signed in. Held separately from the
+ * session because it has to outlive it: the whole point is to be there when
+ * the installed app starts with no session at all.
+ *
+ * Not a credential on its own. The server checks it against this device's
+ * binding, extends it on use, and retires it when the PIN window ends or a
+ * new link is issued.
+ */
+export function setFieldBootstrapToken(token: string): void {
+  if (!isBrowser() || !token) return;
+  window.localStorage.setItem(FIELD_BOOTSTRAP_KEY, token);
+}
+
+export function getFieldBootstrapToken(): string | null {
+  if (!isBrowser()) return null;
+  return window.localStorage.getItem(FIELD_BOOTSTRAP_KEY);
+}
+
+export function clearFieldBootstrapToken(): void {
+  if (!isBrowser()) return;
+  window.localStorage.removeItem(FIELD_BOOTSTRAP_KEY);
 }
 
 export function isFieldStandaloneApp(): boolean {
@@ -168,6 +197,9 @@ export function clearFieldTokens(): void {
   if (!isBrowser()) return;
   window.localStorage.removeItem(FIELD_ACCESS_KEY);
   window.localStorage.removeItem(FIELD_REFRESH_KEY);
+  // Signing out is a decision to stop being this worker on this phone, so the
+  // way back in without a PIN goes with it.
+  window.localStorage.removeItem(FIELD_BOOTSTRAP_KEY);
   if (
     window.localStorage.getItem(ACCESS_KEY) === null &&
     window.localStorage.getItem(DRIVER_ACCESS_KEY) === null
@@ -232,6 +264,7 @@ export function clearSession(): void {
   window.localStorage.removeItem(FIELD_REFRESH_KEY);
   window.localStorage.removeItem(DRIVER_ACCESS_KEY);
   window.localStorage.removeItem(DRIVER_REFRESH_KEY);
+  window.localStorage.removeItem(FIELD_BOOTSTRAP_KEY);
   deleteCookie(SESSION_COOKIE);
   window.localStorage.removeItem(PORTAL_KEY);
   deleteCookie(PORTAL_COOKIE);

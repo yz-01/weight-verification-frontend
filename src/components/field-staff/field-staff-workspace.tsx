@@ -40,6 +40,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import {
   FieldRecordsPanel,
   type FieldRecordMode,
@@ -651,7 +652,9 @@ function FieldAttendancePanel() {
           <Button className="h-12" variant={event === "CLOCK_OUT" ? "default" : "outline"} onClick={() => setEvent("CLOCK_OUT")}><LogOut />{t("attendance.clockOut")}</Button>
         </div>
         <FieldCamera className="mt-4" label={selfie ? t("attendance.selfieReady") : t("attendance.takeSelfie")} fileCount={selfie ? 1 : 0} facingMode="user" onCapture={setSelfie} onClear={() => setSelfie(undefined)} />
-        <Button className="mt-3 h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>{locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}{fix ? t("attendance.locationReady") : t("attendance.getLocation")}</Button>
+        <FieldWrapper className="mt-3" label={t("attendance.getLocation")} required>
+          <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>{locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}{fix ? t("attendance.locationReady") : t("attendance.getLocation")}</Button>
+        </FieldWrapper>
         <Textarea className="mt-3" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("attendance.note")} />
         {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
         <Button className="mt-4 h-12 w-full text-sm" requires={[[selectedProject, t("attendance.selectProject")], [selfie, t("attendance.takeSelfie")], [fix, t("attendance.getLocation")]]}

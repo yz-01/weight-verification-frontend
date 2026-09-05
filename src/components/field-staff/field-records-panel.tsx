@@ -783,10 +783,12 @@ function MaterialCapturePanel({
         <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} value={receiverSignature} onChange={setReceiverSignature} />
         <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} value={supplierSignature} onChange={setSupplierSignature} />
       </div>
-      <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>
-        {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-        {location ? t("attendance.locationReady") : t("attendance.getLocation")}
-      </Button>
+      <FieldWrapper label={t("material.location")} required>
+        <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>
+          {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
+          {location ? t("attendance.locationReady") : t("attendance.getLocation")}
+        </Button>
+      </FieldWrapper>
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
       <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [receiverSignature, t("material.receiverSignature")], [supplierSignature, t("material.supplierSignature")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
@@ -1107,10 +1109,12 @@ function WasteOutgoingCapturePanel({
           onChange={setEvidence}
         />
       </FieldWrapper>
-      <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void locate()}>
-        {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-        {location ? t("field.locationReady") : t("action.locate")}
-      </Button>
+      <FieldWrapper label={t("field.location")} required>
+        <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void locate()}>
+          {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
+          {location ? t("field.locationReady") : t("action.locate")}
+        </Button>
+      </FieldWrapper>
       {location && <p className="text-center text-xs tabular-nums text-muted-foreground">{location.latitude}, {location.longitude}</p>}
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
       <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("field.photos")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
