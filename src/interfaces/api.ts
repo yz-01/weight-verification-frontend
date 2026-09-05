@@ -23,6 +23,15 @@ export interface ErrorEnvelope {
    * English on a screen the platform promises in three languages.
    */
   code?: string;
+  /**
+   * Numbers or names the worded message needs, such as `{ distance: 340 }`.
+   *
+   * A code on its own can only produce a fixed sentence, so a refusal that
+   * knows something specific would have to round it off on the way to the
+   * screen. "You are outside the site fence" tells a worker at a gate
+   * nothing; "340 m from the nearest one" tells them whether to walk.
+   */
+  values?: Record<string, string | number>;
   errors: Record<string, FieldError[] | string[] | string>;
 }
 
