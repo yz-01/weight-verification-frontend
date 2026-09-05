@@ -700,7 +700,7 @@ function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; o
           <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
         </FieldWrapper>
         <FieldWrapper label={t("field.verificationPhoto")} optional={t("action.optional")}>
-          <FieldCamera label={t("field.verificationPhoto")} fileCount={image ? 1 : 0} onCapture={setImage} onClear={() => { setImage(undefined); setLocation(null); }} />
+          <FieldCamera label={t("field.verificationPhoto")} file={image} fileCount={image ? 1 : 0} onCapture={setImage} onClear={() => { setImage(undefined); setLocation(null); }} />
         </FieldWrapper>
         {image && (
           <FieldWrapper label={t("field.location")} required error={locationError}>

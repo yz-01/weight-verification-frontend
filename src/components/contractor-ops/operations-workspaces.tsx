@@ -2146,6 +2146,7 @@ function MovementDialog({
                   ? t("equipment.deliveryNoteReady")
                   : t("equipment.takeDeliveryNote")
               }
+              file={deliveryNotePhoto}
               fileCount={deliveryNotePhoto ? 1 : 0}
               onCapture={setDeliveryNotePhoto}
               onClear={() => {
