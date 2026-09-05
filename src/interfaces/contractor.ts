@@ -335,6 +335,8 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
   photos: ReceiptPhoto[];
   created_by: string | null;
   created_by_name: string | null;
+  created_by_phone: string;
+  created_by_avatar: string | null;
   created_at: string;
   updated_at: string;
 }

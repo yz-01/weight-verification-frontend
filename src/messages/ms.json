@@ -4843,7 +4843,22 @@
       "openCenter": "Pusat kelulusan",
       "subtitle": "{total} menunggu, {mine} untuk anda, {unassigned} belum diagihkan.",
       "title": "Menunggu keputusan",
-      "unassigned": "Belum diagihkan"
+      "unassigned": "Belum diagihkan",
+      "status": {
+        "AWAITING_CONFIRMATION": "Menunggu pengesahan",
+        "IN_REVIEW": "Dalam semakan",
+        "PENDING_APPROVAL": "Menunggu kelulusan",
+        "REQUESTED": "Menunggu kelulusan",
+        "SUBMITTED": "Dihantar"
+      },
+      "source": {
+        "APPROVAL": "Pusat kelulusan",
+        "CONSULTANT_APPLICATION": "Permohonan perunding",
+        "DISPOSAL_REQUEST": "Pembersihan tapak",
+        "FIELD_TASK": "Tugas tapak",
+        "SITE_PROGRESS": "Rekod kemajuan",
+        "WASTE_OUTGOING": "Sisa keluar"
+      }
     },
     "attendanceEvent": {
       "CLOCK_IN": "Masuk",
@@ -9810,7 +9825,9 @@
       "previous": "Gambar sebelumnya",
       "next": "Gambar seterusnya",
       "clean": "Dipaparkan tanpa cap lokasi dan masa, supaya boleh digunakan semula di tempat lain."
-    }
+    },
+    "recorderUnknown": "Perekod tiada dalam rekod",
+    "noRecorderPhone": "Tiada nombor telefon dalam rekod"
   },
   "recyclerBusiness": {
     "action": {

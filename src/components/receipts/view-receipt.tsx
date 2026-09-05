@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, ChevronLeft, ChevronRight, MapPin, Pencil } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, MapPin, Pencil, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,6 +18,11 @@ import {
   ReadField,
   TypeBadge,
 } from "@/components/shared/page-primitives";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -148,6 +153,16 @@ function AddPhoto({
       )}
     </div>
   );
+}
+
+/** First letters of the first two words, for an avatar with no picture. */
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
 }
 
 export function ViewReceipt({ id }: { id: string }) {
@@ -303,35 +318,74 @@ export function ViewReceipt({ id }: { id: string }) {
             </FormSection>
           )}
 
-          <FormSection title={t("receipts.section.stamp")}>
-            <ReadField
-              label={t("receipts.field.receivedBy")}
-              value={data.received_by_name}
-            />
-            <ReadField
-              label={t("receipts.field.recordedBy")}
-              value={data.created_by_name}
-            />
-            <ReadField
-              label={t("receipts.field.capturedAt")}
-              value={df.dateTime(data.captured_at)}
-            />
-            <ReadField
-              label={t("receipts.field.location")}
-              value={
-                coordinates ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-success" />
-                    <span className="tabular">{coordinates}</span>
-                  </span>
+          {/* Who recorded this, small, with a way to reach them.
+
+              Four labelled boxes used to sit here, two of them holding the
+              same word - the clerk who receives is usually the clerk who
+              records - and none of them holding the one thing somebody
+              looking at a disputed delivery wants, which is a number to
+              call. The user asked for the phone and the face instead of the
+              space (2026-09-05).
+
+              The receiver stays a plain name and only appears when it
+              differs: it is free text typed at the gate, not an account, so
+              there is no number or picture to look up. Showing it anyway
+              when it repeats the recorder is how the section got big. */}
+          <section className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <Avatar className="size-10">
+                {data.created_by_avatar ? (
+                  <AvatarImage src={data.created_by_avatar} alt="" />
+                ) : null}
+                <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+                  {initials(data.created_by_name ?? "")}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">
+                  {data.created_by_name ?? t("receipts.recorderUnknown")}
+                </p>
+                {data.created_by_phone ? (
+                  <a
+                    href={`tel:${data.created_by_phone.replace(/[^+\d]/g, "")}`}
+                    className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Phone className="h-3 w-3" />
+                    <span className="tabular">{data.created_by_phone}</span>
+                  </a>
                 ) : (
-                  <span className="text-muted-foreground">
-                    {t("receipts.locationMissing")}
-                  </span>
-                )
-              }
-            />
-          </FormSection>
+                  <p className="text-xs text-muted-foreground">
+                    {t("receipts.noRecorderPhone")}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {data.received_by_name &&
+            data.received_by_name !== data.created_by_name ? (
+              <p className="text-xs text-muted-foreground">
+                {t("receipts.field.receivedBy")}:{" "}
+                <span className="font-medium text-foreground">
+                  {data.received_by_name}
+                </span>
+              </p>
+            ) : null}
+
+            <p className="text-xs text-muted-foreground">
+              {df.dateTime(data.captured_at)}
+            </p>
+
+            {coordinates ? (
+              <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 text-success" />
+                <span className="tabular">{coordinates}</span>
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                {t("receipts.locationMissing")}
+              </span>
+            )}
+          </section>
 
           <section className="px-6 py-5">
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

@@ -4843,7 +4843,22 @@
       "openCenter": "审批中心",
       "subtitle": "待处理 {total} 项，指派给你 {mine} 项，未指派 {unassigned} 项。",
       "title": "待审批事项",
-      "unassigned": "未指派"
+      "unassigned": "未指派",
+      "status": {
+        "AWAITING_CONFIRMATION": "等待确认",
+        "IN_REVIEW": "审批中",
+        "PENDING_APPROVAL": "等待审批",
+        "REQUESTED": "等待审批",
+        "SUBMITTED": "已提交"
+      },
+      "source": {
+        "APPROVAL": "审批中心",
+        "CONSULTANT_APPLICATION": "顾问申请",
+        "DISPOSAL_REQUEST": "废料清运",
+        "FIELD_TASK": "现场任务",
+        "SITE_PROGRESS": "进度记录",
+        "WASTE_OUTGOING": "废料出场"
+      }
     },
     "attendanceEvent": {
       "CLOCK_IN": "上班打卡",
@@ -9810,7 +9825,9 @@
       "previous": "上一张",
       "next": "下一张",
       "clean": "这里显示的是不带位置与时间水印的原图，方便复制到别处使用。"
-    }
+    },
+    "recorderUnknown": "没有记录人资料",
+    "noRecorderPhone": "没有登记联系电话"
   },
   "recyclerBusiness": {
     "action": {

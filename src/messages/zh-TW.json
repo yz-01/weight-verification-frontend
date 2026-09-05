@@ -4843,7 +4843,22 @@
       "openCenter": "審批中心",
       "subtitle": "待處理 {total} 項，指派給你 {mine} 項，未指派 {unassigned} 項。",
       "title": "待審批事項",
-      "unassigned": "未指派"
+      "unassigned": "未指派",
+      "status": {
+        "AWAITING_CONFIRMATION": "等待確認",
+        "IN_REVIEW": "審批中",
+        "PENDING_APPROVAL": "等待審批",
+        "REQUESTED": "等待審批",
+        "SUBMITTED": "已提交"
+      },
+      "source": {
+        "APPROVAL": "審批中心",
+        "CONSULTANT_APPLICATION": "顧問申請",
+        "DISPOSAL_REQUEST": "廢料清運",
+        "FIELD_TASK": "現場任務",
+        "SITE_PROGRESS": "進度記錄",
+        "WASTE_OUTGOING": "廢料出場"
+      }
     },
     "attendanceEvent": {
       "CLOCK_IN": "上班打卡",
@@ -9810,7 +9825,9 @@
       "previous": "上一張",
       "next": "下一張",
       "clean": "這裡顯示的是不帶位置與時間浮水印的原圖，方便複製到別處使用。"
-    }
+    },
+    "recorderUnknown": "沒有記錄人資料",
+    "noRecorderPhone": "沒有登記聯絡電話"
   },
   "recyclerBusiness": {
     "action": {

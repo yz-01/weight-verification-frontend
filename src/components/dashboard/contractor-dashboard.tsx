@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type {
   ActivityRow,
+  ApprovalRow,
   ContractorDashboardSection,
   DashboardAnomalies,
   DashboardOverview,
@@ -95,6 +96,35 @@ function severityTone(severity: TimelineEntry["severity"]) {
   if (severity === "DANGER") return "danger" as const;
   if (severity === "WARNING") return "warning" as const;
   return "neutral" as const;
+}
+
+/**
+ * Where the decision on one waiting row is actually taken.
+ *
+ * Every row used to link to `/approvals?approval=<id>` - the document
+ * workflow centre, which is built entirely on `ApprovalInstance` and knows
+ * nothing about the other five queues. Now that a disposal request appears
+ * here, that link would have opened a page that could not show it: a listed
+ * item leading nowhere, which is worse than the item being absent, because
+ * absence at least does not waste the reader a click.
+ *
+ * These are list screens rather than detail routes - none of them takes a row
+ * id in the URL today - so the link lands on the list that holds the row and
+ * does not pretend to deep-link. Anything unrecognised falls back to the
+ * approval centre, which is right for rows that really are workflow
+ * approvals and harmless for anything new that has not been mapped yet.
+ */
+const APPROVAL_QUEUES: Record<string, string> = {
+  DISPOSAL_REQUEST: "/site-disposals",
+  WASTE_OUTGOING: "/waste-outgoing",
+  FIELD_TASK: "/field-tasks",
+  SITE_PROGRESS: "/progress",
+  CONSULTANT_APPLICATION: "/consultant-applications",
+};
+
+function approvalHref(row: ApprovalRow): string {
+  const own = APPROVAL_QUEUES[row.source];
+  return own ?? `/approvals?approval=${row.id}`;
 }
 
 export function ContractorDashboard() {
@@ -376,17 +406,29 @@ export function ContractorDashboard() {
                     <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
                       <div className="min-w-0">
                         <Link
-                          href={`/approvals?approval=${row.id}`}
+                          href={approvalHref(row)}
                           className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                          {row.approval_no} · {row.title}
+                          {row.approval_no
+                            ? `${row.approval_no} · ${row.title}`
+                            : row.title}
                         </Link>
                         <p className="truncate text-xs text-muted-foreground">
-                          {row.project || t("approvals.companyWide")} ·{" "}
+                          {t.has(`approvals.source.${row.source}`)
+                            ? t(`approvals.source.${row.source}`)
+                            : row.resource_type}{" "}
+                          · {row.project || t("approvals.companyWide")} ·{" "}
                           {row.assigned_to || t("approvals.unassigned")}
                         </p>
                       </div>
-                      <StatusBadge label={row.status} tone="info" />
+                      <StatusBadge
+                        label={
+                          t.has(`approvals.status.${row.status}`)
+                            ? t(`approvals.status.${row.status}`)
+                            : row.status
+                        }
+                        tone="info"
+                      />
                     </li>
                   ))}
                 </ul>

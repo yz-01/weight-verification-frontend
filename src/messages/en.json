@@ -4843,7 +4843,22 @@
       "openCenter": "Approval centre",
       "subtitle": "{total} pending, {mine} assigned to you, {unassigned} unassigned.",
       "title": "Waiting on a decision",
-      "unassigned": "Unassigned"
+      "unassigned": "Unassigned",
+      "status": {
+        "AWAITING_CONFIRMATION": "Awaiting confirmation",
+        "IN_REVIEW": "In review",
+        "PENDING_APPROVAL": "Awaiting approval",
+        "REQUESTED": "Awaiting approval",
+        "SUBMITTED": "Submitted"
+      },
+      "source": {
+        "APPROVAL": "Approval centre",
+        "CONSULTANT_APPLICATION": "Consultant application",
+        "DISPOSAL_REQUEST": "Site clearing",
+        "FIELD_TASK": "Field task",
+        "SITE_PROGRESS": "Progress record",
+        "WASTE_OUTGOING": "Waste out"
+      }
     },
     "attendanceEvent": {
       "CLOCK_IN": "Clock in",
@@ -9810,7 +9825,9 @@
       "previous": "Previous photograph",
       "next": "Next photograph",
       "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
-    }
+    },
+    "recorderUnknown": "Recorder not on file",
+    "noRecorderPhone": "No phone number on file"
   },
   "recyclerBusiness": {
     "action": {

@@ -80,6 +80,14 @@ export interface ApprovalRow {
   title: string;
   status: string;
   project: string;
+  /**
+   * Which queue this row came out of, from a closed set.
+   *
+   * Not the same thing as `resource_type`: on a row from the approval centre
+   * that field is free text set by whoever raised the approval, so it cannot
+   * be trusted to choose a destination.
+   */
+  source: string;
   resource_type: string;
   requested_by: string;
   assigned_to: string;
