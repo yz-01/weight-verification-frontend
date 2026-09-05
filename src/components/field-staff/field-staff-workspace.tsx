@@ -18,7 +18,6 @@ import {
   House,
   ListChecks,
   Loader2,
-  LocateFixed,
   LogIn,
   LogOut,
   MapPinned,
@@ -40,7 +39,6 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { FieldWrapper } from "@/components/shared/page-primitives";
 import {
   FieldRecordsPanel,
   type FieldRecordMode,
@@ -49,6 +47,11 @@ import { FIELD_EVIDENCE_PHOTO_COUNT } from "@/components/field-staff/field-evide
 import { IncidentReporting } from "@/components/incident-reporting/incident-reporting";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
+import { LocationField } from "@/components/field-staff/location-field";
+import {
+  type LocationFix,
+  requestLocation as locate,
+} from "@/lib/field-location";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -76,21 +79,6 @@ import {
 } from "@/services/field-access.service";
 
 type MobileTab = "home" | "tasks" | "attendance" | "records" | "location" | "incidents";
-type LocationFix = { latitude: string; longitude: string; accuracy: string };
-
-function locate(): Promise<LocationFix> {
-  if (!("geolocation" in navigator)) return Promise.reject(new Error("location"));
-  return new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(
-    (position) => resolve({
-      latitude: position.coords.latitude.toFixed(7),
-      longitude: position.coords.longitude.toFixed(7),
-      accuracy: position.coords.accuracy.toFixed(2),
-    }),
-    reject,
-    { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
-  ));
-}
-
 export function FieldStaffWorkspace() {
   const searchParams = useSearchParams();
   const requestedTaskId = searchParams.get("task") ?? "";
@@ -633,11 +621,9 @@ function FieldAttendancePanel() {
   const [fix, setFix] = useState<LocationFix | null>(null);
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
-  const [locating, setLocating] = useState(false);
   const attendance = useQuery({ queryKey: ["field-staff", "attendance"], queryFn: () => getAttendance({ page_size: 30, sort_by: "occurred_at", sort_order: "desc" }) });
   const today = useMemo(() => (attendance.data?.results ?? []).filter((row) => row.user === user?.id && new Date(row.occurred_at).toDateString() === new Date().toDateString()), [attendance.data, user?.id]);
   const selectedProject = project || today[0]?.project || "";
-  const captureLocation = async () => { setLocating(true); setError(""); try { setFix(await locate()); } catch { setError(t("error.location")); } finally { setLocating(false); } };
   const submit = useMutation({ mutationFn: () => { if (!user || !selfie || !fix) throw new Error("missing"); return submitAttendanceOfflineAware(user.id, { project: selectedProject, event, note, photo: selfie, latitude: fix.latitude, longitude: fix.longitude, locationAccuracyM: fix.accuracy }); }, onSuccess: () => { setSelfie(undefined); setFix(null); setNote(""); setError(""); void qc.invalidateQueries({ queryKey: ["field-staff", "attendance"] }); }, onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("error.action")) });
   return (
     <section className="space-y-4">
@@ -651,10 +637,16 @@ function FieldAttendancePanel() {
           <Button className="h-12" variant={event === "CLOCK_IN" ? "default" : "outline"} onClick={() => setEvent("CLOCK_IN")}><LogIn />{t("attendance.clockIn")}</Button>
           <Button className="h-12" variant={event === "CLOCK_OUT" ? "default" : "outline"} onClick={() => setEvent("CLOCK_OUT")}><LogOut />{t("attendance.clockOut")}</Button>
         </div>
-        <FieldCamera className="mt-4" label={selfie ? t("attendance.selfieReady") : t("attendance.takeSelfie")} fileCount={selfie ? 1 : 0} facingMode="user" onCapture={setSelfie} onClear={() => setSelfie(undefined)} />
-        <FieldWrapper className="mt-3" label={t("attendance.getLocation")} required>
-          <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>{locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}{fix ? t("attendance.locationReady") : t("attendance.getLocation")}</Button>
-        </FieldWrapper>
+        <FieldCamera className="mt-4" label={selfie ? t("attendance.selfieReady") : t("attendance.takeSelfie")} file={selfie} fileCount={selfie ? 1 : 0} facingMode="user" onCapture={setSelfie} onClear={() => setSelfie(undefined)} />
+        <LocationField
+          className="mt-3"
+          label={t("attendance.getLocation")}
+          actionLabel={t("attendance.getLocation")}
+          readyLabel={t("attendance.locationReady")}
+          value={fix}
+          onChange={setFix}
+          required
+        />
         <Textarea className="mt-3" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("attendance.note")} />
         {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
         <Button className="mt-4 h-12 w-full text-sm" requires={[[selectedProject, t("attendance.selectProject")], [selfie, t("attendance.takeSelfie")], [fix, t("attendance.getLocation")]]}

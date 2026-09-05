@@ -9,7 +9,6 @@ import {
   HardHat,
   ListChecks,
   Loader2,
-  LocateFixed,
   PackageOpen,
   Plus,
   Recycle,
@@ -79,6 +78,7 @@ import {
   createMaterialColumn,
   getProjectCategories,
 } from "@/services/contractor-ops.service";
+import { LocationField } from "@/components/field-staff/location-field";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 import { getWasteOutgoingOptions } from "@/services/waste-outgoing.service";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
@@ -306,7 +306,6 @@ function MaterialCapturePanel({
   const [newColumnName, setNewColumnName] = useState("");
   const [columnError, setColumnError] = useState("");
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
-  const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
   const initialScanRef = useRef("");
   const completedMaterialEvidence = completedFieldEvidence(materialEvidence);
@@ -532,28 +531,6 @@ function MaterialCapturePanel({
     ocr.mutate({ project: draft.project, image });
   }
 
-  const captureLocation = async () => {
-    setLocating(true);
-    setError("");
-    try {
-      const fix = await new Promise<GeolocationPosition>((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 15_000,
-          maximumAge: 0,
-        }),
-      );
-      setLocation({
-        latitude: fix.coords.latitude.toFixed(7),
-        longitude: fix.coords.longitude.toFixed(7),
-        accuracy: fix.coords.accuracy.toFixed(2),
-      });
-    } catch {
-      setError(t("error.location"));
-    } finally {
-      setLocating(false);
-    }
-  };
 
   const save = useMutation({
     mutationFn: () => {
@@ -936,12 +913,14 @@ function MaterialCapturePanel({
         <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} required value={receiverSignature} onChange={setReceiverSignature} />
         <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} required value={supplierSignature} onChange={setSupplierSignature} />
       </div>
-      <FieldWrapper label={t("material.location")} required>
-        <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>
-          {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-          {location ? t("attendance.locationReady") : t("attendance.getLocation")}
-        </Button>
-      </FieldWrapper>
+      <LocationField
+        label={t("material.location")}
+        actionLabel={t("attendance.getLocation")}
+        readyLabel={t("attendance.locationReady")}
+        value={location ?? null}
+        onChange={(fix) => setLocation(fix ?? undefined)}
+        required
+      />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
       <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [receiverSignature, t("material.receiverSignature")], [supplierSignature, t("material.supplierSignature")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
@@ -975,7 +954,6 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   const [category, setCategory] = useState("RFI");
   const [note, setNote] = useState("");
   const [location, setLocation] = useState<Coordinates>();
-  const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
   const evidenceLabels = [
@@ -985,28 +963,6 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
     t("consultantEvidence.reference"),
   ];
 
-  const locate = async () => {
-    setLocating(true);
-    setError("");
-    try {
-      const fix = await new Promise<GeolocationPosition>((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 15_000,
-          maximumAge: 0,
-        }),
-      );
-      setLocation({
-        latitude: fix.coords.latitude.toFixed(7),
-        longitude: fix.coords.longitude.toFixed(7),
-        accuracy: fix.coords.accuracy.toFixed(2),
-      });
-    } catch {
-      setError(t("error.location"));
-    } finally {
-      setLocating(false);
-    }
-  };
 
   const save = useMutation({
     mutationFn: () => {
@@ -1066,15 +1022,14 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
           onChange={setEvidence}
         />
       </FieldWrapper>
-      <Button
-        className="h-12 w-full"
-        variant="outline"
-        disabled={locating}
-        onClick={() => void locate()}
-      >
-        {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-        {location ? t("attendance.locationReady") : t("attendance.getLocation")}
-      </Button>
+      <LocationField
+        label={t("consultantEvidence.location")}
+        actionLabel={t("attendance.getLocation")}
+        readyLabel={t("attendance.locationReady")}
+        value={location ?? null}
+        onChange={(fix) => setLocation(fix ?? undefined)}
+        required
+      />
       <Textarea
         value={note}
         onChange={(event) => setNote(event.target.value)}
@@ -1123,7 +1078,6 @@ function WasteOutgoingCapturePanel({
   const [pickupAddress, setPickupAddress] = useState("");
   const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
   const [location, setLocation] = useState<Coordinates>();
-  const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
   const evidenceLabels = [
@@ -1173,28 +1127,6 @@ function WasteOutgoingCapturePanel({
     },
   });
 
-  const locate = async () => {
-    setLocating(true);
-    setError("");
-    try {
-      const fix = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 15_000,
-          maximumAge: 0,
-        });
-      });
-      setLocation({
-        latitude: fix.coords.latitude.toFixed(7),
-        longitude: fix.coords.longitude.toFixed(7),
-        accuracy: fix.coords.accuracy.toFixed(2),
-      });
-    } catch {
-      setError(t("form.locationFailed"));
-    } finally {
-      setLocating(false);
-    }
-  };
 
   const quantityIncomplete = quantity.trim() !== "" && unit === "";
 
@@ -1262,13 +1194,14 @@ function WasteOutgoingCapturePanel({
           onChange={setEvidence}
         />
       </FieldWrapper>
-      <FieldWrapper label={t("field.location")} required>
-        <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void locate()}>
-          {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-          {location ? t("field.locationReady") : t("action.locate")}
-        </Button>
-      </FieldWrapper>
-      {location && <p className="text-center text-xs tabular-nums text-muted-foreground">{location.latitude}, {location.longitude}</p>}
+      <LocationField
+        label={t("field.location")}
+        actionLabel={t("action.locate")}
+        readyLabel={t("field.locationReady")}
+        value={location ?? null}
+        onChange={(fix) => setLocation(fix ?? undefined)}
+        required
+      />
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
       <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("field.photos")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <Recycle />}
