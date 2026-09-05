@@ -41,19 +41,26 @@ const MUST_NOT_STAMP = new Map([
   ],
 ]);
 
-/** Screens whose photo type carries no stamped variant to choose (F-217). */
+/**
+ * Screens whose photo type carries no stamped variant to choose.
+ *
+ * Down to one, and that one is not a gap. The contractor dashboard's photo
+ * feed reads `EvidenceAsset` through `watermarked_url_for_asset`, so the
+ * `image` it receives is already the stamped copy - there is no second field
+ * because the first one is the derivative. Listing it here rather than
+ * deleting the list keeps that fact written down; the next reader would
+ * otherwise see a bare `.image` and either "fix" it or record it as a bug
+ * for a second time.
+ *
+ * The two waste-task screens were the real F-217, and they are gone from
+ * this list: the payload in `contractor_ops/waste_outgoing.py` was built by
+ * hand and omitted the stamped URL that its own model's serializer had
+ * always exposed.
+ */
 const NO_VARIANT_AVAILABLE = new Map([
   [
-    "src/components/contractor-ops/waste-outgoing-workspace.tsx",
-    "WasteTaskPhoto has no `watermarked` field",
-  ],
-  [
-    "src/components/dispatches/view-dispatch.tsx",
-    "the execution photos are WasteTaskPhoto, which has no `watermarked` field",
-  ],
-  [
     "src/components/dashboard/contractor-dashboard.tsx",
-    "PhotoRow has no `watermarked` field",
+    "PhotoRow.image is already the watermarked derivative, not the original",
   ],
 ]);
 
@@ -143,5 +150,5 @@ if (unstamped.length > 0) {
 console.log(
   `Photo watermarks: ${stamped.length} source(s) stamped, ` +
     `${MUST_NOT_STAMP.size} screen(s) unstamped by request, ` +
-    `${NO_VARIANT_AVAILABLE.size} awaiting a serializer field (F-217).`,
+    `${NO_VARIANT_AVAILABLE.size} already stamped by the serializer.`,
 );

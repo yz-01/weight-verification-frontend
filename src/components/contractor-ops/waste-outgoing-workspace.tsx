@@ -1394,8 +1394,8 @@ function TrackingDialog({
                     <p className="text-xs text-muted-foreground">{task.task_no} · {task.driver_name} · {task.vehicle_plate}</p>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {task.photos.map((photo) => (
-                        <a key={photo.id} href={photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
-                          <Image src={photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
+                        <a key={photo.id} href={photo.watermarked || photo.image} target="_blank" rel="noreferrer" className="overflow-hidden rounded-md border bg-muted/20">
+                          <Image src={photo.watermarked || photo.image} alt={photo.caption || photo.kind} width={360} height={270} unoptimized className="aspect-[4/3] w-full object-cover" />
                           <p className="truncate px-2 py-1.5 text-xs">{photo.caption || photo.kind}</p>
                         </a>
                       ))}
