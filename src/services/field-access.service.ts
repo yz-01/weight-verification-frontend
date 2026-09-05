@@ -142,15 +142,57 @@ function beginFieldSession(result: LoginResponse): void {
 
 const DEVICE_ID_KEY = "mse_field_device_id";
 
+/**
+ * Held for this page only, when the browser will not keep anything.
+ *
+ * A device id that is minted fresh on every visit can never match the binding
+ * the server holds, so the PIN screen refuses forever with "this device is not
+ * linked" - which is true, and gives no hint that the reason is the browser
+ * throwing the identity away rather than anything the worker did.
+ */
+let sessionDeviceId = "";
+let deviceIdIsPersistent = true;
+
+function mintDeviceId(): string {
+  return typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : Array.from(crypto.getRandomValues(new Uint8Array(24)), (byte) =>
+        byte.toString(16).padStart(2, "0"),
+      ).join("");
+}
+
 export function getOrCreateFieldDeviceId(): string {
-  const existing = window.localStorage.getItem(DEVICE_ID_KEY);
-  if (existing) return existing;
-  const id =
-    typeof crypto.randomUUID === "function"
-      ? crypto.randomUUID()
-      : Array.from(crypto.getRandomValues(new Uint8Array(24)), (byte) =>
-          byte.toString(16).padStart(2, "0"),
-        ).join("");
-  window.localStorage.setItem(DEVICE_ID_KEY, id);
-  return id;
+  try {
+    const existing = window.localStorage.getItem(DEVICE_ID_KEY);
+    if (existing) {
+      deviceIdIsPersistent = true;
+      return existing;
+    }
+    const id = sessionDeviceId || mintDeviceId();
+    window.localStorage.setItem(DEVICE_ID_KEY, id);
+    // Written and read back: some browsers accept the write and discard it,
+    // which looks like success and fails on the next visit instead.
+    deviceIdIsPersistent =
+      window.localStorage.getItem(DEVICE_ID_KEY) === id;
+    sessionDeviceId = id;
+    return id;
+  } catch {
+    // Site data blocked entirely. Throwing here would take the whole sign-in
+    // down with a generic failure; the screen can say what is actually wrong
+    // if it is handed an id and told the id will not survive.
+    deviceIdIsPersistent = false;
+    sessionDeviceId = sessionDeviceId || mintDeviceId();
+    return sessionDeviceId;
+  }
+}
+
+/**
+ * Whether this phone can stay linked between visits.
+ *
+ * Only meaningful after ``getOrCreateFieldDeviceId`` has run, which is what
+ * discovers it - there is no way to ask a browser this question without
+ * writing something and reading it back.
+ */
+export function fieldDeviceIdIsPersistent(): boolean {
+  return deviceIdIsPersistent;
 }

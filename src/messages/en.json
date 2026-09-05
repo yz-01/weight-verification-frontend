@@ -6758,7 +6758,8 @@
     "readyBody": "This phone is now securely linked to your field account.",
     "readyTitle": "Phone ready",
     "signIn": "Sign in",
-    "thisPhone": "This phone"
+    "thisPhone": "This phone",
+    "storageBlocked": "This browser is not keeping site data, so this phone cannot stay linked. Open the invitation link in a normal window rather than a private one, and allow site data for this address."
   },
   "fieldAccessAdmin": {
     "unbind": {

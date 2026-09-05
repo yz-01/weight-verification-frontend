@@ -6758,7 +6758,8 @@
     "readyBody": "這臺手機已安全綁定到你的現場人員賬號。",
     "readyTitle": "手機已準備好",
     "signIn": "登錄",
-    "thisPhone": "這臺手機"
+    "thisPhone": "這臺手機",
+    "storageBlocked": "這個瀏覽器沒有保存網站資料，所以這台手機沒辦法保持關聯。請用一般視窗（不要無痕視窗）開啟邀請連結，並允許這個網址保存網站資料。"
   },
   "fieldAccessAdmin": {
     "unbind": {

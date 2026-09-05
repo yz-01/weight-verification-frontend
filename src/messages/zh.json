@@ -6758,7 +6758,8 @@
     "readyBody": "这台手机已安全绑定到你的现场人员账号。",
     "readyTitle": "手机已准备好",
     "signIn": "登录",
-    "thisPhone": "这台手机"
+    "thisPhone": "这台手机",
+    "storageBlocked": "这个浏览器没有保存网站数据，所以这台手机没办法保持关联。请用普通窗口（不要无痕窗口）打开邀请链接，并允许这个网址保存网站数据。"
   },
   "fieldAccessAdmin": {
     "unbind": {

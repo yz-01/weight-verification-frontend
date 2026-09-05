@@ -6758,7 +6758,8 @@
     "readyBody": "Telefon ini kini dipautkan dengan selamat kepada akaun tapak anda.",
     "readyTitle": "Telefon sudah sedia",
     "signIn": "Log masuk",
-    "thisPhone": "Telefon ini"
+    "thisPhone": "Telefon ini",
+    "storageBlocked": "Pelayar ini tidak menyimpan data tapak, jadi telefon ini tidak boleh kekal terpaut. Buka pautan jemputan dalam tetingkap biasa dan bukan tetingkap peribadi, dan benarkan data tapak untuk alamat ini."
   },
   "fieldAccessAdmin": {
     "unbind": {

@@ -16,6 +16,7 @@ import { redirectWithFallback, safeReturnPath } from "@/lib/portal";
 import { cacheBranding } from "@/lib/branding";
 import {
   activateFieldDevice,
+  fieldDeviceIdIsPersistent,
   fieldLogin,
   getOrCreateFieldDeviceId,
   inspectFieldInvitation,
@@ -37,6 +38,10 @@ export function FieldAccess() {
   const [pin, setPin] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  // True once a sign-in has proved this browser will not keep the device
+  // id. Without this the refusal reads as the worker having done
+  // something wrong, when the browser is discarding their identity.
+  const [storageBlocked, setStorageBlocked] = useState(false);
 
   useEffect(() => {
     if (!token || !invitation.data?.branding) return;
@@ -49,6 +54,9 @@ export function FieldAccess() {
     setPending(true);
     try {
       const deviceId = getOrCreateFieldDeviceId();
+      // Discovered by writing and reading back, so it can only be known
+      // after the call above.
+      setStorageBlocked(!fieldDeviceIdIsPersistent());
       const result = token
         ? await activateFieldDevice({
             token,
@@ -128,6 +136,11 @@ export function FieldAccess() {
             />
           </div>
           {error && <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
+          {storageBlocked && (
+            <p className="rounded-md bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
+              {t("storageBlocked")}
+            </p>
+          )}
           <Button
             size="lg"
             className="h-12 w-full text-sm"
