@@ -54,9 +54,25 @@ export function FieldStaffGps({
   const watchId = useRef<number | null>(null);
   const lastSentAt = useRef(0);
 
+  /**
+   * Whether this reader may watch other people's positions.
+   *
+   * The field app puts this same screen on a worker's Location tab, and none
+   * of the queries below used to check first - so a role without the
+   * permission fired all of them anyway and got a red "you do not have
+   * permission to perform this action" over a page that otherwise looked
+   * fine, with no clue which of six calls it came from (2026-09-05).
+   *
+   * Not firing is also the honest answer: a worker who may not watch the
+   * workforce should see the part that is theirs - whether their own phone is
+   * sharing - and nothing where the roster would be.
+   */
+  const mayWatch = can("field_position.view");
+
   const projects = useQuery({
     queryKey: ["projects", "field-gps-options"],
     queryFn: () => getProjects({ page_size: 100 }),
+    enabled: mayWatch,
   });
   const live = useQuery({
     queryKey: ["field-staff-gps", projectId],
@@ -66,6 +82,7 @@ export function FieldStaffGps({
         ...(projectId ? { project: projectId } : {}),
       }),
     refetchInterval: 15_000,
+    enabled: mayWatch,
   });
   const record = useMutation({
     mutationFn: recordFieldStaffPosition,
@@ -83,6 +100,7 @@ export function FieldStaffGps({
   const geofences = useQuery({
     queryKey: ["site-geofences", "gps-map"],
     queryFn: () => getSiteGeofences({ page_size: 200, is_active: true }),
+    enabled: mayWatch,
   });
   const locationPolicy = useQuery({
     queryKey: ["site-location-policy"],
@@ -95,6 +113,7 @@ export function FieldStaffGps({
         page_size: 100,
         ...(historyProjectId ? { project: historyProjectId } : {}),
       }),
+    enabled: mayWatch,
   });
   // Whichever list this tab shows, the refresh button waits on that one.
   const refreshing = tab === "live" ? live.isFetching : lastPositions.isFetching;
@@ -126,7 +145,7 @@ export function FieldStaffGps({
         sort_by: "original_occurred_at",
         sort_order: "asc",
       }),
-    enabled: Boolean(selectedLastPosition),
+    enabled: mayWatch && Boolean(selectedLastPosition),
   });
   const stop = useMutation({
     mutationFn: stopFieldStaffLocationSharing,
