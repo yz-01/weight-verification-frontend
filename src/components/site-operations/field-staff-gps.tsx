@@ -69,6 +69,25 @@ export function FieldStaffGps({
    */
   const mayWatch = can("field_position.view");
 
+  /**
+   * Whether the location policy may be read at all.
+   *
+   * This one is not gated on `mayWatch`, because the endpoint deliberately
+   * accepts three different permissions: a worker reads the policy to know
+   * whether their own phone should be sharing, a manager to draw the fences,
+   * a settings reader to edit them. Gating it on the watch permission alone
+   * would refuse the worker their own half of the screen.
+   *
+   * It does have to be gated on *something*, though. The menu entry for this
+   * screen is gated by the subscription feature and by no permission at all,
+   * so a role holding none of the three could open it, fire this one
+   * ungated call, and get a red "you do not have permission to perform this
+   * action" - the last surviving source of the toast in the user's report,
+   * after the other six calls were gated (2026-09-05).
+   */
+  const mayReadPolicy =
+    mayWatch || can("field_position.submit") || can("company_settings.view");
+
   const projects = useQuery({
     queryKey: ["projects", "field-gps-options"],
     queryFn: () => getProjects({ page_size: 100 }),
@@ -105,6 +124,7 @@ export function FieldStaffGps({
   const locationPolicy = useQuery({
     queryKey: ["site-location-policy"],
     queryFn: getSiteLocationPolicy,
+    enabled: mayReadPolicy,
   });
   const lastPositions = useQuery({
     queryKey: ["field-staff-gps", "last", historyProjectId],
@@ -341,6 +361,18 @@ export function FieldStaffGps({
 
   return (
     <div className="space-y-5">
+      {/* An empty roster and a refused roster look identical, and the reader
+          is the one person who cannot tell them apart. Whoever holds no watch
+          permission gets told that, once, instead of a screen of blank tabs
+          that reads as a system with nothing in it. */}
+      {!mayWatch && (
+        <p
+          role="status"
+          className="rounded-lg border border-warning/40 bg-warning/5 p-3 text-sm text-muted-foreground"
+        >
+          {t("siteGps.watchNotPermitted")}
+        </p>
+      )}
       {/* 15.2.3 asks for the headcount before it asks for the map. */}
       {can("field_position.view") && (
         <WorkforcePresencePanel projectId={tab === "live" ? projectId : historyProjectId} />

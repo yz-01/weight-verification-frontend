@@ -11656,7 +11656,8 @@
       "history": "Last position / History",
       "live": "Live positions"
     },
-    "title": "Site personnel GPS"
+    "title": "Site personnel GPS",
+    "watchNotPermitted": "You can share your own position here. Watching the workforce needs the field position view permission, which your role does not have - ask a company administrator if you need it."
   },
   "sites": {
     "count": "{count, plural, =0 {No yards} one {# yard} other {# yards}}",

@@ -11656,7 +11656,8 @@
       "history": "Lokasi terakhir / Sejarah",
       "live": "Lokasi masa nyata"
     },
-    "title": "GPS kakitangan tapak"
+    "title": "GPS kakitangan tapak",
+    "watchNotPermitted": "Anda boleh berkongsi kedudukan anda sendiri di sini. Memantau tenaga kerja memerlukan kebenaran lihat kedudukan tapak, yang tiada pada peranan anda - hubungi pentadbir syarikat jika anda memerlukannya."
   },
   "sites": {
     "count": "{count, plural, =0 {Tiada tapak} other {# tapak}}",
