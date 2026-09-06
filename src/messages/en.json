@@ -7069,7 +7069,8 @@
       "subtitle": "Tap one large button to continue.",
       "tasks": "My tasks",
       "title": "Today's work",
-      "waste": "Environmental waste outgoing"
+      "waste": "Environmental waste outgoing",
+      "hazards": "Hazards"
     },
     "identity": {
       "company": "Company: {company}",
@@ -7183,7 +7184,8 @@
       "incidents": "Incidents",
       "location": "Location",
       "records": "Record",
-      "tasks": "Tasks"
+      "tasks": "Tasks",
+      "hazards": "Hazards"
     },
     "notifications": {
       "empty": "No new alerts",
@@ -13141,6 +13143,15 @@
     "duration": "Expected to take",
     "durationHours": "{hours} hours",
     "unassigned": "Waiting to be assigned",
-    "nothingToSend": "Type a message, or attach a photo, voice note or file."
+    "nothingToSend": "Type a message, or attach a photo, voice note or file.",
+    "field": {
+      "title": "Hazards",
+      "subtitle": "What you reported, and what you have to fix.",
+      "report": "Report a hazard",
+      "empty": "Nothing yet. Photograph a hazard and it appears here."
+    }
+  },
+  "home": {
+    "action": {}
   }
 }

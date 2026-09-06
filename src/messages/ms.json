@@ -7069,7 +7069,8 @@
       "subtitle": "Tekan satu butang besar untuk teruskan.",
       "tasks": "Tugas saya",
       "title": "Kerja hari ini",
-      "waste": "Bahan alam sekitar keluar"
+      "waste": "Bahan alam sekitar keluar",
+      "hazards": "Bahaya"
     },
     "identity": {
       "company": "Syarikat: {company}",
@@ -7183,7 +7184,8 @@
       "incidents": "Insiden",
       "location": "Lokasi",
       "records": "Rekod",
-      "tasks": "Tugas"
+      "tasks": "Tugas",
+      "hazards": "Bahaya"
     },
     "notifications": {
       "empty": "Tiada makluman baharu",
@@ -13141,6 +13143,15 @@
     "duration": "Dijangka mengambil masa",
     "durationHours": "{hours} jam",
     "unassigned": "Menunggu untuk ditugaskan",
-    "nothingToSend": "Taip mesej, atau lampirkan foto, nota suara atau fail."
+    "nothingToSend": "Taip mesej, atau lampirkan foto, nota suara atau fail.",
+    "field": {
+      "title": "Bahaya",
+      "subtitle": "Apa yang anda laporkan, dan apa yang perlu anda betulkan.",
+      "report": "Lapor bahaya",
+      "empty": "Belum ada. Ambil foto bahaya dan ia akan muncul di sini."
+    }
+  },
+  "home": {
+    "action": {}
   }
 }

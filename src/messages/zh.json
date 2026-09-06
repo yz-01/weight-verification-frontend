@@ -7069,7 +7069,8 @@
       "subtitle": "按一个大按钮就可以继续。",
       "tasks": "我的任务",
       "title": "今天的工作",
-      "waste": "环保材料出场"
+      "waste": "环保材料出场",
+      "hazards": "隐患"
     },
     "identity": {
       "company": "公司：{company}",
@@ -7183,7 +7184,8 @@
       "incidents": "事故",
       "location": "位置",
       "records": "拍照",
-      "tasks": "任务"
+      "tasks": "任务",
+      "hazards": "隐患"
     },
     "notifications": {
       "empty": "目前没有新通知",
@@ -13141,6 +13143,15 @@
     "duration": "预计需要",
     "durationHours": "{hours} 小时",
     "unassigned": "待分配",
-    "nothingToSend": "请先输入文字，或附上照片、语音或文件。"
+    "nothingToSend": "请先输入文字，或附上照片、语音或文件。",
+    "field": {
+      "title": "隐患",
+      "subtitle": "你上报的，和要你整改的。",
+      "report": "上报隐患",
+      "empty": "还没有。拍一张隐患照片，就会出现在这里。"
+    }
+  },
+  "home": {
+    "action": {}
   }
 }

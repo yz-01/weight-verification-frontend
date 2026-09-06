@@ -7069,7 +7069,8 @@
       "subtitle": "按一個大按鈕就可以繼續。",
       "tasks": "我的任務",
       "title": "今天的工作",
-      "waste": "環保材料出場"
+      "waste": "環保材料出場",
+      "hazards": "隱患"
     },
     "identity": {
       "company": "公司：{company}",
@@ -7183,7 +7184,8 @@
       "incidents": "事故",
       "location": "位置",
       "records": "拍照",
-      "tasks": "任務"
+      "tasks": "任務",
+      "hazards": "隱患"
     },
     "notifications": {
       "empty": "目前沒有新通知",
@@ -13141,6 +13143,15 @@
     "duration": "預計需要",
     "durationHours": "{hours} 小時",
     "unassigned": "待分配",
-    "nothingToSend": "請先輸入文字，或附上照片、語音或檔案。"
+    "nothingToSend": "請先輸入文字，或附上照片、語音或檔案。",
+    "field": {
+      "title": "隱患",
+      "subtitle": "你上報的，和要你整改的。",
+      "report": "上報隱患",
+      "empty": "還沒有。拍一張隱患照片，就會出現在這裡。"
+    }
+  },
+  "home": {
+    "action": {}
   }
 }
