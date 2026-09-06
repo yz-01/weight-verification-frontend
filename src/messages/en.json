@@ -3879,7 +3879,12 @@
         "sent": "A new activation email has been sent to {email}.",
         "notSent": "The email could not be sent. Pass this link to the owner:",
         "status": "Status",
-        "needsAChange": "Enter a new email address or phone number first."
+        "needsAChange": "Enter a new email address or phone number first.",
+        "userStatus": {
+          "ACTIVE": "Active",
+          "INVITED": "Invited",
+          "SUSPENDED": "Suspended"
+        }
       }
     },
     "addUser": "Add user",
@@ -5018,6 +5023,28 @@
       "help": "These are yours alone. Opening one files it away for you and leaves it in everyone else's pile.",
       "openColumns": "Material columns",
       "unfiled": "Not filed in a column"
+    },
+    "recordStatus": {
+      "ACCEPTED": "Accepted",
+      "APPROVED": "Approved",
+      "AWAITING_CONFIRMATION": "Awaiting confirmation",
+      "CANCELLED": "Cancelled",
+      "CLOSED": "Closed",
+      "COMPLETED": "Completed",
+      "DELIVERED": "Delivered",
+      "DRAFT": "Draft",
+      "IN_REVIEW": "In review",
+      "IN_TRANSIT": "In transit",
+      "OPEN": "Open",
+      "PENDING": "Pending",
+      "PENDING_APPROVAL": "Waiting for approval",
+      "REJECTED": "Rejected",
+      "RELEASED": "Released",
+      "REQUESTED": "Requested",
+      "RESOLVED": "Resolved",
+      "RETURNED": "Returned",
+      "SUBMITTED": "Submitted",
+      "VERIFIED": "Verified"
     }
   },
   "contractorModuleLanding": {
@@ -5767,7 +5794,29 @@
       "weighingSessions": "Weighing sessions"
     },
     "tileFailed": "Not loaded",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "tileStatus": {
+      "ACCEPTED": "Accepted",
+      "APPROVED": "Approved",
+      "AWAITING_CONFIRMATION": "Awaiting confirmation",
+      "CANCELLED": "Cancelled",
+      "CLOSED": "Closed",
+      "COMPLETED": "Completed",
+      "DELIVERED": "Delivered",
+      "DRAFT": "Draft",
+      "IN_REVIEW": "In review",
+      "IN_TRANSIT": "In transit",
+      "OPEN": "Open",
+      "PENDING": "Pending",
+      "PENDING_APPROVAL": "Waiting for approval",
+      "REJECTED": "Rejected",
+      "RELEASED": "Released",
+      "REQUESTED": "Requested",
+      "RESOLVED": "Resolved",
+      "RETURNED": "Returned",
+      "SUBMITTED": "Submitted",
+      "VERIFIED": "Verified"
+    }
   },
   "deductions": {
     "photo": {
@@ -6238,6 +6287,22 @@
       "mayPause": "Your location is recorded only while this screen is on. If the phone locks, the track will show a gap.",
       "noWakeLock": "This browser will not keep the screen awake. Set the phone's screen timeout longer, or the track will show gaps.",
       "recording": "Recording your location. Keep this screen on."
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "Contamination",
+        "MOISTURE": "Water content",
+        "OTHER": "Other",
+        "OVERSIZE": "Oversize or unprocessable",
+        "WRONG_MATERIAL": "Material not as declared"
+      },
+      "state": {
+        "ACCEPTED": "Accepted",
+        "AUTO_ACCEPTED": "Accepted automatically",
+        "PENDING": "Waiting for the producer",
+        "RECHECK": "Recheck requested",
+        "REJECTED": "Rejected"
+      }
     }
   },
   "driverGps": {
@@ -8180,6 +8245,31 @@
       "errors": "{count} errors in 24 hours",
       "jobs": "{count} queued jobs",
       "uptime": "{value} min uptime"
+    },
+    "integrationKind": {
+      "ACCESS_CONTROL": "Access control",
+      "ACCOUNTING": "Accounting",
+      "AI": "AI service",
+      "ANPR": "Number-plate recognition",
+      "API_GATEWAY": "API gateway",
+      "CCTV": "CCTV",
+      "DRONE": "Drone",
+      "ERP": "ERP",
+      "FACE_RECOGNITION": "Face recognition",
+      "GOVERNMENT_API": "Government API",
+      "IOT": "IoT device",
+      "MYINVOIS": "MyInvois",
+      "RF": "Radio link",
+      "RFID": "RFID",
+      "TOWER_CRANE": "Tower crane",
+      "VISITOR_MANAGEMENT": "Visitor management",
+      "WEBHOOK": "Webhook"
+    },
+    "integrationStatus": {
+      "DEGRADED": "Degraded",
+      "DISABLED": "Disabled",
+      "ERROR": "Error",
+      "READY": "Ready"
     }
   },
   "nav": {

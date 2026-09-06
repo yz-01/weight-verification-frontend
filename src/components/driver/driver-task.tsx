@@ -445,8 +445,18 @@ export function DriverTask({ id }: { id: string }) {
             <div className="divide-y border-y">
               {data.settlement.deductions.map((deduction) => (
                 <div key={deduction.id} className="py-2 text-xs">
-                  <p className="font-medium text-foreground">{deduction.kind} · {deduction.weight_kg} kg</p>
-                  <p className="mt-0.5 text-muted-foreground">{deduction.reason} · {deduction.state}</p>
+                  <p className="font-medium text-foreground">
+                    {t.has(`driver.deduction.kind.${deduction.kind}`)
+                      ? t(`driver.deduction.kind.${deduction.kind}`)
+                      : deduction.kind}{" "}
+                    · {deduction.weight_kg} kg
+                  </p>
+                  <p className="mt-0.5 text-muted-foreground">
+                    {deduction.reason} ·{" "}
+                    {t.has(`driver.deduction.state.${deduction.state}`)
+                      ? t(`driver.deduction.state.${deduction.state}`)
+                      : deduction.state}
+                  </p>
                 </div>
               ))}
             </div>

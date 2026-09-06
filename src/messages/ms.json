@@ -3879,7 +3879,12 @@
         "sent": "E-mel pengaktifan baharu telah dihantar ke {email}.",
         "notSent": "E-mel tidak dapat dihantar. Berikan pautan ini kepada pemilik:",
         "status": "Status",
-        "needsAChange": "Masukkan alamat e-mel atau nombor telefon baharu dahulu."
+        "needsAChange": "Masukkan alamat e-mel atau nombor telefon baharu dahulu.",
+        "userStatus": {
+          "ACTIVE": "Aktif",
+          "INVITED": "Dijemput",
+          "SUSPENDED": "Digantung"
+        }
       }
     },
     "addUser": "Tambah pengguna",
@@ -5018,6 +5023,28 @@
       "help": "Ini milik anda sahaja. Membukanya memfailkannya untuk anda dan mengekalkannya dalam senarai orang lain.",
       "openColumns": "Kolum bahan",
       "unfiled": "Belum difailkan dalam kolum"
+    },
+    "recordStatus": {
+      "ACCEPTED": "Diterima",
+      "APPROVED": "Diluluskan",
+      "AWAITING_CONFIRMATION": "Menunggu pengesahan",
+      "CANCELLED": "Dibatalkan",
+      "CLOSED": "Ditutup",
+      "COMPLETED": "Selesai",
+      "DELIVERED": "Dihantar sampai",
+      "DRAFT": "Draf",
+      "IN_REVIEW": "Dalam semakan",
+      "IN_TRANSIT": "Dalam perjalanan",
+      "OPEN": "Belum diuruskan",
+      "PENDING": "Belum diuruskan",
+      "PENDING_APPROVAL": "Menunggu kelulusan",
+      "REJECTED": "Ditolak",
+      "RELEASED": "Dilepaskan",
+      "REQUESTED": "Dipohon",
+      "RESOLVED": "Diselesaikan",
+      "RETURNED": "Dikembalikan",
+      "SUBMITTED": "Dihantar",
+      "VERIFIED": "Disahkan"
     }
   },
   "contractorModuleLanding": {
@@ -5767,7 +5794,29 @@
       "weighingSessions": "Sesi penimbangan"
     },
     "tileFailed": "Tidak dimuatkan",
-    "title": "Papan pemuka"
+    "title": "Papan pemuka",
+    "tileStatus": {
+      "ACCEPTED": "Diterima",
+      "APPROVED": "Diluluskan",
+      "AWAITING_CONFIRMATION": "Menunggu pengesahan",
+      "CANCELLED": "Dibatalkan",
+      "CLOSED": "Ditutup",
+      "COMPLETED": "Selesai",
+      "DELIVERED": "Dihantar sampai",
+      "DRAFT": "Draf",
+      "IN_REVIEW": "Dalam semakan",
+      "IN_TRANSIT": "Dalam perjalanan",
+      "OPEN": "Belum diuruskan",
+      "PENDING": "Belum diuruskan",
+      "PENDING_APPROVAL": "Menunggu kelulusan",
+      "REJECTED": "Ditolak",
+      "RELEASED": "Dilepaskan",
+      "REQUESTED": "Dipohon",
+      "RESOLVED": "Diselesaikan",
+      "RETURNED": "Dikembalikan",
+      "SUBMITTED": "Dihantar",
+      "VERIFIED": "Disahkan"
+    }
   },
   "deductions": {
     "photo": {
@@ -6238,6 +6287,22 @@
       "mayPause": "Lokasi hanya direkodkan semasa skrin ini menyala. Jika telefon dikunci, laluan akan menunjukkan jurang.",
       "noWakeLock": "Pelayar ini tidak dapat mengekalkan skrin menyala. Panjangkan masa tamat skrin telefon, atau laluan akan berjurang.",
       "recording": "Lokasi anda sedang direkodkan. Biarkan skrin ini menyala."
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "Pencemaran",
+        "MOISTURE": "Kandungan air",
+        "OTHER": "Lain-lain",
+        "OVERSIZE": "Terlalu besar atau tidak boleh diproses",
+        "WRONG_MATERIAL": "Bahan tidak seperti diisytiharkan"
+      },
+      "state": {
+        "ACCEPTED": "Diterima",
+        "AUTO_ACCEPTED": "Diterima secara automatik",
+        "PENDING": "Menunggu pengeluar",
+        "RECHECK": "Semakan semula dipohon",
+        "REJECTED": "Ditolak"
+      }
     }
   },
   "driverGps": {
@@ -8180,6 +8245,31 @@
       "errors": "{count} ralat dalam 24 jam",
       "jobs": "{count} tugas dalam giliran",
       "uptime": "Masa hidup {value} minit"
+    },
+    "integrationKind": {
+      "ACCESS_CONTROL": "Kawalan akses",
+      "ACCOUNTING": "Sistem perakaunan",
+      "AI": "Perkhidmatan AI",
+      "ANPR": "Pengecaman nombor plat",
+      "API_GATEWAY": "Get laluan API",
+      "CCTV": "CCTV",
+      "DRONE": "Dron",
+      "ERP": "Sistem ERP",
+      "FACE_RECOGNITION": "Pengecaman muka",
+      "GOVERNMENT_API": "API kerajaan",
+      "IOT": "Peranti IoT",
+      "MYINVOIS": "MyInvois",
+      "RF": "Pautan radio",
+      "RFID": "RFID",
+      "TOWER_CRANE": "Kren menara",
+      "VISITOR_MANAGEMENT": "Pengurusan pelawat",
+      "WEBHOOK": "Webhook"
+    },
+    "integrationStatus": {
+      "DEGRADED": "Merosot",
+      "DISABLED": "Dimatikan",
+      "ERROR": "Ralat",
+      "READY": "Sedia"
     }
   },
   "nav": {

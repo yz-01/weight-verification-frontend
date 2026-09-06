@@ -3879,7 +3879,12 @@
         "sent": "新的啟用郵件已經寄到 {email}。",
         "notSent": "郵件沒寄出去。請把這個連結交給老闆：",
         "status": "狀態",
-        "needsAChange": "先填一個新的電郵或電話。"
+        "needsAChange": "先填一個新的電郵或電話。",
+        "userStatus": {
+          "ACTIVE": "使用中",
+          "INVITED": "已邀請",
+          "SUSPENDED": "已停用"
+        }
       }
     },
     "addUser": "添加用戶",
@@ -5018,6 +5023,28 @@
       "help": "這是你自己的清單。點進去看過就算你歸檔了，別人那邊不受影響。",
       "openColumns": "材料欄目",
       "unfiled": "尚未歸檔"
+    },
+    "recordStatus": {
+      "ACCEPTED": "已接受",
+      "APPROVED": "已批准",
+      "AWAITING_CONFIRMATION": "等待確認",
+      "CANCELLED": "已取消",
+      "CLOSED": "已關閉",
+      "COMPLETED": "已完成",
+      "DELIVERED": "已送達",
+      "DRAFT": "草稿",
+      "IN_REVIEW": "審核中",
+      "IN_TRANSIT": "運輸中",
+      "OPEN": "未處理",
+      "PENDING": "待處理",
+      "PENDING_APPROVAL": "待審批",
+      "REJECTED": "已駁回",
+      "RELEASED": "已放行",
+      "REQUESTED": "已申請",
+      "RESOLVED": "已解決",
+      "RETURNED": "已退回",
+      "SUBMITTED": "已提交",
+      "VERIFIED": "已核實"
     }
   },
   "contractorModuleLanding": {
@@ -5767,7 +5794,29 @@
       "weighingSessions": "稱重次數"
     },
     "tileFailed": "沒有載入",
-    "title": "儀表板"
+    "title": "儀表板",
+    "tileStatus": {
+      "ACCEPTED": "已接受",
+      "APPROVED": "已批准",
+      "AWAITING_CONFIRMATION": "等待確認",
+      "CANCELLED": "已取消",
+      "CLOSED": "已關閉",
+      "COMPLETED": "已完成",
+      "DELIVERED": "已送達",
+      "DRAFT": "草稿",
+      "IN_REVIEW": "審核中",
+      "IN_TRANSIT": "運輸中",
+      "OPEN": "未處理",
+      "PENDING": "待處理",
+      "PENDING_APPROVAL": "待審批",
+      "REJECTED": "已駁回",
+      "RELEASED": "已放行",
+      "REQUESTED": "已申請",
+      "RESOLVED": "已解決",
+      "RETURNED": "已退回",
+      "SUBMITTED": "已提交",
+      "VERIFIED": "已核實"
+    }
   },
   "deductions": {
     "photo": {
@@ -6238,6 +6287,22 @@
       "mayPause": "只有這個介面亮著的時候才會記錄位置。手機鎖螢幕之後，軌跡上會出現缺口。",
       "noWakeLock": "這個瀏覽器不支援保持螢幕常亮。請把手機的自動鎖螢幕時間調長，否則軌跡會有缺口。",
       "recording": "正在記錄你的位置，請保持螢幕亮著。"
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "夾雜污染",
+        "MOISTURE": "含水",
+        "OTHER": "其他",
+        "OVERSIZE": "超尺寸或無法處理",
+        "WRONG_MATERIAL": "材料與申報不符"
+      },
+      "state": {
+        "ACCEPTED": "已接受",
+        "AUTO_ACCEPTED": "自動接受",
+        "PENDING": "等待貨主確認",
+        "RECHECK": "已要求複檢",
+        "REJECTED": "已拒絕"
+      }
     }
   },
   "driverGps": {
@@ -8180,6 +8245,31 @@
       "errors": "24 小時內 {count} 個錯誤",
       "jobs": "{count} 個排隊任務",
       "uptime": "已運行 {value} 分鐘"
+    },
+    "integrationKind": {
+      "ACCESS_CONTROL": "門禁系統",
+      "ACCOUNTING": "會計系統",
+      "AI": "AI 服務",
+      "ANPR": "車牌識別",
+      "API_GATEWAY": "API 閘道",
+      "CCTV": "監控攝像",
+      "DRONE": "無人機",
+      "ERP": "ERP 系統",
+      "FACE_RECOGNITION": "人臉識別",
+      "GOVERNMENT_API": "政府接口",
+      "IOT": "物聯網設備",
+      "MYINVOIS": "MyInvois",
+      "RF": "無線電鏈路",
+      "RFID": "RFID",
+      "TOWER_CRANE": "塔吊",
+      "VISITOR_MANAGEMENT": "訪客管理",
+      "WEBHOOK": "Webhook"
+    },
+    "integrationStatus": {
+      "DEGRADED": "效能下降",
+      "DISABLED": "已停用",
+      "ERROR": "故障",
+      "READY": "正常"
     }
   },
   "nav": {

@@ -3879,7 +3879,12 @@
         "sent": "新的激活邮件已经发到 {email}。",
         "notSent": "邮件没发出去。请把这个链接交给老板：",
         "status": "状态",
-        "needsAChange": "先填一个新的邮箱或电话。"
+        "needsAChange": "先填一个新的邮箱或电话。",
+        "userStatus": {
+          "ACTIVE": "使用中",
+          "INVITED": "已邀请",
+          "SUSPENDED": "已停用"
+        }
       }
     },
     "addUser": "添加用户",
@@ -5018,6 +5023,28 @@
       "help": "这是你自己的清单。点进去看过就算你归档了，别人那边不受影响。",
       "openColumns": "材料栏目",
       "unfiled": "暂未归档"
+    },
+    "recordStatus": {
+      "ACCEPTED": "已接受",
+      "APPROVED": "已批准",
+      "AWAITING_CONFIRMATION": "等待确认",
+      "CANCELLED": "已取消",
+      "CLOSED": "已关闭",
+      "COMPLETED": "已完成",
+      "DELIVERED": "已送达",
+      "DRAFT": "草稿",
+      "IN_REVIEW": "审核中",
+      "IN_TRANSIT": "运输中",
+      "OPEN": "未处理",
+      "PENDING": "待处理",
+      "PENDING_APPROVAL": "待审批",
+      "REJECTED": "已驳回",
+      "RELEASED": "已放行",
+      "REQUESTED": "已申请",
+      "RESOLVED": "已解决",
+      "RETURNED": "已退回",
+      "SUBMITTED": "已提交",
+      "VERIFIED": "已核实"
     }
   },
   "contractorModuleLanding": {
@@ -5767,7 +5794,29 @@
       "weighingSessions": "称重次数"
     },
     "tileFailed": "没有载入",
-    "title": "仪表板"
+    "title": "仪表板",
+    "tileStatus": {
+      "ACCEPTED": "已接受",
+      "APPROVED": "已批准",
+      "AWAITING_CONFIRMATION": "等待确认",
+      "CANCELLED": "已取消",
+      "CLOSED": "已关闭",
+      "COMPLETED": "已完成",
+      "DELIVERED": "已送达",
+      "DRAFT": "草稿",
+      "IN_REVIEW": "审核中",
+      "IN_TRANSIT": "运输中",
+      "OPEN": "未处理",
+      "PENDING": "待处理",
+      "PENDING_APPROVAL": "待审批",
+      "REJECTED": "已驳回",
+      "RELEASED": "已放行",
+      "REQUESTED": "已申请",
+      "RESOLVED": "已解决",
+      "RETURNED": "已退回",
+      "SUBMITTED": "已提交",
+      "VERIFIED": "已核实"
+    }
   },
   "deductions": {
     "photo": {
@@ -6238,6 +6287,22 @@
       "mayPause": "只有这个界面亮着的时候才会记录位置。手机锁屏之后，轨迹上会出现缺口。",
       "noWakeLock": "这个浏览器不支持保持屏幕常亮。请把手机的自动锁屏时间调长，否则轨迹会有缺口。",
       "recording": "正在记录你的位置，请保持屏幕亮着。"
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "夹杂污染",
+        "MOISTURE": "含水",
+        "OTHER": "其他",
+        "OVERSIZE": "超尺寸或无法处理",
+        "WRONG_MATERIAL": "材料与申报不符"
+      },
+      "state": {
+        "ACCEPTED": "已接受",
+        "AUTO_ACCEPTED": "自动接受",
+        "PENDING": "等待货主确认",
+        "RECHECK": "已要求复检",
+        "REJECTED": "已拒绝"
+      }
     }
   },
   "driverGps": {
@@ -8180,6 +8245,31 @@
       "errors": "24 小时内 {count} 个错误",
       "jobs": "{count} 个排队任务",
       "uptime": "已运行 {value} 分钟"
+    },
+    "integrationKind": {
+      "ACCESS_CONTROL": "门禁系统",
+      "ACCOUNTING": "会计系统",
+      "AI": "AI 服务",
+      "ANPR": "车牌识别",
+      "API_GATEWAY": "API 网关",
+      "CCTV": "监控摄像",
+      "DRONE": "无人机",
+      "ERP": "ERP 系统",
+      "FACE_RECOGNITION": "人脸识别",
+      "GOVERNMENT_API": "政府接口",
+      "IOT": "物联网设备",
+      "MYINVOIS": "MyInvois",
+      "RF": "无线电链路",
+      "RFID": "RFID",
+      "TOWER_CRANE": "塔吊",
+      "VISITOR_MANAGEMENT": "访客管理",
+      "WEBHOOK": "Webhook"
+    },
+    "integrationStatus": {
+      "DEGRADED": "性能下降",
+      "DISABLED": "已停用",
+      "ERROR": "故障",
+      "READY": "正常"
     }
   },
   "nav": {

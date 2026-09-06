@@ -17,6 +17,14 @@ export function getContractorDashboard(input: {
   date?: string;
   project?: string;
   sections?: ContractorDashboardSection[];
+  /**
+   * Ask without complaining if the answer is no.
+   *
+   * The sidebar badge reads this endpoint on every page load. A reader who
+   * may not have it should lose the badge, not be told across the whole page
+   * that they lack permission for a screen they are already standing on.
+   */
+  silent?: boolean;
 } = {}): Promise<ContractorDashboard> {
   const query: ListQuery = {};
   if (input.date) query.date = input.date;
@@ -25,6 +33,7 @@ export function getContractorDashboard(input: {
   return api.get<ContractorDashboard>(
     "/api/contractor-dashboard/get_dashboard/",
     query,
+    { silent: input.silent },
   );
 }
 

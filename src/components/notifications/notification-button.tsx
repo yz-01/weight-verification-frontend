@@ -44,25 +44,32 @@ export function NotificationButton() {
     ) ?? false;
   const countQuery = useQuery({
     queryKey: ["notifications", "unread-count"],
-    queryFn: getUnreadNotificationCount,
+    // Silent: the bell is mounted on every page, so a refusal here used to
+    // paint "you do not have permission" over whatever the reader was
+    // actually doing, about a count they never asked for. The badge already
+    // says the count is unknown; that is the right place for it (F-224).
+    queryFn: () => getUnreadNotificationCount({ silent: true }),
     enabled,
     refetchInterval: 30_000,
   });
   const listQuery = useQuery({
     queryKey: ["notifications", "toolbar", "unread"],
     queryFn: () =>
-      getNotifications({
-        unread: "true",
-        page_size: 5,
-        sort_by: "created_at",
-        sort_order: "desc",
-      }),
+      getNotifications(
+        {
+          unread: "true",
+          page_size: 5,
+          sort_by: "created_at",
+          sort_order: "desc",
+        },
+        { silent: true },
+      ),
     enabled,
     refetchInterval: 30_000,
   });
   const pushConfig = useQuery({
     queryKey: ["notifications", "push-config"],
-    queryFn: getPushConfig,
+    queryFn: () => getPushConfig({ silent: true }),
     enabled: enabled && isPushSupported(),
     staleTime: 5 * 60_000,
   });

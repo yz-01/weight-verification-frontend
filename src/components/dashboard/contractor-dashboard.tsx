@@ -130,7 +130,27 @@ function approvalHref(row: ApprovalRow): string {
   return own ?? `/approvals?approval=${row.id}`;
 }
 
+/**
+ * A record status in words, or the code when nothing covers it.
+ *
+ * The activity feed and the search results draw on eight models, so the
+ * badge meets statuses from all of them. The customer photographed
+ * `PENDING_APPROVAL` sitting in that badge (F-225).
+ *
+ * The fallback is the code itself, deliberately. Printing
+ * `contractorDashboard.recordStatus.FOO` at the reader would be worse than
+ * printing `FOO`, and a code on screen is a visible prompt to add the entry.
+ */
+function useRecordStatus(): (status: string) => string {
+  const t = useTranslations("contractorDashboard");
+  return (status: string) => {
+    const key = `recordStatus.${status}`;
+    return t.has(key) ? t(key) : status;
+  };
+}
+
 export function ContractorDashboard() {
+  const recordStatus = useRecordStatus();
   const t = useTranslations("contractorDashboard");
   const format = useFormatter();
   const df = useDateFormat();
@@ -324,7 +344,7 @@ export function ContractorDashboard() {
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <StatusBadge label={row.status} />
+                        <StatusBadge label={recordStatus(row.status)} />
                         <p className="mt-1 text-xs text-muted-foreground">
                           {df.dateTime(row.occurred_at)}
                         </p>
@@ -834,6 +854,7 @@ function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
 
 function QuickSearch({ project }: { project: string }) {
   const t = useTranslations("contractorDashboard");
+  const recordStatus = useRecordStatus();
   const common = useTranslations("common");
   const [term, setTerm] = useState("");
   const [submitted, setSubmitted] = useState("");
@@ -910,7 +931,9 @@ function QuickSearch({ project }: { project: string }) {
                       <span className="text-muted-foreground"> · {row.project}</span>
                     )}
                   </span>
-                  {row.status && <StatusBadge label={row.status} />}
+                  {row.status && (
+                    <StatusBadge label={recordStatus(row.status)} />
+                  )}
                 </li>
               ))}
             </ul>

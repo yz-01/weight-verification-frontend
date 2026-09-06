@@ -602,13 +602,21 @@ function SectionContent({
                 <TableRow key={row.id}>
                   <TableCell>
                     <p className="font-medium">{row.name}</p>
-                    <p className="text-xs text-muted-foreground">{row.kind}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t.has(`integrationKind.${row.kind}`)
+                        ? t(`integrationKind.${row.kind}`)
+                        : row.kind}
+                    </p>
                   </TableCell>
                   <TableCell>{row.company}</TableCell>
                   <TableCell>
                     <TypeBadge label={t(`mode.${row.mode}`)} />
                   </TableCell>
-                  <TableCell>{row.status}</TableCell>
+                  <TableCell>
+                    {t.has(`integrationStatus.${row.status}`)
+                      ? t(`integrationStatus.${row.status}`)
+                      : row.status}
+                  </TableCell>
                   <TableCell>{row.last_success_at ?? "-"}</TableCell>
                   <TableCell className="max-w-64 truncate">
                     {row.last_error || "-"}
@@ -1269,7 +1277,13 @@ function InventoryPanel({
                   </p>
                 </TableCell>
                 <TableCell>
-                  <TypeBadge label={row.kind} />
+                  <TypeBadge
+                    label={
+                      t.has(`integrationKind.${row.kind}`)
+                        ? t(`integrationKind.${row.kind}`)
+                        : row.kind
+                    }
+                  />
                 </TableCell>
                 <TableCell>
                   <p className="font-medium">{row.name}</p>

@@ -29,7 +29,7 @@ import { getContractorDashboard } from "@/services/contractor-dashboard.service"
  * sidebar that only wanted a number.
  */
 export function useUnreadBadges(): Partial<Record<PortalFeatureKey, number>> {
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   // `dashboard.view` is the permission behind the endpoint, so asking without
   // it would be a guaranteed 403 on every page load for the roles that do not
   // have it - drivers and recyclers among them.
@@ -40,12 +40,21 @@ export function useUnreadBadges(): Partial<Record<PortalFeatureKey, number>> {
   // for nothing and saw nothing, so the approvals count - theirs to act on -
   // never appeared. The endpoint wants one permission; this asks for that
   // one, and the receipts badge is withheld separately below.
-  const enabled = can("dashboard.view");
+  //
+  // The portal has to be checked too, and leaving it out is what the customer
+  // reported: `dashboard.view` is not a contractor-only permission, so a
+  // platform administrator holds it, fires this query, and is refused by an
+  // endpoint that serves contractors - a "you do not have permission" toast
+  // on every admin page load, for a badge the admin console does not show
+  // (F-224). The permission says what the reader may do; the portal says
+  // whether this endpoint is theirs to ask.
+  const enabled = user?.portal === "MSE_TRACE" && can("dashboard.view");
   const maySeeReceipts = can("receipt.view");
 
   const query = useQuery({
     queryKey: ["contractor-dashboard", "unread-badges"],
-    queryFn: () => getContractorDashboard({ sections: ["unread"] }),
+    queryFn: () =>
+      getContractorDashboard({ sections: ["unread"], silent: true }),
     enabled,
     // The sidebar is mounted on every page. Without this it would refetch on
     // each navigation to redraw a number that moves a few times a day.
