@@ -3,8 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   BellPlus,
+  CalendarClock,
   CalendarRange,
   CalendarCheck,
+  ClipboardList,
   Camera,
   ClipboardCheck,
   Download,
@@ -297,6 +299,31 @@ export function ContractorDashboard() {
                   value={data.overview.today.equipment_exits}
                   icon={LogOut}
                   href="/site-equipment"
+                />
+                {/* The last two of the four cards the customer asked for.
+                    They needed fields that existed nowhere, which is why they
+                    arrived a round later than the other two (T-188). */}
+                <Metric
+                  label={t("overview.materialPendingAcceptance")}
+                  value={data.overview.today.material_pending_acceptance}
+                  icon={ClipboardList}
+                  href="/receipts"
+                  tone={
+                    data.overview.today.material_pending_acceptance > 0
+                      ? "warning"
+                      : undefined
+                  }
+                />
+                <Metric
+                  label={t("overview.equipmentExpiring")}
+                  value={data.overview.today.equipment_expiring}
+                  icon={CalendarClock}
+                  href="/site-equipment"
+                  tone={
+                    data.overview.today.equipment_expiring > 0
+                      ? "warning"
+                      : undefined
+                  }
                 />
               </div>
               <div className="flex flex-wrap gap-2">

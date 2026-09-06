@@ -1823,6 +1823,8 @@ function EquipmentDialog({
     registration_no: equipment?.registration_no ?? "",
     supplier: equipment?.supplier ?? null,
     description: equipment?.description ?? "",
+    certificate_expires_on: equipment?.certificate_expires_on ?? null,
+    insurance_expires_on: equipment?.insurance_expires_on ?? null,
     is_active: equipment?.is_active ?? true,
   });
   const set = <K extends keyof EquipmentPayload>(
@@ -1838,6 +1840,8 @@ function EquipmentDialog({
           registration_no: form.registration_no,
           supplier: form.supplier,
           description: form.description,
+          certificate_expires_on: form.certificate_expires_on,
+          insurance_expires_on: form.insurance_expires_on,
           is_active: form.is_active,
         })
       : createSiteEquipment(form),
@@ -1873,6 +1877,31 @@ function EquipmentDialog({
             <Input
               value={form.registration_no}
               onChange={(e) => set("registration_no", e.target.value)}
+            />
+          </FieldWrapper>
+          {/* Where the home page's "certificate expiring" card gets its
+              dates. Optional, because a contractor may not hold the paperwork
+              for every item and a required field would be filled with a
+              guess - a wrong expiry date is worse than a blank one. */}
+          <FieldWrapper
+            label={t("field.certificateExpiresOn")}
+            hint={t("field.expiryHelp")}
+          >
+            <Input
+              type="date"
+              value={form.certificate_expires_on ?? ""}
+              onChange={(e) =>
+                set("certificate_expires_on", e.target.value || null)
+              }
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.insuranceExpiresOn")}>
+            <Input
+              type="date"
+              value={form.insurance_expires_on ?? ""}
+              onChange={(e) =>
+                set("insurance_expires_on", e.target.value || null)
+              }
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.supplier")} className="sm:col-span-2">

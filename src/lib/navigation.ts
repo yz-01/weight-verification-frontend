@@ -26,7 +26,6 @@ import {
   Scale,
   ScanSearch,
   Settings,
-  ShieldAlert,
   SlidersHorizontal,
   TrendingUp,
   Truck,
@@ -867,23 +866,17 @@ export const PORTAL_NAVIGATION = {
         ),
       ],
     ),
-    item(
-      "safety",
-      "/modules/safety",
-      ShieldAlert,
-      "operations",
-      undefined,
-      false,
-      [
-        child("9.2.1", "nav.submodule.safetyIncidents", "/safety", "safety"),
-        child(
-          "9.2.2",
-          "nav.submodule.incidentReports",
-          "/incident-reports",
-          "safety",
-        ),
-      ],
-    ),
+    // 安全事故 (安全事件 + 事故上报) removed at the customer's request on
+    // 2026-09-07: 这里的安全事故是不需要的，只是需要隐患整改而已.
+    //
+    // Removed only after the two capabilities that lived on it were moved:
+    // the create button is no longer gated to `mode === "incidents"`, and the
+    // server's rectification filter now admits OPEN. Deleting first would
+    // have left the console unable to raise a hazard at all (F-240).
+    //
+    // `/incident-reports` was a separate component, not another mode of this
+    // one, so this removes a distinct feature rather than a duplicate page -
+    // which is what the customer asked for, but worth saying plainly.
     item(
       "consultant_applications",
       "/modules/consultants",
@@ -949,11 +942,21 @@ export const PORTAL_NAVIGATION = {
       undefined,
       false,
       [
+        // Declared under `safety`, not `hazard_rectification`, and that is
+        // deliberate. 隐患整改 is the safety module now that 安全事故 has been
+        // removed, so the `safety` feature has to open something or a tenant
+        // granted it has no way in - which is what the reachability guard in
+        // navigation.test.ts caught when this group was deleted.
+        //
+        // Nobody can hold one feature without the other: portal_features.py
+        // grants both from exactly (SAFETY_VIEW, PROJECT_VIEW). So the parent
+        // keeps `hazard_rectification` and this child carries `safety`, and
+        // both keys lead to the one screen that survived.
         child(
           "11.2.1",
           "nav.submodule.hazardRectifications",
           "/hazard-rectifications",
-          "hazard_rectification",
+          "safety",
         ),
       ],
     ),

@@ -38,6 +38,23 @@ export interface DashboardOverview {
     material_receipts: number;
     /** Deliveries sent back to the supplier today. */
     material_returns: number;
+    /**
+     * Deliveries nobody has accepted or rejected yet, and ones that failed.
+     *
+     * Current state, not a daily count: a delivery nobody has inspected since
+     * Tuesday is exactly what the card is for. Filtering these to today would
+     * report zero every morning while the pile was still there - the mistake
+     * the notification card made (F-229).
+     */
+    material_pending_acceptance: number;
+    material_rejected: number;
+    /**
+     * Machines whose certificate or insurance runs out inside the window, or
+     * already has. Already-expired ones are included on purpose: a card that
+     * only counted "expiring soon" would go quiet the day the problem became
+     * real.
+     */
+    equipment_expiring: number;
     photos: number;
   };
   safety: {

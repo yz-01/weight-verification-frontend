@@ -420,7 +420,11 @@ export function Safety({
             {can("report.export") && !fieldMode && (
               <ExportButton onExport={runExport} disabled={!total} />
             )}
-            {mode === "incidents" && can("safety.manage") && (
+            {/* No longer gated on the mode. 安全事故 is being removed from
+                the console at the customer's request, which makes this screen
+                the only place a hazard can be raised - and the button lived
+                on the half being deleted (F-240). */}
+            {can("safety.manage") && (
             <Button size={fieldMode ? "lg" : "sm"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
               {t(fieldMode ? "safety.fieldReport.new" : "safety.new")}

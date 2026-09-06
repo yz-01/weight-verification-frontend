@@ -4945,7 +4945,9 @@
       "materialReceipts": "今日材料到场",
       "materialReturns": "今日材料退回",
       "equipmentIn": "今日设备进场",
-      "equipmentOut": "今日设备退场"
+      "equipmentOut": "今日设备退场",
+      "materialPendingAcceptance": "待验收材料",
+      "equipmentExpiring": "证书即将到期"
     },
     "personnel": {
       "empty": "今天没有考勤记录。",
@@ -5257,7 +5259,10 @@
       "title": "任务标题",
       "unit": "单位",
       "vehiclePlate": "车牌",
-      "workLocation": "工作区域 / 位置"
+      "workLocation": "工作区域 / 位置",
+      "certificateExpiresOn": "证书到期日",
+      "insuranceExpiresOn": "保险到期日",
+      "expiryHelp": "填了才会进首页的「证书即将到期」卡；没有单据就留空，宁可空着也不要填一个猜的日期。"
     },
     "outgoing": {
       "add": "新增出场申请",
@@ -13087,5 +13092,10 @@
     "since": "{at} 起",
     "title": "当前在场",
     "unassigned": "未归类"
+  },
+  "materialAcceptance": {
+    "PENDING": "待验收",
+    "ACCEPTED": "已验收",
+    "REJECTED": "验收不合格"
   }
 }

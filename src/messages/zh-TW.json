@@ -4945,7 +4945,9 @@
       "materialReceipts": "今日材料進場",
       "materialReturns": "今日材料退回",
       "equipmentIn": "今日設備進場",
-      "equipmentOut": "今日設備退場"
+      "equipmentOut": "今日設備退場",
+      "materialPendingAcceptance": "待驗收材料",
+      "equipmentExpiring": "證書即將到期"
     },
     "personnel": {
       "empty": "今天沒有考勤記錄。",
@@ -5257,7 +5259,10 @@
       "title": "任務標題",
       "unit": "單位",
       "vehiclePlate": "車牌",
-      "workLocation": "工作區域 / 位置"
+      "workLocation": "工作區域 / 位置",
+      "certificateExpiresOn": "證書到期日",
+      "insuranceExpiresOn": "保險到期日",
+      "expiryHelp": "填了才會進首頁的「證書即將到期」卡；沒有單據就留空，寧可空著也不要填一個猜的日期。"
     },
     "outgoing": {
       "add": "新增出場申請",
@@ -13087,5 +13092,10 @@
     "since": "{at} 起",
     "title": "當前在場",
     "unassigned": "未歸類"
+  },
+  "materialAcceptance": {
+    "PENDING": "待驗收",
+    "ACCEPTED": "已驗收",
+    "REJECTED": "驗收不合格"
   }
 }

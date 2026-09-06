@@ -4945,7 +4945,9 @@
       "materialReceipts": "Deliveries today",
       "materialReturns": "Sent back today",
       "equipmentIn": "Equipment in today",
-      "equipmentOut": "Equipment out today"
+      "equipmentOut": "Equipment out today",
+      "materialPendingAcceptance": "Awaiting acceptance",
+      "equipmentExpiring": "Paperwork expiring"
     },
     "personnel": {
       "empty": "No attendance recorded today.",
@@ -5257,7 +5259,10 @@
       "title": "Task title",
       "unit": "Unit",
       "vehiclePlate": "Vehicle plate",
-      "workLocation": "Work area / location"
+      "workLocation": "Work area / location",
+      "certificateExpiresOn": "Certificate expires",
+      "insuranceExpiresOn": "Insurance expires",
+      "expiryHelp": "Fills the home page's expiring-paperwork card. Leave blank if you do not hold the document - blank is better than a guessed date."
     },
     "outgoing": {
       "add": "New outgoing request",
@@ -13087,5 +13092,10 @@
     "since": "since {at}",
     "title": "On site now",
     "unassigned": "Unassigned"
+  },
+  "materialAcceptance": {
+    "PENDING": "Awaiting acceptance",
+    "ACCEPTED": "Accepted",
+    "REJECTED": "Rejected"
   }
 }

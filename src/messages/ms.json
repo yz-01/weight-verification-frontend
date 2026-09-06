@@ -4945,7 +4945,9 @@
       "materialReceipts": "Penghantaran hari ini",
       "materialReturns": "Dipulangkan hari ini",
       "equipmentIn": "Jentera masuk hari ini",
-      "equipmentOut": "Jentera keluar hari ini"
+      "equipmentOut": "Jentera keluar hari ini",
+      "materialPendingAcceptance": "Menunggu penerimaan",
+      "equipmentExpiring": "Dokumen akan luput"
     },
     "personnel": {
       "empty": "Tiada kehadiran direkodkan hari ini.",
@@ -5257,7 +5259,10 @@
       "title": "Tajuk tugas",
       "unit": "Unit",
       "vehiclePlate": "Nombor plat",
-      "workLocation": "Kawasan / lokasi kerja"
+      "workLocation": "Kawasan / lokasi kerja",
+      "certificateExpiresOn": "Sijil luput pada",
+      "insuranceExpiresOn": "Insurans luput pada",
+      "expiryHelp": "Mengisi kad dokumen-akan-luput di laman utama. Biarkan kosong jika anda tiada dokumen itu - kosong lebih baik daripada tarikh yang diteka."
     },
     "outgoing": {
       "add": "Permohonan keluar baharu",
@@ -13087,5 +13092,10 @@
     "since": "sejak {at}",
     "title": "Di tapak sekarang",
     "unassigned": "Tidak ditetapkan"
+  },
+  "materialAcceptance": {
+    "PENDING": "Menunggu penerimaan",
+    "ACCEPTED": "Diterima",
+    "REJECTED": "Ditolak"
   }
 }

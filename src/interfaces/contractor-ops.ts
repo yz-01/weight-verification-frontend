@@ -221,6 +221,13 @@ export interface SiteEquipment {
   supplier_name: string | null;
   description: string;
   status: EquipmentStatus;
+  /**
+   * When the paperwork runs out. Both nullable, because a contractor may not
+   * hold a certificate for every item on site - and a null must not read as
+   * expired.
+   */
+  certificate_expires_on: string | null;
+  insurance_expires_on: string | null;
   is_active: boolean;
   movement_count: number;
   quantity_on_site: string;
@@ -236,6 +243,9 @@ export interface EquipmentPayload {
   registration_no?: string;
   supplier?: string | null;
   description?: string;
+  /** ISO date, or null when the contractor does not hold the document. */
+  certificate_expires_on?: string | null;
+  insurance_expires_on?: string | null;
   is_active?: boolean;
 }
 
