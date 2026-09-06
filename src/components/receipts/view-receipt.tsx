@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, MapPin, Pencil } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, MapPin, Pencil, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,7 +18,19 @@ import {
   ReadField,
   TypeBadge,
 } from "@/components/shared/page-primitives";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type {
   MaterialReceiptDetail,
@@ -143,11 +155,23 @@ function AddPhoto({
   );
 }
 
+/** First letters of the first two words, for an avatar with no picture. */
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
 export function ViewReceipt({ id }: { id: string }) {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
+  // Which photograph is open full size, by index, or null for none.
+  const [openPhoto, setOpenPhoto] = useState<number | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["receipts", "detail", id],
@@ -294,35 +318,74 @@ export function ViewReceipt({ id }: { id: string }) {
             </FormSection>
           )}
 
-          <FormSection title={t("receipts.section.stamp")}>
-            <ReadField
-              label={t("receipts.field.receivedBy")}
-              value={data.received_by_name}
-            />
-            <ReadField
-              label={t("receipts.field.recordedBy")}
-              value={data.created_by_name}
-            />
-            <ReadField
-              label={t("receipts.field.capturedAt")}
-              value={df.dateTime(data.captured_at)}
-            />
-            <ReadField
-              label={t("receipts.field.location")}
-              value={
-                coordinates ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-success" />
-                    <span className="tabular">{coordinates}</span>
-                  </span>
+          {/* Who recorded this, small, with a way to reach them.
+
+              Four labelled boxes used to sit here, two of them holding the
+              same word - the clerk who receives is usually the clerk who
+              records - and none of them holding the one thing somebody
+              looking at a disputed delivery wants, which is a number to
+              call. The user asked for the phone and the face instead of the
+              space (2026-09-05).
+
+              The receiver stays a plain name and only appears when it
+              differs: it is free text typed at the gate, not an account, so
+              there is no number or picture to look up. Showing it anyway
+              when it repeats the recorder is how the section got big. */}
+          <section className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <Avatar className="size-10">
+                {data.created_by_avatar ? (
+                  <AvatarImage src={data.created_by_avatar} alt="" />
+                ) : null}
+                <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+                  {initials(data.created_by_name ?? "")}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">
+                  {data.created_by_name ?? t("receipts.recorderUnknown")}
+                </p>
+                {data.created_by_phone ? (
+                  <a
+                    href={`tel:${data.created_by_phone.replace(/[^+\d]/g, "")}`}
+                    className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Phone className="h-3 w-3" />
+                    <span className="tabular">{data.created_by_phone}</span>
+                  </a>
                 ) : (
-                  <span className="text-muted-foreground">
-                    {t("receipts.locationMissing")}
-                  </span>
-                )
-              }
-            />
-          </FormSection>
+                  <p className="text-xs text-muted-foreground">
+                    {t("receipts.noRecorderPhone")}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {data.received_by_name &&
+            data.received_by_name !== data.created_by_name ? (
+              <p className="text-xs text-muted-foreground">
+                {t("receipts.field.receivedBy")}:{" "}
+                <span className="font-medium text-foreground">
+                  {data.received_by_name}
+                </span>
+              </p>
+            ) : null}
+
+            <p className="text-xs text-muted-foreground">
+              {df.dateTime(data.captured_at)}
+            </p>
+
+            {coordinates ? (
+              <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 text-success" />
+                <span className="tabular">{coordinates}</span>
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                {t("receipts.locationMissing")}
+              </span>
+            )}
+          </section>
 
           <section className="px-6 py-5">
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -334,18 +397,32 @@ export function ViewReceipt({ id }: { id: string }) {
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                {data.photos.map((photo) => (
+                {data.photos.map((photo, index) => (
                   <figure key={photo.id} className="space-y-1.5">
-                    <div className="relative aspect-4/3 overflow-hidden rounded-md border bg-muted/40">
+                    {/* A thumbnail cropped to 4:3 is not the evidence, it is a
+                        pointer to it. Until this was clickable there was no
+                        way to see a delivery note well enough to read it. */}
+                    <button
+                      type="button"
+                      title={t("receipts.photoViewer.open")}
+                      onClick={() => setOpenPhoto(index)}
+                      className="relative block aspect-4/3 w-full overflow-hidden rounded-md border bg-muted/40 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      {/* The original, not the stamped copy. A project manager
+                          reuses these photographs elsewhere, and a location and
+                          time burnt into the corner travels with them into
+                          documents where it means nothing. The stamped version
+                          still exists and is still what the evidence trail
+                          shows. */}
                       <Image
-                        src={photo.watermarked || photo.image}
+                        src={photo.image}
                         alt={t(`receipts.photoKind.${photo.kind}`)}
                         fill
                         sizes="(max-width: 768px) 50vw, 25vw"
                         className="object-cover"
                         unoptimized
                       />
-                    </div>
+                    </button>
                     <figcaption className="text-xs text-muted-foreground">
                       {t(`receipts.photoKind.${photo.kind}`)}
                     </figcaption>
@@ -364,8 +441,115 @@ export function ViewReceipt({ id }: { id: string }) {
               />
             )}
           </section>
+
+          {/* The signatures belong with the delivery they were given for.
+              They were captured on site and stored on this record all along,
+              and this screen simply never drew them - so the one place a
+              project manager looks to check a delivery was the one place that
+              could not show who signed for it. */}
+          <section className="rounded-lg border bg-card p-5">
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("receipts.section.signatures")}
+            </h3>
+            {data.signature || data.supplier_signature ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {(
+                  [
+                    ["receiver", data.signature],
+                    ["supplier", data.supplier_signature],
+                  ] as const
+                ).map(([who, source]) =>
+                  source ? (
+                    <figure key={who} className="space-y-1.5">
+                      <div className="relative aspect-3/1 overflow-hidden rounded-md border bg-white">
+                        <Image
+                          src={source}
+                          alt={t(`receipts.signature.${who}`)}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 50vw"
+                          className="object-contain"
+                          unoptimized
+                        />
+                      </div>
+                      <figcaption className="text-xs text-muted-foreground">
+                        {t(`receipts.signature.${who}`)}
+                      </figcaption>
+                    </figure>
+                  ) : null,
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {t("receipts.signature.none")}
+              </p>
+            )}
+          </section>
         </div>
       </div>
+
+      {/* Full size, with the neighbours one key away: a delivery note is
+          usually checked against the one before it. */}
+      <Dialog
+        open={openPhoto !== null}
+        onOpenChange={(open) => !open && setOpenPhoto(null)}
+      >
+        <DialogContent className="sm:max-w-4xl">
+          {openPhoto !== null && data.photos[openPhoto] ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  {t(`receipts.photoKind.${data.photos[openPhoto].kind}`)}
+                </DialogTitle>
+                <DialogDescription>
+                  {t("receipts.photoViewer.clean")}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="relative max-h-[70dvh] min-h-[40dvh] overflow-hidden rounded-md bg-muted/40">
+                <Image
+                  src={data.photos[openPhoto].image}
+                  alt={t(`receipts.photoKind.${data.photos[openPhoto].kind}`)}
+                  width={1600}
+                  height={1200}
+                  className="max-h-[70dvh] w-full object-contain"
+                  unoptimized
+                />
+              </div>
+              {data.photos.length > 1 && (
+                <div className="flex items-center justify-between">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    title={t("receipts.photoViewer.previous")}
+                    onClick={() =>
+                      setOpenPhoto(
+                        (openPhoto + data.photos.length - 1) %
+                          data.photos.length,
+                      )
+                    }
+                  >
+                    <ChevronLeft />
+                    {t("receipts.photoViewer.previous")}
+                  </Button>
+                  <span className="text-xs tabular-nums text-muted-foreground">
+                    {openPhoto + 1} / {data.photos.length}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    title={t("receipts.photoViewer.next")}
+                    onClick={() =>
+                      setOpenPhoto((openPhoto + 1) % data.photos.length)
+                    }
+                  >
+                    {t("receipts.photoViewer.next")}
+                    <ChevronRight />
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -136,6 +136,8 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       material_name: string;
       quantity: string;
       unit: "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
+      /** The material column, or null for a delivery taken unfiled. */
+      category?: string | null;
       unit_price?: string | null;
       vehicle_plate?: string;
       delivery_note_no?: string;

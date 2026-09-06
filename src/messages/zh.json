@@ -1,18 +1,40 @@
 {
   "materialColumns": {
-    "uncounted": "有几张送货单读不出金额，没有算进这个合计里。",
-    "tonnes": "累计 {tonnes} 吨",
+    "alertHelp": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
+    "alertInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
+    "alertPercentages": "在这些百分比提醒",
+    "archived": "已归栏目",
+    "archivedHelp": "预算是钱，由这个栏目下的送货单金额累计而来。",
+    "budgetAmount": "预算（RM）",
+    "budgetNone": "不计预算的栏目留空",
+    "columnsFailed": "无法载入栏目，因此无法确定这个工地到底有没有栏目。请重试。",
+    "columnsFailedRefile": "无法载入栏目，所以上面的选择框是空的。这不代表这个工地没有栏目 —— 在载入成功之前，请不要新建一个。",
+    "edit": "编辑栏目",
+    "editHelp": "只改名称、预算和预警线。归在这个栏目里的照片、数量与签名是证据，这里一个字节都不动。",
+    "editTitle": "编辑 {name}",
+    "fileInto": "归到",
     "filed": "已归档 {count} 条",
     "noBudget": "没有设预算",
     "noColumns": "还没有设栏目",
-    "archivedHelp": "预算是钱，由这个栏目下的送货单金额累计而来。",
-    "archived": "已归栏目",
-    "seeAllPending": "查看全部 {count} 条",
-    "pendingEmpty": "没有待看的",
-    "pendingHelp": "你看过之后才会归到各自的栏目里。每个账号的已读状态是各自独立的。",
+    "noMaterialColumns": "这个项目还没有可归的材料栏目。",
     "pending": "待你查看（{count}）",
+    "pendingEmpty": "没有待看的",
+    "pendingFailed": "无法载入待归档的送货清单，因此无法确定到底有没有在等。请重试。",
+    "pendingHelp": "你看过之后才会归到各自的栏目里。每个账号的已读状态是各自独立的。",
+    "refileConfirm": "归档",
+    "refileHelp": "只改归在哪。照片、数量、签名、时间、位置全部保持记录时的样子。",
+    "refileReason": "原因",
+    "refileTitle": "把 {receipt} 归到某个栏目",
+    "saveFailed": "没有成功。请再试一次，或者刷新页面。",
+    "seeAllPending": "查看全部 {count} 条",
     "subtitle": "每个栏目收了多少、花了多少",
-    "title": "材料栏目"
+    "title": "材料栏目",
+    "toast": {
+      "refiled": "已归档。"
+    },
+    "tonnes": "累计 {tonnes} 吨",
+    "tracksSpend": "这个栏目的支出计入预算",
+    "uncounted": "有几张送货单读不出金额，没有算进这个合计里。"
   },
   "photoApprovals": {
     "noLocation": "没有记录位置",
@@ -1590,7 +1612,11 @@
       "yes": "是"
     },
     "subtitle": "统一管理合作伙伴资料、区域、客户归属、协议和佣金结算。",
-    "title": "合作伙伴管理"
+    "title": "合作伙伴管理",
+    "schemes": {
+      "help": "佣金方案是合作协议的一部分，跟着协议版本一起冻结，所以要在协议那边建立和修改，不在这一页。",
+      "goToAgreements": "去合作协议管理"
+    }
   },
   "adminQr": {
     "action": {
@@ -2824,6 +2850,7 @@
     "commentPlaceholder": "填写原因或审核备注",
     "companyWide": "公司级",
     "count": "共 {count} 项审批",
+    "countUnknown": "待办数量没有载入",
     "create": {
       "action": "新建审批",
       "description": "建立与业务记录关联的审批草稿。",
@@ -2861,6 +2888,7 @@
       "title": "审批记录",
       "transition": "状态变化"
     },
+    "historyFailed": "无法载入最新的审批记录。下面显示的是这条申请自带的快照，可能不是最新的。",
     "metadataHint": "可选的流程专用 JSON 对象。",
     "resource": {
       "all": "全部记录类型",
@@ -2885,6 +2913,7 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交"
     },
+    "supportingDataFailed": "无法载入项目、人员或角色清单，所以下面选择框里的选项可能不全甚至是空的。这里空白不代表真的没有可选项。请重试。",
     "title": "审批流程",
     "toast": {
       "approve": "审批已批准",
@@ -3772,25 +3801,12 @@
     }
   },
   "common": {
-    "readOnlySetting": "这一项只能看，不能改",
-    "minLength": "{field} 至少要 {count} 个字",
-    "signatureMissing": "请先在这里签名",
-    "searchMinLength": "搜索至少要输入 {count} 个字",
-    "outOfRange": "{field} 要在 {min} 到 {max} 之间",
-    "offline": "目前没有网络",
-    "nothingUnread": "没有未读的",
-    "nothingToSync": "没有待上传的内容",
-    "noReportYet": "请先生成报表",
-    "noFiltersSet": "请先设定筛选条件",
-    "noChanges": "还没有任何改动",
-    "missingFields": "还差这些没填：{fields}",
-    "listSeparator": "、",
-    "alreadyFirstPage": "已经在第一页",
-    "alreadyLast": "已经是最后一个了",
-    "alreadyFirst": "已经是第一个了",
     "actions": "操作",
     "active": "启用",
     "all": "全部",
+    "alreadyFirst": "已经是第一个了",
+    "alreadyFirstPage": "已经在第一页",
+    "alreadyLast": "已经是最后一个了",
     "back": "返回",
     "cancel": "取消",
     "close": "关闭",
@@ -3805,12 +3821,24 @@
     "export": "导出",
     "inactive": "停用",
     "language": "语言",
+    "listSeparator": "、",
+    "loadFailed": "无法载入{what}，所以这里显示的不是实际情况。请重试。",
     "loading": "加载中",
+    "minLength": "{field} 至少要 {count} 个字",
+    "missingFields": "还差这些没填：{fields}",
     "mobileSidebarDescription": "显示手机端侧栏。",
+    "noChanges": "还没有任何改动",
+    "noFiltersSet": "请先设定筛选条件",
     "noOptions": "没有可选项",
+    "noReportYet": "请先生成报表",
     "none": "无",
+    "nothingToSync": "没有待上传的内容",
+    "nothingUnread": "没有未读的",
+    "offline": "目前没有网络",
     "optional": "选填",
+    "outOfRange": "{field} 要在 {min} 到 {max} 之间",
     "profile": "个人资料",
+    "readOnlySetting": "这一项只能看，不能改",
     "reason": "原因",
     "reasonPlaceholder": "请说明此次变更的原因",
     "refresh": "刷新",
@@ -3819,11 +3847,14 @@
     "save": "保存",
     "saving": "保存中",
     "search": "搜索",
+    "searchMinLength": "搜索至少要输入 {count} 个字",
     "searchPlaceholder": "搜索",
+    "sectionLoadFailed": "这一部分没有载入成功，所以这里显示的不是实际情况。请重试。",
     "selectPlaceholder": "请选择",
     "settings": "设置",
     "sidebar": "侧栏",
     "signOut": "退出登录",
+    "signatureMissing": "请先在这里签名",
     "theme": "主题",
     "themeDark": "深色",
     "themeLight": "浅色",
@@ -3837,7 +3868,19 @@
       "linkCopied": "链接已复制",
       "notSentBody": "账号已经建好了。请复制下面的开通链接，自己交给老板。",
       "notSentTitle": "邮件没能寄出",
-      "emailHint": "开通链接会寄到这里。公司里其他人的账号，之后都由这个账号来开。"
+      "emailHint": "开通链接会寄到这里。公司里其他人的账号，之后都由这个账号来开。",
+      "account": {
+        "title": "老板账号",
+        "description": "这家租户的激活密匙是发到这里的。账号本身属于客户。",
+        "none": "这家公司没有老板账号 —— 它是在「建公司时一并开老板账号」之前建立的。",
+        "readOnly": "只有平台超级管理员能改这一项。",
+        "warning": "改了邮箱之后，老板会被登出并需要重新激活 —— 因为原来的密码属于一个已经联系不到这家租户的地址。",
+        "save": "保存并重发激活密匙",
+        "sent": "新的激活邮件已经发到 {email}。",
+        "notSent": "邮件没发出去。请把这个链接交给老板：",
+        "status": "状态",
+        "needsAChange": "先填一个新的邮箱或电话。"
+      }
     },
     "addUser": "添加用户",
     "commissionStatus": {
@@ -4808,7 +4851,22 @@
       "openCenter": "审批中心",
       "subtitle": "待处理 {total} 项，指派给你 {mine} 项，未指派 {unassigned} 项。",
       "title": "待审批事项",
-      "unassigned": "未指派"
+      "unassigned": "未指派",
+      "status": {
+        "AWAITING_CONFIRMATION": "等待确认",
+        "IN_REVIEW": "审批中",
+        "PENDING_APPROVAL": "等待审批",
+        "REQUESTED": "等待审批",
+        "SUBMITTED": "已提交"
+      },
+      "source": {
+        "APPROVAL": "审批中心",
+        "CONSULTANT_APPLICATION": "顾问申请",
+        "DISPOSAL_REQUEST": "废料清运",
+        "FIELD_TASK": "现场任务",
+        "SITE_PROGRESS": "进度记录",
+        "WASTE_OUTGOING": "废料出场"
+      }
     },
     "attendanceEvent": {
       "CLOCK_IN": "上班打卡",
@@ -4834,6 +4892,7 @@
       "project": "项目",
       "selectProject": "选择项目"
     },
+    "liveStopped": "实时部分已经停止更新。下面的动态、异常和未读数量是打开这一页时的，不是现在的。",
     "locationMap": {
       "allProjects": "全部项目",
       "empty": "所选项目还没有可显示的位置或电子围栏。",
@@ -4952,6 +5011,13 @@
       "SAFETY_INCIDENT": "安全",
       "SITE_PROGRESS": "施工进度",
       "WASTE_DISPATCH": "回收派车"
+    },
+    "unread": {
+      "title": "等你处理",
+      "subtitle": "{receipts} 笔送货、{approvals} 项待审，还没有人替你看过",
+      "help": "这是你自己的清单。点进去看过就算你归档了，别人那边不受影响。",
+      "openColumns": "材料栏目",
+      "unfiled": "暂未归档"
     }
   },
   "contractorModuleLanding": {
@@ -5006,7 +5072,11 @@
       "uploadHelp": "角色和人员都留空时，所有可查看人员都能上传；选择后只允许所选对象上传。",
       "uploadRoles": "可上传的角色",
       "uploadTitle": "谁可以上传到此栏目",
-      "uploadUsers": "可上传的人员"
+      "uploadUsers": "可上传的人员",
+      "kind": "属于哪一类栏目",
+      "kindField": "现场资料栏目",
+      "kindMaterial": "材料栏目",
+      "kindBoth": "尚未分家"
     },
     "direction": {
       "ENTRY": "进场",
@@ -5696,6 +5766,7 @@
       "wasteOrders": "待处理废料订单",
       "weighingSessions": "称重次数"
     },
+    "tileFailed": "没有载入",
     "title": "仪表板"
   },
   "deductions": {
@@ -6482,7 +6553,10 @@
       "version_already_exists": "该平台版本已经存在。",
       "version_not_found": "找不到该平台版本。",
       "visit_not_found": "找不到该客户回访。",
-      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。"
+      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
+      "attendance_outside_geofence": "你不在工地围栏内，离最近围栏 {distance} 米。走近一点再试。",
+      "attendance_gps_required": "这个项目设了工地范围，打卡需要你的位置。请打开定位再试一次。",
+      "permission_denied": "你没有权限做这件事。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -6709,7 +6783,14 @@
     "readyBody": "这台手机已安全绑定到你的现场人员账号。",
     "readyTitle": "手机已准备好",
     "signIn": "登录",
-    "thisPhone": "这台手机"
+    "thisPhone": "这台手机",
+    "storageBlocked": "这个浏览器没有保存网站数据，所以这台手机没办法保持关联。请用普通窗口（不要无痕窗口）打开邀请链接，并允许这个网址保存网站数据。",
+    "browserWarningTitle": "请用手机自带的浏览器打开这个链接",
+    "browserWarning": "这台手机是跟你激活时用的那个浏览器绑定的。在聊天软件里面激活，绑定的只是那个软件；之后用 Safari 或 Chrome 打开，会被当成另一台手机。",
+    "browserWarningNamed": "这个链接是在 {app} 里面打开的。请先复制链接，用 Safari 或 Chrome 打开，再在那里激活。",
+    "copyLink": "复制链接",
+    "copied": "链接已复制。粘贴到 Safari 或 Chrome 打开。",
+    "resuming": "正在打开你的工作台…"
   },
   "fieldAccessAdmin": {
     "unbind": {
@@ -6807,7 +6888,9 @@
       "permissionError": "无法启动相机，请允许相机权限后再试。",
       "ready": "已拍摄 {count} 张",
       "switch": "切换镜头",
-      "unsupported": "此浏览器无法打开相机，请使用 HTTPS 网站和较新的手机浏览器。"
+      "unsupported": "此浏览器无法打开相机，请使用 HTTPS 网站和较新的手机浏览器。",
+      "retake": "点一下重拍",
+      "preview": "已拍摄"
     },
     "categoryEvidence": {
       "changeCategory": "更换",
@@ -6942,7 +7025,12 @@
       "ocrItems": {
         "confirmHint": "请对照纸质单核对",
         "title": "从送货单读到的物料",
-        "unclassified": "选择栏目"
+        "unclassified": "选择栏目",
+        "makeColumn": "建成栏目",
+        "editHint": "改掉读错的文字、选栏目、删掉多余行,再点「填入」。",
+        "remove": "删除此行",
+        "use": "填入",
+        "noUnit": "无单位"
       },
       "ocrLowConfidence": "以下字段识别置信度较低：{fields}。保存前请对照纸质单据核对。",
       "ocrManual": "无法读取送货单，请手动填写资料。",
@@ -6975,7 +7063,14 @@
       "supplierSignature": "供应商签名",
       "tapCamera": "按这里打开相机",
       "unit": "单位",
-      "vehicle": "车牌"
+      "vehicle": "车牌",
+      "column": "材料栏目",
+      "chooseColumn": "选择材料栏目",
+      "columnUnfiled": "暂未归档",
+      "noColumnsYet": "这个工地还没有材料栏目。在下面新增第一个。",
+      "newColumnName": "新栏目名称",
+      "addColumn": "新增栏目",
+      "columnOffline": "离线：没有网络时开不了新栏目。先把这批货收下（暂未归档），有网络再归。"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -7046,6 +7141,54 @@
       "PROGRESS": "进度",
       "SAFETY": "安全",
       "WASTE": "废料"
+    },
+    "locationAccess": {
+      "why": {
+        "title": "这里需要用到你的位置",
+        "body": "收货、打卡和现场记录都会记下发生的地点，这样办公室不用打电话跟你确认人在不在工地。只在你按下按钮的那一刻读一次。",
+        "allow": "好，允许定位",
+        "later": "暂时不要"
+      },
+      "denied": {
+        "title": "浏览器不让这个网页取你的位置",
+        "iosNote": "如果你从头到尾没看到过询问框，那是定位在手机设置里被关掉了。网页再怎么请求都弹不出那个框 —— 只能按下面的步骤打开。"
+      },
+      "steps": {
+        "iosSafari": {
+          "1": "打开「设置」→「隐私与安全性」→「定位服务」，确认最上面的总开关是开着的。",
+          "2": "还在这一页，往下滑找到「Safari 网站」，选「使用 App 期间」。",
+          "3": "回到这个页面，点地址栏左边的「ᴀA」→「网站设置」→「位置」→ 选「允许」。",
+          "4": "刷新这个页面，再按一次上面的按钮。"
+        },
+        "iosOtherBrowser": {
+          "1": "打开「设置」→「隐私与安全性」→「定位服务」，确认最上面的总开关是开着的。",
+          "2": "还在这一页，往下滑找到你在用的浏览器（Chrome、Firefox 或 Edge），选「使用 App 期间」。",
+          "3": "把浏览器完全关掉，再重新打开这个链接。",
+          "4": "再按一次上面的按钮。这次会弹出询问框，请选「允许」。"
+        },
+        "androidChrome": {
+          "1": "从屏幕顶部往下滑，确认系统的「定位」是开着的。",
+          "2": "点地址栏左边的图标 →「权限」→「位置」→ 选「允许」。",
+          "3": "如果那里没有「位置」，去「设置」→「应用」→「Chrome」→「权限」→「位置」，选「仅在使用该应用时允许」。",
+          "4": "刷新这个页面，再按一次上面的按钮。"
+        },
+        "androidOtherBrowser": {
+          "1": "从屏幕顶部往下滑，确认系统的「定位」是开着的。",
+          "2": "去「设置」→「应用」→ 你在用的浏览器 →「权限」→「位置」，选「仅在使用该应用时允许」。",
+          "3": "在浏览器自己的网站设置里，把这个网站的位置权限改成「允许」。",
+          "4": "刷新这个页面，再按一次上面的按钮。"
+        },
+        "desktop": {
+          "1": "点地址栏左边的图标。",
+          "2": "找到「位置」，改成「允许」。",
+          "3": "确认电脑本身的定位服务是开着的。",
+          "4": "刷新这个页面，再按一次上面的按钮。"
+        }
+      },
+      "retry": "再试一次",
+      "unavailable": "手机暂时定不到位置 —— 多半是在室内或有遮挡。到空旷一点的地方再试一次。",
+      "timeout": "定位等太久了。请再试一次。",
+      "unsupported": "这个浏览器读不到位置。请用手机上的 Safari 或 Chrome 打开这个链接。"
     }
   },
   "fieldStaffWorkspace": {
@@ -8370,7 +8513,8 @@
     "weighing": "称重",
     "weighing_parameters": "地磅检测参数",
     "weighing_records": "称重记录",
-    "yards": "回收场"
+    "yards": "回收场",
+    "waitingForYou": "{count} 项等你处理"
   },
   "notifications": {
     "compose": {
@@ -8382,6 +8526,7 @@
       "chooseProjectFirst": "请先选择项目。",
       "description": "向你公司其中一个项目的有效成员发送站内通知。",
       "loadingMembers": "正在加载项目成员……",
+      "membersFailed": "无法载入这个项目的人员，所以下面没有列出收件人。这不代表项目里没有人。",
       "message": "内容",
       "messagePlaceholder": "写下团队需要知道或执行的事情。",
       "noMembers": "这个项目目前还没有有效的项目成员。",
@@ -8403,6 +8548,7 @@
       "title": "发送项目通知"
     },
     "count": "共 {count} 条通知",
+    "countFailed": "无法载入未读数量，因此无法确定到底有没有东西在等你。",
     "field": {
       "kind": "类型",
       "notification": "通知",
@@ -8439,6 +8585,7 @@
       "SYSTEM": "系统",
       "WEIGHING": "称重"
     },
+    "listFailed": "无法载入你的通知。这和「没有通知」不是一回事 —— 请重试。",
     "markAllRead": "全部标记为已读",
     "markRead": "标记为已读",
     "noUnread": "目前没有未读通知",
@@ -9652,7 +9799,8 @@
       "photos": "照片",
       "received": "收货人",
       "stamp": "系统自动记录",
-      "vehicle": "车辆与单据"
+      "vehicle": "车辆与单据",
+      "signatures": "签名"
     },
     "stampNote": "时间、位置和记录人由系统在提交时自动写入，无法手动填写或事后修改。",
     "summary": {
@@ -9679,7 +9827,20 @@
       "PIECE": "件",
       "TONNE": "吨"
     },
-    "viewTitle": "收货记录"
+    "viewTitle": "收货记录",
+    "signature": {
+      "receiver": "收货人",
+      "supplier": "供应商",
+      "none": "没有采集到签名。"
+    },
+    "photoViewer": {
+      "open": "打开照片",
+      "previous": "上一张",
+      "next": "下一张",
+      "clean": "这里显示的是不带位置与时间水印的原图，方便复制到别处使用。"
+    },
+    "recorderUnknown": "没有记录人资料",
+    "noRecorderPhone": "没有登记联系电话"
   },
   "recyclerBusiness": {
     "action": {
@@ -10684,14 +10845,19 @@
       "MANUAL": "手动建立"
     },
     "state": {
+      "candidatesLoadError": "无法载入已确认的现场进度，因此无法确定到底有没有证据可以附上。请先重试再确认。",
       "chooseProject": "请选择项目以查看施工计划。",
+      "historyLoadError": "无法载入施工计划历史，因此无法确定到底有没有历史记录。请重试。",
       "loadError": "无法载入施工计划，请重试。",
       "noConfirmedProgress": "目前没有已确认的现场进度记录。",
       "noHistory": "还没有施工计划历史。",
       "noPlans": "这个项目还没有施工计划。您可以手动建立或导入 Excel。",
       "noReason": "没有额外备注",
       "noRevision": "没有计划版本",
-      "noTasks": "这个版本还没有任务。"
+      "noTasks": "这个版本还没有任务。",
+      "overviewLoadError": "无法载入进度汇总，因此任务数与进度百分比没有显示出来。请重试。",
+      "revisionsLoadError": "无法载入计划版本，请重试。",
+      "tasksLoadError": "无法载入任务清单，因此这个版本的任务没有显示出来。请重试。"
     },
     "status": {
       "current": "当前版本",
@@ -11525,7 +11691,8 @@
       "history": "最后位置 / 历史轨迹",
       "live": "实时位置"
     },
-    "title": "工地人员 GPS"
+    "title": "工地人员 GPS",
+    "watchNotPermitted": "你可以在这里共享自己的位置。查看全体人员的位置需要「现场位置查看」权限，你的角色没有这个权限 —— 需要的话请联系公司管理员。"
   },
   "sites": {
     "count": "{count, plural, =0 {暂无回收场} other {# 个回收场}}",
@@ -12369,16 +12536,6 @@
     }
   },
   "wasteOutgoing": {
-    "handover": {
-      "trail": "{from} 于 {when} 转交给 {to}",
-      "failed": "转交没成功",
-      "loading": "名单加载中",
-      "note": "备注",
-      "choose": "选一个人",
-      "person": "转交给",
-      "help": "申请 {reference}。一次只转交这一份，不是整个类别。",
-      "title": "把这份申请转交给别人"
-    },
     "action": {
       "handOverAgain": "再转交",
       "handOver": "转交",
@@ -12400,6 +12557,7 @@
     "assign": {
       "help": "选择已绑定此项目的回收商。{reference} 的订单会立即发送至对方系统。",
       "noPartners": "此项目尚未绑定回收商。请先在「合作回收商」中绑定，再建立订单。",
+      "partnersFailed": "无法载入回收合作商，所以选择框是空的。这不代表你没有合作商。",
       "title": "安排回收商"
     },
     "cancel": {
@@ -12475,6 +12633,16 @@
       "submitFailed": "申请提交失败，请检查标示的资料后重试。",
       "title": "环保材料出场申请"
     },
+    "handover": {
+      "trail": "{from} 于 {when} 转交给 {to}",
+      "failed": "转交没成功",
+      "loading": "名单加载中",
+      "note": "备注",
+      "choose": "选一个人",
+      "person": "转交给",
+      "help": "申请 {reference}。一次只转交这一份，不是整个类别。",
+      "title": "把这份申请转交给别人"
+    },
     "milestone": {
       "ARRIVED_AT_PLANT": "已到达回收厂",
       "COMPLETED": "回收完成",
@@ -12491,6 +12659,7 @@
     "photos": {
       "caption": "备注（可不填）"
     },
+    "recordsFailed": "无法载入清运记录，因此无法确定到底有没有。请重试。",
     "review": {
       "failed": "审批结果未能保存。",
       "help": "批准 {reference} 后才可发送回收订单，或填写原因退回。",

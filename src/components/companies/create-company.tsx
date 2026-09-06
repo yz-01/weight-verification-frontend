@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { OwnerAccountPanel } from "@/components/companies/owner-account-panel";
 import {
   SelectField,
   TextField,
@@ -695,6 +696,12 @@ export function CreateCompany({
           </form.Field>
         </FormSection>
       )}
+
+      {/* On edit the owner fields above are gone, because the backend refuses
+          them - handing the account to a different person is not an edit. This
+          shows where the activation key went, and lets a superadmin correct a
+          typed character. */}
+      {isEdit && company ? <OwnerAccountPanel companyId={company.id} /> : null}
 
       <FormSection title={t("companies.section.contact")}>
         <form.Field

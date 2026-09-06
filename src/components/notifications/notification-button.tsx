@@ -109,7 +109,11 @@ export function NotificationButton() {
       void queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
+  // A failed count is not a count of zero. Rendering it as zero tells the
+  // reader they have nothing waiting, and nobody goes looking for a
+  // notification they have been told does not exist (F-222).
   const count = countQuery.data?.total ?? 0;
+  const countFailed = countQuery.isError;
   const notificationHref =
     user?.is_field_staff
       ? "/field-staff"
@@ -127,14 +131,25 @@ export function NotificationButton() {
           size="icon"
           className="relative size-9 bg-card shadow-sm hover:border-primary/30 hover:bg-accent"
           title={t("notifications.title")}
-          aria-label={t("notifications.unreadCount", { count })}
+          aria-label={
+            countFailed
+              ? t("notifications.countFailed")
+              : t("notifications.unreadCount", { count })
+          }
         >
           <Bell className="h-4 w-4" />
-          {count > 0 && (
+          {countFailed ? (
+            <span
+              className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-muted px-1 text-[10px] font-semibold leading-none text-muted-foreground"
+              title={t("notifications.countFailed")}
+            >
+              ?
+            </span>
+          ) : count > 0 ? (
             <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-none text-destructive-foreground">
               {count > 99 ? "99+" : count}
             </span>
-          )}
+          ) : null}
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -151,8 +166,16 @@ export function NotificationButton() {
               <p className="text-sm font-semibold">
                 {t("notifications.title")}
               </p>
-              <p className="text-xs text-muted-foreground">
-                {t("notifications.unreadCount", { count })}
+              <p
+                className={
+                  countFailed
+                    ? "text-xs text-destructive"
+                    : "text-xs text-muted-foreground"
+                }
+              >
+                {countFailed
+                  ? t("notifications.countFailed")
+                  : t("notifications.unreadCount", { count })}
               </p>
             </div>
           </div>
@@ -187,7 +210,13 @@ export function NotificationButton() {
           )}
         </div>
         <div className="max-h-96 overflow-y-auto">
-          {(listQuery.data?.results ?? []).length === 0 ? (
+          {listQuery.isError ? (
+            <div className="px-4 py-10 text-center">
+              <p className="text-sm text-destructive">
+                {t("notifications.listFailed")}
+              </p>
+            </div>
+          ) : (listQuery.data?.results ?? []).length === 0 ? (
             <div className="px-4 py-10 text-center">
               <span className="mx-auto grid size-10 place-items-center rounded-full bg-muted text-muted-foreground">
                 <Check className="size-4" />

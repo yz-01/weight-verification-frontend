@@ -45,6 +45,10 @@ export function Receipts() {
     queryFn: () =>
       getProjectCategories({
         page_size: 200,
+        // Filtering deliveries by column offers the columns deliveries can
+        // be in. Listing the site-record ones gave options that always
+        // returned nothing (T-161).
+        kind: "MATERIAL",
         ...(list.filters.project ? { project: list.filters.project } : {}),
       }),
   });

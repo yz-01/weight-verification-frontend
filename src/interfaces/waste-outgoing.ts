@@ -166,6 +166,8 @@ export interface WasteTaskPhoto {
   id: string;
   kind: string;
   image: string;
+  /** The stamped copy: project, time and GPS rendered into the pixels. */
+  watermarked: string | null;
   caption: string;
   latitude: string | null;
   longitude: string | null;

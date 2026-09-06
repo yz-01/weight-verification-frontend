@@ -5,6 +5,7 @@ export type ContractorDashboardSection =
   | "overview"
   | "activity"
   | "approvals"
+  | "unread"
   | "anomalies"
   | "notifications"
   | "personnel"
@@ -79,6 +80,14 @@ export interface ApprovalRow {
   title: string;
   status: string;
   project: string;
+  /**
+   * Which queue this row came out of, from a closed set.
+   *
+   * Not the same thing as `resource_type`: on a row from the approval centre
+   * that field is free text set by whoever raised the approval, so it cannot
+   * be trusted to choose a destination.
+   */
+  source: string;
   resource_type: string;
   requested_by: string;
   assigned_to: string;
@@ -160,6 +169,20 @@ export interface TimelineEntry {
   severity: "INFO" | "WARNING" | "DANGER";
 }
 
+export interface UnreadColumn {
+  /** Null for deliveries nobody has filed into a column yet. */
+  category: string | null;
+  name: string;
+  code: string;
+  count: number;
+}
+
+export interface DashboardUnread {
+  receipts: number;
+  columns: UnreadColumn[];
+  approvals: number;
+}
+
 /** Every section is optional: `?sections=` narrows what the server builds. */
 export interface ContractorDashboard {
   date: string;
@@ -174,6 +197,15 @@ export interface ContractorDashboard {
     mine: number;
     unassigned: number;
   };
+  /**
+   * What *this reader* has not looked at yet.
+   *
+   * Every number is answered for the person asking and nobody else: head
+   * office and the project manager wait on the same delivery and clear it
+   * separately, so a shared count would let whoever opened it first empty the
+   * other's pile (D-063).
+   */
+  unread?: DashboardUnread;
   anomalies?: DashboardAnomalies;
   notifications?: {
     rows: NotificationRow[];

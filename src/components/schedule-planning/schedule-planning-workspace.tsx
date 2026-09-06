@@ -20,7 +20,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { ScheduleGantt } from "@/components/schedule-planning/schedule-gantt";
@@ -195,6 +195,14 @@ export function SchedulePlanningWorkspace() {
 
   const currentSummary = overview.data?.summary;
   const rows = tasks.data?.results ?? [];
+
+  // A summary that failed or has not arrived must not be drawn as "0 tasks,
+  // 0% progress". Those are measurements of the site, and a zero is
+  // indistinguishable from no answer at all once it is on the card.
+  const figure = (value: string | number | null | undefined, suffix = "") =>
+    overview.isLoading || value === null || value === undefined
+      ? "-"
+      : String(value) + suffix;
   const hasDraft = revisions.data?.results.some((row) => row.status === "DRAFT");
 
   return (
@@ -285,12 +293,16 @@ export function SchedulePlanningWorkspace() {
         <EmptyState text={t("state.noPlans")} />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <SummaryCard icon={CalendarDays} label={t("summary.tasks")} value={String(currentSummary?.task_count ?? 0)} />
-            <SummaryCard icon={Check} label={t("summary.completed")} value={String(currentSummary?.completed_count ?? 0)} tone="positive" />
-            <SummaryCard icon={AlertTriangle} label={t("summary.delayed")} value={String(currentSummary?.delayed_count ?? 0)} tone="danger" />
-            <SummaryCard icon={BarChart3} label={t("summary.progress")} value={(currentSummary?.actual_progress ?? "0") + "%"} hint={t("summary.planned", { value: currentSummary?.planned_progress ?? "0" })} />
-          </div>
+          {overview.isError ? (
+            <EmptyState text={t("state.overviewLoadError")} danger />
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <SummaryCard icon={CalendarDays} label={t("summary.tasks")} value={figure(currentSummary?.task_count)} />
+              <SummaryCard icon={Check} label={t("summary.completed")} value={figure(currentSummary?.completed_count)} tone="positive" />
+              <SummaryCard icon={AlertTriangle} label={t("summary.delayed")} value={figure(currentSummary?.delayed_count)} tone="danger" />
+              <SummaryCard icon={BarChart3} label={t("summary.progress")} value={figure(currentSummary?.actual_progress, "%")} hint={t("summary.planned", { value: currentSummary?.planned_progress ?? "-" })} />
+            </div>
+          )}
 
           <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 shadow-sm lg:flex-row lg:items-center lg:justify-between">
             <div className="flex min-w-0 items-center gap-3">
@@ -318,30 +330,42 @@ export function SchedulePlanningWorkspace() {
 
           <ViewSelector value={view} onChange={setView} />
           {view === "list" && (
-            <ScheduleTaskTable
-              rows={rows}
-              revision={revision}
-              canManage={can("schedule.manage")}
-              canConfirm={can("schedule.confirm")}
-              onEdit={setEditingTask}
-              onProgress={setProgressTask}
-              onRemove={setRemovingTask}
-            />
+            <QueryPanel query={tasks} errorText={t("state.tasksLoadError")}>
+              <ScheduleTaskTable
+                rows={rows}
+                revision={revision}
+                canManage={can("schedule.manage")}
+                canConfirm={can("schedule.confirm")}
+                onEdit={setEditingTask}
+                onProgress={setProgressTask}
+                onRemove={setRemovingTask}
+              />
+            </QueryPanel>
           )}
-          {view === "gantt" && <ScheduleGantt tasks={rows} />}
+          {view === "gantt" && (
+            <QueryPanel query={tasks} errorText={t("state.tasksLoadError")}>
+              <ScheduleGantt tasks={rows} />
+            </QueryPanel>
+          )}
           {view === "revisions" && (
-            <RevisionList
-              rows={revisions.data?.results ?? []}
-              selected={revision?.id ?? ""}
-              canManage={can("schedule.manage")}
-              canConfirm={can("schedule.confirm")}
-              onSelect={(id) => { setSelectedRevision(id); setView("list"); }}
-              onConfirm={setConfirmingRevision}
-              onEdit={setEditingRevision}
-              onRemove={setRemovingRevision}
-            />
+            <QueryPanel query={revisions} errorText={t("state.revisionsLoadError")}>
+              <RevisionList
+                rows={revisions.data?.results ?? []}
+                selected={revision?.id ?? ""}
+                canManage={can("schedule.manage")}
+                canConfirm={can("schedule.confirm")}
+                onSelect={(id) => { setSelectedRevision(id); setView("list"); }}
+                onConfirm={setConfirmingRevision}
+                onEdit={setEditingRevision}
+                onRemove={setRemovingRevision}
+              />
+            </QueryPanel>
           )}
-          {view === "history" && <HistoryList loading={historyRows.isLoading} rows={historyRows.data?.results ?? []} />}
+          {view === "history" && (
+            <QueryPanel query={historyRows} errorText={t("state.historyLoadError")}>
+              <HistoryList rows={historyRows.data?.results ?? []} />
+            </QueryPanel>
+          )}
         </>
       )}
 
@@ -431,9 +455,8 @@ function RevisionList({ rows, selected, canManage, canConfirm, onSelect, onConfi
   return <div className="grid gap-3 lg:grid-cols-2">{rows.map((row) => <article key={row.id} className={"rounded-lg border bg-card p-4 shadow-sm " + (selected === row.id ? "ring-2 ring-primary/30" : "")}><div className="flex items-start justify-between gap-3"><div><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{row.label}</h3><StatusBadge label={t("revisionStatus." + row.status)} tone={tone(row.status)} />{row.is_current && <StatusBadge label={t("status.current")} tone="info" />}</div><p className="mt-1 text-sm text-muted-foreground">{t("revision.number", { number: row.revision_number })} / {t("source." + row.source)}</p></div><GitBranch className="size-5 text-muted-foreground" /></div><p className="mt-3 min-h-10 text-sm">{row.reason || t("state.noReason")}</p><div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3"><span className="text-xs text-muted-foreground">{row.task_count} {t("common.tasks")} {row.confirmed_at ? " / " + df.dateTime(row.confirmed_at) : ""}</span><div className="ml-auto flex gap-1"><Button size="sm" variant="outline" onClick={() => onSelect(row.id)}>{t("action.open")}</Button>{canConfirm && row.status === "DRAFT" && row.task_count > 0 && <Button size="icon-sm" title={t("action.confirmRevision")} onClick={() => onConfirm(row)}><Check /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" title={t("action.editRevision")} onClick={() => onEdit(row)}><Pencil /></Button>}{canManage && row.status === "DRAFT" && <Button size="icon-sm" variant="ghost" className="text-destructive" title={t("action.remove")} onClick={() => onRemove(row)}><Trash2 /></Button>}</div></div></article>)}</div>;
 }
 
-function HistoryList({ loading, rows }: { loading: boolean; rows: Array<{ id: string; event: string; note: string; revision_label: string | null; task_name: string | null; actor_name: string | null; created_at: string }> }) {
+function HistoryList({ rows }: { rows: Array<{ id: string; event: string; note: string; revision_label: string | null; task_name: string | null; actor_name: string | null; created_at: string }> }) {
   const t = useTranslations("schedulePlanning"); const df = useDateFormat();
-  if (loading) return <LoadingState />;
   if (!rows.length) return <EmptyState text={t("state.noHistory")} />;
   return <div className="overflow-hidden rounded-lg border bg-card shadow-sm"><div className="divide-y">{rows.map((row) => <div key={row.id} className="flex gap-3 p-4"><span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"><History className="size-4" /></span><div className="min-w-0 flex-1"><p className="font-medium">{t("history." + row.event)}</p><p className="text-sm text-muted-foreground">{[row.revision_label, row.task_name, row.note].filter(Boolean).join(" / ") || t("state.noReason")}</p></div><div className="shrink-0 text-right text-xs text-muted-foreground"><p>{row.actor_name || t("common.system")}</p><p>{df.dateTime(row.created_at)}</p></div></div>)}</div></div>;
 }
@@ -494,7 +517,7 @@ function ProgressDialog({ project, task, onClose, onSaved }: { project: string; 
     if (lockedEvidence.has(id)) return;
     setSelected((old) => old.includes(id) ? old.filter((value) => value !== id) : [...old, id]);
   };
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{t("dialog.progressTitle")}</DialogTitle><DialogDescription>{task.wbs_code} - {task.name}. {t("dialog.progressHelp")}</DialogDescription></DialogHeader><div className="grid gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.actualProgress")} required><Input type="number" min="0" max="100" step="0.01" value={progress} onChange={(event) => setProgress(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.actualStart")} required={Number(progress) > 0}><Input type="date" value={start} onChange={(event) => setStart(event.target.value)} /></FieldWrapper>{Number(progress) >= 100 && <FieldWrapper label={t("field.actualEnd")}><Input type="date" value={end} onChange={(event) => setEnd(event.target.value)} /></FieldWrapper>}<FieldWrapper label={t("field.managerNote")} className="sm:col-span-2"><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><div className="space-y-2 sm:col-span-2"><p className="text-sm font-medium">{t("field.progressEvidence")}</p><p className="text-xs text-muted-foreground">{t("field.progressEvidenceHelp")}</p><div className="max-h-52 overflow-y-auto rounded-lg border">{candidates.isLoading ? <LoadingState /> : !(candidates.data?.count) ? <div className="p-5 text-center text-sm text-muted-foreground">{t("state.noConfirmedProgress")}</div> : candidates.data.results.map((row) => <EvidenceOption key={row.id} row={row} checked={selected.includes(row.id)} locked={lockedEvidence.has(row.id)} onToggle={() => toggle(row.id)} />)}</div></div></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabledReason={Number(progress) < 0 || Number(progress) > 100 ? common("outOfRange", { field: t("field.actualProgress"), min: 0, max: 100 }) : undefined} requires={[[Number(progress) <= 0 || start, t("field.actualStart")]]} disabled={Number(progress) < 0 || Number(progress) > 100 || save.isPending} onClick={() => save.mutate()}><Check />{t("action.confirmProgress")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{t("dialog.progressTitle")}</DialogTitle><DialogDescription>{task.wbs_code} - {task.name}. {t("dialog.progressHelp")}</DialogDescription></DialogHeader><div className="grid gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.actualProgress")} required><Input type="number" min="0" max="100" step="0.01" value={progress} onChange={(event) => setProgress(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.actualStart")} required={Number(progress) > 0}><Input type="date" value={start} onChange={(event) => setStart(event.target.value)} /></FieldWrapper>{Number(progress) >= 100 && <FieldWrapper label={t("field.actualEnd")}><Input type="date" value={end} onChange={(event) => setEnd(event.target.value)} /></FieldWrapper>}<FieldWrapper label={t("field.managerNote")} className="sm:col-span-2"><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><div className="space-y-2 sm:col-span-2"><p className="text-sm font-medium">{t("field.progressEvidence")}</p><p className="text-xs text-muted-foreground">{t("field.progressEvidenceHelp")}</p><div className="max-h-52 overflow-y-auto rounded-lg border">{candidates.isError ? <div className="p-5 text-center text-sm text-destructive">{t("state.candidatesLoadError")}</div> : candidates.isLoading ? <LoadingState /> : !(candidates.data?.count) ? <div className="p-5 text-center text-sm text-muted-foreground">{t("state.noConfirmedProgress")}</div> : candidates.data.results.map((row) => <EvidenceOption key={row.id} row={row} checked={selected.includes(row.id)} locked={lockedEvidence.has(row.id)} onToggle={() => toggle(row.id)} />)}</div></div></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabledReason={Number(progress) < 0 || Number(progress) > 100 ? common("outOfRange", { field: t("field.actualProgress"), min: 0, max: 100 }) : undefined} requires={[[Number(progress) <= 0 || start, t("field.actualStart")]]} disabled={Number(progress) < 0 || Number(progress) > 100 || save.isPending} onClick={() => save.mutate()}><Check />{t("action.confirmProgress")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function EvidenceOption({ row, checked, locked, onToggle }: { row: ProgressCandidate; checked: boolean; locked: boolean; onToggle: () => void }) {
@@ -513,4 +536,24 @@ function ImportDialog({ project, plans, defaultPlan, onClose, onSaved }: { proje
 }
 
 function LoadingState() { return <div className="grid min-h-40 place-items-center"><Loader2 className="size-6 animate-spin text-primary" /></div>; }
+
+/**
+ * A query's two unhappy answers, kept apart from its empty one.
+ *
+ * The history tab answered every failure with "no schedule history yet":
+ * `data?.results ?? []` turns a 500 into zero rows, and from there nothing
+ * downstream can tell an empty list from a dead request. The backend fault
+ * that made it fail is fixed, but the screen would have gone on reporting an
+ * absence it never observed the next time anything broke. Three of this
+ * file's five queries did that; only `plans` was ever handled.
+ *
+ * `children` is an element rather than a call, so a list's own empty state is
+ * only reached once there is a real answer for it to be empty.
+ */
+function QueryPanel({ query, errorText, children }: { query: { isError: boolean; isLoading: boolean }; errorText: string; children: ReactNode }) {
+  if (query.isError) return <EmptyState text={errorText} danger />;
+  if (query.isLoading) return <LoadingState />;
+  return <>{children}</>;
+}
+
 function EmptyState({ text, danger = false }: { text: string; danger?: boolean }) { return <div className={danger ? "rounded-lg border border-destructive/30 bg-destructive/5 p-10 text-center text-sm text-destructive" : "rounded-lg border border-dashed bg-muted/15 p-10 text-center text-sm text-muted-foreground"}>{text}</div>; }

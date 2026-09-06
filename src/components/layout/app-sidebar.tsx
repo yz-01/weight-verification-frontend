@@ -9,6 +9,7 @@ import { useMemo, useState } from "react";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { UserMenu } from "@/components/layout/user-menu";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useUnreadBadges } from "@/hooks/use-unread-badges";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import {
@@ -47,6 +48,7 @@ import { PORTAL_LABELS } from "@/lib/portal";
  */
 export function AppSidebar() {
   const t = useTranslations();
+  const badges = useUnreadBadges();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -128,6 +130,22 @@ export function AppSidebar() {
                         >
                           <Icon />
                           <span>{label}</span>
+                          {/* Inside the Link, not in a SidebarMenuAction: the
+                              right-hand slot already holds the submodule
+                              chevron on every entry that has children, and
+                              material receipts is one of them. */}
+                          {(badges[item.feature] ?? 0) > 0 && (
+                            <span
+                              className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none tabular-nums text-primary-foreground group-data-[collapsible=icon]:hidden"
+                              aria-label={t("nav.waitingForYou", {
+                                count: badges[item.feature] ?? 0,
+                              })}
+                            >
+                              {(badges[item.feature] ?? 0) > 99
+                                ? "99+"
+                                : badges[item.feature]}
+                            </span>
+                          )}
                         </Link>
                       </SidebarMenuButton>
                       {item.children && item.children.length > 0 && (

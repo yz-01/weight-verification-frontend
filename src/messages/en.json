@@ -1,18 +1,40 @@
 {
   "materialColumns": {
-    "uncounted": "Some delivery orders had no readable amount, so they are not in this total.",
-    "tonnes": "{tonnes} t received",
+    "alertHelp": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
+    "alertInvalid": "Use whole numbers between 1 and 500, separated by commas.",
+    "alertPercentages": "Warn at these percentages",
+    "archived": "Filed by column",
+    "archivedHelp": "Budget is money, added up from the delivery orders in this column.",
+    "budgetAmount": "Budget (RM)",
+    "budgetNone": "Leave empty for a column that does not count against a budget",
+    "columnsFailed": "The columns could not be loaded, so it is not known whether this site has any. Try again.",
+    "columnsFailedRefile": "The columns could not be loaded, so the picker above is empty. That does not mean this site has no columns - do not create a new one until it has loaded.",
+    "edit": "Edit column",
+    "editHelp": "The name, the budget and the warning lines. The photographs, quantities and signatures filed in this column are evidence and are not touched here.",
+    "editTitle": "Edit {name}",
+    "fileInto": "File into",
     "filed": "{count} filed",
     "noBudget": "No budget set",
     "noColumns": "No columns set up yet",
-    "archivedHelp": "Budget is money, added up from the delivery orders in this column.",
-    "archived": "Filed by column",
-    "seeAllPending": "See all {count}",
-    "pendingEmpty": "Nothing waiting",
-    "pendingHelp": "These are filed into their column once you have opened them. Every account has its own read state.",
+    "noMaterialColumns": "This project has no material columns to file into.",
     "pending": "Waiting for you ({count})",
+    "pendingEmpty": "Nothing waiting",
+    "pendingFailed": "The list of deliveries waiting to be filed could not be loaded, so it is not known whether any are waiting. Try again.",
+    "pendingHelp": "These are filed into their column once you have opened them. Every account has its own read state.",
+    "refileConfirm": "File it",
+    "refileHelp": "Only the column changes. The photographs, quantity, signature, time and place stay exactly as they were recorded.",
+    "refileReason": "Why",
+    "refileTitle": "File {receipt} into a column",
+    "saveFailed": "That did not go through. Try again, or reload the page.",
+    "seeAllPending": "See all {count}",
     "subtitle": "What each column has taken in, and what it has spent",
-    "title": "Material columns"
+    "title": "Material columns",
+    "toast": {
+      "refiled": "Delivery filed."
+    },
+    "tonnes": "{tonnes} t received",
+    "tracksSpend": "Count spending in this column against a budget",
+    "uncounted": "Some delivery orders had no readable amount, so they are not in this total."
   },
   "photoApprovals": {
     "noLocation": "No location recorded",
@@ -1590,7 +1612,11 @@
       "yes": "Yes"
     },
     "subtitle": "Platform partner profiles, territories, customer ownership, agreements and commission settlement.",
-    "title": "Partner Management"
+    "title": "Partner Management",
+    "schemes": {
+      "help": "A commission scheme is part of a partner agreement and is frozen with it, so it is created and changed there rather than here.",
+      "goToAgreements": "Open partner agreements"
+    }
   },
   "adminQr": {
     "action": {
@@ -2824,6 +2850,7 @@
     "commentPlaceholder": "Add the reason or review note",
     "companyWide": "Company-wide",
     "count": "{count} approvals",
+    "countUnknown": "The number waiting could not be loaded",
     "create": {
       "action": "New approval",
       "description": "Create a draft request linked to a business record.",
@@ -2861,6 +2888,7 @@
       "title": "Audit history",
       "transition": "Status change"
     },
+    "historyFailed": "The latest approval history could not be loaded. What is shown below is the snapshot stored with this request, which may be out of date.",
     "metadataHint": "Optional JSON object for workflow-specific data.",
     "resource": {
       "all": "All record types",
@@ -2885,6 +2913,7 @@
       "RETURNED": "Returned",
       "SUBMITTED": "Submitted"
     },
+    "supportingDataFailed": "The project, people or role lists could not be loaded, so the pickers below may be short or empty. An empty picker here does not mean there is nothing to choose. Try again.",
     "title": "Approvals",
     "toast": {
       "approve": "Approval approved",
@@ -3772,25 +3801,12 @@
     }
   },
   "common": {
-    "readOnlySetting": "This one is read-only",
-    "minLength": "{field} needs at least {count} characters",
-    "signatureMissing": "Sign here first",
-    "searchMinLength": "Type at least {count} characters to search",
-    "outOfRange": "{field} must be between {min} and {max}",
-    "offline": "No connection right now",
-    "nothingUnread": "Nothing unread",
-    "nothingToSync": "Nothing waiting to be sent",
-    "noReportYet": "Run the report first",
-    "noFiltersSet": "Set a filter first",
-    "noChanges": "Nothing has been changed yet",
-    "missingFields": "Fill in first: {fields}",
-    "listSeparator": ", ",
-    "alreadyFirstPage": "Already on the first page",
-    "alreadyLast": "Already the last one",
-    "alreadyFirst": "Already the first one",
     "actions": "Actions",
     "active": "Active",
     "all": "All",
+    "alreadyFirst": "Already the first one",
+    "alreadyFirstPage": "Already on the first page",
+    "alreadyLast": "Already the last one",
     "back": "Back",
     "cancel": "Cancel",
     "close": "Close",
@@ -3805,12 +3821,24 @@
     "export": "Export",
     "inactive": "Inactive",
     "language": "Language",
+    "listSeparator": ", ",
+    "loadFailed": "{what} could not be loaded, so what is shown here is not what is there. Try again.",
     "loading": "Loading",
+    "minLength": "{field} needs at least {count} characters",
+    "missingFields": "Fill in first: {fields}",
     "mobileSidebarDescription": "Displays the mobile sidebar.",
+    "noChanges": "Nothing has been changed yet",
+    "noFiltersSet": "Set a filter first",
     "noOptions": "Nothing to choose from",
+    "noReportYet": "Run the report first",
     "none": "None",
+    "nothingToSync": "Nothing waiting to be sent",
+    "nothingUnread": "Nothing unread",
+    "offline": "No connection right now",
     "optional": "optional",
+    "outOfRange": "{field} must be between {min} and {max}",
     "profile": "Profile",
+    "readOnlySetting": "This one is read-only",
     "reason": "Reason",
     "reasonPlaceholder": "Why is this change being made?",
     "refresh": "Refresh",
@@ -3819,11 +3847,14 @@
     "save": "Save",
     "saving": "Saving",
     "search": "Search",
+    "searchMinLength": "Type at least {count} characters to search",
     "searchPlaceholder": "Search",
+    "sectionLoadFailed": "This did not load, so what is shown here is not what is there. Try again.",
     "selectPlaceholder": "Select",
     "settings": "Settings",
     "sidebar": "Sidebar",
     "signOut": "Sign out",
+    "signatureMissing": "Sign here first",
     "theme": "Theme",
     "themeDark": "Dark",
     "themeLight": "Light",
@@ -3837,7 +3868,19 @@
       "linkCopied": "Link copied",
       "notSentBody": "The account was created. Copy the set-up link below and pass it to the owner yourself.",
       "notSentTitle": "The email could not be sent",
-      "emailHint": "The set-up link is sent here. Everyone else in the company is created by this account afterwards."
+      "emailHint": "The set-up link is sent here. Everyone else in the company is created by this account afterwards.",
+      "account": {
+        "title": "Owner account",
+        "description": "Where this tenant activation key was sent. The account itself belongs to the customer.",
+        "none": "This company has no owner account. It was created before the owner became part of opening a company.",
+        "readOnly": "Only a platform superadmin can change this.",
+        "warning": "Changing the address signs the owner out and makes them activate again, because the old password belongs to an address that no longer reaches this tenant.",
+        "save": "Save and resend the key",
+        "sent": "A new activation email has been sent to {email}.",
+        "notSent": "The email could not be sent. Pass this link to the owner:",
+        "status": "Status",
+        "needsAChange": "Enter a new email address or phone number first."
+      }
     },
     "addUser": "Add user",
     "commissionStatus": {
@@ -4808,7 +4851,22 @@
       "openCenter": "Approval centre",
       "subtitle": "{total} pending, {mine} assigned to you, {unassigned} unassigned.",
       "title": "Waiting on a decision",
-      "unassigned": "Unassigned"
+      "unassigned": "Unassigned",
+      "status": {
+        "AWAITING_CONFIRMATION": "Awaiting confirmation",
+        "IN_REVIEW": "In review",
+        "PENDING_APPROVAL": "Awaiting approval",
+        "REQUESTED": "Awaiting approval",
+        "SUBMITTED": "Submitted"
+      },
+      "source": {
+        "APPROVAL": "Approval centre",
+        "CONSULTANT_APPLICATION": "Consultant application",
+        "DISPOSAL_REQUEST": "Site clearing",
+        "FIELD_TASK": "Field task",
+        "SITE_PROGRESS": "Progress record",
+        "WASTE_OUTGOING": "Waste out"
+      }
     },
     "attendanceEvent": {
       "CLOCK_IN": "Clock in",
@@ -4834,6 +4892,7 @@
       "project": "Project",
       "selectProject": "Select project"
     },
+    "liveStopped": "The live sections have stopped updating. The feed, alerts and unread counts below are from when the page was opened, not from now.",
     "locationMap": {
       "allProjects": "All projects",
       "empty": "The selected project has no location or geofence to display.",
@@ -4952,6 +5011,13 @@
       "SAFETY_INCIDENT": "Safety",
       "SITE_PROGRESS": "Progress",
       "WASTE_DISPATCH": "Dispatch"
+    },
+    "unread": {
+      "title": "Waiting for you",
+      "subtitle": "{receipts} deliveries and {approvals} approvals nobody has cleared for you yet",
+      "help": "These are yours alone. Opening one files it away for you and leaves it in everyone else's pile.",
+      "openColumns": "Material columns",
+      "unfiled": "Not filed in a column"
     }
   },
   "contractorModuleLanding": {
@@ -5006,7 +5072,11 @@
       "uploadHelp": "Leave both lists empty to let everyone who can see the category upload. Selecting roles or people restricts uploads to them.",
       "uploadRoles": "Roles allowed to upload",
       "uploadTitle": "Who can upload to this category",
-      "uploadUsers": "People allowed to upload"
+      "uploadUsers": "People allowed to upload",
+      "kind": "Which filing scheme",
+      "kindField": "Site record column",
+      "kindMaterial": "Material column",
+      "kindBoth": "Not separated yet"
     },
     "direction": {
       "ENTRY": "Entry",
@@ -5696,6 +5766,7 @@
       "wasteOrders": "Incoming waste orders",
       "weighingSessions": "Weighing sessions"
     },
+    "tileFailed": "Not loaded",
     "title": "Dashboard"
   },
   "deductions": {
@@ -6482,7 +6553,10 @@
       "version_already_exists": "That platform version already exists.",
       "version_not_found": "That platform version could not be found.",
       "visit_not_found": "That customer visit could not be found.",
-      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second."
+      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
+      "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
+      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again.",
+      "permission_denied": "You are not allowed to do that."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -6709,7 +6783,14 @@
     "readyBody": "This phone is now securely linked to your field account.",
     "readyTitle": "Phone ready",
     "signIn": "Sign in",
-    "thisPhone": "This phone"
+    "thisPhone": "This phone",
+    "storageBlocked": "This browser is not keeping site data, so this phone cannot stay linked. Open the invitation link in a normal window rather than a private one, and allow site data for this address.",
+    "browserWarningTitle": "Open this link in your normal browser",
+    "browserWarning": "This phone is linked to whichever browser you activate in. Activating inside a chat app links only that app, and opening the site later in Safari or Chrome will arrive as a different phone.",
+    "browserWarningNamed": "This link opened inside {app}. Copy it and open it in Safari or Chrome first, then activate there.",
+    "copyLink": "Copy the link",
+    "copied": "Link copied. Paste it into Safari or Chrome.",
+    "resuming": "Opening your workspace..."
   },
   "fieldAccessAdmin": {
     "unbind": {
@@ -6807,7 +6888,9 @@
       "permissionError": "The camera could not start. Allow camera permission and try again.",
       "ready": "{count} photo(s) ready",
       "switch": "Switch camera",
-      "unsupported": "This browser cannot open the camera. Use an HTTPS site and a current mobile browser."
+      "unsupported": "This browser cannot open the camera. Use an HTTPS site and a current mobile browser.",
+      "retake": "Tap to retake",
+      "preview": "Photo taken"
     },
     "categoryEvidence": {
       "changeCategory": "Change",
@@ -6942,7 +7025,12 @@
       "ocrItems": {
         "confirmHint": "Check against the paper",
         "title": "Materials read from the note",
-        "unclassified": "Pick category"
+        "unclassified": "Pick category",
+        "makeColumn": "Make a column",
+        "editHint": "Fix any wrong text, pick a category, delete a bad row, then tap Use.",
+        "remove": "Remove row",
+        "use": "Use",
+        "noUnit": "No unit"
       },
       "ocrLowConfidence": "Read with low confidence: {fields}. Check these against the paper before saving.",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -6975,7 +7063,14 @@
       "supplierSignature": "Supplier signature",
       "tapCamera": "Tap to open camera",
       "unit": "Unit",
-      "vehicle": "Vehicle plate"
+      "vehicle": "Vehicle plate",
+      "column": "Material column",
+      "chooseColumn": "Choose a material column",
+      "columnUnfiled": "Not filed yet",
+      "noColumnsYet": "This site has no material columns yet. Add the first one below.",
+      "newColumnName": "New column name",
+      "addColumn": "Add column",
+      "columnOffline": "Offline: a column cannot be opened until there is a connection. Take the delivery unfiled and file it later."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -7046,6 +7141,54 @@
       "PROGRESS": "Progress",
       "SAFETY": "Safety",
       "WASTE": "Waste"
+    },
+    "locationAccess": {
+      "why": {
+        "title": "This needs your location",
+        "body": "Deliveries, attendance and site records are stamped with where they happened, so the office does not have to ring you to check you were on site. It is read once, when you press the button.",
+        "allow": "Allow location",
+        "later": "Not now"
+      },
+      "denied": {
+        "title": "The browser will not give this page your location",
+        "iosNote": "If you never saw a box asking, location is switched off for this browser in the phone settings. No web page can bring that box back - it has to be turned on below."
+      },
+      "steps": {
+        "iosSafari": {
+          "1": "Open Settings, then Privacy & Security, then Location Services, and check the switch at the top is on.",
+          "2": "Still on that page, scroll down to Safari Websites and choose While Using the App.",
+          "3": "Come back here, tap the aA on the left of the address bar, then Website Settings, then Location, and choose Allow.",
+          "4": "Reload this page and press the button again."
+        },
+        "iosOtherBrowser": {
+          "1": "Open Settings, then Privacy & Security, then Location Services, and check the switch at the top is on.",
+          "2": "Still on that page, scroll down to your browser (Chrome, Firefox or Edge) and choose While Using the App.",
+          "3": "Close the browser completely, then open this link again.",
+          "4": "Press the button again. This time it will ask - choose Allow."
+        },
+        "androidChrome": {
+          "1": "Swipe down from the top of the screen and check Location is on.",
+          "2": "Tap the icon on the left of the address bar, then Permissions, then Location, and choose Allow.",
+          "3": "If Location is not listed there, open Settings, then Apps, then Chrome, then Permissions, then Location, and choose Allow only while using the app.",
+          "4": "Reload this page and press the button again."
+        },
+        "androidOtherBrowser": {
+          "1": "Swipe down from the top of the screen and check Location is on.",
+          "2": "Open Settings, then Apps, then your browser, then Permissions, then Location, and choose Allow only while using the app.",
+          "3": "In the browser own site settings, set this site location permission to Allow.",
+          "4": "Reload this page and press the button again."
+        },
+        "desktop": {
+          "1": "Click the icon on the left of the address bar.",
+          "2": "Find Location and set it to Allow.",
+          "3": "Check that location services are switched on for the computer itself.",
+          "4": "Reload this page and press the button again."
+        }
+      },
+      "retry": "Try again",
+      "unavailable": "The phone could not get a fix - often indoors or under cover. Step outside and try again.",
+      "timeout": "Getting a location took too long. Try again.",
+      "unsupported": "This browser cannot read a location. Open this link in Safari or Chrome on the phone."
     }
   },
   "fieldStaffWorkspace": {
@@ -8370,7 +8513,8 @@
     "weighing": "Weighing",
     "weighing_parameters": "Detection parameters",
     "weighing_records": "Weighing records",
-    "yards": "Recycling yards"
+    "yards": "Recycling yards",
+    "waitingForYou": "{count} waiting for you"
   },
   "notifications": {
     "compose": {
@@ -8382,6 +8526,7 @@
       "chooseProjectFirst": "Choose a project first.",
       "description": "Send a clear in-app notice to active members of one of your projects.",
       "loadingMembers": "Loading project members...",
+      "membersFailed": "The people on this project could not be loaded, so no recipients are listed. That does not mean the project has none.",
       "message": "Message",
       "messagePlaceholder": "Write the action or information the team needs.",
       "noMembers": "This project has no active assigned members yet.",
@@ -8403,6 +8548,7 @@
       "title": "Send a project notice"
     },
     "count": "{count, plural, =0 {No notifications} one {# notification} other {# notifications}}",
+    "countFailed": "The unread count could not be loaded, so it is not known whether anything is waiting.",
     "field": {
       "kind": "Type",
       "notification": "Notification",
@@ -8439,6 +8585,7 @@
       "SYSTEM": "System",
       "WEIGHING": "Weighing"
     },
+    "listFailed": "Your notifications could not be loaded. This is not the same as having none - try again.",
     "markAllRead": "Mark all as read",
     "markRead": "Mark as read",
     "noUnread": "No unread notifications",
@@ -9652,7 +9799,8 @@
       "photos": "Photos",
       "received": "Received by",
       "stamp": "Recorded by the platform",
-      "vehicle": "Vehicle and paperwork"
+      "vehicle": "Vehicle and paperwork",
+      "signatures": "Signatures"
     },
     "stampNote": "The time, place and person are recorded by the platform when the receipt is filed. They cannot be typed in or changed afterwards.",
     "summary": {
@@ -9679,7 +9827,20 @@
       "PIECE": "Piece",
       "TONNE": "Tonne"
     },
-    "viewTitle": "Receipt"
+    "viewTitle": "Receipt",
+    "signature": {
+      "receiver": "Received by",
+      "supplier": "Supplier",
+      "none": "No signature was captured."
+    },
+    "photoViewer": {
+      "open": "Open photograph",
+      "previous": "Previous photograph",
+      "next": "Next photograph",
+      "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
+    },
+    "recorderUnknown": "Recorder not on file",
+    "noRecorderPhone": "No phone number on file"
   },
   "recyclerBusiness": {
     "action": {
@@ -10684,14 +10845,19 @@
       "MANUAL": "Manual"
     },
     "state": {
+      "candidatesLoadError": "The confirmed site progress could not be loaded, so it is not known whether there is any evidence to attach. Try again before confirming.",
       "chooseProject": "Choose a project to view its construction schedule.",
+      "historyLoadError": "The schedule history could not be loaded, so it is not known whether there is any. Try again.",
       "loadError": "The schedule could not be loaded. Try again.",
       "noConfirmedProgress": "No confirmed site progress records are available.",
       "noHistory": "No schedule history yet.",
       "noPlans": "No schedule exists for this project. Create one manually or import Excel.",
       "noReason": "No additional note",
       "noRevision": "No schedule version",
-      "noTasks": "No tasks in this version yet."
+      "noTasks": "No tasks in this version yet.",
+      "overviewLoadError": "The progress summary could not be loaded, so the task and progress figures are not shown. Try again.",
+      "revisionsLoadError": "The revisions could not be loaded. Try again.",
+      "tasksLoadError": "The task list could not be loaded, so this revision's tasks are not shown. Try again."
     },
     "status": {
       "current": "Current",
@@ -11525,7 +11691,8 @@
       "history": "Last position / History",
       "live": "Live positions"
     },
-    "title": "Site personnel GPS"
+    "title": "Site personnel GPS",
+    "watchNotPermitted": "You can share your own position here. Watching the workforce needs the field position view permission, which your role does not have - ask a company administrator if you need it."
   },
   "sites": {
     "count": "{count, plural, =0 {No yards} one {# yard} other {# yards}}",
@@ -12369,16 +12536,6 @@
     }
   },
   "wasteOutgoing": {
-    "handover": {
-      "trail": "{from} handed this to {to} on {when}",
-      "failed": "The hand-over did not go through",
-      "loading": "Loading the list",
-      "note": "Note",
-      "choose": "Pick a person",
-      "person": "Hand it to",
-      "help": "Application {reference}. One application at a time, not a whole category.",
-      "title": "Hand this application to somebody"
-    },
     "action": {
       "handOverAgain": "Hand over again",
       "handOver": "Hand over",
@@ -12400,6 +12557,7 @@
     "assign": {
       "help": "Choose a recycler bound to this project. The order for {reference} is sent to their system immediately.",
       "noPartners": "No recycler is bound to this project yet. Bind one under Recycler partners before raising an order.",
+      "partnersFailed": "The recycling partners could not be loaded, so the picker is empty. That does not mean you have none.",
       "title": "Assign a recycler"
     },
     "cancel": {
@@ -12475,6 +12633,16 @@
       "submitFailed": "The application could not be submitted. Check the marked information and try again.",
       "title": "Environmental material outgoing application"
     },
+    "handover": {
+      "trail": "{from} handed this to {to} on {when}",
+      "failed": "The hand-over did not go through",
+      "loading": "Loading the list",
+      "note": "Note",
+      "choose": "Pick a person",
+      "person": "Hand it to",
+      "help": "Application {reference}. One application at a time, not a whole category.",
+      "title": "Hand this application to somebody"
+    },
     "milestone": {
       "ARRIVED_AT_PLANT": "Arrived at recycling plant",
       "COMPLETED": "Recycling complete",
@@ -12491,6 +12659,7 @@
     "photos": {
       "caption": "Note (optional)"
     },
+    "recordsFailed": "The disposal records could not be loaded, so it is not known whether there are any. Try again.",
     "review": {
       "failed": "The approval decision could not be saved.",
       "help": "Approve {reference} before sending a recycle order, or return it with a reason.",

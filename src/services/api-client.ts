@@ -37,7 +37,26 @@ const BASE_URL = (
 ).replace(/\/$/, "");
 
 /** Endpoints that must not trigger a refresh-and-retry loop. */
-const AUTH_ENDPOINTS = ["/api/auth/login/", "/api/auth/refresh_token/"];
+/**
+ * Endpoints that exchange a credential for a session.
+ *
+ * A 401 from one of these means the credential was wrong, not that a session
+ * expired - there was no session. Treating them alike signs the visitor out
+ * of a session they never had and sends them to whichever login the browser
+ * last remembered, which for a first-time visitor is none of the three: a
+ * person typing a password one character wrong on the admin entrance was
+ * being thrown to the portal chooser with "your session has expired".
+ */
+const AUTH_ENDPOINTS = [
+  "/api/auth/login/",
+  "/api/auth/refresh_token/",
+  "/api/field-access/field_login/",
+  "/api/field-access/activate/",
+  "/api/field-access/pwa_bootstrap/",
+];
+
+const isCredentialExchange = (path: string) =>
+  AUTH_ENDPOINTS.some((endpoint) => path.startsWith(endpoint));
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -183,7 +202,7 @@ export async function request<T>(
   if (
     response.status === 401 &&
     options.auth !== false &&
-    !AUTH_ENDPOINTS.some((endpoint) => path.startsWith(endpoint))
+    !isCredentialExchange(path)
   ) {
     const refreshed = await ensureRefresh();
     if (refreshed) {
@@ -202,10 +221,19 @@ export async function request<T>(
     const message = resolveMessage(
       code,
       envelope.success ? "" : envelope.message,
+      envelope.success ? undefined : envelope.values,
     );
     const failure = new ApiError(message, response.status, errors, code);
 
-    if (response.status === 401 && options.auth !== false) {
+    // The same exemption as the retry above. It was missing here, so a
+    // wrong password skipped the refresh correctly and was then signed out
+    // anyway one block later - cleared tokens, "your session has expired",
+    // and a hard navigation away from the entrance being typed into.
+    if (
+      response.status === 401 &&
+      options.auth !== false &&
+      !isCredentialExchange(path)
+    ) {
       endSession();
     } else if (!options.silent) {
       toast.error(message);
@@ -258,6 +286,7 @@ export async function download(
     const message = resolveMessage(
       code,
       envelope.success ? "" : envelope.message,
+      envelope.success ? undefined : envelope.values,
     );
     toast.error(message);
     throw new ApiError(message, response.status, {}, code);
@@ -313,11 +342,21 @@ function filenameFromDisposition(header: string | null): string | undefined {
  * readable, and better than showing a raw identifier. That gap is what the
  * backend's error-code test exists to prevent.
  */
-function resolveMessage(code: string, serverMessage: string): string {
+function resolveMessage(
+  code: string,
+  serverMessage: string,
+  values?: Record<string, string | number>,
+): string {
   if (code) {
     const key = `errors.api.${code}`;
-    const translated = t(key);
-    if (translated !== key) return translated;
+    try {
+      const translated = t(key, values);
+      if (translated !== key) return translated;
+    } catch {
+      // A catalogue entry that expects a value it was not given. Falling
+      // through to the server's own sentence keeps the reason on screen
+      // instead of printing the key path at the reader.
+    }
   }
   return serverMessage || t("errors.generic");
 }

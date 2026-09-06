@@ -6,7 +6,11 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  FieldWrapper,
+  LoadFailed,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -138,7 +142,9 @@ export function CommissionRuleManager() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rules.isLoading ? (
+            {rules.isError ? (
+              <LoadFailed onRetry={() => void rules.refetch()} />
+            ) : rules.isLoading ? (
               <TableRow>
                 <TableCell colSpan={9} className="h-40 text-center">
                   <div className="flex flex-col items-center gap-3">

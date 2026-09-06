@@ -331,7 +331,9 @@ export function Approvals() {
         subtitle={
           approvals.isLoading
             ? t("common.loading")
-            : t("approvals.count", { count: totalCount })
+            : approvals.isError
+              ? t("approvals.countUnknown")
+              : t("approvals.count", { count: totalCount })
         }
         action={
           <div className="flex flex-wrap items-center gap-2">
@@ -359,6 +361,12 @@ export function Approvals() {
           </div>
         }
       />
+
+      {(projects.isError || users.isError || roles.isError) && (
+        <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+          {t("approvals.supportingDataFailed")}
+        </p>
+      )}
 
       {configuringWorkflow ? (
         <ApprovalWorkflowDialog
@@ -808,6 +816,7 @@ function ApprovalDetailDialog({
             approval={record}
             history={history.data?.results ?? record.actions}
             isHistoryLoading={history.isLoading}
+            historyFailed={history.isError}
           />
         )}
 
@@ -857,15 +866,25 @@ function ApprovalDetailBody({
   approval,
   history,
   isHistoryLoading,
+  historyFailed,
 }: {
   approval: ApprovalDetail;
   history: ApprovalAction[];
   isHistoryLoading: boolean;
+  // The live history request failed, so what is rendered below is the
+  // snapshot that came with the record. It may be behind, and the reader
+  // cannot tell the two apart unless told.
+  historyFailed: boolean;
 }) {
   const t = useTranslations();
   const df = useDateFormat();
   return (
     <div className="space-y-6">
+      {historyFailed && (
+        <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+          {t("approvals.historyFailed")}
+        </p>
+      )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <ReadField label={t("approvals.field.title")} value={approval.title} />
         <ReadField

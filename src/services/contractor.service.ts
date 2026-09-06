@@ -531,6 +531,35 @@ export async function correctReceipt(
 }
 
 /**
+ * Move a filed delivery into a different material column, or out of one.
+ *
+ * Not a correction and not an edit. The receipt is evidence that material
+ * arrived - the photographs, the quantity, the signature, the time and the
+ * place - and none of that changes here. The column is the contractor's own
+ * filing scheme, decided afterwards and often by somebody else, which is why
+ * this endpoint exists alongside an `update_receipt` that refuses everything.
+ *
+ * Pass `category: null` to take a delivery back out of a column. That is an
+ * honest answer when nobody yet knows where it belongs, and better than
+ * parking it in an arbitrary column somebody later pays against.
+ *
+ * The endpoint has existed since T-156 with nothing calling it: the material
+ * columns screen was read-only, so a delivery filed in the wrong column still
+ * could not be moved from anywhere in the product (T-162).
+ */
+export async function refileReceipt(
+  id: string,
+  payload: { category: string | null; reason?: string },
+): Promise<MaterialReceiptDetail> {
+  const receipt = await api.post<MaterialReceiptDetail>(
+    `/api/receipts/${id}/refile_receipt/`,
+    payload,
+  );
+  toastSuccess("materialColumns.toast.refiled");
+  return receipt;
+}
+
+/**
  * Attach one photograph to a receipt that has already been filed.
  *
  * One at a time on purpose: a site on a weak signal gets the receipt in

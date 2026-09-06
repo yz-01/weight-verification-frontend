@@ -335,6 +335,8 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
   photos: ReceiptPhoto[];
   created_by: string | null;
   created_by_name: string | null;
+  created_by_phone: string;
+  created_by_avatar: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -348,6 +350,15 @@ export interface MaterialReceiptPayload {
   material_name: string;
   quantity: string;
   unit: MaterialUnit;
+  /**
+   * The material column this delivery files under.
+   *
+   * Optional because a site with no column set up still has to be able to
+   * receive material - an unfiled receipt can be filed later. The field app
+   * never sent it at all until T-161, so every delivery taken on site arrived
+   * unfiled no matter how many columns the project had.
+   */
+  category?: string | null;
   unit_price?: string | null;
   vehicle_plate?: string;
   delivery_note_no?: string;
@@ -373,6 +384,15 @@ export interface DeliveryNoteOCRLineItem {
   material_name: string;
   quantity: string;
   unit: string;
+  /**
+   * The material column the reader matched this line to, if any.
+   *
+   * The id is here so an unclassified line can be turned into a column and a
+   * classified one selected without a second lookup. Only material columns
+   * are ever offered - a site-record column is not somewhere a delivery can
+   * be filed.
+   */
+  category_id: string | null;
   category_code: string;
   category_name: string;
   classified: boolean;

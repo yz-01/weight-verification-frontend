@@ -14,7 +14,11 @@ import {
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  ListHeader,
+  LoadFailed,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { HealthStatus } from "@/interfaces/platform-ops";
@@ -177,7 +181,9 @@ export function Monitoring() {
           {t("monitoring.events.title")}
         </h2>
         <div className="divide-y border-y">
-          {events.isLoading ? (
+          {events.isError ? (
+            <LoadFailed onRetry={() => void events.refetch()} />
+          ) : events.isLoading ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
               {t("common.loading")}
             </p>

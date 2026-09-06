@@ -9,11 +9,12 @@ import {
   HardHat,
   ListChecks,
   Loader2,
-  LocateFixed,
   PackageOpen,
+  Plus,
   Recycle,
   ScanLine,
   ShieldAlert,
+  Trash2,
   Truck,
   UserRoundCheck,
 } from "lucide-react";
@@ -54,7 +55,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
-import type { FieldTask } from "@/interfaces/contractor-ops";
+import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
 import {
   MATERIAL_UNITS,
   type DeliveryNoteOCRLineItem,
@@ -73,6 +74,11 @@ import {
   submitMaterialReceiptOfflineAware,
   submitWasteOutgoingOfflineAware,
 } from "@/services/offline-sync.service";
+import {
+  createMaterialColumn,
+  getProjectCategories,
+} from "@/services/contractor-ops.service";
+import { LocationField } from "@/components/field-staff/location-field";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 import { getWasteOutgoingOptions } from "@/services/waste-outgoing.service";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
@@ -225,6 +231,15 @@ function RecordFrame({
 interface MaterialDraft {
   project: string;
   supplier: string;
+  /**
+   * The material column this delivery files under, or "" for unfiled.
+   *
+   * Empty is a real answer, not a missing one: a receipt with no column is
+   * simply unfiled and can be filed later, which is why the picker below is
+   * not a required field. Before T-161 it was the only answer this screen
+   * could give - it never sent a column at all.
+   */
+  category: string;
   movementType: "ENTRY" | "RETURN";
   returnReason: string;
   returnReasonOther: string;
@@ -236,9 +251,18 @@ interface MaterialDraft {
   notes: string;
 }
 
+/**
+ * "No column chosen" as a Select value.
+ *
+ * A Radix `SelectItem` cannot carry an empty string, and unfiled is a real
+ * choice here rather than the absence of one, so it needs a value of its own.
+ */
+const UNFILED_COLUMN = "__unfiled__";
+
 const EMPTY_MATERIAL: MaterialDraft = {
   project: "",
   supplier: "",
+  category: "",
   movementType: "ENTRY",
   returnReason: "",
   returnReasonOther: "",
@@ -279,8 +303,9 @@ function MaterialCapturePanel({
   const [ocrProof, setOcrProof] = useState("");
   const [ocrMessage, setOcrMessage] = useState("");
   const [ocrLineItems, setOcrLineItems] = useState<DeliveryNoteOCRLineItem[]>([]);
+  const [newColumnName, setNewColumnName] = useState("");
+  const [columnError, setColumnError] = useState("");
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
-  const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
   const initialScanRef = useRef("");
   const completedMaterialEvidence = completedFieldEvidence(materialEvidence);
@@ -304,6 +329,86 @@ function MaterialCapturePanel({
     queryKey: ["qr-codes", "field-material"],
     queryFn: () => getQRCodes({ page_size: 300 }),
   });
+  const updateLineItem = (
+    index: number,
+    patch: Partial<DeliveryNoteOCRLineItem>,
+  ) =>
+    setOcrLineItems((rows) =>
+      rows.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+    );
+  const removeLineItem = (index: number) =>
+    setOcrLineItems((rows) => rows.filter((_, i) => i !== index));
+  const loadLineItem = (item: DeliveryNoteOCRLineItem) =>
+    setDraft((old) => ({
+      ...old,
+      materialName: item.material_name,
+      quantity: numericSuggestion(item.quantity) || old.quantity,
+      unit: (item.unit as MaterialUnit) || old.unit,
+      // The reader now hands back the column id, so the line does not have to
+      // be matched back to one by its code.
+      category: item.category_id || old.category,
+    }));
+  // The material columns of this site. Only the material ones: a site-record
+  // column is not somewhere a delivery can be filed, and the server refuses
+  // one here (T-161).
+  const columns = useQuery({
+    queryKey: ["project-categories", "field-material", draft.project],
+    queryFn: () =>
+      getProjectCategories({
+        project: draft.project,
+        kind: "MATERIAL",
+        is_active: true,
+        page_size: 200,
+        sort_by: "sort_order",
+        sort_order: "asc",
+      }),
+    enabled: Boolean(draft.project),
+    staleTime: 30_000,
+  });
+  const columnRows: ProjectCategory[] = columns.data?.results ?? [];
+  /** Open a column for this delivery, and select it. See `openColumn`. */
+  const columnCreation = useMutation({
+    mutationFn: ({ name }: { name: string; index?: number }) =>
+      createMaterialColumn({ project: draft.project, name }),
+    onSuccess: (row, { index }) => {
+      setColumnError("");
+      setNewColumnName("");
+      setDraft((old) => ({ ...old, category: row.id }));
+      // A column opened from a scanned line belongs to that line too.
+      // Without this the row still reads "pick a category" straight after
+      // somebody opened one for exactly that material.
+      if (index !== undefined) {
+        updateLineItem(index, {
+          category_id: row.id,
+          category_code: row.code,
+          category_name: row.name,
+          classified: true,
+        });
+      }
+      void qc.invalidateQueries({ queryKey: ["project-categories"] });
+    },
+    onError: (reason) =>
+      setColumnError(
+        reason instanceof ApiError ? reason.message : t("error.action"),
+      ),
+  });
+  /**
+   * Open a column, or say plainly why it cannot be opened right now.
+   *
+   * A column is a row other people file against, so it cannot be minted
+   * offline and reconciled later - two workers on the same site would invent
+   * the same column twice, and the second would be a duplicate budget line.
+   * Saying so beats a spinner that fails: the delivery can still be taken
+   * unfiled and filed once there is a connection.
+   */
+  const openColumn = (name: string, index?: number) => {
+    setColumnError("");
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setColumnError(t("material.columnOffline"));
+      return;
+    }
+    columnCreation.mutate({ name, index });
+  };
   const qrCode = useMemo(
     () => scannedQr && scannedQr.project === draft.project && scannedQr.supplier === draft.supplier
       ? scannedQr
@@ -382,6 +487,7 @@ function MaterialCapturePanel({
             })
           : t("material.ocrReady"),
       );
+      const firstCategory = items[0]?.category_id ?? "";
       setDraft((old) => ({
         ...old,
         deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,
@@ -396,6 +502,8 @@ function MaterialCapturePanel({
           numericSuggestion(items[0]?.quantity) ||
           numericSuggestion(result.suggestions.quantity) ||
           old.quantity,
+        unit: (items[0]?.unit as MaterialUnit) || old.unit,
+        category: firstCategory || old.category,
       }));
     },
     onError: (reason) => {
@@ -423,28 +531,6 @@ function MaterialCapturePanel({
     ocr.mutate({ project: draft.project, image });
   }
 
-  const captureLocation = async () => {
-    setLocating(true);
-    setError("");
-    try {
-      const fix = await new Promise<GeolocationPosition>((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 15_000,
-          maximumAge: 0,
-        }),
-      );
-      setLocation({
-        latitude: fix.coords.latitude.toFixed(7),
-        longitude: fix.coords.longitude.toFixed(7),
-        accuracy: fix.coords.accuracy.toFixed(2),
-      });
-    } catch {
-      setError(t("error.location"));
-    } finally {
-      setLocating(false);
-    }
-  };
 
   const save = useMutation({
     mutationFn: () => {
@@ -467,6 +553,10 @@ function MaterialCapturePanel({
           material_name: draft.materialName.trim(),
           quantity: draft.quantity,
           unit: draft.unit,
+          // Null rather than "" when nothing is chosen: the serializer reads
+          // an empty string as an invalid id, while null is the "unfiled"
+          // the receipt model documents.
+          category: draft.category || null,
           vehicle_plate: draft.vehiclePlate.trim(),
           delivery_note_no: draft.deliveryNoteNo.trim(),
           notes: draft.notes.trim(),
@@ -514,7 +604,11 @@ function MaterialCapturePanel({
             setOcrProof("");
             setOcrLineItems([]);
             setMaterialEvidence(createEmptyFieldEvidence());
-            setDraft((old) => ({ ...old, project }));
+            setNewColumnName("");
+            setColumnError("");
+            // A column belongs to one site, so the one chosen for the old
+            // project is not a valid answer for the new one.
+            setDraft((old) => ({ ...old, project, category: "" }));
           }}
           placeholder={t("material.chooseProject")}
           className="h-12 w-full"
@@ -599,6 +693,75 @@ function MaterialCapturePanel({
       ) : null}
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
+      {/* Which column this delivery files under, and a way to open one.
+          Before T-161 this screen sent no column at all, so every delivery
+          taken on site arrived unfiled however many columns the site had, and
+          somebody in the office had to re-file each one by hand. */}
+      <FieldWrapper label={t("material.column")}>
+        <Select
+          value={draft.category || UNFILED_COLUMN}
+          onValueChange={(value) =>
+            setDraft((old) => ({
+              ...old,
+              category: value === UNFILED_COLUMN ? "" : value,
+            }))
+          }
+          disabled={!draft.project}
+        >
+          <SelectTrigger className="h-12 w-full">
+            <SelectValue placeholder={t("material.chooseColumn")} />
+          </SelectTrigger>
+          <SelectContent>
+            {/* Unfiled stays on offer. It is the honest answer when nobody at
+                the gate knows where this belongs, and better than parking the
+                delivery in an arbitrary column somebody later pays against. */}
+            <SelectItem value={UNFILED_COLUMN}>
+              {t("material.columnUnfiled")}
+            </SelectItem>
+            {columnRows.map((column) => (
+              <SelectItem key={column.id} value={column.id}>
+                {column.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {draft.project && !columns.isLoading && !columnRows.length && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t("material.noColumnsYet")}
+          </p>
+        )}
+        <div className="mt-2 flex gap-2">
+          <Input
+            className="h-12"
+            value={newColumnName}
+            disabled={!draft.project}
+            onChange={(event) => setNewColumnName(event.target.value)}
+            placeholder={t("material.newColumnName")}
+          />
+          <Button
+            className="h-12 shrink-0"
+            variant="outline"
+            requires={[
+              [draft.project, t("material.project")],
+              [newColumnName.trim(), t("material.newColumnName")],
+            ]}
+            disabled={columnCreation.isPending}
+            onClick={() => openColumn(newColumnName.trim())}
+          >
+            {columnCreation.isPending ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Plus />
+            )}
+            {t("material.addColumn")}
+          </Button>
+        </div>
+        {columnError && (
+          <p role="alert" className="mt-2 text-xs text-destructive">
+            {columnError}
+          </p>
+        )}
+      </FieldWrapper>
       <div className="grid grid-cols-2 gap-3">
         <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
         <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
@@ -627,50 +790,137 @@ function MaterialCapturePanel({
       )}
       {ocrLineItems.length > 0 && (
         <div className="rounded-lg border">
-          <div className="flex items-center justify-between border-b bg-muted/40 px-3 py-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="border-b bg-muted/40 px-3 py-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("material.ocrItems.title")}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {t("material.ocrItems.confirmHint")}
-            </span>
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {t("material.ocrItems.editHint")}
+            </p>
           </div>
           <ul className="divide-y">
             {ocrLineItems.map((item, index) => (
-              <li key={index} className="flex items-start gap-2 px-3 py-2">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
-                    {item.material_name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.quantity}
-                    {item.unit ? ` ${item.unit}` : ""}
-                  </p>
+              <li key={index} className="space-y-2 px-3 py-3">
+                <div className="flex items-center gap-2">
+                  <Input
+                    className="h-10 flex-1"
+                    value={item.material_name}
+                    placeholder={t("material.name")}
+                    onChange={(event) =>
+                      updateLineItem(index, { material_name: event.target.value })
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 text-destructive hover:bg-destructive/10"
+                    title={t("material.ocrItems.remove")}
+                    onClick={() => removeLineItem(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                    item.classified
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {item.classified
-                    ? item.category_name
-                    : t("material.ocrItems.unclassified")}
-                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    className="h-10"
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    inputMode="decimal"
+                    value={item.quantity}
+                    placeholder={t("material.quantity")}
+                    onChange={(event) =>
+                      updateLineItem(index, { quantity: event.target.value })
+                    }
+                  />
+                  <Select
+                    value={item.unit || "none"}
+                    onValueChange={(value) =>
+                      updateLineItem(index, { unit: value === "none" ? "" : value })
+                    }
+                  >
+                    <SelectTrigger className="h-10 w-full"><SelectValue placeholder={t("material.unit")} /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("material.ocrItems.noUnit")}</SelectItem>
+                      {MATERIAL_UNITS.map((unit) => (
+                        <SelectItem key={unit} value={unit}>
+                          {allT(`receipts.unit.${unit}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={item.category_id || "none"}
+                    onValueChange={(value) => {
+                      const match = columnRows.find((row) => row.id === value);
+                      updateLineItem(index, {
+                        category_id: match?.id ?? null,
+                        category_code: match?.code ?? "",
+                        category_name: match?.name ?? "",
+                        classified: Boolean(match),
+                      });
+                    }}
+                  >
+                    <SelectTrigger className="h-10 flex-1"><SelectValue placeholder={t("material.ocrItems.unclassified")} /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("material.ocrItems.unclassified")}</SelectItem>
+                      {columnRows.map((column) => (
+                        <SelectItem key={column.id} value={column.id}>
+                          {column.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-10 shrink-0 rounded-full px-4"
+                    onClick={() => loadLineItem(item)}
+                  >
+                    {t("material.ocrItems.use")}
+                  </Button>
+                </div>
+                {/* A material nobody has a column for. Classifying could only
+                    ever pick a column that already existed (F-200), so a line
+                    the reader could not place used to be a dead label. */}
+                {!item.category_id && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-10 w-full"
+                    disabled={columnCreation.isPending}
+                    onClick={() => openColumn(item.material_name.trim(), index)}
+                  >
+                    {columnCreation.isPending ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <Plus />
+                    )}
+                    {t("material.ocrItems.makeColumn")}
+                  </Button>
+                )}
               </li>
             ))}
           </ul>
         </div>
       )}
       <div className="grid gap-4 sm:grid-cols-2">
-        <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} value={receiverSignature} onChange={setReceiverSignature} />
-        <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} value={supplierSignature} onChange={setSupplierSignature} />
+        <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} required value={receiverSignature} onChange={setReceiverSignature} />
+        <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} required value={supplierSignature} onChange={setSupplierSignature} />
       </div>
-      <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void captureLocation()}>
-        {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-        {location ? t("attendance.locationReady") : t("attendance.getLocation")}
-      </Button>
+      <LocationField
+        label={t("material.location")}
+        actionLabel={t("attendance.getLocation")}
+        readyLabel={t("attendance.locationReady")}
+        value={location ?? null}
+        onChange={(fix) => setLocation(fix ?? undefined)}
+        required
+      />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
       <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [receiverSignature, t("material.receiverSignature")], [supplierSignature, t("material.supplierSignature")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
@@ -704,7 +954,6 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   const [category, setCategory] = useState("RFI");
   const [note, setNote] = useState("");
   const [location, setLocation] = useState<Coordinates>();
-  const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
   const evidenceLabels = [
@@ -714,28 +963,6 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
     t("consultantEvidence.reference"),
   ];
 
-  const locate = async () => {
-    setLocating(true);
-    setError("");
-    try {
-      const fix = await new Promise<GeolocationPosition>((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 15_000,
-          maximumAge: 0,
-        }),
-      );
-      setLocation({
-        latitude: fix.coords.latitude.toFixed(7),
-        longitude: fix.coords.longitude.toFixed(7),
-        accuracy: fix.coords.accuracy.toFixed(2),
-      });
-    } catch {
-      setError(t("error.location"));
-    } finally {
-      setLocating(false);
-    }
-  };
 
   const save = useMutation({
     mutationFn: () => {
@@ -795,15 +1022,14 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
           onChange={setEvidence}
         />
       </FieldWrapper>
-      <Button
-        className="h-12 w-full"
-        variant="outline"
-        disabled={locating}
-        onClick={() => void locate()}
-      >
-        {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-        {location ? t("attendance.locationReady") : t("attendance.getLocation")}
-      </Button>
+      <LocationField
+        label={t("consultantEvidence.location")}
+        actionLabel={t("attendance.getLocation")}
+        readyLabel={t("attendance.locationReady")}
+        value={location ?? null}
+        onChange={(fix) => setLocation(fix ?? undefined)}
+        required
+      />
       <Textarea
         value={note}
         onChange={(event) => setNote(event.target.value)}
@@ -852,7 +1078,6 @@ function WasteOutgoingCapturePanel({
   const [pickupAddress, setPickupAddress] = useState("");
   const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
   const [location, setLocation] = useState<Coordinates>();
-  const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
   const evidenceLabels = [
@@ -902,28 +1127,6 @@ function WasteOutgoingCapturePanel({
     },
   });
 
-  const locate = async () => {
-    setLocating(true);
-    setError("");
-    try {
-      const fix = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 15_000,
-          maximumAge: 0,
-        });
-      });
-      setLocation({
-        latitude: fix.coords.latitude.toFixed(7),
-        longitude: fix.coords.longitude.toFixed(7),
-        accuracy: fix.coords.accuracy.toFixed(2),
-      });
-    } catch {
-      setError(t("form.locationFailed"));
-    } finally {
-      setLocating(false);
-    }
-  };
 
   const quantityIncomplete = quantity.trim() !== "" && unit === "";
 
@@ -991,11 +1194,14 @@ function WasteOutgoingCapturePanel({
           onChange={setEvidence}
         />
       </FieldWrapper>
-      <Button className="h-12 w-full" variant="outline" disabled={locating} onClick={() => void locate()}>
-        {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-        {location ? t("field.locationReady") : t("action.locate")}
-      </Button>
-      {location && <p className="text-center text-xs tabular-nums text-muted-foreground">{location.latitude}, {location.longitude}</p>}
+      <LocationField
+        label={t("field.location")}
+        actionLabel={t("action.locate")}
+        readyLabel={t("field.locationReady")}
+        value={location ?? null}
+        onChange={(fix) => setLocation(fix ?? undefined)}
+        required
+      />
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
       <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("field.photos")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <Recycle />}

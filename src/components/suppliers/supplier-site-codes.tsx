@@ -9,7 +9,10 @@ import { useRef, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FormSection } from "@/components/shared/form-shell";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import {
+  LoadFailed,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,7 +107,9 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
         {t("suppliers.siteCodes.description")}
       </p>
 
-      {codes.isLoading ? (
+      {codes.isError ? (
+        <LoadFailed onRetry={() => void codes.refetch()} />
+      ) : codes.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : rows.length === 0 ? (
         <p className="rounded-lg border border-dashed p-5 text-center text-sm text-muted-foreground">

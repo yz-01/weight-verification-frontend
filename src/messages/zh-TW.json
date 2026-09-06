@@ -1,18 +1,40 @@
 {
   "materialColumns": {
-    "uncounted": "有幾張送貨單讀不出金額，沒有算進這個合計裡。",
-    "tonnes": "累計 {tonnes} 噸",
+    "alertHelp": "用逗號分隔，例如 80, 100。改了預算會重新算已經越過哪幾條線。",
+    "alertInvalid": "請填 1 到 500 之間的整數，用逗號分隔。",
+    "alertPercentages": "在這些百分比提醒",
+    "archived": "已歸欄目",
+    "archivedHelp": "預算是錢，由這個欄目下的送貨單金額累計而來。",
+    "budgetAmount": "預算（RM）",
+    "budgetNone": "不計預算的欄目留空",
+    "columnsFailed": "無法載入欄目，因此無法確定這個工地到底有沒有欄目。請重試。",
+    "columnsFailedRefile": "無法載入欄目，所以上面的選擇框是空的。這不代表這個工地沒有欄目 —— 在載入成功之前，請不要新建一個。",
+    "edit": "編輯欄目",
+    "editHelp": "只改名稱、預算和預警線。歸在這個欄目裡的照片、數量與簽名是證據，這裡一個位元都不動。",
+    "editTitle": "編輯 {name}",
+    "fileInto": "歸到",
     "filed": "已歸檔 {count} 筆",
     "noBudget": "沒有設預算",
     "noColumns": "還沒有設欄目",
-    "archivedHelp": "預算是錢，由這個欄目下的送貨單金額累計而來。",
-    "archived": "已歸欄目",
-    "seeAllPending": "查看全部 {count} 筆",
-    "pendingEmpty": "沒有待看的",
-    "pendingHelp": "你看過之後才會歸到各自的欄目裡。每個帳號的已讀狀態是各自獨立的。",
+    "noMaterialColumns": "這個專案還沒有可歸的材料欄目。",
     "pending": "待你查看（{count}）",
+    "pendingEmpty": "沒有待看的",
+    "pendingFailed": "無法載入待歸檔的送貨清單，因此無法確定到底有沒有在等。請重試。",
+    "pendingHelp": "你看過之後才會歸到各自的欄目裡。每個帳號的已讀狀態是各自獨立的。",
+    "refileConfirm": "歸檔",
+    "refileHelp": "只改歸在哪。照片、數量、簽名、時間、位置全部保持記錄時的樣子。",
+    "refileReason": "原因",
+    "refileTitle": "把 {receipt} 歸到某個欄目",
+    "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。",
+    "seeAllPending": "查看全部 {count} 筆",
     "subtitle": "每個欄目收了多少、花了多少",
-    "title": "材料欄目"
+    "title": "材料欄目",
+    "toast": {
+      "refiled": "已歸檔。"
+    },
+    "tonnes": "累計 {tonnes} 噸",
+    "tracksSpend": "這個欄目的支出計入預算",
+    "uncounted": "有幾張送貨單讀不出金額，沒有算進這個合計裡。"
   },
   "photoApprovals": {
     "noLocation": "沒有記錄位置",
@@ -1590,7 +1612,11 @@
       "yes": "是"
     },
     "subtitle": "統一管理合作伙伴資料、區域、客戶歸屬、協議和佣金結算。",
-    "title": "合作伙伴管理"
+    "title": "合作伙伴管理",
+    "schemes": {
+      "help": "佣金方案是合作協議的一部分，跟著協議版本一起凍結，所以要在協議那邊建立和修改，不在這一頁。",
+      "goToAgreements": "去合作協議管理"
+    }
   },
   "adminQr": {
     "action": {
@@ -2824,6 +2850,7 @@
     "commentPlaceholder": "填寫原因或審核備註",
     "companyWide": "公司級",
     "count": "共 {count} 項審批",
+    "countUnknown": "待辦數量沒有載入",
     "create": {
       "action": "新建審批",
       "description": "建立與業務記錄關聯的審批草稿。",
@@ -2861,6 +2888,7 @@
       "title": "審批記錄",
       "transition": "狀態變化"
     },
+    "historyFailed": "無法載入最新的審批紀錄。下面顯示的是這條申請自帶的快照，可能不是最新的。",
     "metadataHint": "可選的流程專用 JSON 對象。",
     "resource": {
       "all": "全部記錄類型",
@@ -2885,6 +2913,7 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交"
     },
+    "supportingDataFailed": "無法載入項目、人員或角色清單，所以下面選擇框裡的選項可能不全甚至是空的。這裡空白不代表真的沒有可選項。請重試。",
     "title": "審批流程",
     "toast": {
       "approve": "審批已批准",
@@ -3772,25 +3801,12 @@
     }
   },
   "common": {
-    "readOnlySetting": "這一項只能看，不能改",
-    "minLength": "{field} 至少要 {count} 個字",
-    "signatureMissing": "請先在這裡簽名",
-    "searchMinLength": "搜尋至少要輸入 {count} 個字",
-    "outOfRange": "{field} 要在 {min} 到 {max} 之間",
-    "offline": "目前沒有網路",
-    "nothingUnread": "沒有未讀的",
-    "nothingToSync": "沒有待上傳的內容",
-    "noReportYet": "請先產生報表",
-    "noFiltersSet": "請先設定篩選條件",
-    "noChanges": "還沒有任何改動",
-    "missingFields": "還差這些沒填：{fields}",
-    "listSeparator": "、",
-    "alreadyFirstPage": "已經在第一頁",
-    "alreadyLast": "已經是最後一個了",
-    "alreadyFirst": "已經是第一個了",
     "actions": "操作",
     "active": "啟用",
     "all": "全部",
+    "alreadyFirst": "已經是第一個了",
+    "alreadyFirstPage": "已經在第一頁",
+    "alreadyLast": "已經是最後一個了",
     "back": "返回",
     "cancel": "取消",
     "close": "關閉",
@@ -3805,12 +3821,24 @@
     "export": "導出",
     "inactive": "停用",
     "language": "語言",
+    "listSeparator": "、",
+    "loadFailed": "無法載入{what}，所以這裡顯示的不是實際情況。請重試。",
     "loading": "加載中",
+    "minLength": "{field} 至少要 {count} 個字",
+    "missingFields": "還差這些沒填：{fields}",
     "mobileSidebarDescription": "顯示手機端側欄。",
+    "noChanges": "還沒有任何改動",
+    "noFiltersSet": "請先設定篩選條件",
     "noOptions": "沒有可選項",
+    "noReportYet": "請先產生報表",
     "none": "無",
+    "nothingToSync": "沒有待上傳的內容",
+    "nothingUnread": "沒有未讀的",
+    "offline": "目前沒有網路",
     "optional": "選填",
+    "outOfRange": "{field} 要在 {min} 到 {max} 之間",
     "profile": "個人資料",
+    "readOnlySetting": "這一項只能看，不能改",
     "reason": "原因",
     "reasonPlaceholder": "請說明此次變更的原因",
     "refresh": "刷新",
@@ -3819,11 +3847,14 @@
     "save": "保存",
     "saving": "保存中",
     "search": "搜索",
+    "searchMinLength": "搜尋至少要輸入 {count} 個字",
     "searchPlaceholder": "搜索",
+    "sectionLoadFailed": "這一部分沒有載入成功，所以這裡顯示的不是實際情況。請重試。",
     "selectPlaceholder": "請選擇",
     "settings": "設置",
     "sidebar": "側欄",
     "signOut": "退出登錄",
+    "signatureMissing": "請先在這裡簽名",
     "theme": "主題",
     "themeDark": "深色",
     "themeLight": "淺色",
@@ -3837,7 +3868,19 @@
       "linkCopied": "連結已複製",
       "notSentBody": "帳號已經建好了。請複製下面的開通連結，自己交給老闆。",
       "notSentTitle": "郵件沒能寄出",
-      "emailHint": "開通連結會寄到這裡。公司裡其他人的帳號，之後都由這個帳號來開。"
+      "emailHint": "開通連結會寄到這裡。公司裡其他人的帳號，之後都由這個帳號來開。",
+      "account": {
+        "title": "老闆帳號",
+        "description": "這家租戶的啟用密鑰是寄到這裡的。帳號本身屬於客戶。",
+        "none": "這家公司沒有老闆帳號 —— 它是在「建公司時一併開老闆帳號」之前建立的。",
+        "readOnly": "只有平台超級管理員能改這一項。",
+        "warning": "改了電郵之後，老闆會被登出並需要重新啟用 —— 因為原本的密碼屬於一個已經聯繫不到這家租戶的地址。",
+        "save": "儲存並重寄啟用密鑰",
+        "sent": "新的啟用郵件已經寄到 {email}。",
+        "notSent": "郵件沒寄出去。請把這個連結交給老闆：",
+        "status": "狀態",
+        "needsAChange": "先填一個新的電郵或電話。"
+      }
     },
     "addUser": "添加用戶",
     "commissionStatus": {
@@ -4808,7 +4851,22 @@
       "openCenter": "審批中心",
       "subtitle": "待處理 {total} 項，指派給你 {mine} 項，未指派 {unassigned} 項。",
       "title": "待審批事項",
-      "unassigned": "未指派"
+      "unassigned": "未指派",
+      "status": {
+        "AWAITING_CONFIRMATION": "等待確認",
+        "IN_REVIEW": "審批中",
+        "PENDING_APPROVAL": "等待審批",
+        "REQUESTED": "等待審批",
+        "SUBMITTED": "已提交"
+      },
+      "source": {
+        "APPROVAL": "審批中心",
+        "CONSULTANT_APPLICATION": "顧問申請",
+        "DISPOSAL_REQUEST": "廢料清運",
+        "FIELD_TASK": "現場任務",
+        "SITE_PROGRESS": "進度記錄",
+        "WASTE_OUTGOING": "廢料出場"
+      }
     },
     "attendanceEvent": {
       "CLOCK_IN": "上班打卡",
@@ -4834,6 +4892,7 @@
       "project": "項目",
       "selectProject": "選擇項目"
     },
+    "liveStopped": "即時部分已經停止更新。下面的動態、異常和未讀數量是打開這一頁時的，不是現在的。",
     "locationMap": {
       "allProjects": "全部項目",
       "empty": "所選項目還沒有可顯示的位置或電子圍欄。",
@@ -4952,6 +5011,13 @@
       "SAFETY_INCIDENT": "安全",
       "SITE_PROGRESS": "施工進度",
       "WASTE_DISPATCH": "回收派車"
+    },
+    "unread": {
+      "title": "等你處理",
+      "subtitle": "{receipts} 筆送貨、{approvals} 項待審，還沒有人替你看過",
+      "help": "這是你自己的清單。點進去看過就算你歸檔了，別人那邊不受影響。",
+      "openColumns": "材料欄目",
+      "unfiled": "尚未歸檔"
     }
   },
   "contractorModuleLanding": {
@@ -5006,7 +5072,11 @@
       "uploadHelp": "角色和人員都留空時，所有可查看人員都能上傳；選擇後只允許所選對象上傳。",
       "uploadRoles": "可上傳的角色",
       "uploadTitle": "誰可以上傳到此欄目",
-      "uploadUsers": "可上傳的人員"
+      "uploadUsers": "可上傳的人員",
+      "kind": "屬於哪一類欄目",
+      "kindField": "現場資料欄目",
+      "kindMaterial": "材料欄目",
+      "kindBoth": "尚未分家"
     },
     "direction": {
       "ENTRY": "進場",
@@ -5696,6 +5766,7 @@
       "wasteOrders": "待處理廢料訂單",
       "weighingSessions": "稱重次數"
     },
+    "tileFailed": "沒有載入",
     "title": "儀表板"
   },
   "deductions": {
@@ -6482,7 +6553,10 @@
       "version_already_exists": "該平臺版本已經存在。",
       "version_not_found": "找不到該平臺版本。",
       "visit_not_found": "找不到該客戶回訪。",
-      "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。"
+      "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。",
+      "attendance_outside_geofence": "你不在工地圍欄內，離最近圍欄 {distance} 公尺。走近一點再試。",
+      "attendance_gps_required": "這個專案設了工地範圍，打卡需要你的位置。請打開定位再試一次。",
+      "permission_denied": "你沒有權限做這件事。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -6709,7 +6783,14 @@
     "readyBody": "這臺手機已安全綁定到你的現場人員賬號。",
     "readyTitle": "手機已準備好",
     "signIn": "登錄",
-    "thisPhone": "這臺手機"
+    "thisPhone": "這臺手機",
+    "storageBlocked": "這個瀏覽器沒有保存網站資料，所以這台手機沒辦法保持關聯。請用一般視窗（不要無痕視窗）開啟邀請連結，並允許這個網址保存網站資料。",
+    "browserWarningTitle": "請用手機內建的瀏覽器開啟這個連結",
+    "browserWarning": "這台手機是跟你啟用時用的那個瀏覽器綁定的。在聊天軟體裡面啟用，綁定的只是那個軟體；之後用 Safari 或 Chrome 開啟，會被當成另一台手機。",
+    "browserWarningNamed": "這個連結是在 {app} 裡面開啟的。請先複製連結，用 Safari 或 Chrome 開啟，再在那裡啟用。",
+    "copyLink": "複製連結",
+    "copied": "連結已複製。貼到 Safari 或 Chrome 開啟。",
+    "resuming": "正在開啟你的工作台…"
   },
   "fieldAccessAdmin": {
     "unbind": {
@@ -6807,7 +6888,9 @@
       "permissionError": "無法啟動相機，請允許相機權限後再試。",
       "ready": "已拍攝 {count} 張",
       "switch": "切換鏡頭",
-      "unsupported": "此瀏覽器無法打開相機，請使用 HTTPS 網站和較新的手機瀏覽器。"
+      "unsupported": "此瀏覽器無法打開相機，請使用 HTTPS 網站和較新的手機瀏覽器。",
+      "retake": "點一下重拍",
+      "preview": "已拍攝"
     },
     "categoryEvidence": {
       "changeCategory": "更換",
@@ -6942,7 +7025,12 @@
       "ocrItems": {
         "confirmHint": "請對照紙質單核對",
         "title": "從送貨單讀到的物料",
-        "unclassified": "選擇欄目"
+        "unclassified": "選擇欄目",
+        "makeColumn": "建成欄目",
+        "editHint": "改掉讀錯的文字、選欄目、刪掉多餘行,再點「填入」。",
+        "remove": "刪除此行",
+        "use": "填入",
+        "noUnit": "無單位"
       },
       "ocrLowConfidence": "以下欄位識別置信度較低：{fields}。保存前請對照紙質單據核對。",
       "ocrManual": "無法讀取送貨單，請手動填寫資料。",
@@ -6975,7 +7063,14 @@
       "supplierSignature": "供應商簽名",
       "tapCamera": "按這裡打開相機",
       "unit": "單位",
-      "vehicle": "車牌"
+      "vehicle": "車牌",
+      "column": "材料欄目",
+      "chooseColumn": "選擇材料欄目",
+      "columnUnfiled": "尚未歸檔",
+      "noColumnsYet": "這個工地還沒有材料欄目。在下面新增第一個。",
+      "newColumnName": "新欄目名稱",
+      "addColumn": "新增欄目",
+      "columnOffline": "離線：沒有網路時開不了新欄目。先把這批貨收下（尚未歸檔），有網路再歸。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -7046,6 +7141,54 @@
       "PROGRESS": "進度",
       "SAFETY": "安全",
       "WASTE": "廢料"
+    },
+    "locationAccess": {
+      "why": {
+        "title": "這裡需要用到你的位置",
+        "body": "收貨、打卡和現場記錄都會記下發生的地點，這樣辦公室不用打電話跟你確認人在不在工地。只在你按下按鈕的那一刻讀一次。",
+        "allow": "好，允許定位",
+        "later": "暫時不要"
+      },
+      "denied": {
+        "title": "瀏覽器不讓這個網頁取你的位置",
+        "iosNote": "如果你從頭到尾沒看到過詢問框，那是定位在手機設定裡被關掉了。網頁再怎麼請求都彈不出那個框 —— 只能按下面的步驟打開。"
+      },
+      "steps": {
+        "iosSafari": {
+          "1": "打開「設定」→「隱私權與安全性」→「定位服務」，確認最上面的總開關是開著的。",
+          "2": "還在這一頁，往下滑找到「Safari 網站」，選「使用 App 期間」。",
+          "3": "回到這個頁面，點網址列左邊的「ᴀA」→「網站設定」→「位置」→ 選「允許」。",
+          "4": "重新整理這個頁面，再按一次上面的按鈕。"
+        },
+        "iosOtherBrowser": {
+          "1": "打開「設定」→「隱私權與安全性」→「定位服務」，確認最上面的總開關是開著的。",
+          "2": "還在這一頁，往下滑找到你在用的瀏覽器（Chrome、Firefox 或 Edge），選「使用 App 期間」。",
+          "3": "把瀏覽器完全關掉，再重新打開這個連結。",
+          "4": "再按一次上面的按鈕。這次會彈出詢問框，請選「允許」。"
+        },
+        "androidChrome": {
+          "1": "從螢幕頂部往下滑，確認系統的「定位」是開著的。",
+          "2": "點網址列左邊的圖示 →「權限」→「位置」→ 選「允許」。",
+          "3": "如果那裡沒有「位置」，去「設定」→「應用程式」→「Chrome」→「權限」→「位置」，選「僅在使用該應用程式時允許」。",
+          "4": "重新整理這個頁面，再按一次上面的按鈕。"
+        },
+        "androidOtherBrowser": {
+          "1": "從螢幕頂部往下滑，確認系統的「定位」是開著的。",
+          "2": "去「設定」→「應用程式」→ 你在用的瀏覽器 →「權限」→「位置」，選「僅在使用該應用程式時允許」。",
+          "3": "在瀏覽器自己的網站設定裡，把這個網站的位置權限改成「允許」。",
+          "4": "重新整理這個頁面，再按一次上面的按鈕。"
+        },
+        "desktop": {
+          "1": "點網址列左邊的圖示。",
+          "2": "找到「位置」，改成「允許」。",
+          "3": "確認電腦本身的定位服務是開著的。",
+          "4": "重新整理這個頁面，再按一次上面的按鈕。"
+        }
+      },
+      "retry": "再試一次",
+      "unavailable": "手機暫時定不到位置 —— 多半是在室內或有遮擋。到空曠一點的地方再試一次。",
+      "timeout": "定位等太久了。請再試一次。",
+      "unsupported": "這個瀏覽器讀不到位置。請用手機上的 Safari 或 Chrome 打開這個連結。"
     }
   },
   "fieldStaffWorkspace": {
@@ -8370,7 +8513,8 @@
     "weighing": "稱重",
     "weighing_parameters": "地磅檢測參數",
     "weighing_records": "稱重記錄",
-    "yards": "回收場"
+    "yards": "回收場",
+    "waitingForYou": "{count} 項等你處理"
   },
   "notifications": {
     "compose": {
@@ -8382,6 +8526,7 @@
       "chooseProjectFirst": "請先選擇項目。",
       "description": "向你公司其中一個項目的有效成員發送站內通知。",
       "loadingMembers": "正在加載項目成員……",
+      "membersFailed": "無法載入這個項目的人員，所以下面沒有列出收件人。這不代表項目裡沒有人。",
       "message": "內容",
       "messagePlaceholder": "寫下團隊需要知道或執行的事情。",
       "noMembers": "這個項目目前還沒有有效的項目成員。",
@@ -8403,6 +8548,7 @@
       "title": "發送項目通知"
     },
     "count": "共 {count} 條通知",
+    "countFailed": "無法載入未讀數量，因此無法確定到底有沒有東西在等你。",
     "field": {
       "kind": "類型",
       "notification": "通知",
@@ -8439,6 +8585,7 @@
       "SYSTEM": "系統",
       "WEIGHING": "稱重"
     },
+    "listFailed": "無法載入你的通知。這和「沒有通知」不是一回事 —— 請重試。",
     "markAllRead": "全部標記為已讀",
     "markRead": "標記為已讀",
     "noUnread": "目前沒有未讀通知",
@@ -9652,7 +9799,8 @@
       "photos": "照片",
       "received": "收貨人",
       "stamp": "系統自動記錄",
-      "vehicle": "車輛與單據"
+      "vehicle": "車輛與單據",
+      "signatures": "簽名"
     },
     "stampNote": "時間、位置和記錄人由系統在提交時自動寫入，無法手動填寫或事後修改。",
     "summary": {
@@ -9679,7 +9827,20 @@
       "PIECE": "件",
       "TONNE": "噸"
     },
-    "viewTitle": "收貨記錄"
+    "viewTitle": "收貨記錄",
+    "signature": {
+      "receiver": "收貨人",
+      "supplier": "供應商",
+      "none": "沒有採集到簽名。"
+    },
+    "photoViewer": {
+      "open": "打開照片",
+      "previous": "上一張",
+      "next": "下一張",
+      "clean": "這裡顯示的是不帶位置與時間浮水印的原圖，方便複製到別處使用。"
+    },
+    "recorderUnknown": "沒有記錄人資料",
+    "noRecorderPhone": "沒有登記聯絡電話"
   },
   "recyclerBusiness": {
     "action": {
@@ -10684,14 +10845,19 @@
       "MANUAL": "手動建立"
     },
     "state": {
+      "candidatesLoadError": "無法載入已確認的現場進度，因此無法確定到底有沒有證據可以附上。請先重試再確認。",
       "chooseProject": "請選擇項目以查看施工計劃。",
+      "historyLoadError": "無法載入施工計劃歷史，因此無法確定到底有沒有歷史紀錄。請重試。",
       "loadError": "無法載入施工計劃，請重試。",
       "noConfirmedProgress": "目前沒有已確認的現場進度記錄。",
       "noHistory": "還沒有施工計劃歷史。",
       "noPlans": "這個項目還沒有施工計劃。您可以手動建立或導入 Excel。",
       "noReason": "沒有額外備註",
       "noRevision": "沒有計劃版本",
-      "noTasks": "這個版本還沒有任務。"
+      "noTasks": "這個版本還沒有任務。",
+      "overviewLoadError": "無法載入進度匯總，因此任務數與進度百分比沒有顯示出來。請重試。",
+      "revisionsLoadError": "無法載入計劃版本，請重試。",
+      "tasksLoadError": "無法載入任務清單，因此這個版本的任務沒有顯示出來。請重試。"
     },
     "status": {
       "current": "當前版本",
@@ -11525,7 +11691,8 @@
       "history": "最後位置 / 歷史軌跡",
       "live": "實時位置"
     },
-    "title": "工地人員 GPS"
+    "title": "工地人員 GPS",
+    "watchNotPermitted": "你可以在這裡分享自己的位置。查看全體人員的位置需要「現場位置檢視」權限，你的角色沒有這個權限 —— 需要的話請聯絡公司管理員。"
   },
   "sites": {
     "count": "{count, plural, =0 {暫無回收場} other {# 個回收場}}",
@@ -12369,16 +12536,6 @@
     }
   },
   "wasteOutgoing": {
-    "handover": {
-      "trail": "{from} 於 {when} 轉交給 {to}",
-      "failed": "轉交沒成功",
-      "loading": "名單載入中",
-      "note": "備註",
-      "choose": "選一個人",
-      "person": "轉交給",
-      "help": "申請 {reference}。一次只轉交這一份，不是整個類別。",
-      "title": "把這份申請轉交給別人"
-    },
     "action": {
       "handOverAgain": "再轉交",
       "handOver": "轉交",
@@ -12400,6 +12557,7 @@
     "assign": {
       "help": "選擇已綁定此項目的回收商。{reference} 的訂單會立即發送至對方系統。",
       "noPartners": "此項目尚未綁定回收商。請先在「合作回收商」中綁定，再建立訂單。",
+      "partnersFailed": "無法載入回收合作商，所以選擇框是空的。這不代表你沒有合作商。",
       "title": "安排回收商"
     },
     "cancel": {
@@ -12475,6 +12633,16 @@
       "submitFailed": "申請提交失敗，請檢查標示的資料後重試。",
       "title": "環保材料出場申請"
     },
+    "handover": {
+      "trail": "{from} 於 {when} 轉交給 {to}",
+      "failed": "轉交沒成功",
+      "loading": "名單載入中",
+      "note": "備註",
+      "choose": "選一個人",
+      "person": "轉交給",
+      "help": "申請 {reference}。一次只轉交這一份，不是整個類別。",
+      "title": "把這份申請轉交給別人"
+    },
     "milestone": {
       "ARRIVED_AT_PLANT": "已到達回收廠",
       "COMPLETED": "回收完成",
@@ -12491,6 +12659,7 @@
     "photos": {
       "caption": "備註（可不填）"
     },
+    "recordsFailed": "無法載入清運紀錄，因此無法確定到底有沒有。請重試。",
     "review": {
       "failed": "審批結果未能保存。",
       "help": "批准 {reference} 後才可發送回收訂單，或填寫原因退回。",

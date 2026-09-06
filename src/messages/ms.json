@@ -1,18 +1,40 @@
 {
   "materialColumns": {
-    "uncounted": "Beberapa pesanan penghantaran tiada jumlah yang boleh dibaca, jadi ia tidak termasuk dalam jumlah ini.",
-    "tonnes": "{tonnes} t diterima",
+    "alertHelp": "Dipisahkan koma, contohnya 80, 100. Menukar bajet mengira semula garis yang telah dilepasi.",
+    "alertInvalid": "Guna nombor bulat antara 1 dan 500, dipisahkan koma.",
+    "alertPercentages": "Beri amaran pada peratusan ini",
+    "archived": "Difailkan mengikut ruangan",
+    "archivedHelp": "Bajet ialah wang, dijumlahkan daripada pesanan penghantaran dalam ruangan ini.",
+    "budgetAmount": "Bajet (RM)",
+    "budgetNone": "Biarkan kosong untuk kolum yang tidak dikira terhadap bajet",
+    "columnsFailed": "Lajur tidak dapat dimuatkan, jadi tidak diketahui sama ada tapak ini mempunyai sebarang lajur. Cuba lagi.",
+    "columnsFailedRefile": "Lajur tidak dapat dimuatkan, jadi pemilih di atas kosong. Itu tidak bermakna tapak ini tiada lajur - jangan buat yang baharu sehingga ia dimuatkan.",
+    "edit": "Sunting kolum",
+    "editHelp": "Nama, bajet dan garis amaran sahaja. Gambar, kuantiti dan tandatangan yang difailkan di sini adalah bukti dan tidak disentuh.",
+    "editTitle": "Sunting {name}",
+    "fileInto": "Failkan ke",
     "filed": "{count} difailkan",
     "noBudget": "Tiada bajet ditetapkan",
     "noColumns": "Belum ada ruangan disediakan",
-    "archivedHelp": "Bajet ialah wang, dijumlahkan daripada pesanan penghantaran dalam ruangan ini.",
-    "archived": "Difailkan mengikut ruangan",
-    "seeAllPending": "Lihat semua {count}",
-    "pendingEmpty": "Tiada yang menunggu",
-    "pendingHelp": "Ini difailkan ke dalam ruangannya setelah anda membukanya. Setiap akaun mempunyai status bacaannya sendiri.",
+    "noMaterialColumns": "Projek ini tiada kolum bahan untuk difailkan.",
     "pending": "Menunggu anda ({count})",
+    "pendingEmpty": "Tiada yang menunggu",
+    "pendingFailed": "Senarai penghantaran yang menunggu untuk difailkan tidak dapat dimuatkan, jadi tidak diketahui sama ada ada yang menunggu. Cuba lagi.",
+    "pendingHelp": "Ini difailkan ke dalam ruangannya setelah anda membukanya. Setiap akaun mempunyai status bacaannya sendiri.",
+    "refileConfirm": "Failkan",
+    "refileHelp": "Hanya kolum yang berubah. Gambar, kuantiti, tandatangan, masa dan tempat kekal seperti direkodkan.",
+    "refileReason": "Sebab",
+    "refileTitle": "Failkan {receipt} ke satu kolum",
+    "saveFailed": "Tidak berjaya. Cuba lagi, atau muat semula halaman.",
+    "seeAllPending": "Lihat semua {count}",
     "subtitle": "Apa yang diterima setiap ruangan dan berapa yang dibelanjakan",
-    "title": "Ruangan bahan"
+    "title": "Ruangan bahan",
+    "toast": {
+      "refiled": "Penghantaran difailkan."
+    },
+    "tonnes": "{tonnes} t diterima",
+    "tracksSpend": "Kira perbelanjaan kolum ini terhadap bajet",
+    "uncounted": "Beberapa pesanan penghantaran tiada jumlah yang boleh dibaca, jadi ia tidak termasuk dalam jumlah ini."
   },
   "photoApprovals": {
     "noLocation": "Lokasi tidak direkodkan",
@@ -1590,7 +1612,11 @@
       "yes": "Ya"
     },
     "subtitle": "Urus profil, wilayah, pemilikan pelanggan, perjanjian dan penyelesaian komisen.",
-    "title": "Pengurusan Rakan Kongsi"
+    "title": "Pengurusan Rakan Kongsi",
+    "schemes": {
+      "help": "Skim komisen ialah sebahagian daripada perjanjian rakan kongsi dan dibekukan bersamanya, jadi ia dicipta dan diubah di sana, bukan di sini.",
+      "goToAgreements": "Buka perjanjian rakan kongsi"
+    }
   },
   "adminQr": {
     "action": {
@@ -2824,6 +2850,7 @@
     "commentPlaceholder": "Tambah sebab atau catatan semakan",
     "companyWide": "Seluruh syarikat",
     "count": "{count} kelulusan",
+    "countUnknown": "Bilangan yang menunggu tidak dapat dimuatkan",
     "create": {
       "action": "Kelulusan baharu",
       "description": "Cipta permintaan draf yang dipautkan kepada rekod perniagaan.",
@@ -2861,6 +2888,7 @@
       "title": "Sejarah audit",
       "transition": "Perubahan status"
     },
+    "historyFailed": "Sejarah kelulusan terkini tidak dapat dimuatkan. Apa yang dipaparkan di bawah ialah petikan yang disimpan dengan permohonan ini, yang mungkin sudah lapuk.",
     "metadataHint": "Objek JSON pilihan untuk data khusus aliran kerja.",
     "resource": {
       "all": "Semua jenis rekod",
@@ -2885,6 +2913,7 @@
       "RETURNED": "Dikembalikan",
       "SUBMITTED": "Dihantar"
     },
+    "supportingDataFailed": "Senarai projek, orang atau peranan tidak dapat dimuatkan, jadi pemilih di bawah mungkin tidak lengkap atau kosong. Kosong di sini tidak bermakna tiada pilihan. Cuba lagi.",
     "title": "Kelulusan",
     "toast": {
       "approve": "Kelulusan diluluskan",
@@ -3772,25 +3801,12 @@
     }
   },
   "common": {
-    "readOnlySetting": "Yang ini baca sahaja",
-    "minLength": "{field} memerlukan sekurang-kurangnya {count} aksara",
-    "signatureMissing": "Tandatangan di sini dahulu",
-    "searchMinLength": "Taip sekurang-kurangnya {count} aksara untuk mencari",
-    "outOfRange": "{field} mesti antara {min} dan {max}",
-    "offline": "Tiada sambungan buat masa ini",
-    "nothingUnread": "Tiada yang belum dibaca",
-    "nothingToSync": "Tiada apa-apa menunggu dihantar",
-    "noReportYet": "Jana laporan dahulu",
-    "noFiltersSet": "Tetapkan penapis dahulu",
-    "noChanges": "Tiada perubahan lagi",
-    "missingFields": "Isi dahulu: {fields}",
-    "listSeparator": ", ",
-    "alreadyFirstPage": "Sudah di halaman pertama",
-    "alreadyLast": "Sudah yang terakhir",
-    "alreadyFirst": "Sudah yang pertama",
     "actions": "Tindakan",
     "active": "Aktif",
     "all": "Semua",
+    "alreadyFirst": "Sudah yang pertama",
+    "alreadyFirstPage": "Sudah di halaman pertama",
+    "alreadyLast": "Sudah yang terakhir",
     "back": "Kembali",
     "cancel": "Batal",
     "close": "Tutup",
@@ -3805,12 +3821,24 @@
     "export": "Eksport",
     "inactive": "Tidak aktif",
     "language": "Bahasa",
+    "listSeparator": ", ",
+    "loadFailed": "{what} tidak dapat dimuatkan, jadi apa yang dipaparkan di sini bukan keadaan sebenar. Cuba lagi.",
     "loading": "Memuatkan",
+    "minLength": "{field} memerlukan sekurang-kurangnya {count} aksara",
+    "missingFields": "Isi dahulu: {fields}",
     "mobileSidebarDescription": "Memaparkan bar sisi mudah alih.",
+    "noChanges": "Tiada perubahan lagi",
+    "noFiltersSet": "Tetapkan penapis dahulu",
     "noOptions": "Tiada pilihan",
+    "noReportYet": "Jana laporan dahulu",
     "none": "Tiada",
+    "nothingToSync": "Tiada apa-apa menunggu dihantar",
+    "nothingUnread": "Tiada yang belum dibaca",
+    "offline": "Tiada sambungan buat masa ini",
     "optional": "pilihan",
+    "outOfRange": "{field} mesti antara {min} dan {max}",
     "profile": "Profil",
+    "readOnlySetting": "Yang ini baca sahaja",
     "reason": "Sebab",
     "reasonPlaceholder": "Mengapa perubahan ini dibuat?",
     "refresh": "Muat semula",
@@ -3819,11 +3847,14 @@
     "save": "Simpan",
     "saving": "Menyimpan",
     "search": "Cari",
+    "searchMinLength": "Taip sekurang-kurangnya {count} aksara untuk mencari",
     "searchPlaceholder": "Cari",
+    "sectionLoadFailed": "Bahagian ini tidak dimuatkan, jadi apa yang dipaparkan di sini bukan keadaan sebenar. Cuba lagi.",
     "selectPlaceholder": "Pilih",
     "settings": "Tetapan",
     "sidebar": "Bar sisi",
     "signOut": "Log keluar",
+    "signatureMissing": "Tandatangan di sini dahulu",
     "theme": "Tema",
     "themeDark": "Gelap",
     "themeLight": "Cerah",
@@ -3837,7 +3868,19 @@
       "linkCopied": "Pautan disalin",
       "notSentBody": "Akaun telah dibuka. Salin pautan persediaan di bawah dan serahkan kepada pemilik sendiri.",
       "notSentTitle": "E-mel tidak dapat dihantar",
-      "emailHint": "Pautan persediaan dihantar ke sini. Akaun orang lain dalam syarikat dibuka oleh akaun ini kemudian."
+      "emailHint": "Pautan persediaan dihantar ke sini. Akaun orang lain dalam syarikat dibuka oleh akaun ini kemudian.",
+      "account": {
+        "title": "Akaun pemilik",
+        "description": "Ke sinilah kunci pengaktifan penyewa ini dihantar. Akaun itu sendiri milik pelanggan.",
+        "none": "Syarikat ini tiada akaun pemilik. Ia dibuka sebelum pemilik menjadi sebahagian daripada membuka syarikat.",
+        "readOnly": "Hanya superadmin platform boleh mengubah ini.",
+        "warning": "Menukar alamat akan log keluar pemilik dan mewajibkan pengaktifan semula, kerana kata laluan lama milik alamat yang tidak lagi menghubungi penyewa ini.",
+        "save": "Simpan dan hantar semula kunci",
+        "sent": "E-mel pengaktifan baharu telah dihantar ke {email}.",
+        "notSent": "E-mel tidak dapat dihantar. Berikan pautan ini kepada pemilik:",
+        "status": "Status",
+        "needsAChange": "Masukkan alamat e-mel atau nombor telefon baharu dahulu."
+      }
     },
     "addUser": "Tambah pengguna",
     "commissionStatus": {
@@ -4808,7 +4851,22 @@
       "openCenter": "Pusat kelulusan",
       "subtitle": "{total} menunggu, {mine} untuk anda, {unassigned} belum diagihkan.",
       "title": "Menunggu keputusan",
-      "unassigned": "Belum diagihkan"
+      "unassigned": "Belum diagihkan",
+      "status": {
+        "AWAITING_CONFIRMATION": "Menunggu pengesahan",
+        "IN_REVIEW": "Dalam semakan",
+        "PENDING_APPROVAL": "Menunggu kelulusan",
+        "REQUESTED": "Menunggu kelulusan",
+        "SUBMITTED": "Dihantar"
+      },
+      "source": {
+        "APPROVAL": "Pusat kelulusan",
+        "CONSULTANT_APPLICATION": "Permohonan perunding",
+        "DISPOSAL_REQUEST": "Pembersihan tapak",
+        "FIELD_TASK": "Tugas tapak",
+        "SITE_PROGRESS": "Rekod kemajuan",
+        "WASTE_OUTGOING": "Sisa keluar"
+      }
     },
     "attendanceEvent": {
       "CLOCK_IN": "Masuk",
@@ -4834,6 +4892,7 @@
       "project": "Projek",
       "selectProject": "Pilih projek"
     },
+    "liveStopped": "Bahagian langsung telah berhenti dikemas kini. Suapan, amaran dan bilangan belum dibaca di bawah adalah dari ketika halaman dibuka, bukan sekarang.",
     "locationMap": {
       "allProjects": "Semua projek",
       "empty": "Projek yang dipilih tiada lokasi atau geofence untuk dipaparkan.",
@@ -4952,6 +5011,13 @@
       "SAFETY_INCIDENT": "Keselamatan",
       "SITE_PROGRESS": "Kemajuan",
       "WASTE_DISPATCH": "Penghantaran"
+    },
+    "unread": {
+      "title": "Menunggu anda",
+      "subtitle": "{receipts} penghantaran dan {approvals} kelulusan yang belum ada sesiapa selesaikan untuk anda",
+      "help": "Ini milik anda sahaja. Membukanya memfailkannya untuk anda dan mengekalkannya dalam senarai orang lain.",
+      "openColumns": "Kolum bahan",
+      "unfiled": "Belum difailkan dalam kolum"
     }
   },
   "contractorModuleLanding": {
@@ -5006,7 +5072,11 @@
       "uploadHelp": "Biarkan kedua-dua senarai kosong untuk membenarkan semua yang boleh melihat memuat naik. Pilihan akan mengehadkan muat naik.",
       "uploadRoles": "Peranan boleh memuat naik",
       "uploadTitle": "Siapa boleh memuat naik ke kategori ini",
-      "uploadUsers": "Individu boleh memuat naik"
+      "uploadUsers": "Individu boleh memuat naik",
+      "kind": "Skema failan yang mana",
+      "kindField": "Kolum rekod tapak",
+      "kindMaterial": "Kolum bahan",
+      "kindBoth": "Belum dipisahkan"
     },
     "direction": {
       "ENTRY": "Masuk",
@@ -5696,6 +5766,7 @@
       "wasteOrders": "Pesanan sisa masuk",
       "weighingSessions": "Sesi penimbangan"
     },
+    "tileFailed": "Tidak dimuatkan",
     "title": "Papan pemuka"
   },
   "deductions": {
@@ -6482,7 +6553,10 @@
       "version_already_exists": "Versi platform itu sudah wujud.",
       "version_not_found": "Versi platform itu tidak dijumpai.",
       "visit_not_found": "Lawatan pelanggan itu tidak dijumpai.",
-      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian."
+      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
+      "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
+      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
+      "permission_denied": "Anda tidak dibenarkan berbuat demikian."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -6709,7 +6783,14 @@
     "readyBody": "Telefon ini kini dipautkan dengan selamat kepada akaun tapak anda.",
     "readyTitle": "Telefon sudah sedia",
     "signIn": "Log masuk",
-    "thisPhone": "Telefon ini"
+    "thisPhone": "Telefon ini",
+    "storageBlocked": "Pelayar ini tidak menyimpan data tapak, jadi telefon ini tidak boleh kekal terpaut. Buka pautan jemputan dalam tetingkap biasa dan bukan tetingkap peribadi, dan benarkan data tapak untuk alamat ini.",
+    "browserWarningTitle": "Buka pautan ini dalam pelayar biasa telefon anda",
+    "browserWarning": "Telefon ini dipautkan kepada pelayar tempat anda mengaktifkannya. Mengaktifkan di dalam apl sembang hanya memautkan apl itu, dan membuka tapak ini kemudian dalam Safari atau Chrome akan tiba sebagai telefon yang berlainan.",
+    "browserWarningNamed": "Pautan ini dibuka di dalam {app}. Salin dan buka dalam Safari atau Chrome dahulu, kemudian aktifkan di sana.",
+    "copyLink": "Salin pautan",
+    "copied": "Pautan disalin. Tampal ke dalam Safari atau Chrome.",
+    "resuming": "Membuka ruang kerja anda..."
   },
   "fieldAccessAdmin": {
     "unbind": {
@@ -6807,7 +6888,9 @@
       "permissionError": "Kamera tidak dapat dimulakan. Benarkan kebenaran kamera dan cuba lagi.",
       "ready": "{count} foto sedia",
       "switch": "Tukar kamera",
-      "unsupported": "Pelayar ini tidak boleh membuka kamera. Gunakan laman HTTPS dan pelayar mudah alih terkini."
+      "unsupported": "Pelayar ini tidak boleh membuka kamera. Gunakan laman HTTPS dan pelayar mudah alih terkini.",
+      "retake": "Ketik untuk ambil semula",
+      "preview": "Gambar diambil"
     },
     "categoryEvidence": {
       "changeCategory": "Tukar",
@@ -6942,7 +7025,12 @@
       "ocrItems": {
         "confirmHint": "Semak dengan dokumen kertas",
         "title": "Bahan dibaca dari nota",
-        "unclassified": "Pilih kategori"
+        "unclassified": "Pilih kategori",
+        "makeColumn": "Jadikan kolum",
+        "editHint": "Betulkan teks salah, pilih kategori, buang baris salah, kemudian tekan Guna.",
+        "remove": "Buang baris",
+        "use": "Guna",
+        "noUnit": "Tiada unit"
       },
       "ocrLowConfidence": "Dibaca dengan keyakinan rendah: {fields}. Semak dengan dokumen kertas sebelum menyimpan.",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Isi butiran secara manual.",
@@ -6975,7 +7063,14 @@
       "supplierSignature": "Tandatangan pembekal",
       "tapCamera": "Tekan untuk buka kamera",
       "unit": "Unit",
-      "vehicle": "No. kenderaan"
+      "vehicle": "No. kenderaan",
+      "column": "Kolum bahan",
+      "chooseColumn": "Pilih kolum bahan",
+      "columnUnfiled": "Belum difailkan",
+      "noColumnsYet": "Tapak ini belum ada kolum bahan. Tambah yang pertama di bawah.",
+      "newColumnName": "Nama kolum baharu",
+      "addColumn": "Tambah kolum",
+      "columnOffline": "Luar talian: kolum tidak boleh dibuka tanpa sambungan. Terima penghantaran tanpa difailkan dan failkan kemudian."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -7046,6 +7141,54 @@
       "PROGRESS": "Kemajuan",
       "SAFETY": "Keselamatan",
       "WASTE": "Sisa"
+    },
+    "locationAccess": {
+      "why": {
+        "title": "Ini memerlukan lokasi anda",
+        "body": "Penghantaran, kehadiran dan rekod tapak dicap dengan tempat ia berlaku, supaya pejabat tidak perlu menelefon untuk mengesahkan anda berada di tapak. Ia dibaca sekali sahaja, ketika anda menekan butang.",
+        "allow": "Benarkan lokasi",
+        "later": "Bukan sekarang"
+      },
+      "denied": {
+        "title": "Pelayar tidak memberikan lokasi anda kepada halaman ini",
+        "iosNote": "Jika anda tidak pernah nampak kotak bertanya, lokasi dimatikan untuk pelayar ini dalam tetapan telefon. Tiada halaman web boleh memunculkan kotak itu semula - ia mesti dihidupkan di bawah."
+      },
+      "steps": {
+        "iosSafari": {
+          "1": "Buka Settings, kemudian Privacy & Security, kemudian Location Services, dan pastikan suis di atas dihidupkan.",
+          "2": "Pada halaman yang sama, tatal ke bawah ke Safari Websites dan pilih While Using the App.",
+          "3": "Kembali ke sini, ketik aA di kiri bar alamat, kemudian Website Settings, kemudian Location, dan pilih Allow.",
+          "4": "Muat semula halaman ini dan tekan butang itu sekali lagi."
+        },
+        "iosOtherBrowser": {
+          "1": "Buka Settings, kemudian Privacy & Security, kemudian Location Services, dan pastikan suis di atas dihidupkan.",
+          "2": "Pada halaman yang sama, tatal ke bawah ke pelayar anda (Chrome, Firefox atau Edge) dan pilih While Using the App.",
+          "3": "Tutup pelayar sepenuhnya, kemudian buka pautan ini semula.",
+          "4": "Tekan butang itu sekali lagi. Kali ini ia akan bertanya - pilih Allow."
+        },
+        "androidChrome": {
+          "1": "Leret ke bawah dari atas skrin dan pastikan Lokasi dihidupkan.",
+          "2": "Ketik ikon di kiri bar alamat, kemudian Kebenaran, kemudian Lokasi, dan pilih Benarkan.",
+          "3": "Jika Lokasi tiada di situ, buka Tetapan, Apl, Chrome, Kebenaran, Lokasi, dan pilih Benarkan semasa menggunakan apl sahaja.",
+          "4": "Muat semula halaman ini dan tekan butang itu sekali lagi."
+        },
+        "androidOtherBrowser": {
+          "1": "Leret ke bawah dari atas skrin dan pastikan Lokasi dihidupkan.",
+          "2": "Buka Tetapan, Apl, pelayar anda, Kebenaran, Lokasi, dan pilih Benarkan semasa menggunakan apl sahaja.",
+          "3": "Dalam tetapan tapak pelayar itu sendiri, tetapkan kebenaran lokasi tapak ini kepada Benarkan.",
+          "4": "Muat semula halaman ini dan tekan butang itu sekali lagi."
+        },
+        "desktop": {
+          "1": "Klik ikon di kiri bar alamat.",
+          "2": "Cari Lokasi dan tetapkan kepada Benarkan.",
+          "3": "Pastikan perkhidmatan lokasi dihidupkan untuk komputer itu sendiri.",
+          "4": "Muat semula halaman ini dan tekan butang itu sekali lagi."
+        }
+      },
+      "retry": "Cuba lagi",
+      "unavailable": "Telefon tidak dapat menentukan kedudukan - selalunya di dalam bangunan atau berbumbung. Keluar ke kawasan lapang dan cuba lagi.",
+      "timeout": "Mendapatkan lokasi mengambil masa terlalu lama. Cuba lagi.",
+      "unsupported": "Pelayar ini tidak boleh membaca lokasi. Buka pautan ini dalam Safari atau Chrome pada telefon."
     }
   },
   "fieldStaffWorkspace": {
@@ -8370,7 +8513,8 @@
     "weighing": "Penimbangan",
     "weighing_parameters": "Parameter pengesanan",
     "weighing_records": "Rekod penimbangan",
-    "yards": "Tapak kitar semula"
+    "yards": "Tapak kitar semula",
+    "waitingForYou": "{count} menunggu anda"
   },
   "notifications": {
     "compose": {
@@ -8382,6 +8526,7 @@
       "chooseProjectFirst": "Pilih projek dahulu.",
       "description": "Hantar notis dalam aplikasi kepada ahli aktif salah satu projek syarikat anda.",
       "loadingMembers": "Memuatkan ahli projek...",
+      "membersFailed": "Orang dalam projek ini tidak dapat dimuatkan, jadi tiada penerima disenaraikan. Itu tidak bermakna projek ini tiada orang.",
       "message": "Mesej",
       "messagePlaceholder": "Tulis tindakan atau maklumat yang perlu diketahui pasukan.",
       "noMembers": "Projek ini belum mempunyai ahli aktif yang ditugaskan.",
@@ -8403,6 +8548,7 @@
       "title": "Hantar notis projek"
     },
     "count": "{count, plural, =0 {Tiada pemberitahuan} other {# pemberitahuan}}",
+    "countFailed": "Bilangan belum dibaca tidak dapat dimuatkan, jadi tidak diketahui sama ada ada apa-apa yang menunggu.",
     "field": {
       "kind": "Jenis",
       "notification": "Pemberitahuan",
@@ -8439,6 +8585,7 @@
       "SYSTEM": "Sistem",
       "WEIGHING": "Penimbangan"
     },
+    "listFailed": "Pemberitahuan anda tidak dapat dimuatkan. Ini bukan bermakna tiada - cuba lagi.",
     "markAllRead": "Tandakan semua sebagai dibaca",
     "markRead": "Tandakan sebagai dibaca",
     "noUnread": "Tiada pemberitahuan belum dibaca",
@@ -9652,7 +9799,8 @@
       "photos": "Foto",
       "received": "Diterima oleh",
       "stamp": "Direkod oleh platform",
-      "vehicle": "Kenderaan dan dokumen"
+      "vehicle": "Kenderaan dan dokumen",
+      "signatures": "Tandatangan"
     },
     "stampNote": "Masa, lokasi dan orang yang merekod ditulis oleh platform semasa resit difailkan. Ia tidak boleh ditaip atau diubah kemudian.",
     "summary": {
@@ -9679,7 +9827,20 @@
       "PIECE": "Unit",
       "TONNE": "Tan"
     },
-    "viewTitle": "Resit"
+    "viewTitle": "Resit",
+    "signature": {
+      "receiver": "Diterima oleh",
+      "supplier": "Pembekal",
+      "none": "Tiada tandatangan dirakam."
+    },
+    "photoViewer": {
+      "open": "Buka gambar",
+      "previous": "Gambar sebelumnya",
+      "next": "Gambar seterusnya",
+      "clean": "Dipaparkan tanpa cap lokasi dan masa, supaya boleh digunakan semula di tempat lain."
+    },
+    "recorderUnknown": "Perekod tiada dalam rekod",
+    "noRecorderPhone": "Tiada nombor telefon dalam rekod"
   },
   "recyclerBusiness": {
     "action": {
@@ -10684,14 +10845,19 @@
       "MANUAL": "Manual"
     },
     "state": {
+      "candidatesLoadError": "Kemajuan tapak yang disahkan tidak dapat dimuatkan, jadi tidak diketahui sama ada ada bukti untuk dilampirkan. Cuba lagi sebelum mengesahkan.",
       "chooseProject": "Pilih projek untuk melihat jadual pembinaannya.",
+      "historyLoadError": "Sejarah jadual tidak dapat dimuatkan, jadi tidak diketahui sama ada ada sejarah. Cuba lagi.",
       "loadError": "Jadual tidak dapat dimuatkan. Cuba lagi.",
       "noConfirmedProgress": "Tiada rekod kemajuan tapak yang disahkan.",
       "noHistory": "Belum ada sejarah jadual.",
       "noPlans": "Projek ini belum mempunyai jadual. Cipta secara manual atau import Excel.",
       "noReason": "Tiada catatan tambahan",
       "noRevision": "Tiada versi jadual",
-      "noTasks": "Versi ini belum mempunyai tugas."
+      "noTasks": "Versi ini belum mempunyai tugas.",
+      "overviewLoadError": "Ringkasan kemajuan tidak dapat dimuatkan, jadi bilangan tugas dan peratus kemajuan tidak dipaparkan. Cuba lagi.",
+      "revisionsLoadError": "Revisi tidak dapat dimuatkan. Cuba lagi.",
+      "tasksLoadError": "Senarai tugas tidak dapat dimuatkan, jadi tugas revisi ini tidak dipaparkan. Cuba lagi."
     },
     "status": {
       "current": "Semasa",
@@ -11525,7 +11691,8 @@
       "history": "Lokasi terakhir / Sejarah",
       "live": "Lokasi masa nyata"
     },
-    "title": "GPS kakitangan tapak"
+    "title": "GPS kakitangan tapak",
+    "watchNotPermitted": "Anda boleh berkongsi kedudukan anda sendiri di sini. Memantau tenaga kerja memerlukan kebenaran lihat kedudukan tapak, yang tiada pada peranan anda - hubungi pentadbir syarikat jika anda memerlukannya."
   },
   "sites": {
     "count": "{count, plural, =0 {Tiada tapak} other {# tapak}}",
@@ -12369,16 +12536,6 @@
     }
   },
   "wasteOutgoing": {
-    "handover": {
-      "trail": "{from} menyerahkan ini kepada {to} pada {when}",
-      "failed": "Penyerahan tidak berjaya",
-      "loading": "Memuatkan senarai",
-      "note": "Nota",
-      "choose": "Pilih seseorang",
-      "person": "Serahkan kepada",
-      "help": "Permohonan {reference}. Satu permohonan sahaja, bukan keseluruhan kategori.",
-      "title": "Serahkan permohonan ini kepada seseorang"
-    },
     "action": {
       "handOverAgain": "Serahkan semula",
       "handOver": "Serahkan",
@@ -12400,6 +12557,7 @@
     "assign": {
       "help": "Pilih pengitar yang terikat pada projek ini. Pesanan untuk {reference} dihantar ke sistem mereka serta-merta.",
       "noPartners": "Tiada pengitar terikat pada projek ini. Ikat satu di bawah Rakan pengitar sebelum mengeluarkan pesanan.",
+      "partnersFailed": "Rakan kitar semula tidak dapat dimuatkan, jadi pemilih kosong. Itu tidak bermakna anda tiada.",
       "title": "Tetapkan pengitar"
     },
     "cancel": {
@@ -12475,6 +12633,16 @@
       "submitFailed": "Permohonan tidak dapat dihantar. Semak maklumat dan cuba lagi.",
       "title": "Permohonan bahan alam sekitar keluar"
     },
+    "handover": {
+      "trail": "{from} menyerahkan ini kepada {to} pada {when}",
+      "failed": "Penyerahan tidak berjaya",
+      "loading": "Memuatkan senarai",
+      "note": "Nota",
+      "choose": "Pilih seseorang",
+      "person": "Serahkan kepada",
+      "help": "Permohonan {reference}. Satu permohonan sahaja, bukan keseluruhan kategori.",
+      "title": "Serahkan permohonan ini kepada seseorang"
+    },
     "milestone": {
       "ARRIVED_AT_PLANT": "Tiba di kilang kitar semula",
       "COMPLETED": "Kitar semula selesai",
@@ -12491,6 +12659,7 @@
     "photos": {
       "caption": "Nota (pilihan)"
     },
+    "recordsFailed": "Rekod pelupusan tidak dapat dimuatkan, jadi tidak diketahui sama ada ada. Cuba lagi.",
     "review": {
       "failed": "Keputusan kelulusan tidak dapat disimpan.",
       "help": "Luluskan {reference} sebelum menghantar pesanan kitar semula, atau kembalikan dengan sebab.",

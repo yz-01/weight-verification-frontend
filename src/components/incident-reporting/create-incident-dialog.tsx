@@ -5,6 +5,7 @@ import { Check, Loader2, LocateFixed, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -36,6 +37,7 @@ import {
   createIncidentThread,
   getIncidentRecipientOptions,
 } from "@/services/site-operations.service";
+import { LoadFailed } from "@/components/shared/page-primitives";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
@@ -243,16 +245,21 @@ export function CreateIncidentDialog({
                 })}
                 onChange={setEvidence}
               />
-              <Button
-                type="button"
-                variant="outline"
-                className="h-11 w-full"
-                disabled={locating}
-                onClick={captureLocation}
-              >
-                {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-                {location ? t("locationReady") : t("captureLocation")}
-              </Button>
+              {/* Only field mode refuses to submit without a fix, so the
+                  asterisk appears only there. A star that is not always true
+                  is its own small lie. */}
+              <FieldWrapper label={t("location")} required={fieldMode}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full"
+                  disabled={locating}
+                  onClick={captureLocation}
+                >
+                  {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
+                  {location ? t("locationReady") : t("captureLocation")}
+                </Button>
+              </FieldWrapper>
             </div>
           ) : null}
 
@@ -262,6 +269,8 @@ export function CreateIncidentDialog({
               <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
                 {t("chooseProjectFirst")}
               </p>
+            ) : recipients.isError ? (
+              <LoadFailed onRetry={() => void recipients.refetch()} />
             ) : recipients.isLoading ? (
               <div className="flex items-center gap-2 rounded-md border p-3 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />

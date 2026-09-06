@@ -44,6 +44,9 @@ interface DashboardStat {
   icon: LucideIcon;
   value: number | undefined;
   loading: boolean;
+  // A failed count is not a count of zero. Without this the card drew
+  // `?? 0`, so nine dead requests read as a quiet day (F-222).
+  failed: boolean;
   enabled: boolean;
 }
 
@@ -167,6 +170,7 @@ function TraceDashboard({ features }: { features: string[] }) {
           icon: Package,
           value: projects.data?.count,
           loading: projects.isLoading,
+          failed: projects.isError,
           enabled: projectsEnabled,
         },
         {
@@ -175,6 +179,7 @@ function TraceDashboard({ features }: { features: string[] }) {
           icon: ClipboardList,
           value: receipts.data?.count,
           loading: receipts.isLoading,
+          failed: receipts.isError,
           enabled: receiptsEnabled,
         },
         {
@@ -183,6 +188,7 @@ function TraceDashboard({ features }: { features: string[] }) {
           icon: Truck,
           value: dispatches.data?.count,
           loading: dispatches.isLoading,
+          failed: dispatches.isError,
           enabled: dispatchesEnabled,
         },
         {
@@ -191,6 +197,7 @@ function TraceDashboard({ features }: { features: string[] }) {
           icon: CalendarCheck,
           value: attendance.data?.count,
           loading: attendance.isLoading,
+          failed: attendance.isError,
           enabled: attendanceEnabled,
         },
         {
@@ -199,6 +206,7 @@ function TraceDashboard({ features }: { features: string[] }) {
           icon: ListChecks,
           value: tasks.data?.count,
           loading: tasks.isLoading,
+          failed: tasks.isError,
           enabled: tasksEnabled,
         },
         {
@@ -207,6 +215,7 @@ function TraceDashboard({ features }: { features: string[] }) {
           icon: HardHat,
           value: equipment.data?.count,
           loading: equipment.isLoading,
+          failed: equipment.isError,
           enabled: equipmentEnabled,
         },
         {
@@ -215,6 +224,7 @@ function TraceDashboard({ features }: { features: string[] }) {
           icon: Scale,
           value: progress.data?.count,
           loading: progress.isLoading,
+          failed: progress.isError,
           enabled: progressEnabled,
         },
         {
@@ -223,6 +233,7 @@ function TraceDashboard({ features }: { features: string[] }) {
           icon: ShieldAlert,
           value: safety.data?.count,
           loading: safety.isLoading,
+          failed: safety.isError,
           enabled: safetyEnabled,
         },
         {
@@ -231,6 +242,7 @@ function TraceDashboard({ features }: { features: string[] }) {
           icon: Recycle,
           value: disposals.data?.count,
           loading: disposals.isLoading,
+          failed: disposals.isError,
           enabled: disposalEnabled,
         },
       ]}
@@ -272,6 +284,15 @@ function StatsGrid({ stats }: { stats: DashboardStat[] }) {
             </div>
             {stat.loading ? (
               <Skeleton className="mt-5 h-8 w-20" />
+            ) : stat.failed ? (
+              <>
+                <p className="mt-4 text-3xl font-semibold tabular-nums text-muted-foreground">
+                  {"—"}
+                </p>
+                <p className="text-xs text-destructive">
+                  {t("dashboard.tileFailed")}
+                </p>
+              </>
             ) : (
               <p className="mt-4 text-3xl font-semibold tabular-nums text-foreground">
                 {format.number(stat.value ?? 0)}

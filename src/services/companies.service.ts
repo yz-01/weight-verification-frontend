@@ -196,3 +196,47 @@ export async function deleteCompanyBankAccount(id: string): Promise<void> {
   await api.post("/api/company-bank-accounts/delete_account/", { id });
   toastSuccess("companies.onboarding.toast.bankRemoved");
 }
+
+/**
+ * The account a tenant activation key was sent to.
+ *
+ * Returns null when the company has no owner account, which is a real state
+ * for tenants created before the owner became part of creating a company.
+ */
+export interface CompanyOwnerAccount {
+  id: string;
+  email: string;
+  full_name: string;
+  phone: string;
+  status: string;
+  /** Whether the reader is a superuser. Only they may move the address. */
+  can_be_edited: boolean;
+}
+
+export function getCompanyOwnerAccount(
+  id: string,
+): Promise<CompanyOwnerAccount | null> {
+  return api.get<CompanyOwnerAccount | null>(
+    `/api/companies/${id}/get_owner_account/`,
+  );
+}
+
+export interface OwnerAccountUpdate {
+  id: string;
+  email: string;
+  phone: string;
+  status: string;
+  invitation_sent: boolean;
+  /** Only when the email did not go out, so the link can be passed on by hand. */
+  invitation_url: string;
+}
+
+export function updateCompanyOwnerAccount(
+  id: string,
+  payload: { email?: string; phone?: string; owner_email_copy?: unknown },
+): Promise<OwnerAccountUpdate> {
+  return api.post<OwnerAccountUpdate>(
+    `/api/companies/${id}/update_owner_account/`,
+    payload,
+  );
+}

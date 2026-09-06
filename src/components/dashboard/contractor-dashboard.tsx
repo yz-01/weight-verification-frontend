@@ -25,13 +25,17 @@ import { useState } from "react";
 
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { useAuth } from "@/components/providers/auth-provider";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import {
+  LoadFailed,
+  StatusBadge,
+} from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type {
   ActivityRow,
+  ApprovalRow,
   ContractorDashboardSection,
   DashboardAnomalies,
   DashboardOverview,
@@ -57,6 +61,10 @@ const LIVE_SECTIONS: ContractorDashboardSection[] = [
   "activity",
   "anomalies",
   "notifications",
+  // The unread pile moves while the page is open - this reader opens a
+  // delivery in another tab and the number here has to follow, or the home
+  // page keeps advertising work that is already done.
+  "unread",
 ];
 
 const PROJECT_STATUSES: ProjectStatusKey[] = [
@@ -93,6 +101,35 @@ function severityTone(severity: TimelineEntry["severity"]) {
   return "neutral" as const;
 }
 
+/**
+ * Where the decision on one waiting row is actually taken.
+ *
+ * Every row used to link to `/approvals?approval=<id>` - the document
+ * workflow centre, which is built entirely on `ApprovalInstance` and knows
+ * nothing about the other five queues. Now that a disposal request appears
+ * here, that link would have opened a page that could not show it: a listed
+ * item leading nowhere, which is worse than the item being absent, because
+ * absence at least does not waste the reader a click.
+ *
+ * These are list screens rather than detail routes - none of them takes a row
+ * id in the URL today - so the link lands on the list that holds the row and
+ * does not pretend to deep-link. Anything unrecognised falls back to the
+ * approval centre, which is right for rows that really are workflow
+ * approvals and harmless for anything new that has not been mapped yet.
+ */
+const APPROVAL_QUEUES: Record<string, string> = {
+  DISPOSAL_REQUEST: "/site-disposals",
+  WASTE_OUTGOING: "/waste-outgoing",
+  FIELD_TASK: "/field-tasks",
+  SITE_PROGRESS: "/progress",
+  CONSULTANT_APPLICATION: "/consultant-applications",
+};
+
+function approvalHref(row: ApprovalRow): string {
+  const own = APPROVAL_QUEUES[row.source];
+  return own ?? `/approvals?approval=${row.id}`;
+}
+
 export function ContractorDashboard() {
   const t = useTranslations("contractorDashboard");
   const format = useFormatter();
@@ -123,6 +160,7 @@ export function ContractorDashboard() {
   const activity = live.data?.activity ?? data?.activity;
   const anomalies = live.data?.anomalies ?? data?.anomalies;
   const notifications = live.data?.notifications ?? data?.notifications;
+  const unread = live.data?.unread ?? data?.unread;
 
   if (full.isError) {
     return (
@@ -134,6 +172,11 @@ export function ContractorDashboard() {
 
   return (
     <div className="space-y-6">
+      {live.isError && (
+        <p className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm">
+          {t("liveStopped")}
+        </p>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">
@@ -292,6 +335,61 @@ export function ContractorDashboard() {
               </Block>
             )}
 
+            {unread && (unread.receipts > 0 || unread.approvals > 0) && (
+              // Only drawn when something is actually waiting. A card that is
+              // always there, reading zero, is the shape of thing people stop
+              // seeing - and being seen is the entire point of this one
+              // (user, 2026-09-05: "it should be obvious").
+              <Block
+                title={t("unread.title")}
+                subtitle={t("unread.subtitle", {
+                  receipts: unread.receipts,
+                  approvals: unread.approvals,
+                })}
+                empty={false}
+                emptyLabel=""
+                action={
+                  <Link
+                    href="/material-columns"
+                    className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {t("unread.openColumns")}
+                  </Link>
+                }
+              >
+                <p className="pb-2 text-xs text-muted-foreground">
+                  {t("unread.help")}
+                </p>
+                <ul className="divide-y">
+                  {unread.columns.map((column) => (
+                    <li
+                      key={column.category ?? "unfiled"}
+                      className="flex items-center justify-between gap-3 py-2.5"
+                    >
+                      <Link
+                        href={
+                          column.category
+                            ? `/receipts?category=${column.category}&seen=false`
+                            : "/receipts?category=__unfiled__&seen=false"
+                        }
+                        className="min-w-0 flex-1 text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        {column.name || t("unread.unfiled")}
+                        {column.code && (
+                          <span className="ml-2 text-xs font-normal text-muted-foreground">
+                            {column.code}
+                          </span>
+                        )}
+                      </Link>
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary">
+                        {column.count}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </Block>
+            )}
+
             {data.approvals && (
               <Block
                 title={t("approvals.title")}
@@ -316,17 +414,29 @@ export function ContractorDashboard() {
                     <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
                       <div className="min-w-0">
                         <Link
-                          href={`/approvals?approval=${row.id}`}
+                          href={approvalHref(row)}
                           className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                          {row.approval_no} · {row.title}
+                          {row.approval_no
+                            ? `${row.approval_no} · ${row.title}`
+                            : row.title}
                         </Link>
                         <p className="truncate text-xs text-muted-foreground">
-                          {row.project || t("approvals.companyWide")} ·{" "}
+                          {t.has(`approvals.source.${row.source}`)
+                            ? t(`approvals.source.${row.source}`)
+                            : row.resource_type}{" "}
+                          · {row.project || t("approvals.companyWide")} ·{" "}
                           {row.assigned_to || t("approvals.unassigned")}
                         </p>
                       </div>
-                      <StatusBadge label={row.status} tone="info" />
+                      <StatusBadge
+                        label={
+                          t.has(`approvals.status.${row.status}`)
+                            ? t(`approvals.status.${row.status}`)
+                            : row.status
+                        }
+                        tone="info"
+                      />
                     </li>
                   ))}
                 </ul>
@@ -782,7 +892,9 @@ function QuickSearch({ project }: { project: string }) {
       </form>
       {submitted.trim().length >= 2 && (
         <div className="rounded-lg border bg-card p-3 shadow-sm">
-          {results.isLoading ? (
+          {results.isError ? (
+            <LoadFailed onRetry={() => void results.refetch()} />
+          ) : results.isLoading ? (
             <Skeleton className="h-16 w-full" />
           ) : results.data?.rows.length ? (
             <ul className="divide-y">

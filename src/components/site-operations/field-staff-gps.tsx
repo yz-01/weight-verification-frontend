@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { WorkforcePresencePanel } from "@/components/site-operations/workforce-presence-panel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,6 +46,12 @@ export function FieldStaffGps({
   const [projectId, setProjectId] = useState(requestedProjectId);
   const [sharing, setSharing] = useState(false);
   const [sharingError, setSharingError] = useState("");
+  /**
+   * Whether sharing stopped because the phone refused, rather than
+   * because it could not get a fix. Only the refusal has a switch the
+   * reader can move, and only then are the settings steps any use.
+   */
+  const [sharingRefused, setSharingRefused] = useState(false);
   const [historyProjectId, setHistoryProjectId] = useState(requestedProjectId);
   const [historySelection, setHistorySelection] = useState(
     requestedProjectId && requestedUserId
@@ -54,9 +61,44 @@ export function FieldStaffGps({
   const watchId = useRef<number | null>(null);
   const lastSentAt = useRef(0);
 
+  /**
+   * Whether this reader may watch other people's positions.
+   *
+   * The field app puts this same screen on a worker's Location tab, and none
+   * of the queries below used to check first - so a role without the
+   * permission fired all of them anyway and got a red "you do not have
+   * permission to perform this action" over a page that otherwise looked
+   * fine, with no clue which of six calls it came from (2026-09-05).
+   *
+   * Not firing is also the honest answer: a worker who may not watch the
+   * workforce should see the part that is theirs - whether their own phone is
+   * sharing - and nothing where the roster would be.
+   */
+  const mayWatch = can("field_position.view");
+
+  /**
+   * Whether the location policy may be read at all.
+   *
+   * This one is not gated on `mayWatch`, because the endpoint deliberately
+   * accepts three different permissions: a worker reads the policy to know
+   * whether their own phone should be sharing, a manager to draw the fences,
+   * a settings reader to edit them. Gating it on the watch permission alone
+   * would refuse the worker their own half of the screen.
+   *
+   * It does have to be gated on *something*, though. The menu entry for this
+   * screen is gated by the subscription feature and by no permission at all,
+   * so a role holding none of the three could open it, fire this one
+   * ungated call, and get a red "you do not have permission to perform this
+   * action" - the last surviving source of the toast in the user's report,
+   * after the other six calls were gated (2026-09-05).
+   */
+  const mayReadPolicy =
+    mayWatch || can("field_position.submit") || can("company_settings.view");
+
   const projects = useQuery({
     queryKey: ["projects", "field-gps-options"],
     queryFn: () => getProjects({ page_size: 100 }),
+    enabled: mayWatch,
   });
   const live = useQuery({
     queryKey: ["field-staff-gps", projectId],
@@ -66,6 +108,7 @@ export function FieldStaffGps({
         ...(projectId ? { project: projectId } : {}),
       }),
     refetchInterval: 15_000,
+    enabled: mayWatch,
   });
   const record = useMutation({
     mutationFn: recordFieldStaffPosition,
@@ -83,10 +126,12 @@ export function FieldStaffGps({
   const geofences = useQuery({
     queryKey: ["site-geofences", "gps-map"],
     queryFn: () => getSiteGeofences({ page_size: 200, is_active: true }),
+    enabled: mayWatch,
   });
   const locationPolicy = useQuery({
     queryKey: ["site-location-policy"],
     queryFn: getSiteLocationPolicy,
+    enabled: mayReadPolicy,
   });
   const lastPositions = useQuery({
     queryKey: ["field-staff-gps", "last", historyProjectId],
@@ -95,6 +140,7 @@ export function FieldStaffGps({
         page_size: 100,
         ...(historyProjectId ? { project: historyProjectId } : {}),
       }),
+    enabled: mayWatch,
   });
   // Whichever list this tab shows, the refresh button waits on that one.
   const refreshing = tab === "live" ? live.isFetching : lastPositions.isFetching;
@@ -126,7 +172,7 @@ export function FieldStaffGps({
         sort_by: "original_occurred_at",
         sort_order: "asc",
       }),
-    enabled: Boolean(selectedLastPosition),
+    enabled: mayWatch && Boolean(selectedLastPosition),
   });
   const stop = useMutation({
     mutationFn: stopFieldStaffLocationSharing,
@@ -280,6 +326,7 @@ export function FieldStaffGps({
 
   function startSharing() {
     setSharingError("");
+    setSharingRefused(false);
     if (!projectId || !user) return;
     if (!navigator.geolocation) {
       setSharingError(t("siteGps.error.unsupported"));
@@ -304,13 +351,14 @@ export function FieldStaffGps({
       },
       (error) => {
         stopWatcher();
-        const key =
-          error.code === error.PERMISSION_DENIED
-            ? "permissionDenied"
-            : error.code === error.POSITION_UNAVAILABLE
-              ? "unavailable"
-              : "timeout";
+        const denied = error.code === error.PERMISSION_DENIED;
+        const key = denied
+          ? "permissionDenied"
+          : error.code === error.POSITION_UNAVAILABLE
+            ? "unavailable"
+            : "timeout";
         setSharingError(t(`siteGps.error.${key}`));
+        setSharingRefused(denied);
       },
       {
         enableHighAccuracy: true,
@@ -322,6 +370,18 @@ export function FieldStaffGps({
 
   return (
     <div className="space-y-5">
+      {/* An empty roster and a refused roster look identical, and the reader
+          is the one person who cannot tell them apart. Whoever holds no watch
+          permission gets told that, once, instead of a screen of blank tabs
+          that reads as a system with nothing in it. */}
+      {!mayWatch && (
+        <p
+          role="status"
+          className="rounded-lg border border-warning/40 bg-warning/5 p-3 text-sm text-muted-foreground"
+        >
+          {t("siteGps.watchNotPermitted")}
+        </p>
+      )}
       {/* 15.2.3 asks for the headcount before it asks for the map. */}
       {can("field_position.view") && (
         <WorkforcePresencePanel projectId={tab === "live" ? projectId : historyProjectId} />
@@ -417,6 +477,10 @@ export function FieldStaffGps({
                 {sharingError}
               </p>
             )}
+            {/* One sentence is not enough when the answer is a switch in the
+                phone's own settings, and the path there differs by phone and
+                by browser. Same guidance the field app shows. */}
+            {sharingRefused && <LocationDenialSteps className="w-full" />}
           </div>
 
           <MapSection title={t("siteGps.map")} note={t("siteGps.refreshNote")}>

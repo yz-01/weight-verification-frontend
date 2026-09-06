@@ -454,6 +454,10 @@ function ProjectNotificationDialog({
               <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
                 {t("chooseProjectFirst")}
               </p>
+            ) : members.isError ? (
+              <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                {t("membersFailed")}
+              </p>
             ) : members.isLoading ? (
               <p className="flex items-center gap-2 p-3 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />{t("loadingMembers")}

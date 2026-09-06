@@ -9,11 +9,22 @@ import { Button } from "@/components/ui/button";
 export function FieldSignaturePad({
   label,
   clearLabel,
+  required,
   value,
   onChange,
 }: {
   label: string;
   clearLabel: string;
+  /**
+   * Whether the form refuses to submit without this signature.
+   *
+   * A signature pad carries its own label instead of sitting in a
+   * `FieldWrapper`, so before this there was nowhere for it to say it was
+   * compulsory. On the delivery screen both signatures are, and a worker who
+   * had filled in everything else could not see why submit would not go -
+   * the same complaint the asterisks elsewhere answer (F-202).
+   */
+  required?: boolean;
   value?: File;
   onChange: (file?: File) => void;
 }) {
@@ -85,6 +96,7 @@ export function FieldSignaturePad({
         <span className="flex items-center gap-2 text-sm font-medium">
           <PenLine className="size-4" />
           {label}
+          {required && <span className="text-destructive">*</span>}
         </span>
         {value ? <Check className="size-5 text-success" aria-label={`${label} ready`} /> : null}
       </div>

@@ -5,6 +5,7 @@ import { AlertTriangle, Loader2, LocateFixed, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ApiError } from "@/interfaces/api";
@@ -17,6 +18,12 @@ export function FieldLocationTracker() {
   const t = useTranslations("fieldStaffPwa.locationTracker");
   const queryClient = useQueryClient();
   const [state, setState] = useState<TrackerState>("starting");
+  /**
+   * Whether the block is a refusal rather than a phone that cannot see
+   * the sky. Both used to show the same dialog, and only one of them has
+   * a switch the reader can move (2026-09-05).
+   */
+  const [refused, setRefused] = useState(false);
   const [error, setError] = useState("");
   const watchId = useRef<number | null>(null);
   const heartbeatTimer = useRef<number | null>(null);
@@ -49,7 +56,9 @@ export function FieldLocationTracker() {
         ? "unavailable"
         : "timeout";
     setError(t(`error.${key}`));
-    setState(locationError.code === locationError.PERMISSION_DENIED ? "blocked" : "unavailable");
+    const denied = locationError.code === locationError.PERMISSION_DENIED;
+    setRefused(denied);
+    setState(denied ? "blocked" : "unavailable");
   }, [t]);
 
   const upload = useCallback(async (
@@ -122,6 +131,9 @@ export function FieldLocationTracker() {
     if (!background) setState("starting");
     if (!("geolocation" in navigator)) {
       setError(t("error.unsupported"));
+      // Not a refusal: there is no permission to grant, so the settings
+      // steps would send the reader somewhere that does not exist.
+      setRefused(false);
       setState("blocked");
       return;
     }
@@ -195,7 +207,17 @@ export function FieldLocationTracker() {
             {state === "starting" ? t("startingBody") : error || t("requiredBody")}
           </DialogDescription>
         </DialogHeader>
-        {state !== "starting" && (
+        {refused && (
+          <LocationDenialSteps
+            action={
+              <Button className="mt-3 w-full" onClick={() => start()}>
+                <RefreshCw className="size-4" />
+                {t("retry")}
+              </Button>
+            }
+          />
+        )}
+        {state !== "starting" && !refused && (
           <Button className="w-full" onClick={() => start()}>
             <RefreshCw className="size-4" />
             {t("retry")}

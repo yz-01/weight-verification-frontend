@@ -1,3 +1,18 @@
+/**
+ * Which of the two filing schemes a column belongs to.
+ *
+ * The site-record columns and the material columns are different things and
+ * hold different photographs (user, 2026-09-05). One tree served both, so the
+ * material screen listed every column in the project including the ones that
+ * only ever hold site photographs.
+ *
+ * `BOTH` is not a third scheme - it is the marker on a column nobody has
+ * classified yet, either because it already holds both kinds of evidence or
+ * because it holds none. Such a column keeps appearing on both screens, which
+ * is where it already was, rather than vanishing from both.
+ */
+export type ProjectCategoryKind = "FIELD" | "MATERIAL" | "BOTH";
+
 export interface ProjectCategory {
   id: string;
   project: string;
@@ -5,6 +20,7 @@ export interface ProjectCategory {
   parent_name: string | null;
   code: string;
   name: string;
+  kind: ProjectCategoryKind;
   description: string;
   sort_order: number;
   /** Whether spending filed here counts against a budget; the owner's switch. */
@@ -56,8 +72,22 @@ export interface ProjectCategoryPayload {
   parent?: string | null;
   code: string;
   name: string;
+  /**
+   * Required when the whole record is written, not defaulted.
+   *
+   * The API asks for it on create for the same reason: a column created
+   * without an answer would list on both screens, and the person creating it
+   * is the one who knows which it is.
+   */
+  kind: ProjectCategoryKind;
   description?: string;
   sort_order?: number;
+  /** Whether spending filed here counts against a budget; the owner's switch. */
+  tracks_spend?: boolean;
+  /** Money, not weight. Null for a column that counts nothing. */
+  budget_amount?: string | null;
+  /** The percentages of that budget worth interrupting the owner for. */
+  budget_alert_percentages?: number[];
   is_visible_in_pwa?: boolean;
   is_active?: boolean;
   access_mode?: "ALL" | "RESTRICTED";

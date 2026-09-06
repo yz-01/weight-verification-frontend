@@ -4,6 +4,7 @@ import { ArrowLeft, CircleHelp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { helpKeyFor } from "@/lib/page-help";
@@ -26,6 +27,90 @@ import { cn } from "@/lib/utils";
  * Kept in one module so a change to, say, how a required field marks itself
  * lands everywhere at once rather than in whichever screens someone remembers.
  */
+
+/**
+ * What a screen shows when a query fails, told apart from what it shows when
+ * the answer is genuinely empty.
+ *
+ * `data?.results ?? []` turns a failed request into zero rows, and `?? 0`
+ * turns it into a zero. From there nothing downstream can tell an empty list
+ * from a dead call, so the screen words an absence it never observed - "no
+ * schedule history yet" beside a red toast, or a dashboard of nine zeroes
+ * that reads as a quiet day rather than as a broken request (F-222).
+ *
+ * `what` names the data that is missing. "Something went wrong" beside an
+ * empty table still does not tell the reader whether the table is empty.
+ *
+ * `children` is an element rather than a call, so a list's own empty state is
+ * only reached once there is a real answer for it to be empty.
+ */
+export function QueryBoundary({
+  query,
+  what,
+  loading,
+  children,
+}: {
+  query: { isError: boolean; isLoading: boolean; refetch?: () => unknown };
+  what: string;
+  loading?: ReactNode;
+  children: ReactNode;
+}) {
+  const t = useTranslations("common");
+  if (query.isError) {
+    return (
+      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-8 text-center">
+        <p className="text-sm text-destructive">{t("loadFailed", { what })}</p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-3"
+          onClick={() => query.refetch?.()}
+        >
+          {t("retry")}
+        </Button>
+      </div>
+    );
+  }
+  if (query.isLoading && loading !== undefined) return <>{loading}</>;
+  return <>{children}</>;
+}
+
+/**
+ * Stands where the data would have been, when the request for it failed.
+ *
+ * Pass `what` wherever the subject is known - "the reviewer list" tells the
+ * reader something "this did not load" does not. Where it is omitted the
+ * position on screen carries the subject instead, which is still enough to
+ * stop the reader concluding an absence that was never observed (F-222).
+ */
+export function LoadFailed({
+  what,
+  onRetry,
+  className,
+}: {
+  what?: string;
+  onRetry?: () => unknown;
+  className?: string;
+}) {
+  const t = useTranslations("common");
+  return (
+    <div
+      className={cn(
+        "rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center",
+        className,
+      )}
+    >
+      <p className="text-sm text-destructive">
+        {what ? t("loadFailed", { what }) : t("sectionLoadFailed")}
+      </p>
+      {onRetry && (
+        <Button variant="outline" size="sm" className="mt-3" onClick={() => onRetry()}>
+          {t("retry")}
+        </Button>
+      )}
+    </div>
+  );
+}
 
 /** Section heading inside a card. */
 export function SectionHeader({ title }: { title: string }) {

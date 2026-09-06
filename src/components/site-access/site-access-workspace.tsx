@@ -31,6 +31,7 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
   FieldWrapper,
   ListHeader,
+  LoadFailed,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import {
@@ -1277,7 +1278,9 @@ function CredentialsPanel({ pass }: { pass: SiteAccessPass }) {
         </div>
       )}
 
-      {credentials.isLoading ? (
+      {credentials.isError ? (
+        <LoadFailed onRetry={() => void credentials.refetch()} />
+      ) : credentials.isLoading ? (
         <State text={t("credential.loading")} />
       ) : !rows.length ? (
         <State text={t("credential.none")} />

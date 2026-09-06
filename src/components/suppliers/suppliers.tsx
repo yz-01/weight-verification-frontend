@@ -13,6 +13,7 @@ import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
 import {
   ListHeader,
+  LoadFailed,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -289,7 +290,9 @@ export function Suppliers() {
             <DialogTitle>{t("suppliers.qr.title")}</DialogTitle>
             <DialogDescription>{t("suppliers.qr.description")}</DialogDescription>
           </DialogHeader>
-          {qrPreview.isLoading ? (
+          {qrPreview.isError ? (
+            <LoadFailed onRetry={() => void qrPreview.refetch()} />
+          ) : qrPreview.isLoading ? (
             <p className="py-8 text-center text-sm text-muted-foreground">{t("common.loading")}</p>
           ) : qrPreview.data ? (
             <SupplierQrPanel supplier={qrPreview.data} />
