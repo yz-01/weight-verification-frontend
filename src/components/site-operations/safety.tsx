@@ -816,7 +816,10 @@ function SafetyCreateDialog({
       if (!user) throw new Error("Authentication required.");
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
-        category: draft.category,
+        // Omitted rather than sent blank: "" reaches the serializer as a
+        // malformed UUID, so a hazard with no column would be refused for
+        // having one.
+        category: draft.category || undefined,
         title: draft.title.trim(),
         description: draft.description.trim(),
         severity: draft.severity,
@@ -880,7 +883,12 @@ function SafetyCreateDialog({
               className="w-full"
             />
           </FieldWrapper>
-          <FieldWrapper label={t("safety.field.category")} required className="sm:col-span-2">
+          {/* The column is the back office's filing scheme, and asking a
+              worker which one a loose scaffold board belongs to is the same
+              question the customer objected to on the 拍照 screen. The console
+              still files hazards into columns; the phone no longer asks. */}
+          {!fieldMode && (
+          <FieldWrapper label={t("safety.field.category")} optional={t("common.optional")} className="sm:col-span-2">
             <Select
               value={draft.category || undefined}
               onValueChange={(categoryId) => {
@@ -907,22 +915,17 @@ function SafetyCreateDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
+          )}
+
+          {/* Title, the four presets, severity and the time: all off the
+              phone. The presets were 发生事故／发现危险／设备损坏／其他事项 and
+              the customer's answer to the first two was 「不需要」; the title is
+              written by the server; and asking somebody to grade a hazard
+              高／中／低 before they can report it was the thing standing between
+              them and reporting it at all. Every one of them stays here for
+              the console, which is where they are actually used. */}
+          {!fieldMode && (
           <FieldWrapper label={t("safety.field.title")} required className="sm:col-span-2">
-            {fieldMode && (
-              <div className="mb-3 grid grid-cols-2 gap-2">
-                {["accident", "hazard", "damage", "other"].map((preset) => (
-                  <Button
-                    key={preset}
-                    type="button"
-                    variant={draft.title === t(`safety.fieldReport.preset.${preset}`) ? "default" : "outline"}
-                    className="min-h-12"
-                    onClick={() => setDraft((value) => ({ ...value, title: t(`safety.fieldReport.preset.${preset}`) }))}
-                  >
-                    {t(`safety.fieldReport.preset.${preset}`)}
-                  </Button>
-                ))}
-              </div>
-            )}
             <Input
               value={draft.title}
               onChange={(event) =>
@@ -930,6 +933,8 @@ function SafetyCreateDialog({
               }
             />
           </FieldWrapper>
+          )}
+          {!fieldMode && (
           <FieldWrapper label={t("safety.field.severity")} required>
             <Select
               value={draft.severity}
@@ -950,6 +955,8 @@ function SafetyCreateDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
+          )}
+          {!fieldMode && (
           <FieldWrapper label={t("safety.field.occurredAt")} optional={t("common.optional")}>
             <Input
               type="datetime-local"
@@ -959,6 +966,7 @@ function SafetyCreateDialog({
               }
             />
           </FieldWrapper>
+          )}
           <FieldWrapper label={t("safety.field.description")} optional={t("common.optional")} className="sm:col-span-2">
             <Textarea
               rows={4}
@@ -993,7 +1001,12 @@ function SafetyCreateDialog({
               />
             )}
           </FieldWrapper>
-          <FieldWrapper label={t("safety.fieldReport.notifyPeople")} required={fieldMode} className="sm:col-span-2">
+          {/* 「知道由谁处理就当场指定，不知道就直接提交」. Required used to be
+              true here in field mode, which turned step 2 of the customer's
+              flow into a wall: a worker who does not know who fixes scaffold
+              could not report the scaffold. Unnamed hazards land in 待分配 and
+              a supervisor claims them. */}
+          <FieldWrapper label={t("safety.fieldReport.notifyPeople")} optional={t("common.optional")} className="sm:col-span-2">
             <p className="mb-2 text-xs text-muted-foreground">{t("safety.fieldReport.supervisorAutomatic")}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {selectableWorkers.map((row) => (
@@ -1036,7 +1049,13 @@ function SafetyCreateDialog({
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button requires={[[draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.title, t("safety.field.title")], [completedPhotos.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(draft.photos)), t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.field.location")], [!fieldMode || draft.notifyUsers.length > 0, t("safety.fieldReport.notifyPeople")]]} disabled={create.isPending} onClick={() => create.mutate()}>
+          {/* On the phone the list is two long: the photos, and the GPS the
+              app captures itself. Column, title, severity and a named person
+              were all in here, and each one was a way for the button to stay
+              grey at somebody who had already photographed the hazard. */}
+          <Button requires={fieldMode
+            ? [[completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos), t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.latitude && draft.longitude, t("safety.field.location")]]
+            : [[draft.project, t("safety.field.project")], [draft.title, t("safety.field.title")], [completedPhotos.length >= 1, t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.field.location")]]} disabled={create.isPending} onClick={() => create.mutate()}>
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

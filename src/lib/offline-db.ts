@@ -262,7 +262,8 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
   kind: "SAFETY_INCIDENT";
   payload: {
     project: string;
-    category: string;
+    /** Optional since T-189: the field app no longer asks for a column. */
+    category?: string;
     title: string;
     description: string;
     severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
