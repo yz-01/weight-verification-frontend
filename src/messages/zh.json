@@ -4843,12 +4843,13 @@
     "anomalies": {
       "daysOverdue": "{days, plural, =0 {今天到期} other {逾期 # 天}}",
       "distance": "距离 {metres} 米",
-      "empty": "今天没有检测到异常。",
+      "empty": "没有需要处理的异常。",
       "expiresAt": "{at} 到期",
       "geofenceFailure": "超出电子围栏",
       "outside": "围栏外",
       "subtitle": "{count} 项需要处理。",
-      "title": "今日异常事件"
+      "title": "待处理异常",
+      "geofenceWindow": "越界打卡：近 {days} 天共 {count} 次。"
     },
     "approvals": {
       "companyWide": "公司级",
@@ -4871,7 +4872,10 @@
         "FIELD_TASK": "现场任务",
         "SITE_PROGRESS": "进度记录",
         "WASTE_OUTGOING": "废料出场"
-      }
+      },
+      "waitingMinutes": "已等待 {count} 分钟",
+      "waitingHours": "已等待 {count} 小时",
+      "waitingDays": "已等待 {count} 天"
     },
     "attendanceEvent": {
       "CLOCK_IN": "上班打卡",
@@ -4924,26 +4928,35 @@
       "unknown": "暂无状态"
     },
     "notifications": {
-      "empty": "今天没有通知。",
+      "empty": "没有未读通知。",
       "openAll": "全部通知",
       "recipientScope": "仅显示你本人的通知，不随项目筛选变化。",
-      "subtitle": "今天 {count} 条，未读 {unread} 条。",
-      "title": "今日通知",
+      "subtitle": "未读 {unread} 条，其中今天到达 {today} 条。",
+      "title": "未读通知",
       "unread": "未读"
     },
     "overview": {
-      "attendance": "考勤事件",
+      "attendance": "今日进出打卡",
       "photos": "现场照片",
       "progressRecords": "进度记录",
       "projects": "项目",
       "safety": "安全事件",
-      "title": "今日概览"
+      "title": "今日概览",
+      "materialReceipts": "今日材料到场",
+      "materialReturns": "今日材料退回",
+      "equipmentIn": "今日设备进场",
+      "equipmentOut": "今日设备退场"
     },
     "personnel": {
       "empty": "今天没有考勤记录。",
       "geofenceFailures": "{count} 次超出围栏",
-      "subtitle": "今天共 {workers} 名人员。",
-      "title": "今日人员统计"
+      "subtitle": "今天共 {workers} 名人员到过场。",
+      "title": "人员进出",
+      "onSiteNow": "当前在场",
+      "entered": "今日进场",
+      "left": "今日离场",
+      "irregular": "异常进出",
+      "irregularBreakdown": "其中：超出围栏 {outside} · 打卡顺序异常 {order} · 未打下班卡 {noExit}"
     },
     "photos": {
       "empty": "今天没有拍摄照片。",
@@ -9519,6 +9532,14 @@
     "title": "个人资料",
     "toast": {
       "updated": "资料已更新"
+    },
+    "avatar": {
+      "title": "我的照片",
+      "hint": "这张照片会出现在你记录的收货单和现场记录上。JPG / PNG / WebP，不超过 {limit} MB。",
+      "save": "上传",
+      "discard": "取消",
+      "failed": "上传失败，请重试。",
+      "tooBig": "这张照片有 {actual} MB，超过了 {limit} MB 的上限。请换一张小一点的。"
     }
   },
   "progress": {

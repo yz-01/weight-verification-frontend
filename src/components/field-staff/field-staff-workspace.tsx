@@ -39,6 +39,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { AvatarUpload } from "@/components/shared/avatar-upload";
 import {
   FieldRecordsPanel,
   type FieldRecordMode,
@@ -314,6 +315,13 @@ function FieldHomePanel({
           <h2 className="text-base font-semibold">{t("home.title")}</h2>
           <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
         </div>
+      </div>
+      {/* Field staff have no profile screen and cannot open `/profile`, and
+          theirs is the picture a delivery record shows - so this is their only
+          way to set it. On the home panel rather than the workspace header,
+          which renders above every tab. */}
+      <div className="rounded-lg border bg-card p-4 shadow-sm">
+        <AvatarUpload />
       </div>
       <div className="grid grid-cols-2 gap-3">
         {visibleActions.map((action) => {

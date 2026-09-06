@@ -4843,12 +4843,13 @@
     "anomalies": {
       "daysOverdue": "{days, plural, =0 {Tamat hari ini} other {Lewat # hari}}",
       "distance": "{metres}m jauh",
-      "empty": "Tiada pengecualian dikesan hari ini.",
+      "empty": "Tiada yang perlu tindakan.",
       "expiresAt": "Tamat {at}",
       "geofenceFailure": "Di luar geofen",
       "outside": "Di luar",
-      "subtitle": "{count} perkara perlu perhatian.",
-      "title": "Pengecualian hari ini"
+      "subtitle": "{count} perlu tindakan.",
+      "title": "Anomali belum selesai",
+      "geofenceWindow": "Di luar sempadan: {count} dalam {days} hari lepas."
     },
     "approvals": {
       "companyWide": "Seluruh syarikat",
@@ -4871,7 +4872,10 @@
         "FIELD_TASK": "Tugas tapak",
         "SITE_PROGRESS": "Rekod kemajuan",
         "WASTE_OUTGOING": "Sisa keluar"
-      }
+      },
+      "waitingMinutes": "menunggu {count} min",
+      "waitingHours": "menunggu {count} j",
+      "waitingDays": "menunggu {count} h"
     },
     "attendanceEvent": {
       "CLOCK_IN": "Masuk",
@@ -4924,26 +4928,35 @@
       "unknown": "Tiada status"
     },
     "notifications": {
-      "empty": "Tiada notifikasi hari ini.",
+      "empty": "Tiada pemberitahuan belum dibaca.",
       "openAll": "Semua notifikasi",
       "recipientScope": "Menunjukkan notifikasi anda sendiri; ini tidak ditapis mengikut projek.",
-      "subtitle": "{count} hari ini, {unread} belum dibaca.",
-      "title": "Notifikasi hari ini",
+      "subtitle": "{unread} belum dibaca, {today} daripadanya sampai hari ini.",
+      "title": "Pemberitahuan belum dibaca",
       "unread": "Belum dibaca"
     },
     "overview": {
-      "attendance": "Acara kehadiran",
+      "attendance": "Rekod kehadiran hari ini",
       "photos": "Foto tapak",
       "progressRecords": "Rekod kemajuan",
       "projects": "Projek",
       "safety": "Insiden keselamatan",
-      "title": "Hari ini secara ringkas"
+      "title": "Hari ini secara ringkas",
+      "materialReceipts": "Penghantaran hari ini",
+      "materialReturns": "Dipulangkan hari ini",
+      "equipmentIn": "Jentera masuk hari ini",
+      "equipmentOut": "Jentera keluar hari ini"
     },
     "personnel": {
       "empty": "Tiada kehadiran direkodkan hari ini.",
       "geofenceFailures": "{count} di luar geofen",
-      "subtitle": "{workers} pekerja berbeza hari ini.",
-      "title": "Pekerja di tapak"
+      "subtitle": "{workers} pekerja berada di tapak hari ini.",
+      "title": "Kemasukan dan keluar pekerja",
+      "onSiteNow": "Di tapak sekarang",
+      "entered": "Masuk hari ini",
+      "left": "Keluar hari ini",
+      "irregular": "Tidak normal",
+      "irregularBreakdown": "Antaranya: {outside} di luar sempadan · {order} luar susunan · {noExit} tiada rekod keluar"
     },
     "photos": {
       "empty": "Tiada foto diambil hari ini.",
@@ -9519,6 +9532,14 @@
     "title": "Profil saya",
     "toast": {
       "updated": "Profil dikemas kini"
+    },
+    "avatar": {
+      "title": "Foto anda",
+      "hint": "Ia dipaparkan pada penghantaran dan rekod tapak yang anda failkan. JPG, PNG atau WebP, sehingga {limit} MB.",
+      "save": "Muat naik",
+      "discard": "Batal",
+      "failed": "Muat naik gagal. Sila cuba lagi.",
+      "tooBig": "Foto itu {actual} MB, melebihi had {limit} MB. Sila pilih yang lebih kecil."
     }
   },
   "progress": {

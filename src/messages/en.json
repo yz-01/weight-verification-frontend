@@ -4843,12 +4843,13 @@
     "anomalies": {
       "daysOverdue": "{days, plural, =0 {Due today} one {# day overdue} other {# days overdue}}",
       "distance": "{metres}m away",
-      "empty": "No exceptions detected today.",
+      "empty": "Nothing needs attention.",
       "expiresAt": "Expires {at}",
       "geofenceFailure": "Outside the geofence",
       "outside": "Outside",
-      "subtitle": "{count} items need attention.",
-      "title": "Today's exceptions"
+      "subtitle": "{count} need attention.",
+      "title": "Outstanding anomalies",
+      "geofenceWindow": "Outside the fence: {count} in the last {days} days."
     },
     "approvals": {
       "companyWide": "Company-wide",
@@ -4871,7 +4872,10 @@
         "FIELD_TASK": "Field task",
         "SITE_PROGRESS": "Progress record",
         "WASTE_OUTGOING": "Waste out"
-      }
+      },
+      "waitingMinutes": "waiting {count} min",
+      "waitingHours": "waiting {count} h",
+      "waitingDays": "waiting {count} d"
     },
     "attendanceEvent": {
       "CLOCK_IN": "Clock in",
@@ -4924,26 +4928,35 @@
       "unknown": "No status"
     },
     "notifications": {
-      "empty": "No notifications today.",
+      "empty": "Nothing unread.",
       "openAll": "All notifications",
       "recipientScope": "Shows your own notifications; these are not filtered by project.",
-      "subtitle": "{count} today, {unread} unread.",
-      "title": "Today's notifications",
+      "subtitle": "{unread} unread, {today} of them arrived today.",
+      "title": "Unread notifications",
       "unread": "Unread"
     },
     "overview": {
-      "attendance": "Attendance events",
+      "attendance": "Clock events today",
       "photos": "Site photos",
       "progressRecords": "Progress records",
       "projects": "Projects",
       "safety": "Safety incidents",
-      "title": "Today at a glance"
+      "title": "Today at a glance",
+      "materialReceipts": "Deliveries today",
+      "materialReturns": "Sent back today",
+      "equipmentIn": "Equipment in today",
+      "equipmentOut": "Equipment out today"
     },
     "personnel": {
       "empty": "No attendance recorded today.",
       "geofenceFailures": "{count} outside the geofence",
-      "subtitle": "{workers} distinct workers today.",
-      "title": "People on site"
+      "subtitle": "{workers} people were on site today.",
+      "title": "People in and out",
+      "onSiteNow": "On site now",
+      "entered": "In today",
+      "left": "Out today",
+      "irregular": "Irregular",
+      "irregularBreakdown": "Of those: {outside} outside the fence · {order} out of order · {noExit} never clocked out"
     },
     "photos": {
       "empty": "No photos captured today.",
@@ -9519,6 +9532,14 @@
     "title": "My profile",
     "toast": {
       "updated": "Profile updated"
+    },
+    "avatar": {
+      "title": "Your photo",
+      "hint": "This appears on the deliveries and site records you file. JPG, PNG or WebP, up to {limit} MB.",
+      "save": "Upload",
+      "discard": "Cancel",
+      "failed": "The upload failed. Please try again.",
+      "tooBig": "That photo is {actual} MB, over the {limit} MB limit. Please choose a smaller one."
     }
   },
   "progress": {

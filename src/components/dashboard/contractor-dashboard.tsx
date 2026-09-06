@@ -13,10 +13,14 @@ import {
   FolderPlus,
   HardHat,
   Inbox,
+  LogOut,
   MapPin,
+  PackageCheck,
   Plus,
   Search,
   ShieldAlert,
+  Truck,
+  Undo2,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Image from "next/image";
@@ -264,6 +268,36 @@ export function ContractorDashboard() {
                   icon={Camera}
                   href="/evidence"
                 />
+                {/* Small cards, as asked, rather than another section. Each
+                    one links to the list it counted - a number you cannot
+                    click through to is how F-220 happened. */}
+                <Metric
+                  label={t("overview.materialReceipts")}
+                  value={data.overview.today.material_receipts}
+                  icon={PackageCheck}
+                  href="/receipts"
+                />
+                <Metric
+                  label={t("overview.materialReturns")}
+                  value={data.overview.today.material_returns}
+                  icon={Undo2}
+                  href="/receipts"
+                  tone={
+                    data.overview.today.material_returns > 0 ? "warning" : undefined
+                  }
+                />
+                <Metric
+                  label={t("overview.equipmentIn")}
+                  value={data.overview.today.equipment_entries}
+                  icon={Truck}
+                  href="/site-equipment"
+                />
+                <Metric
+                  label={t("overview.equipmentOut")}
+                  value={data.overview.today.equipment_exits}
+                  icon={LogOut}
+                  href="/site-equipment"
+                />
               </div>
               <div className="flex flex-wrap gap-2">
                 {PROJECT_STATUSES.map((status) => (
@@ -447,6 +481,12 @@ export function ContractorDashboard() {
                             : row.resource_type}{" "}
                           · {row.project || t("approvals.companyWide")} ·{" "}
                           {row.assigned_to || t("approvals.unassigned")}
+                          {row.waiting_seconds === null ? null : (
+                            <>
+                              {" · "}
+                              <WaitingFor seconds={row.waiting_seconds} />
+                            </>
+                          )}
                         </p>
                       </div>
                       <StatusBadge
@@ -474,27 +514,37 @@ export function ContractorDashboard() {
                 empty={data.personnel.by_project.length === 0}
                 emptyLabel={t("personnel.empty")}
               >
-                <div className="mb-3 flex flex-wrap gap-2">
-                  {Object.entries(data.personnel.by_event).map(([event, count]) => (
-                    <span
-                      key={event}
-                      className="rounded-full border bg-card px-3 py-1 text-xs font-medium"
-                    >
-                      {t(`attendanceEvent.${event}`)}{" "}
-                      <span className="tabular-nums text-muted-foreground">
-                        {format.number(count)}
-                      </span>
-                    </span>
-                  ))}
-                  {data.personnel.geofence_failures > 0 && (
-                    <StatusBadge
-                      label={t("personnel.geofenceFailures", {
-                        count: data.personnel.geofence_failures,
-                      })}
-                      tone="warning"
-                    />
-                  )}
+                {/* Four numbers where there was one total (T-184). "On site
+                    now" is the one a site manager actually wants, and it is
+                    not derivable from the other three. */}
+                <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <PersonnelFigure
+                    label={t("personnel.onSiteNow")}
+                    value={data.personnel.on_site_now}
+                  />
+                  <PersonnelFigure
+                    label={t("personnel.entered")}
+                    value={data.personnel.entered}
+                  />
+                  <PersonnelFigure
+                    label={t("personnel.left")}
+                    value={data.personnel.left}
+                  />
+                  <PersonnelFigure
+                    label={t("personnel.irregular")}
+                    value={data.personnel.irregular}
+                    tone={data.personnel.irregular > 0 ? "warning" : undefined}
+                  />
                 </div>
+                {data.personnel.irregular > 0 && (
+                  <p className="mb-3 text-xs text-muted-foreground">
+                    {t("personnel.irregularBreakdown", {
+                      outside: data.personnel.irregular_breakdown.outside_geofence,
+                      order: data.personnel.irregular_breakdown.out_of_order,
+                      noExit: data.personnel.irregular_breakdown.without_exit,
+                    })}
+                  </p>
+                )}
                 <ul className="divide-y">
                   {data.personnel.by_project.map((row) => (
                     <li
@@ -575,8 +625,8 @@ export function ContractorDashboard() {
               <Block
                 title={t("notifications.title")}
                 subtitle={t("notifications.subtitle", {
-                  count: notifications.total,
                   unread: notifications.unread,
+                  today: notifications.today,
                 })}
                 empty={notifications.rows.length === 0}
                 emptyLabel={t("notifications.empty")}
@@ -828,10 +878,9 @@ function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"]
 function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
   const t = useTranslations("contractorDashboard");
   const df = useDateFormat();
-  const nothing =
-    anomalies.geofence_failures.length === 0 &&
-    anomalies.overdue_rectifications.length === 0 &&
-    anomalies.expiring_permits.length === 0;
+  // From the totals, not the lists: the lists stop at fifty, so a busy
+  // month of anomalies would have said "nothing to see" on the fifty-first.
+  const nothing = anomalies.total === 0;
 
   return (
     <Block
@@ -840,6 +889,14 @@ function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
       empty={nothing}
       emptyLabel={t("anomalies.empty")}
     >
+      {anomalies.geofence_total > 0 && (
+        <p className="mb-2 text-xs text-muted-foreground">
+          {t("anomalies.geofenceWindow", {
+            days: anomalies.geofence_window_days,
+            count: anomalies.geofence_total,
+          })}
+        </p>
+      )}
       <ul className="divide-y">
         {anomalies.overdue_rectifications.map((row) => (
           <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
@@ -1042,6 +1099,51 @@ function ExportButtons({ project }: { project: string }) {
         <Download />
         {t("export.pdf")}
       </Button>
+    </div>
+  );
+}
+
+/**
+ * How long a pending approval has been waiting, in the largest unit that
+ * still says something useful.
+ *
+ * Takes the server's number of seconds rather than recomputing from the
+ * timestamp: the point of measuring it there was that two devices with
+ * different clocks must not give two answers (T-185).
+ */
+function WaitingFor({ seconds }: { seconds: number }) {
+  const t = useTranslations("contractorDashboard");
+  const minutes = Math.max(0, Math.floor(seconds / 60));
+  if (minutes < 60) {
+    return <>{t("approvals.waitingMinutes", { count: minutes })}</>;
+  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return <>{t("approvals.waitingHours", { count: hours })}</>;
+  }
+  return <>{t("approvals.waitingDays", { count: Math.floor(hours / 24) })}</>;
+}
+
+function PersonnelFigure({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone?: "warning";
+}) {
+  const format = useFormatter();
+  return (
+    <div
+      className={`rounded-lg border bg-card px-3 py-2 ${
+        tone === "warning" ? "border-warning/40" : ""
+      }`}
+    >
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-0.5 text-lg font-semibold tabular-nums">
+        {format.number(value)}
+      </p>
     </div>
   );
 }

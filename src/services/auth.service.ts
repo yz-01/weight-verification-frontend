@@ -79,8 +79,26 @@ export async function updateProfile(payload: {
   phone?: string;
   language?: Locale;
   timezone?: string;
+  /**
+   * A picture for this person.
+   *
+   * Sent as multipart when present, which `api-client` already handles and
+   * DRF already parses - the endpoint has accepted this field since it was
+   * written and nothing had ever sent it (F-227).
+   */
+  avatar?: File;
 }): Promise<CurrentUser> {
-  const user = await api.patch<CurrentUser>("/api/auth/update_profile/", payload);
+  const { avatar, ...rest } = payload;
+  let body: FormData | typeof rest = rest;
+  if (avatar !== undefined) {
+    const form = new FormData();
+    for (const [key, value] of Object.entries(rest)) {
+      if (value !== undefined) form.append(key, String(value));
+    }
+    form.append("avatar", avatar);
+    body = form;
+  }
+  const user = await api.patch<CurrentUser>("/api/auth/update_profile/", body);
   if (payload.language) setLocaleCookie(payload.language);
   toastSuccess("profile.toast.updated");
   return user;

@@ -27,7 +27,17 @@ export interface DashboardOverview {
     progress_records: number;
     attendance_events: number;
     safety_incidents: number;
+    /** Every direction together. Kept; the two below say which way. */
     equipment_movements: number;
+    equipment_entries: number;
+    equipment_exits: number;
+    /**
+     * Deliveries filed today. A delivery a correction has superseded counts
+     * once, not twice.
+     */
+    material_receipts: number;
+    /** Deliveries sent back to the supplier today. */
+    material_returns: number;
     photos: number;
   };
   safety: {
@@ -102,6 +112,15 @@ export interface ApprovalRow {
   resource_type: string;
   requested_by: string;
   assigned_to: string;
+  /**
+   * How long this has been waiting, in seconds, measured on the server.
+   *
+   * Null when the row carries no usable timestamp. Computed there rather than
+   * here so a device with a wrong clock does not answer differently, and
+   * derived from the same timestamp `submitted_at` shows so the two cannot
+   * disagree on screen.
+   */
+  waiting_seconds: number | null;
   submitted_at: string | null;
   created_at: string | null;
 }
@@ -140,6 +159,22 @@ export interface DashboardAnomalies {
   geofence_failures: GeofenceFailureRow[];
   overdue_rectifications: OverdueRectificationRow[];
   expiring_permits: ExpiringPermitRow[];
+  /**
+   * Counted from the query rather than from the list above, which is cut at
+   * fifty. The three lists and the four totals are deliberately separate: a
+   * site with sixty overdue rectifications used to report fifty.
+   */
+  geofence_total: number;
+  /**
+   * How many days back the out-of-bounds figure looked.
+   *
+   * On the screen because a number whose span is not stated is how this card
+   * got into trouble: it counted one day under a heading that read like it
+   * counted everything.
+   */
+  geofence_window_days: number;
+  overdue_total: number;
+  expiring_permits_total: number;
   total: number;
 }
 
@@ -156,6 +191,22 @@ export interface DashboardPersonnel {
   by_event: Record<string, number>;
   unique_workers: number;
   geofence_failures: number;
+  /**
+   * Workers whose last event of the day was a clock-in.
+   *
+   * Not the number of clock-ins: one worker can clock in twice, and a worker
+   * who has gone home still contributed one.
+   */
+  on_site_now: number;
+  entered: number;
+  left: number;
+  irregular: number;
+  irregular_breakdown: {
+    outside_geofence: number;
+    out_of_order: number;
+    /** Clocked in and never out, counted only once the day is over. */
+    without_exit: number;
+  };
   by_project: Array<{ project: string; events: number }>;
 }
 
@@ -219,9 +270,12 @@ export interface ContractorDashboard {
   unread?: DashboardUnread;
   anomalies?: DashboardAnomalies;
   notifications?: {
+    /** Unread, newest first. Not "created today" - see `today`. */
     rows: NotificationRow[];
     total: number;
     unread: number;
+    /** How many arrived today, so the card can say both without confusing them. */
+    today: number;
     scope: string;
   };
   personnel?: DashboardPersonnel;

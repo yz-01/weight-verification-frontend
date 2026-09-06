@@ -186,6 +186,13 @@ export function Safety({
       getProjectCategories({
         project: selectedProject === "all" ? undefined : selectedProject,
         is_active: true,
+        // Site-record columns only. This filter was absent, so the safety
+        // screen offered the material columns - the customer photographed a
+        // hazard-rectification picker listing 钢筋, 混凝土, 洋灰 and the rest
+        // of the delivery tree (F-236). The server reads FIELD as
+        // `kind__in=[FIELD, BOTH]`, so a column marked as serving both
+        // schemes is still offered.
+        kind: "FIELD",
         page_size: 200,
       }),
   });
@@ -749,6 +756,8 @@ function SafetyCreateDialog({
       getProjectCategories({
         project: draft.project,
         is_active: true,
+        // Site-record columns only - see the filter query above (F-236).
+        kind: "FIELD",
         page_size: 200,
       }),
     enabled: Boolean(draft.project),

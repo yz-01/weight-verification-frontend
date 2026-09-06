@@ -41,15 +41,25 @@ const DELIBERATELY_UNFILTERED = new Map([
   ],
   [
     "src/components/evidence/evidence-archive.tsx",
-    "the archive holds both kinds of evidence, so its column filter offers both",
+    "the archive holds both kinds of evidence, so its column filter offers both"
+      + " - confirmed by the screen's purpose: it is the one place a person"
+      + " goes to find any evidence at all, and narrowing it would hide half",
   ],
-  [
-    "src/components/site-operations/safety.tsx",
-    "a safety incident may be filed against either scheme's column",
-  ],
+  // `safety.tsx` used to be here, with the reason "a safety incident may be
+  // filed against either scheme's column". The customer says that is wrong -
+  // 隐患整改跟材料没有关系的 - and their screenshot of a hazard picker listing
+  // 钢筋 and 混凝土 is what that exemption looked like in production (F-236).
+  //
+  // The lesson is about this list, not about that screen: an entry here is a
+  // business claim, and an unverified one makes the probe agree with the bug
+  // it exists to find. Every entry below now says who confirmed it.
   [
     "src/components/contractor-ops/business-target-management.tsx",
-    "a target may be set against either scheme's column",
+    "a target may be set against either scheme's column - the customer asks"
+      + " for delivered quantities to be compared against BQ targets, which"
+      + " are material columns, and for progress targets, which are not."
+      + " UNCONFIRMED with the customer directly; if a target turns out to be"
+      + " material-only this entry is the next one to delete",
   ],
 ]);
 

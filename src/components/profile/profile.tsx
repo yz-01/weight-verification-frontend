@@ -13,6 +13,7 @@ import {
   TextField,
   type BoundField,
 } from "@/components/shared/form-fields";
+import { AvatarUpload } from "@/components/shared/avatar-upload";
 import { FormSection, minLength, required } from "@/components/shared/form-shell";
 import { ReadField, TypeBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -137,6 +138,7 @@ export function Profile() {
           }}
         >
           <FormSection title={t("profile.section.identity")}>
+            <AvatarUpload className="pb-2" />
             <profileForm.Field
               name="full_name"
               validators={{ onSubmit: required(t("validation.required")) }}
