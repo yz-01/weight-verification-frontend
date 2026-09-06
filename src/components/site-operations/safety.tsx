@@ -80,20 +80,12 @@ import {
 } from "@/services/site-operations.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 
-const SEVERITIES: IncidentSeverity[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 const STATUSES: IncidentStatus[] = [
   "OPEN", "ASSIGNED", "RECTIFICATION_SUBMITTED", "RETURNED", "VERIFIED",
 ];
 
-const SEVERITY_TONE: Record<
-  IncidentSeverity,
-  "neutral" | "info" | "warning" | "danger"
-> = {
-  LOW: "neutral",
-  MEDIUM: "info",
-  HIGH: "warning",
-  CRITICAL: "danger",
-};
+// SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
+// they would have been the kind of constant a later reader assumes is used.
 
 const STATUS_TONE: Record<
   IncidentStatus,
@@ -159,6 +151,11 @@ export function Safety({
   ]);
   const searchParams = useSearchParams();
   const requestedIncidentId = searchParams.get("incident");
+  // Arrived from the home page's red 逾期 figure (U-029). Read from the URL and
+  // passed straight to the API, which applies the same definition the figure
+  // is counted with - a link that opened the whole list would make the number
+  // above it decorative.
+  const overdueOnly = searchParams.get("overdue") === "1";
   const [createOpen, setCreateOpen] = useState(Boolean(fieldTaskId) || searchParams.get("create") === "1");
   const [updating, setUpdating] = useState<SafetyIncident | null>(null);
   const [assigning, setAssigning] = useState<SafetyIncident | null>(null);
@@ -170,10 +167,11 @@ export function Safety({
   const openedIncidentRef = useRef("");
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["safety", mode, list.query],
+    queryKey: ["safety", mode, list.query, overdueOnly],
     queryFn: () => getSafetyIncidents({
       ...list.query,
       workflow: mode === "rectification" ? "rectification" : undefined,
+      overdue: overdueOnly ? "1" : undefined,
     }),
   });
   const focusedIncident = useQuery({
@@ -182,7 +180,6 @@ export function Safety({
     enabled: Boolean(requestedIncidentId),
   });
   const selectedProject = list.filters.project ?? "all";
-  const selectedSeverity = list.filters.severity ?? "all";
   const selectedCategory = list.filters.category ?? "all";
   const selectedResponsible = list.filters.responsible_person ?? "all";
   const filterCategories = useQuery({
@@ -291,23 +288,10 @@ export function Safety({
           </span>
         ),
       },
-      {
-        accessorKey: "severity",
-        meta: { label: t("safety.field.severity") },
-        header: ({ column }) => (
-          <SortableHeader
-            label={t("safety.field.severity")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
-        ),
-        cell: ({ row }) => (
-          <StatusBadge
-            label={t(`safety.severity.${row.original.severity}`)}
-            tone={SEVERITY_TONE[row.original.severity]}
-          />
-        ),
-      },
+      // The severity column is gone: 「那些严重程度啊中等啊，高，低呀那些都不
+      // 要」. The database column stays - hazards already filed carry a grade
+      // and dropping it would rewrite history - and the export keeps it for
+      // the same reason. What goes is asking for it and ranking by it.
       {
         accessorKey: "status",
         meta: { label: t("safety.field.status") },
@@ -458,24 +442,7 @@ export function Safety({
           allLabel={t("safety.filter.allProjects")}
           className="w-full sm:w-[260px]"
         />
-        {!fieldMode && <Select
-          value={selectedSeverity}
-          onValueChange={(value) =>
-            list.setFilter("severity", value === "all" ? undefined : value)
-          }
-        >
-          <SelectTrigger className="w-full sm:w-[190px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("safety.filter.allSeverities")}</SelectItem>
-            {SEVERITIES.map((severity) => (
-              <SelectItem key={severity} value={severity}>
-                {t(`safety.severity.${severity}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>}
+        {/* Severity filter removed with the column (T-189). */}
         {!fieldMode && (
           <Select
             value={selectedCategory}
@@ -934,28 +901,10 @@ function SafetyCreateDialog({
             />
           </FieldWrapper>
           )}
-          {!fieldMode && (
-          <FieldWrapper label={t("safety.field.severity")} required>
-            <Select
-              value={draft.severity}
-              onValueChange={(severity) =>
-                setDraft((value) => ({
-                  ...value,
-                  severity: severity as IncidentSeverity,
-                }))
-              }
-            >
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {SEVERITIES.map((severity) => (
-                  <SelectItem key={severity} value={severity}>
-                    {t(`safety.severity.${severity}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          )}
+          {/* Not on the console either. 「都不要」 was the whole answer, not
+              「手机上不要」, so nobody is asked to grade a hazard. New hazards
+              take the model's default and the field survives only to keep the
+              ones already filed readable. */}
           {!fieldMode && (
           <FieldWrapper label={t("safety.field.occurredAt")} optional={t("common.optional")}>
             <Input

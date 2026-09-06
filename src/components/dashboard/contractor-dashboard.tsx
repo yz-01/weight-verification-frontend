@@ -350,12 +350,34 @@ export function ContractorDashboard() {
                   </Link>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
-                  {(["today_inspections", "pending_rectification", "in_progress", "overdue", "completed"] as const).map((key) => (
-                    <div key={key} className="rounded-lg bg-muted/40 p-3">
-                      <p className="text-xs text-muted-foreground">{t(`safetySummary.${key}`)}</p>
-                      <p className="mt-1 text-xl font-semibold tabular-nums">{format.number(data.overview?.safety[key] ?? 0)}</p>
-                    </div>
-                  ))}
+                  {/* 逾期 is red on the home page and nowhere else - U-029 was
+                      decided as 「只在首页红一下」, no escalation. But red has to
+                      lead somewhere: the number used to be unclickable, so a
+                      manager who saw three overdue hazards had to go and find
+                      them by hand. `overdue=1` on the list applies the same
+                      definition this figure is counted with, so the link lands
+                      on exactly the hazards it named. */}
+                  {(["today_inspections", "pending_rectification", "in_progress", "overdue", "completed"] as const).map((key) => {
+                    const value = data.overview?.safety[key] ?? 0;
+                    const isLate = key === "overdue" && value > 0;
+                    const tile = (
+                      <div
+                        className={`rounded-lg p-3 ${isLate ? "bg-destructive/10 ring-1 ring-destructive/30" : "bg-muted/40"}`}
+                      >
+                        <p className="text-xs text-muted-foreground">{t(`safetySummary.${key}`)}</p>
+                        <p className={`mt-1 text-xl font-semibold tabular-nums ${isLate ? "text-destructive" : ""}`}>
+                          {format.number(value)}
+                        </p>
+                      </div>
+                    );
+                    return isLate ? (
+                      <Link key={key} href="/hazard-rectifications?overdue=1" className="block transition-transform hover:scale-[1.02]">
+                        {tile}
+                      </Link>
+                    ) : (
+                      <div key={key}>{tile}</div>
+                    );
+                  })}
                 </div>
                 {!!data.overview.safety.recent_notes.length && (
                   <div className="mt-3 divide-y border-t">
