@@ -5772,7 +5772,6 @@
     "metrics": "Operational summary",
     "noMetrics": "Your account has dashboard access. Additional modules appear when an administrator grants the matching permissions.",
     "platformSubtitle": "Platform health and customer activity",
-    "quickLinks": "Quick access",
     "recyclerSubtitle": "Today's collections and weighing",
     "tile": {
       "attendance": "Attendance records",
@@ -6466,11 +6465,14 @@
       "asset_maintenance_not_found": "That asset maintenance record could not be found.",
       "asset_movement_not_found": "That asset movement could not be found.",
       "asset_not_found": "That asset could not be found.",
+      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again.",
+      "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
       "audit_entry_not_found": "That audit entry could not be found.",
       "below_minimum_payout": "This amount is below the minimum payout.",
       "bug_not_found": "That bug record could not be found.",
       "calibration_expired": "This weighbridge calibration has expired.",
       "cannot_modify_self": "You cannot change your own account this way. Use your profile instead.",
+      "category_holds_deliveries_only": "“{column}” is a material column - it holds deliveries and their cost. Site photographs go in a site-record column. Go back and choose one, or ask an administrator to open a site-record column for this.",
       "clock_skew": "The gateway clock moved beyond the allowed tolerance.",
       "cloud_alert_not_found": "That cloud usage alert could not be found.",
       "cloud_plan_not_found": "That cloud plan could not be found.",
@@ -6572,6 +6574,7 @@
       "payment_not_found": "That payment could not be found.",
       "payout_already_exists": "A payout already exists for this period.",
       "payout_not_draft": "Only a draft payout can be changed this way.",
+      "permission_denied": "You are not allowed to do that.",
       "portal_mismatch": "This account belongs to a different portal. Use its correct sign-in page.",
       "pricing_rule_not_found": "That cloud pricing rule could not be found.",
       "progress_update_not_found": "That progress update could not be found.",
@@ -6624,10 +6627,7 @@
       "version_already_exists": "That platform version already exists.",
       "version_not_found": "That platform version could not be found.",
       "visit_not_found": "That customer visit could not be found.",
-      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
-      "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
-      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again.",
-      "permission_denied": "You are not allowed to do that."
+      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -6990,7 +6990,8 @@
       "subtitle": "Choose the project and folder. Take at least four photos, capture GPS, then send them for manager review.",
       "takePhotos": "Take photos in this folder",
       "title": "File site photo evidence",
-      "uploadNotAllowed": "You do not have permission to upload to this folder."
+      "uploadNotAllowed": "You do not have permission to upload to this folder.",
+      "materialColumnRefused": "“{column}” is a material column - it holds deliveries and their cost. Choose a site-record column for photographs, or ask an administrator to open one."
     },
     "consultantCapture": {
       "category": "Request type",

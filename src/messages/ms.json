@@ -5772,7 +5772,6 @@
     "metrics": "Ringkasan operasi",
     "noMetrics": "Akaun anda boleh mengakses papan pemuka. Modul tambahan muncul selepas pentadbir memberikan kebenaran yang sepadan.",
     "platformSubtitle": "Kesihatan platform dan aktiviti pelanggan",
-    "quickLinks": "Akses pantas",
     "recyclerSubtitle": "Kutipan dan penimbangan hari ini",
     "tile": {
       "attendance": "Rekod kehadiran",
@@ -6466,11 +6465,14 @@
       "asset_maintenance_not_found": "Rekod penyelenggaraan aset itu tidak dijumpai.",
       "asset_movement_not_found": "Pergerakan aset itu tidak dijumpai.",
       "asset_not_found": "Aset itu tidak dijumpai.",
+      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
+      "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
       "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
       "below_minimum_payout": "Jumlah ini di bawah bayaran minimum.",
       "bug_not_found": "Rekod pepijat itu tidak dijumpai.",
       "calibration_expired": "Kalibrasi jambatan timbang ini telah tamat.",
       "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda.",
+      "category_holds_deliveries_only": "“{column}” ialah lajur bahan - ia menyimpan penghantaran dan kosnya. Gambar tapak masuk ke lajur rekod tapak. Kembali dan pilih satu, atau minta pentadbir membuka lajur rekod tapak.",
       "clock_skew": "Perubahan jam gateway melebihi had yang dibenarkan.",
       "cloud_alert_not_found": "Amaran penggunaan awan itu tidak dijumpai.",
       "cloud_plan_not_found": "Pelan awan itu tidak dijumpai.",
@@ -6572,6 +6574,7 @@
       "payment_not_found": "Rekod pembayaran itu tidak dijumpai.",
       "payout_already_exists": "Bayaran sudah wujud untuk tempoh ini.",
       "payout_not_draft": "Hanya bayaran draf boleh diubah dengan cara ini.",
+      "permission_denied": "Anda tidak dibenarkan berbuat demikian.",
       "portal_mismatch": "Akaun ini milik portal lain. Gunakan halaman log masuk yang betul.",
       "pricing_rule_not_found": "Peraturan harga awan itu tidak dijumpai.",
       "progress_update_not_found": "Kemas kini kemajuan itu tidak dijumpai.",
@@ -6624,10 +6627,7 @@
       "version_already_exists": "Versi platform itu sudah wujud.",
       "version_not_found": "Versi platform itu tidak dijumpai.",
       "visit_not_found": "Lawatan pelanggan itu tidak dijumpai.",
-      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
-      "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
-      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
-      "permission_denied": "Anda tidak dibenarkan berbuat demikian."
+      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -6990,7 +6990,8 @@
       "subtitle": "Pilih projek dan folder. Ambil sekurang-kurangnya empat foto, dapatkan GPS, kemudian hantar untuk semakan pengurus.",
       "takePhotos": "Ambil foto dalam folder ini",
       "title": "Failkan bukti foto tapak",
-      "uploadNotAllowed": "Anda tidak mempunyai kebenaran untuk memuat naik ke folder ini."
+      "uploadNotAllowed": "Anda tidak mempunyai kebenaran untuk memuat naik ke folder ini.",
+      "materialColumnRefused": "“{column}” ialah lajur bahan - ia menyimpan penghantaran dan kosnya. Pilih lajur rekod tapak untuk gambar, atau minta pentadbir membuka satu."
     },
     "consultantCapture": {
       "category": "Jenis permohonan",

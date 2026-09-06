@@ -116,6 +116,19 @@ export function CategoryEvidenceCapture({
       setError(t("uploadNotAllowed"));
       return;
     }
+    // Refused here, before a single photograph is taken.
+    //
+    // The server checks this too and has to, but a site record submits
+    // through the offline queue - so "submit" can be minutes or days after
+    // "pick", and the refusal used to arrive after the photographs were
+    // taken and the form was filled in. That was the customer's complaint
+    // about this screen, in those words (F-230). The list already carries
+    // `kind`, so this costs one comparison and moves the answer to the
+    // moment the choice is made.
+    if (category.kind === "MATERIAL") {
+      setError(t("materialColumnRefused", { column: category.name }));
+      return;
+    }
     setSelected(category);
     setEvidence(createEmptyFieldEvidence());
     setNote("");

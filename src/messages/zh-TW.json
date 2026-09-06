@@ -5772,7 +5772,6 @@
     "metrics": "業務概覽",
     "noMetrics": "你的賬號可以進入儀表板；管理員授予對應權限後，其他業務模塊會顯示在這裡。",
     "platformSubtitle": "平臺運行狀態與客戶活躍度",
-    "quickLinks": "快捷入口",
     "recyclerSubtitle": "今日收運與稱重",
     "tile": {
       "attendance": "考勤記錄",
@@ -6466,11 +6465,14 @@
       "asset_maintenance_not_found": "找不到該資產維護記錄。",
       "asset_movement_not_found": "找不到該資產流轉記錄。",
       "asset_not_found": "找不到該資產。",
+      "attendance_gps_required": "這個專案設了工地範圍，打卡需要你的位置。請打開定位再試一次。",
+      "attendance_outside_geofence": "你不在工地圍欄內，離最近圍欄 {distance} 公尺。走近一點再試。",
       "audit_entry_not_found": "找不到這條審計記錄。",
       "below_minimum_payout": "該金額低於最低付款額度。",
       "bug_not_found": "找不到該 Bug 記錄。",
       "calibration_expired": "這臺地磅的校準已過期。",
       "cannot_modify_self": "無法用這種方式更改自己的賬號，請到個人資料頁操作。",
+      "category_holds_deliveries_only": "「{column}」是材料欄目 —— 它裝的是送貨單和金額。現場照片要歸到現場資料欄目。請返回選一個現場資料欄目，或讓管理員為這件事開一個。",
       "clock_skew": "網關時鐘偏移超過允許範圍。",
       "cloud_alert_not_found": "找不到該雲用量預警。",
       "cloud_plan_not_found": "找不到該雲服務方案。",
@@ -6572,6 +6574,7 @@
       "payment_not_found": "找不到該付款記錄。",
       "payout_already_exists": "該期間已經建立付款。",
       "payout_not_draft": "只有草稿狀態的付款可以這樣修改。",
+      "permission_denied": "你沒有權限做這件事。",
       "portal_mismatch": "此賬號屬於另一個後臺，請使用對應的登錄入口。",
       "pricing_rule_not_found": "找不到該雲服務收費規則。",
       "progress_update_not_found": "找不到這條工程進度。",
@@ -6624,10 +6627,7 @@
       "version_already_exists": "該平臺版本已經存在。",
       "version_not_found": "找不到該平臺版本。",
       "visit_not_found": "找不到該客戶回訪。",
-      "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。",
-      "attendance_outside_geofence": "你不在工地圍欄內，離最近圍欄 {distance} 公尺。走近一點再試。",
-      "attendance_gps_required": "這個專案設了工地範圍，打卡需要你的位置。請打開定位再試一次。",
-      "permission_denied": "你沒有權限做這件事。"
+      "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -6990,7 +6990,8 @@
       "subtitle": "選擇項目和欄目，拍攝至少四張照片，取得 GPS 後提交給管理人員審核。",
       "takePhotos": "在此欄目拍照歸檔",
       "title": "歸檔現場拍照證據",
-      "uploadNotAllowed": "你沒有權限上傳資料到這個欄目。"
+      "uploadNotAllowed": "你沒有權限上傳資料到這個欄目。",
+      "materialColumnRefused": "「{column}」是材料欄目 —— 它裝的是送貨單和金額。照片請選一個現場資料欄目，或讓管理員開一個。"
     },
     "consultantCapture": {
       "category": "申請類別",

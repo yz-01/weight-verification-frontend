@@ -5772,7 +5772,6 @@
     "metrics": "业务概览",
     "noMetrics": "你的账号可以进入仪表板；管理员授予对应权限后，其他业务模块会显示在这里。",
     "platformSubtitle": "平台运行状态与客户活跃度",
-    "quickLinks": "快捷入口",
     "recyclerSubtitle": "今日收运与称重",
     "tile": {
       "attendance": "考勤记录",
@@ -6466,11 +6465,14 @@
       "asset_maintenance_not_found": "找不到该资产维护记录。",
       "asset_movement_not_found": "找不到该资产流转记录。",
       "asset_not_found": "找不到该资产。",
+      "attendance_gps_required": "这个项目设了工地范围，打卡需要你的位置。请打开定位再试一次。",
+      "attendance_outside_geofence": "你不在工地围栏内，离最近围栏 {distance} 米。走近一点再试。",
       "audit_entry_not_found": "找不到这条审计记录。",
       "below_minimum_payout": "该金额低于最低付款额度。",
       "bug_not_found": "找不到该 Bug 记录。",
       "calibration_expired": "这台地磅的校准已过期。",
       "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。",
+      "category_holds_deliveries_only": "「{column}」是材料栏目 —— 它装的是送货单和金额。现场照片要归到现场资料栏目。请返回选一个现场资料栏目，或让管理员为这件事开一个。",
       "clock_skew": "网关时钟偏移超过允许范围。",
       "cloud_alert_not_found": "找不到该云用量预警。",
       "cloud_plan_not_found": "找不到该云服务方案。",
@@ -6572,6 +6574,7 @@
       "payment_not_found": "找不到该付款记录。",
       "payout_already_exists": "该期间已经建立付款。",
       "payout_not_draft": "只有草稿状态的付款可以这样修改。",
+      "permission_denied": "你没有权限做这件事。",
       "portal_mismatch": "此账号属于另一个后台，请使用对应的登录入口。",
       "pricing_rule_not_found": "找不到该云服务收费规则。",
       "progress_update_not_found": "找不到这条工程进度。",
@@ -6624,10 +6627,7 @@
       "version_already_exists": "该平台版本已经存在。",
       "version_not_found": "找不到该平台版本。",
       "visit_not_found": "找不到该客户回访。",
-      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
-      "attendance_outside_geofence": "你不在工地围栏内，离最近围栏 {distance} 米。走近一点再试。",
-      "attendance_gps_required": "这个项目设了工地范围，打卡需要你的位置。请打开定位再试一次。",
-      "permission_denied": "你没有权限做这件事。"
+      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -6990,7 +6990,8 @@
       "subtitle": "选择项目和栏目，拍摄至少四张照片，取得 GPS 后提交给管理人员审核。",
       "takePhotos": "在此栏目拍照归档",
       "title": "归档现场拍照证据",
-      "uploadNotAllowed": "你没有权限上传资料到这个栏目。"
+      "uploadNotAllowed": "你没有权限上传资料到这个栏目。",
+      "materialColumnRefused": "「{column}」是材料栏目 —— 它装的是送货单和金额。照片请选一个现场资料栏目，或让管理员开一个。"
     },
     "consultantCapture": {
       "category": "申请类别",
