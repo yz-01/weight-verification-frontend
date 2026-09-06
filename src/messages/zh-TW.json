@@ -4983,15 +4983,21 @@
     "scheduleSummary": {
       "activePlans": "執行中計劃",
       "actual": "實際進度",
+      "ahead": "領先計劃 {value}%",
+      "behind": "落後計劃 {value}%",
       "completed": "已完成",
+      "countedFrom": "取自 {counted} 個任務，總權重 {weight}",
       "delayed": "延誤任務",
       "dueNext7Days": "7天內到期",
+      "onPlan": "與計劃一致",
       "open": "查看施工計劃",
       "planned": "計劃進度",
       "progress": "{value}%",
       "subtitle": "讀取當前已確認計劃及現場實際進度。",
+      "summaryExcluded": "已排除 {count} 個 WBS 匯總行",
       "tasks": "任務總數",
-      "title": "施工計劃進度"
+      "title": "施工計劃進度",
+      "variance": "進度偏差"
     },
     "search": {
       "action": "搜索",
@@ -10887,7 +10893,9 @@
       "selectStaff": "選擇",
       "task": "任務",
       "taskName": "任務名稱",
-      "wbs": "WBS"
+      "wbs": "WBS",
+      "weight": "權重",
+      "weightHelp": "這個任務佔整體工程的分量，相對於其他任務而言。是相對值，1/2/3 和 10/20/30 意思一樣 —— 這一列不需要加起來等於 100。保持 1 就是每個任務等重。"
     },
     "gantt": {
       "actual": "實際完成",

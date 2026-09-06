@@ -723,6 +723,10 @@ function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"]
     ["dueNext7Days", schedule.due_next_7_days],
     ["completed", schedule.completed_tasks],
   ] as const;
+  // Actual minus planned, from the server rather than subtracted here: two
+  // screens doing their own subtraction is how the rollup came to disagree
+  // with itself (F-226).
+  const variance = Number(schedule.variance ?? 0);
 
   return (
     <div className="rounded-lg border bg-card p-4 shadow-sm">
@@ -741,7 +745,7 @@ function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"]
         </Link>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <div className="space-y-3">
           {([
             ["planned", planned, "bg-foreground/55"],
@@ -759,6 +763,53 @@ function ScheduleSummary({ schedule }: { schedule: DashboardOverview["schedule"]
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="space-y-2">
+          <div className="rounded-lg bg-muted/40 p-3">
+            <p className="text-xs text-muted-foreground">{t("variance")}</p>
+            <p
+              className={
+                "mt-1 text-xl font-semibold tabular-nums " +
+                (variance < 0
+                  ? "text-destructive"
+                  : variance > 0
+                    ? "text-success"
+                    : "")
+              }
+            >
+              {variance === 0
+                ? t("onPlan")
+                : variance < 0
+                  ? t("behind", {
+                      value: format.number(Math.abs(variance), {
+                        maximumFractionDigits: 1,
+                      }),
+                    })
+                  : t("ahead", {
+                      value: format.number(variance, {
+                        maximumFractionDigits: 1,
+                      }),
+                    })}
+            </p>
+          </div>
+          {/* What the two percentages above were calculated from. Without it
+              a 25% drawn from forty weighted tasks looks the same as a 25%
+              drawn from the one task somebody typed a number into. */}
+          <p className="text-xs text-muted-foreground">
+            {t("countedFrom", {
+              counted: schedule.counted_tasks ?? 0,
+              weight: schedule.total_weight ?? "0",
+            })}
+            {(schedule.summary_rows_excluded ?? 0) > 0 && (
+              <>
+                {" · "}
+                {t("summaryExcluded", {
+                  count: schedule.summary_rows_excluded ?? 0,
+                })}
+              </>
+            )}
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 lg:grid-cols-3 xl:grid-cols-5">

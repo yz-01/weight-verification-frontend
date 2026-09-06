@@ -4983,15 +4983,21 @@
     "scheduleSummary": {
       "activePlans": "Pelan aktif",
       "actual": "Kemajuan sebenar",
+      "ahead": "{value}% mendahului rancangan",
+      "behind": "{value}% ketinggalan daripada rancangan",
       "completed": "Selesai",
+      "countedFrom": "Daripada {counted} tugas, jumlah berat {weight}",
       "delayed": "Lewat",
       "dueNext7Days": "Tamat dalam 7 hari",
+      "onPlan": "Menepati rancangan",
       "open": "Buka jadual",
       "planned": "Kemajuan dirancang",
       "progress": "{value}%",
       "subtitle": "Jadual semasa yang disahkan dan kemajuan sebenar tapak.",
+      "summaryExcluded": "{count} baris ringkasan WBS tidak dikira",
       "tasks": "Tugas",
-      "title": "Jadual pembinaan"
+      "title": "Jadual pembinaan",
+      "variance": "Sisihan kemajuan"
     },
     "search": {
       "action": "Cari",
@@ -10887,7 +10893,9 @@
       "selectStaff": "Pilih",
       "task": "Tugas",
       "taskName": "Nama tugas",
-      "wbs": "WBS"
+      "wbs": "WBS",
+      "weight": "Berat",
+      "weightHelp": "Berapa banyak kerja yang diwakili tugas ini berbanding yang lain. Nilai relatif - 1/2/3 dan 10/20/30 bermaksud sama, dan lajur ini tidak perlu berjumlah 100. Biarkan pada 1 untuk berat sama."
     },
     "gantt": {
       "actual": "Siap sebenar",

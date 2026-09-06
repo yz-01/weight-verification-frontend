@@ -4983,15 +4983,21 @@
     "scheduleSummary": {
       "activePlans": "Active plans",
       "actual": "Actual progress",
+      "ahead": "{value}% ahead of plan",
+      "behind": "{value}% behind plan",
       "completed": "Completed",
+      "countedFrom": "From {counted} task(s), total weight {weight}",
       "delayed": "Delayed",
       "dueNext7Days": "Due in 7 days",
+      "onPlan": "On plan",
       "open": "Open schedule",
       "planned": "Planned progress",
       "progress": "{value}%",
       "subtitle": "Current confirmed schedule and actual site progress.",
+      "summaryExcluded": "{count} WBS summary row(s) not counted",
       "tasks": "Tasks",
-      "title": "Construction schedule"
+      "title": "Construction schedule",
+      "variance": "Variance"
     },
     "search": {
       "action": "Search",
@@ -10887,7 +10893,9 @@
       "selectStaff": "Select",
       "task": "Task",
       "taskName": "Task name",
-      "wbs": "WBS"
+      "wbs": "WBS",
+      "weight": "Weight",
+      "weightHelp": "How much of the job this task is, next to the others. Relative, so 1/2/3 and 10/20/30 mean the same - the column does not have to add up to 100. Leave it at 1 and every task counts equally."
     },
     "gantt": {
       "actual": "Actual completion",

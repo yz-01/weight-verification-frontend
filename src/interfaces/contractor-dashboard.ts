@@ -52,6 +52,17 @@ export interface DashboardOverview {
     delayed_tasks: number;
     completed_tasks: number;
     due_next_7_days: number;
+    /** Actual minus planned. Negative is behind. */
+    variance: string;
+    /**
+     * What the percentages were calculated from.
+     *
+     * A 25% drawn from forty weighted tasks and a 25% drawn from the one task
+     * somebody typed a number into look identical without these (F-226).
+     */
+    counted_tasks: number;
+    summary_rows_excluded: number;
+    total_weight: string;
   };
 }
 

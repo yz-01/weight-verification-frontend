@@ -4983,15 +4983,21 @@
     "scheduleSummary": {
       "activePlans": "执行中计划",
       "actual": "实际进度",
+      "ahead": "领先计划 {value}%",
+      "behind": "落后计划 {value}%",
       "completed": "已完成",
+      "countedFrom": "取自 {counted} 个任务，总权重 {weight}",
       "delayed": "延误任务",
       "dueNext7Days": "7天内到期",
+      "onPlan": "与计划一致",
       "open": "查看施工计划",
       "planned": "计划进度",
       "progress": "{value}%",
       "subtitle": "读取当前已确认计划及现场实际进度。",
+      "summaryExcluded": "已排除 {count} 个 WBS 汇总行",
       "tasks": "任务总数",
-      "title": "施工计划进度"
+      "title": "施工计划进度",
+      "variance": "进度偏差"
     },
     "search": {
       "action": "搜索",
@@ -10887,7 +10893,9 @@
       "selectStaff": "选择",
       "task": "任务",
       "taskName": "任务名称",
-      "wbs": "WBS"
+      "wbs": "WBS",
+      "weight": "权重",
+      "weightHelp": "这个任务占整体工程的分量，相对于其他任务而言。是相对值，1/2/3 和 10/20/30 意思一样 —— 这一列不需要加起来等于 100。保持 1 就是每个任务等重。"
     },
     "gantt": {
       "actual": "实际完成",
