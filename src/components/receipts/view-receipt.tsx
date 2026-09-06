@@ -36,7 +36,12 @@ import type {
   MaterialReceiptDetail,
   PhotoKind,
 } from "@/interfaces/contractor";
-import { addReceiptPhoto, getReceipt, markReceiptsSeen } from "@/services/contractor.service";
+import {
+  addReceiptPhoto,
+  getReceipt,
+  markReceiptsSeen,
+  reviewReceipt,
+} from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
 
 const PHOTO_KINDS: PhotoKind[] = [
@@ -72,6 +77,109 @@ function currentPosition(): Promise<GeolocationPosition | null> {
  * can - but no screen ever offered it, so a shot taken two minutes late could
  * not be attached at all (F-101).
  */
+/**
+ * Accept a delivery, or reject it with a reason.
+ *
+ * T-188 built the field, the endpoint, the audit trail and a home-page card
+ * counting 待验收／不合格 material. It did not build this, so the field could
+ * never leave PENDING and the card counted a number incapable of changing -
+ * the 空壳 the customer keeps asking us not to ship. The reachability guard
+ * named it: `/api/receipts/{}/review_receipt/ - no service function builds
+ * this path`.
+ *
+ * Rejecting demands a reason and the button stays disabled without one. The
+ * server refuses too; this is only so the refusal is not a surprise.
+ */
+function ReviewDelivery({
+  receipt,
+  onReviewed,
+}: {
+  receipt: MaterialReceiptDetail;
+  onReviewed: () => void;
+}) {
+  const t = useTranslations();
+  const [reason, setReason] = useState(receipt.rejection_reason ?? "");
+  const status = receipt.acceptance_status ?? "PENDING";
+
+  const review = useMutation({
+    mutationFn: (decision: "ACCEPTED" | "REJECTED") =>
+      reviewReceipt(receipt.id, {
+        decision,
+        rejection_reason: decision === "REJECTED" ? reason.trim() : "",
+      }),
+    onSuccess: onReviewed,
+  });
+
+  const tone =
+    status === "ACCEPTED"
+      ? "text-emerald-600"
+      : status === "REJECTED"
+        ? "text-destructive"
+        : "text-amber-600";
+
+  return (
+    <FormSection title={t("receipts.acceptance.title")}>
+      <div className="md:col-span-2 space-y-3">
+        <p className={`text-sm font-medium ${tone}`}>
+          {t(`receipts.acceptance.status.${status}`)}
+          {receipt.accepted_by_name ? ` · ${receipt.accepted_by_name}` : ""}
+        </p>
+
+        {/* A rejection that survives on the record without its reason tells
+            the next person on site nothing they can act on, so the reason is
+            shown whenever there is one - not only while deciding. */}
+        {status === "REJECTED" && receipt.rejection_reason && (
+          <ReadField
+            label={t("receipts.acceptance.reason")}
+            value={receipt.rejection_reason}
+            className="md:col-span-2"
+          />
+        )}
+
+        <Input
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder={t("receipts.acceptance.reasonPlaceholder")}
+          aria-label={t("receipts.acceptance.reason")}
+          className="max-w-xl"
+        />
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            disabled={review.isPending || status === "ACCEPTED"}
+            disabledReason={
+              status === "ACCEPTED"
+                ? t("receipts.acceptance.alreadyAccepted")
+                : t("common.saving")
+            }
+            onClick={() => review.mutate("ACCEPTED")}
+          >
+            {t("receipts.acceptance.accept")}
+          </Button>
+          {/* `requires` rather than a bare `disabled`, so the list that decides
+              whether it can be pressed is the same list that explains why it
+              cannot: the reason is the whole point of a rejection. */}
+          <Button
+            size="sm"
+            variant="destructive"
+            requires={[[reason.trim(), t("receipts.acceptance.reason")]]}
+            disabled={review.isPending}
+            disabledReason={t("common.saving")}
+            onClick={() => review.mutate("REJECTED")}
+          >
+            {t("receipts.acceptance.reject")}
+          </Button>
+        </div>
+        {/* Said plainly, because the alternative is a site assuming a
+            rejection stopped the invoice when it did not (U-028). */}
+        <p className="text-xs text-muted-foreground">
+          {t("receipts.acceptance.moneyNote")}
+        </p>
+      </div>
+    </FormSection>
+  );
+}
+
 function AddPhoto({
   receipt,
   onAdded,
@@ -173,7 +281,7 @@ export function ViewReceipt({ id }: { id: string }) {
   // Which photograph is open full size, by index, or null for none.
   const [openPhoto, setOpenPhoto] = useState<number | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["receipts", "detail", id],
     queryFn: () => getReceipt(id),
   });
@@ -302,6 +410,13 @@ export function ViewReceipt({ id }: { id: string }) {
               className="md:col-span-2"
             />
           </FormSection>
+
+          {/* Superseded receipts are read-only: a correction has replaced
+              this copy, and accepting the one that was replaced would put a
+              decision on a record nobody is working from. */}
+          {can("receipt.update") && !data.superseded_by && (
+            <ReviewDelivery receipt={data} onReviewed={() => void refetch()} />
+          )}
 
           {/*
             Kept in its own section, and labelled as the platform's own record,

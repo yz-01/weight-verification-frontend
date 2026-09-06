@@ -6645,7 +6645,14 @@
       "version_already_exists": "That platform version already exists.",
       "version_not_found": "That platform version could not be found.",
       "visit_not_found": "That customer visit could not be found.",
-      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second."
+      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
+      "receipt_superseded": "A correction has already replaced this delivery record, so this copy can no longer be accepted or rejected. Open the current record and review that one instead.",
+      "receipt_rejection_needs_reason": "Type the reason for rejecting this delivery. A rejection with no reason gives the site nothing to act on.",
+      "hazard_not_a_participant": "{incident_no} was not raised with you. Ask the person who reported it, or a safety supervisor, to add you.",
+      "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
+      "hazard_audio_too_long": "That voice note is {seconds} seconds long. One note can be at most {limit} seconds — record a shorter one, or send two.",
+      "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
+      "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9940,7 +9947,9 @@
       "created": "Delivery recorded",
       "photoAdded": "Photo added",
       "removed": "Receipt removed",
-      "updated": "Receipt updated"
+      "updated": "Receipt updated",
+      "accepted": "Delivery accepted.",
+      "rejected": "Delivery rejected, with the reason recorded."
     },
     "unit": {
       "BAG": "Bag",
@@ -9963,7 +9972,21 @@
       "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
     },
     "recorderUnknown": "Recorder not on file",
-    "noRecorderPhone": "No phone number on file"
+    "noRecorderPhone": "No phone number on file",
+    "acceptance": {
+      "title": "Acceptance",
+      "status": {
+        "PENDING": "Awaiting acceptance",
+        "ACCEPTED": "Accepted",
+        "REJECTED": "Rejected"
+      },
+      "accept": "Accept",
+      "reject": "Reject",
+      "reason": "Reason for rejection",
+      "reasonPlaceholder": "Why is this delivery being rejected?",
+      "moneyNote": "Rejecting flags the delivery and counts it on the home page. It does not change the amount or the payment status — that stays a decision somebody makes on purpose.",
+      "alreadyAccepted": "This delivery has already been accepted."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -13097,5 +13120,27 @@
     "PENDING": "Awaiting acceptance",
     "ACCEPTED": "Accepted",
     "REJECTED": "Rejected"
+  },
+  "hazard": {
+    "conversationTitle": "Rectification discussion",
+    "empty": "Nothing has been said yet.",
+    "send": "Send",
+    "placeholder": "Type a message",
+    "recordStart": "Record a voice note",
+    "recordStop": "Stop",
+    "recordingFor": "Recording {seconds}s of {limit}s",
+    "attach": "Attach a file",
+    "photo": "Photo",
+    "closed": "This hazard has been verified and archived. The record stays readable, but it takes no new messages.",
+    "participants": "In this conversation",
+    "reporter": "Reported it",
+    "responsible": "Responsible",
+    "supervisor": "Supervisor",
+    "voiceNote": "Voice note",
+    "unsupported": "This browser cannot record audio. Type a message or send a photo instead.",
+    "duration": "Expected to take",
+    "durationHours": "{hours} hours",
+    "unassigned": "Waiting to be assigned",
+    "nothingToSend": "Type a message, or attach a photo, voice note or file."
   }
 }

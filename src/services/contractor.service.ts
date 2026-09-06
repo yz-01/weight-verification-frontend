@@ -531,6 +531,36 @@ export async function correctReceipt(
 }
 
 /**
+ * Accept or reject a delivery after somebody has looked at it.
+ *
+ * The endpoint has existed since T-188 with nothing calling it, which made the
+ * home page's 待验收／不合格 card structurally unable to show anything but
+ * PENDING - a number that cannot change is not a number.
+ *
+ * Rejecting requires a reason, and the server refuses without one: "rejected"
+ * with no reason tells the next person on site nothing they can act on.
+ *
+ * Nothing here touches money. A rejected delivery is flagged and counted, but
+ * `document_amount` and the payment state are left alone, because an action
+ * that changes what is owed should be one a person pressed on purpose (U-028).
+ */
+export async function reviewReceipt(
+  id: string,
+  payload: { decision: "ACCEPTED" | "REJECTED"; rejection_reason?: string },
+): Promise<MaterialReceiptDetail> {
+  const receipt = await api.post<MaterialReceiptDetail>(
+    `/api/receipts/${id}/review_receipt/`,
+    payload,
+  );
+  toastSuccess(
+    payload.decision === "ACCEPTED"
+      ? "receipts.toast.accepted"
+      : "receipts.toast.rejected",
+  );
+  return receipt;
+}
+
+/**
  * Move a filed delivery into a different material column, or out of one.
  *
  * Not a correction and not an edit. The receipt is evidence that material

@@ -6645,7 +6645,14 @@
       "version_already_exists": "Versi platform itu sudah wujud.",
       "version_not_found": "Versi platform itu tidak dijumpai.",
       "visit_not_found": "Lawatan pelanggan itu tidak dijumpai.",
-      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian."
+      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
+      "receipt_superseded": "Rekod penerimaan ini telah digantikan oleh rekod pembetulan, jadi salinan ini tidak boleh diterima atau ditolak lagi. Buka rekod semasa dan semak yang itu.",
+      "receipt_rejection_needs_reason": "Taip sebab penolakan penghantaran ini. Penolakan tanpa sebab tidak memberi tapak apa-apa untuk ditindaki.",
+      "hazard_not_a_participant": "{incident_no} tidak dilaporkan kepada anda. Minta pelapor atau penyelia keselamatan menambah anda.",
+      "hazard_message_empty": "Taip sesuatu, atau lampirkan foto, nota suara atau fail, sebelum menghantar.",
+      "hazard_audio_too_long": "Nota suara itu {seconds} saat. Satu nota paling lama {limit} saat — rakam yang lebih pendek, atau hantar dua.",
+      "hazard_closed": "{incident_no} telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
+      "hazard_self_verification": "Anda yang melaksanakan pembetulan bagi {incident_no}, jadi orang lain perlu mengesahkannya — pelapor, pengurus projek, perunding, atau penyelia tapak atau keselamatan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9940,7 +9947,9 @@
       "created": "Penerimaan direkod",
       "photoAdded": "Gambar ditambah",
       "removed": "Resit dibuang",
-      "updated": "Resit dikemas kini"
+      "updated": "Resit dikemas kini",
+      "accepted": "Penghantaran diterima.",
+      "rejected": "Penghantaran ditolak, dengan sebabnya direkodkan."
     },
     "unit": {
       "BAG": "Beg",
@@ -9963,7 +9972,21 @@
       "clean": "Dipaparkan tanpa cap lokasi dan masa, supaya boleh digunakan semula di tempat lain."
     },
     "recorderUnknown": "Perekod tiada dalam rekod",
-    "noRecorderPhone": "Tiada nombor telefon dalam rekod"
+    "noRecorderPhone": "Tiada nombor telefon dalam rekod",
+    "acceptance": {
+      "title": "Penerimaan",
+      "status": {
+        "PENDING": "Menunggu penerimaan",
+        "ACCEPTED": "Diterima",
+        "REJECTED": "Ditolak"
+      },
+      "accept": "Terima",
+      "reject": "Tolak",
+      "reason": "Sebab penolakan",
+      "reasonPlaceholder": "Mengapa penghantaran ini ditolak?",
+      "moneyNote": "Penolakan menandakan penghantaran dan mengiranya di halaman utama. Ia tidak mengubah jumlah atau status pembayaran — itu kekal keputusan yang dibuat seseorang dengan sengaja.",
+      "alreadyAccepted": "Penghantaran ini telah pun diterima."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -13097,5 +13120,27 @@
     "PENDING": "Menunggu penerimaan",
     "ACCEPTED": "Diterima",
     "REJECTED": "Ditolak"
+  },
+  "hazard": {
+    "conversationTitle": "Perbincangan pembetulan",
+    "empty": "Belum ada apa-apa dikatakan.",
+    "send": "Hantar",
+    "placeholder": "Taip mesej",
+    "recordStart": "Rakam nota suara",
+    "recordStop": "Berhenti",
+    "recordingFor": "Merakam {seconds}s daripada {limit}s",
+    "attach": "Lampirkan fail",
+    "photo": "Foto",
+    "closed": "Bahaya ini telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
+    "participants": "Dalam perbualan ini",
+    "reporter": "Melaporkannya",
+    "responsible": "Bertanggungjawab",
+    "supervisor": "Penyelia",
+    "voiceNote": "Nota suara",
+    "unsupported": "Pelayar ini tidak boleh merakam audio. Taip mesej atau hantar foto.",
+    "duration": "Dijangka mengambil masa",
+    "durationHours": "{hours} jam",
+    "unassigned": "Menunggu untuk ditugaskan",
+    "nothingToSend": "Taip mesej, atau lampirkan foto, nota suara atau fail."
   }
 }

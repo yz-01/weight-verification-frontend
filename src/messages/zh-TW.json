@@ -6645,7 +6645,14 @@
       "version_already_exists": "該平臺版本已經存在。",
       "version_not_found": "找不到該平臺版本。",
       "visit_not_found": "找不到該客戶回訪。",
-      "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。"
+      "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。",
+      "receipt_superseded": "這筆收貨記錄已被更正記錄取代，不能再驗收或退回。請打開目前那一筆來處理。",
+      "receipt_rejection_needs_reason": "請填寫退回這批材料的原因。沒有原因的退回，現場無從處理。",
+      "hazard_not_a_participant": "{incident_no} 沒有上報給你。請讓上報人或安全主管把你加進來。",
+      "hazard_message_empty": "傳送前請輸入文字，或附上照片、語音或檔案。",
+      "hazard_audio_too_long": "這則語音 {seconds} 秒，單則最長 {limit} 秒。請重錄短一點，或者分兩則傳送。",
+      "hazard_closed": "{incident_no} 已驗收並閉環歸檔。記錄仍然可以查看，但不能再傳新訊息。",
+      "hazard_self_verification": "{incident_no} 是你整改的，需要由別人驗收 —— 上報人、專案經理、顧問、現場主管或安全主管都可以。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9940,7 +9947,9 @@
       "created": "收貨已記錄",
       "photoAdded": "照片已上傳",
       "removed": "收貨記錄已刪除",
-      "updated": "收貨記錄已更新"
+      "updated": "收貨記錄已更新",
+      "accepted": "已驗收通過。",
+      "rejected": "已判為不合格，原因已記錄。"
     },
     "unit": {
       "BAG": "包",
@@ -9963,7 +9972,21 @@
       "clean": "這裡顯示的是不帶位置與時間浮水印的原圖，方便複製到別處使用。"
     },
     "recorderUnknown": "沒有記錄人資料",
-    "noRecorderPhone": "沒有登記聯絡電話"
+    "noRecorderPhone": "沒有登記聯絡電話",
+    "acceptance": {
+      "title": "驗收",
+      "status": {
+        "PENDING": "待驗收",
+        "ACCEPTED": "已驗收",
+        "REJECTED": "不合格"
+      },
+      "accept": "驗收通過",
+      "reject": "判為不合格",
+      "reason": "不合格原因",
+      "reasonPlaceholder": "這批材料為什麼不合格？",
+      "moneyNote": "判為不合格會標記這批貨並計入首頁統計，但不會改動金額或付款狀態 —— 改錢的動作要由人明確按下去。",
+      "alreadyAccepted": "這批材料已經驗收通過了。"
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -13097,5 +13120,27 @@
     "PENDING": "待驗收",
     "ACCEPTED": "已驗收",
     "REJECTED": "驗收不合格"
+  },
+  "hazard": {
+    "conversationTitle": "整改溝通",
+    "empty": "還沒有人說話。",
+    "send": "傳送",
+    "placeholder": "輸入訊息",
+    "recordStart": "按住錄音",
+    "recordStop": "停止",
+    "recordingFor": "已錄 {seconds} 秒，上限 {limit} 秒",
+    "attach": "傳送檔案",
+    "photo": "照片",
+    "closed": "這條隱患已驗收並閉環歸檔。記錄仍可查看，但不能再傳新訊息。",
+    "participants": "本次參與的人",
+    "reporter": "上報人",
+    "responsible": "責任人",
+    "supervisor": "主管",
+    "voiceNote": "語音",
+    "unsupported": "這個瀏覽器不能錄音，請改用文字或照片。",
+    "duration": "預計需要",
+    "durationHours": "{hours} 小時",
+    "unassigned": "待分配",
+    "nothingToSend": "請先輸入文字，或附上照片、語音或檔案。"
   }
 }

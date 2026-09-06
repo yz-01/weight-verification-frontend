@@ -145,6 +145,13 @@ export interface SafetyIncident {
   responsible_person: string | null;
   responsible_person_name: string | null;
   rectification_due_at: string | null;
+  /**
+   * How long the work is expected to take, which the due date cannot say.
+   *
+   * The supervisor reads the deadline; the person holding the tools reads
+   * this. 「需要知道什么时候会改，需要多少时间」 - two questions, two answers.
+   */
+  rectification_duration_hours?: string | null;
   rectification_note: string;
   rectification_submitted_at: string | null;
   verified_by: string | null;
@@ -158,6 +165,54 @@ export interface SafetyIncident {
   photographer_name: string | null;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * One message in a hazard's conversation.
+ *
+ * A hazard *is* its chat room rather than having one beside it: 「聊天室其实就
+ * 是隐患上报结合一起而已，拍的照片也会发去聊天室，不是分开的」. The photograph
+ * that raised the hazard arrives here as the first message, so the history is
+ * whole from the first second.
+ */
+export interface HazardMessage {
+  id: string;
+  incident: string | null;
+  thread: string | null;
+  author: string;
+  author_name: string;
+  body: string;
+  photo: string | null;
+  watermarked_photo?: string | null;
+  /** A voice note. Not an extra: the customer's crew 「不识字」 (D-094). */
+  audio: string | null;
+  audio_seconds: number | null;
+  attachment: string | null;
+  attachment_name: string;
+  latitude: string | null;
+  longitude: string | null;
+  accuracy_m: string | null;
+  sent_at: string;
+  client_event_id: string;
+  created_at: string;
+}
+
+export interface HazardParticipant {
+  id: string;
+  full_name: string;
+  role_name: string;
+  is_supervisor: boolean;
+  is_reporter: boolean;
+  is_responsible: boolean;
+}
+
+export interface HazardConversation {
+  incident: SafetyIncident;
+  messages: HazardMessage[];
+  participants: HazardParticipant[];
+  /** Archived, which means readable but closed to new messages. */
+  is_closed: boolean;
+  audio_seconds_limit: number;
 }
 
 export interface SafetyIncidentPayload {

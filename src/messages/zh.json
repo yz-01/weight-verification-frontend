@@ -6645,7 +6645,14 @@
       "version_already_exists": "该平台版本已经存在。",
       "version_not_found": "找不到该平台版本。",
       "visit_not_found": "找不到该客户回访。",
-      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。"
+      "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
+      "receipt_superseded": "这条收货记录已被更正记录取代，不能再验收或退回。请打开当前那一条来处理。",
+      "receipt_rejection_needs_reason": "请填写退回这批材料的原因。没有原因的退回，现场无从处理。",
+      "hazard_not_a_participant": "{incident_no} 没有上报给你。请让上报人或安全主管把你加进来。",
+      "hazard_message_empty": "发送前请输入文字，或附上照片、语音或文件。",
+      "hazard_audio_too_long": "这条语音 {seconds} 秒，单条最长 {limit} 秒。请重录短一点，或者分两条发。",
+      "hazard_closed": "{incident_no} 已验收并闭环归档。记录仍然可以查看，但不能再发新消息。",
+      "hazard_self_verification": "{incident_no} 是你整改的，需要由别人验收 —— 上报人、项目经理、顾问、现场主管或安全主管都可以。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -9940,7 +9947,9 @@
       "created": "收货已记录",
       "photoAdded": "照片已上传",
       "removed": "收货记录已删除",
-      "updated": "收货记录已更新"
+      "updated": "收货记录已更新",
+      "accepted": "已验收通过。",
+      "rejected": "已判为不合格，原因已记录。"
     },
     "unit": {
       "BAG": "包",
@@ -9963,7 +9972,21 @@
       "clean": "这里显示的是不带位置与时间水印的原图，方便复制到别处使用。"
     },
     "recorderUnknown": "没有记录人资料",
-    "noRecorderPhone": "没有登记联系电话"
+    "noRecorderPhone": "没有登记联系电话",
+    "acceptance": {
+      "title": "验收",
+      "status": {
+        "PENDING": "待验收",
+        "ACCEPTED": "已验收",
+        "REJECTED": "不合格"
+      },
+      "accept": "验收通过",
+      "reject": "判为不合格",
+      "reason": "不合格原因",
+      "reasonPlaceholder": "这批材料为什么不合格？",
+      "moneyNote": "判为不合格会标记这批货并计入首页统计，但不会改动金额或付款状态 —— 改钱的动作要由人明确按下去。",
+      "alreadyAccepted": "这批材料已经验收通过了。"
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -13097,5 +13120,27 @@
     "PENDING": "待验收",
     "ACCEPTED": "已验收",
     "REJECTED": "验收不合格"
+  },
+  "hazard": {
+    "conversationTitle": "整改沟通",
+    "empty": "还没有人说话。",
+    "send": "发送",
+    "placeholder": "输入消息",
+    "recordStart": "按住录音",
+    "recordStop": "停止",
+    "recordingFor": "已录 {seconds} 秒，上限 {limit} 秒",
+    "attach": "发送文件",
+    "photo": "照片",
+    "closed": "这条隐患已验收并闭环归档。记录仍可查看，但不能再发新消息。",
+    "participants": "本次参与的人",
+    "reporter": "上报人",
+    "responsible": "责任人",
+    "supervisor": "主管",
+    "voiceNote": "语音",
+    "unsupported": "这个浏览器不能录音，请改用文字或照片。",
+    "duration": "预计需要",
+    "durationHours": "{hours} 小时",
+    "unassigned": "待分配",
+    "nothingToSend": "请先输入文字，或附上照片、语音或文件。"
   }
 }

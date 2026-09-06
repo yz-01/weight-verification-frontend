@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Loader2,
   LocateFixed,
+  MessageSquare,
   Plus,
   Save,
   ShieldAlert,
@@ -38,6 +39,7 @@ import {
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { HazardConversationPanel } from "@/components/site-operations/hazard-conversation";
 import {
   Dialog,
   DialogContent,
@@ -162,6 +164,9 @@ export function Safety({
   const [assigning, setAssigning] = useState<SafetyIncident | null>(null);
   const [submitting, setSubmitting] = useState<SafetyIncident | null>(null);
   const [reviewing, setReviewing] = useState<SafetyIncident | null>(null);
+  // 「建筑商后台也是需要改」: the console takes part in the same conversation
+  // the field app uses, rather than reading a summary of it.
+  const [talking, setTalking] = useState<SafetyIncident | null>(null);
   const openedIncidentRef = useRef("");
 
   const { data, isLoading, isError } = useQuery({
@@ -372,6 +377,10 @@ export function Safety({
             {can("safety.verify") && row.original.status === "RECTIFICATION_SUBMITTED" && (
               <Button variant="ghost" size="icon" className="h-7 w-7 text-success" title={t("safetyRectification.action.review")} onClick={() => setReviewing(row.original)}><CheckCircle2 className="h-4 w-4" /></Button>
             )}
+            {/* Always offered, including on an archived hazard: the record
+                stays readable after closure - 「记录全部都要留着」 - and the
+                panel itself is what refuses a new message. */}
+            <Button variant="ghost" size="icon" className="h-7 w-7" title={t("hazard.conversationTitle")} onClick={() => setTalking(row.original)}><MessageSquare className="h-4 w-4" /></Button>
             {can("safety.manage") && ["OPEN", "INVESTIGATING"].includes(row.original.status) && (
               <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" title={t("safety.action.updateStatus")} onClick={() => setUpdating(row.original)}><SlidersHorizontal className="h-3.5 w-3.5" /></Button>
             )}
@@ -586,6 +595,19 @@ export function Safety({
       {assigning && <SafetyAssignDialog incident={assigning} onClose={() => setAssigning(null)} />}
       {submitting && <SafetySubmitDialog incident={submitting} onClose={() => setSubmitting(null)} />}
       {reviewing && <SafetyReviewDialog incident={reviewing} onClose={() => setReviewing(null)} />}
+      {talking && (
+        <Dialog open onOpenChange={(open) => !open && setTalking(null)}>
+          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{talking.incident_no}</DialogTitle>
+              <DialogDescription>
+                {talking.responsible_person_name || t("hazard.unassigned")}
+              </DialogDescription>
+            </DialogHeader>
+            <HazardConversationPanel incidentId={talking.id} />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

@@ -304,8 +304,22 @@ export interface MaterialReceipt {
   photo_count?: number;
 }
 
+/**
+ * Whether the delivery has been looked at and signed off.
+ *
+ * Deliberately separate from money: a rejected delivery is flagged loudly and
+ * counted on the home page, but nothing here touches `document_amount` or the
+ * payment state. An action that changes what is owed is one a person presses
+ * on purpose, not a side effect of a quality call somebody might revise (U-028).
+ */
+export type MaterialAcceptance = "PENDING" | "ACCEPTED" | "REJECTED";
+
 export interface MaterialReceiptDetail extends MaterialReceipt {
   qr_code: string | null;
+  acceptance_status?: MaterialAcceptance;
+  accepted_by_name?: string | null;
+  accepted_at?: string | null;
+  rejection_reason?: string;
   /**
    * The receipt this one corrects, when it is a correction.
    *
