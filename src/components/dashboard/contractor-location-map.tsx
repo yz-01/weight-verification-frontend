@@ -214,8 +214,8 @@ export function ContractorLocationMap({
 
       {loading ? (
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_22rem]">
-          <Skeleton className="h-[22rem] w-full sm:h-[24rem]" />
-          <Skeleton className="h-64 w-full xl:h-[24rem]" />
+          <Skeleton className="h-[16rem] w-full sm:h-[18rem]" />
+          <Skeleton className="h-56 w-full xl:h-[18rem]" />
         </div>
       ) : failed ? (
         <div className="border-y py-10 text-center text-sm text-destructive">
@@ -231,15 +231,15 @@ export function ContractorLocationMap({
               preserveViewOnDataUpdate
               fitBoundsKey={project || "all"}
               ariaLabel={t("mapLabel")}
-              className="h-[22rem] min-h-[22rem] rounded-md sm:h-[24rem] sm:min-h-[24rem]"
+              className="h-[16rem] min-h-[16rem] rounded-md sm:h-[18rem] sm:min-h-[18rem]"
             />
           ) : (
-            <div className="grid h-[22rem] place-items-center rounded-md border bg-muted/20 px-6 text-center text-sm text-muted-foreground sm:h-[24rem]">
+            <div className="grid h-[16rem] place-items-center rounded-md border bg-muted/20 px-6 text-center text-sm text-muted-foreground sm:h-[18rem]">
               {t("empty")}
             </div>
           )}
 
-          <div className="min-w-0 border-y xl:h-[24rem]">
+          <div className="min-w-0 border-y xl:h-[18rem]">
             <div className="flex items-center justify-between gap-3 border-b py-3">
               <div>
                 <h3 className="text-sm font-semibold">{t("staffStatus")}</h3>
@@ -250,7 +250,7 @@ export function ContractorLocationMap({
               <UserRound className="size-4 text-muted-foreground" />
             </div>
             {positionRows.length > 0 ? (
-              <div className="max-h-[20rem] divide-y overflow-y-auto overscroll-contain xl:max-h-[19.5rem]">
+              <div className="max-h-[14rem] divide-y overflow-y-auto overscroll-contain xl:max-h-[13.5rem]">
                 {positionRows.map((position) => (
                   <PositionRow key={position.id} position={position} />
                 ))}

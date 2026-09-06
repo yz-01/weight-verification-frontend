@@ -372,49 +372,8 @@ export function ContractorDashboard() {
             </section>
           )}
 
-          {can("field_position.view") && (
-            <ContractorLocationMap
-              project={project}
-              onProjectChange={setProject}
-            />
-          )}
 
           <div className="grid gap-6 xl:grid-cols-2">
-            {activity && (
-              <Block
-                title={t("activity.title")}
-                subtitle={t("activity.subtitle", { count: activity.total })}
-                empty={activity.rows.length === 0}
-                emptyLabel={t("activity.empty")}
-              >
-                <ul className="divide-y">
-                  {activity.rows.map((row, index) => (
-                    <li
-                      key={`${row.kind}-${row.reference}-${index}`}
-                      className="flex items-start justify-between gap-3 py-2.5"
-                    >
-                      <div className="min-w-0">
-                        <Link
-                          href={ACTIVITY_HREF[row.kind]}
-                          className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          {t(`activityKind.${row.kind}`)} · {row.reference}
-                        </Link>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {row.project} · {row.summary}
-                        </p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <StatusBadge label={recordStatus(row.status)} />
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {df.dateTime(row.occurred_at)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </Block>
-            )}
 
             {unread && (unread.receipts > 0 || unread.approvals > 0) && (
               // Only drawn when something is actually waiting. A card that is
@@ -531,6 +490,55 @@ export function ContractorDashboard() {
             )}
 
             {anomalies && <AnomalyBlock anomalies={anomalies} />}
+
+            {/* Second screen. It used to sit third from the top, above
+                everything a manager opens this page to check. Shorter
+                now as well - the detail is a click away, and the height
+                was pushing 待审批 and 异常事件 below the fold. */}
+            <div className="xl:col-span-2">
+            {can("field_position.view") && (
+              <ContractorLocationMap
+                project={project}
+                onProjectChange={setProject}
+              />
+            )}
+            </div>
+
+            {activity && (
+              <Block
+                title={t("activity.title")}
+                subtitle={t("activity.subtitle", { count: activity.total })}
+                empty={activity.rows.length === 0}
+                emptyLabel={t("activity.empty")}
+              >
+                <ul className="divide-y">
+                  {activity.rows.map((row, index) => (
+                    <li
+                      key={`${row.kind}-${row.reference}-${index}`}
+                      className="flex items-start justify-between gap-3 py-2.5"
+                    >
+                      <div className="min-w-0">
+                        <Link
+                          href={ACTIVITY_HREF[row.kind]}
+                          className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {t(`activityKind.${row.kind}`)} · {row.reference}
+                        </Link>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {row.project} · {row.summary}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <StatusBadge label={recordStatus(row.status)} />
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {df.dateTime(row.occurred_at)}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </Block>
+            )}
 
             {data.personnel && (
               <Block
