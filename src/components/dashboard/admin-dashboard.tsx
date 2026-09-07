@@ -47,6 +47,7 @@ import type {
 } from "@/interfaces/platform-ops";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
 import { useDateFormat } from "@/lib/dates";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import {
   getAdminDashboard,
   getMonitoringOverview,
@@ -89,6 +90,8 @@ export function AdminDashboard({
     enabled: section === undefined || section === "system-status",
     refetchInterval: 30_000,
   });
+  const realtimeKeys = useMemo(() => [["admin-dashboard"], ["notifications"], ["approvals"], ["monitoring", "dashboard-system-status"]], []);
+  useOrderRealtime(realtimeKeys);
 
   const show = (target: AdminDashboardSection) =>
     section === undefined || section === target;

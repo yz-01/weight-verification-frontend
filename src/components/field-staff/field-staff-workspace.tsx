@@ -3,31 +3,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QRCodeCanvas } from "qrcode.react";
 import {
-  BellRing,
-  ChevronRight,
   Camera,
   Check,
-  ClipboardCheck,
-  ClipboardList,
   Clock3,
   FileText,
-  FolderOpen,
   Grid2X2,
-  HardHat,
   House,
-  ListChecks,
   Loader2,
   LogIn,
   LogOut,
   MapPinned,
   Play,
-  Recycle,
   RefreshCw,
   Send,
   ShieldAlert,
   Smartphone,
-  Truck,
-  UserRoundCheck,
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -44,8 +34,8 @@ import {
 } from "@/components/field-staff/field-records-panel";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FIELD_EVIDENCE_PHOTO_COUNT } from "@/components/field-staff/field-evidence-grid";
-import { MySubmissions } from "@/components/field-staff/my-submissions";
 import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
 import { LocationField } from "@/components/field-staff/location-field";
@@ -60,8 +50,6 @@ import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
 import type { AttendanceEvent, SafetyIncident } from "@/interfaces/site-operations";
 import { ApiError } from "@/interfaces/api";
-import type { NotificationRow } from "@/interfaces/platform-ops";
-import { fieldNotificationHref } from "@/lib/field-notification";
 import { getFieldTasks } from "@/services/contractor-ops.service";
 import { getProjects } from "@/services/contractor.service";
 import {
@@ -70,10 +58,6 @@ import {
   submitFieldTaskTransitionOfflineAware,
 } from "@/services/offline-sync.service";
 import { getAttendance } from "@/services/site-operations.service";
-import {
-  getAllNotifications,
-  markNotificationRead,
-} from "@/services/platform-ops.service";
 import {
   createFieldPwaBootstrap,
   getOrCreateFieldDeviceId,
@@ -218,10 +202,7 @@ function FieldStaffWorkspaceContent({
       </section>
 
       {tab === "home" && (
-        <FieldHomePanel
-          onOpen={openTab}
-          onRecord={openRecord}
-        />
+        <FieldHomePanel onOpenWorkflow={(task, mode) => { setActiveTask(task); setRecordMode(mode); setTab("records"); replaceFieldUrl("records", mode); }} />
       )}
       {tab === "tasks" && (
         <FieldTaskPanel
@@ -274,7 +255,6 @@ function FieldStaffWorkspaceContent({
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgb(0_0_0/0.06)] backdrop-blur">
         <div className="mx-auto grid max-w-2xl grid-cols-6 gap-1 px-3">
           <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => openTab("home")} />
-          <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => openTab("tasks")} />
           <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
           <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
           <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => openTab("location")} />
@@ -293,35 +273,11 @@ function FieldStaffWorkspaceContent({
 }
 
 function FieldHomePanel({
-  onOpen,
-  onRecord,
+  onOpenWorkflow,
 }: {
-  onOpen: (tab: Exclude<MobileTab, "home">) => void;
-  onRecord: (mode: FieldRecordMode) => void;
+  onOpenWorkflow: (task: FieldTask, mode: FieldRecordMode) => void;
 }) {
   const t = useTranslations("fieldStaffPwa");
-  const { can } = useAuth();
-  const actions: Array<{
-    key: string;
-    permission?: string;
-    icon: typeof Camera;
-    tone: string;
-    open: () => void;
-  }> = [
-    { key: "tasks", permission: "field_task.view", icon: ClipboardCheck, tone: "bg-primary/10 text-primary", open: () => onOpen("tasks") },
-    { key: "attendance", permission: "attendance.clock", icon: Clock3, tone: "bg-success/10 text-success", open: () => onOpen("attendance") },
-    { key: "location", permission: "field_position.submit", icon: MapPinned, tone: "bg-info/10 text-info", open: () => onOpen("location") },
-    { key: "material", permission: "receipt.create", icon: ClipboardList, tone: "bg-info/10 text-info", open: () => onRecord("material") },
-    { key: "equipment", permission: "equipment.capture", icon: HardHat, tone: "bg-warning/15 text-warning", open: () => onRecord("equipment") },
-    { key: "progress", permission: "progress.manage", icon: ListChecks, tone: "bg-primary/10 text-primary", open: () => onRecord("progress") },
-    { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success", open: () => onRecord("disposal") },
-    { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive", open: () => onRecord("outgoing") },
-    { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success", open: () => onRecord("waste") },
-    { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary", open: () => onRecord("consultant") },
-    { key: "category", permission: "category.view", icon: FolderOpen, tone: "bg-info/10 text-info", open: () => onRecord("category") },
-    { key: "hazards", permission: "safety.view", icon: ShieldAlert, tone: "bg-destructive/10 text-destructive", open: () => onOpen("incidents") },
-  ];
-  const visibleActions = actions.filter((action) => !action.permission || can(action.permission));
   return (
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-3">
@@ -337,32 +293,8 @@ function FieldHomePanel({
       <div className="rounded-lg border bg-card p-4 shadow-sm">
         <AvatarUpload />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        {visibleActions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <button
-              key={action.key}
-              type="button"
-              className="group flex min-h-28 flex-col items-start justify-between rounded-lg border bg-card p-3.5 text-left shadow-sm transition-[border-color,background-color,transform,box-shadow] hover:border-primary/30 hover:bg-muted/20 hover:shadow-md active:scale-[0.98]"
-              onClick={action.open}
-            >
-              <span className={`grid size-10 place-items-center rounded-lg ${action.tone}`}><Icon className="size-5" /></span>
-              <span className="mt-3 flex w-full items-end justify-between gap-2">
-                <span className="text-sm font-semibold leading-5">{t(`home.${action.key}`)}</span>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      {/* 「手机上没有，不能够存记录没有历史记录」. Placed on the home panel
-          rather than behind a seventh tab: the bottom bar is full, and the
-          question this answers - did what I sent arrive - is the one somebody
-          has when they open the app, not one they navigate to. */}
-      <MySubmissions />
+      <FieldTaskPanel onOpenWorkflow={onOpenWorkflow} />
       <FieldDeviceHandoff />
-      {can("notification.view") && <FieldNotificationPreview />}
     </section>
   );
 }
@@ -440,118 +372,6 @@ function FieldDeviceHandoff() {
   );
 }
 
-function FieldNotificationPreview() {
-  const t = useTranslations("fieldStaffPwa");
-  const qc = useQueryClient();
-  const notifications = useQuery({
-    queryKey: ["field-staff", "notifications"],
-    queryFn: () => getAllNotifications({
-        unread: "true",
-        sort_by: "created_at",
-        sort_order: "desc",
-      }),
-    refetchInterval: 30_000,
-  });
-  const read = useMutation({
-    mutationFn: markNotificationRead,
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["field-staff", "notifications"] });
-      void qc.invalidateQueries({ queryKey: ["notifications"] });
-    },
-  });
-  const rows = notifications.data?.results ?? [];
-
-  return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
-      <div className="flex items-center gap-3 border-b px-4 py-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-          <BellRing className="size-6" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold">{t("notifications.title")}</h3>
-          <p className="text-sm text-muted-foreground">
-            {t("notifications.subtitle")}
-          </p>
-        </div>
-        <Button size="icon" variant="ghost" title={t("action.refresh")} onClick={() => void notifications.refetch()}>
-          <RefreshCw className={notifications.isFetching ? "animate-spin" : ""} />
-        </Button>
-      </div>
-      {notifications.isLoading && (
-        <div className="grid min-h-28 place-items-center"><Loader2 className="animate-spin text-primary" /></div>
-      )}
-      {notifications.isError && (
-        <p className="p-4 text-sm text-destructive">{t("notifications.loadError")}</p>
-      )}
-      {!notifications.isLoading && !notifications.isError && rows.length === 0 && (
-        <p className="p-5 text-center text-sm text-muted-foreground">{t("notifications.empty")}</p>
-      )}
-      <div className="divide-y">
-        {rows.map((row) => (
-          <FieldNotificationRow
-            key={row.id}
-            row={row}
-            busy={read.isPending}
-            onRead={() => read.mutate(row.id)}
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function FieldNotificationRow({
-  row,
-  busy,
-  onRead,
-}: {
-  row: NotificationRow;
-  busy: boolean;
-  onRead: () => void;
-}) {
-  const t = useTranslations("fieldStaffPwa");
-  const rawHref = [row.data.href, row.data.url].find(
-    (value): value is string => typeof value === "string" && value.startsWith("/"),
-  );
-  const href = fieldNotificationHref(rawHref) ?? undefined;
-  const body = (
-    <div className="min-w-0 flex-1">
-      <div className="flex items-center gap-2">
-        {!row.is_read && <span className="size-2 shrink-0 rounded-full bg-primary" />}
-        <p className="truncate font-semibold">{row.title}</p>
-      </div>
-      <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">{row.message}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{new Date(row.created_at).toLocaleString()}</p>
-    </div>
-  );
-
-  if (href) {
-    return (
-      <a
-        href={href}
-        className="flex min-h-20 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30 active:bg-muted/50"
-        onClick={() => { if (!row.is_read && !busy) onRead(); }}
-      >
-        {body}
-        <span className="text-sm font-semibold text-primary">{t("notifications.open")}</span>
-      </a>
-    );
-  }
-  return (
-    <button
-      type="button"
-      className="flex min-h-20 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30 active:bg-muted/50"
-      disabled={busy}
-      onClick={() => { if (!row.is_read) onRead(); }}
-    >
-      {body}
-      <span className="text-sm font-semibold text-primary">
-        {row.is_read ? t("notifications.read") : t("notifications.markRead")}
-      </span>
-    </button>
-  );
-}
-
 function MobileNavButton({ active, icon: Icon, label, onClick }: { active: boolean; icon: typeof Camera; label: string; onClick: () => void }) {
   return <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={`relative z-10 flex min-h-12 min-w-0 touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-md px-1 text-xs font-medium transition-colors ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}><Icon className="size-5" /><span className="max-w-full truncate">{label}</span></button>;
 }
@@ -580,6 +400,11 @@ function FieldTaskPanel({ taskType, requestedTaskId, onOpenWorkflow }: { taskTyp
     queryKey: ["field-staff", "tasks", taskType],
     queryFn: () => getFieldTasks({ page_size: 100, sort_by: "due_at", task_type: taskType }),
   });
+  const realtimeKeys = useMemo(
+    () => [["field-staff", "tasks", taskType], ["field-tasks"], ["notifications"]],
+    [taskType],
+  );
+  useOrderRealtime(realtimeKeys);
   const active = useMemo(() => {
     const rows = (tasks.data?.results ?? []).filter(
       (task) => !["ACCEPTED", "CANCELLED"].includes(task.status),

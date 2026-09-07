@@ -27,10 +27,11 @@ import {
 import { useFormatter, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import {
   LoadFailed,
   StatusBadge,
@@ -179,6 +180,12 @@ export function ContractorDashboard() {
       }),
     refetchInterval: REFRESH_MS,
   });
+  const realtimeKeys = useMemo(() => [
+    ["contractor-dashboard", project],
+    ["contractor-dashboard", "live", project],
+    ["notifications"], ["approvals"], ["dispatches"], ["receipts"],
+  ], [project]);
+  useOrderRealtime(realtimeKeys);
 
   const data = full.data;
   // Prefer the polled copy where it exists so the feed is never staler than
