@@ -318,7 +318,7 @@ export function ContractorDashboard() {
                   label={t("overview.equipmentExpiring")}
                   value={data.overview.today.equipment_expiring}
                   icon={CalendarClock}
-                  href="/site-equipment"
+                  href="/site-equipment?expiring=1"
                   tone={
                     data.overview.today.equipment_expiring > 0
                       ? "warning"
@@ -959,7 +959,7 @@ function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
           <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
             <div className="min-w-0">
               <Link
-                href="/hazard-rectifications"
+                href={`/hazard-rectifications?incident=${row.id}`}
                 className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {row.incident_no} · {row.title}

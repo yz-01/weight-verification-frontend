@@ -18,7 +18,7 @@ import { playAlertTone, wantsAlertSound } from "@/lib/alert-sound";
 import { useDateFormat } from "@/lib/dates";
 import { fieldNotificationHref } from "@/lib/field-notification";
 import {
-  getNotifications,
+  getAllNotifications,
   getUnreadNotificationCount,
   markNotificationRead,
 } from "@/services/platform-ops.service";
@@ -55,10 +55,9 @@ export function NotificationButton() {
   const listQuery = useQuery({
     queryKey: ["notifications", "toolbar", "unread"],
     queryFn: () =>
-      getNotifications(
+      getAllNotifications(
         {
           unread: "true",
-          page_size: 5,
           sort_by: "created_at",
           sort_order: "desc",
         },
@@ -123,7 +122,7 @@ export function NotificationButton() {
   const countFailed = countQuery.isError;
   const notificationHref =
     user?.is_field_staff
-      ? "/field-staff"
+      ? "/field-staff?tab=home"
       : user?.portal === "MSE_ADMIN"
         ? "/notifications/search"
         : "/notifications";

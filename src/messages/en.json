@@ -5124,7 +5124,11 @@
       "kind": "Which filing scheme",
       "kindField": "Site record column",
       "kindMaterial": "Material column",
-      "kindBoth": "Not separated yet"
+      "kindBoth": "Not separated yet",
+      "submissionMode": "Submission action",
+      "submissionDirect": "Submit directly",
+      "submissionReview": "Submit for review",
+      "submissionConsultant": "Submit for consultant approval"
     },
     "direction": {
       "ENTRY": "Entry",
@@ -7011,6 +7015,11 @@
       "project": "Project",
       "readOnly": "You can view this folder but cannot upload",
       "submit": "Send for manager review",
+      "submitMode": {
+        "DIRECT": "Submit directly",
+        "REVIEW": "Submit for review",
+        "CONSULTANT": "Submit for consultant approval"
+      },
       "submitError": "The site evidence could not be submitted. Check the photos, GPS and connection, then try again.",
       "subtitle": "Choose the project and folder. Take at least four photos, capture GPS, then send them for manager review.",
       "takePhotos": "Take photos in this folder",
@@ -7111,6 +7120,8 @@
       "doPhoto": "Delivery note photo",
       "entry": "Material entry",
       "name": "Material name",
+      "specification": "Material specification",
+      "totalWeightKg": "Total weight (kg)",
       "notes": "Notes (optional)",
       "ocrChooseProject": "Choose the project before taking the delivery note photo.",
       "ocrField": {
@@ -9896,6 +9907,7 @@
       "deliveryNoteNo": "Delivery note no.",
       "location": "Location",
       "materialName": "Material",
+      "materialSpecification": "Material specification",
       "notes": "Notes",
       "photoCount": "Photos",
       "project": "Project",
@@ -9906,6 +9918,7 @@
       "recordedBy": "Recorded by",
       "supplier": "Supplier",
       "totalValue": "Total",
+      "totalWeightKg": "Total weight (kg)",
       "unit": "Unit",
       "unitPrice": "Unit price",
       "vehiclePlate": "Vehicle"
@@ -10620,7 +10633,7 @@
       "updateStatus": "Update status"
     },
     "count": "{count, plural, =0 {No safety incidents} one {# safety incident} other {# safety incidents}}",
-    "createTitle": "Report a safety incident",
+    "createTitle": "Report a hazard",
     "evidence": {
       "location": "GPS evidence",
       "photo": "Open photo"
@@ -10680,11 +10693,11 @@
     },
     "form": {
       "captureLocation": "Capture GPS",
-      "confirm": "Report incident",
-      "description": "Record what happened, where it happened and the supporting evidence.",
+      "confirm": "Report hazard",
+      "description": "Photograph the hazard and optionally assign a responsible person.",
       "locationCaptured": "GPS captured"
     },
-    "new": "Report incident",
+    "new": "Report hazard",
     "severity": {
       "CRITICAL": "Critical",
       "HIGH": "High",

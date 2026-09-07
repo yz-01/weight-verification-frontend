@@ -12,6 +12,7 @@
  * is where it already was, rather than vanishing from both.
  */
 export type ProjectCategoryKind = "FIELD" | "MATERIAL" | "BOTH";
+export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT";
 
 export interface ProjectCategory {
   id: string;
@@ -21,6 +22,7 @@ export interface ProjectCategory {
   code: string;
   name: string;
   kind: ProjectCategoryKind;
+  submission_mode: CategorySubmissionMode;
   description: string;
   sort_order: number;
   /** Whether spending filed here counts against a budget; the owner's switch. */
@@ -80,6 +82,7 @@ export interface ProjectCategoryPayload {
    * is the one who knows which it is.
    */
   kind: ProjectCategoryKind;
+  submission_mode?: CategorySubmissionMode;
   description?: string;
   sort_order?: number;
   /** Whether spending filed here counts against a budget; the owner's switch. */

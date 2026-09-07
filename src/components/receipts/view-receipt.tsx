@@ -382,8 +382,17 @@ export function ViewReceipt({ id }: { id: string }) {
               className="md:col-span-2"
             />
             <ReadField
+              label={t("receipts.field.materialSpecification")}
+              value={data.material_specification}
+              className="md:col-span-2"
+            />
+            <ReadField
               label={t("receipts.field.quantity")}
               value={`${data.quantity} ${t(`receipts.unit.${data.unit}`)}`}
+            />
+            <ReadField
+              label={t("receipts.field.totalWeightKg")}
+              value={data.total_weight_kg}
             />
             <ReadField
               label={t("receipts.field.unitPrice")}

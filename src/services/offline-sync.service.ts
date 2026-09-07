@@ -2,6 +2,7 @@ import { ApiError } from "@/interfaces/api";
 import type { AttendanceEvent } from "@/interfaces/site-operations";
 import type { SafetyIncidentPayload } from "@/interfaces/site-operations";
 import type { MaterialReceiptPayload } from "@/interfaces/contractor";
+import type { SafetyIncident } from "@/interfaces/site-operations";
 import type { TaskPositionEvent, TaskState } from "@/interfaces/recycler";
 import {
   countOfflineJobs,
@@ -84,6 +85,10 @@ interface MaterialReceiptDraft {
 }
 
 export type OfflineSubmission = "uploaded" | "queued";
+
+export type SafetyIncidentSubmission =
+  | { status: "uploaded"; incident: SafetyIncident }
+  | { status: "queued" };
 
 function newId(prefix: string): string {
   const id =
@@ -783,11 +788,11 @@ export function submitDisposalRequestOfflineAware(
   });
 }
 
-export function submitSafetyIncidentOfflineAware(
+export async function submitSafetyIncidentOfflineAware(
   ownerId: string,
   draft: SafetyIncidentPayload & { client_event_id: string },
-): Promise<OfflineSubmission> {
-  return submitCaptureJob({
+): Promise<SafetyIncidentSubmission> {
+  const job: Extract<OfflineJob, { kind: "SAFETY_INCIDENT" }> = {
     id: newId("safety-incident-job"),
     ownerId,
     kind: "SAFETY_INCIDENT",
@@ -798,7 +803,19 @@ export function submitSafetyIncidentOfflineAware(
       ...draft,
       photos: (draft.photos ?? []).map(storeFile),
     },
-  });
+  };
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      const incident = await withOfflineProvenance(job.queuedAt, () =>
+        createSafetyIncident(draft),
+      );
+      return { status: "uploaded", incident };
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  await enqueue(job);
+  return { status: "queued" };
 }
 
 export function submitConsultantSubmissionOfflineAware(

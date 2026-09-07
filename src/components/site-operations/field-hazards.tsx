@@ -46,14 +46,18 @@ const TONES: Record<IncidentStatus, string> = {
 export function FieldHazardsPanel({
   onHome,
   onReport,
+  initialOpen = null,
+  onInitialOpenHandled,
 }: {
   onHome: () => void;
   /** Opens the same 上报隐患 form the records tab uses. */
   onReport: () => void;
+  initialOpen?: SafetyIncident | null;
+  onInitialOpenHandled?: () => void;
 }) {
   const t = useTranslations();
   const formatter = useDateFormat();
-  const [open, setOpen] = useState<SafetyIncident | null>(null);
+  const [open, setOpen] = useState<SafetyIncident | null>(initialOpen);
 
   const hazards = useQuery({
     queryKey: ["field-hazards"],
@@ -76,7 +80,10 @@ export function FieldHazardsPanel({
             variant="outline"
             className="shrink-0"
             title={t("common.back")}
-            onClick={() => setOpen(null)}
+            onClick={() => {
+              setOpen(null);
+              onInitialOpenHandled?.();
+            }}
           >
             <ArrowLeft />
           </Button>

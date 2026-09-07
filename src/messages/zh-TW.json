@@ -5124,7 +5124,11 @@
       "kind": "屬於哪一類欄目",
       "kindField": "現場資料欄目",
       "kindMaterial": "材料欄目",
-      "kindBoth": "尚未分家"
+      "kindBoth": "尚未分家",
+      "submissionMode": "提交方式",
+      "submissionDirect": "直接提交",
+      "submissionReview": "提交審核",
+      "submissionConsultant": "提交顧問審批"
     },
     "direction": {
       "ENTRY": "進場",
@@ -7011,6 +7015,11 @@
       "project": "項目",
       "readOnly": "可以查看，但沒有上傳權限",
       "submit": "提交給管理人員審核",
+      "submitMode": {
+        "DIRECT": "直接提交",
+        "REVIEW": "提交審核",
+        "CONSULTANT": "提交顧問審批"
+      },
       "submitError": "現場資料無法提交，請檢查照片、GPS 和網絡後重試。",
       "subtitle": "選擇項目和欄目，拍攝至少四張照片，取得 GPS 後提交給管理人員審核。",
       "takePhotos": "在此欄目拍照歸檔",
@@ -7111,6 +7120,8 @@
       "doPhoto": "送貨單照片",
       "entry": "材料進場",
       "name": "材料名稱",
+      "specification": "材料規格",
+      "totalWeightKg": "總重量（公斤）",
       "notes": "備註（選填）",
       "ocrChooseProject": "請先選擇項目，再拍攝送貨單。",
       "ocrField": {
@@ -9896,6 +9907,7 @@
       "deliveryNoteNo": "送貨單號",
       "location": "位置",
       "materialName": "材料",
+      "materialSpecification": "材料規格",
       "notes": "備註",
       "photoCount": "照片",
       "project": "項目",
@@ -9906,6 +9918,7 @@
       "recordedBy": "記錄人",
       "supplier": "供應商",
       "totalValue": "金額",
+      "totalWeightKg": "總重量（公斤）",
       "unit": "單位",
       "unitPrice": "單價",
       "vehiclePlate": "車牌"
@@ -10620,7 +10633,7 @@
       "updateStatus": "更新狀態"
     },
     "count": "共 {count} 條安全事故",
-    "createTitle": "上報安全事故",
+    "createTitle": "上報隱患",
     "evidence": {
       "location": "GPS 證據",
       "photo": "打開照片"
@@ -10680,11 +10693,11 @@
     },
     "form": {
       "captureLocation": "獲取 GPS",
-      "confirm": "上報事故",
-      "description": "記錄事故經過、發生地點及證明材料。",
+      "confirm": "上報隱患",
+      "description": "拍照上報隱患，並可指定負責人。",
       "locationCaptured": "已獲取 GPS"
     },
-    "new": "上報事故",
+    "new": "上報隱患",
     "severity": {
       "CRITICAL": "嚴重",
       "HIGH": "高",

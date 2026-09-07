@@ -230,7 +230,7 @@ function TraceDashboard({ features }: { features: string[] }) {
         },
         {
           key: "safety",
-          href: "/safety",
+          href: "/hazard-rectifications",
           icon: ShieldAlert,
           value: safety.data?.count,
           loading: safety.isLoading,
@@ -305,4 +305,3 @@ function StatsGrid({ stats }: { stats: DashboardStat[] }) {
     </section>
   );
 }
-

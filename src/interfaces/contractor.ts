@@ -284,8 +284,10 @@ export interface MaterialReceipt {
   category_code: string | null;
   category_name: string | null;
   material_name: string;
+  material_specification: string;
   quantity: string;
   unit: MaterialUnit;
+  total_weight_kg: string | null;
   unit_price: string | null;
   total_value: string | null;
   vehicle_plate: string;
@@ -395,8 +397,10 @@ export interface MaterialReceiptPayload {
   movement_type?: "ENTRY" | "RETURN";
   return_reason?: string;
   material_name: string;
+  material_specification?: string;
   quantity: string;
   unit: MaterialUnit;
+  total_weight_kg?: string | null;
   /**
    * The material column this delivery files under.
    *

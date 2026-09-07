@@ -5124,7 +5124,11 @@
       "kind": "属于哪一类栏目",
       "kindField": "现场资料栏目",
       "kindMaterial": "材料栏目",
-      "kindBoth": "尚未分家"
+      "kindBoth": "尚未分家",
+      "submissionMode": "提交方式",
+      "submissionDirect": "直接提交",
+      "submissionReview": "提交审核",
+      "submissionConsultant": "提交顾问审批"
     },
     "direction": {
       "ENTRY": "进场",
@@ -7011,6 +7015,11 @@
       "project": "项目",
       "readOnly": "可以查看，但没有上传权限",
       "submit": "提交给管理人员审核",
+      "submitMode": {
+        "DIRECT": "直接提交",
+        "REVIEW": "提交审核",
+        "CONSULTANT": "提交顾问审批"
+      },
       "submitError": "现场资料无法提交，请检查照片、GPS 和网络后重试。",
       "subtitle": "选择项目和栏目，拍摄至少四张照片，取得 GPS 后提交给管理人员审核。",
       "takePhotos": "在此栏目拍照归档",
@@ -7111,6 +7120,8 @@
       "doPhoto": "送货单照片",
       "entry": "材料进场",
       "name": "材料名称",
+      "specification": "材料规格",
+      "totalWeightKg": "总重量（公斤）",
       "notes": "备注（选填）",
       "ocrChooseProject": "请先选择项目，再拍摄送货单。",
       "ocrField": {
@@ -9896,6 +9907,7 @@
       "deliveryNoteNo": "送货单号",
       "location": "位置",
       "materialName": "材料",
+      "materialSpecification": "材料规格",
       "notes": "备注",
       "photoCount": "照片",
       "project": "项目",
@@ -9906,6 +9918,7 @@
       "recordedBy": "记录人",
       "supplier": "供应商",
       "totalValue": "金额",
+      "totalWeightKg": "总重量（公斤）",
       "unit": "单位",
       "unitPrice": "单价",
       "vehiclePlate": "车牌"
@@ -10620,7 +10633,7 @@
       "updateStatus": "更新状态"
     },
     "count": "共 {count} 条安全事故",
-    "createTitle": "上报安全事故",
+    "createTitle": "上报隐患",
     "evidence": {
       "location": "GPS 证据",
       "photo": "打开照片"
@@ -10680,11 +10693,11 @@
     },
     "form": {
       "captureLocation": "获取 GPS",
-      "confirm": "上报事故",
-      "description": "记录事故经过、发生地点及证明材料。",
+      "confirm": "上报隐患",
+      "description": "拍照上报隐患，并可指定负责人。",
       "locationCaptured": "已获取 GPS"
     },
-    "new": "上报事故",
+    "new": "上报隐患",
     "severity": {
       "CRITICAL": "严重",
       "HIGH": "高",

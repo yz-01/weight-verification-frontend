@@ -322,7 +322,7 @@ export function CategoryEvidenceCapture({
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Send />}
-            {t("submit")}
+            {t(`submitMode.${selected.submission_mode}`)}
           </Button>
         </section>
       ) : null}

@@ -72,6 +72,7 @@ import {
 import {
   submitConsultantSubmissionOfflineAware,
   submitMaterialReceiptOfflineAware,
+  type SafetyIncidentSubmission,
   submitWasteOutgoingOfflineAware,
 } from "@/services/offline-sync.service";
 import {
@@ -120,11 +121,13 @@ export function FieldRecordsPanel({
   initialSupplierToken = "",
   task = null,
   onModeChange,
+  onWorkflowSaved,
 }: {
   initialMode?: FieldRecordMode | null;
   initialSupplierToken?: string;
   task?: FieldTask | null;
   onModeChange?: (mode: FieldRecordMode | null) => void;
+  onWorkflowSaved?: (mode: FieldRecordMode, result?: SafetyIncidentSubmission) => void;
 } = {}) {
   const t = useTranslations("fieldStaffPwa");
   const { can } = useAuth();
@@ -166,7 +169,7 @@ export function FieldRecordsPanel({
     return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><WasteOutgoingCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
   }
   if (mode === "safety") {
-    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></RecordFrame>;
   }
   if (mode === "consultant") {
     return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><ConsultantCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
@@ -244,8 +247,10 @@ interface MaterialDraft {
   returnReason: string;
   returnReasonOther: string;
   materialName: string;
+  materialSpecification: string;
   quantity: string;
   unit: MaterialUnit;
+  totalWeightKg: string;
   vehiclePlate: string;
   deliveryNoteNo: string;
   notes: string;
@@ -267,8 +272,10 @@ const EMPTY_MATERIAL: MaterialDraft = {
   returnReason: "",
   returnReasonOther: "",
   materialName: "",
+  materialSpecification: "",
   quantity: "",
   unit: "TONNE",
+  totalWeightKg: "",
   vehiclePlate: "",
   deliveryNoteNo: "",
   notes: "",
@@ -551,8 +558,10 @@ function MaterialCapturePanel({
                 : draft.returnReason
               : "",
           material_name: draft.materialName.trim(),
+          material_specification: draft.materialSpecification.trim(),
           quantity: draft.quantity,
           unit: draft.unit,
+          total_weight_kg: draft.totalWeightKg || null,
           // Null rather than "" when nothing is chosen: the serializer reads
           // an empty string as an invalid id, while null is the "unfiled"
           // the receipt model documents.
@@ -692,7 +701,9 @@ function MaterialCapturePanel({
         </div>
       ) : null}
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
+      <FieldWrapper label={t("material.specification")} required><Input className="h-12" value={draft.materialSpecification} onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
+      <FieldWrapper label={t("material.totalWeightKg")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.totalWeightKg} onChange={(event) => setDraft((old) => ({ ...old, totalWeightKg: event.target.value }))} /></FieldWrapper>
       {/* Which column this delivery files under, and a way to open one.
           Before T-161 this screen sent no column at all, so every delivery
           taken on site arrived unfiled however many columns the site had, and
@@ -923,7 +934,7 @@ function MaterialCapturePanel({
       />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [receiverSignature, t("material.receiverSignature")], [supplierSignature, t("material.supplierSignature")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [draft.materialSpecification, t("material.specification")], [Number(draft.quantity) > 0, t("material.quantity")], [Number(draft.totalWeightKg) > 0, t("material.totalWeightKg")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [receiverSignature, t("material.receiverSignature")], [supplierSignature, t("material.supplierSignature")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {t("material.submit")}
       </Button>

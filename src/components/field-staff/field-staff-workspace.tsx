@@ -57,7 +57,7 @@ import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
-import type { AttendanceEvent } from "@/interfaces/site-operations";
+import type { AttendanceEvent, SafetyIncident } from "@/interfaces/site-operations";
 import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { fieldNotificationHref } from "@/lib/field-notification";
@@ -70,7 +70,7 @@ import {
 } from "@/services/offline-sync.service";
 import { getAttendance } from "@/services/site-operations.service";
 import {
-  getNotifications,
+  getAllNotifications,
   markNotificationRead,
 } from "@/services/platform-ops.service";
 import {
@@ -124,6 +124,7 @@ function FieldStaffWorkspaceContent({
   const [recordMode, setRecordMode] = useState<FieldRecordMode | null>(
     requestedRecord,
   );
+  const [openedHazard, setOpenedHazard] = useState<SafetyIncident | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -244,6 +245,12 @@ function FieldStaffWorkspaceContent({
             if (!mode) setActiveTask(null);
             replaceFieldUrl("records", mode);
           }}
+          onWorkflowSaved={(mode, result) => {
+            if (mode === "safety") {
+              if (result?.status === "uploaded") setOpenedHazard(result.incident);
+              openTab("incidents");
+            }
+          }}
         />
       )}
       {tab === "location" && <FieldStaffGps managedAutomatically />}
@@ -254,6 +261,8 @@ function FieldStaffWorkspaceContent({
           somewhere useful. */}
       {tab === "incidents" && (
         <FieldHazardsPanel
+          initialOpen={openedHazard}
+          onInitialOpenHandled={() => setOpenedHazard(null)}
           onHome={() => {
             openTab("home");
           }}
@@ -307,7 +316,6 @@ function FieldHomePanel({
     { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success", open: () => onRecord("disposal") },
     { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive", open: () => onRecord("outgoing") },
     { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success", open: () => onRecord("waste") },
-    { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning", open: () => onRecord("safety") },
     { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary", open: () => onRecord("consultant") },
     { key: "category", permission: "category.view", icon: FolderOpen, tone: "bg-info/10 text-info", open: () => onRecord("category") },
     { key: "hazards", permission: "safety.view", icon: ShieldAlert, tone: "bg-destructive/10 text-destructive", open: () => onOpen("incidents") },
@@ -436,8 +444,8 @@ function FieldNotificationPreview() {
   const qc = useQueryClient();
   const notifications = useQuery({
     queryKey: ["field-staff", "notifications"],
-    queryFn: () => getNotifications({
-        page_size: 5,
+    queryFn: () => getAllNotifications({
+        unread: "true",
         sort_by: "created_at",
         sort_order: "desc",
       }),

@@ -5124,7 +5124,11 @@
       "kind": "Skema failan yang mana",
       "kindField": "Kolum rekod tapak",
       "kindMaterial": "Kolum bahan",
-      "kindBoth": "Belum dipisahkan"
+      "kindBoth": "Belum dipisahkan",
+      "submissionMode": "Tindakan penyerahan",
+      "submissionDirect": "Hantar terus",
+      "submissionReview": "Hantar untuk semakan",
+      "submissionConsultant": "Hantar untuk kelulusan perunding"
     },
     "direction": {
       "ENTRY": "Masuk",
@@ -7011,6 +7015,11 @@
       "project": "Projek",
       "readOnly": "Anda boleh melihat tetapi tidak boleh memuat naik",
       "submit": "Hantar untuk semakan pengurus",
+      "submitMode": {
+        "DIRECT": "Hantar terus",
+        "REVIEW": "Hantar untuk semakan",
+        "CONSULTANT": "Hantar untuk kelulusan perunding"
+      },
       "submitError": "Bukti tapak tidak dapat dihantar. Semak foto, GPS dan rangkaian, kemudian cuba lagi.",
       "subtitle": "Pilih projek dan folder. Ambil sekurang-kurangnya empat foto, dapatkan GPS, kemudian hantar untuk semakan pengurus.",
       "takePhotos": "Ambil foto dalam folder ini",
@@ -7111,6 +7120,8 @@
       "doPhoto": "Foto nota penghantaran",
       "entry": "Bahan masuk",
       "name": "Nama bahan",
+      "specification": "Spesifikasi bahan",
+      "totalWeightKg": "Jumlah berat (kg)",
       "notes": "Catatan (pilihan)",
       "ocrChooseProject": "Pilih projek sebelum mengambil foto nota penghantaran.",
       "ocrField": {
@@ -9896,6 +9907,7 @@
       "deliveryNoteNo": "No. nota hantar",
       "location": "Lokasi",
       "materialName": "Bahan",
+      "materialSpecification": "Spesifikasi bahan",
       "notes": "Nota",
       "photoCount": "Foto",
       "project": "Projek",
@@ -9906,6 +9918,7 @@
       "recordedBy": "Direkod oleh",
       "supplier": "Pembekal",
       "totalValue": "Jumlah",
+      "totalWeightKg": "Jumlah berat (kg)",
       "unit": "Unit",
       "unitPrice": "Harga seunit",
       "vehiclePlate": "Kenderaan"
@@ -10620,7 +10633,7 @@
       "updateStatus": "Kemas kini status"
     },
     "count": "{count, plural, =0 {Tiada insiden keselamatan} other {# insiden keselamatan}}",
-    "createTitle": "Laporkan insiden keselamatan",
+    "createTitle": "Laporkan bahaya",
     "evidence": {
       "location": "Bukti GPS",
       "photo": "Buka foto"
@@ -10680,11 +10693,11 @@
     },
     "form": {
       "captureLocation": "Rakam GPS",
-      "confirm": "Laporkan insiden",
-      "description": "Rekod apa yang berlaku, lokasinya dan bukti sokongan.",
+      "confirm": "Laporkan bahaya",
+      "description": "Ambil foto bahaya dan tetapkan orang bertanggungjawab jika diketahui.",
       "locationCaptured": "GPS dirakam"
     },
-    "new": "Laporkan insiden",
+    "new": "Laporkan bahaya",
     "severity": {
       "CRITICAL": "Kritikal",
       "HIGH": "Tinggi",

@@ -71,6 +71,7 @@ import type {
   MaterialOutgoing,
   ProjectCategory,
   ProjectCategoryKind,
+  CategorySubmissionMode,
   ProjectCategoryPayload,
   SiteEquipment,
   SiteProgressRecord,
@@ -474,6 +475,7 @@ function CategoryDialog({
     // including the BOTH marker on a column the split could not classify -
     // the picker below is where somebody who knows settles it (T-161).
     kind: row?.kind ?? "FIELD",
+    submission_mode: row?.submission_mode ?? "REVIEW",
     description: row?.description ?? "",
     sort_order: row?.sort_order ?? categories.length,
     is_visible_in_pwa: row?.is_visible_in_pwa ?? true,
@@ -564,6 +566,21 @@ function CategoryDialog({
                     {t("categories.kindBoth")}
                   </SelectItem>
                 )}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("categories.submissionMode")} required>
+            <Select
+              value={form.submission_mode}
+              onValueChange={(value) =>
+                set("submission_mode", value as CategorySubmissionMode)
+              }
+            >
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="DIRECT">{t("categories.submissionDirect")}</SelectItem>
+                <SelectItem value="REVIEW">{t("categories.submissionReview")}</SelectItem>
+                <SelectItem value="CONSULTANT">{t("categories.submissionConsultant")}</SelectItem>
               </SelectContent>
             </Select>
           </FieldWrapper>
@@ -1474,6 +1491,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
+  const expiringOnly = searchParams.get("expiring") === "1";
   const [project, setProject] = useState(initialProject);
   const [movementSearch, setMovementSearch] = useState("");
   const [movementEquipment, setMovementEquipment] = useState("");
@@ -1485,9 +1503,13 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const [moving, setMoving] = useState<SiteEquipment | null>(null);
   const [editingEquipment, setEditingEquipment] = useState<SiteEquipment | null>(null);
   const rows = useQuery({
-    queryKey: ["site-equipment", project],
+    queryKey: ["site-equipment", project, expiringOnly],
     queryFn: () =>
-      getSiteEquipment({ project: project || undefined, page_size: 200 }),
+      getSiteEquipment({
+        project: project || undefined,
+        expiring: expiringOnly ? "1" : undefined,
+        page_size: 200,
+      }),
   });
   const suppliers = useQuery({
     queryKey: ["equipment-suppliers"],
