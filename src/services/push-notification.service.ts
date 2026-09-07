@@ -5,8 +5,14 @@ export interface PushConfig {
   public_key: string;
 }
 
-export function getPushConfig(): Promise<PushConfig> {
-  return api.get<PushConfig>("/api/notifications/get_push_config/");
+export function getPushConfig(
+  options: { silent?: boolean } = {},
+): Promise<PushConfig> {
+  return api.get<PushConfig>(
+    "/api/notifications/get_push_config/",
+    undefined,
+    options,
+  );
 }
 
 function decodeVapidKey(value: string): Uint8Array {

@@ -3879,7 +3879,12 @@
         "sent": "E-mel pengaktifan baharu telah dihantar ke {email}.",
         "notSent": "E-mel tidak dapat dihantar. Berikan pautan ini kepada pemilik:",
         "status": "Status",
-        "needsAChange": "Masukkan alamat e-mel atau nombor telefon baharu dahulu."
+        "needsAChange": "Masukkan alamat e-mel atau nombor telefon baharu dahulu.",
+        "userStatus": {
+          "ACTIVE": "Aktif",
+          "INVITED": "Dijemput",
+          "SUSPENDED": "Digantung"
+        }
       }
     },
     "addUser": "Tambah pengguna",
@@ -4838,12 +4843,13 @@
     "anomalies": {
       "daysOverdue": "{days, plural, =0 {Tamat hari ini} other {Lewat # hari}}",
       "distance": "{metres}m jauh",
-      "empty": "Tiada pengecualian dikesan hari ini.",
+      "empty": "Tiada yang perlu tindakan.",
       "expiresAt": "Tamat {at}",
       "geofenceFailure": "Di luar geofen",
       "outside": "Di luar",
-      "subtitle": "{count} perkara perlu perhatian.",
-      "title": "Pengecualian hari ini"
+      "subtitle": "{count} perlu tindakan.",
+      "title": "Anomali belum selesai",
+      "geofenceWindow": "Di luar sempadan: {count} dalam {days} hari lepas."
     },
     "approvals": {
       "companyWide": "Seluruh syarikat",
@@ -4866,7 +4872,10 @@
         "FIELD_TASK": "Tugas tapak",
         "SITE_PROGRESS": "Rekod kemajuan",
         "WASTE_OUTGOING": "Sisa keluar"
-      }
+      },
+      "waitingMinutes": "menunggu {count} min",
+      "waitingHours": "menunggu {count} j",
+      "waitingDays": "menunggu {count} h"
     },
     "attendanceEvent": {
       "CLOCK_IN": "Masuk",
@@ -4919,26 +4928,37 @@
       "unknown": "Tiada status"
     },
     "notifications": {
-      "empty": "Tiada notifikasi hari ini.",
+      "empty": "Tiada pemberitahuan belum dibaca.",
       "openAll": "Semua notifikasi",
       "recipientScope": "Menunjukkan notifikasi anda sendiri; ini tidak ditapis mengikut projek.",
-      "subtitle": "{count} hari ini, {unread} belum dibaca.",
-      "title": "Notifikasi hari ini",
+      "subtitle": "{unread} belum dibaca, {today} daripadanya sampai hari ini.",
+      "title": "Pemberitahuan belum dibaca",
       "unread": "Belum dibaca"
     },
     "overview": {
-      "attendance": "Acara kehadiran",
+      "attendance": "Rekod kehadiran hari ini",
       "photos": "Foto tapak",
       "progressRecords": "Rekod kemajuan",
       "projects": "Projek",
       "safety": "Insiden keselamatan",
-      "title": "Hari ini secara ringkas"
+      "title": "Hari ini secara ringkas",
+      "materialReceipts": "Penghantaran hari ini",
+      "materialReturns": "Dipulangkan hari ini",
+      "equipmentIn": "Jentera masuk hari ini",
+      "equipmentOut": "Jentera keluar hari ini",
+      "materialPendingAcceptance": "Menunggu penerimaan",
+      "equipmentExpiring": "Dokumen akan luput"
     },
     "personnel": {
       "empty": "Tiada kehadiran direkodkan hari ini.",
       "geofenceFailures": "{count} di luar geofen",
-      "subtitle": "{workers} pekerja berbeza hari ini.",
-      "title": "Pekerja di tapak"
+      "subtitle": "{workers} pekerja berada di tapak hari ini.",
+      "title": "Kemasukan dan keluar pekerja",
+      "onSiteNow": "Di tapak sekarang",
+      "entered": "Masuk hari ini",
+      "left": "Keluar hari ini",
+      "irregular": "Tidak normal",
+      "irregularBreakdown": "Antaranya: {outside} di luar sempadan · {order} luar susunan · {noExit} tiada rekod keluar"
     },
     "photos": {
       "empty": "Tiada foto diambil hari ini.",
@@ -4978,15 +4998,21 @@
     "scheduleSummary": {
       "activePlans": "Pelan aktif",
       "actual": "Kemajuan sebenar",
+      "ahead": "{value}% mendahului rancangan",
+      "behind": "{value}% ketinggalan daripada rancangan",
       "completed": "Selesai",
+      "countedFrom": "Daripada {counted} tugas, jumlah berat {weight}",
       "delayed": "Lewat",
       "dueNext7Days": "Tamat dalam 7 hari",
+      "onPlan": "Menepati rancangan",
       "open": "Buka jadual",
       "planned": "Kemajuan dirancang",
       "progress": "{value}%",
       "subtitle": "Jadual semasa yang disahkan dan kemajuan sebenar tapak.",
+      "summaryExcluded": "{count} baris ringkasan WBS tidak dikira",
       "tasks": "Tugas",
-      "title": "Jadual pembinaan"
+      "title": "Jadual pembinaan",
+      "variance": "Sisihan kemajuan"
     },
     "search": {
       "action": "Cari",
@@ -5018,6 +5044,28 @@
       "help": "Ini milik anda sahaja. Membukanya memfailkannya untuk anda dan mengekalkannya dalam senarai orang lain.",
       "openColumns": "Kolum bahan",
       "unfiled": "Belum difailkan dalam kolum"
+    },
+    "recordStatus": {
+      "ACCEPTED": "Diterima",
+      "APPROVED": "Diluluskan",
+      "AWAITING_CONFIRMATION": "Menunggu pengesahan",
+      "CANCELLED": "Dibatalkan",
+      "CLOSED": "Ditutup",
+      "COMPLETED": "Selesai",
+      "DELIVERED": "Dihantar sampai",
+      "DRAFT": "Draf",
+      "IN_REVIEW": "Dalam semakan",
+      "IN_TRANSIT": "Dalam perjalanan",
+      "OPEN": "Belum diuruskan",
+      "PENDING": "Belum diuruskan",
+      "PENDING_APPROVAL": "Menunggu kelulusan",
+      "REJECTED": "Ditolak",
+      "RELEASED": "Dilepaskan",
+      "REQUESTED": "Dipohon",
+      "RESOLVED": "Diselesaikan",
+      "RETURNED": "Dikembalikan",
+      "SUBMITTED": "Dihantar",
+      "VERIFIED": "Disahkan"
     }
   },
   "contractorModuleLanding": {
@@ -5211,7 +5259,10 @@
       "title": "Tajuk tugas",
       "unit": "Unit",
       "vehiclePlate": "Nombor plat",
-      "workLocation": "Kawasan / lokasi kerja"
+      "workLocation": "Kawasan / lokasi kerja",
+      "certificateExpiresOn": "Sijil luput pada",
+      "insuranceExpiresOn": "Insurans luput pada",
+      "expiryHelp": "Mengisi kad dokumen-akan-luput di laman utama. Biarkan kosong jika anda tiada dokumen itu - kosong lebih baik daripada tarikh yang diteka."
     },
     "outgoing": {
       "add": "Permohonan keluar baharu",
@@ -5739,7 +5790,6 @@
     "metrics": "Ringkasan operasi",
     "noMetrics": "Akaun anda boleh mengakses papan pemuka. Modul tambahan muncul selepas pentadbir memberikan kebenaran yang sepadan.",
     "platformSubtitle": "Kesihatan platform dan aktiviti pelanggan",
-    "quickLinks": "Akses pantas",
     "recyclerSubtitle": "Kutipan dan penimbangan hari ini",
     "tile": {
       "attendance": "Rekod kehadiran",
@@ -5767,7 +5817,29 @@
       "weighingSessions": "Sesi penimbangan"
     },
     "tileFailed": "Tidak dimuatkan",
-    "title": "Papan pemuka"
+    "title": "Papan pemuka",
+    "tileStatus": {
+      "ACCEPTED": "Diterima",
+      "APPROVED": "Diluluskan",
+      "AWAITING_CONFIRMATION": "Menunggu pengesahan",
+      "CANCELLED": "Dibatalkan",
+      "CLOSED": "Ditutup",
+      "COMPLETED": "Selesai",
+      "DELIVERED": "Dihantar sampai",
+      "DRAFT": "Draf",
+      "IN_REVIEW": "Dalam semakan",
+      "IN_TRANSIT": "Dalam perjalanan",
+      "OPEN": "Belum diuruskan",
+      "PENDING": "Belum diuruskan",
+      "PENDING_APPROVAL": "Menunggu kelulusan",
+      "REJECTED": "Ditolak",
+      "RELEASED": "Dilepaskan",
+      "REQUESTED": "Dipohon",
+      "RESOLVED": "Diselesaikan",
+      "RETURNED": "Dikembalikan",
+      "SUBMITTED": "Dihantar",
+      "VERIFIED": "Disahkan"
+    }
   },
   "deductions": {
     "photo": {
@@ -6238,6 +6310,22 @@
       "mayPause": "Lokasi hanya direkodkan semasa skrin ini menyala. Jika telefon dikunci, laluan akan menunjukkan jurang.",
       "noWakeLock": "Pelayar ini tidak dapat mengekalkan skrin menyala. Panjangkan masa tamat skrin telefon, atau laluan akan berjurang.",
       "recording": "Lokasi anda sedang direkodkan. Biarkan skrin ini menyala."
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "Pencemaran",
+        "MOISTURE": "Kandungan air",
+        "OTHER": "Lain-lain",
+        "OVERSIZE": "Terlalu besar atau tidak boleh diproses",
+        "WRONG_MATERIAL": "Bahan tidak seperti diisytiharkan"
+      },
+      "state": {
+        "ACCEPTED": "Diterima",
+        "AUTO_ACCEPTED": "Diterima secara automatik",
+        "PENDING": "Menunggu pengeluar",
+        "RECHECK": "Semakan semula dipohon",
+        "REJECTED": "Ditolak"
+      }
     }
   },
   "driverGps": {
@@ -6395,11 +6483,14 @@
       "asset_maintenance_not_found": "Rekod penyelenggaraan aset itu tidak dijumpai.",
       "asset_movement_not_found": "Pergerakan aset itu tidak dijumpai.",
       "asset_not_found": "Aset itu tidak dijumpai.",
+      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
+      "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
       "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
       "below_minimum_payout": "Jumlah ini di bawah bayaran minimum.",
       "bug_not_found": "Rekod pepijat itu tidak dijumpai.",
       "calibration_expired": "Kalibrasi jambatan timbang ini telah tamat.",
       "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda.",
+      "category_holds_deliveries_only": "“{column}” ialah lajur bahan - ia menyimpan penghantaran dan kosnya. Gambar tapak masuk ke lajur rekod tapak. Kembali dan pilih satu, atau minta pentadbir membuka lajur rekod tapak.",
       "clock_skew": "Perubahan jam gateway melebihi had yang dibenarkan.",
       "cloud_alert_not_found": "Amaran penggunaan awan itu tidak dijumpai.",
       "cloud_plan_not_found": "Pelan awan itu tidak dijumpai.",
@@ -6501,6 +6592,7 @@
       "payment_not_found": "Rekod pembayaran itu tidak dijumpai.",
       "payout_already_exists": "Bayaran sudah wujud untuk tempoh ini.",
       "payout_not_draft": "Hanya bayaran draf boleh diubah dengan cara ini.",
+      "permission_denied": "Anda tidak dibenarkan berbuat demikian.",
       "portal_mismatch": "Akaun ini milik portal lain. Gunakan halaman log masuk yang betul.",
       "pricing_rule_not_found": "Peraturan harga awan itu tidak dijumpai.",
       "progress_update_not_found": "Kemas kini kemajuan itu tidak dijumpai.",
@@ -6554,9 +6646,13 @@
       "version_not_found": "Versi platform itu tidak dijumpai.",
       "visit_not_found": "Lawatan pelanggan itu tidak dijumpai.",
       "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
-      "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
-      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
-      "permission_denied": "Anda tidak dibenarkan berbuat demikian."
+      "receipt_superseded": "Rekod penerimaan ini telah digantikan oleh rekod pembetulan, jadi salinan ini tidak boleh diterima atau ditolak lagi. Buka rekod semasa dan semak yang itu.",
+      "receipt_rejection_needs_reason": "Taip sebab penolakan penghantaran ini. Penolakan tanpa sebab tidak memberi tapak apa-apa untuk ditindaki.",
+      "hazard_not_a_participant": "{incident_no} tidak dilaporkan kepada anda. Minta pelapor atau penyelia keselamatan menambah anda.",
+      "hazard_message_empty": "Taip sesuatu, atau lampirkan foto, nota suara atau fail, sebelum menghantar.",
+      "hazard_audio_too_long": "Nota suara itu {seconds} saat. Satu nota paling lama {limit} saat — rakam yang lebih pendek, atau hantar dua.",
+      "hazard_closed": "{incident_no} telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
+      "hazard_self_verification": "Anda yang melaksanakan pembetulan bagi {incident_no}, jadi orang lain perlu mengesahkannya — pelapor, pengurus projek, perunding, atau penyelia tapak atau keselamatan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -6919,7 +7015,8 @@
       "subtitle": "Pilih projek dan folder. Ambil sekurang-kurangnya empat foto, dapatkan GPS, kemudian hantar untuk semakan pengurus.",
       "takePhotos": "Ambil foto dalam folder ini",
       "title": "Failkan bukti foto tapak",
-      "uploadNotAllowed": "Anda tidak mempunyai kebenaran untuk memuat naik ke folder ini."
+      "uploadNotAllowed": "Anda tidak mempunyai kebenaran untuk memuat naik ke folder ini.",
+      "materialColumnRefused": "“{column}” ialah lajur bahan - ia menyimpan penghantaran dan kosnya. Pilih lajur rekod tapak untuk gambar, atau minta pentadbir membuka satu."
     },
     "consultantCapture": {
       "category": "Jenis permohonan",
@@ -6972,7 +7069,8 @@
       "subtitle": "Tekan satu butang besar untuk teruskan.",
       "tasks": "Tugas saya",
       "title": "Kerja hari ini",
-      "waste": "Bahan alam sekitar keluar"
+      "waste": "Bahan alam sekitar keluar",
+      "hazards": "Bahaya"
     },
     "identity": {
       "company": "Syarikat: {company}",
@@ -7086,7 +7184,8 @@
       "incidents": "Insiden",
       "location": "Lokasi",
       "records": "Rekod",
-      "tasks": "Tugas"
+      "tasks": "Tugas",
+      "hazards": "Bahaya"
     },
     "notifications": {
       "empty": "Tiada makluman baharu",
@@ -8180,6 +8279,31 @@
       "errors": "{count} ralat dalam 24 jam",
       "jobs": "{count} tugas dalam giliran",
       "uptime": "Masa hidup {value} minit"
+    },
+    "integrationKind": {
+      "ACCESS_CONTROL": "Kawalan akses",
+      "ACCOUNTING": "Sistem perakaunan",
+      "AI": "Perkhidmatan AI",
+      "ANPR": "Pengecaman nombor plat",
+      "API_GATEWAY": "Get laluan API",
+      "CCTV": "CCTV",
+      "DRONE": "Dron",
+      "ERP": "Sistem ERP",
+      "FACE_RECOGNITION": "Pengecaman muka",
+      "GOVERNMENT_API": "API kerajaan",
+      "IOT": "Peranti IoT",
+      "MYINVOIS": "MyInvois",
+      "RF": "Pautan radio",
+      "RFID": "RFID",
+      "TOWER_CRANE": "Kren menara",
+      "VISITOR_MANAGEMENT": "Pengurusan pelawat",
+      "WEBHOOK": "Webhook"
+    },
+    "integrationStatus": {
+      "DEGRADED": "Merosot",
+      "DISABLED": "Dimatikan",
+      "ERROR": "Ralat",
+      "READY": "Sedia"
     }
   },
   "nav": {
@@ -9422,6 +9546,14 @@
     "title": "Profil saya",
     "toast": {
       "updated": "Profil dikemas kini"
+    },
+    "avatar": {
+      "title": "Foto anda",
+      "hint": "Ia dipaparkan pada penghantaran dan rekod tapak yang anda failkan. JPG, PNG atau WebP, sehingga {limit} MB.",
+      "save": "Muat naik",
+      "discard": "Batal",
+      "failed": "Muat naik gagal. Sila cuba lagi.",
+      "tooBig": "Foto itu {actual} MB, melebihi had {limit} MB. Sila pilih yang lebih kecil."
     }
   },
   "progress": {
@@ -9817,7 +9949,9 @@
       "created": "Penerimaan direkod",
       "photoAdded": "Gambar ditambah",
       "removed": "Resit dibuang",
-      "updated": "Resit dikemas kini"
+      "updated": "Resit dikemas kini",
+      "accepted": "Penghantaran diterima.",
+      "rejected": "Penghantaran ditolak, dengan sebabnya direkodkan."
     },
     "unit": {
       "BAG": "Beg",
@@ -9840,7 +9974,21 @@
       "clean": "Dipaparkan tanpa cap lokasi dan masa, supaya boleh digunakan semula di tempat lain."
     },
     "recorderUnknown": "Perekod tiada dalam rekod",
-    "noRecorderPhone": "Tiada nombor telefon dalam rekod"
+    "noRecorderPhone": "Tiada nombor telefon dalam rekod",
+    "acceptance": {
+      "title": "Penerimaan",
+      "status": {
+        "PENDING": "Menunggu penerimaan",
+        "ACCEPTED": "Diterima",
+        "REJECTED": "Ditolak"
+      },
+      "accept": "Terima",
+      "reject": "Tolak",
+      "reason": "Sebab penolakan",
+      "reasonPlaceholder": "Mengapa penghantaran ini ditolak?",
+      "moneyNote": "Penolakan menandakan penghantaran dan mengiranya di halaman utama. Ia tidak mengubah jumlah atau status pembayaran — itu kekal keputusan yang dibuat seseorang dengan sengaja.",
+      "alreadyAccepted": "Penghantaran ini telah pun diterima."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -10797,7 +10945,9 @@
       "selectStaff": "Pilih",
       "task": "Tugas",
       "taskName": "Nama tugas",
-      "wbs": "WBS"
+      "wbs": "WBS",
+      "weight": "Berat",
+      "weightHelp": "Berapa banyak kerja yang diwakili tugas ini berbanding yang lain. Nilai relatif - 1/2/3 dan 10/20/30 bermaksud sama, dan lajur ini tidak perlu berjumlah 100. Biarkan pada 1 untuk berat sama."
     },
     "gantt": {
       "actual": "Siap sebenar",
@@ -12967,5 +13117,59 @@
     "since": "sejak {at}",
     "title": "Di tapak sekarang",
     "unassigned": "Tidak ditetapkan"
+  },
+  "materialAcceptance": {
+    "PENDING": "Menunggu penerimaan",
+    "ACCEPTED": "Diterima",
+    "REJECTED": "Ditolak"
+  },
+  "hazard": {
+    "conversationTitle": "Perbincangan pembetulan",
+    "empty": "Belum ada apa-apa dikatakan.",
+    "send": "Hantar",
+    "placeholder": "Taip mesej",
+    "recordStart": "Rakam nota suara",
+    "recordStop": "Berhenti",
+    "recordingFor": "Merakam {seconds}s daripada {limit}s",
+    "attach": "Lampirkan fail",
+    "photo": "Foto",
+    "closed": "Bahaya ini telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
+    "participants": "Dalam perbualan ini",
+    "reporter": "Melaporkannya",
+    "responsible": "Bertanggungjawab",
+    "supervisor": "Penyelia",
+    "voiceNote": "Nota suara",
+    "unsupported": "Pelayar ini tidak boleh merakam audio. Taip mesej atau hantar foto.",
+    "duration": "Dijangka mengambil masa",
+    "durationHours": "{hours} jam",
+    "unassigned": "Menunggu untuk ditugaskan",
+    "nothingToSend": "Taip mesej, atau lampirkan foto, nota suara atau fail.",
+    "field": {
+      "title": "Bahaya",
+      "subtitle": "Apa yang anda laporkan, dan apa yang perlu anda betulkan.",
+      "report": "Lapor bahaya",
+      "empty": "Belum ada. Ambil foto bahaya dan ia akan muncul di sini."
+    }
+  },
+  "home": {
+    "action": {}
+  },
+  "mySubmissions": {
+    "title": "Apa yang saya hantar",
+    "subtitle": "Semua yang anda hantar, terbaharu di atas.",
+    "refresh": "Periksa semula",
+    "empty": "Belum ada. Apa sahaja yang anda hantar akan muncul di sini.",
+    "waitingToUpload": "Menunggu dimuat naik",
+    "uploadFailed": "Muat naik ditolak",
+    "attempts": "{count} cubaan",
+    "truncated": "Menunjukkan {shown} daripada {total}.",
+    "kind": {
+      "MATERIAL_RECEIPT": "Penghantaran",
+      "SITE_RECORD": "Rekod tapak",
+      "WASTE_OUTGOING": "Sisa keluar",
+      "HAZARD": "Bahaya",
+      "PROGRESS": "Kemajuan",
+      "DRIVER_TRIP": "Perjalanan"
+    }
   }
 }

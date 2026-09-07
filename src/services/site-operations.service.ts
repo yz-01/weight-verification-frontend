@@ -5,6 +5,8 @@ import type { ExportRequest } from "@/services/contractor.service";
 import type {
   AttendancePayload,
   AttendanceRecord,
+  HazardConversation,
+  HazardMessage,
   IncidentStatus,
   ProgressPayload,
   ProgressUpdate,
@@ -206,6 +208,50 @@ export async function reviewSafetyRectification(
   );
   toastSuccess("safetyRectification.toast.reviewed");
   return incident;
+}
+
+/**
+ * A hazard and everything said about it, in one call.
+ *
+ * One call because they are one thing - 「聊天室其实就是隐患上报结合一起而已…
+ * 不是分开的」 - and a screen that fetched the hazard and its messages
+ * separately would be free to render one without the other.
+ */
+export function getHazardConversation(
+  id: string,
+): Promise<HazardConversation> {
+  return api.get<HazardConversation>(
+    `/api/safety-incidents/${id}/get_hazard_conversation/`,
+  );
+}
+
+/**
+ * Say something in a hazard's conversation: text, voice, photo or file.
+ *
+ * Voice is not a convenience here. The customer described their crew as
+ * 「不识字」, so for a worker who cannot comfortably type, the 「或」 in
+ * 「文字或语音」 does not hold - without audio the rectification conversation is
+ * unavailable to exactly the people the loop needs in it (D-094).
+ */
+export async function postHazardMessage(
+  id: string,
+  payload: {
+    body?: string;
+    photo?: File;
+    audio?: File;
+    audio_seconds?: number;
+    attachment?: File;
+    attachment_name?: string;
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
+    client_event_id?: string;
+  },
+): Promise<HazardMessage> {
+  return api.post<HazardMessage>(
+    `/api/safety-incidents/${id}/post_hazard_message/`,
+    multipart(payload as unknown as Record<string, unknown>),
+  );
 }
 
 export function getIncidentThreads(

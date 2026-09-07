@@ -12,6 +12,7 @@ import type {
   DispatchSummary,
   MaterialReceipt,
   MaterialReceiptDetail,
+  MySubmissionsPage,
   MaterialReceiptPayload,
   PhotoKind,
   Project,
@@ -527,6 +528,50 @@ export async function correctReceipt(
     payload,
   );
   toastSuccess("receipts.toast.corrected");
+  return receipt;
+}
+
+/**
+ * Everything this person has submitted, across all five modules.
+ *
+ * One call rather than five, because the worker's question is not "what did I
+ * send through the receipts module" - it is "is my work recorded". Splitting
+ * the answer across screens is how the same delivery gets photographed twice
+ * (F-228).
+ */
+export function getMySubmissions(): Promise<MySubmissionsPage> {
+  return api.get<MySubmissionsPage>(
+    "/api/my-submissions/get_my_submissions/",
+  );
+}
+
+/**
+ * Accept or reject a delivery after somebody has looked at it.
+ *
+ * The endpoint has existed since T-188 with nothing calling it, which made the
+ * home page's 待验收／不合格 card structurally unable to show anything but
+ * PENDING - a number that cannot change is not a number.
+ *
+ * Rejecting requires a reason, and the server refuses without one: "rejected"
+ * with no reason tells the next person on site nothing they can act on.
+ *
+ * Nothing here touches money. A rejected delivery is flagged and counted, but
+ * `document_amount` and the payment state are left alone, because an action
+ * that changes what is owed should be one a person pressed on purpose (U-028).
+ */
+export async function reviewReceipt(
+  id: string,
+  payload: { decision: "ACCEPTED" | "REJECTED"; rejection_reason?: string },
+): Promise<MaterialReceiptDetail> {
+  const receipt = await api.post<MaterialReceiptDetail>(
+    `/api/receipts/${id}/review_receipt/`,
+    payload,
+  );
+  toastSuccess(
+    payload.decision === "ACCEPTED"
+      ? "receipts.toast.accepted"
+      : "receipts.toast.rejected",
+  );
   return receipt;
 }
 

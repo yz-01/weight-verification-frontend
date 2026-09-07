@@ -21,9 +21,7 @@ import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
 import { ContractorDashboard } from "@/components/dashboard/contractor-dashboard";
 import { RecyclerDashboard } from "@/components/recycler-business/recycler-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Portal } from "@/interfaces/auth";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
-import { visibleNavigation } from "@/lib/navigation";
 import {
   getDispatches,
   getProjects,
@@ -50,6 +48,17 @@ interface DashboardStat {
   enabled: boolean;
 }
 
+/**
+ * The bottom "quick links" panel was removed on 2026-09-06, at the
+ * customer's request: it duplicated the quick-add row above it and the
+ * sidebar beside it.
+ *
+ * Deleting it lost nothing, and that is checkable rather than hopeful - it
+ * was built from `visibleNavigation(...)`, the sidebar's own source, taking
+ * the first six entries. Every link it showed was in the sidebar by
+ * construction, so unlike D-090 there was no chance of removing somebody's
+ * only way in.
+ */
 export function Dashboard({
   adminSection,
 }: {
@@ -92,14 +101,6 @@ export function Dashboard({
         <RecyclerDashboard features={user.features} />
       )}
 
-      {user.portal === "MSE_TRACE" && (
-        <QuickLinks
-          portal={user.portal}
-          features={user.features}
-          permissions={user.permissions}
-          isSuperuser={user.is_superuser}
-        />
-      )}
     </div>
   );
 }
@@ -305,45 +306,3 @@ function StatsGrid({ stats }: { stats: DashboardStat[] }) {
   );
 }
 
-function QuickLinks({
-  portal,
-  features,
-  permissions,
-  isSuperuser,
-}: {
-  portal: Portal;
-  features: string[];
-  permissions: string[];
-  isSuperuser: boolean;
-}) {
-  const t = useTranslations();
-  const items = visibleNavigation(portal, features, permissions, isSuperuser)
-    .flatMap((group) => group.items)
-    .filter((item) => item.feature !== "dashboard")
-    .slice(0, 6);
-
-  if (items.length === 0) return null;
-
-  return (
-    <section className="space-y-3" aria-labelledby="dashboard-quick-links">
-      <h2 id="dashboard-quick-links" className="text-sm font-semibold">
-        {t("dashboard.quickLinks")}
-      </h2>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.feature}
-              href={item.href}
-              className="flex min-h-12 items-center gap-3 rounded-lg border px-4 text-sm font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Icon className="h-4 w-4 text-muted-foreground" />
-              <span>{t(`nav.${item.labelKey}`)}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </section>
-  );
-}

@@ -3879,7 +3879,12 @@
         "sent": "A new activation email has been sent to {email}.",
         "notSent": "The email could not be sent. Pass this link to the owner:",
         "status": "Status",
-        "needsAChange": "Enter a new email address or phone number first."
+        "needsAChange": "Enter a new email address or phone number first.",
+        "userStatus": {
+          "ACTIVE": "Active",
+          "INVITED": "Invited",
+          "SUSPENDED": "Suspended"
+        }
       }
     },
     "addUser": "Add user",
@@ -4838,12 +4843,13 @@
     "anomalies": {
       "daysOverdue": "{days, plural, =0 {Due today} one {# day overdue} other {# days overdue}}",
       "distance": "{metres}m away",
-      "empty": "No exceptions detected today.",
+      "empty": "Nothing needs attention.",
       "expiresAt": "Expires {at}",
       "geofenceFailure": "Outside the geofence",
       "outside": "Outside",
-      "subtitle": "{count} items need attention.",
-      "title": "Today's exceptions"
+      "subtitle": "{count} need attention.",
+      "title": "Outstanding anomalies",
+      "geofenceWindow": "Outside the fence: {count} in the last {days} days."
     },
     "approvals": {
       "companyWide": "Company-wide",
@@ -4866,7 +4872,10 @@
         "FIELD_TASK": "Field task",
         "SITE_PROGRESS": "Progress record",
         "WASTE_OUTGOING": "Waste out"
-      }
+      },
+      "waitingMinutes": "waiting {count} min",
+      "waitingHours": "waiting {count} h",
+      "waitingDays": "waiting {count} d"
     },
     "attendanceEvent": {
       "CLOCK_IN": "Clock in",
@@ -4919,26 +4928,37 @@
       "unknown": "No status"
     },
     "notifications": {
-      "empty": "No notifications today.",
+      "empty": "Nothing unread.",
       "openAll": "All notifications",
       "recipientScope": "Shows your own notifications; these are not filtered by project.",
-      "subtitle": "{count} today, {unread} unread.",
-      "title": "Today's notifications",
+      "subtitle": "{unread} unread, {today} of them arrived today.",
+      "title": "Unread notifications",
       "unread": "Unread"
     },
     "overview": {
-      "attendance": "Attendance events",
+      "attendance": "Clock events today",
       "photos": "Site photos",
       "progressRecords": "Progress records",
       "projects": "Projects",
       "safety": "Safety incidents",
-      "title": "Today at a glance"
+      "title": "Today at a glance",
+      "materialReceipts": "Deliveries today",
+      "materialReturns": "Sent back today",
+      "equipmentIn": "Equipment in today",
+      "equipmentOut": "Equipment out today",
+      "materialPendingAcceptance": "Awaiting acceptance",
+      "equipmentExpiring": "Paperwork expiring"
     },
     "personnel": {
       "empty": "No attendance recorded today.",
       "geofenceFailures": "{count} outside the geofence",
-      "subtitle": "{workers} distinct workers today.",
-      "title": "People on site"
+      "subtitle": "{workers} people were on site today.",
+      "title": "People in and out",
+      "onSiteNow": "On site now",
+      "entered": "In today",
+      "left": "Out today",
+      "irregular": "Irregular",
+      "irregularBreakdown": "Of those: {outside} outside the fence · {order} out of order · {noExit} never clocked out"
     },
     "photos": {
       "empty": "No photos captured today.",
@@ -4978,15 +4998,21 @@
     "scheduleSummary": {
       "activePlans": "Active plans",
       "actual": "Actual progress",
+      "ahead": "{value}% ahead of plan",
+      "behind": "{value}% behind plan",
       "completed": "Completed",
+      "countedFrom": "From {counted} task(s), total weight {weight}",
       "delayed": "Delayed",
       "dueNext7Days": "Due in 7 days",
+      "onPlan": "On plan",
       "open": "Open schedule",
       "planned": "Planned progress",
       "progress": "{value}%",
       "subtitle": "Current confirmed schedule and actual site progress.",
+      "summaryExcluded": "{count} WBS summary row(s) not counted",
       "tasks": "Tasks",
-      "title": "Construction schedule"
+      "title": "Construction schedule",
+      "variance": "Variance"
     },
     "search": {
       "action": "Search",
@@ -5018,6 +5044,28 @@
       "help": "These are yours alone. Opening one files it away for you and leaves it in everyone else's pile.",
       "openColumns": "Material columns",
       "unfiled": "Not filed in a column"
+    },
+    "recordStatus": {
+      "ACCEPTED": "Accepted",
+      "APPROVED": "Approved",
+      "AWAITING_CONFIRMATION": "Awaiting confirmation",
+      "CANCELLED": "Cancelled",
+      "CLOSED": "Closed",
+      "COMPLETED": "Completed",
+      "DELIVERED": "Delivered",
+      "DRAFT": "Draft",
+      "IN_REVIEW": "In review",
+      "IN_TRANSIT": "In transit",
+      "OPEN": "Open",
+      "PENDING": "Pending",
+      "PENDING_APPROVAL": "Waiting for approval",
+      "REJECTED": "Rejected",
+      "RELEASED": "Released",
+      "REQUESTED": "Requested",
+      "RESOLVED": "Resolved",
+      "RETURNED": "Returned",
+      "SUBMITTED": "Submitted",
+      "VERIFIED": "Verified"
     }
   },
   "contractorModuleLanding": {
@@ -5211,7 +5259,10 @@
       "title": "Task title",
       "unit": "Unit",
       "vehiclePlate": "Vehicle plate",
-      "workLocation": "Work area / location"
+      "workLocation": "Work area / location",
+      "certificateExpiresOn": "Certificate expires",
+      "insuranceExpiresOn": "Insurance expires",
+      "expiryHelp": "Fills the home page's expiring-paperwork card. Leave blank if you do not hold the document - blank is better than a guessed date."
     },
     "outgoing": {
       "add": "New outgoing request",
@@ -5739,7 +5790,6 @@
     "metrics": "Operational summary",
     "noMetrics": "Your account has dashboard access. Additional modules appear when an administrator grants the matching permissions.",
     "platformSubtitle": "Platform health and customer activity",
-    "quickLinks": "Quick access",
     "recyclerSubtitle": "Today's collections and weighing",
     "tile": {
       "attendance": "Attendance records",
@@ -5767,7 +5817,29 @@
       "weighingSessions": "Weighing sessions"
     },
     "tileFailed": "Not loaded",
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "tileStatus": {
+      "ACCEPTED": "Accepted",
+      "APPROVED": "Approved",
+      "AWAITING_CONFIRMATION": "Awaiting confirmation",
+      "CANCELLED": "Cancelled",
+      "CLOSED": "Closed",
+      "COMPLETED": "Completed",
+      "DELIVERED": "Delivered",
+      "DRAFT": "Draft",
+      "IN_REVIEW": "In review",
+      "IN_TRANSIT": "In transit",
+      "OPEN": "Open",
+      "PENDING": "Pending",
+      "PENDING_APPROVAL": "Waiting for approval",
+      "REJECTED": "Rejected",
+      "RELEASED": "Released",
+      "REQUESTED": "Requested",
+      "RESOLVED": "Resolved",
+      "RETURNED": "Returned",
+      "SUBMITTED": "Submitted",
+      "VERIFIED": "Verified"
+    }
   },
   "deductions": {
     "photo": {
@@ -6238,6 +6310,22 @@
       "mayPause": "Your location is recorded only while this screen is on. If the phone locks, the track will show a gap.",
       "noWakeLock": "This browser will not keep the screen awake. Set the phone's screen timeout longer, or the track will show gaps.",
       "recording": "Recording your location. Keep this screen on."
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "Contamination",
+        "MOISTURE": "Water content",
+        "OTHER": "Other",
+        "OVERSIZE": "Oversize or unprocessable",
+        "WRONG_MATERIAL": "Material not as declared"
+      },
+      "state": {
+        "ACCEPTED": "Accepted",
+        "AUTO_ACCEPTED": "Accepted automatically",
+        "PENDING": "Waiting for the producer",
+        "RECHECK": "Recheck requested",
+        "REJECTED": "Rejected"
+      }
     }
   },
   "driverGps": {
@@ -6395,11 +6483,14 @@
       "asset_maintenance_not_found": "That asset maintenance record could not be found.",
       "asset_movement_not_found": "That asset movement could not be found.",
       "asset_not_found": "That asset could not be found.",
+      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again.",
+      "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
       "audit_entry_not_found": "That audit entry could not be found.",
       "below_minimum_payout": "This amount is below the minimum payout.",
       "bug_not_found": "That bug record could not be found.",
       "calibration_expired": "This weighbridge calibration has expired.",
       "cannot_modify_self": "You cannot change your own account this way. Use your profile instead.",
+      "category_holds_deliveries_only": "“{column}” is a material column - it holds deliveries and their cost. Site photographs go in a site-record column. Go back and choose one, or ask an administrator to open a site-record column for this.",
       "clock_skew": "The gateway clock moved beyond the allowed tolerance.",
       "cloud_alert_not_found": "That cloud usage alert could not be found.",
       "cloud_plan_not_found": "That cloud plan could not be found.",
@@ -6501,6 +6592,7 @@
       "payment_not_found": "That payment could not be found.",
       "payout_already_exists": "A payout already exists for this period.",
       "payout_not_draft": "Only a draft payout can be changed this way.",
+      "permission_denied": "You are not allowed to do that.",
       "portal_mismatch": "This account belongs to a different portal. Use its correct sign-in page.",
       "pricing_rule_not_found": "That cloud pricing rule could not be found.",
       "progress_update_not_found": "That progress update could not be found.",
@@ -6554,9 +6646,13 @@
       "version_not_found": "That platform version could not be found.",
       "visit_not_found": "That customer visit could not be found.",
       "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
-      "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
-      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again.",
-      "permission_denied": "You are not allowed to do that."
+      "receipt_superseded": "A correction has already replaced this delivery record, so this copy can no longer be accepted or rejected. Open the current record and review that one instead.",
+      "receipt_rejection_needs_reason": "Type the reason for rejecting this delivery. A rejection with no reason gives the site nothing to act on.",
+      "hazard_not_a_participant": "{incident_no} was not raised with you. Ask the person who reported it, or a safety supervisor, to add you.",
+      "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
+      "hazard_audio_too_long": "That voice note is {seconds} seconds long. One note can be at most {limit} seconds — record a shorter one, or send two.",
+      "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
+      "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -6919,7 +7015,8 @@
       "subtitle": "Choose the project and folder. Take at least four photos, capture GPS, then send them for manager review.",
       "takePhotos": "Take photos in this folder",
       "title": "File site photo evidence",
-      "uploadNotAllowed": "You do not have permission to upload to this folder."
+      "uploadNotAllowed": "You do not have permission to upload to this folder.",
+      "materialColumnRefused": "“{column}” is a material column - it holds deliveries and their cost. Choose a site-record column for photographs, or ask an administrator to open one."
     },
     "consultantCapture": {
       "category": "Request type",
@@ -6972,7 +7069,8 @@
       "subtitle": "Tap one large button to continue.",
       "tasks": "My tasks",
       "title": "Today's work",
-      "waste": "Environmental waste outgoing"
+      "waste": "Environmental waste outgoing",
+      "hazards": "Hazards"
     },
     "identity": {
       "company": "Company: {company}",
@@ -7086,7 +7184,8 @@
       "incidents": "Incidents",
       "location": "Location",
       "records": "Record",
-      "tasks": "Tasks"
+      "tasks": "Tasks",
+      "hazards": "Hazards"
     },
     "notifications": {
       "empty": "No new alerts",
@@ -8180,6 +8279,31 @@
       "errors": "{count} errors in 24 hours",
       "jobs": "{count} queued jobs",
       "uptime": "{value} min uptime"
+    },
+    "integrationKind": {
+      "ACCESS_CONTROL": "Access control",
+      "ACCOUNTING": "Accounting",
+      "AI": "AI service",
+      "ANPR": "Number-plate recognition",
+      "API_GATEWAY": "API gateway",
+      "CCTV": "CCTV",
+      "DRONE": "Drone",
+      "ERP": "ERP",
+      "FACE_RECOGNITION": "Face recognition",
+      "GOVERNMENT_API": "Government API",
+      "IOT": "IoT device",
+      "MYINVOIS": "MyInvois",
+      "RF": "Radio link",
+      "RFID": "RFID",
+      "TOWER_CRANE": "Tower crane",
+      "VISITOR_MANAGEMENT": "Visitor management",
+      "WEBHOOK": "Webhook"
+    },
+    "integrationStatus": {
+      "DEGRADED": "Degraded",
+      "DISABLED": "Disabled",
+      "ERROR": "Error",
+      "READY": "Ready"
     }
   },
   "nav": {
@@ -9422,6 +9546,14 @@
     "title": "My profile",
     "toast": {
       "updated": "Profile updated"
+    },
+    "avatar": {
+      "title": "Your photo",
+      "hint": "This appears on the deliveries and site records you file. JPG, PNG or WebP, up to {limit} MB.",
+      "save": "Upload",
+      "discard": "Cancel",
+      "failed": "The upload failed. Please try again.",
+      "tooBig": "That photo is {actual} MB, over the {limit} MB limit. Please choose a smaller one."
     }
   },
   "progress": {
@@ -9817,7 +9949,9 @@
       "created": "Delivery recorded",
       "photoAdded": "Photo added",
       "removed": "Receipt removed",
-      "updated": "Receipt updated"
+      "updated": "Receipt updated",
+      "accepted": "Delivery accepted.",
+      "rejected": "Delivery rejected, with the reason recorded."
     },
     "unit": {
       "BAG": "Bag",
@@ -9840,7 +9974,21 @@
       "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
     },
     "recorderUnknown": "Recorder not on file",
-    "noRecorderPhone": "No phone number on file"
+    "noRecorderPhone": "No phone number on file",
+    "acceptance": {
+      "title": "Acceptance",
+      "status": {
+        "PENDING": "Awaiting acceptance",
+        "ACCEPTED": "Accepted",
+        "REJECTED": "Rejected"
+      },
+      "accept": "Accept",
+      "reject": "Reject",
+      "reason": "Reason for rejection",
+      "reasonPlaceholder": "Why is this delivery being rejected?",
+      "moneyNote": "Rejecting flags the delivery and counts it on the home page. It does not change the amount or the payment status — that stays a decision somebody makes on purpose.",
+      "alreadyAccepted": "This delivery has already been accepted."
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -10797,7 +10945,9 @@
       "selectStaff": "Select",
       "task": "Task",
       "taskName": "Task name",
-      "wbs": "WBS"
+      "wbs": "WBS",
+      "weight": "Weight",
+      "weightHelp": "How much of the job this task is, next to the others. Relative, so 1/2/3 and 10/20/30 mean the same - the column does not have to add up to 100. Leave it at 1 and every task counts equally."
     },
     "gantt": {
       "actual": "Actual completion",
@@ -12967,5 +13117,59 @@
     "since": "since {at}",
     "title": "On site now",
     "unassigned": "Unassigned"
+  },
+  "materialAcceptance": {
+    "PENDING": "Awaiting acceptance",
+    "ACCEPTED": "Accepted",
+    "REJECTED": "Rejected"
+  },
+  "hazard": {
+    "conversationTitle": "Rectification discussion",
+    "empty": "Nothing has been said yet.",
+    "send": "Send",
+    "placeholder": "Type a message",
+    "recordStart": "Record a voice note",
+    "recordStop": "Stop",
+    "recordingFor": "Recording {seconds}s of {limit}s",
+    "attach": "Attach a file",
+    "photo": "Photo",
+    "closed": "This hazard has been verified and archived. The record stays readable, but it takes no new messages.",
+    "participants": "In this conversation",
+    "reporter": "Reported it",
+    "responsible": "Responsible",
+    "supervisor": "Supervisor",
+    "voiceNote": "Voice note",
+    "unsupported": "This browser cannot record audio. Type a message or send a photo instead.",
+    "duration": "Expected to take",
+    "durationHours": "{hours} hours",
+    "unassigned": "Waiting to be assigned",
+    "nothingToSend": "Type a message, or attach a photo, voice note or file.",
+    "field": {
+      "title": "Hazards",
+      "subtitle": "What you reported, and what you have to fix.",
+      "report": "Report a hazard",
+      "empty": "Nothing yet. Photograph a hazard and it appears here."
+    }
+  },
+  "home": {
+    "action": {}
+  },
+  "mySubmissions": {
+    "title": "What I sent",
+    "subtitle": "Everything you submitted, newest first.",
+    "refresh": "Check again",
+    "empty": "Nothing yet. Anything you submit appears here.",
+    "waitingToUpload": "Waiting to upload",
+    "uploadFailed": "Upload refused",
+    "attempts": "{count} attempts",
+    "truncated": "Showing {shown} of {total}.",
+    "kind": {
+      "MATERIAL_RECEIPT": "Delivery",
+      "SITE_RECORD": "Site record",
+      "WASTE_OUTGOING": "Waste out",
+      "HAZARD": "Hazard",
+      "PROGRESS": "Progress",
+      "DRIVER_TRIP": "Trip"
+    }
   }
 }

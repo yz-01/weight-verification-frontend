@@ -62,6 +62,13 @@ export interface ScheduleTask {
   planned_start: string;
   planned_end: string;
   duration_days: number;
+  /**
+   * How much of the job this task is, relative to its siblings.
+   *
+   * Not its duration. The rollup divides by the total, so 1/2/3 and 10/20/30
+   * mean the same thing and no column has to add up to 100.
+   */
+  weight: string;
   sort_order: number;
   planned_progress: string;
   actual_progress: string;
@@ -87,6 +94,13 @@ export interface ScheduleOverview {
     delayed_count?: number;
     planned_progress?: string;
     actual_progress?: string;
+    /** Actual minus planned. Negative is behind. */
+    variance?: string;
+    /** Leaf tasks the percentages were calculated from. */
+    counted_tasks?: number;
+    /** WBS summary rows set aside, so the two numbers can be reconciled. */
+    summary_rows_excluded?: number;
+    total_weight?: string;
     planned_start?: string | null;
     planned_end?: string | null;
   };
@@ -137,6 +151,7 @@ export interface ProgressCandidate {
 }
 
 export interface ScheduleTaskPayload {
+  weight?: string;
   revision: string;
   parent?: string | null;
   wbs_code: string;

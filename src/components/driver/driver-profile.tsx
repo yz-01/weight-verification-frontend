@@ -5,6 +5,7 @@ import { Building2, CalendarDays, Car, IdCard, Phone, UserRound } from "lucide-r
 import { useTranslations } from "next-intl";
 
 import { DriverError, DriverLoading } from "@/components/driver/driver-shell";
+import { AvatarUpload } from "@/components/shared/avatar-upload";
 import { useDateFormat } from "@/lib/dates";
 import { getMyDriverProfile } from "@/services/recycler.service";
 
@@ -32,12 +33,18 @@ export function DriverProfile() {
         </p>
       </div>
 
-      <section className="rounded-lg border bg-card p-5 text-center">
-        <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-primary">
-          <UserRound className="h-8 w-8" />
-        </span>
-        <h2 className="mt-3 text-lg font-semibold">{driver.full_name}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{driver.company_name}</p>
+      {/* The licence and vehicle rows below are the recycler's to manage,
+          which is what "read only" refers to. A driver's own picture is not:
+          it appears beside their deliveries, and this was the only portal
+          with no way to set it. */}
+      <section className="rounded-lg border bg-card p-5">
+        <AvatarUpload />
+        <div className="mt-4 border-t pt-4 text-center">
+          <h2 className="text-lg font-semibold">{driver.full_name}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {driver.company_name}
+          </p>
+        </div>
       </section>
 
       <section className="divide-y rounded-lg border bg-card">

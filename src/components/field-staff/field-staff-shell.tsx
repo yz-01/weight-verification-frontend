@@ -55,6 +55,16 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
               alt={user.branding.company_name ?? user.branding.name}
             />
           </span>
+          {user.avatar ? (
+            <span className="size-9 shrink-0 overflow-hidden rounded-full border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={user.avatar}
+                alt=""
+                className="size-full object-cover"
+              />
+            </span>
+          ) : null}
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">{user.full_name}</p>
             <p className="truncate text-xs text-muted-foreground">{user.company_name}</p>

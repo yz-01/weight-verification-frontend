@@ -26,16 +26,22 @@ import { api, toastSuccess } from "@/services/api-client";
 
 export function getNotifications(
   query: ListQuery,
+  options: { silent?: boolean } = {},
 ): Promise<Paginated<NotificationRow>> {
   return api.list<NotificationRow>(
     "/api/notifications/get_notifications/",
     query,
+    options,
   );
 }
 
-export function getUnreadNotificationCount(): Promise<NotificationSummary> {
+export function getUnreadNotificationCount(
+  options: { silent?: boolean } = {},
+): Promise<NotificationSummary> {
   return api.get<NotificationSummary>(
     "/api/notifications/get_unread_count/",
+    undefined,
+    options,
   );
 }
 

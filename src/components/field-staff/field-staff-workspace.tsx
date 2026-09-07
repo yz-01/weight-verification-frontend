@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   BellRing,
-  ArrowLeft,
   ChevronRight,
   Camera,
   Check,
@@ -21,7 +20,6 @@ import {
   LogIn,
   LogOut,
   MapPinned,
-  MessageSquarePlus,
   Play,
   Recycle,
   RefreshCw,
@@ -39,12 +37,14 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { AvatarUpload } from "@/components/shared/avatar-upload";
 import {
   FieldRecordsPanel,
   type FieldRecordMode,
 } from "@/components/field-staff/field-records-panel";
 import { FIELD_EVIDENCE_PHOTO_COUNT } from "@/components/field-staff/field-evidence-grid";
-import { IncidentReporting } from "@/components/incident-reporting/incident-reporting";
+import { MySubmissions } from "@/components/field-staff/my-submissions";
+import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
 import { LocationField } from "@/components/field-staff/location-field";
@@ -247,11 +247,17 @@ function FieldStaffWorkspaceContent({
         />
       )}
       {tab === "location" && <FieldStaffGps managedAutomatically />}
+      {/* Was FieldIncidentsPanel (事故上报). The customer asked for that
+          feature to go and its chat room to be folded into 隐患整改:
+          「报告事故的聊天室是结合进去隐患整改的，然后报告事故移除掉」. The tab
+          key stays `incidents` so a bookmarked ?tab= link still lands
+          somewhere useful. */}
       {tab === "incidents" && (
-        <FieldIncidentsPanel
+        <FieldHazardsPanel
           onHome={() => {
             openTab("home");
           }}
+          onReport={() => openRecord("safety")}
         />
       )}
 
@@ -262,7 +268,7 @@ function FieldStaffWorkspaceContent({
           <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
           <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
           <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => openTab("location")} />
-          <MobileNavButton active={tab === "incidents"} icon={MessageSquarePlus} label={t("nav.incidents")} onClick={() => openTab("incidents")} />
+          <MobileNavButton active={tab === "incidents"} icon={ShieldAlert} label={t("nav.hazards")} onClick={() => openTab("incidents")} />
         </div>
       </nav>
       {tab === "home" && (
@@ -304,7 +310,7 @@ function FieldHomePanel({
     { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning", open: () => onRecord("safety") },
     { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary", open: () => onRecord("consultant") },
     { key: "category", permission: "category.view", icon: FolderOpen, tone: "bg-info/10 text-info", open: () => onRecord("category") },
-    { key: "incidents", permission: "safety.view", icon: MessageSquarePlus, tone: "bg-destructive/10 text-destructive", open: () => onOpen("incidents") },
+    { key: "hazards", permission: "safety.view", icon: ShieldAlert, tone: "bg-destructive/10 text-destructive", open: () => onOpen("incidents") },
   ];
   const visibleActions = actions.filter((action) => !action.permission || can(action.permission));
   return (
@@ -314,6 +320,13 @@ function FieldHomePanel({
           <h2 className="text-base font-semibold">{t("home.title")}</h2>
           <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
         </div>
+      </div>
+      {/* Field staff have no profile screen and cannot open `/profile`, and
+          theirs is the picture a delivery record shows - so this is their only
+          way to set it. On the home panel rather than the workspace header,
+          which renders above every tab. */}
+      <div className="rounded-lg border bg-card p-4 shadow-sm">
+        <AvatarUpload />
       </div>
       <div className="grid grid-cols-2 gap-3">
         {visibleActions.map((action) => {
@@ -334,6 +347,11 @@ function FieldHomePanel({
           );
         })}
       </div>
+      {/* 「手机上没有，不能够存记录没有历史记录」. Placed on the home panel
+          rather than behind a seventh tab: the bottom bar is full, and the
+          question this answers - did what I sent arrive - is the one somebody
+          has when they open the app, not one they navigate to. */}
+      <MySubmissions />
       <FieldDeviceHandoff />
       {can("notification.view") && <FieldNotificationPreview />}
     </section>
@@ -688,31 +706,6 @@ function FieldAttendancePanel() {
           );
         })}
       </div>
-    </section>
-  );
-}
-
-function FieldIncidentsPanel({ onHome }: { onHome: () => void }) {
-  const t = useTranslations("fieldStaffPwa");
-  return (
-    <section className="space-y-4">
-      <div className="flex items-start gap-3">
-        <Button
-          type="button"
-          size="icon"
-          variant="outline"
-          className="shrink-0"
-          title={t("action.back")}
-          onClick={onHome}
-        >
-          <ArrowLeft />
-        </Button>
-        <div>
-          <h2 className="text-base font-semibold">{t("incidents.title")}</h2>
-          <p className="text-sm text-muted-foreground">{t("incidents.subtitle")}</p>
-        </div>
-      </div>
-      <IncidentReporting />
     </section>
   );
 }

@@ -99,7 +99,11 @@ export function OwnerAccountPanel({ companyId }: { companyId: string }) {
               <dt className="text-xs text-muted-foreground">
                 {t("companies.owner.account.status")}
               </dt>
-              <dd className="font-medium">{row.status}</dd>
+              <dd className="font-medium">
+                {t.has(`companies.owner.account.userStatus.${row.status}`)
+                  ? t(`companies.owner.account.userStatus.${row.status}`)
+                  : row.status}
+              </dd>
             </div>
           </dl>
 

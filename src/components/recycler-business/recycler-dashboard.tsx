@@ -1101,7 +1101,14 @@ function RecentGroup({
                   </span>
                 )}
                 {row.status && (
-                  <StatusBadge label={row.status} tone={row.tone} />
+                  <StatusBadge
+                    label={
+                      t.has(`dashboard.tileStatus.${row.status}`)
+                        ? t(`dashboard.tileStatus.${row.status}`)
+                        : row.status
+                    }
+                    tone={row.tone}
+                  />
                 )}
               </span>
             </Link>

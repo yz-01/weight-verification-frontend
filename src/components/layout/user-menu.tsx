@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -38,6 +38,10 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
+            {/* This was fallback-only, so a picture that had uploaded
+                successfully still showed as two letters here and the upload
+                looked like it had failed. */}
+            {user.avatar ? <AvatarImage src={user.avatar} alt="" /> : null}
             <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
               {initials(user.full_name)}
             </AvatarFallback>

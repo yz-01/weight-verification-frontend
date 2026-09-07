@@ -3879,7 +3879,12 @@
         "sent": "新的激活邮件已经发到 {email}。",
         "notSent": "邮件没发出去。请把这个链接交给老板：",
         "status": "状态",
-        "needsAChange": "先填一个新的邮箱或电话。"
+        "needsAChange": "先填一个新的邮箱或电话。",
+        "userStatus": {
+          "ACTIVE": "使用中",
+          "INVITED": "已邀请",
+          "SUSPENDED": "已停用"
+        }
       }
     },
     "addUser": "添加用户",
@@ -4838,12 +4843,13 @@
     "anomalies": {
       "daysOverdue": "{days, plural, =0 {今天到期} other {逾期 # 天}}",
       "distance": "距离 {metres} 米",
-      "empty": "今天没有检测到异常。",
+      "empty": "没有需要处理的异常。",
       "expiresAt": "{at} 到期",
       "geofenceFailure": "超出电子围栏",
       "outside": "围栏外",
       "subtitle": "{count} 项需要处理。",
-      "title": "今日异常事件"
+      "title": "待处理异常",
+      "geofenceWindow": "越界打卡：近 {days} 天共 {count} 次。"
     },
     "approvals": {
       "companyWide": "公司级",
@@ -4866,7 +4872,10 @@
         "FIELD_TASK": "现场任务",
         "SITE_PROGRESS": "进度记录",
         "WASTE_OUTGOING": "废料出场"
-      }
+      },
+      "waitingMinutes": "已等待 {count} 分钟",
+      "waitingHours": "已等待 {count} 小时",
+      "waitingDays": "已等待 {count} 天"
     },
     "attendanceEvent": {
       "CLOCK_IN": "上班打卡",
@@ -4919,26 +4928,37 @@
       "unknown": "暂无状态"
     },
     "notifications": {
-      "empty": "今天没有通知。",
+      "empty": "没有未读通知。",
       "openAll": "全部通知",
       "recipientScope": "仅显示你本人的通知，不随项目筛选变化。",
-      "subtitle": "今天 {count} 条，未读 {unread} 条。",
-      "title": "今日通知",
+      "subtitle": "未读 {unread} 条，其中今天到达 {today} 条。",
+      "title": "未读通知",
       "unread": "未读"
     },
     "overview": {
-      "attendance": "考勤事件",
+      "attendance": "今日进出打卡",
       "photos": "现场照片",
       "progressRecords": "进度记录",
       "projects": "项目",
       "safety": "安全事件",
-      "title": "今日概览"
+      "title": "今日概览",
+      "materialReceipts": "今日材料到场",
+      "materialReturns": "今日材料退回",
+      "equipmentIn": "今日设备进场",
+      "equipmentOut": "今日设备退场",
+      "materialPendingAcceptance": "待验收材料",
+      "equipmentExpiring": "证书即将到期"
     },
     "personnel": {
       "empty": "今天没有考勤记录。",
       "geofenceFailures": "{count} 次超出围栏",
-      "subtitle": "今天共 {workers} 名人员。",
-      "title": "今日人员统计"
+      "subtitle": "今天共 {workers} 名人员到过场。",
+      "title": "人员进出",
+      "onSiteNow": "当前在场",
+      "entered": "今日进场",
+      "left": "今日离场",
+      "irregular": "异常进出",
+      "irregularBreakdown": "其中：超出围栏 {outside} · 打卡顺序异常 {order} · 未打下班卡 {noExit}"
     },
     "photos": {
       "empty": "今天没有拍摄照片。",
@@ -4978,15 +4998,21 @@
     "scheduleSummary": {
       "activePlans": "执行中计划",
       "actual": "实际进度",
+      "ahead": "领先计划 {value}%",
+      "behind": "落后计划 {value}%",
       "completed": "已完成",
+      "countedFrom": "取自 {counted} 个任务，总权重 {weight}",
       "delayed": "延误任务",
       "dueNext7Days": "7天内到期",
+      "onPlan": "与计划一致",
       "open": "查看施工计划",
       "planned": "计划进度",
       "progress": "{value}%",
       "subtitle": "读取当前已确认计划及现场实际进度。",
+      "summaryExcluded": "已排除 {count} 个 WBS 汇总行",
       "tasks": "任务总数",
-      "title": "施工计划进度"
+      "title": "施工计划进度",
+      "variance": "进度偏差"
     },
     "search": {
       "action": "搜索",
@@ -5018,6 +5044,28 @@
       "help": "这是你自己的清单。点进去看过就算你归档了，别人那边不受影响。",
       "openColumns": "材料栏目",
       "unfiled": "暂未归档"
+    },
+    "recordStatus": {
+      "ACCEPTED": "已接受",
+      "APPROVED": "已批准",
+      "AWAITING_CONFIRMATION": "等待确认",
+      "CANCELLED": "已取消",
+      "CLOSED": "已关闭",
+      "COMPLETED": "已完成",
+      "DELIVERED": "已送达",
+      "DRAFT": "草稿",
+      "IN_REVIEW": "审核中",
+      "IN_TRANSIT": "运输中",
+      "OPEN": "未处理",
+      "PENDING": "待处理",
+      "PENDING_APPROVAL": "待审批",
+      "REJECTED": "已驳回",
+      "RELEASED": "已放行",
+      "REQUESTED": "已申请",
+      "RESOLVED": "已解决",
+      "RETURNED": "已退回",
+      "SUBMITTED": "已提交",
+      "VERIFIED": "已核实"
     }
   },
   "contractorModuleLanding": {
@@ -5211,7 +5259,10 @@
       "title": "任务标题",
       "unit": "单位",
       "vehiclePlate": "车牌",
-      "workLocation": "工作区域 / 位置"
+      "workLocation": "工作区域 / 位置",
+      "certificateExpiresOn": "证书到期日",
+      "insuranceExpiresOn": "保险到期日",
+      "expiryHelp": "填了才会进首页的「证书即将到期」卡；没有单据就留空，宁可空着也不要填一个猜的日期。"
     },
     "outgoing": {
       "add": "新增出场申请",
@@ -5739,7 +5790,6 @@
     "metrics": "业务概览",
     "noMetrics": "你的账号可以进入仪表板；管理员授予对应权限后，其他业务模块会显示在这里。",
     "platformSubtitle": "平台运行状态与客户活跃度",
-    "quickLinks": "快捷入口",
     "recyclerSubtitle": "今日收运与称重",
     "tile": {
       "attendance": "考勤记录",
@@ -5767,7 +5817,29 @@
       "weighingSessions": "称重次数"
     },
     "tileFailed": "没有载入",
-    "title": "仪表板"
+    "title": "仪表板",
+    "tileStatus": {
+      "ACCEPTED": "已接受",
+      "APPROVED": "已批准",
+      "AWAITING_CONFIRMATION": "等待确认",
+      "CANCELLED": "已取消",
+      "CLOSED": "已关闭",
+      "COMPLETED": "已完成",
+      "DELIVERED": "已送达",
+      "DRAFT": "草稿",
+      "IN_REVIEW": "审核中",
+      "IN_TRANSIT": "运输中",
+      "OPEN": "未处理",
+      "PENDING": "待处理",
+      "PENDING_APPROVAL": "待审批",
+      "REJECTED": "已驳回",
+      "RELEASED": "已放行",
+      "REQUESTED": "已申请",
+      "RESOLVED": "已解决",
+      "RETURNED": "已退回",
+      "SUBMITTED": "已提交",
+      "VERIFIED": "已核实"
+    }
   },
   "deductions": {
     "photo": {
@@ -6238,6 +6310,22 @@
       "mayPause": "只有这个界面亮着的时候才会记录位置。手机锁屏之后，轨迹上会出现缺口。",
       "noWakeLock": "这个浏览器不支持保持屏幕常亮。请把手机的自动锁屏时间调长，否则轨迹会有缺口。",
       "recording": "正在记录你的位置，请保持屏幕亮着。"
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "夹杂污染",
+        "MOISTURE": "含水",
+        "OTHER": "其他",
+        "OVERSIZE": "超尺寸或无法处理",
+        "WRONG_MATERIAL": "材料与申报不符"
+      },
+      "state": {
+        "ACCEPTED": "已接受",
+        "AUTO_ACCEPTED": "自动接受",
+        "PENDING": "等待货主确认",
+        "RECHECK": "已要求复检",
+        "REJECTED": "已拒绝"
+      }
     }
   },
   "driverGps": {
@@ -6395,11 +6483,14 @@
       "asset_maintenance_not_found": "找不到该资产维护记录。",
       "asset_movement_not_found": "找不到该资产流转记录。",
       "asset_not_found": "找不到该资产。",
+      "attendance_gps_required": "这个项目设了工地范围，打卡需要你的位置。请打开定位再试一次。",
+      "attendance_outside_geofence": "你不在工地围栏内，离最近围栏 {distance} 米。走近一点再试。",
       "audit_entry_not_found": "找不到这条审计记录。",
       "below_minimum_payout": "该金额低于最低付款额度。",
       "bug_not_found": "找不到该 Bug 记录。",
       "calibration_expired": "这台地磅的校准已过期。",
       "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。",
+      "category_holds_deliveries_only": "「{column}」是材料栏目 —— 它装的是送货单和金额。现场照片要归到现场资料栏目。请返回选一个现场资料栏目，或让管理员为这件事开一个。",
       "clock_skew": "网关时钟偏移超过允许范围。",
       "cloud_alert_not_found": "找不到该云用量预警。",
       "cloud_plan_not_found": "找不到该云服务方案。",
@@ -6501,6 +6592,7 @@
       "payment_not_found": "找不到该付款记录。",
       "payout_already_exists": "该期间已经建立付款。",
       "payout_not_draft": "只有草稿状态的付款可以这样修改。",
+      "permission_denied": "你没有权限做这件事。",
       "portal_mismatch": "此账号属于另一个后台，请使用对应的登录入口。",
       "pricing_rule_not_found": "找不到该云服务收费规则。",
       "progress_update_not_found": "找不到这条工程进度。",
@@ -6554,9 +6646,13 @@
       "version_not_found": "找不到该平台版本。",
       "visit_not_found": "找不到该客户回访。",
       "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
-      "attendance_outside_geofence": "你不在工地围栏内，离最近围栏 {distance} 米。走近一点再试。",
-      "attendance_gps_required": "这个项目设了工地范围，打卡需要你的位置。请打开定位再试一次。",
-      "permission_denied": "你没有权限做这件事。"
+      "receipt_superseded": "这条收货记录已被更正记录取代，不能再验收或退回。请打开当前那一条来处理。",
+      "receipt_rejection_needs_reason": "请填写退回这批材料的原因。没有原因的退回，现场无从处理。",
+      "hazard_not_a_participant": "{incident_no} 没有上报给你。请让上报人或安全主管把你加进来。",
+      "hazard_message_empty": "发送前请输入文字，或附上照片、语音或文件。",
+      "hazard_audio_too_long": "这条语音 {seconds} 秒，单条最长 {limit} 秒。请重录短一点，或者分两条发。",
+      "hazard_closed": "{incident_no} 已验收并闭环归档。记录仍然可以查看，但不能再发新消息。",
+      "hazard_self_verification": "{incident_no} 是你整改的，需要由别人验收 —— 上报人、项目经理、顾问、现场主管或安全主管都可以。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -6919,7 +7015,8 @@
       "subtitle": "选择项目和栏目，拍摄至少四张照片，取得 GPS 后提交给管理人员审核。",
       "takePhotos": "在此栏目拍照归档",
       "title": "归档现场拍照证据",
-      "uploadNotAllowed": "你没有权限上传资料到这个栏目。"
+      "uploadNotAllowed": "你没有权限上传资料到这个栏目。",
+      "materialColumnRefused": "「{column}」是材料栏目 —— 它装的是送货单和金额。照片请选一个现场资料栏目，或让管理员开一个。"
     },
     "consultantCapture": {
       "category": "申请类别",
@@ -6972,7 +7069,8 @@
       "subtitle": "按一个大按钮就可以继续。",
       "tasks": "我的任务",
       "title": "今天的工作",
-      "waste": "环保材料出场"
+      "waste": "环保材料出场",
+      "hazards": "隐患"
     },
     "identity": {
       "company": "公司：{company}",
@@ -7086,7 +7184,8 @@
       "incidents": "事故",
       "location": "位置",
       "records": "拍照",
-      "tasks": "任务"
+      "tasks": "任务",
+      "hazards": "隐患"
     },
     "notifications": {
       "empty": "目前没有新通知",
@@ -8180,6 +8279,31 @@
       "errors": "24 小时内 {count} 个错误",
       "jobs": "{count} 个排队任务",
       "uptime": "已运行 {value} 分钟"
+    },
+    "integrationKind": {
+      "ACCESS_CONTROL": "门禁系统",
+      "ACCOUNTING": "会计系统",
+      "AI": "AI 服务",
+      "ANPR": "车牌识别",
+      "API_GATEWAY": "API 网关",
+      "CCTV": "监控摄像",
+      "DRONE": "无人机",
+      "ERP": "ERP 系统",
+      "FACE_RECOGNITION": "人脸识别",
+      "GOVERNMENT_API": "政府接口",
+      "IOT": "物联网设备",
+      "MYINVOIS": "MyInvois",
+      "RF": "无线电链路",
+      "RFID": "RFID",
+      "TOWER_CRANE": "塔吊",
+      "VISITOR_MANAGEMENT": "访客管理",
+      "WEBHOOK": "Webhook"
+    },
+    "integrationStatus": {
+      "DEGRADED": "性能下降",
+      "DISABLED": "已停用",
+      "ERROR": "故障",
+      "READY": "正常"
     }
   },
   "nav": {
@@ -9422,6 +9546,14 @@
     "title": "个人资料",
     "toast": {
       "updated": "资料已更新"
+    },
+    "avatar": {
+      "title": "我的照片",
+      "hint": "这张照片会出现在你记录的收货单和现场记录上。JPG / PNG / WebP，不超过 {limit} MB。",
+      "save": "上传",
+      "discard": "取消",
+      "failed": "上传失败，请重试。",
+      "tooBig": "这张照片有 {actual} MB，超过了 {limit} MB 的上限。请换一张小一点的。"
     }
   },
   "progress": {
@@ -9817,7 +9949,9 @@
       "created": "收货已记录",
       "photoAdded": "照片已上传",
       "removed": "收货记录已删除",
-      "updated": "收货记录已更新"
+      "updated": "收货记录已更新",
+      "accepted": "已验收通过。",
+      "rejected": "已判为不合格，原因已记录。"
     },
     "unit": {
       "BAG": "包",
@@ -9840,7 +9974,21 @@
       "clean": "这里显示的是不带位置与时间水印的原图，方便复制到别处使用。"
     },
     "recorderUnknown": "没有记录人资料",
-    "noRecorderPhone": "没有登记联系电话"
+    "noRecorderPhone": "没有登记联系电话",
+    "acceptance": {
+      "title": "验收",
+      "status": {
+        "PENDING": "待验收",
+        "ACCEPTED": "已验收",
+        "REJECTED": "不合格"
+      },
+      "accept": "验收通过",
+      "reject": "判为不合格",
+      "reason": "不合格原因",
+      "reasonPlaceholder": "这批材料为什么不合格？",
+      "moneyNote": "判为不合格会标记这批货并计入首页统计，但不会改动金额或付款状态 —— 改钱的动作要由人明确按下去。",
+      "alreadyAccepted": "这批材料已经验收通过了。"
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -10797,7 +10945,9 @@
       "selectStaff": "选择",
       "task": "任务",
       "taskName": "任务名称",
-      "wbs": "WBS"
+      "wbs": "WBS",
+      "weight": "权重",
+      "weightHelp": "这个任务占整体工程的分量，相对于其他任务而言。是相对值，1/2/3 和 10/20/30 意思一样 —— 这一列不需要加起来等于 100。保持 1 就是每个任务等重。"
     },
     "gantt": {
       "actual": "实际完成",
@@ -12967,5 +13117,59 @@
     "since": "{at} 起",
     "title": "当前在场",
     "unassigned": "未归类"
+  },
+  "materialAcceptance": {
+    "PENDING": "待验收",
+    "ACCEPTED": "已验收",
+    "REJECTED": "验收不合格"
+  },
+  "hazard": {
+    "conversationTitle": "整改沟通",
+    "empty": "还没有人说话。",
+    "send": "发送",
+    "placeholder": "输入消息",
+    "recordStart": "按住录音",
+    "recordStop": "停止",
+    "recordingFor": "已录 {seconds} 秒，上限 {limit} 秒",
+    "attach": "发送文件",
+    "photo": "照片",
+    "closed": "这条隐患已验收并闭环归档。记录仍可查看，但不能再发新消息。",
+    "participants": "本次参与的人",
+    "reporter": "上报人",
+    "responsible": "责任人",
+    "supervisor": "主管",
+    "voiceNote": "语音",
+    "unsupported": "这个浏览器不能录音，请改用文字或照片。",
+    "duration": "预计需要",
+    "durationHours": "{hours} 小时",
+    "unassigned": "待分配",
+    "nothingToSend": "请先输入文字，或附上照片、语音或文件。",
+    "field": {
+      "title": "隐患",
+      "subtitle": "你上报的，和要你整改的。",
+      "report": "上报隐患",
+      "empty": "还没有。拍一张隐患照片，就会出现在这里。"
+    }
+  },
+  "home": {
+    "action": {}
+  },
+  "mySubmissions": {
+    "title": "我提交过的",
+    "subtitle": "你提交的全部记录，最新的在最上面。",
+    "refresh": "重新查看",
+    "empty": "还没有。你提交的东西都会出现在这里。",
+    "waitingToUpload": "待上传",
+    "uploadFailed": "上传被拒绝",
+    "attempts": "已尝试 {count} 次",
+    "truncated": "显示 {shown} 条，共 {total} 条。",
+    "kind": {
+      "MATERIAL_RECEIPT": "材料收货",
+      "SITE_RECORD": "现场记录",
+      "WASTE_OUTGOING": "废料出场",
+      "HAZARD": "隐患",
+      "PROGRESS": "施工进度",
+      "DRIVER_TRIP": "运输任务"
+    }
   }
 }

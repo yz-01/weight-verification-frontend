@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Loader2,
   LocateFixed,
+  MessageSquare,
   Plus,
   Save,
   ShieldAlert,
@@ -38,6 +39,7 @@ import {
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { HazardConversationPanel } from "@/components/site-operations/hazard-conversation";
 import {
   Dialog,
   DialogContent,
@@ -78,20 +80,12 @@ import {
 } from "@/services/site-operations.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 
-const SEVERITIES: IncidentSeverity[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 const STATUSES: IncidentStatus[] = [
   "OPEN", "ASSIGNED", "RECTIFICATION_SUBMITTED", "RETURNED", "VERIFIED",
 ];
 
-const SEVERITY_TONE: Record<
-  IncidentSeverity,
-  "neutral" | "info" | "warning" | "danger"
-> = {
-  LOW: "neutral",
-  MEDIUM: "info",
-  HIGH: "warning",
-  CRITICAL: "danger",
-};
+// SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
+// they would have been the kind of constant a later reader assumes is used.
 
 const STATUS_TONE: Record<
   IncidentStatus,
@@ -157,18 +151,27 @@ export function Safety({
   ]);
   const searchParams = useSearchParams();
   const requestedIncidentId = searchParams.get("incident");
+  // Arrived from the home page's red 逾期 figure (U-029). Read from the URL and
+  // passed straight to the API, which applies the same definition the figure
+  // is counted with - a link that opened the whole list would make the number
+  // above it decorative.
+  const overdueOnly = searchParams.get("overdue") === "1";
   const [createOpen, setCreateOpen] = useState(Boolean(fieldTaskId) || searchParams.get("create") === "1");
   const [updating, setUpdating] = useState<SafetyIncident | null>(null);
   const [assigning, setAssigning] = useState<SafetyIncident | null>(null);
   const [submitting, setSubmitting] = useState<SafetyIncident | null>(null);
   const [reviewing, setReviewing] = useState<SafetyIncident | null>(null);
+  // 「建筑商后台也是需要改」: the console takes part in the same conversation
+  // the field app uses, rather than reading a summary of it.
+  const [talking, setTalking] = useState<SafetyIncident | null>(null);
   const openedIncidentRef = useRef("");
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["safety", mode, list.query],
+    queryKey: ["safety", mode, list.query, overdueOnly],
     queryFn: () => getSafetyIncidents({
       ...list.query,
       workflow: mode === "rectification" ? "rectification" : undefined,
+      overdue: overdueOnly ? "1" : undefined,
     }),
   });
   const focusedIncident = useQuery({
@@ -177,7 +180,6 @@ export function Safety({
     enabled: Boolean(requestedIncidentId),
   });
   const selectedProject = list.filters.project ?? "all";
-  const selectedSeverity = list.filters.severity ?? "all";
   const selectedCategory = list.filters.category ?? "all";
   const selectedResponsible = list.filters.responsible_person ?? "all";
   const filterCategories = useQuery({
@@ -186,6 +188,13 @@ export function Safety({
       getProjectCategories({
         project: selectedProject === "all" ? undefined : selectedProject,
         is_active: true,
+        // Site-record columns only. This filter was absent, so the safety
+        // screen offered the material columns - the customer photographed a
+        // hazard-rectification picker listing 钢筋, 混凝土, 洋灰 and the rest
+        // of the delivery tree (F-236). The server reads FIELD as
+        // `kind__in=[FIELD, BOTH]`, so a column marked as serving both
+        // schemes is still offered.
+        kind: "FIELD",
         page_size: 200,
       }),
   });
@@ -279,23 +288,10 @@ export function Safety({
           </span>
         ),
       },
-      {
-        accessorKey: "severity",
-        meta: { label: t("safety.field.severity") },
-        header: ({ column }) => (
-          <SortableHeader
-            label={t("safety.field.severity")}
-            isSorted={column.getIsSorted()}
-            onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          />
-        ),
-        cell: ({ row }) => (
-          <StatusBadge
-            label={t(`safety.severity.${row.original.severity}`)}
-            tone={SEVERITY_TONE[row.original.severity]}
-          />
-        ),
-      },
+      // The severity column is gone: 「那些严重程度啊中等啊，高，低呀那些都不
+      // 要」. The database column stays - hazards already filed carry a grade
+      // and dropping it would rewrite history - and the export keeps it for
+      // the same reason. What goes is asking for it and ranking by it.
       {
         accessorKey: "status",
         meta: { label: t("safety.field.status") },
@@ -365,6 +361,10 @@ export function Safety({
             {can("safety.verify") && row.original.status === "RECTIFICATION_SUBMITTED" && (
               <Button variant="ghost" size="icon" className="h-7 w-7 text-success" title={t("safetyRectification.action.review")} onClick={() => setReviewing(row.original)}><CheckCircle2 className="h-4 w-4" /></Button>
             )}
+            {/* Always offered, including on an archived hazard: the record
+                stays readable after closure - 「记录全部都要留着」 - and the
+                panel itself is what refuses a new message. */}
+            <Button variant="ghost" size="icon" className="h-7 w-7" title={t("hazard.conversationTitle")} onClick={() => setTalking(row.original)}><MessageSquare className="h-4 w-4" /></Button>
             {can("safety.manage") && ["OPEN", "INVESTIGATING"].includes(row.original.status) && (
               <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" title={t("safety.action.updateStatus")} onClick={() => setUpdating(row.original)}><SlidersHorizontal className="h-3.5 w-3.5" /></Button>
             )}
@@ -413,7 +413,11 @@ export function Safety({
             {can("report.export") && !fieldMode && (
               <ExportButton onExport={runExport} disabled={!total} />
             )}
-            {mode === "incidents" && can("safety.manage") && (
+            {/* No longer gated on the mode. 安全事故 is being removed from
+                the console at the customer's request, which makes this screen
+                the only place a hazard can be raised - and the button lived
+                on the half being deleted (F-240). */}
+            {can("safety.manage") && (
             <Button size={fieldMode ? "lg" : "sm"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
               {t(fieldMode ? "safety.fieldReport.new" : "safety.new")}
@@ -438,24 +442,7 @@ export function Safety({
           allLabel={t("safety.filter.allProjects")}
           className="w-full sm:w-[260px]"
         />
-        {!fieldMode && <Select
-          value={selectedSeverity}
-          onValueChange={(value) =>
-            list.setFilter("severity", value === "all" ? undefined : value)
-          }
-        >
-          <SelectTrigger className="w-full sm:w-[190px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("safety.filter.allSeverities")}</SelectItem>
-            {SEVERITIES.map((severity) => (
-              <SelectItem key={severity} value={severity}>
-                {t(`safety.severity.${severity}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>}
+        {/* Severity filter removed with the column (T-189). */}
         {!fieldMode && (
           <Select
             value={selectedCategory}
@@ -575,6 +562,19 @@ export function Safety({
       {assigning && <SafetyAssignDialog incident={assigning} onClose={() => setAssigning(null)} />}
       {submitting && <SafetySubmitDialog incident={submitting} onClose={() => setSubmitting(null)} />}
       {reviewing && <SafetyReviewDialog incident={reviewing} onClose={() => setReviewing(null)} />}
+      {talking && (
+        <Dialog open onOpenChange={(open) => !open && setTalking(null)}>
+          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{talking.incident_no}</DialogTitle>
+              <DialogDescription>
+                {talking.responsible_person_name || t("hazard.unassigned")}
+              </DialogDescription>
+            </DialogHeader>
+            <HazardConversationPanel incidentId={talking.id} />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
@@ -749,6 +749,8 @@ function SafetyCreateDialog({
       getProjectCategories({
         project: draft.project,
         is_active: true,
+        // Site-record columns only - see the filter query above (F-236).
+        kind: "FIELD",
         page_size: 200,
       }),
     enabled: Boolean(draft.project),
@@ -781,7 +783,10 @@ function SafetyCreateDialog({
       if (!user) throw new Error("Authentication required.");
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
-        category: draft.category,
+        // Omitted rather than sent blank: "" reaches the serializer as a
+        // malformed UUID, so a hazard with no column would be refused for
+        // having one.
+        category: draft.category || undefined,
         title: draft.title.trim(),
         description: draft.description.trim(),
         severity: draft.severity,
@@ -845,7 +850,12 @@ function SafetyCreateDialog({
               className="w-full"
             />
           </FieldWrapper>
-          <FieldWrapper label={t("safety.field.category")} required className="sm:col-span-2">
+          {/* The column is the back office's filing scheme, and asking a
+              worker which one a loose scaffold board belongs to is the same
+              question the customer objected to on the 拍照 screen. The console
+              still files hazards into columns; the phone no longer asks. */}
+          {!fieldMode && (
+          <FieldWrapper label={t("safety.field.category")} optional={t("common.optional")} className="sm:col-span-2">
             <Select
               value={draft.category || undefined}
               onValueChange={(categoryId) => {
@@ -872,22 +882,17 @@ function SafetyCreateDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
+          )}
+
+          {/* Title, the four presets, severity and the time: all off the
+              phone. The presets were 发生事故／发现危险／设备损坏／其他事项 and
+              the customer's answer to the first two was 「不需要」; the title is
+              written by the server; and asking somebody to grade a hazard
+              高／中／低 before they can report it was the thing standing between
+              them and reporting it at all. Every one of them stays here for
+              the console, which is where they are actually used. */}
+          {!fieldMode && (
           <FieldWrapper label={t("safety.field.title")} required className="sm:col-span-2">
-            {fieldMode && (
-              <div className="mb-3 grid grid-cols-2 gap-2">
-                {["accident", "hazard", "damage", "other"].map((preset) => (
-                  <Button
-                    key={preset}
-                    type="button"
-                    variant={draft.title === t(`safety.fieldReport.preset.${preset}`) ? "default" : "outline"}
-                    className="min-h-12"
-                    onClick={() => setDraft((value) => ({ ...value, title: t(`safety.fieldReport.preset.${preset}`) }))}
-                  >
-                    {t(`safety.fieldReport.preset.${preset}`)}
-                  </Button>
-                ))}
-              </div>
-            )}
             <Input
               value={draft.title}
               onChange={(event) =>
@@ -895,26 +900,12 @@ function SafetyCreateDialog({
               }
             />
           </FieldWrapper>
-          <FieldWrapper label={t("safety.field.severity")} required>
-            <Select
-              value={draft.severity}
-              onValueChange={(severity) =>
-                setDraft((value) => ({
-                  ...value,
-                  severity: severity as IncidentSeverity,
-                }))
-              }
-            >
-              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {SEVERITIES.map((severity) => (
-                  <SelectItem key={severity} value={severity}>
-                    {t(`safety.severity.${severity}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
+          )}
+          {/* Not on the console either. 「都不要」 was the whole answer, not
+              「手机上不要」, so nobody is asked to grade a hazard. New hazards
+              take the model's default and the field survives only to keep the
+              ones already filed readable. */}
+          {!fieldMode && (
           <FieldWrapper label={t("safety.field.occurredAt")} optional={t("common.optional")}>
             <Input
               type="datetime-local"
@@ -924,6 +915,7 @@ function SafetyCreateDialog({
               }
             />
           </FieldWrapper>
+          )}
           <FieldWrapper label={t("safety.field.description")} optional={t("common.optional")} className="sm:col-span-2">
             <Textarea
               rows={4}
@@ -958,7 +950,12 @@ function SafetyCreateDialog({
               />
             )}
           </FieldWrapper>
-          <FieldWrapper label={t("safety.fieldReport.notifyPeople")} required={fieldMode} className="sm:col-span-2">
+          {/* 「知道由谁处理就当场指定，不知道就直接提交」. Required used to be
+              true here in field mode, which turned step 2 of the customer's
+              flow into a wall: a worker who does not know who fixes scaffold
+              could not report the scaffold. Unnamed hazards land in 待分配 and
+              a supervisor claims them. */}
+          <FieldWrapper label={t("safety.fieldReport.notifyPeople")} optional={t("common.optional")} className="sm:col-span-2">
             <p className="mb-2 text-xs text-muted-foreground">{t("safety.fieldReport.supervisorAutomatic")}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {selectableWorkers.map((row) => (
@@ -1001,7 +998,13 @@ function SafetyCreateDialog({
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button requires={[[draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.title, t("safety.field.title")], [completedPhotos.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(draft.photos)), t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.field.location")], [!fieldMode || draft.notifyUsers.length > 0, t("safety.fieldReport.notifyPeople")]]} disabled={create.isPending} onClick={() => create.mutate()}>
+          {/* On the phone the list is two long: the photos, and the GPS the
+              app captures itself. Column, title, severity and a named person
+              were all in here, and each one was a way for the button to stay
+              grey at somebody who had already photographed the hazard. */}
+          <Button requires={fieldMode
+            ? [[completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos), t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.latitude && draft.longitude, t("safety.field.location")]]
+            : [[draft.project, t("safety.field.project")], [draft.title, t("safety.field.title")], [completedPhotos.length >= 1, t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.field.location")]]} disabled={create.isPending} onClick={() => create.mutate()}>
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
