@@ -18,6 +18,9 @@ import {
   isRouteAllowed,
 } from "@/lib/navigation";
 import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
+
+const GLOBAL_REALTIME_KEYS: never[] = [];
 
 /**
  * The signed-in shell, and the guard in front of it.
@@ -40,6 +43,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     user !== null &&
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
   const isFieldStaff = user?.is_field_staff ?? false;
+  // One stream at the signed-in shell keeps every list/detail screen current,
+  // including pages that do not have a feature-specific subscription.
+  useOrderRealtime(GLOBAL_REALTIME_KEYS, true);
 
   useEffect(() => {
     if (!isLoading && user === null) {

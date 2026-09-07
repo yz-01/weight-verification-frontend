@@ -84,7 +84,7 @@ export function backoffFromResponse(response: Response): number {
  * array. An inline literal would be a new reference on every render and would
  * tear down and rebuild the connection each time.
  */
-export function useOrderRealtime(queryKeys: QueryKey[]): void {
+export function useOrderRealtime(queryKeys: QueryKey[], refreshAllEvents = false): void {
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -108,7 +108,9 @@ export function useOrderRealtime(queryKeys: QueryKey[]): void {
       refreshTimer = setTimeout(() => {
         refreshTimer = null;
         for (const key of queryKeys) {
-          void queryClient.invalidateQueries({ queryKey: key });
+          void queryClient.invalidateQueries(
+            key.length === 0 ? undefined : { queryKey: key },
+          );
         }
       }, COALESCE_MS);
     };
@@ -177,7 +179,7 @@ export function useOrderRealtime(queryKeys: QueryKey[]): void {
               occurred_at?: string;
             };
             if (event.occurred_at) cursor = event.occurred_at;
-            if (shouldRefresh(event.event_type)) refresh();
+            if (refreshAllEvents || shouldRefresh(event.event_type)) refresh();
           }
         }
       } catch {
@@ -194,5 +196,5 @@ export function useOrderRealtime(queryKeys: QueryKey[]): void {
       if (refreshTimer !== null) clearTimeout(refreshTimer);
       disableFallback();
     };
-  }, [queryClient, queryKeys]);
+  }, [queryClient, queryKeys, refreshAllEvents]);
 }
