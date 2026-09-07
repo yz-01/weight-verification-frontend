@@ -312,6 +312,39 @@ export interface MaterialReceipt {
  * payment state. An action that changes what is owed is one a person presses
  * on purpose, not a side effect of a quality call somebody might revise (U-028).
  */
+/**
+ * One row of "what I submitted", normalised across five different records.
+ *
+ * `status_label` travels beside `status` on purpose: the catalogue translates
+ * the code, but a code with no entry would reach the screen raw - which is the
+ * defect the customer reported as `PENDING_APPROVAL` in front of them (F-225).
+ */
+export interface MySubmissionRow {
+  id: string;
+  kind:
+    | "MATERIAL_RECEIPT"
+    | "SITE_RECORD"
+    | "WASTE_OUTGOING"
+    | "HAZARD"
+    | "PROGRESS"
+    | "DRIVER_TRIP";
+  reference: string;
+  detail: string;
+  project_id: string | null;
+  project_name: string;
+  submitted_at: string;
+  status: string;
+  status_label: string;
+  photo: string | null;
+}
+
+export interface MySubmissionsPage {
+  results: MySubmissionRow[];
+  count: number;
+  /** True when the page shows fewer rows than exist, so the screen can say so. */
+  truncated: boolean;
+}
+
 export type MaterialAcceptance = "PENDING" | "ACCEPTED" | "REJECTED";
 
 export interface MaterialReceiptDetail extends MaterialReceipt {

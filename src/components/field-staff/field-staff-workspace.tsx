@@ -43,6 +43,7 @@ import {
   type FieldRecordMode,
 } from "@/components/field-staff/field-records-panel";
 import { FIELD_EVIDENCE_PHOTO_COUNT } from "@/components/field-staff/field-evidence-grid";
+import { MySubmissions } from "@/components/field-staff/my-submissions";
 import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
@@ -346,6 +347,11 @@ function FieldHomePanel({
           );
         })}
       </div>
+      {/* 「手机上没有，不能够存记录没有历史记录」. Placed on the home panel
+          rather than behind a seventh tab: the bottom bar is full, and the
+          question this answers - did what I sent arrive - is the one somebody
+          has when they open the app, not one they navigate to. */}
+      <MySubmissions />
       <FieldDeviceHandoff />
       {can("notification.view") && <FieldNotificationPreview />}
     </section>

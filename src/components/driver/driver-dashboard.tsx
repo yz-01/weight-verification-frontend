@@ -18,6 +18,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { MySubmissions } from "@/components/field-staff/my-submissions";
 import Link from "next/link";
 
 import { useOfflineSync } from "@/components/providers/offline-sync-provider";
@@ -208,6 +210,13 @@ export function DriverDashboard() {
           </div>
         )}
       </section>
+
+      {/* 「现场工作人员**和司机**手机端上传资料的时候，手机上没有」 - the
+          customer named both apps, so both get the same panel and it is the
+          same component. A driver's evidence is the weighbridge ticket and the
+          delivery photograph, and the consequence of an invisible upload is
+          the same: they photograph it again, or stop sending (F-228). */}
+      <MySubmissions />
     </div>
   );
 }

@@ -12,6 +12,7 @@ import type {
   DispatchSummary,
   MaterialReceipt,
   MaterialReceiptDetail,
+  MySubmissionsPage,
   MaterialReceiptPayload,
   PhotoKind,
   Project,
@@ -528,6 +529,20 @@ export async function correctReceipt(
   );
   toastSuccess("receipts.toast.corrected");
   return receipt;
+}
+
+/**
+ * Everything this person has submitted, across all five modules.
+ *
+ * One call rather than five, because the worker's question is not "what did I
+ * send through the receipts module" - it is "is my work recorded". Splitting
+ * the answer across screens is how the same delivery gets photographed twice
+ * (F-228).
+ */
+export function getMySubmissions(): Promise<MySubmissionsPage> {
+  return api.get<MySubmissionsPage>(
+    "/api/my-submissions/get_my_submissions/",
+  );
 }
 
 /**

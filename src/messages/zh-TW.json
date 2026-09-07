@@ -13153,5 +13153,23 @@
   },
   "home": {
     "action": {}
+  },
+  "mySubmissions": {
+    "title": "我提交過的",
+    "subtitle": "你提交的全部記錄，最新的在最上面。",
+    "refresh": "重新查看",
+    "empty": "還沒有。你提交的東西都會出現在這裡。",
+    "waitingToUpload": "待上傳",
+    "uploadFailed": "上傳被拒絕",
+    "attempts": "已嘗試 {count} 次",
+    "truncated": "顯示 {shown} 條，共 {total} 條。",
+    "kind": {
+      "MATERIAL_RECEIPT": "材料收貨",
+      "SITE_RECORD": "現場記錄",
+      "WASTE_OUTGOING": "廢料出場",
+      "HAZARD": "隱患",
+      "PROGRESS": "施工進度",
+      "DRIVER_TRIP": "運輸任務"
+    }
   }
 }

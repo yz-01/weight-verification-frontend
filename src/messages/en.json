@@ -13153,5 +13153,23 @@
   },
   "home": {
     "action": {}
+  },
+  "mySubmissions": {
+    "title": "What I sent",
+    "subtitle": "Everything you submitted, newest first.",
+    "refresh": "Check again",
+    "empty": "Nothing yet. Anything you submit appears here.",
+    "waitingToUpload": "Waiting to upload",
+    "uploadFailed": "Upload refused",
+    "attempts": "{count} attempts",
+    "truncated": "Showing {shown} of {total}.",
+    "kind": {
+      "MATERIAL_RECEIPT": "Delivery",
+      "SITE_RECORD": "Site record",
+      "WASTE_OUTGOING": "Waste out",
+      "HAZARD": "Hazard",
+      "PROGRESS": "Progress",
+      "DRIVER_TRIP": "Trip"
+    }
   }
 }

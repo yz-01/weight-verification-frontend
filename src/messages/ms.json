@@ -13153,5 +13153,23 @@
   },
   "home": {
     "action": {}
+  },
+  "mySubmissions": {
+    "title": "Apa yang saya hantar",
+    "subtitle": "Semua yang anda hantar, terbaharu di atas.",
+    "refresh": "Periksa semula",
+    "empty": "Belum ada. Apa sahaja yang anda hantar akan muncul di sini.",
+    "waitingToUpload": "Menunggu dimuat naik",
+    "uploadFailed": "Muat naik ditolak",
+    "attempts": "{count} cubaan",
+    "truncated": "Menunjukkan {shown} daripada {total}.",
+    "kind": {
+      "MATERIAL_RECEIPT": "Penghantaran",
+      "SITE_RECORD": "Rekod tapak",
+      "WASTE_OUTGOING": "Sisa keluar",
+      "HAZARD": "Bahaya",
+      "PROGRESS": "Kemajuan",
+      "DRIVER_TRIP": "Perjalanan"
+    }
   }
 }
