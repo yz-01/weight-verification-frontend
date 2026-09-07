@@ -1219,7 +1219,15 @@
       "loadError": "無法加載通知方式狀態，請稍後重試。",
       "never": "還沒有發送記錄",
       "sent": "已發送 {count} 次",
-      "sentLabel": "發送成功"
+      "sentLabel": "真實發送成功",
+      "enabled": "已啟用",
+      "disabled": "已關閉",
+      "enabledLabel": "啟用{channel}",
+      "modeLabel": "{channel}模式",
+      "policyHint": "關閉時不發送；測試模式只記錄模擬結果；真實模式才向接收人發送。",
+      "simulatedLabel": "模擬投遞（未實際發送）",
+      "unavailable": "已關閉或未配置",
+      "saveError": "通知設定儲存失敗，請重試。"
     },
     "composer": {
       "channelDescription": {

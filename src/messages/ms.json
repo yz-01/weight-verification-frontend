@@ -1219,7 +1219,15 @@
       "loadError": "Status saluran notifikasi tidak dapat dimuatkan. Sila cuba lagi.",
       "never": "Belum ada percubaan",
       "sent": "{count} dihantar",
-      "sentLabel": "Berjaya dihantar"
+      "sentLabel": "Penghantaran sebenar",
+      "enabled": "Diaktifkan",
+      "disabled": "Dimatikan",
+      "enabledLabel": "Aktifkan {channel}",
+      "modeLabel": "Mod {channel}",
+      "policyHint": "Dimatikan tidak menghantar. Mod ujian merekod simulasi sahaja. Mod langsung menghantar kepada penerima.",
+      "simulatedLabel": "Simulasi sahaja — tidak dihantar",
+      "unavailable": "Dimatikan atau belum dikonfigurasi",
+      "saveError": "Tetapan penghantaran gagal disimpan. Cuba lagi."
     },
     "composer": {
       "channelDescription": {

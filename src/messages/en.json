@@ -1219,7 +1219,15 @@
       "loadError": "Notification channel status could not be loaded. Please try again.",
       "never": "No attempts yet",
       "sent": "{count} sent",
-      "sentLabel": "Delivered"
+      "sentLabel": "Real deliveries",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "enabledLabel": "Enable {channel}",
+      "modeLabel": "{channel} mode",
+      "policyHint": "Disabled sends nothing. Test mode records a simulation only. Live mode sends to recipients.",
+      "simulatedLabel": "Simulated only — not sent",
+      "unavailable": "Disabled or not configured",
+      "saveError": "Could not save the delivery settings. Try again."
     },
     "composer": {
       "channelDescription": {
