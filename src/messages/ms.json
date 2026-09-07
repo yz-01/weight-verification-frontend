@@ -6942,6 +6942,17 @@
     "selectStaff": "Pilih seorang staf tapak",
     "title": "Cipta pautan staf tapak"
   },
+  "fieldDraft": {
+    "loading": "Memuatkan draf yang disimpan...",
+    "empty": "Isian anda disimpan pada peranti ini.",
+    "saving": "Menyimpan isian anda...",
+    "saved": "Disimpan pada peranti ini",
+    "error": "Draf gagal disimpan. Kekalkan halaman ini dan cuba lagi.",
+    "retry": "Cuba simpan lagi",
+    "discard": "Buang draf",
+    "confirmDiscard": "Buang semua isian yang disimpan untuk borang ini?",
+    "keep": "Kekalkan"
+  },
   "fieldStaffPwa": {
     "handoff": {
       "failed": "Kod tidak dapat dijana",

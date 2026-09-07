@@ -21,6 +21,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
@@ -744,10 +745,11 @@ function SafetyCreateDialog({
   const t = useTranslations();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [draft, setDraft] = useState<SafetyDraft>({
+  const [draft, setDraft] = useDraftState<SafetyDraft>("draft", {
     ...EMPTY_DRAFT,
     project: initialProject,
   });
+  const clearDraft = useClearDraft();
   const [locating, setLocating] = useState(fieldMode);
   const categories = useQuery({
     queryKey: ["safety-create-categories", draft.project],
@@ -810,6 +812,7 @@ function SafetyCreateDialog({
     },
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["safety"] });
+      clearDraft();
       onClose();
       onSaved?.(result);
     },

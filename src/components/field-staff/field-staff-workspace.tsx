@@ -42,6 +42,7 @@ import {
   FieldRecordsPanel,
   type FieldRecordMode,
 } from "@/components/field-staff/field-records-panel";
+import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FIELD_EVIDENCE_PHOTO_COUNT } from "@/components/field-staff/field-evidence-grid";
 import { MySubmissions } from "@/components/field-staff/my-submissions";
 import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
@@ -234,7 +235,7 @@ function FieldStaffWorkspaceContent({
           }}
         />
       )}
-      {tab === "attendance" && <FieldAttendancePanel />}
+      {tab === "attendance" && <FieldDraft scope="attendance"><FieldAttendancePanel /></FieldDraft>}
       {tab === "records" && (
         <FieldRecordsPanel
           initialMode={recordMode}
@@ -641,16 +642,17 @@ function FieldAttendancePanel() {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
-  const [event, setEvent] = useState<AttendanceEvent>("CLOCK_IN");
-  const [selfie, setSelfie] = useState<File>();
-  const [fix, setFix] = useState<LocationFix | null>(null);
-  const [note, setNote] = useState("");
+  const [project, setProject] = useDraftState("project", "");
+  const [event, setEvent] = useDraftState<AttendanceEvent>("event", "CLOCK_IN");
+  const [selfie, setSelfie] = useDraftState<File | undefined>("selfie");
+  const [fix, setFix] = useDraftState<LocationFix | null>("fix", null);
+  const [note, setNote] = useDraftState("note", "");
+  const clearDraft = useClearDraft();
   const [error, setError] = useState("");
   const attendance = useQuery({ queryKey: ["field-staff", "attendance"], queryFn: () => getAttendance({ page_size: 30, sort_by: "occurred_at", sort_order: "desc" }) });
   const today = useMemo(() => (attendance.data?.results ?? []).filter((row) => row.user === user?.id && new Date(row.occurred_at).toDateString() === new Date().toDateString()), [attendance.data, user?.id]);
   const selectedProject = project || today[0]?.project || "";
-  const submit = useMutation({ mutationFn: () => { if (!user || !selfie || !fix) throw new Error("missing"); return submitAttendanceOfflineAware(user.id, { project: selectedProject, event, note, photo: selfie, latitude: fix.latitude, longitude: fix.longitude, locationAccuracyM: fix.accuracy }); }, onSuccess: () => { setSelfie(undefined); setFix(null); setNote(""); setError(""); void qc.invalidateQueries({ queryKey: ["field-staff", "attendance"] }); }, onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("error.action")) });
+  const submit = useMutation({ mutationFn: () => { if (!user || !selfie || !fix) throw new Error("missing"); return submitAttendanceOfflineAware(user.id, { project: selectedProject, event, note, photo: selfie, latitude: fix.latitude, longitude: fix.longitude, locationAccuracyM: fix.accuracy }); }, onSuccess: () => { clearDraft(); setSelfie(undefined); setFix(null); setNote(""); setError(""); void qc.invalidateQueries({ queryKey: ["field-staff", "attendance"] }); }, onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("error.action")) });
   return (
     <section className="space-y-4">
       <div>

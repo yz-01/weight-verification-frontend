@@ -6942,6 +6942,17 @@
     "selectStaff": "Select a field worker",
     "title": "Create a field staff link"
   },
+  "fieldDraft": {
+    "loading": "Loading saved draft...",
+    "empty": "Your entries are saved on this device.",
+    "saving": "Saving your entries...",
+    "saved": "Saved on this device",
+    "error": "Could not save this draft. Keep this page open and retry.",
+    "retry": "Retry save",
+    "discard": "Discard draft",
+    "confirmDiscard": "Discard all saved entries for this form?",
+    "keep": "Keep"
+  },
   "fieldStaffPwa": {
     "handoff": {
       "failed": "The code could not be made",

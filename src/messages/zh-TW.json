@@ -6942,6 +6942,17 @@
     "selectStaff": "請選擇現場人員",
     "title": "生成現場人員鏈接"
   },
+  "fieldDraft": {
+    "loading": "正在載入已儲存草稿…",
+    "empty": "你填寫的內容會保存在這台裝置上。",
+    "saving": "正在儲存填寫內容…",
+    "saved": "已保存在這台裝置",
+    "error": "草稿儲存失敗，請保持頁面開啟後重試。",
+    "retry": "重試儲存",
+    "discard": "刪除草稿",
+    "confirmDiscard": "刪除這個表單已儲存的全部內容？",
+    "keep": "保留"
+  },
   "fieldStaffPwa": {
     "handoff": {
       "failed": "QR 碼產生失敗",

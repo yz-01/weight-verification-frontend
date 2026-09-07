@@ -31,6 +31,7 @@ import {
   SiteDisposalWorkspace,
 } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
+import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { CategoryEvidenceCapture } from "@/components/field-staff/category-evidence-capture";
@@ -145,13 +146,13 @@ export function FieldRecordsPanel({
   };
 
   if (mode === "material") {
-    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><FieldDraft scope={`material:${task?.id ?? "new"}`}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "equipment") {
-    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><SiteEquipmentWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldDraft scope={`equipment:${task?.id ?? "new"}`}><SiteEquipmentWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "progress") {
-    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><SiteProgressWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "disposal") {
     if (
@@ -160,22 +161,22 @@ export function FieldRecordsPanel({
     ) {
       return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><InternalDisposalWorkspace disposalId={task.linked_record_id} onSubmitted={() => chooseMode(null)} /></RecordFrame>;
     }
-    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><SiteDisposalWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><FieldDraft scope={`disposal:${task?.id ?? "new"}`}><SiteDisposalWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "outgoing") {
-    return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><MaterialOutgoingWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><FieldDraft scope={`outgoing:${task?.id ?? "new"}`}><MaterialOutgoingWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "waste") {
-    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><WasteOutgoingCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><FieldDraft scope={`waste:${task?.id ?? "new"}`}><WasteOutgoingCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "safety") {
-    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></RecordFrame>;
+    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><FieldDraft scope={`safety:${task?.id ?? "new"}`}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></FieldDraft></RecordFrame>;
   }
   if (mode === "consultant") {
-    return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><ConsultantCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><FieldDraft scope={`consultant:${task?.id ?? "new"}`}><ConsultantCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "category") {
-    return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><CategoryEvidenceCapture initialProject={task?.project} onSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><FieldDraft scope={`category:${task?.id ?? "new"}`}><CategoryEvidenceCapture initialProject={task?.project} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
 
   return (
@@ -296,15 +297,11 @@ function MaterialCapturePanel({
   const allT = useTranslations();
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [draft, setDraft] = useState<MaterialDraft>({
-    ...EMPTY_MATERIAL,
-    project: initialProject,
-  });
-  const [materialEvidence, setMaterialEvidence] = useState(
-    createEmptyFieldEvidence,
-  );
-  const [receiverSignature, setReceiverSignature] = useState<File>();
-  const [supplierSignature, setSupplierSignature] = useState<File>();
+  const [draft, setDraft] = useDraftState<MaterialDraft>("material", { ...EMPTY_MATERIAL, project: initialProject });
+  const [materialEvidence, setMaterialEvidence] = useDraftState("materialEvidence", createEmptyFieldEvidence);
+  const [receiverSignature, setReceiverSignature] = useDraftState<File | undefined>("receiverSignature");
+  const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>("supplierSignature");
+  const clearDraft = useClearDraft();
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
   const [scannerOpen, setScannerOpen] = useState(false);
   const [ocrProof, setOcrProof] = useState("");
@@ -587,6 +584,7 @@ function MaterialCapturePanel({
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["receipts"] });
+      clearDraft();
       onSaved();
     },
     onError: (reason) => setError(

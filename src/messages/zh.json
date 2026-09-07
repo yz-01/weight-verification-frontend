@@ -6942,6 +6942,17 @@
     "selectStaff": "请选择现场人员",
     "title": "生成现场人员链接"
   },
+  "fieldDraft": {
+    "loading": "正在载入已保存草稿…",
+    "empty": "你填写的内容会保存在这台设备上。",
+    "saving": "正在保存填写内容…",
+    "saved": "已保存在这台设备",
+    "error": "草稿保存失败，请保持页面打开后重试。",
+    "retry": "重试保存",
+    "discard": "删除草稿",
+    "confirmDiscard": "删除这个表单已保存的全部内容？",
+    "keep": "保留"
+  },
   "fieldStaffPwa": {
     "handoff": {
       "failed": "二维码生成失败",
