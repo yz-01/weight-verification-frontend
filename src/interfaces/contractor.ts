@@ -432,6 +432,8 @@ export type DeliveryNoteOCRField =
   | "quantity";
 
 export interface DeliveryNoteOCRLineItem {
+  /** The note's own Marks/No. code for the row (e.g. RB-10), when printed. */
+  code?: string;
   material_name: string;
   quantity: string;
   unit: string;
