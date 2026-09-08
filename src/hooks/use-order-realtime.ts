@@ -84,7 +84,7 @@ export function backoffFromResponse(response: Response): number {
  * array. An inline literal would be a new reference on every render and would
  * tear down and rebuild the connection each time.
  */
-export function useOrderRealtime(queryKeys: QueryKey[], refreshAllEvents = false): void {
+export function useOrderRealtime(queryKeys: readonly QueryKey[], refreshAllEvents = false): void {
   const queryClient = useQueryClient();
 
   useEffect(() => {

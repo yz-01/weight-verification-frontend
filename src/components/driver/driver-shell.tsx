@@ -19,6 +19,9 @@ import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { DriverInstallPrompt } from "@/components/driver/driver-install-prompt";
 import { DriverLiveTracker } from "@/components/driver/driver-live-tracker";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useOrderRealtime } from "@/hooks/use-order-realtime";
+
+const DRIVER_REALTIME_KEYS = [["driver"], ["driver-tasks"], ["notifications"]] as const;
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,6 +49,7 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isLoading, signOut } = useAuth();
+  useOrderRealtime(DRIVER_REALTIME_KEYS);
   const isDriverOnly =
     user !== null &&
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
