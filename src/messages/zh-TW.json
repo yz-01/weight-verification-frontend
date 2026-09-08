@@ -6628,6 +6628,7 @@
       "scale_has_dependencies": "請先停用所有網關。已有稱重證據的地磅不能移除。",
       "scale_not_found": "找不到這臺地磅。",
       "scheduled_job_not_found": "找不到這個計劃任務。",
+      "server_error": "服務器暫時無法完成此請求，請稍後重試。",
       "service_record_not_found": "找不到該客戶服務記錄。",
       "session_expired": "登錄已過期，請重新登錄。",
       "session_not_found": "找不到這次稱重。",
@@ -6951,7 +6952,8 @@
     "retry": "重試儲存",
     "discard": "刪除草稿",
     "confirmDiscard": "刪除這個表單已儲存的全部內容？",
-    "keep": "保留"
+    "keep": "保留",
+    "photoMissing": "填寫的內容已恢復，但有 {count} 項的照片讀不回來，請重新拍一次。"
   },
   "fieldStaffPwa": {
     "handoff": {

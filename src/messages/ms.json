@@ -6628,6 +6628,7 @@
       "scale_has_dependencies": "Nyahaktifkan semua gateway dahulu. Jambatan timbang yang mempunyai bukti penimbangan tidak boleh dibuang.",
       "scale_not_found": "Jambatan timbang itu tidak dijumpai.",
       "scheduled_job_not_found": "Tugas berjadual itu tidak dijumpai.",
+      "server_error": "Pelayan tidak dapat menyelesaikan permintaan ini. Cuba sebentar lagi.",
       "service_record_not_found": "Rekod khidmat pelanggan itu tidak dijumpai.",
       "session_expired": "Sesi anda telah tamat. Sila log masuk semula.",
       "session_not_found": "Penimbangan itu tidak dijumpai.",
@@ -6951,7 +6952,8 @@
     "retry": "Cuba simpan lagi",
     "discard": "Buang draf",
     "confirmDiscard": "Buang semua isian yang disimpan untuk borang ini?",
-    "keep": "Kekalkan"
+    "keep": "Kekalkan",
+    "photoMissing": "Apa yang ditaip masih ada, tetapi foto untuk {count} medan tidak dapat dibuka semula. Sila ambil semula foto itu."
   },
   "fieldStaffPwa": {
     "handoff": {

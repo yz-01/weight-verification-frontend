@@ -1,6 +1,13 @@
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
-import { backoffFromResponse, shouldRefresh } from "./use-order-realtime";
+import {
+  backoffFromResponse,
+  canUseRealtime,
+  shouldRefresh,
+} from "./use-order-realtime";
 
 /**
  * The two decisions in the realtime hook that are wrong quietly.
@@ -38,6 +45,16 @@ describe("shouldRefresh", () => {
     "approval.reject",
     "approval.return",
     "approval.submit",
+    "safety.status_changed",
+    "attendance.clock_in",
+    "deduction.responded",
+    "partnership.status_changed",
+    "receipt.created",
+    "field_task.changed",
+    "equipment.created",
+    "progress.changed",
+    "material_outgoing.created",
+    "disposal.changed",
   ];
 
   /** Platform noise. Refreshing an order view for these is pure waste. */
@@ -47,7 +64,6 @@ describe("shouldRefresh", () => {
     "request.server_error",
     "job.failed",
     "system.monitoring_test",
-    "attendance.check_in",
     "payroll.salary_paid",
     "device.heartbeat_degraded",
   ];
@@ -96,5 +112,43 @@ describe("backoffFromResponse", () => {
 
   it("caps a very long Retry-After so the screen is not abandoned", () => {
     expect(backoffFromResponse(withRetryAfter("3600"))).toBe(60_000);
+  });
+});
+
+describe("canUseRealtime", () => {
+  it("admits mapped business and notification permissions", () => {
+    expect(canUseRealtime(["notification.view"])).toBe(true);
+    expect(canUseRealtime(["document.view"])).toBe(true);
+    expect(canUseRealtime(["field_task.view"])).toBe(true);
+  });
+
+  it("does not open an empty stream for unrelated permissions", () => {
+    expect(canUseRealtime(["project.view"])).toBe(false);
+    expect(canUseRealtime([], true)).toBe(true);
+  });
+});
+
+describe("realtime connection ownership", () => {
+  it("opens one global stream in each authenticated application shell", () => {
+    const componentsRoot = path.join(process.cwd(), "src/components");
+    const hookOwners = readdirSync(componentsRoot, { recursive: true })
+      .filter((entry): entry is string => typeof entry === "string" && entry.endsWith(".tsx"))
+      .filter((entry) =>
+        readFileSync(path.join(componentsRoot, entry), "utf8").includes("useOrderRealtime("),
+      )
+      .map((entry) => entry.replaceAll("\\", "/"))
+      .sort();
+
+    expect(hookOwners).toEqual([
+      "driver/driver-shell.tsx",
+      "field-staff/field-staff-shell.tsx",
+      "layout/dashboard-shell.tsx",
+    ]);
+
+    for (const owner of hookOwners) {
+      const source = readFileSync(path.join(componentsRoot, owner), "utf8");
+      expect(source.match(/useOrderRealtime\(/g)).toHaveLength(1);
+      expect(source).toContain("canUseRealtime(");
+    }
   });
 });

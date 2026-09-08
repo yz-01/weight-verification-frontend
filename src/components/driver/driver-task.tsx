@@ -17,7 +17,7 @@ import {
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   DriverError,
@@ -56,7 +56,6 @@ import {
   submitTaskTransitionOfflineAware,
 } from "@/services/offline-sync.service";
 import { useAuth } from "@/components/providers/auth-provider";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { trackPaths } from "@/lib/track-paths";
 import {
   useDriverDeviceStatus,
@@ -81,12 +80,6 @@ export function DriverTask({ id }: { id: string }) {
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const realtimeKeys = useMemo(
-    () => [["tasks", "detail", id], ["tasks", "mine"], ["driver", "dashboard"]],
-    [id],
-  );
-  useOrderRealtime(realtimeKeys);
-
   const { gpsStatus } = useDriverDeviceStatus();
 
   const [moving, setMoving] = useState<TaskState | null>(null);

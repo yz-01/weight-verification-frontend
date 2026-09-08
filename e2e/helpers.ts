@@ -8,6 +8,8 @@ export const API = "http://127.0.0.1:8199";
 
 /** Fixed credentials created by `backend manage.py seed_e2e`. */
 export const PASSWORD = "E2e-Pass-1234!";
+export const FIELD_PIN = "000000";
+export const FIELD_DEVICE_ID = "e2e-field-device";
 
 export const ACCOUNTS = {
   admin: "admin@e2e.test",
@@ -59,6 +61,19 @@ export async function loginAs(
 ): Promise<void> {
   await submitLogin(page, loginPath, email);
   await expectSignedIn(page);
+}
+
+export async function loginAsFieldStaff(page: Page): Promise<void> {
+  await page.addInitScript((deviceId) => {
+    window.localStorage.setItem("mse_field_device_id", deviceId);
+  }, FIELD_DEVICE_ID);
+  await page.goto("/trace/field-login");
+  await page.waitForLoadState("networkidle");
+  await page.fill("#field-pin", FIELD_PIN);
+  await page.getByRole("button", { name: /sign in|登录|登入|log masuk/i }).click();
+  await page.waitForURL(/\/trace\/field-ready/, { timeout: 20_000 });
+  await page.getByRole("button", { name: /open.*workspace|打开.*工作|開啟.*工作|buka.*ruang/i }).click();
+  await page.waitForURL(/\/field-staff(?:\?|$)/, { timeout: 20_000 });
 }
 
 /** The console sidebar always carries the Dashboard link once signed in. */

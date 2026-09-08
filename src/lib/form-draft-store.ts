@@ -4,12 +4,27 @@ export interface DraftSnapshot {
   values: DraftValues;
   ready: boolean;
   status: "loading" | "empty" | "saving" | "saved" | "error";
+  /**
+   * Top-level draft keys whose saved photo could not be read back.
+   *
+   * A browser is free to drop the stored blobs and keep the row - a private
+   * window, cleared site data, or quota reclamation all do it. This used to
+   * throw out of `decode`, and the catch below left `ready` false forever,
+   * so `{snapshot.ready && children}` never rendered the form at all: the
+   * mechanism added so nobody loses their typing was itself able to make the
+   * screen unusable (F-264). The typed values are restored instead, the
+   * affected fields are named here, and the worker is asked to re-take those
+   * photos.
+   */
+  missingAttachments: string[];
 }
 type Encoded = null | boolean | number | string | Encoded[] | { [key: string]: Encoded };
 interface DraftRecord { id: string; values: Encoded }
 interface DraftFile { id: string; owner: string; file: File }
 const PREFIX = "mse-form-draft:v1:";
 const stores = new Map<string, FormDraftStore>();
+/** Marks a value whose stored photo is gone, so it is dropped rather than thrown over. */
+const MISSING = Symbol("draft-attachment-missing");
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -78,11 +93,13 @@ const browserPersistence: DraftPersistence = {
 };
 
 export class FormDraftStore {
-  private snapshot: DraftSnapshot = { values: {}, ready: false, status: "loading" };
+  private snapshot: DraftSnapshot = { values: {}, ready: false, status: "loading", missingAttachments: [] };
   private listeners = new Set<() => void>();
   private fileIds = new WeakMap<File, string>();
   private savedFiles = new Set<string>();
   private loadPromise?: Promise<void>;
+  /** False after a failed load, so `retry` re-reads instead of writing `{}` over the draft. */
+  private loaded = false;
   private writes = Promise.resolve();
   private revision = 0;
   constructor(readonly id: string, private persistence: DraftPersistence = browserPersistence) {}
@@ -96,31 +113,61 @@ export class FormDraftStore {
     this.listeners.forEach((listener) => listener());
   }
   load = (): Promise<void> => {
-    if (this.snapshot.ready) return Promise.resolve();
+    if (this.loaded) return Promise.resolve();
     if (this.loadPromise) return this.loadPromise;
     this.loadPromise = this.persistence.load(this.id).then((record) => {
       const files = new Map(record?.files.map((entry) => [entry.id, entry.file]) ?? []);
-      const decode = (value: Encoded): unknown => {
-        if (Array.isArray(value)) return value.map(decode);
+      const missing: string[] = [];
+      // `field` is the top-level draft key being decoded, so a dropped blob can
+      // be reported as "re-take this photo" rather than as a broken form.
+      const decode = (value: Encoded, field: string): unknown => {
+        if (Array.isArray(value)) {
+          return value
+            .map((entry) => decode(entry, field))
+            .filter((entry) => entry !== MISSING);
+        }
         if (value && typeof value === "object") {
           const marker = value as { $draft?: string; id?: string };
           if (marker.$draft === "undefined") return undefined;
           if (marker.$draft === "file") {
             const file = files.get(String(marker.id));
-            if (!file) throw new Error("draft_attachment_missing");
+            if (!file) {
+              // Report, do not throw. See DraftSnapshot.missingAttachments.
+              if (!missing.includes(field)) missing.push(field);
+              return MISSING;
+            }
             this.fileIds.set(file, String(value.id));
             this.savedFiles.add(String(value.id));
             return file;
           }
-          return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, decode(entry)]));
+          return Object.fromEntries(
+            Object.entries(value)
+              .map(([key, entry]) => [key, decode(entry, field)] as const)
+              .filter(([, entry]) => entry !== MISSING),
+          );
         }
         return value;
       };
-      const values = record ? decode(record.values) as DraftValues : {};
-      this.publish({ values, ready: true, status: Object.keys(values).length ? "saved" : "empty" });
+      const stored = (record?.values ?? {}) as Record<string, Encoded>;
+      const values = Object.fromEntries(
+        Object.entries(stored)
+          .map(([key, entry]) => [key, decode(entry, key)] as const)
+          .filter(([, entry]) => entry !== MISSING),
+      ) as DraftValues;
+      this.loaded = true;
+      this.publish({
+        values,
+        ready: true,
+        status: Object.keys(values).length ? "saved" : "empty",
+        missingAttachments: missing,
+      });
     }).catch(() => {
       this.loadPromise = undefined;
-      this.publish({ ...this.snapshot, status: "error" });
+      // `ready: true` on purpose. The form must still render when this browser
+      // refuses to store anything at all - a private window throws on
+      // `indexedDB.open` - and leaving it false blanked the whole screen.
+      // `loaded` stays false so `retry` re-reads rather than overwriting.
+      this.publish({ values: {}, ready: true, status: "error", missingAttachments: [] });
     });
     return this.loadPromise;
   };
@@ -142,22 +189,29 @@ export class FormDraftStore {
   }
   set(key: string, value: unknown) { this.persist({ ...this.snapshot.values, [key]: value }); }
   clear = () => { this.persist({}, true); };
-  retry = () => this.snapshot.ready ? this.persist(this.snapshot.values) : void this.load();
+  // Keyed on `loaded`, not on `ready`. A load that failed must be retried as a
+  // *read*; writing the empty snapshot back would erase the draft still on disk.
+  retry = () => this.loaded ? this.persist(this.snapshot.values) : void this.load();
   private persist(values: DraftValues, clear = false) {
     const revision = ++this.revision;
     const encoded = this.encode(values);
     let journalFailed = false;
     try { this.persistence.journal(this.id, encoded.values); } catch { journalFailed = true; }
-    this.publish({ values, ready: true, status: "saving" });
+    // Clearing starts a fresh form, so nothing is outstanding; otherwise the
+    // notice stands until the worker re-takes the photo, which is itself a write.
+    const missingAttachments = clear
+      ? []
+      : this.snapshot.missingAttachments.filter((field) => !Object.hasOwn(values, field) || values[field] === undefined);
+    this.publish({ values, ready: true, status: "saving", missingAttachments });
     // Serialize writes, including clearing after success, so an older pending write
     // cannot resurrect an already submitted draft.
     this.writes = this.writes.catch(() => {}).then(async () => {
       await this.persistence.save(this.id, encoded.values, encoded.files, clear);
       if (clear) this.savedFiles.clear();
       encoded.files.forEach((entry) => this.savedFiles.add(entry.id));
-      if (revision === this.revision) this.publish({ values, ready: true, status: journalFailed ? "error" : Object.keys(values).length ? "saved" : "empty" });
+      if (revision === this.revision) this.publish({ values, ready: true, status: journalFailed ? "error" : Object.keys(values).length ? "saved" : "empty", missingAttachments });
     }).catch(() => {
-      if (revision === this.revision) this.publish({ values, ready: true, status: "error" });
+      if (revision === this.revision) this.publish({ values, ready: true, status: "error", missingAttachments });
     });
   }
   flush = () => this.writes;

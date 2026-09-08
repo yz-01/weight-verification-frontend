@@ -6628,6 +6628,7 @@
       "scale_has_dependencies": "Disable all gateways first. A weighbridge with weighing evidence cannot be removed.",
       "scale_not_found": "That weighbridge could not be found.",
       "scheduled_job_not_found": "That scheduled job could not be found.",
+      "server_error": "The server could not complete this request. Try again shortly.",
       "service_record_not_found": "That customer service record could not be found.",
       "session_expired": "Your session expired. Sign in again.",
       "session_not_found": "That weighing could not be found.",
@@ -6951,7 +6952,8 @@
     "retry": "Retry save",
     "discard": "Discard draft",
     "confirmDiscard": "Discard all saved entries for this form?",
-    "keep": "Keep"
+    "keep": "Keep",
+    "photoMissing": "What you typed was kept, but the photos for {count} field(s) could not be reopened. Please take them again."
   },
   "fieldStaffPwa": {
     "handoff": {

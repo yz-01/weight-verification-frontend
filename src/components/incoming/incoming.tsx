@@ -28,7 +28,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import {
@@ -61,9 +60,6 @@ export function Incoming() {
 
   const [collecting, setCollecting] = useState<WasteDispatch | null>(null);
   const [assigning, setAssigning] = useState<WasteDispatch | null>(null);
-  const realtimeKeys = useMemo(() => [["incoming"], ["dispatches"], ["tasks"]], []);
-  useOrderRealtime(realtimeKeys);
-
   const { data, isLoading, isError } = useQuery({
     queryKey: ["incoming", list.query],
     queryFn: () => getIncomingOfflineAware(ownerId, list.query),

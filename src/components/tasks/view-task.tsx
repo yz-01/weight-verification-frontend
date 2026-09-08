@@ -5,7 +5,7 @@ import { ArrowRight, Info, MapPin, Pencil, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -26,7 +26,6 @@ import {
   type TaskState,
 } from "@/interfaces/recycler";
 import { useDateFormat } from "@/lib/dates";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import {
   advanceTask,
   cancelTask,
@@ -51,12 +50,6 @@ export function ViewTask({ id }: { id: string }) {
   const [cancelling, setCancelling] = useState(false);
   const [closing, setClosing] = useState(false);
   const [reason, setReason] = useState("");
-  const realtimeKeys = useMemo(
-    () => [["tasks", "detail", id], ["tasks"], ["incoming"]],
-    [id],
-  );
-  useOrderRealtime(realtimeKeys);
-
   const { data, isLoading, isError } = useQuery({
     queryKey: ["tasks", "detail", id],
     queryFn: () => getTask(id),

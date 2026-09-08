@@ -37,6 +37,11 @@ function DraftBoundary({ id, children }: { id: string; children: React.ReactNode
     <div className="mb-3 rounded-lg border bg-muted/30 px-3 py-2 text-xs" data-draft-status={snapshot.status}>
       <p role={snapshot.status === "error" ? "alert" : "status"}>{t(snapshot.status)}</p>
       {snapshot.status === "error" && <Button type="button" variant="outline" size="sm" className="mt-2" onClick={store.retry}>{t("retry")}</Button>}
+      {/* The typing came back but a photo did not. Name the count so the worker
+          re-takes one photo instead of wondering what is broken (F-264). */}
+      {snapshot.missingAttachments.length > 0 && (
+        <p role="alert" className="mt-2 font-medium text-destructive">{t("photoMissing", { count: snapshot.missingAttachments.length })}</p>
+      )}
       {snapshot.ready && Object.keys(snapshot.values).length > 0 && (
         confirmDiscard ? <div className="mt-2 flex flex-wrap items-center gap-2"><span>{t("confirmDiscard")}</span><Button type="button" size="sm" variant="destructive" onClick={() => { store.clear(); setConfirmDiscard(false); }}>{t("discard")}</Button><Button type="button" size="sm" variant="outline" onClick={() => setConfirmDiscard(false)}>{t("keep")}</Button></div>
           : <Button type="button" variant="ghost" size="sm" className="mt-1" onClick={() => setConfirmDiscard(true)}>{t("discard")}</Button>

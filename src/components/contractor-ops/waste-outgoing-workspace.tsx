@@ -21,10 +21,9 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import { ExportButton } from "@/components/shared/export-button";
@@ -1262,15 +1261,6 @@ function TrackingDialog({
   // contractor was the only party still waiting on a thirty-second timer, which
   // is what kept the five-second promise from being true.
   //
-  // Nothing extra is needed on the backend: every shared-order event is written
-  // once per company, so the driver's GPS and status arrive here as
-  // `waste_dispatch.*` on the contractor's own stream.
-  const realtimeKeys = useMemo(
-    () => [["waste-outgoing", "tracking", record.id]],
-    [record.id],
-  );
-  useOrderRealtime(realtimeKeys);
-
   const tracking = useQuery({
     queryKey: ["waste-outgoing", "tracking", record.id],
     queryFn: () => getWasteTracking(record.id),

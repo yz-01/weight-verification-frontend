@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
@@ -60,9 +59,6 @@ export function Notifications() {
   const [composeOpen, setComposeOpen] = useState(
     searchParams.get("create") === "1" && can("notification.send"),
   );
-  const realtimeKeys = useMemo(() => [["notifications"]], []);
-  useOrderRealtime(realtimeKeys);
-
   const query = useQuery({
     queryKey: ["notifications", list.query],
     queryFn: () => getNotifications(list.query),

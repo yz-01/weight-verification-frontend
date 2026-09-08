@@ -31,8 +31,38 @@ const REFRESH_PREFIXES = [
   // subscribed, so the approvals list was the one screen in the product that
   // still needed a manual refresh to see a decision land.
   "approval.",
+  "safety.",
+  "attendance.",
+  "deduction.",
+  "partnership.",
+  "receipt.",
+  "field_task.",
+  "equipment.",
+  "progress.",
+  "material_outgoing.",
+  "disposal.",
 ];
 const REFRESH_EXACT = "notification.created";
+const REALTIME_PERMISSION_CODES = new Set([
+  "notification.view",
+  "dispatch.view",
+  "task.view",
+  "weighing.view",
+  "deduction.view",
+  "safety.view",
+  "attendance.view",
+  "receipt.view",
+  "field_task.view",
+  "equipment.view",
+  "progress.view",
+  "material_outgoing.view",
+  "disposal.view",
+  "partnership.view",
+  "document.view",
+  "integration.view",
+  "audit.view",
+  "platform.monitor",
+]);
 
 /**
  * Collapse a burst of events into one invalidation.
@@ -71,6 +101,13 @@ export function backoffFromResponse(response: Response): number {
   return REJECTED_BACKOFF_MS;
 }
 
+export function canUseRealtime(
+  permissions: readonly string[],
+  isPlatformStaff = false,
+): boolean {
+  return isPlatformStaff || permissions.some((code) => REALTIME_PERMISSION_CODES.has(code));
+}
+
 /**
  * Subscribe to shared waste-order events with a polling safety net.
  *
@@ -84,10 +121,15 @@ export function backoffFromResponse(response: Response): number {
  * array. An inline literal would be a new reference on every render and would
  * tear down and rebuild the connection each time.
  */
-export function useOrderRealtime(queryKeys: readonly QueryKey[], refreshAllEvents = false): void {
+export function useOrderRealtime(
+  queryKeys: readonly QueryKey[],
+  refreshAllEvents = false,
+  enabled = true,
+): void {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
     /**
      * Seeded from the server's own clock, never from `new Date()`.
@@ -198,12 +240,16 @@ export function useOrderRealtime(queryKeys: readonly QueryKey[], refreshAllEvent
       }
     };
 
-    void connect();
+    // Defer the initial request by one task. React's development strict mode
+    // mounts, cleans up, and mounts effects again; starting fetch immediately
+    // briefly opened two server streams before the aborted request released
+    // its admission slot.
+    retryTimer = setTimeout(connect, 0);
     return () => {
       controller.abort();
       if (retryTimer !== null) clearTimeout(retryTimer);
       if (refreshTimer !== null) clearTimeout(refreshTimer);
       disableFallback();
     };
-  }, [queryClient, queryKeys, refreshAllEvents]);
+  }, [enabled, queryClient, queryKeys, refreshAllEvents]);
 }

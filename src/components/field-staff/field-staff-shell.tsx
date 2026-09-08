@@ -15,9 +15,9 @@ import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
 import { redirectWithFallback } from "@/lib/portal";
 import { FieldLocationTracker } from "@/components/field-staff/field-location-tracker";
 import { FieldManifestToken } from "@/components/field-staff/field-manifest-token";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
+import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
 
-const FIELD_REALTIME_KEYS = [["field-staff"], ["field-tasks"], ["notifications"]] as const;
+const FIELD_REALTIME_KEYS: never[] = [];
 
 export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
@@ -26,7 +26,11 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const { user, isLoading, signOut } = useAuth();
   const allowed = user?.portal === "MSE_TRACE" && user.is_field_staff;
-  useOrderRealtime(FIELD_REALTIME_KEYS);
+  useOrderRealtime(
+    FIELD_REALTIME_KEYS,
+    true,
+    canUseRealtime(user?.permissions ?? [], Boolean(user?.is_platform_staff)),
+  );
 
   useEffect(() => markFieldAppContext(), []);
 

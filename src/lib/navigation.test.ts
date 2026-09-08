@@ -116,6 +116,33 @@ describe("the feature registry", () => {
       isRouteAllowed("MSE_TRACE", ["recycling_records"], "/nothing-here"),
     ).toBe(false);
   });
+
+  it("gives every grouped recycler module a real child route", () => {
+    const grouped = PORTAL_NAVIGATION.MSE_SCRAP.filter((item) =>
+      item.href.startsWith("/recycler-modules/"),
+    );
+    expect(grouped.map((item) => item.feature)).toEqual([
+      "customer_management",
+      "yards",
+      "waste_orders",
+      "weighing_records",
+      "inventory_management",
+    ]);
+    for (const item of grouped) {
+      expect(item.children?.length ?? 0).toBeGreaterThan(0);
+      for (const child of item.children ?? []) {
+        expect(child.href.startsWith("/recycler-modules/"), child.href).toBe(false);
+        expect(
+          isRouteAllowed(
+            "MSE_SCRAP",
+            [item.feature, ...(child.feature ? [child.feature] : [])],
+            child.href,
+          ),
+          `${item.feature} must open ${child.href}`,
+        ).toBe(true);
+      }
+    }
+  });
 });
 
 /**

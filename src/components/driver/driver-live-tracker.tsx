@@ -2,10 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { getDriverDashboardOfflineAware } from "@/services/driver-offline.service";
 import { submitTaskPositionOfflineAware } from "@/services/offline-sync.service";
 
@@ -14,11 +13,6 @@ export function DriverLiveTracker() {
   const { user } = useAuth();
   const pathname = usePathname();
   const lastSentAt = useRef(0);
-  const realtimeKeys = useMemo(
-    () => [["driver", "dashboard"], ["tasks", "mine"]],
-    [],
-  );
-  useOrderRealtime(realtimeKeys);
   const dashboard = useQuery({
     queryKey: ["driver", "dashboard"],
     queryFn: () => getDriverDashboardOfflineAware(user!.id),

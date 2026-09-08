@@ -44,10 +44,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type {
   AdminDashboardData,
   AdminDashboardMarker,
+  NotificationRow,
 } from "@/interfaces/platform-ops";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
 import { useDateFormat } from "@/lib/dates";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import {
   getAdminDashboard,
   getMonitoringOverview,
@@ -90,9 +90,6 @@ export function AdminDashboard({
     enabled: section === undefined || section === "system-status",
     refetchInterval: 30_000,
   });
-  const realtimeKeys = useMemo(() => [["admin-dashboard"], ["notifications"], ["approvals"], ["monitoring", "dashboard-system-status"]], []);
-  useOrderRealtime(realtimeKeys);
-
   const show = (target: AdminDashboardSection) =>
     section === undefined || section === target;
 
@@ -314,6 +311,28 @@ export function AdminDashboard({
           </p>
         </header>
       )}
+      {section === undefined && (
+        <div className="grid gap-6 xl:grid-cols-2" data-dashboard-priority>
+          <AdminPendingPanel
+            pending={data.pending}
+            title={t("pending.title")}
+            labels={{
+              contractorReviews: t("pending.contractorReviews"),
+              recyclerReviews: t("pending.recyclerReviews"),
+              payments: t("pending.payments"),
+              systemExceptions: t("pending.systemExceptions"),
+              customerService: t("pending.customerService"),
+              supportTickets: t("pending.supportTickets"),
+            }}
+          />
+          <AdminNotificationsPanel
+            notifications={data.notifications}
+            title={t("notifications.title")}
+            viewAll={t("notifications.viewAll")}
+            empty={t("notifications.empty")}
+          />
+        </div>
+      )}
       {show("map") && (
         <section
           className="overflow-hidden rounded-lg border bg-card shadow-sm"
@@ -527,7 +546,7 @@ export function AdminDashboard({
         />
       )}
 
-      {(show("trends") || show("pending")) && (
+      {(show("trends") || (section !== undefined && show("pending"))) && (
         <div
           className={`grid gap-8 ${section === undefined ? "xl:grid-cols-[minmax(0,2fr)_minmax(20rem,1fr)]" : ""}`}
         >
@@ -643,52 +662,24 @@ export function AdminDashboard({
             </div>
           )}
 
-          {show("pending") && (
-            <section
-              className="space-y-3"
-              aria-labelledby="admin-pending-title"
-            >
-              <h2 id="admin-pending-title" className="text-base font-semibold">
-                {t("pending.title")}
-              </h2>
-              <div className="divide-y rounded-lg border bg-card px-4 shadow-sm">
-                <PendingLink
-                  href="/companies?type=CONTRACTOR&review_status=PENDING"
-                  label={t("pending.contractorReviews")}
-                  value={data.pending.contractor_reviews}
-                />
-                <PendingLink
-                  href="/companies?type=RECYCLER&review_status=PENDING"
-                  label={t("pending.recyclerReviews")}
-                  value={data.pending.recycler_reviews}
-                />
-                <PendingLink
-                  href="/billing?payment_state=PENDING"
-                  label={t("pending.payments")}
-                  value={data.pending.payments}
-                />
-                <PendingLink
-                  href="/monitoring"
-                  label={t("pending.systemExceptions")}
-                  value={data.pending.system_exceptions}
-                />
-                <PendingLink
-                  href="/customer-service"
-                  label={t("pending.customerService")}
-                  value={data.pending.customer_service}
-                />
-                <PendingLink
-                  href="/support-tickets"
-                  label={t("pending.supportTickets")}
-                  value={data.pending.support_tickets}
-                />
-              </div>
-            </section>
+          {section !== undefined && show("pending") && (
+            <AdminPendingPanel
+              pending={data.pending}
+              title={t("pending.title")}
+              labels={{
+                contractorReviews: t("pending.contractorReviews"),
+                recyclerReviews: t("pending.recyclerReviews"),
+                payments: t("pending.payments"),
+                systemExceptions: t("pending.systemExceptions"),
+                customerService: t("pending.customerService"),
+                supportTickets: t("pending.supportTickets"),
+              }}
+            />
           )}
         </div>
       )}
 
-      {(show("cwe") || show("notifications")) && (
+      {(show("cwe") || (section !== undefined && show("notifications"))) && (
         <div
           className={`grid gap-8 ${section === undefined ? "xl:grid-cols-2" : ""}`}
         >
@@ -726,49 +717,13 @@ export function AdminDashboard({
             </section>
           )}
 
-          {show("notifications") && (
-            <section
-              className="space-y-3"
-              aria-labelledby="admin-notifications-title"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <h2
-                  id="admin-notifications-title"
-                  className="text-base font-semibold"
-                >
-                  {t("notifications.title")}
-                </h2>
-                <Link
-                  href="/notifications"
-                  className="text-sm font-medium text-primary hover:underline"
-                >
-                  {t("notifications.viewAll")}
-                </Link>
-              </div>
-              <div className="divide-y rounded-lg border bg-card px-4 shadow-sm">
-                {data.notifications.length === 0 ? (
-                  <p className="py-8 text-center text-sm text-muted-foreground">
-                    {t("notifications.empty")}
-                  </p>
-                ) : (
-                  data.notifications.map((notification) => (
-                    <div key={notification.id} className="py-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-medium">
-                          {notification.title}
-                        </p>
-                        {!notification.is_read && (
-                          <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                        )}
-                      </div>
-                      <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
-                        {notification.message}
-                      </p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </section>
+          {section !== undefined && show("notifications") && (
+            <AdminNotificationsPanel
+              notifications={data.notifications}
+              title={t("notifications.title")}
+              viewAll={t("notifications.viewAll")}
+              empty={t("notifications.empty")}
+            />
           )}
         </div>
       )}
@@ -911,6 +866,88 @@ function MetricSection({
             </Link>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+function AdminPendingPanel({
+  pending,
+  title,
+  labels,
+}: {
+  pending: AdminDashboardData["pending"];
+  title: string;
+  labels: {
+    contractorReviews: string;
+    recyclerReviews: string;
+    payments: string;
+    systemExceptions: string;
+    customerService: string;
+    supportTickets: string;
+  };
+}) {
+  return (
+    <section className="space-y-3" aria-labelledby="admin-pending-title">
+      <h2 id="admin-pending-title" className="text-base font-semibold">{title}</h2>
+      <div className="divide-y rounded-lg border bg-card px-4 shadow-sm">
+        <PendingLink href="/companies?type=CONTRACTOR&review_status=PENDING" label={labels.contractorReviews} value={pending.contractor_reviews} />
+        <PendingLink href="/companies?type=RECYCLER&review_status=PENDING" label={labels.recyclerReviews} value={pending.recycler_reviews} />
+        <PendingLink href="/billing?payment_state=PENDING" label={labels.payments} value={pending.payments} />
+        <PendingLink href="/monitoring" label={labels.systemExceptions} value={pending.system_exceptions} />
+        <PendingLink href="/customer-service" label={labels.customerService} value={pending.customer_service} />
+        <PendingLink href="/support-tickets" label={labels.supportTickets} value={pending.support_tickets} />
+      </div>
+    </section>
+  );
+}
+
+function adminNotificationHref(notification: NotificationRow): string {
+  const rawHref = notification.data.href ?? notification.data.url;
+  return typeof rawHref === "string" && rawHref.startsWith("/")
+    ? rawHref
+    : "/notifications/search";
+}
+
+function AdminNotificationsPanel({
+  notifications,
+  title,
+  viewAll,
+  empty,
+}: {
+  notifications: NotificationRow[];
+  title: string;
+  viewAll: string;
+  empty: string;
+}) {
+  return (
+    <section className="space-y-3" aria-labelledby="admin-notifications-title">
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="admin-notifications-title" className="text-base font-semibold">{title}</h2>
+        <Link href="/notifications/search" className="text-sm font-medium text-primary hover:underline">
+          {viewAll}
+        </Link>
+      </div>
+      <div className="divide-y rounded-lg border bg-card px-4 shadow-sm">
+        {notifications.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">{empty}</p>
+        ) : (
+          notifications.map((notification) => (
+            <Link
+              key={notification.id}
+              href={adminNotificationHref(notification)}
+              className="block py-3 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span className="flex items-start justify-between gap-3">
+                <span className="text-sm font-medium">{notification.title}</span>
+                {!notification.is_read && <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />}
+              </span>
+              <span className="mt-1 line-clamp-1 block text-xs text-muted-foreground">
+                {notification.message}
+              </span>
+            </Link>
+          ))
+        )}
       </div>
     </section>
   );

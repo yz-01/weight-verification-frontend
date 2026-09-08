@@ -35,7 +35,6 @@ import {
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FIELD_EVIDENCE_PHOTO_COUNT } from "@/components/field-staff/field-evidence-grid";
 import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
 import { LocationField } from "@/components/field-staff/location-field";
@@ -50,7 +49,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
 import type { AttendanceEvent, SafetyIncident } from "@/interfaces/site-operations";
 import { ApiError } from "@/interfaces/api";
-import { getFieldTasks } from "@/services/contractor-ops.service";
+import { getFieldTask, getFieldTasks } from "@/services/contractor-ops.service";
 import { getProjects } from "@/services/contractor.service";
 import {
   submitAttendanceOfflineAware,
@@ -110,17 +109,22 @@ function FieldStaffWorkspaceContent({
     requestedRecord,
   );
   const [openedHazard, setOpenedHazard] = useState<SafetyIncident | null>(null);
+  const requestedTask = useQuery({
+    queryKey: ["field-staff", "task", requestedTaskId],
+    queryFn: () => getFieldTask(requestedTaskId),
+    enabled: Boolean(requestedTaskId),
+  });
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      if (requestedTaskId) {
-        setFocusedTaskId(requestedTaskId);
-        setTab("tasks");
-        return;
-      }
       if (requestedRecord) {
         setRecordMode(requestedRecord);
         setTab("records");
+        return;
+      }
+      if (requestedTaskId) {
+        setFocusedTaskId(requestedTaskId);
+        setTab("tasks");
         return;
       }
       if (
@@ -138,6 +142,7 @@ function FieldStaffWorkspaceContent({
   const replaceFieldUrl = (
     nextTab: MobileTab,
     nextRecord?: FieldRecordMode | null,
+    nextTaskId?: string | null,
   ) => {
     const url = new URL(window.location.href);
     url.searchParams.delete("task");
@@ -146,6 +151,7 @@ function FieldStaffWorkspaceContent({
     if (nextTab === "home") url.searchParams.delete("tab");
     else url.searchParams.set("tab", nextTab);
     if (nextRecord) url.searchParams.set("record", nextRecord);
+    if (nextTaskId) url.searchParams.set("task", nextTaskId);
     window.history.replaceState(
       window.history.state,
       "",
@@ -202,7 +208,7 @@ function FieldStaffWorkspaceContent({
       </section>
 
       {tab === "home" && (
-        <FieldHomePanel onOpenWorkflow={(task, mode) => { setActiveTask(task); setRecordMode(mode); setTab("records"); replaceFieldUrl("records", mode); }} />
+        <FieldHomePanel onOpenWorkflow={(task, mode) => { setActiveTask(task); setRecordMode(mode); setTab("records"); replaceFieldUrl("records", mode, task.id); }} />
       )}
       {tab === "tasks" && (
         <FieldTaskPanel
@@ -212,7 +218,7 @@ function FieldStaffWorkspaceContent({
             setActiveTask(task);
             setRecordMode(mode);
             setTab("records");
-            replaceFieldUrl("records", mode);
+            replaceFieldUrl("records", mode, task.id);
           }}
         />
       )}
@@ -221,7 +227,7 @@ function FieldStaffWorkspaceContent({
         <FieldRecordsPanel
           initialMode={recordMode}
           initialSupplierToken={supplierToken}
-          task={activeTask}
+          task={activeTask ?? requestedTask.data ?? null}
           onModeChange={(mode) => {
             setRecordMode(mode);
             if (!mode) setActiveTask(null);
@@ -253,7 +259,9 @@ function FieldStaffWorkspaceContent({
       )}
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgb(0_0_0/0.06)] backdrop-blur">
-        <div className="mx-auto grid max-w-2xl grid-cols-6 gap-1 px-3">
+        {/* Five buttons since the duplicate 任务 entry was removed; the column
+            count has to match or the icons bunch to the left of an empty cell. */}
+        <div className="mx-auto grid max-w-2xl grid-cols-5 gap-1 px-3">
           <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => openTab("home")} />
           <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
           <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
@@ -400,11 +408,6 @@ function FieldTaskPanel({ taskType, requestedTaskId, onOpenWorkflow }: { taskTyp
     queryKey: ["field-staff", "tasks", taskType],
     queryFn: () => getFieldTasks({ page_size: 100, sort_by: "due_at", task_type: taskType }),
   });
-  const realtimeKeys = useMemo(
-    () => [["field-staff", "tasks", taskType], ["field-tasks"], ["notifications"]],
-    [taskType],
-  );
-  useOrderRealtime(realtimeKeys);
   const active = useMemo(() => {
     const rows = (tasks.data?.results ?? []).filter(
       (task) => !["ACCEPTED", "CANCELLED"].includes(task.status),

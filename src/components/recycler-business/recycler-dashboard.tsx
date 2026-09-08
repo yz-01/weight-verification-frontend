@@ -37,7 +37,6 @@ import { StatusBadge } from "@/components/shared/page-primitives";
 import { LocationMap, type LocationMapMarker, type LocationMapPath, type LocationMapZone } from "@/components/shared/location-map";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type {
   RecyclerDashboardData,
   RecyclerDashboardInvoice,
@@ -99,22 +98,6 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
     refetchInterval: 15_000,
     staleTime: 30_000,
   });
-  const realtimeKeys = useMemo(
-    () => [
-      ["recycler-dashboard", site],
-      ["incoming"],
-      ["tasks"],
-      ["notifications"],
-      ["approvals"],
-      ["dispatches"],
-      ["waste-orders"],
-      ["driver-gps", "live"],
-      ["driver-gps", "live-routes"],
-    ],
-    [site],
-  );
-  useOrderRealtime(realtimeKeys);
-
   const chartRows = useMemo(() => {
     const charts = dashboard.data?.charts;
     if (!charts) return null;
