@@ -1195,13 +1195,13 @@ export const PORTAL_NAVIGATION = {
   ],
   MSE_SCRAP: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
-    item("customer_management", "/recycler-customers", Users, "operations", [
+    item("customer_management", "/recycler-modules/customer_management", Users, "operations", [
       "/partnerships",
     ], false, [
       child("recycler-customers", "nav.customer_management", "/recycler-customers", "customer_management"),
       child("recycler-partnerships", "nav.partnerships", "/partnerships", "partnerships"),
     ]),
-    item("yards", "/sites", Warehouse, "operations", [
+    item("yards", "/recycler-modules/yards", Warehouse, "operations", [
       "/vehicles",
       "/drivers",
     ], false, [
@@ -1209,7 +1209,7 @@ export const PORTAL_NAVIGATION = {
       child("recycler-vehicles", "nav.vehicles", "/vehicles", "vehicles"),
       child("recycler-drivers", "nav.drivers", "/drivers", "drivers"),
     ]),
-    item("waste_orders", "/waste-orders", Inbox, "operations", [
+    item("waste_orders", "/recycler-modules/waste_orders", Inbox, "operations", [
       "/incoming",
       "/dispatches",
       "/tasks",
@@ -1220,7 +1220,7 @@ export const PORTAL_NAVIGATION = {
       child("recycler-tasks", "nav.driver_tasks", "/tasks", "driver_tasks"),
       child("recycler-driver-gps", "nav.driver_gps", "/driver-gps", "driver_gps"),
     ]),
-    item("weighing_records", "/weighing", Gauge, "operations", [
+    item("weighing_records", "/recycler-modules/weighing_records", Gauge, "operations", [
       "/gate",
       "/deductions",
       "/settlements",
@@ -1231,7 +1231,7 @@ export const PORTAL_NAVIGATION = {
       child("recycler-deductions", "nav.deductions", "/deductions", "weighing_records"),
       child("recycler-settlements", "nav.payment_status", "/settlements", "payment_status"),
     ]),
-    item("inventory_management", "/recycler-inventory", Box, "operations", [
+    item("inventory_management", "/recycler-modules/inventory_management", Box, "operations", [
       "/recycler-outbound",
     ], false, [
       child("recycler-inventory", "nav.inventory_management", "/recycler-inventory", "inventory_management"),

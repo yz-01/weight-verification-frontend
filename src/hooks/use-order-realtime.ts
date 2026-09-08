@@ -107,6 +107,10 @@ export function useOrderRealtime(queryKeys: QueryKey[], refreshAllEvents = false
       if (refreshTimer !== null) return;
       refreshTimer = setTimeout(() => {
         refreshTimer = null;
+        if (queryKeys.length === 0) {
+          void queryClient.invalidateQueries();
+          return;
+        }
         for (const key of queryKeys) {
           void queryClient.invalidateQueries(
             key.length === 0 ? undefined : { queryKey: key },
