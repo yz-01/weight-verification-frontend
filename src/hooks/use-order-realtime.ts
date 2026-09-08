@@ -134,7 +134,12 @@ export function useOrderRealtime(queryKeys: readonly QueryKey[], refreshAllEvent
 
     const connect = async () => {
       const token = getAccessToken();
-      if (!token) return;
+      if (!token) {
+        if (!controller.signal.aborted) {
+          retryTimer = setTimeout(connect, RECONNECT_MS);
+        }
+        return;
+      }
       let delay = RECONNECT_MS;
       try {
         const query = cursor ? `?after=${encodeURIComponent(cursor)}` : "";
