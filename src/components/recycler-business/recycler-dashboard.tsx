@@ -240,6 +240,7 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
           )}
         </div>
       )}
+      <PendingActions data={data} number={number} />
       {data.business_today && (
         <section className="space-y-3" aria-labelledby="recycler-today-title">
           <SectionHeading
@@ -354,10 +355,7 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
         )}
       </div>
 
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <PendingActions data={data} number={number} />
-        {data.fees && <FeeSummary data={data} money={money} weight={weight} />}
-      </div>
+      {data.fees && <FeeSummary data={data} money={money} weight={weight} />}
 
       {quickActions.length > 0 && (
         <section className="space-y-3" aria-labelledby="recycler-quick-title">
