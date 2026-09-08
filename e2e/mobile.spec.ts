@@ -76,3 +76,43 @@ test("field staff sees actionable tasks with five direct navigation buttons", as
   await page.getByRole("button", { name: /report|上报|上報|lapor/i }).click();
   await expect(page.locator('[data-draft-status]')).toBeVisible();
 });
+
+test("field staff material draft survives closing and reopening the work form", async ({ page, context }) => {
+  await context.grantPermissions(["geolocation"], {
+    origin: "http://localhost:3199",
+  });
+  await context.setGeolocation({
+    latitude: 3.139,
+    longitude: 101.6869,
+  });
+  await loginAsFieldStaff(page);
+
+  const task = page.locator("article").filter({
+    hasText: "Inspect E2E material delivery",
+  });
+  await task.getByRole("button", { name: "Open work form" }).click();
+
+  const workFormUrl = page.url();
+  const materialName = page
+    .locator("label")
+    .filter({ hasText: "Material name" })
+    .locator("..")
+    .locator("input");
+  const draftValue = `Draft material ${Date.now()}`;
+  await materialName.fill(draftValue);
+  await expect(page.locator('[data-draft-status="saved"]')).toBeVisible({
+    timeout: 20_000,
+  });
+
+  await page.close();
+  const reopenedPage = await context.newPage();
+  await reopenedPage.goto(workFormUrl);
+  const restoredMaterialName = reopenedPage
+    .locator("label")
+    .filter({ hasText: "Material name" })
+    .locator("..")
+    .locator("input");
+  await expect(restoredMaterialName).toHaveValue(draftValue, {
+    timeout: 20_000,
+  });
+});
