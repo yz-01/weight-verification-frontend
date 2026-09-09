@@ -244,6 +244,7 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
               <ReadField label={t("field.location")} value={application.location} />
               <ReadField label={t("field.component")} value={application.component} />
               <ReadField label={t("field.description")} value={application.description} className="sm:col-span-2" />
+              <ReadField label={t("field.remarks")} value={application.remarks} className="sm:col-span-2" />
               <ReadField label={t("field.drawingNo")} value={application.drawing_no} />
               <ReadField label={t("field.drawingRevision")} value={application.drawing_revision} />
               <ReadField label={t("field.itpNo")} value={application.itp_no} />
