@@ -619,6 +619,11 @@ function MaterialCapturePanel({
           }}
           placeholder={t("material.chooseProject")}
           className="h-12 w-full"
+          // The task already decided the site, so this only shows it. A
+          // mis-tap here would file the delivery against the wrong project
+          // with nothing downstream able to tell. Reached without a task
+          // there is nothing to lock to, and the picker stays usable.
+          disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
       <FieldWrapper label={t("material.supplier")} required>
