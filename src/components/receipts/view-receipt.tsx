@@ -13,6 +13,7 @@ import {
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
+import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import {
   DetailHeader,
   ReadField,
@@ -316,14 +317,27 @@ export function ViewReceipt({ id }: { id: string }) {
         backHref="/receipts"
         backLabel={t("receipts.title")}
         action={
-          can("receipt.update") && !data.superseded_by ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href={`/receipts/${data.id}/edit`}>
-                <Pencil className="h-4 w-4" />
-                {t("receipts.correction.action")}
-              </Link>
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap items-center gap-2">
+            {/* From the record rather than from Multi Engine (T-238). The
+                archive queue carries the same control for every kind; this is
+                the one column with a screen of its own per record, and a
+                receipt is what people most often reach for when putting a
+                claim together. */}
+            <AddToPackageButton
+              kind="MATERIAL_RECEIPT"
+              recordId={data.id}
+              projectId={data.project}
+              reference={data.receipt_no}
+            />
+            {can("receipt.update") && !data.superseded_by && (
+              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Link href={`/receipts/${data.id}/edit`}>
+                  <Pencil className="h-4 w-4" />
+                  {t("receipts.correction.action")}
+                </Link>
+              </Button>
+            )}
+          </div>
         }
       />
 

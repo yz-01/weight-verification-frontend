@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useDateFormat } from "@/lib/dates";
 import type {
   ArchiveQueueRow,
@@ -383,12 +384,22 @@ function RecordSheet({
           )}
         </div>
 
-        <footer className="flex items-center gap-2 border-t px-4 py-3">
+        <footer className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
           {/* Said out loud next to the button, because "archive" reads as a
               record-wide action and this one is not (D-106). */}
-          <p className="text-xs text-muted-foreground">
+          <p className="w-full text-xs text-muted-foreground sm:w-auto">
             {t("archiveQueue.archiveHelp")}
           </p>
+          {/* From the record rather than from Multi Engine (T-238). This sheet
+              is the one place that opens a record of any of the nine kinds, so
+              putting the shortcut here reaches all of them without nine copies
+              of the same button (D-154). */}
+          <AddToPackageButton
+            kind={row.kind}
+            recordId={row.id}
+            projectId={row.project_id}
+            reference={row.reference}
+          />
           {detail.data?.is_seen ? (
             /* A sentence rather than a greyed-out button: a button that is
                disabled for any reason other than a request in flight has to

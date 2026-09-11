@@ -8496,10 +8496,13 @@
     "acceptItem": "Terima",
     "addRecords": "Tambah rekod",
     "addSelected": "Tambah {count} yang dipilih",
+    "addToPackage": "Tambah ke pakej",
+    "addToPackageHelp": "{reference} akan ditambah ke pakej draf dalam projek ini. Rekod asal kekal di tempatnya - pakej menunjuk kepada rekod, bukan memindahkannya.",
     "alreadyFirst": "Sudah pertama.",
     "alreadyLast": "Sudah terakhir.",
     "cancelReturn": "Kekalkan",
     "choose": "Pilih bahagian",
+    "chooseDraft": "Pakej draf",
     "column": {
       "name": "Pakej",
       "project": "Projek",
@@ -8566,6 +8569,7 @@
     "newTitle": "Mulakan pakej",
     "next": "Seterusnya",
     "noCandidates": "Lajur ini belum mempunyai rekod dalam projek ini.",
+    "noDrafts": "Projek ini tiada pakej draf yang terbuka. Beri satu nama dan rekod ini memulakannya.",
     "noItems": "Tiada apa-apa dalam pakej ini lagi. Tambah rekod daripada lajur projek.",
     "oneProjectHelp": "Satu pakej milik satu projek. Rekodnya datang daripada lajur projek itu, dan rekod projek lain akan ditolak.",
     "open": "Buka",
@@ -8590,6 +8594,7 @@
     "searchPlaceholder": "Cari mengikut nama atau catatan",
     "send": "Hantar kepada perunding",
     "sourceMissing": "Rekod yang ditunjuk ini tidak lagi boleh dibaca oleh akaun ini.",
+    "startAndAdd": "Mulakan dan tambah",
     "state": {
       "DRAFT": "Draf",
       "CONFIRMED": "Disahkan"

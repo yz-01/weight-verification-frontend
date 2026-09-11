@@ -66,10 +66,19 @@ test("the dialog that commits a driver to the run names the address", async ({
   page,
 }) => {
   await loginAs(page, LOGIN_PATHS.scrap, ACCOUNTS.recycler);
-  // Both states show the assign button, and this seeded order may already have
-  // been accepted by an earlier spec in the same run - which is why the state
-  // filter takes the comma list instead of one value.
-  await page.goto("/incoming?state=PENDING_ACCEPTANCE,ACCEPTED");
+  /*
+   * Both states show the assign button, and this seeded order may already have
+   * been accepted by an earlier spec in the same run - which is why the state
+   * filter takes the comma list instead of one value.
+   *
+   * Searched for by number as well, for the reason the test above filters:
+   * orders accumulate across runs and this is the oldest one there is, so it
+   * falls off the first page as soon as the development database has more than
+   * a page of them - a red that says nothing about pickup addresses (F-364).
+   */
+  await page.goto(
+    "/incoming?state=PENDING_ACCEPTANCE,ACCEPTED&search=DS-P-E2E-000001-001",
+  );
 
   const row = page.locator("tr", { hasText: "DS-P-E2E-000001-001" });
   await expect(row).toBeVisible({ timeout: 20_000 });

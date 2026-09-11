@@ -8496,10 +8496,13 @@
     "acceptItem": "Accept",
     "addRecords": "Add records",
     "addSelected": "Add {count} selected",
+    "addToPackage": "Add to a package",
+    "addToPackageHelp": "{reference} will be added to a draft package in this project. It stays where it is - a package points at records, it does not move them.",
     "alreadyFirst": "Already first.",
     "alreadyLast": "Already last.",
     "cancelReturn": "Keep it",
     "choose": "Choose parts",
+    "chooseDraft": "Draft package",
     "column": {
       "name": "Package",
       "project": "Project",
@@ -8566,6 +8569,7 @@
     "newTitle": "Start a package",
     "next": "Next",
     "noCandidates": "This column has no records in this project yet.",
+    "noDrafts": "This project has no draft package open. Give one a name and this record starts it.",
     "noItems": "Nothing in this package yet. Add records from the project's columns.",
     "oneProjectHelp": "A package belongs to one project. Its records come from that project's columns, and a record from another project will be refused.",
     "open": "Open",
@@ -8590,6 +8594,7 @@
     "searchPlaceholder": "Search by name or remarks",
     "send": "Send to consultant",
     "sourceMissing": "The record this points at can no longer be read from this account.",
+    "startAndAdd": "Start it and add",
     "state": {
       "DRAFT": "Draft",
       "CONFIRMED": "Confirmed"

@@ -8496,10 +8496,13 @@
     "acceptItem": "接受",
     "addRecords": "新增資料",
     "addSelected": "新增選中的 {count} 條",
+    "addToPackage": "加進資料包",
+    "addToPackageHelp": "{reference} 會被加進這個項目的一個草稿資料包。原記錄留在原處 —— 資料包指向記錄，不搬動它們。",
     "alreadyFirst": "已經是第一條了。",
     "alreadyLast": "已經是最後一條了。",
     "cancelReturn": "不退回",
     "choose": "選擇內容",
+    "chooseDraft": "草稿資料包",
     "column": {
       "name": "資料包",
       "project": "項目",
@@ -8566,6 +8569,7 @@
     "newTitle": "新建一個資料包",
     "next": "下一頁",
     "noCandidates": "這個項目在這個欄目下還沒有資料。",
+    "noDrafts": "這個項目還沒有草稿資料包。取個名字，這條記錄就是它的第一條。",
     "noItems": "這個資料包還是空的。從項目的欄目裡新增資料。",
     "oneProjectHelp": "一個資料包屬於一個項目。裡面的資料來自這個項目的各個欄目，別的項目的記錄會被拒絕。",
     "open": "開啟",
@@ -8590,6 +8594,7 @@
     "searchPlaceholder": "按名稱或備註搜尋",
     "send": "發送給顧問",
     "sourceMissing": "這條指向的記錄，目前帳號已經讀不到了。",
+    "startAndAdd": "新建並加入",
     "state": {
       "DRAFT": "草稿",
       "CONFIRMED": "已確認"

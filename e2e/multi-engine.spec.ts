@@ -49,13 +49,14 @@ async function progressRecord(
   headers: Record<string, string>,
   projectId: string,
   stamp: string,
+  options: { phaseName?: string } = {},
 ) {
   const phase = await request.post(`${API}/api/site-progress/create_phase/`, {
     headers,
     data: {
       project: projectId,
       code: `PKG-${stamp}`,
-      name: `Package phase ${stamp}`,
+      name: options.phaseName ?? `Package phase ${stamp}`,
       planned_weight: "1",
     },
   });
@@ -207,5 +208,160 @@ test("a package refuses a record from another project, and says why", async ({
   await expect(dialog).toBeVisible(WAIT);
   await expect(
     dialog.getByText(/A package belongs to one project/),
+  ).toBeVisible();
+});
+
+test("a record can be put in a package from the column it sits in", async ({
+  page,
+  request,
+}) => {
+  /*
+   * T-238 / D-154. The workspace answers "which records go in this package";
+   * this is the same act from the other end, where the thing being chosen is
+   * the package. What only a browser can show is that both ends arrive at the
+   * same member: a record added from the queue is in the workspace afterwards,
+   * indistinguishable from one picked there.
+   *
+   * The archive queue is where this is asserted because it is the one screen
+   * that opens a record of any of the nine kinds, which is also why the
+   * shortcut lives there rather than nine times over.
+   *
+   * The draft is raised over the API rather than assumed: every earlier run of
+   * this file leaves drafts behind, so "this project has no draft yet" is a
+   * fixture that only works once.
+   */
+  test.setTimeout(240_000);
+  const headers = await contractorHeaders(request);
+  const project = await e2eProject(request, headers);
+  const stamp = Date.now().toString().slice(-6);
+  const phaseName = `Shortcut phase ${stamp}`;
+  const recordId = await progressRecord(request, headers, project.id, stamp, {
+    phaseName,
+  });
+
+  // Submitted is not finished: the queue only carries confirmed records.
+  const confirmed = await request.post(
+    `${API}/api/site-progress/${recordId}/review_record/`,
+    { headers, data: { status: "CONFIRMED" } },
+  );
+  expect(confirmed.ok(), await confirmed.text()).toBe(true);
+
+  const packageName = `Shortcut claim ${stamp}`;
+  const draft = await request.post(
+    `${API}/api/evidence-packages/create_package/`,
+    { headers, data: { project: project.id, name: packageName } },
+  );
+  expect(draft.status(), await draft.text()).toBe(201);
+
+  await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
+  await page.goto("/archive-queue");
+  const row = page.getByRole("row", { name: new RegExp(phaseName) });
+  await expect(row).toBeVisible(WAIT);
+  await row.getByRole("button", { name: "Open" }).click();
+
+  const sheet = page.getByRole("dialog");
+  await expect(sheet).toBeVisible(WAIT);
+  await sheet.getByRole("button", { name: "Add to a package" }).click();
+
+  const picker = page.getByRole("dialog", { name: "Add to a package" });
+  await expect(picker).toBeVisible(WAIT);
+  // Drafts of this project only - a confirmed package would refuse a new
+  // member, so offering one would be an option that fails on being chosen.
+  await picker.getByRole("radio", { name: new RegExp(packageName) }).check();
+  await picker.getByRole("button", { name: "Add to a package" }).click();
+  await expect(picker).toBeHidden(WAIT);
+
+  /*
+   * The record sheet is still open behind the picker, and it is a full-screen
+   * overlay - leaving it there makes every link on the page unclickable, which
+   * is also true for the person using it.
+   */
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Close", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0, WAIT);
+
+  /*
+   * And it really is in there, reached from the other screen entirely -
+   * through the sidebar rather than a second `page.goto`, which is a full
+   * reload: one run of the whole suite landed that reload on the sign-in page
+   * with the session half-restored, and an in-app navigation is both steadier
+   * and closer to what a person does.
+   */
+  await page.getByRole("link", { name: "Multi Engine" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Multi Engine" }),
+  ).toBeVisible(WAIT);
+  await page.getByPlaceholder("Search by name or remarks").fill(stamp);
+  await page
+    .getByRole("row", { name: new RegExp(packageName) })
+    .getByRole("button", { name: "Open" })
+    .click();
+  const workspace = page.getByRole("dialog", { name: packageName });
+  await expect(workspace).toBeVisible(WAIT);
+  // The member line names the column it came from and what it carries.
+  await expect(workspace.getByText(/^Progress .* fields/)).toBeVisible(WAIT);
+  // The same per-part control the workspace gives a record picked there, which
+  // is the point: one shape of member, two ways in.
+  await expect(
+    workspace.getByRole("button", { name: "Choose parts" }),
+  ).toBeVisible(WAIT);
+});
+
+test("with no draft open, the shortcut starts one instead of greying out", async ({
+  page,
+  request,
+}) => {
+  /*
+   * The empty branch, which cannot be reached from the shared development
+   * database - every run of the test above leaves a draft behind. The list
+   * coming back empty is the whole input to this branch, so it is stubbed at
+   * that one call rather than arranged in the data.
+   */
+  test.setTimeout(240_000);
+  const headers = await contractorHeaders(request);
+  const project = await e2eProject(request, headers);
+  const stamp = Date.now().toString().slice(-6);
+  const phaseName = `Empty phase ${stamp}`;
+  const recordId = await progressRecord(request, headers, project.id, stamp, {
+    phaseName,
+  });
+  const confirmed = await request.post(
+    `${API}/api/site-progress/${recordId}/review_record/`,
+    { headers, data: { status: "CONFIRMED" } },
+  );
+  expect(confirmed.ok(), await confirmed.text()).toBe(true);
+
+  await page.route("**/api/evidence-packages/get_packages/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        message: "",
+        data: { count: 0, next: null, previous: null, results: [] },
+      }),
+    }),
+  );
+
+  await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
+  await page.goto("/archive-queue");
+  const row = page.getByRole("row", { name: new RegExp(phaseName) });
+  await expect(row).toBeVisible(WAIT);
+  await row.getByRole("button", { name: "Open" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Add to a package" })
+    .click();
+
+  const picker = page.getByRole("dialog", { name: "Add to a package" });
+  await expect(picker).toBeVisible(WAIT);
+  await expect(
+    picker.getByText(/This project has no draft package open/),
+  ).toBeVisible();
+  await expect(picker.getByLabel("Package name")).toBeVisible();
+  await expect(
+    picker.getByRole("button", { name: "Start it and add" }),
   ).toBeVisible();
 });
