@@ -3,10 +3,18 @@
 import { Loader2, Save, X, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 
+import { useFormSurface } from "@/components/shared/form-surface";
 import { DetailHeader } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import {
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +25,13 @@ import { cn } from "@/lib/utils";
  * submit pill on the right, then a card whose sections are separated by
  * dividers. Every create screen and its edit twin render through this, so the
  * two can never drift apart in layout.
+ *
+ * Inside a dialog (T-216) the same sections are drawn with the dialog's own
+ * header and footer instead of that page chrome: no back link, because the
+ * list is still on the screen behind, and no card border, because the dialog
+ * already is one. The caller passes the same props either way - this is the
+ * only file that knows the difference, which is why turning 28 full-page
+ * forms into dialogs did not mean editing 28 forms.
  */
 export function FormShell({
   backHref,
@@ -40,6 +55,67 @@ export function FormShell({
   children: React.ReactNode;
 }) {
   const t = useTranslations();
+  const surface = useFormSurface();
+  const router = useRouter();
+
+  if (surface === "dialog") {
+    return (
+      <>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          {/*
+           * Radix wants a description on every dialog for screen readers. The
+           * forms that have nothing extra to say get the title read twice
+           * rather than a warning and a missing announcement.
+           */}
+          <DialogDescription>{description ?? title}</DialogDescription>
+        </DialogHeader>
+
+        {/*
+         * `-mx-4` so the sections keep their own padding and their dividers
+         * still run the full width of the dialog, and `overflow-y-auto` so it
+         * is the fields that scroll, not the buttons away from the fields.
+         */}
+        <form
+          id="mse-form"
+          className="-mx-4 divide-y overflow-y-auto border-y"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSubmit();
+          }}
+        >
+          {children}
+        </form>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-md px-4"
+            onClick={() => router.back()}
+          >
+            <X className="h-4 w-4" />
+            {t("common.cancel")}
+          </Button>
+          <Button
+            type="submit"
+            form="mse-form"
+            size="sm"
+            disabled={isSubmitting}
+            className="rounded-md px-4 shadow-sm"
+          >
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <SubmitIcon className="h-4 w-4" />
+            )}
+            {submitLabel}
+          </Button>
+        </DialogFooter>
+      </>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -125,6 +201,41 @@ export function FormSection({
 
 /** Placeholder while a record loads on an edit or view screen. */
 export function FormSkeleton({ sections = 3 }: { sections?: number }) {
+  const surface = useFormSurface();
+
+  const body = (
+    <div className="divide-y">
+      {Array.from({ length: sections }).map((_, index) => (
+        <div key={index} className="px-6 py-5">
+          <Skeleton className="mb-4 h-3 w-24" />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {Array.from({ length: 4 }).map((__, field) => (
+              <div key={field} className="space-y-1.5">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  // In a dialog the card and the page-level title bar would be a second frame
+  // drawn inside the first one, so only the fields stand in for themselves.
+  if (surface === "dialog") {
+    return (
+      <>
+        <DialogHeader>
+          <DialogTitle>
+            <Skeleton className="h-5 w-48" />
+          </DialogTitle>
+        </DialogHeader>
+        <div className="-mx-4 overflow-y-auto border-y">{body}</div>
+      </>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Skeleton className="h-8 w-40" />
@@ -161,16 +272,38 @@ export function LoadErrorCard({
   backLabel: string;
 }) {
   const t = useTranslations();
+  const surface = useFormSurface();
+
+  const words = (
+    <>
+      <p className="text-sm font-medium text-foreground">
+        {t("errors.notFound")}
+      </p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {t("errors.notFoundBody")}
+      </p>
+    </>
+  );
+
+  if (surface === "dialog") {
+    return (
+      <>
+        <DialogHeader>
+          <DialogTitle>{t("errors.notFound")}</DialogTitle>
+          <DialogDescription>{t("errors.notFoundBody")}</DialogDescription>
+        </DialogHeader>
+        <div className="-mx-4 overflow-y-auto border-y px-6 py-10 text-center">
+          {words}
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <DetailHeader backHref={backHref} backLabel={backLabel} />
       <div className="rounded-lg border bg-card px-6 py-16 text-center shadow-sm">
-        <p className="text-sm font-medium text-foreground">
-          {t("errors.notFound")}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("errors.notFoundBody")}
-        </p>
+        {words}
       </div>
     </div>
   );

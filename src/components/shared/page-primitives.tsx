@@ -345,7 +345,12 @@ export function DetailHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4">
+    // Named so a test can say the page's back bar is *not* inside a dialog:
+    // the dialog draws its own header and footer instead (T-216).
+    <div
+      data-slot="detail-header"
+      className="flex items-center justify-between gap-4"
+    >
       <Link
         href={backHref}
         className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"

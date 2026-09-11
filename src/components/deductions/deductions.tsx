@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
@@ -241,10 +242,17 @@ export function Deductions() {
         action={
           can("deduction.create") ? (
             <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <a href="/deductions/create">
+              {/*
+                * `next/link`, like every other list. A plain anchor here threw
+                * the whole application away and loaded it again - the session,
+                * the caches, the filters - to reach a page one click away
+                * (F-357). It was also the one link the create dialog could not
+                * open from, because a hard navigation is never intercepted.
+                */}
+              <Link href="/deductions/create">
                 <Plus className="h-4 w-4" />
                 {t("deductions.new")}
-              </a>
+              </Link>
             </Button>
           ) : undefined
         }

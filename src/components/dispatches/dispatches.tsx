@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -286,6 +286,23 @@ export function Dispatches() {
       <ListHeader
         title={t("dispatches.title")}
         subtitle={isLoading ? "—" : t("dispatches.count", { count: totalCount })}
+        action={
+          /*
+           * `/dispatches/create` existed, was permission-gated, and had its
+           * own label in all four catalogues - and nothing on any screen
+           * linked to it (F-356). The office could only reach the form by
+           * typing the address. Same button as every other list, same
+           * permission the route already declares.
+           */
+          can("dispatch.create") ? (
+            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+              <Link href="/dispatches/create">
+                <Plus className="h-4 w-4" />
+                {t("dispatches.new")}
+              </Link>
+            </Button>
+          ) : undefined
+        }
       />
 
       <DataTable
