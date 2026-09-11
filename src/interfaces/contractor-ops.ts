@@ -52,6 +52,11 @@ export interface ProjectCategory {
   /** Money, not weight - the amount comes off the supplier's delivery order. */
   budget_amount: string | null;
   budget_alert_percentages: number[];
+  /**
+   * Records filed under this category, from the relation that matches its
+   * module - the count the category management screen shows (D-125).
+   */
+  record_count: number;
   spend_amount: string;
   /**
    * Deliveries whose amount could not be read off the paperwork.
@@ -327,6 +332,8 @@ export interface ConstructionPhase {
   sort_order: number;
   planned_weight: string;
   is_active: boolean;
+  /** Progress records measured against this phase (D-125, D-127). */
+  record_count: number;
   created_at: string;
   updated_at: string;
 }

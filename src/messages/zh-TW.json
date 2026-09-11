@@ -1,56 +1,4 @@
 {
-  "materialColumns": {
-    "alertHelp": "用逗號分隔，例如 80, 100。改了預算會重新算已經越過哪幾條線。",
-    "alertInvalid": "請填 1 到 500 之間的整數，用逗號分隔。",
-    "alertPercentages": "在這些百分比提醒",
-    "archived": "已歸欄目",
-    "archivedHelp": "預算是錢，由這個欄目下的送貨單金額累計而來。",
-    "budgetAmount": "預算（RM）",
-    "budgetNone": "不計預算的欄目留空",
-    "columnsFailed": "無法載入欄目，因此無法確定這個工地到底有沒有欄目。請重試。",
-    "columnsFailedRefile": "無法載入欄目，所以上面的選擇框是空的。這不代表這個工地沒有欄目 —— 在載入成功之前，請不要新建一個。",
-    "edit": "編輯欄目",
-    "editHelp": "只改名稱、預算和預警線。歸在這個欄目裡的照片、數量與簽名是證據，這裡一個位元都不動。",
-    "editTitle": "編輯 {name}",
-    "fileInto": "歸到",
-    "filed": "已歸檔 {count} 筆",
-    "noBudget": "沒有設預算",
-    "noColumns": "還沒有設欄目",
-    "noMaterialColumns": "這個專案還沒有可歸的材料欄目。",
-    "pending": "待你查看（{count}）",
-    "pendingEmpty": "沒有待看的",
-    "pendingFailed": "無法載入待歸檔的送貨清單，因此無法確定到底有沒有在等。請重試。",
-    "pendingHelp": "你看過之後才會歸到各自的欄目裡。每個帳號的已讀狀態是各自獨立的。",
-    "refileConfirm": "歸檔",
-    "refileHelp": "只改歸在哪。照片、數量、簽名、時間、位置全部保持記錄時的樣子。",
-    "refileReason": "原因",
-    "refileTitle": "把 {receipt} 歸到某個欄目",
-    "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。",
-    "seeAllPending": "查看全部 {count} 筆",
-    "subtitle": "每個欄目收了多少、花了多少",
-    "title": "材料欄目",
-    "toast": {
-      "refiled": "已歸檔。"
-    },
-    "tonnes": "累計 {tonnes} 噸",
-    "tracksSpend": "這個欄目的支出計入預算",
-    "uncounted": "有幾張送貨單讀不出金額，沒有算進這個合計裡。"
-  },
-  "photoApprovals": {
-    "noLocation": "沒有記錄位置",
-    "noCaption": "沒有說明",
-    "noPhotos": "這一份沒有照片",
-    "returnReason": "退回理由",
-    "returnPlaceholder": "例如：梁底沒拍進去",
-    "returnHelp": "寫清楚哪裡不行。理由會一起發給拍照的人，不然他不知道要重拍什麼。",
-    "returnTitle": "退回重拍",
-    "return": "退回",
-    "accept": "批准",
-    "noCategory": "未歸欄目",
-    "empty": "沒有待審批的",
-    "subtitle": "有 {count} 份等你審",
-    "title": "照片審批"
-  },
   "adminAssetManagement": {
     "action": {
       "activate": "啟用",
@@ -3776,6 +3724,55 @@
       "TIMBER": "木材"
     }
   },
+  "categoryManagement": {
+    "active": "啟用",
+    "chooseProject": "選擇一個專案，才能看到它的欄目。",
+    "column": {
+      "name": "分類名稱",
+      "code": "編號",
+      "module": "所屬模組",
+      "records": "記錄數量",
+      "status": "狀態",
+      "action": "操作"
+    },
+    "edit": "編輯",
+    "empty": "這裡還沒有欄目。",
+    "failed": "欄目讀取失敗，請重試。",
+    "inactive": "停用",
+    "loading": "載入中…",
+    "manage": "開啟該模組",
+    "module": {
+      "material": "材料分類",
+      "field": "現場資料分類",
+      "document": "文件分類",
+      "equipment": "機械設備分類",
+      "progress": "施工進度分類",
+      "phase": "施工階段",
+      "ehs": "安全與隱患分類",
+      "recycle": "廢料分類",
+      "debris": "建築垃圾分類"
+    },
+    "moduleHelp": {
+      "material": "收貨與它的金額歸在這裡。按專案各一份。",
+      "field": "現場照片歸在這裡。按專案各一份。",
+      "document": "圖紙、合約、RFI 等。**全公司一份**，所有專案共用 —— 在這裡改，別的專案也跟著變。",
+      "equipment": "吊車、挖掘機、發電機等。全平台一份。",
+      "progress": "區域、樓層、工種。按專案各一份，**不參與**進度百分比計算。",
+      "phase": "進度百分比就是按這些階段算的。按專案各一份 —— 改權重會改已有數字。",
+      "ehs": "安全隱患、品質問題、事故、作業許可證。按專案各一份。",
+      "recycle": "現場外運的可回收廢料。全公司一份；系統預置的可停用、不可刪除。",
+      "debris": "送去清運的建築垃圾。按專案各一份。"
+    },
+    "modules": "模組",
+    "scope": {
+      "project": "本專案",
+      "company": "全公司共用",
+      "platform": "全平台共用"
+    },
+    "subtitle": "先選所屬模組，再看該模組下面的欄目。",
+    "title": "欄目管理",
+    "weight": "權重 {weight}"
+  },
   "cloudServices": {
     "count": "{count} 項服務",
     "field": {
@@ -7471,6 +7468,37 @@
     "open": "打開功能搜索",
     "placeholder": "搜索模塊和功能"
   },
+  "hazard": {
+    "conversationTitle": "整改溝通",
+    "empty": "還沒有人說話。",
+    "send": "傳送",
+    "placeholder": "輸入訊息",
+    "recordStart": "按住錄音",
+    "recordStop": "停止",
+    "recordingFor": "已錄 {seconds} 秒，上限 {limit} 秒",
+    "attach": "傳送檔案",
+    "photo": "照片",
+    "closed": "這條隱患已驗收並閉環歸檔。記錄仍可查看，但不能再傳新訊息。",
+    "participants": "本次參與的人",
+    "reporter": "上報人",
+    "responsible": "責任人",
+    "supervisor": "主管",
+    "voiceNote": "語音",
+    "unsupported": "這個瀏覽器不能錄音，請改用文字或照片。",
+    "duration": "預計需要",
+    "durationHours": "{hours} 小時",
+    "unassigned": "待分配",
+    "nothingToSend": "請先輸入文字，或附上照片、語音或檔案。",
+    "field": {
+      "title": "隱患",
+      "subtitle": "你上報的，和要你整改的。",
+      "report": "上報隱患",
+      "empty": "還沒有。拍一張隱患照片，就會出現在這裡。"
+    }
+  },
+  "home": {
+    "action": {}
+  },
   "incidentReporting": {
     "action": {
       "back": "返回事故列表",
@@ -7972,6 +8000,48 @@
     },
     "title": "登錄記錄"
   },
+  "materialAcceptance": {
+    "PENDING": "待驗收",
+    "ACCEPTED": "已驗收",
+    "REJECTED": "驗收不合格"
+  },
+  "materialColumns": {
+    "alertHelp": "用逗號分隔，例如 80, 100。改了預算會重新算已經越過哪幾條線。",
+    "alertInvalid": "請填 1 到 500 之間的整數，用逗號分隔。",
+    "alertPercentages": "在這些百分比提醒",
+    "archived": "已歸欄目",
+    "archivedHelp": "預算是錢，由這個欄目下的送貨單金額累計而來。",
+    "budgetAmount": "預算（RM）",
+    "budgetNone": "不計預算的欄目留空",
+    "columnsFailed": "無法載入欄目，因此無法確定這個工地到底有沒有欄目。請重試。",
+    "columnsFailedRefile": "無法載入欄目，所以上面的選擇框是空的。這不代表這個工地沒有欄目 —— 在載入成功之前，請不要新建一個。",
+    "edit": "編輯欄目",
+    "editHelp": "只改名稱、預算和預警線。歸在這個欄目裡的照片、數量與簽名是證據，這裡一個位元都不動。",
+    "editTitle": "編輯 {name}",
+    "fileInto": "歸到",
+    "filed": "已歸檔 {count} 筆",
+    "noBudget": "沒有設預算",
+    "noColumns": "還沒有設欄目",
+    "noMaterialColumns": "這個專案還沒有可歸的材料欄目。",
+    "pending": "待你查看（{count}）",
+    "pendingEmpty": "沒有待看的",
+    "pendingFailed": "無法載入待歸檔的送貨清單，因此無法確定到底有沒有在等。請重試。",
+    "pendingHelp": "你看過之後才會歸到各自的欄目裡。每個帳號的已讀狀態是各自獨立的。",
+    "refileConfirm": "歸檔",
+    "refileHelp": "只改歸在哪。照片、數量、簽名、時間、位置全部保持記錄時的樣子。",
+    "refileReason": "原因",
+    "refileTitle": "把 {receipt} 歸到某個欄目",
+    "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。",
+    "seeAllPending": "查看全部 {count} 筆",
+    "subtitle": "每個欄目收了多少、花了多少",
+    "title": "材料欄目",
+    "toast": {
+      "refiled": "已歸檔。"
+    },
+    "tonnes": "累計 {tonnes} 噸",
+    "tracksSpend": "這個欄目的支出計入預算",
+    "uncounted": "有幾張送貨單讀不出金額，沒有算進這個合計裡。"
+  },
   "materialReports": {
     "cost": {
       "byMaterial": "按材料統計成本",
@@ -8364,6 +8434,69 @@
       "READY": "正常"
     }
   },
+  "mySubmissions": {
+    "title": "我提交過的",
+    "subtitle": "你提交的全部記錄，最新的在最上面。",
+    "refresh": "重新查看",
+    "empty": "還沒有。你提交的東西都會出現在這裡。",
+    "waitingToUpload": "待上傳",
+    "uploadFailed": "上傳被拒絕",
+    "attempts": "已嘗試 {count} 次",
+    "truncated": "顯示 {shown} 條，共 {total} 條。",
+    "kind": {
+      "MATERIAL_RECEIPT": "材料收貨",
+      "SITE_RECORD": "現場記錄",
+      "WASTE_OUTGOING": "廢料出場",
+      "HAZARD": "隱患",
+      "PROGRESS": "施工進度",
+      "DRIVER_TRIP": "運輸任務"
+    },
+    "field": {
+      "category": "欄目",
+      "delivery_note_no": "送貨單號",
+      "description": "說明",
+      "dispatch_no": "訂單號",
+      "failure_reason": "失敗原因",
+      "instructions": "要求做什麼",
+      "material_name": "材料",
+      "note": "備註",
+      "percent_complete": "完成度",
+      "phase": "階段",
+      "pickup_address": "取貨地點",
+      "quantity": "數量",
+      "received_by_name": "收貨人",
+      "rectification_note": "整改情況",
+      "rejection_reason": "不合格原因",
+      "resolution_note": "結案說明",
+      "review_note": "後台意見",
+      "severity": "嚴重程度",
+      "site": "回收廠",
+      "specification": "規格",
+      "supplier": "供應商",
+      "task_type": "類型",
+      "title": "發生了什麼",
+      "vehicle_plate": "車輛",
+      "work_location": "現場位置"
+    },
+    "detailTitle": "我提交過的",
+    "photos": "照片",
+    "noPhotos": "這條記錄沒有照片",
+    "openChat": "打開隱患聊天室",
+    "loadFailed": "這條記錄打不開",
+    "queuedTitle": "還在這台手機上",
+    "queuedHelp": "還沒發出去。有網路之後會自己發。",
+    "failedHelp": "伺服器拒收了。按下面這句改好再發一次。",
+    "close": "關閉",
+    "unit": {
+      "BAG": "袋",
+      "KG": "公斤",
+      "LOAD": "車",
+      "M3": "立方公尺",
+      "OTHER": "其他",
+      "PIECE": "件",
+      "TONNE": "公噸"
+    }
+  },
   "nav": {
     "activity_logs": "活動日誌",
     "announcements": "公告",
@@ -8477,7 +8610,7 @@
       "billingActivity": "操作記錄",
       "billingAudit": "賬單記錄",
       "billingStatistics": "收費統計",
-      "categoryRecords": "現場資料欄目",
+      "categoryManagement": "欄目管理",
       "cctvMonitoring": "AI CCTV 監控",
       "cctvSettings": "AI CCTV 設置",
       "cloudActivity": "操作記錄",
@@ -8594,6 +8727,7 @@
       "partnerTerritories": "區域管理",
       "partnerTypes": "合作類型",
       "paymentProofs": "付款憑證",
+      "photoApprovals": "照片審批",
       "photoReport": "照片報表",
       "platformBusinessReports": "平臺業務報表",
       "platformCommission": "平臺佣金管理",
@@ -8671,8 +8805,6 @@
       "versionSettings": "版本管理",
       "wasteDispatches": "廢料訂單",
       "wasteOutgoing": "環保材料出場申請",
-      "photoApprovals": "照片審批",
-      "materialColumns": "材料欄目",
       "workforceGps": "人員實時位置"
     },
     "subscription_management": "訂閱管理",
@@ -8855,6 +8987,29 @@
       "empty": "還沒有工種。要按工種統計人數，先建一個。",
       "help": "工人在現場做什麼 —— 鋼筋工、架子工、電工。做成一張表而不是隨手填，人數才加得起來。",
       "title": "工種"
+    }
+  },
+  "pageGuide": {
+    "section": {
+      "what": "這個功能做什麼",
+      "who": "誰能用",
+      "need": "必填什麼",
+      "then": "點了會發生什麼",
+      "trouble": "常見錯誤怎麼解"
+    },
+    "action": "頁面說明與教程",
+    "operate": {
+      "description": "新增或編輯記錄，填寫所有必填資料，然後保存或確認操作。",
+      "title": "完成需要的操作"
+    },
+    "review": {
+      "description": "使用搜索、篩選和狀態標籤，找到需要處理的公司、記錄或設備。",
+      "title": "先查看現有資料"
+    },
+    "title": "如何使用“{page}”",
+    "verify": {
+      "description": "刷新頁面，並檢查最新狀態、歷史記錄、通知或審計記錄。",
+      "title": "確認操作結果"
     }
   },
   "pageHelp": {
@@ -9319,29 +9474,6 @@
       "trouble": "目前沒有常見到值得預警的問題。"
     }
   },
-  "pageGuide": {
-    "section": {
-      "what": "這個功能做什麼",
-      "who": "誰能用",
-      "need": "必填什麼",
-      "then": "點了會發生什麼",
-      "trouble": "常見錯誤怎麼解"
-    },
-    "action": "頁面說明與教程",
-    "operate": {
-      "description": "新增或編輯記錄，填寫所有必填資料，然後保存或確認操作。",
-      "title": "完成需要的操作"
-    },
-    "review": {
-      "description": "使用搜索、篩選和狀態標籤，找到需要處理的公司、記錄或設備。",
-      "title": "先查看現有資料"
-    },
-    "title": "如何使用“{page}”",
-    "verify": {
-      "description": "刷新頁面，並檢查最新狀態、歷史記錄、通知或審計記錄。",
-      "title": "確認操作結果"
-    }
-  },
   "partners": {
     "count": "{count} 個合作伙伴",
     "field": {
@@ -9594,6 +9726,21 @@
       "weighing": "稱重",
       "yard": "回收場"
     }
+  },
+  "photoApprovals": {
+    "noLocation": "沒有記錄位置",
+    "noCaption": "沒有說明",
+    "noPhotos": "這一份沒有照片",
+    "returnReason": "退回理由",
+    "returnPlaceholder": "例如：梁底沒拍進去",
+    "returnHelp": "寫清楚哪裡不行。理由會一起發給拍照的人，不然他不知道要重拍什麼。",
+    "returnTitle": "退回重拍",
+    "return": "退回",
+    "accept": "批准",
+    "noCategory": "未歸欄目",
+    "empty": "沒有待審批的",
+    "subtitle": "有 {count} 份等你審",
+    "title": "照片審批"
   },
   "profile": {
     "section": {
@@ -13179,104 +13326,5 @@
     "since": "{at} 起",
     "title": "當前在場",
     "unassigned": "未歸類"
-  },
-  "materialAcceptance": {
-    "PENDING": "待驗收",
-    "ACCEPTED": "已驗收",
-    "REJECTED": "驗收不合格"
-  },
-  "hazard": {
-    "conversationTitle": "整改溝通",
-    "empty": "還沒有人說話。",
-    "send": "傳送",
-    "placeholder": "輸入訊息",
-    "recordStart": "按住錄音",
-    "recordStop": "停止",
-    "recordingFor": "已錄 {seconds} 秒，上限 {limit} 秒",
-    "attach": "傳送檔案",
-    "photo": "照片",
-    "closed": "這條隱患已驗收並閉環歸檔。記錄仍可查看，但不能再傳新訊息。",
-    "participants": "本次參與的人",
-    "reporter": "上報人",
-    "responsible": "責任人",
-    "supervisor": "主管",
-    "voiceNote": "語音",
-    "unsupported": "這個瀏覽器不能錄音，請改用文字或照片。",
-    "duration": "預計需要",
-    "durationHours": "{hours} 小時",
-    "unassigned": "待分配",
-    "nothingToSend": "請先輸入文字，或附上照片、語音或檔案。",
-    "field": {
-      "title": "隱患",
-      "subtitle": "你上報的，和要你整改的。",
-      "report": "上報隱患",
-      "empty": "還沒有。拍一張隱患照片，就會出現在這裡。"
-    }
-  },
-  "home": {
-    "action": {}
-  },
-  "mySubmissions": {
-    "title": "我提交過的",
-    "subtitle": "你提交的全部記錄，最新的在最上面。",
-    "refresh": "重新查看",
-    "empty": "還沒有。你提交的東西都會出現在這裡。",
-    "waitingToUpload": "待上傳",
-    "uploadFailed": "上傳被拒絕",
-    "attempts": "已嘗試 {count} 次",
-    "truncated": "顯示 {shown} 條，共 {total} 條。",
-    "kind": {
-      "MATERIAL_RECEIPT": "材料收貨",
-      "SITE_RECORD": "現場記錄",
-      "WASTE_OUTGOING": "廢料出場",
-      "HAZARD": "隱患",
-      "PROGRESS": "施工進度",
-      "DRIVER_TRIP": "運輸任務"
-    },
-    "field": {
-      "category": "欄目",
-      "delivery_note_no": "送貨單號",
-      "description": "說明",
-      "dispatch_no": "訂單號",
-      "failure_reason": "失敗原因",
-      "instructions": "要求做什麼",
-      "material_name": "材料",
-      "note": "備註",
-      "percent_complete": "完成度",
-      "phase": "階段",
-      "pickup_address": "取貨地點",
-      "quantity": "數量",
-      "received_by_name": "收貨人",
-      "rectification_note": "整改情況",
-      "rejection_reason": "不合格原因",
-      "resolution_note": "結案說明",
-      "review_note": "後台意見",
-      "severity": "嚴重程度",
-      "site": "回收廠",
-      "specification": "規格",
-      "supplier": "供應商",
-      "task_type": "類型",
-      "title": "發生了什麼",
-      "vehicle_plate": "車輛",
-      "work_location": "現場位置"
-    },
-    "detailTitle": "我提交過的",
-    "photos": "照片",
-    "noPhotos": "這條記錄沒有照片",
-    "openChat": "打開隱患聊天室",
-    "loadFailed": "這條記錄打不開",
-    "queuedTitle": "還在這台手機上",
-    "queuedHelp": "還沒發出去。有網路之後會自己發。",
-    "failedHelp": "伺服器拒收了。按下面這句改好再發一次。",
-    "close": "關閉",
-    "unit": {
-      "BAG": "袋",
-      "KG": "公斤",
-      "LOAD": "車",
-      "M3": "立方公尺",
-      "OTHER": "其他",
-      "PIECE": "件",
-      "TONNE": "公噸"
-    }
   }
 }

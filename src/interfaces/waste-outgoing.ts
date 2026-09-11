@@ -38,6 +38,8 @@ export interface WasteCategory {
   /** One of the seven the customer named: deactivate rather than delete. */
   is_system: boolean;
   is_active: boolean;
+  /** Waste records filed under this category, company-wide (D-125). */
+  record_count: number;
   created_at: string;
   updated_at: string;
 }

@@ -151,7 +151,7 @@ async function currentCoordinates(): Promise<Coordinates> {
   });
 }
 
-function ProjectFilter({
+export function ProjectFilter({
   value,
   onChange,
 }: {

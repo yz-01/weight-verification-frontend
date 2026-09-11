@@ -737,13 +737,26 @@ export const PORTAL_NAVIGATION = {
       "/modules/categories",
       ListTree,
       "operations",
-      undefined,
+      // Allowed, but no longer entries of their own. `isRouteAllowed` reads
+      // this registry, so dropping a child does not just hide a route - it
+      // refuses it, and both of these are where a module's categories are
+      // actually edited. A navigation test caught that (T-219).
+      ["/material-columns", "/project-categories"],
       false,
       [
+        // One entry, not the ten the earlier plan had (D-125, F-335): the
+        // customer's design is "pick the module, then see that module's
+        // columns", and that is one screen with a list down its left side.
+        // Ten routes would have been ten places to maintain the same thing.
+        //
+        // `/project-categories` and `/material-columns` still resolve - they
+        // are where each module's categories are actually edited, and links
+        // to them exist in the wild - they are simply no longer sidebar
+        // entries of their own.
         child(
           "4.2.1",
-          "nav.submodule.categoryRecords",
-          "/project-categories",
+          "nav.submodule.categoryManagement",
+          "/category-management",
           "project_categories",
         ),
       ],
@@ -753,19 +766,18 @@ export const PORTAL_NAVIGATION = {
       "/modules/materials",
       ClipboardList,
       "operations",
-      undefined,
+      // The material columns screen stopped being a sidebar entry (T-219) but
+      // did not stop being a material screen: whoever could open it before
+      // still can. Listed on both modules on purpose - narrowing it to the
+      // category feature would have taken the screen away from people who
+      // only hold material access, silently.
+      ["/material-columns"],
       false,
       [
         child(
           "5.2.1",
           "nav.submodule.materialReceipts",
           "/receipts",
-          "material_receipts",
-        ),
-        child(
-          "5.2.3",
-          "nav.submodule.materialColumns",
-          "/material-columns",
           "material_receipts",
         ),
         child(

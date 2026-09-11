@@ -85,7 +85,10 @@ export interface CreateAssetPayload {
 
 export interface AssetCategoryDefinition {
   id: string; code: string; name: string; description: string;
-  is_system: boolean; is_active: boolean; created_at: string;
+  is_system: boolean; is_active: boolean;
+  /** Purchases filed under this category, platform-wide (D-125, D-126). */
+  record_count: number;
+  created_at: string;
 }
 
 export interface AssetPurchase {

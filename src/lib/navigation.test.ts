@@ -218,3 +218,59 @@ describe("every menu entry has a name", () => {
     });
   }
 });
+
+/**
+ * The category module has one entry, not ten (T-219, D-125, F-335).
+ *
+ * The earlier plan gave the customer's seven modules a sidebar entry each,
+ * plus a combined one. Their own words describe something else - "the user
+ * picks the module first, then sees the columns under it" - which is one
+ * screen with a list down its side. Ten entries would have been ten places to
+ * maintain one thing, and the drift would start the first time a module was
+ * added.
+ *
+ * Asserted here rather than in a browser: this is a fact about the registry,
+ * and the registry is where somebody would undo it.
+ */
+describe("the category module", () => {
+  // Not named `module`: Next forbids assigning that identifier.
+  const categories = PORTAL_NAVIGATION.MSE_TRACE.find(
+    (item) => item.feature === "project_categories",
+  );
+
+  it("has exactly one child, and it is the management screen", () => {
+    expect(categories?.children?.map((child) => child.href)).toEqual([
+      "/category-management",
+    ]);
+  });
+
+  it("no longer lists the material columns as an entry of their own", () => {
+    const entries = PORTAL_NAVIGATION.MSE_TRACE.flatMap((item) => [
+      item.href,
+      ...(item.children ?? []).map((child) => child.href),
+    ]);
+
+    expect(entries).not.toContain("/material-columns");
+    /*
+     * The route still resolves, for both kinds of reader. `isRouteAllowed`
+     * reads this registry, so dropping the entry did not merely hide the
+     * screen - it refused it, and to whoever held material access rather
+     * than category access it would have disappeared without a word. Both
+     * modules therefore claim the route.
+     */
+    expect(
+      isRouteAllowed("MSE_TRACE", ["material_receipts"], "/material-columns"),
+    ).toBe(true);
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/material-columns"),
+    ).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", [], "/material-columns")).toBe(false);
+  });
+
+  it("keeps the management screen behind the category feature", () => {
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/category-management"),
+    ).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", [], "/category-management")).toBe(false);
+  });
+});
