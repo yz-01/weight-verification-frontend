@@ -263,7 +263,6 @@ interface MaterialDraft {
  * A Radix `SelectItem` cannot carry an empty string, and unfiled is a real
  * choice here rather than the absence of one, so it needs a value of its own.
  */
-const UNFILED_COLUMN = "__unfiled__";
 
 const EMPTY_MATERIAL: MaterialDraft = {
   project: "",
@@ -370,6 +369,16 @@ function MaterialCapturePanel({
     staleTime: 30_000,
   });
   const columnRows: ProjectCategory[] = columns.data?.results ?? [];
+  /**
+   * The column this delivery is going to, when the delivery note's reader
+   * found one.
+   *
+   * Shown rather than chosen (T-222, D-108). Nobody at the gate sorts a
+   * delivery into a column any more, but hiding where it went would trade one
+   * silent decision for another: a worker who can read "files under Concrete"
+   * can tell the office when it is wrong.
+   */
+  const filedColumn = columnRows.find((row) => row.id === draft.category);
   /** Open a column for this delivery, and select it. See `openColumn`. */
   const columnCreation = useMutation({
     mutationFn: ({ name }: { name: string; index?: number }) =>
@@ -707,38 +716,23 @@ function MaterialCapturePanel({
       <FieldWrapper label={t("material.specification")} required><Input className="h-12" value={draft.materialSpecification} onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.totalWeightKg")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.totalWeightKg} onChange={(event) => setDraft((old) => ({ ...old, totalWeightKg: event.target.value }))} /></FieldWrapper>
-      {/* Which column this delivery files under, and a way to open one.
-          Before T-161 this screen sent no column at all, so every delivery
-          taken on site arrived unfiled however many columns the site had, and
-          somebody in the office had to re-file each one by hand. */}
+      {/* Where this delivery files, and a way to open a column for a
+          material nobody has one for. No picker: 客户「现场工作人员不需要选择
+          栏目，会跟着对应项目自动归档」, and 「先进『未归类』，后台看的时候再归」
+          (D-108, T-222). The office does the filing, and it already has the
+          screen for it - `refile_receipt` and the material columns page.
+
+          What is left is the F-200 escape hatch, not a choice: a delivery of
+          something no column exists for anywhere. Whether the gate should
+          keep even that is U-038, the one thing here the customer's words do
+          not settle - so it stays until he says, rather than being removed on
+          my reading and taking a tested endpoint's only screen with it. */}
       <FieldWrapper label={t("material.column")}>
-        <Select
-          value={draft.category || UNFILED_COLUMN}
-          onValueChange={(value) =>
-            setDraft((old) => ({
-              ...old,
-              category: value === UNFILED_COLUMN ? "" : value,
-            }))
-          }
-          disabled={!draft.project}
-        >
-          <SelectTrigger className="h-12 w-full">
-            <SelectValue placeholder={t("material.chooseColumn")} />
-          </SelectTrigger>
-          <SelectContent>
-            {/* Unfiled stays on offer. It is the honest answer when nobody at
-                the gate knows where this belongs, and better than parking the
-                delivery in an arbitrary column somebody later pays against. */}
-            <SelectItem value={UNFILED_COLUMN}>
-              {t("material.columnUnfiled")}
-            </SelectItem>
-            {columnRows.map((column) => (
-              <SelectItem key={column.id} value={column.id}>
-                {column.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <p className="text-sm text-muted-foreground">
+          {filedColumn
+            ? t("material.columnAuto", { name: filedColumn.name })
+            : t("material.columnUnfiledNote")}
+        </p>
         {draft.project && !columns.isLoading && !columnRows.length && (
           <p className="mt-2 text-xs text-muted-foreground">
             {t("material.noColumnsYet")}
@@ -866,28 +860,13 @@ function MaterialCapturePanel({
                   </Select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Select
-                    value={item.category_id || "none"}
-                    onValueChange={(value) => {
-                      const match = columnRows.find((row) => row.id === value);
-                      updateLineItem(index, {
-                        category_id: match?.id ?? null,
-                        category_code: match?.code ?? "",
-                        category_name: match?.name ?? "",
-                        classified: Boolean(match),
-                      });
-                    }}
-                  >
-                    <SelectTrigger className="h-10 flex-1"><SelectValue placeholder={t("material.ocrItems.unclassified")} /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t("material.ocrItems.unclassified")}</SelectItem>
-                      {columnRows.map((column) => (
-                        <SelectItem key={column.id} value={column.id}>
-                          {column.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {/* The line's column, as the reader placed it - not a
+                      choice, for the same reason as the field above (D-108).
+                      Still shown: the worker is the one who can see that the
+                      reader put cement under steel. */}
+                  <p className="flex-1 text-xs text-muted-foreground">
+                    {item.category_name || t("material.ocrItems.unclassified")}
+                  </p>
                   <Button
                     type="button"
                     variant="outline"

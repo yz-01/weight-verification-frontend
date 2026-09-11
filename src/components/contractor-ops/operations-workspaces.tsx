@@ -557,6 +557,22 @@ function CategoryDialog({
                 <SelectItem value="MATERIAL">
                   {t("categories.kindMaterial")}
                 </SelectItem>
+                {/* The modules Category Management groups by (D-125).
+                    Offered here as well as there, because a field the server
+                    accepts and no screen can set is a field nobody can fill.
+                    Choosing one moves the column out of this screen's list,
+                    which is what reclassifying it means - and the server
+                    refuses the move outright if deliveries or site records
+                    are already filed in it. */}
+                <SelectItem value="PROGRESS">
+                  {t("categories.kindProgress")}
+                </SelectItem>
+                <SelectItem value="EHS">
+                  {t("categories.kindEhs")}
+                </SelectItem>
+                <SelectItem value="CONSTRUCTION_WASTE">
+                  {t("categories.kindConstructionWaste")}
+                </SelectItem>
                 {/* Only offered on a column that already carries the marker.
                     It is not a scheme somebody should pick on purpose - it
                     means "not separated yet" - but taking it off the form

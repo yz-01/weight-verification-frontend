@@ -11,7 +11,29 @@
  * because it holds none. Such a column keeps appearing on both screens, which
  * is where it already was, rather than vanishing from both.
  */
-export type ProjectCategoryKind = "FIELD" | "MATERIAL" | "BOTH";
+/**
+ * The module a column is filed under, plus the two original filing schemes.
+ *
+ * `PROGRESS`, `EHS`, `RECYCLE` and `CONSTRUCTION_WASTE` are the modules the
+ * customer named for Category Management (2026-09-11, D-125): materials must
+ * not share a level with documents, while one screen still manages them all.
+ *
+ * Four of the seven modules the customer listed are absent on purpose, because
+ * their vocabularies already exist on the server with different scopes and
+ * real records pointing at them through protected keys: documents
+ * (`DocumentCategory`, per company), equipment (`AssetCategoryDefinition`, per
+ * platform), recyclable waste (`WasteCategory`, per company, seven seeded rows)
+ * and the weighted construction stages (`ConstructionPhase`, per project).
+ * Defining any of them again here would be two sources of truth for one thing
+ * (F-333, F-338, D-126).
+ */
+export type ProjectCategoryKind =
+  | "FIELD"
+  | "MATERIAL"
+  | "BOTH"
+  | "PROGRESS"
+  | "EHS"
+  | "CONSTRUCTION_WASTE";
 export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT";
 
 export interface ProjectCategory {
