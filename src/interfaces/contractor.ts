@@ -266,6 +266,16 @@ export interface ReceiptPhoto {
   latitude: string | null;
   longitude: string | null;
   taken_at: string | null;
+  uploaded_at?: string;
+  device_id?: string;
+  /**
+   * Who put this photograph on the record (T-243).
+   *
+   * Per photograph and not per receipt: the gate shots come from a phone on
+   * site, the delivery order is often scanned in the office afterwards by
+   * somebody else, and a dispute asks which.
+   */
+  created_by_name?: string | null;
   created_at: string;
 }
 

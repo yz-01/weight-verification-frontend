@@ -3802,7 +3802,7 @@
       "material": "Deliveries and the money they cost file here. One list per project.",
       "field": "Site photographs file here. One list per project.",
       "document": "Drawings, contracts, RFIs. One list for the whole company, shared by every project - editing it here changes it everywhere.",
-      "equipment": "Cranes, excavators, generators. One list for the whole platform.",
+      "equipment": "Cranes, excavators, generators. One list per project, kept by this company.",
       "progress": "Zones, floors and trades. One list per project, and these carry no progress weight.",
       "phase": "The stages the completion percentage is measured against. One list per project - changing a weight changes the figures.",
       "ehs": "Hazards, quality issues, incidents and permits. One list per project.",
@@ -5277,19 +5277,24 @@
       "allProjects": "All projects",
       "assignee": "Field staff",
       "category": "Category",
+      "certificateExpiresOn": "Certificate expires",
       "code": "Code",
       "deliveryNote": "Delivery note",
       "description": "Description",
       "destination": "Destination",
       "dueAt": "Due date and time",
+      "equipmentColumn": "Equipment column",
       "executor": "Executor",
+      "expiryHelp": "Fills the home page's expiring-paperwork card. Leave blank if you do not hold the document - blank is better than a guessed date.",
       "instructions": "Instructions",
+      "insuranceExpiresOn": "Insurance expires",
       "latitude": "Latitude",
       "location": "Current GPS location",
       "longitude": "Longitude",
       "material": "Material",
       "name": "Name",
       "noCategory": "No category",
+      "noEquipmentColumn": "No column",
       "noParent": "No parent category",
       "noSupplier": "No supplier",
       "notes": "Notes",
@@ -5317,10 +5322,7 @@
       "title": "Task title",
       "unit": "Unit",
       "vehiclePlate": "Vehicle plate",
-      "workLocation": "Work area / location",
-      "certificateExpiresOn": "Certificate expires",
-      "insuranceExpiresOn": "Insurance expires",
-      "expiryHelp": "Fills the home page's expiring-paperwork card. Leave blank if you do not hold the document - blank is better than a guessed date."
+      "workLocation": "Work area / location"
     },
     "filing": {
       "action": "File it",
@@ -10264,11 +10266,20 @@
     "title": "Scan MSE Trace QR"
   },
   "receipts": {
-    "archived": "Filed",
-    "waiting": "Waiting for you to read",
-    "allStates": "Read and unread",
-    "unfiled": "Not filed yet",
-    "allColumns": "All columns",
+    "acceptance": {
+      "title": "Acceptance",
+      "status": {
+        "PENDING": "Awaiting acceptance",
+        "ACCEPTED": "Accepted",
+        "REJECTED": "Rejected"
+      },
+      "accept": "Accept",
+      "reject": "Reject",
+      "reason": "Reason for rejection",
+      "reasonPlaceholder": "Why is this delivery being rejected?",
+      "moneyNote": "Rejecting flags the delivery and counts it on the home page. It does not change the amount or the payment status — that stays a decision somebody makes on purpose.",
+      "alreadyAccepted": "This delivery has already been accepted."
+    },
     "addPhoto": {
       "caption": "Note (optional)",
       "choose": "Choose a photo",
@@ -10277,6 +10288,9 @@
       "title": "Add a photo",
       "upload": "Upload"
     },
+    "allColumns": "All columns",
+    "allStates": "Read and unread",
+    "archived": "Filed",
     "correction": {
       "action": "Correct",
       "note": "A correction files a new receipt that points back at this one. Both stay on record, so anyone checking later can see what was changed and why.",
@@ -10289,6 +10303,20 @@
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
     "createTitle": "Record a delivery",
+    "doPanelField": "Field",
+    "doPanelLineItems": "Lines on the document",
+    "doPanelLowConfidence": "Read with low confidence - check these against the document",
+    "doPanelNone": "Nothing was read from a delivery order for this receipt.",
+    "doPanelStatus": "Reading status",
+    "doPanelTitle": "Read from the delivery order",
+    "doPanelValue": "Read value",
+    "doStatus": {
+      "FAILED": "Reading failed",
+      "MANUAL": "Entered by hand",
+      "NOT_CONFIGURED": "Reader not configured",
+      "NOT_REQUESTED": "Not read",
+      "SUCCEEDED": "Read"
+    },
     "editNote": "The quantity and price can be corrected. The project, the docket and the recorded time cannot — they are what the receipt is evidence of.",
     "editTitle": "Correct a receipt",
     "field": {
@@ -10317,12 +10345,25 @@
     "locationMissing": "No location",
     "new": "Record delivery",
     "noPhotos": "No photos were attached.",
+    "noRecorderPhone": "No phone number on file",
     "photoKind": {
       "DELIVERY_NOTE": "Delivery note",
       "OTHER": "Other",
       "UNLOADING": "Unloading",
       "VEHICLE": "Vehicle"
     },
+    "photoNoLocation": "No location recorded",
+    "photoNoTime": "No capture time recorded",
+    "photoTakenAt": "Taken {when}",
+    "photoUploadedBy": "Added by {who}",
+    "photoUploaderUnknown": "Added by an account since removed",
+    "photoViewer": {
+      "open": "Open photograph",
+      "previous": "Previous photograph",
+      "next": "Next photograph",
+      "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
+    },
+    "recorderUnknown": "Recorder not on file",
     "remove": {
       "confirm": "Remove",
       "description": "It will no longer appear in your deliveries or your material totals.",
@@ -10337,15 +10378,13 @@
       "vehicle": "Vehicle and paperwork",
       "signatures": "Signatures"
     },
-    "stampNote": "The time, place and person are recorded by the platform when the receipt is filed. They cannot be typed in or changed afterwards.",
-    "summary": {
-      "byMaterial": "By material",
-      "byUnit": "By unit",
-      "note": "Quantities are grouped by unit. Tonnes and pieces are not added together.",
-      "quantity": "Quantity",
-      "receipts": "Receipts",
-      "title": "Material summary"
+    "signature": {
+      "receiver": "Received by",
+      "supplier": "Supplier",
+      "none": "No signature was captured."
     },
+    "stampNote": "The time, place and person are recorded by the platform when the receipt is filed. They cannot be typed in or changed afterwards.",
+    "summary": "At a glance",
     "title": "Material receipts",
     "toast": {
       "corrected": "Correction recorded",
@@ -10356,6 +10395,7 @@
       "accepted": "Delivery accepted.",
       "rejected": "Delivery rejected, with the reason recorded."
     },
+    "unfiled": "Not filed yet",
     "unit": {
       "BAG": "Bag",
       "KG": "Kilogram",
@@ -10365,33 +10405,7 @@
       "TONNE": "Tonne"
     },
     "viewTitle": "Receipt",
-    "signature": {
-      "receiver": "Received by",
-      "supplier": "Supplier",
-      "none": "No signature was captured."
-    },
-    "photoViewer": {
-      "open": "Open photograph",
-      "previous": "Previous photograph",
-      "next": "Next photograph",
-      "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
-    },
-    "recorderUnknown": "Recorder not on file",
-    "noRecorderPhone": "No phone number on file",
-    "acceptance": {
-      "title": "Acceptance",
-      "status": {
-        "PENDING": "Awaiting acceptance",
-        "ACCEPTED": "Accepted",
-        "REJECTED": "Rejected"
-      },
-      "accept": "Accept",
-      "reject": "Reject",
-      "reason": "Reason for rejection",
-      "reasonPlaceholder": "Why is this delivery being rejected?",
-      "moneyNote": "Rejecting flags the delivery and counts it on the home page. It does not change the amount or the payment status — that stays a decision somebody makes on purpose.",
-      "alreadyAccepted": "This delivery has already been accepted."
-    }
+    "waiting": "Waiting for you to read"
   },
   "recyclerBusiness": {
     "action": {

@@ -78,3 +78,68 @@ describe("the create and edit dialogs", () => {
     expect(layout).toMatch(/\{modal\}/);
   });
 });
+
+/**
+ * Every full-page detail route has a dialog twin too (T-243).
+ *
+ * Lucas: 「为什么我按眼睛查看详情的时候不是弹窗」. T-216 converted the forms
+ * and left the view routes as full-page navigations - the same list-losing
+ * behaviour the forms had, on the screens people press most. Read off the
+ * routes for the same reason the forms are: a detail page added tomorrow
+ * fails this until it has a dialog.
+ */
+function fullPageDetails(): string[] {
+  const found: string[] = [];
+
+  const walk = (dir: string, route: string) => {
+    for (const entry of readdirSync(dir)) {
+      if (entry === "@modal") continue;
+      const full = path.join(dir, entry);
+      if (!statSync(full).isDirectory()) continue;
+      const next = entry.startsWith("(") ? route : `${route}/${entry}`;
+      if (existsSync(path.join(full, "page.tsx"))) {
+        // The record's own address: ends in the id segment, and is not one of
+        // the create/edit routes the set above already covers.
+        if (/\/\[id\]$/.test(next)) found.push(next);
+      }
+      walk(full, next);
+    }
+  };
+
+  walk(APP, "");
+  return found.sort();
+}
+
+describe("the detail dialogs", () => {
+  const routes = fullPageDetails();
+
+  it("finds the whole set of full-page detail screens", () => {
+    // Twelve modules with a record of their own to open. A change here is
+    // either a new detail screen (which needs a dialog) or a deleted one.
+    expect(routes.length).toBe(12);
+  });
+
+  it.each(fullPageDetails())("%s opens as a dialog too", (route) => {
+    const twin = path.join(MODAL, `(.)${route.slice(1)}`, "page.tsx");
+    expect(existsSync(twin), `${twin} is missing`).toBe(true);
+
+    const source = readFileSync(twin, "utf8");
+    expect(source).toContain(`@/app/(dashboard)${route}/page`);
+    expect(source).toContain("<DetailDialog>");
+  });
+
+  it("draws its header from the one place every detail screen uses", () => {
+    /*
+     * `DetailHeader` is the seam. Eleven detail components render through it,
+     * so the dialog branch lives there once instead of eleven times - and a
+     * detail screen that drew its own back bar would show it inside the
+     * dialog, beside the dialog's own close, pointing at the list behind.
+     */
+    const primitives = readFileSync(
+      path.join(process.cwd(), "src", "components", "shared", "page-primitives.tsx"),
+      "utf8",
+    );
+    expect(primitives).toContain('surface === "dialog"');
+    expect(primitives).toContain("useFormSurface");
+  });
+});

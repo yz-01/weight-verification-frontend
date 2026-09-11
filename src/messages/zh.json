@@ -3802,7 +3802,7 @@
       "material": "收货与它的金额归在这里。按项目各一份。",
       "field": "现场照片归在这里。按项目各一份。",
       "document": "图纸、合同、RFI 等。**全公司一份**，所有项目共用 —— 在这里改，别的项目也跟着变。",
-      "equipment": "吊车、挖掘机、发电机等。全平台一份。",
+      "equipment": "吊车、挖掘机、发电机等。每个项目一份，由本公司维护。",
       "progress": "区域、楼层、工种。按项目各一份，**不参与**进度百分比计算。",
       "phase": "进度百分比就是按这些阶段算的。按项目各一份 —— 改权重会改已有数字。",
       "ehs": "安全隐患、质量问题、事故、作业许可证。按项目各一份。",
@@ -5277,19 +5277,24 @@
       "allProjects": "全部项目",
       "assignee": "现场人员",
       "category": "栏目",
+      "certificateExpiresOn": "证书到期日",
       "code": "编号",
       "deliveryNote": "送货单",
       "description": "说明",
       "destination": "目的地",
       "dueAt": "截止日期与时间",
+      "equipmentColumn": "设备分类",
       "executor": "执行人",
+      "expiryHelp": "填了才会进首页的「证书即将到期」卡；没有单据就留空，宁可空着也不要填一个猜的日期。",
       "instructions": "工作说明",
+      "insuranceExpiresOn": "保险到期日",
       "latitude": "纬度",
       "location": "当前 GPS 位置",
       "longitude": "经度",
       "material": "材料",
       "name": "名称",
       "noCategory": "不选择栏目",
+      "noEquipmentColumn": "不分类",
       "noParent": "没有上级栏目",
       "noSupplier": "没有供应商",
       "notes": "备注",
@@ -5317,10 +5322,7 @@
       "title": "任务标题",
       "unit": "单位",
       "vehiclePlate": "车牌",
-      "workLocation": "工作区域 / 位置",
-      "certificateExpiresOn": "证书到期日",
-      "insuranceExpiresOn": "保险到期日",
-      "expiryHelp": "填了才会进首页的「证书即将到期」卡；没有单据就留空，宁可空着也不要填一个猜的日期。"
+      "workLocation": "工作区域 / 位置"
     },
     "filing": {
       "action": "归档",
@@ -10264,11 +10266,20 @@
     "title": "扫描 MSE Trace 二维码"
   },
   "receipts": {
-    "archived": "已归档",
-    "waiting": "待你查看",
-    "allStates": "已读和未读",
-    "unfiled": "未归栏目",
-    "allColumns": "全部栏目",
+    "acceptance": {
+      "title": "验收",
+      "status": {
+        "PENDING": "待验收",
+        "ACCEPTED": "已验收",
+        "REJECTED": "不合格"
+      },
+      "accept": "验收通过",
+      "reject": "判为不合格",
+      "reason": "不合格原因",
+      "reasonPlaceholder": "这批材料为什么不合格？",
+      "moneyNote": "判为不合格会标记这批货并计入首页统计，但不会改动金额或付款状态 —— 改钱的动作要由人明确按下去。",
+      "alreadyAccepted": "这批材料已经验收通过了。"
+    },
     "addPhoto": {
       "caption": "备注（可不填）",
       "choose": "选择照片",
@@ -10277,6 +10288,9 @@
       "title": "补拍照片",
       "upload": "上传"
     },
+    "allColumns": "全部栏目",
+    "allStates": "已读和未读",
+    "archived": "已归档",
     "correction": {
       "action": "更正",
       "note": "更正会新开一张收货单，并指回原来那一张。两张都保留 —— 以后有人来查，能看到改了什么、为什么改。",
@@ -10289,6 +10303,20 @@
     },
     "count": "{count, plural, =0 {暂无收货记录} other {# 条收货记录}}",
     "createTitle": "记录收货",
+    "doPanelField": "字段",
+    "doPanelLineItems": "单据上的明细行",
+    "doPanelLowConfidence": "以下几项读取置信度偏低，请对着单据核一遍",
+    "doPanelNone": "这条记录没有从交货单读到任何资料。",
+    "doPanelStatus": "读取状态",
+    "doPanelTitle": "DO 读取资料",
+    "doPanelValue": "读到的值",
+    "doStatus": {
+      "FAILED": "读取失败",
+      "MANUAL": "人工录入",
+      "NOT_CONFIGURED": "未配置读取服务",
+      "NOT_REQUESTED": "未读取",
+      "SUCCEEDED": "已读取"
+    },
     "editNote": "数量和单价可以更正。项目、送货单和记录时间不可更改，它们正是这条记录要证明的事。",
     "editTitle": "更正收货记录",
     "field": {
@@ -10317,12 +10345,25 @@
     "locationMissing": "无位置",
     "new": "记录收货",
     "noPhotos": "没有附加照片。",
+    "noRecorderPhone": "没有登记联系电话",
     "photoKind": {
       "DELIVERY_NOTE": "送货单",
       "OTHER": "其他",
       "UNLOADING": "卸货",
       "VEHICLE": "车辆"
     },
+    "photoNoLocation": "没有记录位置",
+    "photoNoTime": "没有记录拍摄时间",
+    "photoTakenAt": "拍摄于 {when}",
+    "photoUploadedBy": "由 {who} 上传",
+    "photoUploaderUnknown": "上传账号已被移除",
+    "photoViewer": {
+      "open": "打开照片",
+      "previous": "上一张",
+      "next": "下一张",
+      "clean": "这里显示的是不带位置与时间水印的原图，方便复制到别处使用。"
+    },
+    "recorderUnknown": "没有记录人资料",
     "remove": {
       "confirm": "删除",
       "description": "它将不再出现在收货列表和材料统计中。",
@@ -10337,15 +10378,13 @@
       "vehicle": "车辆与单据",
       "signatures": "签名"
     },
-    "stampNote": "时间、位置和记录人由系统在提交时自动写入，无法手动填写或事后修改。",
-    "summary": {
-      "byMaterial": "按材料",
-      "byUnit": "按单位",
-      "note": "数量按单位分开统计，吨与件不会相加。",
-      "quantity": "数量",
-      "receipts": "收货次数",
-      "title": "材料统计"
+    "signature": {
+      "receiver": "收货人",
+      "supplier": "供应商",
+      "none": "没有采集到签名。"
     },
+    "stampNote": "时间、位置和记录人由系统在提交时自动写入，无法手动填写或事后修改。",
+    "summary": "一眼看全",
     "title": "材料收货",
     "toast": {
       "corrected": "更正已记录",
@@ -10356,6 +10395,7 @@
       "accepted": "已验收通过。",
       "rejected": "已判为不合格，原因已记录。"
     },
+    "unfiled": "未归栏目",
     "unit": {
       "BAG": "包",
       "KG": "公斤",
@@ -10365,33 +10405,7 @@
       "TONNE": "吨"
     },
     "viewTitle": "收货记录",
-    "signature": {
-      "receiver": "收货人",
-      "supplier": "供应商",
-      "none": "没有采集到签名。"
-    },
-    "photoViewer": {
-      "open": "打开照片",
-      "previous": "上一张",
-      "next": "下一张",
-      "clean": "这里显示的是不带位置与时间水印的原图，方便复制到别处使用。"
-    },
-    "recorderUnknown": "没有记录人资料",
-    "noRecorderPhone": "没有登记联系电话",
-    "acceptance": {
-      "title": "验收",
-      "status": {
-        "PENDING": "待验收",
-        "ACCEPTED": "已验收",
-        "REJECTED": "不合格"
-      },
-      "accept": "验收通过",
-      "reject": "判为不合格",
-      "reason": "不合格原因",
-      "reasonPlaceholder": "这批材料为什么不合格？",
-      "moneyNote": "判为不合格会标记这批货并计入首页统计，但不会改动金额或付款状态 —— 改钱的动作要由人明确按下去。",
-      "alreadyAccepted": "这批材料已经验收通过了。"
-    }
+    "waiting": "待你查看"
   },
   "recyclerBusiness": {
     "action": {

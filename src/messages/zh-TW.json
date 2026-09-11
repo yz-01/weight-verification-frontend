@@ -3802,7 +3802,7 @@
       "material": "收貨與它的金額歸在這裡。按專案各一份。",
       "field": "現場照片歸在這裡。按專案各一份。",
       "document": "圖紙、合約、RFI 等。**全公司一份**，所有專案共用 —— 在這裡改，別的專案也跟著變。",
-      "equipment": "吊車、挖掘機、發電機等。全平台一份。",
+      "equipment": "吊車、挖掘機、發電機等。每個項目一份，由本公司維護。",
       "progress": "區域、樓層、工種。按專案各一份，**不參與**進度百分比計算。",
       "phase": "進度百分比就是按這些階段算的。按專案各一份 —— 改權重會改已有數字。",
       "ehs": "安全隱患、品質問題、事故、作業許可證。按專案各一份。",
@@ -5277,19 +5277,24 @@
       "allProjects": "全部項目",
       "assignee": "現場人員",
       "category": "欄目",
+      "certificateExpiresOn": "證書到期日",
       "code": "編號",
       "deliveryNote": "送貨單",
       "description": "說明",
       "destination": "目的地",
       "dueAt": "截止日期與時間",
+      "equipmentColumn": "設備分類",
       "executor": "執行人",
+      "expiryHelp": "填了才會進首頁的「證書即將到期」卡；沒有單據就留空，寧可空著也不要填一個猜的日期。",
       "instructions": "工作說明",
+      "insuranceExpiresOn": "保險到期日",
       "latitude": "緯度",
       "location": "當前 GPS 位置",
       "longitude": "經度",
       "material": "材料",
       "name": "名稱",
       "noCategory": "不選擇欄目",
+      "noEquipmentColumn": "不分類",
       "noParent": "沒有上級欄目",
       "noSupplier": "沒有供應商",
       "notes": "備註",
@@ -5317,10 +5322,7 @@
       "title": "任務標題",
       "unit": "單位",
       "vehiclePlate": "車牌",
-      "workLocation": "工作區域 / 位置",
-      "certificateExpiresOn": "證書到期日",
-      "insuranceExpiresOn": "保險到期日",
-      "expiryHelp": "填了才會進首頁的「證書即將到期」卡；沒有單據就留空，寧可空著也不要填一個猜的日期。"
+      "workLocation": "工作區域 / 位置"
     },
     "filing": {
       "action": "歸檔",
@@ -10264,11 +10266,20 @@
     "title": "掃描 MSE Trace 二維碼"
   },
   "receipts": {
-    "archived": "已歸檔",
-    "waiting": "待你查看",
-    "allStates": "已讀和未讀",
-    "unfiled": "未歸欄目",
-    "allColumns": "全部欄目",
+    "acceptance": {
+      "title": "驗收",
+      "status": {
+        "PENDING": "待驗收",
+        "ACCEPTED": "已驗收",
+        "REJECTED": "不合格"
+      },
+      "accept": "驗收通過",
+      "reject": "判為不合格",
+      "reason": "不合格原因",
+      "reasonPlaceholder": "這批材料為什麼不合格？",
+      "moneyNote": "判為不合格會標記這批貨並計入首頁統計，但不會改動金額或付款狀態 —— 改錢的動作要由人明確按下去。",
+      "alreadyAccepted": "這批材料已經驗收通過了。"
+    },
     "addPhoto": {
       "caption": "備註（可不填）",
       "choose": "選擇照片",
@@ -10277,6 +10288,9 @@
       "title": "補拍照片",
       "upload": "上傳"
     },
+    "allColumns": "全部欄目",
+    "allStates": "已讀和未讀",
+    "archived": "已歸檔",
     "correction": {
       "action": "更正",
       "note": "更正會新開一張收貨單，並指回原來那一張。兩張都保留 —— 以後有人來查，能看到改了什麼、為什麼改。",
@@ -10289,6 +10303,20 @@
     },
     "count": "{count, plural, =0 {暫無收貨記錄} other {# 條收貨記錄}}",
     "createTitle": "記錄收貨",
+    "doPanelField": "欄位",
+    "doPanelLineItems": "單據上的明細列",
+    "doPanelLowConfidence": "以下幾項讀取信賴度偏低，請對著單據核一遍",
+    "doPanelNone": "這筆記錄沒有從交貨單讀到任何資料。",
+    "doPanelStatus": "讀取狀態",
+    "doPanelTitle": "DO 讀取資料",
+    "doPanelValue": "讀到的值",
+    "doStatus": {
+      "FAILED": "讀取失敗",
+      "MANUAL": "人工輸入",
+      "NOT_CONFIGURED": "未設定讀取服務",
+      "NOT_REQUESTED": "未讀取",
+      "SUCCEEDED": "已讀取"
+    },
     "editNote": "數量和單價可以更正。項目、送貨單和記錄時間不可更改，它們正是這條記錄要證明的事。",
     "editTitle": "更正收貨記錄",
     "field": {
@@ -10317,12 +10345,25 @@
     "locationMissing": "無位置",
     "new": "記錄收貨",
     "noPhotos": "沒有附加照片。",
+    "noRecorderPhone": "沒有登記聯絡電話",
     "photoKind": {
       "DELIVERY_NOTE": "送貨單",
       "OTHER": "其他",
       "UNLOADING": "卸貨",
       "VEHICLE": "車輛"
     },
+    "photoNoLocation": "沒有記錄位置",
+    "photoNoTime": "沒有記錄拍攝時間",
+    "photoTakenAt": "拍攝於 {when}",
+    "photoUploadedBy": "由 {who} 上傳",
+    "photoUploaderUnknown": "上傳帳號已被移除",
+    "photoViewer": {
+      "open": "打開照片",
+      "previous": "上一張",
+      "next": "下一張",
+      "clean": "這裡顯示的是不帶位置與時間浮水印的原圖，方便複製到別處使用。"
+    },
+    "recorderUnknown": "沒有記錄人資料",
     "remove": {
       "confirm": "刪除",
       "description": "它將不再出現在收貨列表和材料統計中。",
@@ -10337,15 +10378,13 @@
       "vehicle": "車輛與單據",
       "signatures": "簽名"
     },
-    "stampNote": "時間、位置和記錄人由系統在提交時自動寫入，無法手動填寫或事後修改。",
-    "summary": {
-      "byMaterial": "按材料",
-      "byUnit": "按單位",
-      "note": "數量按單位分開統計，噸與件不會相加。",
-      "quantity": "數量",
-      "receipts": "收貨次數",
-      "title": "材料統計"
+    "signature": {
+      "receiver": "收貨人",
+      "supplier": "供應商",
+      "none": "沒有採集到簽名。"
     },
+    "stampNote": "時間、位置和記錄人由系統在提交時自動寫入，無法手動填寫或事後修改。",
+    "summary": "一眼看全",
     "title": "材料收貨",
     "toast": {
       "corrected": "更正已記錄",
@@ -10356,6 +10395,7 @@
       "accepted": "已驗收通過。",
       "rejected": "已判為不合格，原因已記錄。"
     },
+    "unfiled": "未歸欄目",
     "unit": {
       "BAG": "包",
       "KG": "公斤",
@@ -10365,33 +10405,7 @@
       "TONNE": "噸"
     },
     "viewTitle": "收貨記錄",
-    "signature": {
-      "receiver": "收貨人",
-      "supplier": "供應商",
-      "none": "沒有採集到簽名。"
-    },
-    "photoViewer": {
-      "open": "打開照片",
-      "previous": "上一張",
-      "next": "下一張",
-      "clean": "這裡顯示的是不帶位置與時間浮水印的原圖，方便複製到別處使用。"
-    },
-    "recorderUnknown": "沒有記錄人資料",
-    "noRecorderPhone": "沒有登記聯絡電話",
-    "acceptance": {
-      "title": "驗收",
-      "status": {
-        "PENDING": "待驗收",
-        "ACCEPTED": "已驗收",
-        "REJECTED": "不合格"
-      },
-      "accept": "驗收通過",
-      "reject": "判為不合格",
-      "reason": "不合格原因",
-      "reasonPlaceholder": "這批材料為什麼不合格？",
-      "moneyNote": "判為不合格會標記這批貨並計入首頁統計，但不會改動金額或付款狀態 —— 改錢的動作要由人明確按下去。",
-      "alreadyAccepted": "這批材料已經驗收通過了。"
-    }
+    "waiting": "待你查看"
   },
   "recyclerBusiness": {
     "action": {

@@ -3802,7 +3802,7 @@
       "material": "Penghantaran dan kosnya difailkan di sini. Satu senarai bagi setiap projek.",
       "field": "Gambar tapak difailkan di sini. Satu senarai bagi setiap projek.",
       "document": "Pelan, kontrak, RFI. Satu senarai untuk seluruh syarikat - menyuntingnya di sini mengubahnya di semua projek.",
-      "equipment": "Kren, jengkaut, generator. Satu senarai untuk seluruh platform.",
+      "equipment": "Kren, jengkaut, penjana. Satu senarai bagi setiap projek, diselenggara oleh syarikat ini.",
       "progress": "Zon, tingkat dan jenis kerja. Satu senarai bagi setiap projek, dan ini tidak membawa pemberat kemajuan.",
       "phase": "Fasa yang peratus siap diukur terhadapnya. Satu senarai bagi setiap projek - menukar pemberat menukar angkanya.",
       "ehs": "Bahaya, isu kualiti, kemalangan dan permit. Satu senarai bagi setiap projek.",
@@ -5277,19 +5277,24 @@
       "allProjects": "Semua projek",
       "assignee": "Pekerja tapak",
       "category": "Kategori",
+      "certificateExpiresOn": "Sijil luput pada",
       "code": "Kod",
       "deliveryNote": "Nota penghantaran",
       "description": "Penerangan",
       "destination": "Destinasi",
       "dueAt": "Tarikh dan masa akhir",
+      "equipmentColumn": "Kategori peralatan",
       "executor": "Pelaksana",
+      "expiryHelp": "Mengisi kad dokumen-akan-luput di laman utama. Biarkan kosong jika anda tiada dokumen itu - kosong lebih baik daripada tarikh yang diteka.",
       "instructions": "Arahan",
+      "insuranceExpiresOn": "Insurans luput pada",
       "latitude": "Latitud",
       "location": "Lokasi GPS semasa",
       "longitude": "Longitud",
       "material": "Bahan",
       "name": "Nama",
       "noCategory": "Tiada kategori",
+      "noEquipmentColumn": "Tiada kategori",
       "noParent": "Tiada kategori induk",
       "noSupplier": "Tiada pembekal",
       "notes": "Catatan",
@@ -5317,10 +5322,7 @@
       "title": "Tajuk tugas",
       "unit": "Unit",
       "vehiclePlate": "Nombor plat",
-      "workLocation": "Kawasan / lokasi kerja",
-      "certificateExpiresOn": "Sijil luput pada",
-      "insuranceExpiresOn": "Insurans luput pada",
-      "expiryHelp": "Mengisi kad dokumen-akan-luput di laman utama. Biarkan kosong jika anda tiada dokumen itu - kosong lebih baik daripada tarikh yang diteka."
+      "workLocation": "Kawasan / lokasi kerja"
     },
     "filing": {
       "action": "Failkan",
@@ -10264,11 +10266,20 @@
     "title": "Imbas QR MSE Trace"
   },
   "receipts": {
-    "archived": "Sudah difailkan",
-    "waiting": "Menunggu anda baca",
-    "allStates": "Dibaca dan belum dibaca",
-    "unfiled": "Belum difailkan",
-    "allColumns": "Semua ruangan",
+    "acceptance": {
+      "title": "Penerimaan",
+      "status": {
+        "PENDING": "Menunggu penerimaan",
+        "ACCEPTED": "Diterima",
+        "REJECTED": "Ditolak"
+      },
+      "accept": "Terima",
+      "reject": "Tolak",
+      "reason": "Sebab penolakan",
+      "reasonPlaceholder": "Mengapa penghantaran ini ditolak?",
+      "moneyNote": "Penolakan menandakan penghantaran dan mengiranya di halaman utama. Ia tidak mengubah jumlah atau status pembayaran — itu kekal keputusan yang dibuat seseorang dengan sengaja.",
+      "alreadyAccepted": "Penghantaran ini telah pun diterima."
+    },
     "addPhoto": {
       "caption": "Nota (pilihan)",
       "choose": "Pilih gambar",
@@ -10277,6 +10288,9 @@
       "title": "Tambah gambar",
       "upload": "Muat naik"
     },
+    "allColumns": "Semua ruangan",
+    "allStates": "Dibaca dan belum dibaca",
+    "archived": "Sudah difailkan",
     "correction": {
       "action": "Betulkan",
       "note": "Pembetulan membuka resit baharu yang merujuk kembali kepada resit ini. Kedua-duanya kekal dalam rekod, jadi sesiapa yang menyemak kemudian nampak apa yang diubah dan mengapa.",
@@ -10289,6 +10303,20 @@
     },
     "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
     "createTitle": "Rekod penerimaan",
+    "doPanelField": "Medan",
+    "doPanelLineItems": "Baris pada dokumen",
+    "doPanelLowConfidence": "Dibaca dengan keyakinan rendah - semak terhadap dokumen",
+    "doPanelNone": "Tiada apa-apa dibaca daripada nota penghantaran untuk resit ini.",
+    "doPanelStatus": "Status bacaan",
+    "doPanelTitle": "Dibaca daripada nota penghantaran",
+    "doPanelValue": "Nilai dibaca",
+    "doStatus": {
+      "FAILED": "Bacaan gagal",
+      "MANUAL": "Dimasukkan secara manual",
+      "NOT_CONFIGURED": "Pembaca belum dikonfigurasi",
+      "NOT_REQUESTED": "Tidak dibaca",
+      "SUCCEEDED": "Dibaca"
+    },
     "editNote": "Kuantiti dan harga boleh dibetulkan. Projek, nota hantar dan masa rekod tidak boleh — itulah yang dibuktikan oleh resit ini.",
     "editTitle": "Betulkan resit",
     "field": {
@@ -10317,12 +10345,25 @@
     "locationMissing": "Tiada lokasi",
     "new": "Rekod penerimaan",
     "noPhotos": "Tiada foto dilampirkan.",
+    "noRecorderPhone": "Tiada nombor telefon dalam rekod",
     "photoKind": {
       "DELIVERY_NOTE": "Nota hantar",
       "OTHER": "Lain-lain",
       "UNLOADING": "Pemunggahan",
       "VEHICLE": "Kenderaan"
     },
+    "photoNoLocation": "Lokasi tidak direkodkan",
+    "photoNoTime": "Masa pengambilan tidak direkodkan",
+    "photoTakenAt": "Diambil {when}",
+    "photoUploadedBy": "Ditambah oleh {who}",
+    "photoUploaderUnknown": "Ditambah oleh akaun yang telah dibuang",
+    "photoViewer": {
+      "open": "Buka gambar",
+      "previous": "Gambar sebelumnya",
+      "next": "Gambar seterusnya",
+      "clean": "Dipaparkan tanpa cap lokasi dan masa, supaya boleh digunakan semula di tempat lain."
+    },
+    "recorderUnknown": "Perekod tiada dalam rekod",
     "remove": {
       "confirm": "Buang",
       "description": "Ia tidak akan muncul lagi dalam senarai penerimaan atau jumlah bahan anda.",
@@ -10337,15 +10378,13 @@
       "vehicle": "Kenderaan dan dokumen",
       "signatures": "Tandatangan"
     },
-    "stampNote": "Masa, lokasi dan orang yang merekod ditulis oleh platform semasa resit difailkan. Ia tidak boleh ditaip atau diubah kemudian.",
-    "summary": {
-      "byMaterial": "Mengikut bahan",
-      "byUnit": "Mengikut unit",
-      "note": "Kuantiti dikumpulkan mengikut unit. Tan dan unit tidak dicampur.",
-      "quantity": "Kuantiti",
-      "receipts": "Resit",
-      "title": "Ringkasan bahan"
+    "signature": {
+      "receiver": "Diterima oleh",
+      "supplier": "Pembekal",
+      "none": "Tiada tandatangan dirakam."
     },
+    "stampNote": "Masa, lokasi dan orang yang merekod ditulis oleh platform semasa resit difailkan. Ia tidak boleh ditaip atau diubah kemudian.",
+    "summary": "Sekilas pandang",
     "title": "Penerimaan bahan",
     "toast": {
       "corrected": "Pembetulan direkodkan",
@@ -10356,6 +10395,7 @@
       "accepted": "Penghantaran diterima.",
       "rejected": "Penghantaran ditolak, dengan sebabnya direkodkan."
     },
+    "unfiled": "Belum difailkan",
     "unit": {
       "BAG": "Beg",
       "KG": "Kilogram",
@@ -10365,33 +10405,7 @@
       "TONNE": "Tan"
     },
     "viewTitle": "Resit",
-    "signature": {
-      "receiver": "Diterima oleh",
-      "supplier": "Pembekal",
-      "none": "Tiada tandatangan dirakam."
-    },
-    "photoViewer": {
-      "open": "Buka gambar",
-      "previous": "Gambar sebelumnya",
-      "next": "Gambar seterusnya",
-      "clean": "Dipaparkan tanpa cap lokasi dan masa, supaya boleh digunakan semula di tempat lain."
-    },
-    "recorderUnknown": "Perekod tiada dalam rekod",
-    "noRecorderPhone": "Tiada nombor telefon dalam rekod",
-    "acceptance": {
-      "title": "Penerimaan",
-      "status": {
-        "PENDING": "Menunggu penerimaan",
-        "ACCEPTED": "Diterima",
-        "REJECTED": "Ditolak"
-      },
-      "accept": "Terima",
-      "reject": "Tolak",
-      "reason": "Sebab penolakan",
-      "reasonPlaceholder": "Mengapa penghantaran ini ditolak?",
-      "moneyNote": "Penolakan menandakan penghantaran dan mengiranya di halaman utama. Ia tidak mengubah jumlah atau status pembayaran — itu kekal keputusan yang dibuat seseorang dengan sengaja.",
-      "alreadyAccepted": "Penghantaran ini telah pun diterima."
-    }
+    "waiting": "Menunggu anda baca"
   },
   "recyclerBusiness": {
     "action": {

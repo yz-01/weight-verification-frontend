@@ -249,6 +249,9 @@ export interface SiteEquipment {
   registration_no: string;
   supplier: string | null;
   supplier_name: string | null;
+  /** The project column this machine files under, when one was chosen. */
+  category: string | null;
+  category_name: string | null;
   description: string;
   status: EquipmentStatus;
   /**
@@ -272,6 +275,13 @@ export interface EquipmentPayload {
   serial_no?: string;
   registration_no?: string;
   supplier?: string | null;
+  /**
+   * The project column this machine files under (T-242).
+   *
+   * Optional, and null is a real answer: sites already carry machines nobody
+   * has classified, and forcing a choice gets one invented (D-160).
+   */
+  category?: string | null;
   description?: string;
   /** ISO date, or null when the contractor does not hold the document. */
   certificate_expires_on?: string | null;

@@ -18,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAssetCategories } from "@/services/asset.service";
 import {
   getConstructionPhases,
   getProjectCategories,
@@ -75,12 +74,10 @@ interface Module {
   /**
    * The code an account must hold for this row to mean anything (F-367).
    *
-   * Only the platform-scoped one needs it. Its list endpoint is behind
-   * `IsPlatformStaff` *and* `asset.view`, which the catalogue offers to the
-   * PLATFORM audience alone - so for a contractor the row could never open,
-   * and neither could the "manage" link beside it. A row that always answers
-   * "you are not allowed to do that" is not information about a vocabulary
-   * that exists elsewhere; it is a dead end with a name on it.
+   * No module needs one today. It is kept because the rule it encodes is the
+   * one that was missing when the equipment row shipped pointing at an
+   * endpoint no contractor could read: a row nobody can open is a dead end
+   * with a name on it, and the list is the place to say so.
    */
   permission?: string;
 }
@@ -131,20 +128,20 @@ const MODULES: Module[] = [
     },
   },
   {
+    /*
+     * The machines a contractor registers on a site, filed under this
+     * project's own columns (T-242).
+     *
+     * It used to read `assets.AssetCategoryDefinition`, which is MSE's own
+     * hardware register - thirteen rows of AI CCTV, Gateway, Router and SIM
+     * Card - while the help text beside it said "cranes, excavators,
+     * generators". Two different populations that share the word
+     * "equipment" (F-369).
+     */
     key: "equipment",
-    scope: "platform",
-    href: "/assets/categories",
-    permission: "asset.view",
-    fetch: async () => {
-      const page = await getAssetCategories({ page_size: 200 });
-      return page.results.map((row) => ({
-        id: row.id,
-        name: row.name,
-        code: row.code,
-        isActive: row.is_active,
-        recordCount: row.record_count,
-      }));
-    },
+    scope: "project",
+    href: "/project-categories",
+    fetch: columnRows("EQUIPMENT"),
   },
   {
     key: "progress",

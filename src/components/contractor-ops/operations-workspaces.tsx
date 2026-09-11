@@ -1676,6 +1676,14 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
                   <p className="mt-1 text-xs text-muted-foreground">
                     {t("field.quantity")}: {row.quantity_on_site}
                   </p>
+                  {/* The column it files under, shown where it was filed
+                      (T-242). A classification nobody can see on the record
+                      is a field somebody fills once and never trusts. */}
+                  {row.category_name && (
+                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                      {t("field.equipmentColumn")}: {row.category_name}
+                    </p>
+                  )}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <StatusBadge
@@ -1857,6 +1865,23 @@ function EquipmentDialog({
     queryKey: ["suppliers", "equipment-options"],
     queryFn: () => getSuppliers({ page_size: 200, sort_by: "name" }),
   });
+  /*
+   * This project's equipment columns (T-242). Filed here rather than picked
+   * from a platform-wide list: the machines on a site belong to the project,
+   * and so does the vocabulary that files them (F-369).
+   */
+  const columns = useQuery({
+    queryKey: ["project-categories", "equipment", project],
+    queryFn: () =>
+      getProjectCategories({
+        project,
+        kind: "EQUIPMENT",
+        page_size: 200,
+        sort_by: "sort_order",
+        sort_order: "asc",
+      }),
+    enabled: Boolean(project),
+  });
   const [form, setForm] = useState<EquipmentPayload>({
     project,
     code: equipment?.code ?? "",
@@ -1864,6 +1889,7 @@ function EquipmentDialog({
     serial_no: equipment?.serial_no ?? "",
     registration_no: equipment?.registration_no ?? "",
     supplier: equipment?.supplier ?? null,
+    category: equipment?.category ?? null,
     description: equipment?.description ?? "",
     certificate_expires_on: equipment?.certificate_expires_on ?? null,
     insurance_expires_on: equipment?.insurance_expires_on ?? null,
@@ -1881,6 +1907,7 @@ function EquipmentDialog({
           serial_no: form.serial_no,
           registration_no: form.registration_no,
           supplier: form.supplier,
+          category: form.category,
           description: form.description,
           certificate_expires_on: form.certificate_expires_on,
           insurance_expires_on: form.insurance_expires_on,
@@ -1946,7 +1973,28 @@ function EquipmentDialog({
               }
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.supplier")} className="sm:col-span-2">
+          <FieldWrapper label={t("field.equipmentColumn")}>
+            {/* Optional. "No column" is offered as a choice rather than left
+                as the absence of one, so filing nothing is something a person
+                did on purpose and can see they did. */}
+            <Select
+              value={form.category ?? "none"}
+              onValueChange={(v) => set("category", v === "none" ? null : v)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("field.noEquipmentColumn")}</SelectItem>
+                {(columns.data?.results ?? []).map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.code} - {item.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.supplier")}>
             <Select
               value={form.supplier ?? "none"}
               onValueChange={(v) => set("supplier", v === "none" ? null : v)}
