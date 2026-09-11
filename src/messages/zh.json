@@ -5279,6 +5279,18 @@
       "insuranceExpiresOn": "保险到期日",
       "expiryHelp": "填了才会进首页的「证书即将到期」卡；没有单据就留空，宁可空着也不要填一个猜的日期。"
     },
+    "filing": {
+      "action": "归档",
+      "columnsFailed": "栏目读取失败，请重试。",
+      "confirm": "保存归属",
+      "failed": "归档失败，请重试。",
+      "fileInto": "已归入",
+      "help": "{reference} —— 选择它应归入的栏目，或取回未归类。",
+      "noColumns": "这个项目还没有这个模块的栏目。",
+      "reason": "原因",
+      "title": "归入栏目",
+      "unfiled": "未归类"
+    },
     "outgoing": {
       "add": "新增出场申请",
       "createTitle": "申请材料出场",

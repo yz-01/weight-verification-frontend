@@ -389,6 +389,24 @@ export const reviewSiteProgressRecord = async (id: string, status: "CONFIRMED" |
   return row;
 };
 
+/**
+ * File a progress record under one of the project's progress columns.
+ *
+ * `null` unfiles it, which the server accepts on purpose: the office files a
+ * record after the fact and may have to take it back out (D-108).
+ */
+export const fileProgressRecord = async (
+  id: string,
+  payload: { category: string | null; reason?: string },
+) => {
+  const row = await api.post<SiteProgressRecord>(
+    `/api/site-progress/${id}/file_record/`,
+    payload,
+  );
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+
 export const getMaterialOutgoing = (query: ListQuery = {}): Promise<Paginated<MaterialOutgoing>> =>
   api.list<MaterialOutgoing>("/api/material-outgoing/get_records/", query);
 export async function createMaterialOutgoing(payload: {
@@ -453,6 +471,19 @@ export async function createDisposalRequest(payload: {
   toastSuccess("siteDisposal.toast.requested");
   return row;
 }
+
+/** File a disposal request under one of the project's debris columns. */
+export const fileDisposalRequest = async (
+  id: string,
+  payload: { category: string | null; reason?: string },
+) => {
+  const row = await api.post<DisposalRequest>(
+    `/api/site-disposals/${id}/file_request/`,
+    payload,
+  );
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
 
 export async function reviewDisposalRequest(
   id: string,

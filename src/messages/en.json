@@ -5279,6 +5279,18 @@
       "insuranceExpiresOn": "Insurance expires",
       "expiryHelp": "Fills the home page's expiring-paperwork card. Leave blank if you do not hold the document - blank is better than a guessed date."
     },
+    "filing": {
+      "action": "File it",
+      "columnsFailed": "The columns could not be loaded. Try again.",
+      "confirm": "Save filing",
+      "failed": "Filing failed. Try again.",
+      "fileInto": "Filed under",
+      "help": "{reference} - choose the column this belongs under, or take it back out.",
+      "noColumns": "This project has no columns for this module yet.",
+      "reason": "Why",
+      "title": "File under a column",
+      "unfiled": "Not filed yet"
+    },
     "outgoing": {
       "add": "New outgoing request",
       "createTitle": "Request material outgoing",

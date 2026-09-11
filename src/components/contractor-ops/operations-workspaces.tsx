@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronUp,
   ClipboardCheck,
+  FolderOpen,
   FileText,
   FilePlus2,
   HardHat,
@@ -27,6 +28,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
@@ -101,6 +103,7 @@ import {
   getSiteProgressRecords,
   getSiteProgressSummary,
   reviewMaterialOutgoing,
+  fileProgressRecord,
   reviewSiteProgressRecord,
   transitionFieldTask,
   updateFieldTask,
@@ -2353,6 +2356,10 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
   const [addingRecord, setAddingRecord] = useState(
     Boolean(fieldTaskId) || searchParams.get("create") === "1",
   );
+  // Which record the office is filing, if any (T-231). Filing is allowed on a
+  // record of any status, including a confirmed one: the column is the
+  // contractor's filing scheme, not part of what the record proves.
+  const [filing, setFiling] = useState<SiteProgressRecord | null>(null);
   const phases = useQuery({
     queryKey: ["construction-phases", project],
     queryFn: () =>
@@ -2560,6 +2567,29 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                 <p className="mt-2 text-sm">
                   {row.description || t("state.noDescription")}
                 </p>
+                {/* Where this record files, and the way to change it. Shown to
+                    everyone who can read the list, because "unfiled" is a
+                    state somebody has to notice; only the reviewer can act on
+                    it, which is the permission the server checks. */}
+                <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-sm">
+                  <span className="text-xs text-muted-foreground">
+                    {t("filing.fileInto")}
+                  </span>
+                  <span className="font-medium">
+                    {row.category_name || t("filing.unfiled")}
+                  </span>
+                  {can("progress.confirm") && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="ml-auto"
+                      onClick={() => setFiling(row)}
+                    >
+                      <FolderOpen />
+                      {t("filing.action")}
+                    </Button>
+                  )}
+                </div>
                 {can("progress.confirm") && row.status === "SUBMITTED" && (
                   <div className="mt-4 flex justify-end gap-2 border-t pt-3">
                     <Button
@@ -2579,6 +2609,22 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
             </article>
           ))}
         </div>
+      )}
+      {filing && (
+        <FileIntoColumnDialog
+          projectId={filing.project}
+          kind="PROGRESS"
+          current={filing.category ?? null}
+          reference={`${filing.phase_name} / ${filing.percent_complete}%`}
+          onFile={(category, reason) =>
+            fileProgressRecord(filing.id, { category, reason })
+          }
+          onFiled={() => {
+            void qc.invalidateQueries({ queryKey: ["site-progress"] });
+            void qc.invalidateQueries({ queryKey: ["project-categories"] });
+          }}
+          onClose={() => setFiling(null)}
+        />
       )}
       {editingPhase && (
         <PhaseDialog

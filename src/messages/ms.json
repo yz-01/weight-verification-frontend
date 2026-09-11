@@ -5279,6 +5279,18 @@
       "insuranceExpiresOn": "Insurans luput pada",
       "expiryHelp": "Mengisi kad dokumen-akan-luput di laman utama. Biarkan kosong jika anda tiada dokumen itu - kosong lebih baik daripada tarikh yang diteka."
     },
+    "filing": {
+      "action": "Failkan",
+      "columnsFailed": "Kolum tidak dapat dimuatkan. Cuba lagi.",
+      "confirm": "Simpan failan",
+      "failed": "Gagal memfailkan. Cuba lagi.",
+      "fileInto": "Difailkan di bawah",
+      "help": "{reference} - pilih kolum yang sepatutnya, atau keluarkan semula.",
+      "noColumns": "Projek ini belum ada kolum untuk modul ini.",
+      "reason": "Sebab",
+      "title": "Failkan di bawah kolum",
+      "unfiled": "Belum difailkan"
+    },
     "outgoing": {
       "add": "Permohonan keluar baharu",
       "createTitle": "Mohon bahan keluar",

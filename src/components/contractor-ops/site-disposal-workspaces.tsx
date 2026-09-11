@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Copy,
+  FolderOpen,
   Link2,
   Loader2,
   LocateFixed,
@@ -21,6 +22,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
@@ -68,6 +70,7 @@ import {
   getExternalDisposalTask,
   getInternalDisposalTask,
   regenerateDisposalExternalLink,
+  fileDisposalRequest,
   reviewDisposalRequest,
   startExternalDisposalTask,
   startInternalDisposalTask,
@@ -123,6 +126,10 @@ function statusTone(status: DisposalRequestStatus): "neutral" | "positive" | "wa
 export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("siteDisposal");
   const { can } = useAuth();
+  // The filing dialog's words live in the `contractorOps` namespace, with the
+  // one component that shows them on both this screen and the progress screen
+  // - so they are read from there rather than copied into this one.
+  const ops = useTranslations("contractorOps");
   const qc = useQueryClient();
   const [project, setProject] = useState(initialProject);
   const [creating, setCreating] = useState(Boolean(fieldTaskId));
@@ -132,6 +139,8 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   const [regenerating, setRegenerating] = useState<DisposalRequest | null>(null);
   const [cancelling, setCancelling] = useState<DisposalRequest | null>(null);
   const [confirming, setConfirming] = useState<DisposalRequest | null>(null);
+  // Which request the office is filing under a construction-waste column (T-232).
+  const [filing, setFiling] = useState<DisposalRequest | null>(null);
   const rows = useQuery({
     queryKey: ["site-disposals", project],
     queryFn: () => getDisposalRequests({ page_size: 200, project: project || undefined }),
@@ -180,7 +189,11 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                 <div><p className="text-xs text-muted-foreground">{t("field.executor")}</p><p className="mt-1 font-medium">{row.assigned_staff_name || row.collector_company_name || t("notAssigned")}</p></div>
               </div>
               <div className="mt-3 flex flex-wrap justify-end gap-2">
+                <span className="mr-auto self-center text-xs text-muted-foreground">{ops("filing.fileInto")}: <span className="font-medium text-foreground">{row.category_name || ops("filing.unfiled")}</span></span>
                 <Button size="sm" variant="outline" onClick={() => setViewing(row)}>{t("action.view")}</Button>
+                {/* Construction waste had no column at all until T-232, so
+                    this is the only way one of those columns ever gets used. */}
+                {can("disposal.manage") && <Button size="sm" variant="outline" onClick={() => setFiling(row)}><FolderOpen />{ops("filing.action")}</Button>}
                 {can("disposal.manage") && row.status === "REQUESTED" && <Button size="sm" onClick={() => setReviewing(row)}><ClipboardCheck />{t("action.review")}</Button>}
                 {can("disposal.manage") && ["APPROVED", "ASSIGNED", "RETURNED"].includes(row.status) && <Button size="sm" onClick={() => setAssigning(row)}><Send />{t("action.assign")}</Button>}
                 {can("disposal.manage") && row.assignment_type === "EXTERNAL" && ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => setRegenerating(row)}><RefreshCw />{t("action.regenerateLink")}</Button>}
@@ -194,6 +207,17 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
 
       {creating && <CreateDisposalDialog initialProject={project} fieldTaskId={fieldTaskId} onClose={() => setCreating(false)} onSaved={() => { void refresh(); setCreating(false); onRecordSaved?.(); }} />}
       {viewing && <DisposalDetailDialog row={viewing} onClose={() => setViewing(null)} />}
+      {filing && (
+        <FileIntoColumnDialog
+          projectId={filing.project}
+          kind="CONSTRUCTION_WASTE"
+          current={filing.category ?? null}
+          reference={filing.reference_no}
+          onFile={(category, reason) => fileDisposalRequest(filing.id, { category, reason })}
+          onFiled={() => void refresh()}
+          onClose={() => setFiling(null)}
+        />
+      )}
       {reviewing && <ReviewDisposalDialog row={reviewing} onClose={() => setReviewing(null)} onSaved={() => { void refresh(); setReviewing(null); }} />}
       {assigning && <AssignExecutorDialog row={assigning} onClose={() => setAssigning(null)} onSaved={() => void refresh()} />}
       {regenerating && <RegenerateLinkDialog row={regenerating} onClose={() => setRegenerating(null)} onSaved={() => void refresh()} />}

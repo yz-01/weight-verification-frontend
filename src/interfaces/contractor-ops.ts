@@ -338,6 +338,17 @@ export interface SiteProgressRecord {
   phase: string;
   phase_name: string;
   percent_complete: string;
+  /**
+   * The progress column this record files under, or null while unfiled.
+   *
+   * Separate from the phase: the phase carries the weight the completion
+   * percentage is computed against, the column is the customer'''s filing
+   * dimension (D-127). Set by the office through `file_record`, never on
+   * create - the site does not choose columns (D-108).
+   */
+  category: string | null;
+  category_name: string | null;
+  category_code: string | null;
   description: string;
   status: "SUBMITTED" | "CONFIRMED" | "RETURNED";
   captured_at: string;
@@ -429,6 +440,10 @@ export interface DisposalRequest {
   reference_no: string;
   project: string;
   project_name: string;
+  /** The construction-waste column, filed by the office afterwards (T-232). */
+  category: string | null;
+  category_name: string | null;
+  category_code: string | null;
   waste_description: string;
   location_description: string;
   estimated_volume_m3: string | null;

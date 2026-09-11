@@ -5279,6 +5279,18 @@
       "insuranceExpiresOn": "保險到期日",
       "expiryHelp": "填了才會進首頁的「證書即將到期」卡；沒有單據就留空，寧可空著也不要填一個猜的日期。"
     },
+    "filing": {
+      "action": "歸檔",
+      "columnsFailed": "欄目讀取失敗，請重試。",
+      "confirm": "儲存歸屬",
+      "failed": "歸檔失敗，請重試。",
+      "fileInto": "已歸入",
+      "help": "{reference} —— 選擇它應歸入的欄目，或取回未歸類。",
+      "noColumns": "這個專案還沒有這個模組的欄目。",
+      "reason": "原因",
+      "title": "歸入欄目",
+      "unfiled": "未歸類"
+    },
     "outgoing": {
       "add": "新增出場申請",
       "createTitle": "申請材料出場",
