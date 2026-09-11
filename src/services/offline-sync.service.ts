@@ -491,7 +491,9 @@ export async function submitTaskPhotoOfflineAware(
     }
   }
   const result = await enqueue(job);
-  await recordDriverTaskPhotoLocally(ownerId, taskId).catch(() => undefined);
+  await recordDriverTaskPhotoLocally(ownerId, taskId, kind).catch(
+    () => undefined,
+  );
   return result;
 }
 

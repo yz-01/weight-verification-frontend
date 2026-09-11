@@ -86,11 +86,37 @@ function countBucket(state: TaskState): keyof DriverDashboard["counts"] | null {
   return isTerminal(state) ? null : "in_progress";
 }
 
-async function pendingPhotoCount(ownerId: string, taskId: string): Promise<number> {
+async function pendingPhotoJobs(ownerId: string, taskId: string) {
   const jobs = await getOfflineJobs(ownerId);
   return jobs.filter(
     (job) => job.kind === "TASK_PHOTO" && job.payload.taskId === taskId,
-  ).length;
+  );
+}
+
+/**
+ * Which *kinds* of photograph are waiting to upload, not just how many.
+ *
+ * A trip cannot be marked loaded without both a loading photograph and a
+ * photograph of the gate pass (T-223, D-110). A count alone cannot say which
+ * of the two a queued job would satisfy, so a driver who photographed the gate
+ * pass on a dead signal and then reloaded would be told to photograph it again
+ * - or, worse, waved through having taken neither.
+ */
+async function pendingPhotoKinds(
+  ownerId: string,
+  taskId: string,
+): Promise<string[]> {
+  const jobs = await pendingPhotoJobs(ownerId, taskId);
+  return [
+    ...new Set(
+      jobs.map((job) =>
+        // Narrowed by the filter in `pendingPhotoJobs`, which TypeScript loses
+        // across the function boundary; the payload of a TASK_PHOTO job always
+        // carries its kind.
+        job.kind === "TASK_PHOTO" ? job.payload.kind : "LOADING",
+      ),
+    ),
+  ];
 }
 
 async function saveTaskDetail(
@@ -99,7 +125,7 @@ async function saveTaskDetail(
 ): Promise<DriverTaskDetail> {
   const data = {
     ...task,
-    local_pending_photo_count: await pendingPhotoCount(ownerId, task.id),
+    local_pending_photo_kinds: await pendingPhotoKinds(ownerId, task.id),
   };
   if (isTerminal(task.state)) {
     await deleteDriverSnapshot(taskDetailId(ownerId, task.id));
@@ -226,12 +252,12 @@ export async function getDriverTaskOfflineAware(
       taskDetailId(ownerId, taskId),
     ).catch(() => null);
     if (!cached) throw error;
-    const queuedPhotos = await pendingPhotoCount(ownerId, taskId).catch(
-      () => cached.data.local_pending_photo_count ?? 0,
+    const queuedKinds = await pendingPhotoKinds(ownerId, taskId).catch(
+      () => cached.data.local_pending_photo_kinds ?? [],
     );
     return {
       ...cached.data,
-      local_pending_photo_count: queuedPhotos,
+      local_pending_photo_kinds: queuedKinds,
     };
   }
 }
@@ -297,6 +323,7 @@ export async function recordDriverTaskTransitionLocally(
 export async function recordDriverTaskPhotoLocally(
   ownerId: string,
   taskId: string,
+  kind: string,
 ): Promise<void> {
   const detail = await getDriverSnapshot<DriverTaskDetail>(
     taskDetailId(ownerId, taskId),
@@ -307,8 +334,13 @@ export async function recordDriverTaskPhotoLocally(
       savedAt: new Date().toISOString(),
       data: {
         ...detail.data,
-        local_pending_photo_count:
-          (detail.data.local_pending_photo_count ?? 0) + 1,
+        // The kind, not a tally. The loaded step needs one photograph of each
+        // sort (T-223), so "one photograph is waiting" cannot tell the driver
+        // which one they still owe - and keeping both a count and a set of
+        // kinds would be two books for one fact, which drift.
+        local_pending_photo_kinds: [
+          ...new Set([...(detail.data.local_pending_photo_kinds ?? []), kind]),
+        ],
       },
     });
   }

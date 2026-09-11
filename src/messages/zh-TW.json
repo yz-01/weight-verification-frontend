@@ -6261,7 +6261,6 @@
     }
   },
   "driver": {
-    "pickupAddress": "取貨地點",
     "action": {
       "ACCEPTED": "接下這趟",
       "ARRIVED": "我到了",
@@ -6278,6 +6277,7 @@
     "awaitingWeighing": "已到達回收場",
     "awaitingWeighingBody": "請等待毛重和皮重稱重。系統取得有效淨重後會自動完成任務。",
     "back": "全部任務",
+    "bothPhotosRequired": "開車前要拍裝貨照片和出門證兩張。",
     "cannotComplete": "我完成不了這趟",
     "dashboard": {
       "allJobs": "查看全部",
@@ -6297,6 +6297,22 @@
       "title": "司機首頁",
       "today": "今日任務",
       "workStatus": "在線狀態"
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "夾雜污染",
+        "MOISTURE": "含水",
+        "OTHER": "其他",
+        "OVERSIZE": "超尺寸或無法處理",
+        "WRONG_MATERIAL": "材料與申報不符"
+      },
+      "state": {
+        "ACCEPTED": "已接受",
+        "AUTO_ACCEPTED": "自動接受",
+        "PENDING": "等待貨主確認",
+        "RECHECK": "已要求複檢",
+        "REJECTED": "已拒絕"
+      }
     },
     "device": {
       "enable": "開啟",
@@ -6322,6 +6338,7 @@
       }
     },
     "finished": "已完成",
+    "gatepassRequired": "開車前先拍一張出門證。裝貨照片已經有了。",
     "gpsUnavailable": "目前無法取得 GPS。請開啟定位權限，讓路線和照片證據包含正確位置。",
     "nav": {
       "home": "首頁",
@@ -6341,6 +6358,7 @@
     },
     "photoGpsRequired": "請先開啟精確定位再拍攝任務照片；這張照片尚未上傳。",
     "photoRequired": "請先拍攝裝載照片，再將任務標記為已裝載。",
+    "pickupAddress": "取貨地點",
     "profile": {
       "readOnly": "這些資料由回收商管理員管理。",
       "title": "個人資料"
@@ -6372,6 +6390,7 @@
       "payableWeight": "結算重量",
       "title": "稱重與付款"
     },
+    "takeGatepass": "拍出門證",
     "takePhoto": "拍照",
     "toast": {
       "photoSent": "照片已上傳"
@@ -6383,22 +6402,6 @@
       "mayPause": "只有這個介面亮著的時候才會記錄位置。手機鎖螢幕之後，軌跡上會出現缺口。",
       "noWakeLock": "這個瀏覽器不支援保持螢幕常亮。請把手機的自動鎖螢幕時間調長，否則軌跡會有缺口。",
       "recording": "正在記錄你的位置，請保持螢幕亮著。"
-    },
-    "deduction": {
-      "kind": {
-        "CONTAMINATION": "夾雜污染",
-        "MOISTURE": "含水",
-        "OTHER": "其他",
-        "OVERSIZE": "超尺寸或無法處理",
-        "WRONG_MATERIAL": "材料與申報不符"
-      },
-      "state": {
-        "ACCEPTED": "已接受",
-        "AUTO_ACCEPTED": "自動接受",
-        "PENDING": "等待貨主確認",
-        "RECHECK": "已要求複檢",
-        "REJECTED": "已拒絕"
-      }
     }
   },
   "driverGps": {
@@ -6588,6 +6591,7 @@
       "config_readonly": "該系統設置僅供查看。",
       "config_required": "不能移除必要的系統設置。",
       "config_unknown": "系統不支持該配置鍵。",
+      "conflict": "這項資料現在的狀態不允許這個操作。",
       "consultant_grant_not_found": "找不到該顧問項目授權。",
       "consultant_organization_not_found": "找不到該顧問單位。",
       "customer_assignment_not_found": "找不到該客戶歸屬記錄。",
@@ -6631,6 +6635,11 @@
       "gate_binding_not_found": "這臺地磅上沒有等待中的載重。",
       "gateway_not_found": "找不到這臺網關。",
       "gateway_revoked": "該稱重網關已經撤銷。",
+      "hazard_audio_too_long": "這則語音 {seconds} 秒，單則最長 {limit} 秒。請重錄短一點，或者分兩則傳送。",
+      "hazard_closed": "{incident_no} 已驗收並閉環歸檔。記錄仍然可以查看，但不能再傳新訊息。",
+      "hazard_message_empty": "傳送前請輸入文字，或附上照片、語音或檔案。",
+      "hazard_not_a_participant": "{incident_no} 沒有上報給你。請讓上報人或安全主管把你加進來。",
+      "hazard_self_verification": "{incident_no} 是你整改的，需要由別人驗收 —— 上報人、專案經理、顧問、現場主管或安全主管都可以。",
       "incident_thread_not_found": "找不到這份事故報告。",
       "incorrect_password": "當前密碼不正確。",
       "ingest_rejected": "地磅數據未能接收。",
@@ -6647,8 +6656,12 @@
       "invalid_rule_params": "請檢查檢測參數後重試。",
       "invoice_not_found": "找不到該賬單。",
       "maintenance_not_found": "找不到該維護記錄。",
+      "method_not_allowed": "這個位置不支援這個操作。",
       "no_active_agreement": "該合作伙伴沒有生效中的協議。",
       "no_current_version": "尚未選擇當前平臺版本。",
+      "not_acceptable": "這台裝置讀不了伺服器回覆的格式。",
+      "not_authenticated": "請重新登入。",
+      "not_found": "找不到這項資料。",
       "notification_not_found": "找不到這條通知。",
       "object_reference_required": "必須指定一條記錄。",
       "ocr_failed": "無法識別該送貨單，請手動填寫資料。",
@@ -6678,6 +6691,9 @@
       "receipt_immutable": "已上傳的收貨記錄不能修改或刪除，請建立一條更正記錄。",
       "receipt_not_found": "找不到該收貨單。",
       "receipt_photo_not_found": "找不到該照片。",
+      "receipt_rejection_needs_reason": "請填寫退回這批材料的原因。沒有原因的退回，現場無從處理。",
+      "receipt_superseded": "這筆收貨記錄已被更正記錄取代，不能再驗收或退回。請打開目前那一筆來處理。",
+      "record_not_found": "這條記錄不在你這個帳號的範圍內。",
       "refresh_token_required": "登錄狀態無法續期，請重新登錄。",
       "reset_link_invalid": "此重設鏈接無效或已過期，請重新申請。",
       "role_in_use": "此角色仍有人在使用，請先把他們改為其他角色。",
@@ -6701,15 +6717,19 @@
       "settlement_not_issued": "請先開出結算單。",
       "settlement_nothing_to_settle": "扣雜之後已經沒有可結算的重量了。",
       "site_not_found": "找不到這個回收場。",
+      "submission_not_found": "這條記錄不是你提交的。",
       "supplier_not_found": "找不到這家供應商。",
       "task_already_running": "這車貨已經有一趟任務在跑了。",
       "task_already_started": "這趟任務已經開始，無法再改派。",
+      "task_gatepass_required": "標記裝載完成前，請拍下工地給你的出門證。裝載照片已經上傳了。",
       "task_invalid_transition": "從當前狀態無法進到那一步。",
       "task_not_found": "找不到該趟任務。",
       "task_photo_required": "標記裝載完成前必須上傳現場裝載照片。",
       "territory_not_found": "找不到該銷售區域。",
+      "throttled": "操作太頻繁，請稍等一下再試。",
       "ticket_not_found": "找不到該技術支持工單。",
       "training_not_found": "找不到該培訓記錄。",
+      "unsupported_media_type": "這裡不接受這種格式的內容。",
       "user_has_activity": "只有從未使用過的賬號可以移除。請改為停用此用戶。",
       "user_not_found": "找不到這位用戶。",
       "user_suspended": "此賬號已停用，請聯繫管理員。",
@@ -6719,16 +6739,7 @@
       "version_already_exists": "該平臺版本已經存在。",
       "version_not_found": "找不到該平臺版本。",
       "visit_not_found": "找不到該客戶回訪。",
-      "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。",
-      "receipt_superseded": "這筆收貨記錄已被更正記錄取代，不能再驗收或退回。請打開目前那一筆來處理。",
-      "receipt_rejection_needs_reason": "請填寫退回這批材料的原因。沒有原因的退回，現場無從處理。",
-      "hazard_not_a_participant": "{incident_no} 沒有上報給你。請讓上報人或安全主管把你加進來。",
-      "hazard_message_empty": "傳送前請輸入文字，或附上照片、語音或檔案。",
-      "hazard_audio_too_long": "這則語音 {seconds} 秒，單則最長 {limit} 秒。請重錄短一點，或者分兩則傳送。",
-      "hazard_closed": "{incident_no} 已驗收並閉環歸檔。記錄仍然可以查看，但不能再傳新訊息。",
-      "hazard_self_verification": "{incident_no} 是你整改的，需要由別人驗收 —— 上報人、專案經理、顧問、現場主管或安全主管都可以。",
-      "submission_not_found": "這條記錄不是你提交的。",
-      "record_not_found": "這條記錄不在你這個帳號的範圍內。"
+      "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。"
     },
     "backToDashboard": "返回儀表板",
     "field": {

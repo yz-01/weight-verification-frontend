@@ -6261,7 +6261,6 @@
     }
   },
   "driver": {
-    "pickupAddress": "Ambil dari",
     "action": {
       "ACCEPTED": "Terima perjalanan ini",
       "ARRIVED": "Saya telah tiba",
@@ -6278,6 +6277,7 @@
     "awaitingWeighing": "Telah tiba di tapak kitar semula",
     "awaitingWeighingBody": "Sila tunggu timbangan kasar dan tara. Tugasan selesai secara automatik selepas berat bersih yang sah direkodkan.",
     "back": "Semua perjalanan",
+    "bothPhotosRequired": "Ambil gambar muatan dan gambar pas keluar sebelum anda memandu.",
     "cannotComplete": "Saya tidak dapat menyiapkannya",
     "dashboard": {
       "allJobs": "Lihat semua",
@@ -6297,6 +6297,22 @@
       "title": "Laman pemandu",
       "today": "Tugasan hari ini",
       "workStatus": "Status kerja"
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "Pencemaran",
+        "MOISTURE": "Kandungan air",
+        "OTHER": "Lain-lain",
+        "OVERSIZE": "Terlalu besar atau tidak boleh diproses",
+        "WRONG_MATERIAL": "Bahan tidak seperti diisytiharkan"
+      },
+      "state": {
+        "ACCEPTED": "Diterima",
+        "AUTO_ACCEPTED": "Diterima secara automatik",
+        "PENDING": "Menunggu pengeluar",
+        "RECHECK": "Semakan semula dipohon",
+        "REJECTED": "Ditolak"
+      }
     },
     "device": {
       "enable": "Aktifkan",
@@ -6322,6 +6338,7 @@
       }
     },
     "finished": "Selesai",
+    "gatepassRequired": "Ambil gambar pas keluar sebelum anda memandu. Gambar muatan sudah ada.",
     "gpsUnavailable": "GPS tidak tersedia. Benarkan lokasi supaya laluan dan bukti foto mempunyai lokasi yang betul.",
     "nav": {
       "home": "Utama",
@@ -6341,6 +6358,7 @@
     },
     "photoGpsRequired": "Hidupkan lokasi tepat sebelum mengambil foto tugasan. Foto belum dimuat naik.",
     "photoRequired": "Ambil foto muatan sebelum menandakan perjalanan ini sebagai dimuatkan.",
+    "pickupAddress": "Ambil dari",
     "profile": {
       "readOnly": "Pentadbir pengitar semula mengurus butiran ini.",
       "title": "Profil saya"
@@ -6372,6 +6390,7 @@
       "payableWeight": "Berat dibayar",
       "title": "Berat dan bayaran"
     },
+    "takeGatepass": "Ambil gambar pas keluar",
     "takePhoto": "Ambil foto",
     "toast": {
       "photoSent": "Foto dihantar"
@@ -6383,22 +6402,6 @@
       "mayPause": "Lokasi hanya direkodkan semasa skrin ini menyala. Jika telefon dikunci, laluan akan menunjukkan jurang.",
       "noWakeLock": "Pelayar ini tidak dapat mengekalkan skrin menyala. Panjangkan masa tamat skrin telefon, atau laluan akan berjurang.",
       "recording": "Lokasi anda sedang direkodkan. Biarkan skrin ini menyala."
-    },
-    "deduction": {
-      "kind": {
-        "CONTAMINATION": "Pencemaran",
-        "MOISTURE": "Kandungan air",
-        "OTHER": "Lain-lain",
-        "OVERSIZE": "Terlalu besar atau tidak boleh diproses",
-        "WRONG_MATERIAL": "Bahan tidak seperti diisytiharkan"
-      },
-      "state": {
-        "ACCEPTED": "Diterima",
-        "AUTO_ACCEPTED": "Diterima secara automatik",
-        "PENDING": "Menunggu pengeluar",
-        "RECHECK": "Semakan semula dipohon",
-        "REJECTED": "Ditolak"
-      }
     }
   },
   "driverGps": {
@@ -6588,6 +6591,7 @@
       "config_readonly": "Tetapan sistem ini hanya boleh dilihat.",
       "config_required": "Tetapan sistem wajib tidak boleh dibuang.",
       "config_unknown": "Kunci konfigurasi ini tidak disokong.",
+      "conflict": "Itu tidak boleh dilakukan dalam keadaan rekod sekarang.",
       "consultant_grant_not_found": "Akses projek perunding itu tidak dijumpai.",
       "consultant_organization_not_found": "Organisasi perunding itu tidak dijumpai.",
       "customer_assignment_not_found": "Rekod pemilikan pelanggan itu tidak dijumpai.",
@@ -6631,6 +6635,11 @@
       "gate_binding_not_found": "Tiada muatan sedang menunggu di jambatan timbang ini.",
       "gateway_not_found": "Gateway itu tidak dijumpai.",
       "gateway_revoked": "Gateway timbang ini telah dibatalkan.",
+      "hazard_audio_too_long": "Nota suara itu {seconds} saat. Satu nota paling lama {limit} saat — rakam yang lebih pendek, atau hantar dua.",
+      "hazard_closed": "{incident_no} telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
+      "hazard_message_empty": "Taip sesuatu, atau lampirkan foto, nota suara atau fail, sebelum menghantar.",
+      "hazard_not_a_participant": "{incident_no} tidak dilaporkan kepada anda. Minta pelapor atau penyelia keselamatan menambah anda.",
+      "hazard_self_verification": "Anda yang melaksanakan pembetulan bagi {incident_no}, jadi orang lain perlu mengesahkannya — pelapor, pengurus projek, perunding, atau penyelia tapak atau keselamatan.",
       "incident_thread_not_found": "Laporan insiden itu tidak dijumpai.",
       "incorrect_password": "Kata laluan semasa anda salah.",
       "ingest_rejected": "Bacaan jambatan timbang tidak dapat diterima.",
@@ -6647,8 +6656,12 @@
       "invalid_rule_params": "Semak tetapan pengesanan dan cuba lagi.",
       "invoice_not_found": "Invois itu tidak dijumpai.",
       "maintenance_not_found": "Rekod penyelenggaraan itu tidak dijumpai.",
+      "method_not_allowed": "Tindakan itu tidak tersedia di sini.",
       "no_active_agreement": "Rakan kongsi ini tiada perjanjian aktif.",
       "no_current_version": "Tiada versi platform semasa dipilih.",
+      "not_acceptable": "Peranti ini tidak dapat membaca format balasan pelayan.",
+      "not_authenticated": "Sila log masuk semula.",
+      "not_found": "Item itu tidak dijumpai.",
       "notification_not_found": "Pemberitahuan itu tidak dijumpai.",
       "object_reference_required": "Satu rekod mesti dinyatakan.",
       "ocr_failed": "Nota penghantaran tidak dapat dibaca. Masukkan butiran secara manual.",
@@ -6678,6 +6691,9 @@
       "receipt_immutable": "Resit yang telah dimuat naik tidak boleh diubah atau dibuang. Buat pembetulan baharu.",
       "receipt_not_found": "Resit itu tidak dijumpai.",
       "receipt_photo_not_found": "Foto itu tidak dijumpai.",
+      "receipt_rejection_needs_reason": "Taip sebab penolakan penghantaran ini. Penolakan tanpa sebab tidak memberi tapak apa-apa untuk ditindaki.",
+      "receipt_superseded": "Rekod penerimaan ini telah digantikan oleh rekod pembetulan, jadi salinan ini tidak boleh diterima atau ditolak lagi. Buka rekod semasa dan semak yang itu.",
+      "record_not_found": "Rekod itu tidak tersedia untuk akaun ini.",
       "refresh_token_required": "Sesi anda tidak dapat diperbaharui. Sila log masuk semula.",
       "reset_link_invalid": "Pautan ini tidak sah atau telah tamat tempoh. Minta yang baharu.",
       "role_in_use": "Peranan ini masih diberikan kepada orang. Pindahkan mereka ke peranan lain dahulu.",
@@ -6701,15 +6717,19 @@
       "settlement_not_issued": "Keluarkan penyelesaian dahulu.",
       "settlement_nothing_to_settle": "Potongan tidak meninggalkan apa-apa untuk diselesaikan.",
       "site_not_found": "Tapak itu tidak dijumpai.",
+      "submission_not_found": "Rekod ini bukan hantaran anda.",
       "supplier_not_found": "Pembekal itu tidak dijumpai.",
       "task_already_running": "Satu perjalanan sudah berjalan untuk muatan itu.",
       "task_already_started": "Perjalanan ini telah bermula dan tidak boleh ditugaskan semula.",
+      "task_gatepass_required": "Ambil foto pas keluar yang diberi tapak sebelum menandakan perjalanan sebagai telah dimuatkan. Foto pemuatan sudah ada.",
       "task_invalid_transition": "Perjalanan tidak boleh bergerak ke langkah itu dari keadaan sekarang.",
       "task_not_found": "Perjalanan itu tidak dijumpai.",
       "task_photo_required": "Lampirkan foto pemuatan sebelum menandakan perjalanan sebagai telah dimuatkan.",
       "territory_not_found": "Wilayah jualan itu tidak dijumpai.",
+      "throttled": "Terlalu banyak percubaan. Tunggu sebentar dan cuba lagi.",
       "ticket_not_found": "Tiket sokongan itu tidak dijumpai.",
       "training_not_found": "Rekod latihan itu tidak dijumpai.",
+      "unsupported_media_type": "Jenis fail itu tidak boleh dihantar ke sini.",
       "user_has_activity": "Hanya akaun yang belum pernah digunakan boleh dibuang. Gantung pengguna ini sebaliknya.",
       "user_not_found": "Pengguna itu tidak dijumpai.",
       "user_suspended": "Akaun ini tidak aktif. Hubungi pentadbir anda.",
@@ -6719,16 +6739,7 @@
       "version_already_exists": "Versi platform itu sudah wujud.",
       "version_not_found": "Versi platform itu tidak dijumpai.",
       "visit_not_found": "Lawatan pelanggan itu tidak dijumpai.",
-      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
-      "receipt_superseded": "Rekod penerimaan ini telah digantikan oleh rekod pembetulan, jadi salinan ini tidak boleh diterima atau ditolak lagi. Buka rekod semasa dan semak yang itu.",
-      "receipt_rejection_needs_reason": "Taip sebab penolakan penghantaran ini. Penolakan tanpa sebab tidak memberi tapak apa-apa untuk ditindaki.",
-      "hazard_not_a_participant": "{incident_no} tidak dilaporkan kepada anda. Minta pelapor atau penyelia keselamatan menambah anda.",
-      "hazard_message_empty": "Taip sesuatu, atau lampirkan foto, nota suara atau fail, sebelum menghantar.",
-      "hazard_audio_too_long": "Nota suara itu {seconds} saat. Satu nota paling lama {limit} saat — rakam yang lebih pendek, atau hantar dua.",
-      "hazard_closed": "{incident_no} telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
-      "hazard_self_verification": "Anda yang melaksanakan pembetulan bagi {incident_no}, jadi orang lain perlu mengesahkannya — pelapor, pengurus projek, perunding, atau penyelia tapak atau keselamatan.",
-      "submission_not_found": "Rekod ini bukan hantaran anda.",
-      "record_not_found": "Rekod itu tidak tersedia untuk akaun ini."
+      "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {

@@ -6261,7 +6261,6 @@
     }
   },
   "driver": {
-    "pickupAddress": "Collect from",
     "action": {
       "ACCEPTED": "Accept this trip",
       "ARRIVED": "I have arrived",
@@ -6278,6 +6277,7 @@
     "awaitingWeighing": "Arrived at the recycling yard",
     "awaitingWeighingBody": "Please wait for the gross and tare weighing. The task completes automatically after a valid net weight is recorded.",
     "back": "All trips",
+    "bothPhotosRequired": "Take a loading photograph and a photograph of the gate pass before you drive off.",
     "cannotComplete": "I cannot complete this",
     "dashboard": {
       "allJobs": "View all",
@@ -6297,6 +6297,22 @@
       "title": "Driver home",
       "today": "Today's jobs",
       "workStatus": "Work status"
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "Contamination",
+        "MOISTURE": "Water content",
+        "OTHER": "Other",
+        "OVERSIZE": "Oversize or unprocessable",
+        "WRONG_MATERIAL": "Material not as declared"
+      },
+      "state": {
+        "ACCEPTED": "Accepted",
+        "AUTO_ACCEPTED": "Accepted automatically",
+        "PENDING": "Waiting for the producer",
+        "RECHECK": "Recheck requested",
+        "REJECTED": "Rejected"
+      }
     },
     "device": {
       "enable": "Enable",
@@ -6322,6 +6338,7 @@
       }
     },
     "finished": "Finished",
+    "gatepassRequired": "Photograph the gate pass before you drive off. The loading photograph is done.",
     "gpsUnavailable": "GPS is not available. Enable location permission so the route and photo evidence include the correct location.",
     "nav": {
       "home": "Home",
@@ -6341,6 +6358,7 @@
     },
     "photoGpsRequired": "Turn on precise location before taking a task photo. The photo was not uploaded.",
     "photoRequired": "Take a loading photo before marking this trip as loaded.",
+    "pickupAddress": "Collect from",
     "profile": {
       "readOnly": "Your recycler administrator manages these details.",
       "title": "My profile"
@@ -6372,6 +6390,7 @@
       "payableWeight": "Payable weight",
       "title": "Weight and payment"
     },
+    "takeGatepass": "Photograph the gate pass",
     "takePhoto": "Take a photo",
     "toast": {
       "photoSent": "Photo sent"
@@ -6383,22 +6402,6 @@
       "mayPause": "Your location is recorded only while this screen is on. If the phone locks, the track will show a gap.",
       "noWakeLock": "This browser will not keep the screen awake. Set the phone's screen timeout longer, or the track will show gaps.",
       "recording": "Recording your location. Keep this screen on."
-    },
-    "deduction": {
-      "kind": {
-        "CONTAMINATION": "Contamination",
-        "MOISTURE": "Water content",
-        "OTHER": "Other",
-        "OVERSIZE": "Oversize or unprocessable",
-        "WRONG_MATERIAL": "Material not as declared"
-      },
-      "state": {
-        "ACCEPTED": "Accepted",
-        "AUTO_ACCEPTED": "Accepted automatically",
-        "PENDING": "Waiting for the producer",
-        "RECHECK": "Recheck requested",
-        "REJECTED": "Rejected"
-      }
     }
   },
   "driverGps": {
@@ -6588,6 +6591,7 @@
       "config_readonly": "This system setting is read-only.",
       "config_required": "Required system settings cannot be removed.",
       "config_unknown": "This configuration key is not supported.",
+      "conflict": "That cannot be done while the record is in its current state.",
       "consultant_grant_not_found": "That consultant project access record could not be found.",
       "consultant_organization_not_found": "That consultant organization could not be found.",
       "customer_assignment_not_found": "That customer assignment could not be found.",
@@ -6631,6 +6635,11 @@
       "gate_binding_not_found": "Nothing is waiting at this weighbridge.",
       "gateway_not_found": "That gateway could not be found.",
       "gateway_revoked": "This weighing gateway has already been revoked.",
+      "hazard_audio_too_long": "That voice note is {seconds} seconds long. One note can be at most {limit} seconds — record a shorter one, or send two.",
+      "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
+      "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
+      "hazard_not_a_participant": "{incident_no} was not raised with you. Ask the person who reported it, or a safety supervisor, to add you.",
+      "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor.",
       "incident_thread_not_found": "That incident report could not be found.",
       "incorrect_password": "Your current password is incorrect.",
       "ingest_rejected": "The weighbridge reading could not be accepted.",
@@ -6647,8 +6656,12 @@
       "invalid_rule_params": "Check the detection settings and try again.",
       "invoice_not_found": "That invoice could not be found.",
       "maintenance_not_found": "That maintenance record could not be found.",
+      "method_not_allowed": "That action is not available here.",
       "no_active_agreement": "This partner has no active agreement.",
       "no_current_version": "No current platform version has been selected.",
+      "not_acceptable": "This device cannot read the format the server replied in.",
+      "not_authenticated": "Please sign in again.",
+      "not_found": "That item was not found.",
       "notification_not_found": "That notification could not be found.",
       "object_reference_required": "A record must be specified.",
       "ocr_failed": "The delivery note could not be read. Enter the details manually.",
@@ -6678,6 +6691,9 @@
       "receipt_immutable": "Uploaded receipts cannot be changed or removed. Create a correction instead.",
       "receipt_not_found": "That receipt could not be found.",
       "receipt_photo_not_found": "That photo could not be found.",
+      "receipt_rejection_needs_reason": "Type the reason for rejecting this delivery. A rejection with no reason gives the site nothing to act on.",
+      "receipt_superseded": "A correction has already replaced this delivery record, so this copy can no longer be accepted or rejected. Open the current record and review that one instead.",
+      "record_not_found": "That record is not available to this account.",
       "refresh_token_required": "Your session could not be renewed. Sign in again.",
       "reset_link_invalid": "This reset link is invalid or has expired. Request a new one.",
       "role_in_use": "This role is still assigned to people. Move them to another role first.",
@@ -6701,15 +6717,19 @@
       "settlement_not_issued": "Issue the settlement first.",
       "settlement_nothing_to_settle": "The deductions leave nothing to settle.",
       "site_not_found": "That site could not be found.",
+      "submission_not_found": "That submission is not one of yours.",
       "supplier_not_found": "That supplier could not be found.",
       "task_already_running": "A trip is already running for that load.",
       "task_already_started": "This trip has already started and can no longer be reassigned.",
+      "task_gatepass_required": "Photograph the gate pass the site gave you before marking the trip loaded. The loading photograph is already on file.",
       "task_invalid_transition": "A trip cannot move to that step from where it is now.",
       "task_not_found": "That trip could not be found.",
       "task_photo_required": "Attach a loading photograph before marking the trip loaded.",
       "territory_not_found": "That territory could not be found.",
+      "throttled": "Too many attempts. Wait a moment and try again.",
       "ticket_not_found": "That support ticket could not be found.",
       "training_not_found": "That training record could not be found.",
+      "unsupported_media_type": "That kind of file cannot be sent here.",
       "user_has_activity": "Only an account that has never been used can be removed. Suspend this user instead.",
       "user_not_found": "That user could not be found.",
       "user_suspended": "This account is not active. Contact your administrator.",
@@ -6719,16 +6739,7 @@
       "version_already_exists": "That platform version already exists.",
       "version_not_found": "That platform version could not be found.",
       "visit_not_found": "That customer visit could not be found.",
-      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
-      "receipt_superseded": "A correction has already replaced this delivery record, so this copy can no longer be accepted or rejected. Open the current record and review that one instead.",
-      "receipt_rejection_needs_reason": "Type the reason for rejecting this delivery. A rejection with no reason gives the site nothing to act on.",
-      "hazard_not_a_participant": "{incident_no} was not raised with you. Ask the person who reported it, or a safety supervisor, to add you.",
-      "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
-      "hazard_audio_too_long": "That voice note is {seconds} seconds long. One note can be at most {limit} seconds — record a shorter one, or send two.",
-      "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
-      "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor.",
-      "submission_not_found": "That submission is not one of yours.",
-      "record_not_found": "That record is not available to this account."
+      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

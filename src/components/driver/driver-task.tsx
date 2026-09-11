@@ -1,11 +1,15 @@
 "use client";
 
+/** The two photographs a trip cannot be marked loaded without (T-223). */
+type DriverPhotoKind = "LOADING" | "GATEPASS";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   ArrowRight,
   Building2,
   Camera,
+  Check,
   CircleAlert,
   ExternalLink,
   Loader2,
@@ -86,8 +90,9 @@ export function DriverTask({ id }: { id: string }) {
   const [reason, setReason] = useState("");
   const [locating, setLocating] = useState(false);
   const [gpsUnavailable, setGpsUnavailable] = useState(false);
-  const [hasQueuedPhoto, setHasQueuedPhoto] = useState(false);
-  const fileInput = useRef<HTMLInputElement>(null);
+  const [queuedKinds, setQueuedKinds] = useState<string[]>([]);
+  const loadingInput = useRef<HTMLInputElement>(null);
+  const gatepassInput = useRef<HTMLInputElement>(null);
   const lastPositionAt = useRef(0);
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -153,20 +158,24 @@ export function DriverTask({ id }: { id: string }) {
   });
 
   const upload = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async ({ file, kind }: { file: File; kind: DriverPhotoKind }) => {
       if (!user) throw new Error("A signed-in user is required.");
       const position = await currentPosition();
       const missingGps = !position.latitude || !position.longitude;
       setGpsUnavailable(missingGps);
       if (missingGps) throw new Error("driver_photo_gps_required");
-      return submitTaskPhotoOfflineAware(user.id, id, file, "LOADING", {
+      return submitTaskPhotoOfflineAware(user.id, id, file, kind, {
         latitude: position.latitude,
         longitude: position.longitude,
       });
     },
-    onSuccess: (result) => {
+    onSuccess: (result, variables) => {
       if (result === "queued") {
-        setHasQueuedPhoto(true);
+        // Which one was queued, not just that one was: the loaded step needs
+        // both photographs and a bare flag cannot say which is still missing.
+        setQueuedKinds((current) =>
+          current.includes(variables.kind) ? current : [...current, variables.kind],
+        );
       } else {
         void queryClient.invalidateQueries({
           queryKey: ["tasks", "detail", id],
@@ -251,8 +260,29 @@ export function DriverTask({ id }: { id: string }) {
       data.site_postcode,
     ],
   );
-  const hasPendingPhoto =
-    hasQueuedPhoto || (data.local_pending_photo_count ?? 0) > 0;
+  /*
+   * The loaded step needs two photographs, and the screen has to say which one
+   * is still missing (T-223, D-110). Telling a driver who has already
+   * photographed the load to "attach a loading photograph" sends them to
+   * photograph the load again - the failure shape F-270 records.
+   *
+   * Queued photographs count. A driver on a dead signal has done the work; the
+   * job is on the device and will upload. Their kinds come from the offline
+   * store so a reload does not lose which of the two was taken.
+   */
+  const takenKinds = new Set<string>([
+    ...data.photos.map((photo) => photo.kind),
+    ...queuedKinds,
+    ...(data.local_pending_photo_kinds ?? []),
+  ]);
+  const hasLoadingPhoto = takenKinds.has("LOADING") || takenKinds.has("LOADED");
+  const hasGatepass = takenKinds.has("GATEPASS");
+  const missingForLoaded = !(hasLoadingPhoto && hasGatepass);
+  const missingLabel = !hasLoadingPhoto
+    ? hasGatepass
+      ? t("driver.photoRequired")
+      : t("driver.bothPhotosRequired")
+    : t("driver.gatepassRequired");
   // The step that carries the trip forward, as opposed to abandoning it.
   const forward = next.find((state) => state !== "FAILED" && state !== "CANCELLED");
   const canFail = next.includes("FAILED");
@@ -510,30 +540,63 @@ export function DriverTask({ id }: { id: string }) {
             The point is a photograph taken now, at the load, not one chosen
             from the roll afterwards. */}
         <input
-          ref={fileInput}
+          ref={loadingInput}
           type="file"
           accept="image/*"
           capture="environment"
           className="hidden"
           onChange={(event) => {
             const file = event.target.files?.[0];
-            if (file) upload.mutate(file);
+            if (file) upload.mutate({ file, kind: "LOADING" });
             event.target.value = "";
           }}
         />
+        <input
+          ref={gatepassInput}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) upload.mutate({ file, kind: "GATEPASS" });
+            event.target.value = "";
+          }}
+        />
+        {/* Two buttons, not one picker. A driver at a site gate should not
+            have to choose a category from a list before the camera opens, and
+            each button says on its face whether that photograph is done. */}
         <Button
           variant="outline"
           size="lg"
           className="h-12 w-full rounded-full"
           disabled={upload.isPending}
-          onClick={() => fileInput.current?.click()}
+          onClick={() => loadingInput.current?.click()}
         >
           {upload.isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
+          ) : hasLoadingPhoto ? (
+            <Check className="h-4 w-4" />
           ) : (
             <Camera className="h-4 w-4" />
           )}
           {t("driver.takePhoto")}
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          className="h-12 w-full rounded-full"
+          disabled={upload.isPending}
+          onClick={() => gatepassInput.current?.click()}
+        >
+          {upload.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : hasGatepass ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <Camera className="h-4 w-4" />
+          )}
+          {t("driver.takeGatepass")}
         </Button>
       </div>
 
@@ -544,17 +607,23 @@ export function DriverTask({ id }: { id: string }) {
       )}
 
       {/* The next step, as one button the size of a thumb. */}
-      {forward === "LOADED" && data.photos.length === 0 && !hasPendingPhoto && (
+      {forward === "LOADED" && missingForLoaded && (
         <p className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-foreground">
-          {t("driver.photoRequired")}
+          {missingLabel}
         </p>
       )}
       {forward && (
         <Button
           size="lg"
           className="h-14 w-full rounded-full text-base shadow-sm"
-          disabledReason={forward === "LOADED" && data.photos.length === 0 && !hasPendingPhoto ? t("driver.photoRequired") : undefined}
-          disabled={advance.isPending || locating || (forward === "LOADED" && data.photos.length === 0 && !hasPendingPhoto)}
+          disabledReason={
+            forward === "LOADED" && missingForLoaded ? missingLabel : undefined
+          }
+          disabled={
+            advance.isPending ||
+            locating ||
+            (forward === "LOADED" && missingForLoaded)
+          }
           onClick={() => setMoving(forward)}
         >
           {advance.isPending || locating ? (
@@ -781,10 +850,17 @@ function DriverTripMap({ data }: { data: DriverTaskDetail }) {
 function mapDestination(
   latitude: string | null,
   longitude: string | null,
-  addressParts: string[],
+  // Nullable on purpose: a trip raised without a dispatch has no project, so
+  // every project address line comes back null. Calling `.trim()` on one of
+  // those took the whole driver screen down rather than losing a map link
+  // (F-355).
+  addressParts: (string | null | undefined)[],
 ): string | null {
   if (latitude && longitude) return `${latitude},${longitude}`;
-  const address = addressParts.map((part) => part.trim()).filter(Boolean).join(", ");
+  const address = addressParts
+    .map((part) => part?.trim() ?? "")
+    .filter(Boolean)
+    .join(", ");
   return address || null;
 }
 
