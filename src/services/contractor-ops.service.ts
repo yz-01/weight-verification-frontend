@@ -1,6 +1,9 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type { ExportRequest } from "@/services/contractor.service";
 import type {
+  ArchiveQueueDetail,
+  ArchiveQueuePage,
+  ArchiveRecordKind,
   ConstructionPhase,
   DisposalEvidence,
   DisposalEvidenceKind,
@@ -683,3 +686,53 @@ export const submitExternalDisposalTask = (
   // photographs, and the contractor types the numbers on their own screen.
   payload: { note?: string },
 ) => externalDisposalFetch<ExternalDisposalTask>(token, { operation: "submit", ...payload });
+
+/**
+ * The office's unarchived queue: nine kinds of record, one list (T-233).
+ *
+ * 客户：「全部都是属于未归档需要查看了之后才可以归档，总栏目里面是放所有归档的东西」.
+ * "Unarchived" is per person - this account has not opened it yet - so two
+ * readers of the same site see two different queues, which is the whole point
+ * (D-106, D-063).
+ *
+ * `state` picks which half: the waiting one, or what this reader has already
+ * been through.
+ */
+export function getArchiveQueue(query: {
+  state?: "pending" | "archived";
+  kind?: ArchiveRecordKind;
+  project?: string;
+  page?: number;
+  page_size?: number;
+}): Promise<ArchiveQueuePage> {
+  return api.get<ArchiveQueuePage>("/api/archive-queue/get_queue/", query);
+}
+
+/** One queue row, opened: its fields and its photographs. */
+export function getArchiveRecord(
+  kind: ArchiveRecordKind,
+  id: string,
+): Promise<ArchiveQueueDetail> {
+  return api.get<ArchiveQueueDetail>("/api/archive-queue/get_record/", {
+    kind,
+    id,
+  });
+}
+
+/**
+ * Archive rows for the person asking, and for nobody else.
+ *
+ * A POST rather than a side effect of opening the record: a GET that changes
+ * what the next reader sees is a GET that a refresh or a link preview can fire
+ * on somebody's behalf.
+ */
+export async function markRecordsArchived(
+  records: { kind: ArchiveRecordKind; id: string }[],
+): Promise<{ marked: number; matched: number }> {
+  const result = await api.post<{ marked: number; matched: number }>(
+    "/api/archive-queue/mark_records_seen/",
+    { records },
+  );
+  toastSuccess("archiveQueue.toast.archived");
+  return result;
+}

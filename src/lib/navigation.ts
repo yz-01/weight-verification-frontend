@@ -759,6 +759,18 @@ export const PORTAL_NAVIGATION = {
           "/category-management",
           "project_categories",
         ),
+        // 总栏目 proper: the per-person unarchived queue (T-233, D-106). Its
+        // sibling above lists category *definitions*; this lists *records*.
+        // Two entries rather than two tabs of one screen, because their
+        // status columns mean different things - active/inactive against
+        // unarchived/archived - and one column with two meanings is what
+        // D-125 refuses.
+        child(
+          "4.2.2",
+          "nav.submodule.archiveQueue",
+          "/archive-queue",
+          "project_categories",
+        ),
       ],
     ),
     item(
@@ -771,7 +783,13 @@ export const PORTAL_NAVIGATION = {
       // still can. Listed on both modules on purpose - narrowing it to the
       // category feature would have taken the screen away from people who
       // only hold material access, silently.
-      ["/material-columns"],
+      //
+      // `/archive-queue` is here for the same reason (T-233): the queue lists
+      // deliveries among eight other kinds, the backend already answers each
+      // caller with only the kinds they may read, and refusing the route to
+      // somebody who holds material access but not the category feature would
+      // hide their own deliveries from them.
+      ["/material-columns", "/archive-queue"],
       false,
       [
         child(

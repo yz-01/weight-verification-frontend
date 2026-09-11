@@ -2922,6 +2922,52 @@
       "title": "Rantaian kelulusan"
     }
   },
+  "archiveQueue": {
+    "allModules": "Semua modul",
+    "alreadyArchived": "Sudah diarkibkan",
+    "archive": "Arkibkan untuk saya",
+    "archiveHelp": "Mengarkibkan rekod ini untuk akaun anda sahaja.",
+    "column": {
+      "record": "Rekod",
+      "module": "Modul",
+      "project": "Projek",
+      "when": "Masa",
+      "status": "Status",
+      "action": "Tindakan"
+    },
+    "emptyArchived": "Anda belum mengarkibkan apa-apa di sini.",
+    "emptyPending": "Tiada apa-apa menunggu anda di sini.",
+    "failed": "Senarai itu tidak dapat dimuatkan. Cuba lagi.",
+    "firstPage": "Anda berada di halaman pertama.",
+    "kind": {
+      "MATERIAL_RECEIPT": "Terimaan bahan",
+      "MATERIAL_OUTGOING": "Bahan keluar tapak",
+      "EQUIPMENT_MOVEMENT": "Peralatan masuk keluar",
+      "HAZARD": "Pembetulan bahaya",
+      "WASTE_OUTGOING": "Pesanan sisa kitar semula",
+      "DISPOSAL_REQUEST": "Pelupusan sisa binaan",
+      "PROGRESS": "Kemajuan tapak",
+      "CONSULTANT_APPLICATION": "Permohonan perunding",
+      "ATTENDANCE_DAY": "Kehadiran, mengikut hari"
+    },
+    "lastPage": "Anda berada di halaman terakhir.",
+    "loading": "Memuatkan…",
+    "modules": "Modul",
+    "next": "Seterusnya",
+    "open": "Buka",
+    "pageOf": "Halaman {page} daripada {pages}",
+    "perPersonHelp": "Belum diarkibkan bermaksud anda belum membukanya. Setiap akaun mengira sendiri, jadi membuka rekod di sini tidak mengosongkan senarai rakan sekerja anda.",
+    "previous": "Sebelumnya",
+    "state": {
+      "pending": "Belum diarkibkan",
+      "archived": "Diarkibkan"
+    },
+    "subtitle": "Semua rekod yang selesai, menunggu anda melihatnya.",
+    "title": "Baris gilir arkib",
+    "toast": {
+      "archived": "Diarkibkan untuk anda."
+    }
+  },
   "assets": {
     "category": {
       "AI_CCTV": "Kamera AI CCTV",
@@ -6681,7 +6727,8 @@
       "hazard_audio_too_long": "Nota suara itu {seconds} saat. Satu nota paling lama {limit} saat — rakam yang lebih pendek, atau hantar dua.",
       "hazard_closed": "{incident_no} telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
       "hazard_self_verification": "Anda yang melaksanakan pembetulan bagi {incident_no}, jadi orang lain perlu mengesahkannya — pelapor, pengurus projek, perunding, atau penyelia tapak atau keselamatan.",
-      "submission_not_found": "Rekod ini bukan hantaran anda."
+      "submission_not_found": "Rekod ini bukan hantaran anda.",
+      "record_not_found": "Rekod itu tidak tersedia untuk akaun ini."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -8452,18 +8499,30 @@
       "DRIVER_TRIP": "Perjalanan"
     },
     "field": {
+      "application_no": "No. permohonan",
+      "archived_at": "Diarkibkan pada",
       "category": "Kategori",
+      "clock_ins": "Daftar masuk",
+      "clock_outs": "Daftar keluar",
       "delivery_note_no": "No. nota hantaran",
       "description": "Keterangan",
+      "destination": "Destinasi",
+      "direction": "Arah",
       "dispatch_no": "No. pesanan",
+      "equipment_name": "Peralatan",
+      "executor_name": "Dilaksanakan oleh",
       "failure_reason": "Sebab gagal",
       "instructions": "Apa yang diminta",
+      "location_description": "Lokasi pembersihan",
       "material_name": "Bahan",
       "note": "Nota",
+      "operator_name": "Pengendali",
+      "people": "Bilangan orang",
       "percent_complete": "Siap",
       "phase": "Fasa",
       "pickup_address": "Ambil dari",
       "quantity": "Kuantiti",
+      "reason": "Sebab",
       "received_by_name": "Diterima oleh",
       "rectification_note": "Pembetulan",
       "rejection_reason": "Sebab ditolak",
@@ -8476,7 +8535,9 @@
       "task_type": "Jenis",
       "title": "Apa yang berlaku",
       "vehicle_plate": "Lori",
-      "work_location": "Lokasi di tapak"
+      "waste_description": "Sisa",
+      "work_location": "Lokasi di tapak",
+      "workflow": "Aliran kerja"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -8587,6 +8648,7 @@
       "apiGatewaySettings": "Tetapan API Gateway",
       "approvalCredentials": "Kelayakan kelulusan",
       "approvals": "Rekod kelulusan",
+      "archiveQueue": "Baris gilir arkib",
       "assetActivity": "Rekod aset",
       "assetAssignments": "Penyerahan dan pinjaman",
       "assetCategories": "Kategori aset",

@@ -2922,6 +2922,52 @@
       "title": "审批链设置"
     }
   },
+  "archiveQueue": {
+    "allModules": "全部模块",
+    "alreadyArchived": "你已归档",
+    "archive": "归档（仅限我）",
+    "archiveHelp": "只对你这个账号归档，不影响别人。",
+    "column": {
+      "record": "记录",
+      "module": "所属模块",
+      "project": "项目",
+      "when": "时间",
+      "status": "状态",
+      "action": "操作"
+    },
+    "emptyArchived": "你还没有在这里归档过任何记录。",
+    "emptyPending": "这里没有等你看的记录。",
+    "failed": "列表载入失败，请重试。",
+    "firstPage": "已经是第一页了。",
+    "kind": {
+      "MATERIAL_RECEIPT": "材料收货",
+      "MATERIAL_OUTGOING": "材料出场",
+      "EQUIPMENT_MOVEMENT": "设备进出",
+      "HAZARD": "隐患整改",
+      "WASTE_OUTGOING": "废料订单",
+      "DISPOSAL_REQUEST": "废料清运",
+      "PROGRESS": "施工进度",
+      "CONSULTANT_APPLICATION": "顾问资料",
+      "ATTENDANCE_DAY": "出入场（按日）"
+    },
+    "lastPage": "已经是最后一页了。",
+    "loading": "载入中…",
+    "modules": "模块",
+    "next": "下一页",
+    "open": "查看",
+    "pageOf": "第 {page} / {pages} 页",
+    "perPersonHelp": "「未归档」指的是**你**还没打开过。每个账号各自计算，你看过之后不会从同事的列表里消失。",
+    "previous": "上一页",
+    "state": {
+      "pending": "未归档",
+      "archived": "已归档"
+    },
+    "subtitle": "所有已完成的记录，等你看过之后才算归档。",
+    "title": "总栏目",
+    "toast": {
+      "archived": "已为你归档。"
+    }
+  },
   "assets": {
     "category": {
       "AI_CCTV": "AI 摄像头",
@@ -6681,7 +6727,8 @@
       "hazard_audio_too_long": "这条语音 {seconds} 秒，单条最长 {limit} 秒。请重录短一点，或者分两条发。",
       "hazard_closed": "{incident_no} 已验收并闭环归档。记录仍然可以查看，但不能再发新消息。",
       "hazard_self_verification": "{incident_no} 是你整改的，需要由别人验收 —— 上报人、项目经理、顾问、现场主管或安全主管都可以。",
-      "submission_not_found": "这条记录不是你提交的。"
+      "submission_not_found": "这条记录不是你提交的。",
+      "record_not_found": "这条记录不在你这个账号的范围内。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -8452,18 +8499,30 @@
       "DRIVER_TRIP": "运输任务"
     },
     "field": {
+      "application_no": "申请编号",
+      "archived_at": "归档时间",
       "category": "栏目",
+      "clock_ins": "上班打卡",
+      "clock_outs": "下班打卡",
       "delivery_note_no": "送货单号",
       "description": "说明",
+      "destination": "去向",
+      "direction": "进出方向",
       "dispatch_no": "订单号",
+      "equipment_name": "设备名称",
+      "executor_name": "执行人",
       "failure_reason": "失败原因",
       "instructions": "要求做什么",
+      "location_description": "清运位置",
       "material_name": "材料",
       "note": "备注",
+      "operator_name": "操作人",
+      "people": "人数",
       "percent_complete": "完成度",
       "phase": "阶段",
       "pickup_address": "取货地点",
       "quantity": "数量",
+      "reason": "原因",
       "received_by_name": "收货人",
       "rectification_note": "整改情况",
       "rejection_reason": "不合格原因",
@@ -8476,7 +8535,9 @@
       "task_type": "类型",
       "title": "发生了什么",
       "vehicle_plate": "车辆",
-      "work_location": "现场位置"
+      "waste_description": "废料说明",
+      "work_location": "现场位置",
+      "workflow": "流程"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -8587,6 +8648,7 @@
       "apiGatewaySettings": "API Gateway 设置",
       "approvalCredentials": "审批凭证",
       "approvals": "审批记录",
+      "archiveQueue": "总栏目",
       "assetActivity": "操作记录",
       "assetAssignments": "领用与借用",
       "assetCategories": "资产类别",

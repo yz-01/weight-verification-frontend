@@ -238,10 +238,34 @@ describe("the category module", () => {
     (item) => item.feature === "project_categories",
   );
 
-  it("has exactly one child, and it is the management screen", () => {
+  it("has two children: the definitions screen and the record queue", () => {
     expect(categories?.children?.map((child) => child.href)).toEqual([
       "/category-management",
+      "/archive-queue",
     ]);
+  });
+
+  /*
+   * Two entries and not two tabs, because the two screens' status columns mean
+   * different things: active/inactive for a category definition, and
+   * unarchived/archived for a record (D-125). One column with two meanings is
+   * how somebody deactivates a column believing they archived a delivery.
+   */
+  it("opens the record queue to every module whose records it lists", () => {
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/archive-queue"),
+    ).toBe(true);
+    /*
+     * The queue merges nine modules and the server already answers each caller
+     * with only the kinds they may read. Gating the route on the category
+     * feature alone would hide a project manager's own deliveries from them
+     * because of a feature flag about categories - the same silent removal
+     * `/material-columns` suffered (F-340).
+     */
+    expect(
+      isRouteAllowed("MSE_TRACE", ["material_receipts"], "/archive-queue"),
+    ).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", [], "/archive-queue")).toBe(false);
   });
 
   it("no longer lists the material columns as an entry of their own", () => {

@@ -2922,6 +2922,52 @@
       "title": "Approval chains"
     }
   },
+  "archiveQueue": {
+    "allModules": "All modules",
+    "alreadyArchived": "Already archived",
+    "archive": "Archive for me",
+    "archiveHelp": "Archives this record for your account only.",
+    "column": {
+      "record": "Record",
+      "module": "Module",
+      "project": "Project",
+      "when": "When",
+      "status": "Status",
+      "action": "Action"
+    },
+    "emptyArchived": "You have not archived anything here yet.",
+    "emptyPending": "Nothing waiting for you here.",
+    "failed": "That list could not be loaded. Try again.",
+    "firstPage": "You are on the first page.",
+    "kind": {
+      "MATERIAL_RECEIPT": "Material receipts",
+      "MATERIAL_OUTGOING": "Material leaving site",
+      "EQUIPMENT_MOVEMENT": "Equipment in and out",
+      "HAZARD": "Hazard rectification",
+      "WASTE_OUTGOING": "Recyclable waste orders",
+      "DISPOSAL_REQUEST": "Construction waste disposal",
+      "PROGRESS": "Site progress",
+      "CONSULTANT_APPLICATION": "Consultant applications",
+      "ATTENDANCE_DAY": "Attendance, by day"
+    },
+    "lastPage": "You are on the last page.",
+    "loading": "Loading…",
+    "modules": "Modules",
+    "next": "Next",
+    "open": "Open",
+    "pageOf": "Page {page} of {pages}",
+    "perPersonHelp": "Unarchived means you have not opened it yet. Your colleagues keep their own lists, so opening a record here never clears it from anybody else's.",
+    "previous": "Previous",
+    "state": {
+      "pending": "Unarchived",
+      "archived": "Archived"
+    },
+    "subtitle": "Everything finished, waiting for you to look at it.",
+    "title": "Archive queue",
+    "toast": {
+      "archived": "Archived for you."
+    }
+  },
   "assets": {
     "category": {
       "AI_CCTV": "AI CCTV",
@@ -6681,7 +6727,8 @@
       "hazard_audio_too_long": "That voice note is {seconds} seconds long. One note can be at most {limit} seconds — record a shorter one, or send two.",
       "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
       "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor.",
-      "submission_not_found": "That submission is not one of yours."
+      "submission_not_found": "That submission is not one of yours.",
+      "record_not_found": "That record is not available to this account."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -8452,18 +8499,30 @@
       "DRIVER_TRIP": "Trip"
     },
     "field": {
+      "application_no": "Application no.",
+      "archived_at": "Archived at",
       "category": "Category",
+      "clock_ins": "Clock-ins",
+      "clock_outs": "Clock-outs",
       "delivery_note_no": "Delivery order no.",
       "description": "Description",
+      "destination": "Destination",
+      "direction": "Direction",
       "dispatch_no": "Order no.",
+      "equipment_name": "Equipment",
+      "executor_name": "Done by",
       "failure_reason": "Why it failed",
       "instructions": "What was asked for",
+      "location_description": "Where it was cleared",
       "material_name": "Material",
       "note": "Note",
+      "operator_name": "Operator",
+      "people": "People",
       "percent_complete": "Completed",
       "phase": "Phase",
       "pickup_address": "Collect from",
       "quantity": "Quantity",
+      "reason": "Reason",
       "received_by_name": "Received by",
       "rectification_note": "Rectification",
       "rejection_reason": "Why it was rejected",
@@ -8476,7 +8535,9 @@
       "task_type": "Type",
       "title": "What happened",
       "vehicle_plate": "Lorry",
-      "work_location": "Where on site"
+      "waste_description": "Waste",
+      "work_location": "Where on site",
+      "workflow": "Workflow"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -8587,6 +8648,7 @@
       "apiGatewaySettings": "API Gateway settings",
       "approvalCredentials": "Approval credentials",
       "approvals": "Approval records",
+      "archiveQueue": "Archive queue",
       "assetActivity": "Asset records",
       "assetAssignments": "Assignment and borrowing",
       "assetCategories": "Asset categories",

@@ -517,3 +517,63 @@ export interface ExternalDisposalTask {
   ocr_status: DisposalRequest["ocr_status"];
   evidence: DisposalEvidence[];
 }
+
+/**
+ * The nine kinds of record the office's unarchived queue collects (D-107).
+ *
+ * Deliberately the same strings the backend's `core.models.RecordKind` uses:
+ * the queue is a merge of nine tables and the kind is how a row says which
+ * screen it came from, so a private spelling here would be a second
+ * vocabulary for the same thing.
+ */
+export type ArchiveRecordKind =
+  | "MATERIAL_RECEIPT"
+  | "MATERIAL_OUTGOING"
+  | "EQUIPMENT_MOVEMENT"
+  | "HAZARD"
+  | "WASTE_OUTGOING"
+  | "DISPOSAL_REQUEST"
+  | "PROGRESS"
+  | "CONSULTANT_APPLICATION"
+  | "ATTENDANCE_DAY";
+
+/** One row of the unarchived queue, whichever table it came from. */
+export interface ArchiveQueueRow {
+  id: string;
+  kind: ArchiveRecordKind;
+  reference: string;
+  detail: string;
+  project_id: string | null;
+  project_name: string;
+  submitted_at: string;
+  status: string;
+  /** Beside `status` on purpose - see `MySubmissionRow` for why (F-225). */
+  status_label: string;
+  photo: string | null;
+}
+
+/**
+ * A queue row, opened.
+ *
+ * Reuses `MySubmissionField` / `MySubmissionPhoto`: the phone's history sheet
+ * and this screen render the same records through the same `mySubmissions.*`
+ * catalogue, and a second set of field keys would be a second set of
+ * translations to keep in step (F-342, D-133).
+ */
+export interface ArchiveQueueDetail extends ArchiveQueueRow {
+  fields: import("@/interfaces/contractor").MySubmissionField[];
+  photos: import("@/interfaces/contractor").MySubmissionPhoto[];
+  is_seen: boolean;
+}
+
+export interface ArchiveQueuePage {
+  results: ArchiveQueueRow[];
+  count: number;
+  /**
+   * Per kind, because "eleven waiting" says less than "nine deliveries and two
+   * hazards". Only the kinds this account may read appear, so the screen shows
+   * no tab for a module the reader cannot open.
+   */
+  counts: Partial<Record<ArchiveRecordKind, number>>;
+  kinds: ArchiveRecordKind[];
+}

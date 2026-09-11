@@ -2922,6 +2922,52 @@
       "title": "審批鏈設定"
     }
   },
+  "archiveQueue": {
+    "allModules": "全部模組",
+    "alreadyArchived": "你已歸檔",
+    "archive": "歸檔（僅限我）",
+    "archiveHelp": "只對你這個帳號歸檔，不影響別人。",
+    "column": {
+      "record": "記錄",
+      "module": "所屬模組",
+      "project": "專案",
+      "when": "時間",
+      "status": "狀態",
+      "action": "操作"
+    },
+    "emptyArchived": "你還沒有在這裡歸檔過任何記錄。",
+    "emptyPending": "這裡沒有等你看的記錄。",
+    "failed": "列表載入失敗，請重試。",
+    "firstPage": "已經是第一頁了。",
+    "kind": {
+      "MATERIAL_RECEIPT": "材料收貨",
+      "MATERIAL_OUTGOING": "材料出場",
+      "EQUIPMENT_MOVEMENT": "設備進出",
+      "HAZARD": "隱患整改",
+      "WASTE_OUTGOING": "廢料訂單",
+      "DISPOSAL_REQUEST": "廢料清運",
+      "PROGRESS": "施工進度",
+      "CONSULTANT_APPLICATION": "顧問資料",
+      "ATTENDANCE_DAY": "出入場（按日）"
+    },
+    "lastPage": "已經是最後一頁了。",
+    "loading": "載入中…",
+    "modules": "模組",
+    "next": "下一頁",
+    "open": "查看",
+    "pageOf": "第 {page} / {pages} 頁",
+    "perPersonHelp": "「未歸檔」指的是**你**還沒打開過。每個帳號各自計算，你看過之後不會從同事的列表裡消失。",
+    "previous": "上一頁",
+    "state": {
+      "pending": "未歸檔",
+      "archived": "已歸檔"
+    },
+    "subtitle": "所有已完成的記錄，等你看過之後才算歸檔。",
+    "title": "總欄目",
+    "toast": {
+      "archived": "已為你歸檔。"
+    }
+  },
   "assets": {
     "category": {
       "AI_CCTV": "AI 攝像頭",
@@ -6681,7 +6727,8 @@
       "hazard_audio_too_long": "這則語音 {seconds} 秒，單則最長 {limit} 秒。請重錄短一點，或者分兩則傳送。",
       "hazard_closed": "{incident_no} 已驗收並閉環歸檔。記錄仍然可以查看，但不能再傳新訊息。",
       "hazard_self_verification": "{incident_no} 是你整改的，需要由別人驗收 —— 上報人、專案經理、顧問、現場主管或安全主管都可以。",
-      "submission_not_found": "這條記錄不是你提交的。"
+      "submission_not_found": "這條記錄不是你提交的。",
+      "record_not_found": "這條記錄不在你這個帳號的範圍內。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -8452,18 +8499,30 @@
       "DRIVER_TRIP": "運輸任務"
     },
     "field": {
+      "application_no": "申請編號",
+      "archived_at": "歸檔時間",
       "category": "欄目",
+      "clock_ins": "上班打卡",
+      "clock_outs": "下班打卡",
       "delivery_note_no": "送貨單號",
       "description": "說明",
+      "destination": "去向",
+      "direction": "進出方向",
       "dispatch_no": "訂單號",
+      "equipment_name": "設備名稱",
+      "executor_name": "執行人",
       "failure_reason": "失敗原因",
       "instructions": "要求做什麼",
+      "location_description": "清運位置",
       "material_name": "材料",
       "note": "備註",
+      "operator_name": "操作人",
+      "people": "人數",
       "percent_complete": "完成度",
       "phase": "階段",
       "pickup_address": "取貨地點",
       "quantity": "數量",
+      "reason": "原因",
       "received_by_name": "收貨人",
       "rectification_note": "整改情況",
       "rejection_reason": "不合格原因",
@@ -8476,7 +8535,9 @@
       "task_type": "類型",
       "title": "發生了什麼",
       "vehicle_plate": "車輛",
-      "work_location": "現場位置"
+      "waste_description": "廢料說明",
+      "work_location": "現場位置",
+      "workflow": "流程"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -8587,6 +8648,7 @@
       "apiGatewaySettings": "API Gateway 設置",
       "approvalCredentials": "審批憑證",
       "approvals": "審批記錄",
+      "archiveQueue": "總欄目",
       "assetActivity": "操作記錄",
       "assetAssignments": "領用與借用",
       "assetCategories": "資產類別",
