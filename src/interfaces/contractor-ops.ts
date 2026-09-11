@@ -577,3 +577,103 @@ export interface ArchiveQueuePage {
   counts: Partial<Record<ArchiveRecordKind, number>>;
   kinds: ArchiveRecordKind[];
 }
+
+/* -------------------------------------------------------------------------
+ * Multi Engine: evidence packages (T-235)
+ *
+ * 客户：「用来 export pdf 的，就是可以把文件整合在一起然后打包成 PDF」.
+ * ---------------------------------------------------------------------- */
+
+export type PackageState = "DRAFT" | "CONFIRMED";
+export type PackageReviewState = "NOT_SENT" | "SENT" | "REVIEWED";
+export type PackageItemReviewState = "PENDING" | "ACCEPTED" | "RETURNED";
+
+/** One selectable document on a record - today, a delivery order page. */
+export interface PackageDocument {
+  id: string;
+  url: string;
+  caption: string;
+}
+
+/** Everything of one record that can be ticked (D-149). */
+export interface PackageRecordParts {
+  kind: ArchiveRecordKind;
+  id: string;
+  reference: string;
+  project_id: string | null;
+  project_name: string;
+  submitted_at: string;
+  fields: import("@/interfaces/contractor").MySubmissionField[];
+  photos: import("@/interfaces/contractor").MySubmissionPhoto[];
+  documents: PackageDocument[];
+}
+
+/** Which parts of a record this member carries. Empty list means all. */
+export interface PackageSelection {
+  fields?: string[];
+  photos?: string[];
+  documents?: string[];
+}
+
+export interface PackageItem extends PackageRecordParts {
+  /** The member's own id, not the record's - `record_id` is the record. */
+  id: string;
+  record_kind: ArchiveRecordKind;
+  record_id: string;
+  position: number;
+  selection: PackageSelection;
+  review_state: PackageItemReviewState;
+  returned_reason: string;
+  returned_at: string | null;
+  /**
+   * True once the package is confirmed: what is shown came from the member's
+   * own snapshot rather than from the live record (D-153).
+   */
+  is_snapshot: boolean;
+  /** The record this member points at can no longer be read from here. */
+  source_missing?: boolean;
+}
+
+export interface EvidencePackageRow {
+  id: string;
+  name: string;
+  remarks: string;
+  state: PackageState;
+  project: string;
+  project_name: string;
+  created_at: string;
+  created_by_name: string;
+  confirmed_at: string | null;
+  pdf_sha256: string;
+  pdf_bytes: number;
+  merge_report: PackageMergeNote[];
+  review_state: PackageReviewState;
+  sent_at: string | null;
+  sent_to: string | null;
+  sent_to_name: string;
+  exported_at: string | null;
+  item_count: number;
+  returned_count: number;
+  /** A draft can be deleted; a confirmed package cannot (D-142). */
+  can_delete: boolean;
+  /**
+   * Whether the return path still exists (D-148). Sent by the server so the
+   * screen can say why instead of offering a button that answers with an
+   * error.
+   */
+  can_return: boolean;
+}
+
+export interface EvidencePackageDetail extends EvidencePackageRow {
+  items: PackageItem[];
+  /** Records the last add call would not take, and why. */
+  refused?: { id: string; reason: string }[];
+}
+
+/** One line of "what did not make it into the PDF, and why" (D-141). */
+export interface PackageMergeNote {
+  item_id: string;
+  reference: string;
+  reason: string;
+  detail: string;
+}

@@ -238,11 +238,36 @@ describe("the category module", () => {
     (item) => item.feature === "project_categories",
   );
 
-  it("has two children: the definitions screen and the record queue", () => {
+  it("has three children: definitions, the record queue and Multi Engine", () => {
     expect(categories?.children?.map((child) => child.href)).toEqual([
       "/category-management",
       "/archive-queue",
+      "/evidence-packages",
     ]);
+  });
+
+  /*
+   * Multi Engine is a third sibling, not a tab of the queue (T-235). 总栏目
+   * answers "what has nobody looked at yet"; a package answers "why was this
+   * bundle put together". Both list records and they mean different things,
+   * which is the same reason the first two are separate.
+   *
+   * Gated on `package.view`, because that is what the endpoints behind it
+   * check. An entry that leads to a 403 is worse than no entry: the person
+   * cannot tell whether the feature is missing or they are.
+   */
+  it("keeps Multi Engine behind the permission its endpoints check", () => {
+    expect(
+      isRouteAllowed(
+        "MSE_TRACE",
+        ["project_categories"],
+        "/evidence-packages",
+        ["package.view"],
+      ),
+    ).toBe(true);
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/evidence-packages", []),
+    ).toBe(false);
   });
 
   /*

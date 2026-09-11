@@ -771,6 +771,21 @@ export const PORTAL_NAVIGATION = {
           "/archive-queue",
           "project_categories",
         ),
+        // Multi Engine (T-235). A third sibling and not a tab of the queue:
+        // 总栏目 answers "what has nobody looked at", and this answers "why was
+        // this bundle put together". Both list records and they mean entirely
+        // different things - one screen with two meanings is D-125 again.
+        //
+        // Gated on `package.view` rather than on the category feature: the
+        // permission is what the endpoints check, and a sidebar entry that
+        // leads to a 403 is worse than no entry.
+        child(
+          "4.2.3",
+          "nav.submodule.multiEngine",
+          "/evidence-packages",
+          "project_categories",
+          "package.view",
+        ),
       ],
     ),
     item(
@@ -940,6 +955,19 @@ export const PORTAL_NAVIGATION = {
           "/approval-credential",
           "approvals",
           "approval.review",
+        ),
+        // The packages a consultant has been sent (T-235, D-147). Under
+        // `approvals` and `approval.view`, because reviewing a submission is
+        // what this has always been called here - and because a consultant's
+        // grant can only ever carry the seven codes in the platform's
+        // consultant ceiling, so a `package.*` code could never have reached
+        // them (F-358).
+        child(
+          "10.2.2C",
+          "nav.submodule.packageReviews",
+          "/package-reviews",
+          "approvals",
+          "approval.view",
         ),
         child(
           "10.2.4",
@@ -1418,6 +1446,13 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/roles/create", permission: "role.create" },
   { pattern: "/roles/:id/edit", permission: "role.update" },
   { pattern: "/gate", permission: "weighing.operate" },
+  // Multi Engine (T-235). `requiredPermission` on the sidebar child only
+  // *hides* the entry; this is what makes the address itself refuse. Without
+  // both, somebody who cannot build packages could still type the path and
+  // land on a screen whose every call comes back 403 - a page that looks
+  // broken rather than a page that says no.
+  { pattern: "/evidence-packages", permission: "package.view" },
+  { pattern: "/package-reviews", permission: "approval.view" },
   { pattern: "/consultant-workflows", permission: "consultant.config" },
   { pattern: "/consultant-templates", permission: "consultant.config" },
   { pattern: "/consultant-access", permission: "consultant.config" },

@@ -359,6 +359,15 @@ export interface MySubmissionField {
 }
 
 export interface MySubmissionPhoto {
+  /**
+   * The photograph's own primary key.
+   *
+   * Added for Multi Engine, which lets a person tick some of a record's
+   * photographs and not others (D-149); ticking by position would point
+   * somewhere else the moment one is added to the source (D-152). Optional
+   * because the two older screens neither send nor read it.
+   */
+  id?: string;
   url: string;
   caption: string;
 }

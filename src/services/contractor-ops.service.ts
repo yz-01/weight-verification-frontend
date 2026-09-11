@@ -3,6 +3,7 @@ import type { ExportRequest } from "@/services/contractor.service";
 import type {
   ArchiveQueueDetail,
   ArchiveQueuePage,
+  ArchiveQueueRow,
   ArchiveRecordKind,
   ConstructionPhase,
   DisposalEvidence,
@@ -20,6 +21,11 @@ import type {
   ProjectResponsibility,
   SiteEquipment,
   SiteProgressRecord,
+  EvidencePackageDetail,
+  EvidencePackageRow,
+  PackageRecordParts,
+  PackageSelection,
+  PackageState,
 } from "@/interfaces/contractor-ops";
 import { api, download, toastSuccess } from "@/services/api-client";
 
@@ -735,4 +741,175 @@ export async function markRecordsArchived(
   );
   toastSuccess("archiveQueue.toast.archived");
   return result;
+}
+
+/* -------------------------------------------------------------------------
+ * Multi Engine (T-235)
+ *
+ * Two sets of calls on purpose (D-151): the contractor builds packages, the
+ * consultant reviews the ones that were sent. They are different endpoints
+ * behind different permissions, so they are different functions here too -
+ * one function with a role flag is how a draft eventually reaches an outside
+ * reviewer.
+ * ---------------------------------------------------------------------- */
+
+export const getEvidencePackages = (
+  query: ListQuery & {
+    project?: string;
+    state?: PackageState;
+    created_by?: string;
+    from?: string;
+    to?: string;
+  },
+) =>
+  api.list<EvidencePackageRow>(
+    "/api/evidence-packages/get_packages/",
+    query,
+  );
+
+export const getEvidencePackage = (id: string) =>
+  api.get<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/get_package/`,
+  );
+
+/** Records of one column in one project, to tick from. */
+export const getPackageCandidates = (
+  query: ListQuery & { kind: ArchiveRecordKind; project: string },
+) =>
+  api.list<ArchiveQueueRow>(
+    "/api/evidence-packages/get_candidates/",
+    query,
+  );
+
+/** One record opened for ticking: its fields, photographs and delivery orders. */
+export const getPackageRecordParts = (kind: ArchiveRecordKind, id: string) =>
+  api.get<PackageRecordParts>("/api/evidence-packages/get_record_parts/", {
+    kind,
+    id,
+  });
+
+export async function createEvidencePackage(payload: {
+  project: string;
+  name: string;
+  remarks?: string;
+}) {
+  const row = await api.post<EvidencePackageDetail>(
+    "/api/evidence-packages/create_package/",
+    payload,
+  );
+  toastSuccess("multiEngine.toast.created");
+  return row;
+}
+
+export async function updateEvidencePackage(
+  id: string,
+  payload: { name?: string; remarks?: string },
+) {
+  const row = await api.patch<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/update_package/`,
+    payload,
+  );
+  toastSuccess("multiEngine.toast.saved");
+  return row;
+}
+
+export async function deleteEvidencePackage(id: string) {
+  await api.delete(`/api/evidence-packages/${id}/delete_package/`);
+  toastSuccess("multiEngine.toast.deleted");
+}
+
+export async function addPackageItems(
+  id: string,
+  kind: ArchiveRecordKind,
+  ids: string[],
+) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/add_items/`,
+    { kind, ids },
+  );
+  toastSuccess("multiEngine.toast.added", { count: ids.length });
+  return row;
+}
+
+export async function updatePackageItem(
+  id: string,
+  item: string,
+  selection: PackageSelection,
+) {
+  const row = await api.patch<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/update_item/`,
+    { item, selection },
+  );
+  toastSuccess("multiEngine.toast.saved");
+  return row;
+}
+
+export async function removePackageItem(id: string, item: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/remove_item/`,
+    { item },
+  );
+  toastSuccess("multiEngine.toast.removed");
+  return row;
+}
+
+export const reorderPackageItems = (id: string, items: string[]) =>
+  api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/reorder_items/`,
+    { items },
+  );
+
+export async function confirmEvidencePackage(id: string, remarks: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/confirm_package/`,
+    { remarks },
+  );
+  toastSuccess("multiEngine.toast.confirmed");
+  return row;
+}
+
+/** Download the merged PDF. The server notes that it left (D-148). */
+export const downloadEvidencePackage = (id: string, name: string) =>
+  download(`/api/evidence-packages/${id}/download_package/`, {
+    fallbackFilename: `${name || "package"}.pdf`,
+  });
+
+export async function sendPackageForReview(id: string, consultant: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/send_for_review/`,
+    { consultant },
+  );
+  toastSuccess("multiEngine.toast.sent");
+  return row;
+}
+
+/* -- the consultant's side ------------------------------------------------ */
+
+export const getPackagesToReview = (query: ListQuery) =>
+  api.list<EvidencePackageRow>(
+    "/api/package-reviews/get_review_packages/",
+    query,
+  );
+
+export const getPackageToReview = (id: string) =>
+  api.get<EvidencePackageDetail>(
+    `/api/package-reviews/${id}/get_review_package/`,
+  );
+
+export async function reviewPackageItem(
+  id: string,
+  item: string,
+  decision: "ACCEPTED" | "RETURNED",
+  reason = "",
+) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/package-reviews/${id}/review_item/`,
+    { item, decision, reason },
+  );
+  toastSuccess(
+    decision === "ACCEPTED"
+      ? "multiEngine.toast.accepted"
+      : "multiEngine.toast.returned",
+  );
+  return row;
 }
