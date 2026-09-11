@@ -6016,6 +6016,8 @@
       "location": "位置",
       "netWeight": "淨重",
       "photoCount": "照片",
+      "pickupAddress": "取貨地點",
+      "pickupAddressTyped": "手動填寫",
       "project": "項目",
       "recycler": "回收商",
       "releasedAt": "放行時間",
@@ -6039,6 +6041,7 @@
       "PLATE": "車牌",
       "VEHICLE": "車輛"
     },
+    "pickupAddressHint": "留空就用專案地址。要車開到某個特定出入口時，自己填。",
     "recyclerEmpty": "目前沒有可選的回收商。",
     "recyclerNote": "只能送往已在 MSE Trace 註冊的回收商。這樣貨物才會上地磅，追溯鏈才不會斷在你的工地門口。",
     "release": {
@@ -6665,7 +6668,8 @@
       "hazard_message_empty": "傳送前請輸入文字，或附上照片、語音或檔案。",
       "hazard_audio_too_long": "這則語音 {seconds} 秒，單則最長 {limit} 秒。請重錄短一點，或者分兩則傳送。",
       "hazard_closed": "{incident_no} 已驗收並閉環歸檔。記錄仍然可以查看，但不能再傳新訊息。",
-      "hazard_self_verification": "{incident_no} 是你整改的，需要由別人驗收 —— 上報人、專案經理、顧問、現場主管或安全主管都可以。"
+      "hazard_self_verification": "{incident_no} 是你整改的，需要由別人驗收 —— 上報人、專案經理、顧問、現場主管或安全主管都可以。",
+      "submission_not_found": "這條記錄不是你提交的。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -7555,6 +7559,9 @@
       "dispatchNo": "出場單號",
       "driverName": "司機",
       "estimatedWeight": "申報重量（公斤）",
+      "pickupAddress": "取貨地點",
+      "pickupAddressFromProject": "取自專案地址",
+      "pickupAddressTyped": "手動填寫",
       "project": "工地",
       "releasedAt": "放行時間",
       "state": "狀態",
@@ -7579,7 +7586,10 @@
       "proposalNote": "給工地的說明",
       "proposedAt": "提議回收日期與時間",
       "title": "回收訂單",
-      "waitingConfirmation": "等待建築商確認時間"
+      "waitingConfirmation": "等待建築商確認時間",
+      "proposeTime": "改收運時間",
+      "autoAccepted": "這張訂單在現場發出時就已接受，不需要再接受。",
+      "wantedAt": "現場希望的收運時間"
     },
     "subtitle": "正在送往你回收場的廢料。",
     "summary": {
@@ -7592,7 +7602,8 @@
     "title": "待收貨",
     "toast": {
       "accepted": "訂單已接收",
-      "collected": "已收運"
+      "collected": "已收運",
+      "collectionProposed": "已提出收運時間，等現場確認。"
     }
   },
   "integrations": {
@@ -12803,7 +12814,9 @@
       "selectUnit": "選擇單位",
       "unit": "單位",
       "unitRequired": "填了數量必須選擇單位。",
-      "vehiclePlate": "車牌"
+      "vehiclePlate": "車牌",
+      "collectionAt": "希望收運時間",
+      "collectionAtHint": "你希望車什麼時候來。回收商可以另提一個時間，之後由你確認。"
     },
     "filter": {
       "allCategories": "全部類別",
@@ -13204,6 +13217,51 @@
       "HAZARD": "隱患",
       "PROGRESS": "施工進度",
       "DRIVER_TRIP": "運輸任務"
+    },
+    "field": {
+      "category": "欄目",
+      "delivery_note_no": "送貨單號",
+      "description": "說明",
+      "dispatch_no": "訂單號",
+      "failure_reason": "失敗原因",
+      "instructions": "要求做什麼",
+      "material_name": "材料",
+      "note": "備註",
+      "percent_complete": "完成度",
+      "phase": "階段",
+      "pickup_address": "取貨地點",
+      "quantity": "數量",
+      "received_by_name": "收貨人",
+      "rectification_note": "整改情況",
+      "rejection_reason": "不合格原因",
+      "resolution_note": "結案說明",
+      "review_note": "後台意見",
+      "severity": "嚴重程度",
+      "site": "回收廠",
+      "specification": "規格",
+      "supplier": "供應商",
+      "task_type": "類型",
+      "title": "發生了什麼",
+      "vehicle_plate": "車輛",
+      "work_location": "現場位置"
+    },
+    "detailTitle": "我提交過的",
+    "photos": "照片",
+    "noPhotos": "這條記錄沒有照片",
+    "openChat": "打開隱患聊天室",
+    "loadFailed": "這條記錄打不開",
+    "queuedTitle": "還在這台手機上",
+    "queuedHelp": "還沒發出去。有網路之後會自己發。",
+    "failedHelp": "伺服器拒收了。按下面這句改好再發一次。",
+    "close": "關閉",
+    "unit": {
+      "BAG": "袋",
+      "KG": "公斤",
+      "LOAD": "車",
+      "M3": "立方公尺",
+      "OTHER": "其他",
+      "PIECE": "件",
+      "TONNE": "公噸"
     }
   }
 }

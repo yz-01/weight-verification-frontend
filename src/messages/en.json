@@ -6016,6 +6016,8 @@
       "location": "Location",
       "netWeight": "Net weight",
       "photoCount": "Photos",
+      "pickupAddress": "Collection address",
+      "pickupAddressTyped": "Typed in",
       "project": "Project",
       "recycler": "Recycler",
       "releasedAt": "Released",
@@ -6039,6 +6041,7 @@
       "PLATE": "Number plate",
       "VEHICLE": "Vehicle"
     },
+    "pickupAddressHint": "Leave blank to use the project address. Type it in when the lorry has to come to a particular gate.",
     "recyclerEmpty": "No recyclers are available right now.",
     "recyclerNote": "Loads can only be sent to recyclers registered on MSE Trace. That is what puts the load on a weighbridge and keeps the trail going past your gate.",
     "release": {
@@ -6665,7 +6668,8 @@
       "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
       "hazard_audio_too_long": "That voice note is {seconds} seconds long. One note can be at most {limit} seconds — record a shorter one, or send two.",
       "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
-      "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor."
+      "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor.",
+      "submission_not_found": "That submission is not one of yours."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7555,6 +7559,9 @@
       "dispatchNo": "Dispatch no.",
       "driverName": "Driver",
       "estimatedWeight": "Declared weight (kg)",
+      "pickupAddress": "Collect from",
+      "pickupAddressFromProject": "From the project address",
+      "pickupAddressTyped": "Typed in",
       "project": "Site",
       "releasedAt": "Released",
       "state": "Status",
@@ -7579,7 +7586,10 @@
       "proposalNote": "Message to the site",
       "proposedAt": "Proposed collection date and time",
       "title": "Collection order",
-      "waitingConfirmation": "Waiting for contractor confirmation"
+      "waitingConfirmation": "Waiting for contractor confirmation",
+      "proposeTime": "Change the collection time",
+      "autoAccepted": "This order was accepted when the site sent it. There is nothing to accept.",
+      "wantedAt": "Site wants it collected"
     },
     "subtitle": "Waste on its way to your yards.",
     "summary": {
@@ -7592,7 +7602,8 @@
     "title": "Incoming loads",
     "toast": {
       "accepted": "Order accepted",
-      "collected": "Load collected"
+      "collected": "Load collected",
+      "collectionProposed": "Collection time proposed. The site has to confirm it."
     }
   },
   "integrations": {
@@ -12803,7 +12814,9 @@
       "selectUnit": "Select unit",
       "unit": "Unit",
       "unitRequired": "Choose a unit for the quantity entered.",
-      "vehiclePlate": "Vehicle plate"
+      "vehiclePlate": "Vehicle plate",
+      "collectionAt": "Wanted collection time",
+      "collectionAtHint": "When you want the lorry to come. The recycler can propose a different time, which you then confirm."
     },
     "filter": {
       "allCategories": "All categories",
@@ -13204,6 +13217,51 @@
       "HAZARD": "Hazard",
       "PROGRESS": "Progress",
       "DRIVER_TRIP": "Trip"
+    },
+    "field": {
+      "category": "Category",
+      "delivery_note_no": "Delivery order no.",
+      "description": "Description",
+      "dispatch_no": "Order no.",
+      "failure_reason": "Why it failed",
+      "instructions": "What was asked for",
+      "material_name": "Material",
+      "note": "Note",
+      "percent_complete": "Completed",
+      "phase": "Phase",
+      "pickup_address": "Collect from",
+      "quantity": "Quantity",
+      "received_by_name": "Received by",
+      "rectification_note": "Rectification",
+      "rejection_reason": "Why it was rejected",
+      "resolution_note": "How it was closed",
+      "review_note": "Office comment",
+      "severity": "Severity",
+      "site": "Yard",
+      "specification": "Specification",
+      "supplier": "Supplier",
+      "task_type": "Type",
+      "title": "What happened",
+      "vehicle_plate": "Lorry",
+      "work_location": "Where on site"
+    },
+    "detailTitle": "What I sent",
+    "photos": "Photographs",
+    "noPhotos": "No photographs on this record",
+    "openChat": "Open the hazard chat",
+    "loadFailed": "This record could not be opened",
+    "queuedTitle": "Still on this phone",
+    "queuedHelp": "Nothing has been sent yet. It goes out on its own once there is a connection.",
+    "failedHelp": "The server refused this. Fix what it says below, then send again.",
+    "close": "Close",
+    "unit": {
+      "BAG": "Bag",
+      "KG": "Kilogram",
+      "LOAD": "Load",
+      "M3": "Cubic metre",
+      "OTHER": "Other",
+      "PIECE": "Piece",
+      "TONNE": "Tonne"
     }
   }
 }

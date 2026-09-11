@@ -33,6 +33,21 @@ interface FieldCameraProps {
    * passing only `fileCount`.
    */
   file?: File;
+  /**
+   * A photograph the server already holds, shown as a thumbnail.
+   *
+   * The sibling of `file`, for callers whose photographs are uploaded the
+   * moment they are taken and are therefore no longer a `File` on this
+   * device: the disposal screens post each shot immediately and then re-read
+   * the record. They had no way to show one back, so both the external
+   * collector's temporary link and the internal execution screen drew an
+   * empty-looking camera tile after a successful upload (F-289).
+   *
+   * Preferred over keeping the local `File` for those callers, because this
+   * one survives a reload - which matters most to the external company, who
+   * open a link on a phone with a poor connection.
+   */
+  previewUrl?: string;
   facingMode?: FacingMode;
   disabled?: boolean;
   className?: string;
@@ -44,6 +59,7 @@ export function FieldCamera({
   label,
   fileCount = 0,
   file,
+  previewUrl: storedPreviewUrl,
   facingMode = "environment",
   disabled = false,
   className = "",
@@ -61,18 +77,21 @@ export function FieldCamera({
 
   // Derived rather than stored, so the thumbnail is right on the render that
   // receives the photograph rather than one render later.
-  const previewUrl = useMemo(
+  const blobUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : ""),
     [file],
   );
+  // A local file wins: it is the shot just taken, and on a slow link it is on
+  // screen well before the server's copy can be read back.
+  const previewUrl = blobUrl || storedPreviewUrl || "";
   // A blob URL is a handle the page owns, so it has to be released when the
   // photograph is replaced or the tile goes away. Leaving them to accumulate
   // pins every retaken shot in memory for the life of the page, on the one
   // device least able to spare it.
   useEffect(() => {
-    if (!previewUrl) return;
-    return () => URL.revokeObjectURL(previewUrl);
-  }, [previewUrl]);
+    if (!blobUrl) return;
+    return () => URL.revokeObjectURL(blobUrl);
+  }, [blobUrl]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -198,8 +217,9 @@ export function FieldCamera({
         >
           {previewUrl ? (
             <span className="relative block w-full">
-              {/* A blob URL cannot go through the image optimiser, and this
-                  is a photograph the phone already holds in memory. */}
+              {/* A blob URL cannot go through the image optimiser, and a
+                  stored one is served from the API host rather than from this
+                  build - so a plain <img> either way. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}

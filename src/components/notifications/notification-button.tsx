@@ -35,6 +35,13 @@ export function NotificationButton() {
   const router = useRouter();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  /**
+   * Which notification is showing its whole message (T-217).
+   *
+   * One at a time, and reset when the popover closes: a list where several
+   * rows have grown is harder to scan than the clamped one it replaced.
+   */
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushPending, setPushPending] = useState(false);
   const enabled =
@@ -130,7 +137,15 @@ export function NotificationButton() {
   if (!enabled) return null;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        // Closing the list forgets what was expanded, so reopening it looks
+        // the way it did before rather than mid-read.
+        if (!next) setExpanded(null);
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -248,7 +263,23 @@ export function NotificationButton() {
                   if (href) {
                     setOpen(false);
                     router.push(href);
+                    return;
                   }
+                  /*
+                   * No destination: open it where it stands (T-217).
+                   *
+                   * The customer's words were 「每个通知也是可以点进去看细节的」.
+                   * This branch used to do nothing at all beyond marking the
+                   * row read, and the message above is clamped to two lines -
+                   * so a notification with no screen behind it swallowed the
+                   * tap and hid the rest of its own text. Expanding is the
+                   * honest answer for the ones that genuinely have nowhere to
+                   * go; giving them a destination is a per-notifier fix on the
+                   * server, not something to guess at here.
+                   */
+                  setExpanded((current) =>
+                    current === notification.id ? null : notification.id,
+                  );
                 }}
               >
                 <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
@@ -256,7 +287,9 @@ export function NotificationButton() {
                   <span className="block truncate text-sm font-medium">
                     {notification.title}
                   </span>
-                  <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
+                  <span
+                    className={`mt-1 block text-xs leading-5 text-muted-foreground ${expanded === notification.id ? "whitespace-pre-wrap" : "line-clamp-2"}`}
+                  >
                     {notification.message}
                   </span>
                   <span className="mt-1 block text-[11px] text-muted-foreground">

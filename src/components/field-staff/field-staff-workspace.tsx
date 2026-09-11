@@ -29,6 +29,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AvatarUpload } from "@/components/shared/avatar-upload";
 import {
+  MySubmissions,
+  type HazardHandle,
+} from "@/components/field-staff/my-submissions";
+import {
   FieldRecordsPanel,
   type FieldRecordMode,
 } from "@/components/field-staff/field-records-panel";
@@ -108,7 +112,13 @@ function FieldStaffWorkspaceContent({
   const [recordMode, setRecordMode] = useState<FieldRecordMode | null>(
     requestedRecord,
   );
-  const [openedHazard, setOpenedHazard] = useState<SafetyIncident | null>(null);
+  // Set two ways: by reporting one (F-277), and by tapping a hazard in
+  // 「我提交过的」 (T-210). The second only ever has a history row, which is
+  // why the hazards panel takes the three fields it reads rather than a whole
+  // incident.
+  const [openedHazard, setOpenedHazard] = useState<
+    Pick<SafetyIncident, "id" | "title" | "incident_no"> | null
+  >(null);
   const requestedTask = useQuery({
     queryKey: ["field-staff", "task", requestedTaskId],
     queryFn: () => getFieldTask(requestedTaskId),
@@ -175,6 +185,28 @@ function FieldStaffWorkspaceContent({
     setTab("records");
     replaceFieldUrl("records", mode);
   };
+  /*
+   * `?tab=incidents` with no hazard to show means somebody arrived from a
+   * bookmark or from one of the old 事故上报 notifications, which still build
+   * `/field-staff?tab=incidents&thread=...` (F-317). Since T-211 that tab
+   * renders one thing - a hazard's conversation - so on its own it would be a
+   * blank screen. It falls through to the reporting form instead, the same
+   * place the nav button goes.
+   *
+   * Derived rather than redirected. The first version of this called
+   * `openRecord` from an effect and eslint was right to refuse it: setting
+   * four pieces of state during an effect makes the screen render twice for
+   * one decision that was already knowable. Nothing is written here, so the
+   * URL stays as the link left it - honest about where the worker came from.
+   *
+   * What this cannot do is open the conversation the notification is about:
+   * the `thread` in that link is an `IncidentReportThread` id and this room is
+   * keyed by `SafetyIncident`. Resolving one to the other is T-217's job.
+   */
+  const hazardTabWithoutRoom = tab === "incidents" && !openedHazard;
+  const shownTab: MobileTab = hazardTabWithoutRoom ? "records" : tab;
+  const shownRecordMode = hazardTabWithoutRoom ? "safety" : recordMode;
+
   const projects = useQuery({
     queryKey: ["projects", "options"],
     queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
@@ -207,10 +239,19 @@ function FieldStaffWorkspaceContent({
         </p>
       </section>
 
-      {tab === "home" && (
-        <FieldHomePanel onOpenWorkflow={(task, mode) => { setActiveTask(task); setRecordMode(mode); setTab("records"); replaceFieldUrl("records", mode, task.id); }} />
+      {shownTab === "home" && (
+        <FieldHomePanel
+          onOpenWorkflow={(task, mode) => { setActiveTask(task); setRecordMode(mode); setTab("records"); replaceFieldUrl("records", mode, task.id); }}
+          onOpenHazard={(hazard) => {
+            // `openTab` clears the record state first, then the hazard is set:
+            // the other order loses it, because `openTab` resets everything
+            // the tab switch is supposed to leave behind.
+            openTab("incidents");
+            setOpenedHazard(hazard);
+          }}
+        />
       )}
-      {tab === "tasks" && (
+      {shownTab === "tasks" && (
         <FieldTaskPanel
           taskType={taskType}
           requestedTaskId={focusedTaskId}
@@ -222,10 +263,10 @@ function FieldStaffWorkspaceContent({
           }}
         />
       )}
-      {tab === "attendance" && <FieldDraft scope="attendance"><FieldAttendancePanel /></FieldDraft>}
-      {tab === "records" && (
+      {shownTab === "attendance" && <FieldDraft scope="attendance"><FieldAttendancePanel /></FieldDraft>}
+      {shownTab === "records" && (
         <FieldRecordsPanel
-          initialMode={recordMode}
+          initialMode={shownRecordMode}
           initialSupplierToken={supplierToken}
           task={activeTask ?? requestedTask.data ?? null}
           onModeChange={(mode) => {
@@ -241,20 +282,21 @@ function FieldStaffWorkspaceContent({
           }}
         />
       )}
-      {tab === "location" && <FieldStaffGps managedAutomatically />}
-      {/* Was FieldIncidentsPanel (事故上报). The customer asked for that
-          feature to go and its chat room to be folded into 隐患整改:
-          「报告事故的聊天室是结合进去隐患整改的，然后报告事故移除掉」. The tab
-          key stays `incidents` so a bookmarked ?tab= link still lands
-          somewhere useful. */}
-      {tab === "incidents" && (
+      {shownTab === "location" && <FieldStaffGps managedAutomatically />}
+      {/*
+        `incidents` is now one thing: a hazard's conversation. It is reached by
+        reporting one, or by tapping a hazard in 「我提交过的」 (T-210). The tab
+        key is kept because the old 事故上报 notifications still link to it -
+        reaching it with no hazard falls through to the reporting form, handled
+        by the effect above.
+      */}
+      {tab === "incidents" && openedHazard && (
         <FieldHazardsPanel
-          initialOpen={openedHazard}
-          onInitialOpenHandled={() => setOpenedHazard(null)}
-          onHome={() => {
+          hazard={openedHazard}
+          onBack={() => {
+            setOpenedHazard(null);
             openTab("home");
           }}
-          onReport={() => openRecord("safety")}
         />
       )}
 
@@ -266,10 +308,16 @@ function FieldStaffWorkspaceContent({
           <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
           <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
           <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => openTab("location")} />
-          <MobileNavButton active={tab === "incidents"} icon={ShieldAlert} label={t("nav.hazards")} onClick={() => openTab("incidents")} />
+          {/*
+            One tap to the reporting form (T-211). This used to open a list
+            page whose only action was a 上报隐患 button - the customer's
+            「不需要跳两个页面」. It stays highlighted for the conversation too,
+            so a worker reading a hazard can still see which tab they are in.
+          */}
+          <MobileNavButton active={tab === "incidents" || recordMode === "safety"} icon={ShieldAlert} label={t("nav.hazards")} onClick={() => openRecord("safety")} />
         </div>
       </nav>
-      {tab === "home" && (
+      {shownTab === "home" && (
         <p className="text-center text-xs text-muted-foreground">
           {t("identity.version", {
             version: APP_VERSION,
@@ -282,8 +330,10 @@ function FieldStaffWorkspaceContent({
 
 function FieldHomePanel({
   onOpenWorkflow,
+  onOpenHazard,
 }: {
   onOpenWorkflow: (task: FieldTask, mode: FieldRecordMode) => void;
+  onOpenHazard: (hazard: HazardHandle) => void;
 }) {
   const t = useTranslations("fieldStaffPwa");
   return (
@@ -294,6 +344,12 @@ function FieldHomePanel({
           <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
         </div>
       </div>
+      {/*
+        Order is the customer's own: 「首页只需要放任务，上传头像和图2就好」 -
+        tasks, then the avatar, then what I sent (T-209). Tasks lead because
+        they are the only block that says what to do next.
+      */}
+      <FieldTaskPanel onOpenWorkflow={onOpenWorkflow} />
       {/* Field staff have no profile screen and cannot open `/profile`, and
           theirs is the picture a delivery record shows - so this is their only
           way to set it. On the home panel rather than the workspace header,
@@ -301,7 +357,21 @@ function FieldHomePanel({
       <div className="rounded-lg border bg-card p-4 shadow-sm">
         <AvatarUpload />
       </div>
-      <FieldTaskPanel onOpenWorkflow={onOpenWorkflow} />
+      {/*
+        Put back, not written again (T-209). This is the customer's 图2, and it
+        was removed from the home along with the tile grid in `e754025`; the
+        component itself survived and the driver dashboard has been rendering
+        it the whole time. `field-home-composition.test.ts` guards the three
+        blocks and their order, because losing this one is not a visible
+        breakage - the home simply stops answering "did my work arrive".
+      */}
+      <MySubmissions onOpenHazard={onOpenHazard} />
+      {/*
+        Last, and kept although the customer did not name it: it is the only
+        way to move a field session to another phone, and field staff have no
+        profile screen to reach it from. Below the three named blocks rather
+        than removed - see the note on the component.
+      */}
       <FieldDeviceHandoff />
     </section>
   );

@@ -99,9 +99,14 @@ export async function apiLogin(
  * Raise and release a fresh load as the contractor, over the API. Returns
  * its dispatch number. Business-flow tests use a fresh load each run so
  * they stay repeatable without resetting the seeded fixture.
+ *
+ * `pickupAddress` names the gate the lorry has to come to. Omit it and the
+ * order inherits the project address, which is the more common case and the
+ * one every existing caller wants.
  */
 export async function raiseReleasedDispatch(
   request: APIRequestContext,
+  pickupAddress?: string,
 ): Promise<string> {
   const token = await apiLogin(request, ACCOUNTS.contractor, "MSE_TRACE");
   const headers = { Authorization: `Bearer ${token}` };
@@ -134,6 +139,7 @@ export async function raiseReleasedDispatch(
       estimated_weight_kg: "1200.00",
       vehicle_plate: "WFL 7001",
       driver_name: "Flow Driver",
+      ...(pickupAddress ? { pickup_address: pickupAddress } : {}),
     },
   });
   expect(created.status(), await created.text()).toBe(201);

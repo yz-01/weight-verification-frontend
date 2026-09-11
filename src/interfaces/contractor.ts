@@ -340,6 +340,36 @@ export interface MySubmissionRow {
   photo: string | null;
 }
 
+/**
+ * One labelled row of a submission's detail.
+ *
+ * `key` is a machine key the phone translates through
+ * `mySubmissions.field.<key>`; the server never sends words. `unit` is a code
+ * for the same reason, translated through `mySubmissions.unit.<code>` - one
+ * catalogue for both modules, because a receipt's units have labels on the
+ * Django model and a waste record's do not, and sending one English label
+ * beside one raw code is how `PENDING_APPROVAL` reached a customer's screen
+ * (F-225). `core.tests.test_submission_labels` checks both vocabularies
+ * against all four catalogues.
+ */
+export interface MySubmissionField {
+  key: string;
+  value: string;
+  unit?: string;
+}
+
+export interface MySubmissionPhoto {
+  url: string;
+  caption: string;
+}
+
+/** A history row, opened. */
+export interface MySubmissionDetail extends MySubmissionRow {
+  fields: MySubmissionField[];
+  /** Empty rather than absent when a record carries none. */
+  photos: MySubmissionPhoto[];
+}
+
 export interface MySubmissionsPage {
   results: MySubmissionRow[];
   count: number;
@@ -572,6 +602,18 @@ export interface WasteDispatch {
   recycler_name: string;
   waste_type: WasteType;
   estimated_weight_kg: string | null;
+  /**
+   * Where the lorry collects from. Served since T-138 and never read on this
+   * side until T-227, which is how the recycler ended up with an order book
+   * that did not say where to drive.
+   *
+   * Never blank for a project that has an address: the server falls back to
+   * the project's postal line. `pickup_address_source` is the half that
+   * decides whether a person chose this address or it was inherited - an
+   * empty string on orders raised before the column existed.
+   */
+  pickup_address: string;
+  pickup_address_source: "MANUAL" | "PROJECT" | "";
   vehicle_plate: string;
   driver_name: string;
   state: DispatchState;
@@ -617,6 +659,8 @@ export interface WasteDispatchPayload {
   waste_type: WasteType;
   estimated_weight_kg?: string | null;
   description?: string;
+  /** Blank means "use the project address", not "store an empty line". */
+  pickup_address?: string;
   vehicle_plate: string;
   driver_name?: string;
   driver_phone?: string;

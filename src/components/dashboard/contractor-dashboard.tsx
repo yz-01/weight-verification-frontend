@@ -338,11 +338,18 @@ export function ContractorDashboard() {
         </div>
       </div>
 
+      {/*
+        Pending work above the controls (T-215). Measured: the search row and
+        the quick-add row put 120px of "start something new" above the things
+        already waiting, which is the opposite of 「所有待审批和通知和重要的东西
+        是放在最上面」. Both are still one screen away from the top - they are
+        two rows, not a page.
+      */}
+      {priorityGrid}
+
       {can("dashboard.search") && <QuickSearch project={project} />}
 
       <QuickActions project={project} />
-
-      {priorityGrid}
 
       {!data ? (
         <DashboardSkeleton />

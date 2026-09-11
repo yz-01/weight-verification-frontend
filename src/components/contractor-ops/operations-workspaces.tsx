@@ -28,6 +28,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
@@ -2004,15 +2005,20 @@ function MovementDialog({
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   const direction = row.status === "ON_SITE" ? "EXIT" : "ENTRY";
-  const [operator, setOperator] = useState("");
-  const [vehicle, setVehicle] = useState("");
-  const [deliveryNote, setDeliveryNote] = useState("");
-  const [quantity, setQuantity] = useState("1");
-  const [unit, setUnit] = useState<EquipmentUnit>("UNIT");
-  const [notes, setNotes] = useState("");
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
-  const [deliveryNotePhoto, setDeliveryNotePhoto] = useState<File>();
+  // F-282. Keys carry `row.id` because this dialog opens per equipment row
+  // while the draft store is scoped per *task*: without the suffix, typing
+  // against excavator A and then opening excavator B would show A's figures
+  // under B's name, which is a wrong record rather than a recovered one.
+  const [operator, setOperator] = useDraftState(`operator:${row.id}`, "");
+  const [vehicle, setVehicle] = useDraftState(`vehicle:${row.id}`, "");
+  const [deliveryNote, setDeliveryNote] = useDraftState(`deliveryNote:${row.id}`, "");
+  const [quantity, setQuantity] = useDraftState(`quantity:${row.id}`, "1");
+  const [unit, setUnit] = useDraftState<EquipmentUnit>(`unit:${row.id}`, "UNIT");
+  const [notes, setNotes] = useDraftState(`notes:${row.id}`, "");
+  const [photos, setPhotos] = useDraftState<File[]>(`photos:${row.id}`, []);
+  const [fieldEvidence, setFieldEvidence] = useDraftState(`fieldEvidence:${row.id}`, createEmptyFieldEvidence);
+  const [deliveryNotePhoto, setDeliveryNotePhoto] = useDraftState<File | undefined>(`deliveryNotePhoto:${row.id}`);
+  const clearDraft = useClearDraft();
   const [ocr, setOcr] = useState<{
     status: string;
     suggestions?: Record<string, string>;
@@ -2078,7 +2084,10 @@ function MovementDialog({
       setError("");
       setFieldErrors({});
     },
-    onSuccess: onSaved,
+    onSuccess: () => {
+      clearDraft();
+      onSaved();
+    },
     onError: (reason) => {
       if (reason instanceof ApiError) {
         setFieldErrors(reason.errors);
@@ -2703,12 +2712,14 @@ function ProgressDialog({
   const t = useTranslations("contractorOps");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
-  const [project, setProject] = useState(initialProject);
-  const [phase, setPhase] = useState("");
-  const [percent, setPercent] = useState("");
-  const [description, setDescription] = useState("");
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
+  // F-282
+  const [project, setProject] = useDraftState("project", initialProject);
+  const [phase, setPhase] = useDraftState("phase", "");
+  const [percent, setPercent] = useDraftState("percent", "");
+  const [description, setDescription] = useDraftState("description", "");
+  const [photos, setPhotos] = useDraftState<File[]>("photos", []);
+  const [fieldEvidence, setFieldEvidence] = useDraftState("fieldEvidence", createEmptyFieldEvidence);
+  const clearDraft = useClearDraft();
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState(false);
   const [error, setError] = useState("");
@@ -2742,7 +2753,10 @@ function ProgressDialog({
         photos: submissionPhotos,
       });
     },
-    onSuccess: onSaved,
+    onSuccess: () => {
+      clearDraft();
+      onSaved();
+    },
     onError: (reason) =>
       setError(
         reason instanceof ApiError ? reason.message : t("progress.saveError"),
@@ -3029,8 +3043,9 @@ function OutgoingDialog({
   const t = useTranslations("contractorOps");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
-  const [project, setProject] = useState(initialProject);
-  const [form, setForm] = useState({
+  // F-282
+  const [project, setProject] = useDraftState("project", initialProject);
+  const [form, setForm] = useDraftState("form", {
     material_name: "",
     quantity: "",
     unit: "TONNE",
@@ -3040,7 +3055,8 @@ function OutgoingDialog({
     delivery_note_no: "",
     reason: "",
   });
-  const [photos, setPhotos] = useState(createEmptyFieldEvidence);
+  const [photos, setPhotos] = useDraftState("photos", createEmptyFieldEvidence);
+  const clearDraft = useClearDraft();
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState(false);
   const photoPrompts = [
@@ -3074,7 +3090,10 @@ function OutgoingDialog({
         photo_captions: photoCaptions,
       });
     },
-    onSuccess: onSaved,
+    onSuccess: () => {
+      clearDraft();
+      onSaved();
+    },
   });
   const locate = async () => {
     setLocationError(false);

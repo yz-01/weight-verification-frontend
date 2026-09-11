@@ -6016,6 +6016,8 @@
       "location": "Lokasi",
       "netWeight": "Berat bersih",
       "photoCount": "Foto",
+      "pickupAddress": "Alamat pungutan",
+      "pickupAddressTyped": "Ditaip sendiri",
       "project": "Projek",
       "recycler": "Pengitar semula",
       "releasedAt": "Dilepaskan",
@@ -6039,6 +6041,7 @@
       "PLATE": "Nombor plat",
       "VEHICLE": "Kenderaan"
     },
+    "pickupAddressHint": "Biarkan kosong untuk guna alamat projek. Taip sendiri apabila lori perlu datang ke pintu masuk tertentu.",
     "recyclerEmpty": "Tiada pengitar semula tersedia buat masa ini.",
     "recyclerNote": "Muatan hanya boleh dihantar kepada pengitar semula yang berdaftar di MSE Trace. Itulah yang meletakkan muatan di atas jambatan timbang dan menyambung jejak melepasi pintu tapak anda.",
     "release": {
@@ -6665,7 +6668,8 @@
       "hazard_message_empty": "Taip sesuatu, atau lampirkan foto, nota suara atau fail, sebelum menghantar.",
       "hazard_audio_too_long": "Nota suara itu {seconds} saat. Satu nota paling lama {limit} saat — rakam yang lebih pendek, atau hantar dua.",
       "hazard_closed": "{incident_no} telah disahkan dan diarkibkan. Rekodnya kekal boleh dibaca, tetapi tidak menerima mesej baharu.",
-      "hazard_self_verification": "Anda yang melaksanakan pembetulan bagi {incident_no}, jadi orang lain perlu mengesahkannya — pelapor, pengurus projek, perunding, atau penyelia tapak atau keselamatan."
+      "hazard_self_verification": "Anda yang melaksanakan pembetulan bagi {incident_no}, jadi orang lain perlu mengesahkannya — pelapor, pengurus projek, perunding, atau penyelia tapak atau keselamatan.",
+      "submission_not_found": "Rekod ini bukan hantaran anda."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7555,6 +7559,9 @@
       "dispatchNo": "No. penghantaran",
       "driverName": "Pemandu",
       "estimatedWeight": "Berat diisytihar (kg)",
+      "pickupAddress": "Ambil dari",
+      "pickupAddressFromProject": "Daripada alamat projek",
+      "pickupAddressTyped": "Ditaip sendiri",
       "project": "Tapak",
       "releasedAt": "Dilepaskan",
       "state": "Status",
@@ -7579,7 +7586,10 @@
       "proposalNote": "Mesej kepada tapak",
       "proposedAt": "Tarikh dan masa kutipan dicadangkan",
       "title": "Pesanan kutipan",
-      "waitingConfirmation": "Menunggu pengesahan kontraktor"
+      "waitingConfirmation": "Menunggu pengesahan kontraktor",
+      "proposeTime": "Tukar masa pungutan",
+      "autoAccepted": "Pesanan ini diterima sebaik tapak menghantarnya. Tiada apa untuk diterima.",
+      "wantedAt": "Tapak mahu ia dipungut"
     },
     "subtitle": "Sisa dalam perjalanan ke tapak anda.",
     "summary": {
@@ -7592,7 +7602,8 @@
     "title": "Muatan masuk",
     "toast": {
       "accepted": "Pesanan diterima",
-      "collected": "Muatan dikutip"
+      "collected": "Muatan dikutip",
+      "collectionProposed": "Masa pungutan dicadangkan. Tapak perlu mengesahkannya."
     }
   },
   "integrations": {
@@ -12803,7 +12814,9 @@
       "selectUnit": "Pilih unit",
       "unit": "Unit",
       "unitRequired": "Pilih unit untuk kuantiti yang dimasukkan.",
-      "vehiclePlate": "Nombor plat"
+      "vehiclePlate": "Nombor plat",
+      "collectionAt": "Masa pungutan dikehendaki",
+      "collectionAtHint": "Bila anda mahu lori datang. Pengitar boleh cadangkan masa lain, kemudian anda sahkan."
     },
     "filter": {
       "allCategories": "Semua kategori",
@@ -13204,6 +13217,51 @@
       "HAZARD": "Bahaya",
       "PROGRESS": "Kemajuan",
       "DRIVER_TRIP": "Perjalanan"
+    },
+    "field": {
+      "category": "Kategori",
+      "delivery_note_no": "No. nota hantaran",
+      "description": "Keterangan",
+      "dispatch_no": "No. pesanan",
+      "failure_reason": "Sebab gagal",
+      "instructions": "Apa yang diminta",
+      "material_name": "Bahan",
+      "note": "Nota",
+      "percent_complete": "Siap",
+      "phase": "Fasa",
+      "pickup_address": "Ambil dari",
+      "quantity": "Kuantiti",
+      "received_by_name": "Diterima oleh",
+      "rectification_note": "Pembetulan",
+      "rejection_reason": "Sebab ditolak",
+      "resolution_note": "Cara ditutup",
+      "review_note": "Komen pejabat",
+      "severity": "Tahap keseriusan",
+      "site": "Depoh",
+      "specification": "Spesifikasi",
+      "supplier": "Pembekal",
+      "task_type": "Jenis",
+      "title": "Apa yang berlaku",
+      "vehicle_plate": "Lori",
+      "work_location": "Lokasi di tapak"
+    },
+    "detailTitle": "Apa yang saya hantar",
+    "photos": "Gambar",
+    "noPhotos": "Rekod ini tiada gambar",
+    "openChat": "Buka sembang bahaya",
+    "loadFailed": "Rekod ini tidak dapat dibuka",
+    "queuedTitle": "Masih dalam telefon ini",
+    "queuedHelp": "Belum dihantar. Ia akan keluar sendiri apabila ada sambungan.",
+    "failedHelp": "Pelayan menolak ini. Betulkan seperti di bawah, kemudian hantar semula.",
+    "close": "Tutup",
+    "unit": {
+      "BAG": "Guni",
+      "KG": "Kilogram",
+      "LOAD": "Muatan",
+      "M3": "Meter padu",
+      "OTHER": "Lain-lain",
+      "PIECE": "Unit",
+      "TONNE": "Tan"
     }
   }
 }

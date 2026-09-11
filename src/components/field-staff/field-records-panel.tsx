@@ -963,10 +963,18 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState(initialProject);
-  const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
-  const [category, setCategory] = useState("RFI");
-  const [note, setNote] = useState("");
+  // F-282: these were plain `useState` inside a `<FieldDraft>` wrapper, so the
+  // banner said "saved" while a mis-tap threw the whole form away.
+  const [project, setProject] = useDraftState("project", initialProject);
+  const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
+  const [category, setCategory] = useDraftState("category", "RFI");
+  const [note, setNote] = useDraftState("note", "");
+  const clearDraft = useClearDraft();
+  // Deliberately *not* saved. A restored draft submitted the next day would
+  // send `captured_at: now` with yesterday's coordinates - a false evidence
+  // record rather than a recovered one. Re-acquiring is one tap on
+  // `LocationField`, and the material panel this pattern comes from keeps
+  // location on plain state for the same reason.
   const [location, setLocation] = useState<Coordinates>();
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
@@ -997,6 +1005,9 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
       });
     },
     onSuccess: () => {
+      // Only after the submission was accepted - or the offline queue took
+      // ownership of it - is the typing safe to throw away.
+      clearDraft();
       void qc.invalidateQueries({ queryKey: ["field-tasks"] });
       onSaved();
     },
@@ -1084,13 +1095,15 @@ function WasteOutgoingCapturePanel({
   const t = useTranslations("wasteOutgoing");
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState(initialProject);
-  const [category, setCategory] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [unit, setUnit] = useState("");
-  const [note, setNote] = useState("");
-  const [pickupAddress, setPickupAddress] = useState("");
-  const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
+  // F-282: same shell-without-wiring as the consultant panel above.
+  const [project, setProject] = useDraftState("project", initialProject);
+  const [category, setCategory] = useDraftState("category", "");
+  const [quantity, setQuantity] = useDraftState("quantity", "");
+  const [unit, setUnit] = useDraftState("unit", "");
+  const [note, setNote] = useDraftState("note", "");
+  const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
+  const clearDraft = useClearDraft();
+  // Not saved - see the note on the consultant panel.
   const [location, setLocation] = useState<Coordinates>();
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
@@ -1118,7 +1131,6 @@ function WasteOutgoingCapturePanel({
         quantity: quantity.trim() || undefined,
         unit: quantity.trim() ? unit : undefined,
         note: note.trim() || undefined,
-        pickup_address: pickupAddress.trim() || undefined,
         latitude: location.latitude,
         longitude: location.longitude,
         device_id: getOrCreateFieldDeviceId(),
@@ -1129,6 +1141,7 @@ function WasteOutgoingCapturePanel({
     },
     onSuccess: () => {
       setError("");
+      clearDraft();
       void qc.invalidateQueries({ queryKey: ["field-staff", "tasks"] });
       onSaved();
     },
@@ -1183,17 +1196,20 @@ function WasteOutgoingCapturePanel({
           </Select>
         </FieldWrapper>
       </div>
-      <FieldWrapper
-        label={t("field.pickupAddress")}
-        optional={t("field.optional")}
-        hint={t("field.pickupAddressHint")}
-      >
-        <Textarea
-          rows={2}
-          value={pickupAddress}
-          onChange={(event) => setPickupAddress(event.target.value)}
-        />
-      </FieldWrapper>
+      {/*
+        No collection-address input here, on purpose (D-117).
+
+        The office fills the address in now, not the site. Sending it blank is
+        not a loss of information: the server falls back to the project address
+        and marks the source PROJECT (`set_pickup_address` in
+        `waste/services.py`), and the office can name a gate when it raises the
+        order. Two people typing the same address was the actual problem - the
+        site's answer won, and the office could not tell whether an address had
+        been chosen or inherited.
+
+        `field-draft-coverage.test.ts` holds this open, so a future edit that
+        reintroduces the field fails rather than quietly reversing a decision.
+      */}
       <FieldWrapper label={t("field.note")} optional={t("field.optional")}>
         <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
       </FieldWrapper>

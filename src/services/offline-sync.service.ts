@@ -11,6 +11,7 @@ import {
   type OfflineJob,
   putOfflineJob,
   restoreFile,
+  type StoredFile,
   storeFile,
 } from "@/lib/offline-db";
 import {
@@ -1002,6 +1003,137 @@ export async function getOfflineQueueEntries(
     attempts: job.attempts,
     lastError: job.lastError,
   }));
+}
+
+/**
+ * Which payload keys a queued entry may show, and the label each maps to.
+ *
+ * An allow-list, not a walk of everything: a payload also holds project and
+ * category *ids*, device ids and coordinates, and a worker reading a UUID
+ * where "Mixed waste" belongs learns nothing. Every value on the right is a
+ * key the catalogue already has (`mySubmissions.field.*`, checked against all
+ * four languages by `core.tests.test_submission_labels`), so nothing here can
+ * render as a key path.
+ *
+ * `severity` is deliberately absent: it is stored as `HIGH`, and a raw code on
+ * screen is the defect F-225 recorded.
+ */
+const QUEUED_FIELD_LABELS: Record<string, string> = {
+  material_name: "material_name",
+  material_specification: "specification",
+  quantity: "quantity",
+  vehicle_plate: "vehicle_plate",
+  delivery_note_no: "delivery_note_no",
+  received_by_name: "received_by_name",
+  notes: "note",
+  note: "note",
+  title: "title",
+  description: "description",
+  percent_complete: "percent_complete",
+  pickup_address: "pickup_address",
+  work_location: "work_location",
+  instructions: "instructions",
+};
+
+/** What a queued submission looks like when opened, read off this phone. */
+export interface QueuedSubmissionDetail {
+  kind: OfflineJob["kind"];
+  queuedAt: string;
+  attempts: number;
+  /** The server's own refusal, stored since F-230 and now shown. */
+  lastError: string;
+  fields: { key: string; value: string; unit?: string }[];
+  /** The photographs as taken - still on the phone, never uploaded. */
+  photos: Blob[];
+}
+
+function isStoredFile(value: unknown): value is StoredFile {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "blob" in value &&
+    (value as { blob: unknown }).blob instanceof Blob
+  );
+}
+
+/**
+ * What a queued payload has to show, pulled out of the shape it is stored in.
+ *
+ * Separate from the IndexedDB read on purpose: this is the part that can be
+ * wrong - which keys surface, which stay hidden, whether a quantity keeps its
+ * unit - and it is the part a test can reach. The repository has no IndexedDB
+ * test environment and this was not worth adding a dependency for, so the
+ * seam moved instead.
+ *
+ * Two levels deep because a receipt nests its own fields under
+ * `payload.receipt` while every other kind is flat; a third level would start
+ * reaching into things that are not this screen's business.
+ */
+export function summariseQueuedPayload(payload: unknown): {
+  fields: QueuedSubmissionDetail["fields"];
+  photos: Blob[];
+} {
+  const fields: QueuedSubmissionDetail["fields"] = [];
+  const photos: Blob[] = [];
+  const units: Record<string, string> = {};
+
+  const visit = (node: Record<string, unknown>, depth: number) => {
+    for (const [key, value] of Object.entries(node)) {
+      if (isStoredFile(value)) {
+        photos.push(value.blob);
+      } else if (Array.isArray(value)) {
+        for (const item of value) if (isStoredFile(item)) photos.push(item.blob);
+      } else if (typeof value === "object" && value !== null && depth < 2) {
+        visit(value as Record<string, unknown>, depth + 1);
+      } else if (key === "unit" && typeof value === "string" && value) {
+        units.quantity = value;
+      } else if (
+        QUEUED_FIELD_LABELS[key] &&
+        (typeof value === "string" || typeof value === "number") &&
+        String(value).trim()
+      ) {
+        fields.push({
+          key: QUEUED_FIELD_LABELS[key],
+          value: String(value).trim(),
+        });
+      }
+    }
+  };
+  if (typeof payload === "object" && payload !== null) {
+    visit(payload as Record<string, unknown>, 0);
+  }
+
+  for (const field of fields) {
+    if (units[field.key]) field.unit = units[field.key];
+  }
+  return { fields, photos };
+}
+
+/**
+ * One queued submission, opened (T-210).
+ *
+ * The list shape deliberately carries no blobs, so this reads the job again
+ * rather than widening that.
+ *
+ * Returns null when the job has already gone out, which is the common race:
+ * the worker taps a row at the moment sync drains it.
+ */
+export async function getQueuedSubmissionDetail(
+  ownerId: string,
+  jobId: string,
+): Promise<QueuedSubmissionDetail | null> {
+  const job = (await getOfflineJobs(ownerId)).find((row) => row.id === jobId);
+  if (!job) return null;
+
+  const { fields, photos } = summariseQueuedPayload(job.payload);
+  return {
+    kind: job.kind,
+    queuedAt: job.queuedAt,
+    attempts: job.attempts,
+    lastError: job.lastError,
+    fields,
+    photos,
+  };
 }
 
 /**

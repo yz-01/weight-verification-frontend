@@ -22,6 +22,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
@@ -91,6 +92,24 @@ function getCoordinates(): Promise<Coordinates> {
       { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
     );
   });
+}
+
+/**
+ * The most recent photograph of one kind, as a URL the tile can show.
+ *
+ * F-289: both disposal execution screens upload each shot immediately and then
+ * re-read the record, so they hold no `File` to preview and were passing only a
+ * count - which draws the same empty-looking tile as having taken nothing. The
+ * watermarked copy is preferred because that is the one that carries the site,
+ * time and device stamp, so what the collector sees is what was filed.
+ */
+function latestEvidencePhoto(
+  evidence: ReadonlyArray<{ kind: string; image?: string | null; watermarked?: string | null }>,
+  kind: string,
+): string | undefined {
+  const shots = evidence.filter((item) => item.kind === kind);
+  const newest = shots[shots.length - 1];
+  return newest ? (newest.watermarked || newest.image || undefined) : undefined;
 }
 
 function statusTone(status: DisposalRequestStatus): "neutral" | "positive" | "warning" | "danger" | "info" {
@@ -188,15 +207,20 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
   const t = useTranslations("siteDisposal");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
-  const [project, setProject] = useState(initialProject);
-  const [description, setDescription] = useState("");
-  const [locationDescription, setLocationDescription] = useState("");
-  const [volume, setVolume] = useState("");
-  const [weight, setWeight] = useState("");
-  const [preferred, setPreferred] = useState("");
-  const [note, setNote] = useState("");
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
+  // F-282. Saved even when this dialog is opened from the office console:
+  // `useDraftState` falls back to plain component state when there is no
+  // `<FieldDraft>` above it, so one call site serves both without a branch.
+  const [project, setProject] = useDraftState("project", initialProject);
+  const [description, setDescription] = useDraftState("description", "");
+  const [locationDescription, setLocationDescription] = useDraftState("locationDescription", "");
+  const [volume, setVolume] = useDraftState("volume", "");
+  const [weight, setWeight] = useDraftState("weight", "");
+  const [preferred, setPreferred] = useDraftState("preferred", "");
+  const [note, setNote] = useDraftState("note", "");
+  const [photos, setPhotos] = useDraftState<File[]>("photos", []);
+  const [fieldEvidence, setFieldEvidence] = useDraftState("fieldEvidence", createEmptyFieldEvidence);
+  const clearDraft = useClearDraft();
+  // Not saved: a stale fix would be submitted as a fresh one.
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState("");
   const fieldPhotos = completedFieldEvidence(fieldEvidence);
@@ -227,7 +251,10 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
         photos: submissionPhotos,
       });
     },
-    onSuccess: onSaved,
+    onSuccess: () => {
+      clearDraft();
+      onSaved();
+    },
   });
   const locate = async () => {
     setLocationError("");
@@ -330,13 +357,38 @@ function CancelDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest;
   return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("cancel.title")}</DialogTitle><DialogDescription>{t("cancel.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><FieldWrapper label={t("field.cancelReason")} required><Textarea value={reason} onChange={(event) => setReason(event.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.close")}</Button><Button variant="destructive" requires={[[reason, t("field.cancelReason")]]} disabled={save.isPending} onClick={() => save.mutate()}><XCircle />{t("action.cancelDisposal")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
+/**
+ * The contractor confirms the work, and fills in the numbers (T-224, D-116).
+ *
+ * The three fields are here because the outside collector no longer types
+ * them - 「那两个数据从后台补吧」 - and this is the only screen that still
+ * touches a submitted request. Before T-224 it took a decision, a note and a
+ * photo, so removing the inputs from the link without adding them here would
+ * have left three columns nobody could fill: the exact shape F-244 recorded.
+ *
+ * Prefilled from the row rather than blank. A collector who did send the
+ * numbers should not have them erased by a confirmation that leaves the boxes
+ * empty, and the office is usually correcting a reading rather than entering
+ * one from nothing.
+ */
 function ConfirmDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
   const [decision, setDecision] = useState<"COMPLETED" | "RETURNED">("COMPLETED");
   const [note, setNote] = useState("");
   const [photo, setPhoto] = useState<File>();
-  const save = useMutation({ mutationFn: () => confirmDisposalCompletion(row.id, decision, note, photo), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("confirm.title")}</DialogTitle><DialogDescription>{t("confirm.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "COMPLETED" ? "default" : "outline"} onClick={() => setDecision("COMPLETED")}><CheckCircle2 />{t("action.complete")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><FieldWrapper label={t("field.confirmationNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.confirmationPhoto")} optional={t("optional")}><FieldCamera label={t("field.confirmationPhoto")} file={photo} fileCount={photo ? 1 : 0} onCapture={setPhoto} onClear={() => setPhoto(undefined)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[decision !== "RETURNED" || note, t("field.reviewNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+  const [weight, setWeight] = useState(row.actual_weight_kg ?? "");
+  const [trips, setTrips] = useState(row.trip_count ? String(row.trip_count) : "");
+  const [doNo, setDoNo] = useState(row.disposal_do_no ?? "");
+  const save = useMutation({
+    mutationFn: () =>
+      confirmDisposalCompletion(row.id, decision, note, photo, {
+        actual_weight_kg: weight,
+        trip_count: trips,
+        disposal_do_no: doNo,
+      }),
+    onSuccess: onSaved,
+  });
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("confirm.title")}</DialogTitle><DialogDescription>{t("confirm.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "COMPLETED" ? "default" : "outline"} onClick={() => setDecision("COMPLETED")}><CheckCircle2 />{t("action.complete")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><div className="grid gap-3 sm:grid-cols-3"><FieldWrapper label={t("field.actualWeight")} optional={t("optional")}><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} optional={t("optional")}><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} optional={t("optional")}><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper></div><FieldWrapper label={t("field.confirmationNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.confirmationPhoto")} optional={t("optional")}><FieldCamera label={t("field.confirmationPhoto")} file={photo} fileCount={photo ? 1 : 0} onCapture={setPhoto} onClear={() => setPhoto(undefined)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[decision !== "RETURNED" || note, t("field.reviewNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function DisposalDetailDialog({ row, onClose }: { row: DisposalRequest; onClose: () => void }) {
@@ -355,14 +407,14 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const [task, setTask] = useState<ExternalDisposalTask | null>(null);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState<DisposalEvidenceKind | null>(null);
-  const [weight, setWeight] = useState("");
-  const [trips, setTrips] = useState("1");
-  const [doNo, setDoNo] = useState("");
+  // No weight / trips / DO state here any more (T-224): the inputs are gone,
+  // and posting a default would be worse than posting nothing - `trips` was
+  // seeded at "1", so every link sent a trip count nobody had entered.
   const [note, setNote] = useState("");
   const taskQuery = useQuery({ queryKey: ["external-disposal", token], queryFn: () => getExternalDisposalTask(token), retry: false });
   const current = task ?? taskQuery.data ?? null;
   const start = useMutation({ mutationFn: () => startExternalDisposalTask(token), onSuccess: setTask, onError: () => setError(t("error.action")) });
-  const submit = useMutation({ mutationFn: () => submitExternalDisposalTask(token, { actual_weight_kg: weight, trip_count: Number(trips), disposal_do_no: doNo, note }), onSuccess: setTask, onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")) });
+  const submit = useMutation({ mutationFn: () => submitExternalDisposalTask(token, { note }), onSuccess: setTask, onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")) });
   const upload = async (kind: Exclude<DisposalEvidenceKind, "REQUEST" | "CONFIRMATION">, image?: File) => {
     if (!image || !current) return;
     setError("");
@@ -380,6 +432,11 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
   if (taskQuery.isError || !current) return <main className="mx-auto max-w-xl px-5 py-16"><h1 className="text-xl font-semibold">{t("invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{t("invalidBody")}</p></main>;
   const editable = ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
   const waiting = current.status === "AWAITING_CONFIRMATION";
+  // The server's rule, restated here so the button can say no before the
+  // request rather than after it. Same four kinds, same list.
+  const evidenceComplete = EXECUTION_EVIDENCE.every((kind) =>
+    current.evidence.some((item) => item.kind === kind),
+  );
 
   return (
     <main className="mx-auto min-h-dvh max-w-xl bg-background px-4 py-5 pb-28">
@@ -420,6 +477,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
                   key={kind}
                   label={t(`evidence.${kind}`)}
                   fileCount={current.evidence.filter((item) => item.kind === kind).length}
+                  previewUrl={latestEvidencePhoto(current.evidence, kind)}
                   disabled={uploading !== null}
                   onCapture={(file) => void upload(kind, file)}
                 />
@@ -428,11 +486,23 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
           </section>
           <section className="mt-6 space-y-4 rounded-lg border bg-card p-4">
             <h2 className="font-semibold">{t("submitTitle")}</h2>
-            <FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper>
-            <FieldWrapper label={t("field.trips")} required><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper>
-            <FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper>
+            {/*
+              No weight, no trip count, no DO number here any more (T-224,
+              D-116). 客户：「因为废料清运是属于外部公司，所以temporary link是
+              不需要填写任何东西的，只是需要拍照就好了」, and then 「那两个数据
+              从后台补吧」 - so the contractor types them on their own
+              confirmation screen, reading them off these photographs.
+
+              What replaced them is the gate that was missing: this button used
+              to list three typed fields in `requires` and **nothing about the
+              photographs**, while the server refused the submission without
+              all four (F-301). So a collector could press submit, type
+              everything, and be told no by an error from the API. The gate now
+              matches the server's own rule exactly rather than approximating
+              it.
+            */}
             <FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
-            <Button size="lg" className="h-14 w-full text-base" requires={[[weight, t("field.weight")], [doNo, t("field.doNo")], [Number(trips) >= 1, t("field.trips")]]} disabled={submit.isPending} onClick={() => submit.mutate()}>
+            <Button size="lg" className="h-14 w-full text-base" requires={[[evidenceComplete, t("photosTitle")]]} disabled={submit.isPending} onClick={() => submit.mutate()}>
               {submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}
               {t("action.submit")}
             </Button>
@@ -519,7 +589,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
     {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
     {current.status === "ASSIGNED" && <Button size="lg" className="h-14 w-full text-base" disabled={start.isPending} onClick={() => start.mutate()}>{start.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}{t("action.start")}</Button>}
     {editable && current.status !== "ASSIGNED" && <>
-      <section><h3 className="text-base font-semibold">{t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3">{EXECUTION_EVIDENCE.map((kind) => <FieldCamera key={kind} label={t(`evidence.${kind}`)} fileCount={current.evidence.filter((item) => item.kind === kind).length} disabled={uploading !== null} onCapture={(file) => void upload(kind, file)} />)}</div></section>
+      <section><h3 className="text-base font-semibold">{t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3">{EXECUTION_EVIDENCE.map((kind) => <FieldCamera key={kind} label={t(`evidence.${kind}`)} fileCount={current.evidence.filter((item) => item.kind === kind).length} previewUrl={latestEvidencePhoto(current.evidence, kind)} disabled={uploading !== null} onCapture={(file) => void upload(kind, file)} />)}</div></section>
       <section className="space-y-4 rounded-lg border bg-card p-4"><h3 className="font-semibold">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} required><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(event) => setTrips(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")], [Number(trips) >= 1, t("field.trips")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
     </>}
     {current.status === "AWAITING_CONFIRMATION" && <section className="rounded-lg border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}

@@ -29,7 +29,16 @@ const TAG = "<FieldCamera";
 
 /** A `fileCount` derived from one File held in state. */
 const SINGLE_FILE = /fileCount=\{\s*\w+\s*\?\s*1\s*:\s*0\s*\}/;
-const HAS_PREVIEW = /\bfile=\{/;
+/**
+ * Either source of a thumbnail counts.
+ *
+ * `previewUrl` was added for slots whose photograph is uploaded the instant it
+ * is taken, so the caller holds no `File` but the server does hold a URL
+ * (F-289). Without it in this pattern the guard could not see that the two
+ * disposal screens had been fixed, and would have let a later edit quietly
+ * take the preview away again.
+ */
+const HAS_PREVIEW = /(?:\bfile=\{|\bpreviewUrl=\{)/;
 
 function walk(directory) {
   const found = [];
@@ -60,8 +69,8 @@ function tagAttributes(body, start) {
 }
 
 const offences = [];
+const countOnly = [];
 let previewing = 0;
-let counting = 0;
 
 for (const file of walk(ROOT)) {
   const relative = file.split("\\").join("/");
@@ -73,7 +82,7 @@ for (const file of walk(ROOT)) {
     const attributes = tagAttributes(body, cursor);
     if (HAS_PREVIEW.test(attributes)) previewing += 1;
     else if (SINGLE_FILE.test(attributes)) offences.push(`${relative}:${line}`);
-    else counting += 1;
+    else countOnly.push(`${relative}:${line}`);
     cursor = body.indexOf(TAG, cursor + TAG.length);
   }
 }
@@ -86,6 +95,10 @@ const SAMPLES = [
   ['<FieldCamera label={x} fileCount={photo ? 1 : 0} onCapture={setPhoto} />', false],
   ['<FieldCamera label={x} file={photo} fileCount={photo ? 1 : 0} />', true],
   ['<FieldCamera\n  label={x}\n  file={photo}\n  fileCount={photo ? 1 : 0}\n/>', true],
+  // A server-held photograph previews through `previewUrl`, and a slot
+  // counting an uploaded list is still exempt from holding a File.
+  ['<FieldCamera label={x} previewUrl={shot} fileCount={photo ? 1 : 0} />', true],
+  ['<FieldCamera label={x} fileCount={rows.length} />', true],
 ];
 for (const [sample, shouldPass] of SAMPLES) {
   const attributes = tagAttributes(sample, 0);
@@ -115,5 +128,13 @@ if (offences.length > 0) {
 
 console.log(
   `Camera previews: ${previewing} slot(s) show the photograph they hold, ` +
-    `${counting} count an uploaded list.`,
+    `${countOnly.length} count an uploaded list.`,
 );
+// Named, not just counted. Each of these either has a gallery showing the
+// photograph elsewhere, or is the same defect as F-289 on another screen -
+// and nobody can tell which from a number, which is exactly how the two
+// disposal screens sat broken behind this line for as long as they did.
+if (countOnly.length > 0) {
+  console.log("  counting only (each needs a gallery elsewhere, or it is F-289 again):");
+  for (const slot of countOnly) console.log(`    ${slot}`);
+}

@@ -559,11 +559,28 @@ export async function confirmDisposalCompletion(
   decision: "COMPLETED" | "RETURNED",
   note: string,
   photo?: File,
+  /**
+   * The weight, trip count and DO number, which the outside collector no
+   * longer types (T-224, D-116). Blank entries are left out of the request
+   * rather than sent empty: the server treats "absent" as "leave what is
+   * there", so an office confirming without touching a number cannot wipe one
+   * the collector did send.
+   */
+  numbers?: {
+    actual_weight_kg?: string;
+    trip_count?: string;
+    disposal_do_no?: string;
+  },
 ) {
   const data = new FormData();
   data.append("decision", decision);
   data.append("note", note);
   if (photo) data.append("photo", photo);
+  for (const [key, value] of Object.entries(numbers ?? {})) {
+    if (value !== undefined && String(value).trim() !== "") {
+      data.append(key, String(value));
+    }
+  }
   const row = await api.post<DisposalRequest>(
     `/api/site-disposals/${id}/confirm_completion/`,
     data,
@@ -631,5 +648,7 @@ export const addExternalDisposalEvidence = (
 
 export const submitExternalDisposalTask = (
   token: string,
-  payload: { actual_weight_kg: string; trip_count: number; disposal_do_no: string; note?: string },
+  // Nothing but an optional note since T-224: the outside collector
+  // photographs, and the contractor types the numbers on their own screen.
+  payload: { note?: string },
 ) => externalDisposalFetch<ExternalDisposalTask>(token, { operation: "submit", ...payload });

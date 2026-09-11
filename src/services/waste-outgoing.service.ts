@@ -238,6 +238,15 @@ export async function assignWasteRecycler(
     description?: string;
     /** Left out and whatever the site recorded stands. */
     pickup_address?: string;
+    /**
+     * When the contractor wants it collected (T-226, D-111).
+     *
+     * The order is accepted the moment it is sent, so there is nobody to
+     * negotiate with and the time belongs to whoever raises it. Optional: a
+     * site with no preference is a real case, and inventing a date would put
+     * a commitment on the order that nobody made.
+     */
+    collection_at?: string;
   },
 ): Promise<WasteOutgoingRecord> {
   const row = await api.post<WasteOutgoingRecord>(
@@ -246,6 +255,24 @@ export async function assignWasteRecycler(
   );
   toastSuccess("wasteOutgoing.toast.ordered");
   return row;
+}
+
+/**
+ * The recycler moves an accepted order's collection time (T-226, D-111).
+ *
+ * A proposal, not a decision. The contractor still confirms it through
+ * `confirmWasteCollectionPlan` before a driver can be committed - D-111 moved
+ * acceptance, not that gate.
+ */
+export async function proposeWasteCollectionTime(
+  dispatchId: string,
+  input: { collectionAt: string; note?: string },
+): Promise<void> {
+  await api.post(`/api/dispatches/${dispatchId}/propose_collection_time/`, {
+    collection_at: input.collectionAt,
+    note: input.note ?? "",
+  });
+  toastSuccess("incoming.toast.collectionProposed");
 }
 
 export async function confirmWasteCollectionPlan(

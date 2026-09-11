@@ -225,7 +225,11 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
       )}
       <PendingActions data={data} number={number} />
       {data.business_today && (
-        <section className="space-y-3" aria-labelledby="recycler-today-title">
+        <section
+          data-dashboard-overview
+          className="space-y-3"
+          aria-labelledby="recycler-today-title"
+        >
           <SectionHeading
             id="recycler-today-title"
             title={t("dashboard.metrics")}
@@ -780,7 +784,17 @@ function PendingActions({
   if (rows.length === 0) return null;
 
   return (
-    <section className="space-y-3" aria-labelledby="recycler-pending-title">
+    /*
+     * Marked, not moved (T-213): this block was already the first content on
+     * the recycler's dashboard. What it lacked was anything stopping somebody
+     * from putting the metric tiles above it later - which is the whole point
+     * of the marker and of `dashboard-priority-order.test.ts`.
+     */
+    <section
+      data-dashboard-priority
+      className="space-y-3"
+      aria-labelledby="recycler-pending-title"
+    >
       <SectionHeading
         id="recycler-pending-title"
         title={t("dashboard.admin.pending.title")}

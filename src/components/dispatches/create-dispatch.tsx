@@ -69,6 +69,14 @@ export function CreateDispatch({
       waste_type: (dispatch?.waste_type ?? "MIXED") as WasteType,
       estimated_weight_kg: dispatch?.estimated_weight_kg ?? "",
       description: dispatch?.description ?? "",
+      // Prefilled only when a person typed it. `pickup_address` is the
+      // *effective* address, so an inherited project line put in this box
+      // would be resubmitted as a typed one and flip the source to MANUAL -
+      // the record would then claim somebody chose this gate.
+      pickup_address:
+        dispatch?.pickup_address_source === "MANUAL"
+          ? dispatch.pickup_address
+          : "",
       vehicle_plate: dispatch?.vehicle_plate ?? "",
       driver_name: dispatch?.driver_name ?? "",
       driver_phone: dispatch?.driver_phone ?? "",
@@ -208,6 +216,30 @@ export function CreateDispatch({
               field={field as unknown as BoundField}
               label={t("dispatches.field.description")}
               optional
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+
+        {/*
+          Until T-227 this screen had no address input at all and the server
+          did not accept one, so an order raised here could only ever inherit
+          the project address. That was survivable while site staff could type
+          a gate on the waste record; once the customer moved the address to
+          the office side, this route had no owner for it.
+        */}
+        <form.Field name="pickup_address">
+          {(field) => (
+            <TextAreaField
+              field={field as unknown as BoundField}
+              label={t("dispatches.field.pickupAddress")}
+              optional
+              rows={2}
+              hint={
+                dispatch?.pickup_address_source === "MANUAL"
+                  ? t("dispatches.field.pickupAddressTyped")
+                  : t("dispatches.pickupAddressHint")
+              }
               className="md:col-span-2"
             />
           )}

@@ -72,18 +72,19 @@ export function DriverDashboard() {
         </p>
       </div>
 
-      <section aria-labelledby="driver-today-counts">
-        <h2 id="driver-today-counts" className="mb-3 text-sm font-semibold">
-          {t("driver.dashboard.today")}
-        </h2>
-        <div className="grid grid-cols-3 divide-x rounded-lg border bg-card">
-          <Count label={t("driver.dashboard.pending")} value={counts.pending} />
-          <Count label={t("driver.dashboard.inProgress")} value={counts.in_progress} />
-          <Count label={t("driver.dashboard.completed")} value={counts.completed} />
-        </div>
-      </section>
-
-      <section className="space-y-3" aria-labelledby="driver-current-task">
+      {/*
+        The job in hand, first on the screen (T-214).
+        客户点名「包括现场工作人员，司机，superadmin后台，consultant也是一样」.
+        A driver's 待办 is not an approval queue, it is the run they are on -
+        which is why this is marked rather than a copy of the office console's
+        pending block. The three-number summary that used to lead is below;
+        it tells a driver how the day is going, not what to do next.
+      */}
+      <section
+        data-dashboard-priority
+        className="space-y-3"
+        aria-labelledby="driver-current-task"
+      >
         <div className="flex items-center justify-between gap-3">
           <h2 id="driver-current-task" className="text-sm font-semibold">
             {t("driver.dashboard.currentTask")}
@@ -127,41 +128,6 @@ export function DriverDashboard() {
             label={t("driver.dashboard.photo")}
           />
           <QuickAction href="/driver/profile" icon={UserRound} label={t("driver.nav.profile")} />
-        </div>
-      </section>
-
-      <section className="space-y-3" aria-labelledby="driver-device-status">
-        <h2 id="driver-device-status" className="text-sm font-semibold">
-          {t("driver.dashboard.status")}
-        </h2>
-        <div className="divide-y rounded-lg border bg-card">
-          <StatusRow
-            icon={CircleDot}
-            label={t("driver.dashboard.workStatus")}
-            value={t(`driver.device.work.${workKey}`)}
-            positive={workKey !== "offline"}
-          />
-          <StatusRow
-            icon={Cloud}
-            label={t("driver.dashboard.network")}
-            value={t(`driver.device.network.${networkKey}`, {
-              count: sync.pendingCount,
-            })}
-            positive={networkKey === "online"}
-          />
-          <StatusRow
-            icon={LocateFixed}
-            label={t("driver.dashboard.gps")}
-            value={t(`driver.device.permission.${gpsStatus}`)}
-            positive={gpsStatus === "granted"}
-            action={
-              gpsStatus !== "granted" ? (
-                <Button size="sm" variant="outline" onClick={() => void requestGps()}>
-                  {t("driver.device.enable")}
-                </Button>
-              ) : undefined
-            }
-          />
         </div>
       </section>
 
@@ -209,6 +175,52 @@ export function DriverDashboard() {
             })}
           </div>
         )}
+      </section>
+
+      <section data-dashboard-overview aria-labelledby="driver-today-counts">
+        <h2 id="driver-today-counts" className="mb-3 text-sm font-semibold">
+          {t("driver.dashboard.today")}
+        </h2>
+        <div className="grid grid-cols-3 divide-x rounded-lg border bg-card">
+          <Count label={t("driver.dashboard.pending")} value={counts.pending} />
+          <Count label={t("driver.dashboard.inProgress")} value={counts.in_progress} />
+          <Count label={t("driver.dashboard.completed")} value={counts.completed} />
+        </div>
+      </section>
+
+      <section className="space-y-3" aria-labelledby="driver-device-status">
+        <h2 id="driver-device-status" className="text-sm font-semibold">
+          {t("driver.dashboard.status")}
+        </h2>
+        <div className="divide-y rounded-lg border bg-card">
+          <StatusRow
+            icon={CircleDot}
+            label={t("driver.dashboard.workStatus")}
+            value={t(`driver.device.work.${workKey}`)}
+            positive={workKey !== "offline"}
+          />
+          <StatusRow
+            icon={Cloud}
+            label={t("driver.dashboard.network")}
+            value={t(`driver.device.network.${networkKey}`, {
+              count: sync.pendingCount,
+            })}
+            positive={networkKey === "online"}
+          />
+          <StatusRow
+            icon={LocateFixed}
+            label={t("driver.dashboard.gps")}
+            value={t(`driver.device.permission.${gpsStatus}`)}
+            positive={gpsStatus === "granted"}
+            action={
+              gpsStatus !== "granted" ? (
+                <Button size="sm" variant="outline" onClick={() => void requestGps()}>
+                  {t("driver.device.enable")}
+                </Button>
+              ) : undefined
+            }
+          />
+        </div>
       </section>
 
       {/* 「现场工作人员**和司机**手机端上传资料的时候，手机上没有」 - the

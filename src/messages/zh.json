@@ -6016,6 +6016,8 @@
       "location": "位置",
       "netWeight": "净重",
       "photoCount": "照片",
+      "pickupAddress": "取货地点",
+      "pickupAddressTyped": "手动填写",
       "project": "项目",
       "recycler": "回收商",
       "releasedAt": "放行时间",
@@ -6039,6 +6041,7 @@
       "PLATE": "车牌",
       "VEHICLE": "车辆"
     },
+    "pickupAddressHint": "留空就用项目地址。要车开到某个特定出入口时，自己填。",
     "recyclerEmpty": "目前没有可选的回收商。",
     "recyclerNote": "只能送往已在 MSE Trace 注册的回收商。这样货物才会上地磅，追溯链才不会断在你的工地门口。",
     "release": {
@@ -6665,7 +6668,8 @@
       "hazard_message_empty": "发送前请输入文字，或附上照片、语音或文件。",
       "hazard_audio_too_long": "这条语音 {seconds} 秒，单条最长 {limit} 秒。请重录短一点，或者分两条发。",
       "hazard_closed": "{incident_no} 已验收并闭环归档。记录仍然可以查看，但不能再发新消息。",
-      "hazard_self_verification": "{incident_no} 是你整改的，需要由别人验收 —— 上报人、项目经理、顾问、现场主管或安全主管都可以。"
+      "hazard_self_verification": "{incident_no} 是你整改的，需要由别人验收 —— 上报人、项目经理、顾问、现场主管或安全主管都可以。",
+      "submission_not_found": "这条记录不是你提交的。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7555,6 +7559,9 @@
       "dispatchNo": "出场单号",
       "driverName": "司机",
       "estimatedWeight": "申报重量（公斤）",
+      "pickupAddress": "取货地点",
+      "pickupAddressFromProject": "取自项目地址",
+      "pickupAddressTyped": "手动填写",
       "project": "工地",
       "releasedAt": "放行时间",
       "state": "状态",
@@ -7579,7 +7586,10 @@
       "proposalNote": "给工地的说明",
       "proposedAt": "提议回收日期与时间",
       "title": "回收订单",
-      "waitingConfirmation": "等待建筑商确认时间"
+      "waitingConfirmation": "等待建筑商确认时间",
+      "proposeTime": "改收运时间",
+      "autoAccepted": "这张订单在现场发出时就已接受，不需要再接受。",
+      "wantedAt": "现场希望的收运时间"
     },
     "subtitle": "正在送往你回收场的废料。",
     "summary": {
@@ -7592,7 +7602,8 @@
     "title": "待收货",
     "toast": {
       "accepted": "订单已接收",
-      "collected": "已收运"
+      "collected": "已收运",
+      "collectionProposed": "已提出收运时间，等现场确认。"
     }
   },
   "integrations": {
@@ -12803,7 +12814,9 @@
       "selectUnit": "选择单位",
       "unit": "单位",
       "unitRequired": "填了数量必须选择单位。",
-      "vehiclePlate": "车牌"
+      "vehiclePlate": "车牌",
+      "collectionAt": "希望收运时间",
+      "collectionAtHint": "你希望车什么时候来。回收商可以另提一个时间，之后由你确认。"
     },
     "filter": {
       "allCategories": "全部类别",
@@ -13204,6 +13217,51 @@
       "HAZARD": "隐患",
       "PROGRESS": "施工进度",
       "DRIVER_TRIP": "运输任务"
+    },
+    "field": {
+      "category": "栏目",
+      "delivery_note_no": "送货单号",
+      "description": "说明",
+      "dispatch_no": "订单号",
+      "failure_reason": "失败原因",
+      "instructions": "要求做什么",
+      "material_name": "材料",
+      "note": "备注",
+      "percent_complete": "完成度",
+      "phase": "阶段",
+      "pickup_address": "取货地点",
+      "quantity": "数量",
+      "received_by_name": "收货人",
+      "rectification_note": "整改情况",
+      "rejection_reason": "不合格原因",
+      "resolution_note": "结案说明",
+      "review_note": "后台意见",
+      "severity": "严重程度",
+      "site": "回收厂",
+      "specification": "规格",
+      "supplier": "供应商",
+      "task_type": "类型",
+      "title": "发生了什么",
+      "vehicle_plate": "车辆",
+      "work_location": "现场位置"
+    },
+    "detailTitle": "我提交过的",
+    "photos": "照片",
+    "noPhotos": "这条记录没有照片",
+    "openChat": "打开隐患聊天室",
+    "loadFailed": "这条记录打不开",
+    "queuedTitle": "还在这台手机上",
+    "queuedHelp": "还没发出去。有网络之后会自己发。",
+    "failedHelp": "服务器拒收了。按下面这句改好再发一次。",
+    "close": "关闭",
+    "unit": {
+      "BAG": "袋",
+      "KG": "公斤",
+      "LOAD": "车",
+      "M3": "立方米",
+      "OTHER": "其他",
+      "PIECE": "件",
+      "TONNE": "吨"
     }
   }
 }
