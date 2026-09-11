@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
+import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,6 +72,17 @@ interface Module {
   /** Where this module's categories are created and edited today. */
   href: string;
   fetch: (project: string) => Promise<Row[]>;
+  /**
+   * The code an account must hold for this row to mean anything (F-367).
+   *
+   * Only the platform-scoped one needs it. Its list endpoint is behind
+   * `IsPlatformStaff` *and* `asset.view`, which the catalogue offers to the
+   * PLATFORM audience alone - so for a contractor the row could never open,
+   * and neither could the "manage" link beside it. A row that always answers
+   * "you are not allowed to do that" is not information about a vocabulary
+   * that exists elsewhere; it is a dead end with a name on it.
+   */
+  permission?: string;
 }
 
 const columnRows = (kind: string) => async (project: string) => {
@@ -122,6 +134,7 @@ const MODULES: Module[] = [
     key: "equipment",
     scope: "platform",
     href: "/assets/categories",
+    permission: "asset.view",
     fetch: async () => {
       const page = await getAssetCategories({ page_size: 200 });
       return page.results.map((row) => ({
@@ -190,9 +203,20 @@ const MODULES: Module[] = [
 
 export function CategoryManagement() {
   const t = useTranslations("categoryManagement");
+  const { can } = useAuth();
   const [selected, setSelected] = useState(MODULES[0].key);
   const [project, setProject] = useState("");
-  const active = MODULES.find((module) => module.key === selected) ?? MODULES[0];
+  /*
+   * Only the modules this account could actually open. Filtered rather than
+   * greyed out: there is nothing behind the row to explain, and nothing the
+   * reader could do to earn it - the code is not offered to their audience at
+   * all (F-367).
+   */
+  const modules = MODULES.filter(
+    (module) => !module.permission || can(module.permission),
+  );
+  const active =
+    modules.find((module) => module.key === selected) ?? modules[0] ?? MODULES[0];
   const needsProject = active.scope === "project";
 
   const rows = useQuery({
@@ -210,7 +234,7 @@ export function CategoryManagement() {
             buttons rather than links: the table beside it is the page, so
             navigating away and back would lose the project filter. */}
         <nav aria-label={t("modules")} className="flex flex-col gap-1">
-          {MODULES.map((module) => (
+          {modules.map((module) => (
             <button
               key={module.key}
               type="button"

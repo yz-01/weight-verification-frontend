@@ -82,14 +82,24 @@ test("each module lists its own categories, with the six columns", async ({
   await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
   await page.goto("/category-management");
 
-  // The nine modules of the left-hand list, each named.
+  /*
+   * The modules of the left-hand list this account is offered, each named.
+   *
+   * "Equipment categories" is deliberately not among them (F-367). Its list
+   * is behind `IsPlatformStaff` and `asset.view`, a code the catalogue offers
+   * to the PLATFORM audience alone, so for a contractor the row could only
+   * ever answer "you are not allowed to do that" - which is what a customer
+   * screenshot showed. This loop is where that should have been caught, and
+   * was not: it asserted the button was *visible*, never that pressing it
+   * reached anything. `category-management-reachable.spec.ts` now presses
+   * every one of them.
+   */
   const modules = page.getByRole("navigation", { name: /modules/i });
   await expect(modules).toBeVisible({ timeout: 20_000 });
   for (const name of [
     "Material categories",
     "Site record categories",
     "Document categories",
-    "Equipment categories",
     "Progress categories",
     "Construction stages",
     "EHS categories",
@@ -98,6 +108,9 @@ test("each module lists its own categories, with the six columns", async ({
   ]) {
     await expect(modules.getByRole("button", { name })).toBeVisible();
   }
+  await expect(
+    modules.getByRole("button", { name: "Equipment categories" }),
+  ).toHaveCount(0);
 
   // Material is project-scoped, so it asks for a project first rather than
   // listing another project's columns.

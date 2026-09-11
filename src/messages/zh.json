@@ -11447,6 +11447,12 @@
       "revisions": "基准与修订"
     }
   },
+  "session": {
+    "signOutAnyway": "仍然登出",
+    "tryAgain": "重试",
+    "unreachableBody": "你仍然是登录状态 —— 这台设备没有被登出。只是刚才连不上服务器，工作区暂时打不开。",
+    "unreachableTitle": "连不上服务器"
+  },
   "settlements": {
     "cancelDialog": {
       "description": "二维码会立即失效。请填写取消原因。",

@@ -11447,6 +11447,12 @@
       "revisions": "Baseline & revisions"
     }
   },
+  "session": {
+    "signOutAnyway": "Sign out anyway",
+    "tryAgain": "Try again",
+    "unreachableBody": "You are still signed in - this device has not been logged out. The server could not be reached just now, so the workspace cannot open yet.",
+    "unreachableTitle": "Cannot reach the server"
+  },
   "settlements": {
     "cancelDialog": {
       "description": "The QR code will stop working immediately. Enter the reason for cancellation.",

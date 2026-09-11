@@ -61,6 +61,57 @@ export async function loginAs(
 ): Promise<void> {
   await submitLogin(page, loginPath, email);
   await expectSignedIn(page);
+  await forceEnglish(page);
+}
+
+/**
+ * Put this account back into English before anything is asserted (F-368).
+ *
+ * Every assertion in this suite is an English sentence, so the interface
+ * language is a fixture - and it is one a person can change from inside the
+ * product, on the very account the suite signs in as. It has now happened
+ * twice: the whole suite goes red on wording, and the reason has nothing to
+ * do with what any of the tests are about.
+ *
+ * `seed_e2e` resets it too (F-361), but a seed run is not what precedes a
+ * test run - somebody working in the dev environment between the two undoes
+ * it. Resetting here makes it restore itself every time, which is the only
+ * form of fixture that holds.
+ *
+ * A no-op when the account is already English: the PATCH is skipped entirely
+ * so a passing run costs nothing.
+ */
+export async function forceEnglish(page: Page): Promise<void> {
+  const changed = await page.evaluate(async (api: string) => {
+    const token = window.localStorage.getItem("mse_access_token");
+    if (!token) return false;
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+    const me = await fetch(`${api}/api/auth/get_me/`, { headers });
+    if (!me.ok) return false;
+    const body = await me.json();
+    if (body?.data?.language === "en") return false;
+    await fetch(`${api}/api/auth/update_profile/`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ language: "en" }),
+    });
+    return true;
+  }, API);
+  if (!changed) return;
+  // The interface reads the locale from a cookie as well as the profile, and
+  // the tree has to be rebuilt for a new language to take effect.
+  await page.context().addCookies([
+    {
+      name: "mse_locale",
+      value: "en",
+      url: new URL(page.url()).origin,
+    },
+  ]);
+  await page.reload();
+  await page.waitForLoadState("networkidle");
 }
 
 export async function loginAsFieldStaff(page: Page): Promise<void> {

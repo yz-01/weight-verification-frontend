@@ -11447,6 +11447,12 @@
       "revisions": "基準與修訂"
     }
   },
+  "session": {
+    "signOutAnyway": "仍然登出",
+    "tryAgain": "重試",
+    "unreachableBody": "你仍然是登入狀態 —— 這台裝置沒有被登出。只是剛才連不上伺服器，工作區暫時打不開。",
+    "unreachableTitle": "連不上伺服器"
+  },
   "settlements": {
     "cancelDialog": {
       "description": "二維碼會立即失效。請填寫取消原因。",

@@ -11447,6 +11447,12 @@
       "revisions": "Garis dasar dan semakan"
     }
   },
+  "session": {
+    "signOutAnyway": "Log keluar juga",
+    "tryAgain": "Cuba lagi",
+    "unreachableBody": "Anda masih log masuk - peranti ini tidak dilog keluar. Pelayan tidak dapat dihubungi sebentar tadi, jadi ruang kerja belum boleh dibuka.",
+    "unreachableTitle": "Tidak dapat menghubungi pelayan"
+  },
   "settlements": {
     "cancelDialog": {
       "description": "Kod QR akan berhenti berfungsi serta-merta. Masukkan sebab pembatalan.",

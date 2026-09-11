@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardToolbar } from "@/components/layout/dashboard-toolbar";
 import { useAuth } from "@/components/providers/auth-provider";
+import { SessionUnreachable } from "@/components/shared/session-unreachable";
 import {
   SidebarInset,
   SidebarProvider,
@@ -38,7 +39,7 @@ const GLOBAL_REALTIME_KEYS: never[] = [];
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, sessionUnreachable } = useAuth();
   const isDriverOnly =
     user !== null &&
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
@@ -52,6 +53,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
+    if (sessionUnreachable) return;
     if (!isLoading && user === null) {
       redirectWithFallback(router, portalLoginPath(getSessionPortal()));
       return;
@@ -80,7 +82,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         firstAllowedDashboardPath(user.portal, user.features),
       );
     }
-  }, [isDriverOnly, isFieldStaff, isLoading, pathname, user, router]);
+  }, [isDriverOnly, isFieldStaff, isLoading, pathname, sessionUnreachable, user, router]);
 
   const isAllowed =
     user !== null &&
@@ -93,6 +95,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       user.permissions,
       user.is_superuser,
     );
+
+  /* Before the signed-out branch: a session we could not ask about is not a
+     session that ended (F-365). */
+  if (sessionUnreachable) return <SessionUnreachable />;
 
   if (isLoading || user === null || !isAllowed) {
     return (
