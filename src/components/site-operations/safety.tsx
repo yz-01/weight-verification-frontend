@@ -91,6 +91,20 @@ const STATUSES: IncidentStatus[] = [
 // SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
 // they would have been the kind of constant a later reader assumes is used.
 
+/**
+ * Why the browser could not place the worker, in a form they can act on.
+ *
+ * `GeolocationPositionError` has three codes and they need three different
+ * responses: switch the permission back on, move somewhere a fix can arrive,
+ * or simply try again. Collapsing them - or, as this screen used to, saying
+ * nothing at all - leaves the worker pressing the same button forever.
+ */
+function locationFailure(error: GeolocationPositionError): string {
+  if (error.code === error.PERMISSION_DENIED) return "locationDenied";
+  if (error.code === error.POSITION_UNAVAILABLE) return "locationUnavailable";
+  return "locationTimeout";
+}
+
 const STATUS_TONE: Record<
   IncidentStatus,
   "danger" | "warning" | "positive" | "info" | "neutral"
@@ -188,19 +202,38 @@ export function Safety({
   const selectedResponsible = list.filters.responsible_person ?? "all";
   const filterCategories = useQuery({
     queryKey: ["safety-categories", selectedProject],
-    queryFn: () =>
-      getProjectCategories({
-        project: selectedProject === "all" ? undefined : selectedProject,
-        is_active: true,
-        // Site-record columns only. This filter was absent, so the safety
-        // screen offered the material columns - the customer photographed a
-        // hazard-rectification picker listing 钢筋, 混凝土, 洋灰 and the rest
-        // of the delivery tree (F-236). The server reads FIELD as
-        // `kind__in=[FIELD, BOTH]`, so a column marked as serving both
-        // schemes is still offered.
-        kind: "FIELD",
-        page_size: 200,
-      }),
+    /*
+     * Both schemes, because this list shows history (D-172).
+     *
+     * Hazards reported from now on are filed under EHS columns. The ones
+     * reported before it point at site-record columns and are still counted
+     * there, so a filter offering only EHS would quietly make every older
+     * hazard unfilterable by the column it is actually in.
+     *
+     * Some column filter is still required either way: with none at all the
+     * screen offered the material columns, and the customer photographed a
+     * hazard picker listing 钢筋, 混凝土, 洋灰 and the rest of the delivery
+     * tree (F-236). The server reads FIELD as `kind__in=[FIELD, BOTH]`, so
+     * the second call also picks up columns nobody has assigned yet.
+     */
+    queryFn: async () => {
+      const project = selectedProject === "all" ? undefined : selectedProject;
+      const [safety, legacy] = await Promise.all([
+        getProjectCategories({
+          project,
+          is_active: true,
+          kind: "EHS",
+          page_size: 200,
+        }),
+        getProjectCategories({
+          project,
+          is_active: true,
+          kind: "FIELD",
+          page_size: 200,
+        }),
+      ]);
+      return { ...safety, results: [...safety.results, ...legacy.results] };
+    },
   });
   const responsiblePeople = useQuery({
     queryKey: ["safety-responsible-people", selectedProject],
@@ -507,8 +540,23 @@ export function Safety({
             <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">{t("safety.fieldReport.empty")}</div>
           )}
           {(data?.results ?? []).map((incident) => (
-            <article key={incident.id} className="rounded-lg border bg-card p-4 shadow-sm">
-              <div className="flex items-start gap-3">
+            <article key={incident.id} className="rounded-lg border bg-card shadow-sm">
+              {/*
+                The whole card opens the room (D-167). It used to be a plain
+                block with one button on it, and that button only appeared for
+                the person assigned to fix the hazard - so the worker who
+                reported it could look at their own card and had no way in
+                (F-375). A real button rather than a click handler on the
+                article: it has to be reachable from the keyboard and announce
+                itself, and the 提交整改 action stays outside it because a
+                button cannot be nested inside a button.
+              */}
+              <button
+                type="button"
+                onClick={() => setTalking(incident)}
+                aria-label={t("hazard.conversationTitle")}
+                className="flex w-full items-start gap-3 rounded-lg p-4 text-left transition-colors hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
                 <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-warning/15 text-warning"><ShieldAlert /></span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -517,10 +565,13 @@ export function Safety({
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">{incident.project_name} · {df.dateTime(incident.occurred_at)}</p>
                   {incident.notified_user_names.length > 0 && <p className="mt-2 text-sm">{t("safety.fieldReport.sentTo", { names: incident.notified_user_names.join(", ") })}</p>}
+                  <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-primary"><MessageSquare className="size-4" />{t("hazard.conversationTitle")}</p>
                 </div>
-              </div>
+              </button>
               {incident.responsible_person === user?.id && ["ASSIGNED", "RETURNED"].includes(incident.status) && (
-                <Button className="mt-4 w-full min-h-11" onClick={() => setSubmitting(incident)}><Camera />{t("safetyRectification.action.submit")}</Button>
+                <div className="px-4 pb-4">
+                  <Button className="w-full min-h-11" onClick={() => setSubmitting(incident)}><Camera />{t("safetyRectification.action.submit")}</Button>
+                </div>
               )}
             </article>
           ))}
@@ -750,15 +801,34 @@ function SafetyCreateDialog({
     project: initialProject,
   });
   const clearDraft = useClearDraft();
-  const [locating, setLocating] = useState(fieldMode);
+  /*
+   * Whether this device can place the worker at all.
+   *
+   * Read during render rather than written from the effect below: React
+   * refuses a synchronous setState in an effect body, and rightly - the
+   * answer never changes while the form is open, so storing it would be a
+   * second copy of a constant. Unknown counts as supported, because on the
+   * server there is no `navigator` and the honest default is not to accuse
+   * the device of something before it has had a chance to answer.
+   */
+  const supportsLocation =
+    typeof navigator === "undefined" || Boolean(navigator.geolocation);
+  const [locating, setLocating] = useState(fieldMode && supportsLocation);
+  const [locationError, setLocationError] = useState("");
   const categories = useQuery({
     queryKey: ["safety-create-categories", draft.project],
     queryFn: () =>
       getProjectCategories({
         project: draft.project,
         is_active: true,
-        // Site-record columns only - see the filter query above (F-236).
-        kind: "FIELD",
+        // Safety columns, and only those (D-172). This read is what makes the
+        // EHS module exist at all: it was declared in the backend's
+        // `CATEGORY_RECORD_RELATIONS`, listed in category management, and
+        // consumed by nothing, so a site could create a safety column that was
+        // guaranteed to stay at zero records for ever (F-380). New hazards go
+        // here; the filter above still offers the old site-record columns so
+        // the ones already filed there stay findable.
+        kind: "EHS",
         page_size: 200,
       }),
     enabled: Boolean(draft.project),
@@ -819,8 +889,12 @@ function SafetyCreateDialog({
   });
 
   function locate() {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setLocationError(t("safety.form.locationUnsupported"));
+      return;
+    }
     setLocating(true);
+    setLocationError("");
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setDraft((value) => ({
@@ -829,8 +903,12 @@ function SafetyCreateDialog({
           longitude: position.coords.longitude.toFixed(7),
         }));
         setLocating(false);
+        setLocationError("");
       },
-      () => setLocating(false),
+      (error) => {
+        setLocating(false);
+        setLocationError(t(`safety.form.${locationFailure(error)}`));
+      },
       { enableHighAccuracy: true, timeout: 10_000 },
     );
   }
@@ -845,10 +923,19 @@ function SafetyCreateDialog({
           longitude: position.coords.longitude.toFixed(7),
         }));
         setLocating(false);
+        setLocationError("");
       },
-      () => setLocating(false),
+      // The automatic attempt says why it failed, exactly as the button does.
+      // This callback used to be `() => setLocating(false)`: the grey line
+      // vanished, the submit button went on requiring coordinates, and
+      // nothing on the screen connected the two (F-376).
+      (error) => {
+        setLocating(false);
+        setLocationError(t(`safety.form.${locationFailure(error)}`));
+      },
       { enableHighAccuracy: true, timeout: 10_000 },
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fieldMode]);
 
   return (
@@ -906,6 +993,17 @@ function SafetyCreateDialog({
                 ))}
               </SelectContent>
             </Select>
+            {/* An empty picker that does not say why it is empty is the shell
+                this task exists to remove: until D-172 nothing in the product
+                read EHS columns, so a site would have none. Say where they
+                come from rather than showing a dropdown with nothing in it. */}
+            {draft.project &&
+              !categories.isLoading &&
+              (categories.data?.results ?? []).length === 0 && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t("safety.form.noSafetyColumns")}
+                </p>
+              )}
           </FieldWrapper>
           )}
 
@@ -951,29 +1049,36 @@ function SafetyCreateDialog({
             />
           </FieldWrapper>}
           <FieldWrapper label={t("safety.field.photo")} required className="sm:col-span-2">
-            {fieldMode ? (
-              <FieldEvidenceGrid
-                labels={fieldEvidenceLabels}
-                files={draft.photos}
-                progressLabel={t("safety.fieldEvidence.progress", {
+            {/*
+              One grid for both modes (D-171).
+
+              The office form used to be a single camera whose handler wrote
+              `photos: [photo]`, so the second photograph replaced the first
+              and a hazard raised from the office reached its conversation with
+              exactly one picture no matter how many were taken (F-379). The
+              customer saw one photograph in a room where four had been taken
+              and reported it as a chat-room bug; the backend had been writing
+              one message per photograph all along.
+
+              What does not change is how many are *required*: field mode still
+              asks for all four, the office for one. Somebody entering a hazard
+              after the fact may only have the one photograph that was sent to
+              them, and raising the floor here would close that door.
+            */}
+            <FieldEvidenceGrid
+              labels={fieldEvidenceLabels}
+              files={draft.photos}
+              progressLabel={t(
+                fieldMode
+                  ? "safety.fieldEvidence.progress"
+                  : "safety.fieldEvidence.progressOffice",
+                {
                   current: completedPhotos.length,
                   required: FIELD_EVIDENCE_PHOTO_COUNT,
-                })}
-                onChange={(photos) => setDraft((value) => ({ ...value, photos }))}
-              />
-            ) : (
-              <FieldCamera
-                label={t("safety.field.photo")}
-                fileCount={completedPhotos.length}
-                onCapture={(photo) =>
-                  setDraft((value) => ({
-                    ...value,
-                    photos: [photo],
-                  }))
-                }
-                onClear={() => setDraft((value) => ({ ...value, photos: [] }))}
-              />
-            )}
+                },
+              )}
+              onChange={(photos) => setDraft((value) => ({ ...value, photos }))}
+            />
           </FieldWrapper>
           {/* 「知道由谁处理就当场指定，不知道就直接提交」. Required used to be
               true here in field mode, which turned step 2 of the customer's
@@ -999,12 +1104,25 @@ function SafetyCreateDialog({
               {!team.isLoading && selectableWorkers.length === 0 && <p className="text-sm text-muted-foreground">{t("safety.fieldReport.noWorkers")}</p>}
             </div>
           </FieldWrapper>
-          {!fieldMode && <FieldWrapper label={t("safety.field.location")} required>
+          {/*
+            The GPS control, in both modes now (D-168). Field mode used to have
+            no button at all - only 「获取 GPS」 rendered as a grey line that
+            appeared while locating and disappeared whether the fix arrived or
+            not, while the submit button below went on requiring coordinates.
+            A worker whose first attempt failed was left with an unpressable
+            「上报隐患」 and nothing on the screen saying why (F-376).
+          */}
+          <FieldWrapper label={t("safety.field.location")} required className={fieldMode ? "sm:col-span-2" : undefined}>
             <Button
               type="button"
               variant="outline"
-              className="w-full"
-              disabled={locating}
+              className="w-full min-h-11"
+              disabled={locating || !supportsLocation}
+              disabledReason={
+                supportsLocation
+                  ? t("safety.form.locating")
+                  : t("safety.form.locationUnsupported")
+              }
               onClick={locate}
             >
               {locating ? (
@@ -1016,12 +1134,12 @@ function SafetyCreateDialog({
                 ? t("safety.form.locationCaptured")
                 : t("safety.form.captureLocation")}
             </Button>
-          </FieldWrapper>}
-          {fieldMode && locating && (
-            <p className="sm:col-span-2 text-xs text-muted-foreground">
-              {t("safety.form.captureLocation")}
-            </p>
-          )}
+            {(locationError || !supportsLocation) && (
+              <p role="alert" className="mt-2 text-xs text-destructive">
+                {locationError || t("safety.form.locationUnsupported")}
+              </p>
+            )}
+          </FieldWrapper>
         </div>
 
         <DialogFooter>

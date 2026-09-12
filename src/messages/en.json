@@ -3781,6 +3781,8 @@
       "status": "Status",
       "action": "Action"
     },
+    "create": "New column",
+    "createElsewhere": "Create in its own screen",
     "edit": "Edit",
     "empty": "No categories here yet.",
     "failed": "The categories could not be loaded. Try again.",
@@ -3808,6 +3810,17 @@
       "ehs": "Hazards, quality issues, incidents and permits. One list per project.",
       "recycle": "Recyclable waste the site sends out. One list for the whole company; the seeded ones can be closed but not deleted.",
       "debris": "Construction waste sent for disposal. One list per project."
+    },
+    "moduleSource": {
+      "material": "Records come from site goods-receipt and the back-office receipt register. Field staff can file here.",
+      "field": "Records come from site photographs by column, hazard reports and field tasks. Field staff can file here.",
+      "document": "Documents are uploaded and filed from the back office. Field staff do not file here.",
+      "equipment": "Records come from Site equipment in the back office. Machines are registered in the office; the phone only logs them in and out.",
+      "progress": "Progress is submitted on site and filed into a column afterwards by the back office. The phone does not choose a column.",
+      "phase": "Phases are maintained in the back office and drive the completion percentage. No records file into them.",
+      "ehs": "Records come from hazard reports, on site and in the office alike. Field staff can file here.",
+      "recycle": "Records come from recyclable waste sent out by the back office. Field staff do not file here.",
+      "debris": "Records come from construction-waste disposal raised in the back office. Field staff do not file here."
     },
     "modules": "Modules",
     "scope": {
@@ -5279,6 +5292,7 @@
       "assignee": "Field staff",
       "category": "Category",
       "certificateExpiresOn": "Certificate expires",
+      "chooseEquipmentColumn": "Choose an equipment column",
       "code": "Code",
       "deliveryNote": "Delivery note",
       "description": "Description",
@@ -5287,6 +5301,7 @@
       "equipmentColumn": "Equipment column",
       "executor": "Executor",
       "expiryHelp": "Fills the home page's expiring-paperwork card. Leave blank if you do not hold the document - blank is better than a guessed date.",
+      "goMakeEquipmentColumn": "Go to Category management",
       "instructions": "Instructions",
       "insuranceExpiresOn": "Insurance expires",
       "latitude": "Latitude",
@@ -5295,7 +5310,7 @@
       "material": "Material",
       "name": "Name",
       "noCategory": "No category",
-      "noEquipmentColumn": "No column",
+      "noEquipmentColumnYet": "This project has no equipment column yet, and a machine has to be filed in one.",
       "noParent": "No parent category",
       "noSupplier": "No supplier",
       "notes": "Notes",
@@ -10475,7 +10490,7 @@
       "open": "Open photograph",
       "previous": "Previous photograph",
       "next": "Next photograph",
-      "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
+      "stamped": "The project, the time and the GPS fix are rendered into the photograph, so it still carries its provenance wherever it is copied."
     },
     "recorderUnknown": "Recorder not on file",
     "remove": {
@@ -11179,6 +11194,7 @@
       "detail": "2. Hazard or damage detail",
       "overview": "1. Incident area overview",
       "progress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
+      "progressOffice": "{current} photograph(s) taken. One is enough to report; the four prompts above are there if you have them, and more can be added.",
       "risk": "3. Affected equipment, person or access",
       "surroundings": "4. Surrounding site condition"
     },
@@ -11213,7 +11229,13 @@
       "captureLocation": "Capture GPS",
       "confirm": "Report hazard",
       "description": "Photograph the hazard and optionally assign a responsible person.",
-      "locationCaptured": "GPS captured"
+      "locating": "Waiting for a GPS fix.",
+      "locationCaptured": "GPS captured",
+      "locationDenied": "Location is switched off for this site. Turn it on in your browser, then capture the GPS again.",
+      "locationTimeout": "The GPS fix did not arrive in time. Step into the open and try again.",
+      "locationUnavailable": "The device could not get a position. Check that location is on, then try again.",
+      "locationUnsupported": "This device cannot provide a GPS position.",
+      "noSafetyColumns": "This project has no safety column yet. Add one under Category management and hazards can be filed against it."
     },
     "new": "Report hazard",
     "severity": {

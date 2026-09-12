@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -491,7 +492,7 @@ export function ProjectCategoriesWorkspace() {
   );
 }
 
-function CategoryDialog({
+export function CategoryDialog({
   project,
   defaultKind,
   row,
@@ -1956,6 +1957,8 @@ function EquipmentDialog({
     key: K,
     value: EquipmentPayload[K],
   ) => setForm((old) => ({ ...old, [key]: value }));
+  // Whether this project has anywhere to file a machine at all (D-169).
+  const hasColumns = (columns.data?.results ?? []).length > 0;
   const save = useMutation({
     mutationFn: () => equipment
       ? updateSiteEquipment(equipment.id, {
@@ -2030,19 +2033,29 @@ function EquipmentDialog({
               }
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.equipmentColumn")}>
-            {/* Optional. "No column" is offered as a choice rather than left
-                as the absence of one, so filing nothing is something a person
-                did on purpose and can see they did. */}
+          <FieldWrapper label={t("field.equipmentColumn")} required>
+            {/*
+              Required since D-169, which reverses D-160. The old shape offered
+              "No column" as an explicit choice so that filing nothing was a
+              decision somebody could see they had made - a reasonable guard
+              against a required field being answered with the nearest thing.
+              The customer overruled it on 2026-09-12:「新增设备必须要选分类
+              不能不选分类 所以意思是他们一定要新增栏目」.
+
+              The guard D-160 wanted is kept in a better place: when the
+              project has no equipment column at all, this does not present an
+              empty dropdown to be stared at - it says so and points at where
+              columns are made. Nobody is cornered into guessing.
+            */}
             <Select
-              value={form.category ?? "none"}
-              onValueChange={(v) => set("category", v === "none" ? null : v)}
+              value={form.category ?? undefined}
+              onValueChange={(v) => set("category", v)}
+              disabled={!hasColumns}
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue placeholder={t("field.chooseEquipmentColumn")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">{t("field.noEquipmentColumn")}</SelectItem>
                 {(columns.data?.results ?? []).map((item) => (
                   <SelectItem key={item.id} value={item.id}>
                     {item.code} - {item.name}
@@ -2050,6 +2063,17 @@ function EquipmentDialog({
                 ))}
               </SelectContent>
             </Select>
+            {!columns.isLoading && !hasColumns && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {t("field.noEquipmentColumnYet")}{" "}
+                <Link
+                  href="/category-management"
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  {t("field.goMakeEquipmentColumn")}
+                </Link>
+              </p>
+            )}
           </FieldWrapper>
           <FieldWrapper label={t("field.supplier")}>
             <Select
@@ -2101,6 +2125,7 @@ function EquipmentDialog({
             requires={[
               [form.code, t("field.code")],
               [form.name, t("field.name")],
+              [form.category, t("field.equipmentColumn")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}

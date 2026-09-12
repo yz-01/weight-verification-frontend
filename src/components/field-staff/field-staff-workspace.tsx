@@ -42,6 +42,7 @@ import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
 import { LocationField } from "@/components/field-staff/location-field";
+import { activeFieldNav } from "@/lib/field-nav";
 import {
   type LocationFix,
   requestLocation as locate,
@@ -206,6 +207,13 @@ function FieldStaffWorkspaceContent({
   const hazardTabWithoutRoom = tab === "incidents" && !openedHazard;
   const shownTab: MobileTab = hazardTabWithoutRoom ? "records" : tab;
   const shownRecordMode = hazardTabWithoutRoom ? "safety" : recordMode;
+  /*
+   * Which button the bottom navigation should light, decided once (D-166).
+   * It reads the screen actually on show rather than the raw state: a
+   * `?tab=incidents` link with no hazard falls through to the reporting
+   * form above, and the navigation has to follow it there.
+   */
+  const activeNav = activeFieldNav(shownTab, shownRecordMode);
 
   const projects = useQuery({
     queryKey: ["projects", "options"],
@@ -304,17 +312,18 @@ function FieldStaffWorkspaceContent({
         {/* Five buttons since the duplicate 任务 entry was removed; the column
             count has to match or the icons bunch to the left of an empty cell. */}
         <div className="mx-auto grid max-w-2xl grid-cols-5 gap-1 px-3">
-          <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => openTab("home")} />
-          <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
-          <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
-          <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => openTab("location")} />
+          <MobileNavButton active={activeNav === "home"} icon={House} label={t("nav.home")} onClick={() => openTab("home")} />
+          <MobileNavButton active={activeNav === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
+          <MobileNavButton active={activeNav === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
+          <MobileNavButton active={activeNav === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => openTab("location")} />
           {/*
             One tap to the reporting form (T-211). This used to open a list
             page whose only action was a 上报隐患 button - the customer's
-            「不需要跳两个页面」. It stays highlighted for the conversation too,
-            so a worker reading a hazard can still see which tab they are in.
+            「不需要跳两个页面」. The form it opens lives inside the 拍照 tab,
+            which is why `activeFieldNav` exists: for one tap here, both
+            buttons used to light (F-374).
           */}
-          <MobileNavButton active={tab === "incidents" || recordMode === "safety"} icon={ShieldAlert} label={t("nav.hazards")} onClick={() => openRecord("safety")} />
+          <MobileNavButton active={activeNav === "hazards"} icon={ShieldAlert} label={t("nav.hazards")} onClick={() => openRecord("safety")} />
         </div>
       </nav>
       {shownTab === "home" && (

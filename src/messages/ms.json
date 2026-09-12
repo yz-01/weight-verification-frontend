@@ -3781,6 +3781,8 @@
       "status": "Status",
       "action": "Tindakan"
     },
+    "create": "Lajur baharu",
+    "createElsewhere": "Cipta dalam skrinnya sendiri",
     "edit": "Sunting",
     "empty": "Belum ada kategori di sini.",
     "failed": "Kategori tidak dapat dimuatkan. Cuba lagi.",
@@ -3808,6 +3810,17 @@
       "ehs": "Bahaya, isu kualiti, kemalangan dan permit. Satu senarai bagi setiap projek.",
       "recycle": "Bahan boleh kitar semula yang dihantar keluar. Satu senarai untuk seluruh syarikat; yang disemai boleh ditutup tetapi tidak dipadam.",
       "debris": "Sisa pembinaan yang dihantar untuk pelupusan. Satu senarai bagi setiap projek."
+    },
+    "moduleSource": {
+      "material": "Rekod datang daripada penerimaan barang di tapak dan daftar resit pejabat. Kakitangan tapak boleh memfailkan di sini.",
+      "field": "Rekod datang daripada gambar tapak mengikut lajur, laporan bahaya dan tugasan tapak. Kakitangan tapak boleh memfailkan di sini.",
+      "document": "Dokumen dimuat naik dan difailkan dari pejabat. Kakitangan tapak tidak memfailkan di sini.",
+      "equipment": "Rekod datang daripada Peralatan tapak di pejabat. Mesin didaftarkan di pejabat; telefon hanya merekod masuk dan keluar.",
+      "progress": "Kemajuan dihantar di tapak dan difailkan ke lajur kemudian oleh pejabat. Telefon tidak memilih lajur.",
+      "phase": "Fasa diselenggara di pejabat dan memacu peratusan siap. Tiada rekod difailkan ke dalamnya.",
+      "ehs": "Rekod datang daripada laporan bahaya, di tapak mahupun di pejabat. Kakitangan tapak boleh memfailkan di sini.",
+      "recycle": "Rekod datang daripada sisa boleh kitar semula yang dihantar keluar oleh pejabat. Kakitangan tapak tidak memfailkan di sini.",
+      "debris": "Rekod datang daripada pelupusan sisa binaan yang dimulakan di pejabat. Kakitangan tapak tidak memfailkan di sini."
     },
     "modules": "Modul",
     "scope": {
@@ -5279,6 +5292,7 @@
       "assignee": "Pekerja tapak",
       "category": "Kategori",
       "certificateExpiresOn": "Sijil luput pada",
+      "chooseEquipmentColumn": "Pilih lajur peralatan",
       "code": "Kod",
       "deliveryNote": "Nota penghantaran",
       "description": "Penerangan",
@@ -5287,6 +5301,7 @@
       "equipmentColumn": "Kategori peralatan",
       "executor": "Pelaksana",
       "expiryHelp": "Mengisi kad dokumen-akan-luput di laman utama. Biarkan kosong jika anda tiada dokumen itu - kosong lebih baik daripada tarikh yang diteka.",
+      "goMakeEquipmentColumn": "Pergi ke Pengurusan lajur",
       "instructions": "Arahan",
       "insuranceExpiresOn": "Insurans luput pada",
       "latitude": "Latitud",
@@ -5295,7 +5310,7 @@
       "material": "Bahan",
       "name": "Nama",
       "noCategory": "Tiada kategori",
-      "noEquipmentColumn": "Tiada kategori",
+      "noEquipmentColumnYet": "Projek ini belum mempunyai lajur peralatan, dan sebuah mesin mesti difailkan dalam salah satu daripadanya.",
       "noParent": "Tiada kategori induk",
       "noSupplier": "Tiada pembekal",
       "notes": "Catatan",
@@ -10475,7 +10490,7 @@
       "open": "Buka gambar",
       "previous": "Gambar sebelumnya",
       "next": "Gambar seterusnya",
-      "clean": "Dipaparkan tanpa cap lokasi dan masa, supaya boleh digunakan semula di tempat lain."
+      "stamped": "Projek, masa dan kedudukan GPS dicetak pada gambar, jadi asal usulnya kekal ke mana pun ia disalin."
     },
     "recorderUnknown": "Perekod tiada dalam rekod",
     "remove": {
@@ -11179,6 +11194,7 @@
       "detail": "2. Butiran bahaya atau kerosakan",
       "overview": "1. Gambaran kawasan insiden",
       "progress": "{current} foto telah diambil. Semua {required} foto wajib pertama mesti lengkap; foto tambahan boleh ditambah.",
+      "progressOffice": "{current} gambar diambil. Satu sudah memadai untuk melapor; {required} panduan di atas jika ada, dan boleh tambah lagi.",
       "risk": "3. Peralatan, orang atau laluan terjejas",
       "surroundings": "4. Keadaan sekeliling tapak"
     },
@@ -11213,7 +11229,13 @@
       "captureLocation": "Rakam GPS",
       "confirm": "Laporkan bahaya",
       "description": "Ambil foto bahaya dan tetapkan orang bertanggungjawab jika diketahui.",
-      "locationCaptured": "GPS dirakam"
+      "locating": "Menunggu isyarat GPS.",
+      "locationCaptured": "GPS dirakam",
+      "locationDenied": "Kebenaran lokasi bagi laman ini dimatikan. Hidupkannya dalam pelayar, kemudian rakam GPS sekali lagi.",
+      "locationTimeout": "Isyarat GPS tidak sampai dalam masa. Pergi ke kawasan lapang dan cuba lagi.",
+      "locationUnavailable": "Peranti tidak dapat memperoleh kedudukan. Pastikan lokasi dihidupkan, kemudian cuba lagi.",
+      "locationUnsupported": "Peranti ini tidak boleh memberikan kedudukan GPS.",
+      "noSafetyColumns": "Projek ini belum mempunyai lajur keselamatan. Tambah satu di Pengurusan lajur supaya bahaya boleh difailkan ke dalamnya."
     },
     "new": "Laporkan bahaya",
     "severity": {

@@ -1,12 +1,15 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, ListTree } from "lucide-react";
+import { ExternalLink, ListTree, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
-import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
+import {
+  CategoryDialog,
+  ProjectFilter,
+} from "@/components/contractor-ops/operations-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -23,6 +26,7 @@ import {
   getProjectCategories,
 } from "@/services/contractor-ops.service";
 import { getDocumentCategories } from "@/services/document-workflow.service";
+import type { ProjectCategoryKind } from "@/interfaces/contractor-ops";
 import { getWasteCategories } from "@/services/waste-outgoing.service";
 
 /**
@@ -89,6 +93,19 @@ interface Module {
    * with a name on it, and the list is the place to say so.
    */
   permission?: string;
+  /**
+   * The scheme a new column here would join, when one can be made from this
+   * screen at all.
+   *
+   * Set on the modules whose columns are `ProjectCategory` rows reached
+   * through `/project-categories` - they share one endpoint and one editor, so
+   * opening that editor here is the same editor in a second place, not a
+   * second editor (D-170). The material columns, the documents, the weighted
+   * construction phases and the recyclable waste types each have a screen of
+   * their own with fields this dialog does not carry, so those rows still send
+   * the reader there.
+   */
+  columnKind?: ProjectCategoryKind;
 }
 
 /**
@@ -131,6 +148,7 @@ const MODULES: Module[] = [
     key: "field",
     scope: "project",
     href: "/project-categories?kind=FIELD",
+    columnKind: "FIELD",
     fetch: columnRows("FIELD"),
   },
   {
@@ -162,12 +180,14 @@ const MODULES: Module[] = [
     key: "equipment",
     scope: "project",
     href: "/project-categories?kind=EQUIPMENT",
+    columnKind: "EQUIPMENT",
     fetch: columnRows("EQUIPMENT"),
   },
   {
     key: "progress",
     scope: "project",
     href: "/project-categories?kind=PROGRESS",
+    columnKind: "PROGRESS",
     fetch: columnRows("PROGRESS"),
   },
   {
@@ -194,6 +214,7 @@ const MODULES: Module[] = [
     key: "ehs",
     scope: "project",
     href: "/project-categories?kind=EHS",
+    columnKind: "EHS",
     fetch: columnRows("EHS"),
   },
   {
@@ -215,6 +236,7 @@ const MODULES: Module[] = [
     key: "debris",
     scope: "project",
     href: "/project-categories?kind=CONSTRUCTION_WASTE",
+    columnKind: "CONSTRUCTION_WASTE",
     fetch: columnRows("CONSTRUCTION_WASTE"),
   },
 ];
@@ -224,6 +246,7 @@ export function CategoryManagement() {
   const { can } = useAuth();
   const [selected, setSelected] = useState(MODULES[0].key);
   const [project, setProject] = useState("");
+  const [creating, setCreating] = useState(false);
   /*
    * Only the modules this account could actually open. Filtered rather than
    * greyed out: there is nothing behind the row to explain, and nothing the
@@ -241,6 +264,27 @@ export function CategoryManagement() {
     queryKey: ["category-management", active.key, project],
     queryFn: () => active.fetch(project),
     enabled: !needsProject || Boolean(project),
+  });
+  /*
+   * The columns as the editor wants them, fetched only while it is open.
+   *
+   * The table above reads a flattened `Row` that nine different sources can
+   * all be mapped into; the dialog needs the real `ProjectCategory` rows,
+   * because it offers a parent column to nest under. Two shapes of the same
+   * data rather than one - but only one of them is ever fetched twice, and
+   * only while somebody is actually creating something.
+   */
+  const editable = useQuery({
+    queryKey: ["project-categories", "create", active.key, project],
+    queryFn: () =>
+      getProjectCategories({
+        project,
+        kind: active.columnKind as string,
+        page_size: 200,
+        sort_by: "sort_order",
+        sort_order: "asc",
+      }),
+    enabled: creating && Boolean(project) && Boolean(active.columnKind),
   });
 
   return (
@@ -277,15 +321,58 @@ export function CategoryManagement() {
             <h2 className="font-semibold">{t(`module.${active.key}`)}</h2>
             {/* Said out loud, not left to be discovered. */}
             <StatusBadge label={t(`scope.${active.scope}`)} tone="neutral" />
-            <Button asChild size="sm" variant="outline" className="ml-auto">
+            {/*
+              Making a column is the thing people come here to do, so it is the
+              primary action and it is on this screen (D-170). It used to be
+              reachable only by noticing a secondary 「打开该模块」 link in the
+              corner, and when the list was empty the page offered a line of
+              grey text and no way forward at all (F-378).
+
+              Two labels rather than one, because there are two behaviours: the
+              five project-column modules open the editor here, and the other
+              four have a screen of their own that owns fields this dialog does
+              not carry. One label over two outcomes would be the more
+              confusing kind of tidy.
+            */}
+            {active.columnKind ? (
+              <Button
+                size="sm"
+                className="ml-auto"
+                requires={[[project, t("chooseProject")]]}
+                onClick={() => setCreating(true)}
+              >
+                <Plus />
+                {t("create")}
+              </Button>
+            ) : (
+              <Button asChild size="sm" className="ml-auto">
+                <Link href={manageHref(active, project)}>
+                  <ExternalLink />
+                  {t("createElsewhere")}
+                </Link>
+              </Button>
+            )}
+            <Button asChild size="sm" variant="outline">
               <Link href={manageHref(active, project)}>
                 <ExternalLink />
                 {t("manage")}
               </Link>
             </Button>
           </header>
-          <p className="mb-3 text-xs text-muted-foreground">
+          <p className="mb-1 text-xs text-muted-foreground">
             {t(`moduleHelp.${active.key}`)}
+          </p>
+          {/*
+            Where this module's records actually come from, and whether the
+            phone can file into it (D-173). Three of the nine have no field
+            entry point by decision rather than by defect - equipment is
+            registered in the office, progress is filed afterwards (T-222),
+            construction waste is raised with the disposal request - and the
+            customer read that silence as everything being broken. Saying it
+            costs one line; not saying it cost a bug report.
+          */}
+          <p className="mb-3 text-xs text-muted-foreground">
+            {t(`moduleSource.${active.key}`)}
           </p>
 
           {needsProject && !project ? (
@@ -299,9 +386,23 @@ export function CategoryManagement() {
               {t("failed")}
             </p>
           ) : !rows.data?.length ? (
-            <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-              {t("empty")}
-            </p>
+            /* An empty list with nothing to press was half of F-378: the
+               reader arrives, finds nothing, and the only way on is a
+               secondary link in the corner they have to notice. */
+            <div className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
+              <p>{t("empty")}</p>
+              {active.columnKind && (
+                <Button
+                  size="sm"
+                  className="mt-3"
+                  requires={[[project, t("chooseProject")]]}
+                  onClick={() => setCreating(true)}
+                >
+                  <Plus />
+                  {t("create")}
+                </Button>
+              )}
+            </div>
           ) : (
             <div className="overflow-x-auto rounded-lg border">
               {/* The shared table, so the padding, header and hover match
@@ -366,6 +467,20 @@ export function CategoryManagement() {
           )}
         </section>
       </div>
+      {creating && active.columnKind && (
+        <CategoryDialog
+          project={project}
+          defaultKind={active.columnKind}
+          row={null}
+          categories={editable.data?.results ?? []}
+          onClose={() => setCreating(false)}
+          onSaved={() => {
+            setCreating(false);
+            void rows.refetch();
+            void editable.refetch();
+          }}
+        />
+      )}
     </div>
   );
 }
