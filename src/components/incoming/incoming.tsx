@@ -2,7 +2,14 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Info, Loader2, PackageCheck, Truck } from "lucide-react";
+import {
+  CalendarClock,
+  Eye,
+  Info,
+  Loader2,
+  PackageCheck,
+  Truck,
+} from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -28,7 +35,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import {
@@ -39,6 +45,7 @@ import {
   submitDispatchAcceptOfflineAware,
   submitDispatchCollectOfflineAware,
 } from "@/services/offline-sync.service";
+import { proposeWasteCollectionTime } from "@/services/waste-outgoing.service";
 
 function localDateTimeInput(value?: string | null) {
   const date = value ? new Date(value) : new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -61,9 +68,6 @@ export function Incoming() {
 
   const [collecting, setCollecting] = useState<WasteDispatch | null>(null);
   const [assigning, setAssigning] = useState<WasteDispatch | null>(null);
-  const realtimeKeys = useMemo(() => [["incoming"], ["dispatches"], ["tasks"]], []);
-  useOrderRealtime(realtimeKeys);
-
   const { data, isLoading, isError } = useQuery({
     queryKey: ["incoming", list.query],
     queryFn: () => getIncomingOfflineAware(ownerId, list.query),
@@ -127,6 +131,36 @@ export function Incoming() {
             <p className="max-w-[200px] truncate text-xs">{row.original.project_name}</p>
             <p className="tabular truncate text-xs text-muted-foreground">
               {row.original.project_code}
+            </p>
+          </div>
+        ),
+      },
+      {
+        // Where the lorry goes. The order book carried every other fact about
+        // a load and not this one, so a yard planning tomorrow's runs had to
+        // ring the contractor to find out where to send the driver (F-302).
+        accessorKey: "pickup_address",
+        meta: { label: t("incoming.field.pickupAddress") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("incoming.field.pickupAddress")}
+          </span>
+        ),
+        cell: ({ row }) => (
+          <div className="min-w-0">
+            <p
+              className="max-w-[220px] truncate"
+              title={row.original.pickup_address}
+            >
+              {row.original.pickup_address || t("common.emptyValue")}
+            </p>
+            {/* Typed or inherited. After a load turns up at the wrong gate the
+                two strings look identical, and only this line separates
+                "somebody chose this" from "nobody did". */}
+            <p className="truncate text-xs text-muted-foreground">
+              {row.original.pickup_address_source === "MANUAL"
+                ? t("incoming.field.pickupAddressTyped")
+                : t("incoming.field.pickupAddressFromProject")}
             </p>
           </div>
         ),
@@ -371,9 +405,19 @@ function OrderAssignmentDialog({
   const { user } = useAuth();
   const ownerId = user?.id ?? "";
   const [reference, setReference] = useState("");
-  const [proposedAt, setProposedAt] = useState(localDateTimeInput());
+  const [proposedAt, setProposedAt] = useState(
+    localDateTimeInput(load.confirmed_collection_at ?? load.proposed_collection_at),
+  );
   const [proposalNote, setProposalNote] = useState("");
 
+  /*
+   * Kept for the orders that are still waiting (T-226).
+   *
+   * Nothing new reaches `PENDING_ACCEPTANCE` - the site's order is accepted
+   * the moment it is sent (D-111) - but rows raised before that change are
+   * still in the yard's book, and leaving them with no button would strand
+   * them. The offline queue replays through this same call.
+   */
   const acceptOnly = useMutation({
     mutationFn: () =>
       submitDispatchAcceptOfflineAware(ownerId, {
@@ -389,9 +433,29 @@ function OrderAssignmentDialog({
     },
   });
 
+  /*
+   * What the yard does with an order it already has: say when it can collect.
+   *
+   * 客户：「建筑商发送订单的时候是自动接受的，不存在他们可以拒绝订单的情况。」
+   * So there is no accept step any more; the scheduling remains, because the
+   * yard owns the lorries and D-111 kept 「回收商之后可以改」. It is a proposal -
+   * the site confirms it before a driver can be committed.
+   */
+  const propose = useMutation({
+    mutationFn: () =>
+      proposeWasteCollectionTime(load.id, {
+        collectionAt: new Date(proposedAt).toISOString(),
+        note: proposalNote.trim(),
+      }),
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+  });
+
   const waitingForContractor =
     load.state === "ACCEPTED" && !load.confirmed_collection_at;
-  const pending = acceptOnly.isPending;
+  const pending = acceptOnly.isPending || propose.isPending;
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -407,6 +471,19 @@ function OrderAssignmentDialog({
           <p className="text-sm font-medium">{load.project_name}</p>
           <p className="text-xs text-muted-foreground">
             {t(`dispatches.wasteType.${load.waste_type}`)}
+          </p>
+          {/* Repeated here rather than left to the list column because this is
+              the screen where the yard commits a driver to the run. */}
+          <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("incoming.field.pickupAddress")}
+          </p>
+          <p className="text-sm">
+            {load.pickup_address || t("common.emptyValue")}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {load.pickup_address_source === "MANUAL"
+              ? t("incoming.field.pickupAddressTyped")
+              : t("incoming.field.pickupAddressFromProject")}
           </p>
         </div>
 
@@ -428,15 +505,36 @@ function OrderAssignmentDialog({
               <Textarea value={proposalNote} onChange={(event) => setProposalNote(event.target.value)} />
             </div>
           </div>
-        ) : waitingForContractor ? (
-          <div className="rounded-lg border border-warning/30 bg-warning/10 p-4">
-            <p className="font-semibold">{t("incoming.order.waitingConfirmation")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {load.proposed_collection_at
-                ? new Date(load.proposed_collection_at).toLocaleString()
-                : t("common.emptyValue")}
-            </p>
-            {load.proposed_collection_note && <p className="mt-2 text-sm">{load.proposed_collection_note}</p>}
+        ) : load.state === "ACCEPTED" ? (
+          <div className="grid gap-4">
+            {/* Said plainly, because the button that used to be here is gone
+                and a screen that simply lost its action reads as broken. */}
+            <div className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm leading-6">
+              {t("incoming.order.autoAccepted")}
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("incoming.order.wantedAt")}</Label>
+              <p className="text-sm">
+                {load.confirmed_collection_at
+                  ? new Date(load.confirmed_collection_at).toLocaleString()
+                  : load.proposed_collection_at
+                    ? new Date(load.proposed_collection_at).toLocaleString()
+                    : t("common.emptyValue")}
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("incoming.order.proposedAt")}</Label>
+              <Input type="datetime-local" min={localDateTimeInput()} value={proposedAt} onChange={(event) => setProposedAt(event.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("incoming.order.proposalNote")}</Label>
+              <Textarea value={proposalNote} onChange={(event) => setProposalNote(event.target.value)} />
+            </div>
+            {waitingForContractor && (
+              <div className="rounded-lg border border-warning/30 bg-warning/10 p-3">
+                <p className="text-sm font-semibold">{t("incoming.order.waitingConfirmation")}</p>
+              </div>
+            )}
           </div>
         ) : (
         <div className="grid gap-4">
@@ -455,14 +553,21 @@ function OrderAssignmentDialog({
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
           {load.state === "PENDING_ACCEPTANCE" && (
-            <Button requires={[[proposedAt, t("incoming.field.releasedAt")]]}
+            <Button requires={[[proposedAt, t("incoming.order.proposedAt")]]}
                     disabled={pending} onClick={() => acceptOnly.mutate()}>
               {acceptOnly.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}
               {t("incoming.order.acceptAndPropose")}
             </Button>
           )}
+          {load.state === "ACCEPTED" && (
+            <Button requires={[[proposedAt, t("incoming.order.proposedAt")]]}
+                    disabled={pending} onClick={() => propose.mutate()}>
+              {propose.isPending ? <Loader2 className="animate-spin" /> : <CalendarClock />}
+              {t("incoming.order.proposeTime")}
+            </Button>
+          )}
           {load.state === "ACCEPTED" && !waitingForContractor && (
-            <Button asChild>
+            <Button asChild variant="outline">
               <Link href="/tasks/create">
                 <Truck />
                 {t("incoming.order.goToDispatch")}

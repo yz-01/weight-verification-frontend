@@ -266,6 +266,16 @@ export interface ReceiptPhoto {
   latitude: string | null;
   longitude: string | null;
   taken_at: string | null;
+  uploaded_at?: string;
+  device_id?: string;
+  /**
+   * Who put this photograph on the record (T-243).
+   *
+   * Per photograph and not per receipt: the gate shots come from a phone on
+   * site, the delivery order is often scanned in the office afterwards by
+   * somebody else, and a dispute asks which.
+   */
+  created_by_name?: string | null;
   created_at: string;
 }
 
@@ -284,8 +294,10 @@ export interface MaterialReceipt {
   category_code: string | null;
   category_name: string | null;
   material_name: string;
+  material_specification: string;
   quantity: string;
   unit: MaterialUnit;
+  total_weight_kg: string | null;
   unit_price: string | null;
   total_value: string | null;
   vehicle_plate: string;
@@ -336,6 +348,45 @@ export interface MySubmissionRow {
   status: string;
   status_label: string;
   photo: string | null;
+}
+
+/**
+ * One labelled row of a submission's detail.
+ *
+ * `key` is a machine key the phone translates through
+ * `mySubmissions.field.<key>`; the server never sends words. `unit` is a code
+ * for the same reason, translated through `mySubmissions.unit.<code>` - one
+ * catalogue for both modules, because a receipt's units have labels on the
+ * Django model and a waste record's do not, and sending one English label
+ * beside one raw code is how `PENDING_APPROVAL` reached a customer's screen
+ * (F-225). `core.tests.test_submission_labels` checks both vocabularies
+ * against all four catalogues.
+ */
+export interface MySubmissionField {
+  key: string;
+  value: string;
+  unit?: string;
+}
+
+export interface MySubmissionPhoto {
+  /**
+   * The photograph's own primary key.
+   *
+   * Added for Multi Engine, which lets a person tick some of a record's
+   * photographs and not others (D-149); ticking by position would point
+   * somewhere else the moment one is added to the source (D-152). Optional
+   * because the two older screens neither send nor read it.
+   */
+  id?: string;
+  url: string;
+  caption: string;
+}
+
+/** A history row, opened. */
+export interface MySubmissionDetail extends MySubmissionRow {
+  fields: MySubmissionField[];
+  /** Empty rather than absent when a record carries none. */
+  photos: MySubmissionPhoto[];
 }
 
 export interface MySubmissionsPage {
@@ -395,8 +446,10 @@ export interface MaterialReceiptPayload {
   movement_type?: "ENTRY" | "RETURN";
   return_reason?: string;
   material_name: string;
+  material_specification?: string;
   quantity: string;
   unit: MaterialUnit;
+  total_weight_kg?: string | null;
   /**
    * The material column this delivery files under.
    *
@@ -428,6 +481,8 @@ export type DeliveryNoteOCRField =
   | "quantity";
 
 export interface DeliveryNoteOCRLineItem {
+  /** The note's own Marks/No. code for the row (e.g. RB-10), when printed. */
+  code?: string;
   material_name: string;
   quantity: string;
   unit: string;
@@ -566,6 +621,18 @@ export interface WasteDispatch {
   recycler_name: string;
   waste_type: WasteType;
   estimated_weight_kg: string | null;
+  /**
+   * Where the lorry collects from. Served since T-138 and never read on this
+   * side until T-227, which is how the recycler ended up with an order book
+   * that did not say where to drive.
+   *
+   * Never blank for a project that has an address: the server falls back to
+   * the project's postal line. `pickup_address_source` is the half that
+   * decides whether a person chose this address or it was inherited - an
+   * empty string on orders raised before the column existed.
+   */
+  pickup_address: string;
+  pickup_address_source: "MANUAL" | "PROJECT" | "";
   vehicle_plate: string;
   driver_name: string;
   state: DispatchState;
@@ -611,6 +678,8 @@ export interface WasteDispatchPayload {
   waste_type: WasteType;
   estimated_weight_kg?: string | null;
   description?: string;
+  /** Blank means "use the project address", not "store an empty line". */
+  pickup_address?: string;
   vehicle_plate: string;
   driver_name?: string;
   driver_phone?: string;

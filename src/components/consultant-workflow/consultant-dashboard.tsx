@@ -90,6 +90,13 @@ export function ConsultantDashboard() {
         </div>
       </header>
 
+      {/*
+        One row, not two (T-215). Measured at 1280x720 these were two 32px
+        rows with a 24px gap - 88px of controls above the pending work, for a
+        picker and a search box that fit beside each other on any laptop. They
+        stack again below `sm`, where they genuinely do not.
+      */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
       <ConsultantProjectPicker
         value={project}
         onChange={setProject}
@@ -97,7 +104,7 @@ export function ConsultantDashboard() {
       />
 
       <form
-        className="flex max-w-2xl gap-2"
+        className="flex w-full max-w-2xl gap-2"
         onSubmit={(event) => {
           event.preventDefault();
           const term = search.trim();
@@ -117,12 +124,72 @@ export function ConsultantDashboard() {
           <Search />{t("search")}
         </Button>
       </form>
+      </div>
 
       {!data ? (
         <DashboardSkeleton />
       ) : (
         <>
-          <section aria-labelledby="consultant-flow-title" className="space-y-3">
+          {/*
+            What needs this consultant now, first on the screen (T-213).
+            客户：「所有待审批和通知和重要的东西是放在最上面，确保他们可以一登录
+            就直接看到」. This grid used to sit below the four-step flow, so on a
+            laptop a consultant logged in and saw a diagram while three
+            applications waited past the fold.
+          */}
+          <div data-dashboard-priority className="grid gap-6 xl:grid-cols-2">
+            <ApplicationList
+              title={t("pending.title")}
+              description={t("pending.description")}
+              rows={data.pending}
+              empty={t("pending.empty")}
+              showDue
+            />
+            <ApplicationList
+              title={t("due.title")}
+              description={t("due.description")}
+              rows={data.due_soon}
+              empty={t("due.empty")}
+              showDue
+            />
+            <section className="rounded-lg border bg-card p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3 border-b pb-3">
+                <div>
+                  <h2 className="flex items-center gap-2 text-sm font-semibold"><Bell className="size-4 text-primary" />{t("notifications.title")}</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("notifications.description")}</p>
+                </div>
+                <Link href="/notifications" className="text-xs font-semibold text-primary hover:underline">{t("openAll")}</Link>
+              </div>
+              {notifications.isError ? (
+                <LoadFailed onRetry={() => void notifications.refetch()} />
+              ) : notifications.isLoading ? (
+                <Skeleton className="mt-3 h-36 w-full" />
+              ) : (notifications.data?.results ?? []).length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">{t("notifications.empty")}</p>
+              ) : (
+                <div className="divide-y">
+                  {(notifications.data?.results ?? []).map((row) => (
+                    <div key={row.id} className="py-3">
+                      <div className="flex items-center gap-2">
+                        {!row.is_read && <span className="size-2 rounded-full bg-primary" />}
+                        <p className="min-w-0 flex-1 truncate text-sm font-medium">{row.title}</p>
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{row.message}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>          {/*
+            The four-step overview, now below the pending work. It explains the
+            lifecycle rather than asking for anything, which is why it lost the
+            first screen (T-213).
+          */}
+          <section
+            data-dashboard-overview
+            aria-labelledby="consultant-flow-title"
+            className="space-y-3"
+          >
             <div>
               <h2 id="consultant-flow-title" className="text-lg font-semibold">{t("flow.title")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{t("flow.subtitle")}</p>
@@ -169,54 +236,13 @@ export function ConsultantDashboard() {
 
           <div className="grid gap-6 xl:grid-cols-2">
             <ApplicationList
-              title={t("pending.title")}
-              description={t("pending.description")}
-              rows={data.pending}
-              empty={t("pending.empty")}
-              showDue
-            />
-            <ApplicationList
-              title={t("due.title")}
-              description={t("due.description")}
-              rows={data.due_soon}
-              empty={t("due.empty")}
-              showDue
-            />
-            <ApplicationList
               title={t("history.title")}
               description={t("history.description")}
               rows={data.recent_decisions}
               empty={t("history.empty")}
             />
-            <section className="rounded-lg border bg-card p-4 shadow-sm">
-              <div className="flex items-start justify-between gap-3 border-b pb-3">
-                <div>
-                  <h2 className="flex items-center gap-2 text-sm font-semibold"><Bell className="size-4 text-primary" />{t("notifications.title")}</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">{t("notifications.description")}</p>
-                </div>
-                <Link href="/notifications" className="text-xs font-semibold text-primary hover:underline">{t("openAll")}</Link>
-              </div>
-              {notifications.isError ? (
-                <LoadFailed onRetry={() => void notifications.refetch()} />
-              ) : notifications.isLoading ? (
-                <Skeleton className="mt-3 h-36 w-full" />
-              ) : (notifications.data?.results ?? []).length === 0 ? (
-                <p className="py-8 text-center text-sm text-muted-foreground">{t("notifications.empty")}</p>
-              ) : (
-                <div className="divide-y">
-                  {(notifications.data?.results ?? []).map((row) => (
-                    <div key={row.id} className="py-3">
-                      <div className="flex items-center gap-2">
-                        {!row.is_read && <span className="size-2 rounded-full bg-primary" />}
-                        <p className="min-w-0 flex-1 truncate text-sm font-medium">{row.title}</p>
-                      </div>
-                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{row.message}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
           </div>
+
         </>
       )}
     </div>

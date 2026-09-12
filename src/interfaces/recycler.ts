@@ -260,12 +260,18 @@ export interface DriverTaskDetail extends DriverTask {
   pickup_address: string;
   /** True when a person typed it, which is when it beats the project pin. */
   pickup_address_is_manual: boolean;
+  /*
+   * Null, not blank, on a trip with no dispatch. The yard can raise one for a
+   * load that simply turned up, and every project field on the serializer
+   * carries `default=None` for that case - typing them as plain strings said
+   * the opposite and cost a crashed driver screen (F-355).
+   */
   project_name: string | null;
-  project_address_line_1: string;
-  project_address_line_2: string;
-  project_city: string;
-  project_state: string;
-  project_postcode: string;
+  project_address_line_1: string | null;
+  project_address_line_2: string | null;
+  project_city: string | null;
+  project_state: string | null;
+  project_postcode: string | null;
   project_latitude: string | null;
   project_longitude: string | null;
   project_geofence_radius_m: number | null;
@@ -293,7 +299,13 @@ export interface DriverTaskDetail extends DriverTask {
   created_at: string;
   updated_at: string;
   /** Photos held in IndexedDB until connectivity returns. */
-  local_pending_photo_count?: number;
+  /**
+   * Which kinds are queued, not just how many (T-223).
+   *
+   * The loaded step needs a loading photograph *and* a gate pass, so a count
+   * cannot say whether the queued job covers the one that is still missing.
+   */
+  local_pending_photo_kinds?: string[];
 }
 
 export interface DriverWeighingSummary {

@@ -179,7 +179,6 @@ export function ContractorDashboard() {
       }),
     refetchInterval: REFRESH_MS,
   });
-
   const data = full.data;
   // Prefer the polled copy where it exists so the feed is never staler than
   // the numbers beside it.
@@ -187,6 +186,118 @@ export function ContractorDashboard() {
   const anomalies = live.data?.anomalies ?? data?.anomalies;
   const notifications = live.data?.notifications ?? data?.notifications;
   const unread = live.data?.unread ?? data?.unread;
+
+  const priorityGrid = data ? (
+    <div className="grid gap-6 xl:grid-cols-2" data-dashboard-priority>
+      {unread && (unread.receipts > 0 || unread.approvals > 0) && (
+        <Block
+          title={t("unread.title")}
+          subtitle={t("unread.subtitle", {
+            receipts: unread.receipts,
+            approvals: unread.approvals,
+          })}
+          empty={false}
+          emptyLabel=""
+          action={
+            <Link
+              href="/material-columns"
+              className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {t("unread.openColumns")}
+            </Link>
+          }
+        >
+          <p className="pb-2 text-xs text-muted-foreground">{t("unread.help")}</p>
+          <ul className="divide-y">
+            {unread.columns.map((column) => (
+              <li
+                key={column.category ?? "unfiled"}
+                className="flex items-center justify-between gap-3 py-2.5"
+              >
+                <Link
+                  href={
+                    column.category
+                      ? `/receipts?category=${column.category}&seen=false`
+                      : "/receipts?category=__unfiled__&seen=false"
+                  }
+                  className="min-w-0 flex-1 text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {column.name || t("unread.unfiled")}
+                  {column.code && (
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">
+                      {column.code}
+                    </span>
+                  )}
+                </Link>
+                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary">
+                  {column.count}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Block>
+      )}
+
+      {data.approvals && (
+        <Block
+          title={t("approvals.title")}
+          subtitle={t("approvals.subtitle", {
+            total: data.approvals.total,
+            mine: data.approvals.mine,
+            unassigned: data.approvals.unassigned,
+          })}
+          empty={data.approvals.rows.length === 0}
+          emptyLabel={t("approvals.empty")}
+          action={
+            <Link
+              href="/approvals"
+              className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {t("approvals.openCenter")}
+            </Link>
+          }
+        >
+          <ul className="divide-y">
+            {data.approvals.rows.map((row) => (
+              <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
+                <div className="min-w-0">
+                  <Link
+                    href={approvalHref(row)}
+                    className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {row.approval_no ? `${row.approval_no} · ${row.title}` : row.title}
+                  </Link>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {t.has(`approvals.source.${row.source}`)
+                      ? t(`approvals.source.${row.source}`)
+                      : row.resource_type}{" "}
+                    · {row.project || t("approvals.companyWide")} ·{" "}
+                    {row.assigned_to || t("approvals.unassigned")}
+                    {row.waiting_seconds === null ? null : (
+                      <>
+                        {" · "}
+                        <WaitingFor seconds={row.waiting_seconds} />
+                      </>
+                    )}
+                  </p>
+                </div>
+                <StatusBadge
+                  label={
+                    t.has(`approvals.status.${row.status}`)
+                      ? t(`approvals.status.${row.status}`)
+                      : row.status
+                  }
+                  tone="info"
+                />
+              </li>
+            ))}
+          </ul>
+        </Block>
+      )}
+
+      {anomalies && <AnomalyBlock anomalies={anomalies} />}
+    </div>
+  ) : null;
 
   if (full.isError) {
     return (
@@ -227,6 +338,15 @@ export function ContractorDashboard() {
         </div>
       </div>
 
+      {/*
+        Pending work above the controls (T-215). Measured: the search row and
+        the quick-add row put 120px of "start something new" above the things
+        already waiting, which is the opposite of 「所有待审批和通知和重要的东西
+        是放在最上面」. Both are still one screen away from the top - they are
+        two rows, not a page.
+      */}
+      {priorityGrid}
+
       {can("dashboard.search") && <QuickSearch project={project} />}
 
       <QuickActions project={project} />
@@ -236,7 +356,7 @@ export function ContractorDashboard() {
       ) : (
         <>
           {data.overview && (
-            <section aria-label={t("overview.title")} className="space-y-3">
+            <section aria-label={t("overview.title")} className="space-y-3" data-dashboard-overview>
               <h2 className="text-sm font-semibold">{t("overview.title")}</h2>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
                 <Metric
@@ -318,7 +438,7 @@ export function ContractorDashboard() {
                   label={t("overview.equipmentExpiring")}
                   value={data.overview.today.equipment_expiring}
                   icon={CalendarClock}
-                  href="/site-equipment"
+                  href="/site-equipment?expiring=1"
                   tone={
                     data.overview.today.equipment_expiring > 0
                       ? "warning"
@@ -393,126 +513,7 @@ export function ContractorDashboard() {
               <ScheduleSummary schedule={data.overview.schedule} />
             </section>
           )}
-
-
           <div className="grid gap-6 xl:grid-cols-2">
-
-            {unread && (unread.receipts > 0 || unread.approvals > 0) && (
-              // Only drawn when something is actually waiting. A card that is
-              // always there, reading zero, is the shape of thing people stop
-              // seeing - and being seen is the entire point of this one
-              // (user, 2026-09-05: "it should be obvious").
-              <Block
-                title={t("unread.title")}
-                subtitle={t("unread.subtitle", {
-                  receipts: unread.receipts,
-                  approvals: unread.approvals,
-                })}
-                empty={false}
-                emptyLabel=""
-                action={
-                  <Link
-                    href="/material-columns"
-                    className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {t("unread.openColumns")}
-                  </Link>
-                }
-              >
-                <p className="pb-2 text-xs text-muted-foreground">
-                  {t("unread.help")}
-                </p>
-                <ul className="divide-y">
-                  {unread.columns.map((column) => (
-                    <li
-                      key={column.category ?? "unfiled"}
-                      className="flex items-center justify-between gap-3 py-2.5"
-                    >
-                      <Link
-                        href={
-                          column.category
-                            ? `/receipts?category=${column.category}&seen=false`
-                            : "/receipts?category=__unfiled__&seen=false"
-                        }
-                        className="min-w-0 flex-1 text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        {column.name || t("unread.unfiled")}
-                        {column.code && (
-                          <span className="ml-2 text-xs font-normal text-muted-foreground">
-                            {column.code}
-                          </span>
-                        )}
-                      </Link>
-                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary">
-                        {column.count}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </Block>
-            )}
-
-            {data.approvals && (
-              <Block
-                title={t("approvals.title")}
-                subtitle={t("approvals.subtitle", {
-                  total: data.approvals.total,
-                  mine: data.approvals.mine,
-                  unassigned: data.approvals.unassigned,
-                })}
-                empty={data.approvals.rows.length === 0}
-                emptyLabel={t("approvals.empty")}
-                action={
-                  <Link
-                    href="/approvals"
-                    className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {t("approvals.openCenter")}
-                  </Link>
-                }
-              >
-                <ul className="divide-y">
-                  {data.approvals.rows.map((row) => (
-                    <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
-                      <div className="min-w-0">
-                        <Link
-                          href={approvalHref(row)}
-                          className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          {row.approval_no
-                            ? `${row.approval_no} · ${row.title}`
-                            : row.title}
-                        </Link>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {t.has(`approvals.source.${row.source}`)
-                            ? t(`approvals.source.${row.source}`)
-                            : row.resource_type}{" "}
-                          · {row.project || t("approvals.companyWide")} ·{" "}
-                          {row.assigned_to || t("approvals.unassigned")}
-                          {row.waiting_seconds === null ? null : (
-                            <>
-                              {" · "}
-                              <WaitingFor seconds={row.waiting_seconds} />
-                            </>
-                          )}
-                        </p>
-                      </div>
-                      <StatusBadge
-                        label={
-                          t.has(`approvals.status.${row.status}`)
-                            ? t(`approvals.status.${row.status}`)
-                            : row.status
-                        }
-                        tone="info"
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </Block>
-            )}
-
-            {anomalies && <AnomalyBlock anomalies={anomalies} />}
-
             {/* Second screen. It used to sit third from the top, above
                 everything a manager opens this page to check. Shorter
                 now as well - the detail is a click away, and the height
@@ -959,7 +960,7 @@ function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
           <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
             <div className="min-w-0">
               <Link
-                href="/hazard-rectifications"
+                href={`/hazard-rectifications?incident=${row.id}`}
                 className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {row.incident_no} · {row.title}

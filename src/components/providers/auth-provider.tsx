@@ -40,6 +40,16 @@ interface AuthContextValue {
   user: CurrentUser | null;
   /** True until the first session lookup settles, so guards do not flash. */
   isLoading: boolean;
+  /**
+   * Credentials are held, but the server could not be asked who they belong
+   * to - and the retries are spent (F-365).
+   *
+   * This is the third state the shells used to collapse into "signed out".
+   * A 429, a 502 or no network is not a sign-out: the token is still valid,
+   * and sending a site phone back to the PIN screen throws away work that has
+   * not synced yet. Guards read this before they read `user === null`.
+   */
+  sessionUnreachable: boolean;
   /** Check one permission code. Superusers hold everything. */
   can: (code: string) => boolean;
   /** True if the user holds at least one of the codes. */
@@ -109,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // The session lives in the query cache rather than in component state, so
   // that a profile update and the shell read the same record and neither can
   // go stale against the other.
-  const { data, isPending, isFetched } = useQuery({
+  const { data, isPending, isFetched, isError } = useQuery({
     queryKey: currentUserKey,
     queryFn: async () => {
       try {
@@ -142,12 +152,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refetchInterval: fieldSession ? 15_000 : 60_000,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: "always",
-    retry: false,
+    /*
+     * Retry the transient ones only. `retry: false` used to switch off
+     * retrying for exactly the class of error that deserves it, and one 429 or
+     * 502 ended with the person back at the sign-in screen (F-365).
+     *
+     * A refused credential is excluded explicitly rather than relying on the
+     * `queryFn` catch above. `api-client` ends the session itself on a 401 -
+     * clearing the tokens and navigating - so asking again three more times
+     * re-enters that path and the repeated navigations fight each other, and
+     * the person ends up on neither screen.
+     */
+    retry: (count, error) =>
+      count < 3 &&
+      !(error instanceof ApiError && [401, 403].includes(error.status)),
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
   });
 
   const user = data ?? null;
   const isLoading =
     sessionPresent && !isFieldCredentialExchange && isPending && !isFetched;
+  /*
+   * Tokens in hand, retries spent, still no answer. Not the same thing as
+   * having no account, and the difference is what keeps a field device signed
+   * in through a bad minute of signal.
+   */
+  const sessionUnreachable =
+    sessionPresent && !isFieldCredentialExchange && isError && user === null;
 
   const setUser = useCallback(
     (next: CurrentUser) => {
@@ -244,8 +275,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, isLoading, can, canAny, setUser, refresh, signOut }),
-    [user, isLoading, can, canAny, setUser, refresh, signOut],
+    () => ({
+      user,
+      isLoading,
+      sessionUnreachable,
+      can,
+      canAny,
+      setUser,
+      refresh,
+      signOut,
+    }),
+    [
+      user,
+      isLoading,
+      sessionUnreachable,
+      can,
+      canAny,
+      setUser,
+      refresh,
+      signOut,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

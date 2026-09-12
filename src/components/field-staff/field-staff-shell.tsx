@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
+import { SessionUnreachable } from "@/components/shared/session-unreachable";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import { Button } from "@/components/ui/button";
@@ -15,18 +16,29 @@ import { clearFieldTokens, markFieldAppContext } from "@/lib/auth-token";
 import { redirectWithFallback } from "@/lib/portal";
 import { FieldLocationTracker } from "@/components/field-staff/field-location-tracker";
 import { FieldManifestToken } from "@/components/field-staff/field-manifest-token";
+import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
+
+const FIELD_REALTIME_KEYS: never[] = [];
 
 export function FieldStaffShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { user, isLoading, signOut } = useAuth();
+  const { user, isLoading, sessionUnreachable, signOut } = useAuth();
   const allowed = user?.portal === "MSE_TRACE" && user.is_field_staff;
+  useOrderRealtime(
+    FIELD_REALTIME_KEYS,
+    true,
+    canUseRealtime(user?.permissions ?? [], Boolean(user?.is_platform_staff)),
+  );
 
   useEffect(() => markFieldAppContext(), []);
 
   useEffect(() => {
+    /* A phone on a bad signal keeps its session. Sending it to the PIN screen
+       throws away whatever has not synced yet (F-365). */
+    if (sessionUnreachable) return;
     if (!isLoading && user === null) {
       const currentPath = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
       redirectWithFallback(
@@ -37,7 +49,9 @@ export function FieldStaffShell({ children }: { children: React.ReactNode }) {
       clearFieldTokens();
       redirectWithFallback(router, "/trace/field-login");
     }
-  }, [allowed, isLoading, pathname, router, searchParams, user]);
+  }, [allowed, isLoading, pathname, router, searchParams, sessionUnreachable, user]);
+
+  if (sessionUnreachable) return <SessionUnreachable />;
 
   if (isLoading || user === null || !allowed) {
     return <div className="flex min-h-dvh items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;

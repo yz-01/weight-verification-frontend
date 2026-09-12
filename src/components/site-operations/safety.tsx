@@ -21,6 +21,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
@@ -65,7 +66,10 @@ import type {
   SafetyIncidentPayload,
 } from "@/interfaces/site-operations";
 import { useDateFormat } from "@/lib/dates";
-import { submitSafetyIncidentOfflineAware } from "@/services/offline-sync.service";
+import {
+  submitSafetyIncidentOfflineAware,
+  type SafetyIncidentSubmission,
+} from "@/services/offline-sync.service";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { getProjectAssignments } from "@/services/contractor.service";
 import {
@@ -135,7 +139,7 @@ export function Safety({
   fieldMode?: boolean;
   initialProject?: string;
   fieldTaskId?: string;
-  onRecordSaved?: () => void;
+  onRecordSaved?: (result: SafetyIncidentSubmission) => void;
 }) {
   const t = useTranslations();
   const df = useDateFormat();
@@ -555,7 +559,10 @@ export function Safety({
         onClearFilters={list.clearFilters}
       />}
 
-      {createOpen && <SafetyCreateDialog fieldMode={fieldMode} initialProject={initialProject} fieldTaskId={fieldTaskId} onSaved={onRecordSaved} onClose={() => setCreateOpen(false)} />}
+      {createOpen && <SafetyCreateDialog fieldMode={fieldMode} initialProject={initialProject} fieldTaskId={fieldTaskId} onSaved={(result) => {
+        if (result.status === "uploaded" && !fieldMode) setTalking(result.incident);
+        onRecordSaved?.(result);
+      }} onClose={() => setCreateOpen(false)} />}
       {updating && (
         <SafetyStatusDialog incident={updating} onClose={() => setUpdating(null)} />
       )}
@@ -733,16 +740,17 @@ function SafetyCreateDialog({
   fieldMode?: boolean;
   initialProject?: string;
   fieldTaskId?: string;
-  onSaved?: () => void;
+  onSaved?: (result: SafetyIncidentSubmission) => void;
 }) {
   const t = useTranslations();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [draft, setDraft] = useState<SafetyDraft>({
+  const [draft, setDraft] = useDraftState<SafetyDraft>("draft", {
     ...EMPTY_DRAFT,
     project: initialProject,
   });
-  const [locating, setLocating] = useState(false);
+  const clearDraft = useClearDraft();
+  const [locating, setLocating] = useState(fieldMode);
   const categories = useQuery({
     queryKey: ["safety-create-categories", draft.project],
     queryFn: () =>
@@ -802,10 +810,11 @@ function SafetyCreateDialog({
       };
       return submitSafetyIncidentOfflineAware(user.id, payload);
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["safety"] });
+      clearDraft();
       onClose();
-      onSaved?.();
+      onSaved?.(result);
     },
   });
 
@@ -825,6 +834,22 @@ function SafetyCreateDialog({
       { enableHighAccuracy: true, timeout: 10_000 },
     );
   }
+
+  useEffect(() => {
+    if (!fieldMode || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setDraft((value) => ({
+          ...value,
+          latitude: position.coords.latitude.toFixed(7),
+          longitude: position.coords.longitude.toFixed(7),
+        }));
+        setLocating(false);
+      },
+      () => setLocating(false),
+      { enableHighAccuracy: true, timeout: 10_000 },
+    );
+  }, [fieldMode]);
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -916,7 +941,7 @@ function SafetyCreateDialog({
             />
           </FieldWrapper>
           )}
-          <FieldWrapper label={t("safety.field.description")} optional={t("common.optional")} className="sm:col-span-2">
+          {!fieldMode && <FieldWrapper label={t("safety.field.description")} optional={t("common.optional")} className="sm:col-span-2">
             <Textarea
               rows={4}
               value={draft.description}
@@ -924,7 +949,7 @@ function SafetyCreateDialog({
                 setDraft((value) => ({ ...value, description: event.target.value }))
               }
             />
-          </FieldWrapper>
+          </FieldWrapper>}
           <FieldWrapper label={t("safety.field.photo")} required className="sm:col-span-2">
             {fieldMode ? (
               <FieldEvidenceGrid
@@ -974,7 +999,7 @@ function SafetyCreateDialog({
               {!team.isLoading && selectableWorkers.length === 0 && <p className="text-sm text-muted-foreground">{t("safety.fieldReport.noWorkers")}</p>}
             </div>
           </FieldWrapper>
-          <FieldWrapper label={t("safety.field.location")} required>
+          {!fieldMode && <FieldWrapper label={t("safety.field.location")} required>
             <Button
               type="button"
               variant="outline"
@@ -991,7 +1016,12 @@ function SafetyCreateDialog({
                 ? t("safety.form.locationCaptured")
                 : t("safety.form.captureLocation")}
             </Button>
-          </FieldWrapper>
+          </FieldWrapper>}
+          {fieldMode && locating && (
+            <p className="sm:col-span-2 text-xs text-muted-foreground">
+              {t("safety.form.captureLocation")}
+            </p>
+          )}
         </div>
 
         <DialogFooter>

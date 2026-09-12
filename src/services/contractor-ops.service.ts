@@ -1,6 +1,10 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import type { ExportRequest } from "@/services/contractor.service";
 import type {
+  ArchiveQueueDetail,
+  ArchiveQueuePage,
+  ArchiveQueueRow,
+  ArchiveRecordKind,
   ConstructionPhase,
   DisposalEvidence,
   DisposalEvidenceKind,
@@ -17,6 +21,17 @@ import type {
   ProjectResponsibility,
   SiteEquipment,
   SiteProgressRecord,
+  ClaimCandidatePage,
+  ClaimDetail,
+  ClaimKind,
+  ClaimPaymentState,
+  ClaimRow,
+  ClaimState,
+  EvidencePackageDetail,
+  EvidencePackageRow,
+  PackageRecordParts,
+  PackageSelection,
+  PackageState,
 } from "@/interfaces/contractor-ops";
 import { api, download, toastSuccess } from "@/services/api-client";
 
@@ -389,6 +404,24 @@ export const reviewSiteProgressRecord = async (id: string, status: "CONFIRMED" |
   return row;
 };
 
+/**
+ * File a progress record under one of the project's progress columns.
+ *
+ * `null` unfiles it, which the server accepts on purpose: the office files a
+ * record after the fact and may have to take it back out (D-108).
+ */
+export const fileProgressRecord = async (
+  id: string,
+  payload: { category: string | null; reason?: string },
+) => {
+  const row = await api.post<SiteProgressRecord>(
+    `/api/site-progress/${id}/file_record/`,
+    payload,
+  );
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
+
 export const getMaterialOutgoing = (query: ListQuery = {}): Promise<Paginated<MaterialOutgoing>> =>
   api.list<MaterialOutgoing>("/api/material-outgoing/get_records/", query);
 export async function createMaterialOutgoing(payload: {
@@ -453,6 +486,19 @@ export async function createDisposalRequest(payload: {
   toastSuccess("siteDisposal.toast.requested");
   return row;
 }
+
+/** File a disposal request under one of the project's debris columns. */
+export const fileDisposalRequest = async (
+  id: string,
+  payload: { category: string | null; reason?: string },
+) => {
+  const row = await api.post<DisposalRequest>(
+    `/api/site-disposals/${id}/file_request/`,
+    payload,
+  );
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+};
 
 export async function reviewDisposalRequest(
   id: string,
@@ -559,11 +605,28 @@ export async function confirmDisposalCompletion(
   decision: "COMPLETED" | "RETURNED",
   note: string,
   photo?: File,
+  /**
+   * The weight, trip count and DO number, which the outside collector no
+   * longer types (T-224, D-116). Blank entries are left out of the request
+   * rather than sent empty: the server treats "absent" as "leave what is
+   * there", so an office confirming without touching a number cannot wipe one
+   * the collector did send.
+   */
+  numbers?: {
+    actual_weight_kg?: string;
+    trip_count?: string;
+    disposal_do_no?: string;
+  },
 ) {
   const data = new FormData();
   data.append("decision", decision);
   data.append("note", note);
   if (photo) data.append("photo", photo);
+  for (const [key, value] of Object.entries(numbers ?? {})) {
+    if (value !== undefined && String(value).trim() !== "") {
+      data.append(key, String(value));
+    }
+  }
   const row = await api.post<DisposalRequest>(
     `/api/site-disposals/${id}/confirm_completion/`,
     data,
@@ -631,5 +694,337 @@ export const addExternalDisposalEvidence = (
 
 export const submitExternalDisposalTask = (
   token: string,
-  payload: { actual_weight_kg: string; trip_count: number; disposal_do_no: string; note?: string },
+  // Nothing but an optional note since T-224: the outside collector
+  // photographs, and the contractor types the numbers on their own screen.
+  payload: { note?: string },
 ) => externalDisposalFetch<ExternalDisposalTask>(token, { operation: "submit", ...payload });
+
+/**
+ * The office's unarchived queue: nine kinds of record, one list (T-233).
+ *
+ * 客户：「全部都是属于未归档需要查看了之后才可以归档，总栏目里面是放所有归档的东西」.
+ * "Unarchived" is per person - this account has not opened it yet - so two
+ * readers of the same site see two different queues, which is the whole point
+ * (D-106, D-063).
+ *
+ * `state` picks which half: the waiting one, or what this reader has already
+ * been through.
+ */
+export function getArchiveQueue(query: {
+  state?: "pending" | "archived";
+  kind?: ArchiveRecordKind;
+  project?: string;
+  page?: number;
+  page_size?: number;
+}): Promise<ArchiveQueuePage> {
+  return api.get<ArchiveQueuePage>("/api/archive-queue/get_queue/", query);
+}
+
+/** One queue row, opened: its fields and its photographs. */
+export function getArchiveRecord(
+  kind: ArchiveRecordKind,
+  id: string,
+): Promise<ArchiveQueueDetail> {
+  return api.get<ArchiveQueueDetail>("/api/archive-queue/get_record/", {
+    kind,
+    id,
+  });
+}
+
+/**
+ * Archive rows for the person asking, and for nobody else.
+ *
+ * A POST rather than a side effect of opening the record: a GET that changes
+ * what the next reader sees is a GET that a refresh or a link preview can fire
+ * on somebody's behalf.
+ */
+export async function markRecordsArchived(
+  records: { kind: ArchiveRecordKind; id: string }[],
+): Promise<{ marked: number; matched: number }> {
+  const result = await api.post<{ marked: number; matched: number }>(
+    "/api/archive-queue/mark_records_seen/",
+    { records },
+  );
+  toastSuccess("archiveQueue.toast.archived");
+  return result;
+}
+
+/* -------------------------------------------------------------------------
+ * Multi Engine (T-235)
+ *
+ * Two sets of calls on purpose (D-151): the contractor builds packages, the
+ * consultant reviews the ones that were sent. They are different endpoints
+ * behind different permissions, so they are different functions here too -
+ * one function with a role flag is how a draft eventually reaches an outside
+ * reviewer.
+ * ---------------------------------------------------------------------- */
+
+export const getEvidencePackages = (
+  query: ListQuery & {
+    project?: string;
+    state?: PackageState;
+    created_by?: string;
+    from?: string;
+    to?: string;
+  },
+) =>
+  api.list<EvidencePackageRow>(
+    "/api/evidence-packages/get_packages/",
+    query,
+  );
+
+export const getEvidencePackage = (id: string) =>
+  api.get<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/get_package/`,
+  );
+
+/** Records of one column in one project, to tick from. */
+export const getPackageCandidates = (
+  query: ListQuery & { kind: ArchiveRecordKind; project: string },
+) =>
+  api.list<ArchiveQueueRow>(
+    "/api/evidence-packages/get_candidates/",
+    query,
+  );
+
+/** One record opened for ticking: its fields, photographs and delivery orders. */
+export const getPackageRecordParts = (kind: ArchiveRecordKind, id: string) =>
+  api.get<PackageRecordParts>("/api/evidence-packages/get_record_parts/", {
+    kind,
+    id,
+  });
+
+export async function createEvidencePackage(payload: {
+  project: string;
+  name: string;
+  remarks?: string;
+}) {
+  const row = await api.post<EvidencePackageDetail>(
+    "/api/evidence-packages/create_package/",
+    payload,
+  );
+  toastSuccess("multiEngine.toast.created");
+  return row;
+}
+
+export async function updateEvidencePackage(
+  id: string,
+  payload: { name?: string; remarks?: string },
+) {
+  const row = await api.patch<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/update_package/`,
+    payload,
+  );
+  toastSuccess("multiEngine.toast.saved");
+  return row;
+}
+
+export async function deleteEvidencePackage(id: string) {
+  await api.delete(`/api/evidence-packages/${id}/delete_package/`);
+  toastSuccess("multiEngine.toast.deleted");
+}
+
+export async function addPackageItems(
+  id: string,
+  kind: ArchiveRecordKind,
+  ids: string[],
+) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/add_items/`,
+    { kind, ids },
+  );
+  toastSuccess("multiEngine.toast.added", { count: ids.length });
+  return row;
+}
+
+export async function updatePackageItem(
+  id: string,
+  item: string,
+  selection: PackageSelection,
+) {
+  const row = await api.patch<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/update_item/`,
+    { item, selection },
+  );
+  toastSuccess("multiEngine.toast.saved");
+  return row;
+}
+
+export async function removePackageItem(id: string, item: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/remove_item/`,
+    { item },
+  );
+  toastSuccess("multiEngine.toast.removed");
+  return row;
+}
+
+export const reorderPackageItems = (id: string, items: string[]) =>
+  api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/reorder_items/`,
+    { items },
+  );
+
+export async function confirmEvidencePackage(id: string, remarks: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/confirm_package/`,
+    { remarks },
+  );
+  toastSuccess("multiEngine.toast.confirmed");
+  return row;
+}
+
+/** Download the merged PDF. The server notes that it left (D-148). */
+export const downloadEvidencePackage = (id: string, name: string) =>
+  download(`/api/evidence-packages/${id}/download_package/`, {
+    fallbackFilename: `${name || "package"}.pdf`,
+  });
+
+export async function sendPackageForReview(id: string, consultant: string) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/evidence-packages/${id}/send_for_review/`,
+    { consultant },
+  );
+  toastSuccess("multiEngine.toast.sent");
+  return row;
+}
+
+/* -- the consultant's side ------------------------------------------------ */
+
+export const getPackagesToReview = (query: ListQuery) =>
+  api.list<EvidencePackageRow>(
+    "/api/package-reviews/get_review_packages/",
+    query,
+  );
+
+export const getPackageToReview = (id: string) =>
+  api.get<EvidencePackageDetail>(
+    `/api/package-reviews/${id}/get_review_package/`,
+  );
+
+export async function reviewPackageItem(
+  id: string,
+  item: string,
+  decision: "ACCEPTED" | "RETURNED",
+  reason = "",
+) {
+  const row = await api.post<EvidencePackageDetail>(
+    `/api/package-reviews/${id}/review_item/`,
+    { item, decision, reason },
+  );
+  toastSuccess(
+    decision === "ACCEPTED"
+      ? "multiEngine.toast.accepted"
+      : "multiEngine.toast.returned",
+  );
+  return row;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Claim Engine (T-236)
+ *
+ * There is no consultant-side function here on purpose. A confirmed claim
+ * is reviewed as its evidence package, through `getPackagesToReview` /
+ * `reviewPackageItem` above (D-158) - and a returned member marks the claim
+ * item on the server, so this screen learns about it by re-reading the
+ * claim rather than by a second review call of its own.
+ * ---------------------------------------------------------------------- */
+
+export const getClaims = (
+  query: ListQuery & {
+    project?: string;
+    kind?: ClaimKind;
+    state?: ClaimState;
+    payment_state?: ClaimPaymentState;
+    period?: string;
+  },
+) => api.list<ClaimRow>("/api/claims/get_claims/", query);
+
+export const getClaim = (id: string) =>
+  api.get<ClaimDetail>(`/api/claims/${id}/get_claim/`);
+
+/**
+ * This period's candidates, and the four counts above them (D-134).
+ *
+ * Not `api.list`: the payload carries the counts beside the rows, and they
+ * are counted over everything eligible rather than over the page - a "12
+ * eligible" that changed when you turned the page would be a different
+ * number with the same name.
+ */
+export const getClaimCandidates = (query: {
+  project: string;
+  kind: ClaimKind;
+  claim?: string;
+}) => api.get<ClaimCandidatePage>("/api/claims/get_candidates/", query);
+
+export async function createClaim(payload: {
+  project: string;
+  kind: ClaimKind;
+  /** `YYYY-MM`. The server stores the first of that month (D-164). */
+  period: string;
+  remarks?: string;
+}) {
+  const row = await api.post<ClaimDetail>("/api/claims/create_claim/", payload);
+  toastSuccess("claims.toast.opened");
+  return row;
+}
+
+export async function deleteClaim(id: string) {
+  await api.delete(`/api/claims/${id}/delete_claim/`);
+  toastSuccess("claims.toast.discarded");
+}
+
+/** 勾选后自动进入本期 - ticking is what puts a record on the claim. */
+export async function selectClaimItems(id: string, ids: string[]) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/select_items/`, {
+    ids,
+  });
+  // What actually went on, not what was asked for. The server refuses a
+  // record that is already on a claim (D-163), and a toast that counted the
+  // request would tell somebody five went on when three did.
+  toastSuccess("claims.toast.selected", {
+    count: ids.length - (row.refused?.length ?? 0),
+  });
+  return row;
+}
+
+export async function removeClaimItem(id: string, item: string) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/remove_item/`, {
+    item,
+  });
+  toastSuccess("claims.toast.removed");
+  return row;
+}
+
+/**
+ * 第二轮确认. Claims every ticked record and raises the merged PDF.
+ *
+ * `include_photos` is the customer's red pen - 「不需要照片」只有必要和 DO.
+ * The delivery orders are never optional: they are what the claim is made of.
+ */
+export async function confirmClaim(
+  id: string,
+  remarks: string,
+  includePhotos: boolean,
+) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/confirm_claim/`, {
+    remarks,
+    include_photos: includePhotos,
+  });
+  toastSuccess("claims.toast.confirmed");
+  return row;
+}
+
+/** 收款状态. Behind its own permission code (D-136). */
+export async function setClaimPayment(
+  id: string,
+  payload: { payment_state: ClaimPaymentState; payment_note?: string },
+) {
+  const row = await api.post<ClaimRow>(
+    `/api/claims/${id}/set_payment/`,
+    payload,
+  );
+  toastSuccess("claims.toast.payment");
+  return row;
+}

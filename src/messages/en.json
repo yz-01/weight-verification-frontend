@@ -1,56 +1,4 @@
 {
-  "materialColumns": {
-    "alertHelp": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
-    "alertInvalid": "Use whole numbers between 1 and 500, separated by commas.",
-    "alertPercentages": "Warn at these percentages",
-    "archived": "Filed by column",
-    "archivedHelp": "Budget is money, added up from the delivery orders in this column.",
-    "budgetAmount": "Budget (RM)",
-    "budgetNone": "Leave empty for a column that does not count against a budget",
-    "columnsFailed": "The columns could not be loaded, so it is not known whether this site has any. Try again.",
-    "columnsFailedRefile": "The columns could not be loaded, so the picker above is empty. That does not mean this site has no columns - do not create a new one until it has loaded.",
-    "edit": "Edit column",
-    "editHelp": "The name, the budget and the warning lines. The photographs, quantities and signatures filed in this column are evidence and are not touched here.",
-    "editTitle": "Edit {name}",
-    "fileInto": "File into",
-    "filed": "{count} filed",
-    "noBudget": "No budget set",
-    "noColumns": "No columns set up yet",
-    "noMaterialColumns": "This project has no material columns to file into.",
-    "pending": "Waiting for you ({count})",
-    "pendingEmpty": "Nothing waiting",
-    "pendingFailed": "The list of deliveries waiting to be filed could not be loaded, so it is not known whether any are waiting. Try again.",
-    "pendingHelp": "These are filed into their column once you have opened them. Every account has its own read state.",
-    "refileConfirm": "File it",
-    "refileHelp": "Only the column changes. The photographs, quantity, signature, time and place stay exactly as they were recorded.",
-    "refileReason": "Why",
-    "refileTitle": "File {receipt} into a column",
-    "saveFailed": "That did not go through. Try again, or reload the page.",
-    "seeAllPending": "See all {count}",
-    "subtitle": "What each column has taken in, and what it has spent",
-    "title": "Material columns",
-    "toast": {
-      "refiled": "Delivery filed."
-    },
-    "tonnes": "{tonnes} t received",
-    "tracksSpend": "Count spending in this column against a budget",
-    "uncounted": "Some delivery orders had no readable amount, so they are not in this total."
-  },
-  "photoApprovals": {
-    "noLocation": "No location recorded",
-    "noCaption": "No caption",
-    "noPhotos": "No photos on this one",
-    "returnReason": "Reason for sending back",
-    "returnPlaceholder": "For example: the beam soffit is out of frame",
-    "returnHelp": "Say what is wrong. The reason goes to the person who took the photos, or they will not know what to reshoot.",
-    "returnTitle": "Send back for reshooting",
-    "return": "Send back",
-    "accept": "Approve",
-    "noCategory": "No column",
-    "empty": "Nothing waiting for approval",
-    "subtitle": "{count} waiting for you",
-    "title": "Photo approvals"
-  },
   "adminAssetManagement": {
     "action": {
       "activate": "Activate",
@@ -1219,7 +1167,15 @@
       "loadError": "Notification channel status could not be loaded. Please try again.",
       "never": "No attempts yet",
       "sent": "{count} sent",
-      "sentLabel": "Delivered"
+      "sentLabel": "Real deliveries",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "enabledLabel": "Enable {channel}",
+      "modeLabel": "{channel} mode",
+      "policyHint": "Disabled sends nothing. Test mode records a simulation only. Live mode sends to recipients.",
+      "simulatedLabel": "Simulated only — not sent",
+      "unavailable": "Disabled or not configured",
+      "saveError": "Could not save the delivery settings. Try again."
     },
     "composer": {
       "channelDescription": {
@@ -2966,6 +2922,52 @@
       "title": "Approval chains"
     }
   },
+  "archiveQueue": {
+    "allModules": "All modules",
+    "alreadyArchived": "Already archived",
+    "archive": "Archive for me",
+    "archiveHelp": "Archives this record for your account only.",
+    "column": {
+      "record": "Record",
+      "module": "Module",
+      "project": "Project",
+      "when": "When",
+      "status": "Status",
+      "action": "Action"
+    },
+    "emptyArchived": "You have not archived anything here yet.",
+    "emptyPending": "Nothing waiting for you here.",
+    "failed": "That list could not be loaded. Try again.",
+    "firstPage": "You are on the first page.",
+    "kind": {
+      "MATERIAL_RECEIPT": "Material receipts",
+      "MATERIAL_OUTGOING": "Material leaving site",
+      "EQUIPMENT_MOVEMENT": "Equipment in and out",
+      "HAZARD": "Hazard rectification",
+      "WASTE_OUTGOING": "Recyclable waste orders",
+      "DISPOSAL_REQUEST": "Construction waste disposal",
+      "PROGRESS": "Site progress",
+      "CONSULTANT_APPLICATION": "Consultant applications",
+      "ATTENDANCE_DAY": "Attendance, by day"
+    },
+    "lastPage": "You are on the last page.",
+    "loading": "Loading…",
+    "modules": "Modules",
+    "next": "Next",
+    "open": "Open",
+    "pageOf": "Page {page} of {pages}",
+    "perPersonHelp": "Unarchived means you have not opened it yet. Your colleagues keep their own lists, so opening a record here never clears it from anybody else's.",
+    "previous": "Previous",
+    "state": {
+      "pending": "Unarchived",
+      "archived": "Archived"
+    },
+    "subtitle": "Everything finished, waiting for you to look at it.",
+    "title": "Archive queue",
+    "toast": {
+      "archived": "Archived for you."
+    }
+  },
   "assets": {
     "category": {
       "AI_CCTV": "AI CCTV",
@@ -3767,6 +3769,55 @@
       "SOIL": "Soil and aggregate",
       "TIMBER": "Timber"
     }
+  },
+  "categoryManagement": {
+    "active": "Active",
+    "chooseProject": "Choose a project to see its categories.",
+    "column": {
+      "name": "Category name",
+      "code": "Code",
+      "module": "Module",
+      "records": "Records",
+      "status": "Status",
+      "action": "Action"
+    },
+    "edit": "Edit",
+    "empty": "No categories here yet.",
+    "failed": "The categories could not be loaded. Try again.",
+    "inactive": "Inactive",
+    "loading": "Loading...",
+    "manage": "Open the module",
+    "module": {
+      "material": "Material categories",
+      "field": "Site record categories",
+      "document": "Document categories",
+      "equipment": "Equipment categories",
+      "progress": "Progress categories",
+      "phase": "Construction stages",
+      "ehs": "EHS categories",
+      "recycle": "Recycle categories",
+      "debris": "Construction waste categories"
+    },
+    "moduleHelp": {
+      "material": "Deliveries and the money they cost file here. One list per project.",
+      "field": "Site photographs file here. One list per project.",
+      "document": "Drawings, contracts, RFIs. One list for the whole company, shared by every project - editing it here changes it everywhere.",
+      "equipment": "Cranes, excavators, generators. One list per project, kept by this company.",
+      "progress": "Zones, floors and trades. One list per project, and these carry no progress weight.",
+      "phase": "The stages the completion percentage is measured against. One list per project - changing a weight changes the figures.",
+      "ehs": "Hazards, quality issues, incidents and permits. One list per project.",
+      "recycle": "Recyclable waste the site sends out. One list for the whole company; the seeded ones can be closed but not deleted.",
+      "debris": "Construction waste sent for disposal. One list per project."
+    },
+    "modules": "Modules",
+    "scope": {
+      "project": "This project",
+      "company": "The whole company",
+      "platform": "The whole platform"
+    },
+    "subtitle": "Pick a module, then see the categories under it.",
+    "title": "Category management",
+    "weight": "weight {weight}"
   },
   "cloudServices": {
     "count": "{count} services",
@@ -5101,11 +5152,11 @@
       "accessTitle": "Who can see this category",
       "accessUsers": "Allowed people",
       "add": "Add category",
-      "createTitle": "New site record category",
+      "createTitle": "New category",
       "editPermissionHelp": "Leave both lists empty to use the normal category manager permission. Company administrators always retain recovery access.",
       "editPermissionTitle": "Who can edit this category",
       "editRoles": "Roles allowed to edit",
-      "editTitle": "Edit site record category",
+      "editTitle": "Edit category",
       "editUsers": "People allowed to edit",
       "formHelp": "Categories belong to one project and can be ordered or hidden from the field app.",
       "moveDown": "Move down",
@@ -5121,10 +5172,18 @@
       "uploadRoles": "Roles allowed to upload",
       "uploadTitle": "Who can upload to this category",
       "uploadUsers": "People allowed to upload",
-      "kind": "Which filing scheme",
+      "kind": "Which module it belongs to",
       "kindField": "Site record column",
       "kindMaterial": "Material column",
-      "kindBoth": "Not separated yet"
+      "kindBoth": "Not separated yet",
+      "kindProgress": "Progress column",
+      "kindEhs": "Safety and hazard column",
+      "kindEquipment": "Equipment column",
+      "kindConstructionWaste": "Construction waste column",
+      "submissionMode": "Submission action",
+      "submissionDirect": "Submit directly",
+      "submissionReview": "Submit for review",
+      "submissionConsultant": "Submit for consultant approval"
     },
     "direction": {
       "ENTRY": "Entry",
@@ -5219,19 +5278,24 @@
       "allProjects": "All projects",
       "assignee": "Field staff",
       "category": "Category",
+      "certificateExpiresOn": "Certificate expires",
       "code": "Code",
       "deliveryNote": "Delivery note",
       "description": "Description",
       "destination": "Destination",
       "dueAt": "Due date and time",
+      "equipmentColumn": "Equipment column",
       "executor": "Executor",
+      "expiryHelp": "Fills the home page's expiring-paperwork card. Leave blank if you do not hold the document - blank is better than a guessed date.",
       "instructions": "Instructions",
+      "insuranceExpiresOn": "Insurance expires",
       "latitude": "Latitude",
       "location": "Current GPS location",
       "longitude": "Longitude",
       "material": "Material",
       "name": "Name",
       "noCategory": "No category",
+      "noEquipmentColumn": "No column",
       "noParent": "No parent category",
       "noSupplier": "No supplier",
       "notes": "Notes",
@@ -5259,10 +5323,19 @@
       "title": "Task title",
       "unit": "Unit",
       "vehiclePlate": "Vehicle plate",
-      "workLocation": "Work area / location",
-      "certificateExpiresOn": "Certificate expires",
-      "insuranceExpiresOn": "Insurance expires",
-      "expiryHelp": "Fills the home page's expiring-paperwork card. Leave blank if you do not hold the document - blank is better than a guessed date."
+      "workLocation": "Work area / location"
+    },
+    "filing": {
+      "action": "File it",
+      "columnsFailed": "The columns could not be loaded. Try again.",
+      "confirm": "Save filing",
+      "failed": "Filing failed. Try again.",
+      "fileInto": "Filed under",
+      "help": "{reference} - choose the column this belongs under, or take it back out.",
+      "noColumns": "This project has no columns for this module yet.",
+      "reason": "Why",
+      "title": "File under a column",
+      "unfiled": "Not filed yet"
     },
     "outgoing": {
       "add": "New outgoing request",
@@ -6004,6 +6077,8 @@
       "location": "Location",
       "netWeight": "Net weight",
       "photoCount": "Photos",
+      "pickupAddress": "Collection address",
+      "pickupAddressTyped": "Typed in",
       "project": "Project",
       "recycler": "Recycler",
       "releasedAt": "Released",
@@ -6027,6 +6102,7 @@
       "PLATE": "Number plate",
       "VEHICLE": "Vehicle"
     },
+    "pickupAddressHint": "Leave blank to use the project address. Type it in when the lorry has to come to a particular gate.",
     "recyclerEmpty": "No recyclers are available right now.",
     "recyclerNote": "Loads can only be sent to recyclers registered on MSE Trace. That is what puts the load on a weighbridge and keeps the trail going past your gate.",
     "release": {
@@ -6188,7 +6264,6 @@
     }
   },
   "driver": {
-    "pickupAddress": "Collect from",
     "action": {
       "ACCEPTED": "Accept this trip",
       "ARRIVED": "I have arrived",
@@ -6205,6 +6280,7 @@
     "awaitingWeighing": "Arrived at the recycling yard",
     "awaitingWeighingBody": "Please wait for the gross and tare weighing. The task completes automatically after a valid net weight is recorded.",
     "back": "All trips",
+    "bothPhotosRequired": "Take a loading photograph and a photograph of the gate pass before you drive off.",
     "cannotComplete": "I cannot complete this",
     "dashboard": {
       "allJobs": "View all",
@@ -6224,6 +6300,22 @@
       "title": "Driver home",
       "today": "Today's jobs",
       "workStatus": "Work status"
+    },
+    "deduction": {
+      "kind": {
+        "CONTAMINATION": "Contamination",
+        "MOISTURE": "Water content",
+        "OTHER": "Other",
+        "OVERSIZE": "Oversize or unprocessable",
+        "WRONG_MATERIAL": "Material not as declared"
+      },
+      "state": {
+        "ACCEPTED": "Accepted",
+        "AUTO_ACCEPTED": "Accepted automatically",
+        "PENDING": "Waiting for the producer",
+        "RECHECK": "Recheck requested",
+        "REJECTED": "Rejected"
+      }
     },
     "device": {
       "enable": "Enable",
@@ -6249,6 +6341,7 @@
       }
     },
     "finished": "Finished",
+    "gatepassRequired": "Photograph the gate pass before you drive off. The loading photograph is done.",
     "gpsUnavailable": "GPS is not available. Enable location permission so the route and photo evidence include the correct location.",
     "nav": {
       "home": "Home",
@@ -6268,6 +6361,7 @@
     },
     "photoGpsRequired": "Turn on precise location before taking a task photo. The photo was not uploaded.",
     "photoRequired": "Take a loading photo before marking this trip as loaded.",
+    "pickupAddress": "Collect from",
     "profile": {
       "readOnly": "Your recycler administrator manages these details.",
       "title": "My profile"
@@ -6299,6 +6393,7 @@
       "payableWeight": "Payable weight",
       "title": "Weight and payment"
     },
+    "takeGatepass": "Photograph the gate pass",
     "takePhoto": "Take a photo",
     "toast": {
       "photoSent": "Photo sent"
@@ -6310,22 +6405,6 @@
       "mayPause": "Your location is recorded only while this screen is on. If the phone locks, the track will show a gap.",
       "noWakeLock": "This browser will not keep the screen awake. Set the phone's screen timeout longer, or the track will show gaps.",
       "recording": "Recording your location. Keep this screen on."
-    },
-    "deduction": {
-      "kind": {
-        "CONTAMINATION": "Contamination",
-        "MOISTURE": "Water content",
-        "OTHER": "Other",
-        "OVERSIZE": "Oversize or unprocessable",
-        "WRONG_MATERIAL": "Material not as declared"
-      },
-      "state": {
-        "ACCEPTED": "Accepted",
-        "AUTO_ACCEPTED": "Accepted automatically",
-        "PENDING": "Waiting for the producer",
-        "RECHECK": "Recheck requested",
-        "REJECTED": "Rejected"
-      }
     }
   },
   "driverGps": {
@@ -6515,6 +6594,7 @@
       "config_readonly": "This system setting is read-only.",
       "config_required": "Required system settings cannot be removed.",
       "config_unknown": "This configuration key is not supported.",
+      "conflict": "That cannot be done while the record is in its current state.",
       "consultant_grant_not_found": "That consultant project access record could not be found.",
       "consultant_organization_not_found": "That consultant organization could not be found.",
       "customer_assignment_not_found": "That customer assignment could not be found.",
@@ -6558,6 +6638,11 @@
       "gate_binding_not_found": "Nothing is waiting at this weighbridge.",
       "gateway_not_found": "That gateway could not be found.",
       "gateway_revoked": "This weighing gateway has already been revoked.",
+      "hazard_audio_too_long": "That voice note is {seconds} seconds long. One note can be at most {limit} seconds — record a shorter one, or send two.",
+      "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
+      "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
+      "hazard_not_a_participant": "{incident_no} was not raised with you. Ask the person who reported it, or a safety supervisor, to add you.",
+      "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor.",
       "incident_thread_not_found": "That incident report could not be found.",
       "incorrect_password": "Your current password is incorrect.",
       "ingest_rejected": "The weighbridge reading could not be accepted.",
@@ -6574,8 +6659,12 @@
       "invalid_rule_params": "Check the detection settings and try again.",
       "invoice_not_found": "That invoice could not be found.",
       "maintenance_not_found": "That maintenance record could not be found.",
+      "method_not_allowed": "That action is not available here.",
       "no_active_agreement": "This partner has no active agreement.",
       "no_current_version": "No current platform version has been selected.",
+      "not_acceptable": "This device cannot read the format the server replied in.",
+      "not_authenticated": "Please sign in again.",
+      "not_found": "That item was not found.",
       "notification_not_found": "That notification could not be found.",
       "object_reference_required": "A record must be specified.",
       "ocr_failed": "The delivery note could not be read. Enter the details manually.",
@@ -6605,6 +6694,9 @@
       "receipt_immutable": "Uploaded receipts cannot be changed or removed. Create a correction instead.",
       "receipt_not_found": "That receipt could not be found.",
       "receipt_photo_not_found": "That photo could not be found.",
+      "receipt_rejection_needs_reason": "Type the reason for rejecting this delivery. A rejection with no reason gives the site nothing to act on.",
+      "receipt_superseded": "A correction has already replaced this delivery record, so this copy can no longer be accepted or rejected. Open the current record and review that one instead.",
+      "record_not_found": "That record is not available to this account.",
       "refresh_token_required": "Your session could not be renewed. Sign in again.",
       "reset_link_invalid": "This reset link is invalid or has expired. Request a new one.",
       "role_in_use": "This role is still assigned to people. Move them to another role first.",
@@ -6616,6 +6708,7 @@
       "scale_has_dependencies": "Disable all gateways first. A weighbridge with weighing evidence cannot be removed.",
       "scale_not_found": "That weighbridge could not be found.",
       "scheduled_job_not_found": "That scheduled job could not be found.",
+      "server_error": "The server could not complete this request. Try again shortly.",
       "service_record_not_found": "That customer service record could not be found.",
       "session_expired": "Your session expired. Sign in again.",
       "session_not_found": "That weighing could not be found.",
@@ -6627,15 +6720,19 @@
       "settlement_not_issued": "Issue the settlement first.",
       "settlement_nothing_to_settle": "The deductions leave nothing to settle.",
       "site_not_found": "That site could not be found.",
+      "submission_not_found": "That submission is not one of yours.",
       "supplier_not_found": "That supplier could not be found.",
       "task_already_running": "A trip is already running for that load.",
       "task_already_started": "This trip has already started and can no longer be reassigned.",
+      "task_gatepass_required": "Photograph the gate pass the site gave you before marking the trip loaded. The loading photograph is already on file.",
       "task_invalid_transition": "A trip cannot move to that step from where it is now.",
       "task_not_found": "That trip could not be found.",
       "task_photo_required": "Attach a loading photograph before marking the trip loaded.",
       "territory_not_found": "That territory could not be found.",
+      "throttled": "Too many attempts. Wait a moment and try again.",
       "ticket_not_found": "That support ticket could not be found.",
       "training_not_found": "That training record could not be found.",
+      "unsupported_media_type": "That kind of file cannot be sent here.",
       "user_has_activity": "Only an account that has never been used can be removed. Suspend this user instead.",
       "user_not_found": "That user could not be found.",
       "user_suspended": "This account is not active. Contact your administrator.",
@@ -6645,14 +6742,7 @@
       "version_already_exists": "That platform version already exists.",
       "version_not_found": "That platform version could not be found.",
       "visit_not_found": "That customer visit could not be found.",
-      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
-      "receipt_superseded": "A correction has already replaced this delivery record, so this copy can no longer be accepted or rejected. Open the current record and review that one instead.",
-      "receipt_rejection_needs_reason": "Type the reason for rejecting this delivery. A rejection with no reason gives the site nothing to act on.",
-      "hazard_not_a_participant": "{incident_no} was not raised with you. Ask the person who reported it, or a safety supervisor, to add you.",
-      "hazard_message_empty": "Say something, or attach a photo, voice note or file, before sending.",
-      "hazard_audio_too_long": "That voice note is {seconds} seconds long. One note can be at most {limit} seconds — record a shorter one, or send two.",
-      "hazard_closed": "{incident_no} has been verified and archived. Its record stays readable, but it takes no new messages.",
-      "hazard_self_verification": "You carried out the rectification on {incident_no}, so somebody else has to verify it — the person who reported it, the project manager, the consultant, or a site or safety supervisor."
+      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -6930,6 +7020,18 @@
     "selectStaff": "Select a field worker",
     "title": "Create a field staff link"
   },
+  "fieldDraft": {
+    "loading": "Loading saved draft...",
+    "empty": "Your entries are saved on this device.",
+    "saving": "Saving your entries...",
+    "saved": "Saved on this device",
+    "error": "Could not save this draft. Keep this page open and retry.",
+    "retry": "Retry save",
+    "discard": "Discard draft",
+    "confirmDiscard": "Discard all saved entries for this form?",
+    "keep": "Keep",
+    "photoMissing": "What you typed was kept, but the photos for {count} field(s) could not be reopened. Please take them again."
+  },
   "fieldStaffPwa": {
     "handoff": {
       "failed": "The code could not be made",
@@ -7011,6 +7113,11 @@
       "project": "Project",
       "readOnly": "You can view this folder but cannot upload",
       "submit": "Send for manager review",
+      "submitMode": {
+        "DIRECT": "Submit directly",
+        "REVIEW": "Submit for review",
+        "CONSULTANT": "Submit for consultant approval"
+      },
       "submitError": "The site evidence could not be submitted. Check the photos, GPS and connection, then try again.",
       "subtitle": "Choose the project and folder. Take at least four photos, capture GPS, then send them for manager review.",
       "takePhotos": "Take photos in this folder",
@@ -7054,22 +7161,22 @@
     "evidenceProgress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
     "greeting": "Hello, {name}",
     "home": {
-      "attendance": "Clock in / out",
+      "attendance": "Site attendance",
       "category": "Site record folders",
-      "consultant": "Consultant photo",
+      "consultant": "Consultant submission",
       "disposal": "Waste disposal",
-      "equipment": "Equipment",
+      "equipment": "Equipment movement",
       "incidents": "Report incident",
       "location": "Share location",
-      "material": "Material",
+      "material": "Material record",
       "outgoing": "Material outgoing",
-      "progress": "Progress",
-      "records": "Take site photos",
-      "safety": "Safety issue",
+      "progress": "Progress photos",
+      "records": "Site records",
+      "safety": "Safety / hazard",
       "subtitle": "Tap one large button to continue.",
       "tasks": "My tasks",
       "title": "Today's work",
-      "waste": "Environmental waste outgoing",
+      "waste": "Environmental material outgoing",
       "hazards": "Hazards"
     },
     "identity": {
@@ -7111,6 +7218,8 @@
       "doPhoto": "Delivery note photo",
       "entry": "Material entry",
       "name": "Material name",
+      "specification": "Material specification",
+      "totalWeightKg": "Total weight (kg)",
       "notes": "Notes (optional)",
       "ocrChooseProject": "Choose the project before taking the delivery note photo.",
       "ocrField": {
@@ -7163,8 +7272,8 @@
       "unit": "Unit",
       "vehicle": "Vehicle plate",
       "column": "Material column",
-      "chooseColumn": "Choose a material column",
-      "columnUnfiled": "Not filed yet",
+      "columnAuto": "Files under {name}. The office can change it.",
+      "columnUnfiledNote": "Not filed yet. The office files it after checking.",
       "noColumnsYet": "This site has no material columns yet. Add the first one below.",
       "newColumnName": "New column name",
       "addColumn": "Add column",
@@ -7420,6 +7529,37 @@
     "open": "Open module search",
     "placeholder": "Search modules and functions"
   },
+  "hazard": {
+    "conversationTitle": "Rectification discussion",
+    "empty": "Nothing has been said yet.",
+    "send": "Send",
+    "placeholder": "Type a message",
+    "recordStart": "Record a voice note",
+    "recordStop": "Stop",
+    "recordingFor": "Recording {seconds}s of {limit}s",
+    "attach": "Attach a file",
+    "photo": "Photo",
+    "closed": "This hazard has been verified and archived. The record stays readable, but it takes no new messages.",
+    "participants": "In this conversation",
+    "reporter": "Reported it",
+    "responsible": "Responsible",
+    "supervisor": "Supervisor",
+    "voiceNote": "Voice note",
+    "unsupported": "This browser cannot record audio. Type a message or send a photo instead.",
+    "duration": "Expected to take",
+    "durationHours": "{hours} hours",
+    "unassigned": "Waiting to be assigned",
+    "nothingToSend": "Type a message, or attach a photo, voice note or file.",
+    "field": {
+      "title": "Hazards",
+      "subtitle": "What you reported, and what you have to fix.",
+      "report": "Report a hazard",
+      "empty": "Nothing yet. Photograph a hazard and it appears here."
+    }
+  },
+  "home": {
+    "action": {}
+  },
   "incidentReporting": {
     "action": {
       "back": "Back to incidents",
@@ -7523,6 +7663,9 @@
       "dispatchNo": "Dispatch no.",
       "driverName": "Driver",
       "estimatedWeight": "Declared weight (kg)",
+      "pickupAddress": "Collect from",
+      "pickupAddressFromProject": "From the project address",
+      "pickupAddressTyped": "Typed in",
       "project": "Site",
       "releasedAt": "Released",
       "state": "Status",
@@ -7547,7 +7690,10 @@
       "proposalNote": "Message to the site",
       "proposedAt": "Proposed collection date and time",
       "title": "Collection order",
-      "waitingConfirmation": "Waiting for contractor confirmation"
+      "waitingConfirmation": "Waiting for contractor confirmation",
+      "proposeTime": "Change the collection time",
+      "autoAccepted": "This order was accepted when the site sent it. There is nothing to accept.",
+      "wantedAt": "Site wants it collected"
     },
     "subtitle": "Waste on its way to your yards.",
     "summary": {
@@ -7560,7 +7706,8 @@
     "title": "Incoming loads",
     "toast": {
       "accepted": "Order accepted",
-      "collected": "Load collected"
+      "collected": "Load collected",
+      "collectionProposed": "Collection time proposed. The site has to confirm it."
     }
   },
   "integrations": {
@@ -7913,6 +8060,48 @@
       "USER_SUSPENDED": "Account suspended"
     },
     "title": "Sign-in history"
+  },
+  "materialAcceptance": {
+    "PENDING": "Awaiting acceptance",
+    "ACCEPTED": "Accepted",
+    "REJECTED": "Rejected"
+  },
+  "materialColumns": {
+    "alertHelp": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
+    "alertInvalid": "Use whole numbers between 1 and 500, separated by commas.",
+    "alertPercentages": "Warn at these percentages",
+    "archived": "Filed by column",
+    "archivedHelp": "Budget is money, added up from the delivery orders in this column.",
+    "budgetAmount": "Budget (RM)",
+    "budgetNone": "Leave empty for a column that does not count against a budget",
+    "columnsFailed": "The columns could not be loaded, so it is not known whether this site has any. Try again.",
+    "columnsFailedRefile": "The columns could not be loaded, so the picker above is empty. That does not mean this site has no columns - do not create a new one until it has loaded.",
+    "edit": "Edit column",
+    "editHelp": "The name, the budget and the warning lines. The photographs, quantities and signatures filed in this column are evidence and are not touched here.",
+    "editTitle": "Edit {name}",
+    "fileInto": "File into",
+    "filed": "{count} filed",
+    "noBudget": "No budget set",
+    "noColumns": "No columns set up yet",
+    "noMaterialColumns": "This project has no material columns to file into.",
+    "pending": "Waiting for you ({count})",
+    "pendingEmpty": "Nothing waiting",
+    "pendingFailed": "The list of deliveries waiting to be filed could not be loaded, so it is not known whether any are waiting. Try again.",
+    "pendingHelp": "These are filed into their column once you have opened them. Every account has its own read state.",
+    "refileConfirm": "File it",
+    "refileHelp": "Only the column changes. The photographs, quantity, signature, time and place stay exactly as they were recorded.",
+    "refileReason": "Why",
+    "refileTitle": "File {receipt} into a column",
+    "saveFailed": "That did not go through. Try again, or reload the page.",
+    "seeAllPending": "See all {count}",
+    "subtitle": "What each column has taken in, and what it has spent",
+    "title": "Material columns",
+    "toast": {
+      "refiled": "Delivery filed."
+    },
+    "tonnes": "{tonnes} t received",
+    "tracksSpend": "Count spending in this column against a budget",
+    "uncounted": "Some delivery orders had no readable amount, so they are not in this total."
   },
   "materialReports": {
     "cost": {
@@ -8306,6 +8495,316 @@
       "READY": "Ready"
     }
   },
+  "claims": {
+    "candidates": "What can go on this period",
+    "candidatesFailed": "The candidate records could not be loaded. Try again.",
+    "chooseSomething": "Tick at least one record.",
+    "column": {
+      "action": "Action",
+      "claimNo": "Claim",
+      "itemState": "On the claim",
+      "items": "Records",
+      "kind": "Kind",
+      "payment": "Payment",
+      "period": "Period",
+      "read": "Read",
+      "record": "Record",
+      "state": "State",
+      "when": "When"
+    },
+    "confirmBody": "{count} record(s) will be claimed. They leave every later period, and the evidence is merged into one PDF.",
+    "confirmPeriod": "Confirm this period",
+    "confirmTitle": "Confirm this period's claim",
+    "count": {
+      "eligible": "Eligible",
+      "seen": "Already read",
+      "selected": "Chosen",
+      "unseen": "Not read"
+    },
+    "discard": "Discard this claim",
+    "downloadPdf": "Download the PDF",
+    "empty": "No claims yet.",
+    "failed": "The claims could not be loaded. Try again.",
+    "field": {
+      "kind": "Kind of claim",
+      "selectProject": "Choose a site",
+      "paymentNote": "Note",
+      "period": "Period",
+      "project": "Site",
+      "remarks": "Remarks"
+    },
+    "filter": {
+      "allKinds": "All kinds"
+    },
+    "firstPage": "You are on the first page.",
+    "includePhotos": "Include the photographs",
+    "includePhotosHelp": "The delivery orders are always included - they are what the claim is made of.",
+    "itemState": {
+      "CLAIMED": "Claimed",
+      "RETURNED": "Returned",
+      "SELECTED": "On this period"
+    },
+    "kind": {
+      "MATERIAL_ON_SITE": "Material on site",
+      "PROGRESS": "Progress"
+    },
+    "kindHelp": {
+      "MATERIAL_ON_SITE": "Accepted deliveries that carry a delivery order.",
+      "PROGRESS": "Applications the consultant has approved: RFI, WIR, inspection request, concrete pour, shop drawing, material approval."
+    },
+    "lastPage": "You are on the last page.",
+    "loading": "Loading...",
+    "new": "New claim",
+    "newTitle": "Open a period's claim",
+    "next": "Next",
+    "noCandidates": "Nothing is waiting to be claimed on this site right now.",
+    "noRemarks": "No remarks",
+    "nothingSelected": "Nothing is on this period yet.",
+    "onThisPeriod": "On this period ({count})",
+    "open": "Open",
+    "openPeriod": "Open this period",
+    "packageHint": "The evidence for this claim is an evidence package. Send it to the consultant from Multi Engine; anything they return comes back here.",
+    "pageOf": "Page {page} of {pages}",
+    "payment": {
+      "NOT_RECEIVED": "Not received",
+      "PARTIAL": "Partly received",
+      "RECEIVED": "Received"
+    },
+    "paymentNoteHelp": "Required when only part of it arrived: partly, on its own, reads as settled.",
+    "paymentTitle": "Money received against this claim",
+    "previous": "Previous",
+    "projectLocked": "A claim belongs to one site and cannot be moved afterwards.",
+    "putOnPeriod": "Put {count} on this period",
+    "read": "Read",
+    "recordPayment": "Record payment",
+    "remarksHelp": "What this claim is for. It is what the consultant reads first.",
+    "returnedBecause": "Returned: {reason}",
+    "returnedCount": "{count} returned",
+    "review": {
+      "NOT_SENT": "Not sent yet",
+      "REVIEWED": "Reviewed",
+      "SENT": "Waiting for the consultant"
+    },
+    "reviewState": "With the consultant",
+    "searchPlaceholder": "Claim number, site or remarks",
+    "someRefused": "{count} of those could not go on: they are already on a claim, or not this site's.",
+    "sourceMissing": "The record this line points at is no longer readable.",
+    "state": {
+      "CONFIRMED": "Claimed",
+      "DRAFT": "This period"
+    },
+    "subtitle": "This period's claim, what has already been claimed, and whether the money arrived.",
+    "takeOff": "Take off this period",
+    "title": "Claims",
+    "toast": {
+      "confirmed": "Claimed.",
+      "discarded": "Claim discarded.",
+      "opened": "Claim opened.",
+      "payment": "Payment state saved.",
+      "removed": "Taken off this period.",
+      "saved": "Saved.",
+      "selected": "{count} record(s) put on this period."
+    },
+    "unread": "Not read"
+  },
+  "multiEngine": {
+    "acceptItem": "Accept",
+    "addRecords": "Add records",
+    "addSelected": "Add {count} selected",
+    "addToPackage": "Add to a package",
+    "addToPackageHelp": "{reference} will be added to a draft package in this project. It stays where it is - a package points at records, it does not move them.",
+    "alreadyFirst": "Already first.",
+    "alreadyLast": "Already last.",
+    "cancelReturn": "Keep it",
+    "choose": "Choose parts",
+    "chooseDraft": "Draft package",
+    "column": {
+      "name": "Package",
+      "project": "Project",
+      "items": "Records",
+      "state": "State",
+      "review": "Review",
+      "when": "Created",
+      "action": "Action"
+    },
+    "columns": "Columns",
+    "confirm": "Confirm and merge",
+    "confirmedHelp": "This package is confirmed. Its contents no longer change, and it cannot be deleted - it is the record of why these documents were put together.",
+    "consultantOnlyHelp": "Consultants only. The platform has no owner account type, so there is nobody else this can be addressed to.",
+    "digest": "Digest {digest}",
+    "download": "Download PDF",
+    "empty": "No packages yet. Start one to gather evidence for a claim or a submission.",
+    "exportedHelp": "This PDF has been downloaded out of the platform. From here nothing can be returned automatically - whoever is handling it has to be told outside the system, and the outcome recorded here by hand.",
+    "exportedNoReturn": "This package has already been exported out of the platform, so there is no return path left.",
+    "failed": "This could not be loaded. Check the connection and try again.",
+    "field": {
+      "project": "Project",
+      "selectProject": "Choose a project",
+      "name": "Package name",
+      "namePlaceholder": "For example: March progress claim",
+      "remarks": "Remarks",
+      "records": "Records",
+      "consultant": "Consultant",
+      "consultantPlaceholder": "The consultant's account id",
+      "returnReason": "Reason for returning"
+    },
+    "firstPage": "This is the first page.",
+    "group": {
+      "fields": "Fields",
+      "photos": "Photographs",
+      "documents": "Delivery orders"
+    },
+    "itemAccepted": "Accepted",
+    "itemCount": "{count} records",
+    "kind": {
+      "MATERIAL_RECEIPT": "Material receipt",
+      "MATERIAL_OUTGOING": "Material outgoing",
+      "EQUIPMENT_MOVEMENT": "Equipment movement",
+      "HAZARD": "Hazard",
+      "WASTE_OUTGOING": "Waste outgoing",
+      "DISPOSAL_REQUEST": "Disposal request",
+      "PROGRESS": "Progress",
+      "CONSULTANT_APPLICATION": "Consultant application"
+    },
+    "lastPage": "This is the last page.",
+    "loading": "Loading…",
+    "mergeReason": {
+      "missing_file": "the stored file could not be found",
+      "file_too_large": "the file is larger than one attachment may be",
+      "package_too_large": "including it would take the package over its size limit",
+      "unreadable_file": "the stored file could not be read",
+      "unreadable_pdf": "the file is not a readable PDF",
+      "unreadable_image": "the image could not be drawn",
+      "source_missing": "the record it pointed at is no longer readable"
+    },
+    "mergeReportTitle": "Some records are not in the PDF",
+    "moveDown": "Move down",
+    "moveUp": "Move up",
+    "new": "New package",
+    "newTitle": "Start a package",
+    "next": "Next",
+    "noCandidates": "This column has no records in this project yet.",
+    "noDrafts": "This project has no draft package open. Give one a name and this record starts it.",
+    "noItems": "Nothing in this package yet. Add records from the project's columns.",
+    "oneProjectHelp": "A package belongs to one project. Its records come from that project's columns, and a record from another project will be refused.",
+    "open": "Open",
+    "pageOf": "Page {page} of {pages}",
+    "partsSummary": "{fields} fields · {photos} photos · {documents} delivery orders",
+    "previous": "Previous",
+    "remarksHelp": "Months from now this is the only thing that explains why these records were put together.",
+    "rename": "Rename",
+    "renameHelp": "The name was typed before the package had any contents. Fix it here rather than starting again.",
+    "returnItem": "Return",
+    "returnReasonHelp": "A return with no reason gives the applicant nothing to act on.",
+    "returnedCount": "{count} returned",
+    "returnedWithReason": "Returned: {reason}",
+    "review": {
+      "NOT_SENT": "Not sent",
+      "SENT": "With the consultant",
+      "REVIEWED": "Reviewed"
+    },
+    "reviewEmpty": "Nothing has been sent to you yet.",
+    "reviewSubtitle": "Accept each record, or return it to the applicant with a reason.",
+    "reviewTitle": "Packages to review",
+    "searchPlaceholder": "Search by name or remarks",
+    "send": "Send to consultant",
+    "sourceMissing": "The record this points at can no longer be read from this account.",
+    "startAndAdd": "Start it and add",
+    "state": {
+      "DRAFT": "Draft",
+      "CONFIRMED": "Confirmed"
+    },
+    "subtitle": "Gather records from several columns of one project and merge them into one PDF.",
+    "title": "Multi Engine",
+    "toast": {
+      "created": "Package started.",
+      "saved": "Saved.",
+      "deleted": "Package deleted.",
+      "added": "{count} record(s) added.",
+      "removed": "Record removed.",
+      "confirmed": "Package confirmed and merged.",
+      "sent": "Sent for review.",
+      "accepted": "Accepted.",
+      "returned": "Returned to the applicant."
+    }
+  },
+  "mySubmissions": {
+    "title": "What I sent",
+    "subtitle": "Everything you submitted, newest first.",
+    "refresh": "Check again",
+    "empty": "Nothing yet. Anything you submit appears here.",
+    "waitingToUpload": "Waiting to upload",
+    "uploadFailed": "Upload refused",
+    "attempts": "{count} attempts",
+    "truncated": "Showing {shown} of {total}.",
+    "kind": {
+      "MATERIAL_RECEIPT": "Delivery",
+      "SITE_RECORD": "Site record",
+      "WASTE_OUTGOING": "Waste out",
+      "HAZARD": "Hazard",
+      "PROGRESS": "Progress",
+      "DRIVER_TRIP": "Trip"
+    },
+    "field": {
+      "application_no": "Application no.",
+      "archived_at": "Archived at",
+      "category": "Category",
+      "clock_ins": "Clock-ins",
+      "clock_outs": "Clock-outs",
+      "delivery_note_no": "Delivery order no.",
+      "description": "Description",
+      "destination": "Destination",
+      "direction": "Direction",
+      "dispatch_no": "Order no.",
+      "equipment_name": "Equipment",
+      "executor_name": "Done by",
+      "failure_reason": "Why it failed",
+      "instructions": "What was asked for",
+      "location_description": "Where it was cleared",
+      "material_name": "Material",
+      "note": "Note",
+      "operator_name": "Operator",
+      "people": "People",
+      "percent_complete": "Completed",
+      "phase": "Phase",
+      "pickup_address": "Collect from",
+      "quantity": "Quantity",
+      "reason": "Reason",
+      "received_by_name": "Received by",
+      "rectification_note": "Rectification",
+      "rejection_reason": "Why it was rejected",
+      "resolution_note": "How it was closed",
+      "review_note": "Office comment",
+      "severity": "Severity",
+      "site": "Yard",
+      "specification": "Specification",
+      "supplier": "Supplier",
+      "task_type": "Type",
+      "title": "What happened",
+      "vehicle_plate": "Lorry",
+      "waste_description": "Waste",
+      "work_location": "Where on site",
+      "workflow": "Workflow"
+    },
+    "detailTitle": "What I sent",
+    "photos": "Photographs",
+    "noPhotos": "No photographs on this record",
+    "openChat": "Open the hazard chat",
+    "loadFailed": "This record could not be opened",
+    "queuedTitle": "Still on this phone",
+    "queuedHelp": "Nothing has been sent yet. It goes out on its own once there is a connection.",
+    "failedHelp": "The server refused this. Fix what it says below, then send again.",
+    "close": "Close",
+    "unit": {
+      "BAG": "Bag",
+      "KG": "Kilogram",
+      "LOAD": "Load",
+      "M3": "Cubic metre",
+      "OTHER": "Other",
+      "PIECE": "Piece",
+      "TONNE": "Tonne"
+    }
+  },
   "nav": {
     "activity_logs": "Activity logs",
     "announcements": "Announcements",
@@ -8396,6 +8895,7 @@
       "apiGatewaySettings": "API Gateway settings",
       "approvalCredentials": "Approval credentials",
       "approvals": "Approval records",
+      "archiveQueue": "Archive queue",
       "assetActivity": "Asset records",
       "assetAssignments": "Assignment and borrowing",
       "assetCategories": "Asset categories",
@@ -8419,7 +8919,7 @@
       "billingActivity": "Billing records",
       "billingAudit": "Billing records",
       "billingStatistics": "Billing statistics",
-      "categoryRecords": "Site record categories",
+      "categoryManagement": "Category management",
       "cctvMonitoring": "AI CCTV monitoring",
       "cctvSettings": "AI CCTV settings",
       "cloudActivity": "Cloud records",
@@ -8517,6 +9017,8 @@
       "materialQuantityReport": "Material quantity report",
       "materialReceipts": "Material receipts",
       "monitoringRecords": "Monitoring records",
+      "claimEngine": "Claim Engine",
+      "multiEngine": "Multi Engine",
       "notificationChannels": "Notification channels",
       "notificationManagement": "Notification management",
       "notificationRecords": "Notification records",
@@ -8525,6 +9027,7 @@
       "notifications": "Notification center",
       "operationsReports": "System operations reports",
       "packageChanges": "Package changes",
+      "packageReviews": "Packages to review",
       "partnerActivity": "Partner records",
       "partnerAgreements": "Agreements",
       "partnerCustomers": "Customer ownership",
@@ -8536,6 +9039,7 @@
       "partnerTerritories": "Territories",
       "partnerTypes": "Partner types",
       "paymentProofs": "Payment proofs",
+      "photoApprovals": "Photo approvals",
       "photoReport": "Photo report",
       "platformBusinessReports": "Platform business reports",
       "platformCommission": "Platform commission",
@@ -8613,8 +9117,6 @@
       "versionSettings": "Version management",
       "wasteDispatches": "Waste dispatches",
       "wasteOutgoing": "Environmental material outgoing applications",
-      "photoApprovals": "Photo approvals",
-      "materialColumns": "Material columns",
       "workforceGps": "Workforce live location"
     },
     "subscription_management": "Subscriptions",
@@ -8797,6 +9299,29 @@
       "empty": "No trade yet. Add one before the headcount can be broken down by trade.",
       "help": "What people do on site — steel fixer, scaffolder, electrician. Kept as a list so the headcount by trade adds up.",
       "title": "Trades"
+    }
+  },
+  "pageGuide": {
+    "section": {
+      "what": "What this does",
+      "who": "Who can use it",
+      "need": "What you must fill in",
+      "then": "What happens next",
+      "trouble": "When it goes wrong"
+    },
+    "action": "Page guide",
+    "operate": {
+      "description": "Create or edit a record, fill every required field, then save or confirm the operation.",
+      "title": "Complete the required action"
+    },
+    "review": {
+      "description": "Use search, filters and status labels to find the company, record or device you need.",
+      "title": "Review the current records"
+    },
+    "title": "How to use {page}",
+    "verify": {
+      "description": "Refresh the page and check the latest status, history, notification or audit record.",
+      "title": "Verify the result"
     }
   },
   "pageHelp": {
@@ -9261,29 +9786,6 @@
       "trouble": "Nothing common enough to warn about yet."
     }
   },
-  "pageGuide": {
-    "section": {
-      "what": "What this does",
-      "who": "Who can use it",
-      "need": "What you must fill in",
-      "then": "What happens next",
-      "trouble": "When it goes wrong"
-    },
-    "action": "Page guide",
-    "operate": {
-      "description": "Create or edit a record, fill every required field, then save or confirm the operation.",
-      "title": "Complete the required action"
-    },
-    "review": {
-      "description": "Use search, filters and status labels to find the company, record or device you need.",
-      "title": "Review the current records"
-    },
-    "title": "How to use {page}",
-    "verify": {
-      "description": "Refresh the page and check the latest status, history, notification or audit record.",
-      "title": "Verify the result"
-    }
-  },
   "partners": {
     "count": "{count} partners",
     "field": {
@@ -9536,6 +10038,21 @@
       "weighing": "Weighing",
       "yard": "Recycling yards"
     }
+  },
+  "photoApprovals": {
+    "noLocation": "No location recorded",
+    "noCaption": "No caption",
+    "noPhotos": "No photos on this one",
+    "returnReason": "Reason for sending back",
+    "returnPlaceholder": "For example: the beam soffit is out of frame",
+    "returnHelp": "Say what is wrong. The reason goes to the person who took the photos, or they will not know what to reshoot.",
+    "returnTitle": "Send back for reshooting",
+    "return": "Send back",
+    "accept": "Approve",
+    "noCategory": "No column",
+    "empty": "Nothing waiting for approval",
+    "subtitle": "{count} waiting for you",
+    "title": "Photo approvals"
   },
   "profile": {
     "section": {
@@ -9863,11 +10380,20 @@
     "title": "Scan MSE Trace QR"
   },
   "receipts": {
-    "archived": "Filed",
-    "waiting": "Waiting for you to read",
-    "allStates": "Read and unread",
-    "unfiled": "Not filed yet",
-    "allColumns": "All columns",
+    "acceptance": {
+      "title": "Acceptance",
+      "status": {
+        "PENDING": "Awaiting acceptance",
+        "ACCEPTED": "Accepted",
+        "REJECTED": "Rejected"
+      },
+      "accept": "Accept",
+      "reject": "Reject",
+      "reason": "Reason for rejection",
+      "reasonPlaceholder": "Why is this delivery being rejected?",
+      "moneyNote": "Rejecting flags the delivery and counts it on the home page. It does not change the amount or the payment status — that stays a decision somebody makes on purpose.",
+      "alreadyAccepted": "This delivery has already been accepted."
+    },
     "addPhoto": {
       "caption": "Note (optional)",
       "choose": "Choose a photo",
@@ -9876,6 +10402,9 @@
       "title": "Add a photo",
       "upload": "Upload"
     },
+    "allColumns": "All columns",
+    "allStates": "Read and unread",
+    "archived": "Filed",
     "correction": {
       "action": "Correct",
       "note": "A correction files a new receipt that points back at this one. Both stay on record, so anyone checking later can see what was changed and why.",
@@ -9888,6 +10417,20 @@
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
     "createTitle": "Record a delivery",
+    "doPanelField": "Field",
+    "doPanelLineItems": "Lines on the document",
+    "doPanelLowConfidence": "Read with low confidence - check these against the document",
+    "doPanelNone": "Nothing was read from a delivery order for this receipt.",
+    "doPanelStatus": "Reading status",
+    "doPanelTitle": "Read from the delivery order",
+    "doPanelValue": "Read value",
+    "doStatus": {
+      "FAILED": "Reading failed",
+      "MANUAL": "Entered by hand",
+      "NOT_CONFIGURED": "Reader not configured",
+      "NOT_REQUESTED": "Not read",
+      "SUCCEEDED": "Read"
+    },
     "editNote": "The quantity and price can be corrected. The project, the docket and the recorded time cannot — they are what the receipt is evidence of.",
     "editTitle": "Correct a receipt",
     "field": {
@@ -9896,6 +10439,7 @@
       "deliveryNoteNo": "Delivery note no.",
       "location": "Location",
       "materialName": "Material",
+      "materialSpecification": "Material specification",
       "notes": "Notes",
       "photoCount": "Photos",
       "project": "Project",
@@ -9906,6 +10450,7 @@
       "recordedBy": "Recorded by",
       "supplier": "Supplier",
       "totalValue": "Total",
+      "totalWeightKg": "Total weight (kg)",
       "unit": "Unit",
       "unitPrice": "Unit price",
       "vehiclePlate": "Vehicle"
@@ -9914,12 +10459,25 @@
     "locationMissing": "No location",
     "new": "Record delivery",
     "noPhotos": "No photos were attached.",
+    "noRecorderPhone": "No phone number on file",
     "photoKind": {
       "DELIVERY_NOTE": "Delivery note",
       "OTHER": "Other",
       "UNLOADING": "Unloading",
       "VEHICLE": "Vehicle"
     },
+    "photoNoLocation": "No location recorded",
+    "photoNoTime": "No capture time recorded",
+    "photoTakenAt": "Taken {when}",
+    "photoUploadedBy": "Added by {who}",
+    "photoUploaderUnknown": "Added by an account since removed",
+    "photoViewer": {
+      "open": "Open photograph",
+      "previous": "Previous photograph",
+      "next": "Next photograph",
+      "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
+    },
+    "recorderUnknown": "Recorder not on file",
     "remove": {
       "confirm": "Remove",
       "description": "It will no longer appear in your deliveries or your material totals.",
@@ -9934,15 +10492,13 @@
       "vehicle": "Vehicle and paperwork",
       "signatures": "Signatures"
     },
-    "stampNote": "The time, place and person are recorded by the platform when the receipt is filed. They cannot be typed in or changed afterwards.",
-    "summary": {
-      "byMaterial": "By material",
-      "byUnit": "By unit",
-      "note": "Quantities are grouped by unit. Tonnes and pieces are not added together.",
-      "quantity": "Quantity",
-      "receipts": "Receipts",
-      "title": "Material summary"
+    "signature": {
+      "receiver": "Received by",
+      "supplier": "Supplier",
+      "none": "No signature was captured."
     },
+    "stampNote": "The time, place and person are recorded by the platform when the receipt is filed. They cannot be typed in or changed afterwards.",
+    "summary": "At a glance",
     "title": "Material receipts",
     "toast": {
       "corrected": "Correction recorded",
@@ -9953,6 +10509,7 @@
       "accepted": "Delivery accepted.",
       "rejected": "Delivery rejected, with the reason recorded."
     },
+    "unfiled": "Not filed yet",
     "unit": {
       "BAG": "Bag",
       "KG": "Kilogram",
@@ -9962,33 +10519,7 @@
       "TONNE": "Tonne"
     },
     "viewTitle": "Receipt",
-    "signature": {
-      "receiver": "Received by",
-      "supplier": "Supplier",
-      "none": "No signature was captured."
-    },
-    "photoViewer": {
-      "open": "Open photograph",
-      "previous": "Previous photograph",
-      "next": "Next photograph",
-      "clean": "Shown without the location and time stamp, so it can be reused elsewhere."
-    },
-    "recorderUnknown": "Recorder not on file",
-    "noRecorderPhone": "No phone number on file",
-    "acceptance": {
-      "title": "Acceptance",
-      "status": {
-        "PENDING": "Awaiting acceptance",
-        "ACCEPTED": "Accepted",
-        "REJECTED": "Rejected"
-      },
-      "accept": "Accept",
-      "reject": "Reject",
-      "reason": "Reason for rejection",
-      "reasonPlaceholder": "Why is this delivery being rejected?",
-      "moneyNote": "Rejecting flags the delivery and counts it on the home page. It does not change the amount or the payment status — that stays a decision somebody makes on purpose.",
-      "alreadyAccepted": "This delivery has already been accepted."
-    }
+    "waiting": "Waiting for you to read"
   },
   "recyclerBusiness": {
     "action": {
@@ -10620,7 +11151,7 @@
       "updateStatus": "Update status"
     },
     "count": "{count, plural, =0 {No safety incidents} one {# safety incident} other {# safety incidents}}",
-    "createTitle": "Report a safety incident",
+    "createTitle": "Report a hazard",
     "evidence": {
       "location": "GPS evidence",
       "photo": "Open photo"
@@ -10680,11 +11211,11 @@
     },
     "form": {
       "captureLocation": "Capture GPS",
-      "confirm": "Report incident",
-      "description": "Record what happened, where it happened and the supporting evidence.",
+      "confirm": "Report hazard",
+      "description": "Photograph the hazard and optionally assign a responsible person.",
       "locationCaptured": "GPS captured"
     },
-    "new": "Report incident",
+    "new": "Report hazard",
     "severity": {
       "CRITICAL": "Critical",
       "HIGH": "High",
@@ -11043,6 +11574,12 @@
       "list": "Task list",
       "revisions": "Baseline & revisions"
     }
+  },
+  "session": {
+    "signOutAnyway": "Sign out anyway",
+    "tryAgain": "Try again",
+    "unreachableBody": "You are still signed in - this device has not been logged out. The server could not be reached just now, so the workspace cannot open yet.",
+    "unreachableTitle": "Cannot reach the server"
   },
   "settlements": {
     "cancelDialog": {
@@ -12769,7 +13306,9 @@
       "selectUnit": "Select unit",
       "unit": "Unit",
       "unitRequired": "Choose a unit for the quantity entered.",
-      "vehiclePlate": "Vehicle plate"
+      "vehiclePlate": "Vehicle plate",
+      "collectionAt": "Wanted collection time",
+      "collectionAtHint": "When you want the lorry to come. The recycler can propose a different time, which you then confirm."
     },
     "filter": {
       "allCategories": "All categories",
@@ -13117,59 +13656,5 @@
     "since": "since {at}",
     "title": "On site now",
     "unassigned": "Unassigned"
-  },
-  "materialAcceptance": {
-    "PENDING": "Awaiting acceptance",
-    "ACCEPTED": "Accepted",
-    "REJECTED": "Rejected"
-  },
-  "hazard": {
-    "conversationTitle": "Rectification discussion",
-    "empty": "Nothing has been said yet.",
-    "send": "Send",
-    "placeholder": "Type a message",
-    "recordStart": "Record a voice note",
-    "recordStop": "Stop",
-    "recordingFor": "Recording {seconds}s of {limit}s",
-    "attach": "Attach a file",
-    "photo": "Photo",
-    "closed": "This hazard has been verified and archived. The record stays readable, but it takes no new messages.",
-    "participants": "In this conversation",
-    "reporter": "Reported it",
-    "responsible": "Responsible",
-    "supervisor": "Supervisor",
-    "voiceNote": "Voice note",
-    "unsupported": "This browser cannot record audio. Type a message or send a photo instead.",
-    "duration": "Expected to take",
-    "durationHours": "{hours} hours",
-    "unassigned": "Waiting to be assigned",
-    "nothingToSend": "Type a message, or attach a photo, voice note or file.",
-    "field": {
-      "title": "Hazards",
-      "subtitle": "What you reported, and what you have to fix.",
-      "report": "Report a hazard",
-      "empty": "Nothing yet. Photograph a hazard and it appears here."
-    }
-  },
-  "home": {
-    "action": {}
-  },
-  "mySubmissions": {
-    "title": "What I sent",
-    "subtitle": "Everything you submitted, newest first.",
-    "refresh": "Check again",
-    "empty": "Nothing yet. Anything you submit appears here.",
-    "waitingToUpload": "Waiting to upload",
-    "uploadFailed": "Upload refused",
-    "attempts": "{count} attempts",
-    "truncated": "Showing {shown} of {total}.",
-    "kind": {
-      "MATERIAL_RECEIPT": "Delivery",
-      "SITE_RECORD": "Site record",
-      "WASTE_OUTGOING": "Waste out",
-      "HAZARD": "Hazard",
-      "PROGRESS": "Progress",
-      "DRIVER_TRIP": "Trip"
-    }
   }
 }

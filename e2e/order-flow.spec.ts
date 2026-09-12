@@ -38,6 +38,52 @@ test("recycler collects a released load through the browser", async ({
   await expect(
     page.locator("tr", { hasText: dispatchNo }).getByText("Collected"),
   ).toBeVisible({ timeout: 20_000 });
+  await page.close();
+  await new Promise((resolve) => setTimeout(resolve, 2_500));
+});
+
+test("recycler sees a newly released contractor load without reloading", async ({
+  page,
+  request,
+}) => {
+  const streamStatuses: number[] = [];
+  page.on("response", (response) => {
+    if (response.url().includes("/api/events/stream/")) {
+      streamStatuses.push(response.status());
+    }
+  });
+  await loginAs(page, LOGIN_PATHS.scrap, ACCOUNTS.recycler);
+  streamStatuses.length = 0;
+  await page.goto("/incoming");
+  await expect.poll(() => streamStatuses.includes(200), { timeout: 5_000 }).toBe(true);
+  await page.evaluate(() => {
+    (window as unknown as { __realtimeMarker?: number }).__realtimeMarker = 1;
+  });
+
+  const releasedAt = Date.now();
+  const dispatchNo = await raiseReleasedDispatch(request);
+  await expect(page.locator("tr", { hasText: dispatchNo })).toBeVisible({
+    timeout: 5_000,
+  });
+  expect(Date.now() - releasedAt).toBeLessThan(5_000);
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { __realtimeMarker?: number }).__realtimeMarker,
+    ),
+  ).toBe(1);
+});
+
+test("recycler falls back to polling when the event stream is unavailable", async ({
+  page,
+  request,
+}) => {
+  await page.route("**/api/events/stream/**", (route) => route.abort());
+  await loginAs(page, LOGIN_PATHS.scrap, ACCOUNTS.recycler);
+  await page.goto("/incoming");
+  const dispatchNo = await raiseReleasedDispatch(request);
+  await expect(page.locator("tr", { hasText: dispatchNo })).toBeVisible({
+    timeout: 25_000,
+  });
 });
 
 /**

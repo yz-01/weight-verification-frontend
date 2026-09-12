@@ -11,7 +11,31 @@
  * because it holds none. Such a column keeps appearing on both screens, which
  * is where it already was, rather than vanishing from both.
  */
-export type ProjectCategoryKind = "FIELD" | "MATERIAL" | "BOTH";
+/**
+ * The module a column is filed under, plus the two original filing schemes.
+ *
+ * `PROGRESS`, `EHS`, `RECYCLE` and `CONSTRUCTION_WASTE` are the modules the
+ * customer named for Category Management (2026-09-11, D-125): materials must
+ * not share a level with documents, while one screen still manages them all.
+ *
+ * Four of the seven modules the customer listed are absent on purpose, because
+ * their vocabularies already exist on the server with different scopes and
+ * real records pointing at them through protected keys: documents
+ * (`DocumentCategory`, per company), equipment (`AssetCategoryDefinition`, per
+ * platform), recyclable waste (`WasteCategory`, per company, seven seeded rows)
+ * and the weighted construction stages (`ConstructionPhase`, per project).
+ * Defining any of them again here would be two sources of truth for one thing
+ * (F-333, F-338, D-126).
+ */
+export type ProjectCategoryKind =
+  | "FIELD"
+  | "MATERIAL"
+  | "BOTH"
+  | "EQUIPMENT"
+  | "PROGRESS"
+  | "EHS"
+  | "CONSTRUCTION_WASTE";
+export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT";
 
 export interface ProjectCategory {
   id: string;
@@ -21,6 +45,7 @@ export interface ProjectCategory {
   code: string;
   name: string;
   kind: ProjectCategoryKind;
+  submission_mode: CategorySubmissionMode;
   description: string;
   sort_order: number;
   /** Whether spending filed here counts against a budget; the owner's switch. */
@@ -28,6 +53,11 @@ export interface ProjectCategory {
   /** Money, not weight - the amount comes off the supplier's delivery order. */
   budget_amount: string | null;
   budget_alert_percentages: number[];
+  /**
+   * Records filed under this category, from the relation that matches its
+   * module - the count the category management screen shows (D-125).
+   */
+  record_count: number;
   spend_amount: string;
   /**
    * Deliveries whose amount could not be read off the paperwork.
@@ -80,6 +110,7 @@ export interface ProjectCategoryPayload {
    * is the one who knows which it is.
    */
   kind: ProjectCategoryKind;
+  submission_mode?: CategorySubmissionMode;
   description?: string;
   sort_order?: number;
   /** Whether spending filed here counts against a budget; the owner's switch. */
@@ -219,6 +250,9 @@ export interface SiteEquipment {
   registration_no: string;
   supplier: string | null;
   supplier_name: string | null;
+  /** The project column this machine files under, when one was chosen. */
+  category: string | null;
+  category_name: string | null;
   description: string;
   status: EquipmentStatus;
   /**
@@ -242,6 +276,13 @@ export interface EquipmentPayload {
   serial_no?: string;
   registration_no?: string;
   supplier?: string | null;
+  /**
+   * The project column this machine files under (T-242).
+   *
+   * Optional, and null is a real answer: sites already carry machines nobody
+   * has classified, and forcing a choice gets one invented (D-160).
+   */
+  category?: string | null;
   description?: string;
   /** ISO date, or null when the contractor does not hold the document. */
   certificate_expires_on?: string | null;
@@ -302,6 +343,8 @@ export interface ConstructionPhase {
   sort_order: number;
   planned_weight: string;
   is_active: boolean;
+  /** Progress records measured against this phase (D-125, D-127). */
+  record_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -313,6 +356,17 @@ export interface SiteProgressRecord {
   phase: string;
   phase_name: string;
   percent_complete: string;
+  /**
+   * The progress column this record files under, or null while unfiled.
+   *
+   * Separate from the phase: the phase carries the weight the completion
+   * percentage is computed against, the column is the customer'''s filing
+   * dimension (D-127). Set by the office through `file_record`, never on
+   * create - the site does not choose columns (D-108).
+   */
+  category: string | null;
+  category_name: string | null;
+  category_code: string | null;
   description: string;
   status: "SUBMITTED" | "CONFIRMED" | "RETURNED";
   captured_at: string;
@@ -404,6 +458,10 @@ export interface DisposalRequest {
   reference_no: string;
   project: string;
   project_name: string;
+  /** The construction-waste column, filed by the office afterwards (T-232). */
+  category: string | null;
+  category_name: string | null;
+  category_code: string | null;
   waste_description: string;
   location_description: string;
   estimated_volume_m3: string | null;
@@ -469,4 +527,245 @@ export interface ExternalDisposalTask {
   execution_note: string;
   ocr_status: DisposalRequest["ocr_status"];
   evidence: DisposalEvidence[];
+}
+
+/**
+ * The nine kinds of record the office's unarchived queue collects (D-107).
+ *
+ * Deliberately the same strings the backend's `core.models.RecordKind` uses:
+ * the queue is a merge of nine tables and the kind is how a row says which
+ * screen it came from, so a private spelling here would be a second
+ * vocabulary for the same thing.
+ */
+export type ArchiveRecordKind =
+  | "MATERIAL_RECEIPT"
+  | "MATERIAL_OUTGOING"
+  | "EQUIPMENT_MOVEMENT"
+  | "HAZARD"
+  | "WASTE_OUTGOING"
+  | "DISPOSAL_REQUEST"
+  | "PROGRESS"
+  | "CONSULTANT_APPLICATION"
+  | "ATTENDANCE_DAY";
+
+/** One row of the unarchived queue, whichever table it came from. */
+export interface ArchiveQueueRow {
+  id: string;
+  kind: ArchiveRecordKind;
+  reference: string;
+  detail: string;
+  project_id: string | null;
+  project_name: string;
+  submitted_at: string;
+  status: string;
+  /** Beside `status` on purpose - see `MySubmissionRow` for why (F-225). */
+  status_label: string;
+  photo: string | null;
+}
+
+/**
+ * A queue row, opened.
+ *
+ * Reuses `MySubmissionField` / `MySubmissionPhoto`: the phone's history sheet
+ * and this screen render the same records through the same `mySubmissions.*`
+ * catalogue, and a second set of field keys would be a second set of
+ * translations to keep in step (F-342, D-133).
+ */
+export interface ArchiveQueueDetail extends ArchiveQueueRow {
+  fields: import("@/interfaces/contractor").MySubmissionField[];
+  photos: import("@/interfaces/contractor").MySubmissionPhoto[];
+  is_seen: boolean;
+}
+
+export interface ArchiveQueuePage {
+  results: ArchiveQueueRow[];
+  count: number;
+  /**
+   * Per kind, because "eleven waiting" says less than "nine deliveries and two
+   * hazards". Only the kinds this account may read appear, so the screen shows
+   * no tab for a module the reader cannot open.
+   */
+  counts: Partial<Record<ArchiveRecordKind, number>>;
+  kinds: ArchiveRecordKind[];
+}
+
+/* -------------------------------------------------------------------------
+ * Multi Engine: evidence packages (T-235)
+ *
+ * 客户：「用来 export pdf 的，就是可以把文件整合在一起然后打包成 PDF」.
+ * ---------------------------------------------------------------------- */
+
+export type PackageState = "DRAFT" | "CONFIRMED";
+export type PackageReviewState = "NOT_SENT" | "SENT" | "REVIEWED";
+export type PackageItemReviewState = "PENDING" | "ACCEPTED" | "RETURNED";
+
+/** One selectable document on a record - today, a delivery order page. */
+export interface PackageDocument {
+  id: string;
+  url: string;
+  caption: string;
+}
+
+/** Everything of one record that can be ticked (D-149). */
+export interface PackageRecordParts {
+  kind: ArchiveRecordKind;
+  id: string;
+  reference: string;
+  project_id: string | null;
+  project_name: string;
+  submitted_at: string;
+  fields: import("@/interfaces/contractor").MySubmissionField[];
+  photos: import("@/interfaces/contractor").MySubmissionPhoto[];
+  documents: PackageDocument[];
+}
+
+/** Which parts of a record this member carries. Empty list means all. */
+export interface PackageSelection {
+  fields?: string[];
+  photos?: string[];
+  documents?: string[];
+}
+
+export interface PackageItem extends PackageRecordParts {
+  /** The member's own id, not the record's - `record_id` is the record. */
+  id: string;
+  record_kind: ArchiveRecordKind;
+  record_id: string;
+  position: number;
+  selection: PackageSelection;
+  review_state: PackageItemReviewState;
+  returned_reason: string;
+  returned_at: string | null;
+  /**
+   * True once the package is confirmed: what is shown came from the member's
+   * own snapshot rather than from the live record (D-153).
+   */
+  is_snapshot: boolean;
+  /** The record this member points at can no longer be read from here. */
+  source_missing?: boolean;
+}
+
+export interface EvidencePackageRow {
+  id: string;
+  name: string;
+  remarks: string;
+  state: PackageState;
+  project: string;
+  project_name: string;
+  created_at: string;
+  created_by_name: string;
+  confirmed_at: string | null;
+  pdf_sha256: string;
+  pdf_bytes: number;
+  merge_report: PackageMergeNote[];
+  review_state: PackageReviewState;
+  sent_at: string | null;
+  sent_to: string | null;
+  sent_to_name: string;
+  exported_at: string | null;
+  item_count: number;
+  returned_count: number;
+  /** A draft can be deleted; a confirmed package cannot (D-142). */
+  can_delete: boolean;
+  /**
+   * Whether the return path still exists (D-148). Sent by the server so the
+   * screen can say why instead of offering a button that answers with an
+   * error.
+   */
+  can_return: boolean;
+}
+
+export interface EvidencePackageDetail extends EvidencePackageRow {
+  items: PackageItem[];
+  /** Records the last add call would not take, and why. */
+  refused?: { id: string; reason: string }[];
+}
+
+/** One line of "what did not make it into the PDF, and why" (D-141). */
+export interface PackageMergeNote {
+  item_id: string;
+  reference: string;
+  reason: string;
+  detail: string;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Claim Engine (T-236)
+ *
+ * A claim is what one site is asking for in one month. The review and return
+ * of it is not modelled here: a confirmed claim carries an
+ * `EvidencePackage`, and that is what the consultant works on (D-158) - so
+ * these types carry the package's id and state rather than a second copy of
+ * its review machinery.
+ * ---------------------------------------------------------------------- */
+
+export type ClaimKind = "MATERIAL_ON_SITE" | "PROGRESS";
+export type ClaimState = "DRAFT" | "CONFIRMED";
+export type ClaimItemState = "SELECTED" | "CLAIMED" | "RETURNED";
+export type ClaimPaymentState = "NOT_RECEIVED" | "PARTIAL" | "RECEIVED";
+
+export interface ClaimRow {
+  id: string;
+  claim_no: string;
+  kind: ClaimKind;
+  /** The first day of the month being claimed for (D-164). */
+  period: string;
+  state: ClaimState;
+  remarks: string;
+  project: string;
+  project_name: string;
+  project_code: string;
+  package: string | null;
+  package_state: string;
+  package_review_state: string;
+  payment_state: ClaimPaymentState;
+  payment_note: string;
+  payment_updated_at: string | null;
+  item_count: number;
+  returned_count: number;
+  confirmed_at: string | null;
+  confirmed_by_name: string;
+  created_by_name: string;
+  created_at: string;
+}
+
+export interface ClaimItem {
+  id: string;
+  record_kind: ArchiveRecordKind;
+  record_id: string;
+  state: ClaimItemState;
+  returned_reason: string;
+  returned_at: string | null;
+  returned_by_name: string;
+  created_at: string;
+  /** The record itself, built by the same source table the queue uses. */
+  record: ArchiveQueueRow | null;
+  source_missing: boolean;
+}
+
+export interface ClaimDetail extends ClaimRow {
+  items: ClaimItem[];
+  /** Records the last tick would not take: already claimed, or not this site's. */
+  refused?: string[];
+}
+
+/** 符合条件／已查看／已选／未查看 (D-134). */
+export interface ClaimCounts {
+  eligible: number;
+  seen: number;
+  unseen: number;
+  selected: number;
+}
+
+export interface ClaimCandidateRow extends ArchiveQueueRow {
+  /** Read from `core.RecordSeen`, per person (F-353). */
+  seen: boolean;
+  selected: boolean;
+}
+
+export interface ClaimCandidatePage {
+  results: ClaimCandidateRow[];
+  count: number;
+  counts: ClaimCounts;
 }

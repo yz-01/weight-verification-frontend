@@ -35,6 +35,33 @@ export function getNotifications(
   );
 }
 
+/** Read every matching notification page without imposing a client-side cap. */
+export async function getAllNotifications(
+  query: ListQuery,
+  options: { silent?: boolean } = {},
+): Promise<Paginated<NotificationRow>> {
+  const pageSize = 100;
+  const first = await getNotifications(
+    { ...query, page: 1, page_size: pageSize },
+    options,
+  );
+  if (first.total_pages <= 1) return first;
+  const remaining = await Promise.all(
+    Array.from({ length: first.total_pages - 1 }, (_, index) =>
+      getNotifications(
+        { ...query, page: index + 2, page_size: pageSize },
+        options,
+      ),
+    ),
+  );
+  return {
+    ...first,
+    page: 1,
+    page_size: pageSize,
+    results: [first, ...remaining].flatMap((page) => page.results),
+  };
+}
+
 export function getUnreadNotificationCount(
   options: { silent?: boolean } = {},
 ): Promise<NotificationSummary> {

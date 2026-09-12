@@ -102,8 +102,10 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
       project: receipt?.project ?? "",
       supplier: receipt?.supplier ?? "",
       material_name: receipt?.material_name ?? "",
+      material_specification: receipt?.material_specification ?? "",
       quantity: receipt?.quantity ?? "",
       unit: (receipt?.unit ?? "TONNE") as MaterialUnit,
+      total_weight_kg: receipt?.total_weight_kg ?? "",
       unit_price: receipt?.unit_price ?? "",
       vehicle_plate: receipt?.vehicle_plate ?? "",
       delivery_note_no: receipt?.delivery_note_no ?? "",
@@ -118,8 +120,10 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
       // an empty string the API would read as a malformed decimal.
       const common = {
         material_name: value.material_name,
+        material_specification: value.material_specification,
         quantity: value.quantity,
         unit: value.unit,
+        total_weight_kg: value.total_weight_kg,
         unit_price: value.unit_price || null,
         vehicle_plate: value.vehicle_plate,
         delivery_note_no: value.delivery_note_no,
@@ -290,6 +294,20 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
         </form.Field>
 
         <form.Field
+          name="material_specification"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("receipts.field.materialSpecification")}
+              required
+              className="md:col-span-2"
+            />
+          )}
+        </form.Field>
+
+        <form.Field
           name="quantity"
           validators={{ onSubmit: required(t("validation.required")) }}
         >
@@ -312,6 +330,20 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
                 value: unit,
                 label: t(`receipts.unit.${unit}`),
               }))}
+              required
+            />
+          )}
+        </form.Field>
+
+        <form.Field
+          name="total_weight_kg"
+          validators={{ onSubmit: required(t("validation.required")) }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("receipts.field.totalWeightKg")}
+              type="number"
               required
             />
           )}

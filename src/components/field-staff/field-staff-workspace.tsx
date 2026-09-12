@@ -3,31 +3,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QRCodeCanvas } from "qrcode.react";
 import {
-  BellRing,
-  ChevronRight,
   Camera,
   Check,
-  ClipboardCheck,
-  ClipboardList,
   Clock3,
   FileText,
-  FolderOpen,
   Grid2X2,
-  HardHat,
   House,
-  ListChecks,
   Loader2,
   LogIn,
   LogOut,
   MapPinned,
   Play,
-  Recycle,
   RefreshCw,
   Send,
   ShieldAlert,
   Smartphone,
-  Truck,
-  UserRoundCheck,
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -39,11 +29,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AvatarUpload } from "@/components/shared/avatar-upload";
 import {
+  MySubmissions,
+  type HazardHandle,
+} from "@/components/field-staff/my-submissions";
+import {
   FieldRecordsPanel,
   type FieldRecordMode,
 } from "@/components/field-staff/field-records-panel";
+import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FIELD_EVIDENCE_PHOTO_COUNT } from "@/components/field-staff/field-evidence-grid";
-import { MySubmissions } from "@/components/field-staff/my-submissions";
 import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
@@ -57,11 +51,9 @@ import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
-import type { AttendanceEvent } from "@/interfaces/site-operations";
+import type { AttendanceEvent, SafetyIncident } from "@/interfaces/site-operations";
 import { ApiError } from "@/interfaces/api";
-import type { NotificationRow } from "@/interfaces/platform-ops";
-import { fieldNotificationHref } from "@/lib/field-notification";
-import { getFieldTasks } from "@/services/contractor-ops.service";
+import { getFieldTask, getFieldTasks } from "@/services/contractor-ops.service";
 import { getProjects } from "@/services/contractor.service";
 import {
   submitAttendanceOfflineAware,
@@ -69,10 +61,6 @@ import {
   submitFieldTaskTransitionOfflineAware,
 } from "@/services/offline-sync.service";
 import { getAttendance } from "@/services/site-operations.service";
-import {
-  getNotifications,
-  markNotificationRead,
-} from "@/services/platform-ops.service";
 import {
   createFieldPwaBootstrap,
   getOrCreateFieldDeviceId,
@@ -124,17 +112,29 @@ function FieldStaffWorkspaceContent({
   const [recordMode, setRecordMode] = useState<FieldRecordMode | null>(
     requestedRecord,
   );
+  // Set two ways: by reporting one (F-277), and by tapping a hazard in
+  // 「我提交过的」 (T-210). The second only ever has a history row, which is
+  // why the hazards panel takes the three fields it reads rather than a whole
+  // incident.
+  const [openedHazard, setOpenedHazard] = useState<
+    Pick<SafetyIncident, "id" | "title" | "incident_no"> | null
+  >(null);
+  const requestedTask = useQuery({
+    queryKey: ["field-staff", "task", requestedTaskId],
+    queryFn: () => getFieldTask(requestedTaskId),
+    enabled: Boolean(requestedTaskId),
+  });
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      if (requestedTaskId) {
-        setFocusedTaskId(requestedTaskId);
-        setTab("tasks");
-        return;
-      }
       if (requestedRecord) {
         setRecordMode(requestedRecord);
         setTab("records");
+        return;
+      }
+      if (requestedTaskId) {
+        setFocusedTaskId(requestedTaskId);
+        setTab("tasks");
         return;
       }
       if (
@@ -152,6 +152,7 @@ function FieldStaffWorkspaceContent({
   const replaceFieldUrl = (
     nextTab: MobileTab,
     nextRecord?: FieldRecordMode | null,
+    nextTaskId?: string | null,
   ) => {
     const url = new URL(window.location.href);
     url.searchParams.delete("task");
@@ -160,6 +161,7 @@ function FieldStaffWorkspaceContent({
     if (nextTab === "home") url.searchParams.delete("tab");
     else url.searchParams.set("tab", nextTab);
     if (nextRecord) url.searchParams.set("record", nextRecord);
+    if (nextTaskId) url.searchParams.set("task", nextTaskId);
     window.history.replaceState(
       window.history.state,
       "",
@@ -183,6 +185,28 @@ function FieldStaffWorkspaceContent({
     setTab("records");
     replaceFieldUrl("records", mode);
   };
+  /*
+   * `?tab=incidents` with no hazard to show means somebody arrived from a
+   * bookmark or from one of the old 事故上报 notifications, which still build
+   * `/field-staff?tab=incidents&thread=...` (F-317). Since T-211 that tab
+   * renders one thing - a hazard's conversation - so on its own it would be a
+   * blank screen. It falls through to the reporting form instead, the same
+   * place the nav button goes.
+   *
+   * Derived rather than redirected. The first version of this called
+   * `openRecord` from an effect and eslint was right to refuse it: setting
+   * four pieces of state during an effect makes the screen render twice for
+   * one decision that was already knowable. Nothing is written here, so the
+   * URL stays as the link left it - honest about where the worker came from.
+   *
+   * What this cannot do is open the conversation the notification is about:
+   * the `thread` in that link is an `IncidentReportThread` id and this room is
+   * keyed by `SafetyIncident`. Resolving one to the other is T-217's job.
+   */
+  const hazardTabWithoutRoom = tab === "incidents" && !openedHazard;
+  const shownTab: MobileTab = hazardTabWithoutRoom ? "records" : tab;
+  const shownRecordMode = hazardTabWithoutRoom ? "safety" : recordMode;
+
   const projects = useQuery({
     queryKey: ["projects", "options"],
     queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
@@ -215,13 +239,19 @@ function FieldStaffWorkspaceContent({
         </p>
       </section>
 
-      {tab === "home" && (
+      {shownTab === "home" && (
         <FieldHomePanel
-          onOpen={openTab}
-          onRecord={openRecord}
+          onOpenWorkflow={(task, mode) => { setActiveTask(task); setRecordMode(mode); setTab("records"); replaceFieldUrl("records", mode, task.id); }}
+          onOpenHazard={(hazard) => {
+            // `openTab` clears the record state first, then the hazard is set:
+            // the other order loses it, because `openTab` resets everything
+            // the tab switch is supposed to leave behind.
+            openTab("incidents");
+            setOpenedHazard(hazard);
+          }}
         />
       )}
-      {tab === "tasks" && (
+      {shownTab === "tasks" && (
         <FieldTaskPanel
           taskType={taskType}
           requestedTaskId={focusedTaskId}
@@ -229,49 +259,65 @@ function FieldStaffWorkspaceContent({
             setActiveTask(task);
             setRecordMode(mode);
             setTab("records");
-            replaceFieldUrl("records", mode);
+            replaceFieldUrl("records", mode, task.id);
           }}
         />
       )}
-      {tab === "attendance" && <FieldAttendancePanel />}
-      {tab === "records" && (
+      {shownTab === "attendance" && <FieldDraft scope="attendance"><FieldAttendancePanel /></FieldDraft>}
+      {shownTab === "records" && (
         <FieldRecordsPanel
-          initialMode={recordMode}
+          initialMode={shownRecordMode}
           initialSupplierToken={supplierToken}
-          task={activeTask}
+          task={activeTask ?? requestedTask.data ?? null}
           onModeChange={(mode) => {
             setRecordMode(mode);
             if (!mode) setActiveTask(null);
             replaceFieldUrl("records", mode);
           }}
+          onWorkflowSaved={(mode, result) => {
+            if (mode === "safety") {
+              if (result?.status === "uploaded") setOpenedHazard(result.incident);
+              openTab("incidents");
+            }
+          }}
         />
       )}
-      {tab === "location" && <FieldStaffGps managedAutomatically />}
-      {/* Was FieldIncidentsPanel (事故上报). The customer asked for that
-          feature to go and its chat room to be folded into 隐患整改:
-          「报告事故的聊天室是结合进去隐患整改的，然后报告事故移除掉」. The tab
-          key stays `incidents` so a bookmarked ?tab= link still lands
-          somewhere useful. */}
-      {tab === "incidents" && (
+      {shownTab === "location" && <FieldStaffGps managedAutomatically />}
+      {/*
+        `incidents` is now one thing: a hazard's conversation. It is reached by
+        reporting one, or by tapping a hazard in 「我提交过的」 (T-210). The tab
+        key is kept because the old 事故上报 notifications still link to it -
+        reaching it with no hazard falls through to the reporting form, handled
+        by the effect above.
+      */}
+      {tab === "incidents" && openedHazard && (
         <FieldHazardsPanel
-          onHome={() => {
+          hazard={openedHazard}
+          onBack={() => {
+            setOpenedHazard(null);
             openTab("home");
           }}
-          onReport={() => openRecord("safety")}
         />
       )}
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgb(0_0_0/0.06)] backdrop-blur">
-        <div className="mx-auto grid max-w-2xl grid-cols-6 gap-1 px-3">
+        {/* Five buttons since the duplicate 任务 entry was removed; the column
+            count has to match or the icons bunch to the left of an empty cell. */}
+        <div className="mx-auto grid max-w-2xl grid-cols-5 gap-1 px-3">
           <MobileNavButton active={tab === "home"} icon={House} label={t("nav.home")} onClick={() => openTab("home")} />
-          <MobileNavButton active={tab === "tasks"} icon={ClipboardCheck} label={t("nav.tasks")} onClick={() => openTab("tasks")} />
           <MobileNavButton active={tab === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
           <MobileNavButton active={tab === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
           <MobileNavButton active={tab === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => openTab("location")} />
-          <MobileNavButton active={tab === "incidents"} icon={ShieldAlert} label={t("nav.hazards")} onClick={() => openTab("incidents")} />
+          {/*
+            One tap to the reporting form (T-211). This used to open a list
+            page whose only action was a 上报隐患 button - the customer's
+            「不需要跳两个页面」. It stays highlighted for the conversation too,
+            so a worker reading a hazard can still see which tab they are in.
+          */}
+          <MobileNavButton active={tab === "incidents" || recordMode === "safety"} icon={ShieldAlert} label={t("nav.hazards")} onClick={() => openRecord("safety")} />
         </div>
       </nav>
-      {tab === "home" && (
+      {shownTab === "home" && (
         <p className="text-center text-xs text-muted-foreground">
           {t("identity.version", {
             version: APP_VERSION,
@@ -283,36 +329,13 @@ function FieldStaffWorkspaceContent({
 }
 
 function FieldHomePanel({
-  onOpen,
-  onRecord,
+  onOpenWorkflow,
+  onOpenHazard,
 }: {
-  onOpen: (tab: Exclude<MobileTab, "home">) => void;
-  onRecord: (mode: FieldRecordMode) => void;
+  onOpenWorkflow: (task: FieldTask, mode: FieldRecordMode) => void;
+  onOpenHazard: (hazard: HazardHandle) => void;
 }) {
   const t = useTranslations("fieldStaffPwa");
-  const { can } = useAuth();
-  const actions: Array<{
-    key: string;
-    permission?: string;
-    icon: typeof Camera;
-    tone: string;
-    open: () => void;
-  }> = [
-    { key: "tasks", permission: "field_task.view", icon: ClipboardCheck, tone: "bg-primary/10 text-primary", open: () => onOpen("tasks") },
-    { key: "attendance", permission: "attendance.clock", icon: Clock3, tone: "bg-success/10 text-success", open: () => onOpen("attendance") },
-    { key: "location", permission: "field_position.submit", icon: MapPinned, tone: "bg-info/10 text-info", open: () => onOpen("location") },
-    { key: "material", permission: "receipt.create", icon: ClipboardList, tone: "bg-info/10 text-info", open: () => onRecord("material") },
-    { key: "equipment", permission: "equipment.capture", icon: HardHat, tone: "bg-warning/15 text-warning", open: () => onRecord("equipment") },
-    { key: "progress", permission: "progress.manage", icon: ListChecks, tone: "bg-primary/10 text-primary", open: () => onRecord("progress") },
-    { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success", open: () => onRecord("disposal") },
-    { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive", open: () => onRecord("outgoing") },
-    { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success", open: () => onRecord("waste") },
-    { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning", open: () => onRecord("safety") },
-    { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary", open: () => onRecord("consultant") },
-    { key: "category", permission: "category.view", icon: FolderOpen, tone: "bg-info/10 text-info", open: () => onRecord("category") },
-    { key: "hazards", permission: "safety.view", icon: ShieldAlert, tone: "bg-destructive/10 text-destructive", open: () => onOpen("incidents") },
-  ];
-  const visibleActions = actions.filter((action) => !action.permission || can(action.permission));
   return (
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-3">
@@ -321,6 +344,12 @@ function FieldHomePanel({
           <p className="text-sm text-muted-foreground">{t("home.subtitle")}</p>
         </div>
       </div>
+      {/*
+        Order is the customer's own: 「首页只需要放任务，上传头像和图2就好」 -
+        tasks, then the avatar, then what I sent (T-209). Tasks lead because
+        they are the only block that says what to do next.
+      */}
+      <FieldTaskPanel onOpenWorkflow={onOpenWorkflow} />
       {/* Field staff have no profile screen and cannot open `/profile`, and
           theirs is the picture a delivery record shows - so this is their only
           way to set it. On the home panel rather than the workspace header,
@@ -328,32 +357,22 @@ function FieldHomePanel({
       <div className="rounded-lg border bg-card p-4 shadow-sm">
         <AvatarUpload />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        {visibleActions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <button
-              key={action.key}
-              type="button"
-              className="group flex min-h-28 flex-col items-start justify-between rounded-lg border bg-card p-3.5 text-left shadow-sm transition-[border-color,background-color,transform,box-shadow] hover:border-primary/30 hover:bg-muted/20 hover:shadow-md active:scale-[0.98]"
-              onClick={action.open}
-            >
-              <span className={`grid size-10 place-items-center rounded-lg ${action.tone}`}><Icon className="size-5" /></span>
-              <span className="mt-3 flex w-full items-end justify-between gap-2">
-                <span className="text-sm font-semibold leading-5">{t(`home.${action.key}`)}</span>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      {/* 「手机上没有，不能够存记录没有历史记录」. Placed on the home panel
-          rather than behind a seventh tab: the bottom bar is full, and the
-          question this answers - did what I sent arrive - is the one somebody
-          has when they open the app, not one they navigate to. */}
-      <MySubmissions />
+      {/*
+        Put back, not written again (T-209). This is the customer's 图2, and it
+        was removed from the home along with the tile grid in `e754025`; the
+        component itself survived and the driver dashboard has been rendering
+        it the whole time. `field-home-composition.test.ts` guards the three
+        blocks and their order, because losing this one is not a visible
+        breakage - the home simply stops answering "did my work arrive".
+      */}
+      <MySubmissions onOpenHazard={onOpenHazard} />
+      {/*
+        Last, and kept although the customer did not name it: it is the only
+        way to move a field session to another phone, and field staff have no
+        profile screen to reach it from. Below the three named blocks rather
+        than removed - see the note on the component.
+      */}
       <FieldDeviceHandoff />
-      {can("notification.view") && <FieldNotificationPreview />}
     </section>
   );
 }
@@ -428,118 +447,6 @@ function FieldDeviceHandoff() {
         <p className="mt-2 text-xs text-destructive">{t("handoff.failed")}</p>
       )}
     </section>
-  );
-}
-
-function FieldNotificationPreview() {
-  const t = useTranslations("fieldStaffPwa");
-  const qc = useQueryClient();
-  const notifications = useQuery({
-    queryKey: ["field-staff", "notifications"],
-    queryFn: () => getNotifications({
-        page_size: 5,
-        sort_by: "created_at",
-        sort_order: "desc",
-      }),
-    refetchInterval: 30_000,
-  });
-  const read = useMutation({
-    mutationFn: markNotificationRead,
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["field-staff", "notifications"] });
-      void qc.invalidateQueries({ queryKey: ["notifications"] });
-    },
-  });
-  const rows = notifications.data?.results ?? [];
-
-  return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
-      <div className="flex items-center gap-3 border-b px-4 py-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-          <BellRing className="size-6" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold">{t("notifications.title")}</h3>
-          <p className="text-sm text-muted-foreground">
-            {t("notifications.subtitle")}
-          </p>
-        </div>
-        <Button size="icon" variant="ghost" title={t("action.refresh")} onClick={() => void notifications.refetch()}>
-          <RefreshCw className={notifications.isFetching ? "animate-spin" : ""} />
-        </Button>
-      </div>
-      {notifications.isLoading && (
-        <div className="grid min-h-28 place-items-center"><Loader2 className="animate-spin text-primary" /></div>
-      )}
-      {notifications.isError && (
-        <p className="p-4 text-sm text-destructive">{t("notifications.loadError")}</p>
-      )}
-      {!notifications.isLoading && !notifications.isError && rows.length === 0 && (
-        <p className="p-5 text-center text-sm text-muted-foreground">{t("notifications.empty")}</p>
-      )}
-      <div className="divide-y">
-        {rows.map((row) => (
-          <FieldNotificationRow
-            key={row.id}
-            row={row}
-            busy={read.isPending}
-            onRead={() => read.mutate(row.id)}
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function FieldNotificationRow({
-  row,
-  busy,
-  onRead,
-}: {
-  row: NotificationRow;
-  busy: boolean;
-  onRead: () => void;
-}) {
-  const t = useTranslations("fieldStaffPwa");
-  const rawHref = [row.data.href, row.data.url].find(
-    (value): value is string => typeof value === "string" && value.startsWith("/"),
-  );
-  const href = fieldNotificationHref(rawHref) ?? undefined;
-  const body = (
-    <div className="min-w-0 flex-1">
-      <div className="flex items-center gap-2">
-        {!row.is_read && <span className="size-2 shrink-0 rounded-full bg-primary" />}
-        <p className="truncate font-semibold">{row.title}</p>
-      </div>
-      <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">{row.message}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{new Date(row.created_at).toLocaleString()}</p>
-    </div>
-  );
-
-  if (href) {
-    return (
-      <a
-        href={href}
-        className="flex min-h-20 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30 active:bg-muted/50"
-        onClick={() => { if (!row.is_read && !busy) onRead(); }}
-      >
-        {body}
-        <span className="text-sm font-semibold text-primary">{t("notifications.open")}</span>
-      </a>
-    );
-  }
-  return (
-    <button
-      type="button"
-      className="flex min-h-20 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30 active:bg-muted/50"
-      disabled={busy}
-      onClick={() => { if (!row.is_read) onRead(); }}
-    >
-      {body}
-      <span className="text-sm font-semibold text-primary">
-        {row.is_read ? t("notifications.read") : t("notifications.markRead")}
-      </span>
-    </button>
   );
 }
 
@@ -633,16 +540,17 @@ function FieldAttendancePanel() {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
-  const [event, setEvent] = useState<AttendanceEvent>("CLOCK_IN");
-  const [selfie, setSelfie] = useState<File>();
-  const [fix, setFix] = useState<LocationFix | null>(null);
-  const [note, setNote] = useState("");
+  const [project, setProject] = useDraftState("project", "");
+  const [event, setEvent] = useDraftState<AttendanceEvent>("event", "CLOCK_IN");
+  const [selfie, setSelfie] = useDraftState<File | undefined>("selfie");
+  const [fix, setFix] = useDraftState<LocationFix | null>("fix", null);
+  const [note, setNote] = useDraftState("note", "");
+  const clearDraft = useClearDraft();
   const [error, setError] = useState("");
   const attendance = useQuery({ queryKey: ["field-staff", "attendance"], queryFn: () => getAttendance({ page_size: 30, sort_by: "occurred_at", sort_order: "desc" }) });
   const today = useMemo(() => (attendance.data?.results ?? []).filter((row) => row.user === user?.id && new Date(row.occurred_at).toDateString() === new Date().toDateString()), [attendance.data, user?.id]);
   const selectedProject = project || today[0]?.project || "";
-  const submit = useMutation({ mutationFn: () => { if (!user || !selfie || !fix) throw new Error("missing"); return submitAttendanceOfflineAware(user.id, { project: selectedProject, event, note, photo: selfie, latitude: fix.latitude, longitude: fix.longitude, locationAccuracyM: fix.accuracy }); }, onSuccess: () => { setSelfie(undefined); setFix(null); setNote(""); setError(""); void qc.invalidateQueries({ queryKey: ["field-staff", "attendance"] }); }, onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("error.action")) });
+  const submit = useMutation({ mutationFn: () => { if (!user || !selfie || !fix) throw new Error("missing"); return submitAttendanceOfflineAware(user.id, { project: selectedProject, event, note, photo: selfie, latitude: fix.latitude, longitude: fix.longitude, locationAccuracyM: fix.accuracy }); }, onSuccess: () => { clearDraft(); setSelfie(undefined); setFix(null); setNote(""); setError(""); void qc.invalidateQueries({ queryKey: ["field-staff", "attendance"] }); }, onError: (reason) => setError(reason instanceof ApiError ? reason.message : t("error.action")) });
   return (
     <section className="space-y-4">
       <div>

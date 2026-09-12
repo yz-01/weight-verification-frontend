@@ -6,6 +6,8 @@ export interface DocumentCategory {
   name: string;
   description: string;
   is_active: boolean;
+  /** Documents filed under this category, company-wide (D-125, D-126). */
+  record_count: number;
   created_at: string;
   updated_at: string;
 }

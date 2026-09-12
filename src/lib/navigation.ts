@@ -737,14 +737,69 @@ export const PORTAL_NAVIGATION = {
       "/modules/categories",
       ListTree,
       "operations",
-      undefined,
+      // Allowed, but no longer entries of their own. `isRouteAllowed` reads
+      // this registry, so dropping a child does not just hide a route - it
+      // refuses it, and both of these are where a module's categories are
+      // actually edited. A navigation test caught that (T-219).
+      ["/material-columns", "/project-categories"],
       false,
       [
+        // One entry, not the ten the earlier plan had (D-125, F-335): the
+        // customer's design is "pick the module, then see that module's
+        // columns", and that is one screen with a list down its left side.
+        // Ten routes would have been ten places to maintain the same thing.
+        //
+        // `/project-categories` and `/material-columns` still resolve - they
+        // are where each module's categories are actually edited, and links
+        // to them exist in the wild - they are simply no longer sidebar
+        // entries of their own.
         child(
           "4.2.1",
-          "nav.submodule.categoryRecords",
-          "/project-categories",
+          "nav.submodule.categoryManagement",
+          "/category-management",
           "project_categories",
+        ),
+        // 总栏目 proper: the per-person unarchived queue (T-233, D-106). Its
+        // sibling above lists category *definitions*; this lists *records*.
+        // Two entries rather than two tabs of one screen, because their
+        // status columns mean different things - active/inactive against
+        // unarchived/archived - and one column with two meanings is what
+        // D-125 refuses.
+        child(
+          "4.2.2",
+          "nav.submodule.archiveQueue",
+          "/archive-queue",
+          "project_categories",
+        ),
+        // Multi Engine (T-235). A third sibling and not a tab of the queue:
+        // 总栏目 answers "what has nobody looked at", and this answers "why was
+        // this bundle put together". Both list records and they mean entirely
+        // different things - one screen with two meanings is D-125 again.
+        //
+        // Gated on `package.view` rather than on the category feature: the
+        // permission is what the endpoints check, and a sidebar entry that
+        // leads to a 403 is worse than no entry.
+        child(
+          "4.2.3",
+          "nav.submodule.multiEngine",
+          "/evidence-packages",
+          "project_categories",
+          "package.view",
+        ),
+        // Claim Engine (T-236). A fourth sibling for the same reason the
+        // third is one: 总栏目 asks what nobody has looked at, Multi Engine
+        // asks why a bundle was put together, and this asks what is being
+        // claimed for this month. Three questions, three screens.
+        //
+        // Gated on `claim.view` and not on `package.view`: reading the claims
+        // and building their evidence are separate grants (D-136), and a
+        // sidebar entry that leads to a 403 is worse than no entry.
+        child(
+          "4.2.4",
+          "nav.submodule.claimEngine",
+          "/claims",
+          "project_categories",
+          "claim.view",
         ),
       ],
     ),
@@ -753,19 +808,24 @@ export const PORTAL_NAVIGATION = {
       "/modules/materials",
       ClipboardList,
       "operations",
-      undefined,
+      // The material columns screen stopped being a sidebar entry (T-219) but
+      // did not stop being a material screen: whoever could open it before
+      // still can. Listed on both modules on purpose - narrowing it to the
+      // category feature would have taken the screen away from people who
+      // only hold material access, silently.
+      //
+      // `/archive-queue` is here for the same reason (T-233): the queue lists
+      // deliveries among eight other kinds, the backend already answers each
+      // caller with only the kinds they may read, and refusing the route to
+      // somebody who holds material access but not the category feature would
+      // hide their own deliveries from them.
+      ["/material-columns", "/archive-queue"],
       false,
       [
         child(
           "5.2.1",
           "nav.submodule.materialReceipts",
           "/receipts",
-          "material_receipts",
-        ),
-        child(
-          "5.2.3",
-          "nav.submodule.materialColumns",
-          "/material-columns",
           "material_receipts",
         ),
         child(
@@ -910,6 +970,19 @@ export const PORTAL_NAVIGATION = {
           "/approval-credential",
           "approvals",
           "approval.review",
+        ),
+        // The packages a consultant has been sent (T-235, D-147). Under
+        // `approvals` and `approval.view`, because reviewing a submission is
+        // what this has always been called here - and because a consultant's
+        // grant can only ever carry the seven codes in the platform's
+        // consultant ceiling, so a `package.*` code could never have reached
+        // them (F-358).
+        child(
+          "10.2.2C",
+          "nav.submodule.packageReviews",
+          "/package-reviews",
+          "approvals",
+          "approval.view",
         ),
         child(
           "10.2.4",
@@ -1195,13 +1268,13 @@ export const PORTAL_NAVIGATION = {
   ],
   MSE_SCRAP: [
     item("dashboard", "/dashboard", LayoutDashboard, "overview"),
-    item("customer_management", "/recycler-customers", Users, "operations", [
+    item("customer_management", "/recycler-modules/customer_management", Users, "operations", [
       "/partnerships",
     ], false, [
       child("recycler-customers", "nav.customer_management", "/recycler-customers", "customer_management"),
       child("recycler-partnerships", "nav.partnerships", "/partnerships", "partnerships"),
     ]),
-    item("yards", "/sites", Warehouse, "operations", [
+    item("yards", "/recycler-modules/yards", Warehouse, "operations", [
       "/vehicles",
       "/drivers",
     ], false, [
@@ -1209,7 +1282,7 @@ export const PORTAL_NAVIGATION = {
       child("recycler-vehicles", "nav.vehicles", "/vehicles", "vehicles"),
       child("recycler-drivers", "nav.drivers", "/drivers", "drivers"),
     ]),
-    item("waste_orders", "/waste-orders", Inbox, "operations", [
+    item("waste_orders", "/recycler-modules/waste_orders", Inbox, "operations", [
       "/incoming",
       "/dispatches",
       "/tasks",
@@ -1220,7 +1293,7 @@ export const PORTAL_NAVIGATION = {
       child("recycler-tasks", "nav.driver_tasks", "/tasks", "driver_tasks"),
       child("recycler-driver-gps", "nav.driver_gps", "/driver-gps", "driver_gps"),
     ]),
-    item("weighing_records", "/weighing", Gauge, "operations", [
+    item("weighing_records", "/recycler-modules/weighing_records", Gauge, "operations", [
       "/gate",
       "/deductions",
       "/settlements",
@@ -1231,7 +1304,7 @@ export const PORTAL_NAVIGATION = {
       child("recycler-deductions", "nav.deductions", "/deductions", "weighing_records"),
       child("recycler-settlements", "nav.payment_status", "/settlements", "payment_status"),
     ]),
-    item("inventory_management", "/recycler-inventory", Box, "operations", [
+    item("inventory_management", "/recycler-modules/inventory_management", Box, "operations", [
       "/recycler-outbound",
     ], false, [
       child("recycler-inventory", "nav.inventory_management", "/recycler-inventory", "inventory_management"),
@@ -1388,6 +1461,14 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/roles/create", permission: "role.create" },
   { pattern: "/roles/:id/edit", permission: "role.update" },
   { pattern: "/gate", permission: "weighing.operate" },
+  // Multi Engine (T-235). `requiredPermission` on the sidebar child only
+  // *hides* the entry; this is what makes the address itself refuse. Without
+  // both, somebody who cannot build packages could still type the path and
+  // land on a screen whose every call comes back 403 - a page that looks
+  // broken rather than a page that says no.
+  { pattern: "/evidence-packages", permission: "package.view" },
+  { pattern: "/claims", permission: "claim.view" },
+  { pattern: "/package-reviews", permission: "approval.view" },
   { pattern: "/consultant-workflows", permission: "consultant.config" },
   { pattern: "/consultant-templates", permission: "consultant.config" },
   { pattern: "/consultant-access", permission: "consultant.config" },

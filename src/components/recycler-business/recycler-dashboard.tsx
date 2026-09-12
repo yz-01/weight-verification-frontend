@@ -37,7 +37,6 @@ import { StatusBadge } from "@/components/shared/page-primitives";
 import { LocationMap, type LocationMapMarker, type LocationMapPath, type LocationMapZone } from "@/components/shared/location-map";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type {
   RecyclerDashboardData,
   RecyclerDashboardInvoice,
@@ -99,18 +98,6 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
     refetchInterval: 15_000,
     staleTime: 30_000,
   });
-  const realtimeKeys = useMemo(
-    () => [
-      ["recycler-dashboard", site],
-      ["incoming"],
-      ["tasks"],
-      ["driver-gps", "live"],
-      ["driver-gps", "live-routes"],
-    ],
-    [site],
-  );
-  useOrderRealtime(realtimeKeys);
-
   const chartRows = useMemo(() => {
     const charts = dashboard.data?.charts;
     if (!charts) return null;
@@ -236,8 +223,13 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
           )}
         </div>
       )}
+      <PendingActions data={data} number={number} />
       {data.business_today && (
-        <section className="space-y-3" aria-labelledby="recycler-today-title">
+        <section
+          data-dashboard-overview
+          className="space-y-3"
+          aria-labelledby="recycler-today-title"
+        >
           <SectionHeading
             id="recycler-today-title"
             title={t("dashboard.metrics")}
@@ -350,10 +342,7 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
         )}
       </div>
 
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <PendingActions data={data} number={number} />
-        {data.fees && <FeeSummary data={data} money={money} weight={weight} />}
-      </div>
+      {data.fees && <FeeSummary data={data} money={money} weight={weight} />}
 
       {quickActions.length > 0 && (
         <section className="space-y-3" aria-labelledby="recycler-quick-title">
@@ -795,7 +784,17 @@ function PendingActions({
   if (rows.length === 0) return null;
 
   return (
-    <section className="space-y-3" aria-labelledby="recycler-pending-title">
+    /*
+     * Marked, not moved (T-213): this block was already the first content on
+     * the recycler's dashboard. What it lacked was anything stopping somebody
+     * from putting the metric tiles above it later - which is the whole point
+     * of the marker and of `dashboard-priority-order.test.ts`.
+     */
+    <section
+      data-dashboard-priority
+      className="space-y-3"
+      aria-labelledby="recycler-pending-title"
+    >
       <SectionHeading
         id="recycler-pending-title"
         title={t("dashboard.admin.pending.title")}

@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   CheckCircle2,
@@ -107,15 +106,10 @@ const RESOURCE_TYPES = [
   "other",
 ] as const;
 
-/** Stable identity: a fresh array each render would resubscribe forever. */
-const REALTIME_KEYS = [["approvals"]];
-
 export function Approvals() {
   const t = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
-  // A decision made by somebody else has to land here without a refresh.
-  useOrderRealtime(REALTIME_KEYS);
   const { user, can } = useAuth();
   const searchParams = useSearchParams();
   const list = useListQuery(["status", "mine", "resource_type"]);

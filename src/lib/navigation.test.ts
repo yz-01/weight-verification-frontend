@@ -116,6 +116,33 @@ describe("the feature registry", () => {
       isRouteAllowed("MSE_TRACE", ["recycling_records"], "/nothing-here"),
     ).toBe(false);
   });
+
+  it("gives every grouped recycler module a real child route", () => {
+    const grouped = PORTAL_NAVIGATION.MSE_SCRAP.filter((item) =>
+      item.href.startsWith("/recycler-modules/"),
+    );
+    expect(grouped.map((item) => item.feature)).toEqual([
+      "customer_management",
+      "yards",
+      "waste_orders",
+      "weighing_records",
+      "inventory_management",
+    ]);
+    for (const item of grouped) {
+      expect(item.children?.length ?? 0).toBeGreaterThan(0);
+      for (const child of item.children ?? []) {
+        expect(child.href.startsWith("/recycler-modules/"), child.href).toBe(false);
+        expect(
+          isRouteAllowed(
+            "MSE_SCRAP",
+            [item.feature, ...(child.feature ? [child.feature] : [])],
+            child.href,
+          ),
+          `${item.feature} must open ${child.href}`,
+        ).toBe(true);
+      }
+    }
+  });
 });
 
 /**
@@ -190,4 +217,114 @@ describe("every menu entry has a name", () => {
       ).toEqual([]);
     });
   }
+});
+
+/**
+ * The category module has one entry, not ten (T-219, D-125, F-335).
+ *
+ * The earlier plan gave the customer's seven modules a sidebar entry each,
+ * plus a combined one. Their own words describe something else - "the user
+ * picks the module first, then sees the columns under it" - which is one
+ * screen with a list down its side. Ten entries would have been ten places to
+ * maintain one thing, and the drift would start the first time a module was
+ * added.
+ *
+ * Asserted here rather than in a browser: this is a fact about the registry,
+ * and the registry is where somebody would undo it.
+ */
+describe("the category module", () => {
+  // Not named `module`: Next forbids assigning that identifier.
+  const categories = PORTAL_NAVIGATION.MSE_TRACE.find(
+    (item) => item.feature === "project_categories",
+  );
+
+  it("has four children: definitions, the queue, Multi Engine, claims", () => {
+    expect(categories?.children?.map((child) => child.href)).toEqual([
+      "/category-management",
+      "/archive-queue",
+      "/evidence-packages",
+      // Claim Engine (T-236). A fourth sibling for the same reason the
+      // third is one: three different questions about the same records -
+      // what nobody has read, why a bundle exists, and what is being
+      // claimed this month.
+      "/claims",
+    ]);
+  });
+
+  /*
+   * Multi Engine is a third sibling, not a tab of the queue (T-235). 总栏目
+   * answers "what has nobody looked at yet"; a package answers "why was this
+   * bundle put together". Both list records and they mean different things,
+   * which is the same reason the first two are separate.
+   *
+   * Gated on `package.view`, because that is what the endpoints behind it
+   * check. An entry that leads to a 403 is worse than no entry: the person
+   * cannot tell whether the feature is missing or they are.
+   */
+  it("keeps Multi Engine behind the permission its endpoints check", () => {
+    expect(
+      isRouteAllowed(
+        "MSE_TRACE",
+        ["project_categories"],
+        "/evidence-packages",
+        ["package.view"],
+      ),
+    ).toBe(true);
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/evidence-packages", []),
+    ).toBe(false);
+  });
+
+  /*
+   * Two entries and not two tabs, because the two screens' status columns mean
+   * different things: active/inactive for a category definition, and
+   * unarchived/archived for a record (D-125). One column with two meanings is
+   * how somebody deactivates a column believing they archived a delivery.
+   */
+  it("opens the record queue to every module whose records it lists", () => {
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/archive-queue"),
+    ).toBe(true);
+    /*
+     * The queue merges nine modules and the server already answers each caller
+     * with only the kinds they may read. Gating the route on the category
+     * feature alone would hide a project manager's own deliveries from them
+     * because of a feature flag about categories - the same silent removal
+     * `/material-columns` suffered (F-340).
+     */
+    expect(
+      isRouteAllowed("MSE_TRACE", ["material_receipts"], "/archive-queue"),
+    ).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", [], "/archive-queue")).toBe(false);
+  });
+
+  it("no longer lists the material columns as an entry of their own", () => {
+    const entries = PORTAL_NAVIGATION.MSE_TRACE.flatMap((item) => [
+      item.href,
+      ...(item.children ?? []).map((child) => child.href),
+    ]);
+
+    expect(entries).not.toContain("/material-columns");
+    /*
+     * The route still resolves, for both kinds of reader. `isRouteAllowed`
+     * reads this registry, so dropping the entry did not merely hide the
+     * screen - it refused it, and to whoever held material access rather
+     * than category access it would have disappeared without a word. Both
+     * modules therefore claim the route.
+     */
+    expect(
+      isRouteAllowed("MSE_TRACE", ["material_receipts"], "/material-columns"),
+    ).toBe(true);
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/material-columns"),
+    ).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", [], "/material-columns")).toBe(false);
+  });
+
+  it("keeps the management screen behind the category feature", () => {
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/category-management"),
+    ).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", [], "/category-management")).toBe(false);
+  });
 });

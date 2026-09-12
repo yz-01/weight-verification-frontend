@@ -21,10 +21,9 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import { ExportButton } from "@/components/shared/export-button";
@@ -1085,6 +1084,10 @@ function AssignDialog({
   // Prefilled with whatever the record already carries, so the office edits an
   // address rather than retyping one - and so leaving it alone changes nothing.
   const [pickupAddress, setPickupAddress] = useState(record.pickup_address);
+  // When the site wants it collected (T-226, D-111). Blank on purpose: the
+  // order is accepted on arrival, so this is a wish rather than a negotiation,
+  // and a default date would be a commitment nobody made.
+  const [collectionAt, setCollectionAt] = useState("");
 
   // Only the recyclers this project is bound to. Listing every partner would
   // offer choices the server's partnership gate is going to refuse.
@@ -1100,6 +1103,9 @@ function AssignDialog({
         estimated_weight_kg: weight || undefined,
         description: description.trim() || undefined,
         pickup_address: pickupAddress.trim() || undefined,
+        collection_at: collectionAt
+          ? new Date(collectionAt).toISOString()
+          : undefined,
       }),
     onSuccess: onSaved,
   });
@@ -1166,6 +1172,24 @@ function AssignDialog({
               rows={2}
               value={pickupAddress}
               onChange={(event) => setPickupAddress(event.target.value)}
+            />
+          </FieldWrapper>
+          {/*
+            When the site wants it collected (T-226, D-111).
+            客户：「建筑商发送订单的时候是自动接受的，不存在他们可以拒绝订单的
+            情况。」 An order nobody can refuse has nothing to negotiate, so the
+            time moved from the recycler's acceptance step to here. The yard
+            can still propose a different one from their own order book.
+          */}
+          <FieldWrapper
+            label={t("field.collectionAt")}
+            optional={t("field.optional")}
+            hint={t("field.collectionAtHint")}
+          >
+            <Input
+              type="datetime-local"
+              value={collectionAt}
+              onChange={(event) => setCollectionAt(event.target.value)}
             />
           </FieldWrapper>
           <FieldWrapper
@@ -1262,15 +1286,6 @@ function TrackingDialog({
   // contractor was the only party still waiting on a thirty-second timer, which
   // is what kept the five-second promise from being true.
   //
-  // Nothing extra is needed on the backend: every shared-order event is written
-  // once per company, so the driver's GPS and status arrive here as
-  // `waste_dispatch.*` on the contractor's own stream.
-  const realtimeKeys = useMemo(
-    () => [["waste-outgoing", "tracking", record.id]],
-    [record.id],
-  );
-  useOrderRealtime(realtimeKeys);
-
   const tracking = useQuery({
     queryKey: ["waste-outgoing", "tracking", record.id],
     queryFn: () => getWasteTracking(record.id),

@@ -9,12 +9,19 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useFormSurface } from "@/components/shared/form-surface";
 import {
   DetailHeader,
   FieldWrapper,
   SectionHeader,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import {
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -157,6 +164,7 @@ function ConsultantApplicationEditor({
   const t = useTranslations("consultantWorkflow");
   const { can } = useAuth();
   const router = useRouter();
+  const surface = useFormSurface();
   const qc = useQueryClient();
   const [form, setForm] = useState<ConsultantApplicationPayload>(() =>
     initial ? payloadFromApplication(initial) : emptyForm,
@@ -358,22 +366,8 @@ function ConsultantApplicationEditor({
       : t("form.saveError")
     : "";
 
-  return (
-    <div className="mx-auto max-w-6xl space-y-5 pb-8">
-      <DetailHeader
-        backHref="/consultant-applications"
-        backLabel={t("applications.back")}
-      />
-      <div className="flex items-start gap-3 border-b pb-5">
-        <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-          <ClipboardPen className="size-5" />
-        </span>
-        <div>
-          <h1 className="text-xl font-semibold">{t(id ? "form.editTitle" : "form.title")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("form.subtitle")}</p>
-        </div>
-      </div>
-
+  const body = (
+    <>
       {sourceTask.isLoading ? (
         <div className="flex items-center gap-2 rounded-lg border bg-card p-4 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
@@ -579,13 +573,65 @@ function ConsultantApplicationEditor({
         </p>
       ) : null}
 
-      <div className="sticky bottom-3 flex justify-end gap-2 rounded-lg border bg-background/95 p-3 shadow-lg backdrop-blur">
+    </>
+  );
+
+  const actions = (
+    <>
         <Button variant="outline" onClick={() => router.back()}>{t("action.cancel")}</Button>
         <Button requires={[[form.project, t("field.project")], [selectedWorkflow, t("field.workflow")], [form.application_type, t("field.applicationType")], [form.discipline, t("field.discipline")], [form.work_type, t("field.workType")], [form.priority, t("field.priority")], [form.consultant, t("field.consultant")], [form.consultant_organization, t("field.consultantCompany")], [form.location, t("field.location")], [form.component, t("field.component")], [form.description, t("field.description")], [requiredTemplateFieldsComplete, t("field.template")]]}
                 disabled={save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
           {t("action.saveDraft")}
         </Button>
+    </>
+  );
+
+  /*
+   * In a dialog the page's own back bar and title block would be a second
+   * frame drawn inside the first (T-216). The dialog already says what it is
+   * and already has a way out, so only the sections are kept - and the action
+   * bar becomes the dialog's footer, which is pinned rather than sticky.
+   *
+   * This is one of the three screens the task flagged as too tall to simply
+   * drop into a dialog. It stays readable because the body scrolls on its own
+   * while the header and the two buttons hold still.
+   */
+  if (surface === "dialog") {
+    return (
+      <>
+        <DialogHeader>
+          <DialogTitle>{t(id ? "form.editTitle" : "form.title")}</DialogTitle>
+          <DialogDescription>{t("form.subtitle")}</DialogDescription>
+        </DialogHeader>
+        <div className="-mx-4 space-y-5 overflow-y-auto border-y px-4 py-5">
+          {body}
+        </div>
+        <DialogFooter>{actions}</DialogFooter>
+      </>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-6xl space-y-5 pb-8">
+      <DetailHeader
+        backHref="/consultant-applications"
+        backLabel={t("applications.back")}
+      />
+      <div className="flex items-start gap-3 border-b pb-5">
+        <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+          <ClipboardPen className="size-5" />
+        </span>
+        <div>
+          <h1 className="text-xl font-semibold">{t(id ? "form.editTitle" : "form.title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("form.subtitle")}</p>
+        </div>
+      </div>
+
+      {body}
+
+      <div className="sticky bottom-3 flex justify-end gap-2 rounded-lg border bg-background/95 p-3 shadow-lg backdrop-blur">
+        {actions}
       </div>
     </div>
   );

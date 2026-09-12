@@ -397,10 +397,19 @@ const CATALOGUE_WINS = new Set([
  * been moved onto `serialize_errors` yet.
  */
 function translateFieldErrors(
-  errors: Record<string, FieldError[] | string[] | string>,
+  errors: Record<string, FieldError[] | string[] | string> | null | undefined,
 ): Record<string, string> {
   const result: Record<string, string> = {};
-  for (const [field, value] of Object.entries(errors)) {
+  /*
+   * A failure that arrived without an `errors` key at all (F-366). Django
+   * always sends the envelope, but a proxy, a gateway or a rate limiter in
+   * front of it does not - and `Object.entries(undefined)` throws a TypeError
+   * from inside the error path, which reaches the caller *instead of* the
+   * ApiError carrying the status. Everything that decides what to do by
+   * reading `error.status` - signing out on a 401, retrying a 429 - is then
+   * deciding from an error that has no status.
+   */
+  for (const [field, value] of Object.entries(errors ?? {})) {
     const first = Array.isArray(value) ? value[0] : value;
     if (first === undefined) continue;
     if (typeof first === "string") {

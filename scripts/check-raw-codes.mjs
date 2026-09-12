@@ -60,14 +60,14 @@ const ALLOWED = new Map([
     "Site.state is free text - the Malaysian state in the address.",
   ],
   [
-    "src/components/notifications/admin-notification-workspace.tsx:266",
+    "src/components/notifications/admin-notification-workspace.tsx:269",
     "T-176: Notification.kind is an open CharField, not a closed enum - " +
       "`geofence.enter`, `safety.incident_reported`, and more added per " +
       "feature. Cataloguing it needs a decision about who owns the list, " +
       "so it is carried rather than guessed at.",
   ],
   [
-    "src/components/notifications/admin-notification-workspace.tsx:366",
+    "src/components/notifications/admin-notification-workspace.tsx:369",
     "T-176: as above.",
   ],
 ]);

@@ -23,6 +23,7 @@ import {
 } from "@/components/field-staff/field-evidence-grid";
 import { LocationField } from "@/components/field-staff/location-field";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -46,12 +47,13 @@ export function CategoryEvidenceCapture({
   const commonT = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [project, setProject] = useState(initialProject);
+  const [project, setProject] = useDraftState("project", initialProject);
   const [trail, setTrail] = useState<ProjectCategory[]>([]);
   const [selected, setSelected] = useState<ProjectCategory | null>(null);
-  const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
-  const [note, setNote] = useState("");
-  const [location, setLocation] = useState<LocationFix | null>(null);
+  const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
+  const [note, setNote] = useDraftState("note", "");
+  const [location, setLocation] = useDraftState<LocationFix | null>("location", null);
+  const clearDraft = useClearDraft();
   const [error, setError] = useState("");
 
   const categories = useQuery({
@@ -159,6 +161,7 @@ export function CategoryEvidenceCapture({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["field-tasks"] });
       void queryClient.invalidateQueries({ queryKey: ["evidence"] });
+      clearDraft();
       onSaved();
     },
     onError: (reason) =>
@@ -322,7 +325,7 @@ export function CategoryEvidenceCapture({
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Send />}
-            {t("submit")}
+            {t(`submitMode.${selected.submission_mode}`)}
           </Button>
         </section>
       ) : null}

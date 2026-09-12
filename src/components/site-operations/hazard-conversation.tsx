@@ -34,6 +34,7 @@ import {
   getHazardConversation,
   postHazardMessage,
 } from "@/services/site-operations.service";
+import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 
 /** Matches the server's cap. Shown while recording, not discovered on send. */
 const FALLBACK_AUDIO_LIMIT = 60;
@@ -167,10 +168,17 @@ function MessageRow({ message }: { message: HazardMessage }) {
 }
 
 export function HazardConversationPanel({ incidentId }: { incidentId: string }) {
+  return <FieldDraft scope={`hazard-conversation:${incidentId}`}>
+    <HazardConversationContent incidentId={incidentId} />
+  </FieldDraft>;
+}
+
+function HazardConversationContent({ incidentId }: { incidentId: string }) {
   const t = useTranslations();
   const queryClient = useQueryClient();
-  const [body, setBody] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [body, setBody] = useDraftState("body", "");
+  const [file, setFile] = useDraftState<File | null>("file", null);
+  const clearDraft = useClearDraft();
   const fileInput = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery({
@@ -187,6 +195,7 @@ export function HazardConversationPanel({ incidentId }: { incidentId: string }) 
     onSuccess: () => {
       setBody("");
       setFile(null);
+      clearDraft();
       if (fileInput.current) fileInput.current.value = "";
       void queryClient.invalidateQueries({
         queryKey: ["hazard-conversation", incidentId],

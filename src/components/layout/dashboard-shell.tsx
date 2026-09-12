@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardToolbar } from "@/components/layout/dashboard-toolbar";
 import { useAuth } from "@/components/providers/auth-provider";
+import { SessionUnreachable } from "@/components/shared/session-unreachable";
 import {
   SidebarInset,
   SidebarProvider,
@@ -18,6 +19,9 @@ import {
   isRouteAllowed,
 } from "@/lib/navigation";
 import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
+import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
+
+const GLOBAL_REALTIME_KEYS: never[] = [];
 
 /**
  * The signed-in shell, and the guard in front of it.
@@ -35,13 +39,21 @@ import { portalLoginPath, redirectWithFallback } from "@/lib/portal";
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, sessionUnreachable } = useAuth();
   const isDriverOnly =
     user !== null &&
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
   const isFieldStaff = user?.is_field_staff ?? false;
+  // One stream at the signed-in shell keeps every list/detail screen current,
+  // including pages that do not have a feature-specific subscription.
+  useOrderRealtime(
+    GLOBAL_REALTIME_KEYS,
+    true,
+    canUseRealtime(user?.permissions ?? [], Boolean(user?.is_platform_staff)),
+  );
 
   useEffect(() => {
+    if (sessionUnreachable) return;
     if (!isLoading && user === null) {
       redirectWithFallback(router, portalLoginPath(getSessionPortal()));
       return;
@@ -70,7 +82,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         firstAllowedDashboardPath(user.portal, user.features),
       );
     }
-  }, [isDriverOnly, isFieldStaff, isLoading, pathname, user, router]);
+  }, [isDriverOnly, isFieldStaff, isLoading, pathname, sessionUnreachable, user, router]);
 
   const isAllowed =
     user !== null &&
@@ -83,6 +95,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       user.permissions,
       user.is_superuser,
     );
+
+  /* Before the signed-out branch: a session we could not ask about is not a
+     session that ended (F-365). */
+  if (sessionUnreachable) return <SessionUnreachable />;
 
   if (isLoading || user === null || !isAllowed) {
     return (

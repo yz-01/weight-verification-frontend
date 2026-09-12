@@ -554,6 +554,7 @@ function ConfigRow({
         ? setCompanyPlatformConfig({ company, key: row.key, value })
         : setPlatformConfig({ key: row.key, value }),
     onSuccess: async () => {
+      void queryClient.invalidateQueries({ queryKey: ["notification-channels"] });
       void queryClient.invalidateQueries({
         queryKey: ["platform-config-catalogue"],
       });

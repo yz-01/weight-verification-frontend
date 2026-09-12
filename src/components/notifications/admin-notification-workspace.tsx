@@ -23,6 +23,9 @@ import {
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/components/providers/auth-provider";
+import { setPlatformConfig } from "@/services/platform-settings.service";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -386,7 +389,7 @@ function NotificationDetails({
                         tone={delivery.mode === "LIVE" ? "positive" : delivery.mode === "SIMULATED" ? "warning" : "neutral"}
                       />
                       <StatusBadge
-                        label={t(`deliveryStatus.${delivery.status}`)}
+                        label={delivery.mode === "SIMULATED" ? t("channel.simulatedLabel") : t(`deliveryStatus.${delivery.status}`)}
                         tone={delivery.status === "FAILED" ? "danger" : delivery.status === "SENT" ? "positive" : "neutral"}
                       />
                     </span>
@@ -402,6 +405,7 @@ function NotificationDetails({
 }
 
 function ChannelWorkspace() {
+  const { can } = useAuth();
   const t = useTranslations("adminNotifications");
   const system = useTranslations("adminSystemSettings");
   const df = useDateFormat();
@@ -410,7 +414,7 @@ function ChannelWorkspace() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [channels, setChannels] = useState<Array<"IN_APP" | "EMAIL" | "PUSH">>(["IN_APP"]);
-  const status = useQuery({ queryKey: ["notification-channels"], queryFn: getNotificationChannelStatus });
+  const status = useQuery({ queryKey: ["notification-channels"], queryFn: getNotificationChannelStatus, refetchInterval: 15000 });
   const companies = useQuery({
     queryKey: ["companies", "notification-send"],
     queryFn: () => getCompanies({ page_size: 200 }),
@@ -432,8 +436,18 @@ function ChannelWorkspace() {
     );
 
   const channelRows = status.data?.channels ?? [];
-  const modeFor = (channel: "IN_APP" | "EMAIL" | "PUSH") =>
-    channelRows.find((row) => row.channel === channel)?.mode ?? "NOT_CONFIGURED";
+  const configure = useMutation({
+    mutationFn: setPlatformConfig,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["notification-channels"] }),
+        queryClient.invalidateQueries({ queryKey: ["platform-config-catalogue"] }),
+      ]);
+    },
+  });
+  const available = (channel: "IN_APP" | "EMAIL" | "PUSH") =>
+    channelRows.some((row) => row.channel === channel && row.enabled && row.mode !== "NOT_CONFIGURED");
+  const selectedChannels = channels.filter(available);
   const channelIcon = {
     IN_APP: Bell,
     EMAIL: Mail,
@@ -472,9 +486,9 @@ function ChannelWorkspace() {
                         </span>
                       </div>
                       <StatusBadge
-                        label={system(`mode.${row.mode}`)}
+                        label={row.enabled ? system(`mode.${row.mode}`) : t("channel.disabled")}
                         tone={
-                          row.mode === "LIVE"
+                          row.enabled && row.mode === "LIVE"
                             ? "positive"
                             : row.mode === "SIMULATED"
                               ? "warning"
@@ -482,6 +496,30 @@ function ChannelWorkspace() {
                         }
                       />
                     </div>
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <label className="flex items-center gap-2 text-sm">
+                        <Switch
+                          checked={row.enabled}
+                          disabled={!can("platform_settings.manage") || configure.isPending}
+                          onCheckedChange={(enabled) => configure.mutate({ key: `notification.${row.channel.toLowerCase()}.enabled`, value: enabled })}
+                          aria-label={t("channel.enabledLabel", { channel: t(`channel.${row.channel}`) })}
+                        />
+                        {t(row.enabled ? "channel.enabled" : "channel.disabled")}
+                      </label>
+                      {row.channel !== "IN_APP" && (
+                        <select
+                          className="h-9 max-w-full rounded-md border bg-background px-2 text-sm"
+                          value={row.configured_mode}
+                          aria-label={t("channel.modeLabel", { channel: t(`channel.${row.channel}`) })}
+                          disabled={!can("platform_settings.manage") || configure.isPending}
+                          onChange={(event) => configure.mutate({ key: `notification.${row.channel.toLowerCase()}.mode`, value: event.target.value })}
+                        >
+                          <option value="SIMULATED">{system("mode.SIMULATED")}</option>
+                          <option value="LIVE">{system("mode.LIVE")}</option>
+                        </select>
+                      )}
+                    </div>
+                    {row.channel !== "IN_APP" && <p className="mt-3 text-xs text-muted-foreground">{t("channel.policyHint")}</p>}
                     <div className="mt-5 grid grid-cols-2 gap-3">
                       <div className="rounded-md bg-muted/35 px-3 py-2.5">
                         <p className="text-xs text-muted-foreground">{t("channel.sentLabel")}</p>
@@ -492,6 +530,7 @@ function ChannelWorkspace() {
                         <p className="mt-1 text-lg font-semibold tabular-nums">{row.failed}</p>
                       </div>
                     </div>
+                    <p className="mt-3 text-xs text-muted-foreground">{t("channel.simulatedLabel")}: {row.simulated}</p>
                     <p className="mt-4 text-xs leading-5 text-muted-foreground">
                       {t("channel.lastAttempt")}: {row.last_attempt_at ? df.dateTime(row.last_attempt_at) : t("channel.never")}
                     </p>
@@ -499,6 +538,7 @@ function ChannelWorkspace() {
                 );
               })}
         </div>
+        {configure.isError && <p role="alert" className="px-5 py-3 text-sm text-destructive">{t("channel.saveError")}</p>}
         {status.isError && (
           <p className="border-t px-5 py-3 text-sm text-destructive">
             {t("channel.loadError")}
@@ -558,8 +598,7 @@ function ChannelWorkspace() {
               <div className="mt-3 grid gap-2">
                 {(["IN_APP", "EMAIL", "PUSH"] as const).map((channel) => {
                   const Icon = channelIcon[channel];
-                  const mode = modeFor(channel);
-                  const unavailable = mode === "NOT_CONFIGURED";
+                  const unavailable = !available(channel);
                   return (
                     <label
                       key={channel}
@@ -583,7 +622,7 @@ function ChannelWorkspace() {
                         </span>
                         <span className="mt-0.5 block text-xs leading-4 text-muted-foreground">
                           {unavailable
-                            ? t("composer.notConfigured")
+                            ? t("channel.unavailable")
                             : t(`composer.channelDescription.${channel}`)}
                         </span>
                       </span>
@@ -599,9 +638,9 @@ function ChannelWorkspace() {
             )}
             <Button
               className="mt-6 w-full xl:mt-auto"
-              requires={[[company, t("composer.chooseCompany")], [title, t("field.title")], [message, t("field.message")], [channels.length, t("filter.category")]]}
+              requires={[[company, t("composer.chooseCompany")], [title, t("field.title")], [message, t("field.message")], [selectedChannels.length, t("filter.category")]]}
               disabled={send.isPending}
-              onClick={() => send.mutate({ company_id: company, kind: "SYSTEM", title, message, channels })}
+              onClick={() => send.mutate({ company_id: company, kind: "SYSTEM", title, message, channels: selectedChannels })}
             >
               <Send />
               {send.isPending ? t("composer.sending") : t("action.send")}
@@ -659,7 +698,7 @@ function NotificationRecords() {
                           tone={row.mode === "LIVE" ? "positive" : row.mode === "SIMULATED" ? "warning" : "neutral"}
                         />
                         <StatusBadge
-                          label={t(`deliveryStatus.${row.status}`)}
+                          label={row.mode === "SIMULATED" ? t("channel.simulatedLabel") : t(`deliveryStatus.${row.status}`)}
                           tone={row.status === "FAILED" ? "danger" : row.status === "SENT" ? "positive" : "neutral"}
                         />
                       </span>

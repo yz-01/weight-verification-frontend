@@ -5,6 +5,7 @@ import { HardHat, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -35,16 +36,37 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
   const t = useTranslations("workforcePresence");
   const common = useTranslations("common");
   const df = useDateFormat();
+  const { can } = useAuth();
   const [department, setDepartment] = useState(ALL);
   const [trade, setTrade] = useState(ALL);
+
+  /**
+   * F-291. These two lists only fill the filter dropdowns, and reading them
+   * needs permissions that watching the headcount does not: the endpoints
+   * require `department.view` and `work_trade.view`, while the presence figure
+   * itself requires `field_position.view`. Site Staff hold the third and
+   * neither of the first two, so every field worker who opened the Location
+   * tab fired two requests that could only be refused - and `api-client`
+   * toasts a refused read unless the call site opts out, so the customer got
+   * "You do not have permission to perform this action" across a screen whose
+   * numbers had loaded correctly.
+   *
+   * Gated rather than silenced: a request that cannot succeed should not be
+   * sent at all. Silencing it would keep the wasted round trip and the
+   * authentication and permission query behind it.
+   */
+  const mayFilterByDepartment = can("department.view");
+  const mayFilterByTrade = can("work_trade.view");
 
   const departments = useQuery({
     queryKey: ["company-departments", "presence"],
     queryFn: () => getDepartments({ page_size: 200, sort_by: "name" }),
+    enabled: mayFilterByDepartment,
   });
   const trades = useQuery({
     queryKey: ["company-trades", "presence"],
     queryFn: () => getWorkTrades({ page_size: 200, sort_by: "name" }),
+    enabled: mayFilterByTrade,
   });
   const presence = useQuery({
     queryKey: ["workforce-presence", projectId, department, trade],
@@ -65,6 +87,9 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
         <p className="text-sm font-semibold">{t("title")}</p>
         <p className="text-xs text-muted-foreground">{t("help")}</p>
         <div className="ml-auto flex flex-wrap gap-2">
+          {/* A dropdown whose options can never load is worse than no
+              dropdown: it looks like a filter that is simply empty. */}
+          {mayFilterByDepartment && (
           <Select value={department} onValueChange={setDepartment}>
             <SelectTrigger className="h-8 w-44" aria-label={t("filter.department")}>
               <SelectValue placeholder={t("filter.allDepartments")} />
@@ -78,6 +103,8 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
               ))}
             </SelectContent>
           </Select>
+          )}
+          {mayFilterByTrade && (
           <Select value={trade} onValueChange={setTrade}>
             <SelectTrigger className="h-8 w-44" aria-label={t("filter.trade")}>
               <SelectValue placeholder={t("filter.allTrades")} />
@@ -91,6 +118,7 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
               ))}
             </SelectContent>
           </Select>
+          )}
         </div>
       </div>
 

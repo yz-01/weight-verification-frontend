@@ -19,6 +19,10 @@ import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { DriverInstallPrompt } from "@/components/driver/driver-install-prompt";
 import { DriverLiveTracker } from "@/components/driver/driver-live-tracker";
 import { useAuth } from "@/components/providers/auth-provider";
+import { SessionUnreachable } from "@/components/shared/session-unreachable";
+import { canUseRealtime, useOrderRealtime } from "@/hooks/use-order-realtime";
+
+const DRIVER_REALTIME_KEYS: never[] = [];
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +49,12 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isLoading, signOut } = useAuth();
+  const { user, isLoading, sessionUnreachable, signOut } = useAuth();
+  useOrderRealtime(
+    DRIVER_REALTIME_KEYS,
+    true,
+    canUseRealtime(user?.permissions ?? [], Boolean(user?.is_platform_staff)),
+  );
   const isDriverOnly =
     user !== null &&
     isDriverOnlyAccount(user.portal, user.permissions, user.is_superuser);
@@ -55,6 +64,7 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (sessionUnreachable) return;
     if (!isLoading && user === null) {
       redirectWithFallback(router, "/scrap/login");
       return;
@@ -65,7 +75,11 @@ export function DriverShell({ children }: { children: React.ReactNode }) {
         firstAllowedDashboardPath(user.portal, user.features),
       );
     }
-  }, [isDriverOnly, isLoading, user, router]);
+  }, [isDriverOnly, isLoading, sessionUnreachable, user, router]);
+
+  /* Before the signed-out branch: a session we could not ask about is not a
+     session that ended (F-365). */
+  if (sessionUnreachable) return <SessionUnreachable />;
 
   if (isLoading || user === null || !isDriverOnly) {
     return (

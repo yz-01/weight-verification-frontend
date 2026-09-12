@@ -13,6 +13,7 @@ import {
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
+import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import {
   DetailHeader,
   ReadField,
@@ -32,7 +33,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import type {
+  DeliveryNoteOCRResult,
   MaterialReceiptDetail,
   PhotoKind,
 } from "@/interfaces/contractor";
@@ -316,14 +319,27 @@ export function ViewReceipt({ id }: { id: string }) {
         backHref="/receipts"
         backLabel={t("receipts.title")}
         action={
-          can("receipt.update") && !data.superseded_by ? (
-            <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-              <Link href={`/receipts/${data.id}/edit`}>
-                <Pencil className="h-4 w-4" />
-                {t("receipts.correction.action")}
-              </Link>
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap items-center gap-2">
+            {/* From the record rather than from Multi Engine (T-238). The
+                archive queue carries the same control for every kind; this is
+                the one column with a screen of its own per record, and a
+                receipt is what people most often reach for when putting a
+                claim together. */}
+            <AddToPackageButton
+              kind="MATERIAL_RECEIPT"
+              recordId={data.id}
+              projectId={data.project}
+              reference={data.receipt_no}
+            />
+            {can("receipt.update") && !data.superseded_by && (
+              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
+                <Link href={`/receipts/${data.id}/edit`}>
+                  <Pencil className="h-4 w-4" />
+                  {t("receipts.correction.action")}
+                </Link>
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -363,6 +379,52 @@ export function ViewReceipt({ id }: { id: string }) {
           </span>
         </div>
 
+        {/*
+         * The strip the customer's design leads with: the six things a person
+         * checks before looking at anything else (2026-09-12 screenshot).
+         *
+         * A strip and not a replacement. Every section below it stays - Lucas:
+         * 「可是要全部 information 都 display 出来」 - so this is the summary
+         * that saves scrolling, not a shorter version of the record.
+         */}
+        <section className="grid gap-4 border-t bg-muted/20 px-6 py-4 sm:grid-cols-2 lg:grid-cols-4">
+          <SummaryCell label={t("receipts.field.project")}>
+            {data.project_name}
+          </SummaryCell>
+          <SummaryCell label={t("receipts.field.materialName")}>
+            {data.material_name}
+          </SummaryCell>
+          <SummaryCell label={t("receipts.field.capturedAt")}>
+            {df.dateTime(data.captured_at)}
+          </SummaryCell>
+          <SummaryCell label={t("receipts.field.recordedBy")}>
+            <span className="inline-flex items-center gap-2">
+              <Avatar className="size-6">
+                {data.created_by_avatar ? (
+                  <AvatarImage src={data.created_by_avatar} alt="" />
+                ) : null}
+                <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
+                  {initials(data.created_by_name ?? "")}
+                </AvatarFallback>
+              </Avatar>
+              {data.created_by_name ?? t("receipts.recorderUnknown")}
+            </span>
+          </SummaryCell>
+          {data.received_by_name ? (
+            <SummaryCell label={t("receipts.field.receivedBy")}>
+              {data.received_by_name}
+            </SummaryCell>
+          ) : null}
+          {data.notes ? (
+            <SummaryCell
+              label={t("receipts.field.notes")}
+              className="sm:col-span-2 lg:col-span-3"
+            >
+              {data.notes}
+            </SummaryCell>
+          ) : null}
+        </section>
+
         <div className="divide-y border-t">
           <FormSection title={t("receipts.section.delivery")}>
             <ReadField
@@ -382,8 +444,17 @@ export function ViewReceipt({ id }: { id: string }) {
               className="md:col-span-2"
             />
             <ReadField
+              label={t("receipts.field.materialSpecification")}
+              value={data.material_specification}
+              className="md:col-span-2"
+            />
+            <ReadField
               label={t("receipts.field.quantity")}
               value={`${data.quantity} ${t(`receipts.unit.${data.unit}`)}`}
+            />
+            <ReadField
+              label={t("receipts.field.totalWeightKg")}
+              value={data.total_weight_kg}
             />
             <ReadField
               label={t("receipts.field.unitPrice")}
@@ -511,7 +582,12 @@ export function ViewReceipt({ id }: { id: string }) {
                 {t("receipts.noPhotos")}
               </p>
             ) : (
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              /*
+               * Two across rather than four (2026-09-12 design). A delivery
+               * note at quarter width is a grey rectangle; at half it can be
+               * read, which is the whole reason it was photographed.
+               */
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {data.photos.map((photo, index) => (
                   <figure key={photo.id} className="space-y-1.5">
                     {/* A thumbnail cropped to 4:3 is not the evidence, it is a
@@ -537,9 +613,45 @@ export function ViewReceipt({ id }: { id: string }) {
                         className="object-cover"
                         unoptimized
                       />
+                      {/*
+                       * When and where, over the photograph itself.
+                       *
+                       * Both have been on the row since it was written and
+                       * nothing had ever drawn them, so the one screen a
+                       * dispute is settled on could not say when a photograph
+                       * was taken or where the phone was standing (T-243).
+                       * Said in words when absent rather than left blank: a
+                       * missing timestamp is a fact about the evidence.
+                       */}
+                      <span className="absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-x-2 bg-black/65 px-2 py-1 text-left text-[11px] font-medium text-white">
+                        <span className="tabular">
+                          {photo.taken_at
+                            ? t("receipts.photoTakenAt", {
+                                when: df.dateTime(photo.taken_at),
+                              })
+                            : t("receipts.photoNoTime")}
+                        </span>
+                        <span className="tabular opacity-90">
+                          {photo.latitude && photo.longitude
+                            ? `GPS ${photo.latitude}, ${photo.longitude}`
+                            : t("receipts.photoNoLocation")}
+                        </span>
+                      </span>
                     </button>
-                    <figcaption className="text-xs text-muted-foreground">
-                      {t(`receipts.photoKind.${photo.kind}`)}
+                    <figcaption className="space-y-0.5 text-xs text-muted-foreground">
+                      <span className="block font-medium text-foreground">
+                        {t(`receipts.photoKind.${photo.kind}`)}
+                      </span>
+                      {photo.caption ? (
+                        <span className="block">{photo.caption}</span>
+                      ) : null}
+                      <span className="block">
+                        {photo.created_by_name
+                          ? t("receipts.photoUploadedBy", {
+                              who: photo.created_by_name,
+                            })
+                          : t("receipts.photoUploaderUnknown")}
+                      </span>
                     </figcaption>
                   </figure>
                 ))}
@@ -556,6 +668,8 @@ export function ViewReceipt({ id }: { id: string }) {
               />
             )}
           </section>
+
+          <DeliveryOrderReading receipt={data} />
 
           {/* The signatures belong with the delivery they were given for.
               They were captured on site and stored on this record all along,
@@ -666,5 +780,125 @@ export function ViewReceipt({ id }: { id: string }) {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+/** One cell of the summary strip: a label and whatever answers it. */
+function SummaryCell({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={className}>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-0.5 break-words text-sm font-medium">{children}</p>
+    </div>
+  );
+}
+
+/**
+ * What the reader got off the delivery order, next to the photograph of it.
+ *
+ * The customer's design puts this beside the pictures (2026-09-12), and the
+ * data has been on the receipt since the delivery-order reader was written -
+ * `ocr_status` and `ocr_result` - with no screen drawing it. So the one place
+ * a person compares the paper against what the system believes could not show
+ * what the system believes.
+ *
+ * The confidence is printed, not hidden behind a threshold. A field the reader
+ * was unsure of is exactly the field worth checking against the document, and
+ * a panel that quietly drops those is a panel that looks more certain than the
+ * reading was.
+ */
+function DeliveryOrderReading({ receipt }: { receipt: MaterialReceiptDetail }) {
+  const t = useTranslations();
+  const result = receipt.ocr_result as Partial<DeliveryNoteOCRResult>;
+  const suggestions = result?.suggestions ?? {};
+  const doubtful = new Set(result?.low_confidence_fields ?? []);
+  const entries = (
+    [
+      ["delivery_note_no", "receipts.field.deliveryNoteNo"],
+      ["supplier_name", "receipts.field.supplier"],
+      ["material_name", "receipts.field.materialName"],
+      ["quantity", "receipts.field.quantity"],
+      ["vehicle_plate", "receipts.field.vehiclePlate"],
+    ] as const
+  ).filter(([key]) => Boolean(suggestions[key]));
+  const lines = result?.line_items ?? [];
+
+  return (
+    <FormSection title={t("receipts.doPanelTitle")}>
+      <div className="md:col-span-2 space-y-3">
+        <p className="text-xs text-muted-foreground">
+          {t("receipts.doPanelStatus")}:{" "}
+          <span className="font-medium text-foreground">
+            {t(`receipts.doStatus.${receipt.ocr_status}`)}
+          </span>
+        </p>
+
+        {entries.length === 0 && lines.length === 0 ? (
+          /* A sentence, not an empty table. Nothing was read, and that is an
+             answer rather than a missing one. */
+          <p className="text-sm text-muted-foreground">
+            {t("receipts.doPanelNone")}
+          </p>
+        ) : (
+          <>
+            {doubtful.size > 0 && (
+              <p
+                role="alert"
+                className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs"
+              >
+                {t("receipts.doPanelLowConfidence")}
+              </p>
+            )}
+            {entries.length > 0 && (
+              <dl className="divide-y rounded-lg border">
+                {entries.map(([key, label]) => (
+                  <div key={key} className="grid grid-cols-3 gap-2 px-3 py-2">
+                    <dt className="text-xs text-muted-foreground">{t(label)}</dt>
+                    <dd className="col-span-2 break-words text-sm">
+                      {suggestions[key]}
+                      {doubtful.has(key) && (
+                        <span className="ml-2 text-xs text-warning">
+                          {t("receipts.doPanelLowConfidence")}
+                        </span>
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            {lines.length > 0 && (
+              <div className="overflow-x-auto rounded-lg border">
+                <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("receipts.doPanelLineItems")}
+                </p>
+                {/* The shared table, so the padding, header and hover match
+                    every other screen (the UI-consistency probe). */}
+                <Table>
+                  <TableBody>
+                    {lines.map((line, index) => (
+                      <TableRow key={`${line.material_name}-${index}`}>
+                        <TableCell>{line.code ?? ""}</TableCell>
+                        <TableCell>{line.material_name}</TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          {line.quantity} {line.unit}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </FormSection>
   );
 }

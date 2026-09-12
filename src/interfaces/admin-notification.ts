@@ -28,6 +28,9 @@ export interface AdminNotificationRow extends Omit<NotificationRow, "kind"> {
 }
 
 export interface NotificationChannelStatus {
+  enabled: boolean;
+  configured_mode: "SIMULATED" | "LIVE";
+  simulated: number;
   channel: "IN_APP" | "EMAIL" | "PUSH";
   mode: "SIMULATED" | "LIVE" | "NOT_CONFIGURED";
   sent: number;

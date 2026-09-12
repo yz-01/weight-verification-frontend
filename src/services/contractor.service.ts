@@ -12,6 +12,8 @@ import type {
   DispatchSummary,
   MaterialReceipt,
   MaterialReceiptDetail,
+  MySubmissionDetail,
+  MySubmissionRow,
   MySubmissionsPage,
   MaterialReceiptPayload,
   PhotoKind,
@@ -542,6 +544,25 @@ export async function correctReceipt(
 export function getMySubmissions(): Promise<MySubmissionsPage> {
   return api.get<MySubmissionsPage>(
     "/api/my-submissions/get_my_submissions/",
+  );
+}
+
+/**
+ * One history row, opened (T-210).
+ *
+ * One endpoint for all six kinds rather than six module endpoints: those
+ * answer to the office's permissions, and a phone calling a different one per
+ * kind is six chances to answer 403 to the person who typed the record. The
+ * server scopes this by the same "rows I submitted" predicate the list uses,
+ * so a row the list showed is a row this can open, and nothing else.
+ */
+export function getSubmissionDetail(
+  kind: MySubmissionRow["kind"],
+  id: string,
+): Promise<MySubmissionDetail> {
+  return api.get<MySubmissionDetail>(
+    "/api/my-submissions/get_submission_detail/",
+    { kind, id },
   );
 }
 

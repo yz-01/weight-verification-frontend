@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Images, Loader2, MapPin, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useState } from "react";
 
 import {
   ListHeader,
@@ -26,6 +25,7 @@ import {
   getFieldTasks,
   transitionFieldTask,
 } from "@/services/contractor-ops.service";
+import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 
 /**
  * Every photo submission waiting on a reviewer, on one page.
@@ -38,11 +38,16 @@ import {
  * returned submission never reaches the category at all.
  */
 export function PhotoApprovals() {
+  return <FieldDraft scope="photo-approvals"><PhotoApprovalsContent /></FieldDraft>;
+}
+
+function PhotoApprovalsContent() {
   const t = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
-  const [returning, setReturning] = useState<FieldTask | null>(null);
-  const [note, setNote] = useState("");
+  const [returningId, setReturningId] = useDraftState("returningId", "");
+  const [note, setNote] = useDraftState("note", "");
+  const clearDraft = useClearDraft();
 
   const waiting = useQuery({
     queryKey: ["field-tasks", "photo-approvals"],
@@ -61,8 +66,9 @@ export function PhotoApprovals() {
       reason?: string;
     }) => transitionFieldTask(id, status, reason ?? ""),
     onSuccess: () => {
-      setReturning(null);
+      setReturningId("");
       setNote("");
+      clearDraft();
       // The category browse changes too: accepting is what puts the photos
       // there, so a stale evidence list would show the old answer.
       void queryClient.invalidateQueries({ queryKey: ["field-tasks"] });
@@ -71,6 +77,7 @@ export function PhotoApprovals() {
   });
 
   const rows = waiting.data?.results ?? [];
+  const returning = rows.find((task) => task.id === returningId) ?? null;
 
   return (
     <div className="flex flex-col gap-4 pb-10">
@@ -112,7 +119,7 @@ export function PhotoApprovals() {
                     size="sm"
                     variant="outline"
                     disabled={decide.isPending}
-                    onClick={() => setReturning(task)}
+                    onClick={() => setReturningId(task.id)}
                   >
                     <X className="size-4" />
                     {t("photoApprovals.return")}
@@ -188,8 +195,9 @@ export function PhotoApprovals() {
         open={returning !== null}
         onOpenChange={(open) => {
           if (!open) {
-            setReturning(null);
+            setReturningId("");
             setNote("");
+            clearDraft();
           }
         }}
       >
@@ -206,7 +214,7 @@ export function PhotoApprovals() {
             placeholder={t("photoApprovals.returnPlaceholder")}
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReturning(null)}>
+            <Button variant="outline" onClick={() => { setReturningId(""); setNote(""); clearDraft(); }}>
               {t("common.cancel")}
             </Button>
             <Button

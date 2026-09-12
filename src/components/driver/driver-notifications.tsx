@@ -4,13 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Check, CheckCheck, ChevronRight, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
 
 import { DriverError, DriverLoading } from "@/components/driver/driver-shell";
 import { Button } from "@/components/ui/button";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import {
   dismissNotification,
   getNotifications,
@@ -22,8 +20,6 @@ export function DriverNotifications() {
   const t = useTranslations();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const realtimeKeys = useMemo(() => [["notifications"]], []);
-  useOrderRealtime(realtimeKeys);
   const query = useQuery({
     queryKey: ["notifications", "driver"],
     queryFn: () =>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useFormSurface } from "@/components/shared/form-surface";
 import { ArrowLeft, CircleHelp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -344,8 +345,35 @@ export function DetailHeader({
   backLabel: string;
   action?: React.ReactNode;
 }) {
+  const surface = useFormSurface();
+
+  /*
+   * Inside a dialog the back bar would be a second way out beside the dialog's
+   * own close, pointing at the list that is still sitting behind it (T-243).
+   * So the dialog gets a header with the module's name and the record's own
+   * actions, and no navigation of its own.
+   *
+   * This is the same seam `FormShell` uses, and for the same reason: eleven
+   * detail components already render through here, so one branch converts all
+   * of them and none of them can drift from the others by being done
+   * separately.
+   */
+  if (surface === "dialog") {
+    return (
+      <DialogHeader className="flex-row items-center justify-between gap-4 space-y-0 pr-8">
+        <DialogTitle className="text-base">{backLabel}</DialogTitle>
+        {action && <div className="flex items-center gap-2">{action}</div>}
+      </DialogHeader>
+    );
+  }
+
   return (
-    <div className="flex items-center justify-between gap-4">
+    // Named so a test can say the page's back bar is *not* inside a dialog:
+    // the dialog draws its own header and footer instead (T-216).
+    <div
+      data-slot="detail-header"
+      className="flex items-center justify-between gap-4"
+    >
       <Link
         href={backHref}
         className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"

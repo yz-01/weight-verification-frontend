@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ban, Camera, Clock3, Info, MapPin, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -33,7 +33,6 @@ import { Input } from "@/components/ui/input";
 import type { DispatchPhotoKind } from "@/interfaces/contractor";
 import { Label } from "@/components/ui/label";
 import { useDateFormat } from "@/lib/dates";
-import { useOrderRealtime } from "@/hooks/use-order-realtime";
 import { getWasteTracking } from "@/services/waste-outgoing.service";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
@@ -119,17 +118,6 @@ export function ViewDispatch({ id }: { id: string }) {
   const [releasing, setReleasing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
-  const realtimeKeys = useMemo(
-    () => [
-      ["dispatches", "detail", id],
-      ["waste-outgoing", "tracking"],
-      ["incoming"],
-      ["tasks"],
-    ],
-    [id],
-  );
-  useOrderRealtime(realtimeKeys);
-
   const { data, isLoading, isError } = useQuery({
     queryKey: ["dispatches", "detail", id],
     queryFn: () => getDispatch(id),

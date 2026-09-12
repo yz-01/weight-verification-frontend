@@ -46,6 +46,7 @@ import {
   type FieldInvitationResult,
 } from "@/services/field-access.service";
 import { getRoles, getUsers } from "@/services/users.service";
+import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 
 type AccessMode = "new" | "existing";
 
@@ -62,17 +63,31 @@ export function FieldAccessManagementDialog({
   onClose: () => void;
   initialUser?: Pick<UserRow, "id" | "full_name" | "phone">;
 }) {
+  return <FieldDraft scope={`field-access:${initialUser?.id ?? "new"}`}>
+    <FieldAccessManagementContent onClose={onClose} initialUser={initialUser} />
+  </FieldDraft>;
+}
+
+function FieldAccessManagementContent({
+  onClose,
+  initialUser,
+}: {
+  onClose: () => void;
+  initialUser?: Pick<UserRow, "id" | "full_name" | "phone">;
+}) {
   const t = useTranslations("fieldAccessAdmin");
   const queryClient = useQueryClient();
-  const [mode, setMode] = useState<AccessMode>(initialUser ? "existing" : "new");
-  const [existingUserId, setExistingUserId] = useState(initialUser?.id ?? "");
+  const [mode, setMode] = useDraftState<AccessMode>("mode", initialUser ? "existing" : "new");
+  const [existingUserId, setExistingUserId] = useDraftState("existingUserId", initialUser?.id ?? "");
   const [unbinding, setUnbinding] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState(
+  const [fullName, setFullName] = useDraftState("fullName", "");
+  const [phone, setPhone] = useDraftState(
+    "phone",
     toMobileSubscriberDigits(initialUser?.phone ?? ""),
   );
-  const [email, setEmail] = useState("");
-  const [projectIds, setProjectIds] = useState<string[] | null>(null);
+  const [email, setEmail] = useDraftState("email", "");
+  const [projectIds, setProjectIds] = useDraftState<string[] | null>("projectIds", null);
+  const clearDraft = useClearDraft();
   const [result, setResult] = useState<FieldInvitationResult | null>(null);
   const [copied, setCopied] = useState<"link" | "pin" | "all" | null>(null);
 
@@ -127,6 +142,7 @@ export function FieldAccessManagementDialog({
             }),
     onSuccess: (invitation) => {
       setResult(invitation);
+      clearDraft();
       void queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });

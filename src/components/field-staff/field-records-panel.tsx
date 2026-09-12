@@ -31,6 +31,7 @@ import {
   SiteDisposalWorkspace,
 } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
+import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { CategoryEvidenceCapture } from "@/components/field-staff/category-evidence-capture";
@@ -72,6 +73,7 @@ import {
 import {
   submitConsultantSubmissionOfflineAware,
   submitMaterialReceiptOfflineAware,
+  type SafetyIncidentSubmission,
   submitWasteOutgoingOfflineAware,
 } from "@/services/offline-sync.service";
 import {
@@ -120,11 +122,13 @@ export function FieldRecordsPanel({
   initialSupplierToken = "",
   task = null,
   onModeChange,
+  onWorkflowSaved,
 }: {
   initialMode?: FieldRecordMode | null;
   initialSupplierToken?: string;
   task?: FieldTask | null;
   onModeChange?: (mode: FieldRecordMode | null) => void;
+  onWorkflowSaved?: (mode: FieldRecordMode, result?: SafetyIncidentSubmission) => void;
 } = {}) {
   const t = useTranslations("fieldStaffPwa");
   const { can } = useAuth();
@@ -142,13 +146,13 @@ export function FieldRecordsPanel({
   };
 
   if (mode === "material") {
-    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><FieldDraft scope={`material:${task?.id ?? "new"}`}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "equipment") {
-    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><SiteEquipmentWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldDraft scope={`equipment:${task?.id ?? "new"}`}><SiteEquipmentWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "progress") {
-    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><SiteProgressWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "disposal") {
     if (
@@ -157,22 +161,22 @@ export function FieldRecordsPanel({
     ) {
       return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><InternalDisposalWorkspace disposalId={task.linked_record_id} onSubmitted={() => chooseMode(null)} /></RecordFrame>;
     }
-    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><SiteDisposalWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><FieldDraft scope={`disposal:${task?.id ?? "new"}`}><SiteDisposalWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "outgoing") {
-    return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><MaterialOutgoingWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><FieldDraft scope={`outgoing:${task?.id ?? "new"}`}><MaterialOutgoingWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "waste") {
-    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><WasteOutgoingCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><FieldDraft scope={`waste:${task?.id ?? "new"}`}><WasteOutgoingCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "safety") {
-    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><FieldDraft scope={`safety:${task?.id ?? "new"}`}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></FieldDraft></RecordFrame>;
   }
   if (mode === "consultant") {
-    return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><ConsultantCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><FieldDraft scope={`consultant:${task?.id ?? "new"}`}><ConsultantCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "category") {
-    return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><CategoryEvidenceCapture initialProject={task?.project} onSaved={() => chooseMode(null)} /></RecordFrame>;
+    return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><FieldDraft scope={`category:${task?.id ?? "new"}`}><CategoryEvidenceCapture initialProject={task?.project} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
 
   return (
@@ -244,8 +248,10 @@ interface MaterialDraft {
   returnReason: string;
   returnReasonOther: string;
   materialName: string;
+  materialSpecification: string;
   quantity: string;
   unit: MaterialUnit;
+  totalWeightKg: string;
   vehiclePlate: string;
   deliveryNoteNo: string;
   notes: string;
@@ -257,7 +263,6 @@ interface MaterialDraft {
  * A Radix `SelectItem` cannot carry an empty string, and unfiled is a real
  * choice here rather than the absence of one, so it needs a value of its own.
  */
-const UNFILED_COLUMN = "__unfiled__";
 
 const EMPTY_MATERIAL: MaterialDraft = {
   project: "",
@@ -267,8 +272,10 @@ const EMPTY_MATERIAL: MaterialDraft = {
   returnReason: "",
   returnReasonOther: "",
   materialName: "",
+  materialSpecification: "",
   quantity: "",
   unit: "TONNE",
+  totalWeightKg: "",
   vehiclePlate: "",
   deliveryNoteNo: "",
   notes: "",
@@ -289,15 +296,11 @@ function MaterialCapturePanel({
   const allT = useTranslations();
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [draft, setDraft] = useState<MaterialDraft>({
-    ...EMPTY_MATERIAL,
-    project: initialProject,
-  });
-  const [materialEvidence, setMaterialEvidence] = useState(
-    createEmptyFieldEvidence,
-  );
-  const [receiverSignature, setReceiverSignature] = useState<File>();
-  const [supplierSignature, setSupplierSignature] = useState<File>();
+  const [draft, setDraft] = useDraftState<MaterialDraft>("material", { ...EMPTY_MATERIAL, project: initialProject });
+  const [materialEvidence, setMaterialEvidence] = useDraftState("materialEvidence", createEmptyFieldEvidence);
+  const [receiverSignature, setReceiverSignature] = useDraftState<File | undefined>("receiverSignature");
+  const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>("supplierSignature");
+  const clearDraft = useClearDraft();
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
   const [scannerOpen, setScannerOpen] = useState(false);
   const [ocrProof, setOcrProof] = useState("");
@@ -366,6 +369,16 @@ function MaterialCapturePanel({
     staleTime: 30_000,
   });
   const columnRows: ProjectCategory[] = columns.data?.results ?? [];
+  /**
+   * The column this delivery is going to, when the delivery note's reader
+   * found one.
+   *
+   * Shown rather than chosen (T-222, D-108). Nobody at the gate sorts a
+   * delivery into a column any more, but hiding where it went would trade one
+   * silent decision for another: a worker who can read "files under Concrete"
+   * can tell the office when it is wrong.
+   */
+  const filedColumn = columnRows.find((row) => row.id === draft.category);
   /** Open a column for this delivery, and select it. See `openColumn`. */
   const columnCreation = useMutation({
     mutationFn: ({ name }: { name: string; index?: number }) =>
@@ -551,8 +564,10 @@ function MaterialCapturePanel({
                 : draft.returnReason
               : "",
           material_name: draft.materialName.trim(),
+          material_specification: draft.materialSpecification.trim(),
           quantity: draft.quantity,
           unit: draft.unit,
+          total_weight_kg: draft.totalWeightKg || null,
           // Null rather than "" when nothing is chosen: the serializer reads
           // an empty string as an invalid id, while null is the "unfiled"
           // the receipt model documents.
@@ -578,6 +593,7 @@ function MaterialCapturePanel({
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["receipts"] });
+      clearDraft();
       onSaved();
     },
     onError: (reason) => setError(
@@ -612,6 +628,11 @@ function MaterialCapturePanel({
           }}
           placeholder={t("material.chooseProject")}
           className="h-12 w-full"
+          // The task already decided the site, so this only shows it. A
+          // mis-tap here would file the delivery against the wrong project
+          // with nothing downstream able to tell. Reached without a task
+          // there is nothing to lock to, and the picker stays usable.
+          disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
       <FieldWrapper label={t("material.supplier")} required>
@@ -692,39 +713,26 @@ function MaterialCapturePanel({
         </div>
       ) : null}
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
+      <FieldWrapper label={t("material.specification")} required><Input className="h-12" value={draft.materialSpecification} onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
-      {/* Which column this delivery files under, and a way to open one.
-          Before T-161 this screen sent no column at all, so every delivery
-          taken on site arrived unfiled however many columns the site had, and
-          somebody in the office had to re-file each one by hand. */}
+      <FieldWrapper label={t("material.totalWeightKg")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.totalWeightKg} onChange={(event) => setDraft((old) => ({ ...old, totalWeightKg: event.target.value }))} /></FieldWrapper>
+      {/* Where this delivery files, and a way to open a column for a
+          material nobody has one for. No picker: 客户「现场工作人员不需要选择
+          栏目，会跟着对应项目自动归档」, and 「先进『未归类』，后台看的时候再归」
+          (D-108, T-222). The office does the filing, and it already has the
+          screen for it - `refile_receipt` and the material columns page.
+
+          What is left is the F-200 escape hatch, not a choice: a delivery of
+          something no column exists for anywhere. Whether the gate should
+          keep even that is U-038, the one thing here the customer's words do
+          not settle - so it stays until he says, rather than being removed on
+          my reading and taking a tested endpoint's only screen with it. */}
       <FieldWrapper label={t("material.column")}>
-        <Select
-          value={draft.category || UNFILED_COLUMN}
-          onValueChange={(value) =>
-            setDraft((old) => ({
-              ...old,
-              category: value === UNFILED_COLUMN ? "" : value,
-            }))
-          }
-          disabled={!draft.project}
-        >
-          <SelectTrigger className="h-12 w-full">
-            <SelectValue placeholder={t("material.chooseColumn")} />
-          </SelectTrigger>
-          <SelectContent>
-            {/* Unfiled stays on offer. It is the honest answer when nobody at
-                the gate knows where this belongs, and better than parking the
-                delivery in an arbitrary column somebody later pays against. */}
-            <SelectItem value={UNFILED_COLUMN}>
-              {t("material.columnUnfiled")}
-            </SelectItem>
-            {columnRows.map((column) => (
-              <SelectItem key={column.id} value={column.id}>
-                {column.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <p className="text-sm text-muted-foreground">
+          {filedColumn
+            ? t("material.columnAuto", { name: filedColumn.name })
+            : t("material.columnUnfiledNote")}
+        </p>
         {draft.project && !columns.isLoading && !columnRows.length && (
           <p className="mt-2 text-xs text-muted-foreground">
             {t("material.noColumnsYet")}
@@ -852,28 +860,13 @@ function MaterialCapturePanel({
                   </Select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Select
-                    value={item.category_id || "none"}
-                    onValueChange={(value) => {
-                      const match = columnRows.find((row) => row.id === value);
-                      updateLineItem(index, {
-                        category_id: match?.id ?? null,
-                        category_code: match?.code ?? "",
-                        category_name: match?.name ?? "",
-                        classified: Boolean(match),
-                      });
-                    }}
-                  >
-                    <SelectTrigger className="h-10 flex-1"><SelectValue placeholder={t("material.ocrItems.unclassified")} /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t("material.ocrItems.unclassified")}</SelectItem>
-                      {columnRows.map((column) => (
-                        <SelectItem key={column.id} value={column.id}>
-                          {column.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {/* The line's column, as the reader placed it - not a
+                      choice, for the same reason as the field above (D-108).
+                      Still shown: the worker is the one who can see that the
+                      reader put cement under steel. */}
+                  <p className="flex-1 text-xs text-muted-foreground">
+                    {item.category_name || t("material.ocrItems.unclassified")}
+                  </p>
                   <Button
                     type="button"
                     variant="outline"
@@ -923,7 +916,7 @@ function MaterialCapturePanel({
       />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [receiverSignature, t("material.receiverSignature")], [supplierSignature, t("material.supplierSignature")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [draft.materialSpecification, t("material.specification")], [Number(draft.quantity) > 0, t("material.quantity")], [Number(draft.totalWeightKg) > 0, t("material.totalWeightKg")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [receiverSignature, t("material.receiverSignature")], [supplierSignature, t("material.supplierSignature")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {t("material.submit")}
       </Button>
@@ -949,10 +942,18 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState(initialProject);
-  const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
-  const [category, setCategory] = useState("RFI");
-  const [note, setNote] = useState("");
+  // F-282: these were plain `useState` inside a `<FieldDraft>` wrapper, so the
+  // banner said "saved" while a mis-tap threw the whole form away.
+  const [project, setProject] = useDraftState("project", initialProject);
+  const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
+  const [category, setCategory] = useDraftState("category", "RFI");
+  const [note, setNote] = useDraftState("note", "");
+  const clearDraft = useClearDraft();
+  // Deliberately *not* saved. A restored draft submitted the next day would
+  // send `captured_at: now` with yesterday's coordinates - a false evidence
+  // record rather than a recovered one. Re-acquiring is one tap on
+  // `LocationField`, and the material panel this pattern comes from keeps
+  // location on plain state for the same reason.
   const [location, setLocation] = useState<Coordinates>();
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
@@ -983,6 +984,9 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
       });
     },
     onSuccess: () => {
+      // Only after the submission was accepted - or the offline queue took
+      // ownership of it - is the typing safe to throw away.
+      clearDraft();
       void qc.invalidateQueries({ queryKey: ["field-tasks"] });
       onSaved();
     },
@@ -1070,13 +1074,15 @@ function WasteOutgoingCapturePanel({
   const t = useTranslations("wasteOutgoing");
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState(initialProject);
-  const [category, setCategory] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [unit, setUnit] = useState("");
-  const [note, setNote] = useState("");
-  const [pickupAddress, setPickupAddress] = useState("");
-  const [evidence, setEvidence] = useState(createEmptyFieldEvidence);
+  // F-282: same shell-without-wiring as the consultant panel above.
+  const [project, setProject] = useDraftState("project", initialProject);
+  const [category, setCategory] = useDraftState("category", "");
+  const [quantity, setQuantity] = useDraftState("quantity", "");
+  const [unit, setUnit] = useDraftState("unit", "");
+  const [note, setNote] = useDraftState("note", "");
+  const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
+  const clearDraft = useClearDraft();
+  // Not saved - see the note on the consultant panel.
   const [location, setLocation] = useState<Coordinates>();
   const [error, setError] = useState("");
   const photos = completedFieldEvidence(evidence);
@@ -1104,7 +1110,6 @@ function WasteOutgoingCapturePanel({
         quantity: quantity.trim() || undefined,
         unit: quantity.trim() ? unit : undefined,
         note: note.trim() || undefined,
-        pickup_address: pickupAddress.trim() || undefined,
         latitude: location.latitude,
         longitude: location.longitude,
         device_id: getOrCreateFieldDeviceId(),
@@ -1115,6 +1120,7 @@ function WasteOutgoingCapturePanel({
     },
     onSuccess: () => {
       setError("");
+      clearDraft();
       void qc.invalidateQueries({ queryKey: ["field-staff", "tasks"] });
       onSaved();
     },
@@ -1169,17 +1175,20 @@ function WasteOutgoingCapturePanel({
           </Select>
         </FieldWrapper>
       </div>
-      <FieldWrapper
-        label={t("field.pickupAddress")}
-        optional={t("field.optional")}
-        hint={t("field.pickupAddressHint")}
-      >
-        <Textarea
-          rows={2}
-          value={pickupAddress}
-          onChange={(event) => setPickupAddress(event.target.value)}
-        />
-      </FieldWrapper>
+      {/*
+        No collection-address input here, on purpose (D-117).
+
+        The office fills the address in now, not the site. Sending it blank is
+        not a loss of information: the server falls back to the project address
+        and marks the source PROJECT (`set_pickup_address` in
+        `waste/services.py`), and the office can name a gate when it raises the
+        order. Two people typing the same address was the actual problem - the
+        site's answer won, and the office could not tell whether an address had
+        been chosen or inherited.
+
+        `field-draft-coverage.test.ts` holds this open, so a future edit that
+        reintroduces the field fails rather than quietly reversing a decision.
+      */}
       <FieldWrapper label={t("field.note")} optional={t("field.optional")}>
         <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
       </FieldWrapper>

@@ -101,6 +101,7 @@ export function TextAreaField({
   required,
   optional,
   placeholder,
+  hint,
   rows = 3,
   className,
 }: {
@@ -109,6 +110,11 @@ export function TextAreaField({
   required?: boolean;
   optional?: boolean;
   placeholder?: string;
+  /**
+   * Same prop `TextField` has already. Added for the pickup address, where
+   * what a blank does is the thing a person needs told.
+   */
+  hint?: string;
   rows?: number;
   className?: string;
 }) {
@@ -119,6 +125,7 @@ export function TextAreaField({
       label={label}
       required={required}
       optional={optional ? t("common.optional") : undefined}
+      hint={hint}
       error={error}
       className={className}
     >

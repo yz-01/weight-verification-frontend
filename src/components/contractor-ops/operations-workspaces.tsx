@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronUp,
   ClipboardCheck,
+  FolderOpen,
   FileText,
   FilePlus2,
   HardHat,
@@ -27,7 +28,9 @@ import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
@@ -71,6 +74,7 @@ import type {
   MaterialOutgoing,
   ProjectCategory,
   ProjectCategoryKind,
+  CategorySubmissionMode,
   ProjectCategoryPayload,
   SiteEquipment,
   SiteProgressRecord,
@@ -99,6 +103,7 @@ import {
   getSiteProgressRecords,
   getSiteProgressSummary,
   reviewMaterialOutgoing,
+  fileProgressRecord,
   reviewSiteProgressRecord,
   transitionFieldTask,
   updateFieldTask,
@@ -146,7 +151,7 @@ async function currentCoordinates(): Promise<Coordinates> {
   });
 }
 
-function ProjectFilter({
+export function ProjectFilter({
   value,
   onChange,
 }: {
@@ -225,13 +230,52 @@ function tone(
   return "neutral";
 }
 
+/**
+ * The five column schemes this one screen serves, and the Category Management
+ * module each is named after (D-161).
+ *
+ * One screen rather than five, because the fields, the permissions, the
+ * ordering and the delete protection are identical - five screens with one
+ * meaning is what D-125 refuses. What the kind decides is the title, the list
+ * and what a new column defaults to.
+ *
+ * `MATERIAL` is deliberately absent: deliveries and the money they cost are
+ * managed on `/material-columns`, which carries a unit, a BQ target and a
+ * supplier list this screen has no fields for (T-161).
+ */
+const CATEGORY_SCREENS: Record<string, string> = {
+  FIELD: "field",
+  EQUIPMENT: "equipment",
+  PROGRESS: "progress",
+  EHS: "ehs",
+  CONSTRUCTION_WASTE: "debris",
+};
+
 export function ProjectCategoriesWorkspace() {
   const t = useTranslations("contractorOps");
+  const modules = useTranslations("categoryManagement");
   const common = useTranslations("common");
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
   const requestedProject = searchParams.get("project")?.trim() ?? "";
+  /*
+   * Which scheme this screen is showing (F-372).
+   *
+   * It used to be `FIELD` and nothing else, while Category Management sent
+   * five of its nine module rows here. So "Open the module" on Equipment,
+   * Progress, EHS and Construction waste all landed on the site-record list,
+   * and an equipment column could not be created anywhere at all - the screen
+   * that was supposed to hold it could not even list it.
+   *
+   * An unknown value falls back to site records rather than showing nothing:
+   * a hand-typed address is not a reason to present an empty screen.
+   */
+  const kind =
+    (searchParams.get("kind")?.trim().toUpperCase() ?? "") in CATEGORY_SCREENS
+      ? (searchParams.get("kind") as string).trim().toUpperCase()
+      : "FIELD";
+  const moduleKey = CATEGORY_SCREENS[kind];
   const [project, setProject] = useState(requestedProject);
   const [editing, setEditing] = useState<ProjectCategory | "new" | null>(
     searchParams.get("create") === "1" &&
@@ -242,15 +286,17 @@ export function ProjectCategoriesWorkspace() {
   );
   const [removing, setRemoving] = useState<ProjectCategory | null>(null);
   const rows = useQuery({
-    queryKey: ["project-categories", "field", project],
-    // The other half of the split (T-161). This screen is the site-record
-    // columns - "Site record categories" is its own title - so it stops
-    // listing the material columns, which are managed on /material-columns.
+    queryKey: ["project-categories", kind, project],
+    // The other half of the split (T-161). This screen never lists the
+    // material columns, which are managed on /material-columns; which of the
+    // remaining schemes it lists is the address's business (D-161).
     queryFn: () =>
       getProjectCategories({
         page_size: 200,
         project: project || undefined,
-        kind: "FIELD",
+        // Spelled out rather than shorthand: `check-category-kinds.mjs` reads
+        // the call to prove every category list says which scheme it wants.
+        kind: kind,
       }),
   });
   const refresh = () =>
@@ -285,8 +331,12 @@ export function ProjectCategoriesWorkspace() {
   return (
     <div className="space-y-5">
       <ListHeader
-        title={t("categories.title")}
-        subtitle={t("categories.subtitle")}
+        /* Named after the Category Management row this screen was opened
+           from, so the two agree on what the list is called. Reusing those
+           strings rather than writing a second set: two names for one list is
+           how a reader ends up unsure they are in the right place. */
+        title={modules(`module.${moduleKey}`)}
+        subtitle={modules(`moduleHelp.${moduleKey}`)}
         action={
           can("category.manage") ? (
             <Button
@@ -413,6 +463,7 @@ export function ProjectCategoriesWorkspace() {
       {editing && dialogProject && (
         <CategoryDialog
           project={dialogProject}
+          defaultKind={kind as ProjectCategoryKind}
           row={editing === "new" ? null : editing}
           categories={(rows.data?.results ?? []).filter(
             (item) => item.project === dialogProject,
@@ -442,12 +493,15 @@ export function ProjectCategoriesWorkspace() {
 
 function CategoryDialog({
   project,
+  defaultKind,
   row,
   categories,
   onClose,
   onSaved,
 }: {
   project: string;
+  /** The scheme the screen is listing, so a new column joins that list. */
+  defaultKind: ProjectCategoryKind;
   row: ProjectCategory | null;
   categories: ProjectCategory[];
   onClose: () => void;
@@ -469,11 +523,12 @@ function CategoryDialog({
     parent: row?.parent ?? null,
     code: row?.code ?? "",
     name: row?.name ?? "",
-    // This dialog belongs to the site-record screen, so a column created here
-    // is a site-record column. An existing row keeps whatever it already is,
-    // including the BOTH marker on a column the split could not classify -
-    // the picker below is where somebody who knows settles it (T-161).
-    kind: row?.kind ?? "FIELD",
+    // A new column joins the list it was created from - which is not always
+    // site records any more (D-161). An existing row keeps whatever it
+    // already is, including the BOTH marker on a column the split could not
+    // classify; the picker below is where somebody who knows settles it.
+    kind: row?.kind ?? defaultKind,
+    submission_mode: row?.submission_mode ?? "REVIEW",
     description: row?.description ?? "",
     sort_order: row?.sort_order ?? categories.length,
     is_visible_in_pwa: row?.is_visible_in_pwa ?? true,
@@ -554,6 +609,30 @@ function CategoryDialog({
                 <SelectItem value="MATERIAL">
                   {t("categories.kindMaterial")}
                 </SelectItem>
+                {/* The modules Category Management groups by (D-125).
+                    Offered here as well as there, because a field the server
+                    accepts and no screen can set is a field nobody can fill.
+                    Choosing one moves the column out of this screen's list,
+                    which is what reclassifying it means - and the server
+                    refuses the move outright if deliveries or site records
+                    are already filed in it. */}
+                {/* The machines a contractor registers on a site (T-242).
+                    Missing here until T-244, which is exactly the shape the
+                    comment above warns about: `SiteEquipment.category` was
+                    served, counted and offered on the equipment form, and no
+                    screen could create a column to put in it (F-372). */}
+                <SelectItem value="EQUIPMENT">
+                  {t("categories.kindEquipment")}
+                </SelectItem>
+                <SelectItem value="PROGRESS">
+                  {t("categories.kindProgress")}
+                </SelectItem>
+                <SelectItem value="EHS">
+                  {t("categories.kindEhs")}
+                </SelectItem>
+                <SelectItem value="CONSTRUCTION_WASTE">
+                  {t("categories.kindConstructionWaste")}
+                </SelectItem>
                 {/* Only offered on a column that already carries the marker.
                     It is not a scheme somebody should pick on purpose - it
                     means "not separated yet" - but taking it off the form
@@ -564,6 +643,21 @@ function CategoryDialog({
                     {t("categories.kindBoth")}
                   </SelectItem>
                 )}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("categories.submissionMode")} required>
+            <Select
+              value={form.submission_mode}
+              onValueChange={(value) =>
+                set("submission_mode", value as CategorySubmissionMode)
+              }
+            >
+              <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="DIRECT">{t("categories.submissionDirect")}</SelectItem>
+                <SelectItem value="REVIEW">{t("categories.submissionReview")}</SelectItem>
+                <SelectItem value="CONSULTANT">{t("categories.submissionConsultant")}</SelectItem>
               </SelectContent>
             </Select>
           </FieldWrapper>
@@ -1474,6 +1568,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
+  const expiringOnly = searchParams.get("expiring") === "1";
   const [project, setProject] = useState(initialProject);
   const [movementSearch, setMovementSearch] = useState("");
   const [movementEquipment, setMovementEquipment] = useState("");
@@ -1485,9 +1580,13 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const [moving, setMoving] = useState<SiteEquipment | null>(null);
   const [editingEquipment, setEditingEquipment] = useState<SiteEquipment | null>(null);
   const rows = useQuery({
-    queryKey: ["site-equipment", project],
+    queryKey: ["site-equipment", project, expiringOnly],
     queryFn: () =>
-      getSiteEquipment({ project: project || undefined, page_size: 200 }),
+      getSiteEquipment({
+        project: project || undefined,
+        expiring: expiringOnly ? "1" : undefined,
+        page_size: 200,
+      }),
   });
   const suppliers = useQuery({
     queryKey: ["equipment-suppliers"],
@@ -1634,6 +1733,14 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
                   <p className="mt-1 text-xs text-muted-foreground">
                     {t("field.quantity")}: {row.quantity_on_site}
                   </p>
+                  {/* The column it files under, shown where it was filed
+                      (T-242). A classification nobody can see on the record
+                      is a field somebody fills once and never trusts. */}
+                  {row.category_name && (
+                    <p className="mt-1 truncate text-xs text-muted-foreground">
+                      {t("field.equipmentColumn")}: {row.category_name}
+                    </p>
+                  )}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <StatusBadge
@@ -1815,6 +1922,23 @@ function EquipmentDialog({
     queryKey: ["suppliers", "equipment-options"],
     queryFn: () => getSuppliers({ page_size: 200, sort_by: "name" }),
   });
+  /*
+   * This project's equipment columns (T-242). Filed here rather than picked
+   * from a platform-wide list: the machines on a site belong to the project,
+   * and so does the vocabulary that files them (F-369).
+   */
+  const columns = useQuery({
+    queryKey: ["project-categories", "equipment", project],
+    queryFn: () =>
+      getProjectCategories({
+        project,
+        kind: "EQUIPMENT",
+        page_size: 200,
+        sort_by: "sort_order",
+        sort_order: "asc",
+      }),
+    enabled: Boolean(project),
+  });
   const [form, setForm] = useState<EquipmentPayload>({
     project,
     code: equipment?.code ?? "",
@@ -1822,6 +1946,7 @@ function EquipmentDialog({
     serial_no: equipment?.serial_no ?? "",
     registration_no: equipment?.registration_no ?? "",
     supplier: equipment?.supplier ?? null,
+    category: equipment?.category ?? null,
     description: equipment?.description ?? "",
     certificate_expires_on: equipment?.certificate_expires_on ?? null,
     insurance_expires_on: equipment?.insurance_expires_on ?? null,
@@ -1839,6 +1964,7 @@ function EquipmentDialog({
           serial_no: form.serial_no,
           registration_no: form.registration_no,
           supplier: form.supplier,
+          category: form.category,
           description: form.description,
           certificate_expires_on: form.certificate_expires_on,
           insurance_expires_on: form.insurance_expires_on,
@@ -1904,7 +2030,28 @@ function EquipmentDialog({
               }
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.supplier")} className="sm:col-span-2">
+          <FieldWrapper label={t("field.equipmentColumn")}>
+            {/* Optional. "No column" is offered as a choice rather than left
+                as the absence of one, so filing nothing is something a person
+                did on purpose and can see they did. */}
+            <Select
+              value={form.category ?? "none"}
+              onValueChange={(v) => set("category", v === "none" ? null : v)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("field.noEquipmentColumn")}</SelectItem>
+                {(columns.data?.results ?? []).map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.code} - {item.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.supplier")}>
             <Select
               value={form.supplier ?? "none"}
               onValueChange={(v) => set("supplier", v === "none" ? null : v)}
@@ -1982,15 +2129,20 @@ function MovementDialog({
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   const direction = row.status === "ON_SITE" ? "EXIT" : "ENTRY";
-  const [operator, setOperator] = useState("");
-  const [vehicle, setVehicle] = useState("");
-  const [deliveryNote, setDeliveryNote] = useState("");
-  const [quantity, setQuantity] = useState("1");
-  const [unit, setUnit] = useState<EquipmentUnit>("UNIT");
-  const [notes, setNotes] = useState("");
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
-  const [deliveryNotePhoto, setDeliveryNotePhoto] = useState<File>();
+  // F-282. Keys carry `row.id` because this dialog opens per equipment row
+  // while the draft store is scoped per *task*: without the suffix, typing
+  // against excavator A and then opening excavator B would show A's figures
+  // under B's name, which is a wrong record rather than a recovered one.
+  const [operator, setOperator] = useDraftState(`operator:${row.id}`, "");
+  const [vehicle, setVehicle] = useDraftState(`vehicle:${row.id}`, "");
+  const [deliveryNote, setDeliveryNote] = useDraftState(`deliveryNote:${row.id}`, "");
+  const [quantity, setQuantity] = useDraftState(`quantity:${row.id}`, "1");
+  const [unit, setUnit] = useDraftState<EquipmentUnit>(`unit:${row.id}`, "UNIT");
+  const [notes, setNotes] = useDraftState(`notes:${row.id}`, "");
+  const [photos, setPhotos] = useDraftState<File[]>(`photos:${row.id}`, []);
+  const [fieldEvidence, setFieldEvidence] = useDraftState(`fieldEvidence:${row.id}`, createEmptyFieldEvidence);
+  const [deliveryNotePhoto, setDeliveryNotePhoto] = useDraftState<File | undefined>(`deliveryNotePhoto:${row.id}`);
+  const clearDraft = useClearDraft();
   const [ocr, setOcr] = useState<{
     status: string;
     suggestions?: Record<string, string>;
@@ -2056,7 +2208,10 @@ function MovementDialog({
       setError("");
       setFieldErrors({});
     },
-    onSuccess: onSaved,
+    onSuccess: () => {
+      clearDraft();
+      onSaved();
+    },
     onError: (reason) => {
       if (reason instanceof ApiError) {
         setFieldErrors(reason.errors);
@@ -2306,6 +2461,10 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
   const [addingRecord, setAddingRecord] = useState(
     Boolean(fieldTaskId) || searchParams.get("create") === "1",
   );
+  // Which record the office is filing, if any (T-231). Filing is allowed on a
+  // record of any status, including a confirmed one: the column is the
+  // contractor's filing scheme, not part of what the record proves.
+  const [filing, setFiling] = useState<SiteProgressRecord | null>(null);
   const phases = useQuery({
     queryKey: ["construction-phases", project],
     queryFn: () =>
@@ -2513,6 +2672,29 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                 <p className="mt-2 text-sm">
                   {row.description || t("state.noDescription")}
                 </p>
+                {/* Where this record files, and the way to change it. Shown to
+                    everyone who can read the list, because "unfiled" is a
+                    state somebody has to notice; only the reviewer can act on
+                    it, which is the permission the server checks. */}
+                <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-sm">
+                  <span className="text-xs text-muted-foreground">
+                    {t("filing.fileInto")}
+                  </span>
+                  <span className="font-medium">
+                    {row.category_name || t("filing.unfiled")}
+                  </span>
+                  {can("progress.confirm") && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="ml-auto"
+                      onClick={() => setFiling(row)}
+                    >
+                      <FolderOpen />
+                      {t("filing.action")}
+                    </Button>
+                  )}
+                </div>
                 {can("progress.confirm") && row.status === "SUBMITTED" && (
                   <div className="mt-4 flex justify-end gap-2 border-t pt-3">
                     <Button
@@ -2532,6 +2714,22 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
             </article>
           ))}
         </div>
+      )}
+      {filing && (
+        <FileIntoColumnDialog
+          projectId={filing.project}
+          kind="PROGRESS"
+          current={filing.category ?? null}
+          reference={`${filing.phase_name} / ${filing.percent_complete}%`}
+          onFile={(category, reason) =>
+            fileProgressRecord(filing.id, { category, reason })
+          }
+          onFiled={() => {
+            void qc.invalidateQueries({ queryKey: ["site-progress"] });
+            void qc.invalidateQueries({ queryKey: ["project-categories"] });
+          }}
+          onClose={() => setFiling(null)}
+        />
       )}
       {editingPhase && (
         <PhaseDialog
@@ -2681,12 +2879,14 @@ function ProgressDialog({
   const t = useTranslations("contractorOps");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
-  const [project, setProject] = useState(initialProject);
-  const [phase, setPhase] = useState("");
-  const [percent, setPercent] = useState("");
-  const [description, setDescription] = useState("");
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
+  // F-282
+  const [project, setProject] = useDraftState("project", initialProject);
+  const [phase, setPhase] = useDraftState("phase", "");
+  const [percent, setPercent] = useDraftState("percent", "");
+  const [description, setDescription] = useDraftState("description", "");
+  const [photos, setPhotos] = useDraftState<File[]>("photos", []);
+  const [fieldEvidence, setFieldEvidence] = useDraftState("fieldEvidence", createEmptyFieldEvidence);
+  const clearDraft = useClearDraft();
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState(false);
   const [error, setError] = useState("");
@@ -2720,7 +2920,10 @@ function ProgressDialog({
         photos: submissionPhotos,
       });
     },
-    onSuccess: onSaved,
+    onSuccess: () => {
+      clearDraft();
+      onSaved();
+    },
     onError: (reason) =>
       setError(
         reason instanceof ApiError ? reason.message : t("progress.saveError"),
@@ -3007,8 +3210,9 @@ function OutgoingDialog({
   const t = useTranslations("contractorOps");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
-  const [project, setProject] = useState(initialProject);
-  const [form, setForm] = useState({
+  // F-282
+  const [project, setProject] = useDraftState("project", initialProject);
+  const [form, setForm] = useDraftState("form", {
     material_name: "",
     quantity: "",
     unit: "TONNE",
@@ -3018,7 +3222,8 @@ function OutgoingDialog({
     delivery_note_no: "",
     reason: "",
   });
-  const [photos, setPhotos] = useState(createEmptyFieldEvidence);
+  const [photos, setPhotos] = useDraftState("photos", createEmptyFieldEvidence);
+  const clearDraft = useClearDraft();
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState(false);
   const photoPrompts = [
@@ -3052,7 +3257,10 @@ function OutgoingDialog({
         photo_captions: photoCaptions,
       });
     },
-    onSuccess: onSaved,
+    onSuccess: () => {
+      clearDraft();
+      onSaved();
+    },
   });
   const locate = async () => {
     setLocationError(false);
