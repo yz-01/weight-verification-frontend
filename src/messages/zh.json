@@ -3781,6 +3781,8 @@
       "status": "状态",
       "action": "操作"
     },
+    "create": "新增栏目",
+    "createElsewhere": "到该模块新增",
     "edit": "编辑",
     "empty": "这里还没有栏目。",
     "failed": "栏目读取失败，请重试。",
@@ -3808,6 +3810,17 @@
       "ehs": "安全隐患、质量问题、事故、作业许可证。按项目各一份。",
       "recycle": "现场外运的可回收废料。全公司一份；系统预置的可停用、不可删除。",
       "debris": "送去清运的建筑垃圾。按项目各一份。"
+    },
+    "moduleSource": {
+      "material": "记录来自：现场材料收货、后台收货台账。现场工作人员可以填。",
+      "field": "记录来自：现场按栏目拍照、隐患上报、现场任务。现场工作人员可以填。",
+      "document": "文件由后台上传归档。现场工作人员不填这里。",
+      "equipment": "记录来自：后台「设备登记」。设备档案在办公室建，手机只记进出。",
+      "progress": "进度由现场提交，再由后台事后归到栏目。手机端不选栏目。",
+      "phase": "阶段由后台维护，用来算进度百分比，本身不接收记录。",
+      "ehs": "记录来自：隐患上报（现场与后台都算）。现场工作人员可以填。",
+      "recycle": "记录来自：后台的可回收废料外运。现场工作人员不填这里。",
+      "debris": "记录来自：后台发起的建筑垃圾清运。现场工作人员不填这里。"
     },
     "modules": "模块",
     "scope": {
@@ -5279,6 +5292,7 @@
       "assignee": "现场人员",
       "category": "栏目",
       "certificateExpiresOn": "证书到期日",
+      "chooseEquipmentColumn": "选择设备栏目",
       "code": "编号",
       "deliveryNote": "送货单",
       "description": "说明",
@@ -5287,6 +5301,7 @@
       "equipmentColumn": "设备分类",
       "executor": "执行人",
       "expiryHelp": "填了才会进首页的「证书即将到期」卡；没有单据就留空，宁可空着也不要填一个猜的日期。",
+      "goMakeEquipmentColumn": "去栏目管理新增",
       "instructions": "工作说明",
       "insuranceExpiresOn": "保险到期日",
       "latitude": "纬度",
@@ -5295,7 +5310,7 @@
       "material": "材料",
       "name": "名称",
       "noCategory": "不选择栏目",
-      "noEquipmentColumn": "不分类",
+      "noEquipmentColumnYet": "这个项目还没有设备栏目，而设备必须归到一个栏目里。",
       "noParent": "没有上级栏目",
       "noSupplier": "没有供应商",
       "notes": "备注",
@@ -10475,7 +10490,7 @@
       "open": "打开照片",
       "previous": "上一张",
       "next": "下一张",
-      "clean": "这里显示的是不带位置与时间水印的原图，方便复制到别处使用。"
+      "stamped": "照片上已经印好项目、时间与 GPS 位置，复制到别处也带着来源。"
     },
     "recorderUnknown": "没有记录人资料",
     "remove": {
@@ -11179,6 +11194,7 @@
       "detail": "2. 隐患或损坏细节",
       "overview": "1. 事故区域全景",
       "progress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
+      "progressOffice": "已拍摄 {current} 张。上报一张就够，上面 {required} 个提示有就拍，也可以继续新增。",
       "risk": "3. 涉及的设备、人员或通道",
       "surroundings": "4. 工地周边状况"
     },
@@ -11213,7 +11229,13 @@
       "captureLocation": "获取 GPS",
       "confirm": "上报隐患",
       "description": "拍照上报隐患，并可指定负责人。",
-      "locationCaptured": "已获取 GPS"
+      "locating": "正在获取 GPS，请稍候。",
+      "locationCaptured": "已获取 GPS",
+      "locationDenied": "这个网站的定位权限被关掉了。到浏览器里打开定位，再按一次获取 GPS。",
+      "locationTimeout": "等不到 GPS 信号。走到空旷一点的地方再试一次。",
+      "locationUnavailable": "设备拿不到位置。确认定位已开启后再试一次。",
+      "locationUnsupported": "这台设备无法提供 GPS 位置。",
+      "noSafetyColumns": "这个项目还没有安全与隐患栏目。到「栏目管理」新增一个，隐患才归得进去。"
     },
     "new": "上报隐患",
     "severity": {

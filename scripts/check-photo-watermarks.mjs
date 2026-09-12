@@ -9,17 +9,21 @@
  * screen wants the stamped one - a photograph of a delivery is worth nothing
  * as evidence once it is one JPEG among many in a folder.
  *
- * The material-receipt screen is the exception, and it is an exception the
- * user asked for by name (2026-09-05): "照片的GPS位置和时间不需要放水印，
- * 只是这里的不用水印而已，因为这个照片可以随时让项目经理复制到别的地方".
- * The project manager copies those photographs into their own paperwork, and
- * a stamp across the corner of the goods is in the way there.
+ * The material-receipt screen used to be the exception, and it is worth
+ * knowing why it no longer is. On 2026-09-05 the user asked for it by name:
+ * "照片的GPS位置和时间不需要放水印，只是这里的不用水印而已，因为这个照片可以
+ * 随时让项目经理复制到别的地方" - the project manager copies those photographs
+ * into their own paperwork, and a stamp across the corner of the goods is in
+ * the way there. This script was made to fail in *both* directions so that a
+ * developer tidying up the inconsistency could not silently undo it.
  *
- * So the receipt screen is not merely permitted to be unstamped, it is
- * *required* to be: a well-meaning developer tidying up an inconsistency
- * would silently undo a thing the customer asked for, and nobody would notice
- * until the photographs came back stamped. This script fails in both
- * directions for that reason.
+ * On 2026-09-12 the same user, looking at that screen and at the sentence it
+ * prints about showing the unstamped original, reversed it: 「材料进场那里的
+ * 照片全部都一定要加上水印」 (D-174). So `MUST_NOT_STAMP` is empty, and the
+ * two-directional check now guards nothing in particular - it is kept because
+ * the next exception will want it, and because this paragraph is the only
+ * record that the older instruction existed and was superseded rather than
+ * forgotten.
  *
  * The other unstamped call sites are a different matter and are recorded here
  * as such: their serializers send no `watermarked` field at all, so the screen
@@ -33,13 +37,16 @@ import { join } from "node:path";
 
 const ROOT = "src/components";
 
-/** Screens that must show the untouched original, and why. */
-const MUST_NOT_STAMP = new Map([
-  [
-    "src/components/receipts/view-receipt.tsx",
-    "the user asked for these to be copyable into other paperwork unstamped",
-  ],
-]);
+/**
+ * Screens that must show the untouched original, and why.
+ *
+ * Empty since D-174. The one entry it held - the material-receipt screen -
+ * was removed when the user reversed the 2026-09-05 instruction; see the note
+ * at the top of this file. Add a row here only with the words that asked for
+ * it, because that is what a later reader needs in order to decide whether
+ * the exception still applies.
+ */
+const MUST_NOT_STAMP = new Map([]);
 
 /**
  * Screens whose photo type carries no stamped variant to choose.

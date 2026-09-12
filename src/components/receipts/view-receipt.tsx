@@ -606,7 +606,7 @@ export function ViewReceipt({ id }: { id: string }) {
                           still exists and is still what the evidence trail
                           shows. */}
                       <Image
-                        src={photo.image}
+                        src={photo.watermarked || photo.image}
                         alt={t(`receipts.photoKind.${photo.kind}`)}
                         fill
                         sizes="(max-width: 768px) 50vw, 25vw"
@@ -730,12 +730,15 @@ export function ViewReceipt({ id }: { id: string }) {
                   {t(`receipts.photoKind.${data.photos[openPhoto].kind}`)}
                 </DialogTitle>
                 <DialogDescription>
-                  {t("receipts.photoViewer.clean")}
+                  {t("receipts.photoViewer.stamped")}
                 </DialogDescription>
               </DialogHeader>
               <div className="relative max-h-[70dvh] min-h-[40dvh] overflow-hidden rounded-md bg-muted/40">
                 <Image
-                  src={data.photos[openPhoto].image}
+                  src={
+                    data.photos[openPhoto].watermarked ||
+                    data.photos[openPhoto].image
+                  }
                   alt={t(`receipts.photoKind.${data.photos[openPhoto].kind}`)}
                   width={1600}
                   height={1200}

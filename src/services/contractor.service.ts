@@ -584,9 +584,29 @@ export async function reviewReceipt(
   id: string,
   payload: { decision: "ACCEPTED" | "REJECTED"; rejection_reason?: string },
 ): Promise<MaterialReceiptDetail> {
+  /*
+   * `acceptance_status` is the key the server reads, and it is not the key
+   * this function is given (F-382).
+   *
+   * The body used to be sent through unchanged, so every press of 验收通过 or
+   * 判为不合格 reached `review_receipt` with no `acceptance_status` at all and
+   * came back 400 - "Say whether the delivery is accepted or rejected" - with
+   * the record still PENDING. Both buttons had been dead since the screen
+   * shipped. Neither side's tests could see it: the Django tests build the
+   * body themselves from the server's own contract, and nothing on this side
+   * looked at the request at all.
+   *
+   * The server's name wins (D-175): it matches the column it writes, the
+   * audit trail and a dozen existing tests, and it is already deployed. The
+   * argument stays `decision` because that is what it means to the caller and
+   * because the toast below reads it.
+   */
   const receipt = await api.post<MaterialReceiptDetail>(
     `/api/receipts/${id}/review_receipt/`,
-    payload,
+    {
+      acceptance_status: payload.decision,
+      rejection_reason: payload.rejection_reason ?? "",
+    },
   );
   toastSuccess(
     payload.decision === "ACCEPTED"
