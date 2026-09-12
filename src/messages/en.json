@@ -5152,11 +5152,11 @@
       "accessTitle": "Who can see this category",
       "accessUsers": "Allowed people",
       "add": "Add category",
-      "createTitle": "New site record category",
+      "createTitle": "New category",
       "editPermissionHelp": "Leave both lists empty to use the normal category manager permission. Company administrators always retain recovery access.",
       "editPermissionTitle": "Who can edit this category",
       "editRoles": "Roles allowed to edit",
-      "editTitle": "Edit site record category",
+      "editTitle": "Edit category",
       "editUsers": "People allowed to edit",
       "formHelp": "Categories belong to one project and can be ordered or hidden from the field app.",
       "moveDown": "Move down",
@@ -5178,6 +5178,7 @@
       "kindBoth": "Not separated yet",
       "kindProgress": "Progress column",
       "kindEhs": "Safety and hazard column",
+      "kindEquipment": "Equipment column",
       "kindConstructionWaste": "Construction waste column",
       "submissionMode": "Submission action",
       "submissionDirect": "Submit directly",
@@ -8494,6 +8495,118 @@
       "READY": "Ready"
     }
   },
+  "claims": {
+    "candidates": "What can go on this period",
+    "candidatesFailed": "The candidate records could not be loaded. Try again.",
+    "chooseSomething": "Tick at least one record.",
+    "column": {
+      "action": "Action",
+      "claimNo": "Claim",
+      "itemState": "On the claim",
+      "items": "Records",
+      "kind": "Kind",
+      "payment": "Payment",
+      "period": "Period",
+      "read": "Read",
+      "record": "Record",
+      "state": "State",
+      "when": "When"
+    },
+    "confirmBody": "{count} record(s) will be claimed. They leave every later period, and the evidence is merged into one PDF.",
+    "confirmPeriod": "Confirm this period",
+    "confirmTitle": "Confirm this period's claim",
+    "count": {
+      "eligible": "Eligible",
+      "seen": "Already read",
+      "selected": "Chosen",
+      "unseen": "Not read"
+    },
+    "discard": "Discard this claim",
+    "downloadPdf": "Download the PDF",
+    "empty": "No claims yet.",
+    "failed": "The claims could not be loaded. Try again.",
+    "field": {
+      "kind": "Kind of claim",
+      "selectProject": "Choose a site",
+      "paymentNote": "Note",
+      "period": "Period",
+      "project": "Site",
+      "remarks": "Remarks"
+    },
+    "filter": {
+      "allKinds": "All kinds"
+    },
+    "firstPage": "You are on the first page.",
+    "includePhotos": "Include the photographs",
+    "includePhotosHelp": "The delivery orders are always included - they are what the claim is made of.",
+    "itemState": {
+      "CLAIMED": "Claimed",
+      "RETURNED": "Returned",
+      "SELECTED": "On this period"
+    },
+    "kind": {
+      "MATERIAL_ON_SITE": "Material on site",
+      "PROGRESS": "Progress"
+    },
+    "kindHelp": {
+      "MATERIAL_ON_SITE": "Accepted deliveries that carry a delivery order.",
+      "PROGRESS": "Applications the consultant has approved: RFI, WIR, inspection request, concrete pour, shop drawing, material approval."
+    },
+    "lastPage": "You are on the last page.",
+    "loading": "Loading...",
+    "new": "New claim",
+    "newTitle": "Open a period's claim",
+    "next": "Next",
+    "noCandidates": "Nothing is waiting to be claimed on this site right now.",
+    "noRemarks": "No remarks",
+    "nothingSelected": "Nothing is on this period yet.",
+    "onThisPeriod": "On this period ({count})",
+    "open": "Open",
+    "openPeriod": "Open this period",
+    "packageHint": "The evidence for this claim is an evidence package. Send it to the consultant from Multi Engine; anything they return comes back here.",
+    "pageOf": "Page {page} of {pages}",
+    "payment": {
+      "NOT_RECEIVED": "Not received",
+      "PARTIAL": "Partly received",
+      "RECEIVED": "Received"
+    },
+    "paymentNoteHelp": "Required when only part of it arrived: partly, on its own, reads as settled.",
+    "paymentTitle": "Money received against this claim",
+    "previous": "Previous",
+    "projectLocked": "A claim belongs to one site and cannot be moved afterwards.",
+    "putOnPeriod": "Put {count} on this period",
+    "read": "Read",
+    "recordPayment": "Record payment",
+    "remarksHelp": "What this claim is for. It is what the consultant reads first.",
+    "returnedBecause": "Returned: {reason}",
+    "returnedCount": "{count} returned",
+    "review": {
+      "NOT_SENT": "Not sent yet",
+      "REVIEWED": "Reviewed",
+      "SENT": "Waiting for the consultant"
+    },
+    "reviewState": "With the consultant",
+    "searchPlaceholder": "Claim number, site or remarks",
+    "someRefused": "{count} of those could not go on: they are already on a claim, or not this site's.",
+    "sourceMissing": "The record this line points at is no longer readable.",
+    "state": {
+      "CONFIRMED": "Claimed",
+      "DRAFT": "This period"
+    },
+    "subtitle": "This period's claim, what has already been claimed, and whether the money arrived.",
+    "takeOff": "Take off this period",
+    "title": "Claims",
+    "toast": {
+      "confirmed": "Claimed.",
+      "discarded": "Claim discarded.",
+      "opened": "Claim opened.",
+      "payment": "Payment state saved.",
+      "removed": "Taken off this period.",
+      "saved": "Saved.",
+      "selected": "{count} record(s) put on this period."
+    },
+    "unread": "Not read"
+  },
   "multiEngine": {
     "acceptItem": "Accept",
     "addRecords": "Add records",
@@ -8904,6 +9017,7 @@
       "materialQuantityReport": "Material quantity report",
       "materialReceipts": "Material receipts",
       "monitoringRecords": "Monitoring records",
+      "claimEngine": "Claim Engine",
       "multiEngine": "Multi Engine",
       "notificationChannels": "Notification channels",
       "notificationManagement": "Notification management",

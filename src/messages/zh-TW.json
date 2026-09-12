@@ -5152,11 +5152,11 @@
       "accessTitle": "誰可以看到此欄目",
       "accessUsers": "可查看的人員",
       "add": "新增欄目",
-      "createTitle": "新增現場資料欄目",
+      "createTitle": "新增欄目",
       "editPermissionHelp": "角色和人員都留空時沿用欄目管理權限；公司管理員始終保留恢復權限。",
       "editPermissionTitle": "誰可以編輯此欄目",
       "editRoles": "可編輯的角色",
-      "editTitle": "編輯現場資料欄目",
+      "editTitle": "編輯欄目",
       "editUsers": "可編輯的人員",
       "formHelp": "每個欄目只屬於一個項目，可以排序或從現場手機頁面隱藏。",
       "moveDown": "往下移",
@@ -5178,6 +5178,7 @@
       "kindBoth": "尚未分家",
       "kindProgress": "施工進度欄目",
       "kindEhs": "安全與隱患欄目",
+      "kindEquipment": "設備欄目",
       "kindConstructionWaste": "建築垃圾欄目",
       "submissionMode": "提交方式",
       "submissionDirect": "直接提交",
@@ -8494,6 +8495,118 @@
       "READY": "正常"
     }
   },
+  "claims": {
+    "candidates": "本期可以放什麼",
+    "candidatesFailed": "候選資料讀取失敗，請重試。",
+    "chooseSomething": "至少勾選一條。",
+    "column": {
+      "action": "操作",
+      "claimNo": "Claim",
+      "itemState": "在本期的狀態",
+      "items": "條數",
+      "kind": "類型",
+      "payment": "收款",
+      "period": "期數",
+      "read": "查看",
+      "record": "資料",
+      "state": "狀態",
+      "when": "時間"
+    },
+    "confirmBody": "{count} 條資料將標記為已 Claim，往後每一期都不會再出現，憑證會合併成一份 PDF。",
+    "confirmPeriod": "確認本期",
+    "confirmTitle": "確認本期 Claim",
+    "count": {
+      "eligible": "符合條件",
+      "seen": "已查看",
+      "selected": "已選",
+      "unseen": "未查看"
+    },
+    "discard": "捨棄這期 Claim",
+    "downloadPdf": "下載 PDF",
+    "empty": "還沒有任何 Claim。",
+    "failed": "Claim 讀取失敗，請重試。",
+    "field": {
+      "kind": "Claim 類型",
+      "selectProject": "選擇工地",
+      "paymentNote": "說明",
+      "period": "期數",
+      "project": "工地",
+      "remarks": "備註"
+    },
+    "filter": {
+      "allKinds": "全部類型"
+    },
+    "firstPage": "已經是第一頁。",
+    "includePhotos": "包含照片",
+    "includePhotosHelp": "交貨單一定會包含 —— 它就是這期 Claim 的依據。",
+    "itemState": {
+      "CLAIMED": "已 Claim",
+      "RETURNED": "已退回",
+      "SELECTED": "已進本期"
+    },
+    "kind": {
+      "MATERIAL_ON_SITE": "材料到場",
+      "PROGRESS": "施工進度"
+    },
+    "kindHelp": {
+      "MATERIAL_ON_SITE": "已驗收、並且帶交貨單的進場材料。",
+      "PROGRESS": "顧問已批准的申請：RFI、WIR、檢查申請、混凝土澆築、施工圖、材料報批。"
+    },
+    "lastPage": "已經是最後一頁。",
+    "loading": "載入中……",
+    "new": "新增 Claim",
+    "newTitle": "開一期 Claim",
+    "next": "下一頁",
+    "noCandidates": "這個工地目前沒有可以 Claim 的資料。",
+    "noRemarks": "沒有備註",
+    "nothingSelected": "本期還沒有放任何資料。",
+    "onThisPeriod": "本期已有（{count}）",
+    "open": "開啟",
+    "openPeriod": "開這一期",
+    "packageHint": "這期 Claim 的憑證是一個 Package。請到 Multi Engine 把它送給顧問；顧問退回的條目會回到這裡。",
+    "pageOf": "第 {page} / {pages} 頁",
+    "payment": {
+      "NOT_RECEIVED": "未收款",
+      "PARTIAL": "部分收款",
+      "RECEIVED": "已收款"
+    },
+    "paymentNoteHelp": "只到了一部分時必填：只寫「部分」讀起來跟已結清一樣。",
+    "paymentTitle": "這期 Claim 的收款情況",
+    "previous": "上一頁",
+    "projectLocked": "一期 Claim 只屬於一個工地，建立後不能更改。",
+    "putOnPeriod": "把 {count} 條放進本期",
+    "read": "已看",
+    "recordPayment": "登記收款",
+    "remarksHelp": "這期 Claim 是做什麼的。顧問最先看的就是這一段。",
+    "returnedBecause": "退回原因：{reason}",
+    "returnedCount": "{count} 條退回",
+    "review": {
+      "NOT_SENT": "還沒送出",
+      "REVIEWED": "已審閱",
+      "SENT": "等顧問審閱"
+    },
+    "reviewState": "顧問那邊的進度",
+    "searchPlaceholder": "Claim 編號、工地或備註",
+    "someRefused": "其中 {count} 條放不進來：它們已經在別的 Claim 上，或者不屬於這個工地。",
+    "sourceMissing": "這一條指向的資料已經讀不到了。",
+    "state": {
+      "CONFIRMED": "已 Claim",
+      "DRAFT": "本期"
+    },
+    "subtitle": "本期 Claim、已經 Claim 過的，以及款項有沒有到。",
+    "takeOff": "從本期拿掉",
+    "title": "Claim 管理",
+    "toast": {
+      "confirmed": "已 Claim。",
+      "discarded": "已捨棄。",
+      "opened": "已開一期 Claim。",
+      "payment": "收款狀態已儲存。",
+      "removed": "已從本期拿掉。",
+      "saved": "已儲存。",
+      "selected": "已把 {count} 條放進本期。"
+    },
+    "unread": "未看"
+  },
   "multiEngine": {
     "acceptItem": "接受",
     "addRecords": "新增資料",
@@ -8904,6 +9017,7 @@
       "materialQuantityReport": "材料數量報表",
       "materialReceipts": "材料進場",
       "monitoringRecords": "監控記錄",
+      "claimEngine": "Claim 管理",
       "multiEngine": "Multi Engine",
       "notificationChannels": "推播方式",
       "notificationManagement": "通知管理",

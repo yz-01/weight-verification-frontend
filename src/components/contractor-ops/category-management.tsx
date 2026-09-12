@@ -68,7 +68,16 @@ interface Row {
 interface Module {
   key: string;
   scope: Scope;
-  /** Where this module's categories are created and edited today. */
+  /**
+   * Where this module's categories are created and edited today.
+   *
+   * Five of these rows used to point at a bare `/project-categories`, which
+   * listed site-record columns and nothing else - so "Open the module" on
+   * Equipment, Progress, EHS or Construction waste opened somebody else's
+   * list, and the column the reader came to create could not be created
+   * there (F-372). The generic screen now takes its scheme from the address,
+   * so each row carries its own (D-161).
+   */
   href: string;
   fetch: (project: string) => Promise<Row[]>;
   /**
@@ -81,6 +90,18 @@ interface Module {
    */
   permission?: string;
 }
+
+/**
+ * The address of a module's own screen, carrying the project being read.
+ *
+ * Only the generic column screen is told, because it is the only destination
+ * that reads the parameter - sending it to the others would be a guess that
+ * looks like a feature until somebody notices the filter did not move.
+ */
+const manageHref = (module: Module, project: string) =>
+  module.href.startsWith("/project-categories") && project
+    ? `${module.href}&project=${project}`
+    : module.href;
 
 const columnRows = (kind: string) => async (project: string) => {
   const page = await getProjectCategories({
@@ -109,7 +130,7 @@ const MODULES: Module[] = [
   {
     key: "field",
     scope: "project",
-    href: "/project-categories",
+    href: "/project-categories?kind=FIELD",
     fetch: columnRows("FIELD"),
   },
   {
@@ -140,13 +161,13 @@ const MODULES: Module[] = [
      */
     key: "equipment",
     scope: "project",
-    href: "/project-categories",
+    href: "/project-categories?kind=EQUIPMENT",
     fetch: columnRows("EQUIPMENT"),
   },
   {
     key: "progress",
     scope: "project",
-    href: "/project-categories",
+    href: "/project-categories?kind=PROGRESS",
     fetch: columnRows("PROGRESS"),
   },
   {
@@ -172,7 +193,7 @@ const MODULES: Module[] = [
   {
     key: "ehs",
     scope: "project",
-    href: "/project-categories",
+    href: "/project-categories?kind=EHS",
     fetch: columnRows("EHS"),
   },
   {
@@ -193,7 +214,7 @@ const MODULES: Module[] = [
   {
     key: "debris",
     scope: "project",
-    href: "/project-categories",
+    href: "/project-categories?kind=CONSTRUCTION_WASTE",
     fetch: columnRows("CONSTRUCTION_WASTE"),
   },
 ];
@@ -257,7 +278,7 @@ export function CategoryManagement() {
             {/* Said out loud, not left to be discovered. */}
             <StatusBadge label={t(`scope.${active.scope}`)} tone="neutral" />
             <Button asChild size="sm" variant="outline" className="ml-auto">
-              <Link href={active.href}>
+              <Link href={manageHref(active, project)}>
                 <ExternalLink />
                 {t("manage")}
               </Link>
@@ -331,7 +352,7 @@ export function CategoryManagement() {
                       </TableCell>
                       <TableCell>
                         <Link
-                          href={active.href}
+                          href={manageHref(active, project)}
                           className="text-primary underline-offset-2 hover:underline"
                         >
                           {t("edit")}

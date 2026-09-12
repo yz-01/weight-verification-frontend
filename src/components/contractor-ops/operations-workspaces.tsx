@@ -230,13 +230,52 @@ function tone(
   return "neutral";
 }
 
+/**
+ * The five column schemes this one screen serves, and the Category Management
+ * module each is named after (D-161).
+ *
+ * One screen rather than five, because the fields, the permissions, the
+ * ordering and the delete protection are identical - five screens with one
+ * meaning is what D-125 refuses. What the kind decides is the title, the list
+ * and what a new column defaults to.
+ *
+ * `MATERIAL` is deliberately absent: deliveries and the money they cost are
+ * managed on `/material-columns`, which carries a unit, a BQ target and a
+ * supplier list this screen has no fields for (T-161).
+ */
+const CATEGORY_SCREENS: Record<string, string> = {
+  FIELD: "field",
+  EQUIPMENT: "equipment",
+  PROGRESS: "progress",
+  EHS: "ehs",
+  CONSTRUCTION_WASTE: "debris",
+};
+
 export function ProjectCategoriesWorkspace() {
   const t = useTranslations("contractorOps");
+  const modules = useTranslations("categoryManagement");
   const common = useTranslations("common");
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
   const requestedProject = searchParams.get("project")?.trim() ?? "";
+  /*
+   * Which scheme this screen is showing (F-372).
+   *
+   * It used to be `FIELD` and nothing else, while Category Management sent
+   * five of its nine module rows here. So "Open the module" on Equipment,
+   * Progress, EHS and Construction waste all landed on the site-record list,
+   * and an equipment column could not be created anywhere at all - the screen
+   * that was supposed to hold it could not even list it.
+   *
+   * An unknown value falls back to site records rather than showing nothing:
+   * a hand-typed address is not a reason to present an empty screen.
+   */
+  const kind =
+    (searchParams.get("kind")?.trim().toUpperCase() ?? "") in CATEGORY_SCREENS
+      ? (searchParams.get("kind") as string).trim().toUpperCase()
+      : "FIELD";
+  const moduleKey = CATEGORY_SCREENS[kind];
   const [project, setProject] = useState(requestedProject);
   const [editing, setEditing] = useState<ProjectCategory | "new" | null>(
     searchParams.get("create") === "1" &&
@@ -247,15 +286,17 @@ export function ProjectCategoriesWorkspace() {
   );
   const [removing, setRemoving] = useState<ProjectCategory | null>(null);
   const rows = useQuery({
-    queryKey: ["project-categories", "field", project],
-    // The other half of the split (T-161). This screen is the site-record
-    // columns - "Site record categories" is its own title - so it stops
-    // listing the material columns, which are managed on /material-columns.
+    queryKey: ["project-categories", kind, project],
+    // The other half of the split (T-161). This screen never lists the
+    // material columns, which are managed on /material-columns; which of the
+    // remaining schemes it lists is the address's business (D-161).
     queryFn: () =>
       getProjectCategories({
         page_size: 200,
         project: project || undefined,
-        kind: "FIELD",
+        // Spelled out rather than shorthand: `check-category-kinds.mjs` reads
+        // the call to prove every category list says which scheme it wants.
+        kind: kind,
       }),
   });
   const refresh = () =>
@@ -290,8 +331,12 @@ export function ProjectCategoriesWorkspace() {
   return (
     <div className="space-y-5">
       <ListHeader
-        title={t("categories.title")}
-        subtitle={t("categories.subtitle")}
+        /* Named after the Category Management row this screen was opened
+           from, so the two agree on what the list is called. Reusing those
+           strings rather than writing a second set: two names for one list is
+           how a reader ends up unsure they are in the right place. */
+        title={modules(`module.${moduleKey}`)}
+        subtitle={modules(`moduleHelp.${moduleKey}`)}
         action={
           can("category.manage") ? (
             <Button
@@ -418,6 +463,7 @@ export function ProjectCategoriesWorkspace() {
       {editing && dialogProject && (
         <CategoryDialog
           project={dialogProject}
+          defaultKind={kind as ProjectCategoryKind}
           row={editing === "new" ? null : editing}
           categories={(rows.data?.results ?? []).filter(
             (item) => item.project === dialogProject,
@@ -447,12 +493,15 @@ export function ProjectCategoriesWorkspace() {
 
 function CategoryDialog({
   project,
+  defaultKind,
   row,
   categories,
   onClose,
   onSaved,
 }: {
   project: string;
+  /** The scheme the screen is listing, so a new column joins that list. */
+  defaultKind: ProjectCategoryKind;
   row: ProjectCategory | null;
   categories: ProjectCategory[];
   onClose: () => void;
@@ -474,11 +523,11 @@ function CategoryDialog({
     parent: row?.parent ?? null,
     code: row?.code ?? "",
     name: row?.name ?? "",
-    // This dialog belongs to the site-record screen, so a column created here
-    // is a site-record column. An existing row keeps whatever it already is,
-    // including the BOTH marker on a column the split could not classify -
-    // the picker below is where somebody who knows settles it (T-161).
-    kind: row?.kind ?? "FIELD",
+    // A new column joins the list it was created from - which is not always
+    // site records any more (D-161). An existing row keeps whatever it
+    // already is, including the BOTH marker on a column the split could not
+    // classify; the picker below is where somebody who knows settles it.
+    kind: row?.kind ?? defaultKind,
     submission_mode: row?.submission_mode ?? "REVIEW",
     description: row?.description ?? "",
     sort_order: row?.sort_order ?? categories.length,
@@ -567,6 +616,14 @@ function CategoryDialog({
                     which is what reclassifying it means - and the server
                     refuses the move outright if deliveries or site records
                     are already filed in it. */}
+                {/* The machines a contractor registers on a site (T-242).
+                    Missing here until T-244, which is exactly the shape the
+                    comment above warns about: `SiteEquipment.category` was
+                    served, counted and offered on the equipment form, and no
+                    screen could create a column to put in it (F-372). */}
+                <SelectItem value="EQUIPMENT">
+                  {t("categories.kindEquipment")}
+                </SelectItem>
                 <SelectItem value="PROGRESS">
                   {t("categories.kindProgress")}
                 </SelectItem>

@@ -21,6 +21,12 @@ import type {
   ProjectResponsibility,
   SiteEquipment,
   SiteProgressRecord,
+  ClaimCandidatePage,
+  ClaimDetail,
+  ClaimKind,
+  ClaimPaymentState,
+  ClaimRow,
+  ClaimState,
   EvidencePackageDetail,
   EvidencePackageRow,
   PackageRecordParts,
@@ -911,5 +917,114 @@ export async function reviewPackageItem(
       ? "multiEngine.toast.accepted"
       : "multiEngine.toast.returned",
   );
+  return row;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Claim Engine (T-236)
+ *
+ * There is no consultant-side function here on purpose. A confirmed claim
+ * is reviewed as its evidence package, through `getPackagesToReview` /
+ * `reviewPackageItem` above (D-158) - and a returned member marks the claim
+ * item on the server, so this screen learns about it by re-reading the
+ * claim rather than by a second review call of its own.
+ * ---------------------------------------------------------------------- */
+
+export const getClaims = (
+  query: ListQuery & {
+    project?: string;
+    kind?: ClaimKind;
+    state?: ClaimState;
+    payment_state?: ClaimPaymentState;
+    period?: string;
+  },
+) => api.list<ClaimRow>("/api/claims/get_claims/", query);
+
+export const getClaim = (id: string) =>
+  api.get<ClaimDetail>(`/api/claims/${id}/get_claim/`);
+
+/**
+ * This period's candidates, and the four counts above them (D-134).
+ *
+ * Not `api.list`: the payload carries the counts beside the rows, and they
+ * are counted over everything eligible rather than over the page - a "12
+ * eligible" that changed when you turned the page would be a different
+ * number with the same name.
+ */
+export const getClaimCandidates = (query: {
+  project: string;
+  kind: ClaimKind;
+  claim?: string;
+}) => api.get<ClaimCandidatePage>("/api/claims/get_candidates/", query);
+
+export async function createClaim(payload: {
+  project: string;
+  kind: ClaimKind;
+  /** `YYYY-MM`. The server stores the first of that month (D-164). */
+  period: string;
+  remarks?: string;
+}) {
+  const row = await api.post<ClaimDetail>("/api/claims/create_claim/", payload);
+  toastSuccess("claims.toast.opened");
+  return row;
+}
+
+export async function deleteClaim(id: string) {
+  await api.delete(`/api/claims/${id}/delete_claim/`);
+  toastSuccess("claims.toast.discarded");
+}
+
+/** 勾选后自动进入本期 - ticking is what puts a record on the claim. */
+export async function selectClaimItems(id: string, ids: string[]) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/select_items/`, {
+    ids,
+  });
+  // What actually went on, not what was asked for. The server refuses a
+  // record that is already on a claim (D-163), and a toast that counted the
+  // request would tell somebody five went on when three did.
+  toastSuccess("claims.toast.selected", {
+    count: ids.length - (row.refused?.length ?? 0),
+  });
+  return row;
+}
+
+export async function removeClaimItem(id: string, item: string) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/remove_item/`, {
+    item,
+  });
+  toastSuccess("claims.toast.removed");
+  return row;
+}
+
+/**
+ * 第二轮确认. Claims every ticked record and raises the merged PDF.
+ *
+ * `include_photos` is the customer's red pen - 「不需要照片」只有必要和 DO.
+ * The delivery orders are never optional: they are what the claim is made of.
+ */
+export async function confirmClaim(
+  id: string,
+  remarks: string,
+  includePhotos: boolean,
+) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/confirm_claim/`, {
+    remarks,
+    include_photos: includePhotos,
+  });
+  toastSuccess("claims.toast.confirmed");
+  return row;
+}
+
+/** 收款状态. Behind its own permission code (D-136). */
+export async function setClaimPayment(
+  id: string,
+  payload: { payment_state: ClaimPaymentState; payment_note?: string },
+) {
+  const row = await api.post<ClaimRow>(
+    `/api/claims/${id}/set_payment/`,
+    payload,
+  );
+  toastSuccess("claims.toast.payment");
   return row;
 }

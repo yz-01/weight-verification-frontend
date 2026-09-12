@@ -786,6 +786,21 @@ export const PORTAL_NAVIGATION = {
           "project_categories",
           "package.view",
         ),
+        // Claim Engine (T-236). A fourth sibling for the same reason the
+        // third is one: 总栏目 asks what nobody has looked at, Multi Engine
+        // asks why a bundle was put together, and this asks what is being
+        // claimed for this month. Three questions, three screens.
+        //
+        // Gated on `claim.view` and not on `package.view`: reading the claims
+        // and building their evidence are separate grants (D-136), and a
+        // sidebar entry that leads to a 403 is worse than no entry.
+        child(
+          "4.2.4",
+          "nav.submodule.claimEngine",
+          "/claims",
+          "project_categories",
+          "claim.view",
+        ),
       ],
     ),
     item(
@@ -1452,6 +1467,7 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   // land on a screen whose every call comes back 403 - a page that looks
   // broken rather than a page that says no.
   { pattern: "/evidence-packages", permission: "package.view" },
+  { pattern: "/claims", permission: "claim.view" },
   { pattern: "/package-reviews", permission: "approval.view" },
   { pattern: "/consultant-workflows", permission: "consultant.config" },
   { pattern: "/consultant-templates", permission: "consultant.config" },

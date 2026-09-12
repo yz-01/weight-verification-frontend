@@ -31,6 +31,7 @@ export type ProjectCategoryKind =
   | "FIELD"
   | "MATERIAL"
   | "BOTH"
+  | "EQUIPMENT"
   | "PROGRESS"
   | "EHS"
   | "CONSTRUCTION_WASTE";
@@ -686,4 +687,85 @@ export interface PackageMergeNote {
   reference: string;
   reason: string;
   detail: string;
+}
+
+
+/* -------------------------------------------------------------------------
+ * Claim Engine (T-236)
+ *
+ * A claim is what one site is asking for in one month. The review and return
+ * of it is not modelled here: a confirmed claim carries an
+ * `EvidencePackage`, and that is what the consultant works on (D-158) - so
+ * these types carry the package's id and state rather than a second copy of
+ * its review machinery.
+ * ---------------------------------------------------------------------- */
+
+export type ClaimKind = "MATERIAL_ON_SITE" | "PROGRESS";
+export type ClaimState = "DRAFT" | "CONFIRMED";
+export type ClaimItemState = "SELECTED" | "CLAIMED" | "RETURNED";
+export type ClaimPaymentState = "NOT_RECEIVED" | "PARTIAL" | "RECEIVED";
+
+export interface ClaimRow {
+  id: string;
+  claim_no: string;
+  kind: ClaimKind;
+  /** The first day of the month being claimed for (D-164). */
+  period: string;
+  state: ClaimState;
+  remarks: string;
+  project: string;
+  project_name: string;
+  project_code: string;
+  package: string | null;
+  package_state: string;
+  package_review_state: string;
+  payment_state: ClaimPaymentState;
+  payment_note: string;
+  payment_updated_at: string | null;
+  item_count: number;
+  returned_count: number;
+  confirmed_at: string | null;
+  confirmed_by_name: string;
+  created_by_name: string;
+  created_at: string;
+}
+
+export interface ClaimItem {
+  id: string;
+  record_kind: ArchiveRecordKind;
+  record_id: string;
+  state: ClaimItemState;
+  returned_reason: string;
+  returned_at: string | null;
+  returned_by_name: string;
+  created_at: string;
+  /** The record itself, built by the same source table the queue uses. */
+  record: ArchiveQueueRow | null;
+  source_missing: boolean;
+}
+
+export interface ClaimDetail extends ClaimRow {
+  items: ClaimItem[];
+  /** Records the last tick would not take: already claimed, or not this site's. */
+  refused?: string[];
+}
+
+/** 符合条件／已查看／已选／未查看 (D-134). */
+export interface ClaimCounts {
+  eligible: number;
+  seen: number;
+  unseen: number;
+  selected: number;
+}
+
+export interface ClaimCandidateRow extends ArchiveQueueRow {
+  /** Read from `core.RecordSeen`, per person (F-353). */
+  seen: boolean;
+  selected: boolean;
+}
+
+export interface ClaimCandidatePage {
+  results: ClaimCandidateRow[];
+  count: number;
+  counts: ClaimCounts;
 }

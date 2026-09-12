@@ -5152,11 +5152,11 @@
       "accessTitle": "Siapa boleh melihat kategori ini",
       "accessUsers": "Individu dibenarkan",
       "add": "Tambah kategori",
-      "createTitle": "Kategori rekod tapak baharu",
+      "createTitle": "Kategori baharu",
       "editPermissionHelp": "Biarkan kedua-dua senarai kosong untuk menggunakan kebenaran pengurus kategori biasa. Pentadbir syarikat kekal mempunyai akses pemulihan.",
       "editPermissionTitle": "Siapa boleh menyunting kategori ini",
       "editRoles": "Peranan boleh menyunting",
-      "editTitle": "Edit kategori rekod tapak",
+      "editTitle": "Sunting kategori",
       "editUsers": "Individu boleh menyunting",
       "formHelp": "Kategori adalah khusus untuk satu projek dan boleh disusun atau disembunyikan daripada aplikasi tapak.",
       "moveDown": "Turun",
@@ -5178,6 +5178,7 @@
       "kindBoth": "Belum dipisahkan",
       "kindProgress": "Lajur kemajuan kerja",
       "kindEhs": "Lajur keselamatan dan bahaya",
+      "kindEquipment": "Kolum peralatan",
       "kindConstructionWaste": "Lajur sisa pembinaan",
       "submissionMode": "Tindakan penyerahan",
       "submissionDirect": "Hantar terus",
@@ -8494,6 +8495,118 @@
       "READY": "Sedia"
     }
   },
+  "claims": {
+    "candidates": "Apa yang boleh masuk tempoh ini",
+    "candidatesFailed": "Rekod calon tidak dapat dimuatkan. Cuba lagi.",
+    "chooseSomething": "Tandakan sekurang-kurangnya satu rekod.",
+    "column": {
+      "action": "Tindakan",
+      "claimNo": "Tuntutan",
+      "itemState": "Pada tuntutan",
+      "items": "Rekod",
+      "kind": "Jenis",
+      "payment": "Bayaran",
+      "period": "Tempoh",
+      "read": "Dibaca",
+      "record": "Rekod",
+      "state": "Keadaan",
+      "when": "Bila"
+    },
+    "confirmBody": "{count} rekod akan dituntut. Ia tidak muncul lagi pada mana-mana tempoh kemudian, dan buktinya digabungkan menjadi satu PDF.",
+    "confirmPeriod": "Sahkan tempoh ini",
+    "confirmTitle": "Sahkan tuntutan tempoh ini",
+    "count": {
+      "eligible": "Layak",
+      "seen": "Sudah dibaca",
+      "selected": "Dipilih",
+      "unseen": "Belum dibaca"
+    },
+    "discard": "Buang tuntutan ini",
+    "downloadPdf": "Muat turun PDF",
+    "empty": "Belum ada tuntutan.",
+    "failed": "Tuntutan tidak dapat dimuatkan. Cuba lagi.",
+    "field": {
+      "kind": "Jenis tuntutan",
+      "selectProject": "Pilih tapak",
+      "paymentNote": "Nota",
+      "period": "Tempoh",
+      "project": "Tapak",
+      "remarks": "Catatan"
+    },
+    "filter": {
+      "allKinds": "Semua jenis"
+    },
+    "firstPage": "Ini halaman pertama.",
+    "includePhotos": "Sertakan gambar",
+    "includePhotosHelp": "Nota penghantaran sentiasa disertakan - itulah asas tuntutan ini.",
+    "itemState": {
+      "CLAIMED": "Sudah dituntut",
+      "RETURNED": "Dipulangkan",
+      "SELECTED": "Dalam tempoh ini"
+    },
+    "kind": {
+      "MATERIAL_ON_SITE": "Bahan di tapak",
+      "PROGRESS": "Kemajuan"
+    },
+    "kindHelp": {
+      "MATERIAL_ON_SITE": "Penghantaran yang diterima dan membawa nota penghantaran.",
+      "PROGRESS": "Permohonan yang diluluskan perunding: RFI, WIR, permohonan pemeriksaan, penuangan konkrit, lukisan kerja, kelulusan bahan."
+    },
+    "lastPage": "Ini halaman terakhir.",
+    "loading": "Memuatkan...",
+    "new": "Tuntutan baharu",
+    "newTitle": "Buka tuntutan satu tempoh",
+    "next": "Seterusnya",
+    "noCandidates": "Tiada apa-apa menunggu untuk dituntut di tapak ini sekarang.",
+    "noRemarks": "Tiada catatan",
+    "nothingSelected": "Belum ada apa-apa dalam tempoh ini.",
+    "onThisPeriod": "Dalam tempoh ini ({count})",
+    "open": "Buka",
+    "openPeriod": "Buka tempoh ini",
+    "packageHint": "Bukti tuntutan ini ialah satu pakej bukti. Hantar kepada perunding dari Multi Engine; apa-apa yang dipulangkan akan kembali ke sini.",
+    "pageOf": "Halaman {page} daripada {pages}",
+    "payment": {
+      "NOT_RECEIVED": "Belum diterima",
+      "PARTIAL": "Diterima sebahagian",
+      "RECEIVED": "Diterima"
+    },
+    "paymentNoteHelp": "Wajib apabila sebahagian sahaja diterima: sebahagian, dengan sendirinya, berbunyi seperti sudah selesai.",
+    "paymentTitle": "Wang yang diterima bagi tuntutan ini",
+    "previous": "Sebelum",
+    "projectLocked": "Satu tuntutan milik satu tapak dan tidak boleh dipindahkan selepas ini.",
+    "putOnPeriod": "Masukkan {count} ke tempoh ini",
+    "read": "Sudah dibaca",
+    "recordPayment": "Rekod bayaran",
+    "remarksHelp": "Untuk apa tuntutan ini. Inilah yang dibaca perunding dahulu.",
+    "returnedBecause": "Dipulangkan: {reason}",
+    "returnedCount": "{count} dipulangkan",
+    "review": {
+      "NOT_SENT": "Belum dihantar",
+      "REVIEWED": "Sudah disemak",
+      "SENT": "Menunggu perunding"
+    },
+    "reviewState": "Di pihak perunding",
+    "searchPlaceholder": "Nombor tuntutan, tapak atau catatan",
+    "someRefused": "{count} daripadanya tidak boleh dimasukkan: sudah berada pada satu tuntutan, atau bukan milik tapak ini.",
+    "sourceMissing": "Rekod yang dirujuk baris ini tidak lagi boleh dibaca.",
+    "state": {
+      "CONFIRMED": "Sudah dituntut",
+      "DRAFT": "Tempoh ini"
+    },
+    "subtitle": "Tuntutan tempoh ini, apa yang sudah dituntut, dan sama ada wang telah diterima.",
+    "takeOff": "Keluarkan dari tempoh ini",
+    "title": "Tuntutan",
+    "toast": {
+      "confirmed": "Sudah dituntut.",
+      "discarded": "Tuntutan dibuang.",
+      "opened": "Tuntutan dibuka.",
+      "payment": "Keadaan bayaran disimpan.",
+      "removed": "Dikeluarkan dari tempoh ini.",
+      "saved": "Disimpan.",
+      "selected": "{count} rekod dimasukkan ke tempoh ini."
+    },
+    "unread": "Belum dibaca"
+  },
   "multiEngine": {
     "acceptItem": "Terima",
     "addRecords": "Tambah rekod",
@@ -8904,6 +9017,7 @@
       "materialQuantityReport": "Laporan kuantiti bahan",
       "materialReceipts": "Bahan masuk",
       "monitoringRecords": "Rekod pemantauan",
+      "claimEngine": "Enjin Tuntutan",
       "multiEngine": "Multi Engine",
       "notificationChannels": "Saluran notifikasi",
       "notificationManagement": "Pengurusan notifikasi",

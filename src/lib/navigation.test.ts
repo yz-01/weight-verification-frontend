@@ -238,11 +238,16 @@ describe("the category module", () => {
     (item) => item.feature === "project_categories",
   );
 
-  it("has three children: definitions, the record queue and Multi Engine", () => {
+  it("has four children: definitions, the queue, Multi Engine, claims", () => {
     expect(categories?.children?.map((child) => child.href)).toEqual([
       "/category-management",
       "/archive-queue",
       "/evidence-packages",
+      // Claim Engine (T-236). A fourth sibling for the same reason the
+      // third is one: three different questions about the same records -
+      // what nobody has read, why a bundle exists, and what is being
+      // claimed this month.
+      "/claims",
     ]);
   });
 
