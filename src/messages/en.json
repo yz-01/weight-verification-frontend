@@ -2963,7 +2963,7 @@
       "archived": "Archived"
     },
     "subtitle": "Everything finished, waiting for you to look at it.",
-    "title": "Materials awaiting acceptance",
+    "title": "All records",
     "toast": {
       "archived": "Archived for you."
     }
@@ -8893,7 +8893,7 @@
     "platform_monitoring": "Platform Monitoring",
     "platform_settings": "System Settings",
     "progress": "Progress updates",
-    "project_categories": "Site record categories",
+    "project_categories": "Site records",
     "projects": "Projects",
     "qr_code_management": "QR Codes",
     "receipts": "Material receipts",
@@ -8921,7 +8921,7 @@
       "apiGatewaySettings": "API Gateway settings",
       "approvalCredentials": "Approval credentials",
       "approvals": "Approval records",
-      "archiveQueue": "Materials awaiting acceptance",
+      "archiveQueue": "All records",
       "assetActivity": "Asset records",
       "assetAssignments": "Assignment and borrowing",
       "assetCategories": "Asset categories",
@@ -9071,7 +9071,7 @@
       "platformCommission": "Platform commission",
       "platformJobs": "Scheduled jobs",
       "progressRecords": "Progress records",
-      "projectCategories": "Site record categories",
+      "projectCategories": "Site records",
       "projectRecords": "Project records",
       "qrActivity": "QR activity",
       "qrAnomalies": "QR anomalies",
@@ -10442,6 +10442,7 @@
       "title": "Why this correction"
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
+    "totalByUnit": "Totals by unit",
     "createTitle": "Record a delivery",
     "doPanelField": "Field",
     "doPanelLineItems": "Lines on the document",

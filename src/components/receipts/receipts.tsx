@@ -270,6 +270,12 @@ export function Receipts() {
       subtitle: t("receipts.count", { count: totalCount }),
       emptyLabel: t("table.noResults"),
       query: list.query,
+      summary: {
+        groupBy: "unit",
+        title: t("receipts.totalByUnit"),
+        unitLabel: t("receipts.field.unit"),
+        quantityLabel: t("receipts.field.quantity"),
+      },
       columns: [
         { key: "receipt_no", label: t("receipts.field.receiptNo") },
         { key: "captured_at", label: t("receipts.field.capturedAt") },
@@ -278,6 +284,7 @@ export function Receipts() {
         { key: "category_name", label: t("receipts.field.category") },
         { key: "material_name", label: t("receipts.field.materialName") },
         { key: "quantity", label: t("receipts.field.quantity") },
+        { key: "cumulative_quantity", label: t("receipts.field.cumulativeQuantity") },
         {
           key: "unit",
           label: t("receipts.field.unit"),

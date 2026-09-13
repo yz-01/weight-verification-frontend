@@ -46,6 +46,8 @@ import {
   reviewReceipt,
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
+import { useFormSurface } from "@/components/shared/form-surface";
+import { cn } from "@/lib/utils";
 
 const PHOTO_KINDS: PhotoKind[] = [
   "VEHICLE",
@@ -281,6 +283,8 @@ export function ViewReceipt({ id }: { id: string }) {
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
+  const surface = useFormSurface();
+  const compactDialog = surface === "dialog";
   // Which photograph is open full size, by index, or null for none.
   const [openPhoto, setOpenPhoto] = useState<number | null>(null);
 
@@ -360,7 +364,7 @@ export function ViewReceipt({ id }: { id: string }) {
         </div>
       )}
 
-      <div className="rounded-xl border bg-card shadow-sm">
+      <div className="bg-card">
         <div className="flex flex-wrap items-center gap-3 px-6 py-5">
           <h2 className="tabular text-base font-semibold text-foreground">
             {data.receipt_no}
@@ -424,6 +428,18 @@ export function ViewReceipt({ id }: { id: string }) {
             </SummaryCell>
           ) : null}
         </section>
+
+        <ReceiptEvidencePreview
+          receipt={data}
+          onOpenPhoto={setOpenPhoto}
+          canAddPhoto={can("receipt.create") && !data.superseded_by}
+          onPhotoAdded={() =>
+            void queryClient.invalidateQueries({
+              queryKey: ["receipts", "detail", id],
+            })
+          }
+          compactDialog={compactDialog}
+        />
 
         <div className="divide-y border-t">
           <FormSection title={t("receipts.section.delivery")}>
@@ -573,7 +589,7 @@ export function ViewReceipt({ id }: { id: string }) {
             )}
           </section>
 
-          <section className="px-6 py-5">
+          <section className="hidden px-6 py-5">
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("receipts.section.photos")}
             </h3>
@@ -668,8 +684,6 @@ export function ViewReceipt({ id }: { id: string }) {
               />
             )}
           </section>
-
-          <DeliveryOrderReading receipt={data} />
 
           {/* The signatures belong with the delivery they were given for.
               They were captured on site and stored on this record all along,
@@ -801,6 +815,99 @@ function SummaryCell({
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-0.5 break-words text-sm font-medium">{children}</p>
     </div>
+  );
+}
+
+/** Compact first viewport for the material record, matching the site-gate view. */
+function ReceiptEvidencePreview({
+  receipt,
+  onOpenPhoto,
+  canAddPhoto,
+  onPhotoAdded,
+  compactDialog,
+}: {
+  receipt: MaterialReceiptDetail;
+  onOpenPhoto: (index: number) => void;
+  canAddPhoto: boolean;
+  onPhotoAdded: () => void;
+  compactDialog: boolean;
+}) {
+  const t = useTranslations();
+  const df = useDateFormat();
+
+  return (
+    <section className={cn("grid gap-4 border-t bg-background/50 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]", compactDialog && "lg:grid-cols-[minmax(0,1fr)_18rem] p-3")}>
+      <div className="min-w-0">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("receipts.section.photos")}
+          </h3>
+          <span className="text-xs tabular-nums text-muted-foreground">
+            {receipt.photos.length} {t("receipts.field.photoCount")}
+          </span>
+        </div>
+        {receipt.photos.length === 0 ? (
+          <p className="rounded-md border border-dashed px-3 py-5 text-sm text-muted-foreground">
+            {t("receipts.noPhotos")}
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            {receipt.photos.slice(0, 8).map((photo, index) => (
+              <figure key={photo.id} className="min-w-0">
+                <button
+                  type="button"
+                  title={t("receipts.photoViewer.open")}
+                  onClick={() => onOpenPhoto(index)}
+                  className="relative block aspect-[4/3] w-full overflow-hidden rounded-md border bg-muted/40 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Image
+                    src={photo.watermarked || photo.image}
+                    alt={t(`receipts.photoKind.${photo.kind}`)}
+                    fill
+                    sizes="(max-width: 1024px) 50vw, 32vw"
+                    className="object-cover"
+                    unoptimized
+                  />
+                  <span className="absolute inset-x-0 bottom-0 truncate bg-black/65 px-2 py-1 text-left text-[10px] font-medium text-white">
+                    {photo.taken_at ? df.dateTime(photo.taken_at) : t("receipts.photoNoTime")}
+                    {photo.latitude && photo.longitude
+                      ? ` · GPS ${photo.latitude}, ${photo.longitude}`
+                      : ` · ${t("receipts.photoNoLocation")}`}
+                  </span>
+                </button>
+                <figcaption className="mt-1 truncate text-[11px] text-muted-foreground">
+                  <span className="font-medium text-foreground">
+                    {t(`receipts.photoKind.${photo.kind}`)}
+                  </span>
+                  {photo.caption ? ` · ${photo.caption}` : ""}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
+        {canAddPhoto && <AddPhoto receipt={receipt} onAdded={onPhotoAdded} />}
+      </div>
+
+      <aside className="rounded-md border bg-card p-3">
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {t("receipts.doPanelTitle")}
+        </h3>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+          <span className="text-muted-foreground">{t("receipts.field.deliveryNoteNo")}</span>
+          <span className="break-words font-medium">{receipt.delivery_note_no || "—"}</span>
+          <span className="text-muted-foreground">{t("receipts.field.supplier")}</span>
+          <span className="break-words font-medium">{receipt.supplier_name || "—"}</span>
+          <span className="text-muted-foreground">{t("receipts.field.materialName")}</span>
+          <span className="break-words font-medium">{receipt.material_name || "—"}</span>
+          <span className="text-muted-foreground">{t("receipts.field.quantity")}</span>
+          <span className="font-medium">{receipt.quantity} {t(`receipts.unit.${receipt.unit}`)}</span>
+          <span className="text-muted-foreground">{t("receipts.field.vehiclePlate")}</span>
+          <span className="font-medium">{receipt.vehicle_plate || "—"}</span>
+          <span className="text-muted-foreground">{t("receipts.doPanelStatus")}</span>
+          <span className="font-medium">{t(`receipts.doStatus.${receipt.ocr_status}`)}</span>
+        </div>
+      </aside>
+    </section>
   );
 }
 

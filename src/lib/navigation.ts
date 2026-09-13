@@ -111,7 +111,7 @@ export interface FeatureNavItem {
   /** Exact key returned by `GET /api/auth/get_me/`. */
   feature: PortalFeatureKey;
   /** Message key under `nav`. */
-  labelKey: PortalFeatureKey;
+  labelKey: string;
   href: string;
   icon: LucideIcon;
   /** Message key under `nav.group`. */
@@ -707,7 +707,13 @@ export const PORTAL_NAVIGATION = {
     item("field_tasks", "/field-tasks", ClipboardList, "operations", ["/photo-approvals"]),
     // Photo approval is a separate operational workflow. It shares the
     // backend feature grant with field tasks, but is not a Project child.
-    item("field_tasks", "/photo-approvals", ClipboardCheck, "operations"),
+    itemWithLabel(
+      "field_tasks",
+      "submodule.photoApprovals",
+      "/photo-approvals",
+      ClipboardCheck,
+      "operations",
+    ),
     item(
       "suppliers",
       "/modules/suppliers",
@@ -1336,6 +1342,22 @@ function item(
     routePrefixes,
     exact,
     children,
+  };
+}
+
+function itemWithLabel(
+  feature: PortalFeatureKey,
+  labelKey: string,
+  href: string,
+  icon: LucideIcon,
+  group: FeatureNavItem["group"],
+  routePrefixes?: readonly string[],
+  exact = false,
+  children?: readonly FeatureNavChild[],
+): FeatureNavItem {
+  return {
+    ...item(feature, href, icon, group, routePrefixes, exact, children),
+    labelKey,
   };
 }
 

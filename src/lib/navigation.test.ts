@@ -345,6 +345,10 @@ describe("project and field workflows", () => {
       "/field-tasks",
       "/photo-approvals",
     ]);
+    expect(entries.map((item) => item.labelKey)).toEqual([
+      "field_tasks",
+      "submodule.photoApprovals",
+    ]);
     expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/field-tasks")).toBe(true);
     expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/photo-approvals")).toBe(true);
   });

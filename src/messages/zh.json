@@ -2963,7 +2963,7 @@
       "archived": "已归档"
     },
     "subtitle": "所有已完成的记录，等你看过之后才算归档。",
-    "title": "待验收材料",
+    "title": "总栏目",
     "toast": {
       "archived": "已为你归档。"
     }
@@ -8893,7 +8893,7 @@
     "platform_monitoring": "平台监控",
     "platform_settings": "系统设置",
     "progress": "工程进度",
-    "project_categories": "现场资料栏目",
+    "project_categories": "现场资料",
     "projects": "项目",
     "qr_code_management": "二维码管理",
     "receipts": "材料收货",
@@ -8921,7 +8921,7 @@
       "apiGatewaySettings": "API Gateway 设置",
       "approvalCredentials": "审批凭证",
       "approvals": "审批记录",
-      "archiveQueue": "待验收材料",
+      "archiveQueue": "总栏目",
       "assetActivity": "操作记录",
       "assetAssignments": "领用与借用",
       "assetCategories": "资产类别",
@@ -9071,7 +9071,7 @@
       "platformCommission": "平台佣金管理",
       "platformJobs": "定时任务",
       "progressRecords": "施工进度",
-      "projectCategories": "现场资料栏目",
+      "projectCategories": "现场资料",
       "projectRecords": "项目资料",
       "qrActivity": "二维码操作记录",
       "qrAnomalies": "二维码异常",
@@ -10442,6 +10442,7 @@
       "title": "为什么要更正"
     },
     "count": "{count, plural, =0 {暂无收货记录} other {# 条收货记录}}",
+    "totalByUnit": "按单位累计数量",
     "createTitle": "记录收货",
     "doPanelField": "字段",
     "doPanelLineItems": "单据上的明细行",

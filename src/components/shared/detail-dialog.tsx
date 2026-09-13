@@ -43,7 +43,7 @@ export function DetailDialog({ children }: { children: React.ReactNode }) {
        * page's own `DetailHeader` from inside - so pinning it would mean
        * reaching into the content to pull the header back out.
        */}
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
+      <DialogContent className="h-[calc(100dvh-2rem)] max-h-none overflow-y-auto p-3 sm:max-w-[min(96vw,90rem)]">
         <FormSurfaceProvider value="dialog">{children}</FormSurfaceProvider>
       </DialogContent>
     </Dialog>

@@ -187,12 +187,13 @@ export function FormSection({
   children: React.ReactNode;
   className?: string;
 }) {
+  const surface = useFormSurface();
   return (
-    <section className="px-6 py-5">
-      <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <section className={cn(surface === "dialog" ? "px-4 py-3" : "px-6 py-5")}>
+      <h3 className={cn("text-xs font-semibold uppercase tracking-wider text-muted-foreground", surface === "dialog" ? "mb-2" : "mb-4")}>
         {title}
       </h3>
-      <div className={cn("grid grid-cols-1 gap-4 md:grid-cols-2", className)}>
+      <div className={cn("grid grid-cols-1 gap-3 md:grid-cols-2", className)}>
         {children}
       </div>
     </section>

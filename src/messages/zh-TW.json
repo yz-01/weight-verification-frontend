@@ -2963,7 +2963,7 @@
       "archived": "已歸檔"
     },
     "subtitle": "所有已完成的記錄，等你看過之後才算歸檔。",
-    "title": "待驗收材料",
+    "title": "總欄目",
     "toast": {
       "archived": "已為你歸檔。"
     }
@@ -8893,7 +8893,7 @@
     "platform_monitoring": "平臺監控",
     "platform_settings": "系統設置",
     "progress": "工程進度",
-    "project_categories": "現場資料欄目",
+    "project_categories": "現場資料",
     "projects": "項目",
     "qr_code_management": "二維碼管理",
     "receipts": "材料收貨",
@@ -8921,7 +8921,7 @@
       "apiGatewaySettings": "API Gateway 設置",
       "approvalCredentials": "審批憑證",
       "approvals": "審批記錄",
-      "archiveQueue": "待驗收材料",
+      "archiveQueue": "總欄目",
       "assetActivity": "操作記錄",
       "assetAssignments": "領用與借用",
       "assetCategories": "資產類別",
@@ -9071,7 +9071,7 @@
       "platformCommission": "平臺佣金管理",
       "platformJobs": "定時任務",
       "progressRecords": "施工進度",
-      "projectCategories": "現場資料欄目",
+      "projectCategories": "現場資料",
       "projectRecords": "項目資料",
       "qrActivity": "二維碼操作記錄",
       "qrAnomalies": "二維碼異常",
@@ -10442,6 +10442,7 @@
       "title": "為什麼要更正"
     },
     "count": "{count, plural, =0 {暫無收貨記錄} other {# 條收貨記錄}}",
+    "totalByUnit": "按單位累計數量",
     "createTitle": "記錄收貨",
     "doPanelField": "欄位",
     "doPanelLineItems": "單據上的明細列",

@@ -2963,7 +2963,7 @@
       "archived": "Diarkibkan"
     },
     "subtitle": "Semua rekod yang selesai, menunggu anda melihatnya.",
-    "title": "Bahan menunggu penerimaan",
+    "title": "Semua rekod",
     "toast": {
       "archived": "Diarkibkan untuk anda."
     }
@@ -8893,7 +8893,7 @@
     "platform_monitoring": "Pemantauan Platform",
     "platform_settings": "Tetapan Sistem",
     "progress": "Kemajuan projek",
-    "project_categories": "Kategori rekod tapak",
+    "project_categories": "Rekod tapak",
     "projects": "Projek",
     "qr_code_management": "Pengurusan Kod QR",
     "receipts": "Terimaan bahan",
@@ -8921,7 +8921,7 @@
       "apiGatewaySettings": "Tetapan API Gateway",
       "approvalCredentials": "Kelayakan kelulusan",
       "approvals": "Rekod kelulusan",
-      "archiveQueue": "Bahan menunggu penerimaan",
+      "archiveQueue": "Semua rekod",
       "assetActivity": "Rekod aset",
       "assetAssignments": "Penyerahan dan pinjaman",
       "assetCategories": "Kategori aset",
@@ -9071,7 +9071,7 @@
       "platformCommission": "Komisen platform",
       "platformJobs": "Kerja berjadual",
       "progressRecords": "Rekod kemajuan",
-      "projectCategories": "Kategori rekod tapak",
+      "projectCategories": "Rekod tapak",
       "projectRecords": "Rekod projek",
       "qrActivity": "Aktiviti QR",
       "qrAnomalies": "Anomali QR",
@@ -10442,6 +10442,7 @@
       "title": "Sebab pembetulan"
     },
     "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
+    "totalByUnit": "Jumlah terkumpul mengikut unit",
     "createTitle": "Rekod penerimaan",
     "doPanelField": "Medan",
     "doPanelLineItems": "Baris pada dokumen",

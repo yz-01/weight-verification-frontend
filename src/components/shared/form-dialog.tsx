@@ -44,7 +44,7 @@ export function FormDialog({ children }: { children: React.ReactNode }) {
        * a long form and the person has to scroll to it, which is the complaint
        * this task exists to answer.
        */}
-      <DialogContent className="grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden sm:max-w-3xl">
+      <DialogContent className="h-[calc(100dvh-2rem)] max-h-none grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden p-3 sm:max-w-[min(96vw,80rem)]">
         <FormSurfaceProvider value="dialog">{children}</FormSurfaceProvider>
       </DialogContent>
     </Dialog>
