@@ -522,6 +522,7 @@ export interface ReceiptSummary {
     material_name: string;
     unit: MaterialUnit;
     quantity: string;
+    cumulative_quantity?: string;
     receipts: number;
     total_cost: string | null;
     unpriced_receipts: number;

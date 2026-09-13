@@ -67,6 +67,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
               { key: "supplier_name", label: t("receipts.field.supplier") },
               { key: "material_name", label: t("receipts.field.materialName") },
               { key: "quantity", label: t("receipts.field.quantity") },
+              { key: "cumulative_quantity", label: t("receipts.field.cumulativeQuantity") },
               {
                 key: "unit",
                 label: t("receipts.field.unit"),
@@ -223,6 +224,7 @@ function QuantityReport({
               <TableHead>{t("reports.receipts.material")}</TableHead>
               <TableHead>{t("reports.receipts.unit")}</TableHead>
               <TableHead className="text-right">{t("reports.receipts.quantity")}</TableHead>
+              <TableHead className="text-right">{t("receipts.field.cumulativeQuantity")}</TableHead>
               <TableHead className="text-right">{t("reports.receipts.deliveries")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -232,6 +234,7 @@ function QuantityReport({
                 <TableCell className="font-medium">{row.material_name}</TableCell>
                 <TableCell><TypeBadge label={t(`receipts.unit.${row.unit}`)} /></TableCell>
                 <TableCell className="tabular text-right">{row.quantity}</TableCell>
+                <TableCell className="tabular text-right">{row.cumulative_quantity ?? row.quantity}</TableCell>
                 <TableCell className="tabular text-right text-muted-foreground">
                   {formatter.number(row.receipts)}
                 </TableCell>

@@ -5,6 +5,7 @@ import {
   ArrowDown,
   ArrowUp,
   Download,
+  Eye,
   FileText,
   Inbox,
   Plus,
@@ -50,6 +51,7 @@ import {
   getEvidencePackage,
   getEvidencePackages,
   getPackageCandidates,
+  getPackageRecordParts,
   removePackageItem,
   reorderPackageItems,
   sendPackageForReview,
@@ -738,6 +740,7 @@ function AddRecordsDialog({
   const formatter = useDateFormat();
   const [kind, setKind] = useState<ArchiveRecordKind>("MATERIAL_RECEIPT");
   const [picked, setPicked] = useState<string[]>([]);
+  const [preview, setPreview] = useState<{ kind: ArchiveRecordKind; id: string; reference: string } | null>(null);
 
   const query = useQuery({
     queryKey: ["evidence-packages", "candidates", kind, project],
@@ -802,6 +805,15 @@ function AddRecordsDialog({
                     {row.detail} · {formatter.dateTime(row.submitted_at)}
                   </p>
                 </div>
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  variant="ghost"
+                  aria-label={t("open")}
+                  onClick={() => setPreview({ kind, id: row.id, reference: row.reference })}
+                >
+                  <Eye className="size-4" />
+                </Button>
               </li>
             ))}
           </ul>
@@ -819,6 +831,94 @@ function AddRecordsDialog({
           {t("addSelected", { count: picked.length })}
         </Button>
       </footer>
+      {preview && (
+        <RecordPreviewDialog
+          kind={preview.kind}
+          id={preview.id}
+          reference={preview.reference}
+          onClose={() => setPreview(null)}
+        />
+      )}
+    </Shell>
+  );
+}
+
+function RecordPreviewDialog({
+  kind,
+  id,
+  reference,
+  onClose,
+}: {
+  kind: ArchiveRecordKind;
+  id: string;
+  reference: string;
+  onClose: () => void;
+}) {
+  const t = useTranslations("multiEngine");
+  const labels = useTranslations("mySubmissions");
+  const formatter = useDateFormat();
+  const detail = useQuery({
+    queryKey: ["evidence-packages", "record-preview", kind, id],
+    queryFn: () => getPackageRecordParts(kind, id),
+  });
+  const data = detail.data;
+
+  return (
+    <Shell title={reference || t(`kind.${kind}`)} onClose={onClose}>
+      <div className="flex-1 space-y-4 overflow-y-auto p-4">
+        {detail.isLoading ? (
+          <p className="text-sm text-muted-foreground">{t("loading")}</p>
+        ) : detail.isError || !data ? (
+          <p role="alert" className="text-sm text-destructive">{t("failed")}</p>
+        ) : (
+          <>
+            <p className="text-xs text-muted-foreground">
+              {data.project_name} · {formatter.dateTime(data.submitted_at)}
+            </p>
+            <section className="space-y-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("group.fields")}
+              </h3>
+              <dl className="divide-y rounded-lg border">
+                {data.fields.map((field) => (
+                  <div key={field.key} className="grid gap-1 p-2.5 sm:grid-cols-[11rem_1fr]">
+                    <dt className="text-xs text-muted-foreground">{labels(`field.${field.key}`)}</dt>
+                    <dd className="break-words text-sm">{field.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+            {data.photos.length > 0 && (
+              <section className="space-y-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("group.photos")}
+                </h3>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {data.photos.map((photo) => (
+                    <a key={photo.id ?? photo.url} href={photo.url} target="_blank" rel="noreferrer" className="overflow-hidden rounded-lg border">
+                      <Image src={photo.url} alt={photo.caption || reference} width={320} height={240} unoptimized className="h-28 w-full object-cover" />
+                      <span className="block truncate px-2 py-1.5 text-xs text-muted-foreground">{photo.caption || t("group.photos")}</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+            {data.documents.length > 0 && (
+              <section className="space-y-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("group.documents")}</h3>
+                <ul className="divide-y rounded-lg border">
+                  {data.documents.map((document) => (
+                    <li key={document.id} className="flex items-center justify-between gap-3 p-2.5 text-sm">
+                      <span className="truncate">{document.caption}</span>
+                      <a href={document.url} target="_blank" rel="noreferrer" className="shrink-0 text-primary underline">{t("open")}</a>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </>
+        )}
+      </div>
     </Shell>
   );
 }

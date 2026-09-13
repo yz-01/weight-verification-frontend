@@ -328,3 +328,24 @@ describe("the category module", () => {
     expect(isRouteAllowed("MSE_TRACE", [], "/category-management")).toBe(false);
   });
 });
+
+describe("project and field workflows", () => {
+  it("keeps Project limited to project records", () => {
+    const projects = PORTAL_NAVIGATION.MSE_TRACE.find(
+      (item) => item.feature === "projects",
+    );
+    expect(projects?.children?.map((child) => child.href)).toEqual(["/projects"]);
+  });
+
+  it("exposes field tasks and photo approvals as independent entries", () => {
+    const entries = PORTAL_NAVIGATION.MSE_TRACE.filter(
+      (item) => item.feature === "field_tasks",
+    );
+    expect(entries.map((item) => item.href)).toEqual([
+      "/field-tasks",
+      "/photo-approvals",
+    ]);
+    expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/field-tasks")).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/photo-approvals")).toBe(true);
+  });
+});

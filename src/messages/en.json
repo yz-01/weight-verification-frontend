@@ -2963,7 +2963,7 @@
       "archived": "Archived"
     },
     "subtitle": "Everything finished, waiting for you to look at it.",
-    "title": "Archive queue",
+    "title": "Materials awaiting acceptance",
     "toast": {
       "archived": "Archived for you."
     }
@@ -4545,7 +4545,8 @@
       "SURVEY_REPORT": "Survey report"
     },
     "common": {
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "emptyValue": "—"
     },
     "credential": {
       "currentPassword": "Current login password",
@@ -4615,7 +4616,12 @@
     },
     "evidence": {
       "selectPhotos": "Photos to link",
+      "selectRecord": "Select this complete record",
       "caption": "Caption",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "recordPhotos": "photos/files",
+      "searchPlaceholder": "Search filename, record, uploader or note",
       "empty": "No site evidence has been linked.",
       "help": "Use an existing, immutable site photograph. The original file is not uploaded twice.",
       "link": "Link evidence",
@@ -6186,6 +6192,9 @@
   "documents": {
     "downloading": "Downloading",
     "allCategories": "All categories",
+    "allProjects": "All projects",
+    "allSubcategories": "All subcategories",
+    "allUploaders": "All uploaders",
     "archive": {
       "action": "Archive",
       "confirm": "Archive document",
@@ -6218,6 +6227,8 @@
       "category": "Category",
       "code": "Code",
       "createdAt": "Created",
+      "dateFrom": "Created from",
+      "dateTo": "Created to",
       "description": "Description",
       "file": "File",
       "keywords": "Keywords",
@@ -8910,7 +8921,7 @@
       "apiGatewaySettings": "API Gateway settings",
       "approvalCredentials": "Approval credentials",
       "approvals": "Approval records",
-      "archiveQueue": "Archive queue",
+      "archiveQueue": "Materials awaiting acceptance",
       "assetActivity": "Asset records",
       "assetAssignments": "Assignment and borrowing",
       "assetCategories": "Asset categories",
@@ -10451,6 +10462,7 @@
     "field": {
       "category": "Column",
       "capturedAt": "Recorded",
+      "cumulativeQuantity": "Cumulative quantity",
       "deliveryNoteNo": "Delivery note no.",
       "location": "Location",
       "materialName": "Material",

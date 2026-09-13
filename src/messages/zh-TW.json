@@ -2963,7 +2963,7 @@
       "archived": "已歸檔"
     },
     "subtitle": "所有已完成的記錄，等你看過之後才算歸檔。",
-    "title": "總欄目",
+    "title": "待驗收材料",
     "toast": {
       "archived": "已為你歸檔。"
     }
@@ -4545,7 +4545,8 @@
       "SURVEY_REPORT": "測量報告"
     },
     "common": {
-      "unknown": "未知"
+      "unknown": "未知",
+      "emptyValue": "—"
     },
     "credential": {
       "currentPassword": "當前登錄密碼",
@@ -4615,7 +4616,12 @@
     },
     "evidence": {
       "selectPhotos": "要關聯的照片",
+      "selectRecord": "選擇整筆現場資料",
       "caption": "說明",
+      "dateFrom": "開始日期",
+      "dateTo": "結束日期",
+      "recordPhotos": "張照片/文件",
+      "searchPlaceholder": "搜尋檔名、事項、上傳人或備註",
       "empty": "尚未關聯現場證據。",
       "help": "選擇現有且不可修改的現場照片，無需重複上傳原圖。",
       "link": "關聯證據",
@@ -6186,6 +6192,9 @@
   "documents": {
     "downloading": "下載中",
     "allCategories": "全部分類",
+    "allProjects": "全部專案",
+    "allSubcategories": "全部子分類",
+    "allUploaders": "全部上傳人",
     "archive": {
       "action": "歸檔",
       "confirm": "歸檔文檔",
@@ -6218,6 +6227,8 @@
       "category": "分類",
       "code": "代碼",
       "createdAt": "創建時間",
+      "dateFrom": "建立日期起",
+      "dateTo": "建立日期止",
       "description": "說明",
       "file": "文件",
       "keywords": "關鍵詞",
@@ -8910,7 +8921,7 @@
       "apiGatewaySettings": "API Gateway 設置",
       "approvalCredentials": "審批憑證",
       "approvals": "審批記錄",
-      "archiveQueue": "總欄目",
+      "archiveQueue": "待驗收材料",
       "assetActivity": "操作記錄",
       "assetAssignments": "領用與借用",
       "assetCategories": "資產類別",
@@ -10460,6 +10471,7 @@
       "project": "項目",
       "qrCode": "送貨單",
       "quantity": "數量",
+      "cumulativeQuantity": "累計數量",
       "receiptNo": "收貨單號",
       "receivedBy": "收貨人",
       "recordedBy": "記錄人",

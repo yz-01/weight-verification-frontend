@@ -329,10 +329,13 @@ export const addApplicationAttachment = async (
   return row;
 };
 
-export const getApplicationEvidenceCandidates = (project: string) =>
+export const getApplicationEvidenceCandidates = (
+  project: string,
+  filters: { search?: string; date_from?: string; date_to?: string; kind?: string } = {},
+) =>
   api.list<EvidenceCandidate>(
     "/api/consultant-applications/get_evidence_candidates/",
-    { project, page_size: 200 },
+    { project, page_size: 500, ...filters },
   );
 
 export const linkApplicationEvidence = async (

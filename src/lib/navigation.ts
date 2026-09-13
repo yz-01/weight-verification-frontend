@@ -702,20 +702,12 @@ export const PORTAL_NAVIGATION = {
       false,
       [
         child("2.2.1", "nav.submodule.projectRecords", "/projects", "projects"),
-        child(
-          "2.2.2",
-          "nav.submodule.fieldTasks",
-          "/field-tasks",
-          "field_tasks",
-        ),
-        child(
-          "2.2.3",
-          "nav.submodule.photoApprovals",
-          "/photo-approvals",
-          "field_tasks",
-        ),
       ],
     ),
+    item("field_tasks", "/field-tasks", ClipboardList, "operations", ["/photo-approvals"]),
+    // Photo approval is a separate operational workflow. It shares the
+    // backend feature grant with field tasks, but is not a Project child.
+    item("field_tasks", "/photo-approvals", ClipboardCheck, "operations"),
     item(
       "suppliers",
       "/modules/suppliers",
@@ -1048,12 +1040,6 @@ export const PORTAL_NAVIGATION = {
           "documents",
         ),
         child("12.2.2", "nav.submodule.approvals", "/approvals", "approvals"),
-        child(
-          "12.2.3",
-          "nav.submodule.evidenceArchive",
-          "/evidence",
-          "evidence",
-        ),
       ],
     ),
     item(

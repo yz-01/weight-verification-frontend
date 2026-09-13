@@ -113,7 +113,7 @@ export function AppSidebar() {
                   );
                   const isExpanded = expanded[item.feature] ?? childIsActive;
                   return (
-                    <SidebarMenuItem key={item.feature}>
+                    <SidebarMenuItem key={`${item.feature}:${item.href}`}>
                       <SidebarMenuButton
                         asChild
                         isActive={active}

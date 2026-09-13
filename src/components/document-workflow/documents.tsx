@@ -71,6 +71,7 @@ import type {
 } from "@/interfaces/document-workflow";
 import { useDateFormat } from "@/lib/dates";
 import { getProjects } from "@/services/contractor.service";
+import { getUsers } from "@/services/users.service";
 import {
   archiveDocument,
   createDocument,
@@ -93,7 +94,15 @@ export function Documents() {
   const queryClient = useQueryClient();
   const { can } = useAuth();
   const searchParams = useSearchParams();
-  const list = useListQuery(["status", "category"]);
+  const list = useListQuery([
+    "status",
+    "project",
+    "category",
+    "subcategory",
+    "date_from",
+    "date_to",
+    "uploaded_by",
+  ]);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [editing, setEditing] = useState<DocumentRecord | null | "new">(
     searchParams.get("create") === "1" && can("document.manage") ? "new" : null,
@@ -125,6 +134,11 @@ export function Documents() {
     queryKey: ["projects", "document-options"],
     queryFn: () => getProjects({ page_size: 100, sort_by: "name" }),
     enabled: can("project.view"),
+  });
+  const users = useQuery({
+    queryKey: ["users", "document-archive-options"],
+    queryFn: () => getUsers({ page_size: 500, status: "ACTIVE", sort_by: "full_name", sort_order: "asc" }),
+    enabled: can("document.view"),
   });
 
   const refresh = () => {
@@ -208,6 +222,12 @@ export function Documents() {
         header: () => t("documents.field.project"),
         cell: ({ row }) =>
           row.original.project_name || t("documents.companyWide"),
+      },
+      {
+        accessorKey: "created_by_name",
+        meta: { label: t("documents.field.uploadedBy") },
+        header: () => t("documents.field.uploadedBy"),
+        cell: ({ row }) => row.original.created_by_name || t("common.emptyValue"),
       },
       {
         accessorKey: "status",
@@ -377,28 +397,26 @@ export function Documents() {
           })),
         ]}
         toolbarActions={
-          <Select
-            value={list.filters.category ?? "all"}
-            onValueChange={(value) =>
-              list.setFilter("category", value === "all" ? undefined : value)
-            }
-          >
-            <SelectTrigger
-              size="sm"
-              className="h-9 w-[190px] bg-card"
-              aria-label={t("documents.field.category")}
-            >
-              <SelectValue placeholder={t("documents.field.category")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("documents.allCategories")}</SelectItem>
-              {categoryRows.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-wrap items-center gap-2">
+            <Select value={list.filters.project ?? "all"} onValueChange={(value) => list.setFilter("project", value === "all" ? undefined : value)}>
+              <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.project")}><SelectValue placeholder={t("documents.field.project")} /></SelectTrigger>
+              <SelectContent><SelectItem value="all">{t("documents.allProjects")}</SelectItem>{(projects.data?.results ?? []).map((project) => <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>)}</SelectContent>
+            </Select>
+            <Select value={list.filters.category ?? "all"} onValueChange={(value) => list.setFilters({ category: value === "all" ? undefined : value, subcategory: undefined })}>
+              <SelectTrigger size="sm" className="h-9 w-[170px] bg-card" aria-label={t("documents.field.category")}><SelectValue placeholder={t("documents.field.category")} /></SelectTrigger>
+              <SelectContent><SelectItem value="all">{t("documents.allCategories")}</SelectItem>{categoryRows.map((category) => <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>)}</SelectContent>
+            </Select>
+            <Select value={list.filters.subcategory ?? "all"} onValueChange={(value) => list.setFilter("subcategory", value === "all" ? undefined : value)}>
+              <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.subcategory")}><SelectValue placeholder={t("documents.field.subcategory")} /></SelectTrigger>
+              <SelectContent><SelectItem value="all">{t("documents.allSubcategories")}</SelectItem>{subcategoryRows.filter((item) => !list.filters.category || item.category === list.filters.category).map((subcategory) => <SelectItem key={subcategory.id} value={subcategory.id}>{subcategory.name}</SelectItem>)}</SelectContent>
+            </Select>
+            <Select value={list.filters.uploaded_by ?? "all"} onValueChange={(value) => list.setFilter("uploaded_by", value === "all" ? undefined : value)}>
+              <SelectTrigger size="sm" className="h-9 w-[180px] bg-card" aria-label={t("documents.field.uploadedBy")}><SelectValue placeholder={t("documents.field.uploadedBy")} /></SelectTrigger>
+              <SelectContent><SelectItem value="all">{t("documents.allUploaders")}</SelectItem>{(users.data?.results ?? []).map((user) => <SelectItem key={user.id} value={user.id}>{user.full_name}</SelectItem>)}</SelectContent>
+            </Select>
+            <Input type="date" className="h-9 w-[145px] bg-card" aria-label={t("documents.field.dateFrom")} value={list.filters.date_from ?? ""} max={list.filters.date_to} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
+            <Input type="date" className="h-9 w-[145px] bg-card" aria-label={t("documents.field.dateTo")} value={list.filters.date_to ?? ""} min={list.filters.date_from} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />
+          </div>
         }
         onSearchChange={list.setSearch}
         onSortChange={list.setSort}

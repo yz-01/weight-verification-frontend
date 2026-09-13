@@ -2963,7 +2963,7 @@
       "archived": "已归档"
     },
     "subtitle": "所有已完成的记录，等你看过之后才算归档。",
-    "title": "总栏目",
+    "title": "待验收材料",
     "toast": {
       "archived": "已为你归档。"
     }
@@ -4545,7 +4545,8 @@
       "SURVEY_REPORT": "测量报告"
     },
     "common": {
-      "unknown": "未知"
+      "unknown": "未知",
+      "emptyValue": "—"
     },
     "credential": {
       "currentPassword": "当前登录密码",
@@ -4615,7 +4616,12 @@
     },
     "evidence": {
       "selectPhotos": "要关联的照片",
+      "selectRecord": "选择整条现场资料",
       "caption": "说明",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
+      "recordPhotos": "张照片/文件",
+      "searchPlaceholder": "搜索文件名、事项、上传人或备注",
       "empty": "尚未关联现场证据。",
       "help": "选择现有且不可修改的现场照片，无需重复上传原图。",
       "link": "关联证据",
@@ -6186,6 +6192,9 @@
   "documents": {
     "downloading": "下载中",
     "allCategories": "全部分类",
+    "allProjects": "全部项目",
+    "allSubcategories": "全部子分类",
+    "allUploaders": "全部上传人",
     "archive": {
       "action": "归档",
       "confirm": "归档文档",
@@ -6218,6 +6227,8 @@
       "category": "分类",
       "code": "代码",
       "createdAt": "创建时间",
+      "dateFrom": "创建日期起",
+      "dateTo": "创建日期止",
       "description": "说明",
       "file": "文件",
       "keywords": "关键词",
@@ -8910,7 +8921,7 @@
       "apiGatewaySettings": "API Gateway 设置",
       "approvalCredentials": "审批凭证",
       "approvals": "审批记录",
-      "archiveQueue": "总栏目",
+      "archiveQueue": "待验收材料",
       "assetActivity": "操作记录",
       "assetAssignments": "领用与借用",
       "assetCategories": "资产类别",
@@ -10460,6 +10471,7 @@
       "project": "项目",
       "qrCode": "送货单",
       "quantity": "数量",
+      "cumulativeQuantity": "累计数量",
       "receiptNo": "收货单号",
       "receivedBy": "收货人",
       "recordedBy": "记录人",

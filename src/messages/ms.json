@@ -2963,7 +2963,7 @@
       "archived": "Diarkibkan"
     },
     "subtitle": "Semua rekod yang selesai, menunggu anda melihatnya.",
-    "title": "Baris gilir arkib",
+    "title": "Bahan menunggu penerimaan",
     "toast": {
       "archived": "Diarkibkan untuk anda."
     }
@@ -4545,7 +4545,8 @@
       "SURVEY_REPORT": "Laporan ukur"
     },
     "common": {
-      "unknown": "Tidak diketahui"
+      "unknown": "Tidak diketahui",
+      "emptyValue": "—"
     },
     "credential": {
       "currentPassword": "Kata laluan semasa",
@@ -4615,7 +4616,12 @@
     },
     "evidence": {
       "selectPhotos": "Foto untuk dipautkan",
+      "selectRecord": "Pilih rekod lengkap ini",
       "caption": "Kapsyen",
+      "dateFrom": "Tarikh mula",
+      "dateTo": "Tarikh akhir",
+      "recordPhotos": "foto/fail",
+      "searchPlaceholder": "Cari nama fail, rekod, pemuat naik atau nota",
       "empty": "Tiada bukti tapak dipautkan.",
       "help": "Gunakan foto tapak sedia ada yang tidak boleh diubah. Fail asal tidak dimuat naik dua kali.",
       "link": "Pautkan bukti",
@@ -6186,6 +6192,9 @@
   "documents": {
     "downloading": "Sedang memuat turun",
     "allCategories": "Semua kategori",
+    "allProjects": "Semua projek",
+    "allSubcategories": "Semua subkategori",
+    "allUploaders": "Semua pemuat naik",
     "archive": {
       "action": "Arkibkan",
       "confirm": "Arkibkan dokumen",
@@ -6218,6 +6227,8 @@
       "category": "Kategori",
       "code": "Kod",
       "createdAt": "Dicipta",
+      "dateFrom": "Dicipta dari",
+      "dateTo": "Dicipta hingga",
       "description": "Penerangan",
       "file": "Fail",
       "keywords": "Kata kunci",
@@ -8910,7 +8921,7 @@
       "apiGatewaySettings": "Tetapan API Gateway",
       "approvalCredentials": "Kelayakan kelulusan",
       "approvals": "Rekod kelulusan",
-      "archiveQueue": "Baris gilir arkib",
+      "archiveQueue": "Bahan menunggu penerimaan",
       "assetActivity": "Rekod aset",
       "assetAssignments": "Penyerahan dan pinjaman",
       "assetCategories": "Kategori aset",
@@ -10451,6 +10462,7 @@
     "field": {
       "category": "Ruangan",
       "capturedAt": "Direkod",
+      "cumulativeQuantity": "Kuantiti terkumpul",
       "deliveryNoteNo": "No. nota hantar",
       "location": "Lokasi",
       "materialName": "Bahan",
