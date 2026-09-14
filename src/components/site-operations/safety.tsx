@@ -87,6 +87,7 @@ import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 const STATUSES: IncidentStatus[] = [
   "OPEN", "ASSIGNED", "RECTIFICATION_SUBMITTED", "RETURNED", "VERIFIED",
 ];
+const MANUAL_STATUSES: IncidentStatus[] = ["OPEN", "INVESTIGATING", "RESOLVED"];
 
 // SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
 // they would have been the kind of constant a later reader assumes is used.
@@ -189,6 +190,7 @@ export function Safety({
     queryFn: () => getSafetyIncidents({
       ...list.query,
       workflow: mode === "rectification" ? "rectification" : undefined,
+      involving: fieldMode ? "me" : undefined,
       overdue: overdueOnly ? "1" : undefined,
     }),
   });
@@ -259,6 +261,7 @@ export function Safety({
         setSubmitting(incident);
       } else if (
         can("safety.manage") &&
+        !incident.responsible_person &&
         ["OPEN", "RETURNED"].includes(incident.status)
       ) {
         setAssigning(incident);
@@ -389,7 +392,7 @@ export function Safety({
         header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-0.5">
-            {can("safety.manage") && ["OPEN", "RETURNED"].includes(row.original.status) && (
+            {can("safety.manage") && !row.original.responsible_person && ["OPEN", "RETURNED"].includes(row.original.status) && (
               <Button variant="ghost" size="icon" className="h-7 w-7" title={t("safetyRectification.action.assign")} onClick={() => setAssigning(row.original)}><UserCheck className="h-4 w-4" /></Button>
             )}
             {can("safety.manage") && row.original.responsible_person === user?.id && ["ASSIGNED", "RETURNED"].includes(row.original.status) && (
@@ -402,7 +405,7 @@ export function Safety({
                 stays readable after closure - 「记录全部都要留着」 - and the
                 panel itself is what refuses a new message. */}
             <Button variant="ghost" size="icon" className="h-7 w-7" title={t("hazard.conversationTitle")} onClick={() => setTalking(row.original)}><MessageSquare className="h-4 w-4" /></Button>
-            {can("safety.manage") && ["OPEN", "INVESTIGATING"].includes(row.original.status) && (
+            {can("safety.manage") && !row.original.responsible_person && ["OPEN", "INVESTIGATING"].includes(row.original.status) && (
               <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" title={t("safety.action.updateStatus")} onClick={() => setUpdating(row.original)}><SlidersHorizontal className="h-3.5 w-3.5" /></Button>
             )}
           </div>
@@ -720,22 +723,7 @@ function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; o
   const qc = useQueryClient();
   const [decision, setDecision] = useState<"VERIFIED" | "RETURNED">("VERIFIED");
   const [note, setNote] = useState("");
-  const [image, setImage] = useState<File>();
-  const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string } | null>(null);
-  const [locationError, setLocationError] = useState("");
-  const getLocation = () => {
-    setLocationError("");
-    navigator.geolocation.getCurrentPosition(
-      (position) => setLocation({
-        latitude: position.coords.latitude.toFixed(7),
-        longitude: position.coords.longitude.toFixed(7),
-        accuracy: position.coords.accuracy.toFixed(2),
-      }),
-      () => setLocationError(t("error.location")),
-      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
-    );
-  };
-  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision, note, image, latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision, note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
@@ -757,20 +745,9 @@ function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; o
         <FieldWrapper label={t("field.reviewNote")} required={decision === "RETURNED"}>
           <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
         </FieldWrapper>
-        <FieldWrapper label={t("field.verificationPhoto")} optional={t("action.optional")}>
-          <FieldCamera label={t("field.verificationPhoto")} file={image} fileCount={image ? 1 : 0} onCapture={setImage} onClear={() => { setImage(undefined); setLocation(null); }} />
-        </FieldWrapper>
-        {image && (
-          <FieldWrapper label={t("field.location")} required error={locationError}>
-            <Button className="w-full" variant="outline" onClick={getLocation}>
-              <LocateFixed />
-              {location ? t("action.locationReady") : t("action.getLocation")}
-            </Button>
-          </FieldWrapper>
-        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[decision !== "RETURNED" || note, t("field.reviewNote")], [!image || location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[decision !== "RETURNED" || note, t("field.reviewNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             {decision === "VERIFIED" ? <CheckCircle2 /> : <RotateCcw />}
             {t(decision === "VERIFIED" ? "action.verify" : "action.return")}
           </Button>
@@ -817,20 +794,29 @@ function SafetyCreateDialog({
   const [locationError, setLocationError] = useState("");
   const categories = useQuery({
     queryKey: ["safety-create-categories", draft.project],
-    queryFn: () =>
-      getProjectCategories({
-        project: draft.project,
-        is_active: true,
-        // Safety columns, and only those (D-172). This read is what makes the
-        // EHS module exist at all: it was declared in the backend's
-        // `CATEGORY_RECORD_RELATIONS`, listed in category management, and
-        // consumed by nothing, so a site could create a safety column that was
-        // guaranteed to stay at zero records for ever (F-380). New hazards go
-        // here; the filter above still offers the old site-record columns so
-        // the ones already filed there stay findable.
-        kind: "EHS",
-        page_size: 200,
-      }),
+    queryFn: async () => {
+      const [safety, legacy] = await Promise.all([
+        getProjectCategories({
+          project: draft.project,
+          is_active: true,
+          kind: "EHS",
+          page_size: 200,
+        }),
+        getProjectCategories({
+          project: draft.project,
+          is_active: true,
+          kind: "FIELD",
+          page_size: 200,
+        }),
+      ]);
+      const rows = [...safety.results, ...legacy.results];
+      return {
+        ...safety,
+        results: rows.filter(
+          (row, index) => rows.findIndex((candidate) => candidate.id === row.id) === index,
+        ),
+      };
+    },
     enabled: Boolean(draft.project),
   });
   const team = useQuery({
@@ -861,10 +847,7 @@ function SafetyCreateDialog({
       if (!user) throw new Error("Authentication required.");
       const payload: SafetyIncidentPayload & { client_event_id: string } = {
         project: draft.project,
-        // Omitted rather than sent blank: "" reaches the serializer as a
-        // malformed UUID, so a hazard with no column would be refused for
-        // having one.
-        category: draft.category || undefined,
+        category: draft.category,
         title: draft.title.trim(),
         description: draft.description.trim(),
         severity: draft.severity,
@@ -962,12 +945,7 @@ function SafetyCreateDialog({
               className="w-full"
             />
           </FieldWrapper>
-          {/* The column is the back office's filing scheme, and asking a
-              worker which one a loose scaffold board belongs to is the same
-              question the customer objected to on the 拍照 screen. The console
-              still files hazards into columns; the phone no longer asks. */}
-          {!fieldMode && (
-          <FieldWrapper label={t("safety.field.category")} optional={t("common.optional")} className="sm:col-span-2">
+          <FieldWrapper label={t("safety.field.category")} required className="sm:col-span-2">
             <Select
               value={draft.category || undefined}
               onValueChange={(categoryId) => {
@@ -1005,7 +983,6 @@ function SafetyCreateDialog({
                 </p>
               )}
           </FieldWrapper>
-          )}
 
           {/* Title, the four presets, severity and the time: all off the
               phone. The presets were 发生事故／发现危险／设备损坏／其他事项 and
@@ -1151,8 +1128,8 @@ function SafetyCreateDialog({
               were all in here, and each one was a way for the button to stay
               grey at somebody who had already photographed the hazard. */}
           <Button requires={fieldMode
-            ? [[completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos), t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.latitude && draft.longitude, t("safety.field.location")]]
-            : [[draft.project, t("safety.field.project")], [draft.title, t("safety.field.title")], [completedPhotos.length >= 1, t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.field.location")]]} disabled={create.isPending} onClick={() => create.mutate()}>
+            ? [[completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos), t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.latitude && draft.longitude, t("safety.field.location")]]
+            : [[draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.title, t("safety.field.title")], [completedPhotos.length >= 1, t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.field.location")]]} disabled={create.isPending} onClick={() => create.mutate()}>
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -1203,9 +1180,9 @@ function SafetyStatusDialog({
             >
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {STATUSES.map((option) => (
+                {MANUAL_STATUSES.map((option) => (
                   <SelectItem key={option} value={option}>
-                    {t(`safety.status.${option}`)}
+                    {t(`safetyRectification.status.${option}`)}
                   </SelectItem>
                 ))}
               </SelectContent>

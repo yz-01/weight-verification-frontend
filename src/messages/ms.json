@@ -7307,12 +7307,13 @@
       "unit": "Unit",
       "vehicle": "No. kenderaan",
       "column": "Kolum bahan",
+      "additionalDetails": "Maklumat tambahan (pilihan)",
       "columnAuto": "Difailkan di bawah {name}. Pejabat boleh menukarnya.",
       "columnUnfiledNote": "Belum difailkan. Pejabat akan memfailkannya selepas memeriksa.",
       "noColumnsYet": "Tapak ini belum ada kolum bahan. Tambah yang pertama di bawah.",
       "newColumnName": "Nama kolum baharu",
       "addColumn": "Tambah kolum",
-      "columnOffline": "Luar talian: kolum tidak boleh dibuka tanpa sambungan. Terima penghantaran tanpa difailkan dan failkan kemudian."
+      "columnOffline": "Luar talian: pilih kolum sedia ada. Kolum baharu memerlukan sambungan."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",

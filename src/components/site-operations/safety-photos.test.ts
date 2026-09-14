@@ -47,6 +47,21 @@ function photoField(): string {
 }
 
 describe("the hazard form's photographs", () => {
+  it("uses translated legacy status options without bypassing rectification", () => {
+    const options = code.match(/const MANUAL_STATUSES[^=]*=\s*(\[[^\]]+\])/);
+    expect(options).toBeTruthy();
+    const states: string[] = JSON.parse(options![1]);
+    expect(states).toEqual(["OPEN", "INVESTIGATING", "RESOLVED"]);
+    for (const locale of ["en", "zh", "zh-TW", "ms"]) {
+      const messages = JSON.parse(readFileSync(`src/messages/${locale}.json`, "utf8"));
+      for (const status of states) expect(messages.safetyRectification.status[status]).toBeTruthy();
+    }
+    const dialog = code.slice(code.indexOf("function SafetyStatusDialog("));
+    expect(dialog).toContain("MANUAL_STATUSES.map");
+    expect(dialog).toContain("safetyRectification.status.${option}");
+    expect(code).toContain('!row.original.responsible_person && ["OPEN", "INVESTIGATING"].includes');
+  });
+
   it("never replaces one photograph with the next", () => {
     // The exact shape of the defect. Kept as a literal because that is what a
     // reader would otherwise reintroduce while "simplifying" the office case.

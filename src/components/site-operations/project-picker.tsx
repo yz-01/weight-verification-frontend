@@ -2,6 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { useEffect } from "react";
+import { useAuth } from "@/components/providers/auth-provider";
 
 import {
   Select,
@@ -37,6 +39,7 @@ export function ProjectPicker({
   projectsError?: boolean;
 }) {
   const t = useTranslations("siteControl");
+  const { user } = useAuth();
   const shouldLoadProjects = projects === undefined;
   const { data, isLoading, isError } = useQuery({
     queryKey: ["projects", "options"],
@@ -47,6 +50,18 @@ export function ProjectPicker({
   const options = projects ?? data?.results ?? [];
   const loading = projectsLoading ?? (shouldLoadProjects && isLoading);
   const failed = projectsError ?? (shouldLoadProjects && isError);
+  const boundProject = user?.is_field_staff
+    ? user.active_project?.project_id ?? (options.length === 1 ? options[0].id : "")
+    : "";
+  useEffect(() => {
+    if (boundProject && value !== boundProject) onValueChange(boundProject);
+  }, [boundProject, onValueChange, value]);
+
+  if (boundProject) {
+    const name = options.find((project) => project.id === boundProject)?.name
+      ?? user?.active_project?.project_name;
+    return <p className="min-w-0 break-words py-2 text-sm font-medium">{name}</p>;
+  }
 
   return (
     <div className="min-w-0">

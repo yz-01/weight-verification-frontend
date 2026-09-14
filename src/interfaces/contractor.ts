@@ -451,15 +451,8 @@ export interface MaterialReceiptPayload {
   quantity: string;
   unit: MaterialUnit;
   total_weight_kg?: string | null;
-  /**
-   * The material column this delivery files under.
-   *
-   * Optional because a site with no column set up still has to be able to
-   * receive material - an unfiled receipt can be filed later. The field app
-   * never sent it at all until T-161, so every delivery taken on site arrived
-   * unfiled no matter how many columns the project had.
-   */
-  category?: string | null;
+  /** Required material column for a new delivery. */
+  category: string;
   unit_price?: string | null;
   vehicle_plate?: string;
   delivery_note_no?: string;
