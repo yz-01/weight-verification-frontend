@@ -217,12 +217,8 @@ export interface HazardConversation {
 
 export interface SafetyIncidentPayload {
   project: string;
-  /**
-   * Optional since T-189: the field app no longer asks which of the back
-   * office's columns a hazard belongs in, and a hazard filed without one is a
-   * complete report. The console still files them.
-   */
-  category?: string;
+  /** Every safety report is filed under its project's safety column. */
+  category: string;
   title: string;
   description: string;
   severity: IncidentSeverity;

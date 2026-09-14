@@ -49,7 +49,7 @@ describe("field capture panels lock a project that was handed to them", () => {
   it("still hands the task's project to the material panel", () => {
     const code = source(PANEL);
     expect(code).toContain(
-      '<MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project}',
+      '<MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project ?? boundProject}',
     );
   });
 

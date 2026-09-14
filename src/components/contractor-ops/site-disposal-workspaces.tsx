@@ -35,6 +35,7 @@ import {
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -229,12 +230,14 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
 
 function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSaved }: { initialProject?: string; fieldTaskId?: string; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
+  const columnT = useTranslations("contractorOps");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   // F-282. Saved even when this dialog is opened from the office console:
   // `useDraftState` falls back to plain component state when there is no
   // `<FieldDraft>` above it, so one call site serves both without a branch.
   const [project, setProject] = useDraftState("project", initialProject);
+  const [category, setCategory] = useDraftState("category", "");
   const [description, setDescription] = useDraftState("description", "");
   const [locationDescription, setLocationDescription] = useDraftState("locationDescription", "");
   const [volume, setVolume] = useDraftState("volume", "");
@@ -260,6 +263,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
       if (!user) throw new Error("Authentication required.");
       return submitDisposalRequestOfflineAware(user.id, {
         project,
+        category,
         waste_description: description,
         location_description: isFieldStaff ? "GPS captured site location" : locationDescription,
         estimated_volume_m3: isFieldStaff ? "" : volume,
@@ -289,7 +293,8 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
       <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-2xl">
         <DialogHeader className="shrink-0"><DialogTitle>{t("create.title")}</DialogTitle><DialogDescription>{t("create.description")}</DialogDescription></DialogHeader>
         <div className="grid min-h-0 min-w-0 flex-1 gap-4 overflow-y-auto overflow-x-hidden pr-1 sm:grid-cols-2">
-          <FieldWrapper label={t("field.project")} required className="sm:col-span-2"><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.project")} /></FieldWrapper>
+          <FieldWrapper label={t("field.project")} required className="sm:col-span-2"><ProjectPicker value={project} onValueChange={(value) => { setProject(value); setCategory(""); }} placeholder={t("field.project")} /></FieldWrapper>
+          <ProjectColumnPicker project={project} kind="CONSTRUCTION_WASTE" value={category} onChange={setCategory} className="sm:col-span-2" />
           <FieldWrapper label={t("field.waste")} required className="sm:col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} /></FieldWrapper>
           {!isFieldStaff ? <>
             <FieldWrapper label={t("field.siteLocation")} required className="sm:col-span-2"><Input value={locationDescription} onChange={(e) => setLocationDescription(e.target.value)} /></FieldWrapper>
@@ -320,7 +325,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
           </FieldWrapper>
           <FieldWrapper label={t("field.note")} optional={t("optional")} className="sm:col-span-2"><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
         </div>
-        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [submissionPhotos.length >= (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!isFieldStaff || hasRequiredFieldEvidence(fieldEvidence)), t("field.photos")], [location, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
+        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [category, columnT("field.category")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [submissionPhotos.length >= (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!isFieldStaff || hasRequiredFieldEvidence(fieldEvidence)), t("field.photos")], [location, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );

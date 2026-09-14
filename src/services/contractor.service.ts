@@ -477,8 +477,8 @@ export function readDeliveryNote(
 
 export async function createReceiptWithEvidence(payload: {
   receipt: MaterialReceiptPayload;
-  signature: File;
-  supplierSignature: File;
+  signature?: File;
+  supplierSignature?: File;
   deliveryNotePhoto?: File;
   sitePhotos: File[];
   deviceId: string;
@@ -489,8 +489,8 @@ export async function createReceiptWithEvidence(payload: {
       data.append(key, String(value));
     }
   }
-  data.append("signature", payload.signature);
-  data.append("supplier_signature", payload.supplierSignature);
+  if (payload.signature) data.append("signature", payload.signature);
+  if (payload.supplierSignature) data.append("supplier_signature", payload.supplierSignature);
   const photos = [
     ...payload.sitePhotos.map((file, index) => ({
       file,

@@ -48,6 +48,7 @@ import {
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -1290,15 +1291,13 @@ function TaskDialog({
     enabled: Boolean(form.project),
   });
   const categories = useQuery({
-    queryKey: ["project-categories", form.project, "task-options"],
-    // A field task's category is where its photographs file, so it offers
-    // site-record columns. The submission endpoint now refuses a material
-    // column (T-161), which would have made those options fail on save.
+    queryKey: ["project-categories", form.project, "task-options", form.task_type],
     queryFn: () =>
       getProjectCategories({
         project: form.project,
         page_size: 200,
-        kind: "FIELD",
+        kind: ({ PHOTO: "FIELD", MATERIAL: "MATERIAL", EQUIPMENT: "EQUIPMENT", PROGRESS: "PROGRESS", SAFETY: "EHS", WASTE: "CONSTRUCTION_WASTE", CONSULTANT: "FIELD", OTHER: "FIELD" } as const)[form.task_type] ?? "FIELD",
+        is_active: true,
       }),
     enabled: Boolean(form.project),
   });
@@ -1388,9 +1387,10 @@ function TaskDialog({
           <FieldWrapper label={t("field.taskType")} required>
             <Select
               value={form.task_type}
-              onValueChange={(v) =>
-                set("task_type", v as FieldTaskPayload["task_type"])
-              }
+              onValueChange={(v) => {
+                set("task_type", v as FieldTaskPayload["task_type"]);
+                set("category", null);
+              }}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -1413,17 +1413,16 @@ function TaskDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
-          <FieldWrapper label={t("field.category")}>
+          <FieldWrapper label={t("field.category")} required>
             <Select
-              value={form.category ?? "none"}
-              onValueChange={(v) => set("category", v === "none" ? null : v)}
+              value={form.category || undefined}
+              onValueChange={(v) => set("category", v)}
               disabled={!form.project}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">{t("field.noCategory")}</SelectItem>
                 {(categories.data?.results ?? [])
                   .filter((x) => x.is_active)
                   .map((item) => (
@@ -1541,6 +1540,7 @@ function TaskDialog({
             requires={[
               [form.project, t("field.project")],
               [form.title, t("field.title")],
+              [form.category, t("field.category")],
               [form.assigned_to, t("field.assignee")],
             ]}
             disabled={save.isPending}
@@ -2907,6 +2907,7 @@ function ProgressDialog({
   // F-282
   const [project, setProject] = useDraftState("project", initialProject);
   const [phase, setPhase] = useDraftState("phase", "");
+  const [category, setCategory] = useDraftState("category", "");
   const [percent, setPercent] = useDraftState("percent", "");
   const [description, setDescription] = useDraftState("description", "");
   const [photos, setPhotos] = useDraftState<File[]>("photos", []);
@@ -2934,6 +2935,7 @@ function ProgressDialog({
       if (!user) throw new Error("Authentication required.");
       return submitSiteProgressOfflineAware(user.id, {
         project,
+        category,
         phase,
         percent_complete: percent,
         description,
@@ -2976,10 +2978,12 @@ function ProgressDialog({
             onValueChange={(next) => {
               setProject(next);
               setPhase("");
+              setCategory("");
             }}
             placeholder={t("field.selectProject")}
           />
         </FieldWrapper>
+        <ProjectColumnPicker project={project} kind="PROGRESS" value={category} onChange={setCategory} />
         <FieldWrapper
           label={t("field.phase")}
           required
@@ -3068,6 +3072,7 @@ function ProgressDialog({
             requires={[
               [project, t("field.project")],
               [phase, t("field.phase")],
+              [category, t("field.category")],
               [percent, t("field.percentComplete")],
               [
                 submissionPhotos.length >=
@@ -3239,6 +3244,7 @@ function OutgoingDialog({
   const [project, setProject] = useDraftState("project", initialProject);
   const [form, setForm] = useDraftState("form", {
     material_name: "",
+    category: "",
     quantity: "",
     unit: "TONNE",
     destination: "",
@@ -3316,6 +3322,7 @@ function OutgoingDialog({
               placeholder={t("field.selectProject")}
             />
           </FieldWrapper>
+          <ProjectColumnPicker project={project} kind="MATERIAL" value={form.category} onChange={(value) => set("category", value)} className="sm:col-span-2" />
           <FieldWrapper label={t("field.material")} required>
             <Input
               value={form.material_name}
@@ -3428,6 +3435,7 @@ function OutgoingDialog({
             requires={[
               [project, t("field.project")],
               [form.material_name, t("field.material")],
+              [form.category, t("field.category")],
               [form.quantity, t("field.quantity")],
               [isFieldStaff || form.destination, t("field.destination")],
               [isFieldStaff || form.executor_name, t("field.executor")],

@@ -7307,12 +7307,13 @@
       "unit": "单位",
       "vehicle": "车牌",
       "column": "材料栏目",
+      "additionalDetails": "补充资料（选填）",
       "columnAuto": "将归入「{name}」。后台可以改。",
       "columnUnfiledNote": "暂未归类。后台查看后再归。",
       "noColumnsYet": "这个工地还没有材料栏目。在下面新增第一个。",
       "newColumnName": "新栏目名称",
       "addColumn": "新增栏目",
-      "columnOffline": "离线：没有网络时开不了新栏目。先把这批货收下（暂未归档），有网络再归。"
+      "columnOffline": "离线时请选择已有栏目，新增栏目需要网络连接。"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",

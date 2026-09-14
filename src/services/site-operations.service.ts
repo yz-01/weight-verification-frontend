@@ -195,16 +195,11 @@ export async function reviewSafetyRectification(
   payload: {
     decision: "VERIFIED" | "RETURNED";
     note: string;
-    image?: File;
-    latitude?: string;
-    longitude?: string;
-    accuracy_m?: string;
-    device_id?: string;
   },
 ): Promise<SafetyIncident> {
   const incident = await api.post<SafetyIncident>(
     `/api/safety-incidents/${id}/review_rectification/`,
-    multipart(payload as unknown as Record<string, unknown>),
+    payload,
   );
   toastSuccess("safetyRectification.toast.reviewed");
   return incident;

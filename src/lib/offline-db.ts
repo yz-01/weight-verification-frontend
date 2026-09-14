@@ -153,8 +153,8 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       location_accuracy_m?: string | null;
       ocr_proof?: string;
     };
-    signature: StoredFile;
-    supplierSignature: StoredFile;
+    signature?: StoredFile;
+    supplierSignature?: StoredFile;
     deliveryNotePhoto?: StoredFile;
     sitePhotos: StoredFile[];
     deviceId: string;
@@ -189,6 +189,7 @@ export interface SiteProgressOfflineJob extends OfflineJobBase {
   kind: "SITE_PROGRESS";
   payload: {
     project: string;
+    category: string;
     phase: string;
     percent_complete: string;
     description?: string;
@@ -205,6 +206,7 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   kind: "MATERIAL_OUTGOING";
   payload: {
     project: string;
+    category: string;
     material_name: string;
     quantity: string;
     unit: string;
@@ -244,6 +246,7 @@ export interface DisposalRequestOfflineJob extends OfflineJobBase {
   kind: "DISPOSAL_REQUEST";
   payload: {
     project: string;
+    category: string;
     waste_description: string;
     location_description: string;
     estimated_volume_m3?: string;
@@ -264,8 +267,7 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
   kind: "SAFETY_INCIDENT";
   payload: {
     project: string;
-    /** Optional since T-189: the field app no longer asks for a column. */
-    category?: string;
+    category: string;
     title: string;
     description: string;
     severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
@@ -283,6 +285,7 @@ export interface ConsultantSubmissionOfflineJob extends OfflineJobBase {
   kind: "CONSULTANT_SUBMISSION";
   payload: {
     project: string;
+    category: string;
     note?: string;
     application_category: string;
     description: string;

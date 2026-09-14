@@ -78,8 +78,8 @@ interface FieldTaskPhotoDraft {
 
 interface MaterialReceiptDraft {
   receipt: MaterialReceiptPayload;
-  signature: File;
-  supplierSignature: File;
+  signature?: File;
+  supplierSignature?: File;
   deliveryNotePhoto?: File;
   sitePhotos: File[];
   deviceId: string;
@@ -239,9 +239,10 @@ async function sendJob(job: OfflineJob): Promise<void> {
 
   if (job.kind === "MATERIAL_RECEIPT") {
     await createReceiptWithEvidence({
-      receipt: job.payload.receipt,
-      signature: restoreFile(job.payload.signature),
-      supplierSignature: restoreFile(job.payload.supplierSignature),
+      // Older queued jobs remain recoverable; the API reports a missing column.
+      receipt: { ...job.payload.receipt, category: job.payload.receipt.category ?? "" },
+      signature: job.payload.signature ? restoreFile(job.payload.signature) : undefined,
+      supplierSignature: job.payload.supplierSignature ? restoreFile(job.payload.supplierSignature) : undefined,
       deliveryNotePhoto: job.payload.deliveryNotePhoto
         ? restoreFile(job.payload.deliveryNotePhoto)
         : undefined,
@@ -618,8 +619,8 @@ export async function submitMaterialReceiptOfflineAware(
     lastError: "",
     payload: {
       receipt: draft.receipt,
-      signature: storeFile(draft.signature),
-      supplierSignature: storeFile(draft.supplierSignature),
+      signature: draft.signature ? storeFile(draft.signature) : undefined,
+      supplierSignature: draft.supplierSignature ? storeFile(draft.supplierSignature) : undefined,
       deliveryNotePhoto: draft.deliveryNotePhoto
         ? storeFile(draft.deliveryNotePhoto)
         : undefined,

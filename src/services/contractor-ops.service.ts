@@ -186,6 +186,7 @@ export const addFieldTaskPhoto = async (
 
 export async function createConsultantFieldSubmission(payload: {
   project: string;
+  category: string;
   note?: string;
   application_category: string;
   description: string;
@@ -384,7 +385,7 @@ export const getSiteProgressSummary = (project?: string) =>
     project ? { project } : undefined,
   );
 export async function createSiteProgressRecord(payload: {
-  project: string; phase: string; percent_complete: string; description?: string;
+  project: string; category: string; phase: string; percent_complete: string; description?: string;
   captured_at: string; latitude?: string; longitude?: string; client_event_id: string; photos: File[];
   field_task?: string;
 }) {
@@ -425,7 +426,7 @@ export const fileProgressRecord = async (
 export const getMaterialOutgoing = (query: ListQuery = {}): Promise<Paginated<MaterialOutgoing>> =>
   api.list<MaterialOutgoing>("/api/material-outgoing/get_records/", query);
 export async function createMaterialOutgoing(payload: {
-  project: string; material_name: string; quantity: string; unit: string; destination: string;
+  project: string; category: string; material_name: string; quantity: string; unit: string; destination: string;
   executor_name: string; vehicle_plate?: string; delivery_note_no?: string; reason: string;
   latitude?: string; longitude?: string; client_event_id?: string;
   field_task?: string;
@@ -462,6 +463,7 @@ export const getDisposalRequest = (id: string) =>
 
 export async function createDisposalRequest(payload: {
   project: string;
+  category: string;
   waste_description: string;
   location_description: string;
   estimated_volume_m3?: string;

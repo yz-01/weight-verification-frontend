@@ -44,6 +44,7 @@ import {
 } from "@/components/field-staff/field-evidence-grid";
 import { FieldWrapper } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { Safety } from "@/components/site-operations/safety";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -131,7 +132,8 @@ export function FieldRecordsPanel({
   onWorkflowSaved?: (mode: FieldRecordMode, result?: SafetyIncidentSubmission) => void;
 } = {}) {
   const t = useTranslations("fieldStaffPwa");
-  const { can } = useAuth();
+  const { can, user } = useAuth();
+  const boundProject = user?.is_field_staff ? user.active_project?.project_id : undefined;
   const [localMode, setLocalMode] = useState<FieldRecordMode | null>(initialMode);
   const mode = onModeChange ? initialMode : localMode;
   const options = RECORD_OPTIONS.filter((option) =>
@@ -146,13 +148,13 @@ export function FieldRecordsPanel({
   };
 
   if (mode === "material") {
-    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><FieldDraft scope={`material:${task?.id ?? "new"}`}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><FieldDraft scope={`material:${task?.id ?? "new"}`}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "equipment") {
-    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldDraft scope={`equipment:${task?.id ?? "new"}`}><SiteEquipmentWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldDraft scope={`equipment:${task?.id ?? "new"}`}><SiteEquipmentWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "progress") {
-    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "disposal") {
     if (
@@ -161,22 +163,22 @@ export function FieldRecordsPanel({
     ) {
       return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><InternalDisposalWorkspace disposalId={task.linked_record_id} onSubmitted={() => chooseMode(null)} /></RecordFrame>;
     }
-    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><FieldDraft scope={`disposal:${task?.id ?? "new"}`}><SiteDisposalWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><FieldDraft scope={`disposal:${task?.id ?? "new"}`}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "outgoing") {
-    return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><FieldDraft scope={`outgoing:${task?.id ?? "new"}`}><MaterialOutgoingWorkspace initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><FieldDraft scope={`outgoing:${task?.id ?? "new"}`}><MaterialOutgoingWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "waste") {
-    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><FieldDraft scope={`waste:${task?.id ?? "new"}`}><WasteOutgoingCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><FieldDraft scope={`waste:${task?.id ?? "new"}`}><WasteOutgoingCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "safety") {
-    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><FieldDraft scope={`safety:${task?.id ?? "new"}`}><Safety fieldMode initialProject={task?.project} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><FieldDraft scope={`safety:${task?.id ?? "new"}`}><Safety fieldMode initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></FieldDraft></RecordFrame>;
   }
   if (mode === "consultant") {
-    return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><FieldDraft scope={`consultant:${task?.id ?? "new"}`}><ConsultantCapturePanel initialProject={task?.project} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><FieldDraft scope={`consultant:${task?.id ?? "new"}`}><ConsultantCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "category") {
-    return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><FieldDraft scope={`category:${task?.id ?? "new"}`}><CategoryEvidenceCapture initialProject={task?.project} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><FieldDraft scope={`category:${task?.id ?? "new"}`}><CategoryEvidenceCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
 
   return (
@@ -235,14 +237,7 @@ function RecordFrame({
 interface MaterialDraft {
   project: string;
   supplier: string;
-  /**
-   * The material column this delivery files under, or "" for unfiled.
-   *
-   * Empty is a real answer, not a missing one: a receipt with no column is
-   * simply unfiled and can be filed later, which is why the picker below is
-   * not a required field. Before T-161 it was the only answer this screen
-   * could give - it never sent a column at all.
-   */
+  /** Required destination column for this submission. */
   category: string;
   movementType: "ENTRY" | "RETURN";
   returnReason: string;
@@ -256,13 +251,6 @@ interface MaterialDraft {
   deliveryNoteNo: string;
   notes: string;
 }
-
-/**
- * "No column chosen" as a Select value.
- *
- * A Radix `SelectItem` cannot carry an empty string, and unfiled is a real
- * choice here rather than the absence of one, so it needs a value of its own.
- */
 
 const EMPTY_MATERIAL: MaterialDraft = {
   project: "",
@@ -311,6 +299,7 @@ function MaterialCapturePanel({
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
   const [error, setError] = useState("");
   const initialScanRef = useRef("");
+  const ocrTargetRef = useRef<{ project: string; image: File } | null>(null);
   const completedMaterialEvidence = completedFieldEvidence(materialEvidence);
   const deliveryNote = materialEvidence[3];
   const sitePhotos = [
@@ -369,16 +358,6 @@ function MaterialCapturePanel({
     staleTime: 30_000,
   });
   const columnRows: ProjectCategory[] = columns.data?.results ?? [];
-  /**
-   * The column this delivery is going to, when the delivery note's reader
-   * found one.
-   *
-   * Shown rather than chosen (T-222, D-108). Nobody at the gate sorts a
-   * delivery into a column any more, but hiding where it went would trade one
-   * silent decision for another: a worker who can read "files under Concrete"
-   * can tell the office when it is wrong.
-   */
-  const filedColumn = columnRows.find((row) => row.id === draft.category);
   /** Open a column for this delivery, and select it. See `openColumn`. */
   const columnCreation = useMutation({
     mutationFn: ({ name }: { name: string; index?: number }) =>
@@ -447,7 +426,9 @@ function MaterialCapturePanel({
   const qrScan = useMutation({
     mutationFn: async (token: string) => {
       try {
-        return { kind: "DOCKET" as const, code: await scanQRCode(token) };
+        const code = await scanQRCode(token);
+        if (initialProject && code.project !== initialProject) throw new ApiError(t("material.qrInvalid"), 400);
+        return { kind: "DOCKET" as const, code };
       } catch (reason) {
         if (!(reason instanceof ApiError) || reason.status !== 404) throw reason;
         return { kind: "SUPPLIER" as const, supplier: await scanSupplierQr(token) };
@@ -486,7 +467,8 @@ function MaterialCapturePanel({
   const ocr = useMutation({
     mutationFn: ({ project, image }: { project: string; image: File }) =>
       readDeliveryNote(project, image),
-    onSuccess: (result) => {
+    onSuccess: (result, target) => {
+      if (ocrTargetRef.current !== target) return;
       setOcrProof(result.proof);
       const items = result.line_items ?? [];
       setOcrLineItems(items);
@@ -501,8 +483,11 @@ function MaterialCapturePanel({
           : t("material.ocrReady"),
       );
       const firstCategory = items[0]?.category_id ?? "";
+      const supplierName = result.suggestions.supplier_name?.trim().toLocaleLowerCase();
+      const matchedSupplier = (suppliers.data?.results ?? []).find((row) => row.is_active && row.name.trim().toLocaleLowerCase() === supplierName);
       setDraft((old) => ({
         ...old,
+        supplier: matchedSupplier?.id || old.supplier,
         deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,
         vehiclePlate: result.suggestions.vehicle_plate || old.vehiclePlate,
         // With a line-item table, prefill from its first row; otherwise fall
@@ -519,7 +504,8 @@ function MaterialCapturePanel({
         category: firstCategory || old.category,
       }));
     },
-    onError: (reason) => {
+    onError: (reason, target) => {
+      if (ocrTargetRef.current !== target) return;
       setOcrProof("");
       setOcrLineItems([]);
       setOcrMessage(
@@ -529,6 +515,7 @@ function MaterialCapturePanel({
   });
 
   function inspectDeliveryNote(image?: File) {
+    ocrTargetRef.current = null;
     setOcrProof("");
     setOcrMessage("");
     setOcrLineItems([]);
@@ -541,13 +528,15 @@ function MaterialCapturePanel({
       setOcrMessage(t("material.ocrOffline"));
       return;
     }
-    ocr.mutate({ project: draft.project, image });
+    const target = { project: draft.project, image };
+    ocrTargetRef.current = target;
+    ocr.mutate(target);
   }
 
 
   const save = useMutation({
     mutationFn: () => {
-      if (!user || !location || !receiverSignature || !supplierSignature) {
+      if (!user || !location) {
         throw new Error("missing_evidence");
       }
       const eventId = crypto.randomUUID();
@@ -568,10 +557,7 @@ function MaterialCapturePanel({
           quantity: draft.quantity,
           unit: draft.unit,
           total_weight_kg: draft.totalWeightKg || null,
-          // Null rather than "" when nothing is chosen: the serializer reads
-          // an empty string as an invalid id, while null is the "unfiled"
-          // the receipt model documents.
-          category: draft.category || null,
+          category: draft.category,
           vehicle_plate: draft.vehiclePlate.trim(),
           delivery_note_no: draft.deliveryNoteNo.trim(),
           notes: draft.notes.trim(),
@@ -597,7 +583,7 @@ function MaterialCapturePanel({
       onSaved();
     },
     onError: (reason) => setError(
-      reason instanceof ApiError ? reason.message : t("error.action"),
+      reason instanceof ApiError ? Object.values(reason.errors).join("; ") || reason.message : t("error.action"),
     ),
   });
 
@@ -616,6 +602,7 @@ function MaterialCapturePanel({
         <ProjectPicker
           value={draft.project}
           onValueChange={(project) => {
+            ocrTargetRef.current = null;
             setScannedQr(undefined);
             setOcrProof("");
             setOcrLineItems([]);
@@ -635,6 +622,43 @@ function MaterialCapturePanel({
           disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
+      <FieldWrapper label={t("material.column")} required>
+        <Select value={draft.category || undefined} onValueChange={(category) => setDraft((old) => ({ ...old, category }))} disabled={!draft.project || columns.isLoading}>
+          <SelectTrigger className="w-full"><SelectValue placeholder={t("material.column")} /></SelectTrigger>
+          <SelectContent>{columnRows.filter((row) => row.can_upload).map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
+        </Select>
+        {draft.project && !columns.isLoading && !columnRows.length && <p className="text-sm text-muted-foreground">{t("material.noColumnsYet")}</p>}
+        <details className="mt-2">
+          <summary className="cursor-pointer text-xs text-muted-foreground">{t("material.addColumn")}</summary>
+          <div className="mt-2 flex gap-2">
+            <Input value={newColumnName} onChange={(event) => setNewColumnName(event.target.value)} placeholder={t("material.newColumnName")} />
+            <Button variant="outline" requires={[[draft.project, t("material.project")], [newColumnName.trim(), t("material.newColumnName")]]} disabled={columnCreation.isPending} onClick={() => openColumn(newColumnName.trim())}><Plus />{t("material.addColumn")}</Button>
+          </div>
+          {columnError && <p role="alert" className="text-sm text-destructive">{columnError}</p>}
+        </details>
+      </FieldWrapper>
+      <FieldWrapper label={t("materialEvidence.title")} required>
+        <FieldEvidenceGrid
+          labels={materialEvidenceLabels}
+          files={materialEvidence}
+          progressLabel={t("evidenceProgress", {
+            current: completedMaterialEvidence.length,
+            required: FIELD_EVIDENCE_PHOTO_COUNT,
+          })}
+          onChange={(next) => {
+            const nextDeliveryNote = next[3];
+            setMaterialEvidence(next);
+            if (nextDeliveryNote !== deliveryNote) {
+              inspectDeliveryNote(nextDeliveryNote);
+            }
+          }}
+        />
+      </FieldWrapper>
+      {(ocr.isPending || ocrMessage) && (
+        <p className={`rounded-lg px-3 py-2 text-sm ${ocrProof ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
+          {ocr.isPending ? t("material.ocrReading") : ocrMessage}
+        </p>
+      )}
       <FieldWrapper label={t("material.supplier")} required>
         <Select
           value={draft.supplier || undefined}
@@ -713,89 +737,7 @@ function MaterialCapturePanel({
         </div>
       ) : null}
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
-      <FieldWrapper label={t("material.specification")} required><Input className="h-12" value={draft.materialSpecification} onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
-      <FieldWrapper label={t("material.totalWeightKg")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.totalWeightKg} onChange={(event) => setDraft((old) => ({ ...old, totalWeightKg: event.target.value }))} /></FieldWrapper>
-      {/* Where this delivery files, and a way to open a column for a
-          material nobody has one for. No picker: 客户「现场工作人员不需要选择
-          栏目，会跟着对应项目自动归档」, and 「先进『未归类』，后台看的时候再归」
-          (D-108, T-222). The office does the filing, and it already has the
-          screen for it - `refile_receipt` and the material columns page.
-
-          What is left is the F-200 escape hatch, not a choice: a delivery of
-          something no column exists for anywhere. Whether the gate should
-          keep even that is U-038, the one thing here the customer's words do
-          not settle - so it stays until he says, rather than being removed on
-          my reading and taking a tested endpoint's only screen with it. */}
-      <FieldWrapper label={t("material.column")}>
-        <p className="text-sm text-muted-foreground">
-          {filedColumn
-            ? t("material.columnAuto", { name: filedColumn.name })
-            : t("material.columnUnfiledNote")}
-        </p>
-        {draft.project && !columns.isLoading && !columnRows.length && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            {t("material.noColumnsYet")}
-          </p>
-        )}
-        <div className="mt-2 flex gap-2">
-          <Input
-            className="h-12"
-            value={newColumnName}
-            disabled={!draft.project}
-            onChange={(event) => setNewColumnName(event.target.value)}
-            placeholder={t("material.newColumnName")}
-          />
-          <Button
-            className="h-12 shrink-0"
-            variant="outline"
-            requires={[
-              [draft.project, t("material.project")],
-              [newColumnName.trim(), t("material.newColumnName")],
-            ]}
-            disabled={columnCreation.isPending}
-            onClick={() => openColumn(newColumnName.trim())}
-          >
-            {columnCreation.isPending ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Plus />
-            )}
-            {t("material.addColumn")}
-          </Button>
-        </div>
-        {columnError && (
-          <p role="alert" className="mt-2 text-xs text-destructive">
-            {columnError}
-          </p>
-        )}
-      </FieldWrapper>
-      <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
-        <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
-      </div>
-      <FieldWrapper label={t("materialEvidence.title")} required>
-        <FieldEvidenceGrid
-          labels={materialEvidenceLabels}
-          files={materialEvidence}
-          progressLabel={t("evidenceProgress", {
-            current: completedMaterialEvidence.length,
-            required: FIELD_EVIDENCE_PHOTO_COUNT,
-          })}
-          onChange={(next) => {
-            const nextDeliveryNote = next[3];
-            setMaterialEvidence(next);
-            if (nextDeliveryNote !== deliveryNote) {
-              inspectDeliveryNote(nextDeliveryNote);
-            }
-          }}
-        />
-      </FieldWrapper>
-      {(ocr.isPending || ocrMessage) && (
-        <p className={`rounded-lg px-3 py-2 text-sm ${ocrProof ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
-          {ocr.isPending ? t("material.ocrReading") : ocrMessage}
-        </p>
-      )}
       {ocrLineItems.length > 0 && (
         <div className="rounded-lg border">
           <div className="border-b bg-muted/40 px-3 py-2">
@@ -860,10 +802,6 @@ function MaterialCapturePanel({
                   </Select>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* The line's column, as the reader placed it - not a
-                      choice, for the same reason as the field above (D-108).
-                      Still shown: the worker is the one who can see that the
-                      reader put cement under steel. */}
                   <p className="flex-1 text-xs text-muted-foreground">
                     {item.category_name || t("material.ocrItems.unclassified")}
                   </p>
@@ -902,10 +840,21 @@ function MaterialCapturePanel({
           </ul>
         </div>
       )}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} required value={receiverSignature} onChange={setReceiverSignature} />
-        <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} required value={supplierSignature} onChange={setSupplierSignature} />
+      <details className="border-y py-3">
+        <summary className="cursor-pointer text-sm font-medium">{t("material.additionalDetails")}</summary>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <FieldWrapper label={t("material.specification")}><Input className="h-12" value={draft.materialSpecification} onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))} /></FieldWrapper>
+      <FieldWrapper label={t("material.totalWeightKg")}><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.totalWeightKg} onChange={(event) => setDraft((old) => ({ ...old, totalWeightKg: event.target.value }))} /></FieldWrapper>
+        </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
+        <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
       </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} value={receiverSignature} onChange={setReceiverSignature} />
+        <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} value={supplierSignature} onChange={setSupplierSignature} />
+      </div>
+      </details>
       <LocationField
         label={t("material.location")}
         actionLabel={t("attendance.getLocation")}
@@ -916,7 +865,7 @@ function MaterialCapturePanel({
       />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [draft.materialSpecification, t("material.specification")], [Number(draft.quantity) > 0, t("material.quantity")], [Number(draft.totalWeightKg) > 0, t("material.totalWeightKg")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [receiverSignature, t("material.receiverSignature")], [supplierSignature, t("material.supplierSignature")], [location, t("material.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {t("material.submit")}
       </Button>
@@ -947,6 +896,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
   const [project, setProject] = useDraftState("project", initialProject);
   const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
   const [category, setCategory] = useDraftState("category", "RFI");
+  const [column, setColumn] = useDraftState("column", "");
   const [note, setNote] = useDraftState("note", "");
   const clearDraft = useClearDraft();
   // Deliberately *not* saved. A restored draft submitted the next day would
@@ -970,6 +920,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
       if (!user || !location) throw new Error("missing_evidence");
       return submitConsultantSubmissionOfflineAware(user.id, {
         project,
+        category: column,
         note: note.trim(),
         application_category: category,
         description: note.trim(),
@@ -1000,11 +951,13 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
       <FieldWrapper label={t("consultantCapture.project")} required>
         <ProjectPicker
           value={project}
-          onValueChange={setProject}
+          onValueChange={(next) => { setProject(next); setColumn(""); }}
           placeholder={t("consultantCapture.chooseProject")}
           className="h-12 w-full"
+          disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
+      <ProjectColumnPicker project={project} kind="FIELD" value={column} onChange={setColumn} />
       <FieldWrapper label={t("consultantCapture.category")} required>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
@@ -1049,6 +1002,7 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
         requires={[
           [project, t("consultantCapture.project")],
           [category, t("consultantCapture.category")],
+          [column, t("material.column")],
           [hasRequiredFieldEvidence(evidence), t("consultantEvidence.title")],
           [location, t("consultantEvidence.location")],
         ]}
@@ -1142,7 +1096,7 @@ function WasteOutgoingCapturePanel({
       <FieldWrapper label={t("field.project")} required>
         <ProjectPicker
           value={project}
-          onValueChange={setProject}
+          onValueChange={(next) => { setProject(next); setCategory(""); }}
           placeholder={t("filter.selectProject")}
           className="w-full"
           disabled={Boolean(initialProject)}

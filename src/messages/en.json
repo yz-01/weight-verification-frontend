@@ -7307,12 +7307,13 @@
       "unit": "Unit",
       "vehicle": "Vehicle plate",
       "column": "Material column",
+      "additionalDetails": "Additional details (optional)",
       "columnAuto": "Files under {name}. The office can change it.",
       "columnUnfiledNote": "Not filed yet. The office files it after checking.",
       "noColumnsYet": "This site has no material columns yet. Add the first one below.",
       "newColumnName": "New column name",
       "addColumn": "Add column",
-      "columnOffline": "Offline: a column cannot be opened until there is a connection. Take the delivery unfiled and file it later."
+      "columnOffline": "Offline: choose an existing column. A new column needs a connection."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",

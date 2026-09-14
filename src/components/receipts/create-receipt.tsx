@@ -22,6 +22,7 @@ import {
   required,
 } from "@/components/shared/form-shell";
 import { ReadField } from "@/components/shared/page-primitives";
+import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { ApiError } from "@/interfaces/api";
 import {
   MATERIAL_UNITS,
@@ -100,6 +101,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
   const form = useForm({
     defaultValues: {
       project: receipt?.project ?? "",
+      category: receipt?.category ?? "",
       supplier: receipt?.supplier ?? "",
       material_name: receipt?.material_name ?? "",
       material_specification: receipt?.material_specification ?? "",
@@ -123,12 +125,13 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
         material_specification: value.material_specification,
         quantity: value.quantity,
         unit: value.unit,
-        total_weight_kg: value.total_weight_kg,
+        total_weight_kg: value.total_weight_kg || null,
         unit_price: value.unit_price || null,
         vehicle_plate: value.vehicle_plate,
         delivery_note_no: value.delivery_note_no,
         notes: value.notes,
         received_by_name: value.received_by_name,
+        category: value.category,
       };
 
       try {
@@ -221,6 +224,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
           <>
             <form.Field
               name="project"
+              listeners={{ onChange: () => form.setFieldValue("category", "") }}
               validators={{ onSubmit: required(t("validation.required")) }}
             >
               {(field) => (
@@ -252,8 +256,16 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
                 />
               )}
             </form.Field>
+
           </>
         )}
+        <form.Subscribe selector={(state) => state.values.project}>
+          {(project) => (
+            <form.Field name="category" validators={{ onSubmit: required(t("validation.required")) }}>
+              {(field) => <ProjectColumnPicker project={project} kind="MATERIAL" value={field.state.value} onChange={field.handleChange} />}
+            </form.Field>
+          )}
+        </form.Subscribe>
       </FormSection>
 
       {isEdit && (
@@ -293,15 +305,12 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
           )}
         </form.Field>
 
-        <form.Field
-          name="material_specification"
-          validators={{ onSubmit: required(t("validation.required")) }}
-        >
+        <form.Field name="material_specification">
           {(field) => (
             <TextField
               field={field as unknown as BoundField}
               label={t("receipts.field.materialSpecification")}
-              required
+              optional
               className="md:col-span-2"
             />
           )}
@@ -335,16 +344,13 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
           )}
         </form.Field>
 
-        <form.Field
-          name="total_weight_kg"
-          validators={{ onSubmit: required(t("validation.required")) }}
-        >
+        <form.Field name="total_weight_kg">
           {(field) => (
             <TextField
               field={field as unknown as BoundField}
               label={t("receipts.field.totalWeightKg")}
               type="number"
-              required
+              optional
             />
           )}
         </form.Field>
