@@ -6,7 +6,7 @@ name: CI
 # missing translation before the deployment is attempted.
 on:
   push:
-    branches: [Lucas, develop, deploy]
+    branches: [Lucas, develop, deploy] 
   pull_request:
 
 jobs:
