@@ -24,6 +24,7 @@ import type {
   WorkflowReviewerKind,
   WorkflowReviewerChoices,
 } from "@/interfaces/consultant-workflow";
+import type { DocumentRecord } from "@/interfaces/document-workflow";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 export const getApplicationOptions = (
@@ -331,12 +332,33 @@ export const addApplicationAttachment = async (
 
 export const getApplicationEvidenceCandidates = (
   project: string,
-  filters: { search?: string; date_from?: string; date_to?: string; kind?: string } = {},
+  filters: { search?: string; date_from?: string; date_to?: string; kind?: string; category?: string; subcategory?: string; uploader?: string } = {},
 ) =>
   api.list<EvidenceCandidate>(
     "/api/consultant-applications/get_evidence_candidates/",
     { project, page_size: 500, ...filters },
   );
+
+export const getApplicationDocumentCandidates = (project: string, search?: string) =>
+  api.list<DocumentRecord>("/api/documents/get_documents/", {
+    project,
+    search: search || undefined,
+    page_size: 100,
+  });
+
+export const linkApplicationDocumentAttachment = async (
+  id: string,
+  version: string,
+  category?: string,
+  note?: string,
+) => {
+  const row = await api.post<ConsultantApplication>(
+    `/api/consultant-applications/${id}/link_document_attachment/`,
+    { version, category, note },
+  );
+  toastSuccess("consultantWorkflow.toast.attachmentAdded");
+  return row;
+};
 
 export const linkApplicationEvidence = async (
   id: string,

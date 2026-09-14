@@ -421,6 +421,16 @@ export interface EvidenceCandidate {
   project_name?: string | null;
   metadata?: Record<string, unknown>;
   watermark_text?: string;
+  record_key: string;
+  record_type: string;
+  record_type_label: string;
+  record_id: string;
+  record_reference: string;
+  record_title: string;
+  record_date: string | null;
+  record_uploader: string | null;
+  category: string;
+  subcategory: string;
 }
 
 export interface ConsultantApplicationPayload {
