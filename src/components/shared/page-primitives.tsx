@@ -171,12 +171,13 @@ export function ReadField({
   value: React.ReactNode;
   className?: string;
 }) {
+  const surface = useFormSurface();
   const isEmpty =
     value === null || value === undefined || value === "" || value === "—";
   return (
     <div className={cn("space-y-1.5", className)}>
       <Label className="text-sm font-medium">{label}</Label>
-      <div className="flex min-h-[2.5rem] items-center rounded-md border border-input bg-muted/40 px-3 py-2 text-sm">
+      <div className={cn("flex items-center rounded-md border border-input bg-muted/40 px-3 text-sm", surface === "dialog" ? "min-h-9 py-1.5" : "min-h-[2.5rem] py-2")}>
         {isEmpty ? (
           <span className="italic text-muted-foreground">—</span>
         ) : (

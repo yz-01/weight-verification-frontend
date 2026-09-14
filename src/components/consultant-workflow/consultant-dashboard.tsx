@@ -96,34 +96,42 @@ export function ConsultantDashboard() {
         picker and a search box that fit beside each other on any laptop. They
         stack again below `sm`, where they genuinely do not.
       */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <ConsultantProjectPicker
-        value={project}
-        onChange={setProject}
-        allowAll
-      />
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="min-w-0 shrink-0 sm:w-80">
+          <ConsultantProjectPicker
+            value={project}
+            onChange={setProject}
+            allowAll
+          />
+        </div>
 
-      <form
-        className="flex w-full max-w-2xl gap-2"
-        onSubmit={(event) => {
-          event.preventDefault();
-          const term = search.trim();
-          if (term.length >= 2) {
-            router.push(`/consultant-applications?search=${encodeURIComponent(term)}`);
-          }
-        }}
-      >
-        <Input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder={t("searchPlaceholder")}
-          aria-label={t("search")}
-        />
-        <Button type="submit" variant="outline" disabledReason={search.trim().length < 2 ? common("searchMinLength", { count: 2 }) : undefined}
-                                                disabled={search.trim().length < 2}>
-          <Search />{t("search")}
-        </Button>
-      </form>
+        <form
+          className="flex min-w-0 flex-1 gap-2 sm:max-w-2xl"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const term = search.trim();
+            if (term.length >= 2) {
+              router.push(`/consultant-applications?search=${encodeURIComponent(term)}`);
+            }
+          }}
+        >
+          <Input
+            className="min-w-0 flex-1"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={t("searchPlaceholder")}
+            aria-label={t("search")}
+          />
+          <Button
+            className="shrink-0"
+            type="submit"
+            variant="outline"
+            disabledReason={search.trim().length < 2 ? common("searchMinLength", { count: 2 }) : undefined}
+            disabled={search.trim().length < 2}
+          >
+            <Search />{t("search")}
+          </Button>
+        </form>
       </div>
 
       {!data ? (

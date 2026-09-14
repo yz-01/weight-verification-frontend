@@ -62,6 +62,7 @@ export interface DocumentRecord {
   archived_by: string | null;
   archive_reason: string;
   created_by: string | null;
+  created_by_name: string | null;
   created_at: string;
   updated_at: string;
 }

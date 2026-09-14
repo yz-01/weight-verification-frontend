@@ -296,6 +296,7 @@ export interface MaterialReceipt {
   material_name: string;
   material_specification: string;
   quantity: string;
+  cumulative_quantity?: string;
   unit: MaterialUnit;
   total_weight_kg: string | null;
   unit_price: string | null;
@@ -522,6 +523,7 @@ export interface ReceiptSummary {
     material_name: string;
     unit: MaterialUnit;
     quantity: string;
+    cumulative_quantity?: string;
     receipts: number;
     total_cost: string | null;
     unpriced_receipts: number;

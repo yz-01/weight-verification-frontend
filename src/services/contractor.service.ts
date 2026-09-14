@@ -50,12 +50,20 @@ export interface ExportColumn {
 
 export type ExportFormat = "xlsx" | "pdf";
 
+export interface ExportSummary {
+  groupBy: "unit";
+  title: string;
+  unitLabel: string;
+  quantityLabel: string;
+}
+
 export interface ExportRequest {
   format: ExportFormat;
   title: string;
   subtitle?: string;
   columns: ExportColumn[];
   emptyLabel?: string;
+  summary?: ExportSummary;
   /** The list query on screen, so the file matches what was being looked at. */
   query: ListQuery;
 }
@@ -67,6 +75,16 @@ function exportBody(request: ExportRequest) {
     subtitle: request.subtitle ?? "",
     empty_label: request.emptyLabel ?? "",
     columns: request.columns,
+    ...(request.summary
+      ? {
+          summary: {
+            group_by: request.summary.groupBy,
+            title: request.summary.title,
+            unit_label: request.summary.unitLabel,
+            quantity_label: request.summary.quantityLabel,
+          },
+        }
+      : {}),
   };
 }
 

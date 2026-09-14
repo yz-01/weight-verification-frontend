@@ -2963,7 +2963,7 @@
       "archived": "Archived"
     },
     "subtitle": "Everything finished, waiting for you to look at it.",
-    "title": "Archive queue",
+    "title": "All records",
     "toast": {
       "archived": "Archived for you."
     }
@@ -4532,6 +4532,9 @@
       "help": "Upload a checklist, drawing, report or certificate before submitting.",
       "note": "Note",
       "other": "Other attachment",
+      "fromArchive": "Choose from Document Archival",
+      "searchArchive": "Search archived documents",
+      "noArchive": "No matching archived document with a file.",
       "required": "Required",
       "title": "Add application attachment"
     },
@@ -4545,7 +4548,8 @@
       "SURVEY_REPORT": "Survey report"
     },
     "common": {
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "emptyValue": "—"
     },
     "credential": {
       "currentPassword": "Current login password",
@@ -4615,7 +4619,17 @@
     },
     "evidence": {
       "selectPhotos": "Photos to link",
+      "selectRecord": "Select this complete record",
       "caption": "Caption",
+      "category": "Category",
+      "subcategory": "Subcategory",
+      "uploader": "Uploaded by",
+      "watermarked": "Watermarked",
+      "gps": "GPS",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "recordPhotos": "photos/files",
+      "searchPlaceholder": "Search filename, record, uploader or note",
       "empty": "No site evidence has been linked.",
       "help": "Use an existing, immutable site photograph. The original file is not uploaded twice.",
       "link": "Link evidence",
@@ -6186,6 +6200,9 @@
   "documents": {
     "downloading": "Downloading",
     "allCategories": "All categories",
+    "allProjects": "All projects",
+    "allSubcategories": "All subcategories",
+    "allUploaders": "All uploaders",
     "archive": {
       "action": "Archive",
       "confirm": "Archive document",
@@ -6218,6 +6235,8 @@
       "category": "Category",
       "code": "Code",
       "createdAt": "Created",
+      "dateFrom": "Created from",
+      "dateTo": "Created to",
       "description": "Description",
       "file": "File",
       "keywords": "Keywords",
@@ -6790,7 +6809,8 @@
       "action": {
         "REPLACE": "Replace",
         "RESTORE": "Restore",
-        "HIDE": "Hide"
+        "HIDE": "Hide",
+        "CORRECT": "Correct"
       },
       "field": {
         "replacementHint": "Leave empty to hide the original without putting anything in its place.",
@@ -8882,7 +8902,7 @@
     "platform_monitoring": "Platform Monitoring",
     "platform_settings": "System Settings",
     "progress": "Progress updates",
-    "project_categories": "Site record categories",
+    "project_categories": "Site records",
     "projects": "Projects",
     "qr_code_management": "QR Codes",
     "receipts": "Material receipts",
@@ -8910,7 +8930,7 @@
       "apiGatewaySettings": "API Gateway settings",
       "approvalCredentials": "Approval credentials",
       "approvals": "Approval records",
-      "archiveQueue": "Archive queue",
+      "archiveQueue": "All records",
       "assetActivity": "Asset records",
       "assetAssignments": "Assignment and borrowing",
       "assetCategories": "Asset categories",
@@ -9060,7 +9080,7 @@
       "platformCommission": "Platform commission",
       "platformJobs": "Scheduled jobs",
       "progressRecords": "Progress records",
-      "projectCategories": "Site record categories",
+      "projectCategories": "Site records",
       "projectRecords": "Project records",
       "qrActivity": "QR activity",
       "qrAnomalies": "QR anomalies",
@@ -10431,6 +10451,7 @@
       "title": "Why this correction"
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
+    "totalByUnit": "Totals by unit",
     "createTitle": "Record a delivery",
     "doPanelField": "Field",
     "doPanelLineItems": "Lines on the document",
@@ -10451,6 +10472,7 @@
     "field": {
       "category": "Column",
       "capturedAt": "Recorded",
+      "cumulativeQuantity": "Cumulative quantity",
       "deliveryNoteNo": "Delivery note no.",
       "location": "Location",
       "materialName": "Material",

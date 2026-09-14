@@ -149,6 +149,7 @@ export interface ApplicationAttachment {
   id: string;
   category: string;
   file: string;
+  watermarked_file?: string | null;
   original_name: string;
   content_type: string;
   byte_size: number;
@@ -407,6 +408,7 @@ export interface EvidenceCandidate {
   id: string;
   kind: string;
   file: string;
+  watermarked_file?: string | null;
   original_filename: string;
   captured_at: string;
   latitude: string | null;
@@ -415,6 +417,20 @@ export interface EvidenceCandidate {
   sha256: string;
   source_model: string;
   source_id: string;
+  field_name?: string;
+  project_name?: string | null;
+  metadata?: Record<string, unknown>;
+  watermark_text?: string;
+  record_key: string;
+  record_type: string;
+  record_type_label: string;
+  record_id: string;
+  record_reference: string;
+  record_title: string;
+  record_date: string | null;
+  record_uploader: string | null;
+  category: string;
+  subcategory: string;
 }
 
 export interface ConsultantApplicationPayload {

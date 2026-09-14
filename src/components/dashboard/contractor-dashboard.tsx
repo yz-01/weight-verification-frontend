@@ -7,7 +7,6 @@ import {
   CalendarRange,
   CalendarCheck,
   ClipboardList,
-  Camera,
   ClipboardCheck,
   Download,
   FilePlus2,
@@ -16,7 +15,6 @@ import {
   HardHat,
   Inbox,
   LogOut,
-  MapPin,
   PackageCheck,
   Plus,
   Search,
@@ -25,7 +23,6 @@ import {
   Undo2,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -384,12 +381,6 @@ export function ContractorDashboard() {
                   href="/safety"
                   tone={data.overview.today.safety_incidents > 0 ? "warning" : undefined}
                 />
-                <Metric
-                  label={t("overview.photos")}
-                  value={data.overview.today.photos}
-                  icon={Camera}
-                  href="/evidence"
-                />
                 {/* Small cards, as asked, rather than another section. Each
                     one links to the list it counted - a number you cannot
                     click through to is how F-220 happened. */}
@@ -613,66 +604,6 @@ export function ContractorDashboard() {
                       <span className="shrink-0 text-sm font-semibold tabular-nums">
                         {format.number(row.events)}
                       </span>
-                    </li>
-                  ))}
-                </ul>
-              </Block>
-            )}
-
-            {data.photos && (
-              <Block
-                title={t("photos.title")}
-                subtitle={t("photos.subtitle", { count: data.photos.total })}
-                empty={data.photos.rows.length === 0}
-                emptyLabel={t("photos.empty")}
-              >
-                <ul className="divide-y">
-                  {data.photos.rows.map((row) => (
-                    <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
-                      <div className="flex min-w-0 items-start gap-3">
-                        {row.image ? (
-                          <a
-                            href={row.image}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="relative size-16 shrink-0 overflow-hidden rounded-md border bg-muted"
-                          >
-                            <Image
-                              src={row.image}
-                              alt={row.project || t("photos.noProject")}
-                              fill
-                              sizes="64px"
-                              className="object-cover"
-                              unoptimized
-                            />
-                          </a>
-                        ) : (
-                          <div className="grid size-16 shrink-0 place-items-center rounded-md border bg-muted text-muted-foreground">
-                            <Camera className="size-5" />
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">
-                          {row.project || t("photos.noProject")}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {row.photographer || t("photos.unknownPhotographer")} ·{" "}
-                          {row.source_model}
-                        </p>
-                        </div>
-                      </div>
-                      <div className="shrink-0 text-right text-xs text-muted-foreground">
-                        <p>{df.dateTime(row.captured_at)}</p>
-                        {row.latitude && row.longitude ? (
-                          <p className="flex items-center justify-end gap-1">
-                            <MapPin className="size-3" />
-                            {Number(row.latitude).toFixed(4)},{" "}
-                            {Number(row.longitude).toFixed(4)}
-                          </p>
-                        ) : (
-                          <p>{t("photos.noGps")}</p>
-                        )}
-                      </div>
                     </li>
                   ))}
                 </ul>

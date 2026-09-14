@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
   CircleDashed,
   ClipboardCheck,
   Download,
@@ -57,6 +59,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type {
   ApplicationReviewStep,
   ConsultantApplication,
+  EvidenceCandidate,
   RemedialItem,
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
@@ -69,6 +72,8 @@ import {
   downloadApplicationFinalReport,
   retryApplicationFinalReport,
   getApplicationEvidenceCandidates,
+  getApplicationDocumentCandidates,
+  linkApplicationDocumentAttachment,
   getApprovalCredential,
   getConsultantApplication,
   linkApplicationEvidence,
@@ -915,20 +920,56 @@ function AttachmentDialog({ application, onClose, onSaved }: { application: Cons
   const [file, setFile] = useState<File | null>(null);
   const [category, setCategory] = useState("OTHER");
   const [note, setNote] = useState("");
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [librarySearch, setLibrarySearch] = useState("");
+  const documents = useQuery({ queryKey: ["application-document-candidates", application.project, librarySearch], queryFn: () => getApplicationDocumentCandidates(application.project, librarySearch || undefined), enabled: libraryOpen });
   const save = useMutation({ mutationFn: () => addApplicationAttachment(application.id, file as File, category, note), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{["CHECKLIST", "IFC_DRAWING", "SURVEY_REPORT", "MATERIAL_TEST", "CALIBRATION", "ITP", "OTHER"].map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
+  const link = useMutation({ mutationFn: (version: string) => linkApplicationDocumentAttachment(application.id, version, category, note), onSuccess: onSaved });
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><Button type="button" variant="outline" onClick={() => setLibraryOpen((value) => !value)}><ClipboardCheck />{t("attachment.fromArchive")}</Button>{libraryOpen && <div className="space-y-2 rounded-lg border p-3"><Input placeholder={t("attachment.searchArchive")} value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} />{documents.isLoading ? <Loader2 className="animate-spin" /> : <div className="max-h-56 space-y-2 overflow-y-auto">{(documents.data?.results ?? []).filter((doc) => doc.latest_version).map((doc) => <button type="button" key={doc.id} className="flex w-full items-center justify-between rounded border p-2 text-left hover:bg-muted/30" onClick={() => doc.latest_version && link.mutate(doc.latest_version.id)} disabled={link.isPending}><span className="min-w-0"><span className="block truncate font-medium">{doc.document_no} · {doc.title}</span><span className="block truncate text-xs text-muted-foreground">{doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""} · {doc.latest_version?.original_name}</span></span><ExternalLink className="size-4 shrink-0" /></button>)}{!documents.data?.results?.length && <Empty text={t("attachment.noArchive")} />}</div>}</div>}<FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{["CHECKLIST", "IFC_DRAWING", "SURVEY_REPORT", "MATERIAL_TEST", "CALIBRATION", "ITP", "OTHER"].map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function EvidenceDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("consultantWorkflow");
   const [selected, setSelected] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
-  const rows = useQuery({ queryKey: ["application-evidence-candidates", application.project], queryFn: () => getApplicationEvidenceCandidates(application.project) });
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [category, setCategory] = useState("");
+  const [subcategory, setSubcategory] = useState("");
+  const [uploader, setUploader] = useState("");
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const rows = useQuery({
+    queryKey: ["application-evidence-candidates", application.project, search, dateFrom, dateTo, category, subcategory, uploader],
+    queryFn: () => getApplicationEvidenceCandidates(application.project, {
+      search: search || undefined,
+      date_from: dateFrom || undefined,
+      date_to: dateTo || undefined,
+      category: category || undefined,
+      subcategory: subcategory || undefined,
+      uploader: uploader || undefined,
+    }),
+  });
   const linkedIds = useMemo(() => new Set(application.evidence_links.map((link) => link.evidence)), [application.evidence_links]);
   const candidates = (rows.data?.results ?? []).filter((row) => !linkedIds.has(row.id));
+  const groups = useMemo(() => {
+    const grouped = new Map<string, { key: string; rows: EvidenceCandidate[] }>();
+    for (const row of candidates) {
+      const key = row.record_key || `${row.source_model}:${row.source_id}`;
+      const existing = grouped.get(key);
+      if (existing) existing.rows.push(row);
+      else grouped.set(key, { key, rows: [row] });
+    }
+    return Array.from(grouped.values());
+  }, [candidates]);
   const save = useMutation({ mutationFn: () => linkApplicationEvidence(application.id, selected, caption), onSuccess: onSaved });
   const toggle = (id: string) => setSelected((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : <div className="space-y-4"><div className="grid max-h-[56dvh] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">{candidates.map((row) => { const checked = selected.includes(row.id); return <button type="button" key={row.id} onClick={() => toggle(row.id)} className={`overflow-hidden rounded-lg border text-left transition-colors ${checked ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/40"}`}><div className="relative aspect-[4/3] bg-muted"><Image src={row.file} alt={row.original_filename} fill unoptimized className="object-cover" /><span className="absolute left-2 top-2 grid size-7 place-items-center rounded-md bg-background/90 shadow-sm"><Checkbox checked={checked} tabIndex={-1} aria-hidden /></span></div><div className="p-2.5"><p className="truncate text-sm font-medium">{row.original_filename}</p><p className="mt-1 truncate text-xs text-muted-foreground">{row.photographer_name || t("common.unknown")}</p><p className="truncate text-xs text-muted-foreground">{new Date(row.captured_at).toLocaleString()}</p></div></button>; })}{!candidates.length && <div className="col-span-full"><Empty text={t("evidence.noCandidates")} /></div>}</div><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[selected.length, t("evidence.selectPhotos")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
+  const toggleGroup = (group: (typeof groups)[number]) => {
+    const ids = group.rows.map((row) => row.id);
+    const allSelected = ids.every((id) => selected.includes(id));
+    setSelected((current) => allSelected ? current.filter((id) => !ids.includes(id)) : Array.from(new Set([...current, ...ids])));
+  };
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-6xl"><DialogHeader><DialogTitle>{t("evidence.title")}</DialogTitle><DialogDescription>{t("evidence.help")}</DialogDescription></DialogHeader><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Input placeholder={t("evidence.searchPlaceholder")} value={search} onChange={(event) => setSearch(event.target.value)} /><Input placeholder={t("evidence.category")} value={category} onChange={(event) => setCategory(event.target.value)} /><Input placeholder={t("evidence.subcategory")} value={subcategory} onChange={(event) => setSubcategory(event.target.value)} /><Input placeholder={t("evidence.uploader")} value={uploader} onChange={(event) => setUploader(event.target.value)} /><Input type="date" aria-label={t("evidence.dateFrom")} value={dateFrom} max={dateTo || undefined} onChange={(event) => setDateFrom(event.target.value)} /><Input type="date" aria-label={t("evidence.dateTo")} value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} /></div>{rows.isLoading ? <div className="grid min-h-32 place-items-center"><Loader2 className="animate-spin" /></div> : <div className="space-y-3"><div className="max-h-[58dvh] space-y-3 overflow-y-auto pr-1">{groups.map((group) => { const ids = group.rows.map((row) => row.id); const allSelected = ids.every((id) => selected.includes(id)); const open = expanded === group.key; const first = group.rows[0]; return <div key={group.key} className={`rounded-lg border ${allSelected ? "border-primary ring-2 ring-primary/20" : ""}`}><div className="flex items-start gap-3 p-3"><Checkbox checked={allSelected} onCheckedChange={() => toggleGroup(group)} aria-label={t("evidence.selectRecord")} /><button type="button" className="flex min-w-0 flex-1 items-start gap-3 text-left" onClick={() => setExpanded(open ? null : group.key)}><span className="mt-0.5 shrink-0">{open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</span><span className="min-w-0"><span className="block truncate font-medium">{first.record_reference} · {first.record_type_label} · {first.record_title}</span><span className="block text-xs text-muted-foreground">{first.project_name || t("common.emptyValue")} · {first.category || t("common.emptyValue")} {first.subcategory ? `· ${first.subcategory}` : ""}</span><span className="block text-xs text-muted-foreground">{group.rows.length} {t("evidence.recordPhotos")} · {first.record_uploader || first.photographer_name || t("common.unknown")} · {first.record_date ? new Date(first.record_date).toLocaleString() : new Date(first.captured_at).toLocaleString()}</span></span></button></div>{open && <div className="grid gap-3 border-t bg-muted/20 p-3 sm:grid-cols-4">{group.rows.map((row) => { const checked = selected.includes(row.id); const image = row.watermarked_file || row.file; return <div key={row.id} className={`rounded-md border bg-card p-2 ${checked ? "border-primary" : ""}`}><div className="relative aspect-[4/3] overflow-hidden rounded bg-muted">{row.kind === "PHOTO" ? <Image src={image} alt={row.original_filename} fill unoptimized className="object-cover" /> : <div className="grid h-full place-items-center p-2 text-center text-xs text-muted-foreground">{row.original_filename}</div>}</div><label className="mt-2 flex items-start gap-2 text-xs"><Checkbox checked={checked} onCheckedChange={() => toggle(row.id)} /><span className="min-w-0"><span className="block truncate font-medium">{row.original_filename}</span><span className="block text-muted-foreground">{new Date(row.captured_at).toLocaleString()} · {t("evidence.gps")} {row.latitude ?? "-"}, {row.longitude ?? "-"}</span><span className="block text-muted-foreground">{row.photographer_name || t("common.unknown")} · {row.watermark_text ? t("evidence.watermarked") : ""}</span></span></label></div>; })}</div>}</div>; })}{!groups.length && <Empty text={t("evidence.noCandidates")} />}</div><div className="flex flex-wrap items-end gap-3"><FieldWrapper label={t("evidence.caption")} className="min-w-64 flex-1"><Input value={caption} onChange={(event) => setCaption(event.target.value)} /></FieldWrapper><p className="pb-2 text-sm font-medium text-primary">{selected.length} / {candidates.length}</p></div></div>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[selected.length, t("evidence.selectPhotos")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Link2 />}{t("evidence.link")} ({selected.length})</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function DecisionDialog({ application, decision, onClose, onSaved }: { application: ConsultantApplication; decision: "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT"; onClose: () => void; onSaved: () => void }) {

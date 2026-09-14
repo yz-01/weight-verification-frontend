@@ -328,3 +328,48 @@ describe("the category module", () => {
     expect(isRouteAllowed("MSE_TRACE", [], "/category-management")).toBe(false);
   });
 });
+
+describe("project and field workflows", () => {
+  it("keeps Project limited to project records", () => {
+    const projects = PORTAL_NAVIGATION.MSE_TRACE.find(
+      (item) => item.feature === "projects",
+    );
+    expect(projects?.children?.map((child) => child.href)).toEqual(["/projects"]);
+  });
+
+  it("exposes field tasks and photo approvals as independent entries", () => {
+    const entries = PORTAL_NAVIGATION.MSE_TRACE.filter(
+      (item) => item.feature === "field_tasks",
+    );
+    expect(entries.map((item) => item.href)).toEqual([
+      "/field-tasks",
+      "/photo-approvals",
+    ]);
+    expect(entries.map((item) => item.labelKey)).toEqual([
+      "field_tasks",
+      "submodule.photoApprovals",
+    ]);
+    expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/field-tasks")).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/photo-approvals")).toBe(true);
+  });
+});
+
+describe("document archive workflows", () => {
+  it("keeps evidence archive under the document archive module", () => {
+    const documents = PORTAL_NAVIGATION.MSE_TRACE.find(
+      (item) => item.feature === "documents",
+    );
+    expect(documents?.children?.map((child) => child.href)).toEqual([
+      "/documents",
+      "/approvals",
+      "/evidence",
+    ]);
+    expect(
+      PORTAL_NAVIGATION.MSE_TRACE.filter((item) => item.feature === "evidence"),
+    ).toHaveLength(0);
+    expect(
+      isRouteAllowed("MSE_TRACE", ["evidence"], "/evidence", ["audit.view"]),
+    ).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", [], "/evidence", [])).toBe(false);
+  });
+});

@@ -4532,6 +4532,9 @@
       "help": "提交前上传检查表、图纸、报告或证书。",
       "note": "备注",
       "other": "其他附件",
+      "fromArchive": "从文件管理选择",
+      "searchArchive": "搜索文件管理资料",
+      "noArchive": "没有找到带文件的匹配资料。",
       "required": "必须上传",
       "title": "添加申请附件"
     },
@@ -4545,7 +4548,8 @@
       "SURVEY_REPORT": "测量报告"
     },
     "common": {
-      "unknown": "未知"
+      "unknown": "未知",
+      "emptyValue": "—"
     },
     "credential": {
       "currentPassword": "当前登录密码",
@@ -4615,7 +4619,17 @@
     },
     "evidence": {
       "selectPhotos": "要关联的照片",
+      "selectRecord": "选择整条现场资料",
       "caption": "说明",
+      "category": "栏目",
+      "subcategory": "子栏目",
+      "uploader": "上传人",
+      "watermarked": "已加水印",
+      "gps": "GPS",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
+      "recordPhotos": "张照片/文件",
+      "searchPlaceholder": "搜索文件名、事项、上传人或备注",
       "empty": "尚未关联现场证据。",
       "help": "选择现有且不可修改的现场照片，无需重复上传原图。",
       "link": "关联证据",
@@ -6186,6 +6200,9 @@
   "documents": {
     "downloading": "下载中",
     "allCategories": "全部分类",
+    "allProjects": "全部项目",
+    "allSubcategories": "全部子分类",
+    "allUploaders": "全部上传人",
     "archive": {
       "action": "归档",
       "confirm": "归档文档",
@@ -6218,6 +6235,8 @@
       "category": "分类",
       "code": "代码",
       "createdAt": "创建时间",
+      "dateFrom": "创建日期起",
+      "dateTo": "创建日期止",
       "description": "说明",
       "file": "文件",
       "keywords": "关键词",
@@ -6790,7 +6809,8 @@
       "action": {
         "REPLACE": "替换",
         "RESTORE": "恢复",
-        "HIDE": "隐藏"
+        "HIDE": "隐藏",
+        "CORRECT": "更正"
       },
       "field": {
         "replacementHint": "留空就是只把原件隐藏，不放新的。",
@@ -8882,7 +8902,7 @@
     "platform_monitoring": "平台监控",
     "platform_settings": "系统设置",
     "progress": "工程进度",
-    "project_categories": "现场资料栏目",
+    "project_categories": "现场资料",
     "projects": "项目",
     "qr_code_management": "二维码管理",
     "receipts": "材料收货",
@@ -9060,7 +9080,7 @@
       "platformCommission": "平台佣金管理",
       "platformJobs": "定时任务",
       "progressRecords": "施工进度",
-      "projectCategories": "现场资料栏目",
+      "projectCategories": "现场资料",
       "projectRecords": "项目资料",
       "qrActivity": "二维码操作记录",
       "qrAnomalies": "二维码异常",
@@ -10431,6 +10451,7 @@
       "title": "为什么要更正"
     },
     "count": "{count, plural, =0 {暂无收货记录} other {# 条收货记录}}",
+    "totalByUnit": "按单位累计数量",
     "createTitle": "记录收货",
     "doPanelField": "字段",
     "doPanelLineItems": "单据上的明细行",
@@ -10460,6 +10481,7 @@
       "project": "项目",
       "qrCode": "送货单",
       "quantity": "数量",
+      "cumulativeQuantity": "累计数量",
       "receiptNo": "收货单号",
       "receivedBy": "收货人",
       "recordedBy": "记录人",

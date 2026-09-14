@@ -4532,6 +4532,9 @@
       "help": "提交前上傳檢查表、圖紙、報告或證書。",
       "note": "備註",
       "other": "其他附件",
+      "fromArchive": "從文件管理選擇",
+      "searchArchive": "搜尋文件管理資料",
+      "noArchive": "找不到帶檔案的匹配資料。",
       "required": "必須上傳",
       "title": "添加申請附件"
     },
@@ -4545,7 +4548,8 @@
       "SURVEY_REPORT": "測量報告"
     },
     "common": {
-      "unknown": "未知"
+      "unknown": "未知",
+      "emptyValue": "—"
     },
     "credential": {
       "currentPassword": "當前登錄密碼",
@@ -4615,7 +4619,17 @@
     },
     "evidence": {
       "selectPhotos": "要關聯的照片",
+      "selectRecord": "選擇整筆現場資料",
       "caption": "說明",
+      "category": "欄目",
+      "subcategory": "子欄目",
+      "uploader": "上傳人",
+      "watermarked": "已加浮水印",
+      "gps": "GPS",
+      "dateFrom": "開始日期",
+      "dateTo": "結束日期",
+      "recordPhotos": "張照片/文件",
+      "searchPlaceholder": "搜尋檔名、事項、上傳人或備註",
       "empty": "尚未關聯現場證據。",
       "help": "選擇現有且不可修改的現場照片，無需重複上傳原圖。",
       "link": "關聯證據",
@@ -6186,6 +6200,9 @@
   "documents": {
     "downloading": "下載中",
     "allCategories": "全部分類",
+    "allProjects": "全部專案",
+    "allSubcategories": "全部子分類",
+    "allUploaders": "全部上傳人",
     "archive": {
       "action": "歸檔",
       "confirm": "歸檔文檔",
@@ -6218,6 +6235,8 @@
       "category": "分類",
       "code": "代碼",
       "createdAt": "創建時間",
+      "dateFrom": "建立日期起",
+      "dateTo": "建立日期止",
       "description": "說明",
       "file": "文件",
       "keywords": "關鍵詞",
@@ -6790,7 +6809,8 @@
       "action": {
         "REPLACE": "替換",
         "RESTORE": "恢復",
-        "HIDE": "隱藏"
+        "HIDE": "隱藏",
+        "CORRECT": "更正"
       },
       "field": {
         "replacementHint": "留空就是只把原件隱藏，不放新的。",
@@ -8882,7 +8902,7 @@
     "platform_monitoring": "平臺監控",
     "platform_settings": "系統設置",
     "progress": "工程進度",
-    "project_categories": "現場資料欄目",
+    "project_categories": "現場資料",
     "projects": "項目",
     "qr_code_management": "二維碼管理",
     "receipts": "材料收貨",
@@ -9060,7 +9080,7 @@
       "platformCommission": "平臺佣金管理",
       "platformJobs": "定時任務",
       "progressRecords": "施工進度",
-      "projectCategories": "現場資料欄目",
+      "projectCategories": "現場資料",
       "projectRecords": "項目資料",
       "qrActivity": "二維碼操作記錄",
       "qrAnomalies": "二維碼異常",
@@ -10431,6 +10451,7 @@
       "title": "為什麼要更正"
     },
     "count": "{count, plural, =0 {暫無收貨記錄} other {# 條收貨記錄}}",
+    "totalByUnit": "按單位累計數量",
     "createTitle": "記錄收貨",
     "doPanelField": "欄位",
     "doPanelLineItems": "單據上的明細列",
@@ -10460,6 +10481,7 @@
       "project": "項目",
       "qrCode": "送貨單",
       "quantity": "數量",
+      "cumulativeQuantity": "累計數量",
       "receiptNo": "收貨單號",
       "receivedBy": "收貨人",
       "recordedBy": "記錄人",

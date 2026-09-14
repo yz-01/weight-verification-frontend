@@ -2963,7 +2963,7 @@
       "archived": "Diarkibkan"
     },
     "subtitle": "Semua rekod yang selesai, menunggu anda melihatnya.",
-    "title": "Baris gilir arkib",
+    "title": "Semua rekod",
     "toast": {
       "archived": "Diarkibkan untuk anda."
     }
@@ -4532,6 +4532,9 @@
       "help": "Muat naik senarai semak, lukisan, laporan atau sijil sebelum menghantar.",
       "note": "Catatan",
       "other": "Lampiran lain",
+      "fromArchive": "Pilih daripada Arkib Dokumen",
+      "searchArchive": "Cari dokumen arkib",
+      "noArchive": "Tiada dokumen sepadan yang mempunyai fail.",
       "required": "Wajib",
       "title": "Tambah lampiran"
     },
@@ -4545,7 +4548,8 @@
       "SURVEY_REPORT": "Laporan ukur"
     },
     "common": {
-      "unknown": "Tidak diketahui"
+      "unknown": "Tidak diketahui",
+      "emptyValue": "—"
     },
     "credential": {
       "currentPassword": "Kata laluan semasa",
@@ -4615,7 +4619,17 @@
     },
     "evidence": {
       "selectPhotos": "Foto untuk dipautkan",
+      "selectRecord": "Pilih rekod lengkap ini",
       "caption": "Kapsyen",
+      "category": "Kategori",
+      "subcategory": "Subkategori",
+      "uploader": "Dimuat naik oleh",
+      "watermarked": "Berwatermark",
+      "gps": "GPS",
+      "dateFrom": "Tarikh mula",
+      "dateTo": "Tarikh akhir",
+      "recordPhotos": "foto/fail",
+      "searchPlaceholder": "Cari nama fail, rekod, pemuat naik atau nota",
       "empty": "Tiada bukti tapak dipautkan.",
       "help": "Gunakan foto tapak sedia ada yang tidak boleh diubah. Fail asal tidak dimuat naik dua kali.",
       "link": "Pautkan bukti",
@@ -6186,6 +6200,9 @@
   "documents": {
     "downloading": "Sedang memuat turun",
     "allCategories": "Semua kategori",
+    "allProjects": "Semua projek",
+    "allSubcategories": "Semua subkategori",
+    "allUploaders": "Semua pemuat naik",
     "archive": {
       "action": "Arkibkan",
       "confirm": "Arkibkan dokumen",
@@ -6218,6 +6235,8 @@
       "category": "Kategori",
       "code": "Kod",
       "createdAt": "Dicipta",
+      "dateFrom": "Dicipta dari",
+      "dateTo": "Dicipta hingga",
       "description": "Penerangan",
       "file": "Fail",
       "keywords": "Kata kunci",
@@ -6790,7 +6809,8 @@
       "action": {
         "REPLACE": "Ganti",
         "RESTORE": "Pulihkan",
-        "HIDE": "Sembunyi"
+        "HIDE": "Sembunyi",
+        "CORRECT": "Betulkan"
       },
       "field": {
         "replacementHint": "Biarkan kosong untuk sembunyikan yang asal tanpa menggantikannya.",
@@ -8882,7 +8902,7 @@
     "platform_monitoring": "Pemantauan Platform",
     "platform_settings": "Tetapan Sistem",
     "progress": "Kemajuan projek",
-    "project_categories": "Kategori rekod tapak",
+    "project_categories": "Rekod tapak",
     "projects": "Projek",
     "qr_code_management": "Pengurusan Kod QR",
     "receipts": "Terimaan bahan",
@@ -8910,7 +8930,7 @@
       "apiGatewaySettings": "Tetapan API Gateway",
       "approvalCredentials": "Kelayakan kelulusan",
       "approvals": "Rekod kelulusan",
-      "archiveQueue": "Baris gilir arkib",
+      "archiveQueue": "Semua rekod",
       "assetActivity": "Rekod aset",
       "assetAssignments": "Penyerahan dan pinjaman",
       "assetCategories": "Kategori aset",
@@ -9060,7 +9080,7 @@
       "platformCommission": "Komisen platform",
       "platformJobs": "Kerja berjadual",
       "progressRecords": "Rekod kemajuan",
-      "projectCategories": "Kategori rekod tapak",
+      "projectCategories": "Rekod tapak",
       "projectRecords": "Rekod projek",
       "qrActivity": "Aktiviti QR",
       "qrAnomalies": "Anomali QR",
@@ -10431,6 +10451,7 @@
       "title": "Sebab pembetulan"
     },
     "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
+    "totalByUnit": "Jumlah terkumpul mengikut unit",
     "createTitle": "Rekod penerimaan",
     "doPanelField": "Medan",
     "doPanelLineItems": "Baris pada dokumen",
@@ -10451,6 +10472,7 @@
     "field": {
       "category": "Ruangan",
       "capturedAt": "Direkod",
+      "cumulativeQuantity": "Kuantiti terkumpul",
       "deliveryNoteNo": "No. nota hantar",
       "location": "Lokasi",
       "materialName": "Bahan",
