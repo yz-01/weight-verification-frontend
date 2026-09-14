@@ -6809,7 +6809,8 @@
       "action": {
         "REPLACE": "替換",
         "RESTORE": "恢復",
-        "HIDE": "隱藏"
+        "HIDE": "隱藏",
+        "CORRECT": "更正"
       },
       "field": {
         "replacementHint": "留空就是只把原件隱藏，不放新的。",

@@ -353,3 +353,23 @@ describe("project and field workflows", () => {
     expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/photo-approvals")).toBe(true);
   });
 });
+
+describe("document archive workflows", () => {
+  it("keeps evidence archive under the document archive module", () => {
+    const documents = PORTAL_NAVIGATION.MSE_TRACE.find(
+      (item) => item.feature === "documents",
+    );
+    expect(documents?.children?.map((child) => child.href)).toEqual([
+      "/documents",
+      "/approvals",
+      "/evidence",
+    ]);
+    expect(
+      PORTAL_NAVIGATION.MSE_TRACE.filter((item) => item.feature === "evidence"),
+    ).toHaveLength(0);
+    expect(
+      isRouteAllowed("MSE_TRACE", ["evidence"], "/evidence", ["audit.view"]),
+    ).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", [], "/evidence", [])).toBe(false);
+  });
+});

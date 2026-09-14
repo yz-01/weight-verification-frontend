@@ -6809,7 +6809,8 @@
       "action": {
         "REPLACE": "Replace",
         "RESTORE": "Restore",
-        "HIDE": "Hide"
+        "HIDE": "Hide",
+        "CORRECT": "Correct"
       },
       "field": {
         "replacementHint": "Leave empty to hide the original without putting anything in its place.",

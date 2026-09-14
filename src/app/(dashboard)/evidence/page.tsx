@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { EvidenceArchive } from "@/components/evidence/evidence-archive";
 
 export default function EvidencePage() {
-  redirect("/archive-queue");
+  return <EvidenceArchive />;
 }

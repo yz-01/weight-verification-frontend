@@ -24,7 +24,6 @@ import {
   QrCode,
   Receipt,
   Scale,
-  ScanSearch,
   Settings,
   SlidersHorizontal,
   TrendingUp,
@@ -1046,6 +1045,12 @@ export const PORTAL_NAVIGATION = {
           "documents",
         ),
         child("12.2.2", "nav.submodule.approvals", "/approvals", "approvals"),
+        child(
+          "12.2.3",
+          "nav.submodule.evidenceArchive",
+          "/evidence",
+          "evidence",
+        ),
       ],
     ),
     item(
@@ -1313,7 +1318,6 @@ export const PORTAL_NAVIGATION = {
     ),
     item("documents", "/documents", FolderArchive, "system"),
     item("approvals", "/approvals", Workflow, "system"),
-    item("evidence", "/evidence", ScanSearch, "system"),
     item("users", "/users", Users, "system"),
     item("roles", "/roles", KeyRound, "system"),
     item("integrations", "/integrations", SlidersHorizontal, "system"),
