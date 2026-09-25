@@ -18,7 +18,7 @@ import { FinancialReports } from "@/components/billing/financial-reports";
 import { InvoiceList } from "@/components/billing/invoice-list";
 import { PaymentManager } from "@/components/billing/payment-manager";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ListHeader } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { getBillingSummary } from "@/services/billing.service";
 
 export type BillingSection =
@@ -59,7 +59,7 @@ export function BillingWorkspace({ section = "overview" }: { section?: BillingSe
   else if (section === "reports") content = <FinancialReports />;
   else content = <InvoiceList embedded />;
 
-  return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={section === "overview" ? t("title") : t(`section.${section}.title`)} subtitle={section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`)} /><BillingWorkflow section={section} />{(section === "overview" || section === "search") && <Summary data={summary.data} loading={summary.isLoading} expanded={section === "search"} />}{content}</div>;
+  return <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4"><ListHeader title={section === "overview" ? t("title") : t(`section.${section}.title`)} subtitle={section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`)} /><BillingWorkflow section={section} />{(section === "overview" || section === "search") && <><QueryFailedNote query={summary} what={t("what.summary")} /><Summary data={summary.data} loading={summary.isLoading} failed={summary.isError} expanded={section === "search"} /></>}{content}</div>;
 }
 
 const WORKFLOW_STEPS = [
@@ -136,7 +136,7 @@ function BillingWorkflow({ section }: { section: BillingSection }) {
   );
 }
 
-function Summary({ data, loading, expanded = false }: { data: Awaited<ReturnType<typeof getBillingSummary>> | undefined; loading: boolean; expanded?: boolean }) {
+function Summary({ data, loading, failed, expanded = false }: { data: Awaited<ReturnType<typeof getBillingSummary>> | undefined; loading: boolean; failed: boolean; expanded?: boolean }) {
   const t = useTranslations("billing"); const format = useFormatter();
   const money = (value?: string) => value === undefined ? "..." : format.number(Number(value), { style: "currency", currency: "MYR" });
   const metrics = [
@@ -144,6 +144,7 @@ function Summary({ data, loading, expanded = false }: { data: Awaited<ReturnType
     ["commissionBilled", money(data?.commission.billed)], ["commissionCollected", money(data?.commission.collected)], ["commissionOutstanding", money(data?.commission.outstanding)],
     ["pendingReviews", loading ? "..." : data?.pending_payment_review ?? 0], ["overdue", money(String(Number(data?.saas.overdue ?? 0) + Number(data?.commission.overdue ?? 0)))],
   ] as const;
-  const visible = expanded ? metrics : metrics.slice(0, 6);
+  // A failed summary shows a dash, never a zero that reads as "nothing owed".
+  const visible = (expanded ? metrics : metrics.slice(0, 6)).map(([key, value]) => [key, failed ? "—" : value] as const);
   return <div className={`grid border-l ${expanded ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"}`}>{visible.map(([key, value]) => <div key={key} className="min-h-20 border-b border-r px-4 py-3"><p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p><p className="mt-2 text-lg font-semibold tabular-nums">{value}</p></div>)}</div>;
 }

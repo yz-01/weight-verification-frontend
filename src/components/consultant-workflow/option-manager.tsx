@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import {
+  FieldWrapper,
   LoadFailed,
   StatusBadge,
 } from "@/components/shared/page-primitives";
@@ -116,12 +117,13 @@ export function ConsultantOptionManager({ project }: { project: string }) {
             >
               {editingId === row.id ? (
                 <>
-                  <Input
-                    className="max-w-xs"
-                    value={label}
-                    autoFocus
-                    onChange={(event) => setLabel(event.target.value)}
-                  />
+                  <FieldWrapper label={t("options.rename")} required className="w-full max-w-xs">
+                    <Input
+                      value={label}
+                      autoFocus
+                      onChange={(event) => setLabel(event.target.value)}
+                    />
+                  </FieldWrapper>
                   <div className="ml-auto flex items-center gap-1">
                     <Button
                       size="icon-sm"

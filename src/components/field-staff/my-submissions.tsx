@@ -27,9 +27,10 @@
  * they end up re-photographing.
  */
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  Camera,
   ChevronRight,
   CloudUpload,
   Loader2,
@@ -37,9 +38,14 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { FieldLoadFailed, FieldLoadNote } from "@/components/field-staff/field-load-note";
+import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -77,6 +83,17 @@ export interface HazardHandle {
   title: string;
   incident_no: string;
 }
+
+/** The kinds whose records carry a record conversation (the backend's CHAT_SUBJECT_KINDS). */
+const CONVERSATION_KINDS = new Set<string>([
+  "MATERIAL_RECEIPT",
+  "MATERIAL_OUTGOING",
+  "EQUIPMENT_MOVEMENT",
+  "WASTE_OUTGOING",
+  "DISPOSAL_REQUEST",
+  "PROGRESS",
+  "SUNDRY_CLAIM",
+]);
 
 export function MySubmissions({
   onOpenHazard,
@@ -182,10 +199,13 @@ export function MySubmissions({
         </button>
       ))}
 
+      <FieldLoadNote query={queued} what={t("fieldStaffPwa.what.queued")} />
       {stored.isLoading ? (
         <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
           {t("common.loading")}
         </p>
+      ) : stored.isError ? (
+        <FieldLoadFailed what={t("fieldStaffPwa.what.submissions")} onRetry={() => stored.refetch()} />
       ) : rows.length === 0 && waiting.length === 0 ? (
         <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
           {t("mySubmissions.empty")}
@@ -261,6 +281,22 @@ export function MySubmissions({
         </p>
       )}
 
+      {/*
+        Why the list stops where it does (T-330).
+
+        Without this line a short history reads as "my records are gone", and
+        the worker's response to that is to photograph the load again - the
+        exact behaviour 「我提交过的」 was built to stop. The number comes from
+        the server because the window is per-company and adjustable.
+      */}
+      {Boolean(stored.data?.history_window_days) && (
+        <p className="text-center text-xs text-muted-foreground">
+          {t("mySubmissions.historyWindow", {
+            days: stored.data!.history_window_days,
+          })}
+        </p>
+      )}
+
       {openRow && (
         <StoredDetailSheet row={openRow} onClose={() => setOpenRow(null)} />
       )}
@@ -303,6 +339,21 @@ function FieldRows({ fields }: { fields: MySubmissionField[] }) {
  * rows into it would make the screen that answers "did it arrive" slow for the
  * sake of the one row somebody taps.
  */
+/**
+ * The statuses that mean "this application is finished, and not approved".
+ *
+ * Listed rather than derived from a flag because the six record kinds spell it
+ * differently in their own vocabularies, and a missing spelling here shows up
+ * as a missing sentence rather than as a wrong action - the safer failure of
+ * the two.
+ */
+const RETURNED_STATUSES = new Set([
+  "REJECTED",
+  "RETURNED",
+  "REVISE_RESUBMIT",
+  "CANCELLED",
+]);
+
 function StoredDetailSheet({
   row,
   onClose,
@@ -312,6 +363,8 @@ function StoredDetailSheet({
 }) {
   const t = useTranslations();
   const formatter = useDateFormat();
+  const queryClient = useQueryClient();
+  const [returning, setReturning] = useState(false);
   const detail = useQuery({
     queryKey: ["my-submissions", "detail", row.kind, row.id],
     queryFn: () => getSubmissionDetail(row.kind, row.id),
@@ -338,6 +391,46 @@ function StoredDetailSheet({
           </p>
         ) : (
           <div className="space-y-3">
+            {/*
+              A returned application is over (D-227).
+
+              客户第 45 条：「被退回的申请**不需要【重新提交】按钮**。一旦退回这笔
+              申请就结束，原申请、退回原因和沟通记录全部保留，不再修改原记录。
+              要再申请就**新建一条、生成新的记录 ID**。」
+
+              So this dialog offers no action at all on a returned record - and
+              says why, because a screen that simply has no buttons reads as a
+              screen that is broken or still loading. The worker is told the
+              one thing they can do instead.
+            */}
+            {/*
+              The one action this sheet does offer (D-211): an approved
+              material-outgoing application is waiting for the site to deal
+              with the material and send the photographs back. It is found
+              here because this is where the worker looks for what they sent.
+            */}
+            {row.kind === "MATERIAL_OUTGOING" && row.status === "APPROVED" && (
+              <Button className="h-12 w-full" onClick={() => setReturning(true)}>
+                <Camera />
+                {t("contractorOps.outgoing.returnProcessing")}
+              </Button>
+            )}
+            {returning && (
+              <ReturnProcessingDialog
+                row={{ id: row.id, reference_no: row.reference }}
+                onClose={() => setReturning(false)}
+                onSaved={() => {
+                  setReturning(false);
+                  void queryClient.invalidateQueries({ queryKey: ["my-submissions"] });
+                  onClose();
+                }}
+              />
+            )}
+            {RETURNED_STATUSES.has(row.status) && (
+              <p className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm leading-6">
+                {t("mySubmissions.returnedClosed")}
+              </p>
+            )}
             <FieldRows fields={detail.data.fields} />
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("mySubmissions.photos")}
@@ -359,6 +452,41 @@ function StoredDetailSheet({
                   />
                 ))}
               </div>
+            )}
+            {/* The payment result on the applicant's own record (第 57 条):
+                「手机端只需要把最终付款结果显示出来即可」. */}
+            {row.kind === "SUNDRY_CLAIM" && (
+              <section className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("mySubmissions.paymentProofs")}
+                </p>
+                {(detail.data.payment_proofs ?? []).length === 0 ? (
+                  <p className="rounded-lg border border-dashed p-3 text-center text-sm text-muted-foreground">
+                    {t("mySubmissions.noPaymentProofs")}
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {(detail.data.payment_proofs ?? []).map((proof) => (
+                      <a key={proof.id} href={proof.url} target="_blank" rel="noreferrer" className="block">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={proof.url} alt={t("mySubmissions.paymentProofs")} className="aspect-square w-full rounded-md border object-cover" />
+                        {proof.amount ? <span className="mt-1 block text-xs tabular-nums">RM {proof.amount}</span> : null}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+            {/* 【沟通】 on every record the worker sent (T-324, 第 46 条),
+                bound to that record's ID (D-233). Hazards have their own
+                thread and open it from the row instead. */}
+            {CONVERSATION_KINDS.has(row.kind) && (
+              <section className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("mySubmissions.conversation")}
+                </p>
+                <RecordConversationPanel kind={row.kind as ArchiveRecordKind} recordId={row.id} />
+              </section>
             )}
           </div>
         )}
@@ -424,6 +552,8 @@ function QueuedDetailSheet({
           <div className="grid min-h-32 place-items-center">
             <Loader2 className="size-7 animate-spin text-primary" />
           </div>
+        ) : entry.isError ? (
+          <FieldLoadFailed what={t("fieldStaffPwa.what.queuedEntry")} onRetry={() => entry.refetch()} />
         ) : !entry.data ? (
           // The common race: sync drained the job while the row was tapped.
           <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">

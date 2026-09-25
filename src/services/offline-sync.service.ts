@@ -30,6 +30,7 @@ import {
 } from "@/services/contractor-ops.service";
 import { createSafetyIncident } from "@/services/site-operations.service";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
+import { createSundryClaim } from "@/services/sundry-claim.service";
 import {
   cleanupSettledDriverSnapshots,
   recordDriverTaskPhotoLocally,
@@ -99,6 +100,17 @@ function newId(prefix: string): string {
   return `${prefix}-${id}`;
 }
 
+/**
+ * One id for one press, shared by the online attempt and the queued retry.
+ *
+ * A request that reached the server and lost its answer on the way back looks
+ * like a dead network. If the queue then minted its own id, the replay would
+ * be a second trip, not the same one (F-463).
+ */
+export function newClientEventId(prefix: string): string {
+  return newId(prefix);
+}
+
 function isNetworkFailure(error: unknown): boolean {
   return error instanceof ApiError && error.isNetwork;
 }
@@ -128,7 +140,45 @@ async function requestBackgroundSync(): Promise<void> {
   }
 }
 
+/**
+ * Jobs this tab has queued in the last few minutes, so the 挂号 (pending
+ * slot, D-259) that submitted one can claim it and keep showing 「等待上传」
+ * until that exact job has really been uploaded.
+ *
+ * Recorded here rather than returned from every `submit*OfflineAware`,
+ * because those return `"uploaded" | "queued"` to twenty callers and the slot
+ * is the only one that needs the id.
+ */
+const recentlyQueued: Array<{ id: string; kind: OfflineJob["kind"]; at: number }> = [];
+
+/** The newest unclaimed job of one of these kinds queued in the last two minutes. */
+export function claimQueuedJob(kinds: readonly OfflineJob["kind"][]): string | null {
+  const cutoff = Date.now() - 120_000;
+  for (let index = recentlyQueued.length - 1; index >= 0; index -= 1) {
+    const entry = recentlyQueued[index];
+    if (entry.at < cutoff) break;
+    if (kinds.includes(entry.kind)) {
+      recentlyQueued.splice(index, 1);
+      return entry.id;
+    }
+  }
+  return null;
+}
+
+/** Whether a queued job is still waiting, and why it last failed if it did. */
+export async function queuedJobState(
+  ownerId: string,
+  id: string,
+): Promise<{ waiting: boolean; attempts: number; lastError: string }> {
+  const job = (await getOfflineJobs(ownerId)).find((entry) => entry.id === id);
+  return job
+    ? { waiting: true, attempts: job.attempts, lastError: job.lastError }
+    : { waiting: false, attempts: 0, lastError: "" };
+}
+
 async function enqueue(job: OfflineJob): Promise<OfflineSubmission> {
+  recentlyQueued.push({ id: job.id, kind: job.kind, at: Date.now() });
+  if (recentlyQueued.length > 50) recentlyQueued.shift();
   await putOfflineJob(job);
   notifyQueueChanged();
   await requestBackgroundSync();
@@ -275,6 +325,14 @@ async function sendJob(job: OfflineJob): Promise<void> {
     await createMaterialOutgoing({
       ...job.payload,
       photos: job.payload.photos.map(restoreFile),
+    });
+    return;
+  }
+
+  if (job.kind === "SUNDRY_CLAIM") {
+    await createSundryClaim({
+      ...job.payload,
+      attachments: job.payload.attachments.map(restoreFile),
     });
     return;
   }
@@ -647,6 +705,7 @@ async function submitCaptureJob(
         | "EQUIPMENT_MOVEMENT"
         | "SITE_PROGRESS"
         | "MATERIAL_OUTGOING"
+        | "SUNDRY_CLAIM"
         | "WASTE_OUTGOING"
         | "DISPOSAL_REQUEST"
         | "SAFETY_INCIDENT"
@@ -705,6 +764,23 @@ export function submitSiteProgressOfflineAware(
     attempts: 0,
     lastError: "",
     payload: { ...draft, photos: draft.photos.map(storeFile) },
+  });
+}
+
+export function submitSundryClaimOfflineAware(
+  ownerId: string,
+  draft: Omit<Extract<OfflineJob, { kind: "SUNDRY_CLAIM" }>["payload"], "attachments"> & {
+    attachments: File[];
+  },
+): Promise<OfflineSubmission> {
+  return submitCaptureJob({
+    id: newId("sundry-claim-job"),
+    ownerId,
+    kind: "SUNDRY_CLAIM",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: { ...draft, attachments: draft.attachments.map(storeFile) },
   });
 }
 
@@ -880,6 +956,61 @@ interface TripAssignDraft {
   driver: string;
   scheduledFor?: string | null;
   notes?: string;
+  /** The id the online attempt already used, when there was one. */
+  clientEventId?: string;
+}
+
+/** The order a recycler action belongs to, or null for every other kind. */
+function dispatchOf(job: OfflineJob): string | null {
+  if (
+    job.kind === "DISPATCH_ACCEPT" ||
+    job.kind === "DISPATCH_COLLECT" ||
+    job.kind === "TRIP_ASSIGN"
+  ) {
+    return job.payload.dispatchId || null;
+  }
+  return null;
+}
+
+/** Whether a waiting job already does what this one would. */
+function sameAction(waiting: OfflineJob, job: OfflineJob): boolean {
+  if (waiting.kind !== job.kind || waiting.ownerId !== job.ownerId) return false;
+  if (waiting.kind === "TRIP_ASSIGN" && job.kind === "TRIP_ASSIGN") {
+    if (waiting.payload.dispatchId || job.payload.dispatchId) {
+      return waiting.payload.dispatchId === job.payload.dispatchId;
+    }
+    // A trip with no order behind it is the same trip when it is the same
+    // lorry, driver, yard and time.
+    return (
+      waiting.payload.site === job.payload.site &&
+      waiting.payload.vehicle === job.payload.vehicle &&
+      waiting.payload.driver === job.payload.driver &&
+      waiting.payload.scheduledFor === job.payload.scheduledFor
+    );
+  }
+  const order = dispatchOf(job);
+  return order !== null && order === dispatchOf(waiting);
+}
+
+/**
+ * A second press of the same button folds into the job already waiting.
+ *
+ * Each press used to mint its own `client_event_id`, so accepting one order
+ * twice while offline queued two acceptances; the server refused the second
+ * and the yard saw a failure it had not caused (F-463). The first job is the
+ * one that will be sent - also when the network is back, so an online press
+ * does not race the queue with a new id.
+ */
+async function alreadyWaiting(job: OfflineJob): Promise<boolean> {
+  try {
+    const waiting = await getOfflineJobs(job.ownerId);
+    if (!waiting.some((other) => sameAction(other, job))) return false;
+  } catch {
+    // No IndexedDB (private browsing): nothing can be waiting in it.
+    return false;
+  }
+  toastSuccess("offline.alreadyQueued");
+  return true;
 }
 
 export async function submitDispatchAcceptOfflineAware(
@@ -903,6 +1034,7 @@ export async function submitDispatchAcceptOfflineAware(
     },
   };
 
+  if (await alreadyWaiting(job)) return "queued";
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
       await uploadJob(job);
@@ -934,6 +1066,7 @@ export async function submitDispatchCollectOfflineAware(
     },
   };
 
+  if (await alreadyWaiting(job)) return "queued";
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
       await uploadJob(job);
@@ -965,19 +1098,29 @@ function buildTripAssignJob(
       driver: draft.driver,
       scheduledFor: draft.scheduledFor ?? null,
       notes: draft.notes ?? "",
-      clientEventId: newId("trip-assign"),
+      clientEventId: draft.clientEventId ?? newId("trip-assign"),
     },
   };
 }
 
 /** Queue an assignment without trying the network first — for callers that
  * already saw the network fail and have their own online path. */
-export function enqueueTripAssign(
+export async function enqueueTripAssign(
   ownerId: string,
   draft: TripAssignDraft,
 ): Promise<OfflineSubmission> {
-  return enqueue(buildTripAssignJob(ownerId, draft));
+  const job = buildTripAssignJob(ownerId, draft);
+  if (await alreadyWaiting(job)) return "queued";
+  return enqueue(job);
 }
+
+/**
+ * Where one queued action stands (AC-049: 待同步 / 同步中 / 成功 / 失败原因).
+ *
+ * `held` is the dependency rule made visible: an earlier step for the same
+ * order failed, so this one is not sent until that is dealt with.
+ */
+export type OfflineQueueState = "waiting" | "syncing" | "failed" | "held";
 
 /** What the queue holds, shaped for the status popover — no blobs attached. */
 export interface OfflineQueueEntry {
@@ -987,6 +1130,62 @@ export interface OfflineQueueEntry {
   queuedAt: string;
   attempts: number;
   lastError: string;
+  state: OfflineQueueState;
+  /** A message key saying, in plain words, what the refusal means. */
+  hint: string | null;
+}
+
+/** An action that reached the server during this session. */
+export interface SyncedQueueEntry {
+  id: string;
+  ownerId: string;
+  kind: OfflineJob["kind"];
+  reference: string;
+  syncedAt: string;
+}
+
+let syncingJobId: string | null = null;
+const recentlySynced: SyncedQueueEntry[] = [];
+
+function setSyncing(id: string | null): void {
+  syncingJobId = id;
+  notifyQueueChanged();
+}
+
+function recordSynced(job: OfflineJob): void {
+  recentlySynced.unshift({
+    id: job.id,
+    ownerId: job.ownerId,
+    kind: job.kind,
+    reference: jobReference(job),
+    syncedAt: new Date().toISOString(),
+  });
+  if (recentlySynced.length > 20) recentlySynced.length = 20;
+}
+
+/** The actions synced since this page loaded, newest first. */
+export function getRecentlySynced(ownerId: string): SyncedQueueEntry[] {
+  return recentlySynced.filter((entry) => entry.ownerId === ownerId);
+}
+
+/**
+ * What a refusal means for someone who did the work offline (AC-050).
+ *
+ * The server's own sentence says what is wrong with the request now; it
+ * cannot say that the reason is something that happened while this device was
+ * away. These do, and say what to do next. Generic over every job kind: a
+ * lost permission means the same thing on a receipt as on a trip.
+ */
+export function conflictHint(status?: number, code?: string): string | null {
+  if (!status) return null;
+  if (status === 403) return "offline.conflict.forbidden";
+  if (status === 404) return "offline.conflict.gone";
+  if (status === 409 && code === "task_already_running") {
+    return "offline.conflict.alreadyAssigned";
+  }
+  if (status === 409) return "offline.conflict.changed";
+  if (status === 400) return "offline.conflict.invalid";
+  return "offline.conflict.server";
 }
 
 function jobReference(job: OfflineJob): string {
@@ -998,14 +1197,32 @@ export async function getOfflineQueueEntries(
   ownerId: string,
 ): Promise<OfflineQueueEntry[]> {
   const jobs = await getOfflineJobs(ownerId);
-  return jobs.map((job) => ({
-    id: job.id,
-    kind: job.kind,
-    reference: jobReference(job),
-    queuedAt: job.queuedAt,
-    attempts: job.attempts,
-    lastError: job.lastError,
-  }));
+  const failedOrders = new Set<string>();
+  return jobs.map((job) => {
+    const order = dispatchOf(job);
+    const state: OfflineQueueState =
+      job.id === syncingJobId
+        ? "syncing"
+        : order && failedOrders.has(order)
+          ? "held"
+          : job.attempts > 0
+            ? "failed"
+            : "waiting";
+    if (order && (state === "failed" || state === "held")) failedOrders.add(order);
+    return {
+      id: job.id,
+      kind: job.kind,
+      reference: jobReference(job),
+      queuedAt: job.queuedAt,
+      attempts: job.attempts,
+      lastError: job.lastError,
+      state,
+      hint:
+        state === "failed"
+          ? conflictHint(job.lastErrorStatus, job.lastErrorCode)
+          : null,
+    };
+  });
 }
 
 /**
@@ -1156,9 +1373,15 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
 }> {
   const jobs = await getOfflineJobs(ownerId);
   let synced = 0;
+  // Orders whose earlier step was refused in this pass. Their later steps
+  // wait: collecting a load whose acceptance failed, or rostering a trip for
+  // it, would act on an order in a state nobody on the yard has seen (F-463).
+  const heldOrders = new Set<string>();
 
   for (let index = 0; index < jobs.length; index += 1) {
     const job = jobs[index];
+    const order = dispatchOf(job);
+    if (order && heldOrders.has(order)) continue;
     const positions: Extract<OfflineJob, { kind: "TASK_POSITION" }>[] = [];
     if (job.kind === "TASK_POSITION") {
       for (
@@ -1176,6 +1399,7 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
         positions.push(candidate);
       }
     }
+    setSyncing(job.id);
     try {
       if (positions.length > 0) {
         await uploadPositionBatch(positions);
@@ -1186,6 +1410,7 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
       } else {
         await uploadJob(job);
         await deleteOfflineJob(job.id);
+        recordSynced(job);
         synced += 1;
       }
     } catch (error) {
@@ -1193,8 +1418,10 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
         isNetworkFailure(error) ||
         (error instanceof ApiError && error.isUnauthorized)
       ) {
+        setSyncing(null);
         break;
       }
+      if (order) heldOrders.add(order);
       const failedJobs: OfflineJob[] = positions.length > 0 ? positions : [job];
       await Promise.all(
         failedJobs.map((failedJob) =>
@@ -1202,10 +1429,13 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
             ...failedJob,
             attempts: failedJob.attempts + 1,
             lastError: error instanceof Error ? error.message : String(error),
+            lastErrorStatus: error instanceof ApiError ? error.status : undefined,
+            lastErrorCode: error instanceof ApiError ? error.code : undefined,
           }),
         ),
       );
     }
+    setSyncing(null);
     index += Math.max(positions.length - 1, 0);
   }
 

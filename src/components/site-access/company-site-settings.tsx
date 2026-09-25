@@ -22,7 +22,7 @@ import { useState } from "react";
 import { OrganisationPanel } from "@/components/companies/organisation-panel";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -185,6 +185,7 @@ export function CompanySiteSettingsWorkspace() {
       <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2">
         <ChoiceField label={t("field.defaultUserRole")} value={form.default_user_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_user_role_code: value })} />
         <ChoiceField label={t("field.defaultApprovalRole")} value={form.default_approval_role_code} disabled={!canManage} options={roleOptions} optionLabel={roleLabel} onChange={(value) => setForm({ ...form, default_approval_role_code: value })} />
+        <QueryFailedNote className="sm:col-span-2" query={roles} what={t("what.roles")} />
       </div>
       <div className="rounded-lg border bg-card p-4"><h3 className="font-medium">{t("permissionDefaults.consultant")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("permissionDefaults.consultantHelp")}</p><div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{CONSULTANT_PERMISSIONS.map((code) => <Toggle key={code} compact label={t(`permissionDefaults.permission.${code.replaceAll(".", "_")}`)} description={code} checked={form.default_consultant_permissions.includes(code)} disabled={!canManage} onChange={(checked) => setForm({ ...form, default_consultant_permissions: checked ? [...form.default_consultant_permissions, code] : form.default_consultant_permissions.filter((item) => item !== code) })} />)}</div></div>
     </section>

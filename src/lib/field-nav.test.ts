@@ -29,7 +29,9 @@ describe("activeFieldNav", () => {
       ["attendance", null, "attendance"],
       ["records", null, "records"],
       ["records", "material", "records"],
-      ["location", null, "location"],
+      // 「位置」 is gone (T-321). An unknown tab must fall back to 首页 rather
+      // than light nothing, which is what a stale deep link now produces.
+      ["location", null, "home"],
       ["incidents", null, "hazards"],
     ];
     for (const [tab, mode, expected] of screens) {
@@ -55,20 +57,26 @@ describe("activeFieldNav", () => {
 describe("the bottom navigation reads one answer", () => {
   const source = readFileSync(WORKSPACE, "utf8");
 
-  it("renders five buttons and no more", () => {
+  it("renders four buttons and no more", () => {
     const buttons = source.match(/<MobileNavButton\b/g) ?? [];
-    expect(buttons).toHaveLength(5);
+    // Four since 「位置」 was removed (T-321, customer item 43). Pinned here
+    // because the grid column count has to match it.
+    expect(buttons).toHaveLength(4);
   });
 
   it("gives every button its state from activeFieldNav", () => {
     const predicates = [...source.matchAll(/<MobileNavButton\s+active=\{([^}]*)\}/g)]
       .map((match) => match[1].trim());
-    expect(predicates).toHaveLength(5);
+    expect(predicates).toHaveLength(4);
     for (const predicate of predicates) {
       // `activeNav === "records"` and nothing else. A predicate that mentions
       // `tab` or `recordMode` is a button deciding for itself again.
       expect(predicate, predicate).toMatch(/^activeNav === "[a-z]+"$/);
     }
+  });
+
+  it("no longer offers 位置", () => {
+    expect(source).not.toContain('openTab("location")');
   });
 
   it("asks activeFieldNav for that answer", () => {

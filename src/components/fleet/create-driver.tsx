@@ -22,7 +22,7 @@ import {
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
-import { FieldWrapper } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { ApiError } from "@/interfaces/api";
@@ -45,7 +45,7 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
   const [driverPhoto, setDriverPhoto] = useState<File | null>(null);
   const [licencePhoto, setLicencePhoto] = useState<File | null>(null);
 
-  const { data: vehiclePage } = useQuery({
+  const vehicles = useQuery({
     queryKey: ["vehicles", "options"],
     queryFn: () => getVehicles({ page_size: 100, is_active: "true" }),
   });
@@ -53,7 +53,7 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
   // accounts that are already somebody's login — offering a taken one is a
   // choice that can only be refused — and without this the edit form's account
   // field would empty itself the moment it loaded.
-  const { data: accountPage } = useQuery({
+  const accounts = useQuery({
     queryKey: ["driver-accounts", "options", driver?.id ?? ""],
     queryFn: () =>
       getDriverAccounts(
@@ -208,14 +208,17 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
         </form.Field>
         <form.Field name="default_vehicle">
           {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("drivers.field.defaultVehicle")}
-              options={(vehiclePage?.results ?? []).map((vehicle) => ({
-                value: vehicle.id,
-                label: vehicle.plate_no,
-              }))}
-            />
+            <div className="space-y-1">
+              <SelectField
+                field={field as unknown as BoundField}
+                label={t("drivers.field.defaultVehicle")}
+                options={(vehicles.data?.results ?? []).map((vehicle) => ({
+                  value: vehicle.id,
+                  label: vehicle.plate_no,
+                }))}
+              />
+              <QueryFailedNote query={vehicles} what={t("drivers.what.vehicles")} />
+            </div>
           )}
         </form.Field>
         <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
@@ -232,16 +235,19 @@ export function CreateDriver({ driver }: { driver?: Driver }) {
 
         <form.Field name="user">
           {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("drivers.field.account")}
-              required
-              hint={t("drivers.field.accountHint")}
-              options={(accountPage?.results ?? []).map((account) => ({
-                value: account.id,
-                label: `${account.full_name} (${account.email})`,
-              }))}
-            />
+            <div className="space-y-1">
+              <SelectField
+                field={field as unknown as BoundField}
+                label={t("drivers.field.account")}
+                required
+                hint={t("drivers.field.accountHint")}
+                options={(accounts.data?.results ?? []).map((account) => ({
+                  value: account.id,
+                  label: `${account.full_name} (${account.email})`,
+                }))}
+              />
+              <QueryFailedNote query={accounts} what={t("drivers.what.accounts")} />
+            </div>
           )}
         </form.Field>
 

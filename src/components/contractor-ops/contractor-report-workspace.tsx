@@ -5,7 +5,7 @@ import { FileClock, FileSpreadsheet, FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -278,6 +278,7 @@ export function ContractorReportWorkspace({
             </p>
           </div>
         ) : null}
+        <QueryFailedNote query={options} what={t("what.filterOptions")} className="sm:col-span-2 lg:col-span-4" />
       </section>
 
       <section className="overflow-hidden rounded-lg border bg-card">

@@ -25,6 +25,7 @@ import { useMemo, useState } from "react";
 
 import {
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -278,9 +279,13 @@ export function DriverGps() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold">{t("driverGps.liveMap.title")}</h2>
-            <p className="text-xs text-muted-foreground">
-              {t("driverGps.liveMap.count", { count: live.data?.count ?? 0 })}
-            </p>
+            {live.isError ? (
+              <QueryFailedNote query={live} what={t("driverGps.what.livePositions")} />
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {t("driverGps.liveMap.count", { count: live.data?.count ?? 0 })}
+              </p>
+            )}
           </div>
           <span className="text-xs text-muted-foreground">
             {t("driverGps.liveMap.refresh")}
@@ -292,6 +297,7 @@ export function DriverGps() {
           paths={livePaths}
           zones={liveZones}
         />
+        <QueryFailedNote query={liveRoutes} what={t("driverGps.what.liveRoutes")} />
       </section>
 
       <div className="grid min-h-0 gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">

@@ -10,6 +10,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FormSection } from "@/components/shared/form-shell";
 import {
+  FieldWrapper,
   LoadFailed,
   StatusBadge,
 } from "@/components/shared/page-primitives";
@@ -175,22 +176,31 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
       )}
 
       {mayIssue &&
-        (available.length === 0 ? (
+        (projects.isError ? (
+          <LoadFailed
+            what={t("suppliers.what.sites")}
+            onRetry={() => void projects.refetch()}
+          />
+        ) : available.length === 0 ? (
           <p className="text-xs text-muted-foreground">
             {projects.data?.results?.length
               ? t("suppliers.siteCodes.allSitesCovered")
               : t("suppliers.siteCodes.noSites")}
           </p>
         ) : (
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="min-w-56 flex-1">
+          <div className="flex flex-wrap items-end gap-2">
+            <FieldWrapper
+              label={t("suppliers.siteCodes.chooseSite")}
+              required
+              className="min-w-56 flex-1"
+            >
               <ProjectPicker
                 value={chosenProject}
                 onValueChange={setChosenProject}
                 placeholder={t("suppliers.siteCodes.chooseSite")}
                 projects={available}
               />
-            </div>
+            </FieldWrapper>
             <Button
               type="button"
               requires={[[chosenProject, t("suppliers.siteCodes.chooseSite")]]}

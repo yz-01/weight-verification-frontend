@@ -18,7 +18,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
-import { StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import {
   SubscriptionActionDialog,
   type SubscriptionActionMode,
@@ -264,6 +264,7 @@ export function CompanySubscriptions({
               <PopoverContent align="end" className="w-80 space-y-3">
                 <FilterSelect label={t("field.audience")} value={list.filters.company_type ?? ""} onChange={(value) => list.setFilter("company_type", value || undefined)} options={[{ value: "", label: common("all") }, { value: "CONTRACTOR", label: t("audience.CONTRACTOR") }, { value: "RECYCLER", label: t("audience.RECYCLER") }]} />
                 <FilterSelect label={t("field.plan")} value={list.filters.plan ?? ""} onChange={(value) => list.setFilter("plan", value || undefined)} options={[{ value: "", label: common("all") }, ...planRows.map((plan) => ({ value: plan.id, label: plan.name }))]} />
+                <QueryFailedNote query={plans} what={t("what.plans")} />
                 <label className="block space-y-1 text-xs font-medium"><span>{t("filters.expiresAfter")}</span><Input type="date" value={list.filters.expires_after ?? ""} onChange={(event) => list.setFilter("expires_after", event.target.value || undefined)} /></label>
                 <label className="block space-y-1 text-xs font-medium"><span>{t("filters.expiresBefore")}</span><Input type="date" value={list.filters.expires_before ?? ""} onChange={(event) => list.setFilter("expires_before", event.target.value || undefined)} /></label>
                 <Button variant="ghost" size="sm" className="w-full" onClick={list.clearFilters}><SlidersHorizontal className="h-4 w-4" />{t("filters.clear")}</Button>
@@ -286,6 +287,7 @@ export function CompanySubscriptions({
         mode={action}
         subscription={selected}
         plans={planRows}
+        plansFailed={<QueryFailedNote query={plans} what={t("what.plans")} />}
       />
     </div>
   );

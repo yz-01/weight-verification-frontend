@@ -25,6 +25,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import {
   FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -260,15 +261,19 @@ function Overview() {
     queryKey: ["technical-support-summary"],
     queryFn: getTechnicalSupportSummary,
   });
+  const common = useTranslations("common");
+  const none = common("emptyValue");
+  const d = summary.data;
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
+      <QueryFailedNote query={summary} what={t("what.summary")} />
       <div className="grid gap-px overflow-hidden rounded-lg border bg-border shadow-sm sm:grid-cols-2 xl:grid-cols-4">
         {[
-          ["tickets", summary.data?.tickets ?? 0],
-          ["bugs", summary.data?.bugs ?? 0],
-          ["installations", summary.data?.installations ?? 0],
-          ["completion", `${summary.data?.completion_rate ?? 0}%`],
+          ["tickets", d ? d.tickets : none],
+          ["bugs", d ? d.bugs : none],
+          ["installations", d ? d.installations : none],
+          ["completion", d ? `${d.completion_rate}%` : none],
         ].map(([key, value]) => (
           <div key={key} className="bg-card px-5 py-4">
             <p className="text-xs text-muted-foreground">
@@ -378,24 +383,25 @@ function useCompanies() {
     queryFn: () => getCompanies({ page_size: 200, sort_by: "name" }),
   });
 }
+/**
+ * The company picker. The caller wraps it in the labelled FieldWrapper (so the
+ * star sits in the form that demands it); the options query lives here so a
+ * failed load is said right under the select instead of reading as "no companies".
+ */
 function CompanySelect({
-  companies,
   value,
   onChange,
   optional = false,
 }: {
-  companies: CompanyRow[];
   value: string;
   onChange: (v: string) => void;
   optional?: boolean;
 }) {
   const t = useTranslations("adminTechnicalSupport");
+  const companyOptions = useCompanies();
+  const companies: CompanyRow[] = companyOptions.data?.results ?? [];
   return (
-    <FieldWrapper
-      label={t("field.company")}
-      required={!optional}
-      hint={optional ? t("field.companyOptionalHelp") : undefined}
-    >
+    <>
       <Select
         value={value || (optional ? "__platform__" : undefined)}
         onValueChange={(next) => onChange(next === "__platform__" ? "" : next)}
@@ -420,7 +426,8 @@ function CompanySelect({
           ))}
         </SelectContent>
       </Select>
-    </FieldWrapper>
+      <QueryFailedNote query={companyOptions} what={t("what.companies")} />
+    </>
   );
 }
 
@@ -505,7 +512,6 @@ function TicketPanel({ createAllowed }: { createAllowed: boolean }) {
   const t = useTranslations("adminTechnicalSupport");
   const df = useDateFormat();
   const qc = useQueryClient();
-  const companies = useCompanies();
   const rows = useQuery({
     queryKey: ["support-tickets", createAllowed],
     queryFn: () => getTickets({ page_size: 200 }),
@@ -580,7 +586,6 @@ function TicketPanel({ createAllowed }: { createAllowed: boolean }) {
       </Table>
       {creating && (
         <TicketDialog
-          companies={companies.data?.results ?? []}
           onClose={() => setCreating(false)}
           onSaved={() =>
             qc.invalidateQueries({ queryKey: ["support-tickets"] })
@@ -601,11 +606,9 @@ function TicketPanel({ createAllowed }: { createAllowed: boolean }) {
 }
 
 function TicketDialog({
-  companies,
   onClose,
   onSaved,
 }: {
-  companies: CompanyRow[];
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -616,11 +619,20 @@ function TicketDialog({
     title: "",
     description: "",
     company: null,
+    expected_result: "",
+    actual_result: "",
+    due_date: "",
+    estimated_hours: "",
   });
   const set = (key: keyof TicketPayload, value: unknown) =>
     setForm((x) => ({ ...x, [key]: value }));
   const save = useMutation({
-    mutationFn: () => createTicket(form),
+    mutationFn: () =>
+      createTicket({
+        ...form,
+        due_date: form.due_date || null,
+        estimated_hours: form.estimated_hours || null,
+      }),
     onSuccess: () => {
       onSaved();
       onClose();
@@ -628,70 +640,110 @@ function TicketDialog({
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("action.addTicket")}</DialogTitle>
           <DialogDescription>{t("dialog.ticket")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 sm:grid-cols-2">
-          <CompanySelect
-            optional
-            companies={companies}
-            value={form.company ?? ""}
-            onChange={(x) => set("company", x || null)}
-          />
-          <select
-            className="h-8 rounded-md border bg-background px-2"
-            value={form.type}
-            onChange={(e) => set("type", e.target.value)}
-          >
-            {[
-              "BUG",
-              "SYSTEM_ISSUE",
-              "API_INTEGRATION",
-              "WEIGHBRIDGE_INSTALL",
-              "AI_CCTV",
-              "ANPR",
-              "DEVICE_MAINTENANCE",
-              "OTHER",
-            ].map((x) => (
-              <option key={x} value={x}>
-                {t(`ticketType.${x}`)}
-              </option>
-            ))}
-          </select>
-          <select
-            className="h-8 rounded-md border bg-background px-2"
-            value={form.priority}
-            onChange={(e) => set("priority", e.target.value)}
-          >
-            {["LOW", "MEDIUM", "HIGH", "URGENT"].map((x) => (
-              <option key={x} value={x}>
-                {t(`priority.${x}`)}
-              </option>
-            ))}
-          </select>
-          <Input
-            placeholder={t("field.subject")}
-            value={form.title}
-            onChange={(e) => set("title", e.target.value)}
-          />
-          <Textarea
+          <FieldWrapper
             className="sm:col-span-2"
-            placeholder={t("field.description")}
-            value={form.description}
-            onChange={(e) => set("description", e.target.value)}
-          />
-          <Textarea
-            placeholder={t("field.environment")}
-            value={form.environment ?? ""}
-            onChange={(e) => set("environment", e.target.value)}
-          />
-          <Textarea
-            placeholder={t("field.steps")}
-            value={form.steps_to_reproduce ?? ""}
-            onChange={(e) => set("steps_to_reproduce", e.target.value)}
-          />
+            label={t("field.company")}
+            hint={t("field.companyOptionalHelp")}
+          >
+            <CompanySelect
+              optional
+              value={form.company ?? ""}
+              onChange={(x) => set("company", x || null)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("column.type")}>
+            <select
+              className="h-8 w-full rounded-md border bg-background px-2"
+              value={form.type}
+              onChange={(e) => set("type", e.target.value)}
+            >
+              {[
+                "BUG",
+                "SYSTEM_ISSUE",
+                "API_INTEGRATION",
+                "WEIGHBRIDGE_INSTALL",
+                "AI_CCTV",
+                "ANPR",
+                "DEVICE_MAINTENANCE",
+                "OTHER",
+              ].map((x) => (
+                <option key={x} value={x}>
+                  {t(`ticketType.${x}`)}
+                </option>
+              ))}
+            </select>
+          </FieldWrapper>
+          <FieldWrapper label={t("column.priority")}>
+            <select
+              className="h-8 w-full rounded-md border bg-background px-2"
+              value={form.priority}
+              onChange={(e) => set("priority", e.target.value)}
+            >
+              {["LOW", "MEDIUM", "HIGH", "URGENT"].map((x) => (
+                <option key={x} value={x}>
+                  {t(`priority.${x}`)}
+                </option>
+              ))}
+            </select>
+          </FieldWrapper>
+          <FieldWrapper className="sm:col-span-2" label={t("field.subject")} required>
+            <Input
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper className="sm:col-span-2" label={t("field.description")} required>
+            <Textarea
+              value={form.description}
+              onChange={(e) => set("description", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.environment")}>
+            <Textarea
+              value={form.environment ?? ""}
+              onChange={(e) => set("environment", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.steps")}>
+            <Textarea
+              value={form.steps_to_reproduce ?? ""}
+              onChange={(e) => set("steps_to_reproduce", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.expectedResult")}>
+            <Textarea
+              value={form.expected_result ?? ""}
+              onChange={(e) => set("expected_result", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.actualResult")}>
+            <Textarea
+              value={form.actual_result ?? ""}
+              onChange={(e) => set("actual_result", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.dueDate")}>
+            <Input
+              type="date"
+              value={form.due_date ?? ""}
+              onChange={(e) => set("due_date", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.estimatedHours")}>
+            <Input
+              type="number"
+              min="0"
+              step="0.25"
+              value={form.estimated_hours ?? ""}
+              onChange={(e) => set("estimated_hours", e.target.value)}
+            />
+          </FieldWrapper>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -739,6 +791,19 @@ function TicketStateDialog({
   const [priority, setPriority] = useState<TicketPriority>(row.priority);
   const [title, setTitle] = useState(row.title);
   const [description, setDescription] = useState(row.description);
+  // The rest of the ticket the backend keeps and nobody could fill (T-382):
+  // what should have happened, what did, when it is due, the effort planned and
+  // spent, and how it was resolved. Prefilled so a correction never blanks them.
+  const [details, setDetails] = useState({
+    expected_result: row.expected_result ?? "",
+    actual_result: row.actual_result ?? "",
+    due_date: row.due_date ?? "",
+    estimated_hours: row.estimated_hours ?? "",
+    actual_hours: row.actual_hours ?? "",
+    resolution_notes: row.resolution_notes ?? "",
+  });
+  const setDetail = (key: keyof typeof details, value: string) =>
+    setDetails((current) => ({ ...current, [key]: value }));
   const [comment, setComment] = useState("");
   const [internal, setInternal] = useState(false);
 
@@ -751,7 +816,17 @@ function TicketStateDialog({
   });
   const edit = useMutation({
     mutationFn: () =>
-      updateTicket(row.id, { priority, title, description }),
+      updateTicket(row.id, {
+        priority,
+        title,
+        description,
+        expected_result: details.expected_result,
+        actual_result: details.actual_result,
+        resolution_notes: details.resolution_notes,
+        due_date: details.due_date || null,
+        estimated_hours: details.estimated_hours || null,
+        actual_hours: details.actual_hours || null,
+      }),
     onSuccess: onSaved,
   });
   const speak = useMutation({
@@ -765,7 +840,13 @@ function TicketStateDialog({
   const edited =
     priority !== row.priority ||
     title !== row.title ||
-    description !== row.description;
+    description !== row.description ||
+    details.expected_result !== (row.expected_result ?? "") ||
+    details.actual_result !== (row.actual_result ?? "") ||
+    details.due_date !== (row.due_date ?? "") ||
+    details.estimated_hours !== (row.estimated_hours ?? "") ||
+    details.actual_hours !== (row.actual_hours ?? "") ||
+    details.resolution_notes !== (row.resolution_notes ?? "");
   const comments = row.comments ?? [];
 
   return (
@@ -780,24 +861,83 @@ function TicketStateDialog({
 
         <div className="space-y-2">
           <p className="text-sm font-medium">{t("ticketEdit.title")}</p>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-          <select
-            className="h-8 w-full rounded-md border bg-background px-2"
-            aria-label={t("column.priority")}
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as TicketPriority)}
-          >
-            {TICKET_PRIORITIES.map((x) => (
-              <option key={x} value={x}>
-                {t(`priority.${x}`)}
-              </option>
-            ))}
-          </select>
-          <Textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-          />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FieldWrapper label={t("field.subject")} required>
+              <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+            </FieldWrapper>
+            <FieldWrapper label={t("column.priority")}>
+              <select
+                className="h-8 w-full rounded-md border bg-background px-2"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as TicketPriority)}
+              >
+                {TICKET_PRIORITIES.map((x) => (
+                  <option key={x} value={x}>
+                    {t(`priority.${x}`)}
+                  </option>
+                ))}
+              </select>
+            </FieldWrapper>
+            <FieldWrapper className="sm:col-span-2" label={t("field.description")}>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+              />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.expectedResult")}>
+              <Textarea
+                value={details.expected_result}
+                onChange={(e) => setDetail("expected_result", e.target.value)}
+                rows={2}
+              />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.actualResult")}>
+              <Textarea
+                value={details.actual_result}
+                onChange={(e) => setDetail("actual_result", e.target.value)}
+                rows={2}
+              />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.dueDate")}>
+              <Input
+                type="date"
+                value={details.due_date}
+                onChange={(e) => setDetail("due_date", e.target.value)}
+              />
+            </FieldWrapper>
+            <div className="grid grid-cols-2 gap-3">
+              <FieldWrapper label={t("field.estimatedHours")}>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.25"
+                  value={details.estimated_hours}
+                  onChange={(e) => setDetail("estimated_hours", e.target.value)}
+                />
+              </FieldWrapper>
+              <FieldWrapper label={t("field.actualHours")}>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.25"
+                  value={details.actual_hours}
+                  onChange={(e) => setDetail("actual_hours", e.target.value)}
+                />
+              </FieldWrapper>
+            </div>
+            <FieldWrapper
+              className="sm:col-span-2"
+              label={t("field.resolutionNotes")}
+              hint={t("field.resolutionNotesHelp")}
+            >
+              <Textarea
+                value={details.resolution_notes}
+                onChange={(e) => setDetail("resolution_notes", e.target.value)}
+                rows={2}
+              />
+            </FieldWrapper>
+          </div>
           <Button
             size="sm"
             variant="outline"
@@ -838,12 +978,13 @@ function TicketStateDialog({
               ))}
             </ul>
           )}
-          <Textarea
-            placeholder={t("ticketComment.placeholder")}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            rows={2}
-          />
+          <FieldWrapper label={t("ticketComment.reply")} required>
+            <Textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={2}
+            />
+          </FieldWrapper>
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <input
               type="checkbox"
@@ -856,7 +997,7 @@ function TicketStateDialog({
           <Button
             size="sm"
             variant="outline"
-            requires={[[comment, t("ticketComment.title")]]}
+            requires={[[comment, t("ticketComment.reply")]]}
             disabled={speak.isPending}
             onClick={() => speak.mutate()}
           >
@@ -878,11 +1019,12 @@ function TicketStateDialog({
               </option>
             ))}
           </select>
-          <Textarea
-            placeholder={t("field.result")}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
+          <FieldWrapper label={t("field.result")}>
+            <Textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </FieldWrapper>
         </div>
 
         <DialogFooter>
@@ -909,7 +1051,6 @@ function BugPanel() {
   const t = useTranslations("adminTechnicalSupport");
   const df = useDateFormat();
   const qc = useQueryClient();
-  const companies = useCompanies();
   const rows = useQuery({
     queryKey: ["bug-reports"],
     queryFn: () => getBugs({ page_size: 200 }),
@@ -966,7 +1107,6 @@ function BugPanel() {
       </Table>
       {creating && (
         <BugDialog
-          companies={companies.data?.results ?? []}
           onClose={() => setCreating(false)}
           onSaved={() => qc.invalidateQueries({ queryKey: ["bug-reports"] })}
         />
@@ -982,11 +1122,9 @@ function BugPanel() {
   );
 }
 function BugDialog({
-  companies,
   onClose,
   onSaved,
 }: {
-  companies: CompanyRow[];
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -997,6 +1135,8 @@ function BugDialog({
     severity: "NORMAL",
     module: "",
     company: null,
+    expected_result: "",
+    actual_result: "",
   });
   const set = (key: keyof BugPayload, value: string | null) =>
     setForm((x) => ({ ...x, [key]: value }));
@@ -1009,43 +1149,64 @@ function BugDialog({
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t("action.addBug")}</DialogTitle>
           <DialogDescription>{t("dialog.bug")}</DialogDescription>
         </DialogHeader>
-        <CompanySelect
-          optional
-          companies={companies}
-          value={form.company ?? ""}
-          onChange={(x) => set("company", x || null)}
-        />
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={form.severity}
-          onChange={(e) => set("severity", e.target.value)}
+        <FieldWrapper
+          label={t("field.company")}
+          hint={t("field.companyOptionalHelp")}
         >
-          {["MINOR", "NORMAL", "MAJOR", "CRITICAL"].map((x) => (
-            <option key={x} value={x}>
-              {t(`severity.${x}`)}
-            </option>
-          ))}
-        </select>
-        <Input
-          placeholder={t("field.module")}
-          value={form.module}
-          onChange={(e) => set("module", e.target.value)}
-        />
-        <Input
-          placeholder={t("field.subject")}
-          value={form.title}
-          onChange={(e) => set("title", e.target.value)}
-        />
-        <Textarea
-          placeholder={t("field.description")}
-          value={form.description}
-          onChange={(e) => set("description", e.target.value)}
-        />
+          <CompanySelect
+            optional
+            value={form.company ?? ""}
+            onChange={(x) => set("company", x || null)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("column.severity")}>
+          <select
+            className="h-8 w-full rounded-md border bg-background px-2"
+            value={form.severity}
+            onChange={(e) => set("severity", e.target.value)}
+          >
+            {["MINOR", "NORMAL", "MAJOR", "CRITICAL"].map((x) => (
+              <option key={x} value={x}>
+                {t(`severity.${x}`)}
+              </option>
+            ))}
+          </select>
+        </FieldWrapper>
+        <FieldWrapper label={t("field.module")}>
+          <Input
+            value={form.module}
+            onChange={(e) => set("module", e.target.value)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.subject")} required>
+          <Input
+            value={form.title}
+            onChange={(e) => set("title", e.target.value)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.description")} required>
+          <Textarea
+            value={form.description}
+            onChange={(e) => set("description", e.target.value)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.expectedResult")}>
+          <Textarea
+            value={form.expected_result ?? ""}
+            onChange={(e) => set("expected_result", e.target.value)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.actualResult")}>
+          <Textarea
+            value={form.actual_result ?? ""}
+            onChange={(e) => set("actual_result", e.target.value)}
+          />
+        </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -1151,7 +1312,6 @@ function BugUpdateDialog({
 function APIIntegrationPanel() {
   const t = useTranslations("adminTechnicalSupport");
   const qc = useQueryClient();
-  const companies = useCompanies();
   const rows = useQuery({
     queryKey: ["support-api-integrations"],
     queryFn: () => getAPIIntegrations({ page_size: 200 }),
@@ -1234,7 +1394,6 @@ function APIIntegrationPanel() {
       </Table>
       {creating && (
         <IntegrationDialog
-          companies={companies.data?.results ?? []}
           connections={liveConnections.data?.results ?? []}
           onClose={() => setCreating(false)}
           onSaved={() =>
@@ -1257,12 +1416,10 @@ function APIIntegrationPanel() {
   );
 }
 function IntegrationDialog({
-  companies,
   connections,
   onClose,
   onSaved,
 }: {
-  companies: CompanyRow[];
   connections: IntegrationConfig[];
   onClose: () => void;
   onSaved: () => void;
@@ -1295,17 +1452,18 @@ function IntegrationDialog({
           <DialogDescription>{t("dialog.api")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
-          <CompanySelect
-            companies={companies}
-            value={form.company}
-            onChange={(x) =>
-              setForm((current) => ({
-                ...current,
-                company: x,
-                linked_integration: null,
-              }))
-            }
-          />
+          <FieldWrapper label={t("field.company")} required>
+            <CompanySelect
+              value={form.company}
+              onChange={(x) =>
+                setForm((current) => ({
+                  ...current,
+                  company: x,
+                  linked_integration: null,
+                }))
+              }
+            />
+          </FieldWrapper>
           <FieldWrapper
             label={t("field.linkedIntegration")}
             hint={t("field.linkedIntegrationHelp")}
@@ -1494,7 +1652,6 @@ function DevicePanel({ installations }: { installations: boolean }) {
   const system = useTranslations("adminSystemSettings");
   const df = useDateFormat();
   const qc = useQueryClient();
-  const companies = useCompanies();
   const { can } = useAuth();
   const rows = useQuery({
     queryKey: ["device-maintenance", installations],
@@ -1655,7 +1812,6 @@ function DevicePanel({ installations }: { installations: boolean }) {
       {creating && (
         <DeviceDialog
           installations={installations}
-          companies={companies.data?.results ?? []}
           devices={registeredDevices.data?.results ?? []}
           onClose={() => setCreating(false)}
           onSaved={refresh}
@@ -1763,13 +1919,11 @@ function RemoteSessionHistory() {
 }
 function DeviceDialog({
   installations,
-  companies,
   devices,
   onClose,
   onSaved,
 }: {
   installations: boolean;
-  companies: CompanyRow[];
   devices: IntegrationDevice[];
   onClose: () => void;
   onSaved: () => void;
@@ -1816,17 +1970,18 @@ function DeviceDialog({
           <DialogDescription>{t("dialog.device")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <CompanySelect
-            companies={companies}
-            value={form.company}
-            onChange={(x) =>
-              setForm((current) => ({
-                ...current,
-                company: x,
-                linked_device: null,
-              }))
-            }
-          />
+          <FieldWrapper label={t("field.company")} required>
+            <CompanySelect
+              value={form.company}
+              onChange={(x) =>
+                setForm((current) => ({
+                  ...current,
+                  company: x,
+                  linked_device: null,
+                }))
+              }
+            />
+          </FieldWrapper>
           <FieldWrapper
             label={t("field.linkedDevice")}
             hint={t("field.linkedDeviceHelp")}
@@ -1971,12 +2126,14 @@ function MaintenanceCompleteDialog({
   const t = useTranslations("adminTechnicalSupport");
   const [work, setWork] = useState("");
   const [result, setResult] = useState("");
+  const [laborHours, setLaborHours] = useState(row.labor_hours ?? "");
   const [test, setTest] = useState(row.test_status);
   const [active, setActive] = useState(row.activation_status);
   const save = useMutation({
     mutationFn: () =>
       completeMaintenance(row.id, {
         work_performed: work,
+        labor_hours: laborHours || null,
         result_notes: result,
         test_status: test,
         activation_status: active,
@@ -1998,6 +2155,15 @@ function MaintenanceCompleteDialog({
         <div className="grid gap-4">
           <FieldWrapper label={t("field.work")} required>
             <Textarea value={work} onChange={(e) => setWork(e.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.laborHours")}>
+            <Input
+              type="number"
+              min="0"
+              step="0.25"
+              value={laborHours}
+              onChange={(e) => setLaborHours(e.target.value)}
+            />
           </FieldWrapper>
           <FieldWrapper label={t("field.result")}>
             <Textarea value={result} onChange={(e) => setResult(e.target.value)} />
@@ -2279,14 +2445,22 @@ function ReportPanel() {
         fields.map((key) => ({ key, label: t(`exportColumn.${key}`) })),
       ),
   });
+  const common = useTranslations("common");
+  const none = common("emptyValue");
+  const d = summary.data;
   return (
     <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
+      <QueryFailedNote
+        query={summary}
+        what={t("what.summary")}
+        className="border-b px-5 py-2"
+      />
       <div className="grid gap-px border-b bg-border sm:grid-cols-2 xl:grid-cols-4">
         {[
-          ["tickets", summary.data?.tickets ?? 0],
-          ["bugs", summary.data?.bugs ?? 0],
-          ["installations", summary.data?.installations ?? 0],
-          ["completion", `${summary.data?.completion_rate ?? 0}%`],
+          ["tickets", d ? d.tickets : none],
+          ["bugs", d ? d.bugs : none],
+          ["installations", d ? d.installations : none],
+          ["completion", d ? `${d.completion_rate}%` : none],
         ].map(([key, value]) => (
           <div key={key} className="bg-card p-4">
             <p className="text-xs text-muted-foreground">

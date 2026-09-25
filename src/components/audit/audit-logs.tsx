@@ -9,7 +9,7 @@ import { useMemo, useState } from "react";
 import { AuditEntryDialog } from "@/components/audit/audit-entry-dialog";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -392,21 +392,24 @@ export function AuditLogs({
       />
 
       {user?.is_platform_staff && (
-        <select
-          className="h-9 w-full max-w-sm rounded-md border bg-background px-3 text-sm"
-          value={list.filters.company ?? ""}
-          aria-label={t("audit.companyFilter")}
-          onChange={(event) =>
-            list.setFilter("company", event.target.value || undefined)
-          }
-        >
-          <option value="">{t("audit.allCompanies")}</option>
-          {(companies.data?.results ?? []).map((company) => (
-            <option key={company.id} value={company.id}>
-              {company.code} / {company.name}
-            </option>
-          ))}
-        </select>
+        <div className="space-y-1">
+          <select
+            className="h-9 w-full max-w-sm rounded-md border bg-background px-3 text-sm"
+            value={list.filters.company ?? ""}
+            aria-label={t("audit.companyFilter")}
+            onChange={(event) =>
+              list.setFilter("company", event.target.value || undefined)
+            }
+          >
+            <option value="">{t("audit.allCompanies")}</option>
+            {(companies.data?.results ?? []).map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.code} / {company.name}
+              </option>
+            ))}
+          </select>
+          <QueryFailedNote query={companies} what={t("audit.what.companies")} />
+        </div>
       )}
 
       {advanced && (

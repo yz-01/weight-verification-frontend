@@ -940,7 +940,7 @@ function AdminNotificationsPanel({
             >
               <span className="flex items-start justify-between gap-3">
                 <span className="text-sm font-medium">{notification.title}</span>
-                {!notification.is_read && <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />}
+                {notification.is_outstanding && <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />}
               </span>
               <span className="mt-1 line-clamp-1 block text-xs text-muted-foreground">
                 {notification.message}

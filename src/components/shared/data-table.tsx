@@ -72,6 +72,23 @@ interface DataTableProps<T> {
   filterPills?: FilterPill[];
   /** Extra toolbar controls, shown left of Columns. Secondary actions only. */
   toolbarActions?: React.ReactNode;
+  /**
+   * Open a row by clicking anywhere on it.
+   *
+   * The customer's complaint behind T-304: the actions were small icons at the
+   * right-hand end of the row, and they could not find them - 「以为没做」.
+   * Making the whole row the target is the fix; the drawer it opens is where
+   * the actions become buttons with words on them.
+   *
+   * A row is only interactive when this is given, so every other table keeps
+   * exactly the behaviour it has.
+   */
+  onRowClick?: (row: T) => void;
+  /**
+   * A class for one row, for a record whose state the whole row has to show -
+   * the overdue disposal the customer asked to see 「整条记录显示红色」 (D-217).
+   */
+  rowClassName?: (row: T) => string | undefined;
   onSearchChange: (value: string) => void;
   onSortChange: (field: string, order: "asc" | "desc") => void;
   onPageChange: (page: number) => void;
@@ -102,6 +119,8 @@ export function DataTable<T>({
   storageKey,
   filterPills,
   toolbarActions,
+  onRowClick,
+  rowClassName,
   onSearchChange,
   onSortChange,
   onPageChange,
@@ -315,9 +334,43 @@ export function DataTable<T>({
               </TableRow>
             ) : (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className={
+                    [onRowClick ? "cursor-pointer" : "", rowClassName?.(row.original) ?? ""]
+                      .filter(Boolean)
+                      .join(" ") || undefined
+                  }
+                  // Keyboard reaches it too: a row that only opens on a mouse
+                  // click is a row somebody using a keyboard cannot open at
+                  // all, and the icons this replaced were at least focusable.
+                  tabIndex={onRowClick ? 0 : undefined}
+                  role={onRowClick ? "button" : undefined}
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
+                  onKeyDown={
+                    onRowClick
+                      ? (event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            onRowClick(row.original);
+                          }
+                        }
+                      : undefined
+                  }
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-6 py-2.5 text-sm">
+                    <TableCell
+                      key={cell.id}
+                      className="px-6 py-2.5 text-sm"
+                      // A button inside the row must not also open the row.
+                      onClick={
+                        cell.column.id === "actions"
+                          ? (event) => event.stopPropagation()
+                          : undefined
+                      }
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

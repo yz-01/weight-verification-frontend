@@ -13,6 +13,7 @@ export function DriverLiveTracker() {
   const { user } = useAuth();
   const pathname = usePathname();
   const lastSentAt = useRef(0);
+  // query-failure: renders nothing; it only reads the running trip to keep GPS going, and the driver dashboard shows its own failure state
   const dashboard = useQuery({
     queryKey: ["driver", "dashboard"],
     queryFn: () => getDriverDashboardOfflineAware(user!.id),

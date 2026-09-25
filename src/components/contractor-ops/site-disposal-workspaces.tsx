@@ -18,10 +18,13 @@ import {
   UserRound,
   XCircle,
 } from "lucide-react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
+import type { ColumnDef } from "@tanstack/react-table";
+import { useSearchParams } from "next/navigation";
+
+import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
@@ -32,8 +35,20 @@ import {
   FieldEvidenceGrid,
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
+import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
-import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import {
+  ColumnFilter,
+  FilterSelect,
+  ModuleRecordsTable,
+  PlainHeader,
+  ProjectListFilter,
+  sortable,
+} from "@/components/shared/module-records-table";
+import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { useListQuery } from "@/hooks/use-list-query";
+import { useDateFormat } from "@/lib/dates";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { Button } from "@/components/ui/button";
@@ -71,6 +86,7 @@ import {
   getExternalDisposalTask,
   getInternalDisposalTask,
   regenerateDisposalExternalLink,
+  exportDisposalRequests,
   fileDisposalRequest,
   reviewDisposalRequest,
   startExternalDisposalTask,
@@ -133,20 +149,19 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
   const ops = useTranslations("contractorOps");
   const qc = useQueryClient();
   const [project, setProject] = useState(initialProject);
-  const [creating, setCreating] = useState(Boolean(fieldTaskId));
+  // Kept in the draft, so tapping this 挂号 again reopens the form it was in
+  // (D-259). Outside a draft (the office) this is ordinary state.
+  const [creating, setCreating] = useDraftState("open:creating", Boolean(fieldTaskId));
   const [viewing, setViewing] = useState<DisposalRequest | null>(null);
-  const [reviewing, setReviewing] = useState<DisposalRequest | null>(null);
-  const [assigning, setAssigning] = useState<DisposalRequest | null>(null);
-  const [regenerating, setRegenerating] = useState<DisposalRequest | null>(null);
-  const [cancelling, setCancelling] = useState<DisposalRequest | null>(null);
-  const [confirming, setConfirming] = useState<DisposalRequest | null>(null);
-  // Which request the office is filing under a construction-waste column (T-232).
-  const [filing, setFiling] = useState<DisposalRequest | null>(null);
+  // Which step dialog is open, and for which request (filing under a
+  // construction-waste column is one of them, T-232).
+  const [step, setStep] = useState<{ step: DisposalStep; row: DisposalRequest } | null>(null);
   const rows = useQuery({
     queryKey: ["site-disposals", project],
     queryFn: () => getDisposalRequests({ page_size: 200, project: project || undefined }),
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["site-disposals"] });
+  const shownRow = viewing ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing) : null;
 
   return (
     <div className="space-y-5">
@@ -173,14 +188,26 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
       {!!rows.data?.count && (
         <div className="grid gap-3 lg:grid-cols-2">
           {rows.data.results.map((row) => (
-            <article key={row.id} className="rounded-lg border bg-card p-4 shadow-sm">
+            /* 「36 小时内仍未收到处理照片…**整条记录显示红色**」 (D-217). The
+               whole card, not just a badge: a marker inside a list of grey
+               cards is something you have to be looking for, and this one has
+               to be noticed by somebody scanning the page. */
+            <article key={row.id} className={`rounded-lg border bg-card p-4 shadow-sm${row.disposal_evidence_is_overdue ? " border-destructive/50 bg-destructive/5" : ""}`}>
               <div className="flex items-start gap-3">
                 <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck className="size-5" /></span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-mono text-xs text-muted-foreground">{row.reference_no}</p>
                     <StatusBadge label={t(`status.${row.status}`)} tone={statusTone(row.status)} />
+                    {row.disposal_evidence_is_overdue && (
+                      <StatusBadge label={t("overdue.badge")} tone="danger" />
+                    )}
                   </div>
+                  {row.disposal_evidence_is_overdue && (
+                    /* Said, not just coloured. A red card tells a reader
+                       something is wrong; it does not tell them what to chase. */
+                    <p className="mt-1 text-xs font-medium text-destructive">{t("overdue.help")}</p>
+                  )}
                   <h3 className="mt-1 truncate font-semibold">{row.waste_description}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{row.project_name} / {row.location_description}</p>
                 </div>
@@ -192,14 +219,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
               <div className="mt-3 flex flex-wrap justify-end gap-2">
                 <span className="mr-auto self-center text-xs text-muted-foreground">{ops("filing.fileInto")}: <span className="font-medium text-foreground">{row.category_name || ops("filing.unfiled")}</span></span>
                 <Button size="sm" variant="outline" onClick={() => setViewing(row)}>{t("action.view")}</Button>
-                {/* Construction waste had no column at all until T-232, so
-                    this is the only way one of those columns ever gets used. */}
-                {can("disposal.manage") && <Button size="sm" variant="outline" onClick={() => setFiling(row)}><FolderOpen />{ops("filing.action")}</Button>}
-                {can("disposal.manage") && row.status === "REQUESTED" && <Button size="sm" onClick={() => setReviewing(row)}><ClipboardCheck />{t("action.review")}</Button>}
-                {can("disposal.manage") && ["APPROVED", "ASSIGNED", "RETURNED"].includes(row.status) && <Button size="sm" onClick={() => setAssigning(row)}><Send />{t("action.assign")}</Button>}
-                {can("disposal.manage") && row.assignment_type === "EXTERNAL" && ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => setRegenerating(row)}><RefreshCw />{t("action.regenerateLink")}</Button>}
-                {can("disposal.confirm") && row.status === "AWAITING_CONFIRMATION" && <Button size="sm" onClick={() => setConfirming(row)}><CheckCircle2 />{t("action.confirm")}</Button>}
-                {can("disposal.manage") && !["COMPLETED", "CANCELLED"].includes(row.status) && <Button size="sm" variant="destructive" onClick={() => setCancelling(row)}><XCircle />{t("action.cancelDisposal")}</Button>}
+                <DisposalActions row={row} onStep={(next) => setStep({ step: next, row })} />
               </div>
             </article>
           ))}
@@ -207,23 +227,14 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
       )}
 
       {creating && <CreateDisposalDialog initialProject={project} fieldTaskId={fieldTaskId} onClose={() => setCreating(false)} onSaved={() => { void refresh(); setCreating(false); onRecordSaved?.(); }} />}
-      {viewing && <DisposalDetailDialog row={viewing} onClose={() => setViewing(null)} />}
-      {filing && (
-        <FileIntoColumnDialog
-          projectId={filing.project}
-          kind="CONSTRUCTION_WASTE"
-          current={filing.category ?? null}
-          reference={filing.reference_no}
-          onFile={(category, reason) => fileDisposalRequest(filing.id, { category, reason })}
-          onFiled={() => void refresh()}
-          onClose={() => setFiling(null)}
+      {shownRow && (
+        <DisposalDetailDialog
+          row={shownRow}
+          onClose={() => setViewing(null)}
+          actions={<DisposalActions row={shownRow} onStep={(next) => setStep({ step: next, row: shownRow })} />}
         />
       )}
-      {reviewing && <ReviewDisposalDialog row={reviewing} onClose={() => setReviewing(null)} onSaved={() => { void refresh(); setReviewing(null); }} />}
-      {assigning && <AssignExecutorDialog row={assigning} onClose={() => setAssigning(null)} onSaved={() => void refresh()} />}
-      {regenerating && <RegenerateLinkDialog row={regenerating} onClose={() => setRegenerating(null)} onSaved={() => void refresh()} />}
-      {cancelling && <CancelDisposalDialog row={cancelling} onClose={() => setCancelling(null)} onSaved={() => { void refresh(); setCancelling(null); }} />}
-      {confirming && <ConfirmDisposalDialog row={confirming} onClose={() => setConfirming(null)} onSaved={() => { void refresh(); setConfirming(null); }} />}
+      <DisposalStepDialogs step={step?.step ?? null} row={step?.row ?? null} onClose={() => setStep(null)} onChanged={() => void refresh()} />
     </div>
   );
 }
@@ -335,7 +346,26 @@ function ReviewDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest;
   const t = useTranslations("siteDisposal");
   const [decision, setDecision] = useState<"APPROVED" | "REJECTED">("APPROVED");
   const [note, setNote] = useState("");
-  const save = useMutation({ mutationFn: () => reviewDisposalRequest(row.id, decision, note), onSuccess: onSaved });
+  /*
+   * Approving mints the temporary link and hands it back once (D-217).
+   *
+   * So this dialog does not close on success: the server keeps only the hash,
+   * and closing would throw away the one copy the applicant is supposed to
+   * forward. The list behind it is refreshed straight away, so what stays open
+   * is only the link.
+   */
+  const [link, setLink] = useState("");
+  const save = useMutation({
+    mutationFn: () => reviewDisposalRequest(row.id, decision, note),
+    onSuccess: (data) => {
+      onSaved();
+      if (data.external_url) setLink(data.external_url);
+      else onClose();
+    },
+  });
+  if (link) {
+    return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("review.linkTitle")}</DialogTitle><DialogDescription>{t("review.linkHelp")}</DialogDescription></DialogHeader><div className="space-y-3"><div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div><Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.close")}</Button></DialogFooter></DialogContent></Dialog>;
+  }
   return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("review.title")}</DialogTitle><DialogDescription>{row.reference_no} / {row.waste_description}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "APPROVED" ? "default" : "outline"} onClick={() => setDecision("APPROVED")}><CheckCircle2 />{t("action.approve")}</Button><Button variant={decision === "REJECTED" ? "destructive" : "outline"} onClick={() => setDecision("REJECTED")}><XCircle />{t("action.reject")}</Button></div><FieldWrapper label={t("field.reviewNote")} required={decision === "REJECTED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[decision !== "REJECTED" || note, t("field.reviewNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
@@ -368,7 +398,7 @@ function AssignExecutorDialog({ row, onClose, onSaved }: { row: DisposalRequest;
     },
   });
   const disabled = save.isPending || (mode === "INTERNAL" ? !staff : !company.trim() || !contact.trim() || !phone.trim() || !expires);
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{link ? t("assign.copyNow") : t("assign.description")}</DialogDescription></DialogHeader>{link ? <div className="space-y-3"><div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div><Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button></div> : <><div className="grid grid-cols-2 gap-2"><Button type="button" variant={mode === "INTERNAL" ? "default" : "outline"} onClick={() => setMode("INTERNAL")}><UserRound />{t("assignment.internal")}</Button><Button type="button" variant={mode === "EXTERNAL" ? "default" : "outline"} onClick={() => setMode("EXTERNAL")}><Link2 />{t("assignment.external")}</Button></div>{mode === "INTERNAL" ? <FieldWrapper label={t("field.fieldStaff")} required><Select value={staff} onValueChange={setStaff}><SelectTrigger className="h-10 w-full"><SelectValue placeholder={t("field.chooseFieldStaff")} /></SelectTrigger><SelectContent>{fieldStaff.map((assignment) => <SelectItem key={assignment.user} value={assignment.user}>{assignment.user_name}</SelectItem>)}</SelectContent></Select>{!team.isLoading && !fieldStaff.length && <p className="mt-2 text-xs text-destructive">{t("assign.noFieldStaff")}</p>}</FieldWrapper> : <div className="grid gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.collectorCompany")} required className="sm:col-span-2"><Input value={company} onChange={(e) => setCompany(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.contact")} required><Input value={contact} onChange={(e) => setContact(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.phone")} required><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.email")} optional={t("optional")}><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.linkExpiry")} required><Input type="datetime-local" value={expires} onChange={(e) => setExpires(e.target.value)} /></FieldWrapper></div>}</>}<DialogFooter><Button variant="outline" onClick={onClose}>{link ? t("action.close") : t("action.cancel")}</Button>{!link && <Button disabled={disabled} onClick={() => save.mutate()}><Send />{mode === "INTERNAL" ? t("action.sendToStaff") : t("action.createLink")}</Button>}</DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{link ? t("assign.copyNow") : t("assign.description")}</DialogDescription></DialogHeader>{link ? <div className="space-y-3"><div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div><Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button></div> : <><div className="grid grid-cols-2 gap-2"><Button type="button" variant={mode === "INTERNAL" ? "default" : "outline"} onClick={() => setMode("INTERNAL")}><UserRound />{t("assignment.internal")}</Button><Button type="button" variant={mode === "EXTERNAL" ? "default" : "outline"} onClick={() => setMode("EXTERNAL")}><Link2 />{t("assignment.external")}</Button></div>{mode === "INTERNAL" ? <FieldWrapper label={t("field.fieldStaff")} required><Select value={staff} onValueChange={setStaff}><SelectTrigger className="h-10 w-full"><SelectValue placeholder={t("field.chooseFieldStaff")} /></SelectTrigger><SelectContent>{fieldStaff.map((assignment) => <SelectItem key={assignment.user} value={assignment.user}>{assignment.user_name}</SelectItem>)}</SelectContent></Select>{!team.isLoading && !team.isError && !fieldStaff.length && <p className="mt-2 text-xs text-destructive">{t("assign.noFieldStaff")}</p>}<QueryFailedNote query={team} what={t("what.fieldStaff")} className="mt-2" /></FieldWrapper> : <div className="grid gap-4 sm:grid-cols-2"><FieldWrapper label={t("field.collectorCompany")} required className="sm:col-span-2"><Input value={company} onChange={(e) => setCompany(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.contact")} required><Input value={contact} onChange={(e) => setContact(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.phone")} required><Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.email")} optional={t("optional")}><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.linkExpiry")} required><Input type="datetime-local" value={expires} onChange={(e) => setExpires(e.target.value)} /></FieldWrapper></div>}</>}<DialogFooter><Button variant="outline" onClick={onClose}>{link ? t("action.close") : t("action.cancel")}</Button>{!link && <Button disabled={disabled} onClick={() => save.mutate()}><Send />{mode === "INTERNAL" ? t("action.sendToStaff") : t("action.createLink")}</Button>}</DialogFooter></DialogContent></Dialog>;
 }
 
 function RegenerateLinkDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
@@ -417,17 +447,367 @@ function ConfirmDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest
       }),
     onSuccess: onSaved,
   });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("confirm.title")}</DialogTitle><DialogDescription>{t("confirm.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "COMPLETED" ? "default" : "outline"} onClick={() => setDecision("COMPLETED")}><CheckCircle2 />{t("action.complete")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><div className="grid gap-3 sm:grid-cols-3"><FieldWrapper label={t("field.actualWeight")} optional={t("optional")}><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} optional={t("optional")}><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} optional={t("optional")}><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper></div><FieldWrapper label={t("field.confirmationNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.confirmationPhoto")} optional={t("optional")}><FieldCamera label={t("field.confirmationPhoto")} file={photo} fileCount={photo ? 1 : 0} onCapture={setPhoto} onClear={() => setPhoto(undefined)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[decision !== "RETURNED" || note, t("field.reviewNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("confirm.title")}</DialogTitle><DialogDescription>{t("confirm.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "COMPLETED" ? "default" : "outline"} onClick={() => setDecision("COMPLETED")}><CheckCircle2 />{t("action.complete")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><div className="grid gap-3 sm:grid-cols-3"><FieldWrapper label={t("field.actualWeight")} optional={t("optional")}><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} optional={t("optional")}><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} optional={t("optional")}><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper></div><FieldWrapper label={t("field.confirmationNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.confirmationPhoto")} optional={t("optional")}><FieldCamera label={t("field.confirmationPhoto")} file={photo} fileCount={photo ? 1 : 0} onCapture={setPhoto} onClear={() => setPhoto(undefined)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[decision !== "RETURNED" || note, t("field.confirmationNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
-function DisposalDetailDialog({ row, onClose }: { row: DisposalRequest; onClose: () => void }) {
+/**
+ * One disposal request on the shared detail shell (T-369, C-020).
+ *
+ * The timeline is the right column's panel: what happened, by whom, when -
+ * the thing a reader checks before deciding the next step, which is the
+ * button under it.
+ */
+function DisposalDetailDialog({
+  row,
+  onClose,
+  actions,
+}: {
+  row: DisposalRequest;
+  onClose: () => void;
+  actions?: React.ReactNode;
+}) {
   const t = useTranslations("siteDisposal");
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>{row.reference_no}</DialogTitle><DialogDescription>{row.project_name} / {row.waste_description}</DialogDescription></DialogHeader><div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-3"><DetailValue label={t("field.status")} value={t(`status.${row.status}`)} /><DetailValue label={t("field.executor")} value={row.assigned_staff_name || row.collector_company_name || t("notAssigned")} /><DetailValue label={t("field.actualWeight")} value={row.actual_weight_kg ? `${row.actual_weight_kg} kg` : "-"} /><DetailValue label={t("field.trips")} value={row.trip_count ? String(row.trip_count) : "-"} /><DetailValue label={t("field.doNo")} value={row.disposal_do_no || "-"} /><DetailValue label={t("field.ocr")} value={t(`ocr.${row.ocr_status}`)} /></div><section><h3 className="mb-3 text-sm font-semibold">{t("evidence")}</h3><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{row.evidence.map((item) => <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" className="group relative overflow-hidden rounded-lg border"><Image src={item.watermarked || item.image} alt={t(`evidenceKind.${item.kind}`)} width={320} height={320} unoptimized className="aspect-square w-full object-cover" /><span className="absolute inset-x-0 bottom-0 bg-black/70 px-2 py-1 text-xs text-white">{t(`evidenceKind.${item.kind}`)}</span></a>)}</div></section><section><h3 className="mb-3 text-sm font-semibold">{t("timeline")}</h3><ol className="space-y-2 border-l pl-4">{row.timeline.map((item) => <li key={item.id} className="relative rounded-lg border bg-card p-3 text-sm before:absolute before:-left-[1.3rem] before:top-4 before:size-2 before:rounded-full before:bg-primary"><p className="font-medium">{t.has(`timelineEvent.${item.event}`) ? t(`timelineEvent.${item.event}`) : item.event}</p><p className="mt-1 text-xs text-muted-foreground">{item.actor_name || t("externalActor")} / {new Date(item.happened_at).toLocaleString()}</p>{item.note && <p className="mt-2 text-muted-foreground">{item.note}</p>}</li>)}</ol></section><DialogFooter><Button onClick={onClose}>{t("action.close")}</Button></DialogFooter></DialogContent></Dialog>;
+  const df = useDateFormat();
+  return (
+    <RecordDetailDialog title={row.reference_no} description={`${row.project_name} / ${row.waste_description}`} onClose={onClose}>
+      <RecordDetailShell
+        reference={row.reference_no}
+        notices={
+          row.disposal_evidence_is_overdue ? (
+            <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm font-medium text-destructive">
+              {t("overdue.help")}
+            </p>
+          ) : null
+        }
+        facts={[
+          { label: t("field.status"), value: <StatusBadge label={t(`status.${row.status}`)} tone={statusTone(row.status)} /> },
+          { label: t("field.project"), value: row.project_name },
+          { label: t("field.siteLocation"), value: row.location_description },
+          { label: t("field.preferredAt"), value: row.preferred_at ? df.dateTime(row.preferred_at) : "—" },
+          { label: t("field.requestedBy"), value: row.requested_by_name || "—" },
+          { label: t("field.executor"), value: row.assigned_staff_name || row.collector_company_name || t("notAssigned") },
+          { label: t("field.actualWeight"), value: row.actual_weight_kg ? `${row.actual_weight_kg} kg` : "—" },
+          { label: t("field.trips"), value: row.trip_count ? String(row.trip_count) : "—" },
+          { label: t("field.doNo"), value: row.disposal_do_no || "—" },
+          { label: t("field.ocr"), value: t(`ocr.${row.ocr_status}`) },
+          { label: t("field.waste"), value: row.waste_description, wide: true },
+          ...(row.request_note ? [{ label: t("field.note"), value: row.request_note, wide: true }] : []),
+          ...(row.review_note ? [{ label: t("field.reviewNote"), value: row.review_note, wide: true }] : []),
+        ]}
+        photos={row.evidence.map((item) => ({
+          id: item.id,
+          url: item.watermarked || item.image,
+          label: t(`evidenceKind.${item.kind}`),
+          takenAt: item.captured_at,
+          latitude: item.latitude,
+          longitude: item.longitude,
+        }))}
+        panel={
+          <section className="rounded-lg border bg-card p-3">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("timeline")}</h3>
+            <ol className="max-h-64 space-y-2 overflow-y-auto border-l pl-3">
+              {row.timeline.map((item) => (
+                <li key={item.id} className="text-xs">
+                  <p className="font-medium">{t.has(`timelineEvent.${item.event}`) ? t(`timelineEvent.${item.event}`) : item.event}</p>
+                  <p className="text-muted-foreground">{item.actor_name || t("externalActor")} · {df.dateTime(item.happened_at)}</p>
+                  {item.note && <p className="mt-0.5 text-muted-foreground">{item.note}</p>}
+                </li>
+              ))}
+            </ol>
+          </section>
+        }
+        actions={
+          <div className="flex flex-wrap gap-2">
+            {actions}
+            <AddToPackageButton kind="DISPOSAL_REQUEST" recordId={row.id} projectId={row.project} reference={row.reference_no} />
+          </div>
+        }
+        // The conversation bound to this Record ID (T-316, C-014, D-233), on
+        // the screen where the work is done rather than in the archive queue.
+        conversation={{ kind: "DISPOSAL_REQUEST", recordId: row.id }}
+      />
+    </RecordDetailDialog>
+  );
 }
 
-function DetailValue({ label, value }: { label: string; value: string }) {
-  return <div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 font-medium">{value}</p></div>;
+type DisposalStep = "filing" | "reviewing" | "assigning" | "regenerating" | "confirming" | "cancelling";
+
+/**
+ * The steps one disposal request can take next, for whoever is looking.
+ *
+ * One component for the phone card and the office detail's right column
+ * (C-020: 「那些按钮放在图 2 的圈起来的位置」), so the two never offer
+ * different steps for the same state.
+ */
+function DisposalActions({ row, onStep }: { row: DisposalRequest; onStep: (step: DisposalStep) => void }) {
+  const t = useTranslations("siteDisposal");
+  const ops = useTranslations("contractorOps");
+  const { can } = useAuth();
+  return (
+    <>
+      {/* Construction waste had no column at all until T-232, so this is the
+          only way one of those columns ever gets used. */}
+      {can("disposal.manage") && <Button size="sm" variant="outline" onClick={() => onStep("filing")}><FolderOpen />{ops("filing.action")}</Button>}
+      {can("disposal.manage") && row.status === "REQUESTED" && <Button size="sm" onClick={() => onStep("reviewing")}><ClipboardCheck />{t("action.review")}</Button>}
+      {can("disposal.manage") && ["APPROVED", "ASSIGNED", "RETURNED"].includes(row.status) && <Button size="sm" onClick={() => onStep("assigning")}><Send />{t("action.assign")}</Button>}
+      {can("disposal.manage") && row.assignment_type === "EXTERNAL" && ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("regenerating")}><RefreshCw />{t("action.regenerateLink")}</Button>}
+      {can("disposal.confirm") && row.status === "AWAITING_CONFIRMATION" && <Button size="sm" onClick={() => onStep("confirming")}><CheckCircle2 />{t("action.confirm")}</Button>}
+      {can("disposal.manage") && !["COMPLETED", "CANCELLED"].includes(row.status) && <Button size="sm" variant="destructive" onClick={() => onStep("cancelling")}><XCircle />{t("action.cancelDisposal")}</Button>}
+    </>
+  );
 }
+
+/** The step dialogs, mounted once by whichever screen owns the request list. */
+function DisposalStepDialogs({
+  step,
+  row,
+  onClose,
+  onChanged,
+}: {
+  step: DisposalStep | null;
+  row: DisposalRequest | null;
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  if (!step || !row) return null;
+  const done = () => {
+    onChanged();
+    onClose();
+  };
+  switch (step) {
+    case "filing":
+      return (
+        <FileIntoColumnDialog
+          projectId={row.project}
+          kind="CONSTRUCTION_WASTE"
+          current={row.category ?? null}
+          reference={row.reference_no}
+          onFile={(category, reason) => fileDisposalRequest(row.id, { category, reason })}
+          onFiled={onChanged}
+          onClose={onClose}
+        />
+      );
+    case "reviewing":
+      return <ReviewDisposalDialog row={row} onClose={onClose} onSaved={done} />;
+    case "assigning":
+      return <AssignExecutorDialog row={row} onClose={onClose} onSaved={onChanged} />;
+    case "regenerating":
+      return <RegenerateLinkDialog row={row} onClose={onClose} onSaved={onChanged} />;
+    case "cancelling":
+      return <CancelDisposalDialog row={row} onClose={onClose} onSaved={done} />;
+    case "confirming":
+      return <ConfirmDisposalDialog row={row} onClose={onClose} onSaved={done} />;
+  }
+}
+
+/**
+ * The office list of disposal requests, in the receipt list's layout (图 4,
+ * T-370); each request opens on the shared shell (T-369). The phone keeps
+ * `SiteDisposalWorkspace`'s cards.
+ */
+export function SiteDisposalOffice() {
+  const t = useTranslations("siteDisposal");
+  const ops = useTranslations("contractorOps");
+  const tRoot = useTranslations();
+  const df = useDateFormat();
+  const { can } = useAuth();
+  const qc = useQueryClient();
+  const searchParams = useSearchParams();
+  const list = useListQuery(["project", "status", "category", "uncategorised"]);
+  const rows = useQuery({
+    queryKey: ["site-disposals", "office", list.query],
+    queryFn: () => getDisposalRequests(list.query),
+  });
+  const refresh = () => void qc.invalidateQueries({ queryKey: ["site-disposals"] });
+  const [creating, setCreating] = useState(searchParams.get("create") === "1");
+  const [viewing, setViewing] = useState<DisposalRequest | null>(null);
+  const [step, setStep] = useState<{ step: DisposalStep; row: DisposalRequest } | null>(null);
+  const total = rows.data?.count ?? 0;
+  // The open request follows the list, so a step taken from the detail shows
+  // its result without closing and reopening.
+  const shown = viewing ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing) : null;
+
+  const columns = useMemo<ColumnDef<DisposalRequest, unknown>[]>(
+    () => [
+      {
+        accessorKey: "reference_no",
+        meta: { label: tRoot("moduleTable.reference") },
+        header: sortable(tRoot("moduleTable.reference")),
+        cell: ({ row }) => <span className="tabular text-foreground">{row.original.reference_no}</span>,
+      },
+      {
+        accessorKey: "status",
+        meta: { label: t("field.status") },
+        header: sortable(t("field.status")),
+        cell: ({ row }) => (
+          <div className="flex flex-wrap gap-1">
+            <StatusBadge label={t(`status.${row.original.status}`)} tone={statusTone(row.original.status)} />
+            {row.original.disposal_evidence_is_overdue && <StatusBadge label={t("overdue.badge")} tone="danger" />}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "category_name",
+        meta: { label: ops("field.category") },
+        header: () => <PlainHeader label={ops("field.category")} />,
+        cell: ({ row }) => row.original.category_name || <span className="text-muted-foreground">{ops("filing.unfiled")}</span>,
+      },
+      {
+        accessorKey: "waste_description",
+        meta: { label: t("field.waste") },
+        header: () => <PlainHeader label={t("field.waste")} />,
+        cell: ({ row }) => (
+          <span className="block max-w-[220px] truncate font-medium text-foreground" title={row.original.waste_description}>
+            {row.original.waste_description}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "location_description",
+        meta: { label: t("field.siteLocation") },
+        header: () => <PlainHeader label={t("field.siteLocation")} />,
+        cell: ({ row }) => <span className="block max-w-[180px] truncate">{row.original.location_description}</span>,
+      },
+      {
+        accessorKey: "preferred_at",
+        meta: { label: t("field.preferredAt") },
+        header: sortable(t("field.preferredAt")),
+        cell: ({ row }) => (
+          <span className="tabular text-muted-foreground">
+            {row.original.preferred_at ? df.dateTime(row.original.preferred_at) : "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "requested_by_name",
+        meta: { label: t("field.requestedBy") },
+        header: () => <PlainHeader label={t("field.requestedBy")} />,
+        cell: ({ row }) => row.original.requested_by_name || "—",
+      },
+      {
+        id: "executor",
+        meta: { label: t("field.executor") },
+        header: () => <PlainHeader label={t("field.executor")} />,
+        cell: ({ row }) => row.original.assigned_staff_name || row.original.collector_company_name || t("notAssigned"),
+      },
+      {
+        accessorKey: "project_name",
+        meta: { label: t("field.project") },
+        header: () => <PlainHeader label={t("field.project")} />,
+        cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
+      },
+      {
+        id: "photos",
+        meta: { label: tRoot("moduleTable.photos") },
+        header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
+        cell: ({ row }) => <TypeBadge label={String(row.original.evidence.length)} />,
+      },
+    ],
+    [t, ops, tRoot, df],
+  );
+
+  return (
+    <>
+      <ModuleRecordsTable
+        title={tRoot("nav.submodule.siteDisposals")}
+        countLabel={tRoot("moduleTable.count", { count: total })}
+        headerAction={
+          can("disposal.submit") ? (
+            <Button size="sm" className="rounded-full px-4 shadow-sm" onClick={() => setCreating(true)}>
+              <Plus className="h-4 w-4" />
+              {t("action.new")}
+            </Button>
+          ) : undefined
+        }
+        list={list}
+        columns={columns}
+        rows={rows.data?.results ?? []}
+        totalCount={total}
+        isLoading={rows.isLoading}
+        isError={rows.isError}
+        storageKey="site-disposals"
+        toolbar={
+          <>
+            <ProjectListFilter list={list} />
+            <ColumnFilter list={list} kind="CONSTRUCTION_WASTE" />
+            <FilterSelect
+              list={list}
+              param="status"
+              allLabel={tRoot("moduleTable.allStatuses")}
+              options={DISPOSAL_STATES.map((state) => ({ value: state, label: t(`status.${state}`) }))}
+            />
+            {can("report.export") || can("disposal.view") ? (
+              <ExportButton
+                disabled={total === 0}
+                onExport={(format) =>
+                  exportDisposalRequests({
+                    format,
+                    title: tRoot("nav.submodule.siteDisposals"),
+                    subtitle: tRoot("moduleTable.count", { count: total }),
+                    emptyLabel: t("empty"),
+                    query: list.query,
+                    columns: [
+                      { key: "reference_no", label: tRoot("moduleTable.reference") },
+                      { key: "project_name", label: t("field.project") },
+                      { key: "category_name", label: ops("field.category") },
+                      {
+                        key: "status",
+                        label: t("field.status"),
+                        values: Object.fromEntries(DISPOSAL_STATES.map((state) => [state, t(`status.${state}`)])),
+                      },
+                      { key: "waste_description", label: t("field.waste") },
+                      { key: "location_description", label: t("field.siteLocation") },
+                      { key: "preferred_at", label: t("field.preferredAt") },
+                      { key: "requested_by_name", label: t("field.requestedBy") },
+                      { key: "actual_weight_kg", label: t("field.actualWeight") },
+                      { key: "trip_count", label: t("field.trips") },
+                      { key: "disposal_do_no", label: t("field.doNo") },
+                    ],
+                  })
+                }
+              />
+            ) : null}
+          </>
+        }
+        // 「36 小时内仍未收到处理照片…整条记录显示红色」 (D-217): the whole
+        // row, because a badge in a column is something you have to be
+        // looking for.
+        rowClassName={(row) => (row.disposal_evidence_is_overdue ? "bg-destructive/5 text-destructive" : undefined)}
+        onOpen={setViewing}
+      />
+      {shown && (
+        <DisposalDetailDialog
+          row={shown}
+          onClose={() => setViewing(null)}
+          actions={<DisposalActions row={shown} onStep={(next) => setStep({ step: next, row: shown })} />}
+        />
+      )}
+      <DisposalStepDialogs step={step?.step ?? null} row={step?.row ?? null} onClose={() => setStep(null)} onChanged={refresh} />
+      {creating && (
+        <CreateDisposalDialog
+          initialProject={list.filters.project ?? ""}
+          onClose={() => setCreating(false)}
+          onSaved={() => {
+            refresh();
+            setCreating(false);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+const DISPOSAL_STATES: DisposalRequestStatus[] = [
+  "REQUESTED",
+  "APPROVED",
+  "ASSIGNED",
+  "IN_PROGRESS",
+  "AWAITING_CONFIRMATION",
+  "RETURNED",
+  "COMPLETED",
+  "REJECTED",
+  "CANCELLED",
+];
 
 const EXECUTION_EVIDENCE: Array<Exclude<DisposalEvidenceKind, "REQUEST" | "CONFIRMATION">> = ["LOADING", "UNLOADING", "DISPOSAL_DO", "OTHER"];
 
@@ -499,19 +879,22 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
       {editable && current.status !== "ASSIGNED" && (
         <>
           <section className="mt-6">
-            <h2 className="text-base font-semibold">{t("photosTitle")}</h2>
-            <div className="mt-3 grid gap-3">
-              {EXECUTION_EVIDENCE.map((kind) => (
-                <FieldCamera
-                  key={kind}
-                  label={t(`evidence.${kind}`)}
-                  fileCount={current.evidence.filter((item) => item.kind === kind).length}
-                  previewUrl={latestEvidencePhoto(current.evidence, kind)}
-                  disabled={uploading !== null}
-                  onCapture={(file) => void upload(kind, file)}
-                />
-              ))}
-            </div>
+            {/* All four are compulsory - the submit button waits on them - so
+                the group wears the star. */}
+            <FieldWrapper label={t("photosTitle")} required>
+              <div className="mt-2 grid gap-3">
+                {EXECUTION_EVIDENCE.map((kind) => (
+                  <FieldCamera
+                    key={kind}
+                    label={t(`evidence.${kind}`)}
+                    fileCount={current.evidence.filter((item) => item.kind === kind).length}
+                    previewUrl={latestEvidencePhoto(current.evidence, kind)}
+                    disabled={uploading !== null}
+                    onCapture={(file) => void upload(kind, file)}
+                  />
+                ))}
+              </div>
+            </FieldWrapper>
           </section>
           <section className="mt-6 space-y-4 rounded-lg border bg-card p-4">
             <h2 className="font-semibold">{t("submitTitle")}</h2>

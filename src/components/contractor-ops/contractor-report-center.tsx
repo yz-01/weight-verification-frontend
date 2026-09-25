@@ -17,7 +17,7 @@ import {
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 
-import { ListHeader } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProjects, getReceipts, getDispatches } from "@/services/contractor.service";
@@ -36,6 +36,9 @@ interface ReportTile {
   icon: typeof FileText;
   value: number | undefined;
   loading: boolean;
+  /** The count request failed: the tile shows a dash, not a zero or nothing. */
+  failed: boolean;
+  retry?: () => unknown;
   descriptionKey: string;
 }
 
@@ -92,20 +95,20 @@ export function ContractorReportCenter() {
   });
 
   const tiles: ReportTile[] = [
-    { key: "projects", feature: "projects", href: "/projects", icon: Package, value: projects.data?.count, loading: projects.isLoading, descriptionKey: "projectRecords" },
-    { key: "materialQuantity", feature: "material_quantity_report", href: "/reports/material-quantity", icon: ClipboardList, value: receipts.data?.count, loading: receipts.isLoading, descriptionKey: "materialQuantity" },
-    { key: "materialCost", feature: "material_cost_report", href: "/reports/material-cost", icon: FileText, value: receipts.data?.count, loading: receipts.isLoading, descriptionKey: "materialCost" },
-    { key: "dispatches", feature: "waste_dispatches", href: "/dispatches", icon: Truck, value: dispatches.data?.count, loading: dispatches.isLoading, descriptionKey: "dispatches" },
-    { key: "attendance", feature: "report_center", href: "/reports/contractor/attendance", icon: CalendarCheck, value: attendance.data?.count, loading: attendance.isLoading, descriptionKey: "attendance" },
-    { key: "tasks", feature: "field_tasks", href: "/field-tasks", icon: Activity, value: tasks.data?.count, loading: tasks.isLoading, descriptionKey: "tasks" },
-    { key: "equipment", feature: "report_center", href: "/reports/contractor/equipment", icon: HardHat, value: equipment.data?.count, loading: equipment.isLoading, descriptionKey: "equipment" },
-    { key: "progress", feature: "report_center", href: "/reports/contractor/progress", icon: ChartNoAxesCombined, value: progress.data?.count, loading: progress.isLoading, descriptionKey: "progress" },
-    { key: "safety", feature: "report_center", href: "/reports/contractor/safety", icon: ShieldAlert, value: safety.data?.count, loading: safety.isLoading, descriptionKey: "safety" },
-    { key: "recycling", feature: "report_center", href: "/reports/contractor/recycling", icon: Recycle, value: disposals.data?.count, loading: disposals.isLoading, descriptionKey: "recycling" },
-    { key: "consultant", feature: "report_center", href: "/reports/contractor/consultant", icon: ClipboardList, value: undefined, loading: false, descriptionKey: "consultant" },
-    { key: "schedule", feature: "report_center", href: "/reports/contractor/schedule", icon: CalendarCheck, value: undefined, loading: false, descriptionKey: "schedule" },
-    { key: "target", feature: "report_center", href: "/reports/contractor/target", icon: Activity, value: projects.data?.count, loading: projects.isLoading, descriptionKey: "target" },
-    { key: "history", feature: "report_center", href: "/reports/contractor/history", icon: FileClock, value: undefined, loading: false, descriptionKey: "history" },
+    { key: "projects", feature: "projects", href: "/projects", icon: Package, value: projects.data?.count, loading: projects.isLoading, failed: projects.isError, retry: projects.refetch, descriptionKey: "projectRecords" },
+    { key: "materialQuantity", feature: "material_quantity_report", href: "/reports/material-quantity", icon: ClipboardList, value: receipts.data?.count, loading: receipts.isLoading, failed: receipts.isError, retry: receipts.refetch, descriptionKey: "materialQuantity" },
+    { key: "materialCost", feature: "material_cost_report", href: "/reports/material-cost", icon: FileText, value: receipts.data?.count, loading: receipts.isLoading, failed: receipts.isError, retry: receipts.refetch, descriptionKey: "materialCost" },
+    { key: "dispatches", feature: "waste_dispatches", href: "/dispatches", icon: Truck, value: dispatches.data?.count, loading: dispatches.isLoading, failed: dispatches.isError, retry: dispatches.refetch, descriptionKey: "dispatches" },
+    { key: "attendance", feature: "report_center", href: "/reports/contractor/attendance", icon: CalendarCheck, value: attendance.data?.count, loading: attendance.isLoading, failed: attendance.isError, retry: attendance.refetch, descriptionKey: "attendance" },
+    { key: "tasks", feature: "field_tasks", href: "/field-tasks", icon: Activity, value: tasks.data?.count, loading: tasks.isLoading, failed: tasks.isError, retry: tasks.refetch, descriptionKey: "tasks" },
+    { key: "equipment", feature: "report_center", href: "/reports/contractor/equipment", icon: HardHat, value: equipment.data?.count, loading: equipment.isLoading, failed: equipment.isError, retry: equipment.refetch, descriptionKey: "equipment" },
+    { key: "progress", feature: "report_center", href: "/reports/contractor/progress", icon: ChartNoAxesCombined, value: progress.data?.count, loading: progress.isLoading, failed: progress.isError, retry: progress.refetch, descriptionKey: "progress" },
+    { key: "safety", feature: "report_center", href: "/reports/contractor/safety", icon: ShieldAlert, value: safety.data?.count, loading: safety.isLoading, failed: safety.isError, retry: safety.refetch, descriptionKey: "safety" },
+    { key: "recycling", feature: "report_center", href: "/reports/contractor/recycling", icon: Recycle, value: disposals.data?.count, loading: disposals.isLoading, failed: disposals.isError, retry: disposals.refetch, descriptionKey: "recycling" },
+    { key: "consultant", feature: "report_center", href: "/reports/contractor/consultant", icon: ClipboardList, value: undefined, loading: false, failed: false, descriptionKey: "consultant" },
+    { key: "schedule", feature: "report_center", href: "/reports/contractor/schedule", icon: CalendarCheck, value: undefined, loading: false, failed: false, descriptionKey: "schedule" },
+    { key: "target", feature: "report_center", href: "/reports/contractor/target", icon: Activity, value: projects.data?.count, loading: projects.isLoading, failed: projects.isError, retry: projects.refetch, descriptionKey: "target" },
+    { key: "history", feature: "report_center", href: "/reports/contractor/history", icon: FileClock, value: undefined, loading: false, failed: false, descriptionKey: "history" },
   ].filter((tile) => enabled(tile.feature));
 
   return (
@@ -137,6 +140,8 @@ export function ContractorReportCenter() {
               </p>
               {tile.loading ? (
                 <Skeleton className="mt-3 h-7 w-16" />
+              ) : tile.failed ? (
+                <p className="mt-3 text-2xl font-semibold tabular-nums text-muted-foreground">—</p>
               ) : tile.value !== undefined ? (
                 <p className="mt-3 text-2xl font-semibold tabular-nums">
                   {format.number(tile.value)}
@@ -146,6 +151,13 @@ export function ContractorReportCenter() {
           );
         })}
       </section>
+      {tiles.some((tile) => tile.failed) && (
+        <div className="space-y-1">
+          {tiles.filter((tile) => tile.failed).map((tile) => (
+            <QueryFailedNote key={tile.key} query={{ isError: true, refetch: tile.retry }} what={t(`contractorReportCenter.tile.${tile.key}`)} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

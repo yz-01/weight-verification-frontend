@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { ListHeader, TypeBadge } from "@/components/shared/page-primitives";
+import { ListHeader, LoadFailed, TypeBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -118,6 +118,26 @@ export function DetectionSettings() {
       <div className="space-y-4">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-96 w-full rounded-xl" />
+      </div>
+    );
+  }
+
+  // Publishing writes the whole set. Without the parameters or the set in
+  // force, the form would show defaults and publish them over the real ones.
+  if (parameters.isError || ruleSets.isError) {
+    return (
+      <div className="space-y-4">
+        <ListHeader
+          title={t("weighingRules.title")}
+          subtitle={t("weighingRules.subtitle")}
+        />
+        <LoadFailed
+          what={t(parameters.isError ? "weighingRules.what.parameters" : "weighingRules.what.ruleSets")}
+          onRetry={() => {
+            if (parameters.isError) void parameters.refetch();
+            if (ruleSets.isError) void ruleSets.refetch();
+          }}
+        />
       </div>
     );
   }

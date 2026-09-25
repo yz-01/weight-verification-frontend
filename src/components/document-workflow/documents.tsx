@@ -24,6 +24,7 @@ import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   ReadField,
   StatusBadge,
   TypeBadge,
@@ -416,6 +417,10 @@ export function Documents() {
             </Select>
             <Input type="date" className="h-9 w-[145px] bg-card" aria-label={t("documents.field.dateFrom")} value={list.filters.date_from ?? ""} max={list.filters.date_to} onChange={(event) => list.setFilter("date_from", event.target.value || undefined)} />
             <Input type="date" className="h-9 w-[145px] bg-card" aria-label={t("documents.field.dateTo")} value={list.filters.date_to ?? ""} min={list.filters.date_from} onChange={(event) => list.setFilter("date_to", event.target.value || undefined)} />
+            <QueryFailedNote query={projects} what={t("documents.what.projects")} className="basis-full" />
+            <QueryFailedNote query={categories} what={t("documents.what.categories")} className="basis-full" />
+            <QueryFailedNote query={subcategories} what={t("documents.what.subcategories")} className="basis-full" />
+            <QueryFailedNote query={users} what={t("documents.what.uploaders")} className="basis-full" />
           </div>
         }
         onSearchChange={list.setSearch}
@@ -457,6 +462,12 @@ export function Documents() {
           categories={categoryRows}
           subcategories={subcategoryRows}
           isLoading={categories.isLoading || subcategories.isLoading}
+          loadError={
+            <>
+              <QueryFailedNote query={categories} what={t("documents.what.categories")} />
+              <QueryFailedNote query={subcategories} what={t("documents.what.subcategories")} />
+            </>
+          }
           onClose={() => setTaxonomyOpen(false)}
         />
       )}
@@ -1001,11 +1012,14 @@ function TaxonomyDialog({
   categories,
   subcategories,
   isLoading,
+  loadError,
   onClose,
 }: {
   categories: DocumentCategory[];
   subcategories: DocumentSubcategory[];
   isLoading: boolean;
+  /** Says which list failed, so an empty list is not read as "none set up". */
+  loadError: React.ReactNode;
   onClose: () => void;
 }) {
   const t = useTranslations();
@@ -1027,6 +1041,7 @@ function TaxonomyDialog({
           <DialogTitle>{t("documents.taxonomy.title")}</DialogTitle>
           <DialogDescription>{t("documents.taxonomy.description")}</DialogDescription>
         </DialogHeader>
+        {loadError}
 
         {categoryForm ? (
           <CategoryForm

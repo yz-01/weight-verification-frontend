@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { FormSection } from "@/components/shared/form-shell";
-import { FieldWrapper } from "@/components/shared/page-primitives";
+import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError } from "@/interfaces/api";
@@ -73,7 +73,12 @@ export function OwnerAccountPanel({ companyId }: { companyId: string }) {
 
   return (
     <FormSection title={t("companies.owner.account.title")}>
-      {row === null || row === undefined ? (
+      {owner.isError ? (
+        <LoadFailed
+          what={t("companies.what.ownerAccount")}
+          onRetry={() => owner.refetch()}
+        />
+      ) : row === null || row === undefined ? (
         <p className="text-sm text-muted-foreground">
           {t("companies.owner.account.none")}
         </p>

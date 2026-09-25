@@ -94,6 +94,9 @@ export interface PartnerCommissionPayout {
   adjustment: string;
   net_amount: string;
   paid_on: string | null;
+  payment_reference?: string;
+  /** Link to the uploaded bank slip, once the payout is marked paid. */
+  payment_proof?: string | null;
 }
 
 export interface CustomerReferral {

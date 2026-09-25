@@ -8,7 +8,7 @@ import Link from "next/link";
 import { CompanySubscriptions } from "@/components/subscriptions/company-subscriptions";
 import { PlanManager } from "@/components/subscriptions/plan-manager";
 import { RenewalQueue } from "@/components/subscriptions/renewal-queue";
-import { ListHeader } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { getSubscriptionSummary } from "@/services/subscription.service";
 
 export type SubscriptionSection =
@@ -62,11 +62,15 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
         subtitle={section === "overview" ? t("subtitle") : t(`section.${section}.subtitle`)}
       />
       {(section === "overview" || section === "companies") && (
-        <SummaryStrip
-          data={summary.data}
-          loading={summary.isLoading}
-          expanded={section === "companies"}
-        />
+        <>
+          <QueryFailedNote query={summary} what={t("what.summary")} />
+          <SummaryStrip
+            data={summary.data}
+            loading={summary.isLoading}
+            failed={summary.isError}
+            expanded={section === "companies"}
+          />
+        </>
       )}
       {content}
     </div>
@@ -76,10 +80,12 @@ export function SubscriptionList({ section = "overview" }: { section?: Subscript
 function SummaryStrip({
   data,
   loading,
+  failed,
   expanded = false,
 }: {
   data: Awaited<ReturnType<typeof getSubscriptionSummary>> | undefined;
   loading: boolean;
+  failed: boolean;
   expanded?: boolean;
 }) {
   const t = useTranslations("subscriptions");
@@ -100,7 +106,7 @@ function SummaryStrip({
       {visible.map(([key, value]) => (
         <div key={key} className="min-h-20 border-b border-r px-4 py-3">
           <p className="text-xs text-muted-foreground">{t(`metric.${key}`)}</p>
-          <p className="mt-2 text-xl font-semibold tabular-nums">{loading ? "..." : value ?? 0}</p>
+          <p className="mt-2 text-xl font-semibold tabular-nums">{loading ? "..." : failed ? "—" : value ?? 0}</p>
         </div>
       ))}
     </div>

@@ -11,7 +11,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { ListHeader } from "@/components/shared/page-primitives";
+import { ListHeader, LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -224,6 +224,7 @@ function ReportPanel({
         />
         <DateFilter label={t("filter.dateFrom")} value={dateFrom} onChange={setDateFrom} />
         <DateFilter label={t("filter.dateTo")} value={dateTo} onChange={setDateTo} />
+        <QueryFailedNote query={options} what={t("what.filterOptions")} className="sm:col-span-2 xl:col-span-6" />
       </div>
 
       <div className="flex justify-end gap-2">
@@ -375,7 +376,14 @@ function ReportHistory() {
                 <TableCell>{df.dateTime(row.created_at)}</TableCell>
               </TableRow>
             ))}
-            {!history.isLoading && (history.data?.results.length ?? 0) === 0 && (
+            {history.isError && (
+              <TableRow>
+                <TableCell colSpan={6} className="whitespace-normal p-4">
+                  <LoadFailed what={t("what.history")} onRetry={() => void history.refetch()} />
+                </TableCell>
+              </TableRow>
+            )}
+            {!history.isLoading && !history.isError && (history.data?.results.length ?? 0) === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="h-28 text-center text-muted-foreground">
                   {t("emptyHistory")}

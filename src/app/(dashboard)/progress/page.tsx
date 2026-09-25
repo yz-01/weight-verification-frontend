@@ -1,5 +1,5 @@
-import { SiteProgressWorkspace } from "@/components/contractor-ops/operations-workspaces";
+import { SiteProgressOffice } from "@/components/contractor-ops/office-module-lists";
 
 export default function ProgressPage() {
-  return <SiteProgressWorkspace />;
+  return <SiteProgressOffice />;
 }

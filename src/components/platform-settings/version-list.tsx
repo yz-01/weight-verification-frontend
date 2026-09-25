@@ -284,12 +284,18 @@ function VersionEditor({
         <div className="space-y-3 border-t pt-4">
           <p className="text-sm font-semibold">{t("versions.changelog")}</p>
           <div className="grid gap-2 sm:grid-cols-[1fr_150px]">
-            <Input placeholder={t("versions.changeModule")} value={change.module} onChange={(event) => setChange((current) => ({ ...current, module: event.target.value }))} />
-            <select className="h-8 rounded-md border bg-background px-2 text-sm" value={change.change_type} onChange={(event) => setChange((current) => ({ ...current, change_type: event.target.value }))}>
-              {["NEW", "IMPROVED", "FIXED", "REMOVED", "SECURITY"].map((type) => <option key={type} value={type}>{t(`versions.changeType.${type}`)}</option>)}
-            </select>
+            <FieldWrapper label={t("versions.changeModule")} required>
+              <Input value={change.module} onChange={(event) => setChange((current) => ({ ...current, module: event.target.value }))} />
+            </FieldWrapper>
+            <FieldWrapper label={t("versions.field.changeType")}>
+              <select className="h-8 w-full rounded-md border bg-background px-2 text-sm" value={change.change_type} onChange={(event) => setChange((current) => ({ ...current, change_type: event.target.value }))}>
+                {["NEW", "IMPROVED", "FIXED", "REMOVED", "SECURITY"].map((type) => <option key={type} value={type}>{t(`versions.changeType.${type}`)}</option>)}
+              </select>
+            </FieldWrapper>
           </div>
-          <Textarea placeholder={t("versions.changeDescription")} value={change.description} onChange={(event) => setChange((current) => ({ ...current, description: event.target.value }))} />
+          <FieldWrapper label={t("versions.changeDescription")} required>
+            <Textarea value={change.description} onChange={(event) => setChange((current) => ({ ...current, description: event.target.value }))} />
+          </FieldWrapper>
           <Button variant="outline" requires={[[change.module, t("versions.changeModule")], [change.description, t("versions.changeDescription")]]}
                                     disabled={addChange.isPending} onClick={() => addChange.mutate()}>
             {addChange.isPending ? <Loader2 className="animate-spin" /> : <Plus />}

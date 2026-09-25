@@ -21,6 +21,7 @@ import {
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { ApiError } from "@/interfaces/api";
 import {
   WASTE_TYPES,
@@ -48,7 +49,7 @@ export function CreateDispatch({
   const isEdit = dispatch !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
 
-  const { data: projectPage } = useQuery({
+  const projects = useQuery({
     queryKey: ["projects", "options"],
     queryFn: () => getProjects({ page_size: 100 }),
   });
@@ -114,13 +115,13 @@ export function CreateDispatch({
   // A recycler is eligible only through an active partnership bound to the
   // selected project. The project therefore belongs in both the request and
   // the query key so changing projects cannot reuse a stale partner list.
-  const { data: recyclers } = useQuery({
+  const recyclers = useQuery({
     queryKey: ["recyclers", "options", projectId],
     queryFn: () => getRecyclerOptions(projectId),
     enabled: projectId !== "",
   });
 
-  const recyclerOptions = (recyclers?.results ?? []).map((recycler) => ({
+  const recyclerOptions = (recyclers.data?.results ?? []).map((recycler) => ({
     value: recycler.id,
     label: recycler.city ? `${recycler.name} — ${recycler.city}` : recycler.name,
   }));
@@ -141,15 +142,18 @@ export function CreateDispatch({
           validators={{ onSubmit: required(t("validation.required")) }}
         >
           {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("dispatches.field.project")}
-              options={(projectPage?.results ?? []).map((project) => ({
-                value: project.id,
-                label: `${project.code} — ${project.name}`,
-              }))}
-              required
-            />
+            <div className="space-y-1">
+              <SelectField
+                field={field as unknown as BoundField}
+                label={t("dispatches.field.project")}
+                options={(projects.data?.results ?? []).map((project) => ({
+                  value: project.id,
+                  label: `${project.code} — ${project.name}`,
+                }))}
+                required
+              />
+              <QueryFailedNote query={projects} what={t("dispatches.what.projects")} />
+            </div>
           )}
         </form.Field>
 
@@ -158,17 +162,20 @@ export function CreateDispatch({
           validators={{ onSubmit: required(t("validation.required")) }}
         >
           {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("dispatches.field.recycler")}
-              options={recyclerOptions}
-              required
-              hint={
-                projectId !== "" && recyclerOptions.length === 0
-                  ? t("dispatches.recyclerEmpty")
-                  : undefined
-              }
-            />
+            <div className="space-y-1">
+              <SelectField
+                field={field as unknown as BoundField}
+                label={t("dispatches.field.recycler")}
+                options={recyclerOptions}
+                required
+                hint={
+                  projectId !== "" && recyclers.isSuccess && recyclerOptions.length === 0
+                    ? t("dispatches.recyclerEmpty")
+                    : undefined
+                }
+              />
+              <QueryFailedNote query={recyclers} what={t("dispatches.what.recyclers")} />
+            </div>
           )}
         </form.Field>
 

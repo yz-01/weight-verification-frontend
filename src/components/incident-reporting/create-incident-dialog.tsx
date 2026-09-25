@@ -5,7 +5,7 @@ import { Check, Loader2, LocateFixed, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { FieldWrapper } from "@/components/shared/page-primitives";
+import { FieldWrapper, LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,7 +22,6 @@ import {
 } from "@/components/field-staff/field-evidence-grid";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -37,7 +36,6 @@ import {
   createIncidentThread,
   getIncidentRecipientOptions,
 } from "@/services/site-operations.service";
-import { LoadFailed } from "@/components/shared/page-primitives";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
@@ -168,8 +166,7 @@ export function CreateIncidentDialog({
         </div>
 
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="project">{t("field.project")}</Label>
+          <FieldWrapper label={t("field.project")} required>
             <Select
               value={project}
               onValueChange={(value) => {
@@ -188,10 +185,10 @@ export function CreateIncidentDialog({
                 ))}
               </SelectContent>
             </Select>
-          </div>
+            <QueryFailedNote query={projects} what={t("what.projects")} />
+          </FieldWrapper>
 
-          <div className="space-y-2">
-            <Label htmlFor="title">{t("field.title")}</Label>
+          <FieldWrapper label={t("field.title")} required>
             <input
               id="title"
               value={title}
@@ -199,10 +196,9 @@ export function CreateIncidentDialog({
               placeholder={t("field.titlePlaceholder")}
               className="flex h-11 w-full rounded-lg border bg-background px-3 text-sm"
             />
-          </div>
+          </FieldWrapper>
 
-          <div className="space-y-2">
-            <Label htmlFor="severity">{t("field.severity")}</Label>
+          <FieldWrapper label={t("field.severity")}>
             <Select
               value={severity}
               onValueChange={(v: IncidentSeverity) => setSeverity(v)}
@@ -217,13 +213,13 @@ export function CreateIncidentDialog({
                 <SelectItem value="CRITICAL">{t("severity.CRITICAL")}</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </FieldWrapper>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">
-              {t("field.description")}
-              {fieldMode ? ` (${t("optional")})` : ""}
-            </Label>
+          <FieldWrapper
+            label={t("field.description")}
+            required={!fieldMode}
+            optional={fieldMode ? t("optional") : undefined}
+          >
             <Textarea
               id="description"
               value={description}
@@ -231,20 +227,21 @@ export function CreateIncidentDialog({
               placeholder={t("field.descriptionPlaceholder")}
               rows={4}
             />
-          </div>
+          </FieldWrapper>
 
           {fieldMode ? (
             <div className="space-y-3">
-              <Label>{t("evidence.title")}</Label>
-              <FieldEvidenceGrid
-                labels={evidenceLabels}
-                files={evidence}
-                progressLabel={t("evidence.progress", {
-                  current: photos.length,
-                  required: FIELD_EVIDENCE_PHOTO_COUNT,
-                })}
-                onChange={setEvidence}
-              />
+              <FieldWrapper label={t("evidence.title")} required>
+                <FieldEvidenceGrid
+                  labels={evidenceLabels}
+                  files={evidence}
+                  progressLabel={t("evidence.progress", {
+                    current: photos.length,
+                    required: FIELD_EVIDENCE_PHOTO_COUNT,
+                  })}
+                  onChange={setEvidence}
+                />
+              </FieldWrapper>
               {/* Only field mode refuses to submit without a fix, so the
                   asterisk appears only there. A star that is not always true
                   is its own small lie. */}
@@ -263,14 +260,13 @@ export function CreateIncidentDialog({
             </div>
           ) : null}
 
-          <div className="space-y-2">
-            <Label>{t("field.recipients")}</Label>
+          <FieldWrapper label={t("field.recipients")} required>
             {!project ? (
               <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
                 {t("chooseProjectFirst")}
               </p>
             ) : recipients.isError ? (
-              <LoadFailed onRetry={() => void recipients.refetch()} />
+              <LoadFailed what={t("what.recipients")} onRetry={() => void recipients.refetch()} />
             ) : recipients.isLoading ? (
               <div className="flex items-center gap-2 rounded-md border p-3 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
@@ -315,7 +311,7 @@ export function CreateIncidentDialog({
                 })}
               </div>
             )}
-          </div>
+          </FieldWrapper>
         </div>
 
         <div className="sticky bottom-0 z-10 -mx-5 -mb-5 flex gap-2 border-t bg-card p-5 sm:-mx-6 sm:-mb-6 sm:p-6">
@@ -330,7 +326,7 @@ export function CreateIncidentDialog({
           <Button
             className="flex-1"
             onClick={handleSubmit}
-            requires={[[project, t("chooseProject")], [title, t("field.title")], [fieldMode || description, t("field.description")], [recipientIds.length, t("field.recipients")], [!fieldMode || hasRequiredFieldEvidence(evidence), t("evidence.title")], [!fieldMode || location, t("location")]]}
+            requires={[[project, t("field.project")], [title, t("field.title")], [fieldMode || description, t("field.description")], [recipientIds.length, t("field.recipients")], [!fieldMode || hasRequiredFieldEvidence(evidence), t("evidence.title")], [!fieldMode || location, t("location")]]}
             disabled={submit.isPending}
           >
             {submit.isPending && <Loader2 className="animate-spin" />}

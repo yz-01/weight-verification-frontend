@@ -77,6 +77,31 @@ describe("the field staff home carries what the customer asked for (T-209)", () 
     );
   });
 
+  it("puts 我的待办 above everything else (T-287)", () => {
+    /*
+     * The customer placed this one themselves: 「【我的待办】不放底部导航，
+     * 放首页上方以卡片显示未完成数量和内容」 (D-226). Both halves matter and
+     * both drift silently - a card that slides below the task list still
+     * renders, and a 待办 entry that reappears in the bottom bar still works.
+     * Neither would fail anything without this.
+     */
+    const body = componentBody("FieldHomePanel");
+    expect(body).toContain("<FieldMyTasksCard");
+    expect(body.indexOf("<FieldMyTasksCard")).toBeLessThan(
+      body.indexOf("<FieldTaskPanel"),
+    );
+  });
+
+  it("does not put 我的待办 back into the bottom bar", () => {
+    // The other half of D-226, and the half that would look like a helpful
+    // addition to whoever did it.
+    const nav = readFileSync(
+      path.join(process.cwd(), "src/lib/field-nav.ts"),
+      "utf8",
+    );
+    expect(nav).not.toMatch(/"(my-?tasks|todo)"/i);
+  });
+
   it("keeps the device handoff reachable, below the three", () => {
     // Not named by the customer, but it is the only way to move a field
     // session to another phone and field staff have no profile screen to

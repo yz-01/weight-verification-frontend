@@ -22,7 +22,6 @@ export type FieldNavKey =
   | "home"
   | "attendance"
   | "records"
-  | "location"
   | "hazards";
 
 /** Tabs the workspace can be on. Kept as a string so the caller owns the union. */
@@ -36,7 +35,7 @@ export function activeFieldNav(
   // tab to render itself. Both belong to 隐患, and only to 隐患.
   if (tab === "incidents") return "hazards";
   if (recordMode === "safety") return "hazards";
-  if (tab === "attendance" || tab === "records" || tab === "location") {
+  if (tab === "attendance" || tab === "records") {
     return tab;
   }
   // `home` and `tasks`; the latter is reached from the home screen and has no

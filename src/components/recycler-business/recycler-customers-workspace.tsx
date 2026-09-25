@@ -27,6 +27,7 @@ import {
   FieldWrapper,
   ListHeader,
   LoadFailed,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -329,8 +330,8 @@ function CustomerDialog({ customer, onClose }: { customer: RecyclerCustomer | nu
     },
   });
   const set = (key: keyof RecyclerCustomerPayload, value: string) => setForm((current) => ({ ...current, [key]: value }));
-  const input = (key: keyof RecyclerCustomerPayload, label: string, required = false) => (
-    <FieldWrapper label={label} required={required}>
+  const input = (key: keyof RecyclerCustomerPayload, label: string) => (
+    <FieldWrapper label={label}>
       <Input value={form[key] ?? ""} onChange={(event) => set(key, event.target.value)} />
     </FieldWrapper>
   );
@@ -343,7 +344,9 @@ function CustomerDialog({ customer, onClose }: { customer: RecyclerCustomer | nu
           <DialogDescription>{t("customers.formHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          {input("company_name", t("field.companyName"), true)}
+          <FieldWrapper label={t("field.companyName")} required>
+            <Input value={form.company_name ?? ""} onChange={(event) => set("company_name", event.target.value)} />
+          </FieldWrapper>
           {input("registration_no", t("field.registrationNo"))}
           {input("contact_person", t("field.contactPerson"))}
           {input("contact_phone", t("field.phone"))}
@@ -520,7 +523,7 @@ function StartIntakeDialog({ onClose }: { onClose: () => void }) {
             <div className="flex gap-2"><Input value={form.token} autoFocus onChange={(event) => setForm({ ...form, token: event.target.value })} /><Button type="button" variant="outline" onClick={() => setScanner(true)}><ScanLine />{t("action.scan")}</Button></div>
           </FieldWrapper>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FieldWrapper label={t("field.yard")} required><Select value={form.site} onValueChange={(site) => setForm({ ...form, site })}><SelectTrigger className="w-full"><SelectValue placeholder={common("selectPlaceholder")} /></SelectTrigger><SelectContent>{sites.data?.results.filter((site) => site.is_active).map((site) => <SelectItem key={site.id} value={site.id}>{site.name}</SelectItem>)}</SelectContent></Select></FieldWrapper>
+            <FieldWrapper label={t("field.yard")} required><Select value={form.site} onValueChange={(site) => setForm({ ...form, site })}><SelectTrigger className="w-full"><SelectValue placeholder={common("selectPlaceholder")} /></SelectTrigger><SelectContent>{sites.data?.results.filter((site) => site.is_active).map((site) => <SelectItem key={site.id} value={site.id}>{site.name}</SelectItem>)}</SelectContent></Select><QueryFailedNote query={sites} what={t("what.yards")} /></FieldWrapper>
             <FieldWrapper label={t("field.material")} required><Select value={form.material_type} onValueChange={(value) => setForm({ ...form, material_type: value as RecyclerMaterialType })}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{RECYCLER_MATERIAL_TYPES.map((value) => <SelectItem key={value} value={value}>{t(`material.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper>
             <FieldWrapper label={t("field.vehiclePlate")}><Input value={form.vehicle_plate} onChange={(event) => setForm({ ...form, vehicle_plate: event.target.value.toUpperCase() })} /></FieldWrapper>
             <FieldWrapper label={t("field.notes")}><Input value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} /></FieldWrapper>
@@ -543,5 +546,5 @@ function CompleteIntakeDialog({ intake, onClose }: { intake: PrivateIntake; onCl
   const usedSessionIds = new Set((completedIntakes.data?.results ?? []).map((row) => row.gross_session).filter(Boolean));
   const candidates = completedIntakes.isSuccess ? (sessions.data?.results ?? []).filter((row: WeighSessionRow) => row.direction === "GROSS" && row.state === "COMPLETED" && row.verdict === "VALID" && !row.dispatch_no && !usedSessionIds.has(row.id)) : [];
   const complete = useMutation({ mutationFn: () => completePrivateIntake(intake.id, session), onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["private-intakes"] }); void queryClient.invalidateQueries({ queryKey: ["recycler-inventory"] }); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("intakes.completeTitle", { no: intake.intake_no })}</DialogTitle><DialogDescription>{t("intakes.completeHelp")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.weighSession")} required><Select value={session} onValueChange={setSession}><SelectTrigger className="w-full"><SelectValue placeholder={common("selectPlaceholder")} /></SelectTrigger><SelectContent>{candidates.map((row) => <SelectItem key={row.id} value={row.id}>{row.session_no} · {row.vehicle_plate} · {row.stable_weight_kg ?? "—"} kg</SelectItem>)}</SelectContent></Select>{!sessions.isLoading && !completedIntakes.isLoading && candidates.length === 0 && <p className="mt-2 text-sm text-warning">{t("intakes.noEligibleSession")}</p>}</FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}><X />{common("cancel")}</Button><Button requires={[[session, t("field.weighSession")]]} disabled={complete.isPending} onClick={() => complete.mutate()}><CheckCircle2 />{t("action.complete")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("intakes.completeTitle", { no: intake.intake_no })}</DialogTitle><DialogDescription>{t("intakes.completeHelp")}</DialogDescription></DialogHeader><FieldWrapper label={t("field.weighSession")} required><Select value={session} onValueChange={setSession}><SelectTrigger className="w-full"><SelectValue placeholder={common("selectPlaceholder")} /></SelectTrigger><SelectContent>{candidates.map((row) => <SelectItem key={row.id} value={row.id}>{row.session_no} · {row.vehicle_plate} · {row.stable_weight_kg ?? "—"} kg</SelectItem>)}</SelectContent></Select><QueryFailedNote query={sessions} what={t("what.weighSessions")} /><QueryFailedNote query={completedIntakes} what={t("what.completedIntakes")} />{!sessions.isLoading && !completedIntakes.isLoading && !sessions.isError && !completedIntakes.isError && candidates.length === 0 && <p className="mt-2 text-sm text-warning">{t("intakes.noEligibleSession")}</p>}</FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}><X />{common("cancel")}</Button><Button requires={[[session, t("field.weighSession")]]} disabled={complete.isPending} onClick={() => complete.mutate()}><CheckCircle2 />{t("action.complete")}</Button></DialogFooter></DialogContent></Dialog>;
 }

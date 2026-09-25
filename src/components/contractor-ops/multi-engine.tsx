@@ -19,11 +19,10 @@ import { useState } from "react";
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
@@ -48,6 +47,8 @@ import {
   createEvidencePackage,
   deleteEvidencePackage,
   downloadEvidencePackage,
+  previewEvidencePackage,
+  downloadPackageItem,
   getEvidencePackage,
   getEvidencePackages,
   getPackageCandidates,
@@ -303,28 +304,20 @@ function NewPackageDialog({
         <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
           {t("oneProjectHelp")}
         </p>
-        <div className="space-y-1.5">
-          <Label>
-            {t("field.project")}
-            <span className="ml-0.5 text-destructive">*</span>
-          </Label>
+        <FieldWrapper label={t("field.project")} required>
           <ProjectPicker
             value={project}
             onValueChange={setProject}
             placeholder={t("field.selectProject")}
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label>
-            {t("field.name")}
-            <span className="ml-0.5 text-destructive">*</span>
-          </Label>
+        </FieldWrapper>
+        <FieldWrapper label={t("field.name")} required>
           <Input
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder={t("field.namePlaceholder")}
           />
-        </div>
+        </FieldWrapper>
       </div>
       <footer className="flex justify-end gap-2 border-t px-4 py-3">
         <Button variant="outline" onClick={onClose}>
@@ -469,106 +462,119 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
               </div>
             )}
 
-            {data.items.length === 0 ? (
-              <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-                {t("noItems")}
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {data.items.map((item, index) => (
-                  <li key={item.id} className="rounded-lg border p-3">
-                    <div className="flex flex-wrap items-start gap-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium">
-                          {item.reference || t(`kind.${item.record_kind}`)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {t(`kind.${item.record_kind}`)} ·{" "}
-                          {t("partsSummary", {
-                            fields: item.fields.length,
-                            photos: item.photos.length,
-                            documents: item.documents.length,
-                          })}
-                        </p>
-                        {item.source_missing && (
-                          <p className="text-xs text-destructive">
-                            {t("sourceMissing")}
+            <FieldWrapper label={t("field.records")} required={isDraft}>
+              {data.items.length === 0 ? (
+                <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
+                  {t("noItems")}
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {data.items.map((item, index) => (
+                    <li key={item.id} className="rounded-lg border p-3">
+                      <div className="flex flex-wrap items-start gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium">
+                            {item.reference || t(`kind.${item.record_kind}`)}
                           </p>
-                        )}
-                        {item.review_state === "RETURNED" && (
-                          <p className="mt-1 rounded border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
-                            {t("returnedWithReason", {
-                              reason: item.returned_reason,
+                          <p className="text-xs text-muted-foreground">
+                            {t(`kind.${item.record_kind}`)} ·{" "}
+                            {t("partsSummary", {
+                              fields: item.fields.length,
+                              photos: item.photos.length,
+                              documents: item.documents.length,
                             })}
                           </p>
-                        )}
-                        {item.review_state === "ACCEPTED" && (
-                          <p className="mt-1 text-xs text-primary">
-                            {t("itemAccepted")}
-                          </p>
+                          {item.source_missing && (
+                            <p className="text-xs text-destructive">
+                              {t("sourceMissing")}
+                            </p>
+                          )}
+                          {item.review_state === "RETURNED" && (
+                            <p className="mt-1 rounded border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
+                              {t("returnedWithReason", {
+                                reason: item.returned_reason,
+                              })}
+                            </p>
+                          )}
+                          {item.review_state === "ACCEPTED" && (
+                            <p className="mt-1 text-xs text-primary">
+                              {t("itemAccepted")}
+                            </p>
+                          )}
+                        </div>
+                        {isDraft && can("package.manage") && (
+                          <div className="flex gap-2">
+                            <Button
+                              size="icon-sm"
+                              variant="ghost"
+                              aria-label={t("moveUp")}
+                              disabled={index === 0 || reorder.isPending}
+                              disabledReason={t("alreadyFirst")}
+                              onClick={() => move(index, -1)}
+                            >
+                              <ArrowUp className="size-4" />
+                            </Button>
+                            <Button
+                              size="icon-sm"
+                              variant="ghost"
+                              aria-label={t("moveDown")}
+                              disabled={
+                                index === data.items.length - 1 || reorder.isPending
+                              }
+                              disabledReason={t("alreadyLast")}
+                              onClick={() => move(index, 1)}
+                            >
+                              <ArrowDown className="size-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setTicking(item)}
+                            >
+                              {t("choose")}
+                            </Button>
+                            {/* One record on its own (T-348). 客户举例「DO 可以
+                                直接 export」 - the whole bundle download below is
+                                untouched; this is for the case where sending
+                                forty pages and naming a page number was the only
+                                way to hand over one delivery order. */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                void downloadPackageItem(
+                                  id,
+                                  item.id,
+                                  item.reference,
+                                )
+                              }
+                            >
+                              <Download className="size-4" />
+                              {t("exportOne")}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive"
+                              disabled={remove.isPending}
+                              onClick={() => remove.mutate(item.id)}
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          </div>
                         )}
                       </div>
-                      {isDraft && can("package.manage") && (
-                        <div className="flex gap-2">
-                          <Button
-                            size="icon-sm"
-                            variant="ghost"
-                            aria-label={t("moveUp")}
-                            disabled={index === 0 || reorder.isPending}
-                            disabledReason={t("alreadyFirst")}
-                            onClick={() => move(index, -1)}
-                          >
-                            <ArrowUp className="size-4" />
-                          </Button>
-                          <Button
-                            size="icon-sm"
-                            variant="ghost"
-                            aria-label={t("moveDown")}
-                            disabled={
-                              index === data.items.length - 1 || reorder.isPending
-                            }
-                            disabledReason={t("alreadyLast")}
-                            onClick={() => move(index, 1)}
-                          >
-                            <ArrowDown className="size-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setTicking(item)}
-                          >
-                            {t("choose")}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive"
-                            disabled={remove.isPending}
-                            onClick={() => remove.mutate(item.id)}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </FieldWrapper>
 
             {isDraft && can("package.manage") && (
               <>
-                <div className="space-y-1.5">
-                  <Label htmlFor="package-name">
-                    {t("field.name")}
-                    <span className="ml-0.5 text-destructive">*</span>
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    {t("renameHelp")}
-                  </p>
+                <FieldWrapper label={t("field.name")} required hint={t("renameHelp")}>
                   <div className="flex gap-2">
                     <Input
-                      id="package-name"
                       value={name ?? data.name}
                       onChange={(event) => setName(event.target.value)}
                     />
@@ -581,7 +587,7 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
                       {t("rename")}
                     </Button>
                   </div>
-                </div>
+                </FieldWrapper>
                 <Button
                   variant="outline"
                   className="w-full"
@@ -590,24 +596,17 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
                   <Plus className="size-4" />
                   {t("addRecords")}
                 </Button>
-                <div className="space-y-1.5">
-                  <Label>
-                    {t("field.remarks")}
-                    <span className="ml-0.5 text-destructive">*</span>
-                  </Label>
-                  {/* Asked at Confirm and not at creation: at creation nobody
-                      knows yet what the bundle turned out to be, and a
-                      required field answered before the answer exists is
-                      answered with anything. */}
-                  <p className="text-xs text-muted-foreground">
-                    {t("remarksHelp")}
-                  </p>
+                {/* Asked at Confirm and not at creation: at creation nobody
+                    knows yet what the bundle turned out to be, and a
+                    required field answered before the answer exists is
+                    answered with anything. */}
+                <FieldWrapper label={t("field.remarks")} required hint={t("remarksHelp")}>
                   <Textarea
                     rows={3}
                     value={remarks || data.remarks}
                     onChange={(event) => setRemarks(event.target.value)}
                   />
-                </div>
+                </FieldWrapper>
               </>
             )}
 
@@ -625,23 +624,16 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
                   <p className="text-xs">{t("exportedHelp")}</p>
                 )}
                 {data.review_state === "NOT_SENT" && can("package.manage") && (
-                  <div className="space-y-1.5">
-                    <Label>
-                      {t("field.consultant")}
-                      <span className="ml-0.5 text-destructive">*</span>
-                    </Label>
-                    {/* Consultants only (D-150). The owner is not an account
-                        type this platform has, so there is no option for one
-                        rather than an option nobody can be chosen from. */}
-                    <p className="text-xs text-muted-foreground">
-                      {t("consultantOnlyHelp")}
-                    </p>
+                  /* Consultants only (D-150). The owner is not an account
+                     type this platform has, so there is no option for one
+                     rather than an option nobody can be chosen from. */
+                  <FieldWrapper label={t("field.consultant")} required hint={t("consultantOnlyHelp")}>
                     <Input
                       value={consultant}
                       onChange={(event) => setConsultant(event.target.value)}
                       placeholder={t("field.consultantPlaceholder")}
                     />
-                  </div>
+                  </FieldWrapper>
                 )}
               </div>
             )}
@@ -651,13 +643,22 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
 
       <footer className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
         {data && !isDraft && (
-          <Button
-            variant="outline"
-            onClick={() => downloadEvidencePackage(data.id, data.name)}
-          >
-            <Download className="size-4" />
-            {t("download")}
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              onClick={() => void previewEvidencePackage(data.id, data.name)}
+            >
+              <Eye className="size-4" />
+              {t("preview")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => downloadEvidencePackage(data.id, data.name)}
+            >
+              <Download className="size-4" />
+              {t("download")}
+            </Button>
+          </>
         )}
         {data && !isDraft && data.review_state === "NOT_SENT" &&
           can("package.manage") && (
@@ -778,46 +779,50 @@ function AddRecordsDialog({
           ))}
         </nav>
 
-        {query.isLoading ? (
-          <p className="text-sm text-muted-foreground">{t("loading")}</p>
-        ) : rows.length === 0 ? (
-          <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
-            {t("noCandidates")}
-          </p>
-        ) : (
-          <ul className="divide-y rounded-lg border">
-            {rows.map((row) => (
-              <li key={row.id} className="flex items-start gap-3 p-3">
-                <Checkbox
-                  checked={picked.includes(row.id)}
-                  onCheckedChange={(next) =>
-                    setPicked((current) =>
-                      next
-                        ? [...current, row.id]
-                        : current.filter((value) => value !== row.id),
-                    )
-                  }
-                  aria-label={row.reference}
-                />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{row.reference}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {row.detail} · {formatter.dateTime(row.submitted_at)}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  size="icon-sm"
-                  variant="ghost"
-                  aria-label={t("open")}
-                  onClick={() => setPreview({ kind, id: row.id, reference: row.reference })}
-                >
-                  <Eye className="size-4" />
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <FieldWrapper label={t("field.records")} required>
+          {query.isLoading ? (
+            <p className="text-sm text-muted-foreground">{t("loading")}</p>
+          ) : query.isError ? (
+            <LoadFailed what={t("what.candidates")} onRetry={() => void query.refetch()} />
+          ) : rows.length === 0 ? (
+            <p className="rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
+              {t("noCandidates")}
+            </p>
+          ) : (
+            <ul className="divide-y rounded-lg border">
+              {rows.map((row) => (
+                <li key={row.id} className="flex items-start gap-3 p-3">
+                  <Checkbox
+                    checked={picked.includes(row.id)}
+                    onCheckedChange={(next) =>
+                      setPicked((current) =>
+                        next
+                          ? [...current, row.id]
+                          : current.filter((value) => value !== row.id),
+                      )
+                    }
+                    aria-label={row.reference}
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{row.reference}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {row.detail} · {formatter.dateTime(row.submitted_at)}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="ghost"
+                    aria-label={t("open")}
+                    onClick={() => setPreview({ kind, id: row.id, reference: row.reference })}
+                  >
+                    <Eye className="size-4" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </FieldWrapper>
       </div>
       <footer className="flex justify-end gap-2 border-t px-4 py-3">
         <Button variant="outline" onClick={onClose}>
@@ -944,17 +949,25 @@ function TickPartsDialog({
   const t = useTranslations("multiEngine");
   const labels = useTranslations("mySubmissions");
   const common = useTranslations("common");
-  const [selection, setSelection] = useState<PackageSelection>({
-    fields: item.selection.fields?.length
-      ? item.selection.fields
-      : item.fields.map((field) => field.key),
-    photos: item.selection.photos?.length
-      ? item.selection.photos
-      : item.photos.map((shot) => shot.id ?? ""),
-    documents: item.selection.documents?.length
-      ? item.selection.documents
-      : item.documents.map((doc) => doc.id),
+  // Every part of the record, not only the ones already ticked: the member
+  // row carries the ticked subset, and building the boxes from it meant a part
+  // unticked once could never be ticked again.
+  const parts = useQuery({
+    queryKey: ["package-record-parts", item.record_kind, item.record_id],
+    queryFn: () => getPackageRecordParts(item.record_kind, item.record_id),
   });
+  const all = parts.data ?? item;
+  // A group the stored selection does not mention is the whole group; an
+  // empty list is none (D-162). D-251: a record just added opens all ticked.
+  const initial = (group: keyof PackageSelection, ids: string[]) =>
+    group in item.selection ? (item.selection[group] ?? []) : ids;
+  const [edited, setSelection] = useState<PackageSelection | null>(null);
+  const selection: PackageSelection = edited ?? {
+    fields: initial("fields", all.fields.map((field) => field.key)),
+    photos: initial("photos", all.photos.map((shot) => shot.id ?? "")),
+    documents: initial("documents", all.documents.map((doc) => doc.id)),
+    messages: initial("messages", (all.messages ?? []).map((message) => message.id)),
+  };
 
   const save = useMutation({
     mutationFn: () => updatePackageItem(packageId, item.id, selection),
@@ -962,7 +975,8 @@ function TickPartsDialog({
   });
 
   const toggle = (group: keyof PackageSelection, value: string) =>
-    setSelection((current) => {
+    setSelection(() => {
+      const current = selection;
       const list = current[group] ?? [];
       return {
         ...current,
@@ -975,12 +989,26 @@ function TickPartsDialog({
   return (
     <Shell title={item.reference || t("choose")} onClose={onClose}>
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
+        {/* Without the full record only the parts already ticked are listed,
+            so a part unticked earlier cannot be seen or ticked again. */}
+        <QueryFailedNote query={parts} what={t("what.recordParts")} />
         <section className="space-y-2">
+          {/*
+            Every part can be ticked, and every part starts ticked (D-236, D-251).
+
+            An earlier version of this dialog (T-346, 2026-09-23 morning) removed
+            the boxes from fields and documents on the reading that only
+            photographs involve a choice. D-236 says the opposite in as many
+            words - 「资料包里的资料**全部都要能由当事人自己勾选** —— 照片、DO、
+            文件、事项沟通记录…都在内」 - because one record can carry many DOs
+            and files and not every package wants them all. Lucas chose the
+            default: all ticked, untick what is not wanted (D-251).
+          */}
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {t("group.fields")}
           </h3>
           <ul className="divide-y rounded-lg border">
-            {item.fields.map((field) => (
+            {all.fields.map((field) => (
               <li key={field.key} className="flex items-start gap-3 p-2.5">
                 <Checkbox
                   checked={(selection.fields ?? []).includes(field.key)}
@@ -998,13 +1026,13 @@ function TickPartsDialog({
           </ul>
         </section>
 
-        {item.photos.length > 0 && (
+        {all.photos.length > 0 && (
           <section className="space-y-2">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("group.photos")}
             </h3>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {item.photos.map((shot) => (
+              {all.photos.map((shot) => (
                 <label
                   key={shot.id ?? shot.url}
                   className="overflow-hidden rounded-lg border"
@@ -1033,13 +1061,13 @@ function TickPartsDialog({
           </section>
         )}
 
-        {item.documents.length > 0 && (
+        {all.documents.length > 0 && (
           <section className="space-y-2">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("group.documents")}
             </h3>
-            <ul className="divide-y rounded-lg border">
-              {item.documents.map((doc) => (
+              <ul className="divide-y rounded-lg border">
+              {all.documents.map((doc) => (
                 <li key={doc.id} className="flex items-center gap-3 p-2.5">
                   <Checkbox
                     checked={(selection.documents ?? []).includes(doc.id)}
@@ -1047,6 +1075,28 @@ function TickPartsDialog({
                     aria-label={doc.caption}
                   />
                   <span className="truncate text-sm">{doc.caption}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {(all.messages ?? []).length > 0 && (
+          <section className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("group.messages")}
+            </h3>
+            <ul className="divide-y rounded-lg border">
+              {(all.messages ?? []).map((message) => (
+                <li key={message.id} className="flex items-start gap-3 p-2.5">
+                  <Checkbox
+                    checked={(selection.messages ?? []).includes(message.id)}
+                    onCheckedChange={() => toggle("messages", message.id)}
+                    aria-label={message.body || t("group.messages")}
+                  />
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">{message.author_name}</p>
+                    <p className="break-words text-sm">{message.body}</p>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -1096,6 +1146,8 @@ export function PackageReviewWorkspace() {
 
       {query.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("loading")}</p>
+      ) : query.isError ? (
+        <LoadFailed what={t("what.packagesToReview")} onRetry={() => void query.refetch()} />
       ) : rows.length === 0 ? (
         <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
           <Inbox className="size-4" />
@@ -1170,10 +1222,8 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
       <div className="flex-1 space-y-3 overflow-y-auto p-4">
         {detail.isLoading ? (
           <p className="text-sm text-muted-foreground">{t("loading")}</p>
-        ) : !data ? (
-          <p role="alert" className="text-sm text-destructive">
-            {t("failed")}
-          </p>
+        ) : detail.isError || !data ? (
+          <LoadFailed what={t("what.package")} onRetry={() => void detail.refetch()} />
         ) : (
           <>
             <p className="text-xs text-muted-foreground">{data.remarks}</p>
@@ -1209,18 +1259,13 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                     </p>
                   ) : returning === item.id ? (
                     <div className="mt-2 space-y-2">
-                      <Label>
-                        {t("field.returnReason")}
-                        <span className="ml-0.5 text-destructive">*</span>
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        {t("returnReasonHelp")}
-                      </p>
-                      <Textarea
-                        rows={2}
-                        value={reason}
-                        onChange={(event) => setReason(event.target.value)}
-                      />
+                      <FieldWrapper label={t("field.returnReason")} required hint={t("returnReasonHelp")}>
+                        <Textarea
+                          rows={2}
+                          value={reason}
+                          onChange={(event) => setReason(event.target.value)}
+                        />
+                      </FieldWrapper>
                       <div className="flex gap-2">
                         <Button
                           size="sm"

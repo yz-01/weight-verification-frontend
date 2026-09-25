@@ -5,7 +5,7 @@ import type {
   Asset, AssetAssignment, AssetCategoryDefinition, AssetDisposal,
   AssetInstallation, AssetMaintenance, AssetMovement, AssetOptions,
   AssetPurchase, AssetReportSummary, AssetStock, AssetSummary,
-  CreateAssetPayload,
+  CreateAssetPayload, CreateMovementPayload,
 } from "@/interfaces/asset";
 import { api, download, toastSuccess } from "@/services/api-client";
 
@@ -36,7 +36,7 @@ export async function createAssetInstallation(payload: Record<string, unknown>):
 export async function transitionAssetInstallation(id: string, payload: Record<string, unknown>): Promise<AssetInstallation> { const row = await api.post<AssetInstallation>(`/api/asset-installations/transition-installation/${id}/`, payload); toastSuccess("adminAssetManagement.toast.installationStatus"); return row; }
 
 export const getMovements = (query?: ListQuery): Promise<Paginated<AssetMovement>> => api.list("/api/asset-movements/get-movements/", query);
-export async function createMovement(payload: Record<string, unknown>): Promise<AssetMovement> { const row = await api.post<AssetMovement>("/api/asset-movements/create-movement/", payload); toastSuccess("adminAssetManagement.toast.transferSaved"); return row; }
+export async function createMovement(payload: CreateMovementPayload): Promise<AssetMovement> { const row = await api.post<AssetMovement>("/api/asset-movements/create-movement/", payload); toastSuccess("adminAssetManagement.toast.transferSaved"); return row; }
 
 export const getAssetMaintenance = (query?: ListQuery): Promise<Paginated<AssetMaintenance>> => api.list("/api/asset-maintenance/get-maintenance/", query);
 export const getUpcomingAssetMaintenance = (query?: ListQuery): Promise<Paginated<AssetMaintenance>> => api.list("/api/asset-maintenance/get-upcoming/", query);

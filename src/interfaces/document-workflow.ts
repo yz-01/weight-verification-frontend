@@ -135,6 +135,8 @@ export interface ApprovalRecord {
   title: string;
   description: string;
   metadata: Record<string, unknown>;
+  /** The approval chain it follows; null means it runs as a single step. */
+  workflow_template: string | null;
   project: string | null;
   project_name: string | null;
   status: ApprovalStatus;
@@ -164,6 +166,8 @@ export interface ApprovalPayload {
   metadata?: Record<string, unknown>;
   project?: string | null;
   assigned_to?: string | null;
+  /** null lets the API pick the chain configured for the record type. */
+  workflow_template?: string | null;
 }
 
 export interface ApprovalTransitionPayload {

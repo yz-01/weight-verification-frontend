@@ -37,10 +37,16 @@ describe("field form draft integration", () => {
     });
   }
 
-  it("keeps the mobile navigation grid aligned with its five buttons", () => {
+  it("keeps the mobile navigation grid aligned with however many buttons it has", () => {
+    // Derived, not pinned to a number. The count changed once already when
+    // 「位置」 was removed (T-321), and a hard-coded 5 turns that into a false
+    // red while saying nothing about the invariant that actually matters:
+    // the column count and the button count must agree, or the icons bunch to
+    // one side of an empty cell.
     const code = source("src/components/field-staff/field-staff-workspace.tsx");
-    expect(code).toContain("grid-cols-5");
-    expect(code).not.toContain("grid-cols-6");
+    const buttons = (code.match(/<MobileNavButton\b/g) ?? []).length;
+    expect(buttons).toBeGreaterThan(0);
+    expect(code).toContain(`grid-cols-${buttons}`);
   });
 
   it("keeps a task id in the URL so a refreshed workflow uses the same draft", () => {

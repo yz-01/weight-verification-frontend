@@ -18,7 +18,9 @@ import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
+  FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -296,6 +298,7 @@ export function Incoming() {
           ),
         )}
       </div>
+      <QueryFailedNote query={summary} what={t("incoming.what.summary")} />
 
       <div className="grid shrink-0 gap-2 sm:grid-cols-2 lg:max-w-xl">
         <div className="space-y-1">
@@ -492,18 +495,15 @@ function OrderAssignmentDialog({
             <div className="rounded-lg border border-info/25 bg-info/5 p-3 text-sm leading-6">
               {t("incoming.order.proposalHelp")}
             </div>
-            <div className="space-y-1.5">
-              <Label>{t("incoming.collect.reference")}</Label>
+            <FieldWrapper label={t("incoming.collect.reference")}>
               <Input value={reference} onChange={(event) => setReference(event.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t("incoming.order.proposedAt")}</Label>
+            </FieldWrapper>
+            <FieldWrapper label={t("incoming.order.proposedAt")} required>
               <Input type="datetime-local" min={localDateTimeInput()} value={proposedAt} onChange={(event) => setProposedAt(event.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t("incoming.order.proposalNote")}</Label>
+            </FieldWrapper>
+            <FieldWrapper label={t("incoming.order.proposalNote")}>
               <Textarea value={proposalNote} onChange={(event) => setProposalNote(event.target.value)} />
-            </div>
+            </FieldWrapper>
           </div>
         ) : load.state === "ACCEPTED" ? (
           <div className="grid gap-4">
@@ -522,14 +522,12 @@ function OrderAssignmentDialog({
                     : t("common.emptyValue")}
               </p>
             </div>
-            <div className="space-y-1.5">
-              <Label>{t("incoming.order.proposedAt")}</Label>
+            <FieldWrapper label={t("incoming.order.proposedAt")} required>
               <Input type="datetime-local" min={localDateTimeInput()} value={proposedAt} onChange={(event) => setProposedAt(event.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>{t("incoming.order.proposalNote")}</Label>
+            </FieldWrapper>
+            <FieldWrapper label={t("incoming.order.proposalNote")}>
               <Textarea value={proposalNote} onChange={(event) => setProposalNote(event.target.value)} />
-            </div>
+            </FieldWrapper>
             {waitingForContractor && (
               <div className="rounded-lg border border-warning/30 bg-warning/10 p-3">
                 <p className="text-sm font-semibold">{t("incoming.order.waitingConfirmation")}</p>
@@ -552,11 +550,19 @@ function OrderAssignmentDialog({
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
+          {/*
+              Not an "accept" (D-222). 回收商端不需要【接单】按钮 - the order is
+              already this yard's the moment the contractor sends it. What this
+              button does is the step D-222 *does* describe: the yard arranges
+              the collection. The time is required because 「约收运时间成为回收商
+              的正常步骤」, and it only appears at all for orders raised before
+              D-111, which are the last rows still sitting in this state.
+          */}
           {load.state === "PENDING_ACCEPTANCE" && (
             <Button requires={[[proposedAt, t("incoming.order.proposedAt")]]}
                     disabled={pending} onClick={() => acceptOnly.mutate()}>
               {acceptOnly.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}
-              {t("incoming.order.acceptAndPropose")}
+              {t("incoming.order.arrangeCollection")}
             </Button>
           )}
           {load.state === "ACCEPTED" && (

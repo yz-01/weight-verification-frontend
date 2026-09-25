@@ -614,8 +614,8 @@ export function ContractorDashboard() {
               <Block
                 title={t("notifications.title")}
                 subtitle={t("notifications.subtitle", {
-                  unread: notifications.unread,
                   today: notifications.today,
+                  earlier: notifications.earlier,
                 })}
                 empty={notifications.rows.length === 0}
                 emptyLabel={t("notifications.empty")}
@@ -643,8 +643,11 @@ export function ContractorDashboard() {
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        {!row.read_at && (
-                          <StatusBadge label={t("notifications.unread")} tone="info" />
+                        {row.state === "PENDING" && (
+                          <StatusBadge
+                            label={t("notifications.outstanding")}
+                            tone="info"
+                          />
                         )}
                         <p className="mt-1 text-xs text-muted-foreground">
                           {df.relative(row.created_at)}

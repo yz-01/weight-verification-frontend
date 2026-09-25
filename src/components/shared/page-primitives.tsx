@@ -113,6 +113,38 @@ export function LoadFailed({
   );
 }
 
+/**
+ * One line, in place, saying a request failed - for the places `QueryBoundary`
+ * is too big: a select's options, a summary number, a side panel (T-175).
+ *
+ * A select whose options failed looks exactly like a select with nothing to
+ * choose, and the reader picks "nothing" or gives up. This sits under the
+ * control and says which list did not load. It renders nothing otherwise, so
+ * it can stand next to any query without changing the screen when all is well.
+ */
+export function QueryFailedNote({
+  query,
+  what,
+  className,
+}: {
+  query: { isError: boolean; refetch?: () => unknown };
+  what: string;
+  className?: string;
+}) {
+  const t = useTranslations("common");
+  if (!query.isError) return null;
+  return (
+    <p role="alert" className={cn("flex flex-wrap items-center gap-x-2 text-xs text-destructive", className)}>
+      <span>{t("loadFailed", { what })}</span>
+      {query.refetch && (
+        <button type="button" className="font-medium underline" onClick={() => query.refetch?.()}>
+          {t("retry")}
+        </button>
+      )}
+    </p>
+  );
+}
+
 /** Section heading inside a card. */
 export function SectionHeader({ title }: { title: string }) {
   return (
@@ -142,7 +174,8 @@ export function FieldWrapper({
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-1.5", className)}>
+    // Tight label-to-input spacing (T-371): every form in the system uses this.
+    <div className={cn("space-y-1", className)}>
       <Label className={cn("text-sm font-medium", error && "text-destructive")}>
         {label}
         {required && <span className="ml-0.5 text-destructive">*</span>}

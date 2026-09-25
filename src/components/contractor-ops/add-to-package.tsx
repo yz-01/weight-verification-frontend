@@ -6,9 +6,9 @@ import { FolderPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Shell } from "@/components/contractor-ops/package-shell";
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useDateFormat } from "@/lib/dates";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
@@ -172,42 +172,40 @@ function ChoosePackageDialog({
              instruction to go somewhere else and come back. */
           <div className="space-y-1.5">
             <p className="text-sm">{t("noDrafts")}</p>
-            <Label htmlFor="new-package-name">
-              {t("field.name")}
-              <span className="ml-0.5 text-destructive">*</span>
-            </Label>
-            <Input
-              id="new-package-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder={t("field.namePlaceholder")}
-            />
+            <FieldWrapper label={t("field.name")} required>
+              <Input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder={t("field.namePlaceholder")}
+              />
+            </FieldWrapper>
           </div>
         ) : (
-          <fieldset className="space-y-2">
-            <legend className="sr-only">{t("chooseDraft")}</legend>
-            {rows.map((row) => (
-              <label
-                key={row.id}
-                className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm"
-              >
-                <input
-                  type="radio"
-                  name="package"
-                  className="mt-1"
-                  checked={chosen === row.id}
-                  onChange={() => setChosen(row.id)}
-                />
-                <span className="min-w-0">
-                  <span className="block truncate font-medium">{row.name}</span>
-                  <span className="block text-xs text-muted-foreground">
-                    {t("itemCount", { count: row.item_count })} ·{" "}
-                    {formatter.dateTime(row.created_at)}
+          <FieldWrapper label={t("chooseDraft")} required>
+            <fieldset className="space-y-2">
+              {rows.map((row) => (
+                <label
+                  key={row.id}
+                  className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm"
+                >
+                  <input
+                    type="radio"
+                    name="package"
+                    className="mt-1"
+                    checked={chosen === row.id}
+                    onChange={() => setChosen(row.id)}
+                  />
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium">{row.name}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      {t("itemCount", { count: row.item_count })} ·{" "}
+                      {formatter.dateTime(row.created_at)}
+                    </span>
                   </span>
-                </span>
-              </label>
-            ))}
-          </fieldset>
+                </label>
+              ))}
+            </fieldset>
+          </FieldWrapper>
         )}
       </div>
 

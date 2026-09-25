@@ -188,12 +188,22 @@ export function FormSection({
   className?: string;
 }) {
   const surface = useFormSurface();
+  // Compact on purpose (T-371, C-020 第 4 条): 「表单还是太大了，尽量缩小至一个
+  // 页面可以看完，不需要往下滑，所有在系统的表单都是一样要小」. Done here, once,
+  // rather than form by form - tighter padding everywhere, and a third column
+  // on a wide screen so a long form spreads across instead of down.
   return (
-    <section className={cn(surface === "dialog" ? "px-4 py-3" : "px-6 py-5")}>
-      <h3 className={cn("text-xs font-semibold uppercase tracking-wider text-muted-foreground", surface === "dialog" ? "mb-2" : "mb-4")}>
+    <section className={cn(surface === "dialog" ? "px-4 py-2.5" : "px-5 py-3")}>
+      <h3 className={cn("mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground")}>
         {title}
       </h3>
-      <div className={cn("grid grid-cols-1 gap-3 md:grid-cols-2", className)}>
+      <div
+        className={cn(
+          "grid grid-cols-1 gap-x-3 gap-y-2 md:grid-cols-2",
+          surface !== "dialog" && "xl:grid-cols-3",
+          className,
+        )}
+      >
         {children}
       </div>
     </section>

@@ -134,6 +134,15 @@ export function AppSidebar() {
                               right-hand slot already holds the submodule
                               chevron on every entry that has children, and
                               material receipts is one of them. */}
+                          {badges[item.feature] === null && (
+                            <span
+                              className="ml-auto shrink-0 rounded-full border border-destructive/40 px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none text-destructive group-data-[collapsible=icon]:hidden"
+                              aria-label={t("nav.waitingUnknown")}
+                              title={t("nav.waitingUnknown")}
+                            >
+                              ?
+                            </span>
+                          )}
                           {(badges[item.feature] ?? 0) > 0 && (
                             <span
                               className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none tabular-nums text-primary-foreground group-data-[collapsible=icon]:hidden"

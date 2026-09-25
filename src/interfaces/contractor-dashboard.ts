@@ -198,10 +198,12 @@ export interface DashboardAnomalies {
 export interface NotificationRow {
   id: string;
   kind: string;
+  /** The kind by name, in the reader's language (T-176). */
+  kind_label: string;
   title: string;
   message: string;
   created_at: string | null;
-  read_at: string | null;
+  state: string;
 }
 
 export interface DashboardPersonnel {
@@ -287,12 +289,13 @@ export interface ContractorDashboard {
   unread?: DashboardUnread;
   anomalies?: DashboardAnomalies;
   notifications?: {
-    /** Unread, newest first. Not "created today" - see `today`. */
+    /** Still outstanding, newest first. Not "created today" - see `today`. */
     rows: NotificationRow[];
     total: number;
-    unread: number;
-    /** How many arrived today, so the card can say both without confusing them. */
+    /** Of the outstanding pile, how many arrived today (D-206). */
     today: number;
+    /** The rest of it. `today + earlier === total`. */
+    earlier: number;
     scope: string;
   };
   personnel?: DashboardPersonnel;

@@ -5,6 +5,7 @@ import { CheckCheck, Square, SquareCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
+import { LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,7 +33,7 @@ export function PermissionMatrix({
 }) {
   const t = useTranslations();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["permissions", "catalogue"],
     queryFn: getPermissionCatalogue,
     // The catalogue only changes when the backend deploys, so there is no
@@ -58,6 +59,12 @@ export function PermissionMatrix({
         ))}
       </div>
     );
+  }
+
+  // Without the catalogue there is nothing to tick, and an empty picker would
+  // read as "this role has no permissions to choose from".
+  if (isError) {
+    return <LoadFailed what={t("roles.what.permissions")} onRetry={() => refetch()} />;
   }
 
   function toggle(code: string, next: boolean) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Check, CheckCheck, ChevronRight, Trash2 } from "lucide-react";
+import { Bell, Check, ChevronRight, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -10,10 +10,9 @@ import { Button } from "@/components/ui/button";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
 import {
+  confirmNotificationDone,
   dismissNotification,
   getNotifications,
-  markAllNotificationsRead,
-  markNotificationRead,
 } from "@/services/platform-ops.service";
 
 export function DriverNotifications() {
@@ -28,9 +27,8 @@ export function DriverNotifications() {
   });
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: ["notifications"] });
-  const read = useMutation({ mutationFn: markNotificationRead, onSuccess: refresh });
-  const readAll = useMutation({
-    mutationFn: markAllNotificationsRead,
+  const confirm = useMutation({
+    mutationFn: confirmNotificationDone,
     onSuccess: refresh,
   });
   const dismiss = useMutation({ mutationFn: dismissNotification, onSuccess: refresh });
@@ -39,9 +37,13 @@ export function DriverNotifications() {
   if (query.isError) return <DriverError onRetry={() => void query.refetch()} />;
 
   const rows = query.data?.results ?? [];
-  const unread = rows.filter((row) => !row.is_read).length;
-  const open = async (notification: NotificationRow) => {
-    if (!notification.is_read) await read.mutateAsync(notification.id);
+  const outstanding = rows.filter((row) => row.is_outstanding).length;
+  /*
+   * Opening a notice no longer settles it (D-206). A driver glancing at
+   * "your next collection has moved" while holding a steering wheel has not
+   * thereby done anything about it.
+   */
+  const open = (notification: NotificationRow) => {
     const taskId =
       typeof notification.data.task_id === "string"
         ? notification.data.task_id
@@ -55,21 +57,9 @@ export function DriverNotifications() {
         <div>
           <h1 className="text-xl font-semibold">{t("driver.notifications.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {t("driver.notifications.unread", { count: unread })}
+            {t("driver.notifications.outstanding", { count: outstanding })}
           </p>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          disabledReason={
-            unread === 0 ? t("common.nothingUnread") : undefined
-          }
-          disabled={unread === 0 || readAll.isPending}
-          onClick={() => readAll.mutate()}
-        >
-          <CheckCheck className="h-4 w-4" />
-          {t("notifications.markAllRead")}
-        </Button>
       </div>
 
       {rows.length === 0 ? (
@@ -88,9 +78,9 @@ export function DriverNotifications() {
             >
               <span
                 className={`mt-1 grid h-8 w-8 place-items-center rounded-full ${
-                  notification.is_read
-                    ? "bg-muted text-muted-foreground"
-                    : "bg-primary/10 text-primary"
+                  notification.is_outstanding
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted text-muted-foreground"
                 }`}
               >
                 <Bell className="h-4 w-4" />
@@ -98,17 +88,17 @@ export function DriverNotifications() {
               <button
                 type="button"
                 className="min-w-0 text-left"
-                onClick={() => void open(notification)}
+                onClick={() => open(notification)}
               >
                 <span className="flex items-start gap-2">
                   <span
                     className={`min-w-0 flex-1 text-sm ${
-                      notification.is_read ? "font-medium" : "font-semibold"
+                      notification.is_outstanding ? "font-semibold" : "font-medium"
                     }`}
                   >
                     {notification.title}
                   </span>
-                  {!notification.is_read && (
+                  {notification.is_outstanding && (
                     <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
                   )}
                 </span>
@@ -123,10 +113,22 @@ export function DriverNotifications() {
                   variant="ghost"
                   className="h-9 w-9"
                   title={t("driver.notifications.open")}
-                  onClick={() => void open(notification)}
+                  onClick={() => open(notification)}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
+                {notification.is_outstanding && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-9 w-9"
+                    title={t("notifications.confirmDone")}
+                    disabled={confirm.isPending}
+                    onClick={() => confirm.mutate(notification.id)}
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button
                   size="icon"
                   variant="ghost"

@@ -30,7 +30,7 @@ import {
   required,
   requiredEmail,
 } from "@/components/shared/form-shell";
-import { FieldWrapper } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
@@ -96,10 +96,12 @@ export function CreateCompany({
     currency: "MYR",
     is_primary: true,
   });
-  const { data: plans, isLoading: plansLoading } = useQuery({
+  const plansQuery = useQuery({
     queryKey: ["subscription-plans", "active"],
     queryFn: () => getSubscriptionPlans(),
   });
+  const plans = plansQuery.data;
+  const plansLoading = plansQuery.isLoading;
 
   const mutation = useMutation({
     mutationFn: async (values: CompanyPayload) => {
@@ -594,6 +596,7 @@ export function CreateCompany({
                   />
                 )}
               </form.Field>
+              <QueryFailedNote query={plansQuery} what={t("companies.what.plans")} />
 
               {selectedType === "CONTRACTOR" && (
                 <form.Field

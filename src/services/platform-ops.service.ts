@@ -62,26 +62,32 @@ export async function getAllNotifications(
   };
 }
 
-export function getUnreadNotificationCount(
+/**
+ * How much is still waiting on this person, split today versus backlog.
+ *
+ * Replaces the unread count. The number no longer moves when somebody opens
+ * the list, which is the point of D-206.
+ */
+export function getOutstandingNotificationCount(
   options: { silent?: boolean } = {},
 ): Promise<NotificationSummary> {
   return api.get<NotificationSummary>(
-    "/api/notifications/get_unread_count/",
+    "/api/notifications/get_outstanding_count/",
     undefined,
     options,
   );
 }
 
-export function markNotificationRead(id: string): Promise<NotificationRow> {
-  return api.post<NotificationRow>(`/api/notifications/${id}/mark_read/`);
-}
-
-export async function markAllNotificationsRead(): Promise<number> {
-  const result = await api.post<{ updated: number }>(
-    "/api/notifications/mark_all_read/",
-  );
-  toastSuccess("notifications.toast.allRead");
-  return result.updated;
+/**
+ * The recipient says they have done their part.
+ *
+ * One notice, deliberately. There is no "confirm all" to replace the old
+ * "mark all read": D-207 requires that confirming one item leaves the others
+ * standing, and a button whose whole job was to empty the list without doing
+ * the work is what the customer complained about.
+ */
+export function confirmNotificationDone(id: string): Promise<NotificationRow> {
+  return api.post<NotificationRow>(`/api/notifications/${id}/confirm_done/`);
 }
 
 export async function dismissNotification(id: string): Promise<void> {
@@ -117,16 +123,17 @@ export function getAdminNotifications(
   );
 }
 
-export function markAdminNotificationRead(
+/**
+ * Put a notice back on somebody's pile (platform staff only).
+ *
+ * The counterpart of the old "mark unread". Something confirmed by mistake,
+ * or closed by a module that turned out to be wrong, has to be recoverable;
+ * the append-only history keeps both the confirmation and this reversal.
+ */
+export function reopenAdminNotification(
   id: string,
 ): Promise<AdminNotificationRow> {
-  return api.post<AdminNotificationRow>(`/api/notifications/${id}/mark_read/`);
-}
-
-export function markAdminNotificationUnread(
-  id: string,
-): Promise<AdminNotificationRow> {
-  return api.post<AdminNotificationRow>(`/api/notifications/${id}/mark_unread/`);
+  return api.post<AdminNotificationRow>(`/api/notifications/${id}/reopen/`);
 }
 
 export function removeAdminNotification(id: string): Promise<void> {

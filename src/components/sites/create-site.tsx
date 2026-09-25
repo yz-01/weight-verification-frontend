@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { TextField, type BoundField } from "@/components/shared/form-fields";
+import { SelectField, TextField, type BoundField } from "@/components/shared/form-fields";
 import {
   FormSection,
   FormShell,
@@ -48,11 +48,19 @@ export function CreateSite({ site }: { site?: RecyclingSite }) {
       postcode: site?.postcode ?? "",
       contact_person: site?.contact_person ?? "",
       contact_phone: site?.contact_phone ?? "",
+      weighing_mode: site?.weighing_mode ?? "TWO_PASS",
+      requires_dispatch: site ? String(site.requires_dispatch) : "true",
+      pairing_window_hours: String(site?.pairing_window_hours ?? 12),
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
       try {
-        await mutation.mutateAsync(value);
+        await mutation.mutateAsync({
+          ...value,
+          weighing_mode: value.weighing_mode as RecyclingSitePayload["weighing_mode"],
+          requires_dispatch: value.requires_dispatch === "true",
+          pairing_window_hours: Number(value.pairing_window_hours),
+        });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
           const leftover = applyServerErrors(error.errors, form as unknown as Parameters<typeof applyServerErrors>[1]);
@@ -145,6 +153,56 @@ export function CreateSite({ site }: { site?: RecyclingSite }) {
               field={field as unknown as BoundField}
               label={t("sites.field.postcode")}
               optional
+            />
+          )}
+        </form.Field>
+      </FormSection>
+
+      {/* How this yard weighs (T-382): the three rules the weighing engine
+          reads for every weighing here. They used to be settable only by API. */}
+      <FormSection title={t("sites.section.weighing")}>
+        <form.Field name="weighing_mode">
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("sites.field.weighingMode")}
+              hint={t("sites.hint.weighingMode")}
+              options={[
+                { value: "TWO_PASS", label: t("sites.weighingMode.TWO_PASS") },
+                { value: "STORED_TARE", label: t("sites.weighingMode.STORED_TARE") },
+              ]}
+              required
+            />
+          )}
+        </form.Field>
+        <form.Field name="requires_dispatch">
+          {(field) => (
+            <SelectField
+              field={field as unknown as BoundField}
+              label={t("sites.field.requiresDispatch")}
+              hint={t("sites.hint.requiresDispatch")}
+              options={[
+                { value: "true", label: t("sites.requiresDispatch.true") },
+                { value: "false", label: t("sites.requiresDispatch.false") },
+              ]}
+              required
+            />
+          )}
+        </form.Field>
+        <form.Field
+          name="pairing_window_hours"
+          validators={{
+            onSubmit: ({ value }) =>
+              /^[1-9]\d*$/.test(String(value)) ? undefined : t("sites.validation.pairingWindow"),
+          }}
+        >
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("sites.field.pairingWindowHours")}
+              hint={t("sites.hint.pairingWindowHours")}
+              type="number"
+              required
             />
           )}
         </form.Field>

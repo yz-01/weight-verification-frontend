@@ -1,5 +1,5 @@
-import { SiteEquipmentWorkspace } from "@/components/contractor-ops/operations-workspaces";
+import { SiteEquipmentOffice } from "@/components/contractor-ops/office-module-lists";
 
 export default function SiteEquipmentPage() {
-  return <SiteEquipmentWorkspace />;
+  return <SiteEquipmentOffice />;
 }

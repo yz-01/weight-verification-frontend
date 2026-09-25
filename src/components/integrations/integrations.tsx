@@ -21,7 +21,10 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
+  FieldWrapper,
   ListHeader,
+  LoadFailed,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -573,6 +576,10 @@ export function Integrations() {
               </option>
             ))}
           </select>
+          <QueryFailedNote
+            query={companies}
+            what={t("integrations.what.companies")}
+          />
         </div>
       )}
 
@@ -585,7 +592,7 @@ export function Integrations() {
             </h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <Field label={t("integrations.field.kind")}>
+            <FieldWrapper label={t("integrations.field.kind")}>
               <select
                 className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                 value={kind}
@@ -599,25 +606,25 @@ export function Integrations() {
                   </option>
                 ))}
               </select>
-            </Field>
+            </FieldWrapper>
             <div className="md:col-span-2 xl:col-span-3">
               <KindHelp kind={kind} />
             </div>
-            <Field label={t("integrations.field.name")}>
+            <FieldWrapper label={t("integrations.field.name")} required>
               <Input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder={t("integrations.field.namePlaceholder")}
               />
-            </Field>
-            <Field label={t("integrations.field.baseUrl")}>
+            </FieldWrapper>
+            <FieldWrapper label={t("integrations.field.baseUrl")} required={mode === "LIVE"}>
               <Input
                 value={baseUrl}
                 onChange={(event) => setBaseUrl(event.target.value)}
                 placeholder="https://..."
               />
-            </Field>
-            <Field label={t("integrations.field.authType")}>
+            </FieldWrapper>
+            <FieldWrapper label={t("integrations.field.authType")}>
               <select
                 className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                 value={authType}
@@ -629,8 +636,8 @@ export function Integrations() {
                   </option>
                 ))}
               </select>
-            </Field>
-            <Field label={t("integrations.field.mode")}>
+            </FieldWrapper>
+            <FieldWrapper label={t("integrations.field.mode")}>
               <select
                 className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                 value={mode}
@@ -643,22 +650,28 @@ export function Integrations() {
                 </option>
                 <option value="LIVE">{t("monitoring.mode.LIVE")}</option>
               </select>
-            </Field>
-            <Field label={t("integrations.field.secret")}>
+            </FieldWrapper>
+            <FieldWrapper label={t("integrations.field.secret")}>
               <Input
                 type="password"
                 value={secret}
                 onChange={(event) => setSecret(event.target.value)}
                 placeholder={t("integrations.field.secretPlaceholder")}
               />
-            </Field>
+            </FieldWrapper>
           </div>
           {directionOf(kind) !== "INBOUND" && (
-            <EventPicker
-              available={availableEvents}
-              selected={events ?? availableEvents}
-              onChange={setEvents}
-            />
+            <>
+              <EventPicker
+                available={availableEvents}
+                selected={events ?? availableEvents}
+                onChange={setEvents}
+              />
+              <QueryFailedNote
+                query={eventCatalogue}
+                what={t("integrations.what.eventCatalogue")}
+              />
+            </>
           )}
           <p className="rounded-md border bg-muted/20 px-3 py-2 text-xs leading-5 text-muted-foreground">
             {t("integrations.guide.description")}
@@ -695,7 +708,13 @@ export function Integrations() {
           </h2>
         </div>
         <div className="divide-y overflow-hidden rounded-lg border bg-card shadow-sm">
-          {rows.length === 0 ? (
+          {integrations.isError ? (
+            <LoadFailed
+              className="m-3"
+              what={t("integrations.what.connections")}
+              onRetry={() => integrations.refetch()}
+            />
+          ) : rows.length === 0 ? (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
               {t("integrations.empty")}
             </p>
@@ -827,23 +846,23 @@ export function Integrations() {
           <h2 className="text-sm font-semibold">{t("integrations.devices")}</h2>
           {canManageHardware && (
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              <Field label={t("integrations.device.type")}>
+              <FieldWrapper label={t("integrations.device.type")}>
                 <Input
                   value={device.device_type}
                   onChange={(event) =>
                     setDevice({ ...device, device_type: event.target.value })
                   }
                 />
-              </Field>
-              <Field label={t("integrations.device.id")}>
+              </FieldWrapper>
+              <FieldWrapper label={t("integrations.device.id")} required>
                 <Input
                   value={device.device_id}
                   onChange={(event) =>
                     setDevice({ ...device, device_id: event.target.value })
                   }
                 />
-              </Field>
-              <Field label={t("integrations.device.integration")}>
+              </FieldWrapper>
+              <FieldWrapper label={t("integrations.device.integration")}>
                 <select
                   className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                   value={device.integration ?? ""}
@@ -861,9 +880,9 @@ export function Integrations() {
                     </option>
                   ))}
                 </select>
-              </Field>
+              </FieldWrapper>
               {selectedCompanyType === "CONTRACTOR" && (
-                <Field label={t("integrations.device.project")}>
+                <FieldWrapper label={t("integrations.device.project")}>
                   <select
                     className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                     value={device.project ?? ""}
@@ -885,11 +904,15 @@ export function Integrations() {
                       </option>
                     ))}
                   </select>
-                </Field>
+                  <QueryFailedNote
+                    query={projects}
+                    what={t("integrations.what.projects")}
+                  />
+                </FieldWrapper>
               )}
               {selectedCompanyType === "RECYCLER" && (
                 <>
-                  <Field label={t("integrations.device.site")}>
+                  <FieldWrapper label={t("integrations.device.site")}>
                     <select
                       className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                       value={device.site ?? ""}
@@ -911,8 +934,12 @@ export function Integrations() {
                         </option>
                       ))}
                     </select>
-                  </Field>
-                  <Field label={t("integrations.device.scale")}>
+                    <QueryFailedNote
+                      query={sites}
+                      what={t("integrations.what.sites")}
+                    />
+                  </FieldWrapper>
+                  <FieldWrapper label={t("integrations.device.scale")}>
                     <select
                       className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                       value={device.scale ?? ""}
@@ -932,10 +959,14 @@ export function Integrations() {
                         </option>
                       ))}
                     </select>
-                  </Field>
+                    <QueryFailedNote
+                      query={scales}
+                      what={t("integrations.what.scales")}
+                    />
+                  </FieldWrapper>
                 </>
               )}
-              <Field label={t("integrations.device.firmware")}>
+              <FieldWrapper label={t("integrations.device.firmware")}>
                 <Input
                   value={device.firmware_version ?? ""}
                   onChange={(event) =>
@@ -945,8 +976,8 @@ export function Integrations() {
                     })
                   }
                 />
-              </Field>
-              <Field label={t("integrations.device.secret")}>
+              </FieldWrapper>
+              <FieldWrapper label={t("integrations.device.secret")}>
                 <Input
                   type="password"
                   value={device.secret ?? ""}
@@ -955,7 +986,7 @@ export function Integrations() {
                   }
                   placeholder={t("integrations.device.secretPlaceholder")}
                 />
-              </Field>
+              </FieldWrapper>
               <div className="flex items-end xl:justify-end">
                 <Button
                   requires={[[device.device_id, t("integrations.device.id")]]}
@@ -969,6 +1000,13 @@ export function Integrations() {
             </div>
           )}
           <div className="divide-y overflow-hidden rounded-md border">
+            {devices.isError && (
+              <LoadFailed
+                className="m-3"
+                what={t("integrations.what.devices")}
+                onRetry={() => devices.refetch()}
+              />
+            )}
             {(devices.data?.results ?? []).map((item) => (
               <div
                 key={item.id}
@@ -1236,7 +1274,7 @@ function DeviceEditDialog({
         </DialogHeader>
 
         <div className="grid gap-3">
-          <Field label={t("integrations.device.integration")}>
+          <FieldWrapper label={t("integrations.device.integration")}>
             <select
               className="h-9 w-full rounded-md border bg-background px-3 text-sm"
               value={integration}
@@ -1249,10 +1287,10 @@ function DeviceEditDialog({
                 </option>
               ))}
             </select>
-          </Field>
+          </FieldWrapper>
 
           {companyType === "CONTRACTOR" && (
-            <Field label={t("integrations.device.project")}>
+            <FieldWrapper label={t("integrations.device.project")}>
               <select
                 className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                 value={project}
@@ -1265,12 +1303,12 @@ function DeviceEditDialog({
                   </option>
                 ))}
               </select>
-            </Field>
+            </FieldWrapper>
           )}
 
           {companyType === "RECYCLER" && (
             <>
-              <Field label={t("integrations.device.site")}>
+              <FieldWrapper label={t("integrations.device.site")}>
                 <select
                   className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                   value={site}
@@ -1286,8 +1324,8 @@ function DeviceEditDialog({
                     </option>
                   ))}
                 </select>
-              </Field>
-              <Field label={t("integrations.device.scale")}>
+              </FieldWrapper>
+              <FieldWrapper label={t("integrations.device.scale")}>
                 <select
                   className="h-9 w-full rounded-md border bg-background px-3 text-sm"
                   value={scale}
@@ -1300,25 +1338,25 @@ function DeviceEditDialog({
                     </option>
                   ))}
                 </select>
-              </Field>
+              </FieldWrapper>
             </>
           )}
 
-          <Field label={t("integrations.device.firmware")}>
+          <FieldWrapper label={t("integrations.device.firmware")}>
             <Input
               value={firmware}
               onChange={(event) => setFirmware(event.target.value)}
             />
-          </Field>
+          </FieldWrapper>
 
-          <Field label={t("integrations.device.rotateSecret")}>
+          <FieldWrapper label={t("integrations.device.rotateSecret")}>
             <Input
               type="password"
               value={secret}
               onChange={(event) => setSecret(event.target.value)}
               placeholder={t("integrations.device.rotateSecretPlaceholder")}
             />
-          </Field>
+          </FieldWrapper>
           <p className="text-xs text-muted-foreground">
             {t("integrations.device.rotateSecretHelp")}
           </p>
@@ -1658,30 +1696,32 @@ function DeviceConsoleDialog({
 
         <div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[1fr_auto]">
           <div className="grid gap-2">
-            <select
-              className="h-9 rounded-md border bg-background px-2 text-sm"
-              value={kind}
-              aria-label={t("integrations.console.kind")}
-              onChange={(event) =>
-                setKind(event.target.value as DeviceCommandKind)
-              }
-            >
-              {COMMAND_KINDS.map((value) => (
-                <option key={value} value={value}>
-                  {t(`integrations.console.kindLabel.${value}`)}
-                </option>
-              ))}
-            </select>
+            <FieldWrapper label={t("integrations.console.kind")}>
+              <select
+                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                value={kind}
+                onChange={(event) =>
+                  setKind(event.target.value as DeviceCommandKind)
+                }
+              >
+                {COMMAND_KINDS.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`integrations.console.kindLabel.${value}`)}
+                  </option>
+                ))}
+              </select>
+            </FieldWrapper>
             {messageKey && (
-              <Input
-                value={message}
-                aria-label={t("integrations.console.message")}
-                placeholder={t("integrations.console.messagePlaceholder")}
-                onChange={(event) => setMessage(event.target.value)}
-              />
+              <FieldWrapper label={t("integrations.console.message")} required>
+                <Input
+                  value={message}
+                  placeholder={t("integrations.console.messagePlaceholder")}
+                  onChange={(event) => setMessage(event.target.value)}
+                />
+              </FieldWrapper>
             )}
           </div>
-          <div className="flex items-start">
+          <div className="flex items-end">
             <Button
               type="button"
               requires={[
@@ -1858,19 +1898,3 @@ function DeviceTelemetryDialog({
   );
 }
 
-function Field({
-  label,
-  children,
-  className = "",
-}: {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`space-y-1.5 ${className}`}>
-      <Label>{label}</Label>
-      {children}
-    </div>
-  );
-}

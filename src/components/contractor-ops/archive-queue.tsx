@@ -18,6 +18,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
+import { RecordClosurePanel } from "@/components/shared/record-closure";
+import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import { canDiscuss } from "@/lib/record-chat";
 import { useDateFormat } from "@/lib/dates";
 import type {
   ArchiveQueueRow,
@@ -380,6 +383,21 @@ function RecordSheet({
                   ))}
                 </div>
               )}
+
+              {/* The same reason the package shortcut sits here (D-154): this
+                  sheet is the one place a record of any kind is opened, so one
+                  panel here reaches every kind that takes a conversation
+                  instead of one copy per module screen. A hazard is not one of
+                  them - it keeps its own chat, and two would split its
+                  evidence in half. */}
+              {canDiscuss(row.kind) && (
+                <RecordConversationPanel kind={row.kind} recordId={row.id} />
+              )}
+              {/* And the one action that ends it (D-234). Here for the same
+                  reason as the conversation: this sheet is where a record of
+                  any kind is opened, so one panel covers every kind rather
+                  than eight copies that would drift. */}
+              <RecordClosurePanel kind={row.kind} recordId={row.id} />
             </>
           )}
         </div>

@@ -1,5 +1,9 @@
 import type { ListQuery, Paginated } from "@/interfaces/api";
-import type { ExportRequest } from "@/services/contractor.service";
+import {
+  exportBody,
+  exportQuery,
+  type ExportRequest,
+} from "@/services/contractor.service";
 import type {
   ArchiveQueueDetail,
   ArchiveQueuePage,
@@ -255,22 +259,34 @@ export const updateSiteEquipment = async (
   return row;
 };
 
+/** The office's 【上传文件】 onto the machine's own record (T-298). */
+export async function addEquipmentPhotos(id: string, files: File[], caption = "") {
+  const data = new FormData();
+  files.forEach((file) => data.append("photos", file));
+  if (caption) data.append("caption", caption);
+  const row = await api.post<SiteEquipment>(`/api/site-equipment/${id}/add_equipment_photos/`, data);
+  toastSuccess("contractorOps.toast.photoAdded");
+  return row;
+}
+
+/** …and onto one entry or exit (T-301, D-209). */
+export async function addEquipmentMovementPhotos(movementId: string, files: File[]) {
+  const data = new FormData();
+  data.append("movement", movementId);
+  files.forEach((file) => data.append("photos", file));
+  const row = await api.post<EquipmentMovement>("/api/site-equipment/add_movement_photos/", data);
+  toastSuccess("contractorOps.toast.photoAdded");
+  return row;
+}
+
 export const getEquipmentMovements = (query: ListQuery = {}) =>
   api.list<EquipmentMovement>("/api/site-equipment/get_movements/", query);
 export function exportEquipmentMovements(request: ExportRequest): Promise<void> {
-  const { page, page_size, ...query } = request.query;
-  void page;
-  void page_size;
   return download("/api/site-equipment/export_movements/", {
     method: "POST",
-    query,
-    body: {
-      format: request.format,
-      title: request.title,
-      subtitle: request.subtitle ?? "",
-      empty_label: request.emptyLabel ?? "",
-      columns: request.columns,
-    },
+    query: exportQuery(request),
+    // Shared body, so the per-unit totals the screen asks for reach the PDF.
+    body: exportBody(request),
     fallbackFilename: `equipment-movements.${request.format}`,
   });
 }
@@ -328,7 +344,7 @@ export const createConstructionPhase = async (payload: { project: string; code: 
  * Correct a construction phase.
  *
  * Phases are typed in once and lived with for the length of the job, so a
- * mistyped code or a revised planned tonnage had to be worked around rather
+ * mistyped code or a revised progress weight had to be worked around rather
  * than fixed - the backend has accepted this since the module was written and
  * no screen called it (F-101). Deactivating rather than deleting is the way
  * out of a phase nobody wants, because progress records point at it.
@@ -352,6 +368,22 @@ export const updateConstructionPhase = async (
   return row;
 };
 
+/** The office's 【备注】 on a progress record (T-359, D-225). */
+export async function addProgressRemark(id: string, body: string) {
+  const row = await api.post<SiteProgressRecord>(`/api/site-progress/${id}/add_remark/`, { body });
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+}
+
+/** The office's 【上传】 onto a progress record (T-359, D-225). */
+export async function addProgressPhotos(id: string, files: File[]) {
+  const data = new FormData();
+  files.forEach((file) => data.append("photos", file));
+  const row = await api.post<SiteProgressRecord>(`/api/site-progress/${id}/add_photos/`, data);
+  toastSuccess("contractorOps.toast.photoAdded");
+  return row;
+}
+
 export const getSiteProgressRecords = (query: ListQuery = {}) =>
   api.list<SiteProgressRecord>("/api/site-progress/get_records/", query);
 /**
@@ -362,25 +394,25 @@ export const getSiteProgressRecords = (query: ListQuery = {}) =>
  * was looking at, which is the only version they can vouch for.
  */
 export function exportSiteProgressRecords(request: ExportRequest): Promise<void> {
-  const { page, page_size, ...query } = request.query;
-  void page;
-  void page_size;
   return download("/api/site-progress/export_records/", {
     method: "POST",
-    query,
-    body: {
-      format: request.format,
-      title: request.title,
-      subtitle: request.subtitle ?? "",
-      empty_label: request.emptyLabel ?? "",
-      columns: request.columns,
-    },
+    query: exportQuery(request),
+    body: exportBody(request),
     fallbackFilename: `site-progress.${request.format}`,
   });
 }
 
 export const getSiteProgressSummary = (project?: string) =>
-  api.get<{ today: number; month: number; year: number; total: number }>(
+  api.get<{
+    today: number;
+    month: number;
+    year: number;
+    total: number;
+    /** With a project: Σ(phase weight × latest confirmed %) ÷ Σ weight (D-127); null with no phases. */
+    weighted_progress?: string | null;
+    phases_counted?: number;
+    weight_total?: string;
+  }>(
     "/api/site-progress/get_summary/",
     project ? { project } : undefined,
   );
@@ -399,11 +431,6 @@ export async function createSiteProgressRecord(payload: {
   toastSuccess("contractorOps.toast.progressSubmitted");
   return row;
 }
-export const reviewSiteProgressRecord = async (id: string, status: "CONFIRMED" | "RETURNED", note = "") => {
-  const row = await api.post<SiteProgressRecord>(`/api/site-progress/${id}/review_record/`, { status, note });
-  toastSuccess("contractorOps.toast.progressReviewed");
-  return row;
-};
 
 /**
  * File a progress record under one of the project's progress columns.
@@ -449,6 +476,55 @@ export async function createMaterialOutgoing(payload: {
   toastSuccess("contractorOps.toast.outgoingSubmitted");
   return row;
 }
+/** One application with its photographs split by step (T-358). */
+export const getMaterialOutgoingRecord = (id: string) =>
+  api.get<MaterialOutgoing>(`/api/material-outgoing/${id}/get_record/`);
+
+/** The list as PDF or spreadsheet, with per-unit totals at the foot (T-358). */
+export function exportMaterialOutgoing(request: ExportRequest): Promise<void> {
+  return download("/api/material-outgoing/export_records/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `material-outgoing.${request.format}`,
+  });
+}
+
+/**
+ * The site's return after approval (D-211 「手机端现场处理及回传」).
+ *
+ * Photographs are required by the server: the office's final confirmation is
+ * made on what it can see.
+ */
+export async function returnMaterialOutgoingProcessing(
+  id: string,
+  payload: { photos: File[]; note?: string; latitude?: string; longitude?: string },
+) {
+  const data = new FormData();
+  payload.photos.forEach((file) => data.append("photos", file));
+  if (payload.note) data.append("note", payload.note);
+  if (payload.latitude) data.append("latitude", payload.latitude);
+  if (payload.longitude) data.append("longitude", payload.longitude);
+  const row = await api.post<MaterialOutgoing>(
+    `/api/material-outgoing/${id}/return_processing/`,
+    data,
+  );
+  toastSuccess("contractorOps.toast.outgoingProcessed");
+  return row;
+}
+
+/** 【上传文件】 on the office side (T-358), as a material receipt has. */
+export async function addMaterialOutgoingPhotos(id: string, files: File[]) {
+  const data = new FormData();
+  files.forEach((file) => data.append("photos", file));
+  const row = await api.post<MaterialOutgoing>(
+    `/api/material-outgoing/${id}/add_photos/`,
+    data,
+  );
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+}
+
 export const reviewMaterialOutgoing = async (id: string, status: MaterialOutgoing["status"], note = "") => {
   const row = await api.post<MaterialOutgoing>(`/api/material-outgoing/${id}/review_record/`, { status, note });
   toastSuccess("contractorOps.toast.outgoingReviewed");
@@ -457,6 +533,16 @@ export const reviewMaterialOutgoing = async (id: string, status: MaterialOutgoin
 
 export const getDisposalRequests = (query: ListQuery = {}): Promise<Paginated<DisposalRequest>> =>
   api.list<DisposalRequest>("/api/site-disposals/get_requests/", query);
+
+/** 工地清运 as PDF or spreadsheet, with the list's filters (T-361). */
+export function exportDisposalRequests(request: ExportRequest): Promise<void> {
+  return download("/api/site-disposals/export_requests/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `site-disposals.${request.format}`,
+  });
+}
 
 export const getDisposalRequest = (id: string) =>
   api.get<DisposalRequest>(`/api/site-disposals/${id}/get_request/`);
@@ -502,15 +588,22 @@ export const fileDisposalRequest = async (
   return row;
 };
 
+/**
+ * Approve or reject a disposal request.
+ *
+ * Approving also mints the temporary link and returns it **once** (D-217):
+ * 「清运申请批准后临时链接发给**申请人**，由申请人通过 WhatsApp 转给司机。」
+ * Only the hash is stored, so this response is the single chance to copy it -
+ * which is why the dialog shows it instead of closing on success.
+ */
 export async function reviewDisposalRequest(
   id: string,
   decision: "APPROVED" | "REJECTED",
   note = "",
 ) {
-  const row = await api.post<DisposalRequest>(
-    `/api/site-disposals/${id}/review_request/`,
-    { decision, note },
-  );
+  const row = await api.post<
+    DisposalRequest & { external_url?: string; external_link_due_hours?: number }
+  >(`/api/site-disposals/${id}/review_request/`, { decision, note });
   toastSuccess("siteDisposal.toast.reviewed");
   return row;
 }
@@ -876,11 +969,39 @@ export async function confirmEvidencePackage(id: string, remarks: string) {
   return row;
 }
 
+/**
+ * Open the merged PDF in the browser without downloading it (T-364, D-235:
+ * 「不需要先下载」). Not counted as the package having left.
+ */
+export const previewEvidencePackage = (id: string, name: string) =>
+  download(`/api/evidence-packages/${id}/download_package/`, {
+    query: { inline: "1" },
+    fallbackFilename: `${name || "package"}.pdf`,
+    openInNewTab: true,
+  });
+
 /** Download the merged PDF. The server notes that it left (D-148). */
 export const downloadEvidencePackage = (id: string, name: string) =>
   download(`/api/evidence-packages/${id}/download_package/`, {
     fallbackFilename: `${name || "package"}.pdf`,
   });
+
+/**
+ * One record out of a package, as its own PDF (T-348).
+ *
+ * 客户举例：「DO 可以直接 export」. The whole bundle stays where it was; this is
+ * for the case where somebody needs one delivery order and was previously
+ * sending forty pages with an instruction about which one to read.
+ */
+export const downloadPackageItem = (
+  packageId: string,
+  itemId: string,
+  reference: string,
+) =>
+  download(
+    `/api/evidence-packages/${packageId}/download_item/?item=${encodeURIComponent(itemId)}`,
+    { fallbackFilename: `${reference || "record"}.pdf` },
+  );
 
 export async function sendPackageForReview(id: string, consultant: string) {
   const row = await api.post<EvidencePackageDetail>(
@@ -1029,4 +1150,127 @@ export async function setClaimPayment(
   );
   toastSuccess("claims.toast.payment");
   return row;
+}
+
+/* -------------------------------------------------------------------------
+ * Record conversations (T-339 / T-340)
+ *
+ * One pair of calls for every module that hangs a chat off a record. A hazard
+ * keeps its own pair in `site-operations.service.ts` because it keeps its own
+ * store; everything else goes through here.
+ * ---------------------------------------------------------------------- */
+
+/** One message as both conversation endpoints return it. */
+export interface RecordMessage {
+  id: string;
+  record_kind: ArchiveRecordKind;
+  record_id: string;
+  author: string;
+  author_name: string;
+  body: string;
+  photo: string | null;
+  watermarked_photo: string | null;
+  audio: string | null;
+  audio_seconds: number | null;
+  attachment: string | null;
+  attachment_name: string;
+  sent_at: string;
+  client_event_id: string;
+  created_at: string;
+}
+
+export interface RecordConversation {
+  kind: ArchiveRecordKind;
+  record: string;
+  reference: string;
+  messages: RecordMessage[];
+  audio_seconds_limit: number;
+}
+
+export function getRecordConversation(
+  kind: ArchiveRecordKind,
+  record: string,
+): Promise<RecordConversation> {
+  return api.get<RecordConversation>("/api/record-chat/get_conversation/", {
+    kind,
+    record,
+  });
+}
+
+/**
+ * Say something on a record: text, voice, photo or file.
+ *
+ * Voice is not a convenience. The customer described part of their crew as
+ * 「不识字」, so without it the conversation is unavailable to exactly the
+ * people these six modules need in it (D-094).
+ */
+export function postRecordMessage(
+  kind: ArchiveRecordKind,
+  record: string,
+  payload: {
+    body?: string;
+    photo?: File;
+    audio?: File;
+    audio_seconds?: number;
+    attachment?: File;
+    attachment_name?: string;
+    client_event_id?: string;
+  },
+): Promise<RecordMessage> {
+  const data = new FormData();
+  data.append("kind", kind);
+  data.append("record", record);
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined || value === null || value === "") continue;
+    data.append(key, value instanceof File ? value : String(value));
+  }
+  return api.post<RecordMessage>("/api/record-chat/post_message/", data);
+}
+
+/**
+ * Whether one record has been confirmed finished, and by whom (D-234).
+ *
+ * The confirmer's name travels with the answer rather than being looked up,
+ * because the server stores the name as it stood at confirmation: a person who
+ * is later renamed or deactivated must not change what an archived record says.
+ */
+export interface RecordClosureState {
+  kind: ArchiveRecordKind;
+  record: string;
+  closed: boolean;
+  closure: {
+    confirmed_by: string;
+    confirmed_by_name: string;
+    confirmed_at: string;
+    note: string;
+  } | null;
+}
+
+export function getRecordClosure(
+  kind: ArchiveRecordKind,
+  record: string,
+): Promise<RecordClosureState> {
+  return api.get<RecordClosureState>("/api/record-closure/get_closure/", {
+    kind,
+    record,
+  });
+}
+
+/**
+ * The final 【确认】 that archives a record (D-234).
+ *
+ * It checks nothing first, on purpose: 「系统不再判断沟通有没有结束、付款凭证
+ * 够不够…负责人确认早了是他的操作责任」. What the system does instead is record
+ * who pressed it.
+ */
+export function confirmRecordClosure(
+  kind: ArchiveRecordKind,
+  record: string,
+  note?: string,
+): Promise<RecordClosureState> {
+  return api.post<RecordClosureState>("/api/record-closure/confirm_record/", {
+    kind,
+    record,
+    note: note ?? "",
+  });
 }

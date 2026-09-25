@@ -21,6 +21,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
+  FieldWrapper,
   ListHeader,
   StatusBadge,
   TypeBadge,
@@ -525,11 +526,7 @@ function RequestPartnershipDialog({
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label>
-              {t("partnerships.request.company")}
-              <span className="ml-0.5 text-destructive">*</span>
-            </Label>
+          <FieldWrapper label={t("partnerships.request.company")} required>
             <Select value={company} onValueChange={setCompany}>
               <SelectTrigger className="w-full bg-card" disabled={isLoading}>
                 <SelectValue placeholder={t("common.selectPlaceholder")} />
@@ -552,7 +549,7 @@ function RequestPartnershipDialog({
                 {t("partnerships.request.loadError")}
               </p>
             )}
-          </div>
+          </FieldWrapper>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
@@ -569,7 +566,7 @@ function RequestPartnershipDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            requires={[[company, t("common.selectPlaceholder")]]}
+            requires={[[company, t("partnerships.request.company")]]}
             disabled={request.isPending}
             onClick={() => request.mutate()}
           >
@@ -715,42 +712,44 @@ function ManageProjectsDialog({
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <Select value={project} onValueChange={setProject}>
-                      <SelectTrigger
-                        className="w-full bg-card"
-                        disabled={isLoading || availableProjects.length === 0}
+                  <FieldWrapper label={t("partnerships.projects.project")} required>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Select value={project} onValueChange={setProject}>
+                        <SelectTrigger
+                          className="w-full bg-card"
+                          disabled={isLoading || availableProjects.length === 0}
+                        >
+                          <SelectValue
+                            placeholder={
+                              isLoading
+                                ? t("common.loading")
+                                : t("common.selectPlaceholder")
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent position="popper">
+                          {availableProjects.map((option) => (
+                            <SelectItem key={option.id} value={option.id}>
+                              {option.name} ({option.code})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        className="shrink-0"
+                        requires={[[project, t("partnerships.projects.project")]]}
+                        disabled={binding.isPending}
+                        onClick={() => binding.mutate()}
                       >
-                        <SelectValue
-                          placeholder={
-                            isLoading
-                              ? t("common.loading")
-                              : t("common.selectPlaceholder")
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        {availableProjects.map((option) => (
-                          <SelectItem key={option.id} value={option.id}>
-                            {option.name} ({option.code})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      className="shrink-0"
-                      requires={[[project, t("common.selectPlaceholder")]]}
-                      disabled={binding.isPending}
-                      onClick={() => binding.mutate()}
-                    >
-                      {binding.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Link2 className="h-4 w-4" />
-                      )}
-                      {t("partnerships.projects.bind")}
-                    </Button>
-                  </div>
+                        {binding.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Link2 className="h-4 w-4" />
+                        )}
+                        {t("partnerships.projects.bind")}
+                      </Button>
+                    </div>
+                  </FieldWrapper>
                 )}
                 {!isLoading && !isError && availableProjects.length === 0 && (
                   <p className="text-xs text-muted-foreground">

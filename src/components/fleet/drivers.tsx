@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Driver, DriverWorkStatus } from "@/interfaces/recycler";
@@ -227,6 +227,7 @@ export function Drivers() {
           ),
         )}
       </div>
+      <QueryFailedNote query={summary} what={t("drivers.what.summary")} />
 
       <DataTable
         columns={columns}

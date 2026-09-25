@@ -37,6 +37,8 @@ import {
 import {
   DetailHeader,
   FieldWrapper,
+  LoadFailed,
+  QueryFailedNote,
   ReadField,
   StatusBadge,
 } from "@/components/shared/page-primitives";
@@ -603,6 +605,7 @@ function ResponsibilityDialog({
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={assignments} what={t("projects.team.whatMembers")} />
           </FieldWrapper>
           <FieldWrapper label={t("projects.responsibilities.responsibility")} required>
             <Select value={role} onValueChange={setRole}>
@@ -680,7 +683,7 @@ function ProjectTeam({ projectId }: { projectId: string }) {
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState<ProjectAssignment | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["projects", "assignments", projectId],
     queryFn: () => getProjectAssignments(projectId),
   });
@@ -725,6 +728,8 @@ function ProjectTeam({ projectId }: { projectId: string }) {
           <p className="px-6 py-8 text-center text-sm text-muted-foreground">
             {t("common.loading")}
           </p>
+        ) : isError ? (
+          <LoadFailed className="m-4" what={t("projects.team.whatMembers")} onRetry={() => void refetch()} />
         ) : rows.length === 0 ? (
           <p className="px-6 py-8 text-center text-sm text-muted-foreground">
             {t("projects.team.empty")}
@@ -825,28 +830,30 @@ function AssignUserDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Select value={selected} onValueChange={setSelected}>
-          <SelectTrigger className="w-full bg-card">
-            <SelectValue placeholder={t("common.selectPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            {isError ? (
-              <div className="px-2 py-3 text-center text-sm text-destructive">
-                {t("projects.team.loadError")}
-              </div>
-            ) : options.length === 0 ? (
-              <div className="px-2 py-3 text-center text-sm text-muted-foreground">
-                {t("common.noOptions")}
-              </div>
-            ) : (
-              options.map((user) => (
-                <SelectItem key={user.id} value={user.id}>
-                  {user.full_name} ({user.role_name ?? "-"}) — {user.email}
-                </SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
+        <FieldWrapper label={t("projects.team.person")} required>
+          <Select value={selected} onValueChange={setSelected}>
+            <SelectTrigger className="w-full bg-card">
+              <SelectValue placeholder={t("common.selectPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {isError ? (
+                <div className="px-2 py-3 text-center text-sm text-destructive">
+                  {t("projects.team.loadError")}
+                </div>
+              ) : options.length === 0 ? (
+                <div className="px-2 py-3 text-center text-sm text-muted-foreground">
+                  {t("common.noOptions")}
+                </div>
+              ) : (
+                options.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.full_name} ({user.role_name ?? "-"}) — {user.email}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+        </FieldWrapper>
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
@@ -860,7 +867,7 @@ function AssignUserDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            requires={[[selected, t("common.selectPlaceholder")]]}
+            requires={[[selected, t("projects.team.person")]]}
             disabled={assignment.isPending}
             onClick={() => assignment.mutate(selected)}
           >

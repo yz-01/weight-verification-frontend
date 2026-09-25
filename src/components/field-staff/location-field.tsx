@@ -2,7 +2,7 @@
 
 import { Loader2, LocateFixed, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { FieldWrapper } from "@/components/shared/page-primitives";
@@ -31,6 +31,22 @@ function primerWasRead(): boolean {
     // cost; failing to render the button is not.
     return false;
   }
+}
+
+/**
+ * Whether the explanation has been read, as React reads an external value.
+ *
+ * `localStorage` is outside React, and reading it into state from an effect
+ * would render twice for nothing. On the server there is no storage at all;
+ * answering "read" there means the server never renders the explanation, and
+ * the client shows it on hydration only when it really is a first use.
+ */
+function subscribeToNothing(): () => void {
+  return () => undefined;
+}
+
+function usePrimerWasRead(): boolean {
+  return useSyncExternalStore(subscribeToNothing, primerWasRead, () => true);
 }
 
 function rememberPrimer(): void {
@@ -85,12 +101,16 @@ export function LocationField({
   className?: string;
 }) {
   const t = useTranslations("fieldStaffPwa.locationAccess");
-  const [showPrimer, setShowPrimer] = useState(false);
+  const primerRead = usePrimerWasRead();
   const [locating, setLocating] = useState(false);
   const [problem, setProblem] = useState<LocationProblem | null>(null);
 
+  // One request per mount unless the person asks again. Set here, not only in
+  // the effect, so pressing 「允许」 on the first-use explanation (which flips
+  // `primerRead`) does not let the effect fire a second request behind it.
+  const attempted = useRef(false);
   const ask = useCallback(async () => {
-    setShowPrimer(false);
+    attempted.current = true;
     rememberPrimer();
     setProblem(null);
     setLocating(true);
@@ -104,27 +124,64 @@ export function LocationField({
     }
   }, [onChange]);
 
-  const start = () => {
-    // The explanation is the gesture that leads to the system prompt, so on a
-    // first use the prompt is never reached without it.
-    if (!primerWasRead()) {
-      setShowPrimer(true);
-      return;
-    }
+  /*
+   * Automatic, not a button (T-355, D-226／D-237／D-246).
+   *
+   * 客户开工前第 4 问：「现场工作人员的 GPS 是自动获取的，他们申请任何东西都是
+   * 自动获取，**不需要自己点获取 GPS 定位**」. Every field form used to open
+   * with a 「获取定位」 button the worker had to remember to press - and a
+   * required one, so forgetting it blocked the submit with no obvious cause.
+   *
+   * The one thing that is *not* automatic is the very first request on a
+   * device. That stays behind the one-sentence explanation below, because an
+   * unexplained system prompt is answered "Don't Allow" and the refusal is
+   * remembered for good (the problem this component was first written for).
+   * D-226 says the same: 「第一次使用只需授权一次定位权限」. After that one
+   * time, opening the form is enough.
+   *
+   * A button appears only when something went wrong - as 【重试】 - which is
+   * D-246: 「常态路径上不出现『获取定位』按钮；只有在自动定位失败时才露出重试」.
+   *
+   * `attempted` is a ref rather than state so React's development double-mount
+   * does not fire two requests, and so an explicit retry is the only thing
+   * that asks again after a failure.
+   */
+  const [primerDismissed, setPrimerDismissed] = useState(false);
+  // The explanation shows by itself on a first use, and never otherwise.
+  const showPrimer = !value && !primerRead && !primerDismissed;
+  useEffect(() => {
+    if (value || attempted.current || !primerRead) return;
+    attempted.current = true;
     void ask();
-  };
+  }, [ask, value, primerRead]);
 
   return (
     <FieldWrapper className={className} label={label} required={required}>
-      <Button
-        className="h-12 w-full"
-        variant="outline"
-        disabled={locating}
-        onClick={start}
-      >
-        {locating ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-        {value ? readyLabel : actionLabel}
-      </Button>
+      {locating ? (
+        <p className="flex min-h-12 items-center gap-2 rounded-md border bg-muted/30 px-3 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" />
+          {t("locating")}
+        </p>
+      ) : value && !problem ? (
+        <p className="flex min-h-12 items-center gap-2 rounded-md border border-success/30 bg-success/5 px-3 text-sm">
+          <LocateFixed className="size-4 text-success" />
+          {readyLabel}
+        </p>
+      ) : null}
+
+      {/* The person said "later" to the one-time explanation. The form still
+          needs a position, so the way back is offered - worded as the action
+          it is, not as a retry of something that never ran. */}
+      {primerDismissed && !value && !locating && !problem ? (
+        <Button
+          className="h-12 w-full"
+          variant="outline"
+          onClick={() => setPrimerDismissed(false)}
+        >
+          <LocateFixed />
+          {actionLabel}
+        </Button>
+      ) : null}
 
       {value && !problem ? (
         <p className="mt-2 flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
@@ -144,7 +201,7 @@ export function LocationField({
             <Button
               className="h-10"
               variant="ghost"
-              onClick={() => setShowPrimer(false)}
+              onClick={() => setPrimerDismissed(true)}
             >
               {t("why.later")}
             </Button>

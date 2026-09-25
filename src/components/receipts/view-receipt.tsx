@@ -1,22 +1,22 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, ChevronLeft, ChevronRight, MapPin, Pencil, Phone } from "lucide-react";
+import { Camera, Pencil, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import {
-  FormSection,
   FormSkeleton,
   LoadErrorCard,
 } from "@/components/shared/form-shell";
+import { RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
+import { Switch } from "@/components/ui/switch";
 import {
   DetailHeader,
-  ReadField,
+  FieldWrapper,
   TypeBadge,
 } from "@/components/shared/page-primitives";
 import {
@@ -25,29 +25,17 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import type {
-  DeliveryNoteOCRResult,
   MaterialReceiptDetail,
   PhotoKind,
 } from "@/interfaces/contractor";
 import {
   addReceiptPhoto,
   getReceipt,
-  markReceiptsSeen,
   reviewReceipt,
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
-import { useFormSurface } from "@/components/shared/form-surface";
-import { cn } from "@/lib/utils";
 
 const PHOTO_KINDS: PhotoKind[] = [
   "VEHICLE",
@@ -104,6 +92,9 @@ function ReviewDelivery({
 }) {
   const t = useTranslations();
   const [reason, setReason] = useState(receipt.rejection_reason ?? "");
+  // Armed, not confirmed (D-208, C-018). Resets itself whenever the switch is
+  // turned back off so a half-typed reason cannot survive into the next visit.
+  const [rejectArmed, setRejectArmed] = useState(false);
   const status = receipt.acceptance_status ?? "PENDING";
 
   const review = useMutation({
@@ -123,8 +114,13 @@ function ReviewDelivery({
         : "text-amber-600";
 
   return (
-    <FormSection title={t("receipts.acceptance.title")}>
-      <div className="md:col-span-2 space-y-3">
+    // In the shell's right column (图 2 圈起来的位置), so it is a compact
+    // block rather than a full-width form section.
+    <div className="space-y-2">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("receipts.acceptance.title")}
+      </h3>
+      <div className="space-y-2">
         <p className={`text-sm font-medium ${tone}`}>
           {t(`receipts.acceptance.status.${status}`)}
           {receipt.accepted_by_name ? ` · ${receipt.accepted_by_name}` : ""}
@@ -134,54 +130,82 @@ function ReviewDelivery({
             the next person on site nothing they can act on, so the reason is
             shown whenever there is one - not only while deciding. */}
         {status === "REJECTED" && receipt.rejection_reason && (
-          <ReadField
-            label={t("receipts.acceptance.reason")}
-            value={receipt.rejection_reason}
-            className="md:col-span-2"
-          />
+          <p className="text-xs">
+            <span className="text-muted-foreground">{t("receipts.acceptance.reason")}：</span>
+            {receipt.rejection_reason}
+          </p>
         )}
 
-        <Input
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          placeholder={t("receipts.acceptance.reasonPlaceholder")}
-          aria-label={t("receipts.acceptance.reason")}
-          className="max-w-xl"
-        />
-        <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            disabled={review.isPending || status === "ACCEPTED"}
-            disabledReason={
-              status === "ACCEPTED"
-                ? t("receipts.acceptance.alreadyAccepted")
-                : t("common.saving")
-            }
-            onClick={() => review.mutate("ACCEPTED")}
-          >
-            {t("receipts.acceptance.accept")}
-          </Button>
-          {/* `requires` rather than a bare `disabled`, so the list that decides
-              whether it can be pressed is the same list that explains why it
-              cannot: the reason is the whole point of a rejection. */}
-          <Button
-            size="sm"
-            variant="destructive"
-            requires={[[reason.trim(), t("receipts.acceptance.reason")]]}
-            disabled={review.isPending}
-            disabledReason={t("common.saving")}
-            onClick={() => review.mutate("REJECTED")}
-          >
-            {t("receipts.acceptance.reject")}
-          </Button>
-        </div>
+        {/* One confirming action, and a rejection behind a switch (D-208,
+            C-018). The customer's words for why: 「只保留一个开/关控制。开启后，
+            才允许点击【材料不符规格退回】…避免操作太敏感，防止后台人员不小心
+            误点退回」. Two equally-weighted buttons made退回 one slip away, on
+            a screen whose other button is pressed all day.
+
+            The same shape guards the driver ending a trip (D-229): arm, then
+            act. Never a confirmation dialog — the customer asked for the
+            switch in both places and for no second prompt after it. */}
+        <Button
+          size="sm"
+          disabled={review.isPending || status === "ACCEPTED"}
+          disabledReason={
+            status === "ACCEPTED"
+              ? t("receipts.acceptance.alreadyAccepted")
+              : t("common.saving")
+          }
+          onClick={() => review.mutate("ACCEPTED")}
+        >
+          {t("receipts.acceptance.accept")}
+        </Button>
+
+        <label className="flex items-center gap-2 rounded-md border px-2 py-1.5">
+          <Switch
+            checked={rejectArmed}
+            onCheckedChange={(next) => {
+              setRejectArmed(next);
+              if (!next) setReason("");
+            }}
+            aria-label={t("receipts.acceptance.armReject")}
+          />
+          <span className="text-xs text-muted-foreground">
+            {t("receipts.acceptance.armRejectHelp")}
+          </span>
+        </label>
+
+        {rejectArmed && (
+          <div className="space-y-2">
+            <FieldWrapper label={t("receipts.acceptance.reason")} required>
+              <Input
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder={t("receipts.acceptance.reasonPlaceholder")}
+                className="h-8 text-sm"
+              />
+            </FieldWrapper>
+            {/* `requires` rather than a bare `disabled`, so the list that decides
+                whether it can be pressed is the same list that explains why it
+                cannot: the reason is the whole point of a rejection.
+                客户第 12 条: 规格不符要先在这条记录内沟通留痕，确认后才能退回 —
+                the conversation lives further down this same page. */}
+            <Button
+              size="sm"
+              variant="destructive"
+              requires={[[reason.trim(), t("receipts.acceptance.reason")]]}
+              disabled={review.isPending}
+              disabledReason={t("common.saving")}
+              onClick={() => review.mutate("REJECTED")}
+            >
+              {t("receipts.acceptance.reject")}
+            </Button>
+          </div>
+        )}
         {/* Said plainly, because the alternative is a site assuming a
             rejection stopped the invoice when it did not (U-028). */}
         <p className="text-xs text-muted-foreground">
           {t("receipts.acceptance.moneyNote")}
         </p>
       </div>
-    </FormSection>
+    </div>
   );
 }
 
@@ -218,36 +242,39 @@ function AddPhoto({
   const receiptHasNoFix = !receipt.latitude || !receipt.longitude;
 
   return (
-    <div className="mt-4 space-y-2 rounded-md border border-dashed p-4">
+    <div className="space-y-2 rounded-md border border-dashed p-2">
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {t("receipts.addPhoto.title")}
       </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <Input
-          type="file"
-          accept="image/*"
-          className="h-8 max-w-xs text-xs"
-          aria-label={t("receipts.addPhoto.choose")}
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        />
-        <select
-          className="h-8 rounded-md border bg-background px-2 text-sm"
-          aria-label={t("receipts.addPhoto.kind")}
-          value={kind}
-          onChange={(e) => setKind(e.target.value as PhotoKind)}
-        >
-          {PHOTO_KINDS.map((option) => (
-            <option key={option} value={option}>
-              {t(`receipts.photoKind.${option}`)}
-            </option>
-          ))}
-        </select>
-        <Input
-          className="h-8 max-w-xs text-sm"
-          placeholder={t("receipts.addPhoto.caption")}
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-        />
+      <div className="flex flex-wrap items-end gap-2">
+        <FieldWrapper label={t("receipts.addPhoto.choose")} required>
+          <Input
+            type="file"
+            accept="image/*"
+            className="h-8 max-w-xs text-xs"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("receipts.addPhoto.kind")}>
+          <select
+            className="h-8 rounded-md border bg-background px-2 text-sm"
+            value={kind}
+            onChange={(e) => setKind(e.target.value as PhotoKind)}
+          >
+            {PHOTO_KINDS.map((option) => (
+              <option key={option} value={option}>
+                {t(`receipts.photoKind.${option}`)}
+              </option>
+            ))}
+          </select>
+        </FieldWrapper>
+        <FieldWrapper label={t("receipts.addPhoto.caption")}>
+          <Input
+            className="h-8 max-w-xs text-sm"
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+          />
+        </FieldWrapper>
         <Button
           size="sm"
           variant="outline"
@@ -283,732 +310,209 @@ export function ViewReceipt({ id }: { id: string }) {
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
-  const surface = useFormSurface();
-  const compactDialog = surface === "dialog";
-  // Which photograph is open full size, by index, or null for none.
-  const [openPhoto, setOpenPhoto] = useState<number | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["receipts", "detail", id],
     queryFn: () => getReceipt(id),
   });
 
-  // Opening the record is what "seen" means, so it is marked here rather than
-  // behind a button nobody would press. The ref guards React's development
-  // double-invoke and any refetch: one open is one read.
-  const marked = useRef(false);
-  useEffect(() => {
-    if (!data || marked.current) return;
-    marked.current = true;
-    void markReceiptsSeen([id])
-      .then(() => {
-        // The list's waiting/archived split is now stale for this reader.
-        void queryClient.invalidateQueries({ queryKey: ["receipts"] });
-      })
-      // A failed read-mark must never break the page the reader came for.
-      .catch(() => undefined);
-  }, [data, id, queryClient]);
+  // No "seen" mark on opening (T-292, 客户第 14 条; D-206). Reading a
+  // delivery is not a business event, and the receipts list no longer shows
+  // one. The archive queue records its own per-person marks through its own
+  // explicit action (D-063), so nothing there depends on this page any more.
 
   if (isLoading) return <FormSkeleton sections={4} />;
   if (isError || !data) {
     return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
   }
 
-  const coordinates =
-    data.latitude && data.longitude ? `${data.latitude}, ${data.longitude}` : null;
-
   return (
-    <div className="space-y-4">
-      <DetailHeader
-        backHref="/receipts"
-        backLabel={t("receipts.title")}
-        action={
-          <div className="flex flex-wrap items-center gap-2">
-            {/* From the record rather than from Multi Engine (T-238). The
-                archive queue carries the same control for every kind; this is
-                the one column with a screen of its own per record, and a
-                receipt is what people most often reach for when putting a
-                claim together. */}
-            <AddToPackageButton
-              kind="MATERIAL_RECEIPT"
-              recordId={data.id}
-              projectId={data.project}
-              reference={data.receipt_no}
-            />
-            {can("receipt.update") && !data.superseded_by && (
-              <Button asChild size="sm" className="rounded-full px-4 shadow-sm">
-                <Link href={`/receipts/${data.id}/edit`}>
-                  <Pencil className="h-4 w-4" />
-                  {t("receipts.correction.action")}
-                </Link>
-              </Button>
-            )}
-          </div>
-        }
-      />
+    <div className="space-y-3">
+      <DetailHeader backHref="/receipts" backLabel={t("receipts.title")} />
 
-      {data.superseded_by && (
-        <div className="rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
-          <p className="font-medium">{t("receipts.correction.supersededTitle")}</p>
-          <p className="mt-1 text-muted-foreground">
-            {t("receipts.correction.supersededBody")}
-          </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 className="tabular text-base font-semibold text-foreground">
+          {data.receipt_no}
+        </h2>
+        <TypeBadge label={t(`receipts.unit.${data.unit}`)} />
+        {data.supersedes && (
           <Link
-            href={`/receipts/${data.superseded_by.id}`}
-            className="mt-1 inline-block font-medium text-primary underline-offset-2 hover:underline"
+            href={`/receipts/${data.supersedes}`}
+            className="text-xs font-medium text-info underline-offset-2 hover:underline"
           >
-            {t("receipts.correction.supersededLink", {
-              name: data.superseded_by.receipt_no,
-            })}
+            {t("receipts.correction.supersedes")}
           </Link>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="bg-card">
-        <div className="flex flex-wrap items-center gap-3 px-6 py-5">
-          <h2 className="tabular text-base font-semibold text-foreground">
-            {data.receipt_no}
-          </h2>
-          <TypeBadge label={t(`receipts.unit.${data.unit}`)} />
-          {data.supersedes && (
-            <Link
-              href={`/receipts/${data.supersedes}`}
-              className="text-xs font-medium text-info underline-offset-2 hover:underline"
-            >
-              {t("receipts.correction.supersedes")}
-            </Link>
-          )}
-          <span className="ml-auto text-sm text-muted-foreground">
-            {data.project_name}
-          </span>
-        </div>
-
-        {/*
-         * The strip the customer's design leads with: the six things a person
-         * checks before looking at anything else (2026-09-12 screenshot).
-         *
-         * A strip and not a replacement. Every section below it stays - Lucas:
-         * 「可是要全部 information 都 display 出来」 - so this is the summary
-         * that saves scrolling, not a shorter version of the record.
-         */}
-        <section className="grid gap-4 border-t bg-muted/20 px-6 py-4 sm:grid-cols-2 lg:grid-cols-4">
-          <SummaryCell label={t("receipts.field.project")}>
-            {data.project_name}
-          </SummaryCell>
-          <SummaryCell label={t("receipts.field.materialName")}>
-            {data.material_name}
-          </SummaryCell>
-          <SummaryCell label={t("receipts.field.capturedAt")}>
-            {df.dateTime(data.captured_at)}
-          </SummaryCell>
-          <SummaryCell label={t("receipts.field.recordedBy")}>
-            <span className="inline-flex items-center gap-2">
-              <Avatar className="size-6">
-                {data.created_by_avatar ? (
-                  <AvatarImage src={data.created_by_avatar} alt="" />
-                ) : null}
-                <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
-                  {initials(data.created_by_name ?? "")}
-                </AvatarFallback>
-              </Avatar>
-              {data.created_by_name ?? t("receipts.recorderUnknown")}
-            </span>
-          </SummaryCell>
-          {data.received_by_name ? (
-            <SummaryCell label={t("receipts.field.receivedBy")}>
-              {data.received_by_name}
-            </SummaryCell>
-          ) : null}
-          {data.notes ? (
-            <SummaryCell
-              label={t("receipts.field.notes")}
-              className="sm:col-span-2 lg:col-span-3"
-            >
-              {data.notes}
-            </SummaryCell>
-          ) : null}
-        </section>
-
-        <ReceiptEvidencePreview
-          receipt={data}
-          onOpenPhoto={setOpenPhoto}
-          canAddPhoto={can("receipt.create") && !data.superseded_by}
-          onPhotoAdded={() =>
-            void queryClient.invalidateQueries({
-              queryKey: ["receipts", "detail", id],
-            })
-          }
-          compactDialog={compactDialog}
-        />
-
-        <div className="divide-y border-t">
-          <FormSection title={t("receipts.section.delivery")}>
-            <ReadField
-              label={t("receipts.field.project")}
-              value={`${data.project_code} — ${data.project_name}`}
-            />
-            <ReadField
-              label={t("receipts.field.supplier")}
-              value={data.supplier_name}
-            />
-          </FormSection>
-
-          <FormSection title={t("receipts.section.material")}>
-            <ReadField
-              label={t("receipts.field.materialName")}
-              value={data.material_name}
-              className="md:col-span-2"
-            />
-            <ReadField
-              label={t("receipts.field.materialSpecification")}
-              value={data.material_specification}
-              className="md:col-span-2"
-            />
-            <ReadField
-              label={t("receipts.field.quantity")}
-              value={`${data.quantity} ${t(`receipts.unit.${data.unit}`)}`}
-            />
-            <ReadField
-              label={t("receipts.field.totalWeightKg")}
-              value={data.total_weight_kg}
-            />
-            <ReadField
-              label={t("receipts.field.unitPrice")}
-              value={data.unit_price}
-            />
-            <ReadField
-              label={t("receipts.field.totalValue")}
-              value={data.total_value}
-            />
-          </FormSection>
-
-          <FormSection title={t("receipts.section.vehicle")}>
-            <ReadField
-              label={t("receipts.field.vehiclePlate")}
-              value={data.vehicle_plate}
-            />
-            <ReadField
-              label={t("receipts.field.deliveryNoteNo")}
-              value={data.delivery_note_no}
-            />
-            <ReadField
-              label={t("receipts.field.notes")}
-              value={data.notes}
-              className="md:col-span-2"
-            />
-          </FormSection>
-
-          {/* Superseded receipts are read-only: a correction has replaced
-              this copy, and accepting the one that was replaced would put a
-              decision on a record nobody is working from. */}
-          {can("receipt.update") && !data.superseded_by && (
-            <ReviewDelivery receipt={data} onReviewed={() => void refetch()} />
-          )}
-
-          {/*
-            Kept in its own section, and labelled as the platform's own record,
-            because that is exactly what makes it worth anything in a dispute:
-            nobody at the gate typed these in.
-          */}
-          {data.correction_reason && (
-            <FormSection title={t("receipts.correction.title")}>
-              <ReadField
-                label={t("receipts.correction.reason")}
-                value={data.correction_reason}
-                className="md:col-span-2"
-              />
-            </FormSection>
-          )}
-
-          {/* Who recorded this, small, with a way to reach them.
-
-              Four labelled boxes used to sit here, two of them holding the
-              same word - the clerk who receives is usually the clerk who
-              records - and none of them holding the one thing somebody
-              looking at a disputed delivery wants, which is a number to
-              call. The user asked for the phone and the face instead of the
-              space (2026-09-05).
-
-              The receiver stays a plain name and only appears when it
-              differs: it is free text typed at the gate, not an account, so
-              there is no number or picture to look up. Showing it anyway
-              when it repeats the recorder is how the section got big. */}
-          <section className="flex flex-wrap items-center gap-x-8 gap-y-4 px-6 py-5">
-            <div className="flex min-w-0 items-center gap-3">
-              <Avatar className="size-10">
-                {data.created_by_avatar ? (
-                  <AvatarImage src={data.created_by_avatar} alt="" />
-                ) : null}
-                <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                  {initials(data.created_by_name ?? "")}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">
-                  {data.created_by_name ?? t("receipts.recorderUnknown")}
+      {/*
+        The one layout every module uses (C-020): summary, small photographs,
+        the delivery-order panel with signatures and the buttons on the right,
+        the conversation underneath. The long read-only form that used to sit
+        below the photographs (supplier / material / vehicle sections) is gone
+        on Lucas's instruction - 「图 3 的那些 information 是完全不需要的」 -
+        and the facts a reader actually checks are in the summary or the
+        delivery-order panel.
+      */}
+      <RecordDetailShell
+        reference={data.receipt_no}
+        notices={
+          <>
+            {data.superseded_by && (
+              <div className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+                <p className="font-medium">{t("receipts.correction.supersededTitle")}</p>
+                <p className="mt-1 text-muted-foreground">
+                  {t("receipts.correction.supersededBody")}
                 </p>
+                <Link
+                  href={`/receipts/${data.superseded_by.id}`}
+                  className="mt-1 inline-block font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  {t("receipts.correction.supersededLink", {
+                    name: data.superseded_by.receipt_no,
+                  })}
+                </Link>
+              </div>
+            )}
+            {data.correction_reason && (
+              <p className="rounded-lg border px-4 py-2 text-sm">
+                <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
+                {data.correction_reason}
+              </p>
+            )}
+          </>
+        }
+        facts={[
+          { label: t("receipts.field.project"), value: data.project_name },
+          { label: t("receipts.field.materialName"), value: data.material_name },
+          { label: t("receipts.field.capturedAt"), value: df.dateTime(data.captured_at) },
+          {
+            label: t("receipts.field.recordedBy"),
+            value: (
+              <span className="inline-flex items-center gap-2">
+                <Avatar className="size-5">
+                  {data.created_by_avatar ? (
+                    <AvatarImage src={data.created_by_avatar} alt="" />
+                  ) : null}
+                  <AvatarFallback className="bg-primary/10 text-[9px] font-semibold text-primary">
+                    {initials(data.created_by_name ?? "")}
+                  </AvatarFallback>
+                </Avatar>
+                {data.created_by_name ?? t("receipts.recorderUnknown")}
+                {/* The number to call about a disputed delivery (2026-09-05). */}
                 {data.created_by_phone ? (
                   <a
                     href={`tel:${data.created_by_phone.replace(/[^+\d]/g, "")}`}
-                    className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                   >
                     <Phone className="h-3 w-3" />
                     <span className="tabular">{data.created_by_phone}</span>
                   </a>
-                ) : (
-                  <p className="text-xs text-muted-foreground">
-                    {t("receipts.noRecorderPhone")}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {data.received_by_name &&
-            data.received_by_name !== data.created_by_name ? (
-              <p className="text-xs text-muted-foreground">
-                {t("receipts.field.receivedBy")}:{" "}
-                <span className="font-medium text-foreground">
-                  {data.received_by_name}
-                </span>
-              </p>
-            ) : null}
-
-            <p className="text-xs text-muted-foreground">
-              {df.dateTime(data.captured_at)}
-            </p>
-
-            {coordinates ? (
-              <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 text-success" />
-                <span className="tabular">{coordinates}</span>
+                ) : null}
               </span>
-            ) : (
-              <span className="text-xs text-muted-foreground">
-                {t("receipts.locationMissing")}
-              </span>
+            ),
+          },
+          ...(data.received_by_name
+            ? [{ label: t("receipts.field.receivedBy"), value: data.received_by_name }]
+            : []),
+          ...(data.notes
+            ? [{ label: t("receipts.field.notes"), value: data.notes, wide: true }]
+            : []),
+        ]}
+        photos={data.photos.map((photo) => ({
+          id: photo.id,
+          url: photo.watermarked || photo.image,
+          label: t(`receipts.photoKind.${photo.kind}`),
+          takenAt: photo.taken_at,
+          latitude: photo.latitude,
+          longitude: photo.longitude,
+        }))}
+        photoActions={
+          can("receipt.create") && !data.superseded_by ? (
+            <AddPhoto
+              receipt={data}
+              onAdded={() =>
+                void queryClient.invalidateQueries({
+                  queryKey: ["receipts", "detail", id],
+                })
+              }
+            />
+          ) : null
+        }
+        panel={<DeliveryOrderPanel receipt={data} />}
+        signatures={(
+          [
+            ["receiver", data.signature],
+            ["supplier", data.supplier_signature],
+          ] as const
+        )
+          .filter(([, source]) => Boolean(source))
+          .map(([who, source]) => ({
+            label: t(`receipts.signature.${who}`),
+            url: source as string,
+          }))}
+        actions={
+          <>
+            {/* Superseded receipts are read-only: a correction has replaced
+                this copy, and deciding on the replaced one would put a
+                decision on a record nobody is working from. */}
+            {can("receipt.update") && !data.superseded_by && (
+              <ReviewDelivery receipt={data} onReviewed={() => void refetch()} />
             )}
-          </section>
-
-          <section className="hidden px-6 py-5">
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t("receipts.section.photos")}
-            </h3>
-            {data.photos.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                {t("receipts.noPhotos")}
-              </p>
-            ) : (
-              /*
-               * Two across rather than four (2026-09-12 design). A delivery
-               * note at quarter width is a grey rectangle; at half it can be
-               * read, which is the whole reason it was photographed.
-               */
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {data.photos.map((photo, index) => (
-                  <figure key={photo.id} className="space-y-1.5">
-                    {/* A thumbnail cropped to 4:3 is not the evidence, it is a
-                        pointer to it. Until this was clickable there was no
-                        way to see a delivery note well enough to read it. */}
-                    <button
-                      type="button"
-                      title={t("receipts.photoViewer.open")}
-                      onClick={() => setOpenPhoto(index)}
-                      className="relative block aspect-4/3 w-full overflow-hidden rounded-md border bg-muted/40 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      {/* The original, not the stamped copy. A project manager
-                          reuses these photographs elsewhere, and a location and
-                          time burnt into the corner travels with them into
-                          documents where it means nothing. The stamped version
-                          still exists and is still what the evidence trail
-                          shows. */}
-                      <Image
-                        src={photo.watermarked || photo.image}
-                        alt={t(`receipts.photoKind.${photo.kind}`)}
-                        fill
-                        sizes="(max-width: 768px) 50vw, 25vw"
-                        className="object-cover"
-                        unoptimized
-                      />
-                      {/*
-                       * When and where, over the photograph itself.
-                       *
-                       * Both have been on the row since it was written and
-                       * nothing had ever drawn them, so the one screen a
-                       * dispute is settled on could not say when a photograph
-                       * was taken or where the phone was standing (T-243).
-                       * Said in words when absent rather than left blank: a
-                       * missing timestamp is a fact about the evidence.
-                       */}
-                      <span className="absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-x-2 bg-black/65 px-2 py-1 text-left text-[11px] font-medium text-white">
-                        <span className="tabular">
-                          {photo.taken_at
-                            ? t("receipts.photoTakenAt", {
-                                when: df.dateTime(photo.taken_at),
-                              })
-                            : t("receipts.photoNoTime")}
-                        </span>
-                        <span className="tabular opacity-90">
-                          {photo.latitude && photo.longitude
-                            ? `GPS ${photo.latitude}, ${photo.longitude}`
-                            : t("receipts.photoNoLocation")}
-                        </span>
-                      </span>
-                    </button>
-                    <figcaption className="space-y-0.5 text-xs text-muted-foreground">
-                      <span className="block font-medium text-foreground">
-                        {t(`receipts.photoKind.${photo.kind}`)}
-                      </span>
-                      {photo.caption ? (
-                        <span className="block">{photo.caption}</span>
-                      ) : null}
-                      <span className="block">
-                        {photo.created_by_name
-                          ? t("receipts.photoUploadedBy", {
-                              who: photo.created_by_name,
-                            })
-                          : t("receipts.photoUploaderUnknown")}
-                      </span>
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
-            )}
-            {can("receipt.create") && !data.superseded_by && (
-              <AddPhoto
-                receipt={data}
-                onAdded={() =>
-                  void queryClient.invalidateQueries({
-                    queryKey: ["receipts", "detail", id],
-                  })
-                }
+            <div className="flex flex-wrap gap-2 border-t pt-2">
+              <AddToPackageButton
+                kind="MATERIAL_RECEIPT"
+                recordId={data.id}
+                projectId={data.project}
+                reference={data.receipt_no}
               />
-            )}
-          </section>
-
-          {/* The signatures belong with the delivery they were given for.
-              They were captured on site and stored on this record all along,
-              and this screen simply never drew them - so the one place a
-              project manager looks to check a delivery was the one place that
-              could not show who signed for it. */}
-          <section className="rounded-lg border bg-card p-5">
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {t("receipts.section.signatures")}
-            </h3>
-            {data.signature || data.supplier_signature ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {(
-                  [
-                    ["receiver", data.signature],
-                    ["supplier", data.supplier_signature],
-                  ] as const
-                ).map(([who, source]) =>
-                  source ? (
-                    <figure key={who} className="space-y-1.5">
-                      <div className="relative aspect-3/1 overflow-hidden rounded-md border bg-white">
-                        <Image
-                          src={source}
-                          alt={t(`receipts.signature.${who}`)}
-                          fill
-                          sizes="(max-width: 640px) 100vw, 50vw"
-                          className="object-contain"
-                          unoptimized
-                        />
-                      </div>
-                      <figcaption className="text-xs text-muted-foreground">
-                        {t(`receipts.signature.${who}`)}
-                      </figcaption>
-                    </figure>
-                  ) : null,
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {t("receipts.signature.none")}
-              </p>
-            )}
-          </section>
-        </div>
-      </div>
-
-      {/* Full size, with the neighbours one key away: a delivery note is
-          usually checked against the one before it. */}
-      <Dialog
-        open={openPhoto !== null}
-        onOpenChange={(open) => !open && setOpenPhoto(null)}
-      >
-        <DialogContent className="sm:max-w-4xl">
-          {openPhoto !== null && data.photos[openPhoto] ? (
-            <>
-              <DialogHeader>
-                <DialogTitle>
-                  {t(`receipts.photoKind.${data.photos[openPhoto].kind}`)}
-                </DialogTitle>
-                <DialogDescription>
-                  {t("receipts.photoViewer.stamped")}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="relative max-h-[70dvh] min-h-[40dvh] overflow-hidden rounded-md bg-muted/40">
-                <Image
-                  src={
-                    data.photos[openPhoto].watermarked ||
-                    data.photos[openPhoto].image
-                  }
-                  alt={t(`receipts.photoKind.${data.photos[openPhoto].kind}`)}
-                  width={1600}
-                  height={1200}
-                  className="max-h-[70dvh] w-full object-contain"
-                  unoptimized
-                />
-              </div>
-              {data.photos.length > 1 && (
-                <div className="flex items-center justify-between">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    title={t("receipts.photoViewer.previous")}
-                    onClick={() =>
-                      setOpenPhoto(
-                        (openPhoto + data.photos.length - 1) %
-                          data.photos.length,
-                      )
-                    }
-                  >
-                    <ChevronLeft />
-                    {t("receipts.photoViewer.previous")}
-                  </Button>
-                  <span className="text-xs tabular-nums text-muted-foreground">
-                    {openPhoto + 1} / {data.photos.length}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    title={t("receipts.photoViewer.next")}
-                    onClick={() =>
-                      setOpenPhoto((openPhoto + 1) % data.photos.length)
-                    }
-                  >
-                    {t("receipts.photoViewer.next")}
-                    <ChevronRight />
-                  </Button>
-                </div>
+              {can("receipt.update") && !data.superseded_by && (
+                <Button asChild size="sm" variant="outline">
+                  <Link href={`/receipts/${data.id}/edit`}>
+                    <Pencil className="h-4 w-4" />
+                    {t("receipts.correction.action")}
+                  </Link>
+                </Button>
               )}
-            </>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+            </div>
+          </>
+        }
+        conversation={{ kind: "MATERIAL_RECEIPT", recordId: data.id }}
+      />
     </div>
-  );
-}
-
-/** One cell of the summary strip: a label and whatever answers it. */
-function SummaryCell({
-  label,
-  className,
-  children,
-}: {
-  label: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={className}>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-0.5 break-words text-sm font-medium">{children}</p>
-    </div>
-  );
-}
-
-/** Compact first viewport for the material record, matching the site-gate view. */
-function ReceiptEvidencePreview({
-  receipt,
-  onOpenPhoto,
-  canAddPhoto,
-  onPhotoAdded,
-  compactDialog,
-}: {
-  receipt: MaterialReceiptDetail;
-  onOpenPhoto: (index: number) => void;
-  canAddPhoto: boolean;
-  onPhotoAdded: () => void;
-  compactDialog: boolean;
-}) {
-  const t = useTranslations();
-  const df = useDateFormat();
-
-  return (
-    <section className={cn("grid gap-4 border-t bg-background/50 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]", compactDialog && "lg:grid-cols-[minmax(0,1fr)_18rem] p-3")}>
-      <div className="min-w-0">
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {t("receipts.section.photos")}
-          </h3>
-          <span className="text-xs tabular-nums text-muted-foreground">
-            {receipt.photos.length} {t("receipts.field.photoCount")}
-          </span>
-        </div>
-        {receipt.photos.length === 0 ? (
-          <p className="rounded-md border border-dashed px-3 py-5 text-sm text-muted-foreground">
-            {t("receipts.noPhotos")}
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 gap-2">
-            {receipt.photos.slice(0, 8).map((photo, index) => (
-              <figure key={photo.id} className="min-w-0">
-                <button
-                  type="button"
-                  title={t("receipts.photoViewer.open")}
-                  onClick={() => onOpenPhoto(index)}
-                  className="relative block aspect-[4/3] w-full overflow-hidden rounded-md border bg-muted/40 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <Image
-                    src={photo.watermarked || photo.image}
-                    alt={t(`receipts.photoKind.${photo.kind}`)}
-                    fill
-                    sizes="(max-width: 1024px) 50vw, 32vw"
-                    className="object-cover"
-                    unoptimized
-                  />
-                  <span className="absolute inset-x-0 bottom-0 truncate bg-black/65 px-2 py-1 text-left text-[10px] font-medium text-white">
-                    {photo.taken_at ? df.dateTime(photo.taken_at) : t("receipts.photoNoTime")}
-                    {photo.latitude && photo.longitude
-                      ? ` · GPS ${photo.latitude}, ${photo.longitude}`
-                      : ` · ${t("receipts.photoNoLocation")}`}
-                  </span>
-                </button>
-                <figcaption className="mt-1 truncate text-[11px] text-muted-foreground">
-                  <span className="font-medium text-foreground">
-                    {t(`receipts.photoKind.${photo.kind}`)}
-                  </span>
-                  {photo.caption ? ` · ${photo.caption}` : ""}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        )}
-        {canAddPhoto && <AddPhoto receipt={receipt} onAdded={onPhotoAdded} />}
-      </div>
-
-      <aside className="rounded-md border bg-card p-3">
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {t("receipts.doPanelTitle")}
-        </h3>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
-          <span className="text-muted-foreground">{t("receipts.field.deliveryNoteNo")}</span>
-          <span className="break-words font-medium">{receipt.delivery_note_no || "—"}</span>
-          <span className="text-muted-foreground">{t("receipts.field.supplier")}</span>
-          <span className="break-words font-medium">{receipt.supplier_name || "—"}</span>
-          <span className="text-muted-foreground">{t("receipts.field.materialName")}</span>
-          <span className="break-words font-medium">{receipt.material_name || "—"}</span>
-          <span className="text-muted-foreground">{t("receipts.field.quantity")}</span>
-          <span className="font-medium">{receipt.quantity} {t(`receipts.unit.${receipt.unit}`)}</span>
-          <span className="text-muted-foreground">{t("receipts.field.vehiclePlate")}</span>
-          <span className="font-medium">{receipt.vehicle_plate || "—"}</span>
-          <span className="text-muted-foreground">{t("receipts.doPanelStatus")}</span>
-          <span className="font-medium">{t(`receipts.doStatus.${receipt.ocr_status}`)}</span>
-        </div>
-      </aside>
-    </section>
   );
 }
 
 /**
- * What the reader got off the delivery order, next to the photograph of it.
+ * What was read off the delivery order, in the right column (图 1／图 2).
  *
- * The customer's design puts this beside the pictures (2026-09-12), and the
- * data has been on the receipt since the delivery-order reader was written -
- * `ocr_status` and `ocr_result` - with no screen drawing it. So the one place
- * a person compares the paper against what the system believes could not show
- * what the system believes.
- *
- * The confidence is printed, not hidden behind a threshold. A field the reader
- * was unsure of is exactly the field worth checking against the document, and
- * a panel that quietly drops those is a panel that looks more certain than the
- * reading was.
+ * Kept as the receipt's own panel inside the shared shell: this is the one
+ * block that is specific to deliveries - the supplier, the quantity and the
+ * lorry, next to the photograph they were read from.
  */
-function DeliveryOrderReading({ receipt }: { receipt: MaterialReceiptDetail }) {
+function DeliveryOrderPanel({ receipt }: { receipt: MaterialReceiptDetail }) {
   const t = useTranslations();
-  const result = receipt.ocr_result as Partial<DeliveryNoteOCRResult>;
-  const suggestions = result?.suggestions ?? {};
-  const doubtful = new Set(result?.low_confidence_fields ?? []);
-  const entries = (
-    [
-      ["delivery_note_no", "receipts.field.deliveryNoteNo"],
-      ["supplier_name", "receipts.field.supplier"],
-      ["material_name", "receipts.field.materialName"],
-      ["quantity", "receipts.field.quantity"],
-      ["vehicle_plate", "receipts.field.vehiclePlate"],
-    ] as const
-  ).filter(([key]) => Boolean(suggestions[key]));
-  const lines = result?.line_items ?? [];
-
+  const rows: Array<[string, React.ReactNode]> = [
+    [t("receipts.field.deliveryNoteNo"), receipt.delivery_note_no],
+    [t("receipts.field.supplier"), receipt.supplier_name],
+    [t("receipts.field.materialName"), receipt.material_name],
+    [t("receipts.field.quantity"), `${receipt.quantity} ${t(`receipts.unit.${receipt.unit}`)}`],
+    [t("receipts.field.vehiclePlate"), receipt.vehicle_plate],
+    [t("receipts.doPanelStatus"), t(`receipts.doStatus.${receipt.ocr_status}`)],
+  ];
   return (
-    <FormSection title={t("receipts.doPanelTitle")}>
-      <div className="md:col-span-2 space-y-3">
-        <p className="text-xs text-muted-foreground">
-          {t("receipts.doPanelStatus")}:{" "}
-          <span className="font-medium text-foreground">
-            {t(`receipts.doStatus.${receipt.ocr_status}`)}
-          </span>
-        </p>
-
-        {entries.length === 0 && lines.length === 0 ? (
-          /* A sentence, not an empty table. Nothing was read, and that is an
-             answer rather than a missing one. */
-          <p className="text-sm text-muted-foreground">
-            {t("receipts.doPanelNone")}
-          </p>
-        ) : (
-          <>
-            {doubtful.size > 0 && (
-              <p
-                role="alert"
-                className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs"
-              >
-                {t("receipts.doPanelLowConfidence")}
-              </p>
-            )}
-            {entries.length > 0 && (
-              <dl className="divide-y rounded-lg border">
-                {entries.map(([key, label]) => (
-                  <div key={key} className="grid grid-cols-3 gap-2 px-3 py-2">
-                    <dt className="text-xs text-muted-foreground">{t(label)}</dt>
-                    <dd className="col-span-2 break-words text-sm">
-                      {suggestions[key]}
-                      {doubtful.has(key) && (
-                        <span className="ml-2 text-xs text-warning">
-                          {t("receipts.doPanelLowConfidence")}
-                        </span>
-                      )}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            )}
-            {lines.length > 0 && (
-              <div className="overflow-x-auto rounded-lg border">
-                <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t("receipts.doPanelLineItems")}
-                </p>
-                {/* The shared table, so the padding, header and hover match
-                    every other screen (the UI-consistency probe). */}
-                <Table>
-                  <TableBody>
-                    {lines.map((line, index) => (
-                      <TableRow key={`${line.material_name}-${index}`}>
-                        <TableCell>{line.code ?? ""}</TableCell>
-                        <TableCell>{line.material_name}</TableCell>
-                        <TableCell className="text-right tabular-nums">
-                          {line.quantity} {line.unit}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </FormSection>
+    <section className="rounded-lg border bg-card p-3">
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("receipts.doPanelTitle")}
+      </h3>
+      <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+        {rows.map(([label, value]) => (
+          <div key={String(label)} className="contents">
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="break-words font-medium">{value || "—"}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }

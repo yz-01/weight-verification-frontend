@@ -158,6 +158,17 @@ export interface AssetStock {
   deployed_quantity: number; borrowed_quantity: number; maintenance_quantity: number;
   faulty_quantity: number; retired_quantity: number; total_value: string;
 }
+/**
+ * What create-movement accepts. The "from" side records where the asset was
+ * before the move (T-382); the backend stores it as sent and does not derive
+ * it, so the form prefills it from the asset's current placement.
+ */
+export interface CreateMovementPayload {
+  asset_id: string; type: MovementType; movement_date: string; reason: string; notes?: string;
+  from_user?: string | null; from_department?: string | null; from_project?: string | null;
+  from_company?: string | null; from_warehouse?: string;
+  to_user?: string; to_department?: string; to_project?: string; to_company?: string; to_warehouse?: string;
+}
 export interface AssetSummary {
   total_assets: number; by_category: Record<string, number>;
   by_status: Record<string, number>; total_value: string;

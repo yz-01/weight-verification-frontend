@@ -26,6 +26,7 @@ import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import {
   DetailHeader,
   LoadFailed,
+  QueryFailedNote,
   ReadField,
   StatusBadge,
   TypeBadge,
@@ -627,6 +628,17 @@ function DeviceMediaList({ sessionId }: { sessionId: string }) {
   });
 
   const rows = media.data?.results ?? [];
+  // A failed request is not "the cameras sent nothing" - say so where the list would be.
+  if (media.isError) {
+    return (
+      <div className="mt-4 space-y-2">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {t("weighing.deviceMedia.title")}
+        </h4>
+        <QueryFailedNote query={media} what={t("weighing.deviceMedia.what")} />
+      </div>
+    );
+  }
   if (media.isLoading || rows.length === 0) return null;
 
   return (

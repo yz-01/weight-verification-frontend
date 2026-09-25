@@ -134,7 +134,7 @@ export function verifyCompanyDocument(
   return api.post<CompanyDocument>("/api/company-documents/verify_document/", {
     id,
     verification_status,
-    verification_note,
+    verification_note: verification_note,
   });
 }
 
@@ -183,7 +183,7 @@ export function verifyCompanyBankAccount(
 ): Promise<CompanyBankAccount> {
   return api.post<CompanyBankAccount>(
     "/api/company-bank-accounts/verify_account/",
-    { id, verification_status, verification_note },
+    { id, verification_status, verification_note: verification_note },
   );
 }
 

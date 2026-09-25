@@ -3,6 +3,7 @@
 import { Loader2, Trash2, X, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,7 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 /**
@@ -76,20 +76,14 @@ export function ConfirmDialog({
         </DialogHeader>
 
         {collectsReason && (
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">
-              {reasonLabel ?? t("common.reason")}
-              {reasonRequired && (
-                <span className="ml-0.5 text-destructive">*</span>
-              )}
-            </Label>
+          <FieldWrapper label={reasonLabel ?? t("common.reason")} required={reasonRequired}>
             <Textarea
               rows={3}
               value={reason ?? ""}
               placeholder={t("common.reasonPlaceholder")}
               onChange={(event) => onReasonChange?.(event.target.value)}
             />
-          </div>
+          </FieldWrapper>
         )}
 
         <DialogFooter className="gap-2 sm:gap-2">

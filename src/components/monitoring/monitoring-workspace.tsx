@@ -26,6 +26,7 @@ import { useMemo, useState } from "react";
 import {
   FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -204,6 +205,9 @@ export function MonitoringWorkspace({
             requestedModes={{
               cctv: configuredMode("cctv.mode"),
               anpr: configuredMode("anpr.mode"),
+              // A failed settings read is not "not configured": say so.
+              failed: platformConfig.isError,
+              retry: () => platformConfig.refetch(),
             }}
           />
         </div>
@@ -394,6 +398,8 @@ function SectionContent({
   requestedModes: {
     cctv?: "SIMULATED" | "LIVE";
     anpr?: "SIMULATED" | "LIVE";
+    failed?: boolean;
+    retry?: () => unknown;
   };
 }) {
   const t = useTranslations("monitoring");
@@ -524,6 +530,8 @@ function SectionContent({
         inventory={data.integration_inventory}
         kindFilter={["CCTV"]}
         requestedMode={requestedModes.cctv}
+        requestedModeFailed={requestedModes.failed}
+        onRetryRequestedMode={requestedModes.retry}
         feed={<RecentCapturesPanel />}
       />
     );
@@ -536,6 +544,8 @@ function SectionContent({
         inventory={data.integration_inventory}
         kindFilter={["ANPR"]}
         requestedMode={requestedModes.anpr}
+        requestedModeFailed={requestedModes.failed}
+        onRetryRequestedMode={requestedModes.retry}
         feed={<PlateReadsPanel />}
       />
     );
@@ -703,18 +713,26 @@ function JobsPanel() {
         />
       )}
       <div className="grid gap-3 sm:grid-cols-3">
-        <SummaryTile label={t("workers.total")} value={workers.data?.total ?? 0} />
+        {/* A failed worker read shows a dash, not "0 workers running". */}
+        <SummaryTile label={t("workers.total")} value={workers.data?.total} />
         <SummaryTile
           label={t("workers.active")}
-          value={workers.data?.active ?? 0}
-          tone={(workers.data?.active ?? 0) > 0 ? "positive" : "warning"}
+          value={workers.data?.active}
+          tone={
+            !workers.data
+              ? "neutral"
+              : workers.data.active > 0
+                ? "positive"
+                : "warning"
+          }
         />
         <SummaryTile
           label={t("workers.stale")}
-          value={workers.data?.stale ?? 0}
-          tone={(workers.data?.stale ?? 0) > 0 ? "danger" : "neutral"}
+          value={workers.data?.stale}
+          tone={workers.data && workers.data.stale > 0 ? "danger" : "neutral"}
         />
       </div>
+      <QueryFailedNote query={workers} what={t("what.workers")} />
 
       <section className="rounded-lg border bg-card shadow-sm">
         <div className="flex flex-wrap items-center gap-2 border-b p-3">
@@ -932,9 +950,11 @@ function SummaryTile({
   tone = "neutral",
 }: {
   label: string;
-  value: number;
+  /** Undefined while loading or after a failed read: shown as a dash, never 0. */
+  value: number | undefined;
   tone?: "positive" | "warning" | "danger" | "neutral";
 }) {
+  const common = useTranslations("common");
   const colour = {
     positive: "text-success",
     warning: "text-warning",
@@ -945,7 +965,7 @@ function SummaryTile({
     <div className="rounded-lg border bg-card p-4 shadow-sm">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className={`mt-1 text-2xl font-semibold tabular-nums ${colour}`}>
-        {value}
+        {value ?? common("emptyValue")}
       </p>
     </div>
   );
@@ -958,6 +978,8 @@ function IntegrationSection({
   inventory,
   kindFilter,
   requestedMode,
+  requestedModeFailed = false,
+  onRetryRequestedMode,
   feed,
 }: {
   monitor: IntegrationMonitor;
@@ -966,11 +988,14 @@ function IntegrationSection({
   inventory: MonitoringOverview["integration_inventory"];
   kindFilter: string[];
   requestedMode?: "SIMULATED" | "LIVE";
+  requestedModeFailed?: boolean;
+  onRetryRequestedMode?: () => unknown;
   /** What the devices actually sent. Counters say a camera is online; only
    *  this says it is still producing anything. */
   feed?: React.ReactNode;
 }) {
   const t = useTranslations("monitoring");
+  const common = useTranslations("common");
   const verifiedLive = inventory.connections.some(
     (connection) =>
       kindFilter.includes(connection.kind) && connection.is_live_ready,
@@ -999,7 +1024,16 @@ function IntegrationSection({
             {t("connectionMode.requested")}
           </p>
           <div className="mt-2">
-            {requestedMode ? (
+            {requestedModeFailed ? (
+              <>
+                <span className="text-sm">{common("emptyValue")}</span>
+                <QueryFailedNote
+                  className="mt-1"
+                  query={{ isError: true, refetch: onRetryRequestedMode }}
+                  what={t("what.platformConfig")}
+                />
+              </>
+            ) : requestedMode ? (
               <TypeBadge label={t(`mode.${requestedMode}`)} />
             ) : (
               <HealthBadge status="not_configured" />
@@ -1712,8 +1746,19 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
                 </TableCell>
               </TableRow>
             ))}
-            {!query.isLoading && (query.data?.results.length ?? 0) === 0 && (
-              <EmptyRow columns={7} />
+            {query.isError ? (
+              <TableRow>
+                <TableCell colSpan={7} className="h-28 text-center">
+                  <QueryFailedNote
+                    query={query}
+                    what={t("what.events")}
+                    className="justify-center"
+                  />
+                </TableCell>
+              </TableRow>
+            ) : (
+              !query.isLoading &&
+              (query.data?.results.length ?? 0) === 0 && <EmptyRow columns={7} />
             )}
           </TableBody>
         </Table>
@@ -1722,7 +1767,9 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
         <span className="text-muted-foreground">
           {query.data
             ? t("recordsCount", { count: query.data.count })
-            : common("loading")}
+            : query.isError
+              ? common("emptyValue")
+              : common("loading")}
         </span>
         <div className="flex gap-2">
           <Button
@@ -1762,11 +1809,12 @@ function EventLedger({ exceptionsOnly }: { exceptionsOnly: boolean }) {
               {handling?.event.event_type ?? ""}
             </DialogDescription>
           </DialogHeader>
-          <Textarea
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-            placeholder={t("handlingNotePlaceholder")}
-          />
+          <FieldWrapper label={t("handlingNotePlaceholder")} required>
+            <Textarea
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
+          </FieldWrapper>
           <DialogFooter>
             <Button variant="outline" onClick={() => setHandling(null)}>
               {common("cancel")}
@@ -2147,6 +2195,7 @@ function CreateJobDialog({
                 </option>
               ))}
             </select>
+            <QueryFailedNote query={handlers} what={t("what.handlers")} />
           </FieldWrapper>
           <FieldWrapper
             label={t("field.interval")} required

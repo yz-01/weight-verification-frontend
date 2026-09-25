@@ -265,6 +265,18 @@ export interface SiteEquipment {
   is_active: boolean;
   movement_count: number;
   quantity_on_site: string;
+  /**
+   * Every photograph of the machine (T-298): its own, uploaded onto the
+   * register (`REGISTER`), and those taken at each entry and exit.
+   */
+  photos?: Array<{
+    id: string;
+    url: string;
+    source: "REGISTER" | "ENTRY" | "EXIT";
+    kind: string;
+    caption: string;
+    captured_at: string | null;
+  }>;
   created_at: string;
   updated_at: string;
 }
@@ -378,6 +390,8 @@ export interface SiteProgressRecord {
   confirmed_at: string | null;
   review_note: string;
   photos: Array<{ id: string; image: string; watermarked?: string | null; caption: string; captured_at: string }>;
+  /** The office's 【备注】, oldest first (T-359). */
+  remarks?: Array<{ id: string; body: string; author_name: string | null; created_at: string }>;
 }
 
 export interface MaterialOutgoing {
@@ -385,6 +399,9 @@ export interface MaterialOutgoing {
   reference_no: string;
   project: string;
   project_name: string;
+  /** The material column it files under (T-372). */
+  category?: string | null;
+  category_name?: string | null;
   material_name: string;
   quantity: string;
   unit: string;
@@ -393,7 +410,11 @@ export interface MaterialOutgoing {
   vehicle_plate: string;
   delivery_note_no: string;
   reason: string;
-  status: "PENDING" | "APPROVED" | "REJECTED" | "RELEASED";
+  /**
+   * D-211: 批准 → 手机端现场处理及回传 (PROCESSED) → 后台最终确认 (COMPLETED).
+   * RELEASED is the pre-D-211 ending; rows in it still render.
+   */
+  status: "PENDING" | "APPROVED" | "REJECTED" | "PROCESSED" | "COMPLETED" | "RELEASED";
   captured_at: string;
   latitude: string | null;
   longitude: string | null;
@@ -401,8 +422,15 @@ export interface MaterialOutgoing {
   approved_by_name: string | null;
   approved_at: string | null;
   review_note: string;
+  processed_at?: string | null;
+  processed_by_name?: string | null;
+  processing_note?: string;
+  completed_at?: string | null;
+  completed_by_name?: string | null;
   photos: Array<{
     id: string;
+    /** Which step it was taken at: with the application, after processing, or by the office. */
+    stage?: "APPLICATION" | "PROCESSING" | "OFFICE";
     image: string;
     watermarked?: string | null;
     caption: string;
@@ -487,6 +515,14 @@ export interface DisposalRequest {
   external_revoked_at: string | null;
   external_last_used_at: string | null;
   external_link_is_valid: boolean;
+  /**
+   * Approved more than 36 hours ago with no disposal photograph back (D-217).
+   *
+   * Derived by the server, not stored: a flag needs something to run and set
+   * it, and a job that did not run would leave every overdue record reading
+   * "normal".
+   */
+  disposal_evidence_is_overdue: boolean;
   execution_started_at: string | null;
   submitted_at: string | null;
   actual_weight_kg: string | null;
@@ -546,7 +582,8 @@ export type ArchiveRecordKind =
   | "DISPOSAL_REQUEST"
   | "PROGRESS"
   | "CONSULTANT_APPLICATION"
-  | "ATTENDANCE_DAY";
+  | "ATTENDANCE_DAY"
+  | "SUNDRY_CLAIM";
 
 /** One row of the unarchived queue, whichever table it came from. */
 export interface ArchiveQueueRow {
@@ -617,13 +654,19 @@ export interface PackageRecordParts {
   fields: import("@/interfaces/contractor").MySubmissionField[];
   photos: import("@/interfaces/contractor").MySubmissionPhoto[];
   documents: PackageDocument[];
+  /** The record's conversation, message by message (T-363, D-233). */
+  messages?: Array<{ id: string; author_name: string; sent_at: string; body: string }>;
 }
 
-/** Which parts of a record this member carries. Empty list means all. */
+/**
+ * Which parts of a record this member carries. A missing group means all of
+ * it; an empty list means none (D-162).
+ */
 export interface PackageSelection {
   fields?: string[];
   photos?: string[];
   documents?: string[];
+  messages?: string[];
 }
 
 export interface PackageItem extends PackageRecordParts {

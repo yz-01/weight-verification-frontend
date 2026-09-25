@@ -32,6 +32,7 @@ import {
   FieldWrapper,
   ListHeader,
   LoadFailed,
+  QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import {
@@ -189,7 +190,8 @@ export function SiteAccessWorkspace() {
           can("site_access.manage") && tab === "passes" ? (
             <Button
               size="sm"
-              disabled={defaults.isLoading}
+              disabledReason={defaults.isError ? t("access.defaultsFailed") : defaults.isLoading ? t("state.loading") : undefined}
+              disabled={defaults.isLoading || defaults.isError}
               onClick={() => setCreating(true)}
             >
               <Plus />
@@ -198,6 +200,8 @@ export function SiteAccessWorkspace() {
           ) : undefined
         }
       />
+      <QueryFailedNote query={defaults} what={t("what.defaults")} />
+      <QueryFailedNote query={focusedPass} what={t("what.requestedPass")} />
       <Tabs value={tab} onValueChange={changeTab}>
         <TabsList>
           <TabsTrigger value="passes">
@@ -812,6 +816,7 @@ function PassDialog({
                   ))}
                 </SelectContent>
               </Select>
+              <QueryFailedNote query={users} what={t("what.workers")} />
             </FieldWrapper>
           ) : (
             <>
@@ -1235,34 +1240,39 @@ function CredentialsPanel({ pass }: { pass: SiteAccessPass }) {
       {!approved ? (
         <State text={t("credential.approveFirst")} />
       ) : (
-        <div className="grid gap-2 rounded-lg border p-3 sm:grid-cols-[10rem_1fr_1fr_auto]">
-          <Select
-            value={type}
-            onValueChange={(next) => setType(next as Exclude<AccessCredentialType, "QR">)}
-          >
-            <SelectTrigger aria-label={t("credential.type")}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {EXTERNAL_CREDENTIAL_TYPES.map((kind) => (
-                <SelectItem key={kind} value={kind}>
-                  {t(`credentialType.${kind}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            placeholder={t("credential.valuePlaceholder")}
-            aria-label={t("credential.value")}
-          />
-          <Input
-            value={label}
-            onChange={(event) => setLabel(event.target.value)}
-            placeholder={t("credential.labelPlaceholder")}
-            aria-label={t("credential.label")}
-          />
+        <div className="grid items-end gap-2 rounded-lg border p-3 sm:grid-cols-[10rem_1fr_1fr_auto]">
+          <FieldWrapper label={t("credential.type")}>
+            <Select
+              value={type}
+              onValueChange={(next) => setType(next as Exclude<AccessCredentialType, "QR">)}
+            >
+              <SelectTrigger aria-label={t("credential.type")}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {EXTERNAL_CREDENTIAL_TYPES.map((kind) => (
+                  <SelectItem key={kind} value={kind}>
+                    {t(`credentialType.${kind}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper label={t("credential.value")} required>
+            <Input
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              aria-label={t("credential.value")}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("credential.label")}>
+            <Input
+              value={label}
+              onChange={(event) => setLabel(event.target.value)}
+              placeholder={t("credential.labelPlaceholder")}
+              aria-label={t("credential.label")}
+            />
+          </FieldWrapper>
           <Button
             requires={[[value, t("credential.value")]]}
             disabled={register.isPending}
@@ -1279,7 +1289,7 @@ function CredentialsPanel({ pass }: { pass: SiteAccessPass }) {
       )}
 
       {credentials.isError ? (
-        <LoadFailed onRetry={() => void credentials.refetch()} />
+        <LoadFailed what={t("what.credentials")} onRetry={() => void credentials.refetch()} />
       ) : credentials.isLoading ? (
         <State text={t("credential.loading")} />
       ) : !rows.length ? (

@@ -93,7 +93,8 @@ export interface RecyclerDashboardNotification {
   title: string;
   message: string;
   href: string;
-  is_read: boolean;
+  state: string;
+  is_outstanding: boolean;
   created_at: string;
 }
 

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -120,6 +121,12 @@ export function WorkforcePresencePanel({ projectId }: { projectId: string }) {
           </Select>
           )}
         </div>
+        {mayFilterByDepartment && (
+          <QueryFailedNote className="w-full" query={departments} what={t("what.departments")} />
+        )}
+        {mayFilterByTrade && (
+          <QueryFailedNote className="w-full" query={trades} what={t("what.trades")} />
+        )}
       </div>
 
       {presence.isLoading ? (

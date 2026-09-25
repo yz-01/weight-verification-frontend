@@ -19,10 +19,7 @@ import {
 } from "@/components/ui/table";
 import type { CompanySubscription } from "@/interfaces/subscription";
 import { useDateFormat } from "@/lib/dates";
-import {
-  getExpiringSubscriptions,
-  getSubscriptionPlans,
-} from "@/services/subscription.service";
+import { getExpiringSubscriptions } from "@/services/subscription.service";
 
 export function RenewalQueue() {
   const t = useTranslations("subscriptions");
@@ -36,17 +33,13 @@ export function RenewalQueue() {
     queryKey: ["subscriptions", "expiring", days],
     queryFn: () => getExpiringSubscriptions(days),
   });
-  const plans = useQuery({
-    queryKey: ["subscription-plans", "options"],
-    queryFn: () => getSubscriptionPlans({ page_size: 100, sort_by: "sort_order" }),
-  });
 
   const rows = queue.data?.results ?? [];
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">
-          {t("renewals.count", { count: queue.data?.count ?? 0 })}
+          {queue.isError ? "—" : t("renewals.count", { count: queue.data?.count ?? 0 })}
         </p>
         <select
           className="h-9 rounded-md border bg-background px-3 text-sm"
@@ -104,7 +97,8 @@ export function RenewalQueue() {
         onOpenChange={(open) => !open && setSelected(null)}
         mode="extend"
         subscription={selected}
-        plans={plans.data?.results ?? []}
+        // Extending keeps the current plan, so this dialog never offers one.
+        plans={[]}
       />
     </div>
   );

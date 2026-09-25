@@ -18,6 +18,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { ConsultantHowTo } from "@/components/consultant-workflow/consultant-how-to";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -84,9 +85,9 @@ export function ConsultantApplicationsList() {
             )}
             {can("consultant.config") && (
               <Button asChild variant="outline" size="sm">
-                <Link href="/consultant-workflows">
+                <Link href="/consultant-settings">
                   <Settings2 />
-                  {t("workflow.shortTitle")}
+                  {t("settingsHub.title")}
                 </Link>
               </Button>
             )}
@@ -100,6 +101,13 @@ export function ConsultantApplicationsList() {
             )}
           </div>
         }
+      />
+
+      <ConsultantHowTo
+        // Open until the first application exists, so a first-time user
+        // meets the three steps; folded after that, one click away.
+        defaultOpen={!rows.isLoading && (rows.data?.count ?? 0) === 0}
+        canConfigure={can("consultant.config")}
       />
 
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 shadow-sm sm:flex-row sm:items-center">

@@ -26,6 +26,7 @@ import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technica
 import {
   FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -296,6 +297,7 @@ export function EvidenceArchive() {
               ))}
             </SelectContent>
           </Select>
+          <QueryFailedNote query={projects} what={t("evidence.what.projects")} />
         </div>
         <div className="w-full space-y-1 sm:w-[220px]">
           <Label className="text-xs text-muted-foreground">{t("evidence.filter.category")}</Label>
@@ -312,6 +314,7 @@ export function EvidenceArchive() {
               ))}
             </SelectContent>
           </Select>
+          <QueryFailedNote query={categories} what={t("evidence.what.categories")} />
         </div>
         <DateFilter
           label={t("evidence.filter.capturedFrom")}

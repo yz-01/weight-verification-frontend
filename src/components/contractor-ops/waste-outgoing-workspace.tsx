@@ -12,6 +12,7 @@ import {
   Loader2,
   LocateFixed,
   Plus,
+  Repeat,
   SendHorizonal,
   Scale,
   Truck,
@@ -23,15 +24,29 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import type { ColumnDef } from "@tanstack/react-table";
+
+import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
+import {
+  FilterSelect,
+  ModuleRecordsTable,
+  PlainHeader,
+  ProjectListFilter,
+  sortable,
+  SummaryStrip,
+} from "@/components/shared/module-records-table";
+import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { useListQuery } from "@/hooks/use-list-query";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import { ExportButton } from "@/components/shared/export-button";
 import {
   FieldWrapper,
-  ListHeader,
   LoadFailed,
+  QueryFailedNote,
   StatusBadge,
+  TypeBadge,
 } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -51,6 +66,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import type {
@@ -78,6 +94,7 @@ import {
   getRecyclerOptions,
   getWasteOutgoingOptions,
   getWasteOutgoingRecords,
+  reassignWasteRecycler,
   getWasteOutgoingTotals,
   getWasteTracking,
   delegateWasteOutgoingReview,
@@ -136,16 +153,24 @@ function getCoordinates(): Promise<Coordinates> {
 
 export function WasteOutgoingWorkspace() {
   const t = useTranslations("wasteOutgoing");
+  // The cumulative-totals labels are shared across every module that has a
+  // quantity, so they live at the root rather than in one module's namespace.
+  const tRoot = useTranslations();
   const { can, user } = useAuth();
   const df = useDateFormat();
   const qc = useQueryClient();
 
-  const [project, setProject] = useState("");
-  const [category, setCategory] = useState("ALL");
-  const [status, setStatus] = useState("ALL");
+  // Filters live in the address, as on the receipt list (图 4, T-370), so a
+  // filtered view is a link somebody can send.
+  const list = useListQuery(["project", "category", "status"]);
+  const project = list.filters.project ?? "";
+  const [viewing, setViewing] = useState<WasteOutgoingRecord | null>(null);
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
   const [assigning, setAssigning] = useState<WasteOutgoingRecord | null>(null);
+  const [reassigning, setReassigning] = useState<WasteOutgoingRecord | null>(
+    null,
+  );
   const [reviewing, setReviewing] = useState<WasteOutgoingRecord | null>(null);
   const [handingOver, setHandingOver] = useState<WasteOutgoingRecord | null>(
     null,
@@ -181,14 +206,8 @@ export function WasteOutgoingWorkspace() {
     queryFn: getWasteOutgoingOptions,
   });
   const records = useQuery({
-    queryKey: ["waste-outgoing", "records", project, category, status],
-    queryFn: () =>
-      getWasteOutgoingRecords({
-        ...(project ? { project } : {}),
-        ...(category !== "ALL" ? { category } : {}),
-        ...(status !== "ALL" ? { status } : {}),
-        page_size: 50,
-      }),
+    queryKey: ["waste-outgoing", "records", list.query],
+    queryFn: () => getWasteOutgoingRecords(list.query),
   });
   const totals = useQuery({
     queryKey: ["waste-outgoing", "totals", project],
@@ -208,10 +227,16 @@ export function WasteOutgoingWorkspace() {
       title: t("title"),
       subtitle: t("subtitle"),
       emptyLabel: t("empty"),
-      query: {
-        ...(project ? { project } : {}),
-        ...(category !== "ALL" ? { category } : {}),
-        ...(status !== "ALL" ? { status } : {}),
+      query: list.query,
+      // Quantity *and* the number of collections, because D-219 asks waste to
+      // accumulate 数量、车次、吨数 as the base data for ESG reporting later.
+      summary: {
+        groupBy: "unit",
+        title: tRoot("exportTotals.title"),
+        unitLabel: t("field.unit"),
+        quantityLabel: tRoot("exportTotals.quantity"),
+        countLabel: tRoot("exportTotals.collections"),
+        note: tRoot("exportTotals.note"),
       },
       columns: [
         { key: "reference_no", label: t("field.dispatchNo") },
@@ -243,302 +268,380 @@ export function WasteOutgoingWorkspace() {
     (row) => row.is_active,
   );
 
+  /*
+    The buttons for one application, in the detail's right column (C-020:
+    「那些按钮放在图 2 的圈起来的位置」). They used to sit on each card of the
+    list; the list is a table now (图 4, T-370) and the record opens on the
+    shared shell, so this is where they moved - not a second copy.
+  */
+  const renderActions = (row: WasteOutgoingRecord) => (
+    <div className="flex flex-wrap gap-2">
+      {row.status === "PENDING_APPROVAL" &&
+        can("waste_outgoing.approve") &&
+        mayDecide(row) && (
+          <Button size="sm" variant="outline" onClick={() => setReviewing(row)}>
+            <CheckCircle2 />
+            {t("action.review")}
+          </Button>
+        )}
+      {row.status === "PENDING_APPROVAL" && can("waste_outgoing.delegate") && (
+        <Button size="sm" variant="outline" onClick={() => setHandingOver(row)}>
+          <UserRoundCheck />
+          {row.delegated_to_name ? t("action.handOverAgain") : t("action.handOver")}
+        </Button>
+      )}
+      {row.status === "APPROVED" && can("waste_outgoing.order") && (
+        <Button size="sm" onClick={() => setAssigning(row)}>
+          <Truck />
+          {t("action.sendOrder")}
+        </Button>
+      )}
+      {/*
+        Hand the load to somebody else without killing the application
+        (T-319). The server refuses once collection is under way, so the
+        button is offered on an ordered record and the refusal is the
+        authority - restating the state rules here would give two answers to
+        drift apart.
+      */}
+      {row.status === "ORDERED" && can("waste_outgoing.order") && (
+        <Button size="sm" variant="outline" onClick={() => setReassigning(row)}>
+          <Repeat />
+          {t("action.reassign")}
+        </Button>
+      )}
+      {row.dispatch_no && (
+        <Button size="sm" variant="outline" onClick={() => setTracking(row)}>
+          <Scale />
+          {t("action.track")}
+        </Button>
+      )}
+      {row.dispatch &&
+        row.dispatch_state === "ACCEPTED" &&
+        row.proposed_collection_at &&
+        !row.confirmed_collection_at &&
+        can("waste_outgoing.order") && (
+          <Button size="sm" onClick={() => setConfirming(row)}>
+            <CalendarCheck2 />
+            {t("action.confirmSchedule")}
+          </Button>
+        )}
+      {["DRAFT", "RETURNED"].includes(row.status) && can("waste_outgoing.submit") && (
+        <>
+          <Button size="sm" variant="outline" onClick={() => setAddingPhotos(row)}>
+            <ImagePlus />
+            {t("action.upload")}
+          </Button>
+          {/*
+            Disabled with nothing attached rather than left to fail: 8.2.1
+            makes the photograph the substance of the record, so the backend
+            refuses a submission without them. How many it wants depends on
+            the company, so the exact number comes back in its message.
+          */}
+          <Button
+            size="sm"
+            disabledReason={row.photos.length === 0 ? t("submit.needPhotos") : undefined}
+            disabled={row.photos.length === 0 || submitRequest.isPending}
+            onClick={() => submitRequest.mutate(row.id)}
+          >
+            <SendHorizonal />
+            {t("action.submit")}
+          </Button>
+        </>
+      )}
+      {["DRAFT", "PENDING_APPROVAL", "RETURNED", "APPROVED"].includes(row.status) &&
+        can("waste_outgoing.submit") && (
+          <Button size="sm" variant="ghost" onClick={() => setCancelling(row)}>
+            <XCircle />
+            {t("action.cancel")}
+          </Button>
+        )}
+      <AddToPackageButton
+        kind="WASTE_OUTGOING"
+        recordId={row.id}
+        projectId={row.project}
+        reference={row.reference_no}
+      />
+    </div>
+  );
+
+  const columns: ColumnDef<WasteOutgoingRecord, unknown>[] = [
+    {
+      accessorKey: "reference_no",
+      meta: { label: t("field.dispatchNo") },
+      header: sortable(t("field.dispatchNo")),
+      cell: ({ row }) => <span className="tabular text-foreground">{row.original.reference_no}</span>,
+    },
+    {
+      accessorKey: "status",
+      meta: { label: t("export.status") },
+      header: sortable(t("export.status")),
+      cell: ({ row }) => (
+        <div className="min-w-0">
+          <StatusBadge label={t(`status.${row.original.status}`)} tone={STATUS_TONE[row.original.status]} />
+          {row.original.status === "RETURNED" && row.original.review_note ? (
+            <p className="mt-1 max-w-64 truncate text-xs font-medium text-destructive">
+              {row.original.review_note}
+            </p>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "category_name",
+      meta: { label: t("field.category") },
+      header: () => <PlainHeader label={t("field.category")} />,
+    },
+    {
+      accessorKey: "captured_at",
+      meta: { label: t("export.capturedAt") },
+      header: sortable(t("export.capturedAt")),
+      cell: ({ row }) => (
+        <span className="tabular text-muted-foreground">
+          {row.original.captured_at ? df.dateTime(row.original.captured_at) : "—"}
+        </span>
+      ),
+    },
+    {
+      id: "quantity",
+      meta: { label: t("field.quantity") },
+      header: () => <PlainHeader label={t("field.quantity")} />,
+      cell: ({ row }) =>
+        row.original.quantity ? (
+          <span className="tabular">
+            {row.original.quantity} {t(`unit.${row.original.unit}`)}
+          </span>
+        ) : (
+          "—"
+        ),
+    },
+    {
+      accessorKey: "recycler_name",
+      meta: { label: t("field.recycler") },
+      header: () => <PlainHeader label={t("field.recycler")} />,
+      cell: ({ row }) => row.original.recycler_name || "—",
+    },
+    {
+      accessorKey: "dispatch_no",
+      meta: { label: t("export.dispatchNo") },
+      header: () => <PlainHeader label={t("export.dispatchNo")} />,
+      cell: ({ row }) => row.original.dispatch_no || "—",
+    },
+    {
+      accessorKey: "project_name",
+      meta: { label: t("field.project") },
+      header: () => <PlainHeader label={t("field.project")} />,
+      cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
+    },
+    {
+      id: "photos",
+      meta: { label: tRoot("moduleTable.photos") },
+      header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
+      cell: ({ row }) => <TypeBadge label={String(row.original.photos.length)} />,
+    },
+  ];
+
+  const total = records.data?.count ?? 0;
+  // The open record follows the list, so a step taken from the detail shows
+  // its result without closing and reopening.
+  const shown = viewing ? (rows.find((row) => row.id === viewing.id) ?? viewing) : null;
+
   return (
-    <div className="space-y-6">
-      <ListHeader
-        title={t("title")}
-        subtitle={t("subtitle")}
-        action={
+    <>
+      <ModuleRecordsTable
+        title={tRoot("nav.submodule.wasteOutgoing")}
+        countLabel={tRoot("moduleTable.count", { count: total })}
+        headerAction={
           <div className="flex flex-wrap gap-2">
-            {can("report.export") && (
-              <ExportButton onExport={runExport} disabled={!rows.length} />
-            )}
-            {/* 8.2.7 gives the tenant its own category list; until now the
-                console could only read it into a filter. */}
+            {/* 8.2.7 gives the tenant its own category list. */}
             {can("waste_outgoing.config") && (
               <Button
+                size="sm"
                 variant="outline"
+                className="rounded-full px-4 shadow-sm"
                 onClick={() => setManagingCategories(true)}
               >
-                <ListTree />
+                <ListTree className="h-4 w-4" />
                 {t("category.manage")}
               </Button>
             )}
             {can("waste_outgoing.submit") && (
-              <Button onClick={() => setCreating(true)}>
-                <Plus />
+              <Button size="sm" className="rounded-full px-4 shadow-sm" onClick={() => setCreating(true)}>
+                <Plus className="h-4 w-4" />
                 {t("action.record")}
               </Button>
             )}
           </div>
         }
+        above={
+          /* 8.2.9: today, this month, this year. Counts are always
+             comparable; quantities are shown per unit because tonnes and
+             bags are not. */
+          <div className="space-y-1">
+            <SummaryStrip
+              items={
+                totals.isError
+                  ? (["today", "month", "year", "all_time"] as const).map((window) => ({
+                      key: window,
+                      label: t(`totals.${window}`),
+                      value: "—",
+                    }))
+                  : totals.data
+                    ? (["today", "month", "year", "all_time"] as const).map((window) => ({
+                        key: window,
+                        label: t(`totals.${window}`),
+                        value: totals.data[window].records,
+                        detail: Object.entries(totals.data[window].quantity_by_unit)
+                          .map(([unit, amount]) => `${amount} ${t(`unit.${unit}`)}`)
+                          .join(" · "),
+                      }))
+                    : []
+              }
+            />
+            <QueryFailedNote query={totals} what={t("what.totals")} />
+            {/* The category filter and the new-record form both choose from it. */}
+            <QueryFailedNote query={options} what={t("what.categories")} />
+          </div>
+        }
+        list={list}
+        columns={columns}
+        rows={rows}
+        totalCount={total}
+        isLoading={records.isLoading}
+        isError={records.isError}
+        storageKey="waste-outgoing"
+        toolbar={
+          <>
+            <ProjectListFilter list={list} />
+            <FilterSelect
+              list={list}
+              param="category"
+              allLabel={t("filter.allCategories")}
+              options={categories.map((row) => ({ value: row.id, label: row.name }))}
+            />
+            <FilterSelect
+              list={list}
+              param="status"
+              allLabel={t("filter.allStatuses")}
+              options={(Object.keys(STATUS_TONE) as WasteOutgoingStatus[]).map((key) => ({
+                value: key,
+                label: t(`status.${key}`),
+              }))}
+            />
+            {can("report.export") && <ExportButton onExport={runExport} disabled={!rows.length} />}
+          </>
+        }
+        onOpen={setViewing}
       />
 
-      {/* 8.2.9: today, this month, this year. Counts are always comparable;
-          quantities are shown per unit because tonnes and bags are not. */}
-      {totals.data && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {(["today", "month", "year", "all_time"] as const).map((window) => (
-            <div key={window} className="rounded-lg border bg-card p-4 shadow-sm">
-              <p className="text-xs font-medium text-muted-foreground">
-                {t(`totals.${window}`)}
-              </p>
-              <p className="mt-2 text-2xl font-semibold tabular-nums">
-                {totals.data[window].records}
-              </p>
-              <div className="mt-1 space-y-0.5">
-                {Object.entries(totals.data[window].quantity_by_unit).map(
-                  ([unit, amount]) => (
-                    <p key={unit} className="text-xs text-muted-foreground">
-                      {amount} {t(`unit.${unit}`)}
-                    </p>
-                  ),
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="flex flex-wrap items-center gap-2">
-        <ProjectPicker
-          value={project}
-          onValueChange={(next) => setProject(next === "all" ? "" : next)}
-          placeholder={t("filter.selectProject")}
-          allowAll
-          allLabel={t("filter.allProjects")}
-          className="w-full sm:w-64"
-        />
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">{t("filter.allCategories")}</SelectItem>
-            {categories.map((row) => (
-              <SelectItem key={row.id} value={row.id}>
-                {row.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">{t("filter.allStatuses")}</SelectItem>
-            {(Object.keys(STATUS_TONE) as WasteOutgoingStatus[]).map((key) => (
-              <SelectItem key={key} value={key}>
-                {t(`status.${key}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {records.isError ? (
-        <p className="rounded-lg border border-destructive/30 bg-destructive/5 py-12 text-center text-sm text-destructive">
-          {t("recordsFailed")}
-        </p>
-      ) : records.isLoading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-28 w-full" />
-          ))}
-        </div>
-      ) : rows.length === 0 ? (
-        <p className="border-y py-12 text-center text-sm text-muted-foreground">
-          {t("empty")}
-        </p>
-      ) : (
-        <ul className="space-y-3">
-          {rows.map((row) => (
-            <li
-              key={row.id}
-              className="rounded-lg border bg-card p-4 shadow-sm"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-                    {row.reference_no}
-                    <StatusBadge
-                      label={t(`status.${row.status}`)}
-                      tone={STATUS_TONE[row.status]}
-                    />
-                  </p>
-                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    {row.project_name} · {row.category_name}
-                    {row.quantity
-                      ? ` · ${row.quantity} ${t(`unit.${row.unit}`)}`
-                      : ""}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {df.dateTime(row.captured_at)}
-                    {row.recycler_name ? ` · ${row.recycler_name}` : ""}
-                    {row.dispatch_no ? ` · ${row.dispatch_no}` : ""}
-                  </p>
-                  {row.pickup_address && (
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {row.pickup_address}
-                      {row.pickup_address_source === "MANUAL"
-                        ? ` · ${t("field.pickupAddressTyped")}`
-                        : ""}
-                    </p>
-                  )}
-                  {row.note && (
-                    <p className="mt-1 line-clamp-2 text-xs">{row.note}</p>
-                  )}
-                  {row.delegated_to_name && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {t("handover.trail", {
-                        from: row.delegated_by_name ?? "",
-                        to: row.delegated_to_name,
-                        when: df.dateTime(row.delegated_at),
-                      })}
-                    </p>
-                  )}
-                </div>
-                <div className="flex shrink-0 flex-wrap gap-2">
-                  {row.status === "PENDING_APPROVAL" &&
-                    can("waste_outgoing.approve") &&
-                    mayDecide(row) && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setReviewing(row)}
-                      >
-                        <CheckCircle2 />
-                        {t("action.review")}
-                      </Button>
-                    )}
-                  {row.status === "PENDING_APPROVAL" &&
-                    can("waste_outgoing.delegate") && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setHandingOver(row)}
-                      >
-                        <UserRoundCheck />
-                        {row.delegated_to_name
-                          ? t("action.handOverAgain")
-                          : t("action.handOver")}
-                      </Button>
-                    )}
-                  {row.status === "APPROVED" &&
-                    can("waste_outgoing.order") && (
-                      <Button size="sm" onClick={() => setAssigning(row)}>
-                        <Truck />
-                        {t("action.sendOrder")}
-                      </Button>
-                    )}
-                  {row.dispatch_no && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setTracking(row)}
-                    >
-                      <Scale />
-                      {t("action.track")}
-                    </Button>
-                  )}
-                  {row.dispatch &&
-                    row.dispatch_state === "ACCEPTED" &&
-                    row.proposed_collection_at &&
-                    !row.confirmed_collection_at &&
-                    can("waste_outgoing.order") && (
-                      <Button size="sm" onClick={() => setConfirming(row)}>
-                        <CalendarCheck2 />
-                        {t("action.confirmSchedule")}
-                      </Button>
-                    )}
-                  {["DRAFT", "RETURNED"].includes(row.status) &&
-                    can("waste_outgoing.submit") && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setAddingPhotos(row)}
-                        >
-                          <ImagePlus />
-                          {t("action.upload")}
-                        </Button>
-                        {/*
-                          Disabled with nothing attached rather than left to
-                          fail: 8.2.1 makes the photograph the substance of the
-                          record, so the backend refuses a submission without
-                          them. How many it wants depends on the company, so
-                          the exact number comes back in its message.
-                        */}
-                        <Button
-                          size="sm"
-                          disabledReason={
-                            row.photos.length === 0
-                              ? t("submit.needPhotos")
-                              : undefined
-                          }
-                          disabled={
-                            row.photos.length === 0 || submitRequest.isPending
-                          }
-                          onClick={() => submitRequest.mutate(row.id)}
-                        >
-                          <SendHorizonal />
-                          {t("action.submit")}
-                        </Button>
-                      </>
-                    )}
-                  {["DRAFT", "PENDING_APPROVAL", "RETURNED", "APPROVED"].includes(row.status) &&
-                    can("waste_outgoing.submit") && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setCancelling(row)}
-                      >
-                        <XCircle />
-                        {t("action.cancel")}
-                      </Button>
-                    )}
-                </div>
-              </div>
-
-              {row.review_note && (
-                <p className={`mt-3 rounded-md border px-3 py-2 text-xs ${row.status === "RETURNED" ? "border-destructive/30 bg-destructive/5 text-destructive" : "bg-muted/30 text-muted-foreground"}`}>
-                  {t("review.noteLabel")}: {row.review_note}
+      {shown && (
+        <RecordDetailDialog
+          title={shown.reference_no}
+          description={`${shown.project_name} · ${shown.category_name}`}
+          onClose={() => setViewing(null)}
+        >
+          <RecordDetailShell
+            reference={shown.reference_no}
+            notices={
+              shown.review_note ? (
+                <p
+                  className={`rounded-md border px-3 py-2 text-xs ${shown.status === "RETURNED" ? "border-destructive/30 bg-destructive/5 text-destructive" : "bg-muted/30 text-muted-foreground"}`}
+                >
+                  {t("review.noteLabel")}: {shown.review_note}
                 </p>
-              )}
-
-              {row.photos.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {row.photos.map((photo, index) => (
-                    <a
-                      key={photo.id}
-                      href={photo.watermarked || photo.image}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="relative size-16 overflow-hidden rounded border"
-                      title={`${index + 1} / ${row.photos.length}`}
-                    >
-                      <Image
-                        // The watermarked derivative when one exists: 8.2.6 wants
-                        // the stamp visible wherever the photo is shown.
-                        src={photo.watermarked || photo.image}
-                        alt={photo.caption || row.reference_no}
-                        fill
-                        sizes="64px"
-                        className="object-cover"
-                      />
-                    </a>
-                  ))}
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+              ) : null
+            }
+            facts={[
+              {
+                label: t("export.status"),
+                value: <StatusBadge label={t(`status.${shown.status}`)} tone={STATUS_TONE[shown.status]} />,
+              },
+              { label: t("field.project"), value: shown.project_name },
+              { label: t("field.category"), value: shown.category_name },
+              {
+                label: t("field.quantity"),
+                value: shown.quantity ? `${shown.quantity} ${t(`unit.${shown.unit}`)}` : "—",
+              },
+              {
+                label: t("export.capturedAt"),
+                value: shown.captured_at ? df.dateTime(shown.captured_at) : "—",
+              },
+              { label: t("export.recordedBy"), value: shown.recorded_by_name },
+              ...(shown.pickup_address
+                ? [
+                    {
+                      label: tRoot("moduleTable.pickupAddress"),
+                      value:
+                        shown.pickup_address_source === "MANUAL"
+                          ? `${shown.pickup_address} · ${t("field.pickupAddressTyped")}`
+                          : shown.pickup_address,
+                      wide: true,
+                    },
+                  ]
+                : []),
+              ...(shown.delegated_to_name
+                ? [
+                    {
+                      label: tRoot("moduleTable.handover"),
+                      value: t("handover.trail", {
+                        from: shown.delegated_by_name ?? "",
+                        to: shown.delegated_to_name,
+                        when: df.dateTime(shown.delegated_at),
+                      }),
+                      wide: true,
+                    },
+                  ]
+                : []),
+              ...(shown.note ? [{ label: tRoot("moduleTable.note"), value: shown.note, wide: true }] : []),
+            ]}
+            photos={shown.photos.map((photo, index) => ({
+              id: photo.id,
+              // The stamped copy: 8.2.6 wants the stamp wherever it is shown.
+              url: photo.watermarked || photo.image,
+              label: photo.caption || `${tRoot("moduleTable.photos")} ${index + 1}`,
+              takenAt: photo.captured_at,
+              latitude: photo.latitude,
+              longitude: photo.longitude,
+            }))}
+            panel={
+              <section className="rounded-lg border bg-card p-3">
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {tRoot("moduleTable.collectionPanel")}
+                </h3>
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                  <dt className="text-muted-foreground">{t("field.recycler")}</dt>
+                  <dd className="break-words font-medium">{shown.recycler_name || "—"}</dd>
+                  <dt className="text-muted-foreground">{t("export.dispatchNo")}</dt>
+                  <dd className="font-medium">{shown.dispatch_no || "—"}</dd>
+                  {/* D-222: what the recycler has done so far, on the record. */}
+                  <dt className="text-muted-foreground">{tRoot("moduleTable.orderState")}</dt>
+                  <dd className="font-medium">
+                    {shown.dispatch_state && tRoot.has(`dispatches.state.${shown.dispatch_state}`)
+                      ? tRoot(`dispatches.state.${shown.dispatch_state}`)
+                      : "—"}
+                  </dd>
+                  <dt className="text-muted-foreground">{tRoot("moduleTable.driver")}</dt>
+                  <dd className="font-medium">{shown.driver_name || "—"}</dd>
+                  <dt className="text-muted-foreground">{tRoot("moduleTable.proposedCollection")}</dt>
+                  <dd className="font-medium">
+                    {shown.proposed_collection_at ? df.dateTime(shown.proposed_collection_at) : "—"}
+                  </dd>
+                  <dt className="text-muted-foreground">{tRoot("moduleTable.confirmedCollection")}</dt>
+                  <dd className="font-medium">
+                    {shown.confirmed_collection_at ? df.dateTime(shown.confirmed_collection_at) : "—"}
+                  </dd>
+                </dl>
+              </section>
+            }
+            actions={renderActions(shown)}
+            conversation={{ kind: "WASTE_OUTGOING", recordId: shown.id }}
+          />
+        </RecordDetailDialog>
       )}
 
       {creating && (
         <RecordDialog
           categories={categories}
+          categoriesState={{ isError: options.isError, refetch: options.refetch }}
           onClose={() => setCreating(false)}
           onSaved={() => {
             setCreating(false);
@@ -552,6 +655,16 @@ export function WasteOutgoingWorkspace() {
           onClose={() => setAssigning(null)}
           onSaved={() => {
             setAssigning(null);
+            refresh();
+          }}
+        />
+      )}
+      {reassigning && (
+        <ReassignDialog
+          record={reassigning}
+          onClose={() => setReassigning(null)}
+          onSaved={() => {
+            setReassigning(null);
             refresh();
           }}
         />
@@ -595,6 +708,7 @@ export function WasteOutgoingWorkspace() {
       {managingCategories && (
         <WasteCategoryDialog
           categories={options.data?.categories ?? []}
+          categoriesState={{ isError: options.isError, refetch: options.refetch }}
           dispatchTypes={options.data?.dispatch_types ?? []}
           onClose={() => setManagingCategories(false)}
           onChanged={() =>
@@ -626,7 +740,7 @@ export function WasteOutgoingWorkspace() {
           }}
         />
       )}
-    </div>
+    </>
   );
 }
 
@@ -656,7 +770,7 @@ function HandOverDialog({
   const [person, setPerson] = useState(record.delegated_to ?? "");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
-  const { data: options, isLoading } = useQuery({
+  const people = useQuery({
     queryKey: ["waste-outgoing", "delegate-options"],
     queryFn: getWasteOutgoingDelegateOptions,
   });
@@ -688,18 +802,19 @@ function HandOverDialog({
               <SelectTrigger className="h-10 w-full">
                 <SelectValue
                   placeholder={
-                    isLoading ? t("handover.loading") : t("handover.choose")
+                    people.isLoading ? t("handover.loading") : t("handover.choose")
                   }
                 />
               </SelectTrigger>
               <SelectContent>
-                {(options?.results ?? []).map((row) => (
+                {(people.data?.results ?? []).map((row) => (
                   <SelectItem key={row.id} value={row.id}>
                     {row.role ? `${row.name} · ${row.role}` : row.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={people} what={t("what.delegates")} />
           </FieldWrapper>
           <FieldWrapper label={t("handover.note")} optional={t("field.optional")}>
             <Textarea
@@ -869,10 +984,13 @@ function ConfirmCollectionDialog({
 
 function RecordDialog({
   categories,
+  categoriesState,
   onClose,
   onSaved,
 }: {
   categories: { id: string; name: string }[];
+  /** Whether `categories` actually arrived, so a failed load is not an empty list. */
+  categoriesState: { isError: boolean; refetch?: () => unknown };
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -951,6 +1069,7 @@ function RecordDialog({
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={categoriesState} what={t("what.categories")} />
           </FieldWrapper>
           <div className="grid gap-4 sm:grid-cols-2">
             <FieldWrapper
@@ -1524,11 +1643,14 @@ function TrackingDialog({
  */
 function WasteCategoryDialog({
   categories,
+  categoriesState,
   dispatchTypes,
   onClose,
   onChanged,
 }: {
   categories: WasteCategory[];
+  /** Whether the list actually arrived: a failed load must not read as no categories. */
+  categoriesState: { isError: boolean; refetch?: () => unknown };
   dispatchTypes: string[];
   onClose: () => void;
   onChanged: () => void;
@@ -1569,7 +1691,8 @@ function WasteCategoryDialog({
           <DialogDescription>{t("category.help")}</DialogDescription>
         </DialogHeader>
 
-        <ul className="divide-y rounded-md border">
+        <QueryFailedNote query={categoriesState} what={t("what.categories")} />
+        <ul className="divide-y rounded-md border empty:hidden">
           {categories.map((row) => (
             <li
               key={row.id}
@@ -1614,29 +1737,31 @@ function WasteCategoryDialog({
         </ul>
 
         <div className="grid gap-2 sm:grid-cols-4">
-          <Input
-            placeholder={t("category.code")}
-            value={code}
-            onChange={(event) => setCode(event.target.value.toUpperCase())}
-          />
-          <Input
-            className="sm:col-span-2"
-            placeholder={t("category.name")}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-          <select
-            className="h-9 rounded-md border bg-background px-2 text-sm"
-            aria-label={t("category.dispatchType")}
-            value={dispatchType}
-            onChange={(event) => setDispatchType(event.target.value)}
-          >
-            {dispatchTypes.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <FieldWrapper label={t("category.code")} required>
+            <Input
+              value={code}
+              onChange={(event) => setCode(event.target.value.toUpperCase())}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("category.name")} required className="sm:col-span-2">
+            <Input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("category.dispatchType")}>
+            <select
+              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+              value={dispatchType}
+              onChange={(event) => setDispatchType(event.target.value)}
+            >
+              {dispatchTypes.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </FieldWrapper>
         </div>
 
         <DialogFooter>
@@ -1685,18 +1810,20 @@ function AddPhotosDialog({
           <DialogTitle>{t("action.upload")}</DialogTitle>
           <DialogDescription>{t("submit.needPhotos")}</DialogDescription>
         </DialogHeader>
-        <Input
-          type="file"
-          accept="image/*"
-          multiple
-          aria-label={t("action.upload")}
-          onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
-        />
-        <Input
-          placeholder={t("photos.caption")}
-          value={caption}
-          onChange={(event) => setCaption(event.target.value)}
-        />
+        <FieldWrapper label={t("field.photos")} required>
+          <Input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("photos.caption")}>
+          <Input
+            value={caption}
+            onChange={(event) => setCaption(event.target.value)}
+          />
+        </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.close")}
@@ -1759,6 +1886,95 @@ function CancelDialog({
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <XCircle />}
             {t("action.confirmCancel")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * Take an order back from one recycler so it can go to the next (T-319).
+ *
+ * Two things carry the customer's requirement and both are visible here: the
+ * application does not die (the server returns it to APPROVED), and every
+ * attempt leaves a row saying who it was with and why it came back - which is
+ * why the reason is compulsory rather than a nicety.
+ *
+ * A switch arms the button rather than a second dialog confirming it (C-018).
+ * The recycler's own order is cancelled by this press and their yard stops
+ * seeing the load, so it is not a press to make by accident.
+ */
+function ReassignDialog({
+  record,
+  onClose,
+  onSaved,
+}: {
+  record: WasteOutgoingRecord;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("wasteOutgoing");
+  const [reason, setReason] = useState("");
+  const [armed, setArmed] = useState(false);
+
+  const save = useMutation({
+    mutationFn: () => reassignWasteRecycler(record.id, reason.trim()),
+    onSuccess: onSaved,
+  });
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("reassign.title")}</DialogTitle>
+          <DialogDescription>
+            {t("reassign.help", {
+              reference: record.reference_no,
+              recycler: record.recycler_name || t("reassign.thisRecycler"),
+            })}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <FieldWrapper label={t("reassign.reason")} required>
+            <Textarea
+              rows={3}
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("reassign.arm")} required>
+            <Switch
+              checked={armed}
+              onCheckedChange={setArmed}
+              aria-label={t("reassign.arm")}
+            />
+          </FieldWrapper>
+          {save.isError && (
+            <p
+              role="alert"
+              className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+            >
+              {save.error instanceof ApiError
+                ? save.error.message
+                : t("reassign.failed")}
+            </p>
+          )}
+        </div>
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            requires={[
+              [reason.trim(), t("reassign.reason")],
+              [armed, t("reassign.arm")],
+            ]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Repeat />}
+            {t("action.reassign")}
           </Button>
         </DialogFooter>
       </DialogContent>

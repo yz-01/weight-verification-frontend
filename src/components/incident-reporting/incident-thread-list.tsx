@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { StatusBadge } from "@/components/shared/page-primitives";
+import { LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import type { IncidentReportThread } from "@/interfaces/incident-report";
@@ -108,7 +108,11 @@ export function IncidentThreadList() {
           </div>
         )}
 
-        {threads.data?.results.length === 0 && (
+        {threads.isError && (
+          <LoadFailed what={t("what.threads")} onRetry={() => threads.refetch()} />
+        )}
+
+        {!threads.isError && threads.data?.results.length === 0 && (
           <p className="rounded-xl border border-dashed bg-card p-5 text-center text-sm text-muted-foreground">
             {t("empty")}
           </p>

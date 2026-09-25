@@ -13,6 +13,7 @@ import {
 } from "@/components/shared/form-shell";
 import {
   DetailHeader,
+  LoadFailed,
   ReadField,
   StatusBadge,
 } from "@/components/shared/page-primitives";
@@ -120,7 +121,7 @@ export function DriverDetail({ id }: { id: string }) {
         </div>
       </div>
 
-      <HistoryTable rows={history.data?.results ?? []} loading={history.isLoading} />
+      <HistoryTable query={history} />
     </div>
   );
 }
@@ -197,7 +198,7 @@ export function VehicleDetail({ id }: { id: string }) {
         </div>
       </div>
 
-      <HistoryTable rows={history.data?.results ?? []} loading={history.isLoading} />
+      <HistoryTable query={history} />
     </div>
   );
 }
@@ -212,15 +213,39 @@ function PhotoLink({ label, href }: { label: string; href: string | null }) {
   );
 }
 
-function HistoryTable({ rows, loading }: { rows: FleetTaskHistory[]; loading: boolean }) {
+function HistoryTable({
+  query,
+}: {
+  query: {
+    data?: { results: FleetTaskHistory[] };
+    isLoading: boolean;
+    isError: boolean;
+    refetch: () => unknown;
+  };
+}) {
   const t = useTranslations();
   const df = useDateFormat();
+  const rows = query.data?.results ?? [];
+  if (query.isError) {
+    return (
+      <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+        <div className="border-b px-5 py-4">
+          <h2 className="font-semibold">{t("fleetHistory.title")}</h2>
+        </div>
+        <LoadFailed
+          className="m-5"
+          what={t("fleetHistory.what")}
+          onRetry={() => query.refetch()}
+        />
+      </section>
+    );
+  }
   return (
     <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
       <div className="border-b px-5 py-4">
         <h2 className="font-semibold">{t("fleetHistory.title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {loading ? t("common.loading") : t("fleetHistory.count", { count: rows.length })}
+          {query.isLoading ? t("common.loading") : t("fleetHistory.count", { count: rows.length })}
         </p>
       </div>
       <Table>

@@ -16,7 +16,9 @@ import { useMemo, useState } from "react";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
+  FieldWrapper,
   LoadFailed,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -197,10 +199,11 @@ export function GateConsole() {
   const [releaseReason, setReleaseReason] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
-  const { data: scalePage } = useQuery({
+  const scaleQuery = useQuery({
     queryKey: ["scales", "options"],
     queryFn: () => getScales({ page_size: 100 }),
   });
+  const scalePage = scaleQuery.data;
   const scales = useMemo(() => scalePage?.results ?? [], [scalePage]);
 
   // Most yards run one weighbridge, so it is selected for the operator rather
@@ -386,19 +389,18 @@ export function GateConsole() {
               scan.mutate();
             }}
           >
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">
-                {t("gate.selectScale")}
-              </Label>
+            <FieldWrapper label={t("gate.selectScale")} required>
               <Select value={scaleId} onValueChange={setChosenScale}>
                 <SelectTrigger className="w-full bg-card">
                   <SelectValue placeholder={t("common.selectPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {scales.length === 0 ? (
-                    <div className="px-2 py-3 text-center text-sm text-muted-foreground">
-                      {t("gate.noScales")}
-                    </div>
+                    scaleQuery.isError ? null : (
+                      <div className="px-2 py-3 text-center text-sm text-muted-foreground">
+                        {t("gate.noScales")}
+                      </div>
+                    )
                   ) : (
                     scales.map((scale) => (
                       <SelectItem key={scale.id} value={scale.id}>
@@ -408,13 +410,10 @@ export function GateConsole() {
                   )}
                 </SelectContent>
               </Select>
-            </div>
+              <QueryFailedNote query={scaleQuery} what={t("gate.what.scales")} />
+            </FieldWrapper>
 
-            <div className="space-y-1.5">
-              <Label className="text-sm font-medium">
-                {t("gate.field.dispatchNo")}
-                <span className="ml-0.5 text-destructive">*</span>
-              </Label>
+            <FieldWrapper label={t("gate.field.dispatchNo")} required>
               <Input
                 value={dispatchNo}
                 onChange={(event) => setDispatchNo(event.target.value)}
@@ -424,7 +423,7 @@ export function GateConsole() {
                 autoFocus
                 className="tabular"
               />
-            </div>
+            </FieldWrapper>
 
             <div className="space-y-2">
               <Label className="text-sm font-medium">

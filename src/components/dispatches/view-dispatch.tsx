@@ -16,6 +16,8 @@ import {
 } from "@/components/shared/form-shell";
 import {
   DetailHeader,
+  FieldWrapper,
+  QueryFailedNote,
   ReadField,
   StatusBadge,
   TypeBadge,
@@ -31,7 +33,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type { DispatchPhotoKind } from "@/interfaces/contractor";
-import { Label } from "@/components/ui/label";
 import { useDateFormat } from "@/lib/dates";
 import { getWasteTracking } from "@/services/waste-outgoing.service";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
@@ -77,14 +78,16 @@ function AddDispatchPhoto({
   });
 
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md border border-dashed p-3">
-      <Input
-        type="file"
-        accept="image/*"
-        className="h-8 max-w-xs text-xs"
-        aria-label={t("dispatches.addPhoto.choose")}
-        onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-      />
+    <div className="mt-3 flex flex-wrap items-end gap-2 rounded-md border border-dashed p-3">
+      <FieldWrapper label={t("dispatches.addPhoto.choose")} required>
+        <Input
+          type="file"
+          accept="image/*"
+          className="h-8 max-w-xs text-xs"
+          aria-label={t("dispatches.addPhoto.choose")}
+          onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+        />
+      </FieldWrapper>
       <select
         className="h-8 rounded-md border bg-background px-2 text-sm"
         aria-label={t("dispatches.addPhoto.kind")}
@@ -364,6 +367,7 @@ export function ViewDispatch({ id }: { id: string }) {
           </FormSection>
           {(data.source_record_id || data.tasks.length > 0) && (
             <FormSection title={t("dispatches.section.execution")}>
+              <QueryFailedNote className="md:col-span-2" query={tracking} what={t("dispatches.what.tracking")} />
               {tracking.isLoading && user?.portal !== "MSE_SCRAP" ? (
                 <p className="md:col-span-2 text-sm text-muted-foreground">{t("common.loading")}</p>
               ) : execution ? (
@@ -545,16 +549,12 @@ function ReleaseDialog({ id, onClose }: { id: string; onClose: () => void }) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium">
-            {t("dispatches.release.byName")}
-            <span className="ml-0.5 text-destructive">*</span>
-          </Label>
+        <FieldWrapper label={t("dispatches.release.byName")} required>
           <Input
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
-        </div>
+        </FieldWrapper>
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button

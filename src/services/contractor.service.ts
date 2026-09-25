@@ -50,11 +50,22 @@ export interface ExportColumn {
 
 export type ExportFormat = "xlsx" | "pdf";
 
+/**
+ * Cumulative totals printed under an export, one row per unit.
+ *
+ * Never one number across units: a delivery note is in tonnes, a pour is in
+ * cubic metres, and a figure that adds them is meaningless in a way that
+ * looks exactly like a figure that is not. `note` says so on the page, so the
+ * absent grand total reads as a decision rather than an omission.
+ */
 export interface ExportSummary {
   groupBy: "unit";
   title: string;
   unitLabel: string;
   quantityLabel: string;
+  /** Opt-in second figure. Waste needs it for ESG base data (D-219). */
+  countLabel?: string;
+  note?: string;
 }
 
 export interface ExportRequest {
@@ -68,7 +79,17 @@ export interface ExportRequest {
   query: ListQuery;
 }
 
-function exportBody(request: ExportRequest) {
+/**
+ * The request body every export sends. Exported so each module's export uses
+ * this one function.
+ *
+ * It used to be private to this file, and the equipment and waste exports each
+ * built their own body - without `summary`. Their screens assembled the
+ * per-unit totals Lucas asked for (「每个单位不一样所以要在 pdf 里面写清楚对应
+ * 单位的累计数量」) and the request threw them away, so the totals printed on
+ * receipts only. A copy of a body is a copy that forgets a field.
+ */
+export function exportBody(request: ExportRequest) {
   return {
     format: request.format,
     title: request.title,
@@ -82,6 +103,10 @@ function exportBody(request: ExportRequest) {
             title: request.summary.title,
             unit_label: request.summary.unitLabel,
             quantity_label: request.summary.quantityLabel,
+            ...(request.summary.countLabel
+              ? { count_label: request.summary.countLabel }
+              : {}),
+            ...(request.summary.note ? { note: request.summary.note } : {}),
           },
         }
       : {}),
@@ -89,7 +114,7 @@ function exportBody(request: ExportRequest) {
 }
 
 /** Page and page size are meaningless in an export: the file is the whole set. */
-function exportQuery({ query }: ExportRequest): ListQuery {
+export function exportQuery({ query }: ExportRequest): ListQuery {
   const { page, page_size, ...rest } = query;
   void page;
   void page_size;
@@ -395,20 +420,6 @@ export function getReceipts(
   return api.list<MaterialReceipt>("/api/receipts/get_receipts/", query);
 }
 
-/**
- * Record that this reader has now read these deliveries.
- *
- * Silent: it fires when a page opens, and a toast on every receipt view would
- * be noise about something the reader did not ask for. Idempotent server-side,
- * so an accidental re-fire keeps the first read time.
- */
-export function markReceiptsSeen(ids: string[]): Promise<{ marked: number; matched: number }> {
-  return api.post<{ marked: number; matched: number }>(
-    "/api/receipts/mark_receipts_seen/",
-    { ids },
-    { silent: true },
-  );
-}
 
 export function getReceipt(id: string): Promise<MaterialReceiptDetail> {
   return api.get<MaterialReceiptDetail>(`/api/receipts/${id}/get_receipt/`);

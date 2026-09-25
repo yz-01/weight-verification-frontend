@@ -16,8 +16,20 @@ import { useDateFormat } from "@/lib/dates";
 import {
   discardOfflineJob,
   getOfflineQueueEntries,
+  getRecentlySynced,
+  OFFLINE_QUEUE_CHANGED,
   type OfflineQueueEntry,
+  type OfflineQueueState,
+  type SyncedQueueEntry,
 } from "@/services/offline-sync.service";
+
+/** How each state reads next to the action (AC-049). */
+const STATE_CLASS: Record<OfflineQueueState, string> = {
+  waiting: "text-muted-foreground",
+  syncing: "text-primary",
+  failed: "text-destructive",
+  held: "text-warning",
+};
 
 export function OfflineStatus() {
   const t = useTranslations();
@@ -27,19 +39,28 @@ export function OfflineStatus() {
     useOfflineSync();
   const [open, setOpen] = useState(false);
   const [entries, setEntries] = useState<OfflineQueueEntry[]>([]);
+  const [synced, setSynced] = useState<SyncedQueueEntry[]>([]);
 
   useEffect(() => {
     if (!open || !user) return;
     let cancelled = false;
-    void getOfflineQueueEntries(user.id)
-      .then((rows) => {
-        if (!cancelled) setEntries(rows);
-      })
-      .catch(() => {
-        if (!cancelled) setEntries([]);
-      });
+    const load = () => {
+      setSynced(getRecentlySynced(user.id));
+      void getOfflineQueueEntries(user.id)
+        .then((rows) => {
+          if (!cancelled) setEntries(rows);
+        })
+        .catch(() => {
+          if (!cancelled) setEntries([]);
+        });
+    };
+    load();
+    // The queue announces each job it starts and finishes, so an open panel
+    // follows 同步中 from row to row instead of only refreshing at the end.
+    window.addEventListener(OFFLINE_QUEUE_CHANGED, load);
     return () => {
       cancelled = true;
+      window.removeEventListener(OFFLINE_QUEUE_CHANGED, load);
     };
   }, [open, user, pendingCount, isSyncing]);
 
@@ -125,17 +146,31 @@ export function OfflineStatus() {
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground">
+                      <span className={`font-medium ${STATE_CLASS[entry.state]}`}>
+                        {t(`offline.state.${entry.state}`)}
+                      </span>
+                      {" · "}
                       {df.dateTime(entry.queuedAt)}
                     </p>
-                    {entry.attempts > 0 && (
+                    {entry.state === "failed" && (
                       <p
-                        className="mt-0.5 truncate text-xs font-medium text-destructive"
+                        className="mt-0.5 text-xs font-medium text-destructive"
                         title={entry.lastError}
                       >
                         {t("offline.queue.attemptFailed", {
                           count: entry.attempts,
                         })}
                         {entry.lastError ? ` · ${entry.lastError}` : ""}
+                      </p>
+                    )}
+                    {entry.hint && (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {t(entry.hint)}
+                      </p>
+                    )}
+                    {entry.state === "held" && (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {t("offline.queue.heldHint")}
                       </p>
                     )}
                   </div>
@@ -157,6 +192,34 @@ export function OfflineStatus() {
                 </li>
               ))}
             </ul>
+          )}
+          {synced.length > 0 && (
+            <div className="border-t">
+              <p className="px-3 pt-2.5 text-xs font-semibold text-muted-foreground">
+                {t("offline.queue.recent")}
+              </p>
+              <ul className="divide-y">
+                {synced.map((entry) => (
+                  <li key={entry.id} className="px-3 py-2">
+                    <p className="truncate text-sm">
+                      {t(`offline.kind.${entry.kind}`)}
+                      {entry.reference && (
+                        <span className="ml-1.5 text-xs text-muted-foreground">
+                          {entry.reference}
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-medium text-success">
+                        {t("offline.state.synced")}
+                      </span>
+                      {" · "}
+                      {df.dateTime(entry.syncedAt)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
       </PopoverContent>

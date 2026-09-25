@@ -274,8 +274,8 @@ export function PlanManager() {
           </DialogHeader>
 
           <div className="grid gap-4 py-2 md:grid-cols-2">
-            <TextField label={t("field.code")} value={form.code} disabled={Boolean(editing)} onChange={(code) => setForm((current) => ({ ...current, code }))} />
-            <TextField label={t("field.name")} value={form.name} onChange={(name) => setForm((current) => ({ ...current, name }))} />
+            <FieldWrapper label={t("field.code")} required><Input value={form.code} disabled={Boolean(editing)} onChange={(event) => setForm((current) => ({ ...current, code: event.target.value }))} /></FieldWrapper>
+            <FieldWrapper label={t("field.name")} required><Input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("field.description")} optional={common("optional")} className="md:col-span-2">
               <Textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} />
             </FieldWrapper>

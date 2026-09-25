@@ -107,6 +107,8 @@ export interface WasteOutgoingRecord {
   dispatch: string | null;
   dispatch_no: string | null;
   dispatch_state: string | null;
+  /** Who the recycler assigned (D-222). */
+  driver_name?: string | null;
   proposed_collection_at: string | null;
   proposed_collection_note: string;
   confirmed_collection_at: string | null;

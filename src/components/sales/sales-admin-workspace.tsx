@@ -18,6 +18,8 @@ import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technica
 import {
   FieldWrapper,
   ListHeader,
+  LoadFailed,
+  QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -157,20 +159,25 @@ function Overview() {
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
-      <div className="grid overflow-hidden rounded-lg border bg-card shadow-sm sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          ["total", summary.data?.total ?? 0],
-          ["active", summary.data?.active ?? 0],
-          ["customers", summary.data?.customers_assigned ?? 0],
-          ["unassigned", summary.data?.unassigned_states.length ?? 0],
-        ].map(([key, value]) => (
-          <div key={key} className="border-b border-r px-5 py-4">
-            <p className="text-xs text-muted-foreground">
-              {t(`metric.${key}`)}
-            </p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-          </div>
-        ))}
+      <div>
+        <div className="grid overflow-hidden rounded-lg border bg-card shadow-sm sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["total", summary.data?.total ?? 0],
+            ["active", summary.data?.active ?? 0],
+            ["customers", summary.data?.customers_assigned ?? 0],
+            ["unassigned", summary.data?.unassigned_states.length ?? 0],
+          ].map(([key, value]) => (
+            <div key={key} className="border-b border-r px-5 py-4">
+              <p className="text-xs text-muted-foreground">
+                {t(`metric.${key}`)}
+              </p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums">
+                {summary.isError ? "—" : value}
+              </p>
+            </div>
+          ))}
+        </div>
+        <QueryFailedNote query={summary} what={t("what.summary")} className="mt-2" />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
         <div className="grid md:grid-cols-2 xl:grid-cols-3">
@@ -311,6 +318,7 @@ function PeoplePanel({ manageable }: { manageable: boolean }) {
           initial={editing}
           people={people.data?.results ?? []}
           schemes={schemes.data?.results ?? []}
+          schemesStatus={{ isError: schemes.isError, refetch: schemes.refetch }}
           onClose={() => setEditing(undefined)}
           onSaved={() => qc.invalidateQueries({ queryKey: ["salespeople"] })}
         />
@@ -323,12 +331,14 @@ function PersonDialog({
   initial,
   people,
   schemes,
+  schemesStatus,
   onClose,
   onSaved,
 }: {
   initial: Salesperson | null;
   people: Salesperson[];
   schemes: CommissionScheme[];
+  schemesStatus: { isError: boolean; refetch: () => unknown };
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -371,75 +381,88 @@ function PersonDialog({
           <DialogDescription>{t("dialog.person")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Input
-            placeholder={t("column.code")}
-            value={form.code}
-            disabled={Boolean(initial)}
-            onChange={(e) => set("code", e.target.value)}
-          />
-          <Input
-            placeholder={t("column.name")}
-            value={form.full_name}
-            onChange={(e) => set("full_name", e.target.value)}
-          />
-          <Input
-            placeholder={t("field.phone")}
-            value={form.phone}
-            onChange={(e) => set("phone", e.target.value)}
-          />
-          <Input
-            placeholder={t("field.email")}
-            value={form.email}
-            onChange={(e) => set("email", e.target.value)}
-          />
-          <select
-            className="h-8 rounded-md border bg-background px-2"
-            value={form.sales_role}
-            onChange={(e) => set("sales_role", e.target.value)}
-          >
-            {["EXECUTIVE", "SUPERVISOR", "MANAGER", "AGENT"].map((x) => (
-              <option key={x} value={x}>
-                {t(`role.${x}`)}
-              </option>
-            ))}
-          </select>
-          <select
-            className="h-8 rounded-md border bg-background px-2"
-            value={form.supervisor ?? ""}
-            onChange={(e) => set("supervisor", e.target.value || null)}
-          >
-            <option value="">{t("field.noSupervisor")}</option>
-            {people
-              .filter((x) => x.id !== initial?.id)
-              .map((x) => (
-                <option key={x.id} value={x.id}>
-                  {x.code} / {x.full_name}
+          <FieldWrapper label={t("column.code")} required>
+            <Input
+              value={form.code}
+              disabled={Boolean(initial)}
+              onChange={(e) => set("code", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("column.name")} required>
+            <Input
+              value={form.full_name}
+              onChange={(e) => set("full_name", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.phone")}>
+            <Input
+              value={form.phone}
+              onChange={(e) => set("phone", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.email")}>
+            <Input
+              value={form.email}
+              onChange={(e) => set("email", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("column.role")}>
+            <select
+              className="h-8 w-full rounded-md border bg-background px-2"
+              value={form.sales_role}
+              onChange={(e) => set("sales_role", e.target.value)}
+            >
+              {["EXECUTIVE", "SUPERVISOR", "MANAGER", "AGENT"].map((x) => (
+                <option key={x} value={x}>
+                  {t(`role.${x}`)}
                 </option>
               ))}
-          </select>
-          <select
-            className="h-8 rounded-md border bg-background px-2"
-            value={form.commission_scheme ?? ""}
-            onChange={(e) => set("commission_scheme", e.target.value || null)}
-          >
-            <option value="">{t("field.noScheme")}</option>
-            {schemes.map((x) => (
-              <option key={x.id} value={x.id}>
-                {x.code} / {x.name}
-              </option>
-            ))}
-          </select>
-          <Input
-            type="date"
-            value={form.joined_on}
-            onChange={(e) => set("joined_on", e.target.value)}
-          />
-          <Textarea
-            className="sm:col-span-2"
-            placeholder={t("field.notes")}
-            value={form.notes}
-            onChange={(e) => set("notes", e.target.value)}
-          />
+            </select>
+          </FieldWrapper>
+          <FieldWrapper label={t("column.supervisor")}>
+            <select
+              className="h-8 w-full rounded-md border bg-background px-2"
+              value={form.supervisor ?? ""}
+              onChange={(e) => set("supervisor", e.target.value || null)}
+            >
+              <option value="">{t("field.noSupervisor")}</option>
+              {people
+                .filter((x) => x.id !== initial?.id)
+                .map((x) => (
+                  <option key={x.id} value={x.id}>
+                    {x.code} / {x.full_name}
+                  </option>
+                ))}
+            </select>
+          </FieldWrapper>
+          <FieldWrapper label={t("column.scheme")}>
+            <select
+              className="h-8 w-full rounded-md border bg-background px-2"
+              value={form.commission_scheme ?? ""}
+              onChange={(e) => set("commission_scheme", e.target.value || null)}
+            >
+              <option value="">{t("field.noScheme")}</option>
+              {schemes.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.code} / {x.name}
+                </option>
+              ))}
+            </select>
+            <QueryFailedNote query={schemesStatus} what={t("what.schemes")} />
+          </FieldWrapper>
+          <FieldWrapper label={t("column.joined")}>
+            <Input
+              type="date"
+              value={form.joined_on}
+              onChange={(e) => set("joined_on", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper className="sm:col-span-2" label={t("field.notes")}>
+            <Textarea
+              value={form.notes}
+              onChange={(e) => set("notes", e.target.value)}
+            />
+          </FieldWrapper>
           <label className="flex items-center gap-2">
             <Switch
               checked={form.is_active}
@@ -599,6 +622,7 @@ function AssignmentPanel() {
         <ReassignDialog
           assignment={selected}
           people={people.data?.results ?? []}
+          peopleStatus={{ isError: people.isError, refetch: people.refetch }}
           onClose={() => setSelected(null)}
           onSaved={() =>
             qc.invalidateQueries({ queryKey: ["customer-assignments"] })
@@ -609,6 +633,7 @@ function AssignmentPanel() {
         <AssignmentDialog
           companies={availableCompanies}
           people={people.data?.results ?? []}
+          peopleStatus={{ isError: people.isError, refetch: people.refetch }}
           onClose={() => setCreating(false)}
           onSaved={() => {
             qc.invalidateQueries({ queryKey: ["customer-assignments"] });
@@ -623,11 +648,13 @@ function AssignmentPanel() {
 function AssignmentDialog({
   companies,
   people,
+  peopleStatus,
   onClose,
   onSaved,
 }: {
   companies: CompanyRow[];
   people: Salesperson[];
+  peopleStatus: { isError: boolean; refetch: () => unknown };
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -696,6 +723,7 @@ function AssignmentDialog({
                 </option>
               ))}
             </select>
+            <QueryFailedNote query={peopleStatus} what={t("what.people")} />
           </FieldWrapper>
           <FieldWrapper label={t("field.wonOn")} required>
             <Input
@@ -750,11 +778,13 @@ function AssignmentDialog({
 function ReassignDialog({
   assignment,
   people,
+  peopleStatus,
   onClose,
   onSaved,
 }: {
   assignment: CustomerAssignment;
   people: Salesperson[];
+  peopleStatus: { isError: boolean; refetch: () => unknown };
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -780,25 +810,29 @@ function ReassignDialog({
           <DialogTitle>{t("action.reassign")}</DialogTitle>
           <DialogDescription>{assignment.company_name}</DialogDescription>
         </DialogHeader>
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={person}
-          onChange={(e) => setPerson(e.target.value)}
-        >
-          <option value="">{t("field.selectPerson")}</option>
-          {people
-            .filter((x) => x.id !== assignment.salesperson)
-            .map((x) => (
-              <option key={x.id} value={x.id}>
-                {x.code} / {x.full_name}
-              </option>
-            ))}
-        </select>
-        <Textarea
-          placeholder={t("field.reason")}
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-        />
+        <FieldWrapper label={t("field.selectPerson")} required>
+          <select
+            className="h-8 w-full rounded-md border bg-background px-2"
+            value={person}
+            onChange={(e) => setPerson(e.target.value)}
+          >
+            <option value="">{t("field.selectPerson")}</option>
+            {people
+              .filter((x) => x.id !== assignment.salesperson)
+              .map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.code} / {x.full_name}
+                </option>
+              ))}
+          </select>
+          <QueryFailedNote query={peopleStatus} what={t("what.people")} />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.reasonLabel")} required>
+          <Textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          />
+        </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -806,7 +840,7 @@ function ReassignDialog({
           <Button
             requires={[
               [person, t("field.selectPerson")],
-              [reason, t("field.reason")],
+              [reason, t("field.reasonLabel")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
@@ -986,66 +1020,73 @@ function SchemeDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Input
-            placeholder={t("column.code")}
-            value={form.code}
-            disabled={Boolean(initial)}
-            onChange={(e) => set("code", e.target.value)}
-          />
-          <Input
-            placeholder={t("column.name")}
-            value={form.name}
-            onChange={(e) => set("name", e.target.value)}
-          />
+          <FieldWrapper label={t("column.code")} required>
+            <Input
+              value={form.code}
+              disabled={Boolean(initial)}
+              onChange={(e) => set("code", e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("column.name")} required>
+            <Input
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+            />
+          </FieldWrapper>
           {mode === "rules" ? (
             <RuleFields form={form} set={set} />
           ) : (
             <>
-              <select
-                className="h-8 rounded-md border bg-background px-2"
-                value={form.payout_cycle}
-                onChange={(e) => set("payout_cycle", e.target.value)}
-              >
-                {["MONTHLY", "QUARTERLY", "YEARLY"].map((x) => (
-                  <option key={x} value={x}>
-                    {t(`cycle.${x}`)}
-                  </option>
-                ))}
-              </select>
-              <Input
-                type="number"
-                min="0"
-                placeholder={t("column.minimum")}
-                value={form.minimum_payout}
-                onChange={(e) => set("minimum_payout", e.target.value)}
-              />
-              <Input
-                type="number"
-                min="0"
-                placeholder={t("column.maximum")}
-                value={form.maximum_payout ?? ""}
-                onChange={(e) => set("maximum_payout", e.target.value || null)}
-              />
-              <Input
-                type="number"
-                min="1"
-                placeholder={t("field.accrualMonths")}
-                value={form.accrual_months ?? ""}
-                onChange={(e) =>
-                  set(
-                    "accrual_months",
-                    e.target.value ? Number(e.target.value) : null,
-                  )
-                }
-              />
+              <FieldWrapper label={t("column.cycle")}>
+                <select
+                  className="h-8 w-full rounded-md border bg-background px-2"
+                  value={form.payout_cycle}
+                  onChange={(e) => set("payout_cycle", e.target.value)}
+                >
+                  {["MONTHLY", "QUARTERLY", "YEARLY"].map((x) => (
+                    <option key={x} value={x}>
+                      {t(`cycle.${x}`)}
+                    </option>
+                  ))}
+                </select>
+              </FieldWrapper>
+              <FieldWrapper label={t("column.minimum")}>
+                <Input
+                  type="number"
+                  min="0"
+                  value={form.minimum_payout}
+                  onChange={(e) => set("minimum_payout", e.target.value)}
+                />
+              </FieldWrapper>
+              <FieldWrapper label={t("column.maximum")}>
+                <Input
+                  type="number"
+                  min="0"
+                  value={form.maximum_payout ?? ""}
+                  onChange={(e) => set("maximum_payout", e.target.value || null)}
+                />
+              </FieldWrapper>
+              <FieldWrapper label={t("field.accrualMonths")}>
+                <Input
+                  type="number"
+                  min="1"
+                  value={form.accrual_months ?? ""}
+                  onChange={(e) =>
+                    set(
+                      "accrual_months",
+                      e.target.value ? Number(e.target.value) : null,
+                    )
+                  }
+                />
+              </FieldWrapper>
             </>
           )}
-          <Textarea
-            className="sm:col-span-2"
-            placeholder={t("field.description")}
-            value={form.description}
-            onChange={(e) => set("description", e.target.value)}
-          />
+          <FieldWrapper className="sm:col-span-2" label={t("field.description")}>
+            <Textarea
+              value={form.description}
+              onChange={(e) => set("description", e.target.value)}
+            />
+          </FieldWrapper>
           {mode === "schemes" && (
             <label className="flex items-center gap-2">
               <Switch
@@ -1250,6 +1291,7 @@ function TermsPanel() {
         <AcknowledgeDialog
           terms={ack}
           people={people.data?.results ?? []}
+          peopleStatus={{ isError: people.isError, refetch: people.refetch }}
           onClose={() => setAck(null)}
           onSaved={() => qc.invalidateQueries({ queryKey: ["sales-terms"] })}
         />
@@ -1382,11 +1424,13 @@ function TermsDialog({
 function AcknowledgeDialog({
   terms,
   people,
+  peopleStatus,
   onClose,
   onSaved,
 }: {
   terms: SalesTerms;
   people: Salesperson[];
+  peopleStatus: { isError: boolean; refetch: () => unknown };
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -1414,23 +1458,27 @@ function AcknowledgeDialog({
             {terms.code} v{terms.version}
           </DialogDescription>
         </DialogHeader>
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={person}
-          onChange={(e) => setPerson(e.target.value)}
-        >
-          <option value="">{t("field.selectPerson")}</option>
-          {people.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.code} / {x.full_name}
-            </option>
-          ))}
-        </select>
-        <Textarea
-          placeholder={t("field.notes")}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        />
+        <FieldWrapper label={t("field.selectPerson")} required>
+          <select
+            className="h-8 w-full rounded-md border bg-background px-2"
+            value={person}
+            onChange={(e) => setPerson(e.target.value)}
+          >
+            <option value="">{t("field.selectPerson")}</option>
+            {people.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.code} / {x.full_name}
+              </option>
+            ))}
+          </select>
+          <QueryFailedNote query={peopleStatus} what={t("what.people")} />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.notes")}>
+          <Textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+        </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -1609,50 +1657,63 @@ function PayoutDialog({
           </DialogDescription>
         </DialogHeader>
         {["DRAFT", "REJECTED"].includes(payout.state) && (
-          <div className="grid grid-cols-[1fr_auto] gap-2">
-            <Input
-              type="number"
-              step="0.01"
-              value={adjustment}
-              onChange={(e) => setAdjustment(e.target.value)}
-            />
-            <Button
-              variant="outline"
-              requires={[
-                [adjustment, t("column.adjustment")],
-                [note, t("field.reason")],
-              ]}
-              disabled={adjust.isPending}
-              onClick={() => adjust.mutate()}
-            >
-              <Save />
-              {t("action.adjust")}
-            </Button>
-          </div>
+          <FieldWrapper label={t("column.adjustment")} required>
+            <div className="grid grid-cols-[1fr_auto] gap-2">
+              <Input
+                type="number"
+                step="0.01"
+                value={adjustment}
+                onChange={(e) => setAdjustment(e.target.value)}
+              />
+              <Button
+                variant="outline"
+                requires={[
+                  [adjustment, t("column.adjustment")],
+                  [note, t("field.reasonLabel")],
+                ]}
+                disabled={adjust.isPending}
+                onClick={() => adjust.mutate()}
+              >
+                <Save />
+                {t("action.adjust")}
+              </Button>
+            </div>
+          </FieldWrapper>
         )}
-        <select
-          className="h-8 rounded-md border bg-background px-2"
-          value={target}
-          onChange={(e) => setTarget(e.target.value as PayoutState)}
+        <FieldWrapper label={t("field.selectStatus")} required>
+          <select
+            className="h-8 w-full rounded-md border bg-background px-2"
+            value={target}
+            onChange={(e) => setTarget(e.target.value as PayoutState)}
+          >
+            <option value="">{t("field.selectStatus")}</option>
+            {(targets[payout.state] ?? []).map((x) => (
+              <option key={x} value={x}>
+                {t(`payoutState.${x}`)}
+              </option>
+            ))}
+          </select>
+        </FieldWrapper>
+        <FieldWrapper
+          label={t("field.reasonLabel")}
+          required={
+            target === "REJECTED" ||
+            target === "CANCELLED" ||
+            adjustment !== payout.adjustment
+          }
         >
-          <option value="">{t("field.selectStatus")}</option>
-          {(targets[payout.state] ?? []).map((x) => (
-            <option key={x} value={x}>
-              {t(`payoutState.${x}`)}
-            </option>
-          ))}
-        </select>
-        <Textarea
-          placeholder={t("field.reason")}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        />
-        {target === "PAID" && (
-          <Input
-            placeholder={t("field.paymentReference")}
-            value={reference}
-            onChange={(e) => setReference(e.target.value)}
+          <Textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
           />
+        </FieldWrapper>
+        {target === "PAID" && (
+          <FieldWrapper label={t("field.paymentReference")}>
+            <Input
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
+            />
+          </FieldWrapper>
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -1663,7 +1724,7 @@ function PayoutDialog({
               [target, t("field.selectStatus")],
               [
                 (target !== "REJECTED" && target !== "CANCELLED") || note,
-                t("field.reason"),
+                t("field.reasonLabel"),
               ],
             ]}
             disabled={transition.isPending}
@@ -1704,6 +1765,14 @@ function PerformancePanel() {
           </option>
         ))}
       </select>
+      <QueryFailedNote query={people} what={t("what.people")} className="mt-1" />
+      {id && perf.isError && (
+        <LoadFailed
+          className="mt-4"
+          what={t("what.performance")}
+          onRetry={() => perf.refetch()}
+        />
+      )}
       {perf.data && (
         <div className="mt-4 grid border sm:grid-cols-2 xl:grid-cols-4">
           {[

@@ -19,6 +19,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
+  FieldWrapper,
   ListHeader,
   StatusBadge,
   TypeBadge,
@@ -355,18 +356,21 @@ function AddDeductionPhotoDialog({
           <DialogDescription>{deduction.dispatch_no}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">
-          <Input
-            type="file"
-            accept="image/*"
-            aria-label={t("deductions.photo.file")}
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-          />
-          <Input
-            value={caption}
-            placeholder={t("deductions.photo.caption")}
-            aria-label={t("deductions.photo.caption")}
-            onChange={(event) => setCaption(event.target.value)}
-          />
+          <FieldWrapper label={t("deductions.photo.file")} required>
+            <Input
+              type="file"
+              accept="image/*"
+              aria-label={t("deductions.photo.file")}
+              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("deductions.photo.caption")}>
+            <Input
+              value={caption}
+              aria-label={t("deductions.photo.caption")}
+              onChange={(event) => setCaption(event.target.value)}
+            />
+          </FieldWrapper>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -527,22 +531,17 @@ function RespondDialog({
             </p>
           )}
 
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">
-              {t("deductions.respond.note")}
-              {noteRequired && <span className="ml-0.5 text-destructive">*</span>}
-            </Label>
+          <FieldWrapper
+            label={t("deductions.respond.note")}
+            required={noteRequired}
+            hint={noteRequired ? t("deductions.respond.noteRequired") : undefined}
+          >
             <Textarea
               rows={3}
               value={note}
               onChange={(event) => setNote(event.target.value)}
             />
-            {noteRequired && (
-              <p className="text-xs text-muted-foreground">
-                {t("deductions.respond.noteRequired")}
-              </p>
-            )}
-          </div>
+          </FieldWrapper>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
