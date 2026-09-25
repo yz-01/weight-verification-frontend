@@ -61,3 +61,33 @@ export const QUEUE_KINDS: readonly ArchiveRecordKind[] = [
 export function isQueueKind(kind: string): kind is ArchiveRecordKind {
   return (QUEUE_KINDS as readonly string[]).includes(kind);
 }
+
+/**
+ * The one query key a record's conversation is cached under.
+ *
+ * Shared so that whatever finishes a record - 【确认归档】 in the archive
+ * queue, 【确认已付款】 on a sundry claim - refetches the very query the panel
+ * reads, and the composer goes away without a reload (D-278). A second
+ * spelling of this key anywhere would invalidate nothing.
+ */
+export function recordConversationKey(kind: ArchiveRecordKind, recordId: string) {
+  return ["record-conversation", kind, recordId] as const;
+}
+
+/** Why a finished record's conversation takes no more messages (D-278). */
+export type ConversationClosed = "" | "archived" | "paid";
+
+/**
+ * The line shown instead of the composer, or `null` while it is open.
+ *
+ * The history stays either way: 「记录全部都要留着」 - what closes is the
+ * ability to add to it, and the reason is said rather than shown as a greyed
+ * box nobody can explain. An unknown reason from a newer server still closes
+ * the composer (it would only be refused) and says the archived sentence.
+ */
+export function conversationClosedLine(
+  closed: string | null | undefined,
+): "recordChat.closedArchived" | "recordChat.closedPaid" | null {
+  if (!closed) return null;
+  return closed === "paid" ? "recordChat.closedPaid" : "recordChat.closedArchived";
+}

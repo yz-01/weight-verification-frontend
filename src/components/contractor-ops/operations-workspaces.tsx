@@ -408,9 +408,6 @@ export function CategoryDialog({
                 <SelectItem value="MATERIAL">
                   {modules("module.material")}
                 </SelectItem>
-                <SelectItem value="FIELD">
-                  {modules("module.field")}
-                </SelectItem>
                 <SelectItem value="EQUIPMENT">
                   {modules("module.equipment")}
                 </SelectItem>
@@ -428,9 +425,6 @@ export function CategoryDialog({
                 </SelectItem>
                 <SelectItem value="SUNDRY">
                   {modules("module.sundry")}
-                </SelectItem>
-                <SelectItem value="CLAIM">
-                  {modules("module.claim")}
                 </SelectItem>
                 {/* Only offered on a column that already carries the marker.
                     It is not a scheme somebody should pick on purpose - it
@@ -1031,6 +1025,22 @@ export function FieldTasksWorkspace({
  * assignee list on this form is drawn from the project - so the two would
  * disagree without anything on screen saying why.
  */
+/**
+ * Which category a task of each type files under, or none (D-285).
+ *
+ * 「拍照」 and 「其他」 are the task itself - no business module's categories.
+ */
+export const TASK_CATEGORY_KIND: Partial<
+  Record<FieldTaskPayload["task_type"], ProjectCategoryKind>
+> = {
+  MATERIAL: "MATERIAL",
+  EQUIPMENT: "EQUIPMENT",
+  PROGRESS: "PROGRESS",
+  SAFETY: "EHS",
+  WASTE: "CONSTRUCTION_WASTE",
+  CONSULTANT: "CONSULTANT",
+};
+
 function TaskDialog({
   project,
   task,
@@ -1067,16 +1077,19 @@ function TaskDialog({
     queryFn: () => getProjectAssignments(form.project),
     enabled: Boolean(form.project),
   });
+  // A photo or "other" task files under no category (D-285): they used to
+  // need a 现场资料分类, which the customer never defined and which is gone.
+  const categoryKind = TASK_CATEGORY_KIND[form.task_type];
   const categories = useQuery({
     queryKey: ["project-categories", form.project, "task-options", form.task_type],
     queryFn: () =>
       getProjectCategories({
         project: form.project,
         page_size: 200,
-        kind: ({ PHOTO: "FIELD", MATERIAL: "MATERIAL", EQUIPMENT: "EQUIPMENT", PROGRESS: "PROGRESS", SAFETY: "EHS", WASTE: "CONSTRUCTION_WASTE", CONSULTANT: "CONSULTANT", OTHER: "FIELD" } as const)[form.task_type] ?? "FIELD",
+        kind: categoryKind,
         is_active: true,
       }),
-    enabled: Boolean(form.project),
+    enabled: Boolean(form.project) && Boolean(categoryKind),
   });
   const set = <K extends keyof FieldTaskPayload>(
     key: K,
@@ -1194,6 +1207,7 @@ function TaskDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
+          {categoryKind && (
           <FieldWrapper label={t("field.category")} required>
             <Select
               value={form.category || undefined}
@@ -1215,6 +1229,7 @@ function TaskDialog({
             </Select>
             <QueryFailedNote query={categories} what={t("what.columns")} />
           </FieldWrapper>
+          )}
           {form.task_type === "WASTE" && (
             // The phone opens 环保材料出场申请 or 工地清运 by this value
             // (`taskRecordMode` in field-staff-workspace.tsx); without it every
@@ -1368,7 +1383,7 @@ function TaskDialog({
             requires={[
               [form.project, t("field.project")],
               [form.title, t("field.title")],
-              [form.category, t("field.category")],
+              [!categoryKind || form.category, t("field.category")],
               [form.assigned_to, t("field.assignee")],
             ]}
             disabled={save.isPending}

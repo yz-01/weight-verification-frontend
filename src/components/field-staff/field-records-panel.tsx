@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   Camera,
   ClipboardList,
-  FolderOpen,
   HardHat,
   ListChecks,
   Loader2,
@@ -37,7 +36,6 @@ import { FieldSlots } from "@/components/field-staff/field-slots";
 import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
-import { CategoryEvidenceCapture } from "@/components/field-staff/category-evidence-capture";
 import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
@@ -61,6 +59,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
+import { missingSiteEntry, siteEntryRequired } from "@/lib/material-site-entry";
 import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
 import {
   MATERIAL_UNITS,
@@ -101,7 +100,6 @@ export type FieldRecordMode =
   | "waste"
   | "safety"
   | "consultant"
-  | "category"
   | "sundry";
 
 interface RecordOption {
@@ -120,7 +118,8 @@ const RECORD_OPTIONS: RecordOption[] = [
   { key: "waste", permission: "waste_outgoing.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning" },
   { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary" },
-  { key: "category", permission: ["category.view", "field_task.submit"], icon: FolderOpen, tone: "bg-info/10 text-info" },
+  // No 「现场资料」 tile (D-285): it filed photographs under 现场资料分类, a
+  // module the customer never defined. Every tile here is a business entry.
   // 杂费报销 (D-232): submitted here, followed on 「我提交过的」.
   { key: "sundry", permission: "sundry_claim.submit", icon: ReceiptText, tone: "bg-warning/15 text-warning" },
 ];
@@ -184,9 +183,7 @@ export function FieldRecordsPanel({
   if (mode === "consultant") {
     return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><FieldDraft scope={`consultant:${task?.id ?? "new"}`}><ConsultantCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
-  if (mode === "category") {
-    return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><FieldDraft scope={`category:${task?.id ?? "new"}`}><CategoryEvidenceCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
-  }  if (mode === "sundry") {
+  if (mode === "sundry") {
     return <RecordFrame title={t("records.sundry")} onBack={() => chooseMode(null)}><FieldDraft scope={`sundry:${task?.id ?? "new"}`}><SundryClaimCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
 
@@ -544,6 +541,15 @@ function MaterialCapturePanel({
   }
 
 
+  // A delivery (ENTRY) needs plate, DO number and both signatures (D-280).
+  const siteEntry = siteEntryRequired(draft.movementType);
+  const missingEntry = missingSiteEntry(draft.movementType, {
+    vehiclePlate: draft.vehiclePlate,
+    deliveryNoteNo: draft.deliveryNoteNo,
+    receiverSignature,
+    supplierSignature,
+  });
+
   const save = useMutation({
     mutationFn: () => {
       if (!user || !location) {
@@ -853,20 +859,23 @@ function MaterialCapturePanel({
           </ul>
         </div>
       )}
+      {/* On the form, not under 补充资料: the server refuses a delivery
+          without them (D-280), so hiding them behind 选填 sent workers to a
+          refusal they could not explain. A return (退场) is not asked. */}
+      <div className="grid grid-cols-2 gap-3">
+        <FieldWrapper label={t("material.vehicle")} required={siteEntry}><Input className="h-12" value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
+        <FieldWrapper label={t("material.doNo")} required={siteEntry}><Input className="h-12" value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} required={siteEntry} value={receiverSignature} onChange={setReceiverSignature} />
+        <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} required={siteEntry} value={supplierSignature} onChange={setSupplierSignature} />
+      </div>
       <details className="border-y py-3">
         <summary className="cursor-pointer text-sm font-medium">{t("material.additionalDetails")}</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
       <FieldWrapper label={t("material.specification")}><Input className="h-12" value={draft.materialSpecification} onChange={(event) => setDraft((old) => ({ ...old, materialSpecification: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.totalWeightKg")}><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.totalWeightKg} onChange={(event) => setDraft((old) => ({ ...old, totalWeightKg: event.target.value }))} /></FieldWrapper>
         </div>
-      <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label={t("material.vehicle")}><Input value={draft.vehiclePlate} onChange={(event) => setDraft((old) => ({ ...old, vehiclePlate: event.target.value.toUpperCase() }))} /></FieldWrapper>
-        <FieldWrapper label={t("material.doNo")}><Input value={draft.deliveryNoteNo} onChange={(event) => setDraft((old) => ({ ...old, deliveryNoteNo: event.target.value }))} /></FieldWrapper>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FieldSignaturePad label={t("material.receiverSignature")} clearLabel={t("action.clearSignature")} value={receiverSignature} onChange={setReceiverSignature} />
-        <FieldSignaturePad label={t("material.supplierSignature")} clearLabel={t("action.clearSignature")} value={supplierSignature} onChange={setSupplierSignature} />
-      </div>
       </details>
       <LocationField
         label={t("material.location")}
@@ -878,7 +887,7 @@ function MaterialCapturePanel({
       />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {t("material.submit")}
       </Button>

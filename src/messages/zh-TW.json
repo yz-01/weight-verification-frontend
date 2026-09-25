@@ -3818,12 +3818,12 @@
   },
   "businessTargets": {
     "field": {
-      "allCategories": "全部欄目",
+      "allCategories": "全部分類",
       "allProjects": "全部項目",
       "allWasteTypes": "全部廢料類型",
-      "category": "欄目範圍",
-      "categoryHint": "請先選擇項目，才能限定目標欄目。",
-      "categoryMetricHint": "欄目範圍只適用於已驗收現場任務指標。",
+      "category": "分類範圍",
+      "categoryHint": "請先選擇項目，才能限定目標分類。",
+      "categoryMetricHint": "分類範圍只適用於已驗收現場任務指標。",
       "chooseUnit": "選擇一個單位",
       "companyWide": "全公司目標",
       "description": "說明",
@@ -3866,7 +3866,7 @@
       "removeDescription": "此目標將不再出現在目標報表中，既有通知和審計記錄仍會保留。",
       "removeTitle": "移除 {name}？",
       "save": "保存目標",
-      "subtitle": "設定公司、項目或欄目的可量化目標，並在達到各提醒比例時通知負責人。",
+      "subtitle": "設定公司、項目或分類的可量化目標，並在達到各提醒比例時通知負責人。",
       "title": "業務目標"
     },
     "materialUnit": {
@@ -3915,13 +3915,13 @@
     },
     "what": {
       "projects": "項目列表",
-      "categories": "欄目列表",
+      "categories": "分類列表",
       "users": "人員名單"
     }
   },
   "categoryManagement": {
     "active": "啟用",
-    "chooseProject": "選擇一個專案，才能看到它的欄目。",
+    "chooseProject": "選擇一個專案，才能看到它的分類。",
     "column": {
       "name": "分類名稱",
       "code": "編號",
@@ -3931,27 +3931,26 @@
       "action": "操作",
       "archived": "已歸檔送貨",
       "spend": "花費／預算",
-      "tonnes": "噸數"
+      "tonnes": "噸數",
+      "quantity": "累計數量"
     },
-    "create": "新增欄目",
+    "create": "新增分類",
     "edit": "編輯",
-    "empty": "這裡還沒有欄目。",
-    "failed": "欄目讀取失敗，請重試。",
+    "empty": "這裡還沒有分類。",
+    "failed": "分類讀取失敗，請重試。",
     "inactive": "停用",
     "loading": "載入中…",
     "module": {
       "material": "材料分類",
-      "field": "現場資料分類",
       "document": "文件分類",
-      "equipment": "機械設備分類",
+      "equipment": "設備分類",
       "progress": "工程進度分類",
       "phase": "施工階段",
       "ehs": "隱患整改分類",
-      "recycle": "廢料分類",
-      "debris": "建築垃圾分類",
+      "recycle": "環保材料出場分類",
+      "debris": "工地清運分類",
       "consultant": "顧問資料分類",
-      "sundry": "雜費報銷分類",
-      "claim": "Claim 分類"
+      "sundry": "雜費報銷分類"
     },
     "moduleHelp": {
       "material": "收貨與它的金額歸在這裡。按專案各一份。",
@@ -3969,17 +3968,15 @@
     },
     "moduleSource": {
       "material": "記錄來自：現場材料進場、後台材料進場台帳。現場工作人員可以填。",
-      "field": "記錄來自：現場按欄目拍照、隱患上報、現場任務。現場工作人員可以填。",
       "document": "文件由後台上傳歸檔。現場工作人員不填這裡。",
       "equipment": "記錄來自：後台「設備登記」。設備檔案在辦公室建，手機只記進出。",
-      "progress": "進度由現場提交，再由後台事後歸到欄目。手機端不選欄目。",
+      "progress": "進度由現場提交，再由後台事後歸到分類。手機端不選分類。",
       "phase": "階段由後台維護，用來算進度百分比，本身不接收記錄。",
       "ehs": "記錄來自：隱患上報（現場與後台都算）。現場工作人員可以填。",
       "recycle": "記錄來自：後台的可回收廢料外運。現場工作人員不填這裡。",
       "debris": "記錄來自：後台發起的建築垃圾清運。現場工作人員不填這裡。",
-      "consultant": "記錄來自：手機端顧問資料提交，提交時選欄目。現場工作人員可以填。",
-      "sundry": "雜費報銷由手機端提交，後台處理時再歸入欄目。手機端不選欄目。",
-      "claim": "Claim 由後台開，開了之後再歸入欄目。現場工作人員不填這裡。"
+      "consultant": "記錄來自：手機端顧問資料提交，提交時選分類。現場工作人員可以填。",
+      "sundry": "雜費報銷由手機端提交，後台處理時再歸入分類。手機端不選分類。"
     },
     "modules": "模組",
     "scope": {
@@ -3987,19 +3984,19 @@
       "company": "全公司共用",
       "platform": "全平台共用"
     },
-    "subtitle": "先選所屬模組，再看該模組下面的欄目。",
-    "title": "欄目管理",
+    "subtitle": "先選左邊的業務欄目，再看它下面的分類。",
+    "title": "分類管理",
     "weight": "權重 {weight}",
     "removeFailed": "「{name}」沒有刪除：{reason}",
-    "dialogCreate": "新增欄目 · {module}",
-    "dialogEdit": "編輯欄目 · {module}",
+    "dialogCreate": "新增分類 · {module}",
+    "dialogEdit": "編輯分類 · {module}",
     "budget": {
       "title": "預算",
-      "help": "花費由這個欄目下送貨單的金額累計。",
+      "help": "花費由這個分類下送貨單的金額累計。",
       "uncounted": "有 {count} 張送貨單讀不出金額，沒有算進這個合計。",
-      "tracksSpend": "這個欄目的支出計入預算",
+      "tracksSpend": "這個分類的支出計入預算",
       "amount": "預算（RM）",
-      "amountHint": "不計預算的欄目留空",
+      "amountHint": "不計預算的分類留空",
       "alerts": "在這些百分比提醒",
       "alertsHint": "用逗號分隔，例如 80, 100。改了預算會重新算已經越過哪幾條線。",
       "alertsInvalid": "請填 1 到 500 之間的整數，用逗號分隔。",
@@ -4009,10 +4006,13 @@
     "viewRecords": "查看記錄",
     "records": {
       "title": "{name} 的記錄",
-      "help": "這個欄目裡的全部記錄，最新的在前面。只列出你有權限看的記錄。點一筆就能看詳情。",
+      "help": "這個分類裡的全部記錄，最新的在前面。只列出你有權限看的記錄。點一筆就能看詳情。",
       "count": "共 {count} 筆",
-      "empty": "這個欄目裡還沒有記錄。"
-    }
+      "empty": "這個分類裡還沒有記錄。",
+      "byMaterial": "按材料",
+      "groupCount": "{count} 筆"
+    },
+    "quantityReturned": "退場 {quantity}"
   },
   "cloudServices": {
     "count": "{count} 項服務",
@@ -4810,8 +4810,8 @@
       "selectPhotos": "要關聯的照片",
       "selectRecord": "選擇整筆現場資料",
       "caption": "說明",
-      "category": "欄目",
-      "subcategory": "子欄目",
+      "category": "分類",
+      "subcategory": "子分類",
       "uploader": "上傳人",
       "watermarked": "已加浮水印",
       "gps": "GPS",
@@ -5300,11 +5300,11 @@
     },
     "quickActions": {
       "approval": "新增審批",
-      "category": "新增欄目",
+      "category": "新增分類",
       "document": "上傳文件",
       "notification": "新增通知",
       "project": "新增項目",
-      "selectProjectFirst": "請先選擇項目，再新增欄目。",
+      "selectProjectFirst": "請先選擇項目，再新增分類。",
       "supplier": "新增供應商",
       "title": "快速新增"
     },
@@ -5418,19 +5418,19 @@
     },
     "categories": {
       "accessAll": "所有項目人員",
-      "accessRequired": "限制欄目必須至少選擇一個角色或人員。",
+      "accessRequired": "限制分類必須至少選擇一個角色或人員。",
       "accessRestricted": "只限指定角色和人員",
       "accessRoles": "可查看的角色",
-      "accessTitle": "誰可以看到此欄目",
+      "accessTitle": "誰可以看到此分類",
       "accessUsers": "可查看的人員",
-      "createTitle": "新增欄目",
-      "editTitle": "編輯欄目",
-      "formHelp": "每個欄目只屬於一個項目，可以排序或從現場手機頁面隱藏。",
+      "createTitle": "新增分類",
+      "editTitle": "編輯分類",
+      "formHelp": "每個分類只屬於一個項目，可以排序或從現場手機頁面隱藏。",
       "moveDown": "往下移",
       "moveUp": "往上移",
       "noRoles": "目前沒有可選擇的角色。",
       "noUsers": "目前沒有可選擇的項目人員。",
-      "removeBody": "只有沒有現場記錄使用該欄目時才可以移除。",
+      "removeBody": "只有沒有現場記錄使用該分類時才可以移除。",
       "removeTitle": "移除 {name}？",
       "kind": "所屬模組",
       "kindBoth": "尚未分家",
@@ -5520,9 +5520,9 @@
       "active": "啟用",
       "allProjects": "全部項目",
       "assignee": "現場人員",
-      "category": "欄目",
+      "category": "分類",
       "certificateExpiresOn": "證書到期日",
-      "chooseEquipmentColumn": "選擇設備欄目",
+      "chooseEquipmentColumn": "選擇設備分類",
       "code": "編號",
       "deliveryNote": "送貨單",
       "description": "說明",
@@ -5531,7 +5531,7 @@
       "equipmentColumn": "設備分類",
       "executor": "執行人",
       "expiryHelp": "填了才會進首頁的「證書即將到期」卡；沒有單據就留空，寧可空著也不要填一個猜的日期。",
-      "goMakeEquipmentColumn": "去欄目管理新增",
+      "goMakeEquipmentColumn": "去分類管理新增",
       "instructions": "工作說明",
       "insuranceExpiresOn": "保險到期日",
       "latitude": "緯度",
@@ -5539,8 +5539,8 @@
       "longitude": "經度",
       "material": "材料",
       "name": "名稱",
-      "noCategory": "不選擇欄目",
-      "noEquipmentColumnYet": "這個專案還沒有設備欄目，而設備必須歸到一個欄目裡。",
+      "noCategory": "不選擇分類",
+      "noEquipmentColumnYet": "這個專案還沒有設備分類，而設備必須歸到一個分類裡。",
       "noSupplier": "沒有供應商",
       "notes": "備註",
       "operator": "操作人員",
@@ -5569,15 +5569,15 @@
       "workLocation": "工作區域 / 位置"
     },
     "filing": {
-      "action": "歸入欄目",
-      "columnsFailed": "欄目讀取失敗，請重試。",
+      "action": "歸入分類",
+      "columnsFailed": "分類讀取失敗，請重試。",
       "confirm": "儲存歸屬",
       "failed": "歸檔失敗，請重試。",
       "fileInto": "已歸入",
-      "help": "{reference} —— 選擇它應歸入的欄目，或取回未歸類。",
-      "noColumns": "這個專案還沒有這個模組的欄目。",
+      "help": "{reference} —— 選擇它應歸入的分類，或取回未歸類。",
+      "noColumns": "這個專案還沒有這個模組的分類。",
       "reason": "原因",
-      "title": "歸入欄目",
+      "title": "歸入分類",
       "unfiled": "未歸類"
     },
     "outgoing": {
@@ -5781,7 +5781,7 @@
     "what": {
       "roles": "角色列表",
       "projectPeople": "本項目的人員名單",
-      "columns": "欄目列表",
+      "columns": "分類列表",
       "suppliers": "供應商列表",
       "equipmentSummary": "設備統計",
       "progressSummary": "進度統計",
@@ -5854,7 +5854,7 @@
       "application_type": "申請類型",
       "attendance_events": "考勤記錄",
       "captured_at": "拍攝時間",
-      "category": "欄目",
+      "category": "分類",
       "company": "公司",
       "completed_at": "完成時間",
       "completed_disposals": "已完成清運",
@@ -6297,7 +6297,7 @@
       "same": "一樣",
       "question": "送到的和這個一樣嗎？",
       "onDocket": "單據上寫的",
-      "column": "欄目"
+      "column": "分類"
     },
     "action": {
       "arrive": "記錄到場",
@@ -6910,7 +6910,7 @@
       "bug_not_found": "找不到該 Bug 記錄。",
       "calibration_expired": "這臺地磅的校準已過期。",
       "cannot_modify_self": "無法用這種方式更改自己的賬號，請到個人資料頁操作。",
-      "category_holds_deliveries_only": "「{column}」是材料欄目 —— 它裝的是送貨單和金額。現場照片要歸到現場資料欄目。請返回選一個現場資料欄目，或讓管理員為這件事開一個。",
+      "category_holds_deliveries_only": "「{column}」是材料分類 —— 它裝的是送貨單和金額，不能放現場照片。請選別的分類。",
       "clock_skew": "網關時鐘偏移超過允許範圍。",
       "cloud_alert_not_found": "找不到該雲用量預警。",
       "cloud_plan_not_found": "找不到該雲服務方案。",
@@ -7085,10 +7085,11 @@
       "visit_not_found": "找不到該客戶回訪。",
       "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。",
       "rejection_needs_conversation": "請先在這條記錄的【溝通】裡說明問題，讓現場看得到原因並能回覆，然後才能退回。",
-      "column_not_empty": "這個欄目下還有記錄：{records}。請先移走，再刪除欄目。",
-      "column_wrong_module": "「{column}」屬於其他模組，請選擇本模組的欄目。",
-      "column_other_project": "該欄目不屬於此記錄的專案，請選擇同一專案的欄目。",
-      "column_inactive": "「{column}」已停用，請選擇啟用中的欄目。"
+      "column_not_empty": "這個分類下還有記錄：{records}。請先移走，再刪除分類。",
+      "column_wrong_module": "「{column}」屬於其他模組，請選擇本模組的分類。",
+      "column_other_project": "該分類不屬於此記錄的專案，請選擇同一專案的分類。",
+      "column_inactive": "「{column}」已停用，請選擇啟用中的分類。",
+      "conversation_closed": "這條記錄已經完成，聊天室已關閉。記錄仍可查看；還有事情請另開一條記錄。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -7146,7 +7147,7 @@
     "count": "共 {count} 項證據",
     "field": {
       "actor": "用戶",
-      "archiveCategory": "自動歸檔欄目",
+      "archiveCategory": "自動歸檔分類",
       "capturedAt": "原始拍攝時間",
       "company": "公司",
       "contentType": "文件類型",
@@ -7169,8 +7170,8 @@
     "filter": {
       "capturedFrom": "拍攝起始日",
       "capturedTo": "拍攝截止日",
-      "category": "現場資料欄目",
-      "chooseCategory": "選擇現場資料欄目",
+      "category": "分類",
+      "chooseCategory": "選擇分類",
       "project": "項目",
       "withGps": "有 GPS",
       "withoutGps": "無 GPS"
@@ -7207,7 +7208,7 @@
     "title": "證據檔案",
     "what": {
       "projects": "項目列表",
-      "categories": "現場資料欄目"
+      "categories": "分類列表"
     }
   },
   "export": {
@@ -7447,40 +7448,6 @@
       "retake": "點一下重拍",
       "preview": "已拍攝"
     },
-    "categoryEvidence": {
-      "changeCategory": "更換",
-      "chooseCategory": "選擇現場資料欄目",
-      "chooseProject": "選擇項目",
-      "evidenceTitle": "必須拍攝的現場照片",
-      "getLocation": "取得當前 GPS",
-      "loadError": "無法讀取現場資料欄目，請檢查網絡後重試。",
-      "loading": "正在讀取現場資料欄目...",
-      "locationError": "無法取得 GPS，請允許精確定位後重試。",
-      "locationReady": "GPS 已取得",
-      "noCategories": "這個項目暫時沒有開放給現場工作人員的欄目。",
-      "note": "簡單備註（選填）",
-      "notePlaceholder": "只填寫辦公室需要知道的內容。",
-      "photo": {
-        "completion": "4. 完成情況或當前狀態",
-        "detail": "2. 工作或問題細節",
-        "overview": "1. 現場整體情況",
-        "peopleEquipment": "3. 相關人員或設備"
-      },
-      "project": "項目",
-      "readOnly": "可以查看，但沒有上傳權限",
-      "submit": "提交給管理人員審核",
-      "submitMode": {
-        "DIRECT": "直接提交",
-        "REVIEW": "提交審核",
-        "CONSULTANT": "提交顧問審批"
-      },
-      "submitError": "現場資料無法提交，請檢查照片、GPS 和網絡後重試。",
-      "subtitle": "選擇項目和欄目，拍攝至少四張照片，取得 GPS 後提交給管理人員審核。",
-      "takePhotos": "在此欄目拍照歸檔",
-      "title": "歸檔現場拍照證據",
-      "uploadNotAllowed": "你沒有權限上傳資料到這個欄目。",
-      "materialColumnRefused": "「{column}」是材料欄目 —— 它裝的是送貨單和金額。照片請選一個現場資料欄目，或讓管理員開一個。"
-    },
     "consultantCapture": {
       "category": "申請類別",
       "categoryOption": {
@@ -7519,7 +7486,6 @@
     "greeting": "你好，{name}",
     "home": {
       "attendance": "考勤",
-      "category": "現場資料",
       "consultant": "顧問資料提交",
       "disposal": "工地清運",
       "equipment": "設備進退場",
@@ -7589,9 +7555,9 @@
       "ocrItems": {
         "confirmHint": "請對照紙質單核對",
         "title": "從送貨單讀到的物料",
-        "unclassified": "選擇欄目",
-        "makeColumn": "建成欄目",
-        "editHint": "改掉讀錯的文字、選欄目、刪掉多餘行,再點「填入」。",
+        "unclassified": "選擇分類",
+        "makeColumn": "建成分類",
+        "editHint": "改掉讀錯的文字、選分類、刪掉多餘行,再點「填入」。",
         "remove": "刪除此行",
         "use": "填入",
         "noUnit": "無單位"
@@ -7628,14 +7594,14 @@
       "tapCamera": "按這裡打開相機",
       "unit": "單位",
       "vehicle": "車牌",
-      "column": "材料欄目",
+      "column": "材料分類",
       "additionalDetails": "補充資料（選填）",
       "columnAuto": "將歸入「{name}」。後台可以改。",
       "columnUnfiledNote": "尚未歸類。後台查看後再歸。",
-      "noColumnsYet": "這個工地還沒有材料欄目。在下面新增第一個。",
-      "newColumnName": "新欄目名稱",
-      "addColumn": "新增欄目",
-      "columnOffline": "離線時請選擇已有欄目，新增欄目需要網路連線。"
+      "noColumnsYet": "這個工地還沒有材料分類。在下面新增第一個。",
+      "newColumnName": "新分類名稱",
+      "addColumn": "新增分類",
+      "columnOffline": "離線時請選擇已有分類，新增分類需要網路連線。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -7664,7 +7630,6 @@
       "title": "我的工作通知"
     },
     "records": {
-      "category": "現場資料",
       "consultant": "顧問資料提交",
       "disposal": "工地清運",
       "equipment": "設備進退場",
@@ -7764,7 +7729,7 @@
       "linkedTask": "連結中的任務",
       "attendance": "今天的打卡記錄",
       "myTasks": "我的待辦",
-      "columns": "材料欄目",
+      "columns": "材料分類",
       "suppliers": "供應商列表",
       "dockets": "供應商二維碼",
       "queued": "還在這台手機上的資料",
@@ -9004,7 +8969,7 @@
       "when": "建立時間",
       "action": "操作"
     },
-    "columns": "欄目",
+    "columns": "分類",
     "confirm": "確認並合併",
     "confirmedHelp": "這個資料包已經確認。內容不再變化，也不能刪除 —— 它本身就是「當初為什麼建立這一包」的記錄。",
     "consultantOnlyHelp": "只能發給顧問。平台上沒有「業主」這種帳號，所以沒有別的收件人可選。",
@@ -9061,10 +9026,10 @@
     "new": "新建資料包",
     "newTitle": "新建一個資料包",
     "next": "下一頁",
-    "noCandidates": "這個項目在這個欄目下還沒有資料。",
+    "noCandidates": "這個項目在這個分類下還沒有資料。",
     "noDrafts": "這個項目還沒有草稿資料包。取個名字，這條記錄就是它的第一條。",
-    "noItems": "這個資料包還是空的。從項目的欄目裡新增資料。",
-    "oneProjectHelp": "一個資料包屬於一個項目。裡面的資料來自這個項目的各個欄目，別的項目的記錄會被拒絕。",
+    "noItems": "這個資料包還是空的。從項目的分類裡新增資料。",
+    "oneProjectHelp": "一個資料包屬於一個項目。裡面的資料來自這個項目的各個分類，別的項目的記錄會被拒絕。",
     "open": "開啟",
     "pageOf": "第 {page} / {pages} 頁",
     "partsSummary": "{fields} 個欄位 · {photos} 張照片 · {documents} 張單據",
@@ -9092,7 +9057,7 @@
       "DRAFT": "草稿",
       "CONFIRMED": "已確認"
     },
-    "subtitle": "從同一個項目的不同欄目挑選資料，合併成一份 PDF。",
+    "subtitle": "從同一個項目的不同分類挑選資料，合併成一份 PDF。",
     "title": "Multi Engine 資料包",
     "toast": {
       "created": "資料包已新建。",
@@ -9139,7 +9104,7 @@
     "field": {
       "application_no": "申請編號",
       "archived_at": "歸檔時間",
-      "category": "欄目",
+      "category": "分類",
       "clock_ins": "上班打卡",
       "clock_outs": "下班打卡",
       "delivery_note_no": "送貨單號",
@@ -9244,7 +9209,8 @@
       "operations": "業務",
       "overview": "總覽",
       "system": "系統",
-      "weighing": "稱重"
+      "weighing": "稱重",
+      "tools": "公共工具"
     },
     "hazard_rectification": "隱患整改",
     "incoming": "待收貨",
@@ -9266,7 +9232,7 @@
     "platform_monitoring": "平臺監控",
     "platform_settings": "系統設置",
     "progress": "工程進度",
-    "project_categories": "現場資料",
+    "project_categories": "分類管理",
     "projects": "項目",
     "qr_code_management": "二維碼管理",
     "receipts": "材料進場",
@@ -9318,7 +9284,7 @@
       "billingActivity": "操作記錄",
       "billingAudit": "賬單記錄",
       "billingStatistics": "收費統計",
-      "categoryManagement": "欄目管理",
+      "categoryManagement": "分類管理",
       "cctvMonitoring": "AI CCTV 監控",
       "cctvSettings": "AI CCTV 設置",
       "cloudActivity": "操作記錄",
@@ -9445,7 +9411,6 @@
       "platformCommission": "平臺佣金管理",
       "platformJobs": "定時任務",
       "progressRecords": "工程進度",
-      "projectCategories": "現場資料",
       "projectRecords": "項目資料",
       "qrActivity": "二維碼操作記錄",
       "qrAnomalies": "二維碼異常",
@@ -9660,7 +9625,7 @@
   "offline": {
     "kind": {
       "ATTENDANCE": "考勤打卡",
-      "CATEGORY_EVIDENCE": "欄目證據",
+      "CATEGORY_EVIDENCE": "現場照片",
       "CONSULTANT_SUBMISSION": "顧問提交",
       "DISPATCH_ACCEPT": "接受訂單",
       "DISPATCH_COLLECT": "確認收貨",
@@ -9943,7 +9908,7 @@
       "trouble": "庫存和場裡對不上：先看有沒有手工調整。每一次調整都寫了原因，誰在什麼時候為什麼調的一看就知道。"
     },
     "material_cost_report": {
-      "what": "材料花了多少錢，按欄目和專案分。",
+      "what": "材料花了多少錢，按分類和專案分。",
       "who": "持 report.view。",
       "need": "選一個時間範圍。",
       "then": "合計是錢，從每張收料背後的送貨單累積起來。",
@@ -9964,7 +9929,7 @@
       "trouble": "報表是空的，多半是那段時間沒有收料。"
     },
     "material_receipts": {
-      "what": "材料進場，以及材料欄目 —— 每項材料的預算與已用。這裡的預算是從送貨單累積起來的錢，不是噸數。",
+      "what": "材料進場，以及材料分類 —— 每項材料的預算與已用。這裡的預算是從送貨單累積起來的錢，不是噸數。",
       "who": "持 receipt.view。",
       "need": "現場收料要專案、編號、名稱、Delivery Order 照片、操作人員、數量、現場照片和目前 GPS 位置。",
       "then": "提交後的收料記錄不能改 —— 它帶著照片、簽名和位置。要更正就作廢重開。",
@@ -10041,11 +10006,11 @@
       "trouble": "現場沒訊號沒關係：照拍照填，它會排隊，之後自動傳。存下來的位置是拍照當時的，不是補傳時的。"
     },
     "project_categories": {
-      "what": "定義現場人員要拍什麼。一個欄目就是一項要在現場留證的東西：拍幾張、拍什麼、誰能看。",
+      "what": "管理每個業務欄目下面的分類：例如材料分類裡的混凝土、鋼筋，隱患整改分類裡的安全部整改。",
       "who": "持 category.view。",
-      "need": "建欄目要專案、編號、名稱，以及誰可以看到此欄目。",
-      "then": "現場人員就能在手機上選到它並按要求拍。要求四張就必須四張，三張交不了。",
-      "trouble": "現場說照片傳不上去：多半是這個欄目要求的張數還沒拍夠，按鈕會寫還差幾張。"
+      "need": "新增分類要選業務、項目、編號和名稱，以及誰可以看到這個分類。",
+      "then": "現場人員在手機上提交時就能選到它，後台也能把記錄歸進去。",
+      "trouble": "手機上選不到某個分類：看它是不是停用了，或限制了誰可以看。"
     },
     "projects": {
       "what": "專案檔案、派給現場的任務、以及現場傳回來等審批的照片。這個後台其他東西都掛在專案上。",
@@ -10091,7 +10056,7 @@
     "safety": {
       "what": "工地上的安全事件：登記，以及往上報。",
       "who": "同時持 safety.view 和 project.view。",
-      "need": "登記事件要專案、安全欄目、標題、照片、GPS 證據、負責人及工地人員、處理說明；上報事故要專案、事故標題、發生了什麼、報告給誰、證據檔案和地點。",
+      "need": "登記事件要專案、安全分類、標題、照片、GPS 證據、負責人及工地人員、處理說明；上報事故要專案、事故標題、發生了什麼、報告給誰、證據檔案和地點。",
       "then": "被點名的人會立刻收到通知。",
       "trouble": "照片和 GPS 都是必填，而現場常常沒訊號。照拍就是，它會排隊之後自動傳，存下來的位置是你拍照時站的地方。"
     },
@@ -10492,7 +10457,7 @@
     "returnTitle": "退回重拍",
     "return": "退回",
     "accept": "批准",
-    "noCategory": "未歸欄目",
+    "noCategory": "未歸分類",
     "empty": "沒有待審批的",
     "subtitle": "有 {count} 份等你審",
     "title": "照片審批",
@@ -10758,8 +10723,8 @@
       "vehicle": "請填車牌",
       "supplier": "請選供應商"
     },
-    "categoryHelp": "單據簽收之後，收料記錄會歸到這個欄目。",
-    "chooseCategory": "選一個欄目",
+    "categoryHelp": "單據簽收之後，收料記錄會歸到這個分類。",
+    "chooseCategory": "選一個分類",
     "cancel": "取消送貨單",
     "chooseSupplier": "選擇供應商",
     "close": "關閉送貨單",
@@ -10768,7 +10733,7 @@
     "description": "一張送貨單綁定一家供應商和一個項目。在工地掃碼即可自動帶出兩者，幾秒完成材料進場記錄。",
     "downloadPng": "下載 PNG",
     "field": {
-      "category": "欄目",
+      "category": "分類",
       "createdAt": "簽發時間",
       "driver": "司機姓名",
       "expectedAt": "預計送貨時間",
@@ -10805,7 +10770,7 @@
     "what": {
       "notes": "送貨單二維碼",
       "suppliers": "供應商列表",
-      "categories": "欄目"
+      "categories": "分類"
     }
   },
   "qrScan": {
@@ -10855,7 +10820,7 @@
       "title": "補拍照片",
       "upload": "上傳"
     },
-    "allColumns": "全部欄目",
+    "allColumns": "全部分類",
     "allStates": "已讀和未讀",
     "archived": "已歸檔",
     "correction": {
@@ -10887,7 +10852,7 @@
     "editNote": "數量和單價可以更正。項目、送貨單和記錄時間不可更改，它們正是這條記錄要證明的事。",
     "editTitle": "更正材料進場記錄",
     "field": {
-      "category": "欄目",
+      "category": "分類",
       "capturedAt": "記錄時間",
       "deliveryNoteNo": "送貨單號",
       "location": "位置",
@@ -10963,7 +10928,7 @@
       "accepted": "已驗收通過。",
       "rejected": "已判為不合格，原因已記錄。"
     },
-    "unfiled": "未歸欄目",
+    "unfiled": "未歸分類",
     "unit": {
       "BAG": "包",
       "KG": "公斤",
@@ -10982,7 +10947,7 @@
       "projects": "項目列表",
       "suppliers": "供應商列表",
       "dockets": "送貨單二維碼列表",
-      "columns": "欄目列表"
+      "columns": "分類列表"
     }
   },
   "recyclerBusiness": {
@@ -11644,7 +11609,7 @@
       "photo": "打開照片"
     },
     "field": {
-      "category": "安全欄目",
+      "category": "安全分類",
       "description": "說明",
       "dueAt": "整改期限",
       "evidence": "證據",
@@ -11688,14 +11653,14 @@
       "title": "上報工地事故"
     },
     "filter": {
-      "allCategories": "全部安全欄目",
+      "allCategories": "全部安全分類",
       "allProjects": "所有項目",
       "allResponsible": "全部整改負責人",
       "allSeverities": "所有嚴重程度",
       "dateFrom": "開始日期",
       "dateTo": "結束日期",
       "project": "選擇項目",
-      "selectCategory": "選擇安全欄目"
+      "selectCategory": "選擇安全分類"
     },
     "form": {
       "captureLocation": "獲取 GPS",
@@ -11707,7 +11672,7 @@
       "locationTimeout": "等不到 GPS 訊號。走到空曠一點的地方再試一次。",
       "locationUnavailable": "裝置拿不到位置。確認定位已開啟後再試一次。",
       "locationUnsupported": "這台裝置無法提供 GPS 位置。",
-      "noSafetyColumns": "這個專案還沒有隱患整改欄目。到「欄目管理」新增一個，隱患才歸得進去。"
+      "noSafetyColumns": "這個專案還沒有隱患整改分類。到「分類管理」新增一個，隱患才歸得進去。"
     },
     "new": "上報隱患",
     "severity": {
@@ -11731,7 +11696,7 @@
       "title": "更新事故狀態"
     },
     "what": {
-      "categories": "安全欄目",
+      "categories": "安全分類",
       "responsiblePeople": "負責人列表",
       "requestedIncident": "連結中的事故",
       "workers": "可通知人員"
@@ -12265,12 +12230,12 @@
       "title": "分公司與總部"
     },
     "categories": {
-      "add": "新增欄目",
-      "empty": "尚未設置默認欄目，新項目將使用空白欄目清單。",
+      "add": "新增分類",
+      "empty": "尚未設置默認分類，新項目將使用空白分類清單。",
       "fieldVisible": "現場人員可見",
-      "fieldVisibleHelp": "工人可在拍照優先的手機工作臺選擇此欄目。",
-      "subtitle": "每個新項目都會自動建立這些欄目。",
-      "title": "默認現場資料欄目"
+      "fieldVisibleHelp": "現場工作人員在手機上可以選這個分類。",
+      "subtitle": "每個新項目都會自動建立這些分類。",
+      "title": "新項目默認材料分類"
     },
     "credential": {
       "active": "生效中",
@@ -12520,7 +12485,7 @@
       "archiveLockHelp": "新項目的歸檔資料完成後保持只讀。",
       "notifyManager": "通知項目經理",
       "notifyManagerHelp": "新項目默認把項目經理加入業務流程通知。",
-      "subtitle": "建立新項目時，系統會自動複製這些規則和欄目。",
+      "subtitle": "建立新項目時，系統會自動複製這些規則和分類。",
       "title": "新項目默認設置"
     },
     "projectStatus": {
@@ -14265,7 +14230,9 @@
     "failed": "事項溝通讀取失敗，請重試。",
     "open": "溝通",
     "sectionTitle": "事項溝通",
-    "title": "事項溝通 · {reference}"
+    "title": "事項溝通 · {reference}",
+    "closedArchived": "已歸檔，聊天室已關閉。記錄仍可查看。",
+    "closedPaid": "已確認付款，聊天室已關閉。記錄仍可查看。"
   },
   "exportTotals": {
     "title": "累計數量（按單位分別統計）",
@@ -14276,7 +14243,7 @@
   "recordClosure": {
     "title": "確認歸檔",
     "action": "確認歸檔",
-    "help": "按下去就視為這件事已經完成並歸檔，所有人都看得到，總欄目裡會寫上你的名字和時間。系統不做任何前置判斷 —— 判斷由你負責。記錄不會搬走，還在原來的模組和欄目裡；之後只能查看，不能再修改。以後有新問題請新建一條記錄。",
+    "help": "按下去就視為這件事已經完成並歸檔，所有人都看得到，總欄目裡會寫上你的名字和時間。系統不做任何前置判斷 —— 判斷由你負責。記錄不會搬走，還在原來的模組和分類裡；之後只能查看，不能再修改。以後有新問題請新建一條記錄。",
     "notePlaceholder": "備註（可選）",
     "closedTitle": "已歸檔",
     "closedBy": "由 {name} 於 {when} 確認。本記錄已不能再修改。",
@@ -14310,7 +14277,7 @@
   },
   "moduleTable": {
     "count": "{count} 條記錄",
-    "allColumns": "全部欄目",
+    "allColumns": "全部分類",
     "unfiled": "未歸類",
     "allProjects": "全部項目",
     "allStatuses": "全部狀態",
@@ -14350,7 +14317,7 @@
     "orderState": "訂單狀態",
     "driver": "司機",
     "what": {
-      "columns": "欄目列表"
+      "columns": "分類列表"
     }
   },
   "fieldSlots": {
@@ -14364,7 +14331,14 @@
     "waiting": "等待上傳",
     "failed": "上傳失敗，會自動重試",
     "waitingHelp": "已排進待上傳，網路恢復後自動送出；在「我提交過的」可以查看。",
-    "remove": "移除這個空掛號"
+    "remove": "移除這個空掛號",
+    "open": "掛號",
+    "held": "正在掛著：{count} 輛",
+    "none": "按【掛號】開始拍下一輛車",
+    "use": "使用掛號",
+    "offHelp": "掛號已關：這裡只有一張表單。",
+    "cannotTurnOff": "還有掛號存著照片或在等上傳，先上交再關",
+    "cannotTurnOn": "表單裡還有內容，先上交或清空再開掛號"
   },
   "sundryClaim": {
     "detailTitle": "雜費報銷",
@@ -14405,7 +14379,17 @@
       "noAmount": "未填金額",
       "file": "憑證圖片",
       "amount": "付款金額（可不填）",
-      "lockHint": "按【上傳付款憑證】後立即鎖定，不能修改或刪除；傳錯了請再追加一張正確的。"
+      "lockHint": "按【上傳付款憑證】後立即鎖定，不能修改或刪除；傳錯了請再追加一張正確的。",
+      "dropHint": "選檔案、拖進來，或複製截圖後按 Ctrl+V 貼上",
+      "pickFromChat": "從聊天室挑選",
+      "hideChat": "收起聊天室照片",
+      "chatEmpty": "這筆雜費的聊天室裡還沒有照片",
+      "chatFailed": "聊天室照片讀取失敗，請重試。",
+      "chatLoading": "正在讀取聊天室照片…",
+      "fromChat": "來自聊天室：{name}",
+      "preview": "將要上傳的憑證",
+      "notImage": "付款憑證只能是圖片。",
+      "clearChoice": "換一張"
     },
     "action": {
       "confirm": "確認",

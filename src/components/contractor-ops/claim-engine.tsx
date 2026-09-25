@@ -1,15 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCheck, Coins, Download, FolderOpen, Inbox, Plus, Trash2 } from "lucide-react";
+import { CheckCheck, Coins, Download, Inbox, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
-import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -41,11 +40,9 @@ import {
   createClaim,
   deleteClaim,
   downloadEvidencePackage,
-  fileClaim,
   getClaim,
   getClaimCandidates,
   getClaims,
-  getProjectCategories,
   removeClaimItem,
   selectClaimItems,
   setClaimPayment,
@@ -82,12 +79,11 @@ import {
  * behind its own dialog with the remarks it requires, rather than beside the
  * ticks where a mis-click would claim a month.
  *
- * ## Filed under a CLAIM column
+ * ## Not filed under a category
  *
- * A claim is opened here and filed afterwards under one of the project's
- * CLAIM columns - 「Claim 由后台放」 (D-275). Both kinds share the one column
- * list, as they share everything else; the list filters by it, with 未归类
- * for the ones nobody has filed yet.
+ * A period claim used to be filed under a 「Claim 分类」 (D-275). The customer
+ * found that set duplicated 杂费报销分类 - 「这里只保留一套」 - so it is gone
+ * (D-286), and with it this screen's filing button and category filter.
  */
 
 const KINDS: ClaimKind[] = ["MATERIAL_ON_SITE", "PROGRESS"];
@@ -97,9 +93,6 @@ const PAYMENT_STATES: ClaimPaymentState[] = [
   "RECEIVED",
 ];
 const PAGE_SIZE = 20;
-/** Select sentinels: Radix has no value for "nothing chosen". */
-const ALL_COLUMNS = "__all__";
-const UNFILED = "__unfiled__";
 
 /** `YYYY-MM` for today, which is what a claim's period is (D-164). */
 function thisMonth() {
@@ -109,27 +102,21 @@ function thisMonth() {
 
 export function ClaimEngineWorkspace() {
   const t = useTranslations("claims");
-  const ops = useTranslations("contractorOps");
   const formatter = useDateFormat();
   const { can } = useAuth();
   const [project, setProject] = useState("");
   const [kind, setKind] = useState<ClaimKind | "">("");
-  /** A CLAIM column id, UNFILED, or ALL_COLUMNS. */
-  const [column, setColumn] = useState(ALL_COLUMNS);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [openId, setOpenId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
   const query = useQuery({
-    queryKey: ["claims", project, kind, column, search, page],
+    queryKey: ["claims", project, kind, search, page],
     queryFn: () =>
       getClaims({
         project: project || undefined,
         kind: kind || undefined,
-        category:
-          column === ALL_COLUMNS || column === UNFILED ? undefined : column,
-        uncategorised: column === UNFILED ? "true" : undefined,
         search: search || undefined,
         page,
         page_size: PAGE_SIZE,
@@ -160,9 +147,6 @@ export function ClaimEngineWorkspace() {
           value={project}
           onChange={(next) => {
             setProject(next);
-            // A column belongs to one site; keeping it would filter the new
-            // site by a column it does not have.
-            setColumn(ALL_COLUMNS);
             setPage(1);
           }}
         />
@@ -185,14 +169,6 @@ export function ClaimEngineWorkspace() {
             ))}
           </SelectContent>
         </Select>
-        <ClaimColumnFilter
-          project={project}
-          value={column}
-          onChange={(next) => {
-            setColumn(next);
-            setPage(1);
-          }}
-        />
         <Input
           value={search}
           onChange={(event) => {
@@ -226,7 +202,6 @@ export function ClaimEngineWorkspace() {
                 <TableHead>{t("column.items")}</TableHead>
                 <TableHead>{t("column.state")}</TableHead>
                 <TableHead>{t("column.payment")}</TableHead>
-                <TableHead>{ops("filing.fileInto")}</TableHead>
                 <TableHead>{t("column.action")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -270,11 +245,6 @@ export function ClaimEngineWorkspace() {
                             : "neutral"
                       }
                     />
-                  </TableCell>
-                  <TableCell
-                    className={row.category_name ? "" : "text-muted-foreground"}
-                  >
-                    {row.category_name || ops("filing.unfiled")}
                   </TableCell>
                   <TableCell>
                     <Button
@@ -418,14 +388,12 @@ function NewClaimDialog({
 
 function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("claims");
-  const ops = useTranslations("contractorOps");
   const common = useTranslations("common");
   const formatter = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState(false);
   const [paying, setPaying] = useState(false);
-  const [filing, setFiling] = useState(false);
 
   const claim = useQuery({
     queryKey: ["claims", id],
@@ -476,11 +444,6 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
               <Summary
                 label={t("column.payment")}
                 value={t(`payment.${data.payment_state}`)}
-              />
-              {/* Where the office filed it, or 未归类 (D-275). */}
-              <Summary
-                label={ops("filing.fileInto")}
-                value={data.category_name || ops("filing.unfiled")}
               />
               <Summary
                 label={t("field.remarks")}
@@ -647,14 +610,6 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
               {t("downloadPdf")}
             </Button>
           )}
-          {/* Filing is the office's step, at either round: the server checks
-              the same permission (D-275). */}
-          {can("claim.manage") && (
-            <Button variant="outline" onClick={() => setFiling(true)}>
-              <FolderOpen />
-              {ops("filing.title")}
-            </Button>
-          )}
           {data.state === "CONFIRMED" && can("claim.confirm_payment") && (
             <Button variant="outline" onClick={() => setPaying(true)}>
               <Coins />
@@ -677,21 +632,6 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
           }}
         />
       )}
-      {filing && data && (
-        <FileIntoColumnDialog
-          projectId={data.project}
-          kind="CLAIM"
-          current={data.category ?? null}
-          reference={data.claim_no}
-          onFile={(category, reason) => fileClaim(data.id, { category, reason })}
-          onFiled={() => {
-            refresh();
-            void queryClient.invalidateQueries({ queryKey: ["project-categories"] });
-            void queryClient.invalidateQueries({ queryKey: ["category-management"] });
-          }}
-          onClose={() => setFiling(false)}
-        />
-      )}
       {paying && data && (
         <PaymentDialog
           claim={data}
@@ -703,52 +643,6 @@ function ClaimSheet({ id, onClose }: { id: string; onClose: () => void }) {
         />
       )}
     </Shell>
-  );
-}
-
-/**
- * The CLAIM columns, plus 未归类 - the same choice every module list offers
- * (`ColumnFilter`), kept on this screen's own state because this list does
- * not use the shared list query. Only CLAIM columns: another module's would
- * be options that always return nothing.
- */
-function ClaimColumnFilter({
-  project,
-  value,
-  onChange,
-}: {
-  project: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const table = useTranslations("moduleTable");
-  const columns = useQuery({
-    queryKey: ["project-categories", "module-columns", "CLAIM", project],
-    queryFn: () =>
-      getProjectCategories({
-        page_size: 200,
-        kind: "CLAIM",
-        ...(project ? { project } : {}),
-      }),
-  });
-  return (
-    <>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full sm:w-56" aria-label={table("allColumns")}>
-          <SelectValue placeholder={table("allColumns")} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL_COLUMNS}>{table("allColumns")}</SelectItem>
-          <SelectItem value={UNFILED}>{table("unfiled")}</SelectItem>
-          {(columns.data?.results ?? []).map((row) => (
-            <SelectItem key={row.id} value={row.id}>
-              {row.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <QueryFailedNote query={columns} what={table("what.columns")} />
-    </>
   );
 }
 

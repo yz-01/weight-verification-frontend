@@ -116,7 +116,7 @@ describe("clicking a column opens its records here (D-276)", () => {
   });
 
   it("serves every module through the one list, by the row's own id", () => {
-    // `active` is any of the twelve, so every module's columns reach it.
+    // `active` is any of the ten, so every module's columns reach it.
     expect(page).toMatch(
       /\{viewing && \(\s*<ColumnRecordsDialog\s+moduleKey=\{active\.key\}\s+column=\{viewing\}/,
     );
@@ -127,7 +127,7 @@ describe("clicking a column opens its records here (D-276)", () => {
     const list = service.slice(service.indexOf("export function getCategoryRecords("));
     expect(list).toMatch(/module: CategoryModuleKey;/);
     expect(list).toMatch(/api\.get<CategoryRecordPage>\("\/api\/category-records\/", query\)/);
-    expect(CATEGORY_MODULE_KEYS).toHaveLength(12);
+    expect(CATEGORY_MODULE_KEYS).toHaveLength(10);
   });
 
   it("is a dialog on this page, never a link or a push", () => {

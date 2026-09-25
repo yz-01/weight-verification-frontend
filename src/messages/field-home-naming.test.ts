@@ -131,14 +131,8 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "mySubmissions.kind.DISPOSAL_REQUEST",
     ],
   },
-  {
-    module: "site records",
-    keys: [
-      "nav.submodule.projectCategories",
-      "fieldStaffPwa.records.category",
-      "fieldStaffPwa.home.category",
-    ],
-  },
+  // No "site records" entry: the phone's 「现场资料」 and its 现场资料分类 are
+  // gone (D-285).
   {
     module: "consultant submission",
     keys: [

@@ -114,7 +114,12 @@ export interface FeatureNavItem {
   href: string;
   icon: LucideIcon;
   /** Message key under `nav.group`. */
-  group: "overview" | "operations" | "finance" | "system";
+  group: "overview" | "operations" | "tools" | "finance" | "system";
+  /**
+   * An action permission the whole entry needs, for a top-level entry with
+   * no children (D-283). Hides it only - the route rules below refuse.
+   */
+  requiredPermission?: string;
   /** Match only the canonical page instead of every descendant route. */
   exact?: boolean;
   /**
@@ -747,83 +752,6 @@ export const PORTAL_NAVIGATION = {
       ],
     ),
     item(
-      "project_categories",
-      "/modules/categories",
-      ListTree,
-      "operations",
-      // Retired screens that now only redirect to Category Management
-      // (D-263). Still claimed so an old link or bookmark reaches the
-      // redirect instead of being refused on the way (T-219).
-      ["/material-columns", "/project-categories"],
-      false,
-      [
-        // One entry, not the ten the earlier plan had (D-125, F-335): the
-        // customer's design is "pick the module, then see that module's
-        // columns", and that is one screen with a list down its left side.
-        // Ten routes would have been ten places to maintain the same thing.
-        //
-        // Every module's categories are created, edited and deleted here, in
-        // dialogs (D-264). `/project-categories` and `/material-columns` only
-        // redirect here now, carrying the project and module.
-        child(
-          "4.2.1",
-          "nav.submodule.categoryManagement",
-          "/category-management",
-          "project_categories",
-        ),
-        // 总栏目 proper: the per-person unarchived queue (T-233, D-106). Its
-        // sibling above lists category *definitions*; this lists *records*.
-        // Two entries rather than two tabs of one screen, because their
-        // status columns mean different things - active/inactive against
-        // unarchived/archived - and one column with two meanings is what
-        // D-125 refuses.
-        child(
-          "4.2.2",
-          "nav.submodule.archiveQueue",
-          "/archive-queue",
-          "project_categories",
-        ),
-        // Multi Engine (T-235). A third sibling and not a tab of the queue:
-        // 总栏目 answers "what has nobody looked at", and this answers "why was
-        // this bundle put together". Both list records and they mean entirely
-        // different things - one screen with two meanings is D-125 again.
-        //
-        // Gated on `package.view` rather than on the category feature: the
-        // permission is what the endpoints check, and a sidebar entry that
-        // leads to a 403 is worse than no entry.
-        child(
-          "4.2.3",
-          "nav.submodule.multiEngine",
-          "/evidence-packages",
-          "project_categories",
-          "package.view",
-        ),
-        // Claim Engine (T-236). A fourth sibling for the same reason the
-        // third is one: 总栏目 asks what nobody has looked at, Multi Engine
-        // asks why a bundle was put together, and this asks what is being
-        // claimed for this month. Three questions, three screens.
-        //
-        // Gated on `claim.view` and not on `package.view`: reading the claims
-        // and building their evidence are separate grants (D-136), and a
-        // sidebar entry that leads to a 403 is worse than no entry.
-        child(
-          "4.2.4",
-          "nav.submodule.claimEngine",
-          "/claims",
-          "project_categories",
-          "claim.view",
-        ),
-        // 杂费报销 beside 进度 Claim: one claim table, two entries (D-252).
-        child(
-          "4.2.5",
-          "nav.submodule.sundryClaims",
-          "/sundry-claims",
-          "project_categories",
-          "sundry_claim.view",
-        ),
-      ],
-    ),
-    item(
       "material_receipts",
       "/modules/materials",
       ClipboardList,
@@ -1194,6 +1122,34 @@ export const PORTAL_NAVIGATION = {
         ),
       ],
     ),
+    // What used to sit together under 「现场资料」 (F-484), each at its own
+    // level now (D-283): 「栏目管理、总栏目、Multi Engine、进度 Claim、杂费报销
+    // 并不是同一个层级……『现场资料』不要作为一个总容器」.
+    //
+    // 进度 Claim and 杂费报销 (Sundry Claim) are business entries of their own.
+    // `requiredPermission` hides the entry; `PERMISSION_ROUTE_RULES` below is
+    // what makes the address itself refuse.
+    entry("project_categories", "submodule.claimEngine", "/claims", Receipt, "operations", {
+      requiredPermission: "claim.view",
+    }),
+    entry("project_categories", "submodule.sundryClaims", "/sundry-claims", CreditCard, "operations", {
+      requiredPermission: "sundry_claim.view",
+    }),
+    // Tools that read across every business entry. 总栏目 lists the *records*
+    // of all of them and who archived each - not a list of categories, so it
+    // is not folded into Category Management; Multi Engine bundles records
+    // from several entries into one PDF.
+    entry("project_categories", "submodule.archiveQueue", "/archive-queue", Inbox, "tools"),
+    entry("project_categories", "submodule.multiEngine", "/evidence-packages", Package, "tools", {
+      requiredPermission: "package.view",
+    }),
+    // A setting: it manages the categories under each business entry
+    // (材料分类、隐患整改分类…), not a business entry itself (D-284).
+    // `/modules/categories` was the container's landing page; it and the two
+    // retired screens redirect here (D-263, D-283).
+    entry("project_categories", "submodule.categoryManagement", "/category-management", ListTree, "system", {
+      routePrefixes: ["/modules/categories", "/material-columns", "/project-categories"],
+    }),
     item("users", "/modules/users", Users, "system", undefined, false, [
       child("16.2.1", "nav.submodule.userManagement", "/users", "users"),
       child("16.2.2", "nav.submodule.roles", "/roles", "roles"),
@@ -1373,6 +1329,21 @@ function itemWithLabel(
   };
 }
 
+/** A top-level entry with its own label and, optionally, a permission. */
+function entry(
+  feature: PortalFeatureKey,
+  labelKey: string,
+  href: string,
+  icon: LucideIcon,
+  group: FeatureNavItem["group"],
+  options: { routePrefixes?: readonly string[]; requiredPermission?: string } = {},
+): FeatureNavItem {
+  return {
+    ...itemWithLabel(feature, labelKey, href, icon, group, options.routePrefixes),
+    requiredPermission: options.requiredPermission,
+  };
+}
+
 function child(
   key: string,
   labelKey: string,
@@ -1396,6 +1367,7 @@ export function visibleNavigation(
   const groupOrder: FeatureNavItem["group"][] = [
     "overview",
     "operations",
+    "tools",
     "finance",
     "system",
   ];
@@ -1404,6 +1376,12 @@ export function visibleNavigation(
   );
 
   for (const navItem of PORTAL_NAVIGATION[portal]) {
+    if (
+      navItem.requiredPermission &&
+      !hasPermission(permissions, navItem.requiredPermission, isSuperuser)
+    ) {
+      continue;
+    }
     const visibleChildren = navItem.children?.filter((childItem) => {
       const featureVisible =
         (!childItem.feature && visible.has(navItem.feature)) ||

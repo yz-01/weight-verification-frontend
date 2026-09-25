@@ -71,10 +71,18 @@ describe("the column schemes", () => {
     ]);
   });
 
-  it("offers every one of them in the kind picker", () => {
+  // Kinds kept for old rows but never offered (D-285, D-286): 现场资料分类 was
+  // never a business module, and Claim 分类 duplicated 杂费报销分类.
+  const RETIRED = ["BOTH", "FIELD", "CLAIM"];
+
+  it("offers every one of them in the kind picker, the retired ones excepted", () => {
     const dialog = read(WORKSPACES);
+    for (const kind of RETIRED) {
+      if (kind === "BOTH") continue; // Shown only on a row that already carries it.
+      expect(dialog.includes(`<SelectItem value="${kind}">`), `${kind} is not offered`).toBe(false);
+    }
     for (const kind of declaredKinds()) {
-      if (kind === "BOTH") continue; // Legacy marker: only shown on a row that already carries it.
+      if (RETIRED.includes(kind)) continue;
       expect(
         dialog.includes(`<SelectItem value="${kind}">`),
         `${kind} can be chosen when creating a column`,
@@ -92,7 +100,10 @@ describe("the column schemes", () => {
       ...management.matchAll(/columnModule\("([a-z]+)", "([A-Z_]+)"\)/g),
     ].map((m) => m[2]);
     for (const kind of declaredKinds()) {
-      if (kind === "BOTH") continue;
+      if (RETIRED.includes(kind)) {
+        expect(modules, `${kind} has no module row`).not.toContain(kind);
+        continue;
+      }
       expect(modules, `${kind} has a module row`).toContain(kind);
     }
   });

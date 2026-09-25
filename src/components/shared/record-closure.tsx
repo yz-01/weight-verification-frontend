@@ -30,6 +30,7 @@ import { LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
+import { recordConversationKey } from "@/lib/record-chat";
 import { useDateFormat } from "@/lib/dates";
 import {
   confirmRecordClosure,
@@ -63,6 +64,11 @@ export function RecordClosurePanel({
       // The record itself is now read-only, so anything showing it has to be
       // refetched rather than left offering actions that will be refused.
       void queryClient.invalidateQueries({ queryKey: ["archive-queue"] });
+      // Its conversation closes with it (D-278): the panel beside this one
+      // swaps its composer for the reason without a reload.
+      void queryClient.invalidateQueries({
+        queryKey: recordConversationKey(kind, recordId),
+      });
     },
   });
 

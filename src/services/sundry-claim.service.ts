@@ -49,10 +49,20 @@ export async function reviewSundryClaim(id: string, decision: "CONFIRMED" | "REJ
   return row;
 }
 
-/** Locked the moment it lands (D-231); a wrong one is answered by adding another. */
-export async function addSundryPaymentProof(id: string, payload: { file: File; amount?: string; note?: string }) {
+/**
+ * Locked the moment it lands (D-231); a wrong one is answered by adding another.
+ *
+ * Either a `file` (chosen, dropped or pasted) or `message`, the id of a photo
+ * already sent in this claim's conversation, which the server copies (D-282).
+ * A file wins if both are given, as it does on the server.
+ */
+export async function addSundryPaymentProof(
+  id: string,
+  payload: { file?: File; message?: string; amount?: string; note?: string },
+) {
   const data = new FormData();
-  data.append("file", payload.file);
+  if (payload.file) data.append("file", payload.file);
+  else if (payload.message) data.append("message", payload.message);
   if (payload.amount) data.append("amount", payload.amount);
   if (payload.note) data.append("note", payload.note);
   const row = await api.post<SundryClaim>(`/api/sundry-claims/${id}/add_payment_proof/`, data);

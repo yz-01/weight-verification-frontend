@@ -719,7 +719,7 @@ function QuickActions({ project }: { project: string }) {
     { href: "/suppliers/create", label: t("supplier"), icon: Inbox },
     {
       // Opens the create dialog on Category Management in place (D-264).
-      href: `/category-management?project=${encodeURIComponent(project)}&module=field&create=1`,
+      href: `/category-management?project=${encodeURIComponent(project)}&module=material&create=1`,
       label: t("category"),
       icon: FolderPlus,
       requiresProject: true,

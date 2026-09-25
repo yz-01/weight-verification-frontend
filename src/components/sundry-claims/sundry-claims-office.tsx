@@ -10,9 +10,11 @@
  *    arm first, no confirmation dialog). A rejection needs something said on
  *    the record first; the server refuses otherwise (D-250) and the message
  *    says so.
- * 2. after confirming, finance uploads the payment voucher - chosen, then
- *    uploaded, and locked the moment it lands; a wrong one is answered by
- *    adding the right one (第 53 条). Only `sundry_claim.pay` sees this (D-256).
+ * 2. after confirming, finance uploads the payment voucher - chosen, dropped,
+ *    pasted with Ctrl+V or picked from the claim's own conversation (D-282,
+ *    `VoucherSource`), previewed, then uploaded, and locked the moment it
+ *    lands; a wrong one is answered by adding the right one (第 53 条). Only
+ *    `sundry_claim.pay` sees this (D-256).
  * 3. 【确认已付款】, a separate step (第 55 条), which tells the applicant.
  *
  * Beside those, 【归入栏目】 files the claim under one of the project's SUNDRY
@@ -41,6 +43,7 @@ import {
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { VoucherSource } from "@/components/sundry-claims/voucher-source";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -49,6 +52,8 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { ApiError } from "@/interfaces/api";
 import { sundryStatus, type SundryClaim, type SundryClaimStatus } from "@/interfaces/sundry-claim";
 import { useDateFormat } from "@/lib/dates";
+import { recordConversationKey } from "@/lib/record-chat";
+import { voucherPayload, type VoucherChoice } from "@/lib/voucher-sources";
 import {
   addSundryPaymentProof,
   confirmSundryClaimPaid,
@@ -247,7 +252,7 @@ function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void })
   const detail = useQuery({ queryKey: ["sundry-claims", "detail", id], queryFn: () => getSundryClaim(id) });
   const [rejectArmed, setRejectArmed] = useState(false);
   const [reason, setReason] = useState("");
-  const [voucher, setVoucher] = useState<File | null>(null);
+  const [voucher, setVoucher] = useState<VoucherChoice | null>(null);
   const [voucherAmount, setVoucherAmount] = useState("");
   const [error, setError] = useState("");
   const refresh = () => {
@@ -266,7 +271,11 @@ function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void })
     onError: fail,
   });
   const upload = useMutation({
-    mutationFn: () => addSundryPaymentProof(id, { file: voucher as File, amount: voucherAmount.trim() || undefined }),
+    mutationFn: () =>
+      addSundryPaymentProof(id, {
+        ...voucherPayload(voucher as VoucherChoice),
+        amount: voucherAmount.trim() || undefined,
+      }),
     onSuccess: () => {
       setVoucher(null);
       setVoucherAmount("");
@@ -274,7 +283,16 @@ function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void })
     },
     onError: fail,
   });
-  const pay = useMutation({ mutationFn: () => confirmSundryClaimPaid(id), onSuccess: refresh, onError: fail });
+  const pay = useMutation({
+    mutationFn: () => confirmSundryClaimPaid(id),
+    onSuccess: () => {
+      refresh();
+      // Paid closes the claim's conversation (D-278): refetch it so the
+      // composer below is replaced by the reason without a reload.
+      void qc.invalidateQueries({ queryKey: recordConversationKey("SUNDRY_CLAIM", id) });
+    },
+    onError: fail,
+  });
 
   const claim = detail.data;
   if (!claim) {
@@ -395,7 +413,7 @@ function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void })
                     one is added - so the group wears that star. */}
                 <FieldWrapper label={t("proofs.title")} required className="space-y-2 rounded-md border p-2">
                   <FieldWrapper label={t("proofs.file")} required hint={t("proofs.lockHint")}>
-                    <Input type="file" accept="image/*" className="h-8 text-xs" onChange={(event) => setVoucher(event.target.files?.[0] ?? null)} />
+                    <VoucherSource claimId={claim.id} value={voucher} onChange={setVoucher} />
                   </FieldWrapper>
                   <FieldWrapper label={t("proofs.amount")}>
                     <Input inputMode="decimal" type="number" min="0" step="0.01" className="h-8" value={voucherAmount} onChange={(event) => setVoucherAmount(event.target.value)} />

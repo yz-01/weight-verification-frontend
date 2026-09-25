@@ -1176,19 +1176,6 @@ export const getClaim = (id: string) =>
   api.get<ClaimDetail>(`/api/claims/${id}/get_claim/`);
 
 /**
- * File a claim under a CLAIM column, or back to 未归类 with `category: null`.
- * The office opens a claim and files it afterwards (D-275).
- */
-export async function fileClaim(
-  id: string,
-  payload: { category: string | null; reason?: string },
-) {
-  const row = await api.post<ClaimDetail>(`/api/claims/${id}/file_claim/`, payload);
-  toastSuccess("contractorOps.toast.saved");
-  return row;
-}
-
-/**
  * This period's candidates, and the four counts above them (D-134).
  *
  * Not `api.list`: the payload carries the counts beside the rows, and they
@@ -1306,6 +1293,13 @@ export interface RecordConversation {
   reference: string;
   messages: RecordMessage[];
   audio_seconds_limit: number;
+  /**
+   * Non-empty once the record is finished (D-278): `"archived"` after
+   * 【确认归档】, `"paid"` for a sundry claim after 【确认已付款】. The history
+   * stays readable; the server refuses new messages with
+   * `conversation_closed`. Optional because an older server omits it.
+   */
+  closed?: "" | "archived" | "paid";
 }
 
 export function getRecordConversation(

@@ -233,25 +233,63 @@ describe("every menu entry has a name", () => {
  * and the registry is where somebody would undo it.
  */
 describe("the category module", () => {
-  // Not named `module`: Next forbids assigning that identifier.
-  const categories = PORTAL_NAVIGATION.MSE_TRACE.find(
+  /*
+   * 「现场资料」 is no longer a container (D-283). The customer: 「栏目管理、
+   * 总栏目、Multi Engine、进度 Claim、杂费报销……并不是同一个层级……『现场资料』
+   * 不要作为一个总容器」. Each of the five is its own entry, at its own level.
+   */
+  const entries = PORTAL_NAVIGATION.MSE_TRACE.filter(
     (item) => item.feature === "project_categories",
   );
+  const where = (href: string) => entries.find((item) => item.href === href);
 
-  it("has five children: definitions, the queue, Multi Engine, and the two claim entries", () => {
-    expect(categories?.children?.map((child) => child.href)).toEqual([
-      "/category-management",
-      "/archive-queue",
-      "/evidence-packages",
-      // Claim Engine (T-236). A fourth sibling for the same reason the
-      // third is one: three different questions about the same records -
-      // what nobody has read, why a bundle exists, and what is being
-      // claimed this month.
-      "/claims",
-      // 杂费报销 (D-252): the same claim table, its own menu entry, so it is
-      // never confused with 进度 Claim.
-      "/sundry-claims",
-    ]);
+  it("is five entries at their own levels, and no container", () => {
+    expect(entries.every((item) => !item.children?.length)).toBe(true);
+    expect(entries.map((item) => item.href)).not.toContain("/modules/categories");
+    // Business entries.
+    expect(where("/claims")?.group).toBe("operations");
+    expect(where("/sundry-claims")?.group).toBe("operations");
+    // Tools across every entry.
+    expect(where("/archive-queue")?.group).toBe("tools");
+    expect(where("/evidence-packages")?.group).toBe("tools");
+    // A setting.
+    expect(where("/category-management")?.group).toBe("system");
+    expect(entries).toHaveLength(5);
+  });
+
+  it("shows the tools group between the business entries and finance", () => {
+    const groups = visibleNavigation(
+      "MSE_TRACE",
+      ["project_categories", "material_receipts"],
+      ["package.view", "claim.view", "sundry_claim.view"],
+    ).map((group) => group.key);
+    expect(groups.indexOf("tools")).toBe(groups.indexOf("operations") + 1);
+    const tools = visibleNavigation("MSE_TRACE", ["project_categories"], ["package.view"])
+      .find((group) => group.key === "tools")
+      ?.items.map((item) => item.href);
+    expect(tools).toEqual(["/archive-queue", "/evidence-packages"]);
+  });
+
+  it("hides an entry from somebody without its permission", () => {
+    const hrefs = visibleNavigation("MSE_TRACE", ["project_categories"], [])
+      .flatMap((group) => group.items.map((item) => item.href));
+    expect(hrefs).toContain("/category-management");
+    expect(hrefs).toContain("/archive-queue");
+    for (const gated of ["/claims", "/sundry-claims", "/evidence-packages"]) {
+      expect(hrefs).not.toContain(gated);
+    }
+  });
+
+  it("sends the old container's address to Category Management", () => {
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/modules/categories"),
+    ).toBe(true);
+    const page = readFileSync(
+      path.join(process.cwd(), "src/app/(dashboard)/modules/[module]/page.tsx"),
+      "utf8",
+    );
+    expect(page).toMatch(/categories: "\/category-management"/);
+    expect(page).not.toMatch(/categories: "project_categories"/);
   });
 
   /*
