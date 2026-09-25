@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -215,18 +215,20 @@ function RowDialog({
           <DialogTitle>{t(`${kind}.${row ? "edit" : "add"}`)}</DialogTitle>
           <DialogDescription>{t(`${kind}.help`)}</DialogDescription>
         </DialogHeader>
-        <Input
-          placeholder={t("field.code")}
-          aria-label={t("field.code")}
-          value={code}
-          onChange={(event) => setCode(event.target.value)}
-        />
-        <Input
-          placeholder={t("field.name")}
-          aria-label={t("field.name")}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
+        <FieldWrapper label={t("field.code")} required>
+          <Input
+            aria-label={t("field.code")}
+            value={code}
+            onChange={(event) => setCode(event.target.value)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.name")} required>
+          <Input
+            aria-label={t("field.name")}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </FieldWrapper>
         <label className="flex items-center gap-3 rounded-lg border p-3">
           <Switch checked={isActive} onCheckedChange={setIsActive} />
           <span className="text-sm">{t("field.active")}</span>

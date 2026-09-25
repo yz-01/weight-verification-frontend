@@ -264,6 +264,21 @@ export async function calculatePartnerPayout(
 }
 
 export async function adjustPartnerPayout(id: string, adjustment: string, reason: string) { return api.post<PartnerCommissionPayout>(`/api/partner-payouts/adjust-payout/${id}/`, { adjustment, reason }); }
-export async function transitionPartnerPayout(id: string, state: string, extra: Record<string, unknown> = {}) { return api.post<PartnerCommissionPayout>(`/api/partner-payouts/transition-payout/${id}/`, { state, ...extra }); }
+/**
+ * Move a payout along its approval chain.
+ *
+ * Multipart, like the agreement upload, because marking a payout PAID may
+ * carry the bank slip as `payment_proof`. Empty values are left out so an
+ * untouched box is not sent as an instruction.
+ */
+export async function transitionPartnerPayout(id: string, state: string, extra: { reason?: string; payment_reference?: string; payment_proof?: File | null } = {}) {
+  const body = new FormData();
+  body.append("state", state);
+  Object.entries(extra).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    body.append(key, value instanceof File ? value : String(value));
+  });
+  return api.post<PartnerCommissionPayout>(`/api/partner-payouts/transition-payout/${id}/`, body);
+}
 export function getPartnerPerformance(query?: ListQuery): Promise<{ results: PartnerPerformance[]; count: number }> { return api.get("/api/partner-reports/get-performance/", query); }
 export function exportPartnerReport(dataset: string, format: "pdf" | "xlsx", title: string, columns: Array<{ key: string; label: string }>) { return download("/api/partner-reports/export-report/", { method: "POST", body: { dataset, format, title, columns, empty_label: "" }, fallbackFilename: `partner-${dataset}.${format}` }); }

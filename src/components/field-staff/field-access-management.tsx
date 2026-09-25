@@ -14,7 +14,7 @@ import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { FieldWrapper } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ApiError } from "@/interfaces/api";
@@ -354,7 +354,9 @@ function FieldAccessManagementContent({
                       ))}
                   </SelectContent>
                 </Select>
-                {!fieldUsers.isLoading &&
+                <QueryFailedNote className="mt-2" query={roles} what={t("what.roles")} />
+                <QueryFailedNote className="mt-2" query={fieldUsers} what={t("what.staff")} />
+                {fieldUsers.isSuccess &&
                   (fieldUsers.data?.results ?? []).length === 0 && (
                     <p className="mt-2 text-sm text-muted-foreground">
                       {t("noExistingStaff")}
@@ -452,7 +454,7 @@ function FieldAccessManagementContent({
                     >
                       <Checkbox
                         checked={selectedProjectIds.includes(project.id)}
-                        disabled={accessInfo.isLoading}
+                        disabled={accessInfo.isLoading || accessInfo.isError}
                         onCheckedChange={(checked) =>
                           toggleProject(project.id, checked === true)
                         }
@@ -467,13 +469,15 @@ function FieldAccessManagementContent({
                       </span>
                     </label>
                   ))}
-                  {!projects.isLoading &&
+                  {projects.isSuccess &&
                     (projects.data?.results.length ?? 0) === 0 && (
                       <p className="p-4 text-center text-sm text-muted-foreground">
                         {t("noProjects")}
                       </p>
                     )}
                 </div>
+                <QueryFailedNote className="mt-2" query={projects} what={t("what.projects")} />
+                <QueryFailedNote className="mt-2" query={accessInfo} what={t("what.accessInfo")} />
               </FieldWrapper>
             )}
             {create.isError && !firstFieldError && (

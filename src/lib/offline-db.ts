@@ -9,6 +9,7 @@ export type OfflineJobKind =
   | "EQUIPMENT_MOVEMENT"
   | "SITE_PROGRESS"
   | "MATERIAL_OUTGOING"
+  | "SUNDRY_CLAIM"
   | "WASTE_OUTGOING"
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
@@ -32,6 +33,10 @@ interface OfflineJobBase {
   queuedAt: string;
   attempts: number;
   lastError: string;
+  /** HTTP status of the last refusal, so the queue can say what kind it was (F-463). */
+  lastErrorStatus?: number;
+  /** The server's code for the last refusal, e.g. `task_already_running`. */
+  lastErrorCode?: string;
 }
 
 export interface AttendanceOfflineJob extends OfflineJobBase {
@@ -224,6 +229,20 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   };
 }
 
+/** 杂费报销 from the phone (T-379), queued like every other capture. */
+export interface SundryClaimOfflineJob extends OfflineJobBase {
+  kind: "SUNDRY_CLAIM";
+  payload: {
+    project: string;
+    amount: string;
+    description: string;
+    latitude?: string;
+    longitude?: string;
+    client_event_id: string;
+    attachments: StoredFile[];
+  };
+}
+
 export interface WasteOutgoingOfflineJob extends OfflineJobBase {
   kind: "WASTE_OUTGOING";
   payload: {
@@ -364,6 +383,7 @@ export type OfflineJob =
   | EquipmentMovementOfflineJob
   | SiteProgressOfflineJob
   | MaterialOutgoingOfflineJob
+  | SundryClaimOfflineJob
   | WasteOutgoingOfflineJob
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob

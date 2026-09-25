@@ -13,6 +13,7 @@ import { useFormSurface } from "@/components/shared/form-surface";
 import {
   DetailHeader,
   FieldWrapper,
+  QueryFailedNote,
   SectionHeader,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -233,7 +234,8 @@ function ConsultantApplicationEditor({
   const scheduleTasks = useQuery({
     queryKey: ["consultant-schedule-tasks", form.project],
     queryFn: () => getScheduleTasks({ project: form.project, page_size: 300 }),
-    enabled: Boolean(form.project),
+    // Only people who may read the schedule ask for it, so a failure here is a real one.
+    enabled: Boolean(form.project) && can("schedule.view"),
     retry: false,
   });
   const grants = useQuery({
@@ -285,6 +287,13 @@ function ConsultantApplicationEditor({
     (version) => version.id === form.template_version,
   );
   const templateFields = selectedTemplateVersion?.field_schema ?? [];
+  // Named field by field: each of them carries its own required marker below,
+  // and "template" was the wrong thing to point at once the template picker
+  // became optional (T-373).
+  const missingTemplateFields = templateFields
+    .filter((field) => field.required && !form.custom_fields?.[field.key]?.trim())
+    .map((field) => field.label)
+    .join(", ");
   const requiredTemplateFieldsComplete = templateFields
     .filter((field) => field.required)
     .every((field) => Boolean(form.custom_fields?.[field.key]?.trim()));
@@ -420,53 +429,68 @@ function ConsultantApplicationEditor({
           <FieldWrapper label={t("field.project")} required>
             {id || sourceTask.data ? <Input value={initial?.project_name ?? sourceTask.data?.project_name ?? ""} readOnly className="bg-muted/40" /> : <ConsultantProjectPicker value={form.project} onChange={onProjectChange} />}
           </FieldWrapper>
-          <FieldWrapper label={t("field.workflow")} required>
-            <Select
-              value={selectedWorkflow || undefined}
-              onValueChange={(value) => set("workflow", value)}
-              disabled={!form.project || workflows.isLoading}
-            >
-              <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseWorkflow")} /></SelectTrigger>
-              <SelectContent>
-                {(workflows.data?.results ?? []).map((row) => (
-                  <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          <FieldWrapper label={t("field.template")} required>
-            <Select
-              value={form.template_version || "NONE"}
-              onValueChange={(value) => {
-                if (value === "NONE") {
-                  set("template_version", null);
-                  return;
-                }
-                const template = (templates.data?.results ?? []).find((row) =>
-                  row.versions.some((version) => version.id === value),
-                );
-                setForm((old) => ({
-                  ...old,
-                  template_version: value,
-                  application_type: template?.application_type || old.application_type,
-                }));
-              }}
-              disabled={!form.project || templates.isLoading}
-            >
-              <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseTemplate")} /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NONE">{t("field.noTemplate")}</SelectItem>
-                {(templates.data?.results ?? []).map((template) => {
-                  const version = template.versions.find((item) => item.version === template.current_version);
-                  return version ? (
-                    <SelectItem key={version.id} value={version.id}>
-                      {template.code} - {template.name} (v{version.version})
-                    </SelectItem>
-                  ) : null;
-                })}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
+          {/*
+            Folded away (T-373, D-254). Neither has to be chosen: every project
+            now has a default one-step route - to the consultant this
+            application is addressed to - and a template is optional. Showing
+            them as the first two required fields is what made the form
+            impossible to start.
+          */}
+          <details className="rounded-lg border bg-muted/20 px-3 py-2 sm:col-span-2">
+            <summary className="cursor-pointer text-sm font-medium">{t("form.advanced")}</summary>
+            <p className="mt-1 text-xs text-muted-foreground">{t("form.advancedHelp")}</p>
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <FieldWrapper label={t("field.workflow")}>
+              <Select
+                value={selectedWorkflow || undefined}
+                onValueChange={(value) => set("workflow", value)}
+                disabled={!form.project || workflows.isLoading}
+              >
+                <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseWorkflow")} /></SelectTrigger>
+                <SelectContent>
+                  {(workflows.data?.results ?? []).map((row) => (
+                    <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <QueryFailedNote query={workflows} what={t("what.workflows")} />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.template")}>
+              <Select
+                value={form.template_version || "NONE"}
+                onValueChange={(value) => {
+                  if (value === "NONE") {
+                    set("template_version", null);
+                    return;
+                  }
+                  const template = (templates.data?.results ?? []).find((row) =>
+                    row.versions.some((version) => version.id === value),
+                  );
+                  setForm((old) => ({
+                    ...old,
+                    template_version: value,
+                    application_type: template?.application_type || old.application_type,
+                  }));
+                }}
+                disabled={!form.project || templates.isLoading}
+              >
+                <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseTemplate")} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NONE">{t("field.noTemplate")}</SelectItem>
+                  {(templates.data?.results ?? []).map((template) => {
+                    const version = template.versions.find((item) => item.version === template.current_version);
+                    return version ? (
+                      <SelectItem key={version.id} value={version.id}>
+                        {template.code} - {template.name} (v{version.version})
+                      </SelectItem>
+                    ) : null;
+                  })}
+                </SelectContent>
+              </Select>
+              <QueryFailedNote query={templates} what={t("what.templates")} />
+            </FieldWrapper>
+            </div>
+          </details>
           <FieldWrapper label={t("field.scheduleTask")}>
             <Select value={form.schedule_task || "NONE"} onValueChange={(value) => set("schedule_task", value === "NONE" ? null : value)} disabled={!form.project || scheduleTasks.isLoading || scheduleTasks.isError}>
               <SelectTrigger className="w-full"><SelectValue placeholder={t("field.chooseScheduleTask")} /></SelectTrigger>
@@ -475,11 +499,13 @@ function ConsultantApplicationEditor({
                 {(scheduleTasks.data?.results ?? []).map((task) => <SelectItem key={task.id} value={task.id}>{task.wbs_code} - {task.name}</SelectItem>)}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={scheduleTasks} what={t("what.scheduleTasks")} />
           </FieldWrapper>
-          <OptionField category="APPLICATION_TYPE" value={form.application_type} grouped={grouped} onChange={(value) => set("application_type", value)} label={t("field.applicationType")} placeholder={t("field.chooseType")} />
-          <OptionField category="DISCIPLINE" value={form.discipline} grouped={grouped} onChange={(value) => set("discipline", value)} label={t("field.discipline")} placeholder={t("field.chooseDiscipline")} />
-          <OptionField category="WORK_TYPE" value={form.work_type} grouped={grouped} onChange={(value) => set("work_type", value)} label={t("field.workType")} placeholder={t("field.chooseWorkType")} />
-          <OptionField category="PRIORITY" value={form.priority} grouped={grouped} onChange={(value) => set("priority", value)} label={t("field.priority")} placeholder={t("field.choosePriority")} />
+          <FieldWrapper label={t("field.applicationType")} required><OptionField category="APPLICATION_TYPE" value={form.application_type} grouped={grouped} onChange={(value) => set("application_type", value)} placeholder={t("field.chooseType")} /></FieldWrapper>
+          <FieldWrapper label={t("field.discipline")} required><OptionField category="DISCIPLINE" value={form.discipline} grouped={grouped} onChange={(value) => set("discipline", value)} placeholder={t("field.chooseDiscipline")} /></FieldWrapper>
+          <FieldWrapper label={t("field.workType")} required><OptionField category="WORK_TYPE" value={form.work_type} grouped={grouped} onChange={(value) => set("work_type", value)} placeholder={t("field.chooseWorkType")} /></FieldWrapper>
+          <FieldWrapper label={t("field.priority")} required><OptionField category="PRIORITY" value={form.priority} grouped={grouped} onChange={(value) => set("priority", value)} placeholder={t("field.choosePriority")} /></FieldWrapper>
+          <QueryFailedNote query={options} what={t("what.applicationOptions")} className="sm:col-span-2" />
           <ExtraTicks
             category="DISCIPLINE"
             grouped={grouped}
@@ -518,12 +544,13 @@ function ConsultantApplicationEditor({
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={grants} what={t("what.consultantGrants")} />
           </FieldWrapper>
           <FieldWrapper label={t("field.consultantCompany")} required>
             <Input value={selectedGrant?.organization_name ?? ""} readOnly className="bg-muted/40" />
           </FieldWrapper>
         </div>
-        {form.project && !grants.isLoading && !grants.data?.length && (
+        {form.project && !grants.isLoading && !grants.isError && !grants.data?.length && (
           <p className="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
             {t("form.noConsultantGrant")}
           </p>
@@ -579,7 +606,7 @@ function ConsultantApplicationEditor({
   const actions = (
     <>
         <Button variant="outline" onClick={() => router.back()}>{t("action.cancel")}</Button>
-        <Button requires={[[form.project, t("field.project")], [selectedWorkflow, t("field.workflow")], [form.application_type, t("field.applicationType")], [form.discipline, t("field.discipline")], [form.work_type, t("field.workType")], [form.priority, t("field.priority")], [form.consultant, t("field.consultant")], [form.consultant_organization, t("field.consultantCompany")], [form.location, t("field.location")], [form.component, t("field.component")], [form.description, t("field.description")], [requiredTemplateFieldsComplete, t("field.template")]]}
+        <Button requires={[[form.project, t("field.project")], [form.application_type, t("field.applicationType")], [form.discipline, t("field.discipline")], [form.work_type, t("field.workType")], [form.priority, t("field.priority")], [form.consultant, t("field.consultant")], [form.consultant_organization, t("field.consultantCompany")], [form.location, t("field.location")], [form.component, t("field.component")], [form.description, t("field.description")], [requiredTemplateFieldsComplete, missingTemplateFields]]}
                 disabled={save.isPending} onClick={() => save.mutate()}>
           {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
           {t("action.saveDraft")}
@@ -707,27 +734,23 @@ function OptionField({
   value,
   grouped,
   onChange,
-  label,
   placeholder,
 }: {
   category: ProjectOptionCategory;
   value: string;
   grouped: Map<ProjectOptionCategory, ProjectApplicationOption[]>;
   onChange: (value: string) => void;
-  label: string;
   placeholder: string;
 }) {
   return (
-    <FieldWrapper label={label} required>
-      <Select value={value || undefined} onValueChange={onChange}>
-        <SelectTrigger className="w-full"><SelectValue placeholder={placeholder} /></SelectTrigger>
-        <SelectContent>
-          {(grouped.get(category) ?? []).map((row) => (
-            <SelectItem key={row.id} value={row.id}>{row.label}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </FieldWrapper>
+    <Select value={value || undefined} onValueChange={onChange}>
+      <SelectTrigger className="w-full"><SelectValue placeholder={placeholder} /></SelectTrigger>
+      <SelectContent>
+        {(grouped.get(category) ?? []).map((row) => (
+          <SelectItem key={row.id} value={row.id}>{row.label}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 

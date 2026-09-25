@@ -28,7 +28,7 @@ import { getContractorDashboard } from "@/services/contractor-dashboard.service"
  * decide what the other got. The dashboard would lose its activity feed to a
  * sidebar that only wanted a number.
  */
-export function useUnreadBadges(): Partial<Record<PortalFeatureKey, number>> {
+export function useUnreadBadges(): Partial<Record<PortalFeatureKey, number | null>> {
   const { can, user } = useAuth();
   // `dashboard.view` is the permission behind the endpoint, so asking without
   // it would be a guaranteed 403 on every page load for the roles that do not
@@ -62,7 +62,17 @@ export function useUnreadBadges(): Partial<Record<PortalFeatureKey, number>> {
   });
 
   const unread = query.data?.unread;
-  if (!unread) return {};
+  // A failed first load must not look like "nothing waiting" - no badge at
+  // all is exactly what an empty pile looks like (T-175). `null` tells the
+  // sidebar to mark the entries as unknown instead. A failed *refresh* keeps
+  // the last counts it had, which were true when they arrived.
+  if (!unread) {
+    if (!query.isError) return {};
+    return {
+      ...(maySeeReceipts ? { material_receipts: null } : {}),
+      approvals: null,
+    };
+  }
   return {
     // Withheld rather than the whole query being skipped: a reader with no
     // receipt permission should not be shown a count of deliveries, but that

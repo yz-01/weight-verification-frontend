@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { WorkforcePresencePanel } from "@/components/site-operations/workforce-presence-panel";
@@ -390,8 +390,12 @@ export function FieldStaffGps({
         title={t("siteGps.title")}
         subtitle={
           tab === "live"
-            ? t("siteGps.count", { count: live.data?.count ?? 0 })
-            : t("siteGps.historyCount", { count: lastPositions.data?.count ?? 0 })
+            ? live.isError
+              ? t("common.emptyValue")
+              : t("siteGps.count", { count: live.data?.count ?? 0 })
+            : lastPositions.isError
+              ? t("common.emptyValue")
+              : t("siteGps.historyCount", { count: lastPositions.data?.count ?? 0 })
         }
         action={
           <Button
@@ -431,18 +435,24 @@ export function FieldStaffGps({
         </TabsList>
 
         <TabsContent value="live" className="space-y-5 pt-2">
-          <div className="flex flex-wrap items-center gap-3 border-y bg-card/50 py-3">
-            <ProjectPicker
-              value={projectId || "all"}
-              onValueChange={(value) => {
-                if (sharing) stopSharing();
-                setProjectId(value === "all" ? "" : value);
-              }}
-              allowAll
-              allLabel={t("siteGps.allProjects")}
-              placeholder={t("siteGps.project")}
+          <div className="flex flex-wrap items-end gap-3 border-y bg-card/50 py-3">
+            <FieldWrapper
+              label={t("siteGps.project")}
+              required={!managedAutomatically && can("field_position.submit")}
               className="w-full sm:w-[280px]"
-            />
+            >
+              <ProjectPicker
+                value={projectId || "all"}
+                onValueChange={(value) => {
+                  if (sharing) stopSharing();
+                  setProjectId(value === "all" ? "" : value);
+                }}
+                allowAll
+                allLabel={t("siteGps.allProjects")}
+                placeholder={t("siteGps.project")}
+                className="w-full"
+              />
+            </FieldWrapper>
             {managedAutomatically ? (
               <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md border border-success/25 bg-success/5 px-3 py-2">
                 <LocateFixed className="size-4 shrink-0 text-success" />
@@ -481,6 +491,7 @@ export function FieldStaffGps({
                 phone's own settings, and the path there differs by phone and
                 by browser. Same guidance the field app shows. */}
             {sharingRefused && <LocationDenialSteps className="w-full" />}
+            <QueryFailedNote className="w-full" query={locationPolicy} what={t("siteGps.what.locationPolicy")} />
           </div>
 
           <MapSection title={t("siteGps.map")} note={t("siteGps.refreshNote")}>
@@ -492,12 +503,16 @@ export function FieldStaffGps({
               preserveViewOnDataUpdate
               fitBoundsKey={`live:${projectId || "all"}`}
             />
+            <QueryFailedNote query={projects} what={t("siteGps.what.projects")} />
+            <QueryFailedNote query={geofences} what={t("siteGps.what.geofences")} />
           </MapSection>
 
           <section className="space-y-3">
             <h2 className="text-sm font-semibold">{t("siteGps.people")}</h2>
             <div className="divide-y border-y">
-              {positions.length === 0 ? (
+              {live.isError ? (
+                <LoadFailed className="my-3" what={t("siteGps.what.live")} onRetry={() => live.refetch()} />
+              ) : positions.length === 0 ? (
                 <p className="px-4 py-10 text-center text-sm text-muted-foreground">
                   {t("siteGps.empty")}
                 </p>
@@ -540,6 +555,9 @@ export function FieldStaffGps({
                 selectedLastPosition?.user ?? "all"
               }`}
             />
+            <QueryFailedNote query={history} what={t("siteGps.what.route")} />
+            <QueryFailedNote query={projects} what={t("siteGps.what.projects")} />
+            <QueryFailedNote query={geofences} what={t("siteGps.what.geofences")} />
           </MapSection>
 
           <section className="space-y-3">
@@ -550,7 +568,9 @@ export function FieldStaffGps({
               </h2>
             </div>
             <div className="divide-y border-y">
-              {lastRows.length === 0 ? (
+              {lastPositions.isError ? (
+                <LoadFailed className="my-3" what={t("siteGps.what.lastPositions")} onRetry={() => lastPositions.refetch()} />
+              ) : lastRows.length === 0 ? (
                 <p className="px-4 py-10 text-center text-sm text-muted-foreground">
                   {t("siteGps.historyEmpty")}
                 </p>

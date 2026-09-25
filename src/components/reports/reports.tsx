@@ -15,7 +15,7 @@ import {
 } from "recharts";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import { LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,10 +63,11 @@ export function Reports() {
   const t = useTranslations();
   const list = useListQuery(["project", "date_from", "date_to"]);
 
-  const { data: projectPage } = useQuery({
+  const projectQuery = useQuery({
     queryKey: ["projects", "options"],
     queryFn: () => getProjects({ page_size: 100 }),
   });
+  const projectPage = projectQuery.data;
 
   const filters = {
     project: list.filters.project,
@@ -125,6 +126,7 @@ export function Reports() {
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={projectQuery} what={t("reports.what.projects")} />
           </div>
 
           <div className="space-y-1.5">
@@ -176,10 +178,14 @@ export function Reports() {
       <ReceiptsPanel
         data={receipts.data}
         isLoading={receipts.isLoading}
+        failed={receipts.isError}
+        onRetry={() => void receipts.refetch()}
       />
       <DispatchesPanel
         data={dispatches.data}
         isLoading={dispatches.isLoading}
+        failed={dispatches.isError}
+        onRetry={() => void dispatches.refetch()}
       />
     </div>
   );
@@ -194,11 +200,13 @@ function PanelShell({
 }: {
   icon: typeof Package;
   title: string;
-  total: number;
+  /** null when the summary failed to load - a dash, never a zero. */
+  total: number | null;
   totalLabel: string;
   children: React.ReactNode;
 }) {
   const formatter = useFormatter();
+  const t = useTranslations();
   return (
     <div className="rounded-lg border bg-card shadow-sm">
       <div className="flex flex-wrap items-center gap-3 px-6 py-5">
@@ -206,7 +214,7 @@ function PanelShell({
         <h3 className="text-base font-semibold text-foreground">{title}</h3>
         <div className="ml-auto text-right">
           <p className="tabular text-2xl font-semibold text-foreground">
-            {formatter.number(total)}
+            {total === null ? t("common.emptyValue") : formatter.number(total)}
           </p>
           <p className="text-xs uppercase tracking-wider text-muted-foreground">
             {totalLabel}
@@ -351,9 +359,13 @@ function RankedBars({
 function ReceiptsPanel({
   data,
   isLoading,
+  failed,
+  onRetry,
 }: {
   data?: Awaited<ReturnType<typeof getReceiptSummary>>;
   isLoading: boolean;
+  failed: boolean;
+  onRetry: () => void;
 }) {
   const t = useTranslations();
 
@@ -372,11 +384,13 @@ function ReceiptsPanel({
     <PanelShell
       icon={Package}
       title={t("reports.receipts.title")}
-      total={data?.total_receipts ?? 0}
+      total={failed ? null : data?.total_receipts ?? 0}
       totalLabel={t("reports.receipts.totalReceipts")}
     >
       {isLoading ? (
         <PanelSkeleton />
+      ) : failed ? (
+        <LoadFailed className="m-4" what={t("reports.what.receipts")} onRetry={onRetry} />
       ) : (data?.total_receipts ?? 0) === 0 ? (
         <EmptyPanel />
       ) : (
@@ -410,9 +424,13 @@ function ReceiptsPanel({
 function DispatchesPanel({
   data,
   isLoading,
+  failed,
+  onRetry,
 }: {
   data?: Awaited<ReturnType<typeof getDispatchSummary>>;
   isLoading: boolean;
+  failed: boolean;
+  onRetry: () => void;
 }) {
   const t = useTranslations();
 
@@ -430,11 +448,13 @@ function DispatchesPanel({
     <PanelShell
       icon={Truck}
       title={t("reports.dispatches.title")}
-      total={data?.total_dispatches ?? 0}
+      total={failed ? null : data?.total_dispatches ?? 0}
       totalLabel={t("reports.dispatches.totalDispatches")}
     >
       {isLoading ? (
         <PanelSkeleton />
+      ) : failed ? (
+        <LoadFailed className="m-4" what={t("reports.what.dispatches")} onRetry={onRetry} />
       ) : (data?.total_dispatches ?? 0) === 0 ? (
         <EmptyPanel />
       ) : (

@@ -74,7 +74,7 @@ export function ConsultantDashboard() {
         <div className="flex flex-wrap gap-2">
           {can("consultant.config") && (
             <Button asChild variant="outline">
-              <Link href="/consultant-workflows"><Settings2 />{t("workflowSettings")}</Link>
+              <Link href="/consultant-settings"><Settings2 />{t("workflowSettings")}</Link>
             </Button>
           )}
           {can("approval.review") && (
@@ -179,7 +179,7 @@ export function ConsultantDashboard() {
                   {(notifications.data?.results ?? []).map((row) => (
                     <div key={row.id} className="py-3">
                       <div className="flex items-center gap-2">
-                        {!row.is_read && <span className="size-2 rounded-full bg-primary" />}
+                        {row.is_outstanding && <span className="size-2 rounded-full bg-primary" />}
                         <p className="min-w-0 flex-1 truncate text-sm font-medium">{row.title}</p>
                       </div>
                       <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{row.message}</p>

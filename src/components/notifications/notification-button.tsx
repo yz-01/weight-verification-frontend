@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -15,12 +16,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { playAlertTone, wantsAlertSound } from "@/lib/alert-sound";
+import { ActionCardStack } from "@/components/notifications/action-card-stack";
+import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
 import { fieldNotificationHref } from "@/lib/field-notification";
 import {
+  confirmNotificationDone,
   getAllNotifications,
-  getUnreadNotificationCount,
-  markNotificationRead,
+  getOutstandingNotificationCount,
 } from "@/services/platform-ops.service";
 import {
   enablePushNotifications,
@@ -50,21 +53,21 @@ export function NotificationButton() {
         feature === "notifications" || feature === "notification_center",
     ) ?? false;
   const countQuery = useQuery({
-    queryKey: ["notifications", "unread-count"],
+    queryKey: ["notifications", "outstanding-count"],
     // Silent: the bell is mounted on every page, so a refusal here used to
     // paint "you do not have permission" over whatever the reader was
     // actually doing, about a count they never asked for. The badge already
     // says the count is unknown; that is the right place for it (F-224).
-    queryFn: () => getUnreadNotificationCount({ silent: true }),
+    queryFn: () => getOutstandingNotificationCount({ silent: true }),
     enabled,
     refetchInterval: 30_000,
   });
   const listQuery = useQuery({
-    queryKey: ["notifications", "toolbar", "unread"],
+    queryKey: ["notifications", "toolbar", "outstanding"],
     queryFn: () =>
       getAllNotifications(
         {
-          unread: "true",
+          state: "PENDING",
           sort_by: "created_at",
           sort_order: "desc",
         },
@@ -116,8 +119,8 @@ export function NotificationButton() {
     }
   }, [listQuery.data]);
 
-  const read = useMutation({
-    mutationFn: markNotificationRead,
+  const confirm = useMutation({
+    mutationFn: confirmNotificationDone,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
@@ -126,6 +129,8 @@ export function NotificationButton() {
   // reader they have nothing waiting, and nobody goes looking for a
   // notification they have been told does not exist (F-222).
   const count = countQuery.data?.total ?? 0;
+  const todayCount = countQuery.data?.today ?? 0;
+  const earlierCount = countQuery.data?.earlier ?? 0;
   const countFailed = countQuery.isError;
   const notificationHref =
     user?.is_field_staff
@@ -136,7 +141,28 @@ export function NotificationButton() {
 
   if (!enabled) return null;
 
+  /** Where a notice leads: the phone's own screen, or the office path it names. */
+  const destination = (notification: NotificationRow) => {
+    const rawHref = notification.data.href ?? notification.data.url;
+    return user?.is_field_staff
+      ? fieldNotificationHref(rawHref)
+      : typeof rawHref === "string" && rawHref.startsWith("/")
+        ? rawHref
+        : null;
+  };
+
   return (
+    <>
+    {/* Pop-up task cards for the back office (#6, #30, #39; D-207). */}
+    {!user?.is_field_staff && (
+      <ActionCardStack
+        rows={listQuery.data?.results ?? []}
+        onOpen={(notification) => {
+          const href = destination(notification);
+          router.push(href ?? "/notifications/my-tasks");
+        }}
+      />
+    )}
     <Popover
       open={open}
       onOpenChange={(next) => {
@@ -155,7 +181,7 @@ export function NotificationButton() {
           aria-label={
             countFailed
               ? t("notifications.countFailed")
-              : t("notifications.unreadCount", { count })
+              : t("notifications.outstandingCount", { count })
           }
         >
           <Bell className="h-4 w-4" />
@@ -196,7 +222,10 @@ export function NotificationButton() {
               >
                 {countFailed
                   ? t("notifications.countFailed")
-                  : t("notifications.unreadCount", { count })}
+                  : t("notifications.outstandingSplit", {
+                      today: todayCount,
+                      earlier: earlierCount,
+                    })}
               </p>
             </div>
           </div>
@@ -230,6 +259,10 @@ export function NotificationButton() {
             </Button>
           )}
         </div>
+        {!pushEnabled && (
+          // Without the push settings the "turn on phone alerts" offer cannot be shown.
+          <QueryFailedNote query={pushConfig} what={t("notifications.what.pushConfig")} className="border-b px-4 py-2" />
+        )}
         <div className="max-h-96 overflow-y-auto">
           {listQuery.isError ? (
             <div className="px-4 py-10 text-center">
@@ -243,17 +276,29 @@ export function NotificationButton() {
                 <Check className="size-4" />
               </span>
               <p className="mt-3 text-sm font-medium">
-                {t("notifications.noUnread")}
+                {t("notifications.nothingOutstanding")}
               </p>
             </div>
           ) : (
             listQuery.data?.results.map((notification) => (
-              <button
+              <div
                 key={notification.id}
+                className="border-b last:border-b-0"
+              >
+              <button
                 type="button"
-                className="flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-muted/40"
-                onClick={async () => {
-                  await read.mutateAsync(notification.id);
+                className="flex w-full items-start gap-3 px-4 pb-1 pt-3 text-left transition-colors hover:bg-muted/40"
+                onClick={() => {
+                  /*
+                   * Opening does nothing to the notice (D-206).
+                   *
+                   * This used to mark it read first, which removed it from the
+                   * list and took one off the count - so glancing at something
+                   * looked exactly like finishing it, and the customer's
+                   * complaint (#2) was that things got forgotten that way.
+                   * The only thing that settles a notice now is the confirm
+                   * button below, or the record itself closing.
+                   */
                   const rawHref = notification.data.href ?? notification.data.url;
                   const href = user?.is_field_staff
                     ? fieldNotificationHref(rawHref)
@@ -297,10 +342,32 @@ export function NotificationButton() {
                   </span>
                 </span>
               </button>
+              {/*
+                * The only thing that takes a notice off this list.
+                *
+                * Separate from the row on purpose: reading and finishing are
+                * different acts, and the whole rework exists because the old
+                * screen made one of them do the other's job. It also confirms
+                * exactly this notice - D-207: 「只消失那一张卡片，不能连带清掉
+                * 其他未完成卡片」.
+                */}
+              <div className="flex justify-end px-4 pb-3">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={confirm.isPending}
+                  onClick={() => confirm.mutate(notification.id)}
+                >
+                  <Check />
+                  {t("notifications.confirmDone")}
+                </Button>
+              </div>
+              </div>
             ))
           )}
         </div>
       </PopoverContent>
     </Popover>
+    </>
   );
 }

@@ -87,10 +87,18 @@ export interface RecyclingSite {
   longitude: string | null;
   contact_person: string;
   contact_phone: string;
+  /** How the yard arrives at a net weight (facilities.WeighingMode). */
+  weighing_mode: RecyclingSiteWeighingMode;
+  /** A driver must present a dispatch before the weighbridge will start. */
+  requires_dispatch: boolean;
+  /** How long after a gross weighing its tare may still be paired. */
+  pairing_window_hours: number;
   is_active: boolean;
   scale_count?: number;
   created_at: string;
 }
+
+export type RecyclingSiteWeighingMode = "TWO_PASS" | "STORED_TARE";
 
 export interface RecyclingSitePayload {
   code: string;
@@ -102,6 +110,9 @@ export interface RecyclingSitePayload {
   postcode?: string;
   contact_person?: string;
   contact_phone?: string;
+  weighing_mode?: RecyclingSiteWeighingMode;
+  requires_dispatch?: boolean;
+  pairing_window_hours?: number;
   is_active?: boolean;
 }
 

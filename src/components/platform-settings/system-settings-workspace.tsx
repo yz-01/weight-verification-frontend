@@ -22,7 +22,7 @@ import { AnnouncementPanel } from "@/components/platform-settings/announcement-p
 import { FeatureFlagPanel } from "@/components/platform-settings/feature-flag-panel";
 import { VersionList } from "@/components/platform-settings/version-list";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { DetectionSettings } from "@/components/weighing/detection-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +57,7 @@ export type SystemSettingsSection =
   | "versions"
   | "notifications"
   | "maintenance"
+  | "field"
   | "feature-flags";
 
 const SUBMODULES: Array<{
@@ -75,7 +76,10 @@ const SUBMODULES: Array<{
   { section: "versions", number: "11.2.9" },
   { section: "notifications", number: "11.2.10", group: "notifications" },
   { section: "maintenance", number: "11.2.11", group: "maintenance" },
-  { section: "feature-flags", number: "11.2.12" },
+  // The phone's history window (D-197). Per-company like the hardware groups
+  // below it, because a six-month site and a four-year one are both real.
+  { section: "field", number: "11.2.12", group: "field" },
+  { section: "feature-flags", number: "11.2.13" },
 ];
 
 const CHOICES: Record<string, string[]> = {
@@ -160,6 +164,7 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
     "anpr",
     "qr",
     "api_gateway",
+    "field",
   ].includes(group);
   const [company, setCompany] = useState("");
   const catalogue = useQuery({
@@ -186,8 +191,8 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
   // Global and company catalogues are independent scopes. A failed global
   // request must not hide a company catalogue that loaded successfully.
   const activeQuery = company ? companyCatalogue : catalogue;
-  const isLoading = activeQuery.isLoading;
-  const isError = activeQuery.isError;
+  const isLoading = company ? companyCatalogue.isLoading : catalogue.isLoading;
+  const isError = company ? companyCatalogue.isError : catalogue.isError;
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-card shadow-sm">
@@ -205,20 +210,26 @@ function ConfigGroupEditor({ group }: { group: PlatformConfigGroup }) {
                 </p>
               </div>
             </div>
-            <select
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm lg:w-96"
-              value={company}
-              onChange={(event) => setCompany(event.target.value)}
-              aria-label={t("scope.company")}
-              disabled={companies.isLoading}
-            >
-              <option value="">{t("scope.platformDefault")}</option>
-              {(companies.data?.results ?? []).map((row) => (
-                <option key={row.id} value={row.id}>
-                  {row.code} - {row.name} ({t(`scope.type.${row.type}`)})
-                </option>
-              ))}
-            </select>
+            <div className="w-full space-y-1 lg:w-96">
+              <select
+                className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                value={company}
+                onChange={(event) => setCompany(event.target.value)}
+                aria-label={t("scope.company")}
+                disabled={companies.isLoading}
+              >
+                <option value="">{t("scope.platformDefault")}</option>
+                {(companies.data?.results ?? []).map((row) => (
+                  <option key={row.id} value={row.id}>
+                    {row.code} - {row.name} ({t(`scope.type.${row.type}`)})
+                  </option>
+                ))}
+              </select>
+              <QueryFailedNote
+                query={companies}
+                what={t("scope.companyList")}
+              />
+            </div>
           </div>
         </div>
       )}

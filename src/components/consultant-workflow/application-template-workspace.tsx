@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
-import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -214,7 +214,7 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("code")} required><Input value={code} onChange={(event) => setCode(event.target.value)} /></FieldWrapper>
           <FieldWrapper label={t("name")} required><Input value={name} onChange={(event) => setName(event.target.value)} /></FieldWrapper>
-          <FieldWrapper label={t("applicationType")}><Select value={type || "ALL"} onValueChange={(value) => setType(value === "ALL" ? null : value)}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ALL">{t("allTypes")}</SelectItem>{(options.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.label}</SelectItem>)}</SelectContent></Select></FieldWrapper>
+          <FieldWrapper label={t("applicationType")}><Select value={type || "ALL"} onValueChange={(value) => setType(value === "ALL" ? null : value)}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ALL">{t("allTypes")}</SelectItem>{(options.data?.results ?? []).map((row) => <SelectItem key={row.id} value={row.id}>{row.label}</SelectItem>)}</SelectContent></Select><QueryFailedNote query={options} what={t("what.applicationTypes")} /></FieldWrapper>
           <div className="rounded-lg border border-info/25 bg-info/5 p-3 sm:col-span-2">
             <p className="text-sm font-semibold">{t("standardLayout")}</p>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("standardLayoutHelp")}</p>
@@ -228,6 +228,7 @@ function TemplateDialog({ project, onClose, onSaved }: { project: string; onClos
           selected={required}
           onChange={setRequired}
         />
+        <QueryFailedNote query={attachments} what={t("what.attachmentTypes")} />
         <CustomFields fields={fields} onChange={setFields} />
         <FieldWrapper label={t("changeNote")} required><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper>
         {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
@@ -310,6 +311,7 @@ function TemplateDetailsDialog({
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={options} what={t("what.applicationTypes")} />
           </FieldWrapper>
           <FieldWrapper label={t("numbering")} required hint={t("numberingHelp")}>
             <Input value={pattern} onChange={(event) => setPattern(event.target.value)} />
@@ -387,6 +389,7 @@ function VersionDialog({ template, onClose, onSaved }: { template: ApplicationTe
           <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("standardLayoutHelp")}</p>
         </div>
         <OptionChecks title={t("requiredFiles")} options={(attachments.data?.results ?? []).map((row) => ({ code: row.code, label: row.label }))} selected={required} onChange={setRequired} />
+        <QueryFailedNote query={attachments} what={t("what.attachmentTypes")} />
         <CustomFields fields={fields} onChange={setFields} />
         <FieldWrapper label={t("changeNote")} required><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper>
         <DialogFooter><Button variant="outline" onClick={onClose}>{t("cancel")}</Button><Button requires={[[note, t("changeNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Save />}{t("saveVersion")}</Button></DialogFooter>

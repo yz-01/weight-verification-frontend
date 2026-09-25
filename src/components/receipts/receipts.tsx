@@ -10,7 +10,7 @@ import { useMemo } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
-import { ListHeader, TypeBadge } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -34,7 +34,7 @@ export function Receipts() {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
-  const list = useListQuery(["project", "supplier", "unit", "category", "uncategorised", "seen"]);
+  const list = useListQuery(["project", "supplier", "unit", "category", "uncategorised", "acceptance"]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["receipts", list.query],
@@ -65,27 +65,44 @@ export function Receipts() {
             onToggle={() => column.toggleSorting(column.getIsSorted() === "asc")}
           />
         ),
+        // No read/unread dot (T-292, 客户第 14 条; D-206 removed 「已读」 as a
+        // business state). The row says what state the *delivery* is in, not
+        // whether this reader has looked at it. The archive queue keeps its own
+        // per-person marks (D-063) - that is a different screen and a
+        // different question, and it is untouched.
         cell: ({ row }) => (
-          <span className="flex items-center gap-2">
-            <span
-              className={
-                row.original.is_seen
-                  ? "size-1.5 shrink-0 rounded-full bg-transparent"
-                  : "size-1.5 shrink-0 rounded-full bg-primary"
-              }
-              aria-label={row.original.is_seen ? undefined : t("receipts.waiting")}
-            />
-            <span
-              className={
-                row.original.is_seen
-                  ? "tabular text-foreground"
-                  : "tabular font-semibold text-foreground"
-              }
-            >
-              {row.original.receipt_no}
-            </span>
-          </span>
+          <span className="tabular text-foreground">{row.original.receipt_no}</span>
         ),
+      },
+      {
+        id: "acceptance",
+        meta: { label: t("receipts.acceptance.title") },
+        header: () => t("receipts.acceptance.title"),
+        // 「不合格订单留底、可筛选、红字标示…拒绝原因直接显示在列表上」
+        // (T-293). The reason sits under the status so nobody has to open the
+        // record to learn why a delivery was sent back.
+        cell: ({ row }) => {
+          const status = row.original.acceptance_status ?? "PENDING";
+          return (
+            <div className="min-w-0">
+              <StatusBadge
+                label={t(`receipts.acceptance.status.${status}`)}
+                tone={
+                  status === "REJECTED"
+                    ? "danger"
+                    : status === "ACCEPTED"
+                      ? "positive"
+                      : "warning"
+                }
+              />
+              {status === "REJECTED" && row.original.rejection_reason ? (
+                <p className="mt-1 max-w-64 truncate text-xs font-medium text-destructive">
+                  {row.original.rejection_reason}
+                </p>
+              ) : null}
+            </div>
+          );
+        },
       },
       {
         accessorKey: "category_name",
@@ -272,9 +289,10 @@ export function Receipts() {
       query: list.query,
       summary: {
         groupBy: "unit",
-        title: t("receipts.totalByUnit"),
+        title: t("exportTotals.title"),
         unitLabel: t("receipts.field.unit"),
-        quantityLabel: t("receipts.field.quantity"),
+        quantityLabel: t("exportTotals.quantity"),
+        note: t("exportTotals.note"),
       },
       columns: [
         { key: "receipt_no", label: t("receipts.field.receiptNo") },
@@ -353,10 +371,13 @@ export function Receipts() {
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={categories} what={t("receipts.what.columns")} />
+            {/* By the delivery's own state (T-293, T-295). 已结案 is accepted,
+                because acceptance is what closes a receipt - not payment. */}
             <Select
-              value={list.filters.seen ?? ALL_STATES}
+              value={list.filters.acceptance ?? ALL_STATES}
               onValueChange={(value) =>
-                list.setFilter("seen", value === ALL_STATES ? undefined : value)
+                list.setFilter("acceptance", value === ALL_STATES ? undefined : value)
               }
             >
               <SelectTrigger size="sm" className="w-[150px]">
@@ -364,8 +385,9 @@ export function Receipts() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={ALL_STATES}>{t("receipts.allStates")}</SelectItem>
-                <SelectItem value="false">{t("receipts.waiting")}</SelectItem>
-                <SelectItem value="true">{t("receipts.archived")}</SelectItem>
+                <SelectItem value="PENDING">{t("receipts.acceptance.status.PENDING")}</SelectItem>
+                <SelectItem value="ACCEPTED">{t("receipts.filter.closed")}</SelectItem>
+                <SelectItem value="REJECTED">{t("receipts.filter.rejected")}</SelectItem>
               </SelectContent>
             </Select>
             {can("report.export") ? (

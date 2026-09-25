@@ -15,7 +15,9 @@ export type PlatformConfigGroup =
   | "qr"
   | "api_gateway"
   | "notifications"
-  | "maintenance";
+  | "maintenance"
+  /** The phone's own settings. Today: how far back its history goes (D-197). */
+  | "field";
 
 export interface PlatformConfigEntry {
   key: string;

@@ -18,7 +18,7 @@ import { useState } from "react";
 
 import { FieldCamera } from "@/components/shared/field-camera";
 import { useAuth } from "@/components/providers/auth-provider";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
@@ -209,6 +209,10 @@ export function IncidentThreadDetail({
           </div>
         )}
 
+        {thread.isError && (
+          <LoadFailed what={t("what.thread")} onRetry={() => thread.refetch()} />
+        )}
+
         {messages.map((message) => (
           <MessageCard
             key={message.id}
@@ -221,7 +225,7 @@ export function IncidentThreadDetail({
         ))}
       </div>
 
-      {!thread.data?.thread.is_resolved && (
+      {!thread.isError && !thread.data?.thread.is_resolved && (
         <div className="border-t bg-card p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] sm:p-4">
           {photoPreview && (
             <div className="relative mb-3 size-24">
@@ -244,6 +248,7 @@ export function IncidentThreadDetail({
             </div>
           )}
 
+          <FieldWrapper label={t("field.messagePlaceholder")} required>
           <div className="flex items-end gap-2">
             <Button
               type="button"
@@ -258,7 +263,7 @@ export function IncidentThreadDetail({
             <Textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder={t("field.messagePlaceholder")}
+              aria-label={t("field.messagePlaceholder")}
               rows={1}
               className="min-h-11 flex-1 resize-none py-3"
             />
@@ -277,6 +282,7 @@ export function IncidentThreadDetail({
               )}
             </Button>
           </div>
+          </FieldWrapper>
 
           {thread.data &&
             !thread.data.thread.is_resolved &&

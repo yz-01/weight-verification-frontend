@@ -13,7 +13,7 @@ import { useTranslations } from "next-intl";
 
 import { AuditLogs } from "@/components/audit/audit-logs";
 import { LoginRecords } from "@/components/audit/login-records";
-import { ListHeader } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote } from "@/components/shared/page-primitives";
 import { useDateFormat } from "@/lib/dates";
 import { getAuditSummary } from "@/services/audit.service";
 
@@ -86,7 +86,7 @@ function ImmutableAuditStatus() {
     {
       key: "total",
       icon: Database,
-      value: data?.total ?? 0,
+      value: summary.isError ? "—" : data?.total ?? 0,
     },
     {
       key: "retention",
@@ -111,6 +111,7 @@ function ImmutableAuditStatus() {
         title={t("section.immutable.title")}
         subtitle={t("section.immutable.subtitle")}
       />
+      <QueryFailedNote query={summary} what={t("what.summary")} />
       <div className="grid border-l border-t bg-card sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map(({ key, icon: Icon, value }) => (
           <div key={key} className="min-h-28 border-b border-r p-4">
@@ -129,9 +130,11 @@ function ImmutableAuditStatus() {
             {t("immutableStatus.oldest")}
           </p>
           <p className="mt-3 text-sm font-semibold tabular-nums">
-            {data?.oldest_entry_at
-              ? df.precise(data.oldest_entry_at)
-              : t("immutableStatus.empty")}
+            {summary.isError
+              ? "—"
+              : data?.oldest_entry_at
+                ? df.precise(data.oldest_entry_at)
+                : t("immutableStatus.empty")}
           </p>
         </div>
         <div className="min-h-24 border-b border-r p-4">
@@ -140,9 +143,11 @@ function ImmutableAuditStatus() {
             {t("immutableStatus.newest")}
           </p>
           <p className="mt-3 text-sm font-semibold tabular-nums">
-            {data?.newest_entry_at
-              ? df.precise(data.newest_entry_at)
-              : t("immutableStatus.empty")}
+            {summary.isError
+              ? "—"
+              : data?.newest_entry_at
+                ? df.precise(data.newest_entry_at)
+                : t("immutableStatus.empty")}
           </p>
         </div>
       </div>

@@ -1,5 +1,5 @@
-import { MaterialOutgoingWorkspace } from "@/components/contractor-ops/operations-workspaces";
+import { MaterialOutgoingOffice } from "@/components/contractor-ops/office-module-lists";
 
 export default function MaterialOutgoingPage() {
-  return <MaterialOutgoingWorkspace />;
+  return <MaterialOutgoingOffice />;
 }

@@ -36,9 +36,16 @@
  * that requirement is to press that button, and it needs a marked wrapper.
  * Measured over the whole tree that is 2 findings against 234 already-marked
  * fields, and both were real. The looser rule "every demanded key must have a
- * wrapper" was tried first and reports 220, almost all of them inputs written
- * with no wrapper at all - a different and much larger question than this
- * check is about. A noisy check earns its way onto an ignore list.
+ * wrapper" was tried first and reported 220, almost all of them inputs written
+ * with no wrapper at all - a different and much larger question at the time.
+ *
+ * THAT QUESTION IS NOW ANSWERED TOO (T-164, 2026-09-25). Re-measured it was
+ * 234 findings in 58 files: `<Input placeholder={t("field.name")}>` straight
+ * inside a dialog, a label that vanishes the moment someone types, and no
+ * star anywhere. Every one was given a `FieldWrapper` wearing the same label
+ * the button demands, and the rule is enforced: whatever a button lists in
+ * `requires` has to be carried by a marked field in the same component, or be
+ * offered by a button that sits inside one. Nothing is left uncarried.
  *
  * What this CANNOT check: whether the label on a pair names the field the
  * value actually watches. Three buttons were found saying "still needs:
@@ -181,6 +188,24 @@ function components(source) {
   ]);
 }
 
+/**
+ * Components that render `<FieldWrapper label={t(key)} required>` themselves.
+ * Checked against their own source on every run, so if one stops wearing the
+ * star it stops counting here instead of vouching for a field that has none.
+ */
+const SELF_LABELLED = new Map([["ProjectColumnPicker", "field.category"]]);
+const SELF_LABELLED_SOURCES = {
+  ProjectColumnPicker: "site-operations/project-column-picker.tsx",
+};
+for (const [tag, key] of SELF_LABELLED) {
+  const own = readFileSync(path.join(ROOT, SELF_LABELLED_SOURCES[tag]), "utf8");
+  const marked = new RegExp(`<FieldWrapper label=\\{t\\("${key.replace(".", "\\.")}"\\)\\} required`);
+  if (!marked.test(own)) {
+    console.error(`${tag} no longer renders a required FieldWrapper labelled ${key}; remove it from SELF_LABELLED.`);
+    process.exit(1);
+  }
+}
+
 const problems = [];
 let matched = 0;
 
@@ -249,12 +274,34 @@ for (const relative of files) {
       wrapper = wrappers.exec(body);
     }
 
+    // Pickers that draw their own marked wrapper with a fixed label carry that
+    // label wherever they are placed (T-164: three category pickers were
+    // reported as starless while the picker itself wears the star).
+    for (const [tag, key] of SELF_LABELLED) {
+      if (demanded.has(key) && new RegExp(`<${tag}\\b`).test(body)) {
+        carried.add(key);
+        matched += 1;
+      }
+    }
+
     // Anything demanded that no field carries, and that a button in this same
     // component offers by name, is obtained by pressing that button. The
     // button cannot wear a star, so the wrapper round it has to.
     const buttons = buttonLabelKeys(body);
     for (const [key, pair] of demanded) {
-      if (carried.has(key) || !buttons.has(key)) continue;
+      if (carried.has(key)) continue;
+      if (!buttons.has(key)) {
+        // T-164: demanded, and no field in this form wears the label at all.
+        const line = source.slice(0, start).split("\n").length;
+        problems.push(
+          `${relative}:${line}: in ${component}, the button will not submit ` +
+            `without ${key} — ${pair} — but no FieldWrapper in this ` +
+            `form carries that label, so there is no field to put the ` +
+            `required marker on. Wrap the control in a FieldWrapper whose ` +
+            `label is that same key, marked required.`,
+        );
+        continue;
+      }
       const line = source.slice(0, start).split("\n").length;
       problems.push(
         `${relative}:${line}: in ${component}, the button will not submit ` +

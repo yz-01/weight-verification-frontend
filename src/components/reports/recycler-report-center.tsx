@@ -5,7 +5,7 @@ import { Download, FileSpreadsheet, FileText, Filter, Printer } from "lucide-rea
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,6 +90,7 @@ const REPORT_TYPES: RecyclerReportType[] = [
 
 export function RecyclerReportCenter() {
   const t = useTranslations("recyclerReports");
+  const common = useTranslations("common");
   const dates = useMemo(() => initialDates(), []);
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<RecyclerReportFilters>({
@@ -323,6 +324,7 @@ export function RecyclerReportCenter() {
             />
           )}
         </div>
+        <QueryFailedNote query={options} what={t("what.filterOptions")} className="mt-3" />
       </section>
 
       {!!report.data?.summary.length && (
@@ -414,9 +416,11 @@ export function RecyclerReportCenter() {
             <h2 className="text-sm font-semibold">{t("history.title")}</h2>
             <p className="text-xs text-muted-foreground">{t("history.description")}</p>
           </div>
-          <span className="text-xs tabular-nums text-muted-foreground">{exportHistory.data?.count ?? 0}</span>
+          <span className="text-xs tabular-nums text-muted-foreground">{exportHistory.isError ? common("emptyValue") : exportHistory.data?.count ?? 0}</span>
         </div>
-        {exportHistory.data?.results.length ? (
+        {exportHistory.isError ? (
+          <LoadFailed what={t("what.history")} onRetry={() => void exportHistory.refetch()} />
+        ) : exportHistory.data?.results.length ? (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader><TableRow><TableHead>{t("history.file")}</TableHead><TableHead>{t("history.period")}</TableHead><TableHead>{t("history.format")}</TableHead><TableHead>{t("history.generated")}</TableHead></TableRow></TableHeader>

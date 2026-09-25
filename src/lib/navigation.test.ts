@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { PORTAL_NAVIGATION, isRouteAllowed } from "./navigation";
+import { PORTAL_NAVIGATION, isRouteAllowed, visibleNavigation } from "./navigation";
 import { helpKeyFor, helpKeys } from "./page-help";
 
 /**
@@ -238,7 +238,7 @@ describe("the category module", () => {
     (item) => item.feature === "project_categories",
   );
 
-  it("has four children: definitions, the queue, Multi Engine, claims", () => {
+  it("has five children: definitions, the queue, Multi Engine, and the two claim entries", () => {
     expect(categories?.children?.map((child) => child.href)).toEqual([
       "/category-management",
       "/archive-queue",
@@ -248,6 +248,9 @@ describe("the category module", () => {
       // what nobody has read, why a bundle exists, and what is being
       // claimed this month.
       "/claims",
+      // 杂费报销 (D-252): the same claim table, its own menu entry, so it is
+      // never confused with 进度 Claim.
+      "/sundry-claims",
     ]);
   });
 
@@ -371,5 +374,16 @@ describe("document archive workflows", () => {
       isRouteAllowed("MSE_TRACE", ["evidence"], "/evidence", ["audit.view"]),
     ).toBe(true);
     expect(isRouteAllowed("MSE_TRACE", [], "/evidence", [])).toBe(false);
+  });
+
+  it("does not list the evidence archive in the menu any more (T-345, 第 67 条)", () => {
+    const groups = visibleNavigation("MSE_TRACE", ["documents", "approvals", "evidence"], ["audit.view"]);
+    const hrefs = groups.flatMap((group) =>
+      group.items.flatMap((item) => (item.children ?? []).map((child) => child.href)),
+    );
+    expect(hrefs).toContain("/documents");
+    expect(hrefs).not.toContain("/evidence");
+    // …and the page still opens by its address.
+    expect(isRouteAllowed("MSE_TRACE", ["evidence"], "/evidence", ["audit.view"])).toBe(true);
   });
 });

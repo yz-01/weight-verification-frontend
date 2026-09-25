@@ -21,6 +21,7 @@ import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -424,6 +425,7 @@ function RequestRecyclerDialog({
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={options} what={t("recyclers.what.available")} />
           </FieldWrapper>
         </div>
         <DialogFooter>
@@ -431,7 +433,7 @@ function RequestRecyclerDialog({
             {t("common.cancel")}
           </Button>
           <Button
-            requires={[[company, t("recyclers.request.choose")]]}
+            requires={[[company, t("recyclers.field.recycler")]]}
             disabled={request.isPending}
             onClick={() => request.mutate()}
           >
@@ -509,33 +511,36 @@ function PartnershipProjectsDialog({
 
         <div className="space-y-4">
           {canManage && (
-            <div className="flex gap-2">
-              <Select value={project || undefined} onValueChange={setProject}>
-                <SelectTrigger className="min-w-0 flex-1" disabled={options.isLoading}>
-                  <SelectValue placeholder={t("recyclers.projects.choose")} />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  {available.map((option) => (
-                    <SelectItem key={option.id} value={option.id}>
-                      {option.code} - {option.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                size="icon"
-                title={t("recyclers.projects.bind")}
-                requires={[[project, t("recyclers.projects.choose")]]}
-                disabled={bind.isPending}
-                onClick={() => bind.mutate()}
-              >
-                {bind.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Link2 className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+            <FieldWrapper label={t("recyclers.projects.choose")} required>
+              <div className="flex gap-2">
+                <Select value={project || undefined} onValueChange={setProject}>
+                  <SelectTrigger className="min-w-0 flex-1" disabled={options.isLoading}>
+                    <SelectValue placeholder={t("recyclers.projects.choose")} />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    {available.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {option.code} - {option.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  size="icon"
+                  title={t("recyclers.projects.bind")}
+                  requires={[[project, t("recyclers.projects.choose")]]}
+                  disabled={bind.isPending}
+                  onClick={() => bind.mutate()}
+                >
+                  {bind.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Link2 className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              <QueryFailedNote query={options} what={t("recyclers.what.projects")} />
+            </FieldWrapper>
           )}
 
           <div className="divide-y rounded-md border">

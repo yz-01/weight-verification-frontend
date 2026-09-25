@@ -21,7 +21,7 @@ import {
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
-import { ReadField } from "@/components/shared/page-primitives";
+import { QueryFailedNote, ReadField } from "@/components/shared/page-primitives";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { ApiError } from "@/interfaces/api";
 import {
@@ -60,21 +60,24 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
   const [formError, setFormError] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
 
-  const { data: projectPage } = useQuery({
+  const projects = useQuery({
     queryKey: ["projects", "options"],
     queryFn: () => getProjects({ page_size: 100 }),
     enabled: !isEdit,
   });
-  const { data: supplierPage } = useQuery({
+  const suppliers = useQuery({
     queryKey: ["suppliers", "options"],
     queryFn: () => getSuppliers({ page_size: 100 }),
     enabled: !isEdit,
   });
-  const { data: docketPage } = useQuery({
+  const dockets = useQuery({
     queryKey: ["qr-codes", "all"],
     queryFn: () => getQRCodes({ page_size: 200 }),
     enabled: !isEdit,
   });
+  const projectPage = projects.data;
+  const supplierPage = suppliers.data;
+  const docketPage = dockets.data;
 
   // One id for the whole attempt, so a retry after a dropped connection
   // returns the correction already filed instead of filing a second one.
@@ -239,6 +242,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
                 />
               )}
             </form.Field>
+            <QueryFailedNote query={projects} what={t("receipts.what.projects")} className="md:col-span-2" />
 
             <form.Field
               name="supplier"
@@ -256,6 +260,10 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
                 />
               )}
             </form.Field>
+            <QueryFailedNote query={suppliers} what={t("receipts.what.suppliers")} className="md:col-span-2" />
+            {/* Without the dockets the receipt would be filed with no slip
+                tied to it, silently - so the reader is told before saving. */}
+            <QueryFailedNote query={dockets} what={t("receipts.what.dockets")} className="md:col-span-2" />
 
           </>
         )}

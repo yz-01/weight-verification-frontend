@@ -69,5 +69,20 @@ export function useDraftState<T>(key: string, initial?: T | (() => T)) {
   return [value, set];
 }
 
+/**
+ * Set by `FieldSlots` around one 挂号's draft (D-259). Called after the draft
+ * is cleared on a successful submission, so the 挂号 knows its record left -
+ * uploaded, or into the offline queue - without every form being rewritten to
+ * tell it.
+ */
+export const SlotSettleContext = createContext<(() => void) | null>(null);
+
 /** Call only after the server accepted, or after the offline queue committed. */
-export function useClearDraft() { return useContext(DraftContext)?.clear ?? noDraft; }
+export function useClearDraft() {
+  const clear = useContext(DraftContext)?.clear;
+  const settle = useContext(SlotSettleContext);
+  return useCallback(() => {
+    clear?.();
+    settle?.();
+  }, [clear, settle]);
+}

@@ -241,6 +241,7 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
               </div>
             </div>
           ) : (
+            <FieldWrapper label={t("geofence.pointCount", { count: 3 })} required>
             <div className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
               <div><p className="font-semibold tabular-nums">{t("geofence.drawingCount", { count: form.polygon.length })}</p><p className="mt-1 text-sm text-muted-foreground">{drawing && pointsNeeded > 0 ? t("geofence.finishNeedThree", { count: pointsNeeded }) : t("geofence.dragPointHelp")}</p></div>
               <div className="flex flex-wrap gap-2">
@@ -254,6 +255,7 @@ function GeofenceDialog({ row, defaultProject, projects, projectsLoading, projec
                 </>}
               </div>
             </div>
+            </FieldWrapper>
           )}
 
           <div className="grid gap-3 sm:grid-cols-2">

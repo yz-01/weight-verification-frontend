@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
   Bell,
-  Check,
   Eye,
   Mail,
   Radio,
@@ -20,6 +19,8 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
   FieldWrapper,
   ListHeader,
+  LoadFailed,
+  QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -62,8 +63,7 @@ import {
   getNotificationChannelStatus,
   getNotificationDeliveryRecords,
   getNotificationStatusRecords,
-  markAdminNotificationRead,
-  markAdminNotificationUnread,
+  reopenAdminNotification,
   removeAdminNotification,
   sendAdminNotification,
 } from "@/services/platform-ops.service";
@@ -187,8 +187,16 @@ function AdminNotificationList({
   });
   const invalidate = () =>
     void queryClient.invalidateQueries({ queryKey: ["admin-notifications"] });
-  const read = useMutation({ mutationFn: markAdminNotificationRead, onSuccess: invalidate });
-  const unread = useMutation({ mutationFn: markAdminNotificationUnread, onSuccess: invalidate });
+  /*
+   * Platform staff can put a notice back on somebody's pile, and that is all.
+   * There is no "mark it read for them" any more - D-206 retired reading as a
+   * state, and a second vocabulary for MSE staff alone is how one table ends
+   * up meaning two things.
+   */
+  const reopen = useMutation({
+    mutationFn: reopenAdminNotification,
+    onSuccess: invalidate,
+  });
   const remove = useMutation({
     mutationFn: removeAdminNotification,
     onSuccess: () => {
@@ -226,6 +234,7 @@ function AdminNotificationList({
               value: row.id,
               label: `${row.code} - ${row.name}`,
             }))}
+            failure={<QueryFailedNote query={companies} what={t("what.companies")} />}
           />
           <SelectFilter
             label={t("filter.status")}
@@ -233,8 +242,9 @@ function AdminNotificationList({
             onChange={setStatus}
             allLabel={t("filter.allStatuses")}
             options={[
-              { value: "READ", label: t("status.READ") },
-              { value: "UNREAD", label: t("status.UNREAD") },
+              { value: "PENDING", label: t("status.PENDING") },
+              { value: "DONE", label: t("status.DONE") },
+              { value: "CLOSED", label: t("status.CLOSED") },
             ]}
           />
           <DateFilter label={t("filter.dateFrom")} value={dateFrom} onChange={setDateFrom} />
@@ -266,11 +276,11 @@ function AdminNotificationList({
                   <p className="text-xs text-muted-foreground">{row.recipient_email}</p>
                 </TableCell>
                 <TableCell>{row.company_name ?? "-"}</TableCell>
-                <TableCell>{row.kind}</TableCell>
+                <TableCell>{row.kind_label}</TableCell>
                 <TableCell>
                   <StatusBadge
-                    label={t(`status.${row.is_read ? "READ" : "UNREAD"}`)}
-                    tone={row.is_read ? "neutral" : "info"}
+                    label={t(`status.${row.state}`)}
+                    tone={row.is_outstanding ? "info" : "neutral"}
                   />
                 </TableCell>
                 <TableCell>{df.dateTime(row.created_at)}</TableCell>
@@ -285,16 +295,17 @@ function AdminNotificationList({
                       >
                         <Eye />
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        title={row.is_read ? t("action.markUnread") : t("action.markRead")}
-                        onClick={() =>
-                          row.is_read ? unread.mutate(row.id) : read.mutate(row.id)
-                        }
-                      >
-                        {row.is_read ? <Undo2 /> : <Check />}
-                      </Button>
+                      {!row.is_outstanding && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title={t("action.reopen")}
+                          disabled={reopen.isPending}
+                          onClick={() => reopen.mutate(row.id)}
+                        >
+                          <Undo2 />
+                        </Button>
+                      )}
                       <Button
                         size="icon"
                         variant="ghost"
@@ -308,7 +319,14 @@ function AdminNotificationList({
                 )}
               </TableRow>
             ))}
-            {!notifications.isLoading && (notifications.data?.results.length ?? 0) === 0 && (
+            {notifications.isError && (
+              <TableRow>
+                <TableCell colSpan={manageable ? 7 : 6} className="whitespace-normal p-4">
+                  <LoadFailed what={t("what.notifications")} onRetry={() => void notifications.refetch()} />
+                </TableCell>
+              </TableRow>
+            )}
+            {!notifications.isLoading && !notifications.isError && (notifications.data?.results.length ?? 0) === 0 && (
               <TableRow>
                 <TableCell colSpan={manageable ? 7 : 6} className="h-28 text-center text-muted-foreground">
                   {t("empty")}
@@ -366,11 +384,11 @@ function NotificationDetails({
               </div>
               <div>
                 <dt className="text-xs text-muted-foreground">{t("field.kind")}</dt>
-                <dd>{row.kind}</dd>
+                <dd>{row.kind_label}</dd>
               </div>
               <div>
                 <dt className="text-xs text-muted-foreground">{t("field.status")}</dt>
-                <dd>{t(`status.${row.is_read ? "READ" : "UNREAD"}`)}</dd>
+                <dd>{t(`status.${row.state}`)}</dd>
               </div>
             </dl>
             <div className="space-y-1 border-t pt-4">
@@ -570,6 +588,7 @@ function ChannelWorkspace() {
                   ))}
                 </SelectContent>
               </Select>
+              <QueryFailedNote query={companies} what={t("what.companies")} />
             </FieldWrapper>
             <FieldWrapper label={t("field.title")} required>
               <Input
@@ -590,9 +609,8 @@ function ChannelWorkspace() {
           </div>
 
           <div className="flex min-w-0 flex-col">
-            <div>
-              <p className="text-sm font-medium">{t("composer.channels")}</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            <FieldWrapper label={t("composer.channels")} required>
+              <p className="text-xs leading-5 text-muted-foreground">
                 {t("composer.channelsHint")}
               </p>
               <div className="mt-3 grid gap-2">
@@ -630,7 +648,7 @@ function ChannelWorkspace() {
                   );
                 })}
               </div>
-            </div>
+            </FieldWrapper>
             {send.isError && (
               <p role="alert" className="mt-4 text-sm text-destructive">
                 {t("composer.sendError")}
@@ -638,7 +656,7 @@ function ChannelWorkspace() {
             )}
             <Button
               className="mt-6 w-full xl:mt-auto"
-              requires={[[company, t("composer.chooseCompany")], [title, t("field.title")], [message, t("field.message")], [selectedChannels.length, t("filter.category")]]}
+              requires={[[company, t("filter.company")], [title, t("field.title")], [message, t("field.message")], [selectedChannels.length, t("composer.channels")]]}
               disabled={send.isPending}
               onClick={() => send.mutate({ company_id: company, kind: "SYSTEM", title, message, channels: selectedChannels })}
             >
@@ -685,6 +703,16 @@ function NotificationRecords() {
             </TableRow>
           </TableHeader>
           <TableBody>
+            {(recordType === "DELIVERY" ? delivery.isError : statuses.isError) && (
+              <TableRow>
+                <TableCell colSpan={4} className="whitespace-normal p-4">
+                  <LoadFailed
+                    what={t(recordType === "DELIVERY" ? "what.deliveryRecords" : "what.statusRecords")}
+                    onRetry={() => void (recordType === "DELIVERY" ? delivery.refetch() : statuses.refetch())}
+                  />
+                </TableCell>
+              </TableRow>
+            )}
             {recordType === "DELIVERY"
               ? (delivery.data?.results ?? []).map((row) => (
                   <TableRow key={row.id}>
@@ -722,8 +750,8 @@ function NotificationRecords() {
   );
 }
 
-function SelectFilter({ label, value, onChange, options, allLabel }: { label: string; value: string; onChange: (value: string) => void; options: Array<{ value: string; label: string }>; allLabel?: string }) {
-  return <label className="block space-y-1.5 text-xs font-medium text-muted-foreground"><span>{label}</span><select className="h-9 w-full rounded-md border bg-background px-3 text-sm text-foreground" value={value} onChange={(event) => onChange(event.target.value)}>{allLabel && <option value="">{allLabel}</option>}{!allLabel && <option value="">-</option>}{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>;
+function SelectFilter({ label, value, onChange, options, allLabel, failure }: { label: string; value: string; onChange: (value: string) => void; options: Array<{ value: string; label: string }>; allLabel?: string; failure?: React.ReactNode }) {
+  return <div className="space-y-1"><label className="block space-y-1.5 text-xs font-medium text-muted-foreground"><span>{label}</span><select className="h-9 w-full rounded-md border bg-background px-3 text-sm text-foreground" value={value} onChange={(event) => onChange(event.target.value)}>{allLabel && <option value="">{allLabel}</option>}{!allLabel && <option value="">-</option>}{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>{failure}</div>;
 }
 
 function DateFilter({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {

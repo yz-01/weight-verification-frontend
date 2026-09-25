@@ -44,12 +44,15 @@ export function SubscriptionActionDialog({
   mode,
   subscription,
   plans,
+  plansFailed,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: SubscriptionActionMode;
   subscription: CompanySubscription | null;
   plans: SubscriptionPlan[];
+  /** The caller's own failure note for the plan list, shown under the plan select. */
+  plansFailed?: React.ReactNode;
 }) {
   const t = useTranslations("subscriptions");
   const common = useTranslations("common");
@@ -148,6 +151,7 @@ export function SubscriptionActionDialog({
                     </option>
                   ))}
                 </select>
+                {plansFailed}
               </FieldWrapper>
               <FieldWrapper label={t("field.termMonths")} required>
                 <Input
@@ -249,7 +253,7 @@ export function SubscriptionActionDialog({
           </Button>
           <Button
             variant={mode === "terminate" ? "destructive" : "default"}
-            requires={[[reason, t("field.reason")], [mode !== "plan" || plan, t("field.activePlan")], [mode !== "extend" || (expiryMode === "months" ? Number(months) >= 1 : expiresOn !== ""), t("field.expiresOn")]]}
+            requires={[[reason, t("field.reason")], [mode !== "plan" || plan, t("field.plan")], [mode !== "extend" || expiryMode !== "months" || Number(months) >= 1, t("field.extensionMonths")], [mode !== "extend" || expiryMode !== "date" || expiresOn !== "", t("field.expiresOn")]]}
             disabledReason={
               mode === "seats" && seatLimitTooLow
                 ? t("field.userLimitMin")

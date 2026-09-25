@@ -8,12 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { ProjectCategoryKind } from "@/interfaces/contractor-ops";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 
-export function ProjectColumnPicker({ project, kind, value, onChange, className }: {
+export function ProjectColumnPicker({ project, kind, value, onChange, className, bare = false }: {
   project: string;
   kind: ProjectCategoryKind;
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  /** Leave out the labelled wrapper, for a caller that labels the field itself. */
+  bare?: boolean;
 }) {
   const t = useTranslations("contractorOps");
   const columns = useQuery({
@@ -25,7 +27,7 @@ export function ProjectColumnPicker({ project, kind, value, onChange, className 
   useEffect(() => {
     if (columns.isSuccess && value && !available.some((row) => row.id === value)) onChange("");
   }, [columns.isSuccess, available, value, onChange]);
-  return <FieldWrapper label={t("field.category")} required className={className}>
+  const control = <>
     <Select value={value || undefined} onValueChange={onChange} disabled={!project || columns.isLoading}>
       <SelectTrigger className="w-full"><SelectValue placeholder={t("field.category")} /></SelectTrigger>
       <SelectContent>
@@ -36,5 +38,7 @@ export function ProjectColumnPicker({ project, kind, value, onChange, className 
     </Select>
     {columns.isError && <p role="alert" className="text-sm text-destructive">{t("state.loadError")}</p>}
     {project && columns.isSuccess && !available.length && <p role="alert" className="text-sm text-destructive">{t("filing.noColumns")}</p>}
-  </FieldWrapper>;
+  </>;
+  if (bare) return control;
+  return <FieldWrapper label={t("field.category")} required className={className}>{control}</FieldWrapper>;
 }

@@ -138,6 +138,13 @@ export interface FeatureNavChild {
   feature?: PortalFeatureKey;
   /** Optional action permission required to expose this child entry. */
   requiredPermission?: string;
+  /**
+   * Still a route the user may open, but not listed in the sidebar or the
+   * module search. For a page the customer asked to take out of the menu
+   * without taking away (「证据归档」, 第 67 条: 只移除页面入口，不要删除任何
+   * 底层证据资料).
+   */
+  menuHidden?: boolean;
 }
 
 export interface NavGroup {
@@ -401,6 +408,11 @@ export const PORTAL_NAVIGATION = {
       false,
       [
         child(
+          "10.2.7",
+          "nav.submodule.myTasks",
+          "/notifications/my-tasks",
+        ),
+        child(
           "10.2.8",
           "nav.submodule.notificationManagement",
           "/notifications/manage",
@@ -465,6 +477,11 @@ export const PORTAL_NAVIGATION = {
           "11.2.11",
           "nav.submodule.maintenanceSettings",
           "/system-settings/maintenance",
+        ),
+        child(
+          "11.2.12",
+          "nav.submodule.fieldSettings",
+          "/system-settings/field",
         ),
       ],
     ),
@@ -798,6 +815,14 @@ export const PORTAL_NAVIGATION = {
           "project_categories",
           "claim.view",
         ),
+        // 杂费报销 beside 进度 Claim: one claim table, two entries (D-252).
+        child(
+          "4.2.5",
+          "nav.submodule.sundryClaims",
+          "/sundry-claims",
+          "project_categories",
+          "sundry_claim.view",
+        ),
       ],
     ),
     item(
@@ -955,13 +980,6 @@ export const PORTAL_NAVIGATION = {
           "consultant_applications",
         ),
         child(
-          "10.2.2A",
-          "nav.submodule.consultantWorkflows",
-          "/consultant-workflows",
-          "consultant_applications",
-          "consultant.config",
-        ),
-        child(
           "10.2.2B",
           "nav.submodule.approvalCredentials",
           "/approval-credential",
@@ -988,17 +1006,14 @@ export const PORTAL_NAVIGATION = {
           "field_tasks",
           "consultant.submit",
         ),
+        // One entry for the three settings pages (T-373, D-254). Workflows,
+        // templates and consultant access each had their own line beside the
+        // pages people work in, and the module read as unusable; the hub says
+        // which of the three has to be done at all (only access, once).
         child(
-          "10.2.8",
-          "nav.submodule.consultantAccess",
-          "/consultant-access",
-          "users",
-          "consultant.config",
-        ),
-        child(
-          "10.2.5",
-          "nav.submodule.consultantTemplates",
-          "/consultant-templates",
+          "10.2.9",
+          "nav.submodule.consultantSettings",
+          "/consultant-settings",
           "consultant_applications",
           "consultant.config",
         ),
@@ -1045,12 +1060,13 @@ export const PORTAL_NAVIGATION = {
           "documents",
         ),
         child("12.2.2", "nav.submodule.approvals", "/approvals", "approvals"),
-        child(
-          "12.2.3",
-          "nav.submodule.evidenceArchive",
-          "/evidence",
-          "evidence",
-        ),
+        // Out of the menu (T-345, 第 67 条), not out of the product: the
+        // page and every piece of evidence under it stay, and the route still
+        // opens for anyone who had it.
+        {
+          ...child("12.2.3", "nav.submodule.evidenceArchive", "/evidence", "evidence"),
+          menuHidden: true,
+        },
       ],
     ),
     item(
@@ -1403,7 +1419,7 @@ export function visibleNavigation(
       const permissionVisible =
         !childItem.requiredPermission ||
         hasPermission(permissions, childItem.requiredPermission, isSuperuser);
-      return featureVisible && permissionVisible;
+      return featureVisible && permissionVisible && !childItem.menuHidden;
     });
     if (!visible.has(navItem.feature) && !visibleChildren?.length) continue;
     const visibleItem = {
@@ -1480,7 +1496,9 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   // broken rather than a page that says no.
   { pattern: "/evidence-packages", permission: "package.view" },
   { pattern: "/claims", permission: "claim.view" },
+  { pattern: "/sundry-claims", permission: "sundry_claim.view" },
   { pattern: "/package-reviews", permission: "approval.view" },
+  { pattern: "/consultant-settings", permission: "consultant.config" },
   { pattern: "/consultant-workflows", permission: "consultant.config" },
   { pattern: "/consultant-templates", permission: "consultant.config" },
   { pattern: "/consultant-access", permission: "consultant.config" },

@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -616,12 +617,15 @@ export function Companies({
                   {t(`companies.summary.${key}`)}
                 </p>
                 <p className="mt-1 text-xl font-semibold tabular-nums">
-                  {value ?? 0}
+                  {summary.isError ? t("common.emptyValue") : (value ?? 0)}
                 </p>
               </div>
             );
           })}
         </div>
+      )}
+      {section === "directory" && (
+        <QueryFailedNote query={summary} what={t("companies.what.summary")} />
       )}
 
       <>
@@ -656,6 +660,7 @@ export function Companies({
                 </option>
               ))}
             </select>
+            <QueryFailedNote query={plans} what={t("companies.what.plans")} />
           </div>
 
           <DataTable

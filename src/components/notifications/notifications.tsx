@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { BellPlus, CheckCheck, Eye, Loader2, Send, Trash2 } from "lucide-react";
+import { BellPlus, Check, Loader2, Send, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -12,6 +12,7 @@ import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -44,35 +45,63 @@ import {
 import {
   getNotifications,
   dismissNotification,
-  markAllNotificationsRead,
-  markNotificationRead,
+  confirmNotificationDone,
+  getOutstandingNotificationCount,
   sendProjectNotification,
 } from "@/services/platform-ops.service";
 
-export function Notifications() {
+/**
+ * The notification centre, and - narrowed to one card - My Tasks (D-207).
+ *
+ * One component rather than two. My Tasks is this list with `card=ACTION`:
+ * the same rows, the same confirm button, the same counts. Writing a second
+ * screen over a second query would give the two of them two chances to
+ * disagree about the same pile, which is the F-229 bug in a new place.
+ *
+ * What the narrowed view drops is everything that belongs to *reading* mail
+ * rather than *doing* work: composing a notice, and the category filter.
+ */
+export function Notifications({
+  card,
+  titleKey = "notifications.title",
+}: {
+  card?: "ACTION";
+  titleKey?: string;
+} = {}) {
   const t = useTranslations();
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const { can } = useAuth();
-  const list = useListQuery(["unread", "category", "today"]);
+  const list = useListQuery(["category", "today"]);
   const [composeOpen, setComposeOpen] = useState(
     searchParams.get("create") === "1" && can("notification.send"),
   );
   const query = useQuery({
-    queryKey: ["notifications", list.query],
-    queryFn: () => getNotifications(list.query),
+    queryKey: ["notifications", card ?? "all", list.query],
+    queryFn: () => getNotifications(card ? { ...list.query, card } : list.query),
     refetchInterval: 30_000,
   });
 
-  const read = useMutation({
-    mutationFn: markNotificationRead,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    },
+  /**
+   * The two group sizes shown on the filter pills (D-206).
+   *
+   * Taken from the same endpoint the bell uses rather than counted off this
+   * page's current filter, so the pills say the same thing as the red dot.
+   * A pill that reports the size of the group you are already looking at is
+   * no help in deciding whether to look at the other one.
+   */
+  const counts = useQuery({
+    queryKey: ["notifications", "outstanding-count"],
+    queryFn: () => getOutstandingNotificationCount({ silent: true }),
+    refetchInterval: 30_000,
   });
-  const readAll = useMutation({
-    mutationFn: markAllNotificationsRead,
+  // A failed count is not a zero (F-222): the pill shows a dash instead.
+  const pillCount = (value: number | undefined) =>
+    counts.isError ? t("common.emptyValue") : (value ?? 0);
+
+  const confirm = useMutation({
+    mutationFn: confirmNotificationDone,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
@@ -121,9 +150,7 @@ export function Notifications() {
         header: () => t("notifications.field.notification"),
         cell: ({ row }) => (
           <div className="max-w-xl">
-            <p className={row.original.is_read ? "font-medium" : "font-semibold"}>
-              {row.original.title}
-            </p>
+            <p className="font-semibold">{row.original.title}</p>
             <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
               {row.original.message}
             </p>
@@ -136,12 +163,8 @@ export function Notifications() {
         header: () => t("notifications.field.status"),
         cell: ({ row }) => (
           <StatusBadge
-            label={t(
-              row.original.is_read
-                ? "notifications.status.read"
-                : "notifications.status.unread",
-            )}
-            tone={row.original.is_read ? "neutral" : "info"}
+            label={t(`notifications.state.${row.original.state}`)}
+            tone={row.original.state === "PENDING" ? "info" : "neutral"}
           />
         ),
       },
@@ -151,17 +174,17 @@ export function Notifications() {
         header: () => null,
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-0.5">
-            {!row.original.is_read && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              title={t("notifications.markRead")}
-              disabled={read.isPending}
-              onClick={() => read.mutate(row.original.id)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
+            {row.original.is_outstanding && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                title={t("notifications.confirmDone")}
+                disabled={confirm.isPending}
+                onClick={() => confirm.mutate(row.original.id)}
+              >
+                <Check className="h-4 w-4" />
+              </Button>
             )}
             <Button
               variant="ghost"
@@ -177,14 +200,14 @@ export function Notifications() {
         ),
       },
     ],
-    [df, dismiss, read, t],
+    [confirm, df, dismiss, t],
   );
 
   const count = query.data?.count ?? 0;
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader
-        title={t("notifications.title")}
+        title={t(titleKey)}
         subtitle={
           query.isLoading
             ? t("common.loading")
@@ -192,22 +215,12 @@ export function Notifications() {
         }
         action={
           <div className="flex flex-wrap items-center gap-2">
-            {can("notification.send") && (
+            {!card && can("notification.send") && (
               <Button size="sm" onClick={() => setComposeOpen(true)}>
                 <BellPlus className="h-4 w-4" />
                 {t("notifications.compose.action")}
               </Button>
             )}
-            <Button
-              size="sm"
-              variant="outline"
-              disabledReason={count === 0 ? t("common.nothingUnread") : undefined}
-              disabled={readAll.isPending || count === 0}
-              onClick={() => readAll.mutate()}
-            >
-              <CheckCheck className="h-4 w-4" />
-              {t("notifications.markAllRead")}
-            </Button>
           </div>
         }
       />
@@ -227,37 +240,46 @@ export function Notifications() {
         filterPills={[
           {
             key: "all",
-            label: t("common.all"),
+            label: t("notifications.filter.allOutstanding", {
+              // Narrowed to one card, "all outstanding" means all of *that*
+              // card. Showing the whole pile's size above a list that holds
+              // part of it is how the two halves start disagreeing (F-229).
+              count: pillCount(
+                card === "ACTION" ? counts.data?.action : counts.data?.total,
+              ),
+            }),
             active: !list.filters.today,
             onSelect: () => list.setFilter("today", undefined),
           },
-          {
-            key: "today",
-            label: t("notifications.filter.today"),
-            active: list.filters.today === "true",
-            onSelect: () => list.setFilter("today", "true"),
-          },
+          // 今天新增 / 之前未完成 belong to the centre (D-206). Their counts
+          // come from the whole pile, so a narrowed list would show numbers
+          // that are not about the rows under them - better absent than wrong.
+          ...(card
+            ? []
+            : [
+                {
+                  key: "today",
+                  label: t("notifications.filter.newToday", {
+                    count: pillCount(counts.data?.today),
+                  }),
+                  active: list.filters.today === "true",
+                  onSelect: () => list.setFilter("today", "true"),
+                },
+                {
+                  key: "earlier",
+                  label: t("notifications.filter.stillOpen", {
+                    count: pillCount(counts.data?.earlier),
+                  }),
+                  active: list.filters.today === "false",
+                  onSelect: () => list.setFilter("today", "false"),
+                },
+              ]),
         ]}
         toolbarActions={
           <div className="flex min-w-0 flex-1 flex-wrap justify-end gap-2">
-            <Select
-              value={list.filters.unread ?? "all"}
-              onValueChange={(value) =>
-                list.setFilter("unread", value === "all" ? undefined : value)
-              }
-            >
-              <SelectTrigger
-                className="h-9 min-w-28 rounded-full"
-                aria-label={t("notifications.filter.readStatus")}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("notifications.filter.allStatus")}</SelectItem>
-                <SelectItem value="true">{t("notifications.status.unread")}</SelectItem>
-                <SelectItem value="false">{t("notifications.status.read")}</SelectItem>
-              </SelectContent>
-            </Select>
+            <QueryFailedNote query={counts} what={t("notifications.what.counts")} className="basis-full justify-end" />
+            {/* Categorising mail is a reading job, not a working one. */}
+            {card ? null : (
             <Select
               value={list.filters.category ?? "all"}
               onValueChange={(value) =>
@@ -278,6 +300,7 @@ export function Notifications() {
                 <SelectItem value="SYSTEM">{t("notifications.filter.system")}</SelectItem>
               </SelectContent>
             </Select>
+            )}
           </div>
         }
         onSearchChange={list.setSearch}
@@ -427,6 +450,7 @@ function ProjectNotificationDialog({
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={projects} what={t("whatProjects")} />
           </FieldWrapper>
 
           <FieldWrapper label={t("audience")} required hint={t("audienceHelp")}>

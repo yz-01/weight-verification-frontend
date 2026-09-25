@@ -8,7 +8,11 @@ import type {
   WasteTracking,
 } from "@/interfaces/waste-outgoing";
 import { api, download, toastSuccess } from "@/services/api-client";
-import type { ExportRequest } from "@/services/contractor.service";
+import {
+  exportBody,
+  exportQuery,
+  type ExportRequest,
+} from "@/services/contractor.service";
 
 export const getWasteCategories = (query: ListQuery = {}) =>
   api.list<WasteCategory>("/api/waste-categories/get_categories/", query);
@@ -71,19 +75,11 @@ export const deleteWasteCategory = async (id: string) => {
  * rather than being a second, differently scoped query.
  */
 export function exportWasteOutgoingRecords(request: ExportRequest): Promise<void> {
-  const { page, page_size, ...query } = request.query;
-  void page;
-  void page_size;
   return download("/api/waste-outgoing/export_records/", {
     method: "POST",
-    query,
-    body: {
-      format: request.format,
-      title: request.title,
-      subtitle: request.subtitle ?? "",
-      empty_label: request.emptyLabel ?? "",
-      columns: request.columns,
-    },
+    query: exportQuery(request),
+    // Shared body, so the per-unit totals the screen asks for reach the PDF.
+    body: exportBody(request),
     fallbackFilename: `waste-outgoing.${request.format}`,
   });
 }
@@ -254,6 +250,30 @@ export async function assignWasteRecycler(
     payload,
   );
   toastSuccess("wasteOutgoing.toast.ordered");
+  return row;
+}
+
+/**
+ * Take the order back from this recycler without killing the application
+ * (T-319, D-223).
+ *
+ * 客户：「取消当前这家后申请退回『已批准』可重新下单给下一家，**原申请不作废**」.
+ * Cancelling used to end the whole application, which meant somebody on site
+ * photographed the load again.
+ *
+ * It does not choose the next recycler. That stays with `assignWasteRecycler`,
+ * because the partnership gate lives on that path and a second route to
+ * binding a recycler is a rule that will be changed in one place only.
+ */
+export async function reassignWasteRecycler(
+  id: string,
+  reason: string,
+): Promise<WasteOutgoingRecord> {
+  const row = await api.post<WasteOutgoingRecord>(
+    `/api/waste-outgoing/${id}/reassign_recycler/`,
+    { reason },
+  );
+  toastSuccess("wasteOutgoing.toast.reassigned");
   return row;
 }
 

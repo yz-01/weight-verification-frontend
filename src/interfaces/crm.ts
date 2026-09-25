@@ -29,7 +29,7 @@ export interface CustomerVisit {
   purpose: string; objectives: string; visited_by: string | null;
   visited_by_name: string | null; contact_met: string; summary: string;
   action_items: string; follow_up_required: boolean; follow_up_date: string | null;
-  notes: string; created_at: string;
+  visit_report: string | null; notes: string; created_at: string;
 }
 
 export interface CustomerFeedback {

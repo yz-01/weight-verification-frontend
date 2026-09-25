@@ -274,7 +274,16 @@
       "unitPrice": "Unit price",
       "warehouse": "Warehouse",
       "warrantyMonths": "Warranty months",
-      "workPerformed": "Work performed"
+      "workPerformed": "Work performed",
+      "purchaseDate": "Purchase date",
+      "selectCustomCategory": "Choose custom category",
+      "categoryName": "Category name",
+      "receivedOn": "Received on",
+      "completedOn": "Completed on",
+      "removedOn": "Removed on",
+      "decision": "Decision",
+      "selectSource": "Choose where it is now",
+      "fromHint": "Filled in from where the asset is recorded now. Change it only if that record is wrong."
     },
     "installationStatus": {
       "ACTIVE": "Active",
@@ -408,6 +417,14 @@
       "purchaseSaved": "Purchase created",
       "stockReceived": "Stock received",
       "transferSaved": "Transfer recorded"
+    },
+    "what": {
+      "summary": "The asset summary",
+      "categories": "The custom category list",
+      "assets": "The asset list",
+      "staff": "The staff list",
+      "options": "The staff, department, customer and project lists",
+      "customers": "The customer names"
     }
   },
   "adminAuditCenter": {
@@ -465,7 +482,10 @@
       }
     },
     "subtitle": "Permanent user, company, financial, weighing and system change records.",
-    "title": "Audit Log"
+    "title": "Audit Log",
+    "what": {
+      "summary": "The audit record summary"
+    }
   },
   "adminCloudServiceManagement": {
     "action": {
@@ -771,6 +791,12 @@
       "serviceStatus": "Cloud service status updated",
       "usageSaved": "Cloud usage saved",
       "vendorSaved": "Cloud vendor saved"
+    },
+    "what": {
+      "summary": "The cloud service summary",
+      "services": "The cloud service list",
+      "vendors": "The vendor list",
+      "companiesProjects": "The customer and project lists"
     }
   },
   "adminCustomerService": {
@@ -901,7 +927,19 @@
       "response": "Response",
       "result": "Processing result",
       "selectCompany": "Select customer",
-      "subject": "Subject"
+      "subject": "Subject",
+      "source": "Source",
+      "scheduledTime": "Start time",
+      "durationHours": "Duration (hours)",
+      "followUpDate": "Next follow-up date",
+      "convertedCompany": "Converted to customer",
+      "convertedCompanyHint": "Only if this enquiry has already become a customer account.",
+      "noConvertedCompany": "Not converted yet",
+      "meetingLink": "Online meeting link",
+      "meetingLinkHint": "For online training: the video call link, starting with https://",
+      "visitTime": "Follow-up time",
+      "visitReport": "Follow-up report file",
+      "viewReport": "View report"
     },
     "loadError": "Customer service records could not be loaded.",
     "loading": "Loading customer service records...",
@@ -1000,6 +1038,10 @@
       "FEATURE_UPDATE": "Feature update",
       "ONBOARDING": "System onboarding",
       "REFRESHER": "Refresher"
+    },
+    "what": {
+      "summary": "the customer service summary",
+      "companies": "the customer list"
     }
   },
   "adminCwe": {
@@ -1025,7 +1067,8 @@
       "STREAM_INTERRUPTED": "Stream interrupted",
       "SUDDEN_DROP": "Sudden weight drop",
       "SUDDEN_RISE": "Sudden weight rise",
-      "WEIGHT_FREEZE": "Weight signal frozen"
+      "WEIGHT_FREEZE": "Weight signal frozen",
+      "ZERO_RETURN_FAILED": "Deck did not return to zero"
     },
     "anomalySearchPlaceholder": "Search session, weighbridge, company or anomaly",
     "connection": {
@@ -1141,6 +1184,15 @@
       "INVALID": "Invalid",
       "PENDING": "Pending",
       "VALID": "Valid"
+    },
+    "what": {
+      "activeSessions": "The active weighing sessions",
+      "anomalies": "The weighing anomalies",
+      "companies": "The company list",
+      "overview": "The weighing engine status",
+      "scales": "The weighbridge list",
+      "sessions": "The weighing sessions",
+      "summary": "The weighing session totals"
     }
   },
   "adminModuleLanding": {
@@ -1151,11 +1203,10 @@
   },
   "adminNotifications": {
     "action": {
-      "markRead": "Mark read",
-      "markUnread": "Mark unread",
       "remove": "Remove",
       "send": "Send notification",
-      "view": "View notification"
+      "view": "View notification",
+      "reopen": "Put back to waiting"
     },
     "channel": {
       "EMAIL": "Email",
@@ -1274,11 +1325,18 @@
     },
     "status": {
       "DELETED": "Removed",
-      "READ": "Read",
-      "UNREAD": "Unread"
+      "CLOSED": "Closed",
+      "DONE": "Confirmed done",
+      "PENDING": "Waiting"
     },
     "subtitle": "10 Platform, company, billing, commission, weighing and system notification management",
-    "title": "Notification Center"
+    "title": "Notification Center",
+    "what": {
+      "companies": "The company list",
+      "notifications": "The notification list",
+      "deliveryRecords": "The delivery records",
+      "statusRecords": "The status records"
+    }
   },
   "adminPartnerManagement": {
     "action": {
@@ -1304,7 +1362,8 @@
       "status": "Status",
       "submit": "Submit",
       "terminate": "Terminate",
-      "view": "View"
+      "view": "View",
+      "viewPaymentProof": "View payment proof"
     },
     "agreementStatus": {
       "ACTIVE": "Active",
@@ -1444,7 +1503,9 @@
       "selectPartner": "Choose partner",
       "signedBy": "Signed by",
       "terms": "Agreement terms",
-      "title": "Agreement title"
+      "title": "Agreement title",
+      "signedOn": "Signed on",
+      "paymentProof": "Payment proof"
     },
     "heading": {
       "payouts": "Commission payouts",
@@ -1565,13 +1626,23 @@
       "no": "No",
       "openEnded": "Open-ended",
       "system": "System",
-      "yes": "Yes"
+      "yes": "Yes",
+      "documentBeforeSubmit": "Upload the agreement document first - open Edit to attach it"
     },
     "subtitle": "Platform partner profiles, territories, customer ownership, agreements and commission settlement.",
     "title": "Partner Management",
     "schemes": {
       "help": "A commission scheme is part of a partner agreement and is frozen with it, so it is created and changed there rather than here.",
       "goToAgreements": "Open partner agreements"
+    },
+    "what": {
+      "summary": "The partner summary",
+      "partnerTypes": "The partner type list",
+      "partners": "The partner list",
+      "companies": "The customer list",
+      "territories": "The territory list",
+      "agreements": "The agreement commission rules",
+      "payouts": "The commission payout list"
     }
   },
   "adminQr": {
@@ -1718,6 +1789,13 @@
       "reissued": "QR code reissued",
       "statusUpdated": "QR status updated",
       "updated": "QR data updated"
+    },
+    "what": {
+      "companies": "the company list",
+      "codes": "the QR code register",
+      "subjectOptions": "the records a code can be bound to",
+      "scans": "the scan records",
+      "summary": "the QR code statistics"
     }
   },
   "adminReports": {
@@ -1840,7 +1918,11 @@
       }
     },
     "subtitle": "9 Platform-wide operational, commercial and system reports with permanent export history",
-    "title": "Report Center"
+    "title": "Report Center",
+    "what": {
+      "filterOptions": "The report filter choices",
+      "history": "The report history"
+    }
   },
   "adminSales": {
     "action": {
@@ -1960,7 +2042,8 @@
       "selectStatus": "Select next status",
       "selectSupervisor": "Select supervisor or manager",
       "target": "Target amount",
-      "wonOn": "Contract signed date"
+      "wonOn": "Contract signed date",
+      "reasonLabel": "Reason"
     },
     "loadError": "Sales records could not be loaded.",
     "loading": "Loading sales records...",
@@ -2079,7 +2162,13 @@
       "SUPERSEDED": "Superseded"
     },
     "title": "Sales & Commission Management",
-    "yes": "Yes"
+    "yes": "Yes",
+    "what": {
+      "summary": "The sales summary",
+      "schemes": "The commission scheme list",
+      "people": "The salesperson list",
+      "performance": "The team performance figures"
+    }
   },
   "adminSystemSettings": {
     "featureFlags": {
@@ -2238,6 +2327,7 @@
       "commission_enabled": "Commission enabled",
       "commission_settlement_cycle": "Settlement cycle",
       "cwe_anomaly_parameters": "Anomaly rules",
+      "field_mobile_history_days": "Days of history on the phone",
       "cwe_communication_parameters": "Communication parameters",
       "cwe_gateway_parameters": "Gateway parameters",
       "cwe_reweigh_parameters": "Reweighing parameters",
@@ -2346,7 +2436,8 @@
       "type": {
         "CONTRACTOR": "Contractor",
         "RECYCLER": "Recycler"
-      }
+      },
+      "companyList": "the company list"
     },
     "section": {
       "feature-flags": {
@@ -2384,6 +2475,10 @@
       "maintenance": {
         "subtitle": "Maintenance mode, service availability, window and customer notice.",
         "title": "Maintenance settings"
+      },
+      "field": {
+        "subtitle": "How far back the phone shows a worker their own records.",
+        "title": "Field app settings"
       },
       "notifications": {
         "subtitle": "In-app, email and push channels, delivery modes, categories and automation rules.",
@@ -2582,7 +2677,15 @@
       "subject": "Subject",
       "testResult": "Test result",
       "testStatus": "Test status",
-      "work": "Work performed"
+      "work": "Work performed",
+      "expectedResult": "Expected result",
+      "actualResult": "Actual result",
+      "dueDate": "Due date",
+      "estimatedHours": "Estimated hours",
+      "actualHours": "Actual hours",
+      "resolutionNotes": "Resolution notes",
+      "resolutionNotesHelp": "Completing the ticket with a note also writes it here.",
+      "laborHours": "Labour hours"
     },
     "guide": {
       "action": {
@@ -2736,7 +2839,8 @@
       "placeholder": "Write a reply",
       "send": "Add comment",
       "title": "Conversation",
-      "unknownAuthor": "Unknown"
+      "unknownAuthor": "Unknown",
+      "reply": "Reply"
     },
     "ticketEdit": {
       "moveOn": "Move it along",
@@ -2760,7 +2864,11 @@
       "SYSTEM_ISSUE": "System issue",
       "WEIGHBRIDGE_INSTALL": "Weighbridge installation"
     },
-    "title": "Technical Support Centre"
+    "title": "Technical Support Centre",
+    "what": {
+      "summary": "the technical support summary",
+      "companies": "the company list"
+    }
   },
   "app": {
     "name": "MSE Trace",
@@ -2832,7 +2940,8 @@
       "resourceType": "Record type",
       "reviewer": "Reviewer",
       "status": "Status",
-      "title": "Title"
+      "title": "Title",
+      "workflowTemplate": "Approval chain"
     },
     "history": {
       "action": "Action",
@@ -2849,7 +2958,7 @@
     "resource": {
       "all": "All record types",
       "deduction": "Deduction",
-      "dispatch": "Dispatch",
+      "dispatch": "Waste dispatches",
       "document": "Document",
       "other": "Other",
       "receipt": "Receipt",
@@ -2920,6 +3029,13 @@
       "stepName": "Step name",
       "stepNamePlaceholder": "e.g. Site manager review",
       "title": "Approval chains"
+    },
+    "workflowTemplateAuto": "Automatic - the chain set up for this record type",
+    "workflowTemplateHint": "Leave it on automatic to use the chain configured for this record type and project. A chain with steps picks its own reviewers.",
+    "workflowTemplateNone": "None - one step by any eligible reviewer",
+    "what": {
+      "workflowTemplates": "The approval chains",
+      "chainSteps": "The steps of this chain"
     }
   },
   "archiveQueue": {
@@ -2944,11 +3060,12 @@
       "MATERIAL_OUTGOING": "Material leaving site",
       "EQUIPMENT_MOVEMENT": "Equipment in and out",
       "HAZARD": "Hazard rectification",
-      "WASTE_OUTGOING": "Recyclable waste orders",
-      "DISPOSAL_REQUEST": "Construction waste disposal",
+      "WASTE_OUTGOING": "Environmental material outgoing",
+      "DISPOSAL_REQUEST": "Site disposal",
       "PROGRESS": "Site progress",
       "CONSULTANT_APPLICATION": "Consultant applications",
-      "ATTENDANCE_DAY": "Attendance, by day"
+      "ATTENDANCE_DAY": "Attendance, by day",
+      "SUNDRY_CLAIM": "Sundry claims"
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading…",
@@ -3334,7 +3451,10 @@
       "FAILED": "Failed",
       "SUCCESS": "Success"
     },
-    "title": "Audit log"
+    "title": "Audit log",
+    "what": {
+      "companies": "The company list"
+    }
   },
   "auth": {
     "changePassword": {
@@ -3670,6 +3790,14 @@
       },
       "stepLabel": "Step {number}",
       "title": "Billing workflow"
+    },
+    "what": {
+      "summary": "The billing summary",
+      "companies": "The company list",
+      "billableCompanies": "The list of companies that can be billed",
+      "invoice": "This invoice",
+      "payments": "The payment records",
+      "openInvoices": "The list of unpaid invoices"
     }
   },
   "businessTargets": {
@@ -3768,6 +3896,11 @@
       "PLASTIC": "Plastic",
       "SOIL": "Soil and aggregate",
       "TIMBER": "Timber"
+    },
+    "what": {
+      "projects": "The project list",
+      "categories": "The category list",
+      "users": "The staff list"
     }
   },
   "categoryManagement": {
@@ -3815,7 +3948,7 @@
       "material": "Records come from site goods-receipt and the back-office receipt register. Field staff can file here.",
       "field": "Records come from site photographs by column, hazard reports and field tasks. Field staff can file here.",
       "document": "Documents are uploaded and filed from the back office. Field staff do not file here.",
-      "equipment": "Records come from Site equipment in the back office. Machines are registered in the office; the phone only logs them in and out.",
+      "equipment": "Records come from Equipment movement in the back office. Machines are registered in the office; the phone only logs them in and out.",
       "progress": "Progress is submitted on site and filed into a column afterwards by the back office. The phone does not choose a column.",
       "phase": "Phases are maintained in the back office and drive the completion percentage. No records file into them.",
       "ehs": "Records come from hazard reports, on site and in the office alike. Field staff can file here.",
@@ -3897,7 +4030,6 @@
     "noReportYet": "Run the report first",
     "none": "None",
     "nothingToSync": "Nothing waiting to be sent",
-    "nothingUnread": "Nothing unread",
     "offline": "No connection right now",
     "optional": "optional",
     "outOfRange": "{field} must be between {min} and {max}",
@@ -4181,7 +4313,8 @@
         "documentUploaded": "Document uploaded",
         "primaryUpdated": "Primary bank account updated"
       },
-      "verify": "Verify"
+      "verify": "Verify",
+      "verificationNote": "Review note"
     },
     "planTerms": {
       "partner": "{currency} {fee} once + {rate}% commission",
@@ -4274,7 +4407,12 @@
     },
     "viewLogo": "View logo",
     "viewTitle": "Company",
-    "weightKg": "{value} kg"
+    "weightKg": "{value} kg",
+    "what": {
+      "summary": "The company summary",
+      "plans": "The plan list",
+      "ownerAccount": "The owner account"
+    }
   },
   "consultantAccess": {
     "action": {
@@ -4339,7 +4477,8 @@
       "permissionHelp": "Only selected permissions are available inside this project.",
       "subtitle": "One row is one consultant's permission to one project. Revoke it to end access immediately.",
       "title": "Project access",
-      "validity": "From {from} until {until}"
+      "validity": "From {from} until {until}",
+      "organizationEditHint": "Only firms this consultant is registered under are listed."
     },
     "organization": {
       "activeHelp": "Deactivating the firm immediately stops all of its project access.",
@@ -4701,7 +4840,9 @@
       "sourceSubmittedAt": "Submitted {value}",
       "sourceTitle": "Source field submission",
       "subtitle": "Prepare the site request, attach evidence, then submit it through the project's approval flow.",
-      "title": "Create consultant application"
+      "title": "Create consultant application",
+      "advanced": "Advanced (optional)",
+      "advancedHelp": "Leave blank to use the project's default route, “Consultant review”: one step, to the consultant you choose, signed. A template is optional too."
     },
     "inspectionCategory": {
       "H": "H - Hold point",
@@ -4831,7 +4972,11 @@
       "subtitle": "Maintain project-specific form fields, required attachments and immutable versions without technical JSON settings.",
       "title": "RFI Form Templates",
       "versionHelp": "This creates a new immutable version. Existing applications keep their original fields and attachment rules.",
-      "versionTitle": "{name} version {version}"
+      "versionTitle": "{name} version {version}",
+      "what": {
+        "applicationTypes": "The application types",
+        "attachmentTypes": "The attachment types"
+      }
     },
     "toast": {
       "acknowledged": "Application acknowledged",
@@ -4900,6 +5045,57 @@
       "subtitle": "Set the real approval sequence used by each project's applications.",
       "title": "Consultant Approval Workflows",
       "typeFixed": "Fixed - applications have already been filed on this workflow."
+    },
+    "howTo": {
+      "title": "How consultant applications work",
+      "stepNumber": "Step {number}",
+      "create": {
+        "title": "Create the application",
+        "body": "Press New application, choose the project and the consultant, and fill in what is to be inspected (location, description, drawing no.). Add attachments if needed. Workflow and template are optional."
+      },
+      "submit": {
+        "title": "Send it to the consultant",
+        "body": "Press Submit on the application. The consultant is notified and it moves to “In approval”. Until then it is a draft and can be edited."
+      },
+      "decide": {
+        "title": "The consultant approves, rejects or asks for changes",
+        "body": "The consultant signs and enters a PIN in their own account. The result, signature and conversation stay on the application; if changes are asked for, revise and submit again."
+      },
+      "setupOnce": "Set up once: add the consultant to this project (Consultant settings → Consultant access), otherwise they cannot be chosen on a new application.",
+      "openSettings": "Open consultant settings",
+      "askAdmin": "Ask a colleague who can change settings.",
+      "signatureOnce": "Before their first approval, a consultant sets their signature and PIN under Signature."
+    },
+    "settingsHub": {
+      "title": "Consultant settings",
+      "subtitle": "The three settings of consultant applications. Only the first is required; the other two can be left alone.",
+      "access": {
+        "title": "Consultant access",
+        "need": "Required · once per consultant per project",
+        "body": "Create the consultant company and accounts, and give them access to the project. A consultant without access cannot be chosen on an application."
+      },
+      "workflows": {
+        "title": "Approval workflows",
+        "need": "Optional · a default already exists",
+        "body": "Every project has a “Consultant review” route automatically (one step, to the chosen consultant). Come here only to add steps for multi-level approval."
+      },
+      "templates": {
+        "title": "Application templates",
+        "need": "Optional",
+        "body": "Build a template only for fixed form fields, required attachments or custom numbering. Applications can be created and sent without one."
+      }
+    },
+    "what": {
+      "credential": "Your approval signature and PIN",
+      "evidenceCandidates": "The project's site evidence",
+      "archiveDocuments": "The Document Archival list",
+      "workflows": "The approval workflows",
+      "templates": "The RFI form templates",
+      "scheduleTasks": "The schedule activities",
+      "applicationOptions": "The application choices (type, discipline, work type, priority)",
+      "consultantGrants": "The consultants with access to this project",
+      "applicationTypes": "The application types",
+      "reviewerChoices": "The reviewer list"
     }
   },
   "contractorDashboard": {
@@ -4949,7 +5145,7 @@
         "DISPOSAL_REQUEST": "Site clearing",
         "FIELD_TASK": "Field task",
         "SITE_PROGRESS": "Progress record",
-        "WASTE_OUTGOING": "Waste out"
+        "WASTE_OUTGOING": "Environmental material outgoing"
       },
       "waitingMinutes": "waiting {count} min",
       "waitingHours": "waiting {count} h",
@@ -5006,17 +5202,17 @@
       "unknown": "No status"
     },
     "notifications": {
-      "empty": "Nothing unread.",
+      "empty": "Nothing outstanding.",
       "openAll": "All notifications",
       "recipientScope": "Shows your own notifications; these are not filtered by project.",
-      "subtitle": "{unread} unread, {today} of them arrived today.",
-      "title": "Unread notifications",
-      "unread": "Unread"
+      "subtitle": "{today} new today, {earlier} still open from before.",
+      "title": "Outstanding",
+      "outstanding": "Waiting"
     },
     "overview": {
       "attendance": "Clock events today",
       "photos": "Site photos",
-      "progressRecords": "Progress records",
+      "progressRecords": "Project progress",
       "projects": "Projects",
       "safety": "Safety incidents",
       "title": "Today at a glance",
@@ -5246,7 +5442,8 @@
         "year": "Entered this year"
       },
       "takeDeliveryNote": "Take delivery note photo",
-      "title": "Site equipment"
+      "title": "Equipment movement",
+      "photoRange": "At least {min}, at most {max} photos, the delivery-order photo included."
     },
     "equipmentEvidence": {
       "condition": "4. Equipment condition detail",
@@ -5381,15 +5578,45 @@
       "executor": "Executor",
       "fieldFormHelp": "Enter only the essential details, complete at least four evidence photos and capture GPS. The executor is recorded automatically.",
       "formHelp": "Name the person carrying out the movement as the executor and capture the current location.",
-      "rejectPrompt": "Explain why this outgoing request is rejected.",
       "subtitle": "Request, approve and release non-waste material leaving a project.",
-      "title": "Material outgoing"
+      "title": "Material outgoing",
+      "rejectTitle": "Send this application back",
+      "rejectHelp": "Application {reference} ends here. It is not reopened — a new application is raised instead — so this reason is what the applicant is left with.",
+      "rejectReason": "Reason for sending it back",
+      "viewDetail": "Details",
+      "returnProcessing": "Send back processing photos",
+      "waitingForSite": "Approved. Waiting for the site to deal with the material and send photos back.",
+      "finalConfirm": "Final confirmation",
+      "waitingForOffice": "Photos sent back. Waiting for the office's final confirmation.",
+      "returnHelp": "Application {reference} is approved. Deal with the material, then photograph what was done. The office confirms from these photos.",
+      "processingPhotos": "Photos after processing",
+      "processingNote": "Note from site",
+      "processingLocation": "Location",
+      "processingLocationReady": "Location captured",
+      "sendReturn": "Send back",
+      "returnFailed": "The photos could not be sent. Try again.",
+      "uploadFiles": "Upload files",
+      "referenceNo": "No.",
+      "submittedBy": "Submitted by",
+      "capturedAt": "Submitted at",
+      "reviewNote": "Office note",
+      "completedBy": "Confirmed by",
+      "stage": {
+        "APPLICATION": "With the application",
+        "PROCESSING": "Sent back after processing",
+        "OFFICE": "Added by the office"
+      },
+      "flowTitle": "Steps",
+      "approvedBy": "Approved by",
+      "processedBy": "Processed on site by"
     },
     "outgoingStatus": {
       "APPROVED": "Approved",
       "PENDING": "Pending approval",
       "REJECTED": "Rejected",
-      "RELEASED": "Released"
+      "RELEASED": "Released (before the new flow)",
+      "PROCESSED": "Processed on site - waiting for final confirmation",
+      "COMPLETED": "Confirmed and closed"
     },
     "priority": {
       "HIGH": "High",
@@ -5419,9 +5646,12 @@
         "month": "This month",
         "today": "Today",
         "total": "Project total",
-        "year": "This year"
+        "year": "This year",
+        "weighted": "Overall progress (by phase weight)"
       },
-      "title": "Construction progress"
+      "title": "Project progress",
+      "plannedWeight": "Progress weight",
+      "plannedWeightHelp": "How much this phase counts against the project's other phases. 1 means the same as any other phase."
     },
     "progressEvidence": {
       "activity": "2. Work activity",
@@ -5487,7 +5717,6 @@
       "referenceHelp": "Field staff will see these before starting the task.",
       "references": "References ({count})",
       "referencesSelected": "{count} reference file(s) selected",
-      "returnPrompt": "Explain what the field staff must correct before resubmitting.",
       "saveError": "The task could not be assigned. Check the project team and try again.",
       "sourceGps": "Open source GPS",
       "sourceHelp": "This application was prepared from evidence submitted by field staff. The original photos remain linked and cannot be replaced.",
@@ -5499,7 +5728,22 @@
       "submittedAt": "Submitted {value}",
       "subtitle": "Assign photo-based work to project staff and review their evidence.",
       "title": "Site tasks",
-      "workLocation": "Work area: {location}"
+      "workLocation": "Work area: {location}",
+      "returnTitle": "Send this task back",
+      "returnHelp": "{reference} goes back to the person who filled it, so they can see what to correct.",
+      "returnReason": "What has to be corrected",
+      "route": {
+        "label": "Where the phone takes it",
+        "hint": "Opens this form on the assignee's phone.",
+        "SITE_DISPOSAL": "Site disposal",
+        "WASTE_OUTGOING": "Environmental material outgoing"
+      },
+      "applicationType": {
+        "label": "Application type",
+        "hint": "The consultant application form opens with this type chosen.",
+        "none": "Let the assignee choose",
+        "what": "the application types"
+      }
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",
@@ -5514,7 +5758,19 @@
       "removed": "Removed",
       "saved": "Saved",
       "taskAssigned": "Task assigned",
-      "taskUpdated": "Task updated"
+      "taskUpdated": "Task updated",
+      "outgoingProcessed": "Processing photos sent. The office will confirm."
+    },
+    "what": {
+      "roles": "The role list",
+      "projectPeople": "The people on this project",
+      "parentColumns": "The parent category list",
+      "columns": "The category list",
+      "suppliers": "The supplier list",
+      "equipmentSummary": "The equipment totals",
+      "progressSummary": "The progress totals",
+      "phases": "The construction phase list",
+      "outgoingRecord": "This material outgoing record"
     }
   },
   "contractorPartners": {
@@ -5625,7 +5881,7 @@
       "planned_end": "Planned end",
       "planned_progress": "Planned progress (%)",
       "planned_start": "Planned start",
-      "progress_records": "Progress records",
+      "progress_records": "Project progress",
       "project": "Project",
       "record_type": "Record type",
       "rectification_due_at": "Rectification due",
@@ -5706,6 +5962,9 @@
       "safety": "Safety and rectification report",
       "schedule": "Planned versus actual report",
       "target": "Target and achievement report"
+    },
+    "what": {
+      "filterOptions": "The filter choices (projects, photo sources, uploaders)"
     }
   },
   "crm": {
@@ -5912,7 +6171,7 @@
       "safety": "Safety incidents",
       "settlements": "Settlements",
       "siteDisposals": "Site disposal requests",
-      "siteEquipment": "Site equipment",
+      "siteEquipment": "Equipment movement",
       "systemStatus": "System status",
       "users": "Users",
       "wasteOrders": "Incoming waste orders",
@@ -5945,7 +6204,9 @@
   },
   "deductions": {
     "photo": {
-      "add": "Add a photo"
+      "add": "Add a photo",
+      "file": "Photo",
+      "caption": "Caption (optional)"
     },
     "autoAcceptedNote": "Nobody was asked about this one: it was under the threshold in force at the time.",
     "awaitingMe": "Waiting on you",
@@ -6005,6 +6266,10 @@
     "toast": {
       "answered": "Answer recorded",
       "created": "Deduction recorded"
+    },
+    "what": {
+      "loads": "The load list",
+      "sites": "The yard list"
     }
   },
   "deliveryNotePublic": {
@@ -6195,6 +6460,11 @@
       "PLASTIC": "Plastic",
       "SOIL": "Soil and aggregate",
       "TIMBER": "Timber"
+    },
+    "what": {
+      "tracking": "The collection progress",
+      "projects": "The project list",
+      "recyclers": "The recycler list for this project"
     }
   },
   "documents": {
@@ -6295,6 +6565,12 @@
     "versions": {
       "empty": "No file versions have been uploaded.",
       "title": "Version history"
+    },
+    "what": {
+      "projects": "The project list",
+      "categories": "The document categories",
+      "subcategories": "The document subcategories",
+      "uploaders": "The uploader list"
     }
   },
   "driver": {
@@ -6304,7 +6580,7 @@
       "ASSIGNED": "Assigned",
       "CANCELLED": "Cancel",
       "COMPLETED": "Completed after weighing",
-      "DELIVERED": "I have arrived at the yard",
+      "DELIVERED": "Arrived at yard (ends trip)",
       "EN_ROUTE": "Start driving",
       "FAILED": "Could not complete",
       "LOADED": "Loaded",
@@ -6391,7 +6667,7 @@
       "open": "Open notification",
       "remove": "Remove from inbox",
       "title": "Notifications",
-      "unread": "{count, plural, =0 {No unread notices} one {# unread notice} other {# unread notices}}"
+      "outstanding": "{count} outstanding"
     },
     "photoGpsRequired": "Turn on precise location before taking a task photo. The photo was not uploaded.",
     "photoRequired": "Take a loading photo before marking this trip as loaded.",
@@ -6439,6 +6715,12 @@
       "mayPause": "Your location is recorded only while this screen is on. If the phone locks, the track will show a gap.",
       "noWakeLock": "This browser will not keep the screen awake. Set the phone's screen timeout longer, or the track will show gaps.",
       "recording": "Recording your location. Keep this screen on."
+    },
+    "armEndTrip": "Confirm ending this trip",
+    "armEndTripHelp": "Turn this on before you can press Arrived at yard (ends trip).",
+    "photosClosed": "This trip has ended. Its photographs stay readable, but no new ones can be taken.",
+    "what": {
+      "pushStatus": "The notification status"
     }
   },
   "driverGps": {
@@ -6497,7 +6779,11 @@
       "loadOlder": "Load older samples",
       "title": "Route timeline"
     },
-    "title": "Driver GPS"
+    "title": "Driver GPS",
+    "what": {
+      "livePositions": "The live driver positions",
+      "liveRoutes": "The live driver routes"
+    }
   },
   "drivers": {
     "vehicleRequiredHelp": "A driver with no lorry shows as ready on the roster but every trip starts by picking one from scratch.",
@@ -6571,6 +6857,11 @@
       "created": "Driver added",
       "removed": "Driver removed",
       "updated": "Driver updated"
+    },
+    "what": {
+      "vehicles": "The vehicle list",
+      "accounts": "The driver account list",
+      "summary": "The driver counts"
     }
   },
   "email": {
@@ -6776,7 +7067,8 @@
       "version_already_exists": "That platform version already exists.",
       "version_not_found": "That platform version could not be found.",
       "visit_not_found": "That customer visit could not be found.",
-      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second."
+      "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
+      "rejection_needs_conversation": "Explain the problem in this record's conversation first, so the site can see why and reply. Then reject it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -6892,7 +7184,11 @@
       "record": "Record",
       "watermark": "Watermark"
     },
-    "title": "Evidence archive"
+    "title": "Evidence archive",
+    "what": {
+      "projects": "The project list",
+      "categories": "The site record categories"
+    }
   },
   "export": {
     "excel": "Excel spreadsheet",
@@ -7053,7 +7349,13 @@
     "resultDescription": "Give the activation link and six-digit PIN to the field worker. The link can bind a phone only before it expires.",
     "resultTitle": "Field staff link created",
     "selectStaff": "Select a field worker",
-    "title": "Create a field staff link"
+    "title": "Create a field staff link",
+    "what": {
+      "roles": "The role list",
+      "staff": "The site staff list",
+      "projects": "The project list",
+      "accessInfo": "This person's current projects"
+    }
   },
   "fieldDraft": {
     "loading": "Loading saved draft...",
@@ -7105,7 +7407,7 @@
       "selfieReady": "Selfie ready",
       "submit": "Submit attendance",
       "takeSelfie": "Take a selfie",
-      "title": "Site attendance",
+      "title": "Attendance",
       "todayCount": "{count, plural, =0 {No check-in today} one {# attendance record today} other {# attendance records today}}",
       "viewMap": "View check-in location"
     },
@@ -7191,28 +7493,29 @@
     "error": {
       "action": "The action could not be completed. Try again.",
       "load": "This page could not be loaded. Check the connection.",
-      "location": "Current GPS is required. Enable precise location and try again."
+      "location": "Current GPS is required. Enable precise location and try again.",
+      "loadShort": "{what} did not load."
     },
     "evidenceProgress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
     "greeting": "Hello, {name}",
     "home": {
-      "attendance": "Site attendance",
-      "category": "Site record folders",
+      "attendance": "Attendance",
+      "category": "Site records",
       "consultant": "Consultant submission",
-      "disposal": "Waste disposal",
+      "disposal": "Site disposal",
       "equipment": "Equipment movement",
       "incidents": "Report incident",
       "location": "Share location",
-      "material": "Material record",
+      "material": "Material receipts",
       "outgoing": "Material outgoing",
-      "progress": "Progress photos",
-      "records": "Site records",
-      "safety": "Safety / hazard",
+      "progress": "Project progress",
+      "records": "Site record capture",
+      "safety": "Hazard rectification",
       "subtitle": "Tap one large button to continue.",
       "tasks": "My tasks",
       "title": "Today's work",
       "waste": "Environmental material outgoing",
-      "hazards": "Hazards"
+      "hazards": "Hazard rectification"
     },
     "identity": {
       "company": "Company: {company}",
@@ -7300,7 +7603,7 @@
       "scanSupplierQr": "Scan supplier QR",
       "scanTitle": "Scan supplier QR",
       "sitePhotos": "Material / unloading photos",
-      "submit": "Save material record",
+      "submit": "Save material receipt",
       "supplier": "Supplier",
       "supplierSignature": "Supplier signature",
       "tapCamera": "Tap to open camera",
@@ -7324,13 +7627,13 @@
     },
     "nav": {
       "attendance": "Attendance",
-      "disposal": "Disposal",
+      "disposal": "Site disposal",
       "home": "Home",
       "incidents": "Incidents",
       "location": "Location",
-      "records": "Record",
+      "records": "Site record capture",
       "tasks": "Tasks",
-      "hazards": "Hazards"
+      "hazards": "Hazard rectification"
     },
     "notifications": {
       "empty": "No new alerts",
@@ -7342,17 +7645,18 @@
       "title": "My work alerts"
     },
     "records": {
-      "category": "Site record folders",
+      "category": "Site records",
       "consultant": "Consultant submission",
-      "disposal": "Waste disposal",
+      "disposal": "Site disposal",
       "equipment": "Equipment movement",
-      "material": "Material record",
+      "material": "Material receipts",
       "outgoing": "Material outgoing",
-      "progress": "Progress photos",
-      "safety": "Safety / hazard",
+      "progress": "Project progress",
+      "safety": "Hazard rectification",
       "subtitle": "Choose the work, then take the required photos.",
-      "title": "Site records",
-      "waste": "Environmental material outgoing"
+      "title": "Site record capture",
+      "waste": "Environmental material outgoing",
+      "sundry": "Sundry claims"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -7377,14 +7681,14 @@
     },
     "today": "Today · {date}",
     "type": {
-      "CONSULTANT": "Consultant",
-      "EQUIPMENT": "Equipment",
-      "MATERIAL": "Material",
+      "CONSULTANT": "Consultant submission",
+      "EQUIPMENT": "Equipment movement",
+      "MATERIAL": "Material receipts",
       "OTHER": "Other",
-      "PHOTO": "Photo",
-      "PROGRESS": "Progress",
-      "SAFETY": "Safety",
-      "WASTE": "Waste"
+      "PHOTO": "Site record capture",
+      "PROGRESS": "Project progress",
+      "SAFETY": "Hazard rectification",
+      "WASTE": "Environmental material outgoing"
     },
     "locationAccess": {
       "why": {
@@ -7432,7 +7736,21 @@
       "retry": "Try again",
       "unavailable": "The phone could not get a fix - often indoors or under cover. Step outside and try again.",
       "timeout": "Getting a location took too long. Try again.",
-      "unsupported": "This browser cannot read a location. Open this link in Safari or Chrome on the phone."
+      "unsupported": "This browser cannot read a location. Open this link in Safari or Chrome on the phone.",
+      "locating": "Getting your location…"
+    },
+    "what": {
+      "projects": "Your projects",
+      "linkedHazard": "The hazard in the link",
+      "linkedTask": "The task in the link",
+      "attendance": "Today's attendance",
+      "myTasks": "My tasks",
+      "columns": "The material columns",
+      "suppliers": "The supplier list",
+      "dockets": "The supplier QR codes",
+      "queued": "The items still on this phone",
+      "submissions": "What I sent",
+      "queuedEntry": "This item"
     }
   },
   "fieldStaffWorkspace": {
@@ -7451,7 +7769,8 @@
     "project": "Project",
     "task": "Task",
     "ticket": "Weighbridge ticket",
-    "title": "Service history"
+    "title": "Service history",
+    "what": "The job history"
   },
   "gate": {
     "clear": "Clear",
@@ -7515,7 +7834,10 @@
       "scanned": "Load queued at the weighbridge"
     },
     "waiting": "Waiting for",
-    "whyFirst": "The weighbridge starts recording by itself when weight lands on the deck, so the load has to be queued before the vehicle moves. There is no way to attach it afterwards."
+    "whyFirst": "The weighbridge starts recording by itself when weight lands on the deck, so the load has to be queued before the vehicle moves. There is no way to attach it afterwards.",
+    "what": {
+      "scales": "The weighbridge list"
+    }
   },
   "gateways": {
     "copyManifest": "Copy manifest",
@@ -7558,6 +7880,9 @@
       "created": "Gateway registered",
       "revoked": "Gateway revoked",
       "rotated": "Secret rotated"
+    },
+    "what": {
+      "list": "The gateway list"
     }
   },
   "globalSearch": {
@@ -7591,6 +7916,9 @@
       "subtitle": "What you reported, and what you have to fix.",
       "report": "Report a hazard",
       "empty": "Nothing yet. Photograph a hazard and it appears here."
+    },
+    "what": {
+      "conversation": "The rectification discussion"
     }
   },
   "home": {
@@ -7682,7 +8010,13 @@
     "submitSuccess": "Incident report submitted",
     "subtitle": "Report accidents, emergencies and safety concerns to workers and supervisors.",
     "supervisor": "Supervisor",
-    "title": "Incident Reporting"
+    "title": "Incident Reporting",
+    "what": {
+      "projects": "The project list",
+      "recipients": "The list of people to report to",
+      "thread": "This incident report",
+      "threads": "The incident reports"
+    }
   },
   "incoming": {
     "collect": {
@@ -7716,20 +8050,20 @@
       "goToDispatch": "Open that trip",
       "dispatchElsewhere": "This load is already on another trip",
       "acceptAndAssign": "Accept and assign driver",
-      "acceptAndPropose": "Accept and propose time",
       "acceptOnly": "Accept first",
       "action": "Accept and assign",
       "assign": "Assign driver",
       "confirmedAt": "Contractor-confirmed collection time",
       "description": "Order {order} came from the contractor. Propose a collection time first; assign a driver only after the contractor confirms it.",
-      "proposalHelp": "Choose when your recycler can collect this load. The contractor must confirm before a driver can be assigned.",
+      "proposalHelp": "This order is already yours — there is nothing to accept. Set when your lorry can collect it; the contractor confirms the time before a driver is committed.",
       "proposalNote": "Message to the site",
       "proposedAt": "Proposed collection date and time",
       "title": "Collection order",
       "waitingConfirmation": "Waiting for contractor confirmation",
       "proposeTime": "Change the collection time",
       "autoAccepted": "This order was accepted when the site sent it. There is nothing to accept.",
-      "wantedAt": "Site wants it collected"
+      "wantedAt": "Site wants it collected",
+      "arrangeCollection": "Arrange collection"
     },
     "subtitle": "Waste on its way to your yards.",
     "summary": {
@@ -7744,6 +8078,9 @@
       "accepted": "Order accepted",
       "collected": "Load collected",
       "collectionProposed": "Collection time proposed. The site has to confirm it."
+    },
+    "what": {
+      "summary": "The order counts"
     }
   },
   "integrations": {
@@ -8077,6 +8414,15 @@
     },
     "validation": {
       "settings": "Settings must be valid JSON."
+    },
+    "what": {
+      "companies": "the company list",
+      "eventCatalogue": "the list of events that can be sent",
+      "connections": "the connection configurations",
+      "devices": "the site devices",
+      "projects": "the project list",
+      "sites": "the recycling site list",
+      "scales": "the weighbridge list"
     }
   },
   "loginRecords": {
@@ -8326,6 +8672,10 @@
         "active": "Active",
         "stale": "Stale",
         "total": "Workers"
+      },
+      "what": {
+        "workers": "the worker status",
+        "handlers": "the list of job handlers"
       }
     },
     "loadError": "Monitoring data could not be loaded.",
@@ -8529,6 +8879,10 @@
       "DISABLED": "Disabled",
       "ERROR": "Error",
       "READY": "Ready"
+    },
+    "what": {
+      "platformConfig": "the mode chosen in System Settings",
+      "events": "the system event log"
     }
   },
   "claims": {
@@ -8629,9 +8983,9 @@
       "CONFIRMED": "Claimed",
       "DRAFT": "This period"
     },
-    "subtitle": "This period's claim, what has already been claimed, and whether the money arrived.",
+    "subtitle": "This period's progress claim, the ones already claimed, and whether the money arrived.",
     "takeOff": "Take off this period",
-    "title": "Claims",
+    "title": "Progress claims",
     "toast": {
       "confirmed": "Claimed.",
       "discarded": "Claim discarded.",
@@ -8688,7 +9042,8 @@
     "group": {
       "fields": "Fields",
       "photos": "Photographs",
-      "documents": "Delivery orders"
+      "documents": "Delivery orders",
+      "messages": "Record communication"
     },
     "itemAccepted": "Accepted",
     "itemCount": "{count} records",
@@ -8697,7 +9052,7 @@
       "MATERIAL_OUTGOING": "Material outgoing",
       "EQUIPMENT_MOVEMENT": "Equipment movement",
       "HAZARD": "Hazard",
-      "WASTE_OUTGOING": "Waste outgoing",
+      "WASTE_OUTGOING": "Environmental material outgoing",
       "DISPOSAL_REQUEST": "Disposal request",
       "PROGRESS": "Progress",
       "CONSULTANT_APPLICATION": "Consultant application"
@@ -8762,6 +9117,14 @@
       "sent": "Sent for review.",
       "accepted": "Accepted.",
       "returned": "Returned to the applicant."
+    },
+    "exportOne": "Export this one",
+    "preview": "Preview",
+    "what": {
+      "candidates": "The records you can add",
+      "recordParts": "The full contents of this record",
+      "packagesToReview": "The packages to review",
+      "package": "This package"
     }
   },
   "mySubmissions": {
@@ -8772,14 +9135,19 @@
     "waitingToUpload": "Waiting to upload",
     "uploadFailed": "Upload refused",
     "attempts": "{count} attempts",
+    "historyWindow": "The phone keeps the last {days} days. Older records are in the office system.",
     "truncated": "Showing {shown} of {total}.",
     "kind": {
-      "MATERIAL_RECEIPT": "Delivery",
+      "MATERIAL_RECEIPT": "Material receipts",
       "SITE_RECORD": "Site record",
-      "WASTE_OUTGOING": "Waste out",
-      "HAZARD": "Hazard",
-      "PROGRESS": "Progress",
-      "DRIVER_TRIP": "Trip"
+      "WASTE_OUTGOING": "Environmental material outgoing",
+      "HAZARD": "Hazard rectification",
+      "PROGRESS": "Project progress",
+      "DRIVER_TRIP": "Trip",
+      "MATERIAL_OUTGOING": "Material outgoing",
+      "EQUIPMENT_MOVEMENT": "Equipment movement",
+      "DISPOSAL_REQUEST": "Site disposal",
+      "SUNDRY_CLAIM": "Sundry claims"
     },
     "field": {
       "application_no": "Application no.",
@@ -8820,7 +9188,11 @@
       "vehicle_plate": "Lorry",
       "waste_description": "Waste",
       "work_location": "Where on site",
-      "workflow": "Workflow"
+      "workflow": "Workflow",
+      "processing_note": "Processing note from site",
+      "amount": "Amount",
+      "paid_by": "Payment confirmed by",
+      "paid_at": "Paid on"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -8839,7 +9211,11 @@
       "OTHER": "Other",
       "PIECE": "Piece",
       "TONNE": "Tonne"
-    }
+    },
+    "returnedClosed": "This application is closed. The record, the reason and the conversation are kept; raise a new one if you still need it done.",
+    "paymentProofs": "Payment vouchers",
+    "noPaymentProofs": "Vouchers appear here once finance has paid.",
+    "conversation": "Record communication"
   },
   "nav": {
     "activity_logs": "Activity logs",
@@ -8869,7 +9245,7 @@
     "driver_tasks": "Driver tasks",
     "drivers": "Drivers",
     "emergency_list": "Emergency list",
-    "equipment": "Site equipment",
+    "equipment": "Equipment movement",
     "evidence": "Evidence archive",
     "field_tasks": "Site tasks",
     "gate": "Weighbridge gate",
@@ -9048,12 +9424,13 @@
       "loginAudit": "Sign-in records",
       "loginHistory": "Login history",
       "maintenanceSettings": "Maintenance settings",
+      "fieldSettings": "Field app settings",
       "materialCostReport": "Material cost report",
       "materialOutgoing": "Material outgoing",
       "materialQuantityReport": "Material quantity report",
       "materialReceipts": "Material receipts",
       "monitoringRecords": "Monitoring records",
-      "claimEngine": "Claim Engine",
+      "claimEngine": "Progress claims",
       "multiEngine": "Multi Engine",
       "notificationChannels": "Notification channels",
       "notificationManagement": "Notification management",
@@ -9080,7 +9457,7 @@
       "platformBusinessReports": "Platform business reports",
       "platformCommission": "Platform commission",
       "platformJobs": "Scheduled jobs",
-      "progressRecords": "Progress records",
+      "progressRecords": "Project progress",
       "projectCategories": "Site records",
       "projectRecords": "Project records",
       "qrActivity": "QR activity",
@@ -9121,7 +9498,7 @@
       "settingsAudit": "Setting records",
       "siteAccessPasses": "Site access passes",
       "siteDisposals": "Site disposal",
-      "siteEquipment": "Site equipment",
+      "siteEquipment": "Equipment movement",
       "siteGps": "Site personnel GPS",
       "subscriptionActivity": "Operation records",
       "subscriptionAudit": "Subscription records",
@@ -9152,8 +9529,11 @@
       "userStatistics": "User statistics",
       "versionSettings": "Version management",
       "wasteDispatches": "Waste dispatches",
-      "wasteOutgoing": "Environmental material outgoing applications",
-      "workforceGps": "Workforce live location"
+      "wasteOutgoing": "Environmental material outgoing",
+      "workforceGps": "Workforce live location",
+      "myTasks": "My tasks",
+      "consultantSettings": "Consultant settings",
+      "sundryClaims": "Sundry claims"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -9176,7 +9556,8 @@
     "weighing_parameters": "Detection parameters",
     "weighing_records": "Weighing records",
     "yards": "Recycling yards",
-    "waitingForYou": "{count} waiting for you"
+    "waitingForYou": "{count} waiting for you",
+    "waitingUnknown": "Could not load how many are waiting for you"
   },
   "notifications": {
     "compose": {
@@ -9207,10 +9588,11 @@
       "sendError": "The notice could not be sent. Check the project and recipients.",
       "subject": "Subject",
       "subjectPlaceholder": "For example: Concrete delivery changed",
-      "title": "Send a project notice"
+      "title": "Send a project notice",
+      "whatProjects": "The project list"
     },
     "count": "{count, plural, =0 {No notifications} one {# notification} other {# notifications}}",
-    "countFailed": "The unread count could not be loaded, so it is not known whether anything is waiting.",
+    "countFailed": "The outstanding count could not be loaded, so there is no telling whether anything is waiting for you.",
     "field": {
       "kind": "Type",
       "notification": "Notification",
@@ -9219,14 +9601,14 @@
     },
     "filter": {
       "allCategories": "All categories",
-      "allStatus": "All status",
       "billing": "Billing",
       "category": "Notification category",
       "order": "Orders",
-      "readStatus": "Read status",
       "system": "System",
-      "today": "Today",
-      "weighing": "Weighing"
+      "weighing": "Weighing",
+      "allOutstanding": "All outstanding ({count})",
+      "newToday": "New today ({count})",
+      "stillOpen": "Still open ({count})"
     },
     "kind": {
       "ACCESS": "Site access",
@@ -9248,9 +9630,6 @@
       "WEIGHING": "Weighing"
     },
     "listFailed": "Your notifications could not be loaded. This is not the same as having none - try again.",
-    "markAllRead": "Mark all as read",
-    "markRead": "Mark as read",
-    "noUnread": "No unread notifications",
     "push": {
       "enable": "Enable browser alerts",
       "enabled": "Browser alerts enabled",
@@ -9258,17 +9637,38 @@
       "permissionDenied": "Browser notification permission was not granted."
     },
     "remove": "Remove from inbox",
-    "status": {
-      "read": "Read",
-      "unread": "Unread"
-    },
     "title": "Notifications",
     "toast": {
-      "allRead": "All notifications marked as read",
       "sent": "Notification sent to {count} project members"
     },
-    "unreadCount": "{count, plural, =0 {No unread notifications} one {# unread notification} other {# unread notifications}}",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "confirmDone": "Confirm done",
+    "nothingOutstanding": "Nothing outstanding",
+    "outstandingCount": "{count} outstanding",
+    "outstandingSplit": "{today} new today, {earlier} still open from before",
+    "state": {
+      "CLOSED": "Closed",
+      "DONE": "Confirmed done",
+      "PENDING": "Waiting"
+    },
+    "myTasks": {
+      "title": "My tasks",
+      "subtitle": "What is waiting on you. Confirming one clears that one and leaves the rest.",
+      "waiting": "{count} waiting on you",
+      "clear": "Nothing is waiting on you."
+    },
+    "actionCards": {
+      "title": "Tasks waiting for you",
+      "count": "{count} waiting for you",
+      "open": "Open to deal with it",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "more": "{count} more - see all"
+    },
+    "what": {
+      "counts": "The outstanding counts",
+      "pushConfig": "The phone alert settings"
+    }
   },
   "offline": {
     "kind": {
@@ -9289,14 +9689,17 @@
       "TASK_POSITION": "GPS position",
       "TASK_TRANSITION": "Trip progress",
       "TRIP_ASSIGN": "Assign trip",
-      "WASTE_OUTGOING": "Waste outgoing"
+      "WASTE_OUTGOING": "Environmental material outgoing",
+      "SUNDRY_CLAIM": "Sundry claims"
     },
     "pageDescription": "This page is not cached yet. Reconnect once, then open it again for offline use.",
     "queue": {
       "attemptFailed": "{count, plural, one {Failed once} other {Failed # times}}",
       "discard": "Discard this action",
       "empty": "Nothing is waiting to sync.",
-      "retry": "Retry now"
+      "retry": "Retry now",
+      "heldHint": "An earlier step for the same order has not gone through yet, so this one waits to keep them in order.",
+      "recent": "Synced just now"
     },
     "queued": "Saved offline and queued for upload",
     "status": {
@@ -9305,7 +9708,23 @@
       "pending": "{count, plural, one {# record is waiting to sync} other {# records are waiting to sync}}",
       "syncing": "Uploading offline records"
     },
-    "synced": "Uploaded {count, plural, one {# offline record} other {# offline records}}"
+    "synced": "Uploaded {count, plural, one {# offline record} other {# offline records}}",
+    "alreadyQueued": "This action is already waiting to sync. It will not be sent twice.",
+    "state": {
+      "waiting": "Waiting to sync",
+      "syncing": "Syncing",
+      "failed": "Sync failed",
+      "held": "Waiting for the earlier step",
+      "synced": "Synced"
+    },
+    "conflict": {
+      "forbidden": "Your account no longer has permission for this (it may have changed while you were offline). Ask your administrator. Until then this action does nothing.",
+      "gone": "This order no longer exists or is no longer addressed to you. You can discard this action.",
+      "alreadyAssigned": "While you were offline this order was given to another driver or lorry. The trip assigned first was kept. Open the trip list to see the current plan, then discard this action.",
+      "changed": "While you were offline someone else handled this order or its status changed (for example it was cancelled or already accepted). This step was not carried out. Open the order to see where it stands, then discard this action.",
+      "invalid": "Some details are incomplete or out of date (for example the proposed time has passed). This step was not carried out. Do it again, then discard this action.",
+      "server": "The server could not handle this just now. It will be tried again on the next sync."
+    }
   },
   "organisation": {
     "department": {
@@ -9874,7 +10293,8 @@
       "title": "Bound projects",
       "unbind": "Unbind",
       "unbindDescription": "New waste orders for this project can no longer use this partnership.",
-      "unbindTitle": "Unbind {name}?"
+      "unbindTitle": "Unbind {name}?",
+      "project": "Project"
     },
     "request": {
       "action": "Request partnership",
@@ -10088,7 +10508,8 @@
     "noCategory": "No column",
     "empty": "Nothing waiting for approval",
     "subtitle": "{count} waiting for you",
-    "title": "Photo approvals"
+    "title": "Photo approvals",
+    "what": "The photos waiting for approval"
   },
   "profile": {
     "section": {
@@ -10285,7 +10706,7 @@
         "field_tasks": "Field tasks",
         "material_receipts": "Material receipts",
         "photos": "Site photos",
-        "progress_records": "Progress records",
+        "progress_records": "Project progress",
         "safety_incidents": "Safety incidents",
         "waste_dispatches": "Waste dispatches"
       },
@@ -10313,7 +10734,9 @@
       "removeConfirm": "Remove",
       "removeDescription": "They will stop seeing this project's deliveries and outgoing loads. Their account and everything they recorded stay as they are.",
       "removeTitle": "Remove {name} from this project?",
-      "title": "Who can see this project"
+      "title": "Who can see this project",
+      "person": "Person to add",
+      "whatMembers": "The project member list"
     },
     "title": "Projects",
     "toast": {
@@ -10391,7 +10814,12 @@
     },
     "viewQr": "View QR code",
     "viewResult": "View receiving result",
-    "void": "Void docket"
+    "void": "Void docket",
+    "what": {
+      "notes": "The delivery dockets",
+      "suppliers": "The supplier list",
+      "categories": "The columns"
+    }
   },
   "qrScan": {
     "accepted": "Scan accepted",
@@ -10428,7 +10856,9 @@
       "reason": "Reason for rejection",
       "reasonPlaceholder": "Why is this delivery being rejected?",
       "moneyNote": "Rejecting flags the delivery and counts it on the home page. It does not change the amount or the payment status — that stays a decision somebody makes on purpose.",
-      "alreadyAccepted": "This delivery has already been accepted."
+      "alreadyAccepted": "This delivery has already been accepted.",
+      "armReject": "Allow rejecting this delivery",
+      "armRejectHelp": "Turn this on only when the material is off specification. It unlocks the reason and the reject button."
     },
     "addPhoto": {
       "caption": "Note (optional)",
@@ -10452,7 +10882,6 @@
       "title": "Why this correction"
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
-    "totalByUnit": "Totals by unit",
     "createTitle": "Record a delivery",
     "doPanelField": "Field",
     "doPanelLineItems": "Lines on the document",
@@ -10557,7 +10986,17 @@
       "TONNE": "Tonne"
     },
     "viewTitle": "Receipt",
-    "waiting": "Waiting for you to read"
+    "waiting": "Waiting for you to read",
+    "filter": {
+      "closed": "Closed (accepted)",
+      "rejected": "Not up to spec"
+    },
+    "what": {
+      "projects": "The project list",
+      "suppliers": "The supplier list",
+      "dockets": "The delivery dockets",
+      "columns": "The column list"
+    }
   },
   "recyclerBusiness": {
     "action": {
@@ -10765,6 +11204,13 @@
       "shipmentConfirmed": "Outbound confirmed and inventory deducted.",
       "shipmentCreated": "Outbound draft created.",
       "shipmentUpdated": "Outbound draft updated."
+    },
+    "what": {
+      "yards": "The recycling yard list",
+      "weighSessions": "The completed weighings",
+      "completedIntakes": "The completed intakes",
+      "driverRoutes": "The drivers' routes",
+      "buyers": "The buyer list"
     }
   },
   "recyclerCompanySettings": {
@@ -10977,6 +11423,10 @@
       "sources": "Business source",
       "weighing": "Weighbridge tickets",
       "weights": "Recycling weight"
+    },
+    "what": {
+      "filterOptions": "The report filter choices",
+      "history": "The export history"
     }
   },
   "recyclerReview": {
@@ -11066,6 +11516,10 @@
       "rejected": "Partnership rejected",
       "requested": "Partnership requested",
       "suspended": "Partnership suspended"
+    },
+    "what": {
+      "available": "The list of recyclers you can request",
+      "projects": "The list of projects you can bind"
     }
   },
   "reports": {
@@ -11075,7 +11529,7 @@
       "estimateNote": "These are the site's estimates. Final weights come from the recycler's weighbridge once the load is weighed.",
       "estimatedWeight": "Estimated weight (kg)",
       "loads": "Loads",
-      "title": "Waste dispatched",
+      "title": "Waste dispatches",
       "totalDispatches": "Loads",
       "wasteType": "Waste type"
     },
@@ -11120,6 +11574,11 @@
       "title": "Transaction reports",
       "totalAmount": "Total amount",
       "transactions": "Transactions"
+    },
+    "what": {
+      "dispatches": "The waste dispatch summary",
+      "projects": "The project list",
+      "receipts": "The material received summary"
     }
   },
   "roles": {
@@ -11182,7 +11641,10 @@
       "removed": "Role removed",
       "updated": "Role updated"
     },
-    "viewTitle": "Role"
+    "viewTitle": "Role",
+    "what": {
+      "permissions": "The permission list"
+    }
   },
   "safety": {
     "action": {
@@ -11280,6 +11742,12 @@
     "update": {
       "description": "Update {incident} and retain the resolution history.",
       "title": "Update incident status"
+    },
+    "what": {
+      "categories": "The safety categories",
+      "responsiblePeople": "The responsible people",
+      "requestedIncident": "The incident in the link",
+      "workers": "The people to notify"
     }
   },
   "safetyRectification": {
@@ -11322,7 +11790,8 @@
     },
     "review": {
       "description": "Review the submitted evidence for {incident}, then verify it or return it with a reason.",
-      "title": "Verify rectification"
+      "title": "Verify rectification",
+      "refuseInstead": "Not acceptable? Do not confirm it. Say why in the conversation instead — the hazard stays open until it is put right."
     },
     "status": {
       "ASSIGNED": "Assigned for rectification",
@@ -11342,6 +11811,9 @@
       "assigned": "Rectification assigned",
       "reviewed": "Rectification review saved",
       "submitted": "Rectification evidence submitted"
+    },
+    "what": {
+      "team": "The project team"
     }
   },
   "sales": {
@@ -11432,7 +11904,10 @@
       "removed": "Weighbridge removed",
       "updated": "Weighbridge updated"
     },
-    "viewTitle": "Weighbridge"
+    "viewTitle": "Weighbridge",
+    "what": {
+      "sites": "The yard list"
+    }
   },
   "schedulePlanning": {
     "action": {
@@ -11739,6 +12214,10 @@
     "voidDialog": {
       "description": "The receiving workflow will stop and the QR code will no longer be usable. Enter the reason.",
       "title": "Void this arrived delivery?"
+    },
+    "what": {
+      "weighedLoads": "The list of weighed loads",
+      "quote": "The settlement working"
     }
   },
   "siteControl": {
@@ -11765,7 +12244,8 @@
       "subtitle": "Request, approve and scan worker, visitor and vehicle permits from one gate workflow.",
       "timeline": "Entry and exit history",
       "title": "Site access",
-      "unknownGate": "Gate not named"
+      "unknownGate": "Gate not named",
+      "defaultsFailed": "The site access defaults did not load. Try again first."
     },
     "action": {
       "approve": "Approve",
@@ -12133,6 +12613,13 @@
       "passUpdated": "Pass updated.",
       "profileSaved": "Company profile saved",
       "settingsSaved": "Company site settings saved"
+    },
+    "what": {
+      "roles": "The role list",
+      "defaults": "The site access defaults",
+      "requestedPass": "The pass in the link",
+      "workers": "The worker list",
+      "credentials": "The registered credentials"
     }
   },
   "siteDisposal": {
@@ -12330,7 +12817,9 @@
       "title": "Regenerate external link"
     },
     "review": {
-      "title": "Review disposal request"
+      "title": "Review disposal request",
+      "linkTitle": "Send this link to the applicant",
+      "linkHelp": "Copy it now — it is shown once. The applicant forwards it to the driver, who uploads the disposal photographs through it."
     },
     "status": {
       "APPROVED": "Approved",
@@ -12373,6 +12862,13 @@
       "linkRegenerated": "External task link regenerated",
       "requested": "Disposal request submitted",
       "reviewed": "Disposal review saved"
+    },
+    "overdue": {
+      "badge": "Exception",
+      "help": "No disposal photograph 36 hours after approval. Chase the collection."
+    },
+    "what": {
+      "fieldStaff": "The field staff on this project"
     }
   },
   "siteGps": {
@@ -12424,7 +12920,15 @@
       "live": "Live positions"
     },
     "title": "Site personnel GPS",
-    "watchNotPermitted": "You can share your own position here. Watching the workforce needs the field position view permission, which your role does not have - ask a company administrator if you need it."
+    "watchNotPermitted": "You can share your own position here. Watching the workforce needs the field position view permission, which your role does not have - ask a company administrator if you need it.",
+    "what": {
+      "locationPolicy": "The GPS upload interval setting",
+      "projects": "The project locations",
+      "geofences": "The site geofences",
+      "live": "The live positions",
+      "route": "The selected person's route",
+      "lastPositions": "The employee last positions"
+    }
   },
   "sites": {
     "count": "{count, plural, =0 {No yards} one {# yard} other {# yards}}",
@@ -12442,7 +12946,10 @@
       "name": "Yard name",
       "postcode": "Postcode",
       "scaleCount": "Weighbridges",
-      "state": "State"
+      "state": "State",
+      "weighingMode": "Weighing mode",
+      "requiresDispatch": "Dispatch before weighing",
+      "pairingWindowHours": "Pairing window (hours)"
     },
     "new": "New yard",
     "remove": {
@@ -12453,7 +12960,8 @@
     "section": {
       "address": "Address",
       "contact": "Contact",
-      "identity": "Identity"
+      "identity": "Identity",
+      "weighing": "Weighing rules"
     },
     "title": "Yards",
     "toast": {
@@ -12461,7 +12969,23 @@
       "removed": "Yard removed",
       "updated": "Yard updated"
     },
-    "viewTitle": "Yard"
+    "viewTitle": "Yard",
+    "hint": {
+      "weighingMode": "Two passes is the default. A stored tare weighs once against the vehicle's recorded empty weight; every tare change is audited.",
+      "requiresDispatch": "When required, the weighbridge will not start until the driver presents a dispatch.",
+      "pairingWindowHours": "How long after a gross weighing its tare may still be paired to it."
+    },
+    "weighingMode": {
+      "TWO_PASS": "Weigh in and weigh out",
+      "STORED_TARE": "Single pass against a stored tare"
+    },
+    "requiresDispatch": {
+      "true": "Required",
+      "false": "Not required"
+    },
+    "validation": {
+      "pairingWindow": "Enter a whole number of hours, 1 or more."
+    }
   },
   "subscriptions": {
     "action": {
@@ -12682,6 +13206,10 @@
     },
     "value": {
       "unlimited": "Unlimited"
+    },
+    "what": {
+      "summary": "The subscription summary",
+      "plans": "The plan list"
     }
   },
   "suppliers": {
@@ -12708,7 +13236,7 @@
       "active": "Active",
       "copied": "Copied",
       "copyLink": "Copy link",
-      "description": "Site staff scan this code to identify the supplier and open a material record without typing the company name.",
+      "description": "Site staff scan this code to identify the supplier and open a material receipt without typing the company name.",
       "disable": "Disable",
       "downloadPng": "Download PNG",
       "enable": "Enable",
@@ -12742,7 +13270,7 @@
       "issuedOn": "Issued {date}",
       "noSites": "There are no sites to issue a code for.",
       "revokedOn": "Revoked {date}",
-      "scanHelp": "Print this for the gate house. Scanning it opens a material record with the site and the supplier already filled in.",
+      "scanHelp": "Print this for the gate house. Scanning it opens a material receipt with the site and the supplier already filled in.",
       "title": "Site codes"
     },
     "title": "Suppliers",
@@ -12753,6 +13281,9 @@
       "qrRegenerated": "Supplier QR code regenerated",
       "removed": "Supplier removed",
       "updated": "Supplier updated"
+    },
+    "what": {
+      "sites": "The site list"
     }
   },
   "support": {
@@ -12919,7 +13450,14 @@
       "created": "Trip assigned",
       "updated": "Trip updated"
     },
-    "viewTitle": "Trip"
+    "viewTitle": "Trip",
+    "what": {
+      "drivers": "The driver list",
+      "loads": "The loads waiting for collection",
+      "sites": "The yard list",
+      "summary": "Today's trip totals",
+      "vehicles": "The vehicle list"
+    }
   },
   "ticket": {
     "action": "Print ticket",
@@ -13029,6 +13567,9 @@
     "warning": {
       "description": "Its photos, approvals, attendance and audit history stay under the original person's name. The replacement receives only current access and unfinished work.",
       "title": "The old account will be suspended"
+    },
+    "what": {
+      "candidates": "The list of users who can take over"
     }
   },
   "users": {
@@ -13145,7 +13686,12 @@
       "statusUpdated": "User status updated",
       "updated": "User updated"
     },
-    "viewTitle": "User"
+    "viewTitle": "User",
+    "what": {
+      "roles": "The role list",
+      "stats": "The user counts",
+      "companies": "The company list"
+    }
   },
   "validation": {
     "email": "Enter a valid email address",
@@ -13255,7 +13801,8 @@
       "releaseNotesZh": "Release notes (Chinese)",
       "releasedOn": "Released",
       "rollout": "Rollout",
-      "version": "Version"
+      "version": "Version",
+      "changeType": "Change type"
     },
     "forceUpdateOn": "Force Update",
     "setCurrent": "Set as current version",
@@ -13269,6 +13816,7 @@
   },
   "wasteOutgoing": {
     "action": {
+      "reassign": "Send to another recycler",
       "handOverAgain": "Hand over again",
       "handOver": "Hand over",
       "approve": "Approve",
@@ -13291,6 +13839,14 @@
       "noPartners": "No recycler is bound to this project yet. Bind one under Recycler partners before raising an order.",
       "partnersFailed": "The recycling partners could not be loaded, so the picker is empty. That does not mean you have none.",
       "title": "Assign a recycler"
+    },
+    "reassign": {
+      "arm": "I want to take this order back",
+      "failed": "The order could not be taken back.",
+      "help": "Order {reference} goes back to Approved so you can send it to the next recycler. {recycler} stops seeing it. The application itself is kept.",
+      "reason": "Why it is coming back",
+      "thisRecycler": "The current recycler",
+      "title": "Send this load to another recycler"
     },
     "cancel": {
       "help": "{reference} will be cancelled and excluded from the quantity totals.",
@@ -13429,8 +13985,9 @@
       "needPhotos": "Photos are what the record is made of, so attach them before asking for a collection. The exact number your company requires comes back if there are still too few."
     },
     "subtitle": "Record waste leaving site, then raise the recycling order that collects it.",
-    "title": "Waste outgoing",
+    "title": "Environmental material outgoing",
     "toast": {
+      "reassigned": "Order taken back. Send it to the next recycler.",
       "approved": "Application approved.",
       "cancelled": "Waste application cancelled.",
       "categoryRemoved": "Category removed",
@@ -13475,6 +14032,11 @@
       "secondWeight": "Second weight",
       "title": "Weighbridge",
       "verdict": "Status"
+    },
+    "what": {
+      "delegates": "The people you can hand it to",
+      "totals": "The totals",
+      "categories": "The waste category list"
     }
   },
   "weighing": {
@@ -13530,7 +14092,8 @@
         "PHOTO": "Photo"
       },
       "purgedHint": "Bytes purged on retention. Recorded hash began {hash}",
-      "title": "Pushed by devices"
+      "title": "Pushed by devices",
+      "what": "The images pushed by devices"
     },
     "direction": {
       "GROSS": "Gross",
@@ -13680,6 +14243,10 @@
     "title": "CWE weighing parameters",
     "toast": {
       "published": "Detection settings published"
+    },
+    "what": {
+      "parameters": "The weighing parameters",
+      "ruleSets": "The parameters in force"
     }
   },
   "workforcePresence": {
@@ -13700,6 +14267,188 @@
     "onSiteNow": "On site now",
     "since": "since {at}",
     "title": "On site now",
-    "unassigned": "Unassigned"
+    "unassigned": "Unassigned",
+    "what": {
+      "departments": "The department list",
+      "trades": "The trade list"
+    }
+  },
+  "recordChat": {
+    "empty": "Nobody has said anything about this record yet.",
+    "failed": "The conversation could not be loaded. Try again.",
+    "open": "Discuss",
+    "sectionTitle": "Record communication",
+    "title": "Record communication · {reference}"
+  },
+  "exportTotals": {
+    "title": "Cumulative totals, per unit",
+    "quantity": "Total quantity",
+    "collections": "Collections",
+    "note": "Quantities in different units cannot be added, so each unit is totalled separately and there is no combined figure."
+  },
+  "recordClosure": {
+    "title": "Confirm and archive",
+    "action": "Confirm and archive",
+    "help": "Pressing this marks the record finished and archives it. Nothing is checked first — the decision is yours, and your name and the time are recorded. Afterwards the record can be read but not changed; raise a new record for anything further.",
+    "notePlaceholder": "Note (optional)",
+    "closedTitle": "Confirmed and archived",
+    "closedBy": "Confirmed by {name} on {when}. This record can no longer be changed.",
+    "loading": "Checking…",
+    "what": {
+      "state": "Whether this record is already archived"
+    }
+  },
+  "recordConversation": {
+    "open": "Communicate",
+    "help": "Record Communication for this record only. Messages cannot be edited or deleted after sending."
+  },
+  "evidenceFile": {
+    "preview": "Preview",
+    "print": "Print",
+    "download": "Download"
+  },
+  "recordShell": {
+    "photos": "Photos",
+    "photoCount": "{count} photos",
+    "noPhotos": "No photos on this record.",
+    "signatures": "Signatures",
+    "conversation": "Conversation",
+    "noTime": "No time recorded",
+    "noLocation": "No location recorded",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomReset": "Actual size",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "moduleTable": {
+    "count": "{count} records",
+    "allColumns": "All columns",
+    "unfiled": "Not filed yet",
+    "allProjects": "All projects",
+    "allStatuses": "All statuses",
+    "allDirections": "Entry and exit",
+    "allPhases": "All phases",
+    "located": "Location captured",
+    "equipmentView": {
+      "movements": "Entry & exit records",
+      "register": "Equipment register"
+    },
+    "equipmentPhoto": {
+      "EQUIPMENT": "Equipment",
+      "DELIVERY_NOTE": "Delivery order",
+      "VEHICLE": "Vehicle",
+      "OTHER": "Other"
+    },
+    "deliveryPanel": "Delivery order",
+    "reviewNote": "Review note",
+    "expiringOnly": "Showing equipment whose certificate or insurance expires within 30 days.",
+    "showAll": "Show all",
+    "photos": "Photos",
+    "pickupAddress": "Pickup address",
+    "handover": "Handed over",
+    "note": "Note",
+    "collectionPanel": "Collection",
+    "proposedCollection": "Proposed collection",
+    "confirmedCollection": "Confirmed collection",
+    "reference": "Reference no.",
+    "equipmentPhotoSource": {
+      "REGISTER": "On the register",
+      "ENTRY": "Taken at entry",
+      "EXIT": "Taken at exit"
+    },
+    "remarks": "Remarks",
+    "remark": "Remark",
+    "addRemark": "Add remark",
+    "orderState": "Order status",
+    "driver": "Driver",
+    "what": {
+      "columns": "The column list"
+    }
+  },
+  "fieldSlots": {
+    "title": "Held captures",
+    "add": "New hold",
+    "help": "One hold per vehicle: take the first photo to hold it, come back after unloading to carry on. Closing the page or losing signal loses nothing; a hold disappears only once its record has uploaded.",
+    "notStored": "This browser will not keep the list of holds; submit soon, as it may be lost when the page closes.",
+    "working": "Working on: hold {n}",
+    "slot": "Hold {n}",
+    "photos": "{count} photos",
+    "waiting": "Waiting to upload",
+    "failed": "Upload failed, will retry",
+    "waitingHelp": "Queued; it uploads when the signal returns. See it under My submissions.",
+    "remove": "Remove this empty hold"
+  },
+  "sundryClaim": {
+    "detailTitle": "Sundry claim",
+    "empty": "No sundry claims.",
+    "failed": "That did not go through; please try again.",
+    "attachmentNumber": "Photo {number}",
+    "waitingForFinance": "Confirmed; waiting for finance to upload the payment voucher and confirm payment.",
+    "closed": "This claim is finished. The record is kept and can no longer be changed.",
+    "field": {
+      "claimNo": "Claim no.",
+      "status": "Status",
+      "amount": "Amount",
+      "description": "Description",
+      "submittedBy": "Applicant",
+      "submittedAt": "Submitted",
+      "project": "Project",
+      "reviewedBy": "Reviewed by",
+      "paidBy": "Payment confirmed by",
+      "paidAt": "Paid on",
+      "reviewNote": "Review note",
+      "rejectReason": "Reason for rejecting",
+      "payment": "Payment"
+    },
+    "status": {
+      "SUBMITTED": "Pending",
+      "CONFIRMED": "Confirmed, awaiting payment",
+      "REJECTED": "Rejected",
+      "PAID": "Paid"
+    },
+    "payment": {
+      "all": "Any payment state",
+      "NOT_RECEIVED": "Not paid",
+      "RECEIVED": "Paid"
+    },
+    "proofs": {
+      "title": "Payment vouchers",
+      "none": "No payment voucher yet.",
+      "noAmount": "No amount entered",
+      "file": "Voucher image",
+      "amount": "Amount paid (optional)",
+      "lockHint": "Locked as soon as you press Upload voucher and cannot be changed or deleted; if it is wrong, add the correct one."
+    },
+    "action": {
+      "confirm": "Confirm",
+      "reject": "Reject",
+      "armReject": "Enable reject",
+      "armRejectHelp": "Turn this on before rejecting, so it cannot be pressed by accident. Explain the reason in the conversation below first.",
+      "uploadProof": "Upload payment voucher",
+      "confirmPaid": "Confirm paid"
+    },
+    "toast": {
+      "submitted": "Sundry claim submitted.",
+      "confirmed": "Confirmed.",
+      "rejected": "Rejected.",
+      "proofAdded": "Payment voucher uploaded and locked.",
+      "paid": "Payment confirmed; the applicant has been told."
+    },
+    "capture": {
+      "project": "Project",
+      "chooseProject": "Choose the project",
+      "amount": "Amount (RM)",
+      "amountHint": "What was actually paid.",
+      "description": "Description",
+      "descriptionPlaceholder": "What was bought and why",
+      "attachments": "Photos or receipts",
+      "attachmentsHint": "At least one: the receipt, or what was bought.",
+      "attachmentNumber": "Photo {number}",
+      "addAttachment": "Take or add a photo",
+      "location": "Location",
+      "submit": "Submit sundry claim",
+      "failed": "The claim did not go through; please try again."
+    }
   }
 }

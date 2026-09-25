@@ -20,6 +20,7 @@ import {
   required,
   requiredEmail,
 } from "@/components/shared/form-shell";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { roleName } from "@/lib/role-labels";
 import { ApiError } from "@/interfaces/api";
@@ -71,7 +72,7 @@ export function CreateUser({ user }: { user?: UserDetail }) {
   const userListHref =
     me?.portal === "MSE_ADMIN" ? "/users/admin/management" : "/users";
 
-  const { data: roles } = useQuery({
+  const rolesQuery = useQuery({
     queryKey: ["roles", "options", companyId ?? "platform"],
     queryFn: () =>
       getRoles({
@@ -79,6 +80,7 @@ export function CreateUser({ user }: { user?: UserDetail }) {
         ...(companyId ? { company: companyId } : {}),
       }),
   });
+  const roles = rolesQuery.data;
 
   const mutation = useMutation({
     mutationFn: (values: UserPayload) =>
@@ -207,12 +209,14 @@ export function CreateUser({ user }: { user?: UserDetail }) {
       <FormSection title={t("users.section.access")}>
         <form.Field name="role">
           {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("users.field.role")}
-              options={roleOptions}
-              className="md:col-span-2"
-            />
+            <div className="space-y-1 md:col-span-2">
+              <SelectField
+                field={field as unknown as BoundField}
+                label={t("users.field.role")}
+                options={roleOptions}
+              />
+              <QueryFailedNote query={rolesQuery} what={t("users.what.roles")} />
+            </div>
           )}
         </form.Field>
 

@@ -9,7 +9,7 @@ import { useRef, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -49,7 +49,7 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
   const [stopping, setStopping] = useState<{ note: DeliveryNote; action: "cancel" | "void" } | null>(null);
   const [reason, setReason] = useState("");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["delivery-notes", projectId],
     queryFn: () => getDeliveryNotes({ project: projectId, page_size: 100 }),
   });
@@ -86,6 +86,8 @@ export function ProjectDockets({ projectId }: { projectId: string }) {
           <div className="grid min-h-32 place-items-center text-muted-foreground">
             <Loader2 className="size-5 animate-spin" />
           </div>
+        ) : isError ? (
+          <LoadFailed className="m-4" what={t("qrCodes.what.notes")} onRetry={() => void refetch()} />
         ) : rows.length === 0 ? (
           <p className="px-6 py-8 text-center text-sm text-muted-foreground">
             {t("qrCodes.count", { count: 0 })}
@@ -262,6 +264,7 @@ function IssueDeliveryNoteDialog({
               <SelectTrigger className="w-full"><SelectValue placeholder={t("qrCodes.chooseSupplier")} /></SelectTrigger>
               <SelectContent>{options.map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
             </Select>
+            <QueryFailedNote query={suppliers} what={t("qrCodes.what.suppliers")} />
           </FieldWrapper>
           <FieldWrapper label={t("qrCodes.field.vehicle")} required error={errors.vehicle_plate}>
             <Input value={vehiclePlate} onChange={(event) => setVehiclePlate(event.target.value.toUpperCase())} />
@@ -289,6 +292,7 @@ function IssueDeliveryNoteDialog({
               <SelectTrigger className="w-full"><SelectValue placeholder={t("qrCodes.chooseCategory")} /></SelectTrigger>
               <SelectContent>{(categories.data?.results ?? []).map((row: ProjectCategory) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
             </Select>
+            <QueryFailedNote query={categories} what={t("qrCodes.what.categories")} />
           </FieldWrapper>
           <FieldWrapper label={t("qrCodes.field.notes")} optional={t("common.optional")} error={errors.notes} className="sm:col-span-2">
             <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} />

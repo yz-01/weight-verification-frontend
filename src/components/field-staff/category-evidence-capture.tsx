@@ -268,6 +268,7 @@ export function CategoryEvidenceCapture({
 
       {selected ? (
         <section className="space-y-5">
+          <FieldWrapper label={t("chooseCategory")} required>
           <div className="flex items-center gap-3 rounded-lg border bg-muted/20 p-3">
             <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
               <FolderOpen className="size-5" />
@@ -282,6 +283,7 @@ export function CategoryEvidenceCapture({
               {t("changeCategory")}
             </Button>
           </div>
+          </FieldWrapper>
 
           <FieldWrapper label={t("evidenceTitle")} required>
             <FieldEvidenceGrid

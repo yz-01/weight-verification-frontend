@@ -12,7 +12,6 @@ import {
   Save,
   ShieldAlert,
   SlidersHorizontal,
-  RotateCcw,
   UserCheck,
 } from "lucide-react";
 import Image from "next/image";
@@ -35,6 +34,8 @@ import { FieldCamera } from "@/components/shared/field-camera";
 import {
   FieldWrapper,
   ListHeader,
+  QueryFailedNote,
+  ReadField,
   StatusBadge,
 } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
@@ -175,7 +176,9 @@ export function Safety({
   // is counted with - a link that opened the whole list would make the number
   // above it decorative.
   const overdueOnly = searchParams.get("overdue") === "1";
-  const [createOpen, setCreateOpen] = useState(Boolean(fieldTaskId) || searchParams.get("create") === "1");
+  // Kept in the draft, so tapping this 挂号 again reopens the form it was in
+  // (D-259). Outside a draft (the office) this is ordinary state.
+  const [createOpen, setCreateOpen] = useDraftState("open:createIncident", Boolean(fieldTaskId) || searchParams.get("create") === "1");
   const [updating, setUpdating] = useState<SafetyIncident | null>(null);
   const [assigning, setAssigning] = useState<SafetyIncident | null>(null);
   const [submitting, setSubmitting] = useState<SafetyIncident | null>(null);
@@ -183,6 +186,13 @@ export function Safety({
   // 「建筑商后台也是需要改」: the console takes part in the same conversation
   // the field app uses, rather than reading a summary of it.
   const [talking, setTalking] = useState<SafetyIncident | null>(null);
+  /*
+   * The detail drawer the whole row opens (T-304).
+   *
+   * 客户第 26 条的抱怨是找不到动作 —— 它们是一行最右边的一串小图标，看起来像
+   * 装饰。图标保留给鼠标熟练的人，但真正的入口是整行可点，抽屉里的按钮带字。
+   */
+  const [opened, setOpened] = useState<SafetyIncident | null>(null);
   const openedIncidentRef = useRef("");
 
   const { data, isLoading, isError } = useQuery({
@@ -533,7 +543,14 @@ export function Safety({
             className="w-full sm:w-[165px]"
           />
         )}
+        {!fieldMode && (
+          <QueryFailedNote className="w-full" query={filterCategories} what={t("safety.what.categories")} />
+        )}
+        {!fieldMode && selectedProject !== "all" && (
+          <QueryFailedNote className="w-full" query={responsiblePeople} what={t("safety.what.responsiblePeople")} />
+        )}
       </div>
+      <QueryFailedNote query={focusedIncident} what={t("safety.what.requestedIncident")} />
 
       {fieldMode ? (
         <div className="grid gap-3">
@@ -581,6 +598,7 @@ export function Safety({
         </div>
       ) : <DataTable
         columns={columns}
+        onRowClick={setOpened}
         rows={data?.results ?? []}
         totalCount={total}
         page={list.page}
@@ -623,6 +641,91 @@ export function Safety({
       {assigning && <SafetyAssignDialog incident={assigning} onClose={() => setAssigning(null)} />}
       {submitting && <SafetySubmitDialog incident={submitting} onClose={() => setSubmitting(null)} />}
       {reviewing && <SafetyReviewDialog incident={reviewing} onClose={() => setReviewing(null)} />}
+      {/*
+        Two buttons, and D-213 is why there are only two.
+
+        「隐患后台**只保留【沟通】和【验收确认】**。【整改】只是状态不是操作
+        按钮；整改完成由现场手机端直接上传照片和备注回传；后台认为整改不可接受
+        就用【沟通】说明原因，事项保持未完成、不闭环。」
+
+        So there is deliberately no 【退回】 here: sending a rectification back
+        is expressed by *not* confirming it and saying why in the conversation.
+        Adding a Return button would invent a state transition the customer
+        removed, and give the office two ways to mean the same thing.
+      */}
+      {opened && (
+        <Dialog open onOpenChange={(open) => !open && setOpened(null)}>
+          <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>{opened.incident_no}</DialogTitle>
+              <DialogDescription>{opened.title}</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2">
+              <ReadField
+                label={t("safety.field.status")}
+                value={t(`safetyRectification.status.${opened.status}`)}
+              />
+              <ReadField
+                label={t("safetyRectification.field.responsible")}
+                value={opened.responsible_person_name || t("hazard.unassigned")}
+              />
+              <ReadField
+                label={t("safety.field.project")}
+                value={opened.project_name}
+              />
+              <ReadField
+                label={t("safety.field.occurredAt")}
+                value={df.dateTime(opened.occurred_at)}
+              />
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button
+                variant="outline"
+                className="min-h-11"
+                onClick={() => {
+                  setTalking(opened);
+                  setOpened(null);
+                }}
+              >
+                <MessageSquare />
+                {t("hazard.conversationTitle")}
+              </Button>
+              {can("safety.verify") &&
+                opened.status === "RECTIFICATION_SUBMITTED" && (
+                  <Button
+                    className="min-h-11"
+                    onClick={() => {
+                      setReviewing(opened);
+                      setOpened(null);
+                    }}
+                  >
+                    <CheckCircle2 />
+                    {t("safetyRectification.action.review")}
+                  </Button>
+                )}
+              {/* Assignment stays, and it is not a third rectification action:
+                  it decides *who* is responsible, which is what feeds the
+                  「指派给我的隐患整改」 pile in My Tasks (T-285). Without it that
+                  pile would have no source. */}
+              {can("safety.manage") &&
+                !opened.responsible_person &&
+                ["OPEN", "RETURNED"].includes(opened.status) && (
+                  <Button
+                    variant="outline"
+                    className="min-h-11"
+                    onClick={() => {
+                      setAssigning(opened);
+                      setOpened(null);
+                    }}
+                  >
+                    <UserCheck />
+                    {t("safetyRectification.action.assign")}
+                  </Button>
+                )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
       {talking && (
         <Dialog open onOpenChange={(open) => !open && setTalking(null)}>
           <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
@@ -648,7 +751,7 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
   const [dueAt, setDueAt] = useState(incident.rectification_due_at ? incident.rectification_due_at.slice(0, 16) : "");
   const [note, setNote] = useState(incident.rectification_note);
   const save = useMutation({ mutationFn: () => assignSafetyRectification(incident.id, { responsible_person: person, due_at: new Date(dueAt).toISOString(), note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{t("assign.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><FieldWrapper label={t("field.responsible")} required><Select value={person || undefined} onValueChange={setPerson}><SelectTrigger className="w-full"><SelectValue placeholder={t("field.selectResponsible")} /></SelectTrigger><SelectContent>{(team.data?.results ?? []).map((row) => <SelectItem key={row.user} value={row.user}>{row.user_name}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("field.dueAt")} required><Input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.instructions")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[person, t("field.responsible")], [dueAt, t("field.dueAt")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{t("assign.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><FieldWrapper label={t("field.responsible")} required><Select value={person || undefined} onValueChange={setPerson}><SelectTrigger className="w-full"><SelectValue placeholder={t("field.selectResponsible")} /></SelectTrigger><SelectContent>{(team.data?.results ?? []).map((row) => <SelectItem key={row.user} value={row.user}>{row.user_name}</SelectItem>)}</SelectContent></Select><QueryFailedNote query={team} what={t("what.team")} /></FieldWrapper><FieldWrapper label={t("field.dueAt")} required><Input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.instructions")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[person, t("field.responsible")], [dueAt, t("field.dueAt")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
@@ -708,7 +811,7 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
         </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[images.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(fieldEvidence)), t("field.verificationPhoto")], [location, t("field.location")], [fieldMode || note, t("field.workDone")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[images.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(fieldEvidence)), t("field.photo")], [location, t("field.location")], [fieldMode || note, t("field.workDone")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             <Camera />
             {t("action.submit")}
           </Button>
@@ -718,12 +821,27 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
   );
 }
 
+/**
+ * Confirming a rectification. There is no "return" here, and that is D-213.
+ *
+ * 「隐患后台**只保留【沟通】和【验收确认】**…后台认为整改不可接受就用【沟通】
+ * 说明原因，事项保持未完成、不闭环。」
+ *
+ * So the office's way of refusing a rectification is to *not* confirm it and
+ * say why in the conversation. The previous version offered Verify and Return
+ * side by side, which gave the same intention two expressions: one that leaves
+ * a reason somebody can read in context, and one that sets a status and moves
+ * on. The conversation is the one the customer wants kept.
+ *
+ * `RETURNED` stays in the API and in the status vocabulary - hazards already
+ * in it still render, and nothing about their history changes. What went is
+ * the button that puts a new one there.
+ */
 function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
   const qc = useQueryClient();
-  const [decision, setDecision] = useState<"VERIFIED" | "RETURNED">("VERIFIED");
   const [note, setNote] = useState("");
-  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision, note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision: "VERIFIED", note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
@@ -738,18 +856,17 @@ function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; o
             </a>
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <Button variant={decision === "VERIFIED" ? "default" : "outline"} onClick={() => setDecision("VERIFIED")}><CheckCircle2 />{t("action.verify")}</Button>
-          <Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button>
-        </div>
-        <FieldWrapper label={t("field.reviewNote")} required={decision === "RETURNED"}>
+        <p className="rounded-lg border border-info/25 bg-info/5 p-3 text-sm leading-6">
+          {t("review.refuseInstead")}
+        </p>
+        <FieldWrapper label={t("field.reviewNote")}>
           <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
         </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[decision !== "RETURNED" || note, t("field.reviewNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>
-            {decision === "VERIFIED" ? <CheckCircle2 /> : <RotateCcw />}
-            {t(decision === "VERIFIED" ? "action.verify" : "action.return")}
+          <Button disabled={save.isPending} onClick={() => save.mutate()}>
+            <CheckCircle2 />
+            {t("action.verify")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -975,8 +1092,9 @@ function SafetyCreateDialog({
                 this task exists to remove: until D-172 nothing in the product
                 read EHS columns, so a site would have none. Say where they
                 come from rather than showing a dropdown with nothing in it. */}
+            <QueryFailedNote className="mt-2" query={categories} what={t("safety.what.categories")} />
             {draft.project &&
-              !categories.isLoading &&
+              categories.isSuccess &&
               (categories.data?.results ?? []).length === 0 && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   {t("safety.form.noSafetyColumns")}
@@ -1078,7 +1196,8 @@ function SafetyCreateDialog({
                   </span>
                 </label>
               ))}
-              {!team.isLoading && selectableWorkers.length === 0 && <p className="text-sm text-muted-foreground">{t("safety.fieldReport.noWorkers")}</p>}
+              <QueryFailedNote query={team} what={t("safety.what.workers")} />
+              {team.isSuccess && selectableWorkers.length === 0 && <p className="text-sm text-muted-foreground">{t("safety.fieldReport.noWorkers")}</p>}
             </div>
           </FieldWrapper>
           {/*

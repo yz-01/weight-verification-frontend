@@ -5,7 +5,7 @@ import { ArrowRightLeft, Loader2, UserPlus, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
-import { FieldWrapper } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -139,7 +139,8 @@ export function UserHandoverDialog({
                 ))}
               </SelectContent>
             </Select>
-            {!candidates.isLoading && rows.length === 0 && (
+            <QueryFailedNote query={candidates} what={t("what.candidates")} />
+            {!candidates.isLoading && !candidates.isError && rows.length === 0 && (
               <p className="text-xs text-warning">{t("state.noCandidate")}</p>
             )}
           </FieldWrapper>

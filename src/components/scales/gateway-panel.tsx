@@ -17,7 +17,7 @@ import { useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,7 +28,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { GatewayDevice } from "@/interfaces/weighing";
 import type {
@@ -68,7 +67,7 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
   const [revoking, setRevoking] = useState<GatewayDevice | null>(null);
   const [reason, setReason] = useState("");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["gateways", scaleId],
     queryFn: () => getGateways(scaleId),
   });
@@ -134,6 +133,8 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
 
       {isLoading ? (
         <Skeleton className="h-16 w-full" />
+      ) : isError ? (
+        <LoadFailed what={t("gateways.what.list")} onRetry={() => void refetch()} />
       ) : gateways.length === 0 ? (
         <p className="rounded-md border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
           {t("gateways.none")}
@@ -213,18 +214,14 @@ export function GatewayPanel({ scaleId }: { scaleId: string }) {
             <DialogTitle>{t("gateways.new")}</DialogTitle>
             <DialogDescription>{t("gateways.secretBody")}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">
-              {t("gateways.field.deviceId")}
-              <span className="ml-0.5 text-destructive">*</span>
-            </Label>
+          <FieldWrapper label={t("gateways.field.deviceId")} required>
             <Input
               value={deviceId}
               onChange={(event) => setDeviceId(event.target.value)}
               placeholder="GW-0001"
               autoFocus
             />
-          </div>
+          </FieldWrapper>
           <DialogFooter className="gap-2 sm:gap-2">
             <Button
               variant="outline"

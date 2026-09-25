@@ -22,6 +22,7 @@ import {
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { ApiError } from "@/interfaces/api";
 import type {
   DriverTaskDetail,
@@ -29,7 +30,10 @@ import type {
 } from "@/interfaces/recycler";
 import { useAuth } from "@/components/providers/auth-provider";
 import { createTask, getTask, updateTask } from "@/services/recycler.service";
-import { enqueueTripAssign } from "@/services/offline-sync.service";
+import {
+  enqueueTripAssign,
+  newClientEventId,
+} from "@/services/offline-sync.service";
 import {
   getDriversOfflineAware,
   getIncomingOfflineAware,
@@ -81,28 +85,32 @@ function TaskForm({
   const ownerId = user?.id ?? "";
   const [formError, setFormError] = useState<string | null>(null);
 
-  const { data: loadPage } = useQuery({
+  const loadQuery = useQuery({
     queryKey: ["incoming", "options"],
     queryFn: () => getIncomingOfflineAware(ownerId, { page_size: 100 }),
     enabled: Boolean(ownerId),
   });
-  const { data: sitePage } = useQuery({
+  const siteQuery = useQuery({
     queryKey: ["sites", "options"],
     queryFn: () => getSitesOfflineAware(ownerId, { page_size: 100 }),
     enabled: Boolean(ownerId),
   });
-  const { data: vehiclePage } = useQuery({
+  const vehicleQuery = useQuery({
     queryKey: ["vehicles", "options"],
     queryFn: () =>
       getVehiclesOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
     enabled: Boolean(ownerId),
   });
-  const { data: driverPage } = useQuery({
+  const driverQuery = useQuery({
     queryKey: ["drivers", "options"],
     queryFn: () =>
       getDriversOfflineAware(ownerId, { page_size: 100, is_active: "true" }),
     enabled: Boolean(ownerId),
   });
+  const loadPage = loadQuery.data;
+  const sitePage = siteQuery.data;
+  const vehiclePage = vehicleQuery.data;
+  const driverPage = driverQuery.data;
   const defaultValues = useMemo(
     () => ({
       dispatch: existingTask?.dispatch ?? "",
@@ -124,8 +132,9 @@ function TaskForm({
   const mutation = useMutation({
     mutationFn: async (values: DriverTaskPayload) => {
       if (id) return updateTask(id, values);
+      const clientEventId = newClientEventId("trip-assign");
       try {
-        return await createTask(values);
+        return await createTask({ ...values, client_event_id: clientEventId });
       } catch (error) {
         // A dead network queues the assignment instead of losing the form.
         // Editing stays online-only: a reassignment must see the live roster.
@@ -143,6 +152,7 @@ function TaskForm({
             ? new Date(values.scheduled_for).toISOString()
             : null,
           notes: values.notes ?? "",
+          clientEventId,
         });
         return null;
       }
@@ -255,6 +265,8 @@ function TaskForm({
             />
           )}
         </form.Field>
+        <QueryFailedNote query={loadQuery} what={t("tasks.what.loads")} className="md:col-span-2" />
+        <QueryFailedNote query={siteQuery} what={t("tasks.what.sites")} className="md:col-span-2" />
       </FormSection>
 
       <FormSection title={t("tasks.section.crew")}>
@@ -313,6 +325,9 @@ function TaskForm({
             />
           )}
         </form.Field>
+
+        <QueryFailedNote query={vehicleQuery} what={t("tasks.what.vehicles")} className="md:col-span-2" />
+        <QueryFailedNote query={driverQuery} what={t("tasks.what.drivers")} className="md:col-span-2" />
 
         <form.Field name="scheduled_for">
           {(field) => (

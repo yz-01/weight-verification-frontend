@@ -662,7 +662,7 @@ function ConsultantInviteDialog({
 }) {
   const t = useTranslations("consultantAccess");
   const common = useTranslations("common");
-  const [organization, setOrganization] = useState(organizations[0]?.id ?? "");
+  const [organizationId, setOrganizationId] = useState(organizations[0]?.id ?? "");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -672,7 +672,7 @@ function ConsultantInviteDialog({
   const [copied, setCopied] = useState(false);
   const save = useMutation({
     mutationFn: () => inviteConsultantAccount({
-      organization,
+      organization: organizationId,
       full_name: name.trim(),
       email: email.trim(),
       phone: phone.trim(),
@@ -716,7 +716,7 @@ function ConsultantInviteDialog({
           </div>
         ) : <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.organization")} required className="sm:col-span-2">
-            <Select value={organization} onValueChange={setOrganization}>
+            <Select value={organizationId} onValueChange={setOrganizationId}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
               <SelectContent>{organizations.map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
             </Select>
@@ -761,7 +761,7 @@ function ConsultantInviteDialog({
           ) : (
             <>
               <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-              <Button requires={[[organization, t("field.organization")], [name, t("field.fullName")], [email, t("field.email")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+              <Button requires={[[organizationId, t("field.organization")], [name, t("field.fullName")], [email, t("field.email")]]} disabled={save.isPending} onClick={() => save.mutate()}>
                 {save.isPending ? <Loader2 className="animate-spin" /> : <UserPlus />}
                 {t("consultant.sendInvite")}
               </Button>
@@ -789,10 +789,18 @@ function GrantDialog({
   onSaved: () => void;
 }) {
   const t = useTranslations("consultantAccess");
-  const [organization, setOrganization] = useState(row?.organization ?? organizations[0]?.id ?? "");
+  const [organizationId, setOrganizationId] = useState(row?.organization ?? organizations[0]?.id ?? "");
   const filteredMembers = useMemo(
-    () => members.filter((member) => member.organization === organization && member.is_active),
-    [members, organization],
+    () => members.filter((member) => member.organization === organizationId && member.is_active),
+    [members, organizationId],
+  );
+  // An existing grant keeps its consultant, so it can only move to a firm that
+  // consultant is registered under - the API refuses any other (update_grant).
+  const organizationChoices = useMemo(
+    () => row
+      ? organizations.filter((item) => members.some((member) => member.organization === item.id && member.consultant === row.consultant && member.is_active))
+      : organizations,
+    [members, organizations, row],
   );
   const [consultant, setConsultant] = useState(row?.consultant ?? "");
   const [project, setProject] = useState(
@@ -808,7 +816,7 @@ function GrantDialog({
   const save = useMutation({
     mutationFn: () => {
       const payload = {
-        organization,
+        organization: organizationId,
         consultant,
         project,
         permissions,
@@ -830,10 +838,10 @@ function GrantDialog({
           <DialogDescription>{t("grant.formHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper label={t("field.organization")} required>
-            <Select value={organization} onValueChange={(value) => { setOrganization(value); setConsultant(""); }} disabled={Boolean(row)}>
+          <FieldWrapper label={t("field.organization")} required hint={row ? t("grant.organizationEditHint") : undefined}>
+            <Select value={organizationId} onValueChange={(value) => { setOrganizationId(value); if (!row) setConsultant(""); }}>
               <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-              <SelectContent>{organizations.map((item) => <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent>
+              <SelectContent>{organizationChoices.map((item) => <SelectItem key={item.id} value={item.id}>{item.name}</SelectItem>)}</SelectContent>
             </Select>
           </FieldWrapper>
           <FieldWrapper label={t("field.consultant")} required>
@@ -861,10 +869,8 @@ function GrantDialog({
             <Checkbox checked={noExpiry} onCheckedChange={(value) => setNoExpiry(value === true)} />
             <span className="text-sm font-medium">{t("grant.noExpiry")}</span>
           </label>
-          <div className="sm:col-span-2">
-            <p className="text-sm font-medium">{t("field.permissions")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{t("grant.permissionHelp")}</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <FieldWrapper label={t("field.permissions")} required hint={t("grant.permissionHelp")} className="sm:col-span-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               {PERMISSIONS.map((code) => (
                 <label key={code} className="flex items-start gap-3 rounded-lg border p-3">
                   <Checkbox checked={permissions.includes(code)} onCheckedChange={(value) => togglePermission(code, value === true)} />
@@ -874,7 +880,7 @@ function GrantDialog({
                 </label>
               ))}
             </div>
-          </div>
+          </FieldWrapper>
           {row && (
             <label className="flex items-center justify-between gap-3 rounded-lg border p-3 sm:col-span-2">
               <span className="text-sm font-medium">{t("field.active")}</span>
@@ -889,7 +895,7 @@ function GrantDialog({
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[organization, t("field.organization")], [consultant, t("field.consultant")], [project, t("field.project")], [permissions.length, t("field.permissions")], [validFrom, t("field.validFrom")], [noExpiry || validUntil, t("field.validUntil")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[organizationId, t("field.organization")], [consultant, t("field.consultant")], [project, t("field.project")], [permissions.length, t("field.permissions")], [validFrom, t("field.validFrom")], [noExpiry || validUntil, t("field.validUntil")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             {save.isPending ? <Loader2 className="animate-spin" /> : <ShieldCheck />}
             {t("action.save")}
           </Button>

@@ -14,6 +14,7 @@ import {
 } from "@/components/shared/form-shell";
 import {
   DetailHeader,
+  FieldWrapper,
   ReadField,
   StatusBadge,
   TypeBadge,
@@ -370,16 +371,16 @@ function PaymentDialog({
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">
-              {t("settlements.payment.amount")} ({currency})
-            </Label>
+          <FieldWrapper
+            label={`${t("settlements.payment.amount")} (${currency})`}
+            required
+          >
             <Input
               type="number"
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
             />
-          </div>
+          </FieldWrapper>
           <div className="space-y-1.5">
             <Label className="text-sm font-medium">
               {t("settlements.payment.paidOn")}
@@ -433,7 +434,7 @@ function PaymentDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            requires={[[amount, t("settlements.field.amountPaid")]]}
+            requires={[[amount, t("settlements.payment.amount")]]}
             disabled={record.isPending}
             onClick={() => record.mutate()}
           >

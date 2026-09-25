@@ -7,9 +7,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { FieldWrapper } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ApiError } from "@/interfaces/api";
 import {
   getFieldBootstrapToken,
@@ -185,8 +185,7 @@ export function FieldAccess() {
               <p className="mt-1 text-muted-foreground">{invitation.data.phone}</p>
             </div>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="field-pin">{t("pin")}</Label>
+          <FieldWrapper label={t("pin")} required>
             <Input
               id="field-pin"
               inputMode="numeric"
@@ -196,7 +195,7 @@ export function FieldAccess() {
               value={pin}
               onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
             />
-          </div>
+          </FieldWrapper>
           {/* Said to everybody activating, loudly when the web view names
               itself. A phone is linked to the storage of the browser it was
               activated in, so a link opened inside a chat app links that app

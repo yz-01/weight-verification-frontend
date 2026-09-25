@@ -27,7 +27,7 @@ import {
   DriverError,
   DriverLoading,
 } from "@/components/driver/driver-shell";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
 import {
   LocationMap,
   type LocationMapMarker,
@@ -36,6 +36,7 @@ import {
 } from "@/components/shared/location-map";
 import { TASK_STATE_TONE } from "@/components/tasks/tasks";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -44,7 +45,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   TASK_TRANSITIONS,
@@ -91,6 +91,11 @@ export function DriverTask({ id }: { id: string }) {
   const [locating, setLocating] = useState(false);
   const [gpsUnavailable, setGpsUnavailable] = useState(false);
   const [queuedKinds, setQueuedKinds] = useState<string[]>([]);
+  // The customer's way of protecting a destructive action: a switch that has
+  // to be turned on first, not a dialog afterwards (C-018, D-229). They asked
+  // for the same shape in two unrelated places - here, and the material
+  // receipt's 退回 - so it is their house style rather than a one-off.
+  const [armed, setArmed] = useState(false);
   const loadingInput = useRef<HTMLInputElement>(null);
   const gatepassInput = useRef<HTMLInputElement>(null);
   const lastPositionAt = useRef(0);
@@ -275,6 +280,16 @@ export function DriverTask({ id }: { id: string }) {
     ...queuedKinds,
     ...(data.local_pending_photo_kinds ?? []),
   ]);
+  // Mirrors PHOTO_CLOSED_TASK_STATES in haulage/models.py (T-326/T-327).
+  // ARRIVED is deliberately absent: that is arrival at the *site*, where the
+  // loading and gate pass still have to be photographed. DELIVERED is arrival
+  // at the *yard*, which is where the customer's screenshot showed two live
+  // camera buttons under a task that was already finished.
+  const tripIsOver =
+    data.state === "DELIVERED" ||
+    data.state === "COMPLETED" ||
+    data.state === "CANCELLED" ||
+    data.state === "FAILED";
   const hasLoadingPhoto = takenKinds.has("LOADING") || takenKinds.has("LOADED");
   const hasGatepass = takenKinds.has("GATEPASS");
   const missingForLoaded = !(hasLoadingPhoto && hasGatepass);
@@ -536,68 +551,80 @@ export function DriverTask({ id }: { id: string }) {
           </div>
         )}
 
+        {tripIsOver ? (
+          /* Said, not just hidden. A driver who was told to photograph the
+             load and finds no button needs to know the trip closed rather
+             than that the app is broken. The photographs above stay on
+             screen: 「记录全部都要留着」 - what closes is adding to them. */
+          <p className="rounded-lg border border-dashed px-4 py-3 text-sm text-muted-foreground">
+            {t("driver.photosClosed")}
+          </p>
+        ) : (
+          <>
         {/* `capture` opens the camera straight away rather than the gallery.
-            The point is a photograph taken now, at the load, not one chosen
-            from the roll afterwards. */}
-        <input
-          ref={loadingInput}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) upload.mutate({ file, kind: "LOADING" });
-            event.target.value = "";
-          }}
-        />
-        <input
-          ref={gatepassInput}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) upload.mutate({ file, kind: "GATEPASS" });
-            event.target.value = "";
-          }}
-        />
-        {/* Two buttons, not one picker. A driver at a site gate should not
-            have to choose a category from a list before the camera opens, and
-            each button says on its face whether that photograph is done. */}
-        <Button
-          variant="outline"
-          size="lg"
-          className="h-12 w-full rounded-full"
-          disabled={upload.isPending}
-          onClick={() => loadingInput.current?.click()}
-        >
-          {upload.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : hasLoadingPhoto ? (
-            <Check className="h-4 w-4" />
-          ) : (
-            <Camera className="h-4 w-4" />
-          )}
-          {t("driver.takePhoto")}
-        </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          className="h-12 w-full rounded-full"
-          disabled={upload.isPending}
-          onClick={() => gatepassInput.current?.click()}
-        >
-          {upload.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : hasGatepass ? (
-            <Check className="h-4 w-4" />
-          ) : (
-            <Camera className="h-4 w-4" />
-          )}
-          {t("driver.takeGatepass")}
-        </Button>
+              The point is a photograph taken now, at the load, not one chosen
+              from the roll afterwards. */}
+          <input
+            ref={loadingInput}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) upload.mutate({ file, kind: "LOADING" });
+              event.target.value = "";
+            }}
+          />
+          <input
+            ref={gatepassInput}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) upload.mutate({ file, kind: "GATEPASS" });
+              event.target.value = "";
+            }}
+          />
+          {/* Two buttons, not one picker. A driver at a site gate should not
+              have to choose a category from a list before the camera opens, and
+              each button says on its face whether that photograph is done. */}
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-12 w-full rounded-full"
+            disabled={upload.isPending}
+            onClick={() => loadingInput.current?.click()}
+          >
+            {upload.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : hasLoadingPhoto ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Camera className="h-4 w-4" />
+            )}
+            {t("driver.takePhoto")}
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-12 w-full rounded-full"
+            disabled={upload.isPending}
+            onClick={() => gatepassInput.current?.click()}
+          >
+            {upload.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : hasGatepass ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Camera className="h-4 w-4" />
+            )}
+            {t("driver.takeGatepass")}
+          </Button>
+          </>
+        )}
       </div>
 
       {data.failure_reason && (
@@ -612,19 +639,49 @@ export function DriverTask({ id }: { id: string }) {
           {missingLabel}
         </p>
       )}
+      {/* Ending the trip is the one step that cannot be taken back, so it is
+          armed rather than confirmed: the driver turns the switch on, then the
+          button works, and pressing it ends the trip immediately with no
+          second dialog (D-229). Every other step keeps the existing confirm. */}
+      {forward === "DELIVERED" && (
+        <label className="flex items-center gap-3 rounded-xl border px-4 py-3">
+          <Switch
+            checked={armed}
+            onCheckedChange={setArmed}
+            aria-label={t("driver.armEndTrip")}
+          />
+          <span className="text-sm text-muted-foreground">
+            {t("driver.armEndTripHelp")}
+          </span>
+        </label>
+      )}
       {forward && (
         <Button
           size="lg"
           className="h-14 w-full rounded-full text-base shadow-sm"
           disabledReason={
-            forward === "LOADED" && missingForLoaded ? missingLabel : undefined
+            forward === "LOADED" && missingForLoaded
+              ? missingLabel
+              : forward === "DELIVERED" && !armed
+                ? t("driver.armEndTripHelp")
+                : undefined
           }
           disabled={
             advance.isPending ||
             locating ||
-            (forward === "LOADED" && missingForLoaded)
+            (forward === "LOADED" && missingForLoaded) ||
+            (forward === "DELIVERED" && !armed)
           }
-          onClick={() => setMoving(forward)}
+          onClick={() => {
+            // Straight through for the armed step; the switch already was the
+            // confirmation. Asking twice is what the customer said not to do.
+            if (forward === "DELIVERED") {
+              advance.mutate("DELIVERED");
+              setArmed(false);
+              return;
+            }
+            setMoving(forward);
+          }}
         >
           {advance.isPending || locating ? (
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -664,25 +721,21 @@ export function DriverTask({ id }: { id: string }) {
                 {moving === "ARRIVED"
                   ? t("driver.arrivedNote")
                   : moving === "LOADED"
-                    ? t("tasks.loadedNote")
-                    : moving === "FAILED"
-                      ? t("tasks.failNote")
+                      ? t("tasks.loadedNote")
+                      : moving === "FAILED"
+                        ? t("tasks.failNote")
                       : t("tasks.advanceDescription")}
               </DialogDescription>
             </DialogHeader>
 
             {moving === "FAILED" && (
-              <div className="space-y-1.5">
-                <Label className="text-sm font-medium">
-                  {t("common.reason")}
-                  <span className="ml-0.5 text-destructive">*</span>
-                </Label>
+              <FieldWrapper label={t("common.reason")} required>
                 <Textarea
                   rows={3}
                   value={reason}
                   onChange={(event) => setReason(event.target.value)}
                 />
-              </div>
+              </FieldWrapper>
             )}
 
             <DialogFooter className="gap-2 sm:gap-2">

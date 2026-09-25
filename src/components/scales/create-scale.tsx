@@ -22,6 +22,7 @@ import {
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { ApiError } from "@/interfaces/api";
 import type { Scale, ScalePayload, ScaleProtocol } from "@/interfaces/weighing";
 import {
@@ -60,10 +61,11 @@ export function CreateScale({ scale }: { scale?: Scale }) {
   const listHref =
     user?.portal === "MSE_ADMIN" ? "/weighing/admin/scales" : "/scales";
 
-  const { data: sites } = useQuery({
+  const siteQuery = useQuery({
     queryKey: ["sites", "options"],
     queryFn: () => getSites({ page_size: 100 }),
   });
+  const sites = siteQuery.data;
 
   const mutation = useMutation({
     mutationFn: (values: ScalePayload) =>
@@ -168,6 +170,7 @@ export function CreateScale({ scale }: { scale?: Scale }) {
               />
             )}
           </form.Field>
+          <QueryFailedNote query={siteQuery} what={t("scales.what.sites")} className="md:col-span-2" />
         </FormSection>
 
         <FormSection title={t("scales.section.instrument")}>

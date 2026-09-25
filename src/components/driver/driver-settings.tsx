@@ -17,6 +17,7 @@ import { APP_VERSION } from "@/lib/app-version";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useOfflineSync } from "@/components/providers/offline-sync-provider";
 import { DriverError, DriverLoading } from "@/components/driver/driver-shell";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { useDriverDeviceStatus } from "@/components/driver/use-driver-device-status";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
@@ -162,6 +163,7 @@ export function DriverSettings() {
                 {t("notifications.push.permissionDenied")}
               </p>
             )}
+            <QueryFailedNote className="mt-1" query={pushQuery} what={t("driver.what.pushStatus")} />
           </div>
           <Switch
             checked={pushQuery.data?.enabled ?? false}

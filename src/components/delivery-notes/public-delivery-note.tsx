@@ -132,11 +132,12 @@ export function PublicDeliveryNote({ token }: { token: string }) {
             <p className="mt-1 text-4xl font-bold tabular-nums">{noteData.expected_quantity}</p>
             <p className="text-sm text-muted-foreground">{noteData.unit}</p>
           </div>
-          <p className="text-center text-sm font-medium">{t("compare.question")}</p>
-          <div className="grid grid-cols-2 gap-2">
-            <Button type="button" size="lg" className="h-16 text-base" variant={match === "SAME" ? "default" : "outline"} onClick={() => { setMatch("SAME"); setQuantity(noteData.expected_quantity); }}><CheckCircle2 className="size-6" />{t("compare.same")}</Button>
-            <Button type="button" size="lg" className="h-16 text-base" variant={match === "DIFFERENT" ? "destructive" : "outline"} onClick={() => { setMatch("DIFFERENT"); setQuantity(noteData.expected_quantity); }}><XCircle className="size-6" />{t("compare.different")}</Button>
-          </div>
+          <FieldWrapper label={t("compare.question")} required>
+            <div className="grid grid-cols-2 gap-2">
+              <Button type="button" size="lg" className="h-16 text-base" variant={match === "SAME" ? "default" : "outline"} onClick={() => { setMatch("SAME"); setQuantity(noteData.expected_quantity); }}><CheckCircle2 className="size-6" />{t("compare.same")}</Button>
+              <Button type="button" size="lg" className="h-16 text-base" variant={match === "DIFFERENT" ? "destructive" : "outline"} onClick={() => { setMatch("DIFFERENT"); setQuantity(noteData.expected_quantity); }}><XCircle className="size-6" />{t("compare.different")}</Button>
+            </div>
+          </FieldWrapper>
           {match === "DIFFERENT" && (
             <FieldWrapper label={t("compare.actual")} required error={!quantity && complete.isError ? t("error.quantityRequired") : undefined}>
               <Input inputMode="decimal" type="number" min="0" step="0.001" className="h-14 text-center text-2xl tabular-nums" value={quantity} onChange={(event) => setQuantity(event.target.value)} />

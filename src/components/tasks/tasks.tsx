@@ -11,6 +11,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -231,6 +232,7 @@ export function Tasks() {
           ),
         )}
       </div>
+      <QueryFailedNote query={summary} what={t("tasks.what.summary")} className="shrink-0" />
 
       <div className="grid shrink-0 gap-2 sm:grid-cols-2 lg:max-w-xl">
         <div className="space-y-1">

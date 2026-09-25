@@ -8,11 +8,11 @@ import {
   Clock3,
   FileText,
   Grid2X2,
+  MapPinned,
   House,
   Loader2,
   LogIn,
   LogOut,
-  MapPinned,
   Play,
   RefreshCw,
   Send,
@@ -27,6 +27,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { FieldMyTasksCard } from "@/components/field-staff/field-my-tasks-card";
 import { AvatarUpload } from "@/components/shared/avatar-upload";
 import {
   MySubmissions,
@@ -40,7 +41,6 @@ import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-sta
 import { FIELD_EVIDENCE_PHOTO_COUNT } from "@/components/field-staff/field-evidence-grid";
 import { FieldHazardsPanel } from "@/components/site-operations/field-hazards";
 import { FieldCamera } from "@/components/shared/field-camera";
-import { FieldStaffGps } from "@/components/site-operations/field-staff-gps";
 import { LocationField } from "@/components/field-staff/location-field";
 import { activeFieldNav } from "@/lib/field-nav";
 import {
@@ -48,7 +48,8 @@ import {
   requestLocation as locate,
 } from "@/lib/field-location";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
-import { StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { FieldTask } from "@/interfaces/contractor-ops";
@@ -61,25 +62,37 @@ import {
   submitFieldTaskPhotoOfflineAware,
   submitFieldTaskTransitionOfflineAware,
 } from "@/services/offline-sync.service";
-import { getAttendance } from "@/services/site-operations.service";
+import { getAttendance, getSafetyIncident } from "@/services/site-operations.service";
 import {
   createFieldPwaBootstrap,
   getOrCreateFieldDeviceId,
 } from "@/services/field-access.service";
 
-type MobileTab = "home" | "tasks" | "attendance" | "records" | "location" | "incidents";
+// 「位置」 is gone (T-321, customer item 43): the coordinates were only ever
+// useful to the office, and the customer asked for four entries at the bottom.
+// Reporting itself is untouched - D-226 keeps automatic positioning, the
+// geofence check, arrival time and the position on every record.
+type MobileTab = "home" | "tasks" | "attendance" | "records" | "incidents";
 export function FieldStaffWorkspace() {
   const searchParams = useSearchParams();
   const requestedTaskId = searchParams.get("task") ?? "";
   const requestedTab = searchParams.get("tab") as MobileTab | null;
   const requestedRecord = searchParams.get("record") as FieldRecordMode | null;
   const supplierToken = searchParams.get("supplier_token") ?? "";
+  // The hazard a notification points at (T-302). The server has always put it
+  // in the link - `&incident=<id>` - and nothing here read it, so a worker who
+  // tapped the notice landed on an empty "report a hazard" form instead of the
+  // hazard they were asked to fix: the customer's #24.
+  const requestedIncidentId = searchParams.get("incident") ?? "";
 
   return (
     <FieldStaffWorkspaceContent
       requestedTaskId={requestedTaskId}
-      requestedTab={requestedTab}
-      requestedRecord={requestedRecord}
+      requestedTab={requestedIncidentId ? "incidents" : requestedTab}
+      // A link to a particular hazard means that hazard, not the report form
+      // the same link also names as its `record`.
+      requestedRecord={requestedIncidentId ? null : requestedRecord}
+      requestedIncidentId={requestedIncidentId}
       supplierToken={supplierToken}
     />
   );
@@ -89,17 +102,19 @@ function FieldStaffWorkspaceContent({
   requestedTaskId,
   requestedTab,
   requestedRecord,
+  requestedIncidentId,
   supplierToken,
 }: {
   requestedTaskId: string;
   requestedTab: MobileTab | null;
   requestedRecord: FieldRecordMode | null;
+  requestedIncidentId: string;
   supplierToken: string;
 }) {
   const t = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const [tab, setTab] = useState<MobileTab>(
-    requestedTab && ["home", "tasks", "attendance", "records", "location", "incidents"].includes(requestedTab)
+    requestedTab && ["home", "tasks", "attendance", "records", "incidents"].includes(requestedTab)
       ? requestedTab
       : requestedRecord
         ? "records"
@@ -120,6 +135,23 @@ function FieldStaffWorkspaceContent({
   const [openedHazard, setOpenedHazard] = useState<
     Pick<SafetyIncident, "id" | "title" | "incident_no"> | null
   >(null);
+  const requestedIncident = useQuery({
+    queryKey: ["field-staff", "incident", requestedIncidentId],
+    queryFn: () => getSafetyIncident(requestedIncidentId),
+    enabled: Boolean(requestedIncidentId),
+  });
+  // Derived, not copied into state from an effect: the linked hazard is shown
+  // until the worker closes it, and after that only a hazard they choose is.
+  const [linkedHazardClosed, setLinkedHazardClosed] = useState(false);
+  const linkedHazard =
+    requestedIncident.data && !linkedHazardClosed
+      ? {
+          id: requestedIncident.data.id,
+          title: requestedIncident.data.title,
+          incident_no: requestedIncident.data.incident_no,
+        }
+      : null;
+  const shownHazard = openedHazard ?? linkedHazard;
   const requestedTask = useQuery({
     queryKey: ["field-staff", "task", requestedTaskId],
     queryFn: () => getFieldTask(requestedTaskId),
@@ -140,7 +172,7 @@ function FieldStaffWorkspaceContent({
       }
       if (
         requestedTab &&
-        ["home", "tasks", "attendance", "records", "location", "incidents"].includes(
+        ["home", "tasks", "attendance", "records", "incidents"].includes(
           requestedTab,
         )
       ) {
@@ -204,7 +236,7 @@ function FieldStaffWorkspaceContent({
    * the `thread` in that link is an `IncidentReportThread` id and this room is
    * keyed by `SafetyIncident`. Resolving one to the other is T-217's job.
    */
-  const hazardTabWithoutRoom = tab === "incidents" && !openedHazard;
+  const hazardTabWithoutRoom = tab === "incidents" && !shownHazard;
   const shownTab: MobileTab = hazardTabWithoutRoom ? "records" : tab;
   const shownRecordMode = hazardTabWithoutRoom ? "safety" : recordMode;
   /*
@@ -238,14 +270,20 @@ function FieldStaffWorkspaceContent({
             {t("identity.role", { role: user?.role_name ?? "-" })}
           </span>
         </div>
-        <p className="mt-3 text-sm leading-5 text-muted-foreground">
-          {t("identity.projects", {
-            projects: projectNames.length
-              ? projectNames.join(", ")
-              : t("identity.noProject"),
-          })}
-        </p>
+        {projects.isError ? (
+          <FieldLoadNote className="mt-3" query={projects} what={t("what.projects")} />
+        ) : (
+          <p className="mt-3 text-sm leading-5 text-muted-foreground">
+            {t("identity.projects", {
+              projects: projectNames.length
+                ? projectNames.join(", ")
+                : t("identity.noProject"),
+            })}
+          </p>
+        )}
       </section>
+      <FieldLoadNote query={requestedIncident} what={t("what.linkedHazard")} />
+      <FieldLoadNote query={requestedTask} what={t("what.linkedTask")} />
 
       {shownTab === "home" && (
         <FieldHomePanel
@@ -290,7 +328,6 @@ function FieldStaffWorkspaceContent({
           }}
         />
       )}
-      {shownTab === "location" && <FieldStaffGps managedAutomatically />}
       {/*
         `incidents` is now one thing: a hazard's conversation. It is reached by
         reporting one, or by tapping a hazard in 「我提交过的」 (T-210). The tab
@@ -298,24 +335,24 @@ function FieldStaffWorkspaceContent({
         reaching it with no hazard falls through to the reporting form, handled
         by the effect above.
       */}
-      {tab === "incidents" && openedHazard && (
+      {tab === "incidents" && shownHazard && (
         <FieldHazardsPanel
-          hazard={openedHazard}
+          hazard={shownHazard}
           onBack={() => {
             setOpenedHazard(null);
+            setLinkedHazardClosed(true);
             openTab("home");
           }}
         />
       )}
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_24px_rgb(0_0_0/0.06)] backdrop-blur">
-        {/* Five buttons since the duplicate 任务 entry was removed; the column
-            count has to match or the icons bunch to the left of an empty cell. */}
-        <div className="mx-auto grid max-w-2xl grid-cols-5 gap-1 px-3">
+        {/* Four buttons since 「位置」 was removed (T-321). The column count has
+            to match or the icons bunch to the left of an empty cell. */}
+        <div className="mx-auto grid max-w-2xl grid-cols-4 gap-1 px-3">
           <MobileNavButton active={activeNav === "home"} icon={House} label={t("nav.home")} onClick={() => openTab("home")} />
           <MobileNavButton active={activeNav === "attendance"} icon={Clock3} label={t("nav.attendance")} onClick={() => openTab("attendance")} />
           <MobileNavButton active={activeNav === "records"} icon={Grid2X2} label={t("nav.records")} onClick={() => openTab("records")} />
-          <MobileNavButton active={activeNav === "location"} icon={MapPinned} label={t("nav.location")} onClick={() => openTab("location")} />
           {/*
             One tap to the reporting form (T-211). This used to open a list
             page whose only action was a 上报隐患 button - the customer's
@@ -354,9 +391,16 @@ function FieldHomePanel({
         </div>
       </div>
       {/*
-        Order is the customer's own: 「首页只需要放任务，上传头像和图2就好」 -
-        tasks, then the avatar, then what I sent (T-209). Tasks lead because
-        they are the only block that says what to do next.
+        待办 first (T-287 / D-226): 「【我的待办】不放底部导航，放首页上方以卡片
+        显示未完成数量和内容」. It goes above the task list rather than beside
+        it because the two answer different questions - the task list is what
+        the office handed over, and a returned record or an assigned
+        rectification never appears there.
+      */}
+      <FieldMyTasksCard />
+      {/*
+        Then the customer's own order: 「首页只需要放任务，上传头像和图2就好」 -
+        tasks, then the avatar, then what I sent (T-209).
       */}
       <FieldTaskPanel onOpenWorkflow={onOpenWorkflow} />
       {/* Field staff have no profile screen and cannot open `/profile`, and
@@ -564,15 +608,23 @@ function FieldAttendancePanel() {
     <section className="space-y-4">
       <div>
         <h2 className="text-base font-semibold">{t("attendance.title")}</h2>
-        <p className="text-sm text-muted-foreground">{t("attendance.todayCount", { count: today.length })}</p>
+        {attendance.isError ? (
+          <FieldLoadNote query={attendance} what={t("what.attendance")} />
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("attendance.todayCount", { count: today.length })}</p>
+        )}
       </div>
       <div className="rounded-xl border bg-card p-4 shadow-sm">
-        <ProjectPicker value={selectedProject} onValueChange={setProject} placeholder={t("attendance.selectProject")} className="h-11 w-full" />
+        <FieldWrapper label={t("attendance.selectProject")} required>
+          <ProjectPicker value={selectedProject} onValueChange={setProject} placeholder={t("attendance.selectProject")} className="h-11 w-full" />
+        </FieldWrapper>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Button className="h-12" variant={event === "CLOCK_IN" ? "default" : "outline"} onClick={() => setEvent("CLOCK_IN")}><LogIn />{t("attendance.clockIn")}</Button>
           <Button className="h-12" variant={event === "CLOCK_OUT" ? "default" : "outline"} onClick={() => setEvent("CLOCK_OUT")}><LogOut />{t("attendance.clockOut")}</Button>
         </div>
-        <FieldCamera className="mt-4" label={selfie ? t("attendance.selfieReady") : t("attendance.takeSelfie")} file={selfie} fileCount={selfie ? 1 : 0} facingMode="user" onCapture={setSelfie} onClear={() => setSelfie(undefined)} />
+        <FieldWrapper className="mt-4" label={t("attendance.takeSelfie")} required>
+          <FieldCamera label={selfie ? t("attendance.selfieReady") : t("attendance.takeSelfie")} file={selfie} fileCount={selfie ? 1 : 0} facingMode="user" onCapture={setSelfie} onClear={() => setSelfie(undefined)} />
+        </FieldWrapper>
         <LocationField
           className="mt-3"
           label={t("attendance.getLocation")}
@@ -588,7 +640,7 @@ function FieldAttendancePanel() {
                                                        disabled={submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : event === "CLOCK_IN" ? <LogIn /> : <LogOut />}{t("attendance.submit")}</Button>
       </div>
       <div className="space-y-3">
-        {today.length === 0 && <p className="rounded-xl border border-dashed bg-card p-5 text-center text-sm text-muted-foreground">{t("attendance.noRecords")}</p>}
+        {attendance.isSuccess && today.length === 0 && <p className="rounded-xl border border-dashed bg-card p-5 text-center text-sm text-muted-foreground">{t("attendance.noRecords")}</p>}
         {today.map((row) => {
           const photoUrl = row.watermarked_photo || row.photo;
           const mapUrl = row.latitude && row.longitude

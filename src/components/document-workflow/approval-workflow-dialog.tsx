@@ -38,7 +38,7 @@ import {
   updateWorkflowStep,
   updateWorkflowTemplate,
 } from "@/services/document-workflow.service";
-import { LoadFailed } from "@/components/shared/page-primitives";
+import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 
 /** The only resource type approvals are raised against today. */
 const DEFAULT_RESOURCE_TYPE = "document";
@@ -135,14 +135,15 @@ export function ApprovalWorkflowDialog({
           <DialogDescription>{t("workflow.help")}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-wrap gap-2">
-          <Input
-            value={newName}
-            onChange={(event) => setNewName(event.target.value)}
-            placeholder={t("workflow.namePlaceholder")}
-            aria-label={t("workflow.name")}
-            className="min-w-48 flex-1"
-          />
+        <div className="flex flex-wrap items-end gap-2">
+          <FieldWrapper label={t("workflow.name")} required className="min-w-48 flex-1">
+            <Input
+              value={newName}
+              onChange={(event) => setNewName(event.target.value)}
+              placeholder={t("workflow.namePlaceholder")}
+              aria-label={t("workflow.name")}
+            />
+          </FieldWrapper>
           <Button
             requires={[[newName, t("workflow.name")]]}
             disabled={create.isPending}
@@ -217,6 +218,8 @@ export function ApprovalWorkflowDialog({
                     templateId={row.id}
                     steps={detail.data?.steps ?? []}
                     loading={detail.isLoading}
+                    failed={detail.isError}
+                    onRetry={() => void detail.refetch()}
                     users={users}
                     roles={roles}
                     onChanged={refreshAll}
@@ -248,11 +251,13 @@ export function ApprovalWorkflowDialog({
                 <DialogTitle>{t("workflow.renameTemplate")}</DialogTitle>
                 <DialogDescription>{renaming.name}</DialogDescription>
               </DialogHeader>
-              <Input
-                value={renameDraft}
-                onChange={(event) => setRenameDraft(event.target.value)}
-                aria-label={t("workflow.name")}
-              />
+              <FieldWrapper label={t("workflow.name")} required>
+                <Input
+                  value={renameDraft}
+                  onChange={(event) => setRenameDraft(event.target.value)}
+                  aria-label={t("workflow.name")}
+                />
+              </FieldWrapper>
               <DialogFooter>
                 <Button
                   variant="outline"
@@ -303,6 +308,8 @@ function StepEditor({
   templateId,
   steps,
   loading,
+  failed,
+  onRetry,
   users,
   roles,
   onChanged,
@@ -310,6 +317,8 @@ function StepEditor({
   templateId: string;
   steps: WorkflowStep[];
   loading: boolean;
+  failed: boolean;
+  onRetry: () => void;
   users: UserRow[];
   roles: Role[];
   onChanged: () => Promise<void>;
@@ -388,6 +397,8 @@ function StepEditor({
     <div className="space-y-3 border-t bg-muted/20 p-3">
       {loading ? (
         <p className="text-sm text-muted-foreground">{t("workflow.loading")}</p>
+      ) : failed ? (
+        <LoadFailed what={t("what.chainSteps")} onRetry={onRetry} />
       ) : !steps.length ? (
         <p className="text-sm text-muted-foreground">
           {t("workflow.noSteps")}
@@ -433,30 +444,34 @@ function StepEditor({
         </ol>
       )}
 
-      <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-        <Input
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder={t("workflow.stepNamePlaceholder")}
-          aria-label={t("workflow.stepName")}
-        />
-        <Select value={assignee} onValueChange={setAssignee}>
-          <SelectTrigger aria-label={t("workflow.reviewer")}>
-            <SelectValue placeholder={t("workflow.reviewerPlaceholder")} />
-          </SelectTrigger>
-          <SelectContent>
-            {roles.map((role) => (
-              <SelectItem key={`role:${role.id}`} value={`role:${role.id}`}>
-                {t("workflow.byRole", { name: role.name })}
-              </SelectItem>
-            ))}
-            {users.map((person) => (
-              <SelectItem key={`user:${person.id}`} value={`user:${person.id}`}>
-                {person.full_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="grid items-end gap-2 sm:grid-cols-[1fr_1fr_auto]">
+        <FieldWrapper label={t("workflow.stepName")} required>
+          <Input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder={t("workflow.stepNamePlaceholder")}
+            aria-label={t("workflow.stepName")}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("workflow.reviewer")} required>
+          <Select value={assignee} onValueChange={setAssignee}>
+            <SelectTrigger aria-label={t("workflow.reviewer")}>
+              <SelectValue placeholder={t("workflow.reviewerPlaceholder")} />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map((role) => (
+                <SelectItem key={`role:${role.id}`} value={`role:${role.id}`}>
+                  {t("workflow.byRole", { name: role.name })}
+                </SelectItem>
+              ))}
+              {users.map((person) => (
+                <SelectItem key={`user:${person.id}`} value={`user:${person.id}`}>
+                  {person.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FieldWrapper>
         <Button
           requires={[
             [name, t("workflow.stepName")],
@@ -479,29 +494,33 @@ function StepEditor({
                 {t("workflow.editStepHelp", { sequence: editing.sequence })}
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-2">
-              <Input
-                value={editName}
-                onChange={(event) => setEditName(event.target.value)}
-                aria-label={t("workflow.stepName")}
-              />
-              <Select value={editAssignee} onValueChange={setEditAssignee}>
-                <SelectTrigger aria-label={t("workflow.reviewer")}>
-                  <SelectValue placeholder={t("workflow.reviewerPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {roles.map((role) => (
-                    <SelectItem key={`role:${role.id}`} value={`role:${role.id}`}>
-                      {t("workflow.byRole", { name: role.name })}
-                    </SelectItem>
-                  ))}
-                  {users.map((person) => (
-                    <SelectItem key={`user:${person.id}`} value={`user:${person.id}`}>
-                      {person.full_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid gap-3">
+              <FieldWrapper label={t("workflow.stepName")} required>
+                <Input
+                  value={editName}
+                  onChange={(event) => setEditName(event.target.value)}
+                  aria-label={t("workflow.stepName")}
+                />
+              </FieldWrapper>
+              <FieldWrapper label={t("workflow.reviewer")} required>
+                <Select value={editAssignee} onValueChange={setEditAssignee}>
+                  <SelectTrigger aria-label={t("workflow.reviewer")}>
+                    <SelectValue placeholder={t("workflow.reviewerPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map((role) => (
+                      <SelectItem key={`role:${role.id}`} value={`role:${role.id}`}>
+                        {t("workflow.byRole", { name: role.name })}
+                      </SelectItem>
+                    ))}
+                    {users.map((person) => (
+                      <SelectItem key={`user:${person.id}`} value={`user:${person.id}`}>
+                        {person.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FieldWrapper>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={closeEditor}>

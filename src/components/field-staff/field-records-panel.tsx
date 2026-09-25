@@ -16,6 +16,7 @@ import {
   ShieldAlert,
   Trash2,
   Truck,
+  ReceiptText,
   UserRoundCheck,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -32,6 +33,8 @@ import {
 } from "@/components/contractor-ops/site-disposal-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
+import { FieldSlots } from "@/components/field-staff/field-slots";
+import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { CategoryEvidenceCapture } from "@/components/field-staff/category-evidence-capture";
@@ -43,6 +46,7 @@ import {
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
 import { FieldWrapper } from "@/components/shared/page-primitives";
+import { FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { Safety } from "@/components/site-operations/safety";
@@ -97,7 +101,8 @@ export type FieldRecordMode =
   | "waste"
   | "safety"
   | "consultant"
-  | "category";
+  | "category"
+  | "sundry";
 
 interface RecordOption {
   key: FieldRecordMode;
@@ -116,6 +121,8 @@ const RECORD_OPTIONS: RecordOption[] = [
   { key: "safety", permission: "safety.manage", icon: ShieldAlert, tone: "bg-warning/15 text-warning" },
   { key: "consultant", permission: "consultant.submit", icon: UserRoundCheck, tone: "bg-primary/10 text-primary" },
   { key: "category", permission: ["category.view", "field_task.submit"], icon: FolderOpen, tone: "bg-info/10 text-info" },
+  // 杂费报销 (D-232): submitted here, followed on 「我提交过的」.
+  { key: "sundry", permission: "sundry_claim.submit", icon: ReceiptText, tone: "bg-warning/15 text-warning" },
 ];
 
 export function FieldRecordsPanel({
@@ -148,10 +155,10 @@ export function FieldRecordsPanel({
   };
 
   if (mode === "material") {
-    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><FieldDraft scope={`material:${task?.id ?? "new"}`}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.material")} onBack={() => chooseMode(null)}><FieldSlots scope={`material:${task?.id ?? "new"}`} jobKinds={["MATERIAL_RECEIPT"]}><MaterialCapturePanel initialSupplierToken={initialSupplierToken} initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
   }
   if (mode === "equipment") {
-    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldDraft scope={`equipment:${task?.id ?? "new"}`}><SiteEquipmentWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldSlots scope={`equipment:${task?.id ?? "new"}`} jobKinds={["EQUIPMENT_MOVEMENT"]}><SiteEquipmentWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
   }
   if (mode === "progress") {
     return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
@@ -163,13 +170,13 @@ export function FieldRecordsPanel({
     ) {
       return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><InternalDisposalWorkspace disposalId={task.linked_record_id} onSubmitted={() => chooseMode(null)} /></RecordFrame>;
     }
-    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><FieldDraft scope={`disposal:${task?.id ?? "new"}`}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.disposal")} onBack={() => chooseMode(null)}><FieldSlots scope={`disposal:${task?.id ?? "new"}`} jobKinds={["DISPOSAL_REQUEST"]}><SiteDisposalWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
   }
   if (mode === "outgoing") {
     return <RecordFrame title={t("records.outgoing")} onBack={() => chooseMode(null)}><FieldDraft scope={`outgoing:${task?.id ?? "new"}`}><MaterialOutgoingWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "waste") {
-    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><FieldDraft scope={`waste:${task?.id ?? "new"}`}><WasteOutgoingCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+    return <RecordFrame title={t("records.waste")} onBack={() => chooseMode(null)}><FieldSlots scope={`waste:${task?.id ?? "new"}`} jobKinds={["WASTE_OUTGOING"]}><WasteOutgoingCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
   }
   if (mode === "safety") {
     return <RecordFrame title={t("records.safety")} onBack={() => chooseMode(null)}><FieldDraft scope={`safety:${task?.id ?? "new"}`}><Safety fieldMode initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={(result) => { chooseMode(null); onWorkflowSaved?.("safety", result); }} /></FieldDraft></RecordFrame>;
@@ -179,7 +186,10 @@ export function FieldRecordsPanel({
   }
   if (mode === "category") {
     return <RecordFrame title={t("records.category")} onBack={() => chooseMode(null)}><FieldDraft scope={`category:${task?.id ?? "new"}`}><CategoryEvidenceCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+  }  if (mode === "sundry") {
+    return <RecordFrame title={t("records.sundry")} onBack={() => chooseMode(null)}><FieldDraft scope={`sundry:${task?.id ?? "new"}`}><SundryClaimCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
+
 
   return (
     <section className="space-y-4">
@@ -627,11 +637,12 @@ function MaterialCapturePanel({
           <SelectTrigger className="w-full"><SelectValue placeholder={t("material.column")} /></SelectTrigger>
           <SelectContent>{columnRows.filter((row) => row.can_upload).map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
         </Select>
-        {draft.project && !columns.isLoading && !columnRows.length && <p className="text-sm text-muted-foreground">{t("material.noColumnsYet")}</p>}
+        <FieldLoadNote query={columns} what={t("what.columns")} />
+        {draft.project && columns.isSuccess && !columnRows.length && <p className="text-sm text-muted-foreground">{t("material.noColumnsYet")}</p>}
         <details className="mt-2">
           <summary className="cursor-pointer text-xs text-muted-foreground">{t("material.addColumn")}</summary>
-          <div className="mt-2 flex gap-2">
-            <Input value={newColumnName} onChange={(event) => setNewColumnName(event.target.value)} placeholder={t("material.newColumnName")} />
+          <div className="mt-2 flex items-end gap-2">
+            <FieldWrapper label={t("material.newColumnName")} required className="flex-1"><Input value={newColumnName} onChange={(event) => setNewColumnName(event.target.value)} /></FieldWrapper>
             <Button variant="outline" requires={[[draft.project, t("material.project")], [newColumnName.trim(), t("material.newColumnName")]]} disabled={columnCreation.isPending} onClick={() => openColumn(newColumnName.trim())}><Plus />{t("material.addColumn")}</Button>
           </div>
           {columnError && <p role="alert" className="text-sm text-destructive">{columnError}</p>}
@@ -674,7 +685,9 @@ function MaterialCapturePanel({
             ))}
           </SelectContent>
         </Select>
-        {draft.project && draft.supplier && (
+        <FieldLoadNote query={suppliers} what={t("what.suppliers")} />
+        <FieldLoadNote query={dockets} what={t("what.dockets")} />
+        {draft.project && draft.supplier && !dockets.isError && (
           <p className="text-xs text-muted-foreground">
             {qrCode ? t("material.qrMatched") : t("material.qrNotIssued")}
           </p>
@@ -957,7 +970,9 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
           disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
-      <ProjectColumnPicker project={project} kind="FIELD" value={column} onChange={setColumn} />
+      <FieldWrapper label={t("material.column")} required>
+        <ProjectColumnPicker bare project={project} kind="FIELD" value={column} onChange={setColumn} />
+      </FieldWrapper>
       <FieldWrapper label={t("consultantCapture.category")} required>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
@@ -1113,6 +1128,7 @@ function WasteOutgoingCapturePanel({
             ))}
           </SelectContent>
         </Select>
+        <FieldLoadNote query={options} what={t("what.categories")} />
       </FieldWrapper>
       <div className="grid grid-cols-2 gap-3">
         <FieldWrapper label={t("field.quantity")} optional={t("field.optional")}>
@@ -1130,18 +1146,18 @@ function WasteOutgoingCapturePanel({
         </FieldWrapper>
       </div>
       {/*
-        No collection-address input here, on purpose (D-117).
+        No collection-address input here, and D-224 is the reason now.
 
-        The office fills the address in now, not the site. Sending it blank is
-        not a loss of information: the server falls back to the project address
-        and marks the source PROJECT (`set_pickup_address` in
-        `waste/services.py`), and the office can name a gate when it raises the
-        order. Two people typing the same address was the actual problem - the
-        site's answer won, and the office could not tell whether an address had
-        been chosen or inherited.
+        客户第 37 条：取货地址按**发起人角色**分流。「现场人员从手机端发起时
+        **直接使用手机当前定位**并确认位置在项目范围内，**不需要再填具体门口或
+        取货点**」. The office is the party that has to type an address,
+        because they are the ones not standing on site.
 
-        `field-draft-coverage.test.ts` holds this open, so a future edit that
-        reintroduces the field fails rather than quietly reversing a decision.
+        This is also what D-117 concluded from the other direction: two people
+        typing the same address was the original problem, and the site's answer
+        won silently. Blank is not a loss - `set_pickup_address` falls back to
+        the project address and marks the source PROJECT, and the office names
+        the gate when it raises the order.
       */}
       <FieldWrapper label={t("field.note")} optional={t("field.optional")}>
         <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
@@ -1166,7 +1182,7 @@ function WasteOutgoingCapturePanel({
         required
       />
       {error && <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("field.photos")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[project, t("field.project")], [category, t("field.category")], [!quantityIncomplete, t("field.unit")], [hasRequiredFieldEvidence(evidence), t("evidence.title")], [location, t("field.location")]]} disabled={save.isPending} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <Recycle />}
         {t("action.submit")}
       </Button>

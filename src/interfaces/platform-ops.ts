@@ -24,20 +24,44 @@ export type NotificationKind =
   | "waste.collection_date_proposed"
   | "waste.collection_date_confirmed";
 
+/**
+ * What is happening to the thing a notice is about (D-206).
+ *
+ * There is deliberately no "read" here. The customer's complaint was that
+ * opening a notice counted as doing the job, so opening one now changes
+ * nothing at all: 「点进去查看不减少数量」.
+ */
+export type NotificationState = "PENDING" | "DONE" | "CLOSED";
+
 export interface NotificationRow {
   id: string;
   kind: NotificationKind;
+  /** The kind by name, in the reader's language (T-176, D-261). Show this, never `kind`. */
+  kind_label: string;
+  /** Title and message come already said in the reader's language. */
   title: string;
   message: string;
   data: Record<string, unknown>;
   event: string | null;
-  read_at: string | null;
-  is_read: boolean;
+  subject_kind: string;
+  subject_id: string | null;
+  /** ACTION asks this person to do something; NOTICE only tells them (D-207). */
+  card?: "ACTION" | "NOTICE";
+  state: NotificationState;
+  resolved_at: string | null;
+  is_outstanding: boolean;
   created_at: string;
 }
 
 export interface NotificationSummary {
+  /** Everything still waiting. This is the bell's red dot, and the only one. */
   total: number;
+  /** Of that total, how much is work rather than news - the My Tasks size. */
+  action: number;
+  /** Of that total, how much arrived today. */
+  today: number;
+  /** The rest - the backlog. `today + earlier === total`. */
+  earlier: number;
   by_kind: Partial<Record<NotificationKind, number>>;
 }
 

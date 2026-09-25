@@ -11,6 +11,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
+  FieldWrapper,
   ListHeader,
   StatusBadge,
   TypeBadge,
@@ -25,7 +26,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Vehicle, VehicleWorkStatus } from "@/interfaces/recycler";
@@ -336,30 +336,22 @@ function TareDialog({
           </p>
         )}
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium">
-            {t("vehicles.tare.weight")}
-            <span className="ml-0.5 text-destructive">*</span>
-          </Label>
+        <FieldWrapper label={t("vehicles.tare.weight")} required>
           <Input
             type="number"
             value={weight}
             onChange={(event) => setWeight(event.target.value)}
           />
-        </div>
+        </FieldWrapper>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium">
-            {t("common.reason")}
-            <span className="ml-0.5 text-destructive">*</span>
-          </Label>
+        <FieldWrapper label={t("common.reason")} required>
           <Textarea
             rows={2}
             value={reason}
             placeholder={t("common.reasonPlaceholder")}
             onChange={(event) => setReason(event.target.value)}
           />
-        </div>
+        </FieldWrapper>
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
@@ -373,7 +365,7 @@ function TareDialog({
           <Button
             size="sm"
             className="rounded-full px-4 shadow-sm"
-            requires={[[weight, t("vehicles.field.tareWeight")], [reason, t("common.reason")]]}
+            requires={[[weight, t("vehicles.tare.weight")], [reason, t("common.reason")]]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >

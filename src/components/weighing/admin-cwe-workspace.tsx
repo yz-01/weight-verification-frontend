@@ -15,6 +15,8 @@ import { useState } from "react";
 import {
   FieldWrapper,
   ListHeader,
+  QueryBoundary,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -117,12 +119,13 @@ function ScaleRegister() {
   const [company, setCompany] = useState("");
   const companies = useQuery({ queryKey: ["companies", "cwe-options"], queryFn: () => getCompanies({ page_size: 250, sort_by: "name", sort_order: "asc" }) });
   const scales = useQuery({ queryKey: ["admin-cwe", "scales", page, search, company], queryFn: () => getScales({ page, page_size: 25, search, company, sort_by: "code", sort_order: "asc" }) });
-  return <div className="space-y-4"><div className="flex flex-wrap items-end gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("scaleSearchPlaceholder")} /><SelectControl ariaLabel={t("field.company")} value={company} onChange={(value) => { setCompany(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...(companies.data?.results ?? []).map((row) => ({ value: row.id, label: `${row.code} - ${row.name}` }))]} /><Button asChild><Link href="/scales/create"><Plus />{t("action.registerScale")}</Link></Button></div><ScaleTable scales={scales.data?.results ?? []} mode="register" /><Pagination page={page} totalPages={scales.data?.total_pages ?? 0} count={scales.data?.count} onPage={setPage} /></div>;
+  return <div className="space-y-4"><div className="flex flex-wrap items-end gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("scaleSearchPlaceholder")} /><SelectControl ariaLabel={t("field.company")} value={company} onChange={(value) => { setCompany(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...(companies.data?.results ?? []).map((row) => ({ value: row.id, label: `${row.code} - ${row.name}` }))]} /><Button asChild><Link href="/scales/create"><Plus />{t("action.registerScale")}</Link></Button><QueryFailedNote query={companies} what={t("what.companies")} className="basis-full" /></div><QueryBoundary query={scales} what={t("what.scales")}><ScaleTable scales={scales.data?.results ?? []} mode="register" /><Pagination page={page} totalPages={scales.data?.total_pages ?? 0} count={scales.data?.count} onPage={setPage} /></QueryBoundary></div>;
 }
 
 function ConnectionStatus() {
+  const t = useTranslations("adminCwe");
   const overview = useCWEOverview();
-  return <div className="space-y-5"><CWEHeadline data={overview.data} /><ScaleTable scales={overview.data?.cwe.scales ?? []} mode="connections" /></div>;
+  return <div className="space-y-5"><CWEHeadline data={overview.data} /><QueryBoundary query={overview} what={t("what.overview")}><ScaleTable scales={overview.data?.cwe.scales ?? []} mode="connections" /></QueryBoundary></div>;
 }
 
 function LiveWeighing() {
@@ -131,7 +134,7 @@ function LiveWeighing() {
   const df = useDateFormat();
   const overview = useCWEOverview();
   const sessions = useQuery({ queryKey: ["admin-cwe", "active-sessions"], queryFn: () => getWeighSessions({ page_size: 50, state: "ON_SCALE", sort_by: "started_at", sort_order: "desc" }), refetchInterval: 15_000 });
-  return <div className="space-y-5"><CWEHeadline data={overview.data} /><Table><TableHeader><TableRow><TableHead>{t("field.scale")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.site")}</TableHead><TableHead>{t("field.currentWeight")}</TableHead><TableHead>{t("field.lastCommunication")}</TableHead><TableHead>{t("field.stability")}</TableHead></TableRow></TableHeader><TableBody>{overview.data?.cwe.scales.map((scale) => <TableRow key={scale.id}><TableCell><p className="font-medium">{scale.code}</p><p className="text-xs text-muted-foreground">{scale.name}</p></TableCell><TableCell>{scale.company}</TableCell><TableCell>{scale.site}</TableCell><TableCell className="tabular-nums">{scale.current_weight_kg === null ? "-" : `${format.number(Number(scale.current_weight_kg))} kg`}</TableCell><TableCell>{scale.last_seen_at ? df.dateTime(scale.last_seen_at) : "-"}</TableCell><TableCell><StatusBadge label={t(`connection.${scale.online ? "ONLINE" : "OFFLINE"}`)} tone={scale.online ? "positive" : "danger"} /></TableCell></TableRow>)}{!overview.isLoading && (overview.data?.cwe.scales.length ?? 0) === 0 && <EmptyRow columns={6} />}</TableBody></Table><h3 className="text-sm font-semibold">{t("live.activeSessions")}</h3><SessionTable sessions={sessions.data?.results ?? []} /></div>;
+  return <div className="space-y-5"><CWEHeadline data={overview.data} /><QueryBoundary query={overview} what={t("what.overview")}><Table><TableHeader><TableRow><TableHead>{t("field.scale")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.site")}</TableHead><TableHead>{t("field.currentWeight")}</TableHead><TableHead>{t("field.lastCommunication")}</TableHead><TableHead>{t("field.stability")}</TableHead></TableRow></TableHeader><TableBody>{overview.data?.cwe.scales.map((scale) => <TableRow key={scale.id}><TableCell><p className="font-medium">{scale.code}</p><p className="text-xs text-muted-foreground">{scale.name}</p></TableCell><TableCell>{scale.company}</TableCell><TableCell>{scale.site}</TableCell><TableCell className="tabular-nums">{scale.current_weight_kg === null ? "-" : `${format.number(Number(scale.current_weight_kg))} kg`}</TableCell><TableCell>{scale.last_seen_at ? df.dateTime(scale.last_seen_at) : "-"}</TableCell><TableCell><StatusBadge label={t(`connection.${scale.online ? "ONLINE" : "OFFLINE"}`)} tone={scale.online ? "positive" : "danger"} /></TableCell></TableRow>)}{!overview.isLoading && (overview.data?.cwe.scales.length ?? 0) === 0 && <EmptyRow columns={6} />}</TableBody></Table></QueryBoundary><h3 className="text-sm font-semibold">{t("live.activeSessions")}</h3><QueryBoundary query={sessions} what={t("what.activeSessions")}><SessionTable sessions={sessions.data?.results ?? []} /></QueryBoundary></div>;
 }
 
 function AnomalyLedger() {
@@ -144,7 +147,7 @@ function AnomalyLedger() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const anomalies = useQuery({ queryKey: ["admin-cwe", "anomalies", page, search, code, from, to], queryFn: () => getWeighAnomalies({ page, page_size: 25, search, code, date_from: from, date_to: to, sort_by: "detected_at", sort_order: "desc" }) });
-  return <div className="space-y-4"><div className="flex flex-wrap gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("anomalySearchPlaceholder")} /><SelectControl ariaLabel={t("field.anomaly")} value={code} onChange={(value) => { setCode(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...ANOMALY_CODES.map((value) => ({ value, label: t(`anomaly.${value}`) }))]} /></div><DateRange from={from} to={to} setFrom={(value) => { setFrom(value); setPage(1); }} setTo={(value) => { setTo(value); setPage(1); }} /><Table><TableHeader><TableRow><TableHead>{t("field.detectedAt")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.scale")}</TableHead><TableHead>{t("field.session")}</TableHead><TableHead>{t("field.anomaly")}</TableHead><TableHead>{t("field.evidence")}</TableHead></TableRow></TableHeader><TableBody>{anomalies.data?.results.map((row) => <TableRow key={row.id}><TableCell>{df.dateTime(row.detected_at)}</TableCell><TableCell>{row.company_name}</TableCell><TableCell>{row.scale_code} - {row.scale_name}</TableCell><TableCell><Link className="text-primary hover:underline" href={`/weighing/${row.session}`}>{row.session_no}</Link></TableCell><TableCell><StatusBadge label={t(`anomaly.${row.code}`)} tone="danger" /></TableCell><TableCell><details className="max-w-64"><summary className="cursor-pointer text-xs font-medium text-primary">{t("field.evidence")}</summary><pre className="mt-2 max-h-40 overflow-auto rounded-md border bg-muted/40 p-2 font-mono text-[11px]">{JSON.stringify(row.evidence, null, 2)}</pre></details></TableCell></TableRow>)}{!anomalies.isLoading && (anomalies.data?.results.length ?? 0) === 0 && <EmptyRow columns={6} />}</TableBody></Table><Pagination page={page} totalPages={anomalies.data?.total_pages ?? 0} count={anomalies.data?.count} onPage={setPage} /></div>;
+  return <div className="space-y-4"><div className="flex flex-wrap gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("anomalySearchPlaceholder")} /><SelectControl ariaLabel={t("field.anomaly")} value={code} onChange={(value) => { setCode(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...ANOMALY_CODES.map((value) => ({ value, label: t(`anomaly.${value}`) }))]} /></div><DateRange from={from} to={to} setFrom={(value) => { setFrom(value); setPage(1); }} setTo={(value) => { setTo(value); setPage(1); }} /><QueryBoundary query={anomalies} what={t("what.anomalies")}><Table><TableHeader><TableRow><TableHead>{t("field.detectedAt")}</TableHead><TableHead>{t("field.company")}</TableHead><TableHead>{t("field.scale")}</TableHead><TableHead>{t("field.session")}</TableHead><TableHead>{t("field.anomaly")}</TableHead><TableHead>{t("field.evidence")}</TableHead></TableRow></TableHeader><TableBody>{anomalies.data?.results.map((row) => <TableRow key={row.id}><TableCell>{df.dateTime(row.detected_at)}</TableCell><TableCell>{row.company_name}</TableCell><TableCell>{row.scale_code} - {row.scale_name}</TableCell><TableCell><Link className="text-primary hover:underline" href={`/weighing/${row.session}`}>{row.session_no}</Link></TableCell><TableCell><StatusBadge label={t(`anomaly.${row.code}`)} tone="danger" /></TableCell><TableCell><details className="max-w-64"><summary className="cursor-pointer text-xs font-medium text-primary">{t("field.evidence")}</summary><pre className="mt-2 max-h-40 overflow-auto rounded-md border bg-muted/40 p-2 font-mono text-[11px]">{JSON.stringify(row.evidence, null, 2)}</pre></details></TableCell></TableRow>)}{!anomalies.isLoading && (anomalies.data?.results.length ?? 0) === 0 && <EmptyRow columns={6} />}</TableBody></Table><Pagination page={page} totalPages={anomalies.data?.total_pages ?? 0} count={anomalies.data?.count} onPage={setPage} /></QueryBoundary></div>;
 }
 
 function SessionSearch() {
@@ -157,22 +160,28 @@ function SessionSearch() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const sessions = useQuery({ queryKey: ["admin-cwe", "sessions", page, search, state, verdict, from, to], queryFn: () => getWeighSessions({ page, page_size: 25, search, state, verdict, date_from: from, date_to: to, sort_by: "started_at", sort_order: "desc" }) });
-  return <div className="space-y-4"><div className="flex flex-wrap gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("sessionSearchPlaceholder")} /><SelectControl ariaLabel={t("field.state")} value={state} onChange={(value) => { setState(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...(["OPEN", "ON_SCALE", "STABLE", "COMPLETED", "VOID"] as SessionState[]).map((value) => ({ value, label: t(`state.${value}`) }))]} /><SelectControl ariaLabel={t("field.verdict")} value={verdict} onChange={(value) => { setVerdict(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...(["PENDING", "VALID", "INVALID"] as SessionVerdict[]).map((value) => ({ value, label: t(`verdict.${value}`) }))]} /></div><DateRange from={from} to={to} setFrom={(value) => { setFrom(value); setPage(1); }} setTo={(value) => { setTo(value); setPage(1); }} /><SessionTable sessions={sessions.data?.results ?? []} /><Pagination page={page} totalPages={sessions.data?.total_pages ?? 0} count={sessions.data?.count} onPage={setPage} /></div>;
+  return <div className="space-y-4"><div className="flex flex-wrap gap-2"><Input className="min-w-56 flex-1" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={t("sessionSearchPlaceholder")} /><SelectControl ariaLabel={t("field.state")} value={state} onChange={(value) => { setState(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...(["OPEN", "ON_SCALE", "STABLE", "COMPLETED", "VOID"] as SessionState[]).map((value) => ({ value, label: t(`state.${value}`) }))]} /><SelectControl ariaLabel={t("field.verdict")} value={verdict} onChange={(value) => { setVerdict(value); setPage(1); }} options={[{ value: "", label: common("all") }, ...(["PENDING", "VALID", "INVALID"] as SessionVerdict[]).map((value) => ({ value, label: t(`verdict.${value}`) }))]} /></div><DateRange from={from} to={to} setFrom={(value) => { setFrom(value); setPage(1); }} setTo={(value) => { setTo(value); setPage(1); }} /><QueryBoundary query={sessions} what={t("what.sessions")}><SessionTable sessions={sessions.data?.results ?? []} /><Pagination page={page} totalPages={sessions.data?.total_pages ?? 0} count={sessions.data?.count} onPage={setPage} /></QueryBoundary></div>;
 }
 
 function CWEStatistics() {
   const t = useTranslations("adminCwe");
   const overview = useCWEOverview();
+  const common = useTranslations("common");
   const summary = useQuery({ queryKey: ["admin-cwe", "summary"], queryFn: getWeighSummary });
   const cwe = overview.data?.cwe;
-  return <div className="space-y-5"><CWEHeadline data={overview.data} /><MetricGrid items={[["totalScales", cwe?.total_scales ?? 0], ["onlineGateways", cwe?.online_gateways ?? 0], ["offlineGateways", cwe?.offline_gateways ?? 0], ["totalSessions", summary.data?.total ?? 0], ["validSessions", summary.data?.by_verdict.VALID ?? 0], ["invalidSessions", summary.data?.by_verdict.INVALID ?? 0], ["anomaliesToday", cwe?.anomalies_today ?? 0], ["reweighsToday", cwe?.reweighs_today ?? 0], ["requiresReview", summary.data?.requires_review ?? 0]]} /><p className="text-xs text-muted-foreground">{t("statisticsNote")}</p></div>;
+  // A failed source shows a dash, never a zero that reads as a quiet day (F-222).
+  const fromCwe = (value: number | undefined) => (overview.isError ? common("emptyValue") : value ?? 0);
+  const fromSummary = (value: number | undefined) => (summary.isError ? common("emptyValue") : value ?? 0);
+  return <div className="space-y-5"><CWEHeadline data={overview.data} /><QueryFailedNote query={overview} what={t("what.overview")} /><QueryFailedNote query={summary} what={t("what.summary")} /><MetricGrid items={[["totalScales", fromCwe(cwe?.total_scales)], ["onlineGateways", fromCwe(cwe?.online_gateways)], ["offlineGateways", fromCwe(cwe?.offline_gateways)], ["totalSessions", fromSummary(summary.data?.total)], ["validSessions", fromSummary(summary.data?.by_verdict.VALID)], ["invalidSessions", fromSummary(summary.data?.by_verdict.INVALID)], ["anomaliesToday", fromCwe(cwe?.anomalies_today)], ["reweighsToday", fromCwe(cwe?.reweighs_today)], ["requiresReview", fromSummary(summary.data?.requires_review)]]} /><p className="text-xs text-muted-foreground">{t("statisticsNote")}</p></div>;
 }
 
 function CWEServiceStatus() {
   const t = useTranslations("adminCwe");
+  const common = useTranslations("common");
   const overview = useCWEOverview();
   const data = overview.data;
   const cwe = data?.cwe;
+  const fromCwe = (value: number | undefined) => (overview.isError ? common("emptyValue") : value ?? 0);
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-4 rounded-lg border bg-card px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
@@ -193,14 +202,15 @@ function CWEServiceStatus() {
           </Button>
         </div>
       </div>
+      <QueryFailedNote query={overview} what={t("what.overview")} />
       <MetricGrid
         items={[
-          ["totalScales", cwe?.total_scales ?? 0],
-          ["activeScales", cwe?.active_scales ?? 0],
-          ["onlineGateways", cwe?.online_gateways ?? 0],
-          ["offlineGateways", cwe?.offline_gateways ?? 0],
-          ["weighingsToday", cwe?.weighings_today ?? 0],
-          ["anomaliesToday", cwe?.anomalies_today ?? 0],
+          ["totalScales", fromCwe(cwe?.total_scales)],
+          ["activeScales", fromCwe(cwe?.active_scales)],
+          ["onlineGateways", fromCwe(cwe?.online_gateways)],
+          ["offlineGateways", fromCwe(cwe?.offline_gateways)],
+          ["weighingsToday", fromCwe(cwe?.weighings_today)],
+          ["anomaliesToday", fromCwe(cwe?.anomalies_today)],
         ]}
       />
     </div>

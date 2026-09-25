@@ -13,6 +13,7 @@ import {
   TextField,
   type BoundField,
 } from "@/components/shared/form-fields";
+import { QueryFailedNote } from "@/components/shared/page-primitives";
 import {
   FormSection,
   FormShell,
@@ -47,7 +48,7 @@ export function CreateDeduction() {
   // list of a hundred.
   const presetDispatch = useSearchParams().get("dispatch") ?? "";
 
-  const { data: loadPage } = useQuery({
+  const loads = useQuery({
     queryKey: ["incoming", "options", "collected"],
     // Both states, because the inspection that finds contamination
     // happens on either side of the weighbridge. Asking for COLLECTED alone
@@ -56,7 +57,7 @@ export function CreateDeduction() {
     queryFn: () =>
       getIncoming({ page_size: 100, state: "COLLECTED,WEIGHED" }),
   });
-  const { data: sitePage } = useQuery({
+  const sites = useQuery({
     queryKey: ["sites", "options"],
     queryFn: () => getSites({ page_size: 100 }),
   });
@@ -114,15 +115,18 @@ export function CreateDeduction() {
           validators={{ onSubmit: required(t("validation.required")) }}
         >
           {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("deductions.field.dispatchNo")}
-              required
-              options={(loadPage?.results ?? []).map((load) => ({
-                value: load.id,
-                label: `${load.dispatch_no} — ${load.project_name}`,
-              }))}
-            />
+            <div className="space-y-1">
+              <SelectField
+                field={field as unknown as BoundField}
+                label={t("deductions.field.dispatchNo")}
+                required
+                options={(loads.data?.results ?? []).map((load) => ({
+                  value: load.id,
+                  label: `${load.dispatch_no} — ${load.project_name}`,
+                }))}
+              />
+              <QueryFailedNote query={loads} what={t("deductions.what.loads")} />
+            </div>
           )}
         </form.Field>
 
@@ -131,15 +135,18 @@ export function CreateDeduction() {
           validators={{ onSubmit: required(t("validation.required")) }}
         >
           {(field) => (
-            <SelectField
-              field={field as unknown as BoundField}
-              label={t("deductions.field.site")}
-              required
-              options={(sitePage?.results ?? []).map((site) => ({
-                value: site.id,
-                label: `${site.code} — ${site.name}`,
-              }))}
-            />
+            <div className="space-y-1">
+              <SelectField
+                field={field as unknown as BoundField}
+                label={t("deductions.field.site")}
+                required
+                options={(sites.data?.results ?? []).map((site) => ({
+                  value: site.id,
+                  label: `${site.code} — ${site.name}`,
+                }))}
+              />
+              <QueryFailedNote query={sites} what={t("deductions.what.sites")} />
+            </div>
           )}
         </form.Field>
       </FormSection>

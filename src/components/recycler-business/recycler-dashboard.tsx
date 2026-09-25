@@ -33,7 +33,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { StatusBadge } from "@/components/shared/page-primitives";
+import { QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { LocationMap, type LocationMapMarker, type LocationMapPath, type LocationMapZone } from "@/components/shared/location-map";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -223,6 +223,7 @@ export function RecyclerDashboard({ features }: { features: string[] }) {
           )}
         </div>
       )}
+      <QueryFailedNote query={yards} what={t("recyclerBusiness.what.yards")} />
       <PendingActions data={data} number={number} />
       {data.business_today && (
         <section
@@ -613,6 +614,7 @@ function RecyclerDriverMap() {
           className="h-[24rem] min-h-[24rem] rounded-md sm:h-[28rem] sm:min-h-[28rem]"
         />
       )}
+      {!live.isError && <QueryFailedNote query={routes} what={t("recyclerBusiness.what.driverRoutes")} />}
     </section>
   );
 }
@@ -956,7 +958,7 @@ function LatestNotifications({
               className="flex min-h-16 items-start gap-3 py-3 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <span
-                className={`mt-1.5 size-2 shrink-0 rounded-full ${notification.is_read ? "bg-muted-foreground/30" : "bg-primary"}`}
+                className={`mt-1.5 size-2 shrink-0 rounded-full ${notification.is_outstanding ? "bg-primary" : "bg-muted-foreground/30"}`}
                 aria-hidden="true"
               />
               <span className="min-w-0 flex-1">

@@ -22,6 +22,8 @@ import {
   ScanText,
   Save,
   Trash2,
+  Eye,
+  ImagePlus,
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -29,6 +31,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
@@ -42,11 +45,18 @@ import {
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
+import { RecordConversationButton } from "@/components/shared/record-conversation-button";
+import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { useDateFormat } from "@/lib/dates";
 import {
   FieldWrapper,
   ListHeader,
+  LoadFailed,
+  QueryFailedNote,
   StatusBadge,
 } from "@/components/shared/page-primitives";
+import { LocationField } from "@/components/field-staff/location-field";
+import type { LocationFix } from "@/lib/field-location";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { Button } from "@/components/ui/button";
@@ -98,7 +108,11 @@ import {
   getEquipmentMovements,
   getEquipmentSummary,
   getFieldTasks,
+  addMaterialOutgoingPhotos,
+  exportMaterialOutgoing,
   getMaterialOutgoing,
+  getMaterialOutgoingRecord,
+  returnMaterialOutgoingProcessing,
   ocrEquipmentDeliveryNote,
   getProjectCategories,
   getSiteEquipment,
@@ -106,12 +120,12 @@ import {
   getSiteProgressSummary,
   reviewMaterialOutgoing,
   fileProgressRecord,
-  reviewSiteProgressRecord,
   transitionFieldTask,
   updateFieldTask,
   updateProjectCategory,
   updateSiteEquipment,
 } from "@/services/contractor-ops.service";
+import { getApplicationOptions } from "@/services/consultant-workflow.service";
 import {
   getProjectAssignments,
   getSuppliers,
@@ -124,6 +138,8 @@ import {
 } from "@/services/offline-sync.service";
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
+/** 设备进出场最多 5 张（含 Delivery Order），E2 / D-257; the server enforces it too. */
+const EQUIPMENT_PHOTO_MAX = 5;
 type EquipmentUnit = "UNIT" | "PIECE" | "SET" | "LOAD" | "TONNE" | "KG" | "M3" | "OTHER";
 
 const EQUIPMENT_UNITS: EquipmentUnit[] = [
@@ -211,7 +227,7 @@ function WorkspaceState({
   return null;
 }
 
-function tone(
+export function tone(
   status: string,
 ): "neutral" | "positive" | "warning" | "danger" | "info" {
   if (
@@ -351,7 +367,18 @@ export function ProjectCategoriesWorkspace() {
           ) : undefined
         }
       />
-      <ProjectFilter value={project} onChange={setProject} />
+      {/* The list's project filter is also where the Add button takes its
+          project from, so it wears the star that button asks for. */}
+      <FieldWrapper label={t("field.project")} required={can("category.manage")} className="rounded-lg border bg-card px-3 py-2 shadow-sm">
+        <ProjectPicker
+          value={project}
+          onValueChange={(next) => setProject(next === "all" ? "" : next)}
+          placeholder={t("field.selectProject")}
+          allowAll
+          allLabel={t("field.allProjects")}
+          className="w-full sm:w-72"
+        />
+      </FieldWrapper>
       {can("category.manage") && !project && !!rows.data?.count && (
         <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
           {t("categories.reorderNeedsProject")}
@@ -498,6 +525,7 @@ export function CategoryDialog({
   defaultKind,
   row,
   categories,
+  parentOptions,
   onClose,
   onSaved,
 }: {
@@ -506,6 +534,8 @@ export function CategoryDialog({
   defaultKind: ProjectCategoryKind;
   row: ProjectCategory | null;
   categories: ProjectCategory[];
+  /** Where `categories` came from, when the caller fetched them for this dialog. */
+  parentOptions?: { isError: boolean; refetch?: () => unknown };
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -582,6 +612,16 @@ export function CategoryDialog({
           <DialogDescription>{t("categories.formHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
+          {/* Shown, not chosen: the column is made in the project the screen
+              was opened on, and the parent columns below are that project's. */}
+          <FieldWrapper label={t("field.project")} required className="sm:col-span-2">
+            <ProjectPicker
+              value={form.project}
+              onValueChange={(next) => set("project", next)}
+              placeholder={t("field.selectProject")}
+              disabled
+            />
+          </FieldWrapper>
           <FieldWrapper label={t("field.code")} required>
             <Input
               value={form.code}
@@ -684,6 +724,9 @@ export function CategoryDialog({
                   ))}
               </SelectContent>
             </Select>
+            {parentOptions && (
+              <QueryFailedNote query={parentOptions} what={t("what.parentColumns")} />
+            )}
           </FieldWrapper>
           <FieldWrapper
             label={t("field.description")}
@@ -734,11 +777,12 @@ export function CategoryDialog({
                       <span className="text-sm font-medium">{role.name}</span>
                     </label>
                   ))}
-                  {!roles.isLoading && !roles.data?.results.length && (
+                  {!roles.isLoading && !roles.isError && !roles.data?.results.length && (
                     <p className="text-sm text-muted-foreground">
                       {t("categories.noRoles")}
                     </p>
                   )}
+                  <QueryFailedNote query={roles} what={t("what.roles")} />
                 </div>
               </FieldWrapper>
               <FieldWrapper label={t("categories.accessUsers")}>
@@ -759,11 +803,12 @@ export function CategoryDialog({
                       </span>
                     </label>
                   ))}
-                  {!people.isLoading && !people.data?.results.length && (
+                  {!people.isLoading && !people.isError && !people.data?.results.length && (
                     <p className="text-sm text-muted-foreground">
                       {t("categories.noUsers")}
                     </p>
                   )}
+                  <QueryFailedNote query={people} what={t("what.projectPeople")} />
                 </div>
               </FieldWrapper>
             </>
@@ -787,9 +832,10 @@ export function CategoryDialog({
                   <span className="text-sm font-medium">{role.name}</span>
                 </label>
               ))}
-              {!roles.isLoading && !roles.data?.results.length && (
+              {!roles.isLoading && !roles.isError && !roles.data?.results.length && (
                 <p className="text-sm text-muted-foreground">{t("categories.noRoles")}</p>
               )}
+              <QueryFailedNote query={roles} what={t("what.roles")} />
             </div>
           </FieldWrapper>
           <FieldWrapper label={t("categories.uploadUsers")}>
@@ -805,9 +851,10 @@ export function CategoryDialog({
                   <span className="text-sm font-medium">{person.user_name}</span>
                 </label>
               ))}
-              {!people.isLoading && !people.data?.results.length && (
+              {!people.isLoading && !people.isError && !people.data?.results.length && (
                 <p className="text-sm text-muted-foreground">{t("categories.noUsers")}</p>
               )}
+              <QueryFailedNote query={people} what={t("what.projectPeople")} />
             </div>
           </FieldWrapper>
           <div className="border-t pt-4 sm:col-span-2">
@@ -829,9 +876,10 @@ export function CategoryDialog({
                   <span className="text-sm font-medium">{role.name}</span>
                 </label>
               ))}
-              {!roles.isLoading && !roles.data?.results.length && (
+              {!roles.isLoading && !roles.isError && !roles.data?.results.length && (
                 <p className="text-sm text-muted-foreground">{t("categories.noRoles")}</p>
               )}
+              <QueryFailedNote query={roles} what={t("what.roles")} />
             </div>
           </FieldWrapper>
           <FieldWrapper label={t("categories.editUsers")}>
@@ -847,9 +895,10 @@ export function CategoryDialog({
                   <span className="text-sm font-medium">{person.user_name}</span>
                 </label>
               ))}
-              {!people.isLoading && !people.data?.results.length && (
+              {!people.isLoading && !people.isError && !people.data?.results.length && (
                 <p className="text-sm text-muted-foreground">{t("categories.noUsers")}</p>
               )}
+              <QueryFailedNote query={people} what={t("what.projectPeople")} />
             </div>
           </FieldWrapper>
           <FieldWrapper label={t("field.sortOrder")}>
@@ -950,13 +999,19 @@ export function FieldTasksWorkspace({
       addFieldTaskReferences(id, files),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["field-tasks"] }),
   });
+  /*
+   * Same dialog treatment as the outgoing application below, and for the same
+   * reasons: `window.prompt` is untranslated, cannot be marked required, and
+   * is suppressed outright by some browsers - in which case returning a task
+   * silently did nothing at all.
+   */
+  const [returning, setReturning] = useState<FieldTask | null>(null);
   const review = (row: FieldTask, status: FieldTask["status"]) => {
-    const note =
-      status === "RETURNED"
-        ? (window.prompt(t("tasks.returnPrompt")) ?? "")
-        : "";
-    if (status === "RETURNED" && !note.trim()) return;
-    transition.mutate({ id: row.id, status, note });
+    if (status === "RETURNED") {
+      setReturning(row);
+      return;
+    }
+    transition.mutate({ id: row.id, status, note: "" });
   };
   return (
     <div className="space-y-5">
@@ -1211,6 +1266,21 @@ export function FieldTasksWorkspace({
           })}
         </div>
       )}
+      {returning && (
+        <ReturnReasonDialog
+          reference={returning.title}
+          pending={transition.isPending}
+          onClose={() => setReturning(null)}
+          onConfirm={(note) => {
+            transition.mutate({
+              id: returning.id,
+              status: "RETURNED",
+              note,
+            });
+            setReturning(null);
+          }}
+        />
+      )}
       {creating && (
         <TaskDialog
           project={project}
@@ -1284,6 +1354,13 @@ function TaskDialog({
     priority: task?.priority ?? "NORMAL",
     due_at: task?.due_at ?? null,
     evidence_required: task?.evidence_required ?? 1,
+    submission_category: task?.submission_category ?? "",
+  });
+  // A consultant task names the application type the RFI form opens with.
+  const applicationTypes = useQuery({
+    queryKey: ["consultant-options", form.project, "APPLICATION_TYPE"],
+    queryFn: () => getApplicationOptions(form.project, "APPLICATION_TYPE"),
+    enabled: Boolean(form.project) && form.task_type === "CONSULTANT",
   });
   const team = useQuery({
     queryKey: ["project-assignments", form.project],
@@ -1317,6 +1394,7 @@ function TaskDialog({
           priority: form.priority,
           due_at: form.due_at,
           evidence_required: form.evidence_required,
+          submission_category: form.submission_category,
         })
       : createFieldTask(form),
     onSuccess: onSaved,
@@ -1383,6 +1461,7 @@ function TaskDialog({
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={team} what={t("what.projectPeople")} />
           </FieldWrapper>
           <FieldWrapper label={t("field.taskType")} required>
             <Select
@@ -1390,6 +1469,8 @@ function TaskDialog({
               onValueChange={(v) => {
                 set("task_type", v as FieldTaskPayload["task_type"]);
                 set("category", null);
+                // Where the phone takes a waste task: 工地清运 unless told otherwise.
+                set("submission_category", v === "WASTE" ? "SITE_DISPOSAL" : "");
               }}
             >
               <SelectTrigger className="w-full">
@@ -1432,7 +1513,54 @@ function TaskDialog({
                   ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={categories} what={t("what.columns")} />
           </FieldWrapper>
+          {form.task_type === "WASTE" && (
+            // The phone opens 环保材料出场申请 or 工地清运 by this value
+            // (`taskRecordMode` in field-staff-workspace.tsx); without it every
+            // office-issued waste task opened 工地清运 (T-382).
+            <FieldWrapper label={t("tasks.route.label")} hint={t("tasks.route.hint")} className="sm:col-span-2">
+              <Select
+                value={form.submission_category || "SITE_DISPOSAL"}
+                onValueChange={(v) => set("submission_category", v)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {["SITE_DISPOSAL", "WASTE_OUTGOING"].map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {t(`tasks.route.${value}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldWrapper>
+          )}
+          {form.task_type === "CONSULTANT" && (
+            <FieldWrapper label={t("tasks.applicationType.label")} hint={t("tasks.applicationType.hint")} className="sm:col-span-2">
+              <Select
+                value={form.submission_category || "__none"}
+                onValueChange={(v) => set("submission_category", v === "__none" ? "" : v)}
+                disabled={!form.project}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">{t("tasks.applicationType.none")}</SelectItem>
+                  {(applicationTypes.data?.results ?? [])
+                    .filter((row) => row.category === "APPLICATION_TYPE" && row.is_active)
+                    .map((row) => (
+                      <SelectItem key={row.id} value={row.code}>
+                        {row.label}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <QueryFailedNote query={applicationTypes} what={t("tasks.applicationType.what")} />
+            </FieldWrapper>
+          )}
           <FieldWrapper label={t("field.priority")}>
             <Select
               value={form.priority}
@@ -1566,6 +1694,9 @@ function localDateTime(value?: string | null) {
 
 export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("contractorOps");
+  // Cumulative-totals labels are shared by every module with a quantity,
+  // so they live at the root rather than inside one module's namespace.
+  const tRoot = useTranslations();
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
@@ -1578,7 +1709,9 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
-  const [moving, setMoving] = useState<SiteEquipment | null>(null);
+  // Kept in the draft, so tapping this 挂号 again reopens the form it was in
+  // (D-259). Outside a draft (the office) this is ordinary state.
+  const [movingId, setMovingId] = useDraftState<string | null>("open:movingEquipment", null);
   const [editingEquipment, setEditingEquipment] = useState<SiteEquipment | null>(null);
   const rows = useQuery({
     queryKey: ["site-equipment", project, expiringOnly],
@@ -1611,6 +1744,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
     queryKey: ["equipment-summary", project],
     queryFn: () => getEquipmentSummary(project || undefined),
   });
+  const moving = (rows.data?.results ?? []).find((row) => row.id === movingId) ?? null;
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["site-equipment"] });
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
@@ -1635,6 +1769,13 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
       subtitle: t("equipment.recentMovements"),
       emptyLabel: t("state.empty"),
       query: movementQuery,
+      summary: {
+        groupBy: "unit",
+        title: tRoot("exportTotals.title"),
+        unitLabel: t("field.unit"),
+        quantityLabel: tRoot("exportTotals.quantity"),
+        note: tRoot("exportTotals.note"),
+      },
       columns: [
         { key: "occurred_at", label: t("equipment.occurredAt") },
         { key: "project_name", label: t("field.project") },
@@ -1681,8 +1822,19 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           </div>
         }
       />
-      <ProjectFilter value={project} onChange={setProject} />
-      {summary.data && (
+      {/* The list's project filter is also where the Add button takes its
+          project from, so it wears the star that button asks for. */}
+      <FieldWrapper label={t("field.project")} required={can("equipment.manage")} className="rounded-lg border bg-card px-3 py-2 shadow-sm">
+        <ProjectPicker
+          value={project}
+          onValueChange={(next) => setProject(next === "all" ? "" : next)}
+          placeholder={t("field.selectProject")}
+          allowAll
+          allLabel={t("field.allProjects")}
+          className="w-full sm:w-72"
+        />
+      </FieldWrapper>
+      {(summary.data || summary.isError) && (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           {(
             [
@@ -1698,12 +1850,13 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
                 {t(`equipment.summary.${key}`)}
               </p>
               <p className="mt-1 text-2xl font-semibold tabular-nums">
-                {summary.data[key]}
+                {summary.isError ? "—" : summary.data?.[key]}
               </p>
             </div>
           ))}
         </div>
       )}
+      <QueryFailedNote query={summary} what={t("what.equipmentSummary")} />
       <WorkspaceState
         loading={rows.isLoading}
         error={rows.isError}
@@ -1764,7 +1917,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
                 <Button
                   className="mt-4 w-full"
                   variant="outline"
-                  onClick={() => setMoving(row)}
+                  onClick={() => setMovingId(row.id)}
                 >
                   <Camera />
                   {t(
@@ -1823,6 +1976,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={suppliers} what={t("what.suppliers")} />
           </FieldWrapper>
           <FieldWrapper label={t("equipmentFilter.deliveryNoteNo")}>
             <Input value={deliveryNoteNo} onChange={(event) => setDeliveryNoteNo(event.target.value)} />
@@ -1859,6 +2013,14 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
               <span className="ml-auto text-xs text-muted-foreground">
                 {new Date(row.occurred_at).toLocaleString()}
               </span>
+              {/* A movement is the record here - it is what the archive files
+                  as EQUIPMENT_MOVEMENT - so the conversation hangs off the
+                  movement, not off the machine it moved (T-360). */}
+              <RecordConversationButton
+                kind="EQUIPMENT_MOVEMENT"
+                recordId={row.id}
+                reference={`${row.equipment_code} - ${row.equipment_name}`}
+              />
             </div>
           ))}
       </section>
@@ -1887,10 +2049,10 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         <MovementDialog
           row={moving}
           fieldTaskId={fieldTaskId}
-          onClose={() => setMoving(null)}
+          onClose={() => setMovingId(null)}
           onSaved={() => {
             refresh();
-            setMoving(null);
+            setMovingId(null);
             onRecordSaved?.();
           }}
         />
@@ -1907,7 +2069,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
  * out. That is also why the site is not offered when correcting - the
  * movements belong to the site the machine was registered on.
  */
-function EquipmentDialog({
+export function EquipmentDialog({
   project,
   equipment,
   onClose,
@@ -2063,7 +2225,8 @@ function EquipmentDialog({
                 ))}
               </SelectContent>
             </Select>
-            {!columns.isLoading && !hasColumns && (
+            <QueryFailedNote query={columns} what={t("what.columns")} className="mt-2" />
+            {!columns.isLoading && !columns.isError && !hasColumns && (
               <p className="mt-2 text-xs text-muted-foreground">
                 {t("field.noEquipmentColumnYet")}{" "}
                 <Link
@@ -2092,6 +2255,7 @@ function EquipmentDialog({
                 ))}
               </SelectContent>
             </Select>
+            <QueryFailedNote query={suppliers} what={t("what.suppliers")} />
           </FieldWrapper>
           <FieldWrapper
             label={t("field.description")}
@@ -2139,7 +2303,7 @@ function EquipmentDialog({
   );
 }
 
-function MovementDialog({
+export function MovementDialog({
   row,
   fieldTaskId,
   onClose,
@@ -2391,15 +2555,23 @@ function MovementDialog({
             className="sm:col-span-2"
           >
             {isFieldStaff ? (
-              <FieldEvidenceGrid
-                labels={equipmentEvidenceLabels}
-                files={fieldEvidence}
-                progressLabel={t("evidenceProgress", {
-                  current: fieldPhotos.length,
-                  required: FIELD_EVIDENCE_PHOTO_COUNT,
-                })}
-                onChange={setFieldEvidence}
-              />
+              <>
+                <FieldEvidenceGrid
+                  labels={equipmentEvidenceLabels}
+                  files={fieldEvidence}
+                  progressLabel={t("evidenceProgress", {
+                    current: fieldPhotos.length,
+                    required: FIELD_EVIDENCE_PHOTO_COUNT,
+                  })}
+                  onChange={setFieldEvidence}
+                  // 最少 4 张、最多 5 张, the delivery-order photo included -
+                  // the same count the server refuses above (D-257).
+                  maxFiles={EQUIPMENT_PHOTO_MAX - (deliveryNotePhoto ? 1 : 0)}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("equipment.photoRange", { min: FIELD_EVIDENCE_PHOTO_COUNT, max: EQUIPMENT_PHOTO_MAX })}
+                </p>
+              </>
             ) : (
               <FieldCamera
                 label={t("field.photos")}
@@ -2483,7 +2655,9 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
   const [editingPhase, setEditingPhase] = useState<ConstructionPhase | null>(
     null,
   );
-  const [addingRecord, setAddingRecord] = useState(
+  // Kept in the draft, so tapping this 挂号 again reopens the form it was in
+  // (D-259). Outside a draft (the office) this is ordinary state.
+  const [addingRecord, setAddingRecord] = useDraftState("open:addingRecord",
     Boolean(fieldTaskId) || searchParams.get("create") === "1",
   );
   // Which record the office is filing, if any (T-231). Filing is allowed on a
@@ -2504,29 +2678,15 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
     queryKey: ["site-progress-summary", project],
     queryFn: () => getSiteProgressSummary(project || undefined),
   });
-  const review = useMutation({
-    mutationFn: ({
-      id,
-      status,
-      note,
-    }: {
-      id: string;
-      status: "CONFIRMED" | "RETURNED";
-      note?: string;
-    }) => reviewSiteProgressRecord(id, status, note),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["site-progress"] }),
-  });
-  const reviewRow = (
-    row: SiteProgressRecord,
-    status: "CONFIRMED" | "RETURNED",
-  ) => {
-    const note =
-      status === "RETURNED"
-        ? (window.prompt(t("progress.returnPrompt")) ?? "")
-        : "";
-    if (status === "RETURNED" && !note.trim()) return;
-    review.mutate({ id: row.id, status, note });
-  };
+  /*
+   * No approve/return here (D-225).
+   *
+   * 「工程进度不需要【批准】【退回】，也不做强制闭环 —— 它是持续记录，不是
+   * 申请事项」. What the office does with a progress record is talk about it,
+   * annotate it and file it into a column; none of those is a decision, so
+   * none of them gates the record. The endpoint behind the old buttons is
+   * gone too, which is why this is a deletion rather than a hidden button.
+   */
   // Both Add buttons used to be gated on the list filter, which defaults to
   // "all projects" (an empty string), so they sat dead on arrival with nothing
   // on screen explaining why — the same trap described in OutgoingDialog below.
@@ -2595,7 +2755,7 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
         }
       />
       <ProjectFilter value={project} onChange={setProject} />
-      {summary.data && (
+      {(summary.data || summary.isError) && (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {(["today", "month", "year", "total"] as const).map((key) => (
             <div key={key} className="rounded-lg border bg-card p-3 shadow-sm">
@@ -2603,12 +2763,13 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                 {t(`progress.summary.${key}`)}
               </p>
               <p className="mt-1 text-2xl font-semibold tabular-nums">
-                {summary.data[key]}
+                {summary.isError ? "—" : summary.data?.[key]}
               </p>
             </div>
           ))}
         </div>
       )}
+      <QueryFailedNote query={summary} what={t("what.progressSummary")} />
       <div className="flex flex-wrap gap-2">
         {(phases.data?.results ?? []).map((phase) =>
           can("progress.manage") ? (
@@ -2631,6 +2792,7 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
           ),
         )}
       </div>
+      <QueryFailedNote query={phases} what={t("what.phases")} />
       {noPhases && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed bg-muted/20 p-4">
           <p className="text-sm text-muted-foreground">
@@ -2720,21 +2882,15 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                     </Button>
                   )}
                 </div>
-                {can("progress.confirm") && row.status === "SUBMITTED" && (
-                  <div className="mt-4 flex justify-end gap-2 border-t pt-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => reviewRow(row, "RETURNED")}
-                    >
-                      <RotateCcw />
-                      {t("action.return")}
-                    </Button>
-                    <Button onClick={() => reviewRow(row, "CONFIRMED")}>
-                      <Check />
-                      {t("action.confirm")}
-                    </Button>
-                  </div>
-                )}
+                {/* 【沟通】 is one of the three things D-225 keeps on a progress
+                    record (沟通、备注、上传). */}
+                <div className="mt-3 flex justify-end">
+                  <RecordConversationButton
+                    kind="PROGRESS"
+                    recordId={row.id}
+                    reference={`${row.phase_name} / ${row.percent_complete}%`}
+                  />
+                </div>
               </div>
             </article>
           ))}
@@ -2794,7 +2950,7 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
   );
 }
 
-function PhaseDialog({
+export function PhaseDialog({
   project: initialProject,
   phase,
   onClose,
@@ -2812,6 +2968,12 @@ function PhaseDialog({
   const [name, setName] = useState(phase?.name ?? "");
   const [description, setDescription] = useState(phase?.description ?? "");
   const [isActive, setIsActive] = useState(phase?.is_active ?? true);
+  // The weight this phase carries against the project's other phases (D-127).
+  // Prefilled with the server's default of 1, so a phase nobody weighs counts
+  // the same as every other; left blank it is simply not sent, and the server
+  // keeps the value it has.
+  const [plannedWeight, setPlannedWeight] = useState(phase?.planned_weight ?? "1");
+  const weight = plannedWeight.trim().replace(",", ".") || undefined;
   const save = useMutation({
     mutationFn: () =>
       phase
@@ -2819,9 +2981,10 @@ function PhaseDialog({
             code,
             name,
             description,
+            planned_weight: weight,
             is_active: isActive,
           })
-        : createConstructionPhase({ project, code, name, description }),
+        : createConstructionPhase({ project, code, name, description, planned_weight: weight }),
     onSuccess: onSaved,
   });
   return (
@@ -2851,6 +3014,17 @@ function PhaseDialog({
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("progress.plannedWeight")} hint={t("progress.plannedWeightHelp")}>
+          <Input
+            type="number"
+            inputMode="decimal"
+            min="0"
+            max="9999.999"
+            step="0.001"
+            value={plannedWeight}
+            onChange={(e) => setPlannedWeight(e.target.value)}
           />
         </FieldWrapper>
         {phase && (
@@ -2886,7 +3060,7 @@ function PhaseDialog({
   );
 }
 
-function ProgressDialog({
+export function ProgressDialog({
   project: initialProject,
   fieldTaskId,
   onClose,
@@ -2988,7 +3162,7 @@ function ProgressDialog({
           label={t("field.phase")}
           required
           error={
-            !!project && !phases.isLoading && !options.length
+            !!project && !phases.isLoading && !phases.isError && !options.length
               ? t("progress.noPhasesHelp")
               : undefined
           }
@@ -3009,6 +3183,7 @@ function ProgressDialog({
               ))}
             </SelectContent>
           </Select>
+          <QueryFailedNote query={phases} what={t("what.phases")} />
         </FieldWrapper>
         <FieldWrapper label={t("field.percentComplete")} required>
           <Input
@@ -3096,10 +3271,13 @@ function ProgressDialog({
 
 export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("contractorOps");
+  const tRoot = useTranslations();
   const { can } = useAuth();
   const qc = useQueryClient();
   const [project, setProject] = useState(initialProject);
-  const [creating, setCreating] = useState(Boolean(fieldTaskId));
+  // Kept in the draft, so tapping this 挂号 again reopens the form it was in
+  // (D-259). Outside a draft (the office) this is ordinary state.
+  const [creating, setCreating] = useDraftState("open:creating", Boolean(fieldTaskId));
   const rows = useQuery({
     queryKey: ["material-outgoing", project],
     queryFn: () =>
@@ -3117,16 +3295,60 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
     }) => reviewMaterialOutgoing(id, status, note),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["material-outgoing"] }),
   });
+  /*
+   * Rejecting opens a dialog; approving and releasing do not (T-297, D-211).
+   *
+   * The reason used to be collected with `window.prompt`. Three things were
+   * wrong with that and only the first is cosmetic: it is not translatable, so
+   * a Malay-speaking clerk was asked in English; it cannot be styled or marked
+   * required, so the one field the customer insisted on looked optional; and
+   * some browsers suppress it outright on a page that has not been interacted
+   * with, in which case the reject silently did nothing.
+   *
+   * 「驳回 → 该次申请结束」 (D-211), so the reason is the last thing anybody
+   * will ever be told about why - it is worth a real form.
+   */
+  const [rejecting, setRejecting] = useState<MaterialOutgoing | null>(null);
+  // The site's return after approval, and the office's detail view (D-211,
+  // T-358). One state each rather than a mode flag: they are different
+  // people's steps and never open together.
+  const [returning, setReturning] = useState<MaterialOutgoing | null>(null);
+  const [viewing, setViewing] = useState<MaterialOutgoing | null>(null);
+  const runExport = (format: "xlsx" | "pdf") =>
+    exportMaterialOutgoing({
+      format,
+      title: t("outgoing.title"),
+      emptyLabel: t("state.empty"),
+      query: { project: project || undefined },
+      columns: [
+        { key: "reference_no", label: t("outgoing.referenceNo") },
+        { key: "material_name", label: t("field.material") },
+        { key: "quantity", label: t("field.quantity") },
+        { key: "unit", label: t("field.unit") },
+        { key: "destination", label: t("field.destination") },
+        { key: "status", label: t("field.status") },
+        { key: "submitted_by_name", label: t("outgoing.submittedBy") },
+        { key: "captured_at", label: t("outgoing.capturedAt") },
+      ],
+      // Per-unit totals at the foot of the PDF, never added across units -
+      // the same block the receipt export prints.
+      summary: {
+        groupBy: "unit",
+        title: tRoot("exportTotals.title"),
+        unitLabel: t("field.unit"),
+        quantityLabel: tRoot("exportTotals.quantity"),
+        note: tRoot("exportTotals.note"),
+      },
+    });
   const reviewRow = (
     row: MaterialOutgoing,
     status: MaterialOutgoing["status"],
   ) => {
-    const note =
-      status === "REJECTED"
-        ? (window.prompt(t("outgoing.rejectPrompt")) ?? "")
-        : "";
-    if (status === "REJECTED" && !note.trim()) return;
-    review.mutate({ id: row.id, status, note });
+    if (status === "REJECTED") {
+      setRejecting(row);
+      return;
+    }
+    review.mutate({ id: row.id, status, note: "" });
   };
   return (
     <div className="space-y-5">
@@ -3134,12 +3356,20 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
         title={t("outgoing.title")}
         subtitle={t("outgoing.subtitle")}
         action={
-          can("material_outgoing.submit") ? (
-            <Button onClick={() => setCreating(true)}>
-              <Plus />
-              {t("outgoing.add")}
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap gap-2">
+            {can("report.export") && (
+              <ExportButton
+                onExport={runExport}
+                disabled={!rows.data?.count}
+              />
+            )}
+            {can("material_outgoing.submit") ? (
+              <Button onClick={() => setCreating(true)}>
+                <Plus />
+                {t("outgoing.add")}
+              </Button>
+            ) : null}
+          </div>
         }
       />
       <ProjectFilter value={project} onChange={setProject} />
@@ -3178,34 +3408,71 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
                   </p>
                 </div>
               </div>
-              {can("material_outgoing.approve") && row.status === "PENDING" && (
-                <div className="mt-4 flex justify-end gap-2 border-t pt-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => reviewRow(row, "REJECTED")}
-                  >
-                    <RotateCcw />
-                    {t("action.reject")}
-                  </Button>
-                  <Button onClick={() => reviewRow(row, "APPROVED")}>
-                    <Check />
-                    {t("action.approve")}
-                  </Button>
-                </div>
-              )}
-              {can("material_outgoing.approve") &&
-                row.status === "APPROVED" && (
-                  <Button
-                    className="mt-4 w-full"
-                    onClick={() => reviewRow(row, "RELEASED")}
-                  >
-                    <Check />
-                    {t("action.release")}
-                  </Button>
-                )}
+              {/* Record Communication on the card itself (T-360, D-211). 「后台沟通」
+                  is a step of this flow - 申请 → 后台沟通 → 批准／驳回 - so it has to
+                  be where the application is, not in the archive queue. */}
+              <div className="mt-3 flex flex-wrap justify-end gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setViewing(row)}
+                >
+                  <Eye />
+                  {t("outgoing.viewDetail")}
+                </Button>
+                <RecordConversationButton
+                  kind="MATERIAL_OUTGOING"
+                  recordId={row.id}
+                  reference={row.reference_no}
+                />
+              </div>
+              <div className="mt-4 space-y-2 border-t pt-3 empty:hidden">
+                <OutgoingActions
+                  row={row}
+                  pending={review.isPending}
+                  onReview={(status) => reviewRow(row, status)}
+                  onReturn={() => setReturning(row)}
+                />
+              </div>
             </article>
           ))}
         </div>
+      )}
+      {returning && (
+        <ReturnProcessingDialog
+          row={returning}
+          onClose={() => setReturning(null)}
+          onSaved={() => {
+            void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
+            void qc.invalidateQueries({ queryKey: ["my-submissions"] });
+            setReturning(null);
+          }}
+        />
+      )}
+      {viewing && (
+        <OutgoingDetailDialog
+          id={viewing.id}
+          onClose={() => setViewing(null)}
+          renderActions={(current) => (
+            <OutgoingActions
+              row={current}
+              pending={review.isPending}
+              onReview={(status) => reviewRow(current, status)}
+              onReturn={() => setReturning(current)}
+            />
+          )}
+        />
+      )}
+      {rejecting && (
+        <RejectOutgoingDialog
+          row={rejecting}
+          pending={review.isPending}
+          onClose={() => setRejecting(null)}
+          onConfirm={(note) => {
+            review.mutate({ id: rejecting.id, status: "REJECTED", note });
+            setRejecting(null);
+          }}
+        />
       )}
       {creating && (
         <OutgoingDialog
@@ -3223,7 +3490,74 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
   );
 }
 
-function OutgoingDialog({
+/**
+ * What can be done to one outgoing application, for whoever is looking.
+ *
+ * One component for the phone card and the office detail's right column
+ * (C-020: 「那些按钮放在图 2 的圈起来的位置」), so the two can never offer
+ * different steps for the same state.
+ */
+export function OutgoingActions({
+  row,
+  pending,
+  onReview,
+  onReturn,
+}: {
+  row: MaterialOutgoing;
+  pending: boolean;
+  onReview: (status: MaterialOutgoing["status"]) => void;
+  onReturn: () => void;
+}) {
+  const t = useTranslations("contractorOps");
+  const { can } = useAuth();
+  return (
+    <>
+      {can("material_outgoing.approve") && row.status === "PENDING" && (
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button variant="outline" onClick={() => onReview("REJECTED")}>
+            <RotateCcw />
+            {t("action.reject")}
+          </Button>
+          <Button disabled={pending} onClick={() => onReview("APPROVED")}>
+            <Check />
+            {t("action.approve")}
+          </Button>
+        </div>
+      )}
+      {/* D-211: 批准 → 手机端现场处理及回传 → 后台最终确认. The old 【放行】
+          closed the application from the office before the site had done
+          anything; the server no longer accepts it. */}
+      {row.status === "APPROVED" &&
+        (can("material_outgoing.submit") ? (
+          <Button className="w-full" onClick={onReturn}>
+            <Camera />
+            {t("outgoing.returnProcessing")}
+          </Button>
+        ) : (
+          <p className="rounded-md border border-info/25 bg-info/5 px-3 py-2 text-sm">
+            {t("outgoing.waitingForSite")}
+          </p>
+        ))}
+      {row.status === "PROCESSED" &&
+        (can("material_outgoing.approve") ? (
+          <Button
+            className="w-full"
+            disabled={pending}
+            onClick={() => onReview("COMPLETED")}
+          >
+            <Check />
+            {t("outgoing.finalConfirm")}
+          </Button>
+        ) : (
+          <p className="rounded-md border border-info/25 bg-info/5 px-3 py-2 text-sm">
+            {t("outgoing.waitingForOffice")}
+          </p>
+        ))}
+    </>
+  );
+}
+
+export function OutgoingDialog({
   project: initialProject,
   fieldTaskId,
   onClose,
@@ -3458,5 +3792,373 @@ function OutgoingDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Why a material-outgoing application is being sent back (T-297, D-211).
+ *
+ * 「申请 → 后台沟通 → 驳回 → **该次申请结束**」 - and by D-227 a returned
+ * application is not reopened, so this sentence is the last thing anybody will
+ * ever be told about why. That is the whole reason it is a required field in a
+ * real dialog rather than the `window.prompt` this replaced.
+ */
+export function RejectOutgoingDialog({
+  row,
+  pending,
+  onClose,
+  onConfirm,
+}: {
+  row: MaterialOutgoing;
+  pending: boolean;
+  onClose: () => void;
+  onConfirm: (note: string) => void;
+}) {
+  const t = useTranslations("contractorOps");
+  const common = useTranslations("common");
+  const [note, setNote] = useState("");
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("outgoing.rejectTitle")}</DialogTitle>
+          <DialogDescription>
+            {t("outgoing.rejectHelp", { reference: row.reference_no })}
+          </DialogDescription>
+        </DialogHeader>
+        <FieldWrapper label={t("outgoing.rejectReason")} required>
+          <Textarea
+            rows={3}
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+          />
+        </FieldWrapper>
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={onClose}>
+            {common("cancel")}
+          </Button>
+          <Button
+            variant="destructive"
+            requires={[[note.trim(), t("outgoing.rejectReason")]]}
+            disabled={pending}
+            onClick={() => onConfirm(note.trim())}
+          >
+            <RotateCcw />
+            {t("action.reject")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * Why a field task is going back to the person who filled it.
+ *
+ * Shared shape with the material-outgoing rejection below, but a separate
+ * component on purpose: a returned *task* is handed back to be redone, while a
+ * returned *application* is finished (D-227). One dialog for both would tempt
+ * the next person to unify the copy, and the two sentences have to say
+ * opposite things about what happens next.
+ */
+function ReturnReasonDialog({
+  reference,
+  pending,
+  onClose,
+  onConfirm,
+}: {
+  reference: string;
+  pending: boolean;
+  onClose: () => void;
+  onConfirm: (note: string) => void;
+}) {
+  const t = useTranslations("contractorOps");
+  const common = useTranslations("common");
+  const [note, setNote] = useState("");
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("tasks.returnTitle")}</DialogTitle>
+          <DialogDescription>
+            {t("tasks.returnHelp", { reference })}
+          </DialogDescription>
+        </DialogHeader>
+        <FieldWrapper label={t("tasks.returnReason")} required>
+          <Textarea
+            rows={3}
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+          />
+        </FieldWrapper>
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={onClose}>
+            {common("cancel")}
+          </Button>
+          <Button
+            requires={[[note.trim(), t("tasks.returnReason")]]}
+            disabled={pending}
+            onClick={() => onConfirm(note.trim())}
+          >
+            <RotateCcw />
+            {t("action.return")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * The site sends back what it did with the material (D-211).
+ *
+ * 「批准 → **手机端现场处理及回传** → 后台最终确认 → 闭环」. The same capture
+ * grid as the application itself, and the same rule the server applies: field
+ * staff photograph the full set, anybody else at least one. A return with
+ * nothing attached would be a claim, and the office's final confirmation is
+ * made on what it can see.
+ */
+export function ReturnProcessingDialog({
+  row,
+  onClose,
+  onSaved,
+}: {
+  /** Only the id and the reference are read, so the phone's history row fits. */
+  row: Pick<MaterialOutgoing, "id" | "reference_no">;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("contractorOps");
+  const common = useTranslations("common");
+  const { user } = useAuth();
+  const isFieldStaff = Boolean(user?.is_field_staff);
+  const [photos, setPhotos] = useState(createEmptyFieldEvidence);
+  const [note, setNote] = useState("");
+  const [location, setLocation] = useState<LocationFix | null>(null);
+  const [error, setError] = useState("");
+  const taken = photos.filter((file): file is File => Boolean(file));
+  const save = useMutation({
+    mutationFn: () =>
+      returnMaterialOutgoingProcessing(row.id, {
+        photos: taken,
+        note: note.trim() || undefined,
+        latitude: location ? String(location.latitude) : undefined,
+        longitude: location ? String(location.longitude) : undefined,
+      }),
+    onSuccess: onSaved,
+    onError: (failure) =>
+      setError(failure instanceof ApiError ? failure.message : t("outgoing.returnFailed")),
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{t("outgoing.returnProcessing")}</DialogTitle>
+          <DialogDescription>
+            {t("outgoing.returnHelp", { reference: row.reference_no })}
+          </DialogDescription>
+        </DialogHeader>
+        <FieldWrapper label={t("outgoing.processingPhotos")} required>
+          <FieldEvidenceGrid
+            labels={[
+              t("outgoing.evidence.overview"),
+              t("outgoing.evidence.quantity"),
+              t("outgoing.evidence.vehicle"),
+              t("outgoing.evidence.loading"),
+            ]}
+            files={photos}
+            progressLabel={t("outgoing.evidence.progress", {
+              current: taken.length,
+              required: isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1,
+            })}
+            onChange={setPhotos}
+          />
+        </FieldWrapper>
+        <FieldWrapper label={t("outgoing.processingNote")} optional={common("optional")}>
+          <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
+        </FieldWrapper>
+        <LocationField
+          label={t("outgoing.processingLocation")}
+          actionLabel={t("outgoing.processingLocation")}
+          readyLabel={t("outgoing.processingLocationReady")}
+          value={location}
+          onChange={setLocation}
+        />
+        {error && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={onClose}>
+            {common("cancel")}
+          </Button>
+          <Button
+            requires={[
+              [
+                isFieldStaff ? hasRequiredFieldEvidence(photos) : taken.length > 0,
+                t("outgoing.processingPhotos"),
+              ],
+            ]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Check />}
+            {t("outgoing.sendReturn")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * One application on its own (T-358): what was applied for, what came back,
+ * and the office's own attachments - kept apart so the before and after of
+ * the same event are not mixed into one grid.
+ */
+/**
+ * One outgoing application on the shared detail shell (T-369, C-020).
+ *
+ * Photographs from all three steps in one strip, each labelled with its step;
+ * the right column says who did which step and when, then the buttons for the
+ * step the application is at; the conversation underneath.
+ */
+export function OutgoingDetailDialog({
+  id,
+  onClose,
+  renderActions,
+}: {
+  id: string;
+  onClose: () => void;
+  /** The step buttons, from whoever owns the review dialogs. */
+  renderActions?: (row: MaterialOutgoing) => React.ReactNode;
+}) {
+  const t = useTranslations("contractorOps");
+  const df = useDateFormat();
+  const { can } = useAuth();
+  const qc = useQueryClient();
+  const detail = useQuery({
+    queryKey: ["material-outgoing", "detail", id],
+    queryFn: () => getMaterialOutgoingRecord(id),
+  });
+  const [files, setFiles] = useState<File[]>([]);
+  const upload = useMutation({
+    mutationFn: () => addMaterialOutgoingPhotos(id, files),
+    onSuccess: () => {
+      setFiles([]);
+      void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
+    },
+  });
+  const row = detail.data;
+  const finished = row ? ["COMPLETED", "REJECTED", "RELEASED"].includes(row.status) : true;
+  const when = (name?: string | null, at?: string | null) =>
+    name ? `${name}${at ? ` · ${df.dateTime(at)}` : ""}` : "—";
+  return (
+    <RecordDetailDialog
+      title={row?.reference_no ?? t("outgoing.title")}
+      description={row ? `${row.material_name} · ${row.quantity} ${row.unit}` : undefined}
+      onClose={onClose}
+    >
+      {detail.isError ? (
+        <LoadFailed what={t("what.outgoingRecord")} onRetry={() => void detail.refetch()} />
+      ) : detail.isLoading || !row ? (
+        <div className="grid min-h-32 place-items-center">
+          <Loader2 className="size-7 animate-spin text-primary" />
+        </div>
+      ) : (
+        <RecordDetailShell
+          reference={row.reference_no}
+          facts={[
+            {
+              label: t("field.status"),
+              value: (
+                <StatusBadge
+                  label={t(`outgoingStatus.${row.status}`)}
+                  tone={tone(row.status)}
+                />
+              ),
+            },
+            { label: t("field.project"), value: row.project_name },
+            { label: t("field.material"), value: `${row.material_name} · ${row.quantity} ${row.unit}` },
+            { label: t("field.destination"), value: row.destination },
+            { label: t("outgoing.executor"), value: row.executor_name },
+            { label: t("field.vehiclePlate"), value: row.vehicle_plate },
+            { label: t("outgoing.capturedAt"), value: df.dateTime(row.captured_at) },
+            { label: t("field.reason"), value: row.reason, wide: true },
+            ...(row.review_note
+              ? [{ label: t("outgoing.reviewNote"), value: row.review_note, wide: true }]
+              : []),
+            ...(row.processing_note
+              ? [{ label: t("outgoing.processingNote"), value: row.processing_note, wide: true }]
+              : []),
+          ]}
+          photos={row.photos.map((shot) => {
+            const stage = t(`outgoing.stage.${shot.stage ?? "APPLICATION"}`);
+            return {
+              id: shot.id,
+              url: shot.watermarked || shot.image,
+              label: shot.caption ? `${stage} · ${shot.caption}` : stage,
+              takenAt: shot.captured_at,
+            };
+          })}
+          photoActions={
+            can("material_outgoing.approve") && !finished ? (
+              <div className="flex flex-wrap items-end gap-2 rounded-md border border-dashed p-2">
+                <FieldWrapper label={t("outgoing.uploadFiles")} required>
+                  <Input
+                    type="file"
+                    multiple
+                    accept="image/*,application/pdf"
+                    className="h-8 text-xs"
+                    onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+                  />
+                </FieldWrapper>
+                <Button
+                  size="sm"
+                  requires={[[files.length > 0, t("outgoing.uploadFiles")]]}
+                  disabled={upload.isPending}
+                  onClick={() => upload.mutate()}
+                >
+                  {upload.isPending ? <Loader2 className="animate-spin" /> : <ImagePlus />}
+                  {t("outgoing.uploadFiles")}
+                </Button>
+              </div>
+            ) : null
+          }
+          panel={
+            <section className="rounded-lg border bg-card p-3">
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("outgoing.flowTitle")}
+              </h3>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-xs">
+                <dt className="text-muted-foreground">{t("outgoing.submittedBy")}</dt>
+                <dd className="font-medium">{when(row.submitted_by_name, row.captured_at)}</dd>
+                <dt className="text-muted-foreground">{t("outgoing.approvedBy")}</dt>
+                <dd className="font-medium">{when(row.approved_by_name, row.approved_at)}</dd>
+                <dt className="text-muted-foreground">{t("outgoing.processedBy")}</dt>
+                <dd className="font-medium">{when(row.processed_by_name, row.processed_at)}</dd>
+                <dt className="text-muted-foreground">{t("outgoing.completedBy")}</dt>
+                <dd className="font-medium">{when(row.completed_by_name, row.completed_at)}</dd>
+              </dl>
+            </section>
+          }
+          actions={
+            <>
+              {renderActions?.(row)}
+              <div className="flex flex-wrap gap-2 border-t pt-2 empty:hidden">
+                <AddToPackageButton
+                  kind="MATERIAL_OUTGOING"
+                  recordId={row.id}
+                  projectId={row.project}
+                  reference={row.reference_no}
+                />
+              </div>
+            </>
+          }
+          conversation={{ kind: "MATERIAL_OUTGOING", recordId: row.id }}
+        />
+      )}
+    </RecordDetailDialog>
   );
 }

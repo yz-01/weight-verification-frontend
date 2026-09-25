@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 import {
+  FieldWrapper,
   ListHeader,
   LoadFailed,
 } from "@/components/shared/page-primitives";
@@ -83,11 +84,11 @@ function PhotoApprovalsContent() {
     <div className="flex flex-col gap-4 pb-10">
       <ListHeader
         title={t("photoApprovals.title")}
-        subtitle={t("photoApprovals.subtitle", { count: waiting.data?.count ?? 0 })}
+        subtitle={waiting.isError ? t("common.emptyValue") : t("photoApprovals.subtitle", { count: waiting.data?.count ?? 0 })}
       />
 
       {waiting.isError ? (
-        <LoadFailed onRetry={() => void waiting.refetch()} />
+        <LoadFailed what={t("photoApprovals.what")} onRetry={() => void waiting.refetch()} />
       ) : waiting.isLoading ? (
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : rows.length === 0 ? (
@@ -208,11 +209,13 @@ function PhotoApprovalsContent() {
               {t("photoApprovals.returnHelp")}
             </DialogDescription>
           </DialogHeader>
-          <Textarea
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-            placeholder={t("photoApprovals.returnPlaceholder")}
-          />
+          <FieldWrapper label={t("photoApprovals.returnReason")} required>
+            <Textarea
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder={t("photoApprovals.returnPlaceholder")}
+            />
+          </FieldWrapper>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setReturningId(""); setNote(""); clearDraft(); }}>
               {t("common.cancel")}

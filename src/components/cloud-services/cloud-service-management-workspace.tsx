@@ -19,7 +19,9 @@ import { useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
+  FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   StatusBadge,
   TypeBadge,
 } from "@/components/shared/page-primitives";
@@ -33,7 +35,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   Table,
@@ -188,13 +189,17 @@ function Overview() {
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
+      <QueryFailedNote query={summary} what={t("what.summary")} />
       <div className="grid border-y bg-card sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          ["services", summary.data?.total_services ?? 0],
-          ["active", summary.data?.active_services ?? 0],
-          ["cost", `RM ${summary.data?.current_month_usage_cost ?? "0.00"}`],
-          ["profit", `RM ${summary.data?.current_month_profit ?? "0.00"}`],
-        ].map(([key, value]) => (
+        {(summary.isError
+          ? [["services", "—"], ["active", "—"], ["cost", "—"], ["profit", "—"]]
+          : [
+              ["services", summary.data?.total_services ?? 0],
+              ["active", summary.data?.active_services ?? 0],
+              ["cost", `RM ${summary.data?.current_month_usage_cost ?? "0.00"}`],
+              ["profit", `RM ${summary.data?.current_month_profit ?? "0.00"}`],
+            ]
+        ).map(([key, value]) => (
           <div key={key} className="border-b border-r px-5 py-4">
             <p className="text-xs text-muted-foreground">
               {t(`metric.${key}`)}
@@ -274,31 +279,6 @@ function SelectField({
     >
       {children}
     </select>
-  );
-}
-
-function FormField({
-  label,
-  children,
-  className = "",
-  required = false,
-  hint,
-}: {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-  required?: boolean;
-  hint?: string;
-}) {
-  return (
-    <div className={`min-w-0 space-y-1.5 ${className}`}>
-      <Label className="text-sm font-medium">
-        {label}
-        {required && <span className="ml-1 text-destructive">*</span>}
-      </Label>
-      {children}
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-    </div>
   );
 }
 
@@ -543,7 +523,7 @@ function ServiceDialog({
         </DialogHeader>
         <div className="max-h-[68dvh] space-y-4 overflow-y-auto pr-1">
           <DialogSection title={t("formSection.basic")}>
-            <FormField label={t("field.vendor")} required>
+            <FieldWrapper label={t("field.vendor")} required>
               <SelectField
                 value={form.vendor}
                 onChange={(v) => set("vendor", v)}
@@ -556,8 +536,9 @@ function ServiceDialog({
                   </option>
                 ))}
               </SelectField>
-            </FormField>
-            <FormField label={t("field.serviceType")} required>
+              <QueryFailedNote query={vendors} what={t("what.vendors")} />
+            </FieldWrapper>
+            <FieldWrapper label={t("field.serviceType")} required>
               <SelectField
                 value={form.type}
                 onChange={(v) => set("type", v)}
@@ -569,34 +550,34 @@ function ServiceDialog({
                   </option>
                 ))}
               </SelectField>
-            </FormField>
+            </FieldWrapper>
             {form.type === "OTHER" && (
-              <FormField label={t("field.customType")} required>
+              <FieldWrapper label={t("field.customType")} required>
                 <Input
                   value={form.custom_type}
                   onChange={(e) => set("custom_type", e.target.value)}
                 />
-              </FormField>
+              </FieldWrapper>
             )}
-            <FormField label={t("field.name")} required>
+            <FieldWrapper label={t("field.name")} required>
               <Input
                 value={form.name}
                 onChange={(e) => set("name", e.target.value)}
               />
-            </FormField>
-            <FormField label={t("field.region")}>
+            </FieldWrapper>
+            <FieldWrapper label={t("field.region")}>
               <Input
                 value={form.region}
                 onChange={(e) => set("region", e.target.value)}
               />
-            </FormField>
-            <FormField label={t("field.planName")}>
+            </FieldWrapper>
+            <FieldWrapper label={t("field.planName")}>
               <Input
                 value={form.service_plan_name}
                 onChange={(e) => set("service_plan_name", e.target.value)}
               />
-            </FormField>
-            <FormField
+            </FieldWrapper>
+            <FieldWrapper
               label={t("field.description")}
               required
               className="sm:col-span-2"
@@ -605,10 +586,10 @@ function ServiceDialog({
                 value={form.description}
                 onChange={(e) => set("description", e.target.value)}
               />
-            </FormField>
+            </FieldWrapper>
           </DialogSection>
           <DialogSection title={t("formSection.contract")}>
-            <FormField label={t("field.operationMode")} required>
+            <FieldWrapper label={t("field.operationMode")} required>
               <SelectField
                 value={form.operation_mode}
                 onChange={(v) => set("operation_mode", v)}
@@ -620,8 +601,8 @@ function ServiceDialog({
                   </option>
                 ))}
               </SelectField>
-            </FormField>
-            <FormField label={t("field.pricingModel")} required>
+            </FieldWrapper>
+            <FieldWrapper label={t("field.pricingModel")} required>
               <SelectField
                 value={form.pricing_model}
                 onChange={(v) => set("pricing_model", v)}
@@ -633,15 +614,15 @@ function ServiceDialog({
                   </option>
                 ))}
               </SelectField>
-            </FormField>
-            <FormField label={t("field.subscriptionStart")} required>
+            </FieldWrapper>
+            <FieldWrapper label={t("field.subscriptionStart")} required>
               <Input
                 type="date"
                 value={form.subscription_start}
                 onChange={(e) => set("subscription_start", e.target.value)}
               />
-            </FormField>
-            <FormField
+            </FieldWrapper>
+            <FieldWrapper
               label={t("field.subscriptionEnd")}
               hint={t("field.optionalHint")}
             >
@@ -650,8 +631,8 @@ function ServiceDialog({
                 value={form.subscription_end}
                 onChange={(e) => set("subscription_end", e.target.value)}
               />
-            </FormField>
-            <FormField
+            </FieldWrapper>
+            <FieldWrapper
               label={t("field.baseCost")}
               hint={t("field.currencyHint")}
             >
@@ -662,14 +643,14 @@ function ServiceDialog({
                 value={form.base_cost}
                 onChange={(e) => set("base_cost", e.target.value)}
               />
-            </FormField>
-            <FormField label={t("field.usageUnit")}>
+            </FieldWrapper>
+            <FieldWrapper label={t("field.usageUnit")}>
               <Input
                 value={form.usage_unit}
                 onChange={(e) => set("usage_unit", e.target.value)}
               />
-            </FormField>
-            <FormField
+            </FieldWrapper>
+            <FieldWrapper
               label={t("field.unitCost")}
               hint={t("field.currencyHint")}
             >
@@ -680,16 +661,16 @@ function ServiceDialog({
                 value={form.cost_per_unit}
                 onChange={(e) => set("cost_per_unit", e.target.value)}
               />
-            </FormField>
-            <FormField label={t("field.quota")}>
+            </FieldWrapper>
+            <FieldWrapper label={t("field.quota")}>
               <Input
                 type="number"
                 min="0"
                 value={form.monthly_quota}
                 onChange={(e) => set("monthly_quota", e.target.value)}
               />
-            </FormField>
-            <FormField
+            </FieldWrapper>
+            <FieldWrapper
               label={t("field.alertPercent")}
               hint={t("field.percentHint")}
             >
@@ -700,13 +681,13 @@ function ServiceDialog({
                 value={form.alert_threshold}
                 onChange={(e) => set("alert_threshold", e.target.value)}
               />
-            </FormField>
-            <FormField label={t("field.notes")} className="sm:col-span-2">
+            </FieldWrapper>
+            <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
               <Textarea
                 value={form.notes}
                 onChange={(e) => set("notes", e.target.value)}
               />
-            </FormField>
+            </FieldWrapper>
           </DialogSection>
           <SaveError error={save.error} />
         </div>
@@ -759,7 +740,7 @@ function ServiceStatusDialog({
           <DialogTitle>{t("action.status")}</DialogTitle>
           <DialogDescription>{row.service_code}</DialogDescription>
         </DialogHeader>
-        <FormField label={t("field.status")} required>
+        <FieldWrapper label={t("field.status")} required>
           <SelectField
             value={status}
             onChange={(v) => setStatus(v as ServiceStatus)}
@@ -771,13 +752,13 @@ function ServiceStatusDialog({
               </option>
             ))}
           </SelectField>
-        </FormField>
-        <FormField label={t("field.reason")}>
+        </FieldWrapper>
+        <FieldWrapper label={t("field.reason")}>
           <Textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
-        </FormField>
+        </FieldWrapper>
         <SaveError error={save.error} />
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -947,47 +928,47 @@ function VendorDialog({
           <DialogDescription>{t("dialog.vendor")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField label={t("field.code")} required>
+          <FieldWrapper label={t("field.code")} required>
             <Input
               disabled={Boolean(row)}
               value={form.code}
               onChange={(e) => set("code", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.name")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.name")} required>
             <Input
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.email")}>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.email")}>
             <Input
               type="email"
               value={form.contact_email}
               onChange={(e) => set("contact_email", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.account")}>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.account")}>
             <Input
               value={form.account_id}
               onChange={(e) => set("account_id", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.supportUrl")}>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.supportUrl")}>
             <Input
               type="url"
               value={form.support_url}
               onChange={(e) => set("support_url", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.portalUrl")}>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.portalUrl")}>
             <Input
               type="url"
               value={form.portal_url}
               onChange={(e) => set("portal_url", e.target.value)}
             />
-          </FormField>
-          <FormField
+          </FieldWrapper>
+          <FieldWrapper
             label={t("field.apiKey")}
             hint={row ? t("field.secretEditHint") : undefined}
           >
@@ -996,7 +977,7 @@ function VendorDialog({
               value={form.api_key}
               onChange={(e) => set("api_key", e.target.value)}
             />
-          </FormField>
+          </FieldWrapper>
           <label className="flex min-h-10 items-center gap-2 self-end rounded-md border bg-muted/15 px-3">
             <Switch
               checked={form.is_active}
@@ -1004,18 +985,18 @@ function VendorDialog({
             />
             {t("status.active")}
           </label>
-          <FormField label={t("field.description")}>
+          <FieldWrapper label={t("field.description")}>
             <Textarea
               value={form.description}
               onChange={(e) => set("description", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.notes")}>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.notes")}>
             <Textarea
               value={form.notes}
               onChange={(e) => set("notes", e.target.value)}
             />
-          </FormField>
+          </FieldWrapper>
           <SaveError error={save.error} />
         </div>
         <DialogFooter>
@@ -1199,20 +1180,20 @@ function PlanDialog({
         </DialogHeader>
         <div className="max-h-[68dvh] space-y-4 overflow-y-auto pr-1">
           <DialogSection title={t("formSection.basic")}>
-            <FormField label={t("field.code")} required>
+            <FieldWrapper label={t("field.code")} required>
               <Input
                 disabled={Boolean(row)}
                 value={form.plan_code}
                 onChange={(e) => set("plan_code", e.target.value)}
               />
-            </FormField>
-            <FormField label={t("field.name")} required>
+            </FieldWrapper>
+            <FieldWrapper label={t("field.name")} required>
               <Input
                 value={form.name}
                 onChange={(e) => set("name", e.target.value)}
               />
-            </FormField>
-            <FormField
+            </FieldWrapper>
+            <FieldWrapper
               label={t("field.monthlyFee")}
               hint={t("field.currencyHint")}
             >
@@ -1223,7 +1204,7 @@ function PlanDialog({
                 value={form.monthly_fee}
                 onChange={(e) => set("monthly_fee", e.target.value)}
               />
-            </FormField>
+            </FieldWrapper>
             <label className="flex min-h-10 items-center gap-2 self-end rounded-md border bg-background px-3">
               <Switch
                 checked={form.is_active}
@@ -1231,16 +1212,16 @@ function PlanDialog({
               />
               {t("status.active")}
             </label>
-            <FormField label={t("field.description")} className="sm:col-span-2">
+            <FieldWrapper label={t("field.description")} className="sm:col-span-2">
               <Textarea
                 value={form.description}
                 onChange={(e) => set("description", e.target.value)}
               />
-            </FormField>
+            </FieldWrapper>
           </DialogSection>
           <DialogSection title={t("formSection.storageQuota")}>
             {["storage_gb", "video_storage_gb", "database_gb"].map((k) => (
-              <FormField
+              <FieldWrapper
                 key={k}
                 label={t(`field.${k}`)}
                 hint={t("field.gbHint")}
@@ -1251,7 +1232,7 @@ function PlanDialog({
                   value={form[k as keyof typeof form] as string}
                   onChange={(e) => set(k as keyof typeof form, e.target.value)}
                 />
-              </FormField>
+              </FieldWrapper>
             ))}
           </DialogSection>
           <DialogSection title={t("formSection.serviceQuota")}>
@@ -1263,7 +1244,7 @@ function PlanDialog({
               "push_notification_count",
               "map_api_calls",
             ].map((k) => (
-              <FormField
+              <FieldWrapper
                 key={k}
                 label={t(`field.${k}`)}
                 hint={t("field.monthlyQuotaHint")}
@@ -1274,7 +1255,7 @@ function PlanDialog({
                   value={form[k as keyof typeof form] as string}
                   onChange={(e) => set(k as keyof typeof form, e.target.value)}
                 />
-              </FormField>
+              </FieldWrapper>
             ))}
           </DialogSection>
           <SaveError error={save.error} />
@@ -1286,7 +1267,7 @@ function PlanDialog({
           <Button
             requires={[
               [form.plan_code, t("field.code")],
-              [form.name, t("field.planName")],
+              [form.name, t("field.name")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
@@ -1443,7 +1424,7 @@ function UsageDialog({
           <DialogDescription>{t("dialog.usage")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
+          <FieldWrapper
             label={t("field.service")}
             required
             className="sm:col-span-2"
@@ -1460,8 +1441,9 @@ function UsageDialog({
                 </option>
               ))}
             </SelectField>
-          </FormField>
-          <FormField label={t("field.company")}>
+            <QueryFailedNote query={services} what={t("what.services")} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.company")}>
             <SelectField
               value={form.company_id}
               onChange={(v) => set("company_id", v)}
@@ -1474,8 +1456,9 @@ function UsageDialog({
                 </option>
               ))}
             </SelectField>
-          </FormField>
-          <FormField label={t("field.project")}>
+            <QueryFailedNote query={options} what={t("what.companiesProjects")} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.project")}>
             <SelectField
               value={form.project_id}
               onChange={(v) => set("project_id", v)}
@@ -1491,15 +1474,15 @@ function UsageDialog({
                   </option>
                 ))}
             </SelectField>
-          </FormField>
-          <FormField label={t("field.usageDate")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.usageDate")} required>
             <Input
               type="date"
               value={form.usage_date}
               onChange={(e) => set("usage_date", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.sourceMode")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.sourceMode")} required>
             <SelectField
               value={form.source_mode}
               onChange={(v) => set("source_mode", v)}
@@ -1511,8 +1494,8 @@ function UsageDialog({
                 </option>
               ))}
             </SelectField>
-          </FormField>
-          <FormField label={t("field.usageAmount")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.usageAmount")} required>
             <Input
               type="number"
               min="0"
@@ -1520,19 +1503,19 @@ function UsageDialog({
               value={form.usage_amount}
               onChange={(e) => set("usage_amount", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.usageUnit")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.usageUnit")} required>
             <Input
               value={form.usage_unit}
               onChange={(e) => set("usage_unit", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.notes")} className="sm:col-span-2">
+          </FieldWrapper>
+          <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
             <Textarea
               value={form.notes}
               onChange={(e) => set("notes", e.target.value)}
             />
-          </FormField>
+          </FieldWrapper>
           <SaveError error={save.error} />
         </div>
         <DialogFooter>
@@ -1726,7 +1709,7 @@ function BudgetDialog({
           <DialogDescription>{t("dialog.budget")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField label={t("field.company")}>
+          <FieldWrapper label={t("field.company")}>
             <SelectField
               value={form.company}
               onChange={(v) => set("company", v)}
@@ -1739,8 +1722,9 @@ function BudgetDialog({
                 </option>
               ))}
             </SelectField>
-          </FormField>
-          <FormField label={t("field.project")}>
+            <QueryFailedNote query={options} what={t("what.companiesProjects")} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.project")}>
             <SelectField
               value={form.project}
               onChange={(v) => set("project", v)}
@@ -1756,16 +1740,16 @@ function BudgetDialog({
                   </option>
                 ))}
             </SelectField>
-          </FormField>
-          <FormField label={t("field.year")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.year")} required>
             <Input
               type="number"
               min="2020"
               value={form.year}
               onChange={(e) => set("year", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.month")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.month")} required>
             <Input
               type="number"
               min="1"
@@ -1773,8 +1757,8 @@ function BudgetDialog({
               value={form.month}
               onChange={(e) => set("month", e.target.value)}
             />
-          </FormField>
-          <FormField
+          </FieldWrapper>
+          <FieldWrapper
             label={t("field.budget")}
             required
             hint={t("field.currencyHint")}
@@ -1786,8 +1770,8 @@ function BudgetDialog({
               value={form.amount}
               onChange={(e) => set("amount", e.target.value)}
             />
-          </FormField>
-          <FormField
+          </FieldWrapper>
+          <FieldWrapper
             label={t("field.alertPercent")}
             hint={t("field.percentHint")}
           >
@@ -1798,7 +1782,7 @@ function BudgetDialog({
               value={form.alert_threshold_percent}
               onChange={(e) => set("alert_threshold_percent", e.target.value)}
             />
-          </FormField>
+          </FieldWrapper>
           <label className="flex min-h-10 items-center gap-2 rounded-md border bg-muted/15 px-3">
             <Switch
               checked={form.is_active}
@@ -1806,12 +1790,12 @@ function BudgetDialog({
             />
             {t("status.active")}
           </label>
-          <FormField label={t("field.notes")} className="sm:col-span-2">
+          <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
             <Textarea
               value={form.notes}
               onChange={(e) => set("notes", e.target.value)}
             />
-          </FormField>
+          </FieldWrapper>
           <SaveError error={save.error} />
         </div>
         <DialogFooter>
@@ -1992,20 +1976,20 @@ function PricingDialog({
           <DialogDescription>{t("dialog.rule")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField label={t("field.code")} required>
+          <FieldWrapper label={t("field.code")} required>
             <Input
               disabled={Boolean(row)}
               value={form.rule_code}
               onChange={(e) => set("rule_code", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.name")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.name")} required>
             <Input
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.serviceType")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.serviceType")} required>
             <SelectField
               value={form.service_type}
               onChange={(v) => set("service_type", v)}
@@ -2017,8 +2001,8 @@ function PricingDialog({
                 </option>
               ))}
             </SelectField>
-          </FormField>
-          <FormField label={t("field.pricingModel")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.pricingModel")} required>
             <SelectField
               value={form.pricing_model}
               onChange={(v) => set("pricing_model", v)}
@@ -2030,8 +2014,8 @@ function PricingDialog({
                 </option>
               ))}
             </SelectField>
-          </FormField>
-          <FormField label={t("field.baseFee")} hint={t("field.currencyHint")}>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.baseFee")} hint={t("field.currencyHint")}>
             <Input
               type="number"
               min="0"
@@ -2039,8 +2023,8 @@ function PricingDialog({
               value={form.base_fee}
               onChange={(e) => set("base_fee", e.target.value)}
             />
-          </FormField>
-          <FormField
+          </FieldWrapper>
+          <FieldWrapper
             label={t("field.unitPrice")}
             hint={t("field.currencyHint")}
           >
@@ -2051,21 +2035,21 @@ function PricingDialog({
               value={form.unit_price}
               onChange={(e) => set("unit_price", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.usageUnit")}>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.usageUnit")}>
             <Input
               value={form.usage_unit}
               onChange={(e) => set("usage_unit", e.target.value)}
             />
-          </FormField>
-          <FormField label={t("field.effectiveFrom")} required>
+          </FieldWrapper>
+          <FieldWrapper label={t("field.effectiveFrom")} required>
             <Input
               type="date"
               value={form.effective_from}
               onChange={(e) => set("effective_from", e.target.value)}
             />
-          </FormField>
-          <FormField
+          </FieldWrapper>
+          <FieldWrapper
             label={t("field.effectiveTo")}
             hint={t("field.optionalHint")}
           >
@@ -2074,7 +2058,7 @@ function PricingDialog({
               value={form.effective_to}
               onChange={(e) => set("effective_to", e.target.value)}
             />
-          </FormField>
+          </FieldWrapper>
           <label className="flex min-h-10 items-center gap-2 self-end rounded-md border bg-muted/15 px-3">
             <Switch
               checked={form.is_active}
@@ -2082,14 +2066,14 @@ function PricingDialog({
             />
             {t("status.active")}
           </label>
-          <FormField label={t("field.description")}>
+          <FieldWrapper label={t("field.description")}>
             <Textarea
               value={form.description}
               onChange={(e) => set("description", e.target.value)}
             />
-          </FormField>
+          </FieldWrapper>
           <AdvancedTechnicalSettings>
-            <FormField label={t("field.tiersJson")} hint={t("field.jsonHint")}>
+            <FieldWrapper label={t("field.tiersJson")} hint={t("field.jsonHint")}>
               <Textarea
                 className="font-mono text-xs"
                 value={form.tiers}
@@ -2098,8 +2082,8 @@ function PricingDialog({
                   setJsonError("");
                 }}
               />
-            </FormField>
-            <FormField label={t("field.calculationConfig")} hint={t("field.jsonHint")}>
+            </FieldWrapper>
+            <FieldWrapper label={t("field.calculationConfig")} hint={t("field.jsonHint")}>
               <Textarea
                 className="font-mono text-xs"
                 value={form.calculation_config}
@@ -2108,7 +2092,7 @@ function PricingDialog({
                   setJsonError("");
                 }}
               />
-            </FormField>
+            </FieldWrapper>
             {jsonError && <p className="text-xs text-destructive sm:col-span-2">{jsonError}</p>}
           </AdvancedTechnicalSettings>
           <SaveError error={save.error} />
@@ -2255,22 +2239,22 @@ function AnalysisPanel() {
   return (
     <Panel loading={rows.isLoading} error={rows.isError}>
       <div className="flex flex-wrap gap-3 border-b bg-muted/20 px-4 py-3">
-        <FormField label={t("field.dateFrom")}>
+        <FieldWrapper label={t("field.dateFrom")}>
           <Input
             className="w-44 bg-background"
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
           />
-        </FormField>
-        <FormField label={t("field.dateTo")}>
+        </FieldWrapper>
+        <FieldWrapper label={t("field.dateTo")}>
           <Input
             className="w-44 bg-background"
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
           />
-        </FormField>
+        </FieldWrapper>
       </div>
       <div className="grid border-b sm:grid-cols-4">
         {[
@@ -2390,22 +2374,22 @@ function ReportPanel() {
   return (
     <Panel loading={false} error={false}>
       <div className="flex flex-wrap gap-3 border-b bg-muted/20 px-4 py-3">
-        <FormField label={t("field.dateFrom")}>
+        <FieldWrapper label={t("field.dateFrom")}>
           <Input
             className="w-44 bg-background"
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
           />
-        </FormField>
-        <FormField label={t("field.dateTo")}>
+        </FieldWrapper>
+        <FieldWrapper label={t("field.dateTo")}>
           <Input
             className="w-44 bg-background"
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
           />
-        </FormField>
+        </FieldWrapper>
       </div>
       <div className="grid md:grid-cols-2 xl:grid-cols-3">
         {Object.keys(REPORTS).map((dataset) => (

@@ -145,7 +145,7 @@ export function DriverDashboard() {
         </div>
         {notifications.length === 0 ? (
           <p className="rounded-lg border border-dashed px-4 py-7 text-center text-sm text-muted-foreground">
-            {t("notifications.noUnread")}
+            {t("notifications.nothingOutstanding")}
           </p>
         ) : (
           <div className="divide-y rounded-lg border bg-card">

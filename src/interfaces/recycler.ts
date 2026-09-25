@@ -206,7 +206,16 @@ export const TASK_TRANSITIONS: Record<TaskState, TaskState[]> = {
 
 export interface TaskPhoto {
   id: string;
-  kind: "ARRIVAL" | "LOADING" | "LOADED" | "PLATE" | "ISSUE" | "OTHER";
+  // GATEPASS was missing here while the backend has had it since D-110, so
+  // the gate-pass photograph typed as an error everywhere it was read.
+  kind:
+    | "ARRIVAL"
+    | "LOADING"
+    | "LOADED"
+    | "GATEPASS"
+    | "PLATE"
+    | "ISSUE"
+    | "OTHER";
   image: string;
   watermarked?: string | null;
   client_event_id: string;
@@ -214,6 +223,7 @@ export interface TaskPhoto {
   latitude: string | null;
   longitude: string | null;
   taken_at: string | null;
+  /** Added after the trip had already ended (D-239). Shown on the photo. */
   created_at: string;
 }
 
@@ -419,6 +429,8 @@ export interface DriverTaskPayload {
   driver: string;
   scheduled_for?: string | null;
   notes?: string;
+  /** Replay key: the same press sent twice answers with the same trip. */
+  client_event_id?: string;
 }
 
 export type WeighDirection = "GROSS" | "TARE";

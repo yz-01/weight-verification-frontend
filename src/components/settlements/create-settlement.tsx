@@ -13,6 +13,7 @@ import {
   TextField,
 } from "@/components/shared/form-fields";
 import { FormSection, FormShell } from "@/components/shared/form-shell";
+import { LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
 import { ApiError } from "@/interfaces/api";
 import {
   getIncoming,
@@ -45,14 +46,14 @@ export function CreateSettlement() {
   const [notes, setNotes] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
-  const { data: loadPage } = useQuery({
+  const loads = useQuery({
     queryKey: ["incoming", "weighed"],
     queryFn: () => getIncoming({ page_size: 100, state: "WEIGHED" }),
   });
 
   // The endpoint writes nothing, and both sides are entitled to see the figure
   // before anyone commits to it.
-  const { data: quote } = useQuery({
+  const quoteQuery = useQuery({
     queryKey: ["settlements", "quote", dispatch, unitPrice],
     queryFn: () => getSettlementQuote(dispatch, unitPrice || undefined),
     enabled: Boolean(dispatch),
@@ -67,6 +68,7 @@ export function CreateSettlement() {
     },
   });
 
+  const quote = quoteQuery.data;
   const openDeductions = quote?.open_deductions ?? 0;
   const hasWeighing = quote?.net_weight_kg !== null;
 
@@ -102,21 +104,24 @@ export function CreateSettlement() {
       onSubmit={submit}
     >
       <FormSection title={t("settlements.section.load")}>
-        <SelectField
-          field={{
-            name: "dispatch",
-            state: { value: dispatch, meta: { errors: [] } },
-            handleChange: setDispatch,
-            handleBlur: () => undefined,
-          }}
-          label={t("settlements.field.dispatchNo")}
-          required
-          hint={t("settlements.issue.loadHint")}
-          options={(loadPage?.results ?? []).map((load) => ({
-            value: load.id,
-            label: `${load.dispatch_no} — ${load.project_name}`,
-          }))}
-        />
+        <div className="space-y-1">
+          <SelectField
+            field={{
+              name: "dispatch",
+              state: { value: dispatch, meta: { errors: [] } },
+              handleChange: setDispatch,
+              handleBlur: () => undefined,
+            }}
+            label={t("settlements.field.dispatchNo")}
+            required
+            hint={t("settlements.issue.loadHint")}
+            options={(loads.data?.results ?? []).map((load) => ({
+              value: load.id,
+              label: `${load.dispatch_no} — ${load.project_name}`,
+            }))}
+          />
+          <QueryFailedNote query={loads} what={t("settlements.what.weighedLoads")} />
+        </div>
 
         <TextField
           field={{
@@ -150,6 +155,12 @@ export function CreateSettlement() {
             <Info className="mt-0.5 h-4 w-4 shrink-0" />
             {t("settlements.issue.pickLoad")}
           </p>
+        ) : quoteQuery.isError ? (
+          <LoadFailed
+            className="md:col-span-2"
+            what={t("settlements.what.quote")}
+            onRetry={() => quoteQuery.refetch()}
+          />
         ) : (
           <div className="space-y-1 rounded-xl border bg-card px-5 py-4 md:col-span-2">
             <WorkingRow

@@ -6,12 +6,10 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
-import {
-  CategoryDialog,
-  ProjectFilter,
-} from "@/components/contractor-ops/operations-workspaces";
+import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -243,6 +241,7 @@ const MODULES: Module[] = [
 
 export function CategoryManagement() {
   const t = useTranslations("categoryManagement");
+  const ops = useTranslations("contractorOps");
   const { can } = useAuth();
   const [selected, setSelected] = useState(MODULES[0].key);
   const [project, setProject] = useState("");
@@ -290,7 +289,18 @@ export function CategoryManagement() {
   return (
     <div className="space-y-5">
       <ListHeader title={t("title")} subtitle={t("subtitle")} />
-      <ProjectFilter value={project} onChange={setProject} />
+      {/* The project filter, and for a project-scoped module the project a new
+          column is created in - so it wears the star the create button asks for. */}
+      <FieldWrapper label={ops("field.project")} required={needsProject} className="rounded-lg border bg-card px-3 py-2 shadow-sm">
+        <ProjectPicker
+          value={project}
+          onValueChange={(next) => setProject(next === "all" ? "" : next)}
+          placeholder={ops("field.selectProject")}
+          allowAll
+          allLabel={ops("field.allProjects")}
+          className="w-full sm:w-72"
+        />
+      </FieldWrapper>
       <div className="grid gap-4 lg:grid-cols-[14rem_1fr]">
         {/* The left-hand module list the customer asked for. A list of
             buttons rather than links: the table beside it is the page, so
@@ -338,7 +348,7 @@ export function CategoryManagement() {
               <Button
                 size="sm"
                 className="ml-auto"
-                requires={[[project, t("chooseProject")]]}
+                requires={[[project, ops("field.project")]]}
                 onClick={() => setCreating(true)}
               >
                 <Plus />
@@ -395,7 +405,7 @@ export function CategoryManagement() {
                 <Button
                   size="sm"
                   className="mt-3"
-                  requires={[[project, t("chooseProject")]]}
+                  requires={[[project, ops("field.project")]]}
                   onClick={() => setCreating(true)}
                 >
                   <Plus />
@@ -473,6 +483,7 @@ export function CategoryManagement() {
           defaultKind={active.columnKind}
           row={null}
           categories={editable.data?.results ?? []}
+          parentOptions={{ isError: editable.isError, refetch: editable.refetch }}
           onClose={() => setCreating(false)}
           onSaved={() => {
             setCreating(false);

@@ -8,12 +8,11 @@ import { useState } from "react";
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -327,22 +326,19 @@ function NewClaimDialog({
         {/* The project cannot move afterwards: a claim is what one site is
             asking for, and the records on it come from that site's columns.
             Said here rather than discovered when a tick is refused. */}
-        <div className="space-y-1.5">
-          <Label>{t("field.project")}</Label>
+        <FieldWrapper label={t("field.project")} required hint={t("projectLocked")}>
           <ProjectPicker
             value={project}
             onValueChange={setProject}
             placeholder={t("field.selectProject")}
           />
-          <p className="text-xs text-muted-foreground">{t("projectLocked")}</p>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="claim-kind">{t("field.kind")}</Label>
+        </FieldWrapper>
+        <FieldWrapper label={t("field.kind")} required hint={t(`kindHelp.${kind}`)}>
           <Select
             value={kind}
             onValueChange={(next) => setKind(next as ClaimKind)}
           >
-            <SelectTrigger id="claim-kind" className="w-full">
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -353,22 +349,17 @@ function NewClaimDialog({
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">
-            {t(`kindHelp.${kind}`)}
-          </p>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="claim-period">{t("field.period")}</Label>
+        </FieldWrapper>
+        <FieldWrapper label={t("field.period")} required>
           {/* A month, not a date range: the number on the claim is
               `CLM-<site>-<YYMM>-<NN>`, and a range would be two different
               answers to "which period is this". */}
           <Input
-            id="claim-period"
             type="month"
             value={period}
             onChange={(event) => setPeriod(event.target.value)}
           />
-        </div>
+        </FieldWrapper>
       </div>
       <footer className="flex justify-end gap-2 border-t p-4">
         <Button variant="outline" onClick={onClose}>
@@ -792,7 +783,9 @@ function Count({ label, value }: { label: string; value?: number }) {
   return (
     <div className="rounded-lg border bg-card p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-0.5 text-lg font-semibold tabular-nums">{value ?? 0}</p>
+      {/* A dash until the counts arrive, and if they never do: a failed
+          request must not read as zero records. */}
+      <p className="mt-0.5 text-lg font-semibold tabular-nums">{value ?? "—"}</p>
     </div>
   );
 }
@@ -822,16 +815,13 @@ function ConfirmClaimDialog({
         <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-sm text-muted-foreground">
           {t("confirmBody", { count: claim.items.length })}
         </p>
-        <div className="space-y-1.5">
-          <Label htmlFor="claim-remarks">{t("field.remarks")}</Label>
+        <FieldWrapper label={t("field.remarks")} required hint={t("remarksHelp")}>
           <Textarea
-            id="claim-remarks"
             rows={3}
             value={remarks}
             onChange={(event) => setRemarks(event.target.value)}
           />
-          <p className="text-xs text-muted-foreground">{t("remarksHelp")}</p>
-        </div>
+        </FieldWrapper>
         {/* 客户红笔：「进入 PDF 后可以选择…（不需要照片）只有必要和 DO」. The
             delivery orders are never offered as a choice - they are what the
             claim is made of. */}
@@ -891,13 +881,12 @@ function PaymentDialog({
   return (
     <Shell title={t("paymentTitle")} onClose={onClose}>
       <div className="space-y-4 p-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="claim-payment">{t("column.payment")}</Label>
+        <FieldWrapper label={t("column.payment")} required>
           <Select
             value={state}
             onValueChange={(next) => setState(next as ClaimPaymentState)}
           >
-            <SelectTrigger id="claim-payment" className="w-full">
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -908,21 +897,16 @@ function PaymentDialog({
               ))}
             </SelectContent>
           </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="claim-payment-note">{t("field.paymentNote")}</Label>
+        </FieldWrapper>
+        {/* "Partly" is not a number: without this the row says money came
+            and nothing about how much, which reads as settled. */}
+        <FieldWrapper label={t("field.paymentNote")} required={state === "PARTIAL"} hint={t("paymentNoteHelp")}>
           <Textarea
-            id="claim-payment-note"
             rows={3}
             value={note}
             onChange={(event) => setNote(event.target.value)}
           />
-          {/* "Partly" is not a number: without this the row says money came
-              and nothing about how much, which reads as settled. */}
-          <p className="text-xs text-muted-foreground">
-            {t("paymentNoteHelp")}
-          </p>
-        </div>
+        </FieldWrapper>
       </div>
       <footer className="flex justify-end gap-2 border-t p-4">
         <Button variant="outline" onClick={onClose}>

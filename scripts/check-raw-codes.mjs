@@ -59,17 +59,8 @@ const ALLOWED = new Map([
     "src/components/sites/sites.tsx:109",
     "Site.state is free text - the Malaysian state in the address.",
   ],
-  [
-    "src/components/notifications/admin-notification-workspace.tsx:269",
-    "T-176: Notification.kind is an open CharField, not a closed enum - " +
-      "`geofence.enter`, `safety.incident_reported`, and more added per " +
-      "feature. Cataloguing it needs a decision about who owns the list, " +
-      "so it is carried rather than guessed at.",
-  ],
-  [
-    "src/components/notifications/admin-notification-workspace.tsx:369",
-    "T-176: as above.",
-  ],
+  // T-176 closed: the kind is named by the backend catalogue (D-261) and
+  // shown as `kind_label`, so the two notification lines are off this list.
 ]);
 
 function offencesIn(line) {

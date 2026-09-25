@@ -30,6 +30,7 @@ import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technica
 import {
   FieldWrapper,
   ListHeader,
+  QueryFailedNote,
   ReadField,
   StatusBadge,
   TypeBadge,
@@ -80,6 +81,7 @@ import {
   getApproval,
   getApprovalHistory,
   getApprovals,
+  getWorkflowTemplates,
   updateApproval,
 } from "@/services/document-workflow.service";
 import { getRoles, getUsers } from "@/services/users.service";
@@ -460,6 +462,7 @@ export function Approvals() {
           reviewers={eligibleReviewers}
           showProject={can("project.view")}
           showReviewer={can("user.view") && can("role.view")}
+          showWorkflow={can("workflow.view")}
           currentUserId={user?.id ?? ""}
           onClose={() => setEditing(null)}
           onDone={refresh}
@@ -504,6 +507,7 @@ function ApprovalEditorDialog({
   reviewers,
   showProject,
   showReviewer,
+  showWorkflow,
   currentUserId,
   onClose,
   onDone,
@@ -513,6 +517,7 @@ function ApprovalEditorDialog({
   reviewers: UserRow[];
   showProject: boolean;
   showReviewer: boolean;
+  showWorkflow: boolean;
   currentUserId: string;
   onClose: () => void;
   onDone: () => void;
@@ -525,6 +530,12 @@ function ApprovalEditorDialog({
   const [description, setDescription] = useState(approval?.description ?? "");
   const [project, setProject] = useState(approval?.project ?? "none");
   const [reviewer, setReviewer] = useState(approval?.assigned_to ?? "none");
+  const [workflowTemplate, setWorkflowTemplate] = useState(approval?.workflow_template ?? "auto");
+  const templates = useQuery({
+    queryKey: ["workflow-templates", "approval-options"],
+    queryFn: () => getWorkflowTemplates({ page_size: 200, sort_by: "name" }),
+    enabled: showWorkflow,
+  });
   const [metadataText, setMetadataText] = useState(
     JSON.stringify(approval?.metadata ?? {}, null, 2),
   );
@@ -556,9 +567,14 @@ function ApprovalEditorDialog({
         metadata,
         project: showProject ? (project === "none" ? null : project) : undefined,
         assigned_to: showReviewer
-          ? reviewer === "none"
+          ? reviewer === "none" || chainPicksReviewer
             ? null
             : reviewer
+          : undefined,
+        workflow_template: showWorkflow
+          ? workflowTemplate === "auto"
+            ? null
+            : workflowTemplate
           : undefined,
       };
       return approval
@@ -583,6 +599,19 @@ function ApprovalEditorDialog({
   const reviewerOptions = reviewers.filter(
     (item) => item.id !== currentUserId && item.status === "ACTIVE",
   );
+  // The API accepts an active chain of this company that is company-wide or
+  // belongs to the approval's own project (ApprovalWriteSerializer.validate).
+  const selectedProject = showProject ? (project === "none" ? null : project) : approval?.project ?? null;
+  const templateOptions = (templates.data?.results ?? []).filter(
+    (item) =>
+      item.id === workflowTemplate ||
+      (item.is_active &&
+        item.resource_type === resourceType &&
+        (item.project === null || item.project === selectedProject)),
+  );
+  const chosenTemplate = templateOptions.find((item) => item.id === workflowTemplate);
+  // A chain with steps names its own reviewers; the API refuses a hand-picked one beside it.
+  const chainPicksReviewer = Boolean(chosenTemplate && (chosenTemplate.step_count ?? 0) > 0);
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
@@ -676,7 +705,7 @@ function ApprovalEditorDialog({
               hint={t("approvals.reviewerHint")}
               className="sm:col-span-2"
             >
-              <Select value={reviewer} onValueChange={setReviewer}>
+              <Select value={chainPicksReviewer ? "none" : reviewer} onValueChange={setReviewer} disabled={chainPicksReviewer}>
                 <SelectTrigger className="w-full bg-card">
                   <SelectValue />
                 </SelectTrigger>
@@ -689,6 +718,30 @@ function ApprovalEditorDialog({
                   ))}
                 </SelectContent>
               </Select>
+            </FieldWrapper>
+          )}
+          {showWorkflow && (
+            <FieldWrapper
+              label={t("approvals.field.workflowTemplate")}
+              optional={t("common.optional")}
+              error={errors.workflow_template}
+              hint={t("approvals.workflowTemplateHint")}
+              className="sm:col-span-2"
+            >
+              <Select value={workflowTemplate} onValueChange={setWorkflowTemplate}>
+                <SelectTrigger className="w-full bg-card">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">{t("approvals.workflowTemplateAuto")}</SelectItem>
+                  {templateOptions.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.name} (v{item.version}){item.project_name ? ` · ${item.project_name}` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <QueryFailedNote query={templates} what={t("approvals.what.workflowTemplates")} />
             </FieldWrapper>
           )}
           <FieldWrapper
@@ -872,6 +925,13 @@ function ApprovalDetailBody({
 }) {
   const t = useTranslations();
   const df = useDateFormat();
+  const { can } = useAuth();
+  const templates = useQuery({
+    queryKey: ["workflow-templates", "approval-options"],
+    queryFn: () => getWorkflowTemplates({ page_size: 200, sort_by: "name" }),
+    enabled: can("workflow.view") && Boolean(approval.workflow_template),
+  });
+  const chain = templates.data?.results.find((item) => item.id === approval.workflow_template);
   return (
     <div className="space-y-6">
       {historyFailed && (
@@ -911,6 +971,25 @@ function ApprovalDetailBody({
           label={t("approvals.field.reviewer")}
           value={approval.assigned_to_name ?? t("approvals.anyReviewer")}
         />
+        {can("workflow.view") && (
+          <ReadField
+            label={t("approvals.field.workflowTemplate")}
+            value={
+              !approval.workflow_template ? (
+                t("approvals.workflowTemplateNone")
+              ) : templates.isError ? (
+                <span>
+                  {t("common.emptyValue")}
+                  <QueryFailedNote query={templates} what={t("approvals.what.workflowTemplates")} />
+                </span>
+              ) : chain ? (
+                `${chain.name} (v${chain.version})`
+              ) : (
+                t("common.emptyValue")
+              )
+            }
+          />
+        )}
         <ReadField
           label={t("approvals.field.createdAt")}
           value={df.dateTime(approval.created_at)}

@@ -9,6 +9,7 @@ import {
   DetailHeader,
   FieldWrapper,
   ListHeader,
+  LoadFailed,
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,23 @@ export function ApprovalCredentialSettings() {
       await queryClient.invalidateQueries({ queryKey: ["approval-credential"] });
     },
   });
+
+  if (credential.isError) {
+    // Without the stored credential the form cannot tell "set up" from "replace".
+    return (
+      <div className="mx-auto max-w-4xl space-y-5 pb-8">
+        <DetailHeader
+          backHref="/consultant-applications"
+          backLabel={t("applications.back")}
+        />
+        <ListHeader
+          title={t("credential.title")}
+          subtitle={t("credential.subtitle")}
+        />
+        <LoadFailed what={t("what.credential")} onRetry={() => credential.refetch()} />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl space-y-5 pb-8">

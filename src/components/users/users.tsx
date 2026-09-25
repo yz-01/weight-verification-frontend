@@ -23,7 +23,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { FieldAccessManagementDialog } from "@/components/field-staff/field-access-management";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
-import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { UserHandoverDialog } from "@/components/users/user-handover-dialog";
 import { Input } from "@/components/ui/input";
@@ -532,6 +532,7 @@ export function Users({
         />
       )}
 
+      {me?.is_platform_staff && <QueryFailedNote query={stats} what={t("users.what.stats")} />}
       {me?.is_platform_staff && (
           <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3 xl:grid-cols-6">
             {(
@@ -558,7 +559,7 @@ export function Users({
                     {t(`users.summary.${key}`)}
                   </p>
                   <p className="mt-1 text-xl font-semibold tabular-nums">
-                    {value ?? 0}
+                    {stats.isError ? "—" : value ?? 0}
                   </p>
                 </div>
               );
@@ -586,21 +587,24 @@ export function Users({
                 ),
               )}
             </select>
-            <select
-              className="h-8 rounded-md border bg-background px-2 text-sm"
-              value={list.filters.company ?? ""}
-              onChange={(event) =>
-                list.setFilter("company", event.target.value || undefined)
-              }
-              aria-label={t("users.filter.company")}
-            >
-              <option value="">{t("users.filter.allCompanies")}</option>
-              {(companies.data?.results ?? []).map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
+            <div className="space-y-1">
+              <select
+                className="h-8 w-full rounded-md border bg-background px-2 text-sm"
+                value={list.filters.company ?? ""}
+                onChange={(event) =>
+                  list.setFilter("company", event.target.value || undefined)
+                }
+                aria-label={t("users.filter.company")}
+              >
+                <option value="">{t("users.filter.allCompanies")}</option>
+                {(companies.data?.results ?? []).map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+              <QueryFailedNote query={companies} what={t("users.what.companies")} />
+            </div>
             <Input
               type="date"
               value={list.filters.created_from ?? ""}

@@ -12,7 +12,7 @@ export interface EnquiryPayload {
   source: string; company_name: string; contact_person: string;
   contact_phone: string; contact_email: string; subject: string;
   message: string; requirements?: string; assigned_to?: string | null;
-  follow_up_date?: string | null;
+  follow_up_date?: string | null; converted_to_company?: string | null;
 }
 export interface TrainingPayload {
   company: string; type: string; title: string; description: string;
@@ -24,7 +24,7 @@ export interface VisitPayload {
   company: string; type: string; visit_date: string; visit_time?: string | null;
   purpose: string; objectives: string; contact_met: string; summary?: string;
   action_items?: string; follow_up_required?: boolean; follow_up_date?: string | null;
-  notes?: string;
+  notes?: string; visit_report?: File | null;
 }
 export interface FeedbackPayload {
   company: string; category: string; title: string; description: string;
@@ -66,7 +66,26 @@ export async function createTraining(payload: TrainingPayload) { const row = awa
 export async function updateTrainingStatus(id: string, status: TrainingStatus, feedback = "") { const row = await api.post<CustomerTraining>(`/api/customer-training/${id}/update_status/`, { status, feedback }); toastSuccess("crm.toast.statusUpdated"); return row; }
 
 export const getVisits = (query?: ListQuery): Promise<Paginated<CustomerVisit>> => api.list("/api/customer-visits/get_visits/", query);
-export async function createVisit(payload: VisitPayload) { const row = await api.post<CustomerVisit>("/api/customer-visits/create_visit/", payload); toastSuccess("crm.toast.visitCreated"); return row; }
+/**
+ * Record a customer follow-up. With a report file attached the request goes as
+ * multipart (a file cannot ride in JSON); empty optional values are left out so
+ * the server stores null rather than an unparseable "".
+ */
+export async function createVisit(payload: VisitPayload) {
+  const { visit_report, ...fields } = payload;
+  let body: VisitPayload | FormData = fields;
+  if (visit_report) {
+    const form = new FormData();
+    for (const [key, value] of Object.entries(fields)) {
+      if (value !== null && value !== undefined && value !== "") form.append(key, String(value));
+    }
+    form.append("visit_report", visit_report);
+    body = form;
+  }
+  const row = await api.post<CustomerVisit>("/api/customer-visits/create_visit/", body);
+  toastSuccess("crm.toast.visitCreated");
+  return row;
+}
 
 export const getFeedback = (query?: ListQuery): Promise<Paginated<CustomerFeedback>> => api.list("/api/customer-feedback/get_feedback/", query);
 export async function createFeedback(payload: FeedbackPayload) { const row = await api.post<CustomerFeedback>("/api/customer-feedback/create_feedback/", payload); toastSuccess("crm.toast.feedbackCreated"); return row; }

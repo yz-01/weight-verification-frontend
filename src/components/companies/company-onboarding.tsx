@@ -311,9 +311,9 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
 
         {showBankForm && (
           <div className="grid gap-3 border-y py-4 md:grid-cols-2 xl:grid-cols-3">
-            <BankInput label={t("companies.onboarding.bank.bankName")} value={bank.bank_name} onChange={(value) => setBank({ ...bank, bank_name: value })} required />
-            <BankInput label={t("companies.onboarding.bank.accountName")} value={bank.account_name} onChange={(value) => setBank({ ...bank, account_name: value })} required />
-            <BankInput label={t("companies.onboarding.bank.accountNumber")} value={bank.account_number} onChange={(value) => setBank({ ...bank, account_number: value })} required={!editingBank} hint={editingBank ? t("companies.onboarding.bank.numberUnchanged", { masked: editingBank.masked_account_number }) : undefined} />
+            <FieldWrapper label={t("companies.onboarding.bank.bankName")} required><Input value={bank.bank_name} onChange={(event) => setBank({ ...bank, bank_name: event.target.value })} /></FieldWrapper>
+            <FieldWrapper label={t("companies.onboarding.bank.accountName")} required><Input value={bank.account_name} onChange={(event) => setBank({ ...bank, account_name: event.target.value })} /></FieldWrapper>
+            <FieldWrapper label={t("companies.onboarding.bank.accountNumber")} required={!editingBank} optional={editingBank ? t("common.optional") : undefined} hint={editingBank ? t("companies.onboarding.bank.numberUnchanged", { masked: editingBank.masked_account_number }) : undefined}><Input value={bank.account_number} onChange={(event) => setBank({ ...bank, account_number: event.target.value })} /></FieldWrapper>
             <BankInput label={t("companies.onboarding.bank.branch")} value={bank.branch ?? ""} onChange={(value) => setBank({ ...bank, branch: value })} />
             <BankInput label={t("companies.onboarding.bank.swiftCode")} value={bank.swift_code ?? ""} onChange={(value) => setBank({ ...bank, swift_code: value })} />
             <FieldWrapper label={t("companies.onboarding.bank.accountType")} required>
@@ -384,6 +384,7 @@ export function CompanyOnboarding({ company }: { company: CompanyDetail }) {
           reason={reason}
           onReasonChange={pending.kind.includes("reject") || pending.kind.includes("verify") || pending.kind === "approve-company" ? setReason : undefined}
           reasonRequired={pending.kind.includes("reject")}
+          reasonLabel={pending.kind.endsWith("-document") || pending.kind.endsWith("-bank") ? t("companies.onboarding.verificationNote") : undefined}
           onConfirm={() => executeAction.mutate(pending)}
         />
       )}

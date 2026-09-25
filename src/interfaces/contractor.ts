@@ -315,6 +315,14 @@ export interface MaterialReceipt {
    */
   is_seen: boolean;
   photo_count?: number;
+  /**
+   * Accepted is closed (客户开工前第 2 问：「验收了之后就算，不需要等付款对账
+   * 完成」), so this one field answers both T-293's 「不合格」 and T-295's
+   * 「已结案」 filters.
+   */
+  acceptance_status?: MaterialAcceptance;
+  /** Shown in the list itself (T-293): 「拒绝原因直接显示在列表上，不用点进去」. */
+  rejection_reason?: string;
 }
 
 /**
@@ -340,7 +348,14 @@ export interface MySubmissionRow {
     | "WASTE_OUTGOING"
     | "HAZARD"
     | "PROGRESS"
-    | "DRIVER_TRIP";
+    | "DRIVER_TRIP"
+    // Added for D-228 / T-356: what else a worker submits and must be able to
+    // find again, with its status.
+    | "MATERIAL_OUTGOING"
+    | "EQUIPMENT_MOVEMENT"
+    | "DISPOSAL_REQUEST"
+    // 杂费报销 stays here until paid (D-232).
+    | "SUNDRY_CLAIM";
   reference: string;
   detail: string;
   project_id: string | null;
@@ -388,6 +403,8 @@ export interface MySubmissionDetail extends MySubmissionRow {
   fields: MySubmissionField[];
   /** Empty rather than absent when a record carries none. */
   photos: MySubmissionPhoto[];
+  /** Sundry claims only: the payment vouchers finance uploaded (第 54、57 条). */
+  payment_proofs?: Array<{ id: string; url: string; amount: string | null; uploaded_at: string }>;
 }
 
 export interface MySubmissionsPage {
@@ -395,6 +412,13 @@ export interface MySubmissionsPage {
   count: number;
   /** True when the page shows fewer rows than exist, so the screen can say so. */
   truncated: boolean;
+  /**
+   * How many days of history the phone is allowed to show, or 0 for no limit
+   * (D-197). Sent so the footer states the company's real figure instead of a
+   * hard-coded "6 months" that a company which changed the setting would be
+   * reading as a falsehood.
+   */
+  history_window_days: number;
 }
 
 export type MaterialAcceptance = "PENDING" | "ACCEPTED" | "REJECTED";
