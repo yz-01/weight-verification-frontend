@@ -269,7 +269,12 @@ function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void })
     name ? `${name}${userId ? ` (${userId.slice(0, 8)})` : ""}${at ? ` · ${df.dateTime(at)}` : ""}` : "—";
 
   return (
-    <RecordDetailDialog title={claim.claim_no} description={`${claim.project_name} · RM ${claim.amount}`} onClose={onClose}>
+    <RecordDetailDialog
+      title={claim.claim_no}
+      description={`${claim.project_name} · RM ${claim.amount}`}
+      exportRecord={{ kind: "SUNDRY_CLAIM", recordId: claim.id, reference: claim.claim_no }}
+      onClose={onClose}
+    >
       <RecordDetailShell
         reference={claim.claim_no}
         facts={[

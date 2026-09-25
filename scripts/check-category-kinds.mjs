@@ -7,8 +7,8 @@
  * user reported them as different things kept apart, with different
  * photographs (2026-09-05, F-200).
  *
- * The bug was not a wrong filter. It was *no* filter: `material-columns.tsx`
- * asked for the categories of a project and listed whatever came back, so the
+ * The bug was not a wrong filter. It was *no* filter: the old material columns
+ * screen (retired by D-263; its lists now live on Category Management) asked for the categories of a project and listed whatever came back, so the
  * material screen showed the site-record columns as though a delivery could be
  * filed in them. Nothing errored and nothing looked wrong - the screen just
  * quietly answered a different question than its title.

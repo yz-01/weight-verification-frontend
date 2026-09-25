@@ -36,6 +36,7 @@ import { useState } from "react";
 
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -47,6 +48,7 @@ import {
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
+import type { ExportableRecordKind } from "@/services/contractor-ops.service";
 
 export interface ShellPhoto {
   id: string;
@@ -374,21 +376,43 @@ function PhotoViewer({
 export function RecordDetailDialog({
   title,
   description,
+  exportRecord,
   onClose,
   children,
 }: {
   title: string;
   description?: string;
+  /**
+   * 「单独导出」 at the top right of the header (T-386, D-267): this one
+   * record as a PDF. Every module passes its own kind, so the button is the
+   * same on all of them; `pr-8` keeps it clear of the dialog's close X.
+   */
+  exportRecord?: {
+    kind: ExportableRecordKind;
+    recordId: string | null | undefined;
+    reference: string;
+  } | null;
   onClose: () => void;
   children: React.ReactNode;
 }) {
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-5xl">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description ? (
-            <DialogDescription>{description}</DialogDescription>
+        <DialogHeader className="flex-row items-start justify-between gap-4 space-y-0 pr-8">
+          <div className="min-w-0 space-y-2">
+            <DialogTitle>{title}</DialogTitle>
+            {description ? (
+              <DialogDescription>{description}</DialogDescription>
+            ) : null}
+          </div>
+          {exportRecord ? (
+            <div className="shrink-0">
+              <RecordExportButton
+                kind={exportRecord.kind}
+                recordId={exportRecord.recordId}
+                reference={exportRecord.reference}
+              />
+            </div>
           ) : null}
         </DialogHeader>
         {children}

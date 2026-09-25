@@ -59,37 +59,39 @@ test("a site-record column can be filed under a module and moves there", async (
   expect(created.ok(), await created.text()).toBe(true);
 
   await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
-  await page.goto(`/project-categories?project=${project.id}`);
+  // Category Management edits in place (D-264); /project-categories only
+  // redirects there now.
+  await page.goto(`/category-management?project=${project.id}&module=field`);
 
-  const card = page.locator("article", { hasText: code });
-  await expect(card).toBeVisible({ timeout: 20_000 });
-  await card.getByRole("button", { name: /edit/i }).click();
+  const row = page.getByRole("row", { name: new RegExp(code) });
+  await expect(row).toBeVisible({ timeout: 20_000 });
+  await row.getByRole("button", { name: /edit/i }).click();
 
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
 
-  // Every module this vocabulary owns is offerable. Three, not the customer's
-  // seven: documents, equipment, recyclable waste and the weighted stages
-  // already have their own tables on the server, so they are managed from
-  // theirs rather than redefined here (F-338, D-126).
+  // Every module this vocabulary owns is offerable, named as Category
+  // Management names it. Documents, recyclable waste and the weighted stages
+  // have their own tables on the server, so they are not in this picker
+  // (F-338, D-126).
   // Asserted as a set rather than one option, because a missing catalogue key
   // renders as the key path - visible to nobody who is not looking for it.
   await dialog.getByRole("combobox").first().click();
   for (const label of [
-    /progress column/i,
-    /safety and hazard column/i,
-    /construction waste column/i,
+    /progress categories/i,
+    /ehs categories/i,
+    /construction waste categories/i,
   ]) {
     await expect(page.getByRole("option", { name: label })).toBeVisible();
   }
 
-  await page.getByRole("option", { name: /progress column/i }).click();
+  await page.getByRole("option", { name: /progress categories/i }).click();
   await dialog.getByRole("button", { name: /save|submit/i }).click();
   await expect(dialog).toBeHidden({ timeout: 20_000 });
 
   // The screen lists site-record columns, so a column that is now a progress
   // column has to leave it. This is the half a UI-only test would call done.
-  await expect(page.locator("article", { hasText: code })).toHaveCount(0, {
+  await expect(page.getByRole("row", { name: new RegExp(code) })).toHaveCount(0, {
     timeout: 20_000,
   });
 

@@ -20,6 +20,7 @@ import {
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { canDiscuss } from "@/lib/record-chat";
 import { useDateFormat } from "@/lib/dates";
 import type {
@@ -319,10 +320,20 @@ function RecordSheet({
               {formatter.dateTime(row.submitted_at)}
             </p>
           </div>
+          {/* 「单独导出」 (T-386), top right beside the close. A day of
+              attendance is an aggregate with no single record to print. */}
+          <div className="ml-auto flex shrink-0 items-center gap-1">
+            {row.kind !== "ATTENDANCE_DAY" && (
+              <RecordExportButton
+                kind={row.kind}
+                recordId={row.id}
+                reference={row.reference}
+              />
+            )}
+          </div>
           <Button
             size="icon"
             variant="ghost"
-            className="ml-auto"
             onClick={onClose}
             aria-label={t("common.close")}
           >

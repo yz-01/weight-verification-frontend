@@ -79,39 +79,24 @@ describe("the column schemes", () => {
     }
   });
 
-  it("sends each Category Management row to a list that can show it", () => {
+  it("gives every scheme a Category Management module that edits it in place", () => {
+    // Since D-264 there is no second column screen to send a row to: each of
+    // these kinds is a module on Category Management whose create, edit and
+    // delete open the column dialog right there. A kind with no module would
+    // be a column nobody can make - the F-372 shape again.
     const management = read(MANAGEMENT);
-    // The generic screen takes its scheme from the address (D-161). A row
-    // pointing at it without saying which kind lands on site records, which
-    // is how four of these rows opened the wrong list for months.
-    const generic = [
-      ...management.matchAll(/href: "\/project-categories([^"]*)"/g),
-    ].map((m) => m[1]);
-    expect(generic.length).toBeGreaterThan(0);
-    for (const query of generic) {
-      expect(query, "each row carries its own kind").toMatch(
-        /^\?kind=[A-Z_]+$/,
-      );
-    }
-    // And each kind it names is one the destination actually serves.
-    const served = read(WORKSPACES).match(
-      /const CATEGORY_SCREENS: Record<string, string> = \{([\s\S]*?)\};/,
-    )?.[1];
-    expect(served, "the destination declares which kinds it serves").toBeTruthy();
-    for (const query of generic) {
-      const kind = query.replace("?kind=", "");
-      expect(
-        (served as string).includes(`${kind}:`),
-        `${kind} is a scheme /project-categories serves`,
-      ).toBe(true);
+    const modules = [
+      ...management.matchAll(/columnModule\("([a-z]+)", "([A-Z_]+)"\)/g),
+    ].map((m) => m[2]);
+    for (const kind of declaredKinds()) {
+      if (kind === "BOTH") continue;
+      expect(modules, `${kind} has a module row`).toContain(kind);
     }
   });
 
-  it("keeps the equipment row pointing at the equipment list", () => {
+  it("keeps the equipment row on the equipment scheme", () => {
     // The row the customer asked about, pinned by name so a future edit that
-    // drops the parameter fails here rather than in a screenshot.
-    expect(read(MANAGEMENT)).toContain(
-      'href: "/project-categories?kind=EQUIPMENT"',
-    );
+    // points it elsewhere fails here rather than in a screenshot.
+    expect(read(MANAGEMENT)).toContain('columnModule("equipment", "EQUIPMENT")');
   });
 });

@@ -3040,9 +3040,9 @@
   },
   "archiveQueue": {
     "allModules": "Semua modul",
-    "alreadyArchived": "Sudah diarkibkan",
-    "archive": "Arkibkan untuk saya",
-    "archiveHelp": "Mengarkibkan rekod ini untuk akaun anda sahaja.",
+    "alreadyArchived": "Anda sudah lihat",
+    "archive": "Saya sudah lihat",
+    "archiveHelp": "Hanya dikeluarkan daripada senarai untuk dilihat anda sendiri. Rakan sekerja masih melihatnya, dan rekod itu sendiri tidak berubah.",
     "column": {
       "record": "Rekod",
       "module": "Modul",
@@ -3051,7 +3051,7 @@
       "status": "Status",
       "action": "Tindakan"
     },
-    "emptyArchived": "Anda belum mengarkibkan apa-apa di sini.",
+    "emptyArchived": "Anda belum menanda apa-apa sebagai sudah dilihat di sini.",
     "emptyPending": "Tiada apa-apa menunggu anda di sini.",
     "failed": "Senarai itu tidak dapat dimuatkan. Cuba lagi.",
     "firstPage": "Anda berada di halaman pertama.",
@@ -3073,16 +3073,16 @@
     "next": "Seterusnya",
     "open": "Buka",
     "pageOf": "Halaman {page} daripada {pages}",
-    "perPersonHelp": "Belum diarkibkan bermaksud anda belum membukanya. Setiap akaun mengira sendiri, jadi membuka rekod di sini tidak mengosongkan senarai rakan sekerja anda.",
+    "perPersonHelp": "Belum dilihat bermaksud anda belum menandanya. Setiap akaun ada senarai sendiri, jadi menanda rekod di sini tidak mengosongkannya daripada senarai orang lain.",
     "previous": "Sebelumnya",
     "state": {
-      "pending": "Belum diarkibkan",
-      "archived": "Diarkibkan"
+      "pending": "Belum dilihat",
+      "archived": "Sudah dilihat"
     },
     "subtitle": "Semua rekod yang selesai, menunggu anda melihatnya.",
     "title": "Semua rekod",
     "toast": {
-      "archived": "Diarkibkan untuk anda."
+      "archived": "Ditanda sebagai sudah dilihat, untuk anda sahaja."
     }
   },
   "assets": {
@@ -3912,16 +3912,17 @@
       "module": "Modul",
       "records": "Rekod",
       "status": "Status",
-      "action": "Tindakan"
+      "action": "Tindakan",
+      "archived": "Penghantaran difailkan",
+      "spend": "Belanja / bajet",
+      "tonnes": "Tan"
     },
     "create": "Lajur baharu",
-    "createElsewhere": "Cipta dalam skrinnya sendiri",
     "edit": "Sunting",
     "empty": "Belum ada kategori di sini.",
     "failed": "Kategori tidak dapat dimuatkan. Cuba lagi.",
     "inactive": "Tidak aktif",
     "loading": "Memuatkan...",
-    "manage": "Buka modul",
     "module": {
       "material": "Kategori bahan",
       "field": "Kategori rekod tapak",
@@ -3963,7 +3964,23 @@
     },
     "subtitle": "Pilih modul, kemudian lihat kategori di bawahnya.",
     "title": "Pengurusan kategori",
-    "weight": "pemberat {weight}"
+    "weight": "pemberat {weight}",
+    "removeFailed": "{name} tidak dipadam: {reason}",
+    "dialogCreate": "Lajur baharu · {module}",
+    "dialogEdit": "Sunting lajur · {module}",
+    "budget": {
+      "title": "Bajet",
+      "help": "Perbelanjaan dijumlahkan daripada pesanan penghantaran yang difailkan dalam lajur ini.",
+      "uncounted": "{count} pesanan penghantaran tiada amaun yang boleh dibaca, jadi tidak termasuk dalam jumlah ini.",
+      "tracksSpend": "Kira perbelanjaan kolum ini terhadap bajet",
+      "amount": "Bajet (RM)",
+      "amountHint": "Biarkan kosong untuk kolum yang tidak dikira terhadap bajet",
+      "alerts": "Beri amaran pada peratusan ini",
+      "alertsHint": "Dipisahkan koma, contohnya 80, 100. Menukar bajet mengira semula garis yang telah dilepasi.",
+      "alertsInvalid": "Guna nombor bulat antara 1 dan 500, dipisahkan koma.",
+      "none": "Tiada bajet ditetapkan"
+    },
+    "saveFailed": "Tidak berjaya. Cuba lagi, atau muat semula halaman."
   },
   "cloudServices": {
     "count": "{count} perkhidmatan",
@@ -4057,7 +4074,8 @@
     "themeSystem": "Ikut sistem",
     "toggleSidebar": "Tukar bar sisi",
     "unknownError": "Ada masalah. Sila cuba lagi.",
-    "view": "Lihat"
+    "view": "Lihat",
+    "exportThisRecord": "Eksport rekod ini"
   },
   "companies": {
     "owner": {
@@ -5316,7 +5334,6 @@
       "title": "Menunggu anda",
       "subtitle": "{receipts} penghantaran dan {approvals} kelulusan yang belum ada sesiapa selesaikan untuk anda",
       "help": "Ini milik anda sahaja. Membukanya memfailkannya untuk anda dan mengekalkannya dalam senarai orang lain.",
-      "openColumns": "Kolum bahan",
       "unfiled": "Belum difailkan dalam kolum"
     },
     "recordStatus": {
@@ -5374,13 +5391,8 @@
       "accessRoles": "Peranan dibenarkan",
       "accessTitle": "Siapa boleh melihat kategori ini",
       "accessUsers": "Individu dibenarkan",
-      "add": "Tambah kategori",
       "createTitle": "Kategori baharu",
-      "editPermissionHelp": "Biarkan kedua-dua senarai kosong untuk menggunakan kebenaran pengurus kategori biasa. Pentadbir syarikat kekal mempunyai akses pemulihan.",
-      "editPermissionTitle": "Siapa boleh menyunting kategori ini",
-      "editRoles": "Peranan boleh menyunting",
       "editTitle": "Sunting kategori",
-      "editUsers": "Individu boleh menyunting",
       "formHelp": "Kategori adalah khusus untuk satu projek dan boleh disusun atau disembunyikan daripada aplikasi tapak.",
       "moveDown": "Turun",
       "moveUp": "Naik",
@@ -5388,21 +5400,8 @@
       "noUsers": "Tiada ahli projek tersedia untuk dipilih.",
       "removeBody": "Kategori hanya boleh dibuang jika tiada rekod aktif masih menggunakannya.",
       "removeTitle": "Buang {name}?",
-      "reorderNeedsProject": "Pilih satu tapak untuk menyusun kategorinya. Susunan itulah yang dipaparkan aplikasi lapangan, dan ia hanya bermakna dalam satu tapak.",
-      "subtitle": "Susun rekod setiap projek dan tentukan kategori yang dapat dilihat oleh pekerja tapak.",
-      "title": "Kategori rekod tapak",
-      "uploadHelp": "Biarkan kedua-dua senarai kosong untuk membenarkan semua yang boleh melihat memuat naik. Pilihan akan mengehadkan muat naik.",
-      "uploadRoles": "Peranan boleh memuat naik",
-      "uploadTitle": "Siapa boleh memuat naik ke kategori ini",
-      "uploadUsers": "Individu boleh memuat naik",
       "kind": "Modul yang memilikinya",
-      "kindField": "Kolum rekod tapak",
-      "kindMaterial": "Kolum bahan",
       "kindBoth": "Belum dipisahkan",
-      "kindProgress": "Lajur kemajuan kerja",
-      "kindEhs": "Lajur keselamatan dan bahaya",
-      "kindEquipment": "Kolum peralatan",
-      "kindConstructionWaste": "Lajur sisa pembinaan",
       "submissionMode": "Tindakan penyerahan",
       "submissionDirect": "Hantar terus",
       "submissionReview": "Hantar untuk semakan",
@@ -5522,11 +5521,9 @@
       "name": "Nama",
       "noCategory": "Tiada kategori",
       "noEquipmentColumnYet": "Projek ini belum mempunyai lajur peralatan, dan sebuah mesin mesti difailkan dalam salah satu daripadanya.",
-      "noParent": "Tiada kategori induk",
       "noSupplier": "Tiada pembekal",
       "notes": "Catatan",
       "operator": "Pengendali",
-      "parent": "Kategori induk",
       "percentComplete": "Kemajuan sebenar (%)",
       "phase": "Fasa pembinaan",
       "photoCount": "{count} foto dipilih",
@@ -5764,7 +5761,6 @@
     "what": {
       "roles": "Senarai peranan",
       "projectPeople": "Senarai kakitangan projek ini",
-      "parentColumns": "Senarai kategori induk",
       "columns": "Senarai kategori",
       "suppliers": "Senarai pembekal",
       "equipmentSummary": "Jumlah peralatan",
@@ -7068,7 +7064,8 @@
       "version_not_found": "Versi platform itu tidak dijumpai.",
       "visit_not_found": "Lawatan pelanggan itu tidak dijumpai.",
       "weigh_sequence_invalid": "Penimbangan dua kali mesti mengikut turutan: berat kasar dahulu, berat tara kemudian.",
-      "rejection_needs_conversation": "Terangkan masalah dalam komunikasi rekod ini dahulu supaya tapak nampak sebabnya dan boleh membalas. Kemudian tolaknya."
+      "rejection_needs_conversation": "Terangkan masalah dalam komunikasi rekod ini dahulu supaya tapak nampak sebabnya dan boleh membalas. Kemudian tolaknya.",
+      "column_not_empty": "Masih ada rekod dalam ruangan ini: {records}. Pindahkan dahulu, kemudian buang ruangan itu."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7440,7 +7437,6 @@
       "noCategories": "Tiada folder Field Staff dibuka untuk projek ini.",
       "note": "Catatan ringkas (pilihan)",
       "notePlaceholder": "Masukkan hanya maklumat yang perlu diketahui oleh pejabat.",
-      "openSubcategory": "Buka subfolder",
       "photo": {
         "completion": "4. Keadaan siap atau semasa",
         "detail": "2. Butiran kerja atau isu",
@@ -8449,41 +8445,9 @@
     "REJECTED": "Ditolak"
   },
   "materialColumns": {
-    "alertHelp": "Dipisahkan koma, contohnya 80, 100. Menukar bajet mengira semula garis yang telah dilepasi.",
-    "alertInvalid": "Guna nombor bulat antara 1 dan 500, dipisahkan koma.",
-    "alertPercentages": "Beri amaran pada peratusan ini",
-    "archived": "Difailkan mengikut ruangan",
-    "archivedHelp": "Bajet ialah wang, dijumlahkan daripada pesanan penghantaran dalam ruangan ini.",
-    "budgetAmount": "Bajet (RM)",
-    "budgetNone": "Biarkan kosong untuk kolum yang tidak dikira terhadap bajet",
-    "columnsFailed": "Lajur tidak dapat dimuatkan, jadi tidak diketahui sama ada tapak ini mempunyai sebarang lajur. Cuba lagi.",
-    "columnsFailedRefile": "Lajur tidak dapat dimuatkan, jadi pemilih di atas kosong. Itu tidak bermakna tapak ini tiada lajur - jangan buat yang baharu sehingga ia dimuatkan.",
-    "edit": "Sunting kolum",
-    "editHelp": "Nama, bajet dan garis amaran sahaja. Gambar, kuantiti dan tandatangan yang difailkan di sini adalah bukti dan tidak disentuh.",
-    "editTitle": "Sunting {name}",
-    "fileInto": "Failkan ke",
-    "filed": "{count} difailkan",
-    "noBudget": "Tiada bajet ditetapkan",
-    "noColumns": "Belum ada ruangan disediakan",
-    "noMaterialColumns": "Projek ini tiada kolum bahan untuk difailkan.",
-    "pending": "Menunggu anda ({count})",
-    "pendingEmpty": "Tiada yang menunggu",
-    "pendingFailed": "Senarai penghantaran yang menunggu untuk difailkan tidak dapat dimuatkan, jadi tidak diketahui sama ada ada yang menunggu. Cuba lagi.",
-    "pendingHelp": "Ini difailkan ke dalam ruangannya setelah anda membukanya. Setiap akaun mempunyai status bacaannya sendiri.",
-    "refileConfirm": "Failkan",
-    "refileHelp": "Hanya kolum yang berubah. Gambar, kuantiti, tandatangan, masa dan tempat kekal seperti direkodkan.",
-    "refileReason": "Sebab",
-    "refileTitle": "Failkan {receipt} ke satu kolum",
-    "saveFailed": "Tidak berjaya. Cuba lagi, atau muat semula halaman.",
-    "seeAllPending": "Lihat semua {count}",
-    "subtitle": "Apa yang diterima setiap ruangan dan berapa yang dibelanjakan",
-    "title": "Ruangan bahan",
     "toast": {
       "refiled": "Penghantaran difailkan."
-    },
-    "tonnes": "{tonnes} t diterima",
-    "tracksSpend": "Kira perbelanjaan kolum ini terhadap bajet",
-    "uncounted": "Beberapa pesanan penghantaran tiada jumlah yang boleh dibaca, jadi ia tidak termasuk dalam jumlah ini."
+    }
   },
   "materialReports": {
     "cost": {
@@ -14287,15 +14251,15 @@
     "note": "Kuantiti dalam unit berbeza tidak boleh dijumlahkan, jadi setiap unit dikira berasingan dan tiada angka gabungan."
   },
   "recordClosure": {
-    "title": "Sahkan dan arkibkan",
-    "action": "Sahkan dan arkibkan",
-    "help": "Menekan ini menandakan rekod selesai dan mengarkibkannya. Tiada apa-apa disemak dahulu — keputusan adalah anda, dan nama serta masa anda direkodkan. Selepas itu rekod boleh dibaca tetapi tidak diubah; buka rekod baharu untuk apa-apa lagi.",
+    "title": "Sahkan selesai",
+    "action": "Sahkan selesai",
+    "help": "Menekan ini menandakan perkara selesai dan menguncinya untuk semua orang. Tiada semakan dibuat dahulu — keputusan anda, dan nama serta masa anda direkodkan. Rekod kekal di tempatnya, dalam modul dan ruangannya sendiri; boleh dibaca tetapi tidak boleh diubah lagi. Buat rekod baharu untuk isu seterusnya.",
     "notePlaceholder": "Nota (pilihan)",
-    "closedTitle": "Disahkan dan diarkibkan",
+    "closedTitle": "Disahkan selesai",
     "closedBy": "Disahkan oleh {name} pada {when}. Rekod ini tidak boleh diubah lagi.",
     "loading": "Menyemak…",
     "what": {
-      "state": "Status arkib rekod ini"
+      "state": "Sama ada rekod ini sudah disahkan selesai"
     }
   },
   "recordConversation": {

@@ -293,7 +293,7 @@ describe("the category module", () => {
      * with only the kinds they may read. Gating the route on the category
      * feature alone would hide a project manager's own deliveries from them
      * because of a feature flag about categories - the same silent removal
-     * `/material-columns` suffered (F-340).
+     * the old material columns screen once suffered (F-340).
      */
     expect(
       isRouteAllowed("MSE_TRACE", ["material_receipts"], "/archive-queue"),
@@ -301,25 +301,25 @@ describe("the category module", () => {
     expect(isRouteAllowed("MSE_TRACE", [], "/archive-queue")).toBe(false);
   });
 
-  it("no longer lists the material columns as an entry of their own", () => {
+  it("keeps the retired column screens out of the sidebar", () => {
     const entries = PORTAL_NAVIGATION.MSE_TRACE.flatMap((item) => [
       item.href,
       ...(item.children ?? []).map((child) => child.href),
     ]);
 
-    expect(entries).not.toContain("/material-columns");
     /*
-     * The route still resolves, for both kinds of reader. `isRouteAllowed`
-     * reads this registry, so dropping the entry did not merely hide the
-     * screen - it refused it, and to whoever held material access rather
-     * than category access it would have disappeared without a word. Both
-     * modules therefore claim the route.
+     * Both only redirect to Category Management now (D-263): every module's
+     * categories, the material budgets included, are managed there in
+     * dialogs. They stay claimed by the category feature so an old link
+     * reaches the redirect rather than a refusal on the way.
      */
-    expect(
-      isRouteAllowed("MSE_TRACE", ["material_receipts"], "/material-columns"),
-    ).toBe(true);
+    expect(entries).not.toContain("/material-columns");
+    expect(entries).not.toContain("/project-categories");
     expect(
       isRouteAllowed("MSE_TRACE", ["project_categories"], "/material-columns"),
+    ).toBe(true);
+    expect(
+      isRouteAllowed("MSE_TRACE", ["project_categories"], "/project-categories"),
     ).toBe(true);
     expect(isRouteAllowed("MSE_TRACE", [], "/material-columns")).toBe(false);
   });
