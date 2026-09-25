@@ -1,5 +1,5 @@
 /**
- * The twelve Category Management modules, and how an old address finds one.
+ * The Category Management modules, and how an old address finds one.
  *
  * Plain data with no React in it, so the server-side redirects of the retired
  * `/material-columns` and `/project-categories` screens can read it too
@@ -7,9 +7,10 @@
  * server.
  */
 
+// No "field" (现场资料分类, D-285) and no "claim" (D-286): the first was never
+// a business module the customer defined, the second duplicated 杂费报销分类.
 export const CATEGORY_MODULE_KEYS = [
   "material",
-  "field",
   "document",
   "equipment",
   "progress",
@@ -17,11 +18,10 @@ export const CATEGORY_MODULE_KEYS = [
   "ehs",
   "recycle",
   "debris",
-  // D-274, D-275: consultant submissions, sundry claims and the period
-  // claims each file under columns of their own.
+  // D-274, D-275: consultant submissions and sundry claims each file under
+  // categories of their own.
   "consultant",
   "sundry",
-  "claim",
 ] as const;
 
 export type CategoryModuleKey = (typeof CATEGORY_MODULE_KEYS)[number];
@@ -29,14 +29,12 @@ export type CategoryModuleKey = (typeof CATEGORY_MODULE_KEYS)[number];
 /** The module each `ProjectCategory.kind` is listed under. */
 export const KIND_MODULE: Record<string, CategoryModuleKey> = {
   MATERIAL: "material",
-  FIELD: "field",
   EQUIPMENT: "equipment",
   PROGRESS: "progress",
   EHS: "ehs",
   CONSTRUCTION_WASTE: "debris",
   CONSULTANT: "consultant",
   SUNDRY: "sundry",
-  CLAIM: "claim",
 };
 
 export const isCategoryModuleKey = (value: string): value is CategoryModuleKey =>
@@ -52,11 +50,12 @@ const first = (value: Param) =>
  * `/project-categories?kind=EQUIPMENT&project=…&create=1` keeps its project,
  * its module and its "open the create form" request, so a bookmark or a
  * dashboard shortcut still arrives where it meant to. An unknown or missing
- * kind lands on site records, as the old screen did.
+ * kind - including the retired site-record and period-claim kinds - lands on
+ * the material categories, the first module on the screen.
  */
 export function categoryManagementAddress(
   params: Record<string, Param>,
-  fallbackModule: CategoryModuleKey = "field",
+  fallbackModule: CategoryModuleKey = "material",
 ): string {
   const query = new URLSearchParams();
   const project = first(params.project);

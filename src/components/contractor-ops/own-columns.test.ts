@@ -46,11 +46,11 @@ describe("consultant submissions file under their own columns (D-274)", () => {
   });
 });
 
-describe("three more modules on Category Management", () => {
+describe("two more modules on Category Management", () => {
+  // Claim 分类 is gone: it duplicated 杂费报销分类 (D-286).
   const modules: Array<[string, string, string]> = [
     ["consultant", "CONSULTANT", "顾问资料分类"],
     ["sundry", "SUNDRY", "杂费报销分类"],
-    ["claim", "CLAIM", "Claim 分类"],
   ];
 
   it.each(modules)(
@@ -114,28 +114,24 @@ describe("sundry claims are filed in the office, never on the phone (D-275)", ()
   });
 });
 
-describe("period claims are filed in the office (D-275)", () => {
-  it("offers 【归入栏目】 in the claim sheet to claim.manage, on CLAIM columns", () => {
-    const sheet = functionBody(read(CLAIMS), "function ClaimSheet(");
-    expect(sheet).toMatch(/can\("claim\.manage"\) && \(\s*<Button[^>]*onClick=\{\(\) => setFiling\(true\)\}/);
-    expect(sheet).toMatch(/<FileIntoColumnDialog[\s\S]*?kind="CLAIM"[\s\S]*?fileClaim\(data\.id, \{ category, reason \}\)/);
-    expect(sheet).toMatch(/data\.category_name \|\| ops\("filing\.unfiled"\)/);
-  });
-
-  it("filters the list by CLAIM column, 未归类 included", () => {
+describe("period claims are not filed under a category (D-286)", () => {
+  // 「杂费报销分类和 Claim 分类重复……这里只保留一套」: the set, the button
+  // and the filter all went, and the backend endpoint with them.
+  it("has no filing button, dialog or category filter", () => {
     const source = read(CLAIMS);
-    const list = functionBody(source, "export function ClaimEngineWorkspace(");
-    expect(list).toMatch(/<ClaimColumnFilter/);
-    expect(list).toMatch(/uncategorised: column === UNFILED \? "true" : undefined/);
-    const filter = functionBody(source, "function ClaimColumnFilter(");
-    expect(filter).toMatch(/kind: "CLAIM"/);
-    expect(filter).toMatch(/<SelectItem value=\{UNFILED\}>/);
-    expect(filter).toMatch(/<QueryFailedNote query=\{columns\}/);
+    for (const gone of [
+      /setFiling/,
+      /<FileIntoColumnDialog/,
+      /fileClaim/,
+      /ClaimColumnFilter/,
+      /kind: "CLAIM"/,
+      /filing\.unfiled/,
+    ]) {
+      expect(source).not.toMatch(gone);
+    }
   });
 
-  it("posts to the filing endpoint", () => {
-    expect(read("src/services/contractor-ops.service.ts")).toContain(
-      "`/api/claims/${id}/file_claim/`",
-    );
+  it("no longer calls the filing endpoint", () => {
+    expect(read("src/services/contractor-ops.service.ts")).not.toContain("file_claim");
   });
 });

@@ -28,7 +28,9 @@ import {
   useClearDraft,
   useDraftState,
 } from "@/components/field-staff/field-draft";
+import { ApiError } from "@/interfaces/api";
 import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
+import { conversationClosedLine, recordConversationKey } from "@/lib/record-chat";
 import {
   getRecordConversation,
   postRecordMessage,
@@ -64,7 +66,7 @@ function RecordConversationContent({
   const clearDraft = useClearDraft();
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["record-conversation", kind, recordId],
+    queryKey: recordConversationKey(kind, recordId),
     queryFn: () => getRecordConversation(kind, recordId),
   });
 
@@ -78,8 +80,17 @@ function RecordConversationContent({
       setFile(null);
       clearDraft();
       void queryClient.invalidateQueries({
-        queryKey: ["record-conversation", kind, recordId],
+        queryKey: recordConversationKey(kind, recordId),
       });
+    },
+    // Finished by somebody else while this screen was open (D-278): refetch,
+    // so the composer is replaced by the reason instead of refusing again.
+    onError: (reason) => {
+      if (reason instanceof ApiError && reason.code === "conversation_closed") {
+        void queryClient.invalidateQueries({
+          queryKey: recordConversationKey(kind, recordId),
+        });
+      }
     },
   });
 
@@ -102,6 +113,8 @@ function RecordConversationContent({
     );
   }
 
+  const closedLine = conversationClosedLine(data.closed);
+
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold">
@@ -119,15 +132,24 @@ function RecordConversationContent({
         ))}
       </ul>
 
-      <ConversationComposer
-        body={body}
-        setBody={setBody}
-        file={file}
-        setFile={setFile}
-        limit={limit}
-        sending={send.isPending}
-        onSend={(payload) => send.mutate(payload)}
-      />
+      {/* A finished record keeps its whole history and loses only the way to
+          add to it - text, voice, photo, file and send all go together, and
+          the reason is said (D-278). */}
+      {closedLine ? (
+        <p className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+          {t(closedLine)}
+        </p>
+      ) : (
+        <ConversationComposer
+          body={body}
+          setBody={setBody}
+          file={file}
+          setFile={setFile}
+          limit={limit}
+          sending={send.isPending}
+          onSend={(payload) => send.mutate(payload)}
+        />
+      )}
     </div>
   );
 }

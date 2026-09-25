@@ -3818,12 +3818,12 @@
   },
   "businessTargets": {
     "field": {
-      "allCategories": "全部栏目",
+      "allCategories": "全部分类",
       "allProjects": "全部项目",
       "allWasteTypes": "全部废料类型",
-      "category": "栏目范围",
-      "categoryHint": "请先选择项目，才能限定目标栏目。",
-      "categoryMetricHint": "栏目范围只适用于已验收现场任务指标。",
+      "category": "分类范围",
+      "categoryHint": "请先选择项目，才能限定目标分类。",
+      "categoryMetricHint": "分类范围只适用于已验收现场任务指标。",
       "chooseUnit": "选择一个单位",
       "companyWide": "全公司目标",
       "description": "说明",
@@ -3866,7 +3866,7 @@
       "removeDescription": "此目标将不再出现在目标报表中，既有通知和审计记录仍会保留。",
       "removeTitle": "移除 {name}？",
       "save": "保存目标",
-      "subtitle": "设定公司、项目或栏目的可量化目标，并在达到各提醒比例时通知负责人。",
+      "subtitle": "设定公司、项目或分类的可量化目标，并在达到各提醒比例时通知负责人。",
       "title": "业务目标"
     },
     "materialUnit": {
@@ -3915,13 +3915,13 @@
     },
     "what": {
       "projects": "项目列表",
-      "categories": "栏目列表",
+      "categories": "分类列表",
       "users": "人员名单"
     }
   },
   "categoryManagement": {
     "active": "启用",
-    "chooseProject": "选择一个项目，才能看到它的栏目。",
+    "chooseProject": "选择一个项目，才能看到它的分类。",
     "column": {
       "name": "分类名称",
       "code": "编号",
@@ -3931,27 +3931,26 @@
       "action": "操作",
       "archived": "已归档送货",
       "spend": "花费／预算",
-      "tonnes": "吨数"
+      "tonnes": "吨数",
+      "quantity": "累计数量"
     },
-    "create": "新增栏目",
+    "create": "新增分类",
     "edit": "编辑",
-    "empty": "这里还没有栏目。",
-    "failed": "栏目读取失败，请重试。",
+    "empty": "这里还没有分类。",
+    "failed": "分类读取失败，请重试。",
     "inactive": "停用",
     "loading": "加载中…",
     "module": {
       "material": "材料分类",
-      "field": "现场资料分类",
       "document": "文件分类",
-      "equipment": "机械设备分类",
+      "equipment": "设备分类",
       "progress": "工程进度分类",
       "phase": "施工阶段",
       "ehs": "隐患整改分类",
-      "recycle": "废料分类",
-      "debris": "建筑垃圾分类",
+      "recycle": "环保材料出场分类",
+      "debris": "工地清运分类",
       "consultant": "顾问资料分类",
-      "sundry": "杂费报销分类",
-      "claim": "Claim 分类"
+      "sundry": "杂费报销分类"
     },
     "moduleHelp": {
       "material": "收货与它的金额归在这里。按项目各一份。",
@@ -3969,17 +3968,15 @@
     },
     "moduleSource": {
       "material": "记录来自：现场材料进场、后台材料进场台账。现场工作人员可以填。",
-      "field": "记录来自：现场按栏目拍照、隐患上报、现场任务。现场工作人员可以填。",
       "document": "文件由后台上传归档。现场工作人员不填这里。",
       "equipment": "记录来自：后台「设备登记」。设备档案在办公室建，手机只记进出。",
-      "progress": "进度由现场提交，再由后台事后归到栏目。手机端不选栏目。",
+      "progress": "进度由现场提交，再由后台事后归到分类。手机端不选分类。",
       "phase": "阶段由后台维护，用来算进度百分比，本身不接收记录。",
       "ehs": "记录来自：隐患上报（现场与后台都算）。现场工作人员可以填。",
       "recycle": "记录来自：后台的可回收废料外运。现场工作人员不填这里。",
       "debris": "记录来自：后台发起的建筑垃圾清运。现场工作人员不填这里。",
-      "consultant": "记录来自：手机端顾问资料提交，提交时选栏目。现场工作人员可以填。",
-      "sundry": "杂费报销由手机端提交，后台处理时再归入栏目。手机端不选栏目。",
-      "claim": "Claim 由后台开，开了之后再归入栏目。现场工作人员不填这里。"
+      "consultant": "记录来自：手机端顾问资料提交，提交时选分类。现场工作人员可以填。",
+      "sundry": "杂费报销由手机端提交，后台处理时再归入分类。手机端不选分类。"
     },
     "modules": "模块",
     "scope": {
@@ -3987,19 +3984,19 @@
       "company": "全公司共用",
       "platform": "全平台共用"
     },
-    "subtitle": "先选所属模块，再看该模块下面的栏目。",
-    "title": "栏目管理",
+    "subtitle": "先选左边的业务栏目，再看它下面的分类。",
+    "title": "分类管理",
     "weight": "权重 {weight}",
     "removeFailed": "「{name}」没有删除：{reason}",
-    "dialogCreate": "新增栏目 · {module}",
-    "dialogEdit": "编辑栏目 · {module}",
+    "dialogCreate": "新增分类 · {module}",
+    "dialogEdit": "编辑分类 · {module}",
     "budget": {
       "title": "预算",
-      "help": "花费由这个栏目下送货单的金额累计。",
+      "help": "花费由这个分类下送货单的金额累计。",
       "uncounted": "有 {count} 张送货单读不出金额，没有算进这个合计。",
-      "tracksSpend": "这个栏目的支出计入预算",
+      "tracksSpend": "这个分类的支出计入预算",
       "amount": "预算（RM）",
-      "amountHint": "不计预算的栏目留空",
+      "amountHint": "不计预算的分类留空",
       "alerts": "在这些百分比提醒",
       "alertsHint": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
       "alertsInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
@@ -4009,10 +4006,13 @@
     "viewRecords": "查看记录",
     "records": {
       "title": "{name} 的记录",
-      "help": "这个栏目里的全部记录，最新的在前面。只列出你有权限看的记录。点一笔就能看详情。",
+      "help": "这个分类里的全部记录，最新的在前面。只列出你有权限看的记录。点一笔就能看详情。",
       "count": "共 {count} 笔",
-      "empty": "这个栏目里还没有记录。"
-    }
+      "empty": "这个分类里还没有记录。",
+      "byMaterial": "按材料",
+      "groupCount": "{count} 笔"
+    },
+    "quantityReturned": "退场 {quantity}"
   },
   "cloudServices": {
     "count": "{count} 项服务",
@@ -4810,8 +4810,8 @@
       "selectPhotos": "要关联的照片",
       "selectRecord": "选择整条现场资料",
       "caption": "说明",
-      "category": "栏目",
-      "subcategory": "子栏目",
+      "category": "分类",
+      "subcategory": "子分类",
       "uploader": "上传人",
       "watermarked": "已加水印",
       "gps": "GPS",
@@ -5300,11 +5300,11 @@
     },
     "quickActions": {
       "approval": "新增审批",
-      "category": "新增栏目",
+      "category": "新增分类",
       "document": "上传文件",
       "notification": "新增通知",
       "project": "新增项目",
-      "selectProjectFirst": "请先选择项目，再新增栏目。",
+      "selectProjectFirst": "请先选择项目，再新增分类。",
       "supplier": "新增供应商",
       "title": "快速新增"
     },
@@ -5418,19 +5418,19 @@
     },
     "categories": {
       "accessAll": "所有项目人员",
-      "accessRequired": "限制栏目必须至少选择一个角色或人员。",
+      "accessRequired": "限制分类必须至少选择一个角色或人员。",
       "accessRestricted": "只限指定角色和人员",
       "accessRoles": "可查看的角色",
-      "accessTitle": "谁可以看到此栏目",
+      "accessTitle": "谁可以看到此分类",
       "accessUsers": "可查看的人员",
-      "createTitle": "新增栏目",
-      "editTitle": "编辑栏目",
-      "formHelp": "每个栏目只属于一个项目，可以排序或从现场手机页面隐藏。",
+      "createTitle": "新增分类",
+      "editTitle": "编辑分类",
+      "formHelp": "每个分类只属于一个项目，可以排序或从现场手机页面隐藏。",
       "moveDown": "往下移",
       "moveUp": "往上移",
       "noRoles": "目前没有可选择的角色。",
       "noUsers": "目前没有可选择的项目人员。",
-      "removeBody": "只有没有现场记录使用该栏目时才可以移除。",
+      "removeBody": "只有没有现场记录使用该分类时才可以移除。",
       "removeTitle": "移除 {name}？",
       "kind": "所属模块",
       "kindBoth": "尚未分家",
@@ -5520,9 +5520,9 @@
       "active": "启用",
       "allProjects": "全部项目",
       "assignee": "现场人员",
-      "category": "栏目",
+      "category": "分类",
       "certificateExpiresOn": "证书到期日",
-      "chooseEquipmentColumn": "选择设备栏目",
+      "chooseEquipmentColumn": "选择设备分类",
       "code": "编号",
       "deliveryNote": "送货单",
       "description": "说明",
@@ -5531,7 +5531,7 @@
       "equipmentColumn": "设备分类",
       "executor": "执行人",
       "expiryHelp": "填了才会进首页的「证书即将到期」卡；没有单据就留空，宁可空着也不要填一个猜的日期。",
-      "goMakeEquipmentColumn": "去栏目管理新增",
+      "goMakeEquipmentColumn": "去分类管理新增",
       "instructions": "工作说明",
       "insuranceExpiresOn": "保险到期日",
       "latitude": "纬度",
@@ -5539,8 +5539,8 @@
       "longitude": "经度",
       "material": "材料",
       "name": "名称",
-      "noCategory": "不选择栏目",
-      "noEquipmentColumnYet": "这个项目还没有设备栏目，而设备必须归到一个栏目里。",
+      "noCategory": "不选择分类",
+      "noEquipmentColumnYet": "这个项目还没有设备分类，而设备必须归到一个分类里。",
       "noSupplier": "没有供应商",
       "notes": "备注",
       "operator": "操作人员",
@@ -5569,15 +5569,15 @@
       "workLocation": "工作区域 / 位置"
     },
     "filing": {
-      "action": "归入栏目",
-      "columnsFailed": "栏目读取失败，请重试。",
+      "action": "归入分类",
+      "columnsFailed": "分类读取失败，请重试。",
       "confirm": "保存归属",
       "failed": "归档失败，请重试。",
       "fileInto": "已归入",
-      "help": "{reference} —— 选择它应归入的栏目，或取回未归类。",
-      "noColumns": "这个项目还没有这个模块的栏目。",
+      "help": "{reference} —— 选择它应归入的分类，或取回未归类。",
+      "noColumns": "这个项目还没有这个模块的分类。",
       "reason": "原因",
-      "title": "归入栏目",
+      "title": "归入分类",
       "unfiled": "未归类"
     },
     "outgoing": {
@@ -5781,7 +5781,7 @@
     "what": {
       "roles": "角色列表",
       "projectPeople": "本项目的人员名单",
-      "columns": "栏目列表",
+      "columns": "分类列表",
       "suppliers": "供应商列表",
       "equipmentSummary": "设备统计",
       "progressSummary": "进度统计",
@@ -5854,7 +5854,7 @@
       "application_type": "申请类型",
       "attendance_events": "考勤记录",
       "captured_at": "拍摄时间",
-      "category": "栏目",
+      "category": "分类",
       "company": "公司",
       "completed_at": "完成时间",
       "completed_disposals": "已完成清运",
@@ -6297,7 +6297,7 @@
       "same": "一样",
       "question": "送到的和这个一样吗？",
       "onDocket": "单据上写的",
-      "column": "栏目"
+      "column": "分类"
     },
     "action": {
       "arrive": "记录到场",
@@ -6910,7 +6910,7 @@
       "bug_not_found": "找不到该 Bug 记录。",
       "calibration_expired": "这台地磅的校准已过期。",
       "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。",
-      "category_holds_deliveries_only": "「{column}」是材料栏目 —— 它装的是送货单和金额。现场照片要归到现场资料栏目。请返回选一个现场资料栏目，或让管理员为这件事开一个。",
+      "category_holds_deliveries_only": "「{column}」是材料分类 —— 它装的是送货单和金额，不能放现场照片。请选别的分类。",
       "clock_skew": "网关时钟偏移超过允许范围。",
       "cloud_alert_not_found": "找不到该云用量预警。",
       "cloud_plan_not_found": "找不到该云服务方案。",
@@ -7085,10 +7085,11 @@
       "visit_not_found": "找不到该客户回访。",
       "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
       "rejection_needs_conversation": "请先在这条记录的【沟通】里说明问题，让现场看得到原因并能回复，然后才能退回。",
-      "column_not_empty": "这个栏目下还有记录：{records}。请先移走，再删除栏目。",
-      "column_wrong_module": "「{column}」属于其他模块，请选择本模块的栏目。",
-      "column_other_project": "该栏目不属于此记录的项目，请选择同一项目的栏目。",
-      "column_inactive": "「{column}」已停用，请选择启用中的栏目。"
+      "column_not_empty": "这个分类下还有记录：{records}。请先移走，再删除分类。",
+      "column_wrong_module": "「{column}」属于其他模块，请选择本模块的分类。",
+      "column_other_project": "该分类不属于此记录的项目，请选择同一项目的分类。",
+      "column_inactive": "「{column}」已停用，请选择启用中的分类。",
+      "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7146,7 +7147,7 @@
     "count": "共 {count} 项证据",
     "field": {
       "actor": "用户",
-      "archiveCategory": "自动归档栏目",
+      "archiveCategory": "自动归档分类",
       "capturedAt": "原始拍摄时间",
       "company": "公司",
       "contentType": "文件类型",
@@ -7169,8 +7170,8 @@
     "filter": {
       "capturedFrom": "拍摄起始日",
       "capturedTo": "拍摄截止日",
-      "category": "现场资料栏目",
-      "chooseCategory": "选择现场资料栏目",
+      "category": "分类",
+      "chooseCategory": "选择分类",
       "project": "项目",
       "withGps": "有 GPS",
       "withoutGps": "无 GPS"
@@ -7207,7 +7208,7 @@
     "title": "证据档案",
     "what": {
       "projects": "项目列表",
-      "categories": "现场资料栏目"
+      "categories": "分类列表"
     }
   },
   "export": {
@@ -7447,40 +7448,6 @@
       "retake": "点一下重拍",
       "preview": "已拍摄"
     },
-    "categoryEvidence": {
-      "changeCategory": "更换",
-      "chooseCategory": "选择现场资料栏目",
-      "chooseProject": "选择项目",
-      "evidenceTitle": "必须拍摄的现场照片",
-      "getLocation": "取得当前 GPS",
-      "loadError": "无法读取现场资料栏目，请检查网络后重试。",
-      "loading": "正在读取现场资料栏目...",
-      "locationError": "无法取得 GPS，请允许精确定位后重试。",
-      "locationReady": "GPS 已取得",
-      "noCategories": "这个项目暂时没有开放给现场工作人员的栏目。",
-      "note": "简单备注（选填）",
-      "notePlaceholder": "只填写办公室需要知道的内容。",
-      "photo": {
-        "completion": "4. 完成情况或当前状态",
-        "detail": "2. 工作或问题细节",
-        "overview": "1. 现场整体情况",
-        "peopleEquipment": "3. 相关人员或设备"
-      },
-      "project": "项目",
-      "readOnly": "可以查看，但没有上传权限",
-      "submit": "提交给管理人员审核",
-      "submitMode": {
-        "DIRECT": "直接提交",
-        "REVIEW": "提交审核",
-        "CONSULTANT": "提交顾问审批"
-      },
-      "submitError": "现场资料无法提交，请检查照片、GPS 和网络后重试。",
-      "subtitle": "选择项目和栏目，拍摄至少四张照片，取得 GPS 后提交给管理人员审核。",
-      "takePhotos": "在此栏目拍照归档",
-      "title": "归档现场拍照证据",
-      "uploadNotAllowed": "你没有权限上传资料到这个栏目。",
-      "materialColumnRefused": "「{column}」是材料栏目 —— 它装的是送货单和金额。照片请选一个现场资料栏目，或让管理员开一个。"
-    },
     "consultantCapture": {
       "category": "申请类别",
       "categoryOption": {
@@ -7519,7 +7486,6 @@
     "greeting": "你好，{name}",
     "home": {
       "attendance": "考勤",
-      "category": "现场资料",
       "consultant": "顾问资料提交",
       "disposal": "工地清运",
       "equipment": "设备进退场",
@@ -7589,9 +7555,9 @@
       "ocrItems": {
         "confirmHint": "请对照纸质单核对",
         "title": "从送货单读到的物料",
-        "unclassified": "选择栏目",
-        "makeColumn": "建成栏目",
-        "editHint": "改掉读错的文字、选栏目、删掉多余行,再点「填入」。",
+        "unclassified": "选择分类",
+        "makeColumn": "建成分类",
+        "editHint": "改掉读错的文字、选分类、删掉多余行,再点「填入」。",
         "remove": "删除此行",
         "use": "填入",
         "noUnit": "无单位"
@@ -7628,14 +7594,14 @@
       "tapCamera": "按这里打开相机",
       "unit": "单位",
       "vehicle": "车牌",
-      "column": "材料栏目",
+      "column": "材料分类",
       "additionalDetails": "补充资料（选填）",
       "columnAuto": "将归入「{name}」。后台可以改。",
       "columnUnfiledNote": "暂未归类。后台查看后再归。",
-      "noColumnsYet": "这个工地还没有材料栏目。在下面新增第一个。",
-      "newColumnName": "新栏目名称",
-      "addColumn": "新增栏目",
-      "columnOffline": "离线时请选择已有栏目，新增栏目需要网络连接。"
+      "noColumnsYet": "这个工地还没有材料分类。在下面新增第一个。",
+      "newColumnName": "新分类名称",
+      "addColumn": "新增分类",
+      "columnOffline": "离线时请选择已有分类，新增分类需要网络连接。"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -7664,7 +7630,6 @@
       "title": "我的工作通知"
     },
     "records": {
-      "category": "现场资料",
       "consultant": "顾问资料提交",
       "disposal": "工地清运",
       "equipment": "设备进退场",
@@ -7764,7 +7729,7 @@
       "linkedTask": "链接中的任务",
       "attendance": "今天的打卡记录",
       "myTasks": "我的待办",
-      "columns": "材料栏目",
+      "columns": "材料分类",
       "suppliers": "供应商列表",
       "dockets": "供应商二维码",
       "queued": "还在这台手机上的资料",
@@ -9004,7 +8969,7 @@
       "when": "创建时间",
       "action": "操作"
     },
-    "columns": "栏目",
+    "columns": "分类",
     "confirm": "确认并合并",
     "confirmedHelp": "这个资料包已经确认。内容不再变化，也不能删除 —— 它本身就是「当初为什么建立这一包」的记录。",
     "consultantOnlyHelp": "只能发给顾问。平台上没有「业主」这种账号，所以没有别的收件人可选。",
@@ -9061,10 +9026,10 @@
     "new": "新建资料包",
     "newTitle": "新建一个资料包",
     "next": "下一页",
-    "noCandidates": "这个项目在这个栏目下还没有资料。",
+    "noCandidates": "这个项目在这个分类下还没有资料。",
     "noDrafts": "这个项目还没有草稿资料包。取个名字，这条记录就是它的第一条。",
-    "noItems": "这个资料包还是空的。从项目的栏目里添加资料。",
-    "oneProjectHelp": "一个资料包属于一个项目。里面的资料来自这个项目的各个栏目，别的项目的记录会被拒绝。",
+    "noItems": "这个资料包还是空的。从项目的分类里添加资料。",
+    "oneProjectHelp": "一个资料包属于一个项目。里面的资料来自这个项目的各个分类，别的项目的记录会被拒绝。",
     "open": "打开",
     "pageOf": "第 {page} / {pages} 页",
     "partsSummary": "{fields} 个字段 · {photos} 张照片 · {documents} 张单据",
@@ -9092,7 +9057,7 @@
       "DRAFT": "草稿",
       "CONFIRMED": "已确认"
     },
-    "subtitle": "从同一个项目的不同栏目挑选资料，合并成一份 PDF。",
+    "subtitle": "从同一个项目的不同分类挑选资料，合并成一份 PDF。",
     "title": "Multi Engine 资料包",
     "toast": {
       "created": "资料包已新建。",
@@ -9139,7 +9104,7 @@
     "field": {
       "application_no": "申请编号",
       "archived_at": "归档时间",
-      "category": "栏目",
+      "category": "分类",
       "clock_ins": "上班打卡",
       "clock_outs": "下班打卡",
       "delivery_note_no": "送货单号",
@@ -9244,7 +9209,8 @@
       "operations": "业务",
       "overview": "总览",
       "system": "系统",
-      "weighing": "称重"
+      "weighing": "称重",
+      "tools": "公共工具"
     },
     "hazard_rectification": "隐患整改",
     "incoming": "待收货",
@@ -9266,7 +9232,7 @@
     "platform_monitoring": "平台监控",
     "platform_settings": "系统设置",
     "progress": "工程进度",
-    "project_categories": "现场资料",
+    "project_categories": "分类管理",
     "projects": "项目",
     "qr_code_management": "二维码管理",
     "receipts": "材料进场",
@@ -9318,7 +9284,7 @@
       "billingActivity": "操作记录",
       "billingAudit": "账单记录",
       "billingStatistics": "收费统计",
-      "categoryManagement": "栏目管理",
+      "categoryManagement": "分类管理",
       "cctvMonitoring": "AI CCTV 监控",
       "cctvSettings": "AI CCTV 设置",
       "cloudActivity": "操作记录",
@@ -9445,7 +9411,6 @@
       "platformCommission": "平台佣金管理",
       "platformJobs": "定时任务",
       "progressRecords": "工程进度",
-      "projectCategories": "现场资料",
       "projectRecords": "项目资料",
       "qrActivity": "二维码操作记录",
       "qrAnomalies": "二维码异常",
@@ -9660,7 +9625,7 @@
   "offline": {
     "kind": {
       "ATTENDANCE": "考勤打卡",
-      "CATEGORY_EVIDENCE": "栏目证据",
+      "CATEGORY_EVIDENCE": "现场照片",
       "CONSULTANT_SUBMISSION": "顾问提交",
       "DISPATCH_ACCEPT": "接受订单",
       "DISPATCH_COLLECT": "确认收货",
@@ -9943,7 +9908,7 @@
       "trouble": "库存和场里对不上：先看有没有手工调整。每一次调整都写了原因，谁在什么时候为什么调的一看就知道。"
     },
     "material_cost_report": {
-      "what": "材料花了多少钱，按栏目和项目分。",
+      "what": "材料花了多少钱，按分类和项目分。",
       "who": "持 report.view。",
       "need": "选一个时间范围。",
       "then": "合计是钱，从每张收料背后的送货单累积起来。",
@@ -9964,7 +9929,7 @@
       "trouble": "报表是空的，多半是那段时间没有收料。"
     },
     "material_receipts": {
-      "what": "材料进场，以及材料栏目 —— 每项材料的预算与已用。这里的预算是从送货单累积起来的钱，不是吨数。",
+      "what": "材料进场，以及材料分类 —— 每项材料的预算与已用。这里的预算是从送货单累积起来的钱，不是吨数。",
       "who": "持 receipt.view。",
       "need": "现场收料要项目、编号、名称、Delivery Order 照片、操作人员、数量、现场照片和当前 GPS 位置。",
       "then": "提交后的收料记录不能改 —— 它带着照片、签名和位置。要更正就作废重开。",
@@ -10041,11 +10006,11 @@
       "trouble": "现场没信号没关系：照拍照填，它会排队，之后自动传。存下来的位置是拍照当时的，不是补传时的。"
     },
     "project_categories": {
-      "what": "定义现场人员要拍什么。一个栏目就是一项要在现场留证的东西：拍几张、拍什么、谁能看。",
+      "what": "管理每个业务栏目下面的分类：例如材料分类里的混凝土、钢筋，隐患整改分类里的安全部整改。",
       "who": "持 category.view。",
-      "need": "建栏目要项目、编号、名称，以及谁可以看到此栏目。",
-      "then": "现场人员就能在手机上选到它并按要求拍。要求四张就必须四张，三张交不了。",
-      "trouble": "现场说照片传不上去：多半是这个栏目要求的张数还没拍够，按钮会写还差几张。"
+      "need": "新增分类要选业务、项目、编号和名称，以及谁可以看到这个分类。",
+      "then": "现场人员在手机上提交时就能选到它，后台也能把记录归进去。",
+      "trouble": "手机上选不到某个分类：看它是不是停用了，或限制了谁可以看。"
     },
     "projects": {
       "what": "项目档案、派给现场的任务、以及现场传回来等审批的照片。这个后台其他东西都挂在项目上。",
@@ -10091,7 +10056,7 @@
     "safety": {
       "what": "工地上的安全事件：登记，以及往上报。",
       "who": "同时持 safety.view 和 project.view。",
-      "need": "登记事件要项目、安全栏目、标题、照片、GPS 证据、负责人及工地人员、处理说明；上报事故要项目、事故标题、发生了什么、报告给谁、证据档案和地点。",
+      "need": "登记事件要项目、安全分类、标题、照片、GPS 证据、负责人及工地人员、处理说明；上报事故要项目、事故标题、发生了什么、报告给谁、证据档案和地点。",
       "then": "被点名的人会立刻收到通知。",
       "trouble": "照片和 GPS 都是必填，而现场常常没信号。照拍就是，它会排队之后自动传，存下来的位置是你拍照时站的地方。"
     },
@@ -10492,7 +10457,7 @@
     "returnTitle": "退回重拍",
     "return": "退回",
     "accept": "批准",
-    "noCategory": "未归栏目",
+    "noCategory": "未归分类",
     "empty": "没有待审批的",
     "subtitle": "有 {count} 份等你审",
     "title": "照片审批",
@@ -10758,8 +10723,8 @@
       "vehicle": "请填车牌",
       "supplier": "请选供应商"
     },
-    "categoryHelp": "单据签收之后，收料记录会归到这个栏目。",
-    "chooseCategory": "选一个栏目",
+    "categoryHelp": "单据签收之后，收料记录会归到这个分类。",
+    "chooseCategory": "选一个分类",
     "cancel": "取消送货单",
     "chooseSupplier": "选择供应商",
     "close": "关闭送货单",
@@ -10768,7 +10733,7 @@
     "description": "一张送货单绑定一家供应商和一个项目。在工地扫码即可自动带出两者，几秒完成材料进场记录。",
     "downloadPng": "下载 PNG",
     "field": {
-      "category": "栏目",
+      "category": "分类",
       "createdAt": "签发时间",
       "driver": "司机姓名",
       "expectedAt": "预计送货时间",
@@ -10805,7 +10770,7 @@
     "what": {
       "notes": "送货单二维码",
       "suppliers": "供应商列表",
-      "categories": "栏目"
+      "categories": "分类"
     }
   },
   "qrScan": {
@@ -10855,7 +10820,7 @@
       "title": "补拍照片",
       "upload": "上传"
     },
-    "allColumns": "全部栏目",
+    "allColumns": "全部分类",
     "allStates": "已读和未读",
     "archived": "已归档",
     "correction": {
@@ -10887,7 +10852,7 @@
     "editNote": "数量和单价可以更正。项目、送货单和记录时间不可更改，它们正是这条记录要证明的事。",
     "editTitle": "更正材料进场记录",
     "field": {
-      "category": "栏目",
+      "category": "分类",
       "capturedAt": "记录时间",
       "deliveryNoteNo": "送货单号",
       "location": "位置",
@@ -10963,7 +10928,7 @@
       "accepted": "已验收通过。",
       "rejected": "已判为不合格，原因已记录。"
     },
-    "unfiled": "未归栏目",
+    "unfiled": "未归分类",
     "unit": {
       "BAG": "包",
       "KG": "公斤",
@@ -10982,7 +10947,7 @@
       "projects": "项目列表",
       "suppliers": "供应商列表",
       "dockets": "送货单二维码列表",
-      "columns": "栏目列表"
+      "columns": "分类列表"
     }
   },
   "recyclerBusiness": {
@@ -11644,7 +11609,7 @@
       "photo": "打开照片"
     },
     "field": {
-      "category": "安全栏目",
+      "category": "安全分类",
       "description": "说明",
       "dueAt": "整改期限",
       "evidence": "证据",
@@ -11688,14 +11653,14 @@
       "title": "上报工地事故"
     },
     "filter": {
-      "allCategories": "全部安全栏目",
+      "allCategories": "全部安全分类",
       "allProjects": "所有项目",
       "allResponsible": "全部整改负责人",
       "allSeverities": "所有严重程度",
       "dateFrom": "开始日期",
       "dateTo": "结束日期",
       "project": "选择项目",
-      "selectCategory": "选择安全栏目"
+      "selectCategory": "选择安全分类"
     },
     "form": {
       "captureLocation": "获取 GPS",
@@ -11707,7 +11672,7 @@
       "locationTimeout": "等不到 GPS 信号。走到空旷一点的地方再试一次。",
       "locationUnavailable": "设备拿不到位置。确认定位已开启后再试一次。",
       "locationUnsupported": "这台设备无法提供 GPS 位置。",
-      "noSafetyColumns": "这个项目还没有隐患整改栏目。到「栏目管理」新增一个，隐患才归得进去。"
+      "noSafetyColumns": "这个项目还没有隐患整改分类。到「分类管理」新增一个，隐患才归得进去。"
     },
     "new": "上报隐患",
     "severity": {
@@ -11731,7 +11696,7 @@
       "title": "更新事故状态"
     },
     "what": {
-      "categories": "安全栏目",
+      "categories": "安全分类",
       "responsiblePeople": "负责人列表",
       "requestedIncident": "链接中的事故",
       "workers": "可通知人员"
@@ -12265,12 +12230,12 @@
       "title": "分公司与总部"
     },
     "categories": {
-      "add": "新增栏目",
-      "empty": "尚未设置默认栏目，新项目将使用空白栏目清单。",
+      "add": "新增分类",
+      "empty": "尚未设置默认分类，新项目将使用空白分类清单。",
       "fieldVisible": "现场人员可见",
-      "fieldVisibleHelp": "工人可在拍照优先的手机工作台选择此栏目。",
-      "subtitle": "每个新项目都会自动建立这些栏目。",
-      "title": "默认现场资料栏目"
+      "fieldVisibleHelp": "现场工作人员在手机上可以选这个分类。",
+      "subtitle": "每个新项目都会自动建立这些分类。",
+      "title": "新项目默认材料分类"
     },
     "credential": {
       "active": "生效中",
@@ -12520,7 +12485,7 @@
       "archiveLockHelp": "新项目的归档资料完成后保持只读。",
       "notifyManager": "通知项目经理",
       "notifyManagerHelp": "新项目默认把项目经理加入业务流程通知。",
-      "subtitle": "建立新项目时，系统会自动复制这些规则和栏目。",
+      "subtitle": "建立新项目时，系统会自动复制这些规则和分类。",
       "title": "新项目默认设置"
     },
     "projectStatus": {
@@ -14265,7 +14230,9 @@
     "failed": "事项沟通读取失败，请重试。",
     "open": "沟通",
     "sectionTitle": "事项沟通",
-    "title": "事项沟通 · {reference}"
+    "title": "事项沟通 · {reference}",
+    "closedArchived": "已归档，聊天室已关闭。记录仍可查看。",
+    "closedPaid": "已确认付款，聊天室已关闭。记录仍可查看。"
   },
   "exportTotals": {
     "title": "累计数量（按单位分别统计）",
@@ -14276,7 +14243,7 @@
   "recordClosure": {
     "title": "确认归档",
     "action": "确认归档",
-    "help": "按下去就视为这件事已经完成并归档，所有人都看得到，总栏目里会写上你的名字和时间。系统不做任何前置判断 —— 判断由你负责。记录不会搬走，还在原来的模块和栏目里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
+    "help": "按下去就视为这件事已经完成并归档，所有人都看得到，总栏目里会写上你的名字和时间。系统不做任何前置判断 —— 判断由你负责。记录不会搬走，还在原来的模块和分类里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
     "notePlaceholder": "备注（可选）",
     "closedTitle": "已归档",
     "closedBy": "由 {name} 于 {when} 确认。本记录已不能再修改。",
@@ -14310,7 +14277,7 @@
   },
   "moduleTable": {
     "count": "{count} 条记录",
-    "allColumns": "全部栏目",
+    "allColumns": "全部分类",
     "unfiled": "未归类",
     "allProjects": "全部项目",
     "allStatuses": "全部状态",
@@ -14350,7 +14317,7 @@
     "orderState": "订单状态",
     "driver": "司机",
     "what": {
-      "columns": "栏目列表"
+      "columns": "分类列表"
     }
   },
   "fieldSlots": {
@@ -14364,7 +14331,14 @@
     "waiting": "等待上传",
     "failed": "上传失败，会自动重试",
     "waitingHelp": "已排进待上传，网络恢复后自动送出；在「我提交过的」可以查看。",
-    "remove": "移除这个空挂号"
+    "remove": "移除这个空挂号",
+    "open": "挂号",
+    "held": "正在挂着：{count} 辆",
+    "none": "按【挂号】开始拍下一辆车",
+    "use": "使用挂号",
+    "offHelp": "挂号已关：这里只有一张表单。",
+    "cannotTurnOff": "还有挂号存着照片或在等上传，先上交再关",
+    "cannotTurnOn": "表单里还有内容，先上交或清空再开挂号"
   },
   "sundryClaim": {
     "detailTitle": "杂费报销",
@@ -14405,7 +14379,17 @@
       "noAmount": "未填金额",
       "file": "凭证图片",
       "amount": "付款金额（可不填）",
-      "lockHint": "按【上传付款凭证】后立即锁定，不能修改或删除；传错了请再追加一张正确的。"
+      "lockHint": "按【上传付款凭证】后立即锁定，不能修改或删除；传错了请再追加一张正确的。",
+      "dropHint": "选文件、拖进来，或复制截图后按 Ctrl+V 贴上",
+      "pickFromChat": "从聊天室挑选",
+      "hideChat": "收起聊天室照片",
+      "chatEmpty": "这笔杂费的聊天室里还没有照片",
+      "chatFailed": "聊天室照片读取失败，请重试。",
+      "chatLoading": "正在读取聊天室照片…",
+      "fromChat": "来自聊天室：{name}",
+      "preview": "将要上传的凭证",
+      "notImage": "付款凭证只能是图片。",
+      "clearChoice": "换一张"
     },
     "action": {
       "confirm": "确认",

@@ -3931,9 +3931,10 @@
       "action": "Action",
       "archived": "Filed deliveries",
       "spend": "Spent / budget",
-      "tonnes": "Tonnes"
+      "tonnes": "Tonnes",
+      "quantity": "Quantity received"
     },
-    "create": "New column",
+    "create": "New category",
     "edit": "Edit",
     "empty": "No categories here yet.",
     "failed": "The categories could not be loaded. Try again.",
@@ -3941,17 +3942,15 @@
     "loading": "Loading...",
     "module": {
       "material": "Material categories",
-      "field": "Site record categories",
       "document": "Document categories",
       "equipment": "Equipment categories",
       "progress": "Progress categories",
       "phase": "Construction stages",
       "ehs": "EHS categories",
-      "recycle": "Recycle categories",
-      "debris": "Construction waste categories",
+      "recycle": "Environmental material outgoing categories",
+      "debris": "Site disposal categories",
       "consultant": "Consultant submission categories",
-      "sundry": "Sundry claim categories",
-      "claim": "Claim categories"
+      "sundry": "Sundry claim categories"
     },
     "moduleHelp": {
       "material": "Deliveries and the money they cost file here. One list per project.",
@@ -3969,17 +3968,15 @@
     },
     "moduleSource": {
       "material": "Records come from site goods-receipt and the back-office receipt register. Field staff can file here.",
-      "field": "Records come from site photographs by column, hazard reports and field tasks. Field staff can file here.",
       "document": "Documents are uploaded and filed from the back office. Field staff do not file here.",
       "equipment": "Records come from Equipment movement in the back office. Machines are registered in the office; the phone only logs them in and out.",
-      "progress": "Progress is submitted on site and filed into a column afterwards by the back office. The phone does not choose a column.",
+      "progress": "Progress is submitted on site and filed into a category afterwards by the back office. The phone does not choose a category.",
       "phase": "Phases are maintained in the back office and drive the completion percentage. No records file into them.",
       "ehs": "Records come from hazard reports, on site and in the office alike. Field staff can file here.",
       "recycle": "Records come from recyclable waste sent out by the back office. Field staff do not file here.",
       "debris": "Records come from construction-waste disposal raised in the back office. Field staff do not file here.",
-      "consultant": "Records come from consultant submissions on the phone: the column is chosen when submitting. Field staff can file here.",
-      "sundry": "Sundry claims are submitted on the phone and filed into a column by the back office when it handles them. The phone does not choose a column.",
-      "claim": "The back office opens a claim, then files it into a column. Field staff do not file here."
+      "consultant": "Records come from consultant submissions on the phone: the category is chosen when submitting. Field staff can file here.",
+      "sundry": "Sundry claims are submitted on the phone and filed into a category by the back office when it handles them. The phone does not choose a category."
     },
     "modules": "Modules",
     "scope": {
@@ -3987,19 +3984,19 @@
       "company": "The whole company",
       "platform": "The whole platform"
     },
-    "subtitle": "Pick a module, then see the categories under it.",
+    "subtitle": "Pick a business entry on the left, then see the categories under it.",
     "title": "Category management",
     "weight": "weight {weight}",
     "removeFailed": "{name} was not deleted: {reason}",
-    "dialogCreate": "New column · {module}",
-    "dialogEdit": "Edit column · {module}",
+    "dialogCreate": "New category · {module}",
+    "dialogEdit": "Edit category · {module}",
     "budget": {
       "title": "Budget",
-      "help": "Spending is added up from the delivery orders filed in this column.",
+      "help": "Spending is added up from the delivery orders filed in this category.",
       "uncounted": "{count} delivery orders had no readable amount, so they are not in this total.",
-      "tracksSpend": "Count spending in this column against a budget",
+      "tracksSpend": "Count spending in this category against a budget",
       "amount": "Budget (RM)",
-      "amountHint": "Leave empty for a column that does not count against a budget",
+      "amountHint": "Leave empty for a category that does not count against a budget",
       "alerts": "Warn at these percentages",
       "alertsHint": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
       "alertsInvalid": "Use whole numbers between 1 and 500, separated by commas.",
@@ -4011,8 +4008,11 @@
       "title": "Records in {name}",
       "help": "Everything filed in this category, newest first. Only the records you are allowed to see are listed. Click one to see its details.",
       "count": "{count} records",
-      "empty": "Nothing has been filed in this category yet."
-    }
+      "empty": "Nothing has been filed in this category yet.",
+      "byMaterial": "By material",
+      "groupCount": "{count} deliveries"
+    },
+    "quantityReturned": "{quantity} returned"
   },
   "cloudServices": {
     "count": "{count} services",
@@ -5522,7 +5522,7 @@
       "assignee": "Field staff",
       "category": "Category",
       "certificateExpiresOn": "Certificate expires",
-      "chooseEquipmentColumn": "Choose an equipment column",
+      "chooseEquipmentColumn": "Choose an equipment category",
       "code": "Code",
       "deliveryNote": "Delivery note",
       "description": "Description",
@@ -5540,7 +5540,7 @@
       "material": "Material",
       "name": "Name",
       "noCategory": "No category",
-      "noEquipmentColumnYet": "This project has no equipment column yet, and a machine has to be filed in one.",
+      "noEquipmentColumnYet": "This project has no equipment category yet, and a machine has to be filed in one.",
       "noSupplier": "No supplier",
       "notes": "Notes",
       "operator": "Operator",
@@ -5569,15 +5569,15 @@
       "workLocation": "Work area / location"
     },
     "filing": {
-      "action": "File under a column",
-      "columnsFailed": "The columns could not be loaded. Try again.",
+      "action": "File under a category",
+      "columnsFailed": "The categories could not be loaded. Try again.",
       "confirm": "Save filing",
       "failed": "Filing failed. Try again.",
       "fileInto": "Filed under",
-      "help": "{reference} - choose the column this belongs under, or take it back out.",
-      "noColumns": "This project has no columns for this module yet.",
+      "help": "{reference} - choose the category this belongs under, or take it back out.",
+      "noColumns": "This project has no categories for this module yet.",
       "reason": "Why",
-      "title": "File under a column",
+      "title": "File under a category",
       "unfiled": "Not filed yet"
     },
     "outgoing": {
@@ -6297,7 +6297,7 @@
       "same": "Same",
       "question": "Is what arrived the same as this?",
       "onDocket": "Written on the docket",
-      "column": "Column"
+      "column": "Category"
     },
     "action": {
       "arrive": "Record arrival",
@@ -6910,7 +6910,7 @@
       "bug_not_found": "That bug record could not be found.",
       "calibration_expired": "This weighbridge calibration has expired.",
       "cannot_modify_self": "You cannot change your own account this way. Use your profile instead.",
-      "category_holds_deliveries_only": "“{column}” is a material column - it holds deliveries and their cost. Site photographs go in a site-record column. Go back and choose one, or ask an administrator to open a site-record column for this.",
+      "category_holds_deliveries_only": "“{column}” is a material category - it holds deliveries and their cost, not site photographs. Choose another category.",
       "clock_skew": "The gateway clock moved beyond the allowed tolerance.",
       "cloud_alert_not_found": "That cloud usage alert could not be found.",
       "cloud_plan_not_found": "That cloud plan could not be found.",
@@ -7085,10 +7085,11 @@
       "visit_not_found": "That customer visit could not be found.",
       "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
       "rejection_needs_conversation": "Explain the problem in this record's conversation first, so the site can see why and reply. Then reject it.",
-      "column_not_empty": "Something is still filed under this column: {records}. Move it first, then remove the column.",
-      "column_wrong_module": "“{column}” belongs to another module. Choose a column from this module.",
-      "column_other_project": "That column is not in this record's project. Choose one from the same project.",
-      "column_inactive": "“{column}” is closed. Choose an open column."
+      "column_not_empty": "Something is still filed under this category: {records}. Move it first, then remove the category.",
+      "column_wrong_module": "“{column}” belongs to another module. Choose a category from this module.",
+      "column_other_project": "That category is not in this record's project. Choose one from the same project.",
+      "column_inactive": "“{column}” is closed. Choose an open category.",
+      "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7169,8 +7170,8 @@
     "filter": {
       "capturedFrom": "Captured from",
       "capturedTo": "Captured to",
-      "category": "Site record category",
-      "chooseCategory": "Choose a site record category",
+      "category": "Category",
+      "chooseCategory": "Choose a category",
       "project": "Project",
       "withGps": "With GPS",
       "withoutGps": "Without GPS"
@@ -7207,7 +7208,7 @@
     "title": "Evidence archive",
     "what": {
       "projects": "The project list",
-      "categories": "The site record categories"
+      "categories": "The categories"
     }
   },
   "export": {
@@ -7447,40 +7448,6 @@
       "retake": "Tap to retake",
       "preview": "Photo taken"
     },
-    "categoryEvidence": {
-      "changeCategory": "Change",
-      "chooseCategory": "Choose a site record folder",
-      "chooseProject": "Choose project",
-      "evidenceTitle": "Required site photos",
-      "getLocation": "Get current GPS",
-      "loadError": "Site record folders could not be loaded. Check the connection and try again.",
-      "loading": "Loading site record folders...",
-      "locationError": "GPS could not be captured. Allow precise location and try again.",
-      "locationReady": "GPS captured",
-      "noCategories": "No Field Staff folders are open for this project.",
-      "note": "Short note (optional)",
-      "notePlaceholder": "Add only information the office needs to know.",
-      "photo": {
-        "completion": "4. Completion or current condition",
-        "detail": "2. Work or issue detail",
-        "overview": "1. Site overview",
-        "peopleEquipment": "3. People or equipment involved"
-      },
-      "project": "Project",
-      "readOnly": "You can view this folder but cannot upload",
-      "submit": "Send for manager review",
-      "submitMode": {
-        "DIRECT": "Submit directly",
-        "REVIEW": "Submit for review",
-        "CONSULTANT": "Submit for consultant approval"
-      },
-      "submitError": "The site evidence could not be submitted. Check the photos, GPS and connection, then try again.",
-      "subtitle": "Choose the project and folder. Take at least four photos, capture GPS, then send them for manager review.",
-      "takePhotos": "Take photos in this folder",
-      "title": "File site photo evidence",
-      "uploadNotAllowed": "You do not have permission to upload to this folder.",
-      "materialColumnRefused": "“{column}” is a material column - it holds deliveries and their cost. Choose a site-record column for photographs, or ask an administrator to open one."
-    },
     "consultantCapture": {
       "category": "Request type",
       "categoryOption": {
@@ -7519,7 +7486,6 @@
     "greeting": "Hello, {name}",
     "home": {
       "attendance": "Attendance",
-      "category": "Site records",
       "consultant": "Consultant submission",
       "disposal": "Site disposal",
       "equipment": "Equipment movement",
@@ -7590,7 +7556,7 @@
         "confirmHint": "Check against the paper",
         "title": "Materials read from the note",
         "unclassified": "Pick category",
-        "makeColumn": "Make a column",
+        "makeColumn": "Make a category",
         "editHint": "Fix any wrong text, pick a category, delete a bad row, then tap Use.",
         "remove": "Remove row",
         "use": "Use",
@@ -7628,14 +7594,14 @@
       "tapCamera": "Tap to open camera",
       "unit": "Unit",
       "vehicle": "Vehicle plate",
-      "column": "Material column",
+      "column": "Material category",
       "additionalDetails": "Additional details (optional)",
       "columnAuto": "Files under {name}. The office can change it.",
       "columnUnfiledNote": "Not filed yet. The office files it after checking.",
-      "noColumnsYet": "This site has no material columns yet. Add the first one below.",
-      "newColumnName": "New column name",
-      "addColumn": "Add column",
-      "columnOffline": "Offline: choose an existing column. A new column needs a connection."
+      "noColumnsYet": "This site has no material categories yet. Add the first one below.",
+      "newColumnName": "New category name",
+      "addColumn": "Add category",
+      "columnOffline": "Offline: choose an existing category. A new category needs a connection."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -7664,7 +7630,6 @@
       "title": "My work alerts"
     },
     "records": {
-      "category": "Site records",
       "consultant": "Consultant submission",
       "disposal": "Site disposal",
       "equipment": "Equipment movement",
@@ -7764,7 +7729,7 @@
       "linkedTask": "The task in the link",
       "attendance": "Today's attendance",
       "myTasks": "My tasks",
-      "columns": "The material columns",
+      "columns": "The material categories",
       "suppliers": "The supplier list",
       "dockets": "The supplier QR codes",
       "queued": "The items still on this phone",
@@ -9004,7 +8969,7 @@
       "when": "Created",
       "action": "Action"
     },
-    "columns": "Columns",
+    "columns": "Categories",
     "confirm": "Confirm and merge",
     "confirmedHelp": "This package is confirmed. Its contents no longer change, and it cannot be deleted - it is the record of why these documents were put together.",
     "consultantOnlyHelp": "Consultants only. The platform has no owner account type, so there is nobody else this can be addressed to.",
@@ -9061,10 +9026,10 @@
     "new": "New package",
     "newTitle": "Start a package",
     "next": "Next",
-    "noCandidates": "This column has no records in this project yet.",
+    "noCandidates": "This category has no records in this project yet.",
     "noDrafts": "This project has no draft package open. Give one a name and this record starts it.",
-    "noItems": "Nothing in this package yet. Add records from the project's columns.",
-    "oneProjectHelp": "A package belongs to one project. Its records come from that project's columns, and a record from another project will be refused.",
+    "noItems": "Nothing in this package yet. Add records from the project's categories.",
+    "oneProjectHelp": "A package belongs to one project. Its records come from that project's categories, and a record from another project will be refused.",
     "open": "Open",
     "pageOf": "Page {page} of {pages}",
     "partsSummary": "{fields} fields · {photos} photos · {documents} delivery orders",
@@ -9092,7 +9057,7 @@
       "DRAFT": "Draft",
       "CONFIRMED": "Confirmed"
     },
-    "subtitle": "Gather records from several columns of one project and merge them into one PDF.",
+    "subtitle": "Gather records from several categories of one project and merge them into one PDF.",
     "title": "Multi Engine",
     "toast": {
       "created": "Package started.",
@@ -9244,7 +9209,8 @@
       "operations": "Operations",
       "overview": "Overview",
       "system": "System",
-      "weighing": "Weighing"
+      "weighing": "Weighing",
+      "tools": "Tools"
     },
     "hazard_rectification": "Hazard rectification",
     "incoming": "Incoming loads",
@@ -9266,7 +9232,7 @@
     "platform_monitoring": "Platform Monitoring",
     "platform_settings": "System Settings",
     "progress": "Progress updates",
-    "project_categories": "Site records",
+    "project_categories": "Category management",
     "projects": "Projects",
     "qr_code_management": "QR Codes",
     "receipts": "Material receipts",
@@ -9445,7 +9411,6 @@
       "platformCommission": "Platform commission",
       "platformJobs": "Scheduled jobs",
       "progressRecords": "Project progress",
-      "projectCategories": "Site records",
       "projectRecords": "Project records",
       "qrActivity": "QR activity",
       "qrAnomalies": "QR anomalies",
@@ -9660,7 +9625,7 @@
   "offline": {
     "kind": {
       "ATTENDANCE": "Attendance",
-      "CATEGORY_EVIDENCE": "Category evidence",
+      "CATEGORY_EVIDENCE": "Site photos",
       "CONSULTANT_SUBMISSION": "Consultant submission",
       "DISPATCH_ACCEPT": "Accept order",
       "DISPATCH_COLLECT": "Collect load",
@@ -9943,7 +9908,7 @@
       "trouble": "Stock not matching the yard: look for manual adjustments first. Every one carries a reason, so you can see who changed what and why."
     },
     "material_cost_report": {
-      "what": "What the materials cost, per column and per project.",
+      "what": "What the materials cost, per category and per project.",
       "who": "Holders of report.view.",
       "need": "Choose a date range.",
       "then": "The totals are money, accumulated from the delivery orders behind each receipt.",
@@ -9964,7 +9929,7 @@
       "trouble": "An empty report usually means nothing was received in that range."
     },
     "material_receipts": {
-      "what": "Material arriving on site, and the material columns - the budget and the spend for each material. The budget here is money accumulated from delivery orders, not a tonnage.",
+      "what": "Material arriving on site, and the material categories - the budget and the spend for each material. The budget here is money accumulated from delivery orders, not a tonnage.",
       "who": "Holders of receipt.view.",
       "need": "Receiving on site needs the project, the code, the name, a photo of the delivery order, the person handling it, the quantity, a site photo and the current GPS fix.",
       "then": "A submitted receipt cannot be edited - it carries photos, a signature and a location. To correct one, void it and raise a new one.",
@@ -10041,11 +10006,11 @@
       "trouble": "No signal on site is fine - shoot and fill anyway, it queues and uploads later. The location stored is where you were when you took the photo, not where you were when it finally sent."
     },
     "project_categories": {
-      "what": "What site staff have to photograph. A category is one thing that needs evidence on site: how many shots, of what, and who may see them.",
+      "what": "The categories under each business entry: concrete and rebar under material categories, safety-department rectification under hazard categories.",
       "who": "Holders of category.view.",
-      "need": "A category needs the project, a code, a name, and who is allowed to see it.",
-      "then": "Site staff can pick it on their phone and shoot against it. If it asks for four photos, four is what it takes - three will not submit.",
-      "trouble": "Site says a photo will not upload: usually the category's photo count is not met yet. The button says how many are still missing."
+      "need": "A category needs its business entry, the project, a code, a name, and who may see it.",
+      "then": "Site staff can choose it when they submit on the phone, and the office can file records into it.",
+      "trouble": "A category cannot be picked on the phone: check that it is active and not restricted to other people."
     },
     "projects": {
       "what": "Project files, the tasks sent out to site, and the photos coming back for approval. Everything else in this back office hangs off a project.",
@@ -10492,7 +10457,7 @@
     "returnTitle": "Send back for reshooting",
     "return": "Send back",
     "accept": "Approve",
-    "noCategory": "No column",
+    "noCategory": "No category",
     "empty": "Nothing waiting for approval",
     "subtitle": "{count} waiting for you",
     "title": "Photo approvals",
@@ -10758,8 +10723,8 @@
       "vehicle": "Enter the vehicle plate",
       "supplier": "Pick a supplier"
     },
-    "categoryHelp": "The receipt is filed into this column when the docket is signed.",
-    "chooseCategory": "Pick a column",
+    "categoryHelp": "The receipt is filed into this category when the docket is signed.",
+    "chooseCategory": "Pick a category",
     "cancel": "Cancel docket",
     "chooseSupplier": "Choose a supplier",
     "close": "Close docket",
@@ -10768,7 +10733,7 @@
     "description": "A docket ties one supplier to one project. Scanning it on site fills in both at once, so recording a delivery takes seconds.",
     "downloadPng": "Download PNG",
     "field": {
-      "category": "Column",
+      "category": "Category",
       "createdAt": "Issued",
       "driver": "Driver name",
       "expectedAt": "Expected delivery",
@@ -10805,7 +10770,7 @@
     "what": {
       "notes": "The delivery dockets",
       "suppliers": "The supplier list",
-      "categories": "The columns"
+      "categories": "The categories"
     }
   },
   "qrScan": {
@@ -10855,7 +10820,7 @@
       "title": "Add a photo",
       "upload": "Upload"
     },
-    "allColumns": "All columns",
+    "allColumns": "All categories",
     "allStates": "Read and unread",
     "archived": "Filed",
     "correction": {
@@ -10887,7 +10852,7 @@
     "editNote": "The quantity and price can be corrected. The project, the docket and the recorded time cannot — they are what the receipt is evidence of.",
     "editTitle": "Correct a receipt",
     "field": {
-      "category": "Column",
+      "category": "Category",
       "capturedAt": "Recorded",
       "cumulativeQuantity": "Cumulative quantity",
       "deliveryNoteNo": "Delivery note no.",
@@ -10982,7 +10947,7 @@
       "projects": "The project list",
       "suppliers": "The supplier list",
       "dockets": "The delivery dockets",
-      "columns": "The column list"
+      "columns": "The category list"
     }
   },
   "recyclerBusiness": {
@@ -11707,7 +11672,7 @@
       "locationTimeout": "The GPS fix did not arrive in time. Step into the open and try again.",
       "locationUnavailable": "The device could not get a position. Check that location is on, then try again.",
       "locationUnsupported": "This device cannot provide a GPS position.",
-      "noSafetyColumns": "This project has no safety column yet. Add one under Category management and hazards can be filed against it."
+      "noSafetyColumns": "This project has no safety category yet. Add one under Category management and hazards can be filed against it."
     },
     "new": "Report hazard",
     "severity": {
@@ -12268,9 +12233,9 @@
       "add": "Add category",
       "empty": "No default category. New projects will start with an empty category list.",
       "fieldVisible": "Show to Field Staff",
-      "fieldVisibleHelp": "Workers can choose this category in the photo-first mobile workspace.",
+      "fieldVisibleHelp": "Site staff can choose this category on the phone.",
       "subtitle": "These categories are created automatically for each new project.",
-      "title": "Default site record categories"
+      "title": "Default material categories for new projects"
     },
     "credential": {
       "active": "Active",
@@ -14265,7 +14230,9 @@
     "failed": "The conversation could not be loaded. Try again.",
     "open": "Discuss",
     "sectionTitle": "Record communication",
-    "title": "Record communication · {reference}"
+    "title": "Record communication · {reference}",
+    "closedArchived": "Archived; the conversation is closed. The record can still be viewed.",
+    "closedPaid": "Payment confirmed; the conversation is closed. The record can still be viewed."
   },
   "exportTotals": {
     "title": "Cumulative totals, per unit",
@@ -14276,7 +14243,7 @@
   "recordClosure": {
     "title": "Confirm and archive",
     "action": "Confirm and archive",
-    "help": "Pressing this marks the matter finished and archives it for everyone - the list shows your name and the time. Nothing is checked first; the decision is yours. The record stays where it is, in its own module and column; it can be read but no longer changed. Raise a new record for anything further.",
+    "help": "Pressing this marks the matter finished and archives it for everyone - the list shows your name and the time. Nothing is checked first; the decision is yours. The record stays where it is, in its own module and category; it can be read but no longer changed. Raise a new record for anything further.",
     "notePlaceholder": "Note (optional)",
     "closedTitle": "Archived",
     "closedBy": "Confirmed by {name} on {when}. This record can no longer be changed.",
@@ -14310,7 +14277,7 @@
   },
   "moduleTable": {
     "count": "{count} records",
-    "allColumns": "All columns",
+    "allColumns": "All categories",
     "unfiled": "Not filed yet",
     "allProjects": "All projects",
     "allStatuses": "All statuses",
@@ -14350,7 +14317,7 @@
     "orderState": "Order status",
     "driver": "Driver",
     "what": {
-      "columns": "The column list"
+      "columns": "The category list"
     }
   },
   "fieldSlots": {
@@ -14364,7 +14331,14 @@
     "waiting": "Waiting to upload",
     "failed": "Upload failed, will retry",
     "waitingHelp": "Queued; it uploads when the signal returns. See it under My submissions.",
-    "remove": "Remove this empty hold"
+    "remove": "Remove this empty hold",
+    "open": "New hold",
+    "held": "Held now: {count}",
+    "none": "Press New hold to start on the next vehicle.",
+    "use": "Use holds",
+    "offHelp": "Holds are off: this screen is one plain form.",
+    "cannotTurnOff": "Some holds still have photos or are waiting to upload. Submit them before turning this off.",
+    "cannotTurnOn": "This form still has entries. Submit or discard them before turning holds on."
   },
   "sundryClaim": {
     "detailTitle": "Sundry claim",
@@ -14405,7 +14379,17 @@
       "noAmount": "No amount entered",
       "file": "Voucher image",
       "amount": "Amount paid (optional)",
-      "lockHint": "Locked as soon as you press Upload voucher and cannot be changed or deleted; if it is wrong, add the correct one."
+      "lockHint": "Locked as soon as you press Upload voucher and cannot be changed or deleted; if it is wrong, add the correct one.",
+      "dropHint": "Choose a file, drag it here, or copy a screenshot and press Ctrl+V to paste it.",
+      "pickFromChat": "Pick from the conversation",
+      "hideChat": "Hide conversation photos",
+      "chatEmpty": "There are no photos in this claim's conversation yet.",
+      "chatFailed": "The conversation photos could not be loaded. Try again.",
+      "chatLoading": "Loading the conversation photos…",
+      "fromChat": "From the conversation: {name}",
+      "preview": "Voucher to upload",
+      "notImage": "Only an image can be used as a payment voucher.",
+      "clearChoice": "Choose another"
     },
     "action": {
       "confirm": "Confirm",

@@ -61,6 +61,7 @@ import type {
   ArchiveQueueRow,
   CategoryRecordKind,
   ConstructionPhase,
+  ColumnQuantity,
   ProjectCategory,
   ProjectCategoryKind,
 } from "@/interfaces/contractor-ops";
@@ -190,7 +191,8 @@ const MODULES: Module[] = [
   // create and no delete at all (F-465). They are an ordinary column module
   // now, with their money shown in the table and edited in the dialog.
   columnModule("material", "MATERIAL"),
-  columnModule("field", "FIELD"),
+  // No 现场资料分类 (D-285): the customer never defined such a module, and its
+  // hazard categories moved to 隐患整改分类 below.
   {
     key: "document",
     scope: "company",
@@ -257,10 +259,10 @@ const MODULES: Module[] = [
   // Consultant submissions used to file under the site-record columns; they
   // have their own now, chosen on the phone when submitting (D-274).
   columnModule("consultant", "CONSULTANT"),
-  // Sundry claims and the period claims are filed by the office after the
-  // fact - the phone never chooses one of these (D-275).
+  // Sundry claims are filed by the office after the fact - the phone never
+  // chooses one (D-275). One set only: the period claims' own set duplicated
+  // it and is gone (D-286).
   columnModule("sundry", "SUNDRY"),
-  columnModule("claim", "CLAIM"),
 ];
 
 export function CategoryManagement() {
@@ -478,7 +480,7 @@ export function CategoryManagement() {
                         </TableHead>
                         <TableHead>{t("column.spend")}</TableHead>
                         <TableHead className="text-right">
-                          {t("column.tonnes")}
+                          {t("column.quantity")}
                         </TableHead>
                       </>
                     )}
@@ -525,7 +527,7 @@ export function CategoryManagement() {
                             <SpendCell column={row.column} />
                           </TableCell>
                           <TableCell className="text-right tabular-nums">
-                            {row.column.tonnes_received ?? "0"}
+                            <QuantityCell quantities={row.column.quantities ?? []} />
                           </TableCell>
                         </>
                       )}
@@ -729,6 +731,45 @@ const RECORDS_PAGE_SIZE = 20;
  * own detail sheet on top (「与总栏目同一个详情」), fed from this list's door
  * because a column holds unfinished records the queue's door will not open.
  */
+/**
+ * Received quantities, one line per unit (D-281, F-481).
+ *
+ * The column used to show tonnes only, so a category of concrete - measured in
+ * cubic metres - read 0.000 with four deliveries in it.
+ */
+export function QuantityCell({
+  quantities,
+  inline = false,
+}: {
+  quantities: readonly ColumnQuantity[];
+  inline?: boolean;
+}) {
+  const t = useTranslations("categoryManagement");
+  const root = useTranslations();
+  const unitName = (unit: string) =>
+    unit && root.has(`receipts.unit.${unit}`) ? root(`receipts.unit.${unit}`) : unit;
+  if (quantities.length === 0) {
+    return <span className="text-muted-foreground">0</span>;
+  }
+  return (
+    <span className={inline ? "inline" : "block space-y-0.5"}>
+      {quantities.map((quantity) => (
+        <span key={quantity.unit} className={inline ? "inline" : "block"}>
+          {quantity.received} {unitName(quantity.unit)}
+          {Number(quantity.returned) > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {" · "}
+              {t("quantityReturned", {
+                quantity: `${quantity.returned} ${unitName(quantity.unit)}`,
+              })}
+            </span>
+          )}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function ColumnRecordsDialog({
   moduleKey,
   column,
@@ -760,6 +801,7 @@ function ColumnRecordsDialog({
   });
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
+  const groups = records.data?.groups ?? [];
   const lastPage = Math.max(1, Math.ceil(total / RECORDS_PAGE_SIZE));
 
   return (
@@ -783,6 +825,35 @@ function ColumnRecordsDialog({
               <p className="text-xs text-muted-foreground">
                 {t("records.count", { count: total })}
               </p>
+              {/* Each material on its own line with its own total (D-281):
+                  「之前的混凝土和今天的混凝土混在一起了，不会分开」. */}
+              {groups.length > 0 && (
+                <div className="rounded-lg border">
+                  <p className="border-b bg-muted/30 px-3 py-2 text-xs font-semibold">
+                    {t("records.byMaterial")}
+                  </p>
+                  <ul className="divide-y">
+                    {groups.map((group) => (
+                      <li
+                        key={`${group.material_name}|${group.material_specification}|${group.unit}`}
+                        className="flex items-center justify-between gap-3 px-3 py-2 text-sm"
+                      >
+                        <span className="min-w-0 truncate">
+                          {group.material_name}
+                          {group.material_specification
+                            ? ` · ${group.material_specification}`
+                            : ""}
+                        </span>
+                        <span className="shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                          {t("records.groupCount", { count: group.deliveries })}
+                          {" · "}
+                          <QuantityCell quantities={[group]} inline />
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <ul className="divide-y rounded-lg border">
                 {rows.map((row) => (
                   <li key={`${row.kind}:${row.id}`}>

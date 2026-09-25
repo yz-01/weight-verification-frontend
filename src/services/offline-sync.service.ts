@@ -916,24 +916,6 @@ export function submitConsultantSubmissionOfflineAware(
   });
 }
 
-export function submitCategoryEvidenceOfflineAware(
-  ownerId: string,
-  draft: Omit<
-    Extract<OfflineJob, { kind: "CATEGORY_EVIDENCE" }>["payload"],
-    "photos"
-  > & { photos: File[] },
-): Promise<OfflineSubmission> {
-  return submitCaptureJob({
-    id: newId("category-evidence-job"),
-    ownerId,
-    kind: "CATEGORY_EVIDENCE",
-    queuedAt: new Date().toISOString(),
-    attempts: 0,
-    lastError: "",
-    payload: { ...draft, photos: draft.photos.map(storeFile) },
-  });
-}
-
 interface DispatchAcceptDraft {
   dispatchId: string;
   dispatchNo: string;

@@ -249,7 +249,6 @@ describe("upload belongs to the office, submitting belongs to the phone (D-209)"
   const FIELD_FORMS = [
     ["src/components/field-staff/field-records-panel.tsx", "WasteOutgoingCapturePanel"],
     ["src/components/field-staff/field-records-panel.tsx", "ConsultantCapturePanel"],
-    ["src/components/field-staff/category-evidence-capture.tsx", "CategoryEvidenceCapture"],
   ] as const;
 
   for (const [file, form] of FIELD_FORMS) {

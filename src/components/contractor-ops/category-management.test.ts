@@ -45,15 +45,18 @@ function modulesBlock(): string {
 }
 
 describe("every module is managed on this one page (D-264)", () => {
-  it("lists all twelve modules", () => {
+  it("lists all ten modules, without 现场资料分类 or Claim 分类", () => {
     const block = modulesBlock();
     const keys = [
       ...[...block.matchAll(/columnModule\("([a-z]+)"/g)].map((m) => m[1]),
       ...[...block.matchAll(/\bkey: "([a-z]+)"/g)].map((m) => m[1]),
     ];
     expect(keys.sort()).toEqual([...CATEGORY_MODULE_KEYS].sort());
-    // Nine, then consultant, sundry and claim columns (D-274, D-275).
-    expect(keys).toHaveLength(12);
+    // 现场资料分类 was never a business module (D-285); Claim 分类
+    // duplicated 杂费报销分类 (D-286).
+    expect(keys).toHaveLength(10);
+    expect(keys).not.toContain("field");
+    expect(keys).not.toContain("claim");
   });
 
   it("gives every module a delete", () => {
@@ -103,7 +106,8 @@ describe("every module is managed on this one page (D-264)", () => {
     const source = read(MANAGEMENT);
     for (const field of [
       "archived_deliveries",
-      "tonnes_received",
+      // Per unit, not tonnes only (D-281): concrete is cubic metres.
+      "quantities",
       "budget_used_percent",
       "spend_uncounted_deliveries",
     ]) {
@@ -169,9 +173,12 @@ describe("the retired screens (D-263)", () => {
     expect(categoryManagementAddress({ module: "material" })).toBe(
       "/category-management?module=material",
     );
-    // A hand-typed or unknown kind lands on site records, as the old screen did.
+    // A hand-typed, unknown or retired kind lands on the first module.
     expect(categoryManagementAddress({ kind: "nope" })).toBe(
-      "/category-management?module=field",
+      "/category-management?module=material",
+    );
+    expect(categoryManagementAddress({ kind: "FIELD" })).toBe(
+      "/category-management?module=material",
     );
   });
 
@@ -217,8 +224,6 @@ describe("what the retired screen did still has a place", () => {
 
 describe("the phone's column list is flat (D-265)", () => {
   it("does not walk a parent tree", () => {
-    const capture = read("src/components/field-staff/category-evidence-capture.tsx");
-    expect(capture).not.toMatch(/\.parent\b|rowsByParent|setTrail/);
     const filing = read("src/components/contractor-ops/file-into-column.tsx");
     expect(filing).not.toMatch(/\.parent\b/);
   });

@@ -1,48 +1,63 @@
 "use client";
 
 /**
- * 挂号保留 on the phone: one strip of 挂号, one draft per 挂号 (D-259, T-376).
+ * 挂号 on the phone: a queue-ticket strip, one draft per 挂号 (D-259, T-376;
+ * reworked by D-279, T-400).
  *
  * Wraps a capture screen in place of `FieldDraft`. Every 挂号 is its own
- * `FieldDraft` scope, so the photos of lorry 1 and lorry 2 live in two
+ * `FieldDraft` scope, so the photos of lorry 01 and lorry 02 live in two
  * separate drafts and cannot overwrite each other; the list of 挂号 is kept
  * beside them. The rules themselves are in `lib/field-slots.ts`.
+ *
+ * Nothing opens by itself. With no 挂号 held the strip says 0 and the form is
+ * not shown - only 【挂号】, which opens the next number. There is no delete: a
+ * 挂号 goes when its record is uploaded, or, if nothing was ever put in it,
+ * when the worker switches away or opens another.
  *
  * The form inside does not know about any of this. When it submits it calls
  * `useClearDraft()` as it always has; inside a 挂号 that also settles the 挂号
  * (`SlotSettleContext`): uploaded → the 挂号 goes; queued offline → it stays,
  * marked waiting, until the offline queue reports that job uploaded.
  *
+ * 「使用挂号」 off: the screen is one plain `FieldDraft` on the base scope, with
+ * no settle context - exactly the single draft every other screen has.
+ *
  * One component for the four capture screens the rule covers (D-260):
- * 材料进场、设备进出场、建筑垃圾清运、废料出场 - 「这套挂号保留的操作规则…全部
+ * 材料进场、设备进出场、工地清运、环保材料出场 - 「这套挂号保留的操作规则…全部
  * 统一这样做，不要分别做不同逻辑」. The other capture screens keep a single
  * `FieldDraft`.
  */
 
-import { Clock3, CloudOff, Plus, Trash2 } from "lucide-react";
+import { Clock3, CloudOff, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
 import { FieldDraft, SlotSettleContext } from "@/components/field-staff/field-draft";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import type { OfflineJob } from "@/lib/offline-db";
 import {
   activateSlot,
-  addSlot,
+  canDisableSlots,
   countDraftFiles,
-  ensureActive,
+  dropEmptySlots,
+  formatSlotNumber,
+  heldCount,
+  isDraftEmpty,
   isQueued,
   loadRegistry,
+  openSlot,
   releaseUploaded,
-  removeEmptySlot,
   saveRegistry,
+  setSlotsEnabled,
   settleSlot,
   slotDraftScope,
   type FieldSlot,
+  type SlotIsEmpty,
   type SlotRegistry,
 } from "@/lib/field-slots";
-import { formDraftKey, getFormDraftStore } from "@/lib/form-draft-store";
+import { formDraftKey, getFormDraftStore, type FormDraftStore } from "@/lib/form-draft-store";
 import { cn } from "@/lib/utils";
 import {
   OFFLINE_QUEUE_CHANGED,
@@ -71,6 +86,17 @@ export function FieldSlots({
   );
 }
 
+const noop = () => {};
+const subscribeNothing = () => noop;
+
+/** Subscribe to several draft stores at once. */
+function subscribeAll(stores: FormDraftStore[]) {
+  return (listener: () => void) => {
+    const unsubscribe = stores.map((store) => store.subscribe(listener));
+    return () => unsubscribe.forEach((off) => off());
+  };
+}
+
 function SlotBoundary({
   registryKey,
   scope,
@@ -87,24 +113,67 @@ function SlotBoundary({
   children: React.ReactNode;
 }) {
   const t = useTranslations("fieldSlots");
-  // The first render may open 挂号 1, so it is written down at once.
-  const [initial] = useState(() => {
-    const opened = ensureActive(loadRegistry(registryKey));
-    return { opened, stored: saveRegistry(registryKey, opened) };
-  });
-  const [registry, setRegistry] = useState<SlotRegistry>(initial.opened);
-  const [stored, setStored] = useState(initial.stored);
+  const [initial] = useState(() => loadRegistry(registryKey));
+  const [registry, setRegistry] = useState<SlotRegistry>(initial);
+  // Written back at once: a list from before T-400 is stored in today's shape,
+  // and a browser that refuses storage is found out before anything is lost.
+  const [stored, setStored] = useState(() => saveRegistry(registryKey, initial));
   const [waiting, setWaiting] = useState<Record<string, { attempts: number; lastError: string }>>({});
+  const [refused, setRefused] = useState<"off" | "on" | null>(null);
+  // The list as last written. Callbacks read this rather than localStorage,
+  // which is exactly what a browser refusing storage cannot give back.
+  const latest = useRef(initial);
 
   const commit = useCallback(
     (next: SlotRegistry) => {
+      latest.current = next;
       setRegistry(next);
       setStored(saveRegistry(registryKey, next));
     },
     [registryKey],
   );
 
-  // Rule 6: a waiting 挂号 goes only when the queue no longer holds its job.
+  const storeFor = useCallback(
+    (slot: Pick<FieldSlot, "n" | "draft">) =>
+      getFormDraftStore(formDraftKey(company, userId, slotDraftScope(scope, slot))),
+    [company, scope, userId],
+  );
+  /** Empty means known empty: a draft not read back yet is never empty. */
+  const emptyIn = useCallback(
+    (list: SlotRegistry): SlotIsEmpty =>
+      (n) => {
+        const slot = list.slots.find((entry) => entry.n === n);
+        return slot ? isDraftEmpty(storeFor(slot).getSnapshot()) : false;
+      },
+    [storeFor],
+  );
+
+  // Read every held 挂号's draft, then let go of the ones with nothing in
+  // them - including one left open by the old strip, which opened a 挂号 by
+  // itself (that is how 「挂号 3」 appeared with no lorry there). Only the
+  // ones held when the screen opened, and never one the worker has since
+  // opened or moved to.
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all(initial.slots.map((slot) => storeFor(slot).load())).then(() => {
+      if (cancelled) return;
+      const current = latest.current;
+      const isEmpty = emptyIn(current);
+      const wasHeld = new Set(initial.slots.map((slot) => `${slot.n}|${slot.createdAt}`));
+      const keep = current.active === initial.active ? 0 : current.active;
+      const swept = dropEmptySlots(
+        current,
+        (n) => current.slots.some((slot) => slot.n === n && wasHeld.has(`${slot.n}|${slot.createdAt}`)) && isEmpty(n),
+        keep,
+      );
+      if (swept !== current) commit(swept);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [commit, emptyIn, initial, storeFor]);
+
+  // A waiting 挂号 goes only when the queue no longer holds its job.
   const queuedIds = registry.slots.filter(isQueued).map((slot) => slot.jobId as string);
   const queuedKey = queuedIds.join(",");
   useEffect(() => {
@@ -115,14 +184,14 @@ function SlotBoundary({
         queuedKey.split(",").map(async (id) => [id, await queuedJobState(userId, id)] as const),
       );
       if (cancelled) return;
-      let next = loadRegistry(registryKey);
+      let next = latest.current;
       const failures: Record<string, { attempts: number; lastError: string }> = {};
       for (const [id, state] of states) {
         if (state.waiting) failures[id] = { attempts: state.attempts, lastError: state.lastError };
         else next = releaseUploaded(next, id);
       }
       setWaiting(failures);
-      commit(ensureActive(next));
+      if (next !== latest.current) commit(next);
     };
     void check();
     window.addEventListener(OFFLINE_QUEUE_CHANGED, check);
@@ -132,55 +201,118 @@ function SlotBoundary({
       window.removeEventListener(OFFLINE_QUEUE_CHANGED, check);
       window.removeEventListener("online", check);
     };
-  }, [queuedKey, registryKey, userId, commit]);
+  }, [queuedKey, userId, commit]);
 
   const active = registry.active;
+  const activeSlot = registry.slots.find((slot) => slot.n === active && !isQueued(slot));
   const settle = useCallback(() => {
     const jobId = claimQueuedJob(jobKinds);
-    commit(ensureActive(settleSlot(loadRegistry(registryKey), active, jobId)));
-  }, [active, commit, jobKinds, registryKey]);
+    commit(settleSlot(latest.current, active, jobId));
+  }, [active, commit, jobKinds]);
 
-  const draftIdFor = useCallback(
-    (n: number) => formDraftKey(company, userId, slotDraftScope(scope, n)),
+  // Whether 「使用挂号」 may go off right now, kept live as drafts change.
+  const slotStores = useMemo(() => registry.slots.map(storeFor), [registry.slots, storeFor]);
+  const subscribeSlots = useMemo(() => subscribeAll(slotStores), [slotStores]);
+  const canTurnOff = useSyncExternalStore(
+    subscribeSlots,
+    () => canDisableSlots(registry, emptyIn(registry)),
+    () => false,
+  );
+  // With it off, the single form's draft must be empty before it goes back on,
+  // or what was typed there would vanish behind the 挂号 strip.
+  const baseStore = useMemo(
+    () => getFormDraftStore(formDraftKey(company, userId, scope)),
     [company, scope, userId],
   );
+  const canTurnOn = useSyncExternalStore(
+    registry.enabled ? subscribeNothing : baseStore.subscribe,
+    () => registry.enabled || isDraftEmpty(baseStore.getSnapshot()),
+    () => false,
+  );
+
+  const open = () => commit(openSlot(latest.current, emptyIn(latest.current)));
+  const toggle = (on: boolean) => {
+    if (on ? !canTurnOn : !canTurnOff) {
+      setRefused(on ? "on" : "off");
+      return;
+    }
+    setRefused(null);
+    commit(setSlotsEnabled(latest.current, on, emptyIn(latest.current)));
+  };
+  const reason =
+    refused === "off" && registry.enabled && !canTurnOff
+      ? t("cannotTurnOff")
+      : refused === "on" && !registry.enabled && !canTurnOn
+        ? t("cannotTurnOn")
+        : null;
 
   return (
     <div className="space-y-3">
       <section aria-label={t("title")} className="rounded-lg border bg-card p-2">
-        <div className="mb-1.5 flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2">
           <p className="text-xs font-semibold">{t("title")}</p>
-          <Button type="button" size="sm" variant="outline" onClick={() => commit(addSlot(registry))}>
-            <Plus className="size-4" />
-            {t("add")}
-          </Button>
+          <label className="flex items-center gap-2 text-xs">
+            <Switch checked={registry.enabled} onCheckedChange={toggle} />
+            {t("use")}
+          </label>
         </div>
-        <ul className="flex gap-1.5 overflow-x-auto pb-1">
-          {registry.slots.map((slot) => (
-            <SlotChip
-              key={slot.n}
-              slot={slot}
-              active={slot.n === active}
-              draftId={draftIdFor(slot.n)}
-              failure={slot.jobId ? waiting[slot.jobId] : undefined}
-              onOpen={() => commit(activateSlot(registry, slot.n))}
-              onRemove={(isEmpty) => commit(ensureActive(removeEmptySlot(registry, slot.n, isEmpty)))}
-            />
-          ))}
-        </ul>
-        <p className="mt-1 text-[11px] text-muted-foreground">{t("help")}</p>
+        {reason && (
+          <p role="status" className="mt-1 text-xs font-medium text-destructive">{reason}</p>
+        )}
+        {registry.enabled ? (
+          <>
+            <div className="mt-1.5 flex items-center justify-between gap-2">
+              <p className="text-sm font-medium tabular-nums" aria-live="polite">
+                {t("held", { count: heldCount(registry) })}
+              </p>
+              {activeSlot && (
+                <Button type="button" size="sm" variant="outline" onClick={open}>
+                  <Plus className="size-4" />
+                  {t("open")}
+                </Button>
+              )}
+            </div>
+            {registry.slots.length > 0 && (
+              <ul className="mt-1.5 flex gap-1.5 overflow-x-auto pb-1">
+                {registry.slots.map((slot) => (
+                  <SlotChip
+                    key={`${slot.n}|${slot.createdAt}`}
+                    slot={slot}
+                    active={slot.n === active}
+                    store={storeFor(slot)}
+                    failure={slot.jobId ? waiting[slot.jobId] : undefined}
+                    onOpen={() => commit(activateSlot(latest.current, slot.n, emptyIn(latest.current)))}
+                  />
+                ))}
+              </ul>
+            )}
+            <p className="mt-1 text-[11px] text-muted-foreground">{t("help")}</p>
+          </>
+        ) : (
+          <p className="mt-1 text-[11px] text-muted-foreground">{t("offHelp")}</p>
+        )}
         {!stored && (
           <p role="alert" className="mt-1 text-xs font-medium text-destructive">{t("notStored")}</p>
         )}
       </section>
-      {active ? (
+      {!registry.enabled ? (
+        <FieldDraft scope={scope}>{children}</FieldDraft>
+      ) : activeSlot ? (
         <SlotSettleContext.Provider value={settle}>
-          <FieldDraft key={active} scope={slotDraftScope(scope, active)}>
-            <p className="mb-2 text-sm font-semibold">{t("working", { n: active })}</p>
+          <FieldDraft key={slotDraftScope(scope, activeSlot)} scope={slotDraftScope(scope, activeSlot)}>
+            <p className="mb-2 text-sm font-semibold">{t("working", { n: formatSlotNumber(activeSlot.n) })}</p>
             {children}
           </FieldDraft>
         </SlotSettleContext.Provider>
-      ) : null}
+      ) : (
+        <div className="space-y-3 rounded-lg border border-dashed p-4 text-center">
+          <p className="text-sm text-muted-foreground">{t("none")}</p>
+          <Button type="button" size="lg" className="w-full" onClick={open}>
+            <Plus className="size-4" />
+            {t("open")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -188,71 +320,50 @@ function SlotBoundary({
 function SlotChip({
   slot,
   active,
-  draftId,
+  store,
   failure,
   onOpen,
-  onRemove,
 }: {
   slot: FieldSlot;
   active: boolean;
-  draftId: string;
+  store: FormDraftStore;
   failure?: { attempts: number; lastError: string };
   onOpen: () => void;
-  onRemove: (isEmpty: boolean) => void;
 }) {
   const t = useTranslations("fieldSlots");
-  const store = useMemo(() => getFormDraftStore(draftId), [draftId]);
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
   useEffect(() => {
     void store.load();
   }, [store]);
   const photos = countDraftFiles(snapshot.values);
-  const empty = snapshot.ready && Object.keys(snapshot.values).length === 0;
   const queued = isQueued(slot);
   return (
     <li className="shrink-0">
-      <div
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-pressed={active}
+        disabled={queued}
+        title={queued ? (failure?.lastError || t("waitingHelp")) : undefined}
         className={cn(
-          "flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs",
+          "flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs disabled:cursor-default",
           active && "border-primary bg-primary/10 font-semibold text-primary",
           queued && "border-dashed bg-muted/40 text-muted-foreground",
           failure && failure.attempts > 0 && "border-destructive/50 text-destructive",
         )}
       >
-        <button
-          type="button"
-          onClick={onOpen}
-          aria-pressed={active}
-          disabled={queued}
-          title={queued ? (failure?.lastError || t("waitingHelp")) : undefined}
-          className="flex items-center gap-1 disabled:cursor-default"
-        >
-          {queued ? (
-            failure && failure.attempts > 0 ? <CloudOff className="size-3.5" /> : <Clock3 className="size-3.5" />
-          ) : null}
-          <span>{t("slot", { n: slot.n })}</span>
-          <span className="tabular-nums opacity-80">
-            {queued
-              ? failure && failure.attempts > 0
-                ? t("failed")
-                : t("waiting")
-              : t("photos", { count: photos })}
-          </span>
-        </button>
-        {/* Only an empty 挂号 can be taken off the list; one holding photos
-            is cleared by uploading it (rule 6). */}
-        {!queued && empty && !active && (
-          <button
-            type="button"
-            title={t("remove")}
-            aria-label={t("remove")}
-            onClick={() => onRemove(true)}
-            className="text-muted-foreground hover:text-destructive"
-          >
-            <Trash2 className="size-3.5" />
-          </button>
-        )}
-      </div>
+        {queued ? (
+          failure && failure.attempts > 0 ? <CloudOff className="size-3.5" /> : <Clock3 className="size-3.5" />
+        ) : null}
+        <span>{t("slot", { n: formatSlotNumber(slot.n) })}</span>
+        <span className="tabular-nums opacity-80">
+          {queued
+            ? failure && failure.attempts > 0
+              ? t("failed")
+              : t("waiting")
+            : t("photos", { count: photos })}
+        </span>
+      </button>
     </li>
   );
 }

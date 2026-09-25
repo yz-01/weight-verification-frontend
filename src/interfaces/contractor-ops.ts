@@ -77,6 +77,12 @@ export interface ProjectCategory {
   tonnes_received: string;
   tonnes_excluded_deliveries: number;
   /**
+   * What the category received, per unit (D-281): never added across units,
+   * because cubic metres of concrete and tonnes of steel have no common
+   * measure. A return is its own figure, not netted off.
+   */
+  quantities?: ColumnQuantity[];
+  /**
    * How many of this column's deliveries *the person asking* still owes a
    * look, and how many they have filed away. Per reader, never shared: head
    * office reading one must not empty the project manager's pile.
@@ -662,9 +668,24 @@ export interface ArchiveQueueDetail<K extends string = ArchiveRecordKind>
 }
 
 /** The records filed in one column, newest first (T-396). */
+export interface ColumnQuantity {
+  unit: string;
+  received: string;
+  returned: string;
+  deliveries: number;
+}
+
+/** One material inside a material category, with its own total (D-281). */
+export interface MaterialGroup extends ColumnQuantity {
+  material_name: string;
+  material_specification: string;
+}
+
 export interface CategoryRecordPage {
   results: ArchiveQueueRow<CategoryRecordKind>[];
   count: number;
+  /** A material category only: each material with its count and total. */
+  groups?: MaterialGroup[];
 }
 
 export interface ArchiveQueuePage {
