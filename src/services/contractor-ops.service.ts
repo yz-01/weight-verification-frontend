@@ -9,6 +9,8 @@ import type {
   ArchiveQueuePage,
   ArchiveQueueRow,
   ArchiveRecordKind,
+  CategoryRecordKind,
+  CategoryRecordPage,
   ConstructionPhase,
   DisposalEvidence,
   DisposalEvidenceKind,
@@ -37,6 +39,7 @@ import type {
   PackageSelection,
   PackageState,
 } from "@/interfaces/contractor-ops";
+import type { CategoryModuleKey } from "@/lib/category-modules";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 export const getProjectCategories = (query: ListQuery) =>
@@ -818,6 +821,8 @@ export const submitExternalDisposalTask = (
  */
 export function getArchiveQueue(query: {
   state?: "pending" | "archived";
+  /** 「未归档」 / 「已归档」 (T-391); left out for both. */
+  closure?: "open" | "closed";
   kind?: ArchiveRecordKind;
   project?: string;
   page?: number;
@@ -851,8 +856,43 @@ export async function markRecordsArchived(
     "/api/archive-queue/mark_records_seen/",
     { records },
   );
-  toastSuccess("archiveQueue.toast.archived");
+  // Only when something was actually marked. A record opened from a column
+  // (T-396) may not be finished yet, and the queue only holds finished ones:
+  // the server then matches nothing, and a "done" toast would be a lie.
+  if (result.matched > 0) toastSuccess("archiveQueue.toast.archived");
   return result;
+}
+
+/**
+ * The records filed in one Category Management column (T-396, D-276).
+ *
+ * Lucas: 「栏目管理里点一个栏目，同一页弹出这个栏目里的全部记录」. `module` is one
+ * of the twelve keys in `category-modules.ts`; `category` is the id of the row
+ * that module's table shows. Newest first; only what this account may read.
+ */
+export function getCategoryRecords(query: {
+  module: CategoryModuleKey;
+  category: string;
+  page?: number;
+  page_size?: number;
+}): Promise<CategoryRecordPage> {
+  return api.get<CategoryRecordPage>("/api/category-records/", query);
+}
+
+/**
+ * One row of a column's list, opened, in the archive queue's detail shape.
+ *
+ * Its own door rather than `getArchiveRecord`, which serves finished records
+ * only - and a column holds the open hazard and the pending delivery too.
+ */
+export function getCategoryRecord(
+  kind: CategoryRecordKind,
+  id: string,
+): Promise<ArchiveQueueDetail<CategoryRecordKind>> {
+  return api.get<ArchiveQueueDetail<CategoryRecordKind>>(
+    "/api/category-records/get_record/",
+    { kind, id },
+  );
 }
 
 /* -------------------------------------------------------------------------
@@ -1024,6 +1064,30 @@ export const downloadPackageItem = (
 export type ExportableRecordKind = Exclude<ArchiveRecordKind, "ATTENDANCE_DAY">;
 
 /**
+ * The same nine as a value, mirroring the backend's `archive_queue.SOURCES`.
+ *
+ * A column's list (T-396) also holds a delivery note, a site record, a
+ * registered machine, a document and a period claim - none of which the
+ * export endpoint prints, so their detail gets no button rather than one that
+ * always answers "not a kind that can be exported".
+ */
+export const EXPORTABLE_RECORD_KINDS: readonly ExportableRecordKind[] = [
+  "MATERIAL_RECEIPT",
+  "MATERIAL_OUTGOING",
+  "EQUIPMENT_MOVEMENT",
+  "HAZARD",
+  "WASTE_OUTGOING",
+  "DISPOSAL_REQUEST",
+  "PROGRESS",
+  "CONSULTANT_APPLICATION",
+  "SUNDRY_CLAIM",
+];
+
+export function isExportableKind(kind: string): kind is ExportableRecordKind {
+  return (EXPORTABLE_RECORD_KINDS as readonly string[]).includes(kind);
+}
+
+/**
  * One record as its own PDF, straight from its detail (T-386, D-267).
  *
  * 「每个模块都是一样可以单独导出」: the same layout as a package's single item
@@ -1102,11 +1166,27 @@ export const getClaims = (
     state?: ClaimState;
     payment_state?: ClaimPaymentState;
     period?: string;
+    /** A CLAIM column (D-275); `uncategorised: "true"` asks for 未归类 instead. */
+    category?: string;
+    uncategorised?: "true";
   },
 ) => api.list<ClaimRow>("/api/claims/get_claims/", query);
 
 export const getClaim = (id: string) =>
   api.get<ClaimDetail>(`/api/claims/${id}/get_claim/`);
+
+/**
+ * File a claim under a CLAIM column, or back to 未归类 with `category: null`.
+ * The office opens a claim and files it afterwards (D-275).
+ */
+export async function fileClaim(
+  id: string,
+  payload: { category: string | null; reason?: string },
+) {
+  const row = await api.post<ClaimDetail>(`/api/claims/${id}/file_claim/`, payload);
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+}
 
 /**
  * This period's candidates, and the four counts above them (D-134).

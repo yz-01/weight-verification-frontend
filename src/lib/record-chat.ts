@@ -26,6 +26,38 @@ export const DISCUSSABLE_KINDS: readonly ArchiveRecordKind[] = [
   "SUNDRY_CLAIM",
 ];
 
-export function canDiscuss(kind: ArchiveRecordKind): boolean {
-  return DISCUSSABLE_KINDS.includes(kind);
+/**
+ * Any string, so a column's wider kinds (T-396) can be asked too: a delivery
+ * note, a registered machine or a document has no conversation to open.
+ */
+export function canDiscuss(kind: string): kind is ArchiveRecordKind {
+  return (DISCUSSABLE_KINDS as readonly string[]).includes(kind);
+}
+
+/**
+ * The kinds the final 【确认】 (D-234) can be asked about.
+ *
+ * The same eight: `record_closure.py` finds its record through the chat's
+ * `resolve_subject`, so any other kind - a hazard, which closes through its
+ * own verification, a day of attendance, or one of a column's non-queue
+ * kinds - is "not found", and the panel would only ever show its failure.
+ */
+export function canConfirmClosure(kind: string): kind is ArchiveRecordKind {
+  return canDiscuss(kind);
+}
+
+/**
+ * The kinds 「我看过了」 can mark (T-233): the archive queue's own.
+ *
+ * `mark_records_seen` accepts nothing else, so a column's delivery note,
+ * site record, machine, document or period claim gets no button.
+ */
+export const QUEUE_KINDS: readonly ArchiveRecordKind[] = [
+  ...DISCUSSABLE_KINDS,
+  "HAZARD",
+  "ATTENDANCE_DAY",
+];
+
+export function isQueueKind(kind: string): kind is ArchiveRecordKind {
+  return (QUEUE_KINDS as readonly string[]).includes(kind);
 }

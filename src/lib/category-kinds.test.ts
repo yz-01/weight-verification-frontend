@@ -53,18 +53,21 @@ function declaredKinds(): string[] {
 }
 
 describe("the column schemes", () => {
-  it("declares the six the server accepts, and BOTH", () => {
+  it("declares the nine the server accepts, and BOTH", () => {
     // Pinned deliberately rather than derived: this is the one place the list
     // is asserted against what the customer asked for, and a list that reads
     // itself agrees with any change including a wrong one.
     expect(declaredKinds().sort()).toEqual([
       "BOTH",
+      "CLAIM",
       "CONSTRUCTION_WASTE",
+      "CONSULTANT",
       "EHS",
       "EQUIPMENT",
       "FIELD",
       "MATERIAL",
       "PROGRESS",
+      "SUNDRY",
     ]);
   });
 

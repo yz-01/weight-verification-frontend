@@ -14,18 +14,25 @@
  *    uploaded, and locked the moment it lands; a wrong one is answered by
  *    adding the right one (第 53 条). Only `sundry_claim.pay` sees this (D-256).
  * 3. 【确认已付款】, a separate step (第 55 条), which tells the applicant.
+ *
+ * Beside those, 【归入栏目】 files the claim under one of the project's SUNDRY
+ * columns (D-275). The phone never chooses one - a claim arrives 未归类 and
+ * whoever reviews it here files it, at any step, the way progress records
+ * and construction waste are filed.
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { BadgeCheck, Check, Loader2, Upload, XCircle } from "lucide-react";
+import { BadgeCheck, Check, FolderOpen, Loader2, Upload, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import {
+  ColumnFilter,
   FilterSelect,
   ModuleRecordsTable,
   PlainHeader,
@@ -46,6 +53,7 @@ import {
   addSundryPaymentProof,
   confirmSundryClaimPaid,
   exportSundryClaims,
+  fileSundryClaim,
   getSundryClaim,
   getSundryClaims,
   reviewSundryClaim,
@@ -64,7 +72,7 @@ export function SundryClaimsOffice() {
   const df = useDateFormat();
   const { can } = useAuth();
   const searchParams = useSearchParams();
-  const list = useListQuery(["project", "state", "payment"]);
+  const list = useListQuery(["project", "state", "payment", "category", "uncategorised"]);
   const rows = useQuery({
     queryKey: ["sundry-claims", "office", list.query],
     queryFn: () => getSundryClaims(list.query),
@@ -133,6 +141,17 @@ export function SundryClaimsOffice() {
         cell: ({ row }) => <p className="max-w-[180px] truncate">{row.original.project_name}</p>,
       },
       {
+        id: "category",
+        meta: { label: tRoot("contractorOps.filing.fileInto") },
+        header: () => <PlainHeader label={tRoot("contractorOps.filing.fileInto")} />,
+        cell: ({ row }) =>
+          row.original.category_name ? (
+            <p className="max-w-[180px] truncate">{row.original.category_name}</p>
+          ) : (
+            <span className="text-muted-foreground">{tRoot("contractorOps.filing.unfiled")}</span>
+          ),
+      },
+      {
         id: "attachments",
         meta: { label: tRoot("moduleTable.photos") },
         header: () => <PlainHeader label={tRoot("moduleTable.photos")} />,
@@ -187,6 +206,7 @@ export function SundryClaimsOffice() {
         toolbar={
           <>
             <ProjectListFilter list={list} />
+            <ColumnFilter list={list} kind="SUNDRY" />
             <FilterSelect
               list={list}
               param="state"
@@ -219,9 +239,11 @@ export function SundryClaimsOffice() {
 
 function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("sundryClaim");
+  const ops = useTranslations("contractorOps");
   const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
+  const [filing, setFiling] = useState(false);
   const detail = useQuery({ queryKey: ["sundry-claims", "detail", id], queryFn: () => getSundryClaim(id) });
   const [rejectArmed, setRejectArmed] = useState(false);
   const [reason, setReason] = useState("");
@@ -280,6 +302,8 @@ function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void })
         facts={[
           { label: t("field.status"), value: <StatusBadge label={t(`status.${status}`)} tone={TONE[status]} /> },
           { label: t("field.project"), value: claim.project_name },
+          // Where it is filed, or 未归类 until the office files it (D-275).
+          { label: ops("filing.fileInto"), value: claim.category_name || ops("filing.unfiled") },
           { label: t("field.amount"), value: `RM ${claim.amount}` },
           { label: t("field.submittedBy"), value: who(claim.submitted_by_name, null, claim.created_at) },
           { label: t("field.reviewedBy"), value: who(claim.reviewed_by_name, claim.reviewed_by_user_id, claim.reviewed_at) },
@@ -323,6 +347,14 @@ function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void })
         actions={
           <div className="space-y-2">
             {error && <p role="alert" className="rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">{error}</p>}
+            {/* Filing is the reviewer's step, allowed at any status: the
+                server checks the same permission (D-275). */}
+            {can("sundry_claim.review") && (
+              <Button className="w-full" variant="outline" onClick={() => setFiling(true)}>
+                <FolderOpen />
+                {ops("filing.title")}
+              </Button>
+            )}
             {claim.state === "SUBMITTED" && can("sundry_claim.review") && (
               <>
                 <Button className="w-full" disabled={review.isPending} onClick={() => review.mutate("CONFIRMED")}>
@@ -400,6 +432,21 @@ function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void })
         }
         conversation={{ kind: "SUNDRY_CLAIM", recordId: claim.id }}
       />
+      {filing && (
+        <FileIntoColumnDialog
+          projectId={claim.project}
+          kind="SUNDRY"
+          current={claim.category ?? null}
+          reference={claim.claim_no}
+          onFile={(category, why) => fileSundryClaim(claim.id, { category, reason: why })}
+          onFiled={() => {
+            refresh();
+            void qc.invalidateQueries({ queryKey: ["project-categories"] });
+            void qc.invalidateQueries({ queryKey: ["category-management"] });
+          }}
+          onClose={() => setFiling(false)}
+        />
+      )}
     </RecordDetailDialog>
   );
 }

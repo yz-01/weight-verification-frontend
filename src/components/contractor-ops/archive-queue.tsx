@@ -17,19 +17,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
+import {
+  AddToPackageButton,
+  canGoInAPackage,
+} from "@/components/contractor-ops/add-to-package";
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
-import { canDiscuss } from "@/lib/record-chat";
+import { canConfirmClosure, canDiscuss, isQueueKind } from "@/lib/record-chat";
+import { recordStatusLabel } from "@/lib/record-status";
 import { useDateFormat } from "@/lib/dates";
 import type {
+  ArchiveQueueDetail,
   ArchiveQueueRow,
   ArchiveRecordKind,
+  RecordSheetKind,
 } from "@/interfaces/contractor-ops";
 import {
   getArchiveQueue,
   getArchiveRecord,
+  isExportableKind,
   markRecordsArchived,
 } from "@/services/contractor-ops.service";
 
@@ -79,18 +86,23 @@ const PAGE_SIZE = 20;
 
 export function ArchiveQueue() {
   const t = useTranslations("archiveQueue");
+  const root = useTranslations();
   const formatter = useDateFormat();
   const [state, setState] = useState<"pending" | "archived">("pending");
+  // The second question on this screen (T-391): archived for everybody, by a
+  // named person - not whether *this reader* has looked, which is `state`.
+  const [closure, setClosure] = useState<"" | "open" | "closed">("");
   const [kind, setKind] = useState<ArchiveRecordKind | "">("");
   const [project, setProject] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState<ArchiveQueueRow | null>(null);
 
   const query = useQuery({
-    queryKey: ["archive-queue", state, kind, project, page],
+    queryKey: ["archive-queue", state, closure, kind, project, page],
     queryFn: () =>
       getArchiveQueue({
         state,
+        closure: closure || undefined,
         kind: kind || undefined,
         project: project || undefined,
         page,
@@ -137,6 +149,23 @@ export function ArchiveQueue() {
               }`}
             >
               {t(`state.${half}`)}
+            </button>
+          ))}
+        </div>
+        <div className="flex rounded-lg border p-0.5" aria-label={t("closure.label")}>
+          {(["", "open", "closed"] as const).map((value) => (
+            <button
+              key={value || "all"}
+              type="button"
+              onClick={() => reset(() => setClosure(value))}
+              aria-current={closure === value ? "true" : undefined}
+              className={`rounded-md px-3 py-1.5 text-sm ${
+                closure === value
+                  ? "bg-primary/10 font-semibold text-primary"
+                  : "text-muted-foreground hover:bg-muted/40"
+              }`}
+            >
+              {t(`closure.${value || "all"}`)}
             </button>
           ))}
         </div>
@@ -189,7 +218,7 @@ export function ArchiveQueue() {
         </p>
       ) : (
         <div className="overflow-x-auto rounded-lg border">
-          <Table className="min-w-[44rem]">
+          <Table className="min-w-[58rem]">
             <TableHeader>
               <TableRow>
                 <TableHead>{t("column.record")}</TableHead>
@@ -197,6 +226,8 @@ export function ArchiveQueue() {
                 <TableHead>{t("column.project")}</TableHead>
                 <TableHead>{t("column.when")}</TableHead>
                 <TableHead>{t("column.status")}</TableHead>
+                <TableHead>{t("column.archived")}</TableHead>
+                <TableHead>{t("column.seen")}</TableHead>
                 <TableHead>{t("column.action")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -221,7 +252,36 @@ export function ArchiveQueue() {
                     {formatter.dateTime(row.submitted_at)}
                   </TableCell>
                   <TableCell>
-                    <StatusBadge label={row.status_label} tone="neutral" />
+                    <StatusBadge label={recordStatusLabel(root, row)} tone="neutral" />
+                  </TableCell>
+                  {/* Who archived it and when (T-391): 「每项都要写上是谁归档的，
+                      什么时间」. */}
+                  <TableCell className="text-xs">
+                    {!row.archivable ? (
+                      <span className="text-muted-foreground">{t("closure.notApplicable")}</span>
+                    ) : row.archived ? (
+                      <span className="block">
+                        <span className="font-medium text-success">{t("closure.closed")}</span>
+                        <span className="block text-muted-foreground">
+                          {row.archived.by}
+                          {row.archived.at ? ` · ${formatter.dateTime(row.archived.at)}` : ""}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-warning">{t("closure.open")}</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {row.seen_at ? (
+                      <span className="block">
+                        <span className="font-medium">{t("state.archived")}</span>
+                        <span className="block text-muted-foreground">
+                          {formatter.dateTime(row.seen_at)}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">{t("state.pending")}</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Button
@@ -281,24 +341,59 @@ export function ArchiveQueue() {
  * Fetched on open rather than carried in the list: the list merges nine tables
  * and putting every field and photograph of twenty rows into it would make the
  * screen slow for the sake of the one row somebody clicks.
+ *
+ * Also the detail Category Management opens for a column's record (T-396,
+ * D-276): 「与总栏目同一个详情」. That list holds kinds the queue does not
+ * (a delivery note, a site record, a machine, a document, a period claim) and
+ * unfinished records the queue's own door will not open, so it passes its own
+ * `fetchRecord`; the queue leaves it out. Each part below is drawn only for
+ * the kinds its endpoint serves, so a wider kind gets fewer parts, never a
+ * part that can only fail.
  */
-function RecordSheet({
+export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   row,
   onClose,
+  fetchRecord,
 }: {
-  row: ArchiveQueueRow;
+  row: ArchiveQueueRow<K>;
   onClose: () => void;
+  fetchRecord?: (kind: K, id: string) => Promise<ArchiveQueueDetail<K>>;
 }) {
   const t = useTranslations();
   const queryClient = useQueryClient();
   const formatter = useDateFormat();
   const detail = useQuery({
-    queryKey: ["archive-queue", "detail", row.kind, row.id],
-    queryFn: () => getArchiveRecord(row.kind, row.id),
+    queryKey: [
+      "archive-queue",
+      "detail",
+      fetchRecord ? "column" : "queue",
+      row.kind,
+      row.id,
+    ],
+    queryFn: (): Promise<ArchiveQueueDetail<RecordSheetKind>> =>
+      fetchRecord
+        ? fetchRecord(row.kind, row.id)
+        : isQueueKind(row.kind)
+          ? getArchiveRecord(row.kind, row.id)
+          : Promise.reject(new Error(`${row.kind} is not an archive queue kind`)),
   });
+  // 「我看过了」 is the queue's own mark: `mark_records_seen` takes its kinds
+  // and nothing else.
+  const queueKind = isQueueKind(row.kind) ? row.kind : null;
+  // Set when the server matched nothing: a record opened from a column that
+  // has not finished yet is not in anybody's queue, so there was nothing to
+  // mark - said here rather than closed as if it had worked.
+  const [notInQueue, setNotInQueue] = useState(false);
   const archive = useMutation({
-    mutationFn: () => markRecordsArchived([{ kind: row.kind, id: row.id }]),
-    onSuccess: () => {
+    mutationFn: () =>
+      queueKind
+        ? markRecordsArchived([{ kind: queueKind, id: row.id }])
+        : Promise.resolve({ marked: 0, matched: 0 }),
+    onSuccess: (result) => {
+      if (result.matched === 0) {
+        setNotInQueue(true);
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ["archive-queue"] });
       onClose();
     },
@@ -316,14 +411,23 @@ function RecordSheet({
           <div className="min-w-0">
             <h2 className="truncate font-semibold">{row.reference}</h2>
             <p className="truncate text-xs text-muted-foreground">
-              {t(`archiveQueue.kind.${row.kind}`)} · {row.project_name} ·{" "}
-              {formatter.dateTime(row.submitted_at)}
+              {/* A company-wide document has no project, so the empty part
+                  is dropped rather than printed as a double dot. */}
+              {[
+                t(`archiveQueue.kind.${row.kind as RecordSheetKind}`),
+                row.project_name,
+                formatter.dateTime(row.submitted_at),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
           </div>
           {/* 「单独导出」 (T-386), top right beside the close. A day of
-              attendance is an aggregate with no single record to print. */}
+              attendance is an aggregate with no single record to print, and
+              a column's delivery note, site record, machine, document or
+              period claim is not a kind the export endpoint prints. */}
           <div className="ml-auto flex shrink-0 items-center gap-1">
-            {row.kind !== "ATTENDANCE_DAY" && (
+            {isExportableKind(row.kind) && (
               <RecordExportButton
                 kind={row.kind}
                 recordId={row.id}
@@ -407,8 +511,12 @@ function RecordSheet({
               {/* And the one action that ends it (D-234). Here for the same
                   reason as the conversation: this sheet is where a record of
                   any kind is opened, so one panel covers every kind rather
-                  than eight copies that would drift. */}
-              <RecordClosurePanel kind={row.kind} recordId={row.id} />
+                  than eight copies that would drift. The same eight kinds:
+                  the closure endpoint finds its record the way the chat does,
+                  and a hazard closes through its own verification. */}
+              {canConfirmClosure(row.kind) && (
+                <RecordClosurePanel kind={row.kind} recordId={row.id} />
+              )}
             </>
           )}
         </div>
@@ -416,20 +524,24 @@ function RecordSheet({
         <footer className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
           {/* Said out loud next to the button, because "archive" reads as a
               record-wide action and this one is not (D-106). */}
-          <p className="w-full text-xs text-muted-foreground sm:w-auto">
-            {t("archiveQueue.archiveHelp")}
-          </p>
+          {queueKind && (
+            <p className="w-full text-xs text-muted-foreground sm:w-auto">
+              {t(notInQueue ? "archiveQueue.notInQueue" : "archiveQueue.archiveHelp")}
+            </p>
+          )}
           {/* From the record rather than from Multi Engine (T-238). This sheet
               is the one place that opens a record of any of the nine kinds, so
               putting the shortcut here reaches all of them without nine copies
               of the same button (D-154). */}
-          <AddToPackageButton
-            kind={row.kind}
-            recordId={row.id}
-            projectId={row.project_id}
-            reference={row.reference}
-          />
-          {detail.data?.is_seen ? (
+          {canGoInAPackage(row.kind) && (
+            <AddToPackageButton
+              kind={row.kind}
+              recordId={row.id}
+              projectId={row.project_id}
+              reference={row.reference}
+            />
+          )}
+          {!queueKind ? null : detail.data?.is_seen ? (
             /* A sentence rather than a greyed-out button: a button that is
                disabled for any reason other than a request in flight has to
                say why it is grey, and "you have already archived this" is
@@ -437,13 +549,20 @@ function RecordSheet({
             <p className="ml-auto text-sm font-medium">
               {t("archiveQueue.alreadyArchived")}
             </p>
-          ) : (
+          ) : notInQueue ? null : (
             <Button
               className="ml-auto"
               disabled={archive.isPending}
               onClick={() => archive.mutate()}
             >
               {t("archiveQueue.archive")}
+            </Button>
+          )}
+          {/* Nothing left to press on a kind with none of these parts, so the
+              footer still closes the sheet rather than standing empty. */}
+          {!queueKind && !canGoInAPackage(row.kind) && (
+            <Button className="ml-auto" variant="outline" onClick={onClose}>
+              {t("common.close")}
             </Button>
           )}
         </footer>
