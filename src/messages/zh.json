@@ -3040,9 +3040,9 @@
   },
   "archiveQueue": {
     "allModules": "全部模块",
-    "alreadyArchived": "你已归档",
-    "archive": "归档（仅限我）",
-    "archiveHelp": "只对你这个账号归档，不影响别人。",
+    "alreadyArchived": "你已看过",
+    "archive": "我看过了",
+    "archiveHelp": "只从你自己的待看清单移走，同事的清单里照样还在，记录本身不会改变。",
     "column": {
       "record": "记录",
       "module": "所属模块",
@@ -3051,7 +3051,7 @@
       "status": "状态",
       "action": "操作"
     },
-    "emptyArchived": "你还没有在这里归档过任何记录。",
+    "emptyArchived": "你还没有在这里标过「看过了」。",
     "emptyPending": "这里没有等你看的记录。",
     "failed": "列表载入失败，请重试。",
     "firstPage": "已经是第一页了。",
@@ -3073,16 +3073,16 @@
     "next": "下一页",
     "open": "查看",
     "pageOf": "第 {page} / {pages} 页",
-    "perPersonHelp": "「未归档」指的是**你**还没打开过。每个账号各自计算，你看过之后不会从同事的列表里消失。",
+    "perPersonHelp": "「未看」指的是**你**还没标过「看过了」。每个账号各自计算，你标过之后不会从同事的列表里消失。",
     "previous": "上一页",
     "state": {
-      "pending": "未归档",
-      "archived": "已归档"
+      "pending": "未看",
+      "archived": "已看"
     },
-    "subtitle": "所有已完成的记录，等你看过之后才算归档。",
+    "subtitle": "所有已完成的记录，等你看过。",
     "title": "总栏目",
     "toast": {
-      "archived": "已为你归档。"
+      "archived": "已为你标成「看过了」。"
     }
   },
   "assets": {
@@ -3912,16 +3912,17 @@
       "module": "所属模块",
       "records": "记录数量",
       "status": "状态",
-      "action": "操作"
+      "action": "操作",
+      "archived": "已归档送货",
+      "spend": "花费／预算",
+      "tonnes": "吨数"
     },
     "create": "新增栏目",
-    "createElsewhere": "到该模块新增",
     "edit": "编辑",
     "empty": "这里还没有栏目。",
     "failed": "栏目读取失败，请重试。",
     "inactive": "停用",
     "loading": "加载中…",
-    "manage": "打开该模块",
     "module": {
       "material": "材料分类",
       "field": "现场资料分类",
@@ -3963,7 +3964,23 @@
     },
     "subtitle": "先选所属模块，再看该模块下面的栏目。",
     "title": "栏目管理",
-    "weight": "权重 {weight}"
+    "weight": "权重 {weight}",
+    "removeFailed": "「{name}」没有删除：{reason}",
+    "dialogCreate": "新增栏目 · {module}",
+    "dialogEdit": "编辑栏目 · {module}",
+    "budget": {
+      "title": "预算",
+      "help": "花费由这个栏目下送货单的金额累计。",
+      "uncounted": "有 {count} 张送货单读不出金额，没有算进这个合计。",
+      "tracksSpend": "这个栏目的支出计入预算",
+      "amount": "预算（RM）",
+      "amountHint": "不计预算的栏目留空",
+      "alerts": "在这些百分比提醒",
+      "alertsHint": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
+      "alertsInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
+      "none": "没有设预算"
+    },
+    "saveFailed": "没有成功。请再试一次，或者刷新页面。"
   },
   "cloudServices": {
     "count": "{count} 项服务",
@@ -4057,7 +4074,8 @@
     "themeSystem": "跟随系统",
     "toggleSidebar": "切换侧栏",
     "unknownError": "出了点问题，请重试。",
-    "view": "查看"
+    "view": "查看",
+    "exportThisRecord": "单独导出"
   },
   "companies": {
     "owner": {
@@ -5316,7 +5334,6 @@
       "title": "等你处理",
       "subtitle": "{receipts} 笔送货、{approvals} 项待审，还没有人替你看过",
       "help": "这是你自己的清单。点进去看过就算你归档了，别人那边不受影响。",
-      "openColumns": "材料栏目",
       "unfiled": "暂未归档"
     },
     "recordStatus": {
@@ -5374,13 +5391,8 @@
       "accessRoles": "可查看的角色",
       "accessTitle": "谁可以看到此栏目",
       "accessUsers": "可查看的人员",
-      "add": "新增栏目",
       "createTitle": "新增栏目",
-      "editPermissionHelp": "角色和人员都留空时沿用栏目管理权限；公司管理员始终保留恢复权限。",
-      "editPermissionTitle": "谁可以编辑此栏目",
-      "editRoles": "可编辑的角色",
       "editTitle": "编辑栏目",
-      "editUsers": "可编辑的人员",
       "formHelp": "每个栏目只属于一个项目，可以排序或从现场手机页面隐藏。",
       "moveDown": "往下移",
       "moveUp": "往上移",
@@ -5388,21 +5400,8 @@
       "noUsers": "目前没有可选择的项目人员。",
       "removeBody": "只有没有现场记录使用该栏目时才可以移除。",
       "removeTitle": "移除 {name}？",
-      "reorderNeedsProject": "选一个工地才能排顺序。这个顺序就是现场 App 上显示的顺序，而它只在同一个工地里才有意义。",
-      "subtitle": "按项目整理现场记录，并决定现场人员可看到哪些栏目。",
-      "title": "现场资料栏目",
-      "uploadHelp": "角色和人员都留空时，所有可查看人员都能上传；选择后只允许所选对象上传。",
-      "uploadRoles": "可上传的角色",
-      "uploadTitle": "谁可以上传到此栏目",
-      "uploadUsers": "可上传的人员",
       "kind": "所属模块",
-      "kindField": "现场资料栏目",
-      "kindMaterial": "材料栏目",
       "kindBoth": "尚未分家",
-      "kindProgress": "工程进度栏目",
-      "kindEhs": "隐患整改栏目",
-      "kindEquipment": "设备栏目",
-      "kindConstructionWaste": "建筑垃圾栏目",
       "submissionMode": "提交方式",
       "submissionDirect": "直接提交",
       "submissionReview": "提交审核",
@@ -5522,11 +5521,9 @@
       "name": "名称",
       "noCategory": "不选择栏目",
       "noEquipmentColumnYet": "这个项目还没有设备栏目，而设备必须归到一个栏目里。",
-      "noParent": "没有上级栏目",
       "noSupplier": "没有供应商",
       "notes": "备注",
       "operator": "操作人员",
-      "parent": "上级栏目",
       "percentComplete": "实际完成比例（%）",
       "phase": "施工阶段",
       "photoCount": "已选择 {count} 张照片",
@@ -5764,7 +5761,6 @@
     "what": {
       "roles": "角色列表",
       "projectPeople": "本项目的人员名单",
-      "parentColumns": "上级栏目列表",
       "columns": "栏目列表",
       "suppliers": "供应商列表",
       "equipmentSummary": "设备统计",
@@ -7068,7 +7064,8 @@
       "version_not_found": "找不到该平台版本。",
       "visit_not_found": "找不到该客户回访。",
       "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
-      "rejection_needs_conversation": "请先在这条记录的【沟通】里说明问题，让现场看得到原因并能回复，然后才能退回。"
+      "rejection_needs_conversation": "请先在这条记录的【沟通】里说明问题，让现场看得到原因并能回复，然后才能退回。",
+      "column_not_empty": "这个栏目下还有记录：{records}。请先移走，再删除栏目。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7440,7 +7437,6 @@
       "noCategories": "这个项目暂时没有开放给现场工作人员的栏目。",
       "note": "简单备注（选填）",
       "notePlaceholder": "只填写办公室需要知道的内容。",
-      "openSubcategory": "进入下一级栏目",
       "photo": {
         "completion": "4. 完成情况或当前状态",
         "detail": "2. 工作或问题细节",
@@ -8449,41 +8445,9 @@
     "REJECTED": "验收不合格"
   },
   "materialColumns": {
-    "alertHelp": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
-    "alertInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
-    "alertPercentages": "在这些百分比提醒",
-    "archived": "已归栏目",
-    "archivedHelp": "预算是钱，由这个栏目下的送货单金额累计而来。",
-    "budgetAmount": "预算（RM）",
-    "budgetNone": "不计预算的栏目留空",
-    "columnsFailed": "无法载入栏目，因此无法确定这个工地到底有没有栏目。请重试。",
-    "columnsFailedRefile": "无法载入栏目，所以上面的选择框是空的。这不代表这个工地没有栏目 —— 在载入成功之前，请不要新建一个。",
-    "edit": "编辑栏目",
-    "editHelp": "只改名称、预算和预警线。归在这个栏目里的照片、数量与签名是证据，这里一个字节都不动。",
-    "editTitle": "编辑 {name}",
-    "fileInto": "归到",
-    "filed": "已归档 {count} 条",
-    "noBudget": "没有设预算",
-    "noColumns": "还没有设栏目",
-    "noMaterialColumns": "这个项目还没有可归的材料栏目。",
-    "pending": "待你查看（{count}）",
-    "pendingEmpty": "没有待看的",
-    "pendingFailed": "无法载入待归档的送货清单，因此无法确定到底有没有在等。请重试。",
-    "pendingHelp": "你看过之后才会归到各自的栏目里。每个账号的已读状态是各自独立的。",
-    "refileConfirm": "归档",
-    "refileHelp": "只改归在哪。照片、数量、签名、时间、位置全部保持记录时的样子。",
-    "refileReason": "原因",
-    "refileTitle": "把 {receipt} 归到某个栏目",
-    "saveFailed": "没有成功。请再试一次，或者刷新页面。",
-    "seeAllPending": "查看全部 {count} 条",
-    "subtitle": "每个栏目收了多少、花了多少",
-    "title": "材料栏目",
     "toast": {
       "refiled": "已归档。"
-    },
-    "tonnes": "累计 {tonnes} 吨",
-    "tracksSpend": "这个栏目的支出计入预算",
-    "uncounted": "有几张送货单读不出金额，没有算进这个合计里。"
+    }
   },
   "materialReports": {
     "cost": {
@@ -14287,15 +14251,15 @@
     "note": "不同单位不能相加，因此按单位分别统计，没有合计总数。"
   },
   "recordClosure": {
-    "title": "确认并归档",
-    "action": "确认并归档",
-    "help": "按下去就视为本事项完成并归档。系统不做任何前置判断 —— 判断由你负责，系统记录你的姓名与确认时间。归档后原事项只能查看，不能再修改；以后有新问题请新建一条记录。",
+    "title": "确认完成",
+    "action": "确认完成",
+    "help": "按下去就视为这件事已经完成，并为所有人锁定。系统不做任何前置判断 —— 判断由你负责，系统记录你的姓名与确认时间。记录不会搬走，还在原来的模块和栏目里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
     "notePlaceholder": "备注（可选）",
-    "closedTitle": "已确认归档",
+    "closedTitle": "已确认完成",
     "closedBy": "由 {name} 于 {when} 确认。本记录已不能再修改。",
     "loading": "正在查询…",
     "what": {
-      "state": "这条记录是否已归档"
+      "state": "这条记录是否已确认完成"
     }
   },
   "recordConversation": {

@@ -838,6 +838,11 @@ export function SiteEquipmentOffice() {
         <RecordDetailDialog
           title={`${viewingMovement.equipment_code} - ${viewingMovement.equipment_name}`}
           description={`${t(`direction.${viewingMovement.direction}`)} · ${df.dateTime(viewingMovement.occurred_at)}`}
+          exportRecord={{
+            kind: "EQUIPMENT_MOVEMENT",
+            recordId: viewingMovement.id,
+            reference: `${viewingMovement.equipment_code}-${viewingMovement.direction}`,
+          }}
           onClose={() => setViewingMovement(null)}
         >
           <RecordDetailShell
@@ -1424,6 +1429,11 @@ export function SiteProgressOffice() {
         <RecordDetailDialog
           title={reference(shown)}
           description={shown.project_name}
+          exportRecord={{
+            kind: "PROGRESS",
+            recordId: shown.id,
+            reference: reference(shown),
+          }}
           onClose={() => setViewing(null)}
         >
           <RecordDetailShell

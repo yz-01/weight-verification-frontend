@@ -537,6 +537,11 @@ export function WasteOutgoingWorkspace() {
         <RecordDetailDialog
           title={shown.reference_no}
           description={`${shown.project_name} · ${shown.category_name}`}
+          exportRecord={{
+            kind: "WASTE_OUTGOING",
+            recordId: shown.id,
+            reference: shown.reference_no,
+          }}
           onClose={() => setViewing(null)}
         >
           <RecordDetailShell

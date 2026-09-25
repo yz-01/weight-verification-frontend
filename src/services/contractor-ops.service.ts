@@ -368,6 +368,17 @@ export const updateConstructionPhase = async (
   return row;
 };
 
+/**
+ * Remove a construction phase (T-384, D-264).
+ *
+ * The server refuses while progress records still point at the phase and says
+ * which; the caller shows that sentence. Mirrors `deleteProjectCategory`.
+ */
+export const deleteConstructionPhase = async (id: string) => {
+  await api.delete(`/api/site-progress/${id}/delete_phase/`);
+  toastSuccess("contractorOps.toast.removed");
+};
+
 /** The office's 【备注】 on a progress record (T-359, D-225). */
 export async function addProgressRemark(id: string, body: string) {
   const row = await api.post<SiteProgressRecord>(`/api/site-progress/${id}/add_remark/`, { body });
@@ -1002,6 +1013,36 @@ export const downloadPackageItem = (
     `/api/evidence-packages/${packageId}/download_item/?item=${encodeURIComponent(itemId)}`,
     { fallbackFilename: `${reference || "record"}.pdf` },
   );
+
+/**
+ * The kinds a record can be exported as its own PDF from (T-386, D-267).
+ *
+ * The nine the office opens a detail for. ATTENDANCE_DAY is not one: a day of
+ * attendance is an aggregate with no primary key, so there is no one record to
+ * print.
+ */
+export type ExportableRecordKind = Exclude<ArchiveRecordKind, "ATTENDANCE_DAY">;
+
+/**
+ * One record as its own PDF, straight from its detail (T-386, D-267).
+ *
+ * 「每个模块都是一样可以单独导出」: the same layout as a package's single item
+ * (`downloadPackageItem`), without first having to put the record in a
+ * package. Who may see the record is the server's decision; an error comes
+ * back as the usual envelope and `download` toasts it.
+ */
+export const downloadRecordPdf = (
+  kind: ExportableRecordKind,
+  recordId: string,
+  reference: string,
+) =>
+  download("/api/record-exports/download/", {
+    query: { kind, record: recordId },
+    // Only used when the server sends no filename. Some references are
+    // labels rather than numbers (a progress record's 「phase / 40%」), so
+    // the characters a filename cannot hold become dashes.
+    fallbackFilename: `${(reference || "record").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
+  });
 
 export async function sendPackageForReview(id: string, consultant: string) {
   const row = await api.post<EvidencePackageDetail>(

@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import {
   DetailHeader,
   FieldWrapper,
@@ -180,6 +181,13 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
           <Download />{t("action.downloadReport")}
         </Button>
       )}
+      {/* 「单独导出」 (T-386): the application itself as a PDF, last in the
+          header row so it sits at the top right like every other detail. */}
+      <RecordExportButton
+        kind="CONSULTANT_APPLICATION"
+        recordId={application.id}
+        reference={application.application_no}
+      />
     </div>
   );
 

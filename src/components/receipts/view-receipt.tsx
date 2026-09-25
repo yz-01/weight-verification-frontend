@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Pencil, Phone } from "lucide-react";
+import { Camera, FolderOpen, Pencil, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
@@ -12,7 +12,9 @@ import {
   LoadErrorCard,
 } from "@/components/shared/form-shell";
 import { RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
+import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { Switch } from "@/components/ui/switch";
 import {
   DetailHeader,
@@ -33,6 +35,7 @@ import type {
 import {
   addReceiptPhoto,
   getReceipt,
+  refileReceipt,
   reviewReceipt,
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
@@ -310,6 +313,7 @@ export function ViewReceipt({ id }: { id: string }) {
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
+  const [filing, setFiling] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["receipts", "detail", id],
@@ -328,7 +332,18 @@ export function ViewReceipt({ id }: { id: string }) {
 
   return (
     <div className="space-y-3">
-      <DetailHeader backHref="/receipts" backLabel={t("receipts.title")} />
+      {/* 「单独导出」 top right (T-386): this delivery as its own PDF. */}
+      <DetailHeader
+        backHref="/receipts"
+        backLabel={t("receipts.title")}
+        action={
+          <RecordExportButton
+            kind="MATERIAL_RECEIPT"
+            recordId={data.id}
+            reference={data.receipt_no}
+          />
+        }
+      />
 
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="tabular text-base font-semibold text-foreground">
@@ -466,6 +481,17 @@ export function ViewReceipt({ id }: { id: string }) {
                 projectId={data.project}
                 reference={data.receipt_no}
               />
+              {/* Moving a delivery to another material column. It lived on
+                  the material-columns page, which is gone (D-263); without
+                  it a column holding deliveries could never be emptied, and
+                  the server's "move them first" would name an action nobody
+                  could take (F-204). */}
+              {can("receipt.update") && !data.superseded_by && (
+                <Button size="sm" variant="outline" onClick={() => setFiling(true)}>
+                  <FolderOpen className="h-4 w-4" />
+                  {t("contractorOps.filing.action")}
+                </Button>
+              )}
               {can("receipt.update") && !data.superseded_by && (
                 <Button asChild size="sm" variant="outline">
                   <Link href={`/receipts/${data.id}/edit`}>
@@ -479,6 +505,24 @@ export function ViewReceipt({ id }: { id: string }) {
         }
         conversation={{ kind: "MATERIAL_RECEIPT", recordId: data.id }}
       />
+      {filing && (
+        <FileIntoColumnDialog
+          projectId={data.project}
+          kind="MATERIAL"
+          current={data.category ?? null}
+          reference={data.receipt_no}
+          onFile={(category, reason) =>
+            refileReceipt(data.id, { category, reason: reason || undefined })
+          }
+          onFiled={() => {
+            void queryClient.invalidateQueries({ queryKey: ["receipts"] });
+            // Both columns' budgets moved with the delivery.
+            void queryClient.invalidateQueries({ queryKey: ["project-categories"] });
+            void queryClient.invalidateQueries({ queryKey: ["category-management"] });
+          }}
+          onClose={() => setFiling(false)}
+        />
+      )}
     </div>
   );
 }

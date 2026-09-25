@@ -4,8 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Camera,
   Check,
-  ChevronDown,
-  ChevronUp,
   ClipboardCheck,
   FolderOpen,
   FileText,
@@ -21,7 +19,6 @@ import {
   RotateCcw,
   ScanText,
   Save,
-  Trash2,
   Eye,
   ImagePlus,
 } from "lucide-react";
@@ -42,7 +39,6 @@ import {
   FieldEvidenceGrid,
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
@@ -57,6 +53,7 @@ import {
 } from "@/components/shared/page-primitives";
 import { LocationField } from "@/components/field-staff/location-field";
 import type { LocationFix } from "@/lib/field-location";
+import { parseAlertPercentages } from "@/lib/category-modules";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { Button } from "@/components/ui/button";
@@ -101,8 +98,6 @@ import {
   createProjectCategory,
   createSiteEquipment,
   exportSiteProgressRecords,
-  reorderProjectCategories,
-  deleteProjectCategory,
   exportEquipmentMovements,
   getConstructionPhases,
   getEquipmentMovements,
@@ -249,297 +244,42 @@ export function tone(
 }
 
 /**
- * The five column schemes this one screen serves, and the Category Management
- * module each is named after (D-161).
+ * The editor for one project column, opened in place from Category Management.
  *
- * One screen rather than five, because the fields, the permissions, the
- * ordering and the delete protection are identical - five screens with one
- * meaning is what D-125 refuses. What the kind decides is the title, the list
- * and what a new column defaults to.
+ * Lucas 2026-09-25: 「全部栏目都可以直接在同个页面新增，不需要跳转到其他页面，
+ * 就是会有弹窗表格」 (D-264). So this is the only column form: the separate
+ * `/project-categories` and `/material-columns` screens are gone, and a
+ * material column's budget and warning lines are edited here too (D-263).
  *
- * `MATERIAL` is deliberately absent: deliveries and the money they cost are
- * managed on `/material-columns`, which carries a unit, a BQ target and a
- * supplier list this screen has no fields for (T-161).
+ * What is deliberately not on it (D-265, D-266):
+ * - no parent column. Columns are one flat list; the server no longer accepts
+ *   a parent on write, and old parent links stay in the database unused;
+ * - no "who can upload" and no "who can edit" lists. Everyone who can see a
+ *   column can upload to it, field staff included, and editing follows the
+ *   `category.manage` permission alone.
+ *
+ * "Who can see this column" (`access_mode`) stays - it was not part of what
+ * Lucas asked to remove.
  */
-const CATEGORY_SCREENS: Record<string, string> = {
-  FIELD: "field",
-  EQUIPMENT: "equipment",
-  PROGRESS: "progress",
-  EHS: "ehs",
-  CONSTRUCTION_WASTE: "debris",
-};
-
-export function ProjectCategoriesWorkspace() {
-  const t = useTranslations("contractorOps");
-  const modules = useTranslations("categoryManagement");
-  const common = useTranslations("common");
-  const { can } = useAuth();
-  const qc = useQueryClient();
-  const searchParams = useSearchParams();
-  const requestedProject = searchParams.get("project")?.trim() ?? "";
-  /*
-   * Which scheme this screen is showing (F-372).
-   *
-   * It used to be `FIELD` and nothing else, while Category Management sent
-   * five of its nine module rows here. So "Open the module" on Equipment,
-   * Progress, EHS and Construction waste all landed on the site-record list,
-   * and an equipment column could not be created anywhere at all - the screen
-   * that was supposed to hold it could not even list it.
-   *
-   * An unknown value falls back to site records rather than showing nothing:
-   * a hand-typed address is not a reason to present an empty screen.
-   */
-  const kind =
-    (searchParams.get("kind")?.trim().toUpperCase() ?? "") in CATEGORY_SCREENS
-      ? (searchParams.get("kind") as string).trim().toUpperCase()
-      : "FIELD";
-  const moduleKey = CATEGORY_SCREENS[kind];
-  const [project, setProject] = useState(requestedProject);
-  const [editing, setEditing] = useState<ProjectCategory | "new" | null>(
-    searchParams.get("create") === "1" &&
-      can("category.manage") &&
-      requestedProject
-      ? "new"
-      : null,
-  );
-  const [removing, setRemoving] = useState<ProjectCategory | null>(null);
-  const rows = useQuery({
-    queryKey: ["project-categories", kind, project],
-    // The other half of the split (T-161). This screen never lists the
-    // material columns, which are managed on /material-columns; which of the
-    // remaining schemes it lists is the address's business (D-161).
-    queryFn: () =>
-      getProjectCategories({
-        page_size: 200,
-        project: project || undefined,
-        // Spelled out rather than shorthand: `check-category-kinds.mjs` reads
-        // the call to prove every category list says which scheme it wants.
-        kind: kind,
-      }),
-  });
-  const refresh = () =>
-    qc.invalidateQueries({ queryKey: ["project-categories"] });
-  const removal = useMutation({
-    mutationFn: deleteProjectCategory,
-    onSuccess: () => {
-      void refresh();
-      setRemoving(null);
-    },
-  });
-  const reorder = useMutation({
-    mutationFn: reorderProjectCategories,
-    onSuccess: refresh,
-  });
-  const ordered = rows.data?.results ?? [];
-  // Only offered on one site at a time. Across projects the card above a card
-  // belongs to a different list, so "move up" would have nothing meaningful
-  // to swap places with.
-  const canReorder = can("category.manage") && Boolean(project);
-  /** Swap this category with its neighbour, sending both places at once. */
-  const move = (index: number, delta: number) => {
-    const target = index + delta;
-    if (target < 0 || target >= ordered.length) return;
-    reorder.mutate([
-      { id: ordered[index].id, sort_order: target },
-      { id: ordered[target].id, sort_order: index },
-    ]);
-  };
-  const dialogProject =
-    editing === "new" ? project : editing?.project ?? "";
-  return (
-    <div className="space-y-5">
-      <ListHeader
-        /* Named after the Category Management row this screen was opened
-           from, so the two agree on what the list is called. Reusing those
-           strings rather than writing a second set: two names for one list is
-           how a reader ends up unsure they are in the right place. */
-        title={modules(`module.${moduleKey}`)}
-        subtitle={modules(`moduleHelp.${moduleKey}`)}
-        action={
-          can("category.manage") ? (
-            <Button
-              requires={[[project, t("field.project")]]}
-              onClick={() => setEditing("new")}
-            >
-              <Plus />
-              {t("categories.add")}
-            </Button>
-          ) : undefined
-        }
-      />
-      {/* The list's project filter is also where the Add button takes its
-          project from, so it wears the star that button asks for. */}
-      <FieldWrapper label={t("field.project")} required={can("category.manage")} className="rounded-lg border bg-card px-3 py-2 shadow-sm">
-        <ProjectPicker
-          value={project}
-          onValueChange={(next) => setProject(next === "all" ? "" : next)}
-          placeholder={t("field.selectProject")}
-          allowAll
-          allLabel={t("field.allProjects")}
-          className="w-full sm:w-72"
-        />
-      </FieldWrapper>
-      {can("category.manage") && !project && !!rows.data?.count && (
-        <p className="rounded-lg border border-dashed bg-muted/20 p-3 text-xs text-muted-foreground">
-          {t("categories.reorderNeedsProject")}
-        </p>
-      )}
-      <WorkspaceState
-        loading={rows.isLoading}
-        error={rows.isError}
-        empty={!rows.data?.count}
-      />
-      {!!rows.data?.count && (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {ordered.map((row, index) => (
-            <article
-              key={row.id}
-              className="rounded-lg border bg-card p-4 shadow-sm"
-            >
-              <div className="flex items-start gap-3">
-                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                  <ListTree className="size-5" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    {row.code}
-                  </p>
-                  <h3 className="truncate font-semibold">{row.name}</h3>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {row.description || t("state.noDescription")}
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4 flex flex-wrap items-center gap-2 border-t pt-3">
-                <StatusBadge
-                  label={t(row.is_active ? "status.active" : "status.inactive")}
-                  tone={row.is_active ? "positive" : "neutral"}
-                />
-                <StatusBadge
-                  label={t(
-                    row.is_visible_in_pwa
-                      ? "status.pwaVisible"
-                      : "status.pwaHidden",
-                  )}
-                  tone={row.is_visible_in_pwa ? "info" : "neutral"}
-                />
-                <StatusBadge
-                  label={t(
-                    row.access_mode === "ALL"
-                      ? "status.accessAll"
-                      : "status.accessRestricted",
-                  )}
-                  tone={row.access_mode === "ALL" ? "neutral" : "warning"}
-                />
-                {can("category.manage") && (
-                  <div className="ml-auto flex gap-1">
-                    {canReorder && (
-                      <>
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          title={t("categories.moveUp")}
-                          disabledReason={
-                            index === 0 ? common("alreadyFirst") : undefined
-                          }
-                          disabled={index === 0 || reorder.isPending}
-                          onClick={() => move(index, -1)}
-                        >
-                          <ChevronUp />
-                        </Button>
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          title={t("categories.moveDown")}
-                          disabledReason={
-                            index === ordered.length - 1
-                              ? common("alreadyLast")
-                              : undefined
-                          }
-                          disabled={
-                            index === ordered.length - 1 || reorder.isPending
-                          }
-                          onClick={() => move(index, 1)}
-                        >
-                          <ChevronDown />
-                        </Button>
-                      </>
-                    )}
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      title={t("action.edit")}
-                      onClick={() => setEditing(row)}
-                    >
-                      <Pencil />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      className="text-destructive"
-                      title={t("action.remove")}
-                      onClick={() => setRemoving(row)}
-                    >
-                      <Trash2 />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-      {editing && dialogProject && (
-        <CategoryDialog
-          project={dialogProject}
-          defaultKind={kind as ProjectCategoryKind}
-          row={editing === "new" ? null : editing}
-          categories={(rows.data?.results ?? []).filter(
-            (item) => item.project === dialogProject,
-          )}
-          onClose={() => setEditing(null)}
-          onSaved={() => {
-            void refresh();
-            setEditing(null);
-          }}
-        />
-      )}
-      {removing && (
-        <ConfirmDialog
-          open
-          onOpenChange={() => setRemoving(null)}
-          title={t("categories.removeTitle", { name: removing.name })}
-          description={t("categories.removeBody")}
-          confirmLabel={t("action.remove")}
-          confirmIcon={Trash2}
-          isPending={removal.isPending}
-          onConfirm={() => removal.mutate(removing.id)}
-        />
-      )}
-    </div>
-  );
-}
-
 export function CategoryDialog({
   project,
   defaultKind,
   row,
-  categories,
-  parentOptions,
+  nextSortOrder,
   onClose,
   onSaved,
 }: {
   project: string;
-  /** The scheme the screen is listing, so a new column joins that list. */
+  /** The module the screen is showing, so a new column joins that list. */
   defaultKind: ProjectCategoryKind;
   row: ProjectCategory | null;
-  categories: ProjectCategory[];
-  /** Where `categories` came from, when the caller fetched them for this dialog. */
-  parentOptions?: { isError: boolean; refetch?: () => unknown };
+  /** Where a new column goes in the list: after the ones already there. */
+  nextSortOrder: number;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const t = useTranslations("contractorOps");
+  const modules = useTranslations("categoryManagement");
   const { can } = useAuth();
   const roles = useQuery({
     queryKey: ["roles", "category-access"],
@@ -552,44 +292,63 @@ export function CategoryDialog({
   });
   const [form, setForm] = useState<ProjectCategoryPayload>({
     project,
-    parent: row?.parent ?? null,
     code: row?.code ?? "",
     name: row?.name ?? "",
-    // A new column joins the list it was created from - which is not always
-    // site records any more (D-161). An existing row keeps whatever it
-    // already is, including the BOTH marker on a column the split could not
-    // classify; the picker below is where somebody who knows settles it.
+    // A new column joins the list it was created from. An existing row keeps
+    // whatever it already is, including the BOTH marker on a column the split
+    // could not classify; the picker below is where somebody who knows
+    // settles it.
     kind: row?.kind ?? defaultKind,
     submission_mode: row?.submission_mode ?? "REVIEW",
     description: row?.description ?? "",
-    sort_order: row?.sort_order ?? categories.length,
+    sort_order: row?.sort_order ?? nextSortOrder,
     is_visible_in_pwa: row?.is_visible_in_pwa ?? true,
     is_active: row?.is_active ?? true,
     access_mode: row?.access_mode ?? "ALL",
     allowed_roles: row?.allowed_roles ?? [],
     allowed_users: row?.allowed_users ?? [],
-    upload_roles: row?.upload_roles ?? [],
-    upload_users: row?.upload_users ?? [],
-    edit_roles: row?.edit_roles ?? [],
-    edit_users: row?.edit_users ?? [],
   });
+  // The material column's money (D-263): whether it counts against a budget,
+  // the budget, and the percentages worth a warning. Moved here from the
+  // retired /material-columns screen, with the same reading rules.
+  const [tracksSpend, setTracksSpend] = useState(row?.tracks_spend ?? false);
+  const [budget, setBudget] = useState(row?.budget_amount ?? "");
+  const [alerts, setAlerts] = useState(
+    (row?.budget_alert_percentages ?? []).join(", "),
+  );
+  const [error, setError] = useState("");
+  const isMaterial = form.kind === "MATERIAL";
+  const parsedAlerts = parseAlertPercentages(alerts);
+  const alertsInvalid = isMaterial && tracksSpend && parsedAlerts === null;
   const save = useMutation({
-    mutationFn: () =>
-      row ? updateProjectCategory(row.id, form) : createProjectCategory(form),
+    mutationFn: () => {
+      const payload: ProjectCategoryPayload = isMaterial
+        ? {
+            ...form,
+            tracks_spend: tracksSpend,
+            // Null, not "", for a column that counts nothing: the field is a
+            // nullable decimal and an empty string is not a number.
+            budget_amount: tracksSpend && budget.trim() ? budget.trim() : null,
+            budget_alert_percentages:
+              parsedAlerts ?? row?.budget_alert_percentages ?? [],
+          }
+        : form;
+      return row
+        ? updateProjectCategory(row.id, payload)
+        : createProjectCategory(payload);
+    },
     onSuccess: onSaved,
+    onError: (reason) =>
+      setError(
+        reason instanceof ApiError ? reason.message : modules("saveFailed"),
+      ),
   });
   const set = <K extends keyof ProjectCategoryPayload>(
     key: K,
     value: ProjectCategoryPayload[K],
   ) => setForm((old) => ({ ...old, [key]: value }));
   const toggle = (
-    key:
-      | "allowed_roles"
-      | "allowed_users"
-      | "upload_roles"
-      | "upload_users"
-      | "edit_roles"
-      | "edit_users",
+    key: "allowed_roles" | "allowed_users",
     id: string,
     checked: boolean,
   ) =>
@@ -613,7 +372,7 @@ export function CategoryDialog({
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Shown, not chosen: the column is made in the project the screen
-              was opened on, and the parent columns below are that project's. */}
+              was opened on. */}
           <FieldWrapper label={t("field.project")} required className="sm:col-span-2">
             <ProjectPicker
               value={form.project}
@@ -645,35 +404,28 @@ export function CategoryDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="FIELD">
-                  {t("categories.kindField")}
-                </SelectItem>
+                {/* Named exactly as Category Management names the module,
+                    so the picker and the list on the left agree (one name per
+                    module). Choosing another moves the column to that
+                    module's list - and the server refuses the move if
+                    records are already filed in it. */}
                 <SelectItem value="MATERIAL">
-                  {t("categories.kindMaterial")}
+                  {modules("module.material")}
                 </SelectItem>
-                {/* The modules Category Management groups by (D-125).
-                    Offered here as well as there, because a field the server
-                    accepts and no screen can set is a field nobody can fill.
-                    Choosing one moves the column out of this screen's list,
-                    which is what reclassifying it means - and the server
-                    refuses the move outright if deliveries or site records
-                    are already filed in it. */}
-                {/* The machines a contractor registers on a site (T-242).
-                    Missing here until T-244, which is exactly the shape the
-                    comment above warns about: `SiteEquipment.category` was
-                    served, counted and offered on the equipment form, and no
-                    screen could create a column to put in it (F-372). */}
+                <SelectItem value="FIELD">
+                  {modules("module.field")}
+                </SelectItem>
                 <SelectItem value="EQUIPMENT">
-                  {t("categories.kindEquipment")}
+                  {modules("module.equipment")}
                 </SelectItem>
                 <SelectItem value="PROGRESS">
-                  {t("categories.kindProgress")}
+                  {modules("module.progress")}
                 </SelectItem>
                 <SelectItem value="EHS">
-                  {t("categories.kindEhs")}
+                  {modules("module.ehs")}
                 </SelectItem>
                 <SelectItem value="CONSTRUCTION_WASTE">
-                  {t("categories.kindConstructionWaste")}
+                  {modules("module.debris")}
                 </SelectItem>
                 {/* Only offered on a column that already carries the marker.
                     It is not a scheme somebody should pick on purpose - it
@@ -703,31 +455,6 @@ export function CategoryDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
-          <FieldWrapper label={t("field.parent")} className="sm:col-span-2">
-            <Select
-              value={form.parent ?? "none"}
-              onValueChange={(value) =>
-                set("parent", value === "none" ? null : value)
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("field.noParent")}</SelectItem>
-                {categories
-                  .filter((item) => item.id !== row?.id)
-                  .map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.code} - {item.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-            {parentOptions && (
-              <QueryFailedNote query={parentOptions} what={t("what.parentColumns")} />
-            )}
-          </FieldWrapper>
           <FieldWrapper
             label={t("field.description")}
             className="sm:col-span-2"
@@ -738,7 +465,7 @@ export function CategoryDialog({
             />
           </FieldWrapper>
           <FieldWrapper
-          label={t("categories.accessTitle")}
+            label={t("categories.accessTitle")}
             required
             className="sm:col-span-2"
           >
@@ -813,94 +540,50 @@ export function CategoryDialog({
               </FieldWrapper>
             </>
           )}
-          <div className="border-t pt-4 sm:col-span-2">
-            <h4 className="text-sm font-semibold">{t("categories.uploadTitle")}</h4>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("categories.uploadHelp")}
-            </p>
-          </div>
-          <FieldWrapper label={t("categories.uploadRoles")}>
-            <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border p-3">
-              {(roles.data?.results ?? []).map((role) => (
-                <label key={role.id} className="flex min-h-10 items-center gap-3">
-                  <Checkbox
-                    checked={form.upload_roles?.includes(role.id)}
-                    onCheckedChange={(checked) =>
-                      toggle("upload_roles", role.id, checked === true)
-                    }
-                  />
-                  <span className="text-sm font-medium">{role.name}</span>
-                </label>
-              ))}
-              {!roles.isLoading && !roles.isError && !roles.data?.results.length && (
-                <p className="text-sm text-muted-foreground">{t("categories.noRoles")}</p>
+          {isMaterial && (
+            <div className="grid gap-4 border-t pt-4 sm:col-span-2">
+              <div>
+                <h4 className="text-sm font-semibold">{modules("budget.title")}</h4>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {modules("budget.help")}
+                </p>
+              </div>
+              <label className="flex items-center gap-2 text-sm">
+                <Checkbox
+                  checked={tracksSpend}
+                  onCheckedChange={(checked) => setTracksSpend(checked === true)}
+                />
+                {modules("budget.tracksSpend")}
+              </label>
+              {tracksSpend && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FieldWrapper
+                    label={modules("budget.amount")}
+                    hint={modules("budget.amountHint")}
+                  >
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      step="0.01"
+                      value={budget}
+                      onChange={(event) => setBudget(event.target.value)}
+                    />
+                  </FieldWrapper>
+                  <FieldWrapper
+                    label={modules("budget.alerts")}
+                    hint={modules("budget.alertsHint")}
+                    error={alertsInvalid ? modules("budget.alertsInvalid") : undefined}
+                  >
+                    <Input
+                      value={alerts}
+                      onChange={(event) => setAlerts(event.target.value)}
+                    />
+                  </FieldWrapper>
+                </div>
               )}
-              <QueryFailedNote query={roles} what={t("what.roles")} />
             </div>
-          </FieldWrapper>
-          <FieldWrapper label={t("categories.uploadUsers")}>
-            <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border p-3">
-              {(people.data?.results ?? []).map((person) => (
-                <label key={person.user} className="flex min-h-10 items-center gap-3">
-                  <Checkbox
-                    checked={form.upload_users?.includes(person.user)}
-                    onCheckedChange={(checked) =>
-                      toggle("upload_users", person.user, checked === true)
-                    }
-                  />
-                  <span className="text-sm font-medium">{person.user_name}</span>
-                </label>
-              ))}
-              {!people.isLoading && !people.isError && !people.data?.results.length && (
-                <p className="text-sm text-muted-foreground">{t("categories.noUsers")}</p>
-              )}
-              <QueryFailedNote query={people} what={t("what.projectPeople")} />
-            </div>
-          </FieldWrapper>
-          <div className="border-t pt-4 sm:col-span-2">
-            <h4 className="text-sm font-semibold">{t("categories.editPermissionTitle")}</h4>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("categories.editPermissionHelp")}
-            </p>
-          </div>
-          <FieldWrapper label={t("categories.editRoles")}>
-            <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border p-3">
-              {(roles.data?.results ?? []).map((role) => (
-                <label key={role.id} className="flex min-h-10 items-center gap-3">
-                  <Checkbox
-                    checked={form.edit_roles?.includes(role.id)}
-                    onCheckedChange={(checked) =>
-                      toggle("edit_roles", role.id, checked === true)
-                    }
-                  />
-                  <span className="text-sm font-medium">{role.name}</span>
-                </label>
-              ))}
-              {!roles.isLoading && !roles.isError && !roles.data?.results.length && (
-                <p className="text-sm text-muted-foreground">{t("categories.noRoles")}</p>
-              )}
-              <QueryFailedNote query={roles} what={t("what.roles")} />
-            </div>
-          </FieldWrapper>
-          <FieldWrapper label={t("categories.editUsers")}>
-            <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border p-3">
-              {(people.data?.results ?? []).map((person) => (
-                <label key={person.user} className="flex min-h-10 items-center gap-3">
-                  <Checkbox
-                    checked={form.edit_users?.includes(person.user)}
-                    onCheckedChange={(checked) =>
-                      toggle("edit_users", person.user, checked === true)
-                    }
-                  />
-                  <span className="text-sm font-medium">{person.user_name}</span>
-                </label>
-              ))}
-              {!people.isLoading && !people.isError && !people.data?.results.length && (
-                <p className="text-sm text-muted-foreground">{t("categories.noUsers")}</p>
-              )}
-              <QueryFailedNote query={people} what={t("what.projectPeople")} />
-            </div>
-          </FieldWrapper>
+          )}
           <FieldWrapper label={t("field.sortOrder")}>
             <Input
               type="number"
@@ -938,6 +621,11 @@ export function CategoryDialog({
             {t("categories.accessRequired")}
           </p>
         )}
+        {error && (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
@@ -949,7 +637,14 @@ export function CategoryDialog({
               [form.name, t("field.name")],
               [!restrictedEmpty, t("categories.accessTitle")],
             ]}
-            disabled={save.isPending}
+            // Not a `requires` entry: the warning lines are optional - empty
+            // means "do not warn me" - so listing them there would put a star
+            // on a field that is not required. What is wrong when they cannot
+            // be read is the text itself, and the field says so inline.
+            disabledReason={
+              alertsInvalid ? modules("budget.alertsInvalid") : undefined
+            }
+            disabled={save.isPending || alertsInvalid}
             onClick={() => save.mutate()}
           >
             {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
@@ -4058,6 +3753,11 @@ export function OutgoingDetailDialog({
     <RecordDetailDialog
       title={row?.reference_no ?? t("outgoing.title")}
       description={row ? `${row.material_name} · ${row.quantity} ${row.unit}` : undefined}
+      exportRecord={
+        row
+          ? { kind: "MATERIAL_OUTGOING", recordId: row.id, reference: row.reference_no }
+          : null
+      }
       onClose={onClose}
     >
       {detail.isError ? (

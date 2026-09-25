@@ -3040,9 +3040,9 @@
   },
   "archiveQueue": {
     "allModules": "All modules",
-    "alreadyArchived": "Already archived",
-    "archive": "Archive for me",
-    "archiveHelp": "Archives this record for your account only.",
+    "alreadyArchived": "You've seen it",
+    "archive": "I've seen it",
+    "archiveHelp": "Only takes it off your own to-see list. Your colleagues still see it on theirs, and the record itself does not change.",
     "column": {
       "record": "Record",
       "module": "Module",
@@ -3051,7 +3051,7 @@
       "status": "Status",
       "action": "Action"
     },
-    "emptyArchived": "You have not archived anything here yet.",
+    "emptyArchived": "You haven't marked anything as seen here yet.",
     "emptyPending": "Nothing waiting for you here.",
     "failed": "That list could not be loaded. Try again.",
     "firstPage": "You are on the first page.",
@@ -3073,16 +3073,16 @@
     "next": "Next",
     "open": "Open",
     "pageOf": "Page {page} of {pages}",
-    "perPersonHelp": "Unarchived means you have not opened it yet. Your colleagues keep their own lists, so opening a record here never clears it from anybody else's.",
+    "perPersonHelp": "Not seen means you have not marked it yet. Every account keeps its own list, so marking a record here never clears it from anybody else's.",
     "previous": "Previous",
     "state": {
-      "pending": "Unarchived",
-      "archived": "Archived"
+      "pending": "Not seen",
+      "archived": "Seen"
     },
     "subtitle": "Everything finished, waiting for you to look at it.",
     "title": "All records",
     "toast": {
-      "archived": "Archived for you."
+      "archived": "Marked as seen, for you only."
     }
   },
   "assets": {
@@ -3912,16 +3912,17 @@
       "module": "Module",
       "records": "Records",
       "status": "Status",
-      "action": "Action"
+      "action": "Action",
+      "archived": "Filed deliveries",
+      "spend": "Spent / budget",
+      "tonnes": "Tonnes"
     },
     "create": "New column",
-    "createElsewhere": "Create in its own screen",
     "edit": "Edit",
     "empty": "No categories here yet.",
     "failed": "The categories could not be loaded. Try again.",
     "inactive": "Inactive",
     "loading": "Loading...",
-    "manage": "Open the module",
     "module": {
       "material": "Material categories",
       "field": "Site record categories",
@@ -3963,7 +3964,23 @@
     },
     "subtitle": "Pick a module, then see the categories under it.",
     "title": "Category management",
-    "weight": "weight {weight}"
+    "weight": "weight {weight}",
+    "removeFailed": "{name} was not deleted: {reason}",
+    "dialogCreate": "New column · {module}",
+    "dialogEdit": "Edit column · {module}",
+    "budget": {
+      "title": "Budget",
+      "help": "Spending is added up from the delivery orders filed in this column.",
+      "uncounted": "{count} delivery orders had no readable amount, so they are not in this total.",
+      "tracksSpend": "Count spending in this column against a budget",
+      "amount": "Budget (RM)",
+      "amountHint": "Leave empty for a column that does not count against a budget",
+      "alerts": "Warn at these percentages",
+      "alertsHint": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
+      "alertsInvalid": "Use whole numbers between 1 and 500, separated by commas.",
+      "none": "No budget set"
+    },
+    "saveFailed": "That did not go through. Try again, or reload the page."
   },
   "cloudServices": {
     "count": "{count} services",
@@ -4057,7 +4074,8 @@
     "themeSystem": "System",
     "toggleSidebar": "Toggle sidebar",
     "unknownError": "Something went wrong. Try again.",
-    "view": "View"
+    "view": "View",
+    "exportThisRecord": "Export this record"
   },
   "companies": {
     "owner": {
@@ -5316,7 +5334,6 @@
       "title": "Waiting for you",
       "subtitle": "{receipts} deliveries and {approvals} approvals nobody has cleared for you yet",
       "help": "These are yours alone. Opening one files it away for you and leaves it in everyone else's pile.",
-      "openColumns": "Material columns",
       "unfiled": "Not filed in a column"
     },
     "recordStatus": {
@@ -5374,13 +5391,8 @@
       "accessRoles": "Allowed roles",
       "accessTitle": "Who can see this category",
       "accessUsers": "Allowed people",
-      "add": "Add category",
       "createTitle": "New category",
-      "editPermissionHelp": "Leave both lists empty to use the normal category manager permission. Company administrators always retain recovery access.",
-      "editPermissionTitle": "Who can edit this category",
-      "editRoles": "Roles allowed to edit",
       "editTitle": "Edit category",
-      "editUsers": "People allowed to edit",
       "formHelp": "Categories belong to one project and can be ordered or hidden from the field app.",
       "moveDown": "Move down",
       "moveUp": "Move up",
@@ -5388,21 +5400,8 @@
       "noUsers": "No project members are available for selection.",
       "removeBody": "The category can only be removed when no live record still uses it.",
       "removeTitle": "Remove {name}?",
-      "reorderNeedsProject": "Choose one site to put its categories in order. The order is what the field app shows, and it only means something within one site.",
-      "subtitle": "Organise each project's site records and choose what field staff can see.",
-      "title": "Site record categories",
-      "uploadHelp": "Leave both lists empty to let everyone who can see the category upload. Selecting roles or people restricts uploads to them.",
-      "uploadRoles": "Roles allowed to upload",
-      "uploadTitle": "Who can upload to this category",
-      "uploadUsers": "People allowed to upload",
       "kind": "Which module it belongs to",
-      "kindField": "Site record column",
-      "kindMaterial": "Material column",
       "kindBoth": "Not separated yet",
-      "kindProgress": "Progress column",
-      "kindEhs": "Safety and hazard column",
-      "kindEquipment": "Equipment column",
-      "kindConstructionWaste": "Construction waste column",
       "submissionMode": "Submission action",
       "submissionDirect": "Submit directly",
       "submissionReview": "Submit for review",
@@ -5522,11 +5521,9 @@
       "name": "Name",
       "noCategory": "No category",
       "noEquipmentColumnYet": "This project has no equipment column yet, and a machine has to be filed in one.",
-      "noParent": "No parent category",
       "noSupplier": "No supplier",
       "notes": "Notes",
       "operator": "Operator",
-      "parent": "Parent category",
       "percentComplete": "Actual completion (%)",
       "phase": "Construction phase",
       "photoCount": "{count} photo(s) selected",
@@ -5764,7 +5761,6 @@
     "what": {
       "roles": "The role list",
       "projectPeople": "The people on this project",
-      "parentColumns": "The parent category list",
       "columns": "The category list",
       "suppliers": "The supplier list",
       "equipmentSummary": "The equipment totals",
@@ -7068,7 +7064,8 @@
       "version_not_found": "That platform version could not be found.",
       "visit_not_found": "That customer visit could not be found.",
       "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
-      "rejection_needs_conversation": "Explain the problem in this record's conversation first, so the site can see why and reply. Then reject it."
+      "rejection_needs_conversation": "Explain the problem in this record's conversation first, so the site can see why and reply. Then reject it.",
+      "column_not_empty": "Something is still filed under this column: {records}. Move it first, then remove the column."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7440,7 +7437,6 @@
       "noCategories": "No Field Staff folders are open for this project.",
       "note": "Short note (optional)",
       "notePlaceholder": "Add only information the office needs to know.",
-      "openSubcategory": "Open subfolders",
       "photo": {
         "completion": "4. Completion or current condition",
         "detail": "2. Work or issue detail",
@@ -8449,41 +8445,9 @@
     "REJECTED": "Rejected"
   },
   "materialColumns": {
-    "alertHelp": "Comma separated, for example 80, 100. Changing the budget recalculates which lines have been crossed.",
-    "alertInvalid": "Use whole numbers between 1 and 500, separated by commas.",
-    "alertPercentages": "Warn at these percentages",
-    "archived": "Filed by column",
-    "archivedHelp": "Budget is money, added up from the delivery orders in this column.",
-    "budgetAmount": "Budget (RM)",
-    "budgetNone": "Leave empty for a column that does not count against a budget",
-    "columnsFailed": "The columns could not be loaded, so it is not known whether this site has any. Try again.",
-    "columnsFailedRefile": "The columns could not be loaded, so the picker above is empty. That does not mean this site has no columns - do not create a new one until it has loaded.",
-    "edit": "Edit column",
-    "editHelp": "The name, the budget and the warning lines. The photographs, quantities and signatures filed in this column are evidence and are not touched here.",
-    "editTitle": "Edit {name}",
-    "fileInto": "File into",
-    "filed": "{count} filed",
-    "noBudget": "No budget set",
-    "noColumns": "No columns set up yet",
-    "noMaterialColumns": "This project has no material columns to file into.",
-    "pending": "Waiting for you ({count})",
-    "pendingEmpty": "Nothing waiting",
-    "pendingFailed": "The list of deliveries waiting to be filed could not be loaded, so it is not known whether any are waiting. Try again.",
-    "pendingHelp": "These are filed into their column once you have opened them. Every account has its own read state.",
-    "refileConfirm": "File it",
-    "refileHelp": "Only the column changes. The photographs, quantity, signature, time and place stay exactly as they were recorded.",
-    "refileReason": "Why",
-    "refileTitle": "File {receipt} into a column",
-    "saveFailed": "That did not go through. Try again, or reload the page.",
-    "seeAllPending": "See all {count}",
-    "subtitle": "What each column has taken in, and what it has spent",
-    "title": "Material columns",
     "toast": {
       "refiled": "Delivery filed."
-    },
-    "tonnes": "{tonnes} t received",
-    "tracksSpend": "Count spending in this column against a budget",
-    "uncounted": "Some delivery orders had no readable amount, so they are not in this total."
+    }
   },
   "materialReports": {
     "cost": {
@@ -14287,15 +14251,15 @@
     "note": "Quantities in different units cannot be added, so each unit is totalled separately and there is no combined figure."
   },
   "recordClosure": {
-    "title": "Confirm and archive",
-    "action": "Confirm and archive",
-    "help": "Pressing this marks the record finished and archives it. Nothing is checked first — the decision is yours, and your name and the time are recorded. Afterwards the record can be read but not changed; raise a new record for anything further.",
+    "title": "Confirm finished",
+    "action": "Confirm finished",
+    "help": "Pressing this marks the matter finished and locks it for everyone. Nothing is checked first — the decision is yours, and your name and the time are recorded. The record stays where it is, in its own module and column; it can be read but no longer changed. Raise a new record for anything further.",
     "notePlaceholder": "Note (optional)",
-    "closedTitle": "Confirmed and archived",
+    "closedTitle": "Confirmed finished",
     "closedBy": "Confirmed by {name} on {when}. This record can no longer be changed.",
     "loading": "Checking…",
     "what": {
-      "state": "Whether this record is already archived"
+      "state": "Whether this record is already confirmed finished"
     }
   },
   "recordConversation": {

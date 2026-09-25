@@ -55,6 +55,17 @@ export async function updateDocumentCategory(
   return category;
 }
 
+/**
+ * Remove a document category (T-384, D-264).
+ *
+ * Refused by the server while documents are still filed under it, with a
+ * sentence naming them that the caller shows as it is.
+ */
+export async function deleteDocumentCategory(id: string): Promise<void> {
+  await api.delete(`/api/document-categories/${id}/delete_document_category/`);
+  toastSuccess("contractorOps.toast.removed");
+}
+
 export function getDocumentSubcategories(
   query: ListQuery,
 ): Promise<Paginated<DocumentSubcategory>> {

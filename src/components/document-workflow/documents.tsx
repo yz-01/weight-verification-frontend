@@ -1198,7 +1198,11 @@ function TaxonomyList({
   );
 }
 
-function CategoryForm({
+/**
+ * One document category's form. Exported so Category Management can open it
+ * in a dialog in place (D-264) - one form, two places it is shown.
+ */
+export function CategoryForm({
   category,
   onCancel,
   onDone,

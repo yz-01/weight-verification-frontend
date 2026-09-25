@@ -30,6 +30,7 @@ import {
 } from "@/components/field-staff/field-evidence-grid";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { ExportButton } from "@/components/shared/export-button";
+import { RecordExportButton } from "@/components/shared/record-export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import {
   FieldWrapper,
@@ -656,9 +657,19 @@ export function Safety({
       {opened && (
         <Dialog open onOpenChange={(open) => !open && setOpened(null)}>
           <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
-            <DialogHeader>
-              <DialogTitle>{opened.incident_no}</DialogTitle>
-              <DialogDescription>{opened.title}</DialogDescription>
+            {/* 「单独导出」 top right (T-386), clear of the close X. */}
+            <DialogHeader className="flex-row items-start justify-between gap-4 space-y-0 pr-8">
+              <div className="min-w-0 space-y-2">
+                <DialogTitle>{opened.incident_no}</DialogTitle>
+                <DialogDescription>{opened.title}</DialogDescription>
+              </div>
+              <div className="shrink-0">
+                <RecordExportButton
+                  kind="HAZARD"
+                  recordId={opened.id}
+                  reference={opened.incident_no}
+                />
+              </div>
             </DialogHeader>
             <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2">
               <ReadField

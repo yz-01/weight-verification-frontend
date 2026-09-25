@@ -155,6 +155,7 @@ function useRecordStatus(): (status: string) => string {
 export function ContractorDashboard() {
   const recordStatus = useRecordStatus();
   const t = useTranslations("contractorDashboard");
+  const categories = useTranslations("categoryManagement");
   const format = useFormatter();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -196,11 +197,15 @@ export function ContractorDashboard() {
           empty={false}
           emptyLabel=""
           action={
+            // The material module of Category Management: /material-columns
+            // is gone (D-263), and the link keeps the project being read.
             <Link
-              href="/material-columns"
+              href={`/category-management?module=material${
+                project ? `&project=${encodeURIComponent(project)}` : ""
+              }`}
               className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              {t("unread.openColumns")}
+              {categories("module.material")}
             </Link>
           }
         >
@@ -713,7 +718,8 @@ function QuickActions({ project }: { project: string }) {
     { href: "/projects/create", label: t("project"), icon: Plus },
     { href: "/suppliers/create", label: t("supplier"), icon: Inbox },
     {
-      href: `/project-categories?project=${encodeURIComponent(project)}&create=1`,
+      // Opens the create dialog on Category Management in place (D-264).
+      href: `/category-management?project=${encodeURIComponent(project)}&module=field&create=1`,
       label: t("category"),
       icon: FolderPlus,
       requiresProject: true,

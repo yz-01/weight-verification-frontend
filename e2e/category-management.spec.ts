@@ -11,10 +11,8 @@ import { ACCOUNTS, API, LOGIN_PATHS, apiLogin, loginAs } from "./helpers";
  *
  * The earlier plan had ten sidebar entries for this; the customer's own words
  * describe one screen with a list down its side, so T-219 became a single
- * entry (F-335). Both halves of that are asserted here: the sidebar has the
- * one entry and no longer has the material columns as an entry of their own,
- * and the two routes that used to be entries still open - people have links
- * to them, and the modules' own editors still live there.
+ * entry (F-335). Since D-263 the two routes that used to be entries only
+ * redirect here; that is asserted below.
  *
  * The six columns are asserted as headers, and the record count against a
  * number the test put there itself: a count column that always reads 0 would
@@ -23,27 +21,29 @@ import { ACCOUNTS, API, LOGIN_PATHS, apiLogin, loginAs } from "./helpers";
 
 const CONTRACTOR_PORTAL = "MSE_TRACE";
 
-test("the routes that used to be sidebar entries still open", async ({
+test("the retired column screens redirect to Category Management", async ({
   page,
 }) => {
   /*
-   * The entry count is asserted in `src/lib/navigation.test.ts`, where the
-   * registry is declared - a browser check of the sidebar would be asserting
-   * the same fact through two more layers, and would go red for reasons that
-   * have nothing to do with it.
-   *
-   * What a browser can say, and the unit test cannot, is that the two routes
-   * this task took out of the sidebar still open: they are where each
-   * module's categories are actually edited, and people have links to them.
+   * `/material-columns` and `/project-categories` are gone as screens
+   * (D-263): every module's categories are created, edited and deleted on
+   * Category Management in dialogs. People still have links to them, so
+   * each has to land there with its module chosen rather than on a 404.
    */
   await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
 
-  for (const route of ["/material-columns", "/project-categories"]) {
+  for (const [route, module] of [
+    ["/material-columns", "material"],
+    ["/project-categories?kind=EQUIPMENT", "equipment"],
+  ]) {
     await page.goto(route);
+    await expect(page).toHaveURL(
+      (url) =>
+        url.pathname === "/category-management" &&
+        url.searchParams.get("module") === module,
+      { timeout: 20_000 },
+    );
     await expect(page.getByText(/404|not found/i)).toHaveCount(0);
-    await expect(page.locator("h1, h2").first()).toBeVisible({
-      timeout: 20_000,
-    });
   }
 });
 

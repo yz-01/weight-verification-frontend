@@ -87,12 +87,9 @@ export function FileIntoColumnDialog({
         sort_order: "asc",
       }),
   });
-  const rows = columns.data?.results ?? [];
-  // A column with subcolumns is not where records live; the server sends the
-  // caller down to the last level, so those are not offered here either.
-  const options = rows.filter(
-    (row) => !rows.some((other) => other.parent === row.id),
-  );
+  // Every column is offered: there are no parent columns any more, and the
+  // "file at the last level only" rule went with them (D-265).
+  const options = columns.data?.results ?? [];
 
   const submit = useMutation({
     mutationFn: () =>

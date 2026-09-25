@@ -751,10 +751,9 @@ export const PORTAL_NAVIGATION = {
       "/modules/categories",
       ListTree,
       "operations",
-      // Allowed, but no longer entries of their own. `isRouteAllowed` reads
-      // this registry, so dropping a child does not just hide a route - it
-      // refuses it, and both of these are where a module's categories are
-      // actually edited. A navigation test caught that (T-219).
+      // Retired screens that now only redirect to Category Management
+      // (D-263). Still claimed so an old link or bookmark reaches the
+      // redirect instead of being refused on the way (T-219).
       ["/material-columns", "/project-categories"],
       false,
       [
@@ -763,10 +762,9 @@ export const PORTAL_NAVIGATION = {
         // columns", and that is one screen with a list down its left side.
         // Ten routes would have been ten places to maintain the same thing.
         //
-        // `/project-categories` and `/material-columns` still resolve - they
-        // are where each module's categories are actually edited, and links
-        // to them exist in the wild - they are simply no longer sidebar
-        // entries of their own.
+        // Every module's categories are created, edited and deleted here, in
+        // dialogs (D-264). `/project-categories` and `/material-columns` only
+        // redirect here now, carrying the project and module.
         child(
           "4.2.1",
           "nav.submodule.categoryManagement",
@@ -830,18 +828,12 @@ export const PORTAL_NAVIGATION = {
       "/modules/materials",
       ClipboardList,
       "operations",
-      // The material columns screen stopped being a sidebar entry (T-219) but
-      // did not stop being a material screen: whoever could open it before
-      // still can. Listed on both modules on purpose - narrowing it to the
-      // category feature would have taken the screen away from people who
-      // only hold material access, silently.
-      //
       // `/archive-queue` is here for the same reason (T-233): the queue lists
       // deliveries among eight other kinds, the backend already answers each
       // caller with only the kinds they may read, and refusing the route to
       // somebody who holds material access but not the category feature would
       // hide their own deliveries from them.
-      ["/material-columns", "/archive-queue"],
+      ["/archive-queue"],
       false,
       [
         child(

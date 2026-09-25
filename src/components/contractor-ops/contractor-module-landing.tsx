@@ -68,16 +68,21 @@ function childIcon(label: string): LucideIcon {
 /** The entry page for a contractor module; existing workspaces remain the actions. */
 export function ContractorModuleLanding({ feature }: { feature: PortalFeatureKey }) {
   const t = useTranslations();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const [query, setQuery] = useState("");
   const navModule = PORTAL_NAVIGATION.MSE_TRACE.find((item) => item.feature === feature);
   const children = useMemo(() => {
     const term = query.trim().toLocaleLowerCase();
+    // The same three tests as the sidebar. This page read the list on its
+    // own and skipped `menuHidden`, so 「证据归档」 left the menu (T-345) and
+    // stayed here as a card (T-388).
     return (navModule?.children ?? []).filter((child) =>
+      !child.menuHidden &&
+      (!child.requiredPermission || can(child.requiredPermission)) &&
       (!child.feature || user?.features.includes(child.feature)) &&
       (!term || t(child.labelKey).toLocaleLowerCase().includes(term)),
     );
-  }, [navModule?.children, query, t, user?.features]);
+  }, [navModule?.children, query, t, user?.features, can]);
 
   if (!navModule) return null;
   const ModuleIcon = navModule.icon;

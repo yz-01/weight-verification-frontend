@@ -141,8 +141,10 @@ export function AdminModuleLanding({ feature }: { feature: PortalFeatureKey }) {
 
   const children = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase();
-    if (!navModule?.children || !normalized) return navModule?.children ?? [];
-    return navModule.children.filter((child) =>
+    // A child taken out of the menu is taken off this page too (T-388).
+    const listed = (navModule?.children ?? []).filter((child) => !child.menuHidden);
+    if (!normalized) return listed;
+    return listed.filter((child) =>
       t(child.labelKey).toLocaleLowerCase().includes(normalized),
     );
   }, [navModule, query, t]);
@@ -159,7 +161,7 @@ export function AdminModuleLanding({ feature }: { feature: PortalFeatureKey }) {
           </span>
           <div className="min-w-0">
             <p className="text-xs font-medium text-muted-foreground">
-              {navModule.children?.length ?? 0}{" "}
+              {navModule.children?.filter((child) => !child.menuHidden).length ?? 0}{" "}
               {t("adminModuleLanding.sectionLabel")}
             </p>
             <h1 className="mt-1 text-2xl font-semibold leading-tight text-foreground">

@@ -97,9 +97,16 @@ export interface ProjectCategory {
   updated_at: string;
 }
 
+/**
+ * What a column form writes.
+ *
+ * No `parent`, and no upload or edit lists (D-265, D-266): columns are one
+ * flat list, everyone who can see a column can upload to it, and editing
+ * follows `category.manage` alone. The server ignores those fields on write;
+ * `ProjectCategory` still carries them because old rows keep the data.
+ */
 export interface ProjectCategoryPayload {
   project: string;
-  parent?: string | null;
   code: string;
   name: string;
   /**
@@ -124,10 +131,6 @@ export interface ProjectCategoryPayload {
   access_mode?: "ALL" | "RESTRICTED";
   allowed_roles?: string[];
   allowed_users?: string[];
-  upload_roles?: string[];
-  upload_users?: string[];
-  edit_roles?: string[];
-  edit_users?: string[];
 }
 
 export interface ProjectResponsibility {

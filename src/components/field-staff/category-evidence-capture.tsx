@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
   ChevronRight,
   Folder,
   FolderOpen,
@@ -12,7 +11,7 @@ import {
   Send,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import {
   completedFieldEvidence,
@@ -48,7 +47,6 @@ export function CategoryEvidenceCapture({
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [project, setProject] = useDraftState("project", initialProject);
-  const [trail, setTrail] = useState<ProjectCategory[]>([]);
   const [selected, setSelected] = useState<ProjectCategory | null>(null);
   const [evidence, setEvidence] = useDraftState("evidence", createEmptyFieldEvidence);
   const [note, setNote] = useDraftState("note", "");
@@ -74,18 +72,10 @@ export function CategoryEvidenceCapture({
     staleTime: 30_000,
   });
 
-  const rows = useMemo(() => categories.data?.results ?? [], [categories.data]);
-  const rowsByParent = useMemo(() => {
-    const result = new Map<string | null, ProjectCategory[]>();
-    const ids = new Set(rows.map((row) => row.id));
-    for (const row of rows) {
-      const parent = row.parent && ids.has(row.parent) ? row.parent : null;
-      result.set(parent, [...(result.get(parent) ?? []), row]);
-    }
-    return result;
-  }, [rows]);
-  const currentParent = trail.at(-1) ?? null;
-  const currentRows = rowsByParent.get(currentParent?.id ?? null) ?? [];
+  // One flat list (D-265). Columns used to nest, and the phone walked the
+  // tree one level at a time with a back button; there are no parent columns
+  // any more, so every column the worker can see is on this one screen.
+  const currentRows = categories.data?.results ?? [];
   const photos = completedFieldEvidence(evidence);
   const labels = [
     t("photo.overview"),
@@ -104,16 +94,14 @@ export function CategoryEvidenceCapture({
 
   function chooseProject(nextProject: string) {
     setProject(nextProject);
-    setTrail([]);
     resetCapture();
   }
 
   function openCategory(category: ProjectCategory) {
     setError("");
-    if ((rowsByParent.get(category.id) ?? []).length > 0) {
-      setTrail((current) => [...current, category]);
-      return;
-    }
+    // Everyone who can see a column can upload to it now (D-266), so the
+    // server answers true for every row it lists; kept as the server's word
+    // rather than assumed here.
     if (!category.can_upload) {
       setError(t("uploadNotAllowed"));
       return;
@@ -135,11 +123,6 @@ export function CategoryEvidenceCapture({
     setEvidence(createEmptyFieldEvidence());
     setNote("");
     setLocation(null);
-  }
-
-  function goUp() {
-    setTrail((current) => current.slice(0, -1));
-    setError("");
   }
 
   const save = useMutation({
@@ -187,31 +170,10 @@ export function CategoryEvidenceCapture({
       {project && !selected ? (
         <section className="space-y-3" aria-label={t("chooseCategory")}>
           <div className="flex min-h-11 items-center gap-2">
-            {trail.length > 0 ? (
-              <Button
-                type="button"
-                size="icon"
-                variant="outline"
-                title={commonT("action.back")}
-                onClick={goUp}
-              >
-                <ArrowLeft />
-              </Button>
-            ) : (
-              <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary">
-                <FolderOpen className="size-5" />
-              </span>
-            )}
-            <div className="min-w-0">
-              <p className="font-semibold">
-                {currentParent?.name ?? t("chooseCategory")}
-              </p>
-              {trail.length > 0 ? (
-                <p className="truncate text-xs text-muted-foreground">
-                  {trail.map((item) => item.name).join(" / ")}
-                </p>
-              ) : null}
-            </div>
+            <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary">
+              <FolderOpen className="size-5" />
+            </span>
+            <p className="min-w-0 font-semibold">{t("chooseCategory")}</p>
           </div>
 
           {categories.isLoading ? (
@@ -234,8 +196,7 @@ export function CategoryEvidenceCapture({
           ) : (
             <div className="grid gap-3">
               {currentRows.map((category) => {
-                const hasChildren = (rowsByParent.get(category.id) ?? []).length > 0;
-                const disabled = !hasChildren && !category.can_upload;
+                const disabled = !category.can_upload;
                 return (
                   <button
                     key={category.id}
@@ -250,11 +211,7 @@ export function CategoryEvidenceCapture({
                     <span className="min-w-0 flex-1">
                       <span className="block font-semibold leading-5">{category.name}</span>
                       <span className="mt-1 block text-xs text-muted-foreground">
-                        {disabled
-                          ? t("readOnly")
-                          : hasChildren
-                            ? t("openSubcategory")
-                            : t("takePhotos")}
+                        {disabled ? t("readOnly") : t("takePhotos")}
                       </span>
                     </span>
                     {!disabled ? <ChevronRight className="size-5 shrink-0 text-muted-foreground" /> : null}
@@ -275,9 +232,6 @@ export function CategoryEvidenceCapture({
             </span>
             <div className="min-w-0 flex-1">
               <p className="font-semibold">{selected.name}</p>
-              <p className="truncate text-xs text-muted-foreground">
-                {[...trail, selected].map((item) => item.name).join(" / ")}
-              </p>
             </div>
             <Button type="button" variant="outline" size="sm" onClick={resetCapture}>
               {t("changeCategory")}
