@@ -3049,7 +3049,9 @@
       "project": "專案",
       "when": "時間",
       "status": "狀態",
-      "action": "操作"
+      "action": "操作",
+      "archived": "歸檔",
+      "seen": "我"
     },
     "emptyArchived": "你還沒有在這裡標過「看過了」。",
     "emptyPending": "這裡沒有等你看的記錄。",
@@ -3065,7 +3067,12 @@
       "PROGRESS": "工程進度",
       "CONSULTANT_APPLICATION": "顧問資料",
       "ATTENDANCE_DAY": "出入場（按日）",
-      "SUNDRY_CLAIM": "雜費報銷"
+      "SUNDRY_CLAIM": "雜費報銷",
+      "DELIVERY_NOTE": "送貨單",
+      "SITE_RECORD": "現場記錄",
+      "SITE_EQUIPMENT": "機械設備",
+      "DOCUMENT": "文件",
+      "CLAIM": "進度 Claim"
     },
     "lastPage": "已經是最後一頁了。",
     "loading": "載入中…",
@@ -3083,7 +3090,16 @@
     "title": "總欄目",
     "toast": {
       "archived": "已為你標成「看過了」。"
-    }
+    },
+    "people": "{count} 人",
+    "closure": {
+      "label": "是否已歸檔",
+      "all": "全部",
+      "open": "未歸檔",
+      "closed": "已歸檔",
+      "notApplicable": "不需要歸檔"
+    },
+    "notInQueue": "這筆記錄還沒完成，還不在你的待看清單裡。完成以後才可以標「看過了」。"
   },
   "assets": {
     "category": {
@@ -3932,7 +3948,10 @@
       "phase": "施工階段",
       "ehs": "隱患整改分類",
       "recycle": "廢料分類",
-      "debris": "建築垃圾分類"
+      "debris": "建築垃圾分類",
+      "consultant": "顧問資料分類",
+      "sundry": "雜費報銷分類",
+      "claim": "Claim 分類"
     },
     "moduleHelp": {
       "material": "收貨與它的金額歸在這裡。按專案各一份。",
@@ -3943,7 +3962,10 @@
       "phase": "進度百分比就是按這些階段算的。按專案各一份 —— 改權重會改已有數字。",
       "ehs": "安全隱患、品質問題、事故、作業許可證。按專案各一份。",
       "recycle": "現場外運的可回收廢料。全公司一份；系統預置的可停用、不可刪除。",
-      "debris": "送去清運的建築垃圾。按專案各一份。"
+      "debris": "送去清運的建築垃圾。按專案各一份。",
+      "consultant": "顧問資料歸在這裡，和現場資料分開。按專案各一份。",
+      "sundry": "雜費報銷歸在這裡。按專案各一份。",
+      "claim": "材料到場與進度 Claim 歸在這裡。按專案各一份。"
     },
     "moduleSource": {
       "material": "記錄來自：現場材料進場、後台材料進場台帳。現場工作人員可以填。",
@@ -3954,7 +3976,10 @@
       "phase": "階段由後台維護，用來算進度百分比，本身不接收記錄。",
       "ehs": "記錄來自：隱患上報（現場與後台都算）。現場工作人員可以填。",
       "recycle": "記錄來自：後台的可回收廢料外運。現場工作人員不填這裡。",
-      "debris": "記錄來自：後台發起的建築垃圾清運。現場工作人員不填這裡。"
+      "debris": "記錄來自：後台發起的建築垃圾清運。現場工作人員不填這裡。",
+      "consultant": "記錄來自：手機端顧問資料提交，提交時選欄目。現場工作人員可以填。",
+      "sundry": "雜費報銷由手機端提交，後台處理時再歸入欄目。手機端不選欄目。",
+      "claim": "Claim 由後台開，開了之後再歸入欄目。現場工作人員不填這裡。"
     },
     "modules": "模組",
     "scope": {
@@ -3980,7 +4005,14 @@
       "alertsInvalid": "請填 1 到 500 之間的整數，用逗號分隔。",
       "none": "沒有設預算"
     },
-    "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。"
+    "saveFailed": "沒有成功。請再試一次，或者重新載入頁面。",
+    "viewRecords": "查看記錄",
+    "records": {
+      "title": "{name} 的記錄",
+      "help": "這個欄目裡的全部記錄，最新的在前面。只列出你有權限看的記錄。點一筆就能看詳情。",
+      "count": "共 {count} 筆",
+      "empty": "這個欄目裡還沒有記錄。"
+    }
   },
   "cloudServices": {
     "count": "{count} 項服務",
@@ -5426,7 +5458,6 @@
       "ocrManual": "無法讀取 Delivery Order，請手動填寫資料。",
       "ocrReady": "OCR 已讀取文件，請檢查並確認填入的資料後保存。",
       "readDeliveryNote": "使用 Azure OCR 讀取",
-      "recentMovements": "近期進退場記錄",
       "recordEntry": "記錄進場",
       "recordExit": "記錄退場",
       "stillInUse": "還在用",
@@ -5449,17 +5480,6 @@
       "identity": "2. 序列號或登記牌",
       "overview": "1. 設備整體全景",
       "transport": "3. 運輸車輛、送貨或門崗"
-    },
-    "equipmentFilter": {
-      "allEquipment": "全部設備",
-      "allSuppliers": "全部供應商",
-      "clear": "清除篩選",
-      "dateFrom": "開始日期",
-      "dateTo": "結束日期",
-      "deliveryNoteNo": "送貨單編號",
-      "equipment": "設備",
-      "search": "搜索進退場記錄",
-      "searchPlaceholder": "設備、供應商、操作員、車輛或送貨單"
     },
     "equipmentStatus": {
       "MAINTENANCE": "維修中",
@@ -5549,7 +5569,7 @@
       "workLocation": "工作區域 / 位置"
     },
     "filing": {
-      "action": "歸檔",
+      "action": "歸入欄目",
       "columnsFailed": "欄目讀取失敗，請重試。",
       "confirm": "儲存歸屬",
       "failed": "歸檔失敗，請重試。",
@@ -7065,7 +7085,10 @@
       "visit_not_found": "找不到該客戶回訪。",
       "weigh_sequence_invalid": "兩次過磅必須按順序進行：第一次毛重，第二次皮重。",
       "rejection_needs_conversation": "請先在這條記錄的【溝通】裡說明問題，讓現場看得到原因並能回覆，然後才能退回。",
-      "column_not_empty": "這個欄目下還有記錄：{records}。請先移走，再刪除欄目。"
+      "column_not_empty": "這個欄目下還有記錄：{records}。請先移走，再刪除欄目。",
+      "column_wrong_module": "「{column}」屬於其他模組，請選擇本模組的欄目。",
+      "column_other_project": "該欄目不屬於此記錄的專案，請選擇同一專案的欄目。",
+      "column_inactive": "「{column}」已停用，請選擇啟用中的欄目。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -14251,15 +14274,15 @@
     "note": "不同單位不能相加，因此按單位分別統計，沒有合計總數。"
   },
   "recordClosure": {
-    "title": "確認完成",
-    "action": "確認完成",
-    "help": "按下去就視為這件事已經完成，並為所有人鎖定。系統不做任何前置判斷 —— 判斷由你負責，系統記錄你的姓名與確認時間。記錄不會搬走，還在原來的模組和欄目裡；之後只能查看，不能再修改。以後有新問題請新建一條記錄。",
+    "title": "確認歸檔",
+    "action": "確認歸檔",
+    "help": "按下去就視為這件事已經完成並歸檔，所有人都看得到，總欄目裡會寫上你的名字和時間。系統不做任何前置判斷 —— 判斷由你負責。記錄不會搬走，還在原來的模組和欄目裡；之後只能查看，不能再修改。以後有新問題請新建一條記錄。",
     "notePlaceholder": "備註（可選）",
-    "closedTitle": "已確認完成",
+    "closedTitle": "已歸檔",
     "closedBy": "由 {name} 於 {when} 確認。本記錄已不能再修改。",
     "loading": "正在查詢…",
     "what": {
-      "state": "這條記錄是否已確認完成"
+      "state": "這條記錄是否已歸檔"
     }
   },
   "recordConversation": {

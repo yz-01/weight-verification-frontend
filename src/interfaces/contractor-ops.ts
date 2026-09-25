@@ -34,7 +34,13 @@ export type ProjectCategoryKind =
   | "EQUIPMENT"
   | "PROGRESS"
   | "EHS"
-  | "CONSTRUCTION_WASTE";
+  | "CONSTRUCTION_WASTE"
+  // Their own columns since 2026-09-25 (D-274, D-275): consultant
+  // submissions no longer file under the site-record columns, and sundry
+  // claims and the period claims are filed by the office after the fact.
+  | "CONSULTANT"
+  | "SUNDRY"
+  | "CLAIM";
 export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT";
 
 export interface ProjectCategory {
@@ -588,10 +594,41 @@ export type ArchiveRecordKind =
   | "ATTENDANCE_DAY"
   | "SUNDRY_CLAIM";
 
-/** One row of the unarchived queue, whichever table it came from. */
-export interface ArchiveQueueRow {
+/**
+ * Every kind a Category Management column can hold (T-396, D-276).
+ *
+ * Eight of the archive queue's kinds, plus five it does not collect: a
+ * delivery note, a site record (or consultant submission), a registered
+ * machine, a document and a period claim. The same strings the backend's
+ * `contractor_ops/category_records.py` sends.
+ */
+export type CategoryRecordKind =
+  | "MATERIAL_RECEIPT"
+  | "DELIVERY_NOTE"
+  | "MATERIAL_OUTGOING"
+  | "SITE_RECORD"
+  | "HAZARD"
+  | "SITE_EQUIPMENT"
+  | "EQUIPMENT_MOVEMENT"
+  | "PROGRESS"
+  | "DISPOSAL_REQUEST"
+  | "WASTE_OUTGOING"
+  | "DOCUMENT"
+  | "SUNDRY_CLAIM"
+  | "CLAIM";
+
+/** Any kind a record detail sheet may be opened for. */
+export type RecordSheetKind = ArchiveRecordKind | CategoryRecordKind;
+
+/**
+ * One row of the unarchived queue, whichever table it came from.
+ *
+ * Generic over the kind only because a column's list (T-396) sends the very
+ * same shape for a wider set of kinds; the queue itself is the default.
+ */
+export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   id: string;
-  kind: ArchiveRecordKind;
+  kind: K;
   reference: string;
   detail: string;
   project_id: string | null;
@@ -601,6 +638,12 @@ export interface ArchiveQueueRow {
   /** Beside `status` on purpose - see `MySubmissionRow` for why (F-225). */
   status_label: string;
   photo: string | null;
+  /** When this reader marked it 「我看过了」, or null (T-391). */
+  seen_at: string | null;
+  /** Whether anything archives this kind at all; an attendance day does not. */
+  archivable: boolean;
+  /** Who archived it for everybody and when, or null while it is not archived. */
+  archived: { by: string; at: string | null } | null;
 }
 
 /**
@@ -611,10 +654,17 @@ export interface ArchiveQueueRow {
  * catalogue, and a second set of field keys would be a second set of
  * translations to keep in step (F-342, D-133).
  */
-export interface ArchiveQueueDetail extends ArchiveQueueRow {
+export interface ArchiveQueueDetail<K extends string = ArchiveRecordKind>
+  extends ArchiveQueueRow<K> {
   fields: import("@/interfaces/contractor").MySubmissionField[];
   photos: import("@/interfaces/contractor").MySubmissionPhoto[];
   is_seen: boolean;
+}
+
+/** The records filed in one column, newest first (T-396). */
+export interface CategoryRecordPage {
+  results: ArchiveQueueRow<CategoryRecordKind>[];
+  count: number;
 }
 
 export interface ArchiveQueuePage {
@@ -774,6 +824,9 @@ export interface ClaimRow {
   confirmed_by_name: string;
   created_by_name: string;
   created_at: string;
+  /** The CLAIM column the office filed it under; null is 未归类 (D-275). */
+  category: string | null;
+  category_name: string | null;
 }
 
 export interface ClaimItem {

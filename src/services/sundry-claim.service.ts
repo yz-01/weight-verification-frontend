@@ -10,6 +10,19 @@ export const getSundryClaims = (query: ListQuery = {}): Promise<Paginated<Sundry
 export const getSundryClaim = (id: string) =>
   api.get<SundryClaim>(`/api/sundry-claims/${id}/get_claim/`);
 
+/**
+ * File a claim under a SUNDRY column, or back to 未归类 with `category: null`
+ * (D-275). The office's step: the phone never chooses a column.
+ */
+export async function fileSundryClaim(
+  id: string,
+  payload: { category: string | null; reason?: string },
+) {
+  const row = await api.post<SundryClaim>(`/api/sundry-claims/${id}/file_claim/`, payload);
+  toastSuccess("contractorOps.toast.saved");
+  return row;
+}
+
 export async function createSundryClaim(payload: {
   project: string;
   amount: string;

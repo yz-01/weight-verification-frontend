@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
+  Inbox,
   ListTree,
   Loader2,
   Pencil,
@@ -20,6 +21,8 @@ import {
   CategoryDialog,
   PhaseDialog,
 } from "@/components/contractor-ops/operations-workspaces";
+import { RecordSheet } from "@/components/contractor-ops/archive-queue";
+import { Shell } from "@/components/contractor-ops/package-shell";
 import { CategoryForm as DocumentCategoryForm } from "@/components/document-workflow/documents";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -55,6 +58,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { WASTE_TYPES } from "@/interfaces/contractor";
 import type {
+  ArchiveQueueRow,
+  CategoryRecordKind,
   ConstructionPhase,
   ProjectCategory,
   ProjectCategoryKind,
@@ -65,9 +70,13 @@ import {
   isCategoryModuleKey,
   type CategoryModuleKey,
 } from "@/lib/category-modules";
+import { useDateFormat } from "@/lib/dates";
+import { recordStatusLabel } from "@/lib/record-status";
 import {
   deleteConstructionPhase,
   deleteProjectCategory,
+  getCategoryRecord,
+  getCategoryRecords,
   getConstructionPhases,
   getProjectCategories,
   reorderProjectCategories,
@@ -97,7 +106,7 @@ import {
  * every module opens its own dialog here, and there is no "open the module"
  * button left to press.
  *
- * The nine lists still come from five different tables in three scopes, on
+ * The twelve lists still come from five different tables in three scopes, on
  * purpose (F-338, D-126): documents and recyclable waste are company-wide, the
  * weighted construction stages and the project columns are per project, and
  * real records point at each of them. So each module brings its own editor -
@@ -163,7 +172,7 @@ const columnRows = (kind: ProjectCategoryKind) => async (project: string) => {
   }));
 };
 
-/** The five project-column modules share everything except the kind. */
+/** The project-column modules share everything except the kind. */
 const columnModule = (
   key: CategoryModuleKey,
   kind: ProjectCategoryKind,
@@ -245,6 +254,13 @@ const MODULES: Module[] = [
     remove: deleteWasteCategory,
   },
   columnModule("debris", "CONSTRUCTION_WASTE"),
+  // Consultant submissions used to file under the site-record columns; they
+  // have their own now, chosen on the phone when submitting (D-274).
+  columnModule("consultant", "CONSULTANT"),
+  // Sundry claims and the period claims are filed by the office after the
+  // fact - the phone never chooses one of these (D-275).
+  columnModule("sundry", "SUNDRY"),
+  columnModule("claim", "CLAIM"),
 ];
 
 export function CategoryManagement() {
@@ -276,6 +292,8 @@ export function CategoryManagement() {
       : null,
   );
   const [removing, setRemoving] = useState<Row | null>(null);
+  /** The column whose records are open in the dialog (T-396). */
+  const [viewing, setViewing] = useState<Row | null>(null);
   const [refusal, setRefusal] = useState<{ name: string; reason: string } | null>(
     null,
   );
@@ -341,6 +359,7 @@ export function CategoryManagement() {
   const chooseModule = (key: CategoryModuleKey) => {
     setSelected(key);
     setEditing(null);
+    setViewing(null);
     setRefusal(null);
   };
   const saved = () => {
@@ -471,7 +490,16 @@ export function CategoryManagement() {
                   {list.map((row, index) => (
                     <TableRow key={row.id}>
                       <TableCell className="font-medium">
-                        {row.name}
+                        {/* The name opens what is filed in it, on this page
+                            (T-396): 「点一个栏目，同一页弹出这个栏目里的全部
+                            记录」. */}
+                        <button
+                          type="button"
+                          onClick={() => setViewing(row)}
+                          className="text-left text-primary underline-offset-4 hover:underline"
+                        >
+                          {row.name}
+                        </button>
                         {/* The weight a phase carries (D-127). */}
                         {row.note && (
                           <span className="ml-2 text-xs font-normal text-muted-foreground">
@@ -508,6 +536,16 @@ export function CategoryManagement() {
                         />
                       </TableCell>
                       <TableCell>
+                        <div className="flex items-center gap-1">
+                        {/* For every reader, not only a manager: looking at
+                            what is filed is not managing the column. */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setViewing(row)}
+                        >
+                          {t("viewRecords")}
+                        </Button>
                         {canManage && (
                           <div className="flex items-center gap-1">
                             {canReorder && (
@@ -573,6 +611,7 @@ export function CategoryManagement() {
                             </Button>
                           </div>
                         )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -591,6 +630,13 @@ export function CategoryManagement() {
           nextSortOrder={list.length}
           onClose={() => setEditing(null)}
           onSaved={saved}
+        />
+      )}
+      {viewing && (
+        <ColumnRecordsDialog
+          moduleKey={active.key}
+          column={viewing}
+          onClose={() => setViewing(null)}
         />
       )}
       {removing && (
@@ -669,6 +715,180 @@ function CategoryEditor({
       onClose={onClose}
       onSaved={onSaved}
     />
+  );
+}
+
+const RECORDS_PAGE_SIZE = 20;
+
+/**
+ * Everything filed in one column, in a dialog on this page (T-396, D-276).
+ *
+ * Lucas: 「栏目管理里点一个栏目，同一页弹出这个栏目里的全部记录，点一笔就在弹窗
+ * 里看详情，不跳页」. One list for all twelve modules, from the one endpoint that
+ * knows where each module's records live; a click opens the archive queue's
+ * own detail sheet on top (「与总栏目同一个详情」), fed from this list's door
+ * because a column holds unfinished records the queue's door will not open.
+ */
+function ColumnRecordsDialog({
+  moduleKey,
+  column,
+  onClose,
+}: {
+  moduleKey: CategoryModuleKey;
+  column: Row;
+  onClose: () => void;
+}) {
+  const t = useTranslations("categoryManagement");
+  const queue = useTranslations("archiveQueue");
+  const root = useTranslations();
+  const formatter = useDateFormat();
+  const qc = useQueryClient();
+  const [page, setPage] = useState(1);
+  const [open, setOpen] = useState<ArchiveQueueRow<CategoryRecordKind> | null>(
+    null,
+  );
+
+  const records = useQuery({
+    queryKey: ["category-records", moduleKey, column.id, page],
+    queryFn: () =>
+      getCategoryRecords({
+        module: moduleKey,
+        category: column.id,
+        page,
+        page_size: RECORDS_PAGE_SIZE,
+      }),
+  });
+  const rows = records.data?.results ?? [];
+  const total = records.data?.count ?? 0;
+  const lastPage = Math.max(1, Math.ceil(total / RECORDS_PAGE_SIZE));
+
+  return (
+    <>
+      <Shell title={t("records.title", { name: column.name })} onClose={onClose}>
+        <div className="flex-1 space-y-3 overflow-y-auto p-4">
+          <p className="text-xs text-muted-foreground">{t("records.help")}</p>
+          {records.isLoading ? (
+            <p className="text-sm text-muted-foreground">{queue("loading")}</p>
+          ) : records.isError ? (
+            <p role="alert" className="text-sm text-destructive">
+              {queue("failed")}
+            </p>
+          ) : rows.length === 0 ? (
+            <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
+              <Inbox className="size-4" />
+              {t("records.empty")}
+            </p>
+          ) : (
+            <>
+              <p className="text-xs text-muted-foreground">
+                {t("records.count", { count: total })}
+              </p>
+              <ul className="divide-y rounded-lg border">
+                {rows.map((row) => (
+                  <li key={`${row.kind}:${row.id}`}>
+                    <button
+                      type="button"
+                      onClick={() => setOpen(row)}
+                      className="flex w-full items-start gap-3 px-3 py-2 text-left hover:bg-muted/40"
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">
+                          {row.reference}
+                        </span>
+                        {row.detail && (
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {row.detail}
+                          </span>
+                        )}
+                        <span className="block text-xs text-muted-foreground">
+                          {[
+                            // A consultant submission is a site record in the
+                            // tables, and a 顾问资料提交 to everyone who files
+                            // one - the phone's own name for it (D-274).
+                            moduleKey === "consultant" && row.kind === "SITE_RECORD"
+                              ? root("fieldStaffPwa.records.consultant")
+                              : queue(`kind.${row.kind}`),
+                            row.project_name,
+                            formatter.dateTime(row.submitted_at),
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                      </span>
+                      <span className="flex shrink-0 flex-col items-end gap-1 text-xs">
+                        <StatusBadge
+                          label={recordStatusLabel(root, row)}
+                          tone="neutral"
+                        />
+                        {/* Who archived it and when (T-391), in the queue's
+                            own words. */}
+                        {!row.archivable ? (
+                          <span className="text-muted-foreground">
+                            {queue("closure.notApplicable")}
+                          </span>
+                        ) : row.archived ? (
+                          <span className="text-right">
+                            <span className="font-medium text-success">
+                              {queue("closure.closed")}
+                            </span>
+                            <span className="block text-muted-foreground">
+                              {row.archived.by}
+                              {row.archived.at
+                                ? ` · ${formatter.dateTime(row.archived.at)}`
+                                : ""}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="text-warning">{queue("closure.open")}</span>
+                        )}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+        {lastPage > 1 && (
+          <footer className="flex items-center justify-between border-t px-4 py-3 text-sm">
+            <span className="text-muted-foreground">
+              {queue("pageOf", { page, pages: lastPage })}
+            </span>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={page <= 1}
+                disabledReason={queue("firstPage")}
+                onClick={() => setPage((current) => current - 1)}
+              >
+                {queue("previous")}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={page >= lastPage}
+                disabledReason={queue("lastPage")}
+                onClick={() => setPage((current) => current + 1)}
+              >
+                {queue("next")}
+              </Button>
+            </div>
+          </footer>
+        )}
+      </Shell>
+      {open && (
+        <RecordSheet
+          row={open}
+          fetchRecord={getCategoryRecord}
+          onClose={() => {
+            setOpen(null);
+            // A confirmation or a mark made in the sheet changes this list.
+            void qc.invalidateQueries({ queryKey: ["category-records"] });
+          }}
+        />
+      )}
+    </>
   );
 }
 

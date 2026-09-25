@@ -8,7 +8,6 @@ import {
   FolderOpen,
   FileText,
   FilePlus2,
-  HardHat,
   ListTree,
   Loader2,
   MapPin,
@@ -98,10 +97,7 @@ import {
   createProjectCategory,
   createSiteEquipment,
   exportSiteProgressRecords,
-  exportEquipmentMovements,
   getConstructionPhases,
-  getEquipmentMovements,
-  getEquipmentSummary,
   getFieldTasks,
   addMaterialOutgoingPhotos,
   exportMaterialOutgoing,
@@ -426,6 +422,15 @@ export function CategoryDialog({
                 </SelectItem>
                 <SelectItem value="CONSTRUCTION_WASTE">
                   {modules("module.debris")}
+                </SelectItem>
+                <SelectItem value="CONSULTANT">
+                  {modules("module.consultant")}
+                </SelectItem>
+                <SelectItem value="SUNDRY">
+                  {modules("module.sundry")}
+                </SelectItem>
+                <SelectItem value="CLAIM">
+                  {modules("module.claim")}
                 </SelectItem>
                 {/* Only offered on a column that already carries the marker.
                     It is not a scheme somebody should pick on purpose - it
@@ -1068,7 +1073,7 @@ function TaskDialog({
       getProjectCategories({
         project: form.project,
         page_size: 200,
-        kind: ({ PHOTO: "FIELD", MATERIAL: "MATERIAL", EQUIPMENT: "EQUIPMENT", PROGRESS: "PROGRESS", SAFETY: "EHS", WASTE: "CONSTRUCTION_WASTE", CONSULTANT: "FIELD", OTHER: "FIELD" } as const)[form.task_type] ?? "FIELD",
+        kind: ({ PHOTO: "FIELD", MATERIAL: "MATERIAL", EQUIPMENT: "EQUIPMENT", PROGRESS: "PROGRESS", SAFETY: "EHS", WASTE: "CONSTRUCTION_WASTE", CONSULTANT: "CONSULTANT", OTHER: "FIELD" } as const)[form.task_type] ?? "FIELD",
         is_active: true,
       }),
     enabled: Boolean(form.project),
@@ -1387,59 +1392,40 @@ function localDateTime(value?: string | null) {
   return `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}T${pad(at.getHours())}:${pad(at.getMinutes())}`;
 }
 
+/**
+ * The phone's 设备进退场 (D-273, T-393).
+ *
+ * 「设备进退场的数据是不需要显示的，他们的工作就只是拍照而已」: the field
+ * worker takes the photos, the office reads the figures. So this screen has no
+ * totals, no equipment data cards and no movement history - those live on the
+ * office list (`SiteEquipmentOffice`). What is left is what taking the photos
+ * needs: the project, registering a machine that has just arrived, and the
+ * machines by name, each with the one button that records its entry or its
+ * exit. An exit still has to say which machine is leaving, and the name is how
+ * a worker tells them apart; the code is added only when two share a name.
+ *
+ * Only the phone mounts this component (field-records-panel.tsx).
+ */
 export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRecordSaved }: { initialProject?: string; fieldTaskId?: string; onRecordSaved?: () => void } = {}) {
   const t = useTranslations("contractorOps");
-  // Cumulative-totals labels are shared by every module with a quantity,
-  // so they live at the root rather than inside one module's namespace.
-  const tRoot = useTranslations();
   const { can } = useAuth();
   const qc = useQueryClient();
   const searchParams = useSearchParams();
-  const expiringOnly = searchParams.get("expiring") === "1";
   const [project, setProject] = useState(initialProject);
-  const [movementSearch, setMovementSearch] = useState("");
-  const [movementEquipment, setMovementEquipment] = useState("");
-  const [movementSupplier, setMovementSupplier] = useState("");
-  const [deliveryNoteNo, setDeliveryNoteNo] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
   // Kept in the draft, so tapping this 挂号 again reopens the form it was in
-  // (D-259). Outside a draft (the office) this is ordinary state.
+  // (D-259). Outside a draft this is ordinary state.
   const [movingId, setMovingId] = useDraftState<string | null>("open:movingEquipment", null);
-  const [editingEquipment, setEditingEquipment] = useState<SiteEquipment | null>(null);
   const rows = useQuery({
-    queryKey: ["site-equipment", project, expiringOnly],
+    queryKey: ["site-equipment", "field", project],
     queryFn: () =>
       getSiteEquipment({
         project: project || undefined,
-        expiring: expiringOnly ? "1" : undefined,
         page_size: 200,
       }),
   });
-  const suppliers = useQuery({
-    queryKey: ["equipment-suppliers"],
-    queryFn: () => getSuppliers({ page_size: 200, is_active: true }),
-  });
-  const movementQuery = {
-    project: project || undefined,
-    search: movementSearch.trim() || undefined,
-    equipment: movementEquipment || undefined,
-    supplier: movementSupplier || undefined,
-    delivery_note_no: deliveryNoteNo.trim() || undefined,
-    date_from: dateFrom || undefined,
-    date_to: dateTo || undefined,
-    page_size: 20,
-  };
-  const movements = useQuery({
-    queryKey: ["equipment-movements", movementQuery],
-    queryFn: () => getEquipmentMovements(movementQuery),
-  });
-  const summary = useQuery({
-    queryKey: ["equipment-summary", project],
-    queryFn: () => getEquipmentSummary(project || undefined),
-  });
-  const moving = (rows.data?.results ?? []).find((row) => row.id === movingId) ?? null;
+  const equipment = rows.data?.results ?? [];
+  const moving = equipment.find((row) => row.id === movingId) ?? null;
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["site-equipment"] });
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
@@ -1447,78 +1433,36 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   };
   const equipmentError =
     rows.error instanceof Error ? rows.error.message : undefined;
-  const movementError =
-    movements.error instanceof Error ? movements.error.message : undefined;
-  const clearMovementFilters = () => {
-    setMovementSearch("");
-    setMovementEquipment("");
-    setMovementSupplier("");
-    setDeliveryNoteNo("");
-    setDateFrom("");
-    setDateTo("");
-  };
-  const runExport = (format: "xlsx" | "pdf") =>
-    exportEquipmentMovements({
-      format,
-      title: t("equipment.title"),
-      subtitle: t("equipment.recentMovements"),
-      emptyLabel: t("state.empty"),
-      query: movementQuery,
-      summary: {
-        groupBy: "unit",
-        title: tRoot("exportTotals.title"),
-        unitLabel: t("field.unit"),
-        quantityLabel: tRoot("exportTotals.quantity"),
-        note: tRoot("exportTotals.note"),
-      },
-      columns: [
-        { key: "occurred_at", label: t("equipment.occurredAt") },
-        { key: "project_name", label: t("field.project") },
-        { key: "equipment_code", label: t("field.code") },
-        { key: "equipment_name", label: t("field.name") },
-        {
-          key: "direction",
-          label: t("equipment.directionLabel"),
-          values: {
-            ENTRY: t("direction.ENTRY"),
-            EXIT: t("direction.EXIT"),
-          },
-        },
-        { key: "quantity", label: t("field.quantity") },
-        { key: "unit", label: t("field.unit") },
-        { key: "supplier_name", label: t("field.supplier") },
-        { key: "delivery_note_no", label: t("field.deliveryNote") },
-        { key: "vehicle_plate", label: t("field.vehiclePlate") },
-        { key: "operator_name", label: t("field.operator") },
-      ],
-    });
+  const sharedNames = new Map<string, number>();
+  for (const row of equipment) {
+    sharedNames.set(row.name, (sharedNames.get(row.name) ?? 0) + 1);
+  }
+  const machineName = (row: SiteEquipment) =>
+    (sharedNames.get(row.name) ?? 0) > 1 ? `${row.name} (${row.code})` : row.name;
+  // The same rule MovementDialog uses to pick the direction.
+  const groups = [
+    { direction: "ENTRY", rows: equipment.filter((row) => row.status !== "ON_SITE") },
+    { direction: "EXIT", rows: equipment.filter((row) => row.status === "ON_SITE") },
+  ] as const;
   return (
     <div className="space-y-5">
       <ListHeader
         title={t("equipment.title")}
         subtitle={t("equipment.subtitle")}
         action={
-          <div className="flex flex-wrap items-center gap-2">
-            {can("report.export") && (
-              <ExportButton
-                onExport={runExport}
-                disabled={!movements.data?.count}
-              />
-            )}
-            {can("equipment.manage") && (
-              <Button
-                requires={[[project, t("field.project")]]}
-                onClick={() => setCreating(true)}
-              >
-                <Plus />
-                {t("equipment.add")}
-              </Button>
-            )}
-          </div>
+          can("equipment.manage") && (
+            <Button
+              requires={[[project, t("field.project")]]}
+              onClick={() => setCreating(true)}
+            >
+              <Plus />
+              {t("equipment.add")}
+            </Button>
+          )
         }
       />
-      {/* The list's project filter is also where the Add button takes its
-          project from, so it wears the star that button asks for. */}
+      {/* The Add button takes its project from here, so it wears the star
+          that button asks for. */}
       <FieldWrapper label={t("field.project")} required={can("equipment.manage")} className="rounded-lg border bg-card px-3 py-2 shadow-sm">
         <ProjectPicker
           value={project}
@@ -1529,196 +1473,49 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           className="w-full sm:w-72"
         />
       </FieldWrapper>
-      {(summary.data || summary.isError) && (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          {(
-            [
-              "today",
-              "month",
-              "year",
-              "project_total",
-              "quantity_on_site",
-            ] as const
-          ).map((key) => (
-            <div key={key} className="rounded-lg border bg-card p-3 shadow-sm">
-              <p className="text-xs text-muted-foreground">
-                {t(`equipment.summary.${key}`)}
-              </p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums">
-                {summary.isError ? "—" : summary.data?.[key]}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-      <QueryFailedNote query={summary} what={t("what.equipmentSummary")} />
       <WorkspaceState
         loading={rows.isLoading}
         error={rows.isError}
         errorMessage={equipmentError}
         empty={!rows.data?.count}
       />
-      {!!rows.data?.count && (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {rows.data.results.map((row) => (
-            <article
-              key={row.id}
-              className="rounded-lg border bg-card p-4 shadow-sm"
+      {groups.map(
+        (group) =>
+          group.rows.length > 0 && (
+            <section
+              key={group.direction}
+              data-testid={`field-equipment-${group.direction.toLowerCase()}`}
+              className="space-y-2"
             >
-              <div className="flex items-start gap-3">
-                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                  <HardHat className="size-5" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    {row.code}
-                  </p>
-                  <h3 className="truncate font-semibold">{row.name}</h3>
-                  <p className="mt-1 truncate text-sm text-muted-foreground">
-                    {row.registration_no ||
-                      row.serial_no ||
-                      t("state.noIdentifier")}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {t("field.quantity")}: {row.quantity_on_site}
-                  </p>
-                  {/* The column it files under, shown where it was filed
-                      (T-242). A classification nobody can see on the record
-                      is a field somebody fills once and never trusts. */}
-                  {row.category_name && (
-                    <p className="mt-1 truncate text-xs text-muted-foreground">
-                      {t("field.equipmentColumn")}: {row.category_name}
-                    </p>
-                  )}
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <StatusBadge
-                    label={t(`equipmentStatus.${row.status}`)}
-                    tone={tone(row.status)}
-                  />
-                  {can("equipment.manage") && (
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      title={t("action.edit")}
-                      onClick={() => setEditingEquipment(row)}
-                    >
-                      <Pencil />
-                    </Button>
-                  )}
-                </div>
-              </div>
-              {can("equipment.capture") && (
-                <Button
-                  className="mt-4 w-full"
-                  variant="outline"
-                  onClick={() => setMovingId(row.id)}
-                >
-                  <Camera />
-                  {t(
-                    row.status === "ON_SITE"
-                      ? "equipment.recordExit"
-                      : "equipment.recordEntry",
-                  )}
-                </Button>
-              )}
-            </article>
-          ))}
-        </div>
+              <h2 className="text-sm font-semibold">
+                {t(`direction.${group.direction}`)}
+              </h2>
+              <ul className="divide-y rounded-lg border bg-card shadow-sm">
+                {group.rows.map((row) => (
+                  <li key={row.id} className="flex items-center gap-3 px-3 py-2">
+                    <span className="min-w-0 flex-1 truncate font-medium">
+                      {machineName(row)}
+                    </span>
+                    {can("equipment.capture") && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setMovingId(row.id)}
+                      >
+                        <Camera />
+                        {t(
+                          group.direction === "EXIT"
+                            ? "equipment.recordExit"
+                            : "equipment.recordEntry",
+                        )}
+                      </Button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ),
       )}
-      <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold">
-            {t("equipment.recentMovements")}
-          </h2>
-          <Button type="button" variant="ghost" size="sm" onClick={clearMovementFilters}>
-            <RotateCcw />
-            {t("equipmentFilter.clear")}
-          </Button>
-        </div>
-        <div className="grid gap-3 rounded-lg border bg-card p-3 shadow-sm sm:grid-cols-2 xl:grid-cols-3">
-          <FieldWrapper label={t("equipmentFilter.search")}>
-            <Input
-              value={movementSearch}
-              onChange={(event) => setMovementSearch(event.target.value)}
-              placeholder={t("equipmentFilter.searchPlaceholder")}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("equipmentFilter.equipment")}>
-            <Select
-              value={movementEquipment || "all"}
-              onValueChange={(value) => setMovementEquipment(value === "all" ? "" : value)}
-            >
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("equipmentFilter.allEquipment")}</SelectItem>
-                {(rows.data?.results ?? []).map((row) => (
-                  <SelectItem key={row.id} value={row.id}>{row.code} - {row.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          <FieldWrapper label={t("field.supplier")}>
-            <Select
-              value={movementSupplier || "all"}
-              onValueChange={(value) => setMovementSupplier(value === "all" ? "" : value)}
-            >
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("equipmentFilter.allSuppliers")}</SelectItem>
-                {(suppliers.data?.results ?? []).map((supplier) => (
-                  <SelectItem key={supplier.id} value={supplier.id}>{supplier.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <QueryFailedNote query={suppliers} what={t("what.suppliers")} />
-          </FieldWrapper>
-          <FieldWrapper label={t("equipmentFilter.deliveryNoteNo")}>
-            <Input value={deliveryNoteNo} onChange={(event) => setDeliveryNoteNo(event.target.value)} />
-          </FieldWrapper>
-          <FieldWrapper label={t("equipmentFilter.dateFrom")}>
-            <Input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} />
-          </FieldWrapper>
-          <FieldWrapper label={t("equipmentFilter.dateTo")}>
-            <Input type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} />
-          </FieldWrapper>
-        </div>
-        <WorkspaceState
-          loading={movements.isLoading}
-          error={movements.isError}
-          errorMessage={movementError}
-          empty={!movements.data?.count}
-        />
-        {!movements.isError &&
-          (movements.data?.results ?? []).map((row) => (
-            <div
-              key={row.id}
-              className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-3 text-sm"
-            >
-              <StatusBadge
-                label={t(`direction.${row.direction}`)}
-                tone={row.direction === "ENTRY" ? "positive" : "neutral"}
-              />
-              <strong>
-                {row.equipment_code} - {row.equipment_name}
-              </strong>
-              <span className="text-muted-foreground">
-                {row.quantity} {row.unit} · {row.operator_name}
-              </span>
-              <span className="ml-auto text-xs text-muted-foreground">
-                {new Date(row.occurred_at).toLocaleString()}
-              </span>
-              {/* A movement is the record here - it is what the archive files
-                  as EQUIPMENT_MOVEMENT - so the conversation hangs off the
-                  movement, not off the machine it moved (T-360). */}
-              <RecordConversationButton
-                kind="EQUIPMENT_MOVEMENT"
-                recordId={row.id}
-                reference={`${row.equipment_code} - ${row.equipment_name}`}
-              />
-            </div>
-          ))}
-      </section>
       {creating && (
         <EquipmentDialog
           project={project}
@@ -1726,17 +1523,6 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           onSaved={() => {
             refresh();
             setCreating(false);
-          }}
-        />
-      )}
-      {editingEquipment && (
-        <EquipmentDialog
-          project={editingEquipment.project}
-          equipment={editingEquipment}
-          onClose={() => setEditingEquipment(null)}
-          onSaved={() => {
-            refresh();
-            setEditingEquipment(null);
           }}
         />
       )}

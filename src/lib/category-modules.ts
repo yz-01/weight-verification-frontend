@@ -1,5 +1,5 @@
 /**
- * The nine Category Management modules, and how an old address finds one.
+ * The twelve Category Management modules, and how an old address finds one.
  *
  * Plain data with no React in it, so the server-side redirects of the retired
  * `/material-columns` and `/project-categories` screens can read it too
@@ -17,6 +17,11 @@ export const CATEGORY_MODULE_KEYS = [
   "ehs",
   "recycle",
   "debris",
+  // D-274, D-275: consultant submissions, sundry claims and the period
+  // claims each file under columns of their own.
+  "consultant",
+  "sundry",
+  "claim",
 ] as const;
 
 export type CategoryModuleKey = (typeof CATEGORY_MODULE_KEYS)[number];
@@ -29,6 +34,9 @@ export const KIND_MODULE: Record<string, CategoryModuleKey> = {
   PROGRESS: "progress",
   EHS: "ehs",
   CONSTRUCTION_WASTE: "debris",
+  CONSULTANT: "consultant",
+  SUNDRY: "sundry",
+  CLAIM: "claim",
 };
 
 export const isCategoryModuleKey = (value: string): value is CategoryModuleKey =>

@@ -39,6 +39,14 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { recordStatusLabel } from "@/lib/record-status";
+
+/**
+ * The phone names a site record's status the way its own task list does
+ * (已完成, 需要重拍), not the office's words - one thing, one name, on one phone.
+ */
+const PHONE_STATUS = { SITE_RECORD: "fieldStaffPwa.status" };
+
 import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-workspaces";
 import { useEffect, useMemo, useState } from "react";
 
@@ -258,7 +266,7 @@ export function MySubmissions({
                     {row.project_name ? ` · ${row.project_name}` : ""}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {formatter.dateTime(row.submitted_at)} · {row.status_label}
+                    {formatter.dateTime(row.submitted_at)} · {recordStatusLabel(t, row, PHONE_STATUS)}
                   </p>
                 </div>
                 {row.kind === "HAZARD" && onOpenHazard ? (
@@ -377,7 +385,7 @@ function StoredDetailSheet({
           <DialogTitle className="break-words">{row.reference}</DialogTitle>
           <DialogDescription>
             {t(`mySubmissions.kind.${row.kind}`)} ·{" "}
-            {formatter.dateTime(row.submitted_at)} · {row.status_label}
+            {formatter.dateTime(row.submitted_at)} · {recordStatusLabel(t, row, PHONE_STATUS)}
           </DialogDescription>
         </DialogHeader>
 

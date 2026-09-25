@@ -17,7 +17,8 @@ function read(file: string) {
 
 /** The body of one top-level component, up to the next top-level function. */
 function componentBody(code: string, name: string) {
-  const start = code.search(new RegExp(String.raw`\n(?:export )?function ${name}\(`));
+  // A generic component (`RecordSheet<K …>(`) counts as declared too.
+  const start = code.search(new RegExp(String.raw`\n(?:export )?function ${name}(?:<[^(]*>)?\(`));
   expect(start, `${name} is declared`).toBeGreaterThan(-1);
   const rest = code.slice(start + 1);
   const next = rest.slice(1).search(/\n(?:export )?function [A-Z]/);
@@ -66,7 +67,10 @@ describe("every record detail can export that one record (T-386)", () => {
 
   it("the archive queue's sheet exports whichever kind it shows, except attendance", () => {
     const body = componentBody(read("src/components/contractor-ops/archive-queue.tsx"), "RecordSheet");
-    expect(body).toMatch(/row\.kind !== "ATTENDANCE_DAY" && \(\s*<RecordExportButton\s+kind=\{row\.kind\}\s+recordId=\{row\.id\}/);
+    // Gated on the nine the export endpoint prints (T-396): attendance, and a
+    // column's delivery note, site record, machine, document or period claim,
+    // get no button.
+    expect(body).toMatch(/isExportableKind\(row\.kind\) && \(\s*<RecordExportButton\s+kind=\{row\.kind\}\s+recordId=\{row\.id\}/);
   });
 });
 

@@ -970,8 +970,11 @@ function ConsultantCapturePanel({ initialProject = "", fieldTaskId, onSaved }: {
           disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
+      {/* The consultant's own columns, not the site-record ones (D-274): the
+          server refuses a FIELD column here, and a draft that still holds one
+          is cleared by the picker because it is not on the list. */}
       <FieldWrapper label={t("material.column")} required>
-        <ProjectColumnPicker bare project={project} kind="FIELD" value={column} onChange={setColumn} />
+        <ProjectColumnPicker bare project={project} kind="CONSULTANT" value={column} onChange={setColumn} />
       </FieldWrapper>
       <FieldWrapper label={t("consultantCapture.category")} required>
         <Select value={category} onValueChange={setCategory}>

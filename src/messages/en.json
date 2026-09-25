@@ -3049,7 +3049,9 @@
       "project": "Project",
       "when": "When",
       "status": "Status",
-      "action": "Action"
+      "action": "Action",
+      "archived": "Archived",
+      "seen": "You"
     },
     "emptyArchived": "You haven't marked anything as seen here yet.",
     "emptyPending": "Nothing waiting for you here.",
@@ -3065,7 +3067,12 @@
       "PROGRESS": "Site progress",
       "CONSULTANT_APPLICATION": "Consultant applications",
       "ATTENDANCE_DAY": "Attendance, by day",
-      "SUNDRY_CLAIM": "Sundry claims"
+      "SUNDRY_CLAIM": "Sundry claims",
+      "DELIVERY_NOTE": "Delivery note",
+      "SITE_RECORD": "Site record",
+      "SITE_EQUIPMENT": "Equipment",
+      "DOCUMENT": "Document",
+      "CLAIM": "Progress claim"
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading…",
@@ -3083,7 +3090,16 @@
     "title": "All records",
     "toast": {
       "archived": "Marked as seen, for you only."
-    }
+    },
+    "people": "{count, plural, one {# person} other {# people}}",
+    "closure": {
+      "label": "Archived or not",
+      "all": "All",
+      "open": "Not archived",
+      "closed": "Archived",
+      "notApplicable": "Not archived by anyone"
+    },
+    "notInQueue": "This record is not finished yet, so it is not on your to-see list. You can mark it as seen once it is finished."
   },
   "assets": {
     "category": {
@@ -3932,7 +3948,10 @@
       "phase": "Construction stages",
       "ehs": "EHS categories",
       "recycle": "Recycle categories",
-      "debris": "Construction waste categories"
+      "debris": "Construction waste categories",
+      "consultant": "Consultant submission categories",
+      "sundry": "Sundry claim categories",
+      "claim": "Claim categories"
     },
     "moduleHelp": {
       "material": "Deliveries and the money they cost file here. One list per project.",
@@ -3943,7 +3962,10 @@
       "phase": "The stages the completion percentage is measured against. One list per project - changing a weight changes the figures.",
       "ehs": "Hazards, quality issues, incidents and permits. One list per project.",
       "recycle": "Recyclable waste the site sends out. One list for the whole company; the seeded ones can be closed but not deleted.",
-      "debris": "Construction waste sent for disposal. One list per project."
+      "debris": "Construction waste sent for disposal. One list per project.",
+      "consultant": "Consultant submissions file here, apart from the site records. One list per project.",
+      "sundry": "Sundry claims file here. One list per project.",
+      "claim": "Material-on-site and progress claims file here. One list per project."
     },
     "moduleSource": {
       "material": "Records come from site goods-receipt and the back-office receipt register. Field staff can file here.",
@@ -3954,7 +3976,10 @@
       "phase": "Phases are maintained in the back office and drive the completion percentage. No records file into them.",
       "ehs": "Records come from hazard reports, on site and in the office alike. Field staff can file here.",
       "recycle": "Records come from recyclable waste sent out by the back office. Field staff do not file here.",
-      "debris": "Records come from construction-waste disposal raised in the back office. Field staff do not file here."
+      "debris": "Records come from construction-waste disposal raised in the back office. Field staff do not file here.",
+      "consultant": "Records come from consultant submissions on the phone: the column is chosen when submitting. Field staff can file here.",
+      "sundry": "Sundry claims are submitted on the phone and filed into a column by the back office when it handles them. The phone does not choose a column.",
+      "claim": "The back office opens a claim, then files it into a column. Field staff do not file here."
     },
     "modules": "Modules",
     "scope": {
@@ -3980,7 +4005,14 @@
       "alertsInvalid": "Use whole numbers between 1 and 500, separated by commas.",
       "none": "No budget set"
     },
-    "saveFailed": "That did not go through. Try again, or reload the page."
+    "saveFailed": "That did not go through. Try again, or reload the page.",
+    "viewRecords": "View records",
+    "records": {
+      "title": "Records in {name}",
+      "help": "Everything filed in this category, newest first. Only the records you are allowed to see are listed. Click one to see its details.",
+      "count": "{count} records",
+      "empty": "Nothing has been filed in this category yet."
+    }
   },
   "cloudServices": {
     "count": "{count} services",
@@ -5426,7 +5458,6 @@
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
       "ocrReady": "OCR read the document. Check and confirm the filled details before saving.",
       "readDeliveryNote": "Read with Azure OCR",
-      "recentMovements": "Recent movement history",
       "recordEntry": "Record entry",
       "recordExit": "Record exit",
       "stillInUse": "Still in use",
@@ -5449,17 +5480,6 @@
       "identity": "2. Serial or registration plate",
       "overview": "1. Full equipment view",
       "transport": "3. Vehicle, delivery or gate view"
-    },
-    "equipmentFilter": {
-      "allEquipment": "All equipment",
-      "allSuppliers": "All suppliers",
-      "clear": "Clear filters",
-      "dateFrom": "From date",
-      "dateTo": "To date",
-      "deliveryNoteNo": "Delivery note no.",
-      "equipment": "Equipment",
-      "search": "Search movements",
-      "searchPlaceholder": "Equipment, supplier, operator, vehicle or delivery note"
     },
     "equipmentStatus": {
       "MAINTENANCE": "Maintenance",
@@ -5549,7 +5569,7 @@
       "workLocation": "Work area / location"
     },
     "filing": {
-      "action": "File it",
+      "action": "File under a column",
       "columnsFailed": "The columns could not be loaded. Try again.",
       "confirm": "Save filing",
       "failed": "Filing failed. Try again.",
@@ -7065,7 +7085,10 @@
       "visit_not_found": "That customer visit could not be found.",
       "weigh_sequence_invalid": "Two-pass weighing must run in order: gross first, tare second.",
       "rejection_needs_conversation": "Explain the problem in this record's conversation first, so the site can see why and reply. Then reject it.",
-      "column_not_empty": "Something is still filed under this column: {records}. Move it first, then remove the column."
+      "column_not_empty": "Something is still filed under this column: {records}. Move it first, then remove the column.",
+      "column_wrong_module": "“{column}” belongs to another module. Choose a column from this module.",
+      "column_other_project": "That column is not in this record's project. Choose one from the same project.",
+      "column_inactive": "“{column}” is closed. Choose an open column."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -14251,15 +14274,15 @@
     "note": "Quantities in different units cannot be added, so each unit is totalled separately and there is no combined figure."
   },
   "recordClosure": {
-    "title": "Confirm finished",
-    "action": "Confirm finished",
-    "help": "Pressing this marks the matter finished and locks it for everyone. Nothing is checked first — the decision is yours, and your name and the time are recorded. The record stays where it is, in its own module and column; it can be read but no longer changed. Raise a new record for anything further.",
+    "title": "Confirm and archive",
+    "action": "Confirm and archive",
+    "help": "Pressing this marks the matter finished and archives it for everyone - the list shows your name and the time. Nothing is checked first; the decision is yours. The record stays where it is, in its own module and column; it can be read but no longer changed. Raise a new record for anything further.",
     "notePlaceholder": "Note (optional)",
-    "closedTitle": "Confirmed finished",
+    "closedTitle": "Archived",
     "closedBy": "Confirmed by {name} on {when}. This record can no longer be changed.",
     "loading": "Checking…",
     "what": {
-      "state": "Whether this record is already confirmed finished"
+      "state": "Whether this record is already archived"
     }
   },
   "recordConversation": {

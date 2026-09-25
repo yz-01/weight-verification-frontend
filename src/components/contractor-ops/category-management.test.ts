@@ -45,19 +45,21 @@ function modulesBlock(): string {
 }
 
 describe("every module is managed on this one page (D-264)", () => {
-  it("lists all nine modules", () => {
+  it("lists all twelve modules", () => {
     const block = modulesBlock();
     const keys = [
       ...[...block.matchAll(/columnModule\("([a-z]+)"/g)].map((m) => m[1]),
       ...[...block.matchAll(/\bkey: "([a-z]+)"/g)].map((m) => m[1]),
     ];
     expect(keys.sort()).toEqual([...CATEGORY_MODULE_KEYS].sort());
+    // Nine, then consultant, sundry and claim columns (D-274, D-275).
+    expect(keys).toHaveLength(12);
   });
 
   it("gives every module a delete", () => {
     const source = read(MANAGEMENT);
     const block = modulesBlock();
-    // The five column modules get theirs from the shared helper.
+    // The column modules get theirs from the shared helper.
     expect(functionBody(source, "const columnModule")).toMatch(
       /remove: deleteProjectCategory/,
     );

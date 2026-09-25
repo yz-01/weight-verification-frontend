@@ -17,7 +17,10 @@ import { describe, expect, it } from "vitest";
 const SCREENS: Array<[string, string]> = [
   ["src/components/receipts/view-receipt.tsx", "MATERIAL_RECEIPT"],
   ["src/components/contractor-ops/operations-workspaces.tsx", "MATERIAL_OUTGOING"],
-  ["src/components/contractor-ops/operations-workspaces.tsx", "EQUIPMENT_MOVEMENT"],
+  // The phone's 设备进退场 lists no movements any more (D-273, T-393): the
+  // office list's movement detail is where they are read and talked about.
+  // The worker's own movements keep theirs under 我的提交 (my-submissions).
+  ["src/components/contractor-ops/office-module-lists.tsx", "EQUIPMENT_MOVEMENT"],
   ["src/components/contractor-ops/operations-workspaces.tsx", "PROGRESS"],
   ["src/components/contractor-ops/waste-outgoing-workspace.tsx", "WASTE_OUTGOING"],
   ["src/components/contractor-ops/site-disposal-workspaces.tsx", "DISPOSAL_REQUEST"],

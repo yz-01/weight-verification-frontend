@@ -50,6 +50,12 @@ export interface SundryClaim {
   attachments: SundryClaimAttachment[];
   payment_proofs: SundryClaimPaymentProof[];
   created_at: string;
+  /**
+   * The SUNDRY column it is filed under. The phone never chooses one; it
+   * arrives 未归类 (null) and the office files it (D-275).
+   */
+  category: string | null;
+  category_name: string | null;
 }
 
 /** What one claim looks like to a person: its decision, or paid once paid. */

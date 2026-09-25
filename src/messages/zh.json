@@ -3049,7 +3049,9 @@
       "project": "项目",
       "when": "时间",
       "status": "状态",
-      "action": "操作"
+      "action": "操作",
+      "archived": "归档",
+      "seen": "我"
     },
     "emptyArchived": "你还没有在这里标过「看过了」。",
     "emptyPending": "这里没有等你看的记录。",
@@ -3065,7 +3067,12 @@
       "PROGRESS": "工程进度",
       "CONSULTANT_APPLICATION": "顾问资料",
       "ATTENDANCE_DAY": "出入场（按日）",
-      "SUNDRY_CLAIM": "杂费报销"
+      "SUNDRY_CLAIM": "杂费报销",
+      "DELIVERY_NOTE": "送货单",
+      "SITE_RECORD": "现场记录",
+      "SITE_EQUIPMENT": "机械设备",
+      "DOCUMENT": "文件",
+      "CLAIM": "进度 Claim"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "载入中…",
@@ -3083,7 +3090,16 @@
     "title": "总栏目",
     "toast": {
       "archived": "已为你标成「看过了」。"
-    }
+    },
+    "people": "{count} 人",
+    "closure": {
+      "label": "是否已归档",
+      "all": "全部",
+      "open": "未归档",
+      "closed": "已归档",
+      "notApplicable": "不需要归档"
+    },
+    "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。"
   },
   "assets": {
     "category": {
@@ -3932,7 +3948,10 @@
       "phase": "施工阶段",
       "ehs": "隐患整改分类",
       "recycle": "废料分类",
-      "debris": "建筑垃圾分类"
+      "debris": "建筑垃圾分类",
+      "consultant": "顾问资料分类",
+      "sundry": "杂费报销分类",
+      "claim": "Claim 分类"
     },
     "moduleHelp": {
       "material": "收货与它的金额归在这里。按项目各一份。",
@@ -3943,7 +3962,10 @@
       "phase": "进度百分比就是按这些阶段算的。按项目各一份 —— 改权重会改已有数字。",
       "ehs": "安全隐患、质量问题、事故、作业许可证。按项目各一份。",
       "recycle": "现场外运的可回收废料。全公司一份；系统预置的可停用、不可删除。",
-      "debris": "送去清运的建筑垃圾。按项目各一份。"
+      "debris": "送去清运的建筑垃圾。按项目各一份。",
+      "consultant": "顾问资料归在这里，和现场资料分开。按项目各一份。",
+      "sundry": "杂费报销归在这里。按项目各一份。",
+      "claim": "材料到场与进度 Claim 归在这里。按项目各一份。"
     },
     "moduleSource": {
       "material": "记录来自：现场材料进场、后台材料进场台账。现场工作人员可以填。",
@@ -3954,7 +3976,10 @@
       "phase": "阶段由后台维护，用来算进度百分比，本身不接收记录。",
       "ehs": "记录来自：隐患上报（现场与后台都算）。现场工作人员可以填。",
       "recycle": "记录来自：后台的可回收废料外运。现场工作人员不填这里。",
-      "debris": "记录来自：后台发起的建筑垃圾清运。现场工作人员不填这里。"
+      "debris": "记录来自：后台发起的建筑垃圾清运。现场工作人员不填这里。",
+      "consultant": "记录来自：手机端顾问资料提交，提交时选栏目。现场工作人员可以填。",
+      "sundry": "杂费报销由手机端提交，后台处理时再归入栏目。手机端不选栏目。",
+      "claim": "Claim 由后台开，开了之后再归入栏目。现场工作人员不填这里。"
     },
     "modules": "模块",
     "scope": {
@@ -3980,7 +4005,14 @@
       "alertsInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
       "none": "没有设预算"
     },
-    "saveFailed": "没有成功。请再试一次，或者刷新页面。"
+    "saveFailed": "没有成功。请再试一次，或者刷新页面。",
+    "viewRecords": "查看记录",
+    "records": {
+      "title": "{name} 的记录",
+      "help": "这个栏目里的全部记录，最新的在前面。只列出你有权限看的记录。点一笔就能看详情。",
+      "count": "共 {count} 笔",
+      "empty": "这个栏目里还没有记录。"
+    }
   },
   "cloudServices": {
     "count": "{count} 项服务",
@@ -5426,7 +5458,6 @@
       "ocrManual": "无法读取 Delivery Order，请手动填写资料。",
       "ocrReady": "OCR 已读取文件，请检查并确认填入的资料后保存。",
       "readDeliveryNote": "使用 Azure OCR 读取",
-      "recentMovements": "近期进退场记录",
       "recordEntry": "记录进场",
       "recordExit": "记录退场",
       "stillInUse": "还在用",
@@ -5449,17 +5480,6 @@
       "identity": "2. 序列号或登记牌",
       "overview": "1. 设备整体全景",
       "transport": "3. 运输车辆、送货或门岗"
-    },
-    "equipmentFilter": {
-      "allEquipment": "全部设备",
-      "allSuppliers": "全部供应商",
-      "clear": "清除筛选",
-      "dateFrom": "开始日期",
-      "dateTo": "结束日期",
-      "deliveryNoteNo": "送货单编号",
-      "equipment": "设备",
-      "search": "搜索进退场记录",
-      "searchPlaceholder": "设备、供应商、操作员、车辆或送货单"
     },
     "equipmentStatus": {
       "MAINTENANCE": "维修中",
@@ -5549,7 +5569,7 @@
       "workLocation": "工作区域 / 位置"
     },
     "filing": {
-      "action": "归档",
+      "action": "归入栏目",
       "columnsFailed": "栏目读取失败，请重试。",
       "confirm": "保存归属",
       "failed": "归档失败，请重试。",
@@ -7065,7 +7085,10 @@
       "visit_not_found": "找不到该客户回访。",
       "weigh_sequence_invalid": "两次过磅必须按顺序进行：第一次毛重，第二次皮重。",
       "rejection_needs_conversation": "请先在这条记录的【沟通】里说明问题，让现场看得到原因并能回复，然后才能退回。",
-      "column_not_empty": "这个栏目下还有记录：{records}。请先移走，再删除栏目。"
+      "column_not_empty": "这个栏目下还有记录：{records}。请先移走，再删除栏目。",
+      "column_wrong_module": "「{column}」属于其他模块，请选择本模块的栏目。",
+      "column_other_project": "该栏目不属于此记录的项目，请选择同一项目的栏目。",
+      "column_inactive": "「{column}」已停用，请选择启用中的栏目。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -14251,15 +14274,15 @@
     "note": "不同单位不能相加，因此按单位分别统计，没有合计总数。"
   },
   "recordClosure": {
-    "title": "确认完成",
-    "action": "确认完成",
-    "help": "按下去就视为这件事已经完成，并为所有人锁定。系统不做任何前置判断 —— 判断由你负责，系统记录你的姓名与确认时间。记录不会搬走，还在原来的模块和栏目里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
+    "title": "确认归档",
+    "action": "确认归档",
+    "help": "按下去就视为这件事已经完成并归档，所有人都看得到，总栏目里会写上你的名字和时间。系统不做任何前置判断 —— 判断由你负责。记录不会搬走，还在原来的模块和栏目里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
     "notePlaceholder": "备注（可选）",
-    "closedTitle": "已确认完成",
+    "closedTitle": "已归档",
     "closedBy": "由 {name} 于 {when} 确认。本记录已不能再修改。",
     "loading": "正在查询…",
     "what": {
-      "state": "这条记录是否已确认完成"
+      "state": "这条记录是否已归档"
     }
   },
   "recordConversation": {

@@ -47,8 +47,8 @@ const PACKABLE: readonly ArchiveRecordKind[] = [
   "CONSULTANT_APPLICATION",
 ];
 
-export function canGoInAPackage(kind: ArchiveRecordKind) {
-  return PACKABLE.includes(kind);
+export function canGoInAPackage(kind: string): kind is ArchiveRecordKind {
+  return (PACKABLE as readonly string[]).includes(kind);
 }
 
 export function AddToPackageButton({
