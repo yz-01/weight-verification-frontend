@@ -37,7 +37,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import type {
-  ActivityRow,
   ApprovalRow,
   ContractorDashboardSection,
   DashboardAnomalies,
@@ -45,6 +44,7 @@ import type {
   ProjectStatusKey,
   TimelineEntry,
 } from "@/interfaces/contractor-dashboard";
+import { activityHref } from "@/lib/activity-href";
 import { useDateFormat } from "@/lib/dates";
 import {
   exportContractorDashboard,
@@ -78,17 +78,6 @@ const PROJECT_STATUSES: ProjectStatusKey[] = [
 ];
 
 /** Where each feed row's module lives, for the deep link on a row. */
-const ACTIVITY_HREF: Record<ActivityRow["kind"], string> = {
-  MATERIAL_OUTGOING: "/material-outgoing",
-  EQUIPMENT_MOVEMENT: "/site-equipment",
-  SITE_PROGRESS: "/progress",
-  DISPOSAL: "/site-disposals",
-  WASTE_DISPATCH: "/dispatches",
-  SAFETY_INCIDENT: "/safety",
-  CONSULTANT_APPLICATION: "/consultant-applications",
-  FIELD_TASK: "/field-tasks",
-};
-
 const EXPORT_COLUMNS = [
   "occurred_at",
   "kind",
@@ -383,7 +372,7 @@ export function ContractorDashboard() {
                   label={t("overview.safety")}
                   value={data.overview.today.safety_incidents}
                   icon={ShieldAlert}
-                  href="/safety"
+                  href="/hazard-rectifications"
                   tone={data.overview.today.safety_incidents > 0 ? "warning" : undefined}
                 />
                 {/* Small cards, as asked, rather than another section. Each
@@ -538,7 +527,7 @@ export function ContractorDashboard() {
                     >
                       <div className="min-w-0">
                         <Link
-                          href={ACTIVITY_HREF[row.kind]}
+                          href={activityHref(row)}
                           className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           {t(`activityKind.${row.kind}`)} · {row.reference}
