@@ -104,6 +104,8 @@ export type ActivityKind =
   | "FIELD_TASK";
 
 export interface ActivityRow {
+  /** The record's own id, so the row can open it. Absent from older servers. */
+  id?: string;
   kind: ActivityKind;
   occurred_at: string | null;
   project: string;

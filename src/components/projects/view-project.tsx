@@ -303,7 +303,7 @@ function ProjectStatistics({ projectId }: { projectId: string }) {
         ["material_receipts", statistics.data.totals.material_receipts, Package, "/receipts"],
         ["equipment_movements", statistics.data.totals.equipment_movements, Construction, "/site-equipment"],
         ["progress_records", statistics.data.totals.progress_records, ClipboardCheck, "/progress"],
-        ["safety_incidents", statistics.data.totals.safety_incidents, ShieldAlert, "/safety"],
+        ["safety_incidents", statistics.data.totals.safety_incidents, ShieldAlert, "/hazard-rectifications"],
         ["attendance_events", statistics.data.totals.attendance_events, CalendarDays, "/attendance"],
         ["waste_dispatches", statistics.data.totals.waste_dispatches, Truck, "/dispatches"],
         ["consultant_applications", statistics.data.totals.consultant_applications, BadgeCheck, "/consultant-applications"],
