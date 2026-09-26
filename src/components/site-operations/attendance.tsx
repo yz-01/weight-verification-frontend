@@ -138,6 +138,10 @@ export function Attendance() {
     setLocationError("");
     setClockError("");
     setOpen(true);
+    // Automatic on opening the clock form, not on opening the page: a manager
+    // reading the list is not asked for a position (「确保每个模块都是自动获取
+    // GPS」). The button in the form stays as the retry.
+    locate();
   }
 
   const columns = useMemo<ColumnDef<AttendanceRecord, unknown>[]>(

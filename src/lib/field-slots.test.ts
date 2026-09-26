@@ -291,6 +291,12 @@ describe("the four capture screens share the one 挂号 mechanism (D-260, 「不
     expect(slots).toMatch(/\) : activeSlot \? \([\s\S]*?\{children\}[\s\S]*?\) : \([\s\S]*?t\("none"\)[\s\S]*?onClick=\{open\}/);
   });
 
+  it("【挂号】 on an empty 挂号 says why nothing new opened", () => {
+    const slots = read("src/components/field-staff/field-slots.tsx");
+    expect(slots).toMatch(/setEmptyPressed\(working && isEmpty\(working\.n\) \? working\.n : null\)/);
+    expect(slots).toMatch(/emptyPressed === activeSlot\.n && activeEmpty[\s\S]{0,200}t\("fillFirst"/);
+  });
+
   it("「使用挂号」 off is one plain draft with no settle context", () => {
     const slots = read("src/components/field-staff/field-slots.tsx");
     expect(slots).toMatch(/\{!registry\.enabled \? \(\s*<FieldDraft scope=\{scope\}>\{children\}<\/FieldDraft>\s*\) : activeSlot/);

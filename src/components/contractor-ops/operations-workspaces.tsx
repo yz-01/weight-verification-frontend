@@ -145,22 +145,6 @@ const EQUIPMENT_UNITS: EquipmentUnit[] = [
   "OTHER",
 ];
 
-async function currentCoordinates(): Promise<Coordinates> {
-  if (!("geolocation" in navigator)) throw new Error("location_unavailable");
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) =>
-        resolve({
-          latitude: position.coords.latitude.toFixed(7),
-          longitude: position.coords.longitude.toFixed(7),
-          accuracy: position.coords.accuracy.toFixed(2),
-        }),
-      reject,
-      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
-    );
-  });
-}
-
 export function ProjectFilter({
   value,
   onChange,
@@ -1855,7 +1839,6 @@ export function MovementDialog({
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [location, setLocation] = useState<Coordinates | null>(null);
-  const [locationError, setLocationError] = useState(false);
   const fieldPhotos = completedFieldEvidence(fieldEvidence);
   const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
   const equipmentEvidenceLabels = [
@@ -1944,14 +1927,6 @@ export function MovementDialog({
       setError(t("state.loadError"));
     },
   });
-  const locate = async () => {
-    setLocationError(false);
-    try {
-      setLocation(await currentCoordinates());
-    } catch {
-      setLocationError(true);
-    }
-  };
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
@@ -2097,27 +2072,16 @@ export function MovementDialog({
               />
             )}
           </FieldWrapper>
-          <FieldWrapper
-            label={t("field.location")}
-            required
-            error={
-              locationError
-                ? t("state.locationError")
-                : fieldErrors.latitude ||
-                  fieldErrors.longitude ||
-                  fieldErrors.accuracy_m
-            }
+          <LocationField
             className="sm:col-span-2"
-          >
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => void locate()}
-            >
-              <MapPin />
-              {location ? t("action.locationReady") : t("action.getLocation")}
-            </Button>
-          </FieldWrapper>
+            label={t("field.location")}
+            actionLabel={t("action.getLocation")}
+            readyLabel={t("action.locationReady")}
+            value={location}
+            onChange={setLocation}
+            required
+            error={fieldErrors.latitude || fieldErrors.longitude || fieldErrors.accuracy_m}
+          />
           <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
             <Textarea
               value={notes}
@@ -2604,7 +2568,6 @@ export function ProgressDialog({
   const [fieldEvidence, setFieldEvidence] = useDraftState("fieldEvidence", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
   const [location, setLocation] = useState<Coordinates | null>(null);
-  const [locationError, setLocationError] = useState(false);
   const [error, setError] = useState("");
   const fieldPhotos = completedFieldEvidence(fieldEvidence);
   const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
@@ -2646,15 +2609,6 @@ export function ProgressDialog({
         reason instanceof ApiError ? reason.message : t("progress.saveError"),
       ),
   });
-  const locate = async () => {
-    setLocationError(false);
-    setError("");
-    try {
-      setLocation(await currentCoordinates());
-    } catch {
-      setLocationError(true);
-    }
-  };
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
@@ -2731,16 +2685,14 @@ export function ProgressDialog({
             />
           )}
         </FieldWrapper>
-        <FieldWrapper
+        <LocationField
           label={t("field.location")}
+          actionLabel={t("action.getLocation")}
+          readyLabel={t("action.locationReady")}
+          value={location}
+          onChange={setLocation}
           required
-          error={locationError ? t("state.locationError") : undefined}
-        >
-          <Button variant="outline" onClick={() => void locate()}>
-            <MapPin />
-            {location ? t("action.locationReady") : t("action.getLocation")}
-          </Button>
-        </FieldWrapper>
+        />
         <FieldWrapper label={t("field.description")}>
           <Textarea
             value={description}
@@ -3106,7 +3058,6 @@ export function OutgoingDialog({
   const [photos, setPhotos] = useDraftState("photos", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
   const [location, setLocation] = useState<Coordinates | null>(null);
-  const [locationError, setLocationError] = useState(false);
   const photoPrompts = [
     t("outgoing.evidence.overview"),
     t("outgoing.evidence.quantity"),
@@ -3143,14 +3094,6 @@ export function OutgoingDialog({
       onSaved();
     },
   });
-  const locate = async () => {
-    setLocationError(false);
-    try {
-      setLocation(await currentCoordinates());
-    } catch {
-      setLocationError(true);
-    }
-  };
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
@@ -3255,17 +3198,15 @@ export function OutgoingDialog({
               />
             </FieldWrapper>
           ) : null}
-          <FieldWrapper
-            label={t("field.location")}
-            required={isFieldStaff}
-            error={locationError ? t("state.locationError") : undefined}
+          <LocationField
             className="sm:col-span-2"
-          >
-            <Button variant="outline" onClick={() => void locate()}>
-              <MapPin />
-              {location ? t("action.locationReady") : t("action.getLocation")}
-            </Button>
-          </FieldWrapper>
+            label={t("field.location")}
+            actionLabel={t("action.getLocation")}
+            readyLabel={t("action.locationReady")}
+            value={location}
+            onChange={setLocation}
+            required={isFieldStaff}
+          />
           <FieldWrapper
             label={isFieldStaff ? t("field.notes") : t("field.reason")}
             required={!isFieldStaff}

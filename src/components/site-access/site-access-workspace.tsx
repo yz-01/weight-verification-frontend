@@ -515,6 +515,16 @@ function GatePanel({ onRecorded }: { onRecorded: () => Promise<unknown> }) {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   }
+
+  // Automatic on opening (「确保每个模块都是自动获取GPS」); the button stays
+  // as the retry. A ref, so a development double-mount does not ask twice.
+  const autoLocated = useRef(false);
+  useEffect(() => {
+    if (autoLocated.current) return;
+    autoLocated.current = true;
+    getGps();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   async function readQrImage(file: File) {
     setQrImageError("");
     try {

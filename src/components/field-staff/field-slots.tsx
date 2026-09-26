@@ -10,7 +10,10 @@
  * beside them. The rules themselves are in `lib/field-slots.ts`.
  *
  * Nothing opens by itself. With no 挂号 held the strip says 0 and the form is
- * not shown - only 【挂号】, which opens the next number. There is no delete: a
+ * not shown - only 【挂号】, which opens the next number. Pressed while the 挂号
+ * being worked on is still empty, it hands out nothing (an empty number would
+ * only vanish again) and says so: silently doing nothing read as a broken
+ * button (Lucas, 2026-09-26: 「为什么每个模块我点了挂号不会新增的」). There is no delete: a
  * 挂号 goes when its record is uploaded, or, if nothing was ever put in it,
  * when the worker switches away or opens another.
  *
@@ -120,6 +123,8 @@ function SlotBoundary({
   const [stored, setStored] = useState(() => saveRegistry(registryKey, initial));
   const [waiting, setWaiting] = useState<Record<string, { attempts: number; lastError: string }>>({});
   const [refused, setRefused] = useState<"off" | "on" | null>(null);
+  // Which 挂号 【挂号】 was pressed on while it was still empty.
+  const [emptyPressed, setEmptyPressed] = useState<number | null>(null);
   // The list as last written. Callbacks read this rather than localStorage,
   // which is exactly what a browser refusing storage cannot give back.
   const latest = useRef(initial);
@@ -230,7 +235,19 @@ function SlotBoundary({
     () => false,
   );
 
-  const open = () => commit(openSlot(latest.current, emptyIn(latest.current)));
+  // Kept live, so the hint goes the moment a photo lands in the 挂号.
+  const activeEmpty = useSyncExternalStore(
+    subscribeSlots,
+    () => (activeSlot ? emptyIn(registry)(activeSlot.n) : false),
+    () => false,
+  );
+  const open = () => {
+    const current = latest.current;
+    const isEmpty = emptyIn(current);
+    const working = current.slots.find((slot) => slot.n === current.active && !isQueued(slot));
+    setEmptyPressed(working && isEmpty(working.n) ? working.n : null);
+    commit(openSlot(current, isEmpty));
+  };
   const toggle = (on: boolean) => {
     if (on ? !canTurnOn : !canTurnOff) {
       setRefused(on ? "on" : "off");
@@ -272,6 +289,11 @@ function SlotBoundary({
                 </Button>
               )}
             </div>
+            {activeSlot && emptyPressed === activeSlot.n && activeEmpty && (
+              <p role="status" className="mt-1.5 rounded-md bg-warning/10 px-2 py-1.5 text-xs font-medium text-warning">
+                {t("fillFirst", { n: formatSlotNumber(activeSlot.n) })}
+              </p>
+            )}
             {registry.slots.length > 0 && (
               <ul className="mt-1.5 flex gap-1.5 overflow-x-auto pb-1">
                 {registry.slots.map((slot) => (

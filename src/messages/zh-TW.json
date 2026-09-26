@@ -13788,7 +13788,8 @@
       "sendOrder": "發送回收訂單",
       "submit": "提交申請",
       "track": "查看訂單",
-      "upload": "提交"
+      "upload": "提交",
+      "located": "已取得定位"
     },
     "assign": {
       "help": "選擇已綁定此項目的回收商。{reference} 的訂單會立即發送至對方系統。",
@@ -14342,7 +14343,8 @@
     "use": "使用掛號",
     "offHelp": "掛號已關：這裡只有一張表單。",
     "cannotTurnOff": "還有掛號存著照片或在等上傳，先上交再關",
-    "cannotTurnOn": "表單裡還有內容，先上交或清空再開掛號"
+    "cannotTurnOn": "表單裡還有內容，先上交或清空再開掛號",
+    "fillFirst": "掛號 {n} 還沒拍照片，先拍一張掛上，再開下一個號。"
   },
   "sundryClaim": {
     "detailTitle": "雜費報銷",

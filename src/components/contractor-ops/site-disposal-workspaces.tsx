@@ -8,7 +8,6 @@ import {
   FolderOpen,
   Link2,
   Loader2,
-  LocateFixed,
   PackageCheck,
   Plus,
   RefreshCw,
@@ -24,6 +23,7 @@ import { useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useSearchParams } from "next/navigation";
 
+import { LocationField } from "@/components/field-staff/location-field";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -262,7 +262,6 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
   const clearDraft = useClearDraft();
   // Not saved: a stale fix would be submitted as a fresh one.
   const [location, setLocation] = useState<Coordinates | null>(null);
-  const [locationError, setLocationError] = useState("");
   const fieldPhotos = completedFieldEvidence(fieldEvidence);
   const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
   const evidenceLabels = [
@@ -297,10 +296,6 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
       onSaved();
     },
   });
-  const locate = async () => {
-    setLocationError("");
-    try { setLocation(await getCoordinates()); } catch { setLocationError(t("error.location")); }
-  };
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-2xl">
@@ -315,7 +310,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
             <FieldWrapper label={t("field.estimatedWeight")} optional={t("optional")}><Input type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper>
             <FieldWrapper label={t("field.preferredAt")} optional={t("optional")}><Input type="datetime-local" value={preferred} onChange={(e) => setPreferred(e.target.value)} /></FieldWrapper>
           </> : null}
-          <FieldWrapper label={t("field.gps")} required error={locationError}><Button type="button" variant="outline" className="w-full" onClick={() => void locate()}><LocateFixed />{location ? t("action.locationReady") : t("action.getLocation")}</Button></FieldWrapper>
+          <LocationField label={t("field.gps")} actionLabel={t("action.getLocation")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required />
           <FieldWrapper label={t("field.photos")} required className="sm:col-span-2">
             {isFieldStaff ? (
               <FieldEvidenceGrid

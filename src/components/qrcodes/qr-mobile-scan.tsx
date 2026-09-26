@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { AuthCard } from "@/components/auth/auth-card";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -100,6 +100,16 @@ export function QRMobileScan() {
       { enableHighAccuracy: true, timeout: 15_000, maximumAge: 60_000 },
     );
   }
+
+  // Automatic on opening (「确保每个模块都是自动获取GPS」); the button stays
+  // as the retry. A ref, so a development double-mount does not ask twice.
+  const autoLocated = useRef(false);
+  useEffect(() => {
+    if (autoLocated.current) return;
+    autoLocated.current = true;
+    locate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const result = scan.data;
   const error = scan.error;

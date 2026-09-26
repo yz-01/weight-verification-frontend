@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { LocationField } from "@/components/field-staff/location-field";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
@@ -68,6 +69,7 @@ import type {
   SafetyIncident,
   SafetyIncidentPayload,
 } from "@/interfaces/site-operations";
+import type { LocationFix } from "@/lib/field-location";
 import { useDateFormat } from "@/lib/dates";
 import {
   submitSafetyIncidentOfflineAware,
@@ -789,8 +791,8 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
   const [fieldEvidence, setFieldEvidence] = useState(createEmptyFieldEvidence);
   const [officeImages, setOfficeImages] = useState<File[]>([]);
   const [note, setNote] = useState("");
-  const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string } | null>(null);
-  const [locationError, setLocationError] = useState("");
+  // Automatic, like every field capture form (T-355, D-246).
+  const [location, setLocation] = useState<LocationFix | null>(null);
   const images = fieldMode ? completedFieldEvidence(fieldEvidence) : officeImages;
   const evidenceLabels = [
     t("evidence.before"),
@@ -798,7 +800,6 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
     t("evidence.detail"),
     t("evidence.surroundings"),
   ];
-  const getLocation = () => { setLocationError(""); navigator.geolocation.getCurrentPosition((position) => setLocation({ latitude: position.coords.latitude.toFixed(7), longitude: position.coords.longitude.toFixed(7), accuracy: position.coords.accuracy.toFixed(2) }), () => setLocationError(t("error.location")), { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }); };
   const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -827,12 +828,14 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
             />
           )}
         </FieldWrapper>
-        <FieldWrapper label={t("field.location")} required error={locationError}>
-          <Button className="w-full" variant="outline" onClick={getLocation}>
-            <LocateFixed />
-            {location ? t("action.locationReady") : t("action.getLocation")}
-          </Button>
-        </FieldWrapper>
+        <LocationField
+          label={t("field.location")}
+          actionLabel={t("action.getLocation")}
+          readyLabel={t("action.locationReady")}
+          value={location}
+          onChange={setLocation}
+          required
+        />
         <FieldWrapper label={t("field.workDone")} optional={fieldMode ? t("action.optional") : undefined} required={!fieldMode}>
           <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
         </FieldWrapper>
@@ -934,7 +937,7 @@ function SafetyCreateDialog({
    */
   const supportsLocation =
     typeof navigator === "undefined" || Boolean(navigator.geolocation);
-  const [locating, setLocating] = useState(fieldMode && supportsLocation);
+  const [locating, setLocating] = useState(supportsLocation);
   const [locationError, setLocationError] = useState("");
   const categories = useQuery({
     queryKey: ["safety-create-categories", draft.project],
@@ -1040,8 +1043,10 @@ function SafetyCreateDialog({
     );
   }
 
+  // Automatic for every reporter, office included - 「确保每个模块都是自动
+  // 获取GPS」 (Lucas, 2026-09-26). The button below stays as the retry.
   useEffect(() => {
-    if (!fieldMode || !navigator.geolocation) return;
+    if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setDraft((value) => ({
@@ -1063,7 +1068,7 @@ function SafetyCreateDialog({
       { enableHighAccuracy: true, timeout: 10_000 },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fieldMode]);
+  }, []);
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>

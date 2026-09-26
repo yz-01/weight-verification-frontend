@@ -10,7 +10,6 @@ import {
   ImagePlus,
   ListTree,
   Loader2,
-  LocateFixed,
   Plus,
   Repeat,
   SendHorizonal,
@@ -26,6 +25,7 @@ import { useState } from "react";
 
 import type { ColumnDef } from "@tanstack/react-table";
 
+import { LocationField } from "@/components/field-staff/location-field";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
@@ -79,6 +79,7 @@ import type {
 } from "@/interfaces/waste-outgoing";
 import { ApiError } from "@/interfaces/api";
 import { WASTE_UNITS } from "@/interfaces/waste-outgoing";
+import type { LocationFix } from "@/lib/field-location";
 import { useDateFormat } from "@/lib/dates";
 import { LocationMap } from "@/components/shared/location-map";
 import { trackPaths } from "@/lib/track-paths";
@@ -133,25 +134,6 @@ const STATUS_TONE: Record<
   COMPLETED: "positive",
   CANCELLED: "danger",
 };
-
-type Coordinates = { latitude: string; longitude: string };
-
-function getCoordinates(): Promise<Coordinates> {
-  return new Promise((resolve, reject) => {
-    if (!("geolocation" in navigator)) {
-      return reject(new Error("location_unavailable"));
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) =>
-        resolve({
-          latitude: position.coords.latitude.toFixed(7),
-          longitude: position.coords.longitude.toFixed(7),
-        }),
-      reject,
-      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
-    );
-  });
-}
 
 export function WasteOutgoingWorkspace() {
   const t = useTranslations("wasteOutgoing");
@@ -1018,9 +1000,8 @@ function RecordDialog({
   const [note, setNote] = useState("");
   const [pickupAddress, setPickupAddress] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
-  const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
-  const [locating, setLocating] = useState(false);
-  const [locationError, setLocationError] = useState("");
+  // Automatic, like every field capture form (T-355, D-246).
+  const [coordinates, setCoordinates] = useState<LocationFix | null>(null);
 
   const save = useMutation({
     mutationFn: () =>
@@ -1040,18 +1021,6 @@ function RecordDialog({
       }),
     onSuccess: onSaved,
   });
-
-  const locate = async () => {
-    setLocating(true);
-    setLocationError("");
-    try {
-      setCoordinates(await getCoordinates());
-    } catch {
-      setLocationError(t("form.locationFailed"));
-    } finally {
-      setLocating(false);
-    }
-  };
 
   // A quantity with no unit is not a measurement, and the server rejects it.
   const quantityIncomplete = quantity.trim() !== "" && unit === "";
@@ -1151,34 +1120,14 @@ function RecordDialog({
               onClear={() => setPhotos([])}
             />
           </FieldWrapper>
-          <FieldWrapper
+          <LocationField
             label={t("field.location")}
             hint={t("field.locationHint")}
-            error={locationError || undefined}
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={locating}
-                onClick={() => void locate()}
-              >
-                {locating ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <LocateFixed />
-                )}
-                {t("action.locate")}
-              </Button>
-              {coordinates && (
-                <span className="text-xs text-muted-foreground">
-                  {Number(coordinates.latitude).toFixed(5)},{" "}
-                  {Number(coordinates.longitude).toFixed(5)}
-                </span>
-              )}
-            </div>
-          </FieldWrapper>
+            actionLabel={t("action.locate")}
+            readyLabel={t("action.located")}
+            value={coordinates}
+            onChange={setCoordinates}
+          />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
