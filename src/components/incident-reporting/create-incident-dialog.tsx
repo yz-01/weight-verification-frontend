@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2, LocateFixed, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { FieldWrapper, LoadFailed, QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -139,6 +139,17 @@ export function CreateIncidentDialog({
       { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
     );
   };
+
+  // Automatic when the form opens (「确保每个模块都是自动获取GPS」); the
+  // button stays as the retry. A ref, so a development double-mount does not
+  // ask twice.
+  const autoLocated = useRef(false);
+  useEffect(() => {
+    if (autoLocated.current || !("geolocation" in navigator)) return;
+    autoLocated.current = true;
+    captureLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const projectOptions = projects.data?.results ?? [];
 

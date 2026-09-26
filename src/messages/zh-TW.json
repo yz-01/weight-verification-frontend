@@ -13788,7 +13788,8 @@
       "sendOrder": "發送回收訂單",
       "submit": "提交申請",
       "track": "查看訂單",
-      "upload": "提交"
+      "upload": "提交",
+      "located": "已取得定位"
     },
     "assign": {
       "help": "選擇已綁定此項目的回收商。{reference} 的訂單會立即發送至對方系統。",

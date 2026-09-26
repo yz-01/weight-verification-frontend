@@ -13788,7 +13788,8 @@
       "sendOrder": "发送回收订单",
       "submit": "提交申请",
       "track": "查看订单",
-      "upload": "提交"
+      "upload": "提交",
+      "located": "已获取定位"
     },
     "assign": {
       "help": "选择已绑定此项目的回收商。{reference} 的订单会立即发送至对方系统。",

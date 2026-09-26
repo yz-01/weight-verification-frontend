@@ -13788,7 +13788,8 @@
       "sendOrder": "Hantar pesanan kitar semula",
       "submit": "Hantar permohonan",
       "track": "Lihat pesanan",
-      "upload": "Hantar"
+      "upload": "Hantar",
+      "located": "Lokasi diperoleh"
     },
     "assign": {
       "help": "Pilih pengitar yang terikat pada projek ini. Pesanan untuk {reference} dihantar ke sistem mereka serta-merta.",

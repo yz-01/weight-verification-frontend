@@ -89,6 +89,8 @@ export function LocationField({
   onChange,
   required = false,
   className = "",
+  error,
+  hint,
 }: {
   label: string;
   /** The words on the button before a fix has been taken. */
@@ -99,6 +101,9 @@ export function LocationField({
   onChange: (fix: LocationFix | null) => void;
   required?: boolean;
   className?: string;
+  /** A server-side rejection of the coordinates, shown under the field. */
+  error?: string;
+  hint?: string;
 }) {
   const t = useTranslations("fieldStaffPwa.locationAccess");
   const primerRead = usePrimerWasRead();
@@ -156,7 +161,7 @@ export function LocationField({
   }, [ask, value, primerRead]);
 
   return (
-    <FieldWrapper className={className} label={label} required={required}>
+    <FieldWrapper className={className} label={label} required={required} error={error} hint={hint}>
       {locating ? (
         <p className="flex min-h-12 items-center gap-2 rounded-md border bg-muted/30 px-3 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />

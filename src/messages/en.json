@@ -13788,7 +13788,8 @@
       "sendOrder": "Send recycle order",
       "submit": "Submit application",
       "track": "View order",
-      "upload": "Submit"
+      "upload": "Submit",
+      "located": "Location captured"
     },
     "assign": {
       "help": "Choose a recycler bound to this project. The order for {reference} is sent to their system immediately.",
