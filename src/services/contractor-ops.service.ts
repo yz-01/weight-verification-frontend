@@ -1,3 +1,4 @@
+import type { DeliveryNoteOCRResult } from "@/interfaces/contractor";
 import type { ListQuery, Paginated } from "@/interfaces/api";
 import {
   exportBody,
@@ -302,12 +303,10 @@ export async function ocrEquipmentDeliveryNote(project: string, image: File) {
   const data = new FormData();
   data.append("project", project);
   data.append("image", image);
-  return api.post<{
-    status: string;
-    provider?: string;
-    content?: string;
-    suggestions?: Record<string, string>;
-  }>("/api/site-equipment/ocr_delivery_note/", data);
+  // The same result as 材料进场's read (receiving.ocr.read_delivery_note).
+  return api.post<DeliveryNoteOCRResult>("/api/site-equipment/ocr_delivery_note/", data, {
+    silent: true,
+  });
 }
 export async function recordEquipmentMovement(payload: {
   project: string; equipment: string; direction: "ENTRY" | "EXIT"; delivery_note_no?: string;
