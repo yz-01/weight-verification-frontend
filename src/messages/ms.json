@@ -14342,7 +14342,8 @@
     "use": "Guna tahanan",
     "offHelp": "Tahanan dimatikan: skrin ini satu borang biasa.",
     "cannotTurnOff": "Masih ada tahanan yang menyimpan foto atau menunggu muat naik. Hantar dahulu sebelum mematikan.",
-    "cannotTurnOn": "Borang ini masih ada isian. Hantar atau buang dahulu sebelum menghidupkan tahanan."
+    "cannotTurnOn": "Borang ini masih ada isian. Hantar atau buang dahulu sebelum menghidupkan tahanan.",
+    "fillFirst": "Nombor giliran {n} belum ada foto. Ambil satu untuk menahannya, kemudian buka nombor seterusnya."
   },
   "sundryClaim": {
     "detailTitle": "Tuntutan pelbagai",

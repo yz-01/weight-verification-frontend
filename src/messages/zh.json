@@ -14342,7 +14342,8 @@
     "use": "使用挂号",
     "offHelp": "挂号已关：这里只有一张表单。",
     "cannotTurnOff": "还有挂号存着照片或在等上传，先上交再关",
-    "cannotTurnOn": "表单里还有内容，先上交或清空再开挂号"
+    "cannotTurnOn": "表单里还有内容，先上交或清空再开挂号",
+    "fillFirst": "挂号 {n} 还没拍照片，先拍一张挂上，再开下一个号。"
   },
   "sundryClaim": {
     "detailTitle": "杂费报销",

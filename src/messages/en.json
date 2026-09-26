@@ -14342,7 +14342,8 @@
     "use": "Use holds",
     "offHelp": "Holds are off: this screen is one plain form.",
     "cannotTurnOff": "Some holds still have photos or are waiting to upload. Submit them before turning this off.",
-    "cannotTurnOn": "This form still has entries. Submit or discard them before turning holds on."
+    "cannotTurnOn": "This form still has entries. Submit or discard them before turning holds on.",
+    "fillFirst": "Queue number {n} has no photo yet. Take one to hold it, then open the next number."
   },
   "sundryClaim": {
     "detailTitle": "Sundry claim",
