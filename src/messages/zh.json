@@ -5760,7 +5760,10 @@
         "hint": "顾问申请表会预先选好这个类型。",
         "none": "由被指派的人自己选",
         "what": "申请类型"
-      }
+      },
+      "focused": "只显示卡片指向的这一项任务。",
+      "focusedMissing": "卡片指向的任务不在当前列表里，可能已处理完或不属于所选项目。",
+      "showAll": "显示全部"
     },
     "toast": {
       "movementSaved": "设备进退场已记录",
@@ -9615,7 +9618,8 @@
       "open": "点击进入处理",
       "expand": "展开",
       "collapse": "收起",
-      "more": "还有 {count} 件，查看全部"
+      "more": "还有 {count} 件，查看全部",
+      "linkedRecord": "卡片指向的记录"
     },
     "what": {
       "counts": "未完成数量",

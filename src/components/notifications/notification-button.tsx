@@ -20,6 +20,7 @@ import { ActionCardStack } from "@/components/notifications/action-card-stack";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
 import { fieldNotificationHref } from "@/lib/field-notification";
+import { officeNotificationHref } from "@/lib/office-notification";
 import {
   confirmNotificationDone,
   getAllNotifications,
@@ -143,12 +144,9 @@ export function NotificationButton() {
 
   /** Where a notice leads: the phone's own screen, or the office path it names. */
   const destination = (notification: NotificationRow) => {
-    const rawHref = notification.data.href ?? notification.data.url;
     return user?.is_field_staff
-      ? fieldNotificationHref(rawHref)
-      : typeof rawHref === "string" && rawHref.startsWith("/")
-        ? rawHref
-        : null;
+      ? fieldNotificationHref(notification.data.href ?? notification.data.url)
+      : officeNotificationHref(notification.data);
   };
 
   return (
@@ -299,12 +297,7 @@ export function NotificationButton() {
                    * The only thing that settles a notice now is the confirm
                    * button below, or the record itself closing.
                    */
-                  const rawHref = notification.data.href ?? notification.data.url;
-                  const href = user?.is_field_staff
-                    ? fieldNotificationHref(rawHref)
-                    : typeof rawHref === "string" && rawHref.startsWith("/")
-                      ? rawHref
-                      : null;
+                  const href = destination(notification);
                   if (href) {
                     setOpen(false);
                     router.push(href);

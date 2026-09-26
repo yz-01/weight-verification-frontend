@@ -27,7 +27,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { BadgeCheck, Check, FolderOpen, Loader2, Upload, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
@@ -49,6 +48,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
 import { sundryStatus, type SundryClaim, type SundryClaimStatus } from "@/interfaces/sundry-claim";
 import { useDateFormat } from "@/lib/dates";
@@ -76,14 +76,14 @@ export function SundryClaimsOffice() {
   const tRoot = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
-  const searchParams = useSearchParams();
   const list = useListQuery(["project", "state", "payment", "category", "uncategorised"]);
   const rows = useQuery({
     queryKey: ["sundry-claims", "office", list.query],
     queryFn: () => getSundryClaims(list.query),
   });
-  // A notification links here with ?record=<id>; that record opens at once.
-  const [viewing, setViewing] = useState<string | null>(searchParams.get("record"));
+  // A notification links here with ?record=<id>; that record opens at once,
+  // and again on the next click once the dialog has been closed.
+  const [viewing, setViewing] = useUrlSelection("record");
   const total = rows.data?.count ?? 0;
   const title = tRoot("nav.submodule.sundryClaims");
 

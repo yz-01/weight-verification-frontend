@@ -19,6 +19,14 @@
  *
  * Not on the phone: a field worker is reminded on the home screen instead
  * (D-207), and a card over the camera would be in the way.
+ *
+ * Under every overlay (z-40): a dialog, sheet or confirm box opened on top of
+ * the page must cover the cards, not the other way round - at z-[60] the stack
+ * sat over a sheet's footer and hid the very buttons the task led to.
+ *
+ * An office account on a phone-sized screen gets one bar across the bottom
+ * instead of a 22rem column of cards over the page: it opens on tap, and
+ * closes again once a card is opened so the page it leads to is not covered.
  */
 
 import { BellRing, ChevronDown, ChevronUp } from "lucide-react";
@@ -26,8 +34,9 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { NotificationRow } from "@/interfaces/platform-ops";
+import { cn } from "@/lib/utils";
 
 const VISIBLE = 3;
 
@@ -39,40 +48,64 @@ export function ActionCardStack({
   onOpen: (row: NotificationRow) => void;
 }) {
   const t = useTranslations("notifications.actionCards");
+  const isMobile = useIsMobile();
   const [collapsedAt, setCollapsedAt] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const cards = rows.filter((row) => row.card === "ACTION");
   if (cards.length === 0) return null;
   const newest = cards.reduce((latest, row) => (row.created_at > latest ? row.created_at : latest), "");
-  const collapsed = collapsedAt !== null && newest <= collapsedAt;
+  // A phone starts closed and stays closed until tapped; the desktop starts
+  // open and reopens for anything newer than the collapse.
+  const collapsed = isMobile ? !mobileOpen : collapsedAt !== null && newest <= collapsedAt;
+  const toggle = () => (isMobile ? setMobileOpen(!mobileOpen) : setCollapsedAt(collapsed ? null : newest));
 
   return (
     <aside
       aria-label={t("title")}
-      className="fixed bottom-4 right-4 z-[60] w-[min(22rem,calc(100vw-2rem))] space-y-2"
+      className={cn(
+        "fixed z-40 flex flex-col gap-2",
+        isMobile
+          ? "inset-x-3 bottom-[max(env(safe-area-inset-bottom),0.75rem)]"
+          : "bottom-4 right-4 w-[min(22rem,calc(100vw-2rem))]",
+      )}
     >
-      <div className="flex items-center justify-between rounded-lg border bg-card px-3 py-1.5 shadow-lg">
+      <button
+        type="button"
+        aria-expanded={!collapsed}
+        title={collapsed ? t("expand") : t("collapse")}
+        onClick={toggle}
+        className={cn(
+          "flex w-full items-center justify-between gap-2 rounded-lg border bg-card px-3 text-left shadow-lg transition hover:border-primary/40",
+          isMobile ? "min-h-11 py-2" : "py-1.5",
+        )}
+      >
         <span className="flex items-center gap-2 text-xs font-semibold">
-          <BellRing className="size-4 text-primary" />
+          <BellRing className="size-4 shrink-0 text-primary" />
           {t("count", { count: cards.length })}
         </span>
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          title={collapsed ? t("expand") : t("collapse")}
-          aria-label={collapsed ? t("expand") : t("collapse")}
-          onClick={() => setCollapsedAt(collapsed ? null : newest)}
-        >
-          {collapsed ? <ChevronUp /> : <ChevronDown />}
-        </Button>
-      </div>
+        <span className="sr-only">{collapsed ? t("expand") : t("collapse")}</span>
+        {collapsed ? (
+          <ChevronUp className="size-4 shrink-0 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+        )}
+      </button>
       {!collapsed && (
-        <>
+        <div
+          className={cn(
+            "flex flex-col gap-2 overflow-y-auto overscroll-contain",
+            isMobile ? "max-h-[55dvh]" : "max-h-[calc(100dvh-8rem)]",
+          )}
+        >
           {cards.slice(0, VISIBLE).map((row) => (
             <button
               key={row.id}
               type="button"
-              onClick={() => onOpen(row)}
-              className="block w-full rounded-lg border border-primary/30 bg-card p-3 text-left shadow-lg transition hover:border-primary"
+              onClick={() => {
+                onOpen(row);
+                if (isMobile) setMobileOpen(false);
+              }}
+              className="block w-full shrink-0 rounded-lg border border-primary/30 bg-card p-3 text-left shadow-lg transition hover:border-primary"
             >
               <p className="text-sm font-semibold">{row.title}</p>
               {typeof row.data.project_name === "string" && row.data.project_name ? (
@@ -85,12 +118,13 @@ export function ActionCardStack({
           {cards.length > VISIBLE && (
             <Link
               href="/notifications/my-tasks"
-              className="block rounded-lg border bg-card px-3 py-2 text-center text-xs font-medium text-primary shadow-lg hover:underline"
+              onClick={() => isMobile && setMobileOpen(false)}
+              className="block shrink-0 rounded-lg border bg-card px-3 py-2 text-center text-xs font-medium text-primary shadow-lg hover:underline"
             >
               {t("more", { count: cards.length - VISIBLE })}
             </Link>
           )}
-        </>
+        </div>
       )}
     </aside>
   );

@@ -5760,7 +5760,10 @@
         "hint": "顧問申請表會預先選好這個類型。",
         "none": "由被指派的人自己選",
         "what": "申請類型"
-      }
+      },
+      "focused": "只顯示卡片指向的這一項任務。",
+      "focusedMissing": "卡片指向的任務不在目前列表裡，可能已處理完或不屬於所選項目。",
+      "showAll": "顯示全部"
     },
     "toast": {
       "movementSaved": "設備進退場已記錄",
@@ -9615,7 +9618,8 @@
       "open": "點擊進入處理",
       "expand": "展開",
       "collapse": "收起",
-      "more": "還有 {count} 件，查看全部"
+      "more": "還有 {count} 件，查看全部",
+      "linkedRecord": "卡片指向的記錄"
     },
     "what": {
       "counts": "未完成數量",

@@ -38,6 +38,7 @@ import {
 } from "@/components/shared/module-records-table";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { PrintTicketButton } from "@/components/weighing/print-ticket-button";
 import { ExportButton } from "@/components/shared/export-button";
@@ -93,6 +94,7 @@ import {
   exportWasteOutgoingRecords,
   getRecyclerOptions,
   getWasteOutgoingOptions,
+  getWasteOutgoingRecord,
   getWasteOutgoingRecords,
   reassignWasteRecycler,
   getWasteOutgoingTotals,
@@ -164,7 +166,8 @@ export function WasteOutgoingWorkspace() {
   // filtered view is a link somebody can send.
   const list = useListQuery(["project", "category", "status"]);
   const project = list.filters.project ?? "";
-  const [viewing, setViewing] = useState<WasteOutgoingRecord | null>(null);
+  // A task card links here with ?record=<id>.
+  const [viewingId, setViewingId] = useUrlSelection("record");
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
   const [assigning, setAssigning] = useState<WasteOutgoingRecord | null>(null);
@@ -219,6 +222,13 @@ export function WasteOutgoingWorkspace() {
   };
 
   const rows = records.data?.results ?? [];
+  // The record a card links to may be on another page of the list, or
+  // filtered out of it.
+  const viewingRecord = useQuery({
+    queryKey: ["waste-outgoing", "record", viewingId],
+    queryFn: () => getWasteOutgoingRecord(viewingId as string),
+    enabled: Boolean(viewingId) && records.isSuccess && !rows.some((row) => row.id === viewingId),
+  });
   // Same three filters the list is using. The API exports the filtered
   // queryset, so the file matches what the person was looking at.
   const runExport = (format: "xlsx" | "pdf") =>
@@ -443,10 +453,11 @@ export function WasteOutgoingWorkspace() {
   const total = records.data?.count ?? 0;
   // The open record follows the list, so a step taken from the detail shows
   // its result without closing and reopening.
-  const shown = viewing ? (rows.find((row) => row.id === viewing.id) ?? viewing) : null;
+  const shown = (viewingId && rows.find((row) => row.id === viewingId)) || viewingRecord.data || null;
 
   return (
     <>
+      <QueryFailedNote query={viewingRecord} what={tRoot("notifications.actionCards.linkedRecord")} />
       <ModuleRecordsTable
         title={tRoot("nav.submodule.wasteOutgoing")}
         countLabel={tRoot("moduleTable.count", { count: total })}
@@ -530,7 +541,7 @@ export function WasteOutgoingWorkspace() {
             {can("report.export") && <ExportButton onExport={runExport} disabled={!rows.length} />}
           </>
         }
-        onOpen={setViewing}
+        onOpen={(row) => setViewingId(row.id)}
       />
 
       {shown && (
@@ -542,7 +553,7 @@ export function WasteOutgoingWorkspace() {
             recordId: shown.id,
             reference: shown.reference_no,
           }}
-          onClose={() => setViewing(null)}
+          onClose={() => setViewingId(null)}
         >
           <RecordDetailShell
             reference={shown.reference_no}

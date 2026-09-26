@@ -5760,7 +5760,10 @@
         "hint": "The consultant application form opens with this type chosen.",
         "none": "Let the assignee choose",
         "what": "the application types"
-      }
+      },
+      "focused": "Showing only the task the card points to.",
+      "focusedMissing": "The task the card points to is not in this list. It may be finished already, or belong to another project.",
+      "showAll": "Show all"
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",
@@ -9615,7 +9618,8 @@
       "open": "Open to deal with it",
       "expand": "Expand",
       "collapse": "Collapse",
-      "more": "{count} more - see all"
+      "more": "{count} more - see all",
+      "linkedRecord": "The record this card points to"
     },
     "what": {
       "counts": "The outstanding counts",
