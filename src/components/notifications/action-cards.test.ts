@@ -36,6 +36,13 @@ describe("pop-up task cards", () => {
     expect(stack).not.toMatch(/"fixed[^"]*z-(\[60\]|50)/);
   });
 
+  it("render at <body>, outside the toolbar that would pin them to its own box", () => {
+    // The toolbar's backdrop-blur makes it the containing block for fixed
+    // children, which pushed the cards off the top of the screen.
+    expect(stack).toMatch(/return createPortal\(/);
+    expect(stack).toMatch(/document\.body,\s*\);/);
+  });
+
   it("fold into one bar on a phone-sized screen", () => {
     expect(stack).toMatch(/isMobile \? !mobileOpen/);
     expect(stack).toMatch(/safe-area-inset-bottom/);
