@@ -25,7 +25,20 @@
  * link's shape is the field app's own. See T-211 and F-317 for what it can and
  * cannot currently open.
  */
-export function fieldNotificationHref(href: unknown): string | null {
+export function fieldNotificationHref(
+  href: unknown,
+  data?: Record<string, unknown>,
+): string | null {
+  // A safety-incident broadcast sent before it carried an href names the
+  // incident but no page; the field app's own safety record opens it.
+  if (
+    (typeof href !== "string" || !href) &&
+    data?.entity === "safety_incident" &&
+    typeof data.id === "string" &&
+    data.id
+  ) {
+    return `/field-staff?tab=records&record=safety&incident=${encodeURIComponent(data.id)}`;
+  }
   if (typeof href !== "string" || !href.startsWith("/")) return null;
 
   const parsed = new URL(href, "https://field.mse-trace.local");

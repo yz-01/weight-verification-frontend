@@ -14,6 +14,8 @@
  *   session.
  * - A collection-date proposal names a dispatch the waste list cannot open,
  *   so it goes to the dispatch itself.
+ * - A safety-incident broadcast from before it carried an href opens the
+ *   incident it names.
  *
  * Mapping here rather than on the server also fixes notices already sent,
  * which is every card on screen today. `null` means no destination.
@@ -56,6 +58,10 @@ export function officeNotificationHref(data: Record<string, unknown>): string | 
 
   const approval = text(data.approval_id);
   if (approval) return `/approvals?approval=${encodeURIComponent(approval)}`;
+
+  // A safety-incident broadcast sent before it carried an href.
+  const incident = data.entity === "safety_incident" ? text(data.id) : null;
+  if (incident) return `/hazard-rectifications?incident=${encodeURIComponent(incident)}`;
 
   return null;
 }

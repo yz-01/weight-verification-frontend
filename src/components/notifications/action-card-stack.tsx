@@ -20,6 +20,13 @@
  * Not on the phone: a field worker is reminded on the home screen instead
  * (D-207), and a card over the camera would be in the way.
  *
+ * Portalled to <body>. The stack is mounted inside the toolbar, and the toolbar
+ * has `backdrop-blur`; a `backdrop-filter` makes an element the containing
+ * block for its `position: fixed` descendants, so `bottom-4 right-4` meant the
+ * bottom of the 56px toolbar and the cards grew upward off the top of the
+ * screen - the customer saw only a sliver of 「点击进入处理」 and could not
+ * click it.
+ *
  * Under every overlay (z-40): a dialog, sheet or confirm box opened on top of
  * the page must cover the cards, not the other way round - at z-[60] the stack
  * sat over a sheet's footer and hid the very buttons the task led to.
@@ -32,13 +39,21 @@
 import { BellRing, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { cn } from "@/lib/utils";
 
 const VISIBLE = 3;
+
+const noSubscription = () => () => {};
+
+/** True once rendering in the browser, where <body> exists to portal into. */
+function useIsClient() {
+  return useSyncExternalStore(noSubscription, () => true, () => false);
+}
 
 export function ActionCardStack({
   rows,
@@ -49,17 +64,18 @@ export function ActionCardStack({
 }) {
   const t = useTranslations("notifications.actionCards");
   const isMobile = useIsMobile();
+  const isClient = useIsClient();
   const [collapsedAt, setCollapsedAt] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const cards = rows.filter((row) => row.card === "ACTION");
-  if (cards.length === 0) return null;
+  if (cards.length === 0 || !isClient) return null;
   const newest = cards.reduce((latest, row) => (row.created_at > latest ? row.created_at : latest), "");
   // A phone starts closed and stays closed until tapped; the desktop starts
   // open and reopens for anything newer than the collapse.
   const collapsed = isMobile ? !mobileOpen : collapsedAt !== null && newest <= collapsedAt;
   const toggle = () => (isMobile ? setMobileOpen(!mobileOpen) : setCollapsedAt(collapsed ? null : newest));
 
-  return (
+  return createPortal(
     <aside
       aria-label={t("title")}
       className={cn(
@@ -126,6 +142,7 @@ export function ActionCardStack({
           )}
         </div>
       )}
-    </aside>
+    </aside>,
+    document.body,
   );
 }
