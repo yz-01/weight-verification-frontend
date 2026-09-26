@@ -9618,7 +9618,8 @@
       "open": "Open to deal with it",
       "expand": "Expand",
       "collapse": "Collapse",
-      "more": "{count} more - see all"
+      "more": "{count} more - see all",
+      "linkedRecord": "The record this card points to"
     },
     "what": {
       "counts": "The outstanding counts",

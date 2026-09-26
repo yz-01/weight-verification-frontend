@@ -723,6 +723,7 @@ export function SiteDisposalOffice() {
 
   return (
     <>
+      <QueryFailedNote query={viewingRecord} what={tRoot("notifications.actionCards.linkedRecord")} />
       <ModuleRecordsTable
         title={tRoot("nav.submodule.siteDisposals")}
         countLabel={tRoot("moduleTable.count", { count: total })}

@@ -457,6 +457,7 @@ export function WasteOutgoingWorkspace() {
 
   return (
     <>
+      <QueryFailedNote query={viewingRecord} what={tRoot("notifications.actionCards.linkedRecord")} />
       <ModuleRecordsTable
         title={tRoot("nav.submodule.wasteOutgoing")}
         countLabel={tRoot("moduleTable.count", { count: total })}

@@ -9618,7 +9618,8 @@
       "open": "點擊進入處理",
       "expand": "展開",
       "collapse": "收起",
-      "more": "還有 {count} 件，查看全部"
+      "more": "還有 {count} 件，查看全部",
+      "linkedRecord": "卡片指向的記錄"
     },
     "what": {
       "counts": "未完成數量",

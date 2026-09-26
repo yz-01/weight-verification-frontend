@@ -9618,7 +9618,8 @@
       "open": "点击进入处理",
       "expand": "展开",
       "collapse": "收起",
-      "more": "还有 {count} 件，查看全部"
+      "more": "还有 {count} 件，查看全部",
+      "linkedRecord": "卡片指向的记录"
     },
     "what": {
       "counts": "未完成数量",
