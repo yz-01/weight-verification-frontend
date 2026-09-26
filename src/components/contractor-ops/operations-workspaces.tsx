@@ -30,6 +30,7 @@ import { useRef, useState } from "react";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
   completedFieldEvidence,
@@ -667,6 +668,11 @@ export function FieldTasksWorkspace({
   const [editing, setEditing] = useState<FieldTask | null>(null);
   const referenceInput = useRef<HTMLInputElement>(null);
   const [addingRefsTo, setAddingRefsTo] = useState<FieldTask | null>(null);
+  // A task card links here with ?task=<id>: show that one task, with a way
+  // back to the whole list.
+  const searchParams = useSearchParams();
+  const focusedTaskId = searchParams.get("task");
+  const showAllTasks = useClearSearchParam("task");
   const rows = useQuery({
     queryKey: ["field-tasks", project, taskType],
     queryFn: () =>
@@ -730,6 +736,18 @@ export function FieldTasksWorkspace({
         }
       />
       <ProjectFilter value={project} onChange={setProject} />
+      {focusedTaskId && !rows.isLoading && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
+          <span className="min-w-0 flex-1">
+            {rows.data?.results.some((row) => row.id === focusedTaskId)
+              ? t("tasks.focused")
+              : t("tasks.focusedMissing")}
+          </span>
+          <Button size="sm" variant="outline" onClick={showAllTasks}>
+            {t("tasks.showAll")}
+          </Button>
+        </div>
+      )}
       <WorkspaceState
         loading={rows.isLoading}
         error={rows.isError}
@@ -737,7 +755,9 @@ export function FieldTasksWorkspace({
       />
       {!!rows.data?.count && (
         <div className="grid gap-3 lg:grid-cols-2">
-          {rows.data.results.map((row) => {
+          {rows.data.results
+            .filter((row) => !focusedTaskId || row.id === focusedTaskId)
+            .map((row) => {
             const gpsPhoto = row.photos.find(
               (photo) => photo.latitude && photo.longitude,
             );

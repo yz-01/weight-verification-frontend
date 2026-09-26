@@ -65,6 +65,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import type {
   ConstructionPhase,
   EquipmentMovement,
@@ -200,7 +201,8 @@ export function MaterialOutgoingOffice() {
   });
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
-  const [viewing, setViewing] = useState<string | null>(null);
+  // A task card links here with ?record=<id>.
+  const [viewing, setViewing] = useUrlSelection("record");
   const [rejecting, setRejecting] = useState<MaterialOutgoing | null>(null);
   const [returning, setReturning] = useState<MaterialOutgoing | null>(null);
   const onReview = (

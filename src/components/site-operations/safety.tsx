@@ -61,6 +61,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useClearSearchParam } from "@/hooks/use-url-selection";
 import type {
   IncidentSeverity,
   IncidentStatus,
@@ -195,6 +196,7 @@ export function Safety({
    */
   const [opened, setOpened] = useState<SafetyIncident | null>(null);
   const openedIncidentRef = useRef("");
+  const clearIncidentParam = useClearSearchParam("incident");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["safety", mode, list.query, overdueOnly],
@@ -254,11 +256,20 @@ export function Safety({
     enabled: selectedProject !== "all",
   });
 
+  // Once the link's incident has opened, the parameter comes back out of the
+  // URL, so clicking the same task card again is a change this page sees.
+  useEffect(() => {
+    if (!requestedIncidentId) openedIncidentRef.current = "";
+  }, [requestedIncidentId]);
+
   useEffect(() => {
     const incident = focusedIncident.data;
-    if (!incident || openedIncidentRef.current === incident.id) return;
-    openedIncidentRef.current = incident.id;
+    if (!incident || incident.id !== requestedIncidentId) return;
+    if (openedIncidentRef.current === incident.id) return;
     const timer = window.setTimeout(() => {
+      // Marked inside the timer: a re-render that cancels it must not leave
+      // the incident marked as opened when nothing opened.
+      openedIncidentRef.current = incident.id;
       if (
         can("safety.verify") &&
         incident.status === "RECTIFICATION_SUBMITTED"
@@ -276,10 +287,15 @@ export function Safety({
         ["OPEN", "RETURNED"].includes(incident.status)
       ) {
         setAssigning(incident);
+      } else {
+        // Nothing for this person to do on it (a reviewer with only verify
+        // permission, say): show the incident itself rather than nothing.
+        setOpened(incident);
       }
+      clearIncidentParam();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [can, focusedIncident.data, user?.id]);
+  }, [can, clearIncidentParam, focusedIncident.data, requestedIncidentId, user?.id]);
 
   const columns = useMemo<ColumnDef<SafetyIncident, unknown>[]>(
     () => [

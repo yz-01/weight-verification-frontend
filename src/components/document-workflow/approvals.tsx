@@ -62,6 +62,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import { ApiError } from "@/interfaces/api";
 import type { CurrentUser, UserRow } from "@/interfaces/auth";
 import type { Project } from "@/interfaces/contractor";
@@ -118,7 +119,8 @@ export function Approvals() {
   const [editing, setEditing] = useState<ApprovalRecord | null | "new">(
     searchParams.get("create") === "1" && can("approval.submit") ? "new" : null,
   );
-  const [viewingId, setViewingId] = useState<string | null>(null);
+  // A task card links here with ?approval=<id>.
+  const [viewingId, setViewingId] = useUrlSelection("approval");
   const [configuringWorkflow, setConfiguringWorkflow] = useState(false);
   const [acting, setActing] = useState<{
     approval: ApprovalRecord;
@@ -306,7 +308,7 @@ export function Approvals() {
         },
       },
     ],
-    [can, df, t, user],
+    [can, df, setViewingId, t, user],
   );
 
   const rows = approvals.data?.results ?? [];

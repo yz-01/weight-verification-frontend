@@ -2,8 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { BellPlus, Check, Loader2, Send, Trash2 } from "lucide-react";
+import { ArrowUpRight, BellPlus, Check, Loader2, Send, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -38,6 +39,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { ApiError } from "@/interfaces/api";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { useDateFormat } from "@/lib/dates";
+import { officeNotificationHref } from "@/lib/office-notification";
 import {
   getProjectAssignments,
   getProjects,
@@ -172,32 +174,50 @@ export function Notifications({
         id: "actions",
         meta: { label: t("common.actions") },
         header: () => null,
-        cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-0.5">
-            {row.original.is_outstanding && (
+        cell: ({ row }) => {
+          // The same destination the pop-up card opens, so this list is not a
+          // dead end for the cards that fall back to it.
+          const href = officeNotificationHref(row.original.data);
+          return (
+            <div className="flex items-center justify-end gap-0.5">
+              {href && (
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-primary"
+                  title={t("notifications.actionCards.open")}
+                >
+                  <Link href={href} aria-label={t("notifications.actionCards.open")}>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
+              {row.original.is_outstanding && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  title={t("notifications.confirmDone")}
+                  disabled={confirm.isPending}
+                  onClick={() => confirm.mutate(row.original.id)}
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
-                title={t("notifications.confirmDone")}
-                disabled={confirm.isPending}
-                onClick={() => confirm.mutate(row.original.id)}
+                className="h-8 w-8 text-destructive"
+                title={t("notifications.remove")}
+                disabled={dismiss.isPending}
+                onClick={() => dismiss.mutate(row.original.id)}
               >
-                <Check className="h-4 w-4" />
+                <Trash2 className="h-4 w-4" />
               </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive"
-              title={t("notifications.remove")}
-              disabled={dismiss.isPending}
-              onClick={() => dismiss.mutate(row.original.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        ),
+            </div>
+          );
+        },
       },
     ],
     [confirm, df, dismiss, t],

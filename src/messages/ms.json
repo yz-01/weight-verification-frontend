@@ -5760,7 +5760,10 @@
         "hint": "Borang permohonan perunding dibuka dengan jenis ini dipilih.",
         "none": "Biar penerima tugasan memilih",
         "what": "jenis permohonan"
-      }
+      },
+      "focused": "Hanya tugasan yang ditunjuk oleh kad dipaparkan.",
+      "focusedMissing": "Tugasan yang ditunjuk oleh kad tiada dalam senarai ini. Ia mungkin sudah selesai, atau milik projek lain.",
+      "showAll": "Tunjuk semua"
     },
     "toast": {
       "movementSaved": "Pergerakan peralatan direkodkan",

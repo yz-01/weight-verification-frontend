@@ -48,6 +48,7 @@ import {
 import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import { useDateFormat } from "@/lib/dates";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
@@ -82,6 +83,7 @@ import {
   assignDisposalInternal,
   cancelDisposalRequest,
   confirmDisposalCompletion,
+  getDisposalRequest,
   getDisposalRequests,
   getExternalDisposalTask,
   getInternalDisposalTask,
@@ -625,12 +627,20 @@ export function SiteDisposalOffice() {
   });
   const refresh = () => void qc.invalidateQueries({ queryKey: ["site-disposals"] });
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
-  const [viewing, setViewing] = useState<DisposalRequest | null>(null);
+  // A task card links here with ?record=<id>.
+  const [viewingId, setViewingId] = useUrlSelection("record");
   const [step, setStep] = useState<{ step: DisposalStep; row: DisposalRequest } | null>(null);
   const total = rows.data?.count ?? 0;
+  const listed = viewingId ? rows.data?.results.find((row) => row.id === viewingId) : undefined;
+  // A linked request may be on another page of the list, or filtered out.
+  const viewingRecord = useQuery({
+    queryKey: ["site-disposals", "record", viewingId],
+    queryFn: () => getDisposalRequest(viewingId as string),
+    enabled: Boolean(viewingId) && !listed && rows.isSuccess,
+  });
   // The open request follows the list, so a step taken from the detail shows
   // its result without closing and reopening.
-  const shown = viewing ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing) : null;
+  const shown = listed ?? viewingRecord.data ?? null;
 
   const columns = useMemo<ColumnDef<DisposalRequest, unknown>[]>(
     () => [
@@ -778,12 +788,12 @@ export function SiteDisposalOffice() {
         // row, because a badge in a column is something you have to be
         // looking for.
         rowClassName={(row) => (row.disposal_evidence_is_overdue ? "bg-destructive/5 text-destructive" : undefined)}
-        onOpen={setViewing}
+        onOpen={(row) => setViewingId(row.id)}
       />
       {shown && (
         <DisposalDetailDialog
           row={shown}
-          onClose={() => setViewing(null)}
+          onClose={() => setViewingId(null)}
           actions={<DisposalActions row={shown} onStep={(next) => setStep({ step: next, row: shown })} />}
         />
       )}

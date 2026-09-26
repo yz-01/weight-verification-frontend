@@ -22,11 +22,22 @@ describe("pop-up task cards", () => {
   });
 
   it("open without disappearing", () => {
-    expect(stack).toMatch(/onClick=\{\(\) => onOpen\(row\)\}/);
+    expect(stack).toMatch(/onClick=\{\(\) => \{\s*onOpen\(row\);/);
     expect(stack).not.toMatch(/confirmNotificationDone|onDismiss|hiddenIds/);
   });
 
   it("show in the back office, not on the phone", () => {
     expect(bell).toMatch(/!user\?\.is_field_staff && \(\s*<ActionCardStack/);
+  });
+
+  it("sit under every dialog, sheet and confirm box", () => {
+    // Sheets and alert dialogs are z-50, the dialog overlay z-[60].
+    expect(stack).toMatch(/"fixed z-40 /);
+    expect(stack).not.toMatch(/"fixed[^"]*z-(\[60\]|50)/);
+  });
+
+  it("fold into one bar on a phone-sized screen", () => {
+    expect(stack).toMatch(/isMobile \? !mobileOpen/);
+    expect(stack).toMatch(/safe-area-inset-bottom/);
   });
 });

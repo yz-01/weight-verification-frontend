@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -37,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { useClearSearchParam } from "@/hooks/use-url-selection";
 import type { WasteDispatch } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
 import {
@@ -47,6 +49,7 @@ import {
   submitDispatchAcceptOfflineAware,
   submitDispatchCollectOfflineAware,
 } from "@/services/offline-sync.service";
+import { getDispatch } from "@/services/contractor.service";
 import { proposeWasteCollectionTime } from "@/services/waste-outgoing.service";
 
 function localDateTimeInput(value?: string | null) {
@@ -80,6 +83,44 @@ export function Incoming() {
     queryFn: () => getIncomingSummaryOfflineAware(ownerId),
     enabled: Boolean(ownerId),
   });
+
+  /*
+   * A new-order card links here with ?dispatch=<id> (#39). Open what that
+   * order needs from this person - the order dialog while it can still be
+   * assigned, the collection dialog once released - and otherwise the order
+   * itself. The parameter comes out once handled, so the same card works
+   * again later.
+   */
+  const router = useRouter();
+  const linkedDispatchId = useSearchParams().get("dispatch");
+  const clearLinkedDispatch = useClearSearchParam("dispatch");
+  const linkedDispatch = useQuery({
+    queryKey: ["incoming", "linked", linkedDispatchId],
+    queryFn: () => getDispatch(linkedDispatchId as string),
+    enabled: Boolean(linkedDispatchId),
+  });
+  const handledDispatchRef = useRef("");
+  useEffect(() => {
+    if (!linkedDispatchId) handledDispatchRef.current = "";
+  }, [linkedDispatchId]);
+  useEffect(() => {
+    const load = linkedDispatch.data;
+    if (!linkedDispatchId || handledDispatchRef.current === linkedDispatchId) return;
+    if (!load && !linkedDispatch.isError) return;
+    if (load && load.id !== linkedDispatchId) return;
+    const timer = window.setTimeout(() => {
+      handledDispatchRef.current = linkedDispatchId;
+      clearLinkedDispatch();
+      if (load && can("task.assign") && ["PENDING_ACCEPTANCE", "ACCEPTED"].includes(load.state)) {
+        setAssigning(load);
+      } else if (load && can("dispatch.update") && load.state === "RELEASED") {
+        setCollecting(load);
+      } else {
+        router.push(`/dispatches/${linkedDispatchId}`);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [can, clearLinkedDispatch, linkedDispatch.data, linkedDispatch.isError, linkedDispatchId, router]);
 
   function refresh() {
     void queryClient.invalidateQueries({ queryKey: ["incoming"] });
