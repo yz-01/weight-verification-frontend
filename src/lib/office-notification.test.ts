@@ -36,6 +36,10 @@ describe("officeNotificationHref", () => {
     expect(officeNotificationHref({ href: "/waste-outgoing?record=r1" })).toBe("/waste-outgoing?record=r1");
   });
 
+  it("opens the incident a safety broadcast names when it carries no href", () => {
+    expect(officeNotificationHref({ entity: "safety_incident", id: "i1" })).toBe("/hazard-rectifications?incident=i1");
+  });
+
   it("has no destination when nothing names one", () => {
     expect(officeNotificationHref({})).toBeNull();
     expect(officeNotificationHref({ href: "https://example.com" })).toBeNull();

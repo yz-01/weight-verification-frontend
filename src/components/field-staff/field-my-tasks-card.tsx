@@ -86,7 +86,7 @@ export function FieldMyTasksCard() {
         <ul className="mt-3 divide-y border-t">
           {rows.map((row) => {
             const rawHref = row.data.href ?? row.data.url;
-            const href = fieldNotificationHref(rawHref);
+            const href = fieldNotificationHref(rawHref, row.data);
             const body = (
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium">

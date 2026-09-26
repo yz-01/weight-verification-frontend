@@ -61,4 +61,11 @@ describe("fieldNotificationHref (T-217)", () => {
     expect(fieldNotificationHref(42)).toBeNull();
     expect(fieldNotificationHref("")).toBeNull();
   });
+
+  it("opens the incident a safety broadcast names when it carries no href", () => {
+    expect(fieldNotificationHref(undefined, { entity: "safety_incident", id: "i1" })).toBe(
+      "/field-staff?tab=records&record=safety&incident=i1",
+    );
+    expect(fieldNotificationHref(undefined, { entity: "driver_task", id: "t1" })).toBeNull();
+  });
 });

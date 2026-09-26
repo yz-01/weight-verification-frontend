@@ -145,7 +145,7 @@ export function NotificationButton() {
   /** Where a notice leads: the phone's own screen, or the office path it names. */
   const destination = (notification: NotificationRow) => {
     return user?.is_field_staff
-      ? fieldNotificationHref(notification.data.href ?? notification.data.url)
+      ? fieldNotificationHref(notification.data.href ?? notification.data.url, notification.data)
       : officeNotificationHref(notification.data);
   };
 
