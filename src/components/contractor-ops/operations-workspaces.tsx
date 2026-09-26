@@ -16,7 +16,6 @@ import {
   Pencil,
   Plus,
   RotateCcw,
-  ScanText,
   Save,
   Eye,
   ImagePlus,
@@ -30,6 +29,7 @@ import { useRef, useState } from "react";
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
+import { DeliveryNoteReadStatus, useDeliveryNoteReader } from "@/hooks/use-delivery-note-reader";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import {
@@ -1832,10 +1832,6 @@ export function MovementDialog({
   const [fieldEvidence, setFieldEvidence] = useDraftState(`fieldEvidence:${row.id}`, createEmptyFieldEvidence);
   const [deliveryNotePhoto, setDeliveryNotePhoto] = useDraftState<File | undefined>(`deliveryNotePhoto:${row.id}`);
   const clearDraft = useClearDraft();
-  const [ocr, setOcr] = useState<{
-    status: string;
-    suggestions?: Record<string, string>;
-  }>();
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [location, setLocation] = useState<Coordinates | null>(null);
@@ -1847,26 +1843,19 @@ export function MovementDialog({
     t("equipmentEvidence.transport"),
     t("equipmentEvidence.condition"),
   ];
-  const ocrMutation = useMutation({
-    mutationFn: () => {
-      if (!deliveryNotePhoto)
-        throw new Error("Take a delivery-note photo first.");
-      return ocrEquipmentDeliveryNote(row.project, deliveryNotePhoto);
-    },
-    onSuccess: (result) => {
-      setOcr(result);
-      setError("");
-      const suggestions = result.suggestions ?? {};
-      if (suggestions.delivery_note_no)
-        setDeliveryNote(suggestions.delivery_note_no);
+  // Read the moment the delivery order is photographed, exactly as 材料进场
+  // does (useDeliveryNoteReader) - no 【读取】 button.
+  const ocr = useDeliveryNoteReader({
+    read: ocrEquipmentDeliveryNote,
+    onRead: (result) => {
+      const suggestions = result.suggestions as Record<string, string | undefined>;
+      if (suggestions.delivery_note_no) setDeliveryNote(suggestions.delivery_note_no);
       if (suggestions.vehicle_plate) setVehicle(suggestions.vehicle_plate);
-      const suggestedUnit = String(suggestions.unit ?? "").toUpperCase() as EquipmentUnit;
+      const suggestedUnit = String(
+        result.line_items?.[0]?.unit || suggestions.unit || "",
+      ).toUpperCase() as EquipmentUnit;
       if (EQUIPMENT_UNITS.includes(suggestedUnit)) setUnit(suggestedUnit);
     },
-    onError: (reason) =>
-      setError(
-        reason instanceof ApiError ? reason.message : t("equipment.ocrManual"),
-      ),
   });
   const save = useMutation({
     mutationFn: () => {
@@ -2012,32 +2001,16 @@ export function MovementDialog({
               }
               file={deliveryNotePhoto}
               fileCount={deliveryNotePhoto ? 1 : 0}
-              onCapture={setDeliveryNotePhoto}
+              onCapture={(image) => {
+                setDeliveryNotePhoto(image);
+                ocr.inspect(row.project, image);
+              }}
               onClear={() => {
                 setDeliveryNotePhoto(undefined);
-                setOcr(undefined);
+                ocr.cancel();
               }}
             />
-            <Button
-              type="button"
-              className="mt-2"
-              variant="outline"
-              requires={[[deliveryNotePhoto, t("equipment.deliveryNotePhoto")]]}
-              disabled={ocrMutation.isPending}
-              onClick={() => ocrMutation.mutate()}
-            >
-              {ocrMutation.isPending ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <ScanText />
-              )}
-              {t("equipment.readDeliveryNote")}
-            </Button>
-            {ocr?.suggestions && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                {t("equipment.ocrReady")}
-              </p>
-            )}
+            <DeliveryNoteReadStatus reader={ocr} className="mt-2" />
           </FieldWrapper>
           <FieldWrapper
             label={t("field.photos")}

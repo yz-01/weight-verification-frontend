@@ -30,6 +30,7 @@ import {
   InternalDisposalWorkspace,
   SiteDisposalWorkspace,
 } from "@/components/contractor-ops/site-disposal-workspaces";
+import { DeliveryNoteReadStatus, useDeliveryNoteReader } from "@/hooks/use-delivery-note-reader";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldSlots } from "@/components/field-staff/field-slots";
@@ -299,14 +300,12 @@ function MaterialCapturePanel({
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
   const [scannerOpen, setScannerOpen] = useState(false);
   const [ocrProof, setOcrProof] = useState("");
-  const [ocrMessage, setOcrMessage] = useState("");
   const [ocrLineItems, setOcrLineItems] = useState<DeliveryNoteOCRLineItem[]>([]);
   const [newColumnName, setNewColumnName] = useState("");
   const [columnError, setColumnError] = useState("");
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
   const [error, setError] = useState("");
   const initialScanRef = useRef("");
-  const ocrTargetRef = useRef<{ project: string; image: File } | null>(null);
   const completedMaterialEvidence = completedFieldEvidence(materialEvidence);
   const deliveryNote = materialEvidence[3];
   const sitePhotos = [
@@ -471,24 +470,13 @@ function MaterialCapturePanel({
     qrScan.mutate(initialSupplierToken);
   }, [initialSupplierToken, qrScan]);
 
-  const ocr = useMutation({
-    mutationFn: ({ project, image }: { project: string; image: File }) =>
-      readDeliveryNote(project, image),
-    onSuccess: (result, target) => {
-      if (ocrTargetRef.current !== target) return;
+  // The delivery-note read every module shares (useDeliveryNoteReader).
+  const ocr = useDeliveryNoteReader({
+    read: readDeliveryNote,
+    onRead: (result) => {
       setOcrProof(result.proof);
       const items = result.line_items ?? [];
       setOcrLineItems(items);
-      const doubtful = result.low_confidence_fields ?? [];
-      setOcrMessage(
-        doubtful.length > 0
-          ? t("material.ocrLowConfidence", {
-              fields: doubtful
-                .map((field) => t(`material.ocrField.${field}`))
-                .join(", "),
-            })
-          : t("material.ocrReady"),
-      );
       const firstCategory = items[0]?.category_id ?? "";
       const supplierName = result.suggestions.supplier_name?.trim().toLocaleLowerCase();
       const matchedSupplier = (suppliers.data?.results ?? []).find((row) => row.is_active && row.name.trim().toLocaleLowerCase() === supplierName);
@@ -511,34 +499,11 @@ function MaterialCapturePanel({
         category: firstCategory || old.category,
       }));
     },
-    onError: (reason, target) => {
-      if (ocrTargetRef.current !== target) return;
+    onReset: () => {
       setOcrProof("");
       setOcrLineItems([]);
-      setOcrMessage(
-        reason instanceof ApiError ? reason.message : t("material.ocrManual"),
-      );
     },
   });
-
-  function inspectDeliveryNote(image?: File) {
-    ocrTargetRef.current = null;
-    setOcrProof("");
-    setOcrMessage("");
-    setOcrLineItems([]);
-    if (!image) return;
-    if (!draft.project) {
-      setOcrMessage(t("material.ocrChooseProject"));
-      return;
-    }
-    if (!navigator.onLine) {
-      setOcrMessage(t("material.ocrOffline"));
-      return;
-    }
-    const target = { project: draft.project, image };
-    ocrTargetRef.current = target;
-    ocr.mutate(target);
-  }
 
 
   // A delivery (ENTRY) needs plate, DO number and both signatures (D-280).
@@ -618,10 +583,8 @@ function MaterialCapturePanel({
         <ProjectPicker
           value={draft.project}
           onValueChange={(project) => {
-            ocrTargetRef.current = null;
+            ocr.cancel();
             setScannedQr(undefined);
-            setOcrProof("");
-            setOcrLineItems([]);
             setMaterialEvidence(createEmptyFieldEvidence());
             setNewColumnName("");
             setColumnError("");
@@ -666,16 +629,12 @@ function MaterialCapturePanel({
             const nextDeliveryNote = next[3];
             setMaterialEvidence(next);
             if (nextDeliveryNote !== deliveryNote) {
-              inspectDeliveryNote(nextDeliveryNote);
+              ocr.inspect(draft.project, nextDeliveryNote);
             }
           }}
         />
       </FieldWrapper>
-      {(ocr.isPending || ocrMessage) && (
-        <p className={`rounded-lg px-3 py-2 text-sm ${ocrProof ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
-          {ocr.isPending ? t("material.ocrReading") : ocrMessage}
-        </p>
-      )}
+      <DeliveryNoteReadStatus reader={ocr} />
       <FieldWrapper label={t("material.supplier")} required>
         <Select
           value={draft.supplier || undefined}
@@ -887,7 +846,7 @@ function MaterialCapturePanel({
       />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.isPending} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.reading} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
         {t("material.submit")}
       </Button>
