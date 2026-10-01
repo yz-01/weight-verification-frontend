@@ -944,29 +944,21 @@ function SafetyCreateDialog({
   const [locationError, setLocationError] = useState("");
   const categories = useQuery({
     queryKey: ["safety-create-categories", draft.project],
-    queryFn: async () => {
-      const [safety, legacy] = await Promise.all([
-        getProjectCategories({
-          project: draft.project,
-          is_active: true,
-          kind: "EHS",
-          page_size: 200,
-        }),
-        getProjectCategories({
-          project: draft.project,
-          is_active: true,
-          kind: "FIELD",
-          page_size: 200,
-        }),
-      ]);
-      const rows = [...safety.results, ...legacy.results];
-      return {
-        ...safety,
-        results: rows.filter(
-          (row, index) => rows.findIndex((candidate) => candidate.id === row.id) === index,
-        ),
-      };
-    },
+    // Raising a hazard offers EHS columns only. The legacy `FIELD` list used
+    // to be merged in from before the EHS kind existed, and it is what put
+    // 「杂费报销」 and 「test」 in front of a worker reporting a hazard - a
+    // sundry claim has had its own `SUNDRY` kind for a while now.
+    //
+    // Only this list. The back-office filter above still reads both, because
+    // migration 0040 moved the columns that were purely hazards and left the
+    // older mixed ones where they were, with hazards still filed in them.
+    queryFn: () =>
+      getProjectCategories({
+        project: draft.project,
+        is_active: true,
+        kind: "EHS",
+        page_size: 200,
+      }),
     enabled: Boolean(draft.project),
   });
   const team = useQuery({
