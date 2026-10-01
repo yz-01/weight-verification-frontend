@@ -333,7 +333,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
           </FieldWrapper>
           <FieldWrapper label={t("field.note")} optional={t("optional")} className="sm:col-span-2"><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
         </div>
-        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [category, columnT("field.category")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [submissionPhotos.length >= (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!isFieldStaff || hasRequiredFieldEvidence(fieldEvidence)), t("field.photos")], [location, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
+        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [category, columnT("field.category")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [submissionPhotos.length >= (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!isFieldStaff || hasRequiredFieldEvidence(fieldEvidence)), t("field.photos")], [isFieldStaff ? location : true, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
