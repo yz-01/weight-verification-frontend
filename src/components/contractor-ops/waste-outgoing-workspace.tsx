@@ -21,7 +21,7 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -1000,6 +1000,21 @@ function RecordDialog({
   const [note, setNote] = useState("");
   const [pickupAddress, setPickupAddress] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
+  // 「已拍摄 N 张」 is a count, not a check: the person submitting could not
+  // see whether the lorry, the plate or their own thumb was in frame. Object
+  // URLs rather than data URIs - these are full-size photographs and base64
+  // would triple them in memory - revoked when the set changes or the screen
+  // closes, or the phone leaks one set per shot taken.
+  const photoPreviews = useMemo(
+    () => photos.map((photo) => URL.createObjectURL(photo)),
+    [photos],
+  );
+  useEffect(
+    () => () => {
+      for (const url of photoPreviews) URL.revokeObjectURL(url);
+    },
+    [photoPreviews],
+  );
   // Automatic, like every field capture form (T-355, D-246).
   const [coordinates, setCoordinates] = useState<LocationFix | null>(null);
 
@@ -1119,6 +1134,19 @@ function RecordDialog({
               onCapture={(file) => setPhotos((current) => [...current, file])}
               onClear={() => setPhotos([])}
             />
+            {photoPreviews.length > 0 && (
+              <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {photoPreviews.map((url, index) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={url}
+                    src={url}
+                    alt={`${t("field.photos")} ${index + 1}`}
+                    className="aspect-square w-full rounded-md border object-cover"
+                  />
+                ))}
+              </div>
+            )}
           </FieldWrapper>
           <LocationField
             label={t("field.location")}
