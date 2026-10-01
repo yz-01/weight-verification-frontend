@@ -836,12 +836,15 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
           onChange={setLocation}
           required
         />
-        <FieldWrapper label={t("field.workDone")} optional={fieldMode ? t("action.optional") : undefined} required={!fieldMode}>
+        {/* Required on the phone too. 「提交整改」 without a word of
+            explanation leaves the verifier a photograph and nothing to read
+            it against, which is what the customer asked to stop. */}
+        <FieldWrapper label={t("field.workDone")} required>
           <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
         </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[images.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(fieldEvidence)), t("field.photo")], [location, t("field.location")], [fieldMode || note, t("field.workDone")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[images.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(fieldEvidence)), t("field.photo")], [location, t("field.location")], [note, t("field.workDone")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             <Camera />
             {t("action.submit")}
           </Button>
