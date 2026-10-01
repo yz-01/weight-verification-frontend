@@ -156,7 +156,11 @@ export function ConsultantAccessManagement() {
   const projects = useQuery({
     queryKey: ["consultant-access", "projects"],
     queryFn: () => getProjects({ page_size: 200 }),
-    enabled: can("project.assign"),
+    // Reading the list of projects is `project.view`; `project.assign` is what
+    // it takes to *grant* one. Gating the read on the write permission left
+    // somebody with 顾问设定 but not assignment rights looking at a screen
+    // whose project picker could never fill - 「新增顾问的页面打不开」.
+    enabled: can("project.view"),
   });
 
   const refresh = () =>
