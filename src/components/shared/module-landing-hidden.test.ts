@@ -27,7 +27,19 @@ describe("landing pages skip what the menu hides", () => {
   it.each([
     "src/components/contractor-ops/contractor-module-landing.tsx",
     "src/components/admin/admin-module-landing.tsx",
+    // The sidebar was the half nobody checked: the cards stopped offering
+    // 「证据归档」 and the menu beside them went on listing it, which is the
+    // same report coming back a second time.
+    "src/components/layout/app-sidebar.tsx",
   ])("%s filters on menuHidden", (file) => {
     expect(read(file)).toMatch(/!child\.menuHidden/);
+  });
+
+  it("leaves no unfiltered children list in the sidebar", () => {
+    // Filtering once and then rendering `item.children` anyway would pass the
+    // check above and still show the entry.
+    const sidebar = read("src/components/layout/app-sidebar.tsx");
+    const uses = sidebar.match(/item\.children/g) ?? [];
+    expect(uses, "only the line that builds the filtered list may read it").toHaveLength(1);
   });
 });
