@@ -5473,7 +5473,7 @@
       },
       "takeDeliveryNote": "Ambil foto nota penghantaran",
       "title": "Pergerakan peralatan",
-      "photoRange": "Sekurang-kurangnya {min}, paling banyak {max} foto, termasuk foto pesanan penghantaran."
+      "photoMinimum": "Sekurang-kurangnya {min} foto, termasuk foto pesanan penghantaran; tiada had maksimum."
     },
     "equipmentEvidence": {
       "condition": "4. Butiran keadaan peralatan",
@@ -12661,7 +12661,7 @@
       },
       "invalid": "Pautan tugas tidak tersedia",
       "invalidBody": "Pautan tidak sah, telah tamat tempoh atau tugas telah selesai.",
-      "photosTitle": "Foto diperlukan",
+      "photosTitle": "Foto (sehingga 4)",
       "status": {
         "APPROVED": "Diluluskan",
         "ASSIGNED": "Sedia dimulakan",
@@ -12678,7 +12678,8 @@
       "title": "Tugas pelupusan",
       "uploaded": "Dimuat naik",
       "waitingBody": "Pengurus tapak akan menyemak foto dan Disposal DO. Tiada tindakan lanjut diperlukan sekarang.",
-      "waitingTitle": "Dihantar untuk pengesahan"
+      "waitingTitle": "Dihantar untuk pengesahan",
+      "photosBody": "Sehingga 4 foto, apa-apa sahaja. Sekurang-kurangnya satu diperlukan untuk menghantar."
     },
     "externalActor": "Pelaksana luar",
     "field": {
@@ -12715,7 +12716,7 @@
     "fieldEvidence": {
       "access": "3. Laluan kutipan atau kenderaan",
       "overview": "1. Gambaran kawasan sisa",
-      "progress": "{current} foto telah diambil. Semua {required} foto wajib pertama mesti lengkap; foto tambahan boleh ditambah.",
+      "progress": "{current} daripada maksimum {max} foto. Tiada yang wajib.",
       "quantity": "2. Butiran kuantiti sisa",
       "surroundings": "4. Keadaan sekeliling tapak"
     },
@@ -12741,8 +12742,8 @@
         "weight": "Berat sebenar (kg)"
       },
       "invalid": "Tugas pelupusan ini tidak dapat dibuka. Muat semula Tugas Saya dan cuba lagi.",
-      "photosBody": "Ambil sekurang-kurangnya satu foto muatan, pemunggahan, Disposal DO dan tapak selesai. Foto tambahan masih boleh ditambah.",
-      "photosTitle": "Bukti pelupusan wajib",
+      "photosBody": "Sehingga 4 foto setiap penghantaran; tiada jenis yang wajib. Sekurang-kurangnya satu diperlukan untuk menghantar.",
+      "photosTitle": "Bukti pelupusan",
       "status": {
         "APPROVED": "Diluluskan",
         "ASSIGNED": "Sedia dimulakan",

@@ -31,9 +31,7 @@ import { useClearDraft, useDraftState } from "@/components/field-staff/field-dra
 import {
   completedFieldEvidence,
   createEmptyFieldEvidence,
-  FIELD_EVIDENCE_PHOTO_COUNT,
   FieldEvidenceGrid,
-  hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
 import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -311,16 +309,19 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
             <FieldWrapper label={t("field.preferredAt")} optional={t("optional")}><Input type="datetime-local" value={preferred} onChange={(e) => setPreferred(e.target.value)} /></FieldWrapper>
           </> : null}
           <LocationField label={t("field.gps")} actionLabel={t("action.getLocation")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required />
-          <FieldWrapper label={t("field.photos")} required className="sm:col-span-2">
+          {/* General waste (L6 / B24): none required on the phone, at most four -
+              「一次最多 4 张，不要求拍满」. The office still attaches one. */}
+          <FieldWrapper label={t("field.photos")} required={!isFieldStaff} className="sm:col-span-2">
             {isFieldStaff ? (
               <FieldEvidenceGrid
                 labels={evidenceLabels}
                 files={fieldEvidence}
                 progressLabel={t("fieldEvidence.progress", {
                   current: fieldPhotos.length,
-                  required: FIELD_EVIDENCE_PHOTO_COUNT,
+                  max: DISPOSAL_PHOTO_MAX,
                 })}
                 onChange={setFieldEvidence}
+                maxFiles={DISPOSAL_PHOTO_MAX}
               />
             ) : (
               <FieldCamera
@@ -333,7 +334,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
           </FieldWrapper>
           <FieldWrapper label={t("field.note")} optional={t("optional")} className="sm:col-span-2"><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
         </div>
-        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [category, columnT("field.category")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [submissionPhotos.length >= (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!isFieldStaff || hasRequiredFieldEvidence(fieldEvidence)), t("field.photos")], [isFieldStaff ? location : true, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
+        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [category, columnT("field.category")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [isFieldStaff || submissionPhotos.length >= 1, t("field.photos")], [isFieldStaff ? location : true, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -822,6 +823,24 @@ const DISPOSAL_STATES: DisposalRequestStatus[] = [
 
 const EXECUTION_EVIDENCE: Array<Exclude<DisposalEvidenceKind, "REQUEST" | "CONFIRMATION">> = ["LOADING", "UNLOADING", "DISPOSAL_DO", "OTHER"];
 
+/**
+ * General waste photographs, per submission (L6 / B24).
+ *
+ * 「一次最多 4 张，不要求拍满，不规定每阶段几张」, and on the driver's link
+ * 「取消装车 / 卸货 / DO / 其他四类强制模板」 - but 「没有最终处理证明不能算
+ * 完成」, so submitting takes one. The server holds the same three numbers.
+ */
+const DISPOSAL_PHOTO_MAX = 4;
+
+/** This submission's execution photographs: a returned job starts anew. */
+function executionPhotos(task: { status: string; submitted_at?: string | null; evidence: Array<{ kind: DisposalEvidenceKind; created_at?: string }> }) {
+  return task.evidence.filter(
+    (item) =>
+      (EXECUTION_EVIDENCE as DisposalEvidenceKind[]).includes(item.kind) &&
+      !(task.status === "RETURNED" && task.submitted_at && item.created_at && item.created_at <= task.submitted_at),
+  );
+}
+
 export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const t = useTranslations("siteDisposal.external");
   const [task, setTask] = useState<ExternalDisposalTask | null>(null);
@@ -853,10 +872,10 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const editable = ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
   const waiting = current.status === "AWAITING_CONFIRMATION";
   // The server's rule, restated here so the button can say no before the
-  // request rather than after it. Same four kinds, same list.
-  const evidenceComplete = EXECUTION_EVIDENCE.every((kind) =>
-    current.evidence.some((item) => item.kind === kind),
-  );
+  // request rather than after it: one photograph at least, four at most.
+  const sent = executionPhotos(current);
+  const evidenceComplete = sent.length > 0;
+  const full = sent.length >= DISPOSAL_PHOTO_MAX;
 
   return (
     <main className="mx-auto min-h-dvh max-w-xl bg-background px-4 py-5 pb-28">
@@ -890,20 +909,18 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
       {editable && current.status !== "ASSIGNED" && (
         <>
           <section className="mt-6">
-            {/* All four are compulsory - the submit button waits on them - so
-                the group wears the star. */}
+            {/* One field, not four (L6 / B24): no category per photograph, up
+                to four, and the submit button waits on one. */}
             <FieldWrapper label={t("photosTitle")} required>
+              <p className="text-sm text-muted-foreground">{t("photosBody")}</p>
               <div className="mt-2 grid gap-3">
-                {EXECUTION_EVIDENCE.map((kind) => (
-                  <FieldCamera
-                    key={kind}
-                    label={t(`evidence.${kind}`)}
-                    fileCount={current.evidence.filter((item) => item.kind === kind).length}
-                    previewUrl={latestEvidencePhoto(current.evidence, kind)}
-                    disabled={uploading !== null}
-                    onCapture={(file) => void upload(kind, file)}
-                  />
-                ))}
+                <FieldCamera
+                  label={t("photosTitle")}
+                  fileCount={sent.length}
+                  previewUrl={latestEvidencePhoto(current.evidence, "OTHER")}
+                  disabled={uploading !== null || full}
+                  onCapture={(file) => void upload("OTHER", file)}
+                />
               </div>
             </FieldWrapper>
           </section>
@@ -1002,7 +1019,10 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   if (taskQuery.isLoading) return <div className="grid min-h-64 place-items-center"><Loader2 className="size-8 animate-spin text-primary" /></div>;
   if (taskQuery.isError || !current) return <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("invalid")}</div>;
   const editable = ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
-  const evidenceComplete = EXECUTION_EVIDENCE.every((kind) => current.evidence.some((item) => item.kind === kind));
+  // At least one, at most four, of whichever kinds (L6 / B24).
+  const sent = executionPhotos(current);
+  const evidenceComplete = sent.length > 0;
+  const full = sent.length >= DISPOSAL_PHOTO_MAX;
 
   return <div className="space-y-5">
     <section className="rounded-lg border bg-card p-4 shadow-sm">
@@ -1012,7 +1032,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
     {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
     {current.status === "ASSIGNED" && <Button size="lg" className="h-14 w-full text-base" disabled={start.isPending} onClick={() => start.mutate()}>{start.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}{t("action.start")}</Button>}
     {editable && current.status !== "ASSIGNED" && <>
-      <section><h3 className="text-base font-semibold">{t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3">{EXECUTION_EVIDENCE.map((kind) => <FieldCamera key={kind} label={t(`evidence.${kind}`)} fileCount={current.evidence.filter((item) => item.kind === kind).length} previewUrl={latestEvidencePhoto(current.evidence, kind)} disabled={uploading !== null} onCapture={(file) => void upload(kind, file)} />)}</div></section>
+      <section><h3 className="text-base font-semibold">{t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3">{EXECUTION_EVIDENCE.map((kind) => <FieldCamera key={kind} label={t(`evidence.${kind}`)} fileCount={current.evidence.filter((item) => item.kind === kind).length} previewUrl={latestEvidencePhoto(current.evidence, kind)} disabled={uploading !== null || full} onCapture={(file) => void upload(kind, file)} />)}</div></section>
       <section className="space-y-4 rounded-lg border bg-card p-4"><h3 className="font-semibold">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} required><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(event) => setTrips(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")], [Number(trips) >= 1, t("field.trips")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
     </>}
     {current.status === "AWAITING_CONFIRMATION" && <section className="rounded-lg border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}

@@ -5473,7 +5473,7 @@
       },
       "takeDeliveryNote": "拍攝 Delivery Order",
       "title": "設備進退場",
-      "photoRange": "最少 {min} 張、最多 {max} 張（含 Delivery Order 照片）。"
+      "photoMinimum": "最少 {min} 張（含 Delivery Order 照片），不設上限。"
     },
     "equipmentEvidence": {
       "condition": "4. 設備狀況細節",
@@ -12661,7 +12661,7 @@
       },
       "invalid": "任務鏈接無法使用",
       "invalidBody": "鏈接無效、已到期，或任務已經完成。",
-      "photosTitle": "必須拍攝的照片",
+      "photosTitle": "現場照片（最多 4 張）",
       "status": {
         "APPROVED": "已批准",
         "ASSIGNED": "可以開始",
@@ -12678,7 +12678,8 @@
       "title": "清運任務",
       "uploaded": "已上傳",
       "waitingBody": "工地負責人將檢查照片和 Disposal DO，目前無需繼續操作。",
-      "waitingTitle": "已發送驗收"
+      "waitingTitle": "已發送驗收",
+      "photosBody": "一次最多 4 張，不限類別；至少 1 張才能提交。"
     },
     "externalActor": "外部執行人員",
     "field": {
@@ -12715,7 +12716,7 @@
     "fieldEvidence": {
       "access": "3. 清運入口或車輛路線",
       "overview": "1. 廢料區域全景",
-      "progress": "已拍攝 {current} 張。前 {required} 張必拍照片缺一不可，也可以繼續新增其他照片。",
+      "progress": "已拍 {current} 張，最多 {max} 張，不要求拍滿。",
       "quantity": "2. 廢料數量細節",
       "surroundings": "4. 工地周邊狀況"
     },
@@ -12741,8 +12742,8 @@
         "weight": "實際重量（kg）"
       },
       "invalid": "無法打開這項清運任務，請刷新任務列表後重試。",
-      "photosBody": "裝車、卸貨、Disposal DO 和其他現場照片各至少一張；之後仍可繼續補拍。",
-      "photosTitle": "必須拍攝的清運證據",
+      "photosBody": "每次提交最多 4 張，不強制每類都拍；至少 1 張才能提交。",
+      "photosTitle": "清運證據",
       "status": {
         "APPROVED": "已批准",
         "ASSIGNED": "可以開始",

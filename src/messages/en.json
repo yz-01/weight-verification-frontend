@@ -5473,7 +5473,7 @@
       },
       "takeDeliveryNote": "Take delivery note photo",
       "title": "Equipment movement",
-      "photoRange": "At least {min}, at most {max} photos, the delivery-order photo included."
+      "photoMinimum": "At least {min} photos, the delivery-order photo included; no upper limit."
     },
     "equipmentEvidence": {
       "condition": "4. Equipment condition detail",
@@ -12661,7 +12661,7 @@
       },
       "invalid": "Task link unavailable",
       "invalidBody": "This link is invalid, expired or the task has already been completed.",
-      "photosTitle": "Required photos",
+      "photosTitle": "Photos (up to 4)",
       "status": {
         "APPROVED": "Approved",
         "ASSIGNED": "Ready to start",
@@ -12678,7 +12678,8 @@
       "title": "Disposal task",
       "uploaded": "Uploaded",
       "waitingBody": "The site manager will review the photos and Disposal DO. No further action is required now.",
-      "waitingTitle": "Sent for verification"
+      "waitingTitle": "Sent for verification",
+      "photosBody": "Up to 4 photos, of anything. At least one is needed to submit."
     },
     "externalActor": "External executor",
     "field": {
@@ -12715,7 +12716,7 @@
     "fieldEvidence": {
       "access": "3. Collection access or vehicle route",
       "overview": "1. Waste area overview",
-      "progress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
+      "progress": "{current} of up to {max} photos. None is required.",
       "quantity": "2. Waste quantity detail",
       "surroundings": "4. Surrounding site condition"
     },
@@ -12741,8 +12742,8 @@
         "weight": "Actual weight (kg)"
       },
       "invalid": "This disposal task could not be opened. Refresh My Tasks and try again.",
-      "photosBody": "Take at least one loading, unloading, Disposal DO and site-cleared photo. More photos can still be added.",
-      "photosTitle": "Required disposal evidence",
+      "photosBody": "Up to 4 photos per submission; no type is compulsory. At least one is needed to submit.",
+      "photosTitle": "Disposal evidence",
       "status": {
         "APPROVED": "Approved",
         "ASSIGNED": "Ready to start",

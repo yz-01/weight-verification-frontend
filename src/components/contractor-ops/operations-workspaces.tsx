@@ -131,7 +131,13 @@ import {
 
 type Coordinates = { latitude: string; longitude: string; accuracy: string };
 /** 设备进出场最多 5 张（含 Delivery Order），E2 / D-257; the server enforces it too. */
-const EQUIPMENT_PHOTO_MAX = 5;
+/**
+ * Equipment movement photographs: at least four, no ceiling, on the phone and
+ * in the office (L6, 10-02: 「设备最少 4、无上限，手机和后台都要」), the
+ * delivery-order photo counted in - the server's own count. Replaced D-257's
+ * 4-5.
+ */
+const EQUIPMENT_PHOTO_MIN = 4;
 type EquipmentUnit = "UNIT" | "PIECE" | "SET" | "LOAD" | "TONNE" | "KG" | "M3" | "OTHER";
 
 const EQUIPMENT_UNITS: EquipmentUnit[] = [
@@ -2028,12 +2034,9 @@ export function MovementDialog({
                     required: FIELD_EVIDENCE_PHOTO_COUNT,
                   })}
                   onChange={setFieldEvidence}
-                  // 最少 4 张、最多 5 张, the delivery-order photo included -
-                  // the same count the server refuses above (D-257).
-                  maxFiles={EQUIPMENT_PHOTO_MAX - (deliveryNotePhoto ? 1 : 0)}
                 />
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {t("equipment.photoRange", { min: FIELD_EVIDENCE_PHOTO_COUNT, max: EQUIPMENT_PHOTO_MAX })}
+                  {t("equipment.photoMinimum", { min: EQUIPMENT_PHOTO_MIN })}
                 </p>
               </>
             ) : (
@@ -2079,9 +2082,11 @@ export function MovementDialog({
               [isFieldStaff || operator, t("field.operator")],
               [quantity && Number(quantity) > 0, t("field.quantity")],
               [
-                submissionPhotos.length >=
-                  (isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1) &&
-                  (!isFieldStaff || hasRequiredFieldEvidence(fieldEvidence)),
+                // The office counts four too now (L6), the delivery-order
+                // photo included, the way the server counts.
+                isFieldStaff
+                  ? hasRequiredFieldEvidence(fieldEvidence)
+                  : submissionPhotos.length + (deliveryNotePhoto ? 1 : 0) >= EQUIPMENT_PHOTO_MIN,
                 t("field.photos"),
               ],
               [location, t("field.location")],
