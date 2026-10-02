@@ -483,7 +483,12 @@ export function ConsultantAccessManagement() {
       {inviteOpen && (
         <ConsultantInviteDialog
           organizations={organizationRows.filter((row) => row.is_active)}
-          onClose={() => setInviteOpen(false)}
+          // The corner ✕ closes the success panel too, and the consultant it
+          // registered has to be in the list behind it either way.
+          onClose={() => {
+            void refresh();
+            setInviteOpen(false);
+          }}
           onSaved={() => {
             void refresh();
             setInviteOpen(false);

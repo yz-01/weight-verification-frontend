@@ -66,15 +66,10 @@ test("a contractor registers a firm, invites a consultant, and can grant a proje
   await expect(inviteDialog.getByText(/reset-password\?token=/)).toBeVisible({
     timeout: 20_000,
   });
-  // Two buttons answer to 「Close」 and they do different things: the corner
-  // dismiss only shuts the dialog, while the one in the footer also refreshes
-  // the lists behind it. `DialogContent` renders the corner one after its
-  // children, so taking the last match took the one that leaves the account
-  // list showing what it held before the invite.
-  await inviteDialog
-    .locator('button:not([class*="absolute"])')
-    .filter({ hasText: /^Close$/ })
-    .click();
+  // Closed with the corner ✕, the way people dismiss a dialog. It used to
+  // shut the panel without refreshing, so the consultant just registered was
+  // missing from the list behind it; only the footer button refreshed.
+  await inviteDialog.locator('button[class*="absolute"]').click();
   await expect(inviteDialog).toBeHidden({ timeout: 20_000 });
   await expect(page.getByText(consultant)).toBeVisible({ timeout: 20_000 });
 
