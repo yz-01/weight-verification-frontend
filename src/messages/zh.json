@@ -3133,17 +3133,17 @@
   },
   "attendance": {
     "clock": {
-      "action": "考勤打卡",
+      "action": "人员进场打卡",
       "captureLocation": "获取 GPS",
-      "confirm": "保存考勤",
+      "confirm": "保存进出场记录",
       "locationCaptured": "已获取 GPS",
       "locationError": "无法获取 GPS。请允许浏览器定位权限，确认使用 HTTPS 后再试。",
-      "locationRequired": "请先获取 GPS，才能保存考勤。",
+      "locationRequired": "请先获取 GPS，才能保存进出场记录。",
       "locationUnavailable": "此浏览器不支持定位服务。",
-      "projectRequired": "请先选择项目，才能保存考勤。",
-      "title": "记录考勤"
+      "projectRequired": "请先选择项目，才能保存进出场记录。",
+      "title": "记录人员进场"
     },
-    "count": "共 {count} 条考勤记录",
+    "count": "共 {count} 条人员进场记录",
     "event": {
       "CLOCK_IN": "上班打卡",
       "CLOCK_OUT": "下班打卡"
@@ -3166,10 +3166,10 @@
       "notMatched": "没有匹配围栏",
       "note": "备注",
       "originalAt": "原始发生时间",
-      "photoAlt": "考勤照片",
+      "photoAlt": "人员进场照片",
       "project": "项目",
       "recordedAt": "系统记录时间",
-      "title": "考勤证据详情",
+      "title": "人员进场证据详情",
       "uploadedAt": "上传时间",
       "view": "查看证据",
       "worker": "人员"
@@ -3188,9 +3188,9 @@
       "allProjects": "所有项目",
       "project": "选择项目"
     },
-    "title": "考勤",
+    "title": "人员进场记录",
     "toast": {
-      "recorded": "考勤已记录"
+      "recorded": "人员进场已记录"
     }
   },
   "audit": {
@@ -5269,7 +5269,7 @@
       "equipmentExpiring": "证书即将到期"
     },
     "personnel": {
-      "empty": "今天没有考勤记录。",
+      "empty": "今天没有人员进场记录。",
       "geofenceFailures": "{count} 次超出围栏",
       "subtitle": "今天共 {workers} 名人员到过场。",
       "title": "人员进出",
@@ -5807,7 +5807,7 @@
       "application_date": "申请日期",
       "application_no": "申请编号",
       "application_type": "申请类型",
-      "attendance_events": "考勤记录",
+      "attendance_events": "人员进场记录",
       "captured_at": "拍摄时间",
       "category": "分类",
       "company": "公司",
@@ -5880,7 +5880,7 @@
       "worker": "人员"
     },
     "description": {
-      "attendance": "查看现场考勤、GPS 精度与围栏结果。",
+      "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
       "consultant": "查看顾问申请、证据与最终结果。",
       "equipment": "查看设备进退场、文件、OCR 与照片。",
       "photos": "按项目、来源、上传人、日期及 GPS 查询永久照片证据账本。",
@@ -5924,7 +5924,7 @@
       "title": "达成报表与导出"
     },
     "type": {
-      "attendance": "考勤与人员报表",
+      "attendance": "人员进场报表",
       "consultant": "顾问申请报表",
       "equipment": "设备进退场报表",
       "photos": "现场照片报表",
@@ -6124,7 +6124,7 @@
     "platformSubtitle": "平台运行状态与客户活跃度",
     "recyclerSubtitle": "今日收运与称重",
     "tile": {
-      "attendance": "考勤记录",
+      "attendance": "人员进场记录",
       "commissionRevenue": "佣金收入",
       "companies": "客户公司",
       "contractors": "建筑商",
@@ -7388,7 +7388,7 @@
       "selfieReady": "自拍照已准备",
       "submit": "提交打卡",
       "takeSelfie": "拍摄自拍照",
-      "title": "考勤",
+      "title": "人员进场",
       "todayCount": "今天已有 {count} 条打卡记录",
       "viewMap": "查看打卡位置"
     },
@@ -7445,7 +7445,7 @@
     "evidenceProgress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
     "greeting": "你好，{name}",
     "home": {
-      "attendance": "考勤",
+      "attendance": "人员进场",
       "consultant": "顾问资料提交",
       "disposal": "工地清运",
       "equipment": "设备进退场",
@@ -7571,7 +7571,7 @@
       "unloading": "2. 材料卸货"
     },
     "nav": {
-      "attendance": "考勤",
+      "attendance": "人员进场",
       "disposal": "工地清运",
       "home": "首页",
       "incidents": "事故",
@@ -9142,7 +9142,7 @@
     "announcements": "公告",
     "approvals": "审批流程",
     "asset_management": "资产管理",
-    "attendance": "考勤",
+    "attendance": "人员进场",
     "auditLogs": "审计日志",
     "audit_log_center": "操作日志",
     "billing_commission": "账单与佣金",
@@ -9169,7 +9169,7 @@
     "evidence": "证据档案",
     "field_tasks": "现场任务",
     "gate": "地磅门口",
-    "geofences": "工地电子围栏",
+    "geofences": "电子围栏 / 人员进场",
     "group": {
       "customers": "客户",
       "finance": "财务",
@@ -9244,7 +9244,7 @@
       "assetReports": "资产报表",
       "assetSearch": "资产查询",
       "assetTransfers": "资产调拨",
-      "attendanceRecords": "考勤记录",
+      "attendanceRecords": "人员进场记录",
       "auditExport": "日志导出",
       "auditSearch": "审计记录",
       "automaticBilling": "自动生成账单",
@@ -9327,7 +9327,7 @@
       "dashboardSystemStatus": "实时系统状态",
       "dashboardTrends": "数据统计图表",
       "documentArchive": "文件归档",
-      "emergencyList": "紧急名单",
+      "emergencyList": "紧急在场名单",
       "evidenceArchive": "证据归档",
       "exceptionMonitoring": "异常监控",
       "expiryReminders": "到期提醒",
@@ -9597,7 +9597,7 @@
   },
   "offline": {
     "kind": {
-      "ATTENDANCE": "考勤打卡",
+      "ATTENDANCE": "人员进场打卡",
       "CATEGORY_EVIDENCE": "现场照片",
       "CONSULTANT_SUBMISSION": "顾问提交",
       "DISPATCH_ACCEPT": "接受订单",
@@ -10624,7 +10624,7 @@
       "loadError": "无法载入项目统计。",
       "loading": "正在载入项目统计...",
       "metric": {
-        "attendance_events": "考勤记录",
+        "attendance_events": "人员进场记录",
         "consultant_applications": "顾问申请",
         "documents": "项目文件",
         "equipment_movements": "设备进出",
@@ -12380,9 +12380,9 @@
       "polygonChoiceHelp": "适合边界不规则的工地",
       "primary": "主要区域",
       "redraw": "重新绘制",
-      "removeBody": "考勤与 GPS 将停止检查此区域，原有位置历史仍会保留。",
+      "removeBody": "人员进场与 GPS 将停止检查此区域，原有位置历史仍会保留。",
       "removeTitle": "移除这个围栏？",
-      "subtitle": "管理考勤和人员实时位置所使用的全部有效工地区域。",
+      "subtitle": "管理人员进场和人员实时位置所使用的全部有效工地区域。",
       "title": "工地电子围栏",
       "undoPoint": "撤销上一个点",
       "useGps": "获取当前 GPS",
@@ -13491,7 +13491,7 @@
       "title": "需要转移的内容"
     },
     "warning": {
-      "description": "旧人员的照片、审批、考勤和操作记录仍保留原姓名；接替人员只会取得目前权限和未完成工作。",
+      "description": "旧人员的照片、审批、人员进场和操作记录仍保留原姓名；接替人员只会取得目前权限和未完成工作。",
       "title": "旧账号会被停用"
     },
     "what": {

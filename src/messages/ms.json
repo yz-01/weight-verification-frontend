@@ -3060,7 +3060,7 @@
       "DISPOSAL_REQUEST": "Pelupusan tapak",
       "PROGRESS": "Kemajuan tapak",
       "CONSULTANT_APPLICATION": "Permohonan perunding",
-      "ATTENDANCE_DAY": "Kehadiran, mengikut hari",
+      "ATTENDANCE_DAY": "Kemasukan tapak, mengikut hari",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
       "DELIVERY_NOTE": "Nota penghantaran",
       "SITE_RECORD": "Rekod tapak",
@@ -3133,17 +3133,17 @@
   },
   "attendance": {
     "clock": {
-      "action": "Rekod kehadiran",
+      "action": "Rekod kemasukan tapak",
       "captureLocation": "Rakam GPS",
-      "confirm": "Simpan kehadiran",
+      "confirm": "Simpan rekod kemasukan",
       "locationCaptured": "GPS dirakam",
       "locationError": "GPS tidak dapat diperoleh. Benarkan akses lokasi, gunakan HTTPS dan cuba lagi.",
-      "locationRequired": "Rakam GPS sebelum menyimpan kehadiran.",
+      "locationRequired": "Rakam GPS sebelum menyimpan rekod kemasukan.",
       "locationUnavailable": "Pelayar ini tidak menyediakan perkhidmatan lokasi.",
-      "projectRequired": "Pilih projek sebelum menyimpan kehadiran.",
-      "title": "Rekod kehadiran"
+      "projectRequired": "Pilih projek sebelum menyimpan rekod kemasukan.",
+      "title": "Rekod kemasukan tapak"
     },
-    "count": "{count, plural, =0 {Tiada rekod kehadiran} other {# rekod kehadiran}}",
+    "count": "{count, plural, =0 {Tiada rekod kemasukan tapak} other {# rekod kemasukan tapak}}",
     "event": {
       "CLOCK_IN": "Daftar masuk",
       "CLOCK_OUT": "Daftar keluar"
@@ -3166,10 +3166,10 @@
       "notMatched": "Tiada geofence dipadankan",
       "note": "Catatan",
       "originalAt": "Masa asal acara",
-      "photoAlt": "Foto kehadiran",
+      "photoAlt": "Foto kemasukan tapak",
       "project": "Projek",
       "recordedAt": "Masa direkod",
-      "title": "Butiran bukti kehadiran",
+      "title": "Butiran bukti kemasukan tapak",
       "uploadedAt": "Masa dimuat naik",
       "view": "Lihat bukti",
       "worker": "Pekerja"
@@ -3188,9 +3188,9 @@
       "allProjects": "Semua projek",
       "project": "Pilih projek"
     },
-    "title": "Kehadiran",
+    "title": "Rekod kemasukan tapak",
     "toast": {
-      "recorded": "Kehadiran direkodkan"
+      "recorded": "Kemasukan tapak direkodkan"
     }
   },
   "audit": {
@@ -5269,7 +5269,7 @@
       "equipmentExpiring": "Dokumen akan luput"
     },
     "personnel": {
-      "empty": "Tiada kehadiran direkodkan hari ini.",
+      "empty": "Tiada kemasukan tapak direkodkan hari ini.",
       "geofenceFailures": "{count} di luar geofen",
       "subtitle": "{workers} pekerja berada di tapak hari ini.",
       "title": "Kemasukan dan keluar pekerja",
@@ -5807,7 +5807,7 @@
       "application_date": "Tarikh permohonan",
       "application_no": "No. permohonan",
       "application_type": "Jenis permohonan",
-      "attendance_events": "Peristiwa kehadiran",
+      "attendance_events": "Peristiwa kemasukan tapak",
       "captured_at": "Masa diambil",
       "category": "Kategori",
       "company": "Syarikat",
@@ -5880,7 +5880,7 @@
       "worker": "Pekerja"
     },
     "description": {
-      "attendance": "Semak bukti kehadiran, ketepatan GPS dan geofence.",
+      "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
       "consultant": "Semak permohonan perunding, bukti dan keputusan akhir.",
       "equipment": "Semak keluar masuk peralatan, dokumen, OCR dan foto.",
       "photos": "Cari lejar bukti foto kekal mengikut projek, sumber, pemuat naik, tarikh dan GPS.",
@@ -5924,7 +5924,7 @@
       "title": "Laporan pencapaian dan eksport"
     },
     "type": {
-      "attendance": "Laporan kehadiran dan tenaga kerja",
+      "attendance": "Laporan kemasukan tapak dan tenaga kerja",
       "consultant": "Laporan permohonan perunding",
       "equipment": "Laporan pergerakan peralatan",
       "photos": "Laporan foto tapak",
@@ -6124,7 +6124,7 @@
     "platformSubtitle": "Kesihatan platform dan aktiviti pelanggan",
     "recyclerSubtitle": "Kutipan dan penimbangan hari ini",
     "tile": {
-      "attendance": "Rekod kehadiran",
+      "attendance": "Rekod kemasukan tapak",
       "commissionRevenue": "Hasil komisen",
       "companies": "Syarikat",
       "contractors": "Kontraktor",
@@ -6863,7 +6863,7 @@
       "asset_maintenance_not_found": "Rekod penyelenggaraan aset itu tidak dijumpai.",
       "asset_movement_not_found": "Pergerakan aset itu tidak dijumpai.",
       "asset_not_found": "Aset itu tidak dijumpai.",
-      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
+      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kemasukan tapak memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
       "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
       "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
       "below_minimum_payout": "Jumlah ini di bawah bayaran minimum.",
@@ -7381,15 +7381,15 @@
       },
       "getLocation": "Dapatkan GPS semasa",
       "locationReady": "GPS sedia",
-      "noRecords": "Tiada rekod kehadiran hari ini",
+      "noRecords": "Tiada rekod kemasukan tapak hari ini",
       "note": "Catatan (pilihan)",
       "openPhoto": "Buka foto kehadiran",
       "selectProject": "Pilih projek hari ini",
       "selfieReady": "Swafoto sedia",
-      "submit": "Hantar kehadiran",
+      "submit": "Hantar kemasukan tapak",
       "takeSelfie": "Ambil swafoto",
-      "title": "Kehadiran",
-      "todayCount": "{count} rekod kehadiran hari ini",
+      "title": "Kemasukan tapak",
+      "todayCount": "{count} rekod kemasukan tapak hari ini",
       "viewMap": "Lihat lokasi kehadiran"
     },
     "camera": {
@@ -7445,7 +7445,7 @@
     "evidenceProgress": "{current} foto telah diambil. Semua {required} foto wajib pertama mesti lengkap; foto tambahan boleh ditambah.",
     "greeting": "Hai, {name}",
     "home": {
-      "attendance": "Kehadiran",
+      "attendance": "Kemasukan tapak",
       "consultant": "Penyerahan perunding",
       "disposal": "Pelupusan tapak",
       "equipment": "Pergerakan peralatan",
@@ -7571,7 +7571,7 @@
       "unloading": "2. Bahan dipunggah"
     },
     "nav": {
-      "attendance": "Kehadiran",
+      "attendance": "Kemasukan tapak",
       "disposal": "Pelupusan tapak",
       "home": "Utama",
       "incidents": "Insiden",
@@ -7637,7 +7637,7 @@
     "locationAccess": {
       "why": {
         "title": "Ini memerlukan lokasi anda",
-        "body": "Penghantaran, kehadiran dan rekod tapak dicap dengan tempat ia berlaku, supaya pejabat tidak perlu menelefon untuk mengesahkan anda berada di tapak. Ia dibaca sekali sahaja, ketika anda menekan butang.",
+        "body": "Penghantaran, kemasukan tapak dan rekod tapak dicap dengan tempat ia berlaku, supaya pejabat tidak perlu menelefon untuk mengesahkan anda berada di tapak. Ia dibaca sekali sahaja, ketika anda menekan butang.",
         "allow": "Benarkan lokasi",
         "later": "Bukan sekarang"
       },
@@ -7687,7 +7687,7 @@
       "projects": "Projek anda",
       "linkedHazard": "Bahaya dalam pautan",
       "linkedTask": "Tugasan dalam pautan",
-      "attendance": "Kehadiran hari ini",
+      "attendance": "Kemasukan tapak hari ini",
       "myTasks": "Tugasan saya",
       "columns": "Kategori bahan",
       "suppliers": "Senarai pembekal",
@@ -9142,7 +9142,7 @@
     "announcements": "Pengumuman",
     "approvals": "Kelulusan",
     "asset_management": "Pengurusan Aset",
-    "attendance": "Kehadiran",
+    "attendance": "Kemasukan tapak",
     "auditLogs": "Log audit",
     "audit_log_center": "Log Audit",
     "billing_commission": "Pengebilan & Komisen",
@@ -9169,7 +9169,7 @@
     "evidence": "Arkib bukti",
     "field_tasks": "Tugas tapak",
     "gate": "Pintu timbang",
-    "geofences": "Geofence tapak",
+    "geofences": "Geofence / Kemasukan tapak",
     "group": {
       "customers": "Pelanggan",
       "finance": "Kewangan",
@@ -9244,7 +9244,7 @@
       "assetReports": "Laporan aset",
       "assetSearch": "Carian aset",
       "assetTransfers": "Pemindahan",
-      "attendanceRecords": "Rekod kehadiran",
+      "attendanceRecords": "Rekod kemasukan tapak",
       "auditExport": "Eksport audit",
       "auditSearch": "Rekod audit",
       "automaticBilling": "Pengebilan automatik",
@@ -9327,7 +9327,7 @@
       "dashboardSystemStatus": "Status sistem langsung",
       "dashboardTrends": "Trend data",
       "documentArchive": "Arkib dokumen",
-      "emergencyList": "Senarai kecemasan",
+      "emergencyList": "Senarai kecemasan di tapak",
       "evidenceArchive": "Arkib bukti",
       "exceptionMonitoring": "Pemantauan pengecualian",
       "expiryReminders": "Peringatan tamat",
@@ -9597,7 +9597,7 @@
   },
   "offline": {
     "kind": {
-      "ATTENDANCE": "Kehadiran",
+      "ATTENDANCE": "Kemasukan tapak",
       "CATEGORY_EVIDENCE": "Foto tapak",
       "CONSULTANT_SUBMISSION": "Penyerahan perunding",
       "DISPATCH_ACCEPT": "Terima pesanan",
@@ -9856,7 +9856,7 @@
       "what": "Sempadan yang dilukis di sekeliling tapak, yang menentukan sama ada daftar masuk dikira di tapak.",
       "who": "Pemegang geofence.view.",
       "need": "Pagar memerlukan projek, nama dan sekurang-kurangnya tiga titik sempadan. Butang menyatakan berapa lagi diperlukan.",
-      "then": "Selepas itu, kehadiran dinilai terhadapnya.",
+      "then": "Selepas itu, kemasukan tapak dinilai terhadapnya.",
       "trouble": "Pagar yang terlalu ketat menolak daftar masuk jujur di pintu. Beri ruang."
     },
     "hazard_rectification": {
@@ -10624,7 +10624,7 @@
       "loadError": "Aktiviti projek tidak dapat dimuatkan.",
       "loading": "Memuatkan aktiviti projek...",
       "metric": {
-        "attendance_events": "Rekod kehadiran",
+        "attendance_events": "Rekod kemasukan tapak",
         "consultant_applications": "Permohonan perunding",
         "documents": "Fail projek",
         "equipment_movements": "Pergerakan peralatan",
@@ -12271,7 +12271,7 @@
       "address2": "Alamat baris 2",
       "allProjects": "Semua projek",
       "allStatuses": "Semua status",
-      "attendancePhoto": "Foto wajib untuk kehadiran",
+      "attendancePhoto": "Foto wajib untuk kemasukan tapak",
       "chooseProject": "Pilih projek",
       "chooseState": "Pilih negeri",
       "chooseWorker": "Pilih pekerja",
@@ -12380,9 +12380,9 @@
       "polygonChoiceHelp": "Untuk tapak yang mempunyai sempadan tidak sekata",
       "primary": "Zon utama",
       "redraw": "Lukis semula",
-      "removeBody": "Kehadiran dan GPS akan berhenti menyemak zon ini. Sejarah lokasi kekal disimpan.",
+      "removeBody": "Semakan kemasukan tapak dan GPS akan berhenti untuk zon ini. Sejarah lokasi kekal disimpan.",
       "removeTitle": "Buang sempadan ini?",
-      "subtitle": "Urus semua zon kerja yang digunakan untuk kehadiran dan lokasi langsung kakitangan.",
+      "subtitle": "Urus semua zon kerja yang digunakan untuk kemasukan tapak dan lokasi langsung kakitangan.",
       "title": "Geofence tapak",
       "undoPoint": "Undur titik",
       "useGps": "Guna GPS semasa",
@@ -13491,7 +13491,7 @@
       "title": "Perkara yang perlu dipindahkan"
     },
     "warning": {
-      "description": "Foto, kelulusan, kehadiran dan sejarah audit kekal di bawah nama asal. Pengganti hanya menerima akses semasa dan kerja belum selesai.",
+      "description": "Foto, kelulusan, kemasukan tapak dan sejarah audit kekal di bawah nama asal. Pengganti hanya menerima akses semasa dan kerja belum selesai.",
       "title": "Akaun lama akan digantung"
     },
     "what": {

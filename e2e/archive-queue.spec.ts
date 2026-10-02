@@ -160,7 +160,7 @@ test("the module filter narrows the queue and its counts together", async ({
     "Site disposal",
     "Site progress",
     "Consultant applications",
-    "Attendance, by day",
+    "Site entry, by day",
   ]) {
     await expect(modules.getByRole("button", { name: new RegExp(`^${name}`) })).toBeVisible();
   }

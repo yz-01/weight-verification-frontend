@@ -3060,7 +3060,7 @@
       "DISPOSAL_REQUEST": "Site disposal",
       "PROGRESS": "Site progress",
       "CONSULTANT_APPLICATION": "Consultant applications",
-      "ATTENDANCE_DAY": "Attendance, by day",
+      "ATTENDANCE_DAY": "Site entry, by day",
       "SUNDRY_CLAIM": "Sundry claims",
       "DELIVERY_NOTE": "Delivery note",
       "SITE_RECORD": "Site record",
@@ -3133,17 +3133,17 @@
   },
   "attendance": {
     "clock": {
-      "action": "Record attendance",
+      "action": "Record site entry",
       "captureLocation": "Capture GPS",
-      "confirm": "Save attendance",
+      "confirm": "Save entry record",
       "locationCaptured": "GPS captured",
       "locationError": "GPS could not be obtained. Allow location access, use HTTPS, and try again.",
-      "locationRequired": "Capture GPS before saving attendance.",
+      "locationRequired": "Capture GPS before saving the entry record.",
       "locationUnavailable": "This browser does not provide location services.",
-      "projectRequired": "Choose a project before saving attendance.",
-      "title": "Record attendance"
+      "projectRequired": "Choose a project before saving the entry record.",
+      "title": "Record site entry"
     },
-    "count": "{count, plural, =0 {No attendance records} one {# attendance record} other {# attendance records}}",
+    "count": "{count, plural, =0 {No site entry records} one {# site entry record} other {# site entry records}}",
     "event": {
       "CLOCK_IN": "Clock in",
       "CLOCK_OUT": "Clock out"
@@ -3162,14 +3162,14 @@
       "latitude": "Latitude",
       "longitude": "Longitude",
       "noLocation": "No GPS location was recorded.",
-      "noPhoto": "No attendance photo was uploaded.",
+      "noPhoto": "No site entry photo was uploaded.",
       "notMatched": "No geofence matched",
       "note": "Note",
       "originalAt": "Original event time",
-      "photoAlt": "Attendance photo",
+      "photoAlt": "Site entry photo",
       "project": "Project",
       "recordedAt": "Recorded time",
-      "title": "Attendance evidence",
+      "title": "Site entry evidence",
       "uploadedAt": "Uploaded time",
       "view": "View evidence",
       "worker": "Worker"
@@ -3188,9 +3188,9 @@
       "allProjects": "All projects",
       "project": "Choose project"
     },
-    "title": "Attendance",
+    "title": "Site entry records",
     "toast": {
-      "recorded": "Attendance recorded"
+      "recorded": "Site entry recorded"
     }
   },
   "audit": {
@@ -5269,7 +5269,7 @@
       "equipmentExpiring": "Paperwork expiring"
     },
     "personnel": {
-      "empty": "No attendance recorded today.",
+      "empty": "No site entries recorded today.",
       "geofenceFailures": "{count} outside the geofence",
       "subtitle": "{workers} people were on site today.",
       "title": "People in and out",
@@ -5807,7 +5807,7 @@
       "application_date": "Application date",
       "application_no": "Application no.",
       "application_type": "Application type",
-      "attendance_events": "Attendance events",
+      "attendance_events": "Site entry events",
       "captured_at": "Captured at",
       "category": "Category",
       "company": "Company",
@@ -5880,7 +5880,7 @@
       "worker": "Worker"
     },
     "description": {
-      "attendance": "Review site attendance evidence, GPS accuracy and geofence result.",
+      "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
       "consultant": "Review consultant applications, evidence and final outcomes.",
       "equipment": "Review equipment entries, exits, documents, OCR and photographs.",
       "photos": "Search the permanent photo evidence ledger by project, source, uploader, date and GPS.",
@@ -5924,7 +5924,7 @@
       "title": "Achievement report and export"
     },
     "type": {
-      "attendance": "Attendance and workforce report",
+      "attendance": "Site entry and workforce report",
       "consultant": "Consultant application report",
       "equipment": "Equipment movement report",
       "photos": "Site photo report",
@@ -6124,7 +6124,7 @@
     "platformSubtitle": "Platform health and customer activity",
     "recyclerSubtitle": "Today's collections and weighing",
     "tile": {
-      "attendance": "Attendance records",
+      "attendance": "Site entry records",
       "commissionRevenue": "Commission revenue",
       "companies": "Companies",
       "contractors": "Contractors",
@@ -6863,7 +6863,7 @@
       "asset_maintenance_not_found": "That asset maintenance record could not be found.",
       "asset_movement_not_found": "That asset movement could not be found.",
       "asset_not_found": "That asset could not be found.",
-      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again.",
+      "attendance_gps_required": "This project has a site boundary, so site entry needs your location. Turn location on and try again.",
       "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
       "audit_entry_not_found": "That audit entry could not be found.",
       "below_minimum_payout": "This amount is below the minimum payout.",
@@ -7381,15 +7381,15 @@
       },
       "getLocation": "Get current GPS",
       "locationReady": "GPS ready",
-      "noRecords": "No attendance record today",
+      "noRecords": "No site entry record today",
       "note": "Note (optional)",
       "openPhoto": "Open check-in photo",
       "selectProject": "Select today's project",
       "selfieReady": "Selfie ready",
-      "submit": "Submit attendance",
+      "submit": "Submit site entry",
       "takeSelfie": "Take a selfie",
-      "title": "Attendance",
-      "todayCount": "{count, plural, =0 {No check-in today} one {# attendance record today} other {# attendance records today}}",
+      "title": "Site entry",
+      "todayCount": "{count, plural, =0 {No check-in today} one {# site entry record today} other {# site entry records today}}",
       "viewMap": "View check-in location"
     },
     "camera": {
@@ -7445,7 +7445,7 @@
     "evidenceProgress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
     "greeting": "Hello, {name}",
     "home": {
-      "attendance": "Attendance",
+      "attendance": "Site entry",
       "consultant": "Consultant submission",
       "disposal": "Site disposal",
       "equipment": "Equipment movement",
@@ -7571,7 +7571,7 @@
       "unloading": "2. Material unloading"
     },
     "nav": {
-      "attendance": "Attendance",
+      "attendance": "Site entry",
       "disposal": "Site disposal",
       "home": "Home",
       "incidents": "Incidents",
@@ -7637,7 +7637,7 @@
     "locationAccess": {
       "why": {
         "title": "This needs your location",
-        "body": "Deliveries, attendance and site records are stamped with where they happened, so the office does not have to ring you to check you were on site. It is read once, when you press the button.",
+        "body": "Deliveries, site entry and site records are stamped with where they happened, so the office does not have to ring you to check you were on site. It is read once, when you press the button.",
         "allow": "Allow location",
         "later": "Not now"
       },
@@ -7687,7 +7687,7 @@
       "projects": "Your projects",
       "linkedHazard": "The hazard in the link",
       "linkedTask": "The task in the link",
-      "attendance": "Today's attendance",
+      "attendance": "Today's site entry",
       "myTasks": "My tasks",
       "columns": "The material categories",
       "suppliers": "The supplier list",
@@ -9142,7 +9142,7 @@
     "announcements": "Announcements",
     "approvals": "Approvals",
     "asset_management": "Assets",
-    "attendance": "Attendance",
+    "attendance": "Site entry",
     "auditLogs": "Audit log",
     "audit_log_center": "Audit Log",
     "billing_commission": "Billing & Commission",
@@ -9169,7 +9169,7 @@
     "evidence": "Evidence archive",
     "field_tasks": "Site tasks",
     "gate": "Weighbridge gate",
-    "geofences": "Site geofences",
+    "geofences": "Geofence / Site entry",
     "group": {
       "customers": "Customers",
       "finance": "Finance",
@@ -9244,7 +9244,7 @@
       "assetReports": "Asset reports",
       "assetSearch": "Asset search",
       "assetTransfers": "Transfers",
-      "attendanceRecords": "Attendance records",
+      "attendanceRecords": "Site entry records",
       "auditExport": "Audit export",
       "auditSearch": "Audit records",
       "automaticBilling": "Automatic billing",
@@ -9327,7 +9327,7 @@
       "dashboardSystemStatus": "Live system status",
       "dashboardTrends": "Data trends",
       "documentArchive": "Document archive",
-      "emergencyList": "Emergency list",
+      "emergencyList": "Emergency on-site list",
       "evidenceArchive": "Evidence archive",
       "exceptionMonitoring": "Exception monitoring",
       "expiryReminders": "Expiry reminders",
@@ -9597,7 +9597,7 @@
   },
   "offline": {
     "kind": {
-      "ATTENDANCE": "Attendance",
+      "ATTENDANCE": "Site entry",
       "CATEGORY_EVIDENCE": "Site photos",
       "CONSULTANT_SUBMISSION": "Consultant submission",
       "DISPATCH_ACCEPT": "Accept order",
@@ -9856,7 +9856,7 @@
       "what": "The boundary drawn around a site, which decides whether a clock-in counts as on site.",
       "who": "Holders of geofence.view.",
       "need": "A fence needs the project, a name and at least three boundary points. The button says how many more you still need.",
-      "then": "From then on, attendance is judged against it.",
+      "then": "From then on, site entry is judged against it.",
       "trouble": "A fence drawn too tight rejects honest clock-ins at the gate. Leave a margin."
     },
     "hazard_rectification": {
@@ -10624,7 +10624,7 @@
       "loadError": "Project activity could not be loaded.",
       "loading": "Loading project activity...",
       "metric": {
-        "attendance_events": "Attendance events",
+        "attendance_events": "Site entry events",
         "consultant_applications": "Consultant applications",
         "documents": "Project files",
         "equipment_movements": "Equipment movements",
@@ -12271,7 +12271,7 @@
       "address2": "Address line 2",
       "allProjects": "All projects",
       "allStatuses": "All statuses",
-      "attendancePhoto": "Photo required for attendance",
+      "attendancePhoto": "Photo required for site entry",
       "chooseProject": "Choose project",
       "chooseState": "Choose state",
       "chooseWorker": "Choose worker",
@@ -12380,9 +12380,9 @@
       "polygonChoiceHelp": "For sites with an irregular boundary",
       "primary": "Primary zone",
       "redraw": "Draw again",
-      "removeBody": "Attendance and GPS will stop checking this zone. Existing location history is retained.",
+      "removeBody": "Site entry and GPS checks will stop for this zone. Existing location history is retained.",
       "removeTitle": "Remove this boundary?",
-      "subtitle": "Maintain every approved work zone used by attendance and live personnel location.",
+      "subtitle": "Maintain every approved work zone used by site entry and live personnel location.",
       "title": "Site geofences",
       "undoPoint": "Undo point",
       "useGps": "Use current GPS",
@@ -13491,7 +13491,7 @@
       "title": "What should be transferred"
     },
     "warning": {
-      "description": "Its photos, approvals, attendance and audit history stay under the original person's name. The replacement receives only current access and unfinished work.",
+      "description": "Its photos, approvals, site entry and audit history stay under the original person's name. The replacement receives only current access and unfinished work.",
       "title": "The old account will be suspended"
     },
     "what": {
