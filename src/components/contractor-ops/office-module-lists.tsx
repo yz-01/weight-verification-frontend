@@ -57,6 +57,7 @@ import {
   SummaryStrip,
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { useRecordArchived } from "@/components/shared/record-closure";
 import {
   RecordDetailDialog,
   RecordDetailShell,
@@ -1161,6 +1162,8 @@ export function SiteProgressOffice() {
   const shown = viewing
     ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing)
     : null;
+  // A06: an archived progress record takes no more photographs.
+  const shownArchived = useRecordArchived("PROGRESS", shown?.id);
   const total = rows.data?.count ?? 0;
   const title = tRoot("nav.submodule.progressRecords");
   const noPhases =
@@ -1496,7 +1499,7 @@ export function SiteProgressOffice() {
               longitude: shown.longitude,
             }))}
             photoActions={
-              can("progress.confirm") ? (
+              can("progress.confirm") && !shownArchived ? (
                 <OfficeUpload
                   onUpload={async (files) => {
                     const fresh = await addProgressPhotos(shown.id, files);

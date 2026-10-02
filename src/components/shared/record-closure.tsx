@@ -37,6 +37,26 @@ import {
   getRecordClosure,
 } from "@/services/contractor-ops.service";
 
+/**
+ * Whether this record has been confirmed and archived (A06).
+ *
+ * The same query, under the same key, as the panel above, so a record that
+ * was just archived there stops offering uploads everywhere else without a
+ * reload. Until the answer arrives it says "not archived": the server refuses
+ * an archived upload with 409 either way, so this only decides whether the
+ * button is shown.
+ */
+export function useRecordArchived(kind: ArchiveRecordKind, recordId: string | undefined) {
+  // A failed read leaves the button shown; the server's 409 says why if it is archived.
+  // query-failure: decides only whether an upload button shows
+  const state = useQuery({
+    queryKey: ["record-closure", kind, recordId],
+    queryFn: () => getRecordClosure(kind, recordId!),
+    enabled: Boolean(recordId),
+  });
+  return Boolean(state.data?.closure);
+}
+
 export function RecordClosurePanel({
   kind,
   recordId,

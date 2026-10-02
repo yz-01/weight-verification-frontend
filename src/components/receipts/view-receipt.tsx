@@ -39,6 +39,7 @@ import {
   reviewReceipt,
 } from "@/services/contractor.service";
 import { useDateFormat } from "@/lib/dates";
+import { useRecordArchived } from "@/components/shared/record-closure";
 
 const PHOTO_KINDS: PhotoKind[] = [
   "VEHICLE",
@@ -319,6 +320,8 @@ export function ViewReceipt({ id }: { id: string }) {
     queryKey: ["receipts", "detail", id],
     queryFn: () => getReceipt(id),
   });
+  // A06: an archived delivery takes no more photographs.
+  const archived = useRecordArchived("MATERIAL_RECEIPT", id);
 
   // No "seen" mark on opening (T-292, 客户第 14 条; D-206). Reading a
   // delivery is not a business event, and the receipts list no longer shows
@@ -443,7 +446,7 @@ export function ViewReceipt({ id }: { id: string }) {
           longitude: photo.longitude,
         }))}
         photoActions={
-          can("receipt.create") && !data.superseded_by ? (
+          can("receipt.create") && !data.superseded_by && !archived ? (
             <AddPhoto
               receipt={data}
               onAdded={() =>
