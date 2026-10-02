@@ -3,6 +3,8 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { visibleNavigation } from "@/lib/navigation";
+
 /**
  * Consultant applications are simple to start (T-373, D-254).
  *
@@ -33,10 +35,24 @@ describe("consultant applications are simple to use (T-373)", () => {
   });
 
   it("keeps settings behind one menu entry, pages still reachable", () => {
-    const nav = read("src/lib/navigation.ts");
-    expect(nav).toContain('"nav.submodule.consultantSettings"');
-    for (const key of ["consultantWorkflows", "consultantAccess", "consultantTemplates"]) {
-      expect(nav).not.toContain(`"nav.submodule.${key}"`);
+    // Asked of the menu as it is built, not of the source text. This used to
+    // check that the three label keys were absent from `navigation.ts`, which
+    // was satisfied by deleting the pages' routes along with their menu lines
+    // - and that left every card on the hub bouncing to the dashboard (B16).
+    // The three are in the tree now, marked `menuHidden`; reachability is held
+    // in `src/lib/consultant-settings-reachable.test.ts`.
+    const listed = visibleNavigation(
+      "MSE_TRACE",
+      ["consultant_applications"],
+      ["consultant.config"],
+      true,
+    )
+      .flatMap((group) => group.items)
+      .flatMap((entry) => entry.children ?? [])
+      .map((entry) => entry.href);
+    expect(listed).toContain("/consultant-settings");
+    for (const href of ["/consultant-access", "/consultant-workflows", "/consultant-templates"]) {
+      expect(listed).not.toContain(href);
     }
     const hub = read("src/components/consultant-workflow/consultant-settings-hub.tsx");
     for (const href of ["/consultant-access", "/consultant-workflows", "/consultant-templates"]) {
