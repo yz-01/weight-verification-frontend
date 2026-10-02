@@ -30,17 +30,19 @@ describe("pop-up task cards", () => {
     expect(bell).toMatch(/!user\?\.is_field_staff && \(\s*<ActionCardStack/);
   });
 
-  it("sit under every dialog, sheet and confirm box", () => {
-    // Sheets and alert dialogs are z-50, the dialog overlay z-[60].
-    expect(stack).toMatch(/"fixed z-40 /);
-    expect(stack).not.toMatch(/"fixed[^"]*z-(\[60\]|50)/);
-  });
-
-  it("render at <body>, outside the toolbar that would pin them to its own box", () => {
-    // The toolbar's backdrop-blur makes it the containing block for fixed
-    // children, which pushed the cards off the top of the screen.
+  it("sit in the page layout, never over it (B01)", () => {
+    // 「桌面及手机无内容遮挡」: a floating stack covered the 查看 button in a
+    // table's last column. In the layout, the content column gets shorter
+    // instead and every button stays reachable.
+    expect(stack).not.toMatch(/className="[^"]*\bfixed\b/);
+    expect(stack).toMatch(/useTaskCardDock\(\)/);
     expect(stack).toMatch(/return createPortal\(/);
-    expect(stack).toMatch(/document\.body,\s*\);/);
+    expect(stack).toMatch(/\s+dock,\s*\);/);
+    expect(stack).not.toMatch(/document\.body/);
+    const shell = read("src/components/layout/dashboard-shell.tsx");
+    expect(shell).toMatch(/<TaskCardDockSlot \/>/);
+    // The slot follows the scrolling content column, inside the inset.
+    expect(shell.indexOf("<TaskCardDockSlot />")).toBeGreaterThan(shell.indexOf("{children}"));
   });
 
   it("fold into one bar on a phone-sized screen", () => {

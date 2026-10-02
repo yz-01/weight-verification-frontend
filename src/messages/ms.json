@@ -5383,6 +5383,11 @@
       "RETURNED": "Dikembalikan",
       "SUBMITTED": "Dihantar",
       "VERIFIED": "Disahkan"
+    },
+    "priority": {
+      "title": "Menunggu anda",
+      "showAll": "Tunjuk semua {count}",
+      "showFewer": "Tunjuk kurang"
     }
   },
   "contractorOps": {
@@ -6165,6 +6170,11 @@
       "RETURNED": "Dikembalikan",
       "SUBMITTED": "Dihantar",
       "VERIFIED": "Disahkan"
+    },
+    "scope": {
+      "label": "Tahap papan pemuka",
+      "company": "Ibu pejabat syarikat",
+      "project": "Projek"
     }
   },
   "deductions": {

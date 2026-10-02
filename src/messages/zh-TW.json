@@ -5383,6 +5383,11 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交",
       "VERIFIED": "已核實"
+    },
+    "priority": {
+      "title": "待處理事項",
+      "showAll": "顯示全部 {count} 項",
+      "showFewer": "收起"
     }
   },
   "contractorOps": {
@@ -6165,6 +6170,11 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交",
       "VERIFIED": "已核實"
+    },
+    "scope": {
+      "label": "儀表板層級",
+      "company": "公司總部",
+      "project": "項目"
     }
   },
   "deductions": {

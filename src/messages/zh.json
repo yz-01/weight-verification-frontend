@@ -5383,6 +5383,11 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交",
       "VERIFIED": "已核实"
+    },
+    "priority": {
+      "title": "待处理事项",
+      "showAll": "显示全部 {count} 项",
+      "showFewer": "收起"
     }
   },
   "contractorOps": {
@@ -6165,6 +6170,11 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交",
       "VERIFIED": "已核实"
+    },
+    "scope": {
+      "label": "仪表板层级",
+      "company": "公司总部",
+      "project": "项目"
     }
   },
   "deductions": {

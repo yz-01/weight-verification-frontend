@@ -57,26 +57,11 @@ export async function expectRefusedOnLoginPage(
   expect(new URL(page.url()).pathname).toBe(loginPath);
 }
 
-/**
- * Options shared by the sign-in helpers.
- *
- * `keepTaskCards` is for the specs whose subject *is* the 待办 stack - that it
- * appears, that its number agrees with the list, that it goes away when the
- * work is finished. Hiding it there would leave the test asserting against
- * something that was never on the screen.
- */
-export type SignInOptions = { keepTaskCards?: boolean };
-
 export async function loginAs(
   page: Page,
   loginPath: string,
   email: string,
-  options: SignInOptions = {},
 ): Promise<void> {
-  // See `hideTaskCardOverlay`: temporary, for B01. Installed here so it is in
-  // place before the first navigation of every spec that signs in - except
-  // the ones testing the stack itself.
-  if (!options.keepTaskCards) await hideTaskCardOverlay(page);
   await submitLogin(page, loginPath, email);
   await expectSignedIn(page);
   await forceEnglish(page);
@@ -132,11 +117,7 @@ export async function forceEnglish(page: Page): Promise<void> {
   await page.waitForLoadState("networkidle");
 }
 
-export async function loginAsFieldStaff(
-  page: Page,
-  options: SignInOptions = {},
-): Promise<void> {
-  if (!options.keepTaskCards) await hideTaskCardOverlay(page);
+export async function loginAsFieldStaff(page: Page): Promise<void> {
   await page.addInitScript((deviceId) => {
     window.localStorage.setItem("mse_field_device_id", deviceId);
   }, FIELD_DEVICE_ID);
@@ -270,39 +251,6 @@ export async function columnFor(
  */
 export async function openHold(page: Page): Promise<void> {
   await page.getByRole("button", { name: "New hold" }).first().click();
-}
-
-/**
- * Keep the 「待办」 stack out of the way of the clicks under it.
- *
- * TEMPORARY, and not a fix. `action-card-stack` renders into a portal as
- * `fixed z-40`, pinned bottom-right on desktop and across the bottom on a
- * phone, so it sits on top of the row actions in the last column of a table.
- * Playwright retries the click until the test times out; a person just cannot
- * press the button. That is B01 「桌面及手机无内容遮挡」 in Phase 2 - this only
- * stops the suite reporting the same defect once per affected spec until then.
- *
- * A stylesheet installed before navigation rather than a click on the collapse
- * control: the stack appears when the notifications query resolves, which is
- * after `goto` returns, so anything that looks for it immediately finds
- * nothing and does nothing. Collapsing also leaves a bar in the same corner.
- *
- * Delete this when B01 lands. A spec that still needs it then is telling you
- * the overlay is back.
- */
-export async function hideTaskCardOverlay(page: Page): Promise<void> {
-  await page.addInitScript(() => {
-    const install = () => {
-      if (document.getElementById("e2e-hide-task-cards")) return;
-      const style = document.createElement("style");
-      style.id = "e2e-hide-task-cards";
-      style.textContent =
-        'aside[aria-label][class*="z-40"]{display:none !important}';
-      document.head?.append(style);
-    };
-    if (document.head) install();
-    else document.addEventListener("DOMContentLoaded", install, { once: true });
-  });
 }
 
 /**

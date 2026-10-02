@@ -39,7 +39,7 @@ test("the field home carries tasks, the avatar and what I sent, in that order", 
   page,
 }) => {
   await allowLocation(page);
-  await loginAsFieldStaff(page, { keepTaskCards: true });
+  await loginAsFieldStaff(page);
 
   const tasks = page.getByRole("heading", { name: "My tasks" });
   const avatar = page.getByText("Your photo", { exact: true });
@@ -82,7 +82,7 @@ test("the field home has one My Tasks, and the red dot is its number", async ({
   page,
 }) => {
   await allowLocation(page);
-  await loginAsFieldStaff(page, { keepTaskCards: true });
+  await loginAsFieldStaff(page);
 
   const heading = page.getByRole("heading", { name: "My tasks" });
   await expect(heading).toBeVisible({ timeout: 30_000 });

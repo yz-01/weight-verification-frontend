@@ -5383,6 +5383,11 @@
       "RETURNED": "Returned",
       "SUBMITTED": "Submitted",
       "VERIFIED": "Verified"
+    },
+    "priority": {
+      "title": "Waiting on you",
+      "showAll": "Show all {count}",
+      "showFewer": "Show fewer"
     }
   },
   "contractorOps": {
@@ -6165,6 +6170,11 @@
       "RETURNED": "Returned",
       "SUBMITTED": "Submitted",
       "VERIFIED": "Verified"
+    },
+    "scope": {
+      "label": "Dashboard level",
+      "company": "Company HQ",
+      "project": "Project"
     }
   },
   "deductions": {
