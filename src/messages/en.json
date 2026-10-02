@@ -7447,7 +7447,7 @@
     "home": {
       "attendance": "Site entry",
       "consultant": "Consultant submission",
-      "disposal": "Site disposal",
+      "disposal": "Waste clearance",
       "equipment": "Equipment movement",
       "incidents": "Report incident",
       "location": "Share location",
@@ -7572,7 +7572,7 @@
     },
     "nav": {
       "attendance": "Site entry",
-      "disposal": "Site disposal",
+      "disposal": "Waste clearance",
       "home": "Home",
       "incidents": "Incidents",
       "location": "Location",
@@ -7591,7 +7591,7 @@
     },
     "records": {
       "consultant": "Consultant submission",
-      "disposal": "Site disposal",
+      "disposal": "Waste clearance",
       "equipment": "Equipment movement",
       "material": "Material receipts",
       "outgoing": "Material outgoing",

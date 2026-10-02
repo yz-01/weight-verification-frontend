@@ -7447,7 +7447,7 @@
     "home": {
       "attendance": "人员进场",
       "consultant": "顾问资料提交",
-      "disposal": "工地清运",
+      "disposal": "垃圾清运",
       "equipment": "设备进退场",
       "incidents": "报告事故",
       "location": "共享位置",
@@ -7572,7 +7572,7 @@
     },
     "nav": {
       "attendance": "人员进场",
-      "disposal": "工地清运",
+      "disposal": "垃圾清运",
       "home": "首页",
       "incidents": "事故",
       "location": "位置",
@@ -7591,7 +7591,7 @@
     },
     "records": {
       "consultant": "顾问资料提交",
-      "disposal": "工地清运",
+      "disposal": "垃圾清运",
       "equipment": "设备进退场",
       "material": "材料进场",
       "outgoing": "材料出场",

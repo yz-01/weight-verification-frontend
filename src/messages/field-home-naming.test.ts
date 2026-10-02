@@ -120,14 +120,23 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "mySubmissions.kind.WASTE_OUTGOING",
     ],
   },
+  // 垃圾清运 (B08 / Q5): the entry is named after the office's merged column,
+  // on the phone as in the office menu.
   {
-    module: "site disposal",
+    module: "waste clearance",
     keys: [
-      "nav.submodule.siteDisposals",
+      "nav.submodule.wasteClearance",
       "fieldStaffPwa.records.disposal",
       "fieldStaffPwa.home.disposal",
       "fieldStaffPwa.nav.disposal",
-      // 「我提交过的」 lists it under the same name (T-356).
+    ],
+  },
+  // The kind of record keeps its own name (Q7 「每笔标明是哪一种」): the old
+  // list's title and 「我提交过的」 (T-356) both say which kind it is.
+  {
+    module: "site disposal record",
+    keys: [
+      "nav.submodule.siteDisposals",
       "mySubmissions.kind.DISPOSAL_REQUEST",
     ],
   },

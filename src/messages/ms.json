@@ -7447,7 +7447,7 @@
     "home": {
       "attendance": "Kemasukan tapak",
       "consultant": "Penyerahan perunding",
-      "disposal": "Pelupusan tapak",
+      "disposal": "Pembersihan sisa",
       "equipment": "Pergerakan peralatan",
       "incidents": "Laporkan insiden",
       "location": "Kongsi lokasi",
@@ -7572,7 +7572,7 @@
     },
     "nav": {
       "attendance": "Kemasukan tapak",
-      "disposal": "Pelupusan tapak",
+      "disposal": "Pembersihan sisa",
       "home": "Utama",
       "incidents": "Insiden",
       "location": "Lokasi",
@@ -7591,7 +7591,7 @@
     },
     "records": {
       "consultant": "Penyerahan perunding",
-      "disposal": "Pelupusan tapak",
+      "disposal": "Pembersihan sisa",
       "equipment": "Pergerakan peralatan",
       "material": "Bahan masuk",
       "outgoing": "Bahan keluar",
