@@ -88,7 +88,6 @@ const FORMS = [
     // One of the four 挂号 screens (D-260): no form until a hold is opened,
     // and on coming back the hold is still there with what was typed in it.
     open: openHold,
-    reopen: false,
   },
   {
     mode: "disposal",
@@ -102,7 +101,7 @@ const FORMS = [
       await openHold(page);
       await newDisposalRequest(page);
     },
-    reopen: false,
+
     field: (page: Page) => labelledInput(page, "Debris / waste description"),
     value: () => `disposal draft ${Date.now()}`,
   },
@@ -152,10 +151,9 @@ for (const form of FORMS) {
     await page.close();
     const reopened = await context.newPage();
     await reopened.goto(url);
-    // A held screen comes back on the hold it was left on; opening another
-    // would start an empty one beside it. What is left to press is the
-    // screen's own step, if it has one.
-    if ("reopen" in form && form.reopen) await form.reopen(reopened);
+    // Nothing is pressed coming back. A held screen reopens on the hold it was
+    // left on - with the disposal dialog still open - and opening another
+    // would start an empty one beside it.
     await expect(form.field(reopened)).toHaveValue(typed, { timeout: 20_000 });
   });
 }
