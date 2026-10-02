@@ -745,7 +745,13 @@ export const PORTAL_NAVIGATION = {
         child("2.2.1", "nav.submodule.projectRecords", "/projects", "projects"),
       ],
     ),
+    // B03: 项目 holds project records only (the test in navigation.test.ts
+    // keeps it that way); 现场任务 and MR / Other Request are business
+    // entries of their own, here beside each other.
     item("field_tasks", "/field-tasks", ClipboardList, "operations", ["/photo-approvals"]),
+    // Reserved for MR / Other Request (Phase 6, C01–C07): its entry goes
+    // here, after 现场任务, once the page and its feature key exist. Not
+    // added earlier on purpose - an entry that opens nothing is a dead end.
     // Photo approval is a separate operational workflow. It shares the
     // backend feature grant with field tasks, but is not a Project child.
     itemWithLabel(
