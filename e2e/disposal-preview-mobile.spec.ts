@@ -3,6 +3,8 @@ import path from "node:path";
 
 import { expect, test } from "@playwright/test";
 
+import { API, freshExternalTask } from "./helpers";
+
 /**
  * The external collector's link must show the photograph it just took (F-289).
  *
@@ -26,13 +28,12 @@ import { expect, test } from "@playwright/test";
  * URL is what makes it survive, which is why it is preferred over holding the
  * local `File`.
  *
- * The task and its token are seeded by `manage.py seed_e2e`
- * (`EXTERNAL_DISPOSAL_TOKEN`), so this link needs no console step to issue it.
+ * A fresh task each run, not the seeded link: a submission takes at most four
+ * photographs (L6 / B24) and evidence is append-only, so the seeded link fills
+ * up after four runs. And one photo field instead of four kinds - the
+ * preview shows the newest photograph of any kind, which a LOADING upload
+ * here proves.
  */
-
-const TOKEN = "e2e-external-disposal-token";
-const PATH = `/disposal-task/${TOKEN}`;
-const API = "http://127.0.0.1:8199";
 
 /**
  * A real 240x180 PNG on disk, not an inline base64 pixel.
@@ -47,21 +48,22 @@ test("the external disposal link shows a photograph it already holds", async ({
   page,
   request,
 }) => {
+  const token = await freshExternalTask(request);
   // ASSIGNED hides the photo section until the collector says they have
   // started, which is the real order of events on site.
-  await page.goto(PATH);
+  await page.goto(`/disposal-task/${token}`);
   await expect(page.getByRole("heading", { name: "Disposal task" })).toBeVisible(
     { timeout: 30_000 },
   );
   const start = page.getByRole("button", { name: "Start disposal work" });
   if (await start.isVisible()) await start.click();
-  await expect(page.getByText("Required photos")).toBeVisible({
+  await expect(page.getByText("Photos (up to 4)").first()).toBeVisible({
     timeout: 20_000,
   });
 
   const tile = page
     .locator("button")
-    .filter({ hasText: "Loading photo" })
+    .filter({ hasText: "Photos (up to 4)" })
     .first();
   await expect(tile).toBeVisible({ timeout: 20_000 });
 
@@ -76,7 +78,7 @@ test("the external disposal link shows a photograph it already holds", async ({
    * properly by the teeth check recorded for V-444: with the T-225 change
    * reverted, the same upload leaves the tile with no `img` at all.
    */
-  const uploaded = await request.post(`${API}/api/external-disposal-task/${TOKEN}/`, {
+  const uploaded = await request.post(`${API}/api/external-disposal-task/${token}/`, {
     multipart: {
       operation: "add_evidence",
       kind: "LOADING",
@@ -88,7 +90,7 @@ test("the external disposal link shows a photograph it already holds", async ({
 
   // After: the same slot draws the stored photograph and offers a retake.
   await page.reload();
-  await expect(page.getByText("Required photos")).toBeVisible({
+  await expect(page.getByText("Photos (up to 4)").first()).toBeVisible({
     timeout: 20_000,
   });
   await expect(tile.locator("img")).toHaveCount(1);

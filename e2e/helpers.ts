@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import {
   expect,
   type APIRequestContext,
@@ -300,4 +303,86 @@ export async function hideTaskCardOverlay(page: Page): Promise<void> {
     if (document.head) install();
     else document.addEventListener("DOMContentLoaded", install, { once: true });
   });
+}
+
+/**
+ * An approved disposal handed to an outside collector, work started. Returns
+ * the link's token.
+ *
+ * Fresh each run: evidence is append-only and a submission takes at most four
+ * photographs (L6 / B24), so a seeded link fills up and then refuses.
+ */
+export async function freshExternalTask(request: APIRequestContext): Promise<string> {
+  const token = await apiLogin(request, ACCOUNTS.contractor, "MSE_TRACE");
+  const headers = { Authorization: `Bearer ${token}` };
+
+  const projects = await request.get(
+    `${API}/api/projects/get_projects/?page_size=10`,
+    { headers },
+  );
+  expect(projects.ok()).toBe(true);
+  const project = (await projects.json()).data.results.find(
+    (row: { code: string }) => row.code === "P-E2E",
+  );
+  expect(project, "the seeded E2E project is missing").toBeTruthy();
+
+  const stamp = Date.now();
+  /*
+   * `FormData`, not the object form of `multipart`.
+   *
+   * The request form wants four photographs under the same field name, and
+   * `multipart: { photos: [stream, stream] }` is not that - Playwright reads
+   * an array there as one value and fails with `stream.on is not a function`.
+   * Four `append` calls on the same key is what a browser sends.
+   *
+   * (These four are a different gate from the execution photos this spec is
+   * about: they are the site's own photographs of the waste being reported.)
+   */
+  const form = new FormData();
+  form.append("project", project.id);
+  form.append("waste_description", "Strip-out debris");
+  form.append("location_description", "Rear compound");
+  // A disposal request names its column on creation now (D-188).
+  form.append(
+    "category",
+    await columnFor(request, headers, project.id, "CONSTRUCTION_WASTE"),
+  );
+  form.append("client_event_id", `e2e-disposal-${stamp}`);
+  form.append("latitude", "3.1390000");
+  form.append("longitude", "101.6869000");
+  const bytes = fs.readFileSync(path.join(__dirname, "fixtures", "loading-photo.png"));
+  for (let index = 0; index < 4; index += 1) {
+    form.append(
+      "photos",
+      new Blob([bytes], { type: "image/png" }),
+      `waste-${index}.png`,
+    );
+  }
+  const created = await request.post(
+    `${API}/api/site-disposals/create_request/`,
+    { headers, multipart: form },
+  );
+  expect(created.status(), await created.text()).toBe(201);
+  const disposalId = (await created.json()).data.id;
+
+  const approved = await request.post(
+    `${API}/api/site-disposals/${disposalId}/review_request/`,
+    { headers, data: { decision: "APPROVED", note: "Proceed" } },
+  );
+  expect(approved.status(), await approved.text()).toBe(200);
+
+  const assigned = await request.post(
+    `${API}/api/site-disposals/${disposalId}/assign_collector/`,
+    {
+      headers,
+      data: {
+        collector_company_name: "Clean Site Services",
+        collector_contact_name: "External Executor",
+        collector_phone: "+60123456789",
+        expires_at: new Date(stamp + 2 * 24 * 3600 * 1000).toISOString(),
+      },
+    },
+  );
+  expect(assigned.status(), await assigned.text()).toBe(200);
+  return (await assigned.json()).data.external_token;
 }

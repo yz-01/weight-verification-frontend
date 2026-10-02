@@ -833,7 +833,7 @@ const EXECUTION_EVIDENCE: Array<Exclude<DisposalEvidenceKind, "REQUEST" | "CONFI
 const DISPOSAL_PHOTO_MAX = 4;
 
 /** This submission's execution photographs: a returned job starts anew. */
-function executionPhotos(task: { status: string; submitted_at?: string | null; evidence: Array<{ kind: DisposalEvidenceKind; created_at?: string }> }) {
+function executionPhotos<E extends { kind: DisposalEvidenceKind; created_at?: string }>(task: { status: string; submitted_at?: string | null; evidence: E[] }): E[] {
   return task.evidence.filter(
     (item) =>
       (EXECUTION_EVIDENCE as DisposalEvidenceKind[]).includes(item.kind) &&
@@ -917,7 +917,9 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
                 <FieldCamera
                   label={t("photosTitle")}
                   fileCount={sent.length}
-                  previewUrl={latestEvidencePhoto(current.evidence, "OTHER")}
+                  // The newest of this submission's photos, whatever its kind:
+                  // the field has no category, so neither does its preview.
+                  previewUrl={sent.length ? (sent[sent.length - 1].watermarked || sent[sent.length - 1].image || undefined) : undefined}
                   disabled={uploading !== null || full}
                   onCapture={(file) => void upload("OTHER", file)}
                 />
