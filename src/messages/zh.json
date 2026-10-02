@@ -9479,7 +9479,8 @@
     "weighing_records": "称重记录",
     "yards": "回收场",
     "waitingForYou": "{count} 项等你处理",
-    "waitingUnknown": "待处理数量没有载入，无法知道有没有事情在等你"
+    "waitingUnknown": "待处理数量没有载入，无法知道有没有事情在等你",
+    "materialManagement": "材料管理"
   },
   "notifications": {
     "compose": {

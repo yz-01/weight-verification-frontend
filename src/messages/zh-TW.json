@@ -9479,7 +9479,8 @@
     "weighing_records": "稱重記錄",
     "yards": "回收場",
     "waitingForYou": "{count} 項等你處理",
-    "waitingUnknown": "待處理數量沒有載入，無法知道有沒有事情在等你"
+    "waitingUnknown": "待處理數量沒有載入，無法知道有沒有事情在等你",
+    "materialManagement": "材料管理"
   },
   "notifications": {
     "compose": {

@@ -771,8 +771,12 @@ export const PORTAL_NAVIGATION = {
         ),
       ],
     ),
-    item(
+    // 材料管理 (A01, B09, E01): one entry for material coming in and going
+    // out. The unified page that tells Material In / Material Out / Reject
+    // apart is Phase 3; until then the entry opens the two existing pages.
+    itemWithLabel(
       "material_receipts",
+      "materialManagement",
       "/modules/materials",
       ClipboardList,
       "operations",
