@@ -1195,12 +1195,6 @@
       "summary": "The weighing session totals"
     }
   },
-  "adminModuleLanding": {
-    "cardSubtitle": "Open {module} to view and manage its related records and workflow.",
-    "noResults": "No matching function in this module",
-    "searchPlaceholder": "Search within this module",
-    "sectionLabel": "Available functions"
-  },
   "adminNotifications": {
     "action": {
       "remove": "Remove",
@@ -5391,13 +5385,6 @@
       "VERIFIED": "Verified"
     }
   },
-  "contractorModuleLanding": {
-    "cardSubtitle": "Open {action} to view records and complete the next step.",
-    "chooseAction": "Choose a work area",
-    "noActions": "No work areas are available for this account.",
-    "searchPlaceholder": "Search this work area",
-    "subtitle": "Use one of the work areas below to complete the {module} workflow."
-  },
   "contractorOps": {
     "action": {
       "accept": "Accept",
@@ -9488,7 +9475,8 @@
       "workforceGps": "Workforce live location",
       "myTasks": "My tasks",
       "consultantSettings": "Consultant settings",
-      "sundryClaims": "Sundry claims"
+      "sundryClaims": "Sundry claims",
+      "materialReports": "Material reports"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -14429,5 +14417,8 @@
       "submit": "Submit sundry claim",
       "failed": "The claim did not go through; please try again."
     }
+  },
+  "moduleHub": {
+    "nothingToOpen": "There is nothing in this module you can open."
   }
 }

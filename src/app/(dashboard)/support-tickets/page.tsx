@@ -1,5 +1,5 @@
-import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
+import { ModuleHubRedirect } from "@/components/layout/module-hub-redirect";
 
 export default function SupportTicketsPage() {
-  return <AdminModuleLanding feature="technical_support" />;
+  return <ModuleHubRedirect portal="MSE_ADMIN" feature="technical_support" />;
 }

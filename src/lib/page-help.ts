@@ -1,4 +1,4 @@
-import { PORTAL_NAVIGATION, type PortalFeatureKey } from "@/lib/navigation";
+import { PORTAL_NAVIGATION, navLeaves, type PortalFeatureKey } from "@/lib/navigation";
 import type { Portal } from "@/interfaces/auth";
 
 /**
@@ -57,7 +57,7 @@ export function helpKeyFor(
     for (const prefix of item.routePrefixes ?? []) {
       consider(item.feature, prefix);
     }
-    for (const child of item.children ?? []) {
+    for (const child of navLeaves(item.children)) {
       // A child without its own feature is just a page of its parent module,
       // so it carries the parent's help rather than none.
       consider(child.feature ?? item.feature, child.href);
@@ -73,7 +73,7 @@ export function helpKeys(): PortalFeatureKey[] {
   for (const items of Object.values(PORTAL_NAVIGATION)) {
     for (const item of items) {
       keys.add(item.feature);
-      for (const child of item.children ?? []) {
+      for (const child of navLeaves(item.children)) {
         if (child.feature) keys.add(child.feature);
       }
     }

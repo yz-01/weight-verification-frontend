@@ -1195,12 +1195,6 @@
       "summary": "Jumlah sesi timbangan"
     }
   },
-  "adminModuleLanding": {
-    "cardSubtitle": "Buka {module} untuk melihat dan mengurus rekod serta aliran kerja berkaitan.",
-    "noResults": "Tiada fungsi yang sepadan dalam modul ini",
-    "searchPlaceholder": "Cari dalam modul ini",
-    "sectionLabel": "Fungsi tersedia"
-  },
   "adminNotifications": {
     "action": {
       "remove": "Buang",
@@ -5391,13 +5385,6 @@
       "VERIFIED": "Disahkan"
     }
   },
-  "contractorModuleLanding": {
-    "cardSubtitle": "Buka {action} untuk melihat rekod dan melengkapkan langkah seterusnya.",
-    "chooseAction": "Pilih ruang kerja",
-    "noActions": "Tiada ruang kerja tersedia untuk akaun ini.",
-    "searchPlaceholder": "Cari ruang kerja ini",
-    "subtitle": "Pilih ruang kerja di bawah untuk melengkapkan aliran kerja {module}."
-  },
   "contractorOps": {
     "action": {
       "accept": "Terima",
@@ -9488,7 +9475,8 @@
       "workforceGps": "Lokasi langsung tenaga kerja",
       "myTasks": "Tugasan saya",
       "consultantSettings": "Tetapan perunding",
-      "sundryClaims": "Tuntutan pelbagai"
+      "sundryClaims": "Tuntutan pelbagai",
+      "materialReports": "Laporan bahan"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -14429,5 +14417,8 @@
       "submit": "Hantar tuntutan pelbagai",
       "failed": "Tuntutan tidak berjaya dihantar; sila cuba lagi."
     }
+  },
+  "moduleHub": {
+    "nothingToOpen": "Tiada apa-apa dalam modul ini yang boleh anda buka."
   }
 }

@@ -132,6 +132,12 @@ export interface FeatureNavItem {
   routePrefixes?: readonly string[];
   /** Requirement-numbered pages shown beneath the main Admin module. */
   children?: readonly FeatureNavChild[];
+  /**
+   * The parent's own address is a real page, not a hub of cards. Without this
+   * an entry with children opens its first child (A03: the card page that
+   * only listed the children is gone; the address still leads somewhere).
+   */
+  ownPage?: boolean;
 }
 
 export interface FeatureNavChild {
@@ -150,6 +156,17 @@ export interface FeatureNavChild {
    * 底层证据资料).
    */
   menuHidden?: boolean;
+  /**
+   * A page that gathers several businesses opens for anybody holding any one
+   * of them (「垃圾清运」 shows site disposals and waste dispatches, B08).
+   */
+  anyFeatures?: readonly PortalFeatureKey[];
+  /**
+   * A further level, opened to the right of this one (B03 「下一层继续从当前
+   * 选中项旁展开」). A node with children is a heading, not a page: its `href`
+   * is where a click on it lands, which is its first visible child.
+   */
+  children?: readonly FeatureNavChild[];
 }
 
 export interface NavGroup {
@@ -166,7 +183,8 @@ export interface NavGroup {
  */
 export const PORTAL_NAVIGATION = {
   MSE_ADMIN: [
-    item(
+    {
+      ...item(
       "dashboard",
       "/dashboard",
       LayoutDashboard,
@@ -214,7 +232,9 @@ export const PORTAL_NAVIGATION = {
           "/dashboard/system-status",
         ),
       ],
-    ),
+      ),
+      ownPage: true,
+    },
     item(
       "company_management",
       "/companies",
@@ -1034,18 +1054,22 @@ export const PORTAL_NAVIGATION = {
       undefined,
       false,
       [
-        child(
-          "13.2.1",
-          "nav.submodule.materialQuantityReport",
-          "/reports/material-quantity",
-          "material_quantity_report",
-        ),
-        child(
-          "13.2.2",
-          "nav.submodule.materialCostReport",
-          "/reports/material-cost",
-          "material_cost_report",
-        ),
+        // Two levels down from the sidebar, the first place the menu goes a
+        // third level deep (B03): the two material reports are one heading.
+        heading("13.2.M", "nav.submodule.materialReports", [
+          child(
+            "13.2.1",
+            "nav.submodule.materialQuantityReport",
+            "/reports/material-quantity",
+            "material_quantity_report",
+          ),
+          child(
+            "13.2.2",
+            "nav.submodule.materialCostReport",
+            "/reports/material-cost",
+            "material_cost_report",
+          ),
+        ]),
         child(
           "13.2.3",
           "nav.submodule.photoReport",
@@ -1381,6 +1405,15 @@ function entry(
   };
 }
 
+/** A child that opens a further level instead of a page (B03). */
+function heading(
+  key: string,
+  labelKey: string,
+  children: readonly FeatureNavChild[],
+): FeatureNavChild {
+  return { key, labelKey, href: children[0].href, children };
+}
+
 function child(
   key: string,
   labelKey: string,
@@ -1389,6 +1422,69 @@ function child(
   requiredPermission?: string,
 ): FeatureNavChild {
   return { key, labelKey, href, feature, requiredPermission };
+}
+
+/** Whether one child's own feature test passes (its permission is separate). */
+function childFeatureVisible(
+  childItem: FeatureNavChild,
+  parentFeature: PortalFeatureKey,
+  enabled: ReadonlySet<string>,
+): boolean {
+  if (childItem.anyFeatures?.length) {
+    return childItem.anyFeatures.some((key) => enabled.has(key));
+  }
+  return childItem.feature === undefined
+    ? enabled.has(parentFeature)
+    : enabled.has(childItem.feature);
+}
+
+/**
+ * The children a person may see, every level of them.
+ *
+ * A heading (a child with children) survives only if something under it does,
+ * and its `href` becomes its first visible child: a click on a heading has to
+ * land on a page this person can open.
+ */
+function visibleChildList(
+  children: readonly FeatureNavChild[] | undefined,
+  parentFeature: PortalFeatureKey,
+  enabled: ReadonlySet<string>,
+  permissions: readonly string[],
+  isSuperuser: boolean,
+): FeatureNavChild[] {
+  return (children ?? []).flatMap((childItem): FeatureNavChild[] => {
+    if (childItem.menuHidden) return [];
+    if (
+      childItem.requiredPermission &&
+      !hasPermission(permissions, childItem.requiredPermission, isSuperuser)
+    ) {
+      return [];
+    }
+    if (childItem.children?.length) {
+      const below = visibleChildList(
+        childItem.children,
+        parentFeature,
+        enabled,
+        permissions,
+        isSuperuser,
+      );
+      return below.length
+        ? [{ ...childItem, href: below[0].href, children: below }]
+        : [];
+    }
+    return childFeatureVisible(childItem, parentFeature, enabled)
+      ? [childItem]
+      : [];
+  });
+}
+
+/** Every page under a set of children, headings left out. */
+export function navLeaves(
+  children: readonly FeatureNavChild[] | undefined,
+): FeatureNavChild[] {
+  return (children ?? []).flatMap((childItem) =>
+    childItem.children?.length ? navLeaves(childItem.children) : [childItem],
+  );
 }
 
 /** Groups containing only features returned for this signed-in user. */
@@ -1412,29 +1508,29 @@ export function visibleNavigation(
     groupOrder.map((key) => [key, []]),
   );
 
-  for (const navItem of PORTAL_NAVIGATION[portal]) {
+  for (const navItem of PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[]) {
     if (
       navItem.requiredPermission &&
       !hasPermission(permissions, navItem.requiredPermission, isSuperuser)
     ) {
       continue;
     }
-    const visibleChildren = navItem.children?.filter((childItem) => {
-      const featureVisible =
-        (!childItem.feature && visible.has(navItem.feature)) ||
-        (childItem.feature !== undefined && visible.has(childItem.feature));
-      const permissionVisible =
-        !childItem.requiredPermission ||
-        hasPermission(permissions, childItem.requiredPermission, isSuperuser);
-      return featureVisible && permissionVisible && !childItem.menuHidden;
-    });
-    if (!visible.has(navItem.feature) && !visibleChildren?.length) continue;
+    const visibleChildren = visibleChildList(
+      navItem.children,
+      navItem.feature,
+      visible,
+      permissions,
+      isSuperuser,
+    );
+    if (!visible.has(navItem.feature) && !visibleChildren.length) continue;
+    // A parent whose own address was only a page of cards opens its first
+    // child directly (A03); the old address still redirects there.
+    const opensChild =
+      visibleChildren.length > 0 &&
+      (!navItem.ownPage || !visible.has(navItem.feature));
     const visibleItem = {
       ...navItem,
-      href:
-        visible.has(navItem.feature) || !visibleChildren?.length
-          ? navItem.href
-          : visibleChildren[0].href,
+      href: opensChild ? visibleChildren[0].href : navItem.href,
       children: visibleChildren,
     };
     grouped.get(navItem.group)?.push(visibleItem);
@@ -1443,6 +1539,31 @@ export function visibleNavigation(
   return groupOrder
     .map((key) => ({ key, items: grouped.get(key) ?? [] }))
     .filter((group) => group.items.length > 0);
+}
+
+/**
+ * Where a hub address (`/modules/materials`, `/companies`…) sends this person:
+ * the first child of that entry they can open, or null if there is none.
+ */
+export function hubDestination(
+  portal: Portal,
+  feature: PortalFeatureKey,
+  features: readonly string[],
+  permissions: readonly string[] = [],
+  isSuperuser = false,
+): string | null {
+  const navItem = (PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[]).find(
+    (entry) => entry.feature === feature && (entry.children?.length ?? 0) > 0,
+  );
+  if (!navItem) return null;
+  const children = visibleChildList(
+    navItem.children,
+    navItem.feature,
+    new Set(features),
+    permissions,
+    isSuperuser,
+  );
+  return children[0]?.href ?? null;
 }
 
 /** Whether a navigation entry matches the current route. */
@@ -1560,10 +1681,13 @@ export function isRouteAllowed(
   }
 
   const enabled = new Set(features);
-  const owned = PORTAL_NAVIGATION[portal].some((navItem) => {
+  const owned = (PORTAL_NAVIGATION[portal] as readonly FeatureNavItem[]).some((navItem) => {
     const parentEnabled = enabled.has(navItem.feature);
-    const hasEnabledChild = (navItem.children ?? []).some(
-      (childItem) => childItem.feature && enabled.has(childItem.feature),
+    const leaves = navLeaves(navItem.children);
+    const hasEnabledChild = leaves.some(
+      (childItem) =>
+        (childItem.feature !== undefined && enabled.has(childItem.feature)) ||
+        (childItem.anyFeatures ?? []).some((key) => enabled.has(key)),
     );
     if (!parentEnabled && !hasEnabledChild) return false;
     const canonical = navItem.href.split("?", 1)[0];
@@ -1581,12 +1705,10 @@ export function isRouteAllowed(
     ) {
       return parentEnabled;
     }
-    return (navItem.children ?? []).some(
+    return leaves.some(
       (childItem) =>
-        ((!childItem.feature && parentEnabled) ||
-          (childItem.feature !== undefined &&
-            enabled.has(childItem.feature))) &&
-        matchesPrefix(pathname, childItem.href),
+        childFeatureVisible(childItem, navItem.feature, enabled) &&
+        matchesPrefix(pathname, childItem.href.split("?", 1)[0]),
     );
   });
 

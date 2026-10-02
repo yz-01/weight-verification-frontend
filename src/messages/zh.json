@@ -1195,12 +1195,6 @@
       "summary": "称重统计"
     }
   },
-  "adminModuleLanding": {
-    "cardSubtitle": "进入{module}，查看和管理相关资料与业务流程。",
-    "noResults": "此模块没有相符的功能",
-    "searchPlaceholder": "搜索此模块的功能",
-    "sectionLabel": "可用功能"
-  },
   "adminNotifications": {
     "action": {
       "remove": "移除",
@@ -5391,13 +5385,6 @@
       "VERIFIED": "已核实"
     }
   },
-  "contractorModuleLanding": {
-    "cardSubtitle": "进入{action}，查看记录并完成下一步。",
-    "chooseAction": "选择工作区域",
-    "noActions": "此账号暂时没有可用工作区域。",
-    "searchPlaceholder": "搜索此工作区域",
-    "subtitle": "从下面选择工作区域，完成{module}相关流程。"
-  },
   "contractorOps": {
     "action": {
       "accept": "接收",
@@ -9488,7 +9475,8 @@
       "workforceGps": "人员实时位置",
       "myTasks": "我的待办",
       "consultantSettings": "顾问设定",
-      "sundryClaims": "杂费报销"
+      "sundryClaims": "杂费报销",
+      "materialReports": "材料报表"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -14429,5 +14417,8 @@
       "submit": "提交杂费报销",
       "failed": "提交没有成功，请再试一次。"
     }
+  },
+  "moduleHub": {
+    "nothingToOpen": "此模块中没有您可以打开的页面。"
   }
 }

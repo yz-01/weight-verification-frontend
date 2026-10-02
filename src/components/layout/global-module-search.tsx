@@ -9,7 +9,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { visibleNavigation } from "@/lib/navigation";
+import { navLeaves, visibleNavigation } from "@/lib/navigation";
 
 export function GlobalModuleSearch() {
   const t = useTranslations();
@@ -40,7 +40,7 @@ export function GlobalModuleSearch() {
         const moduleLabel = t(`nav.${item.labelKey}`);
         return [
           { href: item.href, label: moduleLabel, context: t(`nav.group.${group.key}`), icon: item.icon },
-          ...(item.children ?? []).map((child) => ({
+          ...navLeaves(item.children).map((child) => ({
             href: child.href,
             label: t(child.labelKey),
             context: moduleLabel,

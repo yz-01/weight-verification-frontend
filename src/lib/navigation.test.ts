@@ -3,7 +3,14 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { PORTAL_NAVIGATION, isRouteAllowed, visibleNavigation } from "./navigation";
+import {
+  PORTAL_NAVIGATION,
+  hubDestination,
+  isRouteAllowed,
+  navLeaves,
+  visibleNavigation,
+  type FeatureNavChild,
+} from "./navigation";
 import { helpKeyFor, helpKeys } from "./page-help";
 
 /**
@@ -44,12 +51,18 @@ function reachableFeatureKeys(): Set<string> {
   for (const items of Object.values(PORTAL_NAVIGATION)) {
     for (const item of items) {
       keys.add(item.feature);
-      for (const child of item.children ?? []) {
+      for (const child of navLeaves(item.children)) {
         if (child.feature) keys.add(child.feature);
+        for (const key of child.anyFeatures ?? []) keys.add(key);
       }
     }
   }
   return keys;
+}
+
+/** Every child at every level, headings included. */
+function everyChild(children: readonly FeatureNavChild[] | undefined): FeatureNavChild[] {
+  return (children ?? []).flatMap((child) => [child, ...everyChild(child.children)]);
 }
 
 const LOCALES = ["en", "zh", "zh-TW", "ms"] as const;
@@ -82,7 +95,7 @@ function requestedLabels(): string[] {
   for (const items of Object.values(PORTAL_NAVIGATION)) {
     for (const item of items) {
       keys.add(`nav.${item.labelKey}`);
-      for (const child of item.children ?? []) keys.add(child.labelKey);
+      for (const child of everyChild(item.children)) keys.add(child.labelKey);
     }
   }
   return [...keys].sort();
@@ -423,5 +436,72 @@ describe("document archive workflows", () => {
     expect(hrefs).not.toContain("/evidence");
     // …and the page still opens by its address.
     expect(isRouteAllowed("MSE_TRACE", ["evidence"], "/evidence", ["audit.view"])).toBe(true);
+  });
+});
+
+/*
+ * A03 / B03: the card page between an entry and its pages is gone. The entry
+ * opens its first page, the old address forwards there, and a further level
+ * is a heading that opens the first page under it.
+ */
+describe("entries open their pages directly", () => {
+  const trace = (features: string[], permissions: string[] = []) =>
+    visibleNavigation("MSE_TRACE", features, permissions).flatMap(
+      (group) => group.items,
+    );
+
+  it("points an entry at its first page, not at the card hub", () => {
+    const materials = trace(["material_receipts", "material_outgoing"]).find(
+      (item) => item.feature === "material_receipts",
+    );
+    expect(materials?.href).toBe("/receipts");
+    for (const item of trace(["projects", "suppliers", "report_center", "material_quantity_report"])) {
+      expect(item.href.startsWith("/modules/"), item.href).toBe(false);
+    }
+  });
+
+  it("opens the first page this reader may open, skipping the rest", () => {
+    const materials = trace(["material_outgoing"]).find(
+      (item) => item.feature === "material_receipts",
+    );
+    expect(materials?.href).toBe("/material-outgoing");
+    expect(materials?.children?.map((child) => child.href)).toEqual(["/material-outgoing"]);
+  });
+
+  it("forwards an old hub address to the same first page", () => {
+    expect(hubDestination("MSE_TRACE", "material_receipts", ["material_outgoing"])).toBe(
+      "/material-outgoing",
+    );
+    expect(hubDestination("MSE_SCRAP", "yards", ["yards", "vehicles"])).toBe("/sites");
+    expect(hubDestination("MSE_ADMIN", "company_management", ["company_management"])).toBe(
+      "/companies/create",
+    );
+    expect(hubDestination("MSE_TRACE", "material_receipts", [])).toBeNull();
+    // The old address itself stays open, so the forward can happen.
+    expect(isRouteAllowed("MSE_TRACE", ["material_outgoing"], "/modules/materials")).toBe(true);
+  });
+
+  it("keeps a page that is the parent's own, like the admin dashboard", () => {
+    const admin = visibleNavigation("MSE_ADMIN", ["dashboard"]).flatMap((group) => group.items);
+    expect(admin.find((item) => item.feature === "dashboard")?.href).toBe("/dashboard");
+  });
+
+  it("goes a level deeper where a heading has pages of its own", () => {
+    const reports = trace(["report_center", "material_quantity_report", "material_cost_report"]).find(
+      (item) => item.feature === "report_center",
+    );
+    const heading = reports?.children?.find((child) => child.children?.length);
+    expect(heading?.labelKey).toBe("nav.submodule.materialReports");
+    expect(heading?.children?.map((child) => child.href)).toEqual([
+      "/reports/material-quantity",
+      "/reports/material-cost",
+    ]);
+    // A heading with nothing visible under it is not shown at all...
+    const without = trace(["report_center"]).find((item) => item.feature === "report_center");
+    expect(without?.children?.some((child) => child.labelKey === "nav.submodule.materialReports")).toBe(false);
+    // ...and a heading with one page lands on that page.
+    const one = trace(["report_center", "material_cost_report"]).find((item) => item.feature === "report_center");
+    expect(one?.children?.find((child) => child.children?.length)?.href).toBe("/reports/material-cost");
+    expect(isRouteAllowed("MSE_TRACE", ["material_cost_report"], "/reports/material-cost")).toBe(true);
   });
 });

@@ -1195,12 +1195,6 @@
       "summary": "稱重統計"
     }
   },
-  "adminModuleLanding": {
-    "cardSubtitle": "進入{module}，查看和管理相關資料與業務流程。",
-    "noResults": "此模塊沒有相符的功能",
-    "searchPlaceholder": "搜索此模塊的功能",
-    "sectionLabel": "可用功能"
-  },
   "adminNotifications": {
     "action": {
       "remove": "移除",
@@ -5391,13 +5385,6 @@
       "VERIFIED": "已核實"
     }
   },
-  "contractorModuleLanding": {
-    "cardSubtitle": "進入{action}，查看記錄並完成下一步。",
-    "chooseAction": "選擇工作區域",
-    "noActions": "此賬號暫時沒有可用工作區域。",
-    "searchPlaceholder": "搜索此工作區域",
-    "subtitle": "從下面選擇工作區域，完成{module}相關流程。"
-  },
   "contractorOps": {
     "action": {
       "accept": "接收",
@@ -9488,7 +9475,8 @@
       "workforceGps": "人員實時位置",
       "myTasks": "我的待辦",
       "consultantSettings": "顧問設定",
-      "sundryClaims": "雜費報銷"
+      "sundryClaims": "雜費報銷",
+      "materialReports": "材料報表"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -14429,5 +14417,8 @@
       "submit": "提交雜費報銷",
       "failed": "提交沒有成功，請再試一次。"
     }
+  },
+  "moduleHub": {
+    "nothingToOpen": "此模組中沒有您可以開啟的頁面。"
   }
 }
