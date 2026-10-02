@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { loginAsFieldStaff } from "./helpers";
+import { loginAsFieldStaff, openHold } from "./helpers";
 
 /**
  * The draft banner must not lie (F-282).
@@ -36,6 +36,14 @@ import { loginAsFieldStaff } from "./helpers";
  */
 
 const ORIGIN = "http://localhost:3199";
+
+/** The disposal console's request dialog, which sits behind 「New request」. */
+async function newDisposalRequest(page: Page) {
+  await page.getByRole("button", { name: "New request" }).click();
+  await expect(
+    page.getByRole("heading", { name: "New disposal request" }),
+  ).toBeVisible({ timeout: 20_000 });
+}
 
 /** A `FieldWrapper` row's own control, found through its label text. */
 function labelledInput(page: Page, label: string) {
@@ -77,17 +85,24 @@ const FORMS = [
     // wiring it was written for.
     field: (page: Page) => labelledInput(page, "Note"),
     value: () => `waste draft ${Date.now()}`,
+    // One of the four 挂号 screens (D-260): no form until a hold is opened,
+    // and on coming back the hold is still there with what was typed in it.
+    open: openHold,
+    reopen: false,
   },
   {
     mode: "disposal",
-    heading: "Waste disposal",
-    // This console does not auto-open its dialog without a task.
+    // The screen's name since `fde751d` (T-207).
+    heading: "Site disposal",
+    // A 挂号 screen too (D-260): the hold is what holds the draft, and the
+    // request dialog still opens from the console inside it. Coming back, the
+    // hold reopens with its dialog already open - pressing 「New request」
+    // again would be pressing something the screen has already done.
     open: async (page: Page) => {
-      await page.getByRole("button", { name: "New request" }).click();
-      await expect(
-        page.getByRole("heading", { name: "New disposal request" }),
-      ).toBeVisible({ timeout: 20_000 });
+      await openHold(page);
+      await newDisposalRequest(page);
     },
+    reopen: false,
     field: (page: Page) => labelledInput(page, "Debris / waste description"),
     value: () => `disposal draft ${Date.now()}`,
   },
@@ -137,7 +152,10 @@ for (const form of FORMS) {
     await page.close();
     const reopened = await context.newPage();
     await reopened.goto(url);
-    if ("open" in form) await form.open(reopened);
+    // A held screen comes back on the hold it was left on; opening another
+    // would start an empty one beside it. What is left to press is the
+    // screen's own step, if it has one.
+    if ("reopen" in form && form.reopen) await form.reopen(reopened);
     await expect(form.field(reopened)).toHaveValue(typed, { timeout: 20_000 });
   });
 }

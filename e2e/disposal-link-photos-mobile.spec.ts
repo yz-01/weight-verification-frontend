@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { expect, test, type APIRequestContext } from "@playwright/test";
 
-import { ACCOUNTS, API, apiLogin } from "./helpers";
+import { ACCOUNTS, API, apiLogin, columnFor } from "./helpers";
 
 /**
  * The outside collector's link asks for photographs and nothing else
@@ -63,6 +63,11 @@ async function freshExternalTask(request: APIRequestContext): Promise<string> {
   form.append("project", project.id);
   form.append("waste_description", "Strip-out debris");
   form.append("location_description", "Rear compound");
+  // A disposal request names its column on creation now (D-188).
+  form.append(
+    "category",
+    await columnFor(request, headers, project.id, "CONSTRUCTION_WASTE"),
+  );
   form.append("client_event_id", `e2e-disposal-${stamp}`);
   form.append("latitude", "3.1390000");
   form.append("longitude", "101.6869000");

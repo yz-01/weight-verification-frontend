@@ -40,7 +40,8 @@ test("an old hazard-tab link opens the reporting form, not a blank tab", async (
   await page.goto("/field-staff?tab=incidents&thread=some-old-thread-id");
 
   await expect(
-    page.getByRole("heading", { name: "Safety / hazard" }),
+    // The screen's name since `fde751d` (T-207): tile and page say the same.
+    page.getByRole("heading", { name: "Hazard rectification" }),
   ).toBeVisible({ timeout: 30_000 });
   // The form, for real: its draft banner is part of it.
   await expect(page.locator("[data-draft-status]")).toBeVisible();
@@ -52,7 +53,8 @@ test("the removed hazard list is not reachable from the tab", async ({
   await page.goto("/field-staff?tab=incidents");
 
   await expect(
-    page.getByRole("heading", { name: "Safety / hazard" }),
+    // The screen's name since `fde751d` (T-207): tile and page say the same.
+    page.getByRole("heading", { name: "Hazard rectification" }),
   ).toBeVisible({ timeout: 30_000 });
   /*
    * The list page and its single button, both gone. Asserted by absence,

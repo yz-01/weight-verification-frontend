@@ -5,6 +5,7 @@ import {
   LOGIN_PATHS,
   loginAs,
   loginAsFieldStaff,
+  openHold,
   submitLogin,
 } from "./helpers";
 
@@ -121,10 +122,18 @@ test("field staff material draft survives closing and reopening the work form", 
   });
   await loginAsFieldStaff(page);
 
+  // Through My Tasks, the home's one to-do list (L1), to the task's card.
+  await page
+    .getByRole("button", { name: /Inspect E2E material delivery/ })
+    .first()
+    .click({ timeout: 20_000 });
   const task = page.locator("article").filter({
     hasText: "Inspect E2E material delivery",
   });
   await task.getByRole("button", { name: "Open work form" }).click();
+  // Material receipts is one of the four 挂号 screens (D-260): the hold is
+  // what keeps the draft, and coming back finds it still open.
+  await openHold(page);
 
   const workFormUrl = page.url();
   const materialName = page

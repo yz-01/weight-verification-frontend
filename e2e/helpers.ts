@@ -258,6 +258,18 @@ export async function columnFor(
 }
 
 /**
+ * Open a 挂号 (queue-number hold) on a capture screen that has them.
+ *
+ * Material in, equipment in/out, site disposal and waste outgoing show no form
+ * until one is opened (D-259, D-279: 「Nothing opens by itself」). A hold with
+ * anything typed or photographed in it survives the page closing, so a spec
+ * about a draft surviving is a spec about the hold surviving.
+ */
+export async function openHold(page: Page): Promise<void> {
+  await page.getByRole("button", { name: "New hold" }).first().click();
+}
+
+/**
  * Keep the 「待办」 stack out of the way of the clicks under it.
  *
  * TEMPORARY, and not a fix. `action-card-stack` renders into a portal as

@@ -3,7 +3,13 @@ import { expect, test, type Page } from "@playwright/test";
 import { loginAsFieldStaff } from "./helpers";
 
 /**
- * The field app's Location tab must not refuse its own requests (F-291).
+ * The field app must not refuse its own requests (F-291).
+ *
+ * Written for the Location tab, where the customer photographed the refusal.
+ * That tab is gone - 「位置」 left the bottom bar (T-321, customer item 43) and
+ * its presence panel lives only in the office's /site-gps - so the guard now
+ * walks the four tabs the phone does have. The property it holds was never
+ * about that one screen: a refusal toast beside content that looks complete.
  *
  * The customer photographed "You do not have permission to perform this
  * action" on this tab twice. The screen renders and the presence numbers
@@ -43,7 +49,7 @@ function watchRefusals(page: Page): string[] {
   return refused;
 }
 
-test("the field staff location tab refuses none of its own requests", async ({
+test("the field staff tabs refuse none of their own requests", async ({
   page,
   context,
 }) => {
@@ -54,26 +60,21 @@ test("the field staff location tab refuses none of its own requests", async ({
 
   const refused = watchRefusals(page);
   await loginAsFieldStaff(page);
-  await page.goto("/field-staff?tab=location");
 
-  // Wait for the panel the customer's screenshot shows, so the assertions run
-  // after the tab's calls have gone out rather than before them.
-  await expect(page.getByText("On site now", { exact: false })).toBeVisible({
-    timeout: 30_000,
-  });
+  const navigation = page.locator("nav").last();
+  for (const tab of ["Home", "Attendance", "Site record capture", "Hazard rectification"]) {
+    await navigation.getByRole("button", { name: tab, exact: true }).click();
+    // Each tab's own calls go out before the next one is opened.
+    await page.waitForLoadState("networkidle");
+    // Checked per tab, while a toast from that tab would still be on screen.
+    await expect(
+      page.getByText("You do not have permission to perform this action", {
+        exact: false,
+      }),
+      `a refusal toast on ${tab}`,
+    ).toHaveCount(0);
+  }
 
-  // Checked here, at first paint, while a toast would still be on screen.
-  await expect(
-    page.getByText("You do not have permission to perform this action", {
-      exact: false,
-    }),
-  ).toHaveCount(0);
-
-  await page.waitForLoadState("networkidle");
-
-  console.log("FIELD LOCATION 403s:", JSON.stringify(refused, null, 1));
-  expect(
-    refused,
-    "the field location tab was refused these paths",
-  ).toEqual([]);
+  console.log("FIELD TAB 403s:", JSON.stringify(refused, null, 1));
+  expect(refused, "the field tabs were refused these paths").toEqual([]);
 });
