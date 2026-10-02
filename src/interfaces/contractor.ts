@@ -668,6 +668,8 @@ export interface WasteDispatch {
   is_editable: boolean;
   has_location: boolean;
   photo_count?: number;
+  /** When the order was raised; lets 垃圾清运 sort it among site disposals (B08). */
+  created_at?: string;
 }
 
 export interface WasteDispatchDetail extends WasteDispatch {

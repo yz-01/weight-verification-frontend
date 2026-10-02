@@ -1195,12 +1195,6 @@
       "summary": "称重统计"
     }
   },
-  "adminModuleLanding": {
-    "cardSubtitle": "进入{module}，查看和管理相关资料与业务流程。",
-    "noResults": "此模块没有相符的功能",
-    "searchPlaceholder": "搜索此模块的功能",
-    "sectionLabel": "可用功能"
-  },
   "adminNotifications": {
     "action": {
       "remove": "移除",
@@ -3061,7 +3055,7 @@
       "MATERIAL_RECEIPT": "材料进场",
       "MATERIAL_OUTGOING": "材料出场",
       "EQUIPMENT_MOVEMENT": "设备进出",
-      "HAZARD": "隐患整改",
+      "HAZARD": "隐患整改 / EHS",
       "WASTE_OUTGOING": "环保材料出场申请",
       "DISPOSAL_REQUEST": "工地清运",
       "PROGRESS": "工程进度",
@@ -3087,7 +3081,7 @@
       "archived": "已看"
     },
     "subtitle": "所有已完成的记录，等你看过。",
-    "title": "总栏目",
+    "title": "现场记录中心",
     "toast": {
       "archived": "已为你标成「看过了」。"
     },
@@ -3099,7 +3093,8 @@
       "closed": "已归档",
       "notApplicable": "不需要归档"
     },
-    "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。"
+    "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。",
+    "categoryManagement": "分类管理"
   },
   "assets": {
     "category": {
@@ -3138,17 +3133,17 @@
   },
   "attendance": {
     "clock": {
-      "action": "考勤打卡",
+      "action": "人员进场打卡",
       "captureLocation": "获取 GPS",
-      "confirm": "保存考勤",
+      "confirm": "保存进出场记录",
       "locationCaptured": "已获取 GPS",
       "locationError": "无法获取 GPS。请允许浏览器定位权限，确认使用 HTTPS 后再试。",
-      "locationRequired": "请先获取 GPS，才能保存考勤。",
+      "locationRequired": "请先获取 GPS，才能保存进出场记录。",
       "locationUnavailable": "此浏览器不支持定位服务。",
-      "projectRequired": "请先选择项目，才能保存考勤。",
-      "title": "记录考勤"
+      "projectRequired": "请先选择项目，才能保存进出场记录。",
+      "title": "记录人员进场"
     },
-    "count": "共 {count} 条考勤记录",
+    "count": "共 {count} 条人员进场记录",
     "event": {
       "CLOCK_IN": "上班打卡",
       "CLOCK_OUT": "下班打卡"
@@ -3171,10 +3166,10 @@
       "notMatched": "没有匹配围栏",
       "note": "备注",
       "originalAt": "原始发生时间",
-      "photoAlt": "考勤照片",
+      "photoAlt": "人员进场照片",
       "project": "项目",
       "recordedAt": "系统记录时间",
-      "title": "考勤证据详情",
+      "title": "人员进场证据详情",
       "uploadedAt": "上传时间",
       "view": "查看证据",
       "worker": "人员"
@@ -3193,9 +3188,9 @@
       "allProjects": "所有项目",
       "project": "选择项目"
     },
-    "title": "考勤",
+    "title": "人员进场记录",
     "toast": {
-      "recorded": "考勤已记录"
+      "recorded": "人员进场已记录"
     }
   },
   "audit": {
@@ -3946,7 +3941,7 @@
       "equipment": "设备分类",
       "progress": "工程进度分类",
       "phase": "施工阶段",
-      "ehs": "隐患整改分类",
+      "ehs": "隐患整改 / EHS 分类",
       "recycle": "环保材料出场分类",
       "debris": "工地清运分类",
       "consultant": "顾问资料分类",
@@ -5274,7 +5269,7 @@
       "equipmentExpiring": "证书即将到期"
     },
     "personnel": {
-      "empty": "今天没有考勤记录。",
+      "empty": "今天没有人员进场记录。",
       "geofenceFailures": "{count} 次超出围栏",
       "subtitle": "今天共 {workers} 名人员到过场。",
       "title": "人员进出",
@@ -5389,14 +5384,12 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交",
       "VERIFIED": "已核实"
+    },
+    "priority": {
+      "title": "待处理事项",
+      "showAll": "显示全部 {count} 项",
+      "showFewer": "收起"
     }
-  },
-  "contractorModuleLanding": {
-    "cardSubtitle": "进入{action}，查看记录并完成下一步。",
-    "chooseAction": "选择工作区域",
-    "noActions": "此账号暂时没有可用工作区域。",
-    "searchPlaceholder": "搜索此工作区域",
-    "subtitle": "从下面选择工作区域，完成{module}相关流程。"
   },
   "contractorOps": {
     "action": {
@@ -5802,47 +5795,6 @@
     "title": "建筑商合作方",
     "unlimitedProjects": "不限项目"
   },
-  "contractorReportCenter": {
-    "description": {
-      "attendance": "包含 GPS 与照片的上下班记录。",
-      "consultant": "顾问申请、证据、审核人及最终决定。",
-      "dispatches": "废料订单及当前流程状态。",
-      "disposals": "清运申请与外部执行证据。",
-      "equipment": "设备进退场、操作员、DO 与照片数量。",
-      "history": "永久记录每次报表的生成人员和时间。",
-      "materialCost": "已记录价格的材料进场价值。",
-      "materialQuantity": "按单位和材料查看进场数量。",
-      "photos": "按项目、来源、上传人、日期和 GPS 查询全部永久照片证据。",
-      "progress": "按施工阶段查看进度、确认与照片证据。",
-      "projectRecords": "公司有权限查看的项目。",
-      "recycling": "统一查看工地清运与回收订单流程。",
-      "safety": "安全问题、负责人及整改证据。",
-      "schedule": "计划与实际进度及延误天数。",
-      "target": "项目目标、达成情况与业务指标。",
-      "tasks": "现场任务与提交的照片证据。"
-    },
-    "open": "打开",
-    "subtitle": "查看当前项目资料，并进入详细报表或证据页面。",
-    "tile": {
-      "attendance": "考勤报表",
-      "consultant": "顾问申请",
-      "dispatches": "废料订单",
-      "disposals": "工地清运",
-      "equipment": "设备报表",
-      "history": "导出历史",
-      "materialCost": "材料成本",
-      "materialQuantity": "材料数量",
-      "photos": "照片报表",
-      "progress": "进度报表",
-      "projects": "项目",
-      "recycling": "清运与回收",
-      "safety": "安全报表",
-      "schedule": "计划对比",
-      "target": "目标达成",
-      "tasks": "现场任务"
-    },
-    "title": "建筑商报表中心"
-  },
   "contractorReports": {
     "action": {
       "excel": "Excel",
@@ -5855,7 +5807,7 @@
       "application_date": "申请日期",
       "application_no": "申请编号",
       "application_type": "申请类型",
-      "attendance_events": "考勤记录",
+      "attendance_events": "人员进场记录",
       "captured_at": "拍摄时间",
       "category": "分类",
       "company": "公司",
@@ -5928,7 +5880,7 @@
       "worker": "人员"
     },
     "description": {
-      "attendance": "查看现场考勤、GPS 精度与围栏结果。",
+      "attendance": "查看人员进场证据、GPS 精度与围栏结果。",
       "consultant": "查看顾问申请、证据与最终结果。",
       "equipment": "查看设备进退场、文件、OCR 与照片。",
       "photos": "按项目、来源、上传人、日期及 GPS 查询永久照片证据账本。",
@@ -5972,7 +5924,7 @@
       "title": "达成报表与导出"
     },
     "type": {
-      "attendance": "考勤与人员报表",
+      "attendance": "人员进场报表",
       "consultant": "顾问申请报表",
       "equipment": "设备进退场报表",
       "photos": "现场照片报表",
@@ -6172,7 +6124,7 @@
     "platformSubtitle": "平台运行状态与客户活跃度",
     "recyclerSubtitle": "今日收运与称重",
     "tile": {
-      "attendance": "考勤记录",
+      "attendance": "人员进场记录",
       "commissionRevenue": "佣金收入",
       "companies": "客户公司",
       "contractors": "建筑商",
@@ -6219,6 +6171,11 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交",
       "VERIFIED": "已核实"
+    },
+    "scope": {
+      "label": "仪表板层级",
+      "company": "公司总部",
+      "project": "项目"
     }
   },
   "deductions": {
@@ -7431,7 +7388,7 @@
       "selfieReady": "自拍照已准备",
       "submit": "提交打卡",
       "takeSelfie": "拍摄自拍照",
-      "title": "考勤",
+      "title": "人员进场",
       "todayCount": "今天已有 {count} 条打卡记录",
       "viewMap": "查看打卡位置"
     },
@@ -7488,9 +7445,9 @@
     "evidenceProgress": "已拍摄 {current} 张。前 {required} 张必拍照片缺一不可，也可以继续新增其他照片。",
     "greeting": "你好，{name}",
     "home": {
-      "attendance": "考勤",
+      "attendance": "人员进场",
       "consultant": "顾问资料提交",
-      "disposal": "工地清运",
+      "disposal": "垃圾清运",
       "equipment": "设备进退场",
       "incidents": "报告事故",
       "location": "共享位置",
@@ -7498,12 +7455,12 @@
       "outgoing": "材料出场",
       "progress": "工程进度",
       "records": "现场记录",
-      "safety": "隐患整改",
+      "safety": "隐患整改 / EHS",
       "subtitle": "按一个大按钮就可以继续。",
       "tasks": "我的任务",
       "title": "今天的工作",
       "waste": "环保材料出场申请",
-      "hazards": "隐患整改"
+      "hazards": "隐患整改 / EHS"
     },
     "identity": {
       "company": "公司：{company}",
@@ -7614,14 +7571,14 @@
       "unloading": "2. 材料卸货"
     },
     "nav": {
-      "attendance": "考勤",
-      "disposal": "工地清运",
+      "attendance": "人员进场",
+      "disposal": "垃圾清运",
       "home": "首页",
       "incidents": "事故",
       "location": "位置",
       "records": "现场记录",
       "tasks": "任务",
-      "hazards": "隐患整改"
+      "hazards": "隐患整改 / EHS"
     },
     "notifications": {
       "empty": "目前没有新通知",
@@ -7634,12 +7591,12 @@
     },
     "records": {
       "consultant": "顾问资料提交",
-      "disposal": "工地清运",
+      "disposal": "垃圾清运",
       "equipment": "设备进退场",
       "material": "材料进场",
       "outgoing": "材料出场",
       "progress": "工程进度",
-      "safety": "隐患整改",
+      "safety": "隐患整改 / EHS",
       "subtitle": "先选择工作，再拍摄系统要求的照片。",
       "title": "现场记录",
       "waste": "环保材料出场申请",
@@ -7674,7 +7631,7 @@
       "OTHER": "其他",
       "PHOTO": "现场记录",
       "PROGRESS": "工程进度",
-      "SAFETY": "隐患整改",
+      "SAFETY": "隐患整改 / EHS",
       "WASTE": "环保材料出场申请"
     },
     "locationAccess": {
@@ -8463,6 +8420,14 @@
       "title": "材料数量报表",
       "totalDeliveries": "收货总数",
       "unitNote": "数量始终按单位分组；吨、件和车次不会相加。"
+    },
+    "records": {
+      "title": "相关记录及照片（{shown} / {total}）",
+      "what": "此报表的相关记录",
+      "photos": "相关照片",
+      "open": "查看",
+      "noPhotos": "无照片",
+      "photosFailed": "{count} 张照片（载入失败）"
     }
   },
   "monitoring": {
@@ -9096,7 +9061,7 @@
       "MATERIAL_RECEIPT": "材料进场",
       "SITE_RECORD": "现场记录",
       "WASTE_OUTGOING": "环保材料出场申请",
-      "HAZARD": "隐患整改",
+      "HAZARD": "隐患整改 / EHS",
       "PROGRESS": "工程进度",
       "DRIVER_TRIP": "运输任务",
       "MATERIAL_OUTGOING": "材料出场",
@@ -9177,7 +9142,7 @@
     "announcements": "公告",
     "approvals": "审批流程",
     "asset_management": "资产管理",
-    "attendance": "考勤",
+    "attendance": "人员进场",
     "auditLogs": "审计日志",
     "audit_log_center": "操作日志",
     "billing_commission": "账单与佣金",
@@ -9204,7 +9169,7 @@
     "evidence": "证据档案",
     "field_tasks": "现场任务",
     "gate": "地磅门口",
-    "geofences": "工地电子围栏",
+    "geofences": "电子围栏 / 人员进场",
     "group": {
       "customers": "客户",
       "finance": "财务",
@@ -9215,7 +9180,7 @@
       "weighing": "称重",
       "tools": "公共工具"
     },
-    "hazard_rectification": "隐患整改",
+    "hazard_rectification": "隐患整改 / EHS",
     "incoming": "待收货",
     "integrations": "系统集成",
     "inventory_management": "库存管理",
@@ -9240,7 +9205,7 @@
     "qr_code_management": "二维码管理",
     "receipts": "材料进场",
     "recycler_review": "回收商审核",
-    "recyclers": "合作回收商",
+    "recyclers": "环保材料管理",
     "recycling_records": "回收称重记录",
     "report_center": "报表中心",
     "reports": "报表",
@@ -9263,7 +9228,7 @@
       "apiGatewaySettings": "API Gateway 设置",
       "approvalCredentials": "审批凭证",
       "approvals": "审批记录",
-      "archiveQueue": "总栏目",
+      "archiveQueue": "现场记录中心",
       "assetActivity": "操作记录",
       "assetAssignments": "领用与借用",
       "assetCategories": "资产类别",
@@ -9279,7 +9244,7 @@
       "assetReports": "资产报表",
       "assetSearch": "资产查询",
       "assetTransfers": "资产调拨",
-      "attendanceRecords": "考勤记录",
+      "attendanceRecords": "人员进场记录",
       "auditExport": "日志导出",
       "auditSearch": "审计记录",
       "automaticBilling": "自动生成账单",
@@ -9362,7 +9327,7 @@
       "dashboardSystemStatus": "实时系统状态",
       "dashboardTrends": "数据统计图表",
       "documentArchive": "文件归档",
-      "emergencyList": "紧急名单",
+      "emergencyList": "紧急在场名单",
       "evidenceArchive": "证据归档",
       "exceptionMonitoring": "异常监控",
       "expiryReminders": "到期提醒",
@@ -9371,7 +9336,7 @@
       "financialReports": "财务报表",
       "gateScanning": "门岗扫描",
       "geofenceSettings": "Geofence 设置",
-      "hazardRectifications": "隐患整改",
+      "hazardRectifications": "隐患整改 / EHS",
       "immutableAudit": "永久记录",
       "incidentReports": "事故上报",
       "integrationSettings": "系统集成",
@@ -9488,7 +9453,9 @@
       "workforceGps": "人员实时位置",
       "myTasks": "我的待办",
       "consultantSettings": "顾问设定",
-      "sundryClaims": "杂费报销"
+      "sundryClaims": "杂费报销",
+      "materialReports": "材料报表",
+      "wasteClearance": "垃圾清运"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -9512,7 +9479,8 @@
     "weighing_records": "称重记录",
     "yards": "回收场",
     "waitingForYou": "{count} 项等你处理",
-    "waitingUnknown": "待处理数量没有载入，无法知道有没有事情在等你"
+    "waitingUnknown": "待处理数量没有载入，无法知道有没有事情在等你",
+    "materialManagement": "材料管理"
   },
   "notifications": {
     "compose": {
@@ -9629,7 +9597,7 @@
   },
   "offline": {
     "kind": {
-      "ATTENDANCE": "考勤打卡",
+      "ATTENDANCE": "人员进场打卡",
       "CATEGORY_EVIDENCE": "现场照片",
       "CONSULTANT_SUBMISSION": "顾问提交",
       "DISPATCH_ACCEPT": "接受订单",
@@ -9791,7 +9759,7 @@
       "trouble": "地磅显示离线：先看连线状态页的最后通讯时间。现场那头的接线和参数速查在这台地磅的网关面板里。"
     },
     "company_management": {
-      "what": "开通新公司、审核公司资料、看每家公司的项目和合作回收商。没有公司，平台上其他东西都无从谈起。",
+      "what": "开通新公司、审核公司资料、看每家公司的项目和合作的回收商。没有公司，平台上其他东西都无从谈起。",
       "who": "持 company.view 的平台角色；开通新公司还要 company.create。",
       "need": "银行那一步必须填齐银行名称、账户名称、账号；执照那一步必须上传 PDF 或图片。",
       "then": "系统会自动播下这家公司的初始角色，并给第一个管理员发激活邮件。",
@@ -10011,7 +9979,7 @@
       "trouble": "现场没信号没关系：照拍照填，它会排队，之后自动传。存下来的位置是拍照当时的，不是补传时的。"
     },
     "project_categories": {
-      "what": "管理每个业务栏目下面的分类：例如材料分类里的混凝土、钢筋，隐患整改分类里的安全部整改。",
+      "what": "管理每个业务栏目下面的分类：例如材料分类里的混凝土、钢筋，隐患整改 / EHS 分类里的安全部整改。",
       "who": "持 category.view。",
       "need": "新增分类要选业务、项目、编号和名称，以及谁可以看到这个分类。",
       "then": "现场人员在手机上提交时就能选到它，后台也能把记录归进去。",
@@ -10656,7 +10624,7 @@
       "loadError": "无法载入项目统计。",
       "loading": "正在载入项目统计...",
       "metric": {
-        "attendance_events": "考勤记录",
+        "attendance_events": "人员进场记录",
         "consultant_applications": "顾问申请",
         "documents": "项目文件",
         "equipment_movements": "设备进出",
@@ -11677,7 +11645,7 @@
       "locationTimeout": "等不到 GPS 信号。走到空旷一点的地方再试一次。",
       "locationUnavailable": "设备拿不到位置。确认定位已开启后再试一次。",
       "locationUnsupported": "这台设备无法提供 GPS 位置。",
-      "noSafetyColumns": "这个项目还没有隐患整改分类。到「分类管理」新增一个，隐患才归得进去。"
+      "noSafetyColumns": "这个项目还没有隐患整改 / EHS 分类。到「分类管理」新增一个，隐患才归得进去。"
     },
     "new": "上报隐患",
     "severity": {
@@ -11763,7 +11731,7 @@
       "description": "拍摄完成后的现场照片、获取 GPS，并说明已完成的工作。",
       "title": "提交整改证据"
     },
-    "title": "隐患整改",
+    "title": "隐患整改 / EHS",
     "toast": {
       "assigned": "已指派整改",
       "reviewed": "已保存验收结果",
@@ -12412,9 +12380,9 @@
       "polygonChoiceHelp": "适合边界不规则的工地",
       "primary": "主要区域",
       "redraw": "重新绘制",
-      "removeBody": "考勤与 GPS 将停止检查此区域，原有位置历史仍会保留。",
+      "removeBody": "人员进场与 GPS 将停止检查此区域，原有位置历史仍会保留。",
       "removeTitle": "移除这个围栏？",
-      "subtitle": "管理考勤和人员实时位置所使用的全部有效工地区域。",
+      "subtitle": "管理人员进场和人员实时位置所使用的全部有效工地区域。",
       "title": "工地电子围栏",
       "undoPoint": "撤销上一个点",
       "useGps": "获取当前 GPS",
@@ -13523,7 +13491,7 @@
       "title": "需要转移的内容"
     },
     "warning": {
-      "description": "旧人员的照片、审批、考勤和操作记录仍保留原姓名；接替人员只会取得目前权限和未完成工作。",
+      "description": "旧人员的照片、审批、人员进场和操作记录仍保留原姓名；接替人员只会取得目前权限和未完成工作。",
       "title": "旧账号会被停用"
     },
     "what": {
@@ -13795,7 +13763,7 @@
     },
     "assign": {
       "help": "选择已绑定此项目的回收商。{reference} 的订单会立即发送至对方系统。",
-      "noPartners": "此项目尚未绑定回收商。请先在「合作回收商」中绑定，再建立订单。",
+      "noPartners": "此项目尚未绑定回收商。请先在「环保材料管理 › 回收商合作」中绑定，再建立订单。",
       "partnersFailed": "无法载入回收合作商，所以选择框是空的。这不代表你没有合作商。",
       "title": "安排回收商"
     },
@@ -14250,7 +14218,7 @@
   "recordClosure": {
     "title": "确认归档",
     "action": "确认归档",
-    "help": "按下去就视为这件事已经完成并归档，所有人都看得到，总栏目里会写上你的名字和时间。系统不做任何前置判断 —— 判断由你负责。记录不会搬走，还在原来的模块和分类里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
+    "help": "按下去就视为这件事已经完成并归档，所有人都看得到，现场记录中心里会写上你的名字和时间。系统不做任何前置判断 —— 判断由你负责。记录不会搬走，还在原来的模块和分类里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
     "notePlaceholder": "备注（可选）",
     "closedTitle": "已归档",
     "closedBy": "由 {name} 于 {when} 确认。本记录已不能再修改。",
@@ -14429,5 +14397,48 @@
       "submit": "提交杂费报销",
       "failed": "提交没有成功，请再试一次。"
     }
+  },
+  "moduleHub": {
+    "nothingToOpen": "此模块中没有您可以打开的页面。"
+  },
+  "pageSwitcher": {
+    "label": "切换页面（当前：{page}）"
+  },
+  "reportSelector": {
+    "choose": "选择报表",
+    "material": "材料",
+    "supplier": "供应商",
+    "allMaterials": "全部材料",
+    "allSuppliers": "全部供应商",
+    "materialsFailed": "无法载入材料列表。",
+    "suppliersFailed": "无法载入供应商列表。",
+    "noSuppliers": "此选择还没有进场记录。"
+  },
+  "wasteClearance": {
+    "title": "垃圾清运",
+    "countDisposals": "工地清运 {count} 笔",
+    "countDispatches": "废料订单 {count} 笔",
+    "tab": {
+      "all": "全部",
+      "disposal": "工地清运",
+      "dispatch": "废料订单"
+    },
+    "kind": {
+      "disposal": "工地清运",
+      "dispatch": "废料订单"
+    },
+    "newDisposal": "新增清运申请",
+    "newDispatch": "新增废料订单",
+    "column": {
+      "kind": "类型",
+      "reference": "编号",
+      "status": "状态",
+      "project": "项目",
+      "content": "废料内容",
+      "at": "建立时间",
+      "open": "查看"
+    },
+    "pageOf": "第 {page} / {pages} 页（每页每种最多 10 笔）",
+    "lastPage": "已经是最后一页。"
   }
 }

@@ -27,10 +27,11 @@ test("contractor sidebar navigates without a full page reload", async ({
   await page.waitForLoadState("networkidle");
   await markDocument(page);
 
-  const projectsLink = page.locator('a[href="/modules/projects"]').first();
+  // A03: the entry opens its page directly - no card page in between.
+  const projectsLink = page.locator('[data-sidebar="menu-button"][href="/projects"]').first();
   await expect(projectsLink).toBeVisible({ timeout: 20_000 });
   await projectsLink.click();
-  await page.waitForURL(/\/modules\/projects/, { timeout: 20_000 });
+  await page.waitForURL(/\/projects$/, { timeout: 20_000 });
   await expectNoFullReload(page);
 });
 
@@ -41,18 +42,19 @@ test("recycler sidebar reaches the order book without a reload", async ({
   await page.waitForLoadState("networkidle");
   await markDocument(page);
 
-  // The order book lives under the "Waste orders" group; /incoming is one
-  // of its sub-tabs, so the sidebar's top-level link is what a user clicks.
-  const ordersLink = page.locator('a[href="/recycler-modules/waste_orders"]').first();
-  await expect(ordersLink).toBeVisible({ timeout: 20_000 });
-  await ordersLink.click();
-  await page.waitForURL(/\/recycler-modules\/waste_orders/, { timeout: 20_000 });
-  await expectNoFullReload(page);
-
-  const orderBook = page.locator('a[href="/waste-orders"]');
-  await expect(orderBook).toBeVisible();
-  await orderBook.click();
+  // The order book lives under the "Waste orders" entry, which opens its
+  // first page directly (A03); hovering it opens the rest to the right (B03).
+  const ordersEntry = page
+    .locator('[data-sidebar="menu-item"]')
+    .filter({ has: page.locator('[data-sidebar="menu-button"][href="/waste-orders"]') })
+    .first();
+  await expect(ordersEntry).toBeVisible({ timeout: 20_000 });
+  await ordersEntry.hover();
+  const tasks = page.getByRole("menuitem", { name: "Driver tasks" });
+  await expect(tasks).toBeVisible();
+  await ordersEntry.locator('[data-sidebar="menu-button"]').click();
   await page.waitForURL(/\/waste-orders/, { timeout: 20_000 });
+  await expectNoFullReload(page);
 
   // Search for the stable seed record so repeated E2E runs cannot push it
   // beyond the first page with the orders created by order-flow.spec.ts.
@@ -98,13 +100,16 @@ test("admin and contractor put actionable work before long dashboard content", a
   })).toBe(true);
 });
 
-test("admin module landing opens a real child workspace", async ({ page }) => {
+test("an old module address forwards to its first page (A03)", async ({ page }) => {
   await loginAs(page, LOGIN_PATHS.admin, ACCOUNTS.admin);
   await page.goto("/companies");
-  const child = page.locator('a[href="/companies/admin/directory"]');
-  await expect(child).toBeVisible({ timeout: 20_000 });
-  await child.click();
-  await page.waitForURL(/\/companies\/admin\/directory/, { timeout: 20_000 });
+  await page.waitForURL(/\/companies\/create/, { timeout: 20_000 });
+
+  await page.evaluate(() => window.localStorage.clear());
+  await page.context().clearCookies();
+  await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
+  await page.goto("/modules/materials");
+  await page.waitForURL(/\/receipts$/, { timeout: 20_000 });
 });
 
 test("browser back returns to the previous console page", async ({ page }) => {
@@ -112,10 +117,10 @@ test("browser back returns to the previous console page", async ({ page }) => {
   await page.waitForLoadState("networkidle");
   const startPath = new URL(page.url()).pathname;
 
-  const projectsLink = page.locator('a[href="/modules/projects"]').first();
+  const projectsLink = page.locator('[data-sidebar="menu-button"][href="/projects"]').first();
   await expect(projectsLink).toBeVisible({ timeout: 20_000 });
   await projectsLink.click();
-  await page.waitForURL(/\/modules\/projects/, { timeout: 20_000 });
+  await page.waitForURL(/\/projects$/, { timeout: 20_000 });
 
   await page.goBack();
   await expect

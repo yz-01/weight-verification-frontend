@@ -91,8 +91,8 @@ const FORMS = [
   },
   {
     mode: "disposal",
-    // The screen's name since `fde751d` (T-207).
-    heading: "Site disposal",
+    // The screen's name since `fde751d` (T-207); 垃圾清运 since Phase 2 (B08 / Q5).
+    heading: "Waste clearance",
     // A 挂号 screen too (D-260): the hold is what holds the draft, and the
     // request dialog still opens from the console inside it. Coming back, the
     // hold reopens with its dialog already open - pressing 「New request」

@@ -942,7 +942,7 @@ function AdminNotificationsPanel({
                 <span className="text-sm font-medium">{notification.title}</span>
                 {notification.is_outstanding && <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />}
               </span>
-              <span className="mt-1 line-clamp-1 block text-xs text-muted-foreground">
+              <span className="mt-1 line-clamp-1 text-xs text-muted-foreground">
                 {notification.message}
               </span>
             </Link>

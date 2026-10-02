@@ -110,7 +110,7 @@ function severityTone(severity: TimelineEntry["severity"]) {
  * approvals and harmless for anything new that has not been mapped yet.
  */
 const APPROVAL_QUEUES: Record<string, string> = {
-  DISPOSAL_REQUEST: "/site-disposals",
+  DISPOSAL_REQUEST: "/waste-clearance?kind=disposal",
   WASTE_OUTGOING: "/waste-outgoing",
   FIELD_TASK: "/field-tasks",
   SITE_PROGRESS: "/progress",
@@ -174,120 +174,160 @@ export function ContractorDashboard() {
   const notifications = live.data?.notifications ?? data?.notifications;
   const unread = live.data?.unread ?? data?.unread;
 
+  /*
+   * B01 (图1): 等待处理, 待审批 and the reminders were three large blocks that
+   * filled the first screen. Now: one row of small counts that jump to their
+   * list, then the lists as short single-line rows, five at a time.
+   */
+  const unreadTotal = unread ? unread.receipts + unread.approvals : 0;
   const priorityGrid = data ? (
-    <div className="grid gap-6 xl:grid-cols-2" data-dashboard-priority>
-      {unread && (unread.receipts > 0 || unread.approvals > 0) && (
-        <Block
-          title={t("unread.title")}
-          subtitle={t("unread.subtitle", {
-            receipts: unread.receipts,
-            approvals: unread.approvals,
-          })}
-          empty={false}
-          emptyLabel=""
-          action={
-            // The material module of Category Management: /material-columns
-            // is gone (D-263), and the link keeps the project being read.
-            <Link
-              href={`/category-management?module=material${
-                project ? `&project=${encodeURIComponent(project)}` : ""
-              }`}
-              className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {categories("module.material")}
-            </Link>
-          }
-        >
-          <p className="pb-2 text-xs text-muted-foreground">{t("unread.help")}</p>
-          <ul className="divide-y">
-            {unread.columns.map((column) => (
-              <li
-                key={column.category ?? "unfiled"}
-                className="flex items-center justify-between gap-3 py-2.5"
+    <section
+      aria-label={t("priority.title")}
+      className="space-y-3"
+      data-dashboard-priority
+    >
+      <div className="grid grid-cols-3 gap-2">
+        {unread && (
+          <PriorityCount
+            label={t("unread.title")}
+            value={unreadTotal}
+            target="dashboard-unread"
+            tone={unreadTotal > 0 ? "primary" : undefined}
+          />
+        )}
+        {data.approvals && (
+          <PriorityCount
+            label={t("approvals.title")}
+            value={data.approvals.total}
+            target="dashboard-approvals"
+            tone={data.approvals.total > 0 ? "info" : undefined}
+          />
+        )}
+        {anomalies && (
+          <PriorityCount
+            label={t("anomalies.title")}
+            value={anomalies.total}
+            target="dashboard-anomalies"
+            tone={anomalies.total > 0 ? "danger" : undefined}
+          />
+        )}
+      </div>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
+        {unread && unreadTotal > 0 && (
+          <Block
+            id="dashboard-unread"
+            title={t("unread.title")}
+            subtitle={t("unread.subtitle", {
+              receipts: unread.receipts,
+              approvals: unread.approvals,
+            })}
+            empty={false}
+            emptyLabel=""
+            action={
+              // The material module of Category Management: /material-columns
+              // is gone (D-263), and the link keeps the project being read.
+              <Link
+                href={`/category-management?module=material${
+                  project ? `&project=${encodeURIComponent(project)}` : ""
+                }`}
+                className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <Link
-                  href={
-                    column.category
-                      ? `/receipts?category=${column.category}&seen=false`
-                      : "/receipts?category=__unfiled__&seen=false"
-                  }
-                  className="min-w-0 flex-1 text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                {categories("module.material")}
+              </Link>
+            }
+          >
+            <p className="pb-1 text-xs text-muted-foreground">{t("unread.help")}</p>
+            <ShortList
+              rows={unread.columns.map((column) => (
+                <li
+                  key={column.category ?? "unfiled"}
+                  className="flex items-center justify-between gap-3 py-1.5"
                 >
-                  {column.name || t("unread.unfiled")}
-                  {column.code && (
-                    <span className="ml-2 text-xs font-normal text-muted-foreground">
-                      {column.code}
-                    </span>
-                  )}
-                </Link>
-                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary">
-                  {column.count}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Block>
-      )}
-
-      {data.approvals && (
-        <Block
-          title={t("approvals.title")}
-          subtitle={t("approvals.subtitle", {
-            total: data.approvals.total,
-            mine: data.approvals.mine,
-            unassigned: data.approvals.unassigned,
-          })}
-          empty={data.approvals.rows.length === 0}
-          emptyLabel={t("approvals.empty")}
-          action={
-            <Link
-              href="/approvals"
-              className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {t("approvals.openCenter")}
-            </Link>
-          }
-        >
-          <ul className="divide-y">
-            {data.approvals.rows.map((row) => (
-              <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
-                <div className="min-w-0">
                   <Link
-                    href={approvalHref(row)}
-                    className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    href={
+                      column.category
+                        ? `/receipts?category=${column.category}&seen=false`
+                        : "/receipts?category=__unfiled__&seen=false"
+                    }
+                    className="min-w-0 flex-1 truncate text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    {row.approval_no ? `${row.approval_no} · ${row.title}` : row.title}
-                  </Link>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {t.has(`approvals.source.${row.source}`)
-                      ? t(`approvals.source.${row.source}`)
-                      : row.resource_type}{" "}
-                    · {row.project || t("approvals.companyWide")} ·{" "}
-                    {row.assigned_to || t("approvals.unassigned")}
-                    {row.waiting_seconds === null ? null : (
-                      <>
-                        {" · "}
-                        <WaitingFor seconds={row.waiting_seconds} />
-                      </>
+                    {column.name || t("unread.unfiled")}
+                    {column.code && (
+                      <span className="ml-2 text-xs font-normal text-muted-foreground">
+                        {column.code}
+                      </span>
                     )}
-                  </p>
-                </div>
-                <StatusBadge
-                  label={
-                    t.has(`approvals.status.${row.status}`)
-                      ? t(`approvals.status.${row.status}`)
-                      : row.status
-                  }
-                  tone="info"
-                />
-              </li>
-            ))}
-          </ul>
-        </Block>
-      )}
+                  </Link>
+                  <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary">
+                    {column.count}
+                  </span>
+                </li>
+              ))}
+            />
+          </Block>
+        )}
 
-      {anomalies && <AnomalyBlock anomalies={anomalies} />}
-    </div>
+        {data.approvals && (
+          <Block
+            id="dashboard-approvals"
+            title={t("approvals.title")}
+            subtitle={t("approvals.subtitle", {
+              total: data.approvals.total,
+              mine: data.approvals.mine,
+              unassigned: data.approvals.unassigned,
+            })}
+            empty={data.approvals.rows.length === 0}
+            emptyLabel={t("approvals.empty")}
+            action={
+              <Link
+                href="/approvals"
+                className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {t("approvals.openCenter")}
+              </Link>
+            }
+          >
+            <ShortList
+              rows={data.approvals.rows.map((row) => (
+                <li key={row.id} className="flex items-center justify-between gap-3 py-1.5">
+                  <div className="flex min-w-0 flex-1 items-baseline gap-2">
+                    <Link
+                      href={approvalHref(row)}
+                      className="min-w-0 shrink truncate text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      {row.approval_no ? `${row.approval_no} · ${row.title}` : row.title}
+                    </Link>
+                    <span className="hidden min-w-0 shrink-[2] truncate text-xs text-muted-foreground sm:inline">
+                      {t.has(`approvals.source.${row.source}`)
+                        ? t(`approvals.source.${row.source}`)
+                        : row.resource_type}{" "}
+                      · {row.project || t("approvals.companyWide")} ·{" "}
+                      {row.assigned_to || t("approvals.unassigned")}
+                      {row.waiting_seconds === null ? null : (
+                        <>
+                          {" · "}
+                          <WaitingFor seconds={row.waiting_seconds} />
+                        </>
+                      )}
+                    </span>
+                  </div>
+                  <StatusBadge
+                    label={
+                      t.has(`approvals.status.${row.status}`)
+                        ? t(`approvals.status.${row.status}`)
+                        : row.status
+                    }
+                    tone="info"
+                  />
+                </li>
+              ))}
+            />
+          </Block>
+        )}
+
+        {anomalies && <AnomalyBlock anomalies={anomalies} />}
+      </div>
+    </section>
   ) : null;
 
   if (full.isError) {
@@ -299,7 +339,7 @@ export function ContractorDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {live.isError && (
         <p className="rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm">
           {t("liveStopped")}
@@ -498,7 +538,7 @@ export function ContractorDashboard() {
               <ScheduleSummary schedule={data.overview.schedule} />
             </section>
           )}
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             {/* Second screen. It used to sit third from the top, above
                 everything a manager opens this page to check. Shorter
                 now as well - the detail is a click away, and the height
@@ -868,82 +908,145 @@ function AnomalyBlock({ anomalies }: { anomalies: DashboardAnomalies }) {
   // From the totals, not the lists: the lists stop at fifty, so a busy
   // month of anomalies would have said "nothing to see" on the fifty-first.
   const nothing = anomalies.total === 0;
+  const row = (
+    key: string,
+    href: string,
+    title: string,
+    detail: string,
+    badge: React.ReactNode,
+  ) => (
+    <li key={key} className="flex items-center justify-between gap-3 py-1.5">
+      <div className="flex min-w-0 flex-1 items-baseline gap-2">
+        <Link
+          href={href}
+          className="min-w-0 shrink truncate text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {title}
+        </Link>
+        <span className="hidden min-w-0 shrink-[2] truncate text-xs text-muted-foreground sm:inline">
+          {detail}
+        </span>
+      </div>
+      {badge}
+    </li>
+  );
 
   return (
     <Block
+      id="dashboard-anomalies"
       title={t("anomalies.title")}
       subtitle={t("anomalies.subtitle", { count: anomalies.total })}
       empty={nothing}
       emptyLabel={t("anomalies.empty")}
     >
       {anomalies.geofence_total > 0 && (
-        <p className="mb-2 text-xs text-muted-foreground">
+        <p className="mb-1 text-xs text-muted-foreground">
           {t("anomalies.geofenceWindow", {
             days: anomalies.geofence_window_days,
             count: anomalies.geofence_total,
           })}
         </p>
       )}
-      <ul className="divide-y">
-        {anomalies.overdue_rectifications.map((row) => (
-          <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
-            <div className="min-w-0">
-              <Link
-                href={`/hazard-rectifications?incident=${row.id}`}
-                className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {row.incident_no} · {row.title}
-              </Link>
-              <p className="truncate text-xs text-muted-foreground">{row.project}</p>
-            </div>
-            <StatusBadge
-              label={t("anomalies.daysOverdue", { days: row.days_overdue })}
-              tone="danger"
-            />
-          </li>
-        ))}
-        {anomalies.geofence_failures.map((row) => (
-          <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
-            <div className="min-w-0">
-              <Link
-                href="/attendance"
-                className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {t("anomalies.geofenceFailure")} · {row.worker}
-              </Link>
-              <p className="truncate text-xs text-muted-foreground">
-                {row.project} · {df.dateTime(row.occurred_at)}
-              </p>
-            </div>
-            <StatusBadge
-              label={
-                row.distance_m
-                  ? t("anomalies.distance", { metres: Number(row.distance_m) })
-                  : t("anomalies.outside")
-              }
-              tone="warning"
-            />
-          </li>
-        ))}
-        {anomalies.expiring_permits.map((row) => (
-          <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
-            <div className="min-w-0">
-              <Link
-                href="/site-access"
-                className="text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {row.pass_no} · {row.subject_name}
-              </Link>
-              <p className="truncate text-xs text-muted-foreground">{row.project}</p>
-            </div>
-            <StatusBadge
-              label={t("anomalies.expiresAt", { at: df.date(row.valid_until) })}
-              tone="warning"
-            />
-          </li>
-        ))}
-      </ul>
+      <ShortList
+        rows={[
+          ...anomalies.overdue_rectifications.map((item) =>
+            row(
+              `hazard-${item.id}`,
+              `/hazard-rectifications?incident=${item.id}`,
+              `${item.incident_no} · ${item.title}`,
+              item.project,
+              <StatusBadge
+                label={t("anomalies.daysOverdue", { days: item.days_overdue })}
+                tone="danger"
+              />,
+            ),
+          ),
+          ...anomalies.geofence_failures.map((item) =>
+            row(
+              `geofence-${item.id}`,
+              "/attendance",
+              `${t("anomalies.geofenceFailure")} · ${item.worker}`,
+              `${item.project} · ${df.dateTime(item.occurred_at)}`,
+              <StatusBadge
+                label={
+                  item.distance_m
+                    ? t("anomalies.distance", { metres: Number(item.distance_m) })
+                    : t("anomalies.outside")
+                }
+                tone="warning"
+              />,
+            ),
+          ),
+          ...anomalies.expiring_permits.map((item) =>
+            row(
+              `permit-${item.id}`,
+              "/site-access",
+              `${item.pass_no} · ${item.subject_name}`,
+              item.project,
+              <StatusBadge
+                label={t("anomalies.expiresAt", { at: df.date(item.valid_until) })}
+                tone="warning"
+              />,
+            ),
+          ),
+        ]}
+      />
     </Block>
+  );
+}
+
+/** Five rows, and the rest one click away rather than a long block. */
+function ShortList({ rows, limit = 5 }: { rows: React.ReactNode[]; limit?: number }) {
+  const t = useTranslations("contractorDashboard.priority");
+  const [all, setAll] = useState(false);
+  const shown = all ? rows : rows.slice(0, limit);
+  return (
+    <>
+      <ul className="divide-y">{shown}</ul>
+      {rows.length > limit && (
+        <button
+          type="button"
+          onClick={() => setAll(!all)}
+          className="mt-1 text-xs font-medium text-primary hover:underline"
+        >
+          {all ? t("showFewer") : t("showAll", { count: rows.length })}
+        </button>
+      )}
+    </>
+  );
+}
+
+/** One of the three counts at the top: the number, and a jump to its list. */
+function PriorityCount({
+  label,
+  value,
+  target,
+  tone,
+}: {
+  label: string;
+  value: number;
+  target: string;
+  tone?: "primary" | "info" | "danger";
+}) {
+  const format = useFormatter();
+  const colour =
+    tone === "danger"
+      ? "text-destructive"
+      : tone === "info"
+        ? "text-info"
+        : tone === "primary"
+          ? "text-primary"
+          : "text-foreground";
+  return (
+    <a
+      href={"#" + target}
+      className="flex min-w-0 items-center justify-between gap-2 rounded-lg border bg-card px-3 py-2 shadow-sm transition-colors hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <span className="min-w-0 truncate text-xs font-medium text-muted-foreground">{label}</span>
+      <span className={"shrink-0 text-lg font-semibold tabular-nums " + colour}>
+        {format.number(value)}
+      </span>
+    </a>
   );
 }
 
@@ -1152,7 +1255,7 @@ function Metric({
   return (
     <Link
       href={href}
-      className={`min-h-24 rounded-lg border bg-card p-4 shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+      className={`rounded-lg border bg-card px-3 py-2.5 shadow-sm transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
         tone === "warning" ? "border-warning/40" : ""
       }`}
     >
@@ -1160,7 +1263,7 @@ function Metric({
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         <Icon className="size-4 shrink-0 text-muted-foreground" />
       </div>
-      <p className="mt-3 text-2xl font-semibold tabular-nums">
+      <p className="mt-1 text-xl font-semibold tabular-nums">
         {format.number(value)}
       </p>
     </Link>
@@ -1168,6 +1271,7 @@ function Metric({
 }
 
 function Block({
+  id,
   title,
   subtitle,
   empty,
@@ -1175,6 +1279,7 @@ function Block({
   action,
   children,
 }: {
+  id?: string;
   title: string;
   subtitle?: string;
   empty?: boolean;
@@ -1184,10 +1289,11 @@ function Block({
 }) {
   return (
     <section
+      id={id}
       aria-label={title}
-      className="rounded-lg border bg-card p-4 shadow-sm"
+      className="scroll-mt-4 rounded-lg border bg-card p-3 shadow-sm"
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b pb-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b pb-1.5">
         <div>
           <h2 className="text-sm font-semibold">{title}</h2>
           {subtitle && (
@@ -1197,11 +1303,11 @@ function Block({
         {action}
       </div>
       {empty ? (
-        <p className="py-6 text-center text-sm text-muted-foreground">
+        <p className="py-3 text-center text-sm text-muted-foreground">
           {emptyLabel}
         </p>
       ) : (
-        <div className="mt-1 max-h-96 overflow-y-auto">{children}</div>
+        <div className="mt-1 max-h-80 overflow-y-auto">{children}</div>
       )}
     </section>
   );

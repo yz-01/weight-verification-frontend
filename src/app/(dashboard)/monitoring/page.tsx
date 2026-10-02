@@ -1,5 +1,5 @@
-import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
+import { ModuleHubRedirect } from "@/components/layout/module-hub-redirect";
 
 export default function MonitoringPage() {
-  return <AdminModuleLanding feature="platform_monitoring" />;
+  return <ModuleHubRedirect portal="MSE_ADMIN" feature="platform_monitoring" />;
 }

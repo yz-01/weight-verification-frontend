@@ -38,7 +38,7 @@ export function officeNotificationHref(data: Record<string, unknown>): string | 
       if (outgoing) return `/material-outgoing?record=${encodeURIComponent(outgoing)}`;
       if (record === "disposal") {
         const id = text(data.record_id);
-        return id ? `/site-disposals?record=${encodeURIComponent(id)}` : "/site-disposals";
+        return id ? `/waste-clearance?kind=disposal&record=${encodeURIComponent(id)}` : "/waste-clearance?kind=disposal";
       }
       return null;
     }

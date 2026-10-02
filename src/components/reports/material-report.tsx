@@ -9,10 +9,13 @@ import {
   ReceiptText,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import Image from "next/image";
+import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
-import { ListHeader, TypeBadge } from "@/components/shared/page-primitives";
+import { ReportSelector, useMaterialColumns } from "@/components/reports/report-selector";
+import { ListHeader, QueryFailedNote, TypeBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,9 +30,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useListQuery } from "@/hooks/use-list-query";
-import { MATERIAL_UNITS } from "@/interfaces/contractor";
+import { MATERIAL_UNITS, type MaterialReceipt } from "@/interfaces/contractor";
+import { useDateFormat } from "@/lib/dates";
 import {
   exportReceipts,
+  getReceipt,
+  getReceipts,
   getReceiptSummary,
   type ExportFormat,
 } from "@/services/contractor.service";
@@ -39,17 +45,37 @@ export type MaterialReportMode = "quantity" | "cost";
 export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   const t = useTranslations();
   const { can } = useAuth();
-  const list = useListQuery(["project", "date_from", "date_to"]);
+  // `category` and `supplier` are the 【选择报表】 levels under the report
+  // (B04): the figures, the records, their photos and the export all read
+  // them from the address, so one choice updates all four together.
+  const list = useListQuery(["project", "date_from", "date_to", "category", "supplier"]);
   const filters = {
     project: list.filters.project,
     date_from: list.filters.date_from,
     date_to: list.filters.date_to,
+    category: list.filters.category,
+    supplier: list.filters.supplier,
   };
 
   const summary = useQuery({
     queryKey: ["receipts", "summary", mode, filters],
     queryFn: () => getReceiptSummary(filters),
   });
+  const columns = useMaterialColumns(filters.project);
+  // A failed column list leaves the figures right and only the name unknown.
+  const materialName = filters.category
+    ? columns.isError
+      ? t("common.emptyValue")
+      : columns.data?.results.find((row) => row.id === filters.category)?.name
+    : t("reportSelector.allMaterials");
+  const supplierName = filters.supplier
+    ? summary.data?.by_supplier.find((row) => row.supplier === filters.supplier)?.supplier_name
+    : t("reportSelector.allSuppliers");
+  const chosen = [
+    t(`materialReports.${mode}.title`),
+    materialName ?? "…",
+    supplierName ?? "…",
+  ].join(" › ");
 
   function runExport(format: ExportFormat) {
     return exportReceipts({
@@ -98,6 +124,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
 
   return (
     <div className="space-y-4">
+      <ReportSelector summary={chosen} />
       <ListHeader
         title={t(`materialReports.${mode}.title`)}
         subtitle={t(`materialReports.${mode}.subtitle`)}
@@ -169,7 +196,116 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       ) : (
         <CostReport data={summary.data} />
       )}
+
+      {(summary.data?.total_receipts ?? 0) > 0 && <ReportRecords filters={filters} />}
     </div>
+  );
+}
+
+const RECORDS_SHOWN = 10;
+const THUMBNAILS = 3;
+
+/**
+ * The deliveries behind the figures, newest first, with their photographs
+ * (图7 「相关照片」). Each row opens the delivery itself, where every photo
+ * is shown whole with its watermark.
+ */
+function ReportRecords({ filters }: { filters: Record<string, string | undefined> }) {
+  const t = useTranslations();
+  const df = useDateFormat();
+  const records = useQuery({
+    queryKey: ["receipts", "report-records", filters],
+    queryFn: () =>
+      // Newest first is the endpoint's own order (`-captured_at`).
+      getReceipts({ ...filters, page_size: RECORDS_SHOWN }),
+  });
+  const rows = records.data?.results ?? [];
+  return (
+    <ReportTable
+      title={t("materialReports.records.title", {
+        shown: rows.length,
+        total: records.data?.count ?? 0,
+      })}
+    >
+      <QueryFailedNote query={records} what={t("materialReports.records.what")} />
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t("receipts.field.capturedAt")}</TableHead>
+            <TableHead>{t("receipts.field.receiptNo")}</TableHead>
+            <TableHead>{t("receipts.field.supplier")}</TableHead>
+            <TableHead>{t("receipts.field.materialName")}</TableHead>
+            <TableHead className="text-right">{t("receipts.field.quantity")}</TableHead>
+            <TableHead>{t("materialReports.records.photos")}</TableHead>
+            <TableHead className="text-right">{t("materialReports.records.open")}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell className="tabular text-muted-foreground">{df.dateTime(row.captured_at)}</TableCell>
+              <TableCell className="tabular font-medium">{row.receipt_no}</TableCell>
+              <TableCell>{row.supplier_name}</TableCell>
+              <TableCell>{row.material_name}</TableCell>
+              <TableCell className="tabular text-right">
+                {row.quantity} {t(`receipts.unit.${row.unit}`)}
+              </TableCell>
+              <TableCell>
+                <RecordPhotos record={row} />
+              </TableCell>
+              <TableCell className="text-right">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/receipts/${row.id}`}>{t("materialReports.records.open")}</Link>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </ReportTable>
+  );
+}
+
+/** Up to three thumbnails, read from the delivery only when it has any. */
+function RecordPhotos({ record }: { record: MaterialReceipt }) {
+  const t = useTranslations();
+  const count = record.photo_count ?? 0;
+  const detail = useQuery({
+    queryKey: ["receipts", "detail", record.id],
+    queryFn: () => getReceipt(record.id),
+    enabled: count > 0,
+    staleTime: 60_000,
+  });
+  if (count === 0) {
+    return <span className="text-xs text-muted-foreground">{t("materialReports.records.noPhotos")}</span>;
+  }
+  if (detail.isError) {
+    return <span className="text-xs text-muted-foreground">{t("materialReports.records.photosFailed", { count })}</span>;
+  }
+  const photos = (detail.data?.photos ?? []).slice(0, THUMBNAILS);
+  return (
+    <span className="flex items-center gap-1">
+      {photos.map((photo) => (
+        <a
+          key={photo.id}
+          href={photo.watermarked || photo.image}
+          target="_blank"
+          rel="noreferrer"
+          className="relative block size-10 overflow-hidden rounded border bg-muted"
+        >
+          <Image
+            src={photo.watermarked || photo.image}
+            alt={photo.caption || record.receipt_no}
+            fill
+            unoptimized
+            className="object-cover"
+          />
+        </a>
+      ))}
+      {count > photos.length && (
+        <span className="text-xs text-muted-foreground">+{count - photos.length}</span>
+      )}
+    </span>
   );
 }
 

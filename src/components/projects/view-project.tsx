@@ -305,7 +305,7 @@ function ProjectStatistics({ projectId }: { projectId: string }) {
         ["progress_records", statistics.data.totals.progress_records, ClipboardCheck, "/progress"],
         ["safety_incidents", statistics.data.totals.safety_incidents, ShieldAlert, "/hazard-rectifications"],
         ["attendance_events", statistics.data.totals.attendance_events, CalendarDays, "/attendance"],
-        ["waste_dispatches", statistics.data.totals.waste_dispatches, Truck, "/dispatches"],
+        ["waste_dispatches", statistics.data.totals.waste_dispatches, Truck, "/waste-clearance?kind=dispatch"],
         ["consultant_applications", statistics.data.totals.consultant_applications, BadgeCheck, "/consultant-applications"],
         ["field_tasks", statistics.data.totals.field_tasks, UserCog, "/field-tasks"],
         ["photos", statistics.data.totals.photos, Camera, "/evidence"],

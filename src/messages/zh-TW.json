@@ -1195,12 +1195,6 @@
       "summary": "稱重統計"
     }
   },
-  "adminModuleLanding": {
-    "cardSubtitle": "進入{module}，查看和管理相關資料與業務流程。",
-    "noResults": "此模塊沒有相符的功能",
-    "searchPlaceholder": "搜索此模塊的功能",
-    "sectionLabel": "可用功能"
-  },
   "adminNotifications": {
     "action": {
       "remove": "移除",
@@ -3061,7 +3055,7 @@
       "MATERIAL_RECEIPT": "材料進場",
       "MATERIAL_OUTGOING": "材料出場",
       "EQUIPMENT_MOVEMENT": "設備進出",
-      "HAZARD": "隱患整改",
+      "HAZARD": "隱患整改 / EHS",
       "WASTE_OUTGOING": "環保材料出場申請",
       "DISPOSAL_REQUEST": "工地清運",
       "PROGRESS": "工程進度",
@@ -3087,7 +3081,7 @@
       "archived": "已看"
     },
     "subtitle": "所有已完成的記錄，等你看過。",
-    "title": "總欄目",
+    "title": "現場記錄中心",
     "toast": {
       "archived": "已為你標成「看過了」。"
     },
@@ -3099,7 +3093,8 @@
       "closed": "已歸檔",
       "notApplicable": "不需要歸檔"
     },
-    "notInQueue": "這筆記錄還沒完成，還不在你的待看清單裡。完成以後才可以標「看過了」。"
+    "notInQueue": "這筆記錄還沒完成，還不在你的待看清單裡。完成以後才可以標「看過了」。",
+    "categoryManagement": "分類管理"
   },
   "assets": {
     "category": {
@@ -3138,17 +3133,17 @@
   },
   "attendance": {
     "clock": {
-      "action": "考勤打卡",
+      "action": "人員進場打卡",
       "captureLocation": "獲取 GPS",
-      "confirm": "保存考勤",
+      "confirm": "保存進出場記錄",
       "locationCaptured": "已獲取 GPS",
       "locationError": "無法獲取 GPS。請允許瀏覽器定位權限，確認使用 HTTPS 後再試。",
-      "locationRequired": "請先獲取 GPS，才能保存考勤。",
+      "locationRequired": "請先獲取 GPS，才能保存進出場記錄。",
       "locationUnavailable": "此瀏覽器不支持定位服務。",
-      "projectRequired": "請先選擇項目，才能保存考勤。",
-      "title": "記錄考勤"
+      "projectRequired": "請先選擇項目，才能保存進出場記錄。",
+      "title": "記錄人員進場"
     },
-    "count": "共 {count} 條考勤記錄",
+    "count": "共 {count} 條人員進場記錄",
     "event": {
       "CLOCK_IN": "上班打卡",
       "CLOCK_OUT": "下班打卡"
@@ -3171,10 +3166,10 @@
       "notMatched": "沒有匹配圍欄",
       "note": "備註",
       "originalAt": "原始發生時間",
-      "photoAlt": "考勤照片",
+      "photoAlt": "人員進場照片",
       "project": "項目",
       "recordedAt": "系統記錄時間",
-      "title": "考勤證據詳情",
+      "title": "人員進場證據詳情",
       "uploadedAt": "上傳時間",
       "view": "查看證據",
       "worker": "人員"
@@ -3193,9 +3188,9 @@
       "allProjects": "所有項目",
       "project": "選擇項目"
     },
-    "title": "考勤",
+    "title": "人員進場記錄",
     "toast": {
-      "recorded": "考勤已記錄"
+      "recorded": "人員進場已記錄"
     }
   },
   "audit": {
@@ -3946,7 +3941,7 @@
       "equipment": "設備分類",
       "progress": "工程進度分類",
       "phase": "施工階段",
-      "ehs": "隱患整改分類",
+      "ehs": "隱患整改 / EHS 分類",
       "recycle": "環保材料出場分類",
       "debris": "工地清運分類",
       "consultant": "顧問資料分類",
@@ -5274,7 +5269,7 @@
       "equipmentExpiring": "證書即將到期"
     },
     "personnel": {
-      "empty": "今天沒有考勤記錄。",
+      "empty": "今天沒有人員進場記錄。",
       "geofenceFailures": "{count} 次超出圍欄",
       "subtitle": "今天共 {workers} 名人員到過場。",
       "title": "人員進出",
@@ -5389,14 +5384,12 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交",
       "VERIFIED": "已核實"
+    },
+    "priority": {
+      "title": "待處理事項",
+      "showAll": "顯示全部 {count} 項",
+      "showFewer": "收起"
     }
-  },
-  "contractorModuleLanding": {
-    "cardSubtitle": "進入{action}，查看記錄並完成下一步。",
-    "chooseAction": "選擇工作區域",
-    "noActions": "此賬號暫時沒有可用工作區域。",
-    "searchPlaceholder": "搜索此工作區域",
-    "subtitle": "從下面選擇工作區域，完成{module}相關流程。"
   },
   "contractorOps": {
     "action": {
@@ -5802,47 +5795,6 @@
     "title": "建築商合作方",
     "unlimitedProjects": "不限項目"
   },
-  "contractorReportCenter": {
-    "description": {
-      "attendance": "包含 GPS 與照片的上下班記錄。",
-      "consultant": "顧問申請、證據、審核人及最終決定。",
-      "dispatches": "廢料訂單及當前流程狀態。",
-      "disposals": "清運申請與外部執行證據。",
-      "equipment": "設備進退場、操作員、DO 與照片數量。",
-      "history": "永久記錄每次報表的生成人員和時間。",
-      "materialCost": "已記錄價格的材料進場價值。",
-      "materialQuantity": "按單位和材料查看進場數量。",
-      "photos": "按項目、來源、上傳人、日期和 GPS 查詢全部永久照片證據。",
-      "progress": "按施工階段查看進度、確認與照片證據。",
-      "projectRecords": "公司有權限查看的項目。",
-      "recycling": "統一查看工地清運與回收訂單流程。",
-      "safety": "安全問題、負責人及整改證據。",
-      "schedule": "計劃與實際進度及延誤天數。",
-      "target": "項目目標、達成情況與業務指標。",
-      "tasks": "現場任務與提交的照片證據。"
-    },
-    "open": "打開",
-    "subtitle": "查看當前項目資料，並進入詳細報表或證據頁面。",
-    "tile": {
-      "attendance": "考勤報表",
-      "consultant": "顧問申請",
-      "dispatches": "廢料訂單",
-      "disposals": "工地清運",
-      "equipment": "設備報表",
-      "history": "導出歷史",
-      "materialCost": "材料成本",
-      "materialQuantity": "材料數量",
-      "photos": "照片報表",
-      "progress": "進度報表",
-      "projects": "項目",
-      "recycling": "清運與回收",
-      "safety": "安全報表",
-      "schedule": "計劃對比",
-      "target": "目標達成",
-      "tasks": "現場任務"
-    },
-    "title": "建築商報表中心"
-  },
   "contractorReports": {
     "action": {
       "excel": "Excel",
@@ -5855,7 +5807,7 @@
       "application_date": "申請日期",
       "application_no": "申請編號",
       "application_type": "申請類型",
-      "attendance_events": "考勤記錄",
+      "attendance_events": "人員進場記錄",
       "captured_at": "拍攝時間",
       "category": "分類",
       "company": "公司",
@@ -5928,7 +5880,7 @@
       "worker": "人員"
     },
     "description": {
-      "attendance": "查看現場考勤、GPS 精度與圍欄結果。",
+      "attendance": "查看人員進場證據、GPS 精度與圍欄結果。",
       "consultant": "查看顧問申請、證據與最終結果。",
       "equipment": "查看設備進退場、文件、OCR 與照片。",
       "photos": "按項目、來源、上傳人、日期及 GPS 查詢永久照片證據賬本。",
@@ -5972,7 +5924,7 @@
       "title": "達成報表與導出"
     },
     "type": {
-      "attendance": "考勤與人員報表",
+      "attendance": "人員進場報表",
       "consultant": "顧問申請報表",
       "equipment": "設備進退場報表",
       "photos": "現場照片報表",
@@ -6172,7 +6124,7 @@
     "platformSubtitle": "平臺運行狀態與客戶活躍度",
     "recyclerSubtitle": "今日收運與稱重",
     "tile": {
-      "attendance": "考勤記錄",
+      "attendance": "人員進場記錄",
       "commissionRevenue": "佣金收入",
       "companies": "客戶公司",
       "contractors": "建築商",
@@ -6219,6 +6171,11 @@
       "RETURNED": "已退回",
       "SUBMITTED": "已提交",
       "VERIFIED": "已核實"
+    },
+    "scope": {
+      "label": "儀表板層級",
+      "company": "公司總部",
+      "project": "項目"
     }
   },
   "deductions": {
@@ -7431,7 +7388,7 @@
       "selfieReady": "自拍照已準備",
       "submit": "提交打卡",
       "takeSelfie": "拍攝自拍照",
-      "title": "考勤",
+      "title": "人員進場",
       "todayCount": "今天已有 {count} 條打卡記錄",
       "viewMap": "查看打卡位置"
     },
@@ -7488,9 +7445,9 @@
     "evidenceProgress": "已拍攝 {current} 張。前 {required} 張必拍照片缺一不可，也可以繼續新增其他照片。",
     "greeting": "你好，{name}",
     "home": {
-      "attendance": "考勤",
+      "attendance": "人員進場",
       "consultant": "顧問資料提交",
-      "disposal": "工地清運",
+      "disposal": "垃圾清運",
       "equipment": "設備進退場",
       "incidents": "報告事故",
       "location": "共享位置",
@@ -7498,12 +7455,12 @@
       "outgoing": "材料出場",
       "progress": "工程進度",
       "records": "現場記錄",
-      "safety": "隱患整改",
+      "safety": "隱患整改 / EHS",
       "subtitle": "按一個大按鈕就可以繼續。",
       "tasks": "我的任務",
       "title": "今天的工作",
       "waste": "環保材料出場申請",
-      "hazards": "隱患整改"
+      "hazards": "隱患整改 / EHS"
     },
     "identity": {
       "company": "公司：{company}",
@@ -7614,14 +7571,14 @@
       "unloading": "2. 材料卸貨"
     },
     "nav": {
-      "attendance": "考勤",
-      "disposal": "工地清運",
+      "attendance": "人員進場",
+      "disposal": "垃圾清運",
       "home": "首頁",
       "incidents": "事故",
       "location": "位置",
       "records": "現場記錄",
       "tasks": "任務",
-      "hazards": "隱患整改"
+      "hazards": "隱患整改 / EHS"
     },
     "notifications": {
       "empty": "目前沒有新通知",
@@ -7634,12 +7591,12 @@
     },
     "records": {
       "consultant": "顧問資料提交",
-      "disposal": "工地清運",
+      "disposal": "垃圾清運",
       "equipment": "設備進退場",
       "material": "材料進場",
       "outgoing": "材料出場",
       "progress": "工程進度",
-      "safety": "隱患整改",
+      "safety": "隱患整改 / EHS",
       "subtitle": "先選擇工作，再拍攝系統要求的照片。",
       "title": "現場記錄",
       "waste": "環保材料出場申請",
@@ -7674,7 +7631,7 @@
       "OTHER": "其他",
       "PHOTO": "現場記錄",
       "PROGRESS": "工程進度",
-      "SAFETY": "隱患整改",
+      "SAFETY": "隱患整改 / EHS",
       "WASTE": "環保材料出場申請"
     },
     "locationAccess": {
@@ -8463,6 +8420,14 @@
       "title": "材料數量報表",
       "totalDeliveries": "收貨總數",
       "unitNote": "數量始終按單位分組；噸、件和車次不會相加。"
+    },
+    "records": {
+      "title": "相關記錄及照片（{shown} / {total}）",
+      "what": "此報表的相關記錄",
+      "photos": "相關照片",
+      "open": "查看",
+      "noPhotos": "無照片",
+      "photosFailed": "{count} 張照片（載入失敗）"
     }
   },
   "monitoring": {
@@ -9096,7 +9061,7 @@
       "MATERIAL_RECEIPT": "材料進場",
       "SITE_RECORD": "現場記錄",
       "WASTE_OUTGOING": "環保材料出場申請",
-      "HAZARD": "隱患整改",
+      "HAZARD": "隱患整改 / EHS",
       "PROGRESS": "工程進度",
       "DRIVER_TRIP": "運輸任務",
       "MATERIAL_OUTGOING": "材料出場",
@@ -9177,7 +9142,7 @@
     "announcements": "公告",
     "approvals": "審批流程",
     "asset_management": "資產管理",
-    "attendance": "考勤",
+    "attendance": "人員進場",
     "auditLogs": "審計日誌",
     "audit_log_center": "操作日誌",
     "billing_commission": "賬單與佣金",
@@ -9204,7 +9169,7 @@
     "evidence": "證據檔案",
     "field_tasks": "現場任務",
     "gate": "地磅門口",
-    "geofences": "工地電子圍欄",
+    "geofences": "電子圍欄 / 人員進場",
     "group": {
       "customers": "客戶",
       "finance": "財務",
@@ -9215,7 +9180,7 @@
       "weighing": "稱重",
       "tools": "公共工具"
     },
-    "hazard_rectification": "隱患整改",
+    "hazard_rectification": "隱患整改 / EHS",
     "incoming": "待收貨",
     "integrations": "系統集成",
     "inventory_management": "庫存管理",
@@ -9240,7 +9205,7 @@
     "qr_code_management": "二維碼管理",
     "receipts": "材料進場",
     "recycler_review": "回收商審核",
-    "recyclers": "合作回收商",
+    "recyclers": "環保材料管理",
     "recycling_records": "回收稱重記錄",
     "report_center": "報表中心",
     "reports": "報表",
@@ -9263,7 +9228,7 @@
       "apiGatewaySettings": "API Gateway 設置",
       "approvalCredentials": "審批憑證",
       "approvals": "審批記錄",
-      "archiveQueue": "總欄目",
+      "archiveQueue": "現場記錄中心",
       "assetActivity": "操作記錄",
       "assetAssignments": "領用與借用",
       "assetCategories": "資產類別",
@@ -9279,7 +9244,7 @@
       "assetReports": "資產報表",
       "assetSearch": "資產查詢",
       "assetTransfers": "資產調撥",
-      "attendanceRecords": "考勤記錄",
+      "attendanceRecords": "人員進場記錄",
       "auditExport": "日誌導出",
       "auditSearch": "審計記錄",
       "automaticBilling": "自動生成賬單",
@@ -9362,7 +9327,7 @@
       "dashboardSystemStatus": "實時系統狀態",
       "dashboardTrends": "數據統計圖表",
       "documentArchive": "文件歸檔",
-      "emergencyList": "緊急名單",
+      "emergencyList": "緊急在場名單",
       "evidenceArchive": "證據歸檔",
       "exceptionMonitoring": "異常監控",
       "expiryReminders": "到期提醒",
@@ -9371,7 +9336,7 @@
       "financialReports": "財務報表",
       "gateScanning": "門崗掃描",
       "geofenceSettings": "Geofence 設置",
-      "hazardRectifications": "隱患整改",
+      "hazardRectifications": "隱患整改 / EHS",
       "immutableAudit": "永久記錄",
       "incidentReports": "事故上報",
       "integrationSettings": "系統集成",
@@ -9488,7 +9453,9 @@
       "workforceGps": "人員實時位置",
       "myTasks": "我的待辦",
       "consultantSettings": "顧問設定",
-      "sundryClaims": "雜費報銷"
+      "sundryClaims": "雜費報銷",
+      "materialReports": "材料報表",
+      "wasteClearance": "垃圾清運"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -9512,7 +9479,8 @@
     "weighing_records": "稱重記錄",
     "yards": "回收場",
     "waitingForYou": "{count} 項等你處理",
-    "waitingUnknown": "待處理數量沒有載入，無法知道有沒有事情在等你"
+    "waitingUnknown": "待處理數量沒有載入，無法知道有沒有事情在等你",
+    "materialManagement": "材料管理"
   },
   "notifications": {
     "compose": {
@@ -9629,7 +9597,7 @@
   },
   "offline": {
     "kind": {
-      "ATTENDANCE": "考勤打卡",
+      "ATTENDANCE": "人員進場打卡",
       "CATEGORY_EVIDENCE": "現場照片",
       "CONSULTANT_SUBMISSION": "顧問提交",
       "DISPATCH_ACCEPT": "接受訂單",
@@ -9791,7 +9759,7 @@
       "trouble": "地磅顯示離線：先看連線狀態頁的最後通訊時間。現場那頭的接線和參數速查在這台地磅的閘道面板裡。"
     },
     "company_management": {
-      "what": "開通新公司、審核公司資料、看每家公司的專案和合作回收商。沒有公司，平台上其他東西都無從談起。",
+      "what": "開通新公司、審核公司資料、看每家公司的專案和合作的回收商。沒有公司，平台上其他東西都無從談起。",
       "who": "持 company.view 的平台角色；開通新公司還要 company.create。",
       "need": "銀行那一步必須填齊銀行名稱、帳戶名稱、帳號；執照那一步必須上傳 PDF 或圖片。",
       "then": "系統會自動播下這家公司的初始角色，並給第一個管理員寄啟用信。",
@@ -10011,7 +9979,7 @@
       "trouble": "現場沒訊號沒關係：照拍照填，它會排隊，之後自動傳。存下來的位置是拍照當時的，不是補傳時的。"
     },
     "project_categories": {
-      "what": "管理每個業務欄目下面的分類：例如材料分類裡的混凝土、鋼筋，隱患整改分類裡的安全部整改。",
+      "what": "管理每個業務欄目下面的分類：例如材料分類裡的混凝土、鋼筋，隱患整改 / EHS 分類裡的安全部整改。",
       "who": "持 category.view。",
       "need": "新增分類要選業務、項目、編號和名稱，以及誰可以看到這個分類。",
       "then": "現場人員在手機上提交時就能選到它，後台也能把記錄歸進去。",
@@ -10656,7 +10624,7 @@
       "loadError": "無法載入項目統計。",
       "loading": "正在載入項目統計...",
       "metric": {
-        "attendance_events": "考勤記錄",
+        "attendance_events": "人員進場記錄",
         "consultant_applications": "顧問申請",
         "documents": "項目文件",
         "equipment_movements": "設備進出",
@@ -11677,7 +11645,7 @@
       "locationTimeout": "等不到 GPS 訊號。走到空曠一點的地方再試一次。",
       "locationUnavailable": "裝置拿不到位置。確認定位已開啟後再試一次。",
       "locationUnsupported": "這台裝置無法提供 GPS 位置。",
-      "noSafetyColumns": "這個專案還沒有隱患整改分類。到「分類管理」新增一個，隱患才歸得進去。"
+      "noSafetyColumns": "這個專案還沒有隱患整改 / EHS 分類。到「分類管理」新增一個，隱患才歸得進去。"
     },
     "new": "上報隱患",
     "severity": {
@@ -11763,7 +11731,7 @@
       "description": "拍攝完成後的現場照片、獲取 GPS，並說明已完成的工作。",
       "title": "提交整改證據"
     },
-    "title": "隱患整改",
+    "title": "隱患整改 / EHS",
     "toast": {
       "assigned": "已指派整改",
       "reviewed": "已保存驗收結果",
@@ -12412,9 +12380,9 @@
       "polygonChoiceHelp": "適合邊界不規則的工地",
       "primary": "主要區域",
       "redraw": "重新繪製",
-      "removeBody": "考勤與 GPS 將停止檢查此區域，原有位置歷史仍會保留。",
+      "removeBody": "人員進場與 GPS 將停止檢查此區域，原有位置歷史仍會保留。",
       "removeTitle": "移除這個圍欄？",
-      "subtitle": "管理考勤和人員實時位置所使用的全部有效工地區域。",
+      "subtitle": "管理人員進場和人員實時位置所使用的全部有效工地區域。",
       "title": "工地電子圍欄",
       "undoPoint": "撤銷上一個點",
       "useGps": "獲取當前 GPS",
@@ -13523,7 +13491,7 @@
       "title": "需要轉移的內容"
     },
     "warning": {
-      "description": "舊人員的照片、審批、考勤和操作記錄仍保留原姓名；接替人員只會取得目前權限和未完成工作。",
+      "description": "舊人員的照片、審批、人員進場和操作記錄仍保留原姓名；接替人員只會取得目前權限和未完成工作。",
       "title": "舊賬號會被停用"
     },
     "what": {
@@ -13795,7 +13763,7 @@
     },
     "assign": {
       "help": "選擇已綁定此項目的回收商。{reference} 的訂單會立即發送至對方系統。",
-      "noPartners": "此項目尚未綁定回收商。請先在「合作回收商」中綁定，再建立訂單。",
+      "noPartners": "此項目尚未綁定回收商。請先在「環保材料管理 › 回收商合作」中綁定，再建立訂單。",
       "partnersFailed": "無法載入回收合作商，所以選擇框是空的。這不代表你沒有合作商。",
       "title": "安排回收商"
     },
@@ -14250,7 +14218,7 @@
   "recordClosure": {
     "title": "確認歸檔",
     "action": "確認歸檔",
-    "help": "按下去就視為這件事已經完成並歸檔，所有人都看得到，總欄目裡會寫上你的名字和時間。系統不做任何前置判斷 —— 判斷由你負責。記錄不會搬走，還在原來的模組和分類裡；之後只能查看，不能再修改。以後有新問題請新建一條記錄。",
+    "help": "按下去就視為這件事已經完成並歸檔，所有人都看得到，現場記錄中心裡會寫上你的名字和時間。系統不做任何前置判斷 —— 判斷由你負責。記錄不會搬走，還在原來的模組和分類裡；之後只能查看，不能再修改。以後有新問題請新建一條記錄。",
     "notePlaceholder": "備註（可選）",
     "closedTitle": "已歸檔",
     "closedBy": "由 {name} 於 {when} 確認。本記錄已不能再修改。",
@@ -14429,5 +14397,48 @@
       "submit": "提交雜費報銷",
       "failed": "提交沒有成功，請再試一次。"
     }
+  },
+  "moduleHub": {
+    "nothingToOpen": "此模組中沒有您可以開啟的頁面。"
+  },
+  "pageSwitcher": {
+    "label": "切換頁面（目前：{page}）"
+  },
+  "reportSelector": {
+    "choose": "選擇報表",
+    "material": "材料",
+    "supplier": "供應商",
+    "allMaterials": "全部材料",
+    "allSuppliers": "全部供應商",
+    "materialsFailed": "無法載入材料列表。",
+    "suppliersFailed": "無法載入供應商列表。",
+    "noSuppliers": "此選擇還沒有進場記錄。"
+  },
+  "wasteClearance": {
+    "title": "垃圾清運",
+    "countDisposals": "工地清運 {count} 筆",
+    "countDispatches": "廢料訂單 {count} 筆",
+    "tab": {
+      "all": "全部",
+      "disposal": "工地清運",
+      "dispatch": "廢料訂單"
+    },
+    "kind": {
+      "disposal": "工地清運",
+      "dispatch": "廢料訂單"
+    },
+    "newDisposal": "新增清運申請",
+    "newDispatch": "新增廢料訂單",
+    "column": {
+      "kind": "類型",
+      "reference": "編號",
+      "status": "狀態",
+      "project": "項目",
+      "content": "廢料內容",
+      "at": "建立時間",
+      "open": "查看"
+    },
+    "pageOf": "第 {page} / {pages} 頁（每頁每種最多 10 筆）",
+    "lastPage": "已經是最後一頁。"
   }
 }

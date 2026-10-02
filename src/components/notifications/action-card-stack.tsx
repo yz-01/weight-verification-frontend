@@ -20,40 +20,33 @@
  * Not on the phone: a field worker is reminded on the home screen instead
  * (D-207), and a card over the camera would be in the way.
  *
- * Portalled to <body>. The stack is mounted inside the toolbar, and the toolbar
- * has `backdrop-blur`; a `backdrop-filter` makes an element the containing
- * block for its `position: fixed` descendants, so `bottom-4 right-4` meant the
- * bottom of the 56px toolbar and the cards grew upward off the top of the
- * screen - the customer saw only a sliver of 「点击进入处理」 and could not
- * click it.
+ * Docked, not floating (B01 「桌面及手机无内容遮挡」). The stack used to be
+ * `fixed` - bottom right on a desktop, across the bottom on a phone - and
+ * covered whatever was under it: the 查看 button in a table's last column, a
+ * form's submit. It now renders into a strip in the page layout under the
+ * content column (`TaskCardDockSlot`); the content gets shorter by the
+ * strip's height and scrolls as before, so nothing it holds is ever covered,
+ * open cards or not. Dialogs, sheets and confirm boxes open over the whole
+ * page, strip included, as they always did.
  *
- * Under every overlay (z-40): a dialog, sheet or confirm box opened on top of
- * the page must cover the cards, not the other way round - at z-[60] the stack
- * sat over a sheet's footer and hid the very buttons the task led to.
- *
- * An office account on a phone-sized screen gets one bar across the bottom
- * instead of a 22rem column of cards over the page: it opens on tap, and
- * closes again once a card is opened so the page it leads to is not covered.
+ * Open, it shows up to three cards side by side on a wide screen and one under
+ * the other on a narrow one. Collapsed, it is one bar. A phone-sized screen
+ * starts collapsed and collapses again once a card is opened, so the page it
+ * leads to gets the room.
  */
 
 import { BellRing, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 
+import { useTaskCardDock } from "@/components/notifications/task-card-dock";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { NotificationRow } from "@/interfaces/platform-ops";
 import { cn } from "@/lib/utils";
 
 const VISIBLE = 3;
-
-const noSubscription = () => () => {};
-
-/** True once rendering in the browser, where <body> exists to portal into. */
-function useIsClient() {
-  return useSyncExternalStore(noSubscription, () => true, () => false);
-}
 
 export function ActionCardStack({
   rows,
@@ -64,11 +57,11 @@ export function ActionCardStack({
 }) {
   const t = useTranslations("notifications.actionCards");
   const isMobile = useIsMobile();
-  const isClient = useIsClient();
+  const dock = useTaskCardDock();
   const [collapsedAt, setCollapsedAt] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const cards = rows.filter((row) => row.card === "ACTION");
-  if (cards.length === 0 || !isClient) return null;
+  if (cards.length === 0 || !dock) return null;
   const newest = cards.reduce((latest, row) => (row.created_at > latest ? row.created_at : latest), "");
   // A phone starts closed and stays closed until tapped; the desktop starts
   // open and reopens for anything newer than the collapse.
@@ -78,41 +71,42 @@ export function ActionCardStack({
   return createPortal(
     <aside
       aria-label={t("title")}
-      className={cn(
-        "fixed z-40 flex flex-col gap-2",
-        isMobile
-          ? "inset-x-3 bottom-[max(env(safe-area-inset-bottom),0.75rem)]"
-          : "bottom-4 right-4 w-[min(22rem,calc(100vw-2rem))]",
-      )}
+      className="flex flex-col gap-2 border-t bg-muted/40 px-3 pt-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] lg:px-5"
     >
-      <button
-        type="button"
-        aria-expanded={!collapsed}
-        title={collapsed ? t("expand") : t("collapse")}
-        onClick={toggle}
-        className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-lg border bg-card px-3 text-left shadow-lg transition hover:border-primary/40",
-          isMobile ? "min-h-11 py-2" : "py-1.5",
-        )}
-      >
-        <span className="flex items-center gap-2 text-xs font-semibold">
-          <BellRing className="size-4 shrink-0 text-primary" />
-          {t("count", { count: cards.length })}
-        </span>
-        <span className="sr-only">{collapsed ? t("expand") : t("collapse")}</span>
-        {collapsed ? (
-          <ChevronUp className="size-4 shrink-0 text-muted-foreground" />
-        ) : (
-          <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
-        )}
-      </button>
-      {!collapsed && (
-        <div
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          aria-expanded={!collapsed}
+          title={collapsed ? t("expand") : t("collapse")}
+          onClick={toggle}
           className={cn(
-            "flex flex-col gap-2 overflow-y-auto overscroll-contain",
-            isMobile ? "max-h-[55dvh]" : "max-h-[calc(100dvh-8rem)]",
+            "flex min-w-0 flex-1 items-center justify-between gap-2 rounded-md px-1 text-left transition hover:text-primary",
+            isMobile ? "min-h-11" : "min-h-7",
           )}
         >
+          <span className="flex items-center gap-2 text-xs font-semibold">
+            <BellRing className="size-4 shrink-0 text-primary" />
+            {t("count", { count: cards.length })}
+          </span>
+          <span className="sr-only">{collapsed ? t("expand") : t("collapse")}</span>
+          {collapsed ? (
+            <ChevronUp className="size-4 shrink-0 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+          )}
+        </button>
+        {!collapsed && cards.length > VISIBLE && (
+          <Link
+            href="/notifications/my-tasks"
+            onClick={() => isMobile && setMobileOpen(false)}
+            className="shrink-0 text-xs font-medium text-primary hover:underline"
+          >
+            {t("more", { count: cards.length - VISIBLE })}
+          </Link>
+        )}
+      </div>
+      {!collapsed && (
+        <div className="grid max-h-[40dvh] gap-2 overflow-y-auto overscroll-contain sm:grid-cols-2 xl:grid-cols-3">
           {cards.slice(0, VISIBLE).map((row) => (
             <button
               key={row.id}
@@ -121,28 +115,19 @@ export function ActionCardStack({
                 onOpen(row);
                 if (isMobile) setMobileOpen(false);
               }}
-              className="block w-full shrink-0 rounded-lg border border-primary/30 bg-card p-3 text-left shadow-lg transition hover:border-primary"
+              className="block w-full min-w-0 rounded-lg border border-primary/30 bg-card px-3 py-2 text-left shadow-sm transition hover:border-primary"
             >
-              <p className="text-sm font-semibold">{row.title}</p>
+              <p className="truncate text-sm font-semibold">{row.title}</p>
               {typeof row.data.project_name === "string" && row.data.project_name ? (
-                <p className="text-xs text-muted-foreground">{row.data.project_name}</p>
+                <p className="truncate text-xs text-muted-foreground">{row.data.project_name}</p>
               ) : null}
-              <p className="mt-1 line-clamp-2 text-xs">{row.message}</p>
-              <p className="mt-1 text-[11px] font-medium text-primary">{t("open")}</p>
+              <p className="mt-0.5 line-clamp-1 text-xs">{row.message}</p>
+              <p className="mt-0.5 text-[11px] font-medium text-primary">{t("open")}</p>
             </button>
           ))}
-          {cards.length > VISIBLE && (
-            <Link
-              href="/notifications/my-tasks"
-              onClick={() => isMobile && setMobileOpen(false)}
-              className="block shrink-0 rounded-lg border bg-card px-3 py-2 text-center text-xs font-medium text-primary shadow-lg hover:underline"
-            >
-              {t("more", { count: cards.length - VISIBLE })}
-            </Link>
-          )}
         </div>
       )}
     </aside>,
-    document.body,
+    dock,
   );
 }

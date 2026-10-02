@@ -22,6 +22,7 @@ import { ContractorDashboard } from "@/components/dashboard/contractor-dashboard
 import { RecyclerDashboard } from "@/components/recycler-business/recycler-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
+import { availableDashboardScopes } from "@/lib/dashboard-scopes";
 import {
   getDispatches,
   getProjects,
@@ -77,12 +78,15 @@ export function Dashboard({
         : "dashboard.recyclerSubtitle";
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="text-xl font-semibold text-foreground">
-          {t("dashboard.greeting", { name: user.full_name })}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t(subtitleKey)}</p>
+    <div className="space-y-4">
+      <header className="flex flex-wrap items-end justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-lg font-semibold text-foreground">
+            {t("dashboard.greeting", { name: user.full_name })}
+          </h1>
+          <p className="text-sm text-muted-foreground">{t(subtitleKey)}</p>
+        </div>
+        {user.portal === "MSE_TRACE" && <DashboardScopeSwitch />}
       </header>
 
       {user.portal === "MSE_ADMIN" ? (
@@ -102,6 +106,29 @@ export function Dashboard({
       )}
 
     </div>
+  );
+}
+
+/**
+ * 公司总部 / 项目 (Phase 9a). Reserved: drawn only once a second level
+ * exists, so today it renders nothing and takes no room.
+ */
+function DashboardScopeSwitch() {
+  const t = useTranslations("dashboard.scope");
+  const scopes = availableDashboardScopes();
+  if (scopes.length < 2) return null;
+  return (
+    <nav aria-label={t("label")} className="flex rounded-lg border bg-card p-0.5 text-sm shadow-sm">
+      {scopes.map((scope) => (
+        <Link
+          key={scope.key}
+          href={scope.href}
+          className="rounded-md px-3 py-1 font-medium text-muted-foreground hover:text-foreground"
+        >
+          {t(scope.labelKey)}
+        </Link>
+      ))}
+    </nav>
   );
 }
 
@@ -185,7 +212,7 @@ function TraceDashboard({ features }: { features: string[] }) {
         },
         {
           key: "dispatches",
-          href: "/dispatches",
+          href: "/waste-clearance?kind=dispatch",
           icon: Truck,
           value: dispatches.data?.count,
           loading: dispatches.isLoading,
@@ -239,7 +266,7 @@ function TraceDashboard({ features }: { features: string[] }) {
         },
         {
           key: "siteDisposals",
-          href: "/site-disposals",
+          href: "/waste-clearance?kind=disposal",
           icon: Recycle,
           value: disposals.data?.count,
           loading: disposals.isLoading,

@@ -6,6 +6,10 @@ import { useEffect } from "react";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardToolbar } from "@/components/layout/dashboard-toolbar";
+import {
+  TaskCardDockProvider,
+  TaskCardDockSlot,
+} from "@/components/notifications/task-card-dock";
 import { useAuth } from "@/components/providers/auth-provider";
 import { SessionUnreachable } from "@/components/shared/session-unreachable";
 import {
@@ -109,14 +113,18 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset className="h-dvh min-w-0 overflow-hidden">
-        <DashboardToolbar />
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 lg:px-8 lg:py-8">
-          {children}
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <TaskCardDockProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset className="h-dvh min-w-0 overflow-hidden">
+          <DashboardToolbar />
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-5">
+            {children}
+          </div>
+          {/* The task cards, in the layout rather than over it (B01). */}
+          <TaskCardDockSlot />
+        </SidebarInset>
+      </SidebarProvider>
+    </TaskCardDockProvider>
   );
 }

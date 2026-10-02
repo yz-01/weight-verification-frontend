@@ -1,7 +1,6 @@
 "use client";
 
-import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
-import { ContractorReportCenter } from "@/components/contractor-ops/contractor-report-center";
+import { ModuleHubRedirect } from "@/components/layout/module-hub-redirect";
 import { useAuth } from "@/components/providers/auth-provider";
 import { TransactionReport } from "@/components/reports/transaction-report";
 import { RecyclerReportCenter } from "@/components/reports/recycler-report-center";
@@ -9,9 +8,11 @@ import { RecyclerReportCenter } from "@/components/reports/recycler-report-cente
 export default function ReportsPage() {
   const { user } = useAuth();
   return user?.portal === "MSE_ADMIN" ? (
-    <AdminModuleLanding feature="report_center" />
+    <ModuleHubRedirect portal="MSE_ADMIN" feature="report_center" />
   ) : user?.portal === "MSE_TRACE" ? (
-    <ContractorReportCenter />
+    // The page of report cards is gone (A03, B04): reports are chosen from
+    // 【选择报表】 on every report page, and this address opens the first.
+    <ModuleHubRedirect portal="MSE_TRACE" feature="report_center" />
   ) : user?.portal === "MSE_SCRAP" ? (
     <RecyclerReportCenter />
   ) : (

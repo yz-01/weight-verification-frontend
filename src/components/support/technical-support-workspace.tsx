@@ -336,7 +336,7 @@ function Overview() {
                 <span className="block font-medium">
                   {t(`section.${item.section}.title`)}
                 </span>
-                <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
+                <span className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
                   {t(`section.${item.section}.subtitle`)}
                 </span>
               </span>

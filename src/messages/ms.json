@@ -1195,12 +1195,6 @@
       "summary": "Jumlah sesi timbangan"
     }
   },
-  "adminModuleLanding": {
-    "cardSubtitle": "Buka {module} untuk melihat dan mengurus rekod serta aliran kerja berkaitan.",
-    "noResults": "Tiada fungsi yang sepadan dalam modul ini",
-    "searchPlaceholder": "Cari dalam modul ini",
-    "sectionLabel": "Fungsi tersedia"
-  },
   "adminNotifications": {
     "action": {
       "remove": "Buang",
@@ -3061,12 +3055,12 @@
       "MATERIAL_RECEIPT": "Terimaan bahan",
       "MATERIAL_OUTGOING": "Bahan keluar tapak",
       "EQUIPMENT_MOVEMENT": "Peralatan masuk keluar",
-      "HAZARD": "Pembetulan bahaya",
+      "HAZARD": "Pembetulan bahaya / EHS",
       "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
       "DISPOSAL_REQUEST": "Pelupusan tapak",
       "PROGRESS": "Kemajuan tapak",
       "CONSULTANT_APPLICATION": "Permohonan perunding",
-      "ATTENDANCE_DAY": "Kehadiran, mengikut hari",
+      "ATTENDANCE_DAY": "Kemasukan tapak, mengikut hari",
       "SUNDRY_CLAIM": "Tuntutan pelbagai",
       "DELIVERY_NOTE": "Nota penghantaran",
       "SITE_RECORD": "Rekod tapak",
@@ -3087,7 +3081,7 @@
       "archived": "Sudah dilihat"
     },
     "subtitle": "Semua rekod yang selesai, menunggu anda melihatnya.",
-    "title": "Semua rekod",
+    "title": "Pusat Rekod Tapak",
     "toast": {
       "archived": "Ditanda sebagai sudah dilihat, untuk anda sahaja."
     },
@@ -3099,7 +3093,8 @@
       "closed": "Sudah diarkibkan",
       "notApplicable": "Tidak perlu diarkibkan"
     },
-    "notInQueue": "Rekod ini belum selesai, jadi ia belum ada dalam senarai untuk dilihat anda. Anda boleh tandakannya sebagai sudah dilihat selepas ia selesai."
+    "notInQueue": "Rekod ini belum selesai, jadi ia belum ada dalam senarai untuk dilihat anda. Anda boleh tandakannya sebagai sudah dilihat selepas ia selesai.",
+    "categoryManagement": "Pengurusan kategori"
   },
   "assets": {
     "category": {
@@ -3138,17 +3133,17 @@
   },
   "attendance": {
     "clock": {
-      "action": "Rekod kehadiran",
+      "action": "Rekod kemasukan tapak",
       "captureLocation": "Rakam GPS",
-      "confirm": "Simpan kehadiran",
+      "confirm": "Simpan rekod kemasukan",
       "locationCaptured": "GPS dirakam",
       "locationError": "GPS tidak dapat diperoleh. Benarkan akses lokasi, gunakan HTTPS dan cuba lagi.",
-      "locationRequired": "Rakam GPS sebelum menyimpan kehadiran.",
+      "locationRequired": "Rakam GPS sebelum menyimpan rekod kemasukan.",
       "locationUnavailable": "Pelayar ini tidak menyediakan perkhidmatan lokasi.",
-      "projectRequired": "Pilih projek sebelum menyimpan kehadiran.",
-      "title": "Rekod kehadiran"
+      "projectRequired": "Pilih projek sebelum menyimpan rekod kemasukan.",
+      "title": "Rekod kemasukan tapak"
     },
-    "count": "{count, plural, =0 {Tiada rekod kehadiran} other {# rekod kehadiran}}",
+    "count": "{count, plural, =0 {Tiada rekod kemasukan tapak} other {# rekod kemasukan tapak}}",
     "event": {
       "CLOCK_IN": "Daftar masuk",
       "CLOCK_OUT": "Daftar keluar"
@@ -3171,10 +3166,10 @@
       "notMatched": "Tiada geofence dipadankan",
       "note": "Catatan",
       "originalAt": "Masa asal acara",
-      "photoAlt": "Foto kehadiran",
+      "photoAlt": "Foto kemasukan tapak",
       "project": "Projek",
       "recordedAt": "Masa direkod",
-      "title": "Butiran bukti kehadiran",
+      "title": "Butiran bukti kemasukan tapak",
       "uploadedAt": "Masa dimuat naik",
       "view": "Lihat bukti",
       "worker": "Pekerja"
@@ -3193,9 +3188,9 @@
       "allProjects": "Semua projek",
       "project": "Pilih projek"
     },
-    "title": "Kehadiran",
+    "title": "Rekod kemasukan tapak",
     "toast": {
-      "recorded": "Kehadiran direkodkan"
+      "recorded": "Kemasukan tapak direkodkan"
     }
   },
   "audit": {
@@ -5274,7 +5269,7 @@
       "equipmentExpiring": "Dokumen akan luput"
     },
     "personnel": {
-      "empty": "Tiada kehadiran direkodkan hari ini.",
+      "empty": "Tiada kemasukan tapak direkodkan hari ini.",
       "geofenceFailures": "{count} di luar geofen",
       "subtitle": "{workers} pekerja berada di tapak hari ini.",
       "title": "Kemasukan dan keluar pekerja",
@@ -5389,14 +5384,12 @@
       "RETURNED": "Dikembalikan",
       "SUBMITTED": "Dihantar",
       "VERIFIED": "Disahkan"
+    },
+    "priority": {
+      "title": "Menunggu anda",
+      "showAll": "Tunjuk semua {count}",
+      "showFewer": "Tunjuk kurang"
     }
-  },
-  "contractorModuleLanding": {
-    "cardSubtitle": "Buka {action} untuk melihat rekod dan melengkapkan langkah seterusnya.",
-    "chooseAction": "Pilih ruang kerja",
-    "noActions": "Tiada ruang kerja tersedia untuk akaun ini.",
-    "searchPlaceholder": "Cari ruang kerja ini",
-    "subtitle": "Pilih ruang kerja di bawah untuk melengkapkan aliran kerja {module}."
   },
   "contractorOps": {
     "action": {
@@ -5802,47 +5795,6 @@
     "title": "Rakan kontraktor",
     "unlimitedProjects": "Projek tanpa had"
   },
-  "contractorReportCenter": {
-    "description": {
-      "attendance": "Rekod masuk dan keluar dengan GPS serta foto.",
-      "consultant": "Permohonan, perunding, bukti dan keputusan akhir.",
-      "dispatches": "Pesanan sisa dan status kitar hayatnya.",
-      "disposals": "Permintaan pelupusan dan bukti kerja luaran.",
-      "equipment": "Pergerakan peralatan, operator, DO dan foto.",
-      "history": "Rekod kekal siapa yang menjana setiap laporan.",
-      "materialCost": "Nilai bahan masuk yang mempunyai harga.",
-      "materialQuantity": "Bahan masuk mengikut unit dan bahan.",
-      "photos": "Cari semua bukti foto kekal mengikut projek, sumber, pemuat naik, tarikh dan GPS.",
-      "progress": "Kemajuan, pengesahan dan bukti foto mengikut fasa.",
-      "projectRecords": "Projek yang boleh dilihat oleh syarikat anda.",
-      "recycling": "Pelupusan tapak dan pesanan kitar semula dalam satu laporan.",
-      "safety": "Isu keselamatan, orang bertanggungjawab dan bukti pembetulan.",
-      "schedule": "Kemajuan dirancang berbanding sebenar dan hari kelewatan.",
-      "target": "Sasaran projek, pencapaian dan petunjuk operasi.",
-      "tasks": "Tugasan tapak dan bukti foto yang dihantar."
-    },
-    "open": "Buka",
-    "subtitle": "Semak rekod projek semasa dan buka halaman laporan atau bukti terperinci.",
-    "tile": {
-      "attendance": "Laporan kehadiran",
-      "consultant": "Permohonan perunding",
-      "dispatches": "Pesanan sisa",
-      "disposals": "Pelupusan tapak",
-      "equipment": "Laporan peralatan",
-      "history": "Sejarah eksport",
-      "materialCost": "Kos bahan",
-      "materialQuantity": "Kuantiti bahan",
-      "photos": "Laporan foto",
-      "progress": "Laporan kemajuan",
-      "projects": "Projek",
-      "recycling": "Pelupusan dan kitar semula",
-      "safety": "Laporan keselamatan",
-      "schedule": "Perbandingan jadual",
-      "target": "Pencapaian sasaran",
-      "tasks": "Tugasan tapak"
-    },
-    "title": "Pusat laporan kontraktor"
-  },
   "contractorReports": {
     "action": {
       "excel": "Excel",
@@ -5855,7 +5807,7 @@
       "application_date": "Tarikh permohonan",
       "application_no": "No. permohonan",
       "application_type": "Jenis permohonan",
-      "attendance_events": "Peristiwa kehadiran",
+      "attendance_events": "Peristiwa kemasukan tapak",
       "captured_at": "Masa diambil",
       "category": "Kategori",
       "company": "Syarikat",
@@ -5928,7 +5880,7 @@
       "worker": "Pekerja"
     },
     "description": {
-      "attendance": "Semak bukti kehadiran, ketepatan GPS dan geofence.",
+      "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
       "consultant": "Semak permohonan perunding, bukti dan keputusan akhir.",
       "equipment": "Semak keluar masuk peralatan, dokumen, OCR dan foto.",
       "photos": "Cari lejar bukti foto kekal mengikut projek, sumber, pemuat naik, tarikh dan GPS.",
@@ -5972,7 +5924,7 @@
       "title": "Laporan pencapaian dan eksport"
     },
     "type": {
-      "attendance": "Laporan kehadiran dan tenaga kerja",
+      "attendance": "Laporan kemasukan tapak dan tenaga kerja",
       "consultant": "Laporan permohonan perunding",
       "equipment": "Laporan pergerakan peralatan",
       "photos": "Laporan foto tapak",
@@ -6172,7 +6124,7 @@
     "platformSubtitle": "Kesihatan platform dan aktiviti pelanggan",
     "recyclerSubtitle": "Kutipan dan penimbangan hari ini",
     "tile": {
-      "attendance": "Rekod kehadiran",
+      "attendance": "Rekod kemasukan tapak",
       "commissionRevenue": "Hasil komisen",
       "companies": "Syarikat",
       "contractors": "Kontraktor",
@@ -6219,6 +6171,11 @@
       "RETURNED": "Dikembalikan",
       "SUBMITTED": "Dihantar",
       "VERIFIED": "Disahkan"
+    },
+    "scope": {
+      "label": "Tahap papan pemuka",
+      "company": "Ibu pejabat syarikat",
+      "project": "Projek"
     }
   },
   "deductions": {
@@ -6906,7 +6863,7 @@
       "asset_maintenance_not_found": "Rekod penyelenggaraan aset itu tidak dijumpai.",
       "asset_movement_not_found": "Pergerakan aset itu tidak dijumpai.",
       "asset_not_found": "Aset itu tidak dijumpai.",
-      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kehadiran memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
+      "attendance_gps_required": "Projek ini mempunyai sempadan tapak, jadi kemasukan tapak memerlukan lokasi anda. Hidupkan lokasi dan cuba lagi.",
       "attendance_outside_geofence": "Anda berada di luar pagar tapak, {distance} m dari yang terdekat. Dekati dan cuba lagi.",
       "audit_entry_not_found": "Rekod audit itu tidak dijumpai.",
       "below_minimum_payout": "Jumlah ini di bawah bayaran minimum.",
@@ -7424,15 +7381,15 @@
       },
       "getLocation": "Dapatkan GPS semasa",
       "locationReady": "GPS sedia",
-      "noRecords": "Tiada rekod kehadiran hari ini",
+      "noRecords": "Tiada rekod kemasukan tapak hari ini",
       "note": "Catatan (pilihan)",
       "openPhoto": "Buka foto kehadiran",
       "selectProject": "Pilih projek hari ini",
       "selfieReady": "Swafoto sedia",
-      "submit": "Hantar kehadiran",
+      "submit": "Hantar kemasukan tapak",
       "takeSelfie": "Ambil swafoto",
-      "title": "Kehadiran",
-      "todayCount": "{count} rekod kehadiran hari ini",
+      "title": "Kemasukan tapak",
+      "todayCount": "{count} rekod kemasukan tapak hari ini",
       "viewMap": "Lihat lokasi kehadiran"
     },
     "camera": {
@@ -7488,9 +7445,9 @@
     "evidenceProgress": "{current} foto telah diambil. Semua {required} foto wajib pertama mesti lengkap; foto tambahan boleh ditambah.",
     "greeting": "Hai, {name}",
     "home": {
-      "attendance": "Kehadiran",
+      "attendance": "Kemasukan tapak",
       "consultant": "Penyerahan perunding",
-      "disposal": "Pelupusan tapak",
+      "disposal": "Pembersihan sisa",
       "equipment": "Pergerakan peralatan",
       "incidents": "Laporkan insiden",
       "location": "Kongsi lokasi",
@@ -7498,12 +7455,12 @@
       "outgoing": "Bahan keluar",
       "progress": "Kemajuan projek",
       "records": "Rakam rekod tapak",
-      "safety": "Pembetulan bahaya",
+      "safety": "Pembetulan bahaya / EHS",
       "subtitle": "Tekan satu butang besar untuk teruskan.",
       "tasks": "Tugas saya",
       "title": "Kerja hari ini",
       "waste": "Permohonan bahan alam sekitar keluar",
-      "hazards": "Pembetulan bahaya"
+      "hazards": "Pembetulan bahaya / EHS"
     },
     "identity": {
       "company": "Syarikat: {company}",
@@ -7614,14 +7571,14 @@
       "unloading": "2. Bahan dipunggah"
     },
     "nav": {
-      "attendance": "Kehadiran",
-      "disposal": "Pelupusan tapak",
+      "attendance": "Kemasukan tapak",
+      "disposal": "Pembersihan sisa",
       "home": "Utama",
       "incidents": "Insiden",
       "location": "Lokasi",
       "records": "Rakam rekod tapak",
       "tasks": "Tugas",
-      "hazards": "Pembetulan bahaya"
+      "hazards": "Pembetulan bahaya / EHS"
     },
     "notifications": {
       "empty": "Tiada makluman baharu",
@@ -7634,12 +7591,12 @@
     },
     "records": {
       "consultant": "Penyerahan perunding",
-      "disposal": "Pelupusan tapak",
+      "disposal": "Pembersihan sisa",
       "equipment": "Pergerakan peralatan",
       "material": "Bahan masuk",
       "outgoing": "Bahan keluar",
       "progress": "Kemajuan projek",
-      "safety": "Pembetulan bahaya",
+      "safety": "Pembetulan bahaya / EHS",
       "subtitle": "Pilih kerja, kemudian ambil foto yang diperlukan.",
       "title": "Rakam rekod tapak",
       "waste": "Permohonan bahan alam sekitar keluar",
@@ -7674,13 +7631,13 @@
       "OTHER": "Lain-lain",
       "PHOTO": "Rakam rekod tapak",
       "PROGRESS": "Kemajuan projek",
-      "SAFETY": "Pembetulan bahaya",
+      "SAFETY": "Pembetulan bahaya / EHS",
       "WASTE": "Permohonan bahan alam sekitar keluar"
     },
     "locationAccess": {
       "why": {
         "title": "Ini memerlukan lokasi anda",
-        "body": "Penghantaran, kehadiran dan rekod tapak dicap dengan tempat ia berlaku, supaya pejabat tidak perlu menelefon untuk mengesahkan anda berada di tapak. Ia dibaca sekali sahaja, ketika anda menekan butang.",
+        "body": "Penghantaran, kemasukan tapak dan rekod tapak dicap dengan tempat ia berlaku, supaya pejabat tidak perlu menelefon untuk mengesahkan anda berada di tapak. Ia dibaca sekali sahaja, ketika anda menekan butang.",
         "allow": "Benarkan lokasi",
         "later": "Bukan sekarang"
       },
@@ -7730,7 +7687,7 @@
       "projects": "Projek anda",
       "linkedHazard": "Bahaya dalam pautan",
       "linkedTask": "Tugasan dalam pautan",
-      "attendance": "Kehadiran hari ini",
+      "attendance": "Kemasukan tapak hari ini",
       "myTasks": "Tugasan saya",
       "columns": "Kategori bahan",
       "suppliers": "Senarai pembekal",
@@ -8463,6 +8420,14 @@
       "title": "Laporan kuantiti bahan",
       "totalDeliveries": "Jumlah penghantaran",
       "unitNote": "Kuantiti kekal dikumpulkan mengikut unit; tan, unit dan muatan tidak dicampurkan."
+    },
+    "records": {
+      "title": "Penghantaran dan foto ({shown} daripada {total})",
+      "what": "penghantaran di sebalik laporan ini",
+      "photos": "Foto",
+      "open": "Lihat",
+      "noPhotos": "Tiada foto",
+      "photosFailed": "{count} foto (tidak dapat dimuatkan)"
     }
   },
   "monitoring": {
@@ -9096,7 +9061,7 @@
       "MATERIAL_RECEIPT": "Bahan masuk",
       "SITE_RECORD": "Rekod tapak",
       "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
-      "HAZARD": "Pembetulan bahaya",
+      "HAZARD": "Pembetulan bahaya / EHS",
       "PROGRESS": "Kemajuan projek",
       "DRIVER_TRIP": "Perjalanan",
       "MATERIAL_OUTGOING": "Bahan keluar",
@@ -9177,7 +9142,7 @@
     "announcements": "Pengumuman",
     "approvals": "Kelulusan",
     "asset_management": "Pengurusan Aset",
-    "attendance": "Kehadiran",
+    "attendance": "Kemasukan tapak",
     "auditLogs": "Log audit",
     "audit_log_center": "Log Audit",
     "billing_commission": "Pengebilan & Komisen",
@@ -9204,7 +9169,7 @@
     "evidence": "Arkib bukti",
     "field_tasks": "Tugas tapak",
     "gate": "Pintu timbang",
-    "geofences": "Geofence tapak",
+    "geofences": "Geofence / Kemasukan tapak",
     "group": {
       "customers": "Pelanggan",
       "finance": "Kewangan",
@@ -9215,7 +9180,7 @@
       "weighing": "Penimbangan",
       "tools": "Alat"
     },
-    "hazard_rectification": "Pembetulan bahaya",
+    "hazard_rectification": "Pembetulan bahaya / EHS",
     "incoming": "Muatan masuk",
     "integrations": "Integrasi sistem",
     "inventory_management": "Inventori",
@@ -9240,7 +9205,7 @@
     "qr_code_management": "Pengurusan Kod QR",
     "receipts": "Terimaan bahan",
     "recycler_review": "Semakan pengitar semula",
-    "recyclers": "Pengitar semula",
+    "recyclers": "Pengurusan bahan alam sekitar",
     "recycling_records": "Rekod kitar semula",
     "report_center": "Pusat Laporan",
     "reports": "Laporan",
@@ -9263,7 +9228,7 @@
       "apiGatewaySettings": "Tetapan API Gateway",
       "approvalCredentials": "Kelayakan kelulusan",
       "approvals": "Rekod kelulusan",
-      "archiveQueue": "Semua rekod",
+      "archiveQueue": "Pusat Rekod Tapak",
       "assetActivity": "Rekod aset",
       "assetAssignments": "Penyerahan dan pinjaman",
       "assetCategories": "Kategori aset",
@@ -9279,7 +9244,7 @@
       "assetReports": "Laporan aset",
       "assetSearch": "Carian aset",
       "assetTransfers": "Pemindahan",
-      "attendanceRecords": "Rekod kehadiran",
+      "attendanceRecords": "Rekod kemasukan tapak",
       "auditExport": "Eksport audit",
       "auditSearch": "Rekod audit",
       "automaticBilling": "Pengebilan automatik",
@@ -9362,7 +9327,7 @@
       "dashboardSystemStatus": "Status sistem langsung",
       "dashboardTrends": "Trend data",
       "documentArchive": "Arkib dokumen",
-      "emergencyList": "Senarai kecemasan",
+      "emergencyList": "Senarai kecemasan di tapak",
       "evidenceArchive": "Arkib bukti",
       "exceptionMonitoring": "Pemantauan pengecualian",
       "expiryReminders": "Peringatan tamat",
@@ -9371,7 +9336,7 @@
       "financialReports": "Laporan kewangan",
       "gateScanning": "Imbasan pintu masuk",
       "geofenceSettings": "Tetapan geofence",
-      "hazardRectifications": "Pembetulan bahaya",
+      "hazardRectifications": "Pembetulan bahaya / EHS",
       "immutableAudit": "Rekod kekal",
       "incidentReports": "Laporan insiden",
       "integrationSettings": "Integrasi sistem",
@@ -9488,7 +9453,9 @@
       "workforceGps": "Lokasi langsung tenaga kerja",
       "myTasks": "Tugasan saya",
       "consultantSettings": "Tetapan perunding",
-      "sundryClaims": "Tuntutan pelbagai"
+      "sundryClaims": "Tuntutan pelbagai",
+      "materialReports": "Laporan bahan",
+      "wasteClearance": "Pembersihan sisa"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -9512,7 +9479,8 @@
     "weighing_records": "Rekod penimbangan",
     "yards": "Tapak kitar semula",
     "waitingForYou": "{count} menunggu anda",
-    "waitingUnknown": "Tidak dapat memuatkan bilangan yang menunggu anda"
+    "waitingUnknown": "Tidak dapat memuatkan bilangan yang menunggu anda",
+    "materialManagement": "Pengurusan bahan"
   },
   "notifications": {
     "compose": {
@@ -9629,7 +9597,7 @@
   },
   "offline": {
     "kind": {
-      "ATTENDANCE": "Kehadiran",
+      "ATTENDANCE": "Kemasukan tapak",
       "CATEGORY_EVIDENCE": "Foto tapak",
       "CONSULTANT_SUBMISSION": "Penyerahan perunding",
       "DISPATCH_ACCEPT": "Terima pesanan",
@@ -9888,7 +9856,7 @@
       "what": "Sempadan yang dilukis di sekeliling tapak, yang menentukan sama ada daftar masuk dikira di tapak.",
       "who": "Pemegang geofence.view.",
       "need": "Pagar memerlukan projek, nama dan sekurang-kurangnya tiga titik sempadan. Butang menyatakan berapa lagi diperlukan.",
-      "then": "Selepas itu, kehadiran dinilai terhadapnya.",
+      "then": "Selepas itu, kemasukan tapak dinilai terhadapnya.",
       "trouble": "Pagar yang terlalu ketat menolak daftar masuk jujur di pintu. Beri ruang."
     },
     "hazard_rectification": {
@@ -10656,7 +10624,7 @@
       "loadError": "Aktiviti projek tidak dapat dimuatkan.",
       "loading": "Memuatkan aktiviti projek...",
       "metric": {
-        "attendance_events": "Rekod kehadiran",
+        "attendance_events": "Rekod kemasukan tapak",
         "consultant_applications": "Permohonan perunding",
         "documents": "Fail projek",
         "equipment_movements": "Pergerakan peralatan",
@@ -11763,7 +11731,7 @@
       "description": "Ambil foto kerja siap, rakam lokasi GPS dan terangkan kerja yang dilakukan.",
       "title": "Hantar bukti pembetulan"
     },
-    "title": "Pembetulan bahaya",
+    "title": "Pembetulan bahaya / EHS",
     "toast": {
       "assigned": "Pembetulan ditugaskan",
       "reviewed": "Semakan pembetulan disimpan",
@@ -12303,7 +12271,7 @@
       "address2": "Alamat baris 2",
       "allProjects": "Semua projek",
       "allStatuses": "Semua status",
-      "attendancePhoto": "Foto wajib untuk kehadiran",
+      "attendancePhoto": "Foto wajib untuk kemasukan tapak",
       "chooseProject": "Pilih projek",
       "chooseState": "Pilih negeri",
       "chooseWorker": "Pilih pekerja",
@@ -12412,9 +12380,9 @@
       "polygonChoiceHelp": "Untuk tapak yang mempunyai sempadan tidak sekata",
       "primary": "Zon utama",
       "redraw": "Lukis semula",
-      "removeBody": "Kehadiran dan GPS akan berhenti menyemak zon ini. Sejarah lokasi kekal disimpan.",
+      "removeBody": "Semakan kemasukan tapak dan GPS akan berhenti untuk zon ini. Sejarah lokasi kekal disimpan.",
       "removeTitle": "Buang sempadan ini?",
-      "subtitle": "Urus semua zon kerja yang digunakan untuk kehadiran dan lokasi langsung kakitangan.",
+      "subtitle": "Urus semua zon kerja yang digunakan untuk kemasukan tapak dan lokasi langsung kakitangan.",
       "title": "Geofence tapak",
       "undoPoint": "Undur titik",
       "useGps": "Guna GPS semasa",
@@ -13523,7 +13491,7 @@
       "title": "Perkara yang perlu dipindahkan"
     },
     "warning": {
-      "description": "Foto, kelulusan, kehadiran dan sejarah audit kekal di bawah nama asal. Pengganti hanya menerima akses semasa dan kerja belum selesai.",
+      "description": "Foto, kelulusan, kemasukan tapak dan sejarah audit kekal di bawah nama asal. Pengganti hanya menerima akses semasa dan kerja belum selesai.",
       "title": "Akaun lama akan digantung"
     },
     "what": {
@@ -13795,7 +13763,7 @@
     },
     "assign": {
       "help": "Pilih pengitar yang terikat pada projek ini. Pesanan untuk {reference} dihantar ke sistem mereka serta-merta.",
-      "noPartners": "Tiada pengitar terikat pada projek ini. Ikat satu di bawah Rakan pengitar sebelum mengeluarkan pesanan.",
+      "noPartners": "Tiada pengitar terikat pada projek ini. Ikat satu di bawah Pengurusan bahan alam sekitar › Rakan pengitar sebelum mengeluarkan pesanan.",
       "partnersFailed": "Rakan kitar semula tidak dapat dimuatkan, jadi pemilih kosong. Itu tidak bermakna anda tiada.",
       "title": "Tetapkan pengitar"
     },
@@ -14429,5 +14397,48 @@
       "submit": "Hantar tuntutan pelbagai",
       "failed": "Tuntutan tidak berjaya dihantar; sila cuba lagi."
     }
+  },
+  "moduleHub": {
+    "nothingToOpen": "Tiada apa-apa dalam modul ini yang boleh anda buka."
+  },
+  "pageSwitcher": {
+    "label": "Tukar halaman (kini: {page})"
+  },
+  "reportSelector": {
+    "choose": "Pilih laporan",
+    "material": "Bahan",
+    "supplier": "Pembekal",
+    "allMaterials": "Semua bahan",
+    "allSuppliers": "Semua pembekal",
+    "materialsFailed": "Senarai bahan tidak dapat dimuatkan.",
+    "suppliersFailed": "Senarai pembekal tidak dapat dimuatkan.",
+    "noSuppliers": "Belum ada penghantaran untuk pilihan ini."
+  },
+  "wasteClearance": {
+    "title": "Pembersihan sisa",
+    "countDisposals": "Pembersihan tapak: {count}",
+    "countDispatches": "Pesanan sisa: {count}",
+    "tab": {
+      "all": "Semua",
+      "disposal": "Pembersihan tapak",
+      "dispatch": "Pesanan sisa"
+    },
+    "kind": {
+      "disposal": "Pembersihan tapak",
+      "dispatch": "Pesanan sisa"
+    },
+    "newDisposal": "Permintaan pembersihan baharu",
+    "newDispatch": "Pesanan sisa baharu",
+    "column": {
+      "kind": "Jenis",
+      "reference": "Nombor",
+      "status": "Status",
+      "project": "Projek",
+      "content": "Sisa",
+      "at": "Dibuat",
+      "open": "Lihat"
+    },
+    "pageOf": "Halaman {page} daripada {pages} - sehingga 10 setiap jenis",
+    "lastPage": "Ini halaman terakhir."
   }
 }

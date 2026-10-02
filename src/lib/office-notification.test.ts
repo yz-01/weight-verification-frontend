@@ -18,7 +18,7 @@ describe("officeNotificationHref", () => {
     ).toBe("/material-outgoing?record=o1");
     expect(
       officeNotificationHref({ href: "/field-staff?tab=records&record=disposal", record_id: "d1" }),
-    ).toBe("/site-disposals?record=d1");
+    ).toBe("/waste-clearance?kind=disposal&record=d1");
     expect(officeNotificationHref({ href: "/field-staff?tab=home" })).toBeNull();
   });
 

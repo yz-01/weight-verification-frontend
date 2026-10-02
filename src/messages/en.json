@@ -1195,12 +1195,6 @@
       "summary": "The weighing session totals"
     }
   },
-  "adminModuleLanding": {
-    "cardSubtitle": "Open {module} to view and manage its related records and workflow.",
-    "noResults": "No matching function in this module",
-    "searchPlaceholder": "Search within this module",
-    "sectionLabel": "Available functions"
-  },
   "adminNotifications": {
     "action": {
       "remove": "Remove",
@@ -3061,12 +3055,12 @@
       "MATERIAL_RECEIPT": "Material receipts",
       "MATERIAL_OUTGOING": "Material leaving site",
       "EQUIPMENT_MOVEMENT": "Equipment in and out",
-      "HAZARD": "Hazard rectification",
+      "HAZARD": "Hazard rectification / EHS",
       "WASTE_OUTGOING": "Environmental material outgoing",
       "DISPOSAL_REQUEST": "Site disposal",
       "PROGRESS": "Site progress",
       "CONSULTANT_APPLICATION": "Consultant applications",
-      "ATTENDANCE_DAY": "Attendance, by day",
+      "ATTENDANCE_DAY": "Site entry, by day",
       "SUNDRY_CLAIM": "Sundry claims",
       "DELIVERY_NOTE": "Delivery note",
       "SITE_RECORD": "Site record",
@@ -3087,7 +3081,7 @@
       "archived": "Seen"
     },
     "subtitle": "Everything finished, waiting for you to look at it.",
-    "title": "All records",
+    "title": "Site Record Center",
     "toast": {
       "archived": "Marked as seen, for you only."
     },
@@ -3099,7 +3093,8 @@
       "closed": "Archived",
       "notApplicable": "Not archived by anyone"
     },
-    "notInQueue": "This record is not finished yet, so it is not on your to-see list. You can mark it as seen once it is finished."
+    "notInQueue": "This record is not finished yet, so it is not on your to-see list. You can mark it as seen once it is finished.",
+    "categoryManagement": "Category management"
   },
   "assets": {
     "category": {
@@ -3138,17 +3133,17 @@
   },
   "attendance": {
     "clock": {
-      "action": "Record attendance",
+      "action": "Record site entry",
       "captureLocation": "Capture GPS",
-      "confirm": "Save attendance",
+      "confirm": "Save entry record",
       "locationCaptured": "GPS captured",
       "locationError": "GPS could not be obtained. Allow location access, use HTTPS, and try again.",
-      "locationRequired": "Capture GPS before saving attendance.",
+      "locationRequired": "Capture GPS before saving the entry record.",
       "locationUnavailable": "This browser does not provide location services.",
-      "projectRequired": "Choose a project before saving attendance.",
-      "title": "Record attendance"
+      "projectRequired": "Choose a project before saving the entry record.",
+      "title": "Record site entry"
     },
-    "count": "{count, plural, =0 {No attendance records} one {# attendance record} other {# attendance records}}",
+    "count": "{count, plural, =0 {No site entry records} one {# site entry record} other {# site entry records}}",
     "event": {
       "CLOCK_IN": "Clock in",
       "CLOCK_OUT": "Clock out"
@@ -3167,14 +3162,14 @@
       "latitude": "Latitude",
       "longitude": "Longitude",
       "noLocation": "No GPS location was recorded.",
-      "noPhoto": "No attendance photo was uploaded.",
+      "noPhoto": "No site entry photo was uploaded.",
       "notMatched": "No geofence matched",
       "note": "Note",
       "originalAt": "Original event time",
-      "photoAlt": "Attendance photo",
+      "photoAlt": "Site entry photo",
       "project": "Project",
       "recordedAt": "Recorded time",
-      "title": "Attendance evidence",
+      "title": "Site entry evidence",
       "uploadedAt": "Uploaded time",
       "view": "View evidence",
       "worker": "Worker"
@@ -3193,9 +3188,9 @@
       "allProjects": "All projects",
       "project": "Choose project"
     },
-    "title": "Attendance",
+    "title": "Site entry records",
     "toast": {
-      "recorded": "Attendance recorded"
+      "recorded": "Site entry recorded"
     }
   },
   "audit": {
@@ -5274,7 +5269,7 @@
       "equipmentExpiring": "Paperwork expiring"
     },
     "personnel": {
-      "empty": "No attendance recorded today.",
+      "empty": "No site entries recorded today.",
       "geofenceFailures": "{count} outside the geofence",
       "subtitle": "{workers} people were on site today.",
       "title": "People in and out",
@@ -5389,14 +5384,12 @@
       "RETURNED": "Returned",
       "SUBMITTED": "Submitted",
       "VERIFIED": "Verified"
+    },
+    "priority": {
+      "title": "Waiting on you",
+      "showAll": "Show all {count}",
+      "showFewer": "Show fewer"
     }
-  },
-  "contractorModuleLanding": {
-    "cardSubtitle": "Open {action} to view records and complete the next step.",
-    "chooseAction": "Choose a work area",
-    "noActions": "No work areas are available for this account.",
-    "searchPlaceholder": "Search this work area",
-    "subtitle": "Use one of the work areas below to complete the {module} workflow."
   },
   "contractorOps": {
     "action": {
@@ -5802,47 +5795,6 @@
     "title": "Contractor partners",
     "unlimitedProjects": "Unlimited projects"
   },
-  "contractorReportCenter": {
-    "description": {
-      "attendance": "Clock-in and clock-out evidence with GPS and photo.",
-      "consultant": "Application, reviewer, evidence and final decision.",
-      "dispatches": "Waste loads and their current lifecycle state.",
-      "disposals": "Disposal requests and external execution evidence.",
-      "equipment": "Equipment movements, operators, DO and photo counts.",
-      "history": "Permanent record of who generated each report.",
-      "materialCost": "Priced deliveries and recorded material value.",
-      "materialQuantity": "Delivered materials grouped by unit and material.",
-      "photos": "Search all permanent site photos by project, source, uploader, date and GPS.",
-      "progress": "Progress, confirmation and photo evidence by phase.",
-      "projectRecords": "Projects available to your company.",
-      "recycling": "Site disposal and recycler order lifecycle in one report.",
-      "safety": "Safety issues, responsibility and rectification evidence.",
-      "schedule": "Planned versus actual progress and delay days.",
-      "target": "Project targets, achievement and operational indicators.",
-      "tasks": "Field tasks and submitted photo evidence."
-    },
-    "open": "Open",
-    "subtitle": "Review current project records and open the detailed report or evidence page.",
-    "tile": {
-      "attendance": "Attendance report",
-      "consultant": "Consultant applications",
-      "dispatches": "Waste dispatches",
-      "disposals": "Site disposal",
-      "equipment": "Equipment report",
-      "history": "Export history",
-      "materialCost": "Material cost",
-      "materialQuantity": "Material quantity",
-      "photos": "Photo report",
-      "progress": "Progress report",
-      "projects": "Projects",
-      "recycling": "Disposal and recycling",
-      "safety": "Safety report",
-      "schedule": "Schedule comparison",
-      "target": "Target achievement",
-      "tasks": "Site tasks"
-    },
-    "title": "Contractor report center"
-  },
   "contractorReports": {
     "action": {
       "excel": "Excel",
@@ -5855,7 +5807,7 @@
       "application_date": "Application date",
       "application_no": "Application no.",
       "application_type": "Application type",
-      "attendance_events": "Attendance events",
+      "attendance_events": "Site entry events",
       "captured_at": "Captured at",
       "category": "Category",
       "company": "Company",
@@ -5928,7 +5880,7 @@
       "worker": "Worker"
     },
     "description": {
-      "attendance": "Review site attendance evidence, GPS accuracy and geofence result.",
+      "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
       "consultant": "Review consultant applications, evidence and final outcomes.",
       "equipment": "Review equipment entries, exits, documents, OCR and photographs.",
       "photos": "Search the permanent photo evidence ledger by project, source, uploader, date and GPS.",
@@ -5972,7 +5924,7 @@
       "title": "Achievement report and export"
     },
     "type": {
-      "attendance": "Attendance and workforce report",
+      "attendance": "Site entry and workforce report",
       "consultant": "Consultant application report",
       "equipment": "Equipment movement report",
       "photos": "Site photo report",
@@ -6172,7 +6124,7 @@
     "platformSubtitle": "Platform health and customer activity",
     "recyclerSubtitle": "Today's collections and weighing",
     "tile": {
-      "attendance": "Attendance records",
+      "attendance": "Site entry records",
       "commissionRevenue": "Commission revenue",
       "companies": "Companies",
       "contractors": "Contractors",
@@ -6219,6 +6171,11 @@
       "RETURNED": "Returned",
       "SUBMITTED": "Submitted",
       "VERIFIED": "Verified"
+    },
+    "scope": {
+      "label": "Dashboard level",
+      "company": "Company HQ",
+      "project": "Project"
     }
   },
   "deductions": {
@@ -6906,7 +6863,7 @@
       "asset_maintenance_not_found": "That asset maintenance record could not be found.",
       "asset_movement_not_found": "That asset movement could not be found.",
       "asset_not_found": "That asset could not be found.",
-      "attendance_gps_required": "This project has a site boundary, so attendance needs your location. Turn location on and try again.",
+      "attendance_gps_required": "This project has a site boundary, so site entry needs your location. Turn location on and try again.",
       "attendance_outside_geofence": "You are outside the site fence, {distance} m from the nearest one. Move closer and try again.",
       "audit_entry_not_found": "That audit entry could not be found.",
       "below_minimum_payout": "This amount is below the minimum payout.",
@@ -7424,15 +7381,15 @@
       },
       "getLocation": "Get current GPS",
       "locationReady": "GPS ready",
-      "noRecords": "No attendance record today",
+      "noRecords": "No site entry record today",
       "note": "Note (optional)",
       "openPhoto": "Open check-in photo",
       "selectProject": "Select today's project",
       "selfieReady": "Selfie ready",
-      "submit": "Submit attendance",
+      "submit": "Submit site entry",
       "takeSelfie": "Take a selfie",
-      "title": "Attendance",
-      "todayCount": "{count, plural, =0 {No check-in today} one {# attendance record today} other {# attendance records today}}",
+      "title": "Site entry",
+      "todayCount": "{count, plural, =0 {No check-in today} one {# site entry record today} other {# site entry records today}}",
       "viewMap": "View check-in location"
     },
     "camera": {
@@ -7488,9 +7445,9 @@
     "evidenceProgress": "Completed {current} photo(s). The first {required} required photos must all be taken; more photos may be added.",
     "greeting": "Hello, {name}",
     "home": {
-      "attendance": "Attendance",
+      "attendance": "Site entry",
       "consultant": "Consultant submission",
-      "disposal": "Site disposal",
+      "disposal": "Waste clearance",
       "equipment": "Equipment movement",
       "incidents": "Report incident",
       "location": "Share location",
@@ -7498,12 +7455,12 @@
       "outgoing": "Material outgoing",
       "progress": "Project progress",
       "records": "Site record capture",
-      "safety": "Hazard rectification",
+      "safety": "Hazard rectification / EHS",
       "subtitle": "Tap one large button to continue.",
       "tasks": "My tasks",
       "title": "Today's work",
       "waste": "Environmental material outgoing",
-      "hazards": "Hazard rectification"
+      "hazards": "Hazard rectification / EHS"
     },
     "identity": {
       "company": "Company: {company}",
@@ -7614,14 +7571,14 @@
       "unloading": "2. Material unloading"
     },
     "nav": {
-      "attendance": "Attendance",
-      "disposal": "Site disposal",
+      "attendance": "Site entry",
+      "disposal": "Waste clearance",
       "home": "Home",
       "incidents": "Incidents",
       "location": "Location",
       "records": "Site record capture",
       "tasks": "Tasks",
-      "hazards": "Hazard rectification"
+      "hazards": "Hazard rectification / EHS"
     },
     "notifications": {
       "empty": "No new alerts",
@@ -7634,12 +7591,12 @@
     },
     "records": {
       "consultant": "Consultant submission",
-      "disposal": "Site disposal",
+      "disposal": "Waste clearance",
       "equipment": "Equipment movement",
       "material": "Material receipts",
       "outgoing": "Material outgoing",
       "progress": "Project progress",
-      "safety": "Hazard rectification",
+      "safety": "Hazard rectification / EHS",
       "subtitle": "Choose the work, then take the required photos.",
       "title": "Site record capture",
       "waste": "Environmental material outgoing",
@@ -7674,13 +7631,13 @@
       "OTHER": "Other",
       "PHOTO": "Site record capture",
       "PROGRESS": "Project progress",
-      "SAFETY": "Hazard rectification",
+      "SAFETY": "Hazard rectification / EHS",
       "WASTE": "Environmental material outgoing"
     },
     "locationAccess": {
       "why": {
         "title": "This needs your location",
-        "body": "Deliveries, attendance and site records are stamped with where they happened, so the office does not have to ring you to check you were on site. It is read once, when you press the button.",
+        "body": "Deliveries, site entry and site records are stamped with where they happened, so the office does not have to ring you to check you were on site. It is read once, when you press the button.",
         "allow": "Allow location",
         "later": "Not now"
       },
@@ -7730,7 +7687,7 @@
       "projects": "Your projects",
       "linkedHazard": "The hazard in the link",
       "linkedTask": "The task in the link",
-      "attendance": "Today's attendance",
+      "attendance": "Today's site entry",
       "myTasks": "My tasks",
       "columns": "The material categories",
       "suppliers": "The supplier list",
@@ -8463,6 +8420,14 @@
       "title": "Material quantity report",
       "totalDeliveries": "Total deliveries",
       "unitNote": "Quantities remain grouped by unit; tonnes, pieces and loads are never added together."
+    },
+    "records": {
+      "title": "Deliveries and photos ({shown} of {total})",
+      "what": "the deliveries behind this report",
+      "photos": "Photos",
+      "open": "View",
+      "noPhotos": "No photos",
+      "photosFailed": "{count} photos (could not load)"
     }
   },
   "monitoring": {
@@ -9096,7 +9061,7 @@
       "MATERIAL_RECEIPT": "Material receipts",
       "SITE_RECORD": "Site record",
       "WASTE_OUTGOING": "Environmental material outgoing",
-      "HAZARD": "Hazard rectification",
+      "HAZARD": "Hazard rectification / EHS",
       "PROGRESS": "Project progress",
       "DRIVER_TRIP": "Trip",
       "MATERIAL_OUTGOING": "Material outgoing",
@@ -9177,7 +9142,7 @@
     "announcements": "Announcements",
     "approvals": "Approvals",
     "asset_management": "Assets",
-    "attendance": "Attendance",
+    "attendance": "Site entry",
     "auditLogs": "Audit log",
     "audit_log_center": "Audit Log",
     "billing_commission": "Billing & Commission",
@@ -9204,7 +9169,7 @@
     "evidence": "Evidence archive",
     "field_tasks": "Site tasks",
     "gate": "Weighbridge gate",
-    "geofences": "Site geofences",
+    "geofences": "Geofence / Site entry",
     "group": {
       "customers": "Customers",
       "finance": "Finance",
@@ -9215,7 +9180,7 @@
       "weighing": "Weighing",
       "tools": "Tools"
     },
-    "hazard_rectification": "Hazard rectification",
+    "hazard_rectification": "Hazard rectification / EHS",
     "incoming": "Incoming loads",
     "integrations": "Integrations",
     "inventory_management": "Inventory",
@@ -9240,7 +9205,7 @@
     "qr_code_management": "QR Codes",
     "receipts": "Material receipts",
     "recycler_review": "Recycler review",
-    "recyclers": "Recyclers",
+    "recyclers": "Environmental materials",
     "recycling_records": "Recycling records",
     "report_center": "Report Center",
     "reports": "Reports",
@@ -9263,7 +9228,7 @@
       "apiGatewaySettings": "API Gateway settings",
       "approvalCredentials": "Approval credentials",
       "approvals": "Approval records",
-      "archiveQueue": "All records",
+      "archiveQueue": "Site Record Center",
       "assetActivity": "Asset records",
       "assetAssignments": "Assignment and borrowing",
       "assetCategories": "Asset categories",
@@ -9279,7 +9244,7 @@
       "assetReports": "Asset reports",
       "assetSearch": "Asset search",
       "assetTransfers": "Transfers",
-      "attendanceRecords": "Attendance records",
+      "attendanceRecords": "Site entry records",
       "auditExport": "Audit export",
       "auditSearch": "Audit records",
       "automaticBilling": "Automatic billing",
@@ -9362,7 +9327,7 @@
       "dashboardSystemStatus": "Live system status",
       "dashboardTrends": "Data trends",
       "documentArchive": "Document archive",
-      "emergencyList": "Emergency list",
+      "emergencyList": "Emergency on-site list",
       "evidenceArchive": "Evidence archive",
       "exceptionMonitoring": "Exception monitoring",
       "expiryReminders": "Expiry reminders",
@@ -9371,7 +9336,7 @@
       "financialReports": "Financial reports",
       "gateScanning": "Gate scanning",
       "geofenceSettings": "Geofence settings",
-      "hazardRectifications": "Hazard rectification",
+      "hazardRectifications": "Hazard rectification / EHS",
       "immutableAudit": "Permanent records",
       "incidentReports": "Incident reports",
       "integrationSettings": "System integrations",
@@ -9488,7 +9453,9 @@
       "workforceGps": "Workforce live location",
       "myTasks": "My tasks",
       "consultantSettings": "Consultant settings",
-      "sundryClaims": "Sundry claims"
+      "sundryClaims": "Sundry claims",
+      "materialReports": "Material reports",
+      "wasteClearance": "Waste clearance"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -9512,7 +9479,8 @@
     "weighing_records": "Weighing records",
     "yards": "Recycling yards",
     "waitingForYou": "{count} waiting for you",
-    "waitingUnknown": "Could not load how many are waiting for you"
+    "waitingUnknown": "Could not load how many are waiting for you",
+    "materialManagement": "Material management"
   },
   "notifications": {
     "compose": {
@@ -9629,7 +9597,7 @@
   },
   "offline": {
     "kind": {
-      "ATTENDANCE": "Attendance",
+      "ATTENDANCE": "Site entry",
       "CATEGORY_EVIDENCE": "Site photos",
       "CONSULTANT_SUBMISSION": "Consultant submission",
       "DISPATCH_ACCEPT": "Accept order",
@@ -9888,7 +9856,7 @@
       "what": "The boundary drawn around a site, which decides whether a clock-in counts as on site.",
       "who": "Holders of geofence.view.",
       "need": "A fence needs the project, a name and at least three boundary points. The button says how many more you still need.",
-      "then": "From then on, attendance is judged against it.",
+      "then": "From then on, site entry is judged against it.",
       "trouble": "A fence drawn too tight rejects honest clock-ins at the gate. Leave a margin."
     },
     "hazard_rectification": {
@@ -10656,7 +10624,7 @@
       "loadError": "Project activity could not be loaded.",
       "loading": "Loading project activity...",
       "metric": {
-        "attendance_events": "Attendance events",
+        "attendance_events": "Site entry events",
         "consultant_applications": "Consultant applications",
         "documents": "Project files",
         "equipment_movements": "Equipment movements",
@@ -11763,7 +11731,7 @@
       "description": "Photograph the completed work, capture its GPS location and describe what was done.",
       "title": "Submit rectification evidence"
     },
-    "title": "Hazard rectification",
+    "title": "Hazard rectification / EHS",
     "toast": {
       "assigned": "Rectification assigned",
       "reviewed": "Rectification review saved",
@@ -12303,7 +12271,7 @@
       "address2": "Address line 2",
       "allProjects": "All projects",
       "allStatuses": "All statuses",
-      "attendancePhoto": "Photo required for attendance",
+      "attendancePhoto": "Photo required for site entry",
       "chooseProject": "Choose project",
       "chooseState": "Choose state",
       "chooseWorker": "Choose worker",
@@ -12412,9 +12380,9 @@
       "polygonChoiceHelp": "For sites with an irregular boundary",
       "primary": "Primary zone",
       "redraw": "Draw again",
-      "removeBody": "Attendance and GPS will stop checking this zone. Existing location history is retained.",
+      "removeBody": "Site entry and GPS checks will stop for this zone. Existing location history is retained.",
       "removeTitle": "Remove this boundary?",
-      "subtitle": "Maintain every approved work zone used by attendance and live personnel location.",
+      "subtitle": "Maintain every approved work zone used by site entry and live personnel location.",
       "title": "Site geofences",
       "undoPoint": "Undo point",
       "useGps": "Use current GPS",
@@ -13523,7 +13491,7 @@
       "title": "What should be transferred"
     },
     "warning": {
-      "description": "Its photos, approvals, attendance and audit history stay under the original person's name. The replacement receives only current access and unfinished work.",
+      "description": "Its photos, approvals, site entry and audit history stay under the original person's name. The replacement receives only current access and unfinished work.",
       "title": "The old account will be suspended"
     },
     "what": {
@@ -13795,7 +13763,7 @@
     },
     "assign": {
       "help": "Choose a recycler bound to this project. The order for {reference} is sent to their system immediately.",
-      "noPartners": "No recycler is bound to this project yet. Bind one under Recycler partners before raising an order.",
+      "noPartners": "No recycler is bound to this project yet. Bind one under Environmental materials › Recycler partners before raising an order.",
       "partnersFailed": "The recycling partners could not be loaded, so the picker is empty. That does not mean you have none.",
       "title": "Assign a recycler"
     },
@@ -14429,5 +14397,48 @@
       "submit": "Submit sundry claim",
       "failed": "The claim did not go through; please try again."
     }
+  },
+  "moduleHub": {
+    "nothingToOpen": "There is nothing in this module you can open."
+  },
+  "pageSwitcher": {
+    "label": "Switch page (now: {page})"
+  },
+  "reportSelector": {
+    "choose": "Choose report",
+    "material": "Material",
+    "supplier": "Supplier",
+    "allMaterials": "All materials",
+    "allSuppliers": "All suppliers",
+    "materialsFailed": "The material list could not be loaded.",
+    "suppliersFailed": "The supplier list could not be loaded.",
+    "noSuppliers": "No deliveries for this choice yet."
+  },
+  "wasteClearance": {
+    "title": "Waste clearance",
+    "countDisposals": "Site clearance: {count}",
+    "countDispatches": "Waste orders: {count}",
+    "tab": {
+      "all": "All",
+      "disposal": "Site clearance",
+      "dispatch": "Waste orders"
+    },
+    "kind": {
+      "disposal": "Site clearance",
+      "dispatch": "Waste order"
+    },
+    "newDisposal": "New clearance request",
+    "newDispatch": "New waste order",
+    "column": {
+      "kind": "Type",
+      "reference": "Number",
+      "status": "Status",
+      "project": "Project",
+      "content": "Waste",
+      "at": "Raised",
+      "open": "View"
+    },
+    "pageOf": "Page {page} of {pages} - up to 10 of each type per page",
+    "lastPage": "This is the last page."
   }
 }

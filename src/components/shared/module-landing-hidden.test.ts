@@ -3,20 +3,24 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { PORTAL_NAVIGATION } from "@/lib/navigation";
+import { PORTAL_NAVIGATION, hubDestination, visibleNavigation } from "@/lib/navigation";
 
 /**
- * A module's landing page lists what its menu lists (T-388).
+ * What the menu hides stays hidden everywhere the menu is drawn (T-388).
  *
  * 「证据归档」 left the menu in T-345 (D-204) through `menuHidden`, and stayed on
  * the 文档档案 landing page as a card, because both landing pages read the
  * navigation children themselves and never looked at the flag. Lucas found it:
  * 「证据归档为什么还在？不是应该移除了吗？」
+ *
+ * The landing pages are gone now (A03), and the filtering lives in one place,
+ * `visibleNavigation`, which the sidebar, its cascade and the module search
+ * all read.
  */
 
 const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
 
-describe("landing pages skip what the menu hides", () => {
+describe("menus skip what the menu hides", () => {
   it("still has a hidden child to protect", () => {
     const hidden = PORTAL_NAVIGATION.MSE_TRACE.flatMap((item) => item.children ?? []).filter(
       (child) => child.menuHidden,
@@ -24,22 +28,22 @@ describe("landing pages skip what the menu hides", () => {
     expect(hidden.map((child) => child.href)).toContain("/evidence");
   });
 
-  it.each([
-    "src/components/contractor-ops/contractor-module-landing.tsx",
-    "src/components/admin/admin-module-landing.tsx",
-    // The sidebar was the half nobody checked: the cards stopped offering
-    // 「证据归档」 and the menu beside them went on listing it, which is the
-    // same report coming back a second time.
-    "src/components/layout/app-sidebar.tsx",
-  ])("%s filters on menuHidden", (file) => {
-    expect(read(file)).toMatch(/!child\.menuHidden/);
+  it("drops it from the visible navigation", () => {
+    const documents = visibleNavigation("MSE_TRACE", ["documents", "approvals", "evidence"], [
+      "audit.view",
+    ])
+      .flatMap((group) => group.items)
+      .find((item) => item.feature === "documents");
+    expect(documents?.children?.map((child) => child.href)).not.toContain("/evidence");
   });
 
-  it("leaves no unfiltered children list in the sidebar", () => {
-    // Filtering once and then rendering `item.children` anyway would pass the
-    // check above and still show the entry.
+  it("never forwards an old hub address to it", () => {
+    expect(hubDestination("MSE_TRACE", "documents", ["evidence"], ["audit.view"])).toBeNull();
+  });
+
+  it("leaves the sidebar no way to read the unfiltered registry", () => {
     const sidebar = read("src/components/layout/app-sidebar.tsx");
-    const uses = sidebar.match(/item\.children/g) ?? [];
-    expect(uses, "only the line that builds the filtered list may read it").toHaveLength(1);
+    expect(sidebar).not.toMatch(/PORTAL_NAVIGATION/);
+    expect(sidebar).toMatch(/visibleNavigation\(/);
   });
 });

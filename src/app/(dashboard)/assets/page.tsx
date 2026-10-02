@@ -1,5 +1,5 @@
-import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
+import { ModuleHubRedirect } from "@/components/layout/module-hub-redirect";
 
 export default function AssetsPage() {
-  return <AdminModuleLanding feature="asset_management" />;
+  return <ModuleHubRedirect portal="MSE_ADMIN" feature="asset_management" />;
 }

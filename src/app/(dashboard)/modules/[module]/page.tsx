@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { ContractorModuleLanding } from "@/components/contractor-ops/contractor-module-landing";
+import { ModuleHubRedirect } from "@/components/layout/module-hub-redirect";
 import type { PortalFeatureKey } from "@/lib/navigation";
 
 // No `categories`: 「现场资料」 is no longer a container (D-283). Its old
@@ -12,6 +12,11 @@ const REDIRECTS: Record<string, string> = {
   categories: "/category-management",
 };
 
+/*
+ * Each module's old card page (A03). The cards are gone; the address forwards
+ * to the module's first child this person can open. `safety` was an address
+ * of its own before 隐患整改 became the safety module, and goes there.
+ */
 const MODULE_FEATURES: Record<string, PortalFeatureKey> = {
   projects: "projects",
   suppliers: "suppliers",
@@ -19,7 +24,7 @@ const MODULE_FEATURES: Record<string, PortalFeatureKey> = {
   materials: "material_receipts",
   progress: "progress",
   recycling: "recyclers",
-  safety: "safety",
+  safety: "hazard_rectification",
   consultants: "consultant_applications",
   hazards: "hazard_rectification",
   documents: "documents",
@@ -40,5 +45,5 @@ export default function ContractorModulePage() {
   }, [redirect, router]);
   const feature = MODULE_FEATURES[params.module];
   if (redirect || !feature) return null;
-  return <ContractorModuleLanding feature={feature} />;
+  return <ModuleHubRedirect portal="MSE_TRACE" feature={feature} />;
 }

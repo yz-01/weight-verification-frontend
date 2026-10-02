@@ -62,7 +62,7 @@ test("the field staff tabs refuse none of their own requests", async ({
   await loginAsFieldStaff(page);
 
   const navigation = page.locator("nav").last();
-  for (const tab of ["Home", "Attendance", "Site record capture", "Hazard rectification"]) {
+  for (const tab of ["Home", "Site entry", "Site record capture", "Hazard rectification / EHS"]) {
     await navigation.getByRole("button", { name: tab, exact: true }).click();
     // Each tab's own calls go out before the next one is opened.
     await page.waitForLoadState("networkidle");

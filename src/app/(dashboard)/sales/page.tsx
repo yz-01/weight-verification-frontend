@@ -1,5 +1,5 @@
-import { AdminModuleLanding } from "@/components/admin/admin-module-landing";
+import { ModuleHubRedirect } from "@/components/layout/module-hub-redirect";
 
 export default function SalesPage() {
-  return <AdminModuleLanding feature="sales_commission" />;
+  return <ModuleHubRedirect portal="MSE_ADMIN" feature="sales_commission" />;
 }

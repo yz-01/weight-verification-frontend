@@ -1,12 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Inbox, X } from "lucide-react";
+import { Inbox, ListTree, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 import { ProjectFilter } from "@/components/contractor-ops/operations-workspaces";
+import { useAuth } from "@/components/providers/auth-provider";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,6 +90,8 @@ export function ArchiveQueue() {
   const t = useTranslations("archiveQueue");
   const root = useTranslations();
   const formatter = useDateFormat();
+  const { user } = useAuth();
+  const canManageCategories = user?.features.includes("project_categories") ?? false;
   const [state, setState] = useState<"pending" | "archived">("pending");
   // The second question on this screen (T-391): archived for everybody, by a
   // named person - not whether *this reader* has looked, which is `state`.
@@ -125,7 +129,22 @@ export function ArchiveQueue() {
 
   return (
     <div className="space-y-5">
-      <ListHeader title={t("title")} subtitle={t("subtitle")} />
+      <ListHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        action={
+          // B05: 「分类管理可以做在总栏目右上角，有一个分类管理的 button 点了直接
+          // 去到分类管理页面」. Only for whoever may open that page.
+          canManageCategories ? (
+            <Button asChild variant="outline" size="sm" className="rounded-full px-4">
+              <Link href="/category-management">
+                <ListTree className="h-4 w-4" />
+                {t("categoryManagement")}
+              </Link>
+            </Button>
+          ) : undefined
+        }
+      />
 
       {/* Said once, at the top, because it is the thing about this screen a
           reader will otherwise get wrong: their colleague's queue is not

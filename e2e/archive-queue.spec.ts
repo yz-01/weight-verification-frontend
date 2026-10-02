@@ -95,7 +95,7 @@ test("a confirmed record waits in the queue until this reader opens it", async (
   await page.goto("/archive-queue");
 
   // The unarchived half is what the screen opens on: it is the work.
-  await expect(page.getByRole("heading", { name: "All records" })).toBeVisible({
+  await expect(page.getByRole("heading", { name: "Site Record Center" })).toBeVisible({
     timeout: 20_000,
   });
   const row = page.getByRole("row", { name: new RegExp(phaseName) });
@@ -160,7 +160,7 @@ test("the module filter narrows the queue and its counts together", async ({
     "Site disposal",
     "Site progress",
     "Consultant applications",
-    "Attendance, by day",
+    "Site entry, by day",
   ]) {
     await expect(modules.getByRole("button", { name: new RegExp(`^${name}`) })).toBeVisible();
   }

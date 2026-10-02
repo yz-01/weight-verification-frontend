@@ -7,8 +7,8 @@
  * 『混凝土、钢筋、洋灰』这种分类项」. Every string that meant a category now says
  * 分类; this keeps it that way.
  *
- * Allowed: 总栏目 (all business entries' records), and 业务栏目 where a sentence
- * really means the business entry.
+ * Allowed: 业务栏目 where a sentence really means the business entry. 总栏目
+ * is 现场记录中心 now (B05), so it no longer needs an exception.
  */
 
 import { readFileSync } from "node:fs";
@@ -16,7 +16,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const ALLOWED = [/总栏目/g, /業務欄目|业务栏目/g, /總欄目/g];
+const ALLOWED = [/業務欄目|业务栏目/g];
 const WORD: Record<string, RegExp> = { zh: /栏目/, "zh-TW": /欄目/ };
 
 function strings(node: unknown, prefix = ""): [string, string][] {
