@@ -212,7 +212,7 @@ function TraceDashboard({ features }: { features: string[] }) {
         },
         {
           key: "dispatches",
-          href: "/dispatches",
+          href: "/waste-clearance?kind=dispatch",
           icon: Truck,
           value: dispatches.data?.count,
           loading: dispatches.isLoading,
@@ -266,7 +266,7 @@ function TraceDashboard({ features }: { features: string[] }) {
         },
         {
           key: "siteDisposals",
-          href: "/site-disposals",
+          href: "/waste-clearance?kind=disposal",
           icon: Recycle,
           value: disposals.data?.count,
           loading: disposals.isLoading,

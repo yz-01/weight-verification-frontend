@@ -9205,7 +9205,7 @@
     "qr_code_management": "QR Codes",
     "receipts": "Material receipts",
     "recycler_review": "Recycler review",
-    "recyclers": "Recyclers",
+    "recyclers": "Environmental materials",
     "recycling_records": "Recycling records",
     "report_center": "Report Center",
     "reports": "Reports",
@@ -9454,7 +9454,8 @@
       "myTasks": "My tasks",
       "consultantSettings": "Consultant settings",
       "sundryClaims": "Sundry claims",
-      "materialReports": "Material reports"
+      "materialReports": "Material reports",
+      "wasteClearance": "Waste clearance"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -13761,7 +13762,7 @@
     },
     "assign": {
       "help": "Choose a recycler bound to this project. The order for {reference} is sent to their system immediately.",
-      "noPartners": "No recycler is bound to this project yet. Bind one under Recycler partners before raising an order.",
+      "noPartners": "No recycler is bound to this project yet. Bind one under Environmental materials › Recycler partners before raising an order.",
       "partnersFailed": "The recycling partners could not be loaded, so the picker is empty. That does not mean you have none.",
       "title": "Assign a recycler"
     },
@@ -14411,5 +14412,32 @@
     "materialsFailed": "The material list could not be loaded.",
     "suppliersFailed": "The supplier list could not be loaded.",
     "noSuppliers": "No deliveries for this choice yet."
+  },
+  "wasteClearance": {
+    "title": "Waste clearance",
+    "countDisposals": "Site clearance: {count}",
+    "countDispatches": "Waste orders: {count}",
+    "tab": {
+      "all": "All",
+      "disposal": "Site clearance",
+      "dispatch": "Waste orders"
+    },
+    "kind": {
+      "disposal": "Site clearance",
+      "dispatch": "Waste order"
+    },
+    "newDisposal": "New clearance request",
+    "newDispatch": "New waste order",
+    "column": {
+      "kind": "Type",
+      "reference": "Number",
+      "status": "Status",
+      "project": "Project",
+      "content": "Waste",
+      "at": "Raised",
+      "open": "View"
+    },
+    "pageOf": "Page {page} of {pages} - up to 10 of each type per page",
+    "lastPage": "This is the last page."
   }
 }

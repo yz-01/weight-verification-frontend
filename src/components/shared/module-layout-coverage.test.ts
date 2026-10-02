@@ -91,7 +91,8 @@ const OFFICE_PAGES: Array<[string, string, string, string]> = [
   ["src/app/(dashboard)/site-equipment/page.tsx", "SiteEquipmentOffice", "src/components/contractor-ops/office-module-lists.tsx", "nav.submodule.siteEquipment"],
   ["src/app/(dashboard)/progress/page.tsx", "SiteProgressOffice", "src/components/contractor-ops/office-module-lists.tsx", "nav.submodule.progressRecords"],
   ["src/app/(dashboard)/waste-outgoing/page.tsx", "WasteOutgoingWorkspace", "src/components/contractor-ops/waste-outgoing-workspace.tsx", "nav.submodule.wasteOutgoing"],
-  ["src/app/(dashboard)/site-disposals/page.tsx", "SiteDisposalOffice", "src/components/contractor-ops/site-disposal-workspaces.tsx", "nav.submodule.siteDisposals"],
+  // 工地清运 is a tab of 垃圾清运 now (B08); its old address only forwards there.
+  ["src/components/contractor-ops/waste-clearance.tsx", "SiteDisposalOffice", "src/components/contractor-ops/site-disposal-workspaces.tsx", "nav.submodule.siteDisposals"],
   ["src/app/(dashboard)/sundry-claims/page.tsx", "SundryClaimsOffice", "src/components/sundry-claims/sundry-claims-office.tsx", "nav.submodule.sundryClaims"],
 ];
 

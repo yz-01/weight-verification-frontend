@@ -59,7 +59,7 @@ export function CreateDispatch({
       isEdit ? updateDispatch(dispatch.id, values) : createDispatch(values),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["dispatches"] });
-      router.push("/dispatches");
+      router.push("/waste-clearance?kind=dispatch");
     },
   });
 
@@ -128,7 +128,7 @@ export function CreateDispatch({
 
   return (
     <FormShell
-      backHref="/dispatches"
+      backHref="/waste-clearance?kind=dispatch"
       backLabel={t("dispatches.title")}
       title={isEdit ? t("dispatches.editTitle") : t("dispatches.createTitle")}
       isSubmitting={mutation.isPending}
@@ -316,7 +316,7 @@ export function EditDispatch({ id }: { id: string }) {
   if (isLoading) return <FormSkeleton sections={3} />;
   if (isError || !data) {
     return (
-      <LoadErrorCard backHref="/dispatches" backLabel={t("dispatches.title")} />
+      <LoadErrorCard backHref="/waste-clearance?kind=dispatch" backLabel={t("dispatches.title")} />
     );
   }
   return <CreateDispatch dispatch={data} />;

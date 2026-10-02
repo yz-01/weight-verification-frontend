@@ -9205,7 +9205,7 @@
     "qr_code_management": "Pengurusan Kod QR",
     "receipts": "Terimaan bahan",
     "recycler_review": "Semakan pengitar semula",
-    "recyclers": "Pengitar semula",
+    "recyclers": "Pengurusan bahan alam sekitar",
     "recycling_records": "Rekod kitar semula",
     "report_center": "Pusat Laporan",
     "reports": "Laporan",
@@ -9454,7 +9454,8 @@
       "myTasks": "Tugasan saya",
       "consultantSettings": "Tetapan perunding",
       "sundryClaims": "Tuntutan pelbagai",
-      "materialReports": "Laporan bahan"
+      "materialReports": "Laporan bahan",
+      "wasteClearance": "Pembersihan sisa"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -13761,7 +13762,7 @@
     },
     "assign": {
       "help": "Pilih pengitar yang terikat pada projek ini. Pesanan untuk {reference} dihantar ke sistem mereka serta-merta.",
-      "noPartners": "Tiada pengitar terikat pada projek ini. Ikat satu di bawah Rakan pengitar sebelum mengeluarkan pesanan.",
+      "noPartners": "Tiada pengitar terikat pada projek ini. Ikat satu di bawah Pengurusan bahan alam sekitar › Rakan pengitar sebelum mengeluarkan pesanan.",
       "partnersFailed": "Rakan kitar semula tidak dapat dimuatkan, jadi pemilih kosong. Itu tidak bermakna anda tiada.",
       "title": "Tetapkan pengitar"
     },
@@ -14411,5 +14412,32 @@
     "materialsFailed": "Senarai bahan tidak dapat dimuatkan.",
     "suppliersFailed": "Senarai pembekal tidak dapat dimuatkan.",
     "noSuppliers": "Belum ada penghantaran untuk pilihan ini."
+  },
+  "wasteClearance": {
+    "title": "Pembersihan sisa",
+    "countDisposals": "Pembersihan tapak: {count}",
+    "countDispatches": "Pesanan sisa: {count}",
+    "tab": {
+      "all": "Semua",
+      "disposal": "Pembersihan tapak",
+      "dispatch": "Pesanan sisa"
+    },
+    "kind": {
+      "disposal": "Pembersihan tapak",
+      "dispatch": "Pesanan sisa"
+    },
+    "newDisposal": "Permintaan pembersihan baharu",
+    "newDispatch": "Pesanan sisa baharu",
+    "column": {
+      "kind": "Jenis",
+      "reference": "Nombor",
+      "status": "Status",
+      "project": "Projek",
+      "content": "Sisa",
+      "at": "Dibuat",
+      "open": "Lihat"
+    },
+    "pageOf": "Halaman {page} daripada {pages} - sehingga 10 setiap jenis",
+    "lastPage": "Ini halaman terakhir."
   }
 }

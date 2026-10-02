@@ -9205,7 +9205,7 @@
     "qr_code_management": "二維碼管理",
     "receipts": "材料進場",
     "recycler_review": "回收商審核",
-    "recyclers": "合作回收商",
+    "recyclers": "環保材料管理",
     "recycling_records": "回收稱重記錄",
     "report_center": "報表中心",
     "reports": "報表",
@@ -9454,7 +9454,8 @@
       "myTasks": "我的待辦",
       "consultantSettings": "顧問設定",
       "sundryClaims": "雜費報銷",
-      "materialReports": "材料報表"
+      "materialReports": "材料報表",
+      "wasteClearance": "垃圾清運"
     },
     "subscription_management": "訂閱管理",
     "suppliers": "供應商",
@@ -9757,7 +9758,7 @@
       "trouble": "地磅顯示離線：先看連線狀態頁的最後通訊時間。現場那頭的接線和參數速查在這台地磅的閘道面板裡。"
     },
     "company_management": {
-      "what": "開通新公司、審核公司資料、看每家公司的專案和合作回收商。沒有公司，平台上其他東西都無從談起。",
+      "what": "開通新公司、審核公司資料、看每家公司的專案和合作的回收商。沒有公司，平台上其他東西都無從談起。",
       "who": "持 company.view 的平台角色；開通新公司還要 company.create。",
       "need": "銀行那一步必須填齊銀行名稱、帳戶名稱、帳號；執照那一步必須上傳 PDF 或圖片。",
       "then": "系統會自動播下這家公司的初始角色，並給第一個管理員寄啟用信。",
@@ -13761,7 +13762,7 @@
     },
     "assign": {
       "help": "選擇已綁定此項目的回收商。{reference} 的訂單會立即發送至對方系統。",
-      "noPartners": "此項目尚未綁定回收商。請先在「合作回收商」中綁定，再建立訂單。",
+      "noPartners": "此項目尚未綁定回收商。請先在「環保材料管理 › 回收商合作」中綁定，再建立訂單。",
       "partnersFailed": "無法載入回收合作商，所以選擇框是空的。這不代表你沒有合作商。",
       "title": "安排回收商"
     },
@@ -14411,5 +14412,32 @@
     "materialsFailed": "無法載入材料列表。",
     "suppliersFailed": "無法載入供應商列表。",
     "noSuppliers": "此選擇還沒有進場記錄。"
+  },
+  "wasteClearance": {
+    "title": "垃圾清運",
+    "countDisposals": "工地清運 {count} 筆",
+    "countDispatches": "廢料訂單 {count} 筆",
+    "tab": {
+      "all": "全部",
+      "disposal": "工地清運",
+      "dispatch": "廢料訂單"
+    },
+    "kind": {
+      "disposal": "工地清運",
+      "dispatch": "廢料訂單"
+    },
+    "newDisposal": "新增清運申請",
+    "newDispatch": "新增廢料訂單",
+    "column": {
+      "kind": "類型",
+      "reference": "編號",
+      "status": "狀態",
+      "project": "項目",
+      "content": "廢料內容",
+      "at": "建立時間",
+      "open": "查看"
+    },
+    "pageOf": "第 {page} / {pages} 頁（每頁每種最多 10 筆）",
+    "lastPage": "已經是最後一頁。"
   }
 }

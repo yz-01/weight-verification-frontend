@@ -136,7 +136,7 @@ export function ViewDispatch({ id }: { id: string }) {
   // Keep the back link on the portal's canonical list page instead of sending
   // recycler users to the contractor-only dispatch list.
   const isRecycler = user?.portal === "MSE_SCRAP";
-  const backHref = isRecycler ? "/waste-orders" : "/dispatches";
+  const backHref = isRecycler ? "/waste-orders" : "/waste-clearance?kind=dispatch";
   const backLabel = isRecycler
     ? t("nav.waste_orders")
     : t("dispatches.title");

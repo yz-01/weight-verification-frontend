@@ -9205,7 +9205,7 @@
     "qr_code_management": "二维码管理",
     "receipts": "材料进场",
     "recycler_review": "回收商审核",
-    "recyclers": "合作回收商",
+    "recyclers": "环保材料管理",
     "recycling_records": "回收称重记录",
     "report_center": "报表中心",
     "reports": "报表",
@@ -9454,7 +9454,8 @@
       "myTasks": "我的待办",
       "consultantSettings": "顾问设定",
       "sundryClaims": "杂费报销",
-      "materialReports": "材料报表"
+      "materialReports": "材料报表",
+      "wasteClearance": "垃圾清运"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -9757,7 +9758,7 @@
       "trouble": "地磅显示离线：先看连线状态页的最后通讯时间。现场那头的接线和参数速查在这台地磅的网关面板里。"
     },
     "company_management": {
-      "what": "开通新公司、审核公司资料、看每家公司的项目和合作回收商。没有公司，平台上其他东西都无从谈起。",
+      "what": "开通新公司、审核公司资料、看每家公司的项目和合作的回收商。没有公司，平台上其他东西都无从谈起。",
       "who": "持 company.view 的平台角色；开通新公司还要 company.create。",
       "need": "银行那一步必须填齐银行名称、账户名称、账号；执照那一步必须上传 PDF 或图片。",
       "then": "系统会自动播下这家公司的初始角色，并给第一个管理员发激活邮件。",
@@ -13761,7 +13762,7 @@
     },
     "assign": {
       "help": "选择已绑定此项目的回收商。{reference} 的订单会立即发送至对方系统。",
-      "noPartners": "此项目尚未绑定回收商。请先在「合作回收商」中绑定，再建立订单。",
+      "noPartners": "此项目尚未绑定回收商。请先在「环保材料管理 › 回收商合作」中绑定，再建立订单。",
       "partnersFailed": "无法载入回收合作商，所以选择框是空的。这不代表你没有合作商。",
       "title": "安排回收商"
     },
@@ -14411,5 +14412,32 @@
     "materialsFailed": "无法载入材料列表。",
     "suppliersFailed": "无法载入供应商列表。",
     "noSuppliers": "此选择还没有进场记录。"
+  },
+  "wasteClearance": {
+    "title": "垃圾清运",
+    "countDisposals": "工地清运 {count} 笔",
+    "countDispatches": "废料订单 {count} 笔",
+    "tab": {
+      "all": "全部",
+      "disposal": "工地清运",
+      "dispatch": "废料订单"
+    },
+    "kind": {
+      "disposal": "工地清运",
+      "dispatch": "废料订单"
+    },
+    "newDisposal": "新增清运申请",
+    "newDispatch": "新增废料订单",
+    "column": {
+      "kind": "类型",
+      "reference": "编号",
+      "status": "状态",
+      "project": "项目",
+      "content": "废料内容",
+      "at": "建立时间",
+      "open": "查看"
+    },
+    "pageOf": "第 {page} / {pages} 页（每页每种最多 10 笔）",
+    "lastPage": "已经是最后一页。"
   }
 }

@@ -858,18 +858,34 @@ export const PORTAL_NAVIGATION = {
           "/waste-outgoing",
           "waste_outgoing",
         ),
-        child(
-          "8.2.3",
-          "nav.submodule.wasteDispatches",
-          "/dispatches",
-          "waste_dispatches",
-        ),
-        child(
-          "8.2.4",
-          "nav.submodule.siteDisposals",
-          "/site-disposals",
-          "site_disposals",
-        ),
+        // 垃圾清运 (B08, 29.09 meeting): 废料订单 and 工地清运 were two entries
+        // for what the customer sees as one job, so they are one entry now.
+        // Only the entry: both kinds keep their own records, numbers, flows
+        // and figures, and the page lists each row as the kind it is.
+        {
+          ...child("8.2.3", "nav.submodule.wasteClearance", "/waste-clearance"),
+          anyFeatures: ["waste_dispatches", "site_disposals"],
+        },
+        // The two old list addresses, out of the menu: they forward to their
+        // tab in 垃圾清运, and `/dispatches/<id>` still opens an order.
+        {
+          ...child(
+            "8.2.3a",
+            "nav.submodule.wasteDispatches",
+            "/dispatches",
+            "waste_dispatches",
+          ),
+          menuHidden: true,
+        },
+        {
+          ...child(
+            "8.2.4",
+            "nav.submodule.siteDisposals",
+            "/site-disposals",
+            "site_disposals",
+          ),
+          menuHidden: true,
+        },
         child(
           "8.2.5",
           "nav.submodule.paymentProofs",

@@ -110,7 +110,7 @@ function severityTone(severity: TimelineEntry["severity"]) {
  * approvals and harmless for anything new that has not been mapped yet.
  */
 const APPROVAL_QUEUES: Record<string, string> = {
-  DISPOSAL_REQUEST: "/site-disposals",
+  DISPOSAL_REQUEST: "/waste-clearance?kind=disposal",
   WASTE_OUTGOING: "/waste-outgoing",
   FIELD_TASK: "/field-tasks",
   SITE_PROGRESS: "/progress",
