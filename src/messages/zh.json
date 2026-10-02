@@ -3055,7 +3055,7 @@
       "MATERIAL_RECEIPT": "材料进场",
       "MATERIAL_OUTGOING": "材料出场",
       "EQUIPMENT_MOVEMENT": "设备进出",
-      "HAZARD": "隐患整改",
+      "HAZARD": "隐患整改 / EHS",
       "WASTE_OUTGOING": "环保材料出场申请",
       "DISPOSAL_REQUEST": "工地清运",
       "PROGRESS": "工程进度",
@@ -3941,7 +3941,7 @@
       "equipment": "设备分类",
       "progress": "工程进度分类",
       "phase": "施工阶段",
-      "ehs": "隐患整改分类",
+      "ehs": "隐患整改 / EHS 分类",
       "recycle": "环保材料出场分类",
       "debris": "工地清运分类",
       "consultant": "顾问资料分类",
@@ -7455,12 +7455,12 @@
       "outgoing": "材料出场",
       "progress": "工程进度",
       "records": "现场记录",
-      "safety": "隐患整改",
+      "safety": "隐患整改 / EHS",
       "subtitle": "按一个大按钮就可以继续。",
       "tasks": "我的任务",
       "title": "今天的工作",
       "waste": "环保材料出场申请",
-      "hazards": "隐患整改"
+      "hazards": "隐患整改 / EHS"
     },
     "identity": {
       "company": "公司：{company}",
@@ -7578,7 +7578,7 @@
       "location": "位置",
       "records": "现场记录",
       "tasks": "任务",
-      "hazards": "隐患整改"
+      "hazards": "隐患整改 / EHS"
     },
     "notifications": {
       "empty": "目前没有新通知",
@@ -7596,7 +7596,7 @@
       "material": "材料进场",
       "outgoing": "材料出场",
       "progress": "工程进度",
-      "safety": "隐患整改",
+      "safety": "隐患整改 / EHS",
       "subtitle": "先选择工作，再拍摄系统要求的照片。",
       "title": "现场记录",
       "waste": "环保材料出场申请",
@@ -7631,7 +7631,7 @@
       "OTHER": "其他",
       "PHOTO": "现场记录",
       "PROGRESS": "工程进度",
-      "SAFETY": "隐患整改",
+      "SAFETY": "隐患整改 / EHS",
       "WASTE": "环保材料出场申请"
     },
     "locationAccess": {
@@ -9061,7 +9061,7 @@
       "MATERIAL_RECEIPT": "材料进场",
       "SITE_RECORD": "现场记录",
       "WASTE_OUTGOING": "环保材料出场申请",
-      "HAZARD": "隐患整改",
+      "HAZARD": "隐患整改 / EHS",
       "PROGRESS": "工程进度",
       "DRIVER_TRIP": "运输任务",
       "MATERIAL_OUTGOING": "材料出场",
@@ -9180,7 +9180,7 @@
       "weighing": "称重",
       "tools": "公共工具"
     },
-    "hazard_rectification": "隐患整改",
+    "hazard_rectification": "隐患整改 / EHS",
     "incoming": "待收货",
     "integrations": "系统集成",
     "inventory_management": "库存管理",
@@ -9336,7 +9336,7 @@
       "financialReports": "财务报表",
       "gateScanning": "门岗扫描",
       "geofenceSettings": "Geofence 设置",
-      "hazardRectifications": "隐患整改",
+      "hazardRectifications": "隐患整改 / EHS",
       "immutableAudit": "永久记录",
       "incidentReports": "事故上报",
       "integrationSettings": "系统集成",
@@ -9979,7 +9979,7 @@
       "trouble": "现场没信号没关系：照拍照填，它会排队，之后自动传。存下来的位置是拍照当时的，不是补传时的。"
     },
     "project_categories": {
-      "what": "管理每个业务栏目下面的分类：例如材料分类里的混凝土、钢筋，隐患整改分类里的安全部整改。",
+      "what": "管理每个业务栏目下面的分类：例如材料分类里的混凝土、钢筋，隐患整改 / EHS 分类里的安全部整改。",
       "who": "持 category.view。",
       "need": "新增分类要选业务、项目、编号和名称，以及谁可以看到这个分类。",
       "then": "现场人员在手机上提交时就能选到它，后台也能把记录归进去。",
@@ -11645,7 +11645,7 @@
       "locationTimeout": "等不到 GPS 信号。走到空旷一点的地方再试一次。",
       "locationUnavailable": "设备拿不到位置。确认定位已开启后再试一次。",
       "locationUnsupported": "这台设备无法提供 GPS 位置。",
-      "noSafetyColumns": "这个项目还没有隐患整改分类。到「分类管理」新增一个，隐患才归得进去。"
+      "noSafetyColumns": "这个项目还没有隐患整改 / EHS 分类。到「分类管理」新增一个，隐患才归得进去。"
     },
     "new": "上报隐患",
     "severity": {
@@ -11731,7 +11731,7 @@
       "description": "拍摄完成后的现场照片、获取 GPS，并说明已完成的工作。",
       "title": "提交整改证据"
     },
-    "title": "隐患整改",
+    "title": "隐患整改 / EHS",
     "toast": {
       "assigned": "已指派整改",
       "reviewed": "已保存验收结果",

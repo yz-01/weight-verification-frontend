@@ -3055,7 +3055,7 @@
       "MATERIAL_RECEIPT": "材料進場",
       "MATERIAL_OUTGOING": "材料出場",
       "EQUIPMENT_MOVEMENT": "設備進出",
-      "HAZARD": "隱患整改",
+      "HAZARD": "隱患整改 / EHS",
       "WASTE_OUTGOING": "環保材料出場申請",
       "DISPOSAL_REQUEST": "工地清運",
       "PROGRESS": "工程進度",
@@ -3941,7 +3941,7 @@
       "equipment": "設備分類",
       "progress": "工程進度分類",
       "phase": "施工階段",
-      "ehs": "隱患整改分類",
+      "ehs": "隱患整改 / EHS 分類",
       "recycle": "環保材料出場分類",
       "debris": "工地清運分類",
       "consultant": "顧問資料分類",
@@ -7455,12 +7455,12 @@
       "outgoing": "材料出場",
       "progress": "工程進度",
       "records": "現場記錄",
-      "safety": "隱患整改",
+      "safety": "隱患整改 / EHS",
       "subtitle": "按一個大按鈕就可以繼續。",
       "tasks": "我的任務",
       "title": "今天的工作",
       "waste": "環保材料出場申請",
-      "hazards": "隱患整改"
+      "hazards": "隱患整改 / EHS"
     },
     "identity": {
       "company": "公司：{company}",
@@ -7578,7 +7578,7 @@
       "location": "位置",
       "records": "現場記錄",
       "tasks": "任務",
-      "hazards": "隱患整改"
+      "hazards": "隱患整改 / EHS"
     },
     "notifications": {
       "empty": "目前沒有新通知",
@@ -7596,7 +7596,7 @@
       "material": "材料進場",
       "outgoing": "材料出場",
       "progress": "工程進度",
-      "safety": "隱患整改",
+      "safety": "隱患整改 / EHS",
       "subtitle": "先選擇工作，再拍攝系統要求的照片。",
       "title": "現場記錄",
       "waste": "環保材料出場申請",
@@ -7631,7 +7631,7 @@
       "OTHER": "其他",
       "PHOTO": "現場記錄",
       "PROGRESS": "工程進度",
-      "SAFETY": "隱患整改",
+      "SAFETY": "隱患整改 / EHS",
       "WASTE": "環保材料出場申請"
     },
     "locationAccess": {
@@ -9061,7 +9061,7 @@
       "MATERIAL_RECEIPT": "材料進場",
       "SITE_RECORD": "現場記錄",
       "WASTE_OUTGOING": "環保材料出場申請",
-      "HAZARD": "隱患整改",
+      "HAZARD": "隱患整改 / EHS",
       "PROGRESS": "工程進度",
       "DRIVER_TRIP": "運輸任務",
       "MATERIAL_OUTGOING": "材料出場",
@@ -9180,7 +9180,7 @@
       "weighing": "稱重",
       "tools": "公共工具"
     },
-    "hazard_rectification": "隱患整改",
+    "hazard_rectification": "隱患整改 / EHS",
     "incoming": "待收貨",
     "integrations": "系統集成",
     "inventory_management": "庫存管理",
@@ -9336,7 +9336,7 @@
       "financialReports": "財務報表",
       "gateScanning": "門崗掃描",
       "geofenceSettings": "Geofence 設置",
-      "hazardRectifications": "隱患整改",
+      "hazardRectifications": "隱患整改 / EHS",
       "immutableAudit": "永久記錄",
       "incidentReports": "事故上報",
       "integrationSettings": "系統集成",
@@ -9979,7 +9979,7 @@
       "trouble": "現場沒訊號沒關係：照拍照填，它會排隊，之後自動傳。存下來的位置是拍照當時的，不是補傳時的。"
     },
     "project_categories": {
-      "what": "管理每個業務欄目下面的分類：例如材料分類裡的混凝土、鋼筋，隱患整改分類裡的安全部整改。",
+      "what": "管理每個業務欄目下面的分類：例如材料分類裡的混凝土、鋼筋，隱患整改 / EHS 分類裡的安全部整改。",
       "who": "持 category.view。",
       "need": "新增分類要選業務、項目、編號和名稱，以及誰可以看到這個分類。",
       "then": "現場人員在手機上提交時就能選到它，後台也能把記錄歸進去。",
@@ -11645,7 +11645,7 @@
       "locationTimeout": "等不到 GPS 訊號。走到空曠一點的地方再試一次。",
       "locationUnavailable": "裝置拿不到位置。確認定位已開啟後再試一次。",
       "locationUnsupported": "這台裝置無法提供 GPS 位置。",
-      "noSafetyColumns": "這個專案還沒有隱患整改分類。到「分類管理」新增一個，隱患才歸得進去。"
+      "noSafetyColumns": "這個專案還沒有隱患整改 / EHS 分類。到「分類管理」新增一個，隱患才歸得進去。"
     },
     "new": "上報隱患",
     "severity": {
@@ -11731,7 +11731,7 @@
       "description": "拍攝完成後的現場照片、獲取 GPS，並說明已完成的工作。",
       "title": "提交整改證據"
     },
-    "title": "隱患整改",
+    "title": "隱患整改 / EHS",
     "toast": {
       "assigned": "已指派整改",
       "reviewed": "已保存驗收結果",

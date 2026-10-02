@@ -3055,7 +3055,7 @@
       "MATERIAL_RECEIPT": "Terimaan bahan",
       "MATERIAL_OUTGOING": "Bahan keluar tapak",
       "EQUIPMENT_MOVEMENT": "Peralatan masuk keluar",
-      "HAZARD": "Pembetulan bahaya",
+      "HAZARD": "Pembetulan bahaya / EHS",
       "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
       "DISPOSAL_REQUEST": "Pelupusan tapak",
       "PROGRESS": "Kemajuan tapak",
@@ -7455,12 +7455,12 @@
       "outgoing": "Bahan keluar",
       "progress": "Kemajuan projek",
       "records": "Rakam rekod tapak",
-      "safety": "Pembetulan bahaya",
+      "safety": "Pembetulan bahaya / EHS",
       "subtitle": "Tekan satu butang besar untuk teruskan.",
       "tasks": "Tugas saya",
       "title": "Kerja hari ini",
       "waste": "Permohonan bahan alam sekitar keluar",
-      "hazards": "Pembetulan bahaya"
+      "hazards": "Pembetulan bahaya / EHS"
     },
     "identity": {
       "company": "Syarikat: {company}",
@@ -7578,7 +7578,7 @@
       "location": "Lokasi",
       "records": "Rakam rekod tapak",
       "tasks": "Tugas",
-      "hazards": "Pembetulan bahaya"
+      "hazards": "Pembetulan bahaya / EHS"
     },
     "notifications": {
       "empty": "Tiada makluman baharu",
@@ -7596,7 +7596,7 @@
       "material": "Bahan masuk",
       "outgoing": "Bahan keluar",
       "progress": "Kemajuan projek",
-      "safety": "Pembetulan bahaya",
+      "safety": "Pembetulan bahaya / EHS",
       "subtitle": "Pilih kerja, kemudian ambil foto yang diperlukan.",
       "title": "Rakam rekod tapak",
       "waste": "Permohonan bahan alam sekitar keluar",
@@ -7631,7 +7631,7 @@
       "OTHER": "Lain-lain",
       "PHOTO": "Rakam rekod tapak",
       "PROGRESS": "Kemajuan projek",
-      "SAFETY": "Pembetulan bahaya",
+      "SAFETY": "Pembetulan bahaya / EHS",
       "WASTE": "Permohonan bahan alam sekitar keluar"
     },
     "locationAccess": {
@@ -9061,7 +9061,7 @@
       "MATERIAL_RECEIPT": "Bahan masuk",
       "SITE_RECORD": "Rekod tapak",
       "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
-      "HAZARD": "Pembetulan bahaya",
+      "HAZARD": "Pembetulan bahaya / EHS",
       "PROGRESS": "Kemajuan projek",
       "DRIVER_TRIP": "Perjalanan",
       "MATERIAL_OUTGOING": "Bahan keluar",
@@ -9180,7 +9180,7 @@
       "weighing": "Penimbangan",
       "tools": "Alat"
     },
-    "hazard_rectification": "Pembetulan bahaya",
+    "hazard_rectification": "Pembetulan bahaya / EHS",
     "incoming": "Muatan masuk",
     "integrations": "Integrasi sistem",
     "inventory_management": "Inventori",
@@ -9336,7 +9336,7 @@
       "financialReports": "Laporan kewangan",
       "gateScanning": "Imbasan pintu masuk",
       "geofenceSettings": "Tetapan geofence",
-      "hazardRectifications": "Pembetulan bahaya",
+      "hazardRectifications": "Pembetulan bahaya / EHS",
       "immutableAudit": "Rekod kekal",
       "incidentReports": "Laporan insiden",
       "integrationSettings": "Integrasi sistem",
@@ -11731,7 +11731,7 @@
       "description": "Ambil foto kerja siap, rakam lokasi GPS dan terangkan kerja yang dilakukan.",
       "title": "Hantar bukti pembetulan"
     },
-    "title": "Pembetulan bahaya",
+    "title": "Pembetulan bahaya / EHS",
     "toast": {
       "assigned": "Pembetulan ditugaskan",
       "reviewed": "Semakan pembetulan disimpan",

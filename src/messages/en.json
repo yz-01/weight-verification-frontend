@@ -3055,7 +3055,7 @@
       "MATERIAL_RECEIPT": "Material receipts",
       "MATERIAL_OUTGOING": "Material leaving site",
       "EQUIPMENT_MOVEMENT": "Equipment in and out",
-      "HAZARD": "Hazard rectification",
+      "HAZARD": "Hazard rectification / EHS",
       "WASTE_OUTGOING": "Environmental material outgoing",
       "DISPOSAL_REQUEST": "Site disposal",
       "PROGRESS": "Site progress",
@@ -7455,12 +7455,12 @@
       "outgoing": "Material outgoing",
       "progress": "Project progress",
       "records": "Site record capture",
-      "safety": "Hazard rectification",
+      "safety": "Hazard rectification / EHS",
       "subtitle": "Tap one large button to continue.",
       "tasks": "My tasks",
       "title": "Today's work",
       "waste": "Environmental material outgoing",
-      "hazards": "Hazard rectification"
+      "hazards": "Hazard rectification / EHS"
     },
     "identity": {
       "company": "Company: {company}",
@@ -7578,7 +7578,7 @@
       "location": "Location",
       "records": "Site record capture",
       "tasks": "Tasks",
-      "hazards": "Hazard rectification"
+      "hazards": "Hazard rectification / EHS"
     },
     "notifications": {
       "empty": "No new alerts",
@@ -7596,7 +7596,7 @@
       "material": "Material receipts",
       "outgoing": "Material outgoing",
       "progress": "Project progress",
-      "safety": "Hazard rectification",
+      "safety": "Hazard rectification / EHS",
       "subtitle": "Choose the work, then take the required photos.",
       "title": "Site record capture",
       "waste": "Environmental material outgoing",
@@ -7631,7 +7631,7 @@
       "OTHER": "Other",
       "PHOTO": "Site record capture",
       "PROGRESS": "Project progress",
-      "SAFETY": "Hazard rectification",
+      "SAFETY": "Hazard rectification / EHS",
       "WASTE": "Environmental material outgoing"
     },
     "locationAccess": {
@@ -9061,7 +9061,7 @@
       "MATERIAL_RECEIPT": "Material receipts",
       "SITE_RECORD": "Site record",
       "WASTE_OUTGOING": "Environmental material outgoing",
-      "HAZARD": "Hazard rectification",
+      "HAZARD": "Hazard rectification / EHS",
       "PROGRESS": "Project progress",
       "DRIVER_TRIP": "Trip",
       "MATERIAL_OUTGOING": "Material outgoing",
@@ -9180,7 +9180,7 @@
       "weighing": "Weighing",
       "tools": "Tools"
     },
-    "hazard_rectification": "Hazard rectification",
+    "hazard_rectification": "Hazard rectification / EHS",
     "incoming": "Incoming loads",
     "integrations": "Integrations",
     "inventory_management": "Inventory",
@@ -9336,7 +9336,7 @@
       "financialReports": "Financial reports",
       "gateScanning": "Gate scanning",
       "geofenceSettings": "Geofence settings",
-      "hazardRectifications": "Hazard rectification",
+      "hazardRectifications": "Hazard rectification / EHS",
       "immutableAudit": "Permanent records",
       "incidentReports": "Incident reports",
       "integrationSettings": "System integrations",
@@ -11731,7 +11731,7 @@
       "description": "Photograph the completed work, capture its GPS location and describe what was done.",
       "title": "Submit rectification evidence"
     },
-    "title": "Hazard rectification",
+    "title": "Hazard rectification / EHS",
     "toast": {
       "assigned": "Rectification assigned",
       "reviewed": "Rectification review saved",
