@@ -23,6 +23,7 @@ import { fieldNotificationHref } from "@/lib/field-notification";
 import { officeNotificationHref } from "@/lib/office-notification";
 import {
   confirmNotificationDone,
+  fieldTodoCountQuery,
   getAllNotifications,
   getOutstandingNotificationCount,
 } from "@/services/platform-ops.service";
@@ -54,12 +55,22 @@ export function NotificationButton() {
         feature === "notifications" || feature === "notification_center",
     ) ?? false;
   const countQuery = useQuery({
-    queryKey: ["notifications", "outstanding-count"],
-    // Silent: the bell is mounted on every page, so a refusal here used to
-    // paint "you do not have permission" over whatever the reader was
-    // actually doing, about a count they never asked for. The badge already
-    // says the count is unknown; that is the right place for it (F-224).
-    queryFn: () => getOutstandingNotificationCount({ silent: true }),
+    // On the field phone the red dot is the to-do number (L1): the same
+    // query, under the same key, as the My Tasks card on its home, so the
+    // dot and the card are one answer. News still lists below without
+    // counting. The office keeps the whole pile until its own home is
+    // reworked (B01).
+    ...(user?.is_field_staff
+      ? fieldTodoCountQuery
+      : {
+          queryKey: ["notifications", "outstanding-count"],
+          // Silent: the bell is mounted on every page, so a refusal here used
+          // to paint "you do not have permission" over whatever the reader
+          // was actually doing, about a count they never asked for. The badge
+          // already says the count is unknown; that is the right place for it
+          // (F-224).
+          queryFn: () => getOutstandingNotificationCount({ silent: true }),
+        }),
     enabled,
     refetchInterval: 30_000,
   });
@@ -326,7 +337,7 @@ export function NotificationButton() {
                     {notification.title}
                   </span>
                   <span
-                    className={`mt-1 block text-xs leading-5 text-muted-foreground ${expanded === notification.id ? "whitespace-pre-wrap" : "line-clamp-2"}`}
+                    className={`mt-1 text-xs leading-5 text-muted-foreground ${expanded === notification.id ? "block whitespace-pre-wrap" : "line-clamp-2"}`}
                   >
                     {notification.message}
                   </span>

@@ -24,7 +24,7 @@ import { ACCOUNTS, API, LOGIN_PATHS, apiLogin, loginAs } from "./helpers";
 
 const CONTRACTOR_PORTAL = "MSE_TRACE";
 
-test("a site-record column can be filed under a module and moves there", async ({
+test("a column can be refiled under another module and moves there", async ({
   page,
   request,
 }) => {
@@ -51,7 +51,7 @@ test("a site-record column can be filed under a module and moves there", async (
         project: project.id,
         code,
         name,
-        kind: "FIELD",
+        kind: "EHS",
         submission_mode: "REVIEW",
       },
     },
@@ -61,7 +61,7 @@ test("a site-record column can be filed under a module and moves there", async (
   await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
   // Category Management edits in place (D-264); /project-categories only
   // redirects there now.
-  await page.goto(`/category-management?project=${project.id}&module=field`);
+  await page.goto(`/category-management?project=${project.id}&module=ehs`);
 
   const row = page.getByRole("row", { name: new RegExp(code) });
   await expect(row).toBeVisible({ timeout: 20_000 });
@@ -76,11 +76,17 @@ test("a site-record column can be filed under a module and moves there", async (
   // (F-338, D-126).
   // Asserted as a set rather than one option, because a missing catalogue key
   // renders as the key path - visible to nobody who is not looking for it.
-  await dialog.getByRole("combobox").first().click();
+  // The second, not the first. The first is the project picker, deliberately
+  // disabled because the column belongs to the project the screen was opened
+  // on, so `.first()` waited forever on something that cannot be clicked. The
+  // module select cannot be reached by name either - its label sits on the
+  // field wrapper and is not bound to the control - so this counts past the
+  // one that is known to be inert.
+  await dialog.getByRole("combobox").nth(1).click();
   for (const label of [
     /progress categories/i,
     /ehs categories/i,
-    /construction waste categories/i,
+    /site disposal categories/i,
   ]) {
     await expect(page.getByRole("option", { name: label })).toBeVisible();
   }
@@ -89,14 +95,14 @@ test("a site-record column can be filed under a module and moves there", async (
   await dialog.getByRole("button", { name: /save|submit/i }).click();
   await expect(dialog).toBeHidden({ timeout: 20_000 });
 
-  // The screen lists site-record columns, so a column that is now a progress
+  // The screen lists this module's columns, so a column that is now a progress
   // column has to leave it. This is the half a UI-only test would call done.
   await expect(page.getByRole("row", { name: new RegExp(code) })).toHaveCount(0, {
     timeout: 20_000,
   });
 
   // And the half that says where it went. `kind=PROGRESS` must return it and
-  // `kind=FIELD` must not - the same question the management screen will ask.
+  // the module it came from must not - the question the management screen asks.
   const inModule = await request.get(
     `${API}/api/project-categories/get_categories/?project=${project.id}&kind=PROGRESS&page_size=200`,
     { headers },
@@ -107,12 +113,12 @@ test("a site-record column can be filed under a module and moves there", async (
   );
   expect(moduleCodes).toContain(code);
 
-  const inField = await request.get(
-    `${API}/api/project-categories/get_categories/?project=${project.id}&kind=FIELD&page_size=200`,
+  const inPrevious = await request.get(
+    `${API}/api/project-categories/get_categories/?project=${project.id}&kind=EHS&page_size=200`,
     { headers },
   );
-  const fieldCodes = (await inField.json()).data.results.map(
+  const previousCodes = (await inPrevious.json()).data.results.map(
     (row: { code: string }) => row.code,
   );
-  expect(fieldCodes).not.toContain(code);
+  expect(previousCodes).not.toContain(code);
 });

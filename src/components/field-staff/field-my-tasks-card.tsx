@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { useDateFormat } from "@/lib/dates";
 import { fieldNotificationHref } from "@/lib/field-notification";
 import {
-  getNotifications,
-  getOutstandingNotificationCount,
+  fieldTodoCountQuery,
+  getAllNotifications,
 } from "@/services/platform-ops.service";
 
 /**
@@ -32,34 +32,47 @@ import {
  * refusal here used to paint a permission toast over whatever a person on
  * site was doing (F-224). A count that could not be loaded says so in the
  * card and leaves the rest of the page alone.
+ *
+ * The only 「My tasks」 on the home (L1). The task list used to sit under it
+ * with its own title and its own count, and the two disagreed - 「0 waiting
+ * on you」 over 「1 active task」, with the bell saying a third thing. D04
+ * asks for one: 统一 My Tasks, 手机首页上方显示待办. So the number, the bell's
+ * red dot and the rows below are one source - the notices asking this worker
+ * to act, which the server closes when the work leaves their hands - and a
+ * task is opened from its row, on the task screen that has its controls.
+ *
+ * Every row, not the first five: the card says how many are waiting, and a
+ * count above a list that stops short of it is the mismatch again.
  */
 export function FieldMyTasksCard() {
   const t = useTranslations();
   const df = useDateFormat();
   const router = useRouter();
 
-  const counts = useQuery({
-    queryKey: ["notifications", "outstanding-count"],
-    queryFn: () => getOutstandingNotificationCount({ silent: true }),
-    refetchInterval: 60_000,
-  });
+  // Same key and interval as the bell's red dot on this portal, so the two
+  // are one answer.
+  const counts = useQuery({ ...fieldTodoCountQuery, refetchInterval: 30_000 });
   const list = useQuery({
     queryKey: ["notifications", "field-my-tasks"],
     queryFn: () =>
-      getNotifications(
+      getAllNotifications(
         {
           card: "ACTION",
           state: "PENDING",
-          page_size: 5,
           sort_by: "created_at",
           sort_order: "desc",
         },
         { silent: true },
       ),
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
   });
 
-  const total = counts.data?.action ?? 0;
+  const total = counts.data?.total ?? 0;
+  // Not a zero until the server has said so. Before the count arrives the
+  // card used to read 「0 waiting on you · Nothing is waiting on you」 and
+  // then change its mind - the number disagreeing with itself, which is the
+  // complaint L1 is about (and F-222's rule for the bell).
+  const counted = counts.data !== undefined;
   const rows = list.data?.results ?? [];
 
   return (
@@ -76,7 +89,9 @@ export function FieldMyTasksCard() {
             <p className="text-sm text-muted-foreground">
               {counts.isError
                 ? t("notifications.countFailed")
-                : t("notifications.myTasks.waiting", { count: total })}
+                : counted
+                  ? t("notifications.myTasks.waiting", { count: total })
+                  : t("common.loading")}
             </p>
           </div>
         </div>
@@ -92,6 +107,17 @@ export function FieldMyTasksCard() {
                 <span className="block truncate text-sm font-medium">
                   {row.title}
                 </span>
+                {/*
+                  What it is about. Every assigned task has the same title,
+                  「New site task assigned」, and the task's own name is in
+                  the message - so without this line the card lists the same
+                  words once per task and says nothing about which (L1).
+                */}
+                {row.message && (
+                  <span className="mt-0.5 block truncate text-sm text-muted-foreground">
+                    {row.message}
+                  </span>
+                )}
                 <span className="mt-0.5 block text-xs text-muted-foreground">
                   {df.relative(row.created_at)}
                 </span>
@@ -127,11 +153,24 @@ export function FieldMyTasksCard() {
 
       <FieldLoadNote className="mt-3" query={list} what={t("fieldStaffPwa.what.myTasks")} />
 
-      {!counts.isError && total === 0 && (
+      {counted && total === 0 && (
         <p className="mt-3 border-t pt-3 text-sm text-muted-foreground">
           {t("notifications.myTasks.clear")}
         </p>
       )}
+
+      {/*
+        The whole task list, one tap away rather than on the home. A link and
+        not a second count: if a company has switched its system notices off,
+        an assigned task sends no notice, and this is still the way to it.
+      */}
+      <Button
+        variant="outline"
+        className="mt-3 w-full"
+        onClick={() => router.push("/field-staff?tab=tasks")}
+      >
+        {t("notifications.myTasks.allSiteTasks")}
+      </Button>
     </section>
   );
 }

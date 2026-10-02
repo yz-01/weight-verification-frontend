@@ -3,7 +3,14 @@ import path from "node:path";
 
 import { expect, test, type APIRequestContext } from "@playwright/test";
 
-import { ACCOUNTS, API, LOGIN_PATHS, apiLogin, loginAs } from "./helpers";
+import {
+  ACCOUNTS,
+  API,
+  LOGIN_PATHS,
+  apiLogin,
+  columnFor,
+  loginAs,
+} from "./helpers";
 
 /**
  * Multi Engine: gather evidence from two columns into one PDF (T-235).
@@ -65,6 +72,9 @@ async function progressRecord(
   const form = new FormData();
   form.append("project", projectId);
   form.append("phase", (await phase.json()).data.id);
+  // A progress record is refused without a column now that filing is checked
+  // at creation, not only when the office refiles one afterwards.
+  form.append("category", await columnFor(request, headers, projectId, "PROGRESS"));
   form.append("percent_complete", "42");
   form.append("description", `Packaged progress ${stamp}`);
   form.append("client_event_id", `e2e-package-${stamp}`);
@@ -119,7 +129,10 @@ test("evidence from two columns becomes one package, and can be found again", as
   // The name is typed before the package holds anything, so it is routinely
   // wrong by the time it holds something. Without this the only repair is to
   // delete the package and pick every record over again.
-  await draft.getByLabel("Package name").fill(packageName);
+  // Not by label - the caption sits on the field wrapper and is not bound to
+  // the input - and not by role either: this dialog holds a textarea as well,
+  // so `textbox` matches two. The name is the single-line one.
+  await draft.locator("input").fill(packageName);
   await draft.getByRole("button", { name: "Rename" }).click();
   const sheet = page.getByRole("dialog", { name: packageName });
   await expect(sheet).toBeVisible(WAIT);
@@ -235,16 +248,14 @@ test("a record can be put in a package from the column it sits in", async ({
   const project = await e2eProject(request, headers);
   const stamp = Date.now().toString().slice(-6);
   const phaseName = `Shortcut phase ${stamp}`;
-  const recordId = await progressRecord(request, headers, project.id, stamp, {
+  await progressRecord(request, headers, project.id, stamp, {
     phaseName,
   });
 
-  // Submitted is not finished: the queue only carries confirmed records.
-  const confirmed = await request.post(
-    `${API}/api/site-progress/${recordId}/review_record/`,
-    { headers, data: { status: "CONFIRMED" } },
-  );
-  expect(confirmed.ok(), await confirmed.text()).toBe(true);
+  // No confirmation step: a progress record is a continuing record, not an
+  // approval, so the archive queue carries it from the moment it exists
+  // (D-225, `closed=None`). The call that used to sit here - `review_record`
+  // - was removed with it.
 
   const packageName = `Shortcut claim ${stamp}`;
   const draft = await request.post(
@@ -324,14 +335,9 @@ test("with no draft open, the shortcut starts one instead of greying out", async
   const project = await e2eProject(request, headers);
   const stamp = Date.now().toString().slice(-6);
   const phaseName = `Empty phase ${stamp}`;
-  const recordId = await progressRecord(request, headers, project.id, stamp, {
+  await progressRecord(request, headers, project.id, stamp, {
     phaseName,
   });
-  const confirmed = await request.post(
-    `${API}/api/site-progress/${recordId}/review_record/`,
-    { headers, data: { status: "CONFIRMED" } },
-  );
-  expect(confirmed.ok(), await confirmed.text()).toBe(true);
 
   await page.route("**/api/evidence-packages/get_packages/**", (route) =>
     route.fulfill({
@@ -360,7 +366,7 @@ test("with no draft open, the shortcut starts one instead of greying out", async
   await expect(
     picker.getByText(/This project has no draft package open/),
   ).toBeVisible();
-  await expect(picker.getByLabel("Package name")).toBeVisible();
+  await expect(picker.locator("input")).toBeVisible();
   await expect(
     picker.getByRole("button", { name: "Start it and add" }),
   ).toBeVisible();

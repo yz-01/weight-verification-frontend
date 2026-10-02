@@ -836,12 +836,15 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
           onChange={setLocation}
           required
         />
-        <FieldWrapper label={t("field.workDone")} optional={fieldMode ? t("action.optional") : undefined} required={!fieldMode}>
+        {/* Required on the phone too. 「提交整改」 without a word of
+            explanation leaves the verifier a photograph and nothing to read
+            it against, which is what the customer asked to stop. */}
+        <FieldWrapper label={t("field.workDone")} required>
           <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
         </FieldWrapper>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
-          <Button requires={[[images.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(fieldEvidence)), t("field.photo")], [location, t("field.location")], [fieldMode || note, t("field.workDone")]]} disabled={save.isPending} onClick={() => save.mutate()}>
+          <Button requires={[[images.length >= (fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1) && (!fieldMode || hasRequiredFieldEvidence(fieldEvidence)), t("field.photo")], [location, t("field.location")], [note, t("field.workDone")]]} disabled={save.isPending} onClick={() => save.mutate()}>
             <Camera />
             {t("action.submit")}
           </Button>
@@ -941,29 +944,21 @@ function SafetyCreateDialog({
   const [locationError, setLocationError] = useState("");
   const categories = useQuery({
     queryKey: ["safety-create-categories", draft.project],
-    queryFn: async () => {
-      const [safety, legacy] = await Promise.all([
-        getProjectCategories({
-          project: draft.project,
-          is_active: true,
-          kind: "EHS",
-          page_size: 200,
-        }),
-        getProjectCategories({
-          project: draft.project,
-          is_active: true,
-          kind: "FIELD",
-          page_size: 200,
-        }),
-      ]);
-      const rows = [...safety.results, ...legacy.results];
-      return {
-        ...safety,
-        results: rows.filter(
-          (row, index) => rows.findIndex((candidate) => candidate.id === row.id) === index,
-        ),
-      };
-    },
+    // Raising a hazard offers EHS columns only. The legacy `FIELD` list used
+    // to be merged in from before the EHS kind existed, and it is what put
+    // 「杂费报销」 and 「test」 in front of a worker reporting a hazard - a
+    // sundry claim has had its own `SUNDRY` kind for a while now.
+    //
+    // Only this list. The back-office filter above still reads both, because
+    // migration 0040 moved the columns that were purely hazards and left the
+    // older mixed ones where they were, with hazards still filed in them.
+    queryFn: () =>
+      getProjectCategories({
+        project: draft.project,
+        is_active: true,
+        kind: "EHS",
+        page_size: 200,
+      }),
     enabled: Boolean(draft.project),
   });
   const team = useQuery({

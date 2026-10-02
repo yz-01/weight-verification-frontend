@@ -69,14 +69,29 @@ export async function getAllNotifications(
  * the list, which is the point of D-206.
  */
 export function getOutstandingNotificationCount(
-  options: { silent?: boolean } = {},
+  options: { silent?: boolean; card?: "ACTION" } = {},
 ): Promise<NotificationSummary> {
+  const { card, ...request } = options;
   return api.get<NotificationSummary>(
     "/api/notifications/get_outstanding_count/",
-    undefined,
-    options,
+    card ? { card } : undefined,
+    request,
   );
 }
+
+/**
+ * The field phone's one to-do number (L1).
+ *
+ * The red dot on the phone's bell and the number on its My Tasks card are the
+ * same query under the same key, so they are one cached answer rather than
+ * two requests that happen to agree. `card=ACTION` narrows the server's whole
+ * summary - total, today, earlier - to what asks the worker to do something;
+ * news stays in the bell's list without counting.
+ */
+export const fieldTodoCountQuery = {
+  queryKey: ["notifications", "outstanding-count", "ACTION"],
+  queryFn: () => getOutstandingNotificationCount({ silent: true, card: "ACTION" }),
+};
 
 /**
  * The recipient says they have done their part.

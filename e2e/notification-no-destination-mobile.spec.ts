@@ -37,12 +37,13 @@ test("a notification with no destination expands instead of doing nothing", asyn
   await loginAsFieldStaff(page);
 
   // The bell, named by what it says rather than by an icon.
-  await page.getByRole("button", { name: /unread notification/i }).click();
+  await page.getByRole("button", { name: /outstanding/i }).click();
 
   const row = page.getByRole("button", { name: new RegExp(TITLE) });
   if ((await row.count()) === 0) {
     /*
-     * Tapping this row marks it read, and the bell lists only unread - so it
+     * Tapping this row marks it read, and the bell lists only what is still
+     * outstanding - so it
      * can be spent. `manage.py seed_e2e` puts it back (it resets `read_at`),
      * and the suite's own `webServer` runs that on every CI start, so on CI
      * this branch never fires.

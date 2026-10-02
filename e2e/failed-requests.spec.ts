@@ -18,8 +18,8 @@ import { ACCOUNTS, LOGIN_PATHS, loginAs } from "./helpers";
  * itself can see what the reader ends up looking at.
  *
  * Routes are matched with a RegExp, not a glob: Playwright's `*` does not
- * cross a `/`, so `get_unread_count*` silently matches nothing against
- * `/api/notifications/get_unread_count/` and the test passes for the wrong
+ * cross a `/`, so `get_outstanding_count*` silently matches nothing against
+ * `/api/notifications/get_outstanding_count/` and the test passes for the wrong
  * reason. The first version of this file did exactly that.
  */
 
@@ -42,18 +42,18 @@ async function breakEndpoint(
   );
 }
 
-const UNREAD_COUNT = /\/api\/notifications\/get_unread_count\//;
+const OUTSTANDING_COUNT = /\/api\/notifications\/get_outstanding_count\//;
 
 test.describe("a failed request is not an empty answer", () => {
-  test("the bell says the unread count is unknown, not that it is zero", async ({
+  test("the bell says the outstanding count is unknown, not that it is zero", async ({
     page,
   }) => {
-    await breakEndpoint(page, UNREAD_COUNT);
+    await breakEndpoint(page, OUTSTANDING_COUNT);
     await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
 
     // The accessible name is the assertion: a reader using the page without
     // sight gets the same claim the badge makes, and before the fix both
-    // said "0 unread".
+    // said "0 outstanding".
     await expect(
       page.getByRole("button", { name: /count could not be loaded/i }),
     ).toBeVisible({ timeout: 30_000 });
@@ -67,7 +67,7 @@ test.describe("a failed request is not an empty answer", () => {
     await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
 
     await expect(
-      page.getByRole("button", { name: /unread/i }),
+      page.getByRole("button", { name: /outstanding/i }),
     ).toBeVisible({ timeout: 30_000 });
     await expect(
       page.getByRole("button", { name: /count could not be loaded/i }),

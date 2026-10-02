@@ -157,6 +157,20 @@ function FieldStaffWorkspaceContent({
     queryFn: () => getFieldTask(requestedTaskId),
     enabled: Boolean(requestedTaskId),
   });
+  /*
+   * The task a link named, for as long as it is still the one in focus.
+   *
+   * The `task=` in the address outlives the worker's next move - it was still
+   * there after they tapped 隐患 - and the record screens fell back to it, so
+   * a hazard report opened by itself, filed against the material task they
+   * had looked at a moment before. Leaving the task (another tab, another
+   * record, back to the grid) clears the focus, and with it this. It matters
+   * more since L1: My Tasks opens every task through that link.
+   */
+  const linkedTask =
+    requestedTask.data && requestedTask.data.id === focusedTaskId
+      ? requestedTask.data
+      : null;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -287,7 +301,6 @@ function FieldStaffWorkspaceContent({
 
       {shownTab === "home" && (
         <FieldHomePanel
-          onOpenWorkflow={(task, mode) => { setActiveTask(task); setRecordMode(mode); setTab("records"); replaceFieldUrl("records", mode, task.id); }}
           onOpenHazard={(hazard) => {
             // `openTab` clears the record state first, then the hazard is set:
             // the other order loses it, because `openTab` resets everything
@@ -314,10 +327,13 @@ function FieldStaffWorkspaceContent({
         <FieldRecordsPanel
           initialMode={shownRecordMode}
           initialSupplierToken={supplierToken}
-          task={activeTask ?? requestedTask.data ?? null}
+          task={activeTask ?? linkedTask}
           onModeChange={(mode) => {
             setRecordMode(mode);
-            if (!mode) setActiveTask(null);
+            if (!mode) {
+              setActiveTask(null);
+              setFocusedTaskId("");
+            }
             replaceFieldUrl("records", mode);
           }}
           onWorkflowSaved={(mode, result) => {
@@ -375,10 +391,8 @@ function FieldStaffWorkspaceContent({
 }
 
 function FieldHomePanel({
-  onOpenWorkflow,
   onOpenHazard,
 }: {
-  onOpenWorkflow: (task: FieldTask, mode: FieldRecordMode) => void;
   onOpenHazard: (hazard: HazardHandle) => void;
 }) {
   const t = useTranslations("fieldStaffPwa");
@@ -392,17 +406,17 @@ function FieldHomePanel({
       </div>
       {/*
         待办 first (T-287 / D-226): 「【我的待办】不放底部导航，放首页上方以卡片
-        显示未完成数量和内容」. It goes above the task list rather than beside
-        it because the two answer different questions - the task list is what
-        the office handed over, and a returned record or an assigned
-        rectification never appears there.
-      */}
-      <FieldMyTasksCard />
-      {/*
+        显示未完成数量和内容」 - and only once (L1). The task list used to
+        follow it here under the same 「My tasks」 title with a count of its
+        own, and the two numbers disagreed. D04 asks for one My Tasks, so the
+        card is it: its rows include the tasks, each opening on the task
+        screen (`?tab=tasks&task=…`), which keeps the start, photo and submit
+        controls exactly where they were.
+
         Then the customer's own order: 「首页只需要放任务，上传头像和图2就好」 -
         tasks, then the avatar, then what I sent (T-209).
       */}
-      <FieldTaskPanel onOpenWorkflow={onOpenWorkflow} />
+      <FieldMyTasksCard />
       {/* Field staff have no profile screen and cannot open `/profile`, and
           theirs is the picture a delivery record shows - so this is their only
           way to set it. On the home panel rather than the workspace header,

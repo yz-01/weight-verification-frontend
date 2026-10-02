@@ -96,20 +96,26 @@ test("each module lists its own categories, with the six columns", async ({
    */
   const modules = page.getByRole("navigation", { name: /modules/i });
   await expect(modules).toBeVisible({ timeout: 20_000 });
+  // Named as Category Management names them today. 「现场资料分类」 is gone
+  // with the retired `FIELD` kind (D-285), and two were renamed for what they
+  // actually hold: the recycle module is the environmental-material outgoing
+  // one, and construction waste is site disposal.
   for (const name of [
     "Material categories",
-    "Site record categories",
     "Document categories",
+    "Equipment categories",
     "Progress categories",
     "Construction stages",
     "EHS categories",
-    "Recycle categories",
-    "Construction waste categories",
+    "Environmental material outgoing categories",
+    "Site disposal categories",
+    "Consultant submission categories",
+    "Sundry claim categories",
   ]) {
     await expect(modules.getByRole("button", { name })).toBeVisible();
   }
   await expect(
-    modules.getByRole("button", { name: "Equipment categories" }),
+    modules.getByRole("button", { name: "Site record categories" }),
   ).toHaveCount(0);
 
   // Material is project-scoped, so it asks for a project first rather than

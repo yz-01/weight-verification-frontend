@@ -5,6 +5,7 @@ import {
   LOGIN_PATHS,
   loginAs,
   loginAsFieldStaff,
+  openHold,
   submitLogin,
 } from "./helpers";
 
@@ -51,7 +52,7 @@ test("the field staff login page renders at phone width", async ({ page }) => {
   expect(overflow, "field login must not scroll horizontally").toBe(false);
 });
 
-test("field staff sees actionable tasks with five direct navigation buttons", async ({ page, context }) => {
+test("field staff sees actionable tasks with four direct navigation buttons", async ({ page, context }) => {
   await context.grantPermissions(["geolocation"], {
     origin: "http://localhost:3199",
   });
@@ -61,14 +62,22 @@ test("field staff sees actionable tasks with five direct navigation buttons", as
   });
   await loginAsFieldStaff(page);
 
-  // The task *card*, named specifically: since T-209 put 「我提交过的」 back on
-  // the home, this task's title is on the screen twice - once here and once as
-  // a history row - and a bare text match is ambiguous.
+  // The task arrives through My Tasks, the one to-do list on the home (L1):
+  // the task list that used to sit under it is a tap away on its own screen.
+  // The task *card* is then named specifically - its title is also a row in
+  // 「我提交过的」 and in My Tasks itself, so a bare text match is ambiguous.
+  await page
+    .getByRole("button", { name: /Inspect E2E material delivery/ })
+    .first()
+    .click({ timeout: 20_000 });
   await expect(
     page.getByRole("heading", { name: "Inspect E2E material delivery" }),
   ).toBeVisible({ timeout: 20_000 });
+  // Four, since 位置 left the bar (D09, `deb93f7`): the phone still locates
+  // itself for attendance, geofences and record GPS, it just has no tab of
+  // its own to do it from.
   const navigation = page.locator("nav").last();
-  await expect(navigation.getByRole("button")).toHaveCount(5);
+  await expect(navigation.getByRole("button")).toHaveCount(4);
   await expect(navigation.getByText(/task|任务|任務|tugas/i)).toHaveCount(0);
 
   const overflow = await page.evaluate(
@@ -86,9 +95,17 @@ test("field staff sees actionable tasks with five direct navigation buttons", as
    * intermediate button has to be gone rather than merely skippable.
    */
   await navigation.getByRole("button").last().click();
-  await expect(page.getByRole("heading", { name: "Safety / hazard" })).toBeVisible({
+  // Named after the page it opens since `fde751d` (T-207): the tile and the
+  // screen it leads to carry one name.
+  await expect(page.getByRole("heading", { name: "Hazard rectification" })).toBeVisible({
     timeout: 20_000,
   });
+  // And nothing opened by itself. This test arrives from a task, and the
+  // task's `task=` stayed in the address: the hazard screen read it back and
+  // opened its report form filed against that material task (L1 - My Tasks
+  // opens every task through that link).
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Report now" })).toBeVisible();
   await expect(page.locator('[data-draft-status]')).toBeVisible();
   await expect(
     page.getByRole("button", { name: /^(report a hazard|上报隐患|上報隱患|lapor bahaya)$/i }),
@@ -105,10 +122,18 @@ test("field staff material draft survives closing and reopening the work form", 
   });
   await loginAsFieldStaff(page);
 
+  // Through My Tasks, the home's one to-do list (L1), to the task's card.
+  await page
+    .getByRole("button", { name: /Inspect E2E material delivery/ })
+    .first()
+    .click({ timeout: 20_000 });
   const task = page.locator("article").filter({
     hasText: "Inspect E2E material delivery",
   });
   await task.getByRole("button", { name: "Open work form" }).click();
+  // Material receipts is one of the four 挂号 screens (D-260): the hold is
+  // what keeps the draft, and coming back finds it still open.
+  await openHold(page);
 
   const workFormUrl = page.url();
   const materialName = page

@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import {
   expect,
   type APIRequestContext,
@@ -54,11 +57,26 @@ export async function expectRefusedOnLoginPage(
   expect(new URL(page.url()).pathname).toBe(loginPath);
 }
 
+/**
+ * Options shared by the sign-in helpers.
+ *
+ * `keepTaskCards` is for the specs whose subject *is* the 待办 stack - that it
+ * appears, that its number agrees with the list, that it goes away when the
+ * work is finished. Hiding it there would leave the test asserting against
+ * something that was never on the screen.
+ */
+export type SignInOptions = { keepTaskCards?: boolean };
+
 export async function loginAs(
   page: Page,
   loginPath: string,
   email: string,
+  options: SignInOptions = {},
 ): Promise<void> {
+  // See `hideTaskCardOverlay`: temporary, for B01. Installed here so it is in
+  // place before the first navigation of every spec that signs in - except
+  // the ones testing the stack itself.
+  if (!options.keepTaskCards) await hideTaskCardOverlay(page);
   await submitLogin(page, loginPath, email);
   await expectSignedIn(page);
   await forceEnglish(page);
@@ -114,7 +132,11 @@ export async function forceEnglish(page: Page): Promise<void> {
   await page.waitForLoadState("networkidle");
 }
 
-export async function loginAsFieldStaff(page: Page): Promise<void> {
+export async function loginAsFieldStaff(
+  page: Page,
+  options: SignInOptions = {},
+): Promise<void> {
+  if (!options.keepTaskCards) await hideTaskCardOverlay(page);
   await page.addInitScript((deviceId) => {
     window.localStorage.setItem("mse_field_device_id", deviceId);
   }, FIELD_DEVICE_ID);
@@ -202,4 +224,165 @@ export async function raiseReleasedDispatch(
   );
   expect(released.status(), await released.text()).toBe(200);
   return dispatch.dispatch_no as string;
+}
+
+/**
+ * The id of a column this project already has for ``kind``.
+ *
+ * Records of the three filed kinds - progress, material and construction
+ * waste - stopped being accepted without a column (``validate_record_column``
+ * now runs at creation, not only when the office refiles). Every fixture that
+ * raises one through the API therefore has to name one, and they all want the
+ * same thing: any open column of the right module on the seeded project.
+ *
+ * Read rather than created. `seed_e2e` already makes one of each kind, and a
+ * fixture that minted its own would leave a new column behind on every run -
+ * which is how the seeded project ended up with four of each in the first
+ * place.
+ */
+export async function columnFor(
+  request: APIRequestContext,
+  headers: Record<string, string>,
+  projectId: string,
+  kind: "PROGRESS" | "MATERIAL" | "CONSTRUCTION_WASTE",
+): Promise<string> {
+  const response = await request.get(
+    `${API}/api/project-categories/get_categories/` +
+      `?project=${projectId}&kind=${kind}&is_active=true&page_size=50`,
+    { headers },
+  );
+  expect(response.ok(), await response.text()).toBe(true);
+  const [column] = (await response.json()).data.results;
+  expect(
+    column,
+    `run \`manage.py seed_e2e\` - no open ${kind} column on this project`,
+  ).toBeTruthy();
+  return column.id as string;
+}
+
+/**
+ * Open a 挂号 (queue-number hold) on a capture screen that has them.
+ *
+ * Material in, equipment in/out, site disposal and waste outgoing show no form
+ * until one is opened (D-259, D-279: 「Nothing opens by itself」). A hold with
+ * anything typed or photographed in it survives the page closing, so a spec
+ * about a draft surviving is a spec about the hold surviving.
+ */
+export async function openHold(page: Page): Promise<void> {
+  await page.getByRole("button", { name: "New hold" }).first().click();
+}
+
+/**
+ * Keep the 「待办」 stack out of the way of the clicks under it.
+ *
+ * TEMPORARY, and not a fix. `action-card-stack` renders into a portal as
+ * `fixed z-40`, pinned bottom-right on desktop and across the bottom on a
+ * phone, so it sits on top of the row actions in the last column of a table.
+ * Playwright retries the click until the test times out; a person just cannot
+ * press the button. That is B01 「桌面及手机无内容遮挡」 in Phase 2 - this only
+ * stops the suite reporting the same defect once per affected spec until then.
+ *
+ * A stylesheet installed before navigation rather than a click on the collapse
+ * control: the stack appears when the notifications query resolves, which is
+ * after `goto` returns, so anything that looks for it immediately finds
+ * nothing and does nothing. Collapsing also leaves a bar in the same corner.
+ *
+ * Delete this when B01 lands. A spec that still needs it then is telling you
+ * the overlay is back.
+ */
+export async function hideTaskCardOverlay(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const install = () => {
+      if (document.getElementById("e2e-hide-task-cards")) return;
+      const style = document.createElement("style");
+      style.id = "e2e-hide-task-cards";
+      style.textContent =
+        'aside[aria-label][class*="z-40"]{display:none !important}';
+      document.head?.append(style);
+    };
+    if (document.head) install();
+    else document.addEventListener("DOMContentLoaded", install, { once: true });
+  });
+}
+
+/**
+ * An approved disposal handed to an outside collector, work started. Returns
+ * the link's token.
+ *
+ * Fresh each run: evidence is append-only and a submission takes at most four
+ * photographs (L6 / B24), so a seeded link fills up and then refuses.
+ */
+export async function freshExternalTask(request: APIRequestContext): Promise<string> {
+  const token = await apiLogin(request, ACCOUNTS.contractor, "MSE_TRACE");
+  const headers = { Authorization: `Bearer ${token}` };
+
+  const projects = await request.get(
+    `${API}/api/projects/get_projects/?page_size=10`,
+    { headers },
+  );
+  expect(projects.ok()).toBe(true);
+  const project = (await projects.json()).data.results.find(
+    (row: { code: string }) => row.code === "P-E2E",
+  );
+  expect(project, "the seeded E2E project is missing").toBeTruthy();
+
+  const stamp = Date.now();
+  /*
+   * `FormData`, not the object form of `multipart`.
+   *
+   * The request form wants four photographs under the same field name, and
+   * `multipart: { photos: [stream, stream] }` is not that - Playwright reads
+   * an array there as one value and fails with `stream.on is not a function`.
+   * Four `append` calls on the same key is what a browser sends.
+   *
+   * (These four are a different gate from the execution photos this spec is
+   * about: they are the site's own photographs of the waste being reported.)
+   */
+  const form = new FormData();
+  form.append("project", project.id);
+  form.append("waste_description", "Strip-out debris");
+  form.append("location_description", "Rear compound");
+  // A disposal request names its column on creation now (D-188).
+  form.append(
+    "category",
+    await columnFor(request, headers, project.id, "CONSTRUCTION_WASTE"),
+  );
+  form.append("client_event_id", `e2e-disposal-${stamp}`);
+  form.append("latitude", "3.1390000");
+  form.append("longitude", "101.6869000");
+  const bytes = fs.readFileSync(path.join(__dirname, "fixtures", "loading-photo.png"));
+  for (let index = 0; index < 4; index += 1) {
+    form.append(
+      "photos",
+      new Blob([bytes], { type: "image/png" }),
+      `waste-${index}.png`,
+    );
+  }
+  const created = await request.post(
+    `${API}/api/site-disposals/create_request/`,
+    { headers, multipart: form },
+  );
+  expect(created.status(), await created.text()).toBe(201);
+  const disposalId = (await created.json()).data.id;
+
+  const approved = await request.post(
+    `${API}/api/site-disposals/${disposalId}/review_request/`,
+    { headers, data: { decision: "APPROVED", note: "Proceed" } },
+  );
+  expect(approved.status(), await approved.text()).toBe(200);
+
+  const assigned = await request.post(
+    `${API}/api/site-disposals/${disposalId}/assign_collector/`,
+    {
+      headers,
+      data: {
+        collector_company_name: "Clean Site Services",
+        collector_contact_name: "External Executor",
+        collector_phone: "+60123456789",
+        expires_at: new Date(stamp + 2 * 24 * 3600 * 1000).toISOString(),
+      },
+    },
+  );
+  expect(assigned.status(), await assigned.text()).toBe(200);
+  return (await assigned.json()).data.external_token;
 }

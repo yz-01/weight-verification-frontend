@@ -47,10 +47,13 @@ test("every module a contractor is offered opens without a refusal", async ({
 
   const count = await buttons.count();
   expect(count).toBeGreaterThan(5);
-  // The reported row is gone for this account rather than present and broken.
+  // Equipment is an ordinary column module now, offered on `category.manage`
+  // like the rest. It used to be gated behind `asset.view` - MSE's own
+  // hardware vocabulary - which was the wrong list for a contractor's plant
+  // (F-369). So it is here, and the walk below is what proves it opens.
   await expect(
     modules.getByRole("button", { name: "Equipment categories" }),
-  ).toHaveCount(0);
+  ).toHaveCount(1);
 
   for (let index = 0; index < count; index += 1) {
     const name = (await buttons.nth(index).textContent())?.trim() ?? "";
@@ -73,15 +76,10 @@ test("the platform portal does not reach this screen at all", async ({
   page,
 }) => {
   /*
-   * Why the equipment row is gated rather than kept "for the people who own
-   * it": they never arrive here. `/category-management` is a contractor-portal
-   * route, and a platform account is sent to its own dashboard - checked here
-   * because the first version of the fix was written on the assumption that
-   * platform staff saw this screen too, and the assumption was wrong.
-   *
-   * So the row is offered to nobody today. It stays in the list as a rule
-   * rather than a deletion: `asset.view` is what it needs, and the day an
-   * account holds it on a screen it can open, the row is there and correct.
+   * `/category-management` is a contractor-portal route, and a platform
+   * account is sent to its own dashboard instead. Checked because the first
+   * version of this fix was written on the assumption that platform staff saw
+   * this screen too, and the assumption was wrong.
    */
   test.setTimeout(120_000);
   await loginAs(page, LOGIN_PATHS.admin, ACCOUNTS.admin);

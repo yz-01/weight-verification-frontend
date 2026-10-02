@@ -106,8 +106,16 @@ export function AppSidebar() {
                   const active = isActivePath(item.href, pathname, item.exact);
                   const Icon = item.icon;
                   const label = t(`nav.${item.labelKey}`);
+                  // `menuHidden` takes an entry out of the menus without
+                  // taking the page away: 「证据归档」 left the module cards
+                  // that way and stayed reachable by address. The sidebar
+                  // never read the flag, so it kept listing what the cards
+                  // had already dropped.
+                  const children = item.children?.filter(
+                    (child) => !child.menuHidden,
+                  );
                   const childIsActive = Boolean(
-                    item.children?.some((child) =>
+                    children?.some((child) =>
                       isActivePath(child.href, pathname, true),
                     ),
                   );
@@ -157,7 +165,7 @@ export function AppSidebar() {
                           )}
                         </Link>
                       </SidebarMenuButton>
-                      {item.children && item.children.length > 0 && (
+                      {children && children.length > 0 && (
                         <SidebarMenuAction
                           type="button"
                           aria-label={t("nav.toggleSubmodules", {
@@ -180,9 +188,9 @@ export function AppSidebar() {
                           />
                         </SidebarMenuAction>
                       )}
-                      {item.children && isExpanded && (
+                      {children && children.length > 0 && isExpanded && (
                         <SidebarMenuSub className="my-1 gap-0.5">
-                          {item.children.map((child) => {
+                          {children.map((child) => {
                             const childActive = isActiveChild(
                               child.href,
                               pathname,

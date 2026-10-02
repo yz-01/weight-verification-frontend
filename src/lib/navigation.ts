@@ -937,6 +937,43 @@ export const PORTAL_NAVIGATION = {
           "consultant_applications",
           "consultant.config",
         ),
+        // The three pages the hub links to. Out of the menu - the hub is the
+        // entry - but in the tree, because `isRouteAllowed` asks whether a
+        // path is owned by navigation before it asks about permissions. Folding
+        // the three lines into one hub (T-373, D-254) took their menu entries
+        // away and their routes with them, so every card on the hub bounced
+        // the reader to the dashboard. That is 「新增顾问的页面打不开」 (B16);
+        // workflows and templates were broken the same way and unreported.
+        {
+          ...child(
+            "10.2.9a",
+            "nav.submodule.consultantAccess",
+            "/consultant-access",
+            "consultant_applications",
+            "consultant.config",
+          ),
+          menuHidden: true,
+        },
+        {
+          ...child(
+            "10.2.9b",
+            "nav.submodule.consultantWorkflows",
+            "/consultant-workflows",
+            "consultant_applications",
+            "consultant.config",
+          ),
+          menuHidden: true,
+        },
+        {
+          ...child(
+            "10.2.9c",
+            "nav.submodule.consultantTemplates",
+            "/consultant-templates",
+            "consultant_applications",
+            "consultant.config",
+          ),
+          menuHidden: true,
+        },
       ],
     ),
     item(

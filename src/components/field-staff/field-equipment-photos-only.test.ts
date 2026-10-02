@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
  * Lucas, 2026-09-25: 「设备进退场的数据是不需要显示的，他们的工作就只是拍照
  * 而已」. The office list (`SiteEquipmentOffice`) keeps the figures; the phone
  * keeps only what taking the photos needs - an entry, an exit that says which
- * machine by name, and the 4-5 photographs (D-257).
+ * machine by name, and the photographs (at least 4, L6).
  *
  * Asserted by source: the way this drifts back is somebody copying the office
  * tiles or history list into the phone screen "for context".
@@ -83,11 +83,14 @@ describe("phone 设备进退场 is photos only (D-273)", () => {
     expect(mine).toMatch(/<RecordConversationPanel kind=\{row\.kind/);
   });
 
-  it("still takes the photographs, 4 to 5 of them (D-257)", () => {
+  it("still takes the photographs, at least 4 and no ceiling (L6, replacing D-257's 4-5)", () => {
     expect(body).toMatch(/<MovementDialog[\s\S]*?fieldTaskId=\{fieldTaskId\}/);
     const dialog = componentBody(code, "MovementDialog");
     expect(dialog).toMatch(/<FieldEvidenceGrid/);
-    expect(dialog).toMatch(/maxFiles=\{EQUIPMENT_PHOTO_MAX/);
-    expect(dialog).toMatch(/FIELD_EVIDENCE_PHOTO_COUNT/);
+    expect(dialog).not.toMatch(/maxFiles=/);
+    expect(dialog).toMatch(/hasRequiredFieldEvidence\(fieldEvidence\)/);
+    // 「手机和后台都要」: the office counts four too, the DO photo included.
+    expect(dialog).toMatch(/submissionPhotos\.length \+ \(deliveryNotePhoto \? 1 : 0\) >= EQUIPMENT_PHOTO_MIN/);
+    expect(code).toMatch(/const EQUIPMENT_PHOTO_MIN = 4;/);
   });
 });

@@ -48,7 +48,12 @@ test.beforeEach(async ({ page, context }) => {
 test("a site record opens to its own fields", async ({ page }) => {
   await openFieldHome(page);
 
-  const row = page.getByRole("button", { name: /Inspect E2E material delivery/ });
+  // Inside 「What I sent」: the seeded task is also waiting on this worker, so
+  // My Tasks above lists it by the same name (L1).
+  const sent = page
+    .getByRole("heading", { name: "What I sent" })
+    .locator("xpath=ancestor::section[1]");
+  const row = sent.getByRole("button", { name: /Inspect E2E material delivery/ });
   await expect(row).toBeVisible({ timeout: 20_000 });
   await row.click();
 
