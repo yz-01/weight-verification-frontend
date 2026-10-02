@@ -3081,7 +3081,7 @@
       "archived": "Seen"
     },
     "subtitle": "Everything finished, waiting for you to look at it.",
-    "title": "All records",
+    "title": "Site Record Center",
     "toast": {
       "archived": "Marked as seen, for you only."
     },
@@ -3093,7 +3093,8 @@
       "closed": "Archived",
       "notApplicable": "Not archived by anyone"
     },
-    "notInQueue": "This record is not finished yet, so it is not on your to-see list. You can mark it as seen once it is finished."
+    "notInQueue": "This record is not finished yet, so it is not on your to-see list. You can mark it as seen once it is finished.",
+    "categoryManagement": "Category management"
   },
   "assets": {
     "category": {
@@ -9227,7 +9228,7 @@
       "apiGatewaySettings": "API Gateway settings",
       "approvalCredentials": "Approval credentials",
       "approvals": "Approval records",
-      "archiveQueue": "All records",
+      "archiveQueue": "Site Record Center",
       "assetActivity": "Asset records",
       "assetAssignments": "Assignment and borrowing",
       "assetCategories": "Asset categories",

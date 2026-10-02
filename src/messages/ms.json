@@ -3081,7 +3081,7 @@
       "archived": "Sudah dilihat"
     },
     "subtitle": "Semua rekod yang selesai, menunggu anda melihatnya.",
-    "title": "Semua rekod",
+    "title": "Pusat Rekod Tapak",
     "toast": {
       "archived": "Ditanda sebagai sudah dilihat, untuk anda sahaja."
     },
@@ -3093,7 +3093,8 @@
       "closed": "Sudah diarkibkan",
       "notApplicable": "Tidak perlu diarkibkan"
     },
-    "notInQueue": "Rekod ini belum selesai, jadi ia belum ada dalam senarai untuk dilihat anda. Anda boleh tandakannya sebagai sudah dilihat selepas ia selesai."
+    "notInQueue": "Rekod ini belum selesai, jadi ia belum ada dalam senarai untuk dilihat anda. Anda boleh tandakannya sebagai sudah dilihat selepas ia selesai.",
+    "categoryManagement": "Pengurusan kategori"
   },
   "assets": {
     "category": {
@@ -9227,7 +9228,7 @@
       "apiGatewaySettings": "Tetapan API Gateway",
       "approvalCredentials": "Kelayakan kelulusan",
       "approvals": "Rekod kelulusan",
-      "archiveQueue": "Semua rekod",
+      "archiveQueue": "Pusat Rekod Tapak",
       "assetActivity": "Rekod aset",
       "assetAssignments": "Penyerahan dan pinjaman",
       "assetCategories": "Kategori aset",

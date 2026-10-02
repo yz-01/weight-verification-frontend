@@ -3081,7 +3081,7 @@
       "archived": "已看"
     },
     "subtitle": "所有已完成的記錄，等你看過。",
-    "title": "總欄目",
+    "title": "現場記錄中心",
     "toast": {
       "archived": "已為你標成「看過了」。"
     },
@@ -3093,7 +3093,8 @@
       "closed": "已歸檔",
       "notApplicable": "不需要歸檔"
     },
-    "notInQueue": "這筆記錄還沒完成，還不在你的待看清單裡。完成以後才可以標「看過了」。"
+    "notInQueue": "這筆記錄還沒完成，還不在你的待看清單裡。完成以後才可以標「看過了」。",
+    "categoryManagement": "分類管理"
   },
   "assets": {
     "category": {
@@ -9227,7 +9228,7 @@
       "apiGatewaySettings": "API Gateway 設置",
       "approvalCredentials": "審批憑證",
       "approvals": "審批記錄",
-      "archiveQueue": "總欄目",
+      "archiveQueue": "現場記錄中心",
       "assetActivity": "操作記錄",
       "assetAssignments": "領用與借用",
       "assetCategories": "資產類別",
@@ -14215,7 +14216,7 @@
   "recordClosure": {
     "title": "確認歸檔",
     "action": "確認歸檔",
-    "help": "按下去就視為這件事已經完成並歸檔，所有人都看得到，總欄目裡會寫上你的名字和時間。系統不做任何前置判斷 —— 判斷由你負責。記錄不會搬走，還在原來的模組和分類裡；之後只能查看，不能再修改。以後有新問題請新建一條記錄。",
+    "help": "按下去就視為這件事已經完成並歸檔，所有人都看得到，現場記錄中心裡會寫上你的名字和時間。系統不做任何前置判斷 —— 判斷由你負責。記錄不會搬走，還在原來的模組和分類裡；之後只能查看，不能再修改。以後有新問題請新建一條記錄。",
     "notePlaceholder": "備註（可選）",
     "closedTitle": "已歸檔",
     "closedBy": "由 {name} 於 {when} 確認。本記錄已不能再修改。",

@@ -3081,7 +3081,7 @@
       "archived": "已看"
     },
     "subtitle": "所有已完成的记录，等你看过。",
-    "title": "总栏目",
+    "title": "现场记录中心",
     "toast": {
       "archived": "已为你标成「看过了」。"
     },
@@ -3093,7 +3093,8 @@
       "closed": "已归档",
       "notApplicable": "不需要归档"
     },
-    "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。"
+    "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。",
+    "categoryManagement": "分类管理"
   },
   "assets": {
     "category": {
@@ -9227,7 +9228,7 @@
       "apiGatewaySettings": "API Gateway 设置",
       "approvalCredentials": "审批凭证",
       "approvals": "审批记录",
-      "archiveQueue": "总栏目",
+      "archiveQueue": "现场记录中心",
       "assetActivity": "操作记录",
       "assetAssignments": "领用与借用",
       "assetCategories": "资产类别",
@@ -14215,7 +14216,7 @@
   "recordClosure": {
     "title": "确认归档",
     "action": "确认归档",
-    "help": "按下去就视为这件事已经完成并归档，所有人都看得到，总栏目里会写上你的名字和时间。系统不做任何前置判断 —— 判断由你负责。记录不会搬走，还在原来的模块和分类里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
+    "help": "按下去就视为这件事已经完成并归档，所有人都看得到，现场记录中心里会写上你的名字和时间。系统不做任何前置判断 —— 判断由你负责。记录不会搬走，还在原来的模块和分类里；之后只能查看，不能再修改。以后有新问题请新建一条记录。",
     "notePlaceholder": "备注（可选）",
     "closedTitle": "已归档",
     "closedBy": "由 {name} 于 {when} 确认。本记录已不能再修改。",
