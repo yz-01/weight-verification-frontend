@@ -241,7 +241,7 @@ function MonitoringModuleLink({
         <span className="block text-sm font-semibold">
           {t(`section.${section}.title`)}
         </span>
-        <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
+        <span className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
           {t(`section.${section}.subtitle`)}
         </span>
       </span>

@@ -242,7 +242,7 @@ export function AppSidebar() {
                         isActive={active}
                         tooltip={hasMenu && !isMobile ? undefined : label}
                         className={cn(
-                          "h-9 rounded-md px-2.5",
+                          "h-9 rounded-md px-2.5 data-[active=true]:bg-primary/10 data-[active=true]:font-semibold data-[active=true]:text-primary",
                           flyoutOpen &&
                             "bg-sidebar-accent text-sidebar-accent-foreground",
                         )}
@@ -403,7 +403,7 @@ function InlineLevel({
               <SidebarMenuSubButton
                 asChild
                 isActive={node.active && !hasLevel}
-                className="h-9 min-w-0 flex-1 rounded-md px-2.5"
+                className="h-9 min-w-0 flex-1 rounded-md px-2.5 data-[active=true]:bg-primary/10 data-[active=true]:font-medium data-[active=true]:text-primary"
               >
                 <Link
                   href={node.href}

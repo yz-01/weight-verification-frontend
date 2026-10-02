@@ -113,7 +113,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <AppSidebar />
       <SidebarInset className="h-dvh min-w-0 overflow-hidden">
         <DashboardToolbar />
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6 lg:px-8 lg:py-8">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-5">
           {children}
         </div>
       </SidebarInset>

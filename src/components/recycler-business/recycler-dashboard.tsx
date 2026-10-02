@@ -965,7 +965,7 @@ function LatestNotifications({
                 <span className="block truncate text-sm font-medium">
                   {notification.title}
                 </span>
-                <span className="mt-1 block line-clamp-2 text-xs leading-5 text-muted-foreground">
+                <span className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
                   {notification.message}
                 </span>
               </span>

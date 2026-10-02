@@ -181,7 +181,7 @@ function FlyoutPanel({
             onClick={onNavigate}
             className={cn(
               "flex h-8 items-center gap-2 rounded-md px-2.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground",
-              node.active && "bg-accent font-medium text-accent-foreground",
+              node.active && "bg-primary/10 font-medium text-primary",
               openKey === node.key && "bg-accent/70",
             )}
           >

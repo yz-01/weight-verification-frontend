@@ -165,7 +165,7 @@ export function DriverDashboard() {
                     <span className="block truncate text-sm font-medium">
                       {notification.title}
                     </span>
-                    <span className="mt-1 line-clamp-2 block text-xs text-muted-foreground">
+                    <span className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                       {notification.message}
                     </span>
                   </span>

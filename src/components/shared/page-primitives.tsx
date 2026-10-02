@@ -313,14 +313,14 @@ export function ListHeader({
     : [];
 
   return (
-    <div className="flex min-h-16 flex-wrap items-center justify-between gap-4 border-b pb-4">
+    <div className="flex min-h-12 flex-wrap items-center justify-between gap-3 border-b pb-3">
       <div className="flex min-w-0 items-center gap-3">
         <span
-          className="h-10 w-1 shrink-0 rounded-full bg-primary"
+          className="h-8 w-1 shrink-0 rounded-full bg-primary"
           aria-hidden="true"
         />
         <div className="min-w-0">
-          <h2 className="truncate text-xl font-semibold leading-tight text-foreground">
+          <h2 className="truncate text-lg font-semibold leading-tight text-foreground">
             {title}
           </h2>
           <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
