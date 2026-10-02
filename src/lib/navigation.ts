@@ -1076,12 +1076,17 @@ export const PORTAL_NAVIGATION = {
           "/reports/contractor/photos",
           "report_center",
         ),
-        child(
-          "13.2.3A",
-          "nav.submodule.transactionReports",
-          "/reports",
-          "report_center",
-        ),
+        // The old page of report cards (A03). Out of the menu; the address
+        // stays, and opens the first report.
+        {
+          ...child(
+            "13.2.3A",
+            "nav.submodule.transactionReports",
+            "/reports",
+            "report_center",
+          ),
+          menuHidden: true,
+        },
         child(
           "13.2.4",
           "nav.submodule.progressRecords",

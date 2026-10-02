@@ -5789,47 +5789,6 @@
     "title": "建築商合作方",
     "unlimitedProjects": "不限項目"
   },
-  "contractorReportCenter": {
-    "description": {
-      "attendance": "包含 GPS 與照片的上下班記錄。",
-      "consultant": "顧問申請、證據、審核人及最終決定。",
-      "dispatches": "廢料訂單及當前流程狀態。",
-      "disposals": "清運申請與外部執行證據。",
-      "equipment": "設備進退場、操作員、DO 與照片數量。",
-      "history": "永久記錄每次報表的生成人員和時間。",
-      "materialCost": "已記錄價格的材料進場價值。",
-      "materialQuantity": "按單位和材料查看進場數量。",
-      "photos": "按項目、來源、上傳人、日期和 GPS 查詢全部永久照片證據。",
-      "progress": "按施工階段查看進度、確認與照片證據。",
-      "projectRecords": "公司有權限查看的項目。",
-      "recycling": "統一查看工地清運與回收訂單流程。",
-      "safety": "安全問題、負責人及整改證據。",
-      "schedule": "計劃與實際進度及延誤天數。",
-      "target": "項目目標、達成情況與業務指標。",
-      "tasks": "現場任務與提交的照片證據。"
-    },
-    "open": "打開",
-    "subtitle": "查看當前項目資料，並進入詳細報表或證據頁面。",
-    "tile": {
-      "attendance": "考勤報表",
-      "consultant": "顧問申請",
-      "dispatches": "廢料訂單",
-      "disposals": "工地清運",
-      "equipment": "設備報表",
-      "history": "導出歷史",
-      "materialCost": "材料成本",
-      "materialQuantity": "材料數量",
-      "photos": "照片報表",
-      "progress": "進度報表",
-      "projects": "項目",
-      "recycling": "清運與回收",
-      "safety": "安全報表",
-      "schedule": "計劃對比",
-      "target": "目標達成",
-      "tasks": "現場任務"
-    },
-    "title": "建築商報表中心"
-  },
   "contractorReports": {
     "action": {
       "excel": "Excel",
@@ -8450,6 +8409,14 @@
       "title": "材料數量報表",
       "totalDeliveries": "收貨總數",
       "unitNote": "數量始終按單位分組；噸、件和車次不會相加。"
+    },
+    "records": {
+      "title": "相關記錄及照片（{shown} / {total}）",
+      "what": "此報表的相關記錄",
+      "photos": "相關照片",
+      "open": "查看",
+      "noPhotos": "無照片",
+      "photosFailed": "{count} 張照片（載入失敗）"
     }
   },
   "monitoring": {
@@ -14420,5 +14387,18 @@
   },
   "moduleHub": {
     "nothingToOpen": "此模組中沒有您可以開啟的頁面。"
+  },
+  "pageSwitcher": {
+    "label": "切換頁面（目前：{page}）"
+  },
+  "reportSelector": {
+    "choose": "選擇報表",
+    "material": "材料",
+    "supplier": "供應商",
+    "allMaterials": "全部材料",
+    "allSuppliers": "全部供應商",
+    "materialsFailed": "無法載入材料列表。",
+    "suppliersFailed": "無法載入供應商列表。",
+    "noSuppliers": "此選擇還沒有進場記錄。"
   }
 }

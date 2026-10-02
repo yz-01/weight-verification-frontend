@@ -5789,47 +5789,6 @@
     "title": "Rakan kontraktor",
     "unlimitedProjects": "Projek tanpa had"
   },
-  "contractorReportCenter": {
-    "description": {
-      "attendance": "Rekod masuk dan keluar dengan GPS serta foto.",
-      "consultant": "Permohonan, perunding, bukti dan keputusan akhir.",
-      "dispatches": "Pesanan sisa dan status kitar hayatnya.",
-      "disposals": "Permintaan pelupusan dan bukti kerja luaran.",
-      "equipment": "Pergerakan peralatan, operator, DO dan foto.",
-      "history": "Rekod kekal siapa yang menjana setiap laporan.",
-      "materialCost": "Nilai bahan masuk yang mempunyai harga.",
-      "materialQuantity": "Bahan masuk mengikut unit dan bahan.",
-      "photos": "Cari semua bukti foto kekal mengikut projek, sumber, pemuat naik, tarikh dan GPS.",
-      "progress": "Kemajuan, pengesahan dan bukti foto mengikut fasa.",
-      "projectRecords": "Projek yang boleh dilihat oleh syarikat anda.",
-      "recycling": "Pelupusan tapak dan pesanan kitar semula dalam satu laporan.",
-      "safety": "Isu keselamatan, orang bertanggungjawab dan bukti pembetulan.",
-      "schedule": "Kemajuan dirancang berbanding sebenar dan hari kelewatan.",
-      "target": "Sasaran projek, pencapaian dan petunjuk operasi.",
-      "tasks": "Tugasan tapak dan bukti foto yang dihantar."
-    },
-    "open": "Buka",
-    "subtitle": "Semak rekod projek semasa dan buka halaman laporan atau bukti terperinci.",
-    "tile": {
-      "attendance": "Laporan kehadiran",
-      "consultant": "Permohonan perunding",
-      "dispatches": "Pesanan sisa",
-      "disposals": "Pelupusan tapak",
-      "equipment": "Laporan peralatan",
-      "history": "Sejarah eksport",
-      "materialCost": "Kos bahan",
-      "materialQuantity": "Kuantiti bahan",
-      "photos": "Laporan foto",
-      "progress": "Laporan kemajuan",
-      "projects": "Projek",
-      "recycling": "Pelupusan dan kitar semula",
-      "safety": "Laporan keselamatan",
-      "schedule": "Perbandingan jadual",
-      "target": "Pencapaian sasaran",
-      "tasks": "Tugasan tapak"
-    },
-    "title": "Pusat laporan kontraktor"
-  },
   "contractorReports": {
     "action": {
       "excel": "Excel",
@@ -8450,6 +8409,14 @@
       "title": "Laporan kuantiti bahan",
       "totalDeliveries": "Jumlah penghantaran",
       "unitNote": "Kuantiti kekal dikumpulkan mengikut unit; tan, unit dan muatan tidak dicampurkan."
+    },
+    "records": {
+      "title": "Penghantaran dan foto ({shown} daripada {total})",
+      "what": "penghantaran di sebalik laporan ini",
+      "photos": "Foto",
+      "open": "Lihat",
+      "noPhotos": "Tiada foto",
+      "photosFailed": "{count} foto (tidak dapat dimuatkan)"
     }
   },
   "monitoring": {
@@ -14420,5 +14387,18 @@
   },
   "moduleHub": {
     "nothingToOpen": "Tiada apa-apa dalam modul ini yang boleh anda buka."
+  },
+  "pageSwitcher": {
+    "label": "Tukar halaman (kini: {page})"
+  },
+  "reportSelector": {
+    "choose": "Pilih laporan",
+    "material": "Bahan",
+    "supplier": "Pembekal",
+    "allMaterials": "Semua bahan",
+    "allSuppliers": "Semua pembekal",
+    "materialsFailed": "Senarai bahan tidak dapat dimuatkan.",
+    "suppliersFailed": "Senarai pembekal tidak dapat dimuatkan.",
+    "noSuppliers": "Belum ada penghantaran untuk pilihan ini."
   }
 }

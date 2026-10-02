@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 
 import { GlobalModuleSearch } from "@/components/layout/global-module-search";
+import { PageSwitcher } from "@/components/layout/page-switcher";
 import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export function DashboardToolbar() {
           and the same title in every console. */}
       {current && <PageTitle current={current} />}
       <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
+        <PageSwitcher />
         {user?.account_type === "CONSULTANT" && (
           <select
             aria-label={t("consultantProject.label")}

@@ -5789,47 +5789,6 @@
     "title": "Contractor partners",
     "unlimitedProjects": "Unlimited projects"
   },
-  "contractorReportCenter": {
-    "description": {
-      "attendance": "Clock-in and clock-out evidence with GPS and photo.",
-      "consultant": "Application, reviewer, evidence and final decision.",
-      "dispatches": "Waste loads and their current lifecycle state.",
-      "disposals": "Disposal requests and external execution evidence.",
-      "equipment": "Equipment movements, operators, DO and photo counts.",
-      "history": "Permanent record of who generated each report.",
-      "materialCost": "Priced deliveries and recorded material value.",
-      "materialQuantity": "Delivered materials grouped by unit and material.",
-      "photos": "Search all permanent site photos by project, source, uploader, date and GPS.",
-      "progress": "Progress, confirmation and photo evidence by phase.",
-      "projectRecords": "Projects available to your company.",
-      "recycling": "Site disposal and recycler order lifecycle in one report.",
-      "safety": "Safety issues, responsibility and rectification evidence.",
-      "schedule": "Planned versus actual progress and delay days.",
-      "target": "Project targets, achievement and operational indicators.",
-      "tasks": "Field tasks and submitted photo evidence."
-    },
-    "open": "Open",
-    "subtitle": "Review current project records and open the detailed report or evidence page.",
-    "tile": {
-      "attendance": "Attendance report",
-      "consultant": "Consultant applications",
-      "dispatches": "Waste dispatches",
-      "disposals": "Site disposal",
-      "equipment": "Equipment report",
-      "history": "Export history",
-      "materialCost": "Material cost",
-      "materialQuantity": "Material quantity",
-      "photos": "Photo report",
-      "progress": "Progress report",
-      "projects": "Projects",
-      "recycling": "Disposal and recycling",
-      "safety": "Safety report",
-      "schedule": "Schedule comparison",
-      "target": "Target achievement",
-      "tasks": "Site tasks"
-    },
-    "title": "Contractor report center"
-  },
   "contractorReports": {
     "action": {
       "excel": "Excel",
@@ -8450,6 +8409,14 @@
       "title": "Material quantity report",
       "totalDeliveries": "Total deliveries",
       "unitNote": "Quantities remain grouped by unit; tonnes, pieces and loads are never added together."
+    },
+    "records": {
+      "title": "Deliveries and photos ({shown} of {total})",
+      "what": "the deliveries behind this report",
+      "photos": "Photos",
+      "open": "View",
+      "noPhotos": "No photos",
+      "photosFailed": "{count} photos (could not load)"
     }
   },
   "monitoring": {
@@ -14420,5 +14387,18 @@
   },
   "moduleHub": {
     "nothingToOpen": "There is nothing in this module you can open."
+  },
+  "pageSwitcher": {
+    "label": "Switch page (now: {page})"
+  },
+  "reportSelector": {
+    "choose": "Choose report",
+    "material": "Material",
+    "supplier": "Supplier",
+    "allMaterials": "All materials",
+    "allSuppliers": "All suppliers",
+    "materialsFailed": "The material list could not be loaded.",
+    "suppliersFailed": "The supplier list could not be loaded.",
+    "noSuppliers": "No deliveries for this choice yet."
   }
 }

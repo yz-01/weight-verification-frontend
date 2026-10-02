@@ -5,6 +5,7 @@ import { FileClock, FileSpreadsheet, FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { ReportSelector } from "@/components/reports/report-selector";
 import { ListHeader, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { BusinessTargetManagement } from "@/components/contractor-ops/business-target-management";
 import { Button } from "@/components/ui/button";
@@ -190,6 +191,7 @@ export function ContractorReportWorkspace({
 
   return (
     <div className="space-y-5">
+      <ReportSelector />
       {reportType === "target" && <BusinessTargetManagement />}
       <ListHeader
         title={
@@ -361,6 +363,7 @@ export function ContractorReportHistoryWorkspace() {
 
   return (
     <div className="space-y-5">
+      <ReportSelector />
       <ListHeader title={t("history.title")} subtitle={t("history.subtitle")} />
       <section className="overflow-hidden rounded-lg border bg-card">
         {history.isLoading ? (
