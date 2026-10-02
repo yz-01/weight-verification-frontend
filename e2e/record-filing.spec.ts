@@ -66,9 +66,24 @@ async function makeColumn(
 
 /** Open the filing dialog on one row, choose a column, and save. */
 async function fileInto(page: Page, row: ReturnType<Page["locator"]>, column: string) {
-  await row.getByRole("button", { name: /^File under a category$/ }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
+  // Filing moved off the row and into the record's own detail, so the record
+  // is opened first. Opened from the keyboard: the row is `role="button"` and
+  // focusable, and the View control sits in the last column of a wide table
+  // where a click lands on the scroll container instead of the button.
+  await row.press("Enter");
+  await page
+    .getByRole("dialog")
+    .filter({ has: page.getByRole("button", { name: /^File under a category$/ }) })
+    .getByRole("button", { name: /^File under a category$/ })
+    .click();
+
+  // The filing form opens on top of the detail, so two dialogs are open.
+  // Named by the control only this one carries, because `.last()` re-resolves
+  // to the detail underneath the moment this one closes.
+  const dialog = page
+    .getByRole("dialog")
+    .filter({ has: page.getByRole("button", { name: /^Save filing$/ }) });
+  await expect(dialog).toBeVisible({ timeout: 20_000 });
   await dialog.getByRole("combobox").click();
   await page.getByRole("option", { name: column }).click();
   // The one free-text box in the dialog. Located by role rather than by its
@@ -77,6 +92,11 @@ async function fileInto(page: Page, row: ReturnType<Page["locator"]>, column: st
   await dialog.getByRole("textbox").fill("Checked against the drawing");
   await dialog.getByRole("button", { name: /^Save filing$/ }).click();
   await expect(dialog).toBeHidden({ timeout: 20_000 });
+
+  // And close the detail underneath it, so what the caller asserts next is
+  // the row on the page rather than the record sitting on top of it.
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 20_000 });
 }
 
 test("a progress record is filed from the office, and the card says so", async ({
