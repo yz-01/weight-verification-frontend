@@ -53,8 +53,14 @@ function componentBody(name: string): string {
   return end === -1 ? rest : rest.slice(0, end);
 }
 
-/** The three blocks the customer named, in the order they said them. */
-const BLOCKS = ["<FieldTaskPanel", "<AvatarUpload", "<MySubmissions"] as const;
+/**
+ * The three blocks the customer named, in the order they said them.
+ *
+ * 「任务」 is the My Tasks card since L1: it lists the tasks with everything
+ * else waiting on the worker, and the separate task list that used to follow
+ * it - a second 「My tasks」 with a count of its own - is off the home.
+ */
+const BLOCKS = ["<FieldMyTasksCard", "<AvatarUpload", "<MySubmissions"] as const;
 
 describe("the field staff home carries what the customer asked for (T-209)", () => {
   it("renders all three blocks", () => {
@@ -86,10 +92,8 @@ describe("the field staff home carries what the customer asked for (T-209)", () 
      * Neither would fail anything without this.
      */
     const body = componentBody("FieldHomePanel");
-    expect(body).toContain("<FieldMyTasksCard");
-    expect(body.indexOf("<FieldMyTasksCard")).toBeLessThan(
-      body.indexOf("<FieldTaskPanel"),
-    );
+    const first = body.search(/<[A-Z]\w+/);
+    expect(body.indexOf("<FieldMyTasksCard")).toBe(first);
   });
 
   it("does not put 我的待办 back into the bottom bar", () => {

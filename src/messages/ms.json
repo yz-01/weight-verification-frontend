@@ -9608,6 +9608,7 @@
     },
     "myTasks": {
       "title": "Tugasan saya",
+      "allSiteTasks": "Semua tugas saya",
       "subtitle": "Perkara yang menunggu anda. Mengesahkan satu hanya melegakan yang itu.",
       "waiting": "{count} menunggu anda",
       "clear": "Tiada apa-apa menunggu anda."

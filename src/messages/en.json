@@ -9608,6 +9608,7 @@
     },
     "myTasks": {
       "title": "My tasks",
+      "allSiteTasks": "All my site tasks",
       "subtitle": "What is waiting on you. Confirming one clears that one and leaves the rest.",
       "waiting": "{count} waiting on you",
       "clear": "Nothing is waiting on you."

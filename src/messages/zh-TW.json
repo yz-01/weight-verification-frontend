@@ -9608,6 +9608,7 @@
     },
     "myTasks": {
       "title": "我的待辦",
+      "allSiteTasks": "查看我的全部任務",
       "subtitle": "等你處理的事項。確認一件少一件，其餘不受影響。",
       "waiting": "{count} 件等你處理",
       "clear": "目前沒有等你處理的事項。"
