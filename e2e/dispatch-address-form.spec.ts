@@ -61,7 +61,8 @@ test("the office can name the gate on a new order, and edit it afterwards", asyn
   await page.locator("#pickup_address").fill(GATE);
   await page.getByRole("button", { name: "Create" }).click();
 
-  await page.waitForURL(/\/dispatches(?:\?|$)/, { timeout: 30_000 });
+  // Back to the order list, which is the 废料订单 tab of 垃圾清运 now (B08).
+  await page.waitForURL(/\/waste-clearance\?kind=dispatch/, { timeout: 30_000 });
   expect(created, "the create response never arrived").toHaveLength(1);
   // What the server stored, not what the box showed.
   expect(created[0].pickup_address).toBe(GATE);
