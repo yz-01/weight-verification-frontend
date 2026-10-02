@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { expect, test, type APIRequestContext } from "@playwright/test";
 
-import { ACCOUNTS, API, LOGIN_PATHS, apiLogin, loginAs } from "./helpers";
+import { ACCOUNTS, API, LOGIN_PATHS, apiLogin, loginAs, columnFor } from "./helpers";
 
 /**
  * 总栏目: everything finished, waiting for this reader to look at it (T-233).
@@ -68,6 +68,8 @@ test("a confirmed record waits in the queue until this reader opens it", async (
   const form = new FormData();
   form.append("project", project.id);
   form.append("phase", (await phase.json()).data.id);
+  // Filing is checked at creation now, not only when the office refiles.
+  form.append("category", await columnFor(request, headers, project.id, "PROGRESS"));
   form.append("percent_complete", "61");
   form.append("description", description);
   form.append("client_event_id", `e2e-queue-${stamp}`);
@@ -83,22 +85,17 @@ test("a confirmed record waits in the queue until this reader opens it", async (
     multipart: form,
   });
   expect(created.status(), await created.text()).toBe(201);
-  const recordId = (await created.json()).data.id;
 
-  // Submitted is not finished. Confirming is what closes a progress record,
-  // and only then does the archive queue have anything to say about it
-  // (D-130) - so this call is the test's own proof of the status gate.
-  const confirmed = await request.post(
-    `${API}/api/site-progress/${recordId}/review_record/`,
-    { headers, data: { status: "CONFIRMED" } },
-  );
-  expect(confirmed.ok(), await confirmed.text()).toBe(true);
+  // No confirmation step: a progress record is a continuing record, not an
+  // approval, so the archive queue carries it from the moment it exists
+  // (D-225, `closed=None`). The call that used to sit here - `review_record`
+  // - was removed with it.
 
   await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
   await page.goto("/archive-queue");
 
   // The unarchived half is what the screen opens on: it is the work.
-  await expect(page.getByRole("heading", { name: "Archive queue" })).toBeVisible({
+  await expect(page.getByRole("heading", { name: "All records" })).toBeVisible({
     timeout: 20_000,
   });
   const row = page.getByRole("row", { name: new RegExp(phaseName) });
@@ -113,8 +110,10 @@ test("a confirmed record waits in the queue until this reader opens it", async (
   await expect(sheet.getByText(description)).toBeVisible();
   await expect(sheet.getByText(/mySubmissions\./)).toHaveCount(0);
 
-  // Opening is not archiving. The row is still waiting behind the sheet.
-  await sheet.getByRole("button", { name: "Archive for me" }).click();
+  // Opening is not marking. The row is still waiting behind the sheet. The
+  // vocabulary moved from 「archive」 to 「seen」 with the screen's own rename:
+  // marking takes a record off your list and nobody else's.
+  await sheet.getByRole("button", { name: "I've seen it" }).click();
   await expect(sheet).toBeHidden({ timeout: 20_000 });
 
   await expect(
@@ -122,15 +121,15 @@ test("a confirmed record waits in the queue until this reader opens it", async (
   ).toHaveCount(0, { timeout: 20_000 });
 
   // And it is in the other half, which is where the customer said the
-  // archived things live.
-  await page.getByRole("button", { name: "Archived", exact: true }).click();
+  // seen things live.
+  await page.getByRole("button", { name: "Seen", exact: true }).click();
   await expect(
     page.getByRole("row", { name: new RegExp(phaseName) }),
   ).toBeVisible({ timeout: 20_000 });
 
-  // Reloaded, because a state that only exists in React state is not archived.
+  // Reloaded, because a state that only exists in React state is not saved.
   await page.reload();
-  await page.getByRole("button", { name: "Archived", exact: true }).click();
+  await page.getByRole("button", { name: "Seen", exact: true }).click();
   await expect(
     page.getByRole("row", { name: new RegExp(phaseName) }),
   ).toBeVisible({ timeout: 20_000 });
@@ -157,8 +156,8 @@ test("the module filter narrows the queue and its counts together", async ({
     "Material leaving site",
     "Equipment in and out",
     "Hazard rectification",
-    "Recyclable waste orders",
-    "Construction waste disposal",
+    "Environmental material outgoing",
+    "Site disposal",
     "Site progress",
     "Consultant applications",
     "Attendance, by day",

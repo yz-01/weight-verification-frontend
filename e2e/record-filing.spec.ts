@@ -66,7 +66,7 @@ async function makeColumn(
 
 /** Open the filing dialog on one row, choose a column, and save. */
 async function fileInto(page: Page, row: ReturnType<Page["locator"]>, column: string) {
-  await row.getByRole("button", { name: /^File it$/ }).click();
+  await row.getByRole("button", { name: /^File under a category$/ }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await dialog.getByRole("combobox").click();
@@ -96,6 +96,7 @@ test("a progress record is filed from the office, and the card says so", async (
     `Zone ${stamp}`,
   );
 
+  const phaseName = `Substructure ${stamp}`;
   const phase = await request.post(
     `${API}/api/site-progress/create_phase/`,
     {
@@ -103,7 +104,7 @@ test("a progress record is filed from the office, and the card says so", async (
       data: {
         project: project.id,
         code: `PH-${stamp}`,
-        name: `Substructure ${stamp}`,
+        name: phaseName,
         planned_weight: "1",
       },
     },
@@ -116,6 +117,12 @@ test("a progress record is filed from the office, and the card says so", async (
   form.append("phase", (await phase.json()).data.id);
   form.append("percent_complete", "42");
   form.append("description", description);
+  // A column is mandatory on new submissions now (D-188 replaced the optional
+  // one). The unfiled state this spec is about still exists for records made
+  // before that, so the fixture reaches it the supported way: file it on
+  // creation, then unfile it again - which `file_record` is required to keep
+  // allowing.
+  form.append("category", column.id);
   // Required here, unlike on the disposal route: the progress endpoint uses it
   // to make a retried submission idempotent.
   form.append("client_event_id", `e2e-progress-${stamp}`);
@@ -133,10 +140,22 @@ test("a progress record is filed from the office, and the card says so", async (
   expect(record.status(), await record.text()).toBe(201);
   const recordId = (await record.json()).data.id;
 
+  const unfiled = await request.post(
+    `${API}/api/site-progress/${recordId}/file_record/`,
+    { headers, data: { category: "" } },
+  );
+  expect(unfiled.ok(), await unfiled.text()).toBe(true);
+
   await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
   await page.goto("/progress");
 
-  const card = page.locator("article", { hasText: description });
+  // Both lists are tables now, located the way the rest of this suite does
+  // it - `tr` with the text, not a role name the table does not expose.
+  //
+  // By phase, not by the description: the office table's columns are the
+  // date, phase, percentage, status, column, who sent it, project and photo
+  // count. The prose lives in the record, not in the row.
+  const card = page.locator("tr", { hasText: phaseName });
   await expect(card).toBeVisible({ timeout: 20_000 });
   // Unfiled has to be visible, not blank: it is the state somebody has to
   // notice before they can act on it.
@@ -181,6 +200,7 @@ test("a disposal request is filed from the office, and the row says so", async (
   form.append("project", project.id);
   form.append("waste_description", reference);
   form.append("location_description", "Rear compound");
+  form.append("category", column.id);
   form.append("client_event_id", `e2e-filing-${stamp}`);
   form.append("latitude", "3.1390000");
   form.append("longitude", "101.6869000");
@@ -199,10 +219,18 @@ test("a disposal request is filed from the office, and the row says so", async (
   expect(created.status(), await created.text()).toBe(201);
   const requestId = (await created.json()).data.id;
 
+  // Same as the progress route: filed on creation because D-188 requires it,
+  // then unfiled so the office has something to file.
+  const unfiled = await request.post(
+    `${API}/api/site-disposals/${requestId}/file_request/`,
+    { headers, data: { category: "" } },
+  );
+  expect(unfiled.ok(), await unfiled.text()).toBe(true);
+
   await loginAs(page, LOGIN_PATHS.trace, ACCOUNTS.contractor);
   await page.goto("/site-disposals");
 
-  const row = page.locator("article", { hasText: reference });
+  const row = page.locator("tr", { hasText: reference });
   await expect(row).toBeVisible({ timeout: 20_000 });
   await expect(row.getByText(/Not filed yet/)).toBeVisible();
 
