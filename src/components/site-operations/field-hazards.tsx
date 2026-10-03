@@ -24,12 +24,24 @@
  * everything else on the screen is the conversation.
  */
 
-import { ArrowLeft } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, Camera, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
+import { useAuth } from "@/components/providers/auth-provider";
 import { HazardConversationPanel } from "@/components/site-operations/hazard-conversation";
+import {
+  confirmerLabel,
+  isPermit,
+  SafetyReviewDialog,
+  SafetySubmitDialog,
+  STATUS_TONE,
+} from "@/components/site-operations/safety";
+import { StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import type { SafetyIncident } from "@/interfaces/site-operations";
+import { getSafetyIncident } from "@/services/site-operations.service";
 
 export function FieldHazardsPanel({
   hazard,
@@ -47,6 +59,31 @@ export function FieldHazardsPanel({
   onBack: () => void;
 }) {
   const t = useTranslations();
+  const te = useTranslations("ehs");
+  const { user } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  /*
+   * The item's own state, for the two things the room alone cannot offer:
+   * the rectifier's 【提交整改】 and the confirmer's 【确认完成】 (B21). A
+   * notification lands here, so the button has to be here too - and only the
+   * one confirmer the server names gets it. A worker who is only in the
+   * conversation reads it; the list endpoint refuses them, so no bar.
+   */
+  // query-failure: a participant who is neither rectifier nor confirmer is refused this read by design; the conversation below shows its own failure
+  const item = useQuery({
+    queryKey: ["safety", "field-hazard", hazard.id],
+    // Silent: somebody who is only in the conversation is refused the item
+    // itself, and that is not an error to show them.
+    queryFn: () => getSafetyIncident(hazard.id, { silent: true }),
+    retry: false,
+  });
+  const incident = item.data;
+  const canSubmit =
+    incident !== undefined &&
+    incident.responsible_person === user?.id &&
+    !isPermit(incident) &&
+    ["ASSIGNED", "RETURNED"].includes(incident.status);
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-3">
@@ -66,7 +103,42 @@ export function FieldHazardsPanel({
           </p>
         </div>
       </div>
+      {incident && (
+        <div className="space-y-3 rounded-lg border bg-card p-3" data-testid="field-hazard-state">
+          <div className="flex flex-wrap items-center gap-2">
+            {isPermit(incident) && <StatusBadge label={te("permit.badge")} tone="info" />}
+            <StatusBadge
+              label={t(`safetyRectification.status.${incident.status}`)}
+              tone={STATUS_TONE[incident.status]}
+            />
+          </div>
+          <div className="grid gap-1 text-sm">
+            {incident.responsible_person_name && (
+              <p>{te("phone.rectifierLine", { name: incident.responsible_person_name })}</p>
+            )}
+            <p>{te("phone.confirmerLine", { name: confirmerLabel(incident, te) })}</p>
+          </div>
+          {canSubmit && (
+            <Button className="w-full min-h-11" onClick={() => setSubmitting(true)}>
+              <Camera />
+              {t("safetyRectification.action.submit")}
+            </Button>
+          )}
+          {incident.can_confirm && (
+            <Button className="w-full min-h-11" onClick={() => setConfirming(true)}>
+              <CheckCircle2 />
+              {t(isPermit(incident) ? "ehs.permit.approve" : "ehs.phone.confirm")}
+            </Button>
+          )}
+        </div>
+      )}
       <HazardConversationPanel incidentId={hazard.id} />
+      {submitting && incident && (
+        <SafetySubmitDialog incident={incident} onClose={() => setSubmitting(false)} />
+      )}
+      {confirming && incident && (
+        <SafetyReviewDialog incident={incident} onClose={() => setConfirming(false)} />
+      )}
     </section>
   );
 }

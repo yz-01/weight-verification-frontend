@@ -107,9 +107,14 @@ export function getSafetyIncidents(
   );
 }
 
-export function getSafetyIncident(id: string): Promise<SafetyIncident> {
+export function getSafetyIncident(
+  id: string,
+  options: { silent?: boolean } = {},
+): Promise<SafetyIncident> {
   return api.get<SafetyIncident>(
     `/api/safety-incidents/${id}/get_safety_incident/`,
+    undefined,
+    { silent: options.silent },
   );
 }
 

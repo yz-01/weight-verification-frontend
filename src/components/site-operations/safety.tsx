@@ -120,7 +120,7 @@ const PERMIT_COLUMN_CODE = "HZD-PERMIT";
  */
 const RETIRED_VO_COLUMN_CODE = "HZD-VO";
 
-function isPermit(incident: SafetyIncident): boolean {
+export function isPermit(incident: SafetyIncident): boolean {
   return incident.record_type === "PERMIT";
 }
 
@@ -128,7 +128,7 @@ function isPermit(incident: SafetyIncident): boolean {
  * Who closes this item, in words (B21): the named confirmer, the safety leads
  * for a permit, or - on an item raised before the rule - any verifier.
  */
-function confirmerLabel(
+export function confirmerLabel(
   incident: SafetyIncident,
   te: (key: string) => string,
 ): string {
@@ -136,7 +136,7 @@ function confirmerLabel(
   return te(isPermit(incident) ? "confirmer.safetyLeads" : "confirmer.legacy");
 }
 
-const STATUS_TONE: Record<
+export const STATUS_TONE: Record<
   IncidentStatus,
   "danger" | "warning" | "positive" | "info" | "neutral"
 > = {
@@ -956,7 +956,7 @@ function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; o
   );
 }
 
-function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
+export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
   const qc = useQueryClient();
   const { user } = useAuth();
@@ -973,7 +973,7 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
     t("evidence.detail"),
     t("evidence.surroundings"),
   ];
-  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] }); onClose(); } });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
@@ -1043,13 +1043,13 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
  * in it still render, and nothing about their history changes. What went is
  * the button that puts a new one there.
  */
-function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
+export function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
   const te = useTranslations("ehs");
   const qc = useQueryClient();
   const [note, setNote] = useState("");
   const permit = isPermit(incident);
-  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision: "VERIFIED", note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision: "VERIFIED", note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] }); onClose(); } });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
