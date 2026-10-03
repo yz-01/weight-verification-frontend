@@ -14546,5 +14546,55 @@
     },
     "pageOf": "Page {page} of {pages} - up to 10 of each type per page",
     "lastPage": "This is the last page."
+  },
+  "ehs": {
+    "confirmer": {
+      "safetyLeads": "The project's safety leads",
+      "legacy": "Any authorised verifier except the rectifier",
+      "me": "Me (default)",
+      "initiator": "You - whoever raises it from the office or as a consultant confirms it"
+    },
+    "field": {
+      "origin": "Raised from",
+      "raisedBy": "Raised by",
+      "confirmer": "Confirmer",
+      "confirmedBy": "Closed by"
+    },
+    "origin": {
+      "SITE": "Raised on site",
+      "OFFICE": "Raised by the office",
+      "CONSULTANT": "Raised by a consultant"
+    },
+    "permit": {
+      "badge": "Work permit",
+      "approve": "Approve permit",
+      "approveTitle": "Approve work permit",
+      "approveDescription": "Approve {incident}. Approval files it and records you, your position and the time.",
+      "refuseInstead": "Something missing? Do not approve it. Ask in its conversation - the applicant adds to the same item.",
+      "formPhotos": "Photo of the permit form",
+      "attachments": "Other pages (PDF, certificate)",
+      "hint": "Photograph your company's own permit form. A safety lead approves it in this item; questions are asked in its conversation."
+    },
+    "photos": {
+      "before": "Before",
+      "during": "During",
+      "after": "After",
+      "none": "No photos yet"
+    },
+    "phone": {
+      "rectifierLine": "Rectifier: {name}",
+      "confirmerLine": "Confirmer: {name}",
+      "confirm": "Confirm completed"
+    },
+    "form": {
+      "selectConfirmer": "Choose who confirms it",
+      "confirmerHint": "Only this person can confirm it is done. The rectifier cannot.",
+      "confirmerConflict": "The confirmer and the rectifier must be different people.",
+      "rectifier": "Rectifier",
+      "noRectifier": "Not yet - a supervisor assigns it"
+    },
+    "what": {
+      "confirmers": "The people who can confirm"
+    }
   }
 }

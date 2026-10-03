@@ -14546,5 +14546,55 @@
     },
     "pageOf": "第 {page} / {pages} 页（每页每种最多 10 笔）",
     "lastPage": "已经是最后一页。"
+  },
+  "ehs": {
+    "confirmer": {
+      "safetyLeads": "项目安全负责人",
+      "legacy": "有验收权限的人员（整改人除外）",
+      "me": "我自己（默认）",
+      "initiator": "你——后台或顾问发起的，由发起人确认"
+    },
+    "field": {
+      "origin": "发起来源",
+      "raisedBy": "发起人",
+      "confirmer": "确认人",
+      "confirmedBy": "确认 / 批准"
+    },
+    "origin": {
+      "SITE": "现场发起",
+      "OFFICE": "后台发起",
+      "CONSULTANT": "顾问发起"
+    },
+    "permit": {
+      "badge": "施工准证",
+      "approve": "批准准证",
+      "approveTitle": "批准施工准证",
+      "approveDescription": "批准 {incident}。批准后归档，并记下你的姓名、职位和时间。",
+      "refuseInstead": "资料不齐？先不要批准，在这个事项的沟通里说明，申请人在同一个事项补充。",
+      "formPhotos": "准证表格照片",
+      "attachments": "其他页（PDF、证书）",
+      "hint": "拍下公司原有的准证表格。安全负责人在这个事项里批准；有问题就在事项的沟通里补充。"
+    },
+    "photos": {
+      "before": "整改前",
+      "during": "整改中",
+      "after": "整改后",
+      "none": "暂无照片"
+    },
+    "phone": {
+      "rectifierLine": "整改人：{name}",
+      "confirmerLine": "确认人：{name}",
+      "confirm": "确认完成"
+    },
+    "form": {
+      "selectConfirmer": "选择确认人",
+      "confirmerHint": "只有确认人能确认完成，整改人不能自己确认。",
+      "confirmerConflict": "确认人和整改人不能是同一人。",
+      "rectifier": "整改人",
+      "noRectifier": "暂不指定，由主管分配"
+    },
+    "what": {
+      "confirmers": "可选的确认人"
+    }
   }
 }

@@ -14546,5 +14546,55 @@
     },
     "pageOf": "Halaman {page} daripada {pages} - sehingga 10 setiap jenis",
     "lastPage": "Ini halaman terakhir."
+  },
+  "ehs": {
+    "confirmer": {
+      "safetyLeads": "Ketua keselamatan projek",
+      "legacy": "Mana-mana pengesah yang diberi kuasa kecuali pembaik",
+      "me": "Saya (lalai)",
+      "initiator": "Anda - yang membangkitkannya dari pejabat atau sebagai perunding yang mengesahkannya"
+    },
+    "field": {
+      "origin": "Dibangkitkan dari",
+      "raisedBy": "Dibangkitkan oleh",
+      "confirmer": "Pengesah",
+      "confirmedBy": "Ditutup oleh"
+    },
+    "origin": {
+      "SITE": "Dibangkitkan di tapak",
+      "OFFICE": "Dibangkitkan oleh pejabat",
+      "CONSULTANT": "Dibangkitkan oleh perunding"
+    },
+    "permit": {
+      "badge": "Permit kerja",
+      "approve": "Luluskan permit",
+      "approveTitle": "Luluskan permit kerja",
+      "approveDescription": "Luluskan {incident}. Kelulusan memfailkannya dan merekodkan anda, jawatan anda dan masa.",
+      "refuseInstead": "Ada yang kurang? Jangan luluskan. Tanya dalam perbualannya - pemohon menambah pada item yang sama.",
+      "formPhotos": "Foto borang permit",
+      "attachments": "Halaman lain (PDF, sijil)",
+      "hint": "Ambil foto borang permit syarikat anda sendiri. Ketua keselamatan meluluskannya dalam item ini; soalan ditanya dalam perbualannya."
+    },
+    "photos": {
+      "before": "Sebelum",
+      "during": "Semasa",
+      "after": "Selepas",
+      "none": "Tiada foto lagi"
+    },
+    "phone": {
+      "rectifierLine": "Pembaik: {name}",
+      "confirmerLine": "Pengesah: {name}",
+      "confirm": "Sahkan selesai"
+    },
+    "form": {
+      "selectConfirmer": "Pilih siapa yang mengesahkan",
+      "confirmerHint": "Hanya orang ini boleh mengesahkan ia selesai. Pembaik tidak boleh.",
+      "confirmerConflict": "Pengesah dan pembaik mesti orang yang berbeza.",
+      "rectifier": "Pembaik",
+      "noRectifier": "Belum - penyelia akan menugaskannya"
+    },
+    "what": {
+      "confirmers": "Orang yang boleh mengesahkan"
+    }
   }
 }

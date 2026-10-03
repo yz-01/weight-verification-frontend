@@ -41,7 +41,9 @@ const code = source
 
 /** The block that renders the hazard form's photo field. */
 function photoField(): string {
-  const start = code.indexOf('label={t("safety.field.photo")} required');
+  const start = code.indexOf(
+    'label={permit ? t("ehs.permit.formPhotos") : t("safety.field.photo")} required',
+  );
   expect(start, "the hazard form's photo field").toBeGreaterThan(-1);
   return code.slice(start, code.indexOf("</FieldWrapper>", start));
 }
@@ -80,11 +82,15 @@ describe("the hazard form's photographs", () => {
   it("still asks the office for one and the site for four", () => {
     // D-171: what changed is how many *can* be taken, not how many must be.
     // Somebody filing a hazard after the fact may hold only one photograph.
-    const submit = code.slice(code.indexOf("<Button requires={fieldMode"));
-    expect(submit).toContain(
-      "completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT",
+    // A permit (C20) is one page of the company's form, from either end.
+    expect(code).toContain(
+      "const requiredPhotos = permit ? 1 : fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1;",
     );
-    expect(submit).toContain("completedPhotos.length >= 1");
+    const ready = code.slice(code.indexOf("const photosReady"), code.indexOf("const confirmerId"));
+    expect(ready).toContain("completedPhotos.length >= requiredPhotos");
+    expect(ready).toContain("completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT");
+    const submit = code.slice(code.indexOf("<Button requires={["));
+    expect(submit).toContain('[photosReady, t("safety.field.photo")]');
   });
 });
 

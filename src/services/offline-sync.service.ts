@@ -363,6 +363,7 @@ async function sendJob(job: OfflineJob): Promise<void> {
     await createSafetyIncident({
       ...job.payload,
       photos: job.payload.photos.map(restoreFile),
+      attachments: (job.payload.attachments ?? []).map(restoreFile),
     });
     return;
   }
@@ -899,6 +900,7 @@ export async function submitSafetyIncidentOfflineAware(
     payload: {
       ...draft,
       photos: (draft.photos ?? []).map(storeFile),
+      attachments: (draft.attachments ?? []).map(storeFile),
     },
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {
