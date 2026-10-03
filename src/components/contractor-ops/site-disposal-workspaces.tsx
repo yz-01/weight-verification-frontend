@@ -4,14 +4,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircle2,
   ClipboardCheck,
+  Camera,
   Copy,
   FolderOpen,
+  Hash,
   Link2,
   Loader2,
   PackageCheck,
   Plus,
   RefreshCw,
-  RotateCcw,
   Send,
   Truck,
   UserRound,
@@ -70,17 +71,19 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type {
   DisposalEvidenceKind,
+  DisposalEvidenceStage,
   DisposalRequest,
   DisposalRequestStatus,
+  DisposalSiteEvidenceKind,
   ExternalDisposalTask,
 } from "@/interfaces/contractor-ops";
 import {
+  addDisposalSiteEvidence,
   addExternalDisposalEvidence,
   addInternalDisposalEvidence,
   assignDisposalCollector,
   assignDisposalInternal,
   cancelDisposalRequest,
-  confirmDisposalCompletion,
   getDisposalRequest,
   getDisposalRequests,
   getExternalDisposalTask,
@@ -88,6 +91,7 @@ import {
   regenerateDisposalExternalLink,
   exportDisposalRequests,
   fileDisposalRequest,
+  recordDisposalNumbers,
   reviewDisposalRequest,
   startExternalDisposalTask,
   startInternalDisposalTask,
@@ -114,28 +118,12 @@ function getCoordinates(): Promise<Coordinates> {
   });
 }
 
-/**
- * The most recent photograph of one kind, as a URL the tile can show.
- *
- * F-289: both disposal execution screens upload each shot immediately and then
- * re-read the record, so they hold no `File` to preview and were passing only a
- * count - which draws the same empty-looking tile as having taken nothing. The
- * watermarked copy is preferred because that is the one that carries the site,
- * time and device stamp, so what the collector sees is what was filed.
- */
-function latestEvidencePhoto(
-  evidence: ReadonlyArray<{ kind: string; image?: string | null; watermarked?: string | null }>,
-  kind: string,
-): string | undefined {
-  const shots = evidence.filter((item) => item.kind === kind);
-  const newest = shots[shots.length - 1];
-  return newest ? (newest.watermarked || newest.image || undefined) : undefined;
-}
-
 function statusTone(status: DisposalRequestStatus): "neutral" | "positive" | "warning" | "danger" | "info" {
-  if (status === "COMPLETED") return "positive";
+  // AWAITING_CONFIRMATION is history only: its final proof was submitted,
+  // which is the end of the job since E04.
+  if (status === "COMPLETED" || status === "AWAITING_CONFIRMATION") return "positive";
   if (["REJECTED", "CANCELLED", "RETURNED"].includes(status)) return "danger";
-  if (["IN_PROGRESS", "AWAITING_CONFIRMATION"].includes(status)) return "warning";
+  if (status === "IN_PROGRESS") return "warning";
   if (["APPROVED", "ASSIGNED"].includes(status)) return "info";
   return "neutral";
 }
@@ -161,7 +149,14 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
     queryFn: () => getDisposalRequests({ page_size: 200, project: project || undefined }),
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["site-disposals"] });
-  const shownRow = viewing ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing) : null;
+  // The approval / vehicle notice links to `?disposal=<id>` (C08): that job
+  // opens straight away, where its vehicle exit and Gate Pass are taken.
+  // Derived, not copied into state: closing it is the only thing remembered.
+  const searchParams = useSearchParams();
+  const linked = searchParams.get("disposal");
+  const [linkClosed, setLinkClosed] = useState(false);
+  const linkedRow = linked && !linkClosed ? rows.data?.results.find((row) => row.id === linked) ?? null : null;
+  const shownRow = viewing ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing) : linkedRow;
 
   return (
     <div className="space-y-5">
@@ -230,7 +225,10 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
       {shownRow && (
         <DisposalDetailDialog
           row={shownRow}
-          onClose={() => setViewing(null)}
+          onClose={() => {
+            setViewing(null);
+            setLinkClosed(true);
+          }}
           actions={<DisposalActions row={shownRow} onStep={(next) => setStep({ step: next, row: shownRow })} />}
         />
       )}
@@ -415,37 +413,96 @@ function CancelDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest;
 }
 
 /**
- * The contractor confirms the work, and fills in the numbers (T-224, D-116).
+ * The office fills in weight, trips and DO number after the job (D06, E04).
  *
- * The three fields are here because the outside collector no longer types
- * them - 「那两个数据从后台补吧」 - and this is the only screen that still
- * touches a submitted request. Before T-224 it took a decision, a note and a
- * photo, so removing the inputs from the link without adding them here would
- * have left three columns nobody could fill: the exact shape F-244 recorded.
- *
- * Prefilled from the row rather than blank. A collector who did send the
- * numbers should not have them erased by a confirmation that leaves the boxes
- * empty, and the office is usually correcting a reading rather than entering
- * one from nothing.
+ * These used to be typed on the confirmation dialog; E04 removed the
+ * confirmation (submitting the final proof ends the job), so they get their
+ * own small dialog. Not a confirmation, no status change: blank leaves what
+ * is there, and the server appends every change to the timeline.
  */
-function ConfirmDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
+function RecordNumbersDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
-  const [decision, setDecision] = useState<"COMPLETED" | "RETURNED">("COMPLETED");
-  const [note, setNote] = useState("");
-  const [photo, setPhoto] = useState<File>();
   const [weight, setWeight] = useState(row.actual_weight_kg ?? "");
   const [trips, setTrips] = useState(row.trip_count ? String(row.trip_count) : "");
   const [doNo, setDoNo] = useState(row.disposal_do_no ?? "");
   const save = useMutation({
-    mutationFn: () =>
-      confirmDisposalCompletion(row.id, decision, note, photo, {
-        actual_weight_kg: weight,
-        trip_count: trips,
-        disposal_do_no: doNo,
-      }),
+    mutationFn: () => recordDisposalNumbers(row.id, { actual_weight_kg: weight, trip_count: trips, disposal_do_no: doNo }),
     onSuccess: onSaved,
   });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("confirm.title")}</DialogTitle><DialogDescription>{t("confirm.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "COMPLETED" ? "default" : "outline"} onClick={() => setDecision("COMPLETED")}><CheckCircle2 />{t("action.complete")}</Button><Button variant={decision === "RETURNED" ? "destructive" : "outline"} onClick={() => setDecision("RETURNED")}><RotateCcw />{t("action.return")}</Button></div><div className="grid gap-3 sm:grid-cols-3"><FieldWrapper label={t("field.actualWeight")} optional={t("optional")}><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} optional={t("optional")}><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} optional={t("optional")}><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper></div><FieldWrapper label={t("field.confirmationNote")} required={decision === "RETURNED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.confirmationPhoto")} optional={t("optional")}><FieldCamera label={t("field.confirmationPhoto")} file={photo} fileCount={photo ? 1 : 0} onCapture={setPhoto} onClear={() => setPhoto(undefined)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[decision !== "RETURNED" || note, t("field.confirmationNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("recordNumbers.title")}</DialogTitle><DialogDescription>{t("recordNumbers.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid gap-3 sm:grid-cols-3"><FieldWrapper label={t("field.actualWeight")} optional={t("optional")}><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} optional={t("optional")}><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} optional={t("optional")}><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+}
+
+const SITE_EVIDENCE_KINDS: DisposalSiteEvidenceKind[] = ["VEHICLE_EXIT", "GATE_PASS"];
+
+/**
+ * The site photographs the load leaving: vehicle exit, Gate Pass (C08).
+ *
+ * Opened from the same disposal after approval. General waste rules (E03):
+ * up to four per submission in any mix, none required per kind, note
+ * optional. Stored apart from the driver's final proof on the same ID.
+ */
+function SiteEvidenceDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
+  const t = useTranslations("siteDisposal");
+  const { user } = useAuth();
+  const isFieldStaff = Boolean(user?.is_field_staff);
+  const [shots, setShots] = useState<Array<{ file: File; kind: DisposalSiteEvidenceKind }>>([]);
+  const [note, setNote] = useState("");
+  const [location, setLocation] = useState<Coordinates | null>(null);
+  const full = shots.length >= DISPOSAL_PHOTO_MAX;
+  const save = useMutation({
+    mutationFn: () => addDisposalSiteEvidence(row.id, {
+      photos: shots,
+      note,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      accuracy_m: location?.accuracy,
+      client_event_id: crypto.randomUUID(),
+    }),
+    onSuccess: onSaved,
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col overflow-hidden sm:max-w-lg">
+        <DialogHeader className="shrink-0"><DialogTitle>{t("siteEvidence.title")}</DialogTitle><DialogDescription>{t("siteEvidence.description", { reference: row.reference_no })}</DialogDescription></DialogHeader>
+        <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1">
+          <FieldWrapper label={t("siteEvidence.photos")} required>
+          <p className="mb-2 text-xs text-muted-foreground">{t("siteEvidence.progress", { current: shots.length, max: DISPOSAL_PHOTO_MAX })}</p>
+          <div className="grid gap-3">
+          {SITE_EVIDENCE_KINDS.map((kind) => {
+            const taken = shots.filter((shot) => shot.kind === kind);
+            return (
+              <FieldCamera
+                key={kind}
+                label={t(kind === "VEHICLE_EXIT" ? "siteEvidence.vehicleExit" : "siteEvidence.gatePass")}
+                fileCount={taken.length}
+                file={taken[taken.length - 1]?.file}
+                disabled={full}
+                onCapture={(file) => setShots((current) => (current.length >= DISPOSAL_PHOTO_MAX ? current : [...current, { file, kind }]))}
+                onClear={() => setShots((current) => current.filter((shot) => shot.kind !== kind))}
+              />
+            );
+          })}
+          </div>
+          </FieldWrapper>
+          {isFieldStaff && <LocationField label={t("field.gps")} actionLabel={t("action.getLocation")} readyLabel={t("action.locationReady")} value={location} onChange={setLocation} required />}
+          <FieldWrapper label={t("siteEvidence.note")} optional={t("optional")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
+        </div>
+        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[shots.length > 0, t("siteEvidence.photos")], [isFieldStaff ? location : true, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("siteEvidence.submit")}</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** B23: the order a disposal's photographs are shown in, one row per stage. */
+const DISPOSAL_STAGES: DisposalEvidenceStage[] = ["REQUEST", "SITE_EXIT", "FINAL_PROOF", "OFFICE_CHECK"];
+
+/** The stage of one photograph; the server says, this is only a fallback. */
+function stageOf(item: { kind: DisposalEvidenceKind; stage?: DisposalEvidenceStage }): DisposalEvidenceStage {
+  if (item.stage) return item.stage;
+  if (item.kind === "REQUEST") return "REQUEST";
+  if (["VEHICLE_EXIT", "GATE_PASS", "LOADING"].includes(item.kind)) return "SITE_EXIT";
+  if (item.kind === "CONFIRMATION") return "OFFICE_CHECK";
+  return "FINAL_PROOF";
 }
 
 /**
@@ -493,18 +550,29 @@ function DisposalDetailDialog({
           { label: t("field.trips"), value: row.trip_count ? String(row.trip_count) : "—" },
           { label: t("field.doNo"), value: row.disposal_do_no || "—" },
           { label: t("field.ocr"), value: t(`ocr.${row.ocr_status}`) },
+          // E04: the end of the job is the final proof's submission.
+          { label: t("field.finalProofSubmitted"), value: row.submitted_at && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) ? df.dateTime(row.submitted_at) : "—" },
+          // Only on a job confirmed under the earlier rule; kept readable.
+          ...(row.confirmed_at ? [{ label: t("field.legacyConfirmation"), value: `${row.confirmed_by_name ?? ""} · ${df.dateTime(row.confirmed_at)}${row.confirmation_note ? ` · ${row.confirmation_note}` : ""}` }] : []),
           { label: t("field.waste"), value: row.waste_description, wide: true },
           ...(row.request_note ? [{ label: t("field.note"), value: row.request_note, wide: true }] : []),
           ...(row.review_note ? [{ label: t("field.reviewNote"), value: row.review_note, wide: true }] : []),
         ]}
-        photos={row.evidence.map((item) => ({
-          id: item.id,
-          url: item.watermarked || item.image,
-          label: t(`evidenceKind.${item.kind}`),
-          takenAt: item.captured_at,
-          latitude: item.latitude,
-          longitude: item.longitude,
-        }))}
+        photos={[...row.evidence]
+          .sort((a, b) => DISPOSAL_STAGES.indexOf(stageOf(a)) - DISPOSAL_STAGES.indexOf(stageOf(b)))
+          .map((item) => ({
+            id: item.id,
+            url: item.watermarked || item.image,
+            label: t(`evidenceKind.${item.kind}`),
+            takenAt: item.captured_at,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            group: stageOf(item),
+          }))}
+        // B23: request / loading and leaving site / final proof, apart. The
+        // office-check row only appears on a job that has one (pre-E04).
+        photoGroups={DISPOSAL_STAGES.filter((stage) => stage !== "OFFICE_CHECK" || row.evidence.some((item) => stageOf(item) === "OFFICE_CHECK")).map((stage) => ({ key: stage, label: t(`stage.${stage}`) }))}
+        emptyGroupLabel={t("stage.empty")}
         panel={
           <section className="rounded-lg border bg-card p-3">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("timeline")}</h3>
@@ -533,7 +601,10 @@ function DisposalDetailDialog({
   );
 }
 
-type DisposalStep = "filing" | "reviewing" | "assigning" | "regenerating" | "confirming" | "cancelling";
+type DisposalStep = "filing" | "reviewing" | "assigning" | "regenerating" | "numbers" | "siteEvidence" | "cancelling";
+
+/** Approved and not yet finished: the only time the job takes photographs. */
+const RUNNING: DisposalRequestStatus[] = ["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"];
 
 /**
  * The steps one disposal request can take next, for whoever is looking.
@@ -554,8 +625,12 @@ function DisposalActions({ row, onStep }: { row: DisposalRequest; onStep: (step:
       {can("disposal.manage") && row.status === "REQUESTED" && <Button size="sm" onClick={() => onStep("reviewing")}><ClipboardCheck />{t("action.review")}</Button>}
       {can("disposal.manage") && ["APPROVED", "ASSIGNED", "RETURNED"].includes(row.status) && <Button size="sm" onClick={() => onStep("assigning")}><Send />{t("action.assign")}</Button>}
       {can("disposal.manage") && row.assignment_type === "EXTERNAL" && ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("regenerating")}><RefreshCw />{t("action.regenerateLink")}</Button>}
-      {can("disposal.confirm") && row.status === "AWAITING_CONFIRMATION" && <Button size="sm" onClick={() => onStep("confirming")}><CheckCircle2 />{t("action.confirm")}</Button>}
-      {can("disposal.manage") && !["COMPLETED", "CANCELLED"].includes(row.status) && <Button size="sm" variant="destructive" onClick={() => onStep("cancelling")}><XCircle />{t("action.cancelDisposal")}</Button>}
+      {/* C08: the site's vehicle exit / Gate Pass, on the same job. */}
+      {can("disposal.submit") && RUNNING.includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("siteEvidence")}><Camera />{t("action.siteEvidence")}</Button>}
+      {/* E04: no 验收 / 退回 - the final proof's submission ended the job.
+          What the office still does is fill in the numbers (D06). */}
+      {can("disposal.confirm") && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) && <Button size="sm" variant="outline" onClick={() => onStep("numbers")}><Hash />{t("action.recordNumbers")}</Button>}
+      {can("disposal.manage") && !["COMPLETED", "AWAITING_CONFIRMATION", "CANCELLED", "REJECTED"].includes(row.status) && <Button size="sm" variant="destructive" onClick={() => onStep("cancelling")}><XCircle />{t("action.cancelDisposal")}</Button>}
     </>
   );
 }
@@ -598,8 +673,10 @@ function DisposalStepDialogs({
       return <RegenerateLinkDialog row={row} onClose={onClose} onSaved={onChanged} />;
     case "cancelling":
       return <CancelDisposalDialog row={row} onClose={onClose} onSaved={done} />;
-    case "confirming":
-      return <ConfirmDisposalDialog row={row} onClose={onClose} onSaved={done} />;
+    case "numbers":
+      return <RecordNumbersDialog row={row} onClose={onClose} onSaved={done} />;
+    case "siteEvidence":
+      return <SiteEvidenceDialog row={row} onClose={onClose} onSaved={done} />;
   }
 }
 
@@ -821,7 +898,7 @@ const DISPOSAL_STATES: DisposalRequestStatus[] = [
   "CANCELLED",
 ];
 
-const EXECUTION_EVIDENCE: Array<Exclude<DisposalEvidenceKind, "REQUEST" | "CONFIRMATION">> = ["LOADING", "UNLOADING", "DISPOSAL_DO", "OTHER"];
+const EXECUTION_EVIDENCE: DisposalEvidenceKind[] = ["LOADING", "UNLOADING", "DISPOSAL_DO", "OTHER", "DISPOSAL_PROOF"];
 
 /**
  * General waste photographs, per submission (L6 / B24).
@@ -832,11 +909,11 @@ const EXECUTION_EVIDENCE: Array<Exclude<DisposalEvidenceKind, "REQUEST" | "CONFI
  */
 const DISPOSAL_PHOTO_MAX = 4;
 
-/** This submission's execution photographs: a returned job starts anew. */
+/** This submission's execution photographs (a legacy returned job starts anew). */
 function executionPhotos<E extends { kind: DisposalEvidenceKind; created_at?: string }>(task: { status: string; submitted_at?: string | null; evidence: E[] }): E[] {
   return task.evidence.filter(
     (item) =>
-      (EXECUTION_EVIDENCE as DisposalEvidenceKind[]).includes(item.kind) &&
+      EXECUTION_EVIDENCE.includes(item.kind) &&
       !(task.status === "RETURNED" && task.submitted_at && item.created_at && item.created_at <= task.submitted_at),
   );
 }
@@ -854,7 +931,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const current = task ?? taskQuery.data ?? null;
   const start = useMutation({ mutationFn: () => startExternalDisposalTask(token), onSuccess: setTask, onError: () => setError(t("error.action")) });
   const submit = useMutation({ mutationFn: () => submitExternalDisposalTask(token, { note }), onSuccess: setTask, onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")) });
-  const upload = async (kind: Exclude<DisposalEvidenceKind, "REQUEST" | "CONFIRMATION">, image?: File) => {
+  const upload = async (kind: DisposalEvidenceKind, image?: File) => {
     if (!image || !current) return;
     setError("");
     setUploading(kind);
@@ -869,8 +946,12 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
 
   if (taskQuery.isLoading) return <main className="grid min-h-dvh place-items-center"><Loader2 className="size-8 animate-spin text-primary" /></main>;
   if (taskQuery.isError || !current) return <main className="mx-auto max-w-xl px-5 py-16"><h1 className="text-xl font-semibold">{t("invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{t("invalidBody")}</p></main>;
-  const editable = ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
-  const waiting = current.status === "AWAITING_CONFIRMATION";
+  // APPROVED too (D05 / D10): the link is handed out at approval and the
+  // driver can start from it before anybody is assigned.
+  const editable = ["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
+  const startable = current.status === "APPROVED" || current.status === "ASSIGNED";
+  // E04: submitting is the end - no "waiting for the site to check".
+  const finished = current.status === "COMPLETED" || current.status === "AWAITING_CONFIRMATION";
   // The server's rule, restated here so the button can say no before the
   // request rather than after it: one photograph at least, four at most.
   const sent = executionPhotos(current);
@@ -899,14 +980,14 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
 
       {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
 
-      {current.status === "ASSIGNED" && (
+      {startable && (
         <Button size="lg" className="mt-5 h-14 w-full text-base" disabled={start.isPending} onClick={() => start.mutate()}>
           {start.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}
           {t("action.start")}
         </Button>
       )}
 
-      {editable && current.status !== "ASSIGNED" && (
+      {editable && !startable && (
         <>
           <section className="mt-6">
             {/* One field, not four (L6 / B24): no category per photograph, up
@@ -921,7 +1002,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
                   // the field has no category, so neither does its preview.
                   previewUrl={sent.length ? (sent[sent.length - 1].watermarked || sent[sent.length - 1].image || undefined) : undefined}
                   disabled={uploading !== null || full}
-                  onCapture={(file) => void upload("OTHER", file)}
+                  onCapture={(file) => void upload("DISPOSAL_PROOF", file)}
                 />
               </div>
             </FieldWrapper>
@@ -952,7 +1033,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
         </>
       )}
 
-      {waiting && (
+      {finished && (
         <section className="mt-8 rounded-lg border border-success/30 bg-success/5 p-6 text-center">
           <CheckCircle2 className="mx-auto size-12 text-success" />
           <h2 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h2>
@@ -996,7 +1077,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
     },
     onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")),
   });
-  const upload = async (kind: Exclude<DisposalEvidenceKind, "REQUEST" | "CONFIRMATION">, image?: File) => {
+  const upload = async (kind: DisposalEvidenceKind, image?: File) => {
     if (!image || !current) return;
     setError("");
     setUploading(kind);
@@ -1034,9 +1115,12 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
     {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
     {current.status === "ASSIGNED" && <Button size="lg" className="h-14 w-full text-base" disabled={start.isPending} onClick={() => start.mutate()}>{start.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}{t("action.start")}</Button>}
     {editable && current.status !== "ASSIGNED" && <>
-      <section><h3 className="text-base font-semibold">{t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3">{EXECUTION_EVIDENCE.map((kind) => <FieldCamera key={kind} label={t(`evidence.${kind}`)} fileCount={current.evidence.filter((item) => item.kind === kind).length} previewUrl={latestEvidencePhoto(current.evidence, kind)} disabled={uploading !== null || full} onCapture={(file) => void upload(kind, file)} />)}</div></section>
+      {/* One camera, like the driver's link (E04, DEV_BRIEF Q2): the final
+          proof, up to four, any kind. Vehicle exit / Gate Pass are the
+          site's own photographs, taken from the job itself (C08). */}
+      <section><h3 className="text-base font-semibold">{t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3"><FieldCamera label={t("photosTitle")} fileCount={sent.length} previewUrl={sent.length ? (sent[sent.length - 1].watermarked || sent[sent.length - 1].image || undefined) : undefined} disabled={uploading !== null || full} onCapture={(file) => void upload("DISPOSAL_PROOF", file)} /></div></section>
       <section className="space-y-4 rounded-lg border bg-card p-4"><h3 className="font-semibold">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} required><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(event) => setTrips(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")], [Number(trips) >= 1, t("field.trips")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
     </>}
-    {current.status === "AWAITING_CONFIRMATION" && <section className="rounded-lg border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}
+    {(current.status === "COMPLETED" || current.status === "AWAITING_CONFIRMATION") && <section className="rounded-lg border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}
   </div>;
 }

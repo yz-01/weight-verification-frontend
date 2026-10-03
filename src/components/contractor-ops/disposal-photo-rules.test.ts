@@ -45,9 +45,32 @@ describe("general waste photographs (L6 / B24)", () => {
     });
   }
 
-  it("gives the driver one photo field, not four kinds", () => {
-    const body = componentBody("ExternalDisposalWorkspace");
-    expect(body).not.toMatch(/EXECUTION_EVIDENCE\.map/);
-    expect(body).toMatch(/upload\("OTHER", file\)/);
+  for (const screen of ["ExternalDisposalWorkspace", "InternalDisposalWorkspace"]) {
+    it(`${screen} has one field, the final disposal proof, not four kinds`, () => {
+      const body = componentBody(screen);
+      expect(body).not.toMatch(/EXECUTION_EVIDENCE\.map/);
+      expect(body).toMatch(/upload\("DISPOSAL_PROOF", file\)/);
+    });
+  }
+});
+
+/**
+ * E04: submitting the final proof ends the job, for the driver's link and for
+ * the contractor's own field staff alike. No office 验收 / 退回 remains.
+ */
+describe("general waste ends on Submit (E04)", () => {
+  it("offers the office no confirm or return step", () => {
+    expect(code).not.toMatch(/confirmDisposalCompletion/);
+    expect(code).not.toMatch(/"confirming"/);
+    expect(code).not.toMatch(/ConfirmDisposalDialog/);
+  });
+
+  it("shows both executors a finished screen, not 'waiting for the site to check'", () => {
+    expect(componentBody("ExternalDisposalWorkspace")).toMatch(/const finished = current\.status === "COMPLETED"/);
+    expect(componentBody("InternalDisposalWorkspace")).toMatch(/current\.status === "COMPLETED"/);
+  });
+
+  it("lets the driver start from the link handed out at approval (D10)", () => {
+    expect(componentBody("ExternalDisposalWorkspace")).toMatch(/\["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"\]/);
   });
 });

@@ -9185,7 +9185,15 @@
       "paid_by": "確認付款人",
       "paid_at": "付款時間",
       "returned_quantity": "實際退回數量",
-      "source_receipt_no": "原進場記錄"
+      "source_receipt_no": "原進場記錄",
+      "requested_by": "申請人",
+      "approved_by": "審批人",
+      "actual_weight": "實際重量",
+      "trip_count": "車次",
+      "disposal_do_no": "Disposal DO 編號",
+      "execution_note": "執行備註",
+      "final_proof_submitted": "最終處理證明已提交（任務結束）",
+      "legacy_confirmation": "後台驗收（舊流程）"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -12669,8 +12677,6 @@
       "cancel": "取消",
       "cancelDisposal": "取消清運",
       "close": "關閉",
-      "complete": "驗收完成",
-      "confirm": "驗收",
       "copyLink": "複製任務鏈接",
       "createLink": "生成免登錄鏈接",
       "getLocation": "獲取當前 GPS",
@@ -12678,12 +12684,13 @@
       "new": "新增申請",
       "regenerateLink": "重新生成鏈接",
       "reject": "拒絕",
-      "return": "退回",
       "review": "審批",
       "save": "保存決定",
       "sendToStaff": "發送給工作人員",
       "submit": "提交申請",
-      "view": "查看"
+      "view": "查看",
+      "recordNumbers": "補錄數字",
+      "siteEvidence": "拍車輛出場 / Gate Pass"
     },
     "assign": {
       "copyNow": "複製後發送給外部清運商。鏈接不需要登錄；如遺失，可在清運列表重新生成，舊鏈接會立即失效。",
@@ -12699,10 +12706,6 @@
       "description": "取消 {reference} 後，工作人員任務及外部鏈接會立即失效。記錄和照片會保留供審計。",
       "title": "取消清運"
     },
-    "confirm": {
-      "description": "檢查 {reference} 的裝車、卸貨及 Disposal DO 證據。",
-      "title": "驗收清運結果"
-    },
     "count": "共 {count} 項清運申請",
     "create": {
       "description": "拍攝廢料、獲取當前 GPS，並提交給負責人審批。",
@@ -12715,17 +12718,20 @@
     },
     "evidence": "照片與文件證據",
     "evidenceKind": {
-      "CONFIRMATION": "驗收",
+      "CONFIRMATION": "後台驗收（舊流程）",
       "DISPOSAL_DO": "Disposal DO",
       "LOADING": "裝車",
       "OTHER": "其他現場照片",
       "REQUEST": "申請照片",
-      "UNLOADING": "卸貨"
+      "UNLOADING": "卸貨",
+      "DISPOSAL_PROOF": "最終處理證明",
+      "VEHICLE_EXIT": "車輛出場",
+      "GATE_PASS": "Gate Pass"
     },
     "external": {
       "action": {
         "start": "開始清運",
-        "submit": "發送給工地驗收"
+        "submit": "提交最終處理證明（結束任務）"
       },
       "error": {
         "action": "操作無法完成，請檢查網絡後重試。"
@@ -12744,25 +12750,25 @@
       },
       "invalid": "任務鏈接無法使用",
       "invalidBody": "鏈接無效、已到期，或任務已經完成。",
-      "photosTitle": "現場照片（最多 4 張）",
+      "photosTitle": "最終處理證明（最多 4 張）",
       "status": {
-        "APPROVED": "已批准",
+        "APPROVED": "可以開始",
         "ASSIGNED": "可以開始",
-        "AWAITING_CONFIRMATION": "等待工地驗收",
+        "AWAITING_CONFIRMATION": "已提交最終處理證明",
         "CANCELLED": "已取消",
-        "COMPLETED": "已完成",
+        "COMPLETED": "已完成（連結已失效）",
         "IN_PROGRESS": "執行中",
         "REJECTED": "已拒絕",
         "REQUESTED": "等待審批",
-        "RETURNED": "需要更正"
+        "RETURNED": "已退回（舊流程）"
       },
       "submitTitle": "清運資料",
       "tapCamera": "按這裡打開相機",
       "title": "清運任務",
       "uploaded": "已上傳",
-      "waitingBody": "工地負責人將檢查照片和 Disposal DO，目前無需繼續操作。",
-      "waitingTitle": "已發送驗收",
-      "photosBody": "一次最多 4 張，不限類別；至少 1 張才能提交。"
+      "waitingBody": "最終處理證明已提交，連結已失效，不能再加照片。",
+      "waitingTitle": "任務已結束",
+      "photosBody": "把垃圾送到合法處理地點後拍照。最多 4 張，不限類別；至少 1 張才能提交。提交後任務結束、連結失效。"
     },
     "externalActor": "外部執行人員",
     "field": {
@@ -12794,7 +12800,9 @@
       "status": "狀態",
       "trips": "車次",
       "volume": "預計體積（m³）",
-      "waste": "雜物/廢棄物說明"
+      "waste": "雜物/廢棄物說明",
+      "finalProofSubmitted": "最終處理證明已提交",
+      "legacyConfirmation": "後台驗收（舊流程）"
     },
     "fieldEvidence": {
       "access": "3. 清運入口或車輛路線",
@@ -12805,18 +12813,12 @@
     },
     "internal": {
       "action": {
-        "photosRequired": "先完成四類必拍照片",
+        "photosRequired": "先拍最終處理證明",
         "start": "開始清運",
-        "submit": "發送給負責人驗收"
+        "submit": "提交最終處理證明（結束任務）"
       },
       "error": {
         "action": "操作無法完成，請檢查網絡和 GPS 後重試。"
-      },
-      "evidence": {
-        "DISPOSAL_DO": "3. Disposal DO 照片",
-        "LOADING": "1. 裝車照片",
-        "OTHER": "4. 其他現場照片",
-        "UNLOADING": "2. 卸貨照片"
       },
       "field": {
         "doNo": "Disposal DO 編號",
@@ -12825,22 +12827,22 @@
         "weight": "實際重量（kg）"
       },
       "invalid": "無法打開這項清運任務，請刷新任務列表後重試。",
-      "photosBody": "每次提交最多 4 張，不強制每類都拍；至少 1 張才能提交。",
-      "photosTitle": "清運證據",
+      "photosBody": "把垃圾送到合法處理地點後拍照。每次最多 4 張，不限類別；至少 1 張才能提交。提交即結束任務，不需要後台驗收。",
+      "photosTitle": "最終處理證明",
       "status": {
         "APPROVED": "已批准",
         "ASSIGNED": "可以開始",
-        "AWAITING_CONFIRMATION": "等待驗收",
+        "AWAITING_CONFIRMATION": "已提交最終處理證明",
         "CANCELLED": "已取消",
         "COMPLETED": "已完成",
         "IN_PROGRESS": "執行中",
         "REJECTED": "已拒絕",
         "REQUESTED": "等待審批",
-        "RETURNED": "需要更正"
+        "RETURNED": "已退回（舊流程）"
       },
       "submitTitle": "清運結果",
-      "waitingBody": "負責人會檢查照片和 Disposal DO。退回時，這項任務會重新出現在我的任務。",
-      "waitingTitle": "已發送驗收"
+      "waitingBody": "最終處理證明已提交，這項清運已完成。",
+      "waitingTitle": "任務已結束"
     },
     "notAssigned": "尚未指派",
     "ocr": {
@@ -12865,13 +12867,13 @@
     "status": {
       "APPROVED": "已批准",
       "ASSIGNED": "已指派執行人",
-      "AWAITING_CONFIRMATION": "等待驗收",
+      "AWAITING_CONFIRMATION": "已提交最終處理證明",
       "CANCELLED": "已取消",
       "COMPLETED": "已完成",
       "IN_PROGRESS": "執行中",
       "REJECTED": "已拒絕",
       "REQUESTED": "等待審批",
-      "RETURNED": "已退回更正"
+      "RETURNED": "已退回更正（舊流程）"
     },
     "subtitle": "普通工地雜物、泥土和非回收廢棄物的清理任務。可直接指派現場工作人員，或發送免登錄鏈接給外部清運商。",
     "timeline": "任務時間軸",
@@ -12879,37 +12881,63 @@
       "APPROVED": "申請已批准",
       "CANCELLED": "申請已取消",
       "COLLECTOR_ASSIGNED": "已指派外部清運商",
-      "COMPLETED": "管理人員已驗收完成",
+      "COMPLETED": "管理人員已驗收完成（舊流程）",
       "EVIDENCE_DISPOSAL_DO": "已上傳 Disposal DO",
       "EVIDENCE_LOADING": "已上傳裝車照片",
       "EVIDENCE_OTHER": "已上傳其他現場照片",
       "EVIDENCE_UNLOADING": "已上傳卸貨照片",
       "EXTERNAL_LINK_REGENERATED": "已重新生成外部鏈接",
       "EXTERNAL_STARTED": "外部清運工作已開始",
-      "EXTERNAL_SUBMITTED": "外部執行結果已提交驗收",
+      "EXTERNAL_SUBMITTED": "司機已提交最終處理證明，任務結束",
       "INTERNAL_ASSIGNED": "已指派現場工作人員",
       "INTERNAL_STARTED": "工作人員已開始清運",
-      "INTERNAL_SUBMITTED": "工作人員執行結果已提交驗收",
+      "INTERNAL_SUBMITTED": "工作人員已提交最終處理證明，任務結束",
       "REJECTED": "申請已拒絕",
       "REQUESTED": "已提交申請",
-      "RETURNED": "已退回更正"
+      "RETURNED": "已退回更正（舊流程）",
+      "CLOSED_ON_SUBMISSION": "已結束：最終處理證明已提交（新規則）",
+      "NUMBERS_RECORDED": "後台已補錄重量 / 車次 / DO",
+      "SITE_EVIDENCE": "現場已上傳車輛出場 / Gate Pass 照片",
+      "EVIDENCE_DISPOSAL_PROOF": "已上傳最終處理證明照片"
     },
     "title": "工地清運",
     "toast": {
       "assigned": "外部清運商已指派",
       "assignedInternal": "已發送給現場工作人員",
       "cancelled": "清運申請已取消",
-      "confirmed": "清運驗收已保存",
       "linkRegenerated": "外部清運鏈接已重新生成",
       "requested": "清運申請已提交",
-      "reviewed": "清運審批已保存"
+      "reviewed": "清運審批已保存",
+      "numbersRecorded": "已儲存重量 / 車次 / DO",
+      "siteEvidence": "現場照片已發送後台"
     },
     "overdue": {
       "badge": "異常",
-      "help": "批准後 36 小時仍未收到處理照片，請跟進。"
+      "help": "批准後 36 小時仍未提交最終處理證明，請跟進。"
     },
     "what": {
       "fieldStaff": "本項目的現場工作人員"
+    },
+    "stage": {
+      "REQUEST": "申請照片",
+      "SITE_EXIT": "裝車與工地出場證據",
+      "FINAL_PROOF": "最終處理證明",
+      "OFFICE_CHECK": "後台驗收照片（舊流程）",
+      "empty": "暫無"
+    },
+    "recordNumbers": {
+      "title": "補錄重量 / 車次 / DO",
+      "description": "{reference} 已結束。這裡只補錄數字，不是驗收；每次修改都會留在時間軸。"
+    },
+    "siteEvidence": {
+      "title": "現場證據：車輛出場 / Gate Pass",
+      "description": "{reference}：每次最多 4 張，不要求拍滿，備註選填。和司機的最終處理證明分開保存。",
+      "vehicleExit": "車輛出場",
+      "gatePass": "Gate Pass",
+      "progress": "{current} / {max} 張",
+      "note": "備註",
+      "submit": "提交後台",
+      "photos": "照片"
     }
   },
   "siteGps": {
@@ -14554,7 +14582,12 @@
       "open": "查看"
     },
     "pageOf": "第 {page} / {pages} 頁（每頁每種最多 10 筆）",
-    "lastPage": "已經是最後一頁。"
+    "lastPage": "已經是最後一頁。",
+    "totals": {
+      "disposals": "工地清運：{records} 筆 · {trips} 車次 · {weight} kg",
+      "dispatches": "廢料訂單：{records} 筆 · {trips} 車次 · 過磅 {weight} kg",
+      "apart": "兩類分開統計，不合計。"
+    }
   },
   "ehs": {
     "confirmer": {

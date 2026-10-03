@@ -16,6 +16,8 @@ import type {
   DisposalEvidence,
   DisposalEvidenceKind,
   DisposalRequest,
+  DisposalSiteEvidenceKind,
+  DisposalTotals,
   ExternalDisposalTask,
   EquipmentMovement,
   EquipmentSummary,
@@ -783,40 +785,59 @@ export const submitInternalDisposalTask = (
   ...payload,
 });
 
-export async function confirmDisposalCompletion(
+/**
+ * The office fills in weight, trips and DO number after the job (D06).
+ *
+ * The outside driver types none of them (D-116) and E04 removed the office
+ * confirmation they used to be typed on. Blank entries are left out: the
+ * server reads "absent" as "leave what is there", and every change it makes
+ * is appended to the timeline with the old value.
+ */
+export async function recordDisposalNumbers(
   id: string,
-  decision: "COMPLETED" | "RETURNED",
-  note: string,
-  photo?: File,
-  /**
-   * The weight, trip count and DO number, which the outside collector no
-   * longer types (T-224, D-116). Blank entries are left out of the request
-   * rather than sent empty: the server treats "absent" as "leave what is
-   * there", so an office confirming without touching a number cannot wipe one
-   * the collector did send.
-   */
-  numbers?: {
-    actual_weight_kg?: string;
-    trip_count?: string;
-    disposal_do_no?: string;
+  numbers: { actual_weight_kg?: string; trip_count?: string; disposal_do_no?: string },
+) {
+  const body = Object.fromEntries(
+    Object.entries(numbers).filter(([, value]) => value !== undefined && String(value).trim() !== ""),
+  );
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/record_numbers/`, body);
+  toastSuccess("siteDisposal.toast.numbersRecorded");
+  return row;
+}
+
+/**
+ * The site's photographs of the load leaving: vehicle exit, Gate Pass (C08).
+ * At most four per submission, any mix of the two, note optional.
+ */
+export async function addDisposalSiteEvidence(
+  id: string,
+  payload: {
+    photos: Array<{ file: File; kind: DisposalSiteEvidenceKind }>;
+    note?: string;
+    latitude?: string;
+    longitude?: string;
+    accuracy_m?: string;
+    client_event_id: string;
   },
 ) {
   const data = new FormData();
-  data.append("decision", decision);
-  data.append("note", note);
-  if (photo) data.append("photo", photo);
-  for (const [key, value] of Object.entries(numbers ?? {})) {
-    if (value !== undefined && String(value).trim() !== "") {
-      data.append(key, String(value));
-    }
+  for (const photo of payload.photos) {
+    data.append("photos", photo.file);
+    data.append("kinds", photo.kind);
   }
-  const row = await api.post<DisposalRequest>(
-    `/api/site-disposals/${id}/confirm_completion/`,
-    data,
-  );
-  toastSuccess("siteDisposal.toast.confirmed");
+  for (const key of ["note", "latitude", "longitude", "accuracy_m", "client_event_id"] as const) {
+    const value = payload[key];
+    if (value) data.append(key, value);
+  }
+  data.append("captured_at", new Date().toISOString());
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/add_site_evidence/`, data);
+  toastSuccess("siteDisposal.toast.siteEvidence");
   return row;
 }
+
+/** 原工地清运's own records, trips and weight (D06) - never summed with orders. */
+export const getDisposalTotals = (query: ListQuery = {}) =>
+  api.get<DisposalTotals>("/api/site-disposals/get_totals/", query);
 
 export async function cancelDisposalRequest(id: string, reason: string) {
   const row = await api.post<DisposalRequest>(
