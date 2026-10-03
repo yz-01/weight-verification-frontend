@@ -57,13 +57,13 @@ test("the external disposal link shows a photograph it already holds", async ({
   );
   const start = page.getByRole("button", { name: "Start disposal work" });
   if (await start.isVisible()) await start.click();
-  await expect(page.getByText("Photos (up to 4)").first()).toBeVisible({
+  await expect(page.getByText("Final disposal proof (up to 4 photos)").first()).toBeVisible({
     timeout: 20_000,
   });
 
   const tile = page
     .locator("button")
-    .filter({ hasText: "Photos (up to 4)" })
+    .filter({ hasText: "Final disposal proof (up to 4 photos)" })
     .first();
   await expect(tile).toBeVisible({ timeout: 20_000 });
 
@@ -81,7 +81,7 @@ test("the external disposal link shows a photograph it already holds", async ({
   const uploaded = await request.post(`${API}/api/external-disposal-task/${token}/`, {
     multipart: {
       operation: "add_evidence",
-      kind: "LOADING",
+      kind: "DISPOSAL_PROOF",
       client_event_id: `e2e-preview-${Date.now()}`,
       image: fs.createReadStream(PHOTO),
     },
@@ -90,7 +90,7 @@ test("the external disposal link shows a photograph it already holds", async ({
 
   // After: the same slot draws the stored photograph and offers a retake.
   await page.reload();
-  await expect(page.getByText("Photos (up to 4)").first()).toBeVisible({
+  await expect(page.getByText("Final disposal proof (up to 4 photos)").first()).toBeVisible({
     timeout: 20_000,
   });
   await expect(tile.locator("img")).toHaveCount(1);

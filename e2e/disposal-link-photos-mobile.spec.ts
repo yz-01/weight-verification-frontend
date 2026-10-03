@@ -37,7 +37,7 @@ async function sendPhoto(request: APIRequestContext, token: string, event: strin
   return request.post(`${API}/api/external-disposal-task/${token}/`, {
     multipart: {
       operation: "add_evidence",
-      kind: "OTHER",
+      kind: "DISPOSAL_PROOF",
       client_event_id: event,
       image: fs.createReadStream(PHOTO),
     },
@@ -48,8 +48,12 @@ async function sendPhoto(request: APIRequestContext, token: string, event: strin
  * L6 / B24 replaced the four-kind gate this file was written for (F-301):
  * 「取消装车 / 卸货 / DO / 其他四类强制模板」, 「一次最多 4 张，不要求拍满」 -
  * and 「没有最终处理证明不能算完成」, so none is still refused.
+ *
+ * E04 then made Submit the end: 「Submit 最终处理证明后马上停止加照片，任务
+ * 结束、链接失效」 - no waiting for the site to check, and the server refuses
+ * anything sent to the link afterwards.
  */
-test("the disposal link needs one photo of any kind, and takes no more than four", async ({
+test("the disposal link needs one photo, takes no more than four, and Submit ends it", async ({
   page,
   request,
 }) => {
@@ -57,12 +61,12 @@ test("the disposal link needs one photo of any kind, and takes no more than four
   await page.goto(`/disposal-task/${token}`);
 
   await page.getByRole("button", { name: "Start disposal work" }).click();
-  await expect(page.getByText("Photos (up to 4)").first()).toBeVisible({
+  await expect(page.getByText("Final disposal proof (up to 4 photos)").first()).toBeVisible({
     timeout: 20_000,
   });
 
   // None yet: refused, and the button says so rather than failing on click.
-  const submit = page.getByRole("button", { name: "Send for verification" });
+  const submit = page.getByRole("button", { name: "Submit final disposal proof (ends the job)" });
   await expect(submit).toBeDisabled();
 
   // One photograph of no particular kind is enough.
@@ -78,10 +82,28 @@ test("the disposal link needs one photo of any kind, and takes no more than four
   expect(fifth.status()).toBe(409);
 
   await page.reload();
-  const ready = page.getByRole("button", { name: "Send for verification" });
+  const ready = page.getByRole("button", { name: "Submit final disposal proof (ends the job)" });
   await expect(ready).toBeEnabled({ timeout: 20_000 });
   await ready.click();
-  await expect(page.getByText("Sent for verification")).toBeVisible({
+  await expect(page.getByText("Job finished")).toBeVisible({ timeout: 20_000 });
+
+  // The link is closed on the server, not just on this screen.
+  const late = await sendPhoto(request, token, `e2e-b24-${stamp}-late`);
+  expect(late.status()).toBe(404);
+  await page.reload();
+  await expect(page.getByText("Task link unavailable")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("button", { name: "Submit final disposal proof (ends the job)" })).toHaveCount(0);
+});
+
+test("the link handed out at approval works with no collector assigned (D10)", async ({
+  page,
+  request,
+}) => {
+  const token = await freshExternalTask(request, { atApproval: true });
+  await page.goto(`/disposal-task/${token}`);
+
+  await page.getByRole("button", { name: "Start disposal work" }).click();
+  await expect(page.getByText("Final disposal proof (up to 4 photos)").first()).toBeVisible({
     timeout: 20_000,
   });
 });
@@ -93,7 +115,7 @@ test("the disposal link asks for no weight, trip count or DO number", async ({
   const token = await freshExternalTask(request);
   await page.goto(`/disposal-task/${token}`);
   await page.getByRole("button", { name: "Start disposal work" }).click();
-  await expect(page.getByText("Photos (up to 4)").first()).toBeVisible({
+  await expect(page.getByText("Final disposal proof (up to 4 photos)").first()).toBeVisible({
     timeout: 20_000,
   });
 

@@ -260,7 +260,14 @@ export async function openHold(page: Page): Promise<void> {
  * Fresh each run: evidence is append-only and a submission takes at most four
  * photographs (L6 / B24), so a seeded link fills up and then refuses.
  */
-export async function freshExternalTask(request: APIRequestContext): Promise<string> {
+export async function freshExternalTask(
+  request: APIRequestContext,
+  /**
+   * `atApproval`: the link the applicant gets when the request is approved
+   * and forwards to the driver (D05 / D10), with no collector assigned.
+   */
+  options: { atApproval?: boolean } = {},
+): Promise<string> {
   const token = await apiLogin(request, ACCOUNTS.contractor, "MSE_TRACE");
   const headers = { Authorization: `Bearer ${token}` };
 
@@ -318,6 +325,10 @@ export async function freshExternalTask(request: APIRequestContext): Promise<str
     { headers, data: { decision: "APPROVED", note: "Proceed" } },
   );
   expect(approved.status(), await approved.text()).toBe(200);
+  if (options.atApproval) {
+    const url: string = (await approved.json()).data.external_url;
+    return url.split("/").pop() as string;
+  }
 
   const assigned = await request.post(
     `${API}/api/site-disposals/${disposalId}/assign_collector/`,
