@@ -898,6 +898,9 @@ const DISPOSAL_STATES: DisposalRequestStatus[] = [
   "CANCELLED",
 ];
 
+/** What the person carrying out the job may upload (not request / office photos). */
+type ExecutionEvidenceKind = Exclude<DisposalEvidenceKind, "REQUEST" | "CONFIRMATION" | "VEHICLE_EXIT" | "GATE_PASS">;
+
 const EXECUTION_EVIDENCE: DisposalEvidenceKind[] = ["LOADING", "UNLOADING", "DISPOSAL_DO", "OTHER", "DISPOSAL_PROOF"];
 
 /**
@@ -931,7 +934,7 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const current = task ?? taskQuery.data ?? null;
   const start = useMutation({ mutationFn: () => startExternalDisposalTask(token), onSuccess: setTask, onError: () => setError(t("error.action")) });
   const submit = useMutation({ mutationFn: () => submitExternalDisposalTask(token, { note }), onSuccess: setTask, onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")) });
-  const upload = async (kind: DisposalEvidenceKind, image?: File) => {
+  const upload = async (kind: ExecutionEvidenceKind, image?: File) => {
     if (!image || !current) return;
     setError("");
     setUploading(kind);
@@ -1077,7 +1080,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
     },
     onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")),
   });
-  const upload = async (kind: DisposalEvidenceKind, image?: File) => {
+  const upload = async (kind: ExecutionEvidenceKind, image?: File) => {
     if (!image || !current) return;
     setError("");
     setUploading(kind);
