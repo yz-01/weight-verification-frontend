@@ -6760,7 +6760,9 @@
     "photosClosed": "这趟任务已结束，照片只能查看，不能再拍。",
     "what": {
       "pushStatus": "通知状态"
-    }
+    },
+    "takeIssuePhoto": "途中异常拍照（意外 / 事故 / 车辆问题）",
+    "issuePhotoHelp": "照片会马上发给回收商和建筑商。"
   },
   "driverGps": {
     "action": {

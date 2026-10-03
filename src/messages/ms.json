@@ -6760,7 +6760,9 @@
     "photosClosed": "Perjalanan ini telah tamat. Gambar kekal boleh dilihat, tetapi tiada gambar baharu boleh diambil.",
     "what": {
       "pushStatus": "Status pemberitahuan"
-    }
+    },
+    "takeIssuePhoto": "Ambil foto masalah dalam perjalanan (kemalangan / kenderaan)",
+    "issuePhotoHelp": "Dihantar kepada pengitar semula dan kontraktor serta-merta."
   },
   "driverGps": {
     "action": {

@@ -6760,7 +6760,9 @@
     "photosClosed": "This trip has ended. Its photographs stay readable, but no new ones can be taken.",
     "what": {
       "pushStatus": "The notification status"
-    }
+    },
+    "takeIssuePhoto": "Photograph a problem on the road (accident / vehicle issue)",
+    "issuePhotoHelp": "Sent to the recycler and the contractor straight away."
   },
   "driverGps": {
     "action": {

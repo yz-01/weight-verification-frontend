@@ -1,7 +1,7 @@
 "use client";
 
 /** The two photographs a trip cannot be marked loaded without (T-223). */
-type DriverPhotoKind = "LOADING" | "GATEPASS";
+type DriverPhotoKind = "LOADING" | "GATEPASS" | "ISSUE";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -16,6 +16,7 @@ import {
   MapPin,
   PackageOpen,
   Scale,
+  TriangleAlert,
   Truck,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -98,6 +99,7 @@ export function DriverTask({ id }: { id: string }) {
   const [armed, setArmed] = useState(false);
   const loadingInput = useRef<HTMLInputElement>(null);
   const gatepassInput = useRef<HTMLInputElement>(null);
+  const issueInput = useRef<HTMLInputElement>(null);
   const lastPositionAt = useRef(0);
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -623,6 +625,39 @@ export function DriverTask({ id }: { id: string }) {
             )}
             {t("driver.takeGatepass")}
           </Button>
+          {/* C10: an accident, a breakdown, anything on the road - one
+              photograph that goes to the recycler and the contractor both.
+              Only while the trip is running: the server refuses it after
+              「到达回收场（结束任务）」 like any other photograph. */}
+          <input
+            ref={issueInput}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) upload.mutate({ file, kind: "ISSUE" });
+              event.target.value = "";
+            }}
+          />
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-12 w-full rounded-full border-warning/50 text-foreground"
+            disabled={upload.isPending}
+            onClick={() => issueInput.current?.click()}
+          >
+            {upload.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <TriangleAlert className="h-4 w-4 text-warning" />
+            )}
+            {t("driver.takeIssuePhoto")}
+          </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            {t("driver.issuePhotoHelp")}
+          </p>
           </>
         )}
       </div>
