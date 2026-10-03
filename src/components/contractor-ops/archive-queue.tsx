@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Inbox, ListTree, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { recordKindKey } from "@/lib/record-kind";
+import { PhotoViewer } from "@/components/shared/record-detail-shell";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -253,16 +255,43 @@ export function ArchiveQueue() {
             <TableBody>
               {rows.map((row) => (
                 <TableRow key={`${row.kind}:${row.id}`}>
+                  {/* Photo first (B06): the site's picture and a short
+                      summary in the list; everything else in the record. */}
                   <TableCell className="font-medium">
-                    {row.reference}
-                    {row.detail && (
-                      <span className="block text-xs font-normal text-muted-foreground">
-                        {row.detail}
+                    <div className="flex items-center gap-3">
+                      {row.photo ? (
+                        <button
+                          type="button"
+                          className="shrink-0 overflow-hidden rounded-md border bg-muted"
+                          onClick={() => setOpen(row)}
+                          title={t("openPhoto")}
+                        >
+                          <Image
+                            src={row.photo}
+                            alt={row.reference}
+                            width={64}
+                            height={64}
+                            unoptimized
+                            className="size-14 object-cover"
+                          />
+                        </button>
+                      ) : (
+                        <span className="grid size-14 shrink-0 place-items-center rounded-md border border-dashed text-[10px] text-muted-foreground">
+                          {t("noPhoto")}
+                        </span>
+                      )}
+                      <span className="min-w-0">
+                        {row.reference}
+                        {row.detail && (
+                          <span className="block max-w-[16rem] truncate text-xs font-normal text-muted-foreground">
+                            {row.detail}
+                          </span>
+                        )}
                       </span>
-                    )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {t(`kind.${row.kind}`)}
+                    {t(`kind.${recordKindKey(row)}` as never)}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {row.project_name}
@@ -381,6 +410,8 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   const t = useTranslations();
   const queryClient = useQueryClient();
   const formatter = useDateFormat();
+  // Which photograph is open on its own, full size (B06).
+  const [viewingPhoto, setViewingPhoto] = useState<number | null>(null);
   const detail = useQuery({
     queryKey: [
       "archive-queue",
@@ -433,7 +464,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
               {/* A company-wide document has no project, so the empty part
                   is dropped rather than printed as a double dot. */}
               {[
-                t(`archiveQueue.kind.${row.kind as RecordSheetKind}`),
+                t(`archiveQueue.kind.${recordKindKey(row) as RecordSheetKind}`),
                 row.project_name,
                 formatter.dateTime(row.submitted_at),
               ]
@@ -498,16 +529,26 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
               </dl>
               {detail.data && detail.data.photos.length > 0 && (
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {detail.data.photos.map((shot) => (
+                  {detail.data.photos.map((shot, index) => (
                     <figure key={shot.url} className="overflow-hidden rounded-lg border">
-                      <Image
-                        src={shot.url}
-                        alt={shot.caption || row.reference}
-                        width={320}
-                        height={240}
-                        unoptimized
-                        className="h-32 w-full object-cover"
-                      />
+                      {/* object-contain, not cover (B06): a portrait shot
+                          and its bottom watermark - time and place - are
+                          evidence, so nothing is cropped off. */}
+                      <button
+                        type="button"
+                        className="block w-full bg-muted"
+                        onClick={() => setViewingPhoto(index)}
+                        title={t("archiveQueue.openPhoto")}
+                      >
+                        <Image
+                          src={shot.url}
+                          alt={shot.caption || row.reference}
+                          width={320}
+                          height={240}
+                          unoptimized
+                          className="h-40 w-full object-contain"
+                        />
+                      </button>
                       {shot.caption && (
                         <figcaption className="px-2 py-1 text-xs text-muted-foreground">
                           {shot.caption}
@@ -516,6 +557,19 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
                     </figure>
                   ))}
                 </div>
+              )}
+              {detail.data && viewingPhoto !== null && detail.data.photos[viewingPhoto] && (
+                <PhotoViewer
+                  photos={detail.data.photos.map((shot, index) => ({
+                    id: `${index}:${shot.url}`,
+                    url: shot.url,
+                    label: shot.caption || row.reference,
+                  }))}
+                  index={viewingPhoto}
+                  reference={row.reference}
+                  onIndex={setViewingPhoto}
+                  onClose={() => setViewingPhoto(null)}
+                />
               )}
 
               {/* The same reason the package shortcut sits here (D-154): this

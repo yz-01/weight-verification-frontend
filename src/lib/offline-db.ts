@@ -138,6 +138,8 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       qr_code?: string | null;
       movement_type?: "ENTRY" | "RETURN";
       return_reason?: string;
+      acceptance_status?: "REJECTED";
+      rejection_reason?: string;
       material_name: string;
       material_specification?: string;
       quantity: string;
@@ -185,8 +187,13 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     original_occurred_at: string;
     client_event_id: string;
     field_task?: string;
+    /** The approved application this handover completes (B13). */
+    movement?: string;
     photos: StoredFile[];
     delivery_note_photo?: StoredFile;
+    /** Both sides at the handover: the site person and the supplier / driver. */
+    receiver_signature?: StoredFile;
+    supplier_signature?: StoredFile;
   };
 }
 
@@ -211,11 +218,14 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   kind: "MATERIAL_OUTGOING";
   payload: {
     project: string;
-    category: string;
-    material_name: string;
+    /** A return to the supplier (A02, B11): supplier, then that supplier's delivery. */
+    supplier?: string;
+    source_receipt?: string;
+    category?: string;
+    material_name?: string;
     quantity: string;
-    unit: string;
-    destination: string;
+    unit?: string;
+    destination?: string;
     executor_name: string;
     vehicle_plate?: string;
     delivery_note_no?: string;

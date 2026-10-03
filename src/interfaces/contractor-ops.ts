@@ -234,6 +234,16 @@ export interface FieldTask {
   photos: FieldTaskPhoto[];
   references: FieldTaskReference[];
   photo_count: number;
+  /**
+   * The consultant application a manager made from this site request (B15):
+   * one request, one application, sent on from the same item.
+   */
+  consultant_application?: {
+    id: string;
+    application_no: string;
+    status: string;
+    forwarded_at: string | null;
+  } | null;
   created_at: string;
   updated_at: string;
 }
@@ -277,6 +287,9 @@ export interface SiteEquipment {
    */
   certificate_expires_on: string | null;
   insurance_expires_on: string | null;
+  /** PMA and permit (准证), added on the same machine (B14). */
+  pma_expires_on?: string | null;
+  permit_expires_on?: string | null;
   is_active: boolean;
   movement_count: number;
   quantity_on_site: string;
@@ -314,8 +327,13 @@ export interface EquipmentPayload {
   /** ISO date, or null when the contractor does not hold the document. */
   certificate_expires_on?: string | null;
   insurance_expires_on?: string | null;
+  pma_expires_on?: string | null;
+  permit_expires_on?: string | null;
   is_active?: boolean;
 }
+
+/** 申请 → 后台 Approve / Return → 实际交接双方签名 (B13). */
+export type EquipmentMovementStatus = "PENDING" | "APPROVED" | "RETURNED" | "COMPLETED";
 
 export interface EquipmentMovement {
   id: string;
@@ -325,6 +343,17 @@ export interface EquipmentMovement {
   equipment_code: string;
   equipment_name: string;
   direction: "ENTRY" | "EXIT";
+  /** Movements recorded before 10-02 are all COMPLETED. */
+  status?: EquipmentMovementStatus;
+  request_note?: string;
+  requested_by_name?: string | null;
+  approved_by_name?: string | null;
+  approved_at?: string | null;
+  review_note?: string;
+  completed_by_name?: string | null;
+  completed_at?: string | null;
+  receiver_signature?: string | null;
+  supplier_signature?: string | null;
   occurred_at: string;
   original_occurred_at: string;
   uploaded_at: string;
@@ -417,8 +446,20 @@ export interface MaterialOutgoing {
   /** The material column it files under (T-372). */
   category?: string | null;
   category_name?: string | null;
+  /** Since 10-02 a return to the supplier (A02, B11): the supplier first. */
+  supplier?: string | null;
+  supplier_name?: string | null;
+  /** The delivery it sends back, and the figures copied from it. */
+  source_receipt?: string | null;
+  source_receipt_no?: string | null;
+  source_receipt_quantity?: string | null;
+  source_receipt_at?: string | null;
   material_name: string;
+  material_specification?: string;
+  /** What the application asked to send back. */
   quantity: string;
+  /** What actually left at the handover (B12); this comes off the net. */
+  returned_quantity?: string | null;
   unit: string;
   destination: string;
   executor_name: string;
@@ -440,6 +481,9 @@ export interface MaterialOutgoing {
   processed_at?: string | null;
   processed_by_name?: string | null;
   processing_note?: string;
+  /** Both sides at the handover (B12): the site person and the supplier / driver. */
+  site_signature?: string | null;
+  supplier_signature?: string | null;
   completed_at?: string | null;
   completed_by_name?: string | null;
   photos: Array<{
@@ -451,6 +495,22 @@ export interface MaterialOutgoing {
     caption: string;
     captured_at: string;
   }>;
+}
+
+/** A delivery a return can be filed against, with what is left of it (A02). */
+export interface ReturnableReceipt {
+  id: string;
+  receipt_no: string;
+  business_at: string;
+  supplier: string;
+  supplier_name: string;
+  material_name: string;
+  material_specification: string;
+  unit: string;
+  quantity: string;
+  remaining_quantity: string;
+  category: string | null;
+  category_name: string;
 }
 
 export type DisposalRequestStatus =
@@ -644,6 +704,8 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   /** Beside `status` on purpose - see `MySubmissionRow` for why (F-225). */
   status_label: string;
   photo: string | null;
+  /** A material receipt's direction (B10), so a return is not named 材料进场. */
+  movement_type?: "ENTRY" | "RETURN";
   /** When this reader marked it 「我看过了」, or null (T-391). */
   seen_at: string | null;
   /** Whether anything archives this kind at all; an attendance day does not. */

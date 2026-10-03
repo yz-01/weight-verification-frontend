@@ -14,6 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { recordKindKey } from "@/lib/record-kind";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -878,7 +879,7 @@ function ColumnRecordsDialog({
                             // one - the phone's own name for it (D-274).
                             moduleKey === "consultant" && row.kind === "SITE_RECORD"
                               ? root("fieldStaffPwa.records.consultant")
-                              : queue(`kind.${row.kind}`),
+                              : queue(`kind.${recordKindKey(row)}` as never),
                             row.project_name,
                             formatter.dateTime(row.submitted_at),
                           ]

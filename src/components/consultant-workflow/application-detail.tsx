@@ -207,6 +207,25 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
         <div className="text-left text-xs text-muted-foreground sm:text-right">
           <p>{t("detail.revision", { revision: application.revision })}</p>
           <p>{t("detail.applicant", { name: application.applicant_name })}</p>
+          {/* B15: raised on site, checked and sent on by the manager. */}
+          {application.source_submitted_by_name && (
+            <p>
+              {t("detail.raisedOnSite", {
+                name: application.source_submitted_by_name,
+                when: application.source_submitted_at
+                  ? new Date(application.source_submitted_at).toLocaleString()
+                  : "",
+              })}
+            </p>
+          )}
+          {application.forwarded_by_name && (
+            <p>
+              {t("detail.forwardedBy", {
+                name: application.forwarded_by_name,
+                when: application.forwarded_at ? new Date(application.forwarded_at).toLocaleString() : "",
+              })}
+            </p>
+          )}
         </div>
       </div>
 

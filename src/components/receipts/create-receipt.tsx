@@ -116,6 +116,10 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
       delivery_note_no: receipt?.delivery_note_no ?? "",
       notes: receipt?.notes ?? "",
       received_by_name: receipt?.received_by_name ?? "",
+      // A delivery filed as the wrong type is put right here (B10): a new
+      // linked record, never the original rewritten.
+      movement_type: (receipt?.movement_type ?? "ENTRY") as "ENTRY" | "RETURN",
+      return_reason: receipt?.return_reason ?? "",
       reason: "",
     },
     onSubmit: async ({ value }) => {
@@ -141,6 +145,8 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
         if (isEdit) {
           await mutation.mutateAsync({
             ...common,
+            movement_type: value.movement_type,
+            return_reason: value.movement_type === "RETURN" ? value.return_reason.trim() : "",
             reason: value.reason,
           } as MaterialReceiptPayload & { reason: string });
           return;
@@ -351,6 +357,39 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
             />
           )}
         </form.Field>
+
+        {isEdit && (
+          <form.Field name="movement_type">
+            {(field) => (
+              <SelectField
+                field={field as unknown as BoundField}
+                label={t("receipts.field.movementType")}
+                options={(["ENTRY", "RETURN"] as const).map((value) => ({
+                  value,
+                  label: t(`receipts.movement.${value}`),
+                }))}
+                required
+              />
+            )}
+          </form.Field>
+        )}
+        {isEdit && (
+          <form.Subscribe selector={(state) => state.values.movement_type}>
+            {(movementType) =>
+              movementType === "RETURN" ? (
+                <form.Field name="return_reason" validators={{ onSubmit: required(t("validation.required")) }}>
+                  {(field) => (
+                    <TextField
+                      field={field as unknown as BoundField}
+                      label={t("receipts.field.returnReason")}
+                      required
+                    />
+                  )}
+                </form.Field>
+              ) : null
+            }
+          </form.Subscribe>
+        )}
 
         <form.Field name="total_weight_kg">
           {(field) => (

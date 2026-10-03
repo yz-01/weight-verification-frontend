@@ -29,7 +29,13 @@ export function siteEntryRequired(movementType: string | null | undefined): bool
   return (movementType || "ENTRY") === "ENTRY";
 }
 
-/** The site-entry fields still missing for this direction, in form order. */
+/**
+ * The site-entry fields still missing for this direction, in form order.
+ *
+ * A load turned away at the gate (10-02 D08, `rejecting`) still needs both
+ * signatures, but not the plate or the DO number - the server's
+ * `site_entry_missing` drops those two for a same-day Reject.
+ */
 export function missingSiteEntry(
   movementType: string | null | undefined,
   values: {
@@ -38,9 +44,13 @@ export function missingSiteEntry(
     receiverSignature?: File | null;
     supplierSignature?: File | null;
   },
+  { rejecting = false }: { rejecting?: boolean } = {},
 ): SiteEntryField[] {
   if (!siteEntryRequired(movementType)) return [];
-  return SITE_ENTRY_FIELDS.filter((field) => {
+  const fields = rejecting
+    ? SITE_ENTRY_FIELDS.filter((field) => field.endsWith("Signature"))
+    : SITE_ENTRY_FIELDS;
+  return fields.filter((field) => {
     const value = values[field];
     return typeof value === "string" ? !value.trim() : !value;
   });

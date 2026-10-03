@@ -3066,7 +3066,8 @@
       "SITE_RECORD": "Rekod tapak",
       "SITE_EQUIPMENT": "Peralatan",
       "DOCUMENT": "Dokumen",
-      "CLAIM": "Tuntutan kemajuan"
+      "CLAIM": "Tuntutan kemajuan",
+      "MATERIAL_RETURN": "Bahan dipulangkan"
     },
     "lastPage": "Anda berada di halaman terakhir.",
     "loading": "Memuatkan…",
@@ -3094,7 +3095,9 @@
       "notApplicable": "Tidak perlu diarkibkan"
     },
     "notInQueue": "Rekod ini belum selesai, jadi ia belum ada dalam senarai untuk dilihat anda. Anda boleh tandakannya sebagai sudah dilihat selepas ia selesai.",
-    "categoryManagement": "Pengurusan kategori"
+    "categoryManagement": "Pengurusan kategori",
+    "openPhoto": "Buka gambar",
+    "noPhoto": "Tiada gambar"
   },
   "assets": {
     "category": {
@@ -4799,7 +4802,9 @@
         "relatedRecords": "Rekod tapak berkaitan",
         "revisions": "Sejarah semakan",
         "site": "Permintaan tapak"
-      }
+      },
+      "raisedOnSite": "Dibangkitkan di tapak oleh {name} {when}",
+      "forwardedBy": "Dihantar kepada perunding oleh {name} {when}"
     },
     "evidence": {
       "selectPhotos": "Foto untuk dipautkan",
@@ -5466,7 +5471,27 @@
       },
       "takeDeliveryNote": "Ambil foto nota penghantaran",
       "title": "Pergerakan peralatan",
-      "photoMinimum": "Sekurang-kurangnya {min} foto, termasuk foto pesanan penghantaran; tiada had maksimum."
+      "photoMinimum": "Sekurang-kurangnya {min} foto, termasuk foto pesanan penghantaran; tiada had maksimum.",
+      "applyNew": "Mohon: mesin baharu masuk",
+      "applyEntry": "Mohon untuk masuk",
+      "applyExit": "Mohon untuk keluar",
+      "applyEntryTitle": "Mohon {name} masuk",
+      "applyExitTitle": "Mohon {name} keluar",
+      "applyNewTitle": "Mohon membawa masuk mesin baharu",
+      "applyHelp": "Pejabat meluluskan atau mengembalikan permohonan. Semasa serahan sebenar, orang tapak dan pembekal / pemandu menandatangani, dengan sekurang-kurangnya 4 gambar.",
+      "applySubmit": "Hantar permohonan",
+      "applyFailed": "Permohonan tidak dihantar. Sila cuba lagi.",
+      "chooseSupplier": "Pilih pembekal",
+      "handover": "Serahan (kedua-dua tandatangan)",
+      "handoverHelp": "Permohonan diluluskan. Ambil sekurang-kurangnya 4 gambar (lebih pun boleh) dan kedua-dua tandatangan semasa serahan; mesin dikira masuk / keluar dari saat ini.",
+      "handoverSubmit": "Hantar serahan",
+      "siteSignature": "Tandatangan tapak",
+      "supplierSignature": "Tandatangan pembekal / pemandu",
+      "returnAction": "Kembalikan",
+      "returnReason": "Sebab dikembalikan",
+      "returnConfirm": "Kembalikan - permohonan tamat",
+      "requestedBy": "Dipohon oleh",
+      "reviewedBy": "Diluluskan / dikembalikan oleh"
     },
     "equipmentEvidence": {
       "condition": "4. Butiran keadaan peralatan",
@@ -5559,7 +5584,9 @@
       "title": "Tajuk tugas",
       "unit": "Unit",
       "vehiclePlate": "Nombor plat",
-      "workLocation": "Kawasan / lokasi kerja"
+      "workLocation": "Kawasan / lokasi kerja",
+      "pmaExpiresOn": "PMA tamat pada",
+      "permitExpiresOn": "Permit tamat pada"
     },
     "filing": {
       "action": "Failkan di bawah kategori",
@@ -5574,8 +5601,8 @@
       "unfiled": "Belum difailkan"
     },
     "outgoing": {
-      "add": "Permohonan keluar baharu",
-      "createTitle": "Mohon bahan keluar",
+      "add": "Permohonan pemulangan baharu",
+      "createTitle": "Mohon memulangkan bahan",
       "evidence": {
         "loading": "4. Aktiviti memuat atau di pintu",
         "other": "Foto tapak lain",
@@ -5588,45 +5615,60 @@
       "executor": "Pelaksana",
       "fieldFormHelp": "Isi maklumat penting sahaja, lengkapkan sekurang-kurangnya empat foto bukti dan ambil GPS. Pelaksana direkod secara automatik.",
       "formHelp": "Namakan pelaksana sebenar dan ambil lokasi GPS semasa.",
-      "subtitle": "Mohon, lulus dan lepaskan bahan bukan sisa yang meninggalkan projek.",
+      "subtitle": "Pulangkan bahan kepada pembekal: mohon, lulus, kemudian tandatangan semasa serahan.",
       "title": "Bahan keluar",
       "rejectTitle": "Hantar permohonan ini kembali",
       "rejectHelp": "Permohonan {reference} berakhir di sini. Ia tidak dibuka semula — permohonan baharu dibuat — jadi sebab ini sahaja yang pemohon ada.",
       "rejectReason": "Sebab dihantar kembali",
       "viewDetail": "Butiran",
-      "returnProcessing": "Hantar balik foto pemprosesan",
-      "waitingForSite": "Diluluskan. Menunggu tapak mengendalikan bahan dan menghantar foto.",
+      "returnProcessing": "Serahan (kedua-dua tandatangan)",
+      "waitingForSite": "Diluluskan - menunggu lori dan serahan di tapak.",
       "finalConfirm": "Pengesahan akhir",
       "waitingForOffice": "Foto telah dihantar. Menunggu pengesahan akhir pejabat.",
-      "returnHelp": "Permohonan {reference} diluluskan. Kendalikan bahan, kemudian ambil foto hasilnya. Pejabat mengesahkan berdasarkan foto ini.",
-      "processingPhotos": "Foto selepas pemprosesan",
+      "returnHelp": "{reference} telah diluluskan. Apabila bahan keluar, masukkan kuantiti, ambil gambar dan dapatkan kedua-dua tandatangan. Penghantaran menamatkan pemulangan.",
+      "processingPhotos": "Gambar semasa serahan",
       "processingNote": "Nota dari tapak",
       "processingLocation": "Lokasi",
       "processingLocationReady": "Lokasi diperoleh",
-      "sendReturn": "Hantar",
-      "returnFailed": "Foto tidak dapat dihantar. Cuba lagi.",
+      "sendReturn": "Hantar (tamatkan pemulangan)",
+      "returnFailed": "Serahan tidak disimpan. Sila cuba lagi.",
       "uploadFiles": "Muat naik fail",
       "referenceNo": "No.",
       "submittedBy": "Dihantar oleh",
       "capturedAt": "Dihantar pada",
       "reviewNote": "Nota pejabat",
-      "completedBy": "Disahkan oleh",
+      "completedBy": "Diselesaikan oleh",
       "stage": {
         "APPLICATION": "Bersama permohonan",
-        "PROCESSING": "Dihantar selepas pemprosesan",
+        "PROCESSING": "Gambar semasa serahan",
         "OFFICE": "Ditambah oleh pejabat"
       },
       "flowTitle": "Langkah",
       "approvedBy": "Diluluskan oleh",
-      "processedBy": "Diproses di tapak oleh"
+      "processedBy": "Diserahkan oleh",
+      "returnFormHelp": "Pilih pembekal, kemudian penghantaran yang dipulangkan - bahan, spesifikasi dan unit diambil daripadanya. Masukkan kuantiti yang dipulangkan. Pejabat meluluskan; lori dimuatkan dan kedua-dua pihak menandatangani semasa keluar.",
+      "supplier": "Pembekal",
+      "chooseSupplier": "Pilih pembekal",
+      "sourceReceipt": "Penerimaan asal",
+      "chooseSourceReceipt": "Pilih penghantaran yang dipulangkan",
+      "remaining": "baki {quantity} {unit}",
+      "noReturnable": "Tiada penghantaran daripada pembekal ini di projek ini yang masih boleh dipulangkan.",
+      "specification": "Spesifikasi",
+      "returnQuantity": "Kuantiti untuk dipulangkan",
+      "tooMuch": "Hanya {quantity} {unit} daripada penghantaran ini boleh dipulangkan.",
+      "reasonPlaceholder": "Sebab dipulangkan, cth. lebihan, saiz salah dikesan kemudian",
+      "returnedQuantity": "Kuantiti sebenar dipulangkan",
+      "siteSignature": "Tandatangan tapak",
+      "supplierSignature": "Tandatangan pembekal / pemandu",
+      "returnAction": "Kembalikan"
     },
     "outgoingStatus": {
-      "APPROVED": "Diluluskan",
+      "APPROVED": "Diluluskan - menunggu serahan",
       "PENDING": "Menunggu kelulusan",
-      "REJECTED": "Ditolak",
+      "REJECTED": "Dikembalikan (ditutup)",
       "RELEASED": "Dilepaskan (aliran lama)",
-      "PROCESSED": "Diproses di tapak - menunggu pengesahan akhir",
-      "COMPLETED": "Disahkan dan ditutup"
+      "PROCESSED": "Diproses di tapak (aliran lama) - menunggu pengesahan akhir",
+      "COMPLETED": "Diserahkan - selesai"
     },
     "priority": {
       "HIGH": "Tinggi",
@@ -5721,7 +5763,7 @@
       "formHelp": "Pilih projek, pekerja tapak, lokasi kerja, tarikh akhir dan foto yang diperlukan.",
       "openGps": "Buka lokasi GPS",
       "photos": "Foto: {current}/{required}",
-      "prepareApplication": "Sediakan permohonan perunding",
+      "prepareApplication": "Semak dan hantar kepada perunding",
       "projectFixed": "Tapak tidak boleh diubah - penerima tugas diambil daripada pasukan tapak ini.",
       "referenceFiles": "Foto atau fail rujukan",
       "referenceHelp": "Pekerja tapak akan melihatnya sebelum memulakan tugas.",
@@ -5756,7 +5798,9 @@
       },
       "focused": "Hanya tugasan yang ditunjuk oleh kad dipaparkan.",
       "focusedMissing": "Tugasan yang ditunjuk oleh kad tiada dalam senarai ini. Ia mungkin sudah selesai, atau milik projek lain.",
-      "showAll": "Tunjuk semua"
+      "showAll": "Tunjuk semua",
+      "forwardedAs": "Dihantar kepada perunding sebagai {reference}",
+      "draftedAs": "Permohonan {reference} disediakan - belum dihantar"
     },
     "toast": {
       "movementSaved": "Pergerakan peralatan direkodkan",
@@ -5772,7 +5816,9 @@
       "saved": "Disimpan",
       "taskAssigned": "Tugas diagihkan",
       "taskUpdated": "Tugas dikemas kini",
-      "outgoingProcessed": "Foto pemprosesan dihantar. Pejabat akan mengesahkan."
+      "outgoingProcessed": "Foto pemprosesan dihantar. Pejabat akan mengesahkan.",
+      "movementRequested": "Permohonan dihantar ke pejabat",
+      "movementReviewed": "Permohonan dikemas kini"
     },
     "what": {
       "roles": "Senarai peranan",
@@ -5782,7 +5828,15 @@
       "equipmentSummary": "Jumlah peralatan",
       "progressSummary": "Jumlah kemajuan",
       "phases": "Senarai fasa pembinaan",
-      "outgoingRecord": "Rekod bahan keluar ini"
+      "outgoingRecord": "Rekod bahan keluar ini",
+      "returnableReceipts": "penghantaran yang boleh dipulangkan",
+      "equipmentApplications": "permohonan peralatan yang terbuka"
+    },
+    "equipmentMovementStatus": {
+      "PENDING": "Menunggu kelulusan",
+      "APPROVED": "Diluluskan - menunggu serahan",
+      "RETURNED": "Dikembalikan - ditutup",
+      "COMPLETED": "Telah diserahkan"
     }
   },
   "contractorPartners": {
@@ -7049,7 +7103,8 @@
       "column_wrong_module": "“{column}” milik modul lain. Pilih ruangan daripada modul ini.",
       "column_other_project": "Ruangan itu bukan dalam projek rekod ini. Pilih satu daripada projek yang sama.",
       "column_inactive": "“{column}” sudah ditutup. Pilih ruangan yang aktif.",
-      "conversation_closed": "Rekod ini telah selesai, jadi perbualannya ditutup. Ia masih boleh dibaca; buka rekod baharu untuk perkara lanjut."
+      "conversation_closed": "Rekod ini telah selesai, jadi perbualannya ditutup. Ia masih boleh dibaca; buka rekod baharu untuk perkara lanjut.",
+      "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7561,7 +7616,14 @@
       "noColumnsYet": "Tapak ini belum ada kategori bahan. Tambah yang pertama di bawah.",
       "newColumnName": "Nama kategori baharu",
       "addColumn": "Tambah kategori",
-      "columnOffline": "Luar talian: pilih kategori sedia ada. Kategori baharu memerlukan sambungan."
+      "columnOffline": "Luar talian: pilih kategori sedia ada. Kategori baharu memerlukan sambungan.",
+      "reject": {
+        "toggle": "Barang salah - Tolak",
+        "help": "Tolak penghantaran ini di pintu masuk. Kedua-dua pihak tetap menandatangani; rekod disimpan dan tidak dikira.",
+        "reason": "Sebab ditolak",
+        "reasonPlaceholder": "cth. gred salah, rosak, kuantiti kurang",
+        "submit": "Tolak dan hantar"
+      }
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -9112,7 +9174,9 @@
       "processing_note": "Nota pemprosesan dari tapak",
       "amount": "Jumlah",
       "paid_by": "Bayaran disahkan oleh",
-      "paid_at": "Dibayar pada"
+      "paid_at": "Dibayar pada",
+      "returned_quantity": "Kuantiti dipulangkan",
+      "source_receipt_no": "Penerimaan asal"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -10783,7 +10847,8 @@
       "moneyNote": "Penolakan menandakan penghantaran dan mengiranya di halaman utama. Ia tidak mengubah jumlah atau status pembayaran — itu kekal keputusan yang dibuat seseorang dengan sengaja.",
       "alreadyAccepted": "Penghantaran ini telah pun diterima.",
       "armReject": "Benarkan penolakan penerimaan ini",
-      "armRejectHelp": "Hidupkan hanya apabila bahan tidak menepati spesifikasi. Ia membuka sebab dan butang tolak."
+      "armRejectHelp": "Hidupkan hanya apabila bahan tidak menepati spesifikasi. Ia membuka sebab dan butang tolak.",
+      "rejectedAtGate": "Ditolak di pintu masuk oleh tapak, dengan kedua-dua tandatangan. Keputusan ini muktamad."
     },
     "addPhoto": {
       "caption": "Nota (pilihan)",
@@ -10804,7 +10869,25 @@
       "supersededLink": "Buka resit yang dibetulkan {name}",
       "supersededTitle": "Resit ini telah dibetulkan",
       "supersedes": "Membetulkan resit terdahulu",
-      "title": "Sebab pembetulan"
+      "title": "Sebab pembetulan",
+      "trailTitle": "Sejarah pembetulan (Audit Trail)",
+      "trailOriginal": "Rekod asal {name}, dihantar {when}. Ia disimpan tanpa perubahan.",
+      "trailBy": "dibetulkan oleh {name} pada {when}",
+      "fields": {
+        "movement_type": "Jenis",
+        "return_reason": "Sebab dipulangkan",
+        "category": "Kategori",
+        "material_name": "Bahan",
+        "material_specification": "Spesifikasi",
+        "quantity": "Kuantiti",
+        "unit": "Unit",
+        "total_weight_kg": "Jumlah berat (kg)",
+        "unit_price": "Harga seunit",
+        "vehicle_plate": "No. kenderaan",
+        "delivery_note_no": "No. nota hantaran",
+        "notes": "Catatan",
+        "received_by_name": "Diterima oleh"
+      }
     },
     "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
     "createTitle": "Rekod penerimaan",
@@ -10845,7 +10928,10 @@
       "totalWeightKg": "Jumlah berat (kg)",
       "unit": "Unit",
       "unitPrice": "Harga seunit",
-      "vehiclePlate": "Kenderaan"
+      "vehiclePlate": "Kenderaan",
+      "businessAt": "Tarikh penghantaran",
+      "movementType": "Jenis",
+      "returnReason": "Sebab dipulangkan"
     },
     "locationCaptured": "Lokasi direkod",
     "locationMissing": "Tiada lokasi",
@@ -10921,6 +11007,26 @@
       "suppliers": "Senarai pembekal",
       "dockets": "Senarai nota hantar",
       "columns": "Senarai ruangan"
+    },
+    "movement": {
+      "ENTRY": "Bahan masuk",
+      "RETURN": "Bahan dipulangkan"
+    },
+    "tabs": {
+      "label": "Pengurusan bahan",
+      "in": "Material In",
+      "out": "Material Out",
+      "reject": "Reject",
+      "totals": "Jumlah bersih",
+      "legacyReturns": "Pemulangan yang direkod melalui borang terimaan sebelum 10-02"
+    },
+    "net": {
+      "title": "Kuantiti bersih mengikut bahan",
+      "note": "Bersih = penghantaran masuk (yang ditolak tidak dikira) tolak pemulangan kepada pembekal, setiap pemulangan ditolak sekali daripada penghantaran asalnya. Unit berbeza tidak dicampur.",
+      "received": "Masuk",
+      "returned": "Dipulangkan",
+      "net": "Bersih",
+      "rejected": "Ditolak (tidak dikira)"
     }
   },
   "recyclerBusiness": {

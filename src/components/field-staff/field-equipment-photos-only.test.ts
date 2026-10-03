@@ -65,13 +65,16 @@ describe("phone 设备进退场 is photos only (D-273)", () => {
   });
 
   it("still records an entry and registers a machine that has just arrived", () => {
-    expect(body).toMatch(/"equipment\.recordEntry"/);
+    // B13: each machine's next step - apply, wait, hand over - and the phone
+    // can apply to bring in a machine nobody has registered yet.
+    expect(body).toMatch(/<MachineStep/);
+    expect(body).toMatch(/t\("equipment\.applyNew"\)/);
     expect(body).toMatch(/<EquipmentDialog/);
     expect(body).toMatch(/t\("equipment\.add"\)/);
   });
 
   it("still records an exit, choosing the machine by name", () => {
-    expect(body).toMatch(/"equipment\.recordExit"/);
+    expect(body).toMatch(/onApply=\{\(\) => setApplyingFor\(row\)\}/);
     expect(body).toMatch(/\{machineName\(row\)\}/);
     // The code appears only to tell apart two machines with the same name.
     expect(body).toMatch(/> 1 \? `\$\{row\.name\} \(\$\{row\.code\}\)` : row\.name/);

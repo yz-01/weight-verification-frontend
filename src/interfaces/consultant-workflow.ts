@@ -297,6 +297,11 @@ export interface ConsultantApplication {
   schedule_task_wbs: string | null;
   source_field_task: string | null;
   source_field_task_title: string | null;
+  /** Who on site raised it, and the manager who sent it on (B15). */
+  source_submitted_by_name?: string | null;
+  source_submitted_at?: string | null;
+  forwarded_by_name?: string | null;
+  forwarded_at?: string | null;
   status: ConsultantApplicationStatus;
   application_date: string;
   application_type: string;
