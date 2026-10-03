@@ -4800,7 +4800,9 @@
         "relatedRecords": "Rekod tapak berkaitan",
         "revisions": "Sejarah semakan",
         "site": "Permintaan tapak"
-      }
+      },
+      "raisedOnSite": "Dibangkitkan di tapak oleh {name} {when}",
+      "forwardedBy": "Dihantar kepada perunding oleh {name} {when}"
     },
     "evidence": {
       "selectPhotos": "Foto untuk dipautkan",
@@ -5759,7 +5761,7 @@
       "formHelp": "Pilih projek, pekerja tapak, lokasi kerja, tarikh akhir dan foto yang diperlukan.",
       "openGps": "Buka lokasi GPS",
       "photos": "Foto: {current}/{required}",
-      "prepareApplication": "Sediakan permohonan perunding",
+      "prepareApplication": "Semak dan hantar kepada perunding",
       "projectFixed": "Tapak tidak boleh diubah - penerima tugas diambil daripada pasukan tapak ini.",
       "referenceFiles": "Foto atau fail rujukan",
       "referenceHelp": "Pekerja tapak akan melihatnya sebelum memulakan tugas.",
@@ -5794,7 +5796,9 @@
       },
       "focused": "Hanya tugasan yang ditunjuk oleh kad dipaparkan.",
       "focusedMissing": "Tugasan yang ditunjuk oleh kad tiada dalam senarai ini. Ia mungkin sudah selesai, atau milik projek lain.",
-      "showAll": "Tunjuk semua"
+      "showAll": "Tunjuk semua",
+      "forwardedAs": "Dihantar kepada perunding sebagai {reference}",
+      "draftedAs": "Permohonan {reference} disediakan - belum dihantar"
     },
     "toast": {
       "movementSaved": "Pergerakan peralatan direkodkan",

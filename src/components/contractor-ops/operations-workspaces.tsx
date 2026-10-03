@@ -659,7 +659,7 @@ export function FieldTasksWorkspace({
   taskType,
 }: { taskType?: FieldTask["task_type"] } = {}) {
   const t = useTranslations("contractorOps");
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
   const [project, setProject] = useState("");
@@ -760,9 +760,15 @@ export function FieldTasksWorkspace({
             const gpsPhoto = row.photos.find(
               (photo) => photo.latitude && photo.longitude,
             );
+            // B15: the site sends the request to the manager, who checks it,
+            // talks it through, and sends it on to the consultant from this
+            // same item - once. A request already sent on links to it.
+            const sentOn = row.consultant_application ?? null;
             const canPrepareApplication =
               taskType === "CONSULTANT" &&
               can("consultant.submit") &&
+              !user?.is_field_staff &&
+              !sentOn &&
               ["SUBMITTED", "ACCEPTED"].includes(row.status);
             return (
               <article
@@ -913,6 +919,18 @@ export function FieldTasksWorkspace({
                     </div>
                   </div>
                 </div>
+                {sentOn && (
+                  <div className="border-t bg-muted/20 px-3 py-2 text-sm">
+                    <Link
+                      href={`/consultant-applications/${sentOn.id}`}
+                      className="font-medium text-primary underline-offset-2 hover:underline"
+                    >
+                      {t(sentOn.forwarded_at ? "tasks.forwardedAs" : "tasks.draftedAs", {
+                        reference: sentOn.application_no,
+                      })}
+                    </Link>
+                  </div>
+                )}
                 {(canPrepareApplication ||
                   (can("field_task.manage") &&
                     ["SUBMITTED", "OPEN", "RETURNED"].includes(row.status))) && (

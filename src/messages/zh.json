@@ -4800,7 +4800,9 @@
         "relatedRecords": "关联现场资料",
         "revisions": "版本记录",
         "site": "现场申请"
-      }
+      },
+      "raisedOnSite": "现场提交：{name} {when}",
+      "forwardedBy": "经理转给顾问：{name} {when}"
     },
     "evidence": {
       "selectPhotos": "要关联的照片",
@@ -5759,7 +5761,7 @@
       "formHelp": "选择项目、现场人员、工作位置、期限和必须上传的照片数量。",
       "openGps": "打开 GPS 位置",
       "photos": "照片：{current}/{required}",
-      "prepareApplication": "整理为顾问申请",
+      "prepareApplication": "检查后转给顾问",
       "projectFixed": "工地改不了 —— 接任务的人是从这个工地的班组里选的。",
       "referenceFiles": "参考照片或文件",
       "referenceHelp": "现场人员开始任务前会先看到这些资料。",
@@ -5794,7 +5796,9 @@
       },
       "focused": "只显示卡片指向的这一项任务。",
       "focusedMissing": "卡片指向的任务不在当前列表里，可能已处理完或不属于所选项目。",
-      "showAll": "显示全部"
+      "showAll": "显示全部",
+      "forwardedAs": "已转给顾问：{reference}",
+      "draftedAs": "已整理成申请 {reference}，尚未转给顾问"
     },
     "toast": {
       "movementSaved": "设备进退场已记录",

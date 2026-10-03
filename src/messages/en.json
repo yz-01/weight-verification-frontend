@@ -4800,7 +4800,9 @@
         "relatedRecords": "Linked site records",
         "revisions": "Revision history",
         "site": "Site request"
-      }
+      },
+      "raisedOnSite": "Raised on site by {name} {when}",
+      "forwardedBy": "Sent to the consultant by {name} {when}"
     },
     "evidence": {
       "selectPhotos": "Photos to link",
@@ -5759,7 +5761,7 @@
       "formHelp": "Choose the project, field worker, work location, deadline and required photos.",
       "openGps": "Open GPS location",
       "photos": "Photos: {current}/{required}",
-      "prepareApplication": "Prepare consultant application",
+      "prepareApplication": "Check and send to the consultant",
       "projectFixed": "The site cannot change - the assignee is drawn from this site's team.",
       "referenceFiles": "Reference photos or files",
       "referenceHelp": "Field staff will see these before starting the task.",
@@ -5794,7 +5796,9 @@
       },
       "focused": "Showing only the task the card points to.",
       "focusedMissing": "The task the card points to is not in this list. It may be finished already, or belong to another project.",
-      "showAll": "Show all"
+      "showAll": "Show all",
+      "forwardedAs": "Sent to the consultant as {reference}",
+      "draftedAs": "Application {reference} prepared - not sent yet"
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",

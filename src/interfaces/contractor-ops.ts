@@ -234,6 +234,16 @@ export interface FieldTask {
   photos: FieldTaskPhoto[];
   references: FieldTaskReference[];
   photo_count: number;
+  /**
+   * The consultant application a manager made from this site request (B15):
+   * one request, one application, sent on from the same item.
+   */
+  consultant_application?: {
+    id: string;
+    application_no: string;
+    status: string;
+    forwarded_at: string | null;
+  } | null;
   created_at: string;
   updated_at: string;
 }

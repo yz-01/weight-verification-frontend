@@ -4800,7 +4800,9 @@
         "relatedRecords": "關聯現場資料",
         "revisions": "版本記錄",
         "site": "現場申請"
-      }
+      },
+      "raisedOnSite": "現場提交：{name} {when}",
+      "forwardedBy": "經理轉給顧問：{name} {when}"
     },
     "evidence": {
       "selectPhotos": "要關聯的照片",
@@ -5759,7 +5761,7 @@
       "formHelp": "選擇項目、現場人員、工作位置、期限和必須上傳的照片數量。",
       "openGps": "打開 GPS 位置",
       "photos": "照片：{current}/{required}",
-      "prepareApplication": "整理為顧問申請",
+      "prepareApplication": "檢查後轉給顧問",
       "projectFixed": "工地改不了 —— 接任務的人是從這個工地的班組裡選的。",
       "referenceFiles": "參考照片或文件",
       "referenceHelp": "現場人員開始任務前會先看到這些資料。",
@@ -5794,7 +5796,9 @@
       },
       "focused": "只顯示卡片指向的這一項任務。",
       "focusedMissing": "卡片指向的任務不在目前列表裡，可能已處理完或不屬於所選項目。",
-      "showAll": "顯示全部"
+      "showAll": "顯示全部",
+      "forwardedAs": "已轉給顧問：{reference}",
+      "draftedAs": "已整理成申請 {reference}，尚未轉給顧問"
     },
     "toast": {
       "movementSaved": "設備進退場已記錄",
