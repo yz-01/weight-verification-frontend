@@ -7673,7 +7673,8 @@
       "subtitle": "Choose the work, then take the required photos.",
       "title": "Site record capture",
       "waste": "Environmental material outgoing",
-      "sundry": "Sundry claims"
+      "sundry": "Sundry claims",
+      "request": "MR / Other Request"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -9140,7 +9141,8 @@
       "MATERIAL_OUTGOING": "Material outgoing",
       "EQUIPMENT_MOVEMENT": "Equipment movement",
       "DISPOSAL_REQUEST": "Site disposal",
-      "SUNDRY_CLAIM": "Sundry claims"
+      "SUNDRY_CLAIM": "Sundry claims",
+      "MATERIAL_REQUEST": "MR / Other Request"
     },
     "field": {
       "application_no": "Application no.",
@@ -9195,7 +9197,9 @@
       "disposal_do_no": "Disposal DO no.",
       "execution_note": "Execution note",
       "final_proof_submitted": "Final disposal proof submitted (job finished)",
-      "legacy_confirmation": "Office check (earlier rule)"
+      "legacy_confirmation": "Office check (earlier rule)",
+      "remark": "Remark",
+      "decided_by": "Approved / returned by"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -9563,7 +9567,8 @@
     "yards": "Recycling yards",
     "waitingForYou": "{count} waiting for you",
     "waitingUnknown": "Could not load how many are waiting for you",
-    "materialManagement": "Material management"
+    "materialManagement": "Material management",
+    "material_requests": "MR / Other Request"
   },
   "notifications": {
     "compose": {
@@ -10247,6 +10252,13 @@
       "need": "A yard needs a code, a name and an address.",
       "then": "A yard becomes selectable on intake, weighing and inventory screens.",
       "trouble": "Nothing common enough to warn about yet."
+    },
+    "material_requests": {
+      "what": "Material Requests and Other Requests from the sites, each with its own Request No.; the requested totals; and the earlier photo approvals.",
+      "who": "Holders of material_request.view; approving or returning needs material_request.review.",
+      "need": "A material request needs material, specification, quantity and unit; the remark and attachments are optional. An other request needs a file or a remark.",
+      "then": "Head office talks on the request and approves or returns it. A returned request is closed; asking again is a new request with a new number.",
+      "trouble": "An empty material dropdown means the material lists have not been set up: open Material lists and add materials, specifications and units."
     }
   },
   "partners": {
@@ -10517,7 +10529,16 @@
     "empty": "Nothing waiting for approval",
     "subtitle": "{count} waiting for you",
     "title": "Photo approvals",
-    "what": "The photos waiting for approval"
+    "what": "The photos waiting for approval",
+    "historyCount": "{count, plural, =0 {nothing decided} other {# decided}}",
+    "historyEmpty": "Nothing here",
+    "show": "Show",
+    "reviewNote": "Reason:",
+    "filter": {
+      "SUBMITTED": "Waiting",
+      "ACCEPTED": "Approved",
+      "RETURNED": "Sent back"
+    }
   },
   "profile": {
     "section": {
@@ -14357,7 +14378,8 @@
     "sectionTitle": "Record communication",
     "title": "Record communication · {reference}",
     "closedArchived": "Archived; the conversation is closed. The record can still be viewed.",
-    "closedPaid": "Payment confirmed; the conversation is closed. The record can still be viewed."
+    "closedPaid": "Payment confirmed; the conversation is closed. The record can still be viewed.",
+    "closedDecided": "Approved or returned; the conversation is closed. The record can still be viewed."
   },
   "exportTotals": {
     "title": "Cumulative totals, per unit",
@@ -14644,6 +14666,147 @@
     },
     "what": {
       "confirmers": "The people who can confirm"
+    }
+  },
+  "materialRequest": {
+    "title": "MR / Other Request",
+    "noAccess": "You do not have access to requests or photo approvals.",
+    "tab": {
+      "requests": "Requests",
+      "totals": "Requested totals",
+      "photos": "Photo approvals"
+    },
+    "photosNote": "The photo submissions this entry used to show are here, unchanged: pending ones are still decided here, and earlier ones stay readable with their photos, reviewer and reason.",
+    "type": {
+      "MATERIAL": "Material Request",
+      "OTHER": "Other Request"
+    },
+    "typeHelp": {
+      "MATERIAL": "Electronic form: material, specification, quantity, unit.",
+      "OTHER": "Upload a file and write a remark."
+    },
+    "status": {
+      "SUBMITTED": "Pending approval",
+      "APPROVED": "Approved",
+      "RETURNED": "Returned (closed)"
+    },
+    "allTypes": "All request types",
+    "filter": {
+      "material": "Material",
+      "specification": "Specification"
+    },
+    "field": {
+      "requestNo": "Request No.",
+      "requestType": "Request Type",
+      "project": "Project",
+      "material": "Product / Material",
+      "specification": "Type / Specification",
+      "quantity": "Quantity",
+      "unit": "Unit",
+      "submittedBy": "Submitted By",
+      "date": "Date",
+      "status": "Status",
+      "view": "View",
+      "decidedBy": "Approved By / Returned By",
+      "decidedAt": "Decided at",
+      "approvedBy": "Approved By",
+      "returnedBy": "Returned By",
+      "returnReason": "Reason for return",
+      "decisionNote": "Approval note",
+      "remark": "Remark",
+      "attachments": "Attachments"
+    },
+    "action": {
+      "view": "View",
+      "new": "New Request",
+      "approve": "Approve",
+      "return": "Return and close",
+      "armReturn": "Return this request",
+      "armReturnHelp": "Return ends this request. To ask again the site raises a new one with a new Request No.",
+      "preview": "Preview",
+      "print": "Print",
+      "exportPdf": "Export PDF",
+      "raiseAgain": "Raise a new request"
+    },
+    "empty": "No requests yet",
+    "loading": "Loading…",
+    "failed": "Something went wrong. Try again.",
+    "detailTitle": "Request",
+    "pendingDecision": "Pending approval - not decided yet",
+    "noRemark": "No remark",
+    "returnedNotice": "This request was returned and is closed; it cannot be edited or sent again. To ask again, raise a new request - it gets a new Request No.",
+    "waitingForReview": "Waiting for head office or the authorised manager to approve or return it.",
+    "attachments": {
+      "title": "Attachment index",
+      "none": "No attachments"
+    },
+    "totals": {
+      "title": "Requested totals",
+      "basis": "Per project, material + specification + unit. Approved and pending are shown separately and never added together. Pending counts only requests still waiting for a decision; returned requests are closed, so they are listed as history and not counted as pending.",
+      "empty": "No material requests to total yet",
+      "approved": "Approved quantity",
+      "pending": "Not yet approved (pending)",
+      "returned": "Returned (closed, history)",
+      "requests": "{count, plural, =0 {no requests} one {# request} other {# requests}}",
+      "notStock": "These are quantities asked for, not stock on site: deliveries and returns are counted in Material management."
+    },
+    "preview": {
+      "title": "MR form {reference}",
+      "help": "The formal form with your company's name and logo. Long remarks and attachments continue on pages under the same Request No."
+    },
+    "form": {
+      "title": "New Request",
+      "help": "Choose Material Request for the electronic form, or Other Request to send a file with a remark.",
+      "raiseAgainHelp": "A new request, filled in from the returned one. It gets its own new Request No.; the returned request stays closed in history.",
+      "projectHint": "The current project is filled in automatically.",
+      "chooseProject": "Choose a project",
+      "chooseMaterial": "Search or choose material",
+      "chooseSpecification": "Search or choose specification",
+      "materialFirst": "Choose the material first",
+      "chooseUnit": "Choose unit",
+      "search": "Type to search",
+      "noMatch": "Nothing matches",
+      "noSpecifications": "No specification listed for this material yet",
+      "listsEmpty": "The material list is empty. Head office or an administrator adds materials, specifications and units under Material lists.",
+      "quantityRule": "Above 0, whole number or up to 2 decimal places",
+      "remarkPlaceholder": "Optional: delivery location, timing, anything head office should know",
+      "otherRemarkPlaceholder": "What is this request about?",
+      "attachmentHint": "Product photos, certificates or other files. Up to {count} files, {limit} MB each.",
+      "addFiles": "Add files",
+      "removeFile": "Remove {name}",
+      "fileTooBig": "{name} is over {limit} MB.",
+      "fileOrRemark": "A file or a remark",
+      "submit": "Submit"
+    },
+    "options": {
+      "open": "Material lists",
+      "title": "Material lists",
+      "help": "What the MR form offers: materials, each material's specifications, and units. Switch an option off to retire it; requests already sent keep their own words.",
+      "materials": "Materials / products",
+      "specifications": "Specifications",
+      "specificationsOf": "Specifications of {material}",
+      "units": "Units",
+      "builtIn": "built in",
+      "empty": "Nothing listed yet",
+      "addMaterialFirst": "Add a material first; its specifications are listed under it.",
+      "retire": "Stop offering {name}",
+      "restore": "Offer {name} again",
+      "failed": "Could not save the option.",
+      "add": {
+        "MATERIAL": "Add a material",
+        "SPECIFICATION": "Add a specification",
+        "UNIT": "Add a unit"
+      }
+    },
+    "toast": {
+      "submitted": "Request submitted.",
+      "approved": "Request approved.",
+      "returned": "Request returned and closed.",
+      "optionSaved": "Saved."
+    },
+    "capture": {
+      "mine": "My requests",
+      "mineHelp": "Your requests and their status are on 「My submissions」, with the conversation for each."
     }
   }
 }

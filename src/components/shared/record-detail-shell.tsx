@@ -45,7 +45,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
+import type { ChatRecordKind } from "@/lib/record-chat";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import type { ExportableRecordKind } from "@/services/contractor-ops.service";
@@ -148,7 +148,7 @@ export function RecordDetailShell({
   actions?: React.ReactNode;
   /** Banners above everything (superseded, overdue, closed...). */
   notices?: React.ReactNode;
-  conversation?: { kind: ArchiveRecordKind; recordId: string } | null;
+  conversation?: { kind: ChatRecordKind; recordId: string } | null;
 }) {
   const t = useTranslations("recordShell");
   const [open, setOpen] = useState<number | null>(null);

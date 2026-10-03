@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Images, Loader2, MapPin, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useState } from "react";
 
 import {
   FieldWrapper,
@@ -37,6 +38,10 @@ import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-sta
  * Accepting is what files the photos into their category — the category was
  * chosen when the site submitted, so there is nothing to move by hand, and a
  * returned submission never reaches the category at all.
+ *
+ * Since Phase 6 this sits inside MR / Other Request (D02), and the decided
+ * ones are listed too: the same PHOTO site tasks, with their photos, who
+ * decided and why, read-only. Nothing about them was moved or rewritten.
  */
 export function PhotoApprovals() {
   return <FieldDraft scope="photo-approvals"><PhotoApprovalsContent /></FieldDraft>;
@@ -48,12 +53,14 @@ function PhotoApprovalsContent() {
   const queryClient = useQueryClient();
   const [returningId, setReturningId] = useDraftState("returningId", "");
   const [note, setNote] = useDraftState("note", "");
+  const [shown, setShown] = useState<"SUBMITTED" | "ACCEPTED" | "RETURNED">("SUBMITTED");
   const clearDraft = useClearDraft();
+  const pending = shown === "SUBMITTED";
 
   const waiting = useQuery({
-    queryKey: ["field-tasks", "photo-approvals"],
+    queryKey: ["field-tasks", "photo-approvals", shown],
     queryFn: () =>
-      getFieldTasks({ task_type: "PHOTO", status: "SUBMITTED", page_size: 50 }),
+      getFieldTasks({ task_type: "PHOTO", status: shown, page_size: 50 }),
   });
 
   const decide = useMutation({
@@ -84,7 +91,29 @@ function PhotoApprovalsContent() {
     <div className="flex flex-col gap-4 pb-10">
       <ListHeader
         title={t("photoApprovals.title")}
-        subtitle={waiting.isError ? t("common.emptyValue") : t("photoApprovals.subtitle", { count: waiting.data?.count ?? 0 })}
+        subtitle={
+          waiting.isError
+            ? t("common.emptyValue")
+            : pending
+              ? t("photoApprovals.subtitle", { count: waiting.data?.count ?? 0 })
+              : t("photoApprovals.historyCount", { count: waiting.data?.count ?? 0 })
+        }
+        action={
+          <div className="flex gap-1 rounded-lg border p-1" role="tablist" aria-label={t("photoApprovals.show")}>
+            {(["SUBMITTED", "ACCEPTED", "RETURNED"] as const).map((status) => (
+              <button
+                key={status}
+                type="button"
+                role="tab"
+                aria-selected={shown === status}
+                onClick={() => setShown(status)}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium ${shown === status ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+              >
+                {t(`photoApprovals.filter.${status}`)}
+              </button>
+            ))}
+          </div>
+        }
       />
 
       {waiting.isError ? (
@@ -93,7 +122,7 @@ function PhotoApprovalsContent() {
         <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : rows.length === 0 ? (
         <p className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
-          {t("photoApprovals.empty")}
+          {pending ? t("photoApprovals.empty") : t("photoApprovals.historyEmpty")}
         </p>
       ) : (
         <div className="grid gap-4">
@@ -115,6 +144,7 @@ function PhotoApprovalsContent() {
                     {task.submitted_at ? df.dateTime(task.submitted_at) : "—"}
                   </p>
                 </div>
+                {pending ? (
                 <div className="flex shrink-0 gap-2">
                   <Button
                     size="sm"
@@ -140,7 +170,22 @@ function PhotoApprovalsContent() {
                     {t("photoApprovals.accept")}
                   </Button>
                 </div>
+                ) : (
+                  // Decided: who, when and why, read-only (D02).
+                  <div className="shrink-0 text-right text-xs text-muted-foreground">
+                    <p className="font-medium text-foreground">{t(`photoApprovals.filter.${task.status === "RETURNED" ? "RETURNED" : "ACCEPTED"}`)}</p>
+                    <p>{task.reviewed_by_name ?? "—"}</p>
+                    <p>{task.reviewed_at ? df.dateTime(task.reviewed_at) : "—"}</p>
+                  </div>
+                )}
               </header>
+
+              {!pending && task.review_note && (
+                <p className="mt-3 rounded-lg border px-3 py-2 text-sm">
+                  <span className="mr-1 text-xs text-muted-foreground">{t("photoApprovals.reviewNote")}</span>
+                  {task.review_note}
+                </p>
+              )}
 
               {task.instructions && (
                 <p className="mt-3 rounded-lg bg-muted/40 p-3 text-sm">

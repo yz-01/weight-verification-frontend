@@ -391,20 +391,25 @@ describe("project and field workflows", () => {
     expect(projects?.children?.map((child) => child.href)).toEqual(["/projects"]);
   });
 
-  it("exposes field tasks and photo approvals as independent entries", () => {
-    const entries = PORTAL_NAVIGATION.MSE_TRACE.filter(
-      (item) => item.feature === "field_tasks",
-    );
-    expect(entries.map((item) => item.href)).toEqual([
-      "/field-tasks",
-      "/photo-approvals",
-    ]);
-    expect(entries.map((item) => item.labelKey)).toEqual([
-      "field_tasks",
-      "submodule.photoApprovals",
-    ]);
+  it("puts MR / Other Request where photo approvals was, right after field tasks", () => {
+    const hrefs = PORTAL_NAVIGATION.MSE_TRACE.map((item) => item.href);
+    const fieldTasks = hrefs.indexOf("/field-tasks");
+    expect(hrefs[fieldTasks + 1]).toBe("/material-requests");
+    expect(hrefs).not.toContain("/photo-approvals");
+    const requests = PORTAL_NAVIGATION.MSE_TRACE.find((item) => item.href === "/material-requests");
+    expect(requests?.feature).toBe("material_requests");
     expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/field-tasks")).toBe(true);
-    expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/photo-approvals")).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["material_requests"], "/material-requests")).toBe(true);
+  });
+
+  it("keeps the old photo approvals address open to whoever used it (D02)", () => {
+    // The old page forwards to the MR entry's photo tab; both have to open
+    // for somebody holding field tasks alone, or the forward lands on a 403.
+    for (const features of [["field_tasks"], ["material_requests"]]) {
+      expect(isRouteAllowed("MSE_TRACE", features, "/photo-approvals")).toBe(true);
+    }
+    expect(isRouteAllowed("MSE_TRACE", ["field_tasks"], "/material-requests")).toBe(true);
+    expect(isRouteAllowed("MSE_TRACE", ["suppliers"], "/material-requests")).toBe(false);
   });
 });
 

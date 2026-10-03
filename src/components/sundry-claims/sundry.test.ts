@@ -22,7 +22,8 @@ describe("the phone only asks and talks", () => {
   });
 
   it("keeps the conversation and shows the payment result", () => {
-    expect(phoneHistory).toMatch(/"SUNDRY_CLAIM",\n\]\);/);
+    // In the phone's conversation kinds, wherever it sits in the list.
+    expect(phoneHistory).toMatch(/const CONVERSATION_KINDS = new Set<string>\(\[[^\]]*"SUNDRY_CLAIM",[^\]]*\]\);/);
     expect(phoneHistory).toMatch(/row\.kind === "SUNDRY_CLAIM" &&/);
     expect(phoneHistory).toMatch(/payment_proofs/);
   });

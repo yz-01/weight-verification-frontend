@@ -44,6 +44,7 @@ import type {
   PackageState,
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
+import type { ChatRecordKind } from "@/lib/record-chat";
 import { api, download, toastSuccess } from "@/services/api-client";
 
 export const getProjectCategories = (query: ListQuery) =>
@@ -1394,11 +1395,11 @@ export interface RecordConversation {
    * stays readable; the server refuses new messages with
    * `conversation_closed`. Optional because an older server omits it.
    */
-  closed?: "" | "archived" | "paid";
+  closed?: "" | "archived" | "paid" | "decided";
 }
 
 export function getRecordConversation(
-  kind: ArchiveRecordKind,
+  kind: ChatRecordKind,
   record: string,
 ): Promise<RecordConversation> {
   return api.get<RecordConversation>("/api/record-chat/get_conversation/", {
@@ -1415,7 +1416,7 @@ export function getRecordConversation(
  * people these six modules need in it (D-094).
  */
 export function postRecordMessage(
-  kind: ArchiveRecordKind,
+  kind: ChatRecordKind,
   record: string,
   payload: {
     body?: string;

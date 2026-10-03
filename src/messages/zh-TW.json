@@ -7673,7 +7673,8 @@
       "subtitle": "先選擇工作，再拍攝系統要求的照片。",
       "title": "現場記錄",
       "waste": "環保材料出場申請",
-      "sundry": "雜費報銷"
+      "sundry": "雜費報銷",
+      "request": "MR / 其他申請"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -9140,7 +9141,8 @@
       "MATERIAL_OUTGOING": "材料出場",
       "EQUIPMENT_MOVEMENT": "設備進退場",
       "DISPOSAL_REQUEST": "工地清運",
-      "SUNDRY_CLAIM": "雜費報銷"
+      "SUNDRY_CLAIM": "雜費報銷",
+      "MATERIAL_REQUEST": "MR / 其他申請"
     },
     "field": {
       "application_no": "申請編號",
@@ -9195,7 +9197,9 @@
       "disposal_do_no": "Disposal DO 編號",
       "execution_note": "執行備註",
       "final_proof_submitted": "最終處理證明已提交（任務結束）",
-      "legacy_confirmation": "後台驗收（舊流程）"
+      "legacy_confirmation": "後台驗收（舊流程）",
+      "remark": "備註",
+      "decided_by": "批准 / 退回人"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -9563,7 +9567,8 @@
     "yards": "回收場",
     "waitingForYou": "{count} 項等你處理",
     "waitingUnknown": "待處理數量沒有載入，無法知道有沒有事情在等你",
-    "materialManagement": "材料管理"
+    "materialManagement": "材料管理",
+    "material_requests": "MR / 其他申請"
   },
   "notifications": {
     "compose": {
@@ -10247,6 +10252,13 @@
       "need": "建回收場要編號、名稱和地址。",
       "then": "建好之後，入庫、稱重和庫存頁面就能選到它。",
       "trouble": "目前沒有常見到值得預警的問題。"
+    },
+    "material_requests": {
+      "what": "現場的材料申請和其他申請，每筆有獨立申請編號；申請累計數量；以及原有的照片審批。",
+      "who": "持有 material_request.view 的人員；批准或退回需要 material_request.review。",
+      "need": "材料申請須填材料、規格、數量和單位；備註和附件選填。其他申請須有文件或備註。",
+      "then": "總部在申請內溝通並批准或退回。已退回的申請即結束；再申請須新建，產生新編號。",
+      "trouble": "材料下拉沒有選項，表示還沒設定材料選項：請打開「材料選項」新增材料、規格和單位。"
     }
   },
   "partners": {
@@ -10517,7 +10529,16 @@
     "empty": "沒有待審批的",
     "subtitle": "有 {count} 份等你審",
     "title": "照片審批",
-    "what": "待審批的照片"
+    "what": "待審批的照片",
+    "historyCount": "{count, plural, =0 {無記錄} other {# 筆已處理}}",
+    "historyEmpty": "暫無記錄",
+    "show": "顯示",
+    "reviewNote": "原因：",
+    "filter": {
+      "SUBMITTED": "待審批",
+      "ACCEPTED": "已批准",
+      "RETURNED": "已退回"
+    }
   },
   "profile": {
     "section": {
@@ -14357,7 +14378,8 @@
     "sectionTitle": "事項溝通",
     "title": "事項溝通 · {reference}",
     "closedArchived": "已歸檔，聊天室已關閉。記錄仍可查看。",
-    "closedPaid": "已確認付款，聊天室已關閉。記錄仍可查看。"
+    "closedPaid": "已確認付款，聊天室已關閉。記錄仍可查看。",
+    "closedDecided": "已批准或已退回，聊天室已關閉。記錄仍可查看。"
   },
   "exportTotals": {
     "title": "累計數量（按單位分別統計）",
@@ -14644,6 +14666,147 @@
     },
     "what": {
       "confirmers": "可選的確認人"
+    }
+  },
+  "materialRequest": {
+    "title": "MR / 其他申請",
+    "noAccess": "你沒有查看申請或照片審批的權限。",
+    "tab": {
+      "requests": "申請",
+      "totals": "申請累計",
+      "photos": "照片審批"
+    },
+    "photosNote": "原「照片審批」的照片提交全部在這裡，沒有改動：待審的照樣在此審批，已處理的連同照片、審批人和原因都可查看。",
+    "type": {
+      "MATERIAL": "材料申請",
+      "OTHER": "其他申請"
+    },
+    "typeHelp": {
+      "MATERIAL": "電子表單：材料、規格、數量、單位。",
+      "OTHER": "上傳文件並填寫備註。"
+    },
+    "status": {
+      "SUBMITTED": "待審批",
+      "APPROVED": "已批准",
+      "RETURNED": "已退回（已結束）"
+    },
+    "allTypes": "全部申請類型",
+    "filter": {
+      "material": "材料",
+      "specification": "規格"
+    },
+    "field": {
+      "requestNo": "申請編號",
+      "requestType": "申請類型",
+      "project": "項目",
+      "material": "產品 / 材料",
+      "specification": "類型 / 規格",
+      "quantity": "數量",
+      "unit": "單位",
+      "submittedBy": "申請人",
+      "date": "日期",
+      "status": "狀態",
+      "view": "查看",
+      "decidedBy": "批准人 / 退回人",
+      "decidedAt": "審批時間",
+      "approvedBy": "批准人",
+      "returnedBy": "退回人",
+      "returnReason": "退回原因",
+      "decisionNote": "批准備註",
+      "remark": "備註",
+      "attachments": "附件"
+    },
+    "action": {
+      "view": "查看",
+      "new": "新建申請",
+      "approve": "批准",
+      "return": "退回並結束",
+      "armReturn": "退回此申請",
+      "armReturnHelp": "退回即結束此申請。如需再申請，現場須新建，產生新的申請編號。",
+      "preview": "預覽",
+      "print": "列印",
+      "exportPdf": "匯出 PDF",
+      "raiseAgain": "新建申請"
+    },
+    "empty": "暫無申請",
+    "loading": "載入中…",
+    "failed": "操作失敗，請重試。",
+    "detailTitle": "申請",
+    "pendingDecision": "待審批，尚未審批",
+    "noRemark": "無備註",
+    "returnedNotice": "此申請已退回並結束，不能修改或重新提交。如需再申請，請新建申請，會產生新的申請編號。",
+    "waitingForReview": "等待總部或授權負責人批准或退回。",
+    "attachments": {
+      "title": "附件索引",
+      "none": "無附件"
+    },
+    "totals": {
+      "title": "申請累計數量",
+      "basis": "按項目及「材料 + 規格 + 單位」分組。「已批准數量」與「未批准數量」分開顯示，不相加。「未批准」只算仍在等待審批的申請；已退回的申請已結束，只列為歷史，不計入未批准。",
+      "empty": "暫無可累計的材料申請",
+      "approved": "已批准數量",
+      "pending": "未批准數量（待審）",
+      "returned": "已退回（已結束，歷史）",
+      "requests": "{count, plural, =0 {無申請} other {# 筆申請}}",
+      "notStock": "以上是申請數量，不是現場庫存；實際進場與退場以「材料管理」為準。"
+    },
+    "preview": {
+      "title": "申請表 {reference}",
+      "help": "正式申請表，自動帶入貴公司名稱和 Logo。超長備註和附件以同一申請編號自動附頁。"
+    },
+    "form": {
+      "title": "新建申請",
+      "help": "材料申請填寫電子表單；其他申請只需上傳文件並填寫備註。",
+      "raiseAgainHelp": "以已退回的申請內容新建，會產生新的申請編號；原申請保持已結束並留在歷史中。",
+      "projectHint": "自動帶入當前項目。",
+      "chooseProject": "選擇項目",
+      "chooseMaterial": "搜尋或選擇材料",
+      "chooseSpecification": "搜尋或選擇規格",
+      "materialFirst": "請先選擇材料",
+      "chooseUnit": "選擇單位",
+      "search": "輸入搜尋",
+      "noMatch": "沒有符合的選項",
+      "noSpecifications": "此材料尚未設定規格",
+      "listsEmpty": "材料選項為空。請總部或管理員在「材料選項」中新增材料、規格和單位。",
+      "quantityRule": "須大於 0，可整數或最多兩位小數",
+      "remarkPlaceholder": "選填：送貨位置、時間等需要總部知道的事項",
+      "otherRemarkPlaceholder": "說明這個申請的內容",
+      "attachmentHint": "產品照片、證書或其他文件。最多 {count} 份，每份不超過 {limit} MB。",
+      "addFiles": "新增文件",
+      "removeFile": "移除 {name}",
+      "fileTooBig": "{name} 超過 {limit} MB。",
+      "fileOrRemark": "文件或備註",
+      "submit": "提交"
+    },
+    "options": {
+      "open": "材料選項",
+      "title": "材料選項",
+      "help": "MR 表單的選項：材料、各材料的規格，以及單位。關閉開關即停用；已提交的申請內容不受影響。",
+      "materials": "材料 / 產品",
+      "specifications": "規格",
+      "specificationsOf": "{material} 的規格",
+      "units": "單位",
+      "builtIn": "系統內建",
+      "empty": "暫無選項",
+      "addMaterialFirst": "請先新增材料，規格列在材料之下。",
+      "retire": "停用 {name}",
+      "restore": "重新啟用 {name}",
+      "failed": "選項未能儲存。",
+      "add": {
+        "MATERIAL": "新增材料",
+        "SPECIFICATION": "新增規格",
+        "UNIT": "新增單位"
+      }
+    },
+    "toast": {
+      "submitted": "申請已提交。",
+      "approved": "申請已批准。",
+      "returned": "申請已退回並結束。",
+      "optionSaved": "已儲存。"
+    },
+    "capture": {
+      "mine": "我的申請",
+      "mineHelp": "提交後可在「我提交過的」查看狀態和溝通。"
     }
   }
 }

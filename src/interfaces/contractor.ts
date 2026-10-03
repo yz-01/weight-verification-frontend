@@ -374,7 +374,9 @@ export interface MySubmissionRow {
     | "EQUIPMENT_MOVEMENT"
     | "DISPOSAL_REQUEST"
     // 杂费报销 stays here until paid (D-232).
-    | "SUNDRY_CLAIM";
+    | "SUNDRY_CLAIM"
+    // MR / Other Request (C07): the site follows its own requests here.
+    | "MATERIAL_REQUEST";
   reference: string;
   detail: string;
   project_id: string | null;

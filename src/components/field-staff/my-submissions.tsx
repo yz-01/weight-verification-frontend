@@ -53,7 +53,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldLoadFailed, FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
-import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
+import type { ChatRecordKind } from "@/lib/record-chat";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -101,6 +101,8 @@ const CONVERSATION_KINDS = new Set<string>([
   "DISPOSAL_REQUEST",
   "PROGRESS",
   "SUNDRY_CLAIM",
+  // MR / Other Request (C05): talk to head office while it is pending.
+  "MATERIAL_REQUEST",
 ]);
 
 export function MySubmissions({
@@ -493,7 +495,7 @@ function StoredDetailSheet({
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {t("mySubmissions.conversation")}
                 </p>
-                <RecordConversationPanel kind={row.kind as ArchiveRecordKind} recordId={row.id} />
+                <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />
               </section>
             )}
           </div>

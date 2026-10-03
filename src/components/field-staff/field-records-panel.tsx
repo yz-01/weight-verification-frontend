@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Camera,
   ClipboardList,
+  FilePlus2,
   HardHat,
   ListChecks,
   Loader2,
@@ -35,6 +36,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldSlots } from "@/components/field-staff/field-slots";
 import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
+import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import {
@@ -102,7 +104,8 @@ export type FieldRecordMode =
   | "waste"
   | "safety"
   | "consultant"
-  | "sundry";
+  | "sundry"
+  | "request";
 
 interface RecordOption {
   key: FieldRecordMode;
@@ -124,6 +127,9 @@ const RECORD_OPTIONS: RecordOption[] = [
   // module the customer never defined. Every tile here is a business entry.
   // 杂费报销 (D-232): submitted here, followed on 「我提交过的」.
   { key: "sundry", permission: "sundry_claim.submit", icon: ReceiptText, tone: "bg-warning/15 text-warning" },
+  // MR / Other Request (C01): asked from the current project, followed on
+  // 「我提交过的」 with its conversation.
+  { key: "request", permission: "material_request.submit", icon: FilePlus2, tone: "bg-primary/10 text-primary" },
 ];
 
 export function FieldRecordsPanel({
@@ -184,6 +190,9 @@ export function FieldRecordsPanel({
   }
   if (mode === "consultant") {
     return <RecordFrame title={t("records.consultant")} onBack={() => chooseMode(null)}><FieldDraft scope={`consultant:${task?.id ?? "new"}`}><ConsultantCapturePanel initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+  }
+  if (mode === "request") {
+    return <RecordFrame title={t("records.request")} onBack={() => chooseMode(null)}><FieldDraft scope={`request:${task?.id ?? "new"}`}><MaterialRequestForm initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
   }
   if (mode === "sundry") {
     return <RecordFrame title={t("records.sundry")} onBack={() => chooseMode(null)}><FieldDraft scope={`sundry:${task?.id ?? "new"}`}><SundryClaimCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;

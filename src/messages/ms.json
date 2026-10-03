@@ -7673,7 +7673,8 @@
       "subtitle": "Pilih kerja, kemudian ambil foto yang diperlukan.",
       "title": "Rakam rekod tapak",
       "waste": "Permohonan bahan alam sekitar keluar",
-      "sundry": "Tuntutan pelbagai"
+      "sundry": "Tuntutan pelbagai",
+      "request": "MR / Permohonan Lain"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -9140,7 +9141,8 @@
       "MATERIAL_OUTGOING": "Bahan keluar",
       "EQUIPMENT_MOVEMENT": "Pergerakan peralatan",
       "DISPOSAL_REQUEST": "Pelupusan tapak",
-      "SUNDRY_CLAIM": "Tuntutan pelbagai"
+      "SUNDRY_CLAIM": "Tuntutan pelbagai",
+      "MATERIAL_REQUEST": "MR / Permohonan Lain"
     },
     "field": {
       "application_no": "No. permohonan",
@@ -9195,7 +9197,9 @@
       "disposal_do_no": "No. DO pelupusan",
       "execution_note": "Catatan pelaksanaan",
       "final_proof_submitted": "Bukti pelupusan akhir dihantar (tugas selesai)",
-      "legacy_confirmation": "Semakan pejabat (peraturan lama)"
+      "legacy_confirmation": "Semakan pejabat (peraturan lama)",
+      "remark": "Catatan",
+      "decided_by": "Diluluskan / dikembalikan oleh"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -9563,7 +9567,8 @@
     "yards": "Tapak kitar semula",
     "waitingForYou": "{count} menunggu anda",
     "waitingUnknown": "Tidak dapat memuatkan bilangan yang menunggu anda",
-    "materialManagement": "Pengurusan bahan"
+    "materialManagement": "Pengurusan bahan",
+    "material_requests": "MR / Permohonan Lain"
   },
   "notifications": {
     "compose": {
@@ -10247,6 +10252,13 @@
       "need": "Halaman memerlukan kod, nama dan alamat.",
       "then": "Halaman menjadi boleh dipilih pada skrin kemasukan, penimbangan dan inventori.",
       "trouble": "Belum ada yang cukup lazim untuk diberi amaran."
+    },
+    "material_requests": {
+      "what": "Permohonan Bahan dan Permohonan Lain daripada tapak, setiap satu dengan No. Permohonan sendiri; jumlah dipohon; dan kelulusan foto terdahulu.",
+      "who": "Pemegang material_request.view; meluluskan atau mengembalikan memerlukan material_request.review.",
+      "need": "Permohonan bahan memerlukan bahan, spesifikasi, kuantiti dan unit; catatan dan lampiran adalah pilihan. Permohonan lain memerlukan fail atau catatan.",
+      "then": "Ibu pejabat berbincang dalam permohonan dan meluluskan atau mengembalikannya. Permohonan yang dikembalikan ditutup; memohon semula ialah permohonan baharu dengan nombor baharu.",
+      "trouble": "Senarai bahan yang kosong bermakna senarai belum disediakan: buka Senarai bahan dan tambah bahan, spesifikasi dan unit."
     }
   },
   "partners": {
@@ -10517,7 +10529,16 @@
     "empty": "Tiada yang menunggu kelulusan",
     "subtitle": "{count} menunggu anda",
     "title": "Kelulusan foto",
-    "what": "Foto yang menunggu kelulusan"
+    "what": "Foto yang menunggu kelulusan",
+    "historyCount": "{count, plural, =0 {tiada keputusan} other {# diputuskan}}",
+    "historyEmpty": "Tiada apa-apa",
+    "show": "Papar",
+    "reviewNote": "Sebab:",
+    "filter": {
+      "SUBMITTED": "Menunggu",
+      "ACCEPTED": "Diluluskan",
+      "RETURNED": "Dihantar balik"
+    }
   },
   "profile": {
     "section": {
@@ -14357,7 +14378,8 @@
     "sectionTitle": "Komunikasi rekod",
     "title": "Komunikasi rekod · {reference}",
     "closedArchived": "Telah diarkibkan; perbualan ditutup. Rekod masih boleh dilihat.",
-    "closedPaid": "Bayaran telah disahkan; perbualan ditutup. Rekod masih boleh dilihat."
+    "closedPaid": "Bayaran telah disahkan; perbualan ditutup. Rekod masih boleh dilihat.",
+    "closedDecided": "Diluluskan atau dikembalikan; perbualan ditutup. Rekod masih boleh dilihat."
   },
   "exportTotals": {
     "title": "Jumlah terkumpul, mengikut unit",
@@ -14644,6 +14666,147 @@
     },
     "what": {
       "confirmers": "Orang yang boleh mengesahkan"
+    }
+  },
+  "materialRequest": {
+    "title": "MR / Permohonan Lain",
+    "noAccess": "Anda tiada akses kepada permohonan atau kelulusan foto.",
+    "tab": {
+      "requests": "Permohonan",
+      "totals": "Jumlah dipohon",
+      "photos": "Kelulusan foto"
+    },
+    "photosNote": "Penghantaran foto yang dahulu dipaparkan di sini kekal tanpa perubahan: yang menunggu masih diputuskan di sini, dan yang lama boleh dibaca bersama foto, penyemak dan sebabnya.",
+    "type": {
+      "MATERIAL": "Permohonan Bahan",
+      "OTHER": "Permohonan Lain"
+    },
+    "typeHelp": {
+      "MATERIAL": "Borang elektronik: bahan, spesifikasi, kuantiti, unit.",
+      "OTHER": "Muat naik fail dan tulis catatan."
+    },
+    "status": {
+      "SUBMITTED": "Menunggu kelulusan",
+      "APPROVED": "Diluluskan",
+      "RETURNED": "Dikembalikan (ditutup)"
+    },
+    "allTypes": "Semua jenis permohonan",
+    "filter": {
+      "material": "Bahan",
+      "specification": "Spesifikasi"
+    },
+    "field": {
+      "requestNo": "No. Permohonan",
+      "requestType": "Jenis Permohonan",
+      "project": "Projek",
+      "material": "Produk / Bahan",
+      "specification": "Jenis / Spesifikasi",
+      "quantity": "Kuantiti",
+      "unit": "Unit",
+      "submittedBy": "Dihantar oleh",
+      "date": "Tarikh",
+      "status": "Status",
+      "view": "Lihat",
+      "decidedBy": "Diluluskan / Dikembalikan oleh",
+      "decidedAt": "Diputuskan pada",
+      "approvedBy": "Diluluskan oleh",
+      "returnedBy": "Dikembalikan oleh",
+      "returnReason": "Sebab dikembalikan",
+      "decisionNote": "Catatan kelulusan",
+      "remark": "Catatan",
+      "attachments": "Lampiran"
+    },
+    "action": {
+      "view": "Lihat",
+      "new": "Permohonan Baharu",
+      "approve": "Luluskan",
+      "return": "Kembalikan dan tutup",
+      "armReturn": "Kembalikan permohonan ini",
+      "armReturnHelp": "Pengembalian menamatkan permohonan ini. Untuk memohon semula, tapak membuat permohonan baharu dengan No. Permohonan baharu.",
+      "preview": "Pratonton",
+      "print": "Cetak",
+      "exportPdf": "Eksport PDF",
+      "raiseAgain": "Buat permohonan baharu"
+    },
+    "empty": "Tiada permohonan lagi",
+    "loading": "Memuatkan…",
+    "failed": "Ada masalah. Cuba lagi.",
+    "detailTitle": "Permohonan",
+    "pendingDecision": "Menunggu kelulusan - belum diputuskan",
+    "noRemark": "Tiada catatan",
+    "returnedNotice": "Permohonan ini dikembalikan dan ditutup; ia tidak boleh disunting atau dihantar semula. Untuk memohon semula, buat permohonan baharu - ia diberi No. Permohonan baharu.",
+    "waitingForReview": "Menunggu ibu pejabat atau pengurus yang diberi kuasa meluluskan atau mengembalikannya.",
+    "attachments": {
+      "title": "Indeks lampiran",
+      "none": "Tiada lampiran"
+    },
+    "totals": {
+      "title": "Jumlah kuantiti dipohon",
+      "basis": "Mengikut projek, bahan + spesifikasi + unit. Diluluskan dan belum diluluskan dipaparkan berasingan dan tidak dijumlahkan. Belum diluluskan hanya mengira permohonan yang masih menunggu keputusan; permohonan yang dikembalikan sudah ditutup, jadi disenaraikan sebagai sejarah dan tidak dikira.",
+      "empty": "Tiada permohonan bahan untuk dijumlahkan lagi",
+      "approved": "Kuantiti diluluskan",
+      "pending": "Belum diluluskan (menunggu)",
+      "returned": "Dikembalikan (ditutup, sejarah)",
+      "requests": "{count, plural, =0 {tiada permohonan} other {# permohonan}}",
+      "notStock": "Ini kuantiti yang dipohon, bukan stok di tapak: penghantaran dan pemulangan dikira dalam Pengurusan bahan."
+    },
+    "preview": {
+      "title": "Borang {reference}",
+      "help": "Borang rasmi dengan nama dan logo syarikat anda. Catatan panjang dan lampiran bersambung di halaman dengan No. Permohonan yang sama."
+    },
+    "form": {
+      "title": "Permohonan Baharu",
+      "help": "Pilih Permohonan Bahan untuk borang elektronik, atau Permohonan Lain untuk menghantar fail dengan catatan.",
+      "raiseAgainHelp": "Permohonan baharu, diisi daripada yang dikembalikan. Ia diberi No. Permohonan baharu; permohonan asal kekal ditutup dalam sejarah.",
+      "projectHint": "Projek semasa diisi secara automatik.",
+      "chooseProject": "Pilih projek",
+      "chooseMaterial": "Cari atau pilih bahan",
+      "chooseSpecification": "Cari atau pilih spesifikasi",
+      "materialFirst": "Pilih bahan dahulu",
+      "chooseUnit": "Pilih unit",
+      "search": "Taip untuk cari",
+      "noMatch": "Tiada padanan",
+      "noSpecifications": "Tiada spesifikasi disenaraikan untuk bahan ini lagi",
+      "listsEmpty": "Senarai bahan kosong. Ibu pejabat atau pentadbir menambah bahan, spesifikasi dan unit di Senarai bahan.",
+      "quantityRule": "Melebihi 0, nombor bulat atau sehingga 2 tempat perpuluhan",
+      "remarkPlaceholder": "Pilihan: lokasi penghantaran, masa, apa-apa yang perlu diketahui ibu pejabat",
+      "otherRemarkPlaceholder": "Apakah permohonan ini?",
+      "attachmentHint": "Foto produk, sijil atau fail lain. Sehingga {count} fail, {limit} MB setiap satu.",
+      "addFiles": "Tambah fail",
+      "removeFile": "Buang {name}",
+      "fileTooBig": "{name} melebihi {limit} MB.",
+      "fileOrRemark": "Fail atau catatan",
+      "submit": "Hantar"
+    },
+    "options": {
+      "open": "Senarai bahan",
+      "title": "Senarai bahan",
+      "help": "Pilihan borang MR: bahan, spesifikasi setiap bahan, dan unit. Matikan pilihan untuk menghentikannya; permohonan yang telah dihantar kekal seperti asal.",
+      "materials": "Bahan / produk",
+      "specifications": "Spesifikasi",
+      "specificationsOf": "Spesifikasi {material}",
+      "units": "Unit",
+      "builtIn": "terbina dalam",
+      "empty": "Belum ada pilihan",
+      "addMaterialFirst": "Tambah bahan dahulu; spesifikasinya disenaraikan di bawahnya.",
+      "retire": "Hentikan {name}",
+      "restore": "Tawarkan {name} semula",
+      "failed": "Pilihan tidak dapat disimpan.",
+      "add": {
+        "MATERIAL": "Tambah bahan",
+        "SPECIFICATION": "Tambah spesifikasi",
+        "UNIT": "Tambah unit"
+      }
+    },
+    "toast": {
+      "submitted": "Permohonan dihantar.",
+      "approved": "Permohonan diluluskan.",
+      "returned": "Permohonan dikembalikan dan ditutup.",
+      "optionSaved": "Disimpan."
+    },
+    "capture": {
+      "mine": "Permohonan saya",
+      "mineHelp": "Permohonan anda dan statusnya ada di 「Hantaran saya」, bersama perbualannya."
     }
   }
 }
