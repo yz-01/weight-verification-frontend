@@ -3095,7 +3095,9 @@
       "notApplicable": "Not archived by anyone"
     },
     "notInQueue": "This record is not finished yet, so it is not on your to-see list. You can mark it as seen once it is finished.",
-    "categoryManagement": "Category management"
+    "categoryManagement": "Category management",
+    "openPhoto": "Open the photo",
+    "noPhoto": "No photo"
   },
   "assets": {
     "category": {

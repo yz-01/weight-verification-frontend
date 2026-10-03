@@ -3095,7 +3095,9 @@
       "notApplicable": "不需要归档"
     },
     "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。",
-    "categoryManagement": "分类管理"
+    "categoryManagement": "分类管理",
+    "openPhoto": "放大查看照片",
+    "noPhoto": "无照片"
   },
   "assets": {
     "category": {

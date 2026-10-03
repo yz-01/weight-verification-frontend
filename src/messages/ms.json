@@ -3095,7 +3095,9 @@
       "notApplicable": "Tidak perlu diarkibkan"
     },
     "notInQueue": "Rekod ini belum selesai, jadi ia belum ada dalam senarai untuk dilihat anda. Anda boleh tandakannya sebagai sudah dilihat selepas ia selesai.",
-    "categoryManagement": "Pengurusan kategori"
+    "categoryManagement": "Pengurusan kategori",
+    "openPhoto": "Buka gambar",
+    "noPhoto": "Tiada gambar"
   },
   "assets": {
     "category": {

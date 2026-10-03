@@ -3095,7 +3095,9 @@
       "notApplicable": "不需要歸檔"
     },
     "notInQueue": "這筆記錄還沒完成，還不在你的待看清單裡。完成以後才可以標「看過了」。",
-    "categoryManagement": "分類管理"
+    "categoryManagement": "分類管理",
+    "openPhoto": "放大查看照片",
+    "noPhoto": "無照片"
   },
   "assets": {
     "category": {
