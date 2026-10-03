@@ -156,15 +156,48 @@ export interface SafetyIncident {
   rectification_submitted_at: string | null;
   verified_by: string | null;
   verified_by_name: string | null;
+  /** 身份 / 职位 of whoever confirmed it, as it read that day (B21, C20). */
+  verified_by_title?: string;
   verified_at: string | null;
   review_note: string;
   rectification_evidence: SafetyRectificationEvidence[];
   notified_users: string[];
   notified_user_names: string[];
   created_by: string;
+  created_by_title?: string;
   photographer_name: string | null;
+  /** A hazard to put right, or a 施工准证申请 to approve (C20). */
+  record_type?: EhsRecordType;
+  /** Where it was raised - which decides who confirms it (B21). Blank on
+   *  items raised before the rule. */
+  origin?: HazardOrigin | "";
+  /** The one person who confirms it; null on older items and on permits. */
+  confirmer?: string | null;
+  confirmer_name?: string | null;
+  /** Whether the reader is the confirmer, now. The only thing that shows
+   *  【确认完成】 - holding safety.verify is not enough (B21). */
+  can_confirm?: boolean;
+  /** 整改前 / 中 / 后, gathered in one place (B20). */
+  photo_groups?: {
+    before: HazardPhoto[];
+    during: HazardPhoto[];
+    after: HazardPhoto[];
+  };
   created_at: string;
   updated_at: string;
+}
+
+export type EhsRecordType = "HAZARD" | "PERMIT";
+export type HazardOrigin = "SITE" | "OFFICE" | "CONSULTANT";
+
+/** One photo in a hazard's before / during / after groups. */
+export interface HazardPhoto {
+  id: string;
+  image: string;
+  watermarked?: string | null;
+  note?: string;
+  captured_at: string | null;
+  submitted_by_name?: string | null;
 }
 
 /**
@@ -229,6 +262,15 @@ export interface SafetyIncidentPayload {
   longitude?: string;
   photos?: File[];
   notify_users?: string[];
+  /** C20: a permit, rather than a hazard. */
+  record_type?: EhsRecordType;
+  /** The phone names who confirms it (B21); the reporter when left out. */
+  confirmer?: string;
+  /** 上报 → 指派 in one step (B22). */
+  responsible_person?: string;
+  due_at?: string;
+  /** A permit's other pages: PDF, certificate. */
+  attachments?: File[];
 }
 
 /** One worker currently inside a project's geofence. */

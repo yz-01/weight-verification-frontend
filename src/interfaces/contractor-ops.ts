@@ -225,6 +225,9 @@ export interface FieldTask {
   start_accuracy_m: string | null;
   submitted_at: string | null;
   reviewed_at: string | null;
+  /** Who confirmed or returned it - name, User ID and time (B18). */
+  reviewed_by?: string | null;
+  reviewed_by_name?: string | null;
   review_note: string;
   client_event_id: string;
   linked_record_type: string;
@@ -526,15 +529,37 @@ export type DisposalRequestStatus =
 
 export type DisposalEvidenceKind =
   | "REQUEST"
+  | "VEHICLE_EXIT"
+  | "GATE_PASS"
   | "LOADING"
   | "UNLOADING"
   | "DISPOSAL_DO"
   | "OTHER"
+  | "DISPOSAL_PROOF"
   | "CONFIRMATION";
+
+/** What the site photographs as the load leaves (C08). */
+export type DisposalSiteEvidenceKind = "VEHICLE_EXIT" | "GATE_PASS";
+
+/**
+ * Where a photograph belongs in the job (B23): the request, the load leaving
+ * site, the final disposal proof, or an office check from before E04.
+ */
+export type DisposalEvidenceStage = "REQUEST" | "SITE_EXIT" | "FINAL_PROOF" | "OFFICE_CHECK";
+
+/** 原工地清运's own figures (D06). */
+export interface DisposalTotals {
+  records: number;
+  completed: number;
+  trips: number;
+  weight_kg: string;
+  with_weight: number;
+}
 
 export interface DisposalEvidence {
   id: string;
   kind: DisposalEvidenceKind;
+  stage?: DisposalEvidenceStage;
   image: string;
   watermarked?: string | null;
   note: string;

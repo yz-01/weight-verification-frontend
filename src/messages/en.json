@@ -3030,7 +3030,8 @@
     "what": {
       "workflowTemplates": "The approval chains",
       "chainSteps": "The steps of this chain"
-    }
+    },
+    "advancedNote": "Advanced. Material leaving site, work permits and consultant applications are discussed and approved inside the item itself - not here."
   },
   "archiveQueue": {
     "allModules": "All modules",
@@ -5800,7 +5801,15 @@
       "focusedMissing": "The task the card points to is not in this list. It may be finished already, or belong to another project.",
       "showAll": "Show all",
       "forwardedAs": "Sent to the consultant as {reference}",
-      "draftedAs": "Application {reference} prepared - not sent yet"
+      "draftedAs": "Application {reference} prepared - not sent yet",
+      "expand": "Show details of {task}",
+      "collapse": "Hide details of {task}",
+      "dueShort": "Due {value}",
+      "noDue": "No deadline",
+      "confirmDone": "Confirm completed",
+      "confirmedBy": "Confirmed by {name} · {value}",
+      "returnedBy": "Returned by {name} · {value}",
+      "returnReasonShown": "Reason: {reason}"
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",
@@ -6751,7 +6760,9 @@
     "photosClosed": "This trip has ended. Its photographs stay readable, but no new ones can be taken.",
     "what": {
       "pushStatus": "The notification status"
-    }
+    },
+    "takeIssuePhoto": "Photograph a problem on the road (accident / vehicle issue)",
+    "issuePhotoHelp": "Sent to the recycler and the contractor straight away."
   },
   "driverGps": {
     "action": {
@@ -9176,7 +9187,15 @@
       "paid_by": "Payment confirmed by",
       "paid_at": "Paid on",
       "returned_quantity": "Quantity sent back",
-      "source_receipt_no": "Original delivery"
+      "source_receipt_no": "Original delivery",
+      "requested_by": "Requested by",
+      "approved_by": "Approved by",
+      "actual_weight": "Actual weight",
+      "trip_count": "Trips",
+      "disposal_do_no": "Disposal DO no.",
+      "execution_note": "Execution note",
+      "final_proof_submitted": "Final disposal proof submitted (job finished)",
+      "legacy_confirmation": "Office check (earlier rule)"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -9291,7 +9310,7 @@
       "apiGatewayMonitoring": "API Gateway monitoring",
       "apiGatewaySettings": "API Gateway settings",
       "approvalCredentials": "Approval credentials",
-      "approvals": "Approval records",
+      "approvals": "Approval workflows (advanced)",
       "archiveQueue": "Site Record Center",
       "assetActivity": "Asset records",
       "assetAssignments": "Assignment and borrowing",
@@ -12660,8 +12679,6 @@
       "cancel": "Cancel",
       "cancelDisposal": "Cancel disposal",
       "close": "Close",
-      "complete": "Complete",
-      "confirm": "Verify",
       "copyLink": "Copy task link",
       "createLink": "Create sign-in-free link",
       "getLocation": "Get current GPS",
@@ -12669,12 +12686,13 @@
       "new": "New request",
       "regenerateLink": "Regenerate link",
       "reject": "Reject",
-      "return": "Return",
       "review": "Review",
       "save": "Save decision",
       "sendToStaff": "Send to field staff",
       "submit": "Submit request",
-      "view": "View"
+      "view": "View",
+      "recordNumbers": "Record numbers",
+      "siteEvidence": "Photograph vehicle exit / Gate Pass"
     },
     "assign": {
       "copyNow": "Copy and send this link to the external contractor. No sign-in is required. If it is lost, generate a new link from the disposal list; the old link will stop working.",
@@ -12690,10 +12708,6 @@
       "description": "Cancelling {reference} immediately disables its field task and external link. The record and photos remain available for audit.",
       "title": "Cancel disposal"
     },
-    "confirm": {
-      "description": "Check the loading, unloading and Disposal DO evidence for {reference}.",
-      "title": "Confirm completed disposal"
-    },
     "count": "{count} disposal request(s)",
     "create": {
       "description": "Photograph the waste, capture the current GPS location and send the request for approval.",
@@ -12706,17 +12720,20 @@
     },
     "evidence": "Photo and document evidence",
     "evidenceKind": {
-      "CONFIRMATION": "Verification",
+      "CONFIRMATION": "Office check (earlier rule)",
       "DISPOSAL_DO": "Disposal DO",
       "LOADING": "Loading",
       "OTHER": "Site cleared / other photo",
       "REQUEST": "Request photo",
-      "UNLOADING": "Unloading"
+      "UNLOADING": "Unloading",
+      "DISPOSAL_PROOF": "Final disposal proof",
+      "VEHICLE_EXIT": "Vehicle exit",
+      "GATE_PASS": "Gate Pass"
     },
     "external": {
       "action": {
         "start": "Start disposal work",
-        "submit": "Send for verification"
+        "submit": "Submit final disposal proof (ends the job)"
       },
       "error": {
         "action": "The action could not be completed. Check the connection and try again."
@@ -12735,25 +12752,25 @@
       },
       "invalid": "Task link unavailable",
       "invalidBody": "This link is invalid, expired or the task has already been completed.",
-      "photosTitle": "Photos (up to 4)",
+      "photosTitle": "Final disposal proof (up to 4 photos)",
       "status": {
-        "APPROVED": "Approved",
+        "APPROVED": "Ready to start",
         "ASSIGNED": "Ready to start",
-        "AWAITING_CONFIRMATION": "Waiting for site verification",
+        "AWAITING_CONFIRMATION": "Final proof submitted",
         "CANCELLED": "Cancelled",
-        "COMPLETED": "Completed",
+        "COMPLETED": "Finished - link closed",
         "IN_PROGRESS": "In progress",
         "REJECTED": "Rejected",
         "REQUESTED": "Awaiting approval",
-        "RETURNED": "Correction required"
+        "RETURNED": "Returned (earlier rule)"
       },
       "submitTitle": "Disposal details",
       "tapCamera": "Tap to open the camera",
       "title": "Disposal task",
       "uploaded": "Uploaded",
-      "waitingBody": "The site manager will review the photos and Disposal DO. No further action is required now.",
-      "waitingTitle": "Sent for verification",
-      "photosBody": "Up to 4 photos, of anything. At least one is needed to submit."
+      "waitingBody": "The final disposal proof was submitted. This link is now closed and takes no more photos.",
+      "waitingTitle": "Job finished",
+      "photosBody": "Photograph the waste at the licensed disposal place. Up to 4 photos, any kind; at least 1 to submit. Submitting ends the job and closes this link."
     },
     "externalActor": "External executor",
     "field": {
@@ -12785,7 +12802,9 @@
       "status": "Status",
       "trips": "Trips",
       "volume": "Estimated volume (m³)",
-      "waste": "Debris / waste description"
+      "waste": "Debris / waste description",
+      "finalProofSubmitted": "Final proof submitted",
+      "legacyConfirmation": "Office check (earlier rule)"
     },
     "fieldEvidence": {
       "access": "3. Collection access or vehicle route",
@@ -12796,18 +12815,12 @@
     },
     "internal": {
       "action": {
-        "photosRequired": "Complete the four required photos first",
+        "photosRequired": "Photograph the final disposal proof first",
         "start": "Start disposal work",
-        "submit": "Send for manager verification"
+        "submit": "Submit final disposal proof (ends the job)"
       },
       "error": {
         "action": "The action could not be completed. Check the connection and GPS, then try again."
-      },
-      "evidence": {
-        "DISPOSAL_DO": "3. Disposal DO photo",
-        "LOADING": "1. Loading photo",
-        "OTHER": "4. Site cleared / other photo",
-        "UNLOADING": "2. Unloading photo"
       },
       "field": {
         "doNo": "Disposal DO number",
@@ -12816,22 +12829,22 @@
         "weight": "Actual weight (kg)"
       },
       "invalid": "This disposal task could not be opened. Refresh My Tasks and try again.",
-      "photosBody": "Up to 4 photos per submission; no type is compulsory. At least one is needed to submit.",
-      "photosTitle": "Disposal evidence",
+      "photosBody": "Photograph the waste at the licensed disposal place. Up to 4 photos each time, any kind; at least 1 to submit. Submitting ends the job - no office check.",
+      "photosTitle": "Final disposal proof",
       "status": {
         "APPROVED": "Approved",
         "ASSIGNED": "Ready to start",
-        "AWAITING_CONFIRMATION": "Awaiting verification",
+        "AWAITING_CONFIRMATION": "Final proof submitted",
         "CANCELLED": "Cancelled",
-        "COMPLETED": "Completed",
+        "COMPLETED": "Finished",
         "IN_PROGRESS": "In progress",
         "REJECTED": "Rejected",
         "REQUESTED": "Awaiting approval",
-        "RETURNED": "Correction required"
+        "RETURNED": "Returned (earlier rule)"
       },
       "submitTitle": "Disposal result",
-      "waitingBody": "The manager will review the photos and Disposal DO. If returned, this task will reappear in My Tasks.",
-      "waitingTitle": "Sent for verification"
+      "waitingBody": "The final disposal proof was submitted. This disposal is complete.",
+      "waitingTitle": "Job finished"
     },
     "notAssigned": "Not assigned",
     "ocr": {
@@ -12856,13 +12869,13 @@
     "status": {
       "APPROVED": "Approved",
       "ASSIGNED": "Executor assigned",
-      "AWAITING_CONFIRMATION": "Awaiting verification",
+      "AWAITING_CONFIRMATION": "Final proof submitted",
       "CANCELLED": "Cancelled",
       "COMPLETED": "Completed",
       "IN_PROGRESS": "In progress",
       "REJECTED": "Rejected",
       "REQUESTED": "Awaiting approval",
-      "RETURNED": "Returned for correction"
+      "RETURNED": "Returned (earlier rule)"
     },
     "subtitle": "Clear general site debris, soil and non-recyclable waste. Assign field staff directly or send an access-free task link to an external contractor.",
     "timeline": "Task timeline",
@@ -12870,37 +12883,63 @@
       "APPROVED": "Request approved",
       "CANCELLED": "Request cancelled",
       "COLLECTOR_ASSIGNED": "External contractor assigned",
-      "COMPLETED": "Management verified completion",
+      "COMPLETED": "Confirmed by the office (earlier rule)",
       "EVIDENCE_DISPOSAL_DO": "Disposal DO uploaded",
       "EVIDENCE_LOADING": "Loading photo uploaded",
       "EVIDENCE_OTHER": "Site cleared / other photo uploaded",
       "EVIDENCE_UNLOADING": "Unloading photo uploaded",
       "EXTERNAL_LINK_REGENERATED": "External link regenerated",
       "EXTERNAL_STARTED": "External work started",
-      "EXTERNAL_SUBMITTED": "External execution submitted for verification",
+      "EXTERNAL_SUBMITTED": "Driver submitted the final disposal proof - job finished",
       "INTERNAL_ASSIGNED": "Field staff assigned",
       "INTERNAL_STARTED": "Field staff started work",
-      "INTERNAL_SUBMITTED": "Field staff execution submitted for verification",
+      "INTERNAL_SUBMITTED": "Field staff submitted the final disposal proof - job finished",
       "REJECTED": "Request rejected",
       "REQUESTED": "Request submitted",
-      "RETURNED": "Returned for correction"
+      "RETURNED": "Returned for correction (earlier rule)",
+      "CLOSED_ON_SUBMISSION": "Finished: final proof had been submitted (new rule)",
+      "NUMBERS_RECORDED": "Office recorded weight / trips / DO",
+      "SITE_EVIDENCE": "Site added vehicle exit / Gate Pass photos",
+      "EVIDENCE_DISPOSAL_PROOF": "Final disposal proof photo uploaded"
     },
     "title": "Site disposal",
     "toast": {
       "assigned": "External contractor assigned",
       "assignedInternal": "Sent to field staff",
       "cancelled": "Disposal request cancelled",
-      "confirmed": "Disposal verification saved",
       "linkRegenerated": "External task link regenerated",
       "requested": "Disposal request submitted",
-      "reviewed": "Disposal review saved"
+      "reviewed": "Disposal review saved",
+      "numbersRecorded": "Weight / trips / DO saved",
+      "siteEvidence": "Site photos sent to the office"
     },
     "overdue": {
       "badge": "Exception",
-      "help": "No disposal photograph 36 hours after approval. Chase the collection."
+      "help": "No final disposal proof 36 hours after approval. Please follow up."
     },
     "what": {
       "fieldStaff": "The field staff on this project"
+    },
+    "stage": {
+      "REQUEST": "Request photos",
+      "SITE_EXIT": "Loading and leaving site",
+      "FINAL_PROOF": "Final disposal proof",
+      "OFFICE_CHECK": "Office check photos (earlier rule)",
+      "empty": "None yet"
+    },
+    "recordNumbers": {
+      "title": "Record weight / trips / DO",
+      "description": "{reference} is finished. This only records the numbers - it is not a confirmation. Every change stays on the timeline."
+    },
+    "siteEvidence": {
+      "title": "Site evidence: vehicle exit / Gate Pass",
+      "description": "{reference} - up to 4 photos each time, no need to fill all, note optional. Kept apart from the driver's final proof.",
+      "vehicleExit": "Vehicle exit",
+      "gatePass": "Gate Pass",
+      "progress": "{current} / {max} photos",
+      "note": "Note",
+      "submit": "Send to the office",
+      "photos": "Photos"
     }
   },
   "siteGps": {
@@ -14545,6 +14584,61 @@
       "open": "View"
     },
     "pageOf": "Page {page} of {pages} - up to 10 of each type per page",
-    "lastPage": "This is the last page."
+    "lastPage": "This is the last page.",
+    "totals": {
+      "disposals": "Site disposals: {records} jobs · {trips} trips · {weight} kg",
+      "dispatches": "Waste orders: {records} orders · {trips} trips · {weight} kg weighed",
+      "apart": "Counted separately; not added together."
+    }
+  },
+  "ehs": {
+    "confirmer": {
+      "safetyLeads": "The project's safety leads",
+      "legacy": "Any authorised verifier except the rectifier",
+      "me": "Me (default)",
+      "initiator": "You - whoever raises it from the office or as a consultant confirms it"
+    },
+    "field": {
+      "origin": "Raised from",
+      "raisedBy": "Raised by",
+      "confirmer": "Confirmer",
+      "confirmedBy": "Closed by"
+    },
+    "origin": {
+      "SITE": "Raised on site",
+      "OFFICE": "Raised by the office",
+      "CONSULTANT": "Raised by a consultant"
+    },
+    "permit": {
+      "badge": "Work permit",
+      "approve": "Approve permit",
+      "approveTitle": "Approve work permit",
+      "approveDescription": "Approve {incident}. Approval files it and records you, your position and the time.",
+      "refuseInstead": "Something missing? Do not approve it. Ask in its conversation - the applicant adds to the same item.",
+      "formPhotos": "Photo of the permit form",
+      "attachments": "Other pages (PDF, certificate)",
+      "hint": "Photograph your company's own permit form. A safety lead approves it in this item; questions are asked in its conversation."
+    },
+    "photos": {
+      "before": "Before",
+      "during": "During",
+      "after": "After",
+      "none": "No photos yet"
+    },
+    "phone": {
+      "rectifierLine": "Rectifier: {name}",
+      "confirmerLine": "Confirmer: {name}",
+      "confirm": "Confirm completed"
+    },
+    "form": {
+      "selectConfirmer": "Choose who confirms it",
+      "confirmerHint": "Only this person can confirm it is done. The rectifier cannot.",
+      "confirmerConflict": "The confirmer and the rectifier must be different people.",
+      "rectifier": "Rectifier",
+      "noRectifier": "Not yet - a supervisor assigns it"
+    },
+    "what": {
+      "confirmers": "The people who can confirm"
+    }
   }
 }
