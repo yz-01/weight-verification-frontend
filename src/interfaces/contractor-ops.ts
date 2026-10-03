@@ -417,8 +417,20 @@ export interface MaterialOutgoing {
   /** The material column it files under (T-372). */
   category?: string | null;
   category_name?: string | null;
+  /** Since 10-02 a return to the supplier (A02, B11): the supplier first. */
+  supplier?: string | null;
+  supplier_name?: string | null;
+  /** The delivery it sends back, and the figures copied from it. */
+  source_receipt?: string | null;
+  source_receipt_no?: string | null;
+  source_receipt_quantity?: string | null;
+  source_receipt_at?: string | null;
   material_name: string;
+  material_specification?: string;
+  /** What the application asked to send back. */
   quantity: string;
+  /** What actually left at the handover (B12); this comes off the net. */
+  returned_quantity?: string | null;
   unit: string;
   destination: string;
   executor_name: string;
@@ -440,6 +452,9 @@ export interface MaterialOutgoing {
   processed_at?: string | null;
   processed_by_name?: string | null;
   processing_note?: string;
+  /** Both sides at the handover (B12): the site person and the supplier / driver. */
+  site_signature?: string | null;
+  supplier_signature?: string | null;
   completed_at?: string | null;
   completed_by_name?: string | null;
   photos: Array<{
@@ -451,6 +466,22 @@ export interface MaterialOutgoing {
     caption: string;
     captured_at: string;
   }>;
+}
+
+/** A delivery a return can be filed against, with what is left of it (A02). */
+export interface ReturnableReceipt {
+  id: string;
+  receipt_no: string;
+  business_at: string;
+  supplier: string;
+  supplier_name: string;
+  material_name: string;
+  material_specification: string;
+  unit: string;
+  quantity: string;
+  remaining_quantity: string;
+  category: string | null;
+  category_name: string;
 }
 
 export type DisposalRequestStatus =

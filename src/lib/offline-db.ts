@@ -213,11 +213,14 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   kind: "MATERIAL_OUTGOING";
   payload: {
     project: string;
-    category: string;
-    material_name: string;
+    /** A return to the supplier (A02, B11): supplier, then that supplier's delivery. */
+    supplier?: string;
+    source_receipt?: string;
+    category?: string;
+    material_name?: string;
     quantity: string;
-    unit: string;
-    destination: string;
+    unit?: string;
+    destination?: string;
     executor_name: string;
     vehicle_plate?: string;
     delivery_note_no?: string;

@@ -23,6 +23,7 @@ import type {
   FieldTask,
   FieldTaskPayload,
   MaterialOutgoing,
+  ReturnableReceipt,
   ProjectCategory,
   ProjectCategoryPayload,
   ProjectResponsibility,
@@ -465,8 +466,21 @@ export const fileProgressRecord = async (
 
 export const getMaterialOutgoing = (query: ListQuery = {}): Promise<Paginated<MaterialOutgoing>> =>
   api.list<MaterialOutgoing>("/api/material-outgoing/get_records/", query);
+/**
+ * The deliveries a return can point at (A02, B11): this project's, from this
+ * supplier, each with what is left of it to send back.
+ */
+export const getReturnableReceipts = (project: string, supplier?: string) =>
+  api.get<{ results: ReturnableReceipt[] }>(
+    "/api/material-outgoing/returnable_receipts/",
+    { project, ...(supplier ? { supplier } : {}) },
+  );
+
 export async function createMaterialOutgoing(payload: {
-  project: string; category: string; material_name: string; quantity: string; unit: string; destination: string;
+  project: string;
+  /** Supplier first, then that supplier's delivery; the material comes from it. */
+  supplier?: string; source_receipt?: string;
+  category?: string; material_name?: string; quantity: string; unit?: string; destination?: string;
   executor_name: string; vehicle_plate?: string; delivery_note_no?: string; reason: string;
   latitude?: string; longitude?: string; client_event_id?: string;
   field_task?: string;
@@ -511,10 +525,22 @@ export function exportMaterialOutgoing(request: ExportRequest): Promise<void> {
  */
 export async function returnMaterialOutgoingProcessing(
   id: string,
-  payload: { photos: File[]; note?: string; latitude?: string; longitude?: string },
+  payload: {
+    photos: File[];
+    note?: string;
+    latitude?: string;
+    longitude?: string;
+    /** B12: what actually left, and both sides' signatures at the handover. */
+    returned_quantity: string;
+    site_signature: File;
+    supplier_signature: File;
+  },
 ) {
   const data = new FormData();
   payload.photos.forEach((file) => data.append("photos", file));
+  data.append("returned_quantity", payload.returned_quantity);
+  data.append("site_signature", payload.site_signature);
+  data.append("supplier_signature", payload.supplier_signature);
   if (payload.note) data.append("note", payload.note);
   if (payload.latitude) data.append("latitude", payload.latitude);
   if (payload.longitude) data.append("longitude", payload.longitude);

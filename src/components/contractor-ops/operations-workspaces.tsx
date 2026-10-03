@@ -41,6 +41,7 @@ import {
 } from "@/components/field-staff/field-evidence-grid";
 import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
+import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { useDateFormat } from "@/lib/dates";
@@ -105,6 +106,7 @@ import {
   getMaterialOutgoing,
   getMaterialOutgoingRecord,
   returnMaterialOutgoingProcessing,
+  getReturnableReceipts,
   ocrEquipmentDeliveryNote,
   getProjectCategories,
   getSiteEquipment,
@@ -2960,9 +2962,10 @@ export function OutgoingActions({
     <>
       {can("material_outgoing.approve") && row.status === "PENDING" && (
         <div className="flex flex-wrap justify-end gap-2">
+          {/* 后台只 Approve / Return (B12): Return ends the application. */}
           <Button variant="outline" onClick={() => onReview("REJECTED")}>
             <RotateCcw />
-            {t("action.reject")}
+            {t("outgoing.returnAction")}
           </Button>
           <Button disabled={pending} onClick={() => onReview("APPROVED")}>
             <Check />
@@ -2970,9 +2973,9 @@ export function OutgoingActions({
           </Button>
         </div>
       )}
-      {/* D-211: 批准 → 手机端现场处理及回传 → 后台最终确认. The old 【放行】
-          closed the application from the office before the site had done
-          anything; the server no longer accepts it. */}
+      {/* 10-02 B12: 批准 → 装货 → 实际出场时双方签名 → Submit, which ends
+          it. 【最终确认】 below is only for a row that reached PROCESSED
+          under D-211 before this change. */}
       {row.status === "APPROVED" &&
         (can("material_outgoing.submit") ? (
           <Button className="w-full" onClick={onReturn}>
@@ -3003,6 +3006,16 @@ export function OutgoingActions({
   );
 }
 
+/**
+ * Apply to send a delivery back to its supplier (10-02 A02, B11, B12).
+ *
+ * Supplier first, then one of that supplier's deliveries to this project:
+ * the material, specification, unit and column come from the delivery, so
+ * nothing is typed twice. Only the quantity to send back is the site's to
+ * say, and it cannot be more than is left of the delivery. The office then
+ * approves or returns it; the lorry is loaded and both sides sign at the
+ * handover (`ReturnProcessingDialog`).
+ */
 export function OutgoingDialog({
   project: initialProject,
   fieldTaskId,
@@ -3018,24 +3031,37 @@ export function OutgoingDialog({
   // projects" (an empty string), so gating the Add button on it left the
   // control permanently dead with nothing on screen explaining why.
   const t = useTranslations("contractorOps");
+  const tRoot = useTranslations();
+  const df = useDateFormat();
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   // F-282
   const [project, setProject] = useDraftState("project", initialProject);
   const [form, setForm] = useDraftState("form", {
-    material_name: "",
-    category: "",
+    supplier: "",
+    source_receipt: "",
     quantity: "",
-    unit: "TONNE",
-    destination: "",
     executor_name: "",
     vehicle_plate: "",
-    delivery_note_no: "",
     reason: "",
   });
   const [photos, setPhotos] = useDraftState("photos", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
   const [location, setLocation] = useState<Coordinates | null>(null);
+  const suppliers = useQuery({
+    queryKey: ["suppliers", "return-to-supplier"],
+    queryFn: () => getSuppliers({ page_size: 200, sort_by: "name" }),
+  });
+  const deliveries = useQuery({
+    queryKey: ["material-outgoing", "returnable", project, form.supplier],
+    queryFn: () => getReturnableReceipts(project, form.supplier),
+    enabled: Boolean(project && form.supplier),
+  });
+  const delivery = (deliveries.data?.results ?? []).find(
+    (row) => row.id === form.source_receipt,
+  );
+  const tooMuch =
+    Boolean(delivery) && Number(form.quantity) > Number(delivery?.remaining_quantity ?? 0);
   const photoPrompts = [
     t("outgoing.evidence.overview"),
     t("outgoing.evidence.quantity"),
@@ -3050,15 +3076,21 @@ export function OutgoingDialog({
   );
   const set = (key: keyof typeof form, value: string) =>
     setForm((old) => ({ ...old, [key]: value }));
+  const unitLabel = (unit: string) =>
+    (MATERIAL_UNITS as readonly string[]).includes(unit)
+      ? tRoot(`receipts.unit.${unit as (typeof MATERIAL_UNITS)[number]}`)
+      : unit;
   const save = useMutation({
     mutationFn: () => {
       if (!user) throw new Error("Authentication required.");
       return submitMaterialOutgoingOfflineAware(user.id, {
         project,
-        ...form,
-        destination: isFieldStaff ? "" : form.destination,
+        supplier: form.supplier,
+        source_receipt: form.source_receipt,
+        quantity: form.quantity,
+        vehicle_plate: form.vehicle_plate,
+        reason: form.reason,
         executor_name: isFieldStaff ? user.full_name : form.executor_name,
-        delivery_note_no: isFieldStaff ? "" : form.delivery_note_no,
         latitude: location?.latitude,
         longitude: location?.longitude,
         client_event_id: crypto.randomUUID(),
@@ -3077,9 +3109,7 @@ export function OutgoingDialog({
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("outgoing.createTitle")}</DialogTitle>
-          <DialogDescription>
-            {t(isFieldStaff ? "outgoing.fieldFormHelp" : "outgoing.formHelp")}
-          </DialogDescription>
+          <DialogDescription>{t("outgoing.returnFormHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper
@@ -3089,39 +3119,91 @@ export function OutgoingDialog({
           >
             <ProjectPicker
               value={project}
-              onValueChange={setProject}
+              onValueChange={(next) => {
+                setProject(next);
+                setForm((old) => ({ ...old, source_receipt: "", quantity: "" }));
+              }}
               placeholder={t("field.selectProject")}
             />
           </FieldWrapper>
-          <ProjectColumnPicker project={project} kind="MATERIAL" value={form.category} onChange={(value) => set("category", value)} className="sm:col-span-2" />
-          <FieldWrapper label={t("field.material")} required>
-            <Input
-              value={form.material_name}
-              onChange={(e) => set("material_name", e.target.value)}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.quantity")} required>
-            <div className="flex gap-2">
-              <Input
-                type="number"
-                min="0.001"
-                step="0.001"
-                value={form.quantity}
-                onChange={(e) => set("quantity", e.target.value)}
-              />
-              <Select value={form.unit} onValueChange={(v) => set("unit", v)}>
-                <SelectTrigger className="w-28">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {MATERIAL_UNITS.map((unit) => (
-                    <SelectItem key={unit} value={unit}>
-                      {unit}
+          <FieldWrapper label={t("outgoing.supplier")} required className="sm:col-span-2">
+            <Select
+              value={form.supplier || undefined}
+              onValueChange={(supplier) =>
+                setForm((old) => ({ ...old, supplier, source_receipt: "", quantity: "" }))
+              }
+            >
+              <SelectTrigger className="h-11 w-full">
+                <SelectValue placeholder={t("outgoing.chooseSupplier")} />
+              </SelectTrigger>
+              <SelectContent>
+                {(suppliers.data?.results ?? [])
+                  .filter((row) => row.is_active)
+                  .map((row) => (
+                    <SelectItem key={row.id} value={row.id}>
+                      {row.name}
                     </SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
+              </SelectContent>
+            </Select>
+            <QueryFailedNote query={suppliers} what={t("what.suppliers")} />
+          </FieldWrapper>
+          <FieldWrapper label={t("outgoing.sourceReceipt")} required className="sm:col-span-2">
+            <Select
+              value={form.source_receipt || undefined}
+              disabled={!project || !form.supplier}
+              onValueChange={(source_receipt) => set("source_receipt", source_receipt)}
+            >
+              <SelectTrigger className="h-auto min-h-11 w-full whitespace-normal text-left">
+                <SelectValue placeholder={t("outgoing.chooseSourceReceipt")} />
+              </SelectTrigger>
+              <SelectContent>
+                {(deliveries.data?.results ?? []).map((row) => (
+                  <SelectItem key={row.id} value={row.id}>
+                    {row.receipt_no} · {df.date(row.business_at)} · {row.material_name}
+                    {row.material_specification ? ` ${row.material_specification}` : ""} ·{" "}
+                    {t("outgoing.remaining", {
+                      quantity: row.remaining_quantity,
+                      unit: unitLabel(row.unit),
+                    })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <QueryFailedNote query={deliveries} what={t("what.returnableReceipts")} />
+            {project && form.supplier && deliveries.isSuccess && !deliveries.data.results.length ? (
+              <p className="text-xs text-muted-foreground">{t("outgoing.noReturnable")}</p>
+            ) : null}
+          </FieldWrapper>
+          {delivery ? (
+            <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-md bg-muted/40 px-3 py-2 text-xs sm:col-span-2">
+              <dt className="text-muted-foreground">{t("field.material")}</dt>
+              <dd className="font-medium">{delivery.material_name}</dd>
+              <dt className="text-muted-foreground">{t("outgoing.specification")}</dt>
+              <dd className="font-medium">{delivery.material_specification || "—"}</dd>
+              <dt className="text-muted-foreground">{t("field.unit")}</dt>
+              <dd className="font-medium">{unitLabel(delivery.unit)}</dd>
+              <dt className="text-muted-foreground">{t("outgoing.supplier")}</dt>
+              <dd className="font-medium">{delivery.supplier_name}</dd>
+            </dl>
+          ) : null}
+          <FieldWrapper label={t("outgoing.returnQuantity")} required>
+            <Input
+              type="number"
+              min="0.001"
+              step="0.001"
+              inputMode="decimal"
+              value={form.quantity}
+              onChange={(e) => set("quantity", e.target.value)}
+            />
+            {tooMuch ? (
+              <p className="text-xs text-destructive">
+                {t("outgoing.tooMuch", {
+                  quantity: delivery?.remaining_quantity ?? "0",
+                  unit: unitLabel(delivery?.unit ?? ""),
+                })}
+              </p>
+            ) : null}
           </FieldWrapper>
           {!isFieldStaff ? (
             <FieldWrapper label={t("field.executor")} required>
@@ -3139,26 +3221,6 @@ export function OutgoingDialog({
               }
             />
           </FieldWrapper>
-          {!isFieldStaff ? (
-            <>
-              <FieldWrapper
-                label={t("field.destination")}
-                required
-                className="sm:col-span-2"
-              >
-                <Input
-                  value={form.destination}
-                  onChange={(e) => set("destination", e.target.value)}
-                />
-              </FieldWrapper>
-              <FieldWrapper label={t("field.deliveryNote")}>
-                <Input
-                  value={form.delivery_note_no}
-                  onChange={(e) => set("delivery_note_no", e.target.value)}
-                />
-              </FieldWrapper>
-            </>
-          ) : null}
           {isFieldStaff ? (
             <FieldWrapper
               label={t("outgoing.evidence.title")}
@@ -3186,12 +3248,13 @@ export function OutgoingDialog({
             required={isFieldStaff}
           />
           <FieldWrapper
-            label={isFieldStaff ? t("field.notes") : t("field.reason")}
-            required={!isFieldStaff}
+            label={t("field.reason")}
+            required
             className="sm:col-span-2"
           >
             <Textarea
               value={form.reason}
+              placeholder={t("outgoing.reasonPlaceholder")}
               onChange={(e) => set("reason", e.target.value)}
             />
           </FieldWrapper>
@@ -3203,15 +3266,11 @@ export function OutgoingDialog({
           <Button
             requires={[
               [project, t("field.project")],
-              [form.material_name, t("field.material")],
-              [form.category, t("field.category")],
-              [form.quantity, t("field.quantity")],
-              [isFieldStaff || form.destination, t("field.destination")],
+              [form.supplier, t("outgoing.supplier")],
+              [form.source_receipt, t("outgoing.sourceReceipt")],
+              [Number(form.quantity) > 0 && !tooMuch, t("outgoing.returnQuantity")],
               [isFieldStaff || form.executor_name, t("field.executor")],
-              [
-                isFieldStaff || form.reason,
-                isFieldStaff ? t("field.notes") : t("field.reason"),
-              ],
+              [form.reason.trim(), t("field.reason")],
               [
                 !isFieldStaff || hasRequiredFieldEvidence(photos),
                 t("outgoing.evidence.title"),
@@ -3358,17 +3417,26 @@ export function ReturnProcessingDialog({
   onClose,
   onSaved,
 }: {
-  /** Only the id and the reference are read, so the phone's history row fits. */
-  row: Pick<MaterialOutgoing, "id" | "reference_no">;
+  /** The phone's history row carries only the id and the reference. */
+  row: Pick<MaterialOutgoing, "id" | "reference_no"> &
+    Partial<Pick<MaterialOutgoing, "quantity" | "unit">>;
   onClose: () => void;
   onSaved: () => void;
 }) {
+  // The handover that ends a return (10-02 B12): after approval the lorry is
+  // loaded, the site says how much actually left, photographs it, and both
+  // sides sign as it goes. Submitting closes the record - the office only
+  // approved it.
   const t = useTranslations("contractorOps");
   const common = useTranslations("common");
+  const field = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   const [photos, setPhotos] = useState(createEmptyFieldEvidence);
   const [note, setNote] = useState("");
+  const [returned, setReturned] = useState(row.quantity ? String(Number(row.quantity)) : "");
+  const [siteSignature, setSiteSignature] = useState<File | undefined>();
+  const [supplierSignature, setSupplierSignature] = useState<File | undefined>();
   const [location, setLocation] = useState<LocationFix | null>(null);
   const [error, setError] = useState("");
   const taken = photos.filter((file): file is File => Boolean(file));
@@ -3379,10 +3447,13 @@ export function ReturnProcessingDialog({
         note: note.trim() || undefined,
         latitude: location ? String(location.latitude) : undefined,
         longitude: location ? String(location.longitude) : undefined,
+        returned_quantity: returned,
+        site_signature: siteSignature as File,
+        supplier_signature: supplierSignature as File,
       }),
     onSuccess: onSaved,
     onError: (failure) =>
-      setError(failure instanceof ApiError ? failure.message : t("outgoing.returnFailed")),
+      setError(failure instanceof ApiError ? Object.values(failure.errors).join("; ") || failure.message : t("outgoing.returnFailed")),
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -3393,6 +3464,16 @@ export function ReturnProcessingDialog({
             {t("outgoing.returnHelp", { reference: row.reference_no })}
           </DialogDescription>
         </DialogHeader>
+        <FieldWrapper label={t("outgoing.returnedQuantity")} required>
+          <Input
+            type="number"
+            min="0.001"
+            step="0.001"
+            inputMode="decimal"
+            value={returned}
+            onChange={(event) => setReturned(event.target.value)}
+          />
+        </FieldWrapper>
         <FieldWrapper label={t("outgoing.processingPhotos")} required>
           <FieldEvidenceGrid
             labels={[
@@ -3409,6 +3490,22 @@ export function ReturnProcessingDialog({
             onChange={setPhotos}
           />
         </FieldWrapper>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FieldSignaturePad
+            label={t("outgoing.siteSignature")}
+            clearLabel={field("action.clearSignature")}
+            required
+            value={siteSignature}
+            onChange={setSiteSignature}
+          />
+          <FieldSignaturePad
+            label={t("outgoing.supplierSignature")}
+            clearLabel={field("action.clearSignature")}
+            required
+            value={supplierSignature}
+            onChange={setSupplierSignature}
+          />
+        </div>
         <FieldWrapper label={t("outgoing.processingNote")} optional={common("optional")}>
           <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
         </FieldWrapper>
@@ -3430,10 +3527,13 @@ export function ReturnProcessingDialog({
           </Button>
           <Button
             requires={[
+              [Number(returned) > 0, t("outgoing.returnedQuantity")],
               [
                 isFieldStaff ? hasRequiredFieldEvidence(photos) : taken.length > 0,
                 t("outgoing.processingPhotos"),
               ],
+              [siteSignature, t("outgoing.siteSignature")],
+              [supplierSignature, t("outgoing.supplierSignature")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
@@ -3520,7 +3620,20 @@ export function OutgoingDetailDialog({
               ),
             },
             { label: t("field.project"), value: row.project_name },
-            { label: t("field.material"), value: `${row.material_name} · ${row.quantity} ${row.unit}` },
+            // B11: the supplier and the delivery it sends back, on the same
+            // record as the application, the approval and the signatures.
+            ...(row.supplier_name ? [{ label: t("outgoing.supplier"), value: row.supplier_name }] : []),
+            ...(row.source_receipt_no
+              ? [{ label: t("outgoing.sourceReceipt"), value: row.source_receipt_no }]
+              : []),
+            {
+              label: t("field.material"),
+              value: [row.material_name, row.material_specification].filter(Boolean).join(" · "),
+            },
+            { label: t("outgoing.returnQuantity"), value: `${row.quantity} ${row.unit}` },
+            ...(row.returned_quantity
+              ? [{ label: t("outgoing.returnedQuantity"), value: `${row.returned_quantity} ${row.unit}` }]
+              : []),
             { label: t("field.destination"), value: row.destination },
             { label: t("outgoing.executor"), value: row.executor_name },
             { label: t("field.vehiclePlate"), value: row.vehicle_plate },
@@ -3566,6 +3679,14 @@ export function OutgoingDetailDialog({
               </div>
             ) : null
           }
+          signatures={(
+            [
+              ["siteSignature", row.site_signature],
+              ["supplierSignature", row.supplier_signature],
+            ] as const
+          )
+            .filter(([, source]) => Boolean(source))
+            .map(([who, source]) => ({ label: t(`outgoing.${who}`), url: source as string }))}
           panel={
             <section className="rounded-lg border bg-card p-3">
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
