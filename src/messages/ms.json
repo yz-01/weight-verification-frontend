@@ -3030,7 +3030,8 @@
     "what": {
       "workflowTemplates": "Senarai rantaian kelulusan",
       "chainSteps": "Langkah rantaian ini"
-    }
+    },
+    "advancedNote": "Lanjutan. Bahan keluar tapak, permit kerja dan permohonan perunding dibincang dan diluluskan dalam item itu sendiri - bukan di sini."
   },
   "archiveQueue": {
     "allModules": "Semua modul",
@@ -9299,7 +9300,7 @@
       "apiGatewayMonitoring": "Pemantauan API Gateway",
       "apiGatewaySettings": "Tetapan API Gateway",
       "approvalCredentials": "Kelayakan kelulusan",
-      "approvals": "Rekod kelulusan",
+      "approvals": "Aliran kelulusan (lanjutan)",
       "archiveQueue": "Pusat Rekod Tapak",
       "assetActivity": "Rekod aset",
       "assetAssignments": "Penyerahan dan pinjaman",

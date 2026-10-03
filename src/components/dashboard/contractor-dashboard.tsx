@@ -754,7 +754,8 @@ function QuickActions({ project }: { project: string }) {
       requiresProject: true,
     },
     { href: "/documents?create=1", label: t("document"), icon: FilePlus2 },
-    { href: "/approvals?create=1", label: t("approval"), icon: ClipboardCheck },
+    // No 「新建审批」 here (A05): approval happens inside the item it is
+    // about, and the standalone flow is an advanced page under Documents.
     { href: "/notifications?create=1", label: t("notification"), icon: BellPlus },
   ];
   return (

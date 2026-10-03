@@ -3030,7 +3030,8 @@
     "what": {
       "workflowTemplates": "审批链列表",
       "chainSteps": "这条审批链的级别"
-    }
+    },
+    "advancedNote": "高级功能。日常的材料出场、施工准证和顾问申请都在原事项里沟通和批准，不需要来这里。"
   },
   "archiveQueue": {
     "allModules": "全部模块",
@@ -9299,7 +9300,7 @@
       "apiGatewayMonitoring": "API Gateway 监控",
       "apiGatewaySettings": "API Gateway 设置",
       "approvalCredentials": "审批凭证",
-      "approvals": "审批记录",
+      "approvals": "审批流程（高级）",
       "archiveQueue": "现场记录中心",
       "assetActivity": "操作记录",
       "assetAssignments": "领用与借用",

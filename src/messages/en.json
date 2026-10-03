@@ -3030,7 +3030,8 @@
     "what": {
       "workflowTemplates": "The approval chains",
       "chainSteps": "The steps of this chain"
-    }
+    },
+    "advancedNote": "Advanced. Material leaving site, work permits and consultant applications are discussed and approved inside the item itself - not here."
   },
   "archiveQueue": {
     "allModules": "All modules",
@@ -9299,7 +9300,7 @@
       "apiGatewayMonitoring": "API Gateway monitoring",
       "apiGatewaySettings": "API Gateway settings",
       "approvalCredentials": "Approval credentials",
-      "approvals": "Approval records",
+      "approvals": "Approval workflows (advanced)",
       "archiveQueue": "Site Record Center",
       "assetActivity": "Asset records",
       "assetAssignments": "Assignment and borrowing",

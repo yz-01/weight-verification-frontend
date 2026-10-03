@@ -359,6 +359,13 @@ export function Approvals() {
           </div>
         }
       />
+      {/* A05: the standalone approval flow is kept as an advanced feature.
+          Day-to-day items - material leaving site, a work permit, a
+          consultant application - are discussed and approved in the item
+          itself, so this page is not where site work starts. */}
+      <p className="rounded-lg border border-info/25 bg-info/5 p-3 text-sm leading-6">
+        {t("approvals.advancedNote")}
+      </p>
 
       {(projects.isError || users.isError || roles.isError) && (
         <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">

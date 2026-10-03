@@ -3030,7 +3030,8 @@
     "what": {
       "workflowTemplates": "審批鏈列表",
       "chainSteps": "這條審批鏈的級別"
-    }
+    },
+    "advancedNote": "進階功能。日常的材料出場、施工准證和顧問申請都在原事項裡溝通和批准，不需要來這裡。"
   },
   "archiveQueue": {
     "allModules": "全部模組",
@@ -9299,7 +9300,7 @@
       "apiGatewayMonitoring": "API Gateway 監控",
       "apiGatewaySettings": "API Gateway 設置",
       "approvalCredentials": "審批憑證",
-      "approvals": "審批記錄",
+      "approvals": "審批流程（進階）",
       "archiveQueue": "現場記錄中心",
       "assetActivity": "操作記錄",
       "assetAssignments": "領用與借用",
