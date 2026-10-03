@@ -5800,7 +5800,15 @@
       "focusedMissing": "Tugasan yang ditunjuk oleh kad tiada dalam senarai ini. Ia mungkin sudah selesai, atau milik projek lain.",
       "showAll": "Tunjuk semua",
       "forwardedAs": "Dihantar kepada perunding sebagai {reference}",
-      "draftedAs": "Permohonan {reference} disediakan - belum dihantar"
+      "draftedAs": "Permohonan {reference} disediakan - belum dihantar",
+      "expand": "Tunjukkan butiran {task}",
+      "collapse": "Sembunyikan butiran {task}",
+      "dueShort": "Tamat {value}",
+      "noDue": "Tiada tarikh akhir",
+      "confirmDone": "Sahkan selesai",
+      "confirmedBy": "Disahkan oleh {name} · {value}",
+      "returnedBy": "Dikembalikan oleh {name} · {value}",
+      "returnReasonShown": "Sebab: {reason}"
     },
     "toast": {
       "movementSaved": "Pergerakan peralatan direkodkan",

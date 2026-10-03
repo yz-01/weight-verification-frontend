@@ -5800,7 +5800,15 @@
       "focusedMissing": "The task the card points to is not in this list. It may be finished already, or belong to another project.",
       "showAll": "Show all",
       "forwardedAs": "Sent to the consultant as {reference}",
-      "draftedAs": "Application {reference} prepared - not sent yet"
+      "draftedAs": "Application {reference} prepared - not sent yet",
+      "expand": "Show details of {task}",
+      "collapse": "Hide details of {task}",
+      "dueShort": "Due {value}",
+      "noDue": "No deadline",
+      "confirmDone": "Confirm completed",
+      "confirmedBy": "Confirmed by {name} · {value}",
+      "returnedBy": "Returned by {name} · {value}",
+      "returnReasonShown": "Reason: {reason}"
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",

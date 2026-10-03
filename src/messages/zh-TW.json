@@ -5800,7 +5800,15 @@
       "focusedMissing": "卡片指向的任務不在目前列表裡，可能已處理完或不屬於所選項目。",
       "showAll": "顯示全部",
       "forwardedAs": "已轉給顧問：{reference}",
-      "draftedAs": "已整理成申請 {reference}，尚未轉給顧問"
+      "draftedAs": "已整理成申請 {reference}，尚未轉給顧問",
+      "expand": "展開「{task}」",
+      "collapse": "收起「{task}」",
+      "dueShort": "期限 {value}",
+      "noDue": "無期限",
+      "confirmDone": "確認完成",
+      "confirmedBy": "{name} 已確認 · {value}",
+      "returnedBy": "{name} 已退回 · {value}",
+      "returnReasonShown": "退回原因：{reason}"
     },
     "toast": {
       "movementSaved": "設備進退場已記錄",

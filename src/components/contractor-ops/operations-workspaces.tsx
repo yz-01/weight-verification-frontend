@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Camera,
   Check,
-  ClipboardCheck,
+  ChevronRight,
   FolderOpen,
   FileText,
   FilePlus2,
@@ -705,6 +705,15 @@ export function FieldTasksWorkspace({
    * silently did nothing at all.
    */
   const [returning, setReturning] = useState<FieldTask | null>(null);
+  // Which strips are open (B17). A task opened by its id is open anyway.
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  const toggleExpanded = (id: string) =>
+    setExpanded((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   const review = (row: FieldTask, status: FieldTask["status"]) => {
     if (status === "RETURNED") {
       setReturning(row);
@@ -753,7 +762,13 @@ export function FieldTasksWorkspace({
         empty={!rows.data?.count}
       />
       {!!rows.data?.count && (
-        <div className="grid gap-3 lg:grid-cols-2">
+        /*
+         * One compact strip per task (B17): 项目、任务名称、负责人、期限、状态、
+         * 照片摘要、处理入口. The reference material and every returned photo
+         * open under the strip, so a page of tasks is a list rather than a
+         * wall of photographs. A task opened by its id (?task=) opens expanded.
+         */
+        <div className="grid gap-2">
           {rows.data.results
             .filter((row) => !focusedTaskId || row.id === focusedTaskId)
             .map((row) => {
@@ -770,155 +785,274 @@ export function FieldTasksWorkspace({
               !user?.is_field_staff &&
               !sentOn &&
               ["SUBMITTED", "ACCEPTED"].includes(row.status);
+            const isOpen = expanded.has(row.id) || row.id === focusedTaskId;
+            const canEdit =
+              can("field_task.manage") && ["OPEN", "RETURNED"].includes(row.status);
+            const canReview = can("field_task.manage") && row.status === "SUBMITTED";
             return (
               <article
                 key={row.id}
+                data-testid="field-task-row"
                 className="overflow-hidden rounded-lg border bg-card shadow-sm"
               >
-                <div className="p-4">
-                  <div className="flex items-start gap-3">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                      <ClipboardCheck className="size-5" />
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-label={t(isOpen ? "tasks.collapse" : "tasks.expand", { task: row.title })}
+                    onClick={() => toggleExpanded(row.id)}
+                    className="flex min-w-0 flex-[1_1_18rem] items-center gap-2.5 rounded-md text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  >
+                    <ChevronRight
+                      className={`size-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-90" : ""}`}
+                    />
+                    <span className="grid min-w-0 flex-1 gap-0.5 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] sm:items-center sm:gap-3">
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium">{row.title}</span>
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {row.project_name}
+                        </span>
+                      </span>
+                      <span className="truncate text-sm">{row.assigned_to_name}</span>
+                      <span className="tabular truncate text-sm text-muted-foreground">
+                        {row.due_at
+                          ? t("tasks.dueShort", { value: new Date(row.due_at).toLocaleString() })
+                          : t("tasks.noDue")}
+                      </span>
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold">{row.title}</h3>
-                        <StatusBadge
-                          label={t(`taskStatus.${row.status}`)}
-                          tone={tone(row.status)}
-                        />
-                      </div>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {row.project_name} · {row.assigned_to_name}
+                  </button>
+                  <StatusBadge
+                    label={t(`taskStatus.${row.status}`)}
+                    tone={tone(row.status)}
+                  />
+                  <span
+                    className="flex items-center gap-1"
+                    title={t("tasks.photos", {
+                      current: row.photos.length,
+                      required: row.evidence_required,
+                    })}
+                  >
+                    {row.photos.slice(0, 3).map((photo) => (
+                      <Image
+                        key={photo.id}
+                        src={photo.watermarked || photo.image}
+                        alt=""
+                        width={64}
+                        height={64}
+                        unoptimized
+                        className="size-8 rounded border object-cover"
+                      />
+                    ))}
+                    <span className="tabular text-xs text-muted-foreground">
+                      {row.photos.length}/{row.evidence_required}
+                    </span>
+                  </span>
+                  {(canEdit || canReview || canPrepareApplication) && (
+                    <div className="flex flex-wrap justify-end gap-1.5">
+                      {canEdit ? (
+                        <>
+                          <Button size="sm" variant="outline" onClick={() => setEditing(row)}>
+                            <Pencil />
+                            {t("tasks.edit")}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={addReferences.isPending}
+                            onClick={() => {
+                              setAddingRefsTo(row);
+                              referenceInput.current?.click();
+                            }}
+                          >
+                            <Paperclip />
+                            {t("tasks.addReferences")}
+                          </Button>
+                        </>
+                      ) : null}
+                      {canReview ? (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={transition.isPending}
+                            onClick={() => review(row, "RETURNED")}
+                          >
+                            <RotateCcw />
+                            {t("action.return")}
+                          </Button>
+                          <Button
+                            size="sm"
+                            disabled={transition.isPending}
+                            onClick={() => review(row, "ACCEPTED")}
+                          >
+                            <Check />
+                            {t("tasks.confirmDone")}
+                          </Button>
+                        </>
+                      ) : null}
+                      {canPrepareApplication ? (
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            router.push(
+                              `/consultant-applications/create?source_field_task=${row.id}`,
+                            )
+                          }
+                        >
+                          <FilePlus2 />
+                          {t("tasks.prepareApplication")}
+                        </Button>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+                {isOpen && (
+                  <div className="border-t px-4 py-3" data-testid="field-task-detail">
+                    {row.submission_category && (
+                      <p className="text-xs font-semibold text-primary">
+                        {row.submission_category}
                       </p>
-                      {row.submission_category && (
-                        <p className="mt-2 text-xs font-semibold text-primary">
-                          {row.submission_category}
+                    )}
+                    <div className="mt-1 grid gap-1 text-xs text-muted-foreground">
+                      <p>
+                        {t("tasks.assignedBy", {
+                          name: row.created_by_name || t("state.unknown"),
+                        })}
+                      </p>
+                      {row.work_location && (
+                        <p>
+                          {t("tasks.workLocation", {
+                            location: row.work_location,
+                          })}
                         </p>
                       )}
-                      <div className="mt-2 grid gap-1 text-xs text-muted-foreground">
+                      {row.submitted_at && (
                         <p>
-                          {t("tasks.assignedBy", {
-                            name: row.created_by_name || t("state.unknown"),
+                          {t("tasks.submittedAt", {
+                            value: new Date(row.submitted_at).toLocaleString(),
                           })}
                         </p>
-                        {row.work_location && (
-                          <p>
-                            {t("tasks.workLocation", {
-                              location: row.work_location,
-                            })}
-                          </p>
-                        )}
-                        {row.submitted_at && (
-                          <p>
-                            {t("tasks.submittedAt", {
-                              value: new Date(
-                                row.submitted_at,
-                              ).toLocaleString(),
-                            })}
-                          </p>
-                        )}
-                        {row.due_at && (
-                          <p>
-                            {t("tasks.dueAt", {
-                              value: new Date(row.due_at).toLocaleString(),
-                            })}
-                          </p>
-                        )}
-                      </div>
-                      <p className="mt-2 text-sm leading-6">
-                        {row.instructions || t("state.noDescription")}
-                      </p>
-                      {row.references.length ? (
-                        <div className="mt-3 rounded-lg border bg-muted/20 p-3">
-                          <p className="mb-2 text-xs font-semibold">
-                            {t("tasks.references", {
-                              count: row.references.length,
-                            })}
-                          </p>
-                          <div className="grid grid-cols-3 gap-2">
-                            {row.references.map((reference) =>
-                              reference.kind === "PHOTO" ? (
-                                <a
-                                  key={reference.id}
-                                  href={reference.file}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  <Image
-                                    src={reference.file}
-                                    alt={
-                                      reference.label ||
-                                      reference.original_filename
-                                    }
-                                    width={180}
-                                    height={180}
-                                    unoptimized
-                                    className="aspect-square w-full rounded-lg object-cover"
-                                  />
-                                </a>
-                              ) : (
-                                <a
-                                  key={reference.id}
-                                  href={reference.file}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="col-span-3 flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm font-medium text-primary hover:underline"
-                                >
-                                  <FileText className="size-4" />
-                                  <span className="truncate">
-                                    {reference.label ||
-                                      reference.original_filename}
-                                  </span>
-                                </a>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                      ) : null}
-                      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
-                        {row.photos.map((photo, index) => (
-                          <a
-                            key={photo.id}
-                            href={photo.watermarked || photo.image}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="w-24 shrink-0"
-                            title={`${index + 1} / ${row.photos.length}`}
-                          >
-                            <Image
-                              src={photo.watermarked || photo.image}
-                              alt=""
-                              width={180}
-                              height={180}
-                              unoptimized
-                              className="aspect-square w-full rounded-lg border object-cover"
-                            />
-                          </a>
-                        ))}
-                      </div>
-                      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                        <span>
-                          {t("tasks.photos", {
-                            current: row.photos.length,
-                            required: row.evidence_required,
+                      )}
+                      {row.due_at && (
+                        <p>
+                          {t("tasks.dueAt", {
+                            value: new Date(row.due_at).toLocaleString(),
                           })}
-                        </span>
-                        {gpsPhoto ? (
-                          <a
-                            className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
-                            href={`https://www.google.com/maps?q=${gpsPhoto.latitude},${gpsPhoto.longitude}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <MapPin className="size-3.5" />
-                            {t("tasks.openGps")}
-                          </a>
-                        ) : null}
+                        </p>
+                      )}
+                      {/* B18: who closed or returned it, and when. */}
+                      {row.reviewed_at &&
+                        ["ACCEPTED", "RETURNED"].includes(row.status) && (
+                          <p>
+                            {t(
+                              row.status === "ACCEPTED"
+                                ? "tasks.confirmedBy"
+                                : "tasks.returnedBy",
+                              {
+                                name: row.reviewed_by_name || t("state.unknown"),
+                                value: new Date(row.reviewed_at).toLocaleString(),
+                              },
+                            )}
+                          </p>
+                        )}
+                      {row.status === "RETURNED" && row.review_note && (
+                        <p className="text-destructive">
+                          {t("tasks.returnReasonShown", { reason: row.review_note })}
+                        </p>
+                      )}
+                    </div>
+                    <p className="mt-2 text-sm leading-6">
+                      {row.instructions || t("state.noDescription")}
+                    </p>
+                    {row.references.length ? (
+                      <div className="mt-3 rounded-lg border bg-muted/20 p-3">
+                        <p className="mb-2 text-xs font-semibold">
+                          {t("tasks.references", {
+                            count: row.references.length,
+                          })}
+                        </p>
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                          {row.references.map((reference) =>
+                            reference.kind === "PHOTO" ? (
+                              <a
+                                key={reference.id}
+                                href={reference.file}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                <Image
+                                  src={reference.file}
+                                  alt={
+                                    reference.label ||
+                                    reference.original_filename
+                                  }
+                                  width={180}
+                                  height={180}
+                                  unoptimized
+                                  className="aspect-square w-full rounded-lg object-cover"
+                                />
+                              </a>
+                            ) : (
+                              <a
+                                key={reference.id}
+                                href={reference.file}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="col-span-3 flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm font-medium text-primary hover:underline"
+                              >
+                                <FileText className="size-4" />
+                                <span className="truncate">
+                                  {reference.label ||
+                                    reference.original_filename}
+                                </span>
+                              </a>
+                            ),
+                          )}
+                        </div>
                       </div>
+                    ) : null}
+                    <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
+                      {row.photos.map((photo, index) => (
+                        <a
+                          key={photo.id}
+                          href={photo.watermarked || photo.image}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-24 shrink-0"
+                          title={`${index + 1} / ${row.photos.length}`}
+                        >
+                          <Image
+                            src={photo.watermarked || photo.image}
+                            alt=""
+                            width={180}
+                            height={180}
+                            unoptimized
+                            className="aspect-square w-full rounded-lg border object-cover"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                      <span>
+                        {t("tasks.photos", {
+                          current: row.photos.length,
+                          required: row.evidence_required,
+                        })}
+                      </span>
+                      {gpsPhoto ? (
+                        <a
+                          className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                          href={`https://www.google.com/maps?q=${gpsPhoto.latitude},${gpsPhoto.longitude}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <MapPin className="size-3.5" />
+                          {t("tasks.openGps")}
+                        </a>
+                      ) : null}
                     </div>
                   </div>
-                </div>
+                )}
                 {sentOn && (
                   <div className="border-t bg-muted/20 px-3 py-2 text-sm">
                     <Link
@@ -929,67 +1063,6 @@ export function FieldTasksWorkspace({
                         reference: sentOn.application_no,
                       })}
                     </Link>
-                  </div>
-                )}
-                {(canPrepareApplication ||
-                  (can("field_task.manage") &&
-                    ["SUBMITTED", "OPEN", "RETURNED"].includes(row.status))) && (
-                  <div className="flex flex-wrap justify-end gap-2 border-t bg-muted/20 p-3">
-                    {can("field_task.manage") &&
-                    ["OPEN", "RETURNED"].includes(row.status) ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          onClick={() => setEditing(row)}
-                        >
-                          <Pencil />
-                          {t("tasks.edit")}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          disabled={addReferences.isPending}
-                          onClick={() => {
-                            setAddingRefsTo(row);
-                            referenceInput.current?.click();
-                          }}
-                        >
-                          <Paperclip />
-                          {t("tasks.addReferences")}
-                        </Button>
-                      </>
-                    ) : null}
-                    {can("field_task.manage") && row.status === "SUBMITTED" ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          disabled={transition.isPending}
-                          onClick={() => review(row, "RETURNED")}
-                        >
-                          <RotateCcw />
-                          {t("action.return")}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          disabled={transition.isPending}
-                          onClick={() => review(row, "ACCEPTED")}
-                        >
-                          <Check />
-                          {t("action.accept")}
-                        </Button>
-                      </>
-                    ) : null}
-                    {canPrepareApplication ? (
-                      <Button
-                        onClick={() =>
-                          router.push(
-                            `/consultant-applications/create?source_field_task=${row.id}`,
-                          )
-                        }
-                      >
-                        <FilePlus2 />
-                        {t("tasks.prepareApplication")}
-                      </Button>
-                    ) : null}
                   </div>
                 )}
               </article>

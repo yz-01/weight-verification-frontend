@@ -225,6 +225,9 @@ export interface FieldTask {
   start_accuracy_m: string | null;
   submitted_at: string | null;
   reviewed_at: string | null;
+  /** Who confirmed or returned it - name, User ID and time (B18). */
+  reviewed_by?: string | null;
+  reviewed_by_name?: string | null;
   review_note: string;
   client_event_id: string;
   linked_record_type: string;
