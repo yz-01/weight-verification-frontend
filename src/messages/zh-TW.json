@@ -11369,7 +11369,8 @@
       "registration": "公司註冊號",
       "sst": "SST 註冊號",
       "taxId": "稅務識別號",
-      "title": "公司資料"
+      "title": "公司資料",
+      "background": "選擇背景圖"
     },
     "state": {
       "error": "無法讀取公司設置。",
@@ -12576,7 +12577,11 @@
     "profile": {
       "chooseLogo": "選擇公司 Logo",
       "subtitle": "顯示在報表、二維碼記錄和項目文件中的正式建築商資料。",
-      "title": "公司資料"
+      "title": "公司資料",
+      "logo": "Logo",
+      "background": "背景圖",
+      "chooseBackground": "選擇背景圖",
+      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有貴公司看到和使用；MR 申請表會印上貴公司的名稱和 Logo。"
     },
     "projectDefaults": {
       "archiveLock": "歸檔後鎖定記錄",

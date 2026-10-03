@@ -11369,7 +11369,8 @@
       "registration": "公司注册号",
       "sst": "SST 注册号",
       "taxId": "税务识别号",
-      "title": "公司资料"
+      "title": "公司资料",
+      "background": "选择背景图"
     },
     "state": {
       "error": "无法读取公司设置。",
@@ -12576,7 +12577,11 @@
     "profile": {
       "chooseLogo": "选择公司 Logo",
       "subtitle": "显示在报表、二维码记录和项目文件中的正式建筑商资料。",
-      "title": "公司资料"
+      "title": "公司资料",
+      "logo": "Logo",
+      "background": "背景图",
+      "chooseBackground": "选择背景图",
+      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有贵公司看到和使用；MR 申请表会印上贵公司的名称和 Logo。"
     },
     "projectDefaults": {
       "archiveLock": "归档后锁定记录",

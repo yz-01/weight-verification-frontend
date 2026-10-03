@@ -77,13 +77,16 @@ export async function updateContractorSiteSettings(payload: Partial<ContractorSi
 export async function updateContractorCompanyProfile(
   payload: Partial<ContractorCompanyProfile>,
   logo?: File | null,
+  /** The company's own background (C12), shown behind its pages. */
+  backgroundImage?: File | null,
 ) {
   const body = new FormData();
   Object.entries(payload).forEach(([key, value]) => {
-    if (key === "logo" || value === undefined || value === null) return;
+    if (key === "logo" || key === "background_image" || value === undefined || value === null) return;
     body.append(key, String(value));
   });
   if (logo) body.append("logo", logo);
+  if (backgroundImage) body.append("background_image", backgroundImage);
   const row = await api.patch<ContractorCompanyProfile>(
     "/api/contractor-site-settings/update_company_profile/",
     body,

@@ -11369,7 +11369,8 @@
       "registration": "No. pendaftaran",
       "sst": "No. pendaftaran SST",
       "taxId": "No. pengenalan cukai",
-      "title": "Profil syarikat"
+      "title": "Profil syarikat",
+      "background": "Pilih imej latar"
     },
     "state": {
       "error": "Tetapan syarikat tidak dapat dimuatkan.",
@@ -12576,7 +12577,11 @@
     "profile": {
       "chooseLogo": "Pilih logo syarikat",
       "subtitle": "Maklumat kontraktor berdaftar untuk laporan, rekod QR dan dokumen projek.",
-      "title": "Profil syarikat"
+      "title": "Profil syarikat",
+      "logo": "Logo",
+      "background": "Imej latar",
+      "chooseBackground": "Pilih imej latar",
+      "imageHint": "PNG, JPG atau WebP, sehingga 8 MB. Hanya syarikat anda melihat dan menggunakannya; borang MR mencetak nama dan logo anda."
     },
     "projectDefaults": {
       "archiveLock": "Kunci rekod selepas arkib",

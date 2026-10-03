@@ -11369,7 +11369,8 @@
       "registration": "Registration no.",
       "sst": "SST registration no.",
       "taxId": "Tax identification no.",
-      "title": "Company profile"
+      "title": "Company profile",
+      "background": "Choose background image"
     },
     "state": {
       "error": "Company settings could not be loaded.",
@@ -12576,7 +12577,11 @@
     "profile": {
       "chooseLogo": "Choose company logo",
       "subtitle": "The registered contractor information shown in reports, QR records and project documents.",
-      "title": "Company profile"
+      "title": "Company profile",
+      "logo": "Logo",
+      "background": "Background image",
+      "chooseBackground": "Choose background image",
+      "imageHint": "PNG, JPG or WebP, up to 8 MB. Only your company sees and uses these; the MR form prints your name and logo."
     },
     "projectDefaults": {
       "archiveLock": "Lock records after archive",
