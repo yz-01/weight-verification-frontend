@@ -644,6 +644,8 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   /** Beside `status` on purpose - see `MySubmissionRow` for why (F-225). */
   status_label: string;
   photo: string | null;
+  /** A material receipt's direction (B10), so a return is not named 材料进场. */
+  movement_type?: "ENTRY" | "RETURN";
   /** When this reader marked it 「我看过了」, or null (T-391). */
   seen_at: string | null;
   /** Whether anything archives this kind at all; an attendance day does not. */

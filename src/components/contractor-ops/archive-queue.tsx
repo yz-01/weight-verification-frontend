@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Inbox, ListTree, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { recordKindKey } from "@/lib/record-kind";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -262,7 +263,7 @@ export function ArchiveQueue() {
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {t(`kind.${row.kind}`)}
+                    {t(`kind.${recordKindKey(row)}` as never)}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {row.project_name}
@@ -433,7 +434,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
               {/* A company-wide document has no project, so the empty part
                   is dropped rather than printed as a double dot. */}
               {[
-                t(`archiveQueue.kind.${row.kind as RecordSheetKind}`),
+                t(`archiveQueue.kind.${recordKindKey(row) as RecordSheetKind}`),
                 row.project_name,
                 formatter.dateTime(row.submitted_at),
               ]
