@@ -309,8 +309,50 @@ export async function ocrEquipmentDeliveryNote(project: string, image: File) {
     silent: true,
   });
 }
+/**
+ * Apply to bring a machine in or take one out (B13). An entry may name a
+ * machine not yet registered (`equipment_name` + `category`): it is
+ * registered off site so every step belongs to it.
+ */
+export async function requestEquipmentMovement(payload: {
+  project: string;
+  equipment?: string;
+  equipment_name?: string;
+  category?: string;
+  supplier?: string;
+  registration_no?: string;
+  direction: "ENTRY" | "EXIT";
+  quantity?: string;
+  unit?: EquipmentMovement["unit"];
+  notes?: string;
+  client_event_id: string;
+}) {
+  const row = await api.post<EquipmentMovement>(
+    "/api/site-equipment/request_movement/",
+    payload,
+  );
+  toastSuccess("contractorOps.toast.movementRequested");
+  return row;
+}
+
+/** The office's only part (B13): Approve, or Return with a reason. */
+export async function reviewEquipmentMovement(
+  id: string,
+  status: "APPROVED" | "RETURNED",
+  note = "",
+) {
+  const row = await api.post<EquipmentMovement>(
+    `/api/site-equipment/${id}/review_movement/`,
+    { status, note },
+  );
+  toastSuccess("contractorOps.toast.movementReviewed");
+  return row;
+}
+
+/** The handover of an approved application: photos and both signatures (B13). */
 export async function recordEquipmentMovement(payload: {
   project: string; equipment: string; direction: "ENTRY" | "EXIT"; delivery_note_no?: string;
+  movement?: string; receiver_signature?: File; supplier_signature?: File;
   vehicle_plate?: string; operator_name: string; latitude?: string; longitude?: string;
   accuracy_m?: string; notes?: string; quantity?: string;
   unit?: "UNIT" | "PIECE" | "SET" | "LOAD" | "TONNE" | "KG" | "M3" | "OTHER";
@@ -320,13 +362,20 @@ export async function recordEquipmentMovement(payload: {
 }) {
   const data = new FormData();
   for (const [key, value] of Object.entries(payload)) {
-    if (key === "photos" || key === "delivery_note_photo") continue;
+    if (
+      key === "photos" ||
+      key === "delivery_note_photo" ||
+      key === "receiver_signature" ||
+      key === "supplier_signature"
+    ) continue;
     if (value !== undefined && value !== "") data.append(key, String(value));
   }
   payload.photos.forEach((photo) => data.append("photos", photo));
   if (payload.delivery_note_photo) {
     data.append("delivery_note_photo", payload.delivery_note_photo);
   }
+  if (payload.receiver_signature) data.append("receiver_signature", payload.receiver_signature);
+  if (payload.supplier_signature) data.append("supplier_signature", payload.supplier_signature);
   const row = await api.post<EquipmentMovement>(
     "/api/site-equipment/record_movement/",
     data,

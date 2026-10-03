@@ -5467,7 +5467,27 @@
       },
       "takeDeliveryNote": "Ambil foto nota penghantaran",
       "title": "Pergerakan peralatan",
-      "photoMinimum": "Sekurang-kurangnya {min} foto, termasuk foto pesanan penghantaran; tiada had maksimum."
+      "photoMinimum": "Sekurang-kurangnya {min} foto, termasuk foto pesanan penghantaran; tiada had maksimum.",
+      "applyNew": "Mohon: mesin baharu masuk",
+      "applyEntry": "Mohon untuk masuk",
+      "applyExit": "Mohon untuk keluar",
+      "applyEntryTitle": "Mohon {name} masuk",
+      "applyExitTitle": "Mohon {name} keluar",
+      "applyNewTitle": "Mohon membawa masuk mesin baharu",
+      "applyHelp": "Pejabat meluluskan atau mengembalikan permohonan. Semasa serahan sebenar, orang tapak dan pembekal / pemandu menandatangani, dengan sekurang-kurangnya 4 gambar.",
+      "applySubmit": "Hantar permohonan",
+      "applyFailed": "Permohonan tidak dihantar. Sila cuba lagi.",
+      "chooseSupplier": "Pilih pembekal",
+      "handover": "Serahan (kedua-dua tandatangan)",
+      "handoverHelp": "Permohonan diluluskan. Ambil sekurang-kurangnya 4 gambar (lebih pun boleh) dan kedua-dua tandatangan semasa serahan; mesin dikira masuk / keluar dari saat ini.",
+      "handoverSubmit": "Hantar serahan",
+      "siteSignature": "Tandatangan tapak",
+      "supplierSignature": "Tandatangan pembekal / pemandu",
+      "returnAction": "Kembalikan",
+      "returnReason": "Sebab dikembalikan",
+      "returnConfirm": "Kembalikan - permohonan tamat",
+      "requestedBy": "Dipohon oleh",
+      "reviewedBy": "Diluluskan / dikembalikan oleh"
     },
     "equipmentEvidence": {
       "condition": "4. Butiran keadaan peralatan",
@@ -5560,7 +5580,9 @@
       "title": "Tajuk tugas",
       "unit": "Unit",
       "vehiclePlate": "Nombor plat",
-      "workLocation": "Kawasan / lokasi kerja"
+      "workLocation": "Kawasan / lokasi kerja",
+      "pmaExpiresOn": "PMA tamat pada",
+      "permitExpiresOn": "Permit tamat pada"
     },
     "filing": {
       "action": "Failkan di bawah kategori",
@@ -5788,7 +5810,9 @@
       "saved": "Disimpan",
       "taskAssigned": "Tugas diagihkan",
       "taskUpdated": "Tugas dikemas kini",
-      "outgoingProcessed": "Foto pemprosesan dihantar. Pejabat akan mengesahkan."
+      "outgoingProcessed": "Foto pemprosesan dihantar. Pejabat akan mengesahkan.",
+      "movementRequested": "Permohonan dihantar ke pejabat",
+      "movementReviewed": "Permohonan dikemas kini"
     },
     "what": {
       "roles": "Senarai peranan",
@@ -5799,7 +5823,14 @@
       "progressSummary": "Jumlah kemajuan",
       "phases": "Senarai fasa pembinaan",
       "outgoingRecord": "Rekod bahan keluar ini",
-      "returnableReceipts": "penghantaran yang boleh dipulangkan"
+      "returnableReceipts": "penghantaran yang boleh dipulangkan",
+      "equipmentApplications": "permohonan peralatan yang terbuka"
+    },
+    "equipmentMovementStatus": {
+      "PENDING": "Menunggu kelulusan",
+      "APPROVED": "Diluluskan - menunggu serahan",
+      "RETURNED": "Dikembalikan - ditutup",
+      "COMPLETED": "Telah diserahkan"
     }
   },
   "contractorPartners": {
@@ -7619,7 +7650,7 @@
       "disposal": "Pembersihan sisa",
       "equipment": "Pergerakan peralatan",
       "material": "Bahan masuk",
-      "outgoing": "Bahan keluar",
+      "outgoing": "Pemulangan bahan",
       "progress": "Kemajuan projek",
       "safety": "Pembetulan bahaya / EHS",
       "subtitle": "Pilih kerja, kemudian ambil foto yang diperlukan.",

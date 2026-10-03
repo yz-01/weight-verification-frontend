@@ -5467,7 +5467,27 @@
       },
       "takeDeliveryNote": "Take delivery note photo",
       "title": "Equipment movement",
-      "photoMinimum": "At least {min} photos, the delivery-order photo included; no upper limit."
+      "photoMinimum": "At least {min} photos, the delivery-order photo included; no upper limit.",
+      "applyNew": "Apply: new machine in",
+      "applyEntry": "Apply to bring in",
+      "applyExit": "Apply to take out",
+      "applyEntryTitle": "Apply to bring in {name}",
+      "applyExitTitle": "Apply to take out {name}",
+      "applyNewTitle": "Apply to bring in a new machine",
+      "applyHelp": "The office approves or returns the application. At the actual handover, the site person and the supplier / driver both sign, with at least 4 photos.",
+      "applySubmit": "Submit application",
+      "applyFailed": "The application was not sent. Please try again.",
+      "chooseSupplier": "Choose the supplier",
+      "handover": "Hand over (both sign)",
+      "handoverHelp": "The application is approved. Take at least 4 photos (more are fine) and both signatures at the handover; the machine is on or off site from this moment.",
+      "handoverSubmit": "Submit handover",
+      "siteSignature": "Site signature",
+      "supplierSignature": "Supplier / driver signature",
+      "returnAction": "Return",
+      "returnReason": "Why it is returned",
+      "returnConfirm": "Return - the application ends",
+      "requestedBy": "Applied by",
+      "reviewedBy": "Approved / returned by"
     },
     "equipmentEvidence": {
       "condition": "4. Equipment condition detail",
@@ -5560,7 +5580,9 @@
       "title": "Task title",
       "unit": "Unit",
       "vehiclePlate": "Vehicle plate",
-      "workLocation": "Work area / location"
+      "workLocation": "Work area / location",
+      "pmaExpiresOn": "PMA expires on",
+      "permitExpiresOn": "Permit expires on"
     },
     "filing": {
       "action": "File under a category",
@@ -5788,7 +5810,9 @@
       "saved": "Saved",
       "taskAssigned": "Task assigned",
       "taskUpdated": "Task updated",
-      "outgoingProcessed": "Processing photos sent. The office will confirm."
+      "outgoingProcessed": "Processing photos sent. The office will confirm.",
+      "movementRequested": "Application sent to the office",
+      "movementReviewed": "Application updated"
     },
     "what": {
       "roles": "The role list",
@@ -5799,7 +5823,14 @@
       "progressSummary": "The progress totals",
       "phases": "The construction phase list",
       "outgoingRecord": "This material outgoing record",
-      "returnableReceipts": "deliveries that can be sent back"
+      "returnableReceipts": "deliveries that can be sent back",
+      "equipmentApplications": "open equipment applications"
+    },
+    "equipmentMovementStatus": {
+      "PENDING": "Waiting for approval",
+      "APPROVED": "Approved - waiting for the handover",
+      "RETURNED": "Returned - closed",
+      "COMPLETED": "Handed over"
     }
   },
   "contractorPartners": {
@@ -7619,7 +7650,7 @@
       "disposal": "Waste clearance",
       "equipment": "Equipment movement",
       "material": "Material receipts",
-      "outgoing": "Material outgoing",
+      "outgoing": "Material return",
       "progress": "Project progress",
       "safety": "Hazard rectification / EHS",
       "subtitle": "Choose the work, then take the required photos.",

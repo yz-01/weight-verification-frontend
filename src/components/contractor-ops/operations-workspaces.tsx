@@ -42,6 +42,12 @@ import {
 import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
+import {
+  ApplyMovementDialog,
+  MachineStep,
+  OpenApplicationsFailed,
+  useOpenEquipmentApplications,
+} from "@/components/contractor-ops/equipment-applications";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { useDateFormat } from "@/lib/dates";
@@ -81,6 +87,7 @@ import type {
   EquipmentPayload,
   FieldTask,
   FieldTaskPayload,
+  EquipmentMovement,
   MaterialOutgoing,
   ProjectCategory,
   ProjectCategoryKind,
@@ -1443,6 +1450,10 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   // Kept in the draft, so tapping this 挂号 again reopens the form it was in
   // (D-259). Outside a draft this is ordinary state.
   const [movingId, setMovingId] = useDraftState<string | null>("open:movingEquipment", null);
+  // 申请 → 后台批准 → 交接 (B13): which machine is being applied for, and
+  // each machine's application still open.
+  const [applyingFor, setApplyingFor] = useState<SiteEquipment | "new" | null>(null);
+  const open = useOpenEquipmentApplications(project || undefined);
   const rows = useQuery({
     queryKey: ["site-equipment", "field", project],
     queryFn: () =>
@@ -1453,6 +1464,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   });
   const equipment = rows.data?.results ?? [];
   const moving = equipment.find((row) => row.id === movingId) ?? null;
+  const movingApplication = moving ? open.byEquipment.get(moving.id) : undefined;
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["site-equipment"] });
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
@@ -1477,15 +1489,29 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         title={t("equipment.title")}
         subtitle={t("equipment.subtitle")}
         action={
-          can("equipment.manage") && (
-            <Button
-              requires={[[project, t("field.project")]]}
-              onClick={() => setCreating(true)}
-            >
-              <Plus />
-              {t("equipment.add")}
-            </Button>
-          )
+          <div className="flex flex-wrap gap-2">
+            {/* B13: the phone can bring in a machine nobody has registered
+                yet - it is applied for, and registered on that machine. */}
+            {can("equipment.capture") && (
+              <Button
+                variant="outline"
+                requires={[[project, t("field.project")]]}
+                onClick={() => setApplyingFor("new")}
+              >
+                <Plus />
+                {t("equipment.applyNew")}
+              </Button>
+            )}
+            {can("equipment.manage") && (
+              <Button
+                requires={[[project, t("field.project")]]}
+                onClick={() => setCreating(true)}
+              >
+                <Plus />
+                {t("equipment.add")}
+              </Button>
+            )}
+          </div>
         }
       />
       {/* The Add button takes its project from here, so it wears the star
@@ -1506,6 +1532,7 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         errorMessage={equipmentError}
         empty={!rows.data?.count}
       />
+      <OpenApplicationsFailed open={open} />
       {groups.map(
         (group) =>
           group.rows.length > 0 && (
@@ -1523,20 +1550,12 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
                     <span className="min-w-0 flex-1 truncate font-medium">
                       {machineName(row)}
                     </span>
-                    {can("equipment.capture") && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setMovingId(row.id)}
-                      >
-                        <Camera />
-                        {t(
-                          group.direction === "EXIT"
-                            ? "equipment.recordExit"
-                            : "equipment.recordEntry",
-                        )}
-                      </Button>
-                    )}
+                    <MachineStep
+                      machine={row}
+                      open={open.byEquipment.get(row.id)}
+                      onApply={() => setApplyingFor(row)}
+                      onHandover={() => setMovingId(row.id)}
+                    />
                   </li>
                 ))}
               </ul>
@@ -1553,9 +1572,21 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           }}
         />
       )}
-      {moving && (
+      {applyingFor && (
+        <ApplyMovementDialog
+          project={project || (applyingFor !== "new" ? applyingFor.project : "")}
+          machine={applyingFor === "new" ? null : applyingFor}
+          onClose={() => setApplyingFor(null)}
+          onSaved={() => {
+            refresh();
+            setApplyingFor(null);
+          }}
+        />
+      )}
+      {moving && movingApplication?.status === "APPROVED" && (
         <MovementDialog
           row={moving}
+          movement={movingApplication}
           fieldTaskId={fieldTaskId}
           onClose={() => setMovingId(null)}
           onSaved={() => {
@@ -1621,6 +1652,8 @@ export function EquipmentDialog({
     description: equipment?.description ?? "",
     certificate_expires_on: equipment?.certificate_expires_on ?? null,
     insurance_expires_on: equipment?.insurance_expires_on ?? null,
+    pma_expires_on: equipment?.pma_expires_on ?? null,
+    permit_expires_on: equipment?.permit_expires_on ?? null,
     is_active: equipment?.is_active ?? true,
   });
   const set = <K extends keyof EquipmentPayload>(
@@ -1641,6 +1674,8 @@ export function EquipmentDialog({
           description: form.description,
           certificate_expires_on: form.certificate_expires_on,
           insurance_expires_on: form.insurance_expires_on,
+          pma_expires_on: form.pma_expires_on,
+          permit_expires_on: form.permit_expires_on,
           is_active: form.is_active,
         })
       : createSiteEquipment(form),
@@ -1701,6 +1736,22 @@ export function EquipmentDialog({
               onChange={(e) =>
                 set("insurance_expires_on", e.target.value || null)
               }
+            />
+          </FieldWrapper>
+          {/* B14: PMA and the permit, reminded a month ahead until the
+              machine has formally left. */}
+          <FieldWrapper label={t("field.pmaExpiresOn")}>
+            <Input
+              type="date"
+              value={form.pma_expires_on ?? ""}
+              onChange={(e) => set("pma_expires_on", e.target.value || null)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.permitExpiresOn")}>
+            <Input
+              type="date"
+              value={form.permit_expires_on ?? ""}
+              onChange={(e) => set("permit_expires_on", e.target.value || null)}
             />
           </FieldWrapper>
           <FieldWrapper label={t("field.equipmentColumn")} required>
@@ -1811,21 +1862,32 @@ export function EquipmentDialog({
   );
 }
 
+/**
+ * The handover of an approved application (B13): at least four photographs,
+ * no ceiling (B14), and both signatures - the site person and the supplier or
+ * driver. This is the moment the machine is on or off site.
+ */
 export function MovementDialog({
   row,
+  movement,
   fieldTaskId,
   onClose,
   onSaved,
 }: {
   row: SiteEquipment;
+  /** The approved application this handover completes. */
+  movement: EquipmentMovement;
   fieldTaskId?: string;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const t = useTranslations("contractorOps");
+  const field = useTranslations("fieldStaffPwa");
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
-  const direction = row.status === "ON_SITE" ? "EXIT" : "ENTRY";
+  const direction = movement.direction;
+  const [receiverSignature, setReceiverSignature] = useDraftState<File | undefined>(`receiverSignature:${row.id}`);
+  const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>(`supplierSignature:${row.id}`);
   // F-282. Keys carry `row.id` because this dialog opens per equipment row
   // while the draft store is scoped per *task*: without the suffix, typing
   // against excavator A and then opening excavator B would show A's figures
@@ -1833,8 +1895,8 @@ export function MovementDialog({
   const [operator, setOperator] = useDraftState(`operator:${row.id}`, "");
   const [vehicle, setVehicle] = useDraftState(`vehicle:${row.id}`, "");
   const [deliveryNote, setDeliveryNote] = useDraftState(`deliveryNote:${row.id}`, "");
-  const [quantity, setQuantity] = useDraftState(`quantity:${row.id}`, "1");
-  const [unit, setUnit] = useDraftState<EquipmentUnit>(`unit:${row.id}`, "UNIT");
+  const [quantity, setQuantity] = useDraftState(`quantity:${row.id}`, String(Number(movement.quantity) || 1));
+  const [unit, setUnit] = useDraftState<EquipmentUnit>(`unit:${row.id}`, movement.unit ?? "UNIT");
   const [notes, setNotes] = useDraftState(`notes:${row.id}`, "");
   const [photos, setPhotos] = useDraftState<File[]>(`photos:${row.id}`, []);
   const [fieldEvidence, setFieldEvidence] = useDraftState(`fieldEvidence:${row.id}`, createEmptyFieldEvidence);
@@ -1882,11 +1944,14 @@ export function MovementDialog({
         original_occurred_at: new Date().toISOString(),
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,
+        movement: movement.id,
         latitude: location?.latitude,
         longitude: location?.longitude,
         accuracy_m: location?.accuracy,
         photos: submissionPhotos,
         delivery_note_photo: deliveryNotePhoto,
+        receiver_signature: receiverSignature,
+        supplier_signature: supplierSignature,
       });
     },
     onMutate: () => {
@@ -1936,7 +2001,7 @@ export function MovementDialog({
               { name: row.name },
             )}
           </DialogTitle>
-          <DialogDescription>{t("equipment.movementHelp")}</DialogDescription>
+          <DialogDescription>{t("equipment.handoverHelp")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
           {!isFieldStaff ? (
@@ -2050,6 +2115,22 @@ export function MovementDialog({
               />
             )}
           </FieldWrapper>
+          <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2">
+            <FieldSignaturePad
+              label={t("equipment.siteSignature")}
+              clearLabel={field("action.clearSignature")}
+              required
+              value={receiverSignature}
+              onChange={setReceiverSignature}
+            />
+            <FieldSignaturePad
+              label={t("equipment.supplierSignature")}
+              clearLabel={field("action.clearSignature")}
+              required
+              value={supplierSignature}
+              onChange={setSupplierSignature}
+            />
+          </div>
           <LocationField
             className="sm:col-span-2"
             label={t("field.location")}
@@ -2091,13 +2172,15 @@ export function MovementDialog({
                   : submissionPhotos.length + (deliveryNotePhoto ? 1 : 0) >= EQUIPMENT_PHOTO_MIN,
                 t("field.photos"),
               ],
+              [receiverSignature, t("equipment.siteSignature")],
+              [supplierSignature, t("equipment.supplierSignature")],
               [location, t("field.location")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >
             <Camera />
-            {t("action.record")}
+            {t("equipment.handoverSubmit")}
           </Button>
         </DialogFooter>
       </DialogContent>

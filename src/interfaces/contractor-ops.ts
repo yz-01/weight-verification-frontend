@@ -277,6 +277,9 @@ export interface SiteEquipment {
    */
   certificate_expires_on: string | null;
   insurance_expires_on: string | null;
+  /** PMA and permit (准证), added on the same machine (B14). */
+  pma_expires_on?: string | null;
+  permit_expires_on?: string | null;
   is_active: boolean;
   movement_count: number;
   quantity_on_site: string;
@@ -314,8 +317,13 @@ export interface EquipmentPayload {
   /** ISO date, or null when the contractor does not hold the document. */
   certificate_expires_on?: string | null;
   insurance_expires_on?: string | null;
+  pma_expires_on?: string | null;
+  permit_expires_on?: string | null;
   is_active?: boolean;
 }
+
+/** 申请 → 后台 Approve / Return → 实际交接双方签名 (B13). */
+export type EquipmentMovementStatus = "PENDING" | "APPROVED" | "RETURNED" | "COMPLETED";
 
 export interface EquipmentMovement {
   id: string;
@@ -325,6 +333,17 @@ export interface EquipmentMovement {
   equipment_code: string;
   equipment_name: string;
   direction: "ENTRY" | "EXIT";
+  /** Movements recorded before 10-02 are all COMPLETED. */
+  status?: EquipmentMovementStatus;
+  request_note?: string;
+  requested_by_name?: string | null;
+  approved_by_name?: string | null;
+  approved_at?: string | null;
+  review_note?: string;
+  completed_by_name?: string | null;
+  completed_at?: string | null;
+  receiver_signature?: string | null;
+  supplier_signature?: string | null;
   occurred_at: string;
   original_occurred_at: string;
   uploaded_at: string;

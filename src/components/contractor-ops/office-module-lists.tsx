@@ -31,6 +31,13 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { MaterialTabs } from "@/components/receipts/material-tabs";
+import {
+  ApplyMovementDialog,
+  MachineStep,
+  ReviewMovementActions,
+  movementTone,
+  useOpenEquipmentApplications,
+} from "@/components/contractor-ops/equipment-applications";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -508,7 +515,11 @@ export function SiteEquipmentOffice() {
   const searchParams = useSearchParams();
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
   const [editing, setEditing] = useState<SiteEquipment | null>(null);
-  const [moving, setMoving] = useState<SiteEquipment | null>(null);
+  // The handover of an approved application, and the machine an
+  // application is being made for (B13).
+  const [moving, setMoving] = useState<{ machine: SiteEquipment; movement: EquipmentMovement } | null>(null);
+  const [applyingFor, setApplyingFor] = useState<SiteEquipment | null>(null);
+  const open = useOpenEquipmentApplications(list.filters.project || undefined);
   const [viewingMovement, setViewingMovement] =
     useState<EquipmentMovement | null>(null);
   const [viewingMachine, setViewingMachine] = useState<SiteEquipment | null>(
@@ -550,6 +561,18 @@ export function SiteEquipmentOffice() {
           <StatusBadge
             label={t(`direction.${row.original.direction}`)}
             tone={row.original.direction === "ENTRY" ? "positive" : "neutral"}
+          />
+        ),
+      },
+      {
+        // 申请 → 批准 → 交接 (B13); rows from before 10-02 are all handed over.
+        id: "status",
+        meta: { label: t("field.status") },
+        header: () => <PlainHeader label={t("field.status")} />,
+        cell: ({ row }) => (
+          <StatusBadge
+            label={t(`equipmentMovementStatus.${row.original.status ?? "COMPLETED"}`)}
+            tone={movementTone(row.original.status)}
           />
         ),
       },
@@ -878,6 +901,29 @@ export function SiteEquipmentOffice() {
                 ),
               },
               {
+                label: t("field.status"),
+                value: (
+                  <StatusBadge
+                    label={t(`equipmentMovementStatus.${viewingMovement.status ?? "COMPLETED"}`)}
+                    tone={movementTone(viewingMovement.status)}
+                  />
+                ),
+              },
+              ...(viewingMovement.requested_by_name
+                ? [{ label: t("equipment.requestedBy"), value: viewingMovement.requested_by_name }]
+                : []),
+              ...(viewingMovement.approved_by_name
+                ? [
+                    {
+                      label: t("equipment.reviewedBy"),
+                      value: `${viewingMovement.approved_by_name}${viewingMovement.approved_at ? ` · ${df.dateTime(viewingMovement.approved_at)}` : ""}`,
+                    },
+                  ]
+                : []),
+              ...(viewingMovement.review_note
+                ? [{ label: t("equipment.returnReason"), value: viewingMovement.review_note, wide: true }]
+                : []),
+              {
                 label: t("field.project"),
                 value: viewingMovement.project_name,
               },
@@ -963,13 +1009,27 @@ export function SiteEquipmentOffice() {
                 </dl>
               </section>
             }
+            signatures={(
+              [
+                ["siteSignature", viewingMovement.receiver_signature],
+                ["supplierSignature", viewingMovement.supplier_signature],
+              ] as const
+            )
+              .filter(([, source]) => Boolean(source))
+              .map(([who, source]) => ({ label: t(`equipment.${who}`), url: source as string }))}
             actions={
-              <AddToPackageButton
-                kind="EQUIPMENT_MOVEMENT"
-                recordId={viewingMovement.id}
-                projectId={viewingMovement.project}
-                reference={`${viewingMovement.equipment_code} - ${viewingMovement.equipment_name}`}
-              />
+              <div className="flex flex-col gap-2">
+                <ReviewMovementActions
+                  movement={viewingMovement}
+                  onDone={(row) => setViewingMovement(row)}
+                />
+                <AddToPackageButton
+                  kind="EQUIPMENT_MOVEMENT"
+                  recordId={viewingMovement.id}
+                  projectId={viewingMovement.project}
+                  reference={`${viewingMovement.equipment_code} - ${viewingMovement.equipment_name}`}
+                />
+              </div>
             }
             conversation={{
               kind: "EQUIPMENT_MOVEMENT",
@@ -1046,6 +1106,14 @@ export function SiteEquipmentOffice() {
                   ? df.date(viewingMachine.insurance_expires_on)
                   : "—",
               },
+              {
+                label: t("field.pmaExpiresOn"),
+                value: viewingMachine.pma_expires_on ? df.date(viewingMachine.pma_expires_on) : "—",
+              },
+              {
+                label: t("field.permitExpiresOn"),
+                value: viewingMachine.permit_expires_on ? df.date(viewingMachine.permit_expires_on) : "—",
+              },
               ...(viewingMachine.description
                 ? [
                     {
@@ -1059,16 +1127,12 @@ export function SiteEquipmentOffice() {
             actions={
               can("equipment.capture") || can("equipment.manage") ? (
                 <div className="flex flex-col gap-2">
-                  {can("equipment.capture") && (
-                    <Button onClick={() => setMoving(viewingMachine)}>
-                      <Camera />
-                      {t(
-                        viewingMachine.status === "ON_SITE"
-                          ? "equipment.recordExit"
-                          : "equipment.recordEntry",
-                      )}
-                    </Button>
-                  )}
+                  <MachineStep
+                    machine={viewingMachine}
+                    open={open.byEquipment.get(viewingMachine.id)}
+                    onApply={() => setApplyingFor(viewingMachine)}
+                    onHandover={(movement) => setMoving({ machine: viewingMachine, movement })}
+                  />
                   {can("equipment.manage") && (
                     <Button
                       variant="outline"
@@ -1107,9 +1171,21 @@ export function SiteEquipmentOffice() {
           }}
         />
       )}
+      {applyingFor && (
+        <ApplyMovementDialog
+          project={applyingFor.project}
+          machine={applyingFor}
+          onClose={() => setApplyingFor(null)}
+          onSaved={() => {
+            refresh();
+            setApplyingFor(null);
+          }}
+        />
+      )}
       {moving && (
         <MovementDialog
-          row={moving}
+          row={moving.machine}
+          movement={moving.movement}
           onClose={() => setMoving(null)}
           onSaved={() => {
             refresh();

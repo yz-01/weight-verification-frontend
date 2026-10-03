@@ -5467,7 +5467,27 @@
       },
       "takeDeliveryNote": "拍摄 Delivery Order",
       "title": "设备进退场",
-      "photoMinimum": "最少 {min} 张（含 Delivery Order 照片），不设上限。"
+      "photoMinimum": "最少 {min} 张（含 Delivery Order 照片），不设上限。",
+      "applyNew": "申请新设备进场",
+      "applyEntry": "申请进场",
+      "applyExit": "申请退场",
+      "applyEntryTitle": "申请 {name} 进场",
+      "applyExitTitle": "申请 {name} 退场",
+      "applyNewTitle": "申请新设备进场",
+      "applyHelp": "后台会批准或退回申请。批准后实际交接时，由现场人员与供应商 / 司机双方签名，并拍至少 4 张照片。",
+      "applySubmit": "提交申请",
+      "applyFailed": "申请没有送出，请再试一次。",
+      "chooseSupplier": "选择供应商",
+      "handover": "实际交接（双方签名）",
+      "handoverHelp": "申请已批准。实际交接时拍至少 4 张照片（可以更多），并由双方签名；提交后设备才算进场 / 退场。",
+      "handoverSubmit": "提交交接",
+      "siteSignature": "现场人员签名",
+      "supplierSignature": "供应商 / 司机签名",
+      "returnAction": "Return 退回",
+      "returnReason": "退回原因",
+      "returnConfirm": "退回（申请结束）",
+      "requestedBy": "申请人",
+      "reviewedBy": "审批人"
     },
     "equipmentEvidence": {
       "condition": "4. 设备状况细节",
@@ -5560,7 +5580,9 @@
       "title": "任务标题",
       "unit": "单位",
       "vehiclePlate": "车牌",
-      "workLocation": "工作区域 / 位置"
+      "workLocation": "工作区域 / 位置",
+      "pmaExpiresOn": "PMA 到期日",
+      "permitExpiresOn": "准证到期日"
     },
     "filing": {
       "action": "归入分类",
@@ -5788,7 +5810,9 @@
       "saved": "已保存",
       "taskAssigned": "任务已派发",
       "taskUpdated": "任务状态已更新",
-      "outgoingProcessed": "处理照片已回传，等待后台最终确认。"
+      "outgoingProcessed": "处理照片已回传，等待后台最终确认。",
+      "movementRequested": "申请已送交后台",
+      "movementReviewed": "申请已处理"
     },
     "what": {
       "roles": "角色列表",
@@ -5799,7 +5823,14 @@
       "progressSummary": "进度统计",
       "phases": "施工阶段列表",
       "outgoingRecord": "这条材料出场记录",
-      "returnableReceipts": "可退回的进场记录"
+      "returnableReceipts": "可退回的进场记录",
+      "equipmentApplications": "设备进退场申请"
+    },
+    "equipmentMovementStatus": {
+      "PENDING": "等待后台批准",
+      "APPROVED": "已批准，待交接签名",
+      "RETURNED": "已退回（申请结束）",
+      "COMPLETED": "已交接"
     }
   },
   "contractorPartners": {
@@ -7619,7 +7650,7 @@
       "disposal": "垃圾清运",
       "equipment": "设备进退场",
       "material": "材料进场",
-      "outgoing": "材料出场",
+      "outgoing": "材料退场",
       "progress": "工程进度",
       "safety": "隐患整改 / EHS",
       "subtitle": "先选择工作，再拍摄系统要求的照片。",

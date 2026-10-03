@@ -187,8 +187,13 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     original_occurred_at: string;
     client_event_id: string;
     field_task?: string;
+    /** The approved application this handover completes (B13). */
+    movement?: string;
     photos: StoredFile[];
     delivery_note_photo?: StoredFile;
+    /** Both sides at the handover: the site person and the supplier / driver. */
+    receiver_signature?: StoredFile;
+    supplier_signature?: StoredFile;
   };
 }
 

@@ -309,6 +309,12 @@ async function sendJob(job: OfflineJob): Promise<void> {
       delivery_note_photo: job.payload.delivery_note_photo
         ? restoreFile(job.payload.delivery_note_photo)
         : undefined,
+      receiver_signature: job.payload.receiver_signature
+        ? restoreFile(job.payload.receiver_signature)
+        : undefined,
+      supplier_signature: job.payload.supplier_signature
+        ? restoreFile(job.payload.supplier_signature)
+        : undefined,
     });
     return;
   }
@@ -729,8 +735,13 @@ export function submitEquipmentMovementOfflineAware(
   ownerId: string,
   draft: Omit<
     Extract<OfflineJob, { kind: "EQUIPMENT_MOVEMENT" }>["payload"],
-    "photos" | "delivery_note_photo"
-  > & { photos: File[]; delivery_note_photo?: File },
+    "photos" | "delivery_note_photo" | "receiver_signature" | "supplier_signature"
+  > & {
+    photos: File[];
+    delivery_note_photo?: File;
+    receiver_signature?: File;
+    supplier_signature?: File;
+  },
 ): Promise<OfflineSubmission> {
   return submitCaptureJob({
     id: newId("equipment-movement-job"),
@@ -744,6 +755,12 @@ export function submitEquipmentMovementOfflineAware(
       photos: draft.photos.map(storeFile),
       delivery_note_photo: draft.delivery_note_photo
         ? storeFile(draft.delivery_note_photo)
+        : undefined,
+      receiver_signature: draft.receiver_signature
+        ? storeFile(draft.receiver_signature)
+        : undefined,
+      supplier_signature: draft.supplier_signature
+        ? storeFile(draft.supplier_signature)
         : undefined,
     },
   });
