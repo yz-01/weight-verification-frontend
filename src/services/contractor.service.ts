@@ -59,13 +59,22 @@ export type ExportFormat = "xlsx" | "pdf";
  * absent grand total reads as a decision rather than an omission.
  */
 export interface ExportSummary {
-  groupBy: "unit";
+  /**
+   * `material`: the net quantity per material, specification and unit -
+   * received, returned, net (B09). Only the receipts export reads it.
+   */
+  groupBy: "unit" | "material";
   title: string;
   unitLabel: string;
   quantityLabel: string;
   /** Opt-in second figure. Waste needs it for ESG base data (D-219). */
   countLabel?: string;
   note?: string;
+  materialLabel?: string;
+  specificationLabel?: string;
+  receivedLabel?: string;
+  returnedLabel?: string;
+  netLabel?: string;
 }
 
 export interface ExportRequest {
@@ -107,6 +116,15 @@ export function exportBody(request: ExportRequest) {
               ? { count_label: request.summary.countLabel }
               : {}),
             ...(request.summary.note ? { note: request.summary.note } : {}),
+            ...(request.summary.groupBy === "material"
+              ? {
+                  material_label: request.summary.materialLabel ?? "",
+                  specification_label: request.summary.specificationLabel ?? "",
+                  received_label: request.summary.receivedLabel ?? "",
+                  returned_label: request.summary.returnedLabel ?? "",
+                  net_label: request.summary.netLabel ?? "",
+                }
+              : {}),
           },
         }
       : {}),
@@ -418,6 +436,30 @@ export function getReceipts(
   query: ListQuery,
 ): Promise<Paginated<MaterialReceipt>> {
   return api.list<MaterialReceipt>("/api/receipts/get_receipts/", query);
+}
+
+/** One line of 材料管理's totals (B09). Quantities arrive as strings. */
+export interface MaterialNetTotalRow {
+  project: string;
+  project_name: string;
+  material_name: string;
+  material_specification: string;
+  unit: string;
+  received: string;
+  rejected: string;
+  returned: string;
+  net: string;
+  deliveries: number;
+}
+
+/** Net per project, material, specification and unit (B09). */
+export function getReceiptNetTotals(
+  query: ListQuery,
+): Promise<{ results: MaterialNetTotalRow[] }> {
+  return api.get<{ results: MaterialNetTotalRow[] }>(
+    "/api/receipts/get_net_totals/",
+    query,
+  );
 }
 
 

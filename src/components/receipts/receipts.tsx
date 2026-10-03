@@ -22,6 +22,7 @@ import {
   exportReceipts,
   type ExportFormat,
 } from "@/services/contractor.service";
+import { MaterialTabs, NetTotalsView, useMaterialTab } from "@/components/receipts/material-tabs";
 
 // Sentinels rather than "": a Radix SelectItem cannot carry an empty
 // value, and the two "no column chosen" answers are different questions -
@@ -34,11 +35,23 @@ export function Receipts() {
   const t = useTranslations();
   const df = useDateFormat();
   const { can } = useAuth();
-  const list = useListQuery(["project", "supplier", "unit", "category", "uncategorised", "acceptance"]);
+  const list = useListQuery(["project", "supplier", "unit", "category", "uncategorised", "acceptance", "direction", "view"]);
+  // 材料管理's tabs (B09): Material In is what counts - deliveries not
+  // rejected; Reject is the rejected ones; a return typed 退场 before 10-02
+  // shows under Material Out (direction=OUT).
+  const tab = useMaterialTab();
+  const query = useMemo(() => {
+    const { view, ...rest } = list.query as Record<string, string | number | undefined>;
+    void view;
+    if (tab === "reject") return { ...rest, direction: undefined };
+    if (tab === "out") return { ...rest, direction: "OUT", acceptance: undefined };
+    return { ...rest, direction: "IN" };
+  }, [list.query, tab]);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["receipts", list.query],
-    queryFn: () => getReceipts(list.query),
+    queryKey: ["receipts", query],
+    queryFn: () => getReceipts(query),
+    enabled: tab !== "totals",
   });
   const categories = useQuery({
     queryKey: ["project-categories", "receipt-columns", list.filters.project],
@@ -124,7 +137,7 @@ export function Receipts() {
           ),
       },
       {
-        accessorKey: "captured_at",
+        accessorKey: "business_at",
         meta: { label: t("receipts.field.capturedAt") },
         header: ({ column }) => (
           <SortableHeader
@@ -136,7 +149,7 @@ export function Receipts() {
         cell: ({ row }) => (
           <div className="flex items-center gap-1.5">
             <span className="tabular text-muted-foreground">
-              {df.date(row.original.captured_at)}
+              {df.date(row.original.business_at ?? row.original.captured_at)}
             </span>
             {row.original.has_location && (
               <MapPin
@@ -286,21 +299,43 @@ export function Receipts() {
       title: t("receipts.title"),
       subtitle: t("receipts.count", { count: totalCount }),
       emptyLabel: t("table.noResults"),
-      query: list.query,
-      summary: {
-        groupBy: "unit",
-        title: t("exportTotals.title"),
-        unitLabel: t("receipts.field.unit"),
-        quantityLabel: t("exportTotals.quantity"),
-        note: t("exportTotals.note"),
-      },
+      query,
+      // Material In prints the net table under the rows (B09): received,
+      // returned, net per material, specification and unit.
+      summary:
+        tab === "in"
+          ? {
+              groupBy: "material",
+              title: t("receipts.net.title"),
+              unitLabel: t("receipts.field.unit"),
+              quantityLabel: t("exportTotals.quantity"),
+              note: t("receipts.net.note"),
+              materialLabel: t("receipts.field.materialName"),
+              specificationLabel: t("receipts.field.materialSpecification"),
+              receivedLabel: t("receipts.net.received"),
+              returnedLabel: t("receipts.net.returned"),
+              netLabel: t("receipts.net.net"),
+            }
+          : {
+              groupBy: "unit",
+              title: t("exportTotals.title"),
+              unitLabel: t("receipts.field.unit"),
+              quantityLabel: t("exportTotals.quantity"),
+              note: t("exportTotals.note"),
+            },
       columns: [
         { key: "receipt_no", label: t("receipts.field.receiptNo") },
-        { key: "captured_at", label: t("receipts.field.capturedAt") },
+        { key: "business_at", label: t("receipts.field.businessAt") },
         { key: "project_code", label: t("receipts.field.project") },
         { key: "supplier_name", label: t("receipts.field.supplier") },
         { key: "category_name", label: t("receipts.field.category") },
+        {
+          key: "movement_type",
+          label: t("receipts.field.movementType"),
+          values: { ENTRY: t("receipts.movement.ENTRY"), RETURN: t("receipts.movement.RETURN") },
+        },
         { key: "material_name", label: t("receipts.field.materialName") },
+        { key: "material_specification", label: t("receipts.field.materialSpecification") },
         { key: "quantity", label: t("receipts.field.quantity") },
         { key: "cumulative_quantity", label: t("receipts.field.cumulativeQuantity") },
         {
@@ -336,6 +371,10 @@ export function Receipts() {
         }
       />
 
+      <MaterialTabs />
+      {tab === "totals" ? (
+        <NetTotalsView project={list.filters.project} />
+      ) : (
       <DataTable
         columns={columns}
         rows={data?.results ?? []}
@@ -374,6 +413,7 @@ export function Receipts() {
             <QueryFailedNote query={categories} what={t("receipts.what.columns")} />
             {/* By the delivery's own state (T-293, T-295). 已结案 is accepted,
                 because acceptance is what closes a receipt - not payment. */}
+            {tab === "in" && (
             <Select
               value={list.filters.acceptance ?? ALL_STATES}
               onValueChange={(value) =>
@@ -387,9 +427,9 @@ export function Receipts() {
                 <SelectItem value={ALL_STATES}>{t("receipts.allStates")}</SelectItem>
                 <SelectItem value="PENDING">{t("receipts.acceptance.status.PENDING")}</SelectItem>
                 <SelectItem value="ACCEPTED">{t("receipts.filter.closed")}</SelectItem>
-                <SelectItem value="REJECTED">{t("receipts.filter.rejected")}</SelectItem>
               </SelectContent>
             </Select>
+            )}
             {can("report.export") ? (
               <ExportButton onExport={runExport} disabled={totalCount === 0} />
             ) : null}
@@ -401,7 +441,7 @@ export function Receipts() {
         onPageSizeChange={list.setPageSize}
         onClearFilters={list.clearFilters}
       />
-
+      )}
     </div>
   );
 }

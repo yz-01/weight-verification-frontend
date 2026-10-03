@@ -28,6 +28,9 @@ import {
   Plus,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
+
+import { MaterialTabs } from "@/components/receipts/material-tabs";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -372,6 +375,16 @@ export function MaterialOutgoingOffice() {
               onClick={() => setCreating(true)}
             />
           ) : undefined
+        }
+        // Material Out in 材料管理's tabs (B09). Returns typed 退场 on the
+        // receipt form before 10-02 are listed on their own, one click away.
+        above={
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <MaterialTabs />
+            <Link href="/receipts?direction=OUT" className="text-xs text-primary underline-offset-2 hover:underline">
+              {tRoot("receipts.tabs.legacyReturns")}
+            </Link>
+          </div>
         }
         list={list}
         columns={columns}
