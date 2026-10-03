@@ -56,6 +56,11 @@ test("a phone-raised hazard is confirmed on the phone by its confirmer", async (
 
   const dialog = page.getByRole("dialog", { name: "Verify rectification" });
   await expect(dialog).toBeVisible();
+  // Let the page's own reads finish first. The local suite runs on SQLite,
+  // which refuses a write that starts while another request is writing
+  // (「database is locked」) instead of waiting for it; production runs on
+  // Postgres, which waits.
+  await page.waitForLoadState("networkidle");
   await dialog.getByRole("button", { name: "Verify and complete" }).click();
   await expect(dialog).toBeHidden({ timeout: 20_000 });
 
