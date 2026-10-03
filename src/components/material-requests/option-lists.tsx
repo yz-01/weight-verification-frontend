@@ -65,7 +65,7 @@ export function OptionListsDialog({ onClose }: { onClose: () => void }) {
             onSelect={setMaterialId}
           />
           <OptionColumn
-            title={chosen ? t("specificationsOf", { material: chosen.name }) : t("specifications")}
+            title={chosen ? t("specificationsOf", { material: chosen.name }) : t("specificationList")}
             kind="SPECIFICATION"
             parent={chosen?.id ?? null}
             rows={specifications}

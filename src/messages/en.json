@@ -14783,7 +14783,7 @@
       "title": "Material lists",
       "help": "What the MR form offers: materials, each material's specifications, and units. Switch an option off to retire it; requests already sent keep their own words.",
       "materials": "Materials / products",
-      "specifications": "Specifications",
+      "specificationList": "Specifications",
       "specificationsOf": "Specifications of {material}",
       "units": "Units",
       "builtIn": "built in",
