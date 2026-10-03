@@ -3066,7 +3066,8 @@
       "SITE_RECORD": "Rekod tapak",
       "SITE_EQUIPMENT": "Peralatan",
       "DOCUMENT": "Dokumen",
-      "CLAIM": "Tuntutan kemajuan"
+      "CLAIM": "Tuntutan kemajuan",
+      "MATERIAL_RETURN": "Bahan dipulangkan"
     },
     "lastPage": "Anda berada di halaman terakhir.",
     "loading": "Memuatkan…",
@@ -7049,7 +7050,8 @@
       "column_wrong_module": "“{column}” milik modul lain. Pilih ruangan daripada modul ini.",
       "column_other_project": "Ruangan itu bukan dalam projek rekod ini. Pilih satu daripada projek yang sama.",
       "column_inactive": "“{column}” sudah ditutup. Pilih ruangan yang aktif.",
-      "conversation_closed": "Rekod ini telah selesai, jadi perbualannya ditutup. Ia masih boleh dibaca; buka rekod baharu untuk perkara lanjut."
+      "conversation_closed": "Rekod ini telah selesai, jadi perbualannya ditutup. Ia masih boleh dibaca; buka rekod baharu untuk perkara lanjut.",
+      "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7561,7 +7563,14 @@
       "noColumnsYet": "Tapak ini belum ada kategori bahan. Tambah yang pertama di bawah.",
       "newColumnName": "Nama kategori baharu",
       "addColumn": "Tambah kategori",
-      "columnOffline": "Luar talian: pilih kategori sedia ada. Kategori baharu memerlukan sambungan."
+      "columnOffline": "Luar talian: pilih kategori sedia ada. Kategori baharu memerlukan sambungan.",
+      "reject": {
+        "toggle": "Barang salah - Tolak",
+        "help": "Tolak penghantaran ini di pintu masuk. Kedua-dua pihak tetap menandatangani; rekod disimpan dan tidak dikira.",
+        "reason": "Sebab ditolak",
+        "reasonPlaceholder": "cth. gred salah, rosak, kuantiti kurang",
+        "submit": "Tolak dan hantar"
+      }
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -9112,7 +9121,9 @@
       "processing_note": "Nota pemprosesan dari tapak",
       "amount": "Jumlah",
       "paid_by": "Bayaran disahkan oleh",
-      "paid_at": "Dibayar pada"
+      "paid_at": "Dibayar pada",
+      "returned_quantity": "Kuantiti dipulangkan",
+      "source_receipt_no": "Penerimaan asal"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -10783,7 +10794,8 @@
       "moneyNote": "Penolakan menandakan penghantaran dan mengiranya di halaman utama. Ia tidak mengubah jumlah atau status pembayaran — itu kekal keputusan yang dibuat seseorang dengan sengaja.",
       "alreadyAccepted": "Penghantaran ini telah pun diterima.",
       "armReject": "Benarkan penolakan penerimaan ini",
-      "armRejectHelp": "Hidupkan hanya apabila bahan tidak menepati spesifikasi. Ia membuka sebab dan butang tolak."
+      "armRejectHelp": "Hidupkan hanya apabila bahan tidak menepati spesifikasi. Ia membuka sebab dan butang tolak.",
+      "rejectedAtGate": "Ditolak di pintu masuk oleh tapak, dengan kedua-dua tandatangan. Keputusan ini muktamad."
     },
     "addPhoto": {
       "caption": "Nota (pilihan)",
@@ -10804,7 +10816,25 @@
       "supersededLink": "Buka resit yang dibetulkan {name}",
       "supersededTitle": "Resit ini telah dibetulkan",
       "supersedes": "Membetulkan resit terdahulu",
-      "title": "Sebab pembetulan"
+      "title": "Sebab pembetulan",
+      "trailTitle": "Sejarah pembetulan (Audit Trail)",
+      "trailOriginal": "Rekod asal {name}, dihantar {when}. Ia disimpan tanpa perubahan.",
+      "trailBy": "dibetulkan oleh {name} pada {when}",
+      "fields": {
+        "movement_type": "Jenis",
+        "return_reason": "Sebab dipulangkan",
+        "category": "Kategori",
+        "material_name": "Bahan",
+        "material_specification": "Spesifikasi",
+        "quantity": "Kuantiti",
+        "unit": "Unit",
+        "total_weight_kg": "Jumlah berat (kg)",
+        "unit_price": "Harga seunit",
+        "vehicle_plate": "No. kenderaan",
+        "delivery_note_no": "No. nota hantaran",
+        "notes": "Catatan",
+        "received_by_name": "Diterima oleh"
+      }
     },
     "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
     "createTitle": "Rekod penerimaan",
@@ -10845,7 +10875,10 @@
       "totalWeightKg": "Jumlah berat (kg)",
       "unit": "Unit",
       "unitPrice": "Harga seunit",
-      "vehiclePlate": "Kenderaan"
+      "vehiclePlate": "Kenderaan",
+      "businessAt": "Tarikh penghantaran",
+      "movementType": "Jenis",
+      "returnReason": "Sebab dipulangkan"
     },
     "locationCaptured": "Lokasi direkod",
     "locationMissing": "Tiada lokasi",
@@ -10921,6 +10954,26 @@
       "suppliers": "Senarai pembekal",
       "dockets": "Senarai nota hantar",
       "columns": "Senarai ruangan"
+    },
+    "movement": {
+      "ENTRY": "Bahan masuk",
+      "RETURN": "Bahan dipulangkan"
+    },
+    "tabs": {
+      "label": "Pengurusan bahan",
+      "in": "Material In",
+      "out": "Material Out",
+      "reject": "Reject",
+      "totals": "Jumlah bersih",
+      "legacyReturns": "Pemulangan yang direkod melalui borang terimaan sebelum 10-02"
+    },
+    "net": {
+      "title": "Kuantiti bersih mengikut bahan",
+      "note": "Bersih = penghantaran masuk (yang ditolak tidak dikira) tolak pemulangan kepada pembekal, setiap pemulangan ditolak sekali daripada penghantaran asalnya. Unit berbeza tidak dicampur.",
+      "received": "Masuk",
+      "returned": "Dipulangkan",
+      "net": "Bersih",
+      "rejected": "Ditolak (tidak dikira)"
     }
   },
   "recyclerBusiness": {

@@ -138,6 +138,8 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       qr_code?: string | null;
       movement_type?: "ENTRY" | "RETURN";
       return_reason?: string;
+      acceptance_status?: "REJECTED";
+      rejection_reason?: string;
       material_name: string;
       material_specification?: string;
       quantity: string;

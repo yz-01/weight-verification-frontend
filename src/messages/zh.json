@@ -3066,7 +3066,8 @@
       "SITE_RECORD": "现场记录",
       "SITE_EQUIPMENT": "机械设备",
       "DOCUMENT": "文件",
-      "CLAIM": "进度 Claim"
+      "CLAIM": "进度 Claim",
+      "MATERIAL_RETURN": "材料退场"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "载入中…",
@@ -7049,7 +7050,8 @@
       "column_wrong_module": "「{column}」属于其他模块，请选择本模块的分类。",
       "column_other_project": "该分类不属于此记录的项目，请选择同一项目的分类。",
       "column_inactive": "「{column}」已停用，请选择启用中的分类。",
-      "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。"
+      "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。",
+      "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7561,7 +7563,14 @@
       "noColumnsYet": "这个工地还没有材料分类。在下面新增第一个。",
       "newColumnName": "新分类名称",
       "addColumn": "新增分类",
-      "columnOffline": "离线时请选择已有分类，新增分类需要网络连接。"
+      "columnOffline": "离线时请选择已有分类，新增分类需要网络连接。",
+      "reject": {
+        "toggle": "当天货不对 · Reject",
+        "help": "在交接时直接退回这批货。双方仍要签名；记录保留，不计入累计。",
+        "reason": "Reject 原因",
+        "reasonPlaceholder": "例如：规格不对、损坏、数量不足",
+        "submit": "Reject 并提交"
+      }
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -9112,7 +9121,9 @@
       "processing_note": "现场处理说明",
       "amount": "金额",
       "paid_by": "确认付款人",
-      "paid_at": "付款时间"
+      "paid_at": "付款时间",
+      "returned_quantity": "实际退回数量",
+      "source_receipt_no": "原进场记录"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -10783,7 +10794,8 @@
       "moneyNote": "判为不合格会标记这批货并计入首页统计，但不会改动金额或付款状态 —— 改钱的动作要由人明确按下去。",
       "alreadyAccepted": "这批材料已经验收通过了。",
       "armReject": "允许退回这笔收货",
-      "armRejectHelp": "材料不符规格才打开。打开后才能填写原因并退回。"
+      "armRejectHelp": "材料不符规格才打开。打开后才能填写原因并退回。",
+      "rejectedAtGate": "现场交接时已当场 Reject（双方已签名），不能再更改。"
     },
     "addPhoto": {
       "caption": "备注（可不填）",
@@ -10804,7 +10816,25 @@
       "supersededLink": "打开更正后的收货单 {name}",
       "supersededTitle": "这张收货单已经被更正",
       "supersedes": "更正自另一张收货单",
-      "title": "为什么要更正"
+      "title": "为什么要更正",
+      "trailTitle": "更正记录（Audit Trail）",
+      "trailOriginal": "原记录 {name}，业务日期 {when}，原记录保留不变。",
+      "trailBy": "{name} 于 {when} 更正",
+      "fields": {
+        "movement_type": "类型",
+        "return_reason": "退场原因",
+        "category": "分类",
+        "material_name": "材料",
+        "material_specification": "规格",
+        "quantity": "数量",
+        "unit": "单位",
+        "total_weight_kg": "总重量（公斤）",
+        "unit_price": "单价",
+        "vehicle_plate": "车牌",
+        "delivery_note_no": "送货单号",
+        "notes": "备注",
+        "received_by_name": "收货人"
+      }
     },
     "count": "{count, plural, =0 {暂无材料进场记录} other {# 条材料进场记录}}",
     "createTitle": "记录材料进场",
@@ -10845,7 +10875,10 @@
       "totalWeightKg": "总重量（公斤）",
       "unit": "单位",
       "unitPrice": "单价",
-      "vehiclePlate": "车牌"
+      "vehiclePlate": "车牌",
+      "businessAt": "业务日期",
+      "movementType": "类型",
+      "returnReason": "退场原因"
     },
     "locationCaptured": "已记录位置",
     "locationMissing": "无位置",
@@ -10921,6 +10954,26 @@
       "suppliers": "供应商列表",
       "dockets": "送货单二维码列表",
       "columns": "分类列表"
+    },
+    "movement": {
+      "ENTRY": "材料进场",
+      "RETURN": "材料退场"
+    },
+    "tabs": {
+      "label": "材料管理",
+      "in": "Material In 进场",
+      "out": "Material Out 退场",
+      "reject": "Reject 不合格",
+      "totals": "累计净数量",
+      "legacyReturns": "10-02 前用进场单登记的退场记录"
+    },
+    "net": {
+      "title": "按材料汇总的累计净数量",
+      "note": "净数量 = 正常进场（Reject 不计入）− 关联原进场的正式退场（只扣一次）。不同单位不混加。",
+      "received": "进场",
+      "returned": "退场",
+      "net": "净数量",
+      "rejected": "Reject（不计入）"
     }
   },
   "recyclerBusiness": {

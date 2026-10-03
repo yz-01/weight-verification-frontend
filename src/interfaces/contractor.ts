@@ -305,6 +305,11 @@ export interface MaterialReceipt {
   received_by_name: string;
   /** Stamped by the platform, never by the device that filed the receipt. */
   captured_at: string;
+  /**
+   * The delivery's own day (B10, E05). A correction keeps the original's
+   * day here; its own `captured_at` is when the correction was made.
+   */
+  business_at?: string;
   has_location: boolean;
   /**
    * Whether *the person asking* has read this delivery.
@@ -323,6 +328,20 @@ export interface MaterialReceipt {
   acceptance_status?: MaterialAcceptance;
   /** Shown in the list itself (T-293): 「拒绝原因直接显示在列表上，不用点进去」. */
   rejection_reason?: string;
+  /** SITE: turned away at the gate (D08), final; OFFICE: 材料不符规格退回. */
+  rejection_source?: "" | "SITE" | "OFFICE";
+}
+
+/** One correction in a delivery's Audit Trail (B10, E05). */
+export interface ReceiptCorrectionStep {
+  id: string;
+  receipt_no: string;
+  supersedes_receipt_no: string;
+  corrected_by_name: string;
+  corrected_at: string;
+  reason: string;
+  /** Field name to `[before, after]`. */
+  changes: Record<string, [string, string]>;
 }
 
 /**
@@ -446,6 +465,11 @@ export interface MaterialReceiptDetail extends MaterialReceipt {
    * current while its figures have been corrected away.
    */
   superseded_by?: { id: string; receipt_no: string } | null;
+  /** From the first record to the one that counts; null when never corrected. */
+  correction_trail?: {
+    original: { id: string; receipt_no: string; business_at: string };
+    corrections: ReceiptCorrectionStep[];
+  } | null;
   delivery_note_no: string;
   notes: string;
   signature: string | null;
@@ -470,6 +494,9 @@ export interface MaterialReceiptPayload {
   qr_code?: string | null;
   movement_type?: "ENTRY" | "RETURN";
   return_reason?: string;
+  /** A load turned away at the gate (10-02 D08). */
+  acceptance_status?: "REJECTED";
+  rejection_reason?: string;
   material_name: string;
   material_specification?: string;
   quantity: string;

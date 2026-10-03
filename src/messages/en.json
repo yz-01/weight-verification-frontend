@@ -3066,7 +3066,8 @@
       "SITE_RECORD": "Site record",
       "SITE_EQUIPMENT": "Equipment",
       "DOCUMENT": "Document",
-      "CLAIM": "Progress claim"
+      "CLAIM": "Progress claim",
+      "MATERIAL_RETURN": "Material return"
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading…",
@@ -7049,7 +7050,8 @@
       "column_wrong_module": "“{column}” belongs to another module. Choose a category from this module.",
       "column_other_project": "That category is not in this record's project. Choose one from the same project.",
       "column_inactive": "“{column}” is closed. Choose an open category.",
-      "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further."
+      "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further.",
+      "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7561,7 +7563,14 @@
       "noColumnsYet": "This site has no material categories yet. Add the first one below.",
       "newColumnName": "New category name",
       "addColumn": "Add category",
-      "columnOffline": "Offline: choose an existing category. A new category needs a connection."
+      "columnOffline": "Offline: choose an existing category. A new category needs a connection.",
+      "reject": {
+        "toggle": "Goods wrong - Reject",
+        "help": "Turn this delivery away at the gate. Both sides still sign; it is kept on record and not counted.",
+        "reason": "Why it is rejected",
+        "reasonPlaceholder": "e.g. wrong grade, damaged, short quantity",
+        "submit": "Reject and submit"
+      }
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -9112,7 +9121,9 @@
       "processing_note": "Processing note from site",
       "amount": "Amount",
       "paid_by": "Payment confirmed by",
-      "paid_at": "Paid on"
+      "paid_at": "Paid on",
+      "returned_quantity": "Quantity sent back",
+      "source_receipt_no": "Original delivery"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -10783,7 +10794,8 @@
       "moneyNote": "Rejecting flags the delivery and counts it on the home page. It does not change the amount or the payment status — that stays a decision somebody makes on purpose.",
       "alreadyAccepted": "This delivery has already been accepted.",
       "armReject": "Allow rejecting this delivery",
-      "armRejectHelp": "Turn this on only when the material is off specification. It unlocks the reason and the reject button."
+      "armRejectHelp": "Turn this on only when the material is off specification. It unlocks the reason and the reject button.",
+      "rejectedAtGate": "Rejected at the gate by the site, with both signatures. This decision is final."
     },
     "addPhoto": {
       "caption": "Note (optional)",
@@ -10804,7 +10816,25 @@
       "supersededLink": "Open the corrected receipt {name}",
       "supersededTitle": "This receipt has been corrected",
       "supersedes": "Corrects an earlier receipt",
-      "title": "Why this correction"
+      "title": "Why this correction",
+      "trailTitle": "Correction history (Audit Trail)",
+      "trailOriginal": "Original record {name}, delivered {when}. It is kept unchanged.",
+      "trailBy": "corrected by {name} at {when}",
+      "fields": {
+        "movement_type": "Type",
+        "return_reason": "Return reason",
+        "category": "Column",
+        "material_name": "Material",
+        "material_specification": "Specification",
+        "quantity": "Quantity",
+        "unit": "Unit",
+        "total_weight_kg": "Total weight (kg)",
+        "unit_price": "Unit price",
+        "vehicle_plate": "Vehicle plate",
+        "delivery_note_no": "Delivery order no.",
+        "notes": "Notes",
+        "received_by_name": "Received by"
+      }
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
     "createTitle": "Record a delivery",
@@ -10845,7 +10875,10 @@
       "totalWeightKg": "Total weight (kg)",
       "unit": "Unit",
       "unitPrice": "Unit price",
-      "vehiclePlate": "Vehicle"
+      "vehiclePlate": "Vehicle",
+      "businessAt": "Delivery date",
+      "movementType": "Type",
+      "returnReason": "Return reason"
     },
     "locationCaptured": "Location captured",
     "locationMissing": "No location",
@@ -10921,6 +10954,26 @@
       "suppliers": "The supplier list",
       "dockets": "The delivery dockets",
       "columns": "The category list"
+    },
+    "movement": {
+      "ENTRY": "Material in",
+      "RETURN": "Material return"
+    },
+    "tabs": {
+      "label": "Material management",
+      "in": "Material In",
+      "out": "Material Out",
+      "reject": "Reject",
+      "totals": "Net totals",
+      "legacyReturns": "Returns filed on the receipt form before 10-02"
+    },
+    "net": {
+      "title": "Net quantity by material",
+      "note": "Net = deliveries in (rejected ones not counted) less returns to the supplier, each return taken off its own delivery once. Different units are never added together.",
+      "received": "In",
+      "returned": "Returned",
+      "net": "Net",
+      "rejected": "Rejected (not counted)"
     }
   },
   "recyclerBusiness": {
