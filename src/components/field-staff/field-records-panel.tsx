@@ -58,6 +58,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { missingSiteEntry, siteEntryRequired } from "@/lib/material-site-entry";
@@ -258,6 +259,9 @@ interface MaterialDraft {
   vehiclePlate: string;
   deliveryNoteNo: string;
   notes: string;
+  /** 当天货不对 (10-02 D08): this delivery is being turned away, not taken in. */
+  rejecting?: boolean;
+  rejectionReason?: string;
 }
 
 const EMPTY_MATERIAL: MaterialDraft = {
@@ -275,6 +279,8 @@ const EMPTY_MATERIAL: MaterialDraft = {
   vehiclePlate: "",
   deliveryNoteNo: "",
   notes: "",
+  rejecting: false,
+  rejectionReason: "",
 };
 
 function MaterialCapturePanel({
@@ -506,14 +512,22 @@ function MaterialCapturePanel({
   });
 
 
-  // A delivery (ENTRY) needs plate, DO number and both signatures (D-280).
-  const siteEntry = siteEntryRequired(draft.movementType);
-  const missingEntry = missingSiteEntry(draft.movementType, {
-    vehiclePlate: draft.vehiclePlate,
-    deliveryNoteNo: draft.deliveryNoteNo,
-    receiverSignature,
-    supplierSignature,
-  });
+  // This form only takes deliveries in (A01); a return to the supplier is
+  // its own application under 材料退场. A delivery needs plate, DO number and
+  // both signatures (D-280); one turned away at the gate (D08) only the two
+  // signatures.
+  const rejecting = Boolean(draft.rejecting);
+  const siteEntry = siteEntryRequired("ENTRY") && !rejecting;
+  const missingEntry = missingSiteEntry(
+    "ENTRY",
+    {
+      vehiclePlate: draft.vehiclePlate,
+      deliveryNoteNo: draft.deliveryNoteNo,
+      receiverSignature,
+      supplierSignature,
+    },
+    { rejecting },
+  );
 
   const save = useMutation({
     mutationFn: () => {
@@ -526,13 +540,11 @@ function MaterialCapturePanel({
           project: draft.project,
           supplier: draft.supplier,
           qr_code: qrCode?.id ?? null,
-          movement_type: draft.movementType,
-          return_reason:
-            draft.movementType === "RETURN"
-              ? draft.returnReason === "OTHER"
-                ? draft.returnReasonOther.trim()
-                : draft.returnReason
-              : "",
+          movement_type: "ENTRY",
+          return_reason: "",
+          // Same form, other button (D08): recorded and rejected in one step.
+          acceptance_status: rejecting ? "REJECTED" : undefined,
+          rejection_reason: rejecting ? (draft.rejectionReason ?? "").trim() : undefined,
           material_name: draft.materialName.trim(),
           material_specification: draft.materialSpecification.trim(),
           quantity: draft.quantity,
@@ -658,62 +670,12 @@ function MaterialCapturePanel({
           </p>
         )}
       </FieldWrapper>
-      <div className="grid grid-cols-2 gap-3">
-        <FieldWrapper label={t("material.direction")} required>
-          <Select value={draft.movementType} onValueChange={(movementType) => setDraft((old) => ({ ...old, movementType: movementType as MaterialDraft["movementType"] }))}>
-            <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
-            <SelectContent><SelectItem value="ENTRY">{t("material.entry")}</SelectItem><SelectItem value="RETURN">{t("material.return")}</SelectItem></SelectContent>
-          </Select>
-        </FieldWrapper>
-        <FieldWrapper label={t("material.unit")} required>
-          <Select value={draft.unit} onValueChange={(unit) => setDraft((old) => ({ ...old, unit: unit as MaterialUnit }))}>
-            <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>{MATERIAL_UNITS.map((unit) => <SelectItem key={unit} value={unit}>{allT(`receipts.unit.${unit}`)}</SelectItem>)}</SelectContent>
-          </Select>
-        </FieldWrapper>
-      </div>
-      {draft.movementType === "RETURN" ? (
-        <div className="space-y-3 rounded-lg border border-warning/30 bg-warning/5 p-3">
-          <FieldWrapper label={t("material.returnReason")} required>
-            <Select
-              value={draft.returnReason || undefined}
-              onValueChange={(returnReason) =>
-                setDraft((old) => ({
-                  ...old,
-                  returnReason,
-                  returnReasonOther:
-                    returnReason === "OTHER" ? old.returnReasonOther : "",
-                }))
-              }
-            >
-              <SelectTrigger className="h-12 w-full">
-                <SelectValue placeholder={t("material.chooseReturnReason")} />
-              </SelectTrigger>
-              <SelectContent>
-                {["QUALITY_REJECTED", "WRONG_DELIVERY", "DAMAGED", "EXCESS_MATERIAL", "OTHER"].map((reason) => (
-                  <SelectItem key={reason} value={reason}>
-                    {t(`material.returnReasonOption.${reason}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          {draft.returnReason === "OTHER" ? (
-            <FieldWrapper label={t("material.returnReasonOther")} required>
-              <Input
-                className="h-12"
-                value={draft.returnReasonOther}
-                onChange={(event) =>
-                  setDraft((old) => ({
-                    ...old,
-                    returnReasonOther: event.target.value,
-                  }))
-                }
-              />
-            </FieldWrapper>
-          ) : null}
-        </div>
-      ) : null}
+      <FieldWrapper label={t("material.unit")} required>
+        <Select value={draft.unit} onValueChange={(unit) => setDraft((old) => ({ ...old, unit: unit as MaterialUnit }))}>
+          <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
+          <SelectContent>{MATERIAL_UNITS.map((unit) => <SelectItem key={unit} value={unit}>{allT(`receipts.unit.${unit}`)}</SelectItem>)}</SelectContent>
+        </Select>
+      </FieldWrapper>
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
       {ocrLineItems.length > 0 && (
@@ -845,10 +807,36 @@ function MaterialCapturePanel({
         required
       />
       <Textarea value={draft.notes} onChange={(event) => setDraft((old) => ({ ...old, notes: event.target.value }))} placeholder={t("material.notes")} />
+      {/* 当天货不对 (10-02 D08): the same delivery, turned away here with
+          both signatures - no return application, no conversation first. It
+          stays on record and never counts as received. */}
+      <div className={`space-y-3 rounded-lg border p-3 ${rejecting ? "border-destructive/40 bg-destructive/5" : ""}`}>
+        <label className="flex items-center justify-between gap-3">
+          <span className="text-sm">
+            <span className="font-medium">{t("material.reject.toggle")}</span>
+            <span className="block text-xs text-muted-foreground">{t("material.reject.help")}</span>
+          </span>
+          <Switch
+            checked={rejecting}
+            onCheckedChange={(next) => setDraft((old) => ({ ...old, rejecting: next, rejectionReason: next ? old.rejectionReason : "" }))}
+            aria-label={t("material.reject.toggle")}
+          />
+        </label>
+        {rejecting && (
+          <FieldWrapper label={t("material.reject.reason")} required>
+            <Input
+              className="h-12"
+              value={draft.rejectionReason ?? ""}
+              placeholder={t("material.reject.reasonPlaceholder")}
+              onChange={(event) => setDraft((old) => ({ ...old, rejectionReason: event.target.value }))}
+            />
+          </FieldWrapper>
+        )}
+      </div>
       {error && <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
-      <Button className="h-12 w-full text-sm" requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [draft.movementType === "ENTRY" || draft.returnReason, t("material.returnReason")], [draft.movementType === "ENTRY" || draft.returnReason !== "OTHER" || draft.returnReasonOther, t("material.returnReasonOther")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.reading} onClick={() => save.mutate()}>
+      <Button className="h-12 w-full text-sm" variant={rejecting ? "destructive" : "default"} requires={[[draft.project, t("material.project")], [draft.category, t("material.column")], [draft.supplier, t("material.supplier")], [draft.materialName, t("material.name")], [Number(draft.quantity) > 0, t("material.quantity")], [!rejecting || (draft.rejectionReason ?? "").trim(), t("material.reject.reason")], [!missingEntry.includes("vehiclePlate"), t("material.vehicle")], [!missingEntry.includes("deliveryNoteNo"), t("material.doNo")], [!missingEntry.includes("receiverSignature"), t("material.receiverSignature")], [!missingEntry.includes("supplierSignature"), t("material.supplierSignature")], [hasRequiredFieldEvidence(materialEvidence), t("materialEvidence.title")], [location, t("material.location")]]} disabled={save.isPending || ocr.reading} onClick={() => save.mutate()}>
         {save.isPending ? <Loader2 className="animate-spin" /> : <PackageOpen />}
-        {t("material.submit")}
+        {rejecting ? t("material.reject.submit") : t("material.submit")}
       </Button>
       <SupplierQrScanner
         open={scannerOpen}

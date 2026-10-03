@@ -3066,7 +3066,8 @@
       "SITE_RECORD": "Site record",
       "SITE_EQUIPMENT": "Equipment",
       "DOCUMENT": "Document",
-      "CLAIM": "Progress claim"
+      "CLAIM": "Progress claim",
+      "MATERIAL_RETURN": "Material return"
     },
     "lastPage": "You are on the last page.",
     "loading": "Loading…",
@@ -3094,7 +3095,9 @@
       "notApplicable": "Not archived by anyone"
     },
     "notInQueue": "This record is not finished yet, so it is not on your to-see list. You can mark it as seen once it is finished.",
-    "categoryManagement": "Category management"
+    "categoryManagement": "Category management",
+    "openPhoto": "Open the photo",
+    "noPhoto": "No photo"
   },
   "assets": {
     "category": {
@@ -4799,7 +4802,9 @@
         "relatedRecords": "Linked site records",
         "revisions": "Revision history",
         "site": "Site request"
-      }
+      },
+      "raisedOnSite": "Raised on site by {name} {when}",
+      "forwardedBy": "Sent to the consultant by {name} {when}"
     },
     "evidence": {
       "selectPhotos": "Photos to link",
@@ -5466,7 +5471,27 @@
       },
       "takeDeliveryNote": "Take delivery note photo",
       "title": "Equipment movement",
-      "photoMinimum": "At least {min} photos, the delivery-order photo included; no upper limit."
+      "photoMinimum": "At least {min} photos, the delivery-order photo included; no upper limit.",
+      "applyNew": "Apply: new machine in",
+      "applyEntry": "Apply to bring in",
+      "applyExit": "Apply to take out",
+      "applyEntryTitle": "Apply to bring in {name}",
+      "applyExitTitle": "Apply to take out {name}",
+      "applyNewTitle": "Apply to bring in a new machine",
+      "applyHelp": "The office approves or returns the application. At the actual handover, the site person and the supplier / driver both sign, with at least 4 photos.",
+      "applySubmit": "Submit application",
+      "applyFailed": "The application was not sent. Please try again.",
+      "chooseSupplier": "Choose the supplier",
+      "handover": "Hand over (both sign)",
+      "handoverHelp": "The application is approved. Take at least 4 photos (more are fine) and both signatures at the handover; the machine is on or off site from this moment.",
+      "handoverSubmit": "Submit handover",
+      "siteSignature": "Site signature",
+      "supplierSignature": "Supplier / driver signature",
+      "returnAction": "Return",
+      "returnReason": "Why it is returned",
+      "returnConfirm": "Return - the application ends",
+      "requestedBy": "Applied by",
+      "reviewedBy": "Approved / returned by"
     },
     "equipmentEvidence": {
       "condition": "4. Equipment condition detail",
@@ -5559,7 +5584,9 @@
       "title": "Task title",
       "unit": "Unit",
       "vehiclePlate": "Vehicle plate",
-      "workLocation": "Work area / location"
+      "workLocation": "Work area / location",
+      "pmaExpiresOn": "PMA expires on",
+      "permitExpiresOn": "Permit expires on"
     },
     "filing": {
       "action": "File under a category",
@@ -5574,8 +5601,8 @@
       "unfiled": "Not filed yet"
     },
     "outgoing": {
-      "add": "New outgoing request",
-      "createTitle": "Request material outgoing",
+      "add": "New return application",
+      "createTitle": "Apply to send material back",
       "evidence": {
         "loading": "4. Loading or gate activity",
         "other": "Other site photo",
@@ -5588,45 +5615,60 @@
       "executor": "Executor",
       "fieldFormHelp": "Enter only the essential details, complete at least four evidence photos and capture GPS. The executor is recorded automatically.",
       "formHelp": "Name the person carrying out the movement as the executor and capture the current location.",
-      "subtitle": "Request, approve and release non-waste material leaving a project.",
+      "subtitle": "Return delivered material to its supplier: apply, approve, then sign at the handover.",
       "title": "Material outgoing",
       "rejectTitle": "Send this application back",
       "rejectHelp": "Application {reference} ends here. It is not reopened — a new application is raised instead — so this reason is what the applicant is left with.",
       "rejectReason": "Reason for sending it back",
       "viewDetail": "Details",
-      "returnProcessing": "Send back processing photos",
-      "waitingForSite": "Approved. Waiting for the site to deal with the material and send photos back.",
+      "returnProcessing": "Hand over (both sign)",
+      "waitingForSite": "Approved - waiting for the lorry and the handover on site.",
       "finalConfirm": "Final confirmation",
       "waitingForOffice": "Photos sent back. Waiting for the office's final confirmation.",
-      "returnHelp": "Application {reference} is approved. Deal with the material, then photograph what was done. The office confirms from these photos.",
-      "processingPhotos": "Photos after processing",
+      "returnHelp": "{reference} is approved. When the material leaves, enter how much went, photograph it, and take both signatures. Submitting ends the return.",
+      "processingPhotos": "Photos at the handover",
       "processingNote": "Note from site",
       "processingLocation": "Location",
       "processingLocationReady": "Location captured",
-      "sendReturn": "Send back",
-      "returnFailed": "The photos could not be sent. Try again.",
+      "sendReturn": "Submit (ends the return)",
+      "returnFailed": "The handover was not saved. Please try again.",
       "uploadFiles": "Upload files",
       "referenceNo": "No.",
       "submittedBy": "Submitted by",
       "capturedAt": "Submitted at",
       "reviewNote": "Office note",
-      "completedBy": "Confirmed by",
+      "completedBy": "Completed by",
       "stage": {
         "APPLICATION": "With the application",
-        "PROCESSING": "Sent back after processing",
+        "PROCESSING": "Photos at the handover",
         "OFFICE": "Added by the office"
       },
       "flowTitle": "Steps",
       "approvedBy": "Approved by",
-      "processedBy": "Processed on site by"
+      "processedBy": "Handed over by",
+      "returnFormHelp": "Choose the supplier, then the delivery being sent back - material, specification and unit come from it. Enter how much to send back. The office approves; the lorry is loaded and both sides sign when it leaves.",
+      "supplier": "Supplier",
+      "chooseSupplier": "Choose the supplier",
+      "sourceReceipt": "Original delivery",
+      "chooseSourceReceipt": "Choose the delivery being sent back",
+      "remaining": "{quantity} {unit} left",
+      "noReturnable": "No delivery from this supplier on this project has anything left to send back.",
+      "specification": "Specification",
+      "returnQuantity": "Quantity to send back",
+      "tooMuch": "Only {quantity} {unit} of this delivery is left to send back.",
+      "reasonPlaceholder": "Why it is going back, e.g. surplus, wrong size found later",
+      "returnedQuantity": "Quantity actually sent back",
+      "siteSignature": "Site signature",
+      "supplierSignature": "Supplier / driver signature",
+      "returnAction": "Return"
     },
     "outgoingStatus": {
-      "APPROVED": "Approved",
+      "APPROVED": "Approved - waiting for the handover",
       "PENDING": "Pending approval",
-      "REJECTED": "Rejected",
+      "REJECTED": "Returned (closed)",
       "RELEASED": "Released (before the new flow)",
-      "PROCESSED": "Processed on site - waiting for final confirmation",
-      "COMPLETED": "Confirmed and closed"
+      "PROCESSED": "Processed on site (old flow) - waiting for final confirmation",
+      "COMPLETED": "Handed over - complete"
     },
     "priority": {
       "HIGH": "High",
@@ -5721,7 +5763,7 @@
       "formHelp": "Choose the project, field worker, work location, deadline and required photos.",
       "openGps": "Open GPS location",
       "photos": "Photos: {current}/{required}",
-      "prepareApplication": "Prepare consultant application",
+      "prepareApplication": "Check and send to the consultant",
       "projectFixed": "The site cannot change - the assignee is drawn from this site's team.",
       "referenceFiles": "Reference photos or files",
       "referenceHelp": "Field staff will see these before starting the task.",
@@ -5756,7 +5798,9 @@
       },
       "focused": "Showing only the task the card points to.",
       "focusedMissing": "The task the card points to is not in this list. It may be finished already, or belong to another project.",
-      "showAll": "Show all"
+      "showAll": "Show all",
+      "forwardedAs": "Sent to the consultant as {reference}",
+      "draftedAs": "Application {reference} prepared - not sent yet"
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",
@@ -5772,7 +5816,9 @@
       "saved": "Saved",
       "taskAssigned": "Task assigned",
       "taskUpdated": "Task updated",
-      "outgoingProcessed": "Processing photos sent. The office will confirm."
+      "outgoingProcessed": "Processing photos sent. The office will confirm.",
+      "movementRequested": "Application sent to the office",
+      "movementReviewed": "Application updated"
     },
     "what": {
       "roles": "The role list",
@@ -5782,7 +5828,15 @@
       "equipmentSummary": "The equipment totals",
       "progressSummary": "The progress totals",
       "phases": "The construction phase list",
-      "outgoingRecord": "This material outgoing record"
+      "outgoingRecord": "This material outgoing record",
+      "returnableReceipts": "deliveries that can be sent back",
+      "equipmentApplications": "open equipment applications"
+    },
+    "equipmentMovementStatus": {
+      "PENDING": "Waiting for approval",
+      "APPROVED": "Approved - waiting for the handover",
+      "RETURNED": "Returned - closed",
+      "COMPLETED": "Handed over"
     }
   },
   "contractorPartners": {
@@ -7049,7 +7103,8 @@
       "column_wrong_module": "“{column}” belongs to another module. Choose a category from this module.",
       "column_other_project": "That category is not in this record's project. Choose one from the same project.",
       "column_inactive": "“{column}” is closed. Choose an open category.",
-      "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further."
+      "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further.",
+      "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7561,7 +7616,14 @@
       "noColumnsYet": "This site has no material categories yet. Add the first one below.",
       "newColumnName": "New category name",
       "addColumn": "Add category",
-      "columnOffline": "Offline: choose an existing category. A new category needs a connection."
+      "columnOffline": "Offline: choose an existing category. A new category needs a connection.",
+      "reject": {
+        "toggle": "Goods wrong - Reject",
+        "help": "Turn this delivery away at the gate. Both sides still sign; it is kept on record and not counted.",
+        "reason": "Why it is rejected",
+        "reasonPlaceholder": "e.g. wrong grade, damaged, short quantity",
+        "submit": "Reject and submit"
+      }
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -9112,7 +9174,9 @@
       "processing_note": "Processing note from site",
       "amount": "Amount",
       "paid_by": "Payment confirmed by",
-      "paid_at": "Paid on"
+      "paid_at": "Paid on",
+      "returned_quantity": "Quantity sent back",
+      "source_receipt_no": "Original delivery"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -10783,7 +10847,8 @@
       "moneyNote": "Rejecting flags the delivery and counts it on the home page. It does not change the amount or the payment status — that stays a decision somebody makes on purpose.",
       "alreadyAccepted": "This delivery has already been accepted.",
       "armReject": "Allow rejecting this delivery",
-      "armRejectHelp": "Turn this on only when the material is off specification. It unlocks the reason and the reject button."
+      "armRejectHelp": "Turn this on only when the material is off specification. It unlocks the reason and the reject button.",
+      "rejectedAtGate": "Rejected at the gate by the site, with both signatures. This decision is final."
     },
     "addPhoto": {
       "caption": "Note (optional)",
@@ -10804,7 +10869,25 @@
       "supersededLink": "Open the corrected receipt {name}",
       "supersededTitle": "This receipt has been corrected",
       "supersedes": "Corrects an earlier receipt",
-      "title": "Why this correction"
+      "title": "Why this correction",
+      "trailTitle": "Correction history (Audit Trail)",
+      "trailOriginal": "Original record {name}, delivered {when}. It is kept unchanged.",
+      "trailBy": "corrected by {name} at {when}",
+      "fields": {
+        "movement_type": "Type",
+        "return_reason": "Return reason",
+        "category": "Column",
+        "material_name": "Material",
+        "material_specification": "Specification",
+        "quantity": "Quantity",
+        "unit": "Unit",
+        "total_weight_kg": "Total weight (kg)",
+        "unit_price": "Unit price",
+        "vehicle_plate": "Vehicle plate",
+        "delivery_note_no": "Delivery order no.",
+        "notes": "Notes",
+        "received_by_name": "Received by"
+      }
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
     "createTitle": "Record a delivery",
@@ -10845,7 +10928,10 @@
       "totalWeightKg": "Total weight (kg)",
       "unit": "Unit",
       "unitPrice": "Unit price",
-      "vehiclePlate": "Vehicle"
+      "vehiclePlate": "Vehicle",
+      "businessAt": "Delivery date",
+      "movementType": "Type",
+      "returnReason": "Return reason"
     },
     "locationCaptured": "Location captured",
     "locationMissing": "No location",
@@ -10921,6 +11007,26 @@
       "suppliers": "The supplier list",
       "dockets": "The delivery dockets",
       "columns": "The category list"
+    },
+    "movement": {
+      "ENTRY": "Material in",
+      "RETURN": "Material return"
+    },
+    "tabs": {
+      "label": "Material management",
+      "in": "Material In",
+      "out": "Material Out",
+      "reject": "Reject",
+      "totals": "Net totals",
+      "legacyReturns": "Returns filed on the receipt form before 10-02"
+    },
+    "net": {
+      "title": "Net quantity by material",
+      "note": "Net = deliveries in (rejected ones not counted) less returns to the supplier, each return taken off its own delivery once. Different units are never added together.",
+      "received": "In",
+      "returned": "Returned",
+      "net": "Net",
+      "rejected": "Rejected (not counted)"
     }
   },
   "recyclerBusiness": {

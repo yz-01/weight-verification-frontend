@@ -141,7 +141,8 @@ describe("clicking a column opens its records here (D-276)", () => {
   it("shows each row's reference, module, time, status and who archived it", () => {
     expect(dialog).toMatch(/\{row\.reference\}/);
     expect(dialog).toMatch(/\{row\.detail\}/);
-    expect(dialog).toMatch(/queue\(`kind\.\$\{row\.kind\}`\)/);
+    // A return is named 材料退场, not 材料进场 (B10).
+    expect(dialog).toMatch(/queue\(`kind\.\$\{recordKindKey\(row\)\}`/);
     expect(dialog).toMatch(/formatter\.dateTime\(row\.submitted_at\)/);
     expect(dialog).toMatch(/recordStatusLabel\(root, row\)/);
     expect(dialog).not.toMatch(/\{row\.status_label\}/);

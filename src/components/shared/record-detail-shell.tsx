@@ -251,7 +251,7 @@ export function RecordDetailShell({
  * stay one press away because a delivery note is usually checked against the
  * one before it. Preview, print and download sit under the picture (D-236).
  */
-function PhotoViewer({
+export function PhotoViewer({
   photos,
   index,
   reference,

@@ -40,6 +40,14 @@ describe("which fields a delivery needs", () => {
     expect(missingSiteEntry("ENTRY", { vehiclePlate: "", deliveryNoteNo: "" })).toEqual([...SITE_ENTRY_FIELDS]);
   });
 
+  it("a delivery turned away at the gate asks only for the two signatures (D08)", () => {
+    expect(missingSiteEntry("ENTRY", { vehiclePlate: "", deliveryNoteNo: "" }, { rejecting: true })).toEqual([
+      "receiverSignature",
+      "supplierSignature",
+    ]);
+    expect(missingSiteEntry("ENTRY", { ...complete, vehiclePlate: "", deliveryNoteNo: "" }, { rejecting: true })).toEqual([]);
+  });
+
   it("a return asks for none of them", () => {
     expect(siteEntryRequired("RETURN")).toBe(false);
     expect(missingSiteEntry("RETURN", { vehiclePlate: "", deliveryNoteNo: "" })).toEqual([]);
@@ -67,7 +75,9 @@ describe("the phone's material form", () => {
   });
 
   it("shows the four on the form, starred for an entry", () => {
-    expect(body).toMatch(/const siteEntry = siteEntryRequired\(draft\.movementType\)/);
+    // The form only takes deliveries in (A01); a Reject at the gate (D08)
+    // drops the plate and DO number from the stars.
+    expect(body).toMatch(/const siteEntry = siteEntryRequired\("ENTRY"\) && !rejecting/);
     expect(body).toMatch(/<FieldWrapper label=\{t\("material\.vehicle"\)\} required=\{siteEntry\}>/);
     expect(body).toMatch(/<FieldWrapper label=\{t\("material\.doNo"\)\} required=\{siteEntry\}>/);
     expect(body).toMatch(/<FieldSignaturePad label=\{t\("material\.receiverSignature"\)\}[^>]*required=\{siteEntry\}/);
@@ -83,7 +93,17 @@ describe("the phone's material form", () => {
     ]) {
       expect(body).toContain(`[!missingEntry.includes("${field}"), t("${label}")]`);
     }
-    expect(body).toMatch(/const missingEntry = missingSiteEntry\(draft\.movementType, \{[\s\S]{0,200}receiverSignature,\s*supplierSignature,/);
+    expect(body).toMatch(/const missingEntry = missingSiteEntry\(\s*"ENTRY",\s*\{[\s\S]{0,200}receiverSignature,\s*supplierSignature,[\s\S]{0,40}\{ rejecting \}/);
+  });
+
+  it("has no 进场 / 退场 choice any more (A01)", () => {
+    expect(body).not.toMatch(/t\("material\.direction"\)/);
+    expect(body).toMatch(/movement_type: "ENTRY"/);
+  });
+
+  it("can turn the delivery away with a reason and both signatures (D08)", () => {
+    expect(body).toMatch(/acceptance_status: rejecting \? "REJECTED" : undefined/);
+    expect(body).toMatch(/\[!rejecting \|\| \(draft\.rejectionReason \?\? ""\)\.trim\(\), t\("material\.reject\.reason"\)\]/);
   });
 
   it("sends both signatures with the delivery", () => {

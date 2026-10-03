@@ -100,6 +100,9 @@ function ReviewDelivery({
   // turned back off so a half-typed reason cannot survive into the next visit.
   const [rejectArmed, setRejectArmed] = useState(false);
   const status = receipt.acceptance_status ?? "PENDING";
+  // Turned away at the gate with both signatures (10-02 D08): final, so the
+  // office is shown the decision and has nothing left to press.
+  const rejectedAtGate = receipt.rejection_source === "SITE";
 
   const review = useMutation({
     mutationFn: (decision: "ACCEPTED" | "REJECTED") =>
@@ -130,6 +133,9 @@ function ReviewDelivery({
           {receipt.accepted_by_name ? ` · ${receipt.accepted_by_name}` : ""}
         </p>
 
+        {rejectedAtGate && (
+          <p className="text-xs text-muted-foreground">{t("receipts.acceptance.rejectedAtGate")}</p>
+        )}
         {/* A rejection that survives on the record without its reason tells
             the next person on site nothing they can act on, so the reason is
             shown whenever there is one - not only while deciding. */}
@@ -140,6 +146,8 @@ function ReviewDelivery({
           </p>
         )}
 
+        {!rejectedAtGate && (
+          <>
         {/* One confirming action, and a rejection behind a switch (D-208,
             C-018). The customer's words for why: 「只保留一个开/关控制。开启后，
             才允许点击【材料不符规格退回】…避免操作太敏感，防止后台人员不小心
@@ -189,8 +197,8 @@ function ReviewDelivery({
             {/* `requires` rather than a bare `disabled`, so the list that decides
                 whether it can be pressed is the same list that explains why it
                 cannot: the reason is the whole point of a rejection.
-                客户第 12 条: 规格不符要先在这条记录内沟通留痕，确认后才能退回 —
-                the conversation lives further down this same page. */}
+                No conversation first any more (10-02 D08, brief Q3): the
+                switch above is the guard. */}
             <Button
               size="sm"
               variant="destructive"
@@ -202,6 +210,8 @@ function ReviewDelivery({
               {t("receipts.acceptance.reject")}
             </Button>
           </div>
+        )}
+          </>
         )}
         {/* Said plainly, because the alternative is a site assuming a
             rejection stopped the invoice when it did not (U-028). */}
@@ -352,6 +362,9 @@ export function ViewReceipt({ id }: { id: string }) {
         <h2 className="tabular text-base font-semibold text-foreground">
           {data.receipt_no}
         </h2>
+        {/* Which way it went (B10): a return used to open on a page that
+            only ever said 材料进场. */}
+        <TypeBadge label={t(`receipts.movement.${data.movement_type}`)} />
         <TypeBadge label={t(`receipts.unit.${data.unit}`)} />
         {data.supersedes && (
           <Link
@@ -392,18 +405,22 @@ export function ViewReceipt({ id }: { id: string }) {
                 </Link>
               </div>
             )}
-            {data.correction_reason && (
+            {data.correction_trail ? (
+              <CorrectionTrail trail={data.correction_trail} currentId={data.id} />
+            ) : data.correction_reason ? (
               <p className="rounded-lg border px-4 py-2 text-sm">
                 <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
                 {data.correction_reason}
               </p>
-            )}
+            ) : null}
           </>
         }
         facts={[
           { label: t("receipts.field.project"), value: data.project_name },
           { label: t("receipts.field.materialName"), value: data.material_name },
-          { label: t("receipts.field.capturedAt"), value: df.dateTime(data.captured_at) },
+          // The delivery's own day, which a correction keeps (B10, E05); the
+          // correction's own time is in its trail above.
+          { label: t("receipts.field.businessAt"), value: df.dateTime(data.business_at ?? data.captured_at) },
           {
             label: t("receipts.field.recordedBy"),
             value: (
@@ -527,6 +544,81 @@ export function ViewReceipt({ id }: { id: string }) {
         />
       )}
     </div>
+  );
+}
+
+/**
+ * The Audit Trail of corrections (B10, E05: 更正人、更正时间、更正内容).
+ *
+ * The original stays and keeps its day; each correction is a new record that
+ * points at the one before it. Shown on every record in the chain, so a
+ * dispute opened from either end reads the same story.
+ */
+function CorrectionTrail({
+  trail,
+  currentId,
+}: {
+  trail: NonNullable<MaterialReceiptDetail["correction_trail"]>;
+  currentId: string;
+}) {
+  const t = useTranslations();
+  const df = useDateFormat();
+  const fieldLabel = (field: string) =>
+    t.has(`receipts.correction.fields.${field}`)
+      ? t(`receipts.correction.fields.${field}`)
+      : field;
+  return (
+    <section className="rounded-lg border px-4 py-3 text-sm">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("receipts.correction.trailTitle")}
+      </h3>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {t("receipts.correction.trailOriginal", {
+          name: trail.original.receipt_no,
+          when: df.dateTime(trail.original.business_at),
+        })}
+      </p>
+      <ol className="mt-2 space-y-2">
+        {trail.corrections.map((step) => (
+          <li key={step.id} className="rounded-md bg-muted/40 px-3 py-2">
+            <p className="font-medium">
+              {step.id === currentId ? (
+                step.receipt_no
+              ) : (
+                <Link href={`/receipts/${step.id}`} className="text-primary underline-offset-2 hover:underline">
+                  {step.receipt_no}
+                </Link>
+              )}
+              <span className="font-normal text-muted-foreground">
+                {" · "}
+                {t("receipts.correction.trailBy", {
+                  name: step.corrected_by_name || "—",
+                  when: df.dateTime(step.corrected_at),
+                })}
+              </span>
+            </p>
+            <ul className="mt-1 text-xs">
+              {Object.entries(step.changes).map(([field, [before, after]]) => (
+                <li key={field}>
+                  {fieldLabel(field)}：
+                  <span className="text-muted-foreground line-through">
+                    {field === "movement_type" && before ? t(`receipts.movement.${before}` as never) : before || "—"}
+                  </span>
+                  {" → "}
+                  {field === "movement_type" && after ? t(`receipts.movement.${after}` as never) : after || "—"}
+                </li>
+              ))}
+            </ul>
+            {step.reason && (
+              <p className="mt-1 text-xs">
+                <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
+                {step.reason}
+              </p>
+            )}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 

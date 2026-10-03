@@ -3066,7 +3066,8 @@
       "SITE_RECORD": "现场记录",
       "SITE_EQUIPMENT": "机械设备",
       "DOCUMENT": "文件",
-      "CLAIM": "进度 Claim"
+      "CLAIM": "进度 Claim",
+      "MATERIAL_RETURN": "材料退场"
     },
     "lastPage": "已经是最后一页了。",
     "loading": "载入中…",
@@ -3094,7 +3095,9 @@
       "notApplicable": "不需要归档"
     },
     "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。",
-    "categoryManagement": "分类管理"
+    "categoryManagement": "分类管理",
+    "openPhoto": "放大查看照片",
+    "noPhoto": "无照片"
   },
   "assets": {
     "category": {
@@ -4799,7 +4802,9 @@
         "relatedRecords": "关联现场资料",
         "revisions": "版本记录",
         "site": "现场申请"
-      }
+      },
+      "raisedOnSite": "现场提交：{name} {when}",
+      "forwardedBy": "经理转给顾问：{name} {when}"
     },
     "evidence": {
       "selectPhotos": "要关联的照片",
@@ -5466,7 +5471,27 @@
       },
       "takeDeliveryNote": "拍摄 Delivery Order",
       "title": "设备进退场",
-      "photoMinimum": "最少 {min} 张（含 Delivery Order 照片），不设上限。"
+      "photoMinimum": "最少 {min} 张（含 Delivery Order 照片），不设上限。",
+      "applyNew": "申请新设备进场",
+      "applyEntry": "申请进场",
+      "applyExit": "申请退场",
+      "applyEntryTitle": "申请 {name} 进场",
+      "applyExitTitle": "申请 {name} 退场",
+      "applyNewTitle": "申请新设备进场",
+      "applyHelp": "后台会批准或退回申请。批准后实际交接时，由现场人员与供应商 / 司机双方签名，并拍至少 4 张照片。",
+      "applySubmit": "提交申请",
+      "applyFailed": "申请没有送出，请再试一次。",
+      "chooseSupplier": "选择供应商",
+      "handover": "实际交接（双方签名）",
+      "handoverHelp": "申请已批准。实际交接时拍至少 4 张照片（可以更多），并由双方签名；提交后设备才算进场 / 退场。",
+      "handoverSubmit": "提交交接",
+      "siteSignature": "现场人员签名",
+      "supplierSignature": "供应商 / 司机签名",
+      "returnAction": "Return 退回",
+      "returnReason": "退回原因",
+      "returnConfirm": "退回（申请结束）",
+      "requestedBy": "申请人",
+      "reviewedBy": "审批人"
     },
     "equipmentEvidence": {
       "condition": "4. 设备状况细节",
@@ -5559,7 +5584,9 @@
       "title": "任务标题",
       "unit": "单位",
       "vehiclePlate": "车牌",
-      "workLocation": "工作区域 / 位置"
+      "workLocation": "工作区域 / 位置",
+      "pmaExpiresOn": "PMA 到期日",
+      "permitExpiresOn": "准证到期日"
     },
     "filing": {
       "action": "归入分类",
@@ -5574,8 +5601,8 @@
       "unfiled": "未归类"
     },
     "outgoing": {
-      "add": "新增出场申请",
-      "createTitle": "申请材料出场",
+      "add": "新增退场申请",
+      "createTitle": "申请材料退场（退回供应商）",
       "evidence": {
         "loading": "4. 装载或门岗现场",
         "other": "其他现场照片",
@@ -5588,45 +5615,60 @@
       "executor": "执行人",
       "fieldFormHelp": "填写最少资料，至少完成 4 张现场取证照片并获取 GPS。执行人会自动记录。",
       "formHelp": "填写实际执行人员，并获取当前 GPS 位置。",
-      "subtitle": "申请、审批和放行离开项目的非废料材料。",
+      "subtitle": "已进场材料退回供应商：申请 → 后台批准 → 实际出场时双方签名。",
       "title": "材料出场",
       "rejectTitle": "退回这笔申请",
       "rejectHelp": "申请 {reference} 到此结束。退回后不再重开 —— 要再申请得新建一条 —— 所以这段理由就是申请人能拿到的全部说明。",
       "rejectReason": "退回理由",
       "viewDetail": "查看详情",
-      "returnProcessing": "回传现场处理照片",
-      "waitingForSite": "已批准，等待现场处理并回传照片。",
+      "returnProcessing": "实际出场交接（双方签名）",
+      "waitingForSite": "已批准，等待安排车辆装货及现场交接签名。",
       "finalConfirm": "最终确认",
       "waitingForOffice": "现场已回传，等待后台最终确认。",
-      "returnHelp": "申请 {reference} 已批准。请处理材料后拍下处理结果，后台会根据这些照片做最终确认。",
-      "processingPhotos": "处理后的照片",
+      "returnHelp": "{reference} 已批准。材料实际出场时，填写退回数量、拍照，并由现场人员与供应商 / 司机双方签名。提交后退场即完成。",
+      "processingPhotos": "出场时的照片",
       "processingNote": "现场处理说明",
       "processingLocation": "定位",
       "processingLocationReady": "已取得定位",
-      "sendReturn": "回传",
-      "returnFailed": "照片没有传上去，请再试一次。",
+      "sendReturn": "提交（完成退场）",
+      "returnFailed": "交接没有保存成功，请再试一次。",
       "uploadFiles": "上传文件",
       "referenceNo": "编号",
       "submittedBy": "申请人",
       "capturedAt": "申请时间",
       "reviewNote": "后台备注",
-      "completedBy": "最终确认人",
+      "completedBy": "完成人",
       "stage": {
         "APPLICATION": "申请时的照片",
-        "PROCESSING": "处理后回传的照片",
+        "PROCESSING": "出场交接时的照片",
         "OFFICE": "后台上传的文件"
       },
       "flowTitle": "流程",
       "approvedBy": "批准人",
-      "processedBy": "现场处理人"
+      "processedBy": "现场交接人",
+      "returnFormHelp": "先选供应商，再选该供应商的原进场记录——材料、规格、单位会自动带出。填写本次要退回的数量。后台批准后安排车辆装货，实际出场时双方签名。",
+      "supplier": "供应商",
+      "chooseSupplier": "选择供应商",
+      "sourceReceipt": "原进场记录",
+      "chooseSourceReceipt": "选择要退回的原进场记录",
+      "remaining": "剩 {quantity} {unit}",
+      "noReturnable": "这个项目没有这家供应商还能退回的进场记录。",
+      "specification": "规格",
+      "returnQuantity": "本次退回数量",
+      "tooMuch": "这笔进场只剩 {quantity} {unit} 可以退回。",
+      "reasonPlaceholder": "退回原因，例如：多余、事后发现规格不对",
+      "returnedQuantity": "实际退回数量",
+      "siteSignature": "现场人员签名",
+      "supplierSignature": "供应商 / 司机签名",
+      "returnAction": "Return 退回"
     },
     "outgoingStatus": {
-      "APPROVED": "已批准",
+      "APPROVED": "已批准，待出场交接",
       "PENDING": "等待审批",
-      "REJECTED": "已拒绝",
+      "REJECTED": "已退回（申请结束）",
       "RELEASED": "已放行（旧流程）",
-      "PROCESSED": "现场已回传，待最终确认",
-      "COMPLETED": "已最终确认，已闭环"
+      "PROCESSED": "现场已回传（旧流程），待最终确认",
+      "COMPLETED": "已出场交接，已完成"
     },
     "priority": {
       "HIGH": "高",
@@ -5721,7 +5763,7 @@
       "formHelp": "选择项目、现场人员、工作位置、期限和必须上传的照片数量。",
       "openGps": "打开 GPS 位置",
       "photos": "照片：{current}/{required}",
-      "prepareApplication": "整理为顾问申请",
+      "prepareApplication": "检查后转给顾问",
       "projectFixed": "工地改不了 —— 接任务的人是从这个工地的班组里选的。",
       "referenceFiles": "参考照片或文件",
       "referenceHelp": "现场人员开始任务前会先看到这些资料。",
@@ -5756,7 +5798,9 @@
       },
       "focused": "只显示卡片指向的这一项任务。",
       "focusedMissing": "卡片指向的任务不在当前列表里，可能已处理完或不属于所选项目。",
-      "showAll": "显示全部"
+      "showAll": "显示全部",
+      "forwardedAs": "已转给顾问：{reference}",
+      "draftedAs": "已整理成申请 {reference}，尚未转给顾问"
     },
     "toast": {
       "movementSaved": "设备进退场已记录",
@@ -5772,7 +5816,9 @@
       "saved": "已保存",
       "taskAssigned": "任务已派发",
       "taskUpdated": "任务状态已更新",
-      "outgoingProcessed": "处理照片已回传，等待后台最终确认。"
+      "outgoingProcessed": "处理照片已回传，等待后台最终确认。",
+      "movementRequested": "申请已送交后台",
+      "movementReviewed": "申请已处理"
     },
     "what": {
       "roles": "角色列表",
@@ -5782,7 +5828,15 @@
       "equipmentSummary": "设备统计",
       "progressSummary": "进度统计",
       "phases": "施工阶段列表",
-      "outgoingRecord": "这条材料出场记录"
+      "outgoingRecord": "这条材料出场记录",
+      "returnableReceipts": "可退回的进场记录",
+      "equipmentApplications": "设备进退场申请"
+    },
+    "equipmentMovementStatus": {
+      "PENDING": "等待后台批准",
+      "APPROVED": "已批准，待交接签名",
+      "RETURNED": "已退回（申请结束）",
+      "COMPLETED": "已交接"
     }
   },
   "contractorPartners": {
@@ -7049,7 +7103,8 @@
       "column_wrong_module": "「{column}」属于其他模块，请选择本模块的分类。",
       "column_other_project": "该分类不属于此记录的项目，请选择同一项目的分类。",
       "column_inactive": "「{column}」已停用，请选择启用中的分类。",
-      "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。"
+      "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。",
+      "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7561,7 +7616,14 @@
       "noColumnsYet": "这个工地还没有材料分类。在下面新增第一个。",
       "newColumnName": "新分类名称",
       "addColumn": "新增分类",
-      "columnOffline": "离线时请选择已有分类，新增分类需要网络连接。"
+      "columnOffline": "离线时请选择已有分类，新增分类需要网络连接。",
+      "reject": {
+        "toggle": "当天货不对 · Reject",
+        "help": "在交接时直接退回这批货。双方仍要签名；记录保留，不计入累计。",
+        "reason": "Reject 原因",
+        "reasonPlaceholder": "例如：规格不对、损坏、数量不足",
+        "submit": "Reject 并提交"
+      }
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -9112,7 +9174,9 @@
       "processing_note": "现场处理说明",
       "amount": "金额",
       "paid_by": "确认付款人",
-      "paid_at": "付款时间"
+      "paid_at": "付款时间",
+      "returned_quantity": "实际退回数量",
+      "source_receipt_no": "原进场记录"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -10783,7 +10847,8 @@
       "moneyNote": "判为不合格会标记这批货并计入首页统计，但不会改动金额或付款状态 —— 改钱的动作要由人明确按下去。",
       "alreadyAccepted": "这批材料已经验收通过了。",
       "armReject": "允许退回这笔收货",
-      "armRejectHelp": "材料不符规格才打开。打开后才能填写原因并退回。"
+      "armRejectHelp": "材料不符规格才打开。打开后才能填写原因并退回。",
+      "rejectedAtGate": "现场交接时已当场 Reject（双方已签名），不能再更改。"
     },
     "addPhoto": {
       "caption": "备注（可不填）",
@@ -10804,7 +10869,25 @@
       "supersededLink": "打开更正后的收货单 {name}",
       "supersededTitle": "这张收货单已经被更正",
       "supersedes": "更正自另一张收货单",
-      "title": "为什么要更正"
+      "title": "为什么要更正",
+      "trailTitle": "更正记录（Audit Trail）",
+      "trailOriginal": "原记录 {name}，业务日期 {when}，原记录保留不变。",
+      "trailBy": "{name} 于 {when} 更正",
+      "fields": {
+        "movement_type": "类型",
+        "return_reason": "退场原因",
+        "category": "分类",
+        "material_name": "材料",
+        "material_specification": "规格",
+        "quantity": "数量",
+        "unit": "单位",
+        "total_weight_kg": "总重量（公斤）",
+        "unit_price": "单价",
+        "vehicle_plate": "车牌",
+        "delivery_note_no": "送货单号",
+        "notes": "备注",
+        "received_by_name": "收货人"
+      }
     },
     "count": "{count, plural, =0 {暂无材料进场记录} other {# 条材料进场记录}}",
     "createTitle": "记录材料进场",
@@ -10845,7 +10928,10 @@
       "totalWeightKg": "总重量（公斤）",
       "unit": "单位",
       "unitPrice": "单价",
-      "vehiclePlate": "车牌"
+      "vehiclePlate": "车牌",
+      "businessAt": "业务日期",
+      "movementType": "类型",
+      "returnReason": "退场原因"
     },
     "locationCaptured": "已记录位置",
     "locationMissing": "无位置",
@@ -10921,6 +11007,26 @@
       "suppliers": "供应商列表",
       "dockets": "送货单二维码列表",
       "columns": "分类列表"
+    },
+    "movement": {
+      "ENTRY": "材料进场",
+      "RETURN": "材料退场"
+    },
+    "tabs": {
+      "label": "材料管理",
+      "in": "Material In 进场",
+      "out": "Material Out 退场",
+      "reject": "Reject 不合格",
+      "totals": "累计净数量",
+      "legacyReturns": "10-02 前用进场单登记的退场记录"
+    },
+    "net": {
+      "title": "按材料汇总的累计净数量",
+      "note": "净数量 = 正常进场（Reject 不计入）− 关联原进场的正式退场（只扣一次）。不同单位不混加。",
+      "received": "进场",
+      "returned": "退场",
+      "net": "净数量",
+      "rejected": "Reject（不计入）"
     }
   },
   "recyclerBusiness": {
