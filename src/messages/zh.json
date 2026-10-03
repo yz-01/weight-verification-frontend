@@ -3030,7 +3030,8 @@
     "what": {
       "workflowTemplates": "审批链列表",
       "chainSteps": "这条审批链的级别"
-    }
+    },
+    "advancedNote": "高级功能。日常的材料出场、施工准证和顾问申请都在原事项里沟通和批准，不需要来这里。"
   },
   "archiveQueue": {
     "allModules": "全部模块",
@@ -5800,7 +5801,15 @@
       "focusedMissing": "卡片指向的任务不在当前列表里，可能已处理完或不属于所选项目。",
       "showAll": "显示全部",
       "forwardedAs": "已转给顾问：{reference}",
-      "draftedAs": "已整理成申请 {reference}，尚未转给顾问"
+      "draftedAs": "已整理成申请 {reference}，尚未转给顾问",
+      "expand": "展开「{task}」",
+      "collapse": "收起「{task}」",
+      "dueShort": "期限 {value}",
+      "noDue": "无期限",
+      "confirmDone": "确认完成",
+      "confirmedBy": "{name} 已确认 · {value}",
+      "returnedBy": "{name} 已退回 · {value}",
+      "returnReasonShown": "退回原因：{reason}"
     },
     "toast": {
       "movementSaved": "设备进退场已记录",
@@ -6751,7 +6760,9 @@
     "photosClosed": "这趟任务已结束，照片只能查看，不能再拍。",
     "what": {
       "pushStatus": "通知状态"
-    }
+    },
+    "takeIssuePhoto": "途中异常拍照（意外 / 事故 / 车辆问题）",
+    "issuePhotoHelp": "照片会马上发给回收商和建筑商。"
   },
   "driverGps": {
     "action": {
@@ -9176,7 +9187,15 @@
       "paid_by": "确认付款人",
       "paid_at": "付款时间",
       "returned_quantity": "实际退回数量",
-      "source_receipt_no": "原进场记录"
+      "source_receipt_no": "原进场记录",
+      "requested_by": "申请人",
+      "approved_by": "审批人",
+      "actual_weight": "实际重量",
+      "trip_count": "车次",
+      "disposal_do_no": "Disposal DO 编号",
+      "execution_note": "执行备注",
+      "final_proof_submitted": "最终处理证明已提交（任务结束）",
+      "legacy_confirmation": "后台验收（旧流程）"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -9291,7 +9310,7 @@
       "apiGatewayMonitoring": "API Gateway 监控",
       "apiGatewaySettings": "API Gateway 设置",
       "approvalCredentials": "审批凭证",
-      "approvals": "审批记录",
+      "approvals": "审批流程（高级）",
       "archiveQueue": "现场记录中心",
       "assetActivity": "操作记录",
       "assetAssignments": "领用与借用",
@@ -12660,8 +12679,6 @@
       "cancel": "取消",
       "cancelDisposal": "取消清运",
       "close": "关闭",
-      "complete": "验收完成",
-      "confirm": "验收",
       "copyLink": "复制任务链接",
       "createLink": "生成免登录链接",
       "getLocation": "获取当前 GPS",
@@ -12669,12 +12686,13 @@
       "new": "新增申请",
       "regenerateLink": "重新生成链接",
       "reject": "拒绝",
-      "return": "退回",
       "review": "审批",
       "save": "保存决定",
       "sendToStaff": "发送给工作人员",
       "submit": "提交申请",
-      "view": "查看"
+      "view": "查看",
+      "recordNumbers": "补录数字",
+      "siteEvidence": "拍车辆出场 / Gate Pass"
     },
     "assign": {
       "copyNow": "复制后发送给外部清运商。链接不需要登录；如遗失，可在清运列表重新生成，旧链接会立即失效。",
@@ -12690,10 +12708,6 @@
       "description": "取消 {reference} 后，工作人员任务及外部链接会立即失效。记录和照片会保留供审计。",
       "title": "取消清运"
     },
-    "confirm": {
-      "description": "检查 {reference} 的装车、卸货及 Disposal DO 证据。",
-      "title": "验收清运结果"
-    },
     "count": "共 {count} 项清运申请",
     "create": {
       "description": "拍摄废料、获取当前 GPS，并提交给负责人审批。",
@@ -12706,17 +12720,20 @@
     },
     "evidence": "照片与文件证据",
     "evidenceKind": {
-      "CONFIRMATION": "验收",
+      "CONFIRMATION": "后台验收（旧流程）",
       "DISPOSAL_DO": "Disposal DO",
       "LOADING": "装车",
       "OTHER": "其他现场照片",
       "REQUEST": "申请照片",
-      "UNLOADING": "卸货"
+      "UNLOADING": "卸货",
+      "DISPOSAL_PROOF": "最终处理证明",
+      "VEHICLE_EXIT": "车辆出场",
+      "GATE_PASS": "Gate Pass"
     },
     "external": {
       "action": {
         "start": "开始清运",
-        "submit": "发送给工地验收"
+        "submit": "提交最终处理证明（结束任务）"
       },
       "error": {
         "action": "操作无法完成，请检查网络后重试。"
@@ -12735,25 +12752,25 @@
       },
       "invalid": "任务链接无法使用",
       "invalidBody": "链接无效、已到期，或任务已经完成。",
-      "photosTitle": "现场照片（最多 4 张）",
+      "photosTitle": "最终处理证明（最多 4 张）",
       "status": {
-        "APPROVED": "已批准",
+        "APPROVED": "可以开始",
         "ASSIGNED": "可以开始",
-        "AWAITING_CONFIRMATION": "等待工地验收",
+        "AWAITING_CONFIRMATION": "已提交最终处理证明",
         "CANCELLED": "已取消",
-        "COMPLETED": "已完成",
+        "COMPLETED": "已完成（链接已失效）",
         "IN_PROGRESS": "执行中",
         "REJECTED": "已拒绝",
         "REQUESTED": "等待审批",
-        "RETURNED": "需要更正"
+        "RETURNED": "已退回（旧流程）"
       },
       "submitTitle": "清运资料",
       "tapCamera": "按这里打开相机",
       "title": "清运任务",
       "uploaded": "已上传",
-      "waitingBody": "工地负责人将检查照片和 Disposal DO，目前无需继续操作。",
-      "waitingTitle": "已发送验收",
-      "photosBody": "一次最多 4 张，不限类别；至少 1 张才能提交。"
+      "waitingBody": "最终处理证明已提交，链接已失效，不能再加照片。",
+      "waitingTitle": "任务已结束",
+      "photosBody": "把垃圾送到合法处理地点后拍照。最多 4 张，不限类别；至少 1 张才能提交。提交后任务结束、链接失效。"
     },
     "externalActor": "外部执行人员",
     "field": {
@@ -12785,7 +12802,9 @@
       "status": "状态",
       "trips": "车次",
       "volume": "预计体积（m³）",
-      "waste": "杂物/废弃物说明"
+      "waste": "杂物/废弃物说明",
+      "finalProofSubmitted": "最终处理证明已提交",
+      "legacyConfirmation": "后台验收（旧流程）"
     },
     "fieldEvidence": {
       "access": "3. 清运入口或车辆路线",
@@ -12796,18 +12815,12 @@
     },
     "internal": {
       "action": {
-        "photosRequired": "先完成四类必拍照片",
+        "photosRequired": "先拍最终处理证明",
         "start": "开始清运",
-        "submit": "发送给负责人验收"
+        "submit": "提交最终处理证明（结束任务）"
       },
       "error": {
         "action": "操作无法完成，请检查网络和 GPS 后重试。"
-      },
-      "evidence": {
-        "DISPOSAL_DO": "3. Disposal DO 照片",
-        "LOADING": "1. 装车照片",
-        "OTHER": "4. 其他现场照片",
-        "UNLOADING": "2. 卸货照片"
       },
       "field": {
         "doNo": "Disposal DO 编号",
@@ -12816,22 +12829,22 @@
         "weight": "实际重量（kg）"
       },
       "invalid": "无法打开这项清运任务，请刷新任务列表后重试。",
-      "photosBody": "每次提交最多 4 张，不强制每类都拍；至少 1 张才能提交。",
-      "photosTitle": "清运证据",
+      "photosBody": "把垃圾送到合法处理地点后拍照。每次最多 4 张，不限类别；至少 1 张才能提交。提交即结束任务，不需要后台验收。",
+      "photosTitle": "最终处理证明",
       "status": {
         "APPROVED": "已批准",
         "ASSIGNED": "可以开始",
-        "AWAITING_CONFIRMATION": "等待验收",
+        "AWAITING_CONFIRMATION": "已提交最终处理证明",
         "CANCELLED": "已取消",
         "COMPLETED": "已完成",
         "IN_PROGRESS": "执行中",
         "REJECTED": "已拒绝",
         "REQUESTED": "等待审批",
-        "RETURNED": "需要更正"
+        "RETURNED": "已退回（旧流程）"
       },
       "submitTitle": "清运结果",
-      "waitingBody": "负责人会检查照片和 Disposal DO。退回时，这项任务会重新出现在我的任务。",
-      "waitingTitle": "已发送验收"
+      "waitingBody": "最终处理证明已提交，这项清运已完成。",
+      "waitingTitle": "任务已结束"
     },
     "notAssigned": "尚未指派",
     "ocr": {
@@ -12856,13 +12869,13 @@
     "status": {
       "APPROVED": "已批准",
       "ASSIGNED": "已指派执行人",
-      "AWAITING_CONFIRMATION": "等待验收",
+      "AWAITING_CONFIRMATION": "已提交最终处理证明",
       "CANCELLED": "已取消",
       "COMPLETED": "已完成",
       "IN_PROGRESS": "执行中",
       "REJECTED": "已拒绝",
       "REQUESTED": "等待审批",
-      "RETURNED": "已退回更正"
+      "RETURNED": "已退回更正（旧流程）"
     },
     "subtitle": "普通工地杂物、泥土和非回收废弃物的清理任务。可直接指派现场工作人员，或发送免登录链接给外部清运商。",
     "timeline": "任务时间轴",
@@ -12870,37 +12883,63 @@
       "APPROVED": "申请已批准",
       "CANCELLED": "申请已取消",
       "COLLECTOR_ASSIGNED": "已指派外部清运商",
-      "COMPLETED": "管理人员已验收完成",
+      "COMPLETED": "管理人员已验收完成（旧流程）",
       "EVIDENCE_DISPOSAL_DO": "已上传 Disposal DO",
       "EVIDENCE_LOADING": "已上传装车照片",
       "EVIDENCE_OTHER": "已上传其他现场照片",
       "EVIDENCE_UNLOADING": "已上传卸货照片",
       "EXTERNAL_LINK_REGENERATED": "已重新生成外部链接",
       "EXTERNAL_STARTED": "外部清运工作已开始",
-      "EXTERNAL_SUBMITTED": "外部执行结果已提交验收",
+      "EXTERNAL_SUBMITTED": "司机已提交最终处理证明，任务结束",
       "INTERNAL_ASSIGNED": "已指派现场工作人员",
       "INTERNAL_STARTED": "工作人员已开始清运",
-      "INTERNAL_SUBMITTED": "工作人员执行结果已提交验收",
+      "INTERNAL_SUBMITTED": "工作人员已提交最终处理证明，任务结束",
       "REJECTED": "申请已拒绝",
       "REQUESTED": "已提交申请",
-      "RETURNED": "已退回更正"
+      "RETURNED": "已退回更正（旧流程）",
+      "CLOSED_ON_SUBMISSION": "已结束：最终处理证明已提交（新规则）",
+      "NUMBERS_RECORDED": "后台已补录重量 / 车次 / DO",
+      "SITE_EVIDENCE": "现场已上传车辆出场 / Gate Pass 照片",
+      "EVIDENCE_DISPOSAL_PROOF": "已上传最终处理证明照片"
     },
     "title": "工地清运",
     "toast": {
       "assigned": "外部清运商已指派",
       "assignedInternal": "已发送给现场工作人员",
       "cancelled": "清运申请已取消",
-      "confirmed": "清运验收已保存",
       "linkRegenerated": "外部清运链接已重新生成",
       "requested": "清运申请已提交",
-      "reviewed": "清运审批已保存"
+      "reviewed": "清运审批已保存",
+      "numbersRecorded": "已保存重量 / 车次 / DO",
+      "siteEvidence": "现场照片已发送后台"
     },
     "overdue": {
       "badge": "异常",
-      "help": "批准后 36 小时仍未收到处理照片，请跟进。"
+      "help": "批准后 36 小时仍未提交最终处理证明，请跟进。"
     },
     "what": {
       "fieldStaff": "本项目的现场工作人员"
+    },
+    "stage": {
+      "REQUEST": "申请照片",
+      "SITE_EXIT": "装车与工地出场证据",
+      "FINAL_PROOF": "最终处理证明",
+      "OFFICE_CHECK": "后台验收照片（旧流程）",
+      "empty": "暂无"
+    },
+    "recordNumbers": {
+      "title": "补录重量 / 车次 / DO",
+      "description": "{reference} 已结束。这里只补录数字，不是验收；每次修改都会留在时间轴。"
+    },
+    "siteEvidence": {
+      "title": "现场证据：车辆出场 / Gate Pass",
+      "description": "{reference}：每次最多 4 张，不要求拍满，备注选填。和司机的最终处理证明分开保存。",
+      "vehicleExit": "车辆出场",
+      "gatePass": "Gate Pass",
+      "progress": "{current} / {max} 张",
+      "note": "备注",
+      "submit": "提交后台",
+      "photos": "照片"
     }
   },
   "siteGps": {
@@ -14545,6 +14584,61 @@
       "open": "查看"
     },
     "pageOf": "第 {page} / {pages} 页（每页每种最多 10 笔）",
-    "lastPage": "已经是最后一页。"
+    "lastPage": "已经是最后一页。",
+    "totals": {
+      "disposals": "工地清运：{records} 笔 · {trips} 车次 · {weight} kg",
+      "dispatches": "废料订单：{records} 笔 · {trips} 车次 · 过磅 {weight} kg",
+      "apart": "两类分开统计，不合计。"
+    }
+  },
+  "ehs": {
+    "confirmer": {
+      "safetyLeads": "项目安全负责人",
+      "legacy": "有验收权限的人员（整改人除外）",
+      "me": "我自己（默认）",
+      "initiator": "你——后台或顾问发起的，由发起人确认"
+    },
+    "field": {
+      "origin": "发起来源",
+      "raisedBy": "发起人",
+      "confirmer": "确认人",
+      "confirmedBy": "确认 / 批准"
+    },
+    "origin": {
+      "SITE": "现场发起",
+      "OFFICE": "后台发起",
+      "CONSULTANT": "顾问发起"
+    },
+    "permit": {
+      "badge": "施工准证",
+      "approve": "批准准证",
+      "approveTitle": "批准施工准证",
+      "approveDescription": "批准 {incident}。批准后归档，并记下你的姓名、职位和时间。",
+      "refuseInstead": "资料不齐？先不要批准，在这个事项的沟通里说明，申请人在同一个事项补充。",
+      "formPhotos": "准证表格照片",
+      "attachments": "其他页（PDF、证书）",
+      "hint": "拍下公司原有的准证表格。安全负责人在这个事项里批准；有问题就在事项的沟通里补充。"
+    },
+    "photos": {
+      "before": "整改前",
+      "during": "整改中",
+      "after": "整改后",
+      "none": "暂无照片"
+    },
+    "phone": {
+      "rectifierLine": "整改人：{name}",
+      "confirmerLine": "确认人：{name}",
+      "confirm": "确认完成"
+    },
+    "form": {
+      "selectConfirmer": "选择确认人",
+      "confirmerHint": "只有确认人能确认完成，整改人不能自己确认。",
+      "confirmerConflict": "确认人和整改人不能是同一人。",
+      "rectifier": "整改人",
+      "noRectifier": "暂不指定，由主管分配"
+    },
+    "what": {
+      "confirmers": "可选的确认人"
+    }
   }
 }

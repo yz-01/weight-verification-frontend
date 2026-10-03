@@ -58,6 +58,14 @@ export interface ShellPhoto {
   takenAt?: string | null;
   latitude?: string | null;
   longitude?: string | null;
+  /** Which of `photoGroups` it is shown under, when the record has stages. */
+  group?: string;
+}
+
+/** One row of photographs, e.g. one stage of a disposal (B23). */
+export interface ShellPhotoGroup {
+  key: string;
+  label: string;
 }
 
 export interface ShellFact {
@@ -75,10 +83,37 @@ export interface ShellSignature {
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
 
+function ShellThumbnail({ photo, onOpen }: { photo: ShellPhoto; onOpen: () => void }) {
+  return (
+    <li className="w-20">
+      <button
+        type="button"
+        title={photo.label}
+        onClick={onOpen}
+        className="relative block size-20 overflow-hidden rounded-md border bg-muted/40 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <Image
+          src={photo.url}
+          alt={photo.label}
+          fill
+          sizes="80px"
+          className="object-cover"
+          unoptimized
+        />
+      </button>
+      <p className="mt-1 truncate text-[10px] text-muted-foreground">
+        {photo.label}
+      </p>
+    </li>
+  );
+}
+
 export function RecordDetailShell({
   reference,
   facts,
   photos,
+  photoGroups,
+  emptyGroupLabel,
   photoActions,
   panel,
   signatures = [],
@@ -95,6 +130,14 @@ export function RecordDetailShell({
    * evidence. An empty array still says 「没有照片」.
    */
   photos?: ShellPhoto[];
+  /**
+   * Rows to sort the photographs into, in order, each under its own heading
+   * (B23: 「同一清运 ID 按申请、装车／工地出场、最终处理证明分区查看」). A
+   * group with nothing in it still shows, saying so, because "no final proof
+   * yet" is exactly what a reader of that row is checking.
+   */
+  photoGroups?: ShellPhotoGroup[];
+  emptyGroupLabel?: string;
   /** Under the thumbnails, e.g. the office's 【上传文件】. */
   photoActions?: React.ReactNode;
   /** The module's own right-column panel. */
@@ -146,7 +189,32 @@ export function RecordDetailShell({
                 {t("photoCount", { count: photos.length })}
               </span>
             </div>
-            {photos.length === 0 ? (
+            {photoGroups ? (
+              <div className="space-y-3">
+                {photoGroups.map((group) => {
+                  const inGroup = photos
+                    .map((photo, index) => ({ photo, index }))
+                    .filter(({ photo }) => photo.group === group.key);
+                  return (
+                    <div key={group.key} data-photo-group={group.key}>
+                      <p className="mb-1 text-xs font-medium text-foreground">
+                        {group.label}
+                        <span className="ml-1 tabular-nums text-muted-foreground">({inGroup.length})</span>
+                      </p>
+                      {inGroup.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">{emptyGroupLabel ?? t("noPhotos")}</p>
+                      ) : (
+                        <ul className="flex flex-wrap gap-2">
+                          {inGroup.map(({ photo, index }) => (
+                            <ShellThumbnail key={photo.id} photo={photo} onOpen={() => setOpen(index)} />
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : photos.length === 0 ? (
               <p className="rounded-md border border-dashed px-3 py-4 text-sm text-muted-foreground">
                 {t("noPhotos")}
               </p>
@@ -155,26 +223,7 @@ export function RecordDetailShell({
               // evidence is the full image, which the viewer shows at any size.
               <ul className="flex flex-wrap gap-2">
                 {photos.map((photo, index) => (
-                  <li key={photo.id} className="w-20">
-                    <button
-                      type="button"
-                      title={photo.label}
-                      onClick={() => setOpen(index)}
-                      className="relative block size-20 overflow-hidden rounded-md border bg-muted/40 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <Image
-                        src={photo.url}
-                        alt={photo.label}
-                        fill
-                        sizes="80px"
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </button>
-                    <p className="mt-1 truncate text-[10px] text-muted-foreground">
-                      {photo.label}
-                    </p>
-                  </li>
+                  <ShellThumbnail key={photo.id} photo={photo} onOpen={() => setOpen(index)} />
                 ))}
               </ul>
             )}

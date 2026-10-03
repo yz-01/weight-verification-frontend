@@ -17,7 +17,7 @@ import {
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { LocationField } from "@/components/field-staff/location-field";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -64,6 +64,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
 import type {
+  HazardPhoto,
   IncidentSeverity,
   IncidentStatus,
   SafetyIncident,
@@ -111,7 +112,31 @@ function locationFailure(error: GeolocationPositionError): string {
   return "locationTimeout";
 }
 
-const STATUS_TONE: Record<
+/** The 施工准证申请 column every project starts with (C20). */
+const PERMIT_COLUMN_CODE = "HZD-PERMIT";
+/**
+ * 「VO 不在手机 EHS，也不叫『整改 VO』」 (E07). The seeded column was switched
+ * off on the server; the phone never offers it even if a site turns it back on.
+ */
+const RETIRED_VO_COLUMN_CODE = "HZD-VO";
+
+export function isPermit(incident: SafetyIncident): boolean {
+  return incident.record_type === "PERMIT";
+}
+
+/**
+ * Who closes this item, in words (B21): the named confirmer, the safety leads
+ * for a permit, or - on an item raised before the rule - any verifier.
+ */
+export function confirmerLabel(
+  incident: SafetyIncident,
+  te: (key: string) => string,
+): string {
+  if (incident.confirmer_name) return incident.confirmer_name;
+  return te(isPermit(incident) ? "confirmer.safetyLeads" : "confirmer.legacy");
+}
+
+export const STATUS_TONE: Record<
   IncidentStatus,
   "danger" | "warning" | "positive" | "info" | "neutral"
 > = {
@@ -135,6 +160,13 @@ interface SafetyDraft {
   longitude?: string;
   photos: Array<File | undefined>;
   notifyUsers: string[];
+  /** 上报 → 指派 in one step (B22); empty leaves it 待分配. */
+  rectifier?: string;
+  rectifierDueAt?: string;
+  /** The phone's 指定确认人 (B21); empty means the reporter. */
+  confirmer?: string;
+  /** A permit's other pages (C20). */
+  attachments?: File[];
 }
 
 const EMPTY_DRAFT: SafetyDraft = {
@@ -146,6 +178,10 @@ const EMPTY_DRAFT: SafetyDraft = {
   occurredAt: "",
   photos: createEmptyFieldEvidence(),
   notifyUsers: [],
+  rectifier: "",
+  rectifierDueAt: "",
+  confirmer: "",
+  attachments: [],
 };
 
 export function Safety({
@@ -162,8 +198,23 @@ export function Safety({
   onRecordSaved?: (result: SafetyIncidentSubmission) => void;
 }) {
   const t = useTranslations();
+  const te = useTranslations("ehs");
   const df = useDateFormat();
   const { can, user } = useAuth();
+  // 顾问发起 (B21, B22): a consultant raises a rectification, and assigns the
+  // ones they raised, without holding safety.manage.
+  const isConsultant = user?.account_type === "CONSULTANT";
+  const mayRaise = can("safety.manage") || isConsultant;
+  const userId = user?.id;
+  const mayAssign = useCallback(
+    (incident: SafetyIncident) =>
+      !isPermit(incident) &&
+      !incident.responsible_person &&
+      ["OPEN", "RETURNED"].includes(incident.status) &&
+      (can("safety.manage") ||
+        (incident.origin === "CONSULTANT" && incident.created_by === userId)),
+    [can, userId],
+  );
   const list = useListQuery([
     "project",
     "category",
@@ -272,22 +323,17 @@ export function Safety({
       // Marked inside the timer: a re-render that cancels it must not leave
       // the incident marked as opened when nothing opened.
       openedIncidentRef.current = incident.id;
-      if (
-        can("safety.verify") &&
-        incident.status === "RECTIFICATION_SUBMITTED"
-      ) {
+      // The server says whether this reader is the one confirmer (B21);
+      // holding safety.verify no longer makes somebody it.
+      if (incident.can_confirm) {
         setReviewing(incident);
       } else if (
-        can("safety.manage") &&
         incident.responsible_person === user?.id &&
+        !isPermit(incident) &&
         ["ASSIGNED", "RETURNED"].includes(incident.status)
       ) {
         setSubmitting(incident);
-      } else if (
-        can("safety.manage") &&
-        !incident.responsible_person &&
-        ["OPEN", "RETURNED"].includes(incident.status)
-      ) {
+      } else if (mayAssign(incident)) {
         setAssigning(incident);
       } else {
         // Nothing for this person to do on it (a reviewer with only verify
@@ -297,7 +343,7 @@ export function Safety({
       clearIncidentParam();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [can, clearIncidentParam, focusedIncident.data, requestedIncidentId, user?.id]);
+  }, [clearIncidentParam, focusedIncident.data, mayAssign, requestedIncidentId, user?.id]);
 
   const columns = useMemo<ColumnDef<SafetyIncident, unknown>[]>(
     () => [
@@ -329,6 +375,11 @@ export function Safety({
         cell: ({ row }) => (
           <div className="min-w-0">
             <p className="max-w-[260px] truncate font-medium text-foreground">
+              {isPermit(row.original) && (
+                <span className="mr-1.5 rounded bg-info/10 px-1.5 py-0.5 text-xs font-medium text-info">
+                  {te("permit.badge")}
+                </span>
+              )}
               {row.original.title}
             </p>
             <p className="max-w-[260px] truncate text-xs text-muted-foreground">
@@ -421,27 +472,29 @@ export function Safety({
         header: () => <span className="sr-only">{t("common.actions")}</span>,
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-0.5">
-            {can("safety.manage") && !row.original.responsible_person && ["OPEN", "RETURNED"].includes(row.original.status) && (
+            {mayAssign(row.original) && (
               <Button variant="ghost" size="icon" className="h-7 w-7" title={t("safetyRectification.action.assign")} onClick={() => setAssigning(row.original)}><UserCheck className="h-4 w-4" /></Button>
             )}
-            {can("safety.manage") && row.original.responsible_person === user?.id && ["ASSIGNED", "RETURNED"].includes(row.original.status) && (
+            {row.original.responsible_person === user?.id && !isPermit(row.original) && ["ASSIGNED", "RETURNED"].includes(row.original.status) && (
               <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" title={t("safetyRectification.action.submit")} onClick={() => setSubmitting(row.original)}><Camera className="h-4 w-4" /></Button>
             )}
-            {can("safety.verify") && row.original.status === "RECTIFICATION_SUBMITTED" && (
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-success" title={t("safetyRectification.action.review")} onClick={() => setReviewing(row.original)}><CheckCircle2 className="h-4 w-4" /></Button>
+            {/* Only the one confirmer (B21) - the server's answer, not a
+                permission check that every supervisor would pass. */}
+            {row.original.can_confirm && (
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-success" title={t(isPermit(row.original) ? "ehs.permit.approve" : "safetyRectification.action.review")} onClick={() => setReviewing(row.original)}><CheckCircle2 className="h-4 w-4" /></Button>
             )}
             {/* Always offered, including on an archived hazard: the record
                 stays readable after closure - 「记录全部都要留着」 - and the
                 panel itself is what refuses a new message. */}
             <Button variant="ghost" size="icon" className="h-7 w-7" title={t("hazard.conversationTitle")} onClick={() => setTalking(row.original)}><MessageSquare className="h-4 w-4" /></Button>
-            {can("safety.manage") && !row.original.responsible_person && ["OPEN", "INVESTIGATING"].includes(row.original.status) && (
+            {can("safety.manage") && !isPermit(row.original) && !row.original.responsible_person && ["OPEN", "INVESTIGATING"].includes(row.original.status) && (
               <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" title={t("safety.action.updateStatus")} onClick={() => setUpdating(row.original)}><SlidersHorizontal className="h-3.5 w-3.5" /></Button>
             )}
           </div>
         ),
       },
     ],
-    [t, df, can, user?.id],
+    [t, te, df, can, mayAssign, user?.id],
   );
 
   const total = data?.count ?? 0;
@@ -486,7 +539,7 @@ export function Safety({
                 the console at the customer's request, which makes this screen
                 the only place a hazard can be raised - and the button lived
                 on the half being deleted (F-240). */}
-            {can("safety.manage") && (
+            {mayRaise && (
             <Button size={fieldMode ? "lg" : "sm"} className={fieldMode ? "min-h-12 px-5 text-base" : undefined} onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4" />
               {t(fieldMode ? "safety.fieldReport.new" : "safety.new")}
@@ -600,16 +653,26 @@ export function Safety({
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold">{incident.title}</p>
+                    {isPermit(incident) && <StatusBadge label={te("permit.badge")} tone="info" />}
                     <StatusBadge label={t(`safetyRectification.status.${incident.status}`)} tone={STATUS_TONE[incident.status]} />
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">{incident.project_name} · {df.dateTime(incident.occurred_at)}</p>
                   {incident.notified_user_names.length > 0 && <p className="mt-2 text-sm">{t("safety.fieldReport.sentTo", { names: incident.notified_user_names.join(", ") })}</p>}
+                  {incident.responsible_person_name && <p className="mt-1 text-sm">{te("phone.rectifierLine", { name: incident.responsible_person_name })}</p>}
+                  <p className="mt-1 text-sm">{te("phone.confirmerLine", { name: confirmerLabel(incident, te) })}</p>
                   <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-primary"><MessageSquare className="size-4" />{t("hazard.conversationTitle")}</p>
                 </div>
               </button>
-              {incident.responsible_person === user?.id && ["ASSIGNED", "RETURNED"].includes(incident.status) && (
+              {incident.responsible_person === user?.id && !isPermit(incident) && ["ASSIGNED", "RETURNED"].includes(incident.status) && (
                 <div className="px-4 pb-4">
                   <Button className="w-full min-h-11" onClick={() => setSubmitting(incident)}><Camera />{t("safetyRectification.action.submit")}</Button>
+                </div>
+              )}
+              {/* The confirm entry follows the confirmer to the end they use
+                  (B21): a worker named to confirm does it from here. */}
+              {incident.can_confirm && (
+                <div className="px-4 pb-4">
+                  <Button className="w-full min-h-11" onClick={() => setReviewing(incident)}><CheckCircle2 />{t(isPermit(incident) ? "ehs.permit.approve" : "ehs.phone.confirm")}</Button>
                 </div>
               )}
             </article>
@@ -706,7 +769,36 @@ export function Safety({
                 label={t("safety.field.occurredAt")}
                 value={df.dateTime(opened.occurred_at)}
               />
+              {opened.origin && (
+                <ReadField
+                  label={te("field.origin")}
+                  value={te(`origin.${opened.origin}`)}
+                />
+              )}
+              <ReadField
+                label={te("field.raisedBy")}
+                value={[opened.photographer_name, opened.created_by_title]
+                  .filter(Boolean)
+                  .join(" · ") || t("common.emptyValue")}
+              />
+              <ReadField
+                label={te("field.confirmer")}
+                value={confirmerLabel(opened, te)}
+              />
+              {opened.verified_at && opened.status === "VERIFIED" && (
+                <ReadField
+                  label={te("field.confirmedBy")}
+                  value={[
+                    opened.verified_by_name,
+                    opened.verified_by_title,
+                    df.dateTime(opened.verified_at),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                />
+              )}
             </div>
+            <HazardPhotoGroups incident={opened} />
             <div className="grid gap-2 sm:grid-cols-2">
               <Button
                 variant="outline"
@@ -719,26 +811,23 @@ export function Safety({
                 <MessageSquare />
                 {t("hazard.conversationTitle")}
               </Button>
-              {can("safety.verify") &&
-                opened.status === "RECTIFICATION_SUBMITTED" && (
-                  <Button
-                    className="min-h-11"
-                    onClick={() => {
-                      setReviewing(opened);
-                      setOpened(null);
-                    }}
-                  >
-                    <CheckCircle2 />
-                    {t("safetyRectification.action.review")}
-                  </Button>
-                )}
+              {opened.can_confirm && (
+                <Button
+                  className="min-h-11"
+                  onClick={() => {
+                    setReviewing(opened);
+                    setOpened(null);
+                  }}
+                >
+                  <CheckCircle2 />
+                  {t(isPermit(opened) ? "ehs.permit.approve" : "safetyRectification.action.review")}
+                </Button>
+              )}
               {/* Assignment stays, and it is not a third rectification action:
                   it decides *who* is responsible, which is what feeds the
                   「指派给我的隐患整改」 pile in My Tasks (T-285). Without it that
                   pile would have no source. */}
-              {can("safety.manage") &&
-                !opened.responsible_person &&
-                ["OPEN", "RETURNED"].includes(opened.status) && (
+              {mayAssign(opened) && (
                   <Button
                     variant="outline"
                     className="min-h-11"
@@ -775,15 +864,99 @@ export function Safety({
 function SafetyAssignDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
   const qc = useQueryClient();
-  const team = useQuery({ queryKey: ["project-assignments", incident.project, "safety"], queryFn: () => getProjectAssignments(incident.project) });
+  const { user } = useAuth();
+  // A consultant assigns what they raised (B22) but cannot read the project's
+  // staff list; the hazard contact list is the one their grant opens.
+  const isConsultant = user?.account_type === "CONSULTANT";
+  const team = useQuery({
+    queryKey: ["project-assignments", incident.project, "safety", isConsultant],
+    queryFn: async () =>
+      isConsultant
+        ? {
+            results: (await getIncidentRecipientOptions(incident.project)).map((row) => ({
+              user: row.id,
+              user_name: row.full_name,
+            })),
+          }
+        : getProjectAssignments(incident.project),
+  });
   const [person, setPerson] = useState(incident.responsible_person ?? "");
   const [dueAt, setDueAt] = useState(incident.rectification_due_at ? incident.rectification_due_at.slice(0, 16) : "");
   const [note, setNote] = useState(incident.rectification_note);
-  const save = useMutation({ mutationFn: () => assignSafetyRectification(incident.id, { responsible_person: person, due_at: new Date(dueAt).toISOString(), note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("assign.title")}</DialogTitle><DialogDescription>{t("assign.description", { incident: incident.incident_no })}</DialogDescription></DialogHeader><FieldWrapper label={t("field.responsible")} required><Select value={person || undefined} onValueChange={setPerson}><SelectTrigger className="w-full"><SelectValue placeholder={t("field.selectResponsible")} /></SelectTrigger><SelectContent>{(team.data?.results ?? []).map((row) => <SelectItem key={row.user} value={row.user}>{row.user_name}</SelectItem>)}</SelectContent></Select><QueryFailedNote query={team} what={t("what.team")} /></FieldWrapper><FieldWrapper label={t("field.dueAt")} required><Input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.instructions")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[person, t("field.responsible")], [dueAt, t("field.dueAt")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button></DialogFooter></DialogContent></Dialog>;
+  const te = useTranslations("ehs");
+  // 「手机现场发起 → 指定确认人」 (B21): whoever assigns a phone-raised hazard
+  // may name its confirmer. The office and a consultant confirm what they
+  // raised, so for those it is only shown.
+  const namesConfirmer = incident.origin === "SITE";
+  const [confirmer, setConfirmer] = useState(incident.confirmer ?? "");
+  const confirmers = useQuery({
+    queryKey: ["incident-recipient-options", incident.project],
+    queryFn: () => getIncidentRecipientOptions(incident.project),
+    enabled: namesConfirmer,
+  });
+  // The recipient list leaves the reader out; the assigner can name themselves.
+  const confirmerOptions = [
+    ...(user ? [{ id: user.id, full_name: user.full_name }] : []),
+    ...(confirmers.data ?? []).filter((row) => row.id !== user?.id),
+  ];
+  if (incident.confirmer && !confirmerOptions.some((row) => row.id === incident.confirmer)) {
+    confirmerOptions.unshift({ id: incident.confirmer, full_name: incident.confirmer_name ?? "" });
+  }
+  // 「整改执行人不能自己确认」: caught here rather than by the server's refusal.
+  const sameAsConfirmer = Boolean(person) && person === (namesConfirmer ? confirmer : incident.confirmer);
+  const save = useMutation({
+    mutationFn: () =>
+      assignSafetyRectification(incident.id, {
+        responsible_person: person,
+        due_at: new Date(dueAt).toISOString(),
+        note,
+        confirmer: namesConfirmer && confirmer && confirmer !== incident.confirmer ? confirmer : undefined,
+      }),
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("assign.title")}</DialogTitle>
+          <DialogDescription>{t("assign.description", { incident: incident.incident_no })}</DialogDescription>
+        </DialogHeader>
+        <FieldWrapper label={t("field.responsible")} required>
+          <Select value={person || undefined} onValueChange={setPerson}>
+            <SelectTrigger className="w-full"><SelectValue placeholder={t("field.selectResponsible")} /></SelectTrigger>
+            <SelectContent>{(team.data?.results ?? []).map((row) => <SelectItem key={row.user} value={row.user}>{row.user_name}</SelectItem>)}</SelectContent>
+          </Select>
+          <QueryFailedNote query={team} what={t("what.team")} />
+        </FieldWrapper>
+        <FieldWrapper label={t("field.dueAt")} required>
+          <Input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
+        </FieldWrapper>
+        <FieldWrapper label={te("field.confirmer")} required>
+          {namesConfirmer ? (
+            <Select value={confirmer || undefined} onValueChange={setConfirmer}>
+              <SelectTrigger className="w-full" aria-label={te("field.confirmer")}><SelectValue placeholder={te("form.selectConfirmer")} /></SelectTrigger>
+              <SelectContent>{confirmerOptions.map((row) => <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>)}</SelectContent>
+            </Select>
+          ) : (
+            <p className="text-sm">{confirmerLabel(incident, te)}</p>
+          )}
+          <p className="mt-1.5 text-xs text-muted-foreground">{te("form.confirmerHint")}</p>
+          {namesConfirmer && <QueryFailedNote query={confirmers} what={te("what.confirmers")} />}
+          {sameAsConfirmer && <p role="alert" className="mt-1.5 text-xs text-destructive">{te("form.confirmerConflict")}</p>}
+        </FieldWrapper>
+        <FieldWrapper label={t("field.instructions")}>
+          <Textarea value={note} onChange={(e) => setNote(e.target.value)} />
+        </FieldWrapper>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button requires={[[person, t("field.responsible")], [dueAt, t("field.dueAt")], [!sameAsConfirmer, te("field.confirmer")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <UserCheck />}{t("action.assign")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
-function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
+export function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
   const qc = useQueryClient();
   const { user } = useAuth();
@@ -800,7 +973,7 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
     t("evidence.detail"),
     t("evidence.surroundings"),
   ];
-  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  const save = useMutation({ mutationFn: () => submitSafetyRectification(incident.id, { images, note, captured_at: new Date().toISOString(), latitude: location?.latitude, longitude: location?.longitude, accuracy_m: location?.accuracy, device_id: fieldMode ? getOrCreateFieldDeviceId() : undefined, client_event_id: crypto.randomUUID() }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] }); onClose(); } });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
@@ -870,27 +1043,27 @@ function SafetySubmitDialog({ incident, onClose }: { incident: SafetyIncident; o
  * in it still render, and nothing about their history changes. What went is
  * the button that puts a new one there.
  */
-function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
+export function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; onClose: () => void }) {
   const t = useTranslations("safetyRectification");
+  const te = useTranslations("ehs");
   const qc = useQueryClient();
   const [note, setNote] = useState("");
-  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision: "VERIFIED", note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); onClose(); } });
+  const permit = isPermit(incident);
+  const save = useMutation({ mutationFn: () => reviewSafetyRectification(incident.id, { decision: "VERIFIED", note }), onSuccess: () => { void qc.invalidateQueries({ queryKey: ["safety"] }); void qc.invalidateQueries({ queryKey: ["hazard-conversation", incident.id] }); onClose(); } });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{t("review.title")}</DialogTitle>
-          <DialogDescription>{t("review.description", { incident: incident.incident_no })}</DialogDescription>
+          <DialogTitle>{permit ? te("permit.approveTitle") : t("review.title")}</DialogTitle>
+          <DialogDescription>
+            {permit
+              ? te("permit.approveDescription", { incident: incident.incident_no })
+              : t("review.description", { incident: incident.incident_no })}
+          </DialogDescription>
         </DialogHeader>
-        <div className="grid grid-cols-3 gap-2">
-          {incident.rectification_evidence.filter((item) => item.kind === "RECTIFICATION").map((item) => (
-            <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer">
-              <Image src={item.watermarked || item.image} alt="" width={320} height={320} unoptimized className="aspect-square w-full rounded-lg object-cover" />
-            </a>
-          ))}
-        </div>
+        <HazardPhotoGroups incident={incident} />
         <p className="rounded-lg border border-info/25 bg-info/5 p-3 text-sm leading-6">
-          {t("review.refuseInstead")}
+          {permit ? te("permit.refuseInstead") : t("review.refuseInstead")}
         </p>
         <FieldWrapper label={t("field.reviewNote")}>
           <Textarea value={note} onChange={(event) => setNote(event.target.value)} />
@@ -899,11 +1072,69 @@ function SafetyReviewDialog({ incident, onClose }: { incident: SafetyIncident; o
           <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
           <Button disabled={save.isPending} onClick={() => save.mutate()}>
             <CheckCircle2 />
-            {t("action.verify")}
+            {permit ? te("permit.approve") : t("action.verify")}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * 整改前 / 中 / 后 in one place (B20): what raised it, the progress photos
+ * said in its room, and what the rectifier submitted. A permit's form is its
+ * "before"; it has no after.
+ */
+function HazardPhotoGroups({ incident }: { incident: SafetyIncident }) {
+  const te = useTranslations("ehs");
+  const groups: NonNullable<SafetyIncident["photo_groups"]> = incident.photo_groups ?? {
+    before: incident.initial_evidence ?? [],
+    during: [],
+    after: incident.rectification_evidence.filter((item) => item.kind === "RECTIFICATION"),
+  };
+  const rows: Array<["before" | "during" | "after", HazardPhoto[]]> = [
+    ["before", groups.before],
+    ["during", groups.during],
+    ["after", groups.after],
+  ];
+  return (
+    <div className="grid gap-3" data-testid="hazard-photo-groups">
+      {rows
+        .filter(([key, photos]) => !(isPermit(incident) && key !== "before" && photos.length === 0))
+        .map(([key, photos]) => (
+          <section key={key} className="grid gap-1.5">
+            <h3 className="text-sm font-medium">
+              {te(isPermit(incident) && key === "before" ? "permit.formPhotos" : `photos.${key}`)}
+              <span className="ml-1.5 tabular text-muted-foreground">{photos.length}</span>
+            </h3>
+            {photos.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{te("photos.none")}</p>
+            ) : (
+              <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
+                {photos.map((item, index) => (
+                  <a
+                    key={item.id}
+                    href={item.watermarked || item.image}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 overflow-hidden rounded-lg border"
+                    title={item.submitted_by_name ?? undefined}
+                  >
+                    <Image
+                      src={item.watermarked || item.image}
+                      alt={`${te(`photos.${key}`)} ${index + 1}`}
+                      width={96}
+                      height={96}
+                      unoptimized
+                      className="size-20 object-cover"
+                    />
+                  </a>
+                ))}
+              </div>
+            )}
+          </section>
+        ))}
+    </div>
   );
 }
 
@@ -961,6 +1192,16 @@ function SafetyCreateDialog({
       }),
     enabled: Boolean(draft.project),
   });
+  // VO is not a phone EHS column (E07), whatever a site does with the seeded
+  // one; and a column hidden from the phone stays hidden on it.
+  const offeredCategories = (categories.data?.results ?? []).filter(
+    (category) =>
+      category.code !== RETIRED_VO_COLUMN_CODE &&
+      !(fieldMode && category.is_visible_in_pwa === false),
+  );
+  const chosenCategory = offeredCategories.find((item) => item.id === draft.category);
+  // 施工准证申请 (C20): filing in the permit column makes it a permit.
+  const permit = chosenCategory?.code === PERMIT_COLUMN_CODE;
   const team = useQuery({
     queryKey: ["incident-recipient-options", draft.project],
     queryFn: () => getIncidentRecipientOptions(draft.project),
@@ -968,6 +1209,16 @@ function SafetyCreateDialog({
   });
   const selectableWorkers = team.data ?? [];
   const completedPhotos = completedFieldEvidence(draft.photos);
+  // One page of the company's form is a complete permit; a hazard keeps the
+  // phone's four and the office's one.
+  const requiredPhotos = permit ? 1 : fieldMode ? FIELD_EVIDENCE_PHOTO_COUNT : 1;
+  const photosReady = permit || !fieldMode
+    ? completedPhotos.length >= requiredPhotos
+    : completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos);
+  // 「整改执行人不能自己确认」 (B21). On the phone an empty confirmer is the
+  // reporter; from a desk the initiator always is.
+  const confirmerId = (fieldMode && draft.confirmer) || user?.id || "";
+  const rectifierIsConfirmer = !permit && Boolean(draft.rectifier) && draft.rectifier === confirmerId;
   const fieldEvidenceLabels = [
     t("safety.fieldEvidence.overview"),
     t("safety.fieldEvidence.detail"),
@@ -1002,6 +1253,16 @@ function SafetyCreateDialog({
         notify_users: draft.notifyUsers,
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,
+        ...(permit
+          ? { record_type: "PERMIT" as const, attachments: draft.attachments ?? [] }
+          : {
+              confirmer: fieldMode && draft.confirmer ? draft.confirmer : undefined,
+              responsible_person: draft.rectifier || undefined,
+              due_at:
+                draft.rectifier && draft.rectifierDueAt
+                  ? new Date(draft.rectifierDueAt).toISOString()
+                  : undefined,
+            }),
       };
       return submitSafetyIncidentOfflineAware(user.id, payload);
     },
@@ -1093,7 +1354,7 @@ function SafetyCreateDialog({
             <Select
               value={draft.category || undefined}
               onValueChange={(categoryId) => {
-                const category = categories.data?.results.find(
+                const category = offeredCategories.find(
                   (item) => item.id === categoryId,
                 );
                 setDraft((value) => ({
@@ -1108,13 +1369,18 @@ function SafetyCreateDialog({
                 <SelectValue placeholder={t("safety.filter.selectCategory")} />
               </SelectTrigger>
               <SelectContent>
-                {(categories.data?.results ?? []).map((category) => (
+                {offeredCategories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {permit && (
+              <p className="mt-2 rounded-lg border border-info/25 bg-info/5 p-3 text-sm leading-6">
+                {t("ehs.permit.hint")}
+              </p>
+            )}
             {/* An empty picker that does not say why it is empty is the shell
                 this task exists to remove: until D-172 nothing in the product
                 read EHS columns, so a site would have none. Say where they
@@ -1122,7 +1388,7 @@ function SafetyCreateDialog({
             <QueryFailedNote className="mt-2" query={categories} what={t("safety.what.categories")} />
             {draft.project &&
               categories.isSuccess &&
-              (categories.data?.results ?? []).length === 0 && (
+              offeredCategories.length === 0 && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   {t("safety.form.noSafetyColumns")}
                 </p>
@@ -1170,7 +1436,7 @@ function SafetyCreateDialog({
               }
             />
           </FieldWrapper>}
-          <FieldWrapper label={t("safety.field.photo")} required className="sm:col-span-2">
+          <FieldWrapper label={permit ? t("ehs.permit.formPhotos") : t("safety.field.photo")} required className="sm:col-span-2">
             {/*
               One grid for both modes (D-171).
 
@@ -1191,17 +1457,98 @@ function SafetyCreateDialog({
               labels={fieldEvidenceLabels}
               files={draft.photos}
               progressLabel={t(
-                fieldMode
+                fieldMode && !permit
                   ? "safety.fieldEvidence.progress"
                   : "safety.fieldEvidence.progressOffice",
                 {
                   current: completedPhotos.length,
-                  required: FIELD_EVIDENCE_PHOTO_COUNT,
+                  required: requiredPhotos,
                 },
               )}
               onChange={(photos) => setDraft((value) => ({ ...value, photos }))}
             />
           </FieldWrapper>
+          {permit && (
+            <FieldWrapper label={t("ehs.permit.attachments")} optional={t("common.optional")} className="sm:col-span-2">
+              <Input
+                type="file"
+                multiple
+                accept="application/pdf,image/*"
+                aria-label={t("ehs.permit.attachments")}
+                onChange={(event) => {
+                  const files = Array.from(event.target.files ?? []);
+                  setDraft((value) => ({ ...value, attachments: files }));
+                }}
+              />
+              {(draft.attachments?.length ?? 0) > 0 && (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  {(draft.attachments ?? []).map((file) => file.name).join(", ")}
+                </p>
+              )}
+            </FieldWrapper>
+          )}
+          {/* 上报 → 指派 in one step (B22), and who confirms it (B21). A
+              permit has neither: its applicant is the one waiting, and the
+              project's safety leads approve it. */}
+          {!permit && (
+            <FieldWrapper label={t("ehs.form.rectifier")} optional={t("common.optional")} className="sm:col-span-2">
+              <Select
+                value={draft.rectifier || "none"}
+                onValueChange={(value) =>
+                  setDraft((current) => ({ ...current, rectifier: value === "none" ? "" : value }))
+                }
+                disabled={!draft.project}
+              >
+                <SelectTrigger className="w-full" aria-label={t("ehs.form.rectifier")}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("ehs.form.noRectifier")}</SelectItem>
+                  {selectableWorkers.map((row) => (
+                    <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {draft.rectifier && (
+                <div className="mt-2">
+                  <FieldWrapper label={t("safetyRectification.field.dueAt")} required>
+                    <Input
+                      type="datetime-local"
+                      value={draft.rectifierDueAt ?? ""}
+                      onChange={(event) =>
+                        setDraft((current) => ({ ...current, rectifierDueAt: event.target.value }))
+                      }
+                    />
+                  </FieldWrapper>
+                </div>
+              )}
+            </FieldWrapper>
+          )}
+          {!permit && (
+            <FieldWrapper label={t("ehs.field.confirmer")} required className="sm:col-span-2">
+              {fieldMode ? (
+                <Select
+                  value={draft.confirmer || "self"}
+                  onValueChange={(value) =>
+                    setDraft((current) => ({ ...current, confirmer: value === "self" ? "" : value }))
+                  }
+                  disabled={!draft.project}
+                >
+                  <SelectTrigger className="w-full" aria-label={t("ehs.field.confirmer")}><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="self">{t("ehs.confirmer.me")}</SelectItem>
+                    {selectableWorkers.map((row) => (
+                      <SelectItem key={row.id} value={row.id}>{row.full_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-sm">{t("ehs.confirmer.initiator")}</p>
+              )}
+              <p className="mt-1.5 text-xs text-muted-foreground">{t("ehs.form.confirmerHint")}</p>
+              {rectifierIsConfirmer && (
+                <p role="alert" className="mt-1.5 text-xs text-destructive">{t("ehs.form.confirmerConflict")}</p>
+              )}
+            </FieldWrapper>
+          )}
           {/* 「知道由谁处理就当场指定，不知道就直接提交」. Required used to be
               true here in field mode, which turned step 2 of the customer's
               flow into a wall: a worker who does not know who fixes scaffold
@@ -1235,7 +1582,10 @@ function SafetyCreateDialog({
             A worker whose first attempt failed was left with an unpressable
             「上报隐患」 and nothing on the screen saying why (F-376).
           */}
-          <FieldWrapper label={t("safety.field.location")} required className={fieldMode ? "sm:col-span-2" : undefined}>
+          {/* Required on the phone only. Raised at a desk - the office or a
+              consultant - there is no site position to take; it is kept when
+              the browser gives one. */}
+          <FieldWrapper label={t("safety.field.location")} required={fieldMode} optional={fieldMode ? undefined : t("common.optional")} className={fieldMode ? "sm:col-span-2" : undefined}>
             <Button
               type="button"
               variant="outline"
@@ -1273,9 +1623,18 @@ function SafetyCreateDialog({
               app captures itself. Column, title, severity and a named person
               were all in here, and each one was a way for the button to stay
               grey at somebody who had already photographed the hazard. */}
-          <Button requires={fieldMode
-            ? [[completedPhotos.length >= FIELD_EVIDENCE_PHOTO_COUNT && hasRequiredFieldEvidence(draft.photos), t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.latitude && draft.longitude, t("safety.field.location")]]
-            : [[draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.title, t("safety.field.title")], [completedPhotos.length >= 1, t("safety.field.photo")], [draft.latitude && draft.longitude, t("safety.field.location")]]} disabled={create.isPending} onClick={() => create.mutate()}>
+          <Button requires={[
+            ...(fieldMode
+              ? [[photosReady, t("safety.field.photo")], [draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.latitude && draft.longitude, t("safety.field.location")]]
+              : [[draft.project, t("safety.field.project")], [draft.category, t("safety.field.category")], [draft.title, t("safety.field.title")], [photosReady, t("safety.field.photo")]]),
+            ...(permit
+              ? []
+              : [
+                  [!draft.rectifier || draft.rectifierDueAt, t("safetyRectification.field.dueAt")],
+                  [!rectifierIsConfirmer, t("ehs.field.confirmer")],
+                ]),
+          ] as Array<[unknown, string]>} disabled={create.isPending} onClick={() => create.mutate()}>
+
             {create.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

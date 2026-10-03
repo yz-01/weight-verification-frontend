@@ -107,9 +107,14 @@ export function getSafetyIncidents(
   );
 }
 
-export function getSafetyIncident(id: string): Promise<SafetyIncident> {
+export function getSafetyIncident(
+  id: string,
+  options: { silent?: boolean } = {},
+): Promise<SafetyIncident> {
   return api.get<SafetyIncident>(
     `/api/safety-incidents/${id}/get_safety_incident/`,
+    undefined,
+    { silent: options.silent },
   );
 }
 
@@ -158,7 +163,13 @@ export async function updateSafetyStatus(
 
 export async function assignSafetyRectification(
   id: string,
-  payload: { responsible_person: string; due_at: string; note?: string },
+  payload: {
+    responsible_person: string;
+    due_at: string;
+    note?: string;
+    /** A phone-raised hazard's confirmer, when the assigner names one (B21). */
+    confirmer?: string;
+  },
 ): Promise<SafetyIncident> {
   const incident = await api.post<SafetyIncident>(
     `/api/safety-incidents/${id}/assign_rectification/`,

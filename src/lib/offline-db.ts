@@ -307,6 +307,11 @@ export interface SafetyIncidentOfflineJob extends OfflineJobBase {
     longitude?: string;
     photos: StoredFile[];
     notify_users?: string[];
+    record_type?: "HAZARD" | "PERMIT";
+    confirmer?: string;
+    responsible_person?: string;
+    due_at?: string;
+    attachments?: StoredFile[];
   };
 }
 

@@ -759,4 +759,11 @@ export interface DispatchSummary {
     estimated_weight_kg: string | null;
   }>;
   by_state: Partial<Record<DispatchState, number>>;
+  /** D06: 原废料订单's own records, trips that left site, weighed net kg. */
+  clearance_totals?: {
+    records: number;
+    trips: number;
+    weighed_kg: string;
+    weighed_records: number;
+  };
 }

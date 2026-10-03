@@ -26,8 +26,8 @@ import {
 } from "@/components/ui/table";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
-import { getDispatches } from "@/services/contractor.service";
-import { getDisposalRequests } from "@/services/contractor-ops.service";
+import { getDispatchSummary, getDispatches } from "@/services/contractor.service";
+import { getDisposalRequests, getDisposalTotals } from "@/services/contractor-ops.service";
 
 type Kind = "all" | "disposal" | "dispatch";
 
@@ -77,6 +77,19 @@ export function WasteClearance() {
   });
   const countText = (query: typeof disposalCount | typeof dispatchCount) =>
     query.isError ? "—" : query.isLoading ? "…" : String(query.data?.count ?? 0);
+  // D06: each kind's own 数量 / 车次 / 重量, read from its own module and
+  // shown on its own line - never added together.
+  const disposalTotals = useQuery({
+    queryKey: ["site-disposals", "totals", "waste-clearance"],
+    queryFn: () => getDisposalTotals(),
+    enabled: hasDisposals && can("disposal.view"),
+  });
+  const dispatchTotals = useQuery({
+    queryKey: ["dispatches", "summary", "waste-clearance"],
+    queryFn: () => getDispatchSummary({}),
+    enabled: hasDispatches && can("dispatch.view"),
+  });
+  const dispatchFigures = dispatchTotals.data?.clearance_totals;
 
   if (kinds.length === 0) return null;
 
@@ -115,6 +128,32 @@ export function WasteClearance() {
       />
       <QueryFailedNote query={disposalCount} what={t("kind.disposal")} />
       <QueryFailedNote query={dispatchCount} what={t("kind.dispatch")} />
+      <QueryFailedNote query={disposalTotals} what={t("kind.disposal")} />
+      <QueryFailedNote query={dispatchTotals} what={t("kind.dispatch")} />
+
+      {(disposalTotals.data || dispatchFigures) && (
+        <section data-clearance-totals className="rounded-lg border bg-card px-3 py-2 text-sm shadow-sm">
+          {disposalTotals.data && (
+            <p>
+              {t("totals.disposals", {
+                records: disposalTotals.data.records,
+                trips: disposalTotals.data.trips,
+                weight: disposalTotals.data.weight_kg,
+              })}
+            </p>
+          )}
+          {dispatchFigures && (
+            <p>
+              {t("totals.dispatches", {
+                records: dispatchFigures.records,
+                trips: dispatchFigures.trips,
+                weight: dispatchFigures.weighed_kg,
+              })}
+            </p>
+          )}
+          <p className="mt-0.5 text-xs text-muted-foreground">{t("totals.apart")}</p>
+        </section>
+      )}
 
       {kinds.length > 1 && (
         <nav aria-label={t("title")} className="flex w-fit flex-wrap gap-1 rounded-lg border bg-card p-1 shadow-sm">
