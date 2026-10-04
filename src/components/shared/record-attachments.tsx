@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { FilePreviewDialog } from "@/components/shared/file-preview";
-import { LoadFailed } from "@/components/shared/page-primitives";
+import { FieldWrapper, LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { RecordAttachment } from "@/interfaces/record-attachment";
@@ -153,14 +153,16 @@ export function RecordAttachmentsPanel({ kind, recordId }: { kind: ChatRecordKin
           ) : adding ? (
             <div className="mt-2 space-y-2 rounded-md border border-dashed p-2">
               <p className="text-[11px] text-muted-foreground">{t("hint")}</p>
-              <Input
-                key={inputKey}
-                type="file"
-                multiple
-                className="h-8 text-xs"
-                aria-label={t("files")}
-                onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
-              />
+              <FieldWrapper label={t("files")} required>
+                <Input
+                  key={inputKey}
+                  type="file"
+                  multiple
+                  className="h-8 text-xs"
+                  aria-label={t("files")}
+                  onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+                />
+              </FieldWrapper>
               <Input
                 className="h-8 text-xs"
                 value={note}
