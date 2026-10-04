@@ -3153,30 +3153,18 @@
       "CLOCK_OUT": "Clock out"
     },
     "evidence": {
-      "accuracy": "GPS accuracy",
-      "distance": "Distance",
       "event": "Event",
-      "geofence": "Geofence result",
-      "geofenceName": "Matched geofence",
-      "geofenceStatus": {
-        "INSIDE": "Inside",
-        "NOT_EVALUATED": "Not evaluated",
-        "OUTSIDE": "Outside"
-      },
-      "latitude": "Latitude",
-      "longitude": "Longitude",
       "noLocation": "No GPS location was recorded.",
       "noPhoto": "No site entry photo was uploaded.",
-      "notMatched": "No geofence matched",
       "note": "Note",
-      "originalAt": "Original event time",
       "photoAlt": "Site entry photo",
       "project": "Project",
       "recordedAt": "Recorded time",
       "title": "Site entry evidence",
       "uploadedAt": "Uploaded time",
       "view": "View evidence",
-      "worker": "Worker"
+      "worker": "Worker",
+      "gps": "GPS"
     },
     "field": {
       "event": "Event",

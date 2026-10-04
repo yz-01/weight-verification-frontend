@@ -3153,30 +3153,18 @@
       "CLOCK_OUT": "下班打卡"
     },
     "evidence": {
-      "accuracy": "GPS 精度",
-      "distance": "距离",
       "event": "事件",
-      "geofence": "围栏结果",
-      "geofenceName": "匹配围栏",
-      "geofenceStatus": {
-        "INSIDE": "围栏内",
-        "NOT_EVALUATED": "未评估",
-        "OUTSIDE": "围栏外"
-      },
-      "latitude": "纬度",
-      "longitude": "经度",
       "noLocation": "这次打卡没有记录 GPS 位置。",
       "noPhoto": "这次打卡没有上传照片。",
-      "notMatched": "没有匹配围栏",
       "note": "备注",
-      "originalAt": "原始发生时间",
       "photoAlt": "人员进场照片",
       "project": "项目",
       "recordedAt": "系统记录时间",
       "title": "人员进场证据详情",
       "uploadedAt": "上传时间",
       "view": "查看证据",
-      "worker": "人员"
+      "worker": "人员",
+      "gps": "GPS 位置"
     },
     "field": {
       "event": "类型",

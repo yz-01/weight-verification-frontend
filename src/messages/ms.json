@@ -3153,30 +3153,18 @@
       "CLOCK_OUT": "Daftar keluar"
     },
     "evidence": {
-      "accuracy": "Ketepatan GPS",
-      "distance": "Jarak",
       "event": "Acara",
-      "geofence": "Keputusan geofence",
-      "geofenceName": "Geofence dipadankan",
-      "geofenceStatus": {
-        "INSIDE": "Dalam",
-        "NOT_EVALUATED": "Belum dinilai",
-        "OUTSIDE": "Di luar"
-      },
-      "latitude": "Latitud",
-      "longitude": "Longitud",
       "noLocation": "Tiada lokasi GPS direkodkan.",
       "noPhoto": "Tiada foto dimuat naik untuk rekod ini.",
-      "notMatched": "Tiada geofence dipadankan",
       "note": "Catatan",
-      "originalAt": "Masa asal acara",
       "photoAlt": "Foto kemasukan tapak",
       "project": "Projek",
       "recordedAt": "Masa direkod",
       "title": "Butiran bukti kemasukan tapak",
       "uploadedAt": "Masa dimuat naik",
       "view": "Lihat bukti",
-      "worker": "Pekerja"
+      "worker": "Pekerja",
+      "gps": "GPS"
     },
     "field": {
       "event": "Peristiwa",
