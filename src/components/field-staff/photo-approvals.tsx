@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Images, Loader2, MapPin, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -43,6 +43,9 @@ import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-sta
  * ones are listed too: the same PHOTO site tasks, with their photos, who
  * decided and why, read-only. Nothing about them was moved or rewritten.
  */
+/** Rows per request; more come with 【Load more】. */
+const PAGE_SIZE = 50;
+
 export function PhotoApprovals() {
   return <FieldDraft scope="photo-approvals"><PhotoApprovalsContent /></FieldDraft>;
 }
@@ -57,11 +60,18 @@ function PhotoApprovalsContent() {
   const clearDraft = useClearDraft();
   const pending = shown === "SUBMITTED";
 
-  const waiting = useQuery({
+  // Page by page, so the history is all reachable (D02): an approved or
+  // returned photo submission from two years ago is still one 【Load more】
+  // away, not cut off at the newest fifty.
+  const waiting = useInfiniteQuery({
     queryKey: ["field-tasks", "photo-approvals", shown],
-    queryFn: () =>
-      getFieldTasks({ task_type: "PHOTO", status: shown, page_size: 50 }),
+    queryFn: ({ pageParam }) =>
+      getFieldTasks({ task_type: "PHOTO", status: shown, page: pageParam, page_size: PAGE_SIZE }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
   });
+  const total = waiting.data?.pages[0]?.count ?? 0;
 
   const decide = useMutation({
     mutationFn: ({
@@ -84,7 +94,7 @@ function PhotoApprovalsContent() {
     },
   });
 
-  const rows = waiting.data?.results ?? [];
+  const rows = waiting.data?.pages.flatMap((page) => page.results) ?? [];
   const returning = rows.find((task) => task.id === returningId) ?? null;
 
   return (
@@ -95,8 +105,8 @@ function PhotoApprovalsContent() {
           waiting.isError
             ? t("common.emptyValue")
             : pending
-              ? t("photoApprovals.subtitle", { count: waiting.data?.count ?? 0 })
-              : t("photoApprovals.historyCount", { count: waiting.data?.count ?? 0 })
+              ? t("photoApprovals.subtitle", { count: total })
+              : t("photoApprovals.historyCount", { count: total })
         }
         action={
           <div className="flex gap-1 rounded-lg border p-1" role="tablist" aria-label={t("photoApprovals.show")}>
@@ -234,6 +244,18 @@ function PhotoApprovalsContent() {
               </div>
             </article>
           ))}
+          {waiting.hasNextPage && (
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled={waiting.isFetchingNextPage}
+              disabledReason={waiting.isFetchingNextPage ? t("common.loading") : undefined}
+              onClick={() => void waiting.fetchNextPage()}
+            >
+              {waiting.isFetchingNextPage && <Loader2 className="size-4 animate-spin" />}
+              {t("photoApprovals.loadMore", { shown: rows.length, total })}
+            </Button>
+          )}
         </div>
       )}
 

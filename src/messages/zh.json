@@ -10538,7 +10538,8 @@
       "SUBMITTED": "待审批",
       "ACCEPTED": "已批准",
       "RETURNED": "已退回"
-    }
+    },
+    "loadMore": "载入更多（已显示 {shown} / {total}）"
   },
   "profile": {
     "section": {

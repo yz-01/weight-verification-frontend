@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page, type Route } from "@playwright/test";
 
 import { ACCOUNTS, LOGIN_PATHS, loginAs } from "./helpers";
 
@@ -88,6 +88,55 @@ test.describe("MR / Other Request", () => {
     const renewed = page.getByRole("heading", { name: /^MR-P-E2E-/ });
     await expect(renewed).toBeVisible({ timeout: 20_000 });
     await expect(renewed).not.toHaveText(number ?? "");
+  });
+
+  test("every decided photo submission is reachable, past the first fifty (D02)", async ({ page }) => {
+    // 55 approved PHOTO tasks over two pages, served in the API's own page
+    // shape: the history must not stop at the newest fifty.
+    const total = 55;
+    const task = (n: number) => ({
+      id: `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`,
+      title: `Old photo submission ${n}`,
+      task_type: "PHOTO",
+      status: "ACCEPTED",
+      instructions: "",
+      category_name: "E2E photos",
+      project_name: "E2E Tower",
+      assigned_to_name: "E2E Field Staff",
+      submitted_at: "2025-01-01T08:00:00Z",
+      reviewed_at: "2025-01-02T08:00:00Z",
+      reviewed_by_name: "E2E Contractor Admin",
+      review_note: "",
+      photos: [],
+    });
+    await page.route("**/api/field-tasks/get_tasks/**", async (route: Route) => {
+      const url = new URL(route.request().url());
+      if (url.searchParams.get("status") !== "ACCEPTED" || route.request().method() !== "GET") {
+        return route.fallback();
+      }
+      const number = Number(url.searchParams.get("page") ?? "1");
+      const size = Number(url.searchParams.get("page_size") ?? "50");
+      const first = (number - 1) * size + 1;
+      const results = Array.from({ length: Math.max(0, Math.min(size, total - first + 1)) }, (_, i) => task(first + i));
+      await route.fulfill({
+        json: {
+          success: true,
+          message: "",
+          data: { count: total, page: number, page_size: size, total_pages: Math.ceil(total / size), results },
+        },
+      });
+    });
+
+    await page.goto("/material-requests?tab=photos");
+    await page.getByRole("tab", { name: "Approved" }).click();
+    await expect(page.getByRole("heading", { name: "Old photo submission 50", exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { name: "Old photo submission 51", exact: true })).toHaveCount(0);
+
+    await page.getByRole("button", { name: "Load more (50 of 55 shown)" }).click();
+    await expect(page.getByRole("heading", { name: "Old photo submission 55", exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { name: "Old photo submission 51", exact: true })).toBeVisible();
+    // Everything is shown, so there is nothing more to load.
+    await expect(page.getByRole("button", { name: /^Load more/ })).toHaveCount(0);
   });
 
   test("the old photo approvals address opens the photo tab (D02)", async ({ page }) => {

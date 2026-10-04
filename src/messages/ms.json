@@ -10538,7 +10538,8 @@
       "SUBMITTED": "Menunggu",
       "ACCEPTED": "Diluluskan",
       "RETURNED": "Dihantar balik"
-    }
+    },
+    "loadMore": "Muat lagi ({shown} daripada {total} dipaparkan)"
   },
   "profile": {
     "section": {

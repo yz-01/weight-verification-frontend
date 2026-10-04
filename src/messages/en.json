@@ -10538,7 +10538,8 @@
       "SUBMITTED": "Waiting",
       "ACCEPTED": "Approved",
       "RETURNED": "Sent back"
-    }
+    },
+    "loadMore": "Load more ({shown} of {total} shown)"
   },
   "profile": {
     "section": {
