@@ -21,26 +21,36 @@ export interface TransferLike {
   }> | null;
 }
 
-const isImage = (file: File | null | undefined): file is File =>
-  Boolean(file && file.type.startsWith("image/"));
+/** A payment voucher: a photograph or scan of the slip, or the bank's PDF (D11). */
+const isVoucherType = (type: string, name = "") =>
+  type.startsWith("image/") || type === "application/pdf" || /\.pdf$/i.test(name);
+
+const isVoucher = (file: File | null | undefined): file is File =>
+  Boolean(file && isVoucherType(file.type, file.name));
+
+/** Whether a chosen voucher is a PDF rather than a picture. */
+export function isPdfVoucher(file: File | null | undefined): boolean {
+  return Boolean(file && (file.type === "application/pdf" || /\.pdf$/i.test(file.name)));
+}
 
 /**
- * The image files carried by a paste or a drop, in order.
+ * The voucher files carried by a paste or a drop, in order.
  *
  * `files` first: a drop from the file manager and a pasted screenshot both
  * fill it in current browsers. `items` is the fallback for a browser that
  * only exposes a pasted image there - reading both would count the same
- * screenshot twice. Anything that is not an image (a PDF, text copied from a
- * chat) is left out, because the voucher field takes images only.
+ * screenshot twice. Anything that is not a voucher (a Word file, text copied
+ * from a chat) is left out: the payment voucher slot only holds payment
+ * vouchers, and everything else goes in the record's general attachments.
  */
-export function imageFilesFrom(transfer: TransferLike | null | undefined): File[] {
+export function voucherFilesFrom(transfer: TransferLike | null | undefined): File[] {
   if (!transfer) return [];
   const files = Array.from(transfer.files ?? []);
-  if (files.length > 0) return files.filter(isImage);
+  if (files.length > 0) return files.filter(isVoucher);
   return Array.from(transfer.items ?? [])
-    .filter((item) => item.kind === "file" && item.type.startsWith("image/"))
+    .filter((item) => item.kind === "file" && isVoucherType(item.type))
     .map((item) => item.getAsFile())
-    .filter(isImage);
+    .filter(isVoucher);
 }
 
 /** Whether a paste or drop carried files at all, images or not. */

@@ -42,9 +42,11 @@ import type {
   PackageRecordParts,
   PackageSelection,
   PackageState,
+  PackagePart,
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
-import { api, download, toastSuccess } from "@/services/api-client";
+import type { ChatRecordKind } from "@/lib/record-chat";
+import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export const getProjectCategories = (query: ListQuery) =>
   api.list<ProjectCategory>("/api/project-categories/get_categories/", query);
@@ -1069,10 +1071,12 @@ export async function addPackageItems(
   id: string,
   kind: ArchiveRecordKind,
   ids: string[],
+  /** What the records carry besides their fields (D12); photos only if left out. */
+  include?: PackagePart[],
 ) {
   const row = await api.post<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/add_items/`,
-    { kind, ids },
+    include ? { kind, ids, include } : { kind, ids },
   );
   toastSuccess("multiEngine.toast.added", { count: ids.length });
   return row;
@@ -1201,6 +1205,12 @@ export const downloadRecordPdf = (
     // labels rather than numbers (a progress record's 「phase / 40%」), so
     // the characters a filename cannot hold become dashes.
     fallbackFilename: `${(reference || "record").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
+  });
+
+/** The same PDF, fetched to read or print in the page (D12); the caller revokes it. */
+export const recordPdfObjectUrl = (kind: ExportableRecordKind, recordId: string) =>
+  fetchObjectUrl("/api/record-exports/download/", {
+    query: { kind, record: recordId, inline: "1" },
   });
 
 export async function sendPackageForReview(id: string, consultant: string) {
@@ -1394,11 +1404,11 @@ export interface RecordConversation {
    * stays readable; the server refuses new messages with
    * `conversation_closed`. Optional because an older server omits it.
    */
-  closed?: "" | "archived" | "paid";
+  closed?: "" | "archived" | "paid" | "decided";
 }
 
 export function getRecordConversation(
-  kind: ArchiveRecordKind,
+  kind: ChatRecordKind,
   record: string,
 ): Promise<RecordConversation> {
   return api.get<RecordConversation>("/api/record-chat/get_conversation/", {
@@ -1415,7 +1425,7 @@ export function getRecordConversation(
  * people these six modules need in it (D-094).
  */
 export function postRecordMessage(
-  kind: ArchiveRecordKind,
+  kind: ChatRecordKind,
   record: string,
   payload: {
     body?: string;

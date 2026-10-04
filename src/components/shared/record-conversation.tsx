@@ -29,8 +29,7 @@ import {
   useDraftState,
 } from "@/components/field-staff/field-draft";
 import { ApiError } from "@/interfaces/api";
-import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
-import { conversationClosedLine, recordConversationKey } from "@/lib/record-chat";
+import { conversationClosedLine, recordConversationKey, type ChatRecordKind } from "@/lib/record-chat";
 import {
   getRecordConversation,
   postRecordMessage,
@@ -40,7 +39,7 @@ export function RecordConversationPanel({
   kind,
   recordId,
 }: {
-  kind: ArchiveRecordKind;
+  kind: ChatRecordKind;
   recordId: string;
 }) {
   return (
@@ -56,7 +55,7 @@ function RecordConversationContent({
   kind,
   recordId,
 }: {
-  kind: ArchiveRecordKind;
+  kind: ChatRecordKind;
   recordId: string;
 }) {
   const t = useTranslations();

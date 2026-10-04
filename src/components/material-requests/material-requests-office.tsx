@@ -1,0 +1,758 @@
+"use client";
+
+/**
+ * MR / Other Request, the office side (C01–C07, D02).
+ *
+ * The old 照片审批 entry, rebuilt. Three tabs:
+ *
+ * 1. **Requests** - every request with its own Request No., the eleven
+ *    columns the customer listed (C03), + New Request, and the detail with its
+ *    conversation, Approve and Return (C05) and the formal form's Preview,
+ *    Print and Export PDF (C06).
+ * 2. **Totals** - per project, material + specification + unit, the approved
+ *    and the not-yet-approved quantities side by side, never added (C04).
+ *    Not yet approved is pending only: a returned request is finished and is
+ *    shown as history, not as something waiting (Q1).
+ * 3. **Photo approvals** - the PHOTO site tasks this entry used to show,
+ *    pending ones still decided here, and every earlier one still readable
+ *    (D02). Nothing about them moved.
+ */
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  Check,
+  Download,
+  Eye,
+  FilePlus2,
+  Loader2,
+  Paperclip,
+  Printer,
+  RotateCcw,
+  Settings2,
+  XCircle,
+} from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { FieldDraft } from "@/components/field-staff/field-draft";
+import { PhotoApprovals } from "@/components/field-staff/photo-approvals";
+import { OptionListsDialog } from "@/components/material-requests/option-lists";
+import {
+  MaterialRequestForm,
+  type MaterialRequestPrefill,
+  useUnitLabel,
+} from "@/components/material-requests/request-form";
+import { useAuth } from "@/components/providers/auth-provider";
+import { ExportButton } from "@/components/shared/export-button";
+import {
+  FilterSelect,
+  ModuleRecordsTable,
+  PlainHeader,
+  ProjectListFilter,
+  sortable,
+} from "@/components/shared/module-records-table";
+import { FieldWrapper, LoadFailed, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { useListQuery } from "@/hooks/use-list-query";
+import { useUrlSelection } from "@/hooks/use-url-selection";
+import { ApiError } from "@/interfaces/api";
+import {
+  MATERIAL_REQUEST_STATUSES,
+  type MaterialRequest,
+  type MaterialRequestStatus,
+} from "@/interfaces/material-request";
+import { useDateFormat } from "@/lib/dates";
+import { recordConversationKey } from "@/lib/record-chat";
+import {
+  exportMaterialRequestForm,
+  exportMaterialRequests,
+  getMaterialRequest,
+  getMaterialRequests,
+  getMaterialRequestTotals,
+  materialRequestFormUrl,
+  reviewMaterialRequest,
+} from "@/services/material-request.service";
+
+const TONE: Record<MaterialRequestStatus, "warning" | "positive" | "neutral"> = {
+  SUBMITTED: "warning",
+  APPROVED: "positive",
+  // Finished, not waiting and not an alarm (Q1): grey, with its reason.
+  RETURNED: "neutral",
+};
+
+type Tab = "requests" | "totals" | "photos";
+
+export function MaterialRequestsOffice() {
+  const t = useTranslations("materialRequest");
+  const { can } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const canRequests = can("material_request.view");
+  const canPhotos = can("field_task.view");
+  const tabs: Tab[] = [
+    ...(canRequests ? (["requests", "totals"] as const) : []),
+    ...(canPhotos ? (["photos"] as const) : []),
+  ];
+  const asked = searchParams.get("tab") as Tab | null;
+  const tab: Tab = asked && tabs.includes(asked) ? asked : (tabs[0] ?? "requests");
+  const chooseTab = (next: Tab) => {
+    const params = new URLSearchParams();
+    if (next !== "requests") params.set("tab", next);
+    router.replace(params.size ? `/material-requests?${params.toString()}` : "/material-requests", { scroll: false });
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      {tabs.length > 1 && (
+        <Tabs value={tab} onValueChange={(value) => chooseTab(value as Tab)}>
+          <TabsList>
+            {tabs.map((key) => (
+              <TabsTrigger key={key} value={key}>
+                {t(`tab.${key}`)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
+      {tab === "requests" && canRequests && <RequestsTab />}
+      {tab === "totals" && canRequests && <TotalsTab onOpenGroup={(filters) => {
+        const params = new URLSearchParams(filters);
+        router.replace(`/material-requests?${params.toString()}`, { scroll: false });
+      }} />}
+      {tab === "photos" && canPhotos && (
+        <div className="space-y-2">
+          <p className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{t("photosNote")}</p>
+          <PhotoApprovals />
+        </div>
+      )}
+      {tabs.length === 0 && <p className="text-sm text-muted-foreground">{t("noAccess")}</p>}
+    </div>
+  );
+}
+
+function RequestsTab() {
+  const t = useTranslations("materialRequest");
+  const tRoot = useTranslations();
+  const df = useDateFormat();
+  const unitLabel = useUnitLabel();
+  const { can } = useAuth();
+  const list = useListQuery(["project", "status", "request_type", "material", "specification", "unit"]);
+  const rows = useQuery({
+    queryKey: ["material-requests", "office", list.query],
+    queryFn: () => getMaterialRequests(list.query),
+  });
+  const [viewing, setViewing] = useUrlSelection("record");
+  const [creating, setCreating] = useState<MaterialRequestPrefill | "blank" | null>(null);
+  const [managing, setManaging] = useState(false);
+  const total = rows.data?.count ?? 0;
+  const title = tRoot("nav.material_requests");
+
+  const columns = useMemo<ColumnDef<MaterialRequest, unknown>[]>(
+    () => [
+      {
+        accessorKey: "request_no",
+        meta: { label: t("field.requestNo") },
+        header: sortable(t("field.requestNo")),
+        cell: ({ row }) => <span className="tabular text-foreground">{row.original.request_no}</span>,
+      },
+      {
+        id: "request_type",
+        meta: { label: t("field.requestType") },
+        header: () => <PlainHeader label={t("field.requestType")} />,
+        cell: ({ row }) => <TypeBadge label={t(`type.${row.original.request_type}`)} />,
+      },
+      {
+        accessorKey: "project_name",
+        meta: { label: t("field.project") },
+        header: () => <PlainHeader label={t("field.project")} />,
+        cell: ({ row }) => <p className="max-w-[160px] truncate">{row.original.project_name}</p>,
+      },
+      {
+        accessorKey: "material_name",
+        meta: { label: t("field.material") },
+        header: sortable(t("field.material")),
+        cell: ({ row }) => row.original.material_name || <span className="text-muted-foreground">—</span>,
+      },
+      {
+        accessorKey: "specification",
+        meta: { label: t("field.specification") },
+        header: () => <PlainHeader label={t("field.specification")} />,
+        cell: ({ row }) => row.original.specification || <span className="text-muted-foreground">—</span>,
+      },
+      {
+        accessorKey: "quantity",
+        meta: { label: t("field.quantity") },
+        header: sortable(t("field.quantity")),
+        cell: ({ row }) => <span className="tabular font-medium">{row.original.quantity ?? "—"}</span>,
+      },
+      {
+        accessorKey: "unit",
+        meta: { label: t("field.unit") },
+        header: () => <PlainHeader label={t("field.unit")} />,
+        cell: ({ row }) => (row.original.unit ? unitLabel(row.original.unit) : "—"),
+      },
+      {
+        accessorKey: "submitted_by_name",
+        meta: { label: t("field.submittedBy") },
+        header: () => <PlainHeader label={t("field.submittedBy")} />,
+        cell: ({ row }) => row.original.submitted_by_name || "—",
+      },
+      {
+        accessorKey: "created_at",
+        meta: { label: t("field.date") },
+        header: sortable(t("field.date")),
+        cell: ({ row }) => <span className="tabular text-muted-foreground">{df.dateTime(row.original.created_at)}</span>,
+      },
+      {
+        id: "status",
+        meta: { label: t("field.status") },
+        header: () => <PlainHeader label={t("field.status")} />,
+        cell: ({ row }) => <StatusBadge label={t(`status.${row.original.status}`)} tone={TONE[row.original.status]} />,
+      },
+      {
+        id: "view",
+        meta: { label: t("field.view") },
+        header: () => <PlainHeader label={t("field.view")} />,
+        cell: ({ row }) => (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7"
+            onClick={(event) => {
+              event.stopPropagation();
+              setViewing(row.original.id);
+            }}
+          >
+            <Eye className="size-3.5" />
+            {t("action.view")}
+          </Button>
+        ),
+      },
+    ],
+    [t, df, unitLabel, setViewing],
+  );
+
+  const runExport = (format: "xlsx" | "pdf") =>
+    exportMaterialRequests({
+      format,
+      title,
+      subtitle: tRoot("moduleTable.count", { count: total }),
+      emptyLabel: t("empty"),
+      query: list.query,
+      columns: [
+        { key: "request_no", label: t("field.requestNo") },
+        { key: "request_type", label: t("field.requestType"), values: { MATERIAL: t("type.MATERIAL"), OTHER: t("type.OTHER") } },
+        { key: "project_name", label: t("field.project") },
+        { key: "material_name", label: t("field.material") },
+        { key: "specification", label: t("field.specification") },
+        { key: "quantity", label: t("field.quantity") },
+        { key: "unit", label: t("field.unit") },
+        { key: "submitted_by_name", label: t("field.submittedBy") },
+        { key: "submitted_at", label: t("field.date") },
+        {
+          key: "status",
+          label: t("field.status"),
+          values: { SUBMITTED: t("status.SUBMITTED"), APPROVED: t("status.APPROVED"), RETURNED: t("status.RETURNED") },
+        },
+        { key: "decided_by_name", label: t("field.decidedBy") },
+        { key: "decided_at", label: t("field.decidedAt") },
+        { key: "decision_note", label: t("field.returnReason") },
+      ],
+    });
+
+  return (
+    <>
+      <ModuleRecordsTable
+        title={title}
+        countLabel={tRoot("moduleTable.count", { count: total })}
+        headerAction={
+          <div className="flex flex-wrap gap-2">
+            {can("material_request.config") && (
+              <Button variant="outline" size="sm" onClick={() => setManaging(true)}>
+                <Settings2 className="size-4" />
+                {t("options.open")}
+              </Button>
+            )}
+            {can("material_request.submit") && (
+              <Button size="sm" onClick={() => setCreating("blank")}>
+                <FilePlus2 className="size-4" />
+                {t("action.new")}
+              </Button>
+            )}
+          </div>
+        }
+        list={list}
+        columns={columns}
+        rows={rows.data?.results ?? []}
+        totalCount={total}
+        isLoading={rows.isLoading}
+        isError={rows.isError}
+        storageKey="material-requests"
+        toolbar={
+          <>
+            <ProjectListFilter list={list} />
+            <FilterSelect
+              list={list}
+              param="request_type"
+              allLabel={t("allTypes")}
+              options={(["MATERIAL", "OTHER"] as const).map((type) => ({ value: type, label: t(`type.${type}`) }))}
+            />
+            <FilterSelect
+              list={list}
+              param="status"
+              allLabel={tRoot("moduleTable.allStatuses")}
+              options={MATERIAL_REQUEST_STATUSES.map((status) => ({ value: status, label: t(`status.${status}`) }))}
+            />
+            <TextFilter list={list} param="material" placeholder={t("filter.material")} />
+            <TextFilter list={list} param="specification" placeholder={t("filter.specification")} />
+            <ExportButton onExport={runExport} disabled={total === 0} />
+          </>
+        }
+        onOpen={(row) => setViewing(row.id)}
+      />
+      {viewing && (
+        <MaterialRequestDetail
+          id={viewing}
+          onClose={() => setViewing(null)}
+          onRaiseAgain={(prefill) => {
+            setViewing(null);
+            setCreating(prefill);
+          }}
+        />
+      )}
+      {creating && (
+        <NewRequestDialog
+          initialProject={list.filters.project ?? ""}
+          prefill={creating === "blank" ? null : creating}
+          onManageLists={can("material_request.config") ? () => setManaging(true) : undefined}
+          onClose={() => setCreating(null)}
+          onSaved={(row) => {
+            setCreating(null);
+            setViewing(row.id);
+          }}
+        />
+      )}
+      {managing && <OptionListsDialog onClose={() => setManaging(false)} />}
+    </>
+  );
+}
+
+/** A filter box that writes to the URL when the person stops typing. */
+function TextFilter({
+  list,
+  param,
+  placeholder,
+}: {
+  list: ReturnType<typeof useListQuery>;
+  param: string;
+  placeholder: string;
+}) {
+  const [value, setValue] = useState(list.filters[param] ?? "");
+  const current = list.filters[param] ?? "";
+  const { setFilter } = list;
+  useEffect(() => {
+    if (value === current) return;
+    const timer = setTimeout(() => setFilter(param, value.trim() || undefined), 400);
+    return () => clearTimeout(timer);
+  }, [value, current, param, setFilter]);
+  return (
+    <Input
+      aria-label={placeholder}
+      placeholder={placeholder}
+      value={value}
+      onChange={(event) => setValue(event.target.value)}
+      className="h-9 w-[150px]"
+    />
+  );
+}
+
+export function NewRequestDialog({
+  initialProject,
+  prefill,
+  onManageLists,
+  onClose,
+  onSaved,
+}: {
+  initialProject: string;
+  prefill: MaterialRequestPrefill | null;
+  onManageLists?: () => void;
+  onClose: () => void;
+  onSaved: (row: MaterialRequest) => void;
+}) {
+  const t = useTranslations("materialRequest");
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t("form.title")}</DialogTitle>
+          <DialogDescription>{prefill ? t("form.raiseAgainHelp") : t("form.help")}</DialogDescription>
+        </DialogHeader>
+        {/* A fresh draft for a re-raise, so the returned request's words do
+            not overwrite a half-typed new one, and the other way round. */}
+        <FieldDraft scope={prefill ? "material-request:again" : "material-request:new"}>
+          <MaterialRequestForm
+            initialProject={initialProject}
+            prefill={prefill}
+            onManageLists={onManageLists}
+            onCancel={onClose}
+            onSaved={onSaved}
+          />
+        </FieldDraft>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, string>) => void }) {
+  const t = useTranslations("materialRequest");
+  const unitLabel = useUnitLabel();
+  const list = useListQuery(["project", "material", "specification"]);
+  const totals = useQuery({
+    queryKey: ["material-requests", "totals", list.filters],
+    queryFn: () => getMaterialRequestTotals(list.filters),
+  });
+  const rows = totals.data ?? [];
+
+  return (
+    <section className="space-y-3">
+      <div>
+        <h2 className="text-lg font-semibold">{t("totals.title")}</h2>
+        <p className="text-sm text-muted-foreground">{t("totals.basis")}</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <ProjectListFilter list={list} />
+        <TextFilter list={list} param="material" placeholder={t("filter.material")} />
+        <TextFilter list={list} param="specification" placeholder={t("filter.specification")} />
+      </div>
+      {totals.isError ? (
+        <LoadFailed what={t("totals.title")} onRetry={() => void totals.refetch()} />
+      ) : totals.isLoading ? (
+        <p className="text-sm text-muted-foreground">{t("loading")}</p>
+      ) : rows.length === 0 ? (
+        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">{t("totals.empty")}</p>
+      ) : (
+        <div className="rounded-xl border">
+          <Table className="min-w-[720px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("field.project")}</TableHead>
+                <TableHead>{t("field.material")}</TableHead>
+                <TableHead>{t("field.specification")}</TableHead>
+                <TableHead>{t("field.unit")}</TableHead>
+                <TableHead className="text-right">{t("totals.approved")}</TableHead>
+                <TableHead className="text-right">{t("totals.pending")}</TableHead>
+                <TableHead className="text-right">{t("totals.returned")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow
+                  key={`${row.project}|${row.material_name}|${row.specification}|${row.unit}`}
+                  className="cursor-pointer"
+                  onClick={() =>
+                    onOpenGroup({
+                      project: row.project,
+                      material: row.material_name,
+                      specification: row.specification,
+                      unit: row.unit,
+                    })
+                  }
+                >
+                  <TableCell>{row.project_code} - {row.project_name}</TableCell>
+                  <TableCell className="font-medium">{row.material_name}</TableCell>
+                  <TableCell>{row.specification}</TableCell>
+                  <TableCell>{unitLabel(row.unit)}</TableCell>
+                  <TableCell className="text-right">
+                    <span className="tabular font-semibold text-success">{row.approved_quantity}</span>
+                    <span className="block text-[11px] text-muted-foreground">{t("totals.requests", { count: row.approved_count })}</span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className="tabular font-semibold text-warning">{row.pending_quantity}</span>
+                    <span className="block text-[11px] text-muted-foreground">{t("totals.requests", { count: row.pending_count })}</span>
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">
+                    {t("totals.requests", { count: row.returned_count })}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground">{t("totals.notStock")}</p>
+    </section>
+  );
+}
+
+function MaterialRequestDetail({
+  id,
+  onClose,
+  onRaiseAgain,
+}: {
+  id: string;
+  onClose: () => void;
+  onRaiseAgain: (prefill: MaterialRequestPrefill) => void;
+}) {
+  const t = useTranslations("materialRequest");
+  const df = useDateFormat();
+  const unitLabel = useUnitLabel();
+  const locale = useLocale();
+  const { can } = useAuth();
+  const qc = useQueryClient();
+  const detail = useQuery({ queryKey: ["material-requests", "detail", id], queryFn: () => getMaterialRequest(id) });
+  const [returnArmed, setReturnArmed] = useState(false);
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
+  const [previewing, setPreviewing] = useState(false);
+  const review = useMutation({
+    mutationFn: (decision: "APPROVED" | "RETURNED") =>
+      reviewMaterialRequest(id, decision, decision === "RETURNED" ? reason.trim() : ""),
+    onSuccess: () => {
+      setReturnArmed(false);
+      setReason("");
+      setError("");
+      void qc.invalidateQueries({ queryKey: ["material-requests"] });
+      // Deciding closes the request's conversation (C05): refetch so the
+      // composer is replaced by the reason without a reload.
+      void qc.invalidateQueries({ queryKey: recordConversationKey("MATERIAL_REQUEST", id) });
+    },
+    onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
+  });
+
+  const row = detail.data;
+  if (!row) {
+    return (
+      <RecordDetailDialog title={t("detailTitle")} onClose={onClose}>
+        <div className="grid min-h-32 place-items-center">
+          {detail.isError ? <p className="text-sm text-destructive">{t("failed")}</p> : <Loader2 className="size-7 animate-spin text-primary" />}
+        </div>
+      </RecordDetailDialog>
+    );
+  }
+  const who = (name: string | null, at: string | null) => (name ? `${name}${at ? ` · ${df.dateTime(at)}` : ""}` : "—");
+  const decided = row.status !== "SUBMITTED";
+  const decidedLabel = row.status === "RETURNED" ? t("field.returnedBy") : t("field.approvedBy");
+  const isMaterial = row.request_type === "MATERIAL";
+
+  return (
+    <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${t(`type.${row.request_type}`)}`} onClose={onClose}>
+      <RecordDetailShell
+        reference={row.request_no}
+        notices={
+          row.status === "RETURNED" ? (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-sm">
+              <span>{t("returnedNotice")}</span>
+              {can("material_request.submit") && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    onRaiseAgain({
+                      project: row.project,
+                      request_type: row.request_type,
+                      material_name: row.material_name,
+                      specification: row.specification,
+                      quantity: row.quantity ?? "",
+                      unit: row.unit,
+                      remark: row.remark,
+                    })
+                  }
+                >
+                  <RotateCcw className="size-4" />
+                  {t("action.raiseAgain")}
+                </Button>
+              )}
+            </div>
+          ) : null
+        }
+        facts={[
+          { label: t("field.status"), value: <StatusBadge label={t(`status.${row.status}`)} tone={TONE[row.status]} /> },
+          { label: t("field.requestType"), value: t(`type.${row.request_type}`) },
+          { label: t("field.project"), value: `${row.project_code} - ${row.project_name}` },
+          ...(isMaterial
+            ? [
+                { label: t("field.material"), value: row.material_name },
+                { label: t("field.specification"), value: row.specification },
+                { label: t("field.quantity"), value: `${row.quantity ?? "—"} ${unitLabel(row.unit)}` },
+              ]
+            : []),
+          { label: t("field.submittedBy"), value: who(row.submitted_by_name, row.submitted_at) },
+          {
+            label: decided ? decidedLabel : t("field.decidedBy"),
+            value: decided ? who(row.decided_by_name, row.decided_at) : t("pendingDecision"),
+          },
+          { label: t("field.remark"), value: row.remark || t("noRemark"), wide: true },
+          ...(row.decision_note
+            ? [{ label: row.status === "RETURNED" ? t("field.returnReason") : t("field.decisionNote"), value: row.decision_note, wide: true }]
+            : []),
+        ]}
+        photos={row.attachments
+          .filter((file) => file.is_image)
+          .map((file) => ({ id: file.id, url: file.file, label: file.original_name, takenAt: file.uploaded_at }))}
+        panel={
+          <section className="rounded-lg border bg-card p-3">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("attachments.title")}</h3>
+            {row.attachments.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{t("attachments.none")}</p>
+            ) : (
+              <ol className="space-y-1 text-xs">
+                {row.attachments.map((file, index) => (
+                  <li key={file.id} className="flex items-center gap-2">
+                    <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
+                    <a href={file.file} target="_blank" rel="noreferrer" className="truncate text-primary underline-offset-2 hover:underline">
+                      {index + 1}. {file.original_name}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+        }
+        actions={
+          <div className="space-y-2">
+            {error && <p role="alert" className="rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">{error}</p>}
+            <div className="grid grid-cols-3 gap-1.5">
+              <Button size="sm" variant="outline" onClick={() => setPreviewing(true)}>
+                <Eye className="size-4" />
+                {t("action.preview")}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setPreviewing(true)}>
+                <Printer className="size-4" />
+                {t("action.print")}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => void exportMaterialRequestForm(row.id, locale, row.request_no)}>
+                <Download className="size-4" />
+                {t("action.exportPdf")}
+              </Button>
+            </div>
+            {row.status === "SUBMITTED" && can("material_request.review") && (
+              <>
+                <Button className="w-full" disabled={review.isPending} onClick={() => review.mutate("APPROVED")}>
+                  <Check />
+                  {t("action.approve")}
+                </Button>
+                <label className="flex items-center gap-2 rounded-md border px-2 py-1.5">
+                  <Switch
+                    checked={returnArmed}
+                    onCheckedChange={(next) => {
+                      setReturnArmed(next);
+                      if (!next) setReason("");
+                    }}
+                    aria-label={t("action.armReturn")}
+                  />
+                  <span className="text-xs text-muted-foreground">{t("action.armReturnHelp")}</span>
+                </label>
+                {returnArmed && (
+                  <FieldWrapper label={t("field.returnReason")} required>
+                    <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
+                    <Button
+                      className="mt-2 w-full"
+                      variant="destructive"
+                      requires={[[reason.trim(), t("field.returnReason")]]}
+                      disabled={review.isPending}
+                      onClick={() => review.mutate("RETURNED")}
+                    >
+                      <XCircle />
+                      {t("action.return")}
+                    </Button>
+                  </FieldWrapper>
+                )}
+              </>
+            )}
+            {row.status === "SUBMITTED" && !can("material_request.review") && (
+              <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{t("waitingForReview")}</p>
+            )}
+          </div>
+        }
+        conversation={{ kind: "MATERIAL_REQUEST", recordId: row.id }}
+      />
+      {previewing && <FormPreview request={row} onClose={() => setPreviewing(false)} />}
+    </RecordDetailDialog>
+  );
+}
+
+/**
+ * The formal form (C06) in a frame: read it, print it from here, or save it.
+ * The PDF is fetched with the session, so it opens without a second sign-in.
+ */
+export function FormPreview({ request, onClose }: { request: MaterialRequest; onClose: () => void }) {
+  const t = useTranslations("materialRequest");
+  const locale = useLocale();
+  const frame = useRef<HTMLIFrameElement>(null);
+  const [url, setUrl] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    let made: string | null = null;
+    materialRequestFormUrl(request.id, locale)
+      .then((objectUrl) => {
+        made = objectUrl;
+        if (alive) setUrl(objectUrl);
+        else URL.revokeObjectURL(objectUrl);
+      })
+      .catch(() => alive && setFailed(true));
+    return () => {
+      alive = false;
+      if (made) URL.revokeObjectURL(made);
+    };
+  }, [request.id, locale]);
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="flex h-[92dvh] flex-col gap-3 sm:max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>{t("preview.title", { reference: request.request_no })}</DialogTitle>
+          <DialogDescription>{t("preview.help")}</DialogDescription>
+        </DialogHeader>
+        <div className="min-h-0 flex-1 overflow-hidden rounded-md border bg-muted/30">
+          {failed ? (
+            <p className="p-6 text-sm text-destructive">{t("failed")}</p>
+          ) : url ? (
+            <iframe ref={frame} src={url} title={request.request_no} className="size-full" />
+          ) : (
+            <div className="grid size-full place-items-center">
+              <Loader2 className="size-7 animate-spin text-primary" />
+            </div>
+          )}
+        </div>
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button variant="outline" onClick={() => void exportMaterialRequestForm(request.id, locale, request.request_no)}>
+            <Download className="size-4" />
+            {t("action.exportPdf")}
+          </Button>
+          <Button
+            disabled={!url}
+            disabledReason={!url ? t("loading") : undefined}
+            onClick={() => {
+              const target = frame.current?.contentWindow;
+              if (target) {
+                target.focus();
+                target.print();
+              } else if (url) {
+                window.open(url, "_blank", "noopener,noreferrer");
+              }
+            }}
+          >
+            <Printer className="size-4" />
+            {t("action.print")}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

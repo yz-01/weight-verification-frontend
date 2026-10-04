@@ -14,7 +14,7 @@ import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
  *   with a synthetic key and no row to hang a conversation on. Evidence
  *   packages leave it out for the same reason.
  */
-export const DISCUSSABLE_KINDS: readonly ArchiveRecordKind[] = [
+export const DISCUSSABLE_KINDS: readonly ChatRecordKind[] = [
   "MATERIAL_RECEIPT",
   "MATERIAL_OUTGOING",
   "EQUIPMENT_MOVEMENT",
@@ -24,13 +24,27 @@ export const DISCUSSABLE_KINDS: readonly ArchiveRecordKind[] = [
   "CONSULTANT_APPLICATION",
   // 杂费报销 (D-232): its applicant talks to the office on the claim.
   "SUNDRY_CLAIM",
+  // MR / Other Request (C05). Talks, but is not an archive-queue kind: it
+  // ends by being approved or returned, not by 【确认归档】.
+  "MATERIAL_REQUEST",
 ];
+
+/**
+ * Every kind that can carry a conversation: the archive queue's, plus a
+ * material request, which has its own history screen instead of the queue.
+ */
+export type ChatRecordKind = ArchiveRecordKind | "MATERIAL_REQUEST";
+
+/** The chat kinds that are also archive-queue kinds. */
+const ARCHIVE_CHAT_KINDS = DISCUSSABLE_KINDS.filter(
+  (kind): kind is ArchiveRecordKind => kind !== "MATERIAL_REQUEST",
+);
 
 /**
  * Any string, so a column's wider kinds (T-396) can be asked too: a delivery
  * note, a registered machine or a document has no conversation to open.
  */
-export function canDiscuss(kind: string): kind is ArchiveRecordKind {
+export function canDiscuss(kind: string): kind is ChatRecordKind {
   return (DISCUSSABLE_KINDS as readonly string[]).includes(kind);
 }
 
@@ -43,7 +57,7 @@ export function canDiscuss(kind: string): kind is ArchiveRecordKind {
  * kinds - is "not found", and the panel would only ever show its failure.
  */
 export function canConfirmClosure(kind: string): kind is ArchiveRecordKind {
-  return canDiscuss(kind);
+  return (ARCHIVE_CHAT_KINDS as readonly string[]).includes(kind);
 }
 
 /**
@@ -53,7 +67,7 @@ export function canConfirmClosure(kind: string): kind is ArchiveRecordKind {
  * site record, machine, document or period claim gets no button.
  */
 export const QUEUE_KINDS: readonly ArchiveRecordKind[] = [
-  ...DISCUSSABLE_KINDS,
+  ...ARCHIVE_CHAT_KINDS,
   "HAZARD",
   "ATTENDANCE_DAY",
 ];
@@ -70,12 +84,12 @@ export function isQueueKind(kind: string): kind is ArchiveRecordKind {
  * reads, and the composer goes away without a reload (D-278). A second
  * spelling of this key anywhere would invalidate nothing.
  */
-export function recordConversationKey(kind: ArchiveRecordKind, recordId: string) {
+export function recordConversationKey(kind: ChatRecordKind, recordId: string) {
   return ["record-conversation", kind, recordId] as const;
 }
 
 /** Why a finished record's conversation takes no more messages (D-278). */
-export type ConversationClosed = "" | "archived" | "paid";
+export type ConversationClosed = "" | "archived" | "paid" | "decided";
 
 /**
  * The line shown instead of the composer, or `null` while it is open.
@@ -87,7 +101,10 @@ export type ConversationClosed = "" | "archived" | "paid";
  */
 export function conversationClosedLine(
   closed: string | null | undefined,
-): "recordChat.closedArchived" | "recordChat.closedPaid" | null {
+): "recordChat.closedArchived" | "recordChat.closedPaid" | "recordChat.closedDecided" | null {
   if (!closed) return null;
-  return closed === "paid" ? "recordChat.closedPaid" : "recordChat.closedArchived";
+  if (closed === "paid") return "recordChat.closedPaid";
+  // A material request, once approved or returned (C05).
+  if (closed === "decided") return "recordChat.closedDecided";
+  return "recordChat.closedArchived";
 }

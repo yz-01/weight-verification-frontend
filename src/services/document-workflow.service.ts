@@ -21,7 +21,7 @@ import type {
   WorkflowTemplateDetail,
   WorkflowTemplatePayload,
 } from "@/interfaces/document-workflow";
-import { api, download, toastSuccess } from "@/services/api-client";
+import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export function getDocumentCategories(
   query: ListQuery,
@@ -119,6 +119,27 @@ export async function createDocument(
   return document;
 }
 
+/**
+ * File one document with its first version in one step (B28): the file, its
+ * category / subcategory path and its project together.
+ */
+export async function uploadDocument(
+  payload: DocumentPayload & { note?: string },
+  file: File,
+  { quiet = false }: { quiet?: boolean } = {},
+): Promise<DocumentDetail> {
+  const body = new FormData();
+  body.append("file", file);
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined) continue;
+    // A form cannot send null: empty means "none" (company-wide, no subcategory).
+    body.append(key, value === null ? "" : String(value));
+  }
+  const document = await api.post<DocumentDetail>("/api/documents/create_document/", body);
+  if (!quiet) toastSuccess("documents.toast.uploaded");
+  return document;
+}
+
 export async function updateDocument(
   id: string,
   payload: Partial<DocumentPayload>,
@@ -162,6 +183,13 @@ export async function archiveDocument(
 export function downloadDocumentVersion(version: DocumentVersion): Promise<void> {
   return download(`/api/document-versions/${version.id}/download/`, {
     fallbackFilename: version.original_name,
+  });
+}
+
+/** One version, fetched to show in the page (B27); the caller revokes it. */
+export function documentVersionObjectUrl(version: DocumentVersion): Promise<string> {
+  return fetchObjectUrl(`/api/document-versions/${version.id}/download/`, {
+    query: { inline: "1" },
   });
 }
 

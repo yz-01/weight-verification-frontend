@@ -103,6 +103,8 @@ export interface ContractorCompanyProfile {
   contact_person: string;
   contact_designation: string;
   logo: string | null;
+  /** C12: set by the company itself; read by its own pages. */
+  background_image: string | null;
   address_line_1: string;
   address_line_2: string;
   city: string;

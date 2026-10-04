@@ -4106,7 +4106,8 @@
     "toggleSidebar": "切换侧栏",
     "unknownError": "出了点问题，请重试。",
     "view": "查看",
-    "exportThisRecord": "单独导出"
+    "exportThisRecord": "单独导出",
+    "previewThisRecord": "预览 / 打印"
   },
   "companies": {
     "owner": {
@@ -6561,7 +6562,8 @@
       "uploadedBy": "上传人",
       "version": "版本",
       "versionNote": "版本备注",
-      "versions": "版本数"
+      "versions": "版本数",
+      "path": "保存路径"
     },
     "keywordsPlaceholder": "多个关键词请用逗号分隔",
     "noFile": "尚未上传文件",
@@ -6592,7 +6594,8 @@
       "subcategoryCreated": "子分类已建立",
       "subcategoryUpdated": "子分类已更新",
       "updated": "文档已更新",
-      "versionUploaded": "文档版本已上传"
+      "versionUploaded": "文档版本已上传",
+      "uploaded": "文件已上传"
     },
     "upload": {
       "action": "上传新版本",
@@ -6610,6 +6613,25 @@
       "categories": "文件分类",
       "subcategories": "文件子分类",
       "uploaders": "上传人列表"
+    },
+    "preview": {
+      "title": "在线预览"
+    },
+    "folders": {
+      "title": "分类",
+      "all": "全部文件"
+    },
+    "uploadFile": {
+      "action": "上传文件",
+      "title": "上传到文件档案",
+      "description": "选择文件和保存的分类路径。每个文件各自成为一份档案；已有的档案不会被改动。",
+      "fileHint": "照片、PDF、单据、证书、图纸等任何文件，可一次选多个。",
+      "pathPreview": "将保存到：",
+      "projectHint": "只能选你所在的项目；全公司共用的文件由文件管理员上传。",
+      "titleHint": "留空就用文件名。",
+      "confirm": "上传",
+      "progress": "上传中 {done}/{total}",
+      "noCategory": "请先建立文件分类"
     }
   },
   "driver": {
@@ -7115,7 +7137,8 @@
       "column_other_project": "该分类不属于此记录的项目，请选择同一项目的分类。",
       "column_inactive": "「{column}」已停用，请选择启用中的分类。",
       "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。",
-      "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。"
+      "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。",
+      "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -7673,7 +7696,8 @@
       "subtitle": "先选择工作，再拍摄系统要求的照片。",
       "title": "现场记录",
       "waste": "环保材料出场申请",
-      "sundry": "杂费报销"
+      "sundry": "杂费报销",
+      "request": "MR / 其他申请"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -9036,7 +9060,8 @@
       "fields": "字段",
       "photos": "照片",
       "documents": "单据（DO）",
-      "messages": "事项沟通"
+      "messages": "事项沟通",
+      "files": "文件"
     },
     "itemAccepted": "已接受",
     "itemCount": "{count} 条资料",
@@ -9073,7 +9098,7 @@
     "oneProjectHelp": "一个资料包属于一个项目。里面的资料来自这个项目的各个分类，别的项目的记录会被拒绝。",
     "open": "打开",
     "pageOf": "第 {page} / {pages} 页",
-    "partsSummary": "{fields} 个字段 · {photos} 张照片 · {documents} 张单据",
+    "partsSummary": "{fields} 个字段 · {photos} 张照片 · {documents} 张单据 · {files} 个文件 · {messages} 条沟通",
     "previous": "上一页",
     "remarksHelp": "几个月后，这段话是唯一能说明当初为什么把这些资料收在一起的东西。",
     "rename": "改名",
@@ -9118,7 +9143,12 @@
       "recordParts": "这条资料的全部内容",
       "packagesToReview": "待审阅的资料包",
       "package": "这个资料包"
-    }
+    },
+    "include": {
+      "title": "这些事项要放进资料包的内容",
+      "hint": "字段一定会放入。照片预设勾选；DO、文件、事项沟通需要时才勾选。加入后仍可打开每个事项再调整。"
+    },
+    "loadMore": "载入更多（已显示 {shown} / {total}）"
   },
   "mySubmissions": {
     "title": "我提交过的",
@@ -9140,7 +9170,8 @@
       "MATERIAL_OUTGOING": "材料出场",
       "EQUIPMENT_MOVEMENT": "设备进退场",
       "DISPOSAL_REQUEST": "工地清运",
-      "SUNDRY_CLAIM": "杂费报销"
+      "SUNDRY_CLAIM": "杂费报销",
+      "MATERIAL_REQUEST": "MR / 其他申请"
     },
     "field": {
       "application_no": "申请编号",
@@ -9195,7 +9226,9 @@
       "disposal_do_no": "Disposal DO 编号",
       "execution_note": "执行备注",
       "final_proof_submitted": "最终处理证明已提交（任务结束）",
-      "legacy_confirmation": "后台验收（旧流程）"
+      "legacy_confirmation": "后台验收（旧流程）",
+      "remark": "备注",
+      "decided_by": "批准 / 退回人"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -9563,7 +9596,8 @@
     "yards": "回收场",
     "waitingForYou": "{count} 项等你处理",
     "waitingUnknown": "待处理数量没有载入，无法知道有没有事情在等你",
-    "materialManagement": "材料管理"
+    "materialManagement": "材料管理",
+    "material_requests": "MR / 其他申请"
   },
   "notifications": {
     "compose": {
@@ -10247,6 +10281,13 @@
       "need": "建回收场要编号、名称和地址。",
       "then": "建好之后，入库、称重和库存页面就能选到它。",
       "trouble": "目前没有常见到值得预警的问题。"
+    },
+    "material_requests": {
+      "what": "现场的材料申请和其他申请，每笔有独立申请编号；申请累计数量；以及原有的照片审批。",
+      "who": "持有 material_request.view 的人员；批准或退回需要 material_request.review。",
+      "need": "材料申请须填材料、规格、数量和单位；备注和附件选填。其他申请须有文件或备注。",
+      "then": "总部在申请内沟通并批准或退回。已退回的申请即结束；再申请须新建，产生新编号。",
+      "trouble": "材料下拉没有选项，表示还没设定材料选项：请打开「材料选项」新增材料、规格和单位。"
     }
   },
   "partners": {
@@ -10517,7 +10558,17 @@
     "empty": "没有待审批的",
     "subtitle": "有 {count} 份等你审",
     "title": "照片审批",
-    "what": "待审批的照片"
+    "what": "待审批的照片",
+    "historyCount": "{count, plural, =0 {无记录} other {# 笔已处理}}",
+    "historyEmpty": "暂无记录",
+    "show": "显示",
+    "reviewNote": "原因：",
+    "filter": {
+      "SUBMITTED": "待审批",
+      "ACCEPTED": "已批准",
+      "RETURNED": "已退回"
+    },
+    "loadMore": "载入更多（已显示 {shown} / {total}）"
   },
   "profile": {
     "section": {
@@ -11369,7 +11420,8 @@
       "registration": "公司注册号",
       "sst": "SST 注册号",
       "taxId": "税务识别号",
-      "title": "公司资料"
+      "title": "公司资料",
+      "background": "选择背景图"
     },
     "state": {
       "error": "无法读取公司设置。",
@@ -12576,7 +12628,11 @@
     "profile": {
       "chooseLogo": "选择公司 Logo",
       "subtitle": "显示在报表、二维码记录和项目文件中的正式建筑商资料。",
-      "title": "公司资料"
+      "title": "公司资料",
+      "logo": "Logo",
+      "background": "背景图",
+      "chooseBackground": "选择背景图",
+      "imageHint": "PNG、JPG 或 WebP，最大 8 MB。只有贵公司看到和使用；MR 申请表会印上贵公司的名称和 Logo。"
     },
     "projectDefaults": {
       "archiveLock": "归档后锁定记录",
@@ -14352,7 +14408,8 @@
     "sectionTitle": "事项沟通",
     "title": "事项沟通 · {reference}",
     "closedArchived": "已归档，聊天室已关闭。记录仍可查看。",
-    "closedPaid": "已确认付款，聊天室已关闭。记录仍可查看。"
+    "closedPaid": "已确认付款，聊天室已关闭。记录仍可查看。",
+    "closedDecided": "已批准或已退回，聊天室已关闭。记录仍可查看。"
   },
   "exportTotals": {
     "title": "累计数量（按单位分别统计）",
@@ -14509,7 +14566,7 @@
       "chatLoading": "正在读取聊天室照片…",
       "fromChat": "来自聊天室：{name}",
       "preview": "将要上传的凭证",
-      "notImage": "付款凭证只能是图片。",
+      "notImage": "付款凭证只能是图片或 PDF；其他文件请放到「附件」。",
       "clearChoice": "换一张"
     },
     "action": {
@@ -14639,6 +14696,178 @@
     },
     "what": {
       "confirmers": "可选的确认人"
+    }
+  },
+  "materialRequest": {
+    "title": "MR / 其他申请",
+    "noAccess": "你没有查看申请或照片审批的权限。",
+    "tab": {
+      "requests": "申请",
+      "totals": "申请累计",
+      "photos": "照片审批"
+    },
+    "photosNote": "原「照片审批」的照片提交全部在这里，没有改动：待审的照样在此审批，已处理的连同照片、审批人和原因都可查看。",
+    "type": {
+      "MATERIAL": "材料申请",
+      "OTHER": "其他申请"
+    },
+    "typeHelp": {
+      "MATERIAL": "电子表单：材料、规格、数量、单位。",
+      "OTHER": "上传文件并填写备注。"
+    },
+    "status": {
+      "SUBMITTED": "待审批",
+      "APPROVED": "已批准",
+      "RETURNED": "已退回（已结束）"
+    },
+    "allTypes": "全部申请类型",
+    "filter": {
+      "material": "材料",
+      "specification": "规格"
+    },
+    "field": {
+      "requestNo": "申请编号",
+      "requestType": "申请类型",
+      "project": "项目",
+      "material": "产品 / 材料",
+      "specification": "类型 / 规格",
+      "quantity": "数量",
+      "unit": "单位",
+      "submittedBy": "申请人",
+      "date": "日期",
+      "status": "状态",
+      "view": "查看",
+      "decidedBy": "批准人 / 退回人",
+      "decidedAt": "审批时间",
+      "approvedBy": "批准人",
+      "returnedBy": "退回人",
+      "returnReason": "退回原因",
+      "decisionNote": "批准备注",
+      "remark": "备注",
+      "attachments": "附件"
+    },
+    "action": {
+      "view": "查看",
+      "new": "新建申请",
+      "approve": "批准",
+      "return": "退回并结束",
+      "armReturn": "退回此申请",
+      "armReturnHelp": "退回即结束此申请。如需再申请，现场须新建，产生新的申请编号。",
+      "preview": "预览",
+      "print": "打印",
+      "exportPdf": "导出 PDF",
+      "raiseAgain": "新建申请"
+    },
+    "empty": "暂无申请",
+    "loading": "加载中…",
+    "failed": "操作失败，请重试。",
+    "detailTitle": "申请",
+    "pendingDecision": "待审批，尚未审批",
+    "noRemark": "无备注",
+    "returnedNotice": "此申请已退回并结束，不能修改或重新提交。如需再申请，请新建申请，会产生新的申请编号。",
+    "waitingForReview": "等待总部或授权负责人批准或退回。",
+    "attachments": {
+      "title": "附件索引",
+      "none": "无附件"
+    },
+    "totals": {
+      "title": "申请累计数量",
+      "basis": "按项目及「材料 + 规格 + 单位」分组。「已批准数量」与「未批准数量」分开显示，不相加。「未批准」只算仍在等待审批的申请；已退回的申请已结束，只列为历史，不计入未批准。",
+      "empty": "暂无可累计的材料申请",
+      "approved": "已批准数量",
+      "pending": "未批准数量（待审）",
+      "returned": "已退回（已结束，历史）",
+      "requests": "{count, plural, =0 {无申请} other {# 笔申请}}",
+      "notStock": "以上是申请数量，不是现场库存；实际进场与退场以「材料管理」为准。"
+    },
+    "preview": {
+      "title": "申请表 {reference}",
+      "help": "正式申请表，自动带入贵公司名称和 Logo。超长备注和附件以同一申请编号自动附页。"
+    },
+    "form": {
+      "title": "新建申请",
+      "help": "材料申请填写电子表单；其他申请只需上传文件并填写备注。",
+      "raiseAgainHelp": "以已退回的申请内容新建，会产生新的申请编号；原申请保持已结束并留在历史中。",
+      "projectHint": "自动带入当前项目。",
+      "chooseProject": "选择项目",
+      "chooseMaterial": "搜索或选择材料",
+      "chooseSpecification": "搜索或选择规格",
+      "materialFirst": "请先选择材料",
+      "chooseUnit": "选择单位",
+      "search": "输入搜索",
+      "noMatch": "没有符合的选项",
+      "noSpecifications": "此材料尚未设定规格",
+      "listsEmpty": "材料选项为空。请总部或管理员在「材料选项」中新增材料、规格和单位。",
+      "quantityRule": "须大于 0，可整数或最多两位小数",
+      "remarkPlaceholder": "选填：送货位置、时间等需要总部知道的事项",
+      "otherRemarkPlaceholder": "说明这个申请的内容",
+      "attachmentHint": "产品照片、证书或其他文件。最多 {count} 份，每份不超过 {limit} MB。",
+      "addFiles": "添加文件",
+      "removeFile": "移除 {name}",
+      "fileTooBig": "{name} 超过 {limit} MB。",
+      "fileOrRemark": "文件或备注",
+      "submit": "提交"
+    },
+    "options": {
+      "open": "材料选项",
+      "title": "材料选项",
+      "help": "MR 表单的选项：材料、各材料的规格，以及单位。关闭开关即停用；已提交的申请内容不受影响。",
+      "materials": "材料 / 产品",
+      "specificationList": "规格",
+      "specificationsOf": "{material} 的规格",
+      "units": "单位",
+      "builtIn": "系统内置",
+      "empty": "暂无选项",
+      "addMaterialFirst": "请先新增材料，规格列在材料之下。",
+      "retire": "停用 {name}",
+      "restore": "重新启用 {name}",
+      "failed": "选项未能保存。",
+      "add": {
+        "MATERIAL": "新增材料",
+        "SPECIFICATION": "新增规格",
+        "UNIT": "新增单位"
+      }
+    },
+    "toast": {
+      "submitted": "申请已提交。",
+      "approved": "申请已批准。",
+      "returned": "申请已退回并结束。",
+      "optionSaved": "已保存。"
+    },
+    "capture": {
+      "mine": "我的申请",
+      "mineHelp": "提交后可在「我提交过的」查看状态和沟通。"
+    }
+  },
+  "filePreview": {
+    "unsupported": "浏览器无法直接显示 {ext} 文件。",
+    "thisFormat": "此格式",
+    "unsupportedHelp": "请下载后用对应的软件打开（例如 Word、Excel、AutoCAD）。",
+    "failed": "文件载入失败。",
+    "retry": "重试",
+    "loading": "文件载入中",
+    "openNewTab": "新分页打开",
+    "print": "打印",
+    "download": "下载",
+    "preview": "预览"
+  },
+  "recordAttachments": {
+    "title": "附件",
+    "add": "上传附件",
+    "loading": "附件载入中",
+    "what": "附件",
+    "empty": "还没有附件。",
+    "preview": "预览",
+    "download": "下载",
+    "closed": "此事项已结束，不能再上传附件；以上附件仍可查看和下载。",
+    "hint": "照片、PDF、单据、证书、付款凭证或其他文件都可以。上传后不能修改或删除，传错请再追加正确的文件。",
+    "files": "文件",
+    "note": "备注",
+    "notePlaceholder": "备注（选填），例如这是什么文件",
+    "cancel": "取消",
+    "upload": "上传 {count, plural, =0 {} other {(#)}}",
+    "toast": {
+      "added": "已上传 {count} 个附件"
     }
   }
 }

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { OrganisationPanel } from "@/components/companies/organisation-panel";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -72,6 +72,9 @@ export function CompanySiteSettingsWorkspace() {
   const [draft, setDraft] = useState<Partial<ContractorSiteSettings>>({});
   const [profileDraft, setProfileDraft] = useState<Partial<ContractorCompanyProfile>>({});
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const logoPreview = useObjectUrl(logoFile);
+  const backgroundPreview = useObjectUrl(backgroundFile);
   const [editingBranch, setEditingBranch] = useState<CompanyBranch | "new" | null>(null);
   const [removing, setRemoving] = useState<CompanyBranch | null>(null);
   const form = settings.data ? { ...settings.data, ...draft } : null;
@@ -89,10 +92,11 @@ export function CompanySiteSettingsWorkspace() {
     },
   });
   const saveProfile = useMutation({
-    mutationFn: () => updateContractorCompanyProfile(profileForm ?? {}, logoFile),
+    mutationFn: () => updateContractorCompanyProfile(profileForm ?? {}, logoFile, backgroundFile),
     onSuccess: async (savedProfile) => {
       setProfileDraft({});
       setLogoFile(null);
+      setBackgroundFile(null);
       qc.setQueryData(["contractor-company-profile"], savedProfile);
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["contractor-company-profile"] }),
@@ -129,10 +133,18 @@ export function CompanySiteSettingsWorkspace() {
       {saveProfile.isError && <ErrorBanner text={t("settings.saveError")} />}
       <div className="grid gap-5 rounded-lg border bg-card p-4 lg:grid-cols-[180px_minmax(0,1fr)]">
         <div className="space-y-3">
+          <p className="text-xs font-medium text-muted-foreground">{t("profile.logo")}</p>
           <div className="grid aspect-square place-items-center overflow-hidden rounded-lg border bg-muted/40">
-            {profileForm.logo ? <img src={profileForm.logo} alt={profileForm.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}
+            {logoPreview || profileForm.logo ? <img src={logoPreview || profileForm.logo || ""} alt={profileForm.name} className="h-full w-full object-contain" /> : <Building2 className="size-12 text-muted-foreground" />}
           </div>
           {canManage && <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4" />{logoFile?.name || t("profile.chooseLogo")}<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)} /></label>}
+          {/* C12: the company's own background, beside its name and logo. */}
+          <p className="pt-2 text-xs font-medium text-muted-foreground">{t("profile.background")}</p>
+          <div className="grid aspect-video place-items-center overflow-hidden rounded-lg border bg-muted/40">
+            {backgroundPreview || profileForm.background_image ? <img src={backgroundPreview || profileForm.background_image || ""} alt={t("profile.background")} className="h-full w-full object-cover" /> : <ImageUp className="size-8 text-muted-foreground" />}
+          </div>
+          {canManage && <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"><ImageUp className="size-4" /><span className="truncate">{backgroundFile?.name || t("profile.chooseBackground")}</span><input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setBackgroundFile(event.target.files?.[0] ?? null)} /></label>}
+          <p className="text-[11px] text-muted-foreground">{t("profile.imageHint")}</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <FieldWrapper label={t("field.companyName")} required><Input disabled={!canManage} value={profileForm.name} onChange={(event) => setCompany({ ...profileForm, name: event.target.value })} /></FieldWrapper>
@@ -250,6 +262,14 @@ function BranchDialog({ row, onClose, onSaved }: { row: CompanyBranch | null; on
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           disabled={save.isPending} onClick={() => save.mutate()}><Save />{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
+/** A chosen file as a preview URL, released when it changes or the page closes. */
+function useObjectUrl(file: File | null) {
+  const url = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
+  useEffect(() => () => {
+    if (url) URL.revokeObjectURL(url);
+  }, [url]);
+  return url;
+}
 function SectionTitle({ icon: Icon, title, description, action }: { icon: typeof Settings2; title: string; description: string; action?: React.ReactNode }) { return <div className="flex flex-wrap items-start justify-between gap-3"><div className="flex items-start gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-5" /></span><div><h2 className="font-semibold">{title}</h2><p className="mt-0.5 text-sm text-muted-foreground">{description}</p></div></div>{action}</div>; }
 function NumberField({ label, value, min, max, disabled, onChange }: { label: string; value: number; min: number; max: number; disabled: boolean; onChange: (value: number) => void }) { return <FieldWrapper label={label}><Input type="number" value={value} min={min} max={max} disabled={disabled} onChange={(event) => onChange(Number(event.target.value))} /></FieldWrapper>; }
 function ChoiceField({ label, value, options, disabled, optionLabel = (row) => row, onChange }: { label: string; value: string; options: string[]; disabled: boolean; optionLabel?: (value: string) => string; onChange: (value: string) => void }) { return <FieldWrapper label={label}><Select disabled={disabled} value={value} onValueChange={onChange}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{options.map((option) => <SelectItem key={option} value={option}>{optionLabel(option)}</SelectItem>)}</SelectContent></Select></FieldWrapper>; }

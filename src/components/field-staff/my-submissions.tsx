@@ -33,6 +33,7 @@ import {
   Camera,
   ChevronRight,
   CloudUpload,
+  FileText,
   Loader2,
   MessagesSquare,
   RefreshCw,
@@ -53,7 +54,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldLoadFailed, FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
-import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
+import type { ChatRecordKind } from "@/lib/record-chat";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -101,6 +102,8 @@ const CONVERSATION_KINDS = new Set<string>([
   "DISPOSAL_REQUEST",
   "PROGRESS",
   "SUNDRY_CLAIM",
+  // MR / Other Request (C05): talk to head office while it is pending.
+  "MATERIAL_REQUEST",
 ]);
 
 export function MySubmissions({
@@ -476,8 +479,16 @@ function StoredDetailSheet({
                   <div className="grid grid-cols-2 gap-2">
                     {(detail.data.payment_proofs ?? []).map((proof) => (
                       <a key={proof.id} href={proof.url} target="_blank" rel="noreferrer" className="block">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={proof.url} alt={t("mySubmissions.paymentProofs")} className="aspect-square w-full rounded-md border object-cover" />
+                        {/\.pdf$/i.test(proof.name ?? "") ? (
+                          // The bank's PDF (D11): a file to open, not a photo.
+                          <span className="flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-md border p-2 text-center text-[11px]">
+                            <FileText className="size-6 text-muted-foreground" />
+                            <span className="line-clamp-2 break-all">{proof.name}</span>
+                          </span>
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={proof.url} alt={t("mySubmissions.paymentProofs")} className="aspect-square w-full rounded-md border object-cover" />
+                        )}
                         {proof.amount ? <span className="mt-1 block text-xs tabular-nums">RM {proof.amount}</span> : null}
                       </a>
                     ))}
@@ -493,7 +504,7 @@ function StoredDetailSheet({
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {t("mySubmissions.conversation")}
                 </p>
-                <RecordConversationPanel kind={row.kind as ArchiveRecordKind} recordId={row.id} />
+                <RecordConversationPanel kind={row.kind as ChatRecordKind} recordId={row.id} />
               </section>
             )}
           </div>

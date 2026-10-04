@@ -21,7 +21,7 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import { ImageIcon, Images, Loader2, X } from "lucide-react";
+import { FileText, ImageIcon, Images, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
@@ -32,7 +32,8 @@ import { recordConversationKey } from "@/lib/record-chat";
 import { cn } from "@/lib/utils";
 import {
   carriesFiles,
-  imageFilesFrom,
+  isPdfVoucher,
+  voucherFilesFrom,
   pickablePhotos,
   type TransferLike,
   type VoucherChoice,
@@ -74,7 +75,7 @@ export function VoucherSource({
   const previewUrl = value?.source === "chat" ? value.photo.url : fileUrl;
 
   const take = (transfer: TransferLike | null, fromInput = false) => {
-    const [image] = imageFilesFrom(transfer);
+    const [image] = voucherFilesFrom(transfer);
     if (image) {
       setRefused(false);
       onChange({ source: "file", file: image });
@@ -92,7 +93,7 @@ export function VoucherSource({
       // Only a paste that carries an image is taken, so text pasted
       // elsewhere on the screen is left alone.
       onPaste={(event) => {
-        if (imageFilesFrom(event.clipboardData).length > 0) {
+        if (voucherFilesFrom(event.clipboardData).length > 0) {
           event.preventDefault();
           take(event.clipboardData);
         }
@@ -123,7 +124,7 @@ export function VoucherSource({
         <Input
           key={inputKey}
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf"
           className="h-8 text-xs"
           onChange={(event) => {
             if (!take({ files: event.target.files }, true)) onChange(null);
@@ -134,10 +135,20 @@ export function VoucherSource({
           <figure className="space-y-1">
             <p className="text-xs font-medium">{t("preview")}</p>
             <a href={previewUrl} target="_blank" rel="noreferrer" className="block overflow-hidden rounded border">
-              {/* A local blob or the conversation's own copy - not an
-                  optimisable asset. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={previewUrl} alt={t("preview")} className="max-h-48 w-full object-contain" />
+              {isPdfVoucher(file) ? (
+                // The bank's PDF (D11): opened in its own tab to check it.
+                <span className="flex items-center gap-2 p-3 text-xs font-medium">
+                  <FileText className="size-5 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 truncate">{file?.name}</span>
+                </span>
+              ) : (
+                <>
+                  {/* A local blob or the conversation's own copy - not an
+                      optimisable asset. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={previewUrl} alt={t("preview")} className="max-h-48 w-full object-contain" />
+                </>
+              )}
             </a>
             <figcaption className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
               <span className="min-w-0 truncate">

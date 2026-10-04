@@ -4106,7 +4106,8 @@
     "toggleSidebar": "Toggle sidebar",
     "unknownError": "Something went wrong. Try again.",
     "view": "View",
-    "exportThisRecord": "Export this record"
+    "exportThisRecord": "Export this record",
+    "previewThisRecord": "Preview / print"
   },
   "companies": {
     "owner": {
@@ -6561,7 +6562,8 @@
       "uploadedBy": "Uploaded by",
       "version": "Version",
       "versionNote": "Version note",
-      "versions": "Versions"
+      "versions": "Versions",
+      "path": "Filed under"
     },
     "keywordsPlaceholder": "Separate keywords with commas",
     "noFile": "No file uploaded",
@@ -6592,7 +6594,8 @@
       "subcategoryCreated": "Subcategory created",
       "subcategoryUpdated": "Subcategory updated",
       "updated": "Document updated",
-      "versionUploaded": "Document version uploaded"
+      "versionUploaded": "Document version uploaded",
+      "uploaded": "File uploaded"
     },
     "upload": {
       "action": "Upload version",
@@ -6610,6 +6613,25 @@
       "categories": "The document categories",
       "subcategories": "The document subcategories",
       "uploaders": "The uploader list"
+    },
+    "preview": {
+      "title": "Preview"
+    },
+    "folders": {
+      "title": "Folders",
+      "all": "All documents"
+    },
+    "uploadFile": {
+      "action": "Upload file",
+      "title": "Upload to the document archive",
+      "description": "Choose the files and the folder they are filed in. Each file becomes its own document; anything already filed is not touched.",
+      "fileHint": "Photos, PDFs, receipts, certificates, drawings - any file. You can choose several at once.",
+      "pathPreview": "Will be filed under:",
+      "projectHint": "Only a project you are on. Filing company-wide is for a document manager.",
+      "titleHint": "Left empty, the file name is used.",
+      "confirm": "Upload",
+      "progress": "Uploading {done}/{total}",
+      "noCategory": "Set up a document category first"
     }
   },
   "driver": {
@@ -7115,7 +7137,8 @@
       "column_other_project": "That category is not in this record's project. Choose one from the same project.",
       "column_inactive": "“{column}” is closed. Choose an open category.",
       "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further.",
-      "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed."
+      "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
+      "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7673,7 +7696,8 @@
       "subtitle": "Choose the work, then take the required photos.",
       "title": "Site record capture",
       "waste": "Environmental material outgoing",
-      "sundry": "Sundry claims"
+      "sundry": "Sundry claims",
+      "request": "MR / Other Request"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -9036,7 +9060,8 @@
       "fields": "Fields",
       "photos": "Photographs",
       "documents": "Delivery orders",
-      "messages": "Record communication"
+      "messages": "Record communication",
+      "files": "Files"
     },
     "itemAccepted": "Accepted",
     "itemCount": "{count} records",
@@ -9073,7 +9098,7 @@
     "oneProjectHelp": "A package belongs to one project. Its records come from that project's categories, and a record from another project will be refused.",
     "open": "Open",
     "pageOf": "Page {page} of {pages}",
-    "partsSummary": "{fields} fields · {photos} photos · {documents} delivery orders",
+    "partsSummary": "{fields} fields · {photos} photos · {documents} delivery orders · {files} files · {messages} messages",
     "previous": "Previous",
     "remarksHelp": "Months from now this is the only thing that explains why these records were put together.",
     "rename": "Rename",
@@ -9118,7 +9143,12 @@
       "recordParts": "The full contents of this record",
       "packagesToReview": "The packages to review",
       "package": "This package"
-    }
+    },
+    "include": {
+      "title": "What these records carry",
+      "hint": "Fields always go in. Photos start ticked; tick delivery orders, files and the communication only if this package needs them. Each record can be opened and re-ticked afterwards."
+    },
+    "loadMore": "Load more ({shown} of {total} shown)"
   },
   "mySubmissions": {
     "title": "What I sent",
@@ -9140,7 +9170,8 @@
       "MATERIAL_OUTGOING": "Material outgoing",
       "EQUIPMENT_MOVEMENT": "Equipment movement",
       "DISPOSAL_REQUEST": "Site disposal",
-      "SUNDRY_CLAIM": "Sundry claims"
+      "SUNDRY_CLAIM": "Sundry claims",
+      "MATERIAL_REQUEST": "MR / Other Request"
     },
     "field": {
       "application_no": "Application no.",
@@ -9195,7 +9226,9 @@
       "disposal_do_no": "Disposal DO no.",
       "execution_note": "Execution note",
       "final_proof_submitted": "Final disposal proof submitted (job finished)",
-      "legacy_confirmation": "Office check (earlier rule)"
+      "legacy_confirmation": "Office check (earlier rule)",
+      "remark": "Remark",
+      "decided_by": "Approved / returned by"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -9563,7 +9596,8 @@
     "yards": "Recycling yards",
     "waitingForYou": "{count} waiting for you",
     "waitingUnknown": "Could not load how many are waiting for you",
-    "materialManagement": "Material management"
+    "materialManagement": "Material management",
+    "material_requests": "MR / Other Request"
   },
   "notifications": {
     "compose": {
@@ -10247,6 +10281,13 @@
       "need": "A yard needs a code, a name and an address.",
       "then": "A yard becomes selectable on intake, weighing and inventory screens.",
       "trouble": "Nothing common enough to warn about yet."
+    },
+    "material_requests": {
+      "what": "Material Requests and Other Requests from the sites, each with its own Request No.; the requested totals; and the earlier photo approvals.",
+      "who": "Holders of material_request.view; approving or returning needs material_request.review.",
+      "need": "A material request needs material, specification, quantity and unit; the remark and attachments are optional. An other request needs a file or a remark.",
+      "then": "Head office talks on the request and approves or returns it. A returned request is closed; asking again is a new request with a new number.",
+      "trouble": "An empty material dropdown means the material lists have not been set up: open Material lists and add materials, specifications and units."
     }
   },
   "partners": {
@@ -10517,7 +10558,17 @@
     "empty": "Nothing waiting for approval",
     "subtitle": "{count} waiting for you",
     "title": "Photo approvals",
-    "what": "The photos waiting for approval"
+    "what": "The photos waiting for approval",
+    "historyCount": "{count, plural, =0 {nothing decided} other {# decided}}",
+    "historyEmpty": "Nothing here",
+    "show": "Show",
+    "reviewNote": "Reason:",
+    "filter": {
+      "SUBMITTED": "Waiting",
+      "ACCEPTED": "Approved",
+      "RETURNED": "Sent back"
+    },
+    "loadMore": "Load more ({shown} of {total} shown)"
   },
   "profile": {
     "section": {
@@ -11369,7 +11420,8 @@
       "registration": "Registration no.",
       "sst": "SST registration no.",
       "taxId": "Tax identification no.",
-      "title": "Company profile"
+      "title": "Company profile",
+      "background": "Choose background image"
     },
     "state": {
       "error": "Company settings could not be loaded.",
@@ -12576,7 +12628,11 @@
     "profile": {
       "chooseLogo": "Choose company logo",
       "subtitle": "The registered contractor information shown in reports, QR records and project documents.",
-      "title": "Company profile"
+      "title": "Company profile",
+      "logo": "Logo",
+      "background": "Background image",
+      "chooseBackground": "Choose background image",
+      "imageHint": "PNG, JPG or WebP, up to 8 MB. Only your company sees and uses these; the MR form prints your name and logo."
     },
     "projectDefaults": {
       "archiveLock": "Lock records after archive",
@@ -14352,7 +14408,8 @@
     "sectionTitle": "Record communication",
     "title": "Record communication · {reference}",
     "closedArchived": "Archived; the conversation is closed. The record can still be viewed.",
-    "closedPaid": "Payment confirmed; the conversation is closed. The record can still be viewed."
+    "closedPaid": "Payment confirmed; the conversation is closed. The record can still be viewed.",
+    "closedDecided": "Approved or returned; the conversation is closed. The record can still be viewed."
   },
   "exportTotals": {
     "title": "Cumulative totals, per unit",
@@ -14509,7 +14566,7 @@
       "chatLoading": "Loading the conversation photos…",
       "fromChat": "From the conversation: {name}",
       "preview": "Voucher to upload",
-      "notImage": "Only an image can be used as a payment voucher.",
+      "notImage": "A payment voucher must be an image or a PDF. Put other files in Attachments.",
       "clearChoice": "Choose another"
     },
     "action": {
@@ -14639,6 +14696,178 @@
     },
     "what": {
       "confirmers": "The people who can confirm"
+    }
+  },
+  "materialRequest": {
+    "title": "MR / Other Request",
+    "noAccess": "You do not have access to requests or photo approvals.",
+    "tab": {
+      "requests": "Requests",
+      "totals": "Requested totals",
+      "photos": "Photo approvals"
+    },
+    "photosNote": "The photo submissions this entry used to show are here, unchanged: pending ones are still decided here, and earlier ones stay readable with their photos, reviewer and reason.",
+    "type": {
+      "MATERIAL": "Material Request",
+      "OTHER": "Other Request"
+    },
+    "typeHelp": {
+      "MATERIAL": "Electronic form: material, specification, quantity, unit.",
+      "OTHER": "Upload a file and write a remark."
+    },
+    "status": {
+      "SUBMITTED": "Pending approval",
+      "APPROVED": "Approved",
+      "RETURNED": "Returned (closed)"
+    },
+    "allTypes": "All request types",
+    "filter": {
+      "material": "Material",
+      "specification": "Specification"
+    },
+    "field": {
+      "requestNo": "Request No.",
+      "requestType": "Request Type",
+      "project": "Project",
+      "material": "Product / Material",
+      "specification": "Type / Specification",
+      "quantity": "Quantity",
+      "unit": "Unit",
+      "submittedBy": "Submitted By",
+      "date": "Date",
+      "status": "Status",
+      "view": "View",
+      "decidedBy": "Approved By / Returned By",
+      "decidedAt": "Decided at",
+      "approvedBy": "Approved By",
+      "returnedBy": "Returned By",
+      "returnReason": "Reason for return",
+      "decisionNote": "Approval note",
+      "remark": "Remark",
+      "attachments": "Attachments"
+    },
+    "action": {
+      "view": "View",
+      "new": "New Request",
+      "approve": "Approve",
+      "return": "Return and close",
+      "armReturn": "Return this request",
+      "armReturnHelp": "Return ends this request. To ask again the site raises a new one with a new Request No.",
+      "preview": "Preview",
+      "print": "Print",
+      "exportPdf": "Export PDF",
+      "raiseAgain": "Raise a new request"
+    },
+    "empty": "No requests yet",
+    "loading": "Loading…",
+    "failed": "Something went wrong. Try again.",
+    "detailTitle": "Request",
+    "pendingDecision": "Pending approval - not decided yet",
+    "noRemark": "No remark",
+    "returnedNotice": "This request was returned and is closed; it cannot be edited or sent again. To ask again, raise a new request - it gets a new Request No.",
+    "waitingForReview": "Waiting for head office or the authorised manager to approve or return it.",
+    "attachments": {
+      "title": "Attachment index",
+      "none": "No attachments"
+    },
+    "totals": {
+      "title": "Requested totals",
+      "basis": "Per project, material + specification + unit. Approved and pending are shown separately and never added together. Pending counts only requests still waiting for a decision; returned requests are closed, so they are listed as history and not counted as pending.",
+      "empty": "No material requests to total yet",
+      "approved": "Approved quantity",
+      "pending": "Not yet approved (pending)",
+      "returned": "Returned (closed, history)",
+      "requests": "{count, plural, =0 {no requests} one {# request} other {# requests}}",
+      "notStock": "These are quantities asked for, not stock on site: deliveries and returns are counted in Material management."
+    },
+    "preview": {
+      "title": "MR form {reference}",
+      "help": "The formal form with your company's name and logo. Long remarks and attachments continue on pages under the same Request No."
+    },
+    "form": {
+      "title": "New Request",
+      "help": "Choose Material Request for the electronic form, or Other Request to send a file with a remark.",
+      "raiseAgainHelp": "A new request, filled in from the returned one. It gets its own new Request No.; the returned request stays closed in history.",
+      "projectHint": "The current project is filled in automatically.",
+      "chooseProject": "Choose a project",
+      "chooseMaterial": "Search or choose material",
+      "chooseSpecification": "Search or choose specification",
+      "materialFirst": "Choose the material first",
+      "chooseUnit": "Choose unit",
+      "search": "Type to search",
+      "noMatch": "Nothing matches",
+      "noSpecifications": "No specification listed for this material yet",
+      "listsEmpty": "The material list is empty. Head office or an administrator adds materials, specifications and units under Material lists.",
+      "quantityRule": "Above 0, whole number or up to 2 decimal places",
+      "remarkPlaceholder": "Optional: delivery location, timing, anything head office should know",
+      "otherRemarkPlaceholder": "What is this request about?",
+      "attachmentHint": "Product photos, certificates or other files. Up to {count} files, {limit} MB each.",
+      "addFiles": "Add files",
+      "removeFile": "Remove {name}",
+      "fileTooBig": "{name} is over {limit} MB.",
+      "fileOrRemark": "A file or a remark",
+      "submit": "Submit"
+    },
+    "options": {
+      "open": "Material lists",
+      "title": "Material lists",
+      "help": "What the MR form offers: materials, each material's specifications, and units. Switch an option off to retire it; requests already sent keep their own words.",
+      "materials": "Materials / products",
+      "specificationList": "Specifications",
+      "specificationsOf": "Specifications of {material}",
+      "units": "Units",
+      "builtIn": "built in",
+      "empty": "Nothing listed yet",
+      "addMaterialFirst": "Add a material first; its specifications are listed under it.",
+      "retire": "Stop offering {name}",
+      "restore": "Offer {name} again",
+      "failed": "Could not save the option.",
+      "add": {
+        "MATERIAL": "Add a material",
+        "SPECIFICATION": "Add a specification",
+        "UNIT": "Add a unit"
+      }
+    },
+    "toast": {
+      "submitted": "Request submitted.",
+      "approved": "Request approved.",
+      "returned": "Request returned and closed.",
+      "optionSaved": "Saved."
+    },
+    "capture": {
+      "mine": "My requests",
+      "mineHelp": "Your requests and their status are on 「My submissions」, with the conversation for each."
+    }
+  },
+  "filePreview": {
+    "unsupported": "{ext} files cannot be shown in the browser.",
+    "thisFormat": "This format",
+    "unsupportedHelp": "Download it and open it with the program it was made in (for example Word, Excel or AutoCAD).",
+    "failed": "The file could not be loaded.",
+    "retry": "Try again",
+    "loading": "Loading the file",
+    "openNewTab": "Open in new tab",
+    "print": "Print",
+    "download": "Download",
+    "preview": "Preview"
+  },
+  "recordAttachments": {
+    "title": "Attachments",
+    "add": "Attach files",
+    "loading": "Loading attachments",
+    "what": "The attachments",
+    "empty": "No files attached yet.",
+    "preview": "Preview",
+    "download": "Download",
+    "closed": "This record is finished, so no more files can be attached. The files above can still be opened and downloaded.",
+    "hint": "Photos, PDFs, receipts, certificates, payment slips or any other file. A file cannot be changed or removed once attached; attach a corrected one instead.",
+    "files": "Files",
+    "note": "Note",
+    "notePlaceholder": "Note (optional), e.g. what the file is",
+    "cancel": "Cancel",
+    "upload": "Upload {count, plural, =0 {} other {(#)}}",
+    "toast": {
+      "added": "{count, plural, one {# file attached} other {# files attached}}"
     }
   }
 }

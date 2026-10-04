@@ -1,12 +1,15 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Eye, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
+import { FilePreviewDialog } from "@/components/shared/file-preview";
 import { Button } from "@/components/ui/button";
 import {
   downloadRecordPdf,
+  recordPdfObjectUrl,
   type ExportableRecordKind,
 } from "@/services/contractor-ops.service";
 
@@ -22,6 +25,10 @@ import {
  * No permission gate here beyond the one that opened the detail: the server
  * decides who can see the record, and a refusal is toasted by `download`.
  * Nothing is drawn for a record that has no id yet.
+ *
+ * Beside it, 【预览／打印】 opens the same PDF in the page (D12: 「单条资料仍可
+ * 单独 Preview／打印／下载／导出」) - archived or not, since a locked record is
+ * still there to be read.
  */
 export function RecordExportButton({
   kind,
@@ -33,6 +40,7 @@ export function RecordExportButton({
   reference: string;
 }) {
   const t = useTranslations("common");
+  const [previewing, setPreviewing] = useState(false);
   const exporting = useMutation({
     mutationFn: (id: string) => downloadRecordPdf(kind, id, reference),
   });
@@ -40,20 +48,42 @@ export function RecordExportButton({
   if (!recordId) return null;
 
   return (
-    <Button
-      type="button"
-      size="sm"
-      variant="outline"
-      data-slot="record-export"
-      disabled={exporting.isPending}
-      onClick={() => exporting.mutate(recordId)}
-    >
-      {exporting.isPending ? (
-        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-      ) : (
-        <Download className="h-3.5 w-3.5" />
+    <>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        data-slot="record-preview"
+        onClick={() => setPreviewing(true)}
+      >
+        <Eye className="h-3.5 w-3.5" />
+        {t("previewThisRecord")}
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        data-slot="record-export"
+        disabled={exporting.isPending}
+        onClick={() => exporting.mutate(recordId)}
+      >
+        {exporting.isPending ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <Download className="h-3.5 w-3.5" />
+        )}
+        {t("exportThisRecord")}
+      </Button>
+      {previewing && (
+        <FilePreviewDialog
+          title={reference}
+          load={() => recordPdfObjectUrl(kind, recordId)}
+          previewType="application/pdf"
+          filename={`${reference || "record"}.pdf`}
+          onDownload={() => downloadRecordPdf(kind, recordId, reference)}
+          onClose={() => setPreviewing(false)}
+        />
       )}
-      {t("exportThisRecord")}
-    </Button>
+    </>
   );
 }

@@ -817,7 +817,12 @@ export interface PackageRecordParts {
   documents: PackageDocument[];
   /** The record's conversation, message by message (T-363, D-233). */
   messages?: Array<{ id: string; author_name: string; sent_at: string; body: string }>;
+  /** The record's general attachments (B28), one tickable part each. */
+  files?: Array<{ id: string; name: string; uploaded_by_name: string; uploaded_at: string }>;
 }
+
+/** The groups a packer ticks besides the fields (D12). */
+export type PackagePart = "photos" | "documents" | "files" | "messages";
 
 /**
  * Which parts of a record this member carries. A missing group means all of
@@ -827,6 +832,7 @@ export interface PackageSelection {
   fields?: string[];
   photos?: string[];
   documents?: string[];
+  files?: string[];
   messages?: string[];
 }
 

@@ -44,6 +44,7 @@ export type PortalFeatureKey =
   | "projects"
   | "project_categories"
   | "field_tasks"
+  | "material_requests"
   | "suppliers"
   | "equipment"
   | "recyclers"
@@ -748,18 +749,19 @@ export const PORTAL_NAVIGATION = {
     // B03: 项目 holds project records only (the test in navigation.test.ts
     // keeps it that way); 现场任务 and MR / Other Request are business
     // entries of their own, here beside each other.
-    item("field_tasks", "/field-tasks", ClipboardList, "operations", ["/photo-approvals"]),
-    // Reserved for MR / Other Request (Phase 6, C01–C07): its entry goes
-    // here, after 现场任务, once the page and its feature key exist. Not
-    // added earlier on purpose - an entry that opens nothing is a dead end.
-    // Photo approval is a separate operational workflow. It shares the
-    // backend feature grant with field tasks, but is not a Project child.
-    itemWithLabel(
-      "field_tasks",
-      "submodule.photoApprovals",
-      "/photo-approvals",
+    // `/material-requests` and `/photo-approvals` are also reachable with
+    // field tasks alone: the old 照片审批 entry became a tab of MR / Other
+    // Request (D02), and someone who decided photo submissions there must
+    // still reach them even without the request permissions.
+    item("field_tasks", "/field-tasks", ClipboardList, "operations", ["/photo-approvals", "/material-requests"]),
+    // MR / Other Request (C01–C07), in the old 照片审批 entry's place, after
+    // 现场任务. The old address forwards to its photo tab (D02).
+    item(
+      "material_requests",
+      "/material-requests",
       ClipboardCheck,
       "operations",
+      ["/photo-approvals"],
     ),
     item(
       "suppliers",

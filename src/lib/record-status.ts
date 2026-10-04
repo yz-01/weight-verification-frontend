@@ -20,6 +20,8 @@ export const RECORD_STATUS_NAMESPACE: Record<string, string> = {
   PROGRESS: "contractorOps.progressStatus",
   CONSULTANT_APPLICATION: "consultantWorkflow.status",
   SUNDRY_CLAIM: "sundryClaim.status",
+  // MR / Other Request on the phone's history (C07).
+  MATERIAL_REQUEST: "materialRequest.status",
   // The five a Category Management column holds beyond the queue (T-396),
   // each in the words its own office screen already uses.
   DELIVERY_NOTE: "deliveryNotePublic.status",
@@ -40,6 +42,7 @@ export const RECORD_STATUSES: Record<string, readonly string[]> = {
   PROGRESS: ["SUBMITTED", "CONFIRMED", "RETURNED"],
   CONSULTANT_APPLICATION: ["DRAFT", "SUBMITTED", "APPROVED", "APPROVED_WITH_REMEDIAL", "REJECTED", "REVISE_RESUBMIT", "ARCHIVED"],
   SUNDRY_CLAIM: ["SUBMITTED", "CONFIRMED", "REJECTED", "PAID"],
+  MATERIAL_REQUEST: ["SUBMITTED", "APPROVED", "RETURNED"],
   DELIVERY_NOTE: ["ISSUED", "ARRIVED", "COMPLETED", "CLOSED", "CANCELLED", "VOIDED"],
   SITE_RECORD: ["OPEN", "IN_PROGRESS", "SUBMITTED", "ACCEPTED", "RETURNED", "CANCELLED"],
   SITE_EQUIPMENT: ["OFF_SITE", "ON_SITE", "MAINTENANCE", "RETIRED"],

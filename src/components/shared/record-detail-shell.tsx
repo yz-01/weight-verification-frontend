@@ -16,7 +16,9 @@
  * * **photographs**, left - 「照片需要很小很小」: small thumbnails, and a viewer
  *   that zooms in and out when one is opened;
  * * **the right column** - the module's own panel (a receipt's delivery-order
- *   reading, for instance), then **signatures if the module has any**
+ *   reading, for instance), then the record's **general attachments** (B28 -
+ *   every record that has a conversation has them), then **signatures if the
+ *   module has any**
  *   (「没有签名就不需要放」), then **the action buttons** (「那些按钮放在图 2 的
  *   圈起来的位置」);
  * * **the record's conversation** underneath (C-014, D-233) - every module has
@@ -35,6 +37,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
+import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { Button } from "@/components/ui/button";
@@ -45,7 +48,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
+import type { ChatRecordKind } from "@/lib/record-chat";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import type { ExportableRecordKind } from "@/services/contractor-ops.service";
@@ -148,7 +151,7 @@ export function RecordDetailShell({
   actions?: React.ReactNode;
   /** Banners above everything (superseded, overdue, closed...). */
   notices?: React.ReactNode;
-  conversation?: { kind: ArchiveRecordKind; recordId: string } | null;
+  conversation?: { kind: ChatRecordKind; recordId: string } | null;
 }) {
   const t = useTranslations("recordShell");
   const [open, setOpen] = useState<number | null>(null);
@@ -233,6 +236,9 @@ export function RecordDetailShell({
 
         <aside className="space-y-3">
           {panel}
+          {conversation ? (
+            <RecordAttachmentsPanel kind={conversation.kind} recordId={conversation.recordId} />
+          ) : null}
           {signatures.length > 0 && (
             <section className="rounded-lg border p-3">
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

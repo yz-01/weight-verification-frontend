@@ -16,6 +16,10 @@ export interface SundryClaimAttachment {
 export interface SundryClaimPaymentProof {
   id: string;
   file: string;
+  /** The stored file's name, e.g. `bank-slip.pdf`. */
+  name?: string;
+  /** `application/pdf` for the bank's PDF (D11), `image/...` for a photo. */
+  preview_type?: string | null;
   amount: string | null;
   note: string;
   uploaded_by_name: string | null;
