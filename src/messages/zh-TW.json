@@ -4106,7 +4106,8 @@
     "toggleSidebar": "切換側欄",
     "unknownError": "出了點問題，請重試。",
     "view": "查看",
-    "exportThisRecord": "單獨匯出"
+    "exportThisRecord": "單獨匯出",
+    "previewThisRecord": "預覽 / 列印"
   },
   "companies": {
     "owner": {

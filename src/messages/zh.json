@@ -4106,7 +4106,8 @@
     "toggleSidebar": "切换侧栏",
     "unknownError": "出了点问题，请重试。",
     "view": "查看",
-    "exportThisRecord": "单独导出"
+    "exportThisRecord": "单独导出",
+    "previewThisRecord": "预览 / 打印"
   },
   "companies": {
     "owner": {

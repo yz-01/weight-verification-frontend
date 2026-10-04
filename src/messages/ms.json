@@ -4106,7 +4106,8 @@
     "toggleSidebar": "Tukar bar sisi",
     "unknownError": "Ada masalah. Sila cuba lagi.",
     "view": "Lihat",
-    "exportThisRecord": "Eksport rekod ini"
+    "exportThisRecord": "Eksport rekod ini",
+    "previewThisRecord": "Pratonton / cetak"
   },
   "companies": {
     "owner": {

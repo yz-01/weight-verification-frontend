@@ -4106,7 +4106,8 @@
     "toggleSidebar": "Toggle sidebar",
     "unknownError": "Something went wrong. Try again.",
     "view": "View",
-    "exportThisRecord": "Export this record"
+    "exportThisRecord": "Export this record",
+    "previewThisRecord": "Preview / print"
   },
   "companies": {
     "owner": {

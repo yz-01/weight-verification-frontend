@@ -46,7 +46,7 @@ import type {
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
 import type { ChatRecordKind } from "@/lib/record-chat";
-import { api, download, toastSuccess } from "@/services/api-client";
+import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export const getProjectCategories = (query: ListQuery) =>
   api.list<ProjectCategory>("/api/project-categories/get_categories/", query);
@@ -1205,6 +1205,12 @@ export const downloadRecordPdf = (
     // labels rather than numbers (a progress record's 「phase / 40%」), so
     // the characters a filename cannot hold become dashes.
     fallbackFilename: `${(reference || "record").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
+  });
+
+/** The same PDF, fetched to read or print in the page (D12); the caller revokes it. */
+export const recordPdfObjectUrl = (kind: ExportableRecordKind, recordId: string) =>
+  fetchObjectUrl("/api/record-exports/download/", {
+    query: { kind, record: recordId, inline: "1" },
   });
 
 export async function sendPackageForReview(id: string, consultant: string) {
