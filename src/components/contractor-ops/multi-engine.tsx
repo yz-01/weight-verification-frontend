@@ -857,6 +857,7 @@ function AddRecordsDialog({
               <label key={part} className="flex items-center gap-2 text-sm">
                 <Checkbox
                   checked={include.includes(part)}
+                  aria-label={t(`group.${part}`)}
                   onCheckedChange={(next) =>
                     setInclude((current) =>
                       next ? [...current, part] : current.filter((value) => value !== part),
