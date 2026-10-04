@@ -7136,7 +7136,8 @@
       "column_other_project": "該分類不屬於此記錄的專案，請選擇同一專案的分類。",
       "column_inactive": "「{column}」已停用，請選擇啟用中的分類。",
       "conversation_closed": "這條記錄已經完成，聊天室已關閉。記錄仍可查看；還有事情請另開一條記錄。",
-      "receipt_rejected_at_gate": "這批貨已在現場交接時 Reject，不能再更改。"
+      "receipt_rejected_at_gate": "這批貨已在現場交接時 Reject，不能再更改。",
+      "record_finished": "此事項已結束，不能再上傳附件；已有附件仍可查看。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -14558,7 +14559,7 @@
       "chatLoading": "正在讀取聊天室照片…",
       "fromChat": "來自聊天室：{name}",
       "preview": "將要上傳的憑證",
-      "notImage": "付款憑證只能是圖片。",
+      "notImage": "付款憑證只能是圖片或 PDF；其他文件請放到「附件」。",
       "clearChoice": "換一張"
     },
     "action": {
@@ -14842,5 +14843,24 @@
     "print": "列印",
     "download": "下載",
     "preview": "預覽"
+  },
+  "recordAttachments": {
+    "title": "附件",
+    "add": "上傳附件",
+    "loading": "附件載入中",
+    "what": "附件",
+    "empty": "還沒有附件。",
+    "preview": "預覽",
+    "download": "下載",
+    "closed": "此事項已結束，不能再上傳附件；以上附件仍可查看和下載。",
+    "hint": "照片、PDF、單據、證書、付款憑證或其他文件都可以。上傳後不能修改或刪除，傳錯請再追加正確的文件。",
+    "files": "文件",
+    "note": "備註",
+    "notePlaceholder": "備註（選填），例如這是什麼文件",
+    "cancel": "取消",
+    "upload": "上傳 {count, plural, =0 {} other {(#)}}",
+    "toast": {
+      "added": "已上傳 {count} 個附件"
+    }
   }
 }

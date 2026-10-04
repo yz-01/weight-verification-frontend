@@ -25,7 +25,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { BadgeCheck, Check, FolderOpen, Loader2, Upload, XCircle } from "lucide-react";
+import { BadgeCheck, Check, FileText, FolderOpen, Loader2, Upload, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
@@ -346,9 +346,20 @@ function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void })
               <ul className="space-y-1.5">
                 {claim.payment_proofs.map((proof) => (
                   <li key={proof.id} className="flex items-center gap-2 text-xs">
-                    <a href={proof.file} target="_blank" rel="noreferrer" className="block size-10 shrink-0 overflow-hidden rounded border">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={proof.file} alt={t("proofs.title")} className="size-full object-cover" />
+                    <a
+                      href={proof.file}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={proof.name}
+                      className="grid size-10 shrink-0 place-items-center overflow-hidden rounded border"
+                    >
+                      {proof.preview_type === "application/pdf" ? (
+                        // The bank's PDF (D11): opens in the browser's viewer.
+                        <FileText className="size-5 text-muted-foreground" />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={proof.file} alt={t("proofs.title")} className="size-full object-cover" />
+                      )}
                     </a>
                     <span className="min-w-0">
                       <span className="block font-medium">{proof.amount ? `RM ${proof.amount}` : t("proofs.noAmount")}</span>

@@ -7136,7 +7136,8 @@
       "column_other_project": "Ruangan itu bukan dalam projek rekod ini. Pilih satu daripada projek yang sama.",
       "column_inactive": "“{column}” sudah ditutup. Pilih ruangan yang aktif.",
       "conversation_closed": "Rekod ini telah selesai, jadi perbualannya ditutup. Ia masih boleh dibaca; buka rekod baharu untuk perkara lanjut.",
-      "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah."
+      "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah.",
+      "record_finished": "Rekod ini telah selesai, jadi tiada fail lagi boleh ditambah. Lampiran sedia ada masih boleh dibuka."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -14558,7 +14559,7 @@
       "chatLoading": "Memuatkan foto perbualan…",
       "fromChat": "Daripada perbualan: {name}",
       "preview": "Baucar yang akan dimuat naik",
-      "notImage": "Hanya imej boleh digunakan sebagai baucar bayaran.",
+      "notImage": "Baucar bayaran mesti imej atau PDF. Letakkan fail lain dalam Lampiran.",
       "clearChoice": "Pilih yang lain"
     },
     "action": {
@@ -14842,5 +14843,24 @@
     "print": "Cetak",
     "download": "Muat turun",
     "preview": "Pratonton"
+  },
+  "recordAttachments": {
+    "title": "Lampiran",
+    "add": "Lampirkan fail",
+    "loading": "Memuatkan lampiran",
+    "what": "Lampiran",
+    "empty": "Belum ada fail dilampirkan.",
+    "preview": "Pratonton",
+    "download": "Muat turun",
+    "closed": "Rekod ini telah selesai, jadi tiada fail lagi boleh dilampirkan. Fail di atas masih boleh dibuka dan dimuat turun.",
+    "hint": "Foto, PDF, resit, sijil, slip bayaran atau fail lain. Fail tidak boleh diubah atau dibuang selepas dilampirkan; lampirkan yang betul sebagai tambahan.",
+    "files": "Fail",
+    "note": "Catatan",
+    "notePlaceholder": "Catatan (pilihan), cth. apa fail ini",
+    "cancel": "Batal",
+    "upload": "Muat naik {count, plural, =0 {} other {(#)}}",
+    "toast": {
+      "added": "{count} fail dilampirkan"
+    }
   }
 }

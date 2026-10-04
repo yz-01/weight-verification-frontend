@@ -7136,7 +7136,8 @@
       "column_other_project": "That category is not in this record's project. Choose one from the same project.",
       "column_inactive": "“{column}” is closed. Choose an open category.",
       "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further.",
-      "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed."
+      "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
+      "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -14558,7 +14559,7 @@
       "chatLoading": "Loading the conversation photos…",
       "fromChat": "From the conversation: {name}",
       "preview": "Voucher to upload",
-      "notImage": "Only an image can be used as a payment voucher.",
+      "notImage": "A payment voucher must be an image or a PDF. Put other files in Attachments.",
       "clearChoice": "Choose another"
     },
     "action": {
@@ -14842,5 +14843,24 @@
     "print": "Print",
     "download": "Download",
     "preview": "Preview"
+  },
+  "recordAttachments": {
+    "title": "Attachments",
+    "add": "Attach files",
+    "loading": "Loading attachments",
+    "what": "The attachments",
+    "empty": "No files attached yet.",
+    "preview": "Preview",
+    "download": "Download",
+    "closed": "This record is finished, so no more files can be attached. The files above can still be opened and downloaded.",
+    "hint": "Photos, PDFs, receipts, certificates, payment slips or any other file. A file cannot be changed or removed once attached; attach a corrected one instead.",
+    "files": "Files",
+    "note": "Note",
+    "notePlaceholder": "Note (optional), e.g. what the file is",
+    "cancel": "Cancel",
+    "upload": "Upload {count, plural, =0 {} other {(#)}}",
+    "toast": {
+      "added": "{count, plural, one {# file attached} other {# files attached}}"
+    }
   }
 }

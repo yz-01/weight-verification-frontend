@@ -7136,7 +7136,8 @@
       "column_other_project": "该分类不属于此记录的项目，请选择同一项目的分类。",
       "column_inactive": "「{column}」已停用，请选择启用中的分类。",
       "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。",
-      "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。"
+      "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。",
+      "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -14558,7 +14559,7 @@
       "chatLoading": "正在读取聊天室照片…",
       "fromChat": "来自聊天室：{name}",
       "preview": "将要上传的凭证",
-      "notImage": "付款凭证只能是图片。",
+      "notImage": "付款凭证只能是图片或 PDF；其他文件请放到「附件」。",
       "clearChoice": "换一张"
     },
     "action": {
@@ -14842,5 +14843,24 @@
     "print": "打印",
     "download": "下载",
     "preview": "预览"
+  },
+  "recordAttachments": {
+    "title": "附件",
+    "add": "上传附件",
+    "loading": "附件载入中",
+    "what": "附件",
+    "empty": "还没有附件。",
+    "preview": "预览",
+    "download": "下载",
+    "closed": "此事项已结束，不能再上传附件；以上附件仍可查看和下载。",
+    "hint": "照片、PDF、单据、证书、付款凭证或其他文件都可以。上传后不能修改或删除，传错请再追加正确的文件。",
+    "files": "文件",
+    "note": "备注",
+    "notePlaceholder": "备注（选填），例如这是什么文件",
+    "cancel": "取消",
+    "upload": "上传 {count, plural, =0 {} other {(#)}}",
+    "toast": {
+      "added": "已上传 {count} 个附件"
+    }
   }
 }
