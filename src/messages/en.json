@@ -9059,7 +9059,8 @@
       "fields": "Fields",
       "photos": "Photographs",
       "documents": "Delivery orders",
-      "messages": "Record communication"
+      "messages": "Record communication",
+      "files": "Files"
     },
     "itemAccepted": "Accepted",
     "itemCount": "{count} records",
@@ -9096,7 +9097,7 @@
     "oneProjectHelp": "A package belongs to one project. Its records come from that project's categories, and a record from another project will be refused.",
     "open": "Open",
     "pageOf": "Page {page} of {pages}",
-    "partsSummary": "{fields} fields · {photos} photos · {documents} delivery orders",
+    "partsSummary": "{fields} fields · {photos} photos · {documents} delivery orders · {files} files · {messages} messages",
     "previous": "Previous",
     "remarksHelp": "Months from now this is the only thing that explains why these records were put together.",
     "rename": "Rename",
@@ -9141,7 +9142,12 @@
       "recordParts": "The full contents of this record",
       "packagesToReview": "The packages to review",
       "package": "This package"
-    }
+    },
+    "include": {
+      "title": "What these records carry",
+      "hint": "Fields always go in. Photos start ticked; tick delivery orders, files and the communication only if this package needs them. Each record can be opened and re-ticked afterwards."
+    },
+    "loadMore": "Load more ({shown} of {total} shown)"
   },
   "mySubmissions": {
     "title": "What I sent",

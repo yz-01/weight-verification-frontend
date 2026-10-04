@@ -9059,7 +9059,8 @@
       "fields": "字段",
       "photos": "照片",
       "documents": "单据（DO）",
-      "messages": "事项沟通"
+      "messages": "事项沟通",
+      "files": "文件"
     },
     "itemAccepted": "已接受",
     "itemCount": "{count} 条资料",
@@ -9096,7 +9097,7 @@
     "oneProjectHelp": "一个资料包属于一个项目。里面的资料来自这个项目的各个分类，别的项目的记录会被拒绝。",
     "open": "打开",
     "pageOf": "第 {page} / {pages} 页",
-    "partsSummary": "{fields} 个字段 · {photos} 张照片 · {documents} 张单据",
+    "partsSummary": "{fields} 个字段 · {photos} 张照片 · {documents} 张单据 · {files} 个文件 · {messages} 条沟通",
     "previous": "上一页",
     "remarksHelp": "几个月后，这段话是唯一能说明当初为什么把这些资料收在一起的东西。",
     "rename": "改名",
@@ -9141,7 +9142,12 @@
       "recordParts": "这条资料的全部内容",
       "packagesToReview": "待审阅的资料包",
       "package": "这个资料包"
-    }
+    },
+    "include": {
+      "title": "这些事项要放进资料包的内容",
+      "hint": "字段一定会放入。照片预设勾选；DO、文件、事项沟通需要时才勾选。加入后仍可打开每个事项再调整。"
+    },
+    "loadMore": "载入更多（已显示 {shown} / {total}）"
   },
   "mySubmissions": {
     "title": "我提交过的",

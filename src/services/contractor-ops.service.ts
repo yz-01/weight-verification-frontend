@@ -42,6 +42,7 @@ import type {
   PackageRecordParts,
   PackageSelection,
   PackageState,
+  PackagePart,
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
 import type { ChatRecordKind } from "@/lib/record-chat";
@@ -1070,10 +1071,12 @@ export async function addPackageItems(
   id: string,
   kind: ArchiveRecordKind,
   ids: string[],
+  /** What the records carry besides their fields (D12); photos only if left out. */
+  include?: PackagePart[],
 ) {
   const row = await api.post<EvidencePackageDetail>(
     `/api/evidence-packages/${id}/add_items/`,
-    { kind, ids },
+    include ? { kind, ids, include } : { kind, ids },
   );
   toastSuccess("multiEngine.toast.added", { count: ids.length });
   return row;

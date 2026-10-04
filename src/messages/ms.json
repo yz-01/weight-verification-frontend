@@ -9059,7 +9059,8 @@
       "fields": "Medan",
       "photos": "Foto",
       "documents": "Nota serahan",
-      "messages": "Komunikasi rekod"
+      "messages": "Komunikasi rekod",
+      "files": "Fail"
     },
     "itemAccepted": "Diterima",
     "itemCount": "{count} rekod",
@@ -9096,7 +9097,7 @@
     "oneProjectHelp": "Satu pakej milik satu projek. Rekodnya datang daripada kategori projek itu, dan rekod projek lain akan ditolak.",
     "open": "Buka",
     "pageOf": "Halaman {page} daripada {pages}",
-    "partsSummary": "{fields} medan · {photos} foto · {documents} nota serahan",
+    "partsSummary": "{fields} medan · {photos} foto · {documents} nota serahan · {files} fail · {messages} mesej",
     "previous": "Sebelumnya",
     "remarksHelp": "Beberapa bulan lagi, inilah satu-satunya yang menjelaskan mengapa rekod ini dikumpulkan.",
     "rename": "Tukar nama",
@@ -9141,7 +9142,12 @@
       "recordParts": "Kandungan penuh rekod ini",
       "packagesToReview": "Pakej untuk disemak",
       "package": "Pakej ini"
-    }
+    },
+    "include": {
+      "title": "Apa yang dibawa rekod ini",
+      "hint": "Medan sentiasa dimasukkan. Foto ditanda dahulu; tandakan DO, fail dan komunikasi hanya jika pakej ini memerlukannya. Setiap rekod boleh dibuka dan ditanda semula kemudian."
+    },
+    "loadMore": "Muat lagi ({shown} daripada {total} dipaparkan)"
   },
   "mySubmissions": {
     "title": "Apa yang saya hantar",

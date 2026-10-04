@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDown,
   ArrowUp,
@@ -8,6 +8,7 @@ import {
   Eye,
   FileText,
   Inbox,
+  Loader2,
   Plus,
   Send,
   Trash2,
@@ -39,6 +40,7 @@ import type {
   EvidencePackageDetail,
   EvidencePackageRow,
   PackageItem,
+  PackagePart,
   PackageSelection,
 } from "@/interfaces/contractor-ops";
 import {
@@ -482,6 +484,8 @@ function PackageSheet({ id, onClose }: { id: string; onClose: () => void }) {
                               fields: item.fields.length,
                               photos: item.photos.length,
                               documents: item.documents.length,
+                              files: (item.files ?? []).length,
+                              messages: (item.messages ?? []).length,
                             })}
                           </p>
                           {item.source_missing && (
@@ -741,19 +745,29 @@ function AddRecordsDialog({
   const formatter = useDateFormat();
   const [kind, setKind] = useState<ArchiveRecordKind>("MATERIAL_RECEIPT");
   const [picked, setPicked] = useState<string[]>([]);
+  // D12: 「打包人自行勾选照片、DO、文件、沟通…不默认把所有非照片全加」 - the
+  // packer says what the records carry; photographs start ticked, the rest
+  // do not. Each record can still be opened and re-ticked afterwards.
+  const [include, setInclude] = useState<PackagePart[]>(["photos"]);
   const [preview, setPreview] = useState<{ kind: ArchiveRecordKind; id: string; reference: string } | null>(null);
 
-  const query = useQuery({
+  // Page by page, so an older record is one 【Load more】 away rather than
+  // cut off at the newest fifty.
+  const query = useInfiniteQuery({
     queryKey: ["evidence-packages", "candidates", kind, project],
-    queryFn: () =>
-      getPackageCandidates({ kind, project, page: 1, page_size: 50 }),
+    queryFn: ({ pageParam }) =>
+      getPackageCandidates({ kind, project, page: pageParam, page_size: 50 }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.total_pages ? lastPage.page + 1 : undefined,
   });
   const add = useMutation({
-    mutationFn: () => addPackageItems(packageId, kind, picked),
+    mutationFn: () => addPackageItems(packageId, kind, picked, include),
     onSuccess: onAdded,
   });
 
-  const rows = query.data?.results ?? [];
+  const rows = query.data?.pages.flatMap((page) => page.results) ?? [];
+  const total = query.data?.pages[0]?.count ?? 0;
 
   return (
     <Shell title={t("addRecords")} onClose={onClose}>
@@ -822,6 +836,37 @@ function AddRecordsDialog({
               ))}
             </ul>
           )}
+          {query.hasNextPage && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-2 w-full"
+              disabled={query.isFetchingNextPage}
+              onClick={() => void query.fetchNextPage()}
+            >
+              {query.isFetchingNextPage ? <Loader2 className="size-4 animate-spin" /> : null}
+              {t("loadMore", { shown: rows.length, total })}
+            </Button>
+          )}
+        </FieldWrapper>
+
+        <FieldWrapper label={t("include.title")} hint={t("include.hint")}>
+          <div className="flex flex-wrap gap-x-4 gap-y-2 rounded-lg border p-3">
+            {(["photos", "documents", "files", "messages"] as const).map((part) => (
+              <label key={part} className="flex items-center gap-2 text-sm">
+                <Checkbox
+                  checked={include.includes(part)}
+                  onCheckedChange={(next) =>
+                    setInclude((current) =>
+                      next ? [...current, part] : current.filter((value) => value !== part),
+                    )
+                  }
+                />
+                {t(`group.${part}`)}
+              </label>
+            ))}
+          </div>
         </FieldWrapper>
       </div>
       <footer className="flex justify-end gap-2 border-t px-4 py-3">
@@ -908,6 +953,21 @@ function RecordPreviewDialog({
                 </div>
               </section>
             )}
+            {(data.files ?? []).length > 0 && (
+              <section className="space-y-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("group.files")}</h3>
+                <ul className="divide-y rounded-lg border">
+                  {(data.files ?? []).map((file) => (
+                    <li key={file.id} className="flex items-center justify-between gap-3 p-2.5 text-sm">
+                      <span className="truncate">{file.name}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {file.uploaded_by_name} · {formatter.dateTime(file.uploaded_at)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
             {data.documents.length > 0 && (
               <section className="space-y-2">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("group.documents")}</h3>
@@ -931,9 +991,9 @@ function RecordPreviewDialog({
 /**
  * Tick which parts of one record this package carries (D-149).
  *
- * 客户：「勾选的时候，最好可以选择照片或者字段，DO 等」. Nothing ticked means the
- * whole record, which is what ticking the record itself meant - so the boxes
- * start full rather than empty.
+ * 客户：「勾选的时候，最好可以选择照片或者字段，DO 等」. The boxes start as the
+ * record was added: its fields and whatever groups were ticked when adding it
+ * - photographs only, unless the packer said otherwise (D12).
  */
 function TickPartsDialog({
   packageId,
@@ -958,7 +1018,8 @@ function TickPartsDialog({
   });
   const all = parts.data ?? item;
   // A group the stored selection does not mention is the whole group; an
-  // empty list is none (D-162). D-251: a record just added opens all ticked.
+  // empty list is none (D-162). A record added since D12 stores an empty
+  // list for every group that was not ticked when it was added.
   const initial = (group: keyof PackageSelection, ids: string[]) =>
     group in item.selection ? (item.selection[group] ?? []) : ids;
   const [edited, setSelection] = useState<PackageSelection | null>(null);
@@ -966,6 +1027,7 @@ function TickPartsDialog({
     fields: initial("fields", all.fields.map((field) => field.key)),
     photos: initial("photos", all.photos.map((shot) => shot.id ?? "")),
     documents: initial("documents", all.documents.map((doc) => doc.id)),
+    files: initial("files", (all.files ?? []).map((file) => file.id)),
     messages: initial("messages", (all.messages ?? []).map((message) => message.id)),
   };
 
@@ -994,15 +1056,11 @@ function TickPartsDialog({
         <QueryFailedNote query={parts} what={t("what.recordParts")} />
         <section className="space-y-2">
           {/*
-            Every part can be ticked, and every part starts ticked (D-236, D-251).
-
-            An earlier version of this dialog (T-346, 2026-09-23 morning) removed
-            the boxes from fields and documents on the reading that only
-            photographs involve a choice. D-236 says the opposite in as many
-            words - 「资料包里的资料**全部都要能由当事人自己勾选** —— 照片、DO、
-            文件、事项沟通记录…都在内」 - because one record can carry many DOs
-            and files and not every package wants them all. Lucas chose the
-            default: all ticked, untick what is not wanted (D-251).
+            Every part can be ticked (D-236): 「资料包里的资料**全部都要能由当事人
+            自己勾选** —— 照片、DO、文件、事项沟通记录…都在内」. What starts
+            ticked changed with D12: 「不默认把所有非照片全加」 - a record joins
+            with its fields and photographs, and the packer ticks the DO, the
+            files and the conversation in.
           */}
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {t("group.fields")}
@@ -1075,6 +1133,26 @@ function TickPartsDialog({
                     aria-label={doc.caption}
                   />
                   <span className="truncate text-sm">{doc.caption}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {(all.files ?? []).length > 0 && (
+          <section className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {t("group.files")}
+            </h3>
+            <ul className="divide-y rounded-lg border">
+              {(all.files ?? []).map((file) => (
+                <li key={file.id} className="flex items-center gap-3 p-2.5">
+                  <Checkbox
+                    checked={(selection.files ?? []).includes(file.id)}
+                    onCheckedChange={() => toggle("files", file.id)}
+                    aria-label={file.name}
+                  />
+                  <span className="min-w-0 flex-1 truncate text-sm">{file.name}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{file.uploaded_by_name}</span>
                 </li>
               ))}
             </ul>
@@ -1246,6 +1324,8 @@ function ReviewSheet({ id, onClose }: { id: string; onClose: () => void }) {
                       fields: item.fields.length,
                       photos: item.photos.length,
                       documents: item.documents.length,
+                      files: (item.files ?? []).length,
+                      messages: (item.messages ?? []).length,
                     })}
                   </p>
 
