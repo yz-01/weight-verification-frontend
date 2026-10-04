@@ -77,6 +77,7 @@ export function RecyclerCompanySettingsWorkspace() {
   const [settingsDraft, setSettingsDraft] = useState<Partial<RecyclerSettings>>({});
   const [profileDraft, setProfileDraft] = useState<Partial<ContractorCompanyProfile>>({});
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
   const [bankEditing, setBankEditing] = useState<CompanyBankAccount | null | undefined>();
   const [bankRemoving, setBankRemoving] = useState<CompanyBankAccount | null>(null);
   const settings = settingsQuery.data
@@ -99,10 +100,11 @@ export function RecyclerCompanySettingsWorkspace() {
     },
   });
   const saveProfile = useMutation({
-    mutationFn: () => updateContractorCompanyProfile(profileDraft, logoFile),
+    mutationFn: () => updateContractorCompanyProfile(profileDraft, logoFile, backgroundFile),
     onSuccess: async (saved) => {
       setProfileDraft({});
       setLogoFile(null);
+      setBackgroundFile(null);
       queryClient.setQueryData(["recycler-company-profile"], saved);
       await refresh();
     },
@@ -154,6 +156,17 @@ export function RecyclerCompanySettingsWorkspace() {
                 <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)} />
               </label>
             )}
+            {/* C12: every company sets its own background, recyclers too. */}
+            <div className="grid aspect-video place-items-center overflow-hidden rounded-md border bg-muted/30">
+              {profile.background_image ? <img src={profile.background_image} alt={t("profile.background")} className="h-full w-full object-cover" /> : <ImageUp className="size-7 text-muted-foreground" />}
+            </div>
+            {canManage && (
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted">
+                <ImageUp className="size-4" />
+                <span className="truncate">{backgroundFile?.name || t("profile.background")}</span>
+                <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => setBackgroundFile(event.target.files?.[0] ?? null)} />
+              </label>
+            )}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <FieldWrapper label={t("profile.name")} required><Input disabled={!canManage} value={profile.name} onChange={(event) => setProfileDraft((current) => ({ ...current, name: event.target.value }))} /></FieldWrapper>
@@ -166,7 +179,7 @@ export function RecyclerCompanySettingsWorkspace() {
             <FieldWrapper label={t("profile.phone")}><Input disabled={!canManage} value={profile.contact_phone} onChange={(event) => setProfileDraft((current) => ({ ...current, contact_phone: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("profile.email")}><Input disabled={!canManage} type="email" value={profile.contact_email} onChange={(event) => setProfileDraft((current) => ({ ...current, contact_email: event.target.value }))} /></FieldWrapper>
             <FieldWrapper label={t("profile.billingEmail")}><Input disabled={!canManage} type="email" value={profile.billing_email} onChange={(event) => setProfileDraft((current) => ({ ...current, billing_email: event.target.value }))} /></FieldWrapper>
-            {canManage && <div className="sm:col-span-2"><Button disabledReason={!Object.keys(profileDraft).length && !logoFile ? common("noChanges") : undefined} disabled={saveProfile.isPending || (!Object.keys(profileDraft).length && !logoFile)} onClick={() => saveProfile.mutate()}><Save />{t("action.saveProfile")}</Button></div>}
+            {canManage && <div className="sm:col-span-2"><Button disabledReason={!Object.keys(profileDraft).length && !logoFile && !backgroundFile ? common("noChanges") : undefined} disabled={saveProfile.isPending || (!Object.keys(profileDraft).length && !logoFile && !backgroundFile)} onClick={() => saveProfile.mutate()}><Save />{t("action.saveProfile")}</Button></div>}
           </div>
         </div>
       </section>

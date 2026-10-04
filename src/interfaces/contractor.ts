@@ -374,7 +374,9 @@ export interface MySubmissionRow {
     | "EQUIPMENT_MOVEMENT"
     | "DISPOSAL_REQUEST"
     // 杂费报销 stays here until paid (D-232).
-    | "SUNDRY_CLAIM";
+    | "SUNDRY_CLAIM"
+    // MR / Other Request (C07): the site follows its own requests here.
+    | "MATERIAL_REQUEST";
   reference: string;
   detail: string;
   project_id: string | null;
@@ -423,7 +425,7 @@ export interface MySubmissionDetail extends MySubmissionRow {
   /** Empty rather than absent when a record carries none. */
   photos: MySubmissionPhoto[];
   /** Sundry claims only: the payment vouchers finance uploaded (第 54、57 条). */
-  payment_proofs?: Array<{ id: string; url: string; amount: string | null; uploaded_at: string }>;
+  payment_proofs?: Array<{ id: string; url: string; name?: string; amount: string | null; uploaded_at: string }>;
 }
 
 export interface MySubmissionsPage {

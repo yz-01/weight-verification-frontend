@@ -20,6 +20,8 @@ export interface DocumentSubcategory {
   name: string;
   description: string;
   is_active: boolean;
+  /** Documents filed in this subcategory, for the folder list (B28). */
+  record_count?: number;
   created_at: string;
   updated_at: string;
 }
@@ -31,6 +33,8 @@ export interface DocumentVersion {
   file: string;
   original_name: string;
   content_type: string;
+  /** How the browser may show it (B27), or null when it can only be downloaded. */
+  preview_type: string | null;
   byte_size: number;
   sha256: string;
   note: string;

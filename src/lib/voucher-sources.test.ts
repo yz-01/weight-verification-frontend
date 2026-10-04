@@ -12,7 +12,7 @@ import { addSundryPaymentProof } from "@/services/sundry-claim.service";
 
 import {
   carriesFiles,
-  imageFilesFrom,
+  voucherFilesFrom,
   pickablePhotos,
   voucherPayload,
   type TransferLike,
@@ -29,30 +29,31 @@ const item = (file: File) => ({ kind: "file", type: file.type, getAsFile: () => 
 const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
 
 describe("which files a paste or drop hands over", () => {
-  it("takes the images from `files` and leaves the rest", () => {
+  it("takes the vouchers from `files` - pictures and the bank's PDF (D11) - and leaves the rest", () => {
     const shot = image("screenshot.png");
-    const transfer: TransferLike = { files: [image("notes.pdf", "application/pdf"), shot] };
-    expect(imageFilesFrom(transfer)).toEqual([shot]);
+    const slip = image("bank-slip.pdf", "application/pdf");
+    const transfer: TransferLike = { files: [image("notes.docx", "application/msword"), slip, shot] };
+    expect(voucherFilesFrom(transfer)).toEqual([slip, shot]);
   });
 
   it("falls back to `items` when a browser puts the pasted image only there", () => {
     const shot = image("image.png");
     const text = { kind: "string", type: "text/plain", getAsFile: () => null };
-    expect(imageFilesFrom({ files: [], items: [text, item(shot)] })).toEqual([shot]);
+    expect(voucherFilesFrom({ files: [], items: [text, item(shot)] })).toEqual([shot]);
   });
 
   it("does not count the same screenshot twice when both are filled", () => {
     const shot = image("image.png");
-    expect(imageFilesFrom({ files: [shot], items: [item(shot)] })).toHaveLength(1);
+    expect(voucherFilesFrom({ files: [shot], items: [item(shot)] })).toHaveLength(1);
   });
 
-  it("hands over nothing for text, nothing at all, or a non-image file", () => {
-    expect(imageFilesFrom({ files: [], items: [{ kind: "string", type: "text/plain", getAsFile: () => null }] })).toEqual([]);
-    expect(imageFilesFrom(null)).toEqual([]);
-    const pdf = image("bank.pdf", "application/pdf");
-    expect(imageFilesFrom({ files: [pdf] })).toEqual([]);
-    // ...and says a file was offered, so the screen can say "images only".
-    expect(carriesFiles({ files: [pdf] })).toBe(true);
+  it("hands over nothing for text, nothing at all, or a file that is not a voucher", () => {
+    expect(voucherFilesFrom({ files: [], items: [{ kind: "string", type: "text/plain", getAsFile: () => null }] })).toEqual([]);
+    expect(voucherFilesFrom(null)).toEqual([]);
+    const sheet = image("rates.xlsx", "application/vnd.ms-excel");
+    expect(voucherFilesFrom({ files: [sheet] })).toEqual([]);
+    // ...and says a file was offered, so the screen can say "image or PDF only".
+    expect(carriesFiles({ files: [sheet] })).toBe(true);
     expect(carriesFiles({ files: [], items: [{ kind: "string", type: "text/plain", getAsFile: () => null }] })).toBe(false);
   });
 });
@@ -113,7 +114,8 @@ describe("the office screen uses one voucher area", () => {
   });
 
   it("takes a file, a drop, a paste and a chat pick, and previews before upload", () => {
-    expect(area).toMatch(/<Input[\s\S]{0,60}type="file"[\s\S]{0,20}accept="image\/\*"/);
+    // A picture or the bank's PDF (D11).
+    expect(area).toMatch(/<Input[\s\S]{0,60}type="file"[\s\S]{0,20}accept="image\/\*,application\/pdf"/);
     expect(area).toMatch(/onDrop=\{[\s\S]{0,160}take\(event\.dataTransfer\)/);
     expect(area).toMatch(/onPaste=\{[\s\S]{0,200}take\(event\.clipboardData\)/);
     expect(area).toMatch(/queryKey: recordConversationKey\("SUNDRY_CLAIM", claimId\)/);

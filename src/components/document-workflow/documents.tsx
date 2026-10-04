@@ -4,10 +4,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Archive,
+  ChevronRight,
   Download,
   Eye,
   FilePlus2,
+  Folder,
   FolderCog,
+  FolderOpen,
   Loader2,
   Pencil,
   Plus,
@@ -20,6 +23,7 @@ import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { FilePreview } from "@/components/shared/file-preview";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
@@ -78,6 +82,7 @@ import {
   createDocument,
   createDocumentCategory,
   createDocumentSubcategory,
+  documentVersionObjectUrl,
   downloadDocumentVersion,
   getDocument,
   getDocumentCategories,
@@ -86,8 +91,10 @@ import {
   updateDocument,
   updateDocumentCategory,
   updateDocumentSubcategory,
+  uploadDocument,
   uploadDocumentVersion,
 } from "@/services/document-workflow.service";
+import { cn } from "@/lib/utils";
 
 export function Documents() {
   const t = useTranslations();
@@ -105,9 +112,12 @@ export function Documents() {
     "uploaded_by",
   ]);
   const [viewingId, setViewingId] = useState<string | null>(null);
-  const [editing, setEditing] = useState<DocumentRecord | null | "new">(
-    searchParams.get("create") === "1" && can("document.manage") ? "new" : null,
-  );
+  const [editing, setEditing] = useState<DocumentRecord | null>(null);
+  // Uploading is for everybody who reads the archive and is on the project
+  // (B28, E10); filing company-wide and editing stay with the manager.
+  const canUpload = can("document.view") || can("document.manage");
+  const manages = can("document.manage");
+  const [filing, setFiling] = useState(searchParams.get("create") === "1" && canUpload);
   const [uploading, setUploading] = useState<DocumentRecord | null>(null);
   const [archiving, setArchiving] = useState<DocumentRecord | null>(null);
   const [archiveReason, setArchiveReason] = useState("");
@@ -205,16 +215,24 @@ export function Documents() {
         ),
       },
       {
+        // Where it is filed, as one path (B28): 「显示路径」.
         id: "category",
-        meta: { label: t("documents.field.category") },
-        header: () => t("documents.field.category"),
+        meta: { label: t("documents.field.path") },
+        header: () => t("documents.field.path"),
         cell: ({ row }) => (
-          <div className="min-w-0">
-            <p className="truncate">{row.original.category_name}</p>
-            <p className="truncate text-xs text-muted-foreground">
-              {row.original.subcategory_name ?? t("common.emptyValue")}
-            </p>
-          </div>
+          <p
+            className="flex max-w-[240px] min-w-0 items-center gap-1 text-sm"
+            title={[row.original.category_name, row.original.subcategory_name].filter(Boolean).join(" / ")}
+          >
+            <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            <span className="truncate">{row.original.category_name}</span>
+            {row.original.subcategory_name ? (
+              <>
+                <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+                <span className="truncate">{row.original.subcategory_name}</span>
+              </>
+            ) : null}
+          </p>
         ),
       },
       {
@@ -267,7 +285,7 @@ export function Documents() {
         ),
         cell: ({ row }) => (
           <span className="text-muted-foreground tabular-nums">
-            {df.date(row.original.created_at)}
+            {df.dateTime(row.original.created_at)}
           </span>
         ),
       },
@@ -289,27 +307,29 @@ export function Documents() {
               >
                 <Eye className="h-4 w-4" />
               </Button>
-              {can("document.manage") && active && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    title={t("documents.upload.action")}
-                    onClick={() => setUploading(record)}
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    title={t("common.edit")}
-                    onClick={() => setEditing(record)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </>
+              {/* A new version: anybody on the project; a company-wide
+                  document only from the manager (the server says the same). */}
+              {active && (manages || (canUpload && record.project)) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  title={t("documents.upload.action")}
+                  onClick={() => setUploading(record)}
+                >
+                  <Upload className="h-4 w-4" />
+                </Button>
+              )}
+              {manages && active && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  title={t("common.edit")}
+                  onClick={() => setEditing(record)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
               )}
               {can("document.archive") && active && (
                 <Button
@@ -327,7 +347,7 @@ export function Documents() {
         },
       },
     ],
-    [can, df, t],
+    [can, canUpload, df, manages, t],
   );
 
   const rows = documents.data?.results ?? [];
@@ -345,31 +365,46 @@ export function Documents() {
             : t("documents.count", { count: totalCount })
         }
         action={
-          can("document.manage") ? (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full px-4"
-                onClick={() => setTaxonomyOpen(true)}
-              >
-                <FolderCog className="h-4 w-4" />
-                {t("documents.taxonomy.action")}
-              </Button>
+          canUpload ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {manages && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full px-4"
+                  onClick={() => setTaxonomyOpen(true)}
+                >
+                  <FolderCog className="h-4 w-4" />
+                  {t("documents.taxonomy.action")}
+                </Button>
+              )}
               <Button
                 size="sm"
                 className="rounded-full px-4 shadow-sm"
                 disabled={categoryRows.filter((item) => item.is_active).length === 0}
-                onClick={() => setEditing("new")}
+                disabledReason={
+                  categoryRows.filter((item) => item.is_active).length === 0
+                    ? t("documents.uploadFile.noCategory")
+                    : undefined
+                }
+                onClick={() => setFiling(true)}
               >
                 <FilePlus2 className="h-4 w-4" />
-                {t("documents.create.action")}
+                {t("documents.uploadFile.action")}
               </Button>
             </div>
           ) : undefined
         }
       />
 
+      <div className="flex min-h-0 flex-1 gap-4">
+      <FolderTree
+        categories={categoryRows}
+        subcategories={subcategoryRows}
+        category={list.filters.category}
+        subcategory={list.filters.subcategory}
+        onSelect={(category, subcategory) => list.setFilters({ category, subcategory })}
+      />
       <DataTable
         columns={columns}
         rows={rows}
@@ -429,10 +464,25 @@ export function Documents() {
         onPageSizeChange={list.setPageSize}
         onClearFilters={list.clearFilters}
       />
+      </div>
+
+      {filing && (
+        <UploadDocumentDialog
+          categories={categoryRows}
+          subcategories={subcategoryRows}
+          projects={projects.data?.results ?? []}
+          manages={manages}
+          category={list.filters.category}
+          subcategory={list.filters.subcategory}
+          project={list.filters.project}
+          onClose={() => setFiling(false)}
+          onDone={refresh}
+        />
+      )}
 
       {editing && (
         <DocumentEditorDialog
-          document={editing === "new" ? null : editing}
+          document={editing}
           categories={categoryRows}
           subcategories={subcategoryRows}
           projects={projects.data?.results ?? []}
@@ -492,6 +542,332 @@ export function Documents() {
         />
       )}
     </div>
+  );
+}
+
+/**
+ * The archive's folders: every category with what is filed in it, and the
+ * open category's subcategories (B28 「分类管理、筛选清楚」). Choosing one is
+ * the same filter as the selects in the toolbar, which stay for the phone.
+ */
+function FolderTree({
+  categories,
+  subcategories,
+  category,
+  subcategory,
+  onSelect,
+}: {
+  categories: DocumentCategory[];
+  subcategories: DocumentSubcategory[];
+  category: string | undefined;
+  subcategory: string | undefined;
+  onSelect: (category: string | undefined, subcategory: string | undefined) => void;
+}) {
+  const t = useTranslations();
+  const total = categories.reduce((sum, item) => sum + (item.record_count ?? 0), 0);
+  const item = (active: boolean) =>
+    cn(
+      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
+      active ? "bg-primary/10 font-medium text-primary" : "text-foreground hover:bg-muted",
+    );
+  return (
+    <nav
+      aria-label={t("documents.folders.title")}
+      className="hidden w-64 shrink-0 flex-col overflow-y-auto rounded-lg border bg-card p-2 shadow-sm lg:flex"
+    >
+      <p className="px-2 pb-1 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("documents.folders.title")}
+      </p>
+      <button type="button" className={item(!category)} onClick={() => onSelect(undefined, undefined)}>
+        <FolderOpen className="h-4 w-4 shrink-0" />
+        <span className="min-w-0 flex-1 truncate">{t("documents.folders.all")}</span>
+        <span className="text-xs tabular-nums text-muted-foreground">{total}</span>
+      </button>
+      {categories.map((folder) => {
+        const open = category === folder.id;
+        const children = subcategories.filter((child) => child.category === folder.id);
+        return (
+          <div key={folder.id}>
+            <button
+              type="button"
+              className={item(open && !subcategory)}
+              aria-expanded={children.length ? open : undefined}
+              onClick={() => onSelect(folder.id, undefined)}
+            >
+              {open ? <FolderOpen className="h-4 w-4 shrink-0" /> : <Folder className="h-4 w-4 shrink-0" />}
+              <span className={cn("min-w-0 flex-1 truncate", !folder.is_active && "text-muted-foreground")}>
+                {folder.name}
+              </span>
+              <span className="text-xs tabular-nums text-muted-foreground">{folder.record_count ?? 0}</span>
+            </button>
+            {open && children.length > 0 && (
+              <div className="ml-4 border-l pl-2">
+                {children.map((child) => (
+                  <button
+                    key={child.id}
+                    type="button"
+                    className={item(subcategory === child.id)}
+                    onClick={() => onSelect(folder.id, child.id)}
+                  >
+                    <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <span className={cn("min-w-0 flex-1 truncate", !child.is_active && "text-muted-foreground")}>
+                      {child.name}
+                    </span>
+                    <span className="text-xs tabular-nums text-muted-foreground">{child.record_count ?? 0}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
+function fileStem(name: string): string {
+  const dot = name.lastIndexOf(".");
+  return (dot > 0 ? name.slice(0, dot) : name).slice(0, 255);
+}
+
+/**
+ * Upload files into the archive in one step (B28): the files, the folder
+ * they go in, and the project. Each file becomes its own document with its
+ * first version; one file can be given a title of its own.
+ */
+function UploadDocumentDialog({
+  categories,
+  subcategories,
+  projects,
+  manages,
+  category: initialCategory,
+  subcategory: initialSubcategory,
+  project: initialProject,
+  onClose,
+  onDone,
+}: {
+  categories: DocumentCategory[];
+  subcategories: DocumentSubcategory[];
+  projects: Project[];
+  manages: boolean;
+  category?: string;
+  subcategory?: string;
+  project?: string;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const t = useTranslations();
+  const active = categories.filter((item) => item.is_active);
+  const [files, setFiles] = useState<File[]>([]);
+  const [title, setTitle] = useState("");
+  const [referenceNo, setReferenceNo] = useState("");
+  const [note, setNote] = useState("");
+  const [category, setCategory] = useState(
+    active.find((item) => item.id === initialCategory)?.id ?? active[0]?.id ?? "",
+  );
+  const [subcategory, setSubcategory] = useState(
+    subcategories.find((item) => item.id === initialSubcategory && item.is_active)?.id ?? "none",
+  );
+  const [project, setProject] = useState(
+    initialProject ?? (manages ? "none" : (projects.length === 1 ? projects[0].id : "")),
+  );
+  const [done, setDone] = useState(0);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const availableSubcategories = subcategories.filter(
+    (item) => item.category === category && item.is_active,
+  );
+  const categoryName = categories.find((item) => item.id === category)?.name ?? "";
+  const subcategoryName = availableSubcategories.find((item) => item.id === subcategory)?.name;
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      setDone(0);
+      for (const [index, file] of files.entries()) {
+        await uploadDocument(
+          {
+            title: files.length === 1 && title.trim() ? title.trim() : fileStem(file.name),
+            reference_no: referenceNo.trim(),
+            description: note.trim(),
+            project: project === "none" || project === "" ? null : project,
+            category,
+            subcategory: subcategory === "none" ? null : subcategory,
+          },
+          file,
+          { quiet: index < files.length - 1 },
+        );
+        setDone(index + 1);
+      }
+    },
+    onSuccess: () => {
+      onDone();
+      onClose();
+    },
+    onError: (error) => {
+      onDone();
+      setErrors(error instanceof ApiError ? error.errors : {});
+    },
+  });
+
+  return (
+    <Dialog open onOpenChange={(next) => !next && !mutation.isPending && onClose()}>
+      <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-[680px] [&>button]:hidden">
+        <DialogHeader>
+          <DialogTitle>{t("documents.uploadFile.title")}</DialogTitle>
+          <DialogDescription>{t("documents.uploadFile.description")}</DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FieldWrapper
+            label={t("documents.field.file")}
+            required
+            error={errors.file}
+            hint={t("documents.uploadFile.fileHint")}
+            className="sm:col-span-2"
+          >
+            <Input
+              type="file"
+              multiple
+              onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+            />
+          </FieldWrapper>
+          {files.length > 1 && (
+            <ul className="max-h-28 overflow-y-auto rounded-md border px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
+              {files.map((file) => (
+                <li key={`${file.name}-${file.size}`} className="truncate">
+                  {file.name}
+                </li>
+              ))}
+            </ul>
+          )}
+          <FieldWrapper label={t("documents.field.category")} required error={errors.category}>
+            <Select
+              value={category}
+              onValueChange={(value) => {
+                setCategory(value);
+                setSubcategory("none");
+              }}
+            >
+              <SelectTrigger className="w-full bg-card">
+                <SelectValue placeholder={t("common.selectPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {active.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.name} ({item.code})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("documents.field.subcategory")}
+            optional={t("common.optional")}
+            error={errors.subcategory}
+          >
+            <Select value={subcategory} onValueChange={setSubcategory}>
+              <SelectTrigger className="w-full bg-card">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("common.none")}</SelectItem>
+                {availableSubcategories.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.name} ({item.code})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          <p className="flex items-center gap-1.5 rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground sm:col-span-2">
+            <Folder className="h-3.5 w-3.5 shrink-0" />
+            {t("documents.uploadFile.pathPreview")}
+            <span className="font-medium text-foreground">
+              {[categoryName, subcategoryName].filter(Boolean).join(" / ") || t("common.emptyValue")}
+            </span>
+          </p>
+          <FieldWrapper
+            label={t("documents.field.project")}
+            required={!manages}
+            optional={manages ? t("common.optional") : undefined}
+            error={errors.project}
+            hint={manages ? undefined : t("documents.uploadFile.projectHint")}
+            className="sm:col-span-2"
+          >
+            <Select value={project} onValueChange={setProject}>
+              <SelectTrigger className="w-full bg-card">
+                <SelectValue placeholder={t("common.selectPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {manages && <SelectItem value="none">{t("documents.companyWide")}</SelectItem>}
+                {projects.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.name} ({item.code})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FieldWrapper>
+          {files.length <= 1 && (
+            <FieldWrapper
+              label={t("documents.field.title")}
+              optional={t("common.optional")}
+              error={errors.title}
+              hint={t("documents.uploadFile.titleHint")}
+            >
+              <Input
+                value={title}
+                placeholder={files[0] ? fileStem(files[0].name) : undefined}
+                onChange={(event) => setTitle(event.target.value)}
+              />
+            </FieldWrapper>
+          )}
+          <FieldWrapper
+            label={t("documents.field.reference")}
+            optional={t("common.optional")}
+            error={errors.reference_no}
+          >
+            <Input value={referenceNo} onChange={(event) => setReferenceNo(event.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper
+            label={t("documents.field.description")}
+            optional={t("common.optional")}
+            error={errors.description}
+            className="sm:col-span-2"
+          >
+            <Textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+          </FieldWrapper>
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-full px-4"
+            disabled={mutation.isPending}
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+            {t("common.cancel")}
+          </Button>
+          <Button
+            size="sm"
+            className="rounded-full px-4 shadow-sm"
+            requires={[
+              [files.length > 0, t("documents.field.file")],
+              [category, t("documents.field.category")],
+              [manages || (project && project !== "none"), t("documents.field.project")],
+            ]}
+            disabled={mutation.isPending}
+            onClick={() => mutation.mutate()}
+          >
+            {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {mutation.isPending && files.length > 1
+              ? t("documents.uploadFile.progress", { done, total: files.length })
+              : t("documents.uploadFile.confirm")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -808,6 +1184,8 @@ function DocumentDetailDialog({
 }) {
   const t = useTranslations();
   const [downloading, setDownloading] = useState<string | null>(null);
+  // Which version the preview shows; the newest until somebody picks another.
+  const [previewing, setPreviewing] = useState<string | null>(null);
   const detail = useQuery({
     queryKey: ["documents", "detail", documentId],
     queryFn: () => getDocument(documentId),
@@ -822,9 +1200,14 @@ function DocumentDetailDialog({
     }
   };
 
+  const shown =
+    detail.data?.versions.find((version) => version.id === previewing) ??
+    detail.data?.versions[0] ??
+    null;
+
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[900px] [&>button]:hidden">
+      <DialogContent className="max-h-[94dvh] overflow-y-auto sm:max-w-[1180px] [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.detail.title")}</DialogTitle>
           <DialogDescription>
@@ -841,11 +1224,40 @@ function DocumentDetailDialog({
             {t("common.loading")}
           </p>
         ) : (
-          <DocumentDetailBody
-            document={detail.data}
-            downloading={downloading}
-            onDownload={(version) => void handleDownload(version)}
-          />
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+            {/* B27: the file itself, in the page - 「不需要先下载到本地」. */}
+            <section className="flex min-w-0 flex-col gap-2" aria-label={t("documents.preview.title")}>
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold text-foreground">{t("documents.preview.title")}</h3>
+                {shown && (
+                  <span className="min-w-0 truncate text-xs text-muted-foreground" title={shown.original_name}>
+                    v{shown.version_number} · {shown.original_name}
+                  </span>
+                )}
+              </div>
+              {shown ? (
+                <FilePreview
+                  key={shown.id}
+                  load={() => documentVersionObjectUrl(shown)}
+                  previewType={shown.preview_type}
+                  filename={shown.original_name}
+                  onDownload={() => handleDownload(shown)}
+                  className="h-[52dvh] lg:h-[64dvh]"
+                />
+              ) : (
+                <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
+                  {t("documents.versions.empty")}
+                </p>
+              )}
+            </section>
+            <DocumentDetailBody
+              document={detail.data}
+              downloading={downloading}
+              previewing={shown?.id ?? null}
+              onPreview={(version) => setPreviewing(version.id)}
+              onDownload={(version) => void handleDownload(version)}
+            />
+          </div>
         )}
 
         <DialogFooter>
@@ -867,17 +1279,21 @@ function DocumentDetailDialog({
 function DocumentDetailBody({
   document,
   downloading,
+  previewing,
+  onPreview,
   onDownload,
 }: {
   document: DocumentDetail;
   downloading: string | null;
+  previewing: string | null;
+  onPreview: (version: DocumentVersion) => void;
   onDownload: (version: DocumentVersion) => void;
 }) {
   const t = useTranslations();
   const df = useDateFormat();
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="min-w-0 space-y-6">
+      <div className="grid gap-3 sm:grid-cols-2">
         <ReadField label={t("documents.field.title")} value={document.title} />
         <ReadField
           label={t("documents.field.reference")}
@@ -914,14 +1330,14 @@ function DocumentDetailBody({
           <ReadField
             label={t("documents.field.description")}
             value={document.description}
-            className="sm:col-span-2 lg:col-span-3"
+            className="sm:col-span-2"
           />
         )}
         {document.status === "ARCHIVED" && (
           <ReadField
             label={t("documents.field.archiveReason")}
             value={document.archive_reason}
-            className="sm:col-span-2 lg:col-span-3"
+            className="sm:col-span-2"
           />
         )}
       </div>
@@ -940,7 +1356,7 @@ function DocumentDetailBody({
                 <TableHead>{t("documents.field.version")}</TableHead>
                 <TableHead>{t("documents.field.file")}</TableHead>
                 <TableHead>{t("documents.field.uploadedBy")}</TableHead>
-                <TableHead>{t("documents.field.sha256")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("documents.field.sha256")}</TableHead>
                 <TableHead>{t("documents.field.createdAt")}</TableHead>
                 <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
@@ -968,7 +1384,7 @@ function DocumentDetailBody({
                       </p>
                     </TableCell>
                     <TableCell>{version.uploaded_by_name ?? t("common.emptyValue")}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden xl:table-cell">
                       <code className="block max-w-[170px] truncate text-xs" title={version.sha256}>
                         {version.sha256}
                       </code>
@@ -976,7 +1392,17 @@ function DocumentDetailBody({
                     <TableCell className="text-muted-foreground tabular-nums">
                       {df.dateTime(version.created_at)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="whitespace-nowrap text-right">
+                      <Button
+                        variant={previewing === version.id ? "secondary" : "ghost"}
+                        size="icon"
+                        className="h-8 w-8"
+                        title={t("filePreview.preview")}
+                        aria-pressed={previewing === version.id}
+                        onClick={() => onPreview(version)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

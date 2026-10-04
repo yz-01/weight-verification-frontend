@@ -66,6 +66,7 @@ import type {
   RemedialItem,
 } from "@/interfaces/consultant-workflow";
 import { ApiError } from "@/interfaces/api";
+import { recordConversationKey } from "@/lib/record-chat";
 import {
   addApplicationAttachment,
   addRemedialItem,
@@ -105,7 +106,14 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
     enabled: can("approval.review"),
   });
   const refresh = () =>
-    queryClient.invalidateQueries({ queryKey: ["consultant-application", id] });
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["consultant-application", id] }),
+      // Deciding archives the application with its final report, and that
+      // closes its conversation (K09): the composer goes without a reload.
+      queryClient.invalidateQueries({
+        queryKey: recordConversationKey("CONSULTANT_APPLICATION", id),
+      }),
+    ]);
   const submit = useMutation({
     mutationFn: () => submitConsultantApplication(id),
     onSuccess: refresh,
@@ -548,9 +556,14 @@ function ArchiveChecklist({ application }: { application: ConsultantApplication 
   const retry = useMutation({
     mutationFn: () => retryApplicationFinalReport(application.id),
     onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: ["consultant-application", application.id],
-      }),
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["consultant-application", application.id],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: recordConversationKey("CONSULTANT_APPLICATION", application.id),
+        }),
+      ]),
   });
   const reportOwedButMissing =
     !application.final_report && DECIDED.includes(application.final_decision);

@@ -142,9 +142,14 @@ test("evidence from two columns becomes one package, and can be found again", as
   const picker = page.getByRole("dialog", { name: "Add records" });
   await expect(picker).toBeVisible(WAIT);
   await picker.getByRole("button", { name: "Progress", exact: true }).click();
-  const firstRecord = picker.getByRole("checkbox").first();
+  // The record list, not the "what these records carry" boxes below it (D12).
+  const firstRecord = picker.getByRole("listitem").getByRole("checkbox").first();
   await expect(firstRecord).toBeVisible(WAIT);
   await firstRecord.check();
+  // D12: photos go in by default; DO, files and communication only if ticked.
+  await expect(picker.getByRole("checkbox", { name: "Photographs" })).toBeChecked();
+  await expect(picker.getByRole("checkbox", { name: "Delivery orders" })).not.toBeChecked();
+  await expect(picker.getByRole("checkbox", { name: "Record communication" })).not.toBeChecked();
   await picker.getByRole("button", { name: /^Add \d+ selected$/ }).click();
   await expect(picker).toBeHidden(WAIT);
 

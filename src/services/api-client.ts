@@ -260,6 +260,38 @@ export async function download(
   path: string,
   options: RequestOptions & { fallbackFilename: string; openInNewTab?: boolean },
 ): Promise<void> {
+  const response = await fetchFile(path, options);
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  if (options.openInNewTab) {
+    window.open(url, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return;
+  }
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download =
+    filenameFromDisposition(response.headers.get("Content-Disposition")) ??
+    options.fallbackFilename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  // Revoking immediately can cancel the download in some browsers, which is
+  // why this waits a tick rather than running on the next line.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/**
+ * A file the API serves, as an object URL the page can show in a frame and
+ * print (the MR form's Preview / Print, C06). The caller revokes it.
+ */
+export async function fetchObjectUrl(path: string, options: RequestOptions = {}): Promise<string> {
+  const response = await fetchFile(path, options);
+  return URL.createObjectURL(await response.blob());
+}
+
+/** Fetch a file with the session's auth, refreshing once, toasting failure. */
+async function fetchFile(path: string, options: RequestOptions): Promise<Response> {
   let response: Response;
   try {
     response = await send(path, options);
@@ -291,25 +323,7 @@ export async function download(
     toast.error(message);
     throw new ApiError(message, response.status, {}, code);
   }
-
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  if (options.openInNewTab) {
-    window.open(url, "_blank", "noopener,noreferrer");
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-    return;
-  }
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download =
-    filenameFromDisposition(response.headers.get("Content-Disposition")) ??
-    options.fallbackFilename;
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  // Revoking immediately can cancel the download in some browsers, which is
-  // why this waits a tick rather than running on the next line.
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return response;
 }
 
 /**
