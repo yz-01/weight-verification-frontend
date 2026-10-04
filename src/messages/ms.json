@@ -7697,7 +7697,8 @@
       "title": "Rakam rekod tapak",
       "waste": "Permohonan bahan alam sekitar keluar",
       "sundry": "Tuntutan pelbagai",
-      "request": "MR / Permohonan Lain"
+      "request": "MR / Permohonan Lain",
+      "gate": "Rekod foto pintu"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -12347,7 +12348,8 @@
       "timeline": "Sejarah masuk dan keluar",
       "title": "Akses tapak",
       "unknownGate": "Pintu tidak dinyatakan",
-      "defaultsFailed": "Tetapan lalai akses tapak gagal dimuatkan. Cuba lagi dahulu."
+      "defaultsFailed": "Tetapan lalai akses tapak gagal dimuatkan. Cuba lagi dahulu.",
+      "gateRecords": "Rekod foto pintu"
     },
     "action": {
       "approve": "Luluskan",
@@ -12718,7 +12720,10 @@
       "passRevoked": "Pas akses dibatalkan",
       "passUpdated": "Pas dikemas kini.",
       "profileSaved": "Profil syarikat disimpan",
-      "settingsSaved": "Tetapan tapak syarikat disimpan"
+      "settingsSaved": "Tetapan tapak syarikat disimpan",
+      "gateIncidentSaved": "Rekod pintu disimpan.",
+      "gatePhotosAdded": "Foto ditambah.",
+      "gateMembersAdded": "Orang diminta menyertai dan dimaklumkan."
     },
     "what": {
       "roles": "Senarai peranan",
@@ -12726,6 +12731,81 @@
       "requestedPass": "Pas dalam pautan",
       "workers": "Senarai pekerja",
       "credentials": "Kelayakan yang didaftarkan"
+    },
+    "gateCategory": {
+      "SUSPICIOUS_PERSON": "Orang mencurigakan",
+      "THEFT": "Kecurian",
+      "ABNORMAL_VEHICLE": "Kenderaan luar biasa",
+      "ITEM_REMOVAL": "Barang dibawa keluar",
+      "DISPUTE": "Pertikaian",
+      "OTHER": "Lain-lain"
+    },
+    "gateRecords": {
+      "title": "Rekod foto pintu pagar",
+      "subtitle": "Apa yang dirakam pengawal di pintu pagar: orang mencurigakan, kecurian, kenderaan luar biasa, barang dibawa keluar, pertikaian.",
+      "new": "Rekod pintu baharu",
+      "newTitle": "Rekod foto pintu baharu",
+      "newHelp": "Ambil seberapa banyak foto yang perlu. Setiap foto menyimpan masa, GPS, projek, pintu dan nama anda.",
+      "detailHelp": "Foto, orang yang diminta menyertai dan perbualan kekal pada rekod ini dan tidak boleh dipadam.",
+      "field": {
+        "project": "Projek",
+        "chooseProject": "Pilih projek",
+        "allProjects": "Semua projek",
+        "category": "Apa yang berlaku",
+        "allCategories": "Semua jenis",
+        "search": "Cari",
+        "searchPlaceholder": "No. rekod, pintu, pengawal, pas atau plat",
+        "gate": "Pintu",
+        "gatePlaceholder": "cth. Pintu utama",
+        "pass": "Pas berkaitan",
+        "passHint": "Pilihan. Biarkan sebagai rekod sendiri jika tiada pas berkaitan.",
+        "standalone": "Rekod sendiri",
+        "wholePass": "Pas itu, bukan satu kemasukan atau keluar",
+        "event": "Masuk / keluar berkaitan",
+        "description": "Apa yang dilihat",
+        "photos": "Foto",
+        "photosHint": "Sekurang-kurangnya satu. Tekan kamera lagi untuk ambil lebih.",
+        "members": "Minta orang menyertai",
+        "membersHint": "Kakitangan tapak, keselamatan atau projek bagi projek ini. Mereka dimaklumkan dan boleh membalas pada rekod ini.",
+        "guard": "Pengawal",
+        "time": "Masa"
+      },
+      "what": "rekod pintu",
+      "whatOne": "rekod pintu ini",
+      "whatPeople": "kakitangan projek ini",
+      "whatPasses": "pas projek ini",
+      "loading": "Memuatkan…",
+      "empty": "Belum ada rekod foto pintu.",
+      "count": "Memaparkan {shown} daripada {total}",
+      "loadMore": "Muat lagi",
+      "photoAlt": "Foto pintu",
+      "photoCount": "{count} foto",
+      "linkedPass": "Pas {pass} · {subject}",
+      "photoNumber": "Foto {number}",
+      "removePhoto": "Buang foto {number}",
+      "gpsShort": "GPS",
+      "noGpsShort": "Tiada GPS",
+      "locationReady": "Lokasi {latitude}, {longitude}",
+      "locationFailed": "Lokasi tidak dapat diperoleh. Foto tetap disimpan dengan tanda GPS tidak tersedia.",
+      "locating": "Mendapatkan lokasi…",
+      "retryLocation": "Cuba lokasi semula",
+      "optional": "Pilihan",
+      "takePhoto": "Ambil foto",
+      "takeAnother": "{count} diambil · ambil lagi",
+      "saveError": "Tidak dapat disimpan. Cuba lagi.",
+      "cancel": "Batal",
+      "save": "Simpan {count} foto",
+      "none": "Tidak diberi",
+      "photosTitle": "Foto ({count})",
+      "addPhotos": "Tambah foto",
+      "membersTitle": "Orang yang diminta menyertai",
+      "addMembers": "Minta orang menyertai",
+      "noMembers": "Tiada orang lain dalam projek ini boleh membuka rekod pintu.",
+      "noMembersYet": "Belum ada orang diminta menyertai.",
+      "conversationTitle": "Perbualan",
+      "conversationHelp": "Teks, foto, suara dan fail kekal pada rekod pintu ini dan tidak boleh dipadam.",
+      "gpsValue": "GPS {latitude}, {longitude}",
+      "gpsUnavailable": "GPS tidak tersedia"
     }
   },
   "siteDisposal": {

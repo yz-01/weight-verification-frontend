@@ -7697,7 +7697,8 @@
       "title": "現場記錄",
       "waste": "環保材料出場申請",
       "sundry": "雜費報銷",
-      "request": "MR / 其他申請"
+      "request": "MR / 其他申請",
+      "gate": "門崗拍照記錄"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -12347,7 +12348,8 @@
       "timeline": "進出記錄",
       "title": "工地門禁",
       "unknownGate": "未註明門崗",
-      "defaultsFailed": "門禁預設設定未能載入，請先重試。"
+      "defaultsFailed": "門禁預設設定未能載入，請先重試。",
+      "gateRecords": "門崗拍照記錄"
     },
     "action": {
       "approve": "批准",
@@ -12718,7 +12720,10 @@
       "passRevoked": "門禁證已撤銷",
       "passUpdated": "通行證已更新。",
       "profileSaved": "公司資料已保存",
-      "settingsSaved": "公司現場設置已保存"
+      "settingsSaved": "公司現場設置已保存",
+      "gateIncidentSaved": "門崗記錄已儲存。",
+      "gatePhotosAdded": "照片已補上。",
+      "gateMembersAdded": "已指定人員並通知。"
     },
     "what": {
       "roles": "角色列表",
@@ -12726,6 +12731,81 @@
       "requestedPass": "連結中的通行證",
       "workers": "工人列表",
       "credentials": "已登記的憑證"
+    },
+    "gateCategory": {
+      "SUSPICIOUS_PERSON": "可疑人員",
+      "THEFT": "偷竊",
+      "ABNORMAL_VEHICLE": "異常車輛",
+      "ITEM_REMOVAL": "物品帶出",
+      "DISPUTE": "糾紛",
+      "OTHER": "其他"
+    },
+    "gateRecords": {
+      "title": "門崗拍照記錄",
+      "subtitle": "門崗保安拍下的現場情況：可疑人員、偷竊、異常車輛、物品帶出、糾紛。",
+      "new": "新增門崗記錄",
+      "newTitle": "新增門崗拍照記錄",
+      "newHelp": "可以連續拍多張，不限張數。每張照片都會記下時間、GPS、項目、門崗和你的名字。",
+      "detailHelp": "照片、被指定的人和溝通內容都留在這條門崗記錄裡，不能刪除。",
+      "field": {
+        "project": "項目",
+        "chooseProject": "選擇項目",
+        "allProjects": "全部項目",
+        "category": "事項類別",
+        "allCategories": "全部類別",
+        "search": "搜尋",
+        "searchPlaceholder": "記錄編號、門崗、保安、通行證或車牌",
+        "gate": "門崗",
+        "gatePlaceholder": "例如：大門",
+        "pass": "關聯通行證",
+        "passHint": "可不選。沒有關聯的通行證就獨立保存。",
+        "standalone": "獨立記錄",
+        "wholePass": "整張通行證（不指定某次進出）",
+        "event": "關聯進出記錄",
+        "description": "情況說明",
+        "photos": "照片",
+        "photosHint": "至少一張，可一直按相機繼續拍。",
+        "members": "指定溝通人員",
+        "membersHint": "選這個項目的現場、安全或項目人員；他們會收到通知，並在這條記錄裡溝通。",
+        "guard": "保安",
+        "time": "時間"
+      },
+      "what": "門崗記錄",
+      "whatOne": "這條門崗記錄",
+      "whatPeople": "這個項目的人員",
+      "whatPasses": "這個項目的通行證",
+      "loading": "載入中…",
+      "empty": "還沒有門崗拍照記錄。",
+      "count": "已顯示 {shown} / 共 {total} 筆",
+      "loadMore": "載入更多",
+      "photoAlt": "門崗照片",
+      "photoCount": "{count} 張照片",
+      "linkedPass": "通行證 {pass} · {subject}",
+      "photoNumber": "第 {number} 張照片",
+      "removePhoto": "刪除第 {number} 張（未儲存）",
+      "gpsShort": "有 GPS",
+      "noGpsShort": "無 GPS",
+      "locationReady": "目前位置 {latitude}, {longitude}",
+      "locationFailed": "取不到定位。照片照樣儲存，標示「GPS 不可用」。",
+      "locating": "正在取得定位…",
+      "retryLocation": "重新定位",
+      "optional": "選填",
+      "takePhoto": "拍照",
+      "takeAnother": "已拍 {count} 張 · 繼續拍",
+      "saveError": "儲存失敗，請再試一次。",
+      "cancel": "取消",
+      "save": "儲存 {count} 張照片",
+      "none": "未填寫",
+      "photosTitle": "照片（{count}）",
+      "addPhotos": "補拍照片",
+      "membersTitle": "指定溝通人員",
+      "addMembers": "指定人員",
+      "noMembers": "這個項目沒有其他能看門崗記錄的人員。",
+      "noMembersYet": "還沒有指定人員。",
+      "conversationTitle": "溝通",
+      "conversationHelp": "文字、照片、語音、檔案都留在這條門崗記錄裡，不能刪除。",
+      "gpsValue": "GPS {latitude}, {longitude}",
+      "gpsUnavailable": "GPS 不可用"
     }
   },
   "siteDisposal": {

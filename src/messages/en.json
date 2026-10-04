@@ -7697,7 +7697,8 @@
       "title": "Site record capture",
       "waste": "Environmental material outgoing",
       "sundry": "Sundry claims",
-      "request": "MR / Other Request"
+      "request": "MR / Other Request",
+      "gate": "Gate photo records"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -12347,7 +12348,8 @@
       "timeline": "Entry and exit history",
       "title": "Site access",
       "unknownGate": "Gate not named",
-      "defaultsFailed": "The site access defaults did not load. Try again first."
+      "defaultsFailed": "The site access defaults did not load. Try again first.",
+      "gateRecords": "Gate photo records"
     },
     "action": {
       "approve": "Approve",
@@ -12718,7 +12720,10 @@
       "passRevoked": "Access pass revoked",
       "passUpdated": "Pass updated.",
       "profileSaved": "Company profile saved",
-      "settingsSaved": "Company site settings saved"
+      "settingsSaved": "Company site settings saved",
+      "gateIncidentSaved": "Gate record saved.",
+      "gatePhotosAdded": "Photos added.",
+      "gateMembersAdded": "People asked in and notified."
     },
     "what": {
       "roles": "The role list",
@@ -12726,6 +12731,81 @@
       "requestedPass": "The pass in the link",
       "workers": "The worker list",
       "credentials": "The registered credentials"
+    },
+    "gateCategory": {
+      "SUSPICIOUS_PERSON": "Suspicious person",
+      "THEFT": "Theft",
+      "ABNORMAL_VEHICLE": "Abnormal vehicle",
+      "ITEM_REMOVAL": "Items taken out",
+      "DISPUTE": "Dispute",
+      "OTHER": "Other"
+    },
+    "gateRecords": {
+      "title": "Gate photo records",
+      "subtitle": "What the guard photographed at the gate: suspicious people, theft, abnormal vehicles, items taken out, disputes.",
+      "new": "New gate record",
+      "newTitle": "New gate photo record",
+      "newHelp": "Take as many photos as you need. Each one keeps its own time and GPS, with the project, gate and your name.",
+      "detailHelp": "Photos, the people asked in and the conversation all stay on this record and cannot be deleted.",
+      "field": {
+        "project": "Project",
+        "chooseProject": "Choose a project",
+        "allProjects": "All projects",
+        "category": "What happened",
+        "allCategories": "All types",
+        "search": "Search",
+        "searchPlaceholder": "Record no., gate, guard, pass or plate",
+        "gate": "Gate",
+        "gatePlaceholder": "e.g. Main gate",
+        "pass": "Linked pass",
+        "passHint": "Optional. Leave it as a standalone record if nobody's pass is involved.",
+        "standalone": "Standalone record",
+        "wholePass": "The pass, not one entry or exit",
+        "event": "Linked entry / exit",
+        "description": "What you saw",
+        "photos": "Photos",
+        "photosHint": "At least one. Keep pressing the camera to take more.",
+        "members": "Ask people in",
+        "membersHint": "Site, safety or project staff on this project. They are notified and can reply on this record.",
+        "guard": "Guard",
+        "time": "Time"
+      },
+      "what": "gate records",
+      "whatOne": "this gate record",
+      "whatPeople": "the people on this project",
+      "whatPasses": "the project's passes",
+      "loading": "Loading…",
+      "empty": "No gate photo records yet.",
+      "count": "Showing {shown} of {total}",
+      "loadMore": "Load more",
+      "photoAlt": "Gate photo",
+      "photoCount": "{count} photo(s)",
+      "linkedPass": "Pass {pass} · {subject}",
+      "photoNumber": "Photo {number}",
+      "removePhoto": "Remove photo {number}",
+      "gpsShort": "GPS",
+      "noGpsShort": "No GPS",
+      "locationReady": "Location {latitude}, {longitude}",
+      "locationFailed": "Could not get your location. Photos are still saved, marked GPS unavailable.",
+      "locating": "Getting your location…",
+      "retryLocation": "Try location again",
+      "optional": "Optional",
+      "takePhoto": "Take photo",
+      "takeAnother": "{count} taken · take another",
+      "saveError": "Could not save. Try again.",
+      "cancel": "Cancel",
+      "save": "Save {count} photo(s)",
+      "none": "Not given",
+      "photosTitle": "Photos ({count})",
+      "addPhotos": "Add photos",
+      "membersTitle": "People asked in",
+      "addMembers": "Ask people in",
+      "noMembers": "Nobody else on this project can open gate records.",
+      "noMembersYet": "Nobody has been asked in yet.",
+      "conversationTitle": "Conversation",
+      "conversationHelp": "Text, photos, voice and files stay on this gate record and cannot be deleted.",
+      "gpsValue": "GPS {latitude}, {longitude}",
+      "gpsUnavailable": "GPS unavailable"
     }
   },
   "siteDisposal": {

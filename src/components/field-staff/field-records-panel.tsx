@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Camera,
   ClipboardList,
+  DoorOpen,
   FilePlus2,
   HardHat,
   ListChecks,
@@ -37,6 +38,7 @@ import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-sta
 import { FieldSlots } from "@/components/field-staff/field-slots";
 import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
+import { GateRecordsPanel } from "@/components/site-access/gate-records";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import {
@@ -105,7 +107,8 @@ export type FieldRecordMode =
   | "safety"
   | "consultant"
   | "sundry"
-  | "request";
+  | "request"
+  | "gate";
 
 interface RecordOption {
   key: FieldRecordMode;
@@ -130,6 +133,9 @@ const RECORD_OPTIONS: RecordOption[] = [
   // MR / Other Request (C01): asked from the current project, followed on
   // 「我提交过的」 with its conversation.
   { key: "request", permission: "material_request.submit", icon: FilePlus2, tone: "bg-primary/10 text-primary" },
+  // 门岗记录 (C22): the guard photographs what happens at the gate - as many
+  // photos as it takes - and asks site, safety or project staff in.
+  { key: "gate", permission: "site_access.scan", icon: DoorOpen, tone: "bg-info/10 text-info" },
 ];
 
 export function FieldRecordsPanel({
@@ -193,6 +199,9 @@ export function FieldRecordsPanel({
   }
   if (mode === "request") {
     return <RecordFrame title={t("records.request")} onBack={() => chooseMode(null)}><FieldDraft scope={`request:${task?.id ?? "new"}`}><MaterialRequestForm initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
+  }
+  if (mode === "gate") {
+    return <RecordFrame title={t("records.gate")} onBack={() => chooseMode(null)}><GateRecordsPanel initialProject={task?.project ?? boundProject} /></RecordFrame>;
   }
   if (mode === "sundry") {
     return <RecordFrame title={t("records.sundry")} onBack={() => chooseMode(null)}><FieldDraft scope={`sundry:${task?.id ?? "new"}`}><SundryClaimCapture initialProject={task?.project ?? boundProject} onSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;

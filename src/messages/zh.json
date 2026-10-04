@@ -7697,7 +7697,8 @@
       "title": "现场记录",
       "waste": "环保材料出场申请",
       "sundry": "杂费报销",
-      "request": "MR / 其他申请"
+      "request": "MR / 其他申请",
+      "gate": "门岗拍照记录"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -12347,7 +12348,8 @@
       "timeline": "进出记录",
       "title": "工地门禁",
       "unknownGate": "未注明门岗",
-      "defaultsFailed": "门禁默认设置未能载入，请先重试。"
+      "defaultsFailed": "门禁默认设置未能载入，请先重试。",
+      "gateRecords": "门岗拍照记录"
     },
     "action": {
       "approve": "批准",
@@ -12718,7 +12720,10 @@
       "passRevoked": "门禁证已撤销",
       "passUpdated": "通行证已更新。",
       "profileSaved": "公司资料已保存",
-      "settingsSaved": "公司现场设置已保存"
+      "settingsSaved": "公司现场设置已保存",
+      "gateIncidentSaved": "门岗记录已保存。",
+      "gatePhotosAdded": "照片已补上。",
+      "gateMembersAdded": "已指定人员并通知。"
     },
     "what": {
       "roles": "角色列表",
@@ -12726,6 +12731,81 @@
       "requestedPass": "链接中的通行证",
       "workers": "工人列表",
       "credentials": "已登记的凭证"
+    },
+    "gateCategory": {
+      "SUSPICIOUS_PERSON": "可疑人员",
+      "THEFT": "偷窃",
+      "ABNORMAL_VEHICLE": "异常车辆",
+      "ITEM_REMOVAL": "物品带出",
+      "DISPUTE": "纠纷",
+      "OTHER": "其他"
+    },
+    "gateRecords": {
+      "title": "门岗拍照记录",
+      "subtitle": "门岗保安拍下的现场情况：可疑人员、偷窃、异常车辆、物品带出、纠纷。",
+      "new": "新增门岗记录",
+      "newTitle": "新增门岗拍照记录",
+      "newHelp": "可以连续拍多张，不限张数。每张照片都会记下时间、GPS、项目、门岗和你的名字。",
+      "detailHelp": "照片、被指定的人和沟通内容都留在这条门岗记录里，不能删除。",
+      "field": {
+        "project": "项目",
+        "chooseProject": "选择项目",
+        "allProjects": "全部项目",
+        "category": "事项类别",
+        "allCategories": "全部类别",
+        "search": "搜索",
+        "searchPlaceholder": "记录编号、门岗、保安、通行证或车牌",
+        "gate": "门岗",
+        "gatePlaceholder": "例如：大门",
+        "pass": "关联通行证",
+        "passHint": "可不选。没有关联的通行证就独立保存。",
+        "standalone": "独立记录",
+        "wholePass": "整张通行证（不指定某次进出）",
+        "event": "关联进出记录",
+        "description": "情况说明",
+        "photos": "照片",
+        "photosHint": "至少一张，可一直按相机继续拍。",
+        "members": "指定沟通人员",
+        "membersHint": "选这个项目的现场、安全或项目人员；他们会收到通知，并在这条记录里沟通。",
+        "guard": "保安",
+        "time": "时间"
+      },
+      "what": "门岗记录",
+      "whatOne": "这条门岗记录",
+      "whatPeople": "这个项目的人员",
+      "whatPasses": "这个项目的通行证",
+      "loading": "加载中…",
+      "empty": "还没有门岗拍照记录。",
+      "count": "已显示 {shown} / 共 {total} 条",
+      "loadMore": "载入更多",
+      "photoAlt": "门岗照片",
+      "photoCount": "{count} 张照片",
+      "linkedPass": "通行证 {pass} · {subject}",
+      "photoNumber": "第 {number} 张照片",
+      "removePhoto": "删除第 {number} 张（未保存）",
+      "gpsShort": "有 GPS",
+      "noGpsShort": "无 GPS",
+      "locationReady": "当前位置 {latitude}, {longitude}",
+      "locationFailed": "取不到定位。照片照样保存，标示「GPS 不可用」。",
+      "locating": "正在取得定位…",
+      "retryLocation": "重新定位",
+      "optional": "选填",
+      "takePhoto": "拍照",
+      "takeAnother": "已拍 {count} 张 · 继续拍",
+      "saveError": "保存失败，请再试一次。",
+      "cancel": "取消",
+      "save": "保存 {count} 张照片",
+      "none": "未填写",
+      "photosTitle": "照片（{count}）",
+      "addPhotos": "补拍照片",
+      "membersTitle": "指定沟通人员",
+      "addMembers": "指定人员",
+      "noMembers": "这个项目没有其他能看门岗记录的人员。",
+      "noMembersYet": "还没有指定人员。",
+      "conversationTitle": "沟通",
+      "conversationHelp": "文字、照片、语音、文件都留在这条门岗记录里，不能删除。",
+      "gpsValue": "GPS {latitude}, {longitude}",
+      "gpsUnavailable": "GPS 不可用"
     }
   },
   "siteDisposal": {
