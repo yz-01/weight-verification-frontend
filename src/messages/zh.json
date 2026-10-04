@@ -6610,6 +6610,9 @@
       "categories": "文件分类",
       "subcategories": "文件子分类",
       "uploaders": "上传人列表"
+    },
+    "preview": {
+      "title": "在线预览"
     }
   },
   "driver": {
@@ -14809,5 +14812,17 @@
       "mine": "我的申请",
       "mineHelp": "提交后可在「我提交过的」查看状态和沟通。"
     }
+  },
+  "filePreview": {
+    "unsupported": "浏览器无法直接显示 {ext} 文件。",
+    "thisFormat": "此格式",
+    "unsupportedHelp": "请下载后用对应的软件打开（例如 Word、Excel、AutoCAD）。",
+    "failed": "文件载入失败。",
+    "retry": "重试",
+    "loading": "文件载入中",
+    "openNewTab": "新分页打开",
+    "print": "打印",
+    "download": "下载",
+    "preview": "预览"
   }
 }

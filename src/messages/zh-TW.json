@@ -6610,6 +6610,9 @@
       "categories": "文件分類",
       "subcategories": "文件子分類",
       "uploaders": "上傳人列表"
+    },
+    "preview": {
+      "title": "線上預覽"
     }
   },
   "driver": {
@@ -14809,5 +14812,17 @@
       "mine": "我的申請",
       "mineHelp": "提交後可在「我提交過的」查看狀態和溝通。"
     }
+  },
+  "filePreview": {
+    "unsupported": "瀏覽器無法直接顯示 {ext} 檔案。",
+    "thisFormat": "此格式",
+    "unsupportedHelp": "請下載後用對應的軟體開啟（例如 Word、Excel、AutoCAD）。",
+    "failed": "檔案載入失敗。",
+    "retry": "重試",
+    "loading": "檔案載入中",
+    "openNewTab": "新分頁開啟",
+    "print": "列印",
+    "download": "下載",
+    "preview": "預覽"
   }
 }

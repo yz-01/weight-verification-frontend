@@ -6610,6 +6610,9 @@
       "categories": "Kategori dokumen",
       "subcategories": "Subkategori dokumen",
       "uploaders": "Senarai pemuat naik"
+    },
+    "preview": {
+      "title": "Pratonton"
     }
   },
   "driver": {
@@ -14809,5 +14812,17 @@
       "mine": "Permohonan saya",
       "mineHelp": "Permohonan anda dan statusnya ada di 「Hantaran saya」, bersama perbualannya."
     }
+  },
+  "filePreview": {
+    "unsupported": "Fail {ext} tidak boleh dipaparkan dalam pelayar.",
+    "thisFormat": "Format ini",
+    "unsupportedHelp": "Muat turun dan buka dengan aplikasi asalnya (contohnya Word, Excel atau AutoCAD).",
+    "failed": "Fail tidak dapat dimuatkan.",
+    "retry": "Cuba lagi",
+    "loading": "Memuatkan fail",
+    "openNewTab": "Buka di tab baharu",
+    "print": "Cetak",
+    "download": "Muat turun",
+    "preview": "Pratonton"
   }
 }

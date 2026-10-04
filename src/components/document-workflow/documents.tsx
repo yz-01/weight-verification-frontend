@@ -20,6 +20,7 @@ import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { FilePreview } from "@/components/shared/file-preview";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import {
   FieldWrapper,
@@ -78,6 +79,7 @@ import {
   createDocument,
   createDocumentCategory,
   createDocumentSubcategory,
+  documentVersionObjectUrl,
   downloadDocumentVersion,
   getDocument,
   getDocumentCategories,
@@ -808,6 +810,8 @@ function DocumentDetailDialog({
 }) {
   const t = useTranslations();
   const [downloading, setDownloading] = useState<string | null>(null);
+  // Which version the preview shows; the newest until somebody picks another.
+  const [previewing, setPreviewing] = useState<string | null>(null);
   const detail = useQuery({
     queryKey: ["documents", "detail", documentId],
     queryFn: () => getDocument(documentId),
@@ -822,9 +826,14 @@ function DocumentDetailDialog({
     }
   };
 
+  const shown =
+    detail.data?.versions.find((version) => version.id === previewing) ??
+    detail.data?.versions[0] ??
+    null;
+
   return (
     <Dialog open onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[900px] [&>button]:hidden">
+      <DialogContent className="max-h-[94dvh] overflow-y-auto sm:max-w-[1180px] [&>button]:hidden">
         <DialogHeader>
           <DialogTitle>{t("documents.detail.title")}</DialogTitle>
           <DialogDescription>
@@ -841,11 +850,40 @@ function DocumentDetailDialog({
             {t("common.loading")}
           </p>
         ) : (
-          <DocumentDetailBody
-            document={detail.data}
-            downloading={downloading}
-            onDownload={(version) => void handleDownload(version)}
-          />
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+            {/* B27: the file itself, in the page - 「不需要先下载到本地」. */}
+            <section className="flex min-w-0 flex-col gap-2" aria-label={t("documents.preview.title")}>
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold text-foreground">{t("documents.preview.title")}</h3>
+                {shown && (
+                  <span className="min-w-0 truncate text-xs text-muted-foreground" title={shown.original_name}>
+                    v{shown.version_number} · {shown.original_name}
+                  </span>
+                )}
+              </div>
+              {shown ? (
+                <FilePreview
+                  key={shown.id}
+                  load={() => documentVersionObjectUrl(shown)}
+                  previewType={shown.preview_type}
+                  filename={shown.original_name}
+                  onDownload={() => handleDownload(shown)}
+                  className="h-[52dvh] lg:h-[64dvh]"
+                />
+              ) : (
+                <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
+                  {t("documents.versions.empty")}
+                </p>
+              )}
+            </section>
+            <DocumentDetailBody
+              document={detail.data}
+              downloading={downloading}
+              previewing={shown?.id ?? null}
+              onPreview={(version) => setPreviewing(version.id)}
+              onDownload={(version) => void handleDownload(version)}
+            />
+          </div>
         )}
 
         <DialogFooter>
@@ -867,17 +905,21 @@ function DocumentDetailDialog({
 function DocumentDetailBody({
   document,
   downloading,
+  previewing,
+  onPreview,
   onDownload,
 }: {
   document: DocumentDetail;
   downloading: string | null;
+  previewing: string | null;
+  onPreview: (version: DocumentVersion) => void;
   onDownload: (version: DocumentVersion) => void;
 }) {
   const t = useTranslations();
   const df = useDateFormat();
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="min-w-0 space-y-6">
+      <div className="grid gap-3 sm:grid-cols-2">
         <ReadField label={t("documents.field.title")} value={document.title} />
         <ReadField
           label={t("documents.field.reference")}
@@ -914,14 +956,14 @@ function DocumentDetailBody({
           <ReadField
             label={t("documents.field.description")}
             value={document.description}
-            className="sm:col-span-2 lg:col-span-3"
+            className="sm:col-span-2"
           />
         )}
         {document.status === "ARCHIVED" && (
           <ReadField
             label={t("documents.field.archiveReason")}
             value={document.archive_reason}
-            className="sm:col-span-2 lg:col-span-3"
+            className="sm:col-span-2"
           />
         )}
       </div>
@@ -940,7 +982,7 @@ function DocumentDetailBody({
                 <TableHead>{t("documents.field.version")}</TableHead>
                 <TableHead>{t("documents.field.file")}</TableHead>
                 <TableHead>{t("documents.field.uploadedBy")}</TableHead>
-                <TableHead>{t("documents.field.sha256")}</TableHead>
+                <TableHead className="hidden xl:table-cell">{t("documents.field.sha256")}</TableHead>
                 <TableHead>{t("documents.field.createdAt")}</TableHead>
                 <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
@@ -968,7 +1010,7 @@ function DocumentDetailBody({
                       </p>
                     </TableCell>
                     <TableCell>{version.uploaded_by_name ?? t("common.emptyValue")}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden xl:table-cell">
                       <code className="block max-w-[170px] truncate text-xs" title={version.sha256}>
                         {version.sha256}
                       </code>
@@ -976,7 +1018,17 @@ function DocumentDetailBody({
                     <TableCell className="text-muted-foreground tabular-nums">
                       {df.dateTime(version.created_at)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="whitespace-nowrap text-right">
+                      <Button
+                        variant={previewing === version.id ? "secondary" : "ghost"}
+                        size="icon"
+                        className="h-8 w-8"
+                        title={t("filePreview.preview")}
+                        aria-pressed={previewing === version.id}
+                        onClick={() => onPreview(version)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

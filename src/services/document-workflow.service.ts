@@ -21,7 +21,7 @@ import type {
   WorkflowTemplateDetail,
   WorkflowTemplatePayload,
 } from "@/interfaces/document-workflow";
-import { api, download, toastSuccess } from "@/services/api-client";
+import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export function getDocumentCategories(
   query: ListQuery,
@@ -162,6 +162,13 @@ export async function archiveDocument(
 export function downloadDocumentVersion(version: DocumentVersion): Promise<void> {
   return download(`/api/document-versions/${version.id}/download/`, {
     fallbackFilename: version.original_name,
+  });
+}
+
+/** One version, fetched to show in the page (B27); the caller revokes it. */
+export function documentVersionObjectUrl(version: DocumentVersion): Promise<string> {
+  return fetchObjectUrl(`/api/document-versions/${version.id}/download/`, {
+    query: { inline: "1" },
   });
 }
 

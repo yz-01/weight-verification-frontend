@@ -6610,6 +6610,9 @@
       "categories": "The document categories",
       "subcategories": "The document subcategories",
       "uploaders": "The uploader list"
+    },
+    "preview": {
+      "title": "Preview"
     }
   },
   "driver": {
@@ -14809,5 +14812,17 @@
       "mine": "My requests",
       "mineHelp": "Your requests and their status are on 「My submissions」, with the conversation for each."
     }
+  },
+  "filePreview": {
+    "unsupported": "{ext} files cannot be shown in the browser.",
+    "thisFormat": "This format",
+    "unsupportedHelp": "Download it and open it with the program it was made in (for example Word, Excel or AutoCAD).",
+    "failed": "The file could not be loaded.",
+    "retry": "Try again",
+    "loading": "Loading the file",
+    "openNewTab": "Open in new tab",
+    "print": "Print",
+    "download": "Download",
+    "preview": "Preview"
   }
 }
