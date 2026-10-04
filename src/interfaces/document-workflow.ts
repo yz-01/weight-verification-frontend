@@ -20,6 +20,8 @@ export interface DocumentSubcategory {
   name: string;
   description: string;
   is_active: boolean;
+  /** Documents filed in this subcategory, for the folder list (B28). */
+  record_count?: number;
   created_at: string;
   updated_at: string;
 }

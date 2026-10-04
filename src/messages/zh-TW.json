@@ -6561,7 +6561,8 @@
       "uploadedBy": "上傳人",
       "version": "版本",
       "versionNote": "版本備註",
-      "versions": "版本數"
+      "versions": "版本數",
+      "path": "保存路徑"
     },
     "keywordsPlaceholder": "多個關鍵詞請用逗號分隔",
     "noFile": "尚未上傳文件",
@@ -6592,7 +6593,8 @@
       "subcategoryCreated": "子分類已建立",
       "subcategoryUpdated": "子分類已更新",
       "updated": "文檔已更新",
-      "versionUploaded": "文檔版本已上傳"
+      "versionUploaded": "文檔版本已上傳",
+      "uploaded": "文件已上傳"
     },
     "upload": {
       "action": "上傳新版本",
@@ -6613,6 +6615,22 @@
     },
     "preview": {
       "title": "線上預覽"
+    },
+    "folders": {
+      "title": "分類",
+      "all": "全部文件"
+    },
+    "uploadFile": {
+      "action": "上傳文件",
+      "title": "上傳到文件檔案",
+      "description": "選擇文件和保存的分類路徑。每個文件各自成為一份檔案；已有的檔案不會被改動。",
+      "fileHint": "照片、PDF、單據、證書、圖紙等任何文件，可一次選多個。",
+      "pathPreview": "將保存到：",
+      "projectHint": "只能選你所在的項目；全公司共用的文件由文件管理員上傳。",
+      "titleHint": "留空就用檔名。",
+      "confirm": "上傳",
+      "progress": "上傳中 {done}/{total}",
+      "noCategory": "請先建立文件分類"
     }
   },
   "driver": {

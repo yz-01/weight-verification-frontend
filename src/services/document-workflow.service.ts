@@ -119,6 +119,27 @@ export async function createDocument(
   return document;
 }
 
+/**
+ * File one document with its first version in one step (B28): the file, its
+ * category / subcategory path and its project together.
+ */
+export async function uploadDocument(
+  payload: DocumentPayload & { note?: string },
+  file: File,
+  { quiet = false }: { quiet?: boolean } = {},
+): Promise<DocumentDetail> {
+  const body = new FormData();
+  body.append("file", file);
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined) continue;
+    // A form cannot send null: empty means "none" (company-wide, no subcategory).
+    body.append(key, value === null ? "" : String(value));
+  }
+  const document = await api.post<DocumentDetail>("/api/documents/create_document/", body);
+  if (!quiet) toastSuccess("documents.toast.uploaded");
+  return document;
+}
+
 export async function updateDocument(
   id: string,
   payload: Partial<DocumentPayload>,

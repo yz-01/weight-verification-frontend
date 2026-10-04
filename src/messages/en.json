@@ -6561,7 +6561,8 @@
       "uploadedBy": "Uploaded by",
       "version": "Version",
       "versionNote": "Version note",
-      "versions": "Versions"
+      "versions": "Versions",
+      "path": "Filed under"
     },
     "keywordsPlaceholder": "Separate keywords with commas",
     "noFile": "No file uploaded",
@@ -6592,7 +6593,8 @@
       "subcategoryCreated": "Subcategory created",
       "subcategoryUpdated": "Subcategory updated",
       "updated": "Document updated",
-      "versionUploaded": "Document version uploaded"
+      "versionUploaded": "Document version uploaded",
+      "uploaded": "File uploaded"
     },
     "upload": {
       "action": "Upload version",
@@ -6613,6 +6615,22 @@
     },
     "preview": {
       "title": "Preview"
+    },
+    "folders": {
+      "title": "Folders",
+      "all": "All documents"
+    },
+    "uploadFile": {
+      "action": "Upload file",
+      "title": "Upload to the document archive",
+      "description": "Choose the files and the folder they are filed in. Each file becomes its own document; anything already filed is not touched.",
+      "fileHint": "Photos, PDFs, receipts, certificates, drawings - any file. You can choose several at once.",
+      "pathPreview": "Will be filed under:",
+      "projectHint": "Only a project you are on. Filing company-wide is for a document manager.",
+      "titleHint": "Left empty, the file name is used.",
+      "confirm": "Upload",
+      "progress": "Uploading {done}/{total}",
+      "noCategory": "Set up a document category first"
     }
   },
   "driver": {

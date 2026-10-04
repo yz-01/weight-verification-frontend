@@ -6561,7 +6561,8 @@
       "uploadedBy": "上传人",
       "version": "版本",
       "versionNote": "版本备注",
-      "versions": "版本数"
+      "versions": "版本数",
+      "path": "保存路径"
     },
     "keywordsPlaceholder": "多个关键词请用逗号分隔",
     "noFile": "尚未上传文件",
@@ -6592,7 +6593,8 @@
       "subcategoryCreated": "子分类已建立",
       "subcategoryUpdated": "子分类已更新",
       "updated": "文档已更新",
-      "versionUploaded": "文档版本已上传"
+      "versionUploaded": "文档版本已上传",
+      "uploaded": "文件已上传"
     },
     "upload": {
       "action": "上传新版本",
@@ -6613,6 +6615,22 @@
     },
     "preview": {
       "title": "在线预览"
+    },
+    "folders": {
+      "title": "分类",
+      "all": "全部文件"
+    },
+    "uploadFile": {
+      "action": "上传文件",
+      "title": "上传到文件档案",
+      "description": "选择文件和保存的分类路径。每个文件各自成为一份档案；已有的档案不会被改动。",
+      "fileHint": "照片、PDF、单据、证书、图纸等任何文件，可一次选多个。",
+      "pathPreview": "将保存到：",
+      "projectHint": "只能选你所在的项目；全公司共用的文件由文件管理员上传。",
+      "titleHint": "留空就用文件名。",
+      "confirm": "上传",
+      "progress": "上传中 {done}/{total}",
+      "noCategory": "请先建立文件分类"
     }
   },
   "driver": {

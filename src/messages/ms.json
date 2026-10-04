@@ -6561,7 +6561,8 @@
       "uploadedBy": "Dimuat naik oleh",
       "version": "Versi",
       "versionNote": "Catatan versi",
-      "versions": "Versi"
+      "versions": "Versi",
+      "path": "Disimpan di"
     },
     "keywordsPlaceholder": "Pisahkan kata kunci dengan koma",
     "noFile": "Tiada fail dimuat naik",
@@ -6592,7 +6593,8 @@
       "subcategoryCreated": "Subkategori dicipta",
       "subcategoryUpdated": "Subkategori dikemas kini",
       "updated": "Dokumen dikemas kini",
-      "versionUploaded": "Versi dokumen dimuat naik"
+      "versionUploaded": "Versi dokumen dimuat naik",
+      "uploaded": "Fail dimuat naik"
     },
     "upload": {
       "action": "Muat naik versi",
@@ -6613,6 +6615,22 @@
     },
     "preview": {
       "title": "Pratonton"
+    },
+    "folders": {
+      "title": "Folder",
+      "all": "Semua dokumen"
+    },
+    "uploadFile": {
+      "action": "Muat naik fail",
+      "title": "Muat naik ke arkib dokumen",
+      "description": "Pilih fail dan folder simpanannya. Setiap fail menjadi dokumen tersendiri; dokumen sedia ada tidak diubah.",
+      "fileHint": "Foto, PDF, resit, sijil, lukisan - apa-apa fail. Boleh pilih beberapa sekaligus.",
+      "pathPreview": "Akan disimpan di:",
+      "projectHint": "Hanya projek anda. Simpanan seluruh syarikat untuk pengurus dokumen.",
+      "titleHint": "Jika kosong, nama fail digunakan.",
+      "confirm": "Muat naik",
+      "progress": "Memuat naik {done}/{total}",
+      "noCategory": "Sediakan kategori dokumen dahulu"
     }
   },
   "driver": {
