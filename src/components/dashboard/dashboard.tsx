@@ -18,11 +18,10 @@ import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
-import { ContractorDashboard } from "@/components/dashboard/contractor-dashboard";
+import { HeadquartersHome } from "@/components/dashboard/headquarters-dashboard";
 import { RecyclerDashboard } from "@/components/recycler-business/recycler-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AdminDashboardSection } from "@/lib/admin-dashboard";
-import { availableDashboardScopes } from "@/lib/dashboard-scopes";
 import {
   getDispatches,
   getProjects,
@@ -70,6 +69,13 @@ export function Dashboard({
 
   if (!user) return null;
 
+  // A contractor holding `dashboard.view` gets the two levels (C11): the
+  // 公司总部 Dashboard here, the 项目 Dashboard at /dashboard/project. Its
+  // banner is the page's header, so the greeting below is not repeated.
+  if (user.portal === "MSE_TRACE" && can("dashboard.view")) {
+    return <HeadquartersHome />;
+  }
+
   const subtitleKey =
     user.portal === "MSE_ADMIN"
       ? "dashboard.platformSubtitle"
@@ -86,49 +92,19 @@ export function Dashboard({
           </h1>
           <p className="text-sm text-muted-foreground">{t(subtitleKey)}</p>
         </div>
-        {user.portal === "MSE_TRACE" && <DashboardScopeSwitch />}
       </header>
 
       {user.portal === "MSE_ADMIN" ? (
         <AdminDashboard section={adminSection} />
       ) : user.portal === "MSE_TRACE" ? (
-        // A contractor holding `dashboard.view` gets the aggregate: one request
-        // for the day's feed, approvals, anomalies and timeline. Without the
-        // grant, fall back to the per-resource counts, which need no permission
-        // beyond the modules they already link to.
-        can("dashboard.view") ? (
-          <ContractorDashboard />
-        ) : (
-          <TraceDashboard features={user.features} />
-        )
+        // Without `dashboard.view`, the per-resource counts, which need no
+        // permission beyond the modules they already link to.
+        <TraceDashboard features={user.features} />
       ) : (
         <RecyclerDashboard features={user.features} />
       )}
 
     </div>
-  );
-}
-
-/**
- * 公司总部 / 项目 (Phase 9a). Reserved: drawn only once a second level
- * exists, so today it renders nothing and takes no room.
- */
-function DashboardScopeSwitch() {
-  const t = useTranslations("dashboard.scope");
-  const scopes = availableDashboardScopes();
-  if (scopes.length < 2) return null;
-  return (
-    <nav aria-label={t("label")} className="flex rounded-lg border bg-card p-0.5 text-sm shadow-sm">
-      {scopes.map((scope) => (
-        <Link
-          key={scope.key}
-          href={scope.href}
-          className="rounded-md px-3 py-1 font-medium text-muted-foreground hover:text-foreground"
-        >
-          {t(scope.labelKey)}
-        </Link>
-      ))}
-    </nav>
   );
 }
 

@@ -1,9 +1,13 @@
-import type { ListQuery } from "@/interfaces/api";
+import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   ContractorDashboard,
   ContractorDashboardSection,
   DashboardSearchResult,
 } from "@/interfaces/contractor-dashboard";
+import type {
+  HeadquartersOverview,
+  HeadquartersPhoto,
+} from "@/interfaces/headquarters";
 import { api, download } from "@/services/api-client";
 
 /**
@@ -63,4 +67,27 @@ export function exportContractorDashboard(input: {
     fallbackFilename:
       input.format === "PDF" ? "mse-dashboard.pdf" : "mse-dashboard.xlsx",
   });
+}
+
+/** 公司总部 Dashboard (C13, C15): the company's numbers and each project's. */
+export function getHeadquarters(): Promise<HeadquartersOverview> {
+  return api.get<HeadquartersOverview>(
+    "/api/contractor-dashboard/get_headquarters/",
+  );
+}
+
+/** 今日现场照片 (C14), a page at a time - the list loads more, never stops. */
+export function getHeadquartersPhotos(input: {
+  page?: number;
+  page_size?: number;
+  project?: string;
+} = {}): Promise<Paginated<HeadquartersPhoto>> {
+  const query: ListQuery = {};
+  if (input.page) query.page = input.page;
+  if (input.page_size) query.page_size = input.page_size;
+  if (input.project) query.project = input.project;
+  return api.get<Paginated<HeadquartersPhoto>>(
+    "/api/contractor-dashboard/get_headquarters_photos/",
+    query,
+  );
 }

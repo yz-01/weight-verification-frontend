@@ -7980,6 +7980,22 @@
       "conversation": "整改溝通"
     }
   },
+  "headquarters": {
+    "banner": {
+      "label": "公司與登入人",
+      "companyView": "公司總部視圖",
+      "projectView": "目前項目：{project}",
+      "allProjectsView": "項目視圖 · 全部項目",
+      "notifications": "通知",
+      "notificationsCount": "通知 {count}",
+      "projectUnreadable": "（項目名稱讀取失敗）"
+    },
+    "projects": {
+      "title": "所有項目",
+      "empty": "目前沒有你可查看的項目。",
+      "enter": "進入項目"
+    }
+  },
   "home": {
     "action": {}
   },

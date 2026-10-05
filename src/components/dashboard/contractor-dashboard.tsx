@@ -141,14 +141,24 @@ function useRecordStatus(): (status: string) => string {
   };
 }
 
-export function ContractorDashboard() {
+/**
+ * The 项目 Dashboard (C11): one project's day - or every project's, when none
+ * is chosen. The project is the page's, read from and written to its URL, so a
+ * link from the 公司总部 Dashboard lands on the project it names.
+ */
+export function ContractorDashboard({
+  project,
+  onProjectChange: setProject,
+}: {
+  project: string;
+  onProjectChange: (project: string) => void;
+}) {
   const recordStatus = useRecordStatus();
   const t = useTranslations("contractorDashboard");
   const categories = useTranslations("categoryManagement");
   const format = useFormatter();
   const df = useDateFormat();
   const { can } = useAuth();
-  const [project, setProject] = useState("");
 
   // The full payload. Not polled: the slow sections live here.
   const full = useQuery({

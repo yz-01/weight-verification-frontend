@@ -1,13 +1,14 @@
 /**
- * The two levels of the contractor's home (reserved for Phase 9a, C11–C19).
+ * The two levels of the contractor's home (C11).
  *
  * Head office asked for a 公司总部 Dashboard over the whole company and a
- * 项目 Dashboard for one project, with a way to move between them. Only the
- * project level exists today - the contractor home, with its project picker -
- * so the switch stays hidden: a choice with one option is not a choice.
+ * 项目 Dashboard for one project, with a way to move between them. The
+ * company level is the home page (`/dashboard`); the project level is the
+ * daily dashboard that used to be the home page, now at `/dashboard/project`.
+ * The switch sits in the company banner at the top of both.
  *
- * Phase 9a builds the company page and turns `company` on here; the switch in
- * the dashboard header then appears without any change to the frame.
+ * The old address of the project level - `/dashboard?project=<id>`, or the
+ * reserved `?scope=` - forwards to its new place (`legacyDashboardTarget`).
  */
 export type DashboardScope = "company" | "project";
 
@@ -16,15 +17,28 @@ export interface DashboardScopeOption {
   /** Message key under `dashboard.scope`. */
   labelKey: string;
   href: string;
-  available: boolean;
 }
 
 export const DASHBOARD_SCOPES: readonly DashboardScopeOption[] = [
-  { key: "company", labelKey: "company", href: "/dashboard?scope=company", available: false },
-  { key: "project", labelKey: "project", href: "/dashboard", available: true },
+  { key: "company", labelKey: "company", href: "/dashboard" },
+  { key: "project", labelKey: "project", href: "/dashboard/project" },
 ];
 
-/** The levels this console can switch between right now. */
-export function availableDashboardScopes(): DashboardScopeOption[] {
-  return DASHBOARD_SCOPES.filter((scope) => scope.available);
+/**
+ * Where an old `/dashboard?...` address belongs now, or null to stay on the
+ * company level. Only the contractor console has two levels.
+ */
+export function legacyDashboardTarget(search: string): string | null {
+  const params = new URLSearchParams(search);
+  const scope = params.get("scope");
+  params.delete("scope");
+  if (scope === "company") {
+    const rest = params.toString();
+    return rest ? null : "/dashboard";
+  }
+  if (scope === "project" || params.get("project")) {
+    const rest = params.toString();
+    return rest ? `/dashboard/project?${rest}` : "/dashboard/project";
+  }
+  return null;
 }

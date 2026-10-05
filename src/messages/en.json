@@ -7980,6 +7980,22 @@
       "conversation": "The rectification discussion"
     }
   },
+  "headquarters": {
+    "banner": {
+      "label": "Company and signed-in user",
+      "companyView": "Company headquarters view",
+      "projectView": "Project: {project}",
+      "allProjectsView": "Project view · all projects",
+      "notifications": "Notifications",
+      "notificationsCount": "Notifications {count}",
+      "projectUnreadable": "(project name could not be loaded)"
+    },
+    "projects": {
+      "title": "All projects",
+      "empty": "No projects you can see yet.",
+      "enter": "Enter project"
+    }
+  },
   "home": {
     "action": {}
   },

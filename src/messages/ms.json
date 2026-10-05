@@ -7980,6 +7980,22 @@
       "conversation": "Perbincangan pembetulan"
     }
   },
+  "headquarters": {
+    "banner": {
+      "label": "Syarikat dan pengguna log masuk",
+      "companyView": "Paparan ibu pejabat syarikat",
+      "projectView": "Projek: {project}",
+      "allProjectsView": "Paparan projek · semua projek",
+      "notifications": "Pemberitahuan",
+      "notificationsCount": "Pemberitahuan {count}",
+      "projectUnreadable": "(nama projek tidak dapat dimuatkan)"
+    },
+    "projects": {
+      "title": "Semua projek",
+      "empty": "Belum ada projek yang boleh anda lihat.",
+      "enter": "Masuk projek"
+    }
+  },
   "home": {
     "action": {}
   },
