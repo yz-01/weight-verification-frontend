@@ -8,6 +8,10 @@ import { useEffect } from "react";
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { HeadquartersFigures } from "@/components/dashboard/headquarters-figures";
 import { HeadquartersMap } from "@/components/dashboard/headquarters-map";
+import {
+  HeadquartersPhotos,
+  usePhotoOpener,
+} from "@/components/dashboard/headquarters-photos";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import { legacyDashboardTarget } from "@/lib/dashboard-scopes";
@@ -38,6 +42,7 @@ export function HeadquartersDashboard() {
     queryFn: getHeadquarters,
   });
   const data = overview.data;
+  const photos = usePhotoOpener();
 
   return (
     <div className="space-y-4">
@@ -62,10 +67,13 @@ export function HeadquartersDashboard() {
           <HeadquartersMap
             projects={data.projects}
             withoutLocation={data.without_location}
+            onOpenPhoto={photos.open}
           />
         </div>
+        <HeadquartersPhotos onOpen={photos.open} />
         </>
       )}
+      {photos.sheet}
     </div>
   );
 }

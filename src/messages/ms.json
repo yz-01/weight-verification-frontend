@@ -8070,6 +8070,15 @@
       "latestPhoto": "Foto terkini",
       "overdue": "Lewat",
       "noCoordinates": "Tiada koordinat"
+    },
+    "photos": {
+      "title": "Foto tapak hari ini (semua projek)",
+      "shown": "Memaparkan {shown} daripada {total}",
+      "empty": "Belum ada projek yang memuat naik foto tapak hari ini.",
+      "alt": "Foto {kind}, {project}",
+      "unknownPhotographer": "Tidak direkodkan",
+      "loading": "Memuatkan…",
+      "loadMore": "Muat lagi"
     }
   },
   "home": {

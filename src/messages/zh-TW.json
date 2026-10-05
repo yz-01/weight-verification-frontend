@@ -8070,6 +8070,15 @@
       "latestPhoto": "最新照片",
       "overdue": "逾期",
       "noCoordinates": "未設定座標"
+    },
+    "photos": {
+      "title": "今日現場照片（各項目）",
+      "shown": "顯示 {shown} / 共 {total} 張",
+      "empty": "今天各項目還沒有上傳現場照片。",
+      "alt": "{kind}照片，{project}",
+      "unknownPhotographer": "未記錄拍攝人",
+      "loading": "載入中…",
+      "loadMore": "載入更多"
     }
   },
   "home": {

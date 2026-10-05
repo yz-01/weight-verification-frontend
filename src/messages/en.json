@@ -8070,6 +8070,15 @@
       "latestPhoto": "Latest photo",
       "overdue": "Overdue",
       "noCoordinates": "No coordinates"
+    },
+    "photos": {
+      "title": "Today's site photos (all projects)",
+      "shown": "Showing {shown} of {total}",
+      "empty": "No project has uploaded a site photo today.",
+      "alt": "{kind} photo, {project}",
+      "unknownPhotographer": "Not recorded",
+      "loading": "Loading…",
+      "loadMore": "Load more"
     }
   },
   "home": {
