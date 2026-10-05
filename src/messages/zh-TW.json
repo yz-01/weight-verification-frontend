@@ -3149,8 +3149,8 @@
     },
     "count": "共 {count} 條人員進場記錄",
     "event": {
-      "CLOCK_IN": "上班打卡",
-      "CLOCK_OUT": "下班打卡"
+      "CLOCK_IN": "進場",
+      "CLOCK_OUT": "離開"
     },
     "evidence": {
       "event": "事件",
@@ -3164,7 +3164,9 @@
       "uploadedAt": "上傳時間",
       "view": "查看證據",
       "worker": "人員",
-      "gps": "GPS 位置"
+      "gps": "GPS 位置",
+      "geofenceNoPhoto": "圍欄自動（無照片）",
+      "systemNoPhoto": "系統結束：手機未再回報（無照片）"
     },
     "field": {
       "event": "類型",
@@ -3174,7 +3176,8 @@
       "photo": "照片",
       "project": "項目",
       "time": "記錄時間",
-      "worker": "人員"
+      "worker": "人員",
+      "source": "來源"
     },
     "filter": {
       "allProjects": "所有項目",
@@ -3183,6 +3186,25 @@
     "title": "人員進場記錄",
     "toast": {
       "recorded": "人員進場已記錄"
+    },
+    "eventSystemClose": "離開（系統結束）",
+    "source": {
+      "MANUAL": "手動打卡",
+      "GEOFENCE": "圍欄自動",
+      "SYSTEM": "系統結束"
+    },
+    "presence": {
+      "what": "現場人數",
+      "currentTotal": "當前現場總人數",
+      "composition": "App 人員 {app} + 門崗通行 {gate}",
+      "loading": "載入中…",
+      "openList": "查看緊急在場名單",
+      "enteredToday": "今日進入",
+      "leftToday": "今日離開",
+      "stillOnSite": "仍在場",
+      "stillHint": "今天進場、還沒離開",
+      "byProject": "按項目查看（{count} 個項目）",
+      "project": "項目"
     }
   },
   "audit": {
@@ -7566,7 +7588,12 @@
       "requiredTitle": "開啟定位後才能繼續",
       "retry": "重新檢查定位",
       "startingBody": "請允許精確定位，MSE Trace 才能確認此設備是否在獲分配工地的電子圍欄內。",
-      "startingTitle": "必須開啟定位"
+      "startingTitle": "必須開啟定位",
+      "noPresence": "定位失敗時不會自動記錄進場，也不會用舊位置代替。",
+      "presence": {
+        "entered": "已自動記錄進場：{project}",
+        "left": "已自動記錄離開：{project}"
+      }
     },
     "material": {
       "location": "放在哪裡",
@@ -12430,12 +12457,25 @@
       "currentCount": "目前在場",
       "durationHours": "{hours} 小時 {minutes} 分鐘",
       "durationMinutes": "{minutes} 分鐘",
-      "empty": "所選工地目前沒有登記在場的人員、訪客或車輛。",
-      "subtitle": "顯示最後記錄為進場、且尚未登記離場的所有人員與車輛。",
+      "empty": "所選現場此刻沒有在場記錄。",
+      "subtitle": "此刻在現場的所有人：手機電子圍欄記錄進場的人，加上門崗通行證進了還沒出的人。",
       "title": "緊急在場名單",
       "updated": "系統自動刷新，上次更新時間：{time}",
       "useHelp": "在集合點核對人員、致電未到人員，並導出名單作為事故記錄。",
-      "useTitle": "疏散時使用此名單"
+      "useTitle": "疏散時使用此名單",
+      "print": "列印",
+      "printedAt": "列印時間：{time}",
+      "composition": "共 {total} 人（App 人員 {app} + 門崗通行 {gate}）",
+      "split": "App 人員 {app} + 門崗通行 {gate}",
+      "source": "計入方式",
+      "sourceValue": {
+        "APP": "電子圍欄（App）",
+        "GATE": "門崗通行證",
+        "BOTH": "電子圍欄 + 門崗通行證"
+      },
+      "lastReport": "最後回報 {time}",
+      "stale": "未回報（最後 {time}）",
+      "noReport": "尚無位置回報"
     },
     "field": {
       "address": "地址",

@@ -3149,8 +3149,8 @@
     },
     "count": "共 {count} 条人员进场记录",
     "event": {
-      "CLOCK_IN": "上班打卡",
-      "CLOCK_OUT": "下班打卡"
+      "CLOCK_IN": "进场",
+      "CLOCK_OUT": "离开"
     },
     "evidence": {
       "event": "事件",
@@ -3164,7 +3164,9 @@
       "uploadedAt": "上传时间",
       "view": "查看证据",
       "worker": "人员",
-      "gps": "GPS 位置"
+      "gps": "GPS 位置",
+      "geofenceNoPhoto": "围栏自动（无照片）",
+      "systemNoPhoto": "系统结束：手机未再回报（无照片）"
     },
     "field": {
       "event": "类型",
@@ -3174,7 +3176,8 @@
       "photo": "照片",
       "project": "项目",
       "time": "记录时间",
-      "worker": "人员"
+      "worker": "人员",
+      "source": "来源"
     },
     "filter": {
       "allProjects": "所有项目",
@@ -3183,6 +3186,25 @@
     "title": "人员进场记录",
     "toast": {
       "recorded": "人员进场已记录"
+    },
+    "eventSystemClose": "离开（系统结束）",
+    "source": {
+      "MANUAL": "手动打卡",
+      "GEOFENCE": "围栏自动",
+      "SYSTEM": "系统结束"
+    },
+    "presence": {
+      "what": "现场人数",
+      "currentTotal": "当前现场总人数",
+      "composition": "App 人员 {app} + 门岗通行 {gate}",
+      "loading": "加载中…",
+      "openList": "查看紧急在场名单",
+      "enteredToday": "今日进入",
+      "leftToday": "今日离开",
+      "stillOnSite": "仍在场",
+      "stillHint": "今天进场、还没离开",
+      "byProject": "按项目查看（{count} 个项目）",
+      "project": "项目"
     }
   },
   "audit": {
@@ -7566,7 +7588,12 @@
       "requiredTitle": "开启定位后才能继续",
       "retry": "重新检查定位",
       "startingBody": "请允许精确定位，MSE Trace 才能确认此设备是否在获分配工地的电子围栏内。",
-      "startingTitle": "必须开启定位"
+      "startingTitle": "必须开启定位",
+      "noPresence": "定位失败时不会自动记录进场，也不会用旧位置代替。",
+      "presence": {
+        "entered": "已自动记录进场：{project}",
+        "left": "已自动记录离开：{project}"
+      }
     },
     "material": {
       "location": "放在哪里",
@@ -12430,12 +12457,25 @@
       "currentCount": "目前在场",
       "durationHours": "{hours} 小时 {minutes} 分钟",
       "durationMinutes": "{minutes} 分钟",
-      "empty": "所选工地目前没有登记在场的人员、访客或车辆。",
-      "subtitle": "显示最后记录为进场、且尚未登记离场的所有人员与车辆。",
+      "empty": "所选现场此刻没有在场记录。",
+      "subtitle": "此刻在现场的所有人：手机电子围栏记录进场的人，加上门岗通行证进了还没出的人。",
       "title": "紧急在场名单",
       "updated": "系统自动刷新，上次更新时间：{time}",
       "useHelp": "在集合点核对人员、致电未到人员，并导出名单作为事故记录。",
-      "useTitle": "疏散时使用此名单"
+      "useTitle": "疏散时使用此名单",
+      "print": "打印",
+      "printedAt": "打印时间：{time}",
+      "composition": "共 {total} 人（App 人员 {app} + 门岗通行 {gate}）",
+      "split": "App 人员 {app} + 门岗通行 {gate}",
+      "source": "计入方式",
+      "sourceValue": {
+        "APP": "电子围栏（App）",
+        "GATE": "门岗通行证",
+        "BOTH": "电子围栏 + 门岗通行证"
+      },
+      "lastReport": "最后回报 {time}",
+      "stale": "未回报（最后 {time}）",
+      "noReport": "尚无位置回报"
     },
     "field": {
       "address": "地址",

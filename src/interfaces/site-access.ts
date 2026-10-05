@@ -236,10 +236,26 @@ export interface SiteAccessPassPayload {
   valid_until: string;
 }
 
+/**
+ * One person on the 紧急在场名单 (C21). `APP`: in by the phone's fence; `GATE`:
+ * in through the gate on a pass; `BOTH`: the pass's own account is also in
+ * by the phone, so it is one row, not two.
+ */
+export type EmergencySource = "APP" | "GATE" | "BOTH";
+
+export interface EmergencyList {
+  count: number;
+  app_count: number;
+  gate_count: number;
+  people: EmergencyPresence[];
+}
+
 export interface EmergencyPresence {
-  event_id: string;
-  pass_id: string;
+  source: EmergencySource;
+  event_id: string | null;
+  pass_id: string | null;
   pass_no: string;
+  user_id: string | null;
   project_id: string;
   project_name: string;
   subject_type: AccessSubjectType;
@@ -251,6 +267,8 @@ export interface EmergencyPresence {
   gate_name: string;
   minutes_on_site: number;
   last_updated_at: string;
+  last_report_at: string | null;
+  stale: boolean;
 }
 
 export interface ThirdPartyAccessEvent {

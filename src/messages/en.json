@@ -3149,8 +3149,8 @@
     },
     "count": "{count, plural, =0 {No site entry records} one {# site entry record} other {# site entry records}}",
     "event": {
-      "CLOCK_IN": "Clock in",
-      "CLOCK_OUT": "Clock out"
+      "CLOCK_IN": "Entry",
+      "CLOCK_OUT": "Exit"
     },
     "evidence": {
       "event": "Event",
@@ -3164,7 +3164,9 @@
       "uploadedAt": "Uploaded time",
       "view": "View evidence",
       "worker": "Worker",
-      "gps": "GPS"
+      "gps": "GPS",
+      "geofenceNoPhoto": "Geofence, automatic (no photo)",
+      "systemNoPhoto": "Closed by system: the phone stopped reporting (no photo)"
     },
     "field": {
       "event": "Event",
@@ -3174,7 +3176,8 @@
       "photo": "Photo",
       "project": "Project",
       "time": "Recorded time",
-      "worker": "Worker"
+      "worker": "Worker",
+      "source": "Recorded by"
     },
     "filter": {
       "allProjects": "All projects",
@@ -3183,6 +3186,25 @@
     "title": "Site entry records",
     "toast": {
       "recorded": "Site entry recorded"
+    },
+    "eventSystemClose": "Exit (closed by system)",
+    "source": {
+      "MANUAL": "Manual",
+      "GEOFENCE": "Geofence, automatic",
+      "SYSTEM": "Closed by system"
+    },
+    "presence": {
+      "what": "the on-site numbers",
+      "currentTotal": "On site now",
+      "composition": "App {app} + gate pass {gate}",
+      "loading": "Loading…",
+      "openList": "Open the emergency list",
+      "enteredToday": "Entered today",
+      "leftToday": "Left today",
+      "stillOnSite": "Still on site",
+      "stillHint": "Came in today, not left yet",
+      "byProject": "By project ({count})",
+      "project": "Project"
     }
   },
   "audit": {
@@ -7566,7 +7588,12 @@
       "requiredTitle": "Turn on location to continue",
       "retry": "Check location again",
       "startingBody": "Allow precise location so MSE Trace can verify that this device is inside the assigned site geofence.",
-      "startingTitle": "Location is required"
+      "startingTitle": "Location is required",
+      "noPresence": "Without your location, arrival on site is not recorded automatically - and no old location is used instead.",
+      "presence": {
+        "entered": "Entry recorded automatically: {project}",
+        "left": "Exit recorded automatically: {project}"
+      }
     },
     "material": {
       "location": "Where it is",
@@ -12430,12 +12457,25 @@
       "currentCount": "Currently on site",
       "durationHours": "{hours}h {minutes}m",
       "durationMinutes": "{minutes} min",
-      "empty": "No worker, visitor or vehicle is currently recorded inside the selected site.",
-      "subtitle": "Live list of everyone whose latest gate event is entry and has no recorded exit.",
+      "empty": "Nobody is recorded on the selected site right now.",
+      "subtitle": "Everyone on site now: in by the phone's geofence, or through the gate on a pass and not yet out.",
       "title": "Emergency site list",
       "updated": "Automatically refreshed. Last update: {time}",
       "useHelp": "Confirm people at the assembly point, call missing persons, and export a copy for the incident record.",
-      "useTitle": "Use this list during evacuation"
+      "useTitle": "Use this list during evacuation",
+      "print": "Print",
+      "printedAt": "Printed {time}",
+      "composition": "{total} people (app {app} + gate pass {gate})",
+      "split": "App {app} + gate pass {gate}",
+      "source": "Counted by",
+      "sourceValue": {
+        "APP": "Geofence (app)",
+        "GATE": "Gate pass",
+        "BOTH": "Geofence + gate pass"
+      },
+      "lastReport": "Last report {time}",
+      "stale": "Not reporting (last {time})",
+      "noReport": "No position report yet"
     },
     "field": {
       "address": "Address",

@@ -3149,8 +3149,8 @@
     },
     "count": "{count, plural, =0 {Tiada rekod kemasukan tapak} other {# rekod kemasukan tapak}}",
     "event": {
-      "CLOCK_IN": "Daftar masuk",
-      "CLOCK_OUT": "Daftar keluar"
+      "CLOCK_IN": "Masuk",
+      "CLOCK_OUT": "Keluar"
     },
     "evidence": {
       "event": "Acara",
@@ -3164,7 +3164,9 @@
       "uploadedAt": "Masa dimuat naik",
       "view": "Lihat bukti",
       "worker": "Pekerja",
-      "gps": "GPS"
+      "gps": "GPS",
+      "geofenceNoPhoto": "Pagar geo, automatik (tiada foto)",
+      "systemNoPhoto": "Ditutup sistem: telefon berhenti melapor (tiada foto)"
     },
     "field": {
       "event": "Peristiwa",
@@ -3174,7 +3176,8 @@
       "photo": "Foto",
       "project": "Projek",
       "time": "Masa direkodkan",
-      "worker": "Pekerja"
+      "worker": "Pekerja",
+      "source": "Direkod oleh"
     },
     "filter": {
       "allProjects": "Semua projek",
@@ -3183,6 +3186,25 @@
     "title": "Rekod kemasukan tapak",
     "toast": {
       "recorded": "Kemasukan tapak direkodkan"
+    },
+    "eventSystemClose": "Keluar (ditutup sistem)",
+    "source": {
+      "MANUAL": "Manual",
+      "GEOFENCE": "Pagar geo, automatik",
+      "SYSTEM": "Ditutup sistem"
+    },
+    "presence": {
+      "what": "bilangan di tapak",
+      "currentTotal": "Di tapak sekarang",
+      "composition": "App {app} + pas pintu {gate}",
+      "loading": "Memuatkan…",
+      "openList": "Buka senarai kecemasan",
+      "enteredToday": "Masuk hari ini",
+      "leftToday": "Keluar hari ini",
+      "stillOnSite": "Masih di tapak",
+      "stillHint": "Masuk hari ini, belum keluar",
+      "byProject": "Mengikut projek ({count})",
+      "project": "Projek"
     }
   },
   "audit": {
@@ -7566,7 +7588,12 @@
       "requiredTitle": "Hidupkan lokasi untuk teruskan",
       "retry": "Semak lokasi sekali lagi",
       "startingBody": "Benarkan lokasi tepat supaya MSE Trace boleh mengesahkan peranti ini berada dalam geofence tapak yang ditugaskan.",
-      "startingTitle": "Lokasi diperlukan"
+      "startingTitle": "Lokasi diperlukan",
+      "noPresence": "Tanpa lokasi anda, ketibaan di tapak tidak direkod secara automatik - dan tiada lokasi lama digunakan.",
+      "presence": {
+        "entered": "Kemasukan direkod automatik: {project}",
+        "left": "Keluar direkod automatik: {project}"
+      }
     },
     "material": {
       "location": "Di mana ia berada",
@@ -12430,12 +12457,25 @@
       "currentCount": "Sedang di tapak",
       "durationHours": "{hours}j {minutes}m",
       "durationMinutes": "{minutes} min",
-      "empty": "Tiada pekerja, pelawat atau kenderaan direkod berada di dalam tapak terpilih.",
-      "subtitle": "Senarai langsung semua orang dengan rekod terakhir masuk dan belum direkod keluar.",
+      "empty": "Tiada sesiapa direkodkan di tapak yang dipilih sekarang.",
+      "subtitle": "Semua orang di tapak sekarang: masuk melalui pagar geo telefon, atau melalui pintu dengan pas dan belum keluar.",
       "title": "Senarai kecemasan tapak",
       "updated": "Dikemas kini secara automatik. Kemas kini terakhir: {time}",
       "useHelp": "Semak orang di tempat berkumpul, hubungi yang hilang dan eksport salinan untuk rekod insiden.",
-      "useTitle": "Gunakan semasa pemindahan"
+      "useTitle": "Gunakan semasa pemindahan",
+      "print": "Cetak",
+      "printedAt": "Dicetak {time}",
+      "composition": "{total} orang (app {app} + pas pintu {gate})",
+      "split": "App {app} + pas pintu {gate}",
+      "source": "Dikira melalui",
+      "sourceValue": {
+        "APP": "Pagar geo (app)",
+        "GATE": "Pas pintu",
+        "BOTH": "Pagar geo + pas pintu"
+      },
+      "lastReport": "Laporan terakhir {time}",
+      "stale": "Tidak melapor (terakhir {time})",
+      "noReport": "Belum ada laporan lokasi"
     },
     "field": {
       "address": "Alamat",

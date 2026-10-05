@@ -17,6 +17,7 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { PresenceSummary } from "@/components/site-operations/presence-summary";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,6 +54,23 @@ const EMPTY_DRAFT: ClockDraft = {
   event: "CLOCK_IN",
   note: "",
 };
+
+/**
+ * 进场 / 离开, and 离开（系统结束） for the nightly close (L8): the reader of
+ * the record should not have to know what a source code means.
+ */
+function eventKey(record: AttendanceRecord) {
+  return record.source === "SYSTEM" && record.event === "CLOCK_OUT"
+    ? "attendance.eventSystemClose"
+    : `attendance.event.${record.event}`;
+}
+
+/** What stands in for the photo a record does not have. */
+function noPhotoKey(record: AttendanceRecord) {
+  if (record.source === "GEOFENCE") return "attendance.evidence.geofenceNoPhoto";
+  if (record.source === "SYSTEM") return "attendance.evidence.systemNoPhoto";
+  return "attendance.evidence.noPhoto";
+}
 
 export function Attendance() {
   const t = useTranslations();
@@ -180,9 +198,19 @@ export function Attendance() {
         header: () => t("attendance.field.event"),
         cell: ({ row }) => (
           <StatusBadge
-            label={t(`attendance.event.${row.original.event}`)}
+            label={t(eventKey(row.original))}
             tone={row.original.event === "CLOCK_IN" ? "positive" : "neutral"}
           />
+        ),
+      },
+      {
+        accessorKey: "source",
+        meta: { label: t("attendance.field.source") },
+        header: () => t("attendance.field.source"),
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {t(`attendance.source.${row.original.source ?? "MANUAL"}`)}
+          </span>
         ),
       },
       {
@@ -205,7 +233,7 @@ export function Attendance() {
               <Eye className="h-3.5 w-3.5" />
             </Button>
           ) : (
-            <span className="text-muted-foreground">{t("common.emptyValue")}</span>
+            <span className="text-muted-foreground">{t(noPhotoKey(record))}</span>
           );
         },
       },
@@ -242,6 +270,8 @@ export function Attendance() {
           </div>
         }
       />
+
+      <PresenceSummary project={list.filters.project} />
 
       <DataTable
         columns={columns}
@@ -392,7 +422,7 @@ export function Attendance() {
                 </div>
               ) : (
                 <div className="flex min-h-32 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-                  {t("attendance.evidence.noPhoto")}
+                  {t(noPhotoKey(selectedRecord))}
                 </div>
               )}
               <div className="grid grid-cols-2 gap-3 text-sm">
@@ -400,7 +430,11 @@ export function Attendance() {
                 <EvidenceValue label={t("attendance.evidence.project")} value={selectedRecord.project_name} />
                 <EvidenceValue
                   label={t("attendance.evidence.event")}
-                  value={t(`attendance.event.${selectedRecord.event}`)}
+                  value={t(eventKey(selectedRecord))}
+                />
+                <EvidenceValue
+                  label={t("attendance.field.source")}
+                  value={t(`attendance.source.${selectedRecord.source ?? "MANUAL"}`)}
                 />
                 <EvidenceValue
                   label={t("attendance.evidence.recordedAt")}

@@ -3,7 +3,7 @@ import type {
   CompanyBranch,
   ContractorCompanyProfile,
   ContractorSiteSettings,
-  EmergencyPresence,
+  EmergencyList,
   GateIncident,
   GateIncidentDetail,
   GateIncidentPayload,
@@ -236,7 +236,7 @@ export async function scanSiteAccessGate(payload: {
 }
 
 export const getEmergencyList = (project?: string) =>
-  api.get<{ count: number; people: EmergencyPresence[] }>(
+  api.get<EmergencyList>(
     "/api/site-access-passes/get_emergency_list/",
     project ? { project } : undefined,
   );
