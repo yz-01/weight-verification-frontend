@@ -5826,7 +5826,8 @@
       "returnedBy": "Dikembalikan oleh {name} · {value}",
       "returnReasonShown": "Sebab: {reason}",
       "onlyOpen": "Menunjukkan tugasan belum selesai sahaja (belum disahkan atau dibatalkan).",
-      "onlyOverdue": "Menunjukkan tugasan lewat sahaja (melepasi masa tamat, belum disahkan atau dibatalkan)."
+      "onlyOverdue": "Menunjukkan tugasan lewat sahaja (melepasi masa tamat, belum disahkan atau dibatalkan).",
+      "openHeadOffice": "Butiran tugasan ibu pejabat"
     },
     "toast": {
       "movementSaved": "Pergerakan peralatan direkodkan",
@@ -8094,7 +8095,8 @@
       "tabApprovals": "Menunggu kelulusan",
       "tabOverdue": "Pembetulan lewat",
       "allOverdue": "Semua {count} pembetulan lewat",
-      "title": "Kerja ibu pejabat"
+      "title": "Kerja ibu pejabat",
+      "tabTasks": "Tugasan ibu pejabat"
     },
     "approvals": {
       "allProjects": "Semua projek",
@@ -8107,6 +8109,56 @@
       "loading": "Memuatkan…",
       "loadMore": "Muat lagi",
       "decide": "Lulus / pulangkan"
+    },
+    "tasks": {
+      "piles": "Tugasan mana",
+      "pile": {
+        "open": "Belum selesai",
+        "done": "Selesai",
+        "overdue": "Lewat"
+      },
+      "empty": {
+        "open": "Tiada tugasan ibu pejabat yang belum selesai.",
+        "done": "Belum ada tugasan ibu pejabat yang selesai.",
+        "overdue": "Tiada tugasan ibu pejabat yang lewat."
+      },
+      "allProjects": "Semua projek",
+      "publish": "Terbitkan tugasan",
+      "shown": "Memaparkan {shown} daripada {total}",
+      "dueAt": "tamat {at}",
+      "resultShort": "Hasil: {result}",
+      "overdue": "Lewat",
+      "loading": "Memuatkan…",
+      "loadMore": "Muat lagi",
+      "publishTitle": "Terbitkan tugasan ibu pejabat",
+      "publishHelp": "Orang yang dipilih menerimanya dalam Tugasan Saya. Apabila hasilnya dihantar, anda mengesahkannya atau memulangkannya dengan sebab.",
+      "project": "Projek",
+      "chooseProject": "Pilih projek",
+      "assignee": "Orang bertanggungjawab",
+      "chooseAssignee": "Pilih ahli pasukan projek",
+      "projectPeople": "ahli projek",
+      "taskTitle": "Tugasan",
+      "content": "Apa yang perlu dibuat",
+      "due": "Tarikh akhir",
+      "cancel": "Batal",
+      "publishAction": "Terbitkan",
+      "fromHeadOffice": "Tugasan ibu pejabat",
+      "fromSite": "Tugasan tapak",
+      "status": "Status",
+      "publisher": "Diterbitkan oleh",
+      "result": "Hasil",
+      "submittedAt": "Dihantar {at}",
+      "returnedBy": "Dipulangkan oleh",
+      "confirmedBy": "Disahkan oleh",
+      "resultLabel": "Hasil",
+      "photosLabel": "Foto",
+      "optional": "pilihan",
+      "filesHelp": "Fail seperti PDF dimuat naik ke Lampiran di bawah; soalan ditulis dalam perbualan.",
+      "submit": "Hantar hasil",
+      "return": "Pulangkan",
+      "confirm": "Sahkan selesai",
+      "returnReason": "Sebab dipulangkan",
+      "returnConfirm": "Pulangkan tugasan"
     }
   },
   "home": {

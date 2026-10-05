@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Camera,
   Check,
+  ClipboardList,
   ChevronRight,
   FolderOpen,
   FileText,
@@ -24,6 +25,8 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+
+import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
@@ -672,6 +675,9 @@ export function FieldTasksWorkspace({
   const [addingRefsTo, setAddingRefsTo] = useState<FieldTask | null>(null);
   const focusedTaskId = searchParams.get("task");
   const showAllTasks = useClearSearchParam("task");
+  // The detail of a head-office task (C17): opened by hand, or by the
+  // assignee's My Tasks card, which links here with ?task=.
+  const [openedTask, setOpenedTask] = useState<string | null>(null);
   // The 公司总部 Dashboard's 未完成 / 逾期 figures (C13) link here with the
   // same filter the server counted them by, so the list shows exactly them.
   const drill = searchParams.get("overdue") === "1"
@@ -691,6 +697,10 @@ export function FieldTasksWorkspace({
         ...(drill ? { [drill]: "1" } : {}),
       }),
   });
+  const linkedHeadOffice = rows.data?.results.find(
+    (row) => row.id === focusedTaskId && row.origin === "HQ",
+  );
+  const sheetTask = openedTask ?? linkedHeadOffice?.id ?? null;
   const transition = useMutation({
     mutationFn: ({
       id,
@@ -768,6 +778,15 @@ export function FieldTasksWorkspace({
           </Button>
         </div>
       )}
+      {sheetTask && (
+        <FieldTaskSheet
+          id={sheetTask}
+          onClose={() => {
+            setOpenedTask(null);
+            if (linkedHeadOffice) showAllTasks();
+          }}
+        />
+      )}
       {focusedTaskId && !rows.isLoading && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
           <span className="min-w-0 flex-1">
@@ -812,7 +831,12 @@ export function FieldTasksWorkspace({
             const isOpen = expanded.has(row.id) || row.id === focusedTaskId;
             const canEdit =
               can("field_task.manage") && ["OPEN", "RETURNED"].includes(row.status);
-            const canReview = can("field_task.manage") && row.status === "SUBMITTED";
+            // A head-office task (C17) is reported and decided in its own
+            // detail: only its publisher confirms it, and the assignee
+            // submits words and files from the desk.
+            const headOffice = row.origin === "HQ";
+            const canReview =
+              can("field_task.manage") && row.status === "SUBMITTED" && !headOffice;
             return (
               <article
                 key={row.id}
@@ -871,8 +895,14 @@ export function FieldTasksWorkspace({
                       {row.photos.length}/{row.evidence_required}
                     </span>
                   </span>
-                  {(canEdit || canReview || canPrepareApplication) && (
+                  {(canEdit || canReview || canPrepareApplication || headOffice) && (
                     <div className="flex flex-wrap justify-end gap-1.5">
+                      {headOffice ? (
+                        <Button size="sm" onClick={() => setOpenedTask(row.id)}>
+                          <ClipboardList />
+                          {t("tasks.openHeadOffice")}
+                        </Button>
+                      ) : null}
                       {canEdit ? (
                         <>
                           <Button size="sm" variant="outline" onClick={() => setEditing(row)}>

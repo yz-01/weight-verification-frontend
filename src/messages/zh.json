@@ -5826,7 +5826,8 @@
       "returnedBy": "{name} 已退回 · {value}",
       "returnReasonShown": "退回原因：{reason}",
       "onlyOpen": "只显示未完成的任务（还没确认完成或取消）。",
-      "onlyOverdue": "只显示逾期任务（过了截止时间、还没确认完成或取消）。"
+      "onlyOverdue": "只显示逾期任务（过了截止时间、还没确认完成或取消）。",
+      "openHeadOffice": "总部任务详情"
     },
     "toast": {
       "movementSaved": "设备进退场已记录",
@@ -8094,7 +8095,8 @@
       "tabApprovals": "待审批",
       "tabOverdue": "逾期整改",
       "allOverdue": "查看全部 {count} 件逾期整改",
-      "title": "总部工作"
+      "title": "总部工作",
+      "tabTasks": "总部任务"
     },
     "approvals": {
       "allProjects": "全部项目",
@@ -8107,6 +8109,56 @@
       "loading": "载入中…",
       "loadMore": "载入更多",
       "decide": "批准 / 退回"
+    },
+    "tasks": {
+      "piles": "任务分类",
+      "pile": {
+        "open": "未完成",
+        "done": "已完成",
+        "overdue": "已逾期"
+      },
+      "empty": {
+        "open": "没有未完成的总部任务。",
+        "done": "还没有已完成的总部任务。",
+        "overdue": "没有逾期的总部任务。"
+      },
+      "allProjects": "全部项目",
+      "publish": "发布任务",
+      "shown": "显示 {shown} / 共 {total} 件",
+      "dueAt": "期限 {at}",
+      "resultShort": "结果：{result}",
+      "overdue": "已逾期",
+      "loading": "载入中…",
+      "loadMore": "载入更多",
+      "publishTitle": "发布总部任务",
+      "publishHelp": "任务会进入负责人的「我的待办」。负责人提交结果后，由你确认完成，或写明原因退回。",
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "assignee": "负责人",
+      "chooseAssignee": "选择项目成员",
+      "projectPeople": "项目成员",
+      "taskTitle": "任务",
+      "content": "任务内容",
+      "due": "截止时间",
+      "cancel": "取消",
+      "publishAction": "发布",
+      "fromHeadOffice": "总部任务",
+      "fromSite": "现场任务",
+      "status": "状态",
+      "publisher": "发布人",
+      "result": "结果",
+      "submittedAt": "提交于 {at}",
+      "returnedBy": "退回人",
+      "confirmedBy": "确认人",
+      "resultLabel": "处理结果",
+      "photosLabel": "照片",
+      "optional": "选填",
+      "filesHelp": "PDF 等文件请上传到下面的「附件」；有问题在「沟通」里留言。",
+      "submit": "提交结果",
+      "return": "退回",
+      "confirm": "确认完成",
+      "returnReason": "退回原因",
+      "returnConfirm": "退回任务"
     }
   },
   "home": {

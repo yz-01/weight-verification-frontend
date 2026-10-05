@@ -5826,7 +5826,8 @@
       "returnedBy": "Returned by {name} · {value}",
       "returnReasonShown": "Reason: {reason}",
       "onlyOpen": "Showing unfinished tasks only (not yet confirmed or cancelled).",
-      "onlyOverdue": "Showing overdue tasks only (past the due time, not yet confirmed or cancelled)."
+      "onlyOverdue": "Showing overdue tasks only (past the due time, not yet confirmed or cancelled).",
+      "openHeadOffice": "Head-office task details"
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",
@@ -8094,7 +8095,8 @@
       "tabApprovals": "Waiting for approval",
       "tabOverdue": "Overdue rectifications",
       "allOverdue": "All {count} overdue rectifications",
-      "title": "Head office work"
+      "title": "Head office work",
+      "tabTasks": "Head-office tasks"
     },
     "approvals": {
       "allProjects": "All projects",
@@ -8107,6 +8109,56 @@
       "loading": "Loading…",
       "loadMore": "Load more",
       "decide": "Approve / return"
+    },
+    "tasks": {
+      "piles": "Which tasks",
+      "pile": {
+        "open": "Unfinished",
+        "done": "Completed",
+        "overdue": "Overdue"
+      },
+      "empty": {
+        "open": "No unfinished head-office tasks.",
+        "done": "No completed head-office tasks yet.",
+        "overdue": "No head-office task is overdue."
+      },
+      "allProjects": "All projects",
+      "publish": "Publish task",
+      "shown": "Showing {shown} of {total}",
+      "dueAt": "due {at}",
+      "resultShort": "Result: {result}",
+      "overdue": "Overdue",
+      "loading": "Loading…",
+      "loadMore": "Load more",
+      "publishTitle": "Publish a head-office task",
+      "publishHelp": "The person chosen gets it in their My Tasks. When they submit the result, you confirm it or return it with a reason.",
+      "project": "Project",
+      "chooseProject": "Choose a project",
+      "assignee": "Person responsible",
+      "chooseAssignee": "Choose a project team member",
+      "projectPeople": "the project's people",
+      "taskTitle": "Task",
+      "content": "What to do",
+      "due": "Due by",
+      "cancel": "Cancel",
+      "publishAction": "Publish",
+      "fromHeadOffice": "Head-office task",
+      "fromSite": "Site task",
+      "status": "Status",
+      "publisher": "Published by",
+      "result": "Result",
+      "submittedAt": "Submitted {at}",
+      "returnedBy": "Returned by",
+      "confirmedBy": "Confirmed by",
+      "resultLabel": "Result",
+      "photosLabel": "Photos",
+      "optional": "optional",
+      "filesHelp": "Files such as PDFs go in Attachments below; questions go in the conversation.",
+      "submit": "Submit result",
+      "return": "Return",
+      "confirm": "Confirm complete",
+      "returnReason": "Why it is being returned",
+      "returnConfirm": "Return the task"
     }
   },
   "home": {

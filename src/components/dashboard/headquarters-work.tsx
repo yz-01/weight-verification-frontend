@@ -1,30 +1,32 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { AlarmClock, ClipboardCheck, Users } from "lucide-react";
+import { AlarmClock, ClipboardCheck, ListTodo, Users } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
 import { HeadquartersApprovals } from "@/components/dashboard/headquarters-approvals";
+import { HeadquartersTasks } from "@/components/dashboard/headquarters-tasks";
 import { LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { HeadquartersOverview } from "@/interfaces/headquarters";
 import { drillHref } from "@/lib/headquarters-links";
 import { getContractorDashboard } from "@/services/contractor-dashboard.service";
 
-type WorkTab = "approvals" | "overdue";
+type WorkTab = "approvals" | "tasks" | "overdue";
 
 /**
- * 总部工作 on the company page (C16, C19): what waits on a decision across
- * every project, and the rectifications past their deadline - each row
- * opening the item itself.
+ * 总部工作 on the company page (C16, C17, C19): what waits on a decision
+ * across every project, the tasks head office has set, and the
+ * rectifications past their deadline - each row opening the item itself.
  */
 export function HeadquartersWork() {
   const t = useTranslations("headquarters.work");
   const [tab, setTab] = useState<WorkTab>("approvals");
   const tabs: Array<{ key: WorkTab; label: string; icon: typeof ClipboardCheck }> = [
     { key: "approvals", label: t("tabApprovals"), icon: ClipboardCheck },
+    { key: "tasks", label: t("tabTasks"), icon: ListTodo },
     { key: "overdue", label: t("tabOverdue"), icon: AlarmClock },
   ];
   return (
@@ -51,7 +53,13 @@ export function HeadquartersWork() {
           </button>
         ))}
       </div>
-      {tab === "approvals" ? <HeadquartersApprovals /> : <OverdueRectifications />}
+      {tab === "approvals" ? (
+        <HeadquartersApprovals />
+      ) : tab === "tasks" ? (
+        <HeadquartersTasks />
+      ) : (
+        <OverdueRectifications />
+      )}
     </section>
   );
 }

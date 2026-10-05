@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { ConsultantApplicationDetail } from "@/components/consultant-workflow/application-detail";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
 import { ReviewMovementActions } from "@/components/contractor-ops/equipment-applications";
@@ -48,9 +49,9 @@ import { getWasteOutgoingRecord } from "@/services/waste-outgoing.service";
  * Every decision is the module's own: its review component, its service call,
  * its permission. The record is opened in place - the module's own detail, or
  * the shared detail sheet with the module's review buttons inside - and the
- * conversation is the record's. Two cannot open here and go to their own
- * page: a site task (its review lives in the task list) and a document
- * approval (the approval centre).
+ * conversation is the record's. One cannot open here and goes to its own
+ * page: a document approval (the approval centre). A site task opens in the
+ * task detail (C17), with the confirm / return the task list has.
  */
 const SHEET_KIND: Partial<Record<string, CategoryRecordKind>> = {
   DISPOSAL_REQUEST: "DISPOSAL_REQUEST",
@@ -60,7 +61,6 @@ const SHEET_KIND: Partial<Record<string, CategoryRecordKind>> = {
 };
 
 export const APPROVAL_PAGE_LINKS: Record<string, (id: string) => string> = {
-  FIELD_TASK: (id) => `/field-tasks?task=${encodeURIComponent(id)}`,
   APPROVAL: (id) => `/approvals?approval=${encodeURIComponent(id)}`,
 };
 
@@ -126,6 +126,8 @@ function OpenedApproval({ row, onClose }: { row: ApprovalRow; onClose: () => voi
       );
     case "SUNDRY_CLAIM":
       return <SundryClaimDetail id={row.id} onClose={onClose} />;
+    case "FIELD_TASK":
+      return <FieldTaskSheet id={row.id} onClose={onClose} />;
     case "CONSULTANT_APPLICATION":
       return (
         <Dialog open onOpenChange={(next) => !next && onClose()}>
