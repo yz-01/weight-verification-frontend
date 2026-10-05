@@ -63,6 +63,8 @@ interface LocationMapProps {
   ariaLabel?: string;
   preserveViewOnDataUpdate?: boolean;
   fitBoundsKey?: string | number;
+  /** Called with a marker's id when it is clicked (the HQ map selects). */
+  onMarkerClick?: (id: string) => void;
 }
 
 const DEFAULT_CENTER: [number, number] = [3.139, 101.6869];
@@ -77,6 +79,7 @@ export function LocationMap({
   ariaLabel = "Location map",
   preserveViewOnDataUpdate = false,
   fitBoundsKey,
+  onMarkerClick,
 }: LocationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -85,6 +88,11 @@ export function LocationMap({
   const fittedKeyRef = useRef<string | number | undefined>(undefined);
   const hasFittedRef = useRef(false);
   const [ready, setReady] = useState(false);
+  // Read through a ref so a new callback each render does not redraw markers.
+  const onMarkerClickRef = useRef(onMarkerClick);
+  useEffect(() => {
+    onMarkerClickRef.current = onMarkerClick;
+  }, [onMarkerClick]);
 
   useEffect(() => {
     let disposed = false;
@@ -195,6 +203,7 @@ export function LocationMap({
           .bindPopup(
             `<strong>${escapeHtml(marker.label)}</strong>${marker.detail ? `<br>${escapeHtml(marker.detail)}` : ""}`,
           );
+        point.on("click", () => onMarkerClickRef.current?.(marker.id));
         bounds.extend(point.getLatLng());
       });
 

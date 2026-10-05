@@ -1,18 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { HeadquartersFigures } from "@/components/dashboard/headquarters-figures";
+import { HeadquartersMap } from "@/components/dashboard/headquarters-map";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import { legacyDashboardTarget } from "@/lib/dashboard-scopes";
-import { projectDashboardHref } from "@/lib/headquarters-links";
 import { getHeadquarters } from "@/services/contractor-dashboard.service";
 
 /**
@@ -60,36 +58,12 @@ export function HeadquartersDashboard() {
             <p className="text-xs text-muted-foreground">{t("figures.someProjects")}</p>
           )}
         </section>
-        <section
-          aria-label={t("projects.title")}
-          className="rounded-lg border bg-card p-3 shadow-sm"
-        >
-          <h2 className="border-b pb-1.5 text-sm font-semibold">
-            {t("projects.title")}
-          </h2>
-          {data.projects.length === 0 ? (
-            <p className="py-3 text-center text-sm text-muted-foreground">
-              {t("projects.empty")}
-            </p>
-          ) : (
-            <ul className="divide-y">
-              {data.projects.map((project) => (
-                <li key={project.id} className="flex items-center justify-between gap-3 py-2">
-                  <span className="min-w-0 truncate text-sm font-medium">
-                    {project.code} · {project.name}
-                  </span>
-                  <Link
-                    href={projectDashboardHref(project.id)}
-                    className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-primary hover:underline"
-                  >
-                    {t("projects.enter")}
-                    <ArrowRight className="size-3.5" aria-hidden />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+        <div data-dashboard-overview>
+          <HeadquartersMap
+            projects={data.projects}
+            withoutLocation={data.without_location}
+          />
+        </div>
         </>
       )}
     </div>

@@ -7992,11 +7992,6 @@
       "notificationsCount": "通知 {count}",
       "projectUnreadable": "（項目名稱讀取失敗）"
     },
-    "projects": {
-      "title": "所有項目",
-      "empty": "目前沒有你可查看的項目。",
-      "enter": "進入項目"
-    },
     "figures": {
       "title": "全公司數字",
       "someProjects": "這些數字只包含你被指派的項目。",
@@ -8049,6 +8044,32 @@
       "WASTE_DISPATCH": "廢料訂單",
       "WASTE_OUTGOING": "環保材料出場",
       "GATE_INCIDENT": "門崗拍照記錄"
+    },
+    "map": {
+      "title": "項目分布地圖",
+      "placed": "地圖上 {placed} 個 / 共 {total} 個項目",
+      "layers": "地圖圖層",
+      "layerProjects": "項目",
+      "layerDevices": "設備（未接入）",
+      "layerDevicesHelp": "設備位置還沒有顯示：方案和費用待客戶確認。",
+      "nothingPlaced": "還沒有項目設定座標。在項目資料設定位置後，就會出現在地圖上。",
+      "pickHelp": "在地圖上或下面的列表點一個項目，看它的狀態並進入項目。",
+      "legendOverdue": "有逾期",
+      "legendWaiting": "有待審批或未完成",
+      "legendClear": "沒有待辦",
+      "legendInactive": "淡色：非進行中",
+      "withoutLocation": "{count} 個項目沒有設定座標，沒有放在地圖上",
+      "setLocation": "設定位置",
+      "enter": "進入項目",
+      "markerDetail": "在場 {onSite} · 待審批 {pending} · 逾期 {overdue}",
+      "noPhoto": "還沒有現場照片",
+      "latestPhotoAlt": "最新現場照片，{time}",
+      "overview": "項目總覽",
+      "noProjects": "目前沒有你可查看的項目。",
+      "location": "地點",
+      "latestPhoto": "最新照片",
+      "overdue": "逾期",
+      "noCoordinates": "未設定座標"
     }
   },
   "home": {

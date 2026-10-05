@@ -7992,11 +7992,6 @@
       "notificationsCount": "通知 {count}",
       "projectUnreadable": "（项目名称读取失败）"
     },
-    "projects": {
-      "title": "所有项目",
-      "empty": "目前没有你可查看的项目。",
-      "enter": "进入项目"
-    },
     "figures": {
       "title": "全公司数字",
       "someProjects": "这些数字只包含你被指派的项目。",
@@ -8049,6 +8044,32 @@
       "WASTE_DISPATCH": "废料订单",
       "WASTE_OUTGOING": "环保材料出场",
       "GATE_INCIDENT": "门岗拍照记录"
+    },
+    "map": {
+      "title": "项目分布地图",
+      "placed": "地图上 {placed} 个 / 共 {total} 个项目",
+      "layers": "地图图层",
+      "layerProjects": "项目",
+      "layerDevices": "设备（未接入）",
+      "layerDevicesHelp": "设备位置还没有显示：方案和费用待客户确认。",
+      "nothingPlaced": "还没有项目设定座标。在项目资料设定位置后，就会出现在地图上。",
+      "pickHelp": "在地图上或下面的列表点一个项目，看它的状态并进入项目。",
+      "legendOverdue": "有逾期",
+      "legendWaiting": "有待审批或未完成",
+      "legendClear": "没有待办",
+      "legendInactive": "淡色：非进行中",
+      "withoutLocation": "{count} 个项目没有设定座标，没有放在地图上",
+      "setLocation": "设定位置",
+      "enter": "进入项目",
+      "markerDetail": "在场 {onSite} · 待审批 {pending} · 逾期 {overdue}",
+      "noPhoto": "还没有现场照片",
+      "latestPhotoAlt": "最新现场照片，{time}",
+      "overview": "项目总览",
+      "noProjects": "目前没有你可查看的项目。",
+      "location": "地点",
+      "latestPhoto": "最新照片",
+      "overdue": "逾期",
+      "noCoordinates": "未设定座标"
     }
   },
   "home": {

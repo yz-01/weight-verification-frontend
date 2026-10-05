@@ -7992,11 +7992,6 @@
       "notificationsCount": "Pemberitahuan {count}",
       "projectUnreadable": "(nama projek tidak dapat dimuatkan)"
     },
-    "projects": {
-      "title": "Semua projek",
-      "empty": "Belum ada projek yang boleh anda lihat.",
-      "enter": "Masuk projek"
-    },
     "figures": {
       "title": "Angka syarikat",
       "someProjects": "Angka ini hanya meliputi projek yang ditugaskan kepada anda.",
@@ -8049,6 +8044,32 @@
       "WASTE_DISPATCH": "Pesanan sisa",
       "WASTE_OUTGOING": "Bahan kitar semula keluar",
       "GATE_INCIDENT": "Rekod foto pintu"
+    },
+    "map": {
+      "title": "Peta gambaran projek",
+      "placed": "{placed} daripada {total} projek di peta",
+      "layers": "Lapisan peta",
+      "layerProjects": "Projek",
+      "layerDevices": "Peranti (belum disambung)",
+      "layerDevicesHelp": "Kedudukan peranti belum dipaparkan: pelan dan kosnya menunggu pengesahan pelanggan.",
+      "nothingPlaced": "Belum ada projek yang mempunyai koordinat. Tetapkan lokasi projek untuk meletakkannya di peta.",
+      "pickHelp": "Klik projek di peta atau dalam senarai di bawah untuk melihat keadaannya dan masuk.",
+      "legendOverdue": "Ada yang lewat",
+      "legendWaiting": "Menunggu kelulusan atau kerja",
+      "legendClear": "Tiada yang menunggu",
+      "legendInactive": "Pudar: tidak aktif",
+      "withoutLocation": "{count} projek tiada koordinat dan tidak diletakkan di peta",
+      "setLocation": "Tetapkan lokasi",
+      "enter": "Masuk projek",
+      "markerDetail": "Di tapak {onSite} · menunggu {pending} · lewat {overdue}",
+      "noPhoto": "Belum ada foto tapak",
+      "latestPhotoAlt": "Foto tapak terkini, {time}",
+      "overview": "Semua projek",
+      "noProjects": "Belum ada projek yang boleh anda lihat.",
+      "location": "Lokasi",
+      "latestPhoto": "Foto terkini",
+      "overdue": "Lewat",
+      "noCoordinates": "Tiada koordinat"
     }
   },
   "home": {

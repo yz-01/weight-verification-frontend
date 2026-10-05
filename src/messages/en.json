@@ -7992,11 +7992,6 @@
       "notificationsCount": "Notifications {count}",
       "projectUnreadable": "(project name could not be loaded)"
     },
-    "projects": {
-      "title": "All projects",
-      "empty": "No projects you can see yet.",
-      "enter": "Enter project"
-    },
     "figures": {
       "title": "Company figures",
       "someProjects": "These figures cover only the projects you are assigned to.",
@@ -8049,6 +8044,32 @@
       "WASTE_DISPATCH": "Waste order",
       "WASTE_OUTGOING": "Recyclable outgoing",
       "GATE_INCIDENT": "Gate photo record"
+    },
+    "map": {
+      "title": "Project overview map",
+      "placed": "{placed} of {total} projects on the map",
+      "layers": "Map layers",
+      "layerProjects": "Projects",
+      "layerDevices": "Devices (not connected)",
+      "layerDevicesHelp": "Device positions are not shown yet: the plan and cost are with the customer.",
+      "nothingPlaced": "No project has coordinates yet. Set a project's location to place it on the map.",
+      "pickHelp": "Click a project on the map or in the list below to see its state and enter it.",
+      "legendOverdue": "Something overdue",
+      "legendWaiting": "Waiting for approval or work",
+      "legendClear": "Nothing waiting",
+      "legendInactive": "Faded: not active",
+      "withoutLocation": "{count, plural, one {# project has} other {# projects have}} no coordinates and is not on the map",
+      "setLocation": "Set location",
+      "enter": "Enter project",
+      "markerDetail": "On site {onSite} · waiting {pending} · overdue {overdue}",
+      "noPhoto": "No site photo yet",
+      "latestPhotoAlt": "Latest site photo, {time}",
+      "overview": "All projects",
+      "noProjects": "No projects you can see yet.",
+      "location": "Location",
+      "latestPhoto": "Latest photo",
+      "overdue": "Overdue",
+      "noCoordinates": "No coordinates"
     }
   },
   "home": {
