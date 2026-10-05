@@ -49,6 +49,8 @@ export function AnnouncementDialog({ id, onClose }: { id: string; onClose: () =>
     onSuccess: (row) => {
       queryClient.setQueryData(["announcements", "detail", id], row);
       void queryClient.invalidateQueries({ queryKey: ["announcements", "list"] });
+      // The reader may be in the list below, loaded before this read landed.
+      void queryClient.invalidateQueries({ queryKey: ["announcements", "readers", id] });
     },
   });
   const asked = useRef(false);
