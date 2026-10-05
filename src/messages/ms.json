@@ -5207,7 +5207,11 @@
         "DISPOSAL_REQUEST": "Pembersihan tapak",
         "FIELD_TASK": "Tugas tapak",
         "SITE_PROGRESS": "Kemajuan projek",
-        "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar"
+        "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
+        "MATERIAL_REQUEST": "MR / Permintaan Lain",
+        "EQUIPMENT_MOVEMENT": "Peralatan masuk / keluar",
+        "MATERIAL_OUTGOING": "Bahan keluar / pulangan",
+        "SUNDRY_CLAIM": "Tuntutan pelbagai"
       },
       "waitingMinutes": "menunggu {count} min",
       "waitingHours": "menunggu {count} j",
@@ -8081,17 +8085,28 @@
       "loadMore": "Muat lagi"
     },
     "work": {
-      "title": "Kelulusan dan perkara lewat",
-      "approvals": "Menunggu kelulusan ({count})",
-      "noApprovals": "Tiada perkara menunggu kelulusan.",
-      "moreApprovals": "{shown} terbaru daripada {total} dipaparkan; selebihnya di papan pemuka setiap projek.",
-      "companyWide": "Peringkat syarikat",
       "overdue": "Pembetulan lewat ({count})",
       "noOverdue": "Tiada pembetulan yang lewat.",
       "daysOverdue": "Lewat {days} hari",
       "presence": "Orang di tapak sekarang",
       "presenceSplit": "App {app} + pintu {gate}, mengikut projek",
-      "nobodyOnSite": "Tiada sesiapa di tapak sekarang."
+      "nobodyOnSite": "Tiada sesiapa di tapak sekarang.",
+      "tabApprovals": "Menunggu kelulusan",
+      "tabOverdue": "Pembetulan lewat",
+      "allOverdue": "Semua {count} pembetulan lewat",
+      "title": "Kerja ibu pejabat"
+    },
+    "approvals": {
+      "allProjects": "Semua projek",
+      "kinds": "Jenis perkara",
+      "allKinds": "Semua",
+      "shown": "Memaparkan {shown} daripada {total}",
+      "empty": "Tiada perkara menunggu keputusan.",
+      "companyWide": "Peringkat syarikat",
+      "opensPage": "Dibuka di halamannya sendiri",
+      "loading": "Memuatkan…",
+      "loadMore": "Muat lagi",
+      "decide": "Lulus / pulangkan"
     }
   },
   "home": {

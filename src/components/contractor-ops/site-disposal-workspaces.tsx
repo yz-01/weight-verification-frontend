@@ -338,7 +338,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
   );
 }
 
-function ReviewDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
+export function ReviewDisposalDialog({ row, onClose, onSaved }: { row: DisposalRequest; onClose: () => void; onSaved: () => void }) {
   const t = useTranslations("siteDisposal");
   const [decision, setDecision] = useState<"APPROVED" | "REJECTED">("APPROVED");
   const [note, setNote] = useState("");

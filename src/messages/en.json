@@ -5207,7 +5207,11 @@
         "DISPOSAL_REQUEST": "Site clearing",
         "FIELD_TASK": "Field task",
         "SITE_PROGRESS": "Progress record",
-        "WASTE_OUTGOING": "Environmental material outgoing"
+        "WASTE_OUTGOING": "Environmental material outgoing",
+        "MATERIAL_REQUEST": "MR / Other Request",
+        "EQUIPMENT_MOVEMENT": "Equipment in / out",
+        "MATERIAL_OUTGOING": "Material out / return",
+        "SUNDRY_CLAIM": "Sundry claim"
       },
       "waitingMinutes": "waiting {count} min",
       "waitingHours": "waiting {count} h",
@@ -8081,17 +8085,28 @@
       "loadMore": "Load more"
     },
     "work": {
-      "title": "Approvals and overdue items",
-      "approvals": "Waiting for approval ({count})",
-      "noApprovals": "Nothing is waiting for approval.",
-      "moreApprovals": "Newest {shown} of {total} shown; the rest are on each project's dashboard.",
-      "companyWide": "Company-wide",
       "overdue": "Overdue rectifications ({count})",
       "noOverdue": "No rectification is overdue.",
       "daysOverdue": "{days, plural, one {# day} other {# days}} overdue",
       "presence": "People on site now",
       "presenceSplit": "App {app} + gate {gate}, by project",
-      "nobodyOnSite": "Nobody is on site right now."
+      "nobodyOnSite": "Nobody is on site right now.",
+      "tabApprovals": "Waiting for approval",
+      "tabOverdue": "Overdue rectifications",
+      "allOverdue": "All {count} overdue rectifications",
+      "title": "Head office work"
+    },
+    "approvals": {
+      "allProjects": "All projects",
+      "kinds": "Kinds of item",
+      "allKinds": "All",
+      "shown": "Showing {shown} of {total}",
+      "empty": "Nothing is waiting for a decision.",
+      "companyWide": "Company-wide",
+      "opensPage": "Opens on its own page",
+      "loading": "Loading…",
+      "loadMore": "Load more",
+      "decide": "Approve / return"
     }
   },
   "home": {

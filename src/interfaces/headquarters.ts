@@ -1,3 +1,5 @@
+import type { ApprovalRow } from "@/interfaces/contractor-dashboard";
+
 /** 公司总部 Dashboard (C11, C13–C15, C19). */
 
 /** What 今日现场记录 is made of - the same list the server counts. */
@@ -115,4 +117,27 @@ export interface HeadquartersOverview {
   other: HeadquartersCounts;
   has_other: boolean;
   without_location: Array<{ id: string; code: string; name: string }>;
+}
+
+/** The waiting decisions' queues (C16), each opened by its own module. */
+export type ApprovalSource =
+  | "APPROVAL"
+  | "DISPOSAL_REQUEST"
+  | "WASTE_OUTGOING"
+  | "FIELD_TASK"
+  | "SITE_PROGRESS"
+  | "CONSULTANT_APPLICATION"
+  | "MATERIAL_REQUEST"
+  | "EQUIPMENT_MOVEMENT"
+  | "MATERIAL_OUTGOING"
+  | "SUNDRY_CLAIM";
+
+/** One page of 总部集中审批, with every queue's count for the filter. */
+export interface ApprovalQueuePage {
+  count: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  results: ApprovalRow[];
+  by_source: Partial<Record<ApprovalSource, number>>;
 }

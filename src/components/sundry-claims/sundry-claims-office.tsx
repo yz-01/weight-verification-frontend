@@ -242,7 +242,7 @@ export function SundryClaimsOffice() {
   );
 }
 
-function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void }) {
+export function SundryClaimDetail({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useTranslations("sundryClaim");
   const ops = useTranslations("contractorOps");
   const df = useDateFormat();

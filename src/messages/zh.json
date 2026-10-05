@@ -5207,7 +5207,11 @@
         "DISPOSAL_REQUEST": "工地清运",
         "FIELD_TASK": "现场任务",
         "SITE_PROGRESS": "进度记录",
-        "WASTE_OUTGOING": "环保材料出场申请"
+        "WASTE_OUTGOING": "环保材料出场申请",
+        "MATERIAL_REQUEST": "MR / Other Request",
+        "EQUIPMENT_MOVEMENT": "设备进退场申请",
+        "MATERIAL_OUTGOING": "材料出场 / 退场申请",
+        "SUNDRY_CLAIM": "杂费报销"
       },
       "waitingMinutes": "已等待 {count} 分钟",
       "waitingHours": "已等待 {count} 小时",
@@ -8081,17 +8085,28 @@
       "loadMore": "载入更多"
     },
     "work": {
-      "title": "审批与逾期事项",
-      "approvals": "待审批（{count}）",
-      "noApprovals": "目前没有待审批的事项。",
-      "moreApprovals": "显示最新 {shown} 件 / 共 {total} 件，其余在各项目的仪表板。",
-      "companyWide": "公司层级",
       "overdue": "逾期整改（{count}）",
       "noOverdue": "目前没有逾期的整改。",
       "daysOverdue": "逾期 {days} 天",
       "presence": "当前在场人数",
       "presenceSplit": "App 人员 {app} ＋ 门岗通行 {gate}，按项目",
-      "nobodyOnSite": "目前没有人在场。"
+      "nobodyOnSite": "目前没有人在场。",
+      "tabApprovals": "待审批",
+      "tabOverdue": "逾期整改",
+      "allOverdue": "查看全部 {count} 件逾期整改",
+      "title": "总部工作"
+    },
+    "approvals": {
+      "allProjects": "全部项目",
+      "kinds": "事项类型",
+      "allKinds": "全部",
+      "shown": "显示 {shown} / 共 {total} 件",
+      "empty": "目前没有待审批的事项。",
+      "companyWide": "公司层级",
+      "opensPage": "会打开原页面",
+      "loading": "载入中…",
+      "loadMore": "载入更多",
+      "decide": "批准 / 退回"
     }
   },
   "home": {

@@ -115,6 +115,11 @@ const APPROVAL_QUEUES: Record<string, string> = {
   FIELD_TASK: "/field-tasks",
   SITE_PROGRESS: "/progress",
   CONSULTANT_APPLICATION: "/consultant-applications",
+  // The four queues C16 added.
+  MATERIAL_REQUEST: "/material-requests",
+  EQUIPMENT_MOVEMENT: "/site-equipment",
+  MATERIAL_OUTGOING: "/material-outgoing",
+  SUNDRY_CLAIM: "/sundry-claims",
 };
 
 export function approvalHref(row: ApprovalRow): string {
@@ -1212,7 +1217,7 @@ function ExportButtons({ project }: { project: string }) {
  * timestamp: the point of measuring it there was that two devices with
  * different clocks must not give two answers (T-185).
  */
-function WaitingFor({ seconds }: { seconds: number }) {
+export function WaitingFor({ seconds }: { seconds: number }) {
   const t = useTranslations("contractorDashboard");
   const minutes = Math.max(0, Math.floor(seconds / 60));
   if (minutes < 60) {

@@ -5,6 +5,7 @@ import type {
   DashboardSearchResult,
 } from "@/interfaces/contractor-dashboard";
 import type {
+  ApprovalQueuePage,
   HeadquartersOverview,
   HeadquartersPhoto,
 } from "@/interfaces/headquarters";
@@ -88,6 +89,24 @@ export function getHeadquartersPhotos(input: {
   if (input.project) query.project = input.project;
   return api.get<Paginated<HeadquartersPhoto>>(
     "/api/contractor-dashboard/get_headquarters_photos/",
+    query,
+  );
+}
+
+/** 总部集中审批 (C16): every waiting decision, a page at a time. */
+export function getApprovalQueue(input: {
+  page?: number;
+  page_size?: number;
+  project?: string;
+  source?: string;
+} = {}): Promise<ApprovalQueuePage> {
+  const query: ListQuery = {};
+  if (input.page) query.page = input.page;
+  if (input.page_size) query.page_size = input.page_size;
+  if (input.project) query.project = input.project;
+  if (input.source) query.source = input.source;
+  return api.get<ApprovalQueuePage>(
+    "/api/contractor-dashboard/get_approval_queue/",
     query,
   );
 }

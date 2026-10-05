@@ -5207,7 +5207,11 @@
         "DISPOSAL_REQUEST": "工地清運",
         "FIELD_TASK": "現場任務",
         "SITE_PROGRESS": "進度記錄",
-        "WASTE_OUTGOING": "環保材料出場申請"
+        "WASTE_OUTGOING": "環保材料出場申請",
+        "MATERIAL_REQUEST": "MR / Other Request",
+        "EQUIPMENT_MOVEMENT": "設備進退場申請",
+        "MATERIAL_OUTGOING": "材料出場 / 退場申請",
+        "SUNDRY_CLAIM": "雜費報銷"
       },
       "waitingMinutes": "已等待 {count} 分鐘",
       "waitingHours": "已等待 {count} 小時",
@@ -8081,17 +8085,28 @@
       "loadMore": "載入更多"
     },
     "work": {
-      "title": "審批與逾期事項",
-      "approvals": "待審批（{count}）",
-      "noApprovals": "目前沒有待審批的事項。",
-      "moreApprovals": "顯示最新 {shown} 件 / 共 {total} 件，其餘在各項目的儀表板。",
-      "companyWide": "公司層級",
       "overdue": "逾期整改（{count}）",
       "noOverdue": "目前沒有逾期的整改。",
       "daysOverdue": "逾期 {days} 天",
       "presence": "目前在場人數",
       "presenceSplit": "App 人員 {app} ＋ 門崗通行 {gate}，按項目",
-      "nobodyOnSite": "目前沒有人在場。"
+      "nobodyOnSite": "目前沒有人在場。",
+      "tabApprovals": "待審批",
+      "tabOverdue": "逾期整改",
+      "allOverdue": "查看全部 {count} 件逾期整改",
+      "title": "總部工作"
+    },
+    "approvals": {
+      "allProjects": "全部項目",
+      "kinds": "事項類型",
+      "allKinds": "全部",
+      "shown": "顯示 {shown} / 共 {total} 件",
+      "empty": "目前沒有待審批的事項。",
+      "companyWide": "公司層級",
+      "opensPage": "會打開原頁面",
+      "loading": "載入中…",
+      "loadMore": "載入更多",
+      "decide": "批准 / 退回"
     }
   },
   "home": {
