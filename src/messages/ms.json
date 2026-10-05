@@ -8079,6 +8079,19 @@
       "unknownPhotographer": "Tidak direkodkan",
       "loading": "Memuatkan…",
       "loadMore": "Muat lagi"
+    },
+    "work": {
+      "title": "Kelulusan dan perkara lewat",
+      "approvals": "Menunggu kelulusan ({count})",
+      "noApprovals": "Tiada perkara menunggu kelulusan.",
+      "moreApprovals": "{shown} terbaru daripada {total} dipaparkan; selebihnya di papan pemuka setiap projek.",
+      "companyWide": "Peringkat syarikat",
+      "overdue": "Pembetulan lewat ({count})",
+      "noOverdue": "Tiada pembetulan yang lewat.",
+      "daysOverdue": "Lewat {days} hari",
+      "presence": "Orang di tapak sekarang",
+      "presenceSplit": "App {app} + pintu {gate}, mengikut projek",
+      "nobodyOnSite": "Tiada sesiapa di tapak sekarang."
     }
   },
   "home": {

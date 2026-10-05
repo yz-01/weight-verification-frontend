@@ -8079,6 +8079,19 @@
       "unknownPhotographer": "未记录拍摄人",
       "loading": "载入中…",
       "loadMore": "载入更多"
+    },
+    "work": {
+      "title": "审批与逾期事项",
+      "approvals": "待审批（{count}）",
+      "noApprovals": "目前没有待审批的事项。",
+      "moreApprovals": "显示最新 {shown} 件 / 共 {total} 件，其余在各项目的仪表板。",
+      "companyWide": "公司层级",
+      "overdue": "逾期整改（{count}）",
+      "noOverdue": "目前没有逾期的整改。",
+      "daysOverdue": "逾期 {days} 天",
+      "presence": "当前在场人数",
+      "presenceSplit": "App 人员 {app} ＋ 门岗通行 {gate}，按项目",
+      "nobodyOnSite": "目前没有人在场。"
     }
   },
   "home": {

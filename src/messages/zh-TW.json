@@ -8079,6 +8079,19 @@
       "unknownPhotographer": "未記錄拍攝人",
       "loading": "載入中…",
       "loadMore": "載入更多"
+    },
+    "work": {
+      "title": "審批與逾期事項",
+      "approvals": "待審批（{count}）",
+      "noApprovals": "目前沒有待審批的事項。",
+      "moreApprovals": "顯示最新 {shown} 件 / 共 {total} 件，其餘在各項目的儀表板。",
+      "companyWide": "公司層級",
+      "overdue": "逾期整改（{count}）",
+      "noOverdue": "目前沒有逾期的整改。",
+      "daysOverdue": "逾期 {days} 天",
+      "presence": "目前在場人數",
+      "presenceSplit": "App 人員 {app} ＋ 門崗通行 {gate}，按項目",
+      "nobodyOnSite": "目前沒有人在場。"
     }
   },
   "home": {

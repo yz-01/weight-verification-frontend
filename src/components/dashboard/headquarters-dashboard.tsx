@@ -12,6 +12,10 @@ import {
   HeadquartersPhotos,
   usePhotoOpener,
 } from "@/components/dashboard/headquarters-photos";
+import {
+  HeadquartersPresence,
+  HeadquartersWork,
+} from "@/components/dashboard/headquarters-work";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import { legacyDashboardTarget } from "@/lib/dashboard-scopes";
@@ -34,7 +38,13 @@ export function HeadquartersHome() {
   return <HeadquartersDashboard />;
 }
 
-/** 公司总部 Dashboard (C11): every project the reader can see, and a way in. */
+/**
+ * 公司总部 Dashboard (C11, C19), top to bottom: the company banner; the
+ * company's figures (what is waiting comes first - each opens its projects);
+ * the 交互总览地图 with 项目总览 as the main overview; what waits on a decision
+ * and what is overdue, beside 在场人数 by project; then today's site photos.
+ * Every row and figure leads to the item, the list or the project.
+ */
 export function HeadquartersDashboard() {
   const t = useTranslations("headquarters");
   const overview = useQuery({
@@ -69,6 +79,12 @@ export function HeadquartersDashboard() {
             withoutLocation={data.without_location}
             onOpenPhoto={photos.open}
           />
+        </div>
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+          <div className="xl:col-span-2">
+            <HeadquartersWork />
+          </div>
+          <HeadquartersPresence data={data} />
         </div>
         <HeadquartersPhotos onOpen={photos.open} />
         </>

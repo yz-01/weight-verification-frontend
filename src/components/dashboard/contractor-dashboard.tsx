@@ -117,7 +117,7 @@ const APPROVAL_QUEUES: Record<string, string> = {
   CONSULTANT_APPLICATION: "/consultant-applications",
 };
 
-function approvalHref(row: ApprovalRow): string {
+export function approvalHref(row: ApprovalRow): string {
   const own = APPROVAL_QUEUES[row.source];
   return own ?? `/approvals?approval=${row.id}`;
 }
