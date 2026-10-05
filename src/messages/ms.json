@@ -7752,7 +7752,7 @@
     "locationAccess": {
       "why": {
         "title": "Ini memerlukan lokasi anda",
-        "body": "Penghantaran, kemasukan tapak dan rekod tapak dicap dengan tempat ia berlaku, supaya pejabat tidak perlu menelefon untuk mengesahkan anda berada di tapak. Ia dibaca sekali sahaja, ketika anda menekan butang.",
+        "body": "Semasa aplikasi dibuka, lokasi anda dibaca dari semasa ke semasa untuk merekod ketibaan dan keluar anda di tapak secara automatik, dan penghantaran serta rekod tapak dicap dengan tempat ia berlaku. Tutup aplikasi atau tolak lokasi dan tiada apa direkod - lokasi lama tidak digunakan.",
         "allow": "Benarkan lokasi",
         "later": "Bukan sekarang"
       },
@@ -9861,10 +9861,10 @@
       "trouble": "Pemindahan dan pinjaman mudah dikelirukan: pemindahan menukar lokasi aset sambil kekal milik syarikat; pinjaman meletakkannya di tangan seseorang dan mesti dipulangkan."
     },
     "attendance": {
-      "what": "Siapa daftar masuk di mana, dengan swafoto dan lokasi pada masa itu.",
+      "what": "Siapa masuk dan keluar tapak, di mana dan bila: direkod oleh pagar geo telefon, atau secara manual dengan swafoto.",
       "who": "Pemegang attendance.view dan project.view.",
-      "need": "Daftar masuk dari telefon memerlukan projek hari ini, swafoto dan kedudukan GPS semasa. Ketiga-tiganya.",
-      "then": "Daftar masuk dinilai terhadap pagar geo tapak dan disimpan dengan kedua-duanya.",
+      "need": "Tiada yang perlu ditekan: semasa aplikasi tapak dibuka di dalam pagar geo projek, kemasukan direkod sendiri, dan keluar apabila telefon berada di luar selama lima minit. Rekod automatik tiada foto. Rekod manual masih memerlukan projek, swafoto dan GPS semasa.",
+      "then": "Setiap kemasukan dan keluar adalah rekod sendiri dan tidak pernah ditimpa. Lawatan yang tiada laporan keluar ditutup selepas tengah malam oleh rekod sistem berasingan, bertarikh laporan terakhir telefon. Tanpa lokasi, tiada rekod.",
       "trouble": "GPS enggan mengunci: keluar ke luar atau ke pintu dan cuba lagi. Sistem tidak akan menggunakan kedudukan tidak tepat."
     },
     "audit_log_center": {

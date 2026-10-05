@@ -7752,7 +7752,7 @@
     "locationAccess": {
       "why": {
         "title": "This needs your location",
-        "body": "Deliveries, site entry and site records are stamped with where they happened, so the office does not have to ring you to check you were on site. It is read once, when you press the button.",
+        "body": "While the app is open it reads your location every so often, to record your arrival on site and your leaving automatically, and stamps deliveries and site records with where they happened. Close the app or refuse location and nothing is recorded - no old location is used instead.",
         "allow": "Allow location",
         "later": "Not now"
       },
@@ -9861,10 +9861,10 @@
       "trouble": "Transfer and loan are easy to mix up: a transfer moves the asset to another place while it stays the company's; a loan puts it in a person's hands and it has to come back."
     },
     "attendance": {
-      "what": "Who clocked in where, with the selfie and the location taken at the time.",
+      "what": "Who came on site and left, where and when: recorded by the phone's geofence, or by hand with a selfie.",
       "who": "Holders of attendance.view and project.view.",
-      "need": "Clocking in from the phone needs today's project, a selfie and the current GPS fix. All three.",
-      "then": "The clock-in is judged against the site's geofence and stored with both.",
+      "need": "Nothing to press: while the field app is open inside a project's geofence, entry is recorded on its own, and leaving once the phone has been outside for five minutes. An automatic record has no photo. Recording by hand still takes the project, a selfie and the current GPS.",
+      "then": "Each entry and exit is its own record and is never overwritten. A visit nobody reported leaving is closed after midnight by a separate system record, dated at the phone's last report. Without a location nothing is recorded.",
       "trouble": "GPS refusing to fix: step outside or to the gate and try again. The system will not use an inaccurate position to make the number up."
     },
     "audit_log_center": {
