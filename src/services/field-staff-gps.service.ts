@@ -38,14 +38,28 @@ export function recordFieldStaffPosition(payload: {
   );
 }
 
+/**
+ * What one automatic report decided (L8): `presence` is set only when this
+ * report itself recorded 进场 or 离开.
+ */
+export interface AutoPositionResult {
+  matched: boolean;
+  position: FieldStaffPosition | null;
+  presence?: {
+    event: "CLOCK_IN" | "CLOCK_OUT";
+    occurred_at: string;
+    project_name: string;
+  } | null;
+}
+
 export function recordAutomaticFieldStaffPosition(payload: {
   latitude: string;
   longitude: string;
   accuracy_m?: string;
   original_occurred_at: string;
   client_event_id: string;
-}): Promise<{ matched: boolean; position: FieldStaffPosition | null }> {
-  return api.post<{ matched: boolean; position: FieldStaffPosition | null }>(
+}): Promise<AutoPositionResult> {
+  return api.post<AutoPositionResult>(
     "/api/field-staff-positions/record_auto_position/",
     payload,
     { silent: true },

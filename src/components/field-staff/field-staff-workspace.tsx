@@ -24,6 +24,9 @@ import { useTranslations } from "next-intl";
 
 import { APP_VERSION } from "@/lib/app-version";
 import { useSearchParams } from "next/navigation";
+
+import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
+import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -84,8 +87,15 @@ export function FieldStaffWorkspace() {
   // tapped the notice landed on an empty "report a hazard" form instead of the
   // hazard they were asked to fix: the customer's #24.
   const requestedIncidentId = searchParams.get("incident") ?? "";
+  // 公司公告 (C18): the notice links here; the announcement opens over home.
+  const announcement = searchParams.get("announcement");
+  const clearAnnouncement = useClearSearchParam("announcement");
 
   return (
+    <>
+    {announcement && (
+      <AnnouncementDialog id={announcement} onClose={clearAnnouncement} />
+    )}
     <FieldStaffWorkspaceContent
       requestedTaskId={requestedTaskId}
       requestedTab={requestedIncidentId ? "incidents" : requestedTab}
@@ -95,6 +105,7 @@ export function FieldStaffWorkspace() {
       requestedIncidentId={requestedIncidentId}
       supplierToken={supplierToken}
     />
+    </>
   );
 }
 

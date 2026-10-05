@@ -3149,34 +3149,24 @@
     },
     "count": "{count, plural, =0 {Tiada rekod kemasukan tapak} other {# rekod kemasukan tapak}}",
     "event": {
-      "CLOCK_IN": "Daftar masuk",
-      "CLOCK_OUT": "Daftar keluar"
+      "CLOCK_IN": "Masuk",
+      "CLOCK_OUT": "Keluar"
     },
     "evidence": {
-      "accuracy": "Ketepatan GPS",
-      "distance": "Jarak",
       "event": "Acara",
-      "geofence": "Keputusan geofence",
-      "geofenceName": "Geofence dipadankan",
-      "geofenceStatus": {
-        "INSIDE": "Dalam",
-        "NOT_EVALUATED": "Belum dinilai",
-        "OUTSIDE": "Di luar"
-      },
-      "latitude": "Latitud",
-      "longitude": "Longitud",
       "noLocation": "Tiada lokasi GPS direkodkan.",
       "noPhoto": "Tiada foto dimuat naik untuk rekod ini.",
-      "notMatched": "Tiada geofence dipadankan",
       "note": "Catatan",
-      "originalAt": "Masa asal acara",
       "photoAlt": "Foto kemasukan tapak",
       "project": "Projek",
       "recordedAt": "Masa direkod",
       "title": "Butiran bukti kemasukan tapak",
       "uploadedAt": "Masa dimuat naik",
       "view": "Lihat bukti",
-      "worker": "Pekerja"
+      "worker": "Pekerja",
+      "gps": "GPS",
+      "geofenceNoPhoto": "Pagar geo, automatik (tiada foto)",
+      "systemNoPhoto": "Ditutup sistem: telefon berhenti melapor (tiada foto)"
     },
     "field": {
       "event": "Peristiwa",
@@ -3186,7 +3176,8 @@
       "photo": "Foto",
       "project": "Projek",
       "time": "Masa direkodkan",
-      "worker": "Pekerja"
+      "worker": "Pekerja",
+      "source": "Direkod oleh"
     },
     "filter": {
       "allProjects": "Semua projek",
@@ -3195,6 +3186,25 @@
     "title": "Rekod kemasukan tapak",
     "toast": {
       "recorded": "Kemasukan tapak direkodkan"
+    },
+    "eventSystemClose": "Keluar (ditutup sistem)",
+    "source": {
+      "MANUAL": "Manual",
+      "GEOFENCE": "Pagar geo, automatik",
+      "SYSTEM": "Ditutup sistem"
+    },
+    "presence": {
+      "what": "bilangan di tapak",
+      "currentTotal": "Di tapak sekarang",
+      "composition": "App {app} + pas pintu {gate}",
+      "loading": "Memuatkan…",
+      "openList": "Buka senarai kecemasan",
+      "enteredToday": "Masuk hari ini",
+      "leftToday": "Keluar hari ini",
+      "stillOnSite": "Masih di tapak",
+      "stillHint": "Masuk hari ini, belum keluar",
+      "byProject": "Mengikut projek ({count})",
+      "project": "Projek"
     }
   },
   "audit": {
@@ -5197,7 +5207,11 @@
         "DISPOSAL_REQUEST": "Pembersihan tapak",
         "FIELD_TASK": "Tugas tapak",
         "SITE_PROGRESS": "Kemajuan projek",
-        "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar"
+        "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
+        "MATERIAL_REQUEST": "MR / Permintaan Lain",
+        "EQUIPMENT_MOVEMENT": "Peralatan masuk / keluar",
+        "MATERIAL_OUTGOING": "Bahan keluar / pulangan",
+        "SUNDRY_CLAIM": "Tuntutan pelbagai"
       },
       "waitingMinutes": "menunggu {count} min",
       "waitingHours": "menunggu {count} j",
@@ -5284,7 +5298,7 @@
       "entered": "Masuk hari ini",
       "left": "Keluar hari ini",
       "irregular": "Tidak normal",
-      "irregularBreakdown": "Antaranya: {outside} di luar sempadan · {order} luar susunan · {noExit} tiada rekod keluar"
+      "irregularBreakdown": "Antaranya: {outside} di luar sempadan · {order} masuk / keluar luar susunan · {noExit} tiada rekod keluar"
     },
     "photos": {
       "empty": "Tiada foto diambil hari ini.",
@@ -5810,7 +5824,10 @@
       "confirmDone": "Sahkan selesai",
       "confirmedBy": "Disahkan oleh {name} · {value}",
       "returnedBy": "Dikembalikan oleh {name} · {value}",
-      "returnReasonShown": "Sebab: {reason}"
+      "returnReasonShown": "Sebab: {reason}",
+      "onlyOpen": "Menunjukkan tugasan belum selesai sahaja (belum disahkan atau dibatalkan).",
+      "onlyOverdue": "Menunjukkan tugasan lewat sahaja (melepasi masa tamat, belum disahkan atau dibatalkan).",
+      "openHeadOffice": "Butiran tugasan ibu pejabat"
     },
     "toast": {
       "movementSaved": "Pergerakan peralatan direkodkan",
@@ -7425,7 +7442,9 @@
       "staff": "Senarai kakitangan tapak",
       "projects": "Senarai projek",
       "accessInfo": "Projek semasa orang ini"
-    }
+    },
+    "role": "Peranan",
+    "roleHint": "Pengawal pintu mengimbas pas dan mengambil rekod foto pintu. Kedua-duanya log masuk di telefon dengan pautan ini."
   },
   "fieldDraft": {
     "loading": "Memuatkan draf yang disimpan...",
@@ -7460,8 +7479,8 @@
       "takePhoto": "Ambil foto"
     },
     "attendance": {
-      "clockIn": "Masuk kerja",
-      "clockOut": "Keluar kerja",
+      "clockIn": "Masuk manual",
+      "clockOut": "Keluar manual",
       "distance": "Jarak dari geofence: {distance} m",
       "geofence": {
         "INSIDE": "Dalam geofence",
@@ -7470,16 +7489,16 @@
       },
       "getLocation": "Dapatkan GPS semasa",
       "locationReady": "GPS sedia",
-      "noRecords": "Tiada rekod kemasukan tapak hari ini",
+      "noRecords": "Tiada rekod masuk atau keluar hari ini",
       "note": "Catatan (pilihan)",
-      "openPhoto": "Buka foto kehadiran",
+      "openPhoto": "Buka swafoto",
       "selectProject": "Pilih projek hari ini",
       "selfieReady": "Swafoto sedia",
-      "submit": "Hantar kemasukan tapak",
+      "submit": "Hantar rekod manual",
       "takeSelfie": "Ambil swafoto",
       "title": "Kemasukan tapak",
-      "todayCount": "{count} rekod kemasukan tapak hari ini",
-      "viewMap": "Lihat lokasi kehadiran"
+      "todayCount": "{count} rekod masuk / keluar hari ini",
+      "viewMap": "Lihat lokasi rekod"
     },
     "camera": {
       "starting": "Kamera masih sedang dimulakan",
@@ -7576,7 +7595,12 @@
       "requiredTitle": "Hidupkan lokasi untuk teruskan",
       "retry": "Semak lokasi sekali lagi",
       "startingBody": "Benarkan lokasi tepat supaya MSE Trace boleh mengesahkan peranti ini berada dalam geofence tapak yang ditugaskan.",
-      "startingTitle": "Lokasi diperlukan"
+      "startingTitle": "Lokasi diperlukan",
+      "noPresence": "Tanpa lokasi anda, ketibaan di tapak tidak direkod secara automatik - dan tiada lokasi lama digunakan.",
+      "presence": {
+        "entered": "Kemasukan direkod automatik: {project}",
+        "left": "Keluar direkod automatik: {project}"
+      }
     },
     "material": {
       "location": "Di mana ia berada",
@@ -7697,7 +7721,8 @@
       "title": "Rakam rekod tapak",
       "waste": "Permohonan bahan alam sekitar keluar",
       "sundry": "Tuntutan pelbagai",
-      "request": "MR / Permohonan Lain"
+      "request": "MR / Permohonan Lain",
+      "gate": "Rekod foto pintu"
     },
     "status": {
       "ACCEPTED": "Selesai",
@@ -7734,7 +7759,7 @@
     "locationAccess": {
       "why": {
         "title": "Ini memerlukan lokasi anda",
-        "body": "Penghantaran, kemasukan tapak dan rekod tapak dicap dengan tempat ia berlaku, supaya pejabat tidak perlu menelefon untuk mengesahkan anda berada di tapak. Ia dibaca sekali sahaja, ketika anda menekan butang.",
+        "body": "Semasa aplikasi dibuka, lokasi anda dibaca dari semasa ke semasa untuk merekod ketibaan dan keluar anda di tapak secara automatik, dan penghantaran serta rekod tapak dicap dengan tempat ia berlaku. Tutup aplikasi atau tolak lokasi dan tiada apa direkod - lokasi lama tidak digunakan.",
         "allow": "Benarkan lokasi",
         "later": "Bukan sekarang"
       },
@@ -7960,6 +7985,217 @@
     },
     "what": {
       "conversation": "Perbincangan pembetulan"
+    }
+  },
+  "headquarters": {
+    "banner": {
+      "label": "Syarikat dan pengguna log masuk",
+      "companyView": "Paparan ibu pejabat syarikat",
+      "projectView": "Projek: {project}",
+      "allProjectsView": "Paparan projek · semua projek",
+      "notifications": "Pemberitahuan",
+      "notificationsCount": "Pemberitahuan {count}",
+      "projectUnreadable": "(nama projek tidak dapat dimuatkan)"
+    },
+    "figures": {
+      "title": "Angka syarikat",
+      "someProjects": "Angka ini hanya meliputi projek yang ditugaskan kepada anda.",
+      "projects": "Projek",
+      "activeProjects": "{count} aktif",
+      "onSiteSplit": "App {app} + pintu {gate}",
+      "field": {
+        "today_records": "Rekod tapak hari ini",
+        "on_site_now": "Di tapak sekarang",
+        "pending_approvals": "Menunggu kelulusan",
+        "open_tasks": "Tugasan belum selesai",
+        "overdue_tasks": "Tugasan lewat",
+        "overdue_rectifications": "Pembetulan lewat",
+        "material_receipts_today": "Bahan diterima hari ini"
+      },
+      "wasteDispatches": "Pesanan sisa (kitar semula)",
+      "siteDisposals": "Pembersihan tapak",
+      "records": "Rekod",
+      "trips": "Trip",
+      "weighedKg": "Ditimbang (kg)",
+      "weightKg": "Berat (kg)",
+      "project": "Projek",
+      "value": "Bilangan",
+      "status": "Status",
+      "open": "Buka",
+      "other": "Peringkat syarikat / tiada projek",
+      "total": "Jumlah",
+      "drillHelp": "Bahagian setiap projek; baris-baris ini menjumlah kepada jumlah di atas.",
+      "todayRecordsHelp": "Rekod bertarikh hari ini: bahan masuk dan pulangan, bahan keluar, serahan peralatan, kemajuan, bahaya, penghantaran tugasan, pembersihan tapak, pesanan sisa, bahan kitar semula keluar dan rekod foto pintu. Orang di tapak dikira berasingan.",
+      "overdueHelp": "Melepasi masa tamat dan belum ditutup (tugasan ditutup apabila pengesah menerimanya; bahaya apabila disahkan).",
+      "clearanceHelp": "Semua rekod setakat ini, dikira oleh modul masing-masing dan tidak dicampur dengan jenis yang satu lagi.",
+      "nothingToday": "Tiada rekod tapak hari ini.",
+      "projectStatus": {
+        "PLANNING": "Perancangan",
+        "ACTIVE": "Aktif",
+        "SUSPENDED": "Digantung",
+        "COMPLETED": "Selesai"
+      }
+    },
+    "recordKind": {
+      "MATERIAL_RECEIPT": "Bahan masuk",
+      "DELIVERY_NOTE": "Nota penghantaran",
+      "MATERIAL_OUTGOING": "Bahan keluar",
+      "EQUIPMENT_MOVEMENT": "Pergerakan peralatan",
+      "EQUIPMENT": "Peralatan",
+      "SITE_PROGRESS": "Kemajuan",
+      "SAFETY_INCIDENT": "Bahaya",
+      "FIELD_TASK": "Tugasan tapak",
+      "DISPOSAL": "Pembersihan tapak",
+      "WASTE_DISPATCH": "Pesanan sisa",
+      "WASTE_OUTGOING": "Bahan kitar semula keluar",
+      "GATE_INCIDENT": "Rekod foto pintu"
+    },
+    "map": {
+      "title": "Peta gambaran projek",
+      "placed": "{placed} daripada {total} projek di peta",
+      "layers": "Lapisan peta",
+      "layerProjects": "Projek",
+      "layerDevices": "Peranti (belum disambung)",
+      "layerDevicesHelp": "Kedudukan peranti belum dipaparkan: pelan dan kosnya menunggu pengesahan pelanggan.",
+      "nothingPlaced": "Belum ada projek yang mempunyai koordinat. Tetapkan lokasi projek untuk meletakkannya di peta.",
+      "pickHelp": "Klik projek di peta atau dalam senarai di bawah untuk melihat keadaannya dan masuk.",
+      "legendOverdue": "Ada yang lewat",
+      "legendWaiting": "Menunggu kelulusan atau kerja",
+      "legendClear": "Tiada yang menunggu",
+      "legendInactive": "Pudar: tidak aktif",
+      "withoutLocation": "{count} projek tiada koordinat dan tidak diletakkan di peta",
+      "setLocation": "Tetapkan lokasi",
+      "enter": "Masuk projek",
+      "markerDetail": "Di tapak {onSite} · menunggu {pending} · lewat {overdue}",
+      "noPhoto": "Belum ada foto tapak",
+      "latestPhotoAlt": "Foto tapak terkini, {time}",
+      "overview": "Semua projek",
+      "noProjects": "Belum ada projek yang boleh anda lihat.",
+      "location": "Lokasi",
+      "latestPhoto": "Foto terkini",
+      "overdue": "Lewat",
+      "noCoordinates": "Tiada koordinat"
+    },
+    "photos": {
+      "title": "Foto tapak hari ini (semua projek)",
+      "shown": "Memaparkan {shown} daripada {total}",
+      "empty": "Belum ada projek yang memuat naik foto tapak hari ini.",
+      "alt": "Foto {kind}, {project}",
+      "unknownPhotographer": "Tidak direkodkan",
+      "loading": "Memuatkan…",
+      "loadMore": "Muat lagi"
+    },
+    "work": {
+      "overdue": "Pembetulan lewat ({count})",
+      "noOverdue": "Tiada pembetulan yang lewat.",
+      "daysOverdue": "Lewat {days} hari",
+      "presence": "Orang di tapak sekarang",
+      "presenceSplit": "App {app} + pintu {gate}, mengikut projek",
+      "nobodyOnSite": "Tiada sesiapa di tapak sekarang.",
+      "tabApprovals": "Menunggu kelulusan",
+      "tabOverdue": "Pembetulan lewat",
+      "allOverdue": "Semua {count} pembetulan lewat",
+      "title": "Kerja ibu pejabat",
+      "tabTasks": "Tugasan ibu pejabat",
+      "tabAnnouncements": "Pengumuman"
+    },
+    "approvals": {
+      "allProjects": "Semua projek",
+      "kinds": "Jenis perkara",
+      "allKinds": "Semua",
+      "shown": "Memaparkan {shown} daripada {total}",
+      "empty": "Tiada perkara menunggu keputusan.",
+      "companyWide": "Peringkat syarikat",
+      "opensPage": "Dibuka di halamannya sendiri",
+      "loading": "Memuatkan…",
+      "loadMore": "Muat lagi",
+      "decide": "Lulus / pulangkan"
+    },
+    "tasks": {
+      "piles": "Tugasan mana",
+      "pile": {
+        "open": "Belum selesai",
+        "done": "Selesai",
+        "overdue": "Lewat"
+      },
+      "empty": {
+        "open": "Tiada tugasan ibu pejabat yang belum selesai.",
+        "done": "Belum ada tugasan ibu pejabat yang selesai.",
+        "overdue": "Tiada tugasan ibu pejabat yang lewat."
+      },
+      "allProjects": "Semua projek",
+      "publish": "Terbitkan tugasan",
+      "shown": "Memaparkan {shown} daripada {total}",
+      "dueAt": "tamat {at}",
+      "resultShort": "Hasil: {result}",
+      "overdue": "Lewat",
+      "loading": "Memuatkan…",
+      "loadMore": "Muat lagi",
+      "publishTitle": "Terbitkan tugasan ibu pejabat",
+      "publishHelp": "Orang yang dipilih menerimanya dalam Tugasan Saya. Apabila hasilnya dihantar, anda mengesahkannya atau memulangkannya dengan sebab.",
+      "project": "Projek",
+      "chooseProject": "Pilih projek",
+      "assignee": "Orang bertanggungjawab",
+      "chooseAssignee": "Pilih ahli pasukan projek",
+      "projectPeople": "ahli projek",
+      "taskTitle": "Tugasan",
+      "content": "Apa yang perlu dibuat",
+      "due": "Tarikh akhir",
+      "cancel": "Batal",
+      "publishAction": "Terbitkan",
+      "fromHeadOffice": "Tugasan ibu pejabat",
+      "fromSite": "Tugasan tapak",
+      "status": "Status",
+      "publisher": "Diterbitkan oleh",
+      "result": "Hasil",
+      "submittedAt": "Dihantar {at}",
+      "returnedBy": "Dipulangkan oleh",
+      "confirmedBy": "Disahkan oleh",
+      "resultLabel": "Hasil",
+      "photosLabel": "Foto",
+      "optional": "pilihan",
+      "filesHelp": "Fail seperti PDF dimuat naik ke Lampiran di bawah; soalan ditulis dalam perbualan.",
+      "submit": "Hantar hasil",
+      "return": "Pulangkan",
+      "confirm": "Sahkan selesai",
+      "returnReason": "Sebab dipulangkan",
+      "returnConfirm": "Pulangkan tugasan"
+    },
+    "announcements": {
+      "loading": "Memuatkan…",
+      "loadMore": "Muat lagi",
+      "shown": "Memaparkan {shown} daripada {total}",
+      "empty": "Belum ada pengumuman.",
+      "publish": "Terbitkan pengumuman",
+      "scope": {
+        "COMPANY": "Seluruh syarikat",
+        "ALL_PROJECTS": "Semua projek",
+        "PROJECTS": "Projek tertentu"
+      },
+      "scopeProjectsNamed": "Projek: {projects}",
+      "withdrawn": "Ditarik balik",
+      "withdrawnNote": "Ditarik balik oleh {who} pada {at}. Pengumuman disimpan seperti diterbitkan.",
+      "withdraw": "Tarik balik",
+      "readCount": "Dibaca {read} / {total}",
+      "readAt": "Anda membukanya pada {at}.",
+      "unread": "Belum dibaca",
+      "readers": "Siapa yang menerimanya",
+      "readers_read": "Sudah dibaca",
+      "readers_unread": "Belum dibaca",
+      "nobody": "Tiada sesiapa.",
+      "notRead": "Belum dibaca",
+      "publishTitle": "Terbitkan pengumuman",
+      "publishHelp": "Setiap penerima mendapatnya dalam pusat pemberitahuan. Membacanya tidak menutup apa-apa tugasan.",
+      "titleLabel": "Tajuk",
+      "bodyLabel": "Pengumuman",
+      "scopeLabel": "Untuk siapa",
+      "projectsLabel": "Projek",
+      "moreProjects": "Lebih banyak projek",
+      "filesLabel": "Lampiran",
+      "optional": "pilihan",
+      "fixedHelp": "Selepas diterbitkan ia tidak boleh disunting. Untuk membetulkan, terbitkan yang baharu; yang lama boleh ditarik balik dan teksnya kekal.",
+      "cancel": "Batal",
+      "publishAction": "Terbitkan"
     }
   },
   "home": {
@@ -9177,8 +9413,8 @@
       "application_no": "No. permohonan",
       "archived_at": "Diarkibkan pada",
       "category": "Kategori",
-      "clock_ins": "Daftar masuk",
-      "clock_outs": "Daftar keluar",
+      "clock_ins": "Masuk",
+      "clock_outs": "Keluar",
       "delivery_note_no": "No. nota hantaran",
       "description": "Keterangan",
       "destination": "Destinasi",
@@ -9843,10 +10079,10 @@
       "trouble": "Pemindahan dan pinjaman mudah dikelirukan: pemindahan menukar lokasi aset sambil kekal milik syarikat; pinjaman meletakkannya di tangan seseorang dan mesti dipulangkan."
     },
     "attendance": {
-      "what": "Siapa daftar masuk di mana, dengan swafoto dan lokasi pada masa itu.",
+      "what": "Siapa masuk dan keluar tapak, di mana dan bila: direkod oleh pagar geo telefon, atau secara manual dengan swafoto.",
       "who": "Pemegang attendance.view dan project.view.",
-      "need": "Daftar masuk dari telefon memerlukan projek hari ini, swafoto dan kedudukan GPS semasa. Ketiga-tiganya.",
-      "then": "Daftar masuk dinilai terhadap pagar geo tapak dan disimpan dengan kedua-duanya.",
+      "need": "Tiada yang perlu ditekan: semasa aplikasi tapak dibuka di dalam pagar geo projek, kemasukan direkod sendiri, dan keluar apabila telefon berada di luar selama lima minit. Rekod automatik tiada foto. Rekod manual masih memerlukan projek, swafoto dan GPS semasa.",
+      "then": "Setiap kemasukan dan keluar adalah rekod sendiri dan tidak pernah ditimpa. Lawatan yang tiada laporan keluar ditutup selepas tengah malam oleh rekod sistem berasingan, bertarikh laporan terakhir telefon. Tanpa lokasi, tiada rekod.",
       "trouble": "GPS enggan mengunci: keluar ke luar atau ke pintu dan cuba lagi. Sistem tidak akan menggunakan kedudukan tidak tepat."
     },
     "audit_log_center": {
@@ -11715,6 +11951,7 @@
       "dispatcher": "Menerima pesanan, menetapkan kenderaan dan pemandu.",
       "driver": "Melihat tugas yang ditetapkan dan menghantar foto tapak.",
       "finance": "Menyelesaikan transaksi dan merekod bukti pembayaran.",
+      "gate_guard": "Mengimbas pas di pintu dan merakam apa yang berlaku di situ.",
       "platform_admin": "Akses penuh kepada setiap fungsi platform.",
       "platform_finance": "Mengurus pelan, komisen dan kutipan.",
       "platform_support": "Mengendalikan tiket dan pengumuman, membaca data pelanggan.",
@@ -11729,6 +11966,7 @@
       "dispatcher": "Penyelaras",
       "driver": "Pemandu",
       "finance": "Kewangan",
+      "gate_guard": "Pengawal Pintu",
       "platform_admin": "Pentadbir Platform",
       "platform_finance": "Kewangan",
       "platform_support": "Ejen Sokongan",
@@ -12347,7 +12585,8 @@
       "timeline": "Sejarah masuk dan keluar",
       "title": "Akses tapak",
       "unknownGate": "Pintu tidak dinyatakan",
-      "defaultsFailed": "Tetapan lalai akses tapak gagal dimuatkan. Cuba lagi dahulu."
+      "defaultsFailed": "Tetapan lalai akses tapak gagal dimuatkan. Cuba lagi dahulu.",
+      "gateRecords": "Rekod foto pintu"
     },
     "action": {
       "approve": "Luluskan",
@@ -12436,12 +12675,25 @@
       "currentCount": "Sedang di tapak",
       "durationHours": "{hours}j {minutes}m",
       "durationMinutes": "{minutes} min",
-      "empty": "Tiada pekerja, pelawat atau kenderaan direkod berada di dalam tapak terpilih.",
-      "subtitle": "Senarai langsung semua orang dengan rekod terakhir masuk dan belum direkod keluar.",
+      "empty": "Tiada sesiapa direkodkan di tapak yang dipilih sekarang.",
+      "subtitle": "Semua orang di tapak sekarang: masuk melalui pagar geo telefon, atau melalui pintu dengan pas dan belum keluar.",
       "title": "Senarai kecemasan tapak",
       "updated": "Dikemas kini secara automatik. Kemas kini terakhir: {time}",
       "useHelp": "Semak orang di tempat berkumpul, hubungi yang hilang dan eksport salinan untuk rekod insiden.",
-      "useTitle": "Gunakan semasa pemindahan"
+      "useTitle": "Gunakan semasa pemindahan",
+      "print": "Cetak",
+      "printedAt": "Dicetak {time}",
+      "composition": "{total} orang (app {app} + pas pintu {gate})",
+      "split": "App {app} + pas pintu {gate}",
+      "source": "Dikira melalui",
+      "sourceValue": {
+        "APP": "Pagar geo (app)",
+        "GATE": "Pas pintu",
+        "BOTH": "Pagar geo + pas pintu"
+      },
+      "lastReport": "Laporan terakhir {time}",
+      "stale": "Tidak melapor (terakhir {time})",
+      "noReport": "Belum ada laporan lokasi"
     },
     "field": {
       "address": "Alamat",
@@ -12662,7 +12914,7 @@
       "STANDARD": "Standard"
     },
     "settings": {
-      "attendancePhotoHelp": "Kakitangan tapak mesti mengambil swafoto untuk setiap masuk dan keluar kerja.",
+      "attendancePhotoHelp": "Kakitangan tapak mesti mengambil swafoto untuk setiap kemasukan dan keluar manual. Rekod automatik pagar geo tiada foto.",
       "gatePhotoHelp": "Petugas pintu dan pembaca yang disambung mesti memberi foto setiap masuk dan keluar.",
       "realRulesHelp": "Suis QR mengawal penciptaan permit, suis notifikasi mengawal peringatan aliran kerja dan lalai projek disalin ke projek baharu.",
       "realRulesTitle": "Tetapan ini digunakan dalam operasi sebenar.",
@@ -12718,7 +12970,10 @@
       "passRevoked": "Pas akses dibatalkan",
       "passUpdated": "Pas dikemas kini.",
       "profileSaved": "Profil syarikat disimpan",
-      "settingsSaved": "Tetapan tapak syarikat disimpan"
+      "settingsSaved": "Tetapan tapak syarikat disimpan",
+      "gateIncidentSaved": "Rekod pintu disimpan.",
+      "gatePhotosAdded": "Foto ditambah.",
+      "gateMembersAdded": "Orang diminta menyertai dan dimaklumkan."
     },
     "what": {
       "roles": "Senarai peranan",
@@ -12726,6 +12981,81 @@
       "requestedPass": "Pas dalam pautan",
       "workers": "Senarai pekerja",
       "credentials": "Kelayakan yang didaftarkan"
+    },
+    "gateCategory": {
+      "SUSPICIOUS_PERSON": "Orang mencurigakan",
+      "THEFT": "Kecurian",
+      "ABNORMAL_VEHICLE": "Kenderaan luar biasa",
+      "ITEM_REMOVAL": "Barang dibawa keluar",
+      "DISPUTE": "Pertikaian",
+      "OTHER": "Lain-lain"
+    },
+    "gateRecords": {
+      "title": "Rekod foto pintu pagar",
+      "subtitle": "Apa yang dirakam pengawal di pintu pagar: orang mencurigakan, kecurian, kenderaan luar biasa, barang dibawa keluar, pertikaian.",
+      "new": "Rekod pintu baharu",
+      "newTitle": "Rekod foto pintu baharu",
+      "newHelp": "Ambil seberapa banyak foto yang perlu. Setiap foto menyimpan masa, GPS, projek, pintu dan nama anda.",
+      "detailHelp": "Foto, orang yang diminta menyertai dan perbualan kekal pada rekod ini dan tidak boleh dipadam.",
+      "field": {
+        "project": "Projek",
+        "chooseProject": "Pilih projek",
+        "allProjects": "Semua projek",
+        "category": "Apa yang berlaku",
+        "allCategories": "Semua jenis",
+        "search": "Cari",
+        "searchPlaceholder": "No. rekod, pintu, pengawal, pas atau plat",
+        "gate": "Pintu",
+        "gatePlaceholder": "cth. Pintu utama",
+        "pass": "Pas berkaitan",
+        "passHint": "Pilihan. Biarkan sebagai rekod sendiri jika tiada pas berkaitan.",
+        "standalone": "Rekod sendiri",
+        "wholePass": "Pas itu, bukan satu kemasukan atau keluar",
+        "event": "Masuk / keluar berkaitan",
+        "description": "Apa yang dilihat",
+        "photos": "Foto",
+        "photosHint": "Sekurang-kurangnya satu. Tekan kamera lagi untuk ambil lebih.",
+        "members": "Minta orang menyertai",
+        "membersHint": "Kakitangan tapak, keselamatan atau projek bagi projek ini. Mereka dimaklumkan dan boleh membalas pada rekod ini.",
+        "guard": "Pengawal",
+        "time": "Masa"
+      },
+      "what": "rekod pintu",
+      "whatOne": "rekod pintu ini",
+      "whatPeople": "kakitangan projek ini",
+      "whatPasses": "pas projek ini",
+      "loading": "Memuatkan…",
+      "empty": "Belum ada rekod foto pintu.",
+      "count": "Memaparkan {shown} daripada {total}",
+      "loadMore": "Muat lagi",
+      "photoAlt": "Foto pintu",
+      "photoCount": "{count} foto",
+      "linkedPass": "Pas {pass} · {subject}",
+      "photoNumber": "Foto {number}",
+      "removePhoto": "Buang foto {number}",
+      "gpsShort": "GPS",
+      "noGpsShort": "Tiada GPS",
+      "locationReady": "Lokasi {latitude}, {longitude}",
+      "locationFailed": "Lokasi tidak dapat diperoleh. Foto tetap disimpan dengan tanda GPS tidak tersedia.",
+      "locating": "Mendapatkan lokasi…",
+      "retryLocation": "Cuba lokasi semula",
+      "optional": "Pilihan",
+      "takePhoto": "Ambil foto",
+      "takeAnother": "{count} diambil · ambil lagi",
+      "saveError": "Tidak dapat disimpan. Cuba lagi.",
+      "cancel": "Batal",
+      "save": "Simpan {count} foto",
+      "none": "Tidak diberi",
+      "photosTitle": "Foto ({count})",
+      "addPhotos": "Tambah foto",
+      "membersTitle": "Orang yang diminta menyertai",
+      "addMembers": "Minta orang menyertai",
+      "noMembers": "Tiada orang lain dalam projek ini boleh membuka rekod pintu.",
+      "noMembersYet": "Belum ada orang diminta menyertai.",
+      "conversationTitle": "Perbualan",
+      "conversationHelp": "Teks, foto, suara dan fail kekal pada rekod pintu ini dan tidak boleh dipadam.",
+      "gpsValue": "GPS {latitude}, {longitude}",
+      "gpsUnavailable": "GPS tidak tersedia"
     }
   },
   "siteDisposal": {

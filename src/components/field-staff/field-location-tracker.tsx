@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Loader2, LocateFixed, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { Button } from "@/components/ui/button";
@@ -92,6 +93,15 @@ export function FieldLocationTracker() {
         lastSentAt.current = now;
         setError("");
         setState("active");
+        // L8: the fence recorded 进场 or 离开 - say so once, not every report.
+        if (result.presence) {
+          toast.success(
+            t(result.presence.event === "CLOCK_IN" ? "presence.entered" : "presence.left", {
+              project: result.presence.project_name,
+            }),
+          );
+          void queryClient.invalidateQueries({ queryKey: ["field-staff", "attendance"] });
+        }
         void queryClient.invalidateQueries({ queryKey: ["field-staff-gps"] });
         if (heartbeatTimer.current !== null) {
           window.clearTimeout(heartbeatTimer.current);
@@ -224,6 +234,10 @@ export function FieldLocationTracker() {
           </Button>
         )}
         {state === "starting" && <Loader2 className="mx-auto size-6 animate-spin text-primary" />}
+        {/* D09: no position, no record - nothing is assumed or carried over. */}
+        {state !== "starting" && (
+          <p className="rounded-md bg-warning/10 px-3 py-2 text-center text-sm text-warning">{t("noPresence")}</p>
+        )}
         <p className="text-center text-xs leading-5 text-muted-foreground">{t("foregroundOnly")}</p>
       </DialogContent>
     </Dialog>

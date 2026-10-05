@@ -402,10 +402,17 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   row,
   onClose,
   fetchRecord,
+  actions,
 }: {
   row: ArchiveQueueRow<K>;
   onClose: () => void;
   fetchRecord?: (kind: K, id: string) => Promise<ArchiveQueueDetail<K>>;
+  /**
+   * The record's own decision buttons, from the module that owns them - the
+   * 总部 approval list (C16) opens a record here and decides it with the
+   * module's own approve / return, not a copy.
+   */
+  actions?: React.ReactNode;
 }) {
   const t = useTranslations();
   const queryClient = useQueryClient();
@@ -496,6 +503,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
         </header>
 
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
+          {actions}
           {detail.isLoading ? (
             <p className="text-sm text-muted-foreground">
               {t("archiveQueue.loading")}

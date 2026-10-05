@@ -236,10 +236,26 @@ export interface SiteAccessPassPayload {
   valid_until: string;
 }
 
+/**
+ * One person on the 紧急在场名单 (C21). `APP`: in by the phone's fence; `GATE`:
+ * in through the gate on a pass; `BOTH`: the pass's own account is also in
+ * by the phone, so it is one row, not two.
+ */
+export type EmergencySource = "APP" | "GATE" | "BOTH";
+
+export interface EmergencyList {
+  count: number;
+  app_count: number;
+  gate_count: number;
+  people: EmergencyPresence[];
+}
+
 export interface EmergencyPresence {
-  event_id: string;
-  pass_id: string;
+  source: EmergencySource;
+  event_id: string | null;
+  pass_id: string | null;
   pass_no: string;
+  user_id: string | null;
   project_id: string;
   project_name: string;
   subject_type: AccessSubjectType;
@@ -251,6 +267,8 @@ export interface EmergencyPresence {
   gate_name: string;
   minutes_on_site: number;
   last_updated_at: string;
+  last_report_at: string | null;
+  stale: boolean;
 }
 
 export interface ThirdPartyAccessEvent {
@@ -275,4 +293,109 @@ export interface ThirdPartyAccessEvent {
   verification_result: string;
   reason_code: string;
   payload_sha256: string;
+}
+
+/** What a guard photographed at the gate (C22). */
+export type GateIncidentCategory =
+  | "SUSPICIOUS_PERSON"
+  | "THEFT"
+  | "ABNORMAL_VEHICLE"
+  | "ITEM_REMOVAL"
+  | "DISPUTE"
+  | "OTHER";
+
+export const GATE_INCIDENT_CATEGORIES: readonly GateIncidentCategory[] = [
+  "SUSPICIOUS_PERSON",
+  "THEFT",
+  "ABNORMAL_VEHICLE",
+  "ITEM_REMOVAL",
+  "DISPUTE",
+  "OTHER",
+];
+
+/** One photo, carrying its own project, gate, guard, time and GPS. */
+export interface GatePhoto {
+  id: string;
+  image: string;
+  watermarked_image: string | null;
+  gate_name: string;
+  guard: string;
+  guard_name: string;
+  captured_at: string;
+  uploaded_at: string;
+  latitude: string | null;
+  longitude: string | null;
+  accuracy_m: string | null;
+  client_event_id: string;
+  created_at: string;
+}
+
+export interface GateIncidentMember {
+  id: string;
+  user: string;
+  full_name: string;
+  role_name: string;
+  added_by_name: string | null;
+  created_at: string;
+}
+
+export interface GateIncident {
+  id: string;
+  incident_no: string;
+  project: string;
+  project_name: string;
+  category: GateIncidentCategory;
+  gate_name: string;
+  description: string;
+  guard: string;
+  guard_name: string;
+  occurred_at: string;
+  latitude: string | null;
+  longitude: string | null;
+  accuracy_m: string | null;
+  access_pass: string | null;
+  pass_no: string | null;
+  pass_subject_name: string | null;
+  access_event: string | null;
+  access_event_direction: AccessDirection | null;
+  access_event_at: string | null;
+  photo_count: number;
+  cover_photo: string | null;
+  created_at: string;
+}
+
+export interface GateIncidentDetail extends GateIncident {
+  photos: GatePhoto[];
+  members: GateIncidentMember[];
+}
+
+export interface GateMemberOption {
+  id: string;
+  full_name: string;
+  role_name: string;
+}
+
+/** A photo as the phone took it: when, and where if it knew. */
+export interface GatePhotoDraft {
+  file: File;
+  captured_at: string;
+  latitude?: string;
+  longitude?: string;
+  accuracy_m?: string;
+  client_event_id: string;
+}
+
+export interface GateIncidentPayload {
+  project: string;
+  category: GateIncidentCategory;
+  gate_name: string;
+  description: string;
+  access_pass?: string;
+  access_event?: string;
+  members: string[];
+  latitude?: string;
+  longitude?: string;
+  accuracy_m?: string;
+  client_event_id: string;
+  photos: GatePhotoDraft[];
 }

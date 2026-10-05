@@ -43,6 +43,8 @@ export interface Branding {
   company_id: string | null;
   company_name: string | null;
   company_logo_url: string | null;
+  /** 公司资料's background image (C12); none set means no picture. */
+  company_background_url?: string | null;
   platform_icon_url: string | null;
   icon_url: string | null;
   revision: string | null;

@@ -115,9 +115,14 @@ const APPROVAL_QUEUES: Record<string, string> = {
   FIELD_TASK: "/field-tasks",
   SITE_PROGRESS: "/progress",
   CONSULTANT_APPLICATION: "/consultant-applications",
+  // The four queues C16 added.
+  MATERIAL_REQUEST: "/material-requests",
+  EQUIPMENT_MOVEMENT: "/site-equipment",
+  MATERIAL_OUTGOING: "/material-outgoing",
+  SUNDRY_CLAIM: "/sundry-claims",
 };
 
-function approvalHref(row: ApprovalRow): string {
+export function approvalHref(row: ApprovalRow): string {
   const own = APPROVAL_QUEUES[row.source];
   return own ?? `/approvals?approval=${row.id}`;
 }
@@ -141,14 +146,24 @@ function useRecordStatus(): (status: string) => string {
   };
 }
 
-export function ContractorDashboard() {
+/**
+ * The 项目 Dashboard (C11): one project's day - or every project's, when none
+ * is chosen. The project is the page's, read from and written to its URL, so a
+ * link from the 公司总部 Dashboard lands on the project it names.
+ */
+export function ContractorDashboard({
+  project,
+  onProjectChange: setProject,
+}: {
+  project: string;
+  onProjectChange: (project: string) => void;
+}) {
   const recordStatus = useRecordStatus();
   const t = useTranslations("contractorDashboard");
   const categories = useTranslations("categoryManagement");
   const format = useFormatter();
   const df = useDateFormat();
   const { can } = useAuth();
-  const [project, setProject] = useState("");
 
   // The full payload. Not polled: the slow sections live here.
   const full = useQuery({
@@ -1202,7 +1217,7 @@ function ExportButtons({ project }: { project: string }) {
  * timestamp: the point of measuring it there was that two devices with
  * different clocks must not give two answers (T-185).
  */
-function WaitingFor({ seconds }: { seconds: number }) {
+export function WaitingFor({ seconds }: { seconds: number }) {
   const t = useTranslations("contractorDashboard");
   const minutes = Math.max(0, Math.floor(seconds / 60));
   if (minutes < 60) {

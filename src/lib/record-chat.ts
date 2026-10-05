@@ -27,17 +27,31 @@ export const DISCUSSABLE_KINDS: readonly ChatRecordKind[] = [
   // MR / Other Request (C05). Talks, but is not an archive-queue kind: it
   // ends by being approved or returned, not by 【确认归档】.
   "MATERIAL_REQUEST",
+  // 门岗事项 (C22): the guard and the people they ask in talk on the gate
+  // record itself. Not an archive-queue kind either, and never closes.
+  "GATE_INCIDENT",
+  // 总部任务 (C17): head office and the assignee talk on the task itself.
+  // Not an archive-queue kind; a task closes by being confirmed (B18).
+  "FIELD_TASK",
 ];
 
 /**
  * Every kind that can carry a conversation: the archive queue's, plus a
- * material request, which has its own history screen instead of the queue.
+ * material request and a gate record, which have screens of their own
+ * instead of the queue.
  */
-export type ChatRecordKind = ArchiveRecordKind | "MATERIAL_REQUEST";
+export type ChatRecordKind =
+  | ArchiveRecordKind
+  | "MATERIAL_REQUEST"
+  | "GATE_INCIDENT"
+  | "FIELD_TASK";
 
 /** The chat kinds that are also archive-queue kinds. */
 const ARCHIVE_CHAT_KINDS = DISCUSSABLE_KINDS.filter(
-  (kind): kind is ArchiveRecordKind => kind !== "MATERIAL_REQUEST",
+  (kind): kind is ArchiveRecordKind =>
+    kind !== "MATERIAL_REQUEST" &&
+    kind !== "GATE_INCIDENT" &&
+    kind !== "FIELD_TASK",
 );
 
 /**

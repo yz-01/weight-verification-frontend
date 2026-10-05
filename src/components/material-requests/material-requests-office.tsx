@@ -499,7 +499,7 @@ function TotalsTab({ onOpenGroup }: { onOpenGroup: (filters: Record<string, stri
   );
 }
 
-function MaterialRequestDetail({
+export function MaterialRequestDetail({
   id,
   onClose,
   onRaiseAgain,

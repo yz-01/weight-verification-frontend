@@ -69,6 +69,16 @@ const NO_VARIANT_AVAILABLE = new Map([
     "src/components/dashboard/contractor-dashboard.tsx",
     "PhotoRow.image is already the watermarked derivative, not the original",
   ],
+  // The 公司总部 Dashboard (C14, C15) reads the same EvidenceAsset ledger
+  // through `watermarked_url_for_asset` (contractor_ops/headquarters.py).
+  [
+    "src/components/dashboard/headquarters-map.tsx",
+    "HeadquartersPhoto.image is already the watermarked derivative, not the original",
+  ],
+  [
+    "src/components/dashboard/headquarters-photos.tsx",
+    "HeadquartersPhoto.image is already the watermarked derivative, not the original",
+  ],
 ]);
 
 /** An image source that reads a record's photo field. */
