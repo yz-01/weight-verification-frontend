@@ -5214,8 +5214,8 @@
       "waitingDays": "已等待 {count} 天"
     },
     "attendanceEvent": {
-      "CLOCK_IN": "上班打卡",
-      "CLOCK_OUT": "下班打卡"
+      "CLOCK_IN": "进场",
+      "CLOCK_OUT": "离开"
     },
     "error": "看板加载失败，请稍后重试。",
     "export": {
@@ -5294,7 +5294,7 @@
       "entered": "今日进场",
       "left": "今日离场",
       "irregular": "异常进出",
-      "irregularBreakdown": "其中：超出围栏 {outside} · 打卡顺序异常 {order} · 未打下班卡 {noExit}"
+      "irregularBreakdown": "其中：超出围栏 {outside} · 进出顺序异常 {order} · 未记录离开 {noExit}"
     },
     "photos": {
       "empty": "今天没有拍摄照片。",
@@ -7472,8 +7472,8 @@
       "takePhoto": "拍照"
     },
     "attendance": {
-      "clockIn": "上班打卡",
-      "clockOut": "下班打卡",
+      "clockIn": "手动进场",
+      "clockOut": "手动离开",
       "distance": "距离围栏：{distance} 米",
       "geofence": {
         "INSIDE": "围栏范围内",
@@ -7482,16 +7482,16 @@
       },
       "getLocation": "获取当前 GPS",
       "locationReady": "GPS 已准备",
-      "noRecords": "今天还没有打卡记录",
+      "noRecords": "今天还没有进场 / 离开记录",
       "note": "备注（选填）",
-      "openPhoto": "查看打卡照片",
+      "openPhoto": "查看自拍照片",
       "selectProject": "选择今天的项目",
       "selfieReady": "自拍照已准备",
-      "submit": "提交打卡",
+      "submit": "提交手动记录",
       "takeSelfie": "拍摄自拍照",
       "title": "人员进场",
-      "todayCount": "今天已有 {count} 条打卡记录",
-      "viewMap": "查看打卡位置"
+      "todayCount": "今天已有 {count} 条进场 / 离开记录",
+      "viewMap": "查看记录位置"
     },
     "camera": {
       "starting": "相机还在启动",
@@ -9195,8 +9195,8 @@
       "application_no": "申请编号",
       "archived_at": "归档时间",
       "category": "分类",
-      "clock_ins": "上班打卡",
-      "clock_outs": "下班打卡",
+      "clock_ins": "进场",
+      "clock_outs": "离开",
       "delivery_note_no": "送货单号",
       "description": "说明",
       "destination": "去向",
@@ -12696,7 +12696,7 @@
       "STANDARD": "标准"
     },
     "settings": {
-      "attendancePhotoHelp": "工地人员每次上班和下班打卡都必须自拍。",
+      "attendancePhotoHelp": "工地人员每次手动进场和离开都必须自拍。电子围栏自动记录的没有照片。",
       "gatePhotoHelp": "门岗人员和已连接设备每次进出都必须提供照片。",
       "realRulesHelp": "二维码开关会控制许可证建立，通知开关会控制流程提醒，项目默认值会复制到新项目。",
       "realRulesTitle": "这些设置会真正影响业务。",

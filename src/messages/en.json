@@ -5214,8 +5214,8 @@
       "waitingDays": "waiting {count} d"
     },
     "attendanceEvent": {
-      "CLOCK_IN": "Clock in",
-      "CLOCK_OUT": "Clock out"
+      "CLOCK_IN": "Entry",
+      "CLOCK_OUT": "Exit"
     },
     "error": "The dashboard could not be loaded. Try again shortly.",
     "export": {
@@ -5294,7 +5294,7 @@
       "entered": "In today",
       "left": "Out today",
       "irregular": "Irregular",
-      "irregularBreakdown": "Of those: {outside} outside the fence · {order} out of order · {noExit} never clocked out"
+      "irregularBreakdown": "Of those: {outside} outside the fence · {order} entries and exits out of order · {noExit} no exit recorded"
     },
     "photos": {
       "empty": "No photos captured today.",
@@ -7472,8 +7472,8 @@
       "takePhoto": "Take photo"
     },
     "attendance": {
-      "clockIn": "Clock in",
-      "clockOut": "Clock out",
+      "clockIn": "Manual entry",
+      "clockOut": "Manual exit",
       "distance": "Distance from geofence: {distance} m",
       "geofence": {
         "INSIDE": "Inside geofence",
@@ -7482,16 +7482,16 @@
       },
       "getLocation": "Get current GPS",
       "locationReady": "GPS ready",
-      "noRecords": "No site entry record today",
+      "noRecords": "No entry or exit recorded today",
       "note": "Note (optional)",
-      "openPhoto": "Open check-in photo",
+      "openPhoto": "Open the selfie",
       "selectProject": "Select today's project",
       "selfieReady": "Selfie ready",
-      "submit": "Submit site entry",
+      "submit": "Submit manual record",
       "takeSelfie": "Take a selfie",
       "title": "Site entry",
-      "todayCount": "{count, plural, =0 {No check-in today} one {# site entry record today} other {# site entry records today}}",
-      "viewMap": "View check-in location"
+      "todayCount": "{count, plural, =0 {No entry or exit today} one {# entry or exit record today} other {# entry and exit records today}}",
+      "viewMap": "View where it was recorded"
     },
     "camera": {
       "starting": "The camera is still starting up",
@@ -9195,8 +9195,8 @@
       "application_no": "Application no.",
       "archived_at": "Archived at",
       "category": "Category",
-      "clock_ins": "Clock-ins",
-      "clock_outs": "Clock-outs",
+      "clock_ins": "Entries",
+      "clock_outs": "Exits",
       "delivery_note_no": "Delivery order no.",
       "description": "Description",
       "destination": "Destination",
@@ -12696,7 +12696,7 @@
       "STANDARD": "Standard"
     },
     "settings": {
-      "attendancePhotoHelp": "Field Staff must take a selfie for every clock-in and clock-out.",
+      "attendancePhotoHelp": "Field Staff must take a selfie for every manual entry and exit. Entries the geofence records have no photo.",
       "gatePhotoHelp": "Gate staff and connected readers must provide a photo for every entry and exit.",
       "realRulesHelp": "QR switches affect permit creation, notification switches affect workflow alerts, and project defaults are copied into each new project.",
       "realRulesTitle": "These settings are operational.",

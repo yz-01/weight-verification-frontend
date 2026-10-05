@@ -5294,7 +5294,7 @@
       "entered": "Masuk hari ini",
       "left": "Keluar hari ini",
       "irregular": "Tidak normal",
-      "irregularBreakdown": "Antaranya: {outside} di luar sempadan · {order} luar susunan · {noExit} tiada rekod keluar"
+      "irregularBreakdown": "Antaranya: {outside} di luar sempadan · {order} masuk / keluar luar susunan · {noExit} tiada rekod keluar"
     },
     "photos": {
       "empty": "Tiada foto diambil hari ini.",
@@ -7472,8 +7472,8 @@
       "takePhoto": "Ambil foto"
     },
     "attendance": {
-      "clockIn": "Masuk kerja",
-      "clockOut": "Keluar kerja",
+      "clockIn": "Masuk manual",
+      "clockOut": "Keluar manual",
       "distance": "Jarak dari geofence: {distance} m",
       "geofence": {
         "INSIDE": "Dalam geofence",
@@ -7482,16 +7482,16 @@
       },
       "getLocation": "Dapatkan GPS semasa",
       "locationReady": "GPS sedia",
-      "noRecords": "Tiada rekod kemasukan tapak hari ini",
+      "noRecords": "Tiada rekod masuk atau keluar hari ini",
       "note": "Catatan (pilihan)",
-      "openPhoto": "Buka foto kehadiran",
+      "openPhoto": "Buka swafoto",
       "selectProject": "Pilih projek hari ini",
       "selfieReady": "Swafoto sedia",
-      "submit": "Hantar kemasukan tapak",
+      "submit": "Hantar rekod manual",
       "takeSelfie": "Ambil swafoto",
       "title": "Kemasukan tapak",
-      "todayCount": "{count} rekod kemasukan tapak hari ini",
-      "viewMap": "Lihat lokasi kehadiran"
+      "todayCount": "{count} rekod masuk / keluar hari ini",
+      "viewMap": "Lihat lokasi rekod"
     },
     "camera": {
       "starting": "Kamera masih sedang dimulakan",
@@ -9195,8 +9195,8 @@
       "application_no": "No. permohonan",
       "archived_at": "Diarkibkan pada",
       "category": "Kategori",
-      "clock_ins": "Daftar masuk",
-      "clock_outs": "Daftar keluar",
+      "clock_ins": "Masuk",
+      "clock_outs": "Keluar",
       "delivery_note_no": "No. nota hantaran",
       "description": "Keterangan",
       "destination": "Destinasi",
@@ -12696,7 +12696,7 @@
       "STANDARD": "Standard"
     },
     "settings": {
-      "attendancePhotoHelp": "Kakitangan tapak mesti mengambil swafoto untuk setiap masuk dan keluar kerja.",
+      "attendancePhotoHelp": "Kakitangan tapak mesti mengambil swafoto untuk setiap kemasukan dan keluar manual. Rekod automatik pagar geo tiada foto.",
       "gatePhotoHelp": "Petugas pintu dan pembaca yang disambung mesti memberi foto setiap masuk dan keluar.",
       "realRulesHelp": "Suis QR mengawal penciptaan permit, suis notifikasi mengawal peringatan aliran kerja dan lalai projek disalin ke projek baharu.",
       "realRulesTitle": "Tetapan ini digunakan dalam operasi sebenar.",
