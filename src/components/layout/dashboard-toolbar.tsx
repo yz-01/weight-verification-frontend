@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { GlobalModuleSearch } from "@/components/layout/global-module-search";
 import { PageSwitcher } from "@/components/layout/page-switcher";
+import { usePageTitleOverride } from "@/components/layout/page-title-override";
 import { NotificationButton } from "@/components/notifications/notification-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -79,9 +80,11 @@ function PageTitle({
   current: NonNullable<ReturnType<typeof useCurrentNav>>;
 }) {
   const t = useTranslations();
+  // The page's own, more precise name wins over its menu entry's (B14).
+  const override = usePageTitleOverride();
   const Icon = current.item.icon;
   const entry = t(`nav.${current.item.labelKey}`);
-  const page = current.leaf ? t(current.leaf.labelKey) : null;
+  const page = override ?? (current.leaf ? t(current.leaf.labelKey) : null);
   const showPage = page !== null && page !== entry;
   return (
     <div className="flex min-w-0 shrink items-center gap-2 text-sm">

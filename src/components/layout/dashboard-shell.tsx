@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardToolbar } from "@/components/layout/dashboard-toolbar";
+import { PageTitleOverrideProvider } from "@/components/layout/page-title-override";
 import {
   TaskCardDockProvider,
   TaskCardDockSlot,
@@ -117,10 +118,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset className="h-dvh min-w-0 overflow-hidden">
-          <DashboardToolbar />
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-5">
-            {children}
-          </div>
+          {/* A page may name itself more precisely than its menu entry (B14). */}
+          <PageTitleOverrideProvider>
+            <DashboardToolbar />
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 lg:px-6 lg:py-5">
+              {children}
+            </div>
+          </PageTitleOverrideProvider>
           {/* The task cards, in the layout rather than over it (B01). */}
           <TaskCardDockSlot />
         </SidebarInset>

@@ -4117,7 +4117,8 @@
     "unknownError": "Ada masalah. Sila cuba lagi.",
     "view": "Lihat",
     "exportThisRecord": "Eksport rekod ini",
-    "previewThisRecord": "Pratonton / cetak"
+    "previewThisRecord": "Pratonton / cetak",
+    "alreadyLastPage": "Sudah di halaman terakhir"
   },
   "companies": {
     "owner": {
@@ -8755,7 +8756,7 @@
       "unitNote": "Kuantiti kekal dikumpulkan mengikut unit; tan, unit dan muatan tidak dicampurkan."
     },
     "records": {
-      "title": "Penghantaran dan foto ({shown} daripada {total})",
+      "title": "Butiran penghantaran ({total})",
       "what": "penghantaran di sebalik laporan ini",
       "photos": "Foto",
       "open": "Lihat",
@@ -9807,7 +9808,9 @@
       "consultantSettings": "Tetapan perunding",
       "sundryClaims": "Tuntutan pelbagai",
       "materialReports": "Laporan bahan",
-      "wasteClearance": "Pembersihan sisa"
+      "wasteClearance": "Pembersihan sisa",
+      "equipmentEntry": "Peralatan masuk",
+      "equipmentExit": "Peralatan keluar"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -13686,7 +13689,9 @@
       "qrActive": "QR aktif",
       "qrCodeCount": "Nota hantar",
       "registrationNo": "No. pendaftaran",
-      "state": "Negeri"
+      "state": "Negeri",
+      "industry": "Industri",
+      "mainProducts": "Produk utama"
     },
     "new": "Pembekal baharu",
     "qr": {
@@ -13741,6 +13746,13 @@
     },
     "what": {
       "sites": "Senarai tapak"
+    },
+    "placeholder": {
+      "industry": "cth. Keluli, konkrit, perkakasan",
+      "mainProducts": "cth. Bar keluli, jaring BRC, dawai pengikat"
+    },
+    "hint": {
+      "profileMissing": "Pembekal ini ditambah sebelum industri dan produk utama direkodkan. Isikan untuk menyimpan."
     }
   },
   "support": {

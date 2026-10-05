@@ -96,6 +96,32 @@ export function Suppliers() {
         ),
       },
       {
+        // 「行业」 over 「主要产品」 in one column (A3): what the supplier is and
+        // what it sells, read together when choosing who to call.
+        accessorKey: "industry",
+        meta: { label: t("suppliers.field.industry") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("suppliers.field.industry")}
+          </span>
+        ),
+        cell: ({ row }) => (
+          <div className="min-w-0 max-w-[260px]">
+            <p className="truncate" title={row.original.industry || undefined}>
+              {row.original.industry || t("common.emptyValue")}
+            </p>
+            {row.original.main_products && (
+              <p
+                className="truncate text-xs text-muted-foreground"
+                title={row.original.main_products}
+              >
+                {row.original.main_products}
+              </p>
+            )}
+          </div>
+        ),
+      },
+      {
         accessorKey: "contact_person",
         meta: { label: t("suppliers.field.contactPerson") },
         header: () => (
@@ -221,6 +247,8 @@ export function Suppliers() {
       columns: [
         { key: "code", label: t("suppliers.field.code") },
         { key: "name", label: t("suppliers.field.name") },
+        { key: "industry", label: t("suppliers.field.industry") },
+        { key: "main_products", label: t("suppliers.field.mainProducts") },
         { key: "contact_person", label: t("suppliers.field.contactPerson") },
         { key: "contact_phone", label: t("suppliers.field.contactPhone") },
         { key: "contact_email", label: t("suppliers.field.contactEmail") },

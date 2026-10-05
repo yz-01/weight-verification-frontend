@@ -213,6 +213,30 @@ describe("the names that are meant to differ still do", () => {
     }
   });
 
+  /**
+   * The equipment page names the direction it is filtered to (B14): the
+   * module is 「设备进退场」, a list of exits is 「设备退场」. Each is the
+   * module's own word for that direction - the same 进场 / 退场 the list's
+   * direction column and filter show - so the title and the rows agree.
+   */
+  it("names the equipment page after the direction it shows", () => {
+    for (const locale of LOCALES) {
+      const catalogue = messages(locale);
+      const moduleName = at(catalogue, "nav.submodule.siteEquipment");
+      const entry = at(catalogue, "nav.submodule.equipmentEntry");
+      const exit = at(catalogue, "nav.submodule.equipmentExit");
+      expect(entry, `${locale}: equipmentEntry`).toBeTypeOf("string");
+      expect(exit, `${locale}: equipmentExit`).toBeTypeOf("string");
+      expect(new Set([moduleName, entry, exit]).size).toBe(3);
+      const word = (direction: "ENTRY" | "EXIT") =>
+        String(at(catalogue, `contractorOps.direction.${direction}`)).toLowerCase();
+      expect(String(entry).toLowerCase()).toContain(word("ENTRY"));
+      expect(String(exit).toLowerCase()).toContain(word("EXIT"));
+    }
+    expect(at(messages("zh"), "nav.submodule.equipmentEntry")).toBe("设备进场");
+    expect(at(messages("zh"), "nav.submodule.equipmentExit")).toBe("设备退场");
+  });
+
   it("gives every module a name of its own", () => {
     for (const locale of LOCALES) {
       const catalogue = messages(locale);
