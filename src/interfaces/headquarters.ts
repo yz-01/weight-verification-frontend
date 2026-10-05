@@ -141,3 +141,35 @@ export interface ApprovalQueuePage {
   results: ApprovalRow[];
   by_source: Partial<Record<ApprovalSource, number>>;
 }
+
+/** 公司公告 (C18): who it is for. */
+export type AnnouncementScope = "COMPANY" | "ALL_PROJECTS" | "PROJECTS";
+
+export interface CompanyAnnouncement {
+  id: string;
+  title: string;
+  body: string;
+  scope: AnnouncementScope;
+  project_names: string[];
+  published_at: string;
+  published_by: string;
+  published_by_name: string;
+  /** Set when withdrawn; the words stay as published. */
+  withdrawn_at: string | null;
+  withdrawn_by_name: string | null;
+  attachments: Array<{ id: string; original_name: string; size_bytes: number; url: string }>;
+  /** Fixed at publishing: 共 y. */
+  recipient_count: number | null;
+  read_count: number | null;
+  is_recipient: boolean;
+  /** This reader's first opening, or null. */
+  my_read_at: string | null;
+}
+
+export interface AnnouncementReader {
+  id: string;
+  user: string;
+  full_name: string;
+  role_name: string;
+  read_at: string | null;
+}

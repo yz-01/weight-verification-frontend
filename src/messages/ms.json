@@ -8096,7 +8096,8 @@
       "tabOverdue": "Pembetulan lewat",
       "allOverdue": "Semua {count} pembetulan lewat",
       "title": "Kerja ibu pejabat",
-      "tabTasks": "Tugasan ibu pejabat"
+      "tabTasks": "Tugasan ibu pejabat",
+      "tabAnnouncements": "Pengumuman"
     },
     "approvals": {
       "allProjects": "Semua projek",
@@ -8159,6 +8160,42 @@
       "confirm": "Sahkan selesai",
       "returnReason": "Sebab dipulangkan",
       "returnConfirm": "Pulangkan tugasan"
+    },
+    "announcements": {
+      "loading": "Memuatkan…",
+      "loadMore": "Muat lagi",
+      "shown": "Memaparkan {shown} daripada {total}",
+      "empty": "Belum ada pengumuman.",
+      "publish": "Terbitkan pengumuman",
+      "scope": {
+        "COMPANY": "Seluruh syarikat",
+        "ALL_PROJECTS": "Semua projek",
+        "PROJECTS": "Projek tertentu"
+      },
+      "scopeProjectsNamed": "Projek: {projects}",
+      "withdrawn": "Ditarik balik",
+      "withdrawnNote": "Ditarik balik oleh {who} pada {at}. Pengumuman disimpan seperti diterbitkan.",
+      "withdraw": "Tarik balik",
+      "readCount": "Dibaca {read} / {total}",
+      "readAt": "Anda membukanya pada {at}.",
+      "unread": "Belum dibaca",
+      "readers": "Siapa yang menerimanya",
+      "readers_read": "Sudah dibaca",
+      "readers_unread": "Belum dibaca",
+      "nobody": "Tiada sesiapa.",
+      "notRead": "Belum dibaca",
+      "publishTitle": "Terbitkan pengumuman",
+      "publishHelp": "Setiap penerima mendapatnya dalam pusat pemberitahuan. Membacanya tidak menutup apa-apa tugasan.",
+      "titleLabel": "Tajuk",
+      "bodyLabel": "Pengumuman",
+      "scopeLabel": "Untuk siapa",
+      "projectsLabel": "Projek",
+      "moreProjects": "Lebih banyak projek",
+      "filesLabel": "Lampiran",
+      "optional": "pilihan",
+      "fixedHelp": "Selepas diterbitkan ia tidak boleh disunting. Untuk membetulkan, terbitkan yang baharu; yang lama boleh ditarik balik dan teksnya kekal.",
+      "cancel": "Batal",
+      "publishAction": "Terbitkan"
     }
   },
   "home": {

@@ -8096,7 +8096,8 @@
       "tabOverdue": "逾期整改",
       "allOverdue": "查看全部 {count} 件逾期整改",
       "title": "总部工作",
-      "tabTasks": "总部任务"
+      "tabTasks": "总部任务",
+      "tabAnnouncements": "公告"
     },
     "approvals": {
       "allProjects": "全部项目",
@@ -8159,6 +8160,42 @@
       "confirm": "确认完成",
       "returnReason": "退回原因",
       "returnConfirm": "退回任务"
+    },
+    "announcements": {
+      "loading": "载入中…",
+      "loadMore": "载入更多",
+      "shown": "显示 {shown} / 共 {total} 则",
+      "empty": "还没有公告。",
+      "publish": "发布公告",
+      "scope": {
+        "COMPANY": "全公司",
+        "ALL_PROJECTS": "全部项目",
+        "PROJECTS": "指定项目"
+      },
+      "scopeProjectsNamed": "项目：{projects}",
+      "withdrawn": "已撤回",
+      "withdrawnNote": "已于 {at} 由 {who} 撤回。公告原文保留不变。",
+      "withdraw": "撤回",
+      "readCount": "已读 {read} / 共 {total}",
+      "readAt": "你于 {at} 打开过这则公告。",
+      "unread": "未读",
+      "readers": "阅读情况",
+      "readers_read": "已读",
+      "readers_unread": "未读",
+      "nobody": "没有人。",
+      "notRead": "未读",
+      "publishTitle": "发布公告",
+      "publishHelp": "公告会进入对象的通知中心。读公告不会消除任何待办事项。",
+      "titleLabel": "标题",
+      "bodyLabel": "公告内容",
+      "scopeLabel": "发布范围",
+      "projectsLabel": "项目",
+      "moreProjects": "更多项目",
+      "filesLabel": "附件",
+      "optional": "选填",
+      "fixedHelp": "发布后不能修改。要更正请发布新公告；旧公告可以撤回，原文会保留。",
+      "cancel": "取消",
+      "publishAction": "发布"
     }
   },
   "home": {

@@ -8096,7 +8096,8 @@
       "tabOverdue": "Overdue rectifications",
       "allOverdue": "All {count} overdue rectifications",
       "title": "Head office work",
-      "tabTasks": "Head-office tasks"
+      "tabTasks": "Head-office tasks",
+      "tabAnnouncements": "Announcements"
     },
     "approvals": {
       "allProjects": "All projects",
@@ -8159,6 +8160,42 @@
       "confirm": "Confirm complete",
       "returnReason": "Why it is being returned",
       "returnConfirm": "Return the task"
+    },
+    "announcements": {
+      "loading": "Loading…",
+      "loadMore": "Load more",
+      "shown": "Showing {shown} of {total}",
+      "empty": "No announcements yet.",
+      "publish": "Publish announcement",
+      "scope": {
+        "COMPANY": "Whole company",
+        "ALL_PROJECTS": "All projects",
+        "PROJECTS": "Named projects"
+      },
+      "scopeProjectsNamed": "Projects: {projects}",
+      "withdrawn": "Withdrawn",
+      "withdrawnNote": "Withdrawn by {who} on {at}. The announcement is kept as it was published.",
+      "withdraw": "Withdraw",
+      "readCount": "Read {read} / {total}",
+      "readAt": "You opened this on {at}.",
+      "unread": "Not read",
+      "readers": "Who it reached",
+      "readers_read": "Read",
+      "readers_unread": "Not yet read",
+      "nobody": "Nobody here.",
+      "notRead": "Not read",
+      "publishTitle": "Publish an announcement",
+      "publishHelp": "Everyone it is for gets it in their notification centre. Reading it does not clear any task.",
+      "titleLabel": "Title",
+      "bodyLabel": "Announcement",
+      "scopeLabel": "Who it is for",
+      "projectsLabel": "Projects",
+      "moreProjects": "More projects",
+      "filesLabel": "Attachments",
+      "optional": "optional",
+      "fixedHelp": "Once published it cannot be edited. To correct it, publish a new one; you can withdraw the old one, which keeps its text.",
+      "cancel": "Cancel",
+      "publishAction": "Publish"
     }
   },
   "home": {
