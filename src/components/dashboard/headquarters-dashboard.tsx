@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
@@ -27,10 +27,10 @@ import { getHeadquarters } from "@/services/contractor-dashboard.service";
  */
 export function HeadquartersHome() {
   const router = useRouter();
-  const target =
-    typeof window === "undefined"
-      ? null
-      : legacyDashboardTarget(window.location.search);
+  // From the router rather than `window.location`, so the server and the
+  // first client render agree; the move itself happens after mount.
+  const searchParams = useSearchParams();
+  const target = legacyDashboardTarget(searchParams.toString());
   useEffect(() => {
     if (target) router.replace(`${target}${window.location.hash}`);
   }, [router, target]);
