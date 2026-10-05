@@ -73,7 +73,7 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Tile
           label={t("projects")}
           value={format.number(totals.projects)}
@@ -152,7 +152,7 @@ function Tile({
       )}
     >
       <span className="flex items-center justify-between gap-2">
-        <span className="truncate text-xs font-medium text-muted-foreground">{label}</span>
+        <span className="line-clamp-2 text-xs font-medium text-muted-foreground">{label}</span>
         <Icon className={cn("size-4 shrink-0 text-muted-foreground", danger && "text-destructive")} aria-hidden />
       </span>
       <span className={cn("mt-1 block text-xl font-semibold tabular-nums", danger && "text-destructive")}>

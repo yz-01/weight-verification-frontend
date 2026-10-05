@@ -65,6 +65,8 @@ interface LocationMapProps {
   fitBoundsKey?: string | number;
   /** Called with a marker's id when it is clicked (the HQ map selects). */
   onMarkerClick?: (id: string) => void;
+  /** How close to zoom on a lone point (street level unless asked). */
+  singlePointZoom?: number;
 }
 
 const DEFAULT_CENTER: [number, number] = [3.139, 101.6869];
@@ -80,6 +82,7 @@ export function LocationMap({
   preserveViewOnDataUpdate = false,
   fitBoundsKey,
   onMarkerClick,
+  singlePointZoom = 16,
 }: LocationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -221,7 +224,7 @@ export function LocationMap({
           const southWest = bounds.getSouthWest();
           const northEast = bounds.getNorthEast();
           if (southWest.equals(northEast)) {
-            map.setView(southWest, 16, { animate: false });
+            map.setView(southWest, singlePointZoom, { animate: false });
           } else {
             map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: false });
           }
@@ -236,6 +239,7 @@ export function LocationMap({
     preserveViewOnDataUpdate,
     radiusM,
     ready,
+    singlePointZoom,
     zones,
   ]);
 

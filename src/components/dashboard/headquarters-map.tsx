@@ -130,6 +130,7 @@ export function HeadquartersMap({
             preserveViewOnDataUpdate
             fitBoundsKey={placed.map((row) => row.id).join(",")}
             onMarkerClick={setSelectedId}
+            singlePointZoom={12}
           />
           {placed.length === 0 && (
             <p className="pointer-events-none absolute inset-x-4 top-4 z-[500] rounded-md bg-card/95 p-3 text-center text-sm text-muted-foreground shadow">
