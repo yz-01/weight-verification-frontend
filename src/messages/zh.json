@@ -5820,7 +5820,9 @@
       "confirmDone": "确认完成",
       "confirmedBy": "{name} 已确认 · {value}",
       "returnedBy": "{name} 已退回 · {value}",
-      "returnReasonShown": "退回原因：{reason}"
+      "returnReasonShown": "退回原因：{reason}",
+      "onlyOpen": "只显示未完成的任务（还没确认完成或取消）。",
+      "onlyOverdue": "只显示逾期任务（过了截止时间、还没确认完成或取消）。"
     },
     "toast": {
       "movementSaved": "设备进退场已记录",
@@ -7994,6 +7996,59 @@
       "title": "所有项目",
       "empty": "目前没有你可查看的项目。",
       "enter": "进入项目"
+    },
+    "figures": {
+      "title": "全公司数字",
+      "someProjects": "这些数字只包含你被指派的项目。",
+      "projects": "项目总数",
+      "activeProjects": "活跃 {count}",
+      "onSiteSplit": "App 人员 {app} ＋ 门岗通行 {gate}",
+      "field": {
+        "today_records": "今日现场记录",
+        "on_site_now": "当前在场人数",
+        "pending_approvals": "待审批",
+        "open_tasks": "未完成任务",
+        "overdue_tasks": "逾期任务",
+        "overdue_rectifications": "逾期整改",
+        "material_receipts_today": "今日材料进场"
+      },
+      "wasteDispatches": "原废料订单",
+      "siteDisposals": "原工地清运",
+      "records": "数量",
+      "trips": "车次",
+      "weighedKg": "过磅重量（kg）",
+      "weightKg": "重量（kg）",
+      "project": "项目",
+      "value": "数目",
+      "status": "状态",
+      "open": "查看",
+      "other": "公司层级／未关联项目",
+      "total": "合计",
+      "drillHelp": "各项目的明细，加起来等于上面的总数。",
+      "todayRecordsHelp": "今天发生的现场记录：材料进场及退场、材料出场、设备交接、工程进度、隐患、现场任务提交、工地清运、废料订单、环保材料出场、门岗拍照记录。在场人员另外计算，不算在这里。",
+      "overdueHelp": "过了截止时间、还没闭环的（任务要确认人确认完成才算闭环，整改要验收通过）。",
+      "clearanceHelp": "至今的累计，各自按本身模组统计，两类不相加。",
+      "nothingToday": "今天还没有现场记录。",
+      "projectStatus": {
+        "PLANNING": "筹备中",
+        "ACTIVE": "进行中",
+        "SUSPENDED": "暂停",
+        "COMPLETED": "已完工"
+      }
+    },
+    "recordKind": {
+      "MATERIAL_RECEIPT": "材料进场",
+      "DELIVERY_NOTE": "送货单",
+      "MATERIAL_OUTGOING": "材料出场",
+      "EQUIPMENT_MOVEMENT": "设备进退场",
+      "EQUIPMENT": "设备",
+      "SITE_PROGRESS": "工程进度",
+      "SAFETY_INCIDENT": "隐患整改",
+      "FIELD_TASK": "现场任务",
+      "DISPOSAL": "工地清运",
+      "WASTE_DISPATCH": "废料订单",
+      "WASTE_OUTGOING": "环保材料出场",
+      "GATE_INCIDENT": "门岗拍照记录"
     }
   },
   "home": {

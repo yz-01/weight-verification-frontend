@@ -5820,7 +5820,9 @@
       "confirmDone": "Confirm completed",
       "confirmedBy": "Confirmed by {name} · {value}",
       "returnedBy": "Returned by {name} · {value}",
-      "returnReasonShown": "Reason: {reason}"
+      "returnReasonShown": "Reason: {reason}",
+      "onlyOpen": "Showing unfinished tasks only (not yet confirmed or cancelled).",
+      "onlyOverdue": "Showing overdue tasks only (past the due time, not yet confirmed or cancelled)."
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",
@@ -7994,6 +7996,59 @@
       "title": "All projects",
       "empty": "No projects you can see yet.",
       "enter": "Enter project"
+    },
+    "figures": {
+      "title": "Company figures",
+      "someProjects": "These figures cover only the projects you are assigned to.",
+      "projects": "Projects",
+      "activeProjects": "{count} active",
+      "onSiteSplit": "App {app} + gate {gate}",
+      "field": {
+        "today_records": "Today's site records",
+        "on_site_now": "On site now",
+        "pending_approvals": "Waiting for approval",
+        "open_tasks": "Unfinished tasks",
+        "overdue_tasks": "Overdue tasks",
+        "overdue_rectifications": "Overdue rectifications",
+        "material_receipts_today": "Material received today"
+      },
+      "wasteDispatches": "Waste orders (recycler)",
+      "siteDisposals": "Site clearance",
+      "records": "Records",
+      "trips": "Trips",
+      "weighedKg": "Weighed (kg)",
+      "weightKg": "Weight (kg)",
+      "project": "Project",
+      "value": "Count",
+      "status": "Status",
+      "open": "Open",
+      "other": "Company-wide / no project",
+      "total": "Total",
+      "drillHelp": "Each project's share; the rows add up to the total.",
+      "todayRecordsHelp": "Records dated today: material in and returns, material out, equipment handovers, progress, hazards, task submissions, site clearance, waste orders, recyclable outgoing and gate photo records. People on site are counted separately.",
+      "overdueHelp": "Past the due time and not yet closed (a task closes when its confirmer accepts it; a hazard when it is verified).",
+      "clearanceHelp": "All records to date, counted by their own module and never added to the other kind.",
+      "nothingToday": "No site records today.",
+      "projectStatus": {
+        "PLANNING": "Planning",
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "COMPLETED": "Completed"
+      }
+    },
+    "recordKind": {
+      "MATERIAL_RECEIPT": "Material in",
+      "DELIVERY_NOTE": "Delivery note",
+      "MATERIAL_OUTGOING": "Material out",
+      "EQUIPMENT_MOVEMENT": "Equipment movement",
+      "EQUIPMENT": "Equipment",
+      "SITE_PROGRESS": "Progress",
+      "SAFETY_INCIDENT": "Hazard",
+      "FIELD_TASK": "Site task",
+      "DISPOSAL": "Site clearance",
+      "WASTE_DISPATCH": "Waste order",
+      "WASTE_OUTGOING": "Recyclable outgoing",
+      "GATE_INCIDENT": "Gate photo record"
     }
   },
   "home": {

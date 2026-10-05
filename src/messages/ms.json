@@ -5820,7 +5820,9 @@
       "confirmDone": "Sahkan selesai",
       "confirmedBy": "Disahkan oleh {name} · {value}",
       "returnedBy": "Dikembalikan oleh {name} · {value}",
-      "returnReasonShown": "Sebab: {reason}"
+      "returnReasonShown": "Sebab: {reason}",
+      "onlyOpen": "Menunjukkan tugasan belum selesai sahaja (belum disahkan atau dibatalkan).",
+      "onlyOverdue": "Menunjukkan tugasan lewat sahaja (melepasi masa tamat, belum disahkan atau dibatalkan)."
     },
     "toast": {
       "movementSaved": "Pergerakan peralatan direkodkan",
@@ -7994,6 +7996,59 @@
       "title": "Semua projek",
       "empty": "Belum ada projek yang boleh anda lihat.",
       "enter": "Masuk projek"
+    },
+    "figures": {
+      "title": "Angka syarikat",
+      "someProjects": "Angka ini hanya meliputi projek yang ditugaskan kepada anda.",
+      "projects": "Projek",
+      "activeProjects": "{count} aktif",
+      "onSiteSplit": "App {app} + pintu {gate}",
+      "field": {
+        "today_records": "Rekod tapak hari ini",
+        "on_site_now": "Di tapak sekarang",
+        "pending_approvals": "Menunggu kelulusan",
+        "open_tasks": "Tugasan belum selesai",
+        "overdue_tasks": "Tugasan lewat",
+        "overdue_rectifications": "Pembetulan lewat",
+        "material_receipts_today": "Bahan diterima hari ini"
+      },
+      "wasteDispatches": "Pesanan sisa (kitar semula)",
+      "siteDisposals": "Pembersihan tapak",
+      "records": "Rekod",
+      "trips": "Trip",
+      "weighedKg": "Ditimbang (kg)",
+      "weightKg": "Berat (kg)",
+      "project": "Projek",
+      "value": "Bilangan",
+      "status": "Status",
+      "open": "Buka",
+      "other": "Peringkat syarikat / tiada projek",
+      "total": "Jumlah",
+      "drillHelp": "Bahagian setiap projek; baris-baris ini menjumlah kepada jumlah di atas.",
+      "todayRecordsHelp": "Rekod bertarikh hari ini: bahan masuk dan pulangan, bahan keluar, serahan peralatan, kemajuan, bahaya, penghantaran tugasan, pembersihan tapak, pesanan sisa, bahan kitar semula keluar dan rekod foto pintu. Orang di tapak dikira berasingan.",
+      "overdueHelp": "Melepasi masa tamat dan belum ditutup (tugasan ditutup apabila pengesah menerimanya; bahaya apabila disahkan).",
+      "clearanceHelp": "Semua rekod setakat ini, dikira oleh modul masing-masing dan tidak dicampur dengan jenis yang satu lagi.",
+      "nothingToday": "Tiada rekod tapak hari ini.",
+      "projectStatus": {
+        "PLANNING": "Perancangan",
+        "ACTIVE": "Aktif",
+        "SUSPENDED": "Digantung",
+        "COMPLETED": "Selesai"
+      }
+    },
+    "recordKind": {
+      "MATERIAL_RECEIPT": "Bahan masuk",
+      "DELIVERY_NOTE": "Nota penghantaran",
+      "MATERIAL_OUTGOING": "Bahan keluar",
+      "EQUIPMENT_MOVEMENT": "Pergerakan peralatan",
+      "EQUIPMENT": "Peralatan",
+      "SITE_PROGRESS": "Kemajuan",
+      "SAFETY_INCIDENT": "Bahaya",
+      "FIELD_TASK": "Tugasan tapak",
+      "DISPOSAL": "Pembersihan tapak",
+      "WASTE_DISPATCH": "Pesanan sisa",
+      "WASTE_OUTGOING": "Bahan kitar semula keluar",
+      "GATE_INCIDENT": "Rekod foto pintu"
     }
   },
   "home": {

@@ -5820,7 +5820,9 @@
       "confirmDone": "確認完成",
       "confirmedBy": "{name} 已確認 · {value}",
       "returnedBy": "{name} 已退回 · {value}",
-      "returnReasonShown": "退回原因：{reason}"
+      "returnReasonShown": "退回原因：{reason}",
+      "onlyOpen": "只顯示未完成的任務（還沒確認完成或取消）。",
+      "onlyOverdue": "只顯示逾期任務（過了截止時間、還沒確認完成或取消）。"
     },
     "toast": {
       "movementSaved": "設備進退場已記錄",
@@ -7994,6 +7996,59 @@
       "title": "所有項目",
       "empty": "目前沒有你可查看的項目。",
       "enter": "進入項目"
+    },
+    "figures": {
+      "title": "全公司數字",
+      "someProjects": "這些數字只包含你被指派的項目。",
+      "projects": "項目總數",
+      "activeProjects": "活躍 {count}",
+      "onSiteSplit": "App 人員 {app} ＋ 門崗通行 {gate}",
+      "field": {
+        "today_records": "今日現場記錄",
+        "on_site_now": "目前在場人數",
+        "pending_approvals": "待審批",
+        "open_tasks": "未完成任務",
+        "overdue_tasks": "逾期任務",
+        "overdue_rectifications": "逾期整改",
+        "material_receipts_today": "今日材料進場"
+      },
+      "wasteDispatches": "原廢料訂單",
+      "siteDisposals": "原工地清運",
+      "records": "數量",
+      "trips": "車次",
+      "weighedKg": "過磅重量（kg）",
+      "weightKg": "重量（kg）",
+      "project": "項目",
+      "value": "數目",
+      "status": "狀態",
+      "open": "查看",
+      "other": "公司層級／未關聯項目",
+      "total": "合計",
+      "drillHelp": "各項目的明細，加起來等於上面的總數。",
+      "todayRecordsHelp": "今天發生的現場記錄：材料進場及退場、材料出場、設備交接、工程進度、隱患、現場任務提交、工地清運、廢料訂單、環保材料出場、門崗拍照記錄。在場人員另外計算，不算在這裡。",
+      "overdueHelp": "過了截止時間、還沒閉環的（任務要確認人確認完成才算閉環，整改要驗收通過）。",
+      "clearanceHelp": "至今的累計，各自按本身模組統計，兩類不相加。",
+      "nothingToday": "今天還沒有現場記錄。",
+      "projectStatus": {
+        "PLANNING": "籌備中",
+        "ACTIVE": "進行中",
+        "SUSPENDED": "暫停",
+        "COMPLETED": "已完工"
+      }
+    },
+    "recordKind": {
+      "MATERIAL_RECEIPT": "材料進場",
+      "DELIVERY_NOTE": "送貨單",
+      "MATERIAL_OUTGOING": "材料出場",
+      "EQUIPMENT_MOVEMENT": "設備進退場",
+      "EQUIPMENT": "設備",
+      "SITE_PROGRESS": "工程進度",
+      "SAFETY_INCIDENT": "隱患整改",
+      "FIELD_TASK": "現場任務",
+      "DISPOSAL": "工地清運",
+      "WASTE_DISPATCH": "廢料訂單",
+      "WASTE_OUTGOING": "環保材料出場",
+      "GATE_INCIDENT": "門崗拍照記錄"
     }
   },
   "home": {

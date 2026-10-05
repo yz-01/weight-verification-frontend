@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { CompanyBanner } from "@/components/dashboard/company-banner";
+import { HeadquartersFigures } from "@/components/dashboard/headquarters-figures";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Skeleton } from "@/components/ui/skeleton";
 import { legacyDashboardTarget } from "@/lib/dashboard-scopes";
@@ -48,6 +49,17 @@ export function HeadquartersDashboard() {
       ) : !data ? (
         <Skeleton className="h-48 w-full" />
       ) : (
+        <>
+        <section
+          aria-label={t("figures.title")}
+          className="space-y-2"
+          data-dashboard-priority
+        >
+          <HeadquartersFigures data={data} />
+          {!data.all_projects && (
+            <p className="text-xs text-muted-foreground">{t("figures.someProjects")}</p>
+          )}
+        </section>
         <section
           aria-label={t("projects.title")}
           className="rounded-lg border bg-card p-3 shadow-sm"
@@ -78,6 +90,7 @@ export function HeadquartersDashboard() {
             </ul>
           )}
         </section>
+        </>
       )}
     </div>
   );

@@ -662,23 +662,33 @@ export function FieldTasksWorkspace({
   const { can, user } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
+  // A task card links here with ?task=<id>: show that one task, with a way
+  // back to the whole list.
+  const searchParams = useSearchParams();
+  const [project, setProject] = useState(() => searchParams.get("project") ?? "");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<FieldTask | null>(null);
   const referenceInput = useRef<HTMLInputElement>(null);
   const [addingRefsTo, setAddingRefsTo] = useState<FieldTask | null>(null);
-  // A task card links here with ?task=<id>: show that one task, with a way
-  // back to the whole list.
-  const searchParams = useSearchParams();
   const focusedTaskId = searchParams.get("task");
   const showAllTasks = useClearSearchParam("task");
+  // The 公司总部 Dashboard's 未完成 / 逾期 figures (C13) link here with the
+  // same filter the server counted them by, so the list shows exactly them.
+  const drill = searchParams.get("overdue") === "1"
+    ? "overdue"
+    : searchParams.get("open") === "1"
+      ? "open"
+      : null;
+  const clearOverdue = useClearSearchParam("overdue");
+  const clearOpen = useClearSearchParam("open");
   const rows = useQuery({
-    queryKey: ["field-tasks", project, taskType],
+    queryKey: ["field-tasks", project, taskType, drill],
     queryFn: () =>
       getFieldTasks({
         page_size: 200,
         project: project || undefined,
         task_type: taskType,
+        ...(drill ? { [drill]: "1" } : {}),
       }),
   });
   const transition = useMutation({
@@ -744,6 +754,20 @@ export function FieldTasksWorkspace({
         }
       />
       <ProjectFilter value={project} onChange={setProject} />
+      {drill && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
+          <span className="min-w-0 flex-1">
+            {t(drill === "overdue" ? "tasks.onlyOverdue" : "tasks.onlyOpen")}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={drill === "overdue" ? clearOverdue : clearOpen}
+          >
+            {t("tasks.showAll")}
+          </Button>
+        </div>
+      )}
       {focusedTaskId && !rows.isLoading && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
           <span className="min-w-0 flex-1">
