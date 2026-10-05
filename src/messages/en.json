@@ -3149,34 +3149,24 @@
     },
     "count": "{count, plural, =0 {No site entry records} one {# site entry record} other {# site entry records}}",
     "event": {
-      "CLOCK_IN": "Clock in",
-      "CLOCK_OUT": "Clock out"
+      "CLOCK_IN": "Entry",
+      "CLOCK_OUT": "Exit"
     },
     "evidence": {
-      "accuracy": "GPS accuracy",
-      "distance": "Distance",
       "event": "Event",
-      "geofence": "Geofence result",
-      "geofenceName": "Matched geofence",
-      "geofenceStatus": {
-        "INSIDE": "Inside",
-        "NOT_EVALUATED": "Not evaluated",
-        "OUTSIDE": "Outside"
-      },
-      "latitude": "Latitude",
-      "longitude": "Longitude",
       "noLocation": "No GPS location was recorded.",
       "noPhoto": "No site entry photo was uploaded.",
-      "notMatched": "No geofence matched",
       "note": "Note",
-      "originalAt": "Original event time",
       "photoAlt": "Site entry photo",
       "project": "Project",
       "recordedAt": "Recorded time",
       "title": "Site entry evidence",
       "uploadedAt": "Uploaded time",
       "view": "View evidence",
-      "worker": "Worker"
+      "worker": "Worker",
+      "gps": "GPS",
+      "geofenceNoPhoto": "Geofence, automatic (no photo)",
+      "systemNoPhoto": "Closed by system: the phone stopped reporting (no photo)"
     },
     "field": {
       "event": "Event",
@@ -3186,7 +3176,8 @@
       "photo": "Photo",
       "project": "Project",
       "time": "Recorded time",
-      "worker": "Worker"
+      "worker": "Worker",
+      "source": "Recorded by"
     },
     "filter": {
       "allProjects": "All projects",
@@ -3195,6 +3186,25 @@
     "title": "Site entry records",
     "toast": {
       "recorded": "Site entry recorded"
+    },
+    "eventSystemClose": "Exit (closed by system)",
+    "source": {
+      "MANUAL": "Manual",
+      "GEOFENCE": "Geofence, automatic",
+      "SYSTEM": "Closed by system"
+    },
+    "presence": {
+      "what": "the on-site numbers",
+      "currentTotal": "On site now",
+      "composition": "App {app} + gate pass {gate}",
+      "loading": "Loading…",
+      "openList": "Open the emergency list",
+      "enteredToday": "Entered today",
+      "leftToday": "Left today",
+      "stillOnSite": "Still on site",
+      "stillHint": "Came in today, not left yet",
+      "byProject": "By project ({count})",
+      "project": "Project"
     }
   },
   "audit": {
@@ -5197,15 +5207,19 @@
         "DISPOSAL_REQUEST": "Site clearing",
         "FIELD_TASK": "Field task",
         "SITE_PROGRESS": "Progress record",
-        "WASTE_OUTGOING": "Environmental material outgoing"
+        "WASTE_OUTGOING": "Environmental material outgoing",
+        "MATERIAL_REQUEST": "MR / Other Request",
+        "EQUIPMENT_MOVEMENT": "Equipment in / out",
+        "MATERIAL_OUTGOING": "Material out / return",
+        "SUNDRY_CLAIM": "Sundry claim"
       },
       "waitingMinutes": "waiting {count} min",
       "waitingHours": "waiting {count} h",
       "waitingDays": "waiting {count} d"
     },
     "attendanceEvent": {
-      "CLOCK_IN": "Clock in",
-      "CLOCK_OUT": "Clock out"
+      "CLOCK_IN": "Entry",
+      "CLOCK_OUT": "Exit"
     },
     "error": "The dashboard could not be loaded. Try again shortly.",
     "export": {
@@ -5284,7 +5298,7 @@
       "entered": "In today",
       "left": "Out today",
       "irregular": "Irregular",
-      "irregularBreakdown": "Of those: {outside} outside the fence · {order} out of order · {noExit} never clocked out"
+      "irregularBreakdown": "Of those: {outside} outside the fence · {order} entries and exits out of order · {noExit} no exit recorded"
     },
     "photos": {
       "empty": "No photos captured today.",
@@ -5810,7 +5824,10 @@
       "confirmDone": "Confirm completed",
       "confirmedBy": "Confirmed by {name} · {value}",
       "returnedBy": "Returned by {name} · {value}",
-      "returnReasonShown": "Reason: {reason}"
+      "returnReasonShown": "Reason: {reason}",
+      "onlyOpen": "Showing unfinished tasks only (not yet confirmed or cancelled).",
+      "onlyOverdue": "Showing overdue tasks only (past the due time, not yet confirmed or cancelled).",
+      "openHeadOffice": "Head-office task details"
     },
     "toast": {
       "movementSaved": "Equipment movement recorded",
@@ -7425,7 +7442,9 @@
       "staff": "The site staff list",
       "projects": "The project list",
       "accessInfo": "This person's current projects"
-    }
+    },
+    "role": "Role",
+    "roleHint": "A gate guard scans passes and takes gate photo records. Both sign in on the phone with this link."
   },
   "fieldDraft": {
     "loading": "Loading saved draft...",
@@ -7460,8 +7479,8 @@
       "takePhoto": "Take photo"
     },
     "attendance": {
-      "clockIn": "Clock in",
-      "clockOut": "Clock out",
+      "clockIn": "Manual entry",
+      "clockOut": "Manual exit",
       "distance": "Distance from geofence: {distance} m",
       "geofence": {
         "INSIDE": "Inside geofence",
@@ -7470,16 +7489,16 @@
       },
       "getLocation": "Get current GPS",
       "locationReady": "GPS ready",
-      "noRecords": "No site entry record today",
+      "noRecords": "No entry or exit recorded today",
       "note": "Note (optional)",
-      "openPhoto": "Open check-in photo",
+      "openPhoto": "Open the selfie",
       "selectProject": "Select today's project",
       "selfieReady": "Selfie ready",
-      "submit": "Submit site entry",
+      "submit": "Submit manual record",
       "takeSelfie": "Take a selfie",
       "title": "Site entry",
-      "todayCount": "{count, plural, =0 {No check-in today} one {# site entry record today} other {# site entry records today}}",
-      "viewMap": "View check-in location"
+      "todayCount": "{count, plural, =0 {No entry or exit today} one {# entry or exit record today} other {# entry and exit records today}}",
+      "viewMap": "View where it was recorded"
     },
     "camera": {
       "starting": "The camera is still starting up",
@@ -7576,7 +7595,12 @@
       "requiredTitle": "Turn on location to continue",
       "retry": "Check location again",
       "startingBody": "Allow precise location so MSE Trace can verify that this device is inside the assigned site geofence.",
-      "startingTitle": "Location is required"
+      "startingTitle": "Location is required",
+      "noPresence": "Without your location, arrival on site is not recorded automatically - and no old location is used instead.",
+      "presence": {
+        "entered": "Entry recorded automatically: {project}",
+        "left": "Exit recorded automatically: {project}"
+      }
     },
     "material": {
       "location": "Where it is",
@@ -7697,7 +7721,8 @@
       "title": "Site record capture",
       "waste": "Environmental material outgoing",
       "sundry": "Sundry claims",
-      "request": "MR / Other Request"
+      "request": "MR / Other Request",
+      "gate": "Gate photo records"
     },
     "status": {
       "ACCEPTED": "Complete",
@@ -7734,7 +7759,7 @@
     "locationAccess": {
       "why": {
         "title": "This needs your location",
-        "body": "Deliveries, site entry and site records are stamped with where they happened, so the office does not have to ring you to check you were on site. It is read once, when you press the button.",
+        "body": "While the app is open it reads your location every so often, to record your arrival on site and your leaving automatically, and stamps deliveries and site records with where they happened. Close the app or refuse location and nothing is recorded - no old location is used instead.",
         "allow": "Allow location",
         "later": "Not now"
       },
@@ -7960,6 +7985,217 @@
     },
     "what": {
       "conversation": "The rectification discussion"
+    }
+  },
+  "headquarters": {
+    "banner": {
+      "label": "Company and signed-in user",
+      "companyView": "Company headquarters view",
+      "projectView": "Project: {project}",
+      "allProjectsView": "Project view · all projects",
+      "notifications": "Notifications",
+      "notificationsCount": "Notifications {count}",
+      "projectUnreadable": "(project name could not be loaded)"
+    },
+    "figures": {
+      "title": "Company figures",
+      "someProjects": "These figures cover only the projects you are assigned to.",
+      "projects": "Projects",
+      "activeProjects": "{count} active",
+      "onSiteSplit": "App {app} + gate {gate}",
+      "field": {
+        "today_records": "Today's site records",
+        "on_site_now": "On site now",
+        "pending_approvals": "Waiting for approval",
+        "open_tasks": "Unfinished tasks",
+        "overdue_tasks": "Overdue tasks",
+        "overdue_rectifications": "Overdue rectifications",
+        "material_receipts_today": "Material received today"
+      },
+      "wasteDispatches": "Waste orders (recycler)",
+      "siteDisposals": "Site clearance",
+      "records": "Records",
+      "trips": "Trips",
+      "weighedKg": "Weighed (kg)",
+      "weightKg": "Weight (kg)",
+      "project": "Project",
+      "value": "Count",
+      "status": "Status",
+      "open": "Open",
+      "other": "Company-wide / no project",
+      "total": "Total",
+      "drillHelp": "Each project's share; the rows add up to the total.",
+      "todayRecordsHelp": "Records dated today: material in and returns, material out, equipment handovers, progress, hazards, task submissions, site clearance, waste orders, recyclable outgoing and gate photo records. People on site are counted separately.",
+      "overdueHelp": "Past the due time and not yet closed (a task closes when its confirmer accepts it; a hazard when it is verified).",
+      "clearanceHelp": "All records to date, counted by their own module and never added to the other kind.",
+      "nothingToday": "No site records today.",
+      "projectStatus": {
+        "PLANNING": "Planning",
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "COMPLETED": "Completed"
+      }
+    },
+    "recordKind": {
+      "MATERIAL_RECEIPT": "Material in",
+      "DELIVERY_NOTE": "Delivery note",
+      "MATERIAL_OUTGOING": "Material out",
+      "EQUIPMENT_MOVEMENT": "Equipment movement",
+      "EQUIPMENT": "Equipment",
+      "SITE_PROGRESS": "Progress",
+      "SAFETY_INCIDENT": "Hazard",
+      "FIELD_TASK": "Site task",
+      "DISPOSAL": "Site clearance",
+      "WASTE_DISPATCH": "Waste order",
+      "WASTE_OUTGOING": "Recyclable outgoing",
+      "GATE_INCIDENT": "Gate photo record"
+    },
+    "map": {
+      "title": "Project overview map",
+      "placed": "{placed} of {total} projects on the map",
+      "layers": "Map layers",
+      "layerProjects": "Projects",
+      "layerDevices": "Devices (not connected)",
+      "layerDevicesHelp": "Device positions are not shown yet: the plan and cost are with the customer.",
+      "nothingPlaced": "No project has coordinates yet. Set a project's location to place it on the map.",
+      "pickHelp": "Click a project on the map or in the list below to see its state and enter it.",
+      "legendOverdue": "Something overdue",
+      "legendWaiting": "Waiting for approval or work",
+      "legendClear": "Nothing waiting",
+      "legendInactive": "Faded: not active",
+      "withoutLocation": "{count, plural, one {# project has} other {# projects have}} no coordinates and is not on the map",
+      "setLocation": "Set location",
+      "enter": "Enter project",
+      "markerDetail": "On site {onSite} · waiting {pending} · overdue {overdue}",
+      "noPhoto": "No site photo yet",
+      "latestPhotoAlt": "Latest site photo, {time}",
+      "overview": "All projects",
+      "noProjects": "No projects you can see yet.",
+      "location": "Location",
+      "latestPhoto": "Latest photo",
+      "overdue": "Overdue",
+      "noCoordinates": "No coordinates"
+    },
+    "photos": {
+      "title": "Today's site photos (all projects)",
+      "shown": "Showing {shown} of {total}",
+      "empty": "No project has uploaded a site photo today.",
+      "alt": "{kind} photo, {project}",
+      "unknownPhotographer": "Not recorded",
+      "loading": "Loading…",
+      "loadMore": "Load more"
+    },
+    "work": {
+      "overdue": "Overdue rectifications ({count})",
+      "noOverdue": "No rectification is overdue.",
+      "daysOverdue": "{days, plural, one {# day} other {# days}} overdue",
+      "presence": "People on site now",
+      "presenceSplit": "App {app} + gate {gate}, by project",
+      "nobodyOnSite": "Nobody is on site right now.",
+      "tabApprovals": "Waiting for approval",
+      "tabOverdue": "Overdue rectifications",
+      "allOverdue": "All {count} overdue rectifications",
+      "title": "Head office work",
+      "tabTasks": "Head-office tasks",
+      "tabAnnouncements": "Announcements"
+    },
+    "approvals": {
+      "allProjects": "All projects",
+      "kinds": "Kinds of item",
+      "allKinds": "All",
+      "shown": "Showing {shown} of {total}",
+      "empty": "Nothing is waiting for a decision.",
+      "companyWide": "Company-wide",
+      "opensPage": "Opens on its own page",
+      "loading": "Loading…",
+      "loadMore": "Load more",
+      "decide": "Approve / return"
+    },
+    "tasks": {
+      "piles": "Which tasks",
+      "pile": {
+        "open": "Unfinished",
+        "done": "Completed",
+        "overdue": "Overdue"
+      },
+      "empty": {
+        "open": "No unfinished head-office tasks.",
+        "done": "No completed head-office tasks yet.",
+        "overdue": "No head-office task is overdue."
+      },
+      "allProjects": "All projects",
+      "publish": "Publish task",
+      "shown": "Showing {shown} of {total}",
+      "dueAt": "due {at}",
+      "resultShort": "Result: {result}",
+      "overdue": "Overdue",
+      "loading": "Loading…",
+      "loadMore": "Load more",
+      "publishTitle": "Publish a head-office task",
+      "publishHelp": "The person chosen gets it in their My Tasks. When they submit the result, you confirm it or return it with a reason.",
+      "project": "Project",
+      "chooseProject": "Choose a project",
+      "assignee": "Person responsible",
+      "chooseAssignee": "Choose a project team member",
+      "projectPeople": "the project's people",
+      "taskTitle": "Task",
+      "content": "What to do",
+      "due": "Due by",
+      "cancel": "Cancel",
+      "publishAction": "Publish",
+      "fromHeadOffice": "Head-office task",
+      "fromSite": "Site task",
+      "status": "Status",
+      "publisher": "Published by",
+      "result": "Result",
+      "submittedAt": "Submitted {at}",
+      "returnedBy": "Returned by",
+      "confirmedBy": "Confirmed by",
+      "resultLabel": "Result",
+      "photosLabel": "Photos",
+      "optional": "optional",
+      "filesHelp": "Files such as PDFs go in Attachments below; questions go in the conversation.",
+      "submit": "Submit result",
+      "return": "Return",
+      "confirm": "Confirm complete",
+      "returnReason": "Why it is being returned",
+      "returnConfirm": "Return the task"
+    },
+    "announcements": {
+      "loading": "Loading…",
+      "loadMore": "Load more",
+      "shown": "Showing {shown} of {total}",
+      "empty": "No announcements yet.",
+      "publish": "Publish announcement",
+      "scope": {
+        "COMPANY": "Whole company",
+        "ALL_PROJECTS": "All projects",
+        "PROJECTS": "Named projects"
+      },
+      "scopeProjectsNamed": "Projects: {projects}",
+      "withdrawn": "Withdrawn",
+      "withdrawnNote": "Withdrawn by {who} on {at}. The announcement is kept as it was published.",
+      "withdraw": "Withdraw",
+      "readCount": "Read {read} / {total}",
+      "readAt": "You opened this on {at}.",
+      "unread": "Not read",
+      "readers": "Who it reached",
+      "readers_read": "Read",
+      "readers_unread": "Not yet read",
+      "nobody": "Nobody here.",
+      "notRead": "Not read",
+      "publishTitle": "Publish an announcement",
+      "publishHelp": "Everyone it is for gets it in their notification centre. Reading it does not clear any task.",
+      "titleLabel": "Title",
+      "bodyLabel": "Announcement",
+      "scopeLabel": "Who it is for",
+      "projectsLabel": "Projects",
+      "moreProjects": "More projects",
+      "filesLabel": "Attachments",
+      "optional": "optional",
+      "fixedHelp": "Once published it cannot be edited. To correct it, publish a new one; you can withdraw the old one, which keeps its text.",
+      "cancel": "Cancel",
+      "publishAction": "Publish"
     }
   },
   "home": {
@@ -9177,8 +9413,8 @@
       "application_no": "Application no.",
       "archived_at": "Archived at",
       "category": "Category",
-      "clock_ins": "Clock-ins",
-      "clock_outs": "Clock-outs",
+      "clock_ins": "Entries",
+      "clock_outs": "Exits",
       "delivery_note_no": "Delivery order no.",
       "description": "Description",
       "destination": "Destination",
@@ -9843,10 +10079,10 @@
       "trouble": "Transfer and loan are easy to mix up: a transfer moves the asset to another place while it stays the company's; a loan puts it in a person's hands and it has to come back."
     },
     "attendance": {
-      "what": "Who clocked in where, with the selfie and the location taken at the time.",
+      "what": "Who came on site and left, where and when: recorded by the phone's geofence, or by hand with a selfie.",
       "who": "Holders of attendance.view and project.view.",
-      "need": "Clocking in from the phone needs today's project, a selfie and the current GPS fix. All three.",
-      "then": "The clock-in is judged against the site's geofence and stored with both.",
+      "need": "Nothing to press: while the field app is open inside a project's geofence, entry is recorded on its own, and leaving once the phone has been outside for five minutes. An automatic record has no photo. Recording by hand still takes the project, a selfie and the current GPS.",
+      "then": "Each entry and exit is its own record and is never overwritten. A visit nobody reported leaving is closed after midnight by a separate system record, dated at the phone's last report. Without a location nothing is recorded.",
       "trouble": "GPS refusing to fix: step outside or to the gate and try again. The system will not use an inaccurate position to make the number up."
     },
     "audit_log_center": {
@@ -11715,6 +11951,7 @@
       "dispatcher": "Accepts orders, assigns vehicles and drivers.",
       "driver": "Sees assigned tasks and submits site photos.",
       "finance": "Settles transactions and records payment proof.",
+      "gate_guard": "Scans passes at the gate and photographs what happens there.",
       "platform_admin": "Full access to every platform function.",
       "platform_finance": "Manages plans, commission and collections.",
       "platform_support": "Handles tickets and announcements, reads customer data.",
@@ -11729,6 +11966,7 @@
       "dispatcher": "Dispatcher",
       "driver": "Driver",
       "finance": "Finance",
+      "gate_guard": "Gate Guard",
       "platform_admin": "Platform Administrator",
       "platform_finance": "Finance",
       "platform_support": "Support Agent",
@@ -12347,7 +12585,8 @@
       "timeline": "Entry and exit history",
       "title": "Site access",
       "unknownGate": "Gate not named",
-      "defaultsFailed": "The site access defaults did not load. Try again first."
+      "defaultsFailed": "The site access defaults did not load. Try again first.",
+      "gateRecords": "Gate photo records"
     },
     "action": {
       "approve": "Approve",
@@ -12436,12 +12675,25 @@
       "currentCount": "Currently on site",
       "durationHours": "{hours}h {minutes}m",
       "durationMinutes": "{minutes} min",
-      "empty": "No worker, visitor or vehicle is currently recorded inside the selected site.",
-      "subtitle": "Live list of everyone whose latest gate event is entry and has no recorded exit.",
+      "empty": "Nobody is recorded on the selected site right now.",
+      "subtitle": "Everyone on site now: in by the phone's geofence, or through the gate on a pass and not yet out.",
       "title": "Emergency site list",
       "updated": "Automatically refreshed. Last update: {time}",
       "useHelp": "Confirm people at the assembly point, call missing persons, and export a copy for the incident record.",
-      "useTitle": "Use this list during evacuation"
+      "useTitle": "Use this list during evacuation",
+      "print": "Print",
+      "printedAt": "Printed {time}",
+      "composition": "{total} people (app {app} + gate pass {gate})",
+      "split": "App {app} + gate pass {gate}",
+      "source": "Counted by",
+      "sourceValue": {
+        "APP": "Geofence (app)",
+        "GATE": "Gate pass",
+        "BOTH": "Geofence + gate pass"
+      },
+      "lastReport": "Last report {time}",
+      "stale": "Not reporting (last {time})",
+      "noReport": "No position report yet"
     },
     "field": {
       "address": "Address",
@@ -12662,7 +12914,7 @@
       "STANDARD": "Standard"
     },
     "settings": {
-      "attendancePhotoHelp": "Field Staff must take a selfie for every clock-in and clock-out.",
+      "attendancePhotoHelp": "Field Staff must take a selfie for every manual entry and exit. Entries the geofence records have no photo.",
       "gatePhotoHelp": "Gate staff and connected readers must provide a photo for every entry and exit.",
       "realRulesHelp": "QR switches affect permit creation, notification switches affect workflow alerts, and project defaults are copied into each new project.",
       "realRulesTitle": "These settings are operational.",
@@ -12718,7 +12970,10 @@
       "passRevoked": "Access pass revoked",
       "passUpdated": "Pass updated.",
       "profileSaved": "Company profile saved",
-      "settingsSaved": "Company site settings saved"
+      "settingsSaved": "Company site settings saved",
+      "gateIncidentSaved": "Gate record saved.",
+      "gatePhotosAdded": "Photos added.",
+      "gateMembersAdded": "People asked in and notified."
     },
     "what": {
       "roles": "The role list",
@@ -12726,6 +12981,81 @@
       "requestedPass": "The pass in the link",
       "workers": "The worker list",
       "credentials": "The registered credentials"
+    },
+    "gateCategory": {
+      "SUSPICIOUS_PERSON": "Suspicious person",
+      "THEFT": "Theft",
+      "ABNORMAL_VEHICLE": "Abnormal vehicle",
+      "ITEM_REMOVAL": "Items taken out",
+      "DISPUTE": "Dispute",
+      "OTHER": "Other"
+    },
+    "gateRecords": {
+      "title": "Gate photo records",
+      "subtitle": "What the guard photographed at the gate: suspicious people, theft, abnormal vehicles, items taken out, disputes.",
+      "new": "New gate record",
+      "newTitle": "New gate photo record",
+      "newHelp": "Take as many photos as you need. Each one keeps its own time and GPS, with the project, gate and your name.",
+      "detailHelp": "Photos, the people asked in and the conversation all stay on this record and cannot be deleted.",
+      "field": {
+        "project": "Project",
+        "chooseProject": "Choose a project",
+        "allProjects": "All projects",
+        "category": "What happened",
+        "allCategories": "All types",
+        "search": "Search",
+        "searchPlaceholder": "Record no., gate, guard, pass or plate",
+        "gate": "Gate",
+        "gatePlaceholder": "e.g. Main gate",
+        "pass": "Linked pass",
+        "passHint": "Optional. Leave it as a standalone record if nobody's pass is involved.",
+        "standalone": "Standalone record",
+        "wholePass": "The pass, not one entry or exit",
+        "event": "Linked entry / exit",
+        "description": "What you saw",
+        "photos": "Photos",
+        "photosHint": "At least one. Keep pressing the camera to take more.",
+        "members": "Ask people in",
+        "membersHint": "Site, safety or project staff on this project. They are notified and can reply on this record.",
+        "guard": "Guard",
+        "time": "Time"
+      },
+      "what": "gate records",
+      "whatOne": "this gate record",
+      "whatPeople": "the people on this project",
+      "whatPasses": "the project's passes",
+      "loading": "Loading…",
+      "empty": "No gate photo records yet.",
+      "count": "Showing {shown} of {total}",
+      "loadMore": "Load more",
+      "photoAlt": "Gate photo",
+      "photoCount": "{count} photo(s)",
+      "linkedPass": "Pass {pass} · {subject}",
+      "photoNumber": "Photo {number}",
+      "removePhoto": "Remove photo {number}",
+      "gpsShort": "GPS",
+      "noGpsShort": "No GPS",
+      "locationReady": "Location {latitude}, {longitude}",
+      "locationFailed": "Could not get your location. Photos are still saved, marked GPS unavailable.",
+      "locating": "Getting your location…",
+      "retryLocation": "Try location again",
+      "optional": "Optional",
+      "takePhoto": "Take photo",
+      "takeAnother": "{count} taken · take another",
+      "saveError": "Could not save. Try again.",
+      "cancel": "Cancel",
+      "save": "Save {count} photo(s)",
+      "none": "Not given",
+      "photosTitle": "Photos ({count})",
+      "addPhotos": "Add photos",
+      "membersTitle": "People asked in",
+      "addMembers": "Ask people in",
+      "noMembers": "Nobody else on this project can open gate records.",
+      "noMembersYet": "Nobody has been asked in yet.",
+      "conversationTitle": "Conversation",
+      "conversationHelp": "Text, photos, voice and files stay on this gate record and cannot be deleted.",
+      "gpsValue": "GPS {latitude}, {longitude}",
+      "gpsUnavailable": "GPS unavailable"
     }
   },
   "siteDisposal": {

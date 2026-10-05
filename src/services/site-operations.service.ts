@@ -4,6 +4,7 @@ import type { ListQuery, Paginated } from "@/interfaces/api";
 import type { ExportRequest } from "@/services/contractor.service";
 import type {
   AttendancePayload,
+  AttendancePresence,
   AttendanceRecord,
   HazardConversation,
   HazardMessage,
@@ -42,6 +43,14 @@ export function getAttendance(
   query: ListQuery,
 ): Promise<Paginated<AttendanceRecord>> {
   return api.list<AttendanceRecord>("/api/attendance/get_attendance/", query);
+}
+
+/** 电子围栏／人员进场 numbers (C21), overall and per project. */
+export function getAttendancePresence(project?: string): Promise<AttendancePresence> {
+  return api.get<AttendancePresence>(
+    "/api/attendance/get_presence/",
+    project ? { project } : undefined,
+  );
 }
 
 export async function clockAttendance(

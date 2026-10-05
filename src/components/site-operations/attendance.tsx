@@ -4,22 +4,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Camera,
-  CheckCircle2,
   Eye,
   Loader2,
   LocateFixed,
   LogIn,
   LogOut,
   MapPin,
-  XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
-import { LocationMap } from "@/components/shared/location-map";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { PresenceSummary } from "@/components/site-operations/presence-summary";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +54,23 @@ const EMPTY_DRAFT: ClockDraft = {
   event: "CLOCK_IN",
   note: "",
 };
+
+/**
+ * 进场 / 离开, and 离开（系统结束） for the nightly close (L8): the reader of
+ * the record should not have to know what a source code means.
+ */
+function eventKey(record: AttendanceRecord) {
+  return record.source === "SYSTEM" && record.event === "CLOCK_OUT"
+    ? "attendance.eventSystemClose"
+    : `attendance.event.${record.event}`;
+}
+
+/** What stands in for the photo a record does not have. */
+function noPhotoKey(record: AttendanceRecord) {
+  if (record.source === "GEOFENCE") return "attendance.evidence.geofenceNoPhoto";
+  if (record.source === "SYSTEM") return "attendance.evidence.systemNoPhoto";
+  return "attendance.evidence.noPhoto";
+}
 
 export function Attendance() {
   const t = useTranslations();
@@ -183,9 +198,19 @@ export function Attendance() {
         header: () => t("attendance.field.event"),
         cell: ({ row }) => (
           <StatusBadge
-            label={t(`attendance.event.${row.original.event}`)}
+            label={t(eventKey(row.original))}
             tone={row.original.event === "CLOCK_IN" ? "positive" : "neutral"}
           />
+        ),
+      },
+      {
+        accessorKey: "source",
+        meta: { label: t("attendance.field.source") },
+        header: () => t("attendance.field.source"),
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {t(`attendance.source.${row.original.source ?? "MANUAL"}`)}
+          </span>
         ),
       },
       {
@@ -208,7 +233,7 @@ export function Attendance() {
               <Eye className="h-3.5 w-3.5" />
             </Button>
           ) : (
-            <span className="text-muted-foreground">{t("common.emptyValue")}</span>
+            <span className="text-muted-foreground">{t(noPhotoKey(record))}</span>
           );
         },
       },
@@ -245,6 +270,8 @@ export function Attendance() {
           </div>
         }
       />
+
+      <PresenceSummary project={list.filters.project} />
 
       <DataTable
         columns={columns}
@@ -373,95 +400,62 @@ export function Attendance() {
           if (!value) setSelectedRecord(null);
         }}
       >
-        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-3xl">
+        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{t("attendance.evidence.title")}</DialogTitle>
           </DialogHeader>
+          {/*
+            C21: 「详情不展示匹配围栏技术信息或地图，实时位置页保留地图」 - the
+            record shows who, where, when, the photo and the GPS reading. The
+            fence verdict, distance and accuracy stay on the server; the map
+            is on 实时位置.
+          */}
           {selectedRecord && (
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div className="space-y-4">
-                {selectedRecord.photo ? (
-                  <div className="overflow-hidden rounded-lg border bg-muted/20">
-                    <img
-                      src={selectedRecord.watermarked_photo || selectedRecord.photo}
-                      alt={t("attendance.evidence.photoAlt")}
-                      className="max-h-[26rem] w-full object-contain"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex min-h-40 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-                    {t("attendance.evidence.noPhoto")}
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <EvidenceValue label={t("attendance.evidence.worker")} value={selectedRecord.user_name} />
-                  <EvidenceValue label={t("attendance.evidence.project")} value={selectedRecord.project_name} />
-                  <EvidenceValue
-                    label={t("attendance.evidence.event")}
-                    value={t(`attendance.event.${selectedRecord.event}`)}
-                  />
-                  <EvidenceValue
-                    label={t("attendance.evidence.recordedAt")}
-                    value={df.dateTime(selectedRecord.occurred_at)}
-                  />
-                  <EvidenceValue
-                    label={t("attendance.evidence.originalAt")}
-                    value={selectedRecord.original_occurred_at ? df.dateTime(selectedRecord.original_occurred_at) : t("common.emptyValue")}
-                  />
-                  <EvidenceValue
-                    label={t("attendance.evidence.uploadedAt")}
-                    value={df.dateTime(selectedRecord.uploaded_at)}
+            <div className="space-y-4">
+              {selectedRecord.photo ? (
+                <div className="overflow-hidden rounded-lg border bg-muted/20">
+                  <img
+                    src={selectedRecord.watermarked_photo || selectedRecord.photo}
+                    alt={t("attendance.evidence.photoAlt")}
+                    className="max-h-[26rem] w-full object-contain"
                   />
                 </div>
-                {selectedRecord.note && (
-                  <EvidenceValue label={t("attendance.evidence.note")} value={selectedRecord.note} />
-                )}
-              </div>
-              <div className="space-y-4">
-                {selectedRecord.latitude && selectedRecord.longitude ? (
-                  <LocationMap
-                    center={[Number(selectedRecord.latitude), Number(selectedRecord.longitude)]}
-                    markers={[
-                      {
-                        id: selectedRecord.id,
-                        latitude: Number(selectedRecord.latitude),
-                        longitude: Number(selectedRecord.longitude),
-                        label: selectedRecord.user_name,
-                        detail: `${selectedRecord.project_name} · ${t(`attendance.event.${selectedRecord.event}`)}`,
-                        tone: selectedRecord.geofence_result === "OUTSIDE" ? "danger" : "positive",
-                        icon: "person",
-                      },
-                    ]}
-                    className="min-h-[18rem] rounded-lg"
-                  />
-                ) : (
-                  <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-                    {t("attendance.evidence.noLocation")}
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <EvidenceStatus
-                    label={t("attendance.evidence.geofence")}
-                    value={t(`attendance.evidence.geofenceStatus.${selectedRecord.geofence_result}`)}
-                    positive={selectedRecord.geofence_result === "INSIDE"}
-                    negative={selectedRecord.geofence_result === "OUTSIDE"}
-                  />
-                  <EvidenceValue
-                    label={t("attendance.evidence.geofenceName")}
-                    value={selectedRecord.matched_geofence_name || t("attendance.evidence.notMatched")}
-                  />
-                  <EvidenceValue
-                    label={t("attendance.evidence.distance")}
-                    value={selectedRecord.distance_m ? `${selectedRecord.distance_m} m` : t("common.emptyValue")}
-                  />
-                  <EvidenceValue
-                    label={t("attendance.evidence.accuracy")}
-                    value={selectedRecord.location_accuracy_m ? `${selectedRecord.location_accuracy_m} m` : t("common.emptyValue")}
-                  />
-                  <EvidenceValue label={t("attendance.evidence.latitude")} value={selectedRecord.latitude || t("common.emptyValue")} />
-                  <EvidenceValue label={t("attendance.evidence.longitude")} value={selectedRecord.longitude || t("common.emptyValue")} />
+              ) : (
+                <div className="flex min-h-32 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+                  {t(noPhotoKey(selectedRecord))}
                 </div>
+              )}
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <EvidenceValue label={t("attendance.evidence.worker")} value={selectedRecord.user_name} />
+                <EvidenceValue label={t("attendance.evidence.project")} value={selectedRecord.project_name} />
+                <EvidenceValue
+                  label={t("attendance.evidence.event")}
+                  value={t(eventKey(selectedRecord))}
+                />
+                <EvidenceValue
+                  label={t("attendance.field.source")}
+                  value={t(`attendance.source.${selectedRecord.source ?? "MANUAL"}`)}
+                />
+                <EvidenceValue
+                  label={t("attendance.evidence.recordedAt")}
+                  value={df.dateTime(selectedRecord.occurred_at)}
+                />
+                <EvidenceValue
+                  label={t("attendance.evidence.gps")}
+                  value={
+                    selectedRecord.latitude && selectedRecord.longitude
+                      ? `${selectedRecord.latitude}, ${selectedRecord.longitude}`
+                      : t("attendance.evidence.noLocation")
+                  }
+                />
+                <EvidenceValue
+                  label={t("attendance.evidence.uploadedAt")}
+                  value={df.dateTime(selectedRecord.uploaded_at)}
+                />
               </div>
+              {selectedRecord.note && (
+                <EvidenceValue label={t("attendance.evidence.note")} value={selectedRecord.note} />
+              )}
             </div>
           )}
           <DialogFooter>
@@ -480,29 +474,6 @@ function EvidenceValue({ label, value }: { label: string; value: string }) {
     <div className="min-w-0 rounded-md border bg-muted/20 p-2.5">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="mt-1 break-words font-medium text-foreground">{value}</div>
-    </div>
-  );
-}
-
-function EvidenceStatus({
-  label,
-  value,
-  positive,
-  negative,
-}: {
-  label: string;
-  value: string;
-  positive: boolean;
-  negative: boolean;
-}) {
-  return (
-    <div className="min-w-0 rounded-md border bg-muted/20 p-2.5">
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 flex items-center gap-1.5 font-medium text-foreground">
-        {positive ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : null}
-        {negative ? <XCircle className="h-4 w-4 text-destructive" /> : null}
-        {value}
-      </div>
     </div>
   );
 }

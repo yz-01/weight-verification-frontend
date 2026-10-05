@@ -1,9 +1,17 @@
-import type { ListQuery } from "@/interfaces/api";
+import type { ListQuery, Paginated } from "@/interfaces/api";
 import type {
   ContractorDashboard,
   ContractorDashboardSection,
   DashboardSearchResult,
 } from "@/interfaces/contractor-dashboard";
+import type {
+  AnnouncementReader,
+  AnnouncementScope,
+  ApprovalQueuePage,
+  CompanyAnnouncement,
+  HeadquartersOverview,
+  HeadquartersPhoto,
+} from "@/interfaces/headquarters";
 import { api, download } from "@/services/api-client";
 
 /**
@@ -63,4 +71,115 @@ export function exportContractorDashboard(input: {
     fallbackFilename:
       input.format === "PDF" ? "mse-dashboard.pdf" : "mse-dashboard.xlsx",
   });
+}
+
+/** 公司总部 Dashboard (C13, C15): the company's numbers and each project's. */
+export function getHeadquarters(): Promise<HeadquartersOverview> {
+  return api.get<HeadquartersOverview>(
+    "/api/contractor-dashboard/get_headquarters/",
+  );
+}
+
+/** 今日现场照片 (C14), a page at a time - the list loads more, never stops. */
+export function getHeadquartersPhotos(input: {
+  page?: number;
+  page_size?: number;
+  project?: string;
+} = {}): Promise<Paginated<HeadquartersPhoto>> {
+  const query: ListQuery = {};
+  if (input.page) query.page = input.page;
+  if (input.page_size) query.page_size = input.page_size;
+  if (input.project) query.project = input.project;
+  return api.get<Paginated<HeadquartersPhoto>>(
+    "/api/contractor-dashboard/get_headquarters_photos/",
+    query,
+  );
+}
+
+/** 总部集中审批 (C16): every waiting decision, a page at a time. */
+export function getApprovalQueue(input: {
+  page?: number;
+  page_size?: number;
+  project?: string;
+  source?: string;
+} = {}): Promise<ApprovalQueuePage> {
+  const query: ListQuery = {};
+  if (input.page) query.page = input.page;
+  if (input.page_size) query.page_size = input.page_size;
+  if (input.project) query.project = input.project;
+  if (input.source) query.source = input.source;
+  return api.get<ApprovalQueuePage>(
+    "/api/contractor-dashboard/get_approval_queue/",
+    query,
+  );
+}
+
+/** 公司公告 (C18), newest first, a page at a time. */
+export function getAnnouncements(input: {
+  page?: number;
+  page_size?: number;
+  received?: boolean;
+} = {}): Promise<Paginated<CompanyAnnouncement>> {
+  const query: ListQuery = {};
+  if (input.page) query.page = input.page;
+  if (input.page_size) query.page_size = input.page_size;
+  if (input.received) query.received = "1";
+  return api.get<Paginated<CompanyAnnouncement>>(
+    "/api/company-announcements/get_announcements/",
+    query,
+  );
+}
+
+export function getAnnouncement(id: string): Promise<CompanyAnnouncement> {
+  return api.get<CompanyAnnouncement>(
+    `/api/company-announcements/${id}/get_announcement/`,
+  );
+}
+
+/** Records this reader's first opening - and settles nothing else (D04). */
+export function readAnnouncement(id: string): Promise<CompanyAnnouncement> {
+  return api.post<CompanyAnnouncement>(
+    `/api/company-announcements/${id}/read_announcement/`,
+    {},
+  );
+}
+
+export function publishAnnouncement(input: {
+  title: string;
+  body: string;
+  scope: AnnouncementScope;
+  projects: string[];
+  files: File[];
+}): Promise<CompanyAnnouncement> {
+  const data = new FormData();
+  data.append("title", input.title);
+  data.append("body", input.body);
+  data.append("scope", input.scope);
+  input.projects.forEach((project) => data.append("projects", project));
+  input.files.forEach((file) => data.append("files", file));
+  return api.post<CompanyAnnouncement>(
+    "/api/company-announcements/publish_announcement/",
+    data,
+  );
+}
+
+export function withdrawAnnouncement(id: string): Promise<CompanyAnnouncement> {
+  return api.post<CompanyAnnouncement>(
+    `/api/company-announcements/${id}/withdraw_announcement/`,
+    {},
+  );
+}
+
+export function getAnnouncementReaders(
+  id: string,
+  input: { page?: number; page_size?: number; read?: "1" | "0" } = {},
+): Promise<Paginated<AnnouncementReader>> {
+  const query: ListQuery = {};
+  if (input.page) query.page = input.page;
+  if (input.page_size) query.page_size = input.page_size;
+  if (input.read) query.read = input.read;
+  return api.get<Paginated<AnnouncementReader>>(
+    `/api/company-announcements/${id}/get_readers/`,
+    query,
+  );
 }

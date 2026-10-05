@@ -39,6 +39,7 @@ import {
   decodeGateQrImage,
   GateQrScanner,
 } from "@/components/site-access/gate-qr-scanner";
+import { GateRecordsPanel } from "@/components/site-access/gate-records";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -99,8 +100,15 @@ export function SiteAccessWorkspace() {
   const requestedPassId = search.get("pass");
   const requestedGate =
     search.get("tab") === "gate" || Boolean(search.get("scan"));
-  const [tab, setTab] = useState<"passes" | "gate" | "devices">(
-    requestedGate && can("site_access.scan") ? "gate" : "passes",
+  // 门岗记录 (C22), opened from a notification with `?tab=gate-records`.
+  const requestedRecords =
+    search.get("tab") === "gate-records" || Boolean(search.get("gate_incident"));
+  const [tab, setTab] = useState<"passes" | "gate" | "gate-records" | "devices">(
+    requestedRecords
+      ? "gate-records"
+      : requestedGate && can("site_access.scan")
+        ? "gate"
+        : "passes",
   );
   const [project, setProject] = useState("all");
   const [status, setStatus] = useState("all");
@@ -120,17 +128,22 @@ export function SiteAccessWorkspace() {
     const nextTab =
       value === "gate" && can("site_access.scan")
         ? ("gate" as const)
-        : value === "devices"
-          ? ("devices" as const)
-          : ("passes" as const);
+        : value === "gate-records"
+          ? ("gate-records" as const)
+          : value === "devices"
+            ? ("devices" as const)
+            : ("passes" as const);
     setTab(nextTab);
 
     const url = new URL(window.location.href);
-    if (nextTab === "gate") url.searchParams.set("tab", "gate");
-    else {
+    if (nextTab === "gate" || nextTab === "gate-records") {
+      url.searchParams.set("tab", nextTab);
+      if (nextTab === "gate-records") url.searchParams.delete("scan");
+    } else {
       url.searchParams.delete("tab");
       url.searchParams.delete("scan");
     }
+    if (nextTab !== "gate-records") url.searchParams.delete("gate_incident");
     window.history.replaceState(
       window.history.state,
       "",
@@ -214,6 +227,10 @@ export function SiteAccessWorkspace() {
               {t("access.gate")}
             </TabsTrigger>
           )}
+          <TabsTrigger value="gate-records">
+            <Camera />
+            {t("access.gateRecords")}
+          </TabsTrigger>
           <TabsTrigger value="devices">
             <RadioTower />
             {t("access.deviceEvents")}
@@ -385,6 +402,11 @@ export function SiteAccessWorkspace() {
         <TabsContent value="gate">
           <Suspense fallback={<State text={t("state.loading")} />}>
             <GatePanel onRecorded={invalidate} />
+          </Suspense>
+        </TabsContent>
+        <TabsContent value="gate-records">
+          <Suspense fallback={<State text={t("state.loading")} />}>
+            <GateRecordsPanel />
           </Suspense>
         </TabsContent>
         <TabsContent value="devices">

@@ -247,11 +247,21 @@ export interface FieldTask {
     status: string;
     forwarded_at: string | null;
   } | null;
+  /** HQ: published from the 公司总部 Dashboard (C17); SITE: everything else. */
+  origin: "SITE" | "HQ";
+  /** What the assignee wrote when submitting the result (C17). */
+  result_note: string;
+  /** The publisher's account; a head-office task's confirmer (B18). */
+  created_by: string | null;
+  /** Past due and not confirmed or cancelled, by the server's clock. */
+  is_overdue?: boolean;
   created_at: string;
   updated_at: string;
 }
 
 export interface FieldTaskPayload {
+  /** Set only when head office publishes (C17); fixed afterwards. */
+  origin?: "SITE" | "HQ";
   project: string;
   title: string;
   task_type: FieldTaskType;

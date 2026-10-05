@@ -9,6 +9,8 @@ export interface AttendanceRecord {
   user: string;
   user_name: string;
   event: AttendanceEvent;
+  /** Who wrote it (L8): the 打卡 form, the fence, or the nightly close. */
+  source: AttendanceSource;
   occurred_at: string;
   client_event_id: string;
   original_occurred_at: string | null;
@@ -24,6 +26,33 @@ export interface AttendanceRecord {
   matched_geofence: string | null;
   matched_geofence_name: string | null;
   created_at: string;
+}
+
+export type AttendanceSource = "MANUAL" | "GEOFENCE" | "SYSTEM";
+
+/**
+ * 电子围栏／人员进场 (C21), counted by the L8 rules.
+ *
+ * `current_total` is `app_on_site + gate_on_site`: people in by the phone, and
+ * people in through the gate on a pass whose account is not already counted.
+ * `entered_today` always equals `left_today + still_on_site`.
+ */
+export interface PresenceNumbers {
+  current_total: number;
+  app_on_site: number;
+  gate_on_site: number;
+  still_on_site: number;
+  entered_today: number;
+  left_today: number;
+}
+
+export interface ProjectPresence extends PresenceNumbers {
+  project_id: string;
+  project_name: string;
+}
+
+export interface AttendancePresence extends PresenceNumbers {
+  projects: ProjectPresence[];
 }
 
 export interface AttendancePayload {
@@ -285,6 +314,10 @@ export interface WorkforcePresencePerson {
   trade_id: string | null;
   trade_name: string;
   since: string;
+  entry_source: AttendanceSource;
+  last_report_at: string | null;
+  /** No report for 30 minutes: still counted, shown as 未回报. */
+  stale: boolean;
 }
 
 /**
@@ -296,6 +329,7 @@ export interface WorkforcePresencePerson {
  */
 export interface WorkforcePresence {
   on_site_now: number;
+  still_on_site: number;
   entered_today: number;
   left_today: number;
   by_department: Record<string, number>;

@@ -3149,34 +3149,24 @@
     },
     "count": "共 {count} 条人员进场记录",
     "event": {
-      "CLOCK_IN": "上班打卡",
-      "CLOCK_OUT": "下班打卡"
+      "CLOCK_IN": "进场",
+      "CLOCK_OUT": "离开"
     },
     "evidence": {
-      "accuracy": "GPS 精度",
-      "distance": "距离",
       "event": "事件",
-      "geofence": "围栏结果",
-      "geofenceName": "匹配围栏",
-      "geofenceStatus": {
-        "INSIDE": "围栏内",
-        "NOT_EVALUATED": "未评估",
-        "OUTSIDE": "围栏外"
-      },
-      "latitude": "纬度",
-      "longitude": "经度",
       "noLocation": "这次打卡没有记录 GPS 位置。",
       "noPhoto": "这次打卡没有上传照片。",
-      "notMatched": "没有匹配围栏",
       "note": "备注",
-      "originalAt": "原始发生时间",
       "photoAlt": "人员进场照片",
       "project": "项目",
       "recordedAt": "系统记录时间",
       "title": "人员进场证据详情",
       "uploadedAt": "上传时间",
       "view": "查看证据",
-      "worker": "人员"
+      "worker": "人员",
+      "gps": "GPS 位置",
+      "geofenceNoPhoto": "围栏自动（无照片）",
+      "systemNoPhoto": "系统结束：手机未再回报（无照片）"
     },
     "field": {
       "event": "类型",
@@ -3186,7 +3176,8 @@
       "photo": "照片",
       "project": "项目",
       "time": "记录时间",
-      "worker": "人员"
+      "worker": "人员",
+      "source": "来源"
     },
     "filter": {
       "allProjects": "所有项目",
@@ -3195,6 +3186,25 @@
     "title": "人员进场记录",
     "toast": {
       "recorded": "人员进场已记录"
+    },
+    "eventSystemClose": "离开（系统结束）",
+    "source": {
+      "MANUAL": "手动打卡",
+      "GEOFENCE": "围栏自动",
+      "SYSTEM": "系统结束"
+    },
+    "presence": {
+      "what": "现场人数",
+      "currentTotal": "当前现场总人数",
+      "composition": "App 人员 {app} + 门岗通行 {gate}",
+      "loading": "加载中…",
+      "openList": "查看紧急在场名单",
+      "enteredToday": "今日进入",
+      "leftToday": "今日离开",
+      "stillOnSite": "仍在场",
+      "stillHint": "今天进场、还没离开",
+      "byProject": "按项目查看（{count} 个项目）",
+      "project": "项目"
     }
   },
   "audit": {
@@ -5197,15 +5207,19 @@
         "DISPOSAL_REQUEST": "工地清运",
         "FIELD_TASK": "现场任务",
         "SITE_PROGRESS": "进度记录",
-        "WASTE_OUTGOING": "环保材料出场申请"
+        "WASTE_OUTGOING": "环保材料出场申请",
+        "MATERIAL_REQUEST": "MR / Other Request",
+        "EQUIPMENT_MOVEMENT": "设备进退场申请",
+        "MATERIAL_OUTGOING": "材料出场 / 退场申请",
+        "SUNDRY_CLAIM": "杂费报销"
       },
       "waitingMinutes": "已等待 {count} 分钟",
       "waitingHours": "已等待 {count} 小时",
       "waitingDays": "已等待 {count} 天"
     },
     "attendanceEvent": {
-      "CLOCK_IN": "上班打卡",
-      "CLOCK_OUT": "下班打卡"
+      "CLOCK_IN": "进场",
+      "CLOCK_OUT": "离开"
     },
     "error": "看板加载失败，请稍后重试。",
     "export": {
@@ -5284,7 +5298,7 @@
       "entered": "今日进场",
       "left": "今日离场",
       "irregular": "异常进出",
-      "irregularBreakdown": "其中：超出围栏 {outside} · 打卡顺序异常 {order} · 未打下班卡 {noExit}"
+      "irregularBreakdown": "其中：超出围栏 {outside} · 进出顺序异常 {order} · 未记录离开 {noExit}"
     },
     "photos": {
       "empty": "今天没有拍摄照片。",
@@ -5810,7 +5824,10 @@
       "confirmDone": "确认完成",
       "confirmedBy": "{name} 已确认 · {value}",
       "returnedBy": "{name} 已退回 · {value}",
-      "returnReasonShown": "退回原因：{reason}"
+      "returnReasonShown": "退回原因：{reason}",
+      "onlyOpen": "只显示未完成的任务（还没确认完成或取消）。",
+      "onlyOverdue": "只显示逾期任务（过了截止时间、还没确认完成或取消）。",
+      "openHeadOffice": "总部任务详情"
     },
     "toast": {
       "movementSaved": "设备进退场已记录",
@@ -7425,7 +7442,9 @@
       "staff": "现场人员列表",
       "projects": "项目列表",
       "accessInfo": "此人目前的项目"
-    }
+    },
+    "role": "角色",
+    "roleHint": "门岗保安可扫通行证、拍门岗照片记录。两种角色都用这个链接在手机登入。"
   },
   "fieldDraft": {
     "loading": "正在载入已保存草稿…",
@@ -7460,8 +7479,8 @@
       "takePhoto": "拍照"
     },
     "attendance": {
-      "clockIn": "上班打卡",
-      "clockOut": "下班打卡",
+      "clockIn": "手动进场",
+      "clockOut": "手动离开",
       "distance": "距离围栏：{distance} 米",
       "geofence": {
         "INSIDE": "围栏范围内",
@@ -7470,16 +7489,16 @@
       },
       "getLocation": "获取当前 GPS",
       "locationReady": "GPS 已准备",
-      "noRecords": "今天还没有打卡记录",
+      "noRecords": "今天还没有进场 / 离开记录",
       "note": "备注（选填）",
-      "openPhoto": "查看打卡照片",
+      "openPhoto": "查看自拍照片",
       "selectProject": "选择今天的项目",
       "selfieReady": "自拍照已准备",
-      "submit": "提交打卡",
+      "submit": "提交手动记录",
       "takeSelfie": "拍摄自拍照",
       "title": "人员进场",
-      "todayCount": "今天已有 {count} 条打卡记录",
-      "viewMap": "查看打卡位置"
+      "todayCount": "今天已有 {count} 条进场 / 离开记录",
+      "viewMap": "查看记录位置"
     },
     "camera": {
       "starting": "相机还在启动",
@@ -7576,7 +7595,12 @@
       "requiredTitle": "开启定位后才能继续",
       "retry": "重新检查定位",
       "startingBody": "请允许精确定位，MSE Trace 才能确认此设备是否在获分配工地的电子围栏内。",
-      "startingTitle": "必须开启定位"
+      "startingTitle": "必须开启定位",
+      "noPresence": "定位失败时不会自动记录进场，也不会用旧位置代替。",
+      "presence": {
+        "entered": "已自动记录进场：{project}",
+        "left": "已自动记录离开：{project}"
+      }
     },
     "material": {
       "location": "放在哪里",
@@ -7697,7 +7721,8 @@
       "title": "现场记录",
       "waste": "环保材料出场申请",
       "sundry": "杂费报销",
-      "request": "MR / 其他申请"
+      "request": "MR / 其他申请",
+      "gate": "门岗拍照记录"
     },
     "status": {
       "ACCEPTED": "已完成",
@@ -7734,7 +7759,7 @@
     "locationAccess": {
       "why": {
         "title": "这里需要用到你的位置",
-        "body": "收货、打卡和现场记录都会记下发生的地点，这样办公室不用打电话跟你确认人在不在工地。只在你按下按钮的那一刻读一次。",
+        "body": "App 开着的时候会定时读取你的位置，用来自动记录进场和离开，收货和现场记录也会记下发生的地点。关掉 App 或拒绝定位就不会记录，也不会用旧位置代替。",
         "allow": "好，允许定位",
         "later": "暂时不要"
       },
@@ -7960,6 +7985,217 @@
     },
     "what": {
       "conversation": "整改沟通"
+    }
+  },
+  "headquarters": {
+    "banner": {
+      "label": "公司与登录人",
+      "companyView": "公司总部视图",
+      "projectView": "当前项目：{project}",
+      "allProjectsView": "项目视图 · 全部项目",
+      "notifications": "通知",
+      "notificationsCount": "通知 {count}",
+      "projectUnreadable": "（项目名称读取失败）"
+    },
+    "figures": {
+      "title": "全公司数字",
+      "someProjects": "这些数字只包含你被指派的项目。",
+      "projects": "项目总数",
+      "activeProjects": "活跃 {count}",
+      "onSiteSplit": "App 人员 {app} ＋ 门岗通行 {gate}",
+      "field": {
+        "today_records": "今日现场记录",
+        "on_site_now": "当前在场人数",
+        "pending_approvals": "待审批",
+        "open_tasks": "未完成任务",
+        "overdue_tasks": "逾期任务",
+        "overdue_rectifications": "逾期整改",
+        "material_receipts_today": "今日材料进场"
+      },
+      "wasteDispatches": "原废料订单",
+      "siteDisposals": "原工地清运",
+      "records": "数量",
+      "trips": "车次",
+      "weighedKg": "过磅重量（kg）",
+      "weightKg": "重量（kg）",
+      "project": "项目",
+      "value": "数目",
+      "status": "状态",
+      "open": "查看",
+      "other": "公司层级／未关联项目",
+      "total": "合计",
+      "drillHelp": "各项目的明细，加起来等于上面的总数。",
+      "todayRecordsHelp": "今天发生的现场记录：材料进场及退场、材料出场、设备交接、工程进度、隐患、现场任务提交、工地清运、废料订单、环保材料出场、门岗拍照记录。在场人员另外计算，不算在这里。",
+      "overdueHelp": "过了截止时间、还没闭环的（任务要确认人确认完成才算闭环，整改要验收通过）。",
+      "clearanceHelp": "至今的累计，各自按本身模组统计，两类不相加。",
+      "nothingToday": "今天还没有现场记录。",
+      "projectStatus": {
+        "PLANNING": "筹备中",
+        "ACTIVE": "进行中",
+        "SUSPENDED": "暂停",
+        "COMPLETED": "已完工"
+      }
+    },
+    "recordKind": {
+      "MATERIAL_RECEIPT": "材料进场",
+      "DELIVERY_NOTE": "送货单",
+      "MATERIAL_OUTGOING": "材料出场",
+      "EQUIPMENT_MOVEMENT": "设备进退场",
+      "EQUIPMENT": "设备",
+      "SITE_PROGRESS": "工程进度",
+      "SAFETY_INCIDENT": "隐患整改",
+      "FIELD_TASK": "现场任务",
+      "DISPOSAL": "工地清运",
+      "WASTE_DISPATCH": "废料订单",
+      "WASTE_OUTGOING": "环保材料出场",
+      "GATE_INCIDENT": "门岗拍照记录"
+    },
+    "map": {
+      "title": "项目分布地图",
+      "placed": "地图上 {placed} 个 / 共 {total} 个项目",
+      "layers": "地图图层",
+      "layerProjects": "项目",
+      "layerDevices": "设备（未接入）",
+      "layerDevicesHelp": "设备位置还没有显示：方案和费用待客户确认。",
+      "nothingPlaced": "还没有项目设定座标。在项目资料设定位置后，就会出现在地图上。",
+      "pickHelp": "在地图上或下面的列表点一个项目，看它的状态并进入项目。",
+      "legendOverdue": "有逾期",
+      "legendWaiting": "有待审批或未完成",
+      "legendClear": "没有待办",
+      "legendInactive": "淡色：非进行中",
+      "withoutLocation": "{count} 个项目没有设定座标，没有放在地图上",
+      "setLocation": "设定位置",
+      "enter": "进入项目",
+      "markerDetail": "在场 {onSite} · 待审批 {pending} · 逾期 {overdue}",
+      "noPhoto": "还没有现场照片",
+      "latestPhotoAlt": "最新现场照片，{time}",
+      "overview": "项目总览",
+      "noProjects": "目前没有你可查看的项目。",
+      "location": "地点",
+      "latestPhoto": "最新照片",
+      "overdue": "逾期",
+      "noCoordinates": "未设定座标"
+    },
+    "photos": {
+      "title": "今日现场照片（各项目）",
+      "shown": "显示 {shown} / 共 {total} 张",
+      "empty": "今天各项目还没有上传现场照片。",
+      "alt": "{kind}照片，{project}",
+      "unknownPhotographer": "未记录拍摄人",
+      "loading": "载入中…",
+      "loadMore": "载入更多"
+    },
+    "work": {
+      "overdue": "逾期整改（{count}）",
+      "noOverdue": "目前没有逾期的整改。",
+      "daysOverdue": "逾期 {days} 天",
+      "presence": "当前在场人数",
+      "presenceSplit": "App 人员 {app} ＋ 门岗通行 {gate}，按项目",
+      "nobodyOnSite": "目前没有人在场。",
+      "tabApprovals": "待审批",
+      "tabOverdue": "逾期整改",
+      "allOverdue": "查看全部 {count} 件逾期整改",
+      "title": "总部工作",
+      "tabTasks": "总部任务",
+      "tabAnnouncements": "公告"
+    },
+    "approvals": {
+      "allProjects": "全部项目",
+      "kinds": "事项类型",
+      "allKinds": "全部",
+      "shown": "显示 {shown} / 共 {total} 件",
+      "empty": "目前没有待审批的事项。",
+      "companyWide": "公司层级",
+      "opensPage": "会打开原页面",
+      "loading": "载入中…",
+      "loadMore": "载入更多",
+      "decide": "批准 / 退回"
+    },
+    "tasks": {
+      "piles": "任务分类",
+      "pile": {
+        "open": "未完成",
+        "done": "已完成",
+        "overdue": "已逾期"
+      },
+      "empty": {
+        "open": "没有未完成的总部任务。",
+        "done": "还没有已完成的总部任务。",
+        "overdue": "没有逾期的总部任务。"
+      },
+      "allProjects": "全部项目",
+      "publish": "发布任务",
+      "shown": "显示 {shown} / 共 {total} 件",
+      "dueAt": "期限 {at}",
+      "resultShort": "结果：{result}",
+      "overdue": "已逾期",
+      "loading": "载入中…",
+      "loadMore": "载入更多",
+      "publishTitle": "发布总部任务",
+      "publishHelp": "任务会进入负责人的「我的待办」。负责人提交结果后，由你确认完成，或写明原因退回。",
+      "project": "项目",
+      "chooseProject": "选择项目",
+      "assignee": "负责人",
+      "chooseAssignee": "选择项目成员",
+      "projectPeople": "项目成员",
+      "taskTitle": "任务",
+      "content": "任务内容",
+      "due": "截止时间",
+      "cancel": "取消",
+      "publishAction": "发布",
+      "fromHeadOffice": "总部任务",
+      "fromSite": "现场任务",
+      "status": "状态",
+      "publisher": "发布人",
+      "result": "结果",
+      "submittedAt": "提交于 {at}",
+      "returnedBy": "退回人",
+      "confirmedBy": "确认人",
+      "resultLabel": "处理结果",
+      "photosLabel": "照片",
+      "optional": "选填",
+      "filesHelp": "PDF 等文件请上传到下面的「附件」；有问题在「沟通」里留言。",
+      "submit": "提交结果",
+      "return": "退回",
+      "confirm": "确认完成",
+      "returnReason": "退回原因",
+      "returnConfirm": "退回任务"
+    },
+    "announcements": {
+      "loading": "载入中…",
+      "loadMore": "载入更多",
+      "shown": "显示 {shown} / 共 {total} 则",
+      "empty": "还没有公告。",
+      "publish": "发布公告",
+      "scope": {
+        "COMPANY": "全公司",
+        "ALL_PROJECTS": "全部项目",
+        "PROJECTS": "指定项目"
+      },
+      "scopeProjectsNamed": "项目：{projects}",
+      "withdrawn": "已撤回",
+      "withdrawnNote": "已于 {at} 由 {who} 撤回。公告原文保留不变。",
+      "withdraw": "撤回",
+      "readCount": "已读 {read} / 共 {total}",
+      "readAt": "你于 {at} 打开过这则公告。",
+      "unread": "未读",
+      "readers": "阅读情况",
+      "readers_read": "已读",
+      "readers_unread": "未读",
+      "nobody": "没有人。",
+      "notRead": "未读",
+      "publishTitle": "发布公告",
+      "publishHelp": "公告会进入对象的通知中心。读公告不会消除任何待办事项。",
+      "titleLabel": "标题",
+      "bodyLabel": "公告内容",
+      "scopeLabel": "发布范围",
+      "projectsLabel": "项目",
+      "moreProjects": "更多项目",
+      "filesLabel": "附件",
+      "optional": "选填",
+      "fixedHelp": "发布后不能修改。要更正请发布新公告；旧公告可以撤回，原文会保留。",
+      "cancel": "取消",
+      "publishAction": "发布"
     }
   },
   "home": {
@@ -9177,8 +9413,8 @@
       "application_no": "申请编号",
       "archived_at": "归档时间",
       "category": "分类",
-      "clock_ins": "上班打卡",
-      "clock_outs": "下班打卡",
+      "clock_ins": "进场",
+      "clock_outs": "离开",
       "delivery_note_no": "送货单号",
       "description": "说明",
       "destination": "去向",
@@ -9843,10 +10079,10 @@
       "trouble": "调拨和借用容易混：调拨是资产换了地点（还是公司的），借用是到了某个人手上（要还）。"
     },
     "attendance": {
-      "what": "谁在哪里打了卡，连同当时的自拍和位置。",
+      "what": "谁在什么时候进场、离开，在哪里：手机电子围栏自动记录，或手动进场时连同自拍记录。",
       "who": "持 attendance.view 与 project.view。",
-      "need": "手机上打卡要选今天的项目、拍自拍照、取当前 GPS —— 三样缺一不可。",
-      "then": "打卡会对照工地围栏判断，并连同两者一起存下。",
+      "need": "不用按按钮：现场 App 开着、人在项目电子围栏内，就自动记录进场；手机在围栏外超过 5 分钟就记录离开。自动记录没有照片。手动进场 / 离开仍要选项目、拍自拍、取当前 GPS。",
+      "then": "每次进场、离开各一笔记录，不会覆盖。没有回报离开的，午夜后由系统另写一笔离开，时间是手机最后一次回报。没有定位就不记录。",
       "trouble": "GPS 拿不到：到室外或大门口再试。系统不会拿一个不准的位置凑数。"
     },
     "audit_log_center": {
@@ -11715,6 +11951,7 @@
       "dispatcher": "接收订单，安排车辆与司机。",
       "driver": "查看指派任务，提交现场照片。",
       "finance": "处理结算，登记付款证明。",
+      "gate_guard": "在门岗扫通行证，拍照记录门岗事项。",
       "platform_admin": "拥有平台全部功能的完整权限。",
       "platform_finance": "管理套餐、佣金与收款。",
       "platform_support": "处理工单与公告，可查阅客户资料。",
@@ -11729,6 +11966,7 @@
       "dispatcher": "调度员",
       "driver": "司机",
       "finance": "财务",
+      "gate_guard": "门岗保安",
       "platform_admin": "平台管理员",
       "platform_finance": "财务",
       "platform_support": "客服专员",
@@ -12347,7 +12585,8 @@
       "timeline": "进出记录",
       "title": "工地门禁",
       "unknownGate": "未注明门岗",
-      "defaultsFailed": "门禁默认设置未能载入，请先重试。"
+      "defaultsFailed": "门禁默认设置未能载入，请先重试。",
+      "gateRecords": "门岗拍照记录"
     },
     "action": {
       "approve": "批准",
@@ -12436,12 +12675,25 @@
       "currentCount": "目前在场",
       "durationHours": "{hours} 小时 {minutes} 分钟",
       "durationMinutes": "{minutes} 分钟",
-      "empty": "所选工地目前没有登记在场的人员、访客或车辆。",
-      "subtitle": "显示最后记录为进场、且尚未登记离场的所有人员与车辆。",
+      "empty": "所选现场此刻没有在场记录。",
+      "subtitle": "此刻在现场的所有人：手机电子围栏记录进场的人，加上门岗通行证进了还没出的人。",
       "title": "紧急在场名单",
       "updated": "系统自动刷新，上次更新时间：{time}",
       "useHelp": "在集合点核对人员、致电未到人员，并导出名单作为事故记录。",
-      "useTitle": "疏散时使用此名单"
+      "useTitle": "疏散时使用此名单",
+      "print": "打印",
+      "printedAt": "打印时间：{time}",
+      "composition": "共 {total} 人（App 人员 {app} + 门岗通行 {gate}）",
+      "split": "App 人员 {app} + 门岗通行 {gate}",
+      "source": "计入方式",
+      "sourceValue": {
+        "APP": "电子围栏（App）",
+        "GATE": "门岗通行证",
+        "BOTH": "电子围栏 + 门岗通行证"
+      },
+      "lastReport": "最后回报 {time}",
+      "stale": "未回报（最后 {time}）",
+      "noReport": "尚无位置回报"
     },
     "field": {
       "address": "地址",
@@ -12662,7 +12914,7 @@
       "STANDARD": "标准"
     },
     "settings": {
-      "attendancePhotoHelp": "工地人员每次上班和下班打卡都必须自拍。",
+      "attendancePhotoHelp": "工地人员每次手动进场和离开都必须自拍。电子围栏自动记录的没有照片。",
       "gatePhotoHelp": "门岗人员和已连接设备每次进出都必须提供照片。",
       "realRulesHelp": "二维码开关会控制许可证建立，通知开关会控制流程提醒，项目默认值会复制到新项目。",
       "realRulesTitle": "这些设置会真正影响业务。",
@@ -12718,7 +12970,10 @@
       "passRevoked": "门禁证已撤销",
       "passUpdated": "通行证已更新。",
       "profileSaved": "公司资料已保存",
-      "settingsSaved": "公司现场设置已保存"
+      "settingsSaved": "公司现场设置已保存",
+      "gateIncidentSaved": "门岗记录已保存。",
+      "gatePhotosAdded": "照片已补上。",
+      "gateMembersAdded": "已指定人员并通知。"
     },
     "what": {
       "roles": "角色列表",
@@ -12726,6 +12981,81 @@
       "requestedPass": "链接中的通行证",
       "workers": "工人列表",
       "credentials": "已登记的凭证"
+    },
+    "gateCategory": {
+      "SUSPICIOUS_PERSON": "可疑人员",
+      "THEFT": "偷窃",
+      "ABNORMAL_VEHICLE": "异常车辆",
+      "ITEM_REMOVAL": "物品带出",
+      "DISPUTE": "纠纷",
+      "OTHER": "其他"
+    },
+    "gateRecords": {
+      "title": "门岗拍照记录",
+      "subtitle": "门岗保安拍下的现场情况：可疑人员、偷窃、异常车辆、物品带出、纠纷。",
+      "new": "新增门岗记录",
+      "newTitle": "新增门岗拍照记录",
+      "newHelp": "可以连续拍多张，不限张数。每张照片都会记下时间、GPS、项目、门岗和你的名字。",
+      "detailHelp": "照片、被指定的人和沟通内容都留在这条门岗记录里，不能删除。",
+      "field": {
+        "project": "项目",
+        "chooseProject": "选择项目",
+        "allProjects": "全部项目",
+        "category": "事项类别",
+        "allCategories": "全部类别",
+        "search": "搜索",
+        "searchPlaceholder": "记录编号、门岗、保安、通行证或车牌",
+        "gate": "门岗",
+        "gatePlaceholder": "例如：大门",
+        "pass": "关联通行证",
+        "passHint": "可不选。没有关联的通行证就独立保存。",
+        "standalone": "独立记录",
+        "wholePass": "整张通行证（不指定某次进出）",
+        "event": "关联进出记录",
+        "description": "情况说明",
+        "photos": "照片",
+        "photosHint": "至少一张，可一直按相机继续拍。",
+        "members": "指定沟通人员",
+        "membersHint": "选这个项目的现场、安全或项目人员；他们会收到通知，并在这条记录里沟通。",
+        "guard": "保安",
+        "time": "时间"
+      },
+      "what": "门岗记录",
+      "whatOne": "这条门岗记录",
+      "whatPeople": "这个项目的人员",
+      "whatPasses": "这个项目的通行证",
+      "loading": "加载中…",
+      "empty": "还没有门岗拍照记录。",
+      "count": "已显示 {shown} / 共 {total} 条",
+      "loadMore": "载入更多",
+      "photoAlt": "门岗照片",
+      "photoCount": "{count} 张照片",
+      "linkedPass": "通行证 {pass} · {subject}",
+      "photoNumber": "第 {number} 张照片",
+      "removePhoto": "删除第 {number} 张（未保存）",
+      "gpsShort": "有 GPS",
+      "noGpsShort": "无 GPS",
+      "locationReady": "当前位置 {latitude}, {longitude}",
+      "locationFailed": "取不到定位。照片照样保存，标示「GPS 不可用」。",
+      "locating": "正在取得定位…",
+      "retryLocation": "重新定位",
+      "optional": "选填",
+      "takePhoto": "拍照",
+      "takeAnother": "已拍 {count} 张 · 继续拍",
+      "saveError": "保存失败，请再试一次。",
+      "cancel": "取消",
+      "save": "保存 {count} 张照片",
+      "none": "未填写",
+      "photosTitle": "照片（{count}）",
+      "addPhotos": "补拍照片",
+      "membersTitle": "指定沟通人员",
+      "addMembers": "指定人员",
+      "noMembers": "这个项目没有其他能看门岗记录的人员。",
+      "noMembersYet": "还没有指定人员。",
+      "conversationTitle": "沟通",
+      "conversationHelp": "文字、照片、语音、文件都留在这条门岗记录里，不能删除。",
+      "gpsValue": "GPS {latitude}, {longitude}",
+      "gpsUnavailable": "GPS 不可用"
     }
   },
   "siteDisposal": {

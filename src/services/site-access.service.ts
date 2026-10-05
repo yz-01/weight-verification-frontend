@@ -3,7 +3,12 @@ import type {
   CompanyBranch,
   ContractorCompanyProfile,
   ContractorSiteSettings,
-  EmergencyPresence,
+  EmergencyList,
+  GateIncident,
+  GateIncidentDetail,
+  GateIncidentPayload,
+  GateMemberOption,
+  GatePhotoDraft,
   SiteAccessCredential,
   SiteAccessCredentialPayload,
   SiteAccessEvent,
@@ -231,7 +236,7 @@ export async function scanSiteAccessGate(payload: {
 }
 
 export const getEmergencyList = (project?: string) =>
-  api.get<{ count: number; people: EmergencyPresence[] }>(
+  api.get<EmergencyList>(
     "/api/site-access-passes/get_emergency_list/",
     project ? { project } : undefined,
   );
@@ -249,3 +254,76 @@ export const getThirdPartyAccessEvents = (query: ListQuery = {}) =>
     "/api/site-access-passes/get_third_party_events/",
     query,
   );
+
+export const getGateIncidents = (query: ListQuery = {}) =>
+  api.list<GateIncident>("/api/gate-incidents/get_gate_incidents/", query);
+
+export const getGateIncident = (id: string) =>
+  api.get<GateIncidentDetail>(`/api/gate-incidents/${id}/get_gate_incident/`);
+
+export const getGateMemberOptions = (project: string) =>
+  api.get<GateMemberOption[]>("/api/gate-incidents/get_member_options/", {
+    project,
+  });
+
+function appendGatePhotos(body: FormData, photos: GatePhotoDraft[]) {
+  photos.forEach((photo) => body.append("photos", photo.file));
+  body.append(
+    "photo_meta",
+    JSON.stringify(
+      photos.map(({ captured_at, latitude, longitude, accuracy_m, client_event_id }) => ({
+        captured_at,
+        latitude: latitude ?? null,
+        longitude: longitude ?? null,
+        accuracy_m: accuracy_m ?? null,
+        client_event_id,
+      })),
+    ),
+  );
+}
+
+/** One gate record with every photo the guard took (C22). */
+export async function createGateIncident(payload: GateIncidentPayload) {
+  const body = new FormData();
+  const { photos, members, ...fields } = payload;
+  Object.entries(fields).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") body.append(key, value);
+  });
+  members.forEach((member) => body.append("members", member));
+  appendGatePhotos(body, photos);
+  const row = await api.post<GateIncidentDetail>(
+    "/api/gate-incidents/create_gate_incident/",
+    body,
+  );
+  toastSuccess("siteControl.toast.gateIncidentSaved");
+  return row;
+}
+
+export async function addGateIncidentPhotos(
+  id: string,
+  photos: GatePhotoDraft[],
+  fix?: { latitude: string; longitude: string; accuracy_m?: string },
+) {
+  const body = new FormData();
+  appendGatePhotos(body, photos);
+  if (fix) {
+    body.append("latitude", fix.latitude);
+    body.append("longitude", fix.longitude);
+    if (fix.accuracy_m) body.append("accuracy_m", fix.accuracy_m);
+  }
+  const row = await api.post<GateIncidentDetail>(
+    `/api/gate-incidents/${id}/add_photos/`,
+    body,
+  );
+  toastSuccess("siteControl.toast.gatePhotosAdded");
+  return row;
+}
+
+export async function addGateIncidentMembers(id: string, members: string[]) {
+  const row = await api.post<GateIncidentDetail>(
+    `/api/gate-incidents/${id}/add_members/`,
+    { members },
+  );
+  toastSuccess("siteControl.toast.gateMembersAdded");
+  return row;
+}

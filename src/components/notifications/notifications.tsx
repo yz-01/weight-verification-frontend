@@ -6,6 +6,9 @@ import { ArrowUpRight, BellPlus, Check, Loader2, Send, Trash2 } from "lucide-rea
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+
+import { AnnouncementDialog } from "@/components/announcements/announcement-dialog";
+import { useClearSearchParam } from "@/hooks/use-url-selection";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
@@ -74,6 +77,8 @@ export function Notifications({
   const df = useDateFormat();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
+  const announcement = searchParams.get("announcement");
+  const clearAnnouncement = useClearSearchParam("announcement");
   const { can } = useAuth();
   const list = useListQuery(["category", "today"]);
   const [composeOpen, setComposeOpen] = useState(
@@ -226,6 +231,11 @@ export function Notifications({
   const count = query.data?.count ?? 0;
   return (
     <div className="flex h-[calc(100dvh-5rem)] flex-col gap-4">
+      {/* 公司公告 (C18): a company announcement's notice opens it here.
+          Reading it does not dismiss the notice (D04). */}
+      {announcement && (
+        <AnnouncementDialog id={announcement} onClose={clearAnnouncement} />
+      )}
       <ListHeader
         title={t(titleKey)}
         subtitle={

@@ -40,7 +40,7 @@ import { walkFiles } from "./lib/walk.mjs";
 const ROOT = path.join(process.cwd(), "src");
 
 /**
- * The two raw tables that are allowed to stay raw, and the reason for each.
+ * The raw tables that are allowed to stay raw, and the reason for each.
  *
  * Neither is a list of records with a column contract, which is what the
  * shared table exists to render. Putting them in it would make them worse.
@@ -50,6 +50,12 @@ const RAW_TABLE_ALLOWED = new Map([
     "components/scales/gateway-panel.tsx",
     "The DTU wiring crib: a dense headerless code/value/meaning card an " +
       "engineer reads while holding a screwdriver, not a record list.",
+  ],
+  [
+    "components/site-access/emergency-list-workspace.tsx",
+    "The 紧急在场名单 print page (C21): an HTML string written into a print " +
+      "window, outside React, where the shared table cannot render. The " +
+      "on-screen list uses the shared table.",
   ],
   [
     "components/schedule-planning/schedule-planning-workspace.tsx",

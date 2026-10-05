@@ -678,7 +678,7 @@ export function WasteOutgoingWorkspace() {
         />
       )}
       {reviewing && (
-        <ReviewDialog
+        <WasteOutgoingReviewDialog
           record={reviewing}
           onClose={() => setReviewing(null)}
           onSaved={() => {
@@ -852,7 +852,7 @@ function HandOverDialog({
   );
 }
 
-function ReviewDialog({
+export function WasteOutgoingReviewDialog({
   record,
   onClose,
   onSaved,

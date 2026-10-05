@@ -120,6 +120,8 @@ export interface ApprovalRow {
   title: string;
   status: string;
   project: string;
+  /** Empty for a company-wide approval, which belongs to no project. */
+  project_id?: string;
   /**
    * Which queue this row came out of, from a closed set.
    *
