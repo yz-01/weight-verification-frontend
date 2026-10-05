@@ -29,6 +29,8 @@ export interface FieldInvitationPayload {
   full_name?: string;
   phone: string;
   email?: string;
+  /** The role to give, when not 现场人员 - e.g. 门岗保安 (C22). */
+  role?: string;
   project_ids: string[];
 }
 

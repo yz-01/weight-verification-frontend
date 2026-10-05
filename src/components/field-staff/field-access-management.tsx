@@ -48,6 +48,7 @@ import {
 import { getRoles, getUsers } from "@/services/users.service";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 
+type FieldRoleCode = "site_staff" | "gate_guard";
 type AccessMode = "new" | "existing";
 
 function toMobileSubscriberDigits(value: string): string {
@@ -86,6 +87,9 @@ function FieldAccessManagementContent({
     toMobileSubscriberDigits(initialUser?.phone ?? ""),
   );
   const [email, setEmail] = useDraftState("email", "");
+  // 现场人员 or 门岗保安 (C22). Both sign in on the phone with this link.
+  const [fieldRole, setFieldRole] = useDraftState<FieldRoleCode>("fieldRole", "site_staff");
+  const roleName = useTranslations("roles.system_");
   const [projectIds, setProjectIds] = useDraftState<string[] | null>("projectIds", null);
   const clearDraft = useClearDraft();
   const [result, setResult] = useState<FieldInvitationResult | null>(null);
@@ -107,15 +111,30 @@ function FieldAccessManagementContent({
   const siteStaffRole = roles.data?.results.find(
     (role) => role.code === "site_staff",
   );
+  const gateGuardRole = roles.data?.results.find(
+    (role) => role.code === "gate_guard",
+  );
+  const fieldRoleIds = [siteStaffRole?.id, gateGuardRole?.id].filter(
+    (id): id is string => Boolean(id),
+  );
   const fieldUsers = useQuery({
-    queryKey: ["users", "field-access-options", siteStaffRole?.id],
-    queryFn: () =>
-      getUsers({
-        page_size: 500,
-        role: siteStaffRole!.id,
-        sort_by: "full_name",
-        sort_order: "asc",
-      }),
+    queryKey: ["users", "field-access-options", ...fieldRoleIds],
+    queryFn: async () => {
+      const pages = await Promise.all(
+        fieldRoleIds.map((role) =>
+          getUsers({
+            page_size: 500,
+            role,
+            sort_by: "full_name",
+            sort_order: "asc",
+          }),
+        ),
+      );
+      const results = pages
+        .flatMap((page) => page.results)
+        .sort((a, b) => a.full_name.localeCompare(b.full_name));
+      return { count: results.length, results };
+    },
     enabled: mode === "existing" && Boolean(siteStaffRole?.id),
   });
   const accessInfo = useQuery({
@@ -138,6 +157,9 @@ function FieldAccessManagementContent({
               full_name: fullName.trim(),
               phone: canonicalPhone,
               ...(email.trim() ? { email: email.trim() } : {}),
+              ...(fieldRole === "gate_guard" && gateGuardRole
+                ? { role: gateGuardRole.id }
+                : {}),
               project_ids: selectedProjectIds,
             }),
     onSuccess: (invitation) => {
@@ -406,6 +428,22 @@ function FieldAccessManagementContent({
                   value={accessInfo.data?.phone ?? canonicalPhone}
                   disabled
                 />
+              </FieldWrapper>
+            )}
+            {mode === "new" && gateGuardRole && (
+              <FieldWrapper label={t("role")} hint={t("roleHint")} className="sm:col-span-2">
+                <div className="grid grid-cols-2 gap-2">
+                  {(["site_staff", "gate_guard"] as const).map((code) => (
+                    <Button
+                      key={code}
+                      type="button"
+                      variant={fieldRole === code ? "default" : "outline"}
+                      onClick={() => setFieldRole(code)}
+                    >
+                      {roleName(code)}
+                    </Button>
+                  ))}
+                </div>
               </FieldWrapper>
             )}
             {mode === "new" && (

@@ -7413,7 +7413,9 @@
       "staff": "Senarai kakitangan tapak",
       "projects": "Senarai projek",
       "accessInfo": "Projek semasa orang ini"
-    }
+    },
+    "role": "Peranan",
+    "roleHint": "Pengawal pintu mengimbas pas dan mengambil rekod foto pintu. Kedua-duanya log masuk di telefon dengan pautan ini."
   },
   "fieldDraft": {
     "loading": "Memuatkan draf yang disimpan...",
@@ -11704,6 +11706,7 @@
       "dispatcher": "Menerima pesanan, menetapkan kenderaan dan pemandu.",
       "driver": "Melihat tugas yang ditetapkan dan menghantar foto tapak.",
       "finance": "Menyelesaikan transaksi dan merekod bukti pembayaran.",
+      "gate_guard": "Mengimbas pas di pintu dan merakam apa yang berlaku di situ.",
       "platform_admin": "Akses penuh kepada setiap fungsi platform.",
       "platform_finance": "Mengurus pelan, komisen dan kutipan.",
       "platform_support": "Mengendalikan tiket dan pengumuman, membaca data pelanggan.",
@@ -11718,6 +11721,7 @@
       "dispatcher": "Penyelaras",
       "driver": "Pemandu",
       "finance": "Kewangan",
+      "gate_guard": "Pengawal Pintu",
       "platform_admin": "Pentadbir Platform",
       "platform_finance": "Kewangan",
       "platform_support": "Ejen Sokongan",

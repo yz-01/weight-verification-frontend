@@ -7413,7 +7413,9 @@
       "staff": "The site staff list",
       "projects": "The project list",
       "accessInfo": "This person's current projects"
-    }
+    },
+    "role": "Role",
+    "roleHint": "A gate guard scans passes and takes gate photo records. Both sign in on the phone with this link."
   },
   "fieldDraft": {
     "loading": "Loading saved draft...",
@@ -11704,6 +11706,7 @@
       "dispatcher": "Accepts orders, assigns vehicles and drivers.",
       "driver": "Sees assigned tasks and submits site photos.",
       "finance": "Settles transactions and records payment proof.",
+      "gate_guard": "Scans passes at the gate and photographs what happens there.",
       "platform_admin": "Full access to every platform function.",
       "platform_finance": "Manages plans, commission and collections.",
       "platform_support": "Handles tickets and announcements, reads customer data.",
@@ -11718,6 +11721,7 @@
       "dispatcher": "Dispatcher",
       "driver": "Driver",
       "finance": "Finance",
+      "gate_guard": "Gate Guard",
       "platform_admin": "Platform Administrator",
       "platform_finance": "Finance",
       "platform_support": "Support Agent",

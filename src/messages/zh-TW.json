@@ -7413,7 +7413,9 @@
       "staff": "現場人員列表",
       "projects": "項目列表",
       "accessInfo": "此人目前的項目"
-    }
+    },
+    "role": "角色",
+    "roleHint": "門崗保安可掃通行證、拍門崗照片記錄。兩種角色都用這個連結在手機登入。"
   },
   "fieldDraft": {
     "loading": "正在載入已儲存草稿…",
@@ -11704,6 +11706,7 @@
       "dispatcher": "接收訂單，安排車輛與司機。",
       "driver": "查看指派任務，提交現場照片。",
       "finance": "處理結算，登記付款證明。",
+      "gate_guard": "在門崗掃通行證，拍照記錄門崗事項。",
       "platform_admin": "擁有平臺全部功能的完整權限。",
       "platform_finance": "管理套餐、佣金與收款。",
       "platform_support": "處理工單與公告，可查閱客戶資料。",
@@ -11718,6 +11721,7 @@
       "dispatcher": "調度員",
       "driver": "司機",
       "finance": "財務",
+      "gate_guard": "門崗保安",
       "platform_admin": "平臺管理員",
       "platform_finance": "財務",
       "platform_support": "客服專員",

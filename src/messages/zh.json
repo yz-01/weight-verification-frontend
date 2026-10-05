@@ -7413,7 +7413,9 @@
       "staff": "现场人员列表",
       "projects": "项目列表",
       "accessInfo": "此人目前的项目"
-    }
+    },
+    "role": "角色",
+    "roleHint": "门岗保安可扫通行证、拍门岗照片记录。两种角色都用这个链接在手机登入。"
   },
   "fieldDraft": {
     "loading": "正在载入已保存草稿…",
@@ -11704,6 +11706,7 @@
       "dispatcher": "接收订单，安排车辆与司机。",
       "driver": "查看指派任务，提交现场照片。",
       "finance": "处理结算，登记付款证明。",
+      "gate_guard": "在门岗扫通行证，拍照记录门岗事项。",
       "platform_admin": "拥有平台全部功能的完整权限。",
       "platform_finance": "管理套餐、佣金与收款。",
       "platform_support": "处理工单与公告，可查阅客户资料。",
@@ -11718,6 +11721,7 @@
       "dispatcher": "调度员",
       "driver": "司机",
       "finance": "财务",
+      "gate_guard": "门岗保安",
       "platform_admin": "平台管理员",
       "platform_finance": "财务",
       "platform_support": "客服专员",
