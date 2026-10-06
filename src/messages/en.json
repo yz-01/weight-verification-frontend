@@ -5206,7 +5206,6 @@
         "CONSULTANT_APPLICATION": "Consultant application",
         "DISPOSAL_REQUEST": "Site clearing",
         "FIELD_TASK": "Field task",
-        "SITE_PROGRESS": "Progress record",
         "WASTE_OUTGOING": "Environmental material outgoing",
         "MATERIAL_REQUEST": "MR / Other Request",
         "EQUIPMENT_MOVEMENT": "Equipment in / out",
@@ -5380,9 +5379,8 @@
     },
     "unread": {
       "title": "Waiting for you",
-      "subtitle": "{receipts} deliveries and {approvals} approvals nobody has cleared for you yet",
-      "help": "These are yours alone. Opening one files it away for you and leaves it in everyone else's pile.",
-      "unfiled": "Not filed in a column"
+      "subtitle": "{total} finished records waiting for your confirmation",
+      "help": "Their work is done - a delivery once it has been accepted - and nobody has confirmed them yet. Once anyone confirms one, it leaves this list for everyone."
     },
     "recordStatus": {
       "ACCEPTED": "Accepted",
@@ -12328,7 +12326,7 @@
       "plannedProgress": "Planned",
       "plannedStart": "Planned start",
       "progressEvidence": "Linked site progress",
-      "progressEvidenceHelp": "Only confirmed progress photo records from this project are available.",
+      "progressEvidenceHelp": "Only progress photo records sent from this project are available.",
       "project": "Project",
       "revisionLabel": "Revision name",
       "revisionReason": "Reason for change",
@@ -12386,11 +12384,11 @@
       "MANUAL": "Manual"
     },
     "state": {
-      "candidatesLoadError": "The confirmed site progress could not be loaded, so it is not known whether there is any evidence to attach. Try again before confirming.",
+      "candidatesLoadError": "The site progress records could not be loaded, so it is not known whether there is any evidence to attach. Try again before confirming.",
       "chooseProject": "Choose a project to view its construction schedule.",
       "historyLoadError": "The schedule history could not be loaded, so it is not known whether there is any. Try again.",
       "loadError": "The schedule could not be loaded. Try again.",
-      "noConfirmedProgress": "No confirmed site progress records are available.",
+      "noConfirmedProgress": "No site progress records are available.",
       "noHistory": "No schedule history yet.",
       "noPlans": "No schedule exists for this project. Create one manually or import Excel.",
       "noReason": "No additional note",

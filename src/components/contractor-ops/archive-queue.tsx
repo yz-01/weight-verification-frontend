@@ -403,6 +403,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   onClose,
   fetchRecord,
   actions,
+  readOnly = false,
 }: {
   row: ArchiveQueueRow<K>;
   onClose: () => void;
@@ -413,6 +414,12 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
    * module's own approve / return, not a copy.
    */
   actions?: React.ReactNode;
+  /**
+   * Look, do not act (F9): no 确认归档 and no 我看过了. For a record opened
+   * from somewhere other than 现场记录中心 - a dashboard photo whose module has
+   * no detail page of its own - where those two buttons do not belong.
+   */
+  readOnly?: boolean;
 }) {
   const t = useTranslations();
   const queryClient = useQueryClient();
@@ -436,7 +443,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   });
   // 「我看过了」 is the queue's own mark: `mark_records_seen` takes its kinds
   // and nothing else.
-  const queueKind = isQueueKind(row.kind) ? row.kind : null;
+  const queueKind = !readOnly && isQueueKind(row.kind) ? row.kind : null;
   // Set when the server matched nothing: a record opened from a column that
   // has not finished yet is not in anybody's queue, so there was nothing to
   // mark - said here rather than closed as if it had worked.
@@ -595,7 +602,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
                   than eight copies that would drift. The same eight kinds:
                   the closure endpoint finds its record the way the chat does,
                   and a hazard closes through its own verification. */}
-              {canConfirmClosure(row.kind) && (
+              {!readOnly && canConfirmClosure(row.kind) && (
                 <RecordClosurePanel kind={row.kind} recordId={row.id} />
               )}
             </>
