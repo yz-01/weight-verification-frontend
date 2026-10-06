@@ -4655,6 +4655,7 @@
     "workflowSettings": "审批流程设置"
   },
   "consultantProject": {
+    "choose": "选择项目",
     "label": "当前顾问项目"
   },
   "consultantWorkflow": {
@@ -6974,6 +6975,7 @@
       "bug_not_found": "找不到该 Bug 记录。",
       "calibration_expired": "这台地磅的校准已过期。",
       "cannot_modify_self": "无法用这种方式更改自己的账号，请到个人资料页操作。",
+      "cannot_review_own_request": "这是你提交的申请，不能自己批准或退回，需要由别人审批。",
       "category_holds_deliveries_only": "「{column}」是材料分类 —— 它装的是送货单和金额，不能放现场照片。请选别的分类。",
       "clock_skew": "网关时钟偏移超过允许范围。",
       "cloud_alert_not_found": "找不到该云用量预警。",
@@ -7000,6 +7002,7 @@
       "config_required": "不能移除必要的系统设置。",
       "config_unknown": "系统不支持该配置键。",
       "conflict": "这项资料现在的状态不允许这个操作。",
+      "consultant_grant_not_current": "选的顾问已经没有这个项目的授权，申请仍是草稿。请换一位顾问，或先在顾问授权里续期。",
       "consultant_grant_not_found": "找不到该顾问项目授权。",
       "consultant_organization_not_found": "找不到该顾问单位。",
       "customer_assignment_not_found": "找不到该客户归属记录。",
@@ -15096,6 +15099,7 @@
     "noRemark": "无备注",
     "returnedNotice": "此申请已退回并结束，不能修改或重新提交。如需再申请，请新建申请，会产生新的申请编号。",
     "waitingForReview": "等待总部或授权负责人批准或退回。",
+    "ownRequestWaiting": "等待审批。这是你提交的申请，由总部或授权负责人批准或退回，你自己不能审批。",
     "attachments": {
       "title": "附件索引",
       "none": "无附件"

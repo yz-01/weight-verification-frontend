@@ -4655,6 +4655,7 @@
     "workflowSettings": "審批流程設置"
   },
   "consultantProject": {
+    "choose": "選擇專案",
     "label": "當前顧問項目"
   },
   "consultantWorkflow": {
@@ -6974,6 +6975,7 @@
       "bug_not_found": "找不到該 Bug 記錄。",
       "calibration_expired": "這臺地磅的校準已過期。",
       "cannot_modify_self": "無法用這種方式更改自己的賬號，請到個人資料頁操作。",
+      "cannot_review_own_request": "這是你提交的申請，不能自己批准或退回，需要由別人審批。",
       "category_holds_deliveries_only": "「{column}」是材料分類 —— 它裝的是送貨單和金額，不能放現場照片。請選別的分類。",
       "clock_skew": "網關時鐘偏移超過允許範圍。",
       "cloud_alert_not_found": "找不到該雲用量預警。",
@@ -7000,6 +7002,7 @@
       "config_required": "不能移除必要的系統設置。",
       "config_unknown": "系統不支持該配置鍵。",
       "conflict": "這項資料現在的狀態不允許這個操作。",
+      "consultant_grant_not_current": "選的顧問已經沒有這個專案的授權，申請仍是草稿。請換一位顧問，或先在顧問授權裡續期。",
       "consultant_grant_not_found": "找不到該顧問項目授權。",
       "consultant_organization_not_found": "找不到該顧問單位。",
       "customer_assignment_not_found": "找不到該客戶歸屬記錄。",
@@ -15096,6 +15099,7 @@
     "noRemark": "無備註",
     "returnedNotice": "此申請已退回並結束，不能修改或重新提交。如需再申請，請新建申請，會產生新的申請編號。",
     "waitingForReview": "等待總部或授權負責人批准或退回。",
+    "ownRequestWaiting": "等待審批。這是你提交的申請，由總部或授權負責人批准或退回，你自己不能審批。",
     "attachments": {
       "title": "附件索引",
       "none": "無附件"

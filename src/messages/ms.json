@@ -4655,6 +4655,7 @@
     "workflowSettings": "Tetapan aliran kelulusan"
   },
   "consultantProject": {
+    "choose": "Pilih projek",
     "label": "Projek perunding aktif"
   },
   "consultantWorkflow": {
@@ -6974,6 +6975,7 @@
       "bug_not_found": "Rekod pepijat itu tidak dijumpai.",
       "calibration_expired": "Kalibrasi jambatan timbang ini telah tamat.",
       "cannot_modify_self": "Anda tidak boleh menukar akaun sendiri dengan cara ini. Gunakan profil anda.",
+      "cannot_review_own_request": "Anda yang membuat permohonan ini, jadi anda tidak boleh meluluskan atau mengembalikannya. Orang lain perlu memutuskannya.",
       "category_holds_deliveries_only": "“{column}” ialah kategori bahan - ia menyimpan penghantaran dan kosnya, bukan gambar tapak. Pilih kategori lain.",
       "clock_skew": "Perubahan jam gateway melebihi had yang dibenarkan.",
       "cloud_alert_not_found": "Amaran penggunaan awan itu tidak dijumpai.",
@@ -7000,6 +7002,7 @@
       "config_required": "Tetapan sistem wajib tidak boleh dibuang.",
       "config_unknown": "Kunci konfigurasi ini tidak disokong.",
       "conflict": "Itu tidak boleh dilakukan dalam keadaan rekod sekarang.",
+      "consultant_grant_not_current": "Perunding yang dipilih tidak lagi mempunyai akses ke projek ini, jadi permohonan masih draf. Pilih perunding lain atau perbaharui akses mereka dahulu.",
       "consultant_grant_not_found": "Akses projek perunding itu tidak dijumpai.",
       "consultant_organization_not_found": "Organisasi perunding itu tidak dijumpai.",
       "customer_assignment_not_found": "Rekod pemilikan pelanggan itu tidak dijumpai.",
@@ -15096,6 +15099,7 @@
     "noRemark": "Tiada catatan",
     "returnedNotice": "Permohonan ini dikembalikan dan ditutup; ia tidak boleh disunting atau dihantar semula. Untuk memohon semula, buat permohonan baharu - ia diberi No. Permohonan baharu.",
     "waitingForReview": "Menunggu ibu pejabat atau pengurus yang diberi kuasa meluluskan atau mengembalikannya.",
+    "ownRequestWaiting": "Menunggu kelulusan. Anda yang membuat permohonan ini, jadi ibu pejabat atau pengurus yang diberi kuasa akan meluluskan atau mengembalikannya - bukan anda.",
     "attachments": {
       "title": "Indeks lampiran",
       "none": "Tiada lampiran"

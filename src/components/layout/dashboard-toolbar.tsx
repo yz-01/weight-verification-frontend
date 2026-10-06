@@ -3,6 +3,7 @@
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 import { GlobalModuleSearch } from "@/components/layout/global-module-search";
 import { PageSwitcher } from "@/components/layout/page-switcher";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useCurrentNav } from "@/hooks/use-current-nav";
 import { useQueryClient } from "@tanstack/react-query";
+import { consultantProjectToAutoSelect } from "@/lib/consultant-project";
 import { setActiveProjectId } from "@/lib/project-context";
 
 export function DashboardToolbar() {
@@ -22,6 +24,29 @@ export function DashboardToolbar() {
   const { user, refresh } = useAuth();
   const showBack = pathname !== "/dashboard";
   const current = useCurrentNav();
+
+  const switchConsultantProject = async (projectId: string) => {
+    setActiveProjectId(projectId);
+    await queryClient.cancelQueries();
+    queryClient.removeQueries({
+      predicate: (query) => query.queryKey[0] !== "auth",
+    });
+    await refresh();
+    router.refresh();
+  };
+
+  // A consultant with one project is put on it without having to choose
+  // (C2): otherwise 「待审批事项」 stays empty with an application waiting.
+  // Tried once per project, so a server that still refuses it cannot loop.
+  const autoSelect = consultantProjectToAutoSelect(user);
+  const autoSelectTried = useRef<string | null>(null);
+  useEffect(() => {
+    if (!autoSelect || autoSelectTried.current === autoSelect) return;
+    autoSelectTried.current = autoSelect;
+    void switchConsultantProject(autoSelect);
+    // Keyed on the project to select; the switch itself is stable enough.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoSelect]);
 
   return (
     <header className="relative z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-card/95 px-3 shadow-[0_1px_0_rgb(0_0_0/0.02)] backdrop-blur lg:px-5">
@@ -47,16 +72,15 @@ export function DashboardToolbar() {
             aria-label={t("consultantProject.label")}
             className="h-9 min-w-0 max-w-56 rounded-md border bg-background px-2 text-sm"
             value={user.active_project?.project_id ?? ""}
-            onChange={async (event) => {
-              setActiveProjectId(event.target.value);
-              await queryClient.cancelQueries();
-              queryClient.removeQueries({
-                predicate: (query) => query.queryKey[0] !== "auth",
-              });
-              await refresh();
-              router.refresh();
-            }}
+            onChange={(event) => void switchConsultantProject(event.target.value)}
           >
+            {/* Without this, an unselected box shows the first project as
+                if it were the one in use, while every page is refused. */}
+            {!user.active_project && (
+              <option value="" disabled>
+                {t("consultantProject.choose")}
+              </option>
+            )}
             {user.consultant_projects
               .filter((project) => project.is_current)
               .map((project) => (
