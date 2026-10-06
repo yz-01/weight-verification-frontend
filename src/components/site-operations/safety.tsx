@@ -30,6 +30,7 @@ import {
   hasRequiredFieldEvidence,
 } from "@/components/field-staff/field-evidence-grid";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
+import { RecordNo } from "@/components/shared/record-no";
 import { ExportButton } from "@/components/shared/export-button";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -362,9 +363,8 @@ export function Safety({
             <p className="tabular text-muted-foreground">
               {df.dateTime(row.original.occurred_at)}
             </p>
-            <p className="tabular text-xs text-muted-foreground">
-              {row.original.incident_no}
-            </p>
+            {/* Short number big, project small (2026-10 D4). */}
+            <RecordNo value={row.original.incident_no} className="text-xs" />
           </div>
         ),
       },

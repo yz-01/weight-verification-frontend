@@ -3098,7 +3098,8 @@
     "notInQueue": "這筆記錄還沒完成，還不在你的待看清單裡。完成以後才可以標「看過了」。",
     "categoryManagement": "分類管理",
     "openPhoto": "放大查看照片",
-    "noPhoto": "無照片"
+    "noPhoto": "無照片",
+    "goToReceipt": "去材料進場處理"
   },
   "assets": {
     "category": {
@@ -4019,7 +4020,10 @@
       "count": "共 {count} 筆",
       "empty": "這個分類裡還沒有記錄。",
       "byMaterial": "按材料",
-      "groupCount": "{count} 筆"
+      "groupCount": "{count} 筆",
+      "search": "搜尋編號、材料、DO",
+      "emptyFiltered": "這個分類裡沒有符合篩選條件的記錄。",
+      "deliveryNoteNo": "DO"
     },
     "quantityReturned": "退場 {quantity}"
   },
@@ -7160,7 +7164,8 @@
       "conversation_closed": "這條記錄已經完成，聊天室已關閉。記錄仍可查看；還有事情請另開一條記錄。",
       "receipt_rejected_at_gate": "這批貨已在現場交接時 Reject，不能再更改。",
       "record_finished": "此事項已結束，不能再上傳附件；已有附件仍可查看。",
-      "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。"
+      "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。",
+      "site_record_field_only": "只有現場人員能在手機上新增這條記錄。後台可以更正已有的記錄。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -11220,7 +11225,6 @@
       }
     },
     "count": "{count, plural, =0 {暫無材料進場記錄} other {# 條材料進場記錄}}",
-    "createTitle": "記錄材料進場",
     "doPanelField": "欄位",
     "doPanelLineItems": "單據上的明細列",
     "doPanelLowConfidence": "以下幾項讀取信賴度偏低，請對著單據核一遍",
@@ -11270,7 +11274,6 @@
     },
     "locationCaptured": "已記錄位置",
     "locationMissing": "無位置",
-    "new": "記錄材料進場",
     "noPhotos": "沒有附加照片。",
     "noRecorderPhone": "沒有登記聯絡電話",
     "photoKind": {
@@ -11310,7 +11313,6 @@
       "supplier": "供應商",
       "none": "沒有採集到簽名。"
     },
-    "stampNote": "時間、位置和記錄人由系統在提交時自動寫入，無法手動填寫或事後修改。",
     "summary": "一眼看全",
     "title": "材料進場",
     "toast": {
@@ -11338,9 +11340,6 @@
       "rejected": "不合格"
     },
     "what": {
-      "projects": "項目列表",
-      "suppliers": "供應商列表",
-      "dockets": "送貨單二維碼列表",
       "columns": "分類列表"
     },
     "movement": {
@@ -11353,7 +11352,8 @@
       "out": "Material Out 退場",
       "reject": "Reject 不合格",
       "totals": "累計淨數量",
-      "legacyReturns": "10-02 前用進場單登記的退場記錄"
+      "legacyReturns": "10-02 前用進場單登記的退場記錄",
+      "choose": "選擇查看"
     },
     "net": {
       "title": "按材料彙總的累計淨數量",
@@ -15245,5 +15245,20 @@
     "toast": {
       "added": "已上傳 {count} 個附件"
     }
+  },
+  "supplierDateFilter": {
+    "allSuppliers": "全部供應商",
+    "supplier": "供應商",
+    "search": "輸入供應商名稱",
+    "noMatch": "沒有這個名稱的供應商",
+    "from": "開始日期",
+    "to": "至",
+    "toLabel": "結束日期",
+    "what": "供應商列表"
+  },
+  "recordNo": {
+    "copy": "複製 {number}",
+    "copied": "已複製 {number}",
+    "copyFailed": "複製失敗。長按編號可以看到完整編號。"
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Inbox, ListTree, X } from "lucide-react";
+import { ExternalLink, Inbox, ListTree, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { recordKindKey } from "@/lib/record-kind";
 import { PhotoViewer } from "@/components/shared/record-detail-shell";
@@ -28,6 +28,7 @@ import {
 import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
+import { RecordNo } from "@/components/shared/record-no";
 import { canConfirmClosure, canDiscuss, isQueueKind } from "@/lib/record-chat";
 import { recordStatusLabel } from "@/lib/record-status";
 import { useDateFormat } from "@/lib/dates";
@@ -281,7 +282,8 @@ export function ArchiveQueue() {
                         </span>
                       )}
                       <span className="min-w-0">
-                        {row.reference}
+                        {/* Short number big, project small (2026-10 D4). */}
+                        <RecordNo value={row.reference} projectCode={row.project_code} />
                         {row.detail && (
                           <span className="block max-w-[16rem] truncate text-xs font-normal text-muted-foreground">
                             {row.detail}
@@ -403,6 +405,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
   onClose,
   fetchRecord,
   actions,
+  readOnly = false,
 }: {
   row: ArchiveQueueRow<K>;
   onClose: () => void;
@@ -413,6 +416,14 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
    * module's own approve / return, not a copy.
    */
   actions?: React.ReactNode;
+  /**
+   * Look, do not decide (2026-10 B4: 分类里不做验收). Opened from a category's
+   * records, the sheet shows the record and its conversation and offers no
+   * button that changes anything - no archive, no confirmation, no adding to a
+   * package. A delivery still waiting for acceptance links to the receipt,
+   * where it is accepted.
+   */
+  readOnly?: boolean;
 }) {
   const t = useTranslations();
   const queryClient = useQueryClient();
@@ -435,8 +446,12 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
           : Promise.reject(new Error(`${row.kind} is not an archive queue kind`)),
   });
   // 「我看过了」 is the queue's own mark: `mark_records_seen` takes its kinds
-  // and nothing else.
-  const queueKind = isQueueKind(row.kind) ? row.kind : null;
+  // and nothing else - and none of it when the sheet is read-only.
+  const queueKind = !readOnly && isQueueKind(row.kind) ? row.kind : null;
+  const canPackage = !readOnly && canGoInAPackage(row.kind);
+  // A delivery waiting for acceptance is accepted on its own page (B4).
+  const pendingReceipt =
+    readOnly && row.kind === "MATERIAL_RECEIPT" && row.status === "PENDING";
   // Set when the server matched nothing: a record opened from a column that
   // has not finished yet is not in anybody's queue, so there was nothing to
   // mark - said here rather than closed as if it had worked.
@@ -595,7 +610,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
                   than eight copies that would drift. The same eight kinds:
                   the closure endpoint finds its record the way the chat does,
                   and a hazard closes through its own verification. */}
-              {canConfirmClosure(row.kind) && (
+              {!readOnly && canConfirmClosure(row.kind) && (
                 <RecordClosurePanel kind={row.kind} recordId={row.id} />
               )}
             </>
@@ -614,7 +629,15 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
               is the one place that opens a record of any of the nine kinds, so
               putting the shortcut here reaches all of them without nine copies
               of the same button (D-154). */}
-          {canGoInAPackage(row.kind) && (
+          {pendingReceipt && (
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/receipts/${row.id}`}>
+                <ExternalLink />
+                {t("archiveQueue.goToReceipt")}
+              </Link>
+            </Button>
+          )}
+          {!readOnly && canGoInAPackage(row.kind) && (
             <AddToPackageButton
               kind={row.kind}
               recordId={row.id}
@@ -641,7 +664,7 @@ export function RecordSheet<K extends RecordSheetKind = ArchiveRecordKind>({
           )}
           {/* Nothing left to press on a kind with none of these parts, so the
               footer still closes the sheet rather than standing empty. */}
-          {!queueKind && !canGoInAPackage(row.kind) && (
+          {!queueKind && !canPackage && (
             <Button className="ml-auto" variant="outline" onClick={onClose}>
               {t("common.close")}
             </Button>

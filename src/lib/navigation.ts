@@ -1631,7 +1631,6 @@ const PERMISSION_ROUTE_RULES: readonly PermissionRouteRule[] = [
   { pattern: "/projects/:id/edit", permission: "project.update" },
   { pattern: "/suppliers/create", permission: "supplier.create" },
   { pattern: "/suppliers/:id/edit", permission: "supplier.update" },
-  { pattern: "/receipts/create", permission: "receipt.create" },
   { pattern: "/receipts/:id/edit", permission: "receipt.update" },
   { pattern: "/dispatches/create", permission: "dispatch.create" },
   { pattern: "/dispatches/:id/edit", permission: "dispatch.update" },

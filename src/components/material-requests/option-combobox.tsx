@@ -29,6 +29,7 @@ export function OptionCombobox({
   emptyLabel,
   disabled = false,
   ariaLabel,
+  triggerClassName,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -38,6 +39,8 @@ export function OptionCombobox({
   emptyLabel: string;
   disabled?: boolean;
   ariaLabel?: string;
+  /** Size of the button, where the default full-width one does not fit (a toolbar). */
+  triggerClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState("");
@@ -63,7 +66,7 @@ export function OptionCombobox({
           aria-expanded={open}
           aria-label={ariaLabel}
           disabled={disabled}
-          className="h-9 w-full justify-between px-3 font-normal"
+          className={cn("h-9 w-full justify-between px-3 font-normal", triggerClassName)}
         >
           <span className={cn("truncate", !selected && "text-muted-foreground")}>
             {selected?.label ?? (value || placeholder)}

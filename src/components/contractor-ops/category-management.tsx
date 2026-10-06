@@ -16,7 +16,7 @@ import {
 import { useTranslations } from "next-intl";
 import { recordKindKey } from "@/lib/record-kind";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   CategoryDialog,
@@ -27,6 +27,11 @@ import { Shell } from "@/components/contractor-ops/package-shell";
 import { CategoryForm as DocumentCategoryForm } from "@/components/document-workflow/documents";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { RecordNo } from "@/components/shared/record-no";
+import {
+  SupplierDateFilter,
+  type SupplierDateValue,
+} from "@/components/shared/supplier-date-filter";
 import { FieldWrapper, ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
@@ -771,6 +776,16 @@ export function QuantityCell({
   );
 }
 
+/**
+ * The modules whose records can come from a supplier (2026-10 B16): a
+ * delivery, a delivery note, a return, a machine and its movements. The
+ * others - a hazard, a progress photo, a document - are offered dates only.
+ */
+const SUPPLIER_MODULES: ReadonlySet<CategoryModuleKey> = new Set<CategoryModuleKey>([
+  "material",
+  "equipment",
+]);
+
 function ColumnRecordsDialog({
   moduleKey,
   column,
@@ -789,17 +804,39 @@ function ColumnRecordsDialog({
   const [open, setOpen] = useState<ArchiveQueueRow<CategoryRecordKind> | null>(
     null,
   );
+  // Supplier, dates and a search box (2026-10 B3, B16): 「点『钢筋』→ 选供应商
+  // + 日期 → 只剩对应记录」. Any change goes back to the first page.
+  const [filters, setFilters] = useState<SupplierDateValue>({});
+  const [typed, setTyped] = useState("");
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    // One request when the typing stops, not one per key.
+    const timer = setTimeout(() => {
+      setSearch(typed.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [typed]);
 
   const records = useQuery({
-    queryKey: ["category-records", moduleKey, column.id, page],
+    queryKey: ["category-records", moduleKey, column.id, page, filters, search],
     queryFn: () =>
       getCategoryRecords({
         module: moduleKey,
         category: column.id,
         page,
         page_size: RECORDS_PAGE_SIZE,
+        ...filters,
+        search: search || undefined,
       }),
   });
+  // Whether the records of this module come from a supplier at all: the
+  // server says once it has answered; until then, the modules that do.
+  const supplierFilter =
+    records.data?.supplier_filter ?? SUPPLIER_MODULES.has(moduleKey);
+  const filtered = Boolean(
+    filters.supplier || filters.date_from || filters.date_to || search,
+  );
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
   const groups = records.data?.groups ?? [];
@@ -810,6 +847,24 @@ function ColumnRecordsDialog({
       <Shell title={t("records.title", { name: column.name })} onClose={onClose}>
         <div className="flex-1 space-y-3 overflow-y-auto p-4">
           <p className="text-xs text-muted-foreground">{t("records.help")}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
+              type="search"
+              value={typed}
+              onChange={(event) => setTyped(event.target.value)}
+              placeholder={t("records.search")}
+              aria-label={t("records.search")}
+              className="h-8 w-[200px] max-w-full text-sm"
+            />
+            <SupplierDateFilter
+              value={filters}
+              showSupplier={supplierFilter}
+              onChange={(next) => {
+                setFilters((current) => ({ ...current, ...next }));
+                setPage(1);
+              }}
+            />
+          </div>
           {records.isLoading ? (
             <p className="text-sm text-muted-foreground">{queue("loading")}</p>
           ) : records.isError ? (
@@ -819,7 +874,7 @@ function ColumnRecordsDialog({
           ) : rows.length === 0 ? (
             <p className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
               <Inbox className="size-4" />
-              {t("records.empty")}
+              {filtered ? t("records.emptyFiltered") : t("records.empty")}
             </p>
           ) : (
             <>
@@ -858,18 +913,41 @@ function ColumnRecordsDialog({
               <ul className="divide-y rounded-lg border">
                 {rows.map((row) => (
                   <li key={`${row.kind}:${row.id}`}>
-                    <button
-                      type="button"
+                    {/* A div acting as the row's button, not a <button>: the
+                        number inside carries its own copy button (D4), and a
+                        button cannot hold another. */}
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setOpen(row)}
-                      className="flex w-full items-start gap-3 px-3 py-2 text-left hover:bg-muted/40"
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setOpen(row);
+                        }
+                      }}
+                      className="flex w-full cursor-pointer items-start gap-3 px-3 py-2 text-left hover:bg-muted/40"
                     >
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">
-                          {row.reference}
-                        </span>
+                        {/* The short number big, the project small (D4). */}
+                        <RecordNo value={row.reference} projectCode={row.project_code} />
                         {row.detail && (
                           <span className="block truncate text-xs text-muted-foreground">
                             {row.detail}
+                          </span>
+                        )}
+                        {/* The DO and the supplier (B3): what the office
+                            matches a delivery against. */}
+                        {(row.delivery_note_no || row.supplier_name) && (
+                          <span className="block truncate text-xs">
+                            {[
+                              row.delivery_note_no
+                                ? `${t("records.deliveryNoteNo")} ${row.delivery_note_no}`
+                                : "",
+                              row.supplier_name ?? "",
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
                           </span>
                         )}
                         <span className="block text-xs text-muted-foreground">
@@ -914,7 +992,7 @@ function ColumnRecordsDialog({
                           <span className="text-warning">{queue("closure.open")}</span>
                         )}
                       </span>
-                    </button>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -953,9 +1031,10 @@ function ColumnRecordsDialog({
         <RecordSheet
           row={open}
           fetchRecord={getCategoryRecord}
+          // 分类里不做验收 (2026-10 B4): read here, decided in the module.
+          readOnly
           onClose={() => {
             setOpen(null);
-            // A confirmation or a mark made in the sheet changes this list.
             void qc.invalidateQueries({ queryKey: ["category-records"] });
           }}
         />

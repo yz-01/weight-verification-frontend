@@ -3087,8 +3087,10 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
                   <p className="text-sm text-muted-foreground">
                     {t("outgoing.executor")}: {row.executor_name}
                   </p>
+                  {/* Who it goes back to (2026-10 C7), not the destination
+                      text; since C9 a return may name no supplier: 「—」. */}
                   <p className="mt-2 text-sm text-muted-foreground">
-                    {row.destination}
+                    {t("field.supplier")}: {row.supplier_name || "—"}
                   </p>
                 </div>
               </div>

@@ -48,7 +48,6 @@ import {
   MovementDialog,
   OutgoingActions,
   OutgoingDetailDialog,
-  OutgoingDialog,
   PhaseDialog,
   ProgressDialog,
   RejectOutgoingDialog,
@@ -58,6 +57,8 @@ import {
 import { usePageTitle } from "@/components/layout/page-title-override";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
+import { RecordNo } from "@/components/shared/record-no";
+import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
 import {
   ColumnFilter,
   FilterSelect,
@@ -195,7 +196,15 @@ export function MaterialOutgoingOffice() {
   const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
-  const list = useListQuery(["project", "status", "category", "uncategorised"]);
+  const list = useListQuery([
+    "project",
+    "status",
+    "category",
+    "uncategorised",
+    "supplier",
+    "date_from",
+    "date_to",
+  ]);
   const rows = useQuery({
     queryKey: ["material-outgoing", "office", list.query],
     queryFn: () => getMaterialOutgoing(list.query),
@@ -212,9 +221,9 @@ export function MaterialOutgoingOffice() {
     }) => reviewMaterialOutgoing(id, status, note),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["material-outgoing"] }),
   });
-  const searchParams = useSearchParams();
-  const [creating, setCreating] = useState(searchParams.get("create") === "1");
-  // A task card links here with ?record=<id>.
+  // No 「新增退场申请」 and no `?create=1` here (2026-10 A1, X9): the site
+  // applies on the phone; the office decides. A task card links here with
+  // ?record=<id>.
   const [viewing, setViewing] = useUrlSelection("record");
   const [rejecting, setRejecting] = useState<MaterialOutgoing | null>(null);
   const [returning, setReturning] = useState<MaterialOutgoing | null>(null);
@@ -235,11 +244,8 @@ export function MaterialOutgoingOffice() {
         accessorKey: "reference_no",
         meta: { label: t("outgoing.referenceNo") },
         header: () => <PlainHeader label={t("outgoing.referenceNo")} />,
-        cell: ({ row }) => (
-          <span className="tabular text-foreground">
-            {row.original.reference_no}
-          </span>
-        ),
+        // Short number big, project small (2026-10 D4).
+        cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
       },
       {
         accessorKey: "status",
@@ -298,16 +304,20 @@ export function MaterialOutgoingOffice() {
           </span>
         ),
       },
+      // The supplier it goes back to (2026-10 C7), in place of the
+      // destination - since 10-02 a return goes to its supplier, and the
+      // destination only repeated the supplier's name. Since C9 a return
+      // may name none: 「—」.
       {
-        accessorKey: "destination",
-        meta: { label: t("field.destination") },
-        header: () => <PlainHeader label={t("field.destination")} />,
+        accessorKey: "supplier_name",
+        meta: { label: t("field.supplier") },
+        header: () => <PlainHeader label={t("field.supplier")} />,
         cell: ({ row }) => (
           <span
             className="block max-w-[180px] truncate"
-            title={row.original.destination}
+            title={row.original.supplier_name ?? ""}
           >
-            {row.original.destination}
+            {row.original.supplier_name || "—"}
           </span>
         ),
       },
@@ -346,6 +356,8 @@ export function MaterialOutgoingOffice() {
       columns: [
         { key: "reference_no", label: t("outgoing.referenceNo") },
         { key: "category_name", label: t("field.category") },
+        // Who it went back to (2026-10 C7).
+        { key: "supplier_name", label: t("field.supplier") },
         { key: "material_name", label: t("field.material") },
         { key: "quantity", label: t("field.quantity") },
         { key: "unit", label: t("field.unit") },
@@ -377,19 +389,14 @@ export function MaterialOutgoingOffice() {
       <ModuleRecordsTable
         title={title}
         countLabel={tRoot("moduleTable.count", { count: total })}
-        headerAction={
-          can("material_outgoing.submit") ? (
-            <CreateButton
-              label={t("outgoing.add")}
-              onClick={() => setCreating(true)}
-            />
-          ) : undefined
-        }
-        // Material Out in 材料管理's tabs (B09). Returns typed 退场 on the
-        // receipt form before 10-02 are listed on their own, one click away.
+        // Material Out in 材料管理's views (B09, C14), with the supplier and
+        // date filter beside them (B5). Returns typed 退场 on the receipt
+        // form before 10-02 are listed on their own, one click away.
         above={
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <MaterialTabs />
+            <MaterialTabs>
+              <SupplierDateListFilter list={list} />
+            </MaterialTabs>
             <Link href="/receipts?direction=OUT" className="text-xs text-primary underline-offset-2 hover:underline">
               {tRoot("receipts.tabs.legacyReturns")}
             </Link>
@@ -455,16 +462,6 @@ export function MaterialOutgoingOffice() {
             void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
             void qc.invalidateQueries({ queryKey: ["my-submissions"] });
             setReturning(null);
-          }}
-        />
-      )}
-      {creating && (
-        <OutgoingDialog
-          project={list.filters.project ?? ""}
-          onClose={() => setCreating(false)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
-            setCreating(false);
           }}
         />
       )}
@@ -653,9 +650,8 @@ export function SiteEquipmentOffice() {
         accessorKey: "code",
         meta: { label: t("field.code") },
         header: sortable(t("field.code")),
-        cell: ({ row }) => (
-          <span className="tabular text-foreground">{row.original.code}</span>
-        ),
+        // Short number big, project small (2026-10 D4).
+        cell: ({ row }) => <RecordNo value={row.original.code} />,
       },
       {
         accessorKey: "name",

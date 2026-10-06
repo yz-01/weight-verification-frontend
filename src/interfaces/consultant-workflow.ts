@@ -279,6 +279,8 @@ export interface ConsultantApplication {
   company_name: string;
   project: string;
   project_name: string;
+  /** Under the short number in the list (2026-10 D4). */
+  project_code?: string;
   project_address: string;
   workflow: string | null;
   workflow_name: string | null;

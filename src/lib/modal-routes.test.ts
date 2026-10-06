@@ -50,9 +50,11 @@ describe("the create and edit dialogs", () => {
 
   it("finds the whole set of full-page forms", () => {
     // Not an arbitrary number: 14 modules with a create and an edit, plus
-    // deductions and settlements which only create. If this changes, the
+    // deductions and settlements which only create, less the receipt's create
+    // (2026-10 A1: the office no longer records a delivery; only its
+    // correction form, `/receipts/[id]/edit`, remains). If this changes, the
     // change is either a new form (which needs a dialog) or a deleted one.
-    expect(routes.length).toBe(28);
+    expect(routes.length).toBe(27);
   });
 
   it.each(fullPageForms())("%s opens as a dialog too", (route) => {

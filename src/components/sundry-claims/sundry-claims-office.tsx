@@ -32,6 +32,7 @@ import { useMemo, useState } from "react";
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
+import { RecordNo } from "@/components/shared/record-no";
 import {
   ColumnFilter,
   FilterSelect,
@@ -93,7 +94,8 @@ export function SundryClaimsOffice() {
         accessorKey: "claim_no",
         meta: { label: t("field.claimNo") },
         header: sortable(t("field.claimNo")),
-        cell: ({ row }) => <span className="tabular text-foreground">{row.original.claim_no}</span>,
+        // Short number big, project small (2026-10 D4).
+        cell: ({ row }) => <RecordNo value={row.original.claim_no} />,
       },
       {
         id: "state",
