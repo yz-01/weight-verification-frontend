@@ -5,8 +5,9 @@
  *
  * The old 照片审批 entry, rebuilt. Three tabs:
  *
- * 1. **Requests** - every request with its own Request No., the eleven
- *    columns the customer listed (C03), + New Request, and the detail with its
+ * 1. **Requests** - every request with its own Request No., the columns the
+ *    customer listed (C03) less type and project (D3: the top bar and the
+ *    filter row already say them), + New Request, and the detail with its
  *    conversation, Approve and Return (C05) and the formal form's Preview,
  *    Print and Export PDF (C06).
  * 2. **Totals** - per project, material + specification + unit, the approved
@@ -54,7 +55,7 @@ import {
   ProjectListFilter,
   sortable,
 } from "@/components/shared/module-records-table";
-import { FieldWrapper, LoadFailed, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -171,23 +172,19 @@ function RequestsTab() {
         header: sortable(t("field.requestNo")),
         cell: ({ row }) => <span className="tabular text-foreground">{row.original.request_no}</span>,
       },
-      {
-        id: "request_type",
-        meta: { label: t("field.requestType") },
-        header: () => <PlainHeader label={t("field.requestType")} />,
-        cell: ({ row }) => <TypeBadge label={t(`type.${row.original.request_type}`)} />,
-      },
-      {
-        accessorKey: "project_name",
-        meta: { label: t("field.project") },
-        header: () => <PlainHeader label={t("field.project")} />,
-        cell: ({ row }) => <p className="max-w-[160px] truncate">{row.original.project_name}</p>,
-      },
+      // D3: no request-type or project column - the top bar already names
+      // the project and the filter row the type. An Other Request has no
+      // material, so its material cell says so in grey instead of a dash.
       {
         accessorKey: "material_name",
         meta: { label: t("field.material") },
         header: sortable(t("field.material")),
-        cell: ({ row }) => row.original.material_name || <span className="text-muted-foreground">—</span>,
+        cell: ({ row }) =>
+          row.original.request_type === "OTHER" ? (
+            <span className="text-muted-foreground">{t("type.OTHER")}</span>
+          ) : (
+            row.original.material_name || <span className="text-muted-foreground">—</span>
+          ),
       },
       {
         accessorKey: "specification",
@@ -303,7 +300,8 @@ function RequestsTab() {
         totalCount={total}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="material-requests"
+        // New key (D3): an old saved column set must not bring back the dropped columns.
+        storageKey="material-requests.v2"
         toolbar={
           <>
             <ProjectListFilter list={list} />

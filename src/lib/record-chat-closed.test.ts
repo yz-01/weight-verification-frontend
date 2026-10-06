@@ -50,8 +50,8 @@ describe("the panel", () => {
   it("keeps the history and swaps the whole composer for the reason", () => {
     expect(panel).toMatch(/const closedLine = conversationClosedLine\(data\.closed\)/);
     // The messages are rendered unconditionally, before the closed branch.
-    expect(panel.indexOf("data.messages.map(")).toBeGreaterThan(-1);
-    expect(panel.indexOf("data.messages.map(")).toBeLessThan(panel.indexOf("{closedLine ? ("));
+    expect(panel.indexOf("messages={data.messages}")).toBeGreaterThan(-1);
+    expect(panel.indexOf("messages={data.messages}")).toBeLessThan(panel.indexOf("{closedLine ? ("));
     expect(panel).toMatch(/\{closedLine \? \([\s\S]{0,200}\{t\(closedLine\)\}[\s\S]{0,40}\) : \([\s\S]{0,40}<ConversationComposer/);
     expect(panel.match(/<ConversationComposer/g)).toHaveLength(1);
   });

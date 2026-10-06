@@ -14,8 +14,9 @@ import {
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
+import { ChatPhotoThumbnail, useChatPhotoViewer } from "@/components/shared/conversation";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldWrapper, LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
@@ -55,7 +56,19 @@ export function IncidentThreadDetail({
     queryFn: () => getIncidentThread(threadId),
   });
 
-  const messages = thread.data?.messages ?? [];
+  const messages = useMemo(() => thread.data?.messages ?? [], [thread.data]);
+  // F2: photos are small in the thread and open full size in the shared
+  // viewer, the same as every other chat.
+  const chatPhotos = useMemo(
+    () =>
+      messages.flatMap((message) =>
+        message.watermarked_photo
+          ? [{ id: message.id, url: message.watermarked_photo, author: message.author_name, sentAt: message.sent_at }]
+          : [],
+      ),
+    [messages],
+  );
+  const photoViewer = useChatPhotoViewer(chatPhotos, thread.data?.thread.thread_no ?? "");
 
   const sendMessage = useMutation({
     mutationFn: (payload: {
@@ -221,6 +234,7 @@ export function IncidentThreadDetail({
               (participant) => participant.id === message.author,
             )}
             own={message.author === user?.id}
+            onOpenPhoto={photoViewer.openPhoto}
           />
         ))}
       </div>
@@ -299,6 +313,7 @@ export function IncidentThreadDetail({
           )}
         </div>
       )}
+      {photoViewer.viewer}
     </div>
   );
 }
@@ -335,11 +350,14 @@ function MessageCard({
   message,
   participant,
   own,
+  onOpenPhoto,
 }: {
   message: IncidentReportMessage;
   participant?: IncidentReportRecipient;
   own: boolean;
+  onOpenPhoto: (id: string) => void;
 }) {
+  const tPhoto = useTranslations("hazard");
   return (
     <article className={`flex items-end gap-2 ${own ? "justify-end" : "justify-start"}`}>
       {!own ? <Avatar name={message.author_name} /> : null}
@@ -362,14 +380,13 @@ function MessageCard({
             </p>
           )}
           {message.watermarked_photo && (
-            <a
-              href={message.watermarked_photo}
-              target="_blank"
-              rel="noreferrer"
-              className="relative block aspect-[4/3] w-64 max-w-full overflow-hidden bg-black/5"
-            >
-              <Image src={message.watermarked_photo} alt="" fill className="object-cover" unoptimized />
-            </a>
+            <div className="p-1.5">
+              <ChatPhotoThumbnail
+                url={message.watermarked_photo}
+                alt={tPhoto("photo")}
+                onOpen={() => onOpenPhoto(message.id)}
+              />
+            </div>
           )}
           {message.latitude && message.longitude ? (
             <a
