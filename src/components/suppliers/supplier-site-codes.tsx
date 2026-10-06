@@ -103,7 +103,7 @@ export function SupplierSiteCodes({ supplier }: { supplier: Supplier }) {
   const mayIssue = can("supplier.update");
 
   return (
-    <FormSection title={t("suppliers.siteCodes.title")} className="md:grid-cols-1">
+    <FormSection title={t("suppliers.siteCodes.title")} className="md:grid-cols-1 xl:grid-cols-1">
       <p className="text-sm leading-6 text-muted-foreground">
         {t("suppliers.siteCodes.description")}
       </p>
