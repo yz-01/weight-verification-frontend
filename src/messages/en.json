@@ -4117,7 +4117,8 @@
     "unknownError": "Something went wrong. Try again.",
     "view": "View",
     "exportThisRecord": "Export this record",
-    "previewThisRecord": "Preview / print"
+    "previewThisRecord": "Preview / print",
+    "alreadyLastPage": "Already on the last page"
   },
   "companies": {
     "owner": {
@@ -8761,7 +8762,7 @@
       "unitNote": "Quantities remain grouped by unit; tonnes, pieces and loads are never added together."
     },
     "records": {
-      "title": "Deliveries and photos ({shown} of {total})",
+      "title": "Delivery details ({total})",
       "what": "the deliveries behind this report",
       "photos": "Photos",
       "open": "View",
@@ -9813,7 +9814,9 @@
       "consultantSettings": "Consultant settings",
       "sundryClaims": "Sundry claims",
       "materialReports": "Material reports",
-      "wasteClearance": "Waste clearance"
+      "wasteClearance": "Waste clearance",
+      "equipmentEntry": "Equipment entry",
+      "equipmentExit": "Equipment exit"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -13698,7 +13701,9 @@
       "qrActive": "QR active",
       "qrCodeCount": "Dockets",
       "registrationNo": "Registration no.",
-      "state": "State"
+      "state": "State",
+      "industry": "Industry",
+      "mainProducts": "Main products"
     },
     "new": "New supplier",
     "qr": {
@@ -13753,6 +13758,13 @@
     },
     "what": {
       "sites": "The site list"
+    },
+    "placeholder": {
+      "industry": "e.g. Steel, concrete, hardware",
+      "mainProducts": "e.g. Rebar, BRC mesh, binding wire"
+    },
+    "hint": {
+      "profileMissing": "This supplier was added before industry and main products were recorded. Fill them in to save."
     }
   },
   "support": {

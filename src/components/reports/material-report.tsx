@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
   Calculator,
+  ChevronLeft,
+  ChevronRight,
   FilterX,
   Package,
   ReceiptText,
@@ -20,6 +22,13 @@ import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -29,9 +38,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useListQuery } from "@/hooks/use-list-query";
+import { PAGE_SIZE_OPTIONS, useListQuery } from "@/hooks/use-list-query";
 import { MATERIAL_UNITS, type MaterialReceipt } from "@/interfaces/contractor";
 import { useDateFormat } from "@/lib/dates";
+import { cn } from "@/lib/utils";
 import {
   exportReceipts,
   getReceipt,
@@ -123,7 +133,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <ReportSelector summary={chosen} />
       <ListHeader
         title={t(`materialReports.${mode}.title`)}
@@ -136,7 +146,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         ) : undefined}
       />
 
-      <div className="grid gap-3 rounded-lg border bg-card/50 p-4 shadow-sm md:grid-cols-[minmax(220px,1fr)_180px_180px_auto] md:items-end">
+      <div className="grid gap-3 rounded-lg border bg-card/50 p-3 shadow-sm md:grid-cols-[minmax(220px,1fr)_180px_180px_auto] md:items-end">
         {can("project.view") && (
           <div className="space-y-1.5">
             <Label>{t("reports.filter.project")}</Label>
@@ -197,36 +207,55 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
         <CostReport data={summary.data} />
       )}
 
-      {(summary.data?.total_receipts ?? 0) > 0 && <ReportRecords filters={filters} />}
+      {(summary.data?.total_receipts ?? 0) > 0 && (
+        <ReportRecords
+          filters={filters}
+          page={list.page}
+          pageSize={list.pageSize}
+          onPageChange={list.setPage}
+          onPageSizeChange={list.setPageSize}
+        />
+      )}
     </div>
   );
 }
 
-const RECORDS_SHOWN = 10;
 const THUMBNAILS = 3;
 
 /**
- * The deliveries behind the figures, newest first, with their photographs
- * (图7 「相关照片」). Each row opens the delivery itself, where every photo
- * is shown whole with its watermark.
+ * 「收货明细」 (Q11): the deliveries behind the figures, newest first, with
+ * their photographs. A supplier can have hundreds of deliveries, so the list
+ * pages through all of them (B10) instead of stopping at the first ten; the
+ * page and page size live in the address like every other list. Each row
+ * opens the delivery itself, where every photo is shown whole with its
+ * watermark.
  */
-function ReportRecords({ filters }: { filters: Record<string, string | undefined> }) {
+function ReportRecords({
+  filters,
+  page,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  filters: Record<string, string | undefined>;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}) {
   const t = useTranslations();
   const df = useDateFormat();
   const records = useQuery({
-    queryKey: ["receipts", "report-records", filters],
+    queryKey: ["receipts", "report-records", filters, page, pageSize],
     queryFn: () =>
       // Newest first is the endpoint's own order (`-captured_at`).
-      getReceipts({ ...filters, page_size: RECORDS_SHOWN }),
+      getReceipts({ ...filters, page, page_size: pageSize }),
+    placeholderData: (previous) => previous,
   });
   const rows = records.data?.results ?? [];
+  const total = records.data?.count ?? 0;
   return (
-    <ReportTable
-      title={t("materialReports.records.title", {
-        shown: rows.length,
-        total: records.data?.count ?? 0,
-      })}
-    >
+    <ReportTable title={t("materialReports.records.title", { total })}>
       <QueryFailedNote query={records} what={t("materialReports.records.what")} />
       <Table>
         <TableHeader>
@@ -262,7 +291,91 @@ function ReportRecords({ filters }: { filters: Record<string, string | undefined
           ))}
         </TableBody>
       </Table>
+      <RecordsPager
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        onPageChange={onPageChange}
+        onPageSizeChange={onPageSizeChange}
+      />
     </ReportTable>
+  );
+}
+
+/** Previous / next and rows per page under 「收货明细」. */
+function RecordsPager({
+  page,
+  pageSize,
+  total,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  page: number;
+  pageSize: number;
+  total: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}) {
+  const t = useTranslations();
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, total);
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2">
+      <p className="text-xs text-muted-foreground">
+        {total === 0
+          ? t("table.showingEmpty")
+          : t("table.showing", { from, to, total })}
+      </p>
+      <div className="flex items-center gap-1.5">
+        <Select
+          value={String(pageSize)}
+          onValueChange={(value) => onPageSizeChange(Number(value))}
+        >
+          <SelectTrigger
+            size="sm"
+            aria-label={t("table.perPage")}
+            className="h-7 rounded-full text-xs"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PAGE_SIZE_OPTIONS.map((option) => (
+              <SelectItem key={option} value={String(option)}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 rounded-full px-2.5 text-xs"
+          disabledReason={page <= 1 ? t("common.alreadyFirstPage") : undefined}
+          disabled={page <= 1}
+          onClick={() => onPageChange(page - 1)}
+        >
+          <ChevronLeft className="h-3.5 w-3.5" />
+          {t("table.previous")}
+        </Button>
+        <span className="tabular px-1 text-xs text-muted-foreground">
+          {page} / {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 rounded-full px-2.5 text-xs"
+          disabledReason={
+            page >= totalPages ? t("common.alreadyLastPage") : undefined
+          }
+          disabled={page >= totalPages}
+          onClick={() => onPageChange(page + 1)}
+        >
+          {t("table.next")}
+          <ChevronRight className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -291,7 +404,7 @@ function RecordPhotos({ record }: { record: MaterialReceipt }) {
           href={photo.watermarked || photo.image}
           target="_blank"
           rel="noreferrer"
-          className="relative block size-10 overflow-hidden rounded border bg-muted"
+          className="relative block size-8 overflow-hidden rounded border bg-muted"
         >
           <Image
             src={photo.watermarked || photo.image}
@@ -311,10 +424,10 @@ function RecordPhotos({ record }: { record: MaterialReceipt }) {
 
 function ReportSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
         {[0, 1, 2].map((value) => (
-          <Skeleton key={value} className="h-24 rounded-lg" />
+          <Skeleton key={value} className="h-8 w-40 rounded-md" />
         ))}
       </div>
       <Skeleton className="h-72 rounded-lg" />
@@ -333,8 +446,8 @@ function QuantityReport({
   if (!data || data.total_receipts === 0) return <EmptyReport />;
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="space-y-3">
+      <MetricRow>
         <Metric
           icon={ReceiptText}
           label={t("materialReports.quantity.totalDeliveries")}
@@ -351,7 +464,7 @@ function QuantityReport({
             })}
           />
         ))}
-      </div>
+      </MetricRow>
 
       <ReportTable title={t("materialReports.quantity.byMaterial")}>
         <Table>
@@ -407,8 +520,8 @@ function CostReport({
       : Math.round((data.priced_receipts / data.total_receipts) * 100);
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+    <div className="space-y-3">
+      <MetricRow>
         <Metric
           icon={Calculator}
           label={t("materialReports.cost.totalCost")}
@@ -426,16 +539,16 @@ function CostReport({
           value={formatter.number(data.unpriced_receipts)}
           warning={data.unpriced_receipts > 0}
         />
-      </div>
+      </MetricRow>
 
       {data.unpriced_receipts > 0 && (
-        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm text-foreground">
+        <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
           <p>{t("materialReports.cost.incompleteWarning", { count: data.unpriced_receipts })}</p>
         </div>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-3 xl:grid-cols-2">
         <ReportTable title={t("materialReports.cost.bySupplier")}>
           <Table>
             <TableHeader>
@@ -498,6 +611,16 @@ function CostReport({
   );
 }
 
+/** The report's headline figures: one wrapping row of small labels (B10, B11). */
+function MetricRow({ children }: { children: React.ReactNode }) {
+  return <div className="flex flex-wrap gap-2">{children}</div>;
+}
+
+/**
+ * One headline figure as a small label - icon, name, number and an optional
+ * note on one line - so the figures take a single row and the deliveries
+ * below them get the screen (B10). Each used to be a 100px-tall card.
+ */
 function Metric({
   icon: Icon,
   label,
@@ -512,24 +635,31 @@ function Metric({
   warning?: boolean;
 }) {
   return (
-    <div className="rounded-lg border bg-card p-4">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Icon className={warning ? "h-4 w-4 text-warning" : "h-4 w-4 text-primary"} />
-        <p className="truncate text-xs font-medium uppercase">{label}</p>
-      </div>
-      <p className={warning ? "tabular mt-2 text-2xl font-semibold text-warning" : "tabular mt-2 text-2xl font-semibold"}>
+    <div className="flex min-w-0 max-w-full items-center gap-1.5 rounded-md border bg-card px-2.5 py-1 text-sm">
+      <Icon
+        className={cn("h-3.5 w-3.5 shrink-0", warning ? "text-warning" : "text-primary")}
+      />
+      <span className="truncate text-xs text-muted-foreground">{label}</span>
+      <span className={cn("tabular font-semibold", warning && "text-warning")}>
         {value}
-      </p>
-      {detail && <p className="mt-1 text-xs text-muted-foreground">{detail}</p>}
+      </span>
+      {detail && (
+        <span className="truncate text-xs text-muted-foreground">· {detail}</span>
+      )}
     </div>
   );
 }
 
+/**
+ * A titled table with tight rows. `Table` carries its own sideways scroller,
+ * so there is no second one here: the page itself only ever scrolls up and
+ * down, phone included.
+ */
 function ReportTable({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
-      <h3 className="border-b px-4 py-3 text-sm font-semibold">{title}</h3>
-      <div className="overflow-x-auto">{children}</div>
+      <h3 className="border-b px-3 py-2 text-sm font-semibold">{title}</h3>
+      <div className="[&_td]:px-3 [&_td]:py-1 [&_th]:h-8 [&_th]:px-3">{children}</div>
     </section>
   );
 }

@@ -55,6 +55,7 @@ import {
   ReturnProcessingDialog,
   tone,
 } from "@/components/contractor-ops/operations-workspaces";
+import { usePageTitle } from "@/components/layout/page-title-override";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import {
@@ -76,6 +77,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useListQuery } from "@/hooks/use-list-query";
+import { equipmentDirectionTitleKey } from "@/lib/equipment-title";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import type {
   ConstructionPhase,
@@ -530,7 +532,15 @@ export function SiteEquipmentOffice() {
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
     void qc.invalidateQueries({ queryKey: ["equipment-summary"] });
   };
-  const title = tRoot("nav.submodule.siteEquipment");
+  // The title follows the direction being looked at (B14): a list of exits
+  // is 「设备退场」, not 「设备进退场」, here, in the top bar and in the export.
+  const directionTitleKey = equipmentDirectionTitleKey(
+    list.filters.direction,
+    register,
+  );
+  const directionTitle = directionTitleKey ? tRoot(directionTitleKey) : null;
+  usePageTitle(directionTitle);
+  const title = directionTitle ?? tRoot("nav.submodule.siteEquipment");
   const project = list.filters.project ?? "";
 
   const movementColumns = useMemo<ColumnDef<EquipmentMovement, unknown>[]>(

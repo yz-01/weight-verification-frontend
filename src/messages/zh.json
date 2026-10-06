@@ -4117,7 +4117,8 @@
     "unknownError": "出了点问题，请重试。",
     "view": "查看",
     "exportThisRecord": "单独导出",
-    "previewThisRecord": "预览 / 打印"
+    "previewThisRecord": "预览 / 打印",
+    "alreadyLastPage": "已经在最后一页"
   },
   "companies": {
     "owner": {
@@ -8761,7 +8762,7 @@
       "unitNote": "数量始终按单位分组；吨、件和车次不会相加。"
     },
     "records": {
-      "title": "相关记录及照片（{shown} / {total}）",
+      "title": "收货明细（{total}）",
       "what": "此报表的相关记录",
       "photos": "相关照片",
       "open": "查看",
@@ -9813,7 +9814,9 @@
       "consultantSettings": "顾问设定",
       "sundryClaims": "杂费报销",
       "materialReports": "材料报表",
-      "wasteClearance": "垃圾清运"
+      "wasteClearance": "垃圾清运",
+      "equipmentEntry": "设备进场",
+      "equipmentExit": "设备退场"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -13698,7 +13701,9 @@
       "qrActive": "二维码启用",
       "qrCodeCount": "送货单",
       "registrationNo": "注册号",
-      "state": "州属"
+      "state": "州属",
+      "industry": "行业",
+      "mainProducts": "主要产品"
     },
     "new": "新建供应商",
     "qr": {
@@ -13753,6 +13758,13 @@
     },
     "what": {
       "sites": "工地列表"
+    },
+    "placeholder": {
+      "industry": "例如：钢铁、混凝土、五金建材",
+      "mainProducts": "例如：钢筋、BRC 钢网、扎丝"
+    },
+    "hint": {
+      "profileMissing": "这家供应商是旧资料，还没有行业和主要产品，保存前请补上。"
     }
   },
   "support": {

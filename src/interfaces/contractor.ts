@@ -102,6 +102,10 @@ export interface Supplier {
   city: string;
   state?: string;
   registration_no?: string;
+  /** 「行业」 - required on save; blank only on suppliers from before it (A3). */
+  industry?: string;
+  /** 「主要产品」 - required on save; blank only on suppliers from before it (A3). */
+  main_products?: string;
   is_active: boolean;
   qr_token?: string;
   qr_is_active?: boolean;
@@ -120,6 +124,8 @@ export interface SupplierPayload {
   city?: string;
   state?: string;
   registration_no?: string;
+  industry: string;
+  main_products: string;
   is_active?: boolean;
 }
 
