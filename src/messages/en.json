@@ -4655,6 +4655,7 @@
     "workflowSettings": "Workflow settings"
   },
   "consultantProject": {
+    "choose": "Choose a project",
     "label": "Active consultant project"
   },
   "consultantWorkflow": {
@@ -6974,6 +6975,7 @@
       "bug_not_found": "That bug record could not be found.",
       "calibration_expired": "This weighbridge calibration has expired.",
       "cannot_modify_self": "You cannot change your own account this way. Use your profile instead.",
+      "cannot_review_own_request": "You raised this request, so you cannot approve or return it. Somebody else has to decide it.",
       "category_holds_deliveries_only": "“{column}” is a material category - it holds deliveries and their cost, not site photographs. Choose another category.",
       "clock_skew": "The gateway clock moved beyond the allowed tolerance.",
       "cloud_alert_not_found": "That cloud usage alert could not be found.",
@@ -7000,6 +7002,7 @@
       "config_required": "Required system settings cannot be removed.",
       "config_unknown": "This configuration key is not supported.",
       "conflict": "That cannot be done while the record is in its current state.",
+      "consultant_grant_not_current": "The chosen consultant no longer has access to this project, so the application is still a draft. Choose another consultant or renew their access first.",
       "consultant_grant_not_found": "That consultant project access record could not be found.",
       "consultant_organization_not_found": "That consultant organization could not be found.",
       "customer_assignment_not_found": "That customer assignment could not be found.",
@@ -15107,6 +15110,7 @@
     "noRemark": "No remark",
     "returnedNotice": "This request was returned and is closed; it cannot be edited or sent again. To ask again, raise a new request - it gets a new Request No.",
     "waitingForReview": "Waiting for head office or the authorised manager to approve or return it.",
+    "ownRequestWaiting": "Waiting for approval. You raised this request, so head office or the authorised manager approves or returns it - not you.",
     "attachments": {
       "title": "Attachment index",
       "none": "No attachments"

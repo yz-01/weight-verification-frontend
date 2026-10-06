@@ -39,6 +39,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FieldDraft } from "@/components/field-staff/field-draft";
 import { PhotoApprovals } from "@/components/field-staff/photo-approvals";
 import { OptionListsDialog } from "@/components/material-requests/option-lists";
+import { materialRequestReviewView } from "@/components/material-requests/review-gate";
 import {
   MaterialRequestForm,
   type MaterialRequestPrefill,
@@ -512,7 +513,7 @@ export function MaterialRequestDetail({
   const df = useDateFormat();
   const unitLabel = useUnitLabel();
   const locale = useLocale();
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const qc = useQueryClient();
   const detail = useQuery({ queryKey: ["material-requests", "detail", id], queryFn: () => getMaterialRequest(id) });
   const [returnArmed, setReturnArmed] = useState(false);
@@ -548,6 +549,8 @@ export function MaterialRequestDetail({
   const decided = row.status !== "SUBMITTED";
   const decidedLabel = row.status === "RETURNED" ? t("field.returnedBy") : t("field.approvedBy");
   const isMaterial = row.request_type === "MATERIAL";
+  // The applicant never sees approve / return, whatever their role (D2).
+  const reviewView = materialRequestReviewView(row, user?.id, can("material_request.review"));
 
   return (
     <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${t(`type.${row.request_type}`)}`} onClose={onClose}>
@@ -640,7 +643,7 @@ export function MaterialRequestDetail({
                 {t("action.exportPdf")}
               </Button>
             </div>
-            {row.status === "SUBMITTED" && can("material_request.review") && (
+            {reviewView === "decide" && (
               <>
                 <Button className="w-full" disabled={review.isPending} onClick={() => review.mutate("APPROVED")}>
                   <Check />
@@ -674,7 +677,10 @@ export function MaterialRequestDetail({
                 )}
               </>
             )}
-            {row.status === "SUBMITTED" && !can("material_request.review") && (
+            {reviewView === "own" && (
+              <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{t("ownRequestWaiting")}</p>
+            )}
+            {reviewView === "waiting" && (
               <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{t("waitingForReview")}</p>
             )}
           </div>
