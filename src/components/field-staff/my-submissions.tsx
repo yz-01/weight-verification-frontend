@@ -75,6 +75,7 @@ import {
 import {
   getOfflineQueueEntries,
   getQueuedSubmissionDetail,
+  queueErrorKey,
 } from "@/services/offline-sync.service";
 
 /** Queue kinds that are a submission somebody is waiting on, and their label. */
@@ -177,7 +178,7 @@ export function MySubmissions({
           key={entry.id}
           type="button"
           onClick={() => setOpenQueued(entry.id)}
-          className={`w-full rounded-lg border p-3 text-left transition-colors active:bg-muted/60 ${entry.lastError ? "border-destructive/40 bg-destructive/5" : "border-dashed"}`}
+          className={`w-full rounded-lg border p-3 text-left transition-colors active:bg-muted/60 ${entry.state === "retrying" ? "border-warning/40 bg-warning/5" : entry.lastError ? "border-destructive/40 bg-destructive/5" : "border-dashed"}`}
         >
           <div className="flex items-center gap-2">
             {entry.lastError ? (
@@ -189,16 +190,24 @@ export function MySubmissions({
               {entry.reference || t(`mySubmissions.kind.${QUEUED_KINDS[entry.kind]}`)}
             </span>
             <span className={`shrink-0 text-xs ${entry.lastError ? "text-destructive" : "text-muted-foreground"}`}>
-              {entry.lastError
-                ? t("mySubmissions.uploadFailed")
-                : t("mySubmissions.waitingToUpload")}
+              {entry.state === "failed"
+                ? t("offline.state.failed")
+                : entry.state === "retrying"
+                  ? t("offline.state.retrying")
+                  : entry.lastError
+                    ? t("mySubmissions.uploadFailed")
+                    : t("mySubmissions.waitingToUpload")}
             </span>
           </div>
           {/* F-230: this sentence was already being stored and nothing read
               it, so a submission the server had refused was invisible to the
               only person who could correct it. */}
           {entry.lastError && (
-            <p className="mt-1 text-xs text-destructive">{entry.lastError}</p>
+            <p className="mt-1 text-xs text-destructive">
+              {queueErrorKey(entry.lastError)
+                ? t(queueErrorKey(entry.lastError) as string)
+                : entry.lastError}
+            </p>
           )}
           <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
             {formatter.dateTime(entry.queuedAt)}
@@ -580,7 +589,16 @@ function QueuedDetailSheet({
           </p>
         ) : (
           <div className="space-y-3">
-            {entry.data.lastError ? (
+            {entry.data.lastError && queueErrorKey(entry.data.lastError) ? (
+              // No answer from the server (no signal, timed out): not a
+              // refusal, nothing to correct - it goes again by itself (A9).
+              <div className="rounded-lg border border-warning/30 bg-warning/5 px-3 py-2">
+                <p className="text-sm font-medium text-warning">
+                  {t(queueErrorKey(entry.data.lastError) as string)}
+                </p>
+                <p className="mt-1 text-sm leading-6">{t("mySubmissions.queuedHelp")}</p>
+              </div>
+            ) : entry.data.lastError ? (
               <div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
                 <p className="text-sm font-medium text-destructive">
                   {t("mySubmissions.failedHelp")}

@@ -7181,7 +7181,8 @@
     "network": "We could not reach the server.",
     "networkBody": "Check your connection and try again.",
     "notFound": "We could not find that.",
-    "notFoundBody": "It may have been removed, or you may not have access to it."
+    "notFoundBody": "It may have been removed, or you may not have access to it.",
+    "uploadTimeout": "The upload timed out: the signal was too weak to finish within two minutes."
   },
   "evidence": {
     "revision": {
@@ -7681,7 +7682,9 @@
         "reason": "Why it is rejected",
         "reasonPlaceholder": "e.g. wrong grade, damaged, short quantity",
         "submit": "Reject and submit"
-      }
+      },
+      "supplierGuess": "The delivery note says “{read}”. The closest supplier is “{name}”.",
+      "supplierGuessUse": "Use this supplier"
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -9977,11 +9980,12 @@
       "empty": "Nothing is waiting to sync.",
       "retry": "Retry now",
       "heldHint": "An earlier step for the same order has not gone through yet, so this one waits to keep them in order.",
-      "recent": "Synced just now"
+      "recent": "Synced just now",
+      "needsAttentionHint": "The server did not accept this one, so it is no longer sent by itself. Once it is sorted out, press Retry now, or discard it."
     },
     "queued": "Saved offline and queued for upload",
     "status": {
-      "failed": "{count, plural, one {# action failed to sync} other {# actions failed to sync}}",
+      "failed": "{count, plural, one {# action needs attention} other {# actions need attention}}",
       "offline": "Offline; {count, plural, one {# record is waiting} other {# records are waiting}}",
       "pending": "{count, plural, one {# record is waiting to sync} other {# records are waiting to sync}}",
       "syncing": "Uploading offline records"
@@ -9991,9 +9995,10 @@
     "state": {
       "waiting": "Waiting to sync",
       "syncing": "Syncing",
-      "failed": "Sync failed",
+      "failed": "Needs attention",
       "held": "Waiting for the earlier step",
-      "synced": "Synced"
+      "synced": "Synced",
+      "retrying": "Will retry"
     },
     "conflict": {
       "forbidden": "Your account no longer has permission for this (it may have changed while you were offline). Ask your administrator. Until then this action does nothing.",
@@ -10002,6 +10007,10 @@
       "changed": "While you were offline someone else handled this order or its status changed (for example it was cancelled or already accepted). This step was not carried out. Open the order to see where it stands, then discard this action.",
       "invalid": "Some details are incomplete or out of date (for example the proposed time has passed). This step was not carried out. Do it again, then discard this action.",
       "server": "The server could not handle this just now. It will be tried again on the next sync."
+    },
+    "reason": {
+      "network": "No connection",
+      "timeout": "Upload timed out (weak signal)"
     }
   },
   "organisation": {
@@ -14846,7 +14855,9 @@
     "offHelp": "Holds are off: this screen is one plain form.",
     "cannotTurnOff": "Some holds still have photos or are waiting to upload. Submit them before turning this off.",
     "cannotTurnOn": "This form still has entries. Submit or discard them before turning holds on.",
-    "fillFirst": "Queue number {n} has no photo yet. Take one to hold it, then open the next number."
+    "fillFirst": "Queue number {n} has no photo yet. Take one to hold it, then open the next number.",
+    "retrying": "{reason} · {count, plural, one {tried once} other {tried # times}}, will retry",
+    "needsAttention": "Needs attention: {reason} ({count, plural, one {tried once} other {tried # times}})"
   },
   "sundryClaim": {
     "detailTitle": "Sundry claim",
