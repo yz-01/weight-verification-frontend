@@ -13,15 +13,16 @@
  */
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, DoorOpen, Images, Loader2, MapPin, Plus, UserPlus, Users, X } from "lucide-react";
+import { Camera, DoorOpen, Images, Loader2, MapPin, Plus, ScanLine, Send, UserPlus, Users, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { FieldCamera } from "@/components/shared/field-camera";
-import { FieldWrapper, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitives";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
+import { GateQrScanner } from "@/components/site-access/gate-qr-scanner";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,19 +35,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ApiError } from "@/interfaces/api";
 import {
-  GATE_INCIDENT_CATEGORIES,
   type GateIncident,
-  type GateIncidentCategory,
   type GateIncidentDetail,
+  type GatePassMatch,
   type GatePhoto,
   type GatePhotoDraft,
 } from "@/interfaces/site-access";
@@ -56,14 +50,13 @@ import {
   addGateIncidentMembers,
   addGateIncidentPhotos,
   createGateIncident,
+  findGatePass,
   getGateIncident,
   getGateIncidents,
   getGateMemberOptions,
-  getSiteAccessPasses,
 } from "@/services/site-access.service";
 
 const PAGE_SIZE = 20;
-const NONE = "__none__";
 
 function newEventId() {
   return `gate-${crypto.randomUUID()}`;
@@ -100,11 +93,9 @@ export function GateRecordsPanel({
   initialProject?: string;
 } = {}) {
   const t = useTranslations("siteControl.gateRecords");
-  const category = useTranslations("siteControl.gateCategory");
   const { can } = useAuth();
   const search = useSearchParams();
   const [project, setProject] = useState("all");
-  const [kind, setKind] = useState<GateIncidentCategory | "all">("all");
   const [term, setTerm] = useState("");
   const [creating, setCreating] = useState(false);
   // `gate_incident`, not `incident`: the phone already reads `incident` as a
@@ -112,7 +103,7 @@ export function GateRecordsPanel({
   const [openId, setOpenId] = useState<string | null>(() => search.get("gate_incident"));
 
   const rows = useInfiniteQuery({
-    queryKey: ["gate-incidents", project, kind, term],
+    queryKey: ["gate-incidents", project, term],
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       getGateIncidents({
@@ -121,7 +112,6 @@ export function GateRecordsPanel({
         sort_by: "occurred_at",
         sort_order: "desc",
         ...(project !== "all" ? { project } : {}),
-        ...(kind !== "all" ? { category: kind } : {}),
         ...(term.trim() ? { search: term.trim() } : {}),
       }),
     getNextPageParam: (last, pages) =>
@@ -152,7 +142,7 @@ export function GateRecordsPanel({
         )}
       </div>
 
-      <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-3">
+      <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
         <FieldWrapper label={t("field.project")}>
           <ProjectPicker
             value={project}
@@ -161,21 +151,6 @@ export function GateRecordsPanel({
             allowAll
             allLabel={t("field.allProjects")}
           />
-        </FieldWrapper>
-        <FieldWrapper label={t("field.category")}>
-          <Select value={kind} onValueChange={(value) => setKind(value as GateIncidentCategory | "all")}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("field.allCategories")}</SelectItem>
-              {GATE_INCIDENT_CATEGORIES.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {category(value)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </FieldWrapper>
         <FieldWrapper label={t("field.search")}>
           <Input
@@ -217,7 +192,8 @@ export function GateRecordsPanel({
 
       {creating && (
         <GateIncidentForm
-          defaultProject={project === "all" ? initialProject : project}
+          defaultProject={initialProject || (project === "all" ? "" : project)}
+          lockProject={Boolean(initialProject)}
           onClose={() => setCreating(false)}
           onSaved={(row) => {
             setCreating(false);
@@ -240,7 +216,6 @@ function Empty({ text }: { text: string }) {
 
 function GateIncidentCard({ row, onOpen }: { row: GateIncident; onOpen: () => void }) {
   const t = useTranslations("siteControl.gateRecords");
-  const category = useTranslations("siteControl.gateCategory");
   const df = useDateFormat();
   return (
     <button
@@ -256,10 +231,7 @@ function GateIncidentCard({ row, onOpen }: { row: GateIncident; onOpen: () => vo
         )}
       </span>
       <span className="min-w-0 flex-1 space-y-1">
-        <span className="flex flex-wrap items-center gap-2">
-          <span className="font-semibold tabular-nums">{row.incident_no}</span>
-          <StatusBadge label={category(row.category)} tone="warning" />
-        </span>
+        <span className="block font-semibold tabular-nums">{row.incident_no}</span>
         <span className="block truncate text-sm text-muted-foreground">
           {row.project_name}
           {row.gate_name ? ` · ${row.gate_name}` : ""}
@@ -354,51 +326,58 @@ function LocationLine({ fix, failed, onRetry }: { fix: LocationFix | null; faile
   );
 }
 
+/**
+ * The guard's form (Q18, 7/10): photos, then scan a pass (optional), then who
+ * to talk to and the first words (optional), then send. Nothing else.
+ *
+ * 「门岗手机不应该有可疑人员、偷窃…这些分类，只要拍照、扫二维码、沟通、发送」.
+ * The send button used to wait for a 事项类别 the customer had decided a guard
+ * should not choose; it stayed grey after the photo was taken, and the reason
+ * lived in a hover tooltip a phone never shows (F1). The only thing it waits
+ * for now is a photo, and that is said on the form, not only in a tooltip.
+ */
 function GateIncidentForm({
   defaultProject,
+  lockProject,
   onClose,
   onSaved,
 }: {
   defaultProject: string;
+  /** The phone is bound to its project; only the office chooses one. */
+  lockProject: boolean;
   onClose: () => void;
   onSaved: (row: GateIncidentDetail) => void;
 }) {
   const t = useTranslations("siteControl.gateRecords");
-  const category = useTranslations("siteControl.gateCategory");
   const queryClient = useQueryClient();
   const { fix, failed, refresh } = useGateLocation();
   const camera = useContinuousCamera(fix);
   const [project, setProject] = useState(defaultProject);
-  const [kind, setKind] = useState<GateIncidentCategory | "">("");
-  const [gate, setGate] = useState("");
-  const [description, setDescription] = useState("");
-  const [accessPass, setAccessPass] = useState(NONE);
-  const [accessEvent, setAccessEvent] = useState(NONE);
+  const [scanning, setScanning] = useState(false);
+  const [linkedPass, setLinkedPass] = useState<GatePassMatch | null>(null);
   const [members, setMembers] = useState<string[]>([]);
+  const [firstMessage, setFirstMessage] = useState("");
   const eventId = useRef(newEventId());
+  const showProject = !lockProject || !defaultProject;
 
-  const passes = useQuery({
-    queryKey: ["gate-record-passes", project],
-    queryFn: () => getSiteAccessPasses({ project, status: "APPROVED", page_size: 100 }),
-    enabled: Boolean(project),
-  });
   const people = useQuery({
     queryKey: ["gate-member-options", project],
     queryFn: () => getGateMemberOptions(project),
     enabled: Boolean(project),
   });
-  const chosenPass = passes.data?.results.find((row) => row.id === accessPass);
+
+  const lookup = useMutation({
+    mutationFn: (token: string) => findGatePass(project, token),
+    onSuccess: setLinkedPass,
+  });
 
   const save = useMutation({
     mutationFn: () =>
       createGateIncident({
         project,
-        category: kind as GateIncidentCategory,
-        gate_name: gate,
-        description,
-        ...(accessPass !== NONE ? { access_pass: accessPass } : {}),
-        ...(accessEvent !== NONE ? { access_event: accessEvent } : {}),
+        ...(linkedPass ? { access_pass: linkedPass.id } : {}),
         members,
+        ...(firstMessage.trim() ? { first_message: firstMessage.trim() } : {}),
         ...(fix
           ? { latitude: fix.latitude, longitude: fix.longitude, accuracy_m: fix.accuracy }
           : {}),
@@ -418,88 +397,23 @@ function GateIncidentForm({
           <DialogTitle>{t("newTitle")}</DialogTitle>
           <DialogDescription>{t("newHelp")}</DialogDescription>
         </DialogHeader>
-        <QueryFailedNote query={passes} what={t("whatPasses")} />
         <QueryFailedNote query={people} what={t("whatPeople")} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FieldWrapper label={t("field.project")} required className="sm:col-span-2">
-            <ProjectPicker
-              value={project}
-              onValueChange={(value) => {
-                setProject(value);
-                setAccessPass(NONE);
-                setAccessEvent(NONE);
-                setMembers([]);
-              }}
-              placeholder={t("field.chooseProject")}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.category")} required className="sm:col-span-2">
-            <div className="flex flex-wrap gap-2">
-              {GATE_INCIDENT_CATEGORIES.map((value) => (
-                <Button
-                  key={value}
-                  type="button"
-                  size="sm"
-                  variant={kind === value ? "default" : "outline"}
-                  onClick={() => setKind(value)}
-                >
-                  {category(value)}
-                </Button>
-              ))}
-            </div>
-          </FieldWrapper>
-          <FieldWrapper label={t("field.gate")} optional={t("optional")}>
-            <Input value={gate} onChange={(event) => setGate(event.target.value)} placeholder={t("field.gatePlaceholder")} />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.pass")} optional={t("optional")} hint={t("field.passHint")}>
-            <Select
-              value={accessPass}
-              onValueChange={(value) => {
-                setAccessPass(value);
-                setAccessEvent(NONE);
-              }}
-              disabled={!project}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NONE}>{t("field.standalone")}</SelectItem>
-                {(passes.data?.results ?? []).map((row) => (
-                  <SelectItem key={row.id} value={row.id}>
-                    {row.pass_no} · {row.subject_name}
-                    {row.vehicle_plate ? ` · ${row.vehicle_plate}` : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FieldWrapper>
-          {chosenPass && chosenPass.events.length > 0 && (
-            <FieldWrapper label={t("field.event")} optional={t("optional")} className="sm:col-span-2">
-              <Select value={accessEvent} onValueChange={setAccessEvent}>
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>{t("field.wholePass")}</SelectItem>
-                  {chosenPass.events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
-                      <GateEventLabel direction={event.direction} at={event.occurred_at} gate={event.gate_name} />
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <div className="grid gap-4">
+          {showProject && (
+            <FieldWrapper label={t("field.project")} required>
+              <ProjectPicker
+                value={project}
+                onValueChange={(value) => {
+                  setProject(value);
+                  setLinkedPass(null);
+                  lookup.reset();
+                  setMembers([]);
+                }}
+                placeholder={t("field.chooseProject")}
+              />
             </FieldWrapper>
           )}
-          <FieldWrapper label={t("field.description")} optional={t("optional")} className="sm:col-span-2">
-            <Textarea value={description} onChange={(event) => setDescription(event.target.value)} />
-          </FieldWrapper>
-          <FieldWrapper
-            label={t("field.photos")}
-            required
-            hint={t("field.photosHint")}
-            className="sm:col-span-2"
-          >
+          <FieldWrapper label={t("field.photos")} required hint={t("field.photosHint")}>
             <div className="space-y-2">
               <FieldCamera
                 label={camera.photos.length ? t("takeAnother", { count: camera.photos.length }) : t("takePhoto")}
@@ -511,12 +425,65 @@ function GateIncidentForm({
               <LocationLine fix={fix} failed={failed} onRetry={refresh} />
             </div>
           </FieldWrapper>
-          <FieldWrapper label={t("field.members")} optional={t("optional")} hint={t("field.membersHint")} className="sm:col-span-2">
+          <FieldWrapper label={t("scanPass")} optional={t("optional")} hint={t("scanPassHint")}>
+            {linkedPass ? (
+              <div className="flex items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2 text-sm">
+                <span className="min-w-0">
+                  <span className="block font-medium">{linkedPass.pass_no}</span>
+                  <span className="block truncate text-muted-foreground">
+                    {linkedPass.subject_name}
+                    {linkedPass.vehicle_plate ? ` · ${linkedPass.vehicle_plate}` : ""}
+                  </span>
+                </span>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  aria-label={t("unlinkPass")}
+                  onClick={() => setLinkedPass(null)}
+                >
+                  <X />
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  disabledReason={!project ? t("chooseProjectFirst") : undefined}
+                  disabled={!project || lookup.isPending}
+                  onClick={() => setScanning(true)}
+                >
+                  {lookup.isPending ? <Loader2 className="animate-spin" /> : <ScanLine />}
+                  {t("scanPassButton")}
+                </Button>
+                {lookup.isError && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {lookup.error instanceof ApiError && lookup.error.status === 404
+                      ? t("scanPassNotFound")
+                      : lookup.error instanceof Error
+                        ? lookup.error.message
+                        : t("saveError")}
+                  </p>
+                )}
+              </div>
+            )}
+          </FieldWrapper>
+          <FieldWrapper label={t("field.members")} optional={t("optional")} hint={t("field.membersHint")}>
             <MemberChecklist
               options={people.data ?? []}
               loading={people.isLoading && Boolean(project)}
               selected={members}
               onChange={setMembers}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("firstMessage")} optional={t("optional")} hint={t("firstMessageHint")}>
+            <Textarea
+              value={firstMessage}
+              maxLength={2000}
+              onChange={(event) => setFirstMessage(event.target.value)}
+              placeholder={t("firstMessagePlaceholder")}
             />
           </FieldWrapper>
         </div>
@@ -525,6 +492,9 @@ function GateIncidentForm({
             {save.error instanceof Error ? save.error.message : t("saveError")}
           </p>
         )}
+        {!camera.photos.length && (
+          <p className="text-sm text-muted-foreground">{t("photoFirst")}</p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("cancel")}
@@ -532,16 +502,23 @@ function GateIncidentForm({
           <Button
             requires={[
               [project, t("field.project")],
-              [kind, t("field.category")],
               [camera.photos.length > 0, t("field.photos")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >
-            {save.isPending && <Loader2 className="animate-spin" />}
-            {t("save", { count: camera.photos.length })}
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+            {t("send", { count: camera.photos.length })}
           </Button>
         </DialogFooter>
+        <GateQrScanner
+          open={scanning}
+          onClose={() => setScanning(false)}
+          onDetected={(token) => {
+            setScanning(false);
+            lookup.mutate(token);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -625,9 +602,12 @@ function GateIncidentDetailDialog({ id, onClose }: { id: string; onClose: () => 
         {row && (
           <div className="space-y-5">
             <div className="grid gap-3 text-sm sm:grid-cols-3">
-              <Fact label={t("field.category")} value={category(row.category)} />
+              {/* Q18: new records carry no category; an older one keeps the one it was given. */}
+              {row.category !== "OTHER" && (
+                <Fact label={t("field.category")} value={category(row.category)} />
+              )}
               <Fact label={t("field.project")} value={row.project_name} />
-              <Fact label={t("field.gate")} value={row.gate_name || t("none")} />
+              {row.gate_name && <Fact label={t("field.gate")} value={row.gate_name} />}
               <Fact label={t("field.guard")} value={row.guard_name} />
               <Fact label={t("field.time")} value={df.dateTime(row.occurred_at)} />
               <Fact
@@ -736,7 +716,8 @@ function GatePhotoCard({ photo, number, projectName }: { photo: GatePhoto; numbe
       <figcaption className="space-y-0.5 p-2 text-xs text-muted-foreground">
         <p className="font-medium text-foreground">{projectName}</p>
         <p>
-          {t("field.gate")}: {photo.gate_name || t("none")} · {t("field.guard")}: {photo.guard_name}
+          {photo.gate_name ? `${t("field.gate")}: ${photo.gate_name} · ` : ""}
+          {t("field.guard")}: {photo.guard_name}
         </p>
         <p>{df.dateTime(photo.captured_at)}</p>
         <p>

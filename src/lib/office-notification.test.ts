@@ -6,6 +6,10 @@ describe("officeNotificationHref", () => {
   it("keeps an office link that already opens its record", () => {
     expect(officeNotificationHref({ href: "/sundry-claims?record=s1" })).toBe("/sundry-claims?record=s1");
     expect(officeNotificationHref({ href: "/consultant-applications/a1" })).toBe("/consultant-applications/a1");
+    // F5: a finished disposal tells the office with the office detail itself.
+    expect(
+      officeNotificationHref({ href: "/waste-clearance?kind=disposal&record=d1", record_id: "d1" }),
+    ).toBe("/waste-clearance?kind=disposal&record=d1");
   });
 
   it("turns a field-app link into the office screen for the same item", () => {
