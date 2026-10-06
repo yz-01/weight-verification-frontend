@@ -7159,7 +7159,8 @@
       "column_inactive": "“{column}” is closed. Choose an open category.",
       "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further.",
       "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
-      "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened."
+      "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
+      "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -7688,7 +7689,10 @@
         "submit": "Reject and submit"
       },
       "supplierGuess": "The delivery note says “{read}”. The closest supplier is “{name}”.",
-      "supplierGuessUse": "Use this supplier"
+      "supplierGuessUse": "Use this supplier",
+      "documentAmount": "Delivery order amount (RM)",
+      "documentAmountRead": "Read from the delivery order. Check it against the paper.",
+      "documentAmountTypeHint": "If the amount was not read, type the total from the delivery order (optional)."
     },
     "materialEvidence": {
       "arrival": "1. Arriving vehicle",
@@ -9471,7 +9475,9 @@
       "final_proof_submitted": "Final disposal proof submitted (job finished)",
       "legacy_confirmation": "Office check (earlier rule)",
       "remark": "Remark",
-      "decided_by": "Approved / returned by"
+      "decided_by": "Approved / returned by",
+      "original_quantity": "Original quantity",
+      "correction_reason": "Reason for correction"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -11169,7 +11175,9 @@
       "alreadyAccepted": "This delivery has already been accepted.",
       "armReject": "Allow rejecting this delivery",
       "armRejectHelp": "Turn this on only when the material is off specification. It unlocks the reason and the reject button.",
-      "rejectedAtGate": "Rejected at the gate by the site, with both signatures. This decision is final."
+      "rejectedAtGate": "Rejected at the gate by the site, with both signatures. This decision is final.",
+      "archived": "This delivery has been confirmed and archived. It can be read, but no longer accepted or rejected.",
+      "failed": "The decision was not saved. Try again."
     },
     "addPhoto": {
       "caption": "Note (optional)",
@@ -11207,7 +11215,8 @@
         "vehicle_plate": "Vehicle plate",
         "delivery_note_no": "Delivery order no.",
         "notes": "Notes",
-        "received_by_name": "Received by"
+        "received_by_name": "Received by",
+        "document_amount": "Delivery order amount"
       }
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
@@ -11252,7 +11261,12 @@
       "vehiclePlate": "Vehicle",
       "businessAt": "Delivery date",
       "movementType": "Type",
-      "returnReason": "Return reason"
+      "returnReason": "Return reason",
+      "documentAmount": "Delivery order amount (RM)",
+      "documentAmountSource": {
+        "OCR": "Read from the delivery order",
+        "MANUAL": "Entered by a person"
+      }
     },
     "locationCaptured": "Location captured",
     "locationMissing": "No location",

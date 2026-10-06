@@ -7159,7 +7159,8 @@
       "column_inactive": "“{column}” sudah ditutup. Pilih ruangan yang aktif.",
       "conversation_closed": "Rekod ini telah selesai, jadi perbualannya ditutup. Ia masih boleh dibaca; buka rekod baharu untuk perkara lanjut.",
       "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah.",
-      "record_finished": "Rekod ini telah selesai, jadi tiada fail lagi boleh ditambah. Lampiran sedia ada masih boleh dibuka."
+      "record_finished": "Rekod ini telah selesai, jadi tiada fail lagi boleh ditambah. Lampiran sedia ada masih boleh dibuka.",
+      "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -7688,7 +7689,10 @@
         "submit": "Tolak dan hantar"
       },
       "supplierGuess": "Nota hantaran menyebut “{read}”. Pembekal paling hampir ialah “{name}”.",
-      "supplierGuessUse": "Guna pembekal ini"
+      "supplierGuessUse": "Guna pembekal ini",
+      "documentAmount": "Amaun pesanan penghantaran (RM)",
+      "documentAmountRead": "Dibaca daripada pesanan penghantaran. Semak dengan kertas.",
+      "documentAmountTypeHint": "Jika amaun tidak dapat dibaca, taip jumlah daripada pesanan penghantaran (pilihan)."
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -9471,7 +9475,9 @@
       "final_proof_submitted": "Bukti pelupusan akhir dihantar (tugas selesai)",
       "legacy_confirmation": "Semakan pejabat (peraturan lama)",
       "remark": "Catatan",
-      "decided_by": "Diluluskan / dikembalikan oleh"
+      "decided_by": "Diluluskan / dikembalikan oleh",
+      "original_quantity": "Kuantiti asal",
+      "correction_reason": "Sebab pembetulan"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -11169,7 +11175,9 @@
       "alreadyAccepted": "Penghantaran ini telah pun diterima.",
       "armReject": "Benarkan penolakan penerimaan ini",
       "armRejectHelp": "Hidupkan hanya apabila bahan tidak menepati spesifikasi. Ia membuka sebab dan butang tolak.",
-      "rejectedAtGate": "Ditolak di pintu masuk oleh tapak, dengan kedua-dua tandatangan. Keputusan ini muktamad."
+      "rejectedAtGate": "Ditolak di pintu masuk oleh tapak, dengan kedua-dua tandatangan. Keputusan ini muktamad.",
+      "archived": "Penghantaran ini telah disahkan dan diarkibkan. Ia boleh dibaca, tetapi tidak boleh diterima atau ditolak lagi.",
+      "failed": "Keputusan tidak disimpan. Cuba lagi."
     },
     "addPhoto": {
       "caption": "Nota (pilihan)",
@@ -11207,7 +11215,8 @@
         "vehicle_plate": "No. kenderaan",
         "delivery_note_no": "No. nota hantaran",
         "notes": "Catatan",
-        "received_by_name": "Diterima oleh"
+        "received_by_name": "Diterima oleh",
+        "document_amount": "Amaun pesanan penghantaran"
       }
     },
     "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
@@ -11252,7 +11261,12 @@
       "vehiclePlate": "Kenderaan",
       "businessAt": "Tarikh penghantaran",
       "movementType": "Jenis",
-      "returnReason": "Sebab dipulangkan"
+      "returnReason": "Sebab dipulangkan",
+      "documentAmount": "Amaun pesanan penghantaran (RM)",
+      "documentAmountSource": {
+        "OCR": "Dibaca daripada pesanan penghantaran",
+        "MANUAL": "Dimasukkan oleh seseorang"
+      }
     },
     "locationCaptured": "Lokasi direkod",
     "locationMissing": "Tiada lokasi",

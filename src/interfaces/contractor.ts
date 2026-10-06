@@ -307,6 +307,12 @@ export interface MaterialReceipt {
   total_weight_kg: string | null;
   unit_price: string | null;
   total_value: string | null;
+  /**
+   * The money on the supplier's delivery order - what the material budget is
+   * measured against (2026-10 A6). Null when nobody could read or type it.
+   */
+  document_amount?: string | null;
+  document_amount_source?: "OCR" | "MANUAL" | "";
   vehicle_plate: string;
   received_by_name: string;
   /** Stamped by the platform, never by the device that filed the receipt. */
@@ -513,6 +519,8 @@ export interface MaterialReceiptPayload {
   /** Required material column for a new delivery. */
   category: string;
   unit_price?: string | null;
+  /** Typed on the phone or prefilled from OCR; optional (2026-10 A6). */
+  document_amount?: string | null;
   vehicle_plate?: string;
   delivery_note_no?: string;
   notes?: string;
@@ -557,7 +565,8 @@ export interface DeliveryNoteOCRResult {
   status: "SUCCEEDED";
   provider: string;
   content: string;
-  suggestions: Partial<Record<DeliveryNoteOCRField, string>>;
+  /** Also the money read off the paper; "" when no total was printed. */
+  suggestions: Partial<Record<DeliveryNoteOCRField | "document_amount" | "document_amount_line", string>>;
   confidence: Partial<Record<DeliveryNoteOCRField, number>>;
   low_confidence_fields: DeliveryNoteOCRField[];
   confidence_threshold: number;

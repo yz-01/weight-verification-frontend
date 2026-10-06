@@ -277,6 +277,11 @@ interface MaterialDraft {
   totalWeightKg: string;
   vehiclePlate: string;
   deliveryNoteNo: string;
+  /**
+   * 送货单金额 (RM), 2026-10 A6. Prefilled when OCR read it, typed otherwise,
+   * never required. Optional so a draft saved before this field still loads.
+   */
+  documentAmount?: string;
   notes: string;
   /** 当天货不对 (10-02 D08): this delivery is being turned away, not taken in. */
   rejecting?: boolean;
@@ -297,6 +302,7 @@ const EMPTY_MATERIAL: MaterialDraft = {
   totalWeightKg: "",
   vehiclePlate: "",
   deliveryNoteNo: "",
+  documentAmount: "",
   notes: "",
   rejecting: false,
   rejectionReason: "",
@@ -325,6 +331,9 @@ function MaterialCapturePanel({
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
   const [scannerOpen, setScannerOpen] = useState(false);
   const [ocrProof, setOcrProof] = useState("");
+  // The amount OCR read, kept apart from the input so the hint can say
+  // "read from the DO, check it" or "not read, type it" (A6).
+  const [ocrAmount, setOcrAmount] = useState("");
   const [ocrLineItems, setOcrLineItems] = useState<DeliveryNoteOCRLineItem[]>([]);
   // A supplier the DO's name is close to but not the same as (A5): offered,
   // not filled in, because the wrong supplier on a delivery is worse than
@@ -504,6 +513,8 @@ function MaterialCapturePanel({
     read: readDeliveryNote,
     onRead: (result) => {
       setOcrProof(result.proof);
+      const readAmount = result.suggestions.document_amount ?? "";
+      setOcrAmount(readAmount);
       const items = result.line_items ?? [];
       setOcrLineItems(items);
       const firstCategory = items[0]?.category_id ?? "";
@@ -536,10 +547,12 @@ function MaterialCapturePanel({
           old.quantity,
         unit: (items[0]?.unit as MaterialUnit) || old.unit,
         category: firstCategory || old.category,
+        documentAmount: readAmount || old.documentAmount || "",
       }));
     },
     onReset: () => {
       setOcrProof("");
+      setOcrAmount("");
       setOcrLineItems([]);
       setSupplierGuess(null);
     },
@@ -584,6 +597,9 @@ function MaterialCapturePanel({
           quantity: draft.quantity,
           unit: draft.unit,
           total_weight_kg: draft.totalWeightKg || null,
+          // Sent as typed; the server keeps OCR as the source when it still
+          // matches the reading, and fills it from the reading when blank.
+          document_amount: (draft.documentAmount ?? "").trim() || null,
           category: draft.category,
           vehicle_plate: draft.vehiclePlate.trim(),
           delivery_note_no: draft.deliveryNoteNo.trim(),
@@ -833,6 +849,26 @@ function MaterialCapturePanel({
           </ul>
         </div>
       )}
+      {/* 送货单金额 (A6): what the material budget counts. Prefilled from the
+          DO reading; when OCR could not read it the worker is asked to type
+          it, but it is never required - a lorry is not held at the gate over
+          a number the office can correct later. */}
+      <FieldWrapper label={t("material.documentAmount")}>
+        <Input
+          className="h-12"
+          type="number"
+          min="0"
+          step="0.01"
+          inputMode="decimal"
+          value={draft.documentAmount ?? ""}
+          onChange={(event) => setDraft((old) => ({ ...old, documentAmount: event.target.value }))}
+        />
+        <p className="text-xs text-muted-foreground">
+          {ocrAmount
+            ? t("material.documentAmountRead")
+            : t("material.documentAmountTypeHint")}
+        </p>
+      </FieldWrapper>
       {/* On the form, not under 补充资料: the server refuses a delivery
           without them (D-280), so hiding them behind 选填 sent workers to a
           refusal they could not explain. A return (退场) is not asked. */}
