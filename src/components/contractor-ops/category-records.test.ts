@@ -198,9 +198,10 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
 
   it("draws the conversation, the closure, the package and 我看过了 only where they work", () => {
     expect(sheet).toMatch(/canDiscuss\(row\.kind\) && \(\s*<RecordConversationPanel/);
-    expect(sheet).toMatch(/canConfirmClosure\(row\.kind\) && \(\s*<RecordClosurePanel/);
+    expect(sheet).toMatch(/!readOnly && canConfirmClosure\(row\.kind\) && \(\s*<RecordClosurePanel/);
     expect(sheet).toMatch(/canGoInAPackage\(row\.kind\) && \(\s*<AddToPackageButton/);
-    expect(sheet).toMatch(/const queueKind = isQueueKind\(row\.kind\) \? row\.kind : null;/);
+    // A read-only sheet (F9: a dashboard photo) has neither 确认归档 nor 我看过了.
+    expect(sheet).toMatch(/const queueKind = !readOnly && isQueueKind\(row\.kind\) \? row\.kind : null;/);
     expect(sheet).toMatch(/!queueKind \? null :/);
     for (const kind of QUEUE_ONLY_NOT) {
       expect(canDiscuss(kind), kind).toBe(false);

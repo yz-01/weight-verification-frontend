@@ -254,17 +254,29 @@ export interface TimelineEntry {
   severity: "INFO" | "WARNING" | "DANGER";
 }
 
-export interface UnreadColumn {
-  /** Null for deliveries nobody has filed into a column yet. */
-  category: string | null;
-  name: string;
-  code: string;
-  count: number;
+/** One record in 「等你处理」: finished, not yet confirmed (X10, C4). */
+export interface WaitingRecord {
+  /** The record kind, as the archive queue names it (`MATERIAL_RECEIPT`, `PROGRESS`...). */
+  kind: string;
+  id: string;
+  reference: string;
+  title: string;
+  project: string;
+  project_id: string;
+  waiting_since: string | null;
 }
 
+/**
+ * 「等你处理」: records this reader may confirm that nobody has confirmed yet
+ * (X10). Not RecordSeen any more - a confirmation clears it for everybody.
+ */
 export interface DashboardUnread {
+  total: number;
+  by_kind: Record<string, number>;
+  rows: WaitingRecord[];
+  /** Deliveries waiting for a confirmation: the 材料进场 sidebar badge. */
   receipts: number;
-  columns: UnreadColumn[];
+  /** Decisions waiting on this reader: the 待审批 sidebar badge, not part of `total`. */
   approvals: number;
 }
 
@@ -282,14 +294,7 @@ export interface ContractorDashboard {
     mine: number;
     unassigned: number;
   };
-  /**
-   * What *this reader* has not looked at yet.
-   *
-   * Every number is answered for the person asking and nobody else: head
-   * office and the project manager wait on the same delivery and clear it
-   * separately, so a shared count would let whoever opened it first empty the
-   * other's pile (D-063).
-   */
+  /** 「等你处理」 - see `DashboardUnread`. */
   unread?: DashboardUnread;
   anomalies?: DashboardAnomalies;
   notifications?: {

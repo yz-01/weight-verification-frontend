@@ -3,59 +3,38 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Camera, Loader2, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
-import { RecordSheet } from "@/components/contractor-ops/archive-queue";
+import { useRecordOpener } from "@/components/shared/record-opener";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { ArchiveQueueRow, CategoryRecordKind } from "@/interfaces/contractor-ops";
 import type { HeadquartersPhoto } from "@/interfaces/headquarters";
 import { useDateFormat } from "@/lib/dates";
 import { photoTarget } from "@/lib/headquarters-links";
-import { getCategoryRecord } from "@/services/contractor-ops.service";
 import { getHeadquartersPhotos } from "@/services/contractor-dashboard.service";
 
 const PAGE_SIZE = 12;
 
 /**
- * Opens a photo's record: in place, in the detail sheet Category Management
- * uses for the same record (「与总栏目同一个详情」), or on the record's own
- * screen where that sheet does not serve it (a site task, a waste order, a
- * gate record).
+ * Opens a photo's record on its own business page (F9): a delivery opens as
+ * the accepted receipt with both signatures, not the record centre's 确认归档
+ * sheet. A module with no detail page of its own opens the shared record
+ * sheet read-only. One route function for every place that opens a record
+ * (`lib/record-routes`).
  */
 export function usePhotoOpener() {
-  const router = useRouter();
   const kinds = useTranslations("headquarters.recordKind");
-  const [row, setRow] = useState<ArchiveQueueRow<CategoryRecordKind> | null>(null);
+  const opener = useRecordOpener();
   const open = (photo: HeadquartersPhoto) => {
-    const target = photoTarget(photo);
-    if (!target) return;
-    if ("href" in target) {
-      router.push(target.href);
-      return;
-    }
-    setRow({
-      id: target.id,
-      kind: target.sheet,
+    opener.open(photo.record_kind, photo.record_id, {
       reference: kinds(photo.record_kind),
-      detail: "",
       project_id: photo.project_id,
       project_name: photo.project,
       submitted_at: photo.captured_at,
-      status: "",
-      status_label: "",
       photo: photo.image,
-      seen_at: null,
-      archivable: false,
-      archived: null,
     });
   };
-  const sheet = row ? (
-    <RecordSheet row={row} fetchRecord={getCategoryRecord} onClose={() => setRow(null)} />
-  ) : null;
-  return { open, sheet };
+  return { open, sheet: opener.sheet };
 }
 
 /**

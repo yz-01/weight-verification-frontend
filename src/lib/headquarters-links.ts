@@ -1,9 +1,9 @@
-import type { CategoryRecordKind } from "@/interfaces/contractor-ops";
 import type {
   HeadquartersCountField,
   HeadquartersPhoto,
   PhotoRecordKind,
 } from "@/interfaces/headquarters";
+import { recordTarget, type RecordTarget } from "@/lib/record-routes";
 
 /** The 项目 Dashboard of one project (C11). */
 export function projectDashboardHref(projectId: string): string {
@@ -35,46 +35,31 @@ export function drillHref(field: HeadquartersCountField, projectId: string): str
   }
 }
 
+export type { RecordTarget as PhotoTarget } from "@/lib/record-routes";
+
 /**
- * The detail sheet that opens a photo's record in place - the same one
- * Category Management opens (「与总栏目同一个详情」).
+ * Where clicking a photo of today's site takes the reader (C14, F9): the
+ * record's own business detail - the accepted delivery with both signatures,
+ * not the record centre's 确认归档 sheet. One function for every place that
+ * opens a record (`lib/record-routes`).
  */
-const SHEET_KINDS: Partial<Record<PhotoRecordKind, CategoryRecordKind>> = {
-  MATERIAL_RECEIPT: "MATERIAL_RECEIPT",
-  DELIVERY_NOTE: "DELIVERY_NOTE",
-  MATERIAL_OUTGOING: "MATERIAL_OUTGOING",
-  EQUIPMENT_MOVEMENT: "EQUIPMENT_MOVEMENT",
-  EQUIPMENT: "SITE_EQUIPMENT",
-  SITE_PROGRESS: "PROGRESS",
-  DISPOSAL: "DISPOSAL_REQUEST",
-  WASTE_OUTGOING: "WASTE_OUTGOING",
-  SAFETY_INCIDENT: "HAZARD",
-};
-
-/** Records the sheet does not serve open on their own screen instead. */
-const SCREENS: Partial<Record<PhotoRecordKind, (id: string) => string>> = {
-  FIELD_TASK: (id) => `/field-tasks?task=${id}`,
-  WASTE_DISPATCH: (id) => `/dispatches/${id}`,
-  GATE_INCIDENT: (id) => `/site-access?tab=gate-records&gate_incident=${id}`,
-};
-
-export type PhotoTarget =
-  | { sheet: CategoryRecordKind; id: string }
-  | { href: string }
-  | null;
-
-/** Where clicking a photo of today's site takes the reader (C14). */
 export function photoTarget(
   photo: Pick<HeadquartersPhoto, "record_kind" | "record_id">,
-): PhotoTarget {
-  if (!photo.record_id) return null;
-  const sheet = SHEET_KINDS[photo.record_kind];
-  if (sheet) return { sheet, id: photo.record_id };
-  const screen = SCREENS[photo.record_kind];
-  return screen ? { href: screen(encodeURIComponent(photo.record_id)) } : null;
+): RecordTarget {
+  return recordTarget(photo.record_kind, photo.record_id);
 }
 
-export const PHOTO_RECORD_KINDS = [
-  ...Object.keys(SHEET_KINDS),
-  ...Object.keys(SCREENS),
-] as PhotoRecordKind[];
+export const PHOTO_RECORD_KINDS: PhotoRecordKind[] = [
+  "MATERIAL_RECEIPT",
+  "DELIVERY_NOTE",
+  "MATERIAL_OUTGOING",
+  "EQUIPMENT_MOVEMENT",
+  "EQUIPMENT",
+  "SITE_PROGRESS",
+  "FIELD_TASK",
+  "DISPOSAL",
+  "WASTE_OUTGOING",
+  "WASTE_DISPATCH",
+  "SAFETY_INCIDENT",
+  "GATE_INCIDENT",
+];

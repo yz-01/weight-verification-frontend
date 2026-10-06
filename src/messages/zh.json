@@ -5208,7 +5208,6 @@
         "CONSULTANT_APPLICATION": "顾问申请",
         "DISPOSAL_REQUEST": "工地清运",
         "FIELD_TASK": "现场任务",
-        "SITE_PROGRESS": "进度记录",
         "WASTE_OUTGOING": "环保材料出场申请",
         "MATERIAL_REQUEST": "MR / Other Request",
         "EQUIPMENT_MOVEMENT": "设备进退场申请",
@@ -5382,9 +5381,8 @@
     },
     "unread": {
       "title": "等你处理",
-      "subtitle": "{receipts} 笔送货、{approvals} 项待审，还没有人替你看过",
-      "help": "这是你自己的清单。点进去看过就算你归档了，别人那边不受影响。",
-      "unfiled": "暂未归档"
+      "subtitle": "{total} 笔已经做完、等你确认的记录",
+      "help": "这些记录的事已经做完（材料进场要先验收），还没有人确认。任何人确认后，它就从大家的清单里消失。"
     },
     "recordStatus": {
       "ACCEPTED": "已接受",
@@ -12357,7 +12355,7 @@
       "plannedProgress": "计划进度",
       "plannedStart": "计划开始",
       "progressEvidence": "关联现场进度",
-      "progressEvidenceHelp": "这里只显示本项目已经确认的进度照片记录。",
+      "progressEvidenceHelp": "这里只显示本项目现场传上来的进度照片记录。",
       "project": "项目",
       "revisionLabel": "修订版名称",
       "revisionReason": "变更原因",
@@ -12415,11 +12413,11 @@
       "MANUAL": "手动建立"
     },
     "state": {
-      "candidatesLoadError": "无法载入已确认的现场进度，因此无法确定到底有没有证据可以附上。请先重试再确认。",
+      "candidatesLoadError": "无法载入现场进度记录，因此无法确定到底有没有证据可以附上。请先重试再确认。",
       "chooseProject": "请选择项目以查看施工计划。",
       "historyLoadError": "无法载入施工计划历史，因此无法确定到底有没有历史记录。请重试。",
       "loadError": "无法载入施工计划，请重试。",
-      "noConfirmedProgress": "目前没有已确认的现场进度记录。",
+      "noConfirmedProgress": "目前没有现场进度记录。",
       "noHistory": "还没有施工计划历史。",
       "noPlans": "这个项目还没有施工计划。您可以手动建立或导入 Excel。",
       "noReason": "没有额外备注",

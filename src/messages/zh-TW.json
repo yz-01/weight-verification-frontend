@@ -5208,7 +5208,6 @@
         "CONSULTANT_APPLICATION": "顧問申請",
         "DISPOSAL_REQUEST": "工地清運",
         "FIELD_TASK": "現場任務",
-        "SITE_PROGRESS": "進度記錄",
         "WASTE_OUTGOING": "環保材料出場申請",
         "MATERIAL_REQUEST": "MR / Other Request",
         "EQUIPMENT_MOVEMENT": "設備進退場申請",
@@ -5382,9 +5381,8 @@
     },
     "unread": {
       "title": "等你處理",
-      "subtitle": "{receipts} 筆送貨、{approvals} 項待審，還沒有人替你看過",
-      "help": "這是你自己的清單。點進去看過就算你歸檔了，別人那邊不受影響。",
-      "unfiled": "尚未歸檔"
+      "subtitle": "{total} 筆已經做完、等你確認的記錄",
+      "help": "這些記錄的事已經做完（材料進場要先驗收），還沒有人確認。任何人確認後，它就從大家的清單裡消失。"
     },
     "recordStatus": {
       "ACCEPTED": "已接受",
@@ -12357,7 +12355,7 @@
       "plannedProgress": "計劃進度",
       "plannedStart": "計劃開始",
       "progressEvidence": "關聯現場進度",
-      "progressEvidenceHelp": "這裡只顯示本項目已經確認的進度照片記錄。",
+      "progressEvidenceHelp": "這裡只顯示本項目現場傳上來的進度照片記錄。",
       "project": "項目",
       "revisionLabel": "修訂版名稱",
       "revisionReason": "變更原因",
@@ -12415,11 +12413,11 @@
       "MANUAL": "手動建立"
     },
     "state": {
-      "candidatesLoadError": "無法載入已確認的現場進度，因此無法確定到底有沒有證據可以附上。請先重試再確認。",
+      "candidatesLoadError": "無法載入現場進度記錄，因此無法確定到底有沒有證據可以附上。請先重試再確認。",
       "chooseProject": "請選擇項目以查看施工計劃。",
       "historyLoadError": "無法載入施工計劃歷史，因此無法確定到底有沒有歷史紀錄。請重試。",
       "loadError": "無法載入施工計劃，請重試。",
-      "noConfirmedProgress": "目前沒有已確認的現場進度記錄。",
+      "noConfirmedProgress": "目前沒有現場進度記錄。",
       "noHistory": "還沒有施工計劃歷史。",
       "noPlans": "這個項目還沒有施工計劃。您可以手動建立或導入 Excel。",
       "noReason": "沒有額外備註",

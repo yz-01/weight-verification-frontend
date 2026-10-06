@@ -5208,7 +5208,6 @@
         "CONSULTANT_APPLICATION": "Permohonan perunding",
         "DISPOSAL_REQUEST": "Pembersihan tapak",
         "FIELD_TASK": "Tugas tapak",
-        "SITE_PROGRESS": "Kemajuan projek",
         "WASTE_OUTGOING": "Permohonan bahan alam sekitar keluar",
         "MATERIAL_REQUEST": "MR / Permintaan Lain",
         "EQUIPMENT_MOVEMENT": "Peralatan masuk / keluar",
@@ -5382,9 +5381,8 @@
     },
     "unread": {
       "title": "Menunggu anda",
-      "subtitle": "{receipts} penghantaran dan {approvals} kelulusan yang belum ada sesiapa selesaikan untuk anda",
-      "help": "Ini milik anda sahaja. Membukanya memfailkannya untuk anda dan mengekalkannya dalam senarai orang lain.",
-      "unfiled": "Belum difailkan dalam kolum"
+      "subtitle": "{total} rekod selesai menunggu pengesahan anda",
+      "help": "Kerjanya sudah selesai - penghantaran setelah diterima - dan belum ada sesiapa mengesahkannya. Sebaik sahaja seseorang mengesahkannya, ia hilang daripada senarai semua orang."
     },
     "recordStatus": {
       "ACCEPTED": "Diterima",
@@ -12357,7 +12355,7 @@
       "plannedProgress": "Dirancang",
       "plannedStart": "Mula dirancang",
       "progressEvidence": "Kemajuan tapak dipautkan",
-      "progressEvidenceHelp": "Hanya rekod foto kemajuan projek yang disahkan daripada projek ini tersedia.",
+      "progressEvidenceHelp": "Hanya rekod foto kemajuan yang dihantar daripada projek ini tersedia.",
       "project": "Projek",
       "revisionLabel": "Nama semakan",
       "revisionReason": "Sebab perubahan",
@@ -12415,11 +12413,11 @@
       "MANUAL": "Manual"
     },
     "state": {
-      "candidatesLoadError": "Kemajuan tapak yang disahkan tidak dapat dimuatkan, jadi tidak diketahui sama ada ada bukti untuk dilampirkan. Cuba lagi sebelum mengesahkan.",
+      "candidatesLoadError": "Kemajuan tapak tidak dapat dimuatkan, jadi tidak diketahui sama ada ada bukti untuk dilampirkan. Cuba lagi sebelum mengesahkan.",
       "chooseProject": "Pilih projek untuk melihat jadual pembinaannya.",
       "historyLoadError": "Sejarah jadual tidak dapat dimuatkan, jadi tidak diketahui sama ada ada sejarah. Cuba lagi.",
       "loadError": "Jadual tidak dapat dimuatkan. Cuba lagi.",
-      "noConfirmedProgress": "Tiada kemajuan projek tapak yang disahkan.",
+      "noConfirmedProgress": "Tiada kemajuan tapak yang dihantar.",
       "noHistory": "Belum ada sejarah jadual.",
       "noPlans": "Projek ini belum mempunyai jadual. Cipta secara manual atau import Excel.",
       "noReason": "Tiada catatan tambahan",

@@ -44,13 +44,20 @@ describe("公司总部 Dashboard links", () => {
     }
   });
 
-  it("opens a hazard in the shared sheet and a gate record on its screen", () => {
+  it("opens a photo's record on its business page, not the record centre (F9)", () => {
+    expect(photoTarget({ record_kind: "MATERIAL_RECEIPT", record_id: "r1" })).toEqual({
+      href: "/receipts/r1",
+    });
     expect(photoTarget({ record_kind: "SAFETY_INCIDENT", record_id: "r1" })).toEqual({
-      sheet: "HAZARD",
-      id: "r1",
+      href: "/hazard-rectifications?incident=r1",
     });
     expect(photoTarget({ record_kind: "GATE_INCIDENT", record_id: "g1" })).toEqual({
       href: "/site-access?tab=gate-records&gate_incident=g1",
+    });
+    // No detail page of its own yet: the read-only sheet.
+    expect(photoTarget({ record_kind: "SITE_PROGRESS", record_id: "p1" })).toEqual({
+      sheet: "PROGRESS",
+      id: "p1",
     });
     expect(photoTarget({ record_kind: "DISPOSAL", record_id: null })).toBeNull();
   });

@@ -29,6 +29,10 @@ import { useState } from "react";
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
+  type OpenedRecordHeading,
+  useRecordOpener,
+} from "@/components/shared/record-opener";
+import {
   LoadFailed,
   StatusBadge,
 } from "@/components/shared/page-primitives";
@@ -43,8 +47,10 @@ import type {
   DashboardOverview,
   ProjectStatusKey,
   TimelineEntry,
+  WaitingRecord,
 } from "@/interfaces/contractor-dashboard";
 import { activityHref } from "@/lib/activity-href";
+import { recordTarget } from "@/lib/record-routes";
 import { useDateFormat } from "@/lib/dates";
 import {
   exportContractorDashboard,
@@ -113,7 +119,6 @@ const APPROVAL_QUEUES: Record<string, string> = {
   DISPOSAL_REQUEST: "/waste-clearance?kind=disposal",
   WASTE_OUTGOING: "/waste-outgoing",
   FIELD_TASK: "/field-tasks",
-  SITE_PROGRESS: "/progress",
   CONSULTANT_APPLICATION: "/consultant-applications",
   // The four queues C16 added.
   MATERIAL_REQUEST: "/material-requests",
@@ -160,7 +165,8 @@ export function ContractorDashboard({
 }) {
   const recordStatus = useRecordStatus();
   const t = useTranslations("contractorDashboard");
-  const categories = useTranslations("categoryManagement");
+  const nav = useTranslations("nav");
+  const opener = useRecordOpener();
   const format = useFormatter();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -194,7 +200,9 @@ export function ContractorDashboard({
    * filled the first screen. Now: one row of small counts that jump to their
    * list, then the lists as short single-line rows, five at a time.
    */
-  const unreadTotal = unread ? unread.receipts + unread.approvals : 0;
+  // 「等你处理」 is what waits for this reader's confirmation (X10, C4). The
+  // approvals count beside it in the payload is the 待审批 card's, not this.
+  const unreadTotal = unread ? unread.total : 0;
   const priorityGrid = data ? (
     <section
       aria-label={t("priority.title")}
@@ -232,51 +240,22 @@ export function ContractorDashboard({
           <Block
             id="dashboard-unread"
             title={t("unread.title")}
-            subtitle={t("unread.subtitle", {
-              receipts: unread.receipts,
-              approvals: unread.approvals,
-            })}
+            subtitle={t("unread.subtitle", { total: unread.total })}
             empty={false}
             emptyLabel=""
             action={
-              // The material module of Category Management: /material-columns
-              // is gone (D-263), and the link keeps the project being read.
               <Link
-                href={`/category-management?module=material${
-                  project ? `&project=${encodeURIComponent(project)}` : ""
-                }`}
+                href="/archive-queue"
                 className="text-xs font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                {categories("module.material")}
+                {nav("submodule.archiveQueue")}
               </Link>
             }
           >
             <p className="pb-1 text-xs text-muted-foreground">{t("unread.help")}</p>
             <ShortList
-              rows={unread.columns.map((column) => (
-                <li
-                  key={column.category ?? "unfiled"}
-                  className="flex items-center justify-between gap-3 py-1.5"
-                >
-                  <Link
-                    href={
-                      column.category
-                        ? `/receipts?category=${column.category}&seen=false`
-                        : "/receipts?category=__unfiled__&seen=false"
-                    }
-                    className="min-w-0 flex-1 truncate text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {column.name || t("unread.unfiled")}
-                    {column.code && (
-                      <span className="ml-2 text-xs font-normal text-muted-foreground">
-                        {column.code}
-                      </span>
-                    )}
-                  </Link>
-                  <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold tabular-nums text-primary">
-                    {column.count}
-                  </span>
-                </li>
+              rows={unread.rows.map((row) => (
+                <WaitingRow key={`${row.kind}:${row.id}`} row={row} onOpen={opener.open} />
               ))}
             />
           </Block>
@@ -392,6 +371,7 @@ export function ContractorDashboard({
         two rows, not a page.
       */}
       {priorityGrid}
+      {opener.sheet}
 
       {can("dashboard.search") && <QuickSearch project={project} />}
 
@@ -1029,6 +1009,59 @@ function ShortList({ rows, limit = 5 }: { rows: React.ReactNode[]; limit?: numbe
         </button>
       )}
     </>
+  );
+}
+
+/**
+ * One record in 「等你处理」, opening on its own module's page (C4, F9) - the
+ * same route function the head-office photos use.
+ */
+function WaitingRow({
+  row,
+  onOpen,
+}: {
+  row: WaitingRecord;
+  onOpen: (kind: string, id: string, heading: OpenedRecordHeading) => boolean;
+}) {
+  const t = useTranslations();
+  const target = recordTarget(row.kind, row.id);
+  const kind = t.has(`archiveQueue.kind.${row.kind}`)
+    ? t(`archiveQueue.kind.${row.kind}`)
+    : row.kind;
+  const label = [row.reference, row.title].filter(Boolean).join(" · ");
+  const linkClass =
+    "min-w-0 shrink truncate text-left text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  return (
+    <li className="flex items-center justify-between gap-3 py-1.5">
+      <div className="flex min-w-0 flex-1 items-baseline gap-2">
+        {target && "href" in target ? (
+          <Link href={target.href} className={linkClass}>
+            {label}
+          </Link>
+        ) : target ? (
+          <button
+            type="button"
+            className={linkClass}
+            onClick={() =>
+              onOpen(row.kind, row.id, {
+                reference: row.reference || row.title,
+                project_id: row.project_id || null,
+                project_name: row.project,
+                submitted_at: row.waiting_since,
+              })
+            }
+          >
+            {label}
+          </button>
+        ) : (
+          <span className="min-w-0 shrink truncate text-sm font-medium">{label}</span>
+        )}
+        <span className="hidden min-w-0 shrink-[2] truncate text-xs text-muted-foreground sm:inline">
+          {row.project}
+        </span>
+      </div>
+      <span className="shrink-0 text-xs text-muted-foreground">{kind}</span>
+    </li>
   );
 }
 

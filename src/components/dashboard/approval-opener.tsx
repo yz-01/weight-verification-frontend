@@ -57,7 +57,6 @@ const SHEET_KIND: Partial<Record<string, CategoryRecordKind>> = {
   DISPOSAL_REQUEST: "DISPOSAL_REQUEST",
   WASTE_OUTGOING: "WASTE_OUTGOING",
   EQUIPMENT_MOVEMENT: "EQUIPMENT_MOVEMENT",
-  SITE_PROGRESS: "PROGRESS",
 };
 
 export const APPROVAL_PAGE_LINKS: Record<string, (id: string) => string> = {
