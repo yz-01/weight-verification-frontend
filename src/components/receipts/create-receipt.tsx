@@ -112,6 +112,9 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
       unit: (receipt?.unit ?? "TONNE") as MaterialUnit,
       total_weight_kg: receipt?.total_weight_kg ?? "",
       unit_price: receipt?.unit_price ?? "",
+      // The DO's money, which the material budget counts (2026-10 A6): OCR
+      // misreads it and a worker may mistype it, so a correction can fix it.
+      document_amount: receipt?.document_amount ?? "",
       vehicle_plate: receipt?.vehicle_plate ?? "",
       delivery_note_no: receipt?.delivery_note_no ?? "",
       notes: receipt?.notes ?? "",
@@ -134,6 +137,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
         unit: value.unit,
         total_weight_kg: value.total_weight_kg || null,
         unit_price: value.unit_price || null,
+        document_amount: value.document_amount || null,
         vehicle_plate: value.vehicle_plate,
         delivery_note_no: value.delivery_note_no,
         notes: value.notes,
@@ -407,6 +411,17 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
             <TextField
               field={field as unknown as BoundField}
               label={t("receipts.field.unitPrice")}
+              type="number"
+              optional
+            />
+          )}
+        </form.Field>
+
+        <form.Field name="document_amount">
+          {(field) => (
+            <TextField
+              field={field as unknown as BoundField}
+              label={t("receipts.field.documentAmount")}
               type="number"
               optional
             />

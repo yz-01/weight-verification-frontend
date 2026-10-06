@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ApiError } from "@/interfaces/api";
 import type {
   MaterialReceiptDetail,
   PhotoKind,
@@ -89,9 +90,12 @@ function currentPosition(): Promise<GeolocationPosition | null> {
  */
 function ReviewDelivery({
   receipt,
+  archived,
   onReviewed,
 }: {
   receipt: MaterialReceiptDetail;
+  /** Confirmed and archived (D-234): read-only, so nothing to press (C6). */
+  archived: boolean;
   onReviewed: () => void;
 }) {
   const t = useTranslations();
@@ -104,13 +108,27 @@ function ReviewDelivery({
   // office is shown the decision and has nothing left to press.
   const rejectedAtGate = receipt.rejection_source === "SITE";
 
+  // Said on screen, never swallowed (2026-10 C6): a corrected receipt
+  // answered 409 here and the button simply did nothing.
+  const [reviewError, setReviewError] = useState("");
   const review = useMutation({
     mutationFn: (decision: "ACCEPTED" | "REJECTED") =>
       reviewReceipt(receipt.id, {
         decision,
         rejection_reason: decision === "REJECTED" ? reason.trim() : "",
       }),
+    onMutate: () => setReviewError(""),
     onSuccess: onReviewed,
+    onError: (failure) => {
+      setReviewError(
+        failure instanceof ApiError
+          ? failure.message
+          : t("receipts.acceptance.failed"),
+      );
+      // A 409 means the record moved on (corrected, archived) since this
+      // page loaded: reload it so the screen shows what replaced it.
+      if (failure instanceof ApiError && failure.status === 409) onReviewed();
+    },
   });
 
   const tone =
@@ -146,7 +164,16 @@ function ReviewDelivery({
           </p>
         )}
 
-        {!rejectedAtGate && (
+        {archived && !rejectedAtGate && (
+          <p className="text-xs text-muted-foreground">{t("receipts.acceptance.archived")}</p>
+        )}
+        {reviewError && (
+          <p role="alert" className="rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">
+            {reviewError}
+          </p>
+        )}
+
+        {!rejectedAtGate && !archived && (
           <>
         {/* One confirming action, and a rejection behind a switch (D-208,
             C-018). The customer's words for why: 「只保留一个开/关控制。开启后，
@@ -492,7 +519,7 @@ export function ViewReceipt({ id }: { id: string }) {
                 this copy, and deciding on the replaced one would put a
                 decision on a record nobody is working from. */}
             {can("receipt.update") && !data.superseded_by && (
-              <ReviewDelivery receipt={data} onReviewed={() => void refetch()} />
+              <ReviewDelivery receipt={data} archived={archived} onReviewed={() => void refetch()} />
             )}
             <div className="flex flex-wrap gap-2 border-t pt-2">
               <AddToPackageButton
@@ -637,6 +664,17 @@ function DeliveryOrderPanel({ receipt }: { receipt: MaterialReceiptDetail }) {
     [t("receipts.field.materialName"), receipt.material_name],
     [t("receipts.field.quantity"), `${receipt.quantity} ${t(`receipts.unit.${receipt.unit}`)}`],
     [t("receipts.field.vehiclePlate"), receipt.vehicle_plate],
+    // The money the material budget counts (A6), and where it came from.
+    [
+      t("receipts.field.documentAmount"),
+      receipt.document_amount
+        ? `${receipt.document_amount}${
+            receipt.document_amount_source
+              ? ` · ${t(`receipts.field.documentAmountSource.${receipt.document_amount_source}`)}`
+              : ""
+          }`
+        : "",
+    ],
     [t("receipts.doPanelStatus"), t(`receipts.doStatus.${receipt.ocr_status}`)],
   ];
   return (

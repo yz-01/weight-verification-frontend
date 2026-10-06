@@ -7155,7 +7155,8 @@
       "column_inactive": "「{column}」已停用，請選擇啟用中的分類。",
       "conversation_closed": "這條記錄已經完成，聊天室已關閉。記錄仍可查看；還有事情請另開一條記錄。",
       "receipt_rejected_at_gate": "這批貨已在現場交接時 Reject，不能再更改。",
-      "record_finished": "此事項已結束，不能再上傳附件；已有附件仍可查看。"
+      "record_finished": "此事項已結束，不能再上傳附件；已有附件仍可查看。",
+      "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -7681,7 +7682,10 @@
         "reason": "Reject 原因",
         "reasonPlaceholder": "例如：規格不對、損壞、數量不足",
         "submit": "Reject 並提交"
-      }
+      },
+      "documentAmount": "送貨單金額 (RM)",
+      "documentAmountRead": "已從送貨單讀出，請對照紙本核對。",
+      "documentAmountTypeHint": "讀不到金額時，請照送貨單上的總金額填寫（可不填）。"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -9464,7 +9468,9 @@
       "final_proof_submitted": "最終處理證明已提交（任務結束）",
       "legacy_confirmation": "後台驗收（舊流程）",
       "remark": "備註",
-      "decided_by": "批准 / 退回人"
+      "decided_by": "批准 / 退回人",
+      "original_quantity": "原數量",
+      "correction_reason": "更正原因"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -11154,7 +11160,9 @@
       "alreadyAccepted": "這批材料已經驗收通過了。",
       "armReject": "允許退回這筆收貨",
       "armRejectHelp": "材料不符規格才打開。打開後才能填寫原因並退回。",
-      "rejectedAtGate": "現場交接時已當場 Reject（雙方已簽名），不能再更改。"
+      "rejectedAtGate": "現場交接時已當場 Reject（雙方已簽名），不能再更改。",
+      "archived": "這批材料已確認歸檔，只能查看，不能再驗收或退回。",
+      "failed": "驗收沒有成功，請重試。"
     },
     "addPhoto": {
       "caption": "備註（可不填）",
@@ -11192,7 +11200,8 @@
         "vehicle_plate": "車牌",
         "delivery_note_no": "送貨單號",
         "notes": "備註",
-        "received_by_name": "收貨人"
+        "received_by_name": "收貨人",
+        "document_amount": "送貨單金額"
       }
     },
     "count": "{count, plural, =0 {暫無材料進場記錄} other {# 條材料進場記錄}}",
@@ -11237,7 +11246,12 @@
       "vehiclePlate": "車牌",
       "businessAt": "業務日期",
       "movementType": "類型",
-      "returnReason": "退場原因"
+      "returnReason": "退場原因",
+      "documentAmount": "送貨單金額 (RM)",
+      "documentAmountSource": {
+        "OCR": "從送貨單讀出",
+        "MANUAL": "人工填寫"
+      }
     },
     "locationCaptured": "已記錄位置",
     "locationMissing": "無位置",
