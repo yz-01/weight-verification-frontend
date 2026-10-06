@@ -8,8 +8,13 @@
  * chat that six other modules now hang off — and the customer's requirement
  * is that a person sees *one* chat, not two that drift apart. Rather than let
  * that be a matter of discipline, the pieces that decide what a chat looks and
- * behaves like live here and both panels import them: the voice recorder, one
- * message row, and one composer.
+ * behaves like live here and both panels import them: the voice recorder, the
+ * message list (its rows, photo thumbnails and viewer), and one composer.
+ *
+ * Photographs are thumbnails (F2, 7/10: 「隐患整改沟通里的照片太大了」): the
+ * longest edge is 128px on a phone and 160px from `sm` up, rounded, several in
+ * a row, and a tap opens the shared `PhotoViewer` (zoom, previous / next,
+ * download). On a phone that keeps three photo messages on one screen.
  *
  * What is deliberately *not* here is where the messages come from. The hazard
  * keeps its own store and its own participants/closed rules (D-094 and
@@ -20,10 +25,19 @@
 
 import { Mic, Paperclip, Send, Square } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+// The viewer every record detail already opens its photographs in, so a chat
+// photo zooms and downloads the same way. (record-detail-shell reaches this
+// file through record-conversation; each side only uses the other at render
+// time, so the import cycle is harmless.)
+import { PhotoViewer, type ShellPhoto } from "@/components/shared/record-detail-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  type ConversationPhoto,
+  groupConversationMessages,
+} from "@/lib/conversation-groups";
 import { useDateFormat } from "@/lib/dates";
 
 /** Matches the server's cap. Shown while recording, not discovered on send. */
@@ -119,16 +133,129 @@ export function useRecorder(limitSeconds: number) {
   return { recording, seconds, start, stop, supported: canRecord() };
 }
 
+/**
+ * The size of a photo in a chat: longest edge 128px on a phone, 160px from
+ * `sm` up, aspect kept. Exported for the guard test.
+ */
+export const CHAT_THUMBNAIL_IMG_CLASS =
+  "block h-auto w-auto max-h-32 max-w-32 sm:max-h-40 sm:max-w-40";
+
+/** One photo in a chat, small; a tap opens it full size. */
+export function ChatPhotoThumbnail({
+  url,
+  alt,
+  onOpen,
+}: {
+  url: string;
+  alt: string;
+  onOpen: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      title={alt}
+      onClick={onOpen}
+      className="block shrink-0 overflow-hidden rounded-md border bg-muted/40 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {/* Deliberately a plain <img>: these are user photographs served
+          from the API host, not build-time assets Next can optimise. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={url} alt={alt} loading="lazy" className={CHAT_THUMBNAIL_IMG_CLASS} />
+    </button>
+  );
+}
+
+/**
+ * The full-size viewer for a chat's photos: returns the opener and the dialog
+ * to render. Previous / next walk every photo of the conversation, in order.
+ */
+export function useChatPhotoViewer(photos: ConversationPhoto[], reference: string) {
+  const [open, setOpen] = useState<number | null>(null);
+  const shellPhotos = useMemo<ShellPhoto[]>(
+    () =>
+      photos.map((photo) => ({
+        id: photo.id,
+        url: photo.url,
+        label: photo.author,
+        takenAt: photo.sentAt,
+      })),
+    [photos],
+  );
+  const openPhoto = useCallback(
+    (id: string) => {
+      const index = photos.findIndex((photo) => photo.id === id);
+      if (index >= 0) setOpen(index);
+    },
+    [photos],
+  );
+  const viewer =
+    open !== null && shellPhotos[open] ? (
+      <PhotoViewer
+        photos={shellPhotos}
+        index={open}
+        reference={reference}
+        onIndex={setOpen}
+        onClose={() => setOpen(null)}
+      />
+    ) : null;
+  return { openPhoto, viewer };
+}
+
+/**
+ * Every message of one conversation, oldest first. A run of photo-only
+ * messages from one person sits in one row (`groupConversationMessages`).
+ */
+export function ConversationMessageList({
+  messages,
+  emptyLabel,
+  reference,
+}: {
+  messages: ConversationMessage[];
+  emptyLabel: string;
+  /** The record's number, used to name a downloaded photo. */
+  reference: string;
+}) {
+  const rows = useMemo(() => groupConversationMessages(messages), [messages]);
+  const photos = useMemo(() => rows.flatMap((row) => row.photos), [rows]);
+  const { openPhoto, viewer } = useChatPhotoViewer(photos, reference);
+
+  return (
+    <>
+      <ul className="space-y-2">
+        {messages.length === 0 && (
+          <li className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+            {emptyLabel}
+          </li>
+        )}
+        {rows.map((row) => (
+          <ConversationMessageRow
+            key={row.lead.id}
+            message={row.lead}
+            photos={row.photos}
+            onOpenPhoto={openPhoto}
+          />
+        ))}
+      </ul>
+      {viewer}
+    </>
+  );
+}
+
 export function ConversationMessageRow({
   message,
+  photos,
+  onOpenPhoto,
 }: {
   message: ConversationMessage;
+  /** The row's photographs: the message's own, plus any grouped after it. */
+  photos: ConversationPhoto[];
+  onOpenPhoto: (id: string) => void;
 }) {
   const t = useTranslations();
   const formatter = useDateFormat();
 
   return (
-    <li className="rounded-md border p-3 text-sm">
+    <li className="rounded-md border p-2.5 text-sm sm:p-3">
       <div className="flex items-baseline justify-between gap-2">
         <span className="font-medium">{message.author_name}</span>
         <span className="text-xs text-muted-foreground">
@@ -136,22 +263,17 @@ export function ConversationMessageRow({
         </span>
       </div>
       {message.body && <p className="mt-1 whitespace-pre-wrap">{message.body}</p>}
-      {message.photo && (
-        <a
-          href={message.watermarked_photo ?? message.photo}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-2 block"
-        >
-          {/* Deliberately a plain <img>: these are user photographs served
-              from the API host, not build-time assets Next can optimise. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={message.watermarked_photo ?? message.photo}
-            alt={t("hazard.photo")}
-            className="max-h-64 rounded-md border"
-          />
-        </a>
+      {photos.length > 0 && (
+        <div className="mt-2 flex flex-wrap items-start gap-2">
+          {photos.map((photo) => (
+            <ChatPhotoThumbnail
+              key={photo.id}
+              url={photo.url}
+              alt={t("hazard.photo")}
+              onOpen={() => onOpenPhoto(photo.id)}
+            />
+          ))}
+        </div>
       )}
       {message.audio && (
         <div className="mt-2">

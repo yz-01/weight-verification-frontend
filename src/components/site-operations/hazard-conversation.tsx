@@ -26,7 +26,7 @@ import { useTranslations } from "next-intl";
 
 import {
   ConversationComposer,
-  ConversationMessageRow,
+  ConversationMessageList,
   FALLBACK_AUDIO_LIMIT,
   type ComposerPayload,
 } from "@/components/shared/conversation";
@@ -114,16 +114,11 @@ function HazardConversationContent({ incidentId }: { incidentId: string }) {
         </p>
       )}
 
-      <ul className="space-y-2">
-        {data.messages.length === 0 && (
-          <li className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-            {t("hazard.empty")}
-          </li>
-        )}
-        {data.messages.map((message) => (
-          <ConversationMessageRow key={message.id} message={message} />
-        ))}
-      </ul>
+      <ConversationMessageList
+        messages={data.messages}
+        emptyLabel={t("hazard.empty")}
+        reference={data.incident.incident_no}
+      />
 
       {/* Archived is readable, not hidden: 「记录全部都要留着」. What closes is
           the ability to add to it, and the reason is said rather than shown as

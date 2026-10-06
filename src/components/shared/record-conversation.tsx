@@ -19,7 +19,7 @@ import { useTranslations } from "next-intl";
 
 import {
   ConversationComposer,
-  ConversationMessageRow,
+  ConversationMessageList,
   FALLBACK_AUDIO_LIMIT,
   type ComposerPayload,
 } from "@/components/shared/conversation";
@@ -120,16 +120,11 @@ function RecordConversationContent({
         {t("recordChat.title", { reference: data.reference })}
       </h3>
 
-      <ul className="space-y-2">
-        {data.messages.length === 0 && (
-          <li className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-            {t("recordChat.empty")}
-          </li>
-        )}
-        {data.messages.map((message) => (
-          <ConversationMessageRow key={message.id} message={message} />
-        ))}
-      </ul>
+      <ConversationMessageList
+        messages={data.messages}
+        emptyLabel={t("recordChat.empty")}
+        reference={data.reference}
+      />
 
       {/* A finished record keeps its whole history and loses only the way to
           add to it - text, voice, photo, file and send all go together, and
