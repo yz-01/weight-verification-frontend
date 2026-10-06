@@ -2046,6 +2046,10 @@ export function MovementDialog({
   const [photos, setPhotos] = useDraftState<File[]>(`photos:${row.id}`, []);
   const [fieldEvidence, setFieldEvidence] = useDraftState(`fieldEvidence:${row.id}`, createEmptyFieldEvidence);
   const [deliveryNotePhoto, setDeliveryNotePhoto] = useDraftState<File | undefined>(`deliveryNotePhoto:${row.id}`);
+  // The signed read of that photo, sent with the handover so the server
+  // does not read it again inside the upload (A9). Kept with the draft: the
+  // photo is, and a reopened draft should not lose the read that goes with it.
+  const [ocrProof, setOcrProof] = useDraftState(`ocrProof:${row.id}`, "");
   const clearDraft = useClearDraft();
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -2063,6 +2067,7 @@ export function MovementDialog({
   const ocr = useDeliveryNoteReader({
     read: ocrEquipmentDeliveryNote,
     onRead: (result) => {
+      setOcrProof(result.proof ?? "");
       const suggestions = result.suggestions as Record<string, string | undefined>;
       if (suggestions.delivery_note_no) setDeliveryNote(suggestions.delivery_note_no);
       if (suggestions.vehicle_plate) setVehicle(suggestions.vehicle_plate);
@@ -2071,6 +2076,8 @@ export function MovementDialog({
       ).toUpperCase() as EquipmentUnit;
       if (EQUIPMENT_UNITS.includes(suggestedUnit)) setUnit(suggestedUnit);
     },
+    // A new or removed photo: the old read no longer describes it.
+    onReset: () => setOcrProof(""),
   });
   const save = useMutation({
     mutationFn: () => {
@@ -2086,6 +2093,7 @@ export function MovementDialog({
         delivery_note_no: deliveryNote.trim(),
         notes: notes.trim(),
         ocr_confirmed: Boolean(deliveryNotePhoto || deliveryNote.trim()),
+        ocr_proof: deliveryNotePhoto && ocrProof ? ocrProof : undefined,
         original_occurred_at: new Date().toISOString(),
         client_event_id: crypto.randomUUID(),
         field_task: fieldTaskId,

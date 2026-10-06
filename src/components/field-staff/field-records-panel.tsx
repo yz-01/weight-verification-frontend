@@ -66,6 +66,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError } from "@/interfaces/api";
 import { missingSiteEntry, siteEntryRequired } from "@/lib/material-site-entry";
+import { matchSupplier } from "@/lib/supplier-match";
 import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
 import {
   MATERIAL_UNITS,
@@ -325,6 +326,10 @@ function MaterialCapturePanel({
   const [scannerOpen, setScannerOpen] = useState(false);
   const [ocrProof, setOcrProof] = useState("");
   const [ocrLineItems, setOcrLineItems] = useState<DeliveryNoteOCRLineItem[]>([]);
+  // A supplier the DO's name is close to but not the same as (A5): offered,
+  // not filled in, because the wrong supplier on a delivery is worse than
+  // asking.
+  const [supplierGuess, setSupplierGuess] = useState<{ read: string; id: string; name: string } | null>(null);
   const [newColumnName, setNewColumnName] = useState("");
   const [columnError, setColumnError] = useState("");
   const [location, setLocation] = useState<{ latitude: string; longitude: string; accuracy: string }>();
@@ -502,11 +507,21 @@ function MaterialCapturePanel({
       const items = result.line_items ?? [];
       setOcrLineItems(items);
       const firstCategory = items[0]?.category_id ?? "";
-      const supplierName = result.suggestions.supplier_name?.trim().toLocaleLowerCase();
-      const matchedSupplier = (suppliers.data?.results ?? []).find((row) => row.is_active && row.name.trim().toLocaleLowerCase() === supplierName);
+      // Punctuation, case and the Sdn Bhd / SB ending ignored (A5): the same
+      // name fills itself in, a close one is offered for the worker to confirm.
+      const readSupplier = result.suggestions.supplier_name?.trim() ?? "";
+      const match = matchSupplier(
+        readSupplier,
+        (suppliers.data?.results ?? []).filter((row) => row.is_active),
+      );
+      setSupplierGuess(
+        match && !match.exact
+          ? { read: readSupplier, id: match.supplier.id, name: match.supplier.name }
+          : null,
+      );
       setDraft((old) => ({
         ...old,
-        supplier: matchedSupplier?.id || old.supplier,
+        supplier: match?.exact ? match.supplier.id : old.supplier,
         deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,
         vehiclePlate: result.suggestions.vehicle_plate || old.vehiclePlate,
         // With a line-item table, prefill from its first row; otherwise fall
@@ -526,6 +541,7 @@ function MaterialCapturePanel({
     onReset: () => {
       setOcrProof("");
       setOcrLineItems([]);
+      setSupplierGuess(null);
     },
   });
 
@@ -680,6 +696,25 @@ function MaterialCapturePanel({
             ))}
           </SelectContent>
         </Select>
+        {supplierGuess && draft.supplier !== supplierGuess.id && (
+          <div role="status" className="flex flex-wrap items-center gap-2 rounded-md border border-info/25 bg-info/5 px-3 py-2">
+            <p className="min-w-0 flex-1 text-xs leading-5">
+              {t("material.supplierGuess", { read: supplierGuess.read, name: supplierGuess.name })}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setScannedQr(undefined);
+                setDraft((old) => ({ ...old, supplier: supplierGuess.id }));
+                setSupplierGuess(null);
+              }}
+            >
+              {t("material.supplierGuessUse")}
+            </Button>
+          </div>
+        )}
         <FieldLoadNote query={suppliers} what={t("what.suppliers")} />
         <FieldLoadNote query={dockets} what={t("what.dockets")} />
         {draft.project && draft.supplier && !dockets.isError && (

@@ -37,6 +37,12 @@ interface OfflineJobBase {
   lastErrorStatus?: number;
   /** The server's code for the last refusal, e.g. `task_already_running`. */
   lastErrorCode?: string;
+  /**
+   * The server refused it (a 4xx), so sending the same thing again cannot
+   * succeed: the automatic passes leave it alone and it shows 「需要处理」
+   * until the worker presses 立即重试 or discards it (A9).
+   */
+  needsAttention?: boolean;
 }
 
 export interface AttendanceOfflineJob extends OfflineJobBase {
@@ -184,6 +190,11 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     accuracy_m?: string;
     notes?: string;
     ocr_confirmed?: boolean;
+    /**
+     * The signed read the phone made of the DO photo. The handover keeps it
+     * instead of running OCR inside the upload (A9).
+     */
+    ocr_proof?: string;
     original_occurred_at: string;
     client_event_id: string;
     field_task?: string;

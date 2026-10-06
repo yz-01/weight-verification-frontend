@@ -7181,7 +7181,8 @@
     "network": "Kami tidak dapat menghubungi pelayan.",
     "networkBody": "Semak sambungan anda dan cuba lagi.",
     "notFound": "Kami tidak jumpa itu.",
-    "notFoundBody": "Ia mungkin telah dibuang, atau anda tiada akses kepadanya."
+    "notFoundBody": "Ia mungkin telah dibuang, atau anda tiada akses kepadanya.",
+    "uploadTimeout": "Muat naik tamat masa: isyarat terlalu lemah untuk selesai dalam dua minit."
   },
   "evidence": {
     "revision": {
@@ -7681,7 +7682,9 @@
         "reason": "Sebab ditolak",
         "reasonPlaceholder": "cth. gred salah, rosak, kuantiti kurang",
         "submit": "Tolak dan hantar"
-      }
+      },
+      "supplierGuess": "Nota hantaran menyebut “{read}”. Pembekal paling hampir ialah “{name}”.",
+      "supplierGuessUse": "Guna pembekal ini"
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -9977,11 +9980,12 @@
       "empty": "Tiada tindakan menunggu penyegerakan.",
       "retry": "Cuba semula sekarang",
       "heldHint": "Langkah sebelumnya untuk pesanan yang sama belum berjaya, jadi langkah ini menunggu supaya susunannya kekal betul.",
-      "recent": "Baru disegerakkan"
+      "recent": "Baru disegerakkan",
+      "needsAttentionHint": "Pelayan tidak menerima tindakan ini, jadi ia tidak lagi dihantar sendiri. Selepas diuruskan, tekan Cuba semula sekarang, atau buang tindakan ini."
     },
     "queued": "Disimpan di luar talian dan menunggu muat naik",
     "status": {
-      "failed": "{count} tindakan gagal disegerakkan",
+      "failed": "{count} tindakan perlu diuruskan",
       "offline": "Di luar talian; {count} rekod sedang menunggu",
       "pending": "{count} rekod sedang menunggu penyegerakan",
       "syncing": "Memuat naik rekod luar talian"
@@ -9991,9 +9995,10 @@
     "state": {
       "waiting": "Menunggu segerak",
       "syncing": "Sedang segerak",
-      "failed": "Gagal segerak",
+      "failed": "Perlu diuruskan",
       "held": "Menunggu langkah sebelumnya",
-      "synced": "Sudah disegerakkan"
+      "synced": "Sudah disegerakkan",
+      "retrying": "Akan dicuba semula"
     },
     "conflict": {
       "forbidden": "Akaun anda tidak lagi mempunyai kebenaran untuk ini (mungkin diubah semasa anda di luar talian). Hubungi pentadbir anda. Sehingga itu tindakan ini tidak berkuat kuasa.",
@@ -10002,6 +10007,10 @@
       "changed": "Semasa anda di luar talian, orang lain telah mengendalikan pesanan ini atau statusnya berubah (contohnya dibatalkan atau sudah diterima). Langkah ini tidak dijalankan. Buka pesanan untuk melihat statusnya, kemudian buang tindakan ini.",
       "invalid": "Sesetengah butiran tidak lengkap atau sudah lapuk (contohnya masa yang dicadangkan sudah berlalu). Langkah ini tidak dijalankan. Lakukan semula, kemudian buang tindakan ini.",
       "server": "Pelayan tidak dapat mengendalikannya sekarang. Ia akan dicuba semula pada segerak seterusnya."
+    },
+    "reason": {
+      "network": "Tiada sambungan",
+      "timeout": "Muat naik tamat masa (isyarat lemah)"
     }
   },
   "organisation": {
@@ -14846,7 +14855,9 @@
     "offHelp": "Tahanan dimatikan: skrin ini satu borang biasa.",
     "cannotTurnOff": "Masih ada tahanan yang menyimpan foto atau menunggu muat naik. Hantar dahulu sebelum mematikan.",
     "cannotTurnOn": "Borang ini masih ada isian. Hantar atau buang dahulu sebelum menghidupkan tahanan.",
-    "fillFirst": "Nombor giliran {n} belum ada foto. Ambil satu untuk menahannya, kemudian buka nombor seterusnya."
+    "fillFirst": "Nombor giliran {n} belum ada foto. Ambil satu untuk menahannya, kemudian buka nombor seterusnya.",
+    "retrying": "{reason} · dicuba {count} kali, akan dicuba semula",
+    "needsAttention": "Perlu diuruskan: {reason} (dicuba {count} kali)"
   },
   "sundryClaim": {
     "detailTitle": "Tuntutan pelbagai",

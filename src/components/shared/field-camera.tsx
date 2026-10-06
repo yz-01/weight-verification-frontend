@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { fitWithin, PHOTO_QUALITY } from "@/lib/photo-compression";
 import {
   Dialog,
   DialogContent,
@@ -167,9 +168,15 @@ export function FieldCamera({
     const video = videoRef.current;
     if (!video || !ready || !video.videoWidth || !video.videoHeight) return;
 
+    // Taken at upload size (A5, A9): the same long-edge cap and quality as
+    // every other photo the queue holds (`lib/photo-compression`), here at no
+    // extra cost because the frame is drawn onto a canvas anyway. It also
+    // keeps the DO photo that OCR reads the moment it is taken small enough
+    // to get through on a weak signal.
+    const size = fitWithin(video.videoWidth, video.videoHeight);
     const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = size.width;
+    canvas.height = size.height;
     const context = canvas.getContext("2d");
     if (!context) {
       setError(t("captureError"));
@@ -195,7 +202,7 @@ export function FieldCamera({
         setOpen(false);
       },
       "image/jpeg",
-      0.9,
+      PHOTO_QUALITY,
     );
   }
 

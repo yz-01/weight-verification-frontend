@@ -18,6 +18,7 @@ import {
   getOfflineQueueEntries,
   getRecentlySynced,
   OFFLINE_QUEUE_CHANGED,
+  queueErrorKey,
   type OfflineQueueEntry,
   type OfflineQueueState,
   type SyncedQueueEntry,
@@ -27,6 +28,7 @@ import {
 const STATE_CLASS: Record<OfflineQueueState, string> = {
   waiting: "text-muted-foreground",
   syncing: "text-primary",
+  retrying: "text-warning",
   failed: "text-destructive",
   held: "text-warning",
 };
@@ -65,6 +67,12 @@ export function OfflineStatus() {
   }, [open, user, pendingCount, isSyncing]);
 
   if (isOnline && pendingCount === 0 && !isSyncing) return null;
+
+  /** The stored reason in words: no-answer reasons are stored as a code. */
+  const reasonText = (lastError: string) => {
+    const key = queueErrorKey(lastError);
+    return key ? t(key) : lastError;
+  };
 
   const label = !isOnline
     ? t("offline.status.offline", { count: pendingCount })
@@ -119,7 +127,9 @@ export function OfflineStatus() {
                   : undefined
             }
             disabled={!isOnline || isSyncing || pendingCount === 0}
-            onClick={() => void syncNow()}
+            // A person pressing it: also resend what the server refused,
+            // which the automatic passes no longer do (A9).
+            onClick={() => void syncNow({ includeRefused: true })}
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${isSyncing ? "animate-spin" : ""}`}
@@ -152,15 +162,19 @@ export function OfflineStatus() {
                       {" · "}
                       {df.dateTime(entry.queuedAt)}
                     </p>
-                    {entry.state === "failed" && (
+                    {(entry.state === "failed" || entry.state === "retrying") && (
                       <p
-                        className="mt-0.5 text-xs font-medium text-destructive"
-                        title={entry.lastError}
+                        className={`mt-0.5 text-xs font-medium ${STATE_CLASS[entry.state]}`}
                       >
                         {t("offline.queue.attemptFailed", {
                           count: entry.attempts,
                         })}
-                        {entry.lastError ? ` · ${entry.lastError}` : ""}
+                        {entry.lastError ? ` · ${reasonText(entry.lastError)}` : ""}
+                      </p>
+                    )}
+                    {entry.state === "failed" && (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {t("offline.queue.needsAttentionHint")}
                       </p>
                     )}
                     {entry.hint && (

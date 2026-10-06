@@ -223,7 +223,7 @@ export function DriverSettings() {
               size="sm"
               variant="outline"
               disabled={sync.isSyncing}
-              onClick={() => void sync.syncNow()}
+              onClick={() => void sync.syncNow({ includeRefused: true })}
             >
               <RefreshCw className={`h-4 w-4 ${sync.isSyncing ? "animate-spin" : ""}`} />
               {t("driver.settings.syncNow")}

@@ -7181,7 +7181,8 @@
     "network": "無法連接服務器。",
     "networkBody": "請檢查網絡連接後重試。",
     "notFound": "找不到這條記錄。",
-    "notFoundBody": "它可能已被移除，或你沒有訪問權限。"
+    "notFoundBody": "它可能已被移除，或你沒有訪問權限。",
+    "uploadTimeout": "上傳超時：信號太弱，兩分鐘內沒有傳完。"
   },
   "evidence": {
     "revision": {
@@ -7681,7 +7682,9 @@
         "reason": "Reject 原因",
         "reasonPlaceholder": "例如：規格不對、損壞、數量不足",
         "submit": "Reject 並提交"
-      }
+      },
+      "supplierGuess": "送貨單上讀到「{read}」，最像的供應商是「{name}」。",
+      "supplierGuessUse": "用這家"
     },
     "materialEvidence": {
       "arrival": "1. 車輛到場",
@@ -9977,11 +9980,12 @@
       "empty": "沒有等待同步的動作。",
       "retry": "立即重試",
       "heldHint": "同一張單的前一步還沒成功，這一步先不送，免得順序錯亂。",
-      "recent": "剛剛已同步"
+      "recent": "剛剛已同步",
+      "needsAttentionHint": "服務器沒有接收這一條，不會再自動上傳。處理好後按「立即重試」，或放棄這條。"
     },
     "queued": "已離線保存，等待自動上傳",
     "status": {
-      "failed": "{count} 條動作同步失敗",
+      "failed": "{count} 條動作需要處理",
       "offline": "當前離線，{count} 條記錄等待上傳",
       "pending": "{count} 條記錄等待同步",
       "syncing": "正在上傳離線記錄"
@@ -9991,9 +9995,10 @@
     "state": {
       "waiting": "待同步",
       "syncing": "同步中",
-      "failed": "同步失敗",
+      "failed": "需要處理",
       "held": "等前一步",
-      "synced": "已同步"
+      "synced": "已同步",
+      "retrying": "等待重試"
     },
     "conflict": {
       "forbidden": "你的帳號已經沒有這項操作的權限（可能在你離線期間被調整了）。請聯絡管理員；在那之前這條動作不會生效。",
@@ -10002,6 +10007,10 @@
       "changed": "你離線期間，這張單已經被別人處理或狀態改變了（例如已取消或已被接受），這一步沒有執行。請打開單據看最新狀態，確認後放棄這條動作。",
       "invalid": "資料不完整或已經過期（例如預約時間已過），這一步沒有執行。請重新操作一次，然後放棄這條動作。",
       "server": "伺服器暫時沒有處理，下次同步時會再試。"
+    },
+    "reason": {
+      "network": "網絡不通",
+      "timeout": "上傳超時（信號太弱）"
     }
   },
   "organisation": {
@@ -14846,7 +14855,9 @@
     "offHelp": "掛號已關：這裡只有一張表單。",
     "cannotTurnOff": "還有掛號存著照片或在等上傳，先上交再關",
     "cannotTurnOn": "表單裡還有內容，先上交或清空再開掛號",
-    "fillFirst": "掛號 {n} 還沒拍照片，先拍一張掛上，再開下一個號。"
+    "fillFirst": "掛號 {n} 還沒拍照片，先拍一張掛上，再開下一個號。",
+    "retrying": "{reason} · 已試 {count} 次，會自動再傳",
+    "needsAttention": "需要處理：{reason}（已試 {count} 次）"
   },
   "sundryClaim": {
     "detailTitle": "雜費報銷",

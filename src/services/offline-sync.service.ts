@@ -14,6 +14,7 @@ import {
   type StoredFile,
   storeFile,
 } from "@/lib/offline-db";
+import { compressPhoto } from "@/lib/photo-compression";
 import {
   api,
   toastSuccess,
@@ -115,6 +116,22 @@ function isNetworkFailure(error: unknown): boolean {
   return error instanceof ApiError && error.isNetwork;
 }
 
+/**
+ * A photo as the queue keeps it: at upload size (A5, A9).
+ *
+ * Done here, where every capture screen's photos enter the queue, rather than
+ * screen by screen - so a new screen cannot forget it. The online attempt
+ * sends the job's copy too, so both paths upload the small one. Signatures
+ * are not photos and are stored as drawn.
+ */
+async function storePhoto(file: File): Promise<StoredFile> {
+  return storeFile(await compressPhoto(file));
+}
+
+function storePhotos(files: File[]): Promise<StoredFile[]> {
+  return Promise.all(files.map(storePhoto));
+}
+
 function notifyQueueChanged(): void {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event(OFFLINE_QUEUE_CHANGED));
@@ -165,15 +182,26 @@ export function claimQueuedJob(kinds: readonly OfflineJob["kind"][]): string | n
   return null;
 }
 
+/** Where one queued job stands, as a 挂号 chip shows it. */
+export interface QueuedJobState {
+  waiting: boolean;
+  attempts: number;
+  lastError: string;
+  /** The server refused it: no longer retried by itself (A9). */
+  needsAttention: boolean;
+}
+
 /** Whether a queued job is still waiting, and why it last failed if it did. */
-export async function queuedJobState(
-  ownerId: string,
-  id: string,
-): Promise<{ waiting: boolean; attempts: number; lastError: string }> {
+export async function queuedJobState(ownerId: string, id: string): Promise<QueuedJobState> {
   const job = (await getOfflineJobs(ownerId)).find((entry) => entry.id === id);
   return job
-    ? { waiting: true, attempts: job.attempts, lastError: job.lastError }
-    : { waiting: false, attempts: 0, lastError: "" };
+    ? {
+        waiting: true,
+        attempts: job.attempts,
+        lastError: job.lastError,
+        needsAttention: Boolean(job.needsAttention),
+      }
+    : { waiting: false, attempts: 0, lastError: "", needsAttention: false };
 }
 
 async function enqueue(job: OfflineJob): Promise<OfflineSubmission> {
@@ -462,7 +490,7 @@ export async function submitAttendanceOfflineAware(
       locationAccuracyM: draft.locationAccuracyM,
       originalOccurredAt: now,
       clientEventId: newId("attendance"),
-      photo: draft.photo ? storeFile(draft.photo) : undefined,
+      photo: draft.photo ? await storePhoto(draft.photo) : undefined,
     },
   };
 
@@ -543,7 +571,7 @@ export async function submitTaskPhotoOfflineAware(
       clientEventId: newId("task-photo"),
       latitude: location.latitude,
       longitude: location.longitude,
-      file: storeFile(file),
+      file: await storePhoto(file),
     },
   };
 
@@ -656,7 +684,7 @@ export async function submitFieldTaskPhotoOfflineAware(
       accuracyM: draft.accuracyM,
       deviceId: draft.deviceId,
       clientEventId: newId("field-task-photo"),
-      file: storeFile(draft.file),
+      file: await storePhoto(draft.file),
     },
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {
@@ -687,9 +715,9 @@ export async function submitMaterialReceiptOfflineAware(
       signature: draft.signature ? storeFile(draft.signature) : undefined,
       supplierSignature: draft.supplierSignature ? storeFile(draft.supplierSignature) : undefined,
       deliveryNotePhoto: draft.deliveryNotePhoto
-        ? storeFile(draft.deliveryNotePhoto)
+        ? await storePhoto(draft.deliveryNotePhoto)
         : undefined,
-      sitePhotos: draft.sitePhotos.map(storeFile),
+      sitePhotos: await storePhotos(draft.sitePhotos),
       deviceId: draft.deviceId,
     },
   };
@@ -732,7 +760,7 @@ async function submitCaptureJob(
   return enqueue(job);
 }
 
-export function submitEquipmentMovementOfflineAware(
+export async function submitEquipmentMovementOfflineAware(
   ownerId: string,
   draft: Omit<
     Extract<OfflineJob, { kind: "EQUIPMENT_MOVEMENT" }>["payload"],
@@ -753,9 +781,9 @@ export function submitEquipmentMovementOfflineAware(
     lastError: "",
     payload: {
       ...draft,
-      photos: draft.photos.map(storeFile),
+      photos: await storePhotos(draft.photos),
       delivery_note_photo: draft.delivery_note_photo
-        ? storeFile(draft.delivery_note_photo)
+        ? await storePhoto(draft.delivery_note_photo)
         : undefined,
       receiver_signature: draft.receiver_signature
         ? storeFile(draft.receiver_signature)
@@ -767,7 +795,7 @@ export function submitEquipmentMovementOfflineAware(
   });
 }
 
-export function submitSiteProgressOfflineAware(
+export async function submitSiteProgressOfflineAware(
   ownerId: string,
   draft: Omit<
     Extract<OfflineJob, { kind: "SITE_PROGRESS" }>["payload"],
@@ -781,11 +809,11 @@ export function submitSiteProgressOfflineAware(
     queuedAt: new Date().toISOString(),
     attempts: 0,
     lastError: "",
-    payload: { ...draft, photos: draft.photos.map(storeFile) },
+    payload: { ...draft, photos: await storePhotos(draft.photos) },
   });
 }
 
-export function submitSundryClaimOfflineAware(
+export async function submitSundryClaimOfflineAware(
   ownerId: string,
   draft: Omit<Extract<OfflineJob, { kind: "SUNDRY_CLAIM" }>["payload"], "attachments"> & {
     attachments: File[];
@@ -798,11 +826,11 @@ export function submitSundryClaimOfflineAware(
     queuedAt: new Date().toISOString(),
     attempts: 0,
     lastError: "",
-    payload: { ...draft, attachments: draft.attachments.map(storeFile) },
+    payload: { ...draft, attachments: await storePhotos(draft.attachments) },
   });
 }
 
-export function submitMaterialOutgoingOfflineAware(
+export async function submitMaterialOutgoingOfflineAware(
   ownerId: string,
   draft: Omit<
     Extract<OfflineJob, { kind: "MATERIAL_OUTGOING" }>["payload"],
@@ -816,7 +844,7 @@ export function submitMaterialOutgoingOfflineAware(
     queuedAt: new Date().toISOString(),
     attempts: 0,
     lastError: "",
-    payload: { ...draft, photos: draft.photos.map(storeFile) },
+    payload: { ...draft, photos: await storePhotos(draft.photos) },
   });
 }
 
@@ -850,7 +878,7 @@ async function uploadPositionBatch(
   );
 }
 
-export function submitWasteOutgoingOfflineAware(
+export async function submitWasteOutgoingOfflineAware(
   ownerId: string,
   draft: Omit<
     Extract<OfflineJob, { kind: "WASTE_OUTGOING" }>["payload"],
@@ -864,11 +892,11 @@ export function submitWasteOutgoingOfflineAware(
     queuedAt: new Date().toISOString(),
     attempts: 0,
     lastError: "",
-    payload: { ...draft, photos: draft.photos.map(storeFile) },
+    payload: { ...draft, photos: await storePhotos(draft.photos) },
   });
 }
 
-export function submitDisposalRequestOfflineAware(
+export async function submitDisposalRequestOfflineAware(
   ownerId: string,
   draft: Omit<
     Extract<OfflineJob, { kind: "DISPOSAL_REQUEST" }>["payload"],
@@ -882,7 +910,7 @@ export function submitDisposalRequestOfflineAware(
     queuedAt: new Date().toISOString(),
     attempts: 0,
     lastError: "",
-    payload: { ...draft, photos: draft.photos.map(storeFile) },
+    payload: { ...draft, photos: await storePhotos(draft.photos) },
   });
 }
 
@@ -899,14 +927,19 @@ export async function submitSafetyIncidentOfflineAware(
     lastError: "",
     payload: {
       ...draft,
-      photos: (draft.photos ?? []).map(storeFile),
-      attachments: (draft.attachments ?? []).map(storeFile),
+      photos: await storePhotos(draft.photos ?? []),
+      attachments: await storePhotos(draft.attachments ?? []),
     },
   };
   if (typeof navigator !== "undefined" && navigator.onLine) {
     try {
+      // The job's copies, so the online attempt sends the compressed photos.
       const incident = await withOfflineProvenance(job.queuedAt, () =>
-        createSafetyIncident(draft),
+        createSafetyIncident({
+          ...draft,
+          photos: job.payload.photos.map(restoreFile),
+          attachments: (job.payload.attachments ?? []).map(restoreFile),
+        }),
       );
       return { status: "uploaded", incident };
     } catch (error) {
@@ -917,7 +950,7 @@ export async function submitSafetyIncidentOfflineAware(
   return { status: "queued" };
 }
 
-export function submitConsultantSubmissionOfflineAware(
+export async function submitConsultantSubmissionOfflineAware(
   ownerId: string,
   draft: Omit<
     Extract<OfflineJob, { kind: "CONSULTANT_SUBMISSION" }>["payload"],
@@ -931,7 +964,7 @@ export function submitConsultantSubmissionOfflineAware(
     queuedAt: new Date().toISOString(),
     attempts: 0,
     lastError: "",
-    payload: { ...draft, photos: draft.photos.map(storeFile) },
+    payload: { ...draft, photos: await storePhotos(draft.photos) },
   });
 }
 
@@ -1118,10 +1151,15 @@ export async function enqueueTripAssign(
 /**
  * Where one queued action stands (AC-049: 待同步 / 同步中 / 成功 / 失败原因).
  *
- * `held` is the dependency rule made visible: an earlier step for the same
- * order failed, so this one is not sent until that is dealt with.
+ * - `waiting`: not tried yet.
+ * - `retrying`: tried and not through - no signal, timed out, or a server
+ *   error - and the queue keeps trying by itself (A9).
+ * - `failed`: the server refused it (4xx). Sending the same thing again
+ *   cannot succeed, so it is no longer retried by itself: 「需要处理」.
+ * - `held`: the dependency rule made visible - an earlier step for the same
+ *   order or trip has not gone through, so this one is not sent yet.
  */
-export type OfflineQueueState = "waiting" | "syncing" | "failed" | "held";
+export type OfflineQueueState = "waiting" | "syncing" | "retrying" | "failed" | "held";
 
 /** What the queue holds, shaped for the status popover — no blobs attached. */
 export interface OfflineQueueEntry {
@@ -1134,6 +1172,41 @@ export interface OfflineQueueEntry {
   state: OfflineQueueState;
   /** A message key saying, in plain words, what the refusal means. */
   hint: string | null;
+}
+
+/**
+ * What `lastError` holds when there was no answer from the server at all.
+ *
+ * Stored as a word, not as a sentence, because it is shown later in whatever
+ * language the phone is in then; `queueErrorKey` turns it into the message.
+ */
+export const QUEUE_ERROR_NETWORK = "network";
+export const QUEUE_ERROR_TIMEOUT = "timeout";
+
+/** The message key for a stored no-answer reason, or null for the server's own words. */
+export function queueErrorKey(lastError: string): string | null {
+  if (lastError === QUEUE_ERROR_NETWORK) return "offline.reason.network";
+  if (lastError === QUEUE_ERROR_TIMEOUT) return "offline.reason.timeout";
+  return null;
+}
+
+/**
+ * A refusal: the server answered and said no.
+ *
+ * 401 is not one (the session ran out; the pass stops and the job is not
+ * blamed), nor 408 / 429 (the server asks to be tried again later). Anything
+ * that is not an `ApiError` is a fault in the job itself and would fail the
+ * same way every time.
+ */
+function isRefusal(error: unknown): boolean {
+  if (!(error instanceof ApiError)) return true;
+  return (
+    error.status >= 400 &&
+    error.status < 500 &&
+    error.status !== 401 &&
+    error.status !== 408 &&
+    error.status !== 429
+  );
 }
 
 /** An action that reached the server during this session. */
@@ -1189,6 +1262,32 @@ export function conflictHint(status?: number, code?: string): string | null {
   return "offline.conflict.server";
 }
 
+/**
+ * The chain a job belongs to, when its steps must reach the server in order.
+ *
+ * A recycler order (accept -> roster -> collect), a driver's trip (each
+ * state, photo and GPS point) and a site task (start -> submit) are
+ * sequences: sending a later step after an earlier one failed would act on a
+ * state the server has not reached. Everything else - a delivery, a site
+ * photo, a clean-out - stands alone, and one of them failing must not keep
+ * the next one on the phone (A9).
+ */
+function chainOf(job: OfflineJob): string | null {
+  const order = dispatchOf(job);
+  if (order) return `order:${order}`;
+  if (
+    job.kind === "TASK_TRANSITION" ||
+    job.kind === "TASK_PHOTO" ||
+    job.kind === "TASK_POSITION"
+  ) {
+    return `trip:${job.payload.taskId}`;
+  }
+  if (job.kind === "FIELD_TASK_TRANSITION" || job.kind === "FIELD_TASK_PHOTO") {
+    return `field-task:${job.payload.taskId}`;
+  }
+  return null;
+}
+
 function jobReference(job: OfflineJob): string {
   const payload = job.payload as { dispatchNo?: string; taskId?: string };
   return payload.dispatchNo ?? payload.taskId ?? "";
@@ -1198,18 +1297,22 @@ export async function getOfflineQueueEntries(
   ownerId: string,
 ): Promise<OfflineQueueEntry[]> {
   const jobs = await getOfflineJobs(ownerId);
-  const failedOrders = new Set<string>();
+  const failedChains = new Set<string>();
   return jobs.map((job) => {
-    const order = dispatchOf(job);
+    const chain = chainOf(job);
     const state: OfflineQueueState =
       job.id === syncingJobId
         ? "syncing"
-        : order && failedOrders.has(order)
+        : chain && failedChains.has(chain)
           ? "held"
-          : job.attempts > 0
+          : job.needsAttention
             ? "failed"
-            : "waiting";
-    if (order && (state === "failed" || state === "held")) failedOrders.add(order);
+            : job.attempts > 0
+              ? "retrying"
+              : "waiting";
+    if (chain && (state === "failed" || state === "retrying" || state === "held")) {
+      failedChains.add(chain);
+    }
     return {
       id: job.id,
       kind: job.kind,
@@ -1219,7 +1322,7 @@ export async function getOfflineQueueEntries(
       lastError: job.lastError,
       state,
       hint:
-        state === "failed"
+        state === "failed" || state === "retrying"
           ? conflictHint(job.lastErrorStatus, job.lastErrorCode)
           : null,
     };
@@ -1368,21 +1471,54 @@ export async function discardOfflineJob(id: string): Promise<void> {
   notifyQueueChanged();
 }
 
-export async function flushOfflineJobs(ownerId: string): Promise<{
+export interface FlushResult {
   synced: number;
   remaining: number;
-}> {
+}
+
+/** The pass in progress, so a second trigger joins it instead of sending twice. */
+let flushInFlight: Promise<FlushResult> | null = null;
+
+/**
+ * Send what is waiting, oldest first.
+ *
+ * The online event, the minute timer, the service worker's sync and the
+ * 立即重试 button can all fire together; without the lock two passes read the
+ * same list and uploaded the same record twice. A second call while a pass
+ * runs gets that pass's result.
+ *
+ * `includeRefused`: also send the jobs the server refused (「需要处理」).
+ * Only the worker's own 立即重试 press asks for that - after fixing what was
+ * wrong, or when the office says the permission is back.
+ */
+export function flushOfflineJobs(
+  ownerId: string,
+  options: { includeRefused?: boolean } = {},
+): Promise<FlushResult> {
+  if (flushInFlight) return flushInFlight;
+  flushInFlight = runFlush(ownerId, options.includeRefused ?? false).finally(() => {
+    flushInFlight = null;
+  });
+  return flushInFlight;
+}
+
+async function runFlush(ownerId: string, includeRefused: boolean): Promise<FlushResult> {
   const jobs = await getOfflineJobs(ownerId);
   let synced = 0;
-  // Orders whose earlier step was refused in this pass. Their later steps
-  // wait: collecting a load whose acceptance failed, or rostering a trip for
-  // it, would act on an order in a state nobody on the yard has seen (F-463).
-  const heldOrders = new Set<string>();
+  // Chains whose earlier step did not go through in this pass. Their later
+  // steps wait: collecting a load whose acceptance failed, or rostering a
+  // trip for it, would act on an order in a state nobody on the yard has
+  // seen (F-463). Records that stand alone are never held.
+  const heldChains = new Set<string>();
 
   for (let index = 0; index < jobs.length; index += 1) {
     const job = jobs[index];
-    const order = dispatchOf(job);
-    if (order && heldOrders.has(order)) continue;
+    const chain = chainOf(job);
+    if (chain && heldChains.has(chain)) continue;
+    if (job.needsAttention && !includeRefused) {
+      if (chain) heldChains.add(chain);
+      continue;
+    }
     const positions: Extract<OfflineJob, { kind: "TASK_POSITION" }>[] = [];
     if (job.kind === "TASK_POSITION") {
       for (
@@ -1415,23 +1551,34 @@ export async function flushOfflineJobs(ownerId: string): Promise<{
         synced += 1;
       }
     } catch (error) {
-      if (
-        isNetworkFailure(error) ||
-        (error instanceof ApiError && error.isUnauthorized)
-      ) {
+      // The session ran out: nothing will go through until the worker signs
+      // in again, and that is not this job's fault.
+      if (error instanceof ApiError && error.isUnauthorized) {
         setSyncing(null);
         break;
       }
-      if (order) heldOrders.add(order);
+      if (chain) heldChains.add(chain);
+      // Every failure is counted and kept with its reason (A9). A network
+      // error used to stop the pass without either, so the record said
+      // 「等待上传」 forever and everything queued behind it waited too.
+      const noAnswer = isNetworkFailure(error);
+      const lastError = noAnswer
+        ? (error as ApiError).code === QUEUE_ERROR_TIMEOUT
+          ? QUEUE_ERROR_TIMEOUT
+          : QUEUE_ERROR_NETWORK
+        : error instanceof Error
+          ? error.message
+          : String(error);
       const failedJobs: OfflineJob[] = positions.length > 0 ? positions : [job];
       await Promise.all(
         failedJobs.map((failedJob) =>
           putOfflineJob({
             ...failedJob,
             attempts: failedJob.attempts + 1,
-            lastError: error instanceof Error ? error.message : String(error),
+            lastError,
             lastErrorStatus: error instanceof ApiError ? error.status : undefined,
             lastErrorCode: error instanceof ApiError ? error.code : undefined,
+            needsAttention: !noAnswer && isRefusal(error),
           }),
         ),
       );
@@ -1454,7 +1601,8 @@ export async function getOfflineQueueSummary(ownerId: string): Promise<{
   const jobs = await getOfflineJobs(ownerId);
   return {
     pending: jobs.length,
-    failed: jobs.filter((job) => job.attempts > 0).length,
+    // 「需要处理」 only: a record still retrying by itself needs nobody yet.
+    failed: jobs.filter((job) => job.needsAttention).length,
   };
 }
 

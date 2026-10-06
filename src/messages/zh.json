@@ -7181,7 +7181,8 @@
     "network": "无法连接服务器。",
     "networkBody": "请检查网络连接后重试。",
     "notFound": "找不到这条记录。",
-    "notFoundBody": "它可能已被移除，或你没有访问权限。"
+    "notFoundBody": "它可能已被移除，或你没有访问权限。",
+    "uploadTimeout": "上传超时：信号太弱，两分钟内没有传完。"
   },
   "evidence": {
     "revision": {
@@ -7681,7 +7682,9 @@
         "reason": "Reject 原因",
         "reasonPlaceholder": "例如：规格不对、损坏、数量不足",
         "submit": "Reject 并提交"
-      }
+      },
+      "supplierGuess": "送货单上读到「{read}」，最像的供应商是「{name}」。",
+      "supplierGuessUse": "用这家"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -9977,11 +9980,12 @@
       "empty": "没有等待同步的动作。",
       "retry": "立即重试",
       "heldHint": "同一张单的前一步还没成功，这一步先不送，免得顺序错乱。",
-      "recent": "刚刚已同步"
+      "recent": "刚刚已同步",
+      "needsAttentionHint": "服务器没有接收这一条，不会再自动上传。处理好后按「立即重试」，或放弃这条。"
     },
     "queued": "已离线保存，等待自动上传",
     "status": {
-      "failed": "{count} 条动作同步失败",
+      "failed": "{count} 条动作需要处理",
       "offline": "当前离线，{count} 条记录等待上传",
       "pending": "{count} 条记录等待同步",
       "syncing": "正在上传离线记录"
@@ -9991,9 +9995,10 @@
     "state": {
       "waiting": "待同步",
       "syncing": "同步中",
-      "failed": "同步失败",
+      "failed": "需要处理",
       "held": "等前一步",
-      "synced": "已同步"
+      "synced": "已同步",
+      "retrying": "等待重试"
     },
     "conflict": {
       "forbidden": "你的账号已经没有这项操作的权限（可能在你离线期间被调整了）。请联系管理员；在那之前这条动作不会生效。",
@@ -10002,6 +10007,10 @@
       "changed": "你离线期间，这张单已经被别人处理或状态改变了（例如已取消或已被接受），这一步没有执行。请打开单据看最新状态，确认后放弃这条动作。",
       "invalid": "资料不完整或已经过期（例如预约时间已过），这一步没有执行。请重新操作一次，然后放弃这条动作。",
       "server": "服务器暂时没有处理，下次同步时会再试。"
+    },
+    "reason": {
+      "network": "网络不通",
+      "timeout": "上传超时（信号太弱）"
     }
   },
   "organisation": {
@@ -14846,7 +14855,9 @@
     "offHelp": "挂号已关：这里只有一张表单。",
     "cannotTurnOff": "还有挂号存着照片或在等上传，先上交再关",
     "cannotTurnOn": "表单里还有内容，先上交或清空再开挂号",
-    "fillFirst": "挂号 {n} 还没拍照片，先拍一张挂上，再开下一个号。"
+    "fillFirst": "挂号 {n} 还没拍照片，先拍一张挂上，再开下一个号。",
+    "retrying": "{reason} · 已试 {count} 次，会自动再传",
+    "needsAttention": "需要处理：{reason}（已试 {count} 次）"
   },
   "sundryClaim": {
     "detailTitle": "杂费报销",

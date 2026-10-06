@@ -19,6 +19,7 @@ import {
 } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FormSurfaceProvider } from "@/components/shared/form-surface";
 import { SupplierQrPanel } from "@/components/suppliers/supplier-qr-panel";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Supplier } from "@/interfaces/contractor";
@@ -295,7 +296,10 @@ export function Suppliers() {
           ) : qrPreview.isLoading ? (
             <p className="py-8 text-center text-sm text-muted-foreground">{t("common.loading")}</p>
           ) : qrPreview.data ? (
-            <SupplierQrPanel supplier={qrPreview.data} />
+            // A dialog, not a page: FormSection must not add its third column.
+            <FormSurfaceProvider value="dialog">
+              <SupplierQrPanel supplier={qrPreview.data} />
+            </FormSurfaceProvider>
           ) : null}
         </DialogContent>
       </Dialog>

@@ -361,6 +361,8 @@ export async function recordEquipmentMovement(payload: {
   accuracy_m?: string; notes?: string; quantity?: string;
   unit?: "UNIT" | "PIECE" | "SET" | "LOAD" | "TONNE" | "KG" | "M3" | "OTHER";
   ocr_confirmed?: boolean;
+  /** The phone's signed DO read; the server keeps it rather than reading again (A9). */
+  ocr_proof?: string;
   field_task?: string;
   delivery_note_photo?: File; original_occurred_at: string; client_event_id: string; photos: File[];
 }) {
