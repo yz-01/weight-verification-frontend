@@ -2,10 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { LoadFailed } from "@/components/shared/page-primitives";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MATERIAL_UNITS } from "@/interfaces/contractor";
 import { getReceiptNetTotals } from "@/services/contractor.service";
@@ -29,37 +29,59 @@ export function useMaterialTab(): MaterialTab {
   return "in";
 }
 
-export function MaterialTabs() {
+/**
+ * The four views as one dropdown (2026-10 C14), with the supplier and date
+ * filter beside it.
+ *
+ * Four tabs in a row pushed the page sideways on a phone. A dropdown keeps the
+ * same four addresses - choosing one goes where the tab went - so a bookmark,
+ * a notification link and the back button behave exactly as before.
+ *
+ * `children` is what stands beside it: the shared supplier and date filter
+ * (B5) on the lists, nothing on the totals.
+ */
+export function MaterialTabs({ children }: { children?: React.ReactNode }) {
   const t = useTranslations("receipts.tabs");
   const active = useMaterialTab();
   const params = useSearchParams();
-  // The project the reader was looking at travels with them between tabs.
-  const project = params.get("project");
-  const withProject = (href: string) =>
-    project ? `${href}${href.includes("?") ? "&" : "?"}project=${project}` : href;
+  const router = useRouter();
+  // The project, supplier and dates the reader was looking at travel with
+  // them between the views; each list reads the same parameters.
+  const carried = ["project", "supplier", "date_from", "date_to"]
+    .map((key) => [key, params.get(key)] as const)
+    .filter(([, value]) => value);
+  const withFilters = (href: string) =>
+    carried.reduce(
+      (target, [key, value]) =>
+        `${target}${target.includes("?") ? "&" : "?"}${key}=${encodeURIComponent(value ?? "")}`,
+      href,
+    );
   const tabs: Array<[MaterialTab, string]> = [
     ["in", "/receipts"],
     ["out", "/material-outgoing"],
     ["reject", "/receipts?acceptance=REJECTED"],
     ["totals", "/receipts?view=totals"],
   ];
+  const hrefs = Object.fromEntries(tabs) as Record<MaterialTab, string>;
   return (
-    <nav className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1" aria-label={t("label")}>
-      {tabs.map(([key, href]) => (
-        <Link
-          key={key}
-          href={withProject(href)}
-          aria-current={active === key ? "page" : undefined}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium ${
-            active === key
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {t(key)}
-        </Link>
-      ))}
-    </nav>
+    <div className="flex flex-wrap items-center gap-2">
+      <Select
+        value={active}
+        onValueChange={(next) => router.push(withFilters(hrefs[next as MaterialTab]))}
+      >
+        <SelectTrigger size="sm" className="w-[170px]" aria-label={t("choose")}>
+          <SelectValue placeholder={t("choose")} />
+        </SelectTrigger>
+        <SelectContent>
+          {tabs.map(([key]) => (
+            <SelectItem key={key} value={key}>
+              {t(key)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {children}
+    </div>
   );
 }
 

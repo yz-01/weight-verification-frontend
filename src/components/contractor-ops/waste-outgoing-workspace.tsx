@@ -37,6 +37,7 @@ import {
   SummaryStrip,
 } from "@/components/shared/module-records-table";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
+import { RecordNo } from "@/components/shared/record-no";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldCamera } from "@/components/shared/field-camera";
@@ -361,7 +362,8 @@ export function WasteOutgoingWorkspace() {
       accessorKey: "reference_no",
       meta: { label: t("field.dispatchNo") },
       header: sortable(t("field.dispatchNo")),
-      cell: ({ row }) => <span className="tabular text-foreground">{row.original.reference_no}</span>,
+      // Short number big, project small (2026-10 D4).
+      cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
     },
     {
       accessorKey: "status",

@@ -3098,7 +3098,8 @@
     "notInQueue": "这笔记录还没完成，还不在你的待看清单里。完成以后才可以标「看过了」。",
     "categoryManagement": "分类管理",
     "openPhoto": "放大查看照片",
-    "noPhoto": "无照片"
+    "noPhoto": "无照片",
+    "goToReceipt": "去材料进场处理"
   },
   "assets": {
     "category": {
@@ -4019,7 +4020,10 @@
       "count": "共 {count} 笔",
       "empty": "这个分类里还没有记录。",
       "byMaterial": "按材料",
-      "groupCount": "{count} 笔"
+      "groupCount": "{count} 笔",
+      "search": "搜索编号、材料、DO",
+      "emptyFiltered": "这个分类里没有符合筛选条件的记录。",
+      "deliveryNoteNo": "DO"
     },
     "quantityReturned": "退场 {quantity}"
   },
@@ -7158,7 +7162,8 @@
       "conversation_closed": "这条记录已经完成，聊天室已关闭。记录仍可查看；还有事情请另开一条记录。",
       "receipt_rejected_at_gate": "这批货已在现场交接时 Reject，不能再更改。",
       "record_finished": "此事项已结束，不能再上传附件；已有附件仍可查看。",
-      "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。"
+      "receipt_archived": "这批材料已确认归档，不能再验收或退回。如有新问题，请新建一条记录。",
+      "site_record_field_only": "只有现场人员能在手机上新增这条记录。后台可以更正已有的记录。"
     },
     "backToDashboard": "返回仪表板",
     "field": {
@@ -11218,7 +11223,6 @@
       }
     },
     "count": "{count, plural, =0 {暂无材料进场记录} other {# 条材料进场记录}}",
-    "createTitle": "记录材料进场",
     "doPanelField": "字段",
     "doPanelLineItems": "单据上的明细行",
     "doPanelLowConfidence": "以下几项读取置信度偏低，请对着单据核一遍",
@@ -11268,7 +11272,6 @@
     },
     "locationCaptured": "已记录位置",
     "locationMissing": "无位置",
-    "new": "记录材料进场",
     "noPhotos": "没有附加照片。",
     "noRecorderPhone": "没有登记联系电话",
     "photoKind": {
@@ -11308,7 +11311,6 @@
       "supplier": "供应商",
       "none": "没有采集到签名。"
     },
-    "stampNote": "时间、位置和记录人由系统在提交时自动写入，无法手动填写或事后修改。",
     "summary": "一眼看全",
     "title": "材料进场",
     "toast": {
@@ -11336,9 +11338,6 @@
       "rejected": "不合格"
     },
     "what": {
-      "projects": "项目列表",
-      "suppliers": "供应商列表",
-      "dockets": "送货单二维码列表",
       "columns": "分类列表"
     },
     "movement": {
@@ -11351,7 +11350,8 @@
       "out": "Material Out 退场",
       "reject": "Reject 不合格",
       "totals": "累计净数量",
-      "legacyReturns": "10-02 前用进场单登记的退场记录"
+      "legacyReturns": "10-02 前用进场单登记的退场记录",
+      "choose": "选择查看"
     },
     "net": {
       "title": "按材料汇总的累计净数量",
@@ -15243,5 +15243,20 @@
     "toast": {
       "added": "已上传 {count} 个附件"
     }
+  },
+  "supplierDateFilter": {
+    "allSuppliers": "全部供应商",
+    "supplier": "供应商",
+    "search": "输入供应商名称",
+    "noMatch": "没有这个名称的供应商",
+    "from": "开始日期",
+    "to": "至",
+    "toLabel": "结束日期",
+    "what": "供应商列表"
+  },
+  "recordNo": {
+    "copy": "复制 {number}",
+    "copied": "已复制 {number}",
+    "copyFailed": "复制失败。长按编号可以看到完整编号。"
   }
 }

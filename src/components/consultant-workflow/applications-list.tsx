@@ -21,6 +21,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ConsultantHowTo } from "@/components/consultant-workflow/consultant-how-to";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
+import { RecordNo } from "@/components/shared/record-no";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ConsultantApplicationStatus } from "@/interfaces/consultant-workflow";
@@ -185,9 +186,13 @@ export function ConsultantApplicationsList() {
                     <ClipboardCheck className="size-5" />
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate font-semibold">
-                      {application.application_no}
-                    </p>
+                    {/* Short number big, project small (2026-10 D4). The row is a link, so no copy button
+                        inside it; the whole number is on hover. */}
+                    <RecordNo
+                      value={application.application_no}
+                      projectCode={application.project_code}
+                      copyable={false}
+                    />
                     <p className="truncate text-sm text-muted-foreground">
                       {application.application_type_custom ||
                         application.application_type_label}

@@ -3098,7 +3098,8 @@
     "notInQueue": "This record is not finished yet, so it is not on your to-see list. You can mark it as seen once it is finished.",
     "categoryManagement": "Category management",
     "openPhoto": "Open the photo",
-    "noPhoto": "No photo"
+    "noPhoto": "No photo",
+    "goToReceipt": "Go to Material receipts to handle it"
   },
   "assets": {
     "category": {
@@ -4019,7 +4020,10 @@
       "count": "{count} records",
       "empty": "Nothing has been filed in this category yet.",
       "byMaterial": "By material",
-      "groupCount": "{count} deliveries"
+      "groupCount": "{count} deliveries",
+      "search": "Search number, material, DO",
+      "emptyFiltered": "Nothing in this category matches these filters.",
+      "deliveryNoteNo": "DO"
     },
     "quantityReturned": "{quantity} returned"
   },
@@ -7158,7 +7162,8 @@
       "conversation_closed": "This record is finished, so its conversation is closed. It can still be read; raise a new record for anything further.",
       "receipt_rejected_at_gate": "This delivery was rejected at the gate and cannot be changed.",
       "record_finished": "This record is finished, so it takes no more files. What is attached can still be opened.",
-      "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further."
+      "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
+      "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -11218,7 +11223,6 @@
       }
     },
     "count": "{count, plural, =0 {No receipts} one {# receipt} other {# receipts}}",
-    "createTitle": "Record a delivery",
     "doPanelField": "Field",
     "doPanelLineItems": "Lines on the document",
     "doPanelLowConfidence": "Read with low confidence - check these against the document",
@@ -11268,7 +11272,6 @@
     },
     "locationCaptured": "Location captured",
     "locationMissing": "No location",
-    "new": "Record delivery",
     "noPhotos": "No photos were attached.",
     "noRecorderPhone": "No phone number on file",
     "photoKind": {
@@ -11308,7 +11311,6 @@
       "supplier": "Supplier",
       "none": "No signature was captured."
     },
-    "stampNote": "The time, place and person are recorded by the platform when the receipt is filed. They cannot be typed in or changed afterwards.",
     "summary": "At a glance",
     "title": "Material receipts",
     "toast": {
@@ -11336,9 +11338,6 @@
       "rejected": "Not up to spec"
     },
     "what": {
-      "projects": "The project list",
-      "suppliers": "The supplier list",
-      "dockets": "The delivery dockets",
       "columns": "The category list"
     },
     "movement": {
@@ -11351,7 +11350,8 @@
       "out": "Material Out",
       "reject": "Reject",
       "totals": "Net totals",
-      "legacyReturns": "Returns filed on the receipt form before 10-02"
+      "legacyReturns": "Returns filed on the receipt form before 10-02",
+      "choose": "Choose a view"
     },
     "net": {
       "title": "Net quantity by material",
@@ -15243,5 +15243,20 @@
     "toast": {
       "added": "{count, plural, one {# file attached} other {# files attached}}"
     }
+  },
+  "supplierDateFilter": {
+    "allSuppliers": "All suppliers",
+    "supplier": "Supplier",
+    "search": "Type a supplier name",
+    "noMatch": "No supplier by that name",
+    "from": "From date",
+    "to": "to",
+    "toLabel": "To date",
+    "what": "the supplier list"
+  },
+  "recordNo": {
+    "copy": "Copy {number}",
+    "copied": "Copied {number}",
+    "copyFailed": "Could not copy. Hold the number to see it in full."
   }
 }

@@ -974,6 +974,11 @@ export function getCategoryRecords(query: {
   category: string;
   page?: number;
   page_size?: number;
+  /** 2026-10 B3: narrowed by supplier, date range and the search box. */
+  supplier?: string;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
 }): Promise<CategoryRecordPage> {
   return api.get<CategoryRecordPage>("/api/category-records/", query);
 }

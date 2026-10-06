@@ -198,9 +198,10 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
 
   it("draws the conversation, the closure, the package and 我看过了 only where they work", () => {
     expect(sheet).toMatch(/canDiscuss\(row\.kind\) && \(\s*<RecordConversationPanel/);
+    // ...and, since 2026-10 B4 (a category's records) and F9 (a dashboard photo), none of the three that change anything when
+    // the sheet is read-only.
     expect(sheet).toMatch(/!readOnly && canConfirmClosure\(row\.kind\) && \(\s*<RecordClosurePanel/);
-    expect(sheet).toMatch(/canGoInAPackage\(row\.kind\) && \(\s*<AddToPackageButton/);
-    // A read-only sheet (F9: a dashboard photo) has neither 确认归档 nor 我看过了.
+    expect(sheet).toMatch(/!readOnly && canGoInAPackage\(row\.kind\) && \(\s*<AddToPackageButton/);
     expect(sheet).toMatch(/const queueKind = !readOnly && isQueueKind\(row\.kind\) \? row\.kind : null;/);
     expect(sheet).toMatch(/!queueKind \? null :/);
     for (const kind of QUEUE_ONLY_NOT) {
@@ -222,5 +223,38 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
     expect(mark).toMatch(/if \(result\.matched > 0\) toastSuccess\("archiveQueue\.toast\.archived"\)/);
     expect(sheet).toMatch(/if \(result\.matched === 0\) \{\s*setNotInQueue\(true\);/);
     expect(sheet).toMatch(/archiveQueue\.notInQueue/);
+  });
+});
+
+
+describe("a category's records are looked at, not decided (2026-10 B3, B4)", () => {
+  const dialog = functionBody(read(MANAGEMENT), "ColumnRecordsDialog");
+  const sheet = functionBody(read(QUEUE), "RecordSheet");
+
+  it("opens every record read-only", () => {
+    expect(dialog).toMatch(/<RecordSheet\s+row=\{open\}\s+fetchRecord=\{getCategoryRecord\}[\s\S]*?readOnly\s/);
+    expect(sheet).toMatch(/readOnly = false,/);
+  });
+
+  it("sends a pending delivery to its own page to be accepted", () => {
+    expect(sheet).toMatch(
+      /const pendingReceipt =\s*readOnly && row\.kind === "MATERIAL_RECEIPT" && row\.status === "PENDING";/,
+    );
+    expect(sheet).toMatch(/pendingReceipt && \([\s\S]*?<Link href=\{`\/receipts\/\$\{row\.id\}`\}>/);
+    expect(sheet).toMatch(/t\("archiveQueue\.goToReceipt"\)/);
+  });
+
+  it("narrows by supplier, dates and search, and shows the DO", () => {
+    expect(dialog).toMatch(/<SupplierDateFilter\s+value=\{filters\}\s+showSupplier=\{supplierFilter\}/);
+    expect(dialog).toMatch(/\.\.\.filters,\s*search: search \|\| undefined,/);
+    expect(dialog).toMatch(/queryKey: \["category-records", moduleKey, column\.id, page, filters, search\]/);
+    expect(dialog).toMatch(/row\.delivery_note_no/);
+    expect(dialog).toMatch(/row\.supplier_name/);
+    expect(dialog).toMatch(/<RecordNo value=\{row\.reference\} projectCode=\{row\.project_code\} \/>/);
+    const service = read(SERVICE);
+    const list = service.slice(service.indexOf("export function getCategoryRecords("));
+    for (const key of ["supplier", "date_from", "date_to", "search"]) {
+      expect(list, key).toMatch(new RegExp(`${key}\\?: string;`));
+    }
   });
 });

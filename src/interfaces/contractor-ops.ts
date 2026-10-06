@@ -734,11 +734,17 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   detail: string;
   project_id: string | null;
   project_name: string;
+  /** Under the short number in a list (2026-10 D4); "" for a company-wide record. */
+  project_code?: string;
   submitted_at: string;
   status: string;
   /** Beside `status` on purpose - see `MySubmissionRow` for why (F-225). */
   status_label: string;
   photo: string | null;
+  /** A category's records only (2026-10 B3): the DO, "" when the kind has none. */
+  delivery_note_no?: string;
+  /** A category's records only (2026-10 B3): the supplier, "" when none. */
+  supplier_name?: string;
   /** A material receipt's direction (B10), so a return is not named 材料进场. */
   movement_type?: "ENTRY" | "RETURN";
   /** When this reader marked it 「我看过了」, or null (T-391). */
@@ -783,6 +789,11 @@ export interface CategoryRecordPage {
   count: number;
   /** A material category only: each material with its count and total. */
   groups?: MaterialGroup[];
+  /**
+   * Whether any record kind in this module has a supplier (2026-10 B16): a
+   * module whose records never come from one is offered the dates only.
+   */
+  supplier_filter?: boolean;
 }
 
 export interface ArchiveQueuePage {

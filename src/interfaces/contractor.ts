@@ -314,6 +314,8 @@ export interface MaterialReceipt {
   document_amount?: string | null;
   document_amount_source?: "OCR" | "MANUAL" | "";
   vehicle_plate: string;
+  /** The supplier's DO number, on the list row too (2026-10 B5, C13). */
+  delivery_note_no: string;
   received_by_name: string;
   /** Stamped by the platform, never by the device that filed the receipt. */
   captured_at: string;

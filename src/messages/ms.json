@@ -3098,7 +3098,8 @@
     "notInQueue": "Rekod ini belum selesai, jadi ia belum ada dalam senarai untuk dilihat anda. Anda boleh tandakannya sebagai sudah dilihat selepas ia selesai.",
     "categoryManagement": "Pengurusan kategori",
     "openPhoto": "Buka gambar",
-    "noPhoto": "Tiada gambar"
+    "noPhoto": "Tiada gambar",
+    "goToReceipt": "Pergi ke Bahan masuk untuk mengendalikannya"
   },
   "assets": {
     "category": {
@@ -4019,7 +4020,10 @@
       "count": "{count} rekod",
       "empty": "Belum ada apa-apa difailkan dalam kategori ini.",
       "byMaterial": "Mengikut bahan",
-      "groupCount": "{count} penghantaran"
+      "groupCount": "{count} penghantaran",
+      "search": "Cari nombor, bahan, DO",
+      "emptyFiltered": "Tiada rekod dalam kategori ini yang sepadan dengan penapis ini.",
+      "deliveryNoteNo": "DO"
     },
     "quantityReturned": "{quantity} dipulangkan"
   },
@@ -7158,7 +7162,8 @@
       "conversation_closed": "Rekod ini telah selesai, jadi perbualannya ditutup. Ia masih boleh dibaca; buka rekod baharu untuk perkara lanjut.",
       "receipt_rejected_at_gate": "Penghantaran ini telah ditolak di pintu masuk dan tidak boleh diubah.",
       "record_finished": "Rekod ini telah selesai, jadi tiada fail lagi boleh ditambah. Lampiran sedia ada masih boleh dibuka.",
-      "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain."
+      "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
+      "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -11218,7 +11223,6 @@
       }
     },
     "count": "{count, plural, =0 {Tiada resit} other {# resit}}",
-    "createTitle": "Rekod penerimaan",
     "doPanelField": "Medan",
     "doPanelLineItems": "Baris pada dokumen",
     "doPanelLowConfidence": "Dibaca dengan keyakinan rendah - semak terhadap dokumen",
@@ -11268,7 +11272,6 @@
     },
     "locationCaptured": "Lokasi direkod",
     "locationMissing": "Tiada lokasi",
-    "new": "Rekod penerimaan",
     "noPhotos": "Tiada foto dilampirkan.",
     "noRecorderPhone": "Tiada nombor telefon dalam rekod",
     "photoKind": {
@@ -11308,7 +11311,6 @@
       "supplier": "Pembekal",
       "none": "Tiada tandatangan dirakam."
     },
-    "stampNote": "Masa, lokasi dan orang yang merekod ditulis oleh platform semasa resit difailkan. Ia tidak boleh ditaip atau diubah kemudian.",
     "summary": "Sekilas pandang",
     "title": "Bahan masuk",
     "toast": {
@@ -11336,9 +11338,6 @@
       "rejected": "Tidak ikut spesifikasi"
     },
     "what": {
-      "projects": "Senarai projek",
-      "suppliers": "Senarai pembekal",
-      "dockets": "Senarai nota hantar",
       "columns": "Senarai ruangan"
     },
     "movement": {
@@ -11351,7 +11350,8 @@
       "out": "Material Out",
       "reject": "Reject",
       "totals": "Jumlah bersih",
-      "legacyReturns": "Pemulangan yang direkod melalui borang terimaan sebelum 10-02"
+      "legacyReturns": "Pemulangan yang direkod melalui borang terimaan sebelum 10-02",
+      "choose": "Pilih paparan"
     },
     "net": {
       "title": "Kuantiti bersih mengikut bahan",
@@ -15243,5 +15243,20 @@
     "toast": {
       "added": "{count} fail dilampirkan"
     }
+  },
+  "supplierDateFilter": {
+    "allSuppliers": "Semua pembekal",
+    "supplier": "Pembekal",
+    "search": "Taip nama pembekal",
+    "noMatch": "Tiada pembekal dengan nama itu",
+    "from": "Dari tarikh",
+    "to": "hingga",
+    "toLabel": "Hingga tarikh",
+    "what": "senarai pembekal"
+  },
+  "recordNo": {
+    "copy": "Salin {number}",
+    "copied": "{number} disalin",
+    "copyFailed": "Tidak dapat menyalin. Tekan lama nombor untuk melihatnya penuh."
   }
 }

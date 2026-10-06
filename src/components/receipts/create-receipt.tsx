@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Info, Plus, Save } from "lucide-react";
+import { Info, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -21,7 +21,7 @@ import {
   applyServerErrors,
   required,
 } from "@/components/shared/form-shell";
-import { QueryFailedNote, ReadField } from "@/components/shared/page-primitives";
+import { ReadField } from "@/components/shared/page-primitives";
 import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { ApiError } from "@/interfaces/api";
 import {
@@ -30,17 +30,16 @@ import {
   type MaterialReceiptPayload,
   type MaterialUnit,
 } from "@/interfaces/contractor";
-import {
-  createReceipt,
-  getProjects,
-  getQRCodes,
-  getReceipt,
-  getSuppliers,
-  correctReceipt,
-} from "@/services/contractor.service";
+import { correctReceipt, getReceipt } from "@/services/contractor.service";
 
 /**
- * The delivery form, shared by recording and correcting.
+ * The delivery correction form.
+ *
+ * Correcting only (2026-10 A1, X9): 「后台不需要新增材料进场」. A delivery is
+ * recorded on the phone at the gate; the office's own 「记录材料进场」 form and
+ * its `/receipts/create` address are gone, and the backend refuses an office
+ * account's `create_receipt`. What the office still does is put a filed
+ * delivery right, here.
  *
  * On a correction the project, the supplier and the docket are shown but not
  * editable. The backend refuses to change them, and for the same reason: they
@@ -52,32 +51,11 @@ import {
  * endpoint that exists only to refuse - the form filled in, the button pressed,
  * and a 409 every single time (F-129).
  */
-export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) {
+function CorrectReceiptForm({ receipt }: { receipt: MaterialReceiptDetail }) {
   const t = useTranslations();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const isEdit = receipt !== undefined;
   const [formError, setFormError] = useState<string | null>(null);
-  const [isLocating, setIsLocating] = useState(false);
-
-  const projects = useQuery({
-    queryKey: ["projects", "options"],
-    queryFn: () => getProjects({ page_size: 100 }),
-    enabled: !isEdit,
-  });
-  const suppliers = useQuery({
-    queryKey: ["suppliers", "options"],
-    queryFn: () => getSuppliers({ page_size: 100 }),
-    enabled: !isEdit,
-  });
-  const dockets = useQuery({
-    queryKey: ["qr-codes", "all"],
-    queryFn: () => getQRCodes({ page_size: 200 }),
-    enabled: !isEdit,
-  });
-  const projectPage = projects.data;
-  const supplierPage = suppliers.data;
-  const docketPage = dockets.data;
 
   // One id for the whole attempt, so a retry after a dropped connection
   // returns the correction already filed instead of filing a second one.
@@ -85,7 +63,6 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
 
   const mutation = useMutation({
     mutationFn: (values: MaterialReceiptPayload & { reason?: string }) => {
-      if (!isEdit) return createReceipt(values);
       correctionEvent.current ??= crypto.randomUUID();
       return correctReceipt(receipt.id, {
         ...values,
@@ -97,32 +74,31 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
     // the clerk sees the figure that was actually filed, not the one they typed.
     onSuccess: (saved) => {
       void queryClient.invalidateQueries({ queryKey: ["receipts"] });
-      router.push(isEdit ? `/receipts/${saved.id}` : "/receipts");
+      router.push(`/receipts/${saved.id}`);
     },
   });
 
   const form = useForm({
     defaultValues: {
-      project: receipt?.project ?? "",
-      category: receipt?.category ?? "",
-      supplier: receipt?.supplier ?? "",
-      material_name: receipt?.material_name ?? "",
-      material_specification: receipt?.material_specification ?? "",
-      quantity: receipt?.quantity ?? "",
-      unit: (receipt?.unit ?? "TONNE") as MaterialUnit,
-      total_weight_kg: receipt?.total_weight_kg ?? "",
-      unit_price: receipt?.unit_price ?? "",
+      project: receipt.project ?? "",
+      category: receipt.category ?? "",
+      material_name: receipt.material_name ?? "",
+      material_specification: receipt.material_specification ?? "",
+      quantity: receipt.quantity ?? "",
+      unit: (receipt.unit ?? "TONNE") as MaterialUnit,
+      total_weight_kg: receipt.total_weight_kg ?? "",
+      unit_price: receipt.unit_price ?? "",
       // The DO's money, which the material budget counts (2026-10 A6): OCR
       // misreads it and a worker may mistype it, so a correction can fix it.
-      document_amount: receipt?.document_amount ?? "",
-      vehicle_plate: receipt?.vehicle_plate ?? "",
-      delivery_note_no: receipt?.delivery_note_no ?? "",
-      notes: receipt?.notes ?? "",
-      received_by_name: receipt?.received_by_name ?? "",
+      document_amount: receipt.document_amount ?? "",
+      vehicle_plate: receipt.vehicle_plate ?? "",
+      delivery_note_no: receipt.delivery_note_no ?? "",
+      notes: receipt.notes ?? "",
+      received_by_name: receipt.received_by_name ?? "",
       // A delivery filed as the wrong type is put right here (B10): a new
       // linked record, never the original rewritten.
-      movement_type: (receipt?.movement_type ?? "ENTRY") as "ENTRY" | "RETURN",
-      return_reason: receipt?.return_reason ?? "",
+      movement_type: (receipt.movement_type ?? "ENTRY") as "ENTRY" | "RETURN",
+      return_reason: receipt.return_reason ?? "",
       reason: "",
     },
     onSubmit: async ({ value }) => {
@@ -146,58 +122,12 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
       };
 
       try {
-        if (isEdit) {
-          await mutation.mutateAsync({
-            ...common,
-            movement_type: value.movement_type,
-            return_reason: value.movement_type === "RETURN" ? value.return_reason.trim() : "",
-            reason: value.reason,
-          } as MaterialReceiptPayload & { reason: string });
-          return;
-        }
-
-        if (!("geolocation" in navigator)) {
-          setFormError(t("fieldStaffPwa.error.location"));
-          return;
-        }
-        setIsLocating(true);
-        let fix: GeolocationPosition;
-        try {
-          fix = await new Promise<GeolocationPosition>((resolve, reject) =>
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              enableHighAccuracy: true,
-              timeout: 15_000,
-              maximumAge: 0,
-            }),
-          );
-        } catch {
-          setFormError(t("fieldStaffPwa.error.location"));
-          return;
-        } finally {
-          setIsLocating(false);
-        }
-
-        // The docket for this exact pair, when one has been issued. Sending it
-        // is what ties the receipt back to the printed slip; the backend
-        // refuses any docket that names a different project or supplier.
-        const docket = (docketPage?.results ?? []).find(
-          (row) =>
-            row.is_active &&
-            row.project === value.project &&
-            row.supplier === value.supplier,
-        );
-
         await mutation.mutateAsync({
           ...common,
-          project: value.project,
-          supplier: value.supplier,
-          qr_code: docket?.id ?? null,
-          original_captured_at: new Date().toISOString(),
-          client_event_id: crypto.randomUUID(),
-          latitude: fix.coords.latitude.toFixed(7),
-          longitude: fix.coords.longitude.toFixed(7),
-          location_accuracy_m: fix.coords.accuracy.toFixed(2),
-        });
+          movement_type: value.movement_type,
+          return_reason: value.movement_type === "RETURN" ? value.return_reason.trim() : "",
+          reason: value.reason,
+        } as MaterialReceiptPayload & { reason: string });
       } catch (error) {
         if (error instanceof ApiError && error.isValidation) {
           const leftover = applyServerErrors(
@@ -214,69 +144,22 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
     <FormShell
       backHref="/receipts"
       backLabel={t("receipts.title")}
-      title={isEdit ? t("receipts.editTitle") : t("receipts.createTitle")}
-      description={isEdit ? t("receipts.editNote") : t("receipts.stampNote")}
-      isSubmitting={mutation.isPending || isLocating}
-      submitLabel={isEdit ? t("common.save") : t("common.create")}
-      submitIcon={isEdit ? Save : Plus}
+      title={t("receipts.editTitle")}
+      description={t("receipts.editNote")}
+      isSubmitting={mutation.isPending}
+      submitLabel={t("common.save")}
+      submitIcon={Save}
       onSubmit={() => void form.handleSubmit()}
     >
       <FormSection title={t("receipts.section.delivery")}>
-        {isEdit ? (
-          <>
-            <ReadField
-              label={t("receipts.field.project")}
-              value={receipt.project_name}
-            />
-            <ReadField
-              label={t("receipts.field.supplier")}
-              value={receipt.supplier_name}
-            />
-          </>
-        ) : (
-          <>
-            <form.Field
-              name="project"
-              listeners={{ onChange: () => form.setFieldValue("category", "") }}
-              validators={{ onSubmit: required(t("validation.required")) }}
-            >
-              {(field) => (
-                <SelectField
-                  field={field as unknown as BoundField}
-                  label={t("receipts.field.project")}
-                  options={(projectPage?.results ?? []).map((project) => ({
-                    value: project.id,
-                    label: `${project.code} — ${project.name}`,
-                  }))}
-                  required
-                />
-              )}
-            </form.Field>
-            <QueryFailedNote query={projects} what={t("receipts.what.projects")} className="md:col-span-2" />
-
-            <form.Field
-              name="supplier"
-              validators={{ onSubmit: required(t("validation.required")) }}
-            >
-              {(field) => (
-                <SelectField
-                  field={field as unknown as BoundField}
-                  label={t("receipts.field.supplier")}
-                  options={(supplierPage?.results ?? []).map((supplier) => ({
-                    value: supplier.id,
-                    label: supplier.name,
-                  }))}
-                  required
-                />
-              )}
-            </form.Field>
-            <QueryFailedNote query={suppliers} what={t("receipts.what.suppliers")} className="md:col-span-2" />
-            {/* Without the dockets the receipt would be filed with no slip
-                tied to it, silently - so the reader is told before saving. */}
-            <QueryFailedNote query={dockets} what={t("receipts.what.dockets")} className="md:col-span-2" />
-
-          </>
-        )}
+        <ReadField
+          label={t("receipts.field.project")}
+          value={receipt.project_name}
+        />
+        <ReadField
+          label={t("receipts.field.supplier")}
+          value={receipt.supplier_name}
+        />
         <form.Subscribe selector={(state) => state.values.project}>
           {(project) => (
             <form.Field name="category" validators={{ onSubmit: required(t("validation.required")) }}>
@@ -286,8 +169,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
         </form.Subscribe>
       </FormSection>
 
-      {isEdit && (
-        <FormSection title={t("receipts.correction.title")}>
+      <FormSection title={t("receipts.correction.title")}>
           <form.Field
             name="reason"
             validators={{ onSubmit: required(t("validation.required")) }}
@@ -306,7 +188,6 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
             {t("receipts.correction.note")}
           </p>
         </FormSection>
-      )}
 
       <FormSection title={t("receipts.section.material")}>
         <form.Field
@@ -362,8 +243,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
           )}
         </form.Field>
 
-        {isEdit && (
-          <form.Field name="movement_type">
+        <form.Field name="movement_type">
             {(field) => (
               <SelectField
                 field={field as unknown as BoundField}
@@ -375,10 +255,8 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
                 required
               />
             )}
-          </form.Field>
-        )}
-        {isEdit && (
-          <form.Subscribe selector={(state) => state.values.movement_type}>
+        </form.Field>
+        <form.Subscribe selector={(state) => state.values.movement_type}>
             {(movementType) =>
               movementType === "RETURN" ? (
                 <form.Field name="return_reason" validators={{ onSubmit: required(t("validation.required")) }}>
@@ -392,8 +270,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
                 </form.Field>
               ) : null
             }
-          </form.Subscribe>
-        )}
+        </form.Subscribe>
 
         <form.Field name="total_weight_kg">
           {(field) => (
@@ -474,13 +351,6 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
           )}
         </form.Field>
 
-        {!isEdit && (
-          <p className="flex items-start gap-2 text-xs text-muted-foreground md:col-span-2">
-            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            {t("receipts.stampNote")}
-          </p>
-        )}
-
         {formError && (
           <p className="text-sm font-medium text-destructive md:col-span-2">
             {formError}
@@ -491,7 +361,7 @@ export function CreateReceipt({ receipt }: { receipt?: MaterialReceiptDetail }) 
   );
 }
 
-/** Fetches the record, then hands it to the shared form. */
+/** Fetches the record, then hands it to the correction form. */
 export function EditReceipt({ id }: { id: string }) {
   const t = useTranslations();
   const { data, isLoading, isError } = useQuery({
@@ -503,5 +373,5 @@ export function EditReceipt({ id }: { id: string }) {
   if (isError || !data) {
     return <LoadErrorCard backHref="/receipts" backLabel={t("receipts.title")} />;
   }
-  return <CreateReceipt receipt={data} />;
+  return <CorrectReceiptForm receipt={data} />;
 }

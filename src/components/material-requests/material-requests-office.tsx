@@ -48,6 +48,7 @@ import {
 } from "@/components/material-requests/request-form";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
+import { RecordNo } from "@/components/shared/record-no";
 import {
   FilterSelect,
   ModuleRecordsTable,
@@ -170,7 +171,8 @@ function RequestsTab() {
         accessorKey: "request_no",
         meta: { label: t("field.requestNo") },
         header: sortable(t("field.requestNo")),
-        cell: ({ row }) => <span className="tabular text-foreground">{row.original.request_no}</span>,
+        // Short number big, project small (2026-10 D4).
+        cell: ({ row }) => <RecordNo value={row.original.request_no} />,
       },
       // D3: no request-type or project column - the top bar already names
       // the project and the filter row the type. An Other Request has no

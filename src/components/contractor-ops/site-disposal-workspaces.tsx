@@ -35,6 +35,7 @@ import {
   FieldEvidenceGrid,
 } from "@/components/field-staff/field-evidence-grid";
 import { ExportButton } from "@/components/shared/export-button";
+import { RecordNo } from "@/components/shared/record-no";
 import { FieldCamera } from "@/components/shared/field-camera";
 import {
   ColumnFilter,
@@ -721,7 +722,8 @@ export function SiteDisposalOffice() {
         accessorKey: "reference_no",
         meta: { label: tRoot("moduleTable.reference") },
         header: sortable(tRoot("moduleTable.reference")),
-        cell: ({ row }) => <span className="tabular text-foreground">{row.original.reference_no}</span>,
+        // Short number big, project small (2026-10 D4).
+        cell: ({ row }) => <RecordNo value={row.original.reference_no} />,
       },
       {
         accessorKey: "status",
