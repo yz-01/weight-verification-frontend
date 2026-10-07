@@ -14,6 +14,16 @@ import { defineConfig } from "vitest/config";
  * through `tsconfig.json`. If it drifts from the tsconfig `paths` entry, imports
  * resolve in the editor and fail in the runner.
  */
+/**
+ * Tests run on site time, whatever the machine's clock says. The office and
+ * the phones are in Malaysia, and screens such as the operator-hours end-time
+ * limits read the browser's local time. A developer's laptop is on
+ * Asia/Kuala_Lumpur and GitHub's runners are on UTC, so without this the same
+ * test passed on one and failed on the other (2026-10-08, 8 hours apart).
+ * Set before the workers start, so they inherit it.
+ */
+process.env.TZ = "Asia/Kuala_Lumpur";
+
 export default defineConfig({
   resolve: {
     alias: {
