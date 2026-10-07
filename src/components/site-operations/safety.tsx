@@ -92,7 +92,9 @@ import {
 } from "@/services/site-operations.service";
 import { getOrCreateFieldDeviceId } from "@/services/field-access.service";
 
-const MANUAL_STATUSES: IncidentStatus[] = ["OPEN", "INVESTIGATING", "RESOLVED"];
+// Open or being looked into - never closed here. X8: only the raiser's
+// confirm closes a hazard; the server refuses RESOLVED from this dialog.
+const MANUAL_STATUSES: IncidentStatus[] = ["OPEN", "INVESTIGATING"];
 
 // SEVERITIES and SEVERITY_TONE removed with the grading (T-189). Left behind
 // they would have been the kind of constant a later reader assumes is used.
@@ -1670,17 +1672,17 @@ function SafetyStatusDialog({
           </FieldWrapper>
           <FieldWrapper
             label={t("safety.field.resolutionNote")}
-            required={status === "RESOLVED"}
-            optional={status === "RESOLVED" ? undefined : t("common.optional")}
+            optional={t("common.optional")}
           >
             <Textarea rows={4} value={note} onChange={(event) => setNote(event.target.value)} />
           </FieldWrapper>
+          <p className="text-xs text-muted-foreground">{t("safety.update.closeHint")}</p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button requires={[[status !== "RESOLVED" || note, t("safety.field.resolutionNote")]]} disabled={update.isPending} onClick={() => update.mutate()}>
+          <Button disabled={update.isPending} onClick={() => update.mutate()}>
             {update.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

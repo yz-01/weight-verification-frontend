@@ -12246,6 +12246,7 @@
       "updated": "Safety incident updated"
     },
     "update": {
+      "closeHint": "This only marks the item as open or being looked into. To close it, assign someone to fix it; it closes when the person who raised it confirms the fix.",
       "description": "Update {incident} and retain the resolution history.",
       "title": "Update incident status"
     },

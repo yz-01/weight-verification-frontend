@@ -40,6 +40,7 @@ function notice(
         incident_title: "安全部整改",
         actor_name: "Ali",
         record_status: "RECTIFICATION_SUBMITTED",
+        record_type: "HAZARD",
         alert_sound: true,
         ...data,
       },
@@ -70,10 +71,31 @@ describe("hazardCardFromEvent", () => {
       "safety.rectification_assigned",
       "safety.rectification_returned",
       "safety.hazard_message",
-      "safety.permit_submitted",
     ]) {
       expect(hazardCardFromEvent(notice("n", kind, { record_status: "ASSIGNED" }), NOW)).not.toBeNull();
     }
+  });
+
+  it("is for hazards only: a permit's notices make no card", () => {
+    // A permit rides the same item and the same `safety.*` notices (C20);
+    // the server says which it is (Fable #8).
+    for (const kind of [
+      "safety.permit_submitted",
+      "safety.incident_directed",
+      "safety.hazard_message",
+      "safety.rectification_submitted",
+    ]) {
+      expect(
+        hazardCardFromEvent(notice("n", kind, { record_type: "PERMIT" }), NOW),
+      ).toBeNull();
+    }
+    // A notice filed before the type was sent: the permit's own kind still tells.
+    expect(
+      hazardCardFromEvent(notice("n", "safety.permit_submitted", { record_type: undefined }), NOW),
+    ).toBeNull();
+    expect(
+      hazardCardFromEvent(notice("n", "safety.hazard_message", { record_type: undefined }), NOW),
+    ).not.toBeNull();
   });
 
   it("ignores notices that are not about hazards", () => {

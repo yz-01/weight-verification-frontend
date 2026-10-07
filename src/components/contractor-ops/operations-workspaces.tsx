@@ -133,6 +133,7 @@ import {
   updateSiteEquipment,
 } from "@/services/contractor-ops.service";
 import { getApplicationOptions } from "@/services/consultant-workflow.service";
+import { consultantTaskTitle } from "@/lib/consultant-task-title";
 import {
   getProjectAssignments,
   getSuppliers,
@@ -814,6 +815,11 @@ export function FieldTasksWorkspace({
   const t = useTranslations("contractorOps");
   // The four 「这次要顾问看什么」 answers by name, not by code (2026-10 F4).
   const askFor = useTranslations("fieldStaffPwa.consultantCapture");
+  // A phone submission's title names its type in the reader's words (F4).
+  const taskTitle = (row: FieldTask) =>
+    consultantTaskTitle(row, (code) =>
+      askFor.has(`askOption.${code}`) ? askFor(`askOption.${code}` as never) : null,
+    );
   const { can, user } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
@@ -999,7 +1005,7 @@ export function FieldTasksWorkspace({
                   <button
                     type="button"
                     aria-expanded={isOpen}
-                    aria-label={t(isOpen ? "tasks.collapse" : "tasks.expand", { task: row.title })}
+                    aria-label={t(isOpen ? "tasks.collapse" : "tasks.expand", { task: taskTitle(row) })}
                     onClick={() => toggleExpanded(row.id)}
                     className="flex min-w-0 flex-[1_1_18rem] items-center gap-2.5 rounded-md text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
@@ -1008,7 +1014,7 @@ export function FieldTasksWorkspace({
                     />
                     <span className="grid min-w-0 flex-1 gap-0.5 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] sm:items-center sm:gap-3">
                       <span className="min-w-0">
-                        <span className="block truncate font-medium">{row.title}</span>
+                        <span className="block truncate font-medium">{taskTitle(row)}</span>
                         <span className="block truncate text-xs text-muted-foreground">
                           {row.project_name}
                         </span>

@@ -12246,6 +12246,7 @@
       "updated": "Insiden keselamatan dikemas kini"
     },
     "update": {
+      "closeHint": "Ini hanya menandakan item sebagai terbuka atau sedang disiasat. Untuk menutupnya, tugaskan seseorang untuk membaikinya; ia ditutup apabila orang yang melaporkannya mengesahkan pembaikan.",
       "description": "Kemas kini {incident} dan kekalkan sejarah penyelesaian.",
       "title": "Kemas kini status insiden"
     },
