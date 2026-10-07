@@ -77,6 +77,7 @@ import {
   submitSafetyIncidentOfflineAware,
   type SafetyIncidentSubmission,
 } from "@/services/offline-sync.service";
+import { DrillNote } from "@/components/shared/drill-note";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import { getProjectAssignments } from "@/services/contractor.service";
 import {
@@ -232,6 +233,9 @@ export function Safety({
   // is counted with - a link that opened the whole list would make the number
   // above it decorative.
   const overdueOnly = searchParams.get("overdue") === "1";
+  // The dashboard's 「待处理整改 / EHS」 card (C15, B8): the items this reader
+  // moves on next - assign, rectify or confirm - as the card counted them.
+  const waitingForMe = searchParams.get("waiting") === "me";
   // Kept in the draft, so tapping this 挂号 again reopens the form it was in
   // (D-259). Outside a draft (the office) this is ordinary state.
   const [createOpen, setCreateOpen] = useDraftState("open:createIncident", Boolean(fieldTaskId) || searchParams.get("create") === "1");
@@ -253,12 +257,13 @@ export function Safety({
   const clearIncidentParam = useClearSearchParam("incident");
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["safety", mode, list.query, overdueOnly],
+    queryKey: ["safety", mode, list.query, overdueOnly, waitingForMe],
     queryFn: () => getSafetyIncidents({
       ...list.query,
       workflow: mode === "rectification" ? "rectification" : undefined,
       involving: fieldMode ? "me" : undefined,
       overdue: overdueOnly ? "1" : undefined,
+      waiting: waitingForMe ? "me" : undefined,
     }),
   });
   const focusedIncident = useQuery({
@@ -623,6 +628,20 @@ export function Safety({
         )}
       </div>
       <QueryFailedNote query={focusedIncident} what={t("safety.what.requestedIncident")} />
+      {!fieldMode && waitingForMe && (
+        <DrillNote
+          label={t("safety.drill.waitingForMe")}
+          clearLabel={t("safety.drill.showAll")}
+          params={["waiting"]}
+        />
+      )}
+      {!fieldMode && overdueOnly && (
+        <DrillNote
+          label={t("safety.drill.overdue")}
+          clearLabel={t("safety.drill.showAll")}
+          params={["overdue"]}
+        />
+      )}
 
       {fieldMode ? (
         <div className="grid gap-3">

@@ -41,9 +41,12 @@ type PositionState = "inside" | "outside" | "stale" | "lastInside" | "unknown";
 export function ContractorLocationMap({
   project,
   onProjectChange,
+  headless = false,
 }: {
   project: string;
   onProjectChange: (project: string) => void;
+  /** Inside a dashboard section that already shows the title (F7). */
+  headless?: boolean;
 }) {
   const t = useTranslations("contractorDashboard.locationMap");
   const dates = useDateFormat();
@@ -152,19 +155,27 @@ export function ContractorLocationMap({
     : "/site-gps";
 
   return (
-    <section aria-labelledby="dashboard-location-map-title" className="space-y-4 border-y py-5">
+    <section
+      aria-labelledby={headless ? undefined : "dashboard-location-map-title"}
+      aria-label={headless ? t("title") : undefined}
+      className={cn("space-y-4", !headless && "border-y py-5")}
+    >
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-start gap-3">
-          <span className="rounded-md bg-primary/10 p-2 text-primary">
-            <MapPinned className="size-5" />
-          </span>
-          <div className="min-w-0">
-            <h2 id="dashboard-location-map-title" className="text-base font-semibold">
-              {t("title")}
-            </h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">{t("subtitle")}</p>
+        {headless ? (
+          <p className="min-w-0 text-sm text-muted-foreground">{t("subtitle")}</p>
+        ) : (
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="rounded-md bg-primary/10 p-2 text-primary">
+              <MapPinned className="size-5" />
+            </span>
+            <div className="min-w-0">
+              <h2 id="dashboard-location-map-title" className="text-base font-semibold">
+                {t("title")}
+              </h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">{t("subtitle")}</p>
+            </div>
           </div>
-        </div>
+        )}
         <div className="flex w-full flex-wrap items-start gap-2 lg:w-auto lg:justify-end">
           <ProjectPicker
             value={project || "all"}

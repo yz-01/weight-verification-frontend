@@ -893,6 +893,11 @@ export function getArchiveQueue(query: {
   closure?: "open" | "closed";
   kind?: ArchiveRecordKind;
   project?: string;
+  /**
+   * 「等你处理」 (B8): only what waits for this reader's 【确认】 - the
+   * dashboard card's full list. `state` and `closure` do not apply.
+   */
+  waiting?: "1";
   page?: number;
   page_size?: number;
 }): Promise<ArchiveQueuePage> {

@@ -3097,6 +3097,11 @@
       "closed": "已闭环",
       "open": "未闭环",
       "openHelp": "发起人在隐患整改里确认完成后就闭环。"
+    },
+    "waiting": {
+      "only": "只显示等你确认的记录，和仪表板「等你处理」是同一批。点「打开」到它的业务页面确认。",
+      "showAll": "显示全部记录",
+      "empty": "没有等你确认的记录。"
     }
   },
   "assets": {
@@ -3183,7 +3188,8 @@
       "project": "选择项目",
       "outsideFence": "围栏外打卡",
       "since": "{date} 起",
-      "onDay": "{date} 当天"
+      "onDay": "{date} 当天",
+      "onePerson": "只看 {name}"
     },
     "title": "人员进场记录",
     "toast": {
@@ -5420,6 +5426,12 @@
       "title": "待处理事项",
       "showAll": "显示全部 {count} 项",
       "showFewer": "收起"
+    },
+    "cards": {
+      "viewAll": "查看全部",
+      "empty": "现在没有。",
+      "loading": "载入中",
+      "what": "这张卡的前 5 条"
     }
   },
   "contractorOps": {
@@ -6538,7 +6550,9 @@
       "tracking": "收运进度",
       "projects": "项目列表",
       "recyclers": "本项目的回收商列表"
-    }
+    },
+    "countedOnly": "只显示总部「原废料订单」计入数量的订单：不含草稿和已取消。",
+    "showAll": "显示全部"
   },
   "documents": {
     "downloading": "下载中",
@@ -12169,6 +12183,11 @@
       "responsiblePeople": "负责人列表",
       "requestedIncident": "链接中的事故",
       "workers": "可通知人员"
+    },
+    "drill": {
+      "waitingForMe": "只显示等你处理的整改：要你指派、整改或确认的。",
+      "overdue": "只显示逾期整改：过了期限、还没验收通过的。",
+      "showAll": "显示全部"
     }
   },
   "safetyRectification": {
@@ -13413,7 +13432,9 @@
       "note": "备注",
       "submit": "提交后台",
       "photos": "照片"
-    }
+    },
+    "countedOnly": "只显示总部「原工地清运」计入数量的申请：不含已拒绝和已取消。",
+    "showAll": "显示全部"
   },
   "siteGps": {
     "allProjects": "全部项目",

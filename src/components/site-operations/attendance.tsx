@@ -85,6 +85,8 @@ export function Attendance() {
     "geofence_result",
     "date_from",
     "date_to",
+    // One person's day, from a row of the dashboard's 今日进出打卡 card (B8).
+    "user",
   ]);
   const dateFrom = list.filters.date_from;
   const dateTo = list.filters.date_to;
@@ -332,6 +334,20 @@ export function Attendance() {
                   active: true,
                   onSelect: () =>
                     list.setFilters({ date_from: undefined, date_to: undefined }),
+                },
+              ]
+            : []),
+          ...(list.filters.user
+            ? [
+                {
+                  key: "person",
+                  label: t("attendance.filter.onePerson", {
+                    name:
+                      data?.results.find((row) => row.user === list.filters.user)
+                        ?.user_name ?? "…",
+                  }),
+                  active: true,
+                  onSelect: () => list.setFilter("user", undefined),
                 },
               ]
             : []),
