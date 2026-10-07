@@ -684,7 +684,20 @@ export interface DisposalTrip {
   submitted_by_name: string;
   accepted_by_name: string | null;
   accepted_at: string | null;
+  /** Q29.7: the office's corrections of this load, newest first. */
+  corrections: DisposalTripCorrection[];
   evidence: DisposalEvidence[];
+}
+
+/** One office correction of a load's weight or DO number (Q29.7). */
+export interface DisposalTripCorrection {
+  id: string;
+  field: "weight_kg" | "do_no";
+  from: string;
+  to: string;
+  reason: string;
+  by_name: string;
+  at: string;
 }
 
 export interface DisposalTimelineEntry {

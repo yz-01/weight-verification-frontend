@@ -10,6 +10,7 @@ import {
   Link2,
   Loader2,
   PackageCheck,
+  Pencil,
   Plus,
   RefreshCw,
   Send,
@@ -69,12 +70,14 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ApiError } from "@/interfaces/api";
 import type {
   DisposalEvidenceKind,
   DisposalEvidenceStage,
   DisposalRequest,
   DisposalRequestStatus,
   DisposalSiteEvidenceKind,
+  DisposalTrip,
   DisposalTripStatus,
   ExternalDisposalTask,
 } from "@/interfaces/contractor-ops";
@@ -87,6 +90,7 @@ import {
   assignDisposalCollector,
   assignDisposalInternal,
   cancelDisposalRequest,
+  correctDisposalTrip,
   endDisposalEarly,
   getDisposalRequest,
   getDisposalRequests,
@@ -201,7 +205,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                   {row.disposal_evidence_is_overdue && (
                     /* Said, not just coloured. A red card tells a reader
                        something is wrong; it does not tell them what to chase. */
-                    <p className="mt-1 text-xs font-medium text-destructive">{t("overdue.help")}</p>
+                    <p className="mt-1 text-xs font-medium text-destructive">{t(overdueHelpKey(row))}</p>
                   )}
                   <h3 className="mt-1 truncate font-semibold">{row.waste_description}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{row.project_name} / {row.location_description}</p>
@@ -432,11 +436,14 @@ function RecordNumbersDialog({ row, onClose, onSaved }: { row: DisposalRequest; 
   const [weight, setWeight] = useState(row.actual_weight_kg ?? "");
   const [trips, setTrips] = useState(row.trip_count ? String(row.trip_count) : "");
   const [doNo, setDoNo] = useState(row.disposal_do_no ?? "");
+  // A job with lorries counts them (X11): the count is not typed, and one
+  // lorry's weight / DO is corrected on that lorry (Q29.7).
+  const counted = row.trips_total > 0;
   const save = useMutation({
-    mutationFn: () => recordDisposalNumbers(row.id, { actual_weight_kg: weight, trip_count: trips, disposal_do_no: doNo }),
+    mutationFn: () => recordDisposalNumbers(row.id, { actual_weight_kg: weight, trip_count: counted ? undefined : trips, disposal_do_no: doNo }),
     onSuccess: onSaved,
   });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("recordNumbers.title")}</DialogTitle><DialogDescription>{t("recordNumbers.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid gap-3 sm:grid-cols-3"><FieldWrapper label={t("field.actualWeight")} optional={t("optional")}><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} optional={t("optional")}><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} optional={t("optional")}><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("recordNumbers.title")}</DialogTitle><DialogDescription>{t("recordNumbers.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className={`grid gap-3 ${counted ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}><FieldWrapper label={t("field.actualWeight")} optional={t("optional")}><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper>{!counted && <FieldWrapper label={t("field.trips")} optional={t("optional")}><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper>}<FieldWrapper label={t("field.doNo")} optional={t("optional")}><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper></div>{counted && <p className="text-sm text-muted-foreground">{t("recordNumbers.tripsCounted")}</p>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 const SITE_EVIDENCE_KINDS: DisposalSiteEvidenceKind[] = ["VEHICLE_EXIT", "GATE_PASS"];
@@ -548,6 +555,78 @@ function disposalPhotos(row: DisposalRequest) {
   return [...row.evidence].sort((a, b) => groups.indexOf(photoGroupOf(row, a)) - groups.indexOf(photoGroupOf(row, b)));
 }
 
+/**
+ * Which sentence explains a red job (D-217, Q29.8): no load yet after the 36
+ * hours from approval, or the next lorry 48 hours late after one has come.
+ */
+export function overdueHelpKey(row: Pick<DisposalRequest, "trips">): "overdue.help" | "overdue.helpNextLoad" {
+  return row.trips.some((trip) => trip.status === "SUBMITTED" || trip.status === "ACCEPTED") ? "overdue.helpNextLoad" : "overdue.help";
+}
+
+/** A load the office may correct: sent, on a job that runs or has finished (Q29.7). */
+export function canCorrectTrip(row: Pick<DisposalRequest, "status">, trip: Pick<DisposalTrip, "status">): boolean {
+  return (trip.status === "SUBMITTED" || trip.status === "ACCEPTED") && (RUNNING.includes(row.status) || row.status === "COMPLETED");
+}
+
+/**
+ * The office corrects one load's weight and/or DO number (Q29.7).
+ *
+ * 「清运进行中，后台可以更正某一车的重量或 DO，要写原因、留记录」: a reason is
+ * required, and the server keeps the original and every change - shown on
+ * the load, newest first. Only what was changed is sent.
+ */
+function CorrectTripDialog({ row, trip, onClose, onSaved }: { row: DisposalRequest; trip: DisposalTrip; onClose: () => void; onSaved: () => void }) {
+  const t = useTranslations("siteDisposal");
+  const [weight, setWeight] = useState(trip.weight_kg ?? "");
+  const [doNo, setDoNo] = useState(trip.do_no);
+  const [reason, setReason] = useState("");
+  const weightChanged = weight.trim() !== "" && (trip.weight_kg === null || Number(weight) !== Number(trip.weight_kg));
+  const doChanged = doNo.trim() !== "" && doNo.trim() !== trip.do_no;
+  const unchanged = !weightChanged && !doChanged;
+  const save = useMutation({
+    mutationFn: () =>
+      correctDisposalTrip(row.id, trip.id, {
+        weight_kg: weightChanged ? weight.trim() : undefined,
+        do_no: doChanged ? doNo.trim() : undefined,
+        reason,
+      }),
+    onSuccess: onSaved,
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("trips.correctTitle", { seq: trip.seq })}</DialogTitle>
+          <DialogDescription>{t("trips.correctHint")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <FieldWrapper label={t("field.actualWeight")} optional={t("optional")}>
+            <Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.doNo")} optional={t("optional")}>
+            <Input value={doNo} onChange={(event) => setDoNo(event.target.value)} />
+          </FieldWrapper>
+        </div>
+        <FieldWrapper label={t("trips.correctReason")} required>
+          <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
+        </FieldWrapper>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button
+            requires={[[reason, t("trips.correctReason")]]}
+            disabledReason={unchanged ? t("trips.correctUnchanged") : undefined}
+            disabled={unchanged || save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Pencil />}
+            {t("trips.correctSave")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function tripTone(status: DisposalTripStatus): "neutral" | "positive" | "warning" | "danger" | "info" {
   if (status === "ACCEPTED") return "positive";
   if (status === "SUBMITTED") return "warning";
@@ -579,6 +658,7 @@ export function DisposalTripsPanel({
   const t = useTranslations("siteDisposal");
   const df = useDateFormat();
   const [endArmed, setEndArmed] = useState(false);
+  const [correcting, setCorrecting] = useState<DisposalTrip | null>(null);
   const accept = useMutation({ mutationFn: (trip: string) => acceptDisposalTrip(row.id, trip), onSuccess: onChanged });
   const add = useMutation({ mutationFn: () => addDisposalTrip(row.id), onSuccess: onChanged });
   const end = useMutation({
@@ -623,11 +703,38 @@ export function DisposalTripsPanel({
             {trip.accepted_at && (
               <p className="mt-1 text-xs text-muted-foreground">{t("trips.checkedBy", { name: trip.accepted_by_name ?? "", at: df.dateTime(trip.accepted_at) })}</p>
             )}
-            {canCheck && trip.status === "SUBMITTED" && (
-              <Button size="sm" className="mt-2" disabled={accept.isPending} onClick={() => accept.mutate(trip.id)}>
-                {accept.isPending && accept.variables === trip.id ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
-                {t("trips.accept")}
-              </Button>
+            {/* Q29.7: the original and every correction, newest first; the
+                line above shows the current value. */}
+            {trip.corrections.length > 0 && (
+              <div className="mt-2 border-l-2 border-warning/60 pl-2">
+                <p className="text-xs font-medium">{t("trips.history")}</p>
+                <ul className="mt-1 space-y-1">
+                  {trip.corrections.map((item) => (
+                    <li key={item.id} className="text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        {t(item.field === "weight_kg" ? "trips.historyWeight" : "trips.historyDo", { from: item.from || t("trips.blank"), to: item.to })}
+                      </span>
+                      <span className="block">{t("trips.historyMeta", { name: item.by_name, at: df.dateTime(item.at), reason: item.reason })}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {canCheck && (trip.status === "SUBMITTED" || canCorrectTrip(row, trip)) && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {trip.status === "SUBMITTED" && RUNNING.includes(row.status) && (
+                  <Button size="sm" disabled={accept.isPending} onClick={() => accept.mutate(trip.id)}>
+                    {accept.isPending && accept.variables === trip.id ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
+                    {t("trips.accept")}
+                  </Button>
+                )}
+                {canCorrectTrip(row, trip) && (
+                  <Button size="sm" variant="outline" onClick={() => setCorrecting(trip)}>
+                    <Pencil />
+                    {t("trips.correct")}
+                  </Button>
+                )}
+              </div>
             )}
           </li>
         ))}
@@ -653,6 +760,17 @@ export function DisposalTripsPanel({
             </div>
           )}
         </div>
+      )}
+      {correcting && (
+        <CorrectTripDialog
+          row={row}
+          trip={correcting}
+          onClose={() => setCorrecting(null)}
+          onSaved={() => {
+            setCorrecting(null);
+            onChanged();
+          }}
+        />
       )}
     </section>
   );
@@ -690,7 +808,7 @@ function DisposalDetailDialog({
         notices={
           row.disposal_evidence_is_overdue ? (
             <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm font-medium text-destructive">
-              {t("overdue.help")}
+              {t(overdueHelpKey(row))}
             </p>
           ) : null
         }
@@ -1104,10 +1222,55 @@ export function currentLoad<E extends { kind: DisposalEvidenceKind; trip?: strin
   };
 }
 
+/** How often the link page asks again while every lorry has gone (FABLE_AUDIT_B4 #8). */
+export const LINK_POLL_MS = 30_000;
+
+/**
+ * Whether the driver's page (or the field form) should ask the server again.
+ *
+ * Every 30 s while every planned lorry has been sent and the job still runs:
+ * that is when the office's 「加一车」 or its last check changes what the
+ * page should offer, and a driver waiting at the tip will not think to
+ * reload. Not while a load is being filled (nothing changes under him), and
+ * not once the link is gone.
+ */
+export function linkPollInterval(
+  task: { status: DisposalRequestStatus; evidence: Array<{ kind: DisposalEvidenceKind; trip?: string | null }>; trips: Array<{ id: string; seq: number; status: DisposalTripStatus }> } | undefined,
+  error?: unknown,
+): number | false {
+  if (!task || (error instanceof ApiError && error.isNotFound)) return false;
+  if (!RUNNING.includes(task.status)) return false;
+  return currentLoad(task).allSent ? LINK_POLL_MS : false;
+}
+
+/**
+ * A refusal on the driver's page, in the driver's language (FABLE_AUDIT_B4 #9).
+ *
+ * The link has no session and its own fetch, so the app's toast never words
+ * it; the server names the reason with a code - every lorry sent, the job
+ * ended early, the link closed - and the catalogue's `errors.api.<code>`
+ * says it. Anything else is the page's own "could not be completed".
+ */
+export function linkErrorText(
+  reason: unknown,
+  catalogue: { has: (code: string) => boolean; word: (code: string) => string },
+  fallback: string,
+): string {
+  if (reason instanceof ApiError && reason.code && catalogue.has(reason.code)) return catalogue.word(reason.code);
+  return fallback;
+}
+
+function useLinkErrorText() {
+  const tApi = useTranslations("errors.api");
+  return (reason: unknown, fallback: string) =>
+    linkErrorText(reason, { has: (code) => tApi.has(code as never), word: (code) => tApi(code as never) }, fallback);
+}
+
 export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const t = useTranslations("siteDisposal.external");
   const tTrips = useTranslations("siteDisposal.trips");
-  const [task, setTask] = useState<ExternalDisposalTask | null>(null);
+  const reasonText = useLinkErrorText();
+  const qc = useQueryClient();
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState<DisposalEvidenceKind | null>(null);
   // No weight / trips / DO state here any more (T-224): the inputs are gone,
@@ -1115,17 +1278,27 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const [note, setNote] = useState("");
   // Which lorry was just sent, so the driver sees it went (X11).
   const [justSent, setJustSent] = useState<number | null>(null);
-  const taskQuery = useQuery({ queryKey: ["external-disposal", token], queryFn: () => getExternalDisposalTask(token), retry: false });
-  const current = task ?? taskQuery.data ?? null;
-  const start = useMutation({ mutationFn: () => startExternalDisposalTask(token), onSuccess: setTask, onError: () => setError(t("error.action")) });
+  // One source of truth (FABLE_AUDIT_B4 #8): every answer goes into this
+  // query's cache, and the page reads only the query - so a poll can show
+  // the office's 「加一车」 without the driver reloading.
+  const taskKey = ["external-disposal", token];
+  const taskQuery = useQuery({
+    queryKey: taskKey,
+    queryFn: () => getExternalDisposalTask(token),
+    retry: false,
+    refetchInterval: (query) => linkPollInterval(query.state.data, query.state.error),
+  });
+  const current = taskQuery.data ?? null;
+  const remember = (saved: ExternalDisposalTask) => qc.setQueryData(taskKey, saved);
+  const start = useMutation({ mutationFn: () => startExternalDisposalTask(token), onSuccess: remember, onError: (reason) => setError(reasonText(reason, t("error.action"))) });
   const submit = useMutation({
     mutationFn: () => submitExternalDisposalTask(token, { note }),
     onSuccess: (saved) => {
       setJustSent(load.current?.seq ?? null);
       setNote("");
-      setTask(saved);
+      remember(saved);
     },
-    onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")),
+    onError: (reason) => setError(reasonText(reason, t("error.action"))),
   });
   const upload = async (kind: ExecutionEvidenceKind, image?: File) => {
     if (!image || !current) return;
@@ -1135,15 +1308,17 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
     try {
       const location = await getCoordinates();
       await addExternalDisposalEvidence(token, { kind, image, ...location, client_event_id: crypto.randomUUID() });
-      setTask(await getExternalDisposalTask(token));
+      await taskQuery.refetch();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : t("error.action"));
+      setError(reasonText(reason, t("error.action")));
     } finally { setUploading(null); }
   };
 
   const load = currentLoad(current ?? { evidence: [], trips: [] });
+  // The link is gone (ended early, finished, replaced): say why, in words.
+  const gone = taskQuery.error instanceof ApiError && taskQuery.error.isNotFound;
   if (taskQuery.isLoading) return <main className="grid min-h-dvh place-items-center"><Loader2 className="size-8 animate-spin text-primary" /></main>;
-  if (taskQuery.isError || !current) return <main className="mx-auto max-w-xl px-5 py-16"><h1 className="text-xl font-semibold">{t("invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{t("invalidBody")}</p></main>;
+  if (gone || (taskQuery.isError && !current) || !current) return <main className="mx-auto max-w-xl px-5 py-16"><h1 className="text-xl font-semibold">{t("invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{reasonText(taskQuery.error, t("invalidBody"))}</p></main>;
   // APPROVED too (D05 / D10): the link is handed out at approval and the
   // driver can start from it before anybody is assigned.
   const editable = ["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
@@ -1244,7 +1419,6 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   const t = useTranslations("siteDisposal.internal");
   const tTrips = useTranslations("siteDisposal.trips");
   const qc = useQueryClient();
-  const [task, setTask] = useState<DisposalRequest | null>(null);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState<DisposalEvidenceKind | null>(null);
   // Per lorry (X11): its weight and DO; the trip count is no longer typed.
@@ -1252,8 +1426,18 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   const [doNo, setDoNo] = useState("");
   const [note, setNote] = useState("");
   const [justSent, setJustSent] = useState<number | null>(null);
-  const taskQuery = useQuery({ queryKey: ["internal-disposal", disposalId], queryFn: () => getInternalDisposalTask(disposalId), retry: false });
-  const current = task ?? taskQuery.data ?? null;
+  // As on the driver's link (FABLE_AUDIT_B4 #8): answers go into the query's
+  // cache, the page reads only the query, and it asks again while every
+  // lorry has gone, so the office's 「加一车」 shows up by itself.
+  const taskKey = ["internal-disposal", disposalId];
+  const taskQuery = useQuery({
+    queryKey: taskKey,
+    queryFn: () => getInternalDisposalTask(disposalId),
+    retry: false,
+    refetchInterval: (query) => linkPollInterval(query.state.data, query.state.error),
+  });
+  const current = taskQuery.data ?? null;
+  const remember = (saved: DisposalRequest) => qc.setQueryData(taskKey, saved);
   const load = currentLoad(current ?? { evidence: [], trips: [] });
   const start = useMutation({
     mutationFn: async () => {
@@ -1264,7 +1448,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
         accuracy_m: location.accuracy,
       });
     },
-    onSuccess: setTask,
+    onSuccess: remember,
     onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")),
   });
   const submit = useMutation({
@@ -1274,7 +1458,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
       setWeight("");
       setDoNo("");
       setNote("");
-      setTask(saved);
+      remember(saved);
       void qc.invalidateQueries({ queryKey: ["field-staff", "tasks"] });
       onSubmitted();
     },
@@ -1295,7 +1479,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
         accuracy_m: location.accuracy,
         client_event_id: crypto.randomUUID(),
       });
-      setTask(await getInternalDisposalTask(disposalId));
+      await taskQuery.refetch();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : t("error.action"));
     } finally {
@@ -1304,7 +1488,8 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   };
 
   if (taskQuery.isLoading) return <div className="grid min-h-64 place-items-center"><Loader2 className="size-8 animate-spin text-primary" /></div>;
-  if (taskQuery.isError || !current) return <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("invalid")}</div>;
+  // A failed poll keeps what is on screen; only a page with nothing to show says so.
+  if ((taskQuery.isError && !current) || !current) return <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("invalid")}</div>;
   const editable = ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
   // At least one, at most four, of whichever kinds - per lorry (L6 / B24, X11).
   const sent = load.photos;

@@ -66,6 +66,7 @@ function trip(seq: number, status: DisposalTrip["status"], evidence: DisposalEvi
     submitted_by_name: status === "PLANNED" ? "" : "Ali Driver",
     accepted_by_name: status === "ACCEPTED" ? "Ong Office" : null,
     accepted_at: status === "ACCEPTED" ? "2026-10-07T03:00:00Z" : null,
+    corrections: [],
     evidence,
   };
 }

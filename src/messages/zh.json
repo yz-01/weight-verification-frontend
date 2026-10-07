@@ -7402,6 +7402,8 @@
       "disposal_all_trips_sent": "预计的车次都已送出。如果还有车要去，请联系工地在后台「加一车」。",
       "disposal_trips_closed": "这项清运已完成或已结束，车次不能再改。",
       "disposal_nothing_sent": "还没有任何一车送出，不能提前结束。不需要的话请用「取消清运」。",
+      "disposal_trip_not_correctable": "只能更正已经送出的车次；已取消或已拒绝的清运不能更正。",
+      "disposal_link_closed": "这个清运链接已经不能用了：清运已完成、被工地提前结束，或链接已过期。如果还有车要去，请联系工地。",
       "return_note_required": "请先填写 Return Note 再批准。",
       "equipment_hours_equipment_unavailable": "这台设备现在不能选（已停用或已报废），请选工地上在用的设备。",
       "equipment_hours_day_not_found": "这台设备那天没有照片，没有可以补的结束时间。",
@@ -13636,7 +13638,8 @@
       "TRIP_SUBMITTED": "已送出一车，等待后台验收",
       "TRIP_ACCEPTED": "后台已验收一车",
       "TRIP_ADDED": "后台加了一车",
-      "ENDED_EARLY": "后台提前结束，未送的车次已取消"
+      "ENDED_EARLY": "后台提前结束，未送的车次已取消",
+      "TRIP_CORRECTED": "后台更正了一车的重量 / DO"
     },
     "title": "工地清运",
     "toast": {
@@ -13650,11 +13653,13 @@
       "siteEvidence": "现场照片已发送后台",
       "tripAccepted": "这一车已验收",
       "tripAdded": "已加一车",
-      "endedEarly": "清运已提前结束"
+      "endedEarly": "清运已提前结束",
+      "tripCorrected": "这一车已更正"
     },
     "overdue": {
       "badge": "异常",
-      "help": "批准后 36 小时仍没有送出任何一车，请跟进。"
+      "help": "批准后 36 小时仍没有送出任何一车，请跟进。",
+      "helpNextLoad": "上一车送出已超过 48 小时，预计的车还没来齐，请跟进。"
     },
     "what": {
       "fieldStaff": "本项目的现场工作人员"
@@ -13668,7 +13673,8 @@
     },
     "recordNumbers": {
       "title": "补录重量 / 车次 / DO",
-      "description": "{reference} 已结束。这里只补录数字，不是验收；每次修改都会留在时间轴。"
+      "description": "{reference} 已结束。这里只补录数字，不是验收；每次修改都会留在时间轴。",
+      "tripsCounted": "车次按已验收的车自动计算。要改某一车的重量或 DO，请在「车次」里按「更正」。"
     },
     "siteEvidence": {
       "title": "现场证据：车辆出场 / Gate Pass",
@@ -13697,7 +13703,18 @@
       "justSent": "第 {seq} 车已送出，后台会验收。",
       "loadTitle": "第 {seq} / {total} 车：处理证明（最多 4 张）",
       "allSentTitle": "全部车次已送出",
-      "allSentBody": "等待后台验收。如果还有车要去，请联系工地在后台「加一车」。"
+      "allSentBody": "等待后台验收。如果还有车要去，请联系工地在后台「加一车」。",
+      "correct": "更正",
+      "correctTitle": "更正第 {seq} 车",
+      "correctHint": "只改这一车的重量或 DO 编号，要写原因。原来的数字和每次更正都会保留。",
+      "correctReason": "更正原因",
+      "correctSave": "保存更正",
+      "correctUnchanged": "先改重量或 DO 编号",
+      "history": "更正记录",
+      "historyWeight": "重量 {from} → {to} kg",
+      "historyDo": "DO {from} → {to}",
+      "historyMeta": "{name} · {at} · 原因：{reason}",
+      "blank": "（空）"
     },
     "tripStatus": {
       "PLANNED": "还没送",

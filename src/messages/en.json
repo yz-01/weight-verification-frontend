@@ -7402,6 +7402,8 @@
       "disposal_all_trips_sent": "Every planned load has been sent. If another lorry is going, ask the site to add a load.",
       "disposal_trips_closed": "This disposal has finished or was ended; its loads can no longer change.",
       "disposal_nothing_sent": "No load has been sent yet, so there is nothing to end. Cancel the job instead.",
+      "disposal_trip_not_correctable": "Only a load that has been sent can be corrected, and not on a cancelled or rejected job.",
+      "disposal_link_closed": "This disposal link no longer works: the job has finished, the site ended it early, or the link expired. If another lorry is going, contact the site.",
       "return_note_required": "Fill in the Return Note before approving.",
       "equipment_hours_equipment_unavailable": "This machine cannot be chosen (inactive or retired). Choose a machine in use on the site.",
       "equipment_hours_day_not_found": "This machine has no photo on that day, so there is no end time to enter.",
@@ -13636,7 +13638,8 @@
       "TRIP_SUBMITTED": "Load sent, waiting for the office check",
       "TRIP_ACCEPTED": "Office checked a load",
       "TRIP_ADDED": "Office added a load",
-      "ENDED_EARLY": "Office ended the job early; loads not sent were dropped"
+      "ENDED_EARLY": "Office ended the job early; loads not sent were dropped",
+      "TRIP_CORRECTED": "Office corrected a load's weight / DO"
     },
     "title": "Site disposal",
     "toast": {
@@ -13650,11 +13653,13 @@
       "siteEvidence": "Site photos sent to the office",
       "tripAccepted": "Load checked",
       "tripAdded": "Load added",
-      "endedEarly": "Job ended early"
+      "endedEarly": "Job ended early",
+      "tripCorrected": "Load corrected"
     },
     "overdue": {
       "badge": "Exception",
-      "help": "Approved more than 36 hours ago and no load has been sent yet. Please follow up."
+      "help": "Approved more than 36 hours ago and no load has been sent yet. Please follow up.",
+      "helpNextLoad": "More than 48 hours since the last load and the planned loads have not all come. Please follow up."
     },
     "what": {
       "fieldStaff": "The field staff on this project"
@@ -13668,7 +13673,8 @@
     },
     "recordNumbers": {
       "title": "Record weight / trips / DO",
-      "description": "{reference} is finished. This only records the numbers - it is not a confirmation. Every change stays on the timeline."
+      "description": "{reference} is finished. This only records the numbers - it is not a confirmation. Every change stays on the timeline.",
+      "tripsCounted": "Trips are counted from the checked loads. To change one load's weight or DO, use Correct on that load."
     },
     "siteEvidence": {
       "title": "Site evidence: vehicle exit / Gate Pass",
@@ -13697,7 +13703,18 @@
       "justSent": "Load {seq} sent. The office will check it.",
       "loadTitle": "Load {seq} of {total}: disposal proof (up to 4 photos)",
       "allSentTitle": "All loads sent",
-      "allSentBody": "Waiting for the office to check them. If another lorry is going, ask the site to add a load."
+      "allSentBody": "Waiting for the office to check them. If another lorry is going, ask the site to add a load.",
+      "correct": "Correct",
+      "correctTitle": "Correct load {seq}",
+      "correctHint": "Changes only this load's weight or DO number, with a reason. The original value and every correction are kept.",
+      "correctReason": "Reason for the correction",
+      "correctSave": "Save correction",
+      "correctUnchanged": "Change the weight or the DO number first",
+      "history": "Corrections",
+      "historyWeight": "Weight {from} → {to} kg",
+      "historyDo": "DO {from} → {to}",
+      "historyMeta": "{name} · {at} · Reason: {reason}",
+      "blank": "(blank)"
     },
     "tripStatus": {
       "PLANNED": "Not sent yet",

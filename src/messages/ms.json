@@ -7402,6 +7402,8 @@
       "disposal_all_trips_sent": "Semua muatan yang dirancang telah dihantar. Jika ada lori lagi, minta tapak menambah satu muatan.",
       "disposal_trips_closed": "Pelupusan ini telah selesai atau ditamatkan; muatannya tidak boleh diubah lagi.",
       "disposal_nothing_sent": "Belum ada muatan dihantar, jadi tiada apa untuk ditamatkan. Batalkan kerja ini.",
+      "disposal_trip_not_correctable": "Hanya muatan yang sudah dihantar boleh dibetulkan, dan bukan bagi kerja yang dibatalkan atau ditolak.",
+      "disposal_link_closed": "Pautan pelupusan ini tidak lagi berfungsi: kerja telah selesai, tapak menamatkannya lebih awal, atau pautan telah tamat tempoh. Jika ada lori lagi, hubungi tapak.",
       "return_note_required": "Isi Return Note sebelum meluluskan.",
       "equipment_hours_equipment_unavailable": "Mesin ini tidak boleh dipilih (tidak aktif atau telah dilupuskan). Pilih mesin yang digunakan di tapak.",
       "equipment_hours_day_not_found": "Mesin ini tiada foto pada hari itu, jadi tiada masa tamat untuk dimasukkan.",
@@ -13636,7 +13638,8 @@
       "TRIP_SUBMITTED": "Muatan dihantar, menunggu semakan pejabat",
       "TRIP_ACCEPTED": "Pejabat menyemak satu muatan",
       "TRIP_ADDED": "Pejabat menambah satu muatan",
-      "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan"
+      "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan",
+      "TRIP_CORRECTED": "Pejabat membetulkan berat / DO satu muatan"
     },
     "title": "Pelupusan tapak",
     "toast": {
@@ -13650,11 +13653,13 @@
       "siteEvidence": "Foto tapak dihantar ke pejabat",
       "tripAccepted": "Muatan disemak",
       "tripAdded": "Muatan ditambah",
-      "endedEarly": "Kerja ditamatkan awal"
+      "endedEarly": "Kerja ditamatkan awal",
+      "tripCorrected": "Muatan dibetulkan"
     },
     "overdue": {
       "badge": "Pengecualian",
-      "help": "Diluluskan lebih 36 jam lalu dan belum ada muatan dihantar. Sila susuli."
+      "help": "Diluluskan lebih 36 jam lalu dan belum ada muatan dihantar. Sila susuli.",
+      "helpNextLoad": "Lebih 48 jam sejak muatan terakhir dan muatan yang dirancang belum semuanya tiba. Sila susuli."
     },
     "what": {
       "fieldStaff": "Kakitangan tapak projek ini"
@@ -13668,7 +13673,8 @@
     },
     "recordNumbers": {
       "title": "Rekod berat / trip / DO",
-      "description": "{reference} telah selesai. Ini hanya merekod angka - bukan pengesahan. Setiap perubahan kekal dalam garis masa."
+      "description": "{reference} telah selesai. Ini hanya merekod angka - bukan pengesahan. Setiap perubahan kekal dalam garis masa.",
+      "tripsCounted": "Trip dikira daripada muatan yang disemak. Untuk menukar berat atau DO satu muatan, gunakan Betulkan pada muatan itu."
     },
     "siteEvidence": {
       "title": "Bukti tapak: kenderaan keluar / Gate Pass",
@@ -13697,7 +13703,18 @@
       "justSent": "Muatan {seq} dihantar. Pejabat akan menyemaknya.",
       "loadTitle": "Muatan {seq} daripada {total}: bukti pelupusan (sehingga 4 foto)",
       "allSentTitle": "Semua muatan dihantar",
-      "allSentBody": "Menunggu pejabat menyemaknya. Jika ada lori lagi, minta tapak menambah satu muatan."
+      "allSentBody": "Menunggu pejabat menyemaknya. Jika ada lori lagi, minta tapak menambah satu muatan.",
+      "correct": "Betulkan",
+      "correctTitle": "Betulkan muatan {seq}",
+      "correctHint": "Hanya menukar berat atau nombor DO muatan ini, dengan sebab. Nilai asal dan setiap pembetulan disimpan.",
+      "correctReason": "Sebab pembetulan",
+      "correctSave": "Simpan pembetulan",
+      "correctUnchanged": "Tukar berat atau nombor DO dahulu",
+      "history": "Pembetulan",
+      "historyWeight": "Berat {from} → {to} kg",
+      "historyDo": "DO {from} → {to}",
+      "historyMeta": "{name} · {at} · Sebab: {reason}",
+      "blank": "(kosong)"
     },
     "tripStatus": {
       "PLANNED": "Belum dihantar",
