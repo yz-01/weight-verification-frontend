@@ -30,6 +30,7 @@ import {
   recordEquipmentEntry,
   recordEquipmentExit,
   recordEquipmentMovement,
+  returnMaterialOutgoingProcessing,
 } from "@/services/contractor-ops.service";
 import { createSafetyIncident } from "@/services/site-operations.service";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
@@ -405,6 +406,25 @@ async function sendJob(job: OfflineJob): Promise<void> {
     await createMaterialOutgoing({
       ...job.payload,
       photos: job.payload.photos.map(restoreFile),
+    });
+    return;
+  }
+
+  if (job.kind === "MATERIAL_OUTGOING_EXIT") {
+    const exit = job.payload;
+    await returnMaterialOutgoingProcessing(exit.outgoing, {
+      photos: exit.photos.map(restoreFile),
+      note: exit.note,
+      latitude: exit.latitude,
+      longitude: exit.longitude,
+      returned_quantity: exit.returned_quantity,
+      site_signature: restoreFile(exit.site_signature),
+      supplier_signature: restoreFile(exit.supplier_signature),
+      vehicle_plate: exit.vehicle_plate,
+      delivery_note_no: exit.delivery_note_no,
+      supplier: exit.supplier,
+      category: exit.category,
+      client_event_id: exit.client_event_id,
     });
     return;
   }
@@ -796,6 +816,7 @@ async function submitCaptureJob(
         | "EQUIPMENT_MOVEMENT"
         | "SITE_PROGRESS"
         | "MATERIAL_OUTGOING"
+        | "MATERIAL_OUTGOING_EXIT"
         | "SUNDRY_CLAIM"
         | "WASTE_OUTGOING"
         | "DISPOSAL_REQUEST"
@@ -902,6 +923,46 @@ export async function submitMaterialOutgoingOfflineAware(
     lastError: "",
     payload: { ...draft, photos: await storePhotos(draft.photos) },
   });
+}
+
+/**
+ * 现场实际退场 of an approved return (2026-10 C9, Q29.3), online or queued.
+ *
+ * At the gate, where the signal often is not: the photos and both signatures
+ * are stored with the job, so a send that cannot reach the server loses
+ * nothing. `client_event_id` comes from the form (minted once, kept in its
+ * draft) and rides the online attempt and every replay; the server answers a
+ * replay of an exit it already has with that exit.
+ */
+export async function submitMaterialOutgoingExitOfflineAware(
+  ownerId: string,
+  draft: Omit<
+    Extract<OfflineJob, { kind: "MATERIAL_OUTGOING_EXIT" }>["payload"],
+    "photos" | "site_signature" | "supplier_signature"
+  > & { photos: File[]; site_signature: File; supplier_signature: File },
+): Promise<OfflineSubmission> {
+  return submitCaptureJob({
+    id: newId("material-outgoing-exit-job"),
+    ownerId,
+    kind: "MATERIAL_OUTGOING_EXIT",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      ...draft,
+      photos: await storePhotos(draft.photos),
+      // Signatures are stored as drawn, not compressed like photographs.
+      site_signature: storeFile(draft.site_signature),
+      supplier_signature: storeFile(draft.supplier_signature),
+    },
+  });
+}
+
+/** Whether this phone already holds an exit for that return, waiting to go. */
+export async function queuedOutgoingExit(ownerId: string, outgoingId: string): Promise<boolean> {
+  return (await getOfflineJobs(ownerId)).some(
+    (job) => job.kind === "MATERIAL_OUTGOING_EXIT" && job.payload.outgoing === outgoingId,
+  );
 }
 
 /**
@@ -1412,6 +1473,7 @@ function chainOf(job: OfflineJob): string | null {
 }
 
 function jobReference(job: OfflineJob): string {
+  if (job.kind === "MATERIAL_OUTGOING_EXIT") return job.payload.reference_no;
   const payload = job.payload as { dispatchNo?: string; taskId?: string };
   return payload.dispatchNo ?? payload.taskId ?? "";
 }

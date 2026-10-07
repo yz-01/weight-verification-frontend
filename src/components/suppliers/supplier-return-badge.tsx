@@ -11,6 +11,10 @@
  * an option chooses the supplier, so it cannot also open a list. Beside a
  * chosen supplier, or in a list, the badge is a button that opens the
  * returns (`interactive`).
+ *
+ * Everyone who sees the supplier sees the mark (Q29.13: 「任何地方搜到或选到
+ * 这家供应商，就提醒」); only someone who may read 材料出场 records can open
+ * it - for anyone else it stays a mark, so nothing they press is refused.
  */
 
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -21,10 +25,13 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { useAuth } from "@/components/providers/auth-provider";
+import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ExportButton } from "@/components/shared/export-button";
 import { FilePreviewDialog } from "@/components/shared/file-preview";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -65,6 +72,7 @@ export function SupplierReturnBadge({
   className?: string;
 }) {
   const t = useTranslations("supplierReturns");
+  const { can } = useAuth();
   const [open, setOpen] = useState(false);
   const count = supplier?.completed_return_count ?? 0;
   if (!supplier || count <= 0) return null;
@@ -72,7 +80,9 @@ export function SupplierReturnBadge({
     "inline-flex shrink-0 items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-1.5 py-0 text-[11px] font-medium leading-5 text-warning-foreground",
     className,
   );
-  if (!interactive) {
+  // The returns are 材料出场 records: without leave to read those, the mark
+  // still shows (Q29.13) but opens nothing that would only be refused.
+  if (!interactive || !can("material_outgoing.view")) {
     return (
       <span className={look} data-slot="supplier-return-badge">
         <Undo2 className="size-3" />
@@ -106,6 +116,34 @@ export function SupplierReturnBadge({
 
 const EXPORT_PATH = "/api/material-outgoing/export_records/";
 
+type Translate = (key: string) => string;
+
+/**
+ * The columns of the returns' export. Exported for its test: the completion
+ * date is a date, labelled as one (audit #23), not 「完成人」.
+ */
+export function supplierReturnsExportColumns(
+  t: Translate,
+  ops: Translate,
+  unitValues: Record<string, string>,
+) {
+  return [
+    { key: "captured_at", label: t("column.date") },
+    { key: "reference_no", label: ops("outgoing.referenceNo") },
+    { key: "material_name", label: t("column.material") },
+    { key: "returned_quantity", label: t("column.quantity") },
+    { key: "unit", label: ops("field.unit"), values: unitValues },
+    { key: "vehicle_plate", label: t("column.plate") },
+    { key: "delivery_note_no", label: ops("field.deliveryNote") },
+    { key: "reason", label: t("column.reason") },
+    { key: "return_note_no", label: t("column.returnNote") },
+    { key: "approver_name", label: ops("returnNote.approverName") },
+    { key: "approved_by_name", label: ops("outgoing.approvedBy") },
+    { key: "completed_by_name", label: ops("outgoing.completedBy") },
+    { key: "completed_at", label: t("column.completedAt") },
+  ];
+}
+
 export function SupplierReturnsDialog({
   supplier,
   onClose,
@@ -115,14 +153,22 @@ export function SupplierReturnsDialog({
 }) {
   const t = useTranslations("supplierReturns");
   const ops = useTranslations("contractorOps");
+  const dates = useTranslations("supplierDateFilter");
   const common = useTranslations("common");
+  const { can } = useAuth();
   const unitValues = useUnitExportValues();
   const [printing, setPrinting] = useState(false);
+  // A long history is cut at the server's cap (audit #24): narrowed here by
+  // project and by the day the material left.
+  const [filters, setFilters] = useState({ project: "", date_from: "", date_to: "" });
   const returns = useQuery({
-    queryKey: ["suppliers", "returns", supplier.id],
-    queryFn: () => getSupplierReturns(supplier.id),
+    queryKey: ["suppliers", "returns", supplier.id, filters],
+    queryFn: () => getSupplierReturns(supplier.id, filters),
   });
   const rows = returns.data?.results ?? [];
+  const narrow = Object.fromEntries(
+    Object.entries(filters).filter(([, value]) => Boolean(value)),
+  );
   const title = t("title", { name: supplier.name });
   const listHref = `/material-outgoing?supplier=${encodeURIComponent(supplier.id)}&status=COMPLETED`;
 
@@ -132,21 +178,8 @@ export function SupplierReturnsDialog({
     format,
     title,
     emptyLabel: t("empty"),
-    query: { supplier: supplier.id, status: "COMPLETED" },
-    columns: [
-      { key: "captured_at", label: t("column.date") },
-      { key: "reference_no", label: ops("outgoing.referenceNo") },
-      { key: "material_name", label: t("column.material") },
-      { key: "returned_quantity", label: t("column.quantity") },
-      { key: "unit", label: ops("field.unit"), values: unitValues },
-      { key: "vehicle_plate", label: t("column.plate") },
-      { key: "delivery_note_no", label: ops("field.deliveryNote") },
-      { key: "reason", label: t("column.reason") },
-      { key: "return_note_no", label: t("column.returnNote") },
-      { key: "approver_name", label: ops("returnNote.approverName") },
-      { key: "approved_by_name", label: ops("outgoing.approvedBy") },
-      { key: "completed_at", label: ops("outgoing.completedBy") },
-    ],
+    query: { supplier: supplier.id, status: "COMPLETED", ...narrow },
+    columns: supplierReturnsExportColumns(t, ops, unitValues),
   });
   const requestOptions = (format: "xlsx" | "pdf") => {
     const request = exportRequest(format);
@@ -184,10 +217,13 @@ export function SupplierReturnsDialog({
             <Printer className="size-4" />
             {t("print")}
           </Button>
-          <ExportButton
-            onExport={(format) => exportMaterialOutgoing(exportRequest(format))}
-            disabled={!rows.length}
-          />
+          {/* Exporting is its own permission, as on every other list. */}
+          {can("report.export") ? (
+            <ExportButton
+              onExport={(format) => exportMaterialOutgoing(exportRequest(format))}
+              disabled={!rows.length}
+            />
+          ) : null}
           <Button
             size="sm"
             variant="outline"
@@ -198,7 +234,45 @@ export function SupplierReturnsDialog({
             {t("share")}
           </Button>
         </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <ProjectPicker
+            value={filters.project || "all"}
+            onValueChange={(next) =>
+              setFilters((old) => ({ ...old, project: next === "all" ? "" : next }))
+            }
+            placeholder={ops("field.selectProject")}
+            allowAll
+            allLabel={ops("field.allProjects")}
+            className="h-8 w-full text-sm sm:w-64"
+          />
+          <div className="flex items-center gap-1">
+            <Input
+              type="date"
+              aria-label={dates("from")}
+              title={dates("from")}
+              className="h-8 w-[140px] text-sm"
+              value={filters.date_from}
+              max={filters.date_to || undefined}
+              onChange={(event) => setFilters((old) => ({ ...old, date_from: event.target.value }))}
+            />
+            <span className="text-xs text-muted-foreground">{dates("to")}</span>
+            <Input
+              type="date"
+              aria-label={dates("toLabel")}
+              title={dates("toLabel")}
+              className="h-8 w-[140px] text-sm"
+              value={filters.date_to}
+              min={filters.date_from || undefined}
+              onChange={(event) => setFilters((old) => ({ ...old, date_to: event.target.value }))}
+            />
+          </div>
+        </div>
         <QueryFailedNote query={returns} what={t("what")} />
+        {returns.data?.truncated ? (
+          <p className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs">
+            {t("truncated", { shown: returns.data.count, total: returns.data.total ?? returns.data.count })}
+          </p>
+        ) : null}
         {returns.isLoading ? (
           <div className="grid min-h-24 place-items-center">
             <Loader2 className="size-6 animate-spin text-primary" />

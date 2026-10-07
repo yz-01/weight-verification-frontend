@@ -5792,6 +5792,7 @@
       "rejectReason": "退回理由",
       "viewDetail": "查看详情",
       "returnProcessing": "实际退场（双方签名）",
+      "exitWaitingUpload": "这次实际退场已经保存在手机上，有网络时会自动上传，不用重做。可在「我提交过的」查看。",
       "waitingForSite": "已批准 / 等待退场：等待现场实际退场并双方签名。",
       "finalConfirm": "确认退场完成",
       "waitingForOffice": "现场已退场，待后台确认。",
@@ -7401,6 +7402,7 @@
       "disposal_trips_closed": "这项清运已完成或已结束，车次不能再改。",
       "disposal_nothing_sent": "还没有任何一车送出，不能提前结束。不需要的话请用「取消清运」。",
       "return_note_required": "请先填写 Return Note 再批准。",
+      "return_note_locked": "这笔退场已经审批过，Return Note 不能再修改。已刷新为最新状态。",
       "equipment_hours_equipment_unavailable": "这台设备现在不能选（已停用或已报废），请选工地上在用的设备。",
       "equipment_hours_day_not_found": "这台设备那天没有照片，没有可以补的结束时间。",
       "equipment_hours_end_before_start": "结束时间要在第一张照片之后。",
@@ -10253,6 +10255,7 @@
       "FIELD_TASK_PHOTO": "现场任务照片",
       "FIELD_TASK_TRANSITION": "现场任务更新",
       "MATERIAL_OUTGOING": "材料出场",
+      "MATERIAL_OUTGOING_EXIT": "材料出场 · 实际退场",
       "MATERIAL_RECEIPT": "材料进场",
       "SAFETY_INCIDENT": "安全事件",
       "SITE_PROGRESS": "工地进度",
@@ -15815,6 +15818,7 @@
     "title": "{name} 的退场资料",
     "help": "这家供应商所有已完成的退场：Return Note、照片、双方签名和批准资料。",
     "empty": "没有已完成的退场。",
+    "truncated": "只显示最近 {shown} 笔（共 {total} 笔）。请按项目或日期缩小范围。",
     "what": "退场资料",
     "column": {
       "date": "日期",
@@ -15825,7 +15829,8 @@
       "returnNote": "Return Note",
       "photos": "照片",
       "signatures": "双方签名",
-      "approval": "批准资料"
+      "approval": "批准资料",
+      "completedAt": "完成日期"
     },
     "site": "现场",
     "supplierSide": "供应商 / 司机",

@@ -86,6 +86,8 @@ const QUEUED_KINDS: Record<string, string> = {
   SAFETY_INCIDENT: "HAZARD",
   SITE_PROGRESS: "PROGRESS",
   WASTE_OUTGOING: "WASTE_OUTGOING",
+  // 现场实际退场 sent with no signal (Q29.3): waiting under its return's number.
+  MATERIAL_OUTGOING_EXIT: "MATERIAL_OUTGOING",
 };
 
 /** The three fields the hazard chat room's header needs. */

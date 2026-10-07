@@ -665,10 +665,13 @@ export async function returnMaterialOutgoingProcessing(
     supplier?: string;
     /** The material category, when what left is not what was applied for. */
     category?: string;
+    /** One per exit, the same on every try (Q29.3): a replay is not a second exit. */
+    client_event_id?: string;
   },
 ) {
   const data = new FormData();
   payload.photos.forEach((file) => data.append("photos", file));
+  if (payload.client_event_id) data.append("client_event_id", payload.client_event_id);
   data.append("returned_quantity", payload.returned_quantity);
   data.append("site_signature", payload.site_signature);
   data.append("supplier_signature", payload.supplier_signature);

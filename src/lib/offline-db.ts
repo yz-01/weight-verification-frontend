@@ -9,6 +9,7 @@ export type OfflineJobKind =
   | "EQUIPMENT_MOVEMENT"
   | "SITE_PROGRESS"
   | "MATERIAL_OUTGOING"
+  | "MATERIAL_OUTGOING_EXIT"
   | "SUNDRY_CLAIM"
   | "WASTE_OUTGOING"
   | "DISPOSAL_REQUEST"
@@ -276,6 +277,35 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   };
 }
 
+/**
+ * 现场实际退场 of an approved return (2026-10 C9, Q29.3): the photos, how
+ * much actually left, the plate, the DO, the supplier and both signatures,
+ * sent to `return_processing`. `client_event_id` is minted once on the phone
+ * and sent on every try, so a replay of an exit that already arrived gets
+ * that exit back instead of a refusal.
+ */
+export interface MaterialOutgoingExitOfflineJob extends OfflineJobBase {
+  kind: "MATERIAL_OUTGOING_EXIT";
+  payload: {
+    /** The approved application this exit belongs to. */
+    outgoing: string;
+    /** Its number, so the queue says which return is waiting. */
+    reference_no: string;
+    returned_quantity: string;
+    note?: string;
+    latitude?: string;
+    longitude?: string;
+    vehicle_plate?: string;
+    delivery_note_no?: string;
+    supplier?: string;
+    category?: string;
+    client_event_id: string;
+    photos: StoredFile[];
+    site_signature: StoredFile;
+    supplier_signature: StoredFile;
+  };
+}
+
 /** 杂费报销 from the phone (T-379), queued like every other capture. */
 export interface SundryClaimOfflineJob extends OfflineJobBase {
   kind: "SUNDRY_CLAIM";
@@ -458,6 +488,7 @@ export type OfflineJob =
   | EquipmentMovementOfflineJob
   | SiteProgressOfflineJob
   | MaterialOutgoingOfflineJob
+  | MaterialOutgoingExitOfflineJob
   | SundryClaimOfflineJob
   | WasteOutgoingOfflineJob
   | DisposalRequestOfflineJob
