@@ -3035,9 +3035,6 @@
   },
   "archiveQueue": {
     "allModules": "Semua modul",
-    "alreadyArchived": "Anda sudah lihat",
-    "archive": "Saya sudah lihat",
-    "archiveHelp": "Hanya dikeluarkan daripada senarai untuk dilihat anda sendiri. Rakan sekerja masih melihatnya, dan rekod itu sendiri tidak berubah.",
     "column": {
       "record": "Rekod",
       "module": "Modul",
@@ -3048,7 +3045,7 @@
       "archived": "Diarkibkan",
       "seen": "Saya"
     },
-    "emptyArchived": "Anda belum menanda apa-apa sebagai sudah dilihat di sini.",
+    "emptyArchived": "Anda belum membuka sebarang rekod di sini.",
     "emptyPending": "Tiada apa-apa menunggu anda di sini.",
     "failed": "Senarai itu tidak dapat dimuatkan. Cuba lagi.",
     "firstPage": "Anda berada di halaman pertama.",
@@ -3076,7 +3073,7 @@
     "next": "Seterusnya",
     "open": "Buka",
     "pageOf": "Halaman {page} daripada {pages}",
-    "perPersonHelp": "Belum dilihat bermaksud anda belum menandanya. Setiap akaun ada senarai sendiri, jadi menanda rekod di sini tidak mengosongkannya daripada senarai orang lain.",
+    "perPersonHelp": "Halaman ini untuk dibaca sahaja. Belum dilihat bermaksud anda belum membuka rekod itu - membukanya dikira sudah dilihat. Setiap akaun ada senarai sendiri, jadi ia tidak mengosongkan senarai orang lain. Rekod disahkan di halaman modulnya sendiri.",
     "previous": "Sebelumnya",
     "state": {
       "pending": "Belum dilihat",
@@ -3084,9 +3081,6 @@
     },
     "subtitle": "Semua rekod yang selesai, menunggu anda melihatnya.",
     "title": "Pusat Rekod Tapak",
-    "toast": {
-      "archived": "Ditanda sebagai sudah dilihat, untuk anda sahaja."
-    },
     "people": "{count} orang",
     "closure": {
       "label": "Diarkibkan atau belum",
@@ -3095,11 +3089,15 @@
       "closed": "Sudah diarkibkan",
       "notApplicable": "Tidak perlu diarkibkan"
     },
-    "notInQueue": "Rekod ini belum selesai, jadi ia belum ada dalam senarai untuk dilihat anda. Anda boleh tandakannya sebagai sudah dilihat selepas ia selesai.",
     "categoryManagement": "Pengurusan kategori",
     "openPhoto": "Buka gambar",
     "noPhoto": "Tiada gambar",
-    "goToReceipt": "Pergi ke Bahan masuk untuk mengendalikannya"
+    "goToReceipt": "Pergi ke Bahan masuk untuk mengendalikannya",
+    "hazardClosure": {
+      "closed": "Ditutup",
+      "open": "Belum ditutup",
+      "openHelp": "Ia ditutup apabila orang yang membangkitkannya mengesahkan pembaikan di halaman bahaya."
+    }
   },
   "assets": {
     "category": {
@@ -5252,7 +5250,7 @@
       "project": "Projek",
       "selectProject": "Pilih projek"
     },
-    "liveStopped": "Bahagian langsung telah berhenti dikemas kini. Suapan, amaran dan bilangan belum dibaca di bawah adalah dari ketika halaman dibuka, bukan sekarang.",
+    "liveStopped": "Bahagian langsung telah berhenti dikemas kini. Suapan, amaran dan bilangan menunggu pengesahan di bawah adalah dari ketika halaman dibuka, bukan sekarang.",
     "locationMap": {
       "allProjects": "Semua projek",
       "empty": "Projek yang dipilih tiada lokasi atau geofence untuk dipaparkan.",
@@ -9899,7 +9897,8 @@
     "waitingForYou": "{count} menunggu anda",
     "waitingUnknown": "Tidak dapat memuatkan bilangan yang menunggu anda",
     "materialManagement": "Pengurusan bahan",
-    "material_requests": "MR / Permohonan Lain"
+    "material_requests": "MR / Permohonan Lain",
+    "waitingConfirm": "{count} menunggu pengesahan"
   },
   "notifications": {
     "compose": {

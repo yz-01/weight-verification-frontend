@@ -38,6 +38,7 @@ import {
   RemoveSwitch,
 } from "@/components/consultant-workflow/application-draft-edit";
 import { useAuth } from "@/components/providers/auth-provider";
+import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import {
   DetailHeader,
@@ -487,6 +488,14 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
           </Section>
           <Section title={t("detail.section.archive")}>
             <ArchiveChecklist application={application} />
+            {/* 【确认归档】 here, where 「等你处理」 leads (C4, X10): offered once
+                the application is archived with its report. The office's
+                act, so not the consultant it was sent to. */}
+            {application.consultant !== user?.id && (
+              <div className="mt-3">
+                <RecordClosurePanel kind="CONSULTANT_APPLICATION" recordId={application.id} />
+              </div>
+            )}
           </Section>
         </div>
       </div>

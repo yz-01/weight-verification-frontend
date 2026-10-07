@@ -20,12 +20,16 @@ export interface OpenedRecordHeading {
 /**
  * Opens one record where `recordTarget` says it lives (F9): its module's own
  * page, or - for a module with no detail page yet - the shared record sheet,
- * read-only, with no 确认归档 and no 我看过了.
+ * which only reads.
+ *
+ * `confirm` is for 「等你处理」 (C4): the reader was told the record waits for
+ * their 【确认归档】, so the sheet standing in for a missing business page
+ * offers it. A dashboard photo opens the sheet without it (F9).
  *
  * `open` returns false when there is nowhere to go, so a caller can leave the
  * item unlinked instead of offering a click that does nothing.
  */
-export function useRecordOpener() {
+export function useRecordOpener({ confirm = false }: { confirm?: boolean } = {}) {
   const router = useRouter();
   const [row, setRow] = useState<ArchiveQueueRow<CategoryRecordKind> | null>(null);
   const open = (kind: string, id: string | null | undefined, heading: OpenedRecordHeading) => {
@@ -56,7 +60,7 @@ export function useRecordOpener() {
     <RecordSheet
       row={row}
       fetchRecord={getCategoryRecord}
-      readOnly
+      confirm={confirm}
       onClose={() => setRow(null)}
     />
   ) : null;

@@ -30,6 +30,8 @@ export function OptionCombobox({
   disabled = false,
   ariaLabel,
   triggerClassName,
+  onSearch,
+  selectedLabel,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -41,21 +43,34 @@ export function OptionCombobox({
   ariaLabel?: string;
   /** Size of the button, where the default full-width one does not fit (a toolbar). */
   triggerClassName?: string;
+  /**
+   * Searched by the server instead of in the list (2026-10): what is typed is
+   * handed over and `options` is taken to be the answer already, so a list
+   * longer than one page can still be searched end to end.
+   */
+  onSearch?: (term: string) => void;
+  /** The chosen value's name when `options` (one page of results) lacks it. */
+  selectedLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState("");
   const shown = useMemo(() => {
     const needle = term.trim().toLowerCase();
-    return needle ? options.filter((option) => option.label.toLowerCase().includes(needle)) : options;
-  }, [options, term]);
+    if (onSearch || !needle) return options;
+    return options.filter((option) => option.label.toLowerCase().includes(needle));
+  }, [options, term, onSearch]);
   const selected = options.find((option) => option.value === value);
+  const changeTerm = (next: string) => {
+    setTerm(next);
+    onSearch?.(next);
+  };
 
   return (
     <Popover
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) setTerm("");
+        if (!next) changeTerm("");
       }}
     >
       <PopoverTrigger asChild>
@@ -69,7 +84,7 @@ export function OptionCombobox({
           className={cn("h-9 w-full justify-between px-3 font-normal", triggerClassName)}
         >
           <span className={cn("truncate", !selected && "text-muted-foreground")}>
-            {selected?.label ?? (value || placeholder)}
+            {selected?.label ?? selectedLabel ?? (value || placeholder)}
           </span>
           <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
         </Button>
@@ -80,7 +95,7 @@ export function OptionCombobox({
           <Input
             autoFocus
             value={term}
-            onChange={(event) => setTerm(event.target.value)}
+            onChange={(event) => changeTerm(event.target.value)}
             placeholder={searchPlaceholder}
             className="h-8 pl-8"
           />
@@ -99,7 +114,7 @@ export function OptionCombobox({
                   onClick={() => {
                     onChange(option.value);
                     setOpen(false);
-                    setTerm("");
+                    changeTerm("");
                   }}
                 >
                   <Check className={cn("size-4 shrink-0", option.value === value ? "opacity-100" : "opacity-0")} />

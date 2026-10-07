@@ -193,6 +193,9 @@ export function ContractorDashboard({
   const t = useTranslations("contractorDashboard");
   const nav = useTranslations("nav");
   const opener = useRecordOpener();
+  // 「等你处理」 rows say the record waits for the reader's 【确认归档】, so a
+  // row whose module has no detail page yet opens a sheet that offers it (C4).
+  const waitingOpener = useRecordOpener({ confirm: true });
   const format = useFormatter();
   const df = useDateFormat();
   const { can } = useAuth();
@@ -281,7 +284,7 @@ export function ContractorDashboard({
             <p className="pb-1 text-xs text-muted-foreground">{t("unread.help")}</p>
             <ShortList
               rows={unread.rows.map((row) => (
-                <WaitingRow key={`${row.kind}:${row.id}`} row={row} onOpen={opener.open} />
+                <WaitingRow key={`${row.kind}:${row.id}`} row={row} onOpen={waitingOpener.open} />
               ))}
             />
           </Block>
@@ -400,6 +403,7 @@ export function ContractorDashboard({
       */}
       {priorityGrid}
       {opener.sheet}
+      {waitingOpener.sheet}
 
       {can("dashboard.search") && <QuickSearch project={project} />}
 

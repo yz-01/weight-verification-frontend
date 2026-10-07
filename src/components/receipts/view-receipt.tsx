@@ -42,6 +42,17 @@ import {
 import { useDateFormat } from "@/lib/dates";
 import { useRecordArchived } from "@/components/shared/record-closure";
 
+/**
+ * Whether this delivery's next step is the final 【确认归档】 (C4, X10):
+ * 「材料进场要已验收」, and the superseded copy of a corrected delivery is
+ * read, not confirmed - its correction is the one that counts (C6).
+ */
+export function receiptAwaitsConfirmation(
+  receipt: Pick<MaterialReceiptDetail, "acceptance_status" | "superseded_by">,
+): boolean {
+  return receipt.acceptance_status === "ACCEPTED" && !receipt.superseded_by;
+}
+
 const PHOTO_KINDS: PhotoKind[] = [
   "VEHICLE",
   "UNLOADING",
@@ -551,6 +562,15 @@ export function ViewReceipt({ id }: { id: string }) {
           </>
         }
         conversation={{ kind: "MATERIAL_RECEIPT", recordId: data.id }}
+        // 【确认归档】 here, where 「等你处理」 leads (C4): once accepted, and
+        // only on the version that counts. The server's `ready` says the
+        // same; checked here too so a delivery still waiting for 验收 does
+        // not ask for its closure at all.
+        closure={
+          receiptAwaitsConfirmation(data)
+            ? { kind: "MATERIAL_RECEIPT", recordId: data.id }
+            : null
+        }
       />
       {filing && (
         <FileIntoColumnDialog

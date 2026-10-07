@@ -20,7 +20,8 @@
  *   every record that has a conversation has them), then **signatures if the
  *   module has any**
  *   (「没有签名就不需要放」), then **the action buttons** (「那些按钮放在图 2 的
- *   圈起来的位置」);
+ *   圈起来的位置」), then the record's **【确认归档】** once its own steps
+ *   are done (2026-10 C4 - it used to live only in 现场记录中心);
  * * **the record's conversation** underneath (C-014, D-233) - every module has
  *   one, like the hazard room.
  */
@@ -38,6 +39,7 @@ import { useState } from "react";
 
 import { EvidenceFileActions } from "@/components/shared/evidence-file-actions";
 import { RecordAttachmentsPanel } from "@/components/shared/record-attachments";
+import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { Button } from "@/components/ui/button";
@@ -48,6 +50,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import type { ArchiveRecordKind } from "@/interfaces/contractor-ops";
 import type { ChatRecordKind } from "@/lib/record-chat";
 import { useDateFormat } from "@/lib/dates";
 import { cn } from "@/lib/utils";
@@ -123,6 +126,7 @@ export function RecordDetailShell({
   actions,
   notices,
   conversation,
+  closure,
 }: {
   /** The record's own number, used on printed and downloaded copies. */
   reference: string;
@@ -152,6 +156,12 @@ export function RecordDetailShell({
   /** Banners above everything (superseded, overdue, closed...). */
   notices?: React.ReactNode;
   conversation?: { kind: ChatRecordKind; recordId: string } | null;
+  /**
+   * The record's 【确认归档】 (2026-10 C4): under the buttons, offered once
+   * the record's own steps are done. Left out for a record that closes
+   * another way - a hazard closes by its raiser's 确认完成.
+   */
+  closure?: { kind: ArchiveRecordKind; recordId: string } | null;
 }) {
   const t = useTranslations("recordShell");
   const [open, setOpen] = useState<number | null>(null);
@@ -269,6 +279,9 @@ export function RecordDetailShell({
             <section className="space-y-2 rounded-lg border p-3">
               {actions}
             </section>
+          ) : null}
+          {closure ? (
+            <RecordClosurePanel kind={closure.kind} recordId={closure.recordId} />
           ) : null}
         </aside>
       </div>

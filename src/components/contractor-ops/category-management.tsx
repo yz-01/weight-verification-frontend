@@ -950,7 +950,6 @@ function ColumnRecordsDialog({
           row={open}
           fetchRecord={getCategoryRecord}
           // 分类里不做验收 (2026-10 B4): read here, decided in the module.
-          readOnly
           onClose={() => {
             setOpen(null);
             void qc.invalidateQueries({ queryKey: ["category-records"] });

@@ -911,24 +911,24 @@ export function getArchiveRecord(
 }
 
 /**
- * Archive rows for the person asking, and for nobody else.
+ * 「已看」 for the person asking, and for nobody else (D-063).
  *
- * A POST rather than a side effect of opening the record: a GET that changes
- * what the next reader sees is a GET that a refresh or a link preview can fire
- * on somebody's behalf.
+ * Sent when this reader opens a row in 现场记录中心 (2026-10 C4: the sheet is
+ * read-only, so there is no 「我看过了」 button any more - opening it is the
+ * look). A POST the screen sends on a click rather than a side effect of the
+ * GET: a GET that changed what the next reader sees is one a refresh or a
+ * link preview could fire on somebody's behalf. Silent: a mark is not
+ * something the reader asked to be told about, and the 未看 / 已看 column
+ * shows it.
  */
-export async function markRecordsArchived(
+export function markRecordsSeen(
   records: { kind: ArchiveRecordKind; id: string }[],
 ): Promise<{ marked: number; matched: number }> {
-  const result = await api.post<{ marked: number; matched: number }>(
+  return api.post<{ marked: number; matched: number }>(
     "/api/archive-queue/mark_records_seen/",
     { records },
+    { silent: true },
   );
-  // Only when something was actually marked. A record opened from a column
-  // (T-396) may not be finished yet, and the queue only holds finished ones:
-  // the server then matches nothing, and a "done" toast would be a lie.
-  if (result.matched > 0) toastSuccess("archiveQueue.toast.archived");
-  return result;
 }
 
 /**
@@ -1433,6 +1433,13 @@ export function postRecordMessage(
 export interface RecordClosureState {
   kind: ArchiveRecordKind;
   record: string;
+  /**
+   * Whether the record's own steps are done and only this 【确认】 is left
+   * (C4): a delivery once accepted, an application once finished. The same
+   * rule 「等你处理」 counts by, so a page offers the button exactly when the
+   * dashboard says the record is waiting for it.
+   */
+  ready: boolean;
   closed: boolean;
   closure: {
     confirmed_by: string;

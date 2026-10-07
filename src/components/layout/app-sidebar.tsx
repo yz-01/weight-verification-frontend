@@ -14,7 +14,7 @@ import {
 } from "@/components/layout/sidebar-flyout";
 import { UserMenu } from "@/components/layout/user-menu";
 import { useAuth } from "@/components/providers/auth-provider";
-import { useUnreadBadges } from "@/hooks/use-unread-badges";
+import { badgeLabelKey, useUnreadBadges } from "@/hooks/use-unread-badges";
 import { OfflineStatus } from "@/components/shared/offline-status";
 import { BrandIcon } from "@/components/shared/brand-icon";
 import {
@@ -276,7 +276,10 @@ export function AppSidebar() {
                           {(badges[item.feature] ?? 0) > 0 && (
                             <span
                               className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[0.625rem] font-semibold leading-none tabular-nums text-primary-foreground group-data-[collapsible=icon]:hidden"
-                              aria-label={t("nav.waitingForYou", {
+                              aria-label={t(badgeLabelKey(item.feature), {
+                                count: badges[item.feature] ?? 0,
+                              })}
+                              title={t(badgeLabelKey(item.feature), {
                                 count: badges[item.feature] ?? 0,
                               })}
                             >
