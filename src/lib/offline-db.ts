@@ -149,7 +149,10 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
       material_name: string;
       material_specification?: string;
       quantity: string;
-      unit: "TONNE" | "KG" | "M3" | "PIECE" | "LOAD" | "BAG";
+      /** A code from the company's unit list (2026-10 A4). */
+      unit: string;
+      /** The factory that made it (2026-10 D1). Absent on jobs queued before it. */
+      manufacturer?: string | null;
       total_weight_kg?: string | null;
       /** The material column, or null for a delivery taken unfiled. */
       category?: string | null;
@@ -234,6 +237,8 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     supplier?: string;
     source_receipt?: string;
     category?: string;
+    /** Whose make (2026-10 D1); the delivery's own when absent. */
+    manufacturer?: string;
     material_name?: string;
     quantity: string;
     unit?: string;

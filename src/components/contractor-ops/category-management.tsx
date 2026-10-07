@@ -10,6 +10,7 @@ import {
   Loader2,
   Pencil,
   Plus,
+  Ruler,
   Save,
   Trash2,
 } from "lucide-react";
@@ -19,6 +20,8 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
+import { MaterialUnitsDialog } from "@/components/contractor-ops/material-units-dialog";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
 import { Shell } from "@/components/contractor-ops/package-shell";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -72,6 +75,7 @@ import {
   type CategoryModuleKey,
 } from "@/lib/category-modules";
 import { useDateFormat } from "@/lib/dates";
+import { useUnitName } from "@/hooks/use-material-units";
 import { recordStatusLabel } from "@/lib/record-status";
 import {
   deleteProjectCategory,
@@ -248,6 +252,7 @@ export function CategoryManagement() {
       : null,
   );
   const [removing, setRemoving] = useState<Row | null>(null);
+  const [unitsOpen, setUnitsOpen] = useState(false);
   /** The column whose records are open in the dialog (T-396). */
   const [viewing, setViewing] = useState<Row | null>(null);
   const [refusal, setRefusal] = useState<{ name: string; reason: string } | null>(
@@ -382,8 +387,19 @@ export function CategoryManagement() {
             <h2 className="font-semibold">{t(`module.${active.key}`)}</h2>
             {/* Said out loud, not left to be discovered. */}
             <StatusBadge label={t(`scope.${active.scope}`)} tone="neutral" />
-            <div className="ml-auto">{createButton}</div>
+            <div className="ml-auto flex items-center gap-2">
+              {/* 「单位管理」 (2026-10 A4): the units a material category is
+                  measured in, kept here beside the categories that use them. */}
+              {isMaterial && can("category.manage") && (
+                <Button size="sm" variant="outline" onClick={() => setUnitsOpen(true)}>
+                  <Ruler />
+                  {t("units.open")}
+                </Button>
+              )}
+              {createButton}
+            </div>
           </header>
+          {unitsOpen && <MaterialUnitsDialog onClose={() => setUnitsOpen(false)} />}
           <p className="mb-1 text-xs text-muted-foreground">
             {t(`moduleHelp.${active.key}`)}
           </p>
@@ -674,9 +690,8 @@ export function QuantityCell({
   inline?: boolean;
 }) {
   const t = useTranslations("categoryManagement");
-  const root = useTranslations();
-  const unitName = (unit: string) =>
-    unit && root.has(`receipts.unit.${unit}`) ? root(`receipts.unit.${unit}`) : unit;
+  // Built-in codes translated, a unit the company added by its own label (A4).
+  const unitName = useUnitName();
   if (quantities.length === 0) {
     return <span className="text-muted-foreground">0</span>;
   }
@@ -757,8 +772,10 @@ function ColumnRecordsDialog({
   // server says once it has answered; until then, the modules that do.
   const supplierFilter =
     records.data?.supplier_filter ?? SUPPLIER_MODULES.has(moduleKey);
+  // By whose make too (2026-10 D1): material only.
+  const manufacturerFilter = records.data?.manufacturer_filter ?? moduleKey === "material";
   const filtered = Boolean(
-    filters.supplier || filters.date_from || filters.date_to || search,
+    filters.supplier || filters.manufacturer || filters.date_from || filters.date_to || search,
   );
   const rows = records.data?.results ?? [];
   const total = records.data?.count ?? 0;
@@ -782,6 +799,7 @@ function ColumnRecordsDialog({
             <SupplierDateFilter
               value={filters}
               showSupplier={supplierFilter}
+              showManufacturer={manufacturerFilter}
               onChange={(next) => {
                 setFilters((current) => ({ ...current, ...next }));
                 setPage(1);
@@ -871,6 +889,15 @@ function ColumnRecordsDialog({
                             ]
                               .filter(Boolean)
                               .join(" · ")}
+                          </span>
+                        )}
+                        {/* Whose make (D1), orange when not designated. */}
+                        {row.manufacturer_name && (
+                          <span className="block text-xs">
+                            <ManufacturerCell
+                              name={row.manufacturer_name}
+                              offList={row.manufacturer_off_list}
+                            />
                           </span>
                         )}
                         <span className="block text-xs text-muted-foreground">
@@ -968,8 +995,15 @@ function ColumnRecordsDialog({
  */
 function SpendCell({ column }: { column: ProjectCategory }) {
   const t = useTranslations("categoryManagement");
+  const unitName = useUnitName();
   const percent = column.budget_used_percent;
-  const uncounted = column.spend_uncounted_deliveries ?? 0;
+  // Quantity mode (2026-10 A6): the total is the quantity in the category's
+  // unit, and the loads in another unit are what it could not count.
+  const quantityMode = column.budget_mode === "QUANTITY";
+  const uncounted = quantityMode
+    ? (column.quantity_uncounted_deliveries ?? 0)
+    : (column.spend_uncounted_deliveries ?? 0);
+  const hasBudget = quantityMode ? Boolean(column.budget_quantity) : Boolean(column.budget_amount);
   const barWidth = percent === null ? 0 : Math.min(percent, 100);
   const barTone =
     percent === null
@@ -981,14 +1015,20 @@ function SpendCell({ column }: { column: ProjectCategory }) {
           : "bg-primary";
   return (
     <div className="min-w-44 space-y-1">
-      {column.tracks_spend && column.budget_amount ? (
+      {column.tracks_spend && hasBudget ? (
         <>
           <p
             className={`text-xs tabular-nums ${
               percent !== null && percent >= 100 ? "font-semibold text-destructive" : ""
             }`}
           >
-            RM {column.spend_amount} / RM {column.budget_amount}
+            {quantityMode
+              ? t("budget.quantityUsed", {
+                  used: column.quantity_used ?? "0",
+                  budget: column.budget_quantity ?? "",
+                  unit: unitName(column.default_unit, column.default_unit_label),
+                })
+              : `RM ${column.spend_amount} / RM ${column.budget_amount}`}
             {percent !== null && ` (${percent}%)`}
           </p>
           <div className="h-1.5 overflow-hidden rounded-full bg-muted">

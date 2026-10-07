@@ -3995,8 +3995,19 @@
       "amountHint": "Biarkan kosong untuk kategori yang tidak dikira terhadap bajet",
       "alerts": "Beri amaran pada peratusan ini",
       "alertsHint": "Dipisahkan koma, contohnya 80, 100. Menukar bajet mengira semula garis yang telah dilepasi.",
-      "alertsInvalid": "Guna nombor bulat antara 1 dan 500, dipisahkan koma.",
-      "none": "Tiada bajet ditetapkan"
+      "alertsInvalid": "Gunakan nombor bulat antara 1 dan 1000, dipisahkan dengan koma.",
+      "none": "Tiada bajet ditetapkan",
+      "mode": "Bajet dikira mengikut",
+      "modeAmount": "Wang (RM, daripada pesanan penghantaran)",
+      "modeQuantity": "Kuantiti (dalam unit kategori)",
+      "quantity": "Kuantiti bajet",
+      "quantityHint": "Dalam {unit}. Tan dan kilogram dicampur bersama.",
+      "quantityNeedsUnit": "Pilih unit kategori dahulu.",
+      "thresholdAmounts": "Juga beri amaran pada angka ini",
+      "thresholdAmountsHint": "Pilihan. Dipisahkan dengan koma, contohnya 400000, 450000 (RM) - atau kuantiti dalam mod kuantiti.",
+      "thresholdAmountsInvalid": "Gunakan nombor melebihi sifar, dipisahkan dengan koma.",
+      "recipients": "Amaran dihantar kepada pentadbir syarikat dan ketua projek, sekali bagi setiap garis; jika jumlah turun semula, amaran ditarik balik.",
+      "quantityUsed": "{used} daripada {budget} {unit}"
     },
     "saveFailed": "Tidak berjaya. Cuba lagi, atau muat semula halaman.",
     "viewRecords": "Lihat rekod",
@@ -4011,7 +4022,44 @@
       "emptyFiltered": "Tiada rekod dalam kategori ini yang sepadan dengan penapis ini.",
       "deliveryNoteNo": "DO"
     },
-    "quantityReturned": "{quantity} dipulangkan"
+    "quantityReturned": "{quantity} dipulangkan",
+    "units": {
+      "title": "Unit",
+      "open": "Unit",
+      "help": "Unit yang digunakan untuk mengukur bahan. Unit kategori dipilih dari senarai ini; enam unit terbina sentiasa ada.",
+      "label": "Nama unit",
+      "add": "Tambah unit",
+      "builtIn": "Terbina",
+      "active": "Digunakan",
+      "inactive": "Dinyahaktifkan",
+      "switchOff": "Nyahaktifkan",
+      "switchOn": "Aktifkan",
+      "rename": "Namakan semula",
+      "save": "Simpan",
+      "offHint": "Unit yang dinyahaktifkan tidak lagi ditawarkan; rekod sedia ada kekal.",
+      "duplicate": "Unit itu sudah ada dalam senarai.",
+      "what": "Senarai unit",
+      "toast": {
+        "created": "Unit ditambah",
+        "updated": "Unit disimpan"
+      }
+    },
+    "material": {
+      "title": "Apa yang diisi di tapak",
+      "help": "Tetapkan sekali di sini dan telefon mengisinya apabila kategori ini dipilih.",
+      "defaultUnit": "Unit",
+      "defaultUnitHint": "Dipaparkan di telefon, tidak perlu ditaip.",
+      "noUnit": "Tiada unit tetap",
+      "suppliers": "Pembekal",
+      "suppliersHint": "Satu: diisi sendiri. Beberapa: telefon hanya menawarkan ini. Kod QR pembekal yang diimbas sentiasa diutamakan.",
+      "manufacturers": "Pengilang ditetapkan",
+      "manufacturersHint": "Rekod oleh pengilang lain ditanda 「Bukan pengilang ditetapkan」 - amaran sahaja, tidak ditolak.",
+      "search": "Taip untuk cari",
+      "noneChosen": "Tiada dipilih",
+      "what": {
+        "suppliers": "Senarai pembekal"
+      }
+    }
   },
   "cloudServices": {
     "count": "{count} perkhidmatan",
@@ -7749,7 +7797,11 @@
       "supplierGuessUse": "Guna pembekal ini",
       "documentAmount": "Amaun pesanan penghantaran (RM)",
       "documentAmountRead": "Dibaca daripada pesanan penghantaran. Semak dengan kertas.",
-      "documentAmountTypeHint": "Jika amaun tidak dapat dibaca, taip jumlah daripada pesanan penghantaran (pilihan)."
+      "documentAmountTypeHint": "Jika amaun tidak dapat dibaca, taip jumlah daripada pesanan penghantaran (pilihan).",
+      "autoFilledFromCategory": "Diisi daripada kategori",
+      "supplierLimited": "Hanya pembekal yang ditetapkan untuk kategori ini",
+      "manufacturer": "Pengilang",
+      "chooseColumnFirst": "Pilih kategori dahulu"
     },
     "materialEvidence": {
       "arrival": "1. Kenderaan tiba",
@@ -9544,7 +9596,8 @@
       "decided_by": "Diluluskan / dikembalikan oleh",
       "original_quantity": "Kuantiti asal",
       "correction_reason": "Sebab pembetulan",
-      "assigned_reviewer": "Dihantar kepada"
+      "assigned_reviewer": "Dihantar kepada",
+      "manufacturer": "Pengilang"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -9890,7 +9943,8 @@
       "wasteClearance": "Pembersihan sisa",
       "equipmentEntry": "Peralatan masuk",
       "equipmentExit": "Peralatan keluar",
-      "targetReport": "Sasaran dan pencapaian"
+      "targetReport": "Sasaran dan pencapaian",
+      "manufacturers": "Pengilang"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -11341,7 +11395,8 @@
       "documentAmountSource": {
         "OCR": "Dibaca daripada pesanan penghantaran",
         "MANUAL": "Dimasukkan oleh seseorang"
-      }
+      },
+      "manufacturer": "Pengilang"
     },
     "locationCaptured": "Lokasi direkod",
     "locationMissing": "Tiada lokasi",
@@ -15214,7 +15269,9 @@
       "remark": "Catatan",
       "attachments": "Lampiran",
       "assignedReviewer": "Hantar kepada",
-      "reassignHistory": "Rekod ambil alih"
+      "reassignHistory": "Rekod ambil alih",
+      "supplier": "Pembekal",
+      "manufacturer": "Pengilang"
     },
     "action": {
       "view": "Lihat",
@@ -15282,7 +15339,8 @@
       "assignedReviewerHint": "Hanya orang yang boleh meluluskan permohonan bagi projek ini disenaraikan.",
       "chooseReviewer": "Pilih pelulus",
       "projectFirst": "Pilih projek dahulu",
-      "noReviewers": "Belum ada sesiapa yang boleh meluluskan permohonan bagi projek ini. Minta pentadbir syarikat menanda \"Lulus atau kembalikan MR / Permohonan Lain\" pada peranan pelulus di Peranan."
+      "noReviewers": "Belum ada sesiapa yang boleh meluluskan permohonan bagi projek ini. Minta pentadbir syarikat menanda \"Lulus atau kembalikan MR / Permohonan Lain\" pada peranan pelulus di Peranan.",
+      "suggestHint": "Pilihan - ibu pejabat memutuskan semasa meluluskan."
     },
     "options": {
       "open": "Senarai bahan",
@@ -15318,7 +15376,13 @@
     "waitingFor": "Menunggu {name} meluluskan.",
     "reassigned": "{by} mengambil alih · {at}",
     "reassignedFrom": "{by} mengambil alih daripada {from} · {at}",
-    "reassignHelp": "Selepas anda mengambil alih, anda yang meluluskan atau mengembalikannya. Pelulus asal tidak lagi boleh, dan pengambilalihan direkodkan."
+    "reassignHelp": "Selepas anda mengambil alih, anda yang meluluskan atau mengembalikannya. Pelulus asal tidak lagi boleh, dan pengambilalihan direkodkan.",
+    "approve": {
+      "title": "Luluskan {reference}",
+      "help": "Meluluskan ialah keputusan pembelian: pilih pembekal dan pengilang.",
+      "chooseSupplier": "Pilih pembekal",
+      "confirm": "Luluskan"
+    }
   },
   "filePreview": {
     "unsupported": "Fail {ext} tidak boleh dipaparkan dalam pelayar.",
@@ -15359,11 +15423,57 @@
     "from": "Dari tarikh",
     "to": "hingga",
     "toLabel": "Hingga tarikh",
-    "what": "senarai pembekal"
+    "what": "senarai pembekal",
+    "allManufacturers": "Semua pengilang",
+    "manufacturer": "Pengilang",
+    "whatManufacturers": "Senarai pengilang"
   },
   "recordNo": {
     "copy": "Salin {number}",
     "copied": "{number} disalin",
     "copyFailed": "Tidak dapat menyalin. Tekan lama nombor untuk melihatnya penuh."
+  },
+  "manufacturers": {
+    "title": "Pengilang",
+    "description": "Kilang yang membuat bahan anda. Kategori boleh menamakan pengilang yang dibenarkan kontrak; selainnya ditanda 「Bukan pengilang ditetapkan」.",
+    "new": "Pengilang baharu",
+    "createTitle": "Pengilang baharu",
+    "editTitle": "Sunting pengilang",
+    "field": {
+      "name": "Nama pengilang",
+      "country": "Negara",
+      "isActive": "Aktif",
+      "sortOrder": "Susunan",
+      "createdAt": "Ditambah"
+    },
+    "empty": "Belum ada pengilang",
+    "what": "Senarai pengilang",
+    "duplicate": "Pengilang itu sudah ada dalam senarai.",
+    "inUse": "Rekod sudah menamakan pengilang ini. Nyahaktifkan sahaja.",
+    "switchedOff": "Dinyahaktifkan",
+    "remove": {
+      "title": "Buang {name}?",
+      "description": "Hanya pengilang yang belum dinamakan dalam mana-mana rekod boleh dibuang. Yang sudah digunakan dinyahaktifkan, supaya rekod lama kekal namanya.",
+      "confirm": "Buang"
+    },
+    "toast": {
+      "created": "Pengilang ditambah",
+      "updated": "Pengilang dikemas kini",
+      "removed": "Pengilang dibuang"
+    },
+    "column": "Pengilang",
+    "offList": "Bukan pengilang ditetapkan",
+    "offListHint": "Kategori ini menamakan pengilang lain. Ia masih boleh dihantar.",
+    "picker": {
+      "choose": "Pilih pengilang",
+      "none": "Tidak dinyatakan",
+      "designated": "Ditetapkan",
+      "addNew": "Tiada dalam senarai? Tambah",
+      "newName": "Nama pengilang baharu",
+      "add": "Tambah",
+      "offline": "Menambah pengilang memerlukan sambungan. Pilih dari senarai, atau biarkan kosong.",
+      "failed": "Pengilang tidak dapat ditambah.",
+      "fromColumn": "Diisi daripada kategori"
+    }
   }
 }

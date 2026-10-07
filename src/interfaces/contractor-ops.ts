@@ -43,6 +43,22 @@ export type ProjectCategoryKind =
   | "CLAIM";
 export type CategorySubmissionMode = "DIRECT" | "REVIEW" | "CONSULTANT";
 
+/** What a material column's budget counts (2026-10 A6, X17). */
+export type BudgetMode = "AMOUNT" | "QUANTITY";
+
+export interface CategorySupplierOption {
+  id: string;
+  code: string;
+  name: string;
+  is_active: boolean;
+}
+
+export interface CategoryManufacturerOption {
+  id: string;
+  name: string;
+  is_active: boolean;
+}
+
 export interface ProjectCategory {
   id: string;
   project: string;
@@ -59,6 +75,25 @@ export interface ProjectCategory {
   /** Money, not weight - the amount comes off the supplier's delivery order. */
   budget_amount: string | null;
   budget_alert_percentages: number[];
+  /** Money off the delivery orders (default), or the quantity in `default_unit` (A6). */
+  budget_mode?: BudgetMode;
+  /** The quantity budget, in `default_unit`; only read in quantity mode. */
+  budget_quantity?: string | null;
+  /** Absolute warning lines - RM, or the quantity - beside the percentages. */
+  budget_alert_amounts?: number[];
+  /** Received in the column's unit; null when the column has no unit. */
+  quantity_used?: string | null;
+  quantity_uncounted_deliveries?: number | null;
+  /** The column's one unit (A4, Q1): the phone shows it and does not ask. */
+  default_unit?: string;
+  /** A unit the company added; null for a built-in code (translated). */
+  default_unit_label?: string | null;
+  /** Who may deliver this material (Q1). Ids to write; names below to show. */
+  suppliers?: string[];
+  supplier_options?: CategorySupplierOption[];
+  /** 指定厂商 (D1, Q13): the factories the contract allows. */
+  manufacturers?: string[];
+  manufacturer_options?: CategoryManufacturerOption[];
   /**
    * Records filed under this category, from the relation that matches its
    * module - the count the category management screen shows (D-125).
@@ -138,6 +173,12 @@ export interface ProjectCategoryPayload {
   budget_amount?: string | null;
   /** The percentages of that budget worth interrupting the owner for. */
   budget_alert_percentages?: number[];
+  budget_mode?: BudgetMode;
+  budget_quantity?: string | null;
+  budget_alert_amounts?: number[];
+  default_unit?: string;
+  suppliers?: string[];
+  manufacturers?: string[];
   is_visible_in_pwa?: boolean;
   is_active?: boolean;
   access_mode?: "ALL" | "RESTRICTED";
@@ -467,6 +508,11 @@ export interface MaterialOutgoing {
   source_receipt_no?: string | null;
   source_receipt_quantity?: string | null;
   source_receipt_at?: string | null;
+  /** The factory that made it (2026-10 D1), copied from the delivery unless changed. */
+  manufacturer?: string | null;
+  manufacturer_name?: string | null;
+  manufacturer_off_list?: boolean;
+  unit_label?: string | null;
   material_name: string;
   material_specification?: string;
   /** What the application asked to send back. */
@@ -517,6 +563,10 @@ export interface ReturnableReceipt {
   business_at: string;
   supplier: string;
   supplier_name: string;
+  /** Whose make (2026-10 D1), and what the delivery's column designates. */
+  manufacturer?: string | null;
+  manufacturer_name?: string;
+  designated_manufacturers?: Array<{ id: string; name: string; is_active: boolean }>;
   material_name: string;
   material_specification: string;
   unit: string;
@@ -745,6 +795,12 @@ export interface ArchiveQueueRow<K extends string = ArchiveRecordKind> {
   delivery_note_no?: string;
   /** A category's records only (2026-10 B3): the supplier, "" when none. */
   supplier_name?: string;
+  /**
+   * Material receipts and returns (2026-10 D1): whose make, "" when nobody
+   * said, and whether the category designates others (「非指定厂商」).
+   */
+  manufacturer_name?: string;
+  manufacturer_off_list?: boolean;
   /** A material receipt's direction (B10), so a return is not named 材料进场. */
   movement_type?: "ENTRY" | "RETURN";
   /** When this reader opened it in 现场记录中心 (未看 / 已看), or null (T-391, C4). */
@@ -794,6 +850,8 @@ export interface CategoryRecordPage {
    * module whose records never come from one is offered the dates only.
    */
   supplier_filter?: boolean;
+  /** Whether any record kind here has a manufacturer (2026-10 D1): material only. */
+  manufacturer_filter?: boolean;
 }
 
 export interface ArchiveQueuePage {

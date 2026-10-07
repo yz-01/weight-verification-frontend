@@ -14,6 +14,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { useUnitName } from "@/hooks/use-material-units";
 import { DISPATCH_STATE_TONE } from "@/components/dispatches/dispatches";
 import { LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -368,6 +369,7 @@ function ReceiptsPanel({
   onRetry: () => void;
 }) {
   const t = useTranslations();
+  const unitName = useUnitName();
 
   const units = (data?.by_unit ?? []).map((unit) => ({
     ...unit,
@@ -399,7 +401,7 @@ function ReceiptsPanel({
             <section key={unit.unit} className="space-y-3 px-6 py-5">
               <div className="flex flex-wrap items-baseline gap-2">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t(`receipts.unit.${unit.unit}`)}
+                  {unitName(unit.unit)}
                 </h4>
                 <span className="tabular text-sm font-medium text-foreground">
                   {unit.quantity}

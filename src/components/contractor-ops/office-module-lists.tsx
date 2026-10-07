@@ -57,6 +57,8 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { RecordNo } from "@/components/shared/record-no";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
+import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import {
   ColumnFilter,
   FilterSelect,
@@ -199,9 +201,12 @@ export function MaterialOutgoingOffice() {
     "category",
     "uncategorised",
     "supplier",
+    "manufacturer",
     "date_from",
     "date_to",
   ]);
+  const unitName = useUnitName();
+  const unitValues = useUnitExportValues();
   const rows = useQuery({
     queryKey: ["material-outgoing", "office", list.query],
     queryFn: () => getMaterialOutgoing(list.query),
@@ -297,7 +302,7 @@ export function MaterialOutgoingOffice() {
         header: () => <PlainHeader label={t("field.quantity")} />,
         cell: ({ row }) => (
           <span className="tabular">
-            {row.original.quantity} {row.original.unit}
+            {row.original.quantity} {unitName(row.original.unit, row.original.unit_label)}
           </span>
         ),
       },
@@ -315,6 +320,20 @@ export function MaterialOutgoingOffice() {
             title={row.original.supplier_name ?? ""}
           >
             {row.original.supplier_name || "—"}
+          </span>
+        ),
+      },
+      // Whose make (2026-10 D1), copied from the delivery it went back from.
+      {
+        accessorKey: "manufacturer_name",
+        meta: { label: tRoot("manufacturers.column") },
+        header: () => <PlainHeader label={tRoot("manufacturers.column")} />,
+        cell: ({ row }) => (
+          <span className="block max-w-[200px]">
+            <ManufacturerCell
+              name={row.original.manufacturer_name}
+              offList={row.original.manufacturer_off_list}
+            />
           </span>
         ),
       },
@@ -340,7 +359,7 @@ export function MaterialOutgoingOffice() {
         ),
       },
     ],
-    [t, tRoot, df],
+    [t, tRoot, df, unitName],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -355,9 +374,10 @@ export function MaterialOutgoingOffice() {
         { key: "category_name", label: t("field.category") },
         // Who it went back to (2026-10 C7).
         { key: "supplier_name", label: t("field.supplier") },
+        { key: "manufacturer_name", label: tRoot("manufacturers.column") },
         { key: "material_name", label: t("field.material") },
         { key: "quantity", label: t("field.quantity") },
-        { key: "unit", label: t("field.unit") },
+        { key: "unit", label: t("field.unit"), values: unitValues },
         { key: "destination", label: t("field.destination") },
         // DO and plate head every record that has them (2026-10 C12).
         { key: "delivery_note_no", label: t("field.deliveryNote") },
@@ -395,7 +415,7 @@ export function MaterialOutgoingOffice() {
         above={
           <div className="flex flex-wrap items-center justify-between gap-2">
             <MaterialTabs>
-              <SupplierDateListFilter list={list} />
+              <SupplierDateListFilter list={list} showManufacturer />
             </MaterialTabs>
             <Link href="/receipts?direction=OUT" className="text-xs text-primary underline-offset-2 hover:underline">
               {tRoot("receipts.tabs.legacyReturns")}
@@ -408,7 +428,8 @@ export function MaterialOutgoingOffice() {
         totalCount={total}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        storageKey="material-outgoing"
+        // `.v2` with the manufacturer column (2026-10 D1).
+        storageKey="material-outgoing.v2"
         toolbar={
           <>
             <ProjectListFilter list={list} />

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { useUnitName } from "@/hooks/use-material-units";
 import { useAuth } from "@/components/providers/auth-provider";
 import {
   FormSkeleton,
@@ -359,6 +360,7 @@ function initials(name: string): string {
 
 export function ViewReceipt({ id }: { id: string }) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const df = useDateFormat();
   const { can } = useAuth();
   const queryClient = useQueryClient();
@@ -403,7 +405,7 @@ export function ViewReceipt({ id }: { id: string }) {
         {/* Which way it went (B10): a return used to open on a page that
             only ever said 材料进场. */}
         <TypeBadge label={t(`receipts.movement.${data.movement_type}`)} />
-        <TypeBadge label={t(`receipts.unit.${data.unit}`)} />
+        <TypeBadge label={unitName(data.unit, data.unit_label)} />
         {data.supersedes && (
           <Link
             href={`/receipts/${data.supersedes}`}
@@ -678,11 +680,19 @@ function CorrectionTrail({
  */
 function DeliveryOrderPanel({ receipt }: { receipt: MaterialReceiptDetail }) {
   const t = useTranslations();
+  const unitName = useUnitName();
   const rows: Array<[string, React.ReactNode]> = [
     [t("receipts.field.deliveryNoteNo"), receipt.delivery_note_no],
     [t("receipts.field.supplier"), receipt.supplier_name],
+    // Whose make (2026-10 D1), with 「非指定厂商」 when the category names others.
+    [
+      t("receipts.field.manufacturer"),
+      receipt.manufacturer_name
+        ? `${receipt.manufacturer_name}${receipt.manufacturer_off_list ? ` · ${t("manufacturers.offList")}` : ""}`
+        : "",
+    ],
     [t("receipts.field.materialName"), receipt.material_name],
-    [t("receipts.field.quantity"), `${receipt.quantity} ${t(`receipts.unit.${receipt.unit}`)}`],
+    [t("receipts.field.quantity"), `${receipt.quantity} ${unitName(receipt.unit, receipt.unit_label)}`],
     [t("receipts.field.vehiclePlate"), receipt.vehicle_plate],
     // The money the material budget counts (A6), and where it came from.
     [

@@ -69,11 +69,13 @@ import { missingSiteEntry, siteEntryRequired } from "@/lib/material-site-entry";
 import { matchSupplier } from "@/lib/supplier-match";
 import type { FieldTask, ProjectCategory } from "@/interfaces/contractor-ops";
 import {
-  MATERIAL_UNITS,
   type DeliveryNoteOCRLineItem,
   type MaterialUnit,
   type SupplierQRCode,
 } from "@/interfaces/contractor";
+import { ManufacturerPicker } from "@/components/shared/manufacturer-picker";
+import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
+import { columnAutofill } from "@/lib/material-autofill";
 import {
   getQRCodes,
   getSuppliers,
@@ -283,6 +285,11 @@ interface MaterialDraft {
    */
   documentAmount?: string;
   notes: string;
+  /**
+   * The factory that made it (2026-10 D1). Filled in when the category
+   * designates exactly one; optional so a draft saved before it still loads.
+   */
+  manufacturer?: string;
   /** 当天货不对 (10-02 D08): this delivery is being turned away, not taken in. */
   rejecting?: boolean;
   rejectionReason?: string;
@@ -304,11 +311,12 @@ const EMPTY_MATERIAL: MaterialDraft = {
   deliveryNoteNo: "",
   documentAmount: "",
   notes: "",
+  manufacturer: "",
   rejecting: false,
   rejectionReason: "",
 };
 
-function MaterialCapturePanel({
+export function MaterialCapturePanel({
   initialSupplierToken,
   initialProject = "",
   fieldTaskId,
@@ -320,7 +328,6 @@ function MaterialCapturePanel({
   onSaved: () => void;
 }) {
   const t = useTranslations("fieldStaffPwa");
-  const allT = useTranslations();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [draft, setDraft] = useDraftState<MaterialDraft>("material", { ...EMPTY_MATERIAL, project: initialProject });
@@ -329,6 +336,9 @@ function MaterialCapturePanel({
   const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>("supplierSignature");
   const clearDraft = useClearDraft();
   const [scannedQr, setScannedQr] = useState<SupplierQRCode>();
+  // The supplier a scanned code named - a docket or a supplier card. It wins
+  // over the category's supplier list (Q1): the lorry at the gate is the fact.
+  const [scannedSupplier, setScannedSupplier] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [ocrProof, setOcrProof] = useState("");
   // The amount OCR read, kept apart from the input so the hint can say
@@ -375,15 +385,19 @@ function MaterialCapturePanel({
   const removeLineItem = (index: number) =>
     setOcrLineItems((rows) => rows.filter((_, i) => i !== index));
   const loadLineItem = (item: DeliveryNoteOCRLineItem) =>
-    setDraft((old) => ({
-      ...old,
-      materialName: item.material_name,
-      quantity: numericSuggestion(item.quantity) || old.quantity,
-      unit: (item.unit as MaterialUnit) || old.unit,
-      // The reader now hands back the column id, so the line does not have to
-      // be matched back to one by its code.
-      category: item.category_id || old.category,
-    }));
+    setDraft((old) =>
+      withColumn(
+        {
+          ...old,
+          materialName: item.material_name,
+          quantity: numericSuggestion(item.quantity) || old.quantity,
+          unit: (item.unit as MaterialUnit) || old.unit,
+        },
+        // The reader now hands back the column id, so the line does not have
+        // to be matched back to one by its code.
+        item.category_id || old.category,
+      ),
+    );
   // The material columns of this site. Only the material ones: a site-record
   // column is not somewhere a delivery can be filed, and the server refuses
   // one here (T-161).
@@ -402,6 +416,44 @@ function MaterialCapturePanel({
     staleTime: 30_000,
   });
   const columnRows: ProjectCategory[] = columns.data?.results ?? [];
+  const selectedColumn = columnRows.find((row) => row.id === draft.category);
+  /**
+   * The draft with `category` chosen and what the category fills in applied
+   * (2026-10 A4, D1, Q1): its unit, its only supplier, its only designated
+   * manufacturer. A scanned supplier still wins. Called wherever a category
+   * is chosen - by hand, from a scanned line, from the OCR reading.
+   */
+  const withColumn = (old: MaterialDraft, category: string): MaterialDraft => {
+    if (category === old.category && category !== "") return old;
+    const column = columnRows.find((row) => row.id === category);
+    const filled = columnAutofill(
+      column,
+      { unit: old.unit, supplier: old.supplier, manufacturer: old.manufacturer ?? "" },
+      { scannedSupplier },
+    );
+    return {
+      ...old,
+      category,
+      unit: filled.unit,
+      supplier: filled.supplier,
+      manufacturer: filled.manufacturer,
+    };
+  };
+  const fill = columnAutofill(
+    selectedColumn,
+    { unit: draft.unit, supplier: draft.supplier, manufacturer: draft.manufacturer ?? "" },
+    { scannedSupplier },
+  );
+  // The unit a locked category decides is the one sent, whatever a scanned
+  // line or an older draft put in `draft.unit`.
+  const unit = fill.unitLocked ? fill.unit : draft.unit;
+  const unitName = useUnitName();
+  const units = useMaterialUnits();
+  const supplierRows = (suppliers.data?.results ?? []).filter(
+    (row) =>
+      row.is_active &&
+      (!fill.supplierIds || fill.supplierIds.includes(row.id) || row.id === scannedSupplier),
+  );
   /** Open a column for this delivery, and select it. See `openColumn`. */
   const columnCreation = useMutation({
     mutationFn: ({ name }: { name: string; index?: number }) =>
@@ -409,7 +461,7 @@ function MaterialCapturePanel({
     onSuccess: (row, { index }) => {
       setColumnError("");
       setNewColumnName("");
-      setDraft((old) => ({ ...old, category: row.id }));
+      setDraft((old) => withColumn(old, row.id));
       // A column opened from a scanned line belongs to that line too.
       // Without this the row still reads "pick a category" straight after
       // somebody opened one for exactly that material.
@@ -482,6 +534,7 @@ function MaterialCapturePanel({
       setError("");
       if (result.kind === "DOCKET") {
         setScannedQr(result.code);
+        setScannedSupplier(result.code.supplier);
         setDraft((old) => ({
           ...old,
           project: result.code.project,
@@ -490,6 +543,7 @@ function MaterialCapturePanel({
         return;
       }
       setScannedQr(undefined);
+      setScannedSupplier(result.supplier.id);
       setDraft((old) => ({ ...old, supplier: result.supplier.id }));
     },
     onError: (reason) => setError(
@@ -530,7 +584,7 @@ function MaterialCapturePanel({
           ? { read: readSupplier, id: match.supplier.id, name: match.supplier.name }
           : null,
       );
-      setDraft((old) => ({
+      setDraft((old) => withColumn({
         ...old,
         supplier: match?.exact ? match.supplier.id : old.supplier,
         deliveryNoteNo: result.suggestions.delivery_note_no || old.deliveryNoteNo,
@@ -546,9 +600,8 @@ function MaterialCapturePanel({
           numericSuggestion(result.suggestions.quantity) ||
           old.quantity,
         unit: (items[0]?.unit as MaterialUnit) || old.unit,
-        category: firstCategory || old.category,
         documentAmount: readAmount || old.documentAmount || "",
-      }));
+      }, firstCategory || old.category));
     },
     onReset: () => {
       setOcrProof("");
@@ -595,8 +648,11 @@ function MaterialCapturePanel({
           material_name: draft.materialName.trim(),
           material_specification: draft.materialSpecification.trim(),
           quantity: draft.quantity,
-          unit: draft.unit,
+          unit,
           total_weight_kg: draft.totalWeightKg || null,
+          // Whose make (2026-10 D1); optional, never refused for being
+          // another factory - the office sees 「非指定厂商」 instead.
+          manufacturer: draft.manufacturer || null,
           // Sent as typed; the server keeps OCR as the source when it still
           // matches the reading, and fills it from the reading when blank.
           document_amount: (draft.documentAmount ?? "").trim() || null,
@@ -647,6 +703,7 @@ function MaterialCapturePanel({
           onValueChange={(project) => {
             ocr.cancel();
             setScannedQr(undefined);
+            setScannedSupplier("");
             setMaterialEvidence(createEmptyFieldEvidence());
             setNewColumnName("");
             setColumnError("");
@@ -664,7 +721,7 @@ function MaterialCapturePanel({
         />
       </FieldWrapper>
       <FieldWrapper label={t("material.column")} required>
-        <Select value={draft.category || undefined} onValueChange={(category) => setDraft((old) => ({ ...old, category }))} disabled={!draft.project || columns.isLoading}>
+        <Select value={draft.category || undefined} onValueChange={(category) => setDraft((old) => withColumn(old, category))} disabled={!draft.project || columns.isLoading}>
           <SelectTrigger className="w-full"><SelectValue placeholder={t("material.column")} /></SelectTrigger>
           <SelectContent>{columnRows.filter((row) => row.can_upload).map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
         </Select>
@@ -702,16 +759,24 @@ function MaterialCapturePanel({
           value={draft.supplier || undefined}
           onValueChange={(supplier) => {
             setScannedQr(undefined);
+            setScannedSupplier("");
             setDraft((old) => ({ ...old, supplier }));
           }}
         >
           <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.chooseSupplier")} /></SelectTrigger>
           <SelectContent>
-            {(suppliers.data?.results ?? []).filter((row) => row.is_active).map((row) => (
+            {supplierRows.map((row) => (
               <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+        {/* Q1: one supplier on the category fills itself in; several are the
+            only ones offered. A scanned code names its own. */}
+        {fill.supplierFromColumn && draft.supplier && !scannedSupplier ? (
+          <p className="text-xs text-muted-foreground">{t("material.autoFilledFromCategory")}</p>
+        ) : fill.supplierIds && fill.supplierIds.length > 1 ? (
+          <p className="text-xs text-muted-foreground">{t("material.supplierLimited")}</p>
+        ) : null}
         {supplierGuess && draft.supplier !== supplierGuess.id && (
           <div role="status" className="flex flex-wrap items-center gap-2 rounded-md border border-info/25 bg-info/5 px-3 py-2">
             <p className="min-w-0 flex-1 text-xs leading-5">
@@ -723,6 +788,7 @@ function MaterialCapturePanel({
               variant="outline"
               onClick={() => {
                 setScannedQr(undefined);
+                setScannedSupplier("");
                 setDraft((old) => ({ ...old, supplier: supplierGuess.id }));
                 setSupplierGuess(null);
               }}
@@ -739,11 +805,38 @@ function MaterialCapturePanel({
           </p>
         )}
       </FieldWrapper>
+      <FieldWrapper label={t("material.manufacturer")}>
+        <ManufacturerPicker
+          value={draft.manufacturer ?? ""}
+          onChange={(manufacturer) => setDraft((old) => ({ ...old, manufacturer }))}
+          designated={selectedColumn?.manufacturer_options ?? []}
+          autoFilled={fill.manufacturerFromColumn || (
+            (selectedColumn?.manufacturer_options ?? []).length === 1 &&
+            draft.manufacturer === selectedColumn?.manufacturer_options?.[0]?.id
+          )}
+          triggerClassName="h-12"
+        />
+      </FieldWrapper>
       <FieldWrapper label={t("material.unit")} required>
-        <Select value={draft.unit} onValueChange={(unit) => setDraft((old) => ({ ...old, unit: unit as MaterialUnit }))}>
-          <SelectTrigger className="h-12 w-full"><SelectValue /></SelectTrigger>
-          <SelectContent>{MATERIAL_UNITS.map((unit) => <SelectItem key={unit} value={unit}>{allT(`receipts.unit.${unit}`)}</SelectItem>)}</SelectContent>
-        </Select>
+        {fill.unitLocked ? (
+          // The category decided it (A4, Q1): shown, not asked.
+          <div className="flex h-12 items-center justify-between rounded-md border bg-muted/40 px-3">
+            <span className="text-sm font-medium">{unitName(unit, selectedColumn?.default_unit_label)}</span>
+            <span className="text-xs text-muted-foreground">{t("material.autoFilledFromCategory")}</span>
+          </div>
+        ) : (
+          <>
+            <Select value={draft.unit || undefined} onValueChange={(next) => setDraft((old) => ({ ...old, unit: next }))}>
+              <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.unit")} /></SelectTrigger>
+              <SelectContent>
+                {(units.data ?? []).map((row) => (
+                  <SelectItem key={row.code} value={row.code}>{unitName(row.code, row.label)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldLoadNote query={units} what={t("material.unit")} />
+          </>
+        )}
       </FieldWrapper>
       <FieldWrapper label={t("material.name")} required><Input className="h-12" value={draft.materialName} onChange={(event) => setDraft((old) => ({ ...old, materialName: event.target.value }))} /></FieldWrapper>
       <FieldWrapper label={t("material.quantity")} required><Input className="h-12" type="number" min="0" step="0.001" inputMode="decimal" value={draft.quantity} onChange={(event) => setDraft((old) => ({ ...old, quantity: event.target.value }))} /></FieldWrapper>
@@ -802,9 +895,9 @@ function MaterialCapturePanel({
                     <SelectTrigger className="h-10 w-full"><SelectValue placeholder={t("material.unit")} /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">{t("material.ocrItems.noUnit")}</SelectItem>
-                      {MATERIAL_UNITS.map((unit) => (
-                        <SelectItem key={unit} value={unit}>
-                          {allT(`receipts.unit.${unit}`)}
+                      {(units.data ?? []).map((row) => (
+                        <SelectItem key={row.code} value={row.code}>
+                          {unitName(row.code, row.label)}
                         </SelectItem>
                       ))}
                     </SelectContent>

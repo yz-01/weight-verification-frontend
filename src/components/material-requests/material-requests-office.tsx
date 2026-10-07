@@ -50,6 +50,9 @@ import {
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
 import { RecordNo } from "@/components/shared/record-no";
+import { ManufacturerCell, ManufacturerPicker } from "@/components/shared/manufacturer-picker";
+import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
+import { SupplierPicker } from "@/components/shared/supplier-picker";
 import {
   FilterSelect,
   ModuleRecordsTable,
@@ -156,7 +159,10 @@ function RequestsTab() {
   const df = useDateFormat();
   const unitLabel = useUnitLabel();
   const { can } = useAuth();
-  const list = useListQuery(["project", "status", "request_type", "material", "specification", "unit"]);
+  const list = useListQuery([
+    "project", "status", "request_type", "material", "specification", "unit", "supplier", "manufacturer",
+    "date_from", "date_to",
+  ]);
   const rows = useQuery({
     queryKey: ["material-requests", "office", list.query],
     queryFn: () => getMaterialRequests(list.query),
@@ -207,6 +213,19 @@ function RequestsTab() {
         meta: { label: t("field.unit") },
         header: () => <PlainHeader label={t("field.unit")} />,
         cell: ({ row }) => (row.original.unit ? unitLabel(row.original.unit) : "—"),
+      },
+      // Whose make and who sells it (2026-10 D1, D3): settled on approval.
+      {
+        accessorKey: "manufacturer_name",
+        meta: { label: t("field.manufacturer") },
+        header: () => <PlainHeader label={t("field.manufacturer")} />,
+        cell: ({ row }) => <ManufacturerCell name={row.original.manufacturer_name} />,
+      },
+      {
+        accessorKey: "supplier_name",
+        meta: { label: t("field.supplier") },
+        header: () => <PlainHeader label={t("field.supplier")} />,
+        cell: ({ row }) => row.original.supplier_name || <span className="text-muted-foreground">—</span>,
       },
       {
         accessorKey: "submitted_by_name",
@@ -264,6 +283,8 @@ function RequestsTab() {
         { key: "specification", label: t("field.specification") },
         { key: "quantity", label: t("field.quantity") },
         { key: "unit", label: t("field.unit") },
+        { key: "manufacturer_name", label: t("field.manufacturer") },
+        { key: "supplier_name", label: t("field.supplier") },
         { key: "submitted_by_name", label: t("field.submittedBy") },
         { key: "submitted_at", label: t("field.date") },
         {
@@ -304,8 +325,9 @@ function RequestsTab() {
         totalCount={total}
         isLoading={rows.isLoading}
         isError={rows.isError}
-        // New key (D3): an old saved column set must not bring back the dropped columns.
-        storageKey="material-requests.v2"
+        // New key (D3): an old saved column set must not bring back the dropped
+        // columns, nor hide the manufacturer and supplier ones (D1).
+        storageKey="material-requests.v3"
         toolbar={
           <>
             <ProjectListFilter list={list} />
@@ -323,6 +345,7 @@ function RequestsTab() {
             />
             <TextFilter list={list} param="material" placeholder={t("filter.material")} />
             <TextFilter list={list} param="specification" placeholder={t("filter.specification")} />
+            <SupplierDateListFilter list={list} showManufacturer />
             <ExportButton onExport={runExport} disabled={total === 0} />
           </>
         }
@@ -522,9 +545,22 @@ export function MaterialRequestDetail({
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
   const [previewing, setPreviewing] = useState(false);
+  // Approving is the purchase (2026-10 D1, D2): who it is bought from and
+  // whose make. Starts from what the applicant suggested; `null` = untouched.
+  const [supplier, setSupplier] = useState<string | null>(null);
+  const [manufacturer, setManufacturer] = useState<string | null>(null);
+  const chosenSupplier = supplier ?? detail.data?.supplier ?? "";
+  const chosenManufacturer = manufacturer ?? detail.data?.manufacturer ?? "";
   const review = useMutation({
     mutationFn: (decision: "APPROVED" | "RETURNED") =>
-      reviewMaterialRequest(id, decision, decision === "RETURNED" ? reason.trim() : ""),
+      reviewMaterialRequest(
+        id,
+        decision,
+        decision === "RETURNED" ? reason.trim() : "",
+        decision === "APPROVED" && detail.data?.request_type === "MATERIAL"
+          ? { supplier: chosenSupplier, manufacturer: chosenManufacturer }
+          : undefined,
+      ),
     onSuccess: () => {
       setReturnArmed(false);
       setReason("");
@@ -609,6 +645,8 @@ export function MaterialRequestDetail({
                 { label: t("field.material"), value: row.material_name },
                 { label: t("field.specification"), value: row.specification },
                 { label: t("field.quantity"), value: `${row.quantity ?? "—"} ${unitLabel(row.unit)}` },
+                { label: t("field.supplier"), value: row.supplier_name || "—" },
+                { label: t("field.manufacturer"), value: row.manufacturer_name || "—" },
               ]
             : []),
           { label: t("field.submittedBy"), value: who(row.submitted_by_name, row.submitted_at) },
@@ -689,7 +727,37 @@ export function MaterialRequestDetail({
             </div>
             {reviewView === "decide" && (
               <>
-                <Button className="w-full" disabled={review.isPending} onClick={() => review.mutate("APPROVED")}>
+                {isMaterial && (
+                  // D2 + D1: approving settles the supplier and the
+                  // manufacturer; returning needs neither.
+                  <div className="space-y-2 rounded-md border p-2">
+                    <p className="text-xs text-muted-foreground">{t("approve.help")}</p>
+                    <FieldWrapper label={t("field.supplier")} required>
+                      <SupplierPicker
+                        value={chosenSupplier}
+                        onChange={setSupplier}
+                        knownName={row.supplier_name}
+                        placeholder={t("approve.chooseSupplier")}
+                      />
+                    </FieldWrapper>
+                    <FieldWrapper label={t("field.manufacturer")} required>
+                      <ManufacturerPicker value={chosenManufacturer} onChange={setManufacturer} />
+                    </FieldWrapper>
+                  </div>
+                )}
+                <Button
+                  className="w-full"
+                  requires={
+                    isMaterial
+                      ? [
+                          [chosenSupplier, t("field.supplier")],
+                          [chosenManufacturer, t("field.manufacturer")],
+                        ]
+                      : []
+                  }
+                  disabled={review.isPending}
+                  onClick={() => review.mutate("APPROVED")}
+                >
                   <Check />
                   {t("action.approve")}
                 </Button>

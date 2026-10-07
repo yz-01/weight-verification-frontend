@@ -3995,8 +3995,19 @@
       "amountHint": "不计预算的分类留空",
       "alerts": "在这些百分比提醒",
       "alertsHint": "用逗号分隔，例如 80, 100。改了预算会重新算已经越过哪几条线。",
-      "alertsInvalid": "请填 1 到 500 之间的整数，用逗号分隔。",
-      "none": "没有设预算"
+      "alertsInvalid": "请填 1 到 1000 之间的整数，用逗号分隔。",
+      "none": "没有设预算",
+      "mode": "预算按",
+      "modeAmount": "金额（RM，按送货单）",
+      "modeQuantity": "数量（按分类单位）",
+      "quantity": "预算数量",
+      "quantityHint": "单位：{unit}。吨和公斤会换算后一起累计。",
+      "quantityNeedsUnit": "请先选分类的单位。",
+      "thresholdAmounts": "另外在这些数值提醒",
+      "thresholdAmountsHint": "选填。用逗号分隔，例如 400000, 450000（RM）；数量模式填数量。",
+      "thresholdAmountsInvalid": "请填大于 0 的数字，用逗号分隔。",
+      "recipients": "提醒发给公司管理员和项目负责人，每条线只发一次；总数回落到线下会撤回。",
+      "quantityUsed": "已进场 {used} / {budget} {unit}"
     },
     "saveFailed": "没有成功。请再试一次，或者刷新页面。",
     "viewRecords": "查看记录",
@@ -4011,7 +4022,44 @@
       "emptyFiltered": "这个分类里没有符合筛选条件的记录。",
       "deliveryNoteNo": "DO"
     },
-    "quantityReturned": "退场 {quantity}"
+    "quantityReturned": "退场 {quantity}",
+    "units": {
+      "title": "单位管理",
+      "open": "单位管理",
+      "help": "材料用的计量单位。分类的单位从这里选；6 个内建单位一直都在。",
+      "label": "单位名称",
+      "add": "新增单位",
+      "builtIn": "内建",
+      "active": "使用中",
+      "inactive": "已停用",
+      "switchOff": "停用",
+      "switchOn": "启用",
+      "rename": "改名",
+      "save": "保存",
+      "offHint": "停用后不再供选择；已用这个单位的记录不受影响。",
+      "duplicate": "这个单位已经在名单里。",
+      "what": "单位列表",
+      "toast": {
+        "created": "已新增单位",
+        "updated": "已保存单位"
+      }
+    },
+    "material": {
+      "title": "现场自动带出",
+      "help": "在这里设好，手机选这个分类时会自动带出。",
+      "defaultUnit": "单位",
+      "defaultUnitHint": "手机只显示，不用填。",
+      "noUnit": "不固定单位",
+      "suppliers": "供应商",
+      "suppliersHint": "只有一家：自动带出；多家：手机只能从这几家选；扫供应商二维码优先。",
+      "manufacturers": "指定厂商",
+      "manufacturersHint": "记录的厂商不在名单里会标「非指定厂商」，只提醒、不阻挡。",
+      "search": "输入搜索",
+      "noneChosen": "未选择",
+      "what": {
+        "suppliers": "供应商列表"
+      }
+    }
   },
   "cloudServices": {
     "count": "{count} 项服务",
@@ -7749,7 +7797,11 @@
       "supplierGuessUse": "用这家",
       "documentAmount": "送货单金额 (RM)",
       "documentAmountRead": "已从送货单读出，请对照纸本核对。",
-      "documentAmountTypeHint": "读不到金额时，请照送货单上的总金额填写（可不填）。"
+      "documentAmountTypeHint": "读不到金额时，请照送货单上的总金额填写（可不填）。",
+      "autoFilledFromCategory": "按分类自动带出",
+      "supplierLimited": "只列这个分类设定的供应商",
+      "manufacturer": "制造厂商",
+      "chooseColumnFirst": "请先选分类"
     },
     "materialEvidence": {
       "arrival": "1. 车辆到场",
@@ -9544,7 +9596,8 @@
       "decided_by": "批准 / 退回人",
       "original_quantity": "原数量",
       "correction_reason": "更正原因",
-      "assigned_reviewer": "提交给"
+      "assigned_reviewer": "提交给",
+      "manufacturer": "制造厂商"
     },
     "detailTitle": "我提交过的",
     "photos": "照片",
@@ -9890,7 +9943,8 @@
       "wasteClearance": "垃圾清运",
       "equipmentEntry": "设备进场",
       "equipmentExit": "设备退场",
-      "targetReport": "目标与达成"
+      "targetReport": "目标与达成",
+      "manufacturers": "制造厂商"
     },
     "subscription_management": "订阅管理",
     "suppliers": "供应商",
@@ -11341,7 +11395,8 @@
       "documentAmountSource": {
         "OCR": "从送货单读出",
         "MANUAL": "人工填写"
-      }
+      },
+      "manufacturer": "制造厂商"
     },
     "locationCaptured": "已记录位置",
     "locationMissing": "无位置",
@@ -15214,7 +15269,9 @@
       "remark": "备注",
       "attachments": "附件",
       "assignedReviewer": "提交给",
-      "reassignHistory": "改派记录"
+      "reassignHistory": "改派记录",
+      "supplier": "供应商",
+      "manufacturer": "制造厂商"
     },
     "action": {
       "view": "查看",
@@ -15282,7 +15339,8 @@
       "assignedReviewerHint": "只列出这个项目能批准申请的人。",
       "chooseReviewer": "选择审批人",
       "projectFirst": "请先选择项目",
-      "noReviewers": "这个项目还没有人能批准申请。请公司管理员在「角色权限」里，给审批人的角色勾上「批准或退回 MR / 其他申请」。"
+      "noReviewers": "这个项目还没有人能批准申请。请公司管理员在「角色权限」里，给审批人的角色勾上「批准或退回 MR / 其他申请」。",
+      "suggestHint": "选填，总部批准时决定。"
     },
     "options": {
       "open": "材料选项",
@@ -15318,7 +15376,13 @@
     "waitingFor": "等待 {name} 审批。",
     "reassigned": "{by} 改派给自己 · {at}",
     "reassignedFrom": "{by} 从 {from} 改派给自己 · {at}",
-    "reassignHelp": "改派后由你批准或退回，原来的审批人不能再批，系统会留下改派记录。"
+    "reassignHelp": "改派后由你批准或退回，原来的审批人不能再批，系统会留下改派记录。",
+    "approve": {
+      "title": "批准 {reference}",
+      "help": "批准就是采购决定：选好向哪家供应商买、用哪家厂商。",
+      "chooseSupplier": "选择供应商",
+      "confirm": "批准"
+    }
   },
   "filePreview": {
     "unsupported": "浏览器无法直接显示 {ext} 文件。",
@@ -15359,11 +15423,57 @@
     "from": "开始日期",
     "to": "至",
     "toLabel": "结束日期",
-    "what": "供应商列表"
+    "what": "供应商列表",
+    "allManufacturers": "全部厂商",
+    "manufacturer": "制造厂商",
+    "whatManufacturers": "厂商名单"
   },
   "recordNo": {
     "copy": "复制 {number}",
     "copied": "已复制 {number}",
     "copyFailed": "复制失败。长按编号可以看到完整编号。"
+  },
+  "manufacturers": {
+    "title": "制造厂商",
+    "description": "生产材料的工厂。材料分类可以设「指定厂商」；记录上的厂商不在名单里会标「非指定厂商」。",
+    "new": "新增厂商",
+    "createTitle": "新增厂商",
+    "editTitle": "编辑厂商",
+    "field": {
+      "name": "厂商名称",
+      "country": "国家",
+      "isActive": "启用",
+      "sortOrder": "排序",
+      "createdAt": "新增时间"
+    },
+    "empty": "还没有厂商",
+    "what": "厂商名单",
+    "duplicate": "这个厂商已经在名单里。",
+    "inUse": "已有记录用了这个厂商，请改为停用。",
+    "switchedOff": "已停用",
+    "remove": {
+      "title": "删除 {name}？",
+      "description": "只有还没被任何记录用过的厂商可以删除；已用过的请停用，旧记录仍保留厂商名称。",
+      "confirm": "删除"
+    },
+    "toast": {
+      "created": "已新增厂商",
+      "updated": "已更新厂商",
+      "removed": "已删除厂商"
+    },
+    "column": "制造厂商",
+    "offList": "非指定厂商",
+    "offListHint": "这个分类指定了其他厂商，仍然可以提交。",
+    "picker": {
+      "choose": "选择制造厂商",
+      "none": "未填写",
+      "designated": "指定厂商",
+      "addNew": "名单里没有？新增",
+      "newName": "新厂商名称",
+      "add": "新增",
+      "offline": "新增厂商需要网络。请先从名单选，或先不填。",
+      "failed": "厂商新增失败。",
+      "fromColumn": "按分类自动带出"
+    }
   }
 }

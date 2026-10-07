@@ -28,6 +28,7 @@ import { RecordClosurePanel } from "@/components/shared/record-closure";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import { RecordNo } from "@/components/shared/record-no";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { canConfirmClosure, canDiscuss, isQueueKind } from "@/lib/record-chat";
 import { recordStatusLabel } from "@/lib/record-status";
 import { useDateFormat } from "@/lib/dates";
@@ -343,6 +344,17 @@ export function ArchiveQueue() {
                         {row.detail && (
                           <span className="block max-w-[16rem] truncate text-xs font-normal text-muted-foreground">
                             {row.detail}
+                          </span>
+                        )}
+                        {/* Who sold it and whose make (2026-10 D1): material
+                            receipts and returns carry both. */}
+                        {(row.supplier_name || row.manufacturer_name) && (
+                          <span className="flex max-w-[18rem] flex-wrap items-center gap-1 text-xs font-normal">
+                            {row.supplier_name && <span className="truncate">{row.supplier_name}</span>}
+                            {row.supplier_name && row.manufacturer_name && <span aria-hidden>·</span>}
+                            {row.manufacturer_name && (
+                              <ManufacturerCell name={row.manufacturer_name} offList={row.manufacturer_off_list} />
+                            )}
                           </span>
                         )}
                       </span>

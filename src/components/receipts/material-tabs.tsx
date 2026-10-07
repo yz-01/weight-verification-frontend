@@ -7,7 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MATERIAL_UNITS } from "@/interfaces/contractor";
+import { useUnitName } from "@/hooks/use-material-units";
 import { getReceiptNetTotals } from "@/services/contractor.service";
 
 export type MaterialTab = "in" | "out" | "reject" | "totals";
@@ -91,18 +91,28 @@ export function MaterialTabs({ children }: { children?: React.ReactNode }) {
  * In (rejected deliveries left out), less what was returned - each return
  * once, against the delivery it points at - per unit and never across units.
  */
-export function NetTotalsView({ project }: { project?: string }) {
+export function NetTotalsView({
+  project,
+  filters = {},
+}: {
+  project?: string;
+  /** Supplier, manufacturer (2026-10 D1) and dates, as the list filters them. */
+  filters?: Record<string, string | undefined>;
+}) {
   const t = useTranslations();
+  const unitName = useUnitName();
+  const query = Object.fromEntries(
+    Object.entries({ project, ...filters }).filter(([, value]) => Boolean(value)),
+  ) as Record<string, string>;
   const totals = useQuery({
-    queryKey: ["receipts", "net-totals", project ?? ""],
-    queryFn: () => getReceiptNetTotals(project ? { project } : {}),
+    queryKey: ["receipts", "net-totals", query],
+    queryFn: () => getReceiptNetTotals(query),
   });
   if (totals.isError) {
     return <LoadFailed what={t("receipts.tabs.totals")} onRetry={() => totals.refetch()} />;
   }
   const rows = totals.data?.results ?? [];
-  const unitLabel = (unit: string) =>
-    (MATERIAL_UNITS as readonly string[]).includes(unit) ? t(`receipts.unit.${unit as (typeof MATERIAL_UNITS)[number]}`) : unit;
+  const unitLabel = (unit: string) => unitName(unit);
   return (
     <section className="space-y-2">
       <p className="text-xs text-muted-foreground">{t("receipts.net.note")}</p>

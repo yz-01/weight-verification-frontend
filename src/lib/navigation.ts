@@ -777,6 +777,14 @@ export const PORTAL_NAVIGATION = {
           "/suppliers",
           "suppliers",
         ),
+        // 制造厂商 (2026-10 D1): the factories, kept beside the suppliers by
+        // the same people and under the same permissions.
+        child(
+          "3.2.2",
+          "nav.submodule.manufacturers",
+          "/manufacturers",
+          "suppliers",
+        ),
       ],
     ),
     // 材料管理 (A01, B09, E01): one entry for material coming in and going

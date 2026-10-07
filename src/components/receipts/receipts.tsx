@@ -16,7 +16,9 @@ import { ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/component
 import { Button } from "@/components/ui/button";
 import { useListQuery } from "@/hooks/use-list-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MATERIAL_UNITS, type MaterialReceipt } from "@/interfaces/contractor";
+import { type MaterialReceipt } from "@/interfaces/contractor";
+import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
+import { useUnitExportValues, useUnitName } from "@/hooks/use-material-units";
 import { getProjectCategories } from "@/services/contractor-ops.service";
 import {
   getReceipts,
@@ -38,6 +40,7 @@ export function Receipts() {
   const list = useListQuery([
     "project",
     "supplier",
+    "manufacturer",
     "date_from",
     "date_to",
     "unit",
@@ -77,6 +80,8 @@ export function Receipts() {
       }),
   });
 
+  const unitName = useUnitName();
+  const unitValues = useUnitExportValues();
   const columns = useMemo<ColumnDef<MaterialReceipt, unknown>[]>(
     () => [
       {
@@ -180,7 +185,7 @@ export function Receipts() {
         ),
         cell: ({ row }) => (
           <span className="tabular">
-            {row.original.quantity} {t(`receipts.unit.${row.original.unit}`)}
+            {row.original.quantity} {unitName(row.original.unit, row.original.unit_label)}
           </span>
         ),
       },
@@ -198,6 +203,25 @@ export function Receipts() {
             title={row.original.supplier_name}
           >
             {row.original.supplier_name}
+          </span>
+        ),
+      },
+      // Whose make (2026-10 D1), orange 「非指定厂商」 when the category
+      // designates others.
+      {
+        accessorKey: "manufacturer_name",
+        meta: { label: t("receipts.field.manufacturer") },
+        header: () => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("receipts.field.manufacturer")}
+          </span>
+        ),
+        cell: ({ row }) => (
+          <span className="block max-w-[200px]">
+            <ManufacturerCell
+              name={row.original.manufacturer_name}
+              offList={row.original.manufacturer_off_list}
+            />
           </span>
         ),
       },
@@ -283,7 +307,7 @@ export function Receipts() {
         ),
       },
     ],
-    [t, can],
+    [t, can, unitName],
   );
 
   const totalCount = data?.count ?? 0;
@@ -330,6 +354,7 @@ export function Receipts() {
         { key: "business_at", label: t("receipts.field.businessAt") },
         { key: "project_code", label: t("receipts.field.project") },
         { key: "supplier_name", label: t("receipts.field.supplier") },
+        { key: "manufacturer_name", label: t("receipts.field.manufacturer") },
         { key: "category_name", label: t("receipts.field.category") },
         {
           key: "movement_type",
@@ -343,9 +368,7 @@ export function Receipts() {
         {
           key: "unit",
           label: t("receipts.field.unit"),
-          values: Object.fromEntries(
-            MATERIAL_UNITS.map((unit) => [unit, t(`receipts.unit.${unit}`)]),
-          ),
+          values: unitValues,
         },
         { key: "unit_price", label: t("receipts.field.unitPrice") },
         { key: "total_value", label: t("receipts.field.totalValue") },
@@ -366,10 +389,18 @@ export function Receipts() {
       />
 
       <MaterialTabs>
-        {tab !== "totals" && <SupplierDateListFilter list={list} />}
+        <SupplierDateListFilter list={list} showManufacturer />
       </MaterialTabs>
       {tab === "totals" ? (
-        <NetTotalsView project={list.filters.project} />
+        <NetTotalsView
+          project={list.filters.project}
+          filters={{
+            supplier: list.filters.supplier,
+            manufacturer: list.filters.manufacturer,
+            date_from: list.filters.date_from,
+            date_to: list.filters.date_to,
+          }}
+        />
       ) : (
       <DataTable
         columns={columns}
@@ -385,7 +416,8 @@ export function Receipts() {
         sortOrder={list.sortOrder}
         // `.v2` since the columns changed (2026-10 C13): a reader's saved
         // choice of the old columns would otherwise hide the DO and plate.
-        storageKey="receipts.v2"
+        // `.v3` with the manufacturer column (2026-10 D1).
+        storageKey="receipts.v3"
         toolbarActions={
           <div className="ml-auto flex items-center gap-2">
             <Select
