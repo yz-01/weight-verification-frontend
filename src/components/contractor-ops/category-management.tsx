@@ -18,13 +18,9 @@ import { recordKindKey } from "@/lib/record-kind";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import {
-  CategoryDialog,
-  PhaseDialog,
-} from "@/components/contractor-ops/operations-workspaces";
+import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
 import { Shell } from "@/components/contractor-ops/package-shell";
-import { CategoryForm as DocumentCategoryForm } from "@/components/document-workflow/documents";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { RecordNo } from "@/components/shared/record-no";
@@ -66,12 +62,10 @@ import { WASTE_TYPES } from "@/interfaces/contractor";
 import type {
   ArchiveQueueRow,
   CategoryRecordKind,
-  ConstructionPhase,
   ColumnQuantity,
   ProjectCategory,
   ProjectCategoryKind,
 } from "@/interfaces/contractor-ops";
-import type { DocumentCategory } from "@/interfaces/document-workflow";
 import type { WasteCategory } from "@/interfaces/waste-outgoing";
 import {
   isCategoryModuleKey,
@@ -80,18 +74,12 @@ import {
 import { useDateFormat } from "@/lib/dates";
 import { recordStatusLabel } from "@/lib/record-status";
 import {
-  deleteConstructionPhase,
   deleteProjectCategory,
   getCategoryRecord,
   getCategoryRecords,
-  getConstructionPhases,
   getProjectCategories,
   reorderProjectCategories,
 } from "@/services/contractor-ops.service";
-import {
-  deleteDocumentCategory,
-  getDocumentCategories,
-} from "@/services/document-workflow.service";
 import {
   createWasteCategory,
   deleteWasteCategory,
@@ -113,12 +101,16 @@ import {
  * every module opens its own dialog here, and there is no "open the module"
  * button left to press.
  *
- * The twelve lists still come from five different tables in three scopes, on
- * purpose (F-338, D-126): documents and recyclable waste are company-wide, the
- * weighted construction stages and the project columns are per project, and
- * real records point at each of them. So each module brings its own editor -
- * the column dialog, the document category form, the phase dialog, the waste
- * category dialog - rather than one form pretending the tables are the same.
+ * 2026-10 B1 (Q5, X5): four groups only - 材料、设备、隐患整改、环保材料出场,
+ * the four the client uses. 文件分类 is managed on 文档档案 and 施工阶段 on
+ * 施工进度; progress, clearance, consultant and sundry records file under no
+ * category any more. The four lists come from two tables in two scopes, on
+ * purpose (F-338, D-126): recyclable waste is company-wide, the project
+ * columns are per project, and real records point at each. So each brings its
+ * own editor - the column dialog, the waste category dialog.
+ *
+ * 隐患整改分类 are read-only here (B1): listed, and their records open, but
+ * nothing is added, changed, removed or reordered.
  *
  * Deleting follows the server: a category that still holds records is
  * refused with a sentence saying so, and that sentence is shown here as it is.
@@ -133,12 +125,8 @@ interface Row {
   code: string;
   isActive: boolean;
   recordCount: number;
-  /** Shown as a tail note, for the phases that carry progress weight. */
-  note?: string;
   /** The source row, for the editor that module opens. */
   column?: ProjectCategory;
-  document?: DocumentCategory;
-  phase?: ConstructionPhase;
   waste?: WasteCategory;
 }
 
@@ -157,6 +145,11 @@ interface Module {
    * which list a new column joins.
    */
   columnKind?: ProjectCategoryKind;
+  /**
+   * Listed and opened, never edited here (2026-10 B1): no create, edit,
+   * delete or reorder, whatever the reader's permissions.
+   */
+  readOnly?: boolean;
   fetch: (project: string) => Promise<Row[]>;
   remove: (id: string) => Promise<void>;
 }
@@ -197,51 +190,11 @@ const MODULES: Module[] = [
   // create and no delete at all (F-465). They are an ordinary column module
   // now, with their money shown in the table and edited in the dialog.
   columnModule("material", "MATERIAL"),
-  // No 现场资料分类 (D-285): the customer never defined such a module, and its
-  // hazard categories moved to 隐患整改分类 below.
-  {
-    key: "document",
-    scope: "company",
-    manage: "document.manage",
-    fetch: async () => {
-      const page = await getDocumentCategories({ page_size: 200 });
-      return page.results.map((row) => ({
-        id: row.id,
-        name: row.name,
-        code: row.code,
-        isActive: row.is_active,
-        recordCount: row.record_count,
-        document: row,
-      }));
-    },
-    remove: deleteDocumentCategory,
-  },
   // The machines a contractor registers on a site, filed under this project's
   // own columns (T-242) - not MSE's own hardware register (F-369).
   columnModule("equipment", "EQUIPMENT"),
-  columnModule("progress", "PROGRESS"),
-  {
-    // The other half of the customer's "Progress", and deliberately not
-    // merged into the one above: a phase carries the weight the completion
-    // percentage is computed against (D-127).
-    key: "phase",
-    scope: "project",
-    manage: "progress.manage",
-    fetch: async (project: string) => {
-      const page = await getConstructionPhases({ project, page_size: 200 });
-      return page.results.map((row) => ({
-        id: row.id,
-        name: row.name,
-        code: row.code,
-        isActive: row.is_active,
-        recordCount: row.record_count,
-        note: row.planned_weight,
-        phase: row,
-      }));
-    },
-    remove: deleteConstructionPhase,
-  },
-  columnModule("ehs", "EHS"),
+  // Read-only (2026-10 B1): the hazard categories are fixed for the site.
+  { ...columnModule("ehs", "EHS"), readOnly: true },
   {
     key: "recycle",
     scope: "company",
@@ -261,14 +214,8 @@ const MODULES: Module[] = [
     },
     remove: deleteWasteCategory,
   },
-  columnModule("debris", "CONSTRUCTION_WASTE"),
-  // Consultant submissions used to file under the site-record columns; they
-  // have their own now, chosen on the phone when submitting (D-274).
-  columnModule("consultant", "CONSULTANT"),
-  // Sundry claims are filed by the office after the fact - the phone never
-  // chooses one (D-275). One set only: the period claims' own set duplicated
-  // it and is gone (D-286).
-  columnModule("sundry", "SUNDRY"),
+  // No 文件分类 (managed on 文档档案) and no 施工阶段 (managed on 施工进度),
+  // Q5; no progress, clearance, consultant or sundry categories, X5.
 ];
 
 export function CategoryManagement() {
@@ -295,6 +242,7 @@ export function CategoryManagement() {
   const [editing, setEditing] = useState<Row | "new" | null>(
     searchParams.get("create") === "1" &&
       can(initialModule.manage) &&
+      !initialModule.readOnly &&
       (initialModule.scope !== "project" || Boolean(initialProject))
       ? "new"
       : null,
@@ -308,7 +256,7 @@ export function CategoryManagement() {
   const active =
     MODULES.find((module) => module.key === selected) ?? MODULES[0];
   const needsProject = active.scope === "project";
-  const canManage = can(active.manage);
+  const canManage = can(active.manage) && !active.readOnly;
   const isMaterial = active.key === "material";
 
   const rows = useQuery({
@@ -508,12 +456,6 @@ export function CategoryManagement() {
                         >
                           {row.name}
                         </button>
-                        {/* The weight a phase carries (D-127). */}
-                        {row.note && (
-                          <span className="ml-2 text-xs font-normal text-muted-foreground">
-                            {t("weight", { weight: row.note })}
-                          </span>
-                        )}
                       </TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {row.code}
@@ -666,10 +608,10 @@ export function CategoryManagement() {
 /**
  * The editor this module owns, opened in place (D-264).
  *
- * One switch rather than one generic form: each table has fields the others
- * do not - a column's access and budget, a phase's progress weight, a waste
- * category's dispatch type - and a form that pretended otherwise would either
- * drop them or show fields that do nothing.
+ * One switch rather than one generic form: each table has fields the other
+ * does not - a column's access and budget, a waste category's dispatch type -
+ * and a form that pretended otherwise would either drop them or show fields
+ * that do nothing.
  */
 function CategoryEditor({
   module,
@@ -693,25 +635,6 @@ function CategoryEditor({
         defaultKind={module.columnKind}
         row={row?.column ?? null}
         nextSortOrder={nextSortOrder}
-        onClose={onClose}
-        onSaved={onSaved}
-      />
-    );
-  }
-  if (module.key === "document") {
-    return (
-      <DocumentCategoryDialog
-        category={row?.document ?? null}
-        onClose={onClose}
-        onSaved={onSaved}
-      />
-    );
-  }
-  if (module.key === "phase") {
-    return (
-      <PhaseDialog
-        project={project}
-        phase={row?.phase}
         onClose={onClose}
         onSaved={onSaved}
       />
@@ -779,7 +702,7 @@ export function QuantityCell({
 /**
  * The modules whose records can come from a supplier (2026-10 B16): a
  * delivery, a delivery note, a return, a machine and its movements. The
- * others - a hazard, a progress photo, a document - are offered dates only.
+ * others - a hazard, a recyclable load - are offered dates only.
  */
 const SUPPLIER_MODULES: ReadonlySet<CategoryModuleKey> = new Set<CategoryModuleKey>([
   "material",
@@ -952,12 +875,7 @@ function ColumnRecordsDialog({
                         )}
                         <span className="block text-xs text-muted-foreground">
                           {[
-                            // A consultant submission is a site record in the
-                            // tables, and a 顾问资料提交 to everyone who files
-                            // one - the phone's own name for it (D-274).
-                            moduleKey === "consultant" && row.kind === "SITE_RECORD"
-                              ? root("fieldStaffPwa.records.consultant")
-                              : queue(`kind.${recordKindKey(row)}` as never),
+                            queue(`kind.${recordKindKey(row)}` as never),
                             row.project_name,
                             formatter.dateTime(row.submitted_at),
                           ]
@@ -1093,44 +1011,6 @@ function SpendCell({ column }: { column: ProjectCategory }) {
         </p>
       )}
     </div>
-  );
-}
-
-/**
- * The document category form from the documents screen, in a dialog.
- *
- * The same form rather than a second copy of it: a company-wide list edited
- * through two forms is two chances for them to disagree.
- */
-function DocumentCategoryDialog({
-  category,
-  onClose,
-  onSaved,
-}: {
-  category: DocumentCategory | null;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
-  const t = useTranslations("categoryManagement");
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
-        {/* The form carries its own visible heading. */}
-        <DialogHeader className="sr-only">
-          <DialogTitle>
-            {t(category ? "dialogEdit" : "dialogCreate", {
-              module: t("module.document"),
-            })}
-          </DialogTitle>
-          <DialogDescription>{t("moduleHelp.document")}</DialogDescription>
-        </DialogHeader>
-        <DocumentCategoryForm
-          category={category}
-          onCancel={onClose}
-          onDone={onSaved}
-        />
-      </DialogContent>
-    </Dialog>
   );
 }
 

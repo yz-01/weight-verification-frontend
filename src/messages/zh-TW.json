@@ -3955,41 +3955,21 @@
     "loading": "載入中…",
     "module": {
       "material": "材料分類",
-      "document": "文件分類",
       "equipment": "設備分類",
-      "progress": "工程進度分類",
-      "phase": "施工階段",
       "ehs": "隱患整改 / EHS 分類",
-      "recycle": "環保材料出場分類",
-      "debris": "工地清運分類",
-      "consultant": "顧問資料分類",
-      "sundry": "雜費報銷分類"
+      "recycle": "環保材料出場分類"
     },
     "moduleHelp": {
       "material": "收貨與它的金額歸在這裡。按專案各一份。",
-      "field": "現場照片歸在這裡。按專案各一份。",
-      "document": "圖紙、合約、RFI 等。**全公司一份**，所有專案共用 —— 在這裡改，別的專案也跟著變。",
       "equipment": "吊車、挖掘機、發電機等。每個項目一份，由本公司維護。",
-      "progress": "區域、樓層、工種。按專案各一份，**不參與**進度百分比計算。",
-      "phase": "進度百分比就是按這些階段算的。按專案各一份 —— 改權重會改已有數字。",
-      "ehs": "安全隱患、品質問題、事故、作業許可證。按專案各一份。",
-      "recycle": "現場外運的可回收廢料。全公司一份；系統預置的可停用、不可刪除。",
-      "debris": "送去清運的建築垃圾。按專案各一份。",
-      "consultant": "顧問資料歸在這裡，和現場資料分開。按專案各一份。",
-      "sundry": "雜費報銷歸在這裡。按專案各一份。",
-      "claim": "材料到場與進度 Claim 歸在這裡。按專案各一份。"
+      "ehs": "安全部整改、施工部整改、顧問要求整改、施工准證申請。按項目各一份，固定不改，這裡只能查看。",
+      "recycle": "現場外運的可回收廢料：廢鐵、銅、鋁、電纜。全公司一份；系統預置的可停用、不可刪除。"
     },
     "moduleSource": {
       "material": "記錄來自：現場材料進場、後台材料進場台帳。現場工作人員可以填。",
-      "document": "文件由後台上傳歸檔。現場工作人員不填這裡。",
       "equipment": "記錄來自：後台「設備登記」。設備檔案在辦公室建，手機只記進出。",
-      "progress": "進度由現場提交，再由後台事後歸到分類。手機端不選分類。",
-      "phase": "階段由後台維護，用來算進度百分比，本身不接收記錄。",
       "ehs": "記錄來自：隱患上報（現場與後台都算）。現場工作人員可以填。",
-      "recycle": "記錄來自：後台的可回收廢料外運。現場工作人員不填這裡。",
-      "debris": "記錄來自：後台發起的建築垃圾清運。現場工作人員不填這裡。",
-      "consultant": "記錄來自：手機端顧問資料提交，提交時選分類。現場工作人員可以填。",
-      "sundry": "雜費報銷由手機端提交，後台處理時再歸入分類。手機端不選分類。"
+      "recycle": "記錄來自：後台的可回收廢料外運。現場工作人員不填這裡。"
     },
     "modules": "模組",
     "scope": {
@@ -3999,7 +3979,6 @@
     },
     "subtitle": "先選左邊的業務欄目，再看它下面的分類。",
     "title": "分類管理",
-    "weight": "權重 {weight}",
     "removeFailed": "「{name}」沒有刪除：{reason}",
     "dialogCreate": "新增分類 · {module}",
     "dialogEdit": "編輯分類 · {module}",
@@ -7534,29 +7513,28 @@
       "preview": "已拍攝"
     },
     "consultantCapture": {
-      "category": "申請類別",
-      "categoryOption": {
-        "MATERIAL": "材料審批",
-        "OTHER": "其他",
-        "RFI": "RFI / 現場問題",
-        "SAFETY": "安全審核",
-        "WIR": "施工檢查"
+      "askFor": "這次要顧問看什麼",
+      "askOption": {
+        "MATERIAL_APPROVAL": "材料申請",
+        "MATERIAL_CERT_SUBMISSION": "材料證書提交",
+        "RFI": "RFI（問顧問問題）",
+        "OTHER": "其他"
       },
       "chooseProject": "選擇項目",
-      "description": "請簡單說明要辦公室或顧問查看什麼",
+      "description": "說明",
+      "descriptionPlaceholder": "想讓顧問看什麼、問什麼，寫在這裡",
+      "location": "現場定位",
+      "morePhoto": "再拍一張",
       "note": "額外備註（選填）",
-      "photos": "顧問現場照片",
+      "optional": "選填",
+      "photoHint": "至少拍 1 張。建議拍：工作區全景、問題或施工細節、位置參照、圖紙或標籤。",
+      "photoNumber": "照片 {number}",
+      "photos": "照片",
       "project": "項目",
-      "submit": "提交到顧問資料收件箱",
+      "submit": "提交",
+      "takePhoto": "拍照",
       "workLocation": "現場位置 / 軸線",
       "workLocationPlaceholder": "例如：A座，C1-D1軸線"
-    },
-    "consultantEvidence": {
-      "detail": "2. 問題或施工細節",
-      "location": "3. 軸線或位置參照",
-      "overview": "1. 工作區域全景",
-      "reference": "4. 圖紙、標籤或周邊參照",
-      "title": "必須拍攝的顧問現場證據"
     },
     "consultantTasks": {
       "title": "顧問現場照片提交"

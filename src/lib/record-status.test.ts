@@ -57,8 +57,11 @@ describe("the phone and the consultant columns use their own words", () => {
     }
   });
 
-  it("calls a consultant column's records 顾问资料提交, not 现场记录", () => {
+  it("has no consultant column left to name (2026-10 B1)", () => {
+    // 顾问资料分类 is retired, so Category Management never lists a consultant
+    // submission as a 现场记录; the phone's 顾问资料提交 files under none.
     const source = readFileSync(path.join(process.cwd(), "src/components/contractor-ops/category-management.tsx"), "utf8");
-    expect(source).toMatch(/moduleKey === "consultant" && row\.kind === "SITE_RECORD"[\s\S]{0,80}fieldStaffPwa\.records\.consultant/);
+    expect(source).not.toMatch(/columnModule\("consultant"/);
+    expect(source).not.toMatch(/moduleKey === "consultant"/);
   });
 });

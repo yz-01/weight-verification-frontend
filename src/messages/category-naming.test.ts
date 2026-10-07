@@ -48,9 +48,16 @@ describe("栏目 never names a category", () => {
     expect(zh.categoryManagement.module).toMatchObject({
       equipment: "设备分类",
       recycle: "环保材料出场分类",
-      debris: "工地清运分类",
     });
-    expect(zh.categoryManagement.module).not.toHaveProperty("field");
-    expect(zh.categoryManagement.module).not.toHaveProperty("claim");
+    // 分类管理只留四组 (2026-10 B1): 材料、设备、隐患整改、环保材料出场.
+    expect(Object.keys(zh.categoryManagement.module).sort()).toEqual([
+      "ehs",
+      "equipment",
+      "material",
+      "recycle",
+    ]);
+    for (const gone of ["field", "claim", "document", "phase", "progress", "debris", "consultant", "sundry"]) {
+      expect(zh.categoryManagement.module).not.toHaveProperty(gone);
+    }
   });
 });

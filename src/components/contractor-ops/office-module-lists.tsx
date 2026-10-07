@@ -19,7 +19,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Camera,
-  FolderOpen,
   ImagePlus,
   ListTree,
   Loader2,
@@ -42,7 +41,6 @@ import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
-import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import {
   EquipmentDialog,
   MovementDialog,
@@ -96,7 +94,6 @@ import {
   addProgressPhotos,
   addProgressRemark,
   exportSiteProgressRecords,
-  fileProgressRecord,
   getConstructionPhases,
   getEquipmentMovements,
   getEquipmentSummary,
@@ -1221,13 +1218,8 @@ export function SiteProgressOffice() {
   const df = useDateFormat();
   const { can } = useAuth();
   const qc = useQueryClient();
-  const list = useListQuery([
-    "project",
-    "phase",
-    "status",
-    "category",
-    "uncategorised",
-  ]);
+  // No category filter (2026-10 B1, X5): progress has no categories.
+  const list = useListQuery(["project", "phase", "status"]);
   const project = list.filters.project ?? "";
   const rows = useQuery({
     queryKey: ["site-progress", "office", list.query],
@@ -1251,9 +1243,8 @@ export function SiteProgressOffice() {
     searchParams.get("create") === "1",
   );
   const [viewing, setViewing] = useState<SiteProgressRecord | null>(null);
-  const [filing, setFiling] = useState<SiteProgressRecord | null>(null);
-  // The open record follows the list, so filing it shows the new column
-  // without closing and reopening.
+  // The open record follows the list, so a photo or a remark added to it
+  // shows without closing and reopening.
   const shown = viewing
     ? (rows.data?.results.find((row) => row.id === viewing.id) ?? viewing)
     : null;
@@ -1327,12 +1318,6 @@ export function SiteProgressOffice() {
             tone={tone(row.original.status)}
           />
         ),
-      },
-      {
-        accessorKey: "category_name",
-        meta: { label: t("field.category") },
-        header: () => <PlainHeader label={t("field.category")} />,
-        cell: ({ row }) => <Unfiled name={row.original.category_name} />,
       },
       {
         accessorKey: "submitted_by_name",
@@ -1498,7 +1483,6 @@ export function SiteProgressOffice() {
         toolbar={
           <>
             <ProjectListFilter list={list} />
-            <ColumnFilter list={list} kind="PROGRESS" />
             <FilterSelect
               list={list}
               param="phase"
@@ -1606,12 +1590,16 @@ export function SiteProgressOffice() {
             }
             panel={
               <section className="rounded-lg border bg-card p-3">
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {t("filing.fileInto")}
-                </h3>
-                <p className="text-sm font-medium">
-                  {shown.category_name || t("filing.unfiled")}
-                </p>
+                {/* A record filed before 2026-10 keeps its category, shown
+                    as it was; nothing new is filed (B1). */}
+                {shown.category_name && (
+                  <>
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      {t("field.category")}
+                    </h3>
+                    <p className="text-sm font-medium">{shown.category_name}</p>
+                  </>
+                )}
                 {(shown.remarks ?? []).length > 0 && (
                   <div className="mt-3 border-t pt-2">
                     <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -1633,18 +1621,6 @@ export function SiteProgressOffice() {
             }
             actions={
               <div className="flex flex-wrap gap-2">
-                {/* Filing is the reviewer's judgement (D-108), and allowed
-                    on a record of any status (T-231). */}
-                {can("progress.confirm") && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setFiling(shown)}
-                  >
-                    <FolderOpen />
-                    {t("filing.action")}
-                  </Button>
-                )}
                 {can("progress.confirm") && (
                   <ProgressRemarkBox
                     onSave={async (body) => {
@@ -1667,22 +1643,6 @@ export function SiteProgressOffice() {
         </RecordDetailDialog>
       )}
 
-      {filing && (
-        <FileIntoColumnDialog
-          projectId={filing.project}
-          kind="PROGRESS"
-          current={filing.category ?? null}
-          reference={reference(filing)}
-          onFile={(category, reason) =>
-            fileProgressRecord(filing.id, { category, reason })
-          }
-          onFiled={() => {
-            void qc.invalidateQueries({ queryKey: ["site-progress"] });
-            void qc.invalidateQueries({ queryKey: ["project-categories"] });
-          }}
-          onClose={() => setFiling(null)}
-        />
-      )}
       {editingPhase && (
         <PhaseDialog
           project={project}

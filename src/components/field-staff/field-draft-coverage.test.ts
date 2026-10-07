@@ -138,7 +138,8 @@ const FORMS: FormCase[] = [
     fields: [
       'useDraftState("project"',
       'useDraftState("evidence"',
-      'useDraftState("category"',
+      // 「这次要顾问看什么」 (2026-10 F4), in place of the old category.
+      'useDraftState("askFor"',
       'useDraftState("note"',
     ],
   },

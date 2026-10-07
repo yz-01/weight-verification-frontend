@@ -97,10 +97,52 @@ function callArguments(body, callIndex) {
   return body.slice(callIndex);
 }
 
+/**
+ * Kinds whose categories are retired (D-285, D-286; 2026-10 B1, X5): 分类管理
+ * 只留四组 - 材料、设备、隐患整改、环保材料出场. Old rows of these kinds stay
+ * in the database, but no screen lists them, picks one, filters by one or
+ * files into one again. A screen that did would offer columns nobody can see
+ * on Category Management - 「为什么会有整改 VO？」 all over again.
+ */
+const RETIRED_KINDS = [
+  "FIELD",
+  "BOTH",
+  "CLAIM",
+  "PROGRESS",
+  "CONSTRUCTION_WASTE",
+  "CONSULTANT",
+  "SUNDRY",
+];
+const RETIRED_CALL = new RegExp(`\\bkind:\\s*"(${RETIRED_KINDS.join("|")})"`);
+/**
+ * Screens that read one retired kind on purpose, so old records stay findable
+ * (X5: 旧记录仍能在原业务页找到). An entry is a business claim, like the list
+ * above: say why.
+ */
+const LEGACY_READS = new Map([
+  // Hazards filed before migration 0040 sit in 现场资料 (FIELD) columns; the
+  // hazard list's column filter reads them beside the EHS ones so those
+  // hazards can still be filtered by the column they are in.
+  ["src/components/site-operations/safety.tsx", "FIELD"],
+]);
+
+/** A column picker, filter or filing dialog pinned to a retired kind. */
+const columnComponents = (body) => [
+  ...body.matchAll(
+    new RegExp(
+      `<(ProjectColumnPicker|ColumnFilter|FileIntoColumnDialog)\\b[^>]*?\\bkind="(${RETIRED_KINDS.join("|")})"`,
+      "g",
+    ),
+  ),
+];
+
 const offences = [];
+const retired = [];
 const declared = [];
 for (const file of walk(ROOT)) {
   const relative = file.split("\\").join("/");
+  // Tests quote the old shapes on purpose, to say they are gone.
+  if (/\.test\.tsx?$/.test(relative)) continue;
   const body = readFileSync(file, "utf8");
   let cursor = body.indexOf(CALL);
   while (cursor !== -1) {
@@ -108,11 +150,44 @@ for (const file of walk(ROOT)) {
     const argument = callArguments(body, cursor);
     if (/\bkind:/.test(argument)) {
       declared.push(`${relative}:${line}`);
+      const match = argument.match(RETIRED_CALL);
+      if (match && LEGACY_READS.get(relative) !== match[1]) {
+        retired.push(`${relative}:${line} (kind ${match[1]})`);
+      }
     } else if (!DELIBERATELY_UNFILTERED.has(relative)) {
       offences.push(`${relative}:${line}`);
     }
     cursor = body.indexOf(CALL, cursor + CALL.length);
   }
+  for (const match of columnComponents(body)) {
+    const line = body.slice(0, match.index).split("\n").length;
+    retired.push(`${relative}:${line} (<${match[1]} kind="${match[2]}">)`);
+  }
+}
+
+// The same guard on the guard for the retired-kind reader: it must see a
+// picker written across lines, and must not flag a live kind.
+if (
+  columnComponents('<ProjectColumnPicker project={p}\n  kind="PROGRESS" />').length !== 1 ||
+  columnComponents('<ColumnFilter list={list} kind="MATERIAL" />').length !== 0 ||
+  !RETIRED_CALL.test('getProjectCategories({ kind: "SUNDRY" })')
+) {
+  console.error(
+    "check-category-kinds: the retired-kind reader no longer reads a column component.",
+  );
+  process.exit(1);
+}
+
+if (retired.length > 0) {
+  console.error(
+    "\nThese screens still offer categories of a retired kind:\n\n" +
+      "  分类管理只留四组 (2026-10 B1): material, equipment, hazard and\n" +
+      "  recyclable waste. Progress, clearance, consultant and sundry records\n" +
+      "  file under no category, and the site-record and claim ones are gone.\n",
+  );
+  for (const offence of retired) console.error(`  ${offence}`);
+  console.error("");
+  process.exit(1);
 }
 
 // A guard on the guard. If `callArguments` ever stopped finding the `kind` in a

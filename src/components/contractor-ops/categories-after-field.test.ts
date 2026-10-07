@@ -58,6 +58,10 @@ describe("现场资料分类 is gone (D-285)", () => {
     expect(TASK_CATEGORY_KIND.OTHER).toBeUndefined();
     expect(TASK_CATEGORY_KIND.MATERIAL).toBe("MATERIAL");
     expect(TASK_CATEGORY_KIND.SAFETY).toBe("EHS");
+    // 2026-10 B1 (X5): progress, clearance and consultant have no categories.
+    expect(TASK_CATEGORY_KIND.PROGRESS).toBeUndefined();
+    expect(TASK_CATEGORY_KIND.WASTE).toBeUndefined();
+    expect(TASK_CATEGORY_KIND.CONSULTANT).toBeUndefined();
     const workspaces = read("src/components/contractor-ops/operations-workspaces.tsx");
     expect(workspaces).toMatch(/\[!categoryKind \|\| form\.category, t\("field\.category"\)\]/);
     expect(workspaces).not.toMatch(/PHOTO: "FIELD"/);

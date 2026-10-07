@@ -3955,41 +3955,21 @@
     "loading": "Loading...",
     "module": {
       "material": "Material categories",
-      "document": "Document categories",
       "equipment": "Equipment categories",
-      "progress": "Progress categories",
-      "phase": "Construction stages",
       "ehs": "EHS categories",
-      "recycle": "Environmental material outgoing categories",
-      "debris": "Site disposal categories",
-      "consultant": "Consultant submission categories",
-      "sundry": "Sundry claim categories"
+      "recycle": "Environmental material outgoing categories"
     },
     "moduleHelp": {
       "material": "Deliveries and the money they cost file here. One list per project.",
-      "field": "Site photographs file here. One list per project.",
-      "document": "Drawings, contracts, RFIs. One list for the whole company, shared by every project - editing it here changes it everywhere.",
       "equipment": "Cranes, excavators, generators. One list per project, kept by this company.",
-      "progress": "Zones, floors and trades. One list per project, and these carry no progress weight.",
-      "phase": "The stages the completion percentage is measured against. One list per project - changing a weight changes the figures.",
-      "ehs": "Hazards, quality issues, incidents and permits. One list per project.",
-      "recycle": "Recyclable waste the site sends out. One list for the whole company; the seeded ones can be closed but not deleted.",
-      "debris": "Construction waste sent for disposal. One list per project.",
-      "consultant": "Consultant submissions file here, apart from the site records. One list per project.",
-      "sundry": "Sundry claims file here. One list per project.",
-      "claim": "Material-on-site and progress claims file here. One list per project."
+      "ehs": "Safety, construction and consultant rectifications, and work permits. One list per project, fixed - view only here.",
+      "recycle": "Recyclable waste the site sends out: scrap iron, copper, aluminium, cable. One list for the whole company; the seeded ones can be closed but not deleted."
     },
     "moduleSource": {
       "material": "Records come from site goods-receipt and the back-office receipt register. Field staff can file here.",
-      "document": "Documents are uploaded and filed from the back office. Field staff do not file here.",
       "equipment": "Records come from Equipment movement in the back office. Machines are registered in the office; the phone only logs them in and out.",
-      "progress": "Progress is submitted on site and filed into a category afterwards by the back office. The phone does not choose a category.",
-      "phase": "Phases are maintained in the back office and drive the completion percentage. No records file into them.",
       "ehs": "Records come from hazard reports, on site and in the office alike. Field staff can file here.",
-      "recycle": "Records come from recyclable waste sent out by the back office. Field staff do not file here.",
-      "debris": "Records come from construction-waste disposal raised in the back office. Field staff do not file here.",
-      "consultant": "Records come from consultant submissions on the phone: the category is chosen when submitting. Field staff can file here.",
-      "sundry": "Sundry claims are submitted on the phone and filed into a category by the back office when it handles them. The phone does not choose a category."
+      "recycle": "Records come from recyclable waste sent out by the back office. Field staff do not file here."
     },
     "modules": "Modules",
     "scope": {
@@ -3999,7 +3979,6 @@
     },
     "subtitle": "Pick a business entry on the left, then see the categories under it.",
     "title": "Category management",
-    "weight": "weight {weight}",
     "removeFailed": "{name} was not deleted: {reason}",
     "dialogCreate": "New category · {module}",
     "dialogEdit": "Edit category · {module}",
@@ -7534,29 +7513,28 @@
       "preview": "Photo taken"
     },
     "consultantCapture": {
-      "category": "Request type",
-      "categoryOption": {
-        "MATERIAL": "Material approval",
-        "OTHER": "Other",
-        "RFI": "RFI / site question",
-        "SAFETY": "Safety review",
-        "WIR": "Work inspection"
+      "askFor": "What should the consultant look at?",
+      "askOption": {
+        "MATERIAL_APPROVAL": "Material approval",
+        "MATERIAL_CERT_SUBMISSION": "Material certificate",
+        "RFI": "RFI (ask the consultant)",
+        "OTHER": "Other"
       },
       "chooseProject": "Choose project",
-      "description": "What should the office or consultant review?",
+      "description": "Description",
+      "descriptionPlaceholder": "What the consultant should check or answer",
+      "location": "Site location",
+      "morePhoto": "Take another",
       "note": "Extra note (optional)",
-      "photos": "Consultant site photos",
+      "optional": "optional",
+      "photoHint": "At least 1 photo. Good to take: the work area, the issue or detail, a location reference, a drawing or label.",
+      "photoNumber": "Photo {number}",
+      "photos": "Photos",
       "project": "Project",
-      "submit": "Send to consultant inbox",
+      "submit": "Submit",
+      "takePhoto": "Take photo",
       "workLocation": "Work area / grid line",
       "workLocationPlaceholder": "Example: Block A, Grid C1-D1"
-    },
-    "consultantEvidence": {
-      "detail": "2. Issue or work detail",
-      "location": "3. Grid line or location reference",
-      "overview": "1. Work area overview",
-      "reference": "4. Drawing, label or surrounding reference",
-      "title": "Required consultant photo evidence"
     },
     "consultantTasks": {
       "title": "Consultant photo submissions"

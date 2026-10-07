@@ -6,7 +6,6 @@ import {
   Check,
   ClipboardList,
   ChevronRight,
-  FolderOpen,
   FileText,
   FilePlus2,
   ListTree,
@@ -30,7 +29,6 @@ import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { useRef, useState } from "react";
 
 import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
-import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { useAuth } from "@/components/providers/auth-provider";
 import { DeliveryNoteReadStatus, useDeliveryNoteReader } from "@/hooks/use-delivery-note-reader";
 import { useClearSearchParam } from "@/hooks/use-url-selection";
@@ -65,7 +63,6 @@ import { LocationField } from "@/components/field-staff/location-field";
 import type { LocationFix } from "@/lib/field-location";
 import { parseAlertPercentages } from "@/lib/category-modules";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
-import { ProjectColumnPicker } from "@/components/site-operations/project-column-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -97,7 +94,6 @@ import type {
   CategorySubmissionMode,
   ProjectCategoryPayload,
   SiteEquipment,
-  SiteProgressRecord,
 } from "@/interfaces/contractor-ops";
 import { ApiError } from "@/interfaces/api";
 import { MATERIAL_UNITS } from "@/interfaces/contractor";
@@ -123,7 +119,6 @@ import {
   getSiteProgressRecords,
   getSiteProgressSummary,
   reviewMaterialOutgoing,
-  fileProgressRecord,
   transitionFieldTask,
   updateFieldTask,
   updateProjectCategory,
@@ -414,21 +409,9 @@ export function CategoryDialog({
                 <SelectItem value="EQUIPMENT">
                   {modules("module.equipment")}
                 </SelectItem>
-                <SelectItem value="PROGRESS">
-                  {modules("module.progress")}
-                </SelectItem>
-                <SelectItem value="EHS">
-                  {modules("module.ehs")}
-                </SelectItem>
-                <SelectItem value="CONSTRUCTION_WASTE">
-                  {modules("module.debris")}
-                </SelectItem>
-                <SelectItem value="CONSULTANT">
-                  {modules("module.consultant")}
-                </SelectItem>
-                <SelectItem value="SUNDRY">
-                  {modules("module.sundry")}
-                </SelectItem>
+                {/* 2026-10 B1: 隐患整改分类 are read-only, so no column is
+                    made into one here; progress, clearance, consultant and
+                    sundry have no categories at all (X5). */}
                 {/* Only offered on a column that already carries the marker.
                     It is not a scheme somebody should pick on purpose - it
                     means "not separated yet" - but taking it off the form
@@ -662,6 +645,8 @@ export function FieldTasksWorkspace({
   taskType,
 }: { taskType?: FieldTask["task_type"] } = {}) {
   const t = useTranslations("contractorOps");
+  // The four 「这次要顾问看什么」 answers by name, not by code (2026-10 F4).
+  const askFor = useTranslations("fieldStaffPwa.consultantCapture");
   const { can, user } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
@@ -964,7 +949,9 @@ export function FieldTasksWorkspace({
                   <div className="border-t px-4 py-3" data-testid="field-task-detail">
                     {row.submission_category && (
                       <p className="text-xs font-semibold text-primary">
-                        {row.submission_category}
+                        {askFor.has(`askOption.${row.submission_category}`)
+                          ? askFor(`askOption.${row.submission_category}` as never)
+                          : row.submission_category}
                       </p>
                     )}
                     <div className="mt-1 grid gap-1 text-xs text-muted-foreground">
@@ -1193,16 +1180,15 @@ export function FieldTasksWorkspace({
  * Which category a task of each type files under, or none (D-285).
  *
  * 「拍照」 and 「其他」 are the task itself - no business module's categories.
+ * Progress, clearance and consultant tasks name none either since 2026-10
+ * (B1, X5): their modules no longer have categories.
  */
 export const TASK_CATEGORY_KIND: Partial<
   Record<FieldTaskPayload["task_type"], ProjectCategoryKind>
 > = {
   MATERIAL: "MATERIAL",
   EQUIPMENT: "EQUIPMENT",
-  PROGRESS: "PROGRESS",
   SAFETY: "EHS",
-  WASTE: "CONSTRUCTION_WASTE",
-  CONSULTANT: "CONSULTANT",
 };
 
 function TaskDialog({
@@ -2356,10 +2342,6 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
   const [addingRecord, setAddingRecord] = useDraftState("open:addingRecord",
     Boolean(fieldTaskId) || searchParams.get("create") === "1",
   );
-  // Which record the office is filing, if any (T-231). Filing is allowed on a
-  // record of any status, including a confirmed one: the column is the
-  // contractor's filing scheme, not part of what the record proves.
-  const [filing, setFiling] = useState<SiteProgressRecord | null>(null);
   const phases = useQuery({
     queryKey: ["construction-phases", project],
     queryFn: () =>
@@ -2555,29 +2537,17 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
                 <p className="mt-2 text-sm">
                   {row.description || t("state.noDescription")}
                 </p>
-                {/* Where this record files, and the way to change it. Shown to
-                    everyone who can read the list, because "unfiled" is a
-                    state somebody has to notice; only the reviewer can act on
-                    it, which is the permission the server checks. */}
-                <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-sm">
-                  <span className="text-xs text-muted-foreground">
-                    {t("filing.fileInto")}
-                  </span>
-                  <span className="font-medium">
-                    {row.category_name || t("filing.unfiled")}
-                  </span>
-                  {can("progress.confirm") && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="ml-auto"
-                      onClick={() => setFiling(row)}
-                    >
-                      <FolderOpen />
-                      {t("filing.action")}
-                    </Button>
-                  )}
-                </div>
+                {/* Progress has no categories since 2026-10 (B1, X5): a
+                    record filed in one before keeps it, shown here as it
+                    was; nothing new is filed. */}
+                {row.category_name && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3 text-sm">
+                    <span className="text-xs text-muted-foreground">
+                      {t("field.category")}
+                    </span>
+                    <span className="font-medium">{row.category_name}</span>
+                  </div>
+                )}
                 {/* 【沟通】 is one of the three things D-225 keeps on a progress
                     record (沟通、备注、上传). */}
                 <div className="mt-3 flex justify-end">
@@ -2591,22 +2561,6 @@ export function SiteProgressWorkspace({ initialProject = "", fieldTaskId, onReco
             </article>
           ))}
         </div>
-      )}
-      {filing && (
-        <FileIntoColumnDialog
-          projectId={filing.project}
-          kind="PROGRESS"
-          current={filing.category ?? null}
-          reference={`${filing.phase_name} / ${filing.percent_complete}%`}
-          onFile={(category, reason) =>
-            fileProgressRecord(filing.id, { category, reason })
-          }
-          onFiled={() => {
-            void qc.invalidateQueries({ queryKey: ["site-progress"] });
-            void qc.invalidateQueries({ queryKey: ["project-categories"] });
-          }}
-          onClose={() => setFiling(null)}
-        />
       )}
       {editingPhase && (
         <PhaseDialog
@@ -2777,7 +2731,8 @@ export function ProgressDialog({
   // F-282
   const [project, setProject] = useDraftState("project", initialProject);
   const [phase, setPhase] = useDraftState("phase", "");
-  const [category, setCategory] = useDraftState("category", "");
+  // No category (2026-10 B1, X5): a draft saved with one before simply
+  // leaves it unread.
   const [percent, setPercent] = useDraftState("percent", "");
   const [description, setDescription] = useDraftState("description", "");
   const [photos, setPhotos] = useDraftState<File[]>("photos", []);
@@ -2804,7 +2759,6 @@ export function ProgressDialog({
       if (!user) throw new Error("Authentication required.");
       return submitSiteProgressOfflineAware(user.id, {
         project,
-        category,
         phase,
         percent_complete: percent,
         description,
@@ -2838,12 +2792,10 @@ export function ProgressDialog({
             onValueChange={(next) => {
               setProject(next);
               setPhase("");
-              setCategory("");
             }}
             placeholder={t("field.selectProject")}
           />
         </FieldWrapper>
-        <ProjectColumnPicker project={project} kind="PROGRESS" value={category} onChange={setCategory} />
         <FieldWrapper
           label={t("field.phase")}
           required
@@ -2931,7 +2883,6 @@ export function ProgressDialog({
             requires={[
               [project, t("field.project")],
               [phase, t("field.phase")],
-              [category, t("field.category")],
               [percent, t("field.percentComplete")],
               [
                 submissionPhotos.length >=
