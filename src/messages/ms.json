@@ -11121,6 +11121,11 @@
     },
     "loadMore": "Muat lagi ({shown} daripada {total} dipaparkan)"
   },
+  "photos": {
+    "count": "{count, plural, one {# foto} other {# foto}}",
+    "none": "Tiada foto",
+    "open": "Buka foto {reference}"
+  },
   "profile": {
     "section": {
       "identity": "Maklumat asas",

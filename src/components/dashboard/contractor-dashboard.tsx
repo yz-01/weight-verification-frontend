@@ -3,10 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   AlarmClock,
+  Bell,
   BellPlus,
   CalendarClock,
-  ClipboardList,
   ClipboardCheck,
+  ClipboardList,
   Download,
   FilePlus2,
   FileSpreadsheet,
@@ -17,7 +18,6 @@ import {
   KeyRound,
   ListTodo,
   LogOut,
-  type LucideIcon,
   MapPinOff,
   PackageCheck,
   PackageMinus,
@@ -28,11 +28,13 @@ import {
   Trash2,
   Truck,
   Undo2,
+  type LucideIcon,
 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 
+import { PhotoThumb, recordPhotos } from "@/components/shared/photo-thumb";
 import { ContractorLocationMap } from "@/components/dashboard/contractor-location-map";
 import { DashboardCards } from "@/components/dashboard/dashboard-cards";
 import { DashboardSection } from "@/components/dashboard/dashboard-section";
@@ -573,7 +575,22 @@ export function ContractorDashboard({
                 <ul className="max-h-96 divide-y overflow-y-auto">
                   {notifications.rows.map((row) => (
                     <li key={row.id} className="flex items-start justify-between gap-3 py-2.5">
-                      <div className="min-w-0">
+                      {/* The photograph of the record the notice is about (E3),
+                          opening that record's photographs (audit #4). A
+                          notice about no record has a picture only. */}
+                      <PhotoThumb
+                        coverUrl={row.cover_photo_url}
+                        count={row.photo_count}
+                        icon={Bell}
+                        reference={row.title}
+                        size="sm"
+                        photos={
+                          row.subject_kind && row.subject_id
+                            ? recordPhotos(row.subject_kind, row.subject_id, row.title)
+                            : undefined
+                        }
+                      />
+                      <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{row.title}</p>
                         <p className="truncate text-xs text-muted-foreground">
                           {row.message}

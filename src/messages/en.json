@@ -11121,6 +11121,11 @@
     },
     "loadMore": "Load more ({shown} of {total} shown)"
   },
+  "photos": {
+    "count": "{count, plural, one {# photo} other {# photos}}",
+    "none": "No photo",
+    "open": "Open the photos of {reference}"
+  },
   "profile": {
     "section": {
       "identity": "Identity",

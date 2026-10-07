@@ -43,7 +43,7 @@ export function CompanyBanner({
   const notices = useQuery({
     queryKey: ["contractor-dashboard", "banner-notifications"],
     queryFn: () =>
-      getContractorDashboard({ sections: ["notifications"], silent: true }),
+      getContractorDashboard({ sections: ["notifications"], silent: true, covers: false }),
     refetchInterval: 60_000,
   });
   // A failed count shows the plain link rather than a number it never read.

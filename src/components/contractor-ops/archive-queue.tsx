@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Inbox, ListTree, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { recordKindKey } from "@/lib/record-kind";
+import { PhotoThumb, recordKindIcon, recordPhotos } from "@/components/shared/photo-thumb";
 import { PhotoViewer } from "@/components/shared/record-detail-shell";
 import Image from "next/image";
 import Link from "next/link";
@@ -317,27 +318,14 @@ export function ArchiveQueue() {
                       summary in the list; everything else in the record. */}
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
-                      {row.photo ? (
-                        <button
-                          type="button"
-                          className="shrink-0 overflow-hidden rounded-md border bg-muted"
-                          onClick={() => openRow(row)}
-                          title={t("openPhoto")}
-                        >
-                          <Image
-                            src={row.photo}
-                            alt={row.reference}
-                            width={64}
-                            height={64}
-                            unoptimized
-                            className="size-14 object-cover"
-                          />
-                        </button>
-                      ) : (
-                        <span className="grid size-14 shrink-0 place-items-center rounded-md border border-dashed text-[10px] text-muted-foreground">
-                          {t("noPhoto")}
-                        </span>
-                      )}
+                      {/* The record's photograph, every photo of it on click (E3). */}
+                      <PhotoThumb
+                        coverUrl={row.cover_photo_url}
+                        count={row.photo_count}
+                        icon={recordKindIcon(row.kind)}
+                        reference={row.reference}
+                        photos={recordPhotos(row.kind, row.id, row.reference)}
+                      />
                       <span className="min-w-0">
                         {/* Short number big, project small (2026-10 D4). */}
                         <RecordNo value={row.reference} projectCode={row.project_code} />

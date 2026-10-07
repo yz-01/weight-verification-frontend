@@ -7,6 +7,8 @@ export type SundryClaimState = "SUBMITTED" | "CONFIRMED" | "REJECTED";
 export interface SundryClaimAttachment {
   id: string;
   image: string;
+  /** The stamped copy, or null when none could be made (what a list's viewer opens). */
+  watermarked?: string | null;
   caption: string;
   captured_at: string;
   latitude: string | null;
@@ -27,6 +29,10 @@ export interface SundryClaimPaymentProof {
 }
 
 export interface SundryClaim {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   claim_no: string;
   project: string;

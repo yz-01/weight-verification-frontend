@@ -49,6 +49,7 @@ import {
 } from "@/components/material-requests/request-form";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ExportButton } from "@/components/shared/export-button";
+import { photoColumn, rowPhotos } from "@/components/shared/photo-thumb";
 import { RecordNo } from "@/components/shared/record-no";
 import { ManufacturerCell, ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import { SupplierDateListFilter } from "@/components/shared/supplier-date-filter";
@@ -182,6 +183,15 @@ function RequestsTab() {
         // Short number big, project small (2026-10 D4).
         cell: ({ row }) => <RecordNo value={row.original.request_no} />,
       },
+      // The record's photograph beside its main column (E3).
+      photoColumn<MaterialRequest>({
+        label: tRoot("moduleTable.photos"),
+        icon: FilePlus2,
+        reference: (row) => row.request_no,
+        // The stamped copies (Q30.1): a request's pictures carry the
+        // watermark like every photograph the platform shows.
+        photos: (row) => rowPhotos(row.attachments.filter((file) => file.is_image).map((file) => ({ id: file.id, watermarked: file.watermarked, caption: file.original_name })), row.request_no),
+      }),
       // D3: no request-type or project column - the top bar already names
       // the project and the filter row the type. An Other Request has no
       // material, so its material cell says so in grey instead of a dash.
@@ -265,7 +275,7 @@ function RequestsTab() {
         ),
       },
     ],
-    [t, df, unitLabel, setViewing],
+    [t, tRoot, df, unitLabel, setViewing],
   );
 
   const runExport = (format: "xlsx" | "pdf") =>
@@ -686,9 +696,11 @@ export function MaterialRequestDetail({
               ]
             : []),
         ]}
+        // Full size is the stamped copy (Q30.1); a picture without one is
+        // not shown unstamped.
         photos={row.attachments
-          .filter((file) => file.is_image)
-          .map((file) => ({ id: file.id, url: file.file, label: file.original_name, takenAt: file.uploaded_at }))}
+          .filter((file) => file.is_image && file.watermarked)
+          .map((file) => ({ id: file.id, url: file.watermarked ?? "", label: file.original_name, takenAt: file.uploaded_at }))}
         panel={
           <section className="rounded-lg border bg-card p-3">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("attachments.title")}</h3>
@@ -699,9 +711,17 @@ export function MaterialRequestDetail({
                 {row.attachments.map((file, index) => (
                   <li key={file.id} className="flex items-center gap-2">
                     <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
-                    <a href={file.file} target="_blank" rel="noreferrer" className="truncate text-primary underline-offset-2 hover:underline">
-                      {index + 1}. {file.original_name}
-                    </a>
+                    {/* A picture opens as its stamped copy (Q30.1); a PDF or
+                        other file as uploaded. */}
+                    {file.is_image && !file.watermarked ? (
+                      <span className="truncate text-muted-foreground">
+                        {index + 1}. {file.original_name}
+                      </span>
+                    ) : (
+                      <a href={file.is_image ? (file.watermarked ?? "") : file.file} target="_blank" rel="noreferrer" className="truncate text-primary underline-offset-2 hover:underline">
+                        {index + 1}. {file.original_name}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ol>

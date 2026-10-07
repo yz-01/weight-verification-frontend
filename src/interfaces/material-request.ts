@@ -21,6 +21,12 @@ export interface MaterialRequestAttachment {
   size_bytes: number;
   uploaded_at: string;
   is_image: boolean;
+  /**
+   * A picture's watermarked copy - what a full-size view shows (Q30.1).
+   * Null for a PDF or other file, and for a picture whose stamp could not be
+   * made (never shown unstamped).
+   */
+  watermarked?: string | null;
 }
 
 /**
@@ -39,6 +45,10 @@ export interface MaterialRequestDecision {
 }
 
 export interface MaterialRequest {
+  /** The first photograph's watermarked thumbnail, or null (E3). */
+  cover_photo_url?: string | null;
+  /** How many photographs the record has (E3). */
+  photo_count?: number;
   id: string;
   request_no: string;
   request_type: MaterialRequestType;
