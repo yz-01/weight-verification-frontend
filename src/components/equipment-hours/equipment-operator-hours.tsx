@@ -54,6 +54,80 @@ function isoDay(value: Date): string {
   return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
 }
 
+/** `YYYY-MM-DD` plus or minus whole days, by the calendar (no clock involved). */
+function shiftDay(day: string, days: number): string {
+  const [year, month, date] = day.split("-").map(Number);
+  const value = new Date(Date.UTC(year, month - 1, date + days));
+  return value.toISOString().slice(0, 10);
+}
+
+/** Days from one `YYYY-MM-DD` to another. */
+function daysBetween(from: string, to: string): number {
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
+}
+
+/** The longest range the day table reads at once (the server's own cap). */
+export const MAX_RANGE_DAYS = 92;
+
+/**
+ * Keep a typed range within 92 days (B4 audit #17).
+ *
+ * The server used to clamp a longer range without a word, so the table and
+ * the export's subtitle named a range they did not hold. Now the field just
+ * typed wins and the other end moves to fit; `capped` says it moved.
+ */
+export function keepWithinRange(
+  from: string,
+  to: string,
+  edited: "from" | "to",
+): { from: string; to: string; capped: boolean } {
+  if (!from || !to) return { from, to, capped: false };
+  if (to < from) return edited === "from" ? { from, to: from, capped: false } : { from: to, to, capped: false };
+  if (daysBetween(from, to) < MAX_RANGE_DAYS) return { from, to, capped: false };
+  return edited === "from"
+    ? { from, to: shiftDay(from, MAX_RANGE_DAYS - 1), capped: true }
+    : { from: shiftDay(to, -(MAX_RANGE_DAYS - 1)), to, capped: true };
+}
+
+/**
+ * The project the tables ask for: 「全部项目」 is no filter at all (B4 audit
+ * #6). The picker says `all`; sent on as `project=all` it failed the tables.
+ */
+export function projectFilterValue(value: string): string {
+  return value === "all" ? "" : value;
+}
+
+/** `YYYY-MM-DD` of a moment on the site's clock. */
+function siteDay(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kuala_Lumpur",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(iso));
+}
+
+/**
+ * Whether a moment of the day falls on the next calendar morning - a night
+ * shift's end (Q28: before 06:00 is still the previous day's shift).
+ */
+export function onNextMorning(iso: string | null, workDate: string): boolean {
+  return Boolean(iso) && siteDay(iso as string) > workDate;
+}
+
+/**
+ * The end time the office may enter for a day (Q28): after the first photo,
+ * and no later than 06:00 the next morning, when the next shift starts.
+ */
+export function endTimeLimits(
+  day: Pick<EquipmentHoursDay, "work_date" | "start_at">,
+): { min: string | undefined; max: string } {
+  return {
+    min: day.start_at ? localInputValue(day.start_at) : undefined,
+    max: `${shiftDay(day.work_date, 1)}T06:00`,
+  };
+}
+
 /** The value a `datetime-local` input wants, from an ISO moment. */
 export function localInputValue(iso: string): string {
   const value = new Date(iso);
@@ -97,9 +171,17 @@ export function EquipmentOperatorHours() {
   const [project, setProject] = useState("");
   const [dateFrom, setDateFrom] = useState(today);
   const [dateTo, setDateTo] = useState(today);
+  const [capped, setCapped] = useState(false);
   const [month, setMonth] = useState(today.slice(0, 7));
   const [opened, setOpened] = useState<EquipmentHoursDay | null>(null);
   const canAdjust = can("equipment.manage");
+  const canExport = can("report.export");
+  const setRange = (from: string, to: string, edited: "from" | "to") => {
+    const next = keepWithinRange(from, to, edited);
+    setDateFrom(next.from);
+    setDateTo(next.to);
+    setCapped(next.capped);
+  };
 
   const query = { project, date_from: dateFrom, date_to: dateTo };
   const days = useQuery({
@@ -114,13 +196,20 @@ export function EquipmentOperatorHours() {
   });
   const rows = days.data?.rows ?? [];
   const monthRows = monthly.data?.rows ?? [];
+  // What the table and the export hold is the range the server used, which
+  // is the typed one unless it had to be shortened.
+  const shown = {
+    from: days.data?.date_from ?? dateFrom,
+    to: days.data?.date_to ?? dateTo,
+  };
+  const narrowed = capped || shown.from !== dateFrom || shown.to !== dateTo;
 
   const exportDays = (format: ExportFormat) =>
     exportEquipmentHoursDays(
       {
         format,
         title: tRoot("nav.submodule.equipmentOperatorHours"),
-        subtitle: t("export.range", { from: dateFrom, to: dateTo }),
+        subtitle: t("export.range", { from: shown.from, to: shown.to }),
         emptyLabel: t("day.empty"),
         columns: [
           { key: "work_date", label: t("field.date") },
@@ -161,7 +250,11 @@ export function EquipmentOperatorHours() {
       <ListHeader
         title={tRoot("nav.submodule.equipmentOperatorHours")}
         subtitle={t("subtitle")}
-        action={view === "day" ? <ExportButton onExport={exportDays} disabled={rows.length === 0} /> : undefined}
+        action={
+          view === "day" && canExport ? (
+            <ExportButton onExport={exportDays} disabled={rows.length === 0} />
+          ) : undefined
+        }
       />
 
       <div className="flex flex-wrap items-end gap-3">
@@ -173,7 +266,7 @@ export function EquipmentOperatorHours() {
         </Tabs>
         <ProjectPicker
           value={project}
-          onValueChange={setProject}
+          onValueChange={(value) => setProject(projectFilterValue(value))}
           placeholder={t("field.project")}
           allowAll
           allLabel={t("allProjects")}
@@ -188,7 +281,7 @@ export function EquipmentOperatorHours() {
                 className="h-9 w-40"
                 value={dateFrom}
                 max={dateTo}
-                onChange={(event) => setDateFrom(event.target.value || today)}
+                onChange={(event) => setRange(event.target.value || today, dateTo, "from")}
               />
             </label>
             <label className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -198,7 +291,7 @@ export function EquipmentOperatorHours() {
                 className="h-9 w-40"
                 value={dateTo}
                 min={dateFrom}
-                onChange={(event) => setDateTo(event.target.value || today)}
+                onChange={(event) => setRange(dateFrom, event.target.value || today, "to")}
               />
             </label>
           </>
@@ -214,6 +307,12 @@ export function EquipmentOperatorHours() {
           </label>
         )}
       </div>
+
+      {view === "day" && narrowed ? (
+        <p className="text-xs text-muted-foreground" role="status">
+          {t("filter.shown", { from: df.date(shown.from), to: df.date(shown.to), max: MAX_RANGE_DAYS })}
+        </p>
+      ) : null}
 
       {view === "day" ? (
         <div className="rounded-lg border bg-card">
@@ -255,13 +354,15 @@ export function EquipmentOperatorHours() {
                       <p className="text-xs text-muted-foreground">{row.project_name}</p>
                     </TableCell>
                     <TableCell>{row.plate || "-"}</TableCell>
-                    <TableCell className="tabular-nums">{df.time(row.start_at)}</TableCell>
+                    <TableCell className="tabular-nums">
+                      <ShiftTime at={row.start_at} workDate={row.work_date} />
+                    </TableCell>
                     <TableCell className="tabular-nums">
                       {row.missing_end ? (
                         <StatusBadge label={t("status.MISSING_END")} tone="warning" />
                       ) : (
                         <span className="inline-flex items-center gap-1.5">
-                          {df.time(row.end_at)}
+                          <ShiftTime at={row.end_at} workDate={row.work_date} />
                           {row.adjusted && <StatusBadge label={t("status.ADJUSTED")} tone="info" />}
                         </span>
                       )}
@@ -370,6 +471,17 @@ export function EquipmentOperatorHours() {
   );
 }
 
+/**
+ * A time of the day; on the next calendar morning it says so - a night
+ * shift's end is still this day's (Q28).
+ */
+function ShiftTime({ at, workDate }: { at: string | null; workDate: string }) {
+  const t = useTranslations("equipmentHours");
+  const df = useDateFormat();
+  if (!at) return null;
+  return <>{onNextMorning(at, workDate) ? t("field.nextDay", { time: df.time(at) }) : df.time(at)}</>;
+}
+
 /** Up to three small photos of the day, and how many there are. */
 function PhotoStrip({ day }: { day: EquipmentHoursDay }) {
   const t = useTranslations("equipmentHours");
@@ -414,9 +526,13 @@ function DayDialog({
   const t = useTranslations("equipmentHours");
   const df = useDateFormat();
   const queryClient = useQueryClient();
-  const [endAt, setEndAt] = useState(() =>
-    day.end_at ? localInputValue(day.end_at) : `${day.work_date}T17:00`,
-  );
+  const limits = endTimeLimits(day);
+  const [endAt, setEndAt] = useState(() => {
+    if (day.end_at) return localInputValue(day.end_at);
+    // 17:00 for a day shift; a shift that started after it is closed by hand.
+    const evening = `${day.work_date}T17:00`;
+    return limits.min && limits.min >= evening ? limits.min : evening;
+  });
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
 
@@ -443,7 +559,11 @@ function DayDialog({
           <DialogDescription>
             {df.date(day.work_date)} · {t("dialog.summary", {
               start: df.time(day.start_at),
-              end: day.end_at ? df.time(day.end_at) : t("status.MISSING_END"),
+              end: day.end_at
+                ? onNextMorning(day.end_at, day.work_date)
+                  ? t("field.nextDay", { time: df.time(day.end_at) })
+                  : df.time(day.end_at)
+                : t("status.MISSING_END"),
               hours: day.hours,
             })}
           </DialogDescription>
@@ -486,6 +606,8 @@ function DayDialog({
               <Input
                 type="datetime-local"
                 value={endAt}
+                min={limits.min}
+                max={limits.max}
                 onChange={(event) => setEndAt(event.target.value)}
               />
             </FieldWrapper>

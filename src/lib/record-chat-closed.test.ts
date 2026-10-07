@@ -20,7 +20,7 @@ import { conversationClosedLine, recordConversationKey } from "./record-chat";
  * on the same screen refetches the conversation so this happens without a
  * reload.
  */
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 
 describe("which line replaces the composer", () => {
   it("is nothing while the conversation is open", () => {

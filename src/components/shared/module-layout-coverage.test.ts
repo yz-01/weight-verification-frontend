@@ -12,7 +12,7 @@ import { describe, expect, it } from "vitest";
  * this drifts is one module quietly keeping its own layout.
  */
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 const SHELL = "src/components/shared/record-detail-shell.tsx";

@@ -1,9 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Check, FilePlus2, Loader2, MapPin, ZoomIn } from "lucide-react";
+import { Check, FilePlus2, Info, Loader2, MapPin, ZoomIn } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -13,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import type { FieldTask } from "@/interfaces/contractor-ops";
 import { consultantTaskTitle } from "@/lib/consultant-task-title";
 import { useDateFormat } from "@/lib/dates";
-import { getFieldTasks } from "@/services/contractor-ops.service";
+import { getFieldTask, getFieldTasks } from "@/services/contractor-ops.service";
 
 /**
  * Where the new application goes when the office presses 「整理成顾问申请」:
@@ -67,6 +68,18 @@ export function ConsultantFieldInbox({
     queryFn: () =>
       getFieldTasks({ to_organize: "1", project: project || undefined, page_size: 100 }),
   });
+  const listed = rows.data?.results ?? [];
+  // The submission a notice points at may be past the first page, or on
+  // another project than the picker's (B4 audit #21): fetched by itself so
+  // the link never lands on nothing.
+  const focusMissing =
+    Boolean(focusedTaskId) && rows.isSuccess && !listed.some((row) => row.id === focusedTaskId);
+  const focused = useQuery({
+    queryKey: ["field-tasks", "focused", focusedTaskId],
+    queryFn: () => getFieldTask(focusedTaskId as string),
+    enabled: focusMissing,
+    retry: false,
+  });
   const typeLabel = (code: string) =>
     askFor.has(`askOption.${code}`) ? askFor(`askOption.${code}` as never) : null;
 
@@ -80,19 +93,41 @@ export function ConsultantFieldInbox({
   if (rows.isError) {
     return <QueryFailedNote query={rows} what={t("what")} />;
   }
-  const tasks = [...(rows.data?.results ?? [])].sort((a, b) =>
+  const extra =
+    focusMissing && focused.data && focused.data.id === focusedTaskId ? focused.data : null;
+  // Already made into an application: there is nothing left to organise, so
+  // the notice's link says where it went instead of showing nothing.
+  const organized = extra?.consultant_application ?? null;
+  const tasks = [...(extra && !organized ? [extra] : []), ...listed].sort((a, b) =>
     a.id === focusedTaskId ? -1 : b.id === focusedTaskId ? 1 : 0,
+  );
+  const focusNote = (
+    <>
+      {focusMissing ? <QueryFailedNote query={focused} what={t("what")} /> : null}
+      {organized ? (
+        <p className="flex items-center gap-2 rounded-lg border bg-muted/20 px-3 py-2 text-sm">
+          <Info className="size-4 shrink-0 text-primary" />
+          <Link href={`/consultant-applications/${organized.id}`} className="underline-offset-2 hover:underline">
+            {t("alreadyOrganized", { number: organized.application_no })}
+          </Link>
+        </p>
+      ) : null}
+    </>
   );
   if (!tasks.length) {
     return (
-      <div className="rounded-lg border border-dashed bg-muted/15 p-8 text-center text-sm text-muted-foreground">
-        {t("empty")}
+      <div className="space-y-3">
+        {focusNote}
+        <div className="rounded-lg border border-dashed bg-muted/15 p-8 text-center text-sm text-muted-foreground">
+          {t("empty")}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
+      {focusNote}
       <p className="text-sm text-muted-foreground">{t("help")}</p>
       <div className="grid gap-2 lg:grid-cols-2">
         {tasks.map((task) => {

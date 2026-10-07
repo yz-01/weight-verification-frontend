@@ -21,7 +21,7 @@ import { fieldTodoCountQuery } from "@/services/platform-ops.service";
  * `e2e/field-home-mobile.spec.ts`.
  */
 
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 
 function componentBody(file: string, name: string): string {
   const code = read(file);

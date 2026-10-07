@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
  * tiles or history list into the phone screen "for context".
  */
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 function componentBody(code: string, name: string) {

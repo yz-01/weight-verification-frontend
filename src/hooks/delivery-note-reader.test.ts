@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
  * useDeliveryNoteReader: read on capture, the same messages, stale answers
  * dropped. The server side is receiving.ocr.read_delivery_note for both.
  */
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 
 describe("one delivery-note reader for every module", () => {
   it.each([

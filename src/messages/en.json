@@ -4601,7 +4601,8 @@
       "logo": "Company logo",
       "logoHint": "Printed top right on the consultant application form. PNG or JPG, under 2 MB.",
       "noLogo": "No logo",
-      "removeLogo": "Remove logo"
+      "removeLogo": "Remove logo",
+      "logoNotSaved": "The firm was saved, but its logo was not: {reason} Choose another picture and press Save; only the logo is sent again."
     },
     "permission": {
       "approval_review": "Review and decide applications",
@@ -4982,7 +4983,8 @@
       "advanced": "Advanced (optional)",
       "advancedHelp": "Leave blank to use the project's default route, “Consultant review”: one step, to the consultant you choose, signed. A template is optional too.",
       "more": "More (optional)",
-      "moreHelp": "This type usually needs none of these; open it when it does."
+      "moreHelp": "This type usually needs none of these; open it when it does.",
+      "retiredOption": "{label} (retired)"
     },
     "inspectionCategory": {
       "H": "H - Hold point",
@@ -5251,7 +5253,8 @@
       "viewPhoto": "Enlarge photo {number}",
       "ticked": "{count} of {total} ticked",
       "tickFirst": "Tick at least one photo first",
-      "organize": "Make a consultant application"
+      "organize": "Make a consultant application",
+      "alreadyOrganized": "The site submission in the notice has already been made into consultant application {number}."
     },
     "formCard": {
       "title": "Consultant application form (A4)",
@@ -7406,7 +7409,7 @@
       "equipment_hours_equipment_unavailable": "This machine cannot be chosen (inactive or retired). Choose a machine in use on the site.",
       "equipment_hours_day_not_found": "This machine has no photo on that day, so there is no end time to enter.",
       "equipment_hours_end_before_start": "The end time must be after the first photo.",
-      "equipment_hours_end_too_late": "The end time must be within 24 hours of the first photo.",
+      "equipment_hours_end_too_late": "The end time cannot be later than 06:00 the next morning (that is the next shift).",
       "equipment_profile_incomplete": "Choose this machine's sub class before accepting it.",
       "equipment_not_on_site": "This machine is not on site on this project, so it cannot go out.",
       "equipment_exit_waiting": "This machine's exit is already waiting for the office to accept it. It cannot be submitted again."
@@ -15841,7 +15844,7 @@
     "open": "Open the record"
   },
   "equipmentHours": {
-    "subtitle": "One photo when the machine starts, one when it stops: the first photo is the start, the last is the end, and the hours are the time between (no lunch deducted).",
+    "subtitle": "One photo when the machine starts, one when it stops: the first photo is the start, the last is the end, and the hours are the time between (no lunch deducted). A night shift is one shift: a photo taken before 06:00 counts in the previous day's shift.",
     "allProjects": "All projects",
     "photoAlt": "Machine photo",
     "photoCount": "{count, plural, one {# photo} other {# photos}}",
@@ -15852,7 +15855,8 @@
     "filter": {
       "from": "From",
       "to": "To",
-      "month": "Month"
+      "month": "Month",
+      "shown": "Showing {from} to {to} (at most {max} days at a time)."
     },
     "field": {
       "date": "Date",
@@ -15871,7 +15875,8 @@
       "totalHours": "Total hours",
       "missingEndDays": "Days missing a stop photo",
       "adjustedDays": "Days corrected by the office",
-      "actions": "Actions"
+      "actions": "Actions",
+      "nextDay": "{time} next day"
     },
     "status": {
       "MISSING_END": "No stop photo",
@@ -15896,7 +15901,7 @@
     "adjust": {
       "add": "Add end time",
       "edit": "Change end time",
-      "help": "Only this day's end time changes. The photos are not touched, and every change is kept in the history.",
+      "help": "Only this day's end time changes. The photos are not touched, and every change is kept in the history. A night shift may end as late as 06:00 the next morning.",
       "endAt": "End time",
       "reason": "Reason",
       "reasonPlaceholder": "For example: the operator forgot the stop photo; site diary says 17:30",
@@ -15936,7 +15941,8 @@
       "queued": "Saved on this phone. It uploads by itself when there is signal.",
       "today": "Today: {count, plural, one {# photo} other {# photos}}, started {start}",
       "stopHint": "Take another photo when you stop",
-      "soFar": "Up to {end}: {hours} h"
+      "soFar": "Up to {end}: {hours} h",
+      "shift": "Shift of {date}: {count, plural, one {# photo} other {# photos}}, started {start}"
     }
   }
 }

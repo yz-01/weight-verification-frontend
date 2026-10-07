@@ -22,7 +22,7 @@ const SERVICES = [
 ];
 
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 describe("module exports use the shared request body", () => {

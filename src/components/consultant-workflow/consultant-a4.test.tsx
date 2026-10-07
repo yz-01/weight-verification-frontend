@@ -54,7 +54,7 @@ function render(node: React.ReactNode, client = new QueryClient()) {
 }
 
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 function photo(id: string) {
@@ -287,8 +287,8 @@ describe("the consultant firm's logo (C1)", () => {
   it("is chosen where the firm is edited, applied on save, and shown on the firm's card", () => {
     const page = read("src/components/consultant-workflow/consultant-access-management.tsx");
     expect(page).toContain('accept="image/png,image/jpeg"');
-    expect(page).toContain("if (logoFile) await uploadConsultantOrganizationLogo(saved.id, logoFile);");
-    expect(page).toContain("else if (clearLogo && row?.logo) await uploadConsultantOrganizationLogo(saved.id, null);");
+    expect(page).toContain("if (logoFile) await services.uploadLogo(firm.id, logoFile);");
+    expect(page).toContain("else if (clearLogo && row?.logo) await services.uploadLogo(firm.id, null);");
     expect(page).toContain("{row.logo ? (");
   });
 });

@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
 
 import { TASK_CATEGORY_KIND } from "@/components/contractor-ops/operations-workspaces";
 
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 const MANAGEMENT = "src/components/contractor-ops/category-management.tsx";
 
 describe("a material category adds up per unit (D-281)", () => {

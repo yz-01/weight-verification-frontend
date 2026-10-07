@@ -12,7 +12,7 @@ import { describe, expect, it } from "vitest";
  * not getting the button - and a detail without it looks complete.
  */
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 /** The body of one top-level component, up to the next top-level function. */

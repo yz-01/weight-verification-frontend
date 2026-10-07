@@ -31,6 +31,29 @@ export function machineLabel(machine: Pick<EquipmentHoursMachine, "name" | "plat
   return machine.plate ? `${machine.name} · ${machine.plate}` : machine.name;
 }
 
+/**
+ * The moment the photo was taken, from the file itself (B4 audit #30, Q29.10).
+ *
+ * The in-app camera stamps each shot with the moment the shutter closed
+ * (`FieldCamera` sets `lastModified` when it draws the frame), so the day
+ * starts then - not when 发送 is pressed a few minutes later. A file with no
+ * usable time gives nothing, and the queue then uses the moment of sending.
+ */
+export function photoTakenAt(file: File | undefined): string | undefined {
+  if (!file || !Number.isFinite(file.lastModified) || file.lastModified <= 0) return undefined;
+  return new Date(file.lastModified).toISOString();
+}
+
+/** `YYYY-MM-DD` of a moment on the site's clock. */
+function siteDay(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kuala_Lumpur",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(iso));
+}
+
 export type LastSent =
   | { status: "uploaded"; label: string; day: EquipmentHoursDay | null }
   | { status: "queued"; label: string };
@@ -71,6 +94,7 @@ export function EquipmentHoursCapture({
         equipment: chosen.id,
         equipmentLabel: machineLabel(chosen),
         photo: shot,
+        capturedAt: photoTakenAt(shot),
         latitude: fix?.latitude,
         longitude: fix?.longitude,
         locationAccuracyM: fix?.accuracy,
@@ -173,6 +197,13 @@ export function EquipmentHoursCapture({
 export function LastSentNote({ last }: { last: LastSent }) {
   const t = useTranslations("equipmentHours");
   const df = useDateFormat();
+  // A photo before 06:00 belongs to the shift that started the evening
+  // before (Q28): the line names that shift instead of saying 「今天」.
+  const newest = last.status === "uploaded" ? last.day?.photos.at(-1)?.captured_at : undefined;
+  const earlierShift =
+    last.status === "uploaded" && last.day && newest
+      ? siteDay(newest) !== last.day.work_date
+      : false;
   return (
     <section className="rounded-lg border bg-card p-3 text-sm shadow-sm" aria-live="polite">
       <p className="font-semibold">{last.label}</p>
@@ -184,10 +215,16 @@ export function LastSentNote({ last }: { last: LastSent }) {
       ) : last.day ? (
         <div className="mt-1 space-y-1">
           <p className="text-muted-foreground">
-            {t("phone.today", {
-              count: last.day.photo_count,
-              start: df.time(last.day.start_at),
-            })}
+            {earlierShift
+              ? t("phone.shift", {
+                  date: df.date(last.day.work_date),
+                  count: last.day.photo_count,
+                  start: df.time(last.day.start_at),
+                })
+              : t("phone.today", {
+                  count: last.day.photo_count,
+                  start: df.time(last.day.start_at),
+                })}
           </p>
           {last.day.missing_end ? (
             <StatusBadge label={t("phone.stopHint")} tone="warning" />

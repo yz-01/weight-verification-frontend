@@ -23,7 +23,7 @@ vi.mock("@/components/providers/auth-provider", () => ({
 const { SUPPLIER_PAGE_SIZE, SupplierDateFilter, supplierOptions, supplierSearchQuery } =
   await import("@/components/shared/supplier-date-filter");
 
-const read = (file: string) => readFileSync(path.join(process.cwd(), "src", file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), "src", file), "utf8").replace(/\r\n/g, "\n");
 
 function page(rows: { id: string; name: string }[]) {
   return { results: rows, count: rows.length, page: 1, page_size: SUPPLIER_PAGE_SIZE };

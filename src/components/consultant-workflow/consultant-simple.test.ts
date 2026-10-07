@@ -14,7 +14,7 @@ import { visibleNavigation } from "@/lib/navigation";
  * people work in.
  */
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 describe("consultant applications are simple to use (T-373)", () => {

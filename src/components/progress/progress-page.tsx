@@ -132,9 +132,23 @@ export function ProgressPage() {
       {active === "phases" && <PhaseTab />}
       {active === "photos" && <SitePhotosTab />}
       {active === "reports" && <DailyReportsTab />}
-      {active === "schedule" && <SchedulePlanningWorkspace />}
+      {active === "schedule" && <ScheduleTab />}
       {active === "summary" && <ProgressSummaryTab />}
     </div>
+  );
+}
+
+/**
+ * 施工计划: the schedule workspace on the project the other four tabs use
+ * (`?project=`), so switching tabs keeps the site (B4 audit #7).
+ */
+function ScheduleTab() {
+  const list = useListQuery(["project"]);
+  return (
+    <SchedulePlanningWorkspace
+      project={list.filters.project ?? ""}
+      onProjectChange={(project) => list.setFilters({ project })}
+    />
   );
 }
 
@@ -316,7 +330,13 @@ export function SitePhotosTab() {
           }}
         />
       )}
-      {written && <DailyReportView report={written} onClose={() => setWritten(null)} />}
+      {written && (
+        <DailyReportView
+          report={written}
+          onClose={() => setWritten(null)}
+          onSaved={setWritten}
+        />
+      )}
     </div>
   );
 }

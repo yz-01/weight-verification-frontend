@@ -118,8 +118,31 @@ describe("the progress page's tabs", () => {
       path.join(process.cwd(), "src/components/progress/progress-page.tsx"),
       "utf8",
     );
-    expect(source).toMatch(/active === "schedule" && <SchedulePlanningWorkspace \/>/);
+    expect(source).toMatch(/active === "schedule" && <ScheduleTab \/>/);
+    expect(source).toMatch(/<SchedulePlanningWorkspace\s+project=/);
     expect(source).toMatch(/active === "phases" && <PhaseTab \/>/);
+  });
+
+  it("keep the project chosen on the other tabs on 施工计划 (#7)", () => {
+    auth.features = ["progress", "schedule"];
+    search.value = "tab=schedule&project=p1";
+    expect(render(<page.ProgressPage />)).not.toContain(zh.schedulePlanning.state.chooseProject);
+    search.value = "tab=schedule";
+    expect(render(<page.ProgressPage />)).toContain(zh.schedulePlanning.state.chooseProject);
+    search.value = "";
+  });
+
+  it("show a daily report's new text at once after editing it from 现场照片 (#20)", () => {
+    const read = (file: string) =>
+      readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
+    // The report written from the photos is held by the photo tab; the view
+    // hands the saved report back so the tab shows it, not the old copy.
+    expect(read("src/components/progress/progress-page.tsx")).toMatch(
+      /<DailyReportView\s+report=\{written\}\s+onClose=\{\(\) => setWritten\(null\)\}\s+onSaved=\{setWritten\}/,
+    );
+    expect(read("src/components/progress/daily-reports.tsx")).toMatch(
+      /onSaved=\{\(saved\) => \{\s*setEditing\(false\);\s*onSaved\?\.\(saved\);/,
+    );
   });
 
   it("are named in all four languages", () => {
