@@ -429,3 +429,68 @@ export function DetailHeader({
     </div>
   );
 }
+
+/**
+ * Where a list or a panel has nothing to show, said plainly and centred, with
+ * the module's icon so the space is never just blank (E3). The words are the
+ * caller's: this only decides how an empty answer looks.
+ */
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className,
+}: {
+  icon?: React.ComponentType<{ className?: string }>;
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      data-slot="empty-state"
+      className={cn(
+        "flex min-h-36 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-panel-border px-6 py-8 text-center",
+        className,
+      )}
+    >
+      {Icon && (
+        <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="size-5" />
+        </span>
+      )}
+      <p className="text-sm font-medium text-foreground">{title}</p>
+      {description && (
+        <p className="prose-measure text-sm text-muted-foreground">{description}</p>
+      )}
+      {action && <div className="mt-2">{action}</div>}
+    </div>
+  );
+}
+
+/**
+ * The row an anti-mistap switch sits in (spec rule 8): the switch and its
+ * words on the left, the destructive button it arms on the right, on a faint
+ * rose ground so the row reads as "careful" before anything is pressed.
+ */
+export function ArmRow({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      data-slot="arm-row"
+      className={cn(
+        "flex flex-wrap items-center gap-3 rounded-xl border border-tone-rose/25 bg-tone-rose/6 p-3",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}

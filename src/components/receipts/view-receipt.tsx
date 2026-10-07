@@ -18,6 +18,7 @@ import { AddToPackageButton } from "@/components/contractor-ops/add-to-package";
 import { FileIntoColumnDialog } from "@/components/contractor-ops/file-into-column";
 import { Switch } from "@/components/ui/switch";
 import {
+  ArmRow,
   DetailHeader,
   FieldWrapper,
   TypeBadge,
@@ -145,19 +146,19 @@ function ReviewDelivery({
 
   const tone =
     status === "ACCEPTED"
-      ? "text-emerald-600"
+      ? "text-success"
       : status === "REJECTED"
         ? "text-destructive"
-        : "text-amber-600";
+        : "text-warning";
 
   return (
     // In the shell's right column (图 2 圈起来的位置), so it is a compact
     // block rather than a full-width form section.
-    <div className="space-y-2">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <div className="space-y-3">
+      <h3 className="panel-title">
         {t("receipts.acceptance.title")}
       </h3>
-      <div className="space-y-2">
+      <div className="space-y-3">
         <p className={`text-sm font-medium ${tone}`}>
           {t(`receipts.acceptance.status.${status}`)}
           {receipt.accepted_by_name ? ` · ${receipt.accepted_by_name}` : ""}
@@ -197,7 +198,8 @@ function ReviewDelivery({
             act. Never a confirmation dialog — the customer asked for the
             switch in both places and for no second prompt after it. */}
         <Button
-          size="sm"
+          size="lg"
+          className="w-full"
           disabled={review.isPending || status === "ACCEPTED"}
           disabledReason={
             status === "ACCEPTED"
@@ -209,8 +211,10 @@ function ReviewDelivery({
           {t("receipts.acceptance.accept")}
         </Button>
 
-        <label className="flex items-center gap-2 rounded-md border px-2 py-1.5">
+        <ArmRow>
+        <label className="flex min-w-0 flex-1 items-center gap-3">
           <Switch
+            tone="danger"
             checked={rejectArmed}
             onCheckedChange={(next) => {
               setRejectArmed(next);
@@ -218,10 +222,11 @@ function ReviewDelivery({
             }}
             aria-label={t("receipts.acceptance.armReject")}
           />
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {t("receipts.acceptance.armRejectHelp")}
           </span>
         </label>
+        </ArmRow>
 
         {rejectArmed && (
           <div className="space-y-2">
@@ -230,7 +235,6 @@ function ReviewDelivery({
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={t("receipts.acceptance.reasonPlaceholder")}
-                className="h-8 text-sm"
               />
             </FieldWrapper>
             {/* `requires` rather than a bare `disabled`, so the list that decides
@@ -239,8 +243,8 @@ function ReviewDelivery({
                 No conversation first any more (10-02 D08, brief Q3): the
                 switch above is the guard. */}
             <Button
-              size="sm"
               variant="destructive"
+              className="w-full"
               requires={[[reason.trim(), t("receipts.acceptance.reason")]]}
               disabled={review.isPending}
               disabledReason={t("common.saving")}
@@ -399,7 +403,7 @@ export function ViewReceipt({ id }: { id: string }) {
       />
 
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="tabular text-base font-semibold text-foreground">
+        <h2 className="tabular text-xl font-bold leading-tight text-foreground sm:text-2xl">
           {data.receipt_no}
         </h2>
         {/* Which way it went (B10): a return used to open on a page that
@@ -430,7 +434,7 @@ export function ViewReceipt({ id }: { id: string }) {
         notices={
           <>
             {data.superseded_by && (
-              <div className="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+              <div className="rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
                 <p className="font-medium">{t("receipts.correction.supersededTitle")}</p>
                 <p className="mt-1 text-muted-foreground">
                   {t("receipts.correction.supersededBody")}
@@ -445,15 +449,19 @@ export function ViewReceipt({ id }: { id: string }) {
                 </Link>
               </div>
             )}
-            {data.correction_trail ? (
-              <CorrectionTrail trail={data.correction_trail} currentId={data.id} />
-            ) : data.correction_reason ? (
-              <p className="rounded-lg border px-4 py-2 text-sm">
-                <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
-                {data.correction_reason}
-              </p>
-            ) : null}
           </>
+        }
+        // 更正记录 sits under the facts in the left column (the canvas's
+        // 记录详情), not above the photographs.
+        corrections={
+          data.correction_trail ? (
+            <CorrectionTrail trail={data.correction_trail} currentId={data.id} />
+          ) : data.correction_reason ? (
+            <p className="rounded-xl border border-dashed border-panel-border px-4 py-3 text-sm">
+              <span className="text-muted-foreground">{t("receipts.correction.reason")}：</span>
+              {data.correction_reason}
+            </p>
+          ) : null
         }
         facts={[
           { label: t("receipts.field.project"), value: data.project_name },
@@ -534,7 +542,7 @@ export function ViewReceipt({ id }: { id: string }) {
             {can("receipt.update") && !data.superseded_by && (
               <ReviewDelivery receipt={data} archived={archived} onReviewed={() => void refetch()} />
             )}
-            <div className="flex flex-wrap gap-2 border-t pt-2">
+            <div className="flex flex-wrap gap-2 border-t border-panel-border pt-3">
               <AddToPackageButton
                 kind="MATERIAL_RECEIPT"
                 recordId={data.id}
@@ -617,8 +625,8 @@ function CorrectionTrail({
       ? t(`receipts.correction.fields.${field}`)
       : field;
   return (
-    <section className="rounded-lg border px-4 py-3 text-sm">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <section className="surface-panel rounded-xl p-4 text-sm">
+      <h3 className="panel-title">
         {t("receipts.correction.trailTitle")}
       </h3>
       <p className="mt-1 text-xs text-muted-foreground">
@@ -708,8 +716,8 @@ function DeliveryOrderPanel({ receipt }: { receipt: MaterialReceiptDetail }) {
     [t("receipts.doPanelStatus"), t(`receipts.doStatus.${receipt.ocr_status}`)],
   ];
   return (
-    <section className="rounded-lg border bg-card p-3">
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <section className="surface-panel rounded-xl p-4">
+      <h3 className="panel-title mb-3">
         {t("receipts.doPanelTitle")}
       </h3>
       <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">

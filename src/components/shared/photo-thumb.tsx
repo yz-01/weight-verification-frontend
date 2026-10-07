@@ -93,7 +93,7 @@ export function PhotoThumb({
         title={t("none")}
         data-photo-thumb="none"
         className={cn(
-          "inline-flex shrink-0 items-center justify-center rounded-md border border-dashed bg-muted/40 text-muted-foreground",
+          "inline-flex shrink-0 items-center justify-center rounded-lg border border-panel-border bg-muted text-muted-foreground",
           SIZE[size],
           className,
         )}
@@ -144,7 +144,7 @@ export function PhotoThumb({
       {total > 1 ? (
         <span
           aria-hidden
-          className="absolute bottom-0.5 right-0.5 rounded bg-black/65 px-1 text-[10px] font-semibold leading-4 text-white tabular-nums"
+          className="absolute bottom-0.5 right-0.5 rounded-md bg-overlay px-1 text-[10px] font-semibold leading-4 text-overlay-foreground tabular-nums"
         >
           {total}
         </span>
@@ -158,7 +158,7 @@ export function PhotoThumb({
         aria-label={t("count", { count: total })}
         data-photo-thumb="photo"
         className={cn(
-          "relative block shrink-0 overflow-hidden rounded-md border bg-muted/40",
+          "photo-hatch relative block shrink-0 overflow-hidden rounded-lg border border-panel-border",
           SIZE[size],
           className,
         )}
@@ -177,7 +177,7 @@ export function PhotoThumb({
         aria-busy={loading || undefined}
         data-photo-thumb="photo"
         className={cn(
-          "relative block shrink-0 overflow-hidden rounded-md border bg-muted/40 transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring",
+          "photo-hatch relative block shrink-0 overflow-hidden rounded-lg border border-panel-border transition hover:border-primary/60 hover:shadow-glow-sm focus-visible:ring-2 focus-visible:ring-ring",
           SIZE[size],
           loading && "opacity-60",
           className,

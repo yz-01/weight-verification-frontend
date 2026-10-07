@@ -8,16 +8,23 @@ import { cn } from "@/lib/utils"
 function Switch({
   className,
   size = "default",
+  tone = "primary",
   ...props
 }: React.ComponentProps<typeof SwitchPrimitive.Root> & {
   size?: "sm" | "default"
+  /**
+   * `danger` is the anti-mistap switch (spec rule 8): rose when armed, so the
+   * reader sees the destructive button beside it is now live.
+   */
+  tone?: "primary" | "danger"
 }) {
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
       data-size={size}
+      data-tone={tone}
       className={cn(
-        "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2.5 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 px-0.5 data-[size=default]:h-6 data-[size=default]:w-11 data-[size=sm]:h-5 data-[size=sm]:w-9 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:bg-primary data-checked:shadow-glow-sm data-unchecked:bg-tone-slate/45 data-disabled:cursor-not-allowed data-disabled:opacity-50",
+        "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2.5 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 px-0.5 data-[size=default]:h-6 data-[size=default]:w-11 data-[size=sm]:h-5 data-[size=sm]:w-9 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:bg-primary data-checked:shadow-glow-sm data-[tone=danger]:data-checked:bg-tone-rose dark:data-[tone=danger]:data-checked:shadow-[0_0_10px_color-mix(in_srgb,var(--tone-rose)_50%,transparent)] data-unchecked:bg-tone-slate/45 data-disabled:cursor-not-allowed data-disabled:opacity-50",
         className
       )}
       {...props}
