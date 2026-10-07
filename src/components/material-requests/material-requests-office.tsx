@@ -31,6 +31,7 @@ import {
   Printer,
   RotateCcw,
   Settings2,
+  UserCheck,
   XCircle,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -88,6 +89,7 @@ import {
   getMaterialRequests,
   getMaterialRequestTotals,
   materialRequestFormUrl,
+  reassignMaterialRequestToMe,
   reviewMaterialRequest,
 } from "@/services/material-request.service";
 
@@ -534,6 +536,15 @@ export function MaterialRequestDetail({
     },
     onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
   });
+  // 「改派给我」 (D2, Q15): another approver takes it over, then decides it.
+  const takeOver = useMutation({
+    mutationFn: () => reassignMaterialRequestToMe(id),
+    onSuccess: () => {
+      setError("");
+      void qc.invalidateQueries({ queryKey: ["material-requests"] });
+    },
+    onError: (reasonError) => setError(reasonError instanceof ApiError ? reasonError.message : t("failed")),
+  });
 
   const row = detail.data;
   if (!row) {
@@ -549,8 +560,14 @@ export function MaterialRequestDetail({
   const decided = row.status !== "SUBMITTED";
   const decidedLabel = row.status === "RETURNED" ? t("field.returnedBy") : t("field.approvedBy");
   const isMaterial = row.request_type === "MATERIAL";
-  // The applicant never sees approve / return, whatever their role (D2).
+  // The applicant never sees approve / return, whatever their role (D2);
+  // an approver it was not sent to takes it over first (Q15).
   const reviewView = materialRequestReviewView(row, user?.id, can("material_request.review"));
+  // 「等待 XXX 审批」: whose desk it is on. Requests from before D2 name nobody.
+  const waitingLine = row.assigned_reviewer_name
+    ? t("waitingFor", { name: row.assigned_reviewer_name })
+    : null;
+  const takeOvers = row.decisions.filter((entry) => entry.decision === "REASSIGNED");
 
   return (
     <RecordDetailDialog title={row.request_no} description={`${row.project_name} · ${t(`type.${row.request_type}`)}`} onClose={onClose}>
@@ -595,6 +612,9 @@ export function MaterialRequestDetail({
               ]
             : []),
           { label: t("field.submittedBy"), value: who(row.submitted_by_name, row.submitted_at) },
+          ...(row.assigned_reviewer_name
+            ? [{ label: t("field.assignedReviewer"), value: row.assigned_reviewer_name }]
+            : []),
           {
             label: decided ? decidedLabel : t("field.decidedBy"),
             value: decided ? who(row.decided_by_name, row.decided_at) : t("pendingDecision"),
@@ -602,6 +622,30 @@ export function MaterialRequestDetail({
           { label: t("field.remark"), value: row.remark || t("noRemark"), wide: true },
           ...(row.decision_note
             ? [{ label: row.status === "RETURNED" ? t("field.returnReason") : t("field.decisionNote"), value: row.decision_note, wide: true }]
+            : []),
+          // The record of every take-over (Q15 「留改派记录」).
+          ...(takeOvers.length
+            ? [
+                {
+                  label: t("field.reassignHistory"),
+                  wide: true,
+                  value: (
+                    <ul className="space-y-0.5">
+                      {takeOvers.map((entry) => (
+                        <li key={entry.id}>
+                          {entry.previous_reviewer_name
+                            ? t("reassignedFrom", {
+                                by: entry.decided_by_name ?? "—",
+                                from: entry.previous_reviewer_name,
+                                at: df.dateTime(entry.decided_at),
+                              })
+                            : t("reassigned", { by: entry.decided_by_name ?? "—", at: df.dateTime(entry.decided_at) })}
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                },
+              ]
             : []),
         ]}
         photos={row.attachments
@@ -677,11 +721,21 @@ export function MaterialRequestDetail({
                 )}
               </>
             )}
+            {reviewView === "takeOver" && (
+              <div className="space-y-1.5">
+                <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{waitingLine ?? t("waitingForReview")}</p>
+                <Button className="w-full" variant="outline" disabled={takeOver.isPending} onClick={() => takeOver.mutate()}>
+                  <UserCheck />
+                  {t("action.reassignToMe")}
+                </Button>
+                <p className="text-xs text-muted-foreground">{t("reassignHelp")}</p>
+              </div>
+            )}
             {reviewView === "own" && (
-              <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{t("ownRequestWaiting")}</p>
+              <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{waitingLine ?? t("ownRequestWaiting")}</p>
             )}
             {reviewView === "waiting" && (
-              <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{t("waitingForReview")}</p>
+              <p className="rounded-md border border-warning/25 bg-warning/5 px-2 py-1.5 text-xs">{waitingLine ?? t("waitingForReview")}</p>
             )}
           </div>
         }

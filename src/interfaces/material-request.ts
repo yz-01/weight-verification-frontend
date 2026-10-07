@@ -23,12 +23,19 @@ export interface MaterialRequestAttachment {
   is_image: boolean;
 }
 
+/**
+ * One row of a request's history: approved, returned, or taken over by
+ * another approver while it waited (`REASSIGNED`, D2 「改派」).
+ */
 export interface MaterialRequestDecision {
   id: string;
-  decision: Exclude<MaterialRequestStatus, "SUBMITTED">;
+  decision: Exclude<MaterialRequestStatus, "SUBMITTED"> | "REASSIGNED";
   note: string;
+  /** On `REASSIGNED`: who took it over. */
   decided_by_name: string | null;
   decided_at: string;
+  /** On `REASSIGNED`: who had it before (empty for a request from before D2). */
+  previous_reviewer_name: string | null;
 }
 
 export interface MaterialRequest {
@@ -47,6 +54,9 @@ export interface MaterialRequest {
   submitted_by: string | null;
   submitted_by_name: string | null;
   submitted_at: string;
+  /** 「提交给」 (D2): the one person who approves it. Empty on requests from before D2. */
+  assigned_reviewer: string | null;
+  assigned_reviewer_name: string | null;
   decided_by_name: string | null;
   decided_at: string | null;
   decision_note: string;
@@ -97,8 +107,16 @@ export interface MaterialRequestDraft {
   quantity?: string;
   unit?: string;
   remark?: string;
+  /** 「提交给」 (D2): required by the server. */
+  assigned_reviewer?: string;
   client_event_id?: string;
   attachments: File[];
+}
+
+/** Somebody 「提交给」 may name: holds the approval permission on this project, never the applicant. */
+export interface MaterialRequestReviewerOption {
+  id: string;
+  full_name: string;
 }
 
 /**
