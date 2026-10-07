@@ -4587,7 +4587,11 @@
       "empty": "Belum ada firma perunding didaftarkan.",
       "formHelp": "Gunakan maklumat pendaftaran dan hubungan sebenar firma.",
       "subtitle": "Setiap firma didaftarkan di bawah syarikat kontraktor anda dan tidak boleh melihat rekod kontraktor lain.",
-      "title": "Firma perunding"
+      "title": "Firma perunding",
+      "logo": "Logo syarikat",
+      "logoHint": "Dicetak di kanan atas borang permohonan perunding. PNG atau JPG, bawah 2 MB.",
+      "noLogo": "Tiada logo",
+      "removeLogo": "Buang logo"
     },
     "permission": {
       "approval_review": "Semak dan putuskan permohonan",
@@ -4744,7 +4748,8 @@
         "approval": "Kelulusan",
         "archive": "Arkib",
         "draft": "Permohonan",
-        "final": "PDF akhir"
+        "final": "PDF akhir",
+        "inbox": "Bahan tapak untuk disusun"
       },
       "stageLabel": "Peringkat permohonan",
       "subtitle": "{count} permohonan projek dan rekod kelulusan",
@@ -4894,7 +4899,8 @@
       "help": "Gunakan foto tapak sedia ada yang tidak boleh diubah. Fail asal tidak dimuat naik dua kali.",
       "link": "Pautkan bukti",
       "noCandidates": "Tiada bukti baharu tersedia dalam projek ini.",
-      "title": "Pautkan bukti tapak"
+      "title": "Pautkan bukti tapak",
+      "open": "Buka {name}"
     },
     "field": {
       "inspectionTimezone": "Zon waktu pemeriksaan",
@@ -4940,7 +4946,8 @@
       "scheduleTask": "Aktiviti jadual / WBS",
       "template": "Templat borang RFI",
       "workType": "Jenis pemeriksaan / kerja",
-      "workflow": "Aliran kelulusan"
+      "workflow": "Aliran kelulusan",
+      "material": "Bahan"
     },
     "form": {
       "editTitle": "Edit draf permohonan perunding",
@@ -4950,8 +4957,8 @@
       "saveReusableOptionHelp": "Tambah nilai ini ke senarai projek supaya pasukan boleh memilihnya pada masa akan datang.",
       "section": {
         "consultant": "Perunding ditugaskan",
-        "inspection": "Butiran tapak dan pemeriksaan",
-        "project": "Klasifikasi permohonan"
+        "project": "Klasifikasi permohonan",
+        "content": "Kandungan permohonan"
       },
       "sourceGps": "Buka GPS sumber",
       "sourceHelp": "Projek, lokasi, penerangan dan bukti asal daripada penyerahan ini akan dibawa ke permohonan.",
@@ -4963,7 +4970,9 @@
       "subtitle": "Sediakan permintaan tapak, pautkan bukti, kemudian hantar melalui aliran kelulusan projek.",
       "title": "Cipta permohonan perunding",
       "advanced": "Lanjutan (pilihan)",
-      "advancedHelp": "Biarkan kosong untuk guna laluan lalai projek, “Semakan perunding”: satu langkah, kepada perunding yang anda pilih, ditandatangani. Templat juga pilihan."
+      "advancedHelp": "Biarkan kosong untuk guna laluan lalai projek, “Semakan perunding”: satu langkah, kepada perunding yang anda pilih, ditandatangani. Templat juga pilihan.",
+      "more": "Lagi (pilihan)",
+      "moreHelp": "Jenis ini biasanya tidak memerlukan semua ini; buka apabila perlu."
     },
     "inspectionCategory": {
       "H": "H - Titik tahan",
@@ -5221,6 +5230,25 @@
       "consultantGrants": "Perunding yang mempunyai akses ke projek ini",
       "applicationTypes": "Jenis permohonan",
       "reviewerChoices": "Senarai penyemak"
+    },
+    "inbox": {
+      "what": "Bahan tapak untuk disusun",
+      "empty": "Tiada apa untuk disusun. Apa yang dihantar dari tapak melalui Penyerahan perunding di telefon akan muncul di sini.",
+      "help": "Tandakan foto yang perlu dilihat perunding, kemudian tekan \"Jadikan permohonan perunding\".",
+      "tickAll": "Tanda semua",
+      "untickAll": "Nyahtanda semua",
+      "tickPhoto": "Tandakan foto {number}",
+      "viewPhoto": "Besarkan foto {number}",
+      "ticked": "{count} daripada {total} ditanda",
+      "tickFirst": "Tandakan sekurang-kurangnya satu foto dahulu",
+      "organize": "Jadikan permohonan perunding"
+    },
+    "formCard": {
+      "title": "Borang permohonan perunding (A4)",
+      "help": "Pratonton, cetak dan eksport ialah halaman A4 yang sama: syarikat anda di kiri, perunding di kanan, kemudian kandungan, foto dan senarai lampiran.",
+      "print": "Cetak",
+      "attachments": "Lampiran ({count})",
+      "send": "Hantar kepada {name}"
     }
   },
   "contractorDashboard": {
@@ -5847,7 +5875,7 @@
       "assign": "Agih tugas",
       "assignedBy": "Diberi oleh {name}",
       "consultantInboxSubtitle": "Semak foto yang dihantar terus oleh pekerja tapak sebelum dilampirkan pada permohonan perunding.",
-      "consultantInboxTitle": "Peti masuk bukti perunding",
+      "consultantInboxTitle": "Bahan tapak untuk disusun",
       "createTitle": "Agih tugas tapak",
       "dueAt": "Tarikh akhir: {value}",
       "edit": "Sunting tugas",
@@ -9785,7 +9813,7 @@
       "consultantAccess": "Akses perunding",
       "consultantApplications": "Permohonan perunding",
       "consultantDashboard": "Papan pemuka perunding",
-      "consultantFieldInbox": "Peti masuk bukti tapak",
+      "consultantFieldInbox": "Bahan tapak untuk disusun",
       "consultantTemplates": "Templat borang RFI",
       "consultantWorkflows": "Aliran kerja kelulusan",
       "contractorNotifications": "Notifikasi kontraktor",

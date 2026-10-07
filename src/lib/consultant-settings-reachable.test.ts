@@ -46,6 +46,9 @@ describe("the consultant settings hub", () => {
       .filter((entry) => entry.menuHidden)
       .map((entry) => entry.href);
     expect(hidden).toEqual([
+      // Not a settings page: the old inbox address, kept routable while its
+      // menu line went (2026-10 C1) - it forwards to 顾问申请's tab.
+      "/consultant-field-inbox",
       "/consultant-access",
       "/consultant-workflows",
       "/consultant-templates",

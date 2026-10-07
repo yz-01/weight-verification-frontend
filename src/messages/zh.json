@@ -4587,7 +4587,11 @@
       "empty": "还没有登记顾问单位。",
       "formHelp": "请填写顾问单位真实的注册与联系人资料。",
       "subtitle": "每个顾问单位登记在你的建筑商公司名下，无法查看其他建筑商资料。",
-      "title": "顾问单位"
+      "title": "顾问单位",
+      "logo": "公司标志",
+      "logoHint": "印在顾问申请表的右上角。PNG 或 JPG，2 MB 以内。",
+      "noLogo": "没有标志",
+      "removeLogo": "移除标志"
     },
     "permission": {
       "approval_review": "审核并决定申请",
@@ -4744,7 +4748,8 @@
         "approval": "审批",
         "archive": "归档",
         "draft": "申请",
-        "final": "最终 PDF"
+        "final": "最终 PDF",
+        "inbox": "待整理现场资料"
       },
       "stageLabel": "申请阶段",
       "subtitle": "共 {count} 项项目申请与审批记录",
@@ -4894,7 +4899,8 @@
       "help": "选择现有且不可修改的现场照片，无需重复上传原图。",
       "link": "关联证据",
       "noCandidates": "此项目没有可关联的新证据。",
-      "title": "关联现场证据"
+      "title": "关联现场证据",
+      "open": "放大查看 {name}"
     },
     "field": {
       "inspectionTimezone": "验收时区",
@@ -4940,7 +4946,8 @@
       "scheduleTask": "施工计划活动 / WBS",
       "template": "RFI 表格模板",
       "workType": "检查／工作类型",
-      "workflow": "审批流程"
+      "workflow": "审批流程",
+      "material": "材料名称"
     },
     "form": {
       "editTitle": "编辑顾问申请草稿",
@@ -4950,8 +4957,8 @@
       "saveReusableOptionHelp": "把这个内容加入本项目的选项，下次团队可直接选择。",
       "section": {
         "consultant": "指定顾问",
-        "inspection": "现场与检查资料",
-        "project": "申请分类"
+        "project": "申请分类",
+        "content": "申请内容"
       },
       "sourceGps": "打开来源 GPS",
       "sourceHelp": "现场资料中的项目、位置、说明和原始证据会带入申请。",
@@ -4963,7 +4970,9 @@
       "subtitle": "填写现场申请、关联证据，再按项目审批流程提交。",
       "title": "建立顾问申请",
       "advanced": "进阶设定（可不填）",
-      "advancedHelp": "不选就用这个项目的默认流程「顾问审批」：一步，送给你选的顾问签名审批。模板也可以不选。"
+      "advancedHelp": "不选就用这个项目的默认流程「顾问审批」：一步，送给你选的顾问签名审批。模板也可以不选。",
+      "more": "更多（选填）",
+      "moreHelp": "这个类型一般不用填这些，需要时再打开。"
     },
     "inspectionCategory": {
       "H": "H - 停检点",
@@ -5221,6 +5230,25 @@
       "consultantGrants": "有本项目权限的顾问",
       "applicationTypes": "申请类型",
       "reviewerChoices": "审批人列表"
+    },
+    "inbox": {
+      "what": "待整理现场资料",
+      "empty": "没有待整理的现场资料。现场用手机「顾问资料提交」发来的会出现在这里。",
+      "help": "勾选要给顾问看的照片，再按「整理成顾问申请」。",
+      "tickAll": "全选",
+      "untickAll": "全部取消",
+      "tickPhoto": "勾选第 {number} 张照片",
+      "viewPhoto": "放大第 {number} 张照片",
+      "ticked": "已勾 {count} / {total} 张",
+      "tickFirst": "先勾选至少一张照片",
+      "organize": "整理成顾问申请"
+    },
+    "formCard": {
+      "title": "顾问申请表（A4）",
+      "help": "预览、打印、导出的都是同一张 A4：左边是我方公司，右边是顾问公司，下面是申请内容、照片和附件清单。",
+      "print": "打印",
+      "attachments": "看附件（{count}）",
+      "send": "发送给顾问 {name}"
     }
   },
   "contractorDashboard": {
@@ -5847,7 +5875,7 @@
       "assign": "派发任务",
       "assignedBy": "指派人：{name}",
       "consultantInboxSubtitle": "审核现场人员直接提交的照片，再整理到顾问申请。",
-      "consultantInboxTitle": "顾问现场资料收件箱",
+      "consultantInboxTitle": "待整理现场资料",
       "createTitle": "派发现场任务",
       "dueAt": "期限：{value}",
       "edit": "编辑任务",
@@ -9785,7 +9813,7 @@
       "consultantAccess": "顾问账号与项目授权",
       "consultantApplications": "顾问申请",
       "consultantDashboard": "顾问首页",
-      "consultantFieldInbox": "现场资料收件箱",
+      "consultantFieldInbox": "待整理现场资料",
       "consultantTemplates": "RFI 表格模板",
       "consultantWorkflows": "审批流程",
       "contractorNotifications": "建筑商通知",

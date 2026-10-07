@@ -42,7 +42,7 @@ function at(root: unknown, dotted: string) {
  *
  * ## What is deliberately *not* aligned
  *
- * `nav.submodule.consultantFieldInbox` (现场资料收件箱) and
+ * `nav.submodule.consultantFieldInbox` (待整理现场资料, C1) and
  * `nav.submodule.fieldTasks` (现场任务) keep their own names. They are not
  * other spellings of a module below - an inbox a consultant reads, and a task
  * somebody is handed, are different screens - and renaming them to match would
@@ -150,6 +150,18 @@ const MODULES: Array<{ module: string; keys: string[] }> = [
       "fieldStaffPwa.type.CONSULTANT",
     ],
   },
+  // 「待整理现场资料」 (2026-10 C1, Q2): the old 「现场资料收件箱」 is a tab of
+  // 顾问申请 now. The tab, the inbox's own heading, the hidden route's name
+  // and what a failure says it could not load are one name.
+  {
+    module: "consultant inbox",
+    keys: [
+      "consultantWorkflow.applications.stage.inbox",
+      "contractorOps.tasks.consultantInboxTitle",
+      "nav.submodule.consultantFieldInbox",
+      "consultantWorkflow.inbox.what",
+    ],
+  },
   {
     module: "site record capture",
     keys: [
@@ -199,6 +211,11 @@ describe("the names that are meant to differ still do", () => {
       expect(fsp.home.title).not.toBe(fsp.records.title);
       expect(fsp.home.subtitle).not.toBe(fsp.records.subtitle);
     }
+  });
+
+  it("names the inbox 待整理现场资料 (C1, Q2)", () => {
+    expect(at(messages("zh"), "consultantWorkflow.applications.stage.inbox")).toBe("待整理现场资料");
+    expect(at(messages("zh-TW"), "consultantWorkflow.applications.stage.inbox")).toBe("待整理現場資料");
   });
 
   it("keeps the consultant inbox and site tasks as themselves", () => {
