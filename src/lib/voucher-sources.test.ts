@@ -26,7 +26,7 @@ import {
  */
 const image = (name: string, type = "image/png") => new File([name], name, { type });
 const item = (file: File) => ({ kind: "file", type: file.type, getAsFile: () => file });
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 
 describe("which files a paste or drop hands over", () => {
   it("takes the vouchers from `files` - pictures and the bank's PDF (D11) - and leaves the rest", () => {

@@ -13,7 +13,7 @@ import { SITE_ENTRY_FIELDS, missingSiteEntry, siteEntryRequired } from "./materi
  * phone used to keep all four under 「补充资料（选填）」, so a worker who had
  * filled in everything visible met a refusal they could not explain.
  */
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 const signature = new File(["ink"], "sig.png", { type: "image/png" });
 const complete = {
   vehiclePlate: "WXY 1234",

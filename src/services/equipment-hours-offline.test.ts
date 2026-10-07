@@ -94,6 +94,45 @@ describe("an equipment-hours photo taken offline", () => {
     expect(store.size).toBe(0);
   });
 
+  it("starts the day when the shutter closed, not when 发送 was pressed (#30, Q29.10)", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-07T08:20:00+08:00"));
+    vi.stubGlobal("navigator", { onLine: false });
+
+    await queue.submitEquipmentHoursPhotoOfflineAware("ahmad", {
+      ...draft,
+      capturedAt: "2026-10-07T07:58:00+08:00",
+    });
+
+    const [job] = [...store.values()];
+    if (job.kind !== "EQUIPMENT_HOURS_PHOTO") throw new Error("wrong kind");
+    expect(job.payload.capturedAt).toBe("2026-10-06T23:58:00.000Z");
+
+    // Through the queue unchanged, hours later.
+    vi.setSystemTime(new Date("2026-10-07T12:30:00+08:00"));
+    vi.stubGlobal("navigator", { onLine: true });
+    await queue.flushOfflineJobs("ahmad");
+    const [, data] = post.mock.calls.at(-1) as [string, FormData];
+    expect(data.get("captured_at")).toBe("2026-10-06T23:58:00.000Z");
+  });
+
+  it("never dates a photo after the moment it is sent (a phone clock running ahead)", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-07T08:20:00+08:00"));
+    vi.stubGlobal("navigator", { onLine: false });
+
+    await queue.submitEquipmentHoursPhotoOfflineAware("ahmad", {
+      ...draft,
+      capturedAt: "2026-10-07T11:00:00+08:00",
+    });
+    await queue.submitEquipmentHoursPhotoOfflineAware("ahmad", { ...draft, capturedAt: "garbage" });
+
+    const moments = [...store.values()].map((job) =>
+      job.kind === "EQUIPMENT_HOURS_PHOTO" ? job.payload.capturedAt : "",
+    );
+    expect(moments).toEqual(["2026-10-07T00:20:00.000Z", "2026-10-07T00:20:00.000Z"]);
+  });
+
   it("keeps one client event id from the lost answer to the replay", async () => {
     vi.stubGlobal("navigator", { onLine: true });
     // The request reached the server and the answer was lost on the way back.

@@ -164,7 +164,7 @@ export function DailyReportsTab() {
       )}
 
       {shown && (
-        <DailyReportView report={shown} onClose={() => setViewing(null)} />
+        <DailyReportView report={shown} onClose={() => setViewing(null)} onSaved={setViewing} />
       )}
       {writing && (
         <DailyReportDialog
@@ -184,9 +184,15 @@ export function DailyReportsTab() {
 export function DailyReportView({
   report,
   onClose,
+  onSaved,
 }: {
   report: DailyReport;
   onClose: () => void;
+  /**
+   * The report as saved after 修改. Whoever holds `report` replaces it, so
+   * the new text and photos show at once (B4 audit #20).
+   */
+  onSaved?: (saved: DailyReport) => void;
 }) {
   const t = useTranslations("progressPage");
   const df = useDateFormat();
@@ -199,7 +205,10 @@ export function DailyReportView({
         project={report.project}
         report={report}
         onClose={() => setEditing(false)}
-        onSaved={() => setEditing(false)}
+        onSaved={(saved) => {
+          setEditing(false);
+          onSaved?.(saved);
+        }}
         onRemoved={onClose}
       />
     );

@@ -550,7 +550,7 @@ function ConsultantApplicationEditor({
           <FieldWrapper label={t("field.project")} required>
             {id || sourceTask.data ? <Input value={initial?.project_name ?? sourceTask.data?.project_name ?? ""} readOnly className="bg-muted/40" /> : <ConsultantProjectPicker value={form.project} onChange={onProjectChange} />}
           </FieldWrapper>
-          <FieldWrapper label={t("field.applicationType")} required><OptionField category="APPLICATION_TYPE" value={form.application_type} grouped={grouped} onChange={(value) => set("application_type", value)} placeholder={t("field.chooseType")} /></FieldWrapper>
+          <FieldWrapper label={t("field.applicationType")} required><OptionField category="APPLICATION_TYPE" value={form.application_type} grouped={grouped} onChange={(value) => set("application_type", value)} placeholder={t("field.chooseType")} keptLabel={initial?.application_type === form.application_type ? initial?.application_type_label : null} /></FieldWrapper>
           <CustomValue optionId={form.application_type} options={grouped.get("APPLICATION_TYPE") ?? []} value={form.application_type_custom ?? ""} onChange={(value) => set("application_type_custom", value)} label={t("field.customApplicationType")} canSave={can("consultant.config")} isSaving={saveReusableOption.isPending && saveReusableOption.variables?.category === "APPLICATION_TYPE"} onSave={(label) => saveReusableOption.mutate({ category: "APPLICATION_TYPE", label })} saveLabel={t("action.saveReusableOption")} saveHelp={t("form.saveReusableOptionHelp")} />
           <QueryFailedNote query={options} what={t("what.applicationOptions")} className="sm:col-span-2" />
           {main.has("classification") && classificationFields}
@@ -813,24 +813,50 @@ function ExtraTicks({
   );
 }
 
+/**
+ * The option an old draft is filed under when it is no longer offered - one
+ * of the sixteen retired types (Q2). The draft keeps it (Q29.5): it is shown,
+ * marked 「(已停用)」, and cannot be chosen again once changed.
+ */
+export function retiredChoice(
+  options: readonly Pick<ProjectApplicationOption, "id">[],
+  value: string | null | undefined,
+  label: string | null | undefined,
+): { id: string; label: string } | null {
+  if (!value || options.some((row) => row.id === value)) return null;
+  return { id: value, label: label || value };
+}
+
 function OptionField({
   category,
   value,
   grouped,
   onChange,
   placeholder,
+  keptLabel,
 }: {
   category: ProjectOptionCategory;
   value: string;
   grouped: Map<ProjectOptionCategory, ProjectApplicationOption[]>;
   onChange: (value: string) => void;
   placeholder: string;
+  /** The draft's own label for `value`, shown when it is no longer offered. */
+  keptLabel?: string | null;
 }) {
+  const t = useTranslations("consultantWorkflow");
+  const options = grouped.get(category) ?? [];
+  // Only once the options have arrived: until then every value looks retired.
+  const kept = options.length ? retiredChoice(options, value, keptLabel) : null;
   return (
     <Select value={value || undefined} onValueChange={onChange}>
       <SelectTrigger className="w-full"><SelectValue placeholder={placeholder} /></SelectTrigger>
       <SelectContent>
-        {(grouped.get(category) ?? []).map((row) => (
+        {kept ? (
+          <SelectItem value={kept.id} disabled>
+            {t("form.retiredOption", { label: kept.label })}
+          </SelectItem>
+        ) : null}
+        {options.map((row) => (
           <SelectItem key={row.id} value={row.id}>{row.label}</SelectItem>
         ))}
       </SelectContent>

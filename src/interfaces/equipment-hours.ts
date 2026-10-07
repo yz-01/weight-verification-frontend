@@ -100,6 +100,12 @@ export interface EquipmentHoursPhotoDraft {
   /** Shown in the offline queue, so a waiting photo says which machine. */
   equipmentLabel: string;
   photo: File;
+  /**
+   * When the photo was taken (ISO), from the camera's file. The day's start
+   * and end are counted from it (Q8, Q29.10); without it, the moment of
+   * sending stands in.
+   */
+  capturedAt?: string;
   latitude?: string;
   longitude?: string;
   locationAccuracyM?: string;

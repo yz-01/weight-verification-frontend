@@ -99,31 +99,6 @@ export interface FieldStaffPosition {
   created_at: string;
 }
 
-export interface ProgressUpdate {
-  id: string;
-  project: string;
-  project_name: string;
-  title: string;
-  description: string;
-  percent_complete: string;
-  reported_at: string;
-  photo: string | null;
-  watermarked_photo?: string | null;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ProgressPayload {
-  project: string;
-  title: string;
-  description?: string;
-  percent_complete: string;
-  reported_at?: string;
-  photo?: File;
-  notify_users?: string[];
-}
-
 export type IncidentSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type IncidentStatus =
   | "OPEN"

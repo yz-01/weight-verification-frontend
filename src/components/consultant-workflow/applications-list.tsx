@@ -58,7 +58,9 @@ export function ConsultantApplicationsList() {
   const searchParams = useSearchParams();
   const { user, can } = useAuth();
   const df = useDateFormat();
-  const [project, setProject] = useState("");
+  // The 「待整理现场资料」 notice names the submission's project, so the
+  // inbox opens on that site (C1, B4 audit #12).
+  const [project, setProject] = useState(searchParams.get("project") ?? "");
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const stageParam = searchParams.get("stage");
   const canOrganize =

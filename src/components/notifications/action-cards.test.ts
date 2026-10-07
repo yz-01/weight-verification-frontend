@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
  * outstanding ACTION notice, opening it only navigates, and nothing on the
  * card removes it: it leaves when the server closes the notice.
  */
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 const stack = read("src/components/notifications/action-card-stack.tsx");
 const bell = read("src/components/notifications/notification-button.tsx");
 

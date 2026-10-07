@@ -97,11 +97,24 @@ const tone = (status: string) => {
   return "warning" as const;
 };
 
-export function SchedulePlanningWorkspace() {
+export function SchedulePlanningWorkspace({
+  project: chosenProject,
+  onProjectChange,
+}: {
+  /**
+   * The project, when the page holds it: 工程进度's 施工计划 tab passes the
+   * `?project=` the other four tabs use (B4 audit #7). `/schedule` on its
+   * own leaves it out and the workspace keeps its own.
+   */
+  project?: string;
+  onProjectChange?: (project: string) => void;
+} = {}) {
   const t = useTranslations("schedulePlanning");
   const { can } = useAuth();
   const qc = useQueryClient();
-  const [project, setProject] = useState("");
+  const [ownProject, setOwnProject] = useState("");
+  const project = chosenProject ?? ownProject;
+  const setProject = onProjectChange ?? setOwnProject;
   const [selectedPlan, setSelectedPlan] = useState("");
   const [selectedRevision, setSelectedRevision] = useState("");
   const [view, setView] = useState<ViewMode>("list");

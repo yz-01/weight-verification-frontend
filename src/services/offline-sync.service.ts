@@ -1020,19 +1020,31 @@ export type EquipmentHoursSubmission =
   | { status: "queued" };
 
 /**
+ * When an equipment-hours photo was taken: the camera's moment when the
+ * draft carries a readable one, never later than now (a phone clock is not
+ * moved forward by a file), else now.
+ */
+export function equipmentHoursMoment(capturedAt: string | undefined, now: Date): string {
+  const taken = capturedAt ? Date.parse(capturedAt) : Number.NaN;
+  if (Number.isNaN(taken)) return now.toISOString();
+  return new Date(Math.min(taken, now.getTime())).toISOString();
+}
+
+/**
  * 设备操作员工时 (2026-10 B15): one photo of one machine.
  *
- * The moment of the photo is fixed here, on the phone, when the operator
- * presses send - not when the queue finally reaches the server, which is
- * what the day's start and end are counted from. One `clientEventId` for the
- * online attempt and every replay, so a photo whose answer was lost on the
- * way back is still one photo.
+ * The moment of the photo is the shutter's (Q29.10), carried by the draft
+ * from the camera and fixed here, on the phone - not when 发送 is pressed and
+ * not when the queue finally reaches the server; the day's start and end are
+ * counted from it. One `clientEventId` for the online attempt and every
+ * replay, so a photo whose answer was lost on the way back is still one photo.
  */
 export async function submitEquipmentHoursPhotoOfflineAware(
   ownerId: string,
   draft: EquipmentHoursPhotoDraft,
 ): Promise<EquipmentHoursSubmission> {
-  const now = new Date().toISOString();
+  const sentAt = new Date();
+  const now = sentAt.toISOString();
   const job: Extract<OfflineJob, { kind: "EQUIPMENT_HOURS_PHOTO" }> = {
     id: newId("equipment-hours-job"),
     ownerId,
@@ -1043,7 +1055,7 @@ export async function submitEquipmentHoursPhotoOfflineAware(
     payload: {
       equipment: draft.equipment,
       equipmentLabel: draft.equipmentLabel,
-      capturedAt: now,
+      capturedAt: equipmentHoursMoment(draft.capturedAt, sentAt),
       clientEventId: newId("equipment-hours"),
       latitude: draft.latitude,
       longitude: draft.longitude,

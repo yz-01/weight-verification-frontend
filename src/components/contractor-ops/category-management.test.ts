@@ -23,7 +23,7 @@ import {
  */
 
 const ROOT = process.cwd();
-const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
+const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
 
 const MANAGEMENT = "src/components/contractor-ops/category-management.tsx";
 const WORKSPACES = "src/components/contractor-ops/operations-workspaces.tsx";

@@ -127,6 +127,72 @@ function readableError(error: unknown) {
   return Object.values(error.errors)[0] || error.message;
 }
 
+type FirmForm = Parameters<typeof createConsultantOrganization>[0];
+
+/** The firm as saved on this dialog's last 保存: its id and what was sent. */
+export interface SavedFirm {
+  id: string;
+  form: string;
+}
+
+const firmServices = {
+  create: (form: FirmForm) => createConsultantOrganization(form),
+  update: (id: string, form: FirmForm) => updateConsultantOrganization(id, form),
+  uploadLogo: (id: string, file: File | null) => uploadConsultantOrganizationLogo(id, file),
+};
+
+/**
+ * Save a consultant firm, then its logo (C1, B4 audit #18).
+ *
+ * The logo is a second request and can be refused (over 2 MB, not a
+ * picture) after the firm itself was saved. That used to leave the dialog in
+ * create mode, and the next 保存 made a second firm. Now the firm's id is
+ * kept (`saved`): a retry updates that firm - only when a field changed -
+ * and sends the logo again; the refusal comes back as `logoError` so the
+ * dialog can say "firm saved, logo not".
+ */
+export async function saveConsultantFirm(
+  {
+    row,
+    saved,
+    form,
+    logoFile,
+    clearLogo,
+  }: {
+    row: Pick<ConsultantOrganizationOption, "id" | "logo"> | null;
+    saved: SavedFirm | null;
+    form: FirmForm;
+    logoFile: File | null;
+    clearLogo: boolean;
+  },
+  services: {
+    create: (form: FirmForm) => Promise<{ id: string }>;
+    update: (id: string, form: FirmForm) => Promise<{ id: string }>;
+    uploadLogo: (id: string, file: File | null) => Promise<unknown>;
+  } = firmServices,
+): Promise<{ firm: { id: string }; formKey: string; logoError: unknown }> {
+  const formKey = JSON.stringify(form);
+  const id = saved?.id ?? row?.id;
+  let firm: { id: string };
+  if (!id) firm = await services.create(form);
+  else if (saved && saved.form === formKey) firm = { id };
+  else firm = await services.update(id, form);
+  try {
+    if (logoFile) await services.uploadLogo(firm.id, logoFile);
+    else if (clearLogo && row?.logo) await services.uploadLogo(firm.id, null);
+  } catch (logoError) {
+    return { firm, formKey, logoError };
+  }
+  return { firm, formKey, logoError: null };
+}
+
+/** The firm was saved; its logo was refused. */
+class LogoNotSavedError extends Error {
+  constructor(readonly cause: unknown) {
+    super("logo_not_saved");
+  }
+}
+
 export function ConsultantAccessManagement() {
   const t = useTranslations("consultantAccess");
   const { can } = useAuth();
@@ -486,6 +552,7 @@ export function ConsultantAccessManagement() {
         <OrganizationDialog
           row={organizationDialog}
           onClose={() => setOrganizationDialog(undefined)}
+          onFirmSaved={() => void refresh()}
           onSaved={() => {
             void refresh();
             setOrganizationDialog(undefined);
@@ -595,10 +662,13 @@ function OrganizationDialog({
   row,
   onClose,
   onSaved,
+  onFirmSaved,
 }: {
   row: ConsultantOrganizationOption | null;
   onClose: () => void;
   onSaved: () => void;
+  /** The firm is saved but the dialog stays open (its logo was refused). */
+  onFirmSaved: () => void;
 }) {
   const t = useTranslations("consultantAccess");
   const [form, setForm] = useState({
@@ -627,14 +697,16 @@ function OrganizationDialog({
     };
   }, [logoFile]);
   const shownLogo = logoFile ? logoPreview : clearLogo ? null : row?.logo ?? null;
+  const [saved, setSaved] = useState<SavedFirm | null>(null);
   const save = useMutation({
     mutationFn: async () => {
-      const saved = row
-        ? await updateConsultantOrganization(row.id, form)
-        : await createConsultantOrganization(form);
-      if (logoFile) await uploadConsultantOrganizationLogo(saved.id, logoFile);
-      else if (clearLogo && row?.logo) await uploadConsultantOrganizationLogo(saved.id, null);
-      return saved;
+      const result = await saveConsultantFirm({ row, saved, form, logoFile, clearLogo });
+      setSaved({ id: result.firm.id, form: result.formKey });
+      if (result.logoError) {
+        onFirmSaved();
+        throw new LogoNotSavedError(result.logoError);
+      }
+      return result.firm;
     },
     onSuccess: onSaved,
   });
@@ -721,7 +793,13 @@ function OrganizationDialog({
         </div>
         {save.isError && (
           <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-            {readableError(save.error)}
+            {save.error instanceof LogoNotSavedError
+              ? t("organization.logoNotSaved", {
+                  reason:
+                    readableError(save.error.cause) ||
+                    (save.error.cause instanceof Error ? save.error.cause.message : ""),
+                })
+              : readableError(save.error)}
           </p>
         )}
         <DialogFooter>

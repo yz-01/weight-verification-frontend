@@ -4601,7 +4601,8 @@
       "logo": "公司標誌",
       "logoHint": "印在顧問申請表的右上角。PNG 或 JPG，2 MB 以內。",
       "noLogo": "沒有標誌",
-      "removeLogo": "移除標誌"
+      "removeLogo": "移除標誌",
+      "logoNotSaved": "顧問單位已儲存，但標誌沒有儲存：{reason} 換一張圖片再按儲存，只會重新上傳標誌。"
     },
     "permission": {
       "approval_review": "審核並決定申請",
@@ -4982,7 +4983,8 @@
       "advanced": "進階設定（可不填）",
       "advancedHelp": "不選就用這個項目的預設流程「顧問審批」：一步，送給你選的顧問簽名審批。模板也可以不選。",
       "more": "更多（選填）",
-      "moreHelp": "這個類型一般不用填這些，需要時再打開。"
+      "moreHelp": "這個類型一般不用填這些，需要時再打開。",
+      "retiredOption": "{label}（已停用）"
     },
     "inspectionCategory": {
       "H": "H - 停檢點",
@@ -5251,7 +5253,8 @@
       "viewPhoto": "放大第 {number} 張照片",
       "ticked": "已勾 {count} / {total} 張",
       "tickFirst": "先勾選至少一張照片",
-      "organize": "整理成顧問申請"
+      "organize": "整理成顧問申請",
+      "alreadyOrganized": "通知裡的這份現場資料已整理成顧問申請 {number}。"
     },
     "formCard": {
       "title": "顧問申請表（A4）",
@@ -7406,7 +7409,7 @@
       "equipment_hours_equipment_unavailable": "這台設備現在不能選（已停用或已報廢），請選工地上在用的設備。",
       "equipment_hours_day_not_found": "這台設備那天沒有照片，沒有可以補的結束時間。",
       "equipment_hours_end_before_start": "結束時間要在第一張照片之後。",
-      "equipment_hours_end_too_late": "結束時間不能超過第一張照片後 24 小時。",
+      "equipment_hours_end_too_late": "結束時間不能晚於第二天早上 06:00（那是下一班）。",
       "equipment_profile_incomplete": "先補齊這台設備的檔案（小類、到期日），才能驗收。"
     },
     "backToDashboard": "返回儀表板",
@@ -15834,7 +15837,7 @@
     "open": "打開這一筆"
   },
   "equipmentHours": {
-    "subtitle": "開工拍一張、收工拍一張：第一張是開始，最後一張是結束，相減就是工時（不扣午休）。",
+    "subtitle": "開工拍一張、收工拍一張：第一張是開始，最後一張是結束，相減就是工時（不扣午休）。夜班算同一班：早上 6 點前拍的照片算進前一天那一班。",
     "allProjects": "全部項目",
     "photoAlt": "設備照片",
     "photoCount": "{count} 張",
@@ -15845,7 +15848,8 @@
     "filter": {
       "from": "從",
       "to": "到",
-      "month": "月份"
+      "month": "月份",
+      "shown": "這裡顯示 {from} 至 {to}（一次最多 {max} 天）。"
     },
     "field": {
       "date": "日期",
@@ -15864,7 +15868,8 @@
       "totalHours": "合計工時（小時）",
       "missingEndDays": "缺收工天數",
       "adjustedDays": "後台補錄天數",
-      "actions": "操作"
+      "actions": "操作",
+      "nextDay": "次日 {time}"
     },
     "status": {
       "MISSING_END": "缺收工",
@@ -15889,7 +15894,7 @@
     "adjust": {
       "add": "補結束時間",
       "edit": "改結束時間",
-      "help": "只改這一天的結束時間，照片不會被改動；每次修改都會留下記錄。",
+      "help": "只改這一天的結束時間，照片不會被改動；每次修改都會留下記錄。夜班的結束時間可以到第二天早上 06:00。",
       "endAt": "結束時間",
       "reason": "原因",
       "reasonPlaceholder": "例如：操作員忘了收工拍照，按工地日誌 17:30 收工",
@@ -15929,7 +15934,8 @@
       "queued": "已存在手機裡，有網絡會自動上傳。",
       "today": "今天 {count} 張照片，開始 {start}",
       "stopHint": "收工時再拍一張",
-      "soFar": "到 {end} 共 {hours} 小時"
+      "soFar": "到 {end} 共 {hours} 小時",
+      "shift": "{date} 這一班：{count} 張照片，開始 {start}"
     }
   }
 }

@@ -4601,7 +4601,8 @@
       "logo": "Logo syarikat",
       "logoHint": "Dicetak di kanan atas borang permohonan perunding. PNG atau JPG, bawah 2 MB.",
       "noLogo": "Tiada logo",
-      "removeLogo": "Buang logo"
+      "removeLogo": "Buang logo",
+      "logoNotSaved": "Firma telah disimpan, tetapi logonya tidak: {reason} Pilih gambar lain dan tekan Simpan; hanya logo dihantar semula."
     },
     "permission": {
       "approval_review": "Semak dan putuskan permohonan",
@@ -4982,7 +4983,8 @@
       "advanced": "Lanjutan (pilihan)",
       "advancedHelp": "Biarkan kosong untuk guna laluan lalai projek, “Semakan perunding”: satu langkah, kepada perunding yang anda pilih, ditandatangani. Templat juga pilihan.",
       "more": "Lagi (pilihan)",
-      "moreHelp": "Jenis ini biasanya tidak memerlukan semua ini; buka apabila perlu."
+      "moreHelp": "Jenis ini biasanya tidak memerlukan semua ini; buka apabila perlu.",
+      "retiredOption": "{label} (dihentikan)"
     },
     "inspectionCategory": {
       "H": "H - Titik tahan",
@@ -5251,7 +5253,8 @@
       "viewPhoto": "Besarkan foto {number}",
       "ticked": "{count} daripada {total} ditanda",
       "tickFirst": "Tandakan sekurang-kurangnya satu foto dahulu",
-      "organize": "Jadikan permohonan perunding"
+      "organize": "Jadikan permohonan perunding",
+      "alreadyOrganized": "Bahan tapak dalam notis ini sudah dijadikan permohonan perunding {number}."
     },
     "formCard": {
       "title": "Borang permohonan perunding (A4)",
@@ -7406,7 +7409,7 @@
       "equipment_hours_equipment_unavailable": "Mesin ini tidak boleh dipilih (tidak aktif atau telah dilupuskan). Pilih mesin yang digunakan di tapak.",
       "equipment_hours_day_not_found": "Mesin ini tiada foto pada hari itu, jadi tiada masa tamat untuk dimasukkan.",
       "equipment_hours_end_before_start": "Masa tamat mesti selepas foto pertama.",
-      "equipment_hours_end_too_late": "Masa tamat mesti dalam 24 jam selepas foto pertama.",
+      "equipment_hours_end_too_late": "Masa tamat tidak boleh lewat daripada 06:00 pagi esoknya (itu syif seterusnya).",
       "equipment_profile_incomplete": "Lengkapkan profil mesin ini - subkelas dan tarikh tamat - sebelum menerimanya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
@@ -15834,7 +15837,7 @@
     "open": "Buka rekod"
   },
   "equipmentHours": {
-    "subtitle": "Satu foto semasa mesin mula, satu semasa berhenti: foto pertama ialah mula, foto terakhir ialah tamat, dan jam ialah tempoh di antaranya (rehat makan tidak ditolak).",
+    "subtitle": "Satu foto semasa mesin mula, satu semasa berhenti: foto pertama ialah mula, foto terakhir ialah tamat, dan jam ialah tempoh di antaranya (rehat makan tidak ditolak). Syif malam ialah satu syif: foto yang diambil sebelum 06:00 dikira dalam syif hari sebelumnya.",
     "allProjects": "Semua projek",
     "photoAlt": "Foto mesin",
     "photoCount": "{count} foto",
@@ -15845,7 +15848,8 @@
     "filter": {
       "from": "Dari",
       "to": "Hingga",
-      "month": "Bulan"
+      "month": "Bulan",
+      "shown": "Menunjukkan {from} hingga {to} (paling banyak {max} hari sekali gus)."
     },
     "field": {
       "date": "Tarikh",
@@ -15864,7 +15868,8 @@
       "totalHours": "Jumlah jam",
       "missingEndDays": "Hari tanpa foto berhenti",
       "adjustedDays": "Hari dibetulkan pejabat",
-      "actions": "Tindakan"
+      "actions": "Tindakan",
+      "nextDay": "{time} hari berikutnya"
     },
     "status": {
       "MISSING_END": "Tiada foto berhenti",
@@ -15889,7 +15894,7 @@
     "adjust": {
       "add": "Tambah masa tamat",
       "edit": "Tukar masa tamat",
-      "help": "Hanya masa tamat hari ini berubah. Foto tidak disentuh, dan setiap perubahan disimpan dalam sejarah.",
+      "help": "Hanya masa tamat hari ini berubah. Foto tidak disentuh, dan setiap perubahan disimpan dalam sejarah. Syif malam boleh tamat selewat-lewatnya 06:00 pagi esoknya.",
       "endAt": "Masa tamat",
       "reason": "Sebab",
       "reasonPlaceholder": "Contoh: operator terlupa foto berhenti; diari tapak tulis 17:30",
@@ -15929,7 +15934,8 @@
       "queued": "Disimpan dalam telefon ini. Ia dimuat naik sendiri apabila ada isyarat.",
       "today": "Hari ini: {count} foto, mula {start}",
       "stopHint": "Ambil satu lagi foto semasa berhenti",
-      "soFar": "Hingga {end}: {hours} jam"
+      "soFar": "Hingga {end}: {hours} jam",
+      "shift": "Syif {date}: {count} foto, mula {start}"
     }
   }
 }
