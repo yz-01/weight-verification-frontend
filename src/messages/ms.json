@@ -6266,6 +6266,11 @@
       "visitCreated": "Susulan pelanggan direkodkan"
     }
   },
+  "currentProject": {
+    "label": "Projek semasa",
+    "all": "Semua projek",
+    "pageHint": "Halaman ini menunjukkan satu projek. Setelah dipilih, seluruh sistem berada pada projek itu (bar atas turut bertukar)."
+  },
   "dashboard": {
     "admin": {
       "error": "Papan pemuka platform tidak dapat dimuatkan.",

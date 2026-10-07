@@ -3,7 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   APPROVAL_PAGE_LINKS,
@@ -12,6 +12,7 @@ import {
 import { WaitingFor } from "@/components/dashboard/contractor-dashboard";
 import { LoadFailed } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useCurrentProject, usePageProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ApprovalSource } from "@/interfaces/headquarters";
@@ -45,7 +46,16 @@ export function HeadquartersApprovals({ initialProject = "" }: { initialProject?
   const sources = useTranslations("contractorDashboard.approvals.source");
   const df = useDateFormat();
   // A 待审批 card on one project opens this list on that project (F8, B8).
-  const [project, setProject] = useState(initialProject);
+  // In the office it is the top bar's 「当前项目」 (B13), which the card's
+  // project - or its 「all」, for a company-wide figure - moves on arrival.
+  const [project, setProject] = usePageProject(initialProject === "all" ? "" : initialProject);
+  const topBar = useCurrentProject();
+  const moveTopBar = topBar.active && initialProject ? topBar.setProjectId : null;
+  useEffect(() => {
+    moveTopBar?.(initialProject);
+    // Once per card click: the panel is keyed on the card's project.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialProject]);
   const [source, setSource] = useState<ApprovalSource | "">("");
   const opener = useApprovalOpener();
   const query = useInfiniteQuery({

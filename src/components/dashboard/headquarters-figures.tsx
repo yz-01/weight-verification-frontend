@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import {
   Table,
   TableBody,
@@ -39,6 +40,7 @@ import type {
   TodayRecordKind,
 } from "@/interfaces/headquarters";
 import { cardHref, cardProject, type HeadquartersCard } from "@/lib/headquarters-links";
+import { ALL_PROJECTS_CHOICE } from "@/lib/project-context";
 import { cn } from "@/lib/utils";
 
 const COUNT_TILES: Array<{
@@ -71,8 +73,13 @@ export function HeadquartersFigures({ data }: { data: HeadquartersOverview }) {
   const format = useFormatter();
   const [breakdown, setBreakdown] = useState(false);
   const totals = data.totals;
+  // A company-wide figure counts every project; opened while the top bar is
+  // on one, its list has to move the top bar to 全部项目 to show the same
+  // number (B13, F8).
+  const topBar = useCurrentProject();
+  const everyProject = topBar.active && topBar.projectId ? ALL_PROJECTS_CHOICE : undefined;
   const href = (card: HeadquartersCard) =>
-    cardHref(card, { project: cardProject(data, card), date: data.date });
+    cardHref(card, { project: cardProject(data, card) ?? everyProject, date: data.date });
 
   return (
     <>

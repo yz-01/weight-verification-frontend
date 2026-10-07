@@ -23,6 +23,11 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState, type ReactNode } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import {
+  useOnProjectChange,
+  usePageProject,
+  useProjectBoxShown,
+} from "@/components/providers/current-project-provider";
 import { ScheduleGantt } from "@/components/schedule-planning/schedule-gantt";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import {
@@ -112,11 +117,18 @@ export function SchedulePlanningWorkspace({
   const t = useTranslations("schedulePlanning");
   const { can } = useAuth();
   const qc = useQueryClient();
-  const [ownProject, setOwnProject] = useState("");
+  // `/schedule` on its own: the top bar's 「当前项目」 (B13).
+  const [ownProject, setOwnProject] = usePageProject();
   const project = chosenProject ?? ownProject;
+  const projectBoxShown = useProjectBoxShown("page");
   const setProject = onProjectChange ?? setOwnProject;
   const [selectedPlan, setSelectedPlan] = useState("");
   const [selectedRevision, setSelectedRevision] = useState("");
+  // A plan belongs to one project; another project starts with none chosen.
+  useOnProjectChange(project, () => {
+    setSelectedPlan("");
+    setSelectedRevision("");
+  });
   const [view, setView] = useState<ViewMode>("list");
   const [planDialog, setPlanDialog] = useState(false);
   const [importDialog, setImportDialog] = useState(false);
@@ -245,6 +257,7 @@ export function SchedulePlanningWorkspace({
       />
 
       <div className="grid gap-3 rounded-lg border bg-card p-3 shadow-sm lg:grid-cols-[minmax(260px,1fr)_minmax(260px,1fr)_auto] lg:items-end">
+        {projectBoxShown && (
         <FieldWrapper label={t("field.project")} required>
           <ConsultantProjectPicker
             value={project}
@@ -253,8 +266,10 @@ export function SchedulePlanningWorkspace({
               setSelectedPlan("");
               setSelectedRevision("");
             }}
+            scope="page"
           />
         </FieldWrapper>
+        )}
         <FieldWrapper label={t("field.plan")}>
           <Select
             value={plan?.id}

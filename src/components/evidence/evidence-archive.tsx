@@ -21,6 +21,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { DataTable, SortableHeader } from "@/components/shared/data-table";
 import { AdvancedTechnicalSettings } from "@/components/shared/advanced-technical-settings";
 import {
@@ -78,6 +79,7 @@ export function EvidenceArchive() {
   ]);
   const [viewing, setViewing] = useState<EvidenceAsset | null>(null);
   const selectedProject = list.filters.project ?? "";
+  const topBar = useCurrentProject();
 
   const projects = useQuery({
     queryKey: ["projects", "evidence-filter"],
@@ -278,6 +280,8 @@ export function EvidenceArchive() {
       />
 
       <div className="flex flex-wrap items-end gap-3 border-y bg-card/50 py-3">
+        {/* The top bar's 「当前项目」 is this filter when it is in force (B13). */}
+        {!topBar.active && (
         <div className="w-full space-y-1 sm:w-[220px]">
           <Label className="text-xs text-muted-foreground">{t("evidence.filter.project")}</Label>
           <Select
@@ -299,6 +303,7 @@ export function EvidenceArchive() {
           </Select>
           <QueryFailedNote query={projects} what={t("evidence.what.projects")} />
         </div>
+        )}
         <div className="w-full space-y-1 sm:w-[220px]">
           <Label className="text-xs text-muted-foreground">{t("evidence.filter.category")}</Label>
           <Select

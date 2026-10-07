@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { ContractorDashboard } from "@/components/dashboard/contractor-dashboard";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { getProject } from "@/services/contractor.service";
 
 /**
@@ -20,7 +21,10 @@ export function ProjectDashboard() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const project = searchParams.get("project") ?? "";
+  // The top bar's 「当前项目」 when it is in force (B13): a card's
+  // `?project=` has already moved it there.
+  const topBar = useCurrentProject();
+  const project = topBar.active ? topBar.projectId : searchParams.get("project") ?? "";
   const t = useTranslations("headquarters.banner");
   const { user, can } = useAuth();
   // Only a contractor with the dashboard has this level; anyone else goes
@@ -37,6 +41,10 @@ export function ProjectDashboard() {
   });
 
   const choose = (next: string) => {
+    if (topBar.active) {
+      topBar.setProjectId(next);
+      return;
+    }
     const params = new URLSearchParams(searchParams.toString());
     if (next) params.set("project", next);
     else params.delete("project");

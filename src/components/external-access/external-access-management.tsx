@@ -308,6 +308,8 @@ function GrantDialog({
             value={project}
             onValueChange={setProject}
             placeholder={t("wholeCompany")}
+            // Empty is 「整个公司」, a real answer; the top bar does not make it.
+            scope="own"
           />
         </FieldWrapper>
 

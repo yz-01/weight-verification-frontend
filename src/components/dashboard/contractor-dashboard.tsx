@@ -49,6 +49,7 @@ import {
 } from "@/components/shared/page-primitives";
 import { Timeline } from "@/components/shared/timeline";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -160,6 +161,7 @@ export function ContractorDashboard({
   const format = useFormatter();
   const df = useDateFormat();
   const { can } = useAuth();
+  const projectBoxShown = useProjectBoxShown("filter");
 
   // The full payload. Not polled: the slow sections live here.
   const full = useQuery({
@@ -219,6 +221,8 @@ export function ContractorDashboard({
         </p>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* The top bar's 「当前项目」 is this choice when it is in force (B13). */}
+        {projectBoxShown ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">
             {t("filter.project")}
@@ -232,6 +236,7 @@ export function ContractorDashboard({
             className="w-full sm:w-72"
           />
         </div>
+        ) : <span />}
         <div className="flex flex-wrap items-center gap-2">
           {data?.generated_at && (
             <span className="text-xs text-muted-foreground">

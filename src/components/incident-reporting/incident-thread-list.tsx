@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 import { LoadFailed, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import type { IncidentReportThread } from "@/interfaces/incident-report";
 import { getIncidentThreads } from "@/services/site-operations.service";
@@ -22,7 +23,10 @@ export function IncidentThreadList() {
   const requestedThread = searchParams.get("thread");
   const requestedProject = searchParams.get("project") ?? "all";
   const [selectedThread, setSelectedThread] = useState(requestedThread);
-  const [selectedProject, setSelectedProject] = useState(requestedProject);
+  const [ownProject, setSelectedProject] = useState(requestedProject);
+  // In the office, the top bar's 「当前项目」 (B13); the phone keeps its own.
+  const topBar = useCurrentProject();
+  const selectedProject = topBar.active ? topBar.projectId || "all" : ownProject;
   const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
@@ -35,7 +39,7 @@ export function IncidentThreadList() {
 
   const replaceUrl = (projectId: string, threadId: string | null) => {
     const url = new URL(window.location.href);
-    if (projectId === "all") url.searchParams.delete("project");
+    if (projectId === "all" || topBar.active) url.searchParams.delete("project");
     else url.searchParams.set("project", projectId);
     if (threadId) url.searchParams.set("thread", threadId);
     else url.searchParams.delete("thread");
@@ -62,7 +66,8 @@ export function IncidentThreadList() {
   });
 
   const selectProject = (projectId: string) => {
-    setSelectedProject(projectId);
+    if (topBar.active) topBar.setProjectId(projectId);
+    else setSelectedProject(projectId);
     setSelectedThread(null);
     replaceUrl(projectId, null);
   };

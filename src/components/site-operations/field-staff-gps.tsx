@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LocationMap, type LocationMapZone } from "@/components/shared/location-map";
 import { FieldWrapper, ListHeader, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { useOnProjectChange, usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { LocationDenialSteps } from "@/components/field-staff/location-denial-help";
 import { WorkforcePresencePanel } from "@/components/site-operations/workforce-presence-panel";
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,10 @@ export function FieldStaffGps({
   const requestedUserId = searchParams.get("user") ?? "";
   const queryClient = useQueryClient();
   const [tab, setTab] = useState(requestedUserId ? "history" : "live");
-  const [projectId, setProjectId] = useState(requestedProjectId);
+  // In the office both tabs are on the top bar's 「当前项目」 (B13); the
+  // field app's Location tab keeps its own choice.
+  const [projectId, setProjectId] = usePageProject(requestedProjectId);
+  const projectBoxShown = useProjectBoxShown("filter");
   const [sharing, setSharing] = useState(false);
   const [sharingError, setSharingError] = useState("");
   /**
@@ -52,12 +56,14 @@ export function FieldStaffGps({
    * reader can move, and only then are the settings steps any use.
    */
   const [sharingRefused, setSharingRefused] = useState(false);
-  const [historyProjectId, setHistoryProjectId] = useState(requestedProjectId);
+  const [historyProjectId, setHistoryProjectId] = usePageProject(requestedProjectId);
   const [historySelection, setHistorySelection] = useState(
     requestedProjectId && requestedUserId
       ? `${requestedProjectId}:${requestedUserId}`
       : "",
   );
+  // A person picked on one project is not on the next one's list.
+  useOnProjectChange(historyProjectId, () => setHistorySelection(""));
   const watchId = useRef<number | null>(null);
   const lastSentAt = useRef(0);
 
@@ -436,6 +442,7 @@ export function FieldStaffGps({
 
         <TabsContent value="live" className="space-y-5 pt-2">
           <div className="flex flex-wrap items-end gap-3 border-y bg-card/50 py-3">
+            {projectBoxShown && (
             <FieldWrapper
               label={t("siteGps.project")}
               required={!managedAutomatically && can("field_position.submit")}
@@ -453,6 +460,7 @@ export function FieldStaffGps({
                 className="w-full"
               />
             </FieldWrapper>
+            )}
             {managedAutomatically ? (
               <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md border border-success/25 bg-success/5 px-3 py-2">
                 <LocateFixed className="size-4 shrink-0 text-success" />
@@ -526,6 +534,7 @@ export function FieldStaffGps({
         </TabsContent>
 
         <TabsContent value="history" className="space-y-5 pt-2">
+          {projectBoxShown && (
           <div className="border-y bg-card/50 py-3">
             <ProjectPicker
               value={historyProjectId || "all"}
@@ -539,6 +548,7 @@ export function FieldStaffGps({
               className="w-full sm:w-[280px]"
             />
           </div>
+          )}
 
           <MapSection
             title={t("siteGps.historyMap")}

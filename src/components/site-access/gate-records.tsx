@@ -24,6 +24,7 @@ import { FieldWrapper, QueryFailedNote } from "@/components/shared/page-primitiv
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import { GateQrScanner } from "@/components/site-access/gate-qr-scanner";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -95,7 +96,9 @@ export function GateRecordsPanel({
   const t = useTranslations("siteControl.gateRecords");
   const { can } = useAuth();
   const search = useSearchParams();
-  const [project, setProject] = useState("all");
+  // The top bar's 「当前项目」 in the office (B13); the phone keeps its own.
+  const [project, setProject] = usePageProject("", { all: "all" });
+  const projectBoxShown = useProjectBoxShown("filter");
   const [term, setTerm] = useState("");
   const [creating, setCreating] = useState(false);
   // `gate_incident`, not `incident`: the phone already reads `incident` as a
@@ -143,6 +146,7 @@ export function GateRecordsPanel({
       </div>
 
       <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
+        {projectBoxShown && (
         <FieldWrapper label={t("field.project")}>
           <ProjectPicker
             value={project}
@@ -152,6 +156,7 @@ export function GateRecordsPanel({
             allLabel={t("field.allProjects")}
           />
         </FieldWrapper>
+        )}
         <FieldWrapper label={t("field.search")}>
           <Input
             value={term}

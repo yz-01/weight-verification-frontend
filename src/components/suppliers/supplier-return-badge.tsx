@@ -26,6 +26,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useCurrentProject } from "@/components/providers/current-project-provider";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
 import { ExportButton } from "@/components/shared/export-button";
 import { FilePreviewDialog } from "@/components/shared/file-preview";
@@ -160,7 +161,10 @@ export function SupplierReturnsDialog({
   const [printing, setPrinting] = useState(false);
   // A long history is cut at the server's cap (audit #24): narrowed here by
   // project and by the day the material left.
-  const [filters, setFilters] = useState({ project: "", date_from: "", date_to: "" });
+  const [ownFilters, setFilters] = useState({ project: "", date_from: "", date_to: "" });
+  // In the office the project is the top bar's 「当前项目」 (B13).
+  const topBar = useCurrentProject();
+  const filters = topBar.active ? { ...ownFilters, project: topBar.projectId } : ownFilters;
   const returns = useQuery({
     queryKey: ["suppliers", "returns", supplier.id, filters],
     queryFn: () => getSupplierReturns(supplier.id, filters),

@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
+import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import {
   DetailHeader,
   FieldWrapper,
@@ -66,7 +67,9 @@ import {
 export function ConsultantWorkflowSettings() {
   const t = useTranslations("consultantWorkflow");
   const queryClient = useQueryClient();
-  const [project, setProject] = useState("");
+  // The top bar's 「当前项目」 for the contractor's office (B13).
+  const [project, setProject] = usePageProject();
+  const projectBoxShown = useProjectBoxShown("page");
   const [creating, setCreating] = useState(false);
   const [addingTo, setAddingTo] = useState<ConsultantWorkflow | null>(null);
   const [editing, setEditing] = useState<ConsultantWorkflow | null>(null);
@@ -74,7 +77,7 @@ export function ConsultantWorkflowSettings() {
     workflow: ConsultantWorkflow;
     step: ConsultantWorkflowStep;
   } | null>(null);
-  const onProjectChange = useCallback((id: string) => setProject(id), []);
+  const onProjectChange = useCallback((id: string) => setProject(id), [setProject]);
   const rows = useQuery({
     queryKey: ["consultant-workflows", project],
     queryFn: () => getConsultantWorkflows({ project, page_size: 200 }),
@@ -96,11 +99,13 @@ export function ConsultantWorkflowSettings() {
         subtitle={t("workflow.subtitle")}
         action={<Button size="sm" requires={[[project, t("field.project")]]} onClick={() => setCreating(true)}><Plus />{t("workflow.create")}</Button>}
       />
+      {projectBoxShown && (
       <div className="rounded-lg border bg-card p-3 shadow-sm">
         <FieldWrapper label={t("field.project")} required>
-          <ConsultantProjectPicker value={project} onChange={onProjectChange} />
+          <ConsultantProjectPicker value={project} onChange={onProjectChange} scope="page" />
         </FieldWrapper>
       </div>
+      )}
       {!project ? (
         <Empty text={t("state.chooseProject")} />
       ) : rows.isError ? (

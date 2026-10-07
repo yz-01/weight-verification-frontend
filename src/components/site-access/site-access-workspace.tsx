@@ -41,6 +41,7 @@ import {
 } from "@/components/site-access/gate-qr-scanner";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
 import { ProjectPicker } from "@/components/site-operations/project-picker";
+import { usePageProject, useProjectBoxShown } from "@/components/providers/current-project-provider";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -114,7 +115,9 @@ export function SiteAccessWorkspace() {
         : "passes",
   );
   // The dashboard's 通行证即将到期 figure opens `?expiring=1` (C15).
-  const [project, setProject] = useState(search.get("project") || "all");
+  // The top bar's 「当前项目」 when it is in force (B13).
+  const [project, setProject] = usePageProject(search.get("project") ?? "", { all: "all" });
+  const projectBoxShown = useProjectBoxShown("filter");
   const [status, setStatus] = useState(
     search.get("expiring") === "1" ? EXPIRING : "all",
   );
@@ -248,6 +251,7 @@ export function SiteAccessWorkspace() {
         </TabsList>
         <TabsContent value="passes" className="space-y-4">
           <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
+            {projectBoxShown && (
             <FieldWrapper label={t("field.project")}>
               <ProjectPicker
                 value={project}
@@ -257,6 +261,7 @@ export function SiteAccessWorkspace() {
                 allLabel={t("field.allProjects")}
               />
             </FieldWrapper>
+            )}
             <FieldWrapper label={t("field.status")}>
               <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger className="w-full">
@@ -1016,7 +1021,8 @@ function PassDialog({
  */
 function DeviceEventsPanel() {
   const t = useTranslations("siteControl");
-  const [project, setProject] = useState("all");
+  const [project, setProject] = usePageProject("", { all: "all" });
+  const projectBoxShown = useProjectBoxShown("filter");
   const [result, setResult] = useState("all");
   const rows = useQuery({
     queryKey: ["site-access-device-events", project, result],
@@ -1030,6 +1036,7 @@ function DeviceEventsPanel() {
   return (
     <div className="space-y-4">
       <div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2">
+        {projectBoxShown && (
         <FieldWrapper label={t("field.project")}>
           <ProjectPicker
             value={project}
@@ -1039,6 +1046,7 @@ function DeviceEventsPanel() {
             allLabel={t("field.allProjects")}
           />
         </FieldWrapper>
+        )}
         <FieldWrapper label={t("deviceEvent.result")}>
           <Select value={result} onValueChange={setResult}>
             <SelectTrigger className="w-full">

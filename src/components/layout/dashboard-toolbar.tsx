@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
+import { CurrentProjectPicker } from "@/components/layout/current-project-picker";
 import { GlobalModuleSearch } from "@/components/layout/global-module-search";
 import { PageSwitcher } from "@/components/layout/page-switcher";
 import { usePageTitleOverride } from "@/components/layout/page-title-override";
@@ -68,6 +69,9 @@ export function DashboardToolbar() {
       {current && <PageTitle current={current} />}
       <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
         <PageSwitcher />
+        {/* Everyone else's 「当前项目」; the consultant's is the select below,
+            which the server enforces (B13). */}
+        <CurrentProjectPicker />
         {user?.account_type === "CONSULTANT" && (
           <select
             aria-label={t("consultantProject.label")}

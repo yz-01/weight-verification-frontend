@@ -6266,6 +6266,11 @@
       "visitCreated": "客戶回訪已記錄"
     }
   },
+  "currentProject": {
+    "label": "當前項目",
+    "all": "全部項目",
+    "pageHint": "這一頁只看一個項目。選好後，整個系統都在這個項目上（頂欄會跟著換）。"
+  },
   "dashboard": {
     "admin": {
       "error": "無法加載平臺儀表板。",
