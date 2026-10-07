@@ -5947,7 +5947,11 @@
       "vehicle_plate": "No. kenderaan",
       "verified_at": "Masa pengesahan",
       "wbs_code": "WBS",
-      "worker": "Pekerja"
+      "worker": "Pekerja",
+      "document_no": "No. dokumen",
+      "subcategory": "Subkategori",
+      "version_count": "Versi",
+      "created_at": "Dimuat naik pada"
     },
     "description": {
       "attendance": "Semak bukti kemasukan tapak, ketepatan GPS dan geofence.",
@@ -5958,7 +5962,8 @@
       "recycling": "Semak kerja pelupusan dan pesanan kitar semula hingga selesai.",
       "safety": "Jejak isu keselamatan daripada tugasan hingga pengesahan.",
       "schedule": "Bandingkan jadual disahkan dengan kemajuan sebenar tapak.",
-      "target": "Bandingkan kemajuan dirancang dan sebenar serta aktiviti projek."
+      "target": "Bandingkan kemajuan dirancang dan sebenar serta aktiviti projek.",
+      "documents": "Dokumen projek mengikut kategori, dengan versi dan siapa yang memuat naik."
     },
     "empty": "Tiada rekod sepadan dengan projek dan tarikh ini.",
     "filter": {
@@ -6002,7 +6007,8 @@
       "recycling": "Laporan pelupusan dan kitar semula",
       "safety": "Laporan keselamatan dan pembetulan",
       "schedule": "Laporan dirancang berbanding sebenar",
-      "target": "Laporan sasaran dan pencapaian"
+      "target": "Laporan sasaran dan pencapaian",
+      "documents": "Laporan rekod projek"
     },
     "what": {
       "filterOptions": "Pilihan penapis (projek, sumber foto, pemuat naik)"
@@ -8021,7 +8027,8 @@
       "allProjectsView": "Paparan projek · semua projek",
       "notifications": "Pemberitahuan",
       "notificationsCount": "Pemberitahuan {count}",
-      "projectUnreadable": "(nama projek tidak dapat dimuatkan)"
+      "projectUnreadable": "(nama projek tidak dapat dimuatkan)",
+      "reportsView": "Pusat Laporan"
     },
     "figures": {
       "title": "Angka syarikat",
@@ -8770,7 +8777,9 @@
       "unpricedReceipts": "Penerimaan tanpa harga"
     },
     "export": {
-      "subtitle": "Rekod bahan masuk MSE Trace yang ditapis"
+      "subtitle": "Rekod bahan masuk MSE Trace yang ditapis",
+      "cumulativeTitle": "Jumlah kumulatif",
+      "periodQuantity": "Kuantiti tempoh"
     },
     "quantity": {
       "byMaterial": "Kuantiti mengikut bahan",
@@ -8778,7 +8787,8 @@
       "subtitle": "Kuantiti diterima dikumpulkan tanpa mencampurkan unit yang tidak serasi.",
       "title": "Laporan kuantiti bahan",
       "totalDeliveries": "Jumlah penghantaran",
-      "unitNote": "Kuantiti kekal dikumpulkan mengikut unit; tan, unit dan muatan tidak dicampurkan."
+      "unitNote": "Kuantiti kekal dikumpulkan mengikut unit; tan, unit dan muatan tidak dicampurkan.",
+      "cumulativeHint": "Kuantiti = tempoh dipilih; kumulatif = dari penghantaran pertama hingga hari akhir tempoh. Tanpa tarikh kedua-duanya sama. Muatan ditolak tidak dikira dan pemulangan tidak ditolak."
     },
     "records": {
       "title": "Butiran penghantaran ({total})",
@@ -9838,7 +9848,8 @@
       "materialReports": "Laporan bahan",
       "wasteClearance": "Pembersihan sisa",
       "equipmentEntry": "Peralatan masuk",
-      "equipmentExit": "Peralatan keluar"
+      "equipmentExit": "Peralatan keluar",
+      "targetReport": "Sasaran dan pencapaian"
     },
     "subscription_management": "Pengurusan Langganan",
     "suppliers": "Pembekal",
@@ -15008,7 +15019,26 @@
     "allSuppliers": "Semua pembekal",
     "materialsFailed": "Senarai bahan tidak dapat dimuatkan.",
     "suppliersFailed": "Senarai pembekal tidak dapat dimuatkan.",
-    "noSuppliers": "Belum ada penghantaran untuk pilihan ini."
+    "noSuppliers": "Belum ada penghantaran untuk pilihan ini.",
+    "level": {
+      "photos": "Sumber foto",
+      "progress": "Kategori pembinaan",
+      "safety": "Kategori pembetulan bahaya",
+      "consultant": "Jenis permohonan",
+      "equipment": "Kelas peralatan",
+      "equipmentClass": "Jenis",
+      "recycling": "Kategori bahan alam sekitar keluar",
+      "documents": "Kategori dokumen",
+      "documentSubcategory": "Subkategori"
+    },
+    "consultantType": {
+      "MATERIAL_APPROVAL": "Permohonan bahan",
+      "MATERIAL_CERT_SUBMISSION": "Penyerahan sijil bahan",
+      "RFI": "RFI",
+      "OTHER": "Lain-lain"
+    },
+    "categoriesFailed": "Senarai kategori tidak dapat dimuatkan.",
+    "noCategories": "Belum ada kategori - klik nama laporan untuk membukanya."
   },
   "wasteClearance": {
     "title": "Pembersihan sisa",

@@ -15,6 +15,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { CompanyBanner } from "@/components/dashboard/company-banner";
 import { ExportButton } from "@/components/shared/export-button";
 import { ReportSelector, useMaterialColumns } from "@/components/reports/report-selector";
 import { ListHeader, QueryFailedNote, TypeBadge } from "@/components/shared/page-primitives";
@@ -94,6 +95,21 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
       subtitle: t("materialReports.export.subtitle"),
       emptyLabel: t("table.noResults"),
       query: filters,
+      // The file ends with each material's 累计总数量 (E5, Q24).
+      summary:
+        mode === "quantity"
+          ? {
+              groupBy: "material_cumulative",
+              title: t("materialReports.export.cumulativeTitle"),
+              materialLabel: t("reports.receipts.material"),
+              specificationLabel: t("receipts.field.materialSpecification"),
+              unitLabel: t("reports.receipts.unit"),
+              quantityLabel: t("materialReports.export.periodQuantity"),
+              cumulativeLabel: t("receipts.field.cumulativeQuantity"),
+              countLabel: t("reports.receipts.deliveries"),
+              note: t("materialReports.quantity.cumulativeHint"),
+            }
+          : undefined,
       columns:
         mode === "quantity"
           ? [
@@ -134,6 +150,7 @@ export function MaterialReport({ mode }: { mode: MaterialReportMode }) {
 
   return (
     <div className="space-y-3">
+      <CompanyBanner scope="reports" />
       <ReportSelector summary={chosen} />
       <ListHeader
         title={t(`materialReports.${mode}.title`)}
@@ -467,10 +484,15 @@ function QuantityReport({
       </MetricRow>
 
       <ReportTable title={t("materialReports.quantity.byMaterial")}>
+        {/* 数量 is the period, 累计数量 from the first delivery (E5, Q24). */}
+        <p className="px-3 py-1.5 text-xs text-muted-foreground">
+          {t("materialReports.quantity.cumulativeHint")}
+        </p>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t("reports.receipts.material")}</TableHead>
+              <TableHead>{t("receipts.field.materialSpecification")}</TableHead>
               <TableHead>{t("reports.receipts.unit")}</TableHead>
               <TableHead className="text-right">{t("reports.receipts.quantity")}</TableHead>
               <TableHead className="text-right">{t("receipts.field.cumulativeQuantity")}</TableHead>
@@ -478,12 +500,15 @@ function QuantityReport({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.by_material.map((row) => (
-              <TableRow key={`${row.material_name}-${row.unit}`}>
+            {data.quantity_by_material.map((row) => (
+              <TableRow key={`${row.material_name}-${row.material_specification}-${row.unit}`}>
                 <TableCell className="font-medium">{row.material_name}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {row.material_specification || t("common.emptyValue")}
+                </TableCell>
                 <TableCell><TypeBadge label={t(`receipts.unit.${row.unit}`)} /></TableCell>
                 <TableCell className="tabular text-right">{row.quantity}</TableCell>
-                <TableCell className="tabular text-right">{row.cumulative_quantity ?? row.quantity}</TableCell>
+                <TableCell className="tabular text-right">{row.cumulative_quantity}</TableCell>
                 <TableCell className="tabular text-right text-muted-foreground">
                   {formatter.number(row.receipts)}
                 </TableCell>

@@ -5947,7 +5947,11 @@
       "vehicle_plate": "Vehicle plate",
       "verified_at": "Verified at",
       "wbs_code": "WBS",
-      "worker": "Worker"
+      "worker": "Worker",
+      "document_no": "Document no.",
+      "subcategory": "Subcategory",
+      "version_count": "Versions",
+      "created_at": "Uploaded at"
     },
     "description": {
       "attendance": "Review site entry evidence, GPS accuracy and geofence result.",
@@ -5958,7 +5962,8 @@
       "recycling": "Review disposal work and recycling orders through completion.",
       "safety": "Track safety findings from assignment through rectification and verification.",
       "schedule": "Compare the current confirmed schedule with actual site progress.",
-      "target": "Filter the business targets above by project and overlapping target period, then export the same achievement data."
+      "target": "Filter the business targets above by project and overlapping target period, then export the same achievement data.",
+      "documents": "Project documents by category, with their versions and who uploaded them."
     },
     "empty": "No records match this project and date range.",
     "filter": {
@@ -6002,7 +6007,8 @@
       "recycling": "Disposal and recycling report",
       "safety": "Safety and rectification report",
       "schedule": "Planned versus actual report",
-      "target": "Target and achievement report"
+      "target": "Target and achievement report",
+      "documents": "Project records report"
     },
     "what": {
       "filterOptions": "The filter choices (projects, photo sources, uploaders)"
@@ -8021,7 +8027,8 @@
       "allProjectsView": "Project view · all projects",
       "notifications": "Notifications",
       "notificationsCount": "Notifications {count}",
-      "projectUnreadable": "(project name could not be loaded)"
+      "projectUnreadable": "(project name could not be loaded)",
+      "reportsView": "Report Center"
     },
     "figures": {
       "title": "Company figures",
@@ -8770,7 +8777,9 @@
       "unpricedReceipts": "Unpriced receipts"
     },
     "export": {
-      "subtitle": "Filtered material records from MSE Trace"
+      "subtitle": "Filtered material records from MSE Trace",
+      "cumulativeTitle": "Cumulative totals",
+      "periodQuantity": "Period quantity"
     },
     "quantity": {
       "byMaterial": "Quantity by material",
@@ -8778,7 +8787,8 @@
       "subtitle": "Received quantities grouped without mixing incompatible units.",
       "title": "Material quantity report",
       "totalDeliveries": "Total deliveries",
-      "unitNote": "Quantities remain grouped by unit; tonnes, pieces and loads are never added together."
+      "unitNote": "Quantities remain grouped by unit; tonnes, pieces and loads are never added together.",
+      "cumulativeHint": "Quantity = the chosen period; cumulative = from the first delivery to the period's last day. With no dates the two match. Rejected loads never count and returns are not taken off."
     },
     "records": {
       "title": "Delivery details ({total})",
@@ -9838,7 +9848,8 @@
       "materialReports": "Material reports",
       "wasteClearance": "Waste clearance",
       "equipmentEntry": "Equipment entry",
-      "equipmentExit": "Equipment exit"
+      "equipmentExit": "Equipment exit",
+      "targetReport": "Targets and achievement"
     },
     "subscription_management": "Subscriptions",
     "suppliers": "Suppliers",
@@ -15008,7 +15019,26 @@
     "allSuppliers": "All suppliers",
     "materialsFailed": "The material list could not be loaded.",
     "suppliersFailed": "The supplier list could not be loaded.",
-    "noSuppliers": "No deliveries for this choice yet."
+    "noSuppliers": "No deliveries for this choice yet.",
+    "level": {
+      "photos": "Photo source",
+      "progress": "Construction category",
+      "safety": "Hazard rectification category",
+      "consultant": "Application type",
+      "equipment": "Equipment class",
+      "equipmentClass": "Type",
+      "recycling": "Environmental material outgoing category",
+      "documents": "Document category",
+      "documentSubcategory": "Subcategory"
+    },
+    "consultantType": {
+      "MATERIAL_APPROVAL": "Material application",
+      "MATERIAL_CERT_SUBMISSION": "Material certificate submission",
+      "RFI": "RFI",
+      "OTHER": "Other"
+    },
+    "categoriesFailed": "The category list could not be loaded.",
+    "noCategories": "No categories yet - click the report's name to open it."
   },
   "wasteClearance": {
     "title": "Waste clearance",
