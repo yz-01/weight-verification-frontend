@@ -137,12 +137,12 @@ describe("the confirm on a business page offers itself only when the record is r
 });
 
 describe("every business detail hands its record to the confirm panel - C4", () => {
-  const read = (file: string) => readFileSync(path.join(process.cwd(), "src", file), "utf8");
+  const read = (file: string) => readFileSync(path.join(process.cwd(), "src", file), "utf8").replace(/\r\n/g, "\n");
   // The eight X10 names, each in the file that draws that module's detail.
   const DETAILS: [string, string, RegExp][] = [
     ["MATERIAL_RECEIPT", "components/receipts/view-receipt.tsx", /\{ kind: "MATERIAL_RECEIPT", recordId: data\.id \}/],
     ["MATERIAL_OUTGOING", "components/contractor-ops/operations-workspaces.tsx", /closure=\{\{ kind: "MATERIAL_OUTGOING", recordId: row\.id \}\}/],
-    ["EQUIPMENT_MOVEMENT", "components/contractor-ops/office-module-lists.tsx", /closure=\{\{ kind: "EQUIPMENT_MOVEMENT", recordId: viewingMovement\.id \}\}/],
+    ["EQUIPMENT_MOVEMENT", "components/contractor-ops/office-module-lists.tsx", /closure=\{\{ kind: "EQUIPMENT_MOVEMENT", recordId: shownMovement\.id \}\}/],
     ["PROGRESS", "components/contractor-ops/office-module-lists.tsx", /closure=\{\{ kind: "PROGRESS", recordId: shown\.id \}\}/],
     ["WASTE_OUTGOING", "components/contractor-ops/waste-outgoing-workspace.tsx", /closure=\{\{ kind: "WASTE_OUTGOING", recordId: shown\.id \}\}/],
     ["DISPOSAL_REQUEST", "components/contractor-ops/site-disposal-workspaces.tsx", /closure=\{\{ kind: "DISPOSAL_REQUEST", recordId: row\.id \}\}/],
@@ -250,7 +250,7 @@ describe("the record sheet only reads", () => {
   });
 
   it("is opened read-only by every caller except 「等你处理」", () => {
-    const read = (file: string) => readFileSync(path.join(process.cwd(), "src", file), "utf8");
+    const read = (file: string) => readFileSync(path.join(process.cwd(), "src", file), "utf8").replace(/\r\n/g, "\n");
     // 「等你处理」 is the dashboard card's pop-up now (B8, F6) and its full
     // list, the record centre with `?waiting=1`.
     const cards = read("components/dashboard/dashboard-cards.tsx");

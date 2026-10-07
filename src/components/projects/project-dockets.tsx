@@ -10,6 +10,7 @@ import { useRef, useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { FieldWrapper, LoadFailed, QueryFailedNote, StatusBadge } from "@/components/shared/page-primitives";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -265,8 +266,10 @@ function IssueDeliveryNoteDialog({
           <FieldWrapper label={t("qrCodes.field.supplier")} required error={errors.supplier}>
             <Select value={supplier} onValueChange={(value) => { setSupplier(value); setErrors((current) => ({ ...current, supplier: "", form: "" })); }}>
               <SelectTrigger className="w-full"><SelectValue placeholder={t("qrCodes.chooseSupplier")} /></SelectTrigger>
-              <SelectContent>{options.map((row) => <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>)}</SelectContent>
+              <SelectContent>{options.map((row) => <SelectItem key={row.id} value={row.id}>{row.name}<SupplierReturnBadge supplier={row} interactive={false} /></SelectItem>)}</SelectContent>
             </Select>
+            {/* 「有退场资料」 (2026-10 C10). */}
+            <SupplierReturnBadge supplier={options.find((row) => row.id === supplier)} />
             <QueryFailedNote query={suppliers} what={t("qrCodes.what.suppliers")} />
           </FieldWrapper>
           <FieldWrapper label={t("qrCodes.field.vehicle")} required error={errors.vehicle_plate}>

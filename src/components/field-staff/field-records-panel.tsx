@@ -14,6 +14,7 @@ import {
   Plus,
   Recycle,
   ScanLine,
+  Timer,
   ShieldAlert,
   Trash2,
   Truck,
@@ -37,9 +38,11 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { FieldDraft, useClearDraft, useDraftState } from "@/components/field-staff/field-draft";
 import { FieldSlots } from "@/components/field-staff/field-slots";
 import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-capture";
+import { EquipmentHoursCapture } from "@/components/equipment-hours/equipment-hours-capture";
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import {
   completedFieldEvidence,
@@ -103,6 +106,7 @@ type Coordinates = { latitude: string; longitude: string; accuracy: string };
 export type FieldRecordMode =
   | "material"
   | "equipment"
+  | "operatorHours"
   | "progress"
   | "disposal"
   | "outgoing"
@@ -123,6 +127,9 @@ interface RecordOption {
 const RECORD_OPTIONS: RecordOption[] = [
   { key: "material", permission: "receipt.create", icon: ClipboardList, tone: "bg-info/10 text-info" },
   { key: "equipment", permission: "equipment.capture", icon: HardHat, tone: "bg-warning/15 text-warning" },
+  // 设备操作员工时 (2026-10 B15): a photo when the machine starts, one when
+  // it stops. Same permission as the equipment entry - it is the same people.
+  { key: "operatorHours", permission: "equipment.capture", icon: Timer, tone: "bg-info/10 text-info" },
   { key: "progress", permission: "progress.manage", icon: ListChecks, tone: "bg-primary/10 text-primary" },
   { key: "disposal", permission: "disposal.submit", icon: Recycle, tone: "bg-success/10 text-success" },
   { key: "outgoing", permission: "material_outgoing.submit", icon: Truck, tone: "bg-destructive/10 text-destructive" },
@@ -175,6 +182,9 @@ export function FieldRecordsPanel({
   }
   if (mode === "equipment") {
     return <RecordFrame title={t("records.equipment")} onBack={() => chooseMode(null)}><FieldSlots scope={`equipment:${task?.id ?? "new"}`} jobKinds={["EQUIPMENT_MOVEMENT"]}><SiteEquipmentWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldSlots></RecordFrame>;
+  }
+  if (mode === "operatorHours") {
+    return <RecordFrame title={t("records.operatorHours")} onBack={() => chooseMode(null)}><EquipmentHoursCapture initialProject={task?.project ?? boundProject} /></RecordFrame>;
   }
   if (mode === "progress") {
     return <RecordFrame title={t("records.progress")} onBack={() => chooseMode(null)}><FieldDraft scope={`progress:${task?.id ?? "new"}`}><SiteProgressWorkspace initialProject={task?.project ?? boundProject} fieldTaskId={task?.id} onRecordSaved={() => chooseMode(null)} /></FieldDraft></RecordFrame>;
@@ -766,10 +776,15 @@ export function MaterialCapturePanel({
           <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.chooseSupplier")} /></SelectTrigger>
           <SelectContent>
             {supplierRows.map((row) => (
-              <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+                <SupplierReturnBadge supplier={row} interactive={false} />
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        {/* 「有退场资料」 (2026-10 C10): this supplier's returns, one press away. */}
+        <SupplierReturnBadge supplier={supplierRows.find((row) => row.id === draft.supplier)} />
         {/* Q1: one supplier on the category fills itself in; several are the
             only ones offered. A scanned code names its own. */}
         {fill.supplierFromColumn && draft.supplier && !scannedSupplier ? (

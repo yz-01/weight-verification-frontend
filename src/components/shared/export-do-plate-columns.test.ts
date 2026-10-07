@@ -14,7 +14,7 @@ import { describe, expect, it } from "vitest";
  * the headings back out of the PDF.
  */
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 /** The source of every `exporter({ ... })` call in a file. */

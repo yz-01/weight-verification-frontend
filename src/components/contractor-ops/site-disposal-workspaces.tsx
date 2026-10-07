@@ -10,6 +10,7 @@ import {
   Link2,
   Loader2,
   PackageCheck,
+  Pencil,
   Plus,
   RefreshCw,
   Send,
@@ -67,22 +68,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ApiError } from "@/interfaces/api";
 import type {
   DisposalEvidenceKind,
   DisposalEvidenceStage,
   DisposalRequest,
   DisposalRequestStatus,
   DisposalSiteEvidenceKind,
+  DisposalTrip,
+  DisposalTripStatus,
   ExternalDisposalTask,
 } from "@/interfaces/contractor-ops";
 import {
+  acceptDisposalTrip,
   addDisposalSiteEvidence,
+  addDisposalTrip,
   addExternalDisposalEvidence,
   addInternalDisposalEvidence,
   assignDisposalCollector,
   assignDisposalInternal,
   cancelDisposalRequest,
+  correctDisposalTrip,
+  endDisposalEarly,
   getDisposalRequest,
   getDisposalRequests,
   getExternalDisposalTask,
@@ -196,7 +205,7 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
                   {row.disposal_evidence_is_overdue && (
                     /* Said, not just coloured. A red card tells a reader
                        something is wrong; it does not tell them what to chase. */
-                    <p className="mt-1 text-xs font-medium text-destructive">{t("overdue.help")}</p>
+                    <p className="mt-1 text-xs font-medium text-destructive">{t(overdueHelpKey(row))}</p>
                   )}
                   <h3 className="mt-1 truncate font-semibold">{row.waste_description}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{row.project_name} / {row.location_description}</p>
@@ -205,6 +214,8 @@ export function SiteDisposalWorkspace({ initialProject = "", fieldTaskId, onReco
               <div className="mt-4 grid grid-cols-2 gap-3 border-y py-3 text-sm">
                 <div><p className="text-xs text-muted-foreground">{t("field.requestedBy")}</p><p className="mt-1 font-medium">{row.requested_by_name || "-"}</p></div>
                 <div><p className="text-xs text-muted-foreground">{t("field.executor")}</p><p className="mt-1 font-medium">{row.assigned_staff_name || row.collector_company_name || t("notAssigned")}</p></div>
+                {/* 「已验收 x / N 车」 (X11), once the job has lorries. */}
+                {row.trips_total > 0 && <div className="col-span-2"><p className="text-xs text-muted-foreground">{t("field.tripsProgress")}</p><p className="mt-1 font-medium tabular">{t("trips.progress", { accepted: row.trips_accepted, total: row.trips_total })}</p></div>}
               </div>
               <div className="mt-3 flex flex-wrap justify-end gap-2">
                 {/* Clearance has no categories since 2026-10 (B1, X5); one
@@ -249,6 +260,8 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
   const [weight, setWeight] = useDraftState("weight", "");
   const [preferred, setPreferred] = useDraftState("preferred", "");
   const [note, setNote] = useDraftState("note", "");
+  // 「申请时填「预计车次」」 (X11): one number, 1 unless the site says more.
+  const [plannedTrips, setPlannedTrips] = useDraftState("plannedTrips", "1");
   const [photos, setPhotos] = useDraftState<File[]>("photos", []);
   const [fieldEvidence, setFieldEvidence] = useDraftState("fieldEvidence", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
@@ -273,6 +286,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
         estimated_weight_kg: isFieldStaff ? "" : weight,
         preferred_at: !isFieldStaff && preferred ? new Date(preferred).toISOString() : undefined,
         request_note: note,
+        planned_trips: plannedTrips,
         captured_at: new Date().toISOString(),
         latitude: location!.latitude,
         longitude: location!.longitude,
@@ -294,6 +308,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
         <div className="grid min-h-0 min-w-0 flex-1 gap-4 overflow-y-auto overflow-x-hidden pr-1 sm:grid-cols-2">
           <FieldWrapper label={t("field.project")} required className="sm:col-span-2"><ProjectPicker value={project} onValueChange={setProject} placeholder={t("field.project")} /></FieldWrapper>
           <FieldWrapper label={t("field.waste")} required className="sm:col-span-2"><Input value={description} onChange={(e) => setDescription(e.target.value)} /></FieldWrapper>
+          <FieldWrapper label={t("field.plannedTrips")} required><Input inputMode="numeric" type="number" min="1" max={MAX_PLANNED_TRIPS} value={plannedTrips} onChange={(e) => setPlannedTrips(e.target.value)} /></FieldWrapper>
           {!isFieldStaff ? <>
             <FieldWrapper label={t("field.siteLocation")} required className="sm:col-span-2"><Input value={locationDescription} onChange={(e) => setLocationDescription(e.target.value)} /></FieldWrapper>
             <FieldWrapper label={t("field.volume")} optional={t("optional")}><Input type="number" min="0" step="0.001" value={volume} onChange={(e) => setVolume(e.target.value)} /></FieldWrapper>
@@ -326,7 +341,7 @@ function CreateDisposalDialog({ initialProject = "", fieldTaskId, onClose, onSav
           </FieldWrapper>
           <FieldWrapper label={t("field.note")} optional={t("optional")} className="sm:col-span-2"><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
         </div>
-        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [isFieldStaff || submissionPhotos.length >= 1, t("field.photos")], [isFieldStaff ? location : true, t("field.gps")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
+        <DialogFooter className="shrink-0"><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[project, t("field.project")], [description, t("field.waste")], [isFieldStaff || locationDescription, t("field.siteLocation")], [isFieldStaff || submissionPhotos.length >= 1, t("field.photos")], [isFieldStaff ? location : true, t("field.gps")], [validTrips(plannedTrips), t("field.plannedTrips")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Send />}{t("action.submit")}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -336,6 +351,8 @@ export function ReviewDisposalDialog({ row, onClose, onSaved }: { row: DisposalR
   const t = useTranslations("siteDisposal");
   const [decision, setDecision] = useState<"APPROVED" | "REJECTED">("APPROVED");
   const [note, setNote] = useState("");
+  // "Approve 3 lorries" (X11): the site's number, which the approver may change.
+  const [trips, setTrips] = useState(String(row.planned_trips || 1));
   /*
    * Approving mints the temporary link and hands it back once (D-217).
    *
@@ -346,7 +363,7 @@ export function ReviewDisposalDialog({ row, onClose, onSaved }: { row: DisposalR
    */
   const [link, setLink] = useState("");
   const save = useMutation({
-    mutationFn: () => reviewDisposalRequest(row.id, decision, note),
+    mutationFn: () => reviewDisposalRequest(row.id, decision, note, Number(trips)),
     onSuccess: (data) => {
       onSaved();
       if (data.external_url) setLink(data.external_url);
@@ -356,7 +373,7 @@ export function ReviewDisposalDialog({ row, onClose, onSaved }: { row: DisposalR
   if (link) {
     return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("review.linkTitle")}</DialogTitle><DialogDescription>{t("review.linkHelp")}</DialogDescription></DialogHeader><div className="space-y-3"><div className="break-all rounded-lg border bg-muted/30 p-3 font-mono text-sm">{link}</div><Button className="w-full" onClick={() => void navigator.clipboard.writeText(link)}><Copy />{t("action.copyLink")}</Button></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.close")}</Button></DialogFooter></DialogContent></Dialog>;
   }
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("review.title")}</DialogTitle><DialogDescription>{row.reference_no} / {row.waste_description}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "APPROVED" ? "default" : "outline"} onClick={() => setDecision("APPROVED")}><CheckCircle2 />{t("action.approve")}</Button><Button variant={decision === "REJECTED" ? "destructive" : "outline"} onClick={() => setDecision("REJECTED")}><XCircle />{t("action.reject")}</Button></div><FieldWrapper label={t("field.reviewNote")} required={decision === "REJECTED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[decision !== "REJECTED" || note, t("field.reviewNote")]]} disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("review.title")}</DialogTitle><DialogDescription>{row.reference_no} / {row.waste_description}</DialogDescription></DialogHeader><div className="grid grid-cols-2 gap-2"><Button variant={decision === "APPROVED" ? "default" : "outline"} onClick={() => setDecision("APPROVED")}><CheckCircle2 />{t("action.approve")}</Button><Button variant={decision === "REJECTED" ? "destructive" : "outline"} onClick={() => setDecision("REJECTED")}><XCircle />{t("action.reject")}</Button></div>{decision === "APPROVED" && <FieldWrapper label={t("field.plannedTrips")} required><Input inputMode="numeric" type="number" min="1" max={MAX_PLANNED_TRIPS} value={trips} onChange={(e) => setTrips(e.target.value)} /><p className="mt-1 text-xs text-muted-foreground">{t("review.tripsHelp")}</p></FieldWrapper>}<FieldWrapper label={t("field.reviewNote")} required={decision === "REJECTED"}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[decision !== "REJECTED" || note, t("field.reviewNote")], [decision !== "APPROVED" || validTrips(trips), t("field.plannedTrips")]]} disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function defaultLinkExpiry() {
@@ -419,11 +436,14 @@ function RecordNumbersDialog({ row, onClose, onSaved }: { row: DisposalRequest; 
   const [weight, setWeight] = useState(row.actual_weight_kg ?? "");
   const [trips, setTrips] = useState(row.trip_count ? String(row.trip_count) : "");
   const [doNo, setDoNo] = useState(row.disposal_do_no ?? "");
+  // A job with lorries counts them (X11): the count is not typed, and one
+  // lorry's weight / DO is corrected on that lorry (Q29.7).
+  const counted = row.trips_total > 0;
   const save = useMutation({
-    mutationFn: () => recordDisposalNumbers(row.id, { actual_weight_kg: weight, trip_count: trips, disposal_do_no: doNo }),
+    mutationFn: () => recordDisposalNumbers(row.id, { actual_weight_kg: weight, trip_count: counted ? undefined : trips, disposal_do_no: doNo }),
     onSuccess: onSaved,
   });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("recordNumbers.title")}</DialogTitle><DialogDescription>{t("recordNumbers.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className="grid gap-3 sm:grid-cols-3"><FieldWrapper label={t("field.actualWeight")} optional={t("optional")}><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} optional={t("optional")}><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} optional={t("optional")}><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-lg"><DialogHeader><DialogTitle>{t("recordNumbers.title")}</DialogTitle><DialogDescription>{t("recordNumbers.description", { reference: row.reference_no })}</DialogDescription></DialogHeader><div className={`grid gap-3 ${counted ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}><FieldWrapper label={t("field.actualWeight")} optional={t("optional")}><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} /></FieldWrapper>{!counted && <FieldWrapper label={t("field.trips")} optional={t("optional")}><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(e) => setTrips(e.target.value)} /></FieldWrapper>}<FieldWrapper label={t("field.doNo")} optional={t("optional")}><Input value={doNo} onChange={(e) => setDoNo(e.target.value)} /></FieldWrapper></div>{counted && <p className="text-sm text-muted-foreground">{t("recordNumbers.tripsCounted")}</p>}<DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button disabled={save.isPending} onClick={() => save.mutate()}>{t("action.save")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 const SITE_EVIDENCE_KINDS: DisposalSiteEvidenceKind[] = ["VEHICLE_EXIT", "GATE_PASS"];
@@ -487,9 +507,6 @@ function SiteEvidenceDialog({ row, onClose, onSaved }: { row: DisposalRequest; o
   );
 }
 
-/** B23: the order a disposal's photographs are shown in, one row per stage. */
-const DISPOSAL_STAGES: DisposalEvidenceStage[] = ["REQUEST", "SITE_EXIT", "FINAL_PROOF", "OFFICE_CHECK"];
-
 /** The stage of one photograph; the server says, this is only a fallback. */
 function stageOf(item: { kind: DisposalEvidenceKind; stage?: DisposalEvidenceStage }): DisposalEvidenceStage {
   if (item.stage) return item.stage;
@@ -497,6 +514,266 @@ function stageOf(item: { kind: DisposalEvidenceKind; stage?: DisposalEvidenceSta
   if (["VEHICLE_EXIT", "GATE_PASS", "LOADING"].includes(item.kind)) return "SITE_EXIT";
   if (item.kind === "CONFIRMATION") return "OFFICE_CHECK";
   return "FINAL_PROOF";
+}
+
+/** The server's ceiling on one request's lorries (X11). */
+const MAX_PLANNED_TRIPS = 50;
+
+function validTrips(value: string) {
+  const count = Number(value);
+  return Number.isInteger(count) && count >= 1 && count <= MAX_PLANNED_TRIPS;
+}
+
+/**
+ * The detail's photograph rows (B23, X11): request, leaving site, then one row
+ * per lorry, then any final proof from before C5 (no lorry), then the office
+ * check from before E04.
+ */
+export function disposalPhotoGroups(row: Pick<DisposalRequest, "evidence" | "trips">): string[] {
+  const trips = row.trips.filter((trip) => trip.status !== "CANCELLED" || trip.evidence.length > 0);
+  const loose = row.evidence.some((item) => !item.trip && stageOf(item) === "FINAL_PROOF");
+  return [
+    "REQUEST",
+    "SITE_EXIT",
+    ...trips.map((trip) => `TRIP-${trip.seq}`),
+    ...(loose || !trips.length ? ["FINAL_PROOF"] : []),
+    ...(row.evidence.some((item) => stageOf(item) === "OFFICE_CHECK") ? ["OFFICE_CHECK"] : []),
+  ];
+}
+
+function photoGroupOf(
+  row: Pick<DisposalRequest, "trips">,
+  item: { kind: DisposalEvidenceKind; stage?: DisposalEvidenceStage; trip?: string | null },
+): string {
+  const trip = item.trip ? row.trips.find((candidate) => candidate.id === item.trip) : undefined;
+  return trip ? `TRIP-${trip.seq}` : stageOf(item);
+}
+
+/** Every photograph in the order of its row. */
+function disposalPhotos(row: DisposalRequest) {
+  const groups = disposalPhotoGroups(row);
+  return [...row.evidence].sort((a, b) => groups.indexOf(photoGroupOf(row, a)) - groups.indexOf(photoGroupOf(row, b)));
+}
+
+/**
+ * Which sentence explains a red job (D-217, Q29.8): no load yet after the 36
+ * hours from approval, or the next lorry 48 hours late after one has come.
+ */
+export function overdueHelpKey(row: Pick<DisposalRequest, "trips">): "overdue.help" | "overdue.helpNextLoad" {
+  return row.trips.some((trip) => trip.status === "SUBMITTED" || trip.status === "ACCEPTED") ? "overdue.helpNextLoad" : "overdue.help";
+}
+
+/** A load the office may correct: sent, on a job that runs or has finished (Q29.7). */
+export function canCorrectTrip(row: Pick<DisposalRequest, "status">, trip: Pick<DisposalTrip, "status">): boolean {
+  return (trip.status === "SUBMITTED" || trip.status === "ACCEPTED") && (RUNNING.includes(row.status) || row.status === "COMPLETED");
+}
+
+/**
+ * The office corrects one load's weight and/or DO number (Q29.7).
+ *
+ * 「清运进行中，后台可以更正某一车的重量或 DO，要写原因、留记录」: a reason is
+ * required, and the server keeps the original and every change - shown on
+ * the load, newest first. Only what was changed is sent.
+ */
+function CorrectTripDialog({ row, trip, onClose, onSaved }: { row: DisposalRequest; trip: DisposalTrip; onClose: () => void; onSaved: () => void }) {
+  const t = useTranslations("siteDisposal");
+  const [weight, setWeight] = useState(trip.weight_kg ?? "");
+  const [doNo, setDoNo] = useState(trip.do_no);
+  const [reason, setReason] = useState("");
+  const weightChanged = weight.trim() !== "" && (trip.weight_kg === null || Number(weight) !== Number(trip.weight_kg));
+  const doChanged = doNo.trim() !== "" && doNo.trim() !== trip.do_no;
+  const unchanged = !weightChanged && !doChanged;
+  const save = useMutation({
+    mutationFn: () =>
+      correctDisposalTrip(row.id, trip.id, {
+        weight_kg: weightChanged ? weight.trim() : undefined,
+        do_no: doChanged ? doNo.trim() : undefined,
+        reason,
+      }),
+    onSuccess: onSaved,
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t("trips.correctTitle", { seq: trip.seq })}</DialogTitle>
+          <DialogDescription>{t("trips.correctHint")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <FieldWrapper label={t("field.actualWeight")} optional={t("optional")}>
+            <Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.doNo")} optional={t("optional")}>
+            <Input value={doNo} onChange={(event) => setDoNo(event.target.value)} />
+          </FieldWrapper>
+        </div>
+        <FieldWrapper label={t("trips.correctReason")} required>
+          <Textarea value={reason} onChange={(event) => setReason(event.target.value)} />
+        </FieldWrapper>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button>
+          <Button
+            requires={[[reason, t("trips.correctReason")]]}
+            disabledReason={unchanged ? t("trips.correctUnchanged") : undefined}
+            disabled={unchanged || save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Pencil />}
+            {t("trips.correctSave")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function tripTone(status: DisposalTripStatus): "neutral" | "positive" | "warning" | "danger" | "info" {
+  if (status === "ACCEPTED") return "positive";
+  if (status === "SUBMITTED") return "warning";
+  if (status === "CANCELLED") return "danger";
+  return "neutral";
+}
+
+/**
+ * The lorries of one disposal job and the office's check of each (X11, C5).
+ *
+ * 「批准 3 车 → 司机回传第 1 车 → 后台收到待办 → 验收 → 1/3 … 3/3 → 清运单
+ * 完成」. Each sent lorry shows its photographs and one 【验收这一车】; the last
+ * check completes the job on the server. 【加一车】 adds a lorry after the
+ * last; ending early is armed by a switch, never a confirm dialog (spec
+ * rule 8), and is only offered once a lorry has been sent - before that it is
+ * a cancellation, which asks for a reason.
+ *
+ * Nothing on a job from before C5, which has no lorries.
+ */
+export function DisposalTripsPanel({
+  row,
+  canCheck,
+  onChanged,
+}: {
+  row: DisposalRequest;
+  canCheck: boolean;
+  onChanged: () => void;
+}) {
+  const t = useTranslations("siteDisposal");
+  const df = useDateFormat();
+  const [endArmed, setEndArmed] = useState(false);
+  const [correcting, setCorrecting] = useState<DisposalTrip | null>(null);
+  const accept = useMutation({ mutationFn: (trip: string) => acceptDisposalTrip(row.id, trip), onSuccess: onChanged });
+  const add = useMutation({ mutationFn: () => addDisposalTrip(row.id), onSuccess: onChanged });
+  const end = useMutation({
+    mutationFn: () => endDisposalEarly(row.id),
+    onSuccess: () => {
+      setEndArmed(false);
+      onChanged();
+    },
+  });
+  if (!row.trips.length) return null;
+  const running = RUNNING.includes(row.status) && !row.trips_closed_at;
+  const sentAny = row.trips.some((trip) => trip.status === "SUBMITTED" || trip.status === "ACCEPTED");
+  return (
+    <section className="rounded-lg border bg-card p-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("trips.title")}</h3>
+        <span className="text-sm font-semibold tabular">{t("trips.progress", { accepted: row.trips_accepted, total: row.trips_total })}</span>
+      </div>
+      {row.trips_closed_at && <p className="mb-2 text-xs text-muted-foreground">{t("trips.ended")}</p>}
+      <ul className="space-y-2">
+        {row.trips.map((trip) => (
+          <li key={trip.id} className="rounded-md border px-2 py-2 text-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium">{t("trips.seq", { seq: trip.seq })}</span>
+              <StatusBadge label={t(`tripStatus.${trip.status}`)} tone={tripTone(trip.status)} />
+            </div>
+            {trip.submitted_at && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {[trip.submitted_by_name, df.dateTime(trip.submitted_at), trip.weight_kg ? `${trip.weight_kg} kg` : "", trip.do_no].filter(Boolean).join(" · ")}
+              </p>
+            )}
+            {trip.evidence.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {trip.evidence.map((item) => (
+                  <a key={item.id} href={item.watermarked || item.image} target="_blank" rel="noreferrer" title={t(`evidenceKind.${item.kind}`)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- a signed, watermarked evidence URL, not a static asset */}
+                    <img src={item.watermarked || item.image} alt={t(`evidenceKind.${item.kind}`)} className="size-12 rounded object-cover" />
+                  </a>
+                ))}
+              </div>
+            )}
+            {trip.accepted_at && (
+              <p className="mt-1 text-xs text-muted-foreground">{t("trips.checkedBy", { name: trip.accepted_by_name ?? "", at: df.dateTime(trip.accepted_at) })}</p>
+            )}
+            {/* Q29.7: the original and every correction, newest first; the
+                line above shows the current value. */}
+            {trip.corrections.length > 0 && (
+              <div className="mt-2 border-l-2 border-warning/60 pl-2">
+                <p className="text-xs font-medium">{t("trips.history")}</p>
+                <ul className="mt-1 space-y-1">
+                  {trip.corrections.map((item) => (
+                    <li key={item.id} className="text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        {t(item.field === "weight_kg" ? "trips.historyWeight" : "trips.historyDo", { from: item.from || t("trips.blank"), to: item.to })}
+                      </span>
+                      <span className="block">{t("trips.historyMeta", { name: item.by_name, at: df.dateTime(item.at), reason: item.reason })}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {canCheck && (trip.status === "SUBMITTED" || canCorrectTrip(row, trip)) && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {trip.status === "SUBMITTED" && RUNNING.includes(row.status) && (
+                  <Button size="sm" disabled={accept.isPending} onClick={() => accept.mutate(trip.id)}>
+                    {accept.isPending && accept.variables === trip.id ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
+                    {t("trips.accept")}
+                  </Button>
+                )}
+                {canCorrectTrip(row, trip) && (
+                  <Button size="sm" variant="outline" onClick={() => setCorrecting(trip)}>
+                    <Pencil />
+                    {t("trips.correct")}
+                  </Button>
+                )}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+      {canCheck && running && (
+        <div className="mt-3 space-y-2 border-t pt-3">
+          <Button size="sm" variant="outline" disabled={add.isPending} onClick={() => add.mutate()}>
+            <Plus />
+            {t("trips.add")}
+          </Button>
+          {sentAny && (
+            <div className="space-y-2 rounded-md border border-destructive/20 p-2">
+              <label className="flex items-start gap-2">
+                <Switch checked={endArmed} onCheckedChange={setEndArmed} aria-label={t("trips.endSwitch")} />
+                <span className="text-xs text-muted-foreground">{t("trips.endHint")}</span>
+              </label>
+              {endArmed && (
+                <Button size="sm" variant="destructive" className="w-full" disabled={end.isPending} onClick={() => end.mutate()}>
+                  {end.isPending ? <Loader2 className="animate-spin" /> : <XCircle />}
+                  {t("trips.end")}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+      {correcting && (
+        <CorrectTripDialog
+          row={row}
+          trip={correcting}
+          onClose={() => setCorrecting(null)}
+          onSaved={() => {
+            setCorrecting(null);
+            onChanged();
+          }}
+        />
+      )}
+    </section>
+  );
 }
 
 /**
@@ -517,6 +794,8 @@ function DisposalDetailDialog({
 }) {
   const t = useTranslations("siteDisposal");
   const df = useDateFormat();
+  const { can } = useAuth();
+  const qc = useQueryClient();
   return (
     <RecordDetailDialog
       title={row.reference_no}
@@ -529,7 +808,7 @@ function DisposalDetailDialog({
         notices={
           row.disposal_evidence_is_overdue ? (
             <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm font-medium text-destructive">
-              {t("overdue.help")}
+              {t(overdueHelpKey(row))}
             </p>
           ) : null
         }
@@ -541,33 +820,40 @@ function DisposalDetailDialog({
           { label: t("field.requestedBy"), value: row.requested_by_name || "—" },
           { label: t("field.executor"), value: row.assigned_staff_name || row.collector_company_name || t("notAssigned") },
           { label: t("field.actualWeight"), value: row.actual_weight_kg ? `${row.actual_weight_kg} kg` : "—" },
-          { label: t("field.trips"), value: row.trip_count ? String(row.trip_count) : "—" },
+          // 「已验收 x / N 车」 (X11); a job from before C5 keeps its typed count.
+          row.trips_total
+            ? { label: t("field.tripsProgress"), value: t("trips.progress", { accepted: row.trips_accepted, total: row.trips_total }) }
+            : { label: t("field.trips"), value: row.trip_count ? String(row.trip_count) : "—" },
           { label: t("field.doNo"), value: row.disposal_do_no || "—" },
           { label: t("field.ocr"), value: t(`ocr.${row.ocr_status}`) },
-          // E04: the end of the job is the final proof's submission.
-          { label: t("field.finalProofSubmitted"), value: row.submitted_at && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) ? df.dateTime(row.submitted_at) : "—" },
+          // A job from before C5 ended on the final proof's submission (E04).
+          ...(row.trips.length ? [] : [{ label: t("field.finalProofSubmitted"), value: row.submitted_at && ["COMPLETED", "AWAITING_CONFIRMATION"].includes(row.status) ? df.dateTime(row.submitted_at) : "—" }]),
           // Only on a job confirmed under the earlier rule; kept readable.
           ...(row.confirmed_at ? [{ label: t("field.legacyConfirmation"), value: `${row.confirmed_by_name ?? ""} · ${df.dateTime(row.confirmed_at)}${row.confirmation_note ? ` · ${row.confirmation_note}` : ""}` }] : []),
           { label: t("field.waste"), value: row.waste_description, wide: true },
           ...(row.request_note ? [{ label: t("field.note"), value: row.request_note, wide: true }] : []),
           ...(row.review_note ? [{ label: t("field.reviewNote"), value: row.review_note, wide: true }] : []),
         ]}
-        photos={[...row.evidence]
-          .sort((a, b) => DISPOSAL_STAGES.indexOf(stageOf(a)) - DISPOSAL_STAGES.indexOf(stageOf(b)))
-          .map((item) => ({
-            id: item.id,
-            url: item.watermarked || item.image,
-            label: t(`evidenceKind.${item.kind}`),
-            takenAt: item.captured_at,
-            latitude: item.latitude,
-            longitude: item.longitude,
-            group: stageOf(item),
-          }))}
-        // B23: request / loading and leaving site / final proof, apart. The
-        // office-check row only appears on a job that has one (pre-E04).
-        photoGroups={DISPOSAL_STAGES.filter((stage) => stage !== "OFFICE_CHECK" || row.evidence.some((item) => stageOf(item) === "OFFICE_CHECK")).map((stage) => ({ key: stage, label: t(`stage.${stage}`) }))}
+        photos={disposalPhotos(row).map((item) => ({
+          id: item.id,
+          url: item.watermarked || item.image,
+          label: t(`evidenceKind.${item.kind}`),
+          takenAt: item.captured_at,
+          latitude: item.latitude,
+          longitude: item.longitude,
+          group: photoGroupOf(row, item),
+        }))}
+        // B23: request / loading and leaving site / final proof, apart - and
+        // since C5 the final proof one row per lorry (X11). The office-check
+        // row only appears on a job that has one (pre-E04).
+        photoGroups={disposalPhotoGroups(row).map((group) => ({
+          key: group,
+          label: group.startsWith("TRIP-") ? t("trips.seq", { seq: Number(group.slice(5)) }) : t(`stage.${group}`),
+        }))}
         emptyGroupLabel={t("stage.empty")}
         panel={
+          <div className="space-y-3">
+          <DisposalTripsPanel row={row} canCheck={can("disposal.confirm") || can("disposal.manage")} onChanged={() => void qc.invalidateQueries({ queryKey: ["site-disposals"] })} />
           <section className="rounded-lg border bg-card p-3">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("timeline")}</h3>
             {/* The shared timeline (E2): dots on the line, one per step. */}
@@ -583,6 +869,7 @@ function DisposalDetailDialog({
               }))}
             />
           </section>
+          </div>
         }
         actions={
           <div className="flex flex-wrap gap-2">
@@ -720,6 +1007,17 @@ export function SiteDisposalOffice() {
         ),
       },
       {
+        // 「已验收 x / N 车」 (X11).
+        id: "trips",
+        meta: { label: t("field.tripsProgress") },
+        header: () => <PlainHeader label={t("field.tripsProgress")} />,
+        cell: ({ row }) => (
+          <span className="tabular whitespace-nowrap">
+            {row.original.trips_total ? t("trips.progress", { accepted: row.original.trips_accepted, total: row.original.trips_total }) : "—"}
+          </span>
+        ),
+      },
+      {
         accessorKey: "waste_description",
         meta: { label: t("field.waste") },
         header: () => <PlainHeader label={t("field.waste")} />,
@@ -833,7 +1131,8 @@ export function SiteDisposalOffice() {
                       { key: "preferred_at", label: t("field.preferredAt") },
                       { key: "requested_by_name", label: t("field.requestedBy") },
                       { key: "actual_weight_kg", label: t("field.actualWeight") },
-                      { key: "trip_count", label: t("field.trips") },
+                      { key: "trips_accepted", label: t("field.tripsAccepted") },
+                      { key: "trips_total", label: t("field.tripsTotal") },
                       { key: "disposal_do_no", label: t("field.doNo") },
                     ],
                   })
@@ -896,52 +1195,138 @@ const EXECUTION_EVIDENCE: DisposalEvidenceKind[] = ["LOADING", "UNLOADING", "DIS
  */
 const DISPOSAL_PHOTO_MAX = 4;
 
-/** This submission's execution photographs (a legacy returned job starts anew). */
-function executionPhotos<E extends { kind: DisposalEvidenceKind; created_at?: string }>(task: { status: string; submitted_at?: string | null; evidence: E[] }): E[] {
-  return task.evidence.filter(
-    (item) =>
-      EXECUTION_EVIDENCE.includes(item.kind) &&
-      !(task.status === "RETURNED" && task.submitted_at && item.created_at && item.created_at <= task.submitted_at),
-  );
+/**
+ * The lorry the next submission fills, and its photographs (X11, C5).
+ *
+ * One submission is one lorry. `current` is the first lorry still planned;
+ * `allSent` means every planned lorry has gone and the job waits for the
+ * office's checks (or for the office to add one). A job from before C5 has
+ * no lorries until its first photograph - the server plans them then - so
+ * its photographs are the ones not yet filed under any lorry.
+ */
+export function currentLoad<E extends { kind: DisposalEvidenceKind; trip?: string | null }>(task: {
+  evidence: E[];
+  trips: Array<{ id: string; seq: number; status: DisposalTripStatus }>;
+}): { current: { id: string; seq: number } | null; total: number; sent: number; allSent: boolean; photos: E[] } {
+  const live = task.trips.filter((trip) => trip.status !== "CANCELLED");
+  const current = live.find((trip) => trip.status === "PLANNED") ?? null;
+  const unplanned = task.trips.length === 0;
+  return {
+    current: current ? { id: current.id, seq: current.seq } : null,
+    total: live.length,
+    sent: live.filter((trip) => trip.status !== "PLANNED").length,
+    allSent: !unplanned && !current,
+    photos: task.evidence.filter(
+      (item) => EXECUTION_EVIDENCE.includes(item.kind) && (unplanned ? !item.trip : current !== null && item.trip === current.id),
+    ),
+  };
+}
+
+/** How often the link page asks again while every lorry has gone (FABLE_AUDIT_B4 #8). */
+export const LINK_POLL_MS = 30_000;
+
+/**
+ * Whether the driver's page (or the field form) should ask the server again.
+ *
+ * Every 30 s while every planned lorry has been sent and the job still runs:
+ * that is when the office's 「加一车」 or its last check changes what the
+ * page should offer, and a driver waiting at the tip will not think to
+ * reload. Not while a load is being filled (nothing changes under him), and
+ * not once the link is gone.
+ */
+export function linkPollInterval(
+  task: { status: DisposalRequestStatus; evidence: Array<{ kind: DisposalEvidenceKind; trip?: string | null }>; trips: Array<{ id: string; seq: number; status: DisposalTripStatus }> } | undefined,
+  error?: unknown,
+): number | false {
+  if (!task || (error instanceof ApiError && error.isNotFound)) return false;
+  if (!RUNNING.includes(task.status)) return false;
+  return currentLoad(task).allSent ? LINK_POLL_MS : false;
+}
+
+/**
+ * A refusal on the driver's page, in the driver's language (FABLE_AUDIT_B4 #9).
+ *
+ * The link has no session and its own fetch, so the app's toast never words
+ * it; the server names the reason with a code - every lorry sent, the job
+ * ended early, the link closed - and the catalogue's `errors.api.<code>`
+ * says it. Anything else is the page's own "could not be completed".
+ */
+export function linkErrorText(
+  reason: unknown,
+  catalogue: { has: (code: string) => boolean; word: (code: string) => string },
+  fallback: string,
+): string {
+  if (reason instanceof ApiError && reason.code && catalogue.has(reason.code)) return catalogue.word(reason.code);
+  return fallback;
+}
+
+function useLinkErrorText() {
+  const tApi = useTranslations("errors.api");
+  return (reason: unknown, fallback: string) =>
+    linkErrorText(reason, { has: (code) => tApi.has(code as never), word: (code) => tApi(code as never) }, fallback);
 }
 
 export function ExternalDisposalWorkspace({ token }: { token: string }) {
   const t = useTranslations("siteDisposal.external");
-  const [task, setTask] = useState<ExternalDisposalTask | null>(null);
+  const tTrips = useTranslations("siteDisposal.trips");
+  const reasonText = useLinkErrorText();
+  const qc = useQueryClient();
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState<DisposalEvidenceKind | null>(null);
   // No weight / trips / DO state here any more (T-224): the inputs are gone,
-  // and posting a default would be worse than posting nothing - `trips` was
-  // seeded at "1", so every link sent a trip count nobody had entered.
+  // and posting a default would be worse than posting nothing.
   const [note, setNote] = useState("");
-  const taskQuery = useQuery({ queryKey: ["external-disposal", token], queryFn: () => getExternalDisposalTask(token), retry: false });
-  const current = task ?? taskQuery.data ?? null;
-  const start = useMutation({ mutationFn: () => startExternalDisposalTask(token), onSuccess: setTask, onError: () => setError(t("error.action")) });
-  const submit = useMutation({ mutationFn: () => submitExternalDisposalTask(token, { note }), onSuccess: setTask, onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")) });
+  // Which lorry was just sent, so the driver sees it went (X11).
+  const [justSent, setJustSent] = useState<number | null>(null);
+  // One source of truth (FABLE_AUDIT_B4 #8): every answer goes into this
+  // query's cache, and the page reads only the query - so a poll can show
+  // the office's 「加一车」 without the driver reloading.
+  const taskKey = ["external-disposal", token];
+  const taskQuery = useQuery({
+    queryKey: taskKey,
+    queryFn: () => getExternalDisposalTask(token),
+    retry: false,
+    refetchInterval: (query) => linkPollInterval(query.state.data, query.state.error),
+  });
+  const current = taskQuery.data ?? null;
+  const remember = (saved: ExternalDisposalTask) => qc.setQueryData(taskKey, saved);
+  const start = useMutation({ mutationFn: () => startExternalDisposalTask(token), onSuccess: remember, onError: (reason) => setError(reasonText(reason, t("error.action"))) });
+  const submit = useMutation({
+    mutationFn: () => submitExternalDisposalTask(token, { note }),
+    onSuccess: (saved) => {
+      setJustSent(load.current?.seq ?? null);
+      setNote("");
+      remember(saved);
+    },
+    onError: (reason) => setError(reasonText(reason, t("error.action"))),
+  });
   const upload = async (kind: ExecutionEvidenceKind, image?: File) => {
     if (!image || !current) return;
     setError("");
+    setJustSent(null);
     setUploading(kind);
     try {
       const location = await getCoordinates();
       await addExternalDisposalEvidence(token, { kind, image, ...location, client_event_id: crypto.randomUUID() });
-      setTask(await getExternalDisposalTask(token));
+      await taskQuery.refetch();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : t("error.action"));
+      setError(reasonText(reason, t("error.action")));
     } finally { setUploading(null); }
   };
 
+  const load = currentLoad(current ?? { evidence: [], trips: [] });
+  // The link is gone (ended early, finished, replaced): say why, in words.
+  const gone = taskQuery.error instanceof ApiError && taskQuery.error.isNotFound;
   if (taskQuery.isLoading) return <main className="grid min-h-dvh place-items-center"><Loader2 className="size-8 animate-spin text-primary" /></main>;
-  if (taskQuery.isError || !current) return <main className="mx-auto max-w-xl px-5 py-16"><h1 className="text-xl font-semibold">{t("invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{t("invalidBody")}</p></main>;
+  if (gone || (taskQuery.isError && !current) || !current) return <main className="mx-auto max-w-xl px-5 py-16"><h1 className="text-xl font-semibold">{t("invalid")}</h1><p className="mt-2 text-sm text-muted-foreground">{reasonText(taskQuery.error, t("invalidBody"))}</p></main>;
   // APPROVED too (D05 / D10): the link is handed out at approval and the
   // driver can start from it before anybody is assigned.
   const editable = ["APPROVED", "ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
   const startable = current.status === "APPROVED" || current.status === "ASSIGNED";
-  // E04: submitting is the end - no "waiting for the site to check".
   const finished = current.status === "COMPLETED" || current.status === "AWAITING_CONFIRMATION";
-  // The server's rule, restated here so the button can say no before the
-  // request rather than after it: one photograph at least, four at most.
-  const sent = executionPhotos(current);
+  // The server's rule, restated so the button can say no before the request:
+  // one photograph at least, four at most - per lorry.
+  const sent = load.photos;
   const evidenceComplete = sent.length > 0;
   const full = sent.length >= DISPOSAL_PHOTO_MAX;
 
@@ -962,10 +1347,14 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
             <p className="text-sm text-muted-foreground">{current.location_description}</p>
           </div>
         </div>
-        <div className="mt-4"><StatusBadge label={t(`status.${current.status}`)} tone={statusTone(current.status)} /></div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <StatusBadge label={t(`status.${current.status}`)} tone={statusTone(current.status)} />
+          {load.total > 0 && <span className="text-sm text-muted-foreground">{tTrips("sentProgress", { sent: load.sent, total: load.total })}</span>}
+        </div>
       </section>
 
       {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
+      {justSent !== null && <div className="mt-4 rounded-lg border border-success/30 bg-success/5 p-3 text-sm font-medium">{tTrips("justSent", { seq: justSent })}</div>}
 
       {startable && (
         <Button size="lg" className="mt-5 h-14 w-full text-base" disabled={start.isPending} onClick={() => start.mutate()}>
@@ -974,19 +1363,19 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
         </Button>
       )}
 
-      {editable && !startable && (
+      {editable && !startable && !load.allSent && (
         <>
           <section className="mt-6">
             {/* One field, not four (L6 / B24): no category per photograph, up
-                to four, and the submit button waits on one. */}
+                to four, and the submit button waits on one - for this lorry. */}
+            {load.current && <h2 className="mb-2 text-lg font-semibold">{tTrips("loadTitle", { seq: load.current.seq, total: load.total })}</h2>}
             <FieldWrapper label={t("photosTitle")} required>
               <p className="text-sm text-muted-foreground">{t("photosBody")}</p>
               <div className="mt-2 grid gap-3">
                 <FieldCamera
                   label={t("photosTitle")}
                   fileCount={sent.length}
-                  // The newest of this submission's photos, whatever its kind:
-                  // the field has no category, so neither does its preview.
+                  // The newest of this lorry's photos, whatever its kind.
                   previewUrl={sent.length ? (sent[sent.length - 1].watermarked || sent[sent.length - 1].image || undefined) : undefined}
                   disabled={uploading !== null || full}
                   onCapture={(file) => void upload("DISPOSAL_PROOF", file)}
@@ -996,21 +1385,8 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
           </section>
           <section className="mt-6 space-y-4 rounded-lg border bg-card p-4">
             <h2 className="font-semibold">{t("submitTitle")}</h2>
-            {/*
-              No weight, no trip count, no DO number here any more (T-224,
-              D-116). 客户：「因为废料清运是属于外部公司，所以temporary link是
-              不需要填写任何东西的，只是需要拍照就好了」, and then 「那两个数据
-              从后台补吧」 - so the contractor types them on their own
-              confirmation screen, reading them off these photographs.
-
-              What replaced them is the gate that was missing: this button used
-              to list three typed fields in `requires` and **nothing about the
-              photographs**, while the server refused the submission without
-              all four (F-301). So a collector could press submit, type
-              everything, and be told no by an error from the API. The gate now
-              matches the server's own rule exactly rather than approximating
-              it.
-            */}
+            {/* Still nothing typed but an optional note (T-224, D-116): the
+                contractor reads weight and DO off these photographs. */}
             <FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></FieldWrapper>
             <Button size="lg" className="h-14 w-full text-base" requires={[[evidenceComplete, t("photosTitle")]]} disabled={submit.isPending} onClick={() => submit.mutate()}>
               {submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}
@@ -1018,6 +1394,14 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
             </Button>
           </section>
         </>
+      )}
+
+      {editable && !startable && load.allSent && (
+        <section className="mt-8 rounded-lg border bg-card p-6 text-center">
+          <CheckCircle2 className="mx-auto size-12 text-success" />
+          <h2 className="mt-3 text-lg font-semibold">{tTrips("allSentTitle")}</h2>
+          <p className="mt-2 text-sm text-muted-foreground">{tTrips("allSentBody")}</p>
+        </section>
       )}
 
       {finished && (
@@ -1033,16 +1417,28 @@ export function ExternalDisposalWorkspace({ token }: { token: string }) {
 
 export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposalId: string; onSubmitted: () => void }) {
   const t = useTranslations("siteDisposal.internal");
+  const tTrips = useTranslations("siteDisposal.trips");
   const qc = useQueryClient();
-  const [task, setTask] = useState<DisposalRequest | null>(null);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState<DisposalEvidenceKind | null>(null);
+  // Per lorry (X11): its weight and DO; the trip count is no longer typed.
   const [weight, setWeight] = useState("");
-  const [trips, setTrips] = useState("1");
   const [doNo, setDoNo] = useState("");
   const [note, setNote] = useState("");
-  const taskQuery = useQuery({ queryKey: ["internal-disposal", disposalId], queryFn: () => getInternalDisposalTask(disposalId), retry: false });
-  const current = task ?? taskQuery.data ?? null;
+  const [justSent, setJustSent] = useState<number | null>(null);
+  // As on the driver's link (FABLE_AUDIT_B4 #8): answers go into the query's
+  // cache, the page reads only the query, and it asks again while every
+  // lorry has gone, so the office's 「加一车」 shows up by itself.
+  const taskKey = ["internal-disposal", disposalId];
+  const taskQuery = useQuery({
+    queryKey: taskKey,
+    queryFn: () => getInternalDisposalTask(disposalId),
+    retry: false,
+    refetchInterval: (query) => linkPollInterval(query.state.data, query.state.error),
+  });
+  const current = taskQuery.data ?? null;
+  const remember = (saved: DisposalRequest) => qc.setQueryData(taskKey, saved);
+  const load = currentLoad(current ?? { evidence: [], trips: [] });
   const start = useMutation({
     mutationFn: async () => {
       const location = await getCoordinates();
@@ -1052,13 +1448,17 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
         accuracy_m: location.accuracy,
       });
     },
-    onSuccess: setTask,
+    onSuccess: remember,
     onError: (reason) => setError(reason instanceof Error ? reason.message : t("error.action")),
   });
   const submit = useMutation({
-    mutationFn: () => submitInternalDisposalTask(disposalId, { actual_weight_kg: weight, trip_count: Number(trips), disposal_do_no: doNo, note }),
+    mutationFn: () => submitInternalDisposalTask(disposalId, { actual_weight_kg: weight, disposal_do_no: doNo, note }),
     onSuccess: (saved) => {
-      setTask(saved);
+      setJustSent(load.current?.seq ?? null);
+      setWeight("");
+      setDoNo("");
+      setNote("");
+      remember(saved);
       void qc.invalidateQueries({ queryKey: ["field-staff", "tasks"] });
       onSubmitted();
     },
@@ -1067,6 +1467,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   const upload = async (kind: ExecutionEvidenceKind, image?: File) => {
     if (!image || !current) return;
     setError("");
+    setJustSent(null);
     setUploading(kind);
     try {
       const location = await getCoordinates();
@@ -1078,7 +1479,7 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
         accuracy_m: location.accuracy,
         client_event_id: crypto.randomUUID(),
       });
-      setTask(await getInternalDisposalTask(disposalId));
+      await taskQuery.refetch();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : t("error.action"));
     } finally {
@@ -1087,27 +1488,30 @@ export function InternalDisposalWorkspace({ disposalId, onSubmitted }: { disposa
   };
 
   if (taskQuery.isLoading) return <div className="grid min-h-64 place-items-center"><Loader2 className="size-8 animate-spin text-primary" /></div>;
-  if (taskQuery.isError || !current) return <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("invalid")}</div>;
+  // A failed poll keeps what is on screen; only a page with nothing to show says so.
+  if ((taskQuery.isError && !current) || !current) return <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{t("invalid")}</div>;
   const editable = ["ASSIGNED", "IN_PROGRESS", "RETURNED"].includes(current.status);
-  // At least one, at most four, of whichever kinds (L6 / B24).
-  const sent = executionPhotos(current);
+  // At least one, at most four, of whichever kinds - per lorry (L6 / B24, X11).
+  const sent = load.photos;
   const evidenceComplete = sent.length > 0;
   const full = sent.length >= DISPOSAL_PHOTO_MAX;
 
   return <div className="space-y-5">
     <section className="rounded-lg border bg-card p-4 shadow-sm">
       <div className="flex items-start gap-3"><span className="grid size-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><Truck /></span><div className="min-w-0"><p className="font-mono text-xs text-muted-foreground">{current.reference_no}</p><h2 className="mt-1 text-lg font-semibold">{current.waste_description}</h2><p className="mt-1 text-sm text-muted-foreground">{current.project_name} / {current.location_description}</p></div></div>
-      <div className="mt-4"><StatusBadge label={t(`status.${current.status}`)} tone={statusTone(current.status)} /></div>
+      <div className="mt-4 flex flex-wrap items-center gap-2"><StatusBadge label={t(`status.${current.status}`)} tone={statusTone(current.status)} />{load.total > 0 && <span className="text-sm text-muted-foreground">{tTrips("sentProgress", { sent: load.sent, total: load.total })}</span>}</div>
     </section>
     {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
+    {justSent !== null && <div className="rounded-lg border border-success/30 bg-success/5 p-3 text-sm font-medium">{tTrips("justSent", { seq: justSent })}</div>}
     {current.status === "ASSIGNED" && <Button size="lg" className="h-14 w-full text-base" disabled={start.isPending} onClick={() => start.mutate()}>{start.isPending ? <Loader2 className="animate-spin" /> : <PackageCheck />}{t("action.start")}</Button>}
-    {editable && current.status !== "ASSIGNED" && <>
-      {/* One camera, like the driver's link (E04, DEV_BRIEF Q2): the final
+    {editable && current.status !== "ASSIGNED" && !load.allSent && <>
+      {/* One camera, like the driver's link (DEV_BRIEF Q2): this lorry's
           proof, up to four, any kind. Vehicle exit / Gate Pass are the
           site's own photographs, taken from the job itself (C08). */}
-      <section><h3 className="text-base font-semibold">{t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3"><FieldCamera label={t("photosTitle")} fileCount={sent.length} previewUrl={sent.length ? (sent[sent.length - 1].watermarked || sent[sent.length - 1].image || undefined) : undefined} disabled={uploading !== null || full} onCapture={(file) => void upload("DISPOSAL_PROOF", file)} /></div></section>
-      <section className="space-y-4 rounded-lg border bg-card p-4"><h3 className="font-semibold">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.trips")} required><Input inputMode="numeric" type="number" min="1" value={trips} onChange={(event) => setTrips(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")], [Number(trips) >= 1, t("field.trips")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
+      <section><h3 className="text-base font-semibold">{load.current ? tTrips("loadTitle", { seq: load.current.seq, total: load.total }) : t("photosTitle")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("photosBody")}</p><div className="mt-3 grid gap-3"><FieldCamera label={t("photosTitle")} fileCount={sent.length} previewUrl={sent.length ? (sent[sent.length - 1].watermarked || sent[sent.length - 1].image || undefined) : undefined} disabled={uploading !== null || full} onCapture={(file) => void upload("DISPOSAL_PROOF", file)} /></div></section>
+      <section className="space-y-4 rounded-lg border bg-card p-4"><h3 className="font-semibold">{t("submitTitle")}</h3><FieldWrapper label={t("field.weight")} required><Input inputMode="decimal" type="number" min="0" step="0.01" value={weight} onChange={(event) => setWeight(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.doNo")} required><Input value={doNo} onChange={(event) => setDoNo(event.target.value)} /></FieldWrapper><FieldWrapper label={t("field.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper><Button size="lg" className="h-14 w-full text-base" disabledReason={!evidenceComplete ? t("action.photosRequired") : undefined} requires={[[weight, t("field.weight")], [doNo, t("field.doNo")]]} disabled={!evidenceComplete || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? <Loader2 className="animate-spin" /> : <Send />}{evidenceComplete ? t("action.submit") : t("action.photosRequired")}</Button></section>
     </>}
+    {editable && current.status !== "ASSIGNED" && load.allSent && <section className="rounded-lg border bg-card p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{tTrips("allSentTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{tTrips("allSentBody")}</p></section>}
     {(current.status === "COMPLETED" || current.status === "AWAITING_CONFIRMATION") && <section className="rounded-lg border border-success/30 bg-success/5 p-6 text-center"><CheckCircle2 className="mx-auto size-12 text-success" /><h3 className="mt-3 text-lg font-semibold">{t("waitingTitle")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("waitingBody")}</p></section>}
   </div>;
 }

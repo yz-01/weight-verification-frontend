@@ -52,6 +52,7 @@ import { ReturnProcessingDialog } from "@/components/contractor-ops/operations-w
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
+import { useUrlSelection } from "@/hooks/use-url-selection";
 import { FieldLoadFailed, FieldLoadNote } from "@/components/field-staff/field-load-note";
 import { RecordConversationPanel } from "@/components/shared/record-conversation";
 import type { ChatRecordKind } from "@/lib/record-chat";
@@ -85,6 +86,8 @@ const QUEUED_KINDS: Record<string, string> = {
   SAFETY_INCIDENT: "HAZARD",
   SITE_PROGRESS: "PROGRESS",
   WASTE_OUTGOING: "WASTE_OUTGOING",
+  // 现场实际退场 sent with no signal (Q29.3): waiting under its return's number.
+  MATERIAL_OUTGOING_EXIT: "MATERIAL_OUTGOING",
 };
 
 /** The three fields the hazard chat room's header needs. */
@@ -127,6 +130,10 @@ export function MySubmissions({
   const formatter = useDateFormat();
   const { user } = useAuth();
   const [openRow, setOpenRow] = useState<MySubmissionRow | null>(null);
+  // The office's 验收 / 不通过 notice for an equipment entry or exit links to
+  // `/field-staff?…&movement=<id>` (Fable B4 #15): that movement opens here,
+  // with its status, its evidence and the reason it was not accepted.
+  const [linkedMovement, setLinkedMovement] = useUrlSelection("movement");
   const [openQueued, setOpenQueued] = useState<string | null>(null);
 
   const stored = useQuery({
@@ -144,6 +151,10 @@ export function MySubmissions({
   });
 
   const rows = stored.data?.results ?? [];
+  const linkedRow = linkedMovement
+    ? rows.find((row) => row.kind === "EQUIPMENT_MOVEMENT" && row.id === linkedMovement) ?? null
+    : null;
+  const shownRow = openRow ?? linkedRow;
   const waiting = (queued.data ?? []).filter(
     (entry) => entry.kind in QUEUED_KINDS,
   );
@@ -317,8 +328,14 @@ export function MySubmissions({
         </p>
       )}
 
-      {openRow && (
-        <StoredDetailSheet row={openRow} onClose={() => setOpenRow(null)} />
+      {shownRow && (
+        <StoredDetailSheet
+          row={shownRow}
+          onClose={() => {
+            setOpenRow(null);
+            setLinkedMovement(null);
+          }}
+        />
       )}
       {openQueued && user?.id && (
         <QueuedDetailSheet

@@ -11,6 +11,11 @@ import { cn } from "@/lib/utils";
 export interface ComboOption {
   value: string;
   label: string;
+  /**
+   * A mark after the label in the list - 「有退场资料」 beside a supplier
+   * (2026-10 C10). Only a mark: pressing the option still chooses it.
+   */
+  suffix?: React.ReactNode;
 }
 
 /**
@@ -119,6 +124,7 @@ export function OptionCombobox({
                 >
                   <Check className={cn("size-4 shrink-0", option.value === value ? "opacity-100" : "opacity-0")} />
                   <span className="truncate">{option.label}</span>
+                  {option.suffix}
                 </button>
               </li>
             ))

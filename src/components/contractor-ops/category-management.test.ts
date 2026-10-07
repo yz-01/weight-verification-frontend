@@ -23,7 +23,7 @@ import {
  */
 
 const ROOT = process.cwd();
-const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
+const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
 
 const MANAGEMENT = "src/components/contractor-ops/category-management.tsx";
 const WORKSPACES = "src/components/contractor-ops/operations-workspaces.tsx";
@@ -71,7 +71,7 @@ describe("every module is managed on this one page (D-264)", () => {
     // Every create, edit, delete and reorder button hangs off canManage.
     expect(source).toMatch(/const canManage = can\(active\.manage\) && !active\.readOnly;/);
     expect(source).toMatch(/const createButton = canManage &&/);
-    expect(source).toMatch(/const canReorder = Boolean\(active\.columnKind\) && canManage/);
+    expect(source).toMatch(/const canReorder =\s+Boolean\(active\.columnKind\) && canManage/);
     // And `?create=1` cannot open the form on it either.
     expect(source).toMatch(/!initialModule\.readOnly &&/);
   });
@@ -129,12 +129,18 @@ describe("every module is managed on this one page (D-264)", () => {
   });
 });
 
-describe("the column form (D-265, D-266)", () => {
+describe("the column form (D-265, D-266; X1 for equipment)", () => {
   const dialog = functionBody(read(WORKSPACES), "export function CategoryDialog(");
 
-  it("has no parent column and no upload or edit lists", () => {
+  it("offers a major class to equipment only (2026-10 B2, X1)", () => {
+    // The picker hangs off the kind, and every other kind's payload drops it.
+    expect(dialog).toMatch(/const isEquipment = form\.kind === "EQUIPMENT";/);
+    expect(dialog).toMatch(/\{isEquipment && \(\s*<FieldWrapper\s+label=\{modules\("equipment\.majorClassOf"\)\}/);
+    expect(dialog).toMatch(/\{ \.\.\.form, parent: undefined \}/);
+  });
+
+  it("has no upload or edit lists", () => {
     for (const gone of [
-      /\bparent\b/,
       /parentOptions/,
       /upload_roles|upload_users/,
       /edit_roles|edit_users/,
@@ -156,7 +162,9 @@ describe("the column form (D-265, D-266)", () => {
       /export interface ProjectCategoryPayload \{([\s\S]*?)\n\}/,
     )?.[1];
     expect(payload).toBeTruthy();
-    expect(payload).not.toMatch(/\bparent\?|upload_|edit_/);
+    expect(payload).not.toMatch(/upload_|edit_/);
+    // `parent` only for equipment (X1); the server ignores it on other kinds.
+    expect(payload).toMatch(/parent\?: string \| null;/);
   });
 });
 

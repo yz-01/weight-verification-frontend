@@ -22,7 +22,7 @@ import { RECORD_STATUS_NAMESPACE } from "@/lib/record-status";
  */
 
 const ROOT = process.cwd();
-const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
+const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
 
 const MANAGEMENT = "src/components/contractor-ops/category-management.tsx";
 const QUEUE = "src/components/contractor-ops/archive-queue.tsx";
@@ -168,7 +168,15 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
   const sheet = functionBody(read(QUEUE), "RecordSheet");
 
   it("opens RecordSheet with getCategoryRecord, not the archive queue's door", () => {
-    expect(dialog).toMatch(/onClick=\{\(\) => setOpen\(row\)\}/);
+    expect(dialog).toMatch(/onClick=\{\(\) => openRow\(row\)\}/);
+    // Every kind but a machine profile opens the record sheet (2026-10 B2:
+    // a machine opens its own profile to edit).
+    // A machine profile opens in its own editable dialog only for whoever may
+    // edit machines; everybody else reads it here (Fable B4 #5).
+    expect(dialog).toMatch(
+      /if \(!isEquipment \|\| row\.kind !== "SITE_EQUIPMENT" \|\| !can\("equipment\.manage"\)\) \{\s+setOpen\(row\);/,
+    );
+    expect(dialog).toMatch(/<EquipmentDialog/);
     expect(dialog).toMatch(/<RecordSheet\s+row=\{open\}\s+fetchRecord=\{getCategoryRecord\}/);
     expect(sheet).toMatch(/role="dialog"/);
     expect(sheet).toMatch(/fetchRecord\s*\?\s*fetchRecord\(row\.kind, row\.id\)/);

@@ -26,8 +26,9 @@ describe("the phone opens the hazard a notification names (T-302)", () => {
   });
 
   it("lets the named hazard win over the report form the link also names", () => {
-    expect(code).toContain("requestedRecord={requestedIncidentId ? null : requestedRecord}");
-    expect(code).toContain('requestedTab={requestedIncidentId ? "incidents" : requestedTab}');
+    // An equipment movement's link (Fable B4 #15) wins the same way.
+    expect(code).toContain("requestedRecord={requestedIncidentId || requestedMovement ? null : requestedRecord}");
+    expect(code).toContain('requestedTab={requestedIncidentId ? "incidents" : requestedMovement ? "home" : requestedTab}');
   });
 
   it("fetches that hazard and opens its room", () => {

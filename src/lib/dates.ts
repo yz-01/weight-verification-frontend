@@ -43,6 +43,8 @@ export interface DateFormatter {
   date: (value: DateInput) => string;
   /** `23 Jul 2026 14:59`. */
   dateTime: (value: DateInput) => string;
+  /** `14:59`, in the company's clock. For a time on a row that already says the day. */
+  time: (value: DateInput) => string;
   /** `23 Jul 2026 14:59:07`. For audit and weighing, where seconds matter. */
   precise: (value: DateInput) => string;
   /** `3 hours ago`. For liveness, never for a record's own timestamp. */
@@ -130,6 +132,10 @@ export function useDateFormat(): DateFormatter {
       dateTime: (value) => {
         const parsed = parse(value);
         return parsed ? `${renderDate(parsed)} ${renderTime(parsed)}` : "";
+      },
+      time: (value) => {
+        const parsed = parse(value);
+        return parsed ? renderTime(parsed) : "";
       },
       precise: (value) => {
         const parsed = parse(value);

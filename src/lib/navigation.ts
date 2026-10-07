@@ -832,6 +832,13 @@ export const PORTAL_NAVIGATION = {
           "/site-equipment",
           "equipment",
         ),
+        // 设备操作员工时 (2026-10 B15): each machine's hours per day and month.
+        child(
+          "6.2.2",
+          "nav.submodule.equipmentOperatorHours",
+          "/equipment-operator-hours",
+          "equipment",
+        ),
       ],
     ),
     item(
@@ -848,12 +855,17 @@ export const PORTAL_NAVIGATION = {
           "/progress",
           "progress",
         ),
-        child(
-          "7.2.14",
-          "nav.submodule.schedulePlanning",
-          "/schedule",
-          "schedule",
-        ),
+        // 施工计划 is a tab of 工程进度 now (2026-10 B17, Q9): out of the
+        // menu, and `/schedule` still opens on its own.
+        {
+          ...child(
+            "7.2.14",
+            "nav.submodule.schedulePlanning",
+            "/schedule",
+            "schedule",
+          ),
+          menuHidden: true,
+        },
       ],
     ),
     item(
@@ -975,13 +987,20 @@ export const PORTAL_NAVIGATION = {
           "approvals",
           "approval.view",
         ),
-        child(
-          "10.2.4",
-          "nav.submodule.consultantFieldInbox",
-          "/consultant-field-inbox",
-          "field_tasks",
-          "consultant.submit",
-        ),
+        // 「现场资料收件箱」 is no longer a menu entry (2026-10 C1, Q2): it is
+        // the 「待整理现场资料」 tab of 顾问申请. Kept in the tree, hidden, so
+        // an old link or notification still passes `isRouteAllowed` and lands
+        // on the page, which forwards to the tab.
+        {
+          ...child(
+            "10.2.4",
+            "nav.submodule.consultantFieldInbox",
+            "/consultant-field-inbox",
+            "field_tasks",
+            "consultant.submit",
+          ),
+          menuHidden: true,
+        },
         // One entry for the three settings pages (T-373, D-254). Workflows,
         // templates and consultant access each had their own line beside the
         // pages people work in, and the module read as unusable; the hub says

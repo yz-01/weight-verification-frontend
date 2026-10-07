@@ -35,7 +35,7 @@ const MANAGEMENT = path.join(
   "category-management.tsx",
 );
 
-const read = (file: string) => readFileSync(file, "utf8");
+const read = (file: string) => readFileSync(file, "utf8").replace(/\r\n/g, "\n");
 
 /**
  * The kinds `ProjectCategoryKind` declares, read off the union itself.

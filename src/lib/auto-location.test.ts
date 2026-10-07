@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
  * coordinates. Those record where a place is, not where the person is, and an
  * automatic fix would write the office's position into them.
  */
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 
 describe("capture forms locate automatically", () => {
   it.each([

@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 
 /**
  * The office raises a disposal request from a desk, not from the skip.

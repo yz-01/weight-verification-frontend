@@ -27,7 +27,7 @@ const SCREENS: Array<[string, string]> = [
 ];
 
 function read(file: string) {
-  return readFileSync(path.join(process.cwd(), file), "utf8");
+  return readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 }
 
 describe("each module screen opens its own records' conversation (T-360)", () => {

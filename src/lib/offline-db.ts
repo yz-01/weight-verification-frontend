@@ -9,12 +9,14 @@ export type OfflineJobKind =
   | "EQUIPMENT_MOVEMENT"
   | "SITE_PROGRESS"
   | "MATERIAL_OUTGOING"
+  | "MATERIAL_OUTGOING_EXIT"
   | "SUNDRY_CLAIM"
   | "WASTE_OUTGOING"
   | "DISPOSAL_REQUEST"
   | "SAFETY_INCIDENT"
   | "CONSULTANT_SUBMISSION"
   | "CATEGORY_EVIDENCE"
+  | "EQUIPMENT_HOURS_PHOTO"
   | "DISPATCH_ACCEPT"
   | "DISPATCH_COLLECT"
   | "TRIP_ASSIGN";
@@ -181,6 +183,22 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
 export interface EquipmentMovementOfflineJob extends OfflineJobBase {
   kind: "EQUIPMENT_MOVEMENT";
   payload: {
+    /**
+     * 设备进场 in one step (2026-10 X2, C8): sent to `record_entry`, not to
+     * the handover of an application. Absent on older queued jobs.
+     */
+    entry?: boolean;
+    /**
+     * 设备退场 in one step (2026-10 Q27): sent to `record_exit`. Like the
+     * entry, no quantity, unit or application.
+     */
+    exit?: boolean;
+    /** A 「新设备」 reported from the phone: its name, `equipment` empty. */
+    equipment_name?: string;
+    /** …and its plate, if it has one (optional). */
+    registration_no?: string;
+    /** The supplier whose QR was scanned at the gate (F3). */
+    supplier?: string;
     project: string;
     equipment: string;
     direction: "ENTRY" | "EXIT";
@@ -233,7 +251,10 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   kind: "MATERIAL_OUTGOING";
   payload: {
     project: string;
-    /** A return to the supplier (A02, B11): supplier, then that supplier's delivery. */
+    /**
+     * Since 2026-10 C9 the supplier is optional and no delivery is chosen
+     * (X20); `source_receipt` stays for a job an older build queued.
+     */
     supplier?: string;
     source_receipt?: string;
     category?: string;
@@ -253,6 +274,35 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
     field_task?: string;
     photos: StoredFile[];
     photo_captions?: string[];
+  };
+}
+
+/**
+ * 现场实际退场 of an approved return (2026-10 C9, Q29.3): the photos, how
+ * much actually left, the plate, the DO, the supplier and both signatures,
+ * sent to `return_processing`. `client_event_id` is minted once on the phone
+ * and sent on every try, so a replay of an exit that already arrived gets
+ * that exit back instead of a refusal.
+ */
+export interface MaterialOutgoingExitOfflineJob extends OfflineJobBase {
+  kind: "MATERIAL_OUTGOING_EXIT";
+  payload: {
+    /** The approved application this exit belongs to. */
+    outgoing: string;
+    /** Its number, so the queue says which return is waiting. */
+    reference_no: string;
+    returned_quantity: string;
+    note?: string;
+    latitude?: string;
+    longitude?: string;
+    vehicle_plate?: string;
+    delivery_note_no?: string;
+    supplier?: string;
+    category?: string;
+    client_event_id: string;
+    photos: StoredFile[];
+    site_signature: StoredFile;
+    supplier_signature: StoredFile;
   };
 }
 
@@ -299,6 +349,8 @@ export interface DisposalRequestOfflineJob extends OfflineJobBase {
     estimated_weight_kg?: string;
     preferred_at?: string;
     request_note?: string;
+    /** 「预计车次」 (X11); absent on a job queued before it existed. */
+    planned_trips?: string;
     captured_at: string;
     latitude: string;
     longitude: string;
@@ -405,6 +457,26 @@ export interface TripAssignOfflineJob extends OfflineJobBase {
   };
 }
 
+/**
+ * 设备操作员工时 (2026-10 B15): one photo of one machine, taken when the
+ * operator starts or stops it. `capturedAt` is the moment of the photo - the
+ * hours are counted from it, however late the job reaches the server.
+ */
+export interface EquipmentHoursPhotoOfflineJob extends OfflineJobBase {
+  kind: "EQUIPMENT_HOURS_PHOTO";
+  payload: {
+    equipment: string;
+    /** 「名称 · 车牌」, so the queue says which machine is waiting. */
+    equipmentLabel: string;
+    capturedAt: string;
+    clientEventId: string;
+    latitude?: string;
+    longitude?: string;
+    locationAccuracyM?: string;
+    photo: StoredFile;
+  };
+}
+
 export type OfflineJob =
   | AttendanceOfflineJob
   | TaskTransitionOfflineJob
@@ -416,12 +488,14 @@ export type OfflineJob =
   | EquipmentMovementOfflineJob
   | SiteProgressOfflineJob
   | MaterialOutgoingOfflineJob
+  | MaterialOutgoingExitOfflineJob
   | SundryClaimOfflineJob
   | WasteOutgoingOfflineJob
   | DisposalRequestOfflineJob
   | SafetyIncidentOfflineJob
   | ConsultantSubmissionOfflineJob
   | CategoryEvidenceOfflineJob
+  | EquipmentHoursPhotoOfflineJob
   | DispatchAcceptOfflineJob
   | DispatchCollectOfflineJob
   | TripAssignOfflineJob;

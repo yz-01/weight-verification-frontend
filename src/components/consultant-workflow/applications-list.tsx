@@ -7,6 +7,7 @@ import {
   FileCheck2,
   FileText,
   FilePlus2,
+  Images,
   KeyRound,
   Loader2,
   Search,
@@ -19,6 +20,7 @@ import { useCallback, useState } from "react";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ConsultantHowTo } from "@/components/consultant-workflow/consultant-how-to";
+import { ConsultantFieldInbox } from "@/components/consultant-workflow/field-inbox";
 import { ConsultantProjectPicker } from "@/components/consultant-workflow/project-scope-picker";
 import { ListHeader, StatusBadge } from "@/components/shared/page-primitives";
 import { RecordNo } from "@/components/shared/record-no";
@@ -27,8 +29,15 @@ import { Input } from "@/components/ui/input";
 import type { ConsultantApplicationStatus } from "@/interfaces/consultant-workflow";
 import { useDateFormat } from "@/lib/dates";
 import { getConsultantApplications } from "@/services/consultant-workflow.service";
+import { getFieldTasks } from "@/services/contractor-ops.service";
 
-const STAGES = ["all", "draft", "approval", "final", "archive"] as const;
+/**
+ * `inbox` is 「待整理现场资料」 (2026-10 C1, Q2): what the site sent in for
+ * the consultant and nobody has made into an application yet. It was its own
+ * menu entry (「现场资料收件箱」); it is the first step of an application,
+ * so it is a tab here - for the office that prepares applications.
+ */
+const STAGES = ["inbox", "all", "draft", "approval", "final", "archive"] as const;
 type ApplicationStage = (typeof STAGES)[number];
 
 const tones: Record<
@@ -49,14 +58,28 @@ export function ConsultantApplicationsList() {
   const searchParams = useSearchParams();
   const { user, can } = useAuth();
   const df = useDateFormat();
-  const [project, setProject] = useState("");
+  // The 「待整理现场资料」 notice names the submission's project, so the
+  // inbox opens on that site (C1, B4 audit #12).
+  const [project, setProject] = useState(searchParams.get("project") ?? "");
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const stageParam = searchParams.get("stage");
-  const stage: ApplicationStage = STAGES.includes(stageParam as ApplicationStage)
+  const canOrganize =
+    can("consultant.submit") &&
+    !user?.is_field_staff &&
+    user?.account_type !== "CONSULTANT";
+  const stages = STAGES.filter((value) => value !== "inbox" || canOrganize);
+  const stage: ApplicationStage = stages.includes(stageParam as ApplicationStage)
     ? (stageParam as ApplicationStage)
     : "all";
   const onProjectChange = useCallback((id: string) => setProject(id), []);
   const needsProject = user?.account_type === "CONSULTANT";
+  // query-failure: only the tab's number; the tab itself says when it fails.
+  const toOrganize = useQuery({
+    queryKey: ["field-tasks", "to-organize", "count", project],
+    queryFn: () =>
+      getFieldTasks({ to_organize: "1", project: project || undefined, page_size: 1 }),
+    enabled: canOrganize,
+  });
   const rows = useQuery({
     queryKey: ["consultant-applications", project, search, stage],
     queryFn: () =>
@@ -66,7 +89,7 @@ export function ConsultantApplicationsList() {
         stage: stage === "all" ? undefined : stage,
         page_size: 200,
       }),
-    enabled: !needsProject || Boolean(project),
+    enabled: stage !== "inbox" && (!needsProject || Boolean(project)),
   });
 
   return (
@@ -130,11 +153,15 @@ export function ConsultantApplicationsList() {
 
       <nav
         aria-label={t("applications.stageLabel")}
-        className="grid grid-cols-2 gap-2 rounded-lg border bg-muted/20 p-2 sm:grid-cols-5"
+        className={`grid grid-cols-2 gap-2 rounded-lg border bg-muted/20 p-2 ${
+          stages.length === 6 ? "sm:grid-cols-3 lg:grid-cols-6" : "sm:grid-cols-5"
+        }`}
       >
-        {STAGES.map((value) => {
+        {stages.map((value) => {
           const Icon =
-            value === "draft"
+            value === "inbox"
+              ? Images
+              : value === "draft"
               ? FileText
               : value === "approval"
                 ? ClipboardCheck
@@ -157,12 +184,19 @@ export function ConsultantApplicationsList() {
             >
               <Icon className="size-4 shrink-0" />
               <span>{t(`applications.stage.${value}`)}</span>
+              {value === "inbox" && toOrganize.data?.count ? (
+                <span className="rounded-full bg-primary px-1.5 text-xs tabular-nums text-primary-foreground">
+                  {toOrganize.data.count}
+                </span>
+              ) : null}
             </Link>
           );
         })}
       </nav>
 
-      {needsProject && !project ? (
+      {stage === "inbox" ? (
+        <ConsultantFieldInbox project={project} focusedTaskId={searchParams.get("task")} />
+      ) : needsProject && !project ? (
         <EmptyState text={t("state.chooseProject")} />
       ) : rows.isLoading ? (
         <div className="grid min-h-52 place-items-center">
@@ -196,8 +230,10 @@ export function ConsultantApplicationsList() {
                     <p className="truncate text-sm text-muted-foreground">
                       {application.application_type_custom ||
                         application.application_type_label}
-                      {" / "}
-                      {application.discipline_custom || application.discipline_label}
+                      {/* Optional since 2026-10 (C1). */}
+                      {application.discipline_custom || application.discipline_label
+                        ? ` / ${application.discipline_custom || application.discipline_label}`
+                        : null}
                     </p>
                   </div>
                 </div>

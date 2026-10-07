@@ -147,13 +147,15 @@ export interface ProjectCategory {
 /**
  * What a column form writes.
  *
- * No `parent`, and no upload or edit lists (D-265, D-266): columns are one
- * flat list, everyone who can see a column can upload to it, and editing
- * follows `category.manage` alone. The server ignores those fields on write;
- * `ProjectCategory` still carries them because old rows keep the data.
+ * No upload or edit lists (D-265, D-266): everyone who can see a column can
+ * upload to it, and editing follows `category.manage` alone. `parent` only
+ * for equipment (2026-10 B2, X1): a sub class names its major class; every
+ * other kind is one flat list and the server ignores a parent sent for it.
  */
 export interface ProjectCategoryPayload {
   project: string;
+  /** Equipment only: the major class of a sub class; null for a major class. */
+  parent?: string | null;
   code: string;
   name: string;
   /**
@@ -332,6 +334,9 @@ export interface SiteEquipment {
   /** The project column this machine files under, when one was chosen. */
   category: string | null;
   category_name: string | null;
+  /** The major class that sub class sits under (2026-10 B2, X1). */
+  category_parent?: string | null;
+  category_parent_name?: string | null;
   description: string;
   status: EquipmentStatus;
   /**
@@ -344,9 +349,21 @@ export interface SiteEquipment {
   /** PMA and permit (准证), added on the same machine (B14). */
   pma_expires_on?: string | null;
   permit_expires_on?: string | null;
+  /** 路税到期 (2026-10 A8, X4). */
+  road_tax_expires_on?: string | null;
   is_active: boolean;
+  /**
+   * Reported from the phone as 「新设备」 (C8): the office completes the
+   * profile - plate, sub class, an expiry date - before accepting its entry.
+   */
+  needs_profile?: boolean;
   movement_count: number;
   quantity_on_site: string;
+  /**
+   * The way this machine's movement waiting for the office's acceptance goes,
+   * else null (2026-10 C8, Q27): shown as 「进场待验收」 / 「退场待验收」.
+   */
+  awaiting_acceptance?: "ENTRY" | "EXIT" | null;
   /**
    * Every photograph of the machine (T-298): its own, uploaded onto the
    * register (`REGISTER`), and those taken at each entry and exit.
@@ -383,11 +400,22 @@ export interface EquipmentPayload {
   insurance_expires_on?: string | null;
   pma_expires_on?: string | null;
   permit_expires_on?: string | null;
+  road_tax_expires_on?: string | null;
   is_active?: boolean;
 }
 
-/** 申请 → 后台 Approve / Return → 实际交接双方签名 (B13). */
-export type EquipmentMovementStatus = "PENDING" | "APPROVED" | "RETURNED" | "COMPLETED";
+/**
+ * Exit: 申请 → 后台 Approve / Return → 实际交接双方签名 (B13).
+ * Entry since 2026-10 (X2): recorded on site in one step (`SUBMITTED`), then
+ * accepted (`COMPLETED`) or not (`REJECTED`) by the office.
+ */
+export type EquipmentMovementStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "RETURNED"
+  | "COMPLETED"
+  | "SUBMITTED"
+  | "REJECTED";
 
 export interface EquipmentMovement {
   id: string;
@@ -396,6 +424,11 @@ export interface EquipmentMovement {
   equipment: string;
   equipment_code: string;
   equipment_name: string;
+  /** The machine's plate (2026-10 X4: 车牌号码). */
+  equipment_registration_no?: string;
+  /** A 「新设备」 whose profile the office has still to complete (C8). */
+  equipment_needs_profile?: boolean;
+  equipment_profile_missing?: Array<"registration_no" | "category" | "expiry">;
   direction: "ENTRY" | "EXIT";
   /** Movements recorded before 10-02 are all COMPLETED. */
   status?: EquipmentMovementStatus;
@@ -447,6 +480,8 @@ export interface EquipmentSummary {
 export interface ConstructionPhase {
   id: string;
   project: string;
+  /** For the 施工分类 tab listing every project's phases (B17). */
+  project_name?: string;
   code: string;
   name: string;
   description: string;
@@ -527,7 +562,8 @@ export interface MaterialOutgoing {
   delivery_note_no: string;
   reason: string;
   /**
-   * D-211: 批准 → 手机端现场处理及回传 (PROCESSED) → 后台最终确认 (COMPLETED).
+   * 2026-10 C9: 申请 → Return Note → 批准 (APPROVED, 已批准 / 等待退场) →
+   * 现场实际退场 (PROCESSED, 待后台确认) → 后台确认 (COMPLETED).
    * RELEASED is the pre-D-211 ending; rows in it still render.
    */
   status: "PENDING" | "APPROVED" | "REJECTED" | "PROCESSED" | "COMPLETED" | "RELEASED";
@@ -555,26 +591,25 @@ export interface MaterialOutgoing {
     caption: string;
     captured_at: string;
   }>;
-}
-
-/** A delivery a return can be filed against, with what is left of it (A02). */
-export interface ReturnableReceipt {
-  id: string;
-  receipt_no: string;
-  business_at: string;
-  supplier: string;
-  supplier_name: string;
-  /** Whose make (2026-10 D1), and what the delivery's column designates. */
-  manufacturer?: string | null;
-  manufacturer_name?: string;
-  designated_manufacturers?: Array<{ id: string; name: string; is_active: boolean }>;
-  material_name: string;
-  material_specification: string;
-  unit: string;
-  quantity: string;
-  remaining_quantity: string;
-  category: string | null;
-  category_name: string;
+  /**
+   * The Return Note the office fills before approving (2026-10 C9). Empty
+   * until filled; `has_return_note` says whether approval can go ahead.
+   */
+  has_return_note?: boolean;
+  return_note_no?: string;
+  return_note_at?: string | null;
+  return_note_by_name?: string | null;
+  return_note_material?: string;
+  return_note_delivery_note_no?: string;
+  return_note_supplier?: string | null;
+  return_note_supplier_name?: string | null;
+  return_note_quantity?: string | null;
+  return_note_unit?: string;
+  return_note_reason?: string;
+  approver_name?: string;
+  approver_user?: string | null;
+  approver_user_name?: string | null;
+  approver_signature?: string | null;
 }
 
 export type DisposalRequestStatus =
@@ -632,6 +667,42 @@ export interface DisposalEvidence {
   device_id: string;
   client_event_id: string;
   submitted_by_name: string | null;
+  /** Which lorry load this photograph belongs to (X11); empty for the rest. */
+  trip?: string | null;
+}
+
+/**
+ * One lorry load of a disposal job (X11, C5): planned at approval, sent by
+ * the driver / field staff, checked by the office. Cancelled when the office
+ * ended the job before it went.
+ */
+export type DisposalTripStatus = "PLANNED" | "SUBMITTED" | "ACCEPTED" | "CANCELLED";
+
+export interface DisposalTrip {
+  id: string;
+  seq: number;
+  status: DisposalTripStatus;
+  weight_kg: string | null;
+  do_no: string;
+  note: string;
+  submitted_at: string | null;
+  submitted_by_name: string;
+  accepted_by_name: string | null;
+  accepted_at: string | null;
+  /** Q29.7: the office's corrections of this load, newest first. */
+  corrections: DisposalTripCorrection[];
+  evidence: DisposalEvidence[];
+}
+
+/** One office correction of a load's weight or DO number (Q29.7). */
+export interface DisposalTripCorrection {
+  id: string;
+  field: "weight_kg" | "do_no";
+  from: string;
+  to: string;
+  reason: string;
+  by_name: string;
+  at: string;
 }
 
 export interface DisposalTimelineEntry {
@@ -684,6 +755,15 @@ export interface DisposalRequest {
    * "normal".
    */
   disposal_evidence_is_overdue: boolean;
+  /** What the site asked for; approval makes this many trips (X11). */
+  planned_trips: number;
+  /** Each lorry and its check; empty on a job from before C5. */
+  trips: DisposalTrip[];
+  /** 「已验收 x / N 车」: N leaves out lorries cancelled by ending early. */
+  trips_accepted: number;
+  trips_total: number;
+  /** When the office ended the job early; no more lorries after this. */
+  trips_closed_at: string | null;
   execution_started_at: string | null;
   submitted_at: string | null;
   actual_weight_kg: string | null;
@@ -724,6 +804,12 @@ export interface ExternalDisposalTask {
   execution_note: string;
   ocr_status: DisposalRequest["ocr_status"];
   evidence: DisposalEvidence[];
+  /** The lorries, as the driver needs them (X11): no office names. */
+  trips: Array<{ id: string; seq: number; status: DisposalTripStatus; submitted_at: string | null }>;
+  trips_total: number;
+  trips_accepted: number;
+  /** The lorry the next submission fills; null when every one is sent. */
+  current_trip: { id: string; seq: number } | null;
 }
 
 /**

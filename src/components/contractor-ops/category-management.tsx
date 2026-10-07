@@ -19,7 +19,8 @@ import { recordKindKey } from "@/lib/record-kind";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { CategoryDialog } from "@/components/contractor-ops/operations-workspaces";
+import { CategoryDialog, EquipmentDialog } from "@/components/contractor-ops/operations-workspaces";
+import { equipmentClassTree } from "@/components/contractor-ops/equipment-classes";
 import { MaterialUnitsDialog } from "@/components/contractor-ops/material-units-dialog";
 import { ManufacturerCell } from "@/components/shared/manufacturer-picker";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
@@ -68,6 +69,7 @@ import type {
   ColumnQuantity,
   ProjectCategory,
   ProjectCategoryKind,
+  SiteEquipment,
 } from "@/interfaces/contractor-ops";
 import type { WasteCategory } from "@/interfaces/waste-outgoing";
 import {
@@ -82,6 +84,7 @@ import {
   getCategoryRecord,
   getCategoryRecords,
   getProjectCategories,
+  getSiteEquipmentItem,
   reorderProjectCategories,
 } from "@/services/contractor-ops.service";
 import {
@@ -129,6 +132,11 @@ interface Row {
   code: string;
   isActive: boolean;
   recordCount: number;
+  /**
+   * Equipment's two levels (2026-10 B2, X1): 0 for a major class, 1 for a
+   * sub class, listed under it. Every other module is flat (0).
+   */
+  depth?: number;
   /** The source row, for the editor that module opens. */
   column?: ProjectCategory;
   waste?: WasteCategory;
@@ -166,12 +174,22 @@ const columnRows = (kind: ProjectCategoryKind) => async (project: string) => {
     sort_by: "sort_order",
     sort_order: "asc",
   });
-  return page.results.map((row) => ({
+  // Equipment is a tree (X1): each major class, then its sub classes. The
+  // other kinds have no parent to sort by, so they keep the server's order.
+  const ordered =
+    kind === "EQUIPMENT"
+      ? (() => {
+          const tree = equipmentClassTree(page.results);
+          return tree.majors.flatMap((major) => [major, ...tree.subClasses(major.id)]);
+        })()
+      : page.results;
+  return ordered.map((row) => ({
     id: row.id,
     name: row.name,
     code: row.code,
     isActive: row.is_active,
     recordCount: row.record_count,
+    depth: kind === "EQUIPMENT" && row.parent ? 1 : 0,
     column: row,
   }));
 };
@@ -305,8 +323,10 @@ export function CategoryManagement() {
     onSuccess: refresh,
   });
   // Only within one project: across projects the row above belongs to a
-  // different list, so "move up" would have nothing to swap with.
-  const canReorder = Boolean(active.columnKind) && canManage && Boolean(project);
+  // different list, so "move up" would have nothing to swap with. Not in the
+  // equipment tree (B2): the row above may be another level.
+  const canReorder =
+    Boolean(active.columnKind) && canManage && Boolean(project) && active.key !== "equipment";
   /** Swap a column with its neighbour, sending both places at once. */
   const move = (index: number, delta: number) => {
     const target = index + delta;
@@ -465,13 +485,22 @@ export function CategoryManagement() {
                         {/* The name opens what is filed in it, on this page
                             (T-396): 「点一个栏目，同一页弹出这个栏目里的全部
                             记录」. */}
-                        <button
-                          type="button"
-                          onClick={() => setViewing(row)}
-                          className="text-left text-primary underline-offset-4 hover:underline"
-                        >
-                          {row.name}
-                        </button>
+                        <span className={row.depth ? "flex items-center gap-1 pl-5" : "flex items-center gap-1"}>
+                          {row.depth ? <span aria-hidden className="text-muted-foreground">└</span> : null}
+                          <button
+                            type="button"
+                            onClick={() => setViewing(row)}
+                            className="text-left text-primary underline-offset-4 hover:underline"
+                          >
+                            {row.name}
+                          </button>
+                          {/* 大类 / 小类 (B2), said rather than left to the indent. */}
+                          {active.key === "equipment" && (
+                            <span className="text-xs font-normal text-muted-foreground">
+                              {t(row.depth ? "equipment.subClass" : "equipment.majorClass")}
+                            </span>
+                          )}
+                        </span>
                       </TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {row.code}
@@ -742,6 +771,21 @@ function ColumnRecordsDialog({
   const [open, setOpen] = useState<ArchiveQueueRow<CategoryRecordKind> | null>(
     null,
   );
+  // An equipment class lists machine profiles (2026-10 B2); one opens in its
+  // own profile dialog to edit - for whoever may edit machines. Anybody else
+  // reads it in the record sheet (Fable B4 #5: saving would be refused).
+  const { can } = useAuth();
+  const [machine, setMachine] = useState<SiteEquipment | null>(null);
+  const [machineError, setMachineError] = useState("");
+  const isEquipment = moduleKey === "equipment";
+  const openRow = (row: ArchiveQueueRow<CategoryRecordKind>) => {
+    if (!isEquipment || row.kind !== "SITE_EQUIPMENT" || !can("equipment.manage")) {
+      setOpen(row);
+      return;
+    }
+    setMachineError("");
+    getSiteEquipmentItem(row.id).then(setMachine, () => setMachineError(queue("failed")));
+  };
   // Supplier, dates and a search box (2026-10 B3, B16): 「点『钢筋』→ 选供应商
   // + 日期 → 只剩对应记录」. Any change goes back to the first page.
   const [filters, setFilters] = useState<SupplierDateValue>({});
@@ -860,11 +904,11 @@ function ColumnRecordsDialog({
                     <div
                       role="button"
                       tabIndex={0}
-                      onClick={() => setOpen(row)}
+                      onClick={() => openRow(row)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter" || event.key === " ") {
                           event.preventDefault();
-                          setOpen(row);
+                          openRow(row);
                         }
                       }}
                       className="flex w-full cursor-pointer items-start gap-3 px-3 py-2 text-left hover:bg-muted/40"
@@ -890,6 +934,10 @@ function ColumnRecordsDialog({
                               .filter(Boolean)
                               .join(" · ")}
                           </span>
+                        )}
+                        {/* A machine's plate and paperwork dates (B2). */}
+                        {isEquipment && row.kind === "SITE_EQUIPMENT" && (
+                          <MachineProfileLine row={row as EquipmentProfileRow} />
                         )}
                         {/* Whose make (D1), orange when not designated. */}
                         {row.manufacturer_name && (
@@ -972,6 +1020,23 @@ function ColumnRecordsDialog({
           </footer>
         )}
       </Shell>
+      {machineError && (
+        <p role="alert" className="text-sm text-destructive">
+          {machineError}
+        </p>
+      )}
+      {machine && (
+        <EquipmentDialog
+          project={machine.project}
+          equipment={machine}
+          onClose={() => setMachine(null)}
+          onSaved={() => {
+            setMachine(null);
+            void qc.invalidateQueries({ queryKey: ["category-records"] });
+            void qc.invalidateQueries({ queryKey: ["category-management"] });
+          }}
+        />
+      )}
       {open && (
         <RecordSheet
           row={open}
@@ -984,6 +1049,42 @@ function ColumnRecordsDialog({
         />
       )}
     </>
+  );
+}
+
+/** A machine row of the equipment records list (2026-10 B2). */
+type EquipmentProfileRow = ArchiveQueueRow<CategoryRecordKind> & {
+  registration_no?: string;
+  needs_profile?: boolean;
+  expiry?: Partial<Record<string, string>>;
+};
+
+const EXPIRY_LABELS: Record<string, string> = {
+  road_tax_expires_on: "field.roadTaxExpiresOn",
+  certificate_expires_on: "field.certificateExpiresOn",
+  insurance_expires_on: "field.insuranceExpiresOn",
+  pma_expires_on: "field.pmaExpiresOn",
+  permit_expires_on: "field.permitExpiresOn",
+};
+
+/** The plate and each expiry date the profile has, on one line. */
+function MachineProfileLine({ row }: { row: EquipmentProfileRow }) {
+  const ops = useTranslations("contractorOps");
+  const formatter = useDateFormat();
+  const dates = Object.entries(row.expiry ?? {}).filter(([field, value]) => value && EXPIRY_LABELS[field]);
+  return (
+    <span className="block text-xs">
+      <span className="font-medium">
+        {ops("field.plateNo")} {row.registration_no || "—"}
+      </span>
+      {dates.map(([field, value]) => (
+        <span key={field} className="text-muted-foreground">
+          {" · "}
+          {ops(EXPIRY_LABELS[field])} {formatter.date(value as string)}
+        </span>
+      ))}
+      {row.needs_profile && <span className="text-warning">{" · "}{ops("equipment.needsProfile")}</span>}
+    </span>
   );
 }
 

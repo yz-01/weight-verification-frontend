@@ -18,7 +18,7 @@ import { PORTAL_NAVIGATION, hubDestination, visibleNavigation } from "@/lib/navi
  * all read.
  */
 
-const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+const read = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8").replace(/\r\n/g, "\n");
 
 describe("menus skip what the menu hides", () => {
   it("still has a hidden child to protect", () => {

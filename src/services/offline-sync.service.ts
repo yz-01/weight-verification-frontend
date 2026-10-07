@@ -27,11 +27,19 @@ import {
   createConsultantFieldSubmission,
   createMaterialOutgoing,
   createSiteProgressRecord,
+  recordEquipmentEntry,
+  recordEquipmentExit,
   recordEquipmentMovement,
+  returnMaterialOutgoingProcessing,
 } from "@/services/contractor-ops.service";
 import { createSafetyIncident } from "@/services/site-operations.service";
 import { createWasteOutgoingRecord } from "@/services/waste-outgoing.service";
 import { createSundryClaim } from "@/services/sundry-claim.service";
+import { uploadEquipmentHoursPhoto } from "@/services/equipment-hours.service";
+import type {
+  EquipmentHoursPhotoDraft,
+  EquipmentHoursUpload,
+} from "@/interfaces/equipment-hours";
 import {
   cleanupSettledDriverSnapshots,
   recordDriverTaskPhotoLocally,
@@ -330,6 +338,45 @@ async function sendJob(job: OfflineJob): Promise<void> {
     return;
   }
 
+  if (job.kind === "EQUIPMENT_MOVEMENT" && (job.payload.entry || job.payload.exit)) {
+    // One movement is one machine (F3): no quantity, unit or application.
+    // The exit goes the entry's way since Q27; the job carries the one
+    // client_event_id across every retry, so a resend is the same movement.
+    const entry = job.payload;
+    const movement = {
+      project: entry.project,
+      equipment: entry.equipment || undefined,
+      equipment_name: entry.equipment_name,
+      registration_no: entry.registration_no,
+      supplier: entry.supplier,
+      delivery_note_no: entry.delivery_note_no ?? "",
+      vehicle_plate: entry.vehicle_plate,
+      notes: entry.notes,
+      latitude: entry.latitude,
+      longitude: entry.longitude,
+      accuracy_m: entry.accuracy_m,
+      ocr_confirmed: entry.ocr_confirmed,
+      ocr_proof: entry.ocr_proof,
+      field_task: entry.field_task,
+      original_occurred_at: entry.original_occurred_at,
+      client_event_id: entry.client_event_id,
+      photos: entry.photos.map(restoreFile),
+      delivery_note_photo: entry.delivery_note_photo
+        ? restoreFile(entry.delivery_note_photo)
+        : undefined,
+      receiver_signature: entry.receiver_signature
+        ? restoreFile(entry.receiver_signature)
+        : undefined,
+      supplier_signature: entry.supplier_signature
+        ? restoreFile(entry.supplier_signature)
+        : undefined,
+    };
+    // Both called by name, so the reachability guard sees the two routes.
+    if (entry.exit) await recordEquipmentExit(movement);
+    else await recordEquipmentEntry(movement);
+    return;
+  }
+
   if (job.kind === "EQUIPMENT_MOVEMENT") {
     await recordEquipmentMovement({
       ...job.payload,
@@ -359,6 +406,25 @@ async function sendJob(job: OfflineJob): Promise<void> {
     await createMaterialOutgoing({
       ...job.payload,
       photos: job.payload.photos.map(restoreFile),
+    });
+    return;
+  }
+
+  if (job.kind === "MATERIAL_OUTGOING_EXIT") {
+    const exit = job.payload;
+    await returnMaterialOutgoingProcessing(exit.outgoing, {
+      photos: exit.photos.map(restoreFile),
+      note: exit.note,
+      latitude: exit.latitude,
+      longitude: exit.longitude,
+      returned_quantity: exit.returned_quantity,
+      site_signature: restoreFile(exit.site_signature),
+      supplier_signature: restoreFile(exit.supplier_signature),
+      vehicle_plate: exit.vehicle_plate,
+      delivery_note_no: exit.delivery_note_no,
+      supplier: exit.supplier,
+      category: exit.category,
+      client_event_id: exit.client_event_id,
     });
     return;
   }
@@ -414,6 +480,11 @@ async function sendJob(job: OfflineJob): Promise<void> {
       ...job.payload,
       photos: job.payload.photos.map(restoreFile),
     });
+    return;
+  }
+
+  if (job.kind === "EQUIPMENT_HOURS_PHOTO") {
+    await sendEquipmentHoursPhoto(job);
     return;
   }
 
@@ -745,6 +816,7 @@ async function submitCaptureJob(
         | "EQUIPMENT_MOVEMENT"
         | "SITE_PROGRESS"
         | "MATERIAL_OUTGOING"
+        | "MATERIAL_OUTGOING_EXIT"
         | "SUNDRY_CLAIM"
         | "WASTE_OUTGOING"
         | "DISPOSAL_REQUEST"
@@ -854,6 +926,46 @@ export async function submitMaterialOutgoingOfflineAware(
 }
 
 /**
+ * 现场实际退场 of an approved return (2026-10 C9, Q29.3), online or queued.
+ *
+ * At the gate, where the signal often is not: the photos and both signatures
+ * are stored with the job, so a send that cannot reach the server loses
+ * nothing. `client_event_id` comes from the form (minted once, kept in its
+ * draft) and rides the online attempt and every replay; the server answers a
+ * replay of an exit it already has with that exit.
+ */
+export async function submitMaterialOutgoingExitOfflineAware(
+  ownerId: string,
+  draft: Omit<
+    Extract<OfflineJob, { kind: "MATERIAL_OUTGOING_EXIT" }>["payload"],
+    "photos" | "site_signature" | "supplier_signature"
+  > & { photos: File[]; site_signature: File; supplier_signature: File },
+): Promise<OfflineSubmission> {
+  return submitCaptureJob({
+    id: newId("material-outgoing-exit-job"),
+    ownerId,
+    kind: "MATERIAL_OUTGOING_EXIT",
+    queuedAt: new Date().toISOString(),
+    attempts: 0,
+    lastError: "",
+    payload: {
+      ...draft,
+      photos: await storePhotos(draft.photos),
+      // Signatures are stored as drawn, not compressed like photographs.
+      site_signature: storeFile(draft.site_signature),
+      supplier_signature: storeFile(draft.supplier_signature),
+    },
+  });
+}
+
+/** Whether this phone already holds an exit for that return, waiting to go. */
+export async function queuedOutgoingExit(ownerId: string, outgoingId: string): Promise<boolean> {
+  return (await getOfflineJobs(ownerId)).some(
+    (job) => job.kind === "MATERIAL_OUTGOING_EXIT" && job.payload.outgoing === outgoingId,
+  );
+}
+
+/**
  * Automatic GPS samples, sent as one batch.
  *
  * Deliberately not stamped with an offline creation time. That stamp exists to
@@ -947,6 +1059,85 @@ export async function submitSafetyIncidentOfflineAware(
         }),
       );
       return { status: "uploaded", incident };
+    } catch (error) {
+      if (!isNetworkFailure(error)) throw error;
+    }
+  }
+  await enqueue(job);
+  return { status: "queued" };
+}
+
+function sendEquipmentHoursPhoto(
+  job: Extract<OfflineJob, { kind: "EQUIPMENT_HOURS_PHOTO" }>,
+): Promise<EquipmentHoursUpload> {
+  const payload = job.payload;
+  return uploadEquipmentHoursPhoto({
+    equipment: payload.equipment,
+    photo: restoreFile(payload.photo),
+    capturedAt: payload.capturedAt,
+    clientEventId: payload.clientEventId,
+    latitude: payload.latitude,
+    longitude: payload.longitude,
+    locationAccuracyM: payload.locationAccuracyM,
+  });
+}
+
+export type EquipmentHoursSubmission =
+  | { status: "uploaded"; upload: EquipmentHoursUpload }
+  | { status: "queued" };
+
+/**
+ * When an equipment-hours photo was taken: the camera's moment when the
+ * draft carries a readable one, never later than now (a phone clock is not
+ * moved forward by a file), else now.
+ */
+export function equipmentHoursMoment(capturedAt: string | undefined, now: Date): string {
+  const taken = capturedAt ? Date.parse(capturedAt) : Number.NaN;
+  if (Number.isNaN(taken)) return now.toISOString();
+  return new Date(Math.min(taken, now.getTime())).toISOString();
+}
+
+/**
+ * 设备操作员工时 (2026-10 B15): one photo of one machine.
+ *
+ * The moment of the photo is the shutter's (Q29.10), carried by the draft
+ * from the camera and fixed here, on the phone - not when 发送 is pressed and
+ * not when the queue finally reaches the server; the day's start and end are
+ * counted from it. One `clientEventId` for the online attempt and every
+ * replay, so a photo whose answer was lost on the way back is still one photo.
+ */
+export async function submitEquipmentHoursPhotoOfflineAware(
+  ownerId: string,
+  draft: EquipmentHoursPhotoDraft,
+): Promise<EquipmentHoursSubmission> {
+  const sentAt = new Date();
+  const now = sentAt.toISOString();
+  const job: Extract<OfflineJob, { kind: "EQUIPMENT_HOURS_PHOTO" }> = {
+    id: newId("equipment-hours-job"),
+    ownerId,
+    kind: "EQUIPMENT_HOURS_PHOTO",
+    queuedAt: now,
+    attempts: 0,
+    lastError: "",
+    payload: {
+      equipment: draft.equipment,
+      equipmentLabel: draft.equipmentLabel,
+      capturedAt: equipmentHoursMoment(draft.capturedAt, sentAt),
+      clientEventId: newId("equipment-hours"),
+      latitude: draft.latitude,
+      longitude: draft.longitude,
+      locationAccuracyM: draft.locationAccuracyM,
+      // Compressed on the way in, like every capture screen (A5, A9).
+      photo: await storePhoto(draft.photo),
+    },
+  };
+  if (typeof navigator !== "undefined" && navigator.onLine) {
+    try {
+      const upload = await withOfflineProvenance(job.queuedAt, () =>
+        sendEquipmentHoursPhoto(job),
+      );
+      toastSuccess("equipmentHours.toast.uploaded");
+      return { status: "uploaded", upload };
     } catch (error) {
       if (!isNetworkFailure(error)) throw error;
     }
@@ -1294,6 +1485,7 @@ function chainOf(job: OfflineJob): string | null {
 }
 
 function jobReference(job: OfflineJob): string {
+  if (job.kind === "MATERIAL_OUTGOING_EXIT") return job.payload.reference_no;
   const payload = job.payload as { dispatchNo?: string; taskId?: string };
   return payload.dispatchNo ?? payload.taskId ?? "";
 }
@@ -1362,6 +1554,7 @@ const QUEUED_FIELD_LABELS: Record<string, string> = {
   pickup_address: "pickup_address",
   work_location: "work_location",
   instructions: "instructions",
+  equipmentLabel: "equipment_name",
 };
 
 /** What a queued submission looks like when opened, read off this phone. */
