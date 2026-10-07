@@ -29,6 +29,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import {
+  ATTACHMENT_TYPES,
+  AttachmentRows,
+  EvidenceLinkCards,
+  LockedNote,
+  RelatedRecordRemove,
+  RemoveSwitch,
+} from "@/components/consultant-workflow/application-draft-edit";
 import { useAuth } from "@/components/providers/auth-provider";
 import { RecordExportButton } from "@/components/shared/record-export-button";
 import {
@@ -93,6 +101,11 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
   const queryClient = useQueryClient();
   const [attachmentOpen, setAttachmentOpen] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
+  // One arming switch per block (E6, spec rule 8): Remove buttons appear only
+  // while it is on, and a press takes effect at once.
+  const [evidenceArmed, setEvidenceArmed] = useState(false);
+  const [recordsArmed, setRecordsArmed] = useState(false);
+  const [attachmentsArmed, setAttachmentsArmed] = useState(false);
   const [decision, setDecision] = useState<
     "APPROVE" | "APPROVE_WITH_REMEDIAL" | "REJECT" | "REVISE_RESUBMIT" | null
   >(null);
@@ -146,6 +159,13 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
     (field) => !["inspection_activity", "acceptance_requirement"].includes(field.key),
   );
   const currentStep = application.review_steps.find((step) => step.status === "CURRENT");
+  // A draft is a draft (E6): whoever may fill it in may correct what was
+  // added. Submitted, the controls go and each block says why.
+  const draftEditable = !application.is_locked && can("consultant.submit");
+  const showLocked = application.is_locked && can("consultant.submit");
+  const removableRecords = application.related_record_groups.some((group) =>
+    group.records.some((record) => record.removable && record.evidence_link_ids.length),
+  );
   const canAct = Boolean(
     currentStep && user && can("approval.review") && reviewerMatches(currentStep, application, user),
   );
@@ -310,39 +330,38 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
               ))}
             </div>
           </Section>
-          <Section title={t("detail.section.evidence")} action={application.status === "DRAFT" && can("consultant.submit") ? <Button size="sm" variant="outline" onClick={() => setEvidenceOpen(true)}><Link2 />{t("evidence.link")}</Button> : undefined}>
+          <Section
+            title={t("detail.section.evidence")}
+            action={
+              draftEditable ? (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {application.evidence_links.length > 0 && (
+                    <RemoveSwitch armed={evidenceArmed} onArmedChange={setEvidenceArmed} />
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => setEvidenceOpen(true)}><Link2 />{t("evidence.link")}</Button>
+                </div>
+              ) : showLocked ? <LockedNote /> : undefined
+            }
+          >
             {!application.evidence_links.length ? (
               <Empty text={t("evidence.empty")} />
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {application.evidence_links.map((link) => (
-                  <a
-                    key={link.id}
-                    href={link.evidence_watermarked_file || link.evidence_file}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group min-w-0 overflow-hidden rounded-lg border bg-background transition-colors hover:border-primary/40"
-                  >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                      <Image
-                        src={link.evidence_watermarked_file || link.evidence_file}
-                        alt={link.caption || link.original_filename}
-                        fill
-                        unoptimized
-                        className="object-cover transition-transform group-hover:scale-[1.02]"
-                      />
-                    </div>
-                    <div className="space-y-1 p-3">
-                      <p className="truncate text-sm font-medium">{link.caption || link.original_filename}</p>
-                      <p className="truncate text-xs text-muted-foreground">{link.photographer_name || t("common.unknown")} - {new Date(link.captured_at).toLocaleString()}</p>
-                      <p className="truncate font-mono text-[10px] text-muted-foreground">{link.sha256}</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
+              <EvidenceLinkCards
+                application={application}
+                editable={draftEditable}
+                armed={evidenceArmed}
+                onChanged={() => void refresh()}
+              />
             )}
           </Section>
-          <Section title={t("detail.section.relatedRecords")}>
+          <Section
+            title={t("detail.section.relatedRecords")}
+            action={
+              draftEditable ? (
+                removableRecords ? <RemoveSwitch armed={recordsArmed} onArmedChange={setRecordsArmed} /> : undefined
+              ) : showLocked && application.related_record_groups.length ? <LockedNote /> : undefined
+            }
+          >
             {!application.related_record_groups.length ? (
               <Empty text={t("state.noApplications")} />
             ) : (
@@ -365,13 +384,21 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
                             {record.href && <ExternalLink className="size-4 shrink-0 text-primary" />}
                           </>
                         );
-                        return record.href ? (
-                          <Link key={`${record.type}-${record.record_id}`} href={record.href} className="flex items-center gap-3 p-3 transition-colors hover:bg-muted/30">
+                        const row = record.href ? (
+                          <Link href={record.href} className="flex min-w-0 flex-1 items-center gap-3 p-3 transition-colors hover:bg-muted/30">
                             {content}
                           </Link>
                         ) : (
-                          <div key={`${record.type}-${record.record_id}`} className="flex items-center gap-3 p-3">
+                          <div className="flex min-w-0 flex-1 items-center gap-3 p-3">
                             {content}
+                          </div>
+                        );
+                        return (
+                          <div key={`${record.type}-${record.record_id}`} className="flex items-center gap-2 pr-3">
+                            {row}
+                            {draftEditable && recordsArmed && (
+                              <RelatedRecordRemove application={application} record={record} onChanged={() => void refresh()} />
+                            )}
                           </div>
                         );
                       })}
@@ -381,7 +408,19 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
               </div>
             )}
           </Section>
-          <Section title={t("detail.section.attachments")} action={application.status === "DRAFT" && can("consultant.submit") ? <Button size="sm" variant="outline" onClick={() => setAttachmentOpen(true)}><Plus />{t("attachment.add")}</Button> : undefined}>
+          <Section
+            title={t("detail.section.attachments")}
+            action={
+              draftEditable ? (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {application.attachments.length > 0 && (
+                    <RemoveSwitch armed={attachmentsArmed} onArmedChange={setAttachmentsArmed} />
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => setAttachmentOpen(true)}><Plus />{t("attachment.add")}</Button>
+                </div>
+              ) : showLocked ? <LockedNote /> : undefined
+            }
+          >
             {application.template_required_attachment_codes.length ? (
               <div className="mb-4 grid gap-2 sm:grid-cols-2">
                 {application.template_required_attachment_codes.map((code) => {
@@ -396,7 +435,16 @@ export function ConsultantApplicationDetail({ id }: { id: string }) {
                 })}
               </div>
             ) : null}
-            {!application.attachments.length ? <Empty text={t("attachment.empty")} /> : <div className="divide-y rounded-lg border">{application.attachments.map((attachment) => <a key={attachment.id} href={attachment.file} target="_blank" rel="noreferrer" className="flex min-w-0 items-center gap-3 p-3 transition-colors hover:bg-muted/30"><Paperclip className="size-4 shrink-0 text-primary" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{attachment.original_name}</p><p className="truncate text-xs text-muted-foreground">{attachment.category || t("attachment.other")} - {formatBytes(attachment.byte_size)}</p></div></a>)}</div>}
+            {!application.attachments.length ? (
+              <Empty text={t("attachment.empty")} />
+            ) : (
+              <AttachmentRows
+                application={application}
+                editable={draftEditable}
+                armed={attachmentsArmed}
+                onChanged={() => void refresh()}
+              />
+            )}
           </Section>
         </div>
 
@@ -971,7 +1019,7 @@ function AttachmentDialog({ application, onClose, onSaved }: { application: Cons
   const documents = useQuery({ queryKey: ["application-document-candidates", application.project, librarySearch], queryFn: () => getApplicationDocumentCandidates(application.project, librarySearch || undefined), enabled: libraryOpen });
   const save = useMutation({ mutationFn: () => addApplicationAttachment(application.id, file as File, category, note), onSuccess: onSaved });
   const link = useMutation({ mutationFn: (version: string) => linkApplicationDocumentAttachment(application.id, version, category, note), onSuccess: onSaved });
-  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><Button type="button" variant="outline" onClick={() => setLibraryOpen((value) => !value)}><ClipboardCheck />{t("attachment.fromArchive")}</Button>{libraryOpen && <div className="space-y-2 rounded-lg border p-3"><Input placeholder={t("attachment.searchArchive")} value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} />{documents.isLoading ? <Loader2 className="animate-spin" /> : documents.isError ? <LoadFailed what={t("what.archiveDocuments")} onRetry={() => documents.refetch()} /> : <div className="max-h-56 space-y-2 overflow-y-auto">{(documents.data?.results ?? []).filter((doc) => doc.latest_version).map((doc) => <button type="button" key={doc.id} className="flex w-full items-center justify-between rounded border p-2 text-left hover:bg-muted/30" onClick={() => doc.latest_version && link.mutate(doc.latest_version.id)} disabled={link.isPending}><span className="min-w-0"><span className="block truncate font-medium">{doc.document_no} · {doc.title}</span><span className="block truncate text-xs text-muted-foreground">{doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""} · {doc.latest_version?.original_name}</span></span><ExternalLink className="size-4 shrink-0" /></button>)}{!documents.data?.results?.length && <Empty text={t("attachment.noArchive")} />}</div>}</div>}<FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{["CHECKLIST", "IFC_DRAWING", "SURVEY_REPORT", "MATERIAL_TEST", "CALIBRATION", "ITP", "OTHER"].map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
+  return <Dialog open onOpenChange={(open) => !open && onClose()}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle>{t("attachment.title")}</DialogTitle><DialogDescription>{t("attachment.help")}</DialogDescription></DialogHeader><div className="space-y-4"><Button type="button" variant="outline" onClick={() => setLibraryOpen((value) => !value)}><ClipboardCheck />{t("attachment.fromArchive")}</Button>{libraryOpen && <div className="space-y-2 rounded-lg border p-3"><Input placeholder={t("attachment.searchArchive")} value={librarySearch} onChange={(event) => setLibrarySearch(event.target.value)} />{documents.isLoading ? <Loader2 className="animate-spin" /> : documents.isError ? <LoadFailed what={t("what.archiveDocuments")} onRetry={() => documents.refetch()} /> : <div className="max-h-56 space-y-2 overflow-y-auto">{(documents.data?.results ?? []).filter((doc) => doc.latest_version).map((doc) => <button type="button" key={doc.id} className="flex w-full items-center justify-between rounded border p-2 text-left hover:bg-muted/30" onClick={() => doc.latest_version && link.mutate(doc.latest_version.id)} disabled={link.isPending}><span className="min-w-0"><span className="block truncate font-medium">{doc.document_no} · {doc.title}</span><span className="block truncate text-xs text-muted-foreground">{doc.category_name} {doc.subcategory_name ? `· ${doc.subcategory_name}` : ""} · {doc.latest_version?.original_name}</span></span><ExternalLink className="size-4 shrink-0" /></button>)}{!documents.data?.results?.length && <Empty text={t("attachment.noArchive")} />}</div>}</div>}<FieldWrapper label={t("attachment.file")} required><Input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} /></FieldWrapper><FieldWrapper label={t("attachment.category")}><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{ATTACHMENT_TYPES.map((value) => <SelectItem key={value} value={value}>{t(`attachmentType.${value}`)}</SelectItem>)}</SelectContent></Select></FieldWrapper><FieldWrapper label={t("attachment.note")}><Textarea value={note} onChange={(event) => setNote(event.target.value)} /></FieldWrapper></div><DialogFooter><Button variant="outline" onClick={onClose}>{t("action.cancel")}</Button><Button requires={[[file, t("attachment.file")]]} disabled={save.isPending} onClick={() => save.mutate()}>{save.isPending ? <Loader2 className="animate-spin" /> : <Paperclip />}{t("attachment.add")}</Button></DialogFooter></DialogContent></Dialog>;
 }
 
 function EvidenceDialog({ application, onClose, onSaved }: { application: ConsultantApplication; onClose: () => void; onSaved: () => void }) {
@@ -1045,12 +1093,6 @@ function statusTone(status: ConsultantApplication["status"]): "neutral" | "posit
   if (status === "SUBMITTED" || status === "REVISE_RESUBMIT" || status === "APPROVED_WITH_REMEDIAL") return "warning";
   if (status === "ARCHIVED") return "info";
   return "neutral";
-}
-
-function formatBytes(value: number) {
-  if (value < 1024) return `${value} B`;
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
-  return `${(value / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function Empty({ text }: { text: string }) {
