@@ -243,6 +243,9 @@ export const reorderProjectCategories = async (
 
 export const getSiteEquipment = (query: ListQuery = {}) =>
   api.list<SiteEquipment>("/api/site-equipment/get_equipment/", query);
+/** One machine's profile - for the office completing a 「新设备」 (C8). */
+export const getSiteEquipmentItem = (id: string) =>
+  api.get<SiteEquipment>(`/api/site-equipment/${id}/get_equipment_item/`);
 export const createSiteEquipment = async (payload: EquipmentPayload) => {
   const row = await api.post<SiteEquipment>("/api/site-equipment/create_equipment/", payload);
   toastSuccess("contractorOps.toast.saved");
@@ -314,18 +317,14 @@ export async function ocrEquipmentDeliveryNote(project: string, image: File) {
   });
 }
 /**
- * Apply to bring a machine in or take one out (B13). An entry may name a
- * machine not yet registered (`equipment_name` + `category`): it is
- * registered off site so every step belongs to it.
+ * Apply to take a machine out (B13). Exits only since 2026-10 (X2): an entry
+ * is recorded on site in one step (`recordEquipmentEntry`) and accepted by
+ * the office.
  */
 export async function requestEquipmentMovement(payload: {
   project: string;
-  equipment?: string;
-  equipment_name?: string;
-  category?: string;
-  supplier?: string;
-  registration_no?: string;
-  direction: "ENTRY" | "EXIT";
+  equipment: string;
+  direction: "EXIT";
   quantity?: string;
   unit?: EquipmentMovement["unit"];
   notes?: string;
@@ -350,6 +349,70 @@ export async function reviewEquipmentMovement(
     { status, note },
   );
   toastSuccess("contractorOps.toast.movementReviewed");
+  return row;
+}
+
+/**
+ * 设备进场 in one step (2026-10 X2, C8, F3): the machine (or a 「新设备」's
+ * name), photos, DO number, the scanned supplier, both signatures and GPS.
+ * No quantity or unit - one entry is one machine. The office then accepts it.
+ */
+export async function recordEquipmentEntry(payload: {
+  project: string;
+  /** Empty for a 「新设备」, which sends `equipment_name` instead. */
+  equipment?: string;
+  equipment_name?: string;
+  supplier?: string;
+  delivery_note_no: string;
+  vehicle_plate?: string;
+  notes?: string;
+  latitude?: string;
+  longitude?: string;
+  accuracy_m?: string;
+  ocr_confirmed?: boolean;
+  ocr_proof?: string;
+  field_task?: string;
+  original_occurred_at: string;
+  client_event_id: string;
+  photos: File[];
+  delivery_note_photo?: File;
+  receiver_signature?: File;
+  supplier_signature?: File;
+}) {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (
+      key === "photos" ||
+      key === "delivery_note_photo" ||
+      key === "receiver_signature" ||
+      key === "supplier_signature"
+    ) continue;
+    if (value !== undefined && value !== "") data.append(key, String(value));
+  }
+  payload.photos.forEach((photo) => data.append("photos", photo));
+  if (payload.delivery_note_photo) data.append("delivery_note_photo", payload.delivery_note_photo);
+  if (payload.receiver_signature) data.append("receiver_signature", payload.receiver_signature);
+  if (payload.supplier_signature) data.append("supplier_signature", payload.supplier_signature);
+  const row = await api.post<EquipmentMovement>(
+    "/api/site-equipment/record_entry/",
+    data,
+    { silent: true },
+  );
+  toastSuccess("contractorOps.toast.entrySubmitted");
+  return row;
+}
+
+/** The office accepts an entry recorded on site, or rejects it with a reason (C8). */
+export async function reviewEquipmentEntry(
+  id: string,
+  decision: "ACCEPTED" | "REJECTED",
+  reason = "",
+) {
+  const row = await api.post<EquipmentMovement>(
+    `/api/site-equipment/${id}/review_entry/`,
+    { decision, reason },
+  );
+  toastSuccess("contractorOps.toast.entryReviewed");
   return row;
 }
 

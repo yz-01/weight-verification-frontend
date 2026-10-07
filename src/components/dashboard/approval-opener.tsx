@@ -9,8 +9,10 @@ import { useRef, useState } from "react";
 import { FieldTaskSheet } from "@/components/dashboard/field-task-sheet";
 import { ConsultantApplicationDetail } from "@/components/consultant-workflow/application-detail";
 import { RecordSheet } from "@/components/contractor-ops/archive-queue";
-import { ReviewMovementActions } from "@/components/contractor-ops/equipment-applications";
+import { EquipmentMovementActions } from "@/components/contractor-ops/equipment-applications";
 import {
+  EquipmentDialog,
+  MovementDialog,
   OutgoingActions,
   OutgoingDetailDialog,
   RejectOutgoingDialog,
@@ -33,12 +35,15 @@ import type { ApprovalRow } from "@/interfaces/contractor-dashboard";
 import type {
   ArchiveQueueRow,
   CategoryRecordKind,
+  EquipmentMovement,
   MaterialOutgoing,
+  SiteEquipment,
 } from "@/interfaces/contractor-ops";
 import {
   getCategoryRecord,
   getDisposalRequest,
   getEquipmentMovements,
+  getSiteEquipmentItem,
   reviewMaterialOutgoing,
 } from "@/services/contractor-ops.service";
 import { getWasteOutgoingRecord } from "@/services/waste-outgoing.service";
@@ -233,15 +238,54 @@ function WasteOutgoingDecision({ id, onDone }: { id: string; onDone: () => void 
   );
 }
 
+/**
+ * 设备进场 waiting for acceptance (C8), an exit to approve (B13), or an old
+ * entry application to hand over directly - the module's own buttons.
+ */
 function MovementDecision({ id, onDone }: { id: string; onDone: () => void }) {
   const movement = useQuery({
     queryKey: ["equipment-movements", "one", id],
     queryFn: () => getEquipmentMovements({ id, page_size: 1 }),
   });
+  const [profile, setProfile] = useState<SiteEquipment | null>(null);
+  const [handover, setHandover] = useState<{ machine: SiteEquipment; movement: EquipmentMovement } | null>(null);
   if (movement.isError) return <LoadFailed onRetry={() => void movement.refetch()} />;
   const row = movement.data?.results[0];
   if (!row) return null;
-  return <ReviewMovementActions movement={row} onDone={() => onDone()} />;
+  return (
+    <>
+      <EquipmentMovementActions
+        movement={row}
+        onDone={() => onDone()}
+        onHandover={async (open) =>
+          setHandover({ machine: await getSiteEquipmentItem(open.equipment), movement: open })
+        }
+        onCompleteProfile={async (machineId) => setProfile(await getSiteEquipmentItem(machineId))}
+      />
+      {profile && (
+        <EquipmentDialog
+          project={profile.project}
+          equipment={profile}
+          onClose={() => setProfile(null)}
+          onSaved={() => {
+            setProfile(null);
+            void movement.refetch();
+          }}
+        />
+      )}
+      {handover && (
+        <MovementDialog
+          row={handover.machine}
+          movement={handover.movement}
+          onClose={() => setHandover(null)}
+          onSaved={() => {
+            setHandover(null);
+            onDone();
+          }}
+        />
+      )}
+    </>
+  );
 }
 
 /** 材料出场 / 退场申请: the module's detail dialog with its own step buttons. */

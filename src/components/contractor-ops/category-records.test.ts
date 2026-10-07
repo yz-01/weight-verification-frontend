@@ -168,7 +168,11 @@ describe("clicking a record opens the queue's own detail, fed from the column", 
   const sheet = functionBody(read(QUEUE), "RecordSheet");
 
   it("opens RecordSheet with getCategoryRecord, not the archive queue's door", () => {
-    expect(dialog).toMatch(/onClick=\{\(\) => setOpen\(row\)\}/);
+    expect(dialog).toMatch(/onClick=\{\(\) => openRow\(row\)\}/);
+    // Every kind but a machine profile opens the record sheet (2026-10 B2:
+    // a machine opens its own profile to edit).
+    expect(dialog).toMatch(/if \(!isEquipment \|\| row\.kind !== "SITE_EQUIPMENT"\) \{\s+setOpen\(row\);/);
+    expect(dialog).toMatch(/<EquipmentDialog/);
     expect(dialog).toMatch(/<RecordSheet\s+row=\{open\}\s+fetchRecord=\{getCategoryRecord\}/);
     expect(sheet).toMatch(/role="dialog"/);
     expect(sheet).toMatch(/fetchRecord\s*\?\s*fetchRecord\(row\.kind, row\.id\)/);

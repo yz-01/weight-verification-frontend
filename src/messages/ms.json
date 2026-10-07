@@ -4059,6 +4059,13 @@
       "what": {
         "suppliers": "Senarai pembekal"
       }
+    },
+    "equipment": {
+      "majorClass": "Kelas utama",
+      "subClass": "Subkelas",
+      "majorClassOf": "Kelas utama",
+      "majorClassHint": "Biarkan untuk jadikan kelas utama. Mesin didaftarkan di bawah subkelas.",
+      "isMajorClass": "(Ini kelas utama)"
     }
   },
   "cloudServices": {
@@ -5536,7 +5543,7 @@
       "editTitle": "Sunting peralatan ini",
       "entryTitle": "Rekod {name} masuk tapak",
       "exitTitle": "Rekod {name} keluar tapak",
-      "formHelp": "Gunakan nombor peralatan atau nombor pendaftaran pada mesin sebenar.",
+      "formHelp": "Isi nombor dan nombor plat mesin. Mesin didaftarkan di bawah subkelas; di tapak ia hanya dipilih, difoto dan ditandatangani.",
       "movementHelp": "Ambil foto dan lokasi semasa. Pergerakan ini menjadi bukti tapak kekal.",
       "occurredAt": "Masa pergerakan",
       "ocrManual": "Nota penghantaran tidak dapat dibaca. Masukkan maklumat secara manual.",
@@ -5577,7 +5584,39 @@
       "returnReason": "Sebab dikembalikan",
       "returnConfirm": "Kembalikan - permohonan tamat",
       "requestedBy": "Dipohon oleh",
-      "reviewedBy": "Diluluskan / dikembalikan oleh"
+      "reviewedBy": "Diluluskan / dikembalikan oleh",
+      "chooseMachine": "Mesin",
+      "chooseMachinePlaceholder": "Pilih mesin",
+      "newMachine": "Mesin baharu (belum didaftar)",
+      "newMachineEntry": "Mesin baharu masuk",
+      "newMachineName": "Nama mesin baharu",
+      "newMachineHelp": "Nama sahaja - pejabat akan melengkapkan yang lain.",
+      "entryHelp": "Foto, DO, kod QR pembekal dan kedua-dua tandatangan. Pejabat menerimanya selepas anda hantar.",
+      "entrySubmit": "Hantar kemasukan",
+      "scanSupplier": "Imbas QR pembekal",
+      "scanFailed": "Imbasan tidak berjaya. Imbas semula, atau biarkan pembekal kosong.",
+      "movementsLink": "Lihat kemasukan dan keluar mesin ini",
+      "needsProfile": "Profil belum lengkap",
+      "needsProfileHelp": "Dilaporkan dari tapak sebagai mesin baharu. Isi nombor plat, subkelas dan sekurang-kurangnya satu tarikh tamat sebelum kemasukannya boleh diterima.",
+      "directHandover": "Serah terus",
+      "directHandoverHelp": "Permohonan kemasukan sebelum perubahan: tiada kelulusan diperlukan. Serah terus (foto, kedua-dua tandatangan); pejabat kemudian menerimanya.",
+      "acceptance": {
+        "title": "Penerimaan kemasukan",
+        "accept": "Terima",
+        "reject": "Tidak diterima",
+        "reason": "Sebab tidak diterima",
+        "armReject": "Benarkan kemasukan ini tidak diterima",
+        "armRejectHelp": "Hanya jika mesin salah. Hidupkan untuk beri sebab dan menolaknya.",
+        "failed": "Penerimaan tidak berjaya. Cuba lagi.",
+        "profileMissing": "Lengkapkan profil dahulu: {fields}",
+        "completeProfile": "Lengkapkan profil",
+        "missing": {
+          "registration_no": "nombor plat",
+          "category": "subkelas",
+          "expiry": "tarikh tamat"
+        }
+      },
+      "oneMachineOnly": "Hanya kemasukan dan keluar mesin ini"
     },
     "equipmentEvidence": {
       "condition": "4. Butiran keadaan peralatan",
@@ -5672,7 +5711,14 @@
       "vehiclePlate": "Nombor plat",
       "workLocation": "Kawasan / lokasi kerja",
       "pmaExpiresOn": "PMA tamat pada",
-      "permitExpiresOn": "Permit tamat pada"
+      "permitExpiresOn": "Permit tamat pada",
+      "plateNo": "Nombor plat",
+      "roadTaxExpiresOn": "Cukai jalan tamat",
+      "chooseProjectFirst": "Pilih projek dahulu",
+      "equipmentSubClass": "Subkelas peralatan",
+      "chooseEquipmentSubClass": "Pilih subkelas",
+      "noEquipmentSubClassYet": "Projek ini belum ada subkelas peralatan; mesin didaftarkan di bawah satu subkelas.",
+      "deliveryNoteNo": "Nombor DO"
     },
     "filing": {
       "action": "Failkan di bawah kategori",
@@ -5814,7 +5860,8 @@
       "locationError": "GPS semasa tidak dapat diperoleh. Aktifkan lokasi tepat dan cuba lagi.",
       "noDescription": "Tiada penerangan",
       "noIdentifier": "Tiada nombor siri atau pendaftaran",
-      "unknown": "Tidak diketahui"
+      "unknown": "Tidak diketahui",
+      "noPlate": "Tiada nombor plat"
     },
     "status": {
       "accessAll": "Semua ahli projek boleh melihat",
@@ -5921,7 +5968,9 @@
       "taskUpdated": "Tugas dikemas kini",
       "outgoingProcessed": "Foto pemprosesan dihantar. Pejabat akan mengesahkan.",
       "movementRequested": "Permohonan dihantar ke pejabat",
-      "movementReviewed": "Permohonan dikemas kini"
+      "movementReviewed": "Permohonan dikemas kini",
+      "entrySubmitted": "Kemasukan dihantar - menunggu penerimaan pejabat",
+      "entryReviewed": "Keputusan direkodkan"
     },
     "what": {
       "roles": "Senarai peranan",
@@ -5939,7 +5988,9 @@
       "PENDING": "Menunggu kelulusan",
       "APPROVED": "Diluluskan - menunggu serahan",
       "RETURNED": "Dikembalikan - ditutup",
-      "COMPLETED": "Telah diserahkan"
+      "COMPLETED": "Telah diserahkan",
+      "SUBMITTED": "Menunggu penerimaan pejabat",
+      "REJECTED": "Tidak diterima"
     }
   },
   "contractorPartners": {
@@ -7279,7 +7330,8 @@
       "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai.",
       "document_file_type_not_allowed": "Hanya fail PDF, Word, Excel atau gambar boleh dimuat naik.",
       "document_is_system_file": "Fail yang dipilih daripada sistem tidak menerima versi baharu. Letakkan versi baharu pada rekodnya.",
-      "document_system_file_not_found": "Salah satu fail tidak ditemui, atau anda tidak boleh melihatnya."
+      "document_system_file_not_found": "Salah satu fail tidak ditemui, atau anda tidak boleh melihatnya.",
+      "equipment_profile_incomplete": "Lengkapkan profil mesin ini - nombor plat, subkelas dan tarikh tamat - sebelum menerimanya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {

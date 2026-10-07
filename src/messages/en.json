@@ -4059,6 +4059,13 @@
       "what": {
         "suppliers": "The supplier list"
       }
+    },
+    "equipment": {
+      "majorClass": "Major class",
+      "subClass": "Sub class",
+      "majorClassOf": "Major class it belongs to",
+      "majorClassHint": "Leave it to make this a major class. Machines are registered under a sub class.",
+      "isMajorClass": "(This is a major class)"
     }
   },
   "cloudServices": {
@@ -5536,7 +5543,7 @@
       "editTitle": "Edit this equipment",
       "entryTitle": "Record {name} entering site",
       "exitTitle": "Record {name} leaving site",
-      "formHelp": "Use the equipment or registration number found on the physical machine.",
+      "formHelp": "Fill in the machine's number and plate. A machine is registered under a sub class; on site it is only picked, photographed and signed for.",
       "movementHelp": "Take current photos and location. This movement becomes permanent site evidence.",
       "occurredAt": "Movement time",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -5577,7 +5584,39 @@
       "returnReason": "Why it is returned",
       "returnConfirm": "Return - the application ends",
       "requestedBy": "Applied by",
-      "reviewedBy": "Approved / returned by"
+      "reviewedBy": "Approved / returned by",
+      "chooseMachine": "Machine",
+      "chooseMachinePlaceholder": "Choose the machine",
+      "newMachine": "New machine (not registered yet)",
+      "newMachineEntry": "New machine coming in",
+      "newMachineName": "New machine's name",
+      "newMachineHelp": "Just the name - the office fills in the rest.",
+      "entryHelp": "Photos, the DO, the supplier's QR and both signatures. The office accepts it after you submit.",
+      "entrySubmit": "Submit entry",
+      "scanSupplier": "Scan the supplier's QR",
+      "scanFailed": "The scan did not work. Scan again, or leave the supplier blank.",
+      "movementsLink": "See this machine's entries and exits",
+      "needsProfile": "Profile to complete",
+      "needsProfileHelp": "Reported from site as a new machine. Fill in the plate, the sub class and at least one expiry date before its entry can be accepted.",
+      "directHandover": "Hand over directly",
+      "directHandoverHelp": "An entry applied for before the change: no approval needed. Hand it over directly (photos, both signatures); the office then accepts it.",
+      "acceptance": {
+        "title": "Entry acceptance",
+        "accept": "Accept",
+        "reject": "Do not accept",
+        "reason": "Why it is not accepted",
+        "armReject": "Allow not accepting this entry",
+        "armRejectHelp": "Only when the machine is wrong. Turn it on to give the reason and refuse it.",
+        "failed": "The acceptance did not go through. Try again.",
+        "profileMissing": "Complete the profile first: {fields}",
+        "completeProfile": "Complete the profile",
+        "missing": {
+          "registration_no": "plate number",
+          "category": "sub class",
+          "expiry": "an expiry date"
+        }
+      },
+      "oneMachineOnly": "Showing this machine's entries and exits only"
     },
     "equipmentEvidence": {
       "condition": "4. Equipment condition detail",
@@ -5672,7 +5711,14 @@
       "vehiclePlate": "Vehicle plate",
       "workLocation": "Work area / location",
       "pmaExpiresOn": "PMA expires on",
-      "permitExpiresOn": "Permit expires on"
+      "permitExpiresOn": "Permit expires on",
+      "plateNo": "Plate number",
+      "roadTaxExpiresOn": "Road tax expires",
+      "chooseProjectFirst": "Choose a project first",
+      "equipmentSubClass": "Equipment sub class",
+      "chooseEquipmentSubClass": "Choose a sub class",
+      "noEquipmentSubClassYet": "This project has no equipment sub class yet; a machine is registered under one.",
+      "deliveryNoteNo": "DO number"
     },
     "filing": {
       "action": "File under a category",
@@ -5814,7 +5860,8 @@
       "locationError": "Current GPS could not be obtained. Enable precise location and try again.",
       "noDescription": "No description",
       "noIdentifier": "No serial or registration number",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "noPlate": "No plate yet"
     },
     "status": {
       "accessAll": "Visible to all project members",
@@ -5921,7 +5968,9 @@
       "taskUpdated": "Task updated",
       "outgoingProcessed": "Processing photos sent. The office will confirm.",
       "movementRequested": "Application sent to the office",
-      "movementReviewed": "Application updated"
+      "movementReviewed": "Application updated",
+      "entrySubmitted": "Entry submitted - waiting for the office to accept it",
+      "entryReviewed": "Decision recorded"
     },
     "what": {
       "roles": "The role list",
@@ -5939,7 +5988,9 @@
       "PENDING": "Waiting for approval",
       "APPROVED": "Approved - waiting for the handover",
       "RETURNED": "Returned - closed",
-      "COMPLETED": "Handed over"
+      "COMPLETED": "Handed over",
+      "SUBMITTED": "Waiting for the office to accept",
+      "REJECTED": "Not accepted"
     }
   },
   "contractorPartners": {
@@ -7279,7 +7330,8 @@
       "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list.",
       "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded.",
       "document_is_system_file": "A file picked from the system takes no new versions. Put the new version on its record.",
-      "document_system_file_not_found": "One of those files was not found, or you cannot see it."
+      "document_system_file_not_found": "One of those files was not found, or you cannot see it.",
+      "equipment_profile_incomplete": "Complete this machine's profile - plate, sub class and an expiry date - before accepting it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

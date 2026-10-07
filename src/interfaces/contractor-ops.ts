@@ -147,13 +147,15 @@ export interface ProjectCategory {
 /**
  * What a column form writes.
  *
- * No `parent`, and no upload or edit lists (D-265, D-266): columns are one
- * flat list, everyone who can see a column can upload to it, and editing
- * follows `category.manage` alone. The server ignores those fields on write;
- * `ProjectCategory` still carries them because old rows keep the data.
+ * No upload or edit lists (D-265, D-266): everyone who can see a column can
+ * upload to it, and editing follows `category.manage` alone. `parent` only
+ * for equipment (2026-10 B2, X1): a sub class names its major class; every
+ * other kind is one flat list and the server ignores a parent sent for it.
  */
 export interface ProjectCategoryPayload {
   project: string;
+  /** Equipment only: the major class of a sub class; null for a major class. */
+  parent?: string | null;
   code: string;
   name: string;
   /**
@@ -332,6 +334,9 @@ export interface SiteEquipment {
   /** The project column this machine files under, when one was chosen. */
   category: string | null;
   category_name: string | null;
+  /** The major class that sub class sits under (2026-10 B2, X1). */
+  category_parent?: string | null;
+  category_parent_name?: string | null;
   description: string;
   status: EquipmentStatus;
   /**
@@ -344,7 +349,14 @@ export interface SiteEquipment {
   /** PMA and permit (准证), added on the same machine (B14). */
   pma_expires_on?: string | null;
   permit_expires_on?: string | null;
+  /** 路税到期 (2026-10 A8, X4). */
+  road_tax_expires_on?: string | null;
   is_active: boolean;
+  /**
+   * Reported from the phone as 「新设备」 (C8): the office completes the
+   * profile - plate, sub class, an expiry date - before accepting its entry.
+   */
+  needs_profile?: boolean;
   movement_count: number;
   quantity_on_site: string;
   /**
@@ -383,11 +395,22 @@ export interface EquipmentPayload {
   insurance_expires_on?: string | null;
   pma_expires_on?: string | null;
   permit_expires_on?: string | null;
+  road_tax_expires_on?: string | null;
   is_active?: boolean;
 }
 
-/** 申请 → 后台 Approve / Return → 实际交接双方签名 (B13). */
-export type EquipmentMovementStatus = "PENDING" | "APPROVED" | "RETURNED" | "COMPLETED";
+/**
+ * Exit: 申请 → 后台 Approve / Return → 实际交接双方签名 (B13).
+ * Entry since 2026-10 (X2): recorded on site in one step (`SUBMITTED`), then
+ * accepted (`COMPLETED`) or not (`REJECTED`) by the office.
+ */
+export type EquipmentMovementStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "RETURNED"
+  | "COMPLETED"
+  | "SUBMITTED"
+  | "REJECTED";
 
 export interface EquipmentMovement {
   id: string;
@@ -396,6 +419,11 @@ export interface EquipmentMovement {
   equipment: string;
   equipment_code: string;
   equipment_name: string;
+  /** The machine's plate (2026-10 X4: 车牌号码). */
+  equipment_registration_no?: string;
+  /** A 「新设备」 whose profile the office has still to complete (C8). */
+  equipment_needs_profile?: boolean;
+  equipment_profile_missing?: Array<"registration_no" | "category" | "expiry">;
   direction: "ENTRY" | "EXIT";
   /** Movements recorded before 10-02 are all COMPLETED. */
   status?: EquipmentMovementStatus;

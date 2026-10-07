@@ -181,6 +181,15 @@ export interface MaterialReceiptOfflineJob extends OfflineJobBase {
 export interface EquipmentMovementOfflineJob extends OfflineJobBase {
   kind: "EQUIPMENT_MOVEMENT";
   payload: {
+    /**
+     * 设备进场 in one step (2026-10 X2, C8): sent to `record_entry`, not to
+     * the handover of an application. Absent on older queued jobs.
+     */
+    entry?: boolean;
+    /** A 「新设备」 reported from the phone: its name, `equipment` empty. */
+    equipment_name?: string;
+    /** The supplier whose QR was scanned at the gate (F3). */
+    supplier?: string;
     project: string;
     equipment: string;
     direction: "ENTRY" | "EXIT";

@@ -27,6 +27,7 @@ import {
   createConsultantFieldSubmission,
   createMaterialOutgoing,
   createSiteProgressRecord,
+  recordEquipmentEntry,
   recordEquipmentMovement,
 } from "@/services/contractor-ops.service";
 import { createSafetyIncident } from "@/services/site-operations.service";
@@ -326,6 +327,39 @@ async function sendJob(job: OfflineJob): Promise<void> {
         : undefined,
       sitePhotos: job.payload.sitePhotos.map(restoreFile),
       deviceId: job.payload.deviceId,
+    });
+    return;
+  }
+
+  if (job.kind === "EQUIPMENT_MOVEMENT" && job.payload.entry) {
+    // One entry is one machine (F3): no quantity, unit or application.
+    const entry = job.payload;
+    await recordEquipmentEntry({
+      project: entry.project,
+      equipment: entry.equipment || undefined,
+      equipment_name: entry.equipment_name,
+      supplier: entry.supplier,
+      delivery_note_no: entry.delivery_note_no ?? "",
+      vehicle_plate: entry.vehicle_plate,
+      notes: entry.notes,
+      latitude: entry.latitude,
+      longitude: entry.longitude,
+      accuracy_m: entry.accuracy_m,
+      ocr_confirmed: entry.ocr_confirmed,
+      ocr_proof: entry.ocr_proof,
+      field_task: entry.field_task,
+      original_occurred_at: entry.original_occurred_at,
+      client_event_id: entry.client_event_id,
+      photos: entry.photos.map(restoreFile),
+      delivery_note_photo: entry.delivery_note_photo
+        ? restoreFile(entry.delivery_note_photo)
+        : undefined,
+      receiver_signature: entry.receiver_signature
+        ? restoreFile(entry.receiver_signature)
+        : undefined,
+      supplier_signature: entry.supplier_signature
+        ? restoreFile(entry.supplier_signature)
+        : undefined,
     });
     return;
   }

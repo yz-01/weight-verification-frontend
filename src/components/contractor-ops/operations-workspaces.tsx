@@ -13,6 +13,7 @@ import {
   MapPin,
   PackageOpen,
   Paperclip,
+  ScanLine,
   Pencil,
   Plus,
   RotateCcw,
@@ -45,11 +46,16 @@ import { ExportButton } from "@/components/shared/export-button";
 import { FieldCamera } from "@/components/shared/field-camera";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import {
-  ApplyMovementDialog,
+  ApplyExitDialog,
   MachineStep,
   OpenApplicationsFailed,
   useOpenEquipmentApplications,
 } from "@/components/contractor-ops/equipment-applications";
+import {
+  EquipmentClassSelect,
+  useEquipmentClasses,
+} from "@/components/contractor-ops/equipment-classes";
+import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
 import { RecordConversationButton } from "@/components/shared/record-conversation-button";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { useDateFormat } from "@/lib/dates";
@@ -137,6 +143,7 @@ import { consultantTaskTitle } from "@/lib/consultant-task-title";
 import {
   getProjectAssignments,
   getSuppliers,
+  scanSupplierQr,
 } from "@/services/contractor.service";
 import { getRoles } from "@/services/users.service";
 import {
@@ -255,8 +262,8 @@ export function tone(
  * material column's budget and warning lines are edited here too (D-263).
  *
  * What is deliberately not on it (D-265, D-266):
- * - no parent column. Columns are one flat list; the server no longer accepts
- *   a parent on write, and old parent links stay in the database unused;
+ * - no parent column, except for equipment (2026-10 B2, X1): 大类 → 小类, two
+ *   levels. Every other kind is one flat list and old links stay unused;
  * - no "who can upload" and no "who can edit" lists. Everyone who can see a
  *   column can upload to it, field staff included, and editing follows the
  *   `category.manage` permission alone.
@@ -296,6 +303,8 @@ export function CategoryDialog({
   });
   const [form, setForm] = useState<ProjectCategoryPayload>({
     project,
+    // Equipment only (2026-10 B2, X1): the major class a sub class sits under.
+    parent: row?.parent ?? null,
     code: row?.code ?? "",
     name: row?.name ?? "",
     // A new column joins the list it was created from. An existing row keeps
@@ -338,6 +347,13 @@ export function CategoryDialog({
   const manufacturerSearch = useDebounce(manufacturerTerm.trim(), 300);
   const [error, setError] = useState("");
   const isMaterial = form.kind === "MATERIAL";
+  const isEquipment = form.kind === "EQUIPMENT";
+  // The major classes it may go under: this project's top-level equipment
+  // categories, not itself (X1). One with sub classes of its own stays a
+  // major class, so the choice is not offered.
+  const equipmentClasses = useEquipmentClasses(isEquipment ? form.project : "");
+  const majorChoices = equipmentClasses.tree.majors.filter((major) => major.id !== row?.id);
+  const hasSubClasses = Boolean(row && equipmentClasses.tree.subClasses(row.id).length);
   const units = useMaterialUnits({ enabled: isMaterial });
   const unitName = useUnitName();
   const supplierChoices = useQuery({
@@ -379,7 +395,10 @@ export function CategoryDialog({
             suppliers: supplierIds,
             manufacturers: manufacturerIds,
           }
-        : form;
+        : isEquipment
+          ? { ...form, parent: form.parent || null }
+          : // A parent means nothing outside equipment (D-265); not sent.
+            { ...form, parent: undefined };
       return row
         ? updateProjectCategory(row.id, payload)
         : createProjectCategory(payload);
@@ -478,6 +497,33 @@ export function CategoryDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
+          {/* 大类 → 小类 (2026-10 B2, X1): equipment only. Empty makes it a
+              major class; a machine is registered on a sub class. */}
+          {isEquipment && (
+            <FieldWrapper
+              label={modules("equipment.majorClassOf")}
+              hint={modules("equipment.majorClassHint")}
+            >
+              <Select
+                value={form.parent || "__major__"}
+                onValueChange={(value) => set("parent", value === "__major__" ? null : value)}
+                disabled={hasSubClasses}
+              >
+                <SelectTrigger className="w-full" aria-label={modules("equipment.majorClassOf")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__major__">{modules("equipment.isMajorClass")}</SelectItem>
+                  {majorChoices.map((major) => (
+                    <SelectItem key={major.id} value={major.id}>
+                      {major.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <QueryFailedNote query={equipmentClasses.query} what={t("what.columns")} />
+            </FieldWrapper>
+          )}
           <FieldWrapper label={t("categories.submissionMode")} required>
             <Select
               value={form.submission_mode}
@@ -1730,17 +1776,37 @@ function localDateTime(value?: string | null) {
   return `${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}T${pad(at.getHours())}:${pad(at.getMinutes())}`;
 }
 
+/** The dropdown's value for 「新设备」 - never a machine's id. */
+const NEW_MACHINE = "__new__";
+
 /**
- * The phone's 设备进退场 (D-273, T-393).
+ * 「名称 · 车牌」 (F3), and the code only to tell apart two machines that
+ * share both.
+ */
+export function machineLabeller(rows: readonly SiteEquipment[]) {
+  const plain = (row: SiteEquipment) =>
+    row.registration_no ? `${row.name} · ${row.registration_no}` : row.name;
+  const seen = new Map<string, number>();
+  for (const row of rows) seen.set(plain(row), (seen.get(plain(row)) ?? 0) + 1);
+  return (row: SiteEquipment) =>
+    (seen.get(plain(row)) ?? 0) > 1 ? `${plain(row)} (${row.code})` : plain(row);
+}
+
+/**
+ * The phone's 设备进退场 (D-273, T-393; 2026-10 C8, F3, A9).
  *
  * 「设备进退场的数据是不需要显示的，他们的工作就只是拍照而已」: the field
  * worker takes the photos, the office reads the figures. So this screen has no
  * totals, no equipment data cards and no movement history - those live on the
- * office list (`SiteEquipmentOffice`). What is left is what taking the photos
- * needs: the project, registering a machine that has just arrived, and the
- * machines by name, each with the one button that records its entry or its
- * exit. An exit still has to say which machine is leaving, and the name is how
- * a worker tells them apart; the code is added only when two share a name.
+ * office list (`SiteEquipmentOffice`).
+ *
+ * What is left: the project (locked to the worker's site), one dropdown of the
+ * machines the office registered - 「名称 · 车牌」, no category anywhere on
+ * the phone (F3) - with 「新设备」 at the end for a machine nobody registered,
+ * and the one next step for the machine chosen. An entry is taken in one step
+ * like 材料进场 (X2): photos, DO, the supplier's QR, both signatures, GPS -
+ * then the office accepts it. An exit still goes the B13 way until the Return
+ * Note flow replaces it (X3).
  *
  * Only the phone mounts this component (field-records-panel.tsx).
  */
@@ -1751,12 +1817,12 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   const searchParams = useSearchParams();
   const [project, setProject] = useState(initialProject);
   const [creating, setCreating] = useState(searchParams.get("create") === "1");
-  // Kept in the draft, so tapping this 挂号 again reopens the form it was in
-  // (D-259). Outside a draft this is ordinary state.
+  // Kept in the draft, so tapping this 挂号 again reopens the machine and the
+  // form it was in (D-259). Outside a draft this is ordinary state.
+  const [chosen, setChosen] = useDraftState("open:chosenEquipment", "");
+  const [entering, setEntering] = useDraftState("open:enteringEquipment", false);
   const [movingId, setMovingId] = useDraftState<string | null>("open:movingEquipment", null);
-  // 申请 → 后台批准 → 交接 (B13): which machine is being applied for, and
-  // each machine's application still open.
-  const [applyingFor, setApplyingFor] = useState<SiteEquipment | "new" | null>(null);
+  const [applyingExit, setApplyingExit] = useState<SiteEquipment | null>(null);
   const open = useOpenEquipmentApplications(project || undefined);
   const rows = useQuery({
     queryKey: ["site-equipment", "field", project],
@@ -1766,9 +1832,13 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
         page_size: 200,
       }),
   });
-  const equipment = rows.data?.results ?? [];
+  // A machine switched off is not offered for a new entry or exit.
+  const equipment = (rows.data?.results ?? []).filter((row) => row.is_active);
+  const machine = equipment.find((row) => row.id === chosen) ?? null;
+  const isNew = chosen === NEW_MACHINE;
   const moving = equipment.find((row) => row.id === movingId) ?? null;
   const movingApplication = moving ? open.byEquipment.get(moving.id) : undefined;
+  const machineOpen = machine ? open.byEquipment.get(machine.id) : undefined;
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["site-equipment"] });
     void qc.invalidateQueries({ queryKey: ["equipment-movements"] });
@@ -1776,95 +1846,104 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
   };
   const equipmentError =
     rows.error instanceof Error ? rows.error.message : undefined;
-  const sharedNames = new Map<string, number>();
-  for (const row of equipment) {
-    sharedNames.set(row.name, (sharedNames.get(row.name) ?? 0) + 1);
-  }
-  const machineName = (row: SiteEquipment) =>
-    (sharedNames.get(row.name) ?? 0) > 1 ? `${row.name} (${row.code})` : row.name;
-  // The same rule MovementDialog uses to pick the direction.
-  const groups = [
-    { direction: "ENTRY", rows: equipment.filter((row) => row.status !== "ON_SITE") },
-    { direction: "EXIT", rows: equipment.filter((row) => row.status === "ON_SITE") },
-  ] as const;
+  const label = machineLabeller(equipment);
+  // What the machine chosen does next: wait for the office, go out (B13), or
+  // come in (X2). A legacy entry application still open comes in the new way.
+  const waitingAcceptance = machineOpen?.status === "SUBMITTED";
+  const goingOut = !waitingAcceptance && machine?.status === "ON_SITE";
   return (
     <div className="space-y-5">
       <ListHeader
         title={t("equipment.title")}
         subtitle={t("equipment.subtitle")}
         action={
-          <div className="flex flex-wrap gap-2">
-            {/* B13: the phone can bring in a machine nobody has registered
-                yet - it is applied for, and registered on that machine. */}
-            {can("equipment.capture") && (
-              <Button
-                variant="outline"
-                requires={[[project, t("field.project")]]}
-                onClick={() => setApplyingFor("new")}
-              >
-                <Plus />
-                {t("equipment.applyNew")}
-              </Button>
-            )}
-            {can("equipment.manage") && (
-              <Button
-                requires={[[project, t("field.project")]]}
-                onClick={() => setCreating(true)}
-              >
-                <Plus />
-                {t("equipment.add")}
-              </Button>
-            )}
-          </div>
+          can("equipment.manage") ? (
+            <Button
+              requires={[[project, t("field.project")]]}
+              onClick={() => setCreating(true)}
+            >
+              <Plus />
+              {t("equipment.add")}
+            </Button>
+          ) : undefined
         }
       />
-      {/* The Add button takes its project from here, so it wears the star
-          that button asks for. */}
-      <FieldWrapper label={t("field.project")} required={can("equipment.manage")} className="rounded-lg border bg-card px-3 py-2 shadow-sm">
+      <FieldWrapper label={t("field.project")} required className="rounded-lg border bg-card px-3 py-2 shadow-sm">
         <ProjectPicker
           value={project}
-          onValueChange={(next) => setProject(next === "all" ? "" : next)}
+          onValueChange={(next) => {
+            setProject(next === "all" ? "" : next);
+            setChosen("");
+          }}
           placeholder={t("field.selectProject")}
-          allowAll
-          allLabel={t("field.allProjects")}
           className="w-full sm:w-72"
+          // The worker's site decides it (C8: 项目锁定); reached without one,
+          // the picker stays usable.
+          disabled={Boolean(initialProject)}
         />
       </FieldWrapper>
       <WorkspaceState
         loading={rows.isLoading}
         error={rows.isError}
         errorMessage={equipmentError}
-        empty={!rows.data?.count}
+        empty={false}
       />
       <OpenApplicationsFailed open={open} />
-      {groups.map(
-        (group) =>
-          group.rows.length > 0 && (
-            <section
-              key={group.direction}
-              data-testid={`field-equipment-${group.direction.toLowerCase()}`}
-              className="space-y-2"
-            >
-              <h2 className="text-sm font-semibold">
-                {t(`direction.${group.direction}`)}
-              </h2>
-              <ul className="divide-y rounded-lg border bg-card shadow-sm">
-                {group.rows.map((row) => (
-                  <li key={row.id} className="flex items-center gap-3 px-3 py-2">
-                    <span className="min-w-0 flex-1 truncate font-medium">
-                      {machineName(row)}
-                    </span>
-                    <MachineStep
-                      machine={row}
-                      open={open.byEquipment.get(row.id)}
-                      onApply={() => setApplyingFor(row)}
-                      onHandover={() => setMovingId(row.id)}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ),
+      {/* A9: one dropdown instead of the long list of every machine. */}
+      <FieldWrapper label={t("equipment.chooseMachine")} required>
+        <Select
+          value={chosen || undefined}
+          onValueChange={(next) => {
+            setChosen(next);
+            setEntering(false);
+          }}
+          disabled={!project || rows.isLoading}
+        >
+          <SelectTrigger className="h-12 w-full" data-testid="field-equipment-select">
+            <SelectValue placeholder={t("equipment.chooseMachinePlaceholder")} />
+          </SelectTrigger>
+          <SelectContent>
+            {equipment.map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {label(row)}
+              </SelectItem>
+            ))}
+            {can("equipment.capture") && (
+              <SelectItem value={NEW_MACHINE}>{t("equipment.newMachine")}</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
+      {machine && (
+        <section
+          data-testid="field-equipment-next-step"
+          className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-3 py-3 shadow-sm"
+        >
+          <span className="min-w-0 flex-1 truncate font-medium">{label(machine)}</span>
+          {waitingAcceptance ? (
+            <span className="text-sm text-warning">{t("equipmentMovementStatus.SUBMITTED")}</span>
+          ) : goingOut ? (
+            <MachineStep
+              machine={machine}
+              open={machineOpen}
+              onApply={() => setApplyingExit(machine)}
+              onHandover={() => setMovingId(machine.id)}
+            />
+          ) : (
+            can("equipment.capture") && (
+              <Button onClick={() => setEntering(true)}>
+                <Camera />
+                {t("equipment.recordEntry")}
+              </Button>
+            )
+          )}
+        </section>
+      )}
+      {isNew && !entering && can("equipment.capture") && (
+        <Button className="h-12 w-full" onClick={() => setEntering(true)}>
+          <Camera />
+          {t("equipment.newMachineEntry")}
+        </Button>
       )}
       {creating && (
         <EquipmentDialog
@@ -1876,18 +1955,31 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
           }}
         />
       )}
-      {applyingFor && (
-        <ApplyMovementDialog
-          project={project || (applyingFor !== "new" ? applyingFor.project : "")}
-          machine={applyingFor === "new" ? null : applyingFor}
-          onClose={() => setApplyingFor(null)}
+      {entering && (machine || isNew) && (
+        <EquipmentEntryDialog
+          project={project || machine?.project || ""}
+          machine={isNew ? null : machine}
+          fieldTaskId={fieldTaskId}
+          onClose={() => setEntering(false)}
           onSaved={() => {
             refresh();
-            setApplyingFor(null);
+            setEntering(false);
+            setChosen("");
+            onRecordSaved?.();
           }}
         />
       )}
-      {moving && movingApplication?.status === "APPROVED" && (
+      {applyingExit && (
+        <ApplyExitDialog
+          machine={applyingExit}
+          onClose={() => setApplyingExit(null)}
+          onSaved={() => {
+            refresh();
+            setApplyingExit(null);
+          }}
+        />
+      )}
+      {moving && movingApplication?.status === "APPROVED" && movingApplication.direction === "EXIT" && (
         <MovementDialog
           row={moving}
           movement={movingApplication}
@@ -1905,12 +1997,14 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
 }
 
 /**
- * Register a machine, or correct its details.
+ * Register a machine, or complete and correct its profile (2026-10 A8, X4).
  *
- * The movements already logged against it are untouched: this is the plate
- * and the serial number on the register, not the history of what went in and
- * out. That is also why the site is not offered when correcting - the
- * movements belong to the site the machine was registered on.
+ * The office sets each machine up once; the phone only picks it. The project
+ * is chosen here on a new machine, and the sub classes offered are that
+ * project's - grouped under their major class (X1). The plate is the 「车牌号码」;
+ * the serial number is no longer asked (its data stays). The movements
+ * already logged against a machine are untouched, which is also why the site
+ * is not offered when correcting.
  */
 export function EquipmentDialog({
   project,
@@ -1921,35 +2015,17 @@ export function EquipmentDialog({
   project: string;
   equipment?: SiteEquipment;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (row: SiteEquipment) => void;
 }) {
   const t = useTranslations("contractorOps");
   const suppliers = useQuery({
     queryKey: ["suppliers", "equipment-options"],
     queryFn: () => getSuppliers({ page_size: 200, sort_by: "name" }),
   });
-  /*
-   * This project's equipment columns (T-242). Filed here rather than picked
-   * from a platform-wide list: the machines on a site belong to the project,
-   * and so does the vocabulary that files them (F-369).
-   */
-  const columns = useQuery({
-    queryKey: ["project-categories", "equipment", project],
-    queryFn: () =>
-      getProjectCategories({
-        project,
-        kind: "EQUIPMENT",
-        page_size: 200,
-        sort_by: "sort_order",
-        sort_order: "asc",
-      }),
-    enabled: Boolean(project),
-  });
   const [form, setForm] = useState<EquipmentPayload>({
-    project,
+    project: equipment?.project ?? project,
     code: equipment?.code ?? "",
     name: equipment?.name ?? "",
-    serial_no: equipment?.serial_no ?? "",
     registration_no: equipment?.registration_no ?? "",
     supplier: equipment?.supplier ?? null,
     category: equipment?.category ?? null,
@@ -1958,20 +2034,27 @@ export function EquipmentDialog({
     insurance_expires_on: equipment?.insurance_expires_on ?? null,
     pma_expires_on: equipment?.pma_expires_on ?? null,
     permit_expires_on: equipment?.permit_expires_on ?? null,
+    road_tax_expires_on: equipment?.road_tax_expires_on ?? null,
     is_active: equipment?.is_active ?? true,
   });
   const set = <K extends keyof EquipmentPayload>(
     key: K,
     value: EquipmentPayload[K],
   ) => setForm((old) => ({ ...old, [key]: value }));
-  // Whether this project has anywhere to file a machine at all (D-169).
-  const hasColumns = (columns.data?.results ?? []).length > 0;
+  /*
+   * This project's equipment classes (T-242, X1). Filed here rather than
+   * picked from a platform-wide list: the machines on a site belong to the
+   * project, and so does the vocabulary that files them (F-369).
+   */
+  const classes = useEquipmentClasses(form.project);
+  // Whether this project has a sub class to file a machine in at all (D-169).
+  const hasSubClasses = classes.tree.allSubClasses.length > 0;
+  const [error, setError] = useState("");
   const save = useMutation({
     mutationFn: () => equipment
       ? updateSiteEquipment(equipment.id, {
           code: form.code,
           name: form.name,
-          serial_no: form.serial_no,
           registration_no: form.registration_no,
           supplier: form.supplier,
           category: form.category,
@@ -1980,19 +2063,69 @@ export function EquipmentDialog({
           insurance_expires_on: form.insurance_expires_on,
           pma_expires_on: form.pma_expires_on,
           permit_expires_on: form.permit_expires_on,
+          road_tax_expires_on: form.road_tax_expires_on,
           is_active: form.is_active,
         })
       : createSiteEquipment(form),
+    onMutate: () => setError(""),
     onSuccess: onSaved,
+    onError: (reason) =>
+      setError(
+        reason instanceof ApiError
+          ? Object.values(reason.errors).join("; ") || reason.message
+          : t("state.loadError"),
+      ),
   });
+  const dateField = (
+    key:
+      | "certificate_expires_on"
+      | "insurance_expires_on"
+      | "pma_expires_on"
+      | "permit_expires_on"
+      | "road_tax_expires_on",
+    labelKey: string,
+    hint?: string,
+  ) => (
+    <FieldWrapper label={t(labelKey)} hint={hint}>
+      <Input
+        type="date"
+        aria-label={t(labelKey)}
+        value={form[key] ?? ""}
+        onChange={(e) => set(key, e.target.value || null)}
+      />
+    </FieldWrapper>
+  );
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{t(equipment ? "equipment.editTitle" : "equipment.createTitle")}</DialogTitle>
           <DialogDescription>{t("equipment.formHelp")}</DialogDescription>
         </DialogHeader>
+        {equipment?.needs_profile && (
+          <p role="status" className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
+            {t("equipment.needsProfileHelp")}
+          </p>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
+          {/* The office registers the machine first (A8); a project chosen
+              here, not borrowed from the page's filter. Fixed once registered. */}
+          <FieldWrapper label={t("field.project")} required className="sm:col-span-2">
+            <ProjectPicker
+              value={form.project}
+              onValueChange={(next) =>
+                setForm((old) => ({
+                  ...old,
+                  project: next === "all" ? "" : next,
+                  // A class belongs to one project.
+                  category: null,
+                }))
+              }
+              placeholder={t("field.selectProject")}
+              className="w-full"
+              disabled={Boolean(equipment)}
+            />
+          </FieldWrapper>
           <FieldWrapper label={t("field.code")} required>
             <Input
               value={form.code}
@@ -2005,100 +2138,45 @@ export function EquipmentDialog({
               onChange={(e) => set("name", e.target.value)}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("field.serialNo")}>
+          <FieldWrapper label={t("field.plateNo")}>
             <Input
-              value={form.serial_no}
-              onChange={(e) => set("serial_no", e.target.value)}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.registrationNo")}>
-            <Input
+              aria-label={t("field.plateNo")}
               value={form.registration_no}
-              onChange={(e) => set("registration_no", e.target.value)}
+              onChange={(e) => set("registration_no", e.target.value.toUpperCase())}
             />
           </FieldWrapper>
-          {/* Where the home page's "certificate expiring" card gets its
-              dates. Optional, because a contractor may not hold the paperwork
-              for every item and a required field would be filled with a
-              guess - a wrong expiry date is worse than a blank one. */}
-          <FieldWrapper
-            label={t("field.certificateExpiresOn")}
-            hint={t("field.expiryHelp")}
-          >
-            <Input
-              type="date"
-              value={form.certificate_expires_on ?? ""}
-              onChange={(e) =>
-                set("certificate_expires_on", e.target.value || null)
-              }
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.insuranceExpiresOn")}>
-            <Input
-              type="date"
-              value={form.insurance_expires_on ?? ""}
-              onChange={(e) =>
-                set("insurance_expires_on", e.target.value || null)
-              }
-            />
-          </FieldWrapper>
-          {/* B14: PMA and the permit, reminded a month ahead until the
-              machine has formally left. */}
-          <FieldWrapper label={t("field.pmaExpiresOn")}>
-            <Input
-              type="date"
-              value={form.pma_expires_on ?? ""}
-              onChange={(e) => set("pma_expires_on", e.target.value || null)}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.permitExpiresOn")}>
-            <Input
-              type="date"
-              value={form.permit_expires_on ?? ""}
-              onChange={(e) => set("permit_expires_on", e.target.value || null)}
-            />
-          </FieldWrapper>
-          <FieldWrapper label={t("field.equipmentColumn")} required>
-            {/*
-              Required since D-169, which reverses D-160. The old shape offered
-              "No column" as an explicit choice so that filing nothing was a
-              decision somebody could see they had made - a reasonable guard
-              against a required field being answered with the nearest thing.
-              The customer overruled it on 2026-09-12:「新增设备必须要选分类
-              不能不选分类 所以意思是他们一定要新增栏目」.
-
-              The guard D-160 wanted is kept in a better place: when the
-              project has no equipment column at all, this does not present an
-              empty dropdown to be stared at - it says so and points at where
-              columns are made. Nobody is cornered into guessing.
-            */}
-            <Select
-              value={form.category ?? undefined}
-              onValueChange={(v) => set("category", v)}
-              disabled={!hasColumns}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("field.chooseEquipmentColumn")} />
-              </SelectTrigger>
-              <SelectContent>
-                {(columns.data?.results ?? []).map((item) => (
-                  <SelectItem key={item.id} value={item.id}>
-                    {item.code} - {item.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <QueryFailedNote query={columns} what={t("what.columns")} className="mt-2" />
-            {!columns.isLoading && !columns.isError && !hasColumns && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                {t("field.noEquipmentColumnYet")}{" "}
-                <Link
-                  href="/category-management"
-                  className="text-primary underline-offset-2 hover:underline"
-                >
-                  {t("field.goMakeEquipmentColumn")}
-                </Link>
+          <FieldWrapper label={t("field.equipmentSubClass")} required>
+            {!form.project ? (
+              <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
+                {t("field.chooseProjectFirst")}
               </p>
+            ) : (
+              <>
+                {/*
+                  Required since D-169; a sub class since X1. When the project
+                  has none, this does not present an empty dropdown to be stared
+                  at - it says so and points at where classes are made.
+                */}
+                <EquipmentClassSelect
+                  tree={classes.tree}
+                  value={form.category ?? null}
+                  currentName={equipment?.category_name}
+                  disabled={!hasSubClasses && !form.category}
+                  onChange={(value) => set("category", value)}
+                />
+                <QueryFailedNote query={classes.query} what={t("what.columns")} className="mt-2" />
+                {!classes.query.isLoading && !classes.query.isError && !hasSubClasses && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {t("field.noEquipmentSubClassYet")}{" "}
+                    <Link
+                      href={`/category-management?module=equipment&project=${form.project}`}
+                      className="text-primary underline-offset-2 hover:underline"
+                    >
+                      {t("field.goMakeEquipmentColumn")}
+                    </Link>
+                  </p>
+                )}
+              </>
             )}
           </FieldWrapper>
           <FieldWrapper label={t("field.supplier")}>
@@ -2120,6 +2198,14 @@ export function EquipmentDialog({
             </Select>
             <QueryFailedNote query={suppliers} what={t("what.suppliers")} />
           </FieldWrapper>
+          {/* Where the reminders get their dates (B14, X4). Optional, because a
+              contractor may not hold the paperwork for every item and a
+              required field would be filled with a guess. */}
+          {dateField("road_tax_expires_on", "field.roadTaxExpiresOn", t("field.expiryHelp"))}
+          {dateField("certificate_expires_on", "field.certificateExpiresOn")}
+          {dateField("insurance_expires_on", "field.insuranceExpiresOn")}
+          {dateField("pma_expires_on", "field.pmaExpiresOn")}
+          {dateField("permit_expires_on", "field.permitExpiresOn")}
           <FieldWrapper
             label={t("field.description")}
             className="sm:col-span-2"
@@ -2143,16 +2229,31 @@ export function EquipmentDialog({
               />
             </label>
           )}
+          {/* The machine's entries and exits, on 设备进退场 (B2). */}
+          {equipment && (
+            <Link
+              href={`/site-equipment?equipment=${equipment.id}`}
+              className="text-sm text-primary underline-offset-2 hover:underline sm:col-span-2"
+            >
+              {t("equipment.movementsLink")}
+            </Link>
+          )}
         </div>
+        {error && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            {error}
+          </p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("action.cancel")}
           </Button>
           <Button
             requires={[
+              [form.project, t("field.project")],
               [form.code, t("field.code")],
               [form.name, t("field.name")],
-              [form.category, t("field.equipmentColumn")],
+              [form.category, t("field.equipmentSubClass")],
             ]}
             disabled={save.isPending}
             onClick={() => save.mutate()}
@@ -2161,6 +2262,296 @@ export function EquipmentDialog({
             {t("action.save")}
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/**
+ * 设备进场 in one step, the way 材料进场 is taken (2026-10 X2, C8, F3).
+ *
+ * The machine is the one the office registered (or, for 「新设备」, a name);
+ * then the photographs (`FieldEvidenceGrid`, the same as 材料进场), the DO -
+ * photographed and read, its number filled in - the supplier's QR, both
+ * signatures and the GPS fix. No category, no quantity, no unit: one entry is
+ * one machine, and its class is the office's business. Offline-capable
+ * through the same queue as every capture; the office then accepts it.
+ */
+export function EquipmentEntryDialog({
+  project,
+  machine,
+  fieldTaskId,
+  onClose,
+  onSaved,
+}: {
+  project: string;
+  /** Null for a 「新设备」 nobody registered yet. */
+  machine: SiteEquipment | null;
+  fieldTaskId?: string;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("contractorOps");
+  const field = useTranslations("fieldStaffPwa");
+  const { user } = useAuth();
+  const isFieldStaff = Boolean(user?.is_field_staff);
+  const key = machine?.id ?? "new";
+  const [newName, setNewName] = useDraftState(`entryName:${key}`, "");
+  const [deliveryNote, setDeliveryNote] = useDraftState(`entryDeliveryNote:${key}`, "");
+  const [supplier, setSupplier] = useDraftState<{ id: string; name: string } | null>(`entrySupplier:${key}`, null);
+  const [notes, setNotes] = useDraftState(`entryNotes:${key}`, "");
+  const [photos, setPhotos] = useDraftState<File[]>(`entryPhotos:${key}`, []);
+  const [fieldEvidence, setFieldEvidence] = useDraftState(`entryEvidence:${key}`, createEmptyFieldEvidence);
+  const [deliveryNotePhoto, setDeliveryNotePhoto] = useDraftState<File | undefined>(`entryDeliveryNotePhoto:${key}`);
+  const [ocrProof, setOcrProof] = useDraftState(`entryOcrProof:${key}`, "");
+  const [receiverSignature, setReceiverSignature] = useDraftState<File | undefined>(`entryReceiverSignature:${key}`);
+  const [supplierSignature, setSupplierSignature] = useDraftState<File | undefined>(`entrySupplierSignature:${key}`);
+  const clearDraft = useClearDraft();
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [location, setLocation] = useState<Coordinates | null>(null);
+  const fieldPhotos = completedFieldEvidence(fieldEvidence);
+  const submissionPhotos = isFieldStaff ? fieldPhotos : photos;
+  const evidenceLabels = [
+    t("equipmentEvidence.overview"),
+    t("equipmentEvidence.identity"),
+    t("equipmentEvidence.transport"),
+    t("equipmentEvidence.condition"),
+  ];
+  const ocr = useDeliveryNoteReader({
+    read: ocrEquipmentDeliveryNote,
+    onRead: (result) => {
+      setOcrProof(result.proof ?? "");
+      const suggestions = result.suggestions as Record<string, string | undefined>;
+      if (suggestions.delivery_note_no) setDeliveryNote(suggestions.delivery_note_no);
+    },
+    onReset: () => setOcrProof(""),
+  });
+  // A docket or a supplier card - only the supplier's card names a supplier
+  // for a machine; it needs the network, and a failed scan leaves it blank.
+  const scan = useMutation({
+    mutationFn: (token: string) => scanSupplierQr(token),
+    onMutate: () => setError(""),
+    onSuccess: (row) => setSupplier({ id: row.id, name: row.name }),
+    onError: (reason) =>
+      setError(reason instanceof ApiError ? reason.message : t("equipment.scanFailed")),
+  });
+  const save = useMutation({
+    mutationFn: () => {
+      if (!user) throw new Error("Authentication required.");
+      return submitEquipmentMovementOfflineAware(user.id, {
+        entry: true,
+        project,
+        equipment: machine?.id ?? "",
+        equipment_name: machine ? undefined : newName.trim(),
+        supplier: supplier?.id,
+        direction: "ENTRY",
+        operator_name: user.full_name,
+        delivery_note_no: deliveryNote.trim(),
+        vehicle_plate: machine?.registration_no || undefined,
+        notes: notes.trim(),
+        ocr_confirmed: Boolean(deliveryNotePhoto || deliveryNote.trim()),
+        ocr_proof: deliveryNotePhoto && ocrProof ? ocrProof : undefined,
+        original_occurred_at: new Date().toISOString(),
+        client_event_id: crypto.randomUUID(),
+        field_task: fieldTaskId,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        accuracy_m: location?.accuracy,
+        photos: submissionPhotos,
+        delivery_note_photo: deliveryNotePhoto,
+        receiver_signature: receiverSignature,
+        supplier_signature: supplierSignature,
+      });
+    },
+    onMutate: () => {
+      setError("");
+      setFieldErrors({});
+    },
+    onSuccess: () => {
+      clearDraft();
+      onSaved();
+    },
+    onError: (reason) => {
+      if (reason instanceof ApiError) {
+        setFieldErrors(reason.errors);
+        setError(Object.values(reason.errors).join(" ") || reason.message || t("equipment.submissionError"));
+        return;
+      }
+      setFieldErrors({});
+      setError(t("state.loadError"));
+    },
+  });
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>
+            {machine
+              ? t("equipment.entryTitle", { name: machineLabeller([machine])(machine) })
+              : t("equipment.newMachineEntry")}
+          </DialogTitle>
+          <DialogDescription>{t("equipment.entryHelp")}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {!machine && (
+            <FieldWrapper
+              label={t("equipment.newMachineName")}
+              required
+              hint={t("equipment.newMachineHelp")}
+              error={fieldErrors.equipment}
+              className="sm:col-span-2"
+            >
+              <Input value={newName} onChange={(e) => setNewName(e.target.value)} />
+            </FieldWrapper>
+          )}
+          <FieldWrapper
+            label={t("field.photos")}
+            required
+            error={fieldErrors.photos}
+            className="sm:col-span-2"
+          >
+            {isFieldStaff ? (
+              <>
+                <FieldEvidenceGrid
+                  labels={evidenceLabels}
+                  files={fieldEvidence}
+                  progressLabel={t("evidenceProgress", {
+                    current: fieldPhotos.length,
+                    required: FIELD_EVIDENCE_PHOTO_COUNT,
+                  })}
+                  onChange={setFieldEvidence}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("equipment.photoMinimum", { min: EQUIPMENT_PHOTO_MIN })}
+                </p>
+              </>
+            ) : (
+              <FieldCamera
+                label={t("field.photos")}
+                fileCount={photos.length}
+                onCapture={(file) => setPhotos((items) => [...items, file])}
+                onClear={() => setPhotos([])}
+              />
+            )}
+          </FieldWrapper>
+          <FieldWrapper label={t("equipment.deliveryNotePhoto")} className="sm:col-span-2">
+            <FieldCamera
+              label={
+                deliveryNotePhoto
+                  ? t("equipment.deliveryNoteReady")
+                  : t("equipment.takeDeliveryNote")
+              }
+              file={deliveryNotePhoto}
+              fileCount={deliveryNotePhoto ? 1 : 0}
+              onCapture={(image) => {
+                setDeliveryNotePhoto(image);
+                ocr.inspect(project, image);
+              }}
+              onClear={() => {
+                setDeliveryNotePhoto(undefined);
+                ocr.cancel();
+              }}
+            />
+            <DeliveryNoteReadStatus reader={ocr} className="mt-2" />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.deliveryNoteNo")} required error={fieldErrors.delivery_note_no}>
+            <Input
+              aria-label={t("field.deliveryNoteNo")}
+              value={deliveryNote}
+              onChange={(e) => setDeliveryNote(e.target.value)}
+            />
+          </FieldWrapper>
+          <FieldWrapper label={t("field.supplier")} error={fieldErrors.supplier}>
+            {supplier ? (
+              <div className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
+                <span className="min-w-0 flex-1 truncate font-medium">{supplier.name}</span>
+                <Button size="sm" variant="ghost" onClick={() => setSupplier(null)}>
+                  {t("action.remove")}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 w-full"
+                disabled={scan.isPending}
+                onClick={() => setScannerOpen(true)}
+              >
+                {scan.isPending ? <Loader2 className="animate-spin" /> : <ScanLine />}
+                {t("equipment.scanSupplier")}
+              </Button>
+            )}
+          </FieldWrapper>
+          <div className="grid gap-4 sm:col-span-2 sm:grid-cols-2">
+            <FieldSignaturePad
+              label={t("equipment.siteSignature")}
+              clearLabel={field("action.clearSignature")}
+              required
+              value={receiverSignature}
+              onChange={setReceiverSignature}
+            />
+            <FieldSignaturePad
+              label={t("equipment.supplierSignature")}
+              clearLabel={field("action.clearSignature")}
+              required
+              value={supplierSignature}
+              onChange={setSupplierSignature}
+            />
+          </div>
+          <LocationField
+            className="sm:col-span-2"
+            label={t("field.location")}
+            actionLabel={t("action.getLocation")}
+            readyLabel={t("action.locationReady")}
+            value={location}
+            onChange={setLocation}
+            required
+            error={fieldErrors.latitude || fieldErrors.longitude || fieldErrors.accuracy_m}
+          />
+          <FieldWrapper label={t("field.notes")} className="sm:col-span-2">
+            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+          </FieldWrapper>
+        </div>
+        {error && (
+          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("action.cancel")}
+          </Button>
+          <Button
+            requires={[
+              [machine || newName.trim(), t("equipment.newMachineName")],
+              [
+                isFieldStaff
+                  ? hasRequiredFieldEvidence(fieldEvidence)
+                  : submissionPhotos.length + (deliveryNotePhoto ? 1 : 0) >= EQUIPMENT_PHOTO_MIN,
+                t("field.photos"),
+              ],
+              [deliveryNote.trim(), t("field.deliveryNoteNo")],
+              [receiverSignature, t("equipment.siteSignature")],
+              [supplierSignature, t("equipment.supplierSignature")],
+              [location, t("field.location")],
+            ]}
+            disabled={save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isPending ? <Loader2 className="animate-spin" /> : <Camera />}
+            {t("equipment.entrySubmit")}
+          </Button>
+        </DialogFooter>
+        <SupplierQrScanner
+          open={scannerOpen}
+          onClose={() => setScannerOpen(false)}
+          onDetected={(token) => {
+            setScannerOpen(false);
+            scan.mutate(token);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -2245,8 +2636,8 @@ export function MovementDialog({
         project: row.project,
         equipment: row.id,
         direction,
-        quantity,
-        unit,
+        quantity: direction === "EXIT" ? quantity : undefined,
+        unit: direction === "EXIT" ? unit : undefined,
         operator_name: isFieldStaff ? user.full_name : operator.trim(),
         vehicle_plate: vehicle.trim(),
         delivery_note_no: deliveryNote.trim(),
@@ -2328,6 +2719,9 @@ export function MovementDialog({
               />
             </FieldWrapper>
           ) : null}
+          {/* One entry is one machine (F3): an old entry application handed
+              over directly (「直接交接」) asks no quantity or unit. */}
+          {direction === "EXIT" && (<>
           <FieldWrapper
             label={t("field.quantity")}
             required
@@ -2362,6 +2756,7 @@ export function MovementDialog({
               </SelectContent>
             </Select>
           </FieldWrapper>
+          </>)}
           <FieldWrapper label={t("field.vehiclePlate")}>
             <Input
               value={vehicle}
@@ -2475,7 +2870,7 @@ export function MovementDialog({
           <Button
             requires={[
               [isFieldStaff || operator, t("field.operator")],
-              [quantity && Number(quantity) > 0, t("field.quantity")],
+              [direction === "ENTRY" || (quantity && Number(quantity) > 0), t("field.quantity")],
               [
                 // The office counts four too now (L6), the delivery-order
                 // photo included, the way the server counts.

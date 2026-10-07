@@ -4059,6 +4059,13 @@
       "what": {
         "suppliers": "供應商列表"
       }
+    },
+    "equipment": {
+      "majorClass": "大類",
+      "subClass": "小類",
+      "majorClassOf": "上級（大類）",
+      "majorClassHint": "不選就是大類。設備要登記在小類下面。",
+      "isMajorClass": "（這是大類）"
     }
   },
   "cloudServices": {
@@ -5536,7 +5543,7 @@
       "editTitle": "編輯這台設備",
       "entryTitle": "記錄 {name} 進場",
       "exitTitle": "記錄 {name} 退場",
-      "formHelp": "請填寫實體設備上的設備編號或註冊號碼。",
+      "formHelp": "請填寫設備編號和車牌號碼。設備要登記在一個小類下面；現場只要選它、拍照、簽名。",
       "movementHelp": "請拍攝當前照片並獲取位置；該記錄會成為不可修改的現場證據。",
       "occurredAt": "進退場時間",
       "ocrManual": "無法讀取 Delivery Order，請手動填寫資料。",
@@ -5577,7 +5584,39 @@
       "returnReason": "退回原因",
       "returnConfirm": "退回（申請結束）",
       "requestedBy": "申請人",
-      "reviewedBy": "審批人"
+      "reviewedBy": "審批人",
+      "chooseMachine": "設備",
+      "chooseMachinePlaceholder": "選設備",
+      "newMachine": "新設備（還沒建檔）",
+      "newMachineEntry": "新設備進場",
+      "newMachineName": "新設備名稱",
+      "newMachineHelp": "只填名稱，其他資料由後台補齊。",
+      "entryHelp": "拍照、DO、掃供應商二維碼、雙方簽名，提交後由後台驗收。",
+      "entrySubmit": "提交進場",
+      "scanSupplier": "掃供應商二維碼",
+      "scanFailed": "掃碼沒有成功，可以再掃一次，或先不填供應商。",
+      "movementsLink": "查看這台設備的進退場記錄",
+      "needsProfile": "待補檔",
+      "needsProfileHelp": "這台是現場報的新設備。補齊車牌、小類和至少一個到期日後，才能驗收它的進場。",
+      "directHandover": "直接交接",
+      "directHandoverHelp": "這是改流程前的進場申請，不用再批准：直接交接（拍照、雙方簽名），之後由後台驗收。",
+      "acceptance": {
+        "title": "進場驗收",
+        "accept": "驗收通過",
+        "reject": "不通過",
+        "reason": "不通過原因",
+        "armReject": "允許不通過這筆進場",
+        "armRejectHelp": "設備不對才打開。打開後才能填寫原因並判為不通過。",
+        "failed": "驗收沒有成功，請重試。",
+        "profileMissing": "先補齊檔案：{fields}",
+        "completeProfile": "補齊檔案",
+        "missing": {
+          "registration_no": "車牌號碼",
+          "category": "小類",
+          "expiry": "到期日"
+        }
+      },
+      "oneMachineOnly": "只看這台設備的進退場"
     },
     "equipmentEvidence": {
       "condition": "4. 設備狀況細節",
@@ -5672,7 +5711,14 @@
       "vehiclePlate": "車牌",
       "workLocation": "工作區域 / 位置",
       "pmaExpiresOn": "PMA 到期日",
-      "permitExpiresOn": "准證到期日"
+      "permitExpiresOn": "准證到期日",
+      "plateNo": "車牌號碼",
+      "roadTaxExpiresOn": "路稅到期",
+      "chooseProjectFirst": "請先選項目",
+      "equipmentSubClass": "設備小類",
+      "chooseEquipmentSubClass": "選擇小類",
+      "noEquipmentSubClassYet": "這個項目還沒有設備小類，設備要登記在一個小類下面。",
+      "deliveryNoteNo": "DO 號碼"
     },
     "filing": {
       "action": "歸入分類",
@@ -5814,7 +5860,8 @@
       "locationError": "無法獲取當前 GPS，請開啟精確定位後重試。",
       "noDescription": "沒有說明",
       "noIdentifier": "沒有序列號或註冊號碼",
-      "unknown": "未知"
+      "unknown": "未知",
+      "noPlate": "未填車牌"
     },
     "status": {
       "accessAll": "所有項目人員可見",
@@ -5921,7 +5968,9 @@
       "taskUpdated": "任務狀態已更新",
       "outgoingProcessed": "處理照片已回傳，等待後台最終確認。",
       "movementRequested": "申請已送交後台",
-      "movementReviewed": "申請已處理"
+      "movementReviewed": "申請已處理",
+      "entrySubmitted": "設備進場已提交，等待後台驗收",
+      "entryReviewed": "驗收結果已記錄"
     },
     "what": {
       "roles": "角色列表",
@@ -5939,7 +5988,9 @@
       "PENDING": "等待後台批准",
       "APPROVED": "已批准，待交接簽名",
       "RETURNED": "已退回（申請結束）",
-      "COMPLETED": "已交接"
+      "COMPLETED": "已交接",
+      "SUBMITTED": "等待後台驗收",
+      "REJECTED": "未通過驗收"
     }
   },
   "contractorPartners": {
@@ -7279,7 +7330,8 @@
       "material_request_reviewer_not_eligible": "所選的人不能批准這個項目的申請，請從名單裡重新選擇。",
       "document_file_type_not_allowed": "只能上傳 PDF、Word、Excel 或照片。",
       "document_is_system_file": "從系統裡選的檔案不能上傳新版本，新版本請放在原記錄裡。",
-      "document_system_file_not_found": "有檔案找不到，或你沒有權限查看。"
+      "document_system_file_not_found": "有檔案找不到，或你沒有權限查看。",
+      "equipment_profile_incomplete": "先補齊這台設備的檔案（車牌、小類、到期日），才能驗收。"
     },
     "backToDashboard": "返回儀表板",
     "field": {

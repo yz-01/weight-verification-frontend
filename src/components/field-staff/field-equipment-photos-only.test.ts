@@ -64,20 +64,44 @@ describe("phone 设备进退场 is photos only (D-273)", () => {
     expect(body).toMatch(/error=\{rows\.isError\}/);
   });
 
-  it("still records an entry and registers a machine that has just arrived", () => {
-    // B13: each machine's next step - apply, wait, hand over - and the phone
-    // can apply to bring in a machine nobody has registered yet.
-    expect(body).toMatch(/<MachineStep/);
-    expect(body).toMatch(/t\("equipment\.applyNew"\)/);
+  it("chooses the machine from one dropdown, not a long list (A9)", () => {
+    expect(body).toMatch(/<Select\b/);
+    expect(body).toMatch(/data-testid="field-equipment-select"/);
+    expect(body).not.toMatch(/group\.rows\.map|field-equipment-\$\{group/);
+  });
+
+  it("records an entry in one step, and a 「新设备」 by name (C8, X2)", () => {
+    // No application for an entry any more: the one-step form.
+    expect(body).toMatch(/<EquipmentEntryDialog/);
+    expect(body).toMatch(/NEW_MACHINE/);
+    expect(body).toMatch(/t\("equipment\.newMachineEntry"\)/);
+    expect(body).not.toMatch(/ApplyMovementDialog|applyNew|applyEntry/);
+    // The office can still register a machine from here.
     expect(body).toMatch(/<EquipmentDialog/);
     expect(body).toMatch(/t\("equipment\.add"\)/);
   });
 
-  it("still records an exit, choosing the machine by name", () => {
-    expect(body).toMatch(/onApply=\{\(\) => setApplyingFor\(row\)\}/);
-    expect(body).toMatch(/\{machineName\(row\)\}/);
-    // The code appears only to tell apart two machines with the same name.
-    expect(body).toMatch(/> 1 \? `\$\{row\.name\} \(\$\{row\.code\}\)` : row\.name/);
+  it("still records an exit the B13 way until the Return Note flow (X3)", () => {
+    expect(body).toMatch(/<MachineStep/);
+    expect(body).toMatch(/onApply=\{\(\) => setApplyingExit\(machine\)\}/);
+    expect(body).toMatch(/<ApplyExitDialog/);
+  });
+
+  it("names a machine 「名称 · 车牌」, the code only for twins (F3)", () => {
+    const labeller = componentBody(code, "machineLabeller");
+    expect(labeller).toMatch(/`\$\{row\.name\} · \$\{row\.registration_no\}`/);
+    expect(labeller).toMatch(/> 1 \? `\$\{plain\(row\)\} \(\$\{row\.code\}\)` : plain\(row\)/);
+    expect(body).toMatch(/\{label\(row\)\}/);
+  });
+
+  it("shows no category anywhere on the phone (F3)", () => {
+    const entry = componentBody(code, "EquipmentEntryDialog");
+    for (const part of [body, entry]) {
+      expect(part).not.toMatch(/ProjectColumnPicker|EquipmentClassSelect|category/);
+      expect(part).not.toMatch(/field\.category|equipmentColumn|equipmentSubClass/);
+    }
+    // One entry is one machine: no quantity or unit on the entry form.
+    expect(entry).not.toMatch(/field\.quantity|field\.unit|EQUIPMENT_UNITS/);
   });
 
   it("the worker's own movements still carry their conversation, under 我的提交", () => {
@@ -88,6 +112,13 @@ describe("phone 设备进退场 is photos only (D-273)", () => {
 
   it("still takes the photographs, at least 4 and no ceiling (L6, replacing D-257's 4-5)", () => {
     expect(body).toMatch(/<MovementDialog[\s\S]*?fieldTaskId=\{fieldTaskId\}/);
+    expect(body).toMatch(/<EquipmentEntryDialog[\s\S]*?fieldTaskId=\{fieldTaskId\}/);
+    const entry = componentBody(code, "EquipmentEntryDialog");
+    expect(entry).toMatch(/<FieldEvidenceGrid/);
+    expect(entry).toMatch(/hasRequiredFieldEvidence\(fieldEvidence\)/);
+    expect(entry).toMatch(/<FieldSignaturePad[\s\S]*?<FieldSignaturePad/);
+    expect(entry).toMatch(/submitEquipmentMovementOfflineAware/);
+    expect(entry).toMatch(/entry: true/);
     const dialog = componentBody(code, "MovementDialog");
     expect(dialog).toMatch(/<FieldEvidenceGrid/);
     expect(dialog).not.toMatch(/maxFiles=/);
