@@ -37,6 +37,7 @@ import type {
   WasteDispatchDetail,
   WasteDispatchPayload,
 } from "@/interfaces/contractor";
+import type { MaterialOutgoing } from "@/interfaces/contractor-ops";
 import type { QRCodeIssue } from "@/interfaces/qrcode";
 import { api, download, toastSuccess } from "@/services/api-client";
 
@@ -451,10 +452,31 @@ export function getReceipts(
   return api.list<MaterialReceipt>("/api/receipts/get_receipts/", query);
 }
 
-/** One line of 材料管理's totals (B09). Quantities arrive as strings. */
+/**
+ * One delivery or return behind a net line (2026-10 C11): the paper it came
+ * or went with, and who brought it.
+ */
+export interface MaterialNetTotalItem {
+  kind: "DELIVERY" | "RETURN" | "RETURN_RECEIPT" | "REJECTED";
+  id: string;
+  reference: string;
+  date: string;
+  quantity: string;
+  unit: string;
+  delivery_note_no: string;
+  vehicle_plate: string;
+  supplier_name: string;
+  manufacturer_name: string;
+  return_note_no: string;
+}
+
+/** One line of 材料管理's totals (B09, C11). Quantities arrive as strings. */
 export interface MaterialNetTotalRow {
   project: string;
   project_name: string;
+  /** Grouped by supplier since 2026-10 C11; empty when none was named. */
+  supplier: string;
+  supplier_name: string;
   material_name: string;
   material_specification: string;
   unit: string;
@@ -463,6 +485,31 @@ export interface MaterialNetTotalRow {
   returned: string;
   net: string;
   deliveries: number;
+  items?: MaterialNetTotalItem[];
+}
+
+/**
+ * 累计净数量 as PDF or spreadsheet (2026-10 C11): the server reads the same
+ * lines the screen shows, with the same filters, so the file and the screen
+ * never disagree.
+ */
+export function exportReceiptNetTotals(request: ExportRequest): Promise<void> {
+  return download("/api/receipts/export_net_totals/", {
+    method: "POST",
+    query: exportQuery(request),
+    body: exportBody(request),
+    fallbackFilename: `net-totals.${request.format}`,
+  });
+}
+
+/**
+ * Every finished return to one supplier (2026-10 C10): what the
+ * 「有退场资料」 badge opens.
+ */
+export function getSupplierReturns(
+  id: string,
+): Promise<{ supplier: string; supplier_name: string; count: number; results: MaterialOutgoing[] }> {
+  return api.get(`/api/suppliers/${id}/returns/`);
 }
 
 /** Net per project, material, specification and unit (B09). */

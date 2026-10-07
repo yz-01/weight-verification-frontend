@@ -13,6 +13,7 @@ import { useState } from "react";
 import { OptionCombobox } from "@/components/material-requests/option-combobox";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
 import { supplierSearchQuery } from "@/components/shared/supplier-date-filter";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { getSuppliers } from "@/services/contractor.service";
 
@@ -47,7 +48,14 @@ export function SupplierPicker({
   const [picked, setPicked] = useState<{ id: string; name: string } | null>(null);
   const options = [
     ...(allowNone ? [{ value: "__none__", label: none("none") }] : []),
-    ...rows.map((row) => ({ value: row.id, label: row.name })),
+    ...rows.map((row) => ({
+      value: row.id,
+      label: row.name,
+      // 「有退场资料」 (2026-10 C10), as a mark in the list.
+      ...(row.completed_return_count
+        ? { suffix: <SupplierReturnBadge supplier={row} interactive={false} /> }
+        : {}),
+    })),
   ];
   const selectedLabel =
     rows.find((row) => row.id === value)?.name ??
@@ -72,6 +80,8 @@ export function SupplierPicker({
         ariaLabel={t("supplier")}
         triggerClassName={triggerClassName}
       />
+      {/* The chosen one's returns, one press away (2026-10 C10). */}
+      <SupplierReturnBadge supplier={rows.find((row) => row.id === value)} />
       <QueryFailedNote query={suppliers} what={t("what")} />
     </div>
   );

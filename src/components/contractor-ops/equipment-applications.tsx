@@ -34,6 +34,7 @@ import {
   reviewEquipmentMovement,
 } from "@/services/contractor-ops.service";
 import { getSuppliers } from "@/services/contractor.service";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 
 /**
  * Equipment in and out since 10-02 (B13, E01):
@@ -180,10 +181,15 @@ export function ApplyMovementDialog({
                       .map((row) => (
                         <SelectItem key={row.id} value={row.id}>
                           {row.name}
+                          <SupplierReturnBadge supplier={row} interactive={false} />
                         </SelectItem>
                       ))}
                   </SelectContent>
                 </Select>
+                {/* 「有退场资料」 (2026-10 C10). */}
+                <SupplierReturnBadge
+                  supplier={(suppliers.data?.results ?? []).find((row) => row.id === form.supplier)}
+                />
                 <QueryFailedNote query={suppliers} what={t("what.suppliers")} />
               </FieldWrapper>
               <FieldWrapper label={t("field.registrationNo")}>

@@ -4156,7 +4156,10 @@
     "view": "查看",
     "exportThisRecord": "單獨匯出",
     "previewThisRecord": "預覽 / 列印",
-    "alreadyLastPage": "已經在最後一頁"
+    "alreadyLastPage": "已經在最後一頁",
+    "shareThisRecord": "分享",
+    "linkCopied": "連結已複製，貼上即可分享。",
+    "shareFailed": "分享沒有成功，請下載後再發送文件。"
   },
   "companies": {
     "owner": {
@@ -5729,22 +5732,22 @@
       "executor": "執行人",
       "fieldFormHelp": "填寫最少資料，至少完成 4 張現場取證照片並獲取 GPS。執行人會自動記錄。",
       "formHelp": "填寫實際執行人員，並獲取當前 GPS 位置。",
-      "subtitle": "已進場材料退回供應商：申請 → 後台批准 → 實際出場時雙方簽名。",
+      "subtitle": "材料退回供應商：手機申請 → 後台填 Return Note 並批准 → 實際退場時雙方簽名 → 後台確認。",
       "title": "材料出場",
       "rejectTitle": "退回這筆申請",
       "rejectHelp": "申請 {reference} 到此結束。退回後不再重開 —— 要再申請得新建一條 —— 所以這段理由就是申請人能拿到的全部說明。",
       "rejectReason": "退回理由",
       "viewDetail": "查看詳情",
-      "returnProcessing": "實際出場交接（雙方簽名）",
-      "waitingForSite": "已批准，等待安排車輛裝貨及現場交接簽名。",
-      "finalConfirm": "最終確認",
-      "waitingForOffice": "現場已回傳，等待後台最終確認。",
-      "returnHelp": "{reference} 已批准。材料實際出場時，填寫退回數量、拍照，並由現場人員與供應商 / 司機雙方簽名。提交後退場即完成。",
+      "returnProcessing": "實際退場（雙方簽名）",
+      "waitingForSite": "已批准 / 等待退場：等待現場實際退場並雙方簽名。",
+      "finalConfirm": "確認退場完成",
+      "waitingForOffice": "現場已退場，待後台確認。",
+      "returnHelp": "{reference} 已批准。材料實際退場時：拍照，填寫實際退回數量、車牌和 DO 號，確認供應商（可掃碼），現場人員與供應商 / 司機雙方簽名。提交後等待後台確認。",
       "processingPhotos": "出場時的照片",
       "processingNote": "現場處理說明",
       "processingLocation": "定位",
       "processingLocationReady": "已取得定位",
-      "sendReturn": "提交（完成退場）",
+      "sendReturn": "提交（待後台確認）",
       "returnFailed": "交接沒有保存成功，請再試一次。",
       "uploadFiles": "上傳文件",
       "referenceNo": "編號",
@@ -5759,30 +5762,35 @@
       },
       "flowTitle": "流程",
       "approvedBy": "批准人",
-      "processedBy": "現場交接人",
-      "returnFormHelp": "先選供應商，再選該供應商的原進場記錄——材料、規格、單位會自動帶出。填寫本次要退回的數量。後台批准後安排車輛裝貨，實際出場時雙方簽名。",
+      "processedBy": "現場退場人",
+      "returnFormHelp": "選材料（單位自動帶出），填數量、車牌和退回原因，拍照。知道供應商就選或掃碼，不知道可以不填。後台填寫 Return Note 並批准後，實際退場時雙方簽名。",
       "supplier": "供應商",
       "chooseSupplier": "選擇供應商",
       "sourceReceipt": "原進場記錄",
-      "chooseSourceReceipt": "選擇要退回的原進場記錄",
-      "remaining": "剩 {quantity} {unit}",
-      "noReturnable": "這個項目沒有這家供應商還能退回的進場記錄。",
       "specification": "規格",
-      "returnQuantity": "本次退回數量",
-      "tooMuch": "這筆進場只剩 {quantity} {unit} 可以退回。",
+      "returnQuantity": "退回數量",
       "reasonPlaceholder": "退回原因，例如：多餘、事後發現規格不對",
       "returnedQuantity": "實際退回數量",
       "siteSignature": "現場人員簽名",
       "supplierSignature": "供應商 / 司機簽名",
-      "returnAction": "Return 退回"
+      "returnAction": "Return 退回",
+      "material": "材料",
+      "chooseMaterial": "選擇材料",
+      "noMaterials": "這個項目還沒有材料分類，請聯繫後台新增。",
+      "autoFilled": "按材料分類自動帶出",
+      "supplierOptional": "知道就選或掃碼，不知道可以不填。",
+      "scanSupplier": "掃供應商二維碼",
+      "scannedSupplier": "已掃碼：{name}",
+      "scanFailed": "這個二維碼不是供應商二維碼。",
+      "noSupplier": "不填"
     },
     "outgoingStatus": {
-      "APPROVED": "已批准，待出場交接",
+      "APPROVED": "已批准 / 等待退場",
       "PENDING": "等待審批",
       "REJECTED": "已退回（申請結束）",
       "RELEASED": "已放行（舊流程）",
-      "PROCESSED": "現場已回傳（舊流程），待最終確認",
-      "COMPLETED": "已出場交接，已完成"
+      "PROCESSED": "待後台確認",
+      "COMPLETED": "已退場，已完成"
     },
     "priority": {
       "HIGH": "高",
@@ -5947,9 +5955,10 @@
       "saved": "已保存",
       "taskAssigned": "任務已派發",
       "taskUpdated": "任務狀態已更新",
-      "outgoingProcessed": "處理照片已回傳，等待後台最終確認。",
+      "outgoingProcessed": "已提交退場，待後台確認。",
       "movementRequested": "申請已送交後台",
-      "movementReviewed": "申請已處理"
+      "movementReviewed": "申請已處理",
+      "returnNoteSaved": "Return Note 已保存"
     },
     "what": {
       "roles": "角色列表",
@@ -5960,14 +5969,37 @@
       "progressSummary": "進度統計",
       "phases": "施工分類列表",
       "outgoingRecord": "這條材料出場記錄",
-      "returnableReceipts": "可退回的進場記錄",
-      "equipmentApplications": "設備進退場申請"
+      "equipmentApplications": "設備進退場申請",
+      "materials": "材料列表"
     },
     "equipmentMovementStatus": {
       "PENDING": "等待後台批准",
       "APPROVED": "已批准，待交接簽名",
       "RETURNED": "已退回（申請結束）",
       "COMPLETED": "已交接"
+    },
+    "returnNote": {
+      "title": "Return Note",
+      "fill": "填寫 Return Note",
+      "edit": "修改 Return Note",
+      "help": "批准前先填寫 Return Note：材料、DO 號、供應商、數量、退回原因，以及批准人姓名和簽名。",
+      "number": "Return Note 編號",
+      "numberPending": "保存後自動編號",
+      "date": "日期",
+      "material": "材料",
+      "deliveryNoteNo": "DO 號",
+      "supplier": "供應商",
+      "chooseSupplier": "選擇供應商",
+      "quantity": "數量",
+      "reason": "退回原因",
+      "approverName": "批准人",
+      "approverSignature": "批准人簽名",
+      "keepSignature": "已有簽名，要換才需要重簽。",
+      "save": "保存 Return Note",
+      "saveFailed": "Return Note 沒有保存成功，請再試一次。",
+      "missing": "還沒有 Return Note",
+      "needNoteFirst": "先填寫 Return Note",
+      "filledBy": "填寫人"
     }
   },
   "contractorPartners": {
@@ -7311,7 +7343,8 @@
       "disposal_trip_not_waiting": "這一車不是待驗收狀態（還沒送，或已經驗收過）。",
       "disposal_all_trips_sent": "預計的車次都已送出。如果還有車要去，請聯絡工地在後台「加一車」。",
       "disposal_trips_closed": "這項清運已完成或已結束，車次不能再改。",
-      "disposal_nothing_sent": "還沒有任何一車送出，不能提前結束。不需要的話請用「取消清運」。"
+      "disposal_nothing_sent": "還沒有任何一車送出，不能提前結束。不需要的話請用「取消清運」。",
+      "return_note_required": "請先填寫 Return Note 再批准。"
     },
     "backToDashboard": "返回儀表板",
     "field": {
@@ -9644,7 +9677,15 @@
       "manufacturer": "製造廠商",
       "trips_progress": "已驗收 / 車次",
       "trip_checked": "已驗收的車",
-      "trip_waiting": "待驗收的車"
+      "trip_waiting": "待驗收的車",
+      "return_note_no": "Return Note 編號",
+      "return_note_at": "Return Note 日期",
+      "return_note_material": "Return Note 材料",
+      "return_note_delivery_note_no": "Return Note DO 號",
+      "return_note_supplier": "Return Note 供應商",
+      "return_note_quantity": "Return Note 數量",
+      "return_note_reason": "Return Note 退回原因",
+      "approver_name": "Return Note 批准人"
     },
     "detailTitle": "我提交過的",
     "photos": "照片",
@@ -11529,12 +11570,33 @@
       "choose": "選擇查看"
     },
     "net": {
-      "title": "按材料彙總的累計淨數量",
-      "note": "淨數量 = 正常進場（Reject 不計入）− 關聯原進場的正式退場（只扣一次）。不同單位不混加。",
-      "received": "進場",
-      "returned": "退場",
-      "net": "淨數量",
-      "rejected": "Reject（不計入）"
+      "title": "按供應商、材料匯總的累計淨數量",
+      "note": "累計進場不會減少。累計淨數量 = 進場（不合格不計入）− 後台已確認完成的退場（按材料分類和單位配對）。不同單位不混加。",
+      "received": "累計進場",
+      "returned": "已退場",
+      "net": "累計淨數量",
+      "rejected": "Reject（不計入）",
+      "supplier": "供應商",
+      "noSupplier": "未填供應商",
+      "searchMaterial": "搜尋材料",
+      "expand": "查看逐筆",
+      "collapse": "收起",
+      "deliveries": "筆數",
+      "item": {
+        "kind": {
+          "DELIVERY": "進場",
+          "RETURN": "退場",
+          "RETURN_RECEIPT": "退場（10-02 前）",
+          "REJECTED": "不合格"
+        },
+        "date": "日期",
+        "reference": "單號",
+        "doNo": "DO 號",
+        "plate": "車牌",
+        "manufacturer": "製造廠商",
+        "returnNote": "Return Note",
+        "quantity": "數量"
+      }
     }
   },
   "recyclerBusiness": {
@@ -15678,5 +15740,31 @@
         "confirm": "刪除摘要"
       }
     }
+  },
+  "supplierReturns": {
+    "badge": "有退場資料",
+    "badgeHint": "這家供應商有 {count} 筆已完成的退場，點開查看",
+    "title": "{name} 的退場資料",
+    "help": "這家供應商所有已完成的退場：Return Note、照片、雙方簽名和批准資料。",
+    "empty": "沒有已完成的退場。",
+    "what": "退場資料",
+    "column": {
+      "date": "日期",
+      "material": "材料",
+      "quantity": "數量",
+      "plate": "車牌",
+      "reason": "退回原因",
+      "returnNote": "Return Note",
+      "photos": "照片",
+      "signatures": "雙方簽名",
+      "approval": "批准資料"
+    },
+    "site": "現場",
+    "supplierSide": "供應商 / 司機",
+    "approver": "批准人",
+    "print": "列印",
+    "export": "導出",
+    "share": "分享",
+    "open": "打開這一筆"
   }
 }

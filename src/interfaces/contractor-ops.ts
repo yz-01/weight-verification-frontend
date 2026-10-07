@@ -529,7 +529,8 @@ export interface MaterialOutgoing {
   delivery_note_no: string;
   reason: string;
   /**
-   * D-211: 批准 → 手机端现场处理及回传 (PROCESSED) → 后台最终确认 (COMPLETED).
+   * 2026-10 C9: 申请 → Return Note → 批准 (APPROVED, 已批准 / 等待退场) →
+   * 现场实际退场 (PROCESSED, 待后台确认) → 后台确认 (COMPLETED).
    * RELEASED is the pre-D-211 ending; rows in it still render.
    */
   status: "PENDING" | "APPROVED" | "REJECTED" | "PROCESSED" | "COMPLETED" | "RELEASED";
@@ -557,26 +558,25 @@ export interface MaterialOutgoing {
     caption: string;
     captured_at: string;
   }>;
-}
-
-/** A delivery a return can be filed against, with what is left of it (A02). */
-export interface ReturnableReceipt {
-  id: string;
-  receipt_no: string;
-  business_at: string;
-  supplier: string;
-  supplier_name: string;
-  /** Whose make (2026-10 D1), and what the delivery's column designates. */
-  manufacturer?: string | null;
-  manufacturer_name?: string;
-  designated_manufacturers?: Array<{ id: string; name: string; is_active: boolean }>;
-  material_name: string;
-  material_specification: string;
-  unit: string;
-  quantity: string;
-  remaining_quantity: string;
-  category: string | null;
-  category_name: string;
+  /**
+   * The Return Note the office fills before approving (2026-10 C9). Empty
+   * until filled; `has_return_note` says whether approval can go ahead.
+   */
+  has_return_note?: boolean;
+  return_note_no?: string;
+  return_note_at?: string | null;
+  return_note_by_name?: string | null;
+  return_note_material?: string;
+  return_note_delivery_note_no?: string;
+  return_note_supplier?: string | null;
+  return_note_supplier_name?: string | null;
+  return_note_quantity?: string | null;
+  return_note_unit?: string;
+  return_note_reason?: string;
+  approver_name?: string;
+  approver_user?: string | null;
+  approver_user_name?: string | null;
+  approver_signature?: string | null;
 }
 
 export type DisposalRequestStatus =

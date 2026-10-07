@@ -4156,7 +4156,10 @@
     "view": "View",
     "exportThisRecord": "Export this record",
     "previewThisRecord": "Preview / print",
-    "alreadyLastPage": "Already on the last page"
+    "alreadyLastPage": "Already on the last page",
+    "shareThisRecord": "Share",
+    "linkCopied": "Link copied. Paste it to share.",
+    "shareFailed": "Could not share. Download it and send the file instead."
   },
   "companies": {
     "owner": {
@@ -5729,22 +5732,22 @@
       "executor": "Executor",
       "fieldFormHelp": "Enter only the essential details, complete at least four evidence photos and capture GPS. The executor is recorded automatically.",
       "formHelp": "Name the person carrying out the movement as the executor and capture the current location.",
-      "subtitle": "Return delivered material to its supplier: apply, approve, then sign at the handover.",
+      "subtitle": "Material going back to its supplier: apply on the phone → the office fills the Return Note and approves → both sides sign as it leaves → the office confirms.",
       "title": "Material outgoing",
       "rejectTitle": "Send this application back",
       "rejectHelp": "Application {reference} ends here. It is not reopened — a new application is raised instead — so this reason is what the applicant is left with.",
       "rejectReason": "Reason for sending it back",
       "viewDetail": "Details",
-      "returnProcessing": "Hand over (both sign)",
-      "waitingForSite": "Approved - waiting for the lorry and the handover on site.",
-      "finalConfirm": "Final confirmation",
-      "waitingForOffice": "Photos sent back. Waiting for the office's final confirmation.",
-      "returnHelp": "{reference} is approved. When the material leaves, enter how much went, photograph it, and take both signatures. Submitting ends the return.",
+      "returnProcessing": "Record the exit (both sign)",
+      "waitingForSite": "Approved / waiting to leave site: the site records the exit with both signatures.",
+      "finalConfirm": "Confirm the exit",
+      "waitingForOffice": "The material has left. Waiting for the office to confirm.",
+      "returnHelp": "{reference} is approved. As the material actually leaves: take the photos, enter how much left, the lorry plate and the DO number, confirm the supplier (scan its code if you can), and both the site person and the supplier / driver sign. The office then confirms it.",
       "processingPhotos": "Photos at the handover",
       "processingNote": "Note from site",
       "processingLocation": "Location",
       "processingLocationReady": "Location captured",
-      "sendReturn": "Submit (ends the return)",
+      "sendReturn": "Submit (office confirms)",
       "returnFailed": "The handover was not saved. Please try again.",
       "uploadFiles": "Upload files",
       "referenceNo": "No.",
@@ -5759,30 +5762,35 @@
       },
       "flowTitle": "Steps",
       "approvedBy": "Approved by",
-      "processedBy": "Handed over by",
-      "returnFormHelp": "Choose the supplier, then the delivery being sent back - material, specification and unit come from it. Enter how much to send back. The office approves; the lorry is loaded and both sides sign when it leaves.",
+      "processedBy": "Exit recorded by",
+      "returnFormHelp": "Choose the material (its unit fills in), enter the quantity, the lorry plate and why it goes back, and take the photos. Choose or scan the supplier if you know it - otherwise leave it. The office fills the Return Note and approves; both sides sign when it actually leaves.",
       "supplier": "Supplier",
       "chooseSupplier": "Choose the supplier",
       "sourceReceipt": "Original delivery",
-      "chooseSourceReceipt": "Choose the delivery being sent back",
-      "remaining": "{quantity} {unit} left",
-      "noReturnable": "No delivery from this supplier on this project has anything left to send back.",
       "specification": "Specification",
       "returnQuantity": "Quantity to send back",
-      "tooMuch": "Only {quantity} {unit} of this delivery is left to send back.",
       "reasonPlaceholder": "Why it is going back, e.g. surplus, wrong size found later",
       "returnedQuantity": "Quantity actually sent back",
       "siteSignature": "Site signature",
       "supplierSignature": "Supplier / driver signature",
-      "returnAction": "Return"
+      "returnAction": "Return",
+      "material": "Material",
+      "chooseMaterial": "Choose the material",
+      "noMaterials": "This project has no material categories yet. Ask the office to add one.",
+      "autoFilled": "Filled in from the material category",
+      "supplierOptional": "Choose or scan it if you know it; otherwise leave it.",
+      "scanSupplier": "Scan supplier QR",
+      "scannedSupplier": "Scanned: {name}",
+      "scanFailed": "That code is not a supplier's QR code.",
+      "noSupplier": "Not known"
     },
     "outgoingStatus": {
-      "APPROVED": "Approved - waiting for the handover",
+      "APPROVED": "Approved / waiting to leave site",
       "PENDING": "Pending approval",
       "REJECTED": "Returned (closed)",
       "RELEASED": "Released (before the new flow)",
-      "PROCESSED": "Processed on site (old flow) - waiting for final confirmation",
-      "COMPLETED": "Handed over - complete"
+      "PROCESSED": "Waiting for office confirmation",
+      "COMPLETED": "Left site - complete"
     },
     "priority": {
       "HIGH": "High",
@@ -5947,9 +5955,10 @@
       "saved": "Saved",
       "taskAssigned": "Task assigned",
       "taskUpdated": "Task updated",
-      "outgoingProcessed": "Processing photos sent. The office will confirm.",
+      "outgoingProcessed": "Exit recorded. The office will confirm it.",
       "movementRequested": "Application sent to the office",
-      "movementReviewed": "Application updated"
+      "movementReviewed": "Application updated",
+      "returnNoteSaved": "Return Note saved"
     },
     "what": {
       "roles": "The role list",
@@ -5960,14 +5969,37 @@
       "progressSummary": "The progress totals",
       "phases": "The construction category list",
       "outgoingRecord": "This material outgoing record",
-      "returnableReceipts": "deliveries that can be sent back",
-      "equipmentApplications": "open equipment applications"
+      "equipmentApplications": "open equipment applications",
+      "materials": "The material list"
     },
     "equipmentMovementStatus": {
       "PENDING": "Waiting for approval",
       "APPROVED": "Approved - waiting for the handover",
       "RETURNED": "Returned - closed",
       "COMPLETED": "Handed over"
+    },
+    "returnNote": {
+      "title": "Return Note",
+      "fill": "Fill Return Note",
+      "edit": "Edit Return Note",
+      "help": "Before approving, fill the Return Note: the material, DO number, supplier, quantity, reason, and the approver's name and signature.",
+      "number": "Return Note no.",
+      "numberPending": "Numbered when saved",
+      "date": "Date",
+      "material": "Material",
+      "deliveryNoteNo": "DO No.",
+      "supplier": "Supplier",
+      "chooseSupplier": "Choose the supplier",
+      "quantity": "Quantity",
+      "reason": "Reason",
+      "approverName": "Approved by",
+      "approverSignature": "Approver's signature",
+      "keepSignature": "Signed already. Sign again only to replace it.",
+      "save": "Save Return Note",
+      "saveFailed": "The Return Note was not saved. Please try again.",
+      "missing": "No Return Note yet",
+      "needNoteFirst": "Fill the Return Note first",
+      "filledBy": "Filled by"
     }
   },
   "contractorPartners": {
@@ -7311,7 +7343,8 @@
       "disposal_trip_not_waiting": "This load is not waiting for a check: it has not been sent, or it was already checked.",
       "disposal_all_trips_sent": "Every planned load has been sent. If another lorry is going, ask the site to add a load.",
       "disposal_trips_closed": "This disposal has finished or was ended; its loads can no longer change.",
-      "disposal_nothing_sent": "No load has been sent yet, so there is nothing to end. Cancel the job instead."
+      "disposal_nothing_sent": "No load has been sent yet, so there is nothing to end. Cancel the job instead.",
+      "return_note_required": "Fill in the Return Note before approving."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9644,7 +9677,15 @@
       "manufacturer": "Manufacturer",
       "trips_progress": "Loads checked / planned",
       "trip_checked": "Load checked",
-      "trip_waiting": "Load waiting for check"
+      "trip_waiting": "Load waiting for check",
+      "return_note_no": "Return Note no.",
+      "return_note_at": "Return Note date",
+      "return_note_material": "Return Note material",
+      "return_note_delivery_note_no": "Return Note DO no.",
+      "return_note_supplier": "Return Note supplier",
+      "return_note_quantity": "Return Note quantity",
+      "return_note_reason": "Return Note reason",
+      "approver_name": "Return Note approved by"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -11529,12 +11570,33 @@
       "choose": "Choose a view"
     },
     "net": {
-      "title": "Net quantity by material",
-      "note": "Net = deliveries in (rejected ones not counted) less returns to the supplier, each return taken off its own delivery once. Different units are never added together.",
-      "received": "In",
+      "title": "Net quantity by supplier and material",
+      "note": "Received never goes down. Net = received (rejected loads not counted) less returns the office has confirmed as complete - matched by material category and unit. Different units are never added together.",
+      "received": "Received (total in)",
       "returned": "Returned",
       "net": "Net",
-      "rejected": "Rejected (not counted)"
+      "rejected": "Rejected (not counted)",
+      "supplier": "Supplier",
+      "noSupplier": "No supplier named",
+      "searchMaterial": "Search material",
+      "expand": "Show each delivery",
+      "collapse": "Hide",
+      "deliveries": "Deliveries",
+      "item": {
+        "kind": {
+          "DELIVERY": "In",
+          "RETURN": "Returned",
+          "RETURN_RECEIPT": "Return (before 10-02)",
+          "REJECTED": "Rejected"
+        },
+        "date": "Date",
+        "reference": "No.",
+        "doNo": "DO No.",
+        "plate": "Lorry plate",
+        "manufacturer": "Manufacturer",
+        "returnNote": "Return Note",
+        "quantity": "Quantity"
+      }
     }
   },
   "recyclerBusiness": {
@@ -15678,5 +15740,31 @@
         "confirm": "Remove summary"
       }
     }
+  },
+  "supplierReturns": {
+    "badge": "Has returns",
+    "badgeHint": "{count} finished return(s) to this supplier - open to see them",
+    "title": "Returns to {name}",
+    "help": "Every finished return to this supplier, with its Return Note, photos, both signatures and approval.",
+    "empty": "No finished returns.",
+    "what": "The returns",
+    "column": {
+      "date": "Date",
+      "material": "Material",
+      "quantity": "Quantity",
+      "plate": "Lorry plate",
+      "reason": "Reason",
+      "returnNote": "Return Note",
+      "photos": "Photos",
+      "signatures": "Both signatures",
+      "approval": "Approval"
+    },
+    "site": "Site",
+    "supplierSide": "Supplier / driver",
+    "approver": "Approver",
+    "print": "Print",
+    "export": "Export",
+    "share": "Share",
+    "open": "Open the record"
   }
 }
