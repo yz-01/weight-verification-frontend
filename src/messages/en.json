@@ -6517,7 +6517,6 @@
     "downloading": "Downloading",
     "allCategories": "All categories",
     "allProjects": "All projects",
-    "allSubcategories": "All subcategories",
     "allUploaders": "All uploaders",
     "archive": {
       "action": "Archive",
@@ -6533,11 +6532,6 @@
     },
     "companyWide": "Company-wide",
     "count": "{count} documents",
-    "create": {
-      "action": "New document",
-      "description": "Create the archive record first, then upload its first immutable file version.",
-      "title": "Create document"
-    },
     "detail": {
       "title": "Document details"
     },
@@ -6569,7 +6563,8 @@
       "version": "Version",
       "versionNote": "Version note",
       "versions": "Versions",
-      "path": "Filed under"
+      "path": "Filed under",
+      "thumbnail": "Thumbnail"
     },
     "keywordsPlaceholder": "Separate keywords with commas",
     "noFile": "No file uploaded",
@@ -6596,18 +6591,18 @@
       "archived": "Document archived",
       "categoryCreated": "Category created",
       "categoryUpdated": "Category updated",
-      "created": "Document created",
       "subcategoryCreated": "Subcategory created",
       "subcategoryUpdated": "Subcategory updated",
       "updated": "Document updated",
       "versionUploaded": "Document version uploaded",
-      "uploaded": "File uploaded"
+      "uploaded": "File uploaded",
+      "systemFilesAdded": "Filed in the archive"
     },
     "upload": {
       "action": "Upload version",
       "confirm": "Upload",
       "description": "Add a new immutable version to {name}.",
-      "limit": "The configured file-size limit is enforced during upload.",
+      "limit": "PDF, Word, Excel or photos only. The configured file-size limit is enforced during upload.",
       "title": "Upload document version"
     },
     "versions": {
@@ -6623,21 +6618,49 @@
     "preview": {
       "title": "Preview"
     },
-    "folders": {
-      "title": "Folders",
-      "all": "All documents"
-    },
     "uploadFile": {
       "action": "Upload file",
       "title": "Upload to the document archive",
       "description": "Choose the files and the folder they are filed in. Each file becomes its own document; anything already filed is not touched.",
-      "fileHint": "Photos, PDFs, receipts, certificates, drawings - any file. You can choose several at once.",
+      "fileHint": "PDF, Word, Excel or photos. You can choose several at once.",
       "pathPreview": "Will be filed under:",
       "projectHint": "Only a project you are on. Filing company-wide is for a document manager.",
       "titleHint": "Left empty, the file name is used.",
       "confirm": "Upload",
       "progress": "Uploading {done}/{total}",
-      "noCategory": "Set up a document category first"
+      "noCategory": "Set up a document category first",
+      "fromComputer": "From this computer"
+    },
+    "categoryPicker": {
+      "expand": "Show the subcategories of {name}",
+      "collapse": "Hide the subcategories of {name}"
+    },
+    "source": {
+      "from": "From {reference} · {module}",
+      "fromModule": "From {module}",
+      "deleted": "Record deleted",
+      "open": "Open the record"
+    },
+    "pickFromSystem": {
+      "tab": "From the system",
+      "description": "Find photos and files already in the system, tick them or drag them to the archive area, then file them. Nothing is copied.",
+      "files": "System files",
+      "hint": "Only files you can already see are listed.",
+      "searchPlaceholder": "Search a number (e.g. MR-002), material or file name",
+      "module": "Module",
+      "allModules": "All modules",
+      "what": "System files",
+      "empty": "No files found.",
+      "alreadyFiled": "Already in the archive",
+      "dropArea": "Archive area",
+      "dropHint": "Drag photos here, or tap a photo to tick it.",
+      "selected": "{count} selected",
+      "remove": "Remove {name}",
+      "confirm": "File in archive ({count})",
+      "previous": "Previous page",
+      "next": "Next page",
+      "firstPage": "This is the first page",
+      "lastPage": "This is the last page"
     }
   },
   "driver": {
@@ -7150,7 +7173,10 @@
       "receipt_archived": "This delivery has been confirmed and archived, so it can no longer be accepted or rejected. Raise a new record for anything further.",
       "site_record_field_only": "Only site staff record this, on the phone. From the office you can correct an existing record instead.",
       "material_request_assigned_to_other": "This request was sent to somebody else to approve. To decide it yourself, press \"Take it over\" first.",
-      "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list."
+      "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list.",
+      "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded.",
+      "document_is_system_file": "A file picked from the system takes no new versions. Put the new version on its record.",
+      "document_system_file_not_found": "One of those files was not found, or you cannot see it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

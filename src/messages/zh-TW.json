@@ -6517,7 +6517,6 @@
     "downloading": "下載中",
     "allCategories": "全部分類",
     "allProjects": "全部專案",
-    "allSubcategories": "全部子分類",
     "allUploaders": "全部上傳人",
     "archive": {
       "action": "歸檔",
@@ -6533,11 +6532,6 @@
     },
     "companyWide": "公司級",
     "count": "共 {count} 份文檔",
-    "create": {
-      "action": "新建文檔",
-      "description": "先建立檔案記錄，再上傳第一份不可修改的文件版本。",
-      "title": "建立文檔"
-    },
     "detail": {
       "title": "文檔詳情"
     },
@@ -6569,7 +6563,8 @@
       "version": "版本",
       "versionNote": "版本備註",
       "versions": "版本數",
-      "path": "保存路徑"
+      "path": "保存路徑",
+      "thumbnail": "縮圖"
     },
     "keywordsPlaceholder": "多個關鍵詞請用逗號分隔",
     "noFile": "尚未上傳文件",
@@ -6596,18 +6591,18 @@
       "archived": "文檔已歸檔",
       "categoryCreated": "分類已建立",
       "categoryUpdated": "分類已更新",
-      "created": "文檔已建立",
       "subcategoryCreated": "子分類已建立",
       "subcategoryUpdated": "子分類已更新",
       "updated": "文檔已更新",
       "versionUploaded": "文檔版本已上傳",
-      "uploaded": "文件已上傳"
+      "uploaded": "文件已上傳",
+      "systemFilesAdded": "已放進檔案"
     },
     "upload": {
       "action": "上傳新版本",
       "confirm": "上傳",
       "description": "為 {name} 新增一個不可修改的版本。",
-      "limit": "上傳時會執行系統設定的文件大小限制。",
+      "limit": "只能上傳 PDF、Word、Excel 或照片；上傳時會執行系統設定的文件大小限制。",
       "title": "上傳文檔版本"
     },
     "versions": {
@@ -6623,21 +6618,49 @@
     "preview": {
       "title": "線上預覽"
     },
-    "folders": {
-      "title": "分類",
-      "all": "全部文件"
-    },
     "uploadFile": {
       "action": "上傳文件",
       "title": "上傳到文件檔案",
       "description": "選擇文件和保存的分類路徑。每個文件各自成為一份檔案；已有的檔案不會被改動。",
-      "fileHint": "照片、PDF、單據、證書、圖紙等任何文件，可一次選多個。",
+      "fileHint": "PDF、Word、Excel 或照片，可一次選多個。",
       "pathPreview": "將保存到：",
       "projectHint": "只能選你所在的項目；全公司共用的文件由文件管理員上傳。",
       "titleHint": "留空就用檔名。",
       "confirm": "上傳",
       "progress": "上傳中 {done}/{total}",
-      "noCategory": "請先建立文件分類"
+      "noCategory": "請先建立文件分類",
+      "fromComputer": "從電腦上傳"
+    },
+    "categoryPicker": {
+      "expand": "展開 {name} 的子分類",
+      "collapse": "收起 {name} 的子分類"
+    },
+    "source": {
+      "from": "來自 {reference} · {module}",
+      "fromModule": "來自{module}",
+      "deleted": "原記錄已刪除",
+      "open": "打開原記錄"
+    },
+    "pickFromSystem": {
+      "tab": "從系統裡選",
+      "description": "在系統裡找已有的照片和檔案，勾選或拖到右邊的檔案區，再放進檔案。不會複製檔案。",
+      "files": "系統檔案",
+      "hint": "只列出你本來就看得到的檔案。",
+      "searchPlaceholder": "搜編號（如 MR-002）、材料或檔名",
+      "module": "模組",
+      "allModules": "全部模組",
+      "what": "系統檔案",
+      "empty": "沒有找到檔案。",
+      "alreadyFiled": "已在檔案裡",
+      "dropArea": "檔案區",
+      "dropHint": "把照片拖到這裡，或點一下照片勾選。",
+      "selected": "已選 {count} 個",
+      "remove": "移除 {name}",
+      "confirm": "放進檔案（{count}）",
+      "previous": "上一頁",
+      "next": "下一頁",
+      "firstPage": "已經是第一頁",
+      "lastPage": "已經是最後一頁"
     }
   },
   "driver": {
@@ -7150,7 +7173,10 @@
       "receipt_archived": "這批材料已確認歸檔，不能再驗收或退回。如有新問題，請新建一條記錄。",
       "site_record_field_only": "只有現場人員能在手機上新增這條記錄。後台可以更正已有的記錄。",
       "material_request_assigned_to_other": "這個申請已提交給別人審批。要由你審批，請先按「改派給我」。",
-      "material_request_reviewer_not_eligible": "所選的人不能批准這個項目的申請，請從名單裡重新選擇。"
+      "material_request_reviewer_not_eligible": "所選的人不能批准這個項目的申請，請從名單裡重新選擇。",
+      "document_file_type_not_allowed": "只能上傳 PDF、Word、Excel 或照片。",
+      "document_is_system_file": "從系統裡選的檔案不能上傳新版本，新版本請放在原記錄裡。",
+      "document_system_file_not_found": "有檔案找不到，或你沒有權限查看。"
     },
     "backToDashboard": "返回儀表板",
     "field": {

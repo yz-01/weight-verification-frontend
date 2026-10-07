@@ -6517,7 +6517,6 @@
     "downloading": "Sedang memuat turun",
     "allCategories": "Semua kategori",
     "allProjects": "Semua projek",
-    "allSubcategories": "Semua subkategori",
     "allUploaders": "Semua pemuat naik",
     "archive": {
       "action": "Arkibkan",
@@ -6533,11 +6532,6 @@
     },
     "companyWide": "Seluruh syarikat",
     "count": "{count} dokumen",
-    "create": {
-      "action": "Dokumen baharu",
-      "description": "Cipta rekod arkib dahulu, kemudian muat naik versi fail kekal yang pertama.",
-      "title": "Cipta dokumen"
-    },
     "detail": {
       "title": "Butiran dokumen"
     },
@@ -6569,7 +6563,8 @@
       "version": "Versi",
       "versionNote": "Catatan versi",
       "versions": "Versi",
-      "path": "Disimpan di"
+      "path": "Disimpan di",
+      "thumbnail": "Lakaran kecil"
     },
     "keywordsPlaceholder": "Pisahkan kata kunci dengan koma",
     "noFile": "Tiada fail dimuat naik",
@@ -6596,18 +6591,18 @@
       "archived": "Dokumen diarkibkan",
       "categoryCreated": "Kategori dicipta",
       "categoryUpdated": "Kategori dikemas kini",
-      "created": "Dokumen dicipta",
       "subcategoryCreated": "Subkategori dicipta",
       "subcategoryUpdated": "Subkategori dikemas kini",
       "updated": "Dokumen dikemas kini",
       "versionUploaded": "Versi dokumen dimuat naik",
-      "uploaded": "Fail dimuat naik"
+      "uploaded": "Fail dimuat naik",
+      "systemFilesAdded": "Difailkan dalam arkib"
     },
     "upload": {
       "action": "Muat naik versi",
       "confirm": "Muat naik",
       "description": "Tambah versi kekal baharu kepada {name}.",
-      "limit": "Had saiz fail yang dikonfigurasi dikuatkuasakan semasa muat naik.",
+      "limit": "PDF, Word, Excel atau foto sahaja. Had saiz fail yang dikonfigurasi dikuatkuasakan semasa muat naik.",
       "title": "Muat naik versi dokumen"
     },
     "versions": {
@@ -6623,21 +6618,49 @@
     "preview": {
       "title": "Pratonton"
     },
-    "folders": {
-      "title": "Folder",
-      "all": "Semua dokumen"
-    },
     "uploadFile": {
       "action": "Muat naik fail",
       "title": "Muat naik ke arkib dokumen",
       "description": "Pilih fail dan folder simpanannya. Setiap fail menjadi dokumen tersendiri; dokumen sedia ada tidak diubah.",
-      "fileHint": "Foto, PDF, resit, sijil, lukisan - apa-apa fail. Boleh pilih beberapa sekaligus.",
+      "fileHint": "PDF, Word, Excel atau foto. Boleh pilih beberapa sekaligus.",
       "pathPreview": "Akan disimpan di:",
       "projectHint": "Hanya projek anda. Simpanan seluruh syarikat untuk pengurus dokumen.",
       "titleHint": "Jika kosong, nama fail digunakan.",
       "confirm": "Muat naik",
       "progress": "Memuat naik {done}/{total}",
-      "noCategory": "Sediakan kategori dokumen dahulu"
+      "noCategory": "Sediakan kategori dokumen dahulu",
+      "fromComputer": "Dari komputer ini"
+    },
+    "categoryPicker": {
+      "expand": "Tunjukkan subkategori {name}",
+      "collapse": "Sembunyikan subkategori {name}"
+    },
+    "source": {
+      "from": "Dari {reference} · {module}",
+      "fromModule": "Dari {module}",
+      "deleted": "Rekod dipadam",
+      "open": "Buka rekod"
+    },
+    "pickFromSystem": {
+      "tab": "Dari sistem",
+      "description": "Cari foto dan fail yang sudah ada dalam sistem, tandakan atau seret ke kawasan arkib, kemudian failkan. Tiada fail disalin.",
+      "files": "Fail sistem",
+      "hint": "Hanya fail yang anda sudah boleh lihat disenaraikan.",
+      "searchPlaceholder": "Cari nombor (cth. MR-002), bahan atau nama fail",
+      "module": "Modul",
+      "allModules": "Semua modul",
+      "what": "Fail sistem",
+      "empty": "Tiada fail ditemui.",
+      "alreadyFiled": "Sudah dalam arkib",
+      "dropArea": "Kawasan arkib",
+      "dropHint": "Seret foto ke sini, atau ketik foto untuk menandakannya.",
+      "selected": "{count} dipilih",
+      "remove": "Buang {name}",
+      "confirm": "Failkan dalam arkib ({count})",
+      "previous": "Halaman sebelumnya",
+      "next": "Halaman seterusnya",
+      "firstPage": "Ini halaman pertama",
+      "lastPage": "Ini halaman terakhir"
     }
   },
   "driver": {
@@ -7150,7 +7173,10 @@
       "receipt_archived": "Penghantaran ini telah disahkan dan diarkibkan, jadi ia tidak boleh diterima atau ditolak lagi. Buat rekod baharu untuk perkara lain.",
       "site_record_field_only": "Hanya kakitangan tapak boleh merekod ini, melalui telefon. Dari pejabat, anda boleh membetulkan rekod sedia ada.",
       "material_request_assigned_to_other": "Permohonan ini dihantar kepada orang lain untuk diluluskan. Untuk memutuskannya sendiri, tekan \"Ambil alih\" dahulu.",
-      "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai."
+      "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai.",
+      "document_file_type_not_allowed": "Hanya fail PDF, Word, Excel atau gambar boleh dimuat naik.",
+      "document_is_system_file": "Fail yang dipilih daripada sistem tidak menerima versi baharu. Letakkan versi baharu pada rekodnya.",
+      "document_system_file_not_found": "Salah satu fail tidak ditemui, atau anda tidak boleh melihatnya."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
