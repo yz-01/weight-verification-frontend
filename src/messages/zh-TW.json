@@ -3182,7 +3182,10 @@
     },
     "filter": {
       "allProjects": "所有項目",
-      "project": "選擇項目"
+      "project": "選擇項目",
+      "outsideFence": "圍欄外打卡",
+      "since": "{date} 起",
+      "onDay": "{date} 當天"
     },
     "title": "人員進場記錄",
     "toast": {
@@ -5182,16 +5185,17 @@
       "SITE_PROGRESS": "工程進度",
       "WASTE_DISPATCH": "回收派車"
     },
-    "anomalies": {
+    "rectifications": {
       "daysOverdue": "{days, plural, =0 {今天到期} other {逾期 # 天}}",
-      "distance": "距離 {metres} 米",
-      "empty": "沒有需要處理的異常。",
-      "expiresAt": "{at} 到期",
-      "geofenceFailure": "超出電子圍欄",
-      "outside": "圍欄外",
-      "subtitle": "{count} 項需要處理。",
-      "title": "待處理異常",
-      "geofenceWindow": "越界打卡：近 {days} 天共 {count} 次。"
+      "empty": "沒有等你處理的整改或 EHS 事項。",
+      "overdue": "其中逾期 {count} 項。",
+      "step": {
+        "ASSIGN": "待指派",
+        "RECTIFY": "待整改",
+        "CONFIRM": "待確認"
+      },
+      "subtitle": "{count} 項等你處理。",
+      "title": "待處理整改 / EHS"
     },
     "approvals": {
       "companyWide": "公司級",
@@ -5292,7 +5296,9 @@
       "equipmentIn": "今日設備進場",
       "equipmentOut": "今日設備退場",
       "materialPendingAcceptance": "待驗收材料",
-      "equipmentExpiring": "證書即將到期"
+      "equipmentExpiring": "證書即將到期",
+      "geofenceFailures": "越界打卡（近 {days} 天）",
+      "expiringPasses": "通行證即將到期"
     },
     "personnel": {
       "empty": "今天沒有人員進場記錄。",
@@ -12783,7 +12789,8 @@
       "vehiclePlate": "車牌",
       "visitorHours": "訪客證默認時長（小時）",
       "website": "公司網站",
-      "worker": "工地人員"
+      "worker": "工地人員",
+      "expiringSoon": "7 天內到期"
     },
     "gate": {
       "cameraError": "無法啟動相機。請允許相機權限後重試，或上傳二維碼圖片。",

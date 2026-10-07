@@ -46,6 +46,7 @@ import {
   sortable,
 } from "@/components/shared/module-records-table";
 import { FieldWrapper, ListHeader, QueryFailedNote, StatusBadge, TypeBadge } from "@/components/shared/page-primitives";
+import { Timeline } from "@/components/shared/timeline";
 import { RecordDetailDialog, RecordDetailShell } from "@/components/shared/record-detail-shell";
 import { useListQuery } from "@/hooks/use-list-query";
 import { useUrlSelection } from "@/hooks/use-url-selection";
@@ -577,15 +578,18 @@ function DisposalDetailDialog({
         panel={
           <section className="rounded-lg border bg-card p-3">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("timeline")}</h3>
-            <ol className="max-h-64 space-y-2 overflow-y-auto border-l pl-3">
-              {row.timeline.map((item) => (
-                <li key={item.id} className="text-xs">
-                  <p className="font-medium">{t.has(`timelineEvent.${item.event}`) ? t(`timelineEvent.${item.event}`) : item.event}</p>
-                  <p className="text-muted-foreground">{item.actor_name || t("externalActor")} · {df.dateTime(item.happened_at)}</p>
-                  {item.note && <p className="mt-0.5 text-muted-foreground">{item.note}</p>}
-                </li>
-              ))}
-            </ol>
+            {/* The shared timeline (E2): dots on the line, one per step. */}
+            <Timeline
+              size="compact"
+              className="max-h-64 overflow-y-auto"
+              items={row.timeline.map((item) => ({
+                key: item.id,
+                title: t.has(`timelineEvent.${item.event}`) ? t(`timelineEvent.${item.event}`) : item.event,
+                meta: `${item.actor_name || t("externalActor")} · ${df.dateTime(item.happened_at)}`,
+                note: item.note || undefined,
+                tone: "info",
+              }))}
+            />
           </section>
         }
         actions={

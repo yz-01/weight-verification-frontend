@@ -92,6 +92,9 @@ import {
 } from "@/services/site-access.service";
 import { getUsers } from "@/services/users.service";
 
+/** The status filter's "approved, running out within the week" choice. */
+const EXPIRING = "expiring";
+
 export function SiteAccessWorkspace() {
   const t = useTranslations("siteControl");
   const { can } = useAuth();
@@ -110,8 +113,11 @@ export function SiteAccessWorkspace() {
         ? "gate"
         : "passes",
   );
-  const [project, setProject] = useState("all");
-  const [status, setStatus] = useState("all");
+  // The dashboard's 通行证即将到期 figure opens `?expiring=1` (C15).
+  const [project, setProject] = useState(search.get("project") || "all");
+  const [status, setStatus] = useState(
+    search.get("expiring") === "1" ? EXPIRING : "all",
+  );
   const [creating, setCreating] = useState(false);
   // Only a pending pass can be corrected; the backend answers 409 after that.
   const [editing, setEditing] = useState<SiteAccessPass | null>(null);
@@ -160,7 +166,11 @@ export function SiteAccessWorkspace() {
       getSiteAccessPasses({
         page_size: 200,
         ...(project !== "all" ? { project } : {}),
-        ...(status !== "all" ? { status } : {}),
+        ...(status === EXPIRING
+          ? { expiring: "1" }
+          : status !== "all"
+            ? { status }
+            : {}),
       }),
   });
   const focusedPass = useQuery({
@@ -254,6 +264,7 @@ export function SiteAccessWorkspace() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("field.allStatuses")}</SelectItem>
+                  <SelectItem value={EXPIRING}>{t("field.expiringSoon")}</SelectItem>
                   {["PENDING", "APPROVED", "REJECTED", "REVOKED"].map(
                     (value) => (
                       <SelectItem key={value} value={value}>

@@ -3182,7 +3182,10 @@
     },
     "filter": {
       "allProjects": "All projects",
-      "project": "Choose project"
+      "project": "Choose project",
+      "outsideFence": "Outside the fence",
+      "since": "Since {date}",
+      "onDay": "On {date}"
     },
     "title": "Site entry records",
     "toast": {
@@ -5182,16 +5185,17 @@
       "SITE_PROGRESS": "Progress",
       "WASTE_DISPATCH": "Dispatch"
     },
-    "anomalies": {
+    "rectifications": {
       "daysOverdue": "{days, plural, =0 {Due today} one {# day overdue} other {# days overdue}}",
-      "distance": "{metres}m away",
-      "empty": "Nothing needs attention.",
-      "expiresAt": "Expires {at}",
-      "geofenceFailure": "Outside the geofence",
-      "outside": "Outside",
-      "subtitle": "{count} need attention.",
-      "title": "Outstanding anomalies",
-      "geofenceWindow": "Outside the fence: {count} in the last {days} days."
+      "empty": "No rectification or EHS item is waiting on you.",
+      "overdue": "{count} past due.",
+      "step": {
+        "ASSIGN": "To assign",
+        "RECTIFY": "To rectify",
+        "CONFIRM": "To confirm"
+      },
+      "subtitle": "{count} waiting on you.",
+      "title": "Open rectifications / EHS"
     },
     "approvals": {
       "companyWide": "Company-wide",
@@ -5292,7 +5296,9 @@
       "equipmentIn": "Equipment in today",
       "equipmentOut": "Equipment out today",
       "materialPendingAcceptance": "Awaiting acceptance",
-      "equipmentExpiring": "Paperwork expiring"
+      "equipmentExpiring": "Paperwork expiring",
+      "geofenceFailures": "Outside the fence ({days} days)",
+      "expiringPasses": "Passes expiring"
     },
     "personnel": {
       "empty": "No site entries recorded today.",
@@ -12783,7 +12789,8 @@
       "vehiclePlate": "Vehicle plate",
       "visitorHours": "Default visitor pass (hours)",
       "website": "Website",
-      "worker": "Site worker"
+      "worker": "Site worker",
+      "expiringSoon": "Expiring within 7 days"
     },
     "gate": {
       "cameraError": "The camera could not start. Allow camera access and try again, or upload a QR image.",
