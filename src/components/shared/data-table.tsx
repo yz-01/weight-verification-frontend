@@ -20,6 +20,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
+import { InsideRowControl } from "@/components/shared/inside-row-control";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -285,6 +286,9 @@ export function DataTable<T>({
             ))}
           </TableHeader>
 
+          {/* A row that opens on click is the control: a thumbnail inside
+              it is a picture, not a second button (audit #11). */}
+          <InsideRowControl.Provider value={Boolean(onRowClick)}>
           <TableBody>
             {isLoading ? (
               Array.from({ length: 8 }).map((_, rowIndex) => (
@@ -378,6 +382,7 @@ export function DataTable<T>({
               ))
             )}
           </TableBody>
+          </InsideRowControl.Provider>
         </Table>
       </div>
 

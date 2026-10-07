@@ -7,6 +7,8 @@ export type SundryClaimState = "SUBMITTED" | "CONFIRMED" | "REJECTED";
 export interface SundryClaimAttachment {
   id: string;
   image: string;
+  /** The stamped copy, or null when none could be made (what a list's viewer opens). */
+  watermarked?: string | null;
   caption: string;
   captured_at: string;
   latitude: string | null;

@@ -271,7 +271,7 @@ export function MySubmissions({
                 {/* The submission's photograph on the left (E3); the card
                     itself opens it, so the picture is not a second button. */}
                 <PhotoThumb
-                  coverUrl={row.cover_photo_url ?? row.photo}
+                  coverUrl={row.cover_photo_url}
                   count={row.photo_count}
                   icon={recordKindIcon(row.kind)}
                   reference={row.reference}

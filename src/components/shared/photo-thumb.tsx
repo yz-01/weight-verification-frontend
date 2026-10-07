@@ -38,8 +38,9 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
+import { InsideRowControl } from "@/components/shared/inside-row-control";
 import { PhotoViewer, type ShellPhoto } from "@/components/shared/record-detail-shell";
 import { cn } from "@/lib/utils";
 import { getCategoryRecord } from "@/services/contractor-ops.service";
@@ -56,13 +57,19 @@ export interface PhotoThumbProps {
   icon: LucideIcon;
   /** The record's number, for the viewer's title, file names and the label. */
   reference: string;
-  /** Every photograph of the record, or how to fetch them on open. */
+  /**
+   * Every photograph of the record, or how to fetch them on open. Without it
+   * the thumbnail is a picture only: there is nothing of the record's to open,
+   * and the viewer would only blow the 240 px thumbnail up (audit #4).
+   */
   photos?: PhotoThumbPhotos;
   /** 48 px in a list (default); 40 px in the dashboard's compact rows. */
   size?: "md" | "sm";
   /**
    * False inside something that is itself a button (a phone card that opens
    * its record): the picture is shown, the card's own click opens the record.
+   * Inside a `DataTable` row that opens its record this is the default
+   * (`InsideRowControl`, audit #11).
    */
   openable?: boolean;
   className?: string;
@@ -77,10 +84,12 @@ export function PhotoThumb({
   reference,
   photos,
   size = "md",
-  openable = true,
+  openable: openableProp,
   className,
 }: PhotoThumbProps) {
   const t = useTranslations("photos");
+  const insideRowControl = useContext(InsideRowControl);
+  const openable = (openableProp ?? !insideRowControl) && photos !== undefined;
   const [opened, setOpened] = useState<{ photos: ShellPhoto[]; index: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const total = count ?? 0;
@@ -103,20 +112,17 @@ export function PhotoThumb({
     );
   }
 
-  // The thumbnail itself, until the full set arrives - better than nothing
-  // when a record's photographs cannot be fetched.
+  // The (stamped) thumbnail itself when the record's photographs cannot be
+  // fetched, or none of them has a stamped copy - better than nothing.
   const fallback: ShellPhoto[] = [{ id: "cover", url: coverUrl, label: reference }];
 
   const open = async (event: React.MouseEvent) => {
     // A list row opens its record on click; the photograph opens the viewer.
     event.stopPropagation();
     event.preventDefault();
+    if (!photos) return;
     if (Array.isArray(photos)) {
       setOpened({ photos: photos.length ? photos : fallback, index: 0 });
-      return;
-    }
-    if (!photos) {
-      setOpened({ photos: fallback, index: 0 });
       return;
     }
     setLoading(true);
@@ -252,12 +258,21 @@ export function recordPhotos(kind: string, id: string, label: string) {
   return async () => toShellPhotos((await getCategoryRecord(sheet, id)).photos ?? [], label);
 }
 
-/** Photographs a list row already carries - each with its stamped copy when it has one. */
+/**
+ * Photographs a list row already carries, as their stamped copies.
+ *
+ * `url` is a link the server already stamped (a record sheet's photo);
+ * `watermarked` is a row's stamped copy. The original (`image`) is never
+ * used: a photograph whose stamp could not be made is left out rather than
+ * shown unstamped (audit #10, Q30.2) - with none left the viewer shows the
+ * stamped thumbnail, and a record with no thumbnail shows its icon.
+ */
 export function rowPhotos(
   list: ReadonlyArray<{
     id?: string | number | null;
     url?: string | null;
     watermarked?: string | null;
+    /** Accepted so a row's photographs can be passed as they are; never shown. */
     image?: string | null;
     caption?: string | null;
   }> | null | undefined,
@@ -266,7 +281,7 @@ export function rowPhotos(
   return toShellPhotos(
     (list ?? []).map((photo) => ({
       id: photo.id == null ? null : String(photo.id),
-      url: photo.url || photo.watermarked || photo.image || null,
+      url: photo.url || photo.watermarked || null,
       caption: photo.caption,
     })),
     label,

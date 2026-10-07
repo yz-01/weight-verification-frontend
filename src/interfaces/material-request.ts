@@ -21,6 +21,12 @@ export interface MaterialRequestAttachment {
   size_bytes: number;
   uploaded_at: string;
   is_image: boolean;
+  /**
+   * A picture's watermarked copy - what a full-size view shows (Q30.1).
+   * Null for a PDF or other file, and for a picture whose stamp could not be
+   * made (never shown unstamped).
+   */
+  watermarked?: string | null;
 }
 
 /**
