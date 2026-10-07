@@ -5649,7 +5649,7 @@
       "notes": "備註",
       "operator": "操作人員",
       "percentComplete": "實際完成比例（%）",
-      "phase": "施工階段",
+      "phase": "施工分類",
       "photoCount": "已選擇 {count} 張照片",
       "photoRequired": "必須上傳照片數",
       "photos": "現場照片",
@@ -5658,7 +5658,7 @@
       "quantity": "數量",
       "reason": "出場原因",
       "registrationNo": "註冊號碼",
-      "selectPhase": "選擇施工階段",
+      "selectPhase": "選擇施工分類",
       "selectProject": "選擇項目",
       "selectStaff": "選擇項目人員",
       "serialNo": "序列號",
@@ -5763,38 +5763,38 @@
       "URGENT": "緊急"
     },
     "progress": {
-      "addFirstPhase": "新增第一個階段",
-      "addPhase": "新增階段",
+      "addFirstPhase": "新增第一個施工分類",
+      "addPhase": "新增施工分類",
       "addRecord": "記錄進度",
       "capturedAt": "記錄時間",
       "confirmedAt": "確認時間",
       "confirmedBy": "確認人",
-      "editPhase": "更正這個階段",
-      "noPhasesHelp": "此項目尚未建立施工階段。請先新增階段，才能記錄進度。",
-      "phaseActive": "在用。不想要這個階段時，把這個關掉而不是刪除 —— 進度記錄都指著它，刪了那些記錄就說不清是哪個階段的了。",
-      "phaseHelp": "建立用於整理和確認工程進度的施工階段。",
-      "phaseTitle": "新增施工階段",
+      "editPhase": "更正這個施工分類",
+      "noPhasesHelp": "此項目尚未建立施工分類。請先新增施工分類，才能記錄進度。",
+      "phaseActive": "在用。不想要這個施工分類時，把這個關掉而不是刪除 —— 進度記錄都指著它，刪了那些記錄就說不清是哪個施工分類的了。",
+      "phaseHelp": "建立用於整理和確認工程進度的施工分類。",
+      "phaseTitle": "施工分類",
       "recordHelp": "拍攝當前工地照片；完成比例必須由項目經理確認才會生效。",
       "recordTitle": "新增進度證據",
       "returnPrompt": "請說明需要更正後再提交的內容。",
-      "saveError": "工程進度保存失敗，請檢查項目、施工階段、照片和 GPS 後重試。",
+      "saveError": "工程進度保存失敗，請檢查項目、施工分類、照片和 GPS 後重試。",
       "submittedBy": "記錄人",
-      "subtitle": "管理施工階段、照片進度以及項目經理確認。",
+      "subtitle": "管理施工分類、照片進度以及項目經理確認。",
       "summary": {
         "month": "本月記錄",
         "today": "今日記錄",
         "total": "項目累計",
         "year": "本年記錄",
-        "weighted": "整體進度（按階段權重）"
+        "weighted": "整體進度（按施工分類權重）"
       },
       "title": "工程進度",
       "plannedWeight": "進度權重",
-      "plannedWeightHelp": "這個階段相對於本項目其他階段所佔的比重。1 表示與其他階段相同。",
+      "plannedWeightHelp": "這個施工分類相對於本項目其他施工分類所佔的比重。1 表示與其他施工分類相同。",
       "phaseRemove": {
-        "switch": "刪除這個階段",
-        "hint": "只有沒有任何進度記錄指著的階段可以刪除（例如建錯的）；在用的請在上面關掉。",
-        "confirm": "刪除階段",
-        "failed": "階段沒有刪除成功，請再試一次。"
+        "switch": "刪除這個施工分類",
+        "hint": "只有沒有任何進度記錄指著的施工分類可以刪除（例如建錯的）；在用的請在上面關掉。",
+        "confirm": "刪除施工分類",
+        "failed": "施工分類沒有刪除成功，請再試一次。"
       }
     },
     "progressEvidence": {
@@ -5910,7 +5910,7 @@
       "orderSaved": "順序已儲存",
       "outgoingReviewed": "出場狀態已更新",
       "outgoingSubmitted": "出場申請已提交",
-      "phaseSaved": "階段已儲存",
+      "phaseSaved": "施工分類已儲存",
       "photoAdded": "照片已添加",
       "progressReviewed": "進度審核已保存",
       "progressSubmitted": "進度已提交",
@@ -5930,7 +5930,7 @@
       "suppliers": "供應商列表",
       "equipmentSummary": "設備統計",
       "progressSummary": "進度統計",
-      "phases": "施工階段列表",
+      "phases": "施工分類列表",
       "outgoingRecord": "這條材料出場記錄",
       "returnableReceipts": "可退回的進場記錄",
       "equipmentApplications": "設備進退場申請"
@@ -6003,7 +6003,7 @@
       "period": "週期",
       "period_end": "目標結束",
       "period_start": "目標開始",
-      "phase": "施工階段",
+      "phase": "施工分類",
       "photo_count": "照片",
       "plan": "計劃",
       "planned_end": "計劃結束",
@@ -10483,8 +10483,8 @@
     "progress": {
       "what": "工程實際做到幾成，由現場帶照片和位置報上來。",
       "who": "同時持 progress.view 和 project.view。",
-      "need": "報一次進度要專案、標題、完成比例；手機端還要施工階段、現場照片和目前 GPS 位置。",
-      "then": "這個數落到那個施工階段上，並進入進度報表。",
+      "need": "報一次進度要專案、標題、完成比例；手機端還要施工分類、現場照片和目前 GPS 位置。",
+      "then": "這個數落到那個施工分類上，並進入進度報表。",
       "trouble": "現場沒訊號沒關係：照拍照填，它會排隊，之後自動傳。存下來的位置是拍照當時的，不是補傳時的。"
     },
     "project_categories": {
@@ -14979,7 +14979,7 @@
     "allProjects": "全部項目",
     "allStatuses": "全部狀態",
     "allDirections": "進場與退場",
-    "allPhases": "全部階段",
+    "allPhases": "全部施工分類",
     "located": "已記錄位置",
     "equipmentView": {
       "movements": "進退場記錄",
@@ -15487,6 +15487,127 @@
       "offline": "新增廠商需要網路。請先從名單選，或先不填。",
       "failed": "廠商新增失敗。",
       "fromColumn": "按分類自動帶出"
+    }
+  },
+  "progressPage": {
+    "tabs": {
+      "label": "工程進度",
+      "phases": "施工分類",
+      "photos": "現場照片",
+      "reports": "日報告",
+      "schedule": "施工計劃",
+      "summary": "項目進度摘要"
+    },
+    "subtitle": {
+      "phases": "每個項目自己的施工分類和權重。手機報進度時選施工分類，整體進度按權重計算。",
+      "photos": "現場拍的進度照片，按日期和施工分類找；勾選照片就能填寫日報告。",
+      "reports": "每天的日報告，點開看全文和當時勾選的照片。",
+      "schedule": "項目的施工計劃和實際進度。",
+      "summary": "項目經理自己排版的項目進度摘要：文字、照片、數字卡、圖表。"
+    },
+    "project": "項目",
+    "chooseProject": "選擇項目",
+    "chooseProjectFirst": "先選擇項目。",
+    "dateFrom": "開始日期",
+    "dateTo": "結束日期",
+    "previous": "上一頁",
+    "next": "下一頁",
+    "save": "保存",
+    "cancel": "取消",
+    "removeFailed": "沒有刪除成功，請再試一次。",
+    "phases": {
+      "add": "新增施工分類",
+      "help": "手機拍進度照片時要選一個施工分類。權重決定它在整體進度裡佔多少（1 = 和其他施工分類一樣）。",
+      "name": "施工分類",
+      "records": "進度記錄",
+      "active": "使用中",
+      "inactive": "已停用",
+      "empty": "還沒有施工分類。"
+    },
+    "photos": {
+      "viewLabel": "顯示方式",
+      "viewWall": "照片",
+      "viewRecords": "進度記錄",
+      "allPhases": "全部施工分類",
+      "selected": "已選 {count} 張",
+      "selectHint": "勾選照片，再按「填寫日報告」。",
+      "select": "選這張",
+      "unselect": "不選這張",
+      "clear": "取消選擇",
+      "oneProject": "一份日報告只能放同一個項目的照片。",
+      "empty": "沒有找到現場照片。",
+      "emptyDay": "這段時間沒有現場照片。"
+    },
+    "reports": {
+      "write": "填寫日報告",
+      "editTitle": "修改日報告",
+      "help": "寫下這一天現場做了什麼，勾選要附上的照片。",
+      "name": "日報名稱",
+      "date": "日期",
+      "view": "查看",
+      "body": "內容",
+      "photos": "照片",
+      "photoCount": "{count} 張照片",
+      "empty": "還沒有日報告。",
+      "noBody": "（沒有內容）",
+      "noPhotos": "這份日報告沒有照片。",
+      "edit": "修改",
+      "defaultName": "{date} 日報告",
+      "remove": {
+        "switch": "刪除這份日報告",
+        "hint": "寫錯了才刪除。照片本身不受影響。",
+        "confirm": "刪除日報告"
+      }
+    },
+    "summary": {
+      "new": "新建摘要",
+      "edit": "編輯",
+      "title": "標題",
+      "blocks": "內容塊",
+      "empty": "還沒有項目進度摘要。",
+      "noBlocks": "這份摘要還沒有內容。",
+      "noBlocksYet": "還沒有內容。用下面的按鈕加文字、照片組、數字卡或圖表。",
+      "updated": "{time} · {name} 更新",
+      "addBlock": "加一塊：",
+      "type": {
+        "text": "文字",
+        "photos": "照片組",
+        "number": "數字卡",
+        "chart": "圖表"
+      },
+      "drag": "拖動調整順序",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "removeBlock": "刪除這塊",
+      "textPlaceholder": "寫一段說明……",
+      "label": "名稱",
+      "number": "數字",
+      "unit": "單位",
+      "note": "備註",
+      "caption": "說明",
+      "chartKind": "圖表類型",
+      "chart": {
+        "bar": "柱狀圖",
+        "line": "折線圖"
+      },
+      "chartTitle": "圖表標題",
+      "series": "數據名稱",
+      "value": "數值",
+      "pointLabel": "標籤",
+      "pointValue": "數值",
+      "addPoint": "加一個數據",
+      "removePoint": "刪除這個數據",
+      "chartEmpty": "還沒有數據。",
+      "pickPhotos": "選擇照片",
+      "pickHelp": "從這個項目的現場照片裡選。",
+      "unpickPhoto": "拿掉這張",
+      "done": "完成",
+      "noPhotos": "沒有照片。",
+      "remove": {
+        "switch": "刪除這份摘要",
+        "hint": "刪除後大家都看不到這份摘要。照片本身不受影響。",
+        "confirm": "刪除摘要"
+      }
     }
   }
 }

@@ -46,7 +46,6 @@ import {
   MovementDialog,
   OutgoingActions,
   OutgoingDetailDialog,
-  PhaseDialog,
   ProgressDialog,
   RejectOutgoingDialog,
   ReturnProcessingDialog,
@@ -81,7 +80,6 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { equipmentDirectionTitleKey } from "@/lib/equipment-title";
 import { useUrlSelection } from "@/hooks/use-url-selection";
 import type {
-  ConstructionPhase,
   EquipmentMovement,
   MaterialOutgoing,
   SiteEquipment,
@@ -1238,7 +1236,14 @@ const PHOTO_KIND = {
 /* 工程进度                                                             */
 /* ------------------------------------------------------------------ */
 
-export function SiteProgressOffice() {
+/**
+ * The progress records, as a list (现场照片 → 进度记录, 2026-10 B17).
+ *
+ * `above` is the page's tabs: the record list is one view of the progress
+ * page now. The phases are managed on the 施工分类 tab, so they are no longer
+ * chips here.
+ */
+export function SiteProgressOffice({ above }: { above?: React.ReactNode } = {}) {
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
   const df = useDateFormat();
@@ -1260,10 +1265,6 @@ export function SiteProgressOffice() {
     queryKey: ["site-progress-summary", project],
     queryFn: () => getSiteProgressSummary(project || undefined),
   });
-  const [addingPhase, setAddingPhase] = useState(false);
-  const [editingPhase, setEditingPhase] = useState<ConstructionPhase | null>(
-    null,
-  );
   const searchParams = useSearchParams();
   const [addingRecord, setAddingRecord] = useState(
     searchParams.get("create") === "1",
@@ -1402,10 +1403,10 @@ export function SiteProgressOffice() {
       ],
     });
 
-  // The phases stay editable from the page, as they were on the cards: a
-  // phase is what a progress record is measured against.
+  // The running totals; the phases themselves are on the 施工分类 tab (B17).
   const phaseStrip = (
     <>
+      {above}
       <SummaryStrip
         items={
           summary.data || summary.isError
@@ -1435,41 +1436,17 @@ export function SiteProgressOffice() {
       />
       <QueryFailedNote query={summary} what={t("what.progressSummary")} />
       <QueryFailedNote query={phases} what={t("what.phases")} />
-      {(phases.data?.results ?? []).length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {(phases.data?.results ?? []).map((phase) => {
-            const className = `rounded-full border px-2.5 py-0.5 text-xs font-medium ${phase.is_active ? "bg-card" : "bg-muted/40 text-muted-foreground line-through"}`;
-            return can("progress.manage") ? (
-              <button
-                key={phase.id}
-                type="button"
-                title={t("progress.editPhase")}
-                className={`${className} hover:bg-muted`}
-                onClick={() => setEditingPhase(phase)}
-              >
-                {phase.code} · {phase.name}
-              </button>
-            ) : (
-              <span key={phase.id} className={className}>
-                {phase.code} · {phase.name}
-              </span>
-            );
-          })}
-        </div>
-      )}
       {noPhases && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed bg-muted/20 px-3 py-2">
           <p className="text-sm text-muted-foreground">
             {t("progress.noPhasesHelp")}
           </p>
           {can("progress.manage") && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAddingPhase(true)}
-            >
-              <ListTree />
-              {t("progress.addFirstPhase")}
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/progress?tab=phases&project=${encodeURIComponent(project)}`}>
+                <ListTree />
+                {t("progress.addFirstPhase")}
+              </Link>
             </Button>
           )}
         </div>
@@ -1484,18 +1461,11 @@ export function SiteProgressOffice() {
         countLabel={tRoot("moduleTable.count", { count: total })}
         headerAction={
           can("progress.manage") ? (
-            <div className="flex flex-wrap gap-2">
-              <CreateButton
-                variant="outline"
-                label={t("progress.addPhase")}
-                onClick={() => setAddingPhase(true)}
-              />
-              <CreateButton
-                label={t("progress.addRecord")}
-                icon={<Camera className="h-4 w-4" />}
-                onClick={() => setAddingRecord(true)}
-              />
-            </div>
+            <CreateButton
+              label={t("progress.addRecord")}
+              icon={<Camera className="h-4 w-4" />}
+              onClick={() => setAddingRecord(true)}
+            />
           ) : undefined
         }
         above={phaseStrip}
@@ -1671,27 +1641,6 @@ export function SiteProgressOffice() {
         </RecordDetailDialog>
       )}
 
-      {editingPhase && (
-        <PhaseDialog
-          project={project}
-          phase={editingPhase}
-          onClose={() => setEditingPhase(null)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["construction-phases"] });
-            setEditingPhase(null);
-          }}
-        />
-      )}
-      {addingPhase && (
-        <PhaseDialog
-          project={project}
-          onClose={() => setAddingPhase(false)}
-          onSaved={() => {
-            void qc.invalidateQueries({ queryKey: ["construction-phases"] });
-            setAddingPhase(false);
-          }}
-        />
-      )}
       {addingRecord && (
         <ProgressDialog
           project={project}

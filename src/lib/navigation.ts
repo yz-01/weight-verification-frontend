@@ -848,12 +848,17 @@ export const PORTAL_NAVIGATION = {
           "/progress",
           "progress",
         ),
-        child(
-          "7.2.14",
-          "nav.submodule.schedulePlanning",
-          "/schedule",
-          "schedule",
-        ),
+        // 施工计划 is a tab of 工程进度 now (2026-10 B17, Q9): out of the
+        // menu, and `/schedule` still opens on its own.
+        {
+          ...child(
+            "7.2.14",
+            "nav.submodule.schedulePlanning",
+            "/schedule",
+            "schedule",
+          ),
+          menuHidden: true,
+        },
       ],
     ),
     item(

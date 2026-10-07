@@ -5649,7 +5649,7 @@
       "notes": "Notes",
       "operator": "Operator",
       "percentComplete": "Actual completion (%)",
-      "phase": "Construction phase",
+      "phase": "Construction category",
       "photoCount": "{count} photo(s) selected",
       "photoRequired": "Required photos",
       "photos": "Current photos",
@@ -5658,7 +5658,7 @@
       "quantity": "Quantity",
       "reason": "Reason for outgoing",
       "registrationNo": "Registration number",
-      "selectPhase": "Select phase",
+      "selectPhase": "Select construction category",
       "selectProject": "Select project",
       "selectStaff": "Select project staff",
       "serialNo": "Serial number",
@@ -5763,38 +5763,38 @@
       "URGENT": "Urgent"
     },
     "progress": {
-      "addFirstPhase": "Add first phase",
-      "addPhase": "Add phase",
+      "addFirstPhase": "Add first construction category",
+      "addPhase": "Add construction category",
       "addRecord": "Record progress",
       "capturedAt": "Recorded at",
       "confirmedAt": "Confirmed at",
       "confirmedBy": "Confirmed by",
-      "editPhase": "Correct this phase",
-      "noPhasesHelp": "This project has no construction phases yet. Add one before recording progress against it.",
-      "phaseActive": "In use. Turn this off to retire a phase instead of deleting it - progress records point at it, and removing it would take their meaning with them.",
-      "phaseHelp": "Create the stages used to organise and confirm progress.",
-      "phaseTitle": "New construction phase",
+      "editPhase": "Correct this construction category",
+      "noPhasesHelp": "This project has no construction categories yet. Add one before recording progress against it.",
+      "phaseActive": "In use. Turn this off to retire a construction category instead of deleting it - progress records point at it, and removing it would take their meaning with them.",
+      "phaseHelp": "Create the construction categories used to organise progress.",
+      "phaseTitle": "Construction category",
       "recordHelp": "Take current site photos. A manager must confirm the percentage before it is final.",
       "recordTitle": "New progress evidence",
       "returnPrompt": "Explain what must be corrected before this progress is resubmitted.",
-      "saveError": "The progress record could not be saved. Check the project, phase, photo and GPS, then try again.",
+      "saveError": "The progress record could not be saved. Check the project, construction category, photo and GPS, then try again.",
       "submittedBy": "Recorded by",
-      "subtitle": "Manage construction phases, photo updates and project-manager confirmation.",
+      "subtitle": "Manage construction categories, photo updates and project-manager confirmation.",
       "summary": {
         "month": "This month",
         "today": "Today",
         "total": "Project total",
         "year": "This year",
-        "weighted": "Overall progress (by phase weight)"
+        "weighted": "Overall progress (by category weight)"
       },
       "title": "Project progress",
       "plannedWeight": "Progress weight",
-      "plannedWeightHelp": "How much this phase counts against the project's other phases. 1 means the same as any other phase.",
+      "plannedWeightHelp": "How much this category counts against the project's other categories. 1 means the same as any other.",
       "phaseRemove": {
-        "switch": "Remove this phase",
-        "hint": "Only a phase no progress record points at can be removed - one added by mistake. One in use can be switched off above instead.",
-        "confirm": "Remove phase",
-        "failed": "The phase could not be removed. Try again."
+        "switch": "Remove this construction category",
+        "hint": "Only a category no progress record points at can be removed - one added by mistake. One in use can be switched off above instead.",
+        "confirm": "Remove category",
+        "failed": "The category could not be removed. Try again."
       }
     },
     "progressEvidence": {
@@ -5910,7 +5910,7 @@
       "orderSaved": "Order saved",
       "outgoingReviewed": "Outgoing status updated",
       "outgoingSubmitted": "Outgoing request submitted",
-      "phaseSaved": "Phase saved",
+      "phaseSaved": "Construction category saved",
       "photoAdded": "Photo added",
       "progressReviewed": "Progress review saved",
       "progressSubmitted": "Progress submitted",
@@ -5930,7 +5930,7 @@
       "suppliers": "The supplier list",
       "equipmentSummary": "The equipment totals",
       "progressSummary": "The progress totals",
-      "phases": "The construction phase list",
+      "phases": "The construction category list",
       "outgoingRecord": "This material outgoing record",
       "returnableReceipts": "deliveries that can be sent back",
       "equipmentApplications": "open equipment applications"
@@ -6003,7 +6003,7 @@
       "period": "Cycle",
       "period_end": "Target end",
       "period_start": "Target start",
-      "phase": "Construction phase",
+      "phase": "Construction category",
       "photo_count": "Photos",
       "plan": "Plan",
       "planned_end": "Planned end",
@@ -10483,8 +10483,8 @@
     "progress": {
       "what": "How far the work actually is, reported from site with a photo and a location.",
       "who": "Holders of both progress.view and project.view.",
-      "need": "A report needs the project, a title and the percentage complete. From the phone it also needs the stage, a site photo and the current GPS fix.",
-      "then": "The figure lands against that stage and feeds the progress report.",
+      "need": "A report needs the project, a title and the percentage complete. From the phone it also needs the construction category, a site photo and the current GPS fix.",
+      "then": "The figure lands against that construction category and feeds the progress report.",
       "trouble": "No signal on site is fine - shoot and fill anyway, it queues and uploads later. The location stored is where you were when you took the photo, not where you were when it finally sent."
     },
     "project_categories": {
@@ -14979,7 +14979,7 @@
     "allProjects": "All projects",
     "allStatuses": "All statuses",
     "allDirections": "Entry and exit",
-    "allPhases": "All phases",
+    "allPhases": "All construction categories",
     "located": "Location captured",
     "equipmentView": {
       "movements": "Entry & exit records",
@@ -15487,6 +15487,127 @@
       "offline": "Adding a manufacturer needs a connection. Choose one from the list, or leave it empty.",
       "failed": "The manufacturer could not be added.",
       "fromColumn": "Filled in from the category"
+    }
+  },
+  "progressPage": {
+    "tabs": {
+      "label": "Project progress",
+      "phases": "Construction categories",
+      "photos": "Site photos",
+      "reports": "Daily reports",
+      "schedule": "Construction schedule",
+      "summary": "Progress summary"
+    },
+    "subtitle": {
+      "phases": "Each project's own construction categories and weights. The phone picks one with every progress photo; overall progress is weighted by them.",
+      "photos": "Progress photos from site, by date and construction category. Tick photos to write a daily report from them.",
+      "reports": "One report per day; open it for the full text and the photos chosen for it.",
+      "schedule": "The project's construction schedule and actual progress.",
+      "summary": "A summary the project manager arranges himself: text, photos, number cards, charts."
+    },
+    "project": "Project",
+    "chooseProject": "Choose a project",
+    "chooseProjectFirst": "Choose a project first.",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "previous": "Previous page",
+    "next": "Next page",
+    "save": "Save",
+    "cancel": "Cancel",
+    "removeFailed": "It could not be removed. Try again.",
+    "phases": {
+      "add": "Add construction category",
+      "help": "The phone picks a construction category with every progress photo. The weight sets how much it counts in overall progress (1 = the same as any other).",
+      "name": "Construction category",
+      "records": "Progress updates",
+      "active": "In use",
+      "inactive": "Switched off",
+      "empty": "No construction categories yet."
+    },
+    "photos": {
+      "viewLabel": "Show as",
+      "viewWall": "Photos",
+      "viewRecords": "Progress updates",
+      "allPhases": "All construction categories",
+      "selected": "{count} selected",
+      "selectHint": "Tick photos, then press “Write daily report”.",
+      "select": "Select this photo",
+      "unselect": "Unselect this photo",
+      "clear": "Clear selection",
+      "oneProject": "A daily report holds photos of one project only.",
+      "empty": "No site photos found.",
+      "emptyDay": "No site photos in this period."
+    },
+    "reports": {
+      "write": "Write daily report",
+      "editTitle": "Correct daily report",
+      "help": "Write what happened on site that day and tick the photos that go with it.",
+      "name": "Report name",
+      "date": "Date",
+      "view": "View",
+      "body": "Report",
+      "photos": "Photos",
+      "photoCount": "{count} photos",
+      "empty": "No daily reports yet.",
+      "noBody": "(no text)",
+      "noPhotos": "This report has no photos.",
+      "edit": "Correct",
+      "defaultName": "Daily report {date}",
+      "remove": {
+        "switch": "Remove this daily report",
+        "hint": "Only for one written by mistake. The photos themselves are not touched.",
+        "confirm": "Remove daily report"
+      }
+    },
+    "summary": {
+      "new": "New summary",
+      "edit": "Edit",
+      "title": "Title",
+      "blocks": "Blocks",
+      "empty": "No progress summary yet.",
+      "noBlocks": "This summary has nothing in it yet.",
+      "noBlocksYet": "Nothing yet. Add text, a photo group, a number card or a chart with the buttons below.",
+      "updated": "Updated {time} by {name}",
+      "addBlock": "Add:",
+      "type": {
+        "text": "Text",
+        "photos": "Photo group",
+        "number": "Number card",
+        "chart": "Chart"
+      },
+      "drag": "Drag to reorder",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "removeBlock": "Remove this block",
+      "textPlaceholder": "Write a paragraph…",
+      "label": "Label",
+      "number": "Number",
+      "unit": "Unit",
+      "note": "Note",
+      "caption": "Caption",
+      "chartKind": "Chart type",
+      "chart": {
+        "bar": "Bar",
+        "line": "Line"
+      },
+      "chartTitle": "Chart title",
+      "series": "Series name",
+      "value": "Value",
+      "pointLabel": "Label",
+      "pointValue": "Value",
+      "addPoint": "Add a value",
+      "removePoint": "Remove this value",
+      "chartEmpty": "No figures yet.",
+      "pickPhotos": "Choose photos",
+      "pickHelp": "Choose from this project's site photos.",
+      "unpickPhoto": "Take this photo out",
+      "done": "Done",
+      "noPhotos": "No photos.",
+      "remove": {
+        "switch": "Remove this summary",
+        "hint": "Nobody will see it afterwards. The photos themselves are not touched.",
+        "confirm": "Remove summary"
+      }
     }
   }
 }

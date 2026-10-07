@@ -44,12 +44,13 @@ describe("removing a construction phase from the progress page", () => {
     expect(dialog).toMatch(/role="alert"[\s\S]{0,80}\{removeRefusal\}/);
   });
 
-  it("is reached from both progress lists that open the dialog", () => {
-    const lists = readFileSync(
-      path.join(process.cwd(), "src/components/contractor-ops/office-module-lists.tsx"),
+  it("is reached from the 施工分类 tab and the phone's list, which open the dialog", () => {
+    // B17: the office manages phases on the progress page's 施工分类 tab.
+    const tab = readFileSync(
+      path.join(process.cwd(), "src/components/progress/phase-tab.tsx"),
       "utf8",
     );
-    expect(lists).toMatch(/<PhaseDialog[\s\S]{0,80}phase=\{editingPhase\}/);
+    expect(tab).toMatch(/<PhaseDialog[\s\S]{0,80}phase=\{editingPhase\}/);
     expect(source).toMatch(/<PhaseDialog[\s\S]{0,80}phase=\{editingPhase\}/);
   });
 
