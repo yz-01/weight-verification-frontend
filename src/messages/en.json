@@ -9425,7 +9425,6 @@
       "fields": "Fields",
       "photos": "Photographs",
       "documents": "Delivery orders",
-      "messages": "Record communication",
       "files": "Files"
     },
     "itemAccepted": "Accepted",
@@ -9463,7 +9462,7 @@
     "oneProjectHelp": "A package belongs to one project. Its records come from that project's categories, and a record from another project will be refused.",
     "open": "Open",
     "pageOf": "Page {page} of {pages}",
-    "partsSummary": "{fields} fields · {photos} photos · {documents} delivery orders · {files} files · {messages} messages",
+    "partsSummary": "{fields} fields · {photos} photos · {documents} delivery orders · {files} files",
     "previous": "Previous",
     "remarksHelp": "Months from now this is the only thing that explains why these records were put together.",
     "rename": "Rename",
@@ -9511,7 +9510,7 @@
     },
     "include": {
       "title": "What these records carry",
-      "hint": "Fields always go in. Photos start ticked; tick delivery orders, files and the communication only if this package needs them. Each record can be opened and re-ticked afterwards."
+      "hint": "Fields always go in. Photos start ticked; tick delivery orders and files only if this package needs them. Chat is never put in the PDF - it stays in the system to read. Each record can be opened and re-ticked afterwards."
     },
     "loadMore": "Load more ({shown} of {total} shown)"
   },
