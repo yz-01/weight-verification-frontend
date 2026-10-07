@@ -1,7 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+
+import { FieldWrapper } from "@/components/shared/page-primitives";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import {
   Select,
@@ -12,8 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ApiError } from "@/interfaces/api";
 import type { ProjectCategory } from "@/interfaces/contractor-ops";
-import { getProjectCategories } from "@/services/contractor-ops.service";
+import { addEquipmentClass, getProjectCategories } from "@/services/contractor-ops.service";
 
 /**
  * Equipment categories in two levels (2026-10 B2, X1): 大类 → 小类.
@@ -108,5 +115,124 @@ export function EquipmentClassSelect({
         )}
       </SelectContent>
     </Select>
+  );
+}
+
+/** The major-class choice that means "a new one, named below". */
+const NEW_MAJOR = "__new_major__";
+
+/**
+ * Make the class where the machine is filed (Lucas 2026-10-07).
+ *
+ * Nobody knows in advance which machine will arrive, so the office files a
+ * 「新设备」 when it accepts the entry - and when no class fits, it makes one
+ * here, under an existing major class or a new one, without a trip to
+ * Category Management. The new sub class is chosen at once.
+ */
+export function InlineClassCreator({
+  project,
+  tree,
+  onCreated,
+}: {
+  project: string;
+  tree: EquipmentClassTree;
+  onCreated: (subClass: string) => void;
+}) {
+  const t = useTranslations("contractorOps");
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [major, setMajor] = useState(tree.majors[0]?.id ?? NEW_MAJOR);
+  const [majorName, setMajorName] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const isNewMajor = major === NEW_MAJOR || !tree.majors.some((row) => row.id === major);
+  const create = useMutation({
+    mutationFn: () =>
+      addEquipmentClass({
+        project,
+        ...(isNewMajor ? { major_name: majorName.trim() } : { major }),
+        name: name.trim(),
+      }),
+    onMutate: () => setError(""),
+    onSuccess: (row) => {
+      void qc.invalidateQueries({ queryKey: ["project-categories"] });
+      void qc.invalidateQueries({ queryKey: ["category-management"] });
+      setOpen(false);
+      setName("");
+      setMajorName("");
+      onCreated(row.id);
+    },
+    onError: (failure) =>
+      setError(
+        failure instanceof ApiError
+          ? Object.values(failure.errors).join("; ") || failure.message
+          : t("state.loadError"),
+      ),
+  });
+  if (!open) {
+    return (
+      <Button type="button" size="sm" variant="outline" className="mt-2" onClick={() => setOpen(true)}>
+        <Plus />
+        {t("equipment.addClass")}
+      </Button>
+    );
+  }
+  return (
+    <div className="mt-2 space-y-2 rounded-md border p-2" data-testid="inline-class-creator">
+      <FieldWrapper label={t("equipment.classMajor")} required>
+        <Select value={isNewMajor ? NEW_MAJOR : major} onValueChange={setMajor}>
+          <SelectTrigger className="w-full" aria-label={t("equipment.classMajor")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {tree.majors.map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+              </SelectItem>
+            ))}
+            <SelectItem value={NEW_MAJOR}>{t("equipment.classNewMajor")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </FieldWrapper>
+      {isNewMajor && (
+        <FieldWrapper label={t("equipment.classNewMajorName")} required>
+          <Input
+            aria-label={t("equipment.classNewMajorName")}
+            value={majorName}
+            onChange={(e) => setMajorName(e.target.value)}
+          />
+        </FieldWrapper>
+      )}
+      <FieldWrapper label={t("equipment.classSubName")} required>
+        <Input
+          aria-label={t("equipment.classSubName")}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </FieldWrapper>
+      {error && (
+        <p role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      )}
+      <div className="flex justify-end gap-2">
+        <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>
+          {t("action.cancel")}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          requires={[
+            [!isNewMajor || majorName.trim(), t("equipment.classNewMajorName")],
+            [name.trim(), t("equipment.classSubName")],
+          ]}
+          disabled={create.isPending}
+          onClick={() => create.mutate()}
+        >
+          {create.isPending ? <Loader2 className="animate-spin" /> : <Plus />}
+          {t("equipment.classCreate")}
+        </Button>
+      </div>
+    </div>
   );
 }

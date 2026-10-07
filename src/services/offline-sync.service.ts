@@ -338,6 +338,7 @@ async function sendJob(job: OfflineJob): Promise<void> {
       project: entry.project,
       equipment: entry.equipment || undefined,
       equipment_name: entry.equipment_name,
+      registration_no: entry.registration_no,
       supplier: entry.supplier,
       delivery_note_no: entry.delivery_note_no ?? "",
       vehicle_plate: entry.vehicle_plate,

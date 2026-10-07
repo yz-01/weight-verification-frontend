@@ -87,6 +87,7 @@ const FORMS: FormCase[] = [
     component: "EquipmentEntryDialog",
     fields: [
       'useDraftState(`entryName:${key}`',
+      'useDraftState(`entryPlate:${key}`',
       'useDraftState(`entryDeliveryNote:${key}`',
       'useDraftState<{ id: string; name: string } | null>(`entrySupplier:${key}`',
       'useDraftState(`entryNotes:${key}`',

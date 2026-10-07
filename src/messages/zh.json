@@ -5543,7 +5543,7 @@
       "editTitle": "编辑这台设备",
       "entryTitle": "记录 {name} 进场",
       "exitTitle": "记录 {name} 退场",
-      "formHelp": "请填写设备编号和车牌号码。设备要登记在一个小类下面；现场只要选它、拍照、签名。",
+      "formHelp": "设备编号、车牌号码和小类。可以先建好，也可以等现场报来新设备时在验收时补齐。",
       "movementHelp": "请拍摄当前照片并获取位置；该记录会成为不可修改的现场证据。",
       "occurredAt": "进退场时间",
       "ocrManual": "无法读取 Delivery Order，请手动填写资料。",
@@ -5587,17 +5587,17 @@
       "reviewedBy": "审批人",
       "chooseMachine": "设备",
       "chooseMachinePlaceholder": "选设备",
-      "newMachine": "新设备（还没建档）",
+      "newMachine": "新设备",
       "newMachineEntry": "新设备进场",
       "newMachineName": "新设备名称",
-      "newMachineHelp": "只填名称，其他资料由后台补齐。",
+      "newMachineHelp": "填名称就可以；其他资料由后台验收时补齐。",
       "entryHelp": "拍照、DO、扫供应商二维码、双方签名，提交后由后台验收。",
       "entrySubmit": "提交进场",
       "scanSupplier": "扫供应商二维码",
       "scanFailed": "扫码没有成功，可以再扫一次，或先不填供应商。",
       "movementsLink": "查看这台设备的进退场记录",
       "needsProfile": "待补档",
-      "needsProfileHelp": "这台是现场报的新设备。补齐车牌、小类和至少一个到期日后，才能验收它的进场。",
+      "needsProfileHelp": "这台是现场报的新设备。选好小类（没有合适的可以在下面新增），再填至少一个到期日，就能验收它的进场。",
       "directHandover": "直接交接",
       "directHandoverHelp": "这是改流程前的进场申请，不用再批准：直接交接（拍照、双方签名），之后由后台验收。",
       "acceptance": {
@@ -5616,7 +5616,14 @@
           "expiry": "到期日"
         }
       },
-      "oneMachineOnly": "只看这台设备的进退场"
+      "oneMachineOnly": "只看这台设备的进退场",
+      "newMachinePlateHelp": "有车牌就填；没有可以留空。以前来过的设备会自动对上。",
+      "addClass": "新增小类",
+      "classMajor": "大类",
+      "classNewMajor": "新的大类…",
+      "classNewMajorName": "新大类名称",
+      "classSubName": "小类名称",
+      "classCreate": "加入"
     },
     "equipmentEvidence": {
       "condition": "4. 设备状况细节",
@@ -5717,7 +5724,7 @@
       "chooseProjectFirst": "请先选项目",
       "equipmentSubClass": "设备小类",
       "chooseEquipmentSubClass": "选择小类",
-      "noEquipmentSubClassYet": "这个项目还没有设备小类，设备要登记在一个小类下面。",
+      "noEquipmentSubClassYet": "这个项目还没有设备小类，可以在下面直接新增。",
       "deliveryNoteNo": "DO 号码"
     },
     "filing": {
@@ -7331,7 +7338,7 @@
       "document_file_type_not_allowed": "只能上传 PDF、Word、Excel 或照片。",
       "document_is_system_file": "从系统里选的文件不能上传新版本，新版本请放在原记录里。",
       "document_system_file_not_found": "有文件找不到，或你没有权限查看。",
-      "equipment_profile_incomplete": "先补齐这台设备的档案（车牌、小类、到期日），才能验收。"
+      "equipment_profile_incomplete": "先补齐这台设备的档案（小类、到期日），才能验收。"
     },
     "backToDashboard": "返回仪表板",
     "field": {

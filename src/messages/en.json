@@ -5543,7 +5543,7 @@
       "editTitle": "Edit this equipment",
       "entryTitle": "Record {name} entering site",
       "exitTitle": "Record {name} leaving site",
-      "formHelp": "Fill in the machine's number and plate. A machine is registered under a sub class; on site it is only picked, photographed and signed for.",
+      "formHelp": "The machine's number, plate and sub class. Set it up now, or complete it when the site reports it and you accept the entry.",
       "movementHelp": "Take current photos and location. This movement becomes permanent site evidence.",
       "occurredAt": "Movement time",
       "ocrManual": "The delivery note could not be read. Enter the details manually.",
@@ -5587,17 +5587,17 @@
       "reviewedBy": "Approved / returned by",
       "chooseMachine": "Machine",
       "chooseMachinePlaceholder": "Choose the machine",
-      "newMachine": "New machine (not registered yet)",
+      "newMachine": "New machine",
       "newMachineEntry": "New machine coming in",
       "newMachineName": "New machine's name",
-      "newMachineHelp": "Just the name - the office fills in the rest.",
+      "newMachineHelp": "The name is enough - the office completes the rest when it accepts the entry.",
       "entryHelp": "Photos, the DO, the supplier's QR and both signatures. The office accepts it after you submit.",
       "entrySubmit": "Submit entry",
       "scanSupplier": "Scan the supplier's QR",
       "scanFailed": "The scan did not work. Scan again, or leave the supplier blank.",
       "movementsLink": "See this machine's entries and exits",
       "needsProfile": "Profile to complete",
-      "needsProfileHelp": "Reported from site as a new machine. Fill in the plate, the sub class and at least one expiry date before its entry can be accepted.",
+      "needsProfileHelp": "Reported from site as a new machine. Choose its sub class (or add one below) and at least one expiry date, then its entry can be accepted.",
       "directHandover": "Hand over directly",
       "directHandoverHelp": "An entry applied for before the change: no approval needed. Hand it over directly (photos, both signatures); the office then accepts it.",
       "acceptance": {
@@ -5616,7 +5616,14 @@
           "expiry": "an expiry date"
         }
       },
-      "oneMachineOnly": "Showing this machine's entries and exits only"
+      "oneMachineOnly": "Showing this machine's entries and exits only",
+      "newMachinePlateHelp": "If it has one. Leave it blank if not. A machine that came before is matched by its plate.",
+      "addClass": "Add a sub class",
+      "classMajor": "Major class",
+      "classNewMajor": "A new major class…",
+      "classNewMajorName": "New major class name",
+      "classSubName": "Sub class name",
+      "classCreate": "Add"
     },
     "equipmentEvidence": {
       "condition": "4. Equipment condition detail",
@@ -5717,7 +5724,7 @@
       "chooseProjectFirst": "Choose a project first",
       "equipmentSubClass": "Equipment sub class",
       "chooseEquipmentSubClass": "Choose a sub class",
-      "noEquipmentSubClassYet": "This project has no equipment sub class yet; a machine is registered under one.",
+      "noEquipmentSubClassYet": "This project has no equipment sub class yet - add one below.",
       "deliveryNoteNo": "DO number"
     },
     "filing": {
@@ -7331,7 +7338,7 @@
       "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded.",
       "document_is_system_file": "A file picked from the system takes no new versions. Put the new version on its record.",
       "document_system_file_not_found": "One of those files was not found, or you cannot see it.",
-      "equipment_profile_incomplete": "Complete this machine's profile - plate, sub class and an expiry date - before accepting it."
+      "equipment_profile_incomplete": "Complete this machine's profile - its sub class and an expiry date - before accepting it."
     },
     "backToDashboard": "Back to dashboard",
     "field": {

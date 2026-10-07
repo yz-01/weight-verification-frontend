@@ -185,10 +185,16 @@ describe("the phone's entry form is 材料进场's (C8, F3)", () => {
     }
   });
 
-  it("a 「新设备」 gives a name, and still no category", () => {
+  it("a 「新设备」 gives a name and, optionally, a plate - and still no category", () => {
     const html = render(<EquipmentEntryDialog project="p-1" machine={null} onClose={() => {}} onSaved={() => {}} />);
     expect(html).toContain(messages.contractorOps.equipment.newMachineName);
     expect(html).toContain(messages.contractorOps.equipment.newMachineHelp);
+    // The plate is asked, not required (not every machine has one).
+    expect(html).toMatch(/<label[^>]*>车牌号码<\/label>/);
+    expect(html).toContain(messages.contractorOps.equipment.newMachinePlateHelp);
+    // Same evidence as a known machine.
+    expect(html).toContain(messages.contractorOps.field.deliveryNoteNo);
+    expect(html).toContain(messages.contractorOps.equipment.supplierSignature);
     expect(html).not.toContain("分类");
     expect(html).not.toContain("小类");
   });
@@ -210,6 +216,17 @@ describe("the office registers the machine first (A8, X4)", () => {
     expect(html).not.toContain(`>${messages.contractorOps.field.registrationNo}<`);
   });
 
+  it("lets the office make a class inline when filing a machine (2026-10-07)", () => {
+    const html = render(
+      <EquipmentDialog project="p-1" equipment={machine({ needs_profile: true, category: null })} onClose={() => {}} onSaved={() => {}} />,
+      [[["project-categories", "equipment", "p-1"], page([])]],
+    );
+    expect(html).toContain(messages.contractorOps.field.noEquipmentSubClassYet);
+    expect(html).toContain(messages.contractorOps.equipment.addClass);
+    // No trip to Category Management.
+    expect(html).not.toContain("/category-management");
+  });
+
   it("links a machine's profile to its entries and exits (B2)", () => {
     const html = render(<EquipmentDialog project="p-1" equipment={machine()} onClose={() => {}} onSaved={() => {}} />, [
       [["project-categories", "equipment", "p-1"], page([category("c-major", "重型机械", null), category("c-sub", "挖土机", "c-major")])],
@@ -223,6 +240,17 @@ describe("the office registers the machine first (A8, X4)", () => {
       <EquipmentDialog project="p-1" equipment={machine({ needs_profile: true, category: null })} onClose={() => {}} onSaved={() => {}} />,
     );
     expect(html).toContain(messages.contractorOps.equipment.needsProfileHelp);
+  });
+});
+
+describe("「新设备」 comes first on the phone (2026-10-07)", () => {
+  it("is the first choice in the dropdown, before the machines on file", async () => {
+    const { readFileSync } = await import("node:fs");
+    const code = readFileSync("src/components/contractor-ops/operations-workspaces.tsx", "utf8");
+    const body = code.slice(code.indexOf("export function SiteEquipmentWorkspace("));
+    const content = body.slice(body.indexOf("<SelectContent>"), body.indexOf("</SelectContent>"));
+    expect(content.indexOf("NEW_MACHINE")).toBeGreaterThan(-1);
+    expect(content.indexOf("NEW_MACHINE")).toBeLessThan(content.indexOf("equipment.map"));
   });
 });
 

@@ -53,6 +53,7 @@ import {
 } from "@/components/contractor-ops/equipment-applications";
 import {
   EquipmentClassSelect,
+  InlineClassCreator,
   useEquipmentClasses,
 } from "@/components/contractor-ops/equipment-classes";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
@@ -1800,10 +1801,11 @@ export function machineLabeller(rows: readonly SiteEquipment[]) {
  * totals, no equipment data cards and no movement history - those live on the
  * office list (`SiteEquipmentOffice`).
  *
- * What is left: the project (locked to the worker's site), one dropdown of the
- * machines the office registered - 「名称 · 车牌」, no category anywhere on
- * the phone (F3) - with 「新设备」 at the end for a machine nobody registered,
- * and the one next step for the machine chosen. An entry is taken in one step
+ * What is left: the project (locked to the worker's site), one dropdown -
+ * 「新设备」 first, because nobody knows in advance which machine will arrive
+ * (Lucas 2026-10-07), then the machines already on file for this site,
+ * 「名称 · 车牌」, for one coming back; no category anywhere on the phone
+ * (F3) - and the one next step for the machine chosen. An entry is taken in one step
  * like 材料进场 (X2): photos, DO, the supplier's QR, both signatures, GPS -
  * then the office accepts it. An exit still goes the B13 way until the Return
  * Note flow replaces it (X3).
@@ -1903,14 +1905,16 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
             <SelectValue placeholder={t("equipment.chooseMachinePlaceholder")} />
           </SelectTrigger>
           <SelectContent>
+            {/* First, not a fallback (2026-10-07): nobody knows in advance
+                which machine will arrive, so most entries start here. */}
+            {can("equipment.capture") && (
+              <SelectItem value={NEW_MACHINE}>{t("equipment.newMachine")}</SelectItem>
+            )}
             {equipment.map((row) => (
               <SelectItem key={row.id} value={row.id}>
                 {label(row)}
               </SelectItem>
             ))}
-            {can("equipment.capture") && (
-              <SelectItem value={NEW_MACHINE}>{t("equipment.newMachine")}</SelectItem>
-            )}
           </SelectContent>
         </Select>
       </FieldWrapper>
@@ -1999,7 +2003,9 @@ export function SiteEquipmentWorkspace({ initialProject = "", fieldTaskId, onRec
 /**
  * Register a machine, or complete and correct its profile (2026-10 A8, X4).
  *
- * The office sets each machine up once; the phone only picks it. The project
+ * Optional ahead of time: nobody knows which machine will arrive (Lucas
+ * 2026-10-07), so this is also where a 「新设备」 reported from site is
+ * completed at acceptance - its sub class picked, or made inline. The project
  * is chosen here on a new machine, and the sub classes offered are that
  * project's - grouped under their major class (X1). The plate is the 「车牌号码」;
  * the serial number is no longer asked (its data stays). The movements
@@ -2167,14 +2173,17 @@ export function EquipmentDialog({
                 <QueryFailedNote query={classes.query} what={t("what.columns")} className="mt-2" />
                 {!classes.query.isLoading && !classes.query.isError && !hasSubClasses && (
                   <p className="mt-2 text-xs text-muted-foreground">
-                    {t("field.noEquipmentSubClassYet")}{" "}
-                    <Link
-                      href={`/category-management?module=equipment&project=${form.project}`}
-                      className="text-primary underline-offset-2 hover:underline"
-                    >
-                      {t("field.goMakeEquipmentColumn")}
-                    </Link>
+                    {t("field.noEquipmentSubClassYet")}
                   </p>
+                )}
+                {/* Made here when none fits (2026-10-07): the office files a
+                    machine when it arrives, without leaving this dialog. */}
+                {!classes.query.isLoading && !classes.query.isError && (
+                  <InlineClassCreator
+                    project={form.project}
+                    tree={classes.tree}
+                    onCreated={(subClass) => set("category", subClass)}
+                  />
                 )}
               </>
             )}
@@ -2270,7 +2279,8 @@ export function EquipmentDialog({
 /**
  * 设备进场 in one step, the way 材料进场 is taken (2026-10 X2, C8, F3).
  *
- * The machine is the one the office registered (or, for 「新设备」, a name);
+ * The machine is one already on file, or - most often, since nobody knows in
+ * advance which will arrive - a 「新设备」: a name and, if it has one, a plate;
  * then the photographs (`FieldEvidenceGrid`, the same as 材料进场), the DO -
  * photographed and read, its number filled in - the supplier's QR, both
  * signatures and the GPS fix. No category, no quantity, no unit: one entry is
@@ -2297,6 +2307,9 @@ export function EquipmentEntryDialog({
   const isFieldStaff = Boolean(user?.is_field_staff);
   const key = machine?.id ?? "new";
   const [newName, setNewName] = useDraftState(`entryName:${key}`, "");
+  // Optional: not every machine has a plate. One already on file is that
+  // machine coming back - the server files the entry on it.
+  const [newPlate, setNewPlate] = useDraftState(`entryPlate:${key}`, "");
   const [deliveryNote, setDeliveryNote] = useDraftState(`entryDeliveryNote:${key}`, "");
   const [supplier, setSupplier] = useDraftState<{ id: string; name: string } | null>(`entrySupplier:${key}`, null);
   const [notes, setNotes] = useDraftState(`entryNotes:${key}`, "");
@@ -2345,6 +2358,7 @@ export function EquipmentEntryDialog({
         project,
         equipment: machine?.id ?? "",
         equipment_name: machine ? undefined : newName.trim(),
+        registration_no: machine ? undefined : newPlate.trim().toUpperCase() || undefined,
         supplier: supplier?.id,
         direction: "ENTRY",
         operator_name: user.full_name,
@@ -2404,6 +2418,19 @@ export function EquipmentEntryDialog({
               className="sm:col-span-2"
             >
               <Input value={newName} onChange={(e) => setNewName(e.target.value)} />
+            </FieldWrapper>
+          )}
+          {!machine && (
+            <FieldWrapper
+              label={t("field.plateNo")}
+              hint={t("equipment.newMachinePlateHelp")}
+              className="sm:col-span-2"
+            >
+              <Input
+                aria-label={t("field.plateNo")}
+                value={newPlate}
+                onChange={(e) => setNewPlate(e.target.value.toUpperCase())}
+              />
             </FieldWrapper>
           )}
           <FieldWrapper

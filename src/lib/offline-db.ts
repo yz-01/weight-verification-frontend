@@ -188,6 +188,8 @@ export interface EquipmentMovementOfflineJob extends OfflineJobBase {
     entry?: boolean;
     /** A 「新设备」 reported from the phone: its name, `equipment` empty. */
     equipment_name?: string;
+    /** …and its plate, if it has one (optional). */
+    registration_no?: string;
     /** The supplier whose QR was scanned at the gate (F3). */
     supplier?: string;
     project: string;

@@ -362,6 +362,11 @@ export async function recordEquipmentEntry(payload: {
   /** Empty for a 「新设备」, which sends `equipment_name` instead. */
   equipment?: string;
   equipment_name?: string;
+  /**
+   * A 「新设备」's plate, optional. One already on file for this project is
+   * that machine coming back: the server files the entry on it (2026-10-07).
+   */
+  registration_no?: string;
   supplier?: string;
   delivery_note_no: string;
   vehicle_plate?: string;
@@ -399,6 +404,22 @@ export async function recordEquipmentEntry(payload: {
     { silent: true },
   );
   toastSuccess("contractorOps.toast.entrySubmitted");
+  return row;
+}
+
+/**
+ * Make a sub class - and its major class, when `major_name` is new - while
+ * accepting a machine (Lucas 2026-10-07: the office files the machine when it
+ * arrives, not in advance). A name already there is reused.
+ */
+export async function addEquipmentClass(payload: {
+  project: string;
+  major?: string;
+  major_name?: string;
+  name: string;
+}) {
+  const row = await api.post<ProjectCategory>("/api/site-equipment/add_equipment_class/", payload);
+  toastSuccess("contractorOps.toast.saved");
   return row;
 }
 
