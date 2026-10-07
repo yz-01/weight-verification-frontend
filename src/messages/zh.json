@@ -5789,7 +5789,13 @@
       },
       "title": "工程进度",
       "plannedWeight": "进度权重",
-      "plannedWeightHelp": "这个阶段相对于本项目其他阶段所占的比重。1 表示与其他阶段相同。"
+      "plannedWeightHelp": "这个阶段相对于本项目其他阶段所占的比重。1 表示与其他阶段相同。",
+      "phaseRemove": {
+        "switch": "删除这个阶段",
+        "hint": "只有没有任何进度记录指着的阶段可以删除（例如建错的）；在用的请在上面关掉。",
+        "confirm": "删除阶段",
+        "failed": "阶段没有删除成功，请再试一次。"
+      }
     },
     "progressEvidence": {
       "activity": "2. 施工活动",
@@ -6617,7 +6623,13 @@
       "add": "新增分类",
       "create": "建立分类",
       "edit": "编辑分类",
-      "title": "分类"
+      "title": "分类",
+      "remove": {
+        "switch": "删除这个分类",
+        "hint": "只有没有文档、也没有子分类的分类可以删除；在用的请在上面停用，旧文档仍保留这个分类。",
+        "confirm": "删除分类",
+        "failed": "分类没有删除成功，请再试一次。"
+      }
     },
     "companyWide": "公司级",
     "count": "共 {count} 份文档",

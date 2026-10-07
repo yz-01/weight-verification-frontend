@@ -5789,7 +5789,13 @@
       },
       "title": "Project progress",
       "plannedWeight": "Progress weight",
-      "plannedWeightHelp": "How much this phase counts against the project's other phases. 1 means the same as any other phase."
+      "plannedWeightHelp": "How much this phase counts against the project's other phases. 1 means the same as any other phase.",
+      "phaseRemove": {
+        "switch": "Remove this phase",
+        "hint": "Only a phase no progress record points at can be removed - one added by mistake. One in use can be switched off above instead.",
+        "confirm": "Remove phase",
+        "failed": "The phase could not be removed. Try again."
+      }
     },
     "progressEvidence": {
       "activity": "2. Work activity",
@@ -6617,7 +6623,13 @@
       "add": "Add category",
       "create": "Create category",
       "edit": "Edit category",
-      "title": "Categories"
+      "title": "Categories",
+      "remove": {
+        "switch": "Remove this category",
+        "hint": "Only a category with no documents and no subcategories can be removed. One in use can be switched off above instead, so old documents keep it.",
+        "confirm": "Remove category",
+        "failed": "The category could not be removed. Try again."
+      }
     },
     "companyWide": "Company-wide",
     "count": "{count} documents",

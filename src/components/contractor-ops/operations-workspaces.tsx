@@ -19,6 +19,7 @@ import {
   Save,
   Eye,
   ImagePlus,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -84,6 +85,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type {
   ConstructionPhase,
@@ -104,6 +106,7 @@ import { useMaterialUnits, useUnitName } from "@/hooks/use-material-units";
 import { ManufacturerCell, ManufacturerPicker } from "@/components/shared/manufacturer-picker";
 import {
   createConstructionPhase,
+  deleteConstructionPhase,
   updateConstructionPhase,
   addFieldTaskReferences,
   createFieldTask,
@@ -2801,6 +2804,17 @@ export function PhaseDialog({
         : createConstructionPhase({ project, code, name, description, planned_weight: weight }),
     onSuccess: onSaved,
   });
+  // Removing a phase made by mistake (p23): armed by a switch, no confirm
+  // dialog (spec rule 8). One a progress record points at is refused by the
+  // server, which names the records; that sentence stays beside the switch.
+  const [removeArmed, setRemoveArmed] = useState(false);
+  const [removeRefusal, setRemoveRefusal] = useState("");
+  const removal = useMutation({
+    mutationFn: () => deleteConstructionPhase(phase!.id),
+    onSuccess: onSaved,
+    onError: (error) =>
+      setRemoveRefusal(error instanceof ApiError ? error.message : t("progress.phaseRemove.failed")),
+  });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
@@ -2851,6 +2865,44 @@ export function PhaseDialog({
             />
             {t("progress.phaseActive")}
           </label>
+        )}
+        {phase && (
+          <div className="space-y-2 rounded-md border border-destructive/20 p-3">
+            <label className="flex items-start gap-3">
+              <Switch
+                checked={removeArmed}
+                onCheckedChange={(next) => {
+                  setRemoveArmed(next);
+                  setRemoveRefusal("");
+                }}
+                aria-label={t("progress.phaseRemove.switch")}
+              />
+              <span>
+                <span className="block text-sm font-medium">
+                  {t("progress.phaseRemove.switch")}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {t("progress.phaseRemove.hint")}
+                </span>
+              </span>
+            </label>
+            {removeArmed && (
+              <Button
+                variant="destructive"
+                className="w-full"
+                disabled={removal.isPending || save.isPending}
+                onClick={() => removal.mutate()}
+              >
+                {removal.isPending ? <Loader2 className="animate-spin" /> : <Trash2 />}
+                {t("progress.phaseRemove.confirm")}
+              </Button>
+            )}
+            {removeRefusal && (
+              <p role="alert" className="text-sm text-destructive">
+                {removeRefusal}
+              </p>
+            )}
+          </div>
         )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
