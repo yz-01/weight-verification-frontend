@@ -5649,7 +5649,7 @@
       "notes": "Catatan",
       "operator": "Pengendali",
       "percentComplete": "Kemajuan sebenar (%)",
-      "phase": "Fasa pembinaan",
+      "phase": "Kategori pembinaan",
       "photoCount": "{count} foto dipilih",
       "photoRequired": "Foto diperlukan",
       "photos": "Foto semasa",
@@ -5658,7 +5658,7 @@
       "quantity": "Kuantiti",
       "reason": "Sebab keluar",
       "registrationNo": "Nombor pendaftaran",
-      "selectPhase": "Pilih fasa",
+      "selectPhase": "Pilih kategori pembinaan",
       "selectProject": "Pilih projek",
       "selectStaff": "Pilih pekerja projek",
       "serialNo": "Nombor siri",
@@ -5763,38 +5763,38 @@
       "URGENT": "Segera"
     },
     "progress": {
-      "addFirstPhase": "Tambah fasa pertama",
-      "addPhase": "Tambah fasa",
+      "addFirstPhase": "Tambah kategori pembinaan pertama",
+      "addPhase": "Tambah kategori pembinaan",
       "addRecord": "Kemajuan projek",
       "capturedAt": "Direkod pada",
       "confirmedAt": "Disahkan pada",
       "confirmedBy": "Disahkan oleh",
-      "editPhase": "Betulkan fasa ini",
-      "noPhasesHelp": "Projek ini belum mempunyai fasa pembinaan. Tambah satu sebelum merekod kemajuan.",
-      "phaseActive": "Sedang digunakan. Matikan ini untuk menamatkan fasa dan bukan memadamnya - kemajuan projek merujuk kepadanya, dan memadamnya akan menghilangkan maknanya.",
-      "phaseHelp": "Cipta peringkat untuk menyusun dan mengesahkan kemajuan.",
-      "phaseTitle": "Fasa pembinaan baharu",
+      "editPhase": "Betulkan kategori pembinaan ini",
+      "noPhasesHelp": "Projek ini belum mempunyai kategori pembinaan. Tambah satu sebelum merekod kemajuan.",
+      "phaseActive": "Sedang digunakan. Matikan ini untuk menamatkan kategori pembinaan dan bukan memadamnya - rekod kemajuan merujuk kepadanya, dan memadamnya akan menghilangkan maknanya.",
+      "phaseHelp": "Cipta kategori pembinaan untuk menyusun kemajuan.",
+      "phaseTitle": "Kategori pembinaan",
       "recordHelp": "Ambil foto tapak semasa. Pengurus mesti mengesahkan peratusan sebelum ia dimuktamadkan.",
       "recordTitle": "Bukti kemajuan baharu",
       "returnPrompt": "Terangkan perkara yang perlu dibetulkan sebelum kemajuan dihantar semula.",
-      "saveError": "Kemajuan projek tidak dapat disimpan. Semak projek, fasa, foto dan GPS sebelum cuba lagi.",
+      "saveError": "Kemajuan projek tidak dapat disimpan. Semak projek, kategori pembinaan, foto dan GPS sebelum cuba lagi.",
       "submittedBy": "Direkod oleh",
-      "subtitle": "Urus fasa pembinaan, kemas kini foto dan pengesahan pengurus projek.",
+      "subtitle": "Urus kategori pembinaan, kemas kini foto dan pengesahan pengurus projek.",
       "summary": {
         "month": "Bulan ini",
         "today": "Hari ini",
         "total": "Jumlah projek",
         "year": "Tahun ini",
-        "weighted": "Kemajuan keseluruhan (ikut wajaran fasa)"
+        "weighted": "Kemajuan keseluruhan (ikut wajaran kategori)"
       },
       "title": "Kemajuan projek",
       "plannedWeight": "Pemberat kemajuan",
-      "plannedWeightHelp": "Sejauh mana fasa ini dikira berbanding fasa lain dalam projek. 1 bermaksud sama dengan fasa lain.",
+      "plannedWeightHelp": "Sejauh mana kategori ini dikira berbanding kategori lain dalam projek. 1 bermaksud sama dengan kategori lain.",
       "phaseRemove": {
-        "switch": "Buang fasa ini",
-        "hint": "Hanya fasa yang tidak dirujuk oleh mana-mana rekod kemajuan boleh dibuang - contohnya yang ditambah secara silap. Yang sedang digunakan boleh dimatikan di atas.",
-        "confirm": "Buang fasa",
-        "failed": "Fasa tidak dapat dibuang. Cuba lagi."
+        "switch": "Buang kategori pembinaan ini",
+        "hint": "Hanya kategori yang tidak dirujuk oleh mana-mana rekod kemajuan boleh dibuang - contohnya yang ditambah secara silap. Yang sedang digunakan boleh dimatikan di atas.",
+        "confirm": "Buang kategori",
+        "failed": "Kategori tidak dapat dibuang. Cuba lagi."
       }
     },
     "progressEvidence": {
@@ -5910,7 +5910,7 @@
       "orderSaved": "Susunan disimpan",
       "outgoingReviewed": "Status keluar dikemas kini",
       "outgoingSubmitted": "Permohonan keluar dihantar",
-      "phaseSaved": "Fasa disimpan",
+      "phaseSaved": "Kategori pembinaan disimpan",
       "photoAdded": "Foto ditambah",
       "progressReviewed": "Semakan kemajuan disimpan",
       "progressSubmitted": "Kemajuan dihantar",
@@ -5930,7 +5930,7 @@
       "suppliers": "Senarai pembekal",
       "equipmentSummary": "Jumlah peralatan",
       "progressSummary": "Jumlah kemajuan",
-      "phases": "Senarai fasa pembinaan",
+      "phases": "Senarai kategori pembinaan",
       "outgoingRecord": "Rekod bahan keluar ini",
       "returnableReceipts": "penghantaran yang boleh dipulangkan",
       "equipmentApplications": "permohonan peralatan yang terbuka"
@@ -6003,7 +6003,7 @@
       "period": "Kitaran",
       "period_end": "Tamat sasaran",
       "period_start": "Mula sasaran",
-      "phase": "Fasa pembinaan",
+      "phase": "Kategori pembinaan",
       "photo_count": "Foto",
       "plan": "Pelan",
       "planned_end": "Tamat dirancang",
@@ -10490,8 +10490,8 @@
     "progress": {
       "what": "Sejauh mana kerja sebenarnya, dilaporkan dari tapak dengan foto dan lokasi.",
       "who": "Pemegang progress.view dan project.view sekali.",
-      "need": "Laporan memerlukan projek, tajuk dan peratus siap. Dari telefon ia juga memerlukan peringkat, foto tapak dan kedudukan GPS semasa.",
-      "then": "Angka itu masuk ke peringkat tersebut dan menyuap laporan kemajuan.",
+      "need": "Laporan memerlukan projek, tajuk dan peratus siap. Dari telefon ia juga memerlukan kategori pembinaan, foto tapak dan kedudukan GPS semasa.",
+      "then": "Angka itu masuk ke kategori pembinaan tersebut dan menyuap laporan kemajuan.",
       "trouble": "Tiada isyarat di tapak tidak mengapa - rakam dan isi, ia beratur dan naik kemudian. Lokasi yang disimpan ialah tempat anda semasa mengambil foto."
     },
     "project_categories": {
@@ -15020,7 +15020,7 @@
     "allProjects": "Semua projek",
     "allStatuses": "Semua status",
     "allDirections": "Masuk dan keluar",
-    "allPhases": "Semua fasa",
+    "allPhases": "Semua kategori pembinaan",
     "located": "Lokasi direkodkan",
     "equipmentView": {
       "movements": "Rekod masuk & keluar",
@@ -15528,6 +15528,127 @@
       "offline": "Menambah pengilang memerlukan sambungan. Pilih dari senarai, atau biarkan kosong.",
       "failed": "Pengilang tidak dapat ditambah.",
       "fromColumn": "Diisi daripada kategori"
+    }
+  },
+  "progressPage": {
+    "tabs": {
+      "label": "Kemajuan projek",
+      "phases": "Kategori pembinaan",
+      "photos": "Foto tapak",
+      "reports": "Laporan harian",
+      "schedule": "Jadual pembinaan",
+      "summary": "Ringkasan kemajuan"
+    },
+    "subtitle": {
+      "phases": "Kategori pembinaan dan wajaran setiap projek. Telefon memilih satu bagi setiap foto kemajuan; kemajuan keseluruhan dikira ikut wajaran.",
+      "photos": "Foto kemajuan dari tapak, ikut tarikh dan kategori pembinaan. Tanda foto untuk menulis laporan harian.",
+      "reports": "Satu laporan sehari; buka untuk teks penuh dan foto yang dipilih.",
+      "schedule": "Jadual pembinaan projek dan kemajuan sebenar.",
+      "summary": "Ringkasan yang disusun sendiri oleh pengurus projek: teks, foto, kad nombor, carta."
+    },
+    "project": "Projek",
+    "chooseProject": "Pilih projek",
+    "chooseProjectFirst": "Pilih projek dahulu.",
+    "dateFrom": "Dari",
+    "dateTo": "Hingga",
+    "previous": "Halaman sebelumnya",
+    "next": "Halaman seterusnya",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "removeFailed": "Tidak dapat dibuang. Cuba lagi.",
+    "phases": {
+      "add": "Tambah kategori pembinaan",
+      "help": "Telefon memilih kategori pembinaan bagi setiap foto kemajuan. Wajaran menentukan sejauh mana ia dikira dalam kemajuan keseluruhan (1 = sama dengan yang lain).",
+      "name": "Kategori pembinaan",
+      "records": "Kemas kini kemajuan",
+      "active": "Digunakan",
+      "inactive": "Dimatikan",
+      "empty": "Belum ada kategori pembinaan."
+    },
+    "photos": {
+      "viewLabel": "Papar sebagai",
+      "viewWall": "Foto",
+      "viewRecords": "Kemas kini kemajuan",
+      "allPhases": "Semua kategori pembinaan",
+      "selected": "{count} dipilih",
+      "selectHint": "Tanda foto, kemudian tekan “Tulis laporan harian”.",
+      "select": "Pilih foto ini",
+      "unselect": "Nyahpilih foto ini",
+      "clear": "Kosongkan pilihan",
+      "oneProject": "Satu laporan harian hanya boleh memuatkan foto satu projek.",
+      "empty": "Tiada foto tapak ditemui.",
+      "emptyDay": "Tiada foto tapak dalam tempoh ini."
+    },
+    "reports": {
+      "write": "Tulis laporan harian",
+      "editTitle": "Betulkan laporan harian",
+      "help": "Tulis apa yang berlaku di tapak pada hari itu dan tanda foto yang berkaitan.",
+      "name": "Nama laporan",
+      "date": "Tarikh",
+      "view": "Lihat",
+      "body": "Laporan",
+      "photos": "Foto",
+      "photoCount": "{count} foto",
+      "empty": "Belum ada laporan harian.",
+      "noBody": "(tiada teks)",
+      "noPhotos": "Laporan ini tiada foto.",
+      "edit": "Betulkan",
+      "defaultName": "Laporan harian {date}",
+      "remove": {
+        "switch": "Buang laporan harian ini",
+        "hint": "Hanya untuk yang ditulis secara silap. Foto itu sendiri tidak terjejas.",
+        "confirm": "Buang laporan harian"
+      }
+    },
+    "summary": {
+      "new": "Ringkasan baharu",
+      "edit": "Sunting",
+      "title": "Tajuk",
+      "blocks": "Blok",
+      "empty": "Belum ada ringkasan kemajuan.",
+      "noBlocks": "Ringkasan ini belum ada kandungan.",
+      "noBlocksYet": "Belum ada apa-apa. Tambah teks, kumpulan foto, kad nombor atau carta dengan butang di bawah.",
+      "updated": "Dikemas kini {time} oleh {name}",
+      "addBlock": "Tambah:",
+      "type": {
+        "text": "Teks",
+        "photos": "Kumpulan foto",
+        "number": "Kad nombor",
+        "chart": "Carta"
+      },
+      "drag": "Seret untuk menyusun",
+      "moveUp": "Naik",
+      "moveDown": "Turun",
+      "removeBlock": "Buang blok ini",
+      "textPlaceholder": "Tulis satu perenggan…",
+      "label": "Label",
+      "number": "Nombor",
+      "unit": "Unit",
+      "note": "Catatan",
+      "caption": "Kapsyen",
+      "chartKind": "Jenis carta",
+      "chart": {
+        "bar": "Bar",
+        "line": "Garis"
+      },
+      "chartTitle": "Tajuk carta",
+      "series": "Nama siri",
+      "value": "Nilai",
+      "pointLabel": "Label",
+      "pointValue": "Nilai",
+      "addPoint": "Tambah nilai",
+      "removePoint": "Buang nilai ini",
+      "chartEmpty": "Belum ada angka.",
+      "pickPhotos": "Pilih foto",
+      "pickHelp": "Pilih daripada foto tapak projek ini.",
+      "unpickPhoto": "Keluarkan foto ini",
+      "done": "Selesai",
+      "noPhotos": "Tiada foto.",
+      "remove": {
+        "switch": "Buang ringkasan ini",
+        "hint": "Tiada sesiapa akan melihatnya selepas ini. Foto itu sendiri tidak terjejas.",
+        "confirm": "Buang ringkasan"
+      }
     }
   }
 }

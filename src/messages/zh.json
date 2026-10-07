@@ -5649,7 +5649,7 @@
       "notes": "备注",
       "operator": "操作人员",
       "percentComplete": "实际完成比例（%）",
-      "phase": "施工阶段",
+      "phase": "施工分类",
       "photoCount": "已选择 {count} 张照片",
       "photoRequired": "必须上传照片数",
       "photos": "现场照片",
@@ -5658,7 +5658,7 @@
       "quantity": "数量",
       "reason": "出场原因",
       "registrationNo": "注册号码",
-      "selectPhase": "选择施工阶段",
+      "selectPhase": "选择施工分类",
       "selectProject": "选择项目",
       "selectStaff": "选择项目人员",
       "serialNo": "序列号",
@@ -5763,38 +5763,38 @@
       "URGENT": "紧急"
     },
     "progress": {
-      "addFirstPhase": "新增第一个阶段",
-      "addPhase": "新增阶段",
+      "addFirstPhase": "新增第一个施工分类",
+      "addPhase": "新增施工分类",
       "addRecord": "记录进度",
       "capturedAt": "记录时间",
       "confirmedAt": "确认时间",
       "confirmedBy": "确认人",
-      "editPhase": "更正这个阶段",
-      "noPhasesHelp": "此项目尚未建立施工阶段。请先新增阶段，才能记录进度。",
-      "phaseActive": "在用。不想要这个阶段时，把这个关掉而不是删除 —— 进度记录都指着它，删了那些记录就说不清是哪个阶段的了。",
-      "phaseHelp": "建立用于整理和确认工程进度的施工阶段。",
-      "phaseTitle": "新增施工阶段",
+      "editPhase": "更正这个施工分类",
+      "noPhasesHelp": "此项目尚未建立施工分类。请先新增施工分类，才能记录进度。",
+      "phaseActive": "在用。不想要这个施工分类时，把这个关掉而不是删除 —— 进度记录都指着它，删了那些记录就说不清是哪个施工分类的了。",
+      "phaseHelp": "建立用于整理和确认工程进度的施工分类。",
+      "phaseTitle": "施工分类",
       "recordHelp": "拍摄当前工地照片；完成比例必须由项目经理确认才会生效。",
       "recordTitle": "新增进度证据",
       "returnPrompt": "请说明需要更正后再提交的内容。",
-      "saveError": "工程进度保存失败，请检查项目、施工阶段、照片和 GPS 后重试。",
+      "saveError": "工程进度保存失败，请检查项目、施工分类、照片和 GPS 后重试。",
       "submittedBy": "记录人",
-      "subtitle": "管理施工阶段、照片进度以及项目经理确认。",
+      "subtitle": "管理施工分类、照片进度以及项目经理确认。",
       "summary": {
         "month": "本月记录",
         "today": "今日记录",
         "total": "项目累计",
         "year": "本年记录",
-        "weighted": "整体进度（按阶段权重）"
+        "weighted": "整体进度（按施工分类权重）"
       },
       "title": "工程进度",
       "plannedWeight": "进度权重",
-      "plannedWeightHelp": "这个阶段相对于本项目其他阶段所占的比重。1 表示与其他阶段相同。",
+      "plannedWeightHelp": "这个施工分类相对于本项目其他施工分类所占的比重。1 表示与其他施工分类相同。",
       "phaseRemove": {
-        "switch": "删除这个阶段",
-        "hint": "只有没有任何进度记录指着的阶段可以删除（例如建错的）；在用的请在上面关掉。",
-        "confirm": "删除阶段",
-        "failed": "阶段没有删除成功，请再试一次。"
+        "switch": "删除这个施工分类",
+        "hint": "只有没有任何进度记录指着的施工分类可以删除（例如建错的）；在用的请在上面关掉。",
+        "confirm": "删除施工分类",
+        "failed": "施工分类没有删除成功，请再试一次。"
       }
     },
     "progressEvidence": {
@@ -5910,7 +5910,7 @@
       "orderSaved": "顺序已保存",
       "outgoingReviewed": "出场状态已更新",
       "outgoingSubmitted": "出场申请已提交",
-      "phaseSaved": "阶段已保存",
+      "phaseSaved": "施工分类已保存",
       "photoAdded": "照片已添加",
       "progressReviewed": "进度审核已保存",
       "progressSubmitted": "进度已提交",
@@ -5930,7 +5930,7 @@
       "suppliers": "供应商列表",
       "equipmentSummary": "设备统计",
       "progressSummary": "进度统计",
-      "phases": "施工阶段列表",
+      "phases": "施工分类列表",
       "outgoingRecord": "这条材料出场记录",
       "returnableReceipts": "可退回的进场记录",
       "equipmentApplications": "设备进退场申请"
@@ -6003,7 +6003,7 @@
       "period": "周期",
       "period_end": "目标结束",
       "period_start": "目标开始",
-      "phase": "施工阶段",
+      "phase": "施工分类",
       "photo_count": "照片",
       "plan": "计划",
       "planned_end": "计划结束",
@@ -10490,8 +10490,8 @@
     "progress": {
       "what": "工程实际做到几成，由现场带照片和位置报上来。",
       "who": "同时持 progress.view 和 project.view。",
-      "need": "报一次进度要项目、标题、完成比例；手机端还要施工阶段、现场照片和当前 GPS 位置。",
-      "then": "这个数落到那个施工阶段上，并进入进度报表。",
+      "need": "报一次进度要项目、标题、完成比例；手机端还要施工分类、现场照片和当前 GPS 位置。",
+      "then": "这个数落到那个施工分类上，并进入进度报表。",
       "trouble": "现场没信号没关系：照拍照填，它会排队，之后自动传。存下来的位置是拍照当时的，不是补传时的。"
     },
     "project_categories": {
@@ -15020,7 +15020,7 @@
     "allProjects": "全部项目",
     "allStatuses": "全部状态",
     "allDirections": "进场与退场",
-    "allPhases": "全部阶段",
+    "allPhases": "全部施工分类",
     "located": "已记录位置",
     "equipmentView": {
       "movements": "进退场记录",
@@ -15528,6 +15528,127 @@
       "offline": "新增厂商需要网络。请先从名单选，或先不填。",
       "failed": "厂商新增失败。",
       "fromColumn": "按分类自动带出"
+    }
+  },
+  "progressPage": {
+    "tabs": {
+      "label": "工程进度",
+      "phases": "施工分类",
+      "photos": "现场照片",
+      "reports": "日报告",
+      "schedule": "施工计划",
+      "summary": "项目进度摘要"
+    },
+    "subtitle": {
+      "phases": "每个项目自己的施工分类和权重。手机报进度时选施工分类，整体进度按权重计算。",
+      "photos": "现场拍的进度照片，按日期和施工分类找；勾选照片就能填写日报告。",
+      "reports": "每天的日报告，点开看全文和当时勾选的照片。",
+      "schedule": "项目的施工计划和实际进度。",
+      "summary": "项目经理自己排版的项目进度摘要：文字、照片、数字卡、图表。"
+    },
+    "project": "项目",
+    "chooseProject": "选择项目",
+    "chooseProjectFirst": "先选择项目。",
+    "dateFrom": "开始日期",
+    "dateTo": "结束日期",
+    "previous": "上一页",
+    "next": "下一页",
+    "save": "保存",
+    "cancel": "取消",
+    "removeFailed": "没有删除成功，请再试一次。",
+    "phases": {
+      "add": "新增施工分类",
+      "help": "手机拍进度照片时要选一个施工分类。权重决定它在整体进度里占多少（1 = 和其他施工分类一样）。",
+      "name": "施工分类",
+      "records": "进度记录",
+      "active": "使用中",
+      "inactive": "已停用",
+      "empty": "还没有施工分类。"
+    },
+    "photos": {
+      "viewLabel": "显示方式",
+      "viewWall": "照片",
+      "viewRecords": "进度记录",
+      "allPhases": "全部施工分类",
+      "selected": "已选 {count} 张",
+      "selectHint": "勾选照片，再按「填写日报告」。",
+      "select": "选这张",
+      "unselect": "不选这张",
+      "clear": "取消选择",
+      "oneProject": "一份日报告只能放同一个项目的照片。",
+      "empty": "没有找到现场照片。",
+      "emptyDay": "这段时间没有现场照片。"
+    },
+    "reports": {
+      "write": "填写日报告",
+      "editTitle": "修改日报告",
+      "help": "写下这一天现场做了什么，勾选要附上的照片。",
+      "name": "日报名称",
+      "date": "日期",
+      "view": "查看",
+      "body": "内容",
+      "photos": "照片",
+      "photoCount": "{count} 张照片",
+      "empty": "还没有日报告。",
+      "noBody": "（没有内容）",
+      "noPhotos": "这份日报告没有照片。",
+      "edit": "修改",
+      "defaultName": "{date} 日报告",
+      "remove": {
+        "switch": "删除这份日报告",
+        "hint": "写错了才删除。照片本身不受影响。",
+        "confirm": "删除日报告"
+      }
+    },
+    "summary": {
+      "new": "新建摘要",
+      "edit": "编辑",
+      "title": "标题",
+      "blocks": "内容块",
+      "empty": "还没有项目进度摘要。",
+      "noBlocks": "这份摘要还没有内容。",
+      "noBlocksYet": "还没有内容。用下面的按钮加文字、照片组、数字卡或图表。",
+      "updated": "{time} · {name} 更新",
+      "addBlock": "加一块：",
+      "type": {
+        "text": "文字",
+        "photos": "照片组",
+        "number": "数字卡",
+        "chart": "图表"
+      },
+      "drag": "拖动调整顺序",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "removeBlock": "删除这块",
+      "textPlaceholder": "写一段说明……",
+      "label": "名称",
+      "number": "数字",
+      "unit": "单位",
+      "note": "备注",
+      "caption": "说明",
+      "chartKind": "图表类型",
+      "chart": {
+        "bar": "柱状图",
+        "line": "折线图"
+      },
+      "chartTitle": "图表标题",
+      "series": "数据名称",
+      "value": "数值",
+      "pointLabel": "标签",
+      "pointValue": "数值",
+      "addPoint": "加一个数据",
+      "removePoint": "删除这个数据",
+      "chartEmpty": "还没有数据。",
+      "pickPhotos": "选择照片",
+      "pickHelp": "从这个项目的现场照片里选。",
+      "unpickPhoto": "拿掉这张",
+      "done": "完成",
+      "noPhotos": "没有照片。",
+      "remove": {
+        "switch": "删除这份摘要",
+        "hint": "删除后大家都看不到这份摘要。照片本身不受影响。",
+        "confirm": "删除摘要"
+      }
     }
   }
 }

@@ -447,6 +447,8 @@ export interface EquipmentSummary {
 export interface ConstructionPhase {
   id: string;
   project: string;
+  /** For the 施工分类 tab listing every project's phases (B17). */
+  project_name?: string;
   code: string;
   name: string;
   description: string;

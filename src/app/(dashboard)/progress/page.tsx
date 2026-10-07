@@ -1,5 +1,6 @@
-import { SiteProgressOffice } from "@/components/contractor-ops/office-module-lists";
+import { ProgressPage } from "@/components/progress/progress-page";
 
-export default function ProgressPage() {
-  return <SiteProgressOffice />;
+/** 工程进度: one page, five tabs (2026-10 B17). */
+export default function Page() {
+  return <ProgressPage />;
 }
