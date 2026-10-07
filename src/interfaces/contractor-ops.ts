@@ -632,6 +632,29 @@ export interface DisposalEvidence {
   device_id: string;
   client_event_id: string;
   submitted_by_name: string | null;
+  /** Which lorry load this photograph belongs to (X11); empty for the rest. */
+  trip?: string | null;
+}
+
+/**
+ * One lorry load of a disposal job (X11, C5): planned at approval, sent by
+ * the driver / field staff, checked by the office. Cancelled when the office
+ * ended the job before it went.
+ */
+export type DisposalTripStatus = "PLANNED" | "SUBMITTED" | "ACCEPTED" | "CANCELLED";
+
+export interface DisposalTrip {
+  id: string;
+  seq: number;
+  status: DisposalTripStatus;
+  weight_kg: string | null;
+  do_no: string;
+  note: string;
+  submitted_at: string | null;
+  submitted_by_name: string;
+  accepted_by_name: string | null;
+  accepted_at: string | null;
+  evidence: DisposalEvidence[];
 }
 
 export interface DisposalTimelineEntry {
@@ -684,6 +707,15 @@ export interface DisposalRequest {
    * "normal".
    */
   disposal_evidence_is_overdue: boolean;
+  /** What the site asked for; approval makes this many trips (X11). */
+  planned_trips: number;
+  /** Each lorry and its check; empty on a job from before C5. */
+  trips: DisposalTrip[];
+  /** 「已验收 x / N 车」: N leaves out lorries cancelled by ending early. */
+  trips_accepted: number;
+  trips_total: number;
+  /** When the office ended the job early; no more lorries after this. */
+  trips_closed_at: string | null;
   execution_started_at: string | null;
   submitted_at: string | null;
   actual_weight_kg: string | null;
@@ -724,6 +756,12 @@ export interface ExternalDisposalTask {
   execution_note: string;
   ocr_status: DisposalRequest["ocr_status"];
   evidence: DisposalEvidence[];
+  /** The lorries, as the driver needs them (X11): no office names. */
+  trips: Array<{ id: string; seq: number; status: DisposalTripStatus; submitted_at: string | null }>;
+  trips_total: number;
+  trips_accepted: number;
+  /** The lorry the next submission fills; null when every one is sent. */
+  current_trip: { id: string; seq: number } | null;
 }
 
 /**

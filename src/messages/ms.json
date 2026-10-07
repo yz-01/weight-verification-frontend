@@ -7279,7 +7279,11 @@
       "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai.",
       "document_file_type_not_allowed": "Hanya fail PDF, Word, Excel atau gambar boleh dimuat naik.",
       "document_is_system_file": "Fail yang dipilih daripada sistem tidak menerima versi baharu. Letakkan versi baharu pada rekodnya.",
-      "document_system_file_not_found": "Salah satu fail tidak ditemui, atau anda tidak boleh melihatnya."
+      "document_system_file_not_found": "Salah satu fail tidak ditemui, atau anda tidak boleh melihatnya.",
+      "disposal_trip_not_waiting": "Muatan ini tidak menunggu semakan: belum dihantar, atau sudah disemak.",
+      "disposal_all_trips_sent": "Semua muatan yang dirancang telah dihantar. Jika ada lori lagi, minta tapak menambah satu muatan.",
+      "disposal_trips_closed": "Pelupusan ini telah selesai atau ditamatkan; muatannya tidak boleh diubah lagi.",
+      "disposal_nothing_sent": "Belum ada muatan dihantar, jadi tiada apa untuk ditamatkan. Batalkan kerja ini."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9609,7 +9613,10 @@
       "original_quantity": "Kuantiti asal",
       "correction_reason": "Sebab pembetulan",
       "assigned_reviewer": "Dihantar kepada",
-      "manufacturer": "Pengilang"
+      "manufacturer": "Pengilang",
+      "trips_progress": "Muatan disemak / dirancang",
+      "trip_checked": "Muatan disemak",
+      "trip_waiting": "Muatan menunggu semakan"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -13298,7 +13305,7 @@
     "external": {
       "action": {
         "start": "Mulakan kerja pelupusan",
-        "submit": "Hantar bukti pelupusan akhir (tamat tugas)"
+        "submit": "Hantar muatan ini"
       },
       "error": {
         "action": "Tindakan tidak dapat diselesaikan. Semak sambungan dan cuba lagi."
@@ -13333,9 +13340,9 @@
       "tapCamera": "Tekan untuk buka kamera",
       "title": "Tugas pelupusan",
       "uploaded": "Dimuat naik",
-      "waitingBody": "Bukti pelupusan akhir telah dihantar. Pautan ini kini ditutup dan tidak menerima foto lagi.",
+      "waitingBody": "Semua muatan telah disemak. Kerja selesai dan pautan ini ditutup.",
       "waitingTitle": "Tugas selesai",
-      "photosBody": "Ambil foto sisa di tempat pelupusan berlesen. Sehingga 4 foto, apa-apa jenis; sekurang-kurangnya 1 untuk dihantar. Menghantar menamatkan tugas dan menutup pautan ini."
+      "photosBody": "Ambil foto setiap muatan di tempat pelupusan berlesen. Sehingga 4 foto apa-apa jenis; sekurang-kurangnya 1 untuk dihantar. Pejabat menyemak setiap muatan; guna pautan yang sama untuk muatan seterusnya."
     },
     "externalActor": "Pelaksana luar",
     "field": {
@@ -13369,7 +13376,11 @@
       "volume": "Anggaran isipadu (m³)",
       "waste": "Penerangan sampah / sisa",
       "finalProofSubmitted": "Bukti akhir dihantar",
-      "legacyConfirmation": "Semakan pejabat (peraturan lama)"
+      "legacyConfirmation": "Semakan pejabat (peraturan lama)",
+      "plannedTrips": "Jangkaan bilangan lori",
+      "tripsProgress": "Muatan disemak",
+      "tripsAccepted": "Muatan disemak",
+      "tripsTotal": "Muatan dirancang"
     },
     "fieldEvidence": {
       "access": "3. Laluan kutipan atau kenderaan",
@@ -13382,7 +13393,7 @@
       "action": {
         "photosRequired": "Ambil foto bukti pelupusan akhir dahulu",
         "start": "Mulakan kerja pelupusan",
-        "submit": "Hantar bukti pelupusan akhir (tamat tugas)"
+        "submit": "Hantar muatan ini"
       },
       "error": {
         "action": "Tindakan tidak dapat diselesaikan. Semak sambungan dan GPS, kemudian cuba lagi."
@@ -13390,11 +13401,10 @@
       "field": {
         "doNo": "Nombor Disposal DO",
         "note": "Catatan kerja",
-        "trips": "Bilangan perjalanan",
         "weight": "Berat sebenar (kg)"
       },
       "invalid": "Tugas pelupusan ini tidak dapat dibuka. Muat semula Tugas Saya dan cuba lagi.",
-      "photosBody": "Ambil foto sisa di tempat pelupusan berlesen. Sehingga 4 foto setiap kali, apa-apa jenis; sekurang-kurangnya 1 untuk dihantar. Menghantar menamatkan tugas - tiada semakan pejabat.",
+      "photosBody": "Ambil foto setiap muatan di tempat pelupusan berlesen. Sehingga 4 foto bagi setiap muatan, apa-apa jenis; sekurang-kurangnya 1 untuk dihantar. Pejabat kemudian menyemak muatan itu.",
       "photosTitle": "Bukti pelupusan akhir",
       "status": {
         "APPROVED": "Diluluskan",
@@ -13408,7 +13418,7 @@
         "RETURNED": "Dikembalikan (peraturan lama)"
       },
       "submitTitle": "Keputusan pelupusan",
-      "waitingBody": "Bukti pelupusan akhir telah dihantar. Pelupusan ini selesai.",
+      "waitingBody": "Semua muatan telah disemak. Pelupusan ini selesai.",
       "waitingTitle": "Tugas selesai"
     },
     "notAssigned": "Belum ditugaskan",
@@ -13429,7 +13439,8 @@
     "review": {
       "title": "Semak permohonan pelupusan",
       "linkTitle": "Hantar pautan ini kepada pemohon",
-      "linkHelp": "Salin sekarang — ia ditunjukkan sekali sahaja. Pemohon menghantarnya kepada pemandu, yang memuat naik foto pelupusan melaluinya."
+      "linkHelp": "Salin sekarang — ia ditunjukkan sekali sahaja. Pemohon menghantarnya kepada pemandu, yang memuat naik foto pelupusan melaluinya.",
+      "tripsHelp": "Kelulusan mencipta sebanyak ini muatan. Setiap muatan yang dihantar pemandu menjadi tugasan pejabat; apabila yang terakhir disemak, kerja ditutup sendiri."
     },
     "status": {
       "APPROVED": "Diluluskan",
@@ -13448,7 +13459,7 @@
       "APPROVED": "Permohonan diluluskan",
       "CANCELLED": "Permohonan dibatalkan",
       "COLLECTOR_ASSIGNED": "Kontraktor luar ditugaskan",
-      "COMPLETED": "Disahkan oleh pejabat (peraturan lama)",
+      "COMPLETED": "Semua muatan disemak; kerja selesai",
       "EVIDENCE_DISPOSAL_DO": "Disposal DO dimuat naik",
       "EVIDENCE_LOADING": "Foto muatan dimuat naik",
       "EVIDENCE_OTHER": "Foto tapak lain dimuat naik",
@@ -13465,7 +13476,11 @@
       "CLOSED_ON_SUBMISSION": "Selesai: bukti akhir telah dihantar (peraturan baharu)",
       "NUMBERS_RECORDED": "Pejabat merekod berat / trip / DO",
       "SITE_EVIDENCE": "Tapak menambah foto kenderaan keluar / Gate Pass",
-      "EVIDENCE_DISPOSAL_PROOF": "Foto bukti pelupusan akhir dimuat naik"
+      "EVIDENCE_DISPOSAL_PROOF": "Foto bukti pelupusan akhir dimuat naik",
+      "TRIP_SUBMITTED": "Muatan dihantar, menunggu semakan pejabat",
+      "TRIP_ACCEPTED": "Pejabat menyemak satu muatan",
+      "TRIP_ADDED": "Pejabat menambah satu muatan",
+      "ENDED_EARLY": "Pejabat menamatkan kerja awal; muatan belum dihantar dibatalkan"
     },
     "title": "Pelupusan tapak",
     "toast": {
@@ -13476,11 +13491,14 @@
       "requested": "Permohonan pelupusan dihantar",
       "reviewed": "Semakan pelupusan disimpan",
       "numbersRecorded": "Berat / trip / DO disimpan",
-      "siteEvidence": "Foto tapak dihantar ke pejabat"
+      "siteEvidence": "Foto tapak dihantar ke pejabat",
+      "tripAccepted": "Muatan disemak",
+      "tripAdded": "Muatan ditambah",
+      "endedEarly": "Kerja ditamatkan awal"
     },
     "overdue": {
       "badge": "Pengecualian",
-      "help": "Tiada bukti pelupusan akhir 36 jam selepas kelulusan. Sila susuli."
+      "help": "Diluluskan lebih 36 jam lalu dan belum ada muatan dihantar. Sila susuli."
     },
     "what": {
       "fieldStaff": "Kakitangan tapak projek ini"
@@ -13507,7 +13525,30 @@
       "photos": "Foto"
     },
     "countedOnly": "Hanya permohonan yang dikira oleh ibu pejabat - tiada yang ditolak atau dibatalkan.",
-    "showAll": "Tunjuk semua"
+    "showAll": "Tunjuk semua",
+    "trips": {
+      "title": "Muatan",
+      "progress": "{accepted} / {total} muatan disemak",
+      "seq": "Muatan {seq}",
+      "accept": "Semak muatan ini",
+      "add": "Tambah satu muatan",
+      "endSwitch": "Tamatkan kerja ini lebih awal",
+      "endHint": "Hidupkan untuk menamatkan kerja. Muatan yang belum dihantar dibatalkan dan pautan pemandu ditutup; muatan yang sudah dihantar masih perlu disemak.",
+      "end": "Tamatkan awal",
+      "ended": "Pejabat telah menamatkan kerja ini lebih awal; tiada muatan lagi akan dihantar.",
+      "checkedBy": "Disemak oleh {name} · {at}",
+      "sentProgress": "{sent} / {total} muatan dihantar",
+      "justSent": "Muatan {seq} dihantar. Pejabat akan menyemaknya.",
+      "loadTitle": "Muatan {seq} daripada {total}: bukti pelupusan (sehingga 4 foto)",
+      "allSentTitle": "Semua muatan dihantar",
+      "allSentBody": "Menunggu pejabat menyemaknya. Jika ada lori lagi, minta tapak menambah satu muatan."
+    },
+    "tripStatus": {
+      "PLANNED": "Belum dihantar",
+      "SUBMITTED": "Untuk disemak",
+      "ACCEPTED": "Disemak",
+      "CANCELLED": "Dibatalkan (tamat awal)"
+    }
   },
   "siteGps": {
     "allProjects": "Semua projek",

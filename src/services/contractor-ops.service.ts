@@ -634,6 +634,8 @@ export async function createDisposalRequest(payload: {
   estimated_weight_kg?: string;
   preferred_at?: string;
   request_note?: string;
+  /** 「预计车次」 (X11): how many lorries the site expects. */
+  planned_trips?: string;
   captured_at: string;
   latitude: string;
   longitude: string;
@@ -665,10 +667,16 @@ export async function reviewDisposalRequest(
   id: string,
   decision: "APPROVED" | "REJECTED",
   note = "",
+  plannedTrips?: number,
 ) {
   const row = await api.post<
     DisposalRequest & { external_url?: string; external_link_due_hours?: number }
-  >(`/api/site-disposals/${id}/review_request/`, { decision, note });
+  >(`/api/site-disposals/${id}/review_request/`, {
+    decision,
+    note,
+    // Approval makes this many lorries (X11); the site's number otherwise.
+    ...(decision === "APPROVED" && plannedTrips ? { planned_trips: plannedTrips } : {}),
+  });
   toastSuccess("siteDisposal.toast.reviewed");
   return row;
 }
@@ -752,13 +760,39 @@ export const addInternalDisposalEvidence = (
   }>(`/api/site-disposals/${id}/execute_internal/`, data);
 };
 
+/** One lorry's proof, weight and DO (X11): the office then checks it. */
 export const submitInternalDisposalTask = (
   id: string,
-  payload: { actual_weight_kg: string; trip_count: number; disposal_do_no: string; note?: string },
+  payload: { actual_weight_kg: string; disposal_do_no: string; note?: string },
 ) => api.post<DisposalRequest>(`/api/site-disposals/${id}/execute_internal/`, {
   operation: "submit",
   ...payload,
 });
+
+/** The office checks one lorry load (X11). The last one completes the job. */
+export async function acceptDisposalTrip(id: string, trip: string) {
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/accept_trip/`, { trip });
+  toastSuccess("siteDisposal.toast.tripAccepted");
+  return row;
+}
+
+/** 「加一车」 (X11): one more lorry after the last. */
+export async function addDisposalTrip(id: string) {
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/add_trip/`, {});
+  toastSuccess("siteDisposal.toast.tripAdded");
+  return row;
+}
+
+/**
+ * End the job early (X11): lorries not yet sent are dropped and the driver's
+ * link closes; loads already sent still wait for their check. Armed by a
+ * switch on the screen, never a confirm dialog (spec rule 8).
+ */
+export async function endDisposalEarly(id: string, note = "") {
+  const row = await api.post<DisposalRequest>(`/api/site-disposals/${id}/end_early/`, { note });
+  toastSuccess("siteDisposal.toast.endedEarly");
+  return row;
+}
 
 /**
  * The office fills in weight, trips and DO number after the job (D06).

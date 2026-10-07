@@ -7279,7 +7279,11 @@
       "material_request_reviewer_not_eligible": "The person chosen cannot approve requests on this project. Choose again from the list.",
       "document_file_type_not_allowed": "Only PDF, Word, Excel or image files can be uploaded.",
       "document_is_system_file": "A file picked from the system takes no new versions. Put the new version on its record.",
-      "document_system_file_not_found": "One of those files was not found, or you cannot see it."
+      "document_system_file_not_found": "One of those files was not found, or you cannot see it.",
+      "disposal_trip_not_waiting": "This load is not waiting for a check: it has not been sent, or it was already checked.",
+      "disposal_all_trips_sent": "Every planned load has been sent. If another lorry is going, ask the site to add a load.",
+      "disposal_trips_closed": "This disposal has finished or was ended; its loads can no longer change.",
+      "disposal_nothing_sent": "No load has been sent yet, so there is nothing to end. Cancel the job instead."
     },
     "backToDashboard": "Back to dashboard",
     "field": {
@@ -9609,7 +9613,10 @@
       "original_quantity": "Original quantity",
       "correction_reason": "Reason for correction",
       "assigned_reviewer": "Submitted to",
-      "manufacturer": "Manufacturer"
+      "manufacturer": "Manufacturer",
+      "trips_progress": "Loads checked / planned",
+      "trip_checked": "Load checked",
+      "trip_waiting": "Load waiting for check"
     },
     "detailTitle": "What I sent",
     "photos": "Photographs",
@@ -13298,7 +13305,7 @@
     "external": {
       "action": {
         "start": "Start disposal work",
-        "submit": "Submit final disposal proof (ends the job)"
+        "submit": "Send this load"
       },
       "error": {
         "action": "The action could not be completed. Check the connection and try again."
@@ -13333,9 +13340,9 @@
       "tapCamera": "Tap to open the camera",
       "title": "Disposal task",
       "uploaded": "Uploaded",
-      "waitingBody": "The final disposal proof was submitted. This link is now closed and takes no more photos.",
+      "waitingBody": "Every load has been checked. The job is finished and this link is closed.",
       "waitingTitle": "Job finished",
-      "photosBody": "Photograph the waste at the licensed disposal place. Up to 4 photos, any kind; at least 1 to submit. Submitting ends the job and closes this link."
+      "photosBody": "Photograph each load at the licensed disposal place. Up to 4 photos of any kind; at least 1 to send. The office checks each load; use this same link for the next one."
     },
     "externalActor": "External executor",
     "field": {
@@ -13369,7 +13376,11 @@
       "volume": "Estimated volume (m³)",
       "waste": "Debris / waste description",
       "finalProofSubmitted": "Final proof submitted",
-      "legacyConfirmation": "Office check (earlier rule)"
+      "legacyConfirmation": "Office check (earlier rule)",
+      "plannedTrips": "Lorries expected",
+      "tripsProgress": "Loads checked",
+      "tripsAccepted": "Loads checked",
+      "tripsTotal": "Loads planned"
     },
     "fieldEvidence": {
       "access": "3. Collection access or vehicle route",
@@ -13382,7 +13393,7 @@
       "action": {
         "photosRequired": "Photograph the final disposal proof first",
         "start": "Start disposal work",
-        "submit": "Submit final disposal proof (ends the job)"
+        "submit": "Send this load"
       },
       "error": {
         "action": "The action could not be completed. Check the connection and GPS, then try again."
@@ -13390,11 +13401,10 @@
       "field": {
         "doNo": "Disposal DO number",
         "note": "Work note",
-        "trips": "Number of trips",
         "weight": "Actual weight (kg)"
       },
       "invalid": "This disposal task could not be opened. Refresh My Tasks and try again.",
-      "photosBody": "Photograph the waste at the licensed disposal place. Up to 4 photos each time, any kind; at least 1 to submit. Submitting ends the job - no office check.",
+      "photosBody": "Photograph each load at the licensed disposal place. Up to 4 photos per load, any kind; at least 1 to send. The office then checks the load.",
       "photosTitle": "Final disposal proof",
       "status": {
         "APPROVED": "Approved",
@@ -13408,7 +13418,7 @@
         "RETURNED": "Returned (earlier rule)"
       },
       "submitTitle": "Disposal result",
-      "waitingBody": "The final disposal proof was submitted. This disposal is complete.",
+      "waitingBody": "Every load has been checked. This disposal is complete.",
       "waitingTitle": "Job finished"
     },
     "notAssigned": "Not assigned",
@@ -13429,7 +13439,8 @@
     "review": {
       "title": "Review disposal request",
       "linkTitle": "Send this link to the applicant",
-      "linkHelp": "Copy it now — it is shown once. The applicant forwards it to the driver, who uploads the disposal photographs through it."
+      "linkHelp": "Copy it now — it is shown once. The applicant forwards it to the driver, who uploads the disposal photographs through it.",
+      "tripsHelp": "Approval creates this many loads. Each load the driver sends becomes a to-do for the office; when the last one is checked the job closes by itself."
     },
     "status": {
       "APPROVED": "Approved",
@@ -13448,7 +13459,7 @@
       "APPROVED": "Request approved",
       "CANCELLED": "Request cancelled",
       "COLLECTOR_ASSIGNED": "External contractor assigned",
-      "COMPLETED": "Confirmed by the office (earlier rule)",
+      "COMPLETED": "All loads checked; job completed",
       "EVIDENCE_DISPOSAL_DO": "Disposal DO uploaded",
       "EVIDENCE_LOADING": "Loading photo uploaded",
       "EVIDENCE_OTHER": "Site cleared / other photo uploaded",
@@ -13465,7 +13476,11 @@
       "CLOSED_ON_SUBMISSION": "Finished: final proof had been submitted (new rule)",
       "NUMBERS_RECORDED": "Office recorded weight / trips / DO",
       "SITE_EVIDENCE": "Site added vehicle exit / Gate Pass photos",
-      "EVIDENCE_DISPOSAL_PROOF": "Final disposal proof photo uploaded"
+      "EVIDENCE_DISPOSAL_PROOF": "Final disposal proof photo uploaded",
+      "TRIP_SUBMITTED": "Load sent, waiting for the office check",
+      "TRIP_ACCEPTED": "Office checked a load",
+      "TRIP_ADDED": "Office added a load",
+      "ENDED_EARLY": "Office ended the job early; loads not sent were dropped"
     },
     "title": "Site disposal",
     "toast": {
@@ -13476,11 +13491,14 @@
       "requested": "Disposal request submitted",
       "reviewed": "Disposal review saved",
       "numbersRecorded": "Weight / trips / DO saved",
-      "siteEvidence": "Site photos sent to the office"
+      "siteEvidence": "Site photos sent to the office",
+      "tripAccepted": "Load checked",
+      "tripAdded": "Load added",
+      "endedEarly": "Job ended early"
     },
     "overdue": {
       "badge": "Exception",
-      "help": "No final disposal proof 36 hours after approval. Please follow up."
+      "help": "Approved more than 36 hours ago and no load has been sent yet. Please follow up."
     },
     "what": {
       "fieldStaff": "The field staff on this project"
@@ -13507,7 +13525,30 @@
       "photos": "Photos"
     },
     "countedOnly": "Only the requests head office counts - nothing rejected or cancelled.",
-    "showAll": "Show all"
+    "showAll": "Show all",
+    "trips": {
+      "title": "Loads",
+      "progress": "{accepted} / {total} loads checked",
+      "seq": "Load {seq}",
+      "accept": "Check this load",
+      "add": "Add a load",
+      "endSwitch": "End this job early",
+      "endHint": "Turn this on to end the job. Loads not yet sent are dropped and the driver's link closes; loads already sent still need checking.",
+      "end": "End early",
+      "ended": "The office ended this job early; no more loads will be sent.",
+      "checkedBy": "Checked by {name} · {at}",
+      "sentProgress": "{sent} / {total} loads sent",
+      "justSent": "Load {seq} sent. The office will check it.",
+      "loadTitle": "Load {seq} of {total}: disposal proof (up to 4 photos)",
+      "allSentTitle": "All loads sent",
+      "allSentBody": "Waiting for the office to check them. If another lorry is going, ask the site to add a load."
+    },
+    "tripStatus": {
+      "PLANNED": "Not sent yet",
+      "SUBMITTED": "To check",
+      "ACCEPTED": "Checked",
+      "CANCELLED": "Dropped (ended early)"
+    }
   },
   "siteGps": {
     "allProjects": "All projects",
