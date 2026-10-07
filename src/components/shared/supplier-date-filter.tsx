@@ -23,6 +23,7 @@ import { useState } from "react";
 
 import { OptionCombobox, type ComboOption } from "@/components/material-requests/option-combobox";
 import { QueryFailedNote } from "@/components/shared/page-primitives";
+import { SupplierReturnBadge, type ReturnBadgeSupplier } from "@/components/suppliers/supplier-return-badge";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
 import type { useListQuery } from "@/hooks/use-list-query";
@@ -56,12 +57,19 @@ export function supplierSearchQuery(term: string): ListQuery {
  * this page, so the button never falls back to showing an id.
  */
 export function supplierOptions(
-  results: readonly { id: string; name: string }[],
+  results: readonly ReturnBadgeSupplier[],
   allLabel: string,
 ): ComboOption[] {
   return [
     { value: ALL, label: allLabel },
-    ...results.map((row) => ({ value: row.id, label: row.name })),
+    ...results.map((row) => ({
+      value: row.id,
+      label: row.name,
+      // 「有退场资料」 (2026-10 C10), as a mark in the list.
+      ...(row.completed_return_count
+        ? { suffix: <SupplierReturnBadge supplier={row} interactive={false} /> }
+        : {}),
+    })),
   ];
 }
 
@@ -131,6 +139,10 @@ export function SupplierDateFilter({
               triggerClassName="h-8 text-sm"
             />
           </div>
+          {/* The chosen one's returns, one press away (2026-10 C10). */}
+          <SupplierReturnBadge
+            supplier={results.find((row) => row.id === chosen) ?? chosenRow.data}
+          />
           <QueryFailedNote query={suppliers} what={t("what")} />
         </>
       )}

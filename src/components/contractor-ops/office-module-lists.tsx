@@ -394,6 +394,9 @@ export function MaterialOutgoingOffice() {
         },
         { key: "submitted_by_name", label: t("outgoing.submittedBy") },
         { key: "captured_at", label: t("outgoing.capturedAt") },
+        // The Return Note it was approved on (2026-10 C9).
+        { key: "return_note_no", label: t("returnNote.number") },
+        { key: "approver_name", label: t("returnNote.approverName") },
       ],
       summary: {
         groupBy: "unit",

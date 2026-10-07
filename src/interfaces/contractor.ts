@@ -111,6 +111,8 @@ export interface Supplier {
   qr_is_active?: boolean;
   qr_issued_at?: string;
   qr_code_count?: number;
+  /** 「有退场资料」 (2026-10 C10): finished returns to this supplier. */
+  completed_return_count?: number;
   created_at: string;
 }
 

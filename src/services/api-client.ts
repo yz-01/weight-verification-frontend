@@ -333,6 +333,22 @@ export async function download(
 }
 
 /**
+ * A file the API serves, as a `File` with the name the server gave it - for
+ * handing to the phone's share sheet (2026-10 C11, Web Share API).
+ */
+export async function fetchAsFile(
+  path: string,
+  options: RequestOptions & { fallbackFilename: string },
+): Promise<File> {
+  const response = await fetchFile(path, options);
+  const blob = await response.blob();
+  const name =
+    filenameFromDisposition(response.headers.get("Content-Disposition")) ??
+    options.fallbackFilename;
+  return new File([blob], name, { type: blob.type || "application/octet-stream" });
+}
+
+/**
  * A file the API serves, as an object URL the page can show in a frame and
  * print (the MR form's Preview / Print, C06). The caller revokes it.
  */

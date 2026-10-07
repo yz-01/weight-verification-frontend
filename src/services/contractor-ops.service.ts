@@ -25,7 +25,6 @@ import type {
   FieldTask,
   FieldTaskPayload,
   MaterialOutgoing,
-  ReturnableReceipt,
   ProjectCategory,
   ProjectCategoryPayload,
   ProjectResponsibility,
@@ -46,7 +45,7 @@ import type {
 } from "@/interfaces/contractor-ops";
 import type { CategoryModuleKey } from "@/lib/category-modules";
 import type { ChatRecordKind } from "@/lib/record-chat";
-import { api, download, fetchObjectUrl, toastSuccess } from "@/services/api-client";
+import { api, download, fetchAsFile, fetchObjectUrl, toastSuccess } from "@/services/api-client";
 
 export const getProjectCategories = (query: ListQuery) =>
   api.list<ProjectCategory>("/api/project-categories/get_categories/", query);
@@ -504,18 +503,13 @@ export async function createSiteProgressRecord(payload: {
 export const getMaterialOutgoing = (query: ListQuery = {}): Promise<Paginated<MaterialOutgoing>> =>
   api.list<MaterialOutgoing>("/api/material-outgoing/get_records/", query);
 /**
- * The deliveries a return can point at (A02, B11): this project's, from this
- * supplier, each with what is left of it to send back.
+ * The phone's application to send material back (2026-10 C9): a material
+ * category (its unit comes with it), the quantity, the plate, the reason and
+ * the photographs. The supplier is optional and no original delivery is
+ * chosen (X20); `source_receipt` stays for a job queued by an older build.
  */
-export const getReturnableReceipts = (project: string, supplier?: string) =>
-  api.get<{ results: ReturnableReceipt[] }>(
-    "/api/material-outgoing/returnable_receipts/",
-    { project, ...(supplier ? { supplier } : {}) },
-  );
-
 export async function createMaterialOutgoing(payload: {
   project: string;
-  /** Supplier first, then that supplier's delivery; the material comes from it. */
   supplier?: string; source_receipt?: string;
   /** Whose make (2026-10 D1); the server takes the delivery's when absent. */
   manufacturer?: string;
@@ -557,10 +551,11 @@ export function exportMaterialOutgoing(request: ExportRequest): Promise<void> {
 }
 
 /**
- * The site's return after approval (D-211 「手机端现场处理及回传」).
+ * The material actually leaving, on the same record (2026-10 C9).
  *
- * Photographs are required by the server: the office's final confirmation is
- * made on what it can see.
+ * Photographs, what actually left, the plate, the DO, the supplier (scanned
+ * or as the office named it) and both signatures. It then waits for the
+ * office's confirmation (PROCESSED, 待后台确认).
  */
 export async function returnMaterialOutgoingProcessing(
   id: string,
@@ -569,10 +564,16 @@ export async function returnMaterialOutgoingProcessing(
     note?: string;
     latitude?: string;
     longitude?: string;
-    /** B12: what actually left, and both sides' signatures at the handover. */
+    /** What actually left, and both sides' signatures as it went. */
     returned_quantity: string;
     site_signature: File;
     supplier_signature: File;
+    vehicle_plate?: string;
+    delivery_note_no?: string;
+    /** As confirmed at the exit - scanned, or chosen. */
+    supplier?: string;
+    /** The material category, when what left is not what was applied for. */
+    category?: string;
   },
 ) {
   const data = new FormData();
@@ -580,6 +581,9 @@ export async function returnMaterialOutgoingProcessing(
   data.append("returned_quantity", payload.returned_quantity);
   data.append("site_signature", payload.site_signature);
   data.append("supplier_signature", payload.supplier_signature);
+  for (const key of ["vehicle_plate", "delivery_note_no", "supplier", "category"] as const) {
+    if (payload[key]) data.append(key, payload[key] as string);
+  }
   if (payload.note) data.append("note", payload.note);
   if (payload.latitude) data.append("latitude", payload.latitude);
   if (payload.longitude) data.append("longitude", payload.longitude);
@@ -600,6 +604,36 @@ export async function addMaterialOutgoingPhotos(id: string, files: File[]) {
     data,
   );
   toastSuccess("contractorOps.toast.saved");
+  return row;
+}
+
+/**
+ * The office's Return Note (2026-10 C9): what the approval is made on.
+ * The approver's signature is required the first time and kept after.
+ */
+export async function fillReturnNote(
+  id: string,
+  payload: {
+    material: string;
+    delivery_note_no?: string;
+    supplier?: string;
+    quantity: string;
+    unit?: string;
+    reason: string;
+    approver_name?: string;
+    approver_signature?: File;
+  },
+) {
+  const data = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === undefined || value === "") continue;
+    data.append(key, value instanceof File ? value : String(value));
+  }
+  const row = await api.post<MaterialOutgoing>(
+    `/api/material-outgoing/${id}/fill_return_note/`,
+    data,
+  );
+  toastSuccess("contractorOps.toast.returnNoteSaved");
   return row;
 }
 
@@ -1196,6 +1230,13 @@ export const downloadRecordPdf = (
 export const recordPdfObjectUrl = (kind: ExportableRecordKind, recordId: string) =>
   fetchObjectUrl("/api/record-exports/download/", {
     query: { kind, record: recordId, inline: "1" },
+  });
+
+/** The same PDF as a `File`, for the phone's share sheet (2026-10 C11). */
+export const recordPdfFile = (kind: ExportableRecordKind, recordId: string, reference: string) =>
+  fetchAsFile("/api/record-exports/download/", {
+    query: { kind, record: recordId },
+    fallbackFilename: `${(reference || "record").replace(/[\\/:*?"<>|]+/g, "-")}.pdf`,
   });
 
 export async function sendPackageForReview(id: string, consultant: string) {

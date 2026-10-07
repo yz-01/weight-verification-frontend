@@ -4156,7 +4156,10 @@
     "view": "Lihat",
     "exportThisRecord": "Eksport rekod ini",
     "previewThisRecord": "Pratonton / cetak",
-    "alreadyLastPage": "Sudah di halaman terakhir"
+    "alreadyLastPage": "Sudah di halaman terakhir",
+    "shareThisRecord": "Kongsi",
+    "linkCopied": "Pautan disalin. Tampal untuk berkongsi.",
+    "shareFailed": "Tidak dapat berkongsi. Muat turun dan hantar fail itu."
   },
   "companies": {
     "owner": {
@@ -5701,22 +5704,22 @@
       "executor": "Pelaksana",
       "fieldFormHelp": "Isi maklumat penting sahaja, lengkapkan sekurang-kurangnya empat foto bukti dan ambil GPS. Pelaksana direkod secara automatik.",
       "formHelp": "Namakan pelaksana sebenar dan ambil lokasi GPS semasa.",
-      "subtitle": "Pulangkan bahan kepada pembekal: mohon, lulus, kemudian tandatangan semasa serahan.",
+      "subtitle": "Bahan dipulangkan kepada pembekal: mohon di telefon → pejabat isi Return Note dan luluskan → kedua-dua pihak tandatangan semasa keluar → pejabat sahkan.",
       "title": "Bahan keluar",
       "rejectTitle": "Hantar permohonan ini kembali",
       "rejectHelp": "Permohonan {reference} berakhir di sini. Ia tidak dibuka semula — permohonan baharu dibuat — jadi sebab ini sahaja yang pemohon ada.",
       "rejectReason": "Sebab dihantar kembali",
       "viewDetail": "Butiran",
-      "returnProcessing": "Serahan (kedua-dua tandatangan)",
-      "waitingForSite": "Diluluskan - menunggu lori dan serahan di tapak.",
-      "finalConfirm": "Pengesahan akhir",
-      "waitingForOffice": "Foto telah dihantar. Menunggu pengesahan akhir pejabat.",
-      "returnHelp": "{reference} telah diluluskan. Apabila bahan keluar, masukkan kuantiti, ambil gambar dan dapatkan kedua-dua tandatangan. Penghantaran menamatkan pemulangan.",
+      "returnProcessing": "Rekod keluar (kedua-dua tandatangan)",
+      "waitingForSite": "Diluluskan / menunggu keluar tapak: tapak merekod keluar dengan kedua-dua tandatangan.",
+      "finalConfirm": "Sahkan keluar",
+      "waitingForOffice": "Bahan telah keluar. Menunggu pengesahan pejabat.",
+      "returnHelp": "{reference} telah diluluskan. Semasa bahan keluar: ambil foto, isi kuantiti sebenar, nombor plat lori dan nombor DO, sahkan pembekal (imbas kodnya jika boleh), dan kedua-dua orang tapak dan pembekal / pemandu tandatangan. Pejabat kemudian mengesahkannya.",
       "processingPhotos": "Gambar semasa serahan",
       "processingNote": "Nota dari tapak",
       "processingLocation": "Lokasi",
       "processingLocationReady": "Lokasi diperoleh",
-      "sendReturn": "Hantar (tamatkan pemulangan)",
+      "sendReturn": "Hantar (pejabat sahkan)",
       "returnFailed": "Serahan tidak disimpan. Sila cuba lagi.",
       "uploadFiles": "Muat naik fail",
       "referenceNo": "No.",
@@ -5731,30 +5734,35 @@
       },
       "flowTitle": "Langkah",
       "approvedBy": "Diluluskan oleh",
-      "processedBy": "Diserahkan oleh",
-      "returnFormHelp": "Pilih pembekal, kemudian penghantaran yang dipulangkan - bahan, spesifikasi dan unit diambil daripadanya. Masukkan kuantiti yang dipulangkan. Pejabat meluluskan; lori dimuatkan dan kedua-dua pihak menandatangani semasa keluar.",
+      "processedBy": "Keluar direkod oleh",
+      "returnFormHelp": "Pilih bahan (unit diisi sendiri), isi kuantiti, nombor plat lori dan sebab dipulangkan, dan ambil foto. Pilih atau imbas pembekal jika tahu - jika tidak, biarkan. Pejabat isi Return Note dan luluskan; kedua-dua pihak tandatangan semasa bahan keluar.",
       "supplier": "Pembekal",
       "chooseSupplier": "Pilih pembekal",
       "sourceReceipt": "Penerimaan asal",
-      "chooseSourceReceipt": "Pilih penghantaran yang dipulangkan",
-      "remaining": "baki {quantity} {unit}",
-      "noReturnable": "Tiada penghantaran daripada pembekal ini di projek ini yang masih boleh dipulangkan.",
       "specification": "Spesifikasi",
       "returnQuantity": "Kuantiti untuk dipulangkan",
-      "tooMuch": "Hanya {quantity} {unit} daripada penghantaran ini boleh dipulangkan.",
       "reasonPlaceholder": "Sebab dipulangkan, cth. lebihan, saiz salah dikesan kemudian",
       "returnedQuantity": "Kuantiti sebenar dipulangkan",
       "siteSignature": "Tandatangan tapak",
       "supplierSignature": "Tandatangan pembekal / pemandu",
-      "returnAction": "Kembalikan"
+      "returnAction": "Kembalikan",
+      "material": "Bahan",
+      "chooseMaterial": "Pilih bahan",
+      "noMaterials": "Projek ini belum ada kategori bahan. Minta pejabat menambahnya.",
+      "autoFilled": "Diisi daripada kategori bahan",
+      "supplierOptional": "Pilih atau imbas jika tahu; jika tidak, biarkan.",
+      "scanSupplier": "Imbas QR pembekal",
+      "scannedSupplier": "Diimbas: {name}",
+      "scanFailed": "Kod itu bukan kod QR pembekal.",
+      "noSupplier": "Tidak diketahui"
     },
     "outgoingStatus": {
-      "APPROVED": "Diluluskan - menunggu serahan",
+      "APPROVED": "Diluluskan / menunggu keluar tapak",
       "PENDING": "Menunggu kelulusan",
       "REJECTED": "Dikembalikan (ditutup)",
       "RELEASED": "Dilepaskan (aliran lama)",
-      "PROCESSED": "Diproses di tapak (aliran lama) - menunggu pengesahan akhir",
-      "COMPLETED": "Diserahkan - selesai"
+      "PROCESSED": "Menunggu pengesahan pejabat",
+      "COMPLETED": "Telah keluar tapak - selesai"
     },
     "priority": {
       "HIGH": "Tinggi",
@@ -5919,9 +5927,10 @@
       "saved": "Disimpan",
       "taskAssigned": "Tugas diagihkan",
       "taskUpdated": "Tugas dikemas kini",
-      "outgoingProcessed": "Foto pemprosesan dihantar. Pejabat akan mengesahkan.",
+      "outgoingProcessed": "Keluar direkod. Pejabat akan mengesahkannya.",
       "movementRequested": "Permohonan dihantar ke pejabat",
-      "movementReviewed": "Permohonan dikemas kini"
+      "movementReviewed": "Permohonan dikemas kini",
+      "returnNoteSaved": "Return Note disimpan"
     },
     "what": {
       "roles": "Senarai peranan",
@@ -5932,14 +5941,37 @@
       "progressSummary": "Jumlah kemajuan",
       "phases": "Senarai fasa pembinaan",
       "outgoingRecord": "Rekod bahan keluar ini",
-      "returnableReceipts": "penghantaran yang boleh dipulangkan",
-      "equipmentApplications": "permohonan peralatan yang terbuka"
+      "equipmentApplications": "permohonan peralatan yang terbuka",
+      "materials": "Senarai bahan"
     },
     "equipmentMovementStatus": {
       "PENDING": "Menunggu kelulusan",
       "APPROVED": "Diluluskan - menunggu serahan",
       "RETURNED": "Dikembalikan - ditutup",
       "COMPLETED": "Telah diserahkan"
+    },
+    "returnNote": {
+      "title": "Return Note",
+      "fill": "Isi Return Note",
+      "edit": "Ubah Return Note",
+      "help": "Sebelum meluluskan, isi Return Note: bahan, nombor DO, pembekal, kuantiti, sebab, serta nama dan tandatangan pelulus.",
+      "number": "No. Return Note",
+      "numberPending": "Dinomborkan apabila disimpan",
+      "date": "Tarikh",
+      "material": "Bahan",
+      "deliveryNoteNo": "No. DO",
+      "supplier": "Pembekal",
+      "chooseSupplier": "Pilih pembekal",
+      "quantity": "Kuantiti",
+      "reason": "Sebab",
+      "approverName": "Diluluskan oleh",
+      "approverSignature": "Tandatangan pelulus",
+      "keepSignature": "Sudah ditandatangani. Tandatangan semula hanya untuk menggantikannya.",
+      "save": "Simpan Return Note",
+      "saveFailed": "Return Note tidak disimpan. Sila cuba lagi.",
+      "missing": "Belum ada Return Note",
+      "needNoteFirst": "Isi Return Note dahulu",
+      "filledBy": "Diisi oleh"
     }
   },
   "contractorPartners": {
@@ -7279,7 +7311,8 @@
       "material_request_reviewer_not_eligible": "Orang yang dipilih tidak boleh meluluskan permohonan bagi projek ini. Pilih semula daripada senarai.",
       "document_file_type_not_allowed": "Hanya fail PDF, Word, Excel atau gambar boleh dimuat naik.",
       "document_is_system_file": "Fail yang dipilih daripada sistem tidak menerima versi baharu. Letakkan versi baharu pada rekodnya.",
-      "document_system_file_not_found": "Salah satu fail tidak ditemui, atau anda tidak boleh melihatnya."
+      "document_system_file_not_found": "Salah satu fail tidak ditemui, atau anda tidak boleh melihatnya.",
+      "return_note_required": "Isi Return Note sebelum meluluskan."
     },
     "backToDashboard": "Kembali ke papan pemuka",
     "field": {
@@ -9609,7 +9642,15 @@
       "original_quantity": "Kuantiti asal",
       "correction_reason": "Sebab pembetulan",
       "assigned_reviewer": "Dihantar kepada",
-      "manufacturer": "Pengilang"
+      "manufacturer": "Pengilang",
+      "return_note_no": "No. Return Note",
+      "return_note_at": "Tarikh Return Note",
+      "return_note_material": "Bahan (Return Note)",
+      "return_note_delivery_note_no": "No. DO (Return Note)",
+      "return_note_supplier": "Pembekal (Return Note)",
+      "return_note_quantity": "Kuantiti (Return Note)",
+      "return_note_reason": "Sebab (Return Note)",
+      "approver_name": "Return Note diluluskan oleh"
     },
     "detailTitle": "Apa yang saya hantar",
     "photos": "Gambar",
@@ -11494,12 +11535,33 @@
       "choose": "Pilih paparan"
     },
     "net": {
-      "title": "Kuantiti bersih mengikut bahan",
-      "note": "Bersih = penghantaran masuk (yang ditolak tidak dikira) tolak pemulangan kepada pembekal, setiap pemulangan ditolak sekali daripada penghantaran asalnya. Unit berbeza tidak dicampur.",
-      "received": "Masuk",
+      "title": "Kuantiti bersih mengikut pembekal dan bahan",
+      "note": "Diterima tidak pernah berkurang. Bersih = diterima (muatan ditolak tidak dikira) tolak pemulangan yang telah disahkan selesai oleh pejabat - dipadankan mengikut kategori bahan dan unit. Unit berbeza tidak dicampur.",
+      "received": "Diterima (jumlah masuk)",
       "returned": "Dipulangkan",
       "net": "Bersih",
-      "rejected": "Ditolak (tidak dikira)"
+      "rejected": "Ditolak (tidak dikira)",
+      "supplier": "Pembekal",
+      "noSupplier": "Tiada pembekal",
+      "searchMaterial": "Cari bahan",
+      "expand": "Tunjuk setiap penghantaran",
+      "collapse": "Sembunyi",
+      "deliveries": "Penghantaran",
+      "item": {
+        "kind": {
+          "DELIVERY": "Masuk",
+          "RETURN": "Dipulangkan",
+          "RETURN_RECEIPT": "Pemulangan (sebelum 10-02)",
+          "REJECTED": "Ditolak"
+        },
+        "date": "Tarikh",
+        "reference": "No.",
+        "doNo": "No. DO",
+        "plate": "Plat lori",
+        "manufacturer": "Pengilang",
+        "returnNote": "Return Note",
+        "quantity": "Kuantiti"
+      }
     }
   },
   "recyclerBusiness": {
@@ -15488,5 +15550,31 @@
       "failed": "Pengilang tidak dapat ditambah.",
       "fromColumn": "Diisi daripada kategori"
     }
+  },
+  "supplierReturns": {
+    "badge": "Ada pemulangan",
+    "badgeHint": "{count} pemulangan selesai kepada pembekal ini - buka untuk melihat",
+    "title": "Pemulangan kepada {name}",
+    "help": "Setiap pemulangan yang selesai kepada pembekal ini, dengan Return Note, foto, kedua-dua tandatangan dan kelulusan.",
+    "empty": "Tiada pemulangan yang selesai.",
+    "what": "Senarai pemulangan",
+    "column": {
+      "date": "Tarikh",
+      "material": "Bahan",
+      "quantity": "Kuantiti",
+      "plate": "Plat lori",
+      "reason": "Sebab",
+      "returnNote": "Return Note",
+      "photos": "Foto",
+      "signatures": "Kedua-dua tandatangan",
+      "approval": "Kelulusan"
+    },
+    "site": "Tapak",
+    "supplierSide": "Pembekal / pemandu",
+    "approver": "Pelulus",
+    "print": "Cetak",
+    "export": "Eksport",
+    "share": "Kongsi",
+    "open": "Buka rekod"
   }
 }

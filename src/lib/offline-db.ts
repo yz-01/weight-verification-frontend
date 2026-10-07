@@ -233,7 +233,10 @@ export interface MaterialOutgoingOfflineJob extends OfflineJobBase {
   kind: "MATERIAL_OUTGOING";
   payload: {
     project: string;
-    /** A return to the supplier (A02, B11): supplier, then that supplier's delivery. */
+    /**
+     * Since 2026-10 C9 the supplier is optional and no delivery is chosen
+     * (X20); `source_receipt` stays for a job an older build queued.
+     */
     supplier?: string;
     source_receipt?: string;
     category?: string;

@@ -120,7 +120,6 @@ import {
   getMaterialOutgoing,
   getMaterialOutgoingRecord,
   returnMaterialOutgoingProcessing,
-  getReturnableReceipts,
   ocrEquipmentDeliveryNote,
   getProjectCategories,
   getSiteEquipment,
@@ -139,6 +138,10 @@ import {
   getSuppliers,
 } from "@/services/contractor.service";
 import { getRoles } from "@/services/users.service";
+import { OutgoingSupplierField } from "@/components/contractor-ops/outgoing-supplier-field";
+import { ReturnNoteDialog, ReturnNotePanel } from "@/components/contractor-ops/return-note";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
+import { columnAutofill } from "@/lib/material-autofill";
 import {
   submitEquipmentMovementOfflineAware,
   submitMaterialOutgoingOfflineAware,
@@ -611,9 +614,13 @@ export function CategoryDialog({
                 <MultiPickList
                   selected={supplierIds}
                   onChange={setSupplierIds}
-                  options={(supplierChoices.data?.results ?? []).filter(
-                    (option) => option.is_active || supplierIds.includes(option.id),
-                  )}
+                  options={(supplierChoices.data?.results ?? [])
+                    .filter((option) => option.is_active || supplierIds.includes(option.id))
+                    .map((option) => ({
+                      ...option,
+                      // 「有退场资料」 (2026-10 C10), as a mark in the list.
+                      suffix: <SupplierReturnBadge supplier={option} interactive={false} />,
+                    }))}
                   knownNames={Object.fromEntries(
                     (row?.supplier_options ?? []).map((option) => [option.id, option.name]),
                   )}
@@ -2114,10 +2121,15 @@ export function EquipmentDialog({
                 {(suppliers.data?.results ?? []).map((item) => (
                   <SelectItem key={item.id} value={item.id}>
                     {item.code} - {item.name}
+                    <SupplierReturnBadge supplier={item} interactive={false} />
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {/* 「有退场资料」 (2026-10 C10). */}
+            <SupplierReturnBadge
+              supplier={(suppliers.data?.results ?? []).find((item) => item.id === form.supplier)}
+            />
             <QueryFailedNote query={suppliers} what={t("what.suppliers")} />
           </FieldWrapper>
           <FieldWrapper
@@ -3132,6 +3144,7 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
   const { can } = useAuth();
   const qc = useQueryClient();
   const [project, setProject] = useState(initialProject);
+  const unitName = useUnitName();
   // Kept in the draft, so tapping this 挂号 again reopens the form it was in
   // (D-259). Outside a draft (the office) this is ordinary state.
   const [creating, setCreating] = useDraftState("open:creating", Boolean(fieldTaskId));
@@ -3258,7 +3271,7 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
                     />
                   </div>
                   <p className="mt-1 text-sm">
-                    {row.material_name} · {row.quantity} {row.unit}
+                    {row.material_name} · {row.quantity} {unitName(row.unit, row.unit_label)}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {t("outgoing.executor")}: {row.executor_name}
@@ -3358,6 +3371,10 @@ export function MaterialOutgoingWorkspace({ initialProject = "", fieldTaskId, on
  * One component for the phone card and the office detail's right column
  * (C-020: 「那些按钮放在图 2 的圈起来的位置」), so the two can never offer
  * different steps for the same state.
+ *
+ * 2026-10 C9: the office fills the Return Note first - 【批准】 stays off,
+ * saying why, until it is filled (the server refuses it too). The note's
+ * dialog lives here, so every place that shows these buttons offers it.
  */
 export function OutgoingActions({
   row,
@@ -3372,24 +3389,33 @@ export function OutgoingActions({
 }) {
   const t = useTranslations("contractorOps");
   const { can } = useAuth();
+  const qc = useQueryClient();
+  const [noting, setNoting] = useState(false);
+  const needsNote = !row.has_return_note;
   return (
     <>
       {can("material_outgoing.approve") && row.status === "PENDING" && (
         <div className="flex flex-wrap justify-end gap-2">
-          {/* 后台只 Approve / Return (B12): Return ends the application. */}
+          <Button variant={needsNote ? "default" : "outline"} onClick={() => setNoting(true)}>
+            <FileText />
+            {needsNote ? t("returnNote.fill") : t("returnNote.edit")}
+          </Button>
+          {/* Return ends the application: a reason, no conversation first (C9). */}
           <Button variant="outline" onClick={() => onReview("REJECTED")}>
             <RotateCcw />
             {t("outgoing.returnAction")}
           </Button>
-          <Button disabled={pending} onClick={() => onReview("APPROVED")}>
+          <Button
+            disabled={pending || needsNote}
+            disabledReason={needsNote ? t("returnNote.needNoteFirst") : undefined}
+            onClick={() => onReview("APPROVED")}
+          >
             <Check />
             {t("action.approve")}
           </Button>
         </div>
       )}
-      {/* 10-02 B12: 批准 → 装货 → 实际出场时双方签名 → Submit, which ends
-          it. 【最终确认】 below is only for a row that reached PROCESSED
-          under D-211 before this change. */}
+      {/* 已批准 / 等待退场: the site records the exit with both signatures. */}
       {row.status === "APPROVED" &&
         (can("material_outgoing.submit") ? (
           <Button className="w-full" onClick={onReturn}>
@@ -3401,6 +3427,7 @@ export function OutgoingActions({
             {t("outgoing.waitingForSite")}
           </p>
         ))}
+      {/* 待后台确认: the office confirms what left, which closes it. */}
       {row.status === "PROCESSED" &&
         (can("material_outgoing.approve") ? (
           <Button
@@ -3416,19 +3443,29 @@ export function OutgoingActions({
             {t("outgoing.waitingForOffice")}
           </p>
         ))}
+      {noting && (
+        <ReturnNoteDialog
+          row={row}
+          onClose={() => setNoting(false)}
+          onSaved={() => {
+            setNoting(false);
+            void qc.invalidateQueries({ queryKey: ["material-outgoing"] });
+          }}
+        />
+      )}
     </>
   );
 }
 
 /**
- * Apply to send a delivery back to its supplier (10-02 A02, B11, B12).
+ * Apply to send material back to its supplier (2026-10 C9).
  *
- * Supplier first, then one of that supplier's deliveries to this project:
- * the material, specification, unit and column come from the delivery, so
- * nothing is typed twice. Only the quantity to send back is the site's to
- * say, and it cannot be more than is left of the delivery. The office then
- * approves or returns it; the lorry is loaded and both sides sign at the
- * handover (`ReturnProcessingDialog`).
+ * As little as the phone can ask (「手机端越简单越好」): the material - a
+ * category, whose unit comes with it (A4) - how much, the lorry's plate,
+ * why, and the photographs. The supplier is optional, chosen or scanned; no
+ * original delivery is asked for any more (X20, the 「原进场记录」 the
+ * customer circled in 图 4). The office fills the Return Note and approves;
+ * both sides sign when the material actually leaves (`ReturnProcessingDialog`).
  */
 export function OutgoingDialog({
   project: initialProject,
@@ -3441,43 +3478,66 @@ export function OutgoingDialog({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  // The dialog owns the project choice. The list filter defaults to "all
-  // projects" (an empty string), so gating the Add button on it left the
-  // control permanently dead with nothing on screen explaining why.
   const t = useTranslations("contractorOps");
   const tRoot = useTranslations();
-  const df = useDateFormat();
   const { user } = useAuth();
   const isFieldStaff = Boolean(user?.is_field_staff);
   // F-282
   const [project, setProject] = useDraftState("project", initialProject);
   const [form, setForm] = useDraftState("form", {
+    category: "",
+    unit: "",
     supplier: "",
-    source_receipt: "",
     quantity: "",
     executor_name: "",
     vehicle_plate: "",
     reason: "",
-    // Whose make (2026-10 D1): starts as the delivery's.
+    // Whose make (2026-10 D1): the category's one designated maker, if any.
     manufacturer: "",
   });
+  const [scannedSupplier, setScannedSupplier] = useState("");
   const [photos, setPhotos] = useDraftState("photos", createEmptyFieldEvidence);
   const clearDraft = useClearDraft();
   const [location, setLocation] = useState<Coordinates | null>(null);
-  const suppliers = useQuery({
-    queryKey: ["suppliers", "return-to-supplier"],
-    queryFn: () => getSuppliers({ page_size: 200, sort_by: "name" }),
+  const columns = useQuery({
+    queryKey: ["project-categories", "outgoing", project],
+    queryFn: () =>
+      getProjectCategories({
+        project,
+        kind: "MATERIAL",
+        is_active: true,
+        page_size: 200,
+        sort_by: "sort_order",
+        sort_order: "asc",
+      }),
+    enabled: Boolean(project),
+    staleTime: 30_000,
   });
-  const deliveries = useQuery({
-    queryKey: ["material-outgoing", "returnable", project, form.supplier],
-    queryFn: () => getReturnableReceipts(project, form.supplier),
-    enabled: Boolean(project && form.supplier),
-  });
-  const delivery = (deliveries.data?.results ?? []).find(
-    (row) => row.id === form.source_receipt,
+  const columnRows: ProjectCategory[] = columns.data?.results ?? [];
+  const selected = columnRows.find((row) => row.id === form.category);
+  const fill = columnAutofill(
+    selected,
+    { unit: form.unit, supplier: form.supplier, manufacturer: form.manufacturer },
+    { scannedSupplier },
   );
-  const tooMuch =
-    Boolean(delivery) && Number(form.quantity) > Number(delivery?.remaining_quantity ?? 0);
+  const unit = fill.unitLocked ? fill.unit : form.unit;
+  const units = useMaterialUnits();
+  const unitName = useUnitName();
+  const chooseMaterial = (category: string) =>
+    setForm((old) => {
+      const filled = columnAutofill(
+        columnRows.find((row) => row.id === category),
+        { unit: old.unit, supplier: old.supplier, manufacturer: old.manufacturer },
+        { scannedSupplier },
+      );
+      return {
+        ...old,
+        category,
+        unit: filled.unit,
+        supplier: filled.supplier,
+        manufacturer: filled.manufacturer,
+      };
+    });
   const photoPrompts = [
     t("outgoing.evidence.overview"),
     t("outgoing.evidence.quantity"),
@@ -3492,15 +3552,14 @@ export function OutgoingDialog({
   );
   const set = (key: keyof typeof form, value: string) =>
     setForm((old) => ({ ...old, [key]: value }));
-  const unitName = useUnitName();
-  const unitLabel = (unit: string) => unitName(unit);
   const save = useMutation({
     mutationFn: () => {
       if (!user) throw new Error("Authentication required.");
       return submitMaterialOutgoingOfflineAware(user.id, {
         project,
-        supplier: form.supplier,
-        source_receipt: form.source_receipt,
+        category: form.category,
+        unit,
+        supplier: form.supplier || undefined,
         manufacturer: form.manufacturer || undefined,
         quantity: form.quantity,
         vehicle_plate: form.vehicle_plate,
@@ -3536,90 +3595,35 @@ export function OutgoingDialog({
               value={project}
               onValueChange={(next) => {
                 setProject(next);
-                setForm((old) => ({ ...old, source_receipt: "", quantity: "" }));
+                // A category belongs to one site.
+                setForm((old) => ({ ...old, category: "", unit: "" }));
               }}
               placeholder={t("field.selectProject")}
+              disabled={Boolean(initialProject) && isFieldStaff}
             />
           </FieldWrapper>
-          <FieldWrapper label={t("outgoing.supplier")} required className="sm:col-span-2">
+          <FieldWrapper label={t("outgoing.material")} required className="sm:col-span-2">
             <Select
-              value={form.supplier || undefined}
-              onValueChange={(supplier) =>
-                setForm((old) => ({ ...old, supplier, source_receipt: "", quantity: "" }))
-              }
+              value={form.category || undefined}
+              disabled={!project || columns.isLoading}
+              onValueChange={chooseMaterial}
             >
               <SelectTrigger className="h-11 w-full">
-                <SelectValue placeholder={t("outgoing.chooseSupplier")} />
+                <SelectValue placeholder={t("outgoing.chooseMaterial")} />
               </SelectTrigger>
               <SelectContent>
-                {(suppliers.data?.results ?? [])
-                  .filter((row) => row.is_active)
-                  .map((row) => (
-                    <SelectItem key={row.id} value={row.id}>
-                      {row.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-            <QueryFailedNote query={suppliers} what={t("what.suppliers")} />
-          </FieldWrapper>
-          <FieldWrapper label={t("outgoing.sourceReceipt")} required className="sm:col-span-2">
-            <Select
-              value={form.source_receipt || undefined}
-              disabled={!project || !form.supplier}
-              onValueChange={(source_receipt) =>
-                setForm((old) => ({
-                  ...old,
-                  source_receipt,
-                  manufacturer:
-                    (deliveries.data?.results ?? []).find((row) => row.id === source_receipt)
-                      ?.manufacturer ?? "",
-                }))
-              }
-            >
-              <SelectTrigger className="h-auto min-h-11 w-full whitespace-normal text-left">
-                <SelectValue placeholder={t("outgoing.chooseSourceReceipt")} />
-              </SelectTrigger>
-              <SelectContent>
-                {(deliveries.data?.results ?? []).map((row) => (
+                {columnRows.map((row) => (
                   <SelectItem key={row.id} value={row.id}>
-                    {row.receipt_no} · {df.date(row.business_at)} · {row.material_name}
-                    {row.material_specification ? ` ${row.material_specification}` : ""} ·{" "}
-                    {t("outgoing.remaining", {
-                      quantity: row.remaining_quantity,
-                      unit: unitLabel(row.unit),
-                    })}
+                    {row.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <QueryFailedNote query={deliveries} what={t("what.returnableReceipts")} />
-            {project && form.supplier && deliveries.isSuccess && !deliveries.data.results.length ? (
-              <p className="text-xs text-muted-foreground">{t("outgoing.noReturnable")}</p>
+            <QueryFailedNote query={columns} what={t("what.materials")} />
+            {project && columns.isSuccess && !columnRows.length ? (
+              <p className="text-xs text-muted-foreground">{t("outgoing.noMaterials")}</p>
             ) : null}
           </FieldWrapper>
-          {delivery ? (
-            <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-md bg-muted/40 px-3 py-2 text-xs sm:col-span-2">
-              <dt className="text-muted-foreground">{t("field.material")}</dt>
-              <dd className="font-medium">{delivery.material_name}</dd>
-              <dt className="text-muted-foreground">{t("outgoing.specification")}</dt>
-              <dd className="font-medium">{delivery.material_specification || "—"}</dd>
-              <dt className="text-muted-foreground">{t("field.unit")}</dt>
-              <dd className="font-medium">{unitLabel(delivery.unit)}</dd>
-              <dt className="text-muted-foreground">{t("outgoing.supplier")}</dt>
-              <dd className="font-medium">{delivery.supplier_name}</dd>
-            </dl>
-          ) : null}
-          {delivery ? (
-            <FieldWrapper label={tRoot("manufacturers.column")} className="sm:col-span-2">
-              <ManufacturerPicker
-                value={form.manufacturer ?? ""}
-                onChange={(manufacturer) => set("manufacturer", manufacturer)}
-                designated={delivery.designated_manufacturers ?? []}
-                triggerClassName="h-11"
-              />
-            </FieldWrapper>
-          ) : null}
           <FieldWrapper label={t("outgoing.returnQuantity")} required>
             <Input
               type="number"
@@ -3629,15 +3633,52 @@ export function OutgoingDialog({
               value={form.quantity}
               onChange={(e) => set("quantity", e.target.value)}
             />
-            {tooMuch ? (
-              <p className="text-xs text-destructive">
-                {t("outgoing.tooMuch", {
-                  quantity: delivery?.remaining_quantity ?? "0",
-                  unit: unitLabel(delivery?.unit ?? ""),
-                })}
-              </p>
-            ) : null}
           </FieldWrapper>
+          <FieldWrapper label={t("field.unit")} required>
+            {fill.unitLocked ? (
+              // The category decided it (A4, Q1): shown, not asked.
+              <div className="flex h-11 items-center justify-between rounded-md border bg-muted/40 px-3">
+                <span className="text-sm font-medium">{unitName(unit, selected?.default_unit_label)}</span>
+                <span className="text-xs text-muted-foreground">{t("outgoing.autoFilled")}</span>
+              </div>
+            ) : (
+              <>
+                <Select value={form.unit || undefined} onValueChange={(next) => set("unit", next)}>
+                  <SelectTrigger className="h-11 w-full">
+                    <SelectValue placeholder={t("field.unit")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(units.data ?? []).map((row) => (
+                      <SelectItem key={row.code} value={row.code}>
+                        {unitName(row.code, row.label)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <QueryFailedNote query={units} what={t("field.unit")} />
+              </>
+            )}
+          </FieldWrapper>
+          <OutgoingSupplierField
+            className="sm:col-span-2"
+            value={form.supplier}
+            allowedIds={fill.supplierIds}
+            onChange={(supplier, scanned) => {
+              setScannedSupplier(scanned ? supplier : "");
+              set("supplier", supplier);
+            }}
+          />
+          {selected ? (
+            <FieldWrapper label={tRoot("manufacturers.column")} className="sm:col-span-2">
+              <ManufacturerPicker
+                value={form.manufacturer ?? ""}
+                onChange={(manufacturer) => set("manufacturer", manufacturer)}
+                designated={selected.manufacturer_options ?? []}
+                autoFilled={fill.manufacturerFromColumn}
+                triggerClassName="h-11"
+              />
+            </FieldWrapper>
+          ) : null}
           {!isFieldStaff ? (
             <FieldWrapper label={t("field.executor")} required>
               <Input
@@ -3699,9 +3740,9 @@ export function OutgoingDialog({
           <Button
             requires={[
               [project, t("field.project")],
-              [form.supplier, t("outgoing.supplier")],
-              [form.source_receipt, t("outgoing.sourceReceipt")],
-              [Number(form.quantity) > 0 && !tooMuch, t("outgoing.returnQuantity")],
+              [form.category, t("outgoing.material")],
+              [unit, t("field.unit")],
+              [Number(form.quantity) > 0, t("outgoing.returnQuantity")],
               [isFieldStaff || form.executor_name, t("field.executor")],
               [form.reason.trim(), t("field.reason")],
               [
@@ -3837,13 +3878,16 @@ function ReturnReasonDialog({
 }
 
 /**
- * The site sends back what it did with the material (D-211).
+ * The material actually leaving, on the same record (2026-10 C9, F3).
  *
- * 「批准 → **手机端现场处理及回传** → 后台最终确认 → 闭环」. The same capture
- * grid as the application itself, and the same rule the server applies: field
- * staff photograph the full set, anybody else at least one. A return with
- * nothing attached would be a claim, and the office's final confirmation is
- * made on what it can see.
+ * After approval (已批准 / 等待退场): photographs of what leaves, the
+ * material as it left, how much actually went, the lorry's plate and the DO,
+ * the supplier (scanned if possible) and both signatures - the site person's
+ * and the supplier's or driver's. It then waits for the office's
+ * confirmation (待后台确认); only that takes it off the net quantity (Q4).
+ *
+ * Reads the record itself, so the phone's history sheet - which only holds
+ * the id and the number - opens it with everything filled in.
  */
 export function ReturnProcessingDialog({
   row,
@@ -3856,37 +3900,10 @@ export function ReturnProcessingDialog({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  // The handover that ends a return (10-02 B12): after approval the lorry is
-  // loaded, the site says how much actually left, photographs it, and both
-  // sides sign as it goes. Submitting closes the record - the office only
-  // approved it.
   const t = useTranslations("contractorOps");
-  const common = useTranslations("common");
-  const field = useTranslations("fieldStaffPwa");
-  const { user } = useAuth();
-  const isFieldStaff = Boolean(user?.is_field_staff);
-  const [photos, setPhotos] = useState(createEmptyFieldEvidence);
-  const [note, setNote] = useState("");
-  const [returned, setReturned] = useState(row.quantity ? String(Number(row.quantity)) : "");
-  const [siteSignature, setSiteSignature] = useState<File | undefined>();
-  const [supplierSignature, setSupplierSignature] = useState<File | undefined>();
-  const [location, setLocation] = useState<LocationFix | null>(null);
-  const [error, setError] = useState("");
-  const taken = photos.filter((file): file is File => Boolean(file));
-  const save = useMutation({
-    mutationFn: () =>
-      returnMaterialOutgoingProcessing(row.id, {
-        photos: taken,
-        note: note.trim() || undefined,
-        latitude: location ? String(location.latitude) : undefined,
-        longitude: location ? String(location.longitude) : undefined,
-        returned_quantity: returned,
-        site_signature: siteSignature as File,
-        supplier_signature: supplierSignature as File,
-      }),
-    onSuccess: onSaved,
-    onError: (failure) =>
-      setError(failure instanceof ApiError ? Object.values(failure.errors).join("; ") || failure.message : t("outgoing.returnFailed")),
+  const record = useQuery({
+    queryKey: ["material-outgoing", "detail", row.id],
+    queryFn: () => getMaterialOutgoingRecord(row.id),
   });
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -3897,7 +3914,122 @@ export function ReturnProcessingDialog({
             {t("outgoing.returnHelp", { reference: row.reference_no })}
           </DialogDescription>
         </DialogHeader>
-        <FieldWrapper label={t("outgoing.returnedQuantity")} required>
+        {record.isError ? (
+          <LoadFailed what={t("what.outgoingRecord")} onRetry={() => void record.refetch()} />
+        ) : !record.data ? (
+          <div className="grid min-h-32 place-items-center">
+            <Loader2 className="size-7 animate-spin text-primary" />
+          </div>
+        ) : (
+          <ExitForm record={record.data} onClose={onClose} onSaved={onSaved} />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ExitForm({
+  record,
+  onClose,
+  onSaved,
+}: {
+  record: MaterialOutgoing;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const t = useTranslations("contractorOps");
+  const common = useTranslations("common");
+  const field = useTranslations("fieldStaffPwa");
+  const { user } = useAuth();
+  const isFieldStaff = Boolean(user?.is_field_staff);
+  const unitName = useUnitName();
+  const [photos, setPhotos] = useState(createEmptyFieldEvidence);
+  const [note, setNote] = useState("");
+  const [category, setCategory] = useState(record.category ?? "");
+  const [returned, setReturned] = useState(
+    String(Number(record.return_note_quantity ?? record.quantity ?? 0) || ""),
+  );
+  const [plate, setPlate] = useState(record.vehicle_plate ?? "");
+  const [doNo, setDoNo] = useState(record.delivery_note_no || record.return_note_delivery_note_no || "");
+  const [supplier, setSupplier] = useState(record.supplier ?? "");
+  const [siteSignature, setSiteSignature] = useState<File | undefined>();
+  const [supplierSignature, setSupplierSignature] = useState<File | undefined>();
+  const [location, setLocation] = useState<LocationFix | null>(null);
+  const [error, setError] = useState("");
+  const columns = useQuery({
+    queryKey: ["project-categories", "outgoing", record.project],
+    queryFn: () =>
+      getProjectCategories({
+        project: record.project,
+        kind: "MATERIAL",
+        is_active: true,
+        page_size: 200,
+        sort_by: "sort_order",
+        sort_order: "asc",
+      }),
+    staleTime: 30_000,
+  });
+  const columnRows: ProjectCategory[] = columns.data?.results ?? [];
+  const chosen = columnRows.find((row) => row.id === category);
+  const unit = chosen?.default_unit || record.unit;
+  const taken = photos.filter((file): file is File => Boolean(file));
+  const save = useMutation({
+    mutationFn: () =>
+      returnMaterialOutgoingProcessing(record.id, {
+        photos: taken,
+        note: note.trim() || undefined,
+        latitude: location ? String(location.latitude) : undefined,
+        longitude: location ? String(location.longitude) : undefined,
+        returned_quantity: returned,
+        site_signature: siteSignature as File,
+        supplier_signature: supplierSignature as File,
+        vehicle_plate: plate.trim() || undefined,
+        delivery_note_no: doNo.trim() || undefined,
+        supplier: supplier || undefined,
+        category: category && category !== record.category ? category : undefined,
+      }),
+    onSuccess: onSaved,
+    onError: (failure) =>
+      setError(failure instanceof ApiError ? Object.values(failure.errors).join("; ") || failure.message : t("outgoing.returnFailed")),
+  });
+  return (
+    <>
+      <FieldWrapper label={t("outgoing.processingPhotos")} required>
+        <FieldEvidenceGrid
+          labels={[
+            t("outgoing.evidence.overview"),
+            t("outgoing.evidence.quantity"),
+            t("outgoing.evidence.vehicle"),
+            t("outgoing.evidence.loading"),
+          ]}
+          files={photos}
+          progressLabel={t("outgoing.evidence.progress", {
+            current: taken.length,
+            required: isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1,
+          })}
+          onChange={setPhotos}
+        />
+      </FieldWrapper>
+      <FieldWrapper label={t("outgoing.material")} required>
+        <Select value={category || undefined} onValueChange={setCategory}>
+          <SelectTrigger className="h-11 w-full">
+            <SelectValue placeholder={record.material_name || t("outgoing.chooseMaterial")} />
+          </SelectTrigger>
+          <SelectContent>
+            {columnRows.map((row) => (
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <QueryFailedNote query={columns} what={t("what.materials")} />
+      </FieldWrapper>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FieldWrapper
+          label={`${t("outgoing.returnedQuantity")} (${unitName(unit, record.unit_label)})`}
+          required
+        >
           <Input
             type="number"
             min="0.001"
@@ -3907,76 +4039,68 @@ export function ReturnProcessingDialog({
             onChange={(event) => setReturned(event.target.value)}
           />
         </FieldWrapper>
-        <FieldWrapper label={t("outgoing.processingPhotos")} required>
-          <FieldEvidenceGrid
-            labels={[
-              t("outgoing.evidence.overview"),
-              t("outgoing.evidence.quantity"),
-              t("outgoing.evidence.vehicle"),
-              t("outgoing.evidence.loading"),
-            ]}
-            files={photos}
-            progressLabel={t("outgoing.evidence.progress", {
-              current: taken.length,
-              required: isFieldStaff ? FIELD_EVIDENCE_PHOTO_COUNT : 1,
-            })}
-            onChange={setPhotos}
-          />
+        <FieldWrapper label={t("field.vehiclePlate")}>
+          <Input value={plate} onChange={(event) => setPlate(event.target.value.toUpperCase())} />
         </FieldWrapper>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FieldSignaturePad
-            label={t("outgoing.siteSignature")}
-            clearLabel={field("action.clearSignature")}
-            required
-            value={siteSignature}
-            onChange={setSiteSignature}
-          />
-          <FieldSignaturePad
-            label={t("outgoing.supplierSignature")}
-            clearLabel={field("action.clearSignature")}
-            required
-            value={supplierSignature}
-            onChange={setSupplierSignature}
-          />
-        </div>
-        <FieldWrapper label={t("outgoing.processingNote")} optional={common("optional")}>
-          <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
+        <FieldWrapper label={t("field.deliveryNote")} className="sm:col-span-2">
+          <Input value={doNo} onChange={(event) => setDoNo(event.target.value)} />
         </FieldWrapper>
-        <LocationField
-          label={t("outgoing.processingLocation")}
-          actionLabel={t("outgoing.processingLocation")}
-          readyLabel={t("outgoing.processingLocationReady")}
-          value={location}
-          onChange={setLocation}
+      </div>
+      <OutgoingSupplierField value={supplier} onChange={(next) => setSupplier(next)} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FieldSignaturePad
+          label={t("outgoing.siteSignature")}
+          clearLabel={field("action.clearSignature")}
+          required
+          value={siteSignature}
+          onChange={setSiteSignature}
         />
-        {error && (
-          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-            {error}
-          </p>
-        )}
-        <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="outline" onClick={onClose}>
-            {common("cancel")}
-          </Button>
-          <Button
-            requires={[
-              [Number(returned) > 0, t("outgoing.returnedQuantity")],
-              [
-                isFieldStaff ? hasRequiredFieldEvidence(photos) : taken.length > 0,
-                t("outgoing.processingPhotos"),
-              ],
-              [siteSignature, t("outgoing.siteSignature")],
-              [supplierSignature, t("outgoing.supplierSignature")],
-            ]}
-            disabled={save.isPending}
-            onClick={() => save.mutate()}
-          >
-            {save.isPending ? <Loader2 className="animate-spin" /> : <Check />}
-            {t("outgoing.sendReturn")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <FieldSignaturePad
+          label={t("outgoing.supplierSignature")}
+          clearLabel={field("action.clearSignature")}
+          required
+          value={supplierSignature}
+          onChange={setSupplierSignature}
+        />
+      </div>
+      <FieldWrapper label={t("outgoing.processingNote")} optional={common("optional")}>
+        <Textarea rows={3} value={note} onChange={(event) => setNote(event.target.value)} />
+      </FieldWrapper>
+      <LocationField
+        label={t("outgoing.processingLocation")}
+        actionLabel={t("outgoing.processingLocation")}
+        readyLabel={t("outgoing.processingLocationReady")}
+        value={location}
+        onChange={setLocation}
+      />
+      {error && (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      <DialogFooter className="gap-2 sm:gap-2">
+        <Button variant="outline" onClick={onClose}>
+          {common("cancel")}
+        </Button>
+        <Button
+          requires={[
+            [
+              isFieldStaff ? hasRequiredFieldEvidence(photos) : taken.length > 0,
+              t("outgoing.processingPhotos"),
+            ],
+            [category || record.material_name, t("outgoing.material")],
+            [Number(returned) > 0, t("outgoing.returnedQuantity")],
+            [siteSignature, t("outgoing.siteSignature")],
+            [supplierSignature, t("outgoing.supplierSignature")],
+          ]}
+          disabled={save.isPending}
+          onClick={() => save.mutate()}
+        >
+          {save.isPending ? <Loader2 className="animate-spin" /> : <Check />}
+          {t("outgoing.sendReturn")}
+        </Button>
+      </DialogFooter>
+    </>
   );
 }
 
@@ -4057,7 +4181,9 @@ export function OutgoingDetailDialog({
             { label: t("field.project"), value: row.project_name },
             // B11: the supplier and the delivery it sends back, on the same
             // record as the application, the approval and the signatures.
-            ...(row.supplier_name ? [{ label: t("outgoing.supplier"), value: row.supplier_name }] : []),
+            ...(row.supplier_name
+              ? [{ label: t("outgoing.supplier"), value: row.supplier_name }]
+              : []),
             // D1: whose make, with 「非指定厂商」 when the category names others.
             ...(row.manufacturer_name
               ? [{
@@ -4121,15 +4247,24 @@ export function OutgoingDetailDialog({
               </div>
             ) : null
           }
-          signatures={(
-            [
-              ["siteSignature", row.site_signature],
-              ["supplierSignature", row.supplier_signature],
-            ] as const
-          )
-            .filter(([, source]) => Boolean(source))
-            .map(([who, source]) => ({ label: t(`outgoing.${who}`), url: source as string }))}
+          signatures={[
+            ...(
+              [
+                ["siteSignature", row.site_signature],
+                ["supplierSignature", row.supplier_signature],
+              ] as const
+            )
+              .filter(([, source]) => Boolean(source))
+              .map(([who, source]) => ({ label: t(`outgoing.${who}`), url: source as string })),
+            // The Return Note's approver (2026-10 C9).
+            ...(row.approver_signature
+              ? [{ label: t("returnNote.approverSignature"), url: row.approver_signature }]
+              : []),
+          ]}
           panel={
+            <>
+            {/* The Return Note it is approved on (2026-10 C9). */}
+            <ReturnNotePanel row={row} />
             <section className="rounded-lg border bg-card p-3">
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t("outgoing.flowTitle")}
@@ -4145,6 +4280,7 @@ export function OutgoingDetailDialog({
                 <dd className="font-medium">{when(row.completed_by_name, row.completed_at)}</dd>
               </dl>
             </section>
+            </>
           }
           actions={
             <>

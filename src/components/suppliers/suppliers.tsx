@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormSurfaceProvider } from "@/components/shared/form-surface";
 import { SupplierQrPanel } from "@/components/suppliers/supplier-qr-panel";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { useListQuery } from "@/hooks/use-list-query";
 import type { Supplier } from "@/interfaces/contractor";
 import {
@@ -88,12 +89,16 @@ export function Suppliers() {
           />
         ),
         cell: ({ row }) => (
-          <span
-            className="block max-w-[240px] truncate font-medium text-foreground"
-            title={row.original.name}
-          >
-            {row.original.name}
-          </span>
+          <div className="flex max-w-[320px] items-center gap-1.5">
+            <span
+              className="truncate font-medium text-foreground"
+              title={row.original.name}
+            >
+              {row.original.name}
+            </span>
+            {/* 「有退场资料」 (2026-10 C10): opens every finished return. */}
+            <SupplierReturnBadge supplier={row.original} />
+          </div>
         ),
       },
       {

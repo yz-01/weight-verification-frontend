@@ -40,6 +40,7 @@ import { SundryClaimCapture } from "@/components/field-staff/sundry-claim-captur
 import { MaterialRequestForm } from "@/components/material-requests/request-form";
 import { GateRecordsPanel } from "@/components/site-access/gate-records";
 import { SupplierQrScanner } from "@/components/field-staff/supplier-qr-scanner";
+import { SupplierReturnBadge } from "@/components/suppliers/supplier-return-badge";
 import { FieldSignaturePad } from "@/components/field-staff/field-signature-pad";
 import {
   completedFieldEvidence,
@@ -766,10 +767,15 @@ export function MaterialCapturePanel({
           <SelectTrigger className="h-12 w-full"><SelectValue placeholder={t("material.chooseSupplier")} /></SelectTrigger>
           <SelectContent>
             {supplierRows.map((row) => (
-              <SelectItem key={row.id} value={row.id}>{row.name}</SelectItem>
+              <SelectItem key={row.id} value={row.id}>
+                {row.name}
+                <SupplierReturnBadge supplier={row} interactive={false} />
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        {/* 「有退场资料」 (2026-10 C10): this supplier's returns, one press away. */}
+        <SupplierReturnBadge supplier={supplierRows.find((row) => row.id === draft.supplier)} />
         {/* Q1: one supplier on the category fills itself in; several are the
             only ones offered. A scanned code names its own. */}
         {fill.supplierFromColumn && draft.supplier && !scannedSupplier ? (

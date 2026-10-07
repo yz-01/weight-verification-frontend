@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input";
 export interface PickOption {
   id: string;
   name: string;
+  /** A mark after the name - 「有退场资料」 beside a supplier (2026-10 C10). */
+  suffix?: React.ReactNode;
 }
 
 export function MultiPickList({
@@ -86,6 +88,7 @@ export function MultiPickList({
               onCheckedChange={(checked) => toggle(option.id, checked === true)}
             />
             <span className="text-sm">{option.name}</span>
+            {option.suffix}
           </label>
         ))}
       </div>
